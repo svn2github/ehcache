@@ -1879,6 +1879,7 @@ public class Cache implements Ehcache {
      * @return true if it has expired
      * @throws IllegalStateException if the cache is not {@link Status#STATUS_ALIVE}
      * @throws NullPointerException  if the element is null
+     * todo this does not need to be synchronized
      */
     public final boolean isExpired(Element element) throws IllegalStateException, NullPointerException {
         checkStatus();
