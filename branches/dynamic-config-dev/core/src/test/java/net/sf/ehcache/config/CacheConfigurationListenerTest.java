@@ -142,8 +142,9 @@ public class CacheConfigurationListenerTest extends AbstractCacheTest {
             config.setMaxElementsOnDisk(i);
         }
 
-        Assert.assertEquals(40, listener1.getFiredEvents().size());
-        Assert.assertEquals(40, listener2.getFiredEvents().size());
+        //36 not 40 since the first four events don't change anything...
+        Assert.assertEquals(36, listener1.getFiredEvents().size());
+        Assert.assertEquals(36, listener2.getFiredEvents().size());
 
         Assert.assertEquals(listener1.getFiredEvents(), listener2.getFiredEvents());
     }
@@ -184,8 +185,10 @@ public class CacheConfigurationListenerTest extends AbstractCacheTest {
         List<Event> events1 = listener1.getFiredEvents();
         List<Event> events2 = listener2.getFiredEvents();
         
-        Assert.assertEquals(21, events1.size());
-        Assert.assertEquals(41, events2.size());
+        //17 not 21 since the first four events don't change anything...
+        Assert.assertEquals(17, events1.size());
+        //37 not 41 since the first four events don't change anything...
+        Assert.assertEquals(37, events2.size());
 
         for (Event e : events1) {
             Assert.assertTrue(events2.contains(e));

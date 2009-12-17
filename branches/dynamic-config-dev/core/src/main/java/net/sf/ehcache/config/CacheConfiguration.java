@@ -24,6 +24,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import net.sf.ehcache.CacheException;
 import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
 
 /**
@@ -167,6 +168,8 @@ public class CacheConfiguration implements Cloneable {
      */
     private final Collection<CacheConfigurationListener> listeners = new CopyOnWriteArrayList<CacheConfigurationListener>();
 
+    private volatile boolean frozen = false;
+
     /**
      * Clones this object, following the usual contract.
      *
@@ -185,6 +188,7 @@ public class CacheConfiguration implements Cloneable {
      * @param name the cache name
      */
     public final void setName(String name) {
+        checkDynamicChange();
         if (name == null) {
             throw new IllegalArgumentException("Cache name cannot be null.");
         }
@@ -196,6 +200,7 @@ public class CacheConfiguration implements Cloneable {
      * @param maxElementsInMemory param
      */
     public final void setMaxElementsInMemory(int maxElementsInMemory) {
+        checkDynamicChange();
         int oldCapacity = this.maxElementsInMemory;
         int newCapacity = maxElementsInMemory;
         this.maxElementsInMemory = maxElementsInMemory;
@@ -208,6 +213,7 @@ public class CacheConfiguration implements Cloneable {
      * @param memoryStoreEvictionPolicy a String representation of the policy. One of "LRU", "LFU" or "FIFO".
      */
     public final void setMemoryStoreEvictionPolicy(String memoryStoreEvictionPolicy) {
+        checkDynamicChange();
         this.memoryStoreEvictionPolicy = MemoryStoreEvictionPolicy.fromString(memoryStoreEvictionPolicy);
     }
 
@@ -215,6 +221,7 @@ public class CacheConfiguration implements Cloneable {
      * Sets the eviction policy. This method has a strange name to workaround a problem with XML parsing.
      */
     public final void setMemoryStoreEvictionPolicyFromObject(MemoryStoreEvictionPolicy memoryStoreEvictionPolicy) {
+        checkDynamicChange();
         this.memoryStoreEvictionPolicy = memoryStoreEvictionPolicy;
     }
     
@@ -223,13 +230,15 @@ public class CacheConfiguration implements Cloneable {
      * {@link net.sf.ehcache.Ehcache#flush flush()} is called on the cache - true by default.
      */
     public final void setClearOnFlush(boolean clearOnFlush) {
-      this.clearOnFlush = clearOnFlush;
+        checkDynamicChange();
+        this.clearOnFlush = clearOnFlush;
     }
 
     /**
      * Sets whether elements are eternal. If eternal, timeouts are ignored and the element is never expired.
      */
     public final void setEternal(boolean eternal) {
+        checkDynamicChange();
         this.eternal = eternal;
     }
 
@@ -237,6 +246,7 @@ public class CacheConfiguration implements Cloneable {
      * Sets the time to idle for an element before it expires. Is only used if the element is not eternal.
      */
     public final void setTimeToIdleSeconds(long timeToIdleSeconds) {
+        checkDynamicChange();
         long oldTti = this.timeToIdleSeconds;
         long newTti = timeToIdleSeconds;
         this.timeToIdleSeconds = timeToIdleSeconds;
@@ -247,6 +257,7 @@ public class CacheConfiguration implements Cloneable {
      * Sets the time to idle for an element before it expires. Is only used if the element is not eternal.
      */
     public final void setTimeToLiveSeconds(long timeToLiveSeconds) {
+        checkDynamicChange();
         long oldTtl = this.timeToLiveSeconds;
         long newTtl = timeToLiveSeconds;
         this.timeToLiveSeconds = timeToLiveSeconds;
@@ -257,6 +268,7 @@ public class CacheConfiguration implements Cloneable {
      * Sets whether elements can overflow to disk when the in-memory cache has reached the set limit.
      */
     public final void setOverflowToDisk(boolean overflowToDisk) {
+        checkDynamicChange();
         this.overflowToDisk = overflowToDisk;
         validateConfiguration();
     }
@@ -265,6 +277,7 @@ public class CacheConfiguration implements Cloneable {
      * Sets whether, for caches that overflow to disk, the disk cache persist between CacheManager instances.
      */
     public final void setDiskPersistent(boolean diskPersistent) {
+        checkDynamicChange();
         this.diskPersistent = diskPersistent;
         validateConfiguration();
     }
@@ -273,6 +286,7 @@ public class CacheConfiguration implements Cloneable {
      * Getter
      */
     public int getDiskSpoolBufferSizeMB() {
+        checkDynamicChange();
         return diskSpoolBufferSizeMB;
     }
 
@@ -282,6 +296,7 @@ public class CacheConfiguration implements Cloneable {
      * @param diskSpoolBufferSizeMB a postive number
      */
     public void setDiskSpoolBufferSizeMB(int diskSpoolBufferSizeMB) {
+        checkDynamicChange();
         this.diskSpoolBufferSizeMB = diskSpoolBufferSizeMB;
     }
 
@@ -289,6 +304,7 @@ public class CacheConfiguration implements Cloneable {
      * Sets the maximum number elements on Disk. 0 means unlimited.
      */
     public void setMaxElementsOnDisk(int maxElementsOnDisk) {
+        checkDynamicChange();
         int oldCapacity = this.maxElementsOnDisk;
         int newCapacity = maxElementsOnDisk;
         this.maxElementsOnDisk = maxElementsOnDisk;
@@ -303,7 +319,15 @@ public class CacheConfiguration implements Cloneable {
      * these things. So this value is how often we check for expiry.
      */
     public final void setDiskExpiryThreadIntervalSeconds(long diskExpiryThreadIntervalSeconds) {
+        checkDynamicChange();
         this.diskExpiryThreadIntervalSeconds = diskExpiryThreadIntervalSeconds;
+    }
+
+    /**
+     * Freeze this configuration.  Any subsequent changes will throw a CacheException
+     */
+    public void freezeConfiguration() {
+        frozen = true;
     }
 
     /**
@@ -316,6 +340,7 @@ public class CacheConfiguration implements Cloneable {
      * Used by BeanUtils to add cacheEventListenerFactory elements to the cache configuration.
      */
     public final void addCacheEventListenerFactory(CacheEventListenerFactoryConfiguration factory) {
+        checkDynamicChange();
         cacheEventListenerConfigurations.add(factory);
         validateConfiguration();
     }
@@ -330,6 +355,7 @@ public class CacheConfiguration implements Cloneable {
      * Used by BeanUtils to add cacheExtensionFactory elements to the cache configuration.
      */
     public final void addCacheExtensionFactory(CacheExtensionFactoryConfiguration factory) {
+        checkDynamicChange();
         cacheExtensionConfigurations.add(factory);
     }
 
@@ -344,8 +370,8 @@ public class CacheConfiguration implements Cloneable {
      */
     public final void addBootstrapCacheLoaderFactory(BootstrapCacheLoaderFactoryConfiguration
             bootstrapCacheLoaderFactoryConfiguration) {
+        checkDynamicChange();
         this.bootstrapCacheLoaderFactoryConfiguration = bootstrapCacheLoaderFactoryConfiguration;
-
     }
 
     /**
@@ -360,6 +386,7 @@ public class CacheConfiguration implements Cloneable {
      */
     public final void addCacheExceptionHandlerFactory(CacheExceptionHandlerFactoryConfiguration
             cacheExceptionHandlerFactoryConfiguration) {
+        checkDynamicChange();
         this.cacheExceptionHandlerFactoryConfiguration = cacheExceptionHandlerFactoryConfiguration;
     }
 
@@ -374,6 +401,7 @@ public class CacheConfiguration implements Cloneable {
      * @param factory
      */
     public final void addCacheLoaderFactory(CacheLoaderFactoryConfiguration factory) {
+        checkDynamicChange();
         cacheLoaderConfigurations.add(factory);
     }
 
@@ -605,6 +633,12 @@ public class CacheConfiguration implements Cloneable {
         }
     }
 
+    private void checkDynamicChange() {
+        if (frozen) {
+            throw new CacheException("Dynamic configuration changes are disabled for this cache");
+        }
+    }
+    
     /**
      * internal use only
      */

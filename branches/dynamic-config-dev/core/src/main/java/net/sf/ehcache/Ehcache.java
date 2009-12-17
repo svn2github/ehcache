@@ -888,4 +888,9 @@ public interface Ehcache extends Cloneable {
      * return some internal context (generally will be null)
      */
     Object getInternalContext();
+
+    /**
+     * Disables dynamic configuration and disable/enable for this cache
+     */
+    public void disableDynamicFeatures();
 }

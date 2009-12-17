@@ -171,6 +171,8 @@ public class CacheManager {
     
     private AtomicBoolean terracottaStoreFactoryCreated = new AtomicBoolean(false);
 
+    private boolean allowsDynamicCacheConfig = true;
+    
     /**
      * An constructor for CacheManager, which takes a configuration object, rather than one created by parsing
      * an ehcache.xml file. This constructor gives complete control over the creation of the CacheManager.
@@ -275,7 +277,8 @@ public class CacheManager {
         if (localConfiguration.getName() != null) {
             this.name = localConfiguration.getName();
         }
-        
+
+        this.allowsDynamicCacheConfig = localConfiguration.getDynamicConfig();
         this.terracottaConfigConfiguration = localConfiguration.getTerracottaConfiguration();
 
         Map<String, CacheConfiguration> cacheConfigs = localConfiguration.getCacheConfigurations();
@@ -809,6 +812,10 @@ public class CacheManager {
         cache.setCacheManager(this);
         cache.setDiskStorePath(diskStorePath);
         cache.initialise();
+        if (!allowsDynamicCacheConfig) {
+            cache.disableDynamicFeatures();
+        }
+
         try {
             cache.bootstrap();
         } catch (CacheException e) {

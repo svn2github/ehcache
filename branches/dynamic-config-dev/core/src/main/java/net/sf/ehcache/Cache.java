@@ -199,6 +199,7 @@ public class Cache implements Ehcache {
 
     private volatile SampledCacheStatisticsWrapper sampledCacheStatistics;
 
+    private volatile boolean allowDisable = true;
 
     /**
      * 1.0 Constructor.
@@ -969,6 +970,11 @@ public class Cache implements Ehcache {
      */
     public final Element get(Object key) throws IllegalStateException, CacheException {
         checkStatus();
+
+        if (disabled) {
+            return null;
+        }
+
         Element element;
         long start = System.currentTimeMillis();
 
@@ -2588,7 +2594,11 @@ public class Cache implements Ehcache {
      * @see #isDisabled()
      */
     public void setDisabled(boolean disabled) {
-        this.disabled = disabled;
+        if (allowDisable) {
+            this.disabled = disabled;
+        } else {
+            throw new CacheException("Dynamic cache features are disabled");
+        }
     }
 
     /**
@@ -2697,5 +2707,13 @@ public class Cache implements Ehcache {
      */
     public Object getInternalContext() {
         return memoryStore.getInternalContext();
+    }
+
+    /**
+     * Disable dynamic features of the cache. (Config changes and enable/disable)
+     */
+    public void disableDynamicFeatures() {
+        configuration.freezeConfiguration();
+        allowDisable = false;
     }
 }
