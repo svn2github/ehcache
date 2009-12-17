@@ -149,6 +149,10 @@
             <xs:attribute name="clustered" use="optional" type="xs:boolean" default="true"/>
             <xs:attribute name="valueMode" use="optional" type="terracottaCacheValueType" default="serialization"/>
             <xs:attribute name="coherentReads" use="optional" type="xs:boolean" default="true"/>
+            <xs:attribute name="localKeyCache" use="optional" type="xs:boolean" default="false"/>
+            <xs:attribute name="localKeyCacheSize" use="optional" type="xs:positiveInteger" default="10000"/>
+            <xs:attribute name="orphanEviction" use="optional" type="xs:boolean" default="true"/>
+            <xs:attribute name="orphanEvictionPeriod" use="optional" type="xs:positiveInteger" default="4"/>
         </xs:complexType>
     </xs:element>
     <xs:simpleType name="monitoringType">
