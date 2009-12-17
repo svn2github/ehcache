@@ -4,7 +4,7 @@
 <%
     //This header should get overridden by the caching headers filter.
     response.setHeader("Last-Modified", "this did not get overriden");
-    response.setHeader("Content-Type", "Some Content Type");
+    response.setHeader("New-Type", "Some Type");
 %>
 <html>
 <head>

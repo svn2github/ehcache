@@ -1,3 +1,7 @@
+ ---
+ Distributed Caching using JMS
+ ---
+
 Distributed Caching using {JMS}
 
     As of version 1.6, JMS can be used as the underlying mechanism for

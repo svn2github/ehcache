@@ -1,4 +1,9 @@
-Distributed Caching with ehcache
+ ---
+ Distributed Caching Options
+ ---
+
+
+Distributed Caching Options
 
     Ehcache provides a pluggable distributed caching mechanism. This enables for multiple CacheManagers and their caches in multiple
     JVMs to share data with each other.

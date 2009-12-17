@@ -1,3 +1,7 @@
+ ---
+ Cache Extensions
+ ---
+
 {Cache Extensions}
 
     CacheExtensions are a general purpose mechanism to allow {generic extensions to a Cache}.

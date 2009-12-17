@@ -31,7 +31,9 @@ import java.io.PrintWriter;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 
 /**
@@ -53,6 +55,7 @@ public class GenericResponseWrapper extends HttpServletResponseWrapper implement
     private int statusCode = SC_OK;
     private int contentLength;
     private String contentType;
+    private Map headerTracker = new HashMap();
     private final List headers = new ArrayList();
     private final List cookies = new ArrayList();
     private ServletOutputStream outstr;
@@ -176,19 +179,48 @@ public class GenericResponseWrapper extends HttpServletResponseWrapper implement
     }
 
     /**
-     * Adds a header.
+     * Adds a header, even if one already exists, in accordance with the spec
      */
     public void addHeader(final String name, final String value) {
         final String[] header = new String[]{name, value};
         headers.add(header);
         super.addHeader(name, value);
+
+        Integer count = (Integer) headerTracker.get(name.toLowerCase());
+        if (count == null) {
+            count = new Integer(1);
+        } else {
+            count = new Integer(count.intValue() + 1);
+        }
+        headerTracker.put(name.toLowerCase(), count);
     }
 
     /**
-     * @see #addHeader
+     * Sets a header overwriting any previous values for the header if
+     * it existed.
      */
     public void setHeader(final String name, final String value) {
-        addHeader(name, value);
+        super.setHeader(name, value);
+
+        Integer count = (Integer) headerTracker.get(name);
+        if (count != null && count.intValue() > 0) {
+            for (int i = headers.size() - 1; i >= 0; i--) {
+                String[] header = (String[]) headers.get(i);
+                String hName = header[0];
+                if (hName.equalsIgnoreCase(name)) {
+                    if (count > 1) {
+                        headers.remove(i);
+                        count = count.intValue() - 1;
+                        headerTracker.put(name.toLowerCase(), new Integer(count));
+                    } else {
+                        ((String[]) headers.get(i))[1] = value;
+                    }
+
+                }
+            }
+        } else {
+            headerTracker.put(name.toLowerCase(), value);
+        }
     }
 
     /**

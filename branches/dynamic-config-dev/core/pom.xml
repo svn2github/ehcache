@@ -60,7 +60,7 @@
             <artifactId>servlet-api</artifactId>
             <scope>provided</scope>
         </dependency>
-        
+
 
         <!-- Test scope -->
         <dependency>
@@ -85,6 +85,12 @@
             <scope>provided</scope>
             <version>3.2.6.ga</version>
         </dependency>
+
+        <!--<dependency>-->
+            <!--<groupId>org.apache.maven.doxia</groupId>-->
+            <!--<artifactId>doxia-site-renderer</artifactId>-->
+            <!--<version>1.0</version>-->
+        <!--</dependency>-->
     </dependencies>
 
     <build>
@@ -412,7 +418,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-site-plugin</artifactId>
-                <!--<version>2.0-beta-7</version>-->
+                <version>2.0.1</version>
                 <configuration>
                     <templateFile>${basedir}/src/site/default-site-ehcache.vm</templateFile>
                 </configuration>
@@ -468,24 +474,6 @@
                 </reportSets>
             </plugin>
 
-
-            <!--PMD and CPD -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-pmd-plugin</artifactId>
-                <configuration>
-                    <rulesets>
-                        <ruleset>/rulesets/basic.xml</ruleset>
-                    </rulesets>
-                    <format>xml</format>
-                    <targetJdk>1.5</targetJdk>
-                    <linkXRef>true</linkXRef>
-                    <sourceEncoding>utf-8</sourceEncoding>
-                    <minimumTokens>100</minimumTokens>
-                    <outputDirectory>${project.reporting.outputDirectory}</outputDirectory>
-                </configuration>
-            </plugin>
-
             <!--Manual Changelist -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -498,16 +486,6 @@
                         </reports>
                     </reportSet>
                 </reportSets>
-            </plugin>
-
-            <!--ToDos -->
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>taglist-maven-plugin</artifactId>
-                <version>2.0-beta-1</version>
-                <configuration>
-                    <tags>todo, TODO, @todo</tags>
-                </configuration>
             </plugin>
 
             <!--Java Cross Reference (JXR) -->
