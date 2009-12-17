@@ -76,7 +76,7 @@
     <!-- Contributed code -->
     <suppress checks="CyclomaticComplexity" files="Mutex.java"/>
     <suppress checks="" files="ConcurrentLinkedHashMap.java"/>
-
+    <suppress checks="" files="ConcurrentHashMap.java"/>
 
     <!-- Contains a thread therefore cannot.  -->
     <suppress checks="SuperClone" files="RMIBootstrapCacheLoader.java"/>

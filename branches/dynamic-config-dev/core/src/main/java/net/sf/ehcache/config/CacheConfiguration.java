@@ -168,7 +168,7 @@ public class CacheConfiguration implements Cloneable {
      */
     private final Collection<CacheConfigurationListener> listeners = new CopyOnWriteArrayList<CacheConfigurationListener>();
 
-    private volatile boolean frozen = false;
+    private volatile boolean frozen;
 
     /**
      * Clones this object, following the usual contract.

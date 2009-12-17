@@ -233,7 +233,6 @@ public class DynamicCacheConfigurationTest extends AbstractCacheTest {
     }
 
     @Test
-    @Ignore
     public void testMemoryCapacityChange() {
         Cache cache = new Cache("testMemoryCapacityChange", 10, false, true, 0, 0);
         manager.addCache(cache);
