@@ -7,7 +7,6 @@ package net.sf.ehcache;
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.Configuration;
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import org.slf4j.Logger;
