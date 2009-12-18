@@ -52,21 +52,7 @@ div.clear hr{
 #breadcrumbs {
   padding: 3px 10px 3px 10px;
 }
-#leftColumn {
- width: 170px;
- float:left;
- overflow: auto;
-}
-#rightColumn {
- width: 170px;
- float:right;
- overflow: hidden;
-}
-#bodyColumn {
-  margin-right: 1.5em;
-  margin-left: 197px;
-  margin-right: 197px;  
-}
+
 #legend {
   padding: 8px 0 8px 0;
 }

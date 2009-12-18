@@ -236,7 +236,7 @@ pageTracker._trackPageview();
             <iframe src="http://s1.rsspump.com/rss.aspx?s=d97bc621-c09d-4957-85c3-db81450c15e3&amp;speed=2&amp;t=0&amp;d=0&amp;u=0&amp;p=1&amp;b=0&amp;font=Verdana&amp;fontsize=12px&amp;bgcolor=&amp;color=000000&amp;type=fade&amp;su=0&amp;sub=1" frameborder="0" width="100%" height="16" scrolling="no" allowtransparency="true"></iframe><noframes><div style="background-color: none transparent;"><a href="http://www.rsspump.com/?Rss_widget" title="rss widget">Rss widget</a></div></noframes>
             ]]></replacevalue>
         </replace>
-        <replace file="${build.dir}/site/index.html">
+        <replace file="${build.dir}/site/modules/monitor.html">
             <replacetoken><![CDATA[dx_preview]]></replacetoken>
             <replacevalue><![CDATA[
             <object width="425" height="344"><param name="movie" value="http://www.youtube.com/v/XU9ZnOBJ4I0&hl=en&fs=1&"></param><param name="allowFullScreen" value="true"></param><param name="allowscriptaccess" value="always"></param><embed src="http://www.youtube.com/v/XU9ZnOBJ4I0&hl=en&fs=1&" type="application/x-shockwave-flash" allowscriptaccess="always" allowfullscreen="true" width="425" height="344"></embed></object>
@@ -246,12 +246,6 @@ pageTracker._trackPageview();
             <replacetoken><![CDATA[ehcache_1_7_talk]]></replacetoken>
             <replacevalue><![CDATA[
             &nbsp;&nbsp;&nbsp;&nbsp;<a href="https://terracotta.webex.com/terracotta/lsr.php?AT=pb&SP=EC&rID=1702397&rKey=b0920841e529407d" title="Ehcache 1.7 Scaling Applications with Distributed Caches, recorded 5 November 2009. 60 minutes duration"><img src="images/ehcache_1_7_presentation.jpg" border="0"/></a>
-                    ]]></replacevalue>
-        </replace>
-        <replace file="${build.dir}/site/presentations.html">
-            <replacetoken><![CDATA[dx_preview]]></replacetoken>
-            <replacevalue><![CDATA[
-            <object width="425" height="344"><param name="movie" value="http://www.youtube.com/v/XU9ZnOBJ4I0&hl=en&fs=1&"></param><param name="allowFullScreen" value="true"></param><param name="allowscriptaccess" value="always"></param><embed src="http://www.youtube.com/v/XU9ZnOBJ4I0&hl=en&fs=1&" type="application/x-shockwave-flash" allowscriptaccess="always" allowfullscreen="true" width="425" height="344"></embed></object>
                     ]]></replacevalue>
         </replace>
         <replace file="${build.dir}/site/source-repository.html">
@@ -271,6 +265,93 @@ pageTracker._trackPageview();
         <replace file="${build.dir}/site/team-list.html">
             <replacetoken><![CDATA[<th>Organization URL</th>]]></replacetoken>
             <replacevalue><![CDATA[<th>Org URL</th>]]></replacevalue>
+        </replace>
+        <replace file="${build.dir}/site/modules/monitor.html">
+            <replacetoken><![CDATA[monitor_beta_signup_form]]></replacetoken>
+            <replacevalue><![CDATA[<form method="POST" action="http://now.eloqua.com/e/f2.aspx">
+			<input type="hidden" name="elqFormName" value="311beta"/>
+			<input type="hidden" name="elqSiteID" value="516"/>
+
+<table id="signup-table" cellpadding="0" cellspacing="0">
+  <tr>
+    <td>
+      <img src="/images/spacer.gif" width="122" height="0"/>
+    </td>
+    <td><img src="/images/spacer.gif" width="0" height="0"/>
+    </td>
+  </tr>
+  <tr>
+    <td width="120" valign="top">
+      <strong>First Name:</strong><br/>(required)
+    </td>
+    <td valign="top"><input class="fixedwidth" type="text" name="C_FirstName"/>
+    </td>
+  </tr>
+  <tr>
+    <td width="120" valign="top">
+      <strong>Last Name:</strong><br/>(required)
+    </td>
+    <td valign="top"><input class="fixedwidth" type="text" name="C_LastName"/>
+    </td>
+  </tr>
+  <tr>
+    <td valign="top">
+      <strong>Email:</strong><br/>(required)
+    </td>
+    <td valign="top">
+      <input class="fixedwidth" type="text" name="C_EmailAddress"/>
+    </td>
+  </tr>
+  <tr>
+    <td valign="top"><strong>Company:</strong><br/>(required)</td>
+    <td valign="top"><input class="fixedwidth" type="text" name="C_Company"/>
+    </td>
+  </tr>
+  <tr>
+    <td valign="top">
+      <strong>Title:</strong><br/>
+    </td>
+    <td valign="top">
+      <input class="fixedwidth" type="text" name="C_Title"/>
+    </td>
+  </tr>
+  <tr>
+    <td valign="top">
+      <strong>Address Line 1:</strong><br/>(required)</td>
+      <td valign="top"><input class="fixedwidth" type="text" name="C_Address1"/>
+      </td>
+    </tr>
+    <tr>
+      <td valign="top"><strong>Address Line 2:</strong></td><td valign="top"><input class="fixedwidth" type="text" name="C_Address2"/>
+      </td>
+    </tr>
+    <tr>
+      <td valign="top"><strong>City:</strong><br/>(required)</td><td valign="top"><input class="fixedwidth" type="text" name="C_City"/>
+      </td>
+    </tr>
+    <tr>
+      <td valign="top"><strong>State/Province:</strong><br/>(required)</td><td valign="top"><input class="fixedwidth" type="text" name="C_State_Prov"/>
+      </td>
+    </tr>
+    <tr>
+      <td valign="top"><strong>Postal Code:</strong><br/></td><td valign="top"><input class="fixedwidth" type="text" name="C_Zip_Postal"/></td>
+    </tr>
+    <tr>
+      <td valign="top"><strong>Country:</strong><br/>(required)</td><td valign="top"><input class="fixedwidth" type="text" name="C_Country"/>
+      </td>
+    </tr>
+    <tr>
+      <td valign="top"><strong>Phone:</strong><br/>(required)</td><td valign="top"><input class="fixedwidth" type="text" name="C_BusPhone"/>
+      </td>
+    </tr>
+    <tr>
+      <td valign="top">&nbsp;</td><td valign="top">
+	<input type="image" value="Submit" src="/images/register.png"/>
+      </td>
+    </tr>
+  </table>
+
+		      </form>]]></replacevalue>
         </replace>
     </target>
 
