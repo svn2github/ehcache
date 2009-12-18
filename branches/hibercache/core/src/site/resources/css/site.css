@@ -33,6 +33,15 @@ tt {
     padding-bottom: 7px;
 }
 
+.xright-trans {
+    float: right;
+    font-family: helvetica, arial sans-serif;
+    font-weight: bold;
+    font-size: 11px;
+    font-weight: bold;
+    padding-right: 15px;
+}
+
 .xright-orange {
     float: right;
     background: #d97300;
@@ -45,7 +54,7 @@ tt {
     padding-bottom: 7px;
 }
 
-.xright-orange a:visited, .xright-orange a:link, .xright-yellow a:visited, .xright-yellow a:link, .xright-red a:visited, .xright-red a:link {
+.xright-orange a:visited, .xright-orange a:link, .xright-yellow a:visited, .xright-yellow a:link, .xright-red a:visited, .xright-red a:link, .xright-trans a:visited, .xright-trans a:link {
     color: #ffffff;
 }
 
@@ -61,6 +70,9 @@ tt {
     padding-bottom: 7px;
 }
 
+.fixedwidth {
+    width: 30em;
+}
 
 #page-logo {
     font-family: helvetica, arial, sans-serif;
@@ -94,8 +106,7 @@ h1, .toc {
     border-bottom: 3px solid #a6a698;
     font-size: 1.3em;
     font-family: helvetica, arial, sans-serif;
-    margin: 1.5em 0em .5em 0em;
-    font-weight: bold;
+    margin: 1.5em 0em .5em 0em; /*font-weight: bold;*/
 }
 
 h2 {
@@ -249,8 +260,20 @@ hr {
 }
 
 #leftColumn {
-    width: 160px;
+    width: 170px;
     float: left;
+}
+
+#rightColumn {
+    width: 170px;
+    float: right;
+    overflow: hidden;
+}
+
+#bodyColumn {
+    margin-right: 1.5em;
+    margin-left: 197px;
+    margin-right: 197px;
 }
 
 #navcolumn {

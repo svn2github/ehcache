@@ -1,32 +1,24 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<?xml version="1.0" encoding="UTF-8"?>
+<project
+        xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
+        xmlns="http://maven.apache.org/POM/4.0.0"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <groupId>net.sf.ehcache</groupId>
         <artifactId>ehcache-parent</artifactId>
+        <groupId>net.sf.ehcache</groupId>
         <version>2.0</version>
     </parent>
-    <name>Ehcache JCache Reference Implementation</name>
-    <artifactId>ehcache-jcache</artifactId>
-    <packaging>jar</packaging>
-    <version>1.3-SNAPSHOT</version>
-    <description><![CDATA[The RI for JSR107 - JCACHE.]]> </description>
-
-
-    <properties>
-      <net.sf.ehcache.speedAdjustmentFactor>2</net.sf.ehcache.speedAdjustmentFactor>
-    </properties>
-
+    <groupId>net.sf.ehcache</groupId>
+    <artifactId>ehcache-explicitlocking</artifactId>
+    <version>0.1.0-SNAPSHOT</version>
+    <name>ehcache-explicitlocking</name>
+    <url>http://maven.apache.org</url>
     <dependencies>
         <dependency>
             <groupId>${pom.groupId}</groupId>
             <artifactId>ehcache-core</artifactId>
             <version>1.7.2-SNAPSHOT</version>
-        </dependency>
-        <dependency>
-            <groupId>net.sf.jsr107cache</groupId>
-            <artifactId>jsr107cache</artifactId>
-            <version>1.1</version>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
@@ -36,10 +28,10 @@
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
-            <version>4.1</version>
+            <version>4.7</version>
             <scope>test</scope>
         </dependency>
-        
+
         <!--With slf4j, users choose a concrete logging implementation at deploy time-->
         <dependency>
             <groupId>org.slf4j</groupId>
@@ -47,10 +39,16 @@
             <version>1.5.8</version>
             <scope>test</scope>
         </dependency>
-
     </dependencies>
 
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+    </properties>
+
     <build>
+
+
         <plugins>
 
             <plugin>
@@ -75,7 +73,8 @@
                 </executions>
                 <configuration>
                     <configLocation>${basedir}/checkstyle/checkstyle.xml</configLocation>
-                    <suppressionsLocation>${basedir}/checkstyle/suppressions.xml</suppressionsLocation>
+                    <suppressionsLocation>${basedir}/checkstyle/suppressions.xml
+                    </suppressionsLocation>
                     <headerLocation>${basedir}/checkstyle/ClassHeader.txt</headerLocation>
                     <enableRSS>false</enableRSS>
                     <linkXRef>true</linkXRef>
@@ -113,7 +112,7 @@
                         <property>
                             <name>net.sf.ehcache.skipUpdateCheck</name>
                             <value>true</value>
-                        </property>                    
+                        </property>
                         <property>
                             <name>java.awt.headless</name>
                             <value>true</value>
@@ -144,21 +143,16 @@
         </plugins>
     </build>
 
-    <!--<repositories>-->
-    <!--<repository>-->
-    <!--<id>sourceforge-releases</id>-->
-    <!--<url>http://oss.sonatype.org/content/repositories/sourceforge-snapshots</url>-->
-    <!--<layout>legacy</layout>-->
-    <!--<releases>-->
-    <!--<enabled>false</enabled>-->
-    <!--<updatePolicy>daily</updatePolicy>-->
-    <!--</releases>-->
-    <!--<snapshots>-->
-    <!--<enabled>true</enabled>-->
-    <!--<updatePolicy>daily</updatePolicy>-->
-    <!--</snapshots>-->
-    <!--</repository>-->
-    <!--</repositories>-->
+    <repositories>
+        <repository>
+            <id>sourceforge-snapshots</id>
+            <url>http://oss.sonatype.org/content/repositories/sourceforge-snapshots</url>
+            <snapshots>
+                <enabled>true</enabled>
+                <updatePolicy>always</updatePolicy>
+            </snapshots>
+        </repository>
+    </repositories>
 
     <!-- Note: site URL repeated here to ensure correct deployment path -->
     <distributionManagement>
@@ -176,5 +170,6 @@
             <url>http://oss.sonatype.org/content/repositories/sourceforge-snapshots</url>
         </snapshotRepository>
     </distributionManagement>
+
 
 </project>

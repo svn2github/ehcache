@@ -430,7 +430,11 @@ public class Cache implements Ehcache {
                 true,
                 false,
                 null,
-                true);
+                TerracottaConfiguration.DEFAULT_COHERENT_READS,
+                TerracottaConfiguration.DEFAULT_ORPHAN_EVICTION,
+                TerracottaConfiguration.DEFAULT_ORPHAN_EVICTION_PERIOD,
+                TerracottaConfiguration.DEFAULT_LOCAL_KEY_CACHE,
+                TerracottaConfiguration.DEFAULT_LOCAL_KEY_CACHE_SIZE);
 
     }
 
@@ -492,7 +496,11 @@ public class Cache implements Ehcache {
                 true,
                 false,
                 null,
-                true);
+                TerracottaConfiguration.DEFAULT_COHERENT_READS,
+                TerracottaConfiguration.DEFAULT_ORPHAN_EVICTION,
+                TerracottaConfiguration.DEFAULT_ORPHAN_EVICTION_PERIOD,
+                TerracottaConfiguration.DEFAULT_LOCAL_KEY_CACHE,
+                TerracottaConfiguration.DEFAULT_LOCAL_KEY_CACHE_SIZE);
 
     }
 
@@ -542,7 +550,10 @@ public class Cache implements Ehcache {
     
         this(name, maxElementsInMemory, memoryStoreEvictionPolicy, overflowToDisk, diskStorePath, eternal, timeToLiveSeconds,
                 timeToIdleSeconds, diskPersistent, diskExpiryThreadIntervalSeconds, registeredEventListeners, 
-                bootstrapCacheLoader, maxElementsOnDisk, diskSpoolBufferSizeMB, clearOnFlush, false, null, true);
+                bootstrapCacheLoader, maxElementsOnDisk, diskSpoolBufferSizeMB, clearOnFlush, false, null,
+                TerracottaConfiguration.DEFAULT_COHERENT_READS, TerracottaConfiguration.DEFAULT_ORPHAN_EVICTION,
+                TerracottaConfiguration.DEFAULT_ORPHAN_EVICTION_PERIOD, TerracottaConfiguration.DEFAULT_LOCAL_KEY_CACHE,
+                TerracottaConfiguration.DEFAULT_LOCAL_KEY_CACHE_SIZE);
     }
 
     /**
@@ -574,6 +585,12 @@ public class Cache implements Ehcache {
      * @param isTerracottaClustered     whether to cluster this cache with Terracotta
      * @param terracottaValueMode       either "SERIALIZATION" or "IDENTITY" mode, only used if isTerracottaClustered=true
      * @param terracottaCoherentReads   whether this cache should use coherent reads (usually should be true) unless optimizing for read-only
+     * @param terracottaOrphanEviction  whether this cache should perform orphan eviction (usually should be true)
+     * @param terracottaOrphanEvictionPeriod
+     *                                  how often this cache should perform orphan eviction (measured in regular eviction periods)
+     * @param terracottaLocalKeyCache   whether this cache should use an unclustered local key cache (usually should be false unless optimizing for a small read-only cache)
+     * @param terracottaLocalKeyCacheSize
+     *                                  maximum size of the local key cache (usually the size of the key set of the cache or cache partition)
      * @since 1.7.0
      */
     public Cache(String name,
@@ -593,7 +610,11 @@ public class Cache implements Ehcache {
                  boolean clearOnFlush,
                  boolean isTerracottaClustered,
                  String terracottaValueMode,
-                 boolean terracottaCoherentReads) {
+                 boolean terracottaCoherentReads,
+                 boolean terracottaOrphanEviction,
+                 int terracottaOrphanEvictionPeriod,
+                 boolean terracottaLocalKeyCache,
+                 int terracottaLocalKeyCacheSize) {
 
         changeStatus(Status.STATUS_UNINITIALISED);
 
@@ -653,6 +674,10 @@ public class Cache implements Ehcache {
             tcConfig.setValueMode(terracottaValueMode);
         }
         tcConfig.setCoherentReads(terracottaCoherentReads);
+        tcConfig.setOrphanEviction(terracottaOrphanEviction);
+        tcConfig.setOrphanEvictionPeriod(terracottaOrphanEvictionPeriod);
+        tcConfig.setLocalKeyCache(terracottaLocalKeyCache);
+        tcConfig.setLocalKeyCacheSize(terracottaLocalKeyCacheSize);
         configuration.addTerracotta(tcConfig);
         
         //initialize statistics
@@ -1887,6 +1912,7 @@ public class Cache implements Ehcache {
      * @return true if it has expired
      * @throws IllegalStateException if the cache is not {@link Status#STATUS_ALIVE}
      * @throws NullPointerException  if the element is null
+     * todo this does not need to be synchronized
      */
     public final boolean isExpired(Element element) throws IllegalStateException, NullPointerException {
         checkStatus();

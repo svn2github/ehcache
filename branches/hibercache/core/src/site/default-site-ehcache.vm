@@ -356,7 +356,9 @@
     <div id="breadcrumbs">
       #publishDate( "left" $decoration.publishDate $decoration.version )
       <div class="xright"><FORM method=GET action=http://www.google.com/custom><INPUT TYPE=text name=q size=15 maxlength=255 value=""> <INPUT type=submit name=sa VALUE="Search"><INPUT type=hidden name=cof VALUE="GALT:#3C3E29;S:http://gregluck.com;VLC:#9C8E69;AH:left;BGC:white;LH:31;LC:#9C8E69;GFNT:#3C3E29;L:http://ehcache.org/images/ehcache_logo.gif;ALC:#9C8E69;LW:211;T:#4C4E39;GIMP:#3C3E29;AWFID:12c1e42dc993d5c6;"><input type=hidden name=domains value="ehcache.org"><input type=hidden name=sitesearch value="ehcache.org"></FORM> #publishDate( "right" $decoration.publishDate $decoration.version )</div>
-      <div class="xright"><a href="http://www.terracotta.org/contact/?ehcache.org"><b>Contact Us</b></a>&nbsp;&nbsp;</div>
+      <div class="xright-trans"><a href="http://www.terracotta.org/dl/ehcache-oss-sign-up"><b>Download</b></a>&nbsp;&nbsp;</div>
+      <div class="xright-trans"><a href="http://www.terracotta.org/contact/?ehcache.org"><b>|</b></a></div>
+      <div class="xright-trans"><a href="http://www.terracotta.org/contact/?ehcache.org"><b>Contact Us</b></a></div>
       <div class="clear">
         <hr/>
       </div>
@@ -371,14 +373,13 @@
     </div>
     <div id="rightColumn">
       <div id="navcolumn">
-      <a href="http://www.terracotta.org/ehcache/distributed-cache/?source=ehcachebanner"><img src="images/ehcache-distributed-cache-skyscraper.png" border="0" width="160" alt="Get the Ehcache 1.7.0 and Terracotta 3.1.1 beta"/></a>
-      <a href="http://www.terracotta.org/support/ehcache-support?source=ehcachebanner"><img src="images/ad_banner.png" border="0" width="160" alt="Ehcache consulting and support"/></a>
-      <a href="http://www.terracotta.org/ehcache/ehcache-dx"><img src="images/ehcache-monitoring.png" border="0" width="160" alt="Ehcache consulting and support"/></a>
+      <a href="http://www.terracotta.org/ehcache/distributed-cache/?source=ehcachebanner"><img src="/images/ehcache-distributed-cache-skyscraper.png" border="0" width="160" alt="Get the Ehcache 1.7.0 and Terracotta 3.1.1 beta"/></a>
+      <a href="http://www.terracotta.org/ehcache/ehcache-dx?source=ehcachebanner"><img src="/images/ad_banner.png" border="0" width="160" alt="Ehcache consulting and support"/></a>
       <p>Ehcache Guide and Reference is available as a book. The price for the high quality bound edition is USD49.98 plus shipping. The price for the downloadable print-ready version is USD37.50. The book has 180 pages.</p>
-      <a href="http://www.lulu.com/content/3553390"><img src="images/ehcache_guide.jpg" border="0" width="160" alt="Ehcache Guide &amp; Reference"/></a>
+      <a href="http://www.lulu.com/content/3553390"><img src="/images/ehcache_guide.jpg" border="0" width="160" alt="Ehcache Guide &amp; Reference"/></a>
       <p>This edition includes a new chapter on Ehcache Server - the RESTful and SOAP based server.</p><p>As usual the cuurrent ehcache version full documentation is available on the site.</p><p>Buy the book online from <a href="http://www.lulu.com/content/3553390">Lulu Books</a>.</p></div>
       <hr width="75%"/>
-      <a href="http://www.cafepress.com/ehcache"><img src="./images/sigg.jpg" border="0" alt="Ehcache Travel Mug"/></a>
+      <a href="http://www.cafepress.com/ehcache"><img src="/images/sigg.jpg" border="0" alt="Ehcache Travel Mug"/></a>
       <p>Like Ehcache and want to show your support? We have a wide range of Ehcache merchandise including T-Shirts, mousemats,
       coffee mugs and lots else. Available for worldwide shipping.</p><p>Buy merchandise from the Ehcache store at <a href="http://www.cafepress.com/ehcache">Cafe Press</a>.</p></div>
       </div>
