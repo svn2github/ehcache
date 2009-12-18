@@ -278,9 +278,9 @@
             <a href="$href" title="$name" class="poweredBy">
               #set ( $img = $PathTool.calculateLink( $img, $relativePath ) )
               #set ( $img = $img.replaceAll( "\\", "/" ) )
-              <img  class="poweredBy"  
-                    alt="$name" 
-                    src="$img" 
+              <img  class="poweredBy"
+                    alt="$name"
+                    src="$img"
                     width="90"
                     height="30"
               />
@@ -288,9 +288,9 @@
         #end
         #if( $poweredBy.isEmpty() )
           <a href="http://maven.apache.org/" title="$i18n.getString( "site-renderer", $locale, "template.builtby" ) Maven" class="poweredBy">
-            <img class="poweredBy" 
-                 alt="$i18n.getString( "site-renderer", $locale, "template.builtby" ) Maven" 
-                 src="$relativePath/images/logos/maven-feather.png" 
+            <img class="poweredBy"
+                 alt="$i18n.getString( "site-renderer", $locale, "template.builtby" ) Maven"
+                 src="$relativePath/images/logos/maven-feather.png"
                  width="90"
                  height="30"
                  border="1" />
@@ -298,9 +298,9 @@
         #end
     #else
         <a href="http://maven.apache.org/" title="$i18n.getString( "site-renderer", $locale, "template.builtby" ) Maven" class="poweredBy">
-          <img class="poweredBy" 
-               alt="$i18n.getString( "site-renderer", $locale, "template.builtby" ) Maven" 
-               src="$relativePath/images/logos/maven-feather.png" 
+          <img class="poweredBy"
+               alt="$i18n.getString( "site-renderer", $locale, "template.builtby" ) Maven"
+               src="$relativePath/images/logos/maven-feather.png"
                width="90"
                height="30"
                border="1"
@@ -347,7 +347,7 @@
         <div class="xright">&nbsp;</div>
       <div class="xright-red"><a href="http://www.terracotta.org/products?source=ehcachebanner">Products</a></div>
         <div class="xright">&nbsp;</div>
-        <div class="xright-orange"><a href="http://www.terracotta.org/support/ehcache-support?source=ehcachebanner">Support</a></div>
+        <div class="xright-orange"><a href="http://www.terracotta.org/ehcache/ehcache-dx?src=ehcacheSupportTab">Support</a></div>
       #banner( $decoration.bannerRight "bannerRight" )
     </div>
     <div class="clear">
@@ -359,6 +359,13 @@
       <div class="xright-trans"><a href="http://www.terracotta.org/dl/ehcache-oss-sign-up"><b>Download</b></a>&nbsp;&nbsp;</div>
       <div class="xright-trans"><a href="http://www.terracotta.org/contact/?ehcache.org"><b>|</b></a></div>
       <div class="xright-trans"><a href="http://www.terracotta.org/contact/?ehcache.org"><b>Contact Us</b></a></div>
+      <div class="xright-orange-small">
+          <span style="color: #333">Terracotta Community</span>
+          <img src="http://ehcache.org/images/spacer.gif" width="7"/>
+          <a href="http://www.terracotta.org/account/register" target="_blank">Register</a>
+          <img src="http://ehcache.org/images/spacer.gif" width="7"/>
+          <a href="http://www.terracotta.org/account/register" target="_blank">Login</a>
+      </div>
       <div class="clear">
         <hr/>
       </div>
@@ -373,15 +380,27 @@
     </div>
     <div id="rightColumn">
       <div id="navcolumn">
-      <a href="http://www.terracotta.org/ehcache/distributed-cache/?source=ehcachebanner"><img src="/images/ehcache-distributed-cache-skyscraper.png" border="0" width="160" alt="Get the Ehcache 1.7.0 and Terracotta 3.1.1 beta"/></a>
-      <a href="http://www.terracotta.org/ehcache/ehcache-dx?source=ehcachebanner"><img src="/images/ad_banner.png" border="0" width="160" alt="Ehcache consulting and support"/></a>
-      <p>Ehcache Guide and Reference is available as a book. The price for the high quality bound edition is USD49.98 plus shipping. The price for the downloadable print-ready version is USD37.50. The book has 180 pages.</p>
-      <a href="http://www.lulu.com/content/3553390"><img src="/images/ehcache_guide.jpg" border="0" width="160" alt="Ehcache Guide &amp; Reference"/></a>
-      <p>This edition includes a new chapter on Ehcache Server - the RESTful and SOAP based server.</p><p>As usual the cuurrent ehcache version full documentation is available on the site.</p><p>Buy the book online from <a href="http://www.lulu.com/content/3553390">Lulu Books</a>.</p></div>
-      <hr width="75%"/>
-      <a href="http://www.cafepress.com/ehcache"><img src="/images/sigg.jpg" border="0" alt="Ehcache Travel Mug"/></a>
-      <p>Like Ehcache and want to show your support? We have a wide range of Ehcache merchandise including T-Shirts, mousemats,
-      coffee mugs and lots else. Available for worldwide shipping.</p><p>Buy merchandise from the Ehcache store at <a href="http://www.cafepress.com/ehcache">Cafe Press</a>.</p></div>
+          <h5>Quick Start</h5>
+      <div class="panel-orange"><a href="http://ehcache.org/documentation/getting_started.html">Getting Started</a> </div>
+          <div class="panel-red"><a href="http://ehcache.org/documentation/samples.html">Code Samples</a> </div>
+          <div class="panel-red"><a href="http://ehcache.org/documentation/evaluation_faq.html">Evaluation FAQ</a> </div>
+          <div class="panel-yellow"><a href="http://ehcache.org/documentation/benchmarks.html">Benchmarks</a> </div>
+          <div class="panel-orange"><a href="http://ehcache.org/roadmap.html">Road Map</a> </div>
+          &nbsp;&nbsp;
+          <h5>Commercial Products</h5>
+          <div class="panel-orange"><a href="http://www.terracotta.org/ehcache/ehcache-dx?source=ehcachebanner">Support Login</a> </div>
+          <div class="panel-red"><a href="http://www.terracotta.org/ehcache/distributed-cache/?source=ehcachebanner">Ehcache+Terracotta</a> </div>
+          <div class="panel-yellow"><a href="http://ehcache.org/EhcacheBrochure.pdf">Product Brochure</a> </div>
+          <div class="panel-orange"><a href="http://ehcache.org/training.html">Training Schedule</a> </div>
+          &nbsp;&nbsp;
+          <h5>Talk to the Team</h5>
+          <div class="panel-brown">
+              <b>Greg Luck</b>&nbsp;&nbsp;<a href="http://gregluck.com"><img src="images/blogger.png" align="bottom" width="20" alt="Read Greg Luck's Blog"/></a>&nbsp;<a href="http://www.twitter.com/gregrluck"><img src="images/twitter.png" align="bottom" width="20" alt="Follow gregrluck on Twitter"/></a><br>
+              <b>Ari Zilka</b>&nbsp;&nbsp;<a href="http://blog.terracottatech.com"><img src="images/blogger.png" align="bottom" width="20" alt="Read Ari Zilka's Blog"/></a>&nbsp;<a href="http://twitter.com/ikarzali"><img src="images/twitter.png" align="bottom" width="20" alt="Follow Ari Zilka on Twitter"/></a><br>
+              <b>Alex Miller</b>&nbsp;&nbsp;<a href="http://tech.puredanger.com"><img src="images/blogger.png" align="bottom" width="20" alt="Read Alex Miller's Blog"/></a>&nbsp;<a href="http://www.twitter.com/puredanger"><img src="images/twitter.png" align="bottom" width="20" alt="Follow Alex Miller on Twitter"/></a>
+
+          </div>
+
       </div>
     </div>
     <div id="bodyColumn">
