@@ -178,7 +178,7 @@ public class MemoryStore implements Store, CacheConfigurationListener {
             return null;
         }
 
-        return (Element) map.get(key);
+        return map.get(key);
     }
 
     /**
@@ -204,7 +204,7 @@ public class MemoryStore implements Store, CacheConfigurationListener {
         }
 
         // remove single item.
-        Element element = (Element)map.remove(key);
+        Element element = map.remove(key);
         if (element != null) {
             return element;
         } else {
@@ -303,9 +303,8 @@ public class MemoryStore implements Store, CacheConfigurationListener {
      */
     protected final void spoolAllToDisk() {
         boolean clearOnFlush = cache.getCacheConfiguration().isClearOnFlush();
-        Object[] keys = getKeyArray();
-        for (Object key : keys) {
-            Element element = (Element) map.get(key);
+        for (Object key : getKeyArray()) {
+            Element element = map.get(key);
             if (element != null) {
                 if (!element.isSerializable()) {
                     if (LOG.isDebugEnabled()) {
@@ -460,11 +459,9 @@ public class MemoryStore implements Store, CacheConfigurationListener {
      * Puts an element into the store
      */
     protected void doPut(final Element elementJustAdded) {
-        int overflow = map.size() - maximumSize;
-        if (overflow > 0) {
-            for (int i = 0; i < Math.min(overflow, MAX_EVICTION_RATIO); i++) {
-                removeElementChosenByEvictionPolicy(elementJustAdded);
-            }
+        int evict = Math.min(map.size() - maximumSize, MAX_EVICTION_RATIO);
+        for (int i = 0; i < evict; i++) {
+            removeElementChosenByEvictionPolicy(elementJustAdded);
         }
     }
 
@@ -509,7 +506,7 @@ public class MemoryStore implements Store, CacheConfigurationListener {
             if (element != null) {
                 return element;
             } else {
-                throw new AssertionError("Removing Just Added Element");
+                return elementJustAdded;
             }
         } else {
             //Using iterate technique
