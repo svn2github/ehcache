@@ -160,7 +160,7 @@ public class CacheConfiguration implements Cloneable {
      * The cache loader factories added by BeanUtils.
      */
     //protected CacheLoaderFactoryConfiguration cacheLoaderFactoryConfiguration;
-    protected List cacheLoaderConfigurations = new ArrayList();
+    protected List<CacheLoaderFactoryConfiguration> cacheLoaderConfigurations = new ArrayList();
 
     /**
      * The listeners for this configuration.
@@ -492,7 +492,7 @@ public class CacheConfiguration implements Cloneable {
     /**
      * Accessor
      */
-    public List getCacheEventListenerConfigurations() {
+    public List<CacheEventListenerFactoryConfiguration> getCacheEventListenerConfigurations() {
         return cacheEventListenerConfigurations;
     }
 
@@ -500,7 +500,7 @@ public class CacheConfiguration implements Cloneable {
      * Accessor
      * @return the configuration
      */
-    public List getCacheExtensionConfigurations() {
+    public List<CacheExtensionFactoryConfiguration> getCacheExtensionConfigurations() {
         return cacheExtensionConfigurations;
     }
 
@@ -509,7 +509,7 @@ public class CacheConfiguration implements Cloneable {
      * Accessor
      * @return the configuration
      */
-    public List getCacheLoaderConfigurations() {
+    public List<CacheLoaderFactoryConfiguration> getCacheLoaderConfigurations() {
         return cacheLoaderConfigurations;
     }
 

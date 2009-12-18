@@ -106,14 +106,14 @@ public class EhcacheStatsImpl implements EhcacheStats {
      * {@inheritDoc}
      */
     public String generateActiveConfigDeclaration() {
-        throw new UnsupportedOperationException("need to implement");
+        return this.cacheManager.getActiveConfigurationText();
     }
 
     /**
      * {@inheritDoc}
      */
     public String generateActiveConfigDeclaration(String region) {
-        throw new UnsupportedOperationException("need to implement");
+        return this.cacheManager.getActiveConfigurationText(region);
     }
 
     /**
@@ -231,14 +231,14 @@ public class EhcacheStatsImpl implements EhcacheStats {
      * {@inheritDoc}
      */
     public String getOriginalConfigDeclaration() {
-        throw new UnsupportedOperationException("need to implement");
+        return this.cacheManager.getOriginalConfigurationText();
     }
 
     /**
      * {@inheritDoc}
      */
     public String getOriginalConfigDeclaration(String region) {
-        throw new UnsupportedOperationException("need to implement");
+        return this.cacheManager.getOriginalConfigurationText(region);
     }
 
     /**
