@@ -1078,7 +1078,7 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
       assertEquals(true, defaultCache.getCacheConfiguration().getTerracottaConfiguration().getCoherentReads());
 
       //Check caches
-      assertEquals(10, configurationHelper.createCaches().size());
+      assertEquals(6, configurationHelper.createCaches().size());
 
       //  <cache name="clustered-1"
       //   maxElementsInMemory="1000"
@@ -1134,50 +1134,6 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
       assertEquals(true, sampleCache5.getCacheConfiguration().isTerracottaClustered());
       assertEquals(false,
               sampleCache5.getCacheConfiguration().getTerracottaConfiguration().getCoherentReads());
-
-      //  <cache name="clustered-6"
-      //   maxElementsInMemory="1000"
-      //   memoryStoreEvictionPolicy="LFU">
-      //   <terracotta orphanEviction="false"/>
-      //  </cache>
-      Ehcache sampleCache6 = configurationHelper.createCacheFromName("clustered-6");
-      assertEquals("clustered-6", sampleCache6.getName());
-      assertEquals(true, sampleCache6.getCacheConfiguration().isTerracottaClustered());
-      assertEquals(false,
-              sampleCache6.getCacheConfiguration().getTerracottaConfiguration().getOrphanEviction());
-
-      //  <cache name="clustered-7"
-      //   maxElementsInMemory="1000"
-      //   memoryStoreEvictionPolicy="LFU">
-      //   <terracotta orphanEvictionPeriod="42"/>
-      //  </cache>
-      Ehcache sampleCache7 = configurationHelper.createCacheFromName("clustered-7");
-      assertEquals("clustered-7", sampleCache7.getName());
-      assertEquals(true, sampleCache7.getCacheConfiguration().isTerracottaClustered());
-      assertEquals(42,
-              sampleCache7.getCacheConfiguration().getTerracottaConfiguration().getOrphanEvictionPeriod());
-
-      //  <cache name="clustered-8"
-      //   maxElementsInMemory="1000"
-      //   memoryStoreEvictionPolicy="LFU">
-      //   <terracotta localKeyCache="true"/>
-      //  </cache>
-      Ehcache sampleCache8 = configurationHelper.createCacheFromName("clustered-8");
-      assertEquals("clustered-8", sampleCache8.getName());
-      assertEquals(true, sampleCache8.getCacheConfiguration().isTerracottaClustered());
-      assertEquals(true,
-              sampleCache8.getCacheConfiguration().getTerracottaConfiguration().getLocalKeyCache());
-
-      //  <cache name="clustered-9"
-      //   maxElementsInMemory="1000"
-      //   memoryStoreEvictionPolicy="LFU">
-      //   <terracotta localKeyCache="true"/>
-      //  </cache>
-      Ehcache sampleCache9 = configurationHelper.createCacheFromName("clustered-9");
-      assertEquals("clustered-9", sampleCache9.getName());
-      assertEquals(true, sampleCache9.getCacheConfiguration().isTerracottaClustered());
-      assertEquals(42,
-              sampleCache9.getCacheConfiguration().getTerracottaConfiguration().getLocalKeyCacheSize());
 
       // <terracottaConfig>
       //  <url>localhost:9510</url>

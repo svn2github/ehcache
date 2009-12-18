@@ -50,35 +50,7 @@
            memoryStoreEvictionPolicy="LFU">
            <terracotta coherentReads="false"/>
     </cache>
-
-    <!-- Test orphan eviction disable -->
-    <cache name="clustered-6"
-           maxElementsInMemory="1000"
-           memoryStoreEvictionPolicy="LFU">
-           <terracotta orphanEviction="false"/>
-    </cache>
-
-    <!-- Test orphan eviction period -->
-    <cache name="clustered-7"
-           maxElementsInMemory="1000"
-           memoryStoreEvictionPolicy="LFU">
-           <terracotta orphanEvictionPeriod="42"/>
-    </cache>
-
-    <!-- Test local key cache enable -->
-    <cache name="clustered-8"
-           maxElementsInMemory="1000"
-           memoryStoreEvictionPolicy="LFU">
-           <terracotta localKeyCache="true"/>
-    </cache>
-
-    <!-- Test local key cache sizing -->
-    <cache name="clustered-9"
-           maxElementsInMemory="1000"
-           memoryStoreEvictionPolicy="LFU">
-           <terracotta localKeyCacheSize="42"/>
-    </cache>
-
+    
     <terracottaConfig url="localhost:9510"/>
 
 </ehcache>
