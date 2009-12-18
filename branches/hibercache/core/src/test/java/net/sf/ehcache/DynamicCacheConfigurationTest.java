@@ -4,8 +4,9 @@
  */
 package net.sf.ehcache;
 
+import net.sf.ehcache.config.CacheConfiguration;
+import net.sf.ehcache.config.Configuration;
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import org.slf4j.Logger;
@@ -231,7 +232,6 @@ public class DynamicCacheConfigurationTest extends AbstractCacheTest {
     }
 
     @Test
-    @Ignore
     public void testMemoryCapacityChange() {
         Cache cache = new Cache("testMemoryCapacityChange", 10, false, true, 0, 0);
         manager.addCache(cache);
@@ -298,5 +298,57 @@ public class DynamicCacheConfigurationTest extends AbstractCacheTest {
         Assert.assertEquals(15, cache.getSize());
         Assert.assertEquals(10, cache.getMemoryStore().getSize());
         Assert.assertEquals(5, cache.getDiskStore().getSize());
+    }
+
+    @Test
+    public void testCacheWithFrozenConfig() {
+        Configuration managerConfig = new Configuration();
+        managerConfig.setDynamicConfig(false);
+        managerConfig.setDefaultCacheConfiguration(new CacheConfiguration());
+        CacheConfiguration cacheConfig = new CacheConfiguration();
+        cacheConfig.setName("definedCache");
+        cacheConfig.setEternal(true);
+        cacheConfig.setMaxElementsInMemory(10);
+
+        managerConfig.addCache(cacheConfig);
+        
+        CacheManager manager = new CacheManager(managerConfig);
+
+        Cache defined = manager.getCache("definedCache");
+        try {
+            defined.getCacheConfiguration().setTimeToIdleSeconds(99);
+            Assert.fail();
+        } catch (CacheException e) {
+            // expected
+        }
+
+        try {
+            defined.setDisabled(true);
+            Assert.fail();
+        } catch (CacheException e) {
+            // expected
+        }
+
+        defined.put(new Element("key", "value"));
+        Assert.assertNotNull(defined.get("key"));
+
+        Cache programmatic = new Cache("programmatic", 10, false, true, 0, 0);
+        manager.addCache(programmatic);
+        try {
+            programmatic.getCacheConfiguration().setTimeToIdleSeconds(99);
+            Assert.fail();
+        } catch (CacheException e) {
+            // expected
+        }
+
+        try {
+            programmatic.setDisabled(true);
+            Assert.fail();
+        } catch (CacheException e) {
+            // expected
+        }
+
+        programmatic.put(new Element("key", "value"));
+        Assert.assertNotNull(programmatic.get("key"));
     }
 }

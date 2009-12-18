@@ -176,6 +176,8 @@ public class CacheManager {
     
     private Configuration configuration;
 
+    private boolean allowsDynamicCacheConfig = true;
+    
     /**
      * An constructor for CacheManager, which takes a configuration object, rather than one created by parsing
      * an ehcache.xml file. This constructor gives complete control over the creation of the CacheManager.
@@ -282,7 +284,8 @@ public class CacheManager {
         if (localConfiguration.getName() != null) {
             this.name = localConfiguration.getName();
         }
-        
+
+        this.allowsDynamicCacheConfig = localConfiguration.getDynamicConfig();
         this.terracottaConfigConfiguration = localConfiguration.getTerracottaConfiguration();
 
         Map<String, CacheConfiguration> cacheConfigs = localConfiguration.getCacheConfigurations();
@@ -405,31 +408,31 @@ public class CacheManager {
     private synchronized Configuration parseConfiguration(String configurationFileName, URL configurationURL,
                                                           InputStream configurationInputStream) throws CacheException {
         reinitialisationCheck();
-        Configuration pasedConfig;
+        Configuration parsedConfig;
         String configurationSource;
         if (configurationFileName != null) {
 
                 LOG.debug("Configuring CacheManager from {}", configurationFileName);
-            pasedConfig = ConfigurationFactory.parseConfiguration(new File(configurationFileName));
+            parsedConfig = ConfigurationFactory.parseConfiguration(new File(configurationFileName));
             configurationSource = "file located at " + configurationFileName;
             originalConfigurationSource = ConfigurationSource.getConfigurationSource(configurationFileName);
         } else if (configurationURL != null) {
-            pasedConfig = ConfigurationFactory.parseConfiguration(configurationURL);
+            parsedConfig = ConfigurationFactory.parseConfiguration(configurationURL);
             configurationSource = "URL of " + configurationURL;
             originalConfigurationSource = ConfigurationSource.getConfigurationSource(configurationURL);
         } else if (configurationInputStream != null) {
-            pasedConfig = ConfigurationFactory.parseConfiguration(configurationInputStream);
+            parsedConfig = ConfigurationFactory.parseConfiguration(configurationInputStream);
             configurationSource = "InputStream " + configurationInputStream;
             originalConfigurationSource = ConfigurationSource.getConfigurationSource(configurationInputStream);
         } else {
 
                 LOG.debug("Configuring ehcache from classpath.");
-            pasedConfig = ConfigurationFactory.parseConfiguration();
+            parsedConfig = ConfigurationFactory.parseConfiguration();
             configurationSource = "classpath";
             originalConfigurationSource = ConfigurationSource.getConfigurationSource();
         }
-        pasedConfig.setSource(configurationSource);
-        return pasedConfig;
+        parsedConfig.setSource(configurationSource);
+        return parsedConfig;
 
     }
 
@@ -828,6 +831,10 @@ public class CacheManager {
         cache.setCacheManager(this);
         cache.setDiskStorePath(diskStorePath);
         cache.initialise();
+        if (!allowsDynamicCacheConfig) {
+            cache.disableDynamicFeatures();
+        }
+
         try {
             cache.bootstrap();
         } catch (CacheException e) {

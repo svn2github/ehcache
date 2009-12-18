@@ -1099,6 +1099,13 @@ public class BlockingCache implements Ehcache {
     public Object getInternalContext() {
         return cache.getInternalContext();
     }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void disableDynamicFeatures() {
+        cache.disableDynamicFeatures();
+    }
 }
 
 

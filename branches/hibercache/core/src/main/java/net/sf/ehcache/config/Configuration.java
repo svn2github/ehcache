@@ -58,7 +58,8 @@ public final class Configuration {
     private TerracottaConfigConfiguration terracottaConfigConfiguration;
     private final Map<String, CacheConfiguration> cacheConfigurations = new HashMap();
     private String configurationSource;
-
+    private boolean dynamicConfig = true;
+    
     /**
      * Empty constructor, which is used by {@link ConfigurationFactory}, and can be also used programmatically.
      * <p/>
@@ -111,6 +112,20 @@ public final class Configuration {
      */
     public final Monitoring getMonitoring() {
         return this.monitoring;
+    }
+
+    /**
+     * Allows BeanHandler to set the dynamic configuration flag
+     */
+    public final void setDynamicConfig(boolean dynamicConfig) {
+        this.dynamicConfig = dynamicConfig;
+    }
+
+    /**
+     * Get flag for dynamicConfig
+     */
+    public final boolean getDynamicConfig() {
+        return this.dynamicConfig;
     }
     
     /**

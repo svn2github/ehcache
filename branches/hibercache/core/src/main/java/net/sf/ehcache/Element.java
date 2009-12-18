@@ -824,7 +824,10 @@ public class Element implements Serializable, Cloneable {
         return time;
     }
     
-    private static int convertInternalRepresentationToLifeTime(int internal) {
+    /**
+     * internal
+     */
+    public static int convertInternalRepresentationToLifeTime(int internal) {
         if (internal >= 0) {
             return internal;
         } else if (internal == Integer.MIN_VALUE) {
@@ -834,7 +837,10 @@ public class Element implements Serializable, Cloneable {
         }
     }
 
-    private static boolean isUsingDefault(int internal) {
+    /**
+     * internal
+     */
+    public static boolean isUsingDefault(int internal) {
         return internal >= 0;
     }
 }

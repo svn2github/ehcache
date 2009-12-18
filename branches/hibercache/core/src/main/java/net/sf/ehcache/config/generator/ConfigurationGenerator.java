@@ -46,7 +46,7 @@ public class ConfigurationGenerator {
     private static final String INDENT = "    ";
 
     private StringBuilder builder;
-    private int indent;
+    private int numIndents;
     private String spacer = "";
 
     private void visitCacheManagerConfig(Configuration configuration) {
@@ -196,9 +196,36 @@ public class ConfigurationGenerator {
 
         TerracottaConfiguration terracottaConfiguration = cacheConfiguration.getTerracottaConfiguration();
         if (terracottaConfiguration != null) {
-            builder.append(spacer).append("<terracotta clustered=\"").append(terracottaConfiguration.isClustered()).append(
-                    "\" valueMode=\"" + terracottaConfiguration.getValueMode().name().toLowerCase()).append(
-                    "\" coherentReads=\"" + terracottaConfiguration.getCoherentReads()).append("\"/>");
+            builder.append(spacer).append("<terracotta");
+            indent(1);
+            builder.append(" clustered=\"").append(terracottaConfiguration.isClustered()).append("\"");
+            if (!TerracottaConfiguration.DEFAULT_VALUE_MODE.equals(terracottaConfiguration.getValueMode())) {
+                builder.append(EOL).append(spacer).append(" valueMode=\"").append(
+                        terracottaConfiguration.getValueMode().name().toLowerCase()).append("\"");
+            }
+            if (TerracottaConfiguration.DEFAULT_COHERENT_READS != terracottaConfiguration.getCoherentReads()) {
+                builder.append(EOL).append(spacer).append(" coherentReads=\"").append(terracottaConfiguration.getCoherentReads()).append(
+                        "\"");
+            }
+            if (TerracottaConfiguration.DEFAULT_LOCAL_KEY_CACHE != terracottaConfiguration.getLocalKeyCache()) {
+                builder.append(EOL).append(spacer).append(" localKeyCache=\"").append(terracottaConfiguration.getLocalKeyCache()).append(
+                        "\"");
+            }
+            if (TerracottaConfiguration.DEFAULT_LOCAL_KEY_CACHE_SIZE != terracottaConfiguration.getLocalKeyCacheSize()) {
+                builder.append(EOL).append(spacer).append(" localKeyCacheSize=\"").append(terracottaConfiguration.getLocalKeyCacheSize())
+                        .append("\"");
+            }
+            if (TerracottaConfiguration.DEFAULT_ORPHAN_EVICTION != terracottaConfiguration.getOrphanEviction()) {
+                builder.append(EOL).append(spacer).append(" orphanEviction=\"").append(terracottaConfiguration.getOrphanEviction()).append(
+                        "\"");
+            }
+            if (TerracottaConfiguration.DEFAULT_ORPHAN_EVICTION_PERIOD != terracottaConfiguration.getOrphanEvictionPeriod()) {
+                builder.append(EOL).append(spacer).append(" orphanEvictionPeriod=\"").append(
+                        terracottaConfiguration.getOrphanEvictionPeriod()).append("\"");
+            }
+            builder.append(">").append(EOL);
+            indent(-1);
+            builder.append(spacer).append("</terracotta>");
             builder.append(EOL);
         }
         indent(-1);
@@ -208,9 +235,9 @@ public class ConfigurationGenerator {
     }
 
     private void indent(int delta) {
-        indent += delta;
+        numIndents += delta;
         spacer = "";
-        for (int i = 0; i < indent; i++) {
+        for (int i = 0; i < numIndents; i++) {
             spacer += INDENT;
         }
     }
