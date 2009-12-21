@@ -557,4 +557,49 @@ public class EhcacheHibernate implements EhcacheHibernateMBean {
         return ehcacheStats.getNumberOfElementsOnDisk(region);
     }
 
+    /**
+     * {@inheritDoc}
+     * 
+     * @see net.sf.ehcache.hibernate.management.EhcacheStats#getMaxGetTimeMillis()
+     */
+    public long getMaxGetTimeMillis() {
+        return ehcacheStats.getMaxGetTimeMillis();
+    }
+
+    /**
+     * {@inheritDoc}
+     * 
+     * @see net.sf.ehcache.hibernate.management.EhcacheStats#getMaxGetTimeMillis(java.lang.String)
+     */
+    public long getMaxGetTimeMillis(String cacheName) {
+        return ehcacheStats.getMaxGetTimeMillis(cacheName);
+    }
+
+    /**
+     * {@inheritDoc}
+     * 
+     * @see net.sf.ehcache.hibernate.management.EhcacheStats#getMinGetTimeMillis()
+     */
+    public long getMinGetTimeMillis() {
+        return ehcacheStats.getMinGetTimeMillis();
+    }
+
+    /**
+     * {@inheritDoc}
+     * 
+     * @see net.sf.ehcache.hibernate.management.EhcacheStats#getMinGetTimeMillis(java.lang.String)
+     */
+    public long getMinGetTimeMillis(String cacheName) {
+        return ehcacheStats.getMinGetTimeMillis(cacheName);
+    }
+
+    /**
+     * {@inheritDoc}
+     * 
+     * @see net.sf.ehcache.hibernate.management.EhcacheStats#getAverageGetTimeMillis(java.lang.String)
+     */
+    public float getAverageGetTimeMillis(String region) {
+        return ehcacheStats.getAverageGetTimeMillis(region);
+    }
+
 }

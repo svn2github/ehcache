@@ -416,5 +416,40 @@ public interface EhcacheStats {
      * @return Returns number of elements on-disk in the cache for the input region
      */
     int getNumberOfElementsOnDisk(String region);
+    
+    /**
+     * Return minimum time taken for a get operation in the cache in milliseconds
+     * 
+     * @return minimum time taken for a get operation in the cache in milliseconds
+     */
+    public long getMinGetTimeMillis();
+
+    /**
+     * Return maximum time taken in milliseconds for a get operation 
+     * 
+     * @return Return maximum time taken in milliseconds for a get operation
+     */
+    public long getMaxGetTimeMillis();
+    
+    /**
+     * Return average time taken in milliseconds for a get operation for the input cache name
+     * 
+     * @return Return average time taken in milliseconds for a get operation for the input cache name
+     */
+    public float getAverageGetTimeMillis(String region);
+    
+    /**
+     * Return minimum time taken in milliseconds for a get operation for the input cache name
+     * 
+     * @return Return minimum time taken in milliseconds for a get operation for the input cache name
+     */
+    public long getMinGetTimeMillis(String cacheName);
+
+    /**
+     * Return maximum time taken in milliseconds for a get operation for the input cache name
+     * 
+     * @return Return maximum time taken in milliseconds for a get operation for the input cache name
+     */
+    public long getMaxGetTimeMillis(String cacheName);
 
 }

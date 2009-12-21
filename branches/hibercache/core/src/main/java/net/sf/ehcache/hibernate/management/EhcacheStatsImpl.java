@@ -283,7 +283,12 @@ public class EhcacheStatsImpl implements EhcacheStats {
      * {@inheritDoc}
      */
     public int getRegionCacheOrphanEvictionPeriod(String region) {
-        throw new UnsupportedOperationException("not supported yet");
+        Cache cache = this.cacheManager.getCache(region);
+        if (cache == null) {
+            return -1;
+        } else {
+            return cache.getCacheConfiguration().getTerracottaConfiguration().getOrphanEvictionPeriod();
+        }
     }
 
     /**
@@ -546,6 +551,76 @@ public class EhcacheStatsImpl implements EhcacheStats {
         }
         if (flag) {
             clearStats();
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public long getMaxGetTimeMillis() {
+        long rv = 0;
+        for (String cacheName : cacheManager.getCacheNames()) {
+            Cache cache = cacheManager.getCache(cacheName);
+            if (cache != null) {
+                rv = Math.max(rv, cache.getLiveCacheStatistics().getMaxGetTimeMillis());
+            }
+        }
+        return rv;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public long getMinGetTimeMillis() {
+        long rv = 0;
+        for (String cacheName : cacheManager.getCacheNames()) {
+            Cache cache = cacheManager.getCache(cacheName);
+            if (cache != null) {
+                rv = Math.max(rv, cache.getLiveCacheStatistics().getMinGetTimeMillis());
+            }
+        }
+        return rv;
+    }
+
+    /**
+     * {@inheritDoc}
+     * 
+     * @see net.sf.ehcache.hibernate.management.EhcacheStats#getMaxGetTimeMillis(java.lang.String)
+     */
+    public long getMaxGetTimeMillis(String cacheName) {
+        Cache cache = cacheManager.getCache(cacheName);
+        if (cache != null) {
+            return cache.getLiveCacheStatistics().getMaxGetTimeMillis();
+        } else {
+            return 0;
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     * 
+     * @see net.sf.ehcache.hibernate.management.EhcacheStats#getMinGetTimeMillis(java.lang.String)
+     */
+    public long getMinGetTimeMillis(String cacheName) {
+        Cache cache = cacheManager.getCache(cacheName);
+        if (cache != null) {
+            return cache.getLiveCacheStatistics().getMinGetTimeMillis();
+        } else {
+            return 0;
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     * 
+     * @see net.sf.ehcache.hibernate.management.EhcacheStats#getAverageGetTimeMillis(java.lang.String)
+     */
+    public float getAverageGetTimeMillis(String region) {
+        Cache cache = this.cacheManager.getCache(region);
+        if (cache != null) {
+            return cache.getLiveCacheStatistics().getAverageGetTimeMillis();
+        } else {
+            return -1f;
         }
     }
 
