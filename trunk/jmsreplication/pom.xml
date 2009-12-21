@@ -63,7 +63,7 @@
         <!--Install each message queue and specify these properties-->
         <!-- you have to set these 2 env variables to be able to run system-tests-->
         <activemq.bin.dir>${env.ACTIVEMQ_HOME}/bin</activemq.bin.dir>
-        <openmq.bin.dir>${env.OPENMQ_HOME}/mq/bin</openmq.bin.dir>
+        <openmq.bin.dir>${env.OPENMQ_HOME}/bin</openmq.bin.dir>
     </properties>
 
     <repositories>
