@@ -38,6 +38,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
+import net.sf.ehcache.Cache;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -146,7 +147,7 @@ public class DiskStore implements Store, CacheConfigurationListener {
      * @param cache    the {@link net.sf.ehcache.Cache} that the store is part of
      * @param diskPath the directory in which to create data and index files
      */
-    public DiskStore(Ehcache cache, String diskPath) {
+    protected DiskStore(Ehcache cache, String diskPath) {
         status = Status.STATUS_UNINITIALISED;
         this.cache = cache;
         name = cache.getName();
@@ -180,6 +181,18 @@ public class DiskStore implements Store, CacheConfigurationListener {
         }
     }
 
+    /**
+     * A factory method to create a DiskStore.
+     *
+     * @param cache
+     * @param diskStorePath
+     * @return an instance of a DiksStore
+     */
+    public static Store create(Cache cache, String diskStorePath) {
+        DiskStore store = new DiskStore(cache, diskStorePath);
+        cache.getCacheConfiguration().addListener(store);
+        return store;
+    }
 
     private void initialiseFiles() throws Exception {
         if (diskPath == null) {

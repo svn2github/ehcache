@@ -16,26 +16,29 @@
 package net.sf.ehcache.config;
 
 /**
+ * Instances of CacheConfigurationListener can be registered with CacheConfiguration
+ * instances in order to receive notification when any of the dynamic properties of
+ * the configuration are changed.
  *
- * @author cdennis
+ * @author Chris Dennis
  */
 public interface CacheConfigurationListener {
 
     /**
-     * Indicates a change in the configurations TTI
+     * Indicates a change in the configurations time to idle
      *
-     * @param oldTti previous TTI value
-     * @param newTti new TTI value
+     * @param oldTimeToIdle previous time to idle value
+     * @param newTimeToIdle new time to idle value
      */
-    public void timeToIdleChanged(long oldTti, long newTti);
+    public void timeToIdleChanged(long oldTimeToIdle, long newTimeToIdle);
 
     /**
-     * Indicates a change in the configurations TTL
+     * Indicates a change in the configurations time to live
      *
-     * @param oldTtl previous TTL value
-     * @param newTtl new TTL value
+     * @param oldTimeToLive previous time to live value
+     * @param newTimeToLive new time to live value
      */
-    public void timeToLiveChanged(long oldTtl, long newTtl);
+    public void timeToLiveChanged(long oldTimeToLive, long newTimeToLive);
 
     /**
      * Indicates a change in the configurations disk store capacity

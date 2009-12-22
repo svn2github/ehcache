@@ -4,6 +4,14 @@
  * http://creativecommons.org/licenses/publicdomain
  */
 
+/*
+ * Repackaged for use in Ehcache by Chris Dennis. The only changes
+ * to this version where to override the AbstractCollection toArray
+ * implementation in KeySet.toArray(), Values.toArray(), and
+ * EntrySet.toArray() to ensure correct operation when using the 1.5
+ * version of AbstractCollection.
+ */
+
 package net.sf.ehcache.store.chm;
 
 import java.util.concurrent.locks.*;

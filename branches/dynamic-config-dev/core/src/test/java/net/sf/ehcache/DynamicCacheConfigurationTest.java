@@ -24,8 +24,8 @@ public class DynamicCacheConfigurationTest extends AbstractCacheTest {
     private static final Logger LOG = LoggerFactory.getLogger(DynamicCacheConfigurationTest.class.getName());
     
     @Test
-    public void testTTIChange() throws InterruptedException {
-        Cache cache = new Cache("testTTIChange", 10, false, false, 0, 5);
+    public void testTimeToIdleChange() throws InterruptedException {
+        Cache cache = new Cache("testTimeToIdleChange", 10, false, false, 0, 5);
 
         manager.addCache(cache);
 
@@ -114,9 +114,9 @@ public class DynamicCacheConfigurationTest extends AbstractCacheTest {
     }
 
     @Test
-    public void testTTIChangeWithCustomElements() throws InterruptedException {
-        Cache cache = new Cache("testTTIChangeWithCustomElements", 10, false, false, 0, 5);
-
+    public void testTimeToIdleChangeWithCustomElements() throws InterruptedException {
+        Cache cache = new Cache("testTimeToIdleChangeWithCustomElements", 10, false, false, 0, 5);
+        
         manager.addCache(cache);
 
         cache.put(new Element("default", new Object()));
@@ -350,5 +350,66 @@ public class DynamicCacheConfigurationTest extends AbstractCacheTest {
 
         programmatic.put(new Element("key", "value"));
         Assert.assertNotNull(programmatic.get("key"));
+    }
+
+    @Test
+    public void testConfiguringClonedCache() throws CloneNotSupportedException {
+        Cache cache = new Cache("testConfiguringClonedCache", 10, false, true, 0, 0);
+        Cache clone = cache.clone();
+        clone.setName("testConfiguringClonedCacheCloned");
+
+        manager.addCache(cache);
+        manager.addCache(clone);
+
+        Assert.assertEquals(10, cache.getCacheConfiguration().getMaxElementsInMemory());
+        Assert.assertEquals(10, clone.getCacheConfiguration().getMaxElementsInMemory());
+        
+        for (int i = 0; i < 20; i++) {
+            cache.put(new Element("key" + i, new Object()));
+            Assert.assertTrue(cache.getSize() <= 10);
+            Assert.assertTrue(cache.getMemoryStore().getSize() <= 10);
+        }
+
+        for (int i = 0; i < 20; i++) {
+            clone.put(new Element("key" + i, new Object()));
+            Assert.assertTrue(clone.getSize() <= 10);
+            Assert.assertTrue(clone.getMemoryStore().getSize() <= 10);
+        }
+        
+        cache.getCacheConfiguration().setMaxElementsInMemory(20);
+        clone.getCacheConfiguration().setMaxElementsInMemory(5);
+        
+        for (int i = 20; i < 40; i++) {
+            cache.put(new Element("key" + i, new Object()));
+            Assert.assertTrue(cache.getSize() <= 20);
+            Assert.assertTrue(cache.getSize() > 10);
+            Assert.assertTrue(cache.getMemoryStore().getSize() <= 20);
+            Assert.assertTrue(cache.getMemoryStore().getSize() > 10);
+        }
+
+        for (int i = 20; i < 40; i++) {
+            clone.put(new Element("key" + i, new Object()));
+        }
+
+        Assert.assertEquals(5, clone.getSize());
+        Assert.assertEquals(5, clone.getMemoryStore().getSize());
+
+        cache.getCacheConfiguration().setMaxElementsInMemory(5);
+        clone.getCacheConfiguration().setMaxElementsInMemory(20);
+
+        for (int i = 40; i < 60; i++) {
+            cache.put(new Element("key" + i, new Object()));
+        }
+
+        Assert.assertEquals(5, cache.getSize());
+        Assert.assertEquals(5, cache.getMemoryStore().getSize());
+
+        for (int i = 40; i < 60; i++) {
+            clone.put(new Element("key" + i, new Object()));
+            Assert.assertTrue(clone.getSize() <= 20);
+            Assert.assertTrue(clone.getSize() > 5);
+            Assert.assertTrue(clone.getMemoryStore().getSize() <= 20);
+            Assert.assertTrue(clone.getMemoryStore().getSize() > 5);
+        }
     }
 }

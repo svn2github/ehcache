@@ -149,6 +149,7 @@ public class MemoryStore implements Store, CacheConfigurationListener {
      */
     public static MemoryStore create(final Ehcache cache, final Store diskStore) {
         MemoryStore memoryStore = new MemoryStore(cache, diskStore);
+        cache.getCacheConfiguration().addListener(memoryStore);
         return memoryStore;
     }
 
@@ -472,7 +473,7 @@ public class MemoryStore implements Store, CacheConfigurationListener {
      */
     protected void removeElementChosenByEvictionPolicy(final Element elementJustAdded) {
 
-            LOG.debug("Cache is full. Removing element ...");
+        LOG.debug("Cache is full. Removing element ...");
 
         Element element = findEvictionCandidate(elementJustAdded);
         if (element == null) {
@@ -506,7 +507,7 @@ public class MemoryStore implements Store, CacheConfigurationListener {
             if (element != null) {
                 return element;
             } else {
-                return elementJustAdded;
+                return null;
             }
         } else {
             //Using iterate technique

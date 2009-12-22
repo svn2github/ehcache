@@ -64,7 +64,6 @@ import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
-import net.sf.ehcache.config.CacheConfigurationListener;
 
 /**
  * Cache is the central class in ehcache. Caches have {@link Element}s and are managed
@@ -718,13 +717,6 @@ public class Cache implements Ehcache {
                 }
             }
 
-            if (diskStore instanceof CacheConfigurationListener) {
-                configuration.addListener((CacheConfigurationListener) diskStore);
-            }
-            if (memoryStore instanceof CacheConfigurationListener) {
-                configuration.addListener((CacheConfigurationListener) memoryStore);
-            }
-            
             changeStatus(Status.STATUS_ALIVE);
             initialiseRegisteredCacheExtensions();
             initialiseRegisteredCacheLoaders();
@@ -732,11 +724,9 @@ public class Cache implements Ehcache {
             // initialize live statistics
             // register to get notifications of
             // put/update/remove/expiry/eviction
-            getCacheEventNotificationService().registerListener(
-                    liveCacheStatisticsData);
+            getCacheEventNotificationService().registerListener(liveCacheStatisticsData);
             // set up default values
-            liveCacheStatisticsData
-                    .setStatisticsAccuracy(Statistics.STATISTICS_ACCURACY_BEST_EFFORT);
+            liveCacheStatisticsData.setStatisticsAccuracy(Statistics.STATISTICS_ACCURACY_BEST_EFFORT);
             liveCacheStatisticsData.setStatisticsEnabled(true);
             
             // register the sampled cache statistics
@@ -764,7 +754,7 @@ public class Cache implements Ehcache {
      */
     protected Store createDiskStore() {
         if (isDiskStore()) {
-            return new DiskStore(this, diskStorePath);
+            return DiskStore.create(this, diskStorePath);
         } else {
             return null;
         }
@@ -1922,9 +1912,7 @@ public class Cache implements Ehcache {
      */
     public final boolean isExpired(Element element) throws IllegalStateException, NullPointerException {
         checkStatus();
-        synchronized (element) {
-            return element.isExpired(configuration);
-        }
+        return element.isExpired(configuration);
     }
 
 
@@ -1940,7 +1928,7 @@ public class Cache implements Ehcache {
      * @throws CloneNotSupportedException
      */
     @Override
-    public final Object clone() throws CloneNotSupportedException {
+    public final Cache clone() throws CloneNotSupportedException {
         if (!(memoryStore == null && diskStore == null)) {
             throw new CloneNotSupportedException("Cannot clone an initialized cache.");
         }
@@ -2736,7 +2724,7 @@ public class Cache implements Ehcache {
     }
 
     /**
-     * Disable dynamic features of the cache. (Config changes and enable/disable)
+     * {@inheritDoc}
      */
     public void disableDynamicFeatures() {
         configuration.freezeConfiguration();

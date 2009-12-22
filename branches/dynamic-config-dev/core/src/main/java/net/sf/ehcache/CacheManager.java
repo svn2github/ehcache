@@ -171,7 +171,7 @@ public class CacheManager {
     
     private AtomicBoolean terracottaStoreFactoryCreated = new AtomicBoolean(false);
 
-    private boolean allowsDynamicCacheConfig = true;
+    private volatile boolean allowsDynamicCacheConfig = true;
     
     /**
      * An constructor for CacheManager, which takes a configuration object, rather than one created by parsing

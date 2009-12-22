@@ -54,7 +54,7 @@ public class Element implements Serializable, Cloneable {
 
     private static final Logger LOG = LoggerFactory.getLogger(Element.class.getName());
 
-    private static final AtomicLongFieldUpdater HIT_COUNT_UPDATER = AtomicLongFieldUpdater.newUpdater(Element.class, "hitCount");
+    private static final AtomicLongFieldUpdater<Element> HIT_COUNT_UPDATER = AtomicLongFieldUpdater.newUpdater(Element.class, "hitCount");
     
     /**
      * the cache key.
@@ -98,6 +98,9 @@ public class Element implements Serializable, Cloneable {
      * will be the creation time of the new Element, not the original one, so that TTL concepts still work.
      */
     private volatile long lastUpdateTime;
+
+    private volatile boolean cacheTimeToIdle = true;
+    private volatile boolean cacheTimeToLive = true;
 
     /**
      * A full constructor.
@@ -166,12 +169,14 @@ public class Element implements Serializable, Cloneable {
      * @since 1.7
      */
     public Element(final Object key, final Object value, final long version, final long creationTime,
-            final long lastAccessTime, final long hitCount, final int timeToLive, final int timeToIdle,
-            final long lastUpdateTime) {
+            final long lastAccessTime, final long hitCount, final boolean cacheTimeToLive, final boolean cacheTimeToIdle,
+            final int timeToLive, final int timeToIdle, final long lastUpdateTime) {
         this.key = key;
         this.value = value;
         this.version = version;
         HIT_COUNT_UPDATER.set(this, hitCount);
+        this.cacheTimeToLive = cacheTimeToLive;
+        this.cacheTimeToIdle = cacheTimeToIdle;
         this.timeToLive = timeToLive;
         this.timeToIdle = timeToIdle;
         this.lastUpdateTime = lastUpdateTime;
@@ -312,7 +317,8 @@ public class Element implements Serializable, Cloneable {
         if (timeToLiveSeconds < 0) {
             throw new IllegalArgumentException("timeToLive can't be negative");
         }
-        this.timeToLive = convertCustomLifetimeToInternalRepresentation(timeToLiveSeconds);
+        this.cacheTimeToLive = false;
+        this.timeToLive = timeToLiveSeconds;
     }
 
     /**
@@ -324,7 +330,8 @@ public class Element implements Serializable, Cloneable {
         if (timeToIdleSeconds < 0) {
             throw new IllegalArgumentException("timeToIdle can't be negative");
         }
-        this.timeToIdle = convertCustomLifetimeToInternalRepresentation(timeToIdleSeconds);
+        this.cacheTimeToIdle = false;
+        this.timeToIdle = timeToIdleSeconds;
     }
 
     /**
@@ -652,18 +659,18 @@ public class Element implements Serializable, Cloneable {
      * @see #getExpirationTime()
      */
     public boolean isExpired(CacheConfiguration config) {
-        if (isUsingDefault(timeToIdle)) {
+        if (cacheTimeToIdle) {
             if (config.isEternal()) {
-                timeToIdle = convertDefaultLifetimeToInternalRepresentation(0);
+                timeToIdle = 0;
             } else {
-                timeToIdle = convertDefaultLifetimeToInternalRepresentation(TimeUtil.convertTimeToInt(config.getTimeToIdleSeconds()));
+                timeToIdle = TimeUtil.convertTimeToInt(config.getTimeToIdleSeconds());
             }
         }
-        if (isUsingDefault(timeToLive)) {
+        if (cacheTimeToLive) {
             if (config.isEternal()) {
-                timeToLive = convertDefaultLifetimeToInternalRepresentation(0);
+                timeToLive = 0;
             } else {
-                timeToLive = convertDefaultLifetimeToInternalRepresentation(TimeUtil.convertTimeToInt(config.getTimeToLiveSeconds()));
+                timeToLive = TimeUtil.convertTimeToInt(config.getTimeToLiveSeconds());
             }
         }
         return isExpired();
@@ -701,8 +708,7 @@ public class Element implements Serializable, Cloneable {
      * @return true if the element is eternal
      */
     public boolean isEternal() {
-        return (0 == convertInternalRepresentationToLifeTime(timeToIdle))
-                && (0 == convertInternalRepresentationToLifeTime(timeToLive));
+        return (0 == timeToIdle) && (0 == timeToLive);
     }
 
     /**
@@ -712,9 +718,13 @@ public class Element implements Serializable, Cloneable {
      */
     public void setEternal(final boolean eternal) {
         if (eternal) {
-            this.timeToIdle = convertCustomLifetimeToInternalRepresentation(0);
-            this.timeToLive = convertCustomLifetimeToInternalRepresentation(0);
+            this.cacheTimeToIdle = false;
+            this.cacheTimeToLive = false;
+            this.timeToIdle = 0;
+            this.timeToLive = 0;
         } else if (isEternal()) {
+            this.cacheTimeToIdle = false;
+            this.cacheTimeToLive = false;
             this.timeToIdle = Integer.MIN_VALUE;
             this.timeToLive = Integer.MIN_VALUE;
         }
@@ -733,12 +743,10 @@ public class Element implements Serializable, Cloneable {
      * @return the time to live, in seconds
      */
     public int getTimeToLive() {
-        int ttl = convertInternalRepresentationToLifeTime(timeToLive);
-
-        if (Integer.MIN_VALUE == ttl) {
+        if (Integer.MIN_VALUE == timeToLive) {
             return 0;
         } else {
-            return ttl;
+            return timeToLive;
         }
     }
 
@@ -746,29 +754,27 @@ public class Element implements Serializable, Cloneable {
      * @return the time to idle, in seconds
      */
     public int getTimeToIdle() {
-        int tti = convertInternalRepresentationToLifeTime(timeToIdle);
-
-        if (Integer.MIN_VALUE == tti) {
+        if (Integer.MIN_VALUE == timeToIdle) {
             return 0;
         } else {
-            return tti;
+            return timeToIdle;
         }
     }
 
     /**
-     * @return the internally encoded time to live
+     * @return <code>false</code> if this Element has a custom time to live
      */
-    public int getInternalTimeToLive() {
-        return timeToLive;
+    public boolean usesCacheTimeToLive() {
+        return cacheTimeToLive;
     }
 
     /**
-     * @return the internally encoded time to idle
+     * @return <code>false</code> if this Element has a custom time to idle
      */
-    public int getInternalTimeToIdle() {
-        return timeToIdle;
+    public boolean usesCacheTimeToIdle() {
+        return cacheTimeToIdle;
     }
-
+    
     /**
      * Set the default parameters of this element - those from its enclosing cache.
      * @param tti TTI in seconds
@@ -777,14 +783,14 @@ public class Element implements Serializable, Cloneable {
      */
     protected void setLifespanDefaults(int tti, int ttl, boolean eternal) {
         if (eternal) {
-            this.timeToIdle = convertDefaultLifetimeToInternalRepresentation(0);
-            this.timeToLive = convertDefaultLifetimeToInternalRepresentation(0);
+            this.timeToIdle = 0;
+            this.timeToLive = 0;
         } else if (isEternal()) {
             this.timeToIdle = Integer.MIN_VALUE;
             this.timeToLive = Integer.MIN_VALUE;
         } else {
-            timeToIdle = convertDefaultLifetimeToInternalRepresentation(tti);
-            timeToLive = convertDefaultLifetimeToInternalRepresentation(ttl);
+            timeToIdle = tti;
+            timeToLive = ttl;
         }
     }
     
@@ -806,41 +812,5 @@ public class Element implements Serializable, Cloneable {
     private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
         in.defaultReadObject();
         elementEvictionData = new DefaultElementEvictionData(in.readInt(), in.readInt());
-    }
-
-    private static int convertCustomLifetimeToInternalRepresentation(int time) {
-        if (time < 0) {
-            throw new AssertionError();
-        }
-
-        return Math.max(Integer.MIN_VALUE + 1, -1 - time);
-    }
-
-    private static int convertDefaultLifetimeToInternalRepresentation(int time) {
-        if (time < 0) {
-            throw new AssertionError();
-        }
-
-        return time;
-    }
-    
-    /**
-     * internal
-     */
-    public static int convertInternalRepresentationToLifeTime(int internal) {
-        if (internal >= 0) {
-            return internal;
-        } else if (internal == Integer.MIN_VALUE) {
-            return Integer.MIN_VALUE;
-        } else {
-            return -1 - internal;
-        }
-    }
-
-    /**
-     * internal
-     */
-    public static boolean isUsingDefault(int internal) {
-        return internal >= 0;
     }
 }

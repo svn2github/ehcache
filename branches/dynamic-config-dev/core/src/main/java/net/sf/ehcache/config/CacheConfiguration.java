@@ -29,20 +29,34 @@ import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
 
 /**
  * A value object to represent Cache configuration that can be set by the BeanHandler.
- *
  * e.g.
+ * <pre>{@code
  * <cache name="testCache1"
- * maxElementsInMemory="10000"
- * eternal="false"
- * timeToIdleSeconds="3600"
- * timeToLiveSeconds="10"
- * overflowToDisk="true"
- * diskPersistent="true"
- * diskExpiryThreadIntervalSeconds="120"
- * maxElementsOnDisk="10000"
+ *   maxElementsInMemory="10000"
+ *   eternal="false"
+ *   timeToIdleSeconds="3600"
+ *   timeToLiveSeconds="10"
+ *   overflowToDisk="true"
+ *   diskPersistent="true"
+ *   diskExpiryThreadIntervalSeconds="120"
+ *   maxElementsOnDisk="10000"
  * />
- *
+ * }</pre>
+ * CacheConfiguration instances retrieved from Cache instances allow the dynamic
+ * modification of certain configuration properties.  Currently the dynamic
+ * properties are:
+ * <ul>
+ * <li>Time To Idle</li>
+ * <li>Time To Live</li>
+ * <li>Max Elements in Memory</li>
+ * <li>Max Elements on Disk</li>
+ * </ul>
+ * Dynamic changes are however not persistent across cache restarts.  On restart
+ * the cache configuration will be reloaded from its original source, erasing any
+ * changes made previously at runtime.
+ * 
  * @author <a href="mailto:gluck@thoughtworks.com">Greg Luck</a>
+ * @author <a href="mailto:cdennis@terracottatech.com>Chris Dennis</a>
  * @version $Id$
  */
 public class CacheConfiguration implements Cloneable {
@@ -166,7 +180,7 @@ public class CacheConfiguration implements Cloneable {
     /**
      * The listeners for this configuration.
      */
-    private final Collection<CacheConfigurationListener> listeners = new CopyOnWriteArrayList<CacheConfigurationListener>();
+    private volatile Collection<CacheConfigurationListener> listeners = new CopyOnWriteArrayList<CacheConfigurationListener>();
 
     private volatile boolean frozen;
 
@@ -178,7 +192,9 @@ public class CacheConfiguration implements Cloneable {
      */
     @Override
     public CacheConfiguration clone() throws CloneNotSupportedException {
-        return (CacheConfiguration) super.clone();
+        CacheConfiguration config = (CacheConfiguration) super.clone();
+        config.listeners = new CopyOnWriteArrayList<CacheConfigurationListener>();
+        return config;
     }
 
     /**
@@ -197,6 +213,9 @@ public class CacheConfiguration implements Cloneable {
 
     /**
      * Sets the maximum objects to be held in memory.
+     * <p>
+     * This property can be modified dynamically while the cache is operating.
+     * 
      * @param maxElementsInMemory param
      */
     public final void setMaxElementsInMemory(int maxElementsInMemory) {
@@ -240,10 +259,19 @@ public class CacheConfiguration implements Cloneable {
     public final void setEternal(boolean eternal) {
         checkDynamicChange();
         this.eternal = eternal;
+        if (eternal) {
+            setTimeToIdleSeconds(0);
+            setTimeToLiveSeconds(0);
+        }
+//        else {
+//            // XXX: Should this set the TTI/TTL to some default?
+//        }
     }
 
     /**
      * Sets the time to idle for an element before it expires. Is only used if the element is not eternal.
+     * <p>
+     * This property can be modified dynamically while the cache is operating.
      */
     public final void setTimeToIdleSeconds(long timeToIdleSeconds) {
         checkDynamicChange();
@@ -255,6 +283,8 @@ public class CacheConfiguration implements Cloneable {
 
     /**
      * Sets the time to idle for an element before it expires. Is only used if the element is not eternal.
+     * <p>
+     * This property can be modified dynamically while the cache is operating.
      */
     public final void setTimeToLiveSeconds(long timeToLiveSeconds) {
         checkDynamicChange();
@@ -302,6 +332,8 @@ public class CacheConfiguration implements Cloneable {
 
     /**
      * Sets the maximum number elements on Disk. 0 means unlimited.
+     * <p>
+     * This property can be modified dynamically while the cache is operating.
      */
     public void setMaxElementsOnDisk(int maxElementsOnDisk) {
         checkDynamicChange();
@@ -642,15 +674,15 @@ public class CacheConfiguration implements Cloneable {
     /**
      * internal use only
      */
-    public void internalSetTti(long tti) {
-        this.timeToIdleSeconds = tti;
+    public void internalSetTimeToIdle(long timeToIdle) {
+        this.timeToIdleSeconds = timeToIdle;
     }
 
     /**
      * internal use only
      */
-    public void internalSetTtl(long ttl) {
-        this.timeToLiveSeconds = ttl;
+    public void internalSetTimeToLive(long timeToLive) {
+        this.timeToLiveSeconds = timeToLive;
     }
 
     /**
