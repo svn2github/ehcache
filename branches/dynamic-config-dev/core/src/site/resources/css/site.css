@@ -24,13 +24,13 @@ tt {
 .xright-red {
     float: right;
     background: #d42e12;
-    font-size: 13px;
+    font-size: 11px;
     font-weight: bold;
     color: #ffffff;
-    padding-top: 7px;
-    padding-left: 25px;
-    padding-right: 25px;
-    padding-bottom: 7px;
+    padding-top: 4px;
+    padding-left: 20px;
+    padding-right: 20px;
+    padding-bottom: 4px;
 }
 
 .xright-trans {
@@ -39,35 +39,145 @@ tt {
     font-weight: bold;
     font-size: 11px;
     font-weight: bold;
-    padding-right: 15px;
+    padding-left: 7px;
+    padding-right: 7px;
+    padding-top: 3px;
+    padding-bottom: 3px;
 }
 
 .xright-orange {
     float: right;
     background: #d97300;
-    font-size: 13px;
+    font-size: 11px;
     font-weight: bold;
     color: #ffffff;
-    padding-top: 7px;
-    padding-left: 25px;
-    padding-right: 25px;
-    padding-bottom: 7px;
+    padding-top: 4px;
+    padding-left: 20px;
+    padding-right: 20px;
+    padding-bottom: 4px;
 }
 
-.xright-orange a:visited, .xright-orange a:link, .xright-yellow a:visited, .xright-yellow a:link, .xright-red a:visited, .xright-red a:link, .xright-trans a:visited, .xright-trans a:link {
+.panel-orange {
+    float: right;
+    width: 80%;
+    background: #ccc;
+    font-size: 11px;
+    font-weight: bold;
+    font-alignment: center;
+    text-align: center;
     color: #ffffff;
+    padding-top: 3px;
+    padding-left: 15px;
+    padding-right: 15px;
+    padding-bottom: 3px;
+    border-color: white;
+    border-style: solid;
+    border-bottom-width: 2px
+}
+
+.panel-yellow {
+    float: right;
+    width: 80%;
+    background: #ccc;
+    font-size: 11px;
+    font-weight: bold;
+    font-alignment: center;
+    text-align: center;
+    color: #ffffff;
+    padding-top: 3px;
+    padding-left: 15px;
+    padding-right: 15px;
+    padding-bottom: 3px;
+    border-color: white;
+    border-style: solid;
+    border-bottom-width: 2px
+}
+
+.panel-red {
+    float: right;
+    width: 80%;
+    background: #ccc;
+    font-size: 11px;
+    font-weight: bold;
+    font-alignment: center;
+    text-align: center;
+    color: #ffffff;
+    padding-top: 3px;
+    padding-left: 15px;
+    padding-right: 15px;
+    padding-bottom: 3px;
+    border-color: white;
+    border-style: solid;
+    border-bottom-width: 2px
+}
+
+.panel-blue {
+    float: right;
+    width: 80%;
+    background: #ccc;
+    font-size: 11px;
+    font-weight: bold;
+    font-alignment: center;
+    text-align: center;
+    color: #ffffff;
+    padding-top: 3px;
+    padding-left: 15px;
+    padding-right: 15px;
+    padding-bottom: 3px;
+    border-color: white;
+    border-style: solid;
+    border-bottom-width: 2px
+}
+
+
+.panel-brown {
+    float: right;
+    width: 80%;
+    background: #ccc;
+    font-size: 11px;
+    font-weight: bold;
+    font-alignment: center;
+    text-align: center;
+    color: #ffffff;
+    padding-top: 0px;
+    padding-left: 15px;
+    padding-right: 15px;
+    padding-bottom: 0px;
+    border-color: white;
+    border-style: solid;
+    border-bottom-width: 2px
+}
+
+.xright-orange-small {
+    float: right;
+    background: #d97300;
+    font-size: 11px;
+    font-weight: bold;
+    color: #ffffff;
+    padding-top: 3px;
+    padding-left: 15px;
+    padding-right: 15px;
+    padding-bottom: 3px;
+}
+
+.xright-orange a:visited, .xright-orange a:link, .xright-yellow a:visited, .xright-yellow a:link, .xright-red a:visited, .xright-red a:link {
+    color: #ffffff;
+}
+
+.panel-blue a:visited, .panel-blue a:link, .panel-brown a:visited, .panel-brown a:link, .panel-yellow a:visited, .panel-yellow a:link, .panel-red a:visited, .panel-red a:link, .panel-orange a:visited, .panel-orange a:link, .xright-orange-small a:visited, .xright-orange-small a:link, .xright-trans a:visited, .xright-trans a:link {
+    color: #444444;
 }
 
 .xright-yellow {
     float: right;
     background: #fa9e0d;
-    font-size: 13px;
+    font-size: 11px;
     font-weight: bold;
     color: #ffffff;
-    padding-top: 7px;
-    padding-left: 25px;
-    padding-right: 25px;
-    padding-bottom: 7px;
+    padding-top: 4px;
+    padding-left: 20px;
+    padding-right: 20px;
+    padding-bottom: 4px;
 }
 
 .fixedwidth {

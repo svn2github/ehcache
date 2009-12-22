@@ -1,6 +1,6 @@
 $Id: CHANGELOG.txt,v 1.31 2006/03/07 00:05:56 gregluck Exp $
 
-<release version="1.3" date="2009-12-31" desc="Maintenance Release">
+<release version="0.2.0" date="2009-12-18" desc="Feature Release">
 
     <!-- Features and Enhancements -->
     <action dev="Greg Luck" type="update">
@@ -10,40 +10,27 @@ $Id: CHANGELOG.txt,v 1.31 2006/03/07 00:05:56 gregluck Exp $
         Change logging to SLF4J
     </action>
     <action dev="Greg Luck" type="add">
+        OpenJPA may be coupled with the ehcache-terracotta module and the Terracotta server
+         array for scale and coherence. The minimum ehcache-core version for this release
+         is 1.7.0, which included support for ehcache-terracotta.
+    </action>
+    <action dev="Greg Luck" type="add">
         Default caches now use the default cache in ehcache.xml, not one hardcoded in this module.
     </action>
+    <action dev="Greg Luck" type="add">
+        Evicting all classes (w/ or w/o subclasses) is now supported, as long as they are in different caches
+        (i.e. you don't explicitly specify the same cache for all mapped classes)
+    </action>
 </release>
 
-
-<release version="1.2" date="2009-1-20" desc="Update to ehcache core 1.6-beta2">
+<release version="0.1" date="2009-07-20" desc="Feature Release">
 
     <!-- Features and Enhancements -->
     <action dev="Greg Luck" type="update">
-        Updated for interface change in 1.6-beta2.
+        Initial release.
     </action>
 </release>
 
-
-<release version="1.1" date="2008-10-20" desc="Maintenance release of JGroups Replication">
-
-    <!-- Features and Enhancements -->
-    <action dev="Greg Luck" type="add">
-        Separated JGroups into its own ehcache-jgroupsreplication module and distribution.
-    </action>
-    <action dev="Greg Luck" type="add">
-        Pure Maven build.
-    </action>
-    <action dev="Greg Luck" type="update">
-        Significant performance improvements to the replicator. Applied fixes made to some bottlenecks
-        in the RMI replicator to the JGroups replicator.
-    </action>
-</release>
-<release version="1.0" date="2008-7-12" desc="Initial release of JGroups">
-
-    <!-- Features and Enhancements -->
-    <action dev="Greg Luck" type="add">
-        Initial release of JGroups. Released in the ehcache core maven module and distribution.
-    </action>
 
 </release>
 
