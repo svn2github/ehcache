@@ -33,5 +33,12 @@ public interface StoreFactory {
      * @return store instance
      */
     Store create(Ehcache cache);
+    
+    /**
+     * Get Unique Client identifier for this StoreFactory
+     * 
+     * @return Unique Client identifier for this StoreFactory
+     */
+    public String getUUID();
 
 }

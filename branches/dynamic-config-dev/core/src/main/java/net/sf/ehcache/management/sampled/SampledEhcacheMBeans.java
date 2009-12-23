@@ -16,8 +16,6 @@
 
 package net.sf.ehcache.management.sampled;
 
-import java.lang.reflect.Method;
-
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 
@@ -74,16 +72,7 @@ public abstract class SampledEhcacheMBeans {
     }
     
     private static String getClientUUID(StoreFactory storeFactory) {
-        try {
-            Class c = storeFactory.getClass();
-            Method m = c.getMethod("getUUID");
-            if (m == null) {
-                return null;
-            }
-            return (String)m.invoke(storeFactory);
-        } catch (Exception e) {
-            return null;
-        }
+        return storeFactory.getUUID();
     }
     
     /**

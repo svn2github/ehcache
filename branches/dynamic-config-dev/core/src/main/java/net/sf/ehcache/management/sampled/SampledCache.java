@@ -254,6 +254,24 @@ public class SampledCache implements SampledCacheMBean {
     /**
      * {@inheritDoc}
      * 
+     * @see net.sf.ehcache.statistics.LiveCacheStatistics#getMaxGetTimeMillis()
+     */
+    public long getMaxGetTimeMillis() {
+        return cache.getLiveCacheStatistics().getMaxGetTimeMillis();
+    }
+
+    /**
+     * {@inheritDoc}
+     * 
+     * @see net.sf.ehcache.statistics.LiveCacheStatistics#getMinGetTimeMillis()
+     */
+    public long getMinGetTimeMillis() {
+        return cache.getLiveCacheStatistics().getMinGetTimeMillis();
+    }
+
+    /**
+     * {@inheritDoc}
+     * 
      * @see net.sf.ehcache.management.sampled.SampledCacheMBean#getCacheHitCount()
      */
     public long getCacheHitCount() {

@@ -63,6 +63,8 @@
     <suppress checks="AnonInnerLengthCheck" files="Cache.java"/>
     <suppress checks="ClassFanOutComplexity" files="ConfigurationHelper.java"/>
     <suppress checks="ParameterNumber" files="Statistics.java"/>
+    <suppress checks="CyclomaticComplexity" files="ConfigurationGenerator.java"/>
+    <suppress checks="NPathComplexity" files="ConfigurationGenerator.java"/>
 
 
 
