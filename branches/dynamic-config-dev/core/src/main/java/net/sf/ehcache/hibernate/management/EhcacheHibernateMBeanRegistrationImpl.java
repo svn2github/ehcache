@@ -28,7 +28,6 @@ import net.sf.ehcache.CacheException;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Status;
 import net.sf.ehcache.event.CacheManagerEventListener;
-import net.sf.ehcache.store.StoreFactory;
 
 import org.hibernate.SessionFactory;
 import org.slf4j.Logger;
@@ -48,15 +47,15 @@ public class EhcacheHibernateMBeanRegistrationImpl implements EhcacheHibernateMB
     private static final Logger LOG = LoggerFactory.getLogger(EhcacheHibernateMBeanRegistrationImpl.class.getName());
 
     private static final int MAX_MBEAN_REGISTRATION_RETRIES = 50;
-    private StoreFactory storeFactory;
+    private String cacheManagerClusterUUID;
     private String registeredCacheManagerName;
-    private volatile Status status = Status.STATUS_UNINITIALISED;
+    private Status status = Status.STATUS_UNINITIALISED;
     private volatile EhcacheHibernate ehcacheHibernate;
 
     /**
      * {@inheritDoc}
      */
-    public void registerMBeanForCacheManager(final CacheManager manager, final String sessionFactoryName) throws Exception {
+    public synchronized void registerMBeanForCacheManager(final CacheManager manager, final String sessionFactoryName) throws Exception {
         String name = null;
         if (sessionFactoryName == null) {
             name = manager.getName();
@@ -71,6 +70,7 @@ public class EhcacheHibernateMBeanRegistrationImpl implements EhcacheHibernateMB
         int tries = 0;
         boolean success = false;
         Exception exception = null;
+        cacheManagerClusterUUID = manager.getClusterUUID();
         do {
             this.registeredCacheManagerName = name;
             if (tries != 0) {
@@ -79,7 +79,7 @@ public class EhcacheHibernateMBeanRegistrationImpl implements EhcacheHibernateMB
             try {
                 // register the CacheManager MBean
                 MBeanServer mBeanServer = getMBeanServer();
-                mBeanServer.registerMBean(ehcacheHibernate, EhcacheHibernateMbeanNames.getCacheManagerObjectName(manager.getStoreFactory(),
+                mBeanServer.registerMBean(ehcacheHibernate, EhcacheHibernateMbeanNames.getCacheManagerObjectName(cacheManagerClusterUUID,
                         registeredCacheManagerName));
                 success = true;
                 break;
@@ -110,21 +110,23 @@ public class EhcacheHibernateMBeanRegistrationImpl implements EhcacheHibernateMB
     /**
      * {@inheritDoc}
      */
-    public void dispose() throws CacheException {
+    public synchronized void dispose() throws CacheException {
         Set<ObjectName> registeredObjectNames = null;
 
         try {
             // CacheManager MBean
             registeredObjectNames = getMBeanServer().queryNames(
-                    EhcacheHibernateMbeanNames.getCacheManagerObjectName(storeFactory, registeredCacheManagerName), null);
+                    EhcacheHibernateMbeanNames.getCacheManagerObjectName(cacheManagerClusterUUID, registeredCacheManagerName), null);
         } catch (MalformedObjectNameException e) {
             LOG.warn("Error querying MBeanServer. Error was " + e.getMessage(), e);
         }
-        for (ObjectName objectName : registeredObjectNames) {
-            try {
-                getMBeanServer().unregisterMBean(objectName);
-            } catch (Exception e) {
-                LOG.warn("Error unregistering object instance " + objectName + " . Error was " + e.getMessage(), e);
+        if (registeredObjectNames != null) {
+            for (ObjectName objectName : registeredObjectNames) {
+                try {
+                    getMBeanServer().unregisterMBean(objectName);
+                } catch (Exception e) {
+                    LOG.warn("Error unregistering object instance " + objectName + " . Error was " + e.getMessage(), e);
+                }
             }
         }
         status = Status.STATUS_SHUTDOWN;
@@ -133,7 +135,7 @@ public class EhcacheHibernateMBeanRegistrationImpl implements EhcacheHibernateMB
     /**
      * {@inheritDoc}
      */
-    public Status getStatus() {
+    public synchronized Status getStatus() {
         return status;
     }
 

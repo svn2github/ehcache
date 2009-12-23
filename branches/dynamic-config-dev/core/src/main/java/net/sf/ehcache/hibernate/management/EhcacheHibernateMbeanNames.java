@@ -16,12 +16,8 @@
 
 package net.sf.ehcache.hibernate.management;
 
-import java.lang.reflect.Method;
-
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
-
-import net.sf.ehcache.store.StoreFactory;
 
 /**
  * Utility class used for getting {@link ObjectName}'s for ehcache hibernate MBeans
@@ -51,33 +47,21 @@ public abstract class EhcacheHibernateMbeanNames {
      * @return An {@link ObjectName} using the input name of cache manager
      * @throws MalformedObjectNameException
      */
-    public static ObjectName getCacheManagerObjectName(StoreFactory storeFactory, String name) throws MalformedObjectNameException {
+    public static ObjectName getCacheManagerObjectName(String cacheManagerClusterUUID, String name) throws MalformedObjectNameException {
         ObjectName objectName = new ObjectName(GROUP_ID + ":type=" + EHCACHE_HIBERNATE_TYPE + ",name=" + name
-                + getBeanNameSuffix(storeFactory));
+                + getBeanNameSuffix(cacheManagerClusterUUID));
         return objectName;
     }
 
-    private static String getBeanNameSuffix(StoreFactory storeFactory) {
+    private static String getBeanNameSuffix(String cacheManagerClusterUUID) {
         String suffix = "";
-        if (storeFactory != null) {
-            String uuid = getClientUUID(storeFactory);
-            if (uuid != null) {
-                suffix = ",node=" + uuid;
-            }
+        if (!isBlank(cacheManagerClusterUUID)) {
+            suffix = ",node=" + cacheManagerClusterUUID;
         }
         return suffix;
     }
 
-    private static String getClientUUID(StoreFactory storeFactory) {
-        try {
-            Class c = storeFactory.getClass();
-            Method m = c.getMethod("getUUID");
-            if (m == null) {
-                return null;
-            }
-            return (String) m.invoke(storeFactory);
-        } catch (Exception e) {
-            return null;
-        }
+    private static boolean isBlank(String param) {
+        return param == null || "".equals(param.trim());
     }
 }

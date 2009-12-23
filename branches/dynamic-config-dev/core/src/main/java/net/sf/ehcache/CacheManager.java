@@ -172,7 +172,7 @@ public class CacheManager {
     
     private AtomicBoolean terracottaStoreFactoryCreated = new AtomicBoolean(false);
     
-    private ConfigurationSource originalConfigurationSource;
+    private volatile ConfigurationSource originalConfigurationSource;
     
     private Configuration configuration;
 
@@ -331,11 +331,18 @@ public class CacheManager {
     }
     
     /**
+     * Returns unique cluster-wide id for this cache-manager. Only applicable when running in "cluster" mode, e.g. when this cache-manager
+     * contains caches clustered with Terracotta. Otherwise returns blank string.
      * 
-     * @return {@link StoreFactory} for this cacheManager
+     * @return Returns unique cluster-wide id for this cache-manager when it contains clustered caches (e.g. Terracotta clustered caches).
+     *         Otherwise returns blank string.
      */
-    public StoreFactory getStoreFactory() {
-        return terracottaStoreFactory;
+    public String getClusterUUID() {
+        if (terracottaStoreFactory != null) {
+            return terracottaStoreFactory.getUUID();
+        } else {
+            return "";
+        }
     }
 
     /**
@@ -345,7 +352,7 @@ public class CacheManager {
     private void initializeMBeanRegistrationProvider(Configuration localConfiguration) {
         mbeanRegistrationProvider = mBeanRegistrationProviderFactory.createMBeanRegistrationProvider(localConfiguration);
         try {
-            mbeanRegistrationProvider.initialize(this, terracottaStoreFactory);
+            mbeanRegistrationProvider.initialize(this);
         } catch (MBeanRegistrationProviderException e) {
             LOG.warn("Failed to initialize the MBeanRegistrationProvider - " + mbeanRegistrationProvider.getClass().getName(), e);
         }

@@ -19,8 +19,6 @@ package net.sf.ehcache.management.sampled;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 
-import net.sf.ehcache.store.StoreFactory;
-
 /**
  * Utility class used for getting {@link ObjectName}'s for sampled MBeans
  * 
@@ -53,28 +51,25 @@ public abstract class SampledEhcacheMBeans {
      * @return An {@link ObjectName} using the input name of cache manager
      * @throws MalformedObjectNameException
      */
-    public static ObjectName getCacheManagerObjectName(StoreFactory storeFactory, String cacheManagerName)
-      throws MalformedObjectNameException {
-        ObjectName objectName = new ObjectName(GROUP_ID + ":type=" + SAMPLED_CACHE_MANAGER_TYPE +
-                ",name=" + cacheManagerName + getBeanNameSuffix(storeFactory));
+    public static ObjectName getCacheManagerObjectName(String cacheManagerClusterUUID, String cacheManagerName)
+            throws MalformedObjectNameException {
+        ObjectName objectName = new ObjectName(GROUP_ID + ":type=" + SAMPLED_CACHE_MANAGER_TYPE + ",name=" + cacheManagerName
+                + getBeanNameSuffix(cacheManagerClusterUUID));
         return objectName;
     }
 
-    private static String getBeanNameSuffix(StoreFactory storeFactory) {
+    private static String getBeanNameSuffix(String cacheManagerClusterUUID) {
         String suffix = "";
-        if (storeFactory != null) {
-            String uuid = getClientUUID(storeFactory);
-            if (uuid != null) {
-                suffix = ",node=" + uuid;
-            }
+        if (!isBlank(cacheManagerClusterUUID)) {
+            suffix = ",node=" + cacheManagerClusterUUID;
         }
         return suffix;
     }
-    
-    private static String getClientUUID(StoreFactory storeFactory) {
-        return storeFactory.getUUID();
+
+    private static boolean isBlank(String param) {
+        return param == null || "".equals(param.trim());
     }
-    
+
     /**
      * Returns an ObjectName for the passed cacheManagerName, cacheName
      * combination
@@ -85,11 +80,10 @@ public abstract class SampledEhcacheMBeans {
      *         cache and the cache manager name
      * @throws MalformedObjectNameException
      */
-    public static ObjectName getCacheObjectName(StoreFactory storeFactory, String cacheManagerName, String cacheName)
-      throws MalformedObjectNameException {
-        ObjectName objectName = new ObjectName(GROUP_ID + ":type=" + SAMPLED_CACHE_TYPE +
-                "," + SAMPLED_CACHE_MANAGER_TYPE + "=" +
-                cacheManagerName + ",name=" + cacheName + getBeanNameSuffix(storeFactory));
+    public static ObjectName getCacheObjectName(String cacheManagerClusterUUID, String cacheManagerName, String cacheName)
+            throws MalformedObjectNameException {
+        ObjectName objectName = new ObjectName(GROUP_ID + ":type=" + SAMPLED_CACHE_TYPE + "," + SAMPLED_CACHE_MANAGER_TYPE + "="
+                + cacheManagerName + ",name=" + cacheName + getBeanNameSuffix(cacheManagerClusterUUID));
         return objectName;
     }
 
@@ -102,10 +96,10 @@ public abstract class SampledEhcacheMBeans {
      *         ObjectName's for the input cache manager name
      * @throws MalformedObjectNameException
      */
-    public static ObjectName getQueryCacheManagerObjectName(StoreFactory storeFactory, String cacheManagerName)
-      throws MalformedObjectNameException {
-        ObjectName objectName = new ObjectName(GROUP_ID + ":*," + SAMPLED_CACHE_MANAGER_TYPE + "=" +
-                cacheManagerName + getBeanNameSuffix(storeFactory));
+    public static ObjectName getQueryCacheManagerObjectName(String cacheManagerClusterUUID, String cacheManagerName)
+            throws MalformedObjectNameException {
+        ObjectName objectName = new ObjectName(GROUP_ID + ":*," + SAMPLED_CACHE_MANAGER_TYPE + "=" + cacheManagerName
+                + getBeanNameSuffix(cacheManagerClusterUUID));
         return objectName;
     }
 
@@ -116,9 +110,9 @@ public abstract class SampledEhcacheMBeans {
      *         of {@value #SAMPLED_CACHE_MANAGER_TYPE}
      * @throws MalformedObjectNameException
      */
-    public static ObjectName getQueryCacheManagersObjectName(StoreFactory storeFactory) throws MalformedObjectNameException {
-        ObjectName objectName = new ObjectName(GROUP_ID + ":type=" + SAMPLED_CACHE_MANAGER_TYPE + ",*" +
-                getBeanNameSuffix(storeFactory));
+    public static ObjectName getQueryCacheManagersObjectName(String cacheManagerClusterUUID) throws MalformedObjectNameException {
+        ObjectName objectName = new ObjectName(GROUP_ID + ":type=" + SAMPLED_CACHE_MANAGER_TYPE + ",*"
+                + getBeanNameSuffix(cacheManagerClusterUUID));
         return objectName;
     }
 }

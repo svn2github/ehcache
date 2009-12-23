@@ -136,7 +136,7 @@ public final class SingletonEhCacheProvider implements CacheProvider {
             manager = CacheManager.create(url);
             referenceCount++;
         }
-        mbeanRegistrationHelper.registerMBean(manager, properties.getProperty(Environment.SESSION_FACTORY_NAME));
+        mbeanRegistrationHelper.registerMBean(manager, properties == null ? "" : properties.getProperty(Environment.SESSION_FACTORY_NAME));
     }
     
     private URL loadResource(String configurationResourceName) {

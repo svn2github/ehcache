@@ -134,7 +134,8 @@ public final class EhCacheProvider implements CacheProvider {
                 URL url = loadResource(configurationResourceName);
                 manager = new CacheManager(url);
             }
-            mbeanRegistrationHelper.registerMBean(manager, properties.getProperty(Environment.SESSION_FACTORY_NAME));
+            mbeanRegistrationHelper.registerMBean(manager, properties == null ? "" : properties
+                    .getProperty(Environment.SESSION_FACTORY_NAME));
         } catch (net.sf.ehcache.CacheException e) {
             if (e.getMessage().startsWith("Cannot parseConfiguration CacheManager. Attempt to create a new instance of " +
                     "CacheManager using the diskStorePath")) {

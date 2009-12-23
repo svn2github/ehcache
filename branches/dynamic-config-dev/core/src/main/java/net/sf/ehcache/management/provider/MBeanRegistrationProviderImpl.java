@@ -21,7 +21,6 @@ import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.config.Configuration;
 import net.sf.ehcache.config.Configuration.Monitoring;
 import net.sf.ehcache.management.sampled.SampledMBeanRegistrationProvider;
-import net.sf.ehcache.store.StoreFactory;
 
 /**
  * Implementation of {@link MBeanRegistrationProvider}
@@ -36,7 +35,6 @@ public class MBeanRegistrationProviderImpl implements MBeanRegistrationProvider 
     private final AtomicBoolean initialized = new AtomicBoolean(false);
     private SampledMBeanRegistrationProvider sampledProvider;
     private CacheManager cachedCacheManager;
-    private StoreFactory storeFactory;
 
     /**
      * Constructor accepting the {@link Configuration}
@@ -57,13 +55,12 @@ public class MBeanRegistrationProviderImpl implements MBeanRegistrationProvider 
     /**
      * {@inheritDoc}
      */
-    public void initialize(CacheManager cacheManager, StoreFactory storeFactory) throws MBeanRegistrationProviderException {
+    public void initialize(CacheManager cacheManager) throws MBeanRegistrationProviderException {
         if (!initialized.getAndSet(true)) {
             if (shouldRegisterMBeans()) {
-                getSampledMBeanRegistrationProvider().initialize(cacheManager, storeFactory);
+                getSampledMBeanRegistrationProvider().initialize(cacheManager);
             }
             this.cachedCacheManager = cacheManager;
-            this.storeFactory = storeFactory;
         } else {
             throw new IllegalStateException("MBeanRegistrationProvider is already initialized");
         }
@@ -77,7 +74,7 @@ public class MBeanRegistrationProviderImpl implements MBeanRegistrationProvider 
             if (getSampledMBeanRegistrationProvider().isAlive()) {
                 getSampledMBeanRegistrationProvider().reinitialize();
             } else {
-                getSampledMBeanRegistrationProvider().initialize(cachedCacheManager, storeFactory);
+                getSampledMBeanRegistrationProvider().initialize(cachedCacheManager);
             }
         }
     }
