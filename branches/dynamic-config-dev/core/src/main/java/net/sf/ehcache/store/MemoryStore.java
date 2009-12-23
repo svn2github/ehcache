@@ -532,7 +532,7 @@ public class MemoryStore implements Store, CacheConfigurationListener {
     /**
      * Uses random numbers to sample the entire map.
      * <p/>
-     * This implementation uses the {@link ConcurrentHashMap} iterator.
+     * This implementation uses the {@link java.util.concurrent.ConcurrentHashMap} iterator.
      *
      * @return a random sample of elements
      */
