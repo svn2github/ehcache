@@ -22,7 +22,7 @@ import net.sf.ehcache.Ehcache;
 import java.util.List;
 
 /**
- * Provides a discovery service to locate {@link CachePeer} RMI listener peers for a Cache.
+ * Provides a discovery service to locate {@link CachePeer} listener peers for a Cache.
  * @author Greg Luck
  * @version $Id$
  */
@@ -30,16 +30,16 @@ public interface CacheManagerPeerProvider {
 
     /**
      * Register a new peer.
-     * @param rmiUrl
+     * @param nodeId Identifies a node in this replication scheme (ex: RMI URL)
      */
-    void registerPeer(String rmiUrl);
+    void registerPeer(String nodeId);
 
     /**
      * Unregisters a peer.
      *
-     * @param rmiUrl
+     * @param nodeId Identifies a node in this replication scheme (ex: RMI URL)
      */
-    void unregisterPeer(String rmiUrl);
+    void unregisterPeer(String nodeId);
 
     /**
      * @return a list of {@link CachePeer} peers for the given cache, excluding the local peer.
