@@ -57,6 +57,15 @@ Performance At Any Scale
 
 * Latest News
 
+** 22 December 2009: Ehcache OpenJPA plugin 0.2 released
+
+   Back in July we released the first plugin for OpenJPA. This version brings OpenJPA more into line with the Hibernate
+   plugin and more fully implements the OpenJPA API. As with all of the modules we are releasing, this version adds the option,
+   when paired with the ehcache-terracotta module of clustering via Terracotta.
+
+   See {{{documentation/openjpa_provider.html}ehcache-openjpa}}.
+
+
 ** 15 December 2009: Ehcache Monitor Beta 2 released
 
    We have had hundreds of people sign up for an play with beta 1 of the Ehcache Monitor. We have fixed over 15 bugs
