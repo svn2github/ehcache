@@ -245,14 +245,27 @@ public class EhcacheStatsImpl implements EhcacheStats {
      * {@inheritDoc}
      */
     public Map<String, Map<String, Object>> getRegionCacheAttributes() {
-        throw new UnsupportedOperationException("need to implement");
+        Map<String, Map<String, Object>> result = new HashMap<String, Map<String, Object>>();
+        for (String regionName : this.cacheManager.getCacheNames()) {
+            result.put(regionName, getRegionCacheAttributes(regionName));
+        }
+        return result;
     }
 
     /**
      * {@inheritDoc}
      */
     public Map<String, Object> getRegionCacheAttributes(String regionName) {
-        throw new UnsupportedOperationException("need to implement");
+        Map<String, Object> result = new HashMap<String, Object>();
+        result.put("Enabled", isRegionCacheEnabled(regionName));
+        // result.put("LoggingEnabled", isRegionCacheLoggingEnabled(regionName));
+        result.put("MaxTTISeconds", getRegionCacheMaxTTISeconds(regionName));
+        result.put("MaxTTLSeconds", getRegionCacheMaxTTLSeconds(regionName));
+        result.put("TargetMaxInMemoryCount", getRegionCacheTargetMaxInMemoryCount(regionName));
+        result.put("TargetMaxTotalCount", getRegionCacheTargetMaxTotalCount(regionName));
+        result.put("OrphanEvictionEnabled", isRegionCacheOrphanEvictionEnabled(regionName));
+        result.put("OrphanEvictionPeriod", getRegionCacheOrphanEvictionPeriod(regionName));
+        return result;
     }
 
     /**
@@ -332,7 +345,7 @@ public class EhcacheStatsImpl implements EhcacheStats {
     public int getRegionCacheTargetMaxTotalCount(String region) {
         Cache cache = cacheManager.getCache(region);
         if (cache != null) {
-            return cache.getCacheConfiguration().getMaxElementsInMemory();
+            return cache.getCacheConfiguration().getMaxElementsOnDisk();
         } else {
             return -1;
         }
@@ -357,15 +370,28 @@ public class EhcacheStatsImpl implements EhcacheStats {
     /**
      * {@inheritDoc}
      */
-    public boolean isEvictionStatisticsEnabled(String region) {
-        throw new UnsupportedOperationException("not supported");
+    public boolean isRegionCacheEnabled(String region) {
+        Cache cache = this.cacheManager.getCache(region);
+        if (cache != null) {
+            return !cache.isDisabled();
+        } else {
+            return false;
+        }
     }
 
     /**
      * {@inheritDoc}
      */
-    public boolean isRegionCacheEnabled(String region) {
-        throw new UnsupportedOperationException("not supported");
+    public boolean isRegionCachesEnabled() {
+        for (String name : this.cacheManager.getCacheNames()) {
+            Cache cache = this.cacheManager.getCache(name);
+            if (cache != null) {
+                if (cache.isDisabled()) {
+                    return false;
+                }
+            }
+        }
+        return true;
     }
 
     /**
@@ -379,14 +405,12 @@ public class EhcacheStatsImpl implements EhcacheStats {
      * {@inheritDoc}
      */
     public boolean isRegionCacheOrphanEvictionEnabled(String region) {
-        throw new UnsupportedOperationException("not supported");
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public boolean isRegionCachesEnabled() {
-        throw new UnsupportedOperationException("not supported");
+        Cache cache = this.cacheManager.getCache(region);
+        if (cache != null) {
+            return cache.getCacheConfiguration().getTerracottaConfiguration().getOrphanEviction();
+        } else {
+            return false;
+        }
     }
 
     /**
@@ -399,34 +423,6 @@ public class EhcacheStatsImpl implements EhcacheStats {
         } else {
             return false;
         }
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public void setEvictionStatisticsEnabled(String region, boolean flag) {
-        throw new UnsupportedOperationException("not supported");
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public void setRegionCacheEnabledFlushOnDisable(String region, boolean flag) {
-        throw new UnsupportedOperationException("not supported");
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public void setRegionCacheEnabledFlushOnEnable(String region, boolean flag) {
-        throw new UnsupportedOperationException("not supported");
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public void setRegionCacheEnabledNoFlush(String region, boolean flag) {
-        throw new UnsupportedOperationException("not supported");
     }
 
     /**
@@ -454,41 +450,6 @@ public class EhcacheStatsImpl implements EhcacheStats {
         if (cache != null) {
             cache.getCacheConfiguration().setTimeToLiveSeconds(maxTTLSeconds);
         }
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public void setRegionCacheOrphanEvictionEnabled(String region, boolean orphanEvictionEnabled) {
-        throw new UnsupportedOperationException("not supported");
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public void setRegionCacheOrphanEvictionPeriod(String region, int orphanEvictionPeriod) {
-        throw new UnsupportedOperationException("not supported");
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public void setRegionCachesEnabledFlushOnDisable(boolean flag) {
-        throw new UnsupportedOperationException("not supported");
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public void setRegionCachesEnabledFlushOnEnable(boolean flag) {
-        throw new UnsupportedOperationException("not supported");
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public void setRegionCachesEnabledNoFlush(boolean flag) {
-        throw new UnsupportedOperationException("not supported");
     }
 
     /**

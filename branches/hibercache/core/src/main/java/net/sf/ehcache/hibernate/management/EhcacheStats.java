@@ -121,24 +121,6 @@ public interface EhcacheStats {
     Map<String, Map<String, Object>> getRegionCacheAttributes();
 
     /**
-     * Returns true if eviciton statistics is enabled for the region
-     * 
-     * @param region
-     * @return Returns true if eviciton statistics is enabled
-     */
-    boolean isEvictionStatisticsEnabled(String region);
-
-    /**
-     * Enable/Disable eviction statistics for the region
-     * 
-     * @param region
-     *            name of the region
-     * @param flag
-     *            true for enable, otherwise disables
-     */
-    void setEvictionStatisticsEnabled(String region, boolean flag);
-
-    /**
      * Returns true if cache is enabled for the input region
      * 
      * @param region
@@ -147,57 +129,11 @@ public interface EhcacheStats {
     boolean isRegionCacheEnabled(String region);
 
     /**
-     * Enable/Disables the cache region and does not flush on either operation
+     * Returns true if all the cache regions are enabled. If even one cache is disabled, it will return false
      * 
-     * @param region
-     * @param flag
-     *            if true, enables the cache region otherwise disables the cache region
-     */
-    void setRegionCacheEnabledNoFlush(String region, boolean flag);
-
-    /**
-     * Enable/Disable the cache region. Flushes the cache if it is getting enabled
-     * 
-     * @param region
-     * @param flag
-     */
-    void setRegionCacheEnabledFlushOnEnable(String region, boolean flag);
-
-    /**
-     * Enable/Disable the cache region. Flushes the cache if it is getting disabled
-     * 
-     * @param region
-     * @param flag
-     */
-    void setRegionCacheEnabledFlushOnDisable(String region, boolean flag);
-
-    /**
-     * Returns true if all the cache regions are enabled
-     * 
-     * @return Returns true if all the cache regions are enabled
+     * @return Returns true if all the cache regions are enabled. If even one cache is disabled, it will return false
      */
     boolean isRegionCachesEnabled();
-
-    /**
-     * Enable/Disable all the cache region without flushing the cache contents
-     * 
-     * @param flag
-     */
-    void setRegionCachesEnabledNoFlush(boolean flag);
-
-    /**
-     * Enable/Disable all the cache regions. If cache region are getting enabled, flushes all the caches
-     * 
-     * @param flag
-     */
-    void setRegionCachesEnabledFlushOnEnable(boolean flag);
-
-    /**
-     * Enable/Disable all the cache regions. If cache region are getting disabled, flushes all the caches
-     * 
-     * @param flag
-     */
-    void setRegionCachesEnabledFlushOnDisable(boolean flag);
 
     /**
      * Returns the time to idle for the input cache region
@@ -289,28 +225,12 @@ public interface EhcacheStats {
     boolean isRegionCacheOrphanEvictionEnabled(String region);
 
     /**
-     * Enable/Disable orphan eviction for the input cache region
-     * 
-     * @param region
-     * @param orphanEvictionEnabled
-     */
-    void setRegionCacheOrphanEvictionEnabled(String region, boolean orphanEvictionEnabled);
-
-    /**
      * Returns the orphan eviction period for the input cache region.
      * 
      * @param region
      * @return Returns the orphan eviction period for the input cache region.
      */
     int getRegionCacheOrphanEvictionPeriod(String region);
-
-    /**
-     * Sets the orphan eviction period for the input cache region.
-     * 
-     * @param region
-     * @param orphanEvictionPeriod
-     */
-    void setRegionCacheOrphanEvictionPeriod(String region, int orphanEvictionPeriod);
 
     /**
      * Flushes the cache for the input region
@@ -416,7 +336,7 @@ public interface EhcacheStats {
      * @return Returns number of elements on-disk in the cache for the input region
      */
     int getNumberOfElementsOnDisk(String region);
-    
+
     /**
      * Return minimum time taken for a get operation in the cache in milliseconds
      * 
@@ -425,19 +345,19 @@ public interface EhcacheStats {
     public long getMinGetTimeMillis();
 
     /**
-     * Return maximum time taken in milliseconds for a get operation 
+     * Return maximum time taken in milliseconds for a get operation
      * 
      * @return Return maximum time taken in milliseconds for a get operation
      */
     public long getMaxGetTimeMillis();
-    
+
     /**
      * Return average time taken in milliseconds for a get operation for the input cache name
      * 
      * @return Return average time taken in milliseconds for a get operation for the input cache name
      */
     public float getAverageGetTimeMillis(String region);
-    
+
     /**
      * Return minimum time taken in milliseconds for a get operation for the input cache name
      * 

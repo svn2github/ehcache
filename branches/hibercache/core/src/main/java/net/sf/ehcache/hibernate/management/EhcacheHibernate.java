@@ -226,10 +226,7 @@ public class EhcacheHibernate implements EhcacheHibernateMBean {
     public long getConnectCount() {
         return hibernateStats.getConnectCount();
     }
-
-    // public long getDBSQLExecutionSample() {
-    // return hibernateStats.getDBSQLExecutionSample();
-    // }
+    
     /**
      * {@inheritDoc}
      */
@@ -401,13 +398,6 @@ public class EhcacheHibernate implements EhcacheHibernateMBean {
     /**
      * {@inheritDoc}
      */
-    public boolean isEvictionStatisticsEnabled(String region) {
-        return ehcacheStats.isEvictionStatisticsEnabled(region);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
     public boolean isRegionCacheEnabled(String region) {
         return ehcacheStats.isRegionCacheEnabled(region);
     }
@@ -443,35 +433,6 @@ public class EhcacheHibernate implements EhcacheHibernateMBean {
     /**
      * {@inheritDoc}
      */
-    public void setEvictionStatisticsEnabled(String region, boolean flag) {
-        ehcacheStats.setEvictionStatisticsEnabled(region, flag);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public void setRegionCacheEnabledFlushOnDisable(String region, boolean flag) {
-        ehcacheStats.setRegionCacheEnabledFlushOnDisable(region, flag);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public void setRegionCacheEnabledFlushOnEnable(String region, boolean flag) {
-        ehcacheStats.setRegionCacheEnabledFlushOnEnable(region, flag);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public void setRegionCacheEnabledNoFlush(String region, boolean flag) {
-        ehcacheStats.setRegionCacheEnabledNoFlush(region, flag);
-
-    }
-
-    /**
-     * {@inheritDoc}
-     */
     public void setRegionCacheLoggingEnabled(String region, boolean loggingEnabled) {
         ehcacheStats.setRegionCacheLoggingEnabled(region, loggingEnabled);
     }
@@ -488,41 +449,6 @@ public class EhcacheHibernate implements EhcacheHibernateMBean {
      */
     public void setRegionCacheMaxTTLSeconds(String region, int maxTTLSeconds) {
         ehcacheStats.setRegionCacheMaxTTLSeconds(region, maxTTLSeconds);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public void setRegionCacheOrphanEvictionEnabled(String region, boolean orphanEvictionEnabled) {
-        ehcacheStats.setRegionCacheOrphanEvictionEnabled(region, orphanEvictionEnabled);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public void setRegionCacheOrphanEvictionPeriod(String region, int orphanEvictionPeriod) {
-        ehcacheStats.setRegionCacheOrphanEvictionPeriod(region, orphanEvictionPeriod);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public void setRegionCachesEnabledFlushOnDisable(boolean flag) {
-        ehcacheStats.setRegionCachesEnabledFlushOnDisable(flag);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public void setRegionCachesEnabledFlushOnEnable(boolean flag) {
-        ehcacheStats.setRegionCachesEnabledFlushOnEnable(flag);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public void setRegionCachesEnabledNoFlush(boolean flag) {
-        ehcacheStats.setRegionCachesEnabledNoFlush(flag);
     }
 
     /**

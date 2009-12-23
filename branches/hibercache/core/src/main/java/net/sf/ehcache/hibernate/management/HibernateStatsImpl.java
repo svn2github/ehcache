@@ -19,6 +19,7 @@ package net.sf.ehcache.hibernate.management;
 import javax.management.openmbean.TabularData;
 
 import org.hibernate.SessionFactory;
+import org.hibernate.stat.Statistics;
 
 /**
  * Implementation of {@link HibernateStats}
@@ -31,8 +32,7 @@ import org.hibernate.SessionFactory;
 public class HibernateStatsImpl implements HibernateStats {
 
     private static final double MILLIS_PER_SECOND = 1000;
-
-    private final SessionFactory sessionFactory;
+    private final Statistics statistics;
 
     /**
      * Constructor accepting the backing {@link SessionFactory}
@@ -40,7 +40,7 @@ public class HibernateStatsImpl implements HibernateStats {
      * @param sessionFactory
      */
     public HibernateStatsImpl(SessionFactory sessionFactory) {
-        this.sessionFactory = sessionFactory;
+        this.statistics = sessionFactory.getStatistics();
     }
 
     /**
@@ -49,7 +49,7 @@ public class HibernateStatsImpl implements HibernateStats {
      * @see net.sf.ehcache.hibernate.management.HibernateStats#clearStats()
      */
     public void clearStats() {
-        sessionFactory.getStatistics().clear();
+        statistics.clear();
     }
 
     /**
@@ -58,7 +58,7 @@ public class HibernateStatsImpl implements HibernateStats {
      * @see net.sf.ehcache.hibernate.management.HibernateStats#disableStats()
      */
     public void disableStats() {
-        sessionFactory.getStatistics().setStatisticsEnabled(false);
+        statistics.setStatisticsEnabled(false);
     }
 
     /**
@@ -67,7 +67,7 @@ public class HibernateStatsImpl implements HibernateStats {
      * @see net.sf.ehcache.hibernate.management.HibernateStats#enableStats()
      */
     public void enableStats() {
-        sessionFactory.getStatistics().setStatisticsEnabled(true);
+        statistics.setStatisticsEnabled(true);
     }
 
     /**
@@ -76,7 +76,7 @@ public class HibernateStatsImpl implements HibernateStats {
      * @see net.sf.ehcache.hibernate.management.HibernateStats#getCloseStatementCount()
      */
     public long getCloseStatementCount() {
-        return sessionFactory.getStatistics().getCloseStatementCount();
+        return statistics.getCloseStatementCount();
     }
 
     /**
@@ -85,7 +85,7 @@ public class HibernateStatsImpl implements HibernateStats {
      * @see net.sf.ehcache.hibernate.management.HibernateStats#getConnectCount()
      */
     public long getConnectCount() {
-        return sessionFactory.getStatistics().getConnectCount();
+        return statistics.getConnectCount();
     }
 
     /**
@@ -102,7 +102,7 @@ public class HibernateStatsImpl implements HibernateStats {
      * @see net.sf.ehcache.hibernate.management.HibernateStats#getFlushCount()
      */
     public long getFlushCount() {
-        return sessionFactory.getStatistics().getFlushCount();
+        return statistics.getFlushCount();
     }
 
     /**
@@ -111,7 +111,7 @@ public class HibernateStatsImpl implements HibernateStats {
      * @see net.sf.ehcache.hibernate.management.HibernateStats#getOptimisticFailureCount()
      */
     public long getOptimisticFailureCount() {
-        return sessionFactory.getStatistics().getOptimisticFailureCount();
+        return statistics.getOptimisticFailureCount();
     }
 
     /**
@@ -120,7 +120,7 @@ public class HibernateStatsImpl implements HibernateStats {
      * @see net.sf.ehcache.hibernate.management.HibernateStats#getPrepareStatementCount()
      */
     public long getPrepareStatementCount() {
-        return sessionFactory.getStatistics().getPrepareStatementCount();
+        return statistics.getPrepareStatementCount();
     }
 
     /**
@@ -129,7 +129,7 @@ public class HibernateStatsImpl implements HibernateStats {
      * @see net.sf.ehcache.hibernate.management.HibernateStats#getQueryExecutionCount()
      */
     public long getQueryExecutionCount() {
-        return sessionFactory.getStatistics().getQueryExecutionCount();
+        return statistics.getQueryExecutionCount();
     }
 
     /**
@@ -138,7 +138,7 @@ public class HibernateStatsImpl implements HibernateStats {
      * @see net.sf.ehcache.hibernate.management.HibernateStats#getQueryExecutionRate()
      */
     public double getQueryExecutionRate() {
-        long startTime = sessionFactory.getStatistics().getStartTime();
+        long startTime = statistics.getStartTime();
         long now = System.currentTimeMillis();
         double deltaSecs = (now - startTime) / MILLIS_PER_SECOND;
         return getQueryExecutionCount() / deltaSecs;
@@ -159,7 +159,7 @@ public class HibernateStatsImpl implements HibernateStats {
      * @see net.sf.ehcache.hibernate.management.HibernateStats#getSessionCloseCount()
      */
     public long getSessionCloseCount() {
-        return sessionFactory.getStatistics().getSessionCloseCount();
+        return statistics.getSessionCloseCount();
     }
 
     /**
@@ -168,7 +168,7 @@ public class HibernateStatsImpl implements HibernateStats {
      * @see net.sf.ehcache.hibernate.management.HibernateStats#getSessionOpenCount()
      */
     public long getSessionOpenCount() {
-        return sessionFactory.getStatistics().getSessionOpenCount();
+        return statistics.getSessionOpenCount();
     }
 
     /**
@@ -177,7 +177,7 @@ public class HibernateStatsImpl implements HibernateStats {
      * @see net.sf.ehcache.hibernate.management.HibernateStats#getSuccessfulTransactionCount()
      */
     public long getSuccessfulTransactionCount() {
-        return sessionFactory.getStatistics().getSuccessfulTransactionCount();
+        return statistics.getSuccessfulTransactionCount();
     }
 
     /**
@@ -186,7 +186,7 @@ public class HibernateStatsImpl implements HibernateStats {
      * @see net.sf.ehcache.hibernate.management.HibernateStats#getTransactionCount()
      */
     public long getTransactionCount() {
-        return sessionFactory.getStatistics().getTransactionCount();
+        return statistics.getTransactionCount();
     }
 
     /**
@@ -195,7 +195,7 @@ public class HibernateStatsImpl implements HibernateStats {
      * @see net.sf.ehcache.hibernate.management.HibernateStats#isStatisticsEnabled()
      */
     public boolean isStatisticsEnabled() {
-        return sessionFactory.getStatistics().isStatisticsEnabled();
+        return statistics.isStatisticsEnabled();
     }
 
     /**
@@ -204,7 +204,7 @@ public class HibernateStatsImpl implements HibernateStats {
      * @see net.sf.ehcache.hibernate.management.HibernateStats#setStatisticsEnabled(boolean)
      */
     public void setStatisticsEnabled(boolean flag) {
-        sessionFactory.getStatistics().setStatisticsEnabled(flag);
+        statistics.setStatisticsEnabled(flag);
     }
 
     /**
