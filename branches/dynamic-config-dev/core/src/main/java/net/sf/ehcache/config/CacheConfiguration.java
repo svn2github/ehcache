@@ -143,6 +143,11 @@ public class CacheConfiguration implements Cloneable {
      * these things. So this value is how often we check for expiry.
      */
     protected long diskExpiryThreadIntervalSeconds;
+    
+    /**
+     * Indicates whether logging is enabled or not. False by default
+     */
+    protected boolean loggingEnabled;
 
     /**
      * The event listener factories added by BeanUtils.
@@ -209,6 +214,20 @@ public class CacheConfiguration implements Cloneable {
             throw new IllegalArgumentException("Cache name cannot be null.");
         }
         this.name = name;
+    }
+    
+    /**
+     * Enables or disables logging for the cache
+     * <p>
+     * This property can be modified dynamically while the cache is operating.
+     * 
+     * @param enable if true, enables logging otherwise disables logging
+     */
+    public final void setLoggingEnabled(boolean enable) {
+        checkDynamicChange();
+        boolean oldLoggingEnabled = this.loggingEnabled;
+        this.loggingEnabled = enable;
+        fireLoggingEnabledChanged(oldLoggingEnabled, enable);
     }
 
     /**
@@ -551,6 +570,14 @@ public class CacheConfiguration implements Cloneable {
 
     /**
      * Accessor
+     * @return true if logging is enabled otherwise false
+     */
+    public boolean isLoggingEnabled() {
+        return loggingEnabled;
+    }
+
+    /**
+     * Accessor
      */
     public List getCacheEventListenerConfigurations() {
         return cacheEventListenerConfigurations;
@@ -645,6 +672,14 @@ public class CacheConfiguration implements Cloneable {
         if (oldTtl != newTtl) {
             for (CacheConfigurationListener l : listeners) {
                 l.timeToLiveChanged(oldTtl, newTtl);
+            }
+        }
+    }
+    
+    private void fireLoggingEnabledChanged(boolean oldValue, boolean newValue) {
+        if (oldValue != newValue) {
+            for (CacheConfigurationListener l : listeners) {
+                l.loggingEnabledChanged(oldValue, newValue);
             }
         }
     }

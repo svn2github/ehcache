@@ -55,6 +55,13 @@ public interface CacheConfigurationListener {
      * @param newCapacity new capacity
      */
     public void memoryCapacityChanged(int oldCapacity, int newCapacity);
+    
+    /**
+     * Indicates a change in the configuration for enable/disable logging
+     * @param oldValue old value whether logging was enabled or not
+     * @param newValue new value whether logging was enabled or not
+     */
+    public void loggingEnabledChanged(boolean oldValue, boolean newValue);
 
     /**
      * Indicates that this listener was registered with the given configuration

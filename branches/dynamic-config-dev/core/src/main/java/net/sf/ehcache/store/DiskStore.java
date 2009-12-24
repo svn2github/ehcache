@@ -1077,6 +1077,13 @@ public class DiskStore implements Store, CacheConfigurationListener {
     /**
      * {@inheritDoc}
      */
+    public void loggingEnabledChanged(boolean oldValue, boolean newValue) {
+        // no-op
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     public void registered(CacheConfiguration config) {
         // no-op
     }

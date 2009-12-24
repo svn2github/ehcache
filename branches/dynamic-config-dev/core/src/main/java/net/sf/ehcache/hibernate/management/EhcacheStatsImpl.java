@@ -258,7 +258,7 @@ public class EhcacheStatsImpl implements EhcacheStats {
     public Map<String, Object> getRegionCacheAttributes(String regionName) {
         Map<String, Object> result = new HashMap<String, Object>();
         result.put("Enabled", isRegionCacheEnabled(regionName));
-        // result.put("LoggingEnabled", isRegionCacheLoggingEnabled(regionName));
+        result.put("LoggingEnabled", isRegionCacheLoggingEnabled(regionName));
         result.put("MaxTTISeconds", getRegionCacheMaxTTISeconds(regionName));
         result.put("MaxTTLSeconds", getRegionCacheMaxTTLSeconds(regionName));
         result.put("TargetMaxInMemoryCount", getRegionCacheTargetMaxInMemoryCount(regionName));
@@ -398,7 +398,12 @@ public class EhcacheStatsImpl implements EhcacheStats {
      * {@inheritDoc}
      */
     public boolean isRegionCacheLoggingEnabled(String region) {
-        throw new UnsupportedOperationException("not supported");
+        Cache cache = this.cacheManager.getCache(region);
+        if (cache != null) {
+            return cache.getCacheConfiguration().isLoggingEnabled();
+        } else {
+            return false;
+        }
     }
 
     /**
@@ -429,7 +434,10 @@ public class EhcacheStatsImpl implements EhcacheStats {
      * {@inheritDoc}
      */
     public void setRegionCacheLoggingEnabled(String region, boolean loggingEnabled) {
-        throw new UnsupportedOperationException("not supported");
+        Cache cache = this.cacheManager.getCache(region);
+        if (cache != null) {
+            cache.getCacheConfiguration().setLoggingEnabled(loggingEnabled);
+        }
     }
 
     /**

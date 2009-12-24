@@ -121,6 +121,32 @@ public class CacheConfigurationListenerTest extends AbstractCacheTest {
             Assert.assertEquals(Integer.valueOf(i+1), e.newValue);
         }
     }
+    
+    @Test
+    public void testLoggingEnableDisable() {
+        CacheConfiguration config = new CacheConfiguration();
+        RecordingListener listener = new RecordingListener();
+        config.addListener(listener);
+
+        assertRegistered(listener, config);
+        listener.clearFiredEvents();
+
+        config.setLoggingEnabled(true);
+        List<Event> events = listener.getFiredEvents();
+        Assert.assertEquals(1, events.size());
+        
+        config.setLoggingEnabled(false);
+        events = listener.getFiredEvents();
+        Assert.assertEquals(2, events.size());
+
+        for (int i = 0; i < events.size(); i++) {
+            Event e = events.get(i);
+
+            Assert.assertEquals("logging", e.type);
+            Assert.assertEquals(Boolean.valueOf(i != 0), e.oldValue);
+            Assert.assertEquals(Boolean.valueOf(i == 0), e.newValue);
+        }
+    }
 
     @Test
     public void testMultipleListeners() {
@@ -219,6 +245,10 @@ public class CacheConfigurationListenerTest extends AbstractCacheTest {
 
         public void diskCapacityChanged(int oldCapacity, int newCapacity) {
             firedEvents.add(new Event("disk", Integer.valueOf(oldCapacity), Integer.valueOf(newCapacity)));
+        }
+        
+        public void loggingEnabledChanged(boolean oldValue, boolean newValue) {
+            firedEvents.add(new Event("logging", Boolean.valueOf(oldValue), Boolean.valueOf(newValue)));
         }
 
         public void memoryCapacityChanged(int oldCapacity, int newCapacity) {
