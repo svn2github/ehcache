@@ -17,6 +17,9 @@ package net.sf.ehcache.hibernate;
 
 
 import net.sf.ehcache.Element;
+import net.sf.ehcache.concurrent.CacheLockProvider;
+import net.sf.ehcache.concurrent.LockType;
+
 import org.hibernate.cache.Cache;
 import org.hibernate.cache.CacheException;
 import org.hibernate.cache.Timestamper;
@@ -51,6 +54,8 @@ public final class EhCache implements Cache {
 
     private final net.sf.ehcache.Ehcache cache;
 
+    private final CacheLockProvider lockProvider;
+    
     /**
      * Creates a new Hibernate pluggable cache by name.
      * <p/>
@@ -62,6 +67,13 @@ public final class EhCache implements Cache {
      */
     public EhCache(net.sf.ehcache.Ehcache cache) {
         this.cache = cache;
+        
+        Object context = cache.getInternalContext();
+        if (context instanceof CacheLockProvider) {
+            lockProvider = (CacheLockProvider) context;
+        } else {
+            lockProvider = null;
+        }
     }
 
     /**
@@ -192,6 +204,9 @@ public final class EhCache implements Cache {
      * ehcache does not support distributed locking and therefore this method does nothing.
      */
     public final void lock(Object key) throws CacheException {
+        if (lockProvider != null) {
+            lockProvider.getSyncForKey(key).lock(LockType.WRITE);
+        }
         //noop
     }
 
@@ -201,7 +216,9 @@ public final class EhCache implements Cache {
      * ehcache does not support distributed locking and therefore this method does nothing.
      */
     public final void unlock(Object key) throws CacheException {
-        //noop
+        if (lockProvider != null) {
+            lockProvider.getSyncForKey(key).unlock(LockType.WRITE);
+        }
     }
 
     /**
