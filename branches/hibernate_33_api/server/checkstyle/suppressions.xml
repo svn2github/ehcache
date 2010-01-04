@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+
+<!DOCTYPE suppressions PUBLIC
+        "-//Puppy Crawl//DTD Suppressions 1.1//EN"
+        "http://www.puppycrawl.com/dtds/suppressions_1_1.dtd">
+
+<suppressions>
+    <!-- Turn off some checks for tests -->
+    <!--auto generated-->
+    <suppress checks="" files="jaxws[/\\]."/>
+    <!--Bug in checkstyle with NoSuchMethodException. Need to filter this out. See SF 2777291 -->
+    <suppress checks="" files="EhcacheWebServiceEndpoint.java"/>
+    <suppress checks="MagicNumberCheck" files="test[/\\]"/>
+    <suppress checks="JavadocMethodCheck" files="test[/\\]"/>
+    <suppress checks="PackageHtmlCheck" files="test[/\\]"/>
+
+    <suppress checks="GenericIllegalRegexpCheck" files="Server.java"/>
+    <suppress checks="GenericIllegalRegexpCheck" files="SecurityHandler.java"/>
+    <suppress checks="GenericIllegalRegexpCheck" files="SecurityEnvironmentHandler.java"/>
+    <!--Required by JAXB-->
+    <suppress checks="IllegalTypeCheck" files="EhcacheWebServiceEndpoint"/>
+
+
+    <!-- Suppress duplicate checking of copyright notice -->
+    <suppress checks="StrictDuplicateCode" files=".java" lines="1-53"/>
+
+</suppressions>
