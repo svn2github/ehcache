@@ -538,7 +538,7 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
         }
 
         //Check caches
-        assertEquals(3, configurationHelper.createCaches().size());
+        assertEquals(4, configurationHelper.createCaches().size());
 
         //  <cache name="sampleCache1"
         //  maxElementsInMemory="10000"
@@ -548,11 +548,18 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
         //  overflowToDisk="true"
         //  />
         Ehcache sampleCache1 = configurationHelper.createCacheFromName("sampleCache1");
+        Ehcache sampleCache4 = configurationHelper.createCacheFromName("sampleCache4");
+        assertEquals("net.sf.ehcache.transaction.manager.DefaultTransactionManagerLookup", configuration.getTransactionManagerLookupClass());
         assertEquals("sampleCache1", sampleCache1.getName());
         assertEquals(false, sampleCache1.getCacheConfiguration().isEternal());
         assertEquals(300, sampleCache1.getCacheConfiguration().getTimeToIdleSeconds());
         assertEquals(600, sampleCache1.getCacheConfiguration().getTimeToLiveSeconds());
         assertEquals(true, sampleCache1.getCacheConfiguration().isOverflowToDisk());
+        assertEquals(CacheConfiguration.TransactionalMode.OFF, sampleCache1.getCacheConfiguration().getTransactionalMode());
+        assertEquals(false, sampleCache1.getCacheConfiguration().isTransactional());
+        assertEquals("sampleCache4", sampleCache4.getName());
+        assertEquals(CacheConfiguration.TransactionalMode.XA, sampleCache4.getCacheConfiguration().getTransactionalMode());
+        assertEquals(true, sampleCache4.getCacheConfiguration().isTransactional());
     }
 
     /**

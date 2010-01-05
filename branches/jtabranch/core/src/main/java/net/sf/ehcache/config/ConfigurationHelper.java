@@ -477,7 +477,9 @@ public final class ConfigurationHelper {
                 cacheConfiguration.clearOnFlush,
                 terracottaClustered,
                 terracottaValueMode,
-                terracottaCoherentReads);
+                terracottaCoherentReads,
+                cacheConfiguration.getTransactionalMode().name(),
+                configuration.getTransactionManagerLookupClass());
         RegisteredEventListeners listeners = cache.getCacheEventNotificationService();
         registerCacheListeners(cacheConfiguration, listeners);
         registerCacheExtensions(cacheConfiguration, cache);

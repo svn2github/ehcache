@@ -17,6 +17,7 @@
 package net.sf.ehcache.config;
 
 import net.sf.ehcache.ObjectExistsException;
+import net.sf.ehcache.transaction.manager.DefaultTransactionManagerLookup;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -58,6 +59,7 @@ public final class Configuration {
     private TerracottaConfigConfiguration terracottaConfigConfiguration;
     private final Map cacheConfigurations = new HashMap();
     private String configurationSource;
+    private String transactionManagerLookupClass = DefaultTransactionManagerLookup.class.getName();
 
     /**
      * Empty constructor, which is used by {@link ConfigurationFactory}, and can be also used programmatically.
@@ -112,7 +114,23 @@ public final class Configuration {
     public final Monitoring getMonitoring() {
         return this.monitoring;
     }
-    
+
+    /**
+     *
+     * @return
+     */
+    public String getTransactionManagerLookupClass() {
+        return transactionManagerLookupClass;
+    }
+
+    /**
+     *
+     * @return
+     */
+    public void setTransactionManagerLookupClass(final String transactionManagerLookupClass) {
+        this.transactionManagerLookupClass = transactionManagerLookupClass;
+    }
+
     /**
      * Allows BeanHandler to add disk store location to the configuration.
      */

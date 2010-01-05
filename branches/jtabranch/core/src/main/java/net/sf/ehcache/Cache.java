@@ -37,6 +37,7 @@ import net.sf.ehcache.store.MemoryStore;
 import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
 import net.sf.ehcache.store.Policy;
 import net.sf.ehcache.store.Store;
+import net.sf.ehcache.transaction.manager.TransactionManagerLookup;
 import net.sf.ehcache.util.NamedThreadFactory;
 import net.sf.ehcache.util.TimeUtil;
 import org.slf4j.Logger;
@@ -64,6 +65,8 @@ import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+
+import javax.transaction.TransactionManager;
 
 /**
  * Cache is the central class in ehcache. Caches have {@link Element}s and are managed
@@ -593,6 +596,66 @@ public class Cache implements Ehcache {
                  boolean isTerracottaClustered,
                  String terracottaValueMode,
                  boolean terracottaCoherentReads) {
+        this(name, maxElementsInMemory, memoryStoreEvictionPolicy, overflowToDisk, diskStorePath, eternal, timeToLiveSeconds,
+                timeToIdleSeconds, diskPersistent, diskExpiryThreadIntervalSeconds, registeredEventListeners,
+                bootstrapCacheLoader, maxElementsOnDisk, diskSpoolBufferSizeMB, clearOnFlush, isTerracottaClustered,
+                terracottaValueMode, terracottaCoherentReads, "OFF", null);
+    }
+
+    /**
+     * 1.8.0 Constructor
+     * <p/>
+     * The {@link net.sf.ehcache.config.ConfigurationFactory} and clients can create these.
+     * <p/>
+     * A client can specify their own settings here and pass the {@link Cache} object
+     * into {@link CacheManager#addCache} to specify parameters other than the defaults.
+     * <p/>
+     * Only the CacheManager can initialise them.
+     *
+     * @param name                      the name of the cache. Note that "default" is a reserved name for the defaultCache.
+     * @param maxElementsInMemory       the maximum number of elements in memory, before they are evicted
+     * @param memoryStoreEvictionPolicy one of LRU, LFU and FIFO. Optionally null, in which case it will be set to LRU.
+     * @param overflowToDisk            whether to use the disk store
+     * @param diskStorePath             this parameter is ignored. CacheManager sets it using setter injection.
+     * @param eternal                   whether the elements in the cache are eternal, i.e. never expire
+     * @param timeToLiveSeconds         the default amount of time to live for an element from its creation date
+     * @param timeToIdleSeconds         the default amount of time to live for an element from its last accessed or modified date
+     * @param diskPersistent            whether to persist the cache to disk between JVM restarts
+     * @param diskExpiryThreadIntervalSeconds
+     *                                  how often to run the disk store expiry thread. A large number of 120 seconds plus is recommended
+     * @param registeredEventListeners  a notification service. Optionally null, in which case a new one with no registered listeners will be created.
+     * @param bootstrapCacheLoader      the BootstrapCacheLoader to use to populate the cache when it is first initialised. Null if none is required.
+     * @param maxElementsOnDisk         the maximum number of Elements to allow on the disk. 0 means unlimited.
+     * @param diskSpoolBufferSizeMB     the amount of memory to allocate the write buffer for puts to the DiskStore.
+     * @param clearOnFlush              whether the MemoryStore should be cleared when {@link #flush flush()} is called on the cache
+     * @param isTerracottaClustered     whether to cluster this cache with Terracotta
+     * @param terracottaValueMode       either "SERIALIZATION" or "IDENTITY" mode, only used if isTerracottaClustered=true
+     * @param terracottaCoherentReads   whether this cache should use coherent reads (usually should be true) unless optimizing for read-only
+     * @param transactionalMode         whether this cache is transactional (XA) or not (OFF)
+     * @param transactionManagerLookupClass
+     *                                  what class to use to lookup TransactionManger and UserTransaction instances
+     * @since 1.8.0
+     */
+    public Cache(String name,
+                 int maxElementsInMemory,
+                 MemoryStoreEvictionPolicy memoryStoreEvictionPolicy,
+                 boolean overflowToDisk,
+                 String diskStorePath,
+                 boolean eternal,
+                 long timeToLiveSeconds,
+                 long timeToIdleSeconds,
+                 boolean diskPersistent,
+                 long diskExpiryThreadIntervalSeconds,
+                 RegisteredEventListeners registeredEventListeners,
+                 BootstrapCacheLoader bootstrapCacheLoader,
+                 int maxElementsOnDisk,
+                 int diskSpoolBufferSizeMB,
+                 boolean clearOnFlush,
+                 boolean isTerracottaClustered,
+                 String terracottaValueMode,
+                 boolean terracottaCoherentReads,
+                 String transactionalMode,
+                 String transactionManagerLookupClass) {
 
         changeStatus(Status.STATUS_UNINITIALISED);
 
@@ -657,6 +720,24 @@ public class Cache implements Ehcache {
         //initialize statistics
         liveCacheStatisticsData = new LiveCacheStatisticsWrapper(this);
         sampledCacheStatistics = new SampledCacheStatisticsWrapper();
+        configuration.setTransactionalMode(transactionalMode);
+        if (configuration.isTransactional()) {
+            Class<TransactionManagerLookup> lookupClass;
+            TransactionManagerLookup tmLookup;
+            try {
+                lookupClass = (Class<TransactionManagerLookup>) Class.forName(transactionManagerLookupClass);
+                tmLookup = lookupClass.newInstance();
+            } catch (Exception e) {
+                throw new CacheException(e);
+            }
+            TransactionManager transactionManager = tmLookup.getTransactionManager(null);
+            if (transactionManager == null) {
+                LOG.error("You are trying to create an XA Cache in a non-XA environment: No TransactionManager found " +
+                          "using " + lookupClass.getName());
+            } else {
+                // TODO Do the right things like: use the transactional store, ...
+            }
+        }
     }
 
     /**

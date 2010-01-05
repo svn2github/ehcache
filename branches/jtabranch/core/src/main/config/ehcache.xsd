@@ -18,6 +18,7 @@
             <xs:attribute name="name" use="optional"/>
             <xs:attribute name="updateCheck" use="optional" type="xs:boolean" default="true"/>
             <xs:attribute name="monitoring" use="optional" type="monitoringType" default="autodetect"/>
+            <xs:attribute name="transactionManagerLookupClass" use="optional" type="xs:string"/>
         </xs:complexType>
     </xs:element>     
     <xs:element name="diskStore">
@@ -83,6 +84,7 @@
             <xs:attribute name="timeToIdleSeconds" use="optional" type="xs:integer"/>
             <xs:attribute name="timeToLiveSeconds" use="optional" type="xs:integer"/>
             <xs:attribute name="maxElementsOnDisk" use="optional" type="xs:integer"/>
+            <xs:attribute name="transactionalMode" use="optional" type="transactionalMode" default="off"/>
         </xs:complexType>
     </xs:element>
     <xs:element name="cache">
@@ -107,6 +109,7 @@
             <xs:attribute name="timeToIdleSeconds" use="optional" type="xs:integer"/>
             <xs:attribute name="timeToLiveSeconds" use="optional" type="xs:integer"/>
             <xs:attribute name="maxElementsOnDisk" use="optional" type="xs:integer"/>
+            <xs:attribute name="transactionalMode" use="optional" type="transactionalMode" default="off"/>
         </xs:complexType>
     </xs:element>
     <xs:element name="cacheEventListenerFactory">
@@ -162,6 +165,12 @@
         <xs:restriction base="xs:string">
             <xs:enumeration value="serialization" />
             <xs:enumeration value="identity" />
+        </xs:restriction>
+    </xs:simpleType>
+    <xs:simpleType name="transactionalMode">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="off"/>
+            <xs:enumeration value="xa"/>
         </xs:restriction>
     </xs:simpleType>
 </xs:schema>
