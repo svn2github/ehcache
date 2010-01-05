@@ -39,6 +39,7 @@ import net.sf.ehcache.store.Policy;
 import net.sf.ehcache.store.Store;
 import net.sf.ehcache.util.NamedThreadFactory;
 import net.sf.ehcache.util.TimeUtil;
+import net.sf.ehcache.writebehind.WriteBehind;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -165,6 +166,8 @@ public class Cache implements Ehcache {
      * The {@link MemoryStore} of this {@link Cache}. All caches have a memory store.
      */
     private volatile Store memoryStore;
+
+    private volatile WriteBehind writeBehind;
 
     private volatile RegisteredEventListeners registeredEventListeners;
 
@@ -753,6 +756,7 @@ public class Cache implements Ehcache {
 
             if (isTerracottaClustered()) {
                 memoryStore = cacheManager.createTerracottaStore(this);
+                writeBehind = cacheManager.createWriteBehind(this);
             } else {
                 if (useClassicLru && configuration.getMemoryStoreEvictionPolicy().equals(MemoryStoreEvictionPolicy.LRU)) {
                     memoryStore = new LruMemoryStore(this, diskStore);
@@ -786,6 +790,13 @@ public class Cache implements Ehcache {
                 LOG.warn("Cache: " + configuration.getName() + " is disabled because the " + NET_SF_EHCACHE_DISABLED
                         + " property was set to true. No elements will be added to the cache.");
         }
+    }
+
+    /**
+     * Obtain the write behind functionality tied to this cache instance.
+     */
+    public WriteBehind getWriteBehind() {
+      return writeBehind;
     }
 
     /**
