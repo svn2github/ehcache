@@ -19,7 +19,7 @@ import org.terracotta.modules.async.ItemProcessor;
 import org.terracotta.modules.async.exceptions.ProcessingException;
 
 /**
- * An implementation of {@code ItemProcessor} that delegates the processing to a {@WriteBehindCommitter instance}
+ * An implementation of {@code ItemProcessor} that delegates the processing to a {@code WriteBehindCommitter} instance
  * <p/>
  * Instances of this class will be used when items are processed one by one. Note that {@code WriteBehindCommitter}
  * instances will not be shared across a Terracotta DSO cluster and are intended to be local on a node. They are tied to
