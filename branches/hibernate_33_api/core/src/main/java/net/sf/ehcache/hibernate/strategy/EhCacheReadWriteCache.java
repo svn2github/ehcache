@@ -81,7 +81,7 @@ public class EhCacheReadWriteCache extends AbstractEhCacheConcurrencyStrategy {
         try {
             Lockable item = (Lockable) cache.get(key);
             long timeout = cache.nextTimestamp() + cache.getTimeout();
-            final Lock lock = (item == null) ? createSoftLock(timeout, version) : item.lock(timeout);
+            final Lock lock = (item == null) ? new Lock(timeout, uuid, nextLockId(), version) : item.lock(timeout, uuid, nextLockId());
             cache.update(key, lock);
             return lock;
         } finally {
@@ -172,8 +172,8 @@ public class EhCacheReadWriteCache extends AbstractEhCacheConcurrencyStrategy {
         return false;
     }
 
-    private Lock createSoftLock(long timeout, Object version) {
-        return new Lock(timeout, uuid, nextLockId.getAndIncrement(), version);
+    private long nextLockId() {
+        return nextLockId.getAndIncrement();
     }
     
     private void decrementLock(Object key, Lock lock) {
@@ -184,7 +184,7 @@ public class EhCacheReadWriteCache extends AbstractEhCacheConcurrencyStrategy {
     private void handleLockExpiry(Object key) {
         long ts = cache.nextTimestamp() + cache.getTimeout();
         // create new lock that times out immediately
-        Lock lock = createSoftLock(ts, null);
+        Lock lock = new Lock(ts, uuid, nextLockId.getAndIncrement(), null);
         lock.unlock(ts);
         cache.update(key, lock);
     }
@@ -202,13 +202,13 @@ public class EhCacheReadWriteCache extends AbstractEhCacheConcurrencyStrategy {
 
         public boolean isUnlockable(SoftLock lock);
 
-        public Lock lock(long timeout);
+        public Lock lock(long timeout, UUID uuid, long lockId);
     }
 
     /**
      * Wrapper type representing unlocked items.
      */
-    private final class Item implements Serializable, Lockable {
+    private final static class Item implements Serializable, Lockable {
 
         private static final long serialVersionUID = 1L;
         private final Object value;
@@ -237,8 +237,8 @@ public class EhCacheReadWriteCache extends AbstractEhCacheConcurrencyStrategy {
             return false;
         }
 
-        public Lock lock(long timeout) {
-            return createSoftLock(timeout, version);
+        public Lock lock(long timeout, UUID uuid, long lockId) {
+            return new Lock(timeout, uuid, lockId, version);
         }
     }
 
@@ -314,7 +314,7 @@ public class EhCacheReadWriteCache extends AbstractEhCacheConcurrencyStrategy {
             return concurrent;
         }
 
-        public Lock lock(long timeout) {
+        public Lock lock(long timeout, UUID uuid, long lockId) {
             concurrent = true;
             multiplicity++;
             this.timeout = timeout;

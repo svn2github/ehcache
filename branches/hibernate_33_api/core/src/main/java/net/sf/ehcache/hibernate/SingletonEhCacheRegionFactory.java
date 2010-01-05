@@ -15,6 +15,8 @@
  */
 package net.sf.ehcache.hibernate;
 
+import java.util.Properties;
+
 /**
  *
  * @author cdennis
@@ -24,7 +26,7 @@ public class SingletonEhCacheRegionFactory extends AbstractEhCacheRegionFactory 
     /**
      * Returns a representatio of the singleton EhCacheRegionFactory
      */
-    public SingletonEhCacheRegionFactory() {
+    public SingletonEhCacheRegionFactory(Properties prop) {
         super(new SingletonEhCacheProvider());
     }
 }
