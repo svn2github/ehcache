@@ -13,25 +13,34 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-
-package net.sf.ehcache.store;
+package net.sf.ehcache.terracotta;
 
 import net.sf.ehcache.Ehcache;
+import net.sf.ehcache.store.Store;
+import net.sf.ehcache.writebehind.WriteBehind;
 
 /**
- * Factory for creating Store implementations
+ * Factory for creating clustered instances
  *
  * @author teck
+ * @author gbevin
  * @since 1.7
  */
-public interface StoreFactory {
+public interface ClusteredInstanceFactory {
 
-    /**
-     * Create a Store for the given cache
-     *
-     * @param cache the cache will backed by the returned store
-     * @return store instance
-     */
-    Store create(Ehcache cache);
+  /**
+   * Create a Store instance for the given cache
+   *
+   * @param cache the cache will backed by the returned store
+   * @return store instance
+   */
+  Store createStore(Ehcache cache);
 
+  /**
+   * Create an WriteBehind instance for the given cache
+   *
+   * @param cache the cache will backed by the returned store
+   * @return write behind instance
+   */
+  WriteBehind createAsync(Ehcache cache);
 }

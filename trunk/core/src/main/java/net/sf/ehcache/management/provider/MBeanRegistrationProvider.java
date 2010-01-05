@@ -16,7 +16,7 @@
 package net.sf.ehcache.management.provider;
 
 import net.sf.ehcache.CacheManager;
-import net.sf.ehcache.store.StoreFactory;
+import net.sf.ehcache.terracotta.ClusteredInstanceFactory;
 
 /**
  * Implementations of this interface will can initialize MBeanRegistration for
@@ -36,7 +36,8 @@ public interface MBeanRegistrationProvider {
      * @param cacheManager
      * @throws MBeanRegistrationProviderException
      */
-    public void initialize(CacheManager cacheManager, StoreFactory storeFactory) throws MBeanRegistrationProviderException;
+    public void initialize(CacheManager cacheManager, ClusteredInstanceFactory clusteredInstanceFactory)
+      throws MBeanRegistrationProviderException;
 
     /**
      * Reinitialize the mbeans. Uses the current name of the {@link CacheManager} to re-register the mbeans

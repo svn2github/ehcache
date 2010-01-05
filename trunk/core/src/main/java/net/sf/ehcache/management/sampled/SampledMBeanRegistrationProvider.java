@@ -33,7 +33,7 @@ import net.sf.ehcache.Status;
 import net.sf.ehcache.event.CacheManagerEventListener;
 import net.sf.ehcache.management.provider.MBeanRegistrationProvider;
 import net.sf.ehcache.management.provider.MBeanRegistrationProviderException;
-import net.sf.ehcache.store.StoreFactory;
+import net.sf.ehcache.terracotta.ClusteredInstanceFactory;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -57,7 +57,7 @@ public class SampledMBeanRegistrationProvider implements MBeanRegistrationProvid
 
     private volatile Status status = Status.STATUS_UNINITIALISED;
     private CacheManager cacheManager;
-    private StoreFactory storeFactory;
+    private ClusteredInstanceFactory clusteredInstanceFactory;
     private final MBeanServer mBeanServer;
 
     // name of the cacheManager when the mbeans are registered.
@@ -78,13 +78,13 @@ public class SampledMBeanRegistrationProvider implements MBeanRegistrationProvid
     /**
      * {@inheritDoc}
      */
-    public void initialize(CacheManager cacheManagerParam, StoreFactory storeFactory) {
+    public void initialize(CacheManager cacheManagerParam, ClusteredInstanceFactory clusteredInstanceFactory) {
         if (isAlive()) {
             return;
         }
         status = Status.STATUS_ALIVE;
         this.cacheManager = cacheManagerParam;
-        this.storeFactory = storeFactory;
+        this.clusteredInstanceFactory = clusteredInstanceFactory;
         SampledCacheManager cacheManagerMBean = new SampledCacheManager(cacheManager);
         try {
             registerCacheManagerMBean(cacheManagerMBean);
@@ -110,7 +110,7 @@ public class SampledMBeanRegistrationProvider implements MBeanRegistrationProvid
             try {
                 // register the CacheManager MBean
                 mBeanServer.registerMBean(cacheManagerMBean,
-                        SampledEhcacheMBeans.getCacheManagerObjectName(storeFactory, registeredCacheManagerName));                
+                        SampledEhcacheMBeans.getCacheManagerObjectName(clusteredInstanceFactory, registeredCacheManagerName));
                 success = true;
                 cacheManagerMBean.setMBeanRegisteredName(registeredCacheManagerName);
                 break;
@@ -138,7 +138,7 @@ public class SampledMBeanRegistrationProvider implements MBeanRegistrationProvid
      */
     public void reinitialize() throws MBeanRegistrationProviderException {
         dispose();
-        initialize(this.cacheManager, this.storeFactory);
+        initialize(this.cacheManager, this.clusteredInstanceFactory);
     }
 
     /**
@@ -159,7 +159,7 @@ public class SampledMBeanRegistrationProvider implements MBeanRegistrationProvid
         SampledCache terracottaCacheMBean = new SampledCache(cache);
         try {
             mBeanServer.registerMBean(terracottaCacheMBean,
-                    SampledEhcacheMBeans.getCacheObjectName(storeFactory, registeredCacheManagerName,
+                    SampledEhcacheMBeans.getCacheObjectName(clusteredInstanceFactory, registeredCacheManagerName,
                             terracottaCacheMBean.getImmutableCacheName()));
         } catch (MalformedObjectNameException e) {
             throw new MBeanRegistrationException(e);
@@ -190,10 +190,10 @@ public class SampledMBeanRegistrationProvider implements MBeanRegistrationProvid
         try {
             // CacheManager MBean
             registeredObjectNames = mBeanServer
-                    .queryNames(SampledEhcacheMBeans.getCacheManagerObjectName(storeFactory, registeredCacheManagerName), null);
+                    .queryNames(SampledEhcacheMBeans.getCacheManagerObjectName(clusteredInstanceFactory, registeredCacheManagerName), null);
             // Other MBeans for this CacheManager
             registeredObjectNames.addAll(mBeanServer.queryNames(SampledEhcacheMBeans
-                    .getQueryCacheManagerObjectName(storeFactory, registeredCacheManagerName), null));
+                    .getQueryCacheManagerObjectName(clusteredInstanceFactory, registeredCacheManagerName), null));
         } catch (MalformedObjectNameException e) {
             LOG.warn("Error querying MBeanServer. Error was " + e.getMessage(), e);
         }
@@ -244,7 +244,7 @@ public class SampledMBeanRegistrationProvider implements MBeanRegistrationProvid
         }
         ObjectName objectName = null;
         try {
-            objectName = SampledEhcacheMBeans.getCacheObjectName(storeFactory, registeredCacheManagerName, cacheName);
+            objectName = SampledEhcacheMBeans.getCacheObjectName(clusteredInstanceFactory, registeredCacheManagerName, cacheName);
             mBeanServer.unregisterMBean(objectName);
 
         } catch (Exception e) {

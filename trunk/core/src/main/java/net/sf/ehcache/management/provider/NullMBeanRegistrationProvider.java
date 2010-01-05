@@ -16,7 +16,7 @@
 package net.sf.ehcache.management.provider;
 
 import net.sf.ehcache.CacheManager;
-import net.sf.ehcache.store.StoreFactory;
+import net.sf.ehcache.terracotta.ClusteredInstanceFactory;
 
 /**
  * A Null implementation of {@link MBeanRegistrationProvider} which does nothing
@@ -28,9 +28,9 @@ import net.sf.ehcache.store.StoreFactory;
 public class NullMBeanRegistrationProvider implements MBeanRegistrationProvider {
 
     /**
-     * A null implementation of {@link MBeanRegistrationProvider#initialize(CacheManager, StoreFactory)}
+     * A null implementation of {@link MBeanRegistrationProvider#initialize(CacheManager, ClusteredInstanceFactory)}
      */
-    public void initialize(CacheManager cacheManager, StoreFactory storeFactory) {
+    public void initialize(CacheManager cacheManager, ClusteredInstanceFactory clusteredInstanceFactory) {
         // no-op
     }
 
