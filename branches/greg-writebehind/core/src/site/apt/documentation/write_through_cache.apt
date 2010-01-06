@@ -1,5 +1,5 @@
  ---
- Write-through and Write-behind Caching
+ Write-through and Write-behind Caching with the CacheStorer
  ---
 
 {Write-through and Write-behind Caching}
@@ -14,7 +14,7 @@
     While any resource can sit behind the facade of a w-t cache, such as a file system, or a web service client, the common one is a database.
      To simplify the discussion, we will use database as the example resource.
 
-** Potential Benefits    of Write-Behind
+** Potential Benefits of Write-Behind
 
     The big potential benefit of write-behind is database offload. This can be achieved in a number of ways:
 
@@ -106,21 +106,53 @@
    Even if all of the dataset can fit in the cache, it could be evicted if Elements expire. Accordingly, both <<<timeToLive>>> and
        <<<timeToIlde>>> should be set to eternal to prevent this from happening.
 
+* Configuration
+
+    There are many configuration options. See the <<<CacheStorerFactory>>> for properties that may be set and their effect.
+
 
 * API
 
-    The Ehcache write-through API is the <<<CacheStore>>> interface.
+    CacheLoaders are exposed for API use through the <<<cache.getWithLoader(...)>>> method. CacheStorers are exposed with
+    <<<cache.putWithStorer(...)>>> and <<<cache.removeWithStorer(...)>>> methods.
+
+    For example, following is the method signature for <<<cache.putWithStorer(...)>>>.  
 
 ---
-/**
- * A CacheStore is an interface used for write-through and write-behind caching.
- * <p/>
- * A CacheStore extends CacheLoader, adding write methods to it. Therefore CacheStore's can also be used as CacheLoaders for
- * read-through caching.
- *
- * @author Greg Luck
- */
-public interface CacheStore extends CacheLoader {
+    /**
+     * Put an element in the cache writing through a CacheStorer. If no CacheStorer has been set for the cache,
+     * then this method has the same effect as cache.put().
+     * <p/>
+     * Resets the access statistics on the element, which would be the case if it has previously been
+     * gotten from a cache, and is now being put back.
+     * <p/>
+     * Also notifies the CacheEventListener, if the storer operation succeeds, that:
+     * <ul>
+     * <li>the element was put, but only if the Element was actually put.
+     * <li>if the element exists in the cache, that an update has occurred, even if the element would be expired
+     * if it was requested
+     * </ul>
+     *
+     * @param element        An object. If Serializable it can fully participate in replication and the DiskStore.
+     * @param storerArgument a custom argument to pass to the CacheStorer implementation.
+     * @throws IllegalStateException    if the cache is not {@link net.sf.ehcache.Status#STATUS_ALIVE}
+     * @throws IllegalArgumentException if the element is null
+     * @throws CacheException
+     */
+    void putWithStorer(Element element, Object storerArgument) throws IllegalArgumentException, IllegalStateException, CacheException;
+
+---
+
+    See the Cache JavaDoc for the complete API.
+
+
+* SPI
+
+    The Ehcache write-through SPI is the <<<CacheStorer>>> interface. Implementers perform writes to the underlying resource
+    in their implementation.
+
+---
+public interface CacheStorer extends CacheLoader {
 
     /**
      * Store the specified value under the specified key in the underlying store.
@@ -128,7 +160,7 @@ public interface CacheStore extends CacheLoader {
      *
      * @param element the element to be stored
      */
-    void store(Element element);
+    void store(Element element) throws CacheException;
 
     /**
      * Store the specified Elements in the underlying store. This method is intended to support both insert and update.
@@ -138,7 +170,7 @@ public interface CacheStore extends CacheLoader {
      *
      * @param elements the Elements to be stored
      */
-    void storeAll(Collection<Element> elements);
+    void storeAll(Collection<Element> elements) throws CacheException;
 
 
     /**
@@ -146,7 +178,7 @@ public interface CacheStore extends CacheLoader {
      *
      * @param key the key whose mapping will be removed
      */
-    void delete(Object key);
+    void delete(Object key) throws CacheException;
 
 
     /**
@@ -157,8 +189,15 @@ public interface CacheStore extends CacheLoader {
      *
      * @param keys the keys whose mappings will be removed
      */
-    void deleteAll(Collection<Object> keys);
+    void deleteAll(Collection<Object> keys) throws CacheException;
 
+
+    /**
+     * Gets the properties used to create this storer. Well-known properties will be used to configure
+     * the storer into the cache infrastrucutre on initialisation.
+     * @return
+     */
+    Properties getProperties();
 
 }
 ---

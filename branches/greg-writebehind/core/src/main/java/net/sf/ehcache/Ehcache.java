@@ -27,6 +27,7 @@ import net.sf.ehcache.event.RegisteredEventListeners;
 import net.sf.ehcache.exceptionhandler.CacheExceptionHandler;
 import net.sf.ehcache.extension.CacheExtension;
 import net.sf.ehcache.loader.CacheLoader;
+import net.sf.ehcache.loader.CacheStorer;
 import net.sf.ehcache.statistics.CacheUsageListener;
 import net.sf.ehcache.statistics.LiveCacheStatistics;
 import net.sf.ehcache.statistics.sampled.SampledCacheStatistics;
@@ -49,6 +50,7 @@ import net.sf.ehcache.statistics.sampled.SampledCacheStatistics;
  * @version $Id$
  */
 public interface Ehcache extends Cloneable {
+
     /**
      * Put an element in the cache.
      * <p/>
@@ -67,8 +69,49 @@ public interface Ehcache extends Cloneable {
      * @throws IllegalArgumentException if the element is null
      * @throws CacheException
      */
-    void put(Element element) throws IllegalArgumentException, IllegalStateException,
-            CacheException;
+    void put(Element element) throws IllegalArgumentException, IllegalStateException, CacheException;
+
+    /**
+     * Put an element in the cache writing through a CacheStorer. If no CacheStorer has been set for the cache,
+     * then this method has the same effect as cache.put().
+     * <p/>
+     * Resets the access statistics on the element, which would be the case if it has previously been
+     * gotten from a cache, and is now being put back.
+     * <p/>
+     * Also notifies the CacheEventListener, if the storer operation succeeds, that:
+     * <ul>
+     * <li>the element was put, but only if the Element was actually put.
+     * <li>if the element exists in the cache, that an update has occurred, even if the element would be expired
+     * if it was requested
+     * </ul>
+     *
+     * @param element        An object. If Serializable it can fully participate in replication and the DiskStore.
+     * @param storerArgument a custom argument to pass to the CacheStorer implementation.
+     * @throws IllegalStateException    if the cache is not {@link net.sf.ehcache.Status#STATUS_ALIVE}
+     * @throws IllegalArgumentException if the element is null
+     * @throws CacheException
+     */
+    void putWithStorer(Element element, Object storerArgument) throws IllegalArgumentException, IllegalStateException, CacheException;
+
+    /**
+     * This method will return, from the cache, the object associated with
+     * the argument "key".
+     * <p/>
+     * If the object is not in the cache, the associated
+     * cache loader will be called. That is either the CacheLoader passed in, or if null, the one associated with the cache.
+     * If both are null, no load is performed and null is returned.
+     * <p/>
+     * Because this method may take a long time to complete, it is not synchronized. The underlying cache operations
+     * are synchronized.
+     *
+     * @param key            key whose associated value is to be returned.
+     * @param loader         the override loader to use. If null, the cache's default loader will be used
+     * @param loaderArgument an argument to pass to the CacheLoader.
+     * @return an element if it existed or could be loaded, otherwise null
+     * @throws CacheException
+     */
+    public Element getWithLoader(Object key, CacheLoader loader, Object loaderArgument) throws CacheException;
+
 
     /**
      * Put an element in the cache.
@@ -341,21 +384,18 @@ public interface Ehcache extends Cloneable {
      * @throws IllegalStateException if the cache is not {@link net.sf.ehcache.Status#STATUS_ALIVE}
      */
     int getSize() throws IllegalStateException, CacheException;
-    
+
     /**
      * Accurately measuring statistics can be expensive. Returns the size of the
      * cache based on the accuracy setting
-     * 
-     * @param statisticsAccuracy
-     *            one of {@link Statistics#STATISTICS_ACCURACY_BEST_EFFORT},
-     *            {@link Statistics#STATISTICS_ACCURACY_GUARANTEED},
-     *            {@link Statistics#STATISTICS_ACCURACY_NONE}
+     *
+     * @param statisticsAccuracy one of {@link Statistics#STATISTICS_ACCURACY_BEST_EFFORT},
+     *                           {@link Statistics#STATISTICS_ACCURACY_GUARANTEED},
+     *                           {@link Statistics#STATISTICS_ACCURACY_NONE}
      * @return the size of the cache based on the current accuracy setting
-     * @throws IllegalArgumentException
-     *             if the statisticsAccuracy is not one of the above
-     * @throws IllegalStateException
-     *             if the cache is not
-     *             {@link net.sf.ehcache.Status#STATUS_ALIVE}
+     * @throws IllegalArgumentException if the statisticsAccuracy is not one of the above
+     * @throws IllegalStateException    if the cache is not
+     *                                  {@link net.sf.ehcache.Status#STATUS_ALIVE}
      */
     int getSizeBasedOnAccuracy(int statisticsAccuracy)
             throws IllegalArgumentException, IllegalStateException,
@@ -572,17 +612,18 @@ public interface Ehcache extends Cloneable {
      * The number given may contain expired elements. In addition if the DiskStore is used it may contain some double
      * counting of elements. It takes 6ms for 1000 elements to execute. Time to execute is O(log n). 50,000 elements take
      * 36ms.
+     *
      * @return the number of elements in the ehcache, with a varying degree of accuracy, depending on accuracy setting.
      * @throws IllegalStateException if the cache is not {@link Status#STATUS_ALIVE}
      */
     Statistics getStatistics() throws IllegalStateException;
-    
+
     /**
      * This is different from {@link #getStatistics()} in the way that values
      * returned from {@link LiveCacheStatistics} will reflect the current state
      * of the cache (and not a snapshot of the cache when the api's were called
      * like {@link #getStatistics()})
-     * 
+     *
      * @return The {@link LiveCacheStatistics} associated with this cache
      * @throws IllegalStateException
      * @since 1.7
@@ -596,7 +637,7 @@ public interface Ehcache extends Cloneable {
      * Implementations of {@link CacheUsageListener} should override the
      * {@link Object#equals(Object)} and {@link Object#hashCode()} methods as it is used for
      * equality check
-     * 
+     *
      * @throws IllegalStateException
      * @since 1.7
      */
@@ -606,7 +647,7 @@ public interface Ehcache extends Cloneable {
     /**
      * Remove an already registered {@link CacheUsageListener}, if any.
      * Depends on the {@link Object#equals(Object)} method.
-     * 
+     *
      * @throws IllegalStateException
      * @since 1.7
      */
@@ -689,7 +730,6 @@ public interface Ehcache extends Cloneable {
 
 
     /**
-     *
      * @return the cache extensions as a live list
      */
     public List<CacheExtension> getRegisteredCacheExtensions();
@@ -727,7 +767,6 @@ public interface Ehcache extends Cloneable {
 
 
     /**
-     *
      * @return the cache loaders as a live list
      */
     public List<CacheLoader> getRegisteredCacheLoaders();
@@ -743,8 +782,8 @@ public interface Ehcache extends Cloneable {
      * Because this method may take a long time to complete, it is not synchronized. The underlying cache operations
      * are synchronized.
      *
-     * @param key key whose associated value is to be returned.
-     * @param loader the override loader to use. If null, the cache's default loader will be used
+     * @param key            key whose associated value is to be returned.
+     * @param loader         the override loader to use. If null, the cache's default loader will be used
      * @param loaderArgument an argument to pass to the CacheLoader.
      * @return an element if it existed or could be loaded, otherwise null
      * @throws CacheException
@@ -768,7 +807,8 @@ public interface Ehcache extends Cloneable {
      * <p/>
      * The constructs package provides similar functionality using the
      * decorator {@link net.sf.ehcache.constructs.blocking.SelfPopulatingCache}
-     * @param keys a collection of keys to be returned/loaded
+     *
+     * @param keys           a collection of keys to be returned/loaded
      * @param loaderArgument an argument to pass to the CacheLoader.
      * @return a Map populated from the Cache. If there are no elements, an empty Map is returned.
      * @throws CacheException
@@ -816,7 +856,6 @@ public interface Ehcache extends Cloneable {
     public void loadAll(final Collection keys, final Object argument) throws CacheException;
 
 
-
     /**
      * Whether this cache is disabled. "Disabled" means:
      * <ol>
@@ -828,6 +867,7 @@ public interface Ehcache extends Cloneable {
      * <p/>
      * You can disable and enable a cache programmatically through the {@link #setDisabled(boolean)} method.
      * <p/>
+     *
      * @return true if the cache is disabled.
      */
     public boolean isDisabled();
@@ -835,14 +875,15 @@ public interface Ehcache extends Cloneable {
     /**
      * Disables or enables this cache. This call overrides the previous value of disabled.
      * <p/>
+     *
      * @param disabled true if you wish to disable, false to enable
      * @see #isDisabled()
      */
     public void setDisabled(boolean disabled);
-    
+
     /**
      * Returns true if statistics collection is enabled
-     * 
+     *
      * @return true if statistics is enabled, false otherwise
      */
     public boolean isStatisticsEnabled();
@@ -855,30 +896,30 @@ public interface Ehcache extends Cloneable {
      * parameter <tt>true</tt>.
      * Disabling statistics also disables the sampled statistics collection if
      * it is enabled
-     * 
+     *
      * @param enableStatistics
      */
     public void setStatisticsEnabled(boolean enableStatistics);
 
     /**
      * Returns sampled statistics for this cache.
-     * 
+     *
      * @return The sampled cache statistics
      */
     public SampledCacheStatistics getSampledCacheStatistics();
-    
+
     /**
      * Enable/disable sampled statistics collection.
      * Enabling sampled statistics also enables the normal statistics collection if its not already enabled.
      * Disabling sampled statistics does not have any effect on normal statistics.
-     * 
+     *
      * @param enableStatistics
      */
     public void setSampledStatisticsEnabled(boolean enableStatistics);
 
     /**
      * Returns if sampled statistics collection is enabled or disabled
-     * 
+     *
      * @return true if sampled statistics is enabled, false otherwise
      */
     public boolean isSampledStatisticsEnabled();
