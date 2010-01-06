@@ -16,6 +16,7 @@
 package net.sf.ehcache.terracotta;
 
 import net.sf.ehcache.Ehcache;
+import net.sf.ehcache.cluster.CacheCluster;
 import net.sf.ehcache.store.Store;
 import net.sf.ehcache.writebehind.WriteBehind;
 
@@ -35,6 +36,11 @@ public interface ClusteredInstanceFactory {
    * @return store instance
    */
   Store createStore(Ehcache cache);
+
+  /**
+   * Get an api for looking at the clustered node topology.
+   */
+  CacheCluster getTopology();
 
   /**
    * Create an WriteBehind instance for the given cache

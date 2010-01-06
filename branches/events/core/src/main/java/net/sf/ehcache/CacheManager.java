@@ -32,10 +32,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import net.sf.ehcache.terracotta.ClusteredInstanceFactory;
 import net.sf.ehcache.writebehind.WriteBehind;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.Configuration;
 import net.sf.ehcache.config.ConfigurationFactory;
@@ -52,9 +48,15 @@ import net.sf.ehcache.management.provider.MBeanRegistrationProviderFactory;
 import net.sf.ehcache.management.provider.MBeanRegistrationProviderFactoryImpl;
 import net.sf.ehcache.store.DiskStore;
 import net.sf.ehcache.store.Store;
+import net.sf.ehcache.cluster.CacheCluster;
+import net.sf.ehcache.cluster.ClusterScheme;
+import net.sf.ehcache.cluster.NoopCacheCluster;
 import net.sf.ehcache.util.FailSafeTimer;
 import net.sf.ehcache.util.PropertyUtil;
 import net.sf.ehcache.util.UpdateChecker;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A container for {@link Ehcache}s that maintain all aspects of their lifecycle.
@@ -1177,6 +1179,20 @@ public class CacheManager {
      */
     public FailSafeTimer getTimer() {
         return cacheManagerTimer;
+    }
+
+    /**
+     * Returns access to information about the cache cluster.
+     * @param scheme The clustering scheme to retrieve information about (such as "Terracotta")
+     * @return Cluster API (never null, but possibly a simple single node implementation)
+     * @see ClusterScheme
+     */
+    public CacheCluster getCluster(String scheme) {
+        if (scheme != null && scheme.equalsIgnoreCase(ClusterScheme.TERRACOTTA) && terracottaClusteredInstanceFactory != null) {
+            return terracottaClusteredInstanceFactory.getTopology();
+        } else {
+            return NoopCacheCluster.INSTANCE;
+        }
     }
 }
 
