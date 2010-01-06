@@ -1,0 +1,450 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta name="description" content="Ehcache performance whitepaper shows the dramatic performance and scalability gains available from using Ehcache DX, EX, or FX in your application." http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <title>Ehcache Performance Whitepaper – Distributed Cache Performance in Action | Terracotta</title>
+    <!-- this header contains stuff that needs to go into the "head" tag of every page -->
+<link href="/css/styles.css" rel="stylesheet" type="text/css" />
+<link rel="Shortcut Icon" href="/favicon.ico"/>
+    <!-- this header contains stuff that needs to go into the "head" tag of every
+page that uses javascript -->
+<script src="/js/jquery-1.3.2.min.js" type="text/javascript"></script>
+<script src="/js/jquery.validate.pack.js" type="text/javascript"></script>
+<script src="/js/jquery.query-2.1.7.js" type="text/javascript"></script>
+<script src="/js/tc.js" type="text/javascript"></script>
+<script type="text/javascript">
+function processCurrentTiliStep( myContext ) {
+  var mySelector = "href*=" + myContext;
+  mySelector = mySelector.replace(/\.html.*/, '');
+  var myActiveLink = $(".tili-steps > li > a[" + mySelector + "]");
+  myActiveLink.css("color", "#f8981d");
+}
+</script>
+
+    <script>handle_protected_content()</script>
+
+
+  </head>
+
+  <body>
+    <div id="content-wrapper">
+      <div id="content">
+	<div id="tc-header-wrapper">
+
+  <div id="headerlinks-wrapper">
+    <div id="headerlinks">
+      <a title="Community" href="/community/">Community</a>::
+      <a title="Forums" href="http://forums.terracotta.org/forums/forums/list.page">Forums</a>::
+      <a title="About Us" href="/company/">About Us</a>::
+      <a title="Register" href="/account/register">Register</a>::
+      <a title="Login" href="/account/login">Login</a>::
+      <a title="Account" href="/account/">Account</a>
+
+      <form id="googlesearch" action="/search" >
+	<input type="hidden" value="010355699337749778899:687m-r-bfmy" name="cx"/>
+	<input type="hidden" value="FORID:11" name="cof"/>
+	<input id="box" type="text" size="35" name="q"/>
+	<input id="submit" type="submit" value="Search" name="sa"/>
+      </form>
+      <!-- end headerlinks -->
+    </div>
+  </div>
+  <div id="tc-header">
+    <div id="main-menu" >
+      <a href="/"><img src="/img/logo.png"></a>
+      <a href="/products"><img class="main-menu-item" src="/img/menu-products.png" alt="Products"></a>
+      <a href="/solutions/"><img class="main-menu-item" src="/img/menu-solutions.png" alt="Solutions"></a>
+      <a href="/support/"><img class="main-menu-item" src="/img/support.png" alt="Support"></a>
+      <a href="/services/"><img class="main-menu-item" src="/img/menu-services.png" alt="Services"></a>
+      <a  href="/company/customers"><img class="main-menu-item" src="/img/menu-customers.png" alt="Customers"></a>
+      <a href="/training/"><img class="main-menu-item" src="/img/menu-training.png" alt="Training"></a>
+      <a href="/documentation/"><img class="main-menu-item" src="/img/documentation.png" alt="Documentation"></a>
+      <a href="/dl/"><img class="main-menu-item" src="/img/menu-download.png" alt="Download"></a>
+
+      <!-- end main-menu -->
+    </div>
+    <!-- end tc-header -->
+  </div>
+  <!-- end tc-header-wrapper -->
+</div>
+
+<table id="ehcache-header-table" cellpadding="0" cellspacing="0" border="0">
+  <tr>
+    <td class="ehcache-header-wrapper"><img class="ehcache-header" src="/img/ehcache-header.png"/></td>
+    <td class="short-mesh">&nbsp;</td>
+  </tr>
+</table>
+
+
+
+	<!-- end page-top -->
+	<table cellpadding="0" cellspacing="0" border="0">
+	  <tr>
+	    <td valign="top">
+	      <div class="one-column">
+		<table cellpadding="0" cellspacing="0" border="0">
+		  <tr>
+		    <td class="tili-menu-wrapper" valign="top">
+		      <p/>
+		      <!-- the argument to processCurrentTiliStep("foo") should
+			   match the title element in the ex-tili-menu.html that you
+			   want to be active for this page -->
+ 		      <script type="text/javascript">
+			jQuery($(document).ready(function() {
+			processCurrentTiliStep("Ehcache EX Performance Whitepaper");
+			}));
+		      </script>
+		      <script type="text/javascript">
+function processCurrentTiliStep( myContext ) {
+  var mySelector = "title*=" + myContext;
+  var myActiveLink = $(".tili-steps > li > a[" + mySelector + "]")
+  myActiveLink.css("color", "#f8981d");
+}
+</script>
+<style type="text/css">
+</style>
+<div id="tili-menu">
+  <h3><a href="/ehcache/distributed-cache/ehcache-ex">Ehcache EX Home&nbsp;&rsaquo;</a></h3>
+  <h4 style="font-style:normal;">1. Download and Try It</h4>
+  <ul class="tili-steps">
+    <li><a title="Download" href="/dl/ehcache-ex-register">Download&nbsp;&rsaquo;</a></li>
+    <li><a title="Ehcache EX Getting Started" href="/ehcache/distributed-cache/get-started-choose">Getting started tutorial&nbsp;&rsaquo;</li>
+    <li><a title="Ehcache EX in Your Application: Getting Started With Your App"
+        href="/ehcache/distributed-cache/get-started-with-your-app-choose">Getting
+        started with your app&nbsp;&rsaquo;</li>
+    <li><a title="Ehcache EX Reference Documentation" href="/documentation/">API and reference documentation&nbsp;&rsaquo;</a></li>
+    <li><a title="Ehcache EX Webinar" href='https://terracotta.webex.com/terracotta/lsr.php?AT=pb&SP=EC&rID=1702397&rKey=b0920841e529407d' target="blank">Watch the Ehcache EX Webinar&nbsp;&rsaquo;</a></li>
+  </ul>
+  <p/>
+  <h4>2. Get Performance, HA, and Scale</h4>
+  <ul class="tili-steps related-content-list">
+    <li><a title="Ehcache EX Performance Whitepaper" href="/ehcache/distributed-cache/ehcache-ex-performance-whitepaper">Read the performance whitepaper&nbsp;&rsaquo;</a></li>
+    <li><a title="Ehcache EX Performance Tuning Guide" href="/ehcache/distributed-cache/ehcache-ex-performance-tuning-guide">Read the performance tuning guide&nbsp;&rsaquo;</a></li>
+  </ul>
+  <p/>
+  <h4>3. Deploy and Operate</h4>
+  <p/>
+  <ul class="tili-steps related-content-list">
+    <li><a title="Ehcache EX High Availability Guide"
+        href="/ehcache/distributed-cache/ehcache-ex-high-availability-guide">Configure
+        High Availability&nbsp;&rsaquo;</a></li>
+    <li><a title="Getting to Production With Ehcache EX" href="/ehcache/distributed-cache/ehcache-ex-getting-to-production">Getting to Production&nbsp;&rsaquo;</a></li>
+  </ul>
+</div>
+
+		    </td>
+		    <td valign="top">
+		      <h1>Ehcache EX Performance Whitepaper</h1>
+		      <div id='register_login_id'>
+			<h2>Abstract</h2>
+			<p>In modern online applications, performance is
+			  critical.  A study performed by Amazon states that
+			  every 100ms of latency costs them 1% sales, which in
+			  Amazon dollars translates into more than $50M per
+			  year.  Google similarly found that just 1/2 of a
+			  second of delay caused more than a 20% drop in
+			  traffic [Linden]. </p>
+			<p>Yet performance is only half the story.  Application
+			  workloads are rapidly increasing.  In June 2009 the
+			  number of Internet users grew to a staggering 1.7B
+			  [InternetWorldStats].  Modern web technologies like
+			  AJAX and Comet tax applications more heavily than
+			  their traditional brethren.   Also, new platforms
+			  like the iPhone, which saw a whopping 626% increase
+			  in adoption in 2009 [IBTimes], add new access
+			  patterns to the mix. </p>
+			<p>So, how can an application handle this increasing
+			  workload and keep performance acceptable?  Many
+			  solutions such as expensive clustered application
+			  servers and high-end databases are available.  Each
+			  has advantages and disadvantages.  Yet the simplest
+			  and most cost effective strategy is to add caching
+			  where caching is needed most - at the application
+			  layer.</p>
+			<p>...</p>
+			<h2>Sign Up or Login</h2>
+			<p>Please sign up or login to download the whitepaper.</p>
+
+			<!-- NOTE: To use this include, you must supply the opening form tag with the the proper method and
+action. You also need to specify the success_url and the error_url.  Also, you
+must provide the closing form tag (just to make it look pretty in editors) -->
+<!--form id="signupform" class="left-aligned" name="signupform" method="post" action="/cgi-bin/registration"-->
+
+<!--input name="success_url" value="/web/display/orgsite/Account+Registered" type="hidden"/-->
+<!--input name="error_url" value="/web/display/orgsite/Sign+Up+Error" type="hidden"/-->
+  <div id='sign_up_form_fields_id'>
+    <input name="elqCustomerGUID" value="" type="hidden"/>
+    <input name="elqCookieWrite" value="0" type="hidden"/>
+    <input id="elqFormName" name="elqFormName" value="orgreg" type="hidden"/>
+    <input name="elqSiteID" value="516" type="hidden"/>
+    <input name="elqDefaultTargetURL" value="" type="hidden"/>
+    <input name="elqPost" value="" type="hidden"/>
+    <input id='activation_destination' name="activation_destination" value="/ehcache/distributed-cache/ehcache-ex-performance-whitepaper"  type="hidden"/>
+    <table id="signup-table" cellpadding="0" cellspacing="0">
+      <tbody>
+	<tr>
+	  <td class="signup-labels" valign="top">
+	    <label for="firstname">First Name:</label><br/>(required)
+	  </td>
+	  <td valign="top">
+	    <input class="required" id="firstname" size="30" name="firstname" value="" type="text"/>
+	  </td>
+	</tr>
+	<tr>
+	  <td valign="top"><label for="lastname">Last Name:</label><br/>(required)
+	  </td>
+	  <td valign="top">
+	    <input class="required" id="lastname" size="30" name="lastname" value="" type="text"/>
+	  </td>
+	</tr>
+	<tr>
+	  <td valign="top">
+	    <label for="email">Email:</label><br/>(required)
+	  </td>
+	  <td valign="top">
+	    <input class="required email" id="email" size="30" name="email" value="" type="text"/>
+	  </td>
+	</tr>
+	<tr>
+	  <td valign="top">
+	  <label for="username">Username:</label><br/>(required)
+	  </td>
+	  <td valign="top">
+	    <input class="required" id="username" size="8" name="username" maxlength="8" value="" type="text"/> (eight characters max)
+	  </td>
+	</tr>
+	<tr>
+	  <td valign="top">
+	    <label for="password">Password:</label><br/>(required)
+	  </td>
+	  <td valign="top">
+	    <input class="required" id="password" size="30" name="password" maxlength="30" value="" type="password"/>
+	  </td>
+	</tr>
+	<tr>
+	  <td valign="top">
+	    <label for="password-confirmation">Confirm Password:</label><br/>(required)
+	  </td>
+	  <td valign="top">
+	    <input class="required" equalTo="#password" id="password-confirmation" size="30" name="password-confirmation" maxlength="30" value="" type="password"/>
+	  </td>
+	</tr>
+	<tr>
+	  <td valign="top"><strong>Company:</strong></td><td valign="top"><input  id="company" type="text" name="company" size="30" maxlength="30"></td>
+
+	</tr>
+	<tr>
+	  <td valign="top"><strong>Title:</strong><br></td><td valign="top"><input  id="title" type="text" name="title"  size="30" maxlength="30"></td>
+	</tr>
+	<tr>
+	  <td valign="top"><strong>Address Line 1:</strong></td><td valign="top"><input  id="street" type="text" name="street"  size="30" maxlength="30"></td>
+	</tr>
+
+	<tr>
+	  <td valign="top"><strong>Address Line 2:</strong></td><td valign="top"><input  id="street2" type="text" name="street2"  size="30" maxlength="30"></td>
+	</tr>
+	<tr>
+	  <td valign="top"><strong>City:</strong></td><td valign="top"><input  id="city" type="text" name="city"  size="30" maxlength="30"></td>
+	</tr>
+	<tr>
+
+	  <td valign="top"><strong>State/Province:</strong></td><td valign="top"><input  id="state" type="text" name="state"  size="30" maxlength="30"></td>
+	</tr>
+	<tr>
+	  <td valign="top"><strong>Postal Code:</strong></td><td valign="top"><input  id="zip" type="text" name="zip"  size="30" maxlength="30"></td>
+	</tr>
+	<tr>
+	  <td valign="top"><strong>Country:</strong></td><td valign="top"><input id="country" type="text" name="country"  size="30" maxlength="30"></td>
+
+	</tr>
+	<tr>
+	  <td valign="top"><strong>Phone:</strong></td><td valign="top"><input  id="phone" type="text" name="phone" size="30" maxlength="30"></td>
+	</tr>
+
+      <tr>
+	<td valign="top">How did you hear about Ehcache?</td>
+	<td>
+	  <select style="width: 240px;" id="how_hear" class="textin" name="how_hear">
+	    <option value="Select One"> Select One</option>
+	    <option value="Colleague"> Colleague</option>
+	    <option value="Publication - Business"> Publication - Business</option>
+	    <option value="Publication - Technology"> Publication - Technology</option>
+	    <option value="System Integrator or VAR"> System Integrator or VAR</option>
+	    <option value="Trade Show"> Trade Show</option>
+	    <option value="WWW Search"> WWW Search</option>
+	    <option value="Other"> Other</option>
+	  </select>
+	</td>
+      </tr>
+      <tr>
+	<td colspan="2"><span class="register_form_small">Please send me email updates:</span>
+	  <input  name="email_opt_in" id="email_opt_in_checkbox"  checked="checked" type="checkbox"/>
+	</td>
+      </tr>
+       <tr>
+	 <td colspan="2">
+	   <div id="sign_up_error_text_id">
+	     <!-- User input error notices go here. -->
+	   </div>
+	   </td>
+	 </tr>
+      <tr>
+	<td>&nbsp;
+
+	</td>
+	<td>
+	  <!--<input name="Register" value="Register" type="image"
+	  src="/img/buttons/register.png" alt="Register"
+	  id='register_button_id'>-->
+	  <div id='register_button_id' title="Register"><img src="/img/buttons/register.png" alt="Register"/></div>
+	  <div id='register_registering_id'> registering <img src="/img/buttons/loading.gif" alt="Register"/></div>
+	  </td>
+      </tr>
+    </tbody>
+  </table>
+    <!-- end sign_up_form_fields_id -->
+  </div>
+  <div id='activated_success_id'>
+    <h2>Account Activated</h2>
+    <p>Congratulations, your account has been activated.  Thanks for joining
+       the Terracotta and Ehcache community. You may now login to all of the
+       Terracotta and Ehcache community resources, including:</p>
+    <ul>
+      <li>Forums</li>
+      <li>JIRA</li>
+      <li>Community content</li>
+    </ul>
+  </div>
+<script>setup_register()</script>
+
+
+
+			<div class="hr-separator"><h2>Login</h2></div>
+<form>
+<table id="login-table" cellpadding="0" cellspacing="0" border="0">
+  <tr>
+    <td class="login-labels">
+      <label for="username">Username:</label>
+    </td>
+    <td>
+      <input type="text" id="login_username" size="15" maxlength="15" />
+    </td>
+  </tr>
+  <tr>
+    <td>
+      <label for="password">Password:</label>
+    </td>
+    <td>
+      <input type="password" id="login_password" size="30" maxlength="30"/>
+    </td>
+  </tr>
+  <tr><td colspan="2"><div id="login_error_text_id"></div></td></tr>
+  <tr>
+    <td>&nbsp;</td>
+    <td>
+      <div id='login_button_id' title="Login"><img src="/img/buttons/login.png" alt="Login"/></div>
+    </td>
+  </tr>
+</table>
+<script>setup_login()</script>
+</form>
+
+		      </div>
+		      <div id='registration_success_id'>
+  <h2>Account Registration Successful</h2>
+  <p><em>(But you're not quite done—you still need to
+      validate your account.  Please check your email!)</em></p>
+  <p>Thanks for joining the Terracotta and Ehcache
+    community. You will recieve an e-mail shortly
+    containing instructions for validating your
+    account and downloading Ehcache EX.</p>
+  <p>After you validate your account, you will have full access to all Terracotta and Ehcache community resources, such as:</p>
+  <ul>
+    <li>Forums</li>
+    <li>JIRA</li>
+    <li>Community-only content</li>
+  </ul>
+
+  <!-- end registration_success_id -->
+</div>
+
+		      <div id='protected_content_id'>
+			<!-- put your main content here. -->
+			<p>Download the Ehcache EX performance whitepaper:</p>
+			<blockquote>
+			  <p><a href="Terracotta Ehcache Performance Whitepaper.pdf">Terracotta Ehcache Performance Whitepaper</a></p>
+			</blockquote>
+			<!-- end protected_content_id -->
+		      </div>
+		    </td>
+		  </tr>
+		</table>
+		<!-- end one-column -->
+	      </div>
+	      <!-- end main content -->
+	    </td>
+	    <td class="right-column-wrapper" valign="top">
+	      <div class="right-column">
+		<h2>Training</h2>
+<p>Terracotta offers a range of training products.<br/>
+<a href="/training/">Learn more &rsaquo;</a>
+</p>
+<div class="right-column-spacer"><h2>Contact Us</h2>
+<p>For more information about our product, services, training, and support offerings contact:<br/>
+<a href='/contact/?/ehcache/distributed-cache/ehcache-ex-performance-whitepaper'>sales@terracottatech.com&nbsp;&rsaquo;</a></p></div>
+
+
+	      </div>
+	    </td>
+	  </tr>
+	  <!-- end tc-content-header-wrapper -->
+	</table>
+	<table  cellpadding="0" cellspacing="0" border="0">
+  <tr>
+    <td valign="middle">
+      <div class="footer-links-wrapper">
+	<img src="/img/spacer.gif" height="20">
+	<div class="footer-column footer-links">
+	  <table cellpadding="0" cellspacing="0" border="0" width="100%">
+	    <tr>
+	      <td><a title="Products" href="/products">Products</a></td>
+	      <td><a title="Solutions" href="/solutions/index.html">Solutions</a></td>
+	      <td><a title="Support" href="/support/index.html">Support</a></td>
+	      <td><a title="Services" href="/services/index.html">Services</a></td>
+	      <td><a title="Training" href="/training/index.html">Training</a></td>
+	      <td><a title="Documentation" href="/documentation/">Documentation</a></td>
+	      <td><a title="Download" href="/dl/">Download</a></td>
+	    </tr>
+	  </table>
+	</div>
+	<img src="/img/spacer.gif" height="20">
+      </div>
+    </td>
+    <td valign="bottom" class="right-column-wrapper">
+	<div class="footer-extra">
+	  <a href='/contact/?/ehcache/distributed-cache/ehcache-ex-performance-whitepaper'>Contact Us</a> | <a href="/legal/">Copyright</a> | <a href="/legal/">Privacy  Policy</a> | <a href="/legal/">Legal</a>
+	  <!-- end footer-extra -->
+	</div>
+    </td>
+  </tr>
+</table>
+<SCRIPT TYPE='text/javascript' LANGUAGE='JavaScript' src="/elqNow/elqCfg.js"></SCRIPT> <SCRIPT TYPE='text/javascript' LANGUAGE='JavaScript'  src="/elqNow/elqImg.js"></SCRIPT>
+  <script type="text/javascript">
+    var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+    document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+  </script>
+
+  <script type="text/javascript">
+    var pageTracker = _gat._getTracker("UA-131151-7");
+    pageTracker._trackPageview();
+  </script>
+
+
+  <!--All content copyright Terracotta, Inc., unless otherwise indicated. All rights reserved.-->
+
+	<!-- end content -->
+      </div>
+      <!-- end content-wrapper -->
+    </div>
+  </body>
+</html>
