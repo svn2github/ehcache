@@ -18,13 +18,16 @@ package net.sf.ehcache.hibernate;
 import java.util.Properties;
 
 /**
+ * A singleton EhCacheRegionFactory implementation.
+ * <p>
+ * This class uses functionality in the Hibernate 3.2 API SingletonEhCacheProvider.
  *
- * @author cdennis
+ * @author Chris Dennis
  */
 public class SingletonEhCacheRegionFactory extends AbstractEhCacheRegionFactory {
 
     /**
-     * Returns a representatio of the singleton EhCacheRegionFactory
+     * Returns a representation of the singleton EhCacheRegionFactory
      */
     public SingletonEhCacheRegionFactory(Properties prop) {
         super(new SingletonEhCacheProvider());

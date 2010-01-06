@@ -27,7 +27,10 @@ import org.hibernate.cache.TimestampsRegion;
 import org.hibernate.cfg.Settings;
 
 /**
- *
+ * Abstract implementation of an EhCache specific RegionFactory.
+ * <p>
+ * This abstract class wraps an EhCache CacheProvider as an instance of RegionFactory.
+ * 
  * @author Chris Dennis
  */
 abstract class AbstractEhCacheRegionFactory implements RegionFactory {

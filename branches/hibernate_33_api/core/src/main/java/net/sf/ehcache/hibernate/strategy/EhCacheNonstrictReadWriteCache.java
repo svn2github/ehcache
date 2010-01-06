@@ -24,8 +24,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
+ * EhCache specific non-strict read/write cache concurrency strategy.
+ * <p>
+ * This is the EhCache specific equivalent to Hibernate's NonstrictReadWriteCache.
  *
- * @author cdennis
+ * @author Chris Dennis
  */
 public class EhCacheNonstrictReadWriteCache extends AbstractEhCacheConcurrencyStrategy {
 
@@ -96,7 +99,7 @@ public class EhCacheNonstrictReadWriteCache extends AbstractEhCacheConcurrencySt
     }
 
     /**
-     * A No-op.
+     * A No-Op.
      */
     public boolean afterInsert(Object key, Object value, Object version) throws CacheException {
         return false;

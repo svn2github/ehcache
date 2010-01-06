@@ -32,8 +32,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
+ * A collection region specific wrapper around an EhCache instance.
+ * <p>
+ * This implementation returns EhCache specific access strategy instances for all the non-transactional access types.  Transactional access
+ * is not supported.
  *
- * @author cdennis
+ * @author Chris Dennis
  */
 class EhCacheCollectionRegion extends BaseTransactionalDataRegionAdapter implements CollectionRegion {
 

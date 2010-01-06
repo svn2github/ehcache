@@ -25,7 +25,9 @@ import org.slf4j.LoggerFactory;
 import org.hibernate.cache.access.SoftLock;
 
 /**
- * Caches data that is never updated.
+ * EhCache specific read-only cache concurrency strategy.
+ * <p>
+ * This is the EhCache specific equivalent to Hibernate's ReadOnlyCache.
  *
  * @author Chris Dennis
  */

@@ -18,7 +18,10 @@ package net.sf.ehcache.hibernate;
 import java.util.Properties;
 
 /**
- *
+ * A non-singleton EhCacheRegionFactory implementation.
+ * <p>
+ * This class uses functionality in the Hibernate 3.2 API EhCacheProvider.
+ * 
  * @author Chris Dennis
  */
 public class EhCacheRegionFactory extends AbstractEhCacheRegionFactory {

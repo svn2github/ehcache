@@ -20,6 +20,9 @@ import java.io.Serializable;
 import java.util.Comparator;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock.ReadLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock.WriteLock;
 
 import org.hibernate.cache.CacheException;
 import org.hibernate.cache.access.SoftLock;
@@ -28,6 +31,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
+ * EhCache specific read/write cache concurrency strategy.
+ * <p>
+ * This is the EhCache specific equivalent to Hibernate's ReadWriteCache.  This implementation uses a more robust soft-lock system (less
+ * prone to accidental collisions).
  *
  * @author Chris Dennis
  */
@@ -37,18 +44,30 @@ public class EhCacheReadWriteCache extends AbstractEhCacheConcurrencyStrategy {
     
     private final UUID uuid = UUID.randomUUID();
     private final AtomicLong nextLockId = new AtomicLong();
-
+    private final ReadLock coarseReadLock;
+    private final WriteLock coarseWriteLock;
+    {
+        ReentrantReadWriteLock coarseLock = new ReentrantReadWriteLock();
+        coarseReadLock = coarseLock.readLock();
+        coarseWriteLock = coarseLock.writeLock();
+    }
+    
     /**
      * {@inheritDoc}
      */
     public Object get(Object key, long txTimestamp) throws CacheException {
-        Lockable item = (Lockable) cache.get(key);
+        readLockIfCoarse(key);
+        try {
+            Lockable item = (Lockable) cache.get(key);
 
-        boolean readable = item != null && item.isReadable(txTimestamp);
-        if (readable) {
-            return item.getValue();
-        } else {
-            return null;
+            boolean readable = item != null && item.isReadable(txTimestamp);
+            if (readable) {
+                return item.getValue();
+            } else {
+                return null;
+            }
+        } finally {
+            readUnlockIfCoarse(key);
         }
     }
 
@@ -58,7 +77,7 @@ public class EhCacheReadWriteCache extends AbstractEhCacheConcurrencyStrategy {
     public boolean put(Object key, Object value, long txTimestamp, Object version, Comparator versionComparator, boolean minimalPut)
             throws CacheException {
 
-        cache.lock(key);
+        writeLock(key);
         try {
             Lockable item = (Lockable) cache.get(key);
             boolean writeable = item == null || item.isWriteable(txTimestamp, version, versionComparator);
@@ -69,7 +88,7 @@ public class EhCacheReadWriteCache extends AbstractEhCacheConcurrencyStrategy {
                 return false;
             }
         } finally {
-            cache.unlock(key);
+            writeUnlock(key);
         }
     }
 
@@ -77,7 +96,7 @@ public class EhCacheReadWriteCache extends AbstractEhCacheConcurrencyStrategy {
      * Soft-locks the associated mapping prior to updating/inserting a new value.
      */
     public SoftLock lock(Object key, Object version) throws CacheException {
-        cache.lock(key);
+        writeLock(key);
         try {
             Lockable item = (Lockable) cache.get(key);
             long timeout = cache.nextTimestamp() + cache.getTimeout();
@@ -85,7 +104,7 @@ public class EhCacheReadWriteCache extends AbstractEhCacheConcurrencyStrategy {
             cache.update(key, lock);
             return lock;
         } finally {
-            cache.unlock(key);
+            writeUnlock(key);
         }
     }
 
@@ -93,7 +112,7 @@ public class EhCacheReadWriteCache extends AbstractEhCacheConcurrencyStrategy {
      * Soft-unlocks the associated mapping.
      */
     public void release(Object key, SoftLock lock) throws CacheException {
-        cache.lock(key);
+        writeLock(key);
         try {
             Lockable item = (Lockable) cache.get(key);
 
@@ -103,7 +122,7 @@ public class EhCacheReadWriteCache extends AbstractEhCacheConcurrencyStrategy {
                 handleLockExpiry(key);
             }
         } finally {
-            cache.unlock(key);
+            writeUnlock(key);
         }
     }
 
@@ -111,7 +130,7 @@ public class EhCacheReadWriteCache extends AbstractEhCacheConcurrencyStrategy {
      * {@inheritDoc}
      */
     public boolean afterUpdate(Object key, Object value, Object version, SoftLock softlock) throws CacheException {
-        cache.lock(key);
+        writeLock(key);
         try {
             Lockable item = (Lockable) cache.get(key);
 
@@ -129,7 +148,7 @@ public class EhCacheReadWriteCache extends AbstractEhCacheConcurrencyStrategy {
                 return false;
             }
         } finally {
-            cache.unlock(key);
+            writeUnlock(key);
         }
     }
 
@@ -137,7 +156,7 @@ public class EhCacheReadWriteCache extends AbstractEhCacheConcurrencyStrategy {
      * {@inheritDoc}
      */
     public boolean afterInsert(Object key, Object value, Object version) throws CacheException {
-        cache.lock(key);
+        writeLock(key);
         try {
             Lockable item = (Lockable) cache.get(key);
             if (item == null) {
@@ -147,7 +166,7 @@ public class EhCacheReadWriteCache extends AbstractEhCacheConcurrencyStrategy {
                 return false;
             }
         } finally {
-            cache.unlock(key);
+            writeUnlock(key);
         }
     }
 
@@ -187,6 +206,34 @@ public class EhCacheReadWriteCache extends AbstractEhCacheConcurrencyStrategy {
         Lock lock = new Lock(ts, uuid, nextLockId.getAndIncrement(), null);
         lock.unlock(ts);
         cache.update(key, lock);
+    }
+
+    private void writeLock(Object key) {
+        if (cache.canLockEntries()) {
+            cache.lock(key);
+        } else {
+            coarseWriteLock.lock();
+        }
+    }
+
+    private void writeUnlock(Object key) {
+        if (cache.canLockEntries()) {
+            cache.unlock(key);
+        } else {
+            coarseWriteLock.unlock();
+        }
+    }
+
+    private void readLockIfCoarse(Object key) {
+        if (!cache.canLockEntries()) {
+            coarseReadLock.lock();
+        }
+    }
+
+    private void readUnlockIfCoarse(Object key) {
+        if (!cache.canLockEntries()) {
+            coarseReadLock.unlock();
+        }
     }
 
     /**

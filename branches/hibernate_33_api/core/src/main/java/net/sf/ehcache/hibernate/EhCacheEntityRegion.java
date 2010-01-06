@@ -34,15 +34,19 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
+ * An entity region specific wrapper around an EhCache instance.
+ * <p>
+ * This implementation returns EhCache specific access strategy instances for all the non-transactional access types.  Transactional access
+ * is not supported.
  *
- * @author cdennis
+ * @author Chris Dennis
  */
 class EhCacheEntityRegion extends BaseTransactionalDataRegionAdapter implements EntityRegion {
 
     private static final Logger LOG = LoggerFactory.getLogger(EhCacheEntityRegion.class);
 
     /**
-     * Constructs an EhCacheCollectionRegion around the given underlying cache.
+     * Constructs an EhCacheEntityRegion around the given underlying cache.
      */
     public EhCacheEntityRegion(Cache underlyingCache, Settings settings, CacheDataDescription metadata) {
         super(underlyingCache, settings, metadata);

@@ -21,8 +21,9 @@ import org.hibernate.cache.impl.bridge.BaseGeneralDataRegionAdapter;
 import org.hibernate.cfg.Settings;
 
 /**
+ * A query results region specific wrapper around an EhCache instance.
  *
- * @author cdennis
+ * @author Chris Dennis
  */
 class EhCacheQueryResultsRegion extends BaseGeneralDataRegionAdapter implements QueryResultsRegion {
 

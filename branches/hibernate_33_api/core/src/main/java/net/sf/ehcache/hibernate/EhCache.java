@@ -198,22 +198,16 @@ public final class EhCache implements Cache {
     }
 
     /**
-     * Calls to this method should perform their own synchronization.
-     * It is provided for distributed caches.
-     * <p/>
-     * ehcache does not support distributed locking and therefore this method does nothing.
+     * {@inheritDoc}
      */
     public final void lock(Object key) throws CacheException {
         if (lockProvider != null) {
             lockProvider.getSyncForKey(key).lock(LockType.WRITE);
         }
-        //noop
     }
 
     /**
-     * Calls to this method should perform their own synchronization.
-     * <p/>
-     * ehcache does not support distributed locking and therefore this method does nothing.
+     * {@inheritDoc}
      */
     public final void unlock(Object key) throws CacheException {
         if (lockProvider != null) {
@@ -293,6 +287,13 @@ public final class EhCache implements Cache {
         } catch (Exception e) {
             throw new CacheException(e);
         }
+    }
+
+    /**
+     * @return <code>true</code> if this cache supports entry locks.
+     */
+    public final boolean canLockEntries() {
+        return lockProvider != null;
     }
 
     /**

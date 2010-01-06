@@ -21,6 +21,7 @@ import org.hibernate.cache.impl.bridge.BaseGeneralDataRegionAdapter;
 import org.hibernate.cfg.Settings;
 
 /**
+ * A timestamps region specific wrapper around an EhCache instance.
  *
  * @author Chris Dennis
  */
