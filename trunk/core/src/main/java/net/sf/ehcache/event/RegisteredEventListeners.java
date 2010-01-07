@@ -46,12 +46,12 @@ public class RegisteredEventListeners {
     private final Set<CacheEventListener> cacheEventListeners = new CopyOnWriteArraySet<CacheEventListener>();
     private final Ehcache cache;
 
-    private AtomicLong elementsRemovedCounter;
-    private AtomicLong elementsPutCounter;
-    private AtomicLong elementsUpdatedCounter;
-    private AtomicLong elementsExpiredCounter;
-    private AtomicLong elementsEvictedCounter;
-    private AtomicLong elementsRemoveAllCounter;
+    private AtomicLong elementsRemovedCounter = new AtomicLong(0);
+    private AtomicLong elementsPutCounter = new AtomicLong(0);
+    private AtomicLong elementsUpdatedCounter = new AtomicLong(0);
+    private AtomicLong elementsExpiredCounter = new AtomicLong(0);
+    private AtomicLong elementsEvictedCounter = new AtomicLong(0);
+    private AtomicLong elementsRemoveAllCounter = new AtomicLong(0);
 
     /**
      * Constructs a new notification service
