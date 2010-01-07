@@ -54,8 +54,8 @@
             </dependency>
             <dependency>
                 <groupId>org.hibernate</groupId>
-                <artifactId>hibernate</artifactId>
-                <version>3.2.1.ga</version>
+                <artifactId>hibernate-core</artifactId>
+                <version>3.3.2.GA</version>
                 <exclusions>
                     <exclusion>
                         <groupId>javax.transaction</groupId>
@@ -70,6 +70,12 @@
                         <artifactId>ehcache</artifactId>
                     </exclusion>
                 </exclusions>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.hibernate</groupId>
+                <artifactId>hibernate-ehcache</artifactId>
+                <version>3.3.2.GA</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>

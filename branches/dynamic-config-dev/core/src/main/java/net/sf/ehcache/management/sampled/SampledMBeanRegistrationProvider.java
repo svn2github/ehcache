@@ -33,6 +33,7 @@ import net.sf.ehcache.Status;
 import net.sf.ehcache.event.CacheManagerEventListener;
 import net.sf.ehcache.management.provider.MBeanRegistrationProvider;
 import net.sf.ehcache.management.provider.MBeanRegistrationProviderException;
+import net.sf.ehcache.terracotta.ClusteredInstanceFactory;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -56,6 +57,7 @@ public class SampledMBeanRegistrationProvider implements MBeanRegistrationProvid
 
     private Status status = Status.STATUS_UNINITIALISED;
     private CacheManager cacheManager;
+    private ClusteredInstanceFactory clusteredInstanceFactory;
     private final MBeanServer mBeanServer;
 
     // name of the cacheManager when the mbeans are registered.
@@ -76,12 +78,13 @@ public class SampledMBeanRegistrationProvider implements MBeanRegistrationProvid
     /**
      * {@inheritDoc}
      */
-    public synchronized void initialize(CacheManager cacheManagerParam) {
+    public synchronized void initialize(CacheManager cacheManagerParam, ClusteredInstanceFactory clusteredInstanceFactory) {
         if (isAlive()) {
             return;
         }
         status = Status.STATUS_ALIVE;
         this.cacheManager = cacheManagerParam;
+        this.clusteredInstanceFactory = clusteredInstanceFactory;
         SampledCacheManager cacheManagerMBean = new SampledCacheManager(cacheManager);
         try {
             registerCacheManagerMBean(cacheManagerMBean);
@@ -106,8 +109,8 @@ public class SampledMBeanRegistrationProvider implements MBeanRegistrationProvid
             }
             try {
                 // register the CacheManager MBean
-                mBeanServer.registerMBean(cacheManagerMBean, SampledEhcacheMBeans.getCacheManagerObjectName(cacheManager.getClusterUUID(),
-                        registeredCacheManagerName));
+                mBeanServer.registerMBean(cacheManagerMBean,
+                        SampledEhcacheMBeans.getCacheManagerObjectName(clusteredInstanceFactory, registeredCacheManagerName));
                 success = true;
                 cacheManagerMBean.setMBeanRegisteredName(registeredCacheManagerName);
                 break;
@@ -135,7 +138,7 @@ public class SampledMBeanRegistrationProvider implements MBeanRegistrationProvid
      */
     public synchronized void reinitialize() throws MBeanRegistrationProviderException {
         dispose();
-        initialize(this.cacheManager);
+        initialize(this.cacheManager, this.clusteredInstanceFactory);
     }
 
     /**
@@ -155,8 +158,9 @@ public class SampledMBeanRegistrationProvider implements MBeanRegistrationProvid
         cache.setSampledStatisticsEnabled(true);
         SampledCache terracottaCacheMBean = new SampledCache(cache);
         try {
-            mBeanServer.registerMBean(terracottaCacheMBean, SampledEhcacheMBeans.getCacheObjectName(cacheManager.getClusterUUID(),
-                    registeredCacheManagerName, terracottaCacheMBean.getImmutableCacheName()));
+            mBeanServer.registerMBean(terracottaCacheMBean,
+                    SampledEhcacheMBeans.getCacheObjectName(clusteredInstanceFactory, registeredCacheManagerName,
+                            terracottaCacheMBean.getImmutableCacheName()));
         } catch (MalformedObjectNameException e) {
             throw new MBeanRegistrationException(e);
         }
@@ -185,11 +189,11 @@ public class SampledMBeanRegistrationProvider implements MBeanRegistrationProvid
 
         try {
             // CacheManager MBean
-            registeredObjectNames = mBeanServer.queryNames(SampledEhcacheMBeans.getCacheManagerObjectName(cacheManager.getClusterUUID(),
-                    registeredCacheManagerName), null);
+            registeredObjectNames = mBeanServer
+                    .queryNames(SampledEhcacheMBeans.getCacheManagerObjectName(clusteredInstanceFactory, registeredCacheManagerName), null);
             // Other MBeans for this CacheManager
-            registeredObjectNames.addAll(mBeanServer.queryNames(SampledEhcacheMBeans.getQueryCacheManagerObjectName(cacheManager
-                    .getClusterUUID(), registeredCacheManagerName), null));
+            registeredObjectNames.addAll(mBeanServer.queryNames(SampledEhcacheMBeans
+                    .getQueryCacheManagerObjectName(clusteredInstanceFactory, registeredCacheManagerName), null));
         } catch (MalformedObjectNameException e) {
             LOG.warn("Error querying MBeanServer. Error was " + e.getMessage(), e);
         }
@@ -241,7 +245,7 @@ public class SampledMBeanRegistrationProvider implements MBeanRegistrationProvid
         }
         ObjectName objectName = null;
         try {
-            objectName = SampledEhcacheMBeans.getCacheObjectName(cacheManager.getClusterUUID(), registeredCacheManagerName, cacheName);
+            objectName = SampledEhcacheMBeans.getCacheObjectName(clusteredInstanceFactory, registeredCacheManagerName, cacheName);
             mBeanServer.unregisterMBean(objectName);
 
         } catch (Exception e) {

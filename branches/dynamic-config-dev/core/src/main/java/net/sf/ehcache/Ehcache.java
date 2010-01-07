@@ -30,6 +30,7 @@ import net.sf.ehcache.loader.CacheLoader;
 import net.sf.ehcache.statistics.CacheUsageListener;
 import net.sf.ehcache.statistics.LiveCacheStatistics;
 import net.sf.ehcache.statistics.sampled.SampledCacheStatistics;
+import net.sf.ehcache.writebehind.WriteBehind;
 
 /**
  * An interface for Ehcache.
@@ -896,4 +897,11 @@ public interface Ehcache extends Cloneable {
      * re-enabled.
      */
     public void disableDynamicFeatures();
+
+    /**
+     * Obtain the write behind functionality tied to this cache instance.
+     *
+     * @return the write behind instance that's associated with this cache
+     */
+    WriteBehind getWriteBehind();
 }

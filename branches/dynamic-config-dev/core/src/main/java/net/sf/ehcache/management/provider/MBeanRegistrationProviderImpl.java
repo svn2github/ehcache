@@ -21,6 +21,7 @@ import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.config.Configuration;
 import net.sf.ehcache.config.Configuration.Monitoring;
 import net.sf.ehcache.management.sampled.SampledMBeanRegistrationProvider;
+import net.sf.ehcache.terracotta.ClusteredInstanceFactory;
 
 /**
  * Implementation of {@link MBeanRegistrationProvider}
@@ -35,6 +36,7 @@ public class MBeanRegistrationProviderImpl implements MBeanRegistrationProvider 
     private final AtomicBoolean initialized = new AtomicBoolean(false);
     private SampledMBeanRegistrationProvider sampledProvider;
     private CacheManager cachedCacheManager;
+    private ClusteredInstanceFactory clusteredInstanceFactory;
 
     /**
      * Constructor accepting the {@link Configuration}
@@ -55,12 +57,14 @@ public class MBeanRegistrationProviderImpl implements MBeanRegistrationProvider 
     /**
      * {@inheritDoc}
      */
-    public void initialize(CacheManager cacheManager) throws MBeanRegistrationProviderException {
+    public void initialize(CacheManager cacheManager, ClusteredInstanceFactory clusteredInstanceFactory)
+        throws MBeanRegistrationProviderException {
         if (!initialized.getAndSet(true)) {
             if (shouldRegisterMBeans()) {
-                getSampledMBeanRegistrationProvider().initialize(cacheManager);
+                getSampledMBeanRegistrationProvider().initialize(cacheManager, clusteredInstanceFactory);
             }
             this.cachedCacheManager = cacheManager;
+            this.clusteredInstanceFactory = clusteredInstanceFactory;
         } else {
             throw new IllegalStateException("MBeanRegistrationProvider is already initialized");
         }
@@ -74,7 +78,7 @@ public class MBeanRegistrationProviderImpl implements MBeanRegistrationProvider 
             if (getSampledMBeanRegistrationProvider().isAlive()) {
                 getSampledMBeanRegistrationProvider().reinitialize();
             } else {
-                getSampledMBeanRegistrationProvider().initialize(cachedCacheManager);
+                getSampledMBeanRegistrationProvider().initialize(cachedCacheManager, clusteredInstanceFactory);
             }
         }
     }

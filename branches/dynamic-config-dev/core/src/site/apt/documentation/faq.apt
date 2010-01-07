@@ -5,22 +5,6 @@
 {Frequently Asked Questions}
 
 
-* There are a lot of product choices? Which one should I use?
-
-   Terracotta Ehcache is available in DX, EX and FX versions.
-
-   There is an Ehcache {{{/EhcacheBrochure.pdf}product brochure}} which explains the choices. That is a good
-   start.
-
-* What are the software licenses used.
-
-    Terracotta Open Source is available with TPL.
-
-    The Ehcache open source modules are released under an Apache license.
-
-    There are some modules which are part of the commercial product offering e.g. monitoring server.
-    These are available under a Terracotta Commercial License.
-
 * Does Ehcache run on {JDK1.3}/{JDK1.4}?
 
    Older versions run on 1.3. Ehcache 1.5 runs on 1.4. Ehcache 1.6 required JDK 1.5.
@@ -457,6 +441,11 @@ java.net.ConnectException: Connection refused
 
 ---
 
-    Even with this approach there is still some added overhead consumed by a reference consumed by each ArrayList element. 
+    Even with this approach there is still some added overhead consumed by a reference consumed by each ArrayList element.
+
+    Update: Ehcache 1.8 will introduce a new implementation for MemoryStore based on a custom ConcurrentHashMap. This version
+     provides fast iteration and does away with the need for the keyArray thus bringing memory use back down to pre 1.6 levels.
+     And with other memory optimisations made to Element in 1.7, memory use will actually be considerably lower than pre
+     1.6 levels.
 
      

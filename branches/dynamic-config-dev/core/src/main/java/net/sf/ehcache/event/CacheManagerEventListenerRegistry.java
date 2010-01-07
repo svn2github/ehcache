@@ -16,11 +16,11 @@
 
 package net.sf.ehcache.event;
 
-import net.sf.ehcache.Status;
-
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
+import java.util.concurrent.CopyOnWriteArraySet;
+
+import net.sf.ehcache.Status;
 
 /**
  * Registered listeners for registering and unregistering CacheManagerEventListeners and sending notifications to registrants.
@@ -33,7 +33,7 @@ import java.util.Set;
  */
 public class CacheManagerEventListenerRegistry implements CacheManagerEventListener {
 
-    private Status status;
+    private volatile Status status;
 
     /**
      * A Set of CacheEventListeners keyed by listener instance.
@@ -48,7 +48,7 @@ public class CacheManagerEventListenerRegistry implements CacheManagerEventListe
      */
     public CacheManagerEventListenerRegistry() {
         status = Status.STATUS_UNINITIALISED;
-        listeners = new HashSet();
+        listeners = new CopyOnWriteArraySet();
     }
 
     /**
@@ -103,6 +103,7 @@ public class CacheManagerEventListenerRegistry implements CacheManagerEventListe
             CacheManagerEventListener cacheManagerEventListener = (CacheManagerEventListener) iterator.next();
             cacheManagerEventListener.init();
         }
+        status = Status.STATUS_ALIVE;
     }
 
     /**
@@ -126,6 +127,7 @@ public class CacheManagerEventListenerRegistry implements CacheManagerEventListe
             cacheManagerEventListener.dispose();
         }
         listeners.clear();
+        status = Status.STATUS_SHUTDOWN;
     }
 
     /**
@@ -187,6 +189,7 @@ public class CacheManagerEventListenerRegistry implements CacheManagerEventListe
      *
      * @return a string representation of the object.
      */
+    @Override
     public String toString() {
         StringBuilder sb = new StringBuilder(" cacheManagerEventListeners: ");
         for (Iterator iterator = listeners.iterator(); iterator.hasNext();) {
