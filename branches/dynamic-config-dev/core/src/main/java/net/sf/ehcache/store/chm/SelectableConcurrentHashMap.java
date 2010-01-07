@@ -15,6 +15,8 @@
  */
 package net.sf.ehcache.store.chm;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Random;
 import net.sf.ehcache.Element;
 
@@ -35,24 +37,38 @@ public class SelectableConcurrentHashMap extends ConcurrentHashMap<Object, Eleme
         super(initialCapacity, loadFactor, concurrency);
     }
 
-    public Element[] getRandomValues(int size) {
-        Element[] sampled = new Element[size];
+    public Element[] getRandomValues(final int size) {
+        ArrayList<Element> sampled = new ArrayList<Element>(size);
 
-        int index = 0;
-        while (!isEmpty()) {
-            Segment<Object, Element> seg = segmentFor(rndm.nextInt());
-            for (int i = 0; i < seg.count; i++) {
-                for (HashEntry<Object, Element> e = seg.getFirst(rndm.nextInt()); e != null; e = e.next) {
+        // pick a random starting point in the map
+        int randomHash = rndm.nextInt();
+
+        final int segmentStart = (randomHash >>> segmentShift) & segmentMask;
+        int segmentIndex = segmentStart;
+        do {
+            final HashEntry<Object, Element>[] table = segments[segmentIndex].table;
+            final int tableStart = randomHash & (table.length - 1);
+            int tableIndex = tableStart;
+            do {
+                for (HashEntry<Object, Element> e = table[tableIndex]; e != null; e = e.next) {
                     Element value = e.value;
                     if (value != null) {
-                        sampled[index++] = value;
-                        if (index == sampled.length) {
-                            return sampled;
-                        }
+                        sampled.add(value);
                     }
                 }
-            }
-        }
-        return sampled;
+
+                if (sampled.size() >= size) {
+                    return sampled.toArray(new Element[sampled.size()]);
+                }
+
+                //move to next table slot
+                tableIndex = (tableIndex + 1) & (table.length - 1);
+            } while (tableIndex != tableStart);
+
+            //move to next segment
+            segmentIndex = (segmentIndex + 1) & segmentMask;
+        } while (segmentIndex != segmentStart);
+
+        return sampled.toArray(new Element[sampled.size()]);
     }
 }
