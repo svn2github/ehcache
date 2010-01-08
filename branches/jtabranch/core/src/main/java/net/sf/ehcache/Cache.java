@@ -37,6 +37,7 @@ import net.sf.ehcache.store.MemoryStore;
 import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
 import net.sf.ehcache.store.Policy;
 import net.sf.ehcache.store.Store;
+import net.sf.ehcache.store.TransactionalStore;
 import net.sf.ehcache.transaction.manager.TransactionManagerLookup;
 import net.sf.ehcache.util.NamedThreadFactory;
 import net.sf.ehcache.util.TimeUtil;
@@ -200,6 +201,7 @@ public class Cache implements Ehcache {
     private volatile LiveCacheStatisticsData liveCacheStatisticsData;
 
     private volatile SampledCacheStatisticsWrapper sampledCacheStatistics;
+    private final TransactionManagerLookup transactionManagerLookup;
 
 
     /**
@@ -723,20 +725,19 @@ public class Cache implements Ehcache {
         configuration.setTransactionalMode(transactionalMode);
         if (configuration.isTransactional()) {
             Class<TransactionManagerLookup> lookupClass;
-            TransactionManagerLookup tmLookup;
             try {
                 lookupClass = (Class<TransactionManagerLookup>) Class.forName(transactionManagerLookupClass);
-                tmLookup = lookupClass.newInstance();
+                transactionManagerLookup = lookupClass.newInstance();
             } catch (Exception e) {
                 throw new CacheException(e);
             }
-            TransactionManager transactionManager = tmLookup.getTransactionManager(null);
+            TransactionManager transactionManager = transactionManagerLookup.getTransactionManager(null);
             if (transactionManager == null) {
                 LOG.error("You are trying to create an XA Cache in a non-XA environment: No TransactionManager found " +
                           "using " + lookupClass.getName());
-            } else {
-                // TODO Do the right things like: use the transactional store, ...
             }
+        } else {
+            transactionManagerLookup = null;
         }
     }
 
@@ -762,6 +763,7 @@ public class Cache implements Ehcache {
 
             this.diskStore = createDiskStore();
 
+            final Store memoryStore;
             if (isTerracottaClustered()) {
                 memoryStore = cacheManager.createTerracottaStore(this);
             } else {
@@ -770,6 +772,11 @@ public class Cache implements Ehcache {
                 } else {
                     memoryStore = MemoryStore.create(this, diskStore);
                 }
+            }
+            if(configuration.isTransactional()) {
+                this.memoryStore = new TransactionalStore(memoryStore, transactionManagerLookup.getTransactionManager(null));
+            } else {
+                this.memoryStore = memoryStore;
             }
             changeStatus(Status.STATUS_ALIVE);
             initialiseRegisteredCacheExtensions();

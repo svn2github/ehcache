@@ -16,6 +16,7 @@
 package net.sf.ehcache.transaction.manager;
 
 import net.sf.ehcache.config.Configuration;
+import net.sf.ehcache.transaction.xa.EhCacheXAResource;
 
 import java.lang.reflect.Method;
 import java.util.concurrent.locks.Lock;
@@ -24,6 +25,7 @@ import java.util.concurrent.locks.ReentrantLock;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import javax.transaction.TransactionManager;
+import javax.transaction.xa.XAResource;
 
 /**
  * @author Alex Snaps
@@ -59,7 +61,32 @@ public class DefaultTransactionManagerLookup implements TransactionManagerLookup
         }
         return transactionManager;
     }
+    
+    public void register(EhCacheXAResource resource) {
+        if(transactionManager == null) {
+            return;
+        }
+        if("bitronix.tm.TransactionManagerServices".equals(transactionManager.getClass().getName())) {
+            registerResourceWithBitronix(resource);
+        }
+    }
 
+    
+    private void registerResourceWithBitronix(EhCacheXAResource resource) {
+        ClassLoader cl = Thread.currentThread().getContextClassLoader();
+        if (cl == null) {
+            cl = ClassLoader.getSystemClassLoader();
+        }
+        try {
+            Class producerClass = cl.loadClass("bitronix.tm.resource.generic.GenericXAResourceProducer");
+            Class[] signature = new Class[]{XAResource.class};
+            Object[] args = new Object[]{resource};
+            Method method = producerClass.getMethod("registerXAResource", signature);
+            transactionManager = (TransactionManager)method.invoke(null, args);
+        } catch (Exception e) {
+            //
+        }
+    }
     /**
      * 
      * @return
@@ -117,6 +144,7 @@ public class DefaultTransactionManagerLookup implements TransactionManagerLookup
             return jndiName;
         }
 
+        @Override
         protected TransactionManager lookup(InitialContext initialContext) {
             Object jndiObject;
             try {
@@ -143,6 +171,7 @@ public class DefaultTransactionManagerLookup implements TransactionManagerLookup
             this.factoryClassName = factoryClassName;
         }
 
+        @Override
         protected TransactionManager lookup(final InitialContext initialContext) {
             TransactionManager transactionManager = null;
             ClassLoader cl = Thread.currentThread().getContextClassLoader();
@@ -174,6 +203,7 @@ public class DefaultTransactionManagerLookup implements TransactionManagerLookup
             this.classname = classname;
         }
 
+        @Override
         protected TransactionManager lookup(final InitialContext initialContext) {
             TransactionManager transactionManager = null;
             ClassLoader cl = Thread.currentThread().getContextClassLoader();

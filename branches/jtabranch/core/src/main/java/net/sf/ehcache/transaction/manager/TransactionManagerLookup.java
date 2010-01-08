@@ -16,6 +16,7 @@
 package net.sf.ehcache.transaction.manager;
 
 import net.sf.ehcache.config.Configuration;
+import net.sf.ehcache.transaction.xa.EhCacheXAResource;
 
 import javax.transaction.TransactionManager;
 
@@ -30,4 +31,6 @@ public interface TransactionManagerLookup {
      * @return
      */
     TransactionManager getTransactionManager(Configuration configuration);
+    
+    void register(EhCacheXAResource resource);
 }
