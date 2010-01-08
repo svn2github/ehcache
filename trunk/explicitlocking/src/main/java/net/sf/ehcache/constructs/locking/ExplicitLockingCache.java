@@ -41,6 +41,7 @@ import net.sf.ehcache.loader.CacheLoader;
 import net.sf.ehcache.statistics.CacheUsageListener;
 import net.sf.ehcache.statistics.LiveCacheStatistics;
 import net.sf.ehcache.statistics.sampled.SampledCacheStatistics;
+import net.sf.ehcache.writebehind.WriteBehind;
 
 /**
  * See description in package.html
@@ -1118,4 +1119,12 @@ public class ExplicitLockingCache implements Ehcache {
         }
 
     }
+
+  public void disableDynamicFeatures() {
+    cache.disableDynamicFeatures();
+  }
+
+  public WriteBehind getWriteBehind() {
+    return cache.getWriteBehind();
+  }
 }
