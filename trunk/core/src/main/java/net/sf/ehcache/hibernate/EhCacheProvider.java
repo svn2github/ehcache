@@ -15,16 +15,18 @@
  */
 package net.sf.ehcache.hibernate;
 
+import java.net.URL;
+import java.util.Properties;
+
 import net.sf.ehcache.CacheManager;
+import net.sf.ehcache.hibernate.management.ProviderMBeanRegistrationHelper;
 import net.sf.ehcache.util.ClassLoaderUtil;
+
 import org.hibernate.cache.Cache;
 import org.hibernate.cache.CacheException;
 import org.hibernate.cache.CacheProvider;
 import org.hibernate.cache.Timestamper;
-
-import java.net.URL;
-import java.util.Properties;
-
+import org.hibernate.cfg.Environment;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -57,7 +59,7 @@ public final class EhCacheProvider implements CacheProvider {
 
     /**
      * The Hibernate system property specifying the location of the ehcache configuration file name.
-     * <p/
+     * <p/>
      * If not set, ehcache.xml will be looked for in the root of the classpath.
      * <p/>
      * If set to say ehcache-1.xml, ehcache-1.xml will be looked for in the root of the classpath.
@@ -67,6 +69,8 @@ public final class EhCacheProvider implements CacheProvider {
     private static final Logger LOG = LoggerFactory.getLogger(EhCacheProvider.class.getName());
 
     private CacheManager manager;
+    
+    private final ProviderMBeanRegistrationHelper mbeanRegistrationHelper = new ProviderMBeanRegistrationHelper();
 
 
     /**
@@ -130,6 +134,8 @@ public final class EhCacheProvider implements CacheProvider {
                 URL url = loadResource(configurationResourceName);
                 manager = new CacheManager(url);
             }
+            mbeanRegistrationHelper.registerMBean(manager, properties == null ? "" : properties
+                    .getProperty(Environment.SESSION_FACTORY_NAME));
         } catch (net.sf.ehcache.CacheException e) {
             if (e.getMessage().startsWith("Cannot parseConfiguration CacheManager. Attempt to create a new instance of " +
                     "CacheManager using the diskStorePath")) {

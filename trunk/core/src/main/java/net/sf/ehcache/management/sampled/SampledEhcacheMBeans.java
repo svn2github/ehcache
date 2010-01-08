@@ -17,10 +17,8 @@
 package net.sf.ehcache.management.sampled;
 
 import java.lang.reflect.Method;
-
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
-
 import net.sf.ehcache.terracotta.ClusteredInstanceFactory;
 
 /**
@@ -85,7 +83,7 @@ public abstract class SampledEhcacheMBeans {
             return null;
         }
     }
-    
+
     /**
      * Returns an ObjectName for the passed cacheManagerName, cacheName
      * combination

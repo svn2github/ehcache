@@ -268,4 +268,14 @@ public class NullSampledCacheStatistics implements CacheUsageListener, SampledCa
         // no-op
     }
 
+    /**
+     * {@inheritDoc}
+     * 
+     * @see net.sf.ehcache.statistics.sampled.SampledCacheStatistics#clearStatistics()
+     */
+    public void clearStatistics() {
+        // no-op
+
+    }
+
 }

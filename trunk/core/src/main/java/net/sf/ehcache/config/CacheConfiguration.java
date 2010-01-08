@@ -18,28 +18,45 @@ package net.sf.ehcache.config;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.concurrent.CopyOnWriteArraySet;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import net.sf.ehcache.CacheException;
 import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
 
 /**
  * A value object to represent Cache configuration that can be set by the BeanHandler.
- *
  * e.g.
+ * <pre>{@code
  * <cache name="testCache1"
- * maxElementsInMemory="10000"
- * eternal="false"
- * timeToIdleSeconds="3600"
- * timeToLiveSeconds="10"
- * overflowToDisk="true"
- * diskPersistent="true"
- * diskExpiryThreadIntervalSeconds="120"
- * maxElementsOnDisk="10000"
+ *   maxElementsInMemory="10000"
+ *   eternal="false"
+ *   timeToIdleSeconds="3600"
+ *   timeToLiveSeconds="10"
+ *   overflowToDisk="true"
+ *   diskPersistent="true"
+ *   diskExpiryThreadIntervalSeconds="120"
+ *   maxElementsOnDisk="10000"
  * />
- *
+ * }</pre>
+ * CacheConfiguration instances retrieved from Cache instances allow the dynamic
+ * modification of certain configuration properties.  Currently the dynamic
+ * properties are:
+ * <ul>
+ * <li>Time To Idle</li>
+ * <li>Time To Live</li>
+ * <li>Max Elements in Memory</li>
+ * <li>Max Elements on Disk</li>
+ * </ul>
+ * Dynamic changes are however not persistent across cache restarts.  On restart
+ * the cache configuration will be reloaded from its original source, erasing any
+ * changes made previously at runtime.
+ * 
  * @author <a href="mailto:gluck@thoughtworks.com">Greg Luck</a>
+ * @author <a href="mailto:cdennis@terracottatech.com>Chris Dennis</a>
  * @version $Id$
  */
 public class CacheConfiguration implements Cloneable {
@@ -126,6 +143,11 @@ public class CacheConfiguration implements Cloneable {
      * these things. So this value is how often we check for expiry.
      */
     protected long diskExpiryThreadIntervalSeconds;
+    
+    /**
+     * Indicates whether logging is enabled or not. False by default
+     */
+    protected boolean loggingEnabled;
 
     /**
      * The event listener factories added by BeanUtils.
@@ -161,6 +183,13 @@ public class CacheConfiguration implements Cloneable {
     protected List cacheLoaderConfigurations = new ArrayList();
 
     /**
+     * The listeners for this configuration.
+     */
+    private volatile Set<CacheConfigurationListener> listeners = new CopyOnWriteArraySet<CacheConfigurationListener>();
+
+    private volatile boolean frozen;
+
+    /**
      * Clones this object, following the usual contract.
      *
      * @return a copy, which independent other than configurations than cannot change.
@@ -168,7 +197,9 @@ public class CacheConfiguration implements Cloneable {
      */
     @Override
     public CacheConfiguration clone() throws CloneNotSupportedException {
-        return (CacheConfiguration) super.clone();
+        CacheConfiguration config = (CacheConfiguration) super.clone();
+        config.listeners = new CopyOnWriteArraySet<CacheConfigurationListener>();
+        return config;
     }
 
     /**
@@ -178,18 +209,40 @@ public class CacheConfiguration implements Cloneable {
      * @param name the cache name
      */
     public final void setName(String name) {
+        checkDynamicChange();
         if (name == null) {
             throw new IllegalArgumentException("Cache name cannot be null.");
         }
         this.name = name;
     }
+    
+    /**
+     * Enables or disables logging for the cache
+     * <p>
+     * This property can be modified dynamically while the cache is operating.
+     * 
+     * @param enable if true, enables logging otherwise disables logging
+     */
+    public final void setLoggingEnabled(boolean enable) {
+        checkDynamicChange();
+        boolean oldLoggingEnabled = this.loggingEnabled;
+        this.loggingEnabled = enable;
+        fireLoggingEnabledChanged(oldLoggingEnabled, enable);
+    }
 
     /**
      * Sets the maximum objects to be held in memory.
+     * <p>
+     * This property can be modified dynamically while the cache is operating.
+     * 
      * @param maxElementsInMemory param
      */
     public final void setMaxElementsInMemory(int maxElementsInMemory) {
+        checkDynamicChange();
+        int oldCapacity = this.maxElementsInMemory;
+        int newCapacity = maxElementsInMemory;
         this.maxElementsInMemory = maxElementsInMemory;
+        fireMemoryCapacityChanged(oldCapacity, newCapacity);
     }
 
     /**
@@ -198,6 +251,7 @@ public class CacheConfiguration implements Cloneable {
      * @param memoryStoreEvictionPolicy a String representation of the policy. One of "LRU", "LFU" or "FIFO".
      */
     public final void setMemoryStoreEvictionPolicy(String memoryStoreEvictionPolicy) {
+        checkDynamicChange();
         this.memoryStoreEvictionPolicy = MemoryStoreEvictionPolicy.fromString(memoryStoreEvictionPolicy);
     }
 
@@ -205,6 +259,7 @@ public class CacheConfiguration implements Cloneable {
      * Sets the eviction policy. This method has a strange name to workaround a problem with XML parsing.
      */
     public final void setMemoryStoreEvictionPolicyFromObject(MemoryStoreEvictionPolicy memoryStoreEvictionPolicy) {
+        checkDynamicChange();
         this.memoryStoreEvictionPolicy = memoryStoreEvictionPolicy;
     }
     
@@ -213,34 +268,56 @@ public class CacheConfiguration implements Cloneable {
      * {@link net.sf.ehcache.Ehcache#flush flush()} is called on the cache - true by default.
      */
     public final void setClearOnFlush(boolean clearOnFlush) {
-      this.clearOnFlush = clearOnFlush;
+        checkDynamicChange();
+        this.clearOnFlush = clearOnFlush;
     }
 
     /**
      * Sets whether elements are eternal. If eternal, timeouts are ignored and the element is never expired.
      */
     public final void setEternal(boolean eternal) {
+        checkDynamicChange();
         this.eternal = eternal;
+        if (eternal) {
+            setTimeToIdleSeconds(0);
+            setTimeToLiveSeconds(0);
+        }
+//        else {
+//            // XXX: Should this set the TTI/TTL to some default?
+//        }
     }
 
     /**
      * Sets the time to idle for an element before it expires. Is only used if the element is not eternal.
+     * <p>
+     * This property can be modified dynamically while the cache is operating.
      */
     public final void setTimeToIdleSeconds(long timeToIdleSeconds) {
+        checkDynamicChange();
+        long oldTti = this.timeToIdleSeconds;
+        long newTti = timeToIdleSeconds;
         this.timeToIdleSeconds = timeToIdleSeconds;
+        fireTtiChanged(oldTti, newTti);
     }
 
     /**
      * Sets the time to idle for an element before it expires. Is only used if the element is not eternal.
+     * <p>
+     * This property can be modified dynamically while the cache is operating.
      */
     public final void setTimeToLiveSeconds(long timeToLiveSeconds) {
+        checkDynamicChange();
+        long oldTtl = this.timeToLiveSeconds;
+        long newTtl = timeToLiveSeconds;
         this.timeToLiveSeconds = timeToLiveSeconds;
+        fireTtlChanged(oldTtl, newTtl);
     }
 
     /**
      * Sets whether elements can overflow to disk when the in-memory cache has reached the set limit.
      */
     public final void setOverflowToDisk(boolean overflowToDisk) {
+        checkDynamicChange();
         this.overflowToDisk = overflowToDisk;
         validateConfiguration();
     }
@@ -249,6 +326,7 @@ public class CacheConfiguration implements Cloneable {
      * Sets whether, for caches that overflow to disk, the disk cache persist between CacheManager instances.
      */
     public final void setDiskPersistent(boolean diskPersistent) {
+        checkDynamicChange();
         this.diskPersistent = diskPersistent;
         validateConfiguration();
     }
@@ -257,6 +335,7 @@ public class CacheConfiguration implements Cloneable {
      * Getter
      */
     public int getDiskSpoolBufferSizeMB() {
+        checkDynamicChange();
         return diskSpoolBufferSizeMB;
     }
 
@@ -266,14 +345,21 @@ public class CacheConfiguration implements Cloneable {
      * @param diskSpoolBufferSizeMB a postive number
      */
     public void setDiskSpoolBufferSizeMB(int diskSpoolBufferSizeMB) {
+        checkDynamicChange();
         this.diskSpoolBufferSizeMB = diskSpoolBufferSizeMB;
     }
 
     /**
      * Sets the maximum number elements on Disk. 0 means unlimited.
+     * <p>
+     * This property can be modified dynamically while the cache is operating.
      */
     public void setMaxElementsOnDisk(int maxElementsOnDisk) {
+        checkDynamicChange();
+        int oldCapacity = this.maxElementsOnDisk;
+        int newCapacity = maxElementsOnDisk;
         this.maxElementsOnDisk = maxElementsOnDisk;
+        fireDiskCapacityChanged(oldCapacity, newCapacity);
     }
 
     /**
@@ -284,7 +370,15 @@ public class CacheConfiguration implements Cloneable {
      * these things. So this value is how often we check for expiry.
      */
     public final void setDiskExpiryThreadIntervalSeconds(long diskExpiryThreadIntervalSeconds) {
+        checkDynamicChange();
         this.diskExpiryThreadIntervalSeconds = diskExpiryThreadIntervalSeconds;
+    }
+
+    /**
+     * Freeze this configuration.  Any subsequent changes will throw a CacheException
+     */
+    public void freezeConfiguration() {
+        frozen = true;
     }
 
     /**
@@ -297,6 +391,7 @@ public class CacheConfiguration implements Cloneable {
      * Used by BeanUtils to add cacheEventListenerFactory elements to the cache configuration.
      */
     public final void addCacheEventListenerFactory(CacheEventListenerFactoryConfiguration factory) {
+        checkDynamicChange();
         cacheEventListenerConfigurations.add(factory);
         validateConfiguration();
     }
@@ -311,6 +406,7 @@ public class CacheConfiguration implements Cloneable {
      * Used by BeanUtils to add cacheExtensionFactory elements to the cache configuration.
      */
     public final void addCacheExtensionFactory(CacheExtensionFactoryConfiguration factory) {
+        checkDynamicChange();
         cacheExtensionConfigurations.add(factory);
     }
 
@@ -325,8 +421,8 @@ public class CacheConfiguration implements Cloneable {
      */
     public final void addBootstrapCacheLoaderFactory(BootstrapCacheLoaderFactoryConfiguration
             bootstrapCacheLoaderFactoryConfiguration) {
+        checkDynamicChange();
         this.bootstrapCacheLoaderFactoryConfiguration = bootstrapCacheLoaderFactoryConfiguration;
-
     }
 
     /**
@@ -341,6 +437,7 @@ public class CacheConfiguration implements Cloneable {
      */
     public final void addCacheExceptionHandlerFactory(CacheExceptionHandlerFactoryConfiguration
             cacheExceptionHandlerFactoryConfiguration) {
+        checkDynamicChange();
         this.cacheExceptionHandlerFactoryConfiguration = cacheExceptionHandlerFactoryConfiguration;
     }
 
@@ -355,6 +452,7 @@ public class CacheConfiguration implements Cloneable {
      * @param factory
      */
     public final void addCacheLoaderFactory(CacheLoaderFactoryConfiguration factory) {
+        checkDynamicChange();
         cacheLoaderConfigurations.add(factory);
     }
 
@@ -472,6 +570,14 @@ public class CacheConfiguration implements Cloneable {
 
     /**
      * Accessor
+     * @return true if logging is enabled otherwise false
+     */
+    public boolean isLoggingEnabled() {
+        return loggingEnabled;
+    }
+
+    /**
+     * Accessor
      */
     public List getCacheEventListenerConfigurations() {
         return cacheEventListenerConfigurations;
@@ -524,5 +630,107 @@ public class CacheConfiguration implements Cloneable {
      */
     public boolean isTerracottaClustered() {
         return terracottaConfiguration != null && terracottaConfiguration.isClustered();
+    }
+
+    /**
+     * Add a listener to this cache configuration
+     *
+     * @param listener listener instance to add
+     * @return true if a listener was added
+     */
+    public boolean addListener(CacheConfigurationListener listener) {
+        boolean added = listeners.add(listener);
+        if (added) {
+            listener.registered(this);
+        }
+        return added;
+    }
+
+    /**
+     * Remove the supplied cache configuration listener.
+     * 
+     * @param listener listener to remove
+     * @return true if a listener was removed
+     */
+    public boolean removeListener(CacheConfigurationListener listener) {
+        boolean removed = listeners.remove(listener);
+        if (removed) {
+            listener.deregistered(this);
+        }
+        return removed;
+    }
+
+    private void fireTtiChanged(long oldTti, long newTti) {
+        if (oldTti != newTti) {
+            for (CacheConfigurationListener l : listeners) {
+                l.timeToIdleChanged(oldTti, newTti);
+            }
+        }
+    }
+
+    private void fireTtlChanged(long oldTtl, long newTtl) {
+        if (oldTtl != newTtl) {
+            for (CacheConfigurationListener l : listeners) {
+                l.timeToLiveChanged(oldTtl, newTtl);
+            }
+        }
+    }
+    
+    private void fireLoggingEnabledChanged(boolean oldValue, boolean newValue) {
+        if (oldValue != newValue) {
+            for (CacheConfigurationListener l : listeners) {
+                l.loggingEnabledChanged(oldValue, newValue);
+            }
+        }
+    }
+
+    private void fireDiskCapacityChanged(int oldCapacity, int newCapacity) {
+        if (oldCapacity != newCapacity) {
+            for (CacheConfigurationListener l : listeners) {
+                l.diskCapacityChanged(oldCapacity, newCapacity);
+            }
+        }
+    }
+
+    private void fireMemoryCapacityChanged(int oldCapacity, int newCapacity) {
+        if (oldCapacity != newCapacity) {
+            for (CacheConfigurationListener l : listeners) {
+                l.memoryCapacityChanged(oldCapacity, newCapacity);
+            }
+        }
+    }
+
+    private void checkDynamicChange() {
+        if (frozen) {
+            throw new CacheException("Dynamic configuration changes are disabled for this cache");
+        }
+    }
+    
+    /**
+     * internal use only
+     */
+    public void internalSetTimeToIdle(long timeToIdle) {
+        this.timeToIdleSeconds = timeToIdle;
+    }
+
+    /**
+     * internal use only
+     */
+    public void internalSetTimeToLive(long timeToLive) {
+        this.timeToLiveSeconds = timeToLive;
+    }
+
+    /**
+     * internal use only
+     */
+    public void internalSetMemCapacity(int capacity) {
+        this.maxElementsInMemory = capacity;
+    }
+
+    /**
+     * internal use only
+     */
+    public void internalSetDiskCapacity(int capacity) {
+        this.maxElementsOnDisk = capacity;
     }
 }
