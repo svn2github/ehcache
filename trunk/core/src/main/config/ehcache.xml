@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-        
+
 <!--
 CacheManager Configuration
 ==========================
@@ -13,16 +13,16 @@ System property either from an environment variable or a system property specifi
 command line switch such as -DmulticastGroupPort=4446.
 
 The attributes of <ehcache> are:
-* name - an optional name for the CacheManager.  The name is optional and primarily used 
-for documentation or to distinguish Terracotta clustered cache state.  With Terracotta 
-clustered caches, a combination of CacheManager name and cache name uniquely identify a 
+* name - an optional name for the CacheManager.  The name is optional and primarily used
+for documentation or to distinguish Terracotta clustered cache state.  With Terracotta
+clustered caches, a combination of CacheManager name and cache name uniquely identify a
 particular cache store in the Terracotta clustered memory.
 * updateCheck - an optional boolean flag specifying whether this CacheManager should check
 for new versions of Ehcache over the Internet.  If not specified, updateCheck="true".
 * dynamicConfig - an optional setting that can be used to disable dynamic configuration of caches
 associated with this CacheManager.  By default this is set to true - i.e. dynamic configuration
 is enabled.
-* monitoring - an optional setting that determines whether the CacheManager should 
+* monitoring - an optional setting that determines whether the CacheManager should
 automatically register the SampledCacheMBean with the system MBean server.
 
 Currently, this monitoring is only useful when using Terracotta clustering and using the
@@ -30,12 +30,12 @@ Terracotta Developer Console. With the "autodetect" value, the presence of Terra
 will be detected and monitoring, via the Developer Console, will be enabled. Other allowed values
 are "on" and "off".  The default is "autodetect". This setting does not perform any function when
 used with JMX monitors.
--->    
+-->
 <ehcache xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:noNamespaceSchemaLocation="ehcache.xsd"
              updateCheck="true" monitoring="autodetect" dynamicConfig="true">
-    
-    <!-- 
+
+    <!--
     DiskStore configuration
     =======================
 
@@ -180,7 +180,7 @@ used with JMX monitors.
                             //hostname:port
     * hostname (optional) - the hostname is the hostname of the remote CacheManager peer. The port is the listening
       port of the RMICacheManagerPeerListener of the remote CacheManager peer.
-    
+
     JGroupsCacheManagerPeerProvider
     +++++++++++++++++++++++++++++++
     <cacheManagerPeerProviderFactory class="net.sf.ehcache.distribution.jgroups.JGroupsCacheManagerPeerProviderFactory"
@@ -198,7 +198,7 @@ used with JMX monitors.
             />
      The only property necessary is the connect String used by jgroups to configure itself. Refer to the Jgroups documentation for explanation
      of all the protocols. The example above uses UDP multicast. If the connect property is not specified the default JGroups connection will be
-     used.       
+     used.
 
 
     JMSCacheManagerPeerProviderFactory
@@ -285,31 +285,31 @@ used with JMX monitors.
 
     Specifies a TerracottaConfig which will be used to configure the Terracotta
     runtime for this CacheManager.
-    
-    Configuration can be specified in two main ways: by reference to a source of 
+
+    Configuration can be specified in two main ways: by reference to a source of
     configuration or by use of an embedded Terracotta configuration file.
-    
-    To specify a reference to a source (or sources) of configuration, use the url 
+
+    To specify a reference to a source (or sources) of configuration, use the url
     attribute.  The url attribute must contain a comma-separated list of:
     * path to Terracotta configuration file (usually named tc-config.xml)
     * URL to Terracotta configuration file
     * <server host>:<port> of running Terracotta Server instance
-    
+
     Simplest example for pointing to a Terracotta server on this machine:
     <terracottaConfig url="localhost:9510"/>
-    
+
     Example using a path to Terracotta configuration file:
     <terracottaConfig url="/app/config/tc-config.xml"/>
-    
+
     Example using a URL to a Terracotta configuration file:
     <terracottaConfig url="http://internal/ehcache/app/tc-config.xml"/>
-    
+
     Example using multiple Terracotta server instance URLs (for fault tolerance):
     <terracottaConfig url="host1:9510,host2:9510,host3:9510"/>
 
-    To embed a Terracotta configuration file within the ehcache configuration, simply 
+    To embed a Terracotta configuration file within the ehcache configuration, simply
     place a normal Terracotta XML config within the <terracottaConfig> element.
-    
+
     Example:
     <terracottaConfig>
         <tc-config>
@@ -319,10 +319,10 @@ used with JMX monitors.
             </servers>
             <clients>
                 <logs>app/logs-%i</logs>
-            </clients>           
+            </clients>
         </tc-config>
     </terracottaConfig>
-    
+
     For more information on the Terracotta configuration, see the Terracotta documentation.
     -->
 
@@ -338,9 +338,9 @@ used with JMX monitors.
     maxElementsInMemory:
     Sets the maximum number of objects that will be created in memory
 
-	maxElementsOnDisk:
+  maxElementsOnDisk:
     Sets the maximum number of objects that will be maintained in the DiskStore
-	The default value is zero, meaning unlimited.
+  The default value is zero, meaning unlimited.
 
     eternal:
     Sets whether elements are eternal. If eternal,  timeouts are ignored and the
@@ -410,7 +410,7 @@ used with JMX monitors.
       synchronously to load objects into a cache. More than one cacheLoaderFactory element
       can be added, in which case the loaders form a chain which are executed in order. If a
       loader returns null, the next in chain is called.
-      
+
 
     RMI Cache Replication
     +++++++++++++++++++++
@@ -436,7 +436,7 @@ used with JMX monitors.
       replicated to others. Defaults to true.
 
     * replicatePutsViaCopy=true|false - whether the new elements are
-      copied to other caches (true), or whether a remove message is sent. Defaults to true.  
+      copied to other caches (true), or whether a remove message is sent. Defaults to true.
 
     * replicateUpdates=true|false - whether new elements which override an
       element already existing with the same key are replicated. Defaults to true.
@@ -457,19 +457,19 @@ used with JMX monitors.
     JGroups Replication
     +++++++++++++++++++
 
-	For the Jgroups replication this is done with:
-	<cacheEventListenerFactory class="net.sf.ehcache.distribution.jgroups.JGroupsCacheReplicatorFactory"
+  For the Jgroups replication this is done with:
+  <cacheEventListenerFactory class="net.sf.ehcache.distribution.jgroups.JGroupsCacheReplicatorFactory"
                             properties="replicateAsynchronously=true, replicatePuts=true,
- 							replicateUpdates=true, replicateUpdatesViaCopy=false,
- 							replicateRemovals=true,asynchronousReplicationIntervalMillis=1000"/>
+               replicateUpdates=true, replicateUpdatesViaCopy=false,
+               replicateRemovals=true,asynchronousReplicationIntervalMillis=1000"/>
     This listener supports the same properties as the RMICacheReplicationFactory.
 
 
     JMS Replication
     +++++++++++++++
 
-	For JMS-based replication this is done with:
-	<cacheEventListenerFactory
+  For JMS-based replication this is done with:
+  <cacheEventListenerFactory
           class="net.sf.ehcache.distribution.jms.JMSCacheReplicatorFactory"
           properties="replicateAsynchronously=true,
                        replicatePuts=true,
@@ -480,7 +480,7 @@ used with JMX monitors.
            propertySeparator=","/>
 
     This listener supports the same properties as the RMICacheReplicationFactory.
-    
+
     Cluster Bootstrapping
     +++++++++++++++++++++
 
@@ -518,7 +518,7 @@ used with JMX monitors.
                                     properties="bootstrapAsynchronously=true"/>
 
     The configuration properties are the same as for RMI above. Note that JGroups bootstrap only supports
-    asynchronous bootstrap mode.                                
+    asynchronous bootstrap mode.
 
 
     Cache Exception Handling
@@ -563,35 +563,40 @@ used with JMX monitors.
                              properties="refreshIntervalMillis=18000, loaderTimeout=3000,
                                          flushPeriod=whatever, someOtherProperty=someValue ..."/>
 
-    Terracotta Clustering 
-    
+    Terracotta Clustering
+
     Cache elements can also contain information about whether the cache can be clustered with Terracotta.
     The <terracotta> sub-element has the following attributes:
 
-    * clustered=true|false - indicates whether this cache should be clustered with Terracotta. By 
+    * clustered=true|false - indicates whether this cache should be clustered with Terracotta. By
       default, if the <terracotta> element is included, clustered=true.
-    * valueMode=serialization|identity - indicates whether this cache should be clustered with 
+    * valueMode=serialization|identity - indicates whether this cache should be clustered with
       serialized copies of the values or using Terracotta identity mode.  By default, values will
       be cached in serialization mode which is similar to other replicated Ehcache modes.  The identity
       mode is only available in certain Terracotta deployment scenarios and will maintain actual object
-      identity of the keys and values across the cluster.  In this case, all users of a value retrieved from 
-      the cache are using the same clustered value and must provide appropriate locking for any changes 
+      identity of the keys and values across the cluster.  In this case, all users of a value retrieved from
+      the cache are using the same clustered value and must provide appropriate locking for any changes
       made to the value (or objects referred to by the value).
-    * coherentReads=true|false - indicates whether this cache should have coherent reads with guaranteed 
-      consistency across the cluster.  By default, this setting is true.  If you set this property to 
-      false, reads are allowed to check the local value without locking, possibly seeing stale values.  
-      This is a performance optimization with weaker concurrency guarantees and should generally be used 
+    * coherentReads=true|false - indicates whether this cache should have coherent reads with guaranteed
+      consistency across the cluster.  By default, this setting is true.  If you set this property to
+      false, reads are allowed to check the local value without locking, possibly seeing stale values.
+      This is a performance optimization with weaker concurrency guarantees and should generally be used
       with caches that contain read-only data or where the application can tolerate reading stale
       data.
-    
+    * copyOnRead=true|false - indicates whether cache values are deserialized on every read or if the
+      materialized cache value can be re-used between get() calls. This setting is useful if a cache
+      is being shared by callers with disparate classloaders or to prevent local drift if keys/values
+      are mutated locally w/o putting back to the cache. NOTE: This setting is only relevant for caches
+      with valueMode=serialization
+
     Simplest example to indicate clustering:
         <terracotta/>
-        
-    To indicate the cache should not be clustered (or remove the <terracotta> element altogether):    
-        <terracotta clustered="false"/> 
+
+    To indicate the cache should not be clustered (or remove the <terracotta> element altogether):
+        <terracotta clustered="false"/>
 
     To indicate the cache should be clustered using identity mode:
-        <terracotta clustered="true" valueMode="identity"/>        
+        <terracotta clustered="true" valueMode="identity"/>
     -->
 
     <!--
@@ -738,7 +743,7 @@ used with JMX monitors.
         <terracotta/>
     </cache>
     -->
-    
+
 
 
 </ehcache>

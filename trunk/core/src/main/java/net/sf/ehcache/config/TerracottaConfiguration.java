@@ -18,8 +18,8 @@ package net.sf.ehcache.config;
 
 /**
  * Class to hold the Terracotta configuration - either a pointer to the real config or a
- * container for embedded config. 
- * 
+ * container for embedded config.
+ *
  * @author amiller@terracotta.org
  */
 public class TerracottaConfiguration implements Cloneable {
@@ -47,6 +47,10 @@ public class TerracottaConfiguration implements Cloneable {
      * Default local key cache size
      */
     public static final int DEFAULT_LOCAL_KEY_CACHE_SIZE = 300000;
+    /**
+     * Default copy on read setting
+     */
+    public static final boolean DEFAULT_COPY_ON_READ = false;
 
     /**
      * Represents whether values are stored with serialization in the clustered store
@@ -56,11 +60,11 @@ public class TerracottaConfiguration implements Cloneable {
     public enum ValueMode {
         /** When a key or value is put in the cache, serialize the data for sending around the cluster */
         SERIALIZATION,
-        
+
         /** Use Terracotta clustered identity to preserve object identity without serialization */
         IDENTITY;
     }
-    
+
     private boolean clustered = true;
     private ValueMode valueMode = ValueMode.SERIALIZATION;
     private boolean coherentReads = DEFAULT_COHERENT_READS;
@@ -68,7 +72,8 @@ public class TerracottaConfiguration implements Cloneable {
     private int orphanEvictionPeriod = DEFAULT_ORPHAN_EVICTION_PERIOD;
     private boolean localKeyCache = DEFAULT_LOCAL_KEY_CACHE;
     private int localKeyCacheSize = DEFAULT_LOCAL_KEY_CACHE_SIZE;
-    
+    private boolean isCopyOnRead = DEFAULT_COPY_ON_READ;
+
     /**
      * Clones this object, following the usual contract.
      *
@@ -79,7 +84,7 @@ public class TerracottaConfiguration implements Cloneable {
     public TerracottaConfiguration clone() throws CloneNotSupportedException {
         return (TerracottaConfiguration) super.clone();
     }
-    
+
     /**
      * Used by BeanHandler to set the clustered flag during parsing
      */
@@ -92,6 +97,20 @@ public class TerracottaConfiguration implements Cloneable {
      */
     public boolean isClustered() {
         return this.clustered;
+    }
+
+    /**
+     * Check whether the [serialized value] cache should use copy on read semantics
+     */
+    public boolean isCopyOnRead() {
+        return this.isCopyOnRead;
+    }
+
+    /**
+     * Used by BeanHandle to set the copyOnRead flag during parsing
+     */
+    public void setCopyOnRead(boolean isCopyOnRead) {
+        this.isCopyOnRead = isCopyOnRead;
     }
 
     /**
@@ -108,7 +127,7 @@ public class TerracottaConfiguration implements Cloneable {
         return this.coherentReads;
     }
     /**
-     * Used by BeanHandler to set the mode during parsing.  Convert valueMode string to uppercase and 
+     * Used by BeanHandler to set the mode during parsing.  Convert valueMode string to uppercase and
      * look up enum constant in ValueMode.
      */
     public void setValueMode(String valueMode) {
