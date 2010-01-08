@@ -79,8 +79,8 @@ public class ProviderMBeanRegistrationHelper {
         @Override
         public void run() {
             LOG.debug("Running mbean initializer task for ehcache hibernate...");
-            startTime = System.currentTimeMillis();
             if (mbeanRegistered.compareAndSet(false, true)) {
+                startTime = System.currentTimeMillis();
                 try {
                     ehcacheHibernateMBeanRegistration.registerMBeanForCacheManager(manager, sessionFactoryNameFromConfig);
                     LOG.debug("Successfully registered bean");
