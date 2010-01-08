@@ -191,6 +191,10 @@
       <xs:attribute name="valueMode" use="optional"
         type="terracottaCacheValueType" default="serialization"/>
       <xs:attribute name="coherentReads" use="optional" type="xs:boolean" default="true"/>
+      <xs:attribute name="localKeyCache" use="optional" type="xs:boolean" default="false"/>
+      <xs:attribute name="localKeyCacheSize" use="optional" type="xs:positiveInteger" default="10000"/>
+      <xs:attribute name="orphanEviction" use="optional" type="xs:boolean" default="true"/>
+      <xs:attribute name="orphanEvictionPeriod" use="optional" type="xs:positiveInteger" default="4"/>
     </xs:complexType>
   </xs:element>
   <xs:simpleType name="monitoringType">
@@ -288,6 +292,8 @@ clustered caches, a combination of CacheManager name and cache name uniquely ide
 particular cache store in the Terracotta clustered memory.
 * updateCheck - an optional boolean flag specifying whether this CacheManager should check
 for new versions of Ehcache over the Internet.  If not specified, updateCheck="true".
+* dynamicConfig - an optional boolean flag specifying whether this CacheManager should
+support dynamic configuration changes to its attached caches.
 * monitoring - an optional setting that determines whether the CacheManager should
 automatically register the SampledCacheMBean with the system MBean server.
 
@@ -865,6 +871,20 @@ Terracotta. The <terracotta> sub-element has the following attributes:
   possibly seeing stale values. This is a performance optimization with weaker concurrency
   guarantees and should generally be used with caches that contain read-only data or where
   the application can tolerate reading stale data.
+* localKeyCache=true|false - indicates whether this cache should use a local key cache on
+  each client.  This caches the translations from the external object keys to the string
+  keys used internally by the Terracotta clustered store.  This option is disabled by
+  default, and is generally only useful for small read-only caches.
+* localKeyCacheSize=integer - indicates the maximum size of the local key cache.  When using
+  a local key cache this should be set to the size of the local key set (either the cache
+  size or the partition size).
+* orphanEviction=true|false - indicates whether orphan eviction is enabled for this cache.
+  Orphan eviction is the removal of cache elements that are not present in any client, but
+  are present on the Terracotta server array.  This option is enabled by default, and should
+  only be enabled if you are certain that you have no need for orphan eviction.
+* orphanEvictionPeriod=integer - indicates the period of the orphan eviction cycles, measured
+  in local eviction periods.  The default value of 4 indicates that an orphan eviction cycle
+  will occur after every fourth local eviction cycle.
 
 The simplest example to indicate clustering:
 

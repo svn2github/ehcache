@@ -34,6 +34,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Random;
 
+import net.sf.ehcache.store.MemoryStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -729,5 +730,55 @@ public class MemoryStoreTester extends AbstractCacheTest {
         Thread.sleep(1000);
         System.gc();
         Thread.sleep(1000);
+    }
+
+    @Test
+    public void testShrinkingAndGrowingMemoryStore() {
+        cache = new Cache("testShrinkingAndGrowingMemoryStore", 50, false, true, 120, 120);
+        manager.addCache(cache);
+        store = cache.getMemoryStore();
+
+        if (!(store instanceof MemoryStore)) {
+            LOG.info("Skipping Growing/Shrinking Memory Store Test - Store is not a subclass of MemoryStore!");
+            return;
+        }
+
+        int i = 0;
+        for (;;) {
+            int size = store.getSize();
+            store.put(new Element(Integer.valueOf(i++), new byte[100]));
+            if (store.getSize() <= size) break;
+        }
+
+        final int initialSize = store.getSize();
+        final int shrinkSize = initialSize / 2;
+        ((MemoryStore) store).memoryCapacityChanged(initialSize, shrinkSize);
+
+        for (;;) {
+            int size = store.getSize();
+            store.put(new Element(Integer.valueOf(i++), new byte[100]));
+            if (store.getSize() >= size) break;
+        }
+
+        {
+            int size = store.getSize();
+            assertTrue(size < (shrinkSize * 1.1));
+            assertTrue(size > (shrinkSize * 0.9));
+        }
+
+        final int growSize = initialSize * 2;
+        ((MemoryStore) store).memoryCapacityChanged(shrinkSize, growSize);
+
+        for (;;) {
+            int size = store.getSize();
+            store.put(new Element(Integer.valueOf(i++), new byte[100]));
+            if (store.getSize() <= size) break;
+        }
+
+        {
+            int size = store.getSize();
+            assertTrue(size < (growSize * 1.1));
+            assertTrue(size > (growSize * 0.9));
+        }
     }
 }

@@ -2515,8 +2515,8 @@ public class CacheTest extends AbstractCacheTest {
         cache.setDisabled(true);
 
         assertTrue(cache.isDisabled());
-        assertNotNull(cache.get("key1put"));
-        assertNotNull(cache.get("key1putQuiet"));
+        assertNull(cache.get("key1put"));
+        assertNull(cache.get("key1putQuiet"));
 
         cache.put(new Element("key2put", "value1"));
         cache.put(new Element("key2putQuiet", "value1"));

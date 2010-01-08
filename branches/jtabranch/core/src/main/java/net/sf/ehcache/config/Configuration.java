@@ -57,10 +57,10 @@ public final class Configuration {
     private List<FactoryConfiguration> cacheManagerPeerListenerFactoryConfiguration = new ArrayList<FactoryConfiguration>();
     private FactoryConfiguration cacheManagerEventListenerFactoryConfiguration;
     private TerracottaConfigConfiguration terracottaConfigConfiguration;
-    private final Map cacheConfigurations = new HashMap();
+    private final Map<String, CacheConfiguration> cacheConfigurations = new HashMap();
     private String configurationSource;
     private String transactionManagerLookupClass = DefaultTransactionManagerLookup.class.getName();
-
+    private boolean dynamicConfig = true;
     /**
      * Empty constructor, which is used by {@link ConfigurationFactory}, and can be also used programmatically.
      * <p/>
@@ -115,6 +115,20 @@ public final class Configuration {
         return this.monitoring;
     }
 
+    /**
+     * Allows BeanHandler to set the dynamic configuration flag
+     */
+    public final void setDynamicConfig(boolean dynamicConfig) {
+        this.dynamicConfig = dynamicConfig;
+    }
+
+    /**
+     * Get flag for dynamicConfig
+     */
+    public final boolean getDynamicConfig() {
+        return this.dynamicConfig;
+    }
+    
     /**
      *
      * @return
@@ -204,7 +218,7 @@ public final class Configuration {
     /**
      * Gets a Map of cacheConfigurations.
      */
-    public final Set getCacheConfigurationsKeySet() {
+    public final Set<String> getCacheConfigurationsKeySet() {
         return cacheConfigurations.keySet();
     }
 
@@ -261,7 +275,7 @@ public final class Configuration {
     /**
      * Gets a Map of cache configurations, keyed by name.
      */
-    public final Map getCacheConfigurations() {
+    public final Map<String, CacheConfiguration> getCacheConfigurations() {
         return cacheConfigurations;
     }
 

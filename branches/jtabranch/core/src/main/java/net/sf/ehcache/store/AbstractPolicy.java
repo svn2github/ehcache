@@ -43,7 +43,7 @@ public abstract class AbstractPolicy implements Policy {
      * @param populationSize the size of the store
      * @return the smaller of the map size and the default sample size of 30
      */
-    private static int calculateSampleSize(int populationSize) {
+    public static int calculateSampleSize(int populationSize) {
         if (populationSize < DEFAULT_SAMPLE_SIZE) {
             return populationSize;
         } else {
@@ -102,21 +102,5 @@ public abstract class AbstractPolicy implements Policy {
             }
         }
         return offsets;
-    }
-
-    /**
-     * Generates a random set of indices
-     *
-     * @param arraySize the maximum number
-     * @return a list of indices, zero based
-     */
-    public static int[] generateRandomSampleIndices(int arraySize) {
-        int sampleSize = calculateSampleSize(arraySize);
-        int[] indices = new int[sampleSize];
-        for (int i = 0; i < sampleSize; i++) {
-            //it is possible that the same index can be selected twice
-            indices[i] = RANDOM.nextInt(arraySize);
-        }
-        return indices;
     }
 }

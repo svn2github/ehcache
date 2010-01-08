@@ -19,6 +19,7 @@ package net.sf.ehcache;
 
 import java.io.File;
 import java.io.InputStream;
+import java.lang.reflect.Method;
 import java.net.URL;
 import java.util.Collection;
 import java.util.HashMap;
@@ -30,9 +31,10 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import net.sf.ehcache.terracotta.ClusteredInstanceFactory;
+import net.sf.ehcache.writebehind.WriteBehind;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.Configuration;
@@ -40,6 +42,8 @@ import net.sf.ehcache.config.ConfigurationFactory;
 import net.sf.ehcache.config.ConfigurationHelper;
 import net.sf.ehcache.config.DiskStoreConfiguration;
 import net.sf.ehcache.config.TerracottaConfigConfiguration;
+import net.sf.ehcache.config.generator.ConfigurationSource;
+import net.sf.ehcache.config.generator.ConfigurationUtil;
 import net.sf.ehcache.distribution.CacheManagerPeerListener;
 import net.sf.ehcache.distribution.CacheManagerPeerProvider;
 import net.sf.ehcache.event.CacheManagerEventListener;
@@ -50,7 +54,6 @@ import net.sf.ehcache.management.provider.MBeanRegistrationProviderFactory;
 import net.sf.ehcache.management.provider.MBeanRegistrationProviderFactoryImpl;
 import net.sf.ehcache.store.DiskStore;
 import net.sf.ehcache.store.Store;
-import net.sf.ehcache.store.StoreFactory;
 import net.sf.ehcache.util.FailSafeTimer;
 import net.sf.ehcache.util.PropertyUtil;
 import net.sf.ehcache.util.UpdateChecker;
@@ -162,7 +165,7 @@ public class CacheManager {
     /**
      * Factory for creating terracotta clustered memory store (may be null if this manager has no terracotta caches)
      */
-    private volatile StoreFactory terracottaStoreFactory;
+    private volatile ClusteredInstanceFactory terracottaClusteredInstanceFactory;
     
     /**
      * The {@link TerracottaConfigConfiguration} used for this {@link CacheManager}
@@ -170,7 +173,13 @@ public class CacheManager {
     private TerracottaConfigConfiguration terracottaConfigConfiguration;
     
     private AtomicBoolean terracottaStoreFactoryCreated = new AtomicBoolean(false);
+    
+    private volatile ConfigurationSource originalConfigurationSource;
+    
+    private Configuration configuration;
 
+    private volatile boolean allowsDynamicCacheConfig = true;
+    
     /**
      * An constructor for CacheManager, which takes a configuration object, rather than one created by parsing
      * an ehcache.xml file. This constructor gives complete control over the creation of the CacheManager.
@@ -268,20 +277,23 @@ public class CacheManager {
         Configuration localConfiguration = configuration;
         if (configuration == null) {
             localConfiguration = parseConfiguration(configurationFileName, configurationURL, configurationInputStream);
+            this.configuration = localConfiguration;
         } else {
             localConfiguration.setSource("Programmatically configured.");
+            this.configuration = configuration;
         }
 
         if (localConfiguration.getName() != null) {
             this.name = localConfiguration.getName();
         }
-        
+
+        this.allowsDynamicCacheConfig = localConfiguration.getDynamicConfig();
         this.terracottaConfigConfiguration = localConfiguration.getTerracottaConfiguration();
 
         Map<String, CacheConfiguration> cacheConfigs = localConfiguration.getCacheConfigurations();
         for (CacheConfiguration config : cacheConfigs.values()) {
             if (config.isTerracottaClustered()) {
-                terracottaStoreFactory = TerracottaStoreHelper.newStoreFactory(
+                terracottaClusteredInstanceFactory = TerracottaClusteredInstanceHelper.newClusteredInstanceFactory(
                         cacheConfigs, localConfiguration
                                 .getTerracottaConfiguration());
                 break;
@@ -291,10 +303,10 @@ public class CacheManager {
         /*
          * May not have any CacheConfigurations yet, so check the default configuration.
          */
-        if (terracottaStoreFactory == null) {
+        if (terracottaClusteredInstanceFactory == null) {
             if (localConfiguration.getDefaultCacheConfiguration().isTerracottaClustered()) {
-                terracottaStoreFactory = TerracottaStoreHelper.newStoreFactory(cacheConfigs, localConfiguration
-                        .getTerracottaConfiguration());
+                terracottaClusteredInstanceFactory = TerracottaClusteredInstanceHelper
+                    .newClusteredInstanceFactory(cacheConfigs, localConfiguration.getTerracottaConfiguration());
             }
         }
         
@@ -312,13 +324,42 @@ public class CacheManager {
         cacheManagerTimer = new FailSafeTimer(getName());
         checkForUpdateIfNeeded(localConfiguration.getUpdateCheck());
         
-        terracottaStoreFactoryCreated.set(terracottaStoreFactory != null);
+        terracottaStoreFactoryCreated.set(terracottaClusteredInstanceFactory != null);
 
         //do this last
         addConfiguredCaches(configurationHelper);
 
         initializeMBeanRegistrationProvider(localConfiguration);
     }
+    
+    /**
+     * Returns unique cluster-wide id for this cache-manager. Only applicable when running in "cluster" mode, e.g. when this cache-manager
+     * contains caches clustered with Terracotta. Otherwise returns blank string.
+     *
+     * @return Returns unique cluster-wide id for this cache-manager when it contains clustered caches (e.g. Terracotta clustered caches).
+     *         Otherwise returns blank string.
+     */
+    public String getClusterUUID() {
+        if (terracottaClusteredInstanceFactory != null) {
+            return getClientUUID(terracottaClusteredInstanceFactory);
+        } else {
+            return "";
+        }
+    }
+
+    private static String getClientUUID(ClusteredInstanceFactory clusteredInstanceFactory) {
+        try {
+            Class c = clusteredInstanceFactory.getClass();
+            Method m = c.getMethod("getUUID");
+            if (m == null) {
+                return null;
+            }
+            return (String)m.invoke(clusteredInstanceFactory);
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
 
     /**
      * Initialize the {@link MBeanRegistrationProvider} for this {@link CacheManager}
@@ -327,7 +368,7 @@ public class CacheManager {
     private void initializeMBeanRegistrationProvider(Configuration localConfiguration) {
         mbeanRegistrationProvider = mBeanRegistrationProviderFactory.createMBeanRegistrationProvider(localConfiguration);
         try {
-            mbeanRegistrationProvider.initialize(this, terracottaStoreFactory);
+            mbeanRegistrationProvider.initialize(this, terracottaClusteredInstanceFactory);
         } catch (MBeanRegistrationProviderException e) {
             LOG.warn("Failed to initialize the MBeanRegistrationProvider - " + mbeanRegistrationProvider.getClass().getName(), e);
         }
@@ -340,27 +381,41 @@ public class CacheManager {
      * @return a new (or existing) clustered store
      */
     Store createTerracottaStore(Ehcache cache) {
-        if (terracottaStoreFactory == null) {
-            // adding a cache programmatically when there is no clustered store defined in the configuration
-            // at the time this cacheManager was created
-            // synchronized so that multiple threads will wait till the store is created
-            synchronized (this) {
-                // only 1 thread will create the store
-                if (!terracottaStoreFactoryCreated.getAndSet(true)) {
-                    // use the TerracottaConfigConfiguration of this CacheManager to create a new StoreFactory
-                    Map<String, CacheConfiguration> map = new HashMap<String, CacheConfiguration>(1);
-                    map.put(cache.getName(), cache.getCacheConfiguration());
-                    terracottaStoreFactory = TerracottaStoreHelper.newStoreFactory(map, terracottaConfigConfiguration);
-                    try {
-                        mbeanRegistrationProvider.reinitialize();
-                    } catch (MBeanRegistrationProviderException e) {
-                        LOG.warn("Failed to initialize the MBeanRegistrationProvider - "
-                                + mbeanRegistrationProvider.getClass().getName(), e);
-                    }
-                }
-            }
-        }
-        return terracottaStoreFactory.create(cache);
+      return getClusteredInstanceFactory(cache).createStore(cache);
+    }
+
+  /**
+   * Create/access the appropriate write behind queue for the given cache
+   *
+   * @param cache The cache for which the write behind queue should be created
+   * @return a new (or existing) write behind queue
+   */
+    WriteBehind createWriteBehind(Ehcache cache) {
+      return getClusteredInstanceFactory(cache).createAsync(cache);
+    }
+
+    private ClusteredInstanceFactory getClusteredInstanceFactory(Ehcache cache) {
+      if (null == terracottaClusteredInstanceFactory) {
+          // adding a cache programmatically when there is no clustered store defined in the configuration
+          // at the time this cacheManager was created
+          // synchronized so that multiple threads will wait till the store is created
+          synchronized (this) {
+              // only 1 thread will create the store
+              if (!terracottaStoreFactoryCreated.getAndSet(true)) {
+                  // use the TerracottaConfigConfiguration of this CacheManager to create a new ClusteredInstanceFactory
+                  Map<String, CacheConfiguration> map = new HashMap<String, CacheConfiguration>(1);
+                  map.put(cache.getName(), cache.getCacheConfiguration());
+                  terracottaClusteredInstanceFactory = TerracottaClusteredInstanceHelper
+                    .newClusteredInstanceFactory(map, terracottaConfigConfiguration);
+                  try {
+                      mbeanRegistrationProvider.reinitialize();
+                  } catch (MBeanRegistrationProviderException e) {
+                      LOG.warn("Failed to initialize the MBeanRegistrationProvider - " + mbeanRegistrationProvider.getClass().getName(), e);
+                  }
+              }
+          }
+      }
+      return terracottaClusteredInstanceFactory;
     }
 
     private void checkForUpdateIfNeeded(boolean updateCheckNeeded) {
@@ -390,27 +445,31 @@ public class CacheManager {
     private synchronized Configuration parseConfiguration(String configurationFileName, URL configurationURL,
                                                           InputStream configurationInputStream) throws CacheException {
         reinitialisationCheck();
-        Configuration configuration;
+        Configuration parsedConfig;
         String configurationSource;
         if (configurationFileName != null) {
 
                 LOG.debug("Configuring CacheManager from {}", configurationFileName);
-            configuration = ConfigurationFactory.parseConfiguration(new File(configurationFileName));
+            parsedConfig = ConfigurationFactory.parseConfiguration(new File(configurationFileName));
             configurationSource = "file located at " + configurationFileName;
+            originalConfigurationSource = ConfigurationSource.getConfigurationSource(configurationFileName);
         } else if (configurationURL != null) {
-            configuration = ConfigurationFactory.parseConfiguration(configurationURL);
+            parsedConfig = ConfigurationFactory.parseConfiguration(configurationURL);
             configurationSource = "URL of " + configurationURL;
+            originalConfigurationSource = ConfigurationSource.getConfigurationSource(configurationURL);
         } else if (configurationInputStream != null) {
-            configuration = ConfigurationFactory.parseConfiguration(configurationInputStream);
+            parsedConfig = ConfigurationFactory.parseConfiguration(configurationInputStream);
             configurationSource = "InputStream " + configurationInputStream;
+            originalConfigurationSource = ConfigurationSource.getConfigurationSource(configurationInputStream);
         } else {
 
                 LOG.debug("Configuring ehcache from classpath.");
-            configuration = ConfigurationFactory.parseConfiguration();
+            parsedConfig = ConfigurationFactory.parseConfiguration();
             configurationSource = "classpath";
+            originalConfigurationSource = ConfigurationSource.getConfigurationSource();
         }
-        configuration.setSource(configurationSource);
-        return configuration;
+        parsedConfig.setSource(configurationSource);
+        return parsedConfig;
 
     }
 
@@ -809,6 +868,10 @@ public class CacheManager {
         cache.setCacheManager(this);
         cache.setDiskStorePath(diskStorePath);
         cache.initialise();
+        if (!allowsDynamicCacheConfig) {
+            cache.disableDynamicFeatures();
+        }
+
         try {
             cache.bootstrap();
         } catch (CacheException e) {
@@ -1162,6 +1225,52 @@ public class CacheManager {
      */
     public FailSafeTimer getTimer() {
         return cacheManagerTimer;
+    }
+    
+    /**
+     * Returns the original configuration text for this {@link CacheManager}
+     * 
+     * @return Returns the original configuration text for this {@link CacheManager}
+     */
+    public String getOriginalConfigurationText() {
+        if (originalConfigurationSource == null) {
+            return "Originally configured programmatically. No original configuration source text.";
+        } else {
+            return ConfigurationUtil.generateConfigurationTextFromSource(originalConfigurationSource);
+        }
+    }
+
+    /**
+     * Returns the active configuration text for this {@link CacheManager}
+     * 
+     * @return Returns the active configuration text for this {@link CacheManager}
+     */
+    public String getActiveConfigurationText() {
+        return ConfigurationUtil.generateConfigurationTextFromConfiguration(this, configuration);
+    }
+
+    /**
+     * Returns the original configuration text for the input cacheName
+     * 
+     * @param cacheName
+     * @return Returns the original configuration text for the input cacheName
+     */
+    public String getOriginalConfigurationText(String cacheName) {
+        if (originalConfigurationSource == null) {
+            return "Originally configured programmatically. No original configuration source text.";
+        } else {
+            return ConfigurationUtil.generateConfigurationTextForCacheFromSource(originalConfigurationSource, cacheName);
+        }
+    }
+    
+    /**
+     * Returns the active configuration text for the input cacheName
+     * 
+     * @param cacheName
+     * @return Returns the active configuration text for the input cacheName
+     */
+    public String getActiveConfigurationText(String cacheName) {
+        return ConfigurationUtil.generateConfigurationTextForCache(this, cacheName);
     }
 }
 

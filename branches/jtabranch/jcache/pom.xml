@@ -11,11 +11,17 @@
     <packaging>jar</packaging>
     <version>1.3-SNAPSHOT</version>
     <description><![CDATA[The RI for JSR107 - JCACHE.]]> </description>
+
+
+    <properties>
+      <net.sf.ehcache.speedAdjustmentFactor>2</net.sf.ehcache.speedAdjustmentFactor>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>${pom.groupId}</groupId>
             <artifactId>ehcache-core</artifactId>
-            <version>1.7.2-SNAPSHOT</version>
+            <version>1.7.3-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>net.sf.jsr107cache</groupId>

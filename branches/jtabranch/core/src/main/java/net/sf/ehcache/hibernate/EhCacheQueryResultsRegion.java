@@ -13,25 +13,25 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
+package net.sf.ehcache.hibernate;
 
-package net.sf.ehcache.store;
-
-import net.sf.ehcache.Ehcache;
+import org.hibernate.cache.Cache;
+import org.hibernate.cache.QueryResultsRegion;
+import org.hibernate.cache.impl.bridge.BaseGeneralDataRegionAdapter;
+import org.hibernate.cfg.Settings;
 
 /**
- * Factory for creating Store implementations
+ * A query results region specific wrapper around an EhCache instance.
  *
- * @author teck
- * @since 1.7
+ * @author Chris Dennis
  */
-public interface StoreFactory {
+class EhCacheQueryResultsRegion extends BaseGeneralDataRegionAdapter implements QueryResultsRegion {
 
     /**
-     * Create a Store for the given cache
-     *
-     * @param cache the cache will backed by the returned store
-     * @return store instance
+     * Constructs an EhCacheQueryResultsRegion around the given underlying cache.
      */
-    Store create(Ehcache cache);
+    public EhCacheQueryResultsRegion(Cache underlyingCache, Settings settings) {
+        super(underlyingCache, settings);
+    }
 
 }

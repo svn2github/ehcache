@@ -156,5 +156,24 @@ public interface LiveCacheStatistics {
      * @return the name of the Ehcache
      */
     public String getCacheName();
+    
+    /**
+     * Clears statistics of this cache
+     */
+    public void clearStatistics();
+    
+    /**
+     * Return minimum time taken for a get operation in the cache in milliseconds
+     * 
+     * @return minimum time taken for a get operation in the cache in milliseconds
+     */
+    public long getMinGetTimeMillis();
+
+    /**
+     * Return maximum time taken for a get operation in the cache in milliseconds
+     * 
+     * @return maximum time taken for a get operation in the cache in milliseconds
+     */
+    public long getMaxGetTimeMillis();
 
 }

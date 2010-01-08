@@ -10,12 +10,18 @@ Performance At Any Scale
  It features memory and disk stores, replicate by copy and invalidate, listeners, cache loaders, cache extensions, cache exception handlers,
  a gzip caching servlet filter, RESTful & SOAP APIs, an implementation of JSR107 and much {{{features.html}more}}...
 
+ It can scale from in-process with one or more nodes through to a mixed in-process/out-of-process configuration with
+ terabyte sized caches. It is thread-safe locally and is coherent in distributed form when configured with
+ the Terracotta Server Array.
+
  Ehcache is available under an Apache open source {{{license.html}license}} and is actively developed, maintained and supported.
 
  Ehcache is a professional Open Source project and a critical component of the Terracotta suite of products.
  {{{http://www.terracotta.org}Terracotta, Inc.}} offers a
  range of {{{http://www.terracotta.org/support/ehcache-support?source=ehcachebanner}24x7 Professional Support,
  Consulting, and Training services}} worldwide to assist you with Ehcache.
+
+
 
 *----------+--------------+
 {{{documentation/index.html}ehcache}} | a packaging of commonly used modules
@@ -24,7 +30,7 @@ Performance At Any Scale
 *----------+--------------+
 {{{documentation/distributed_caching_with_terracotta.html}ehcache-terracotta}} | Seamless integration with Terracotta clustering     
 *----------+--------------+
-{{{http://www.terracotta.org/ehcache/ehcache-dx}<<New!>> Ehcache Monitor (beta)}} | Enterprise-class monitoring and management for development and production     
+{{{modules/monitor.html}ehcache-monitor (beta 2)}} | Enterprise-class monitoring and management for development and production     
 *----------+--------------+
 {{{documentation/web_caching.html}ehcache-web}} | Java Servlet Container caching, gzipping filters
 *----------+--------------+
@@ -47,11 +53,36 @@ Performance At Any Scale
 
 ===
 
-  dx_preview ehcache_1_7_talk
-
-  This is a 3 minute video of Greg Luck previewing Ehcache DX, which includes a new Ehcache Monitoring and Management server, for Ehcache versions 1.4.1 and higher. Get the {{{http://www.terracotta.org/ehcache/ehcache-dx}Ehcache Monitor Beta}} now.
+  ehcache_1_7_talk
 
 * Latest News
+
+** 22 December 2009: Ehcache OpenJPA plugin 0.2 released
+
+   Back in July we released the first plugin for OpenJPA. This version brings OpenJPA more into line with the Hibernate
+   plugin and more fully implements the OpenJPA API. As with all of the modules we are releasing, this version adds the option,
+   when paired with the ehcache-terracotta module of clustering via Terracotta.
+
+   See {{{documentation/openjpa_provider.html}ehcache-openjpa}}.
+
+
+** 15 December 2009: Ehcache Monitor Beta 2 released
+
+   We have had hundreds of people sign up for an play with beta 1 of the Ehcache Monitor. We have fixed over 15 bugs
+    in Beta 1 and have released Beta 2. We have also created a roadmap for beta 3 which will add significant new
+    features. See {{{modules/monitor.html}Ehcache Monitor Beta}}.
+
+** 13 December 2009: Ehcache Web 2.0 released
+
+  Ehcache Web has been part of Ehcache for years. In this release the web caching is split into its own module.
+   The web module provides a filter based PageCachingFilter and PageFragmentCachingFilter which can
+  be used with any Java web framework for caching of HTML, SOAP, REST, JSON, XML and other types.
+
+  New in this release is integration with ehcache-terracotta 1.7.1 and higher, so that coherent, terabyte scale
+  web caches can be created.
+
+  See {{{documentation/web_caching.html}ehcache-web}}.
+
 
 ** 9 December 2009: Ehcache welcomes Grails as a first-class supported framework
 

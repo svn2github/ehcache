@@ -15,11 +15,6 @@
             <item name="Download" href="http://www.terracotta.org/dl/ehcache-oss-sign-up"/>
         </links>
 
-        <menu name="Products">
-            <item name="Product Brochure" href="/EhcacheBrochure.pdf"/>
-        </menu>
-
-
         <menu name="About">
             <item name="Overview" href="/index.html"/>
             <item name="Architecture" href="documentation/architecture.html"/>
@@ -62,7 +57,6 @@
             </item>
             <item name="JavaDoc" href="apidocs/index.html"/>
             <item name="FAQ" href="/documentation/faq.html"/>
-            <item name="Presentations" href="/presentations.html"/>
         </menu>
 
         <menu name="Community">

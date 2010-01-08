@@ -285,4 +285,22 @@ public class NullLiveCacheStatisticsData implements LiveCacheStatistics, LiveCac
         return this;
     }
 
+    /**
+     * {@inheritDoc}
+     * 
+     * @see net.sf.ehcache.statistics.LiveCacheStatistics#getMaxGetTimeMillis()
+     */
+    public long getMaxGetTimeMillis() {
+        return 0;
+    }
+
+    /**
+     * {@inheritDoc}
+     * 
+     * @see net.sf.ehcache.statistics.LiveCacheStatistics#getMinGetTimeMillis()
+     */
+    public long getMinGetTimeMillis() {
+        return 0;
+    }
+
 }

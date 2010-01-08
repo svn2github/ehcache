@@ -208,7 +208,7 @@ public class RMICacheReplicatorTest extends AbstractCacheTest {
     /**
      * 5 cache managers should means that each cache has four remote peers
      */
-    @Ignore
+    
     @Test
     public void testRemoteCachePeersEqualsNumberOfCacheManagersInCluster() {
 
@@ -220,7 +220,7 @@ public class RMICacheReplicatorTest extends AbstractCacheTest {
     /**
      * Does a new cache manager in the cluster get detected?
      */
-    @Ignore
+    
     @Test
     public void testRemoteCachePeersDetectsNewCacheManager() throws InterruptedException {
 
@@ -241,7 +241,7 @@ public class RMICacheReplicatorTest extends AbstractCacheTest {
     /**
      * Does a down cache manager in the cluster get removed?
      */
-    @Ignore
+    
     @Test
     public void testRemoteCachePeersDetectsDownCacheManager() throws InterruptedException {
 
@@ -263,7 +263,7 @@ public class RMICacheReplicatorTest extends AbstractCacheTest {
     /**
      * Does a down cache manager in the cluster get removed?
      */
-    @Ignore
+
     @Test
     public void testRemoteCachePeersDetectsDownCacheManagerSlow() throws InterruptedException {
 
@@ -350,7 +350,7 @@ public class RMICacheReplicatorTest extends AbstractCacheTest {
      * Tests what happens when a CacheManager in the cluster comes and goes. In ehcache-1.2.4 this would cause the new RMI CachePeers in the CacheManager to
      * be permanently corrupt.
      */
-    @Ignore
+    
     @Test
     public void testPutProgagatesFromAndToEveryCacheManagerAndCacheDirty() throws CacheException, InterruptedException {
 
@@ -468,7 +468,7 @@ public class RMICacheReplicatorTest extends AbstractCacheTest {
      * r39 - Batching asyn replicator. Send all queued messages in one RMI call once per second.
      * 2 seconds to get 2000 notifications with 6 peers, Elements with 400 byte payload (5 second heartbeat)
      */
-    @Ignore
+    
     @Test
     public void testBigPutsProgagatesAsynchronous() throws CacheException, InterruptedException {
 
@@ -510,7 +510,7 @@ public class RMICacheReplicatorTest extends AbstractCacheTest {
      * Performance and capacity tests.
      * <p/>
      */
-    @Ignore
+    
     @Test
     public void testBootstrap() throws CacheException, InterruptedException, RemoteException {
 
@@ -552,7 +552,7 @@ public class RMICacheReplicatorTest extends AbstractCacheTest {
 
         Element firstElement = cachePeer.getQuiet((Serializable) keys.get(0));
         long size = firstElement.getSerializedSize();
-        assertEquals(480, size);
+        assertEquals(504, size);
 
         int chunkSize = (int) (5000000 / size);
 
@@ -780,7 +780,7 @@ public class RMICacheReplicatorTest extends AbstractCacheTest {
     }
 
 
-    @Ignore("MNK-1429")
+    
     /**
      * Test various cache configurations for cache1 - explicit setting of:
      * properties="replicateAsynchronously=true, replicatePuts=true, replicateUpdates=true, replicateUpdatesViaCopy=true, replicateRemovals=true "/>
@@ -795,7 +795,7 @@ public class RMICacheReplicatorTest extends AbstractCacheTest {
      * CacheEventListeners that are not CacheReplicators should receive cache events originated from receipt
      * of a remote event by a CachePeer.
      */
-    @Ignore
+    
     @Test
     public void testRemotelyReceivedPutNotifiesCountingListener() throws InterruptedException {
 

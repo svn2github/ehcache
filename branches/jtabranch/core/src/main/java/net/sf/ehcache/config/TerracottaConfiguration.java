@@ -24,6 +24,31 @@ package net.sf.ehcache.config;
  */
 public class TerracottaConfiguration implements Cloneable {
     /**
+     * Default value mode
+     */
+    public static final ValueMode DEFAULT_VALUE_MODE = ValueMode.SERIALIZATION;
+    /**
+     * Default coherent read behavior
+     */
+    public static final boolean DEFAULT_COHERENT_READS = true;
+    /**
+     * Default orphan eviction status
+     */
+    public static final boolean DEFAULT_ORPHAN_EVICTION = true;
+    /**
+     * Default orphan eviction period
+     */
+    public static final int DEFAULT_ORPHAN_EVICTION_PERIOD = 4;
+    /**
+     * Default local key cache status
+     */
+    public static final boolean DEFAULT_LOCAL_KEY_CACHE = false;
+    /**
+     * Default local key cache size
+     */
+    public static final int DEFAULT_LOCAL_KEY_CACHE_SIZE = 300000;
+
+    /**
      * Represents whether values are stored with serialization in the clustered store
      * or through Terracotta clustered identity.
      * @author amiller
@@ -38,8 +63,12 @@ public class TerracottaConfiguration implements Cloneable {
     
     private boolean clustered = true;
     private ValueMode valueMode = ValueMode.SERIALIZATION;
-    private boolean coherentReads = true;
-
+    private boolean coherentReads = DEFAULT_COHERENT_READS;
+    private boolean orphanEviction = DEFAULT_ORPHAN_EVICTION;
+    private int orphanEvictionPeriod = DEFAULT_ORPHAN_EVICTION_PERIOD;
+    private boolean localKeyCache = DEFAULT_LOCAL_KEY_CACHE;
+    private int localKeyCacheSize = DEFAULT_LOCAL_KEY_CACHE_SIZE;
+    
     /**
      * Clones this object, following the usual contract.
      *
@@ -94,5 +123,61 @@ public class TerracottaConfiguration implements Cloneable {
      */
     public ValueMode getValueMode() {
         return this.valueMode;
+    }
+
+    /**
+     * Used by BeanHandler to set the orphanEviction flag during parsing
+     */
+    public void setOrphanEviction(boolean orphanEviction) {
+        this.orphanEviction = orphanEviction;
+    }
+
+    /**
+     * Check whether orphan eviction is enabled
+     */
+    public boolean getOrphanEviction() {
+        return this.orphanEviction;
+    }
+
+    /**
+     * Used by BeanHandler to set the orphanEvictionPeriod during parsing
+     */
+    public void setOrphanEvictionPeriod(int orphanEvictionPeriod) {
+        this.orphanEvictionPeriod = orphanEvictionPeriod;
+    }
+
+    /**
+     * Get the number of regular eviction cycles between orphan evictions
+     */
+    public int getOrphanEvictionPeriod() {
+        return this.orphanEvictionPeriod;
+    }
+
+    /**
+     * Used by BeanHandler to set the localKeyCache flag during parsing
+     */
+    public void setLocalKeyCache(boolean localKeyCache) {
+        this.localKeyCache = localKeyCache;
+    }
+
+    /**
+     * Check whether the local key cache is enabled
+     */
+    public boolean getLocalKeyCache() {
+        return this.localKeyCache;
+    }
+
+    /**
+     * Used by BeanHandler to set the localKeyCacheSize during parsing
+     */
+    public void setLocalKeyCacheSize(int localKeyCacheSize) {
+        this.localKeyCacheSize = localKeyCacheSize;
+    }
+
+    /**
+     * Get the size limit of the local key cache (if enabled)
+     */
+    public int getLocalKeyCacheSize() {
+        return this.localKeyCacheSize;
     }
 }
