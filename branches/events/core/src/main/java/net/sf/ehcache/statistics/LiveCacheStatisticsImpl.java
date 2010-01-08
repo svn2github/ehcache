@@ -33,6 +33,8 @@ import net.sf.ehcache.Statistics;
  * @since 1.7
  */
 public class LiveCacheStatisticsImpl implements LiveCacheStatistics, LiveCacheStatisticsData {
+    
+    private static final int MIN_MAX_DEFAULT_VALUE = -1;
 
     private final AtomicBoolean statisticsEnabled = new AtomicBoolean(true);
     private final AtomicLong cacheHitInMemoryCount = new AtomicLong();
@@ -46,6 +48,8 @@ public class LiveCacheStatisticsImpl implements LiveCacheStatistics, LiveCacheSt
     private final AtomicLong cacheElementPut = new AtomicLong();
     private final AtomicLong cacheElementUpdated = new AtomicLong();
     private final AtomicInteger statisticsAccuracy = new AtomicInteger();
+    private final AtomicLong minGetTimeMillis = new AtomicLong(MIN_MAX_DEFAULT_VALUE);
+    private final AtomicLong maxGetTimeMillis = new AtomicLong(MIN_MAX_DEFAULT_VALUE);
 
     private final List<CacheUsageListener> listeners = new CopyOnWriteArrayList<CacheUsageListener>();
 
@@ -74,6 +78,8 @@ public class LiveCacheStatisticsImpl implements LiveCacheStatistics, LiveCacheSt
         cacheElementExpired.set(0);
         cacheElementPut.set(0);
         cacheElementUpdated.set(0);
+        minGetTimeMillis.set(MIN_MAX_DEFAULT_VALUE);
+        maxGetTimeMillis.set(MIN_MAX_DEFAULT_VALUE);
         for (CacheUsageListener l : listeners) {
             l.notifyStatisticsCleared();
         }
@@ -109,6 +115,12 @@ public class LiveCacheStatisticsImpl implements LiveCacheStatistics, LiveCacheSt
         totalGetTimeTakenMillis.addAndGet(millis);
         for (CacheUsageListener l : listeners) {
             l.notifyTimeTakenForGet(millis);
+        }
+        if (minGetTimeMillis.get() == MIN_MAX_DEFAULT_VALUE || (millis < minGetTimeMillis.get() && millis > 0)) {
+            minGetTimeMillis.set(millis);
+        }
+        if (maxGetTimeMillis.get() == MIN_MAX_DEFAULT_VALUE || (millis > maxGetTimeMillis.get() && millis > 0)) {
+            maxGetTimeMillis.set(millis);
         }
     }
 
@@ -424,6 +436,24 @@ public class LiveCacheStatisticsImpl implements LiveCacheStatistics, LiveCacheSt
         } else {
             return "Guaranteed";
         }
+    }
+
+    /**
+     * {@inheritDoc}
+     * 
+     * @see net.sf.ehcache.statistics.LiveCacheStatistics#getMaxGetTimeMillis()
+     */
+    public long getMaxGetTimeMillis() {
+        return maxGetTimeMillis.get();
+    }
+
+    /**
+     * {@inheritDoc}
+     * 
+     * @see net.sf.ehcache.statistics.LiveCacheStatistics#getMinGetTimeMillis()
+     */
+    public long getMinGetTimeMillis() {
+        return minGetTimeMillis.get();
     }
 
 }

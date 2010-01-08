@@ -19,6 +19,7 @@ package net.sf.ehcache.management.sampled;
 import java.util.HashMap;
 import java.util.Map;
 
+import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.statistics.sampled.SampledCacheStatistics;
@@ -201,6 +202,18 @@ public class SampledCacheManager implements SampledCacheManagerMBean {
      */
     public String getMBeanRegisteredName() {
         return this.mbeanRegisteredName;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void clearStatistics() {
+        for (String cacheName : cacheManager.getCacheNames()) {
+            Cache cache = cacheManager.getCache(cacheName);
+            if (cache != null) {
+                cache.clearStatistics();
+            }
+        }
     }
 
 }

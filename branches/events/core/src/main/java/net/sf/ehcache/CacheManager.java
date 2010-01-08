@@ -19,6 +19,7 @@ package net.sf.ehcache;
 
 import java.io.File;
 import java.io.InputStream;
+import java.lang.reflect.Method;
 import java.net.URL;
 import java.util.Collection;
 import java.util.HashMap;
@@ -38,6 +39,8 @@ import net.sf.ehcache.config.ConfigurationFactory;
 import net.sf.ehcache.config.ConfigurationHelper;
 import net.sf.ehcache.config.DiskStoreConfiguration;
 import net.sf.ehcache.config.TerracottaConfigConfiguration;
+import net.sf.ehcache.config.generator.ConfigurationSource;
+import net.sf.ehcache.config.generator.ConfigurationUtil;
 import net.sf.ehcache.distribution.CacheManagerPeerListener;
 import net.sf.ehcache.distribution.CacheManagerPeerProvider;
 import net.sf.ehcache.event.CacheManagerEventListener;
@@ -173,7 +176,13 @@ public class CacheManager {
     private TerracottaConfigConfiguration terracottaConfigConfiguration;
     
     private AtomicBoolean terracottaStoreFactoryCreated = new AtomicBoolean(false);
+    
+    private volatile ConfigurationSource originalConfigurationSource;
+    
+    private Configuration configuration;
 
+    private volatile boolean allowsDynamicCacheConfig = true;
+    
     /**
      * An constructor for CacheManager, which takes a configuration object, rather than one created by parsing
      * an ehcache.xml file. This constructor gives complete control over the creation of the CacheManager.
@@ -271,14 +280,17 @@ public class CacheManager {
         Configuration localConfiguration = configuration;
         if (configuration == null) {
             localConfiguration = parseConfiguration(configurationFileName, configurationURL, configurationInputStream);
+            this.configuration = localConfiguration;
         } else {
             localConfiguration.setSource("Programmatically configured.");
+            this.configuration = configuration;
         }
 
         if (localConfiguration.getName() != null) {
             this.name = localConfiguration.getName();
         }
-        
+
+        this.allowsDynamicCacheConfig = localConfiguration.getDynamicConfig();
         this.terracottaConfigConfiguration = localConfiguration.getTerracottaConfiguration();
 
         Map<String, CacheConfiguration> cacheConfigs = localConfiguration.getCacheConfigurations();
@@ -322,6 +334,35 @@ public class CacheManager {
 
         initializeMBeanRegistrationProvider(localConfiguration);
     }
+    
+    /**
+     * Returns unique cluster-wide id for this cache-manager. Only applicable when running in "cluster" mode, e.g. when this cache-manager
+     * contains caches clustered with Terracotta. Otherwise returns blank string.
+     *
+     * @return Returns unique cluster-wide id for this cache-manager when it contains clustered caches (e.g. Terracotta clustered caches).
+     *         Otherwise returns blank string.
+     */
+    public String getClusterUUID() {
+        if (terracottaClusteredInstanceFactory != null) {
+            return getClientUUID(terracottaClusteredInstanceFactory);
+        } else {
+            return "";
+        }
+    }
+
+    private static String getClientUUID(ClusteredInstanceFactory clusteredInstanceFactory) {
+        try {
+            Class c = clusteredInstanceFactory.getClass();
+            Method m = c.getMethod("getUUID");
+            if (m == null) {
+                return null;
+            }
+            return (String)m.invoke(clusteredInstanceFactory);
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
 
     /**
      * Initialize the {@link MBeanRegistrationProvider} for this {@link CacheManager}
@@ -407,27 +448,31 @@ public class CacheManager {
     private synchronized Configuration parseConfiguration(String configurationFileName, URL configurationURL,
                                                           InputStream configurationInputStream) throws CacheException {
         reinitialisationCheck();
-        Configuration configuration;
+        Configuration parsedConfig;
         String configurationSource;
         if (configurationFileName != null) {
 
                 LOG.debug("Configuring CacheManager from {}", configurationFileName);
-            configuration = ConfigurationFactory.parseConfiguration(new File(configurationFileName));
+            parsedConfig = ConfigurationFactory.parseConfiguration(new File(configurationFileName));
             configurationSource = "file located at " + configurationFileName;
+            originalConfigurationSource = ConfigurationSource.getConfigurationSource(configurationFileName);
         } else if (configurationURL != null) {
-            configuration = ConfigurationFactory.parseConfiguration(configurationURL);
+            parsedConfig = ConfigurationFactory.parseConfiguration(configurationURL);
             configurationSource = "URL of " + configurationURL;
+            originalConfigurationSource = ConfigurationSource.getConfigurationSource(configurationURL);
         } else if (configurationInputStream != null) {
-            configuration = ConfigurationFactory.parseConfiguration(configurationInputStream);
+            parsedConfig = ConfigurationFactory.parseConfiguration(configurationInputStream);
             configurationSource = "InputStream " + configurationInputStream;
+            originalConfigurationSource = ConfigurationSource.getConfigurationSource(configurationInputStream);
         } else {
 
                 LOG.debug("Configuring ehcache from classpath.");
-            configuration = ConfigurationFactory.parseConfiguration();
+            parsedConfig = ConfigurationFactory.parseConfiguration();
             configurationSource = "classpath";
+            originalConfigurationSource = ConfigurationSource.getConfigurationSource();
         }
-        configuration.setSource(configurationSource);
-        return configuration;
+        parsedConfig.setSource(configurationSource);
+        return parsedConfig;
 
     }
 
@@ -826,6 +871,10 @@ public class CacheManager {
         cache.setCacheManager(this);
         cache.setDiskStorePath(diskStorePath);
         cache.initialise();
+        if (!allowsDynamicCacheConfig) {
+            cache.disableDynamicFeatures();
+        }
+
         try {
             cache.bootstrap();
         } catch (CacheException e) {
@@ -1194,6 +1243,52 @@ public class CacheManager {
         } else {
             return NoopCacheCluster.INSTANCE;
         }
+    }
+    
+    /**
+     * Returns the original configuration text for this {@link CacheManager}
+     * 
+     * @return Returns the original configuration text for this {@link CacheManager}
+     */
+    public String getOriginalConfigurationText() {
+        if (originalConfigurationSource == null) {
+            return "Originally configured programmatically. No original configuration source text.";
+        } else {
+            return ConfigurationUtil.generateConfigurationTextFromSource(originalConfigurationSource);
+        }
+    }
+
+    /**
+     * Returns the active configuration text for this {@link CacheManager}
+     * 
+     * @return Returns the active configuration text for this {@link CacheManager}
+     */
+    public String getActiveConfigurationText() {
+        return ConfigurationUtil.generateConfigurationTextFromConfiguration(this, configuration);
+    }
+
+    /**
+     * Returns the original configuration text for the input cacheName
+     * 
+     * @param cacheName
+     * @return Returns the original configuration text for the input cacheName
+     */
+    public String getOriginalConfigurationText(String cacheName) {
+        if (originalConfigurationSource == null) {
+            return "Originally configured programmatically. No original configuration source text.";
+        } else {
+            return ConfigurationUtil.generateConfigurationTextForCacheFromSource(originalConfigurationSource, cacheName);
+        }
+    }
+    
+    /**
+     * Returns the active configuration text for the input cacheName
+     * 
+     * @param cacheName
+     * @return Returns the active configuration text for the input cacheName
+     */
+    public String getActiveConfigurationText(String cacheName) {
+        return ConfigurationUtil.generateConfigurationTextForCache(this, cacheName);
     }
 }
 

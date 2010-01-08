@@ -891,6 +891,14 @@ public interface Ehcache extends Cloneable {
     Object getInternalContext();
 
     /**
+     * Disables dynamic configuration and disable/enable for this cache.
+     * <p>
+     * This is a one time operation.  Once an Ehcache instance has had its dynamic operations disabled they cannot be
+     * re-enabled.
+     */
+    public void disableDynamicFeatures();
+
+    /**
      * Obtain the write behind functionality tied to this cache instance.
      *
      * @return the write behind instance that's associated with this cache

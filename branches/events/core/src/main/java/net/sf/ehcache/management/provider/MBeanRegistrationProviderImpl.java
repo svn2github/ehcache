@@ -32,7 +32,6 @@ import net.sf.ehcache.terracotta.ClusteredInstanceFactory;
  */
 public class MBeanRegistrationProviderImpl implements MBeanRegistrationProvider {
 
-
     private final Monitoring monitoring;
     private final AtomicBoolean initialized = new AtomicBoolean(false);
     private SampledMBeanRegistrationProvider sampledProvider;
@@ -47,7 +46,7 @@ public class MBeanRegistrationProviderImpl implements MBeanRegistrationProvider 
     public MBeanRegistrationProviderImpl(Configuration configuration) {
         this.monitoring = configuration.getMonitoring();
     }
-    
+
     private synchronized SampledMBeanRegistrationProvider getSampledMBeanRegistrationProvider() {
         if (sampledProvider == null) {
             sampledProvider = new SampledMBeanRegistrationProvider();

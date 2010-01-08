@@ -18,6 +18,7 @@
 package net.sf.ehcache;
 
 
+import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.util.TimeUtil;
 
 import java.io.ByteArrayInputStream;
@@ -53,7 +54,7 @@ public class Element implements Serializable, Cloneable {
 
     private static final Logger LOG = LoggerFactory.getLogger(Element.class.getName());
 
-    private static final AtomicLongFieldUpdater HIT_COUNT_UPDATER = AtomicLongFieldUpdater.newUpdater(Element.class, "hitCount");
+    private static final AtomicLongFieldUpdater<Element> HIT_COUNT_UPDATER = AtomicLongFieldUpdater.newUpdater(Element.class, "hitCount");
     
     /**
      * the cache key.
@@ -97,6 +98,8 @@ public class Element implements Serializable, Cloneable {
      * will be the creation time of the new Element, not the original one, so that TTL concepts still work.
      */
     private volatile long lastUpdateTime;
+
+    private volatile boolean cacheDefaultLifespan = true;
 
     /**
      * A full constructor.
@@ -165,14 +168,15 @@ public class Element implements Serializable, Cloneable {
      * @since 1.7
      */
     public Element(final Object key, final Object value, final long version, final long creationTime,
-            final long lastAccessTime, final long hitCount, final int timeToLive, final int timeToIdle,
-            final long lastUpdateTime) {
+            final long lastAccessTime, final long hitCount, final boolean cacheDefaultLifespan,
+            final int timeToLive, final int timeToIdle, final long lastUpdateTime) {
         this.key = key;
         this.value = value;
         this.version = version;
         HIT_COUNT_UPDATER.set(this, hitCount);
-        setTimeToLive(timeToLive);
-        setTimeToIdle(timeToIdle);
+        this.cacheDefaultLifespan = cacheDefaultLifespan;
+        this.timeToLive = timeToLive;
+        this.timeToIdle = timeToIdle;
         this.lastUpdateTime = lastUpdateTime;
         this.elementEvictionData = new DefaultElementEvictionData(TimeUtil.toSecs(creationTime), TimeUtil.toSecs(lastAccessTime));
     }
@@ -311,6 +315,7 @@ public class Element implements Serializable, Cloneable {
         if (timeToLiveSeconds < 0) {
             throw new IllegalArgumentException("timeToLive can't be negative");
         }
+        this.cacheDefaultLifespan = false;
         this.timeToLive = timeToLiveSeconds;
     }
 
@@ -323,6 +328,7 @@ public class Element implements Serializable, Cloneable {
         if (timeToIdleSeconds < 0) {
             throw new IllegalArgumentException("timeToIdle can't be negative");
         }
+        this.cacheDefaultLifespan = false;
         this.timeToIdle = timeToIdleSeconds;
     }
 
@@ -641,6 +647,29 @@ public class Element implements Serializable, Cloneable {
     }
 
     /**
+     * An element is expired if the expiration time as given by {@link #getExpirationTime()} is in the past.
+     * <p>
+     * This method in addition propogates the default TTI/TTL values of the supplied cache into this element.
+     *
+     * @param config config to take default parameters from
+     * @return true if the Element is expired, otherwise false. If no lifespan has been set for the Element it is
+     *         considered not able to expire.
+     * @see #getExpirationTime()
+     */
+    public boolean isExpired(CacheConfiguration config) {
+        if (cacheDefaultLifespan) {
+            if (config.isEternal()) {
+                timeToIdle = 0;
+                timeToLive = 0;
+            } else {
+                timeToIdle = TimeUtil.convertTimeToInt(config.getTimeToIdleSeconds());
+                timeToLive = TimeUtil.convertTimeToInt(config.getTimeToLiveSeconds());
+            }
+        }
+        return isExpired();
+    }
+
+    /**
      * Returns the expiration time based on time to live. If this element also has a time to idle setting, the expiry
      * time will vary depending on whether the element is accessed.
      *
@@ -672,7 +701,7 @@ public class Element implements Serializable, Cloneable {
      * @return true if the element is eternal
      */
     public boolean isEternal() {
-        return 0 == timeToIdle && 0 == timeToLive;
+        return (0 == timeToIdle) && (0 == timeToLive);
     }
 
     /**
@@ -682,9 +711,11 @@ public class Element implements Serializable, Cloneable {
      */
     public void setEternal(final boolean eternal) {
         if (eternal) {
+            this.cacheDefaultLifespan = false;
             this.timeToIdle = 0;
             this.timeToLive = 0;
         } else if (isEternal()) {
+            this.cacheDefaultLifespan = false;
             this.timeToIdle = Integer.MIN_VALUE;
             this.timeToLive = Integer.MIN_VALUE;
         }
@@ -705,8 +736,9 @@ public class Element implements Serializable, Cloneable {
     public int getTimeToLive() {
         if (Integer.MIN_VALUE == timeToLive) {
             return 0;
+        } else {
+            return timeToLive;
         }
-        return timeToLive;
     }
 
     /**
@@ -715,8 +747,35 @@ public class Element implements Serializable, Cloneable {
     public int getTimeToIdle() {
         if (Integer.MIN_VALUE == timeToIdle) {
             return 0;
+        } else {
+            return timeToIdle;
         }
-        return timeToIdle;
+    }
+
+    /**
+     * @return <code>false</code> if this Element has a custom lifespan
+     */
+    public boolean usesCacheDefaultLifespan() {
+        return cacheDefaultLifespan;
+    }
+
+    /**
+     * Set the default parameters of this element - those from its enclosing cache.
+     * @param tti TTI in seconds
+     * @param ttl TTL in seconds
+     * @param eternal <code>true</code> if the element is eternal.
+     */
+    protected void setLifespanDefaults(int tti, int ttl, boolean eternal) {
+        if (eternal) {
+            this.timeToIdle = 0;
+            this.timeToLive = 0;
+        } else if (isEternal()) {
+            this.timeToIdle = Integer.MIN_VALUE;
+            this.timeToLive = Integer.MIN_VALUE;
+        } else {
+            timeToIdle = tti;
+            timeToLive = ttl;
+        }
     }
     
     /**

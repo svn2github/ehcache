@@ -59,7 +59,7 @@ import org.junit.Test;
 public class DiskStoreTest extends AbstractCacheTest {
 
     private static final Logger LOG = LoggerFactory.getLogger(DiskStoreTest.class.getName());
-    private static final int ELEMENT_ON_DISK_SIZE = 1246;
+    private static final int ELEMENT_ON_DISK_SIZE = 1270;
     private CacheManager manager2;
 
     /**
@@ -116,6 +116,12 @@ public class DiskStoreTest extends AbstractCacheTest {
         return (DiskStore) cache.getDiskStore();
     }
 
+    private DiskStore createCapacityLimitedDiskStore() {
+        Cache cache = new Cache("test/CapacityLimited", 10000, MemoryStoreEvictionPolicy.LRU, true, null, true,
+                 0, 0, false, 600, null, null, 50);
+        manager.addCache(cache);
+        return (DiskStore) cache.getDiskStore();
+    }
 
     /**
      * Test to help debug DiskStore test
@@ -1197,5 +1203,47 @@ public class DiskStoreTest extends AbstractCacheTest {
         assertEquals("c:" + File.separator + "temp" + File.separator + "greg", translatedPath);
 
         Thread.sleep(500);
+    }
+
+    @Test
+    public void testShrinkingAndGrowingDiskStore() {
+        DiskStore store = createCapacityLimitedDiskStore();
+        int i = 0;
+        for (int size = -1; ; i++) {
+            size = store.getSize();
+            store.put(new Element(Integer.valueOf(i), new byte[100]));
+            if (store.getSize() <= size) break;
+        }
+
+        final int initialSize = store.getSize();
+        final int shrinkSize = initialSize / 2;
+        store.diskCapacityChanged(initialSize, shrinkSize);
+
+        for (int size = 0; ; i++) {
+            size = store.getSize();
+            store.put(new Element(Integer.valueOf(i), new byte[100]));
+            if (store.getSize() <= size) break;
+        }
+
+        {
+            int size = store.getSize();
+            assertTrue(size < (shrinkSize * 1.1));
+            assertTrue(size > (shrinkSize * 0.9));
+        }
+        
+        final int growSize = initialSize * 2;
+        store.diskCapacityChanged(shrinkSize, growSize);
+        
+        for (int size = 0; ; i++) {
+            size = store.getSize();
+            store.put(new Element(Integer.valueOf(i), new byte[100]));
+            if (store.getSize() <= size) break;
+        }
+
+        {
+            int size = store.getSize();
+            assertTrue(size < (growSize * 1.1));
+            assertTrue(size > (growSize * 0.9));
+        }
     }
 }

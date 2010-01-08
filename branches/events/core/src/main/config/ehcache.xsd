@@ -18,6 +18,7 @@
             <xs:attribute name="name" use="optional"/>
             <xs:attribute name="updateCheck" use="optional" type="xs:boolean" default="true"/>
             <xs:attribute name="monitoring" use="optional" type="monitoringType" default="autodetect"/>
+            <xs:attribute name="dynamicConfig" use="optional" type="xs:boolean" default="true"/>
         </xs:complexType>
     </xs:element>     
     <xs:element name="diskStore">

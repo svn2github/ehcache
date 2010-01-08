@@ -19,10 +19,8 @@ package net.sf.ehcache.store;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.NoSuchElementException;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicReferenceArray;
 
+import net.sf.ehcache.config.CacheConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,6 +28,8 @@ import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.Status;
+import net.sf.ehcache.config.CacheConfigurationListener;
+import net.sf.ehcache.store.chm.SelectableConcurrentHashMap;
 
 /**
  * A Store implementation suitable for fast, concurrent in memory stores. The policy is determined by that
@@ -38,7 +38,7 @@ import net.sf.ehcache.Status;
  * @author <a href="mailto:ssuravarapu@users.sourceforge.net">Surya Suravarapu</a>
  * @version $Id$
  */
-public class MemoryStore implements Store {
+public class MemoryStore implements Store, CacheConfigurationListener {
 
     /**
      * This number is magic. It was established using empirical testing of the two approaches
@@ -51,15 +51,15 @@ public class MemoryStore implements Store {
      * This is the default from {@link java.util.concurrent.ConcurrentHashMap}. It should never be used, because
      * we size the map to the max size of the store.
      */
-    protected static final float DEFAULT_LOAD_FACTOR = .75f;
+    protected static final float DEFAULT_LOAD_FACTOR = 0.75f;
 
     /**
      * Set optimisation for 100 concurrent threads.
      */
     protected static final int CONCURRENCY_LEVEL = 100;
 
-    private static final int JUMP_AHEAD = 5;
-
+    private static final int MAX_EVICTION_RATIO = 5;
+    
     private static final Logger LOG = LoggerFactory.getLogger(MemoryStore.class.getName());
 
     /**
@@ -70,12 +70,12 @@ public class MemoryStore implements Store {
     /**
      * when sampling elements, whether to iterate or to use the keySample array for faster random access
      */
-    protected final boolean useKeySample;
+    protected volatile boolean useKeySample;
 
     /**
      * Map where items are stored by key.
      */
-    protected Map map;
+    protected SelectableConcurrentHashMap map;
 
     /**
      * The DiskStore associated with this MemoryStore.
@@ -85,7 +85,7 @@ public class MemoryStore implements Store {
     /**
      * The maximum size of the store
      */
-    protected final int maximumSize;
+    protected volatile int maximumSize;
 
     /**
      * status.
@@ -96,9 +96,6 @@ public class MemoryStore implements Store {
      * The eviction policy to use
      */
     protected volatile Policy policy;
-
-    private AtomicReferenceArray<Object> keyArray;
-    private AtomicInteger keySamplePointer;
 
     /**
      * Constructs things that all MemoryStores have in common.
@@ -115,15 +112,11 @@ public class MemoryStore implements Store {
         
         // create the CHM with initialCapacity sufficient to hold maximumSize
         int initialCapacity = getInitialCapacityForLoadFactor(maximumSize, DEFAULT_LOAD_FACTOR);
-        map = new ConcurrentHashMap(initialCapacity, DEFAULT_LOAD_FACTOR, CONCURRENCY_LEVEL);
+        map = new SelectableConcurrentHashMap(initialCapacity, DEFAULT_LOAD_FACTOR, CONCURRENCY_LEVEL);
         if (maximumSize > TOO_LARGE_TO_EFFICIENTLY_ITERATE) {
             useKeySample = true;
-            keyArray = new AtomicReferenceArray<Object>(maximumSize);
-            keySamplePointer = new AtomicInteger(0);
         } else {
             useKeySample = false;
-            keyArray = null;
-            keySamplePointer = null;
         }
 
         status = Status.STATUS_ALIVE;
@@ -156,6 +149,7 @@ public class MemoryStore implements Store {
      */
     public static MemoryStore create(final Ehcache cache, final Store diskStore) {
         MemoryStore memoryStore = new MemoryStore(cache, diskStore);
+        cache.getCacheConfiguration().addListener(memoryStore);
         return memoryStore;
     }
 
@@ -185,7 +179,7 @@ public class MemoryStore implements Store {
             return null;
         }
 
-        return (Element) map.get(key);
+        return map.get(key);
     }
 
     /**
@@ -211,7 +205,7 @@ public class MemoryStore implements Store {
         }
 
         // remove single item.
-        Element element = (Element)map.remove(key);
+        Element element = map.remove(key);
         if (element != null) {
             return element;
         } else {
@@ -269,14 +263,6 @@ public class MemoryStore implements Store {
      */
     protected final void clear() {
         map.clear();
-        //also clear sample as chances of producing a useful result after a removeAll are 0
-        if (useKeySample) {
-            //clear this. Because this is not locked, a few puts may get overwritten and be unable to be sample
-            //for eviction. Not a problem.
-            for (int i = 0; i < keyArray.length(); i++) {
-                keyArray.set(i, null);
-            }
-        }
     }
 
     /**
@@ -292,8 +278,6 @@ public class MemoryStore implements Store {
         //release reference to cache
         cache = null;
         map = null;
-        keyArray = null;
-        keySamplePointer = null;
     }
 
     /**
@@ -320,9 +304,8 @@ public class MemoryStore implements Store {
      */
     protected final void spoolAllToDisk() {
         boolean clearOnFlush = cache.getCacheConfiguration().isClearOnFlush();
-        Object[] keys = getKeyArray();
-        for (Object key : keys) {
-            Element element = (Element) map.get(key);
+        for (Object key : getKeyArray()) {
+            Element element = map.get(key);
             if (element != null) {
                 if (!element.isSerializable()) {
                     if (LOG.isDebugEnabled()) {
@@ -477,65 +460,11 @@ public class MemoryStore implements Store {
      * Puts an element into the store
      */
     protected void doPut(final Element elementJustAdded) {
-        if (isFull()) {
+        int evict = Math.min(map.size() - maximumSize, MAX_EVICTION_RATIO);
+        for (int i = 0; i < evict; i++) {
             removeElementChosenByEvictionPolicy(elementJustAdded);
         }
-        if (useKeySample) {
-            saveKey(elementJustAdded);
-        }
-
     }
-
-    /**
-     * Saves the key to our fast access AtomicReferenceArray
-     * <p/>
-     * We save the new key if:
-     * <ol>
-     * <li>
-     * <li>
-     * </ol>
-     *
-     * @param elementJustAdded the new element
-     */
-    protected void saveKey(final Element elementJustAdded) {
-        int index = incrementIndex();
-        Object key = keyArray.get(index);
-        Element oldElement = null;
-        if (key != null) {
-            oldElement = (Element) map.get(key);
-        }
-        if (oldElement != null && !oldElement.isExpired()) {
-            if (policy.compare(oldElement, elementJustAdded)) {
-                //new one will always be more desirable for eviction as no gets yet, unless no gets on old one.
-                //Consequence of this algorithm
-                keyArray.set(index, elementJustAdded.getObjectKey());
-            }
-        } else {
-            keyArray.set(index, elementJustAdded.getObjectKey());
-        }
-
-    }
-
-
-    /**
-     * A bounds-safe incrementer, which loops back to zero when it exceeds the array size.
-     * <p/>
-     * This method is not synchronized. It uses CAS and loops until is can set the value.
-     */
-    protected int incrementIndex() {
-        int newVal;
-        while (true) {
-            int oldVal = keySamplePointer.get();
-            newVal = oldVal + 1;
-            if (newVal > keyArray.length() - 1) {
-                newVal = 0;
-            }
-            if (keySamplePointer.compareAndSet(oldVal, newVal)) {
-                return newVal;
-            }
-        }
-    }
-
 
     /**
      * Removes the element chosen by the eviction policy
@@ -544,7 +473,7 @@ public class MemoryStore implements Store {
      */
     protected void removeElementChosenByEvictionPolicy(final Element elementJustAdded) {
 
-            LOG.debug("Cache is full. Removing element ...");
+        LOG.debug("Cache is full. Removing element ...");
 
         Element element = findEvictionCandidate(elementJustAdded);
         if (element == null) {
@@ -571,39 +500,14 @@ public class MemoryStore implements Store {
 
         //attempt quicker eviction
         if (useKeySample) {
-            Element[] elements = sampleElementsViaKeyArray();
+            Element[] elements = sampleElements();
             //this can return null. Let the cache get bigger by one.
             element = policy.selectedBasedOnPolicy(elements, elementJustAdded);
 
             if (element != null) {
                 return element;
-            }
-
-            //To avoid an expensive search via iterating through the CHM, which is very expensive
-            //but it is guaranteed to not return null, which would cause a memory leak
-            //iterate through our list, which is really fast
-            //If we cannot evict in accordance in the algorithm, drop back to an eviction based on FIFO
-            int startingIndex = keySamplePointer.get();
-            //jump ahead of the puts to make sure we don't grab something that is very new
-            int counter = startingIndex + JUMP_AHEAD;
-            int failsafeCounter = maximumSize;
-            while (true) {
-                if (counter > keyArray.length() - 1) {
-                    counter = 0;
-                }
-                Object key = keyArray.get(counter);
-                if (key != null) {
-                    // check for key==null here as a concurrent clear() could catch the map and the keyArray out of sync 
-                    element = (Element) map.get(key);
-                    if (element != null) {
-                        return element;
-                    }
-                }
-                counter++;
-                //Should never happen. Failsafe.
-                if (failsafeCounter-- < 0) {
-                    return elementJustAdded;
-                }
+            } else {
+                return null;
             }
         } else {
             //Using iterate technique
@@ -620,23 +524,15 @@ public class MemoryStore implements Store {
      *
      * @return a random sample of elements
      */
-    protected Element[] sampleElementsViaKeyArray() {
-        int[] indices = LfuPolicy.generateRandomSampleIndices(maximumSize);
-        Element[] elements = new Element[indices.length];
-        for (int i = 0; i < indices.length; i++) {
-            Object key = keyArray.get(indices[i]);
-            if (key == null) {
-                continue;
-            }
-            elements[i] = (Element) map.get(key);
-        }
-        return elements;
+    protected Element[] sampleElements() {
+        int size = AbstractPolicy.calculateSampleSize(maximumSize);
+        return map.getRandomValues(size);
     }
 
     /**
      * Uses random numbers to sample the entire map.
      * <p/>
-     * This implementation uses the {@link ConcurrentHashMap} iterator.
+     * This implementation uses the {@link java.util.concurrent.ConcurrentHashMap} iterator.
      *
      * @return a random sample of elements
      */
@@ -698,5 +594,55 @@ public class MemoryStore implements Store {
      */
     public boolean isCacheCoherent() {
         return false;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void timeToIdleChanged(long oldTti, long newTti) {
+        // no-op
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void timeToLiveChanged(long oldTtl, long newTtl) {
+        // no-op
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void diskCapacityChanged(int oldCapacity, int newCapacity) {
+        // no-op
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void loggingEnabledChanged(boolean oldValue, boolean newValue) {
+        // no-op
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void memoryCapacityChanged(int oldCapacity, int newCapacity) {
+        useKeySample = (newCapacity > TOO_LARGE_TO_EFFICIENTLY_ITERATE);
+        maximumSize = newCapacity;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void registered(CacheConfiguration config) {
+        // no-op
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void deregistered(CacheConfiguration config) {
+        // no-op
     }
 }

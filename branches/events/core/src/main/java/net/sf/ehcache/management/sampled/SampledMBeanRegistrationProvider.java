@@ -55,7 +55,7 @@ public class SampledMBeanRegistrationProvider implements MBeanRegistrationProvid
 
     private static final int MAX_MBEAN_REGISTRATION_RETRIES = 50;
 
-    private volatile Status status = Status.STATUS_UNINITIALISED;
+    private Status status = Status.STATUS_UNINITIALISED;
     private CacheManager cacheManager;
     private ClusteredInstanceFactory clusteredInstanceFactory;
     private final MBeanServer mBeanServer;
@@ -78,7 +78,7 @@ public class SampledMBeanRegistrationProvider implements MBeanRegistrationProvid
     /**
      * {@inheritDoc}
      */
-    public void initialize(CacheManager cacheManagerParam, ClusteredInstanceFactory clusteredInstanceFactory) {
+    public synchronized void initialize(CacheManager cacheManagerParam, ClusteredInstanceFactory clusteredInstanceFactory) {
         if (isAlive()) {
             return;
         }
@@ -136,7 +136,7 @@ public class SampledMBeanRegistrationProvider implements MBeanRegistrationProvid
     /**
      * {@inheritDoc}
      */
-    public void reinitialize() throws MBeanRegistrationProviderException {
+    public synchronized void reinitialize() throws MBeanRegistrationProviderException {
         dispose();
         initialize(this.cacheManager, this.clusteredInstanceFactory);
     }
@@ -171,7 +171,7 @@ public class SampledMBeanRegistrationProvider implements MBeanRegistrationProvid
      * 
      * @return the status at the point in time the method is called
      */
-    public Status getStatus() {
+    public synchronized Status getStatus() {
         return status;
     }
 
@@ -181,7 +181,7 @@ public class SampledMBeanRegistrationProvider implements MBeanRegistrationProvid
      * @throws net.sf.ehcache.CacheException
      *             - all exceptions are wrapped in CacheException
      */
-    public void dispose() throws CacheException {
+    public synchronized void dispose() throws CacheException {
         if (!isAlive()) {
             return;
         }
@@ -209,9 +209,10 @@ public class SampledMBeanRegistrationProvider implements MBeanRegistrationProvid
 
     /**
      * Returns true if this {@link SampledMBeanRegistrationProvider} is alive
+     * 
      * @return true if alive otherwise false
      */
-    public boolean isAlive() {
+    public synchronized boolean isAlive() {
         return status == Status.STATUS_ALIVE;
     }
 

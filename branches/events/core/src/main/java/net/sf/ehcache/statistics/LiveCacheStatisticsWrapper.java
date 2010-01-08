@@ -273,6 +273,24 @@ public class LiveCacheStatisticsWrapper implements LiveCacheStatistics, LiveCach
     /**
      * {@inheritDoc}
      * 
+     * @see net.sf.ehcache.statistics.LiveCacheStatistics#getMaxGetTimeMillis()
+     */
+    public long getMaxGetTimeMillis() {
+        return delegate.getMaxGetTimeMillis();
+    }
+
+    /**
+     * {@inheritDoc}
+     * 
+     * @see net.sf.ehcache.statistics.LiveCacheStatistics#getMinGetTimeMillis()
+     */
+    public long getMinGetTimeMillis() {
+        return delegate.getMinGetTimeMillis();
+    }
+
+    /**
+     * {@inheritDoc}
+     * 
      * @see net.sf.ehcache.statistics.LiveCacheStatisticsData#cacheHitInMemory()
      */
     public void cacheHitInMemory() {

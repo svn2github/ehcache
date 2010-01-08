@@ -292,6 +292,8 @@ clustered caches, a combination of CacheManager name and cache name uniquely ide
 particular cache store in the Terracotta clustered memory.
 * updateCheck - an optional boolean flag specifying whether this CacheManager should check
 for new versions of Ehcache over the Internet.  If not specified, updateCheck="true".
+* dynamicConfig - an optional boolean flag specifying whether this CacheManager should
+support dynamic configuration changes to its attached caches.
 * monitoring - an optional setting that determines whether the CacheManager should
 automatically register the SampledCacheMBean with the system MBean server.
 

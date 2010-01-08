@@ -103,6 +103,24 @@ public class SampledCacheStatisticsImpl implements CacheUsageListener, SampledCa
     }
 
     /**
+     * Clears the collected statistics. Resets all counters to zero
+     */
+    public void clearStatistics() {
+        cacheHitCount.getAndReset();
+        cacheHitInMemoryCount.getAndReset();
+        cacheHitOnDiskCount.getAndReset();
+        cacheMissCount.getAndReset();
+        cacheMissExpiredCount.getAndReset();
+        cacheMissNotFoundCount.getAndReset();
+        cacheElementEvictedCount.getAndReset();
+        cacheElementRemoved.getAndReset();
+        cacheElementExpired.getAndReset();
+        cacheElementPut.getAndReset();
+        cacheElementUpdated.getAndReset();
+        averageGetTime.setValue(0, 1);
+    }
+
+    /**
      * {@inheritDoc}
      */
     public void notifyCacheElementEvicted() {
