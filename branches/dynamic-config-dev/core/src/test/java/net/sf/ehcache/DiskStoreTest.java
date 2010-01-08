@@ -59,7 +59,7 @@ import org.junit.Test;
 public class DiskStoreTest extends AbstractCacheTest {
 
     private static final Logger LOG = LoggerFactory.getLogger(DiskStoreTest.class.getName());
-    private static final int ELEMENT_ON_DISK_SIZE = 1246;
+    private static final int ELEMENT_ON_DISK_SIZE = 1270;
     private CacheManager manager2;
 
     /**

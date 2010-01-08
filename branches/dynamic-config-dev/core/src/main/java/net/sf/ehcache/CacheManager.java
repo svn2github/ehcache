@@ -58,9 +58,6 @@ import net.sf.ehcache.util.FailSafeTimer;
 import net.sf.ehcache.util.PropertyUtil;
 import net.sf.ehcache.util.UpdateChecker;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 /**
  * A container for {@link Ehcache}s that maintain all aspects of their lifecycle.
  * <p/>

@@ -99,8 +99,7 @@ public class Element implements Serializable, Cloneable {
      */
     private volatile long lastUpdateTime;
 
-    private volatile boolean cacheTimeToIdle = true;
-    private volatile boolean cacheTimeToLive = true;
+    private volatile boolean cacheDefaultLifespan = true;
 
     /**
      * A full constructor.
@@ -169,14 +168,13 @@ public class Element implements Serializable, Cloneable {
      * @since 1.7
      */
     public Element(final Object key, final Object value, final long version, final long creationTime,
-            final long lastAccessTime, final long hitCount, final boolean cacheTimeToLive, final boolean cacheTimeToIdle,
+            final long lastAccessTime, final long hitCount, final boolean cacheDefaultLifespan,
             final int timeToLive, final int timeToIdle, final long lastUpdateTime) {
         this.key = key;
         this.value = value;
         this.version = version;
         HIT_COUNT_UPDATER.set(this, hitCount);
-        this.cacheTimeToLive = cacheTimeToLive;
-        this.cacheTimeToIdle = cacheTimeToIdle;
+        this.cacheDefaultLifespan = cacheDefaultLifespan;
         this.timeToLive = timeToLive;
         this.timeToIdle = timeToIdle;
         this.lastUpdateTime = lastUpdateTime;
@@ -317,7 +315,7 @@ public class Element implements Serializable, Cloneable {
         if (timeToLiveSeconds < 0) {
             throw new IllegalArgumentException("timeToLive can't be negative");
         }
-        this.cacheTimeToLive = false;
+        this.cacheDefaultLifespan = false;
         this.timeToLive = timeToLiveSeconds;
     }
 
@@ -330,7 +328,7 @@ public class Element implements Serializable, Cloneable {
         if (timeToIdleSeconds < 0) {
             throw new IllegalArgumentException("timeToIdle can't be negative");
         }
-        this.cacheTimeToIdle = false;
+        this.cacheDefaultLifespan = false;
         this.timeToIdle = timeToIdleSeconds;
     }
 
@@ -659,17 +657,12 @@ public class Element implements Serializable, Cloneable {
      * @see #getExpirationTime()
      */
     public boolean isExpired(CacheConfiguration config) {
-        if (cacheTimeToIdle) {
+        if (cacheDefaultLifespan) {
             if (config.isEternal()) {
                 timeToIdle = 0;
-            } else {
-                timeToIdle = TimeUtil.convertTimeToInt(config.getTimeToIdleSeconds());
-            }
-        }
-        if (cacheTimeToLive) {
-            if (config.isEternal()) {
                 timeToLive = 0;
             } else {
+                timeToIdle = TimeUtil.convertTimeToInt(config.getTimeToIdleSeconds());
                 timeToLive = TimeUtil.convertTimeToInt(config.getTimeToLiveSeconds());
             }
         }
@@ -718,13 +711,11 @@ public class Element implements Serializable, Cloneable {
      */
     public void setEternal(final boolean eternal) {
         if (eternal) {
-            this.cacheTimeToIdle = false;
-            this.cacheTimeToLive = false;
+            this.cacheDefaultLifespan = false;
             this.timeToIdle = 0;
             this.timeToLive = 0;
         } else if (isEternal()) {
-            this.cacheTimeToIdle = false;
-            this.cacheTimeToLive = false;
+            this.cacheDefaultLifespan = false;
             this.timeToIdle = Integer.MIN_VALUE;
             this.timeToLive = Integer.MIN_VALUE;
         }
@@ -762,19 +753,12 @@ public class Element implements Serializable, Cloneable {
     }
 
     /**
-     * @return <code>false</code> if this Element has a custom time to live
+     * @return <code>false</code> if this Element has a custom lifespan
      */
-    public boolean usesCacheTimeToLive() {
-        return cacheTimeToLive;
+    public boolean usesCacheDefaultLifespan() {
+        return cacheDefaultLifespan;
     }
 
-    /**
-     * @return <code>false</code> if this Element has a custom time to idle
-     */
-    public boolean usesCacheTimeToIdle() {
-        return cacheTimeToIdle;
-    }
-    
     /**
      * Set the default parameters of this element - those from its enclosing cache.
      * @param tti TTI in seconds

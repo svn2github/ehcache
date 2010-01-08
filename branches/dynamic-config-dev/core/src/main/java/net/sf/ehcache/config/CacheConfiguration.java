@@ -17,9 +17,9 @@
 package net.sf.ehcache.config;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.Set;
+import java.util.concurrent.CopyOnWriteArraySet;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -185,7 +185,7 @@ public class CacheConfiguration implements Cloneable {
     /**
      * The listeners for this configuration.
      */
-    private volatile Collection<CacheConfigurationListener> listeners = new CopyOnWriteArrayList<CacheConfigurationListener>();
+    private volatile Set<CacheConfigurationListener> listeners = new CopyOnWriteArraySet<CacheConfigurationListener>();
 
     private volatile boolean frozen;
 
@@ -198,7 +198,7 @@ public class CacheConfiguration implements Cloneable {
     @Override
     public CacheConfiguration clone() throws CloneNotSupportedException {
         CacheConfiguration config = (CacheConfiguration) super.clone();
-        config.listeners = new CopyOnWriteArrayList<CacheConfigurationListener>();
+        config.listeners = new CopyOnWriteArraySet<CacheConfigurationListener>();
         return config;
     }
 

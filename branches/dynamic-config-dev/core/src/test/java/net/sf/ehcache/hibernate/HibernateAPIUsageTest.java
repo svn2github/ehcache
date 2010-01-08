@@ -45,7 +45,7 @@ import org.slf4j.LoggerFactory;
  */
 public class HibernateAPIUsageTest extends AbstractCacheTest {
     private static final Logger LOG = LoggerFactory.getLogger(HibernateAPIUsageTest.class.getName());
-    private static final int EMPTY_ELEMENT_SIZE = 204;
+    private static final int EMPTY_ELEMENT_SIZE = 228;
 
 
     /**
