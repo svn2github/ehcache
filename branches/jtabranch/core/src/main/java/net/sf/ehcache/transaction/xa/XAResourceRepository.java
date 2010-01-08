@@ -20,9 +20,8 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import javax.transaction.TransactionManager;
-import javax.transaction.xa.XAResource;
 
-import net.sf.ehcache.store.TransactionalStore;
+import net.sf.ehcache.store.Store;
 import net.sf.ehcache.transaction.manager.TransactionManagerLookup;
 
 public class XAResourceRepository {
@@ -30,14 +29,14 @@ public class XAResourceRepository {
     private final Map<String, EhCacheXAResource> xaResources = new ConcurrentHashMap<String, EhCacheXAResource>();
     private final TransactionManager transactionManager;
     private final TransactionManagerLookup transactionManagerLookup;
-    
-    public XAResourceRepository(TransactionManager transactionManager, TransactionManagerLookup transactionManagerLookup) {
-        this.transactionManager = transactionManager;
+
+    public XAResourceRepository(TransactionManagerLookup transactionManagerLookup) {
         this.transactionManagerLookup = transactionManagerLookup;
+        this.transactionManager = this.transactionManagerLookup.getTransactionManager();
     }
     
     
-    public XAResource getOrCreateXAResource(String cacheName, TransactionalStore store) {
+    public EhCacheXAResource getOrCreateXAResource(String cacheName, Store store) {
         EhCacheXAResource resource = xaResources.get(cacheName);
         if(resource == null) {
             resource = new EhCacheXAResource(store, transactionManager);
@@ -46,5 +45,4 @@ public class XAResourceRepository {
         }
         return resource;
     }
-
 }

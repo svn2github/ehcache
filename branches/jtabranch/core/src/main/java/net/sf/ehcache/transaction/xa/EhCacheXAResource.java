@@ -1,14 +1,22 @@
 package net.sf.ehcache.transaction.xa;
 
+import javax.transaction.RollbackException;
+import javax.transaction.SystemException;
+import javax.transaction.Transaction;
 import javax.transaction.TransactionManager;
 import javax.transaction.xa.XAException;
 import javax.transaction.xa.XAResource;
 import javax.transaction.xa.Xid;
 
-import net.sf.ehcache.store.TransactionalStore;
+import net.sf.ehcache.store.Store;
+import net.sf.ehcache.transaction.StoreWriteCommand;
+import net.sf.ehcache.transaction.TransactionContext;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 /**
  * @author Nabib El-Rahman
@@ -16,11 +24,14 @@ import org.slf4j.LoggerFactory;
 public class EhCacheXAResource implements XAResource {
 
     private static final Logger LOG = LoggerFactory.getLogger(EhCacheXAResource.class.getName());
-    private final TransactionalStore store;
-    private final TransactionManager txnManager;
-    private int transactionTimeout;
 
-    public EhCacheXAResource(TransactionalStore store, TransactionManager txnManager) {
+    private final Store                                          store;
+    private final TransactionManager                             txnManager;
+    private final ConcurrentMap<Transaction, TransactionContext> transactionDataTable = new ConcurrentHashMap<Transaction, TransactionContext>();
+    private final ConcurrentMap<Xid, Transaction>                transactionXids      = new ConcurrentHashMap<Xid, Transaction>               ();
+    private       int                                            transactionTimeout;
+
+    public EhCacheXAResource(Store store, TransactionManager txnManager) {
         this.store = store;
         this.txnManager = txnManager;
     }
@@ -30,11 +41,22 @@ public class EhCacheXAResource implements XAResource {
      */
     public void start(final Xid xid, final int flags) throws XAException {
         LOG.info("start called for Txn with id: " + xid);
+        try {
+            transactionXids.putIfAbsent(xid, txnManager.getTransaction());
+        } catch (SystemException e) {
+            XAException xaException = new XAException("WTF? " + e.getMessage());
+            xaException.initCause(e);
+            throw xaException;
+        }
+        System.out.println("\n\n\n    ===> SUCCESSFULLY LINKED XID TO TX\n\n");
     }
 
     public void commit(final Xid xid, final boolean onePhase) throws XAException {
         LOG.info("commit called for Txn with id: " + xid);
-
+        TransactionContext context = transactionDataTable.get(transactionXids.get(xid));
+        for (StoreWriteCommand storeWriteCommand : context.getCommands()) {
+            storeWriteCommand.execute(store);
+        }
     }
 
     public void end(final Xid xid, final int flags) throws XAException {
@@ -55,7 +77,7 @@ public class EhCacheXAResource implements XAResource {
     }
 
     public void rollback(final Xid xid) throws XAException {
-
+        LOG.info("rollback called for Txn with id: " + xid);
     }
 
     public boolean isSameRM(final XAResource xaResource) throws XAException {
@@ -73,4 +95,21 @@ public class EhCacheXAResource implements XAResource {
         return this.transactionTimeout;
     }
 
+    public Store getStore() {
+        return store;
+    }
+
+    public TransactionContext getOrCreateTransactionContext() throws SystemException, RollbackException {
+        Transaction transaction = txnManager.getTransaction();
+        TransactionContext context = transactionDataTable.get(transaction);
+        if(context == null) {
+            context = new XaTransactionContext();
+            transaction.enlistResource(this);
+            TransactionContext previous = transactionDataTable.putIfAbsent(transaction, context);
+            if(previous != null) {
+                context = previous;
+            }
+        }
+        return context;
+    }
 }

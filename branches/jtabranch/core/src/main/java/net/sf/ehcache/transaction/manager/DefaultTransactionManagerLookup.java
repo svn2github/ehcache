@@ -15,6 +15,7 @@
  */
 package net.sf.ehcache.transaction.manager;
 
+import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.Configuration;
 import net.sf.ehcache.transaction.xa.EhCacheXAResource;
 
@@ -47,7 +48,11 @@ public class DefaultTransactionManagerLookup implements TransactionManagerLookup
      * @param configuration
      * @return
      */
-    public TransactionManager getTransactionManager(final Configuration configuration) {
+    public TransactionManager getTransactionManager() {
+        return getTransactionManager(null);
+    }
+
+    public TransactionManager getTransactionManager(final CacheConfiguration configuration) {
 
         if (transactionManager == null) {
             lock.lock();
@@ -63,7 +68,7 @@ public class DefaultTransactionManagerLookup implements TransactionManagerLookup
     }
     
     public void register(EhCacheXAResource resource) {
-        if(transactionManager == null) {
+        if(getTransactionManager() == null) {
             return;
         }
         if("bitronix.tm.TransactionManagerServices".equals(transactionManager.getClass().getName())) {

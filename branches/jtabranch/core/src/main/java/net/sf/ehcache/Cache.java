@@ -37,8 +37,9 @@ import net.sf.ehcache.store.MemoryStore;
 import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
 import net.sf.ehcache.store.Policy;
 import net.sf.ehcache.store.Store;
-import net.sf.ehcache.store.TransactionalStore;
+import net.sf.ehcache.store.XaTransactionalStore;
 import net.sf.ehcache.transaction.manager.TransactionManagerLookup;
+import net.sf.ehcache.transaction.xa.XAResourceRepository;
 import net.sf.ehcache.util.NamedThreadFactory;
 import net.sf.ehcache.util.TimeUtil;
 import org.slf4j.Logger;
@@ -774,7 +775,12 @@ public class Cache implements Ehcache {
                 }
             }
             if(configuration.isTransactional()) {
-                this.memoryStore = new TransactionalStore(memoryStore, transactionManagerLookup.getTransactionManager(null));
+                // todo this is probably not what we want here:
+                // We might want a factory here, and abstract the kinda of TransactionalStore we actually get
+                // (TC or not, and maybe later other non XA)
+                // We should also look into net.sf.ehcache.CacheManager.createTerracottaStore
+                XAResourceRepository xaResourceRepository = new XAResourceRepository(transactionManagerLookup);
+                this.memoryStore = new XaTransactionalStore(xaResourceRepository.getOrCreateXAResource(getName(), memoryStore));
             } else {
                 this.memoryStore = memoryStore;
             }
