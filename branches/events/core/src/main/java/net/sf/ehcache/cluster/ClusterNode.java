@@ -18,6 +18,7 @@ package net.sf.ehcache.cluster;
 /**
  * Provides information about a node in a cache cluster.
  * @author Alex Miller
+ * @since 1.8
  */
 public interface ClusterNode {
 

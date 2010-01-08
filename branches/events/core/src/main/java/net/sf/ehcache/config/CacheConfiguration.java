@@ -22,6 +22,8 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import net.sf.ehcache.config.TerracottaConfiguration.ValueMode;
+import net.sf.ehcache.event.NotificationScope;
 import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
 
 /**
@@ -291,6 +293,25 @@ public class CacheConfiguration implements Cloneable {
      * Configuration for the CachePeerListenerFactoryConfiguration.
      */
     public static final class CacheEventListenerFactoryConfiguration extends FactoryConfiguration {
+        private NotificationScope notificationScope = NotificationScope.ALL;
+        
+        /**
+         * Used by BeanHandler to set the mode during parsing.  Convert listenFor string to uppercase and 
+         * look up enum constant in NotificationScope.
+         */
+        public void setListenFor(String listenFor) {
+            if (listenFor == null) {
+                throw new IllegalArgumentException("listenFor must be non-null");
+            }
+            this.notificationScope = NotificationScope.valueOf(NotificationScope.class, listenFor.toUpperCase());
+        }
+
+        /**
+         * Get the value mode in terms of the mode enum
+         */
+        public NotificationScope getListenFor() {
+            return this.notificationScope;
+        }
     }
 
     /**

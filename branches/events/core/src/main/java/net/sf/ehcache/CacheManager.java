@@ -1185,7 +1185,8 @@ public class CacheManager {
      * Returns access to information about the cache cluster.
      * @param scheme The clustering scheme to retrieve information about (such as "Terracotta")
      * @return Cluster API (never null, but possibly a simple single node implementation)
-     * @see ClusterScheme
+     * @see net.sf.ehcache.cluster.ClusterScheme
+     * @since 1.8
      */
     public CacheCluster getCluster(String scheme) {
         if (scheme != null && scheme.equalsIgnoreCase(ClusterScheme.TERRACOTTA) && terracottaClusteredInstanceFactory != null) {

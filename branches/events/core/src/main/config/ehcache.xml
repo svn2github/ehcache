@@ -408,6 +408,22 @@ used with JMX monitors.
       can be added, in which case the loaders form a chain which are executed in order. If a
       loader returns null, the next in chain is called.
       
+      
+    Cache Event Listeners
+    +++++++++++++++++++++
+    
+    All cacheEventListenerFactory elements can take an optional property listenFor that describes 
+    which events will be delivered in a clustered environment.  The listenFor attribute has the
+    following allowed values:
+    
+    * all - the default is to deliver all local and remote events
+    * local - deliver only events originating in the current node
+    * remote - deliver only events originating in other nodes
+    
+    Example of setting up a logging listener for local cache events: 
+    
+    <cacheEventListenerFactory class="my.company.log.CacheLogger" 
+        listenFor="local" />  
 
     RMI Cache Replication
     +++++++++++++++++++++

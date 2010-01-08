@@ -21,6 +21,7 @@ import java.util.Collection;
 /**
  * Allows you to explore the Terracotta cluster nodes and register for events about the cluster.
  * @author Alex Miller
+ * @since 1.8
  */
 public interface CacheCluster {
 

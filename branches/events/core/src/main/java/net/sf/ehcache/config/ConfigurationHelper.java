@@ -96,7 +96,7 @@ public final class ConfigurationHelper {
             CacheConfiguration.CacheEventListenerFactoryConfiguration factoryConfiguration =
                     (CacheConfiguration.CacheEventListenerFactoryConfiguration) cacheEventListenerConfiguration;
             CacheEventListener cacheEventListener = createCacheEventListener(factoryConfiguration);
-            registeredEventListeners.registerListener(cacheEventListener);
+            registeredEventListeners.registerListener(cacheEventListener, factoryConfiguration.getListenFor());
         }
     }
 

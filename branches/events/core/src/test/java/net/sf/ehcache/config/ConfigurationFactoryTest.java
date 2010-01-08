@@ -34,13 +34,11 @@ import java.io.InputStream;
 import java.net.URI;
 import java.net.URL;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.jar.JarEntry;
 import java.util.jar.JarOutputStream;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import java.util.regex.Matcher;
 
 import net.sf.ehcache.AbstractCacheTest;
@@ -49,6 +47,7 @@ import net.sf.ehcache.CacheException;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.bootstrap.BootstrapCacheLoader;
+import net.sf.ehcache.config.CacheConfiguration.CacheEventListenerFactoryConfiguration;
 import net.sf.ehcache.distribution.CacheManagerPeerListener;
 import net.sf.ehcache.distribution.CacheManagerPeerProvider;
 import net.sf.ehcache.distribution.MulticastRMICacheManagerPeerProvider;
@@ -59,11 +58,14 @@ import net.sf.ehcache.event.CacheEventListener;
 import net.sf.ehcache.event.CacheManagerEventListener;
 import net.sf.ehcache.event.CountingCacheEventListener;
 import net.sf.ehcache.event.CountingCacheManagerEventListener;
+import net.sf.ehcache.event.NotificationScope;
 import net.sf.ehcache.exceptionhandler.CacheExceptionHandler;
 import net.sf.ehcache.exceptionhandler.CountingExceptionHandler;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Tests for Store Configuration
@@ -1371,4 +1373,26 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
 
       assertEquals(Configuration.Monitoring.AUTODETECT, configurationHelper.getConfigurationBean().getMonitoring());
     }
+    
+    private void helpTestListenFor(Configuration configuration, String cacheName, NotificationScope expectedScope) {
+        CacheConfiguration cache = (CacheConfiguration) configuration.getCacheConfigurations().get(cacheName);
+        List<CacheEventListenerFactoryConfiguration> listenerConfigs = cache.getCacheEventListenerConfigurations();      
+        assertEquals(1, listenerConfigs.size());
+        
+        CacheEventListenerFactoryConfiguration listenerFactoryConfig = listenerConfigs.get(0); 
+        assertEquals(expectedScope, listenerFactoryConfig.getListenFor());        
+    }
+    
+    @Test
+    public void testListenForAttributeParsing() {
+        File file = new File(TEST_CONFIG_DIR + "ehcache-listener-scope.xml");
+        Configuration configuration = ConfigurationFactory.parseConfiguration(file);
+
+        helpTestListenFor(configuration, "listenDefault", NotificationScope.ALL);
+        helpTestListenFor(configuration, "listenAll", NotificationScope.ALL);
+        helpTestListenFor(configuration, "listenLocal", NotificationScope.LOCAL);
+        helpTestListenFor(configuration, "listenRemote", NotificationScope.REMOTE);
+    }
+    
+    
 }

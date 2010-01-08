@@ -18,6 +18,7 @@ package net.sf.ehcache.cluster;
 /**
  * A listener for cluster topology events
  * @author Alex Miller
+ * @since 1.8
  */
 public interface ClusterTopologyListener {
 

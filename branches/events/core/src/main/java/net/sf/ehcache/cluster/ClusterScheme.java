@@ -18,6 +18,7 @@ package net.sf.ehcache.cluster;
 /**
  * Lists well known cluster scheme constants (may not include all possible schemes).
  * @author Alex Miller
+ * @since 1.8
  */
 public final class ClusterScheme {
     

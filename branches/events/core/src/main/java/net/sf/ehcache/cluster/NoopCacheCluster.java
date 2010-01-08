@@ -22,6 +22,7 @@ import java.util.Collections;
  * This is a dummy implementation of the CacheCluster (Null Object Pattern).  It ignores 
  * all listeners and reports no nodes.
  * @author Alex Miller
+ * @since 1.8
  */
 public class NoopCacheCluster implements CacheCluster {
 
