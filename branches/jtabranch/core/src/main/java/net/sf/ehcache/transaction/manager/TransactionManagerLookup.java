@@ -15,11 +15,10 @@
  */
 package net.sf.ehcache.transaction.manager;
 
-import net.sf.ehcache.config.CacheConfiguration;
-import net.sf.ehcache.config.Configuration;
-import net.sf.ehcache.transaction.xa.EhCacheXAResource;
-
 import javax.transaction.TransactionManager;
+
+import net.sf.ehcache.config.CacheConfiguration;
+import net.sf.ehcache.transaction.xa.EhCacheXAResource;
 
 /**
  * @author Alex Snaps

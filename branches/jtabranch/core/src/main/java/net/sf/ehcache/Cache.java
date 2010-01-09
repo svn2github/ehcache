@@ -39,6 +39,7 @@ import net.sf.ehcache.store.Policy;
 import net.sf.ehcache.store.Store;
 import net.sf.ehcache.store.XaTransactionalStore;
 import net.sf.ehcache.transaction.manager.TransactionManagerLookup;
+import net.sf.ehcache.transaction.xa.EhCacheXAResource;
 import net.sf.ehcache.transaction.xa.XAResourceRepository;
 import net.sf.ehcache.util.NamedThreadFactory;
 import net.sf.ehcache.util.TimeUtil;
@@ -861,7 +862,9 @@ public class Cache implements Ehcache {
                 // (TC or not, and maybe later other non XA)
                 // We should also look into net.sf.ehcache.CacheManager.createTerracottaStore
                 XAResourceRepository xaResourceRepository = new XAResourceRepository(transactionManagerLookup);
-                this.memoryStore = new XaTransactionalStore(xaResourceRepository.getOrCreateXAResource(getName(), memoryStore));
+                EhCacheXAResource resource = xaResourceRepository.getOrCreateXAResource(getName());
+                resource.setStore(memoryStore);
+                this.memoryStore = new XaTransactionalStore(resource);
             } else {
                 this.memoryStore = memoryStore;
             }

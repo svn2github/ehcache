@@ -19,27 +19,23 @@ package net.sf.ehcache.transaction.xa;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import javax.transaction.TransactionManager;
-
-import net.sf.ehcache.store.Store;
 import net.sf.ehcache.transaction.manager.TransactionManagerLookup;
 
 public class XAResourceRepository {
     
     private final Map<String, EhCacheXAResource> xaResources = new ConcurrentHashMap<String, EhCacheXAResource>();
-    private final TransactionManager transactionManager;
     private final TransactionManagerLookup transactionManagerLookup;
 
     public XAResourceRepository(TransactionManagerLookup transactionManagerLookup) {
         this.transactionManagerLookup = transactionManagerLookup;
-        this.transactionManager = this.transactionManagerLookup.getTransactionManager();
     }
     
     
-    public EhCacheXAResource getOrCreateXAResource(String cacheName, Store store) {
+    public EhCacheXAResource getOrCreateXAResource(String cacheName) {
         EhCacheXAResource resource = xaResources.get(cacheName);
         if(resource == null) {
-            resource = new EhCacheXAResource(store, transactionManager);
+            resource = new EhCacheXAResource(cacheName);
+            resource.setTransactionManager(transactionManagerLookup.getTransactionManager());
             transactionManagerLookup.register(resource);
             xaResources.put(cacheName, resource);
         }

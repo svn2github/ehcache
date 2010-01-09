@@ -25,17 +25,29 @@ public class EhCacheXAResource implements XAResource {
 
     private static final Logger LOG = LoggerFactory.getLogger(EhCacheXAResource.class.getName());
 
-    private final Store                                          store;
-    private final TransactionManager                             txnManager;
     private final ConcurrentMap<Transaction, TransactionContext> transactionDataTable = new ConcurrentHashMap<Transaction, TransactionContext>();
     private final ConcurrentMap<Xid, Transaction>                transactionXids      = new ConcurrentHashMap<Xid, Transaction>               ();
+    private final String                                         cacheName;
+    private       TransactionManager                             txnManager;
+    private       Store                                          store;
     private       int                                            transactionTimeout;
-
-    public EhCacheXAResource(Store store, TransactionManager txnManager) {
-        this.store = store;
-        this.txnManager = txnManager;
+  
+   
+    public EhCacheXAResource(String cacheName) {
+        this.cacheName = cacheName;
     }
+    
+    public String  getCacheName() {
+        return cacheName;
+    }
+    
+    public void setTransactionManager(TransactionManager txnManager) {
+        this.txnManager = txnManager;
+    }  
 
+    public void setStore(Store store) {
+        this.store = store;
+    }
     /**
      * XAResource Implementation
      */
@@ -112,4 +124,20 @@ public class EhCacheXAResource implements XAResource {
         }
         return context;
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        EhCacheXAResource resource2 = (EhCacheXAResource)obj;
+        if(cacheName.equals(resource2.getCacheName())) {
+            return true;
+        }
+        return false;
+    }
+
+    @Override
+    public int hashCode() {
+        return cacheName.hashCode();
+    }
+    
+    
 }

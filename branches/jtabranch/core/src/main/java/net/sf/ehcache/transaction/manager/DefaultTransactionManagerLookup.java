@@ -15,11 +15,9 @@
  */
 package net.sf.ehcache.transaction.manager;
 
-import net.sf.ehcache.config.CacheConfiguration;
-import net.sf.ehcache.config.Configuration;
-import net.sf.ehcache.transaction.xa.EhCacheXAResource;
-
 import java.lang.reflect.Method;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -28,23 +26,26 @@ import javax.naming.NamingException;
 import javax.transaction.TransactionManager;
 import javax.transaction.xa.XAResource;
 
+import net.sf.ehcache.config.CacheConfiguration;
+import net.sf.ehcache.transaction.xa.EhCacheXAResource;
+
 /**
  * @author Alex Snaps
  */
 public class DefaultTransactionManagerLookup implements TransactionManagerLookup {
 
-    private       transient TransactionManager transactionManager;
-    private       transient String             vendor;
-    private final           Lock               lock                        = new ReentrantLock();
+    private transient TransactionManager transactionManager;
+    private Set xaResources = new HashSet();
+    private transient String vendor;
+    private final Lock lock = new ReentrantLock();
 
-    private final           Selector[]         transactionManagerSelectors = new Selector[]
-        {new JndiSelector("JBoss", "java:/TransactionManager"),
-         new FactorySelector("WebSphere 5.1", "com.ibm.ws.Transaction.TransactionManagerFactory"),
-         new FactorySelector("Bitronix", "bitronix.tm.TransactionManagerServices"),
-         new ClassSelector("Atomikos", "com.atomikos.icatch.jta.UserTransactionManager"), };
+    private final Selector[] transactionManagerSelectors = new Selector[] { new JndiSelector("JBoss", "java:/TransactionManager"),
+            new FactorySelector("WebSphere 5.1", "com.ibm.ws.Transaction.TransactionManagerFactory"),
+            new FactorySelector("Bitronix", "bitronix.tm.TransactionManagerServices"),
+            new ClassSelector("Atomikos", "com.atomikos.icatch.jta.UserTransactionManager"), };
 
     /**
-     *
+     * 
      * @param configuration
      * @return
      */
@@ -66,32 +67,27 @@ public class DefaultTransactionManagerLookup implements TransactionManagerLookup
         }
         return transactionManager;
     }
-    
+
     public void register(EhCacheXAResource resource) {
-        if(getTransactionManager() == null) {
-            return;
-        }
-        if("bitronix.tm.TransactionManagerServices".equals(transactionManager.getClass().getName())) {
-            registerResourceWithBitronix(resource);
-        }
+        registerResourceWithBitronix(resource.getCacheName(), resource);
     }
 
-    
-    private void registerResourceWithBitronix(EhCacheXAResource resource) {
+    private void registerResourceWithBitronix(String uniqueName, EhCacheXAResource resource) {
         ClassLoader cl = Thread.currentThread().getContextClassLoader();
         if (cl == null) {
             cl = ClassLoader.getSystemClassLoader();
         }
         try {
             Class producerClass = cl.loadClass("bitronix.tm.resource.generic.GenericXAResourceProducer");
-            Class[] signature = new Class[]{XAResource.class};
-            Object[] args = new Object[]{resource};
+            Class[] signature = new Class[] { String.class, XAResource.class };
+            Object[] args = new Object[] { uniqueName, resource };
             Method method = producerClass.getMethod("registerXAResource", signature);
-            transactionManager = (TransactionManager)method.invoke(null, args);
+            method.invoke(null, args);
         } catch (Exception e) {
-            //
+            e.printStackTrace();
         }
     }
+
     /**
      * 
      * @return
@@ -155,7 +151,7 @@ public class DefaultTransactionManagerLookup implements TransactionManagerLookup
             try {
                 jndiObject = initialContext.lookup(getJndiName());
                 if (jndiObject instanceof TransactionManager) {
-                    return (TransactionManager)jndiObject;
+                    return (TransactionManager) jndiObject;
                 }
             } catch (NamingException e) {
                 //
@@ -188,7 +184,7 @@ public class DefaultTransactionManagerLookup implements TransactionManagerLookup
                 Class[] signature = null;
                 Object[] args = null;
                 Method method = factoryClass.getMethod("getTransactionManager", signature);
-                transactionManager = (TransactionManager)method.invoke(null, args);
+                transactionManager = (TransactionManager) method.invoke(null, args);
             } catch (Exception e) {
                 //
             }
@@ -224,4 +220,5 @@ public class DefaultTransactionManagerLookup implements TransactionManagerLookup
             return transactionManager;
         }
     }
+
 }
