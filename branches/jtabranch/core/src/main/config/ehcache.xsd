@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" version="1.7">
- 
+
     <xs:element name="ehcache">
         <xs:complexType>
             <xs:sequence>
@@ -18,7 +18,7 @@
             <xs:attribute name="transactionManagerLookupClass" type="xs:string" use="optional"/>
             <xs:attribute default="true" name="dynamicConfig" type="xs:boolean" use="optional"/>
         </xs:complexType>
-    </xs:element>     
+    </xs:element>
     <xs:element name="diskStore">
         <xs:complexType>
             <xs:attribute name="path" use="optional"/>
@@ -53,13 +53,13 @@
                         <xs:sequence>
                             <xs:any maxOccurs="unbounded" minOccurs="0" processContents="skip"/>
                         </xs:sequence>
-                    </xs:complexType>        
+                    </xs:complexType>
                 </xs:element>
             </xs:sequence>
             <xs:attribute default="localhost:9510" name="url" use="optional"/>
             <xs:attribute name="registerStatsMBean" type="xs:boolean" use="optional"/>
         </xs:complexType>
-    </xs:element>    
+    </xs:element>
     <!-- add clone support for addition of cacheExceptionHandler. Important! -->
     <xs:element name="defaultCache">
         <xs:complexType>
@@ -154,6 +154,7 @@
             <xs:attribute default="10000" name="localKeyCacheSize" type="xs:positiveInteger" use="optional"/>
             <xs:attribute default="true" name="orphanEviction" type="xs:boolean" use="optional"/>
             <xs:attribute default="4" name="orphanEvictionPeriod" type="xs:positiveInteger" use="optional"/>
+            <xs:attribute name="copyOnRead" use="optional" type="xs:boolean" default="false"/>
         </xs:complexType>
     </xs:element>
     <xs:simpleType name="monitoringType">

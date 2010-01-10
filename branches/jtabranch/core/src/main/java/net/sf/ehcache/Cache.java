@@ -145,7 +145,7 @@ public class Cache implements Ehcache {
     private static final int EXECUTOR_MAXIMUM_POOL_SIZE = Math.min(10, Runtime.getRuntime().availableProcessors());
     private static final int EXECUTOR_CORE_POOL_SIZE = 1;
 
-    static {             
+    static {
         try {
             localhost = InetAddress.getLocalHost();
         } catch (UnknownHostException e) {
@@ -157,7 +157,7 @@ public class Cache implements Ehcache {
     }
 
     private volatile boolean disabled = Boolean.getBoolean(NET_SF_EHCACHE_DISABLED);
-    
+
     private final boolean useClassicLru = Boolean.getBoolean(NET_SF_EHCACHE_USE_CLASSIC_LRU);
 
     private volatile Store diskStore;
@@ -444,7 +444,8 @@ public class Cache implements Ehcache {
                 TerracottaConfiguration.DEFAULT_ORPHAN_EVICTION,
                 TerracottaConfiguration.DEFAULT_ORPHAN_EVICTION_PERIOD,
                 TerracottaConfiguration.DEFAULT_LOCAL_KEY_CACHE,
-                TerracottaConfiguration.DEFAULT_LOCAL_KEY_CACHE_SIZE);
+                TerracottaConfiguration.DEFAULT_LOCAL_KEY_CACHE_SIZE,
+                TerracottaConfiguration.DEFAULT_COPY_ON_READ);
 
     }
 
@@ -510,7 +511,8 @@ public class Cache implements Ehcache {
                 TerracottaConfiguration.DEFAULT_ORPHAN_EVICTION,
                 TerracottaConfiguration.DEFAULT_ORPHAN_EVICTION_PERIOD,
                 TerracottaConfiguration.DEFAULT_LOCAL_KEY_CACHE,
-                TerracottaConfiguration.DEFAULT_LOCAL_KEY_CACHE_SIZE);
+                TerracottaConfiguration.DEFAULT_LOCAL_KEY_CACHE_SIZE,
+                TerracottaConfiguration.DEFAULT_COPY_ON_READ);
 
     }
 
@@ -557,13 +559,14 @@ public class Cache implements Ehcache {
                  int maxElementsOnDisk,
                  int diskSpoolBufferSizeMB,
                  boolean clearOnFlush) {
-    
+
         this(name, maxElementsInMemory, memoryStoreEvictionPolicy, overflowToDisk, diskStorePath, eternal, timeToLiveSeconds,
-                timeToIdleSeconds, diskPersistent, diskExpiryThreadIntervalSeconds, registeredEventListeners, 
+                timeToIdleSeconds, diskPersistent, diskExpiryThreadIntervalSeconds, registeredEventListeners,
                 bootstrapCacheLoader, maxElementsOnDisk, diskSpoolBufferSizeMB, clearOnFlush, false, null,
                 TerracottaConfiguration.DEFAULT_COHERENT_READS, TerracottaConfiguration.DEFAULT_ORPHAN_EVICTION,
                 TerracottaConfiguration.DEFAULT_ORPHAN_EVICTION_PERIOD, TerracottaConfiguration.DEFAULT_LOCAL_KEY_CACHE,
-                TerracottaConfiguration.DEFAULT_LOCAL_KEY_CACHE_SIZE);
+                TerracottaConfiguration.DEFAULT_LOCAL_KEY_CACHE_SIZE,
+                TerracottaConfiguration.DEFAULT_COPY_ON_READ);
     }
 
     /**
@@ -608,9 +611,10 @@ public class Cache implements Ehcache {
                 maxElementsOnDisk, diskSpoolBufferSizeMB, clearOnFlush, isTerracottaClustered, terracottaValueMode,
                 terracottaCoherentReads, TerracottaConfiguration.DEFAULT_ORPHAN_EVICTION,
                 TerracottaConfiguration.DEFAULT_ORPHAN_EVICTION_PERIOD, TerracottaConfiguration.DEFAULT_LOCAL_KEY_CACHE,
-                TerracottaConfiguration.DEFAULT_LOCAL_KEY_CACHE_SIZE); 
+                TerracottaConfiguration.DEFAULT_LOCAL_KEY_CACHE_SIZE,
+                TerracottaConfiguration.DEFAULT_COPY_ON_READ);
     }
-    
+
     /**
      * 1.8.0 Constructor
      * <p/>
@@ -669,7 +673,8 @@ public class Cache implements Ehcache {
                  boolean terracottaOrphanEviction,
                  int terracottaOrphanEvictionPeriod,
                  boolean terracottaLocalKeyCache,
-                 int terracottaLocalKeyCacheSize) {
+                 int terracottaLocalKeyCacheSize,
+                 boolean terracottaCopyOnRead) {
         this(name, maxElementsInMemory, memoryStoreEvictionPolicy, overflowToDisk, diskStorePath, eternal, timeToLiveSeconds,
                 timeToIdleSeconds, diskPersistent, diskExpiryThreadIntervalSeconds, registeredEventListeners,
                 bootstrapCacheLoader, maxElementsOnDisk, diskSpoolBufferSizeMB, clearOnFlush, isTerracottaClustered,
@@ -799,8 +804,9 @@ public class Cache implements Ehcache {
         tcConfig.setOrphanEvictionPeriod(terracottaOrphanEvictionPeriod);
         tcConfig.setLocalKeyCache(terracottaLocalKeyCache);
         tcConfig.setLocalKeyCacheSize(terracottaLocalKeyCacheSize);
+        tcConfig.setCopyOnRead(terracottaCopyOnRead);
         configuration.addTerracotta(tcConfig);
-        
+
         //initialize statistics
         liveCacheStatisticsData = new LiveCacheStatisticsWrapper(this);
         sampledCacheStatistics = new SampledCacheStatisticsWrapper();
@@ -879,7 +885,7 @@ public class Cache implements Ehcache {
             // set up default values
             liveCacheStatisticsData.setStatisticsAccuracy(Statistics.STATISTICS_ACCURACY_BEST_EFFORT);
             liveCacheStatisticsData.setStatisticsEnabled(true);
-            
+
             // register the sampled cache statistics
             this.registerCacheUsageListener(sampledCacheStatistics);
         }
@@ -926,10 +932,10 @@ public class Cache implements Ehcache {
     protected boolean isDiskStore() {
         return configuration.isOverflowToDisk() || configuration.isDiskPersistent();
     }
-    
+
     /**
      * Indicates whether this cache is clustered by Terracotta
-     * 
+     *
      * @return {@code true} when the cache is clustered by Terracotta; or {@code false} otherwise
      */
     protected boolean isTerracottaClustered() {
@@ -1898,14 +1904,14 @@ public class Cache implements Ehcache {
      * <p/>
      * To get a very fast result, use {@link #getKeysNoDuplicateCheck()}.size().
      * If the disk store is being used, there will be some duplicates.
-     * 
+     *
      * @return The size value
      * @throws IllegalStateException
      *             if the cache is not {@link Status#STATUS_ALIVE}
      */
     public final int getSize() throws IllegalStateException, CacheException {
         checkStatus();
-        
+
         if (memoryStore.isCacheCoherent()) {
             return memoryStore.getTerracottaClusteredSize();
         } else {
@@ -2094,7 +2100,7 @@ public class Cache implements Ehcache {
         // create new copies of the statistics
         copy.liveCacheStatisticsData = new LiveCacheStatisticsWrapper(copy);
         copy.sampledCacheStatistics = new SampledCacheStatisticsWrapper();
-        
+
         copy.configuration = configuration.clone();
         copy.guid = createGuid();
 
@@ -2803,7 +2809,7 @@ public class Cache implements Ehcache {
         checkStatus();
         return (LiveCacheStatistics) liveCacheStatisticsData;
     }
-    
+
     private LiveCacheStatistics getLiveCacheStatisticsNoCheck() {
         return (LiveCacheStatistics) liveCacheStatisticsData;
     }
@@ -2849,7 +2855,7 @@ public class Cache implements Ehcache {
     public SampledCacheStatistics getSampledCacheStatistics() {
         return sampledCacheStatistics;
     }
-    
+
     /**
      * {@inheritDoc}
      */
@@ -2868,7 +2874,7 @@ public class Cache implements Ehcache {
 
     /**
      * {@inheritDoc}
-     * 
+     *
      * @see net.sf.ehcache.Ehcache#isSampledStatisticsEnabled()
      */
     public boolean isSampledStatisticsEnabled() {
