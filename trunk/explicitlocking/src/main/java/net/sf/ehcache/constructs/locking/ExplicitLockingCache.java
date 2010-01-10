@@ -1120,11 +1120,19 @@ public class ExplicitLockingCache implements Ehcache {
 
     }
 
-  public void disableDynamicFeatures() {
-    cache.disableDynamicFeatures();
-  }
+    /**
+     * Disables dynamic features
+     */
+    public void disableDynamicFeatures() {
+        cache.disableDynamicFeatures();
+    }
 
-  public WriteBehind getWriteBehind() {
-    return cache.getWriteBehind();
-  }
+    /**
+     * returns instance of write behind for async write behind
+     * 
+     * @return
+     */
+    public WriteBehind getWriteBehind() {
+        return cache.getWriteBehind();
+    }
 }
