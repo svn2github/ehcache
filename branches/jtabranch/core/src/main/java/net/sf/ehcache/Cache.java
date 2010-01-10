@@ -680,7 +680,7 @@ public class Cache implements Ehcache {
                 bootstrapCacheLoader, maxElementsOnDisk, diskSpoolBufferSizeMB, clearOnFlush, isTerracottaClustered,
                 terracottaValueMode, terracottaCoherentReads, "OFF", null, TerracottaConfiguration.DEFAULT_ORPHAN_EVICTION,
                 TerracottaConfiguration.DEFAULT_ORPHAN_EVICTION_PERIOD, TerracottaConfiguration.DEFAULT_LOCAL_KEY_CACHE,
-                TerracottaConfiguration.DEFAULT_LOCAL_KEY_CACHE_SIZE);
+                TerracottaConfiguration.DEFAULT_LOCAL_KEY_CACHE_SIZE, TerracottaConfiguration.DEFAULT_COPY_ON_READ);
     }
 
     /**
@@ -740,7 +740,8 @@ public class Cache implements Ehcache {
                  boolean terracottaOrphanEviction,
                  int terracottaOrphanEvictionPeriod,
                  boolean terracottaLocalKeyCache,
-                 int terracottaLocalKeyCacheSize) {
+                 int terracottaLocalKeyCacheSize,
+                 boolean terracottaCopyOnRead) {
 
         changeStatus(Status.STATUS_UNINITIALISED);
 
