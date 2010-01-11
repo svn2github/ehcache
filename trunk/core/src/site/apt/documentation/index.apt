@@ -52,6 +52,8 @@ Documentation - Table of Contents
 
     * {{{./jmx.html}JMX Management & Monitoring}}
 
+    * {{{./jta.html}JTA}}
+
     * {{{./cachemanager_event_listeners.html}CacheManager Event Listeners}}
 
     * {{{./cache_event_listeners.html}Cache Event Listeners}}
@@ -61,6 +63,8 @@ Documentation - Table of Contents
     * {{{./cache_extensions.html}Cache Extensions}}
 
     * {{{./cache_loaders.html}Cache Loaders}}
+
+    * {{{./write_through_caching.html}Write-through and write-behind caching with Cache Storers}}
 
     * {{{./cache_server.html}Cache Server with SOAP and RESTful Web Services}}
 
