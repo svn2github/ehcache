@@ -1,9 +1,9 @@
  ----
- Performance At Any Scale
+ Distributed Cache - Performance At Any Scale
  ---- 
 
 
-Performance At Any Scale
+Ehcache Distributed Cache
 
  Ehcache is a widely used java distributed cache for general purpose caching, Java EE and light-weight containers.
 
@@ -47,11 +47,7 @@ Performance At Any Scale
 {{{documentation/cache_server.html}ehcache-server}} | RESTful cache server in a WAR or standalone
 *----------+--------------:
 
-===
-
- newsticker
-
-===
+.
 
   ehcache_1_7_talk
 
