@@ -805,7 +805,12 @@ public class Cache implements Ehcache {
         tcConfig.setOrphanEvictionPeriod(terracottaOrphanEvictionPeriod);
         tcConfig.setLocalKeyCache(terracottaLocalKeyCache);
         tcConfig.setLocalKeyCacheSize(terracottaLocalKeyCacheSize);
-        tcConfig.setCopyOnRead(terracottaCopyOnRead);
+        
+        if(configuration.isTransactional()) {
+            tcConfig.setCopyOnRead(true);            
+        } else {
+            tcConfig.setCopyOnRead(terracottaCopyOnRead);
+        }
         configuration.addTerracotta(tcConfig);
 
         //initialize statistics
