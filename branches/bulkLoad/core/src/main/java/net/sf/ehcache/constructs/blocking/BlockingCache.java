@@ -1114,6 +1114,34 @@ public class BlockingCache implements Ehcache {
     public void disableDynamicFeatures() {
         cache.disableDynamicFeatures();
     }
+
+    /**
+     * {@inheritDoc}
+     */
+    public boolean isCoherent() {
+        return cache.isCoherent();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public boolean isCoherentLocally() {
+        return cache.isCoherentLocally();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void setCoherent(boolean coherent) {
+        cache.setCoherent(coherent);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void waitUntilCoherent() {
+        cache.waitUntilCoherent();
+    }
 }
 
 

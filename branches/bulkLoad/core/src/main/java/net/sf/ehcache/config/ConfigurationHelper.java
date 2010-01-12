@@ -458,6 +458,7 @@ public final class ConfigurationHelper {
         boolean terracottaLocalKeyCache = TerracottaConfiguration.DEFAULT_LOCAL_KEY_CACHE;
         int terracottaLocalKeyCacheSize = TerracottaConfiguration.DEFAULT_LOCAL_KEY_CACHE_SIZE;
         boolean terracottaCopyOnRead = TerracottaConfiguration.DEFAULT_COPY_ON_READ;
+        boolean terracottaCacheCoherent = TerracottaConfiguration.DEFAULT_CACHE_COHERENT;
         TerracottaConfiguration tcConfiguration = cacheConfiguration.getTerracottaConfiguration();
         if (tcConfiguration != null) {
             terracottaClustered = tcConfiguration.isClustered();
@@ -468,6 +469,7 @@ public final class ConfigurationHelper {
             terracottaLocalKeyCache = tcConfiguration.getLocalKeyCache();
             terracottaLocalKeyCacheSize = tcConfiguration.getLocalKeyCacheSize();
             terracottaCopyOnRead = tcConfiguration.isCopyOnRead();
+            terracottaCacheCoherent = tcConfiguration.isCoherent();
         }
 
         Ehcache cache = new Cache(cacheConfiguration.name,
@@ -492,7 +494,8 @@ public final class ConfigurationHelper {
                 terracottaOrphanEvictionPeriod,
                 terracottaLocalKeyCache,
                 terracottaLocalKeyCacheSize,
-                terracottaCopyOnRead);
+                terracottaCopyOnRead, 
+                terracottaCacheCoherent);
         RegisteredEventListeners listeners = cache.getCacheEventNotificationService();
         registerCacheListeners(cacheConfiguration, listeners);
         registerCacheExtensions(cacheConfiguration, cache);

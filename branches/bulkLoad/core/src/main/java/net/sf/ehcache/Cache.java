@@ -16,7 +16,32 @@
 
 package net.sf.ehcache;
 
+import java.io.IOException;
+import java.io.Serializable;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
+import java.util.concurrent.AbstractExecutorService;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Future;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+
 import net.sf.ehcache.bootstrap.BootstrapCacheLoader;
+import net.sf.ehcache.coherence.CacheCoherence;
+import net.sf.ehcache.coherence.NoopCacheCoherence;
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.DiskStoreConfiguration;
 import net.sf.ehcache.config.TerracottaConfiguration;
@@ -40,31 +65,9 @@ import net.sf.ehcache.store.Store;
 import net.sf.ehcache.util.NamedThreadFactory;
 import net.sf.ehcache.util.TimeUtil;
 import net.sf.ehcache.writebehind.WriteBehind;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.IOException;
-import java.io.Serializable;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
-import java.util.concurrent.AbstractExecutorService;
-import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Future;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
 
 /**
  * Cache is the central class in ehcache. Caches have {@link Element}s and are managed
@@ -202,6 +205,8 @@ public class Cache implements Ehcache {
     private volatile SampledCacheStatisticsWrapper sampledCacheStatistics;
 
     private volatile boolean allowDisable = true;
+    
+    private volatile CacheCoherence cacheCoherence = NoopCacheCoherence.INSTANCE;
 
     /**
      * 1.0 Constructor.
@@ -438,7 +443,8 @@ public class Cache implements Ehcache {
                 TerracottaConfiguration.DEFAULT_ORPHAN_EVICTION_PERIOD,
                 TerracottaConfiguration.DEFAULT_LOCAL_KEY_CACHE,
                 TerracottaConfiguration.DEFAULT_LOCAL_KEY_CACHE_SIZE,
-                TerracottaConfiguration.DEFAULT_COPY_ON_READ);
+                TerracottaConfiguration.DEFAULT_COPY_ON_READ,
+                TerracottaConfiguration.DEFAULT_CACHE_COHERENT);
 
     }
 
@@ -505,7 +511,8 @@ public class Cache implements Ehcache {
                 TerracottaConfiguration.DEFAULT_ORPHAN_EVICTION_PERIOD,
                 TerracottaConfiguration.DEFAULT_LOCAL_KEY_CACHE,
                 TerracottaConfiguration.DEFAULT_LOCAL_KEY_CACHE_SIZE,
-                TerracottaConfiguration.DEFAULT_COPY_ON_READ);
+                TerracottaConfiguration.DEFAULT_COPY_ON_READ, 
+                TerracottaConfiguration.DEFAULT_CACHE_COHERENT);
 
     }
 
@@ -554,12 +561,11 @@ public class Cache implements Ehcache {
                  boolean clearOnFlush) {
 
         this(name, maxElementsInMemory, memoryStoreEvictionPolicy, overflowToDisk, diskStorePath, eternal, timeToLiveSeconds,
-                timeToIdleSeconds, diskPersistent, diskExpiryThreadIntervalSeconds, registeredEventListeners,
-                bootstrapCacheLoader, maxElementsOnDisk, diskSpoolBufferSizeMB, clearOnFlush, false, null,
-                TerracottaConfiguration.DEFAULT_COHERENT_READS, TerracottaConfiguration.DEFAULT_ORPHAN_EVICTION,
-                TerracottaConfiguration.DEFAULT_ORPHAN_EVICTION_PERIOD, TerracottaConfiguration.DEFAULT_LOCAL_KEY_CACHE,
-                TerracottaConfiguration.DEFAULT_LOCAL_KEY_CACHE_SIZE,
-                TerracottaConfiguration.DEFAULT_COPY_ON_READ);
+                timeToIdleSeconds, diskPersistent, diskExpiryThreadIntervalSeconds, registeredEventListeners, bootstrapCacheLoader,
+                maxElementsOnDisk, diskSpoolBufferSizeMB, clearOnFlush, false, null, TerracottaConfiguration.DEFAULT_COHERENT_READS,
+                TerracottaConfiguration.DEFAULT_ORPHAN_EVICTION, TerracottaConfiguration.DEFAULT_ORPHAN_EVICTION_PERIOD,
+                TerracottaConfiguration.DEFAULT_LOCAL_KEY_CACHE, TerracottaConfiguration.DEFAULT_LOCAL_KEY_CACHE_SIZE,
+                TerracottaConfiguration.DEFAULT_COPY_ON_READ, TerracottaConfiguration.DEFAULT_CACHE_COHERENT);
     }
 
     /**
@@ -604,8 +610,8 @@ public class Cache implements Ehcache {
                 maxElementsOnDisk, diskSpoolBufferSizeMB, clearOnFlush, isTerracottaClustered, terracottaValueMode,
                 terracottaCoherentReads, TerracottaConfiguration.DEFAULT_ORPHAN_EVICTION,
                 TerracottaConfiguration.DEFAULT_ORPHAN_EVICTION_PERIOD, TerracottaConfiguration.DEFAULT_LOCAL_KEY_CACHE,
-                TerracottaConfiguration.DEFAULT_LOCAL_KEY_CACHE_SIZE,
-                TerracottaConfiguration.DEFAULT_COPY_ON_READ);
+                TerracottaConfiguration.DEFAULT_LOCAL_KEY_CACHE_SIZE, TerracottaConfiguration.DEFAULT_COPY_ON_READ,
+                TerracottaConfiguration.DEFAULT_CACHE_COHERENT);
     }
 
     /**
@@ -667,7 +673,8 @@ public class Cache implements Ehcache {
                  int terracottaOrphanEvictionPeriod,
                  boolean terracottaLocalKeyCache,
                  int terracottaLocalKeyCacheSize,
-                 boolean terracottaCopyOnRead) {
+                 boolean terracottaCopyOnRead, 
+                 boolean terracottaCacheCoherent) {
 
         changeStatus(Status.STATUS_UNINITIALISED);
 
@@ -732,6 +739,7 @@ public class Cache implements Ehcache {
         tcConfig.setLocalKeyCache(terracottaLocalKeyCache);
         tcConfig.setLocalKeyCacheSize(terracottaLocalKeyCacheSize);
         tcConfig.setCopyOnRead(terracottaCopyOnRead);
+        tcConfig.setCoherent(terracottaCacheCoherent);
         configuration.addTerracotta(tcConfig);
 
         //initialize statistics
@@ -763,6 +771,11 @@ public class Cache implements Ehcache {
 
             if (isTerracottaClustered()) {
                 memoryStore = cacheManager.createTerracottaStore(this);
+                if (memoryStore instanceof CacheCoherence) {
+                    this.cacheCoherence = (CacheCoherence) memoryStore;
+                } else {
+                    throw new CacheException("Clustered Store instances created should also be instances of CacheCoherence");
+                }
                 writeBehind = cacheManager.createWriteBehind(this);
             } else {
                 if (useClassicLru && configuration.getMemoryStoreEvictionPolicy().equals(MemoryStoreEvictionPolicy.LRU)) {
@@ -771,6 +784,8 @@ public class Cache implements Ehcache {
                     memoryStore = MemoryStore.create(this, diskStore);
                 }
             }
+            
+            cacheCoherence.setCoherent(configuration.getTerracottaConfiguration().isCoherent());
 
             changeStatus(Status.STATUS_ALIVE);
             initialiseRegisteredCacheExtensions();
@@ -2792,5 +2807,33 @@ public class Cache implements Ehcache {
     public void disableDynamicFeatures() {
         configuration.freezeConfiguration();
         allowDisable = false;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public boolean isCoherent() {
+        return cacheCoherence.isCoherent();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public boolean isCoherentLocally() {
+        return cacheCoherence.isCoherentLocally();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void setCoherent(boolean coherent) {
+        this.cacheCoherence.setCoherent(coherent);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void waitUntilCoherent() {
+        this.cacheCoherence.waitUntilCoherent();
     }
 }

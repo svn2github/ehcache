@@ -51,6 +51,11 @@ public class TerracottaConfiguration implements Cloneable {
      * Default copy on read setting
      */
     public static final boolean DEFAULT_COPY_ON_READ = false;
+    
+    /**
+     * Default cache coherence setting
+     */
+    public static final boolean DEFAULT_CACHE_COHERENT = true;
 
     /**
      * Represents whether values are stored with serialization in the clustered store
@@ -73,6 +78,7 @@ public class TerracottaConfiguration implements Cloneable {
     private boolean localKeyCache = DEFAULT_LOCAL_KEY_CACHE;
     private int localKeyCacheSize = DEFAULT_LOCAL_KEY_CACHE_SIZE;
     private boolean isCopyOnRead = DEFAULT_COPY_ON_READ;
+    private boolean cacheCoherent = DEFAULT_CACHE_COHERENT;
 
     /**
      * Clones this object, following the usual contract.
@@ -198,5 +204,20 @@ public class TerracottaConfiguration implements Cloneable {
      */
     public int getLocalKeyCacheSize() {
         return this.localKeyCacheSize;
+    }
+    
+    /**
+     * Used by BeanHandler to set the <tt>coherent</tt> during parsing
+     */
+    public void setCoherent(boolean coherent) {
+        this.cacheCoherent = coherent;
+    }
+
+    /**
+     * Is the cache configured for coherent or incoherent mode.
+     * @return true if configured in coherent mode.
+     */
+    public boolean isCoherent() {
+        return this.cacheCoherent;
     }
 }

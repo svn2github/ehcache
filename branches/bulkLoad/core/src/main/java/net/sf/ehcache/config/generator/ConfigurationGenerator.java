@@ -223,6 +223,8 @@ public class ConfigurationGenerator {
                 builder.append(EOL).append(spacer).append(" orphanEvictionPeriod=\"").append(
                         terracottaConfiguration.getOrphanEvictionPeriod()).append("\"");
             }
+                builder.append(EOL).append(spacer).append(" coherent=\"").append(terracottaConfiguration.isCoherent()).append(
+                        "\"");
             builder.append(">").append(EOL);
             indent(-1);
             builder.append(spacer).append("</terracotta>");
