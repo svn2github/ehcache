@@ -10,4 +10,5 @@ public class StoreExpireAllElementsCommand implements StoreWriteCommand {
     public void execute(final Store store) {
         store.expireElements();
     }
+   
 }

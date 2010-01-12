@@ -16,6 +16,7 @@ import net.sf.ehcache.Element;
 import net.sf.ehcache.store.Store;
 import net.sf.ehcache.transaction.StoreWriteCommand;
 import net.sf.ehcache.transaction.TransactionContext;
+import net.sf.ehcache.transaction.VersionAwareStoreWriteCommand;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,29 +29,29 @@ public class EhCacheXAResourceImpl implements EhCacheXAResource {
     private static final Logger LOG = LoggerFactory.getLogger(EhCacheXAResourceImpl.class.getName());
 
     private final ConcurrentMap<Transaction, TransactionContext> transactionDataTable = new ConcurrentHashMap<Transaction, TransactionContext>();
-    private final ConcurrentMap<Xid, Transaction>                transactionXids      = new ConcurrentHashMap<Xid, Transaction>               ();
-    private final VersionTable                                   versionTable         = new VersionTable();
+    private final ConcurrentMap<Xid, Transaction> transactionXids = new ConcurrentHashMap<Xid, Transaction>();
+    private final VersionTable versionTable = new VersionTable();
 
-    private final String                                         cacheName;
-    private final Store                                          store;
-    private final TransactionManager                             txnManager;
-    private       int                                            transactionTimeout;
-  
-   
+    private final String cacheName;
+    private final Store store;
+    private final TransactionManager txnManager;
+    private int transactionTimeout;
+
     public EhCacheXAResourceImpl(String cacheName, Store store, TransactionManager txnManager) {
         this.cacheName = cacheName;
         this.store = store;
         this.txnManager = txnManager;
     }
-    
-    /* (non-Javadoc)
+
+    /*
+     * (non-Javadoc)
+     * 
      * @see net.sf.ehcache.transaction.xa.EhCacheXAResource#getCacheName()
      */
-    public String  getCacheName() {
+    public String getCacheName() {
         return cacheName;
     }
-    
-   
+
     /**
      * XAResource Implementation
      */
@@ -83,8 +84,18 @@ public class EhCacheXAResourceImpl implements EhCacheXAResource {
     }
 
     public int prepare(final Xid xid) throws XAException {
-        LOG.info("prepare called for Txn with id: " + xid);
-        return 0;
+        TransactionContext context = transactionDataTable.get(transactionXids.get(xid));
+        Transaction txn = context.getTransaction();
+        for (StoreWriteCommand storeWriteCommand : context.getCommands()) {
+            if (storeWriteCommand instanceof VersionAwareStoreWriteCommand) {
+                VersionAwareStoreWriteCommand command = (VersionAwareStoreWriteCommand) storeWriteCommand;
+                Element element = command.getElement();
+                if(!versionTable.valid(element, txn)) {
+                    throw new XAException("Invalid versions during prepare phase!.");
+                }
+            }
+        }
+        return XA_OK;
     }
 
     public Xid[] recover(final int i) throws XAException {
@@ -110,38 +121,37 @@ public class EhCacheXAResourceImpl implements EhCacheXAResource {
         return this.transactionTimeout;
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see net.sf.ehcache.transaction.xa.EhCacheXAResource#getStore()
      */
     public Store getStore() {
         return store;
     }
-    
-    /* (non-Javadoc)
+
+    /*
+     * (non-Javadoc)
+     * 
      * @see net.sf.ehcache.transaction.xa.EhCacheXAResource#checkoutReadOnly(net.sf.ehcache.Element, javax.transaction.Transaction)
-     */
-    public long checkoutReadOnly(Element element, Transaction txn) {
-        return versionTable.checkoutReadOnly(element, txn);
-    }
-    
-    /* (non-Javadoc)
-     * @see net.sf.ehcache.transaction.xa.EhCacheXAResource#checkout(net.sf.ehcache.Element, javax.transaction.Transaction)
      */
     public long checkout(Element element, Transaction txn) {
         return versionTable.checkout(element, txn);
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see net.sf.ehcache.transaction.xa.EhCacheXAResource#getOrCreateTransactionContext()
      */
     public TransactionContext getOrCreateTransactionContext() throws SystemException, RollbackException {
         Transaction transaction = txnManager.getTransaction();
         TransactionContext context = transactionDataTable.get(transaction);
-        if(context == null) {
+        if (context == null) {
             context = new XaTransactionContext(transaction);
             transaction.enlistResource(this);
             TransactionContext previous = transactionDataTable.putIfAbsent(transaction, context);
-            if(previous != null) {
+            if (previous != null) {
                 context = previous;
             }
         }
@@ -150,8 +160,8 @@ public class EhCacheXAResourceImpl implements EhCacheXAResource {
 
     @Override
     public boolean equals(Object obj) {
-        EhCacheXAResource resource2 = (EhCacheXAResource)obj;
-        if(cacheName.equals(resource2.getCacheName())) {
+        EhCacheXAResource resource2 = (EhCacheXAResource) obj;
+        if (cacheName.equals(resource2.getCacheName())) {
             return true;
         }
         return false;
@@ -161,39 +171,48 @@ public class EhCacheXAResourceImpl implements EhCacheXAResource {
     public int hashCode() {
         return cacheName.hashCode();
     }
-    
+
     public static class VersionTable {
 
-        protected final ConcurrentMap versionStore = new ConcurrentHashMap();
+        protected final ConcurrentMap<Object, Version> versionStore = new ConcurrentHashMap<Object, Version>();
         
-        public long checkoutReadOnly(Element element, Transaction txn) {
-            return checkout(element, txn, true);
-        }
-        
-        public long checkout(Element element, Transaction txn) {
-            return checkout(element, txn, false);
-        }
-
-        private long checkout(Element element, Transaction txn, boolean readOnly) {
+        public boolean valid(Element element, Transaction txn) {
             long versionNumber = -1;
             Object key = element.getObjectKey();
-            Version version = (Version)versionStore.get(key);
-            if(version == null) {
+            Version version = versionStore.get(key);
+            if (version != null) {
+                long currentVersion = version.getCurrentVersion();
+                long txnVersion = version.getVersion(txn);
+                return currentVersion == txnVersion;
+            } else {
+                //TODO: Figure out what this case is..
+                return true;
+            }
+          
+        }
+
+        public long checkout(Element element, Transaction txn) {
+            long versionNumber = -1;
+            Object key = element.getObjectKey();
+            Version version = versionStore.get(key);
+            if (version == null) {
                 version = new Version();
                 versionStore.put(key, version);
-            }           
-            if (readOnly) {
-                versionNumber = version.checkoutRead(txn);
-            } else {
-                versionNumber = version.checkoutWrite(txn);
             }
+            versionNumber = version.checkout(txn);
+
             return versionNumber;
         }
 
-        public void checkin(Element element, Transaction txn) {
+        public void checkin(Element element, Transaction txn, boolean readOnly) {
             Object key = element.getObjectKey();
-            Version version = (Version) versionStore.get(key);
-            boolean removeEntry = version.checkin(txn);
+            Version version = versionStore.get(key);
+            boolean removeEntry = false;
+            if (readOnly) {
+                removeEntry = version.checkinRead(txn);
+            } else {
+                removeEntry = version.checkinWrite(txn);
+            }
             if (removeEntry) {
                 versionStore.remove(key);
             }
@@ -206,45 +225,40 @@ public class EhCacheXAResourceImpl implements EhCacheXAResource {
         AtomicLong version = new AtomicLong(0);
 
         // TODO: We need to figure out a more compressed data-structure (need to performance test to confirm
-        ConcurrentMap txnVersionMap = new ConcurrentHashMap();
-
+        ConcurrentMap<Transaction, Long> txnVersionMap = new ConcurrentHashMap<Transaction, Long>();
 
         public long getCurrentVersion() {
             return version.get();
         }
-        
+
         public boolean hasTransaction(Transaction txn) {
             return txnVersionMap.containsKey(txn);
         }
-        
-        public long getVersion(Transaction txn) {   
+
+        public long getVersion(Transaction txn) {
             try {
-                return (Long)txnVersionMap.get(txn);
-            } catch(NullPointerException e) {
+                return txnVersionMap.get(txn);
+            } catch (NullPointerException e) {
                 throw new AssertionError("Cannot get version for not existing transaction: " + txn);
             }
         }
 
-        public long checkoutRead(Transaction txn) {
+        public long checkout(Transaction txn) {
             long v = version.get();
             txnVersionMap.put(txn, v);
             return v;
         }
 
-        public long checkoutWrite(Transaction txn) {
-            long v = version.incrementAndGet();
-            txnVersionMap.put(txn, v);
-            return v;
-        }
-
-        // TODO: need to come back to the isEmpty call to see how reliable that is for CHM
-        public boolean checkin(Transaction txn) {
+        public boolean checkinRead(Transaction txn) {
             txnVersionMap.remove(txn);
             return txnVersionMap.isEmpty();
         }
 
+        public boolean checkinWrite(Transaction txn) {
+            long v = txnVersionMap.remove(txn);
+            version.incrementAndGet();
+            return txnVersionMap.isEmpty();
+        }
     }
-    
-    
-    
+
 }

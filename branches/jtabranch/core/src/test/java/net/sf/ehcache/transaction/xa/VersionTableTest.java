@@ -44,8 +44,8 @@ public class VersionTableTest extends TestCase {
         assertEquals(0, versionStore.size());
         TestTransaction txn1 = new TestTransaction();
         
-        //checkout readonly
-        table.checkoutReadOnly(element1, txn1);
+        //checkout
+        table.checkout(element1, txn1);
         
         //validate readonly
         assertEquals(1, versionStore.size());
@@ -57,7 +57,7 @@ public class VersionTableTest extends TestCase {
         assertEquals(1, version.txnVersionMap.size());
         
         //checkout again
-        table.checkoutReadOnly(element1, txn1);
+        table.checkout(element1, txn1);
         
        //validate again
         assertEquals(1, versionStore.size());
@@ -68,30 +68,20 @@ public class VersionTableTest extends TestCase {
         assertEquals(0, txn1Version);
         assertEquals(1, version.txnVersionMap.size());
         
-        //checkout write, for same element
-        table.checkout(element1, txn1);
-        
-        //validate again
-        assertEquals(1, versionStore.size());
-        version = (Version)versionStore.get(element1.getObjectKey());
-        currentVersionNumber = version.getCurrentVersion();
-        assertEquals(1, currentVersionNumber);
-        txn1Version = version.getVersion(txn1);
-        assertEquals(1, txn1Version);
-        assertEquals(1, version.txnVersionMap.size());
+       
          
         //now lets add the same element and new transaction
         TestTransaction txn2 = new TestTransaction();
-        table.checkoutReadOnly(element1, txn2);
+        table.checkout(element1, txn2);
         
         assertEquals(1, versionStore.size());
         version = (Version)versionStore.get(element1.getObjectKey());
         currentVersionNumber = version.getCurrentVersion();
-        assertEquals(1, currentVersionNumber);
+        assertEquals(0, currentVersionNumber);
         txn1Version = version.getVersion(txn1);
         long txn2Version = version.getVersion(txn2);
-        assertEquals(1, txn1Version);
-        assertEquals(1, txn2Version);
+        assertEquals(0, txn1Version);
+        assertEquals(0, txn2Version);
         assertEquals(2, version.txnVersionMap.size());
         
         //txn2 write
@@ -100,16 +90,16 @@ public class VersionTableTest extends TestCase {
         assertEquals(1, versionStore.size());
         version = (Version)versionStore.get(element1.getObjectKey());
         currentVersionNumber = version.getCurrentVersion();
-        assertEquals(2, currentVersionNumber);
+        assertEquals(0, currentVersionNumber);
         txn1Version = version.getVersion(txn1);
         txn2Version = version.getVersion(txn2);
-        assertEquals(1, txn1Version);
-        assertEquals(2, txn2Version);
+        assertEquals(0, txn1Version);
+        assertEquals(0, txn2Version);
         assertEquals(2, version.txnVersionMap.size());
         
         //Lets introduce a new element but still txn 1
         Element element2 = new Element("key2", "value2");
-        table.checkoutReadOnly(element2, txn1);
+        table.checkout(element2, txn1);
         
         assertEquals(2, versionStore.size());
         version = (Version)versionStore.get(element2.getObjectKey());
@@ -125,30 +115,42 @@ public class VersionTableTest extends TestCase {
         assertEquals(2, versionStore.size());
         version = (Version)versionStore.get(element2.getObjectKey());
         currentVersionNumber = version.getCurrentVersion();
-        assertEquals(1, currentVersionNumber);
+        assertEquals(0, currentVersionNumber);
         txn1Version = version.getVersion(txn1);
         txn2Version = version.getVersion(txn2);
         assertEquals(0, txn1Version);
-        assertEquals(1, txn2Version);
+        assertEquals(0, txn2Version);
         assertEquals(2, version.txnVersionMap.size()); 
         
         //lets try out the checkins now, element1 txn1
-        table.checkin(element1, txn1);
+        table.checkin(element1, txn1, false);
         
         assertEquals(2, versionStore.size());
         version = (Version)versionStore.get(element1.getObjectKey());
         currentVersionNumber = version.getCurrentVersion();
-        assertEquals(2, currentVersionNumber);
+        assertEquals(1, currentVersionNumber);
         assertFalse(version.hasTransaction(txn1));
         txn2Version = version.getVersion(txn2);
-        assertEquals(2, txn2Version);
+        assertEquals(0, txn2Version);
         assertEquals(1, version.txnVersionMap.size()); 
         
         //checkin txn2
-        table.checkin(element1, txn2);
+        table.checkin(element1, txn2, false);
         
         assertEquals(1, versionStore.size());
         assertFalse(versionStore.containsKey(element1.getObjectKey())); 
+        
+        //checkin element 2
+        table.checkin(element2, txn1, true);
+        
+        assertEquals(1, versionStore.size());
+        version = (Version)versionStore.get(element2.getObjectKey());
+        currentVersionNumber = version.getCurrentVersion();
+        assertEquals(0, currentVersionNumber);
+        assertFalse(version.hasTransaction(txn1));
+        txn2Version = version.getVersion(txn2);
+        assertEquals(0, txn2Version);
+        assertEquals(1, version.txnVersionMap.size()); 
         
      
     }

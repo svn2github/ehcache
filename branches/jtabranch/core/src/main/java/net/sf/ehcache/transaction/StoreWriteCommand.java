@@ -1,5 +1,6 @@
 package net.sf.ehcache.transaction;
 
+import net.sf.ehcache.Element;
 import net.sf.ehcache.store.Store;
 
 /**
@@ -8,4 +9,5 @@ import net.sf.ehcache.store.Store;
 public interface StoreWriteCommand {
 
     void execute(Store store);
+   
 }
