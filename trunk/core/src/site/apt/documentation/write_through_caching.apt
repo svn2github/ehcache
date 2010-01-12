@@ -14,7 +14,7 @@
     While any resource can sit behind the facade of a w-t cache, such as a file system, or a web service client, the common one is a database.
      To simplify the discussion, we will use database as the example resource.
 
-** Potential Benefits of Write-Behind
+* Potential Benefits of Write-Behind
 
     The big potential benefit of write-behind is database offload. This can be achieved in a number of ways:
 
@@ -31,9 +31,9 @@
 
      These benefits must be weighed against the limitations and constraints imposed.
 
-** Limitations & Constraints of Write-Behind
+* Limitations & Constraints of Write-Behind
 
-*** Transaction Boundaries
+** Transaction Boundaries
 
    If the cache participates in a JTA transaction (ehcache-1.8 and higher) (i.e. it is an XAResource) then the Cache can be made  consistent with the
    database as the write to the database and commit or rollback happens with the transaction boundary.
@@ -47,7 +47,7 @@
 
 
 
-*** Time delay
+** Time delay
 
     The obvious implication of asynchronous writes is that there is a delay between when the cache is updated and when the database
     is updated. This introduces an inconsistency between the cache and the database, where the cache holds the correct value and the
@@ -56,7 +56,7 @@
     A read against the database will result in incorrect data being loaded.
 
 
-*** Applications Tolerant of Inconsistency
+** Applications Tolerant of Inconsistency
 
     The application must be tolerant of this inconsistency, as per the following are examples:
 

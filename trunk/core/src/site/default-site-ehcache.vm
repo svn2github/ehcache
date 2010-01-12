@@ -140,7 +140,7 @@
 #macro ( mainMenu $menus )
     #foreach( $menu in $menus )
         #if ( $menu.name )
-        <h5><img src="./images/arrow_open.png" width="13" height="13" hspace="6"
+        <h5><img src="http://ehcache.org/images/arrow_open.png" width="13" height="13" hspace="6"
                  alt="arrow">
             $menu.name</h5>
         #end
@@ -377,7 +377,7 @@
         <div id="Header">
 
             <div id="logo">
-                <a href="http://ehcache.org"><img src="./images/ehcache_logo.gif"
+                <a href="http://ehcache.org"><img src="http://ehcache.org/images/ehcache_logo.gif"
                                                   alt="ehcache"
                                                   width="294" height="60" border="0"
                                                   vspace="22"></a>
@@ -406,7 +406,7 @@
 
                 <div id="contact"><a
                         href="http://www.terracotta.org/contact/?ehcache.org"><b>Contact
-                    Us</b></a>&nbsp; | &nbsp;<a href=""><b>Download</b></a>
+                    Us</b></a>&nbsp; | &nbsp;<a href="http://www.terracotta.org/dl/ehcache-oss-sign-up"><b>Download</b></a>
                 </div>
                 <div id="community">Terracotta Community: <a
                         href="http://www.terracotta.org/account/register"><b>Register</b></a>&nbsp;

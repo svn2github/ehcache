@@ -47,11 +47,24 @@ Ehcache Distributed Cache
 {{{documentation/cache_server.html}ehcache-server}} | RESTful cache server in a WAR or standalone
 *----------+--------------:
 
-.
+---
+
+---
 
   ehcache_1_7_talk
 
 * Latest News
+
+** 11 January 2010: ehcache-1.8, ehcache-core-1.7.2 and ehcache-terracotta-1.8
+
+  This is a final GA release of ehcache comprising ehcache, ehcache-core and ehcache-terracotta modules.
+
+  This release contains some bug fixes to ehcache-core, but the notable change is the upgrade of the ehcache-terracotta
+  module to support Terracotta 3.2. Terracotta 3.2 is dramatically faster than 3.1. See the {{{http://ehcache.org/changes-report.html}changelog}} for complete details
+  of ehcache-core changes.
+
+  Note: If you experience different caching ergonomics you can enable the <<<LinkedHashMap>>> based engine with
+  <<<java -Dnet.sf.ehcache.use.classic.lru=true>>>. This is the engine enabled up to 1.5.
 
 ** 22 December 2009: Ehcache OpenJPA plugin 0.2 released
 
@@ -87,109 +100,6 @@ Ehcache Distributed Cache
 
   A new {{{http://ehcache.org/documentation/grails.html}Grails Chapter}} shows how to configure Grails to use Ehcache and how
   to tune it for production use.
-  
-** 30 November 2009: New 1.7.1 GA release - ehcache, ehcache-core and ehcache-terracotta
-
-  This is a final GA release of ehcache-1.7.1 comprising ehcache, ehcache-core and ehcache-terracotta modules.
-
-  This release contains 15 fixes and improvements over 1.7.0. See the {{{http://ehcache.org/changes-report.html}changelog}} for complete details.
-  Downloads and Maven modules are available {{{http://www.terracotta.org/dl/ehcache-oss-sign-up}here}}.
-
-  Very significantly, this release will enable new GA releases of the other ehcache modules, such as ehcache-web, which we expect to release
-  over the next few weeks.
-
-  Note: If you experience different caching ergonomics you can enable the <<<LinkedHashMap>>> based engine with
-  <<<java -Dnet.sf.ehcache.use.classic.lru=true>>>. This is the engine enabled up to 1.5.
-
-
-** 21 November 2009: Greg Luck, founder of ehcache, is in the US for two months/Roadmap Updated
-
-  Greg Luck, the founder of ehcache and now part of Terracotta, is working out of the Terracotta office in San Francisco.
-
-  Please contact Greg at gluck A T terracottatech.com if you would like to schedule him for JUGs or visits.
-
-  There is plenty happening with Ehcache since the injection of Terracotta resources. See the newly updated {{{/roadmap.html}roadmap}}
-  for details.
-
-** 10 November 2009: New monitoring beta release
-
-  This is a beta release of the new Ehcache Monitoring and Management server, featuring enterprise-class monitoring and management for development and production.
-  Get the {{{http://www.terracotta.org/ehcache/ehcache-dx}Ehcache Monitor Beta}} now.
-
-
-** 13 October 2009: New 1.7.0 releases - ehcache, ehcache-core and the new ehcache-terracotta
-
-  This is a final release of ehcache-1.7.0 comprising ehcache, ehcache-core and ehcache-terracotta modules.
-
-  The new 1.7.0 Ehcache module now contains out-of-the-box support for Terracotta.
-
-  This release is the first fruits of the merger of Ehcache and Terracotta. It enables Ehcache to be Terracotta clustered
-  with only a few lines of config in ehcache.xml and no application code changes. See the {{{/documentation/distributed_caching_with_terracotta.html}Terracotta Clustering Documentation}}
-  for configuration and a worked example.
-
-  We anticipate a final release shortly. In the meantime please feel free to check it out and kick the tyres.
-
-  See the {{{http://ehcache.org/changes-report.html}changelog}} for complete details. Downloads and Maven modules
-  are available {{{http://www.terracotta.org/dl/ehcache-oss-sign-up}here}}.
-
-  A few more bug fixes have been picked up against the 1.6 core caching engine redesign in this release. As with the 1.6 release,
-  if you experience unexpected behaviour you can enable the <<<LinkedHashMap>>> based engine with
-  <<<java -Dnet.sf.ehcache.use.classic.lru=true>>>.
-
-** 5 October 2009: New beta 1.7.0-beta releases - ehcache, ehcache-core and the new ehcache-terracotta
-
-  This is a beta release of ehcache-1.7.0 comprising ehcache, ehcache-core and ehcache-terracotta modules.
-
-
-** 29 September 2009: Subversion, JIRA, Forums and Mailing List migrated to Terracotta Infrastructure
-
-  As announced at the time of acquisition, Subversion, JIRA, Forums and Mailing List have now been migrated to
-  Terracotta Infrastructure. Please check the site links for the latest correct URLs.
-
-  File and Maven released will be made to SourceForge and Sonatype/Central for a fortcoming 1.7 release.
-
-
-** 23 August 2009: Ehcache Core 1.6.2 released
-
-  This is a production maintenance release of ehcache-1.6. Users of 1.6 should upgrade to 1.6.2.
-
-  Download {{{http://www.terracotta.org/dl/ehcache-oss-sign-up}here}}. All documentation is {{{http://ehcache.org/documentation}here}}.
-  The release is also available on Maven central. Note that Maven will report a checksum error.
-  It is caused by a bug in Maven 2.1.0 and can be ignored.
-
-  There are no open core bugs at the time of release.
-
-  For those still wishing to use the old engine it can be turned on at runtime
-  using <<<java -Dnet.sf.ehcache.use.classic.lru=true>>>.
-
-
-
-** 18 August 2009: Ehcache joins with Terracotta
-
-  The Ehcache project is excited to announce Ehcache's merger with Terracotta.
-
-  Terracotta is committed to maintaining the Ehcache community and plans to retain availability of Ehcache as an
-  open source product under the Apache 2 license. Ehcache will remain available for download at its current location
-  at http://ehcache.org, in the Maven central repository, as well as at it's new home at http://ehcache.org.
-
-  As part of the merger, Greg Luck, the maintainer of Ehcache, will join Terracotta Inc..
-
-  Both the Ehcache and Terracotta communities will benefit from this merger.
-
-  The Ehcache community will get accelerated development of new Ehcache features which will provide a comprehensive,
-  standards-based caching solution for existing and upcoming performance challenges.
-
-  Terracotta community members will have a seamless, single-vendor experience with easy access to a rich and robust
-  caching solution that scales with their businesses.
-
-  Planned integration of the products in the near term will focus on enabling Ehcache users to easily add enterprise availability,
-  reliability and data integrity capabilities through the Terracotta Server Array.
-
-  See Terracotta's {{{http://www.terracotta.org/web/display/orgsite/Terracotta+Acquires+Ehcache}news announcement}} for more detail.
-
-  Greg Luck also has a {{{http://gregluck.com/blog/archives/2009/08/ehcache_joins_w.html}blog post}} on the merger.
-
-
 
  More {{{news.html}news}}...
 
