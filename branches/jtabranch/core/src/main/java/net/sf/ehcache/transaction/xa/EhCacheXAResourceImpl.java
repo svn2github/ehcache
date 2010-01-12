@@ -56,19 +56,21 @@ public class EhCacheXAResourceImpl implements EhCacheXAResource {
      * XAResource Implementation
      */
     public void start(final Xid xid, final int flags) throws XAException {
-        LOG.info("start called for Txn with id: " + xid);
+        LOG.info("Start called for Txn with id: " + xid);
         try {
             transactionXids.putIfAbsent(xid, txnManager.getTransaction());
         } catch (SystemException e) {
-            XAException xaException = new XAException("WTF? " + e.getMessage());
+            XAException xaException = new XAException("Couldn't get to current Transaction: " + e.getMessage());
             xaException.initCause(e);
             throw xaException;
         }
-        System.out.println("\n\n\n    ===> SUCCESSFULLY LINKED XID TO TX\n\n");
     }
 
     public void commit(final Xid xid, final boolean onePhase) throws XAException {
-        LOG.info("commit called for Txn with id: " + xid);
+        if(onePhase) {
+            prepare(xid); // TODO if XA_READONLY, do we need to do anymore?
+        }
+        LOG.info((onePhase ? "One phase c" : "C") + "ommit called for Txn with id: " + xid);
         TransactionContext context = transactionDataTable.get(transactionXids.get(xid));
         for (StoreWriteCommand storeWriteCommand : context.getCommands()) {
             if (storeWriteCommand instanceof VersionAwareStoreWriteCommand) {
@@ -83,14 +85,15 @@ public class EhCacheXAResourceImpl implements EhCacheXAResource {
     }
 
     public void end(final Xid xid, final int flags) throws XAException {
-        LOG.info("end called for Txn with id: " + xid);
+        LOG.info("End called for Txn with id: " + xid);
     }
 
     public void forget(final Xid xid) throws XAException {
-        LOG.info("forget called for Txn with id: " + xid);
+        LOG.info("Forget called for Txn with id: " + xid);
     }
 
     public int prepare(final Xid xid) throws XAException {
+        LOG.info("Prepare called for Txn with id: " + xid);
         TransactionContext context = transactionDataTable.get(transactionXids.get(xid));
         Transaction txn = context.getTransaction();
         for (StoreWriteCommand storeWriteCommand : context.getCommands()) {
@@ -110,7 +113,7 @@ public class EhCacheXAResourceImpl implements EhCacheXAResource {
     }
 
     public void rollback(final Xid xid) throws XAException {
-        LOG.info("rollback called for Txn with id: " + xid);
+        LOG.info("Rollback called for Txn with id: " + xid);
     }
 
     public boolean isSameRM(final XAResource xaResource) throws XAException {
