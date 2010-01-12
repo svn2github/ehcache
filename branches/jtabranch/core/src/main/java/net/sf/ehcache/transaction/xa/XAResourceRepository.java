@@ -19,6 +19,7 @@ package net.sf.ehcache.transaction.xa;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import net.sf.ehcache.store.Store;
 import net.sf.ehcache.transaction.manager.TransactionManagerLookup;
 
 public class XAResourceRepository {
@@ -31,11 +32,10 @@ public class XAResourceRepository {
     }
     
     
-    public EhCacheXAResource getOrCreateXAResource(String cacheName) {
+    public EhCacheXAResource getOrCreateXAResource(String cacheName, Store store) {
         EhCacheXAResource resource = xaResources.get(cacheName);
         if(resource == null) {
-            resource = new EhCacheXAResource(cacheName);
-            resource.setTransactionManager(transactionManagerLookup.getTransactionManager());
+            resource = new EhCacheXAResourceImpl(cacheName, store, transactionManagerLookup.getTransactionManager());
             transactionManagerLookup.register(resource);
             xaResources.put(cacheName, resource);
         }

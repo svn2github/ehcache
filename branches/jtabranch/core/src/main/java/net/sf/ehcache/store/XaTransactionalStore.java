@@ -1,5 +1,10 @@
 package net.sf.ehcache.store;
 
+import java.io.IOException;
+
+import javax.transaction.RollbackException;
+import javax.transaction.SystemException;
+
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.Status;
@@ -10,48 +15,49 @@ import net.sf.ehcache.transaction.StoreRemoveCommand;
 import net.sf.ehcache.transaction.TransactionContext;
 import net.sf.ehcache.transaction.xa.EhCacheXAResource;
 
-import java.io.IOException;
-
-import javax.transaction.RollbackException;
-import javax.transaction.SystemException;
-
 /**
  * @author Alex Snaps
  */
 public class XaTransactionalStore implements Store {
 
-    private final Store             underlyingStore;
+    private final Store underlyingStore;
     private final EhCacheXAResource xaResource;
-
+  
     public XaTransactionalStore(final EhCacheXAResource xaResource) {
-        this.xaResource      = xaResource;
+        this.xaResource = xaResource;
         this.underlyingStore = xaResource.getStore();
     }
+    
 
     public void put(final Element element) throws CacheException {
-        getOrCreateTransactionContext().addCommand(new StorePutCommand(element));
+        TransactionContext context = getOrCreateTransactionContext();
+        context.addCommand(new StorePutCommand(element));
+        xaResource.checkout(element, context.getTransaction());
     }
 
     public Element get(final Object key) {
-        getOrCreateTransactionContext();
-        return underlyingStore.get(key);
+        TransactionContext context = getOrCreateTransactionContext();
+        Element element = underlyingStore.get(key);
+        xaResource.checkoutReadOnly(element, context.getTransaction());
+        return element;
     }
 
     public Element getQuiet(final Object key) {
-        getOrCreateTransactionContext();
-        return underlyingStore.getQuiet(key);
+        TransactionContext context = getOrCreateTransactionContext();
+        Element element = underlyingStore.getQuiet(key);
+        xaResource.checkoutReadOnly(element, context.getTransaction());
+        return element;
     }
 
     public Object[] getKeyArray() {
-        getOrCreateTransactionContext();
         return underlyingStore.getKeyArray();
     }
 
     public Element remove(final Object key) {
         Element element = underlyingStore.get(key);
-        if (element != null) {
-            getOrCreateTransactionContext().addCommand(new StoreRemoveCommand(key));
-        }
+        TransactionContext context = getOrCreateTransactionContext();
+        context.addCommand(new StoreRemoveCommand(key));
+        xaResource.checkoutReadOnly(element, context.getTransaction());
         return element; // Todo is this good enough?
     }
 
@@ -150,5 +156,4 @@ public class XaTransactionalStore implements Store {
         }
         return context;
     }
-
 }
