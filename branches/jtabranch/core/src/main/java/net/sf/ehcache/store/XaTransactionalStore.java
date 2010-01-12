@@ -32,20 +32,25 @@ public class XaTransactionalStore implements Store {
     public void put(final Element element) throws CacheException {
         TransactionContext context = getOrCreateTransactionContext();
         context.addCommand(new StorePutCommand(element));
+        // TODO: That's probably not always true... For update yes, but for fresh inserts? 
         xaResource.checkout(element, context.getTransaction());
     }
 
     public Element get(final Object key) {
         TransactionContext context = getOrCreateTransactionContext();
         Element element = underlyingStore.get(key);
-        xaResource.checkout(element, context.getTransaction());
+        if(element != null) {
+            xaResource.checkout(element, context.getTransaction());
+        }
         return element;
     }
 
     public Element getQuiet(final Object key) {
         TransactionContext context = getOrCreateTransactionContext();
         Element element = underlyingStore.getQuiet(key);
-        xaResource.checkout(element, context.getTransaction());
+        if(element != null) {
+            xaResource.checkout(element, context.getTransaction());
+        }
         return element;
     }
 
@@ -57,7 +62,9 @@ public class XaTransactionalStore implements Store {
         Element element = underlyingStore.get(key);
         TransactionContext context = getOrCreateTransactionContext();
         context.addCommand(new StoreRemoveCommand(key, element));
-        xaResource.checkout(element, context.getTransaction());
+        if(element != null) {
+            xaResource.checkout(element, context.getTransaction());
+        }
         return element; // Todo is this good enough?
     }
 
