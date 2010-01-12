@@ -71,7 +71,14 @@ public class EhCacheXAResourceImpl implements EhCacheXAResource {
         LOG.info("commit called for Txn with id: " + xid);
         TransactionContext context = transactionDataTable.get(transactionXids.get(xid));
         for (StoreWriteCommand storeWriteCommand : context.getCommands()) {
-            storeWriteCommand.execute(store);
+            if (storeWriteCommand instanceof VersionAwareStoreWriteCommand) {
+                VersionAwareStoreWriteCommand command = (VersionAwareStoreWriteCommand) storeWriteCommand;
+                Element element = command.getElement();
+                versionTable.checkin(element, context.getTransaction(), false);
+                storeWriteCommand.execute(store);
+            } else {
+                storeWriteCommand.execute(store);
+            }
         }
     }
 
@@ -176,7 +183,7 @@ public class EhCacheXAResourceImpl implements EhCacheXAResource {
 
         protected final ConcurrentMap<Object, Version> versionStore = new ConcurrentHashMap<Object, Version>();
         
-        public boolean valid(Element element, Transaction txn) {
+        public synchronized boolean valid(Element element, Transaction txn) {
             long versionNumber = -1;
             Object key = element.getObjectKey();
             Version version = versionStore.get(key);
@@ -191,7 +198,7 @@ public class EhCacheXAResourceImpl implements EhCacheXAResource {
           
         }
 
-        public long checkout(Element element, Transaction txn) {
+        public synchronized long checkout(Element element, Transaction txn) {
             long versionNumber = -1;
             Object key = element.getObjectKey();
             Version version = versionStore.get(key);
@@ -204,7 +211,7 @@ public class EhCacheXAResourceImpl implements EhCacheXAResource {
             return versionNumber;
         }
 
-        public void checkin(Element element, Transaction txn, boolean readOnly) {
+        public synchronized void checkin(Element element, Transaction txn, boolean readOnly) {
             Object key = element.getObjectKey();
             Version version = versionStore.get(key);
             boolean removeEntry = false;
