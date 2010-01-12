@@ -1,0 +1,203 @@
+ ---
+ Write-through and Write-behind Caching with the CacheStorer
+ ---
+
+{Write-through and Write-behind Caching with the CacheStorer}
+
+    Write-through caching is a caching pattern where writes to the cache cause writes to an underlying resource. The cache acts as a facade
+    to the underlying resource. With this pattern, it often makes sense to read through the cache too.
+
+    Write-behind caching uses the same client API, however the write happens asynchronously.
+
+    Ehcache-1.8 introduces write-through caching.
+
+    While any resource can sit behind the facade of a w-t cache, such as a file system, or a web service client, the common one is a database.
+     To simplify the discussion, we will use database as the example resource.
+
+* Potential Benefits of Write-Behind
+
+    The big potential benefit of write-behind is database offload. This can be achieved in a number of ways:
+
+     * time shifting - moving writes to a specific time or time interval. For example writes could be batched up and written overnight,
+     or at 5 minutes past the hour, so as to avoid periods of peak contention.
+
+     * rate limiting - spreading writes out to flatten peaks. Say a Point of Sale network has an end-of-day procedure where data gets
+     written up to a central server. All POS nodes in the same time zone will write all at once. A very large peak will occur. Using rate
+     limiting, writes could be limited to 100 TPS, and the queue of writes are whittled down over several hours
+
+     * conflation - consolidation writes so as to result in fewer transactions. Say there is an amount in a database row whic is updated by 5
+      writes, incrementing it from 10 to 20 to 31 to 40 to 45. Using conflation the 5 transactions are replaced by one which simply updates
+      the value from 10 to 45.
+
+     These benefits must be weighed against the limitations and constraints imposed.
+
+* Limitations & Constraints of Write-Behind
+
+** Transaction Boundaries
+
+   If the cache participates in a JTA transaction (ehcache-1.8 and higher) (i.e. it is an XAResource) then the Cache can be made  consistent with the
+   database as the write to the database and commit or rollback happens with the transaction boundary.
+
+    In write-behind, the write to the resource happens after the write to the cache. The transaction boundary is the write to the, not
+     the write behind. In write-through commit can get called and bot the Cache and the underlying resource, e.g. the database can get
+     committed at once.
+
+    Because the database is being written to outside of the transaction, there is always a risk that a failure on the eventual write
+    will occur. While this can be mitigated with retry counts and delays, compensating actions may be required.
+
+
+
+** Time delay
+
+    The obvious implication of asynchronous writes is that there is a delay between when the cache is updated and when the database
+    is updated. This introduces an inconsistency between the cache and the database, where the cache holds the correct value and the
+    database will be eventually consistent with the cache.
+
+    A read against the database will result in incorrect data being loaded.
+
+
+** Applications Tolerant of Inconsistency
+
+    The application must be tolerant of this inconsistency, as per the following are examples:
+
+     * The database is logging transactions and only appends are done.
+
+     * Reading is done by a part of the application that does not write, so there is no way that data can be corrupted. The application
+     is tolerant of delays. E.g. a news application where the reader displays the articles that are written.
+
+    Note that in practice, if other applications are writing to the database, then a cache can often be inconsistent with the database.
+
+
+* Using a combined Read-Through and Write-Behind Cache
+
+    For applications that are not tolerant of inconsistency, the simplest solution is for the application to always read through
+    the same cache that it writes through. Provided all database writes are through the cache, consistency is guaranteed. And in the
+    distributed caching scenario, using Terracotta clustering extends the same guarantee to the cluster.
+
+    If using transactions, the cache is the XAResource, and a commit is a commit to the cache.
+
+    The cache effectively becomes the System Of Record ("SOR"). Terracotta provides
+    HA and durability and can easily act as the SOR. The database then becomes a backup to the SOR.
+
+    There are some practical problems that come up when using this approach: caching of a partial dataset and expiry and eviction limitations
+
+
+** Lazy Loading
+
+    The quesiton arises: Does the entire data set need to be loaded in the cache on startup? The answer is no, because a read-through cache
+    uses a <<<CacheLoader>>> which loads data into the cache on demand. In this way the cache be populated lazily.
+
+
+** Caching of a Partial Dataset
+
+   If the entire dataset cannot fit in the cache, then some reads will miss the cache and fall through to the <<<CacheLoader>>> which will
+   in turn hit the database. If a write has occurred but has not yet hit the database due to write-behind, then the database will be inconsistent.
+
+   The simplest solution is to ensure that the entire dataset is in the cache. This then places some implications on cache configuration
+   in the areas of expiry and eviction.
+
+*** Eviction
+
+   Eviction occurs when the maximum elements for the cache have been exceeded. Ensure that the <<<maxElementsInMemory>>> and, if using the DiskStore
+    or Terracotta clustering, the <<<maxElementsOnDisk>>> exceeds the required size, so that eviction does not not occur.
+
+*** Expiry
+
+   Even if all of the dataset can fit in the cache, it could be evicted if Elements expire. Accordingly, both <<<timeToLive>>> and
+       <<<timeToIlde>>> should be set to eternal to prevent this from happening.
+
+* Configuration
+
+    There are many configuration options. See the <<<CacheStorerFactory>>> for properties that may be set and their effect.
+
+
+* API
+
+    CacheLoaders are exposed for API use through the <<<cache.getWithLoader(...)>>> method. CacheStorers are exposed with
+    <<<cache.putWithStorer(...)>>> and <<<cache.removeWithStorer(...)>>> methods.
+
+    For example, following is the method signature for <<<cache.putWithStorer(...)>>>.
+
+---
+    /**
+     * Put an element in the cache writing through a CacheStorer. If no CacheStorer has been set for the cache,
+     * then this method has the same effect as cache.put().
+     * <p/>
+     * Resets the access statistics on the element, which would be the case if it has previously been
+     * gotten from a cache, and is now being put back.
+     * <p/>
+     * Also notifies the CacheEventListener, if the storer operation succeeds, that:
+     * <ul>
+     * <li>the element was put, but only if the Element was actually put.
+     * <li>if the element exists in the cache, that an update has occurred, even if the element would be expired
+     * if it was requested
+     * </ul>
+     *
+     * @param element        An object. If Serializable it can fully participate in replication and the DiskStore.
+     * @param storerArgument a custom argument to pass to the CacheStorer implementation.
+     * @throws IllegalStateException    if the cache is not {@link net.sf.ehcache.Status#STATUS_ALIVE}
+     * @throws IllegalArgumentException if the element is null
+     * @throws CacheException
+     */
+    void putWithStorer(Element element, Object storerArgument) throws IllegalArgumentException, IllegalStateException, CacheException;
+
+---
+
+    See the Cache JavaDoc for the complete API.
+
+
+* SPI
+
+    The Ehcache write-through SPI is the <<<CacheStorer>>> interface. Implementers perform writes to the underlying resource
+    in their implementation.
+
+---
+public interface CacheStorer extends CacheLoader {
+
+    /**
+     * Store the specified value under the specified key in the underlying store.
+     * This method is intended to support both key/value creation and value update for a specific key.
+     *
+     * @param element the element to be stored
+     */
+    void store(Element element) throws CacheException;
+
+    /**
+     * Store the specified Elements in the underlying store. This method is intended to support both insert and update.
+     * If this operation fails (by throwing an exception) after a partial success,
+     * the convention is that entries which have been stored successfully are to be removed from the specified mapEntries,
+     * indicating that the store operation for the entries left in the map has failed or has not been attempted.
+     *
+     * @param elements the Elements to be stored
+     */
+    void storeAll(Collection<Element> elements) throws CacheException;
+
+
+    /**
+     * Remove the key and associated data from the store
+     *
+     * @param key the key whose mapping will be removed
+     */
+    void delete(Object key) throws CacheException;
+
+
+    /**
+     * Remove data and keys from the underlying store for the given collection of keys, if present. If this operation fails
+     * (by throwing an exception) after a partial success, the convention is that keys which have been erased successfully
+     * are to be removed from the specified keys, indicating that the erase operation for the keys left in the collection
+     * has failed or has not been attempted.
+     *
+     * @param keys the keys whose mappings will be removed
+     */
+    void deleteAll(Collection<Object> keys) throws CacheException;
+
+
+    /**
+     * Gets the properties used to create this storer. Well-known properties will be used to configure
+     * the storer into the cache infrastrucutre on initialisation.
+     * @return
+     */
+    Properties getProperties();
+
+}
+---
