@@ -45,14 +45,18 @@ public class DefaultTransactionManagerLookup implements TransactionManagerLookup
             new ClassSelector("Atomikos", "com.atomikos.icatch.jta.UserTransactionManager"), };
 
     /**
-     * 
-     * @param configuration
+     *
      * @return
      */
     public TransactionManager getTransactionManager() {
         return getTransactionManager(null);
     }
 
+    /**
+     *
+     * @param configuration
+     * @return
+     */
     public TransactionManager getTransactionManager(final CacheConfiguration configuration) {
 
         if (transactionManager == null) {
@@ -69,7 +73,9 @@ public class DefaultTransactionManagerLookup implements TransactionManagerLookup
     }
 
     public void register(EhCacheXAResource resource) {
-        registerResourceWithBitronix(resource.getCacheName(), resource);
+        if(vendor.equals("Bitronix")) {
+            registerResourceWithBitronix(resource.getCacheName(), resource);
+        }
     }
 
     private void registerResourceWithBitronix(String uniqueName, EhCacheXAResource resource) {
