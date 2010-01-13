@@ -14,11 +14,11 @@
  *  limitations under the License.
  */
 
-package net.sf.ehcache.hibernate.management;
+package net.sf.ehcache.hibernate.management.api;
 
 import java.util.Map;
 
-import javax.management.openmbean.TabularData;
+import javax.management.NotificationEmitter;
 
 /**
  * Interface for ehcache related statistics of hibernate second level cache
@@ -28,7 +28,36 @@ import javax.management.openmbean.TabularData;
  * @author <a href="mailto:asanoujam@terracottatech.com">Abhishek Sanoujam</a>
  * 
  */
-public interface EhcacheStats {
+public interface EhcacheStats extends NotificationEmitter {
+    /**
+     * CACHE_ENABLED
+     */
+    public static final String CACHE_ENABLED = "CacheEnabled";
+    
+    /**
+     * CACHE_REGION_CHANGED
+     */
+    public static final String CACHE_REGION_CHANGED = "CacheRegionChanged";
+    
+    /**
+     * CACHE_FLUSHED
+     */
+    public static final String CACHE_FLUSHED = "CacheFlushed";
+    
+    /**
+     * CACHE_REGION_FLUSHED
+     */
+    public static final String CACHE_REGION_FLUSHED = "CacheRegionFlushed";
+    
+    /**
+     * CACHE_STATISTICS_ENABLED
+     */
+    public static final String CACHE_STATISTICS_ENABLED = "CacheStatisticsEnabled";
+    
+    /**
+     * CACHE_STATISTICS_RESET
+     */
+    public static final String CACHE_STATISTICS_RESET = "CacheStatisticsReset";
 
     /**
      * Returns true if statistics collection is enabled
@@ -128,6 +157,15 @@ public interface EhcacheStats {
      */
     boolean isRegionCacheEnabled(String region);
 
+    
+    /**
+     * Enables/disables a particular region
+     * 
+     * @param region
+     * @param enabled
+     */
+    void setRegionCacheEnabled(String region, boolean enabled);
+    
     /**
      * Returns true if all the cache regions are enabled. If even one cache is disabled, it will return false
      * 
@@ -135,6 +173,11 @@ public interface EhcacheStats {
      */
     boolean isRegionCachesEnabled();
 
+    /**
+     * Enable/disable all the cache regions.
+     */
+    void setRegionCachesEnabled(boolean enabled);
+    
     /**
      * Returns the time to idle for the input cache region
      * 
@@ -313,13 +356,6 @@ public interface EhcacheStats {
      * @return Returns a map containing mapping between cache names and an array containing hit, miss and put count samples
      */
     Map<String, int[]> getRegionCacheSamples();
-
-    /**
-     * Returns a {@link TabularData} containing the cache region stats
-     * 
-     * @return Returns a {@link TabularData} containing the cache region stats
-     */
-    TabularData getCacheRegionStats();
 
     /**
      * Returns number of elements in-memory in the cache for the input region

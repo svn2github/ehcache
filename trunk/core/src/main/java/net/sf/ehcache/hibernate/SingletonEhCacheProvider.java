@@ -19,14 +19,13 @@ import java.net.URL;
 import java.util.Properties;
 
 import net.sf.ehcache.CacheManager;
-import net.sf.ehcache.hibernate.management.ProviderMBeanRegistrationHelper;
+import net.sf.ehcache.hibernate.management.impl.ProviderMBeanRegistrationHelper;
 import net.sf.ehcache.util.ClassLoaderUtil;
 
 import org.hibernate.cache.Cache;
 import org.hibernate.cache.CacheException;
 import org.hibernate.cache.CacheProvider;
 import org.hibernate.cache.Timestamper;
-import org.hibernate.cfg.Environment;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -136,7 +135,7 @@ public final class SingletonEhCacheProvider implements CacheProvider {
             manager = CacheManager.create(url);
             referenceCount++;
         }
-        mbeanRegistrationHelper.registerMBean(manager, properties == null ? "" : properties.getProperty(Environment.SESSION_FACTORY_NAME));
+        mbeanRegistrationHelper.registerMBean(manager, properties);
     }
     
     private URL loadResource(String configurationResourceName) {
@@ -151,7 +150,6 @@ public final class SingletonEhCacheProvider implements CacheProvider {
 
         LOG.debug("Creating EhCacheProvider from a specified resource: {}. Resolved to URL: ", configurationResourceName, url);
         if (url == null) {
-
                 LOG.warn("A configurationResourceName was set to {} but the resource could not be loaded from the classpath." +
                         "Ehcache will configure itself using defaults.", configurationResourceName);
         }

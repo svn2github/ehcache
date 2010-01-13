@@ -14,7 +14,7 @@
  *  limitations under the License.
  */
 
-package net.sf.ehcache.hibernate.management;
+package net.sf.ehcache.hibernate.management.impl;
 
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;

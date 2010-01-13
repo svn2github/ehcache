@@ -14,9 +14,15 @@
  *  limitations under the License.
  */
 
-package net.sf.ehcache.hibernate.management;
+package net.sf.ehcache.hibernate.management.impl;
 
+import javax.management.ListenerNotFoundException;
+import javax.management.MBeanNotificationInfo;
+import javax.management.NotificationFilter;
+import javax.management.NotificationListener;
 import javax.management.openmbean.TabularData;
+
+import net.sf.ehcache.hibernate.management.api.HibernateStats;
 
 /**
  * Implementation of {@link HibernateStats} that does nothing
@@ -44,7 +50,7 @@ public final class NullHibernateStats implements HibernateStats {
     /**
      * {@inheritDoc}
      * 
-     * @see net.sf.ehcache.hibernate.management.HibernateStats#clearStats()
+     * @see net.sf.ehcache.hibernate.management.api.HibernateStats#clearStats()
      */
     public void clearStats() {
         // no-op
@@ -54,7 +60,7 @@ public final class NullHibernateStats implements HibernateStats {
     /**
      * {@inheritDoc}
      * 
-     * @see net.sf.ehcache.hibernate.management.HibernateStats#disableStats()
+     * @see net.sf.ehcache.hibernate.management.api.HibernateStats#disableStats()
      */
     public void disableStats() {
         // no-op
@@ -64,7 +70,7 @@ public final class NullHibernateStats implements HibernateStats {
     /**
      * {@inheritDoc}
      * 
-     * @see net.sf.ehcache.hibernate.management.HibernateStats#enableStats()
+     * @see net.sf.ehcache.hibernate.management.api.HibernateStats#enableStats()
      */
     public void enableStats() {
         // no-op
@@ -74,7 +80,7 @@ public final class NullHibernateStats implements HibernateStats {
     /**
      * {@inheritDoc}
      * 
-     * @see net.sf.ehcache.hibernate.management.HibernateStats#getCloseStatementCount()
+     * @see net.sf.ehcache.hibernate.management.api.HibernateStats#getCloseStatementCount()
      */
     public long getCloseStatementCount() {
         // no-op
@@ -84,7 +90,7 @@ public final class NullHibernateStats implements HibernateStats {
     /**
      * {@inheritDoc}
      * 
-     * @see net.sf.ehcache.hibernate.management.HibernateStats#getCollectionStats()
+     * @see net.sf.ehcache.hibernate.management.api.HibernateStats#getCollectionStats()
      */
     public TabularData getCollectionStats() {
         // no-op
@@ -94,7 +100,7 @@ public final class NullHibernateStats implements HibernateStats {
     /**
      * {@inheritDoc}
      * 
-     * @see net.sf.ehcache.hibernate.management.HibernateStats#getConnectCount()
+     * @see net.sf.ehcache.hibernate.management.api.HibernateStats#getConnectCount()
      */
     public long getConnectCount() {
         // no-op
@@ -112,7 +118,7 @@ public final class NullHibernateStats implements HibernateStats {
     /**
      * {@inheritDoc}
      * 
-     * @see net.sf.ehcache.hibernate.management.HibernateStats#getEntityStats()
+     * @see net.sf.ehcache.hibernate.management.api.HibernateStats#getEntityStats()
      */
     public TabularData getEntityStats() {
         // no-op
@@ -122,7 +128,7 @@ public final class NullHibernateStats implements HibernateStats {
     /**
      * {@inheritDoc}
      * 
-     * @see net.sf.ehcache.hibernate.management.HibernateStats#getEvictionStats()
+     * @see net.sf.ehcache.hibernate.management.api.HibernateStats#getEvictionStats()
      */
     public TabularData getEvictionStats() {
         // no-op
@@ -132,7 +138,7 @@ public final class NullHibernateStats implements HibernateStats {
     /**
      * {@inheritDoc}
      * 
-     * @see net.sf.ehcache.hibernate.management.HibernateStats#getFlushCount()
+     * @see net.sf.ehcache.hibernate.management.api.HibernateStats#getFlushCount()
      */
     public long getFlushCount() {
         // no-op
@@ -142,7 +148,7 @@ public final class NullHibernateStats implements HibernateStats {
     /**
      * {@inheritDoc}
      * 
-     * @see net.sf.ehcache.hibernate.management.HibernateStats#getOptimisticFailureCount()
+     * @see net.sf.ehcache.hibernate.management.api.HibernateStats#getOptimisticFailureCount()
      */
     public long getOptimisticFailureCount() {
         // no-op
@@ -152,7 +158,7 @@ public final class NullHibernateStats implements HibernateStats {
     /**
      * {@inheritDoc}
      * 
-     * @see net.sf.ehcache.hibernate.management.HibernateStats#getPrepareStatementCount()
+     * @see net.sf.ehcache.hibernate.management.api.HibernateStats#getPrepareStatementCount()
      */
     public long getPrepareStatementCount() {
         // no-op
@@ -162,7 +168,7 @@ public final class NullHibernateStats implements HibernateStats {
     /**
      * {@inheritDoc}
      * 
-     * @see net.sf.ehcache.hibernate.management.HibernateStats#getQueryExecutionCount()
+     * @see net.sf.ehcache.hibernate.management.api.HibernateStats#getQueryExecutionCount()
      */
     public long getQueryExecutionCount() {
         // no-op
@@ -172,7 +178,7 @@ public final class NullHibernateStats implements HibernateStats {
     /**
      * {@inheritDoc}
      * 
-     * @see net.sf.ehcache.hibernate.management.HibernateStats#getQueryExecutionRate()
+     * @see net.sf.ehcache.hibernate.management.api.HibernateStats#getQueryExecutionRate()
      */
     public double getQueryExecutionRate() {
         // no-op
@@ -182,7 +188,7 @@ public final class NullHibernateStats implements HibernateStats {
     /**
      * {@inheritDoc}
      * 
-     * @see net.sf.ehcache.hibernate.management.HibernateStats#getQueryExecutionSample()
+     * @see net.sf.ehcache.hibernate.management.api.HibernateStats#getQueryExecutionSample()
      */
     public long getQueryExecutionSample() {
         // no-op
@@ -192,7 +198,7 @@ public final class NullHibernateStats implements HibernateStats {
     /**
      * {@inheritDoc}
      * 
-     * @see net.sf.ehcache.hibernate.management.HibernateStats#getQueryStats()
+     * @see net.sf.ehcache.hibernate.management.api.HibernateStats#getQueryStats()
      */
     public TabularData getQueryStats() {
         // no-op
@@ -202,7 +208,7 @@ public final class NullHibernateStats implements HibernateStats {
     /**
      * {@inheritDoc}
      * 
-     * @see net.sf.ehcache.hibernate.management.HibernateStats#getSessionCloseCount()
+     * @see net.sf.ehcache.hibernate.management.api.HibernateStats#getSessionCloseCount()
      */
     public long getSessionCloseCount() {
         // no-op
@@ -212,7 +218,7 @@ public final class NullHibernateStats implements HibernateStats {
     /**
      * {@inheritDoc}
      * 
-     * @see net.sf.ehcache.hibernate.management.HibernateStats#getSessionOpenCount()
+     * @see net.sf.ehcache.hibernate.management.api.HibernateStats#getSessionOpenCount()
      */
     public long getSessionOpenCount() {
         // no-op
@@ -222,7 +228,7 @@ public final class NullHibernateStats implements HibernateStats {
     /**
      * {@inheritDoc}
      * 
-     * @see net.sf.ehcache.hibernate.management.HibernateStats#getSuccessfulTransactionCount()
+     * @see net.sf.ehcache.hibernate.management.api.HibernateStats#getSuccessfulTransactionCount()
      */
     public long getSuccessfulTransactionCount() {
         // no-op
@@ -232,7 +238,7 @@ public final class NullHibernateStats implements HibernateStats {
     /**
      * {@inheritDoc}
      * 
-     * @see net.sf.ehcache.hibernate.management.HibernateStats#getTransactionCount()
+     * @see net.sf.ehcache.hibernate.management.api.HibernateStats#getTransactionCount()
      */
     public long getTransactionCount() {
         // no-op
@@ -242,7 +248,7 @@ public final class NullHibernateStats implements HibernateStats {
     /**
      * {@inheritDoc}
      * 
-     * @see net.sf.ehcache.hibernate.management.HibernateStats#isStatisticsEnabled()
+     * @see net.sf.ehcache.hibernate.management.api.HibernateStats#isStatisticsEnabled()
      */
     public boolean isStatisticsEnabled() {
         // no-op
@@ -252,11 +258,46 @@ public final class NullHibernateStats implements HibernateStats {
     /**
      * {@inheritDoc}
      * 
-     * @see net.sf.ehcache.hibernate.management.HibernateStats#setStatisticsEnabled(boolean)
+     * @see net.sf.ehcache.hibernate.management.api.HibernateStats#setStatisticsEnabled(boolean)
      */
     public void setStatisticsEnabled(boolean flag) {
         // no-op
-
     }
 
+    /**
+     * @see net.sf.ehcache.hibernate.management.api.HibernateStats#getCacheRegionStats()
+     */
+    public TabularData getCacheRegionStats() {
+        return null;
+    }
+
+    /**
+     * @see javax.management.NotificationEmitter#removeNotificationListener(javax.management.NotificationListener, javax.management.NotificationFilter, java.lang.Object)
+     */
+    public void removeNotificationListener(NotificationListener listener, NotificationFilter filter, Object handback)
+            throws ListenerNotFoundException {
+        /**/
+    }
+
+    /**
+     * @see javax.management.NotificationBroadcaster#addNotificationListener(javax.management.NotificationListener, javax.management.NotificationFilter, java.lang.Object)
+     */
+    public void addNotificationListener(NotificationListener listener, NotificationFilter filter, Object handback)
+            throws IllegalArgumentException {
+        /**/
+    }
+
+    /**
+     * @see javax.management.NotificationBroadcaster#getNotificationInfo()
+     */
+    public MBeanNotificationInfo[] getNotificationInfo() {
+        return null;
+    }
+
+    /**
+     * @see javax.management.NotificationBroadcaster#removeNotificationListener(javax.management.NotificationListener)
+     */
+    public void removeNotificationListener(NotificationListener listener) throws ListenerNotFoundException {
+        /**/
+    }
 }

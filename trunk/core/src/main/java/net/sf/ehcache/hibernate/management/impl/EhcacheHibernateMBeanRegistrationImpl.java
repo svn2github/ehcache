@@ -14,9 +14,10 @@
  *  limitations under the License.
  */
 
-package net.sf.ehcache.hibernate.management;
+package net.sf.ehcache.hibernate.management.impl;
 
 import java.lang.management.ManagementFactory;
+import java.util.Properties;
 import java.util.Set;
 
 import javax.management.InstanceAlreadyExistsException;
@@ -28,8 +29,10 @@ import net.sf.ehcache.CacheException;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Status;
 import net.sf.ehcache.event.CacheManagerEventListener;
+import net.sf.ehcache.hibernate.management.api.EhcacheHibernateMBeanRegistration;
 
 import org.hibernate.SessionFactory;
+import org.hibernate.cfg.Environment;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -55,7 +58,8 @@ public class EhcacheHibernateMBeanRegistrationImpl implements EhcacheHibernateMB
     /**
      * {@inheritDoc}
      */
-    public synchronized void registerMBeanForCacheManager(final CacheManager manager, final String sessionFactoryName) throws Exception {
+    public synchronized void registerMBeanForCacheManager(final CacheManager manager, final Properties properties) throws Exception {
+        String sessionFactoryName = properties.getProperty(Environment.SESSION_FACTORY_NAME);
         String name = null;
         if (sessionFactoryName == null) {
             name = manager.getName();

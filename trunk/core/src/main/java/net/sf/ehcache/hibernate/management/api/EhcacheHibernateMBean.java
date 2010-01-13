@@ -13,7 +13,8 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package net.sf.ehcache.hibernate.management;
+package net.sf.ehcache.hibernate.management.api;
+
 
 /**
  * MBean interface for hibernate statistics of session-factories
@@ -24,13 +25,6 @@ package net.sf.ehcache.hibernate.management;
  * 
  */
 public interface EhcacheHibernateMBean extends EhcacheStats, HibernateStats {
-    // public static final String CACHE_ENABLED = "CacheEnabled";
-    // public static final String CACHE_REGION_CHANGED = "CacheRegionChanged";
-    // public static final String CACHE_FLUSHED = "CacheFlushed";
-    // public static final String CACHE_REGION_FLUSHED = "CacheRegionFlushed";
-    // public static final String CACHE_STATISTICS_ENABLED = "CacheStatisticsEnabled";
-    // public static final String CACHE_STATISTICS_RESET = "CacheStatisticsReset";
-
     /**
      * Returns true if hibernate statistics is supported.
      * <p />

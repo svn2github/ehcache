@@ -14,8 +14,9 @@
  *  limitations under the License.
  */
 
-package net.sf.ehcache.hibernate.management;
+package net.sf.ehcache.hibernate.management.api;
 
+import javax.management.NotificationEmitter;
 import javax.management.openmbean.TabularData;
 
 /**
@@ -26,7 +27,7 @@ import javax.management.openmbean.TabularData;
  * @author <a href="mailto:asanoujam@terracottatech.com">Abhishek Sanoujam</a>
  * 
  */
-public interface HibernateStats {
+public interface HibernateStats extends NotificationEmitter {
 
     /**
      * Returns true if statistics collection is enabled otherwise false
@@ -174,4 +175,10 @@ public interface HibernateStats {
      */
     TabularData getEvictionStats();
 
+    /**
+     * Returns {@link TabularData} of cache region stats
+     * 
+     * @return Returns {@link TabularData} of cache region stats
+     */
+    TabularData getCacheRegionStats();    
 }

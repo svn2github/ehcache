@@ -14,16 +14,18 @@
  *  limitations under the License.
  */
 
-package net.sf.ehcache.hibernate.management;
+package net.sf.ehcache.hibernate.management.impl;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.management.openmbean.TabularData;
+import javax.management.MBeanNotificationInfo;
+import javax.management.Notification;
 
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
+import net.sf.ehcache.hibernate.management.api.EhcacheStats;
 import net.sf.ehcache.management.sampled.SampledCacheManager;
 
 /**
@@ -34,13 +36,21 @@ import net.sf.ehcache.management.sampled.SampledCacheManager;
  * @author <a href="mailto:asanoujam@terracottatech.com">Abhishek Sanoujam</a>
  * 
  */
-public class EhcacheStatsImpl implements EhcacheStats {
-
+public class EhcacheStatsImpl extends BaseEmitterBean implements EhcacheStats {
     private static final long MILLIS_PER_SECOND = 1000;
+    private static final MBeanNotificationInfo[] NOTIFICATION_INFO;
 
     private final SampledCacheManager sampledCacheManager;
     private final CacheManager cacheManager;
     private long statsSince = System.currentTimeMillis();
+
+    static {
+        final String[] notifTypes = new String[] {CACHE_ENABLED, CACHE_REGION_CHANGED, CACHE_FLUSHED, CACHE_REGION_FLUSHED,
+                CACHE_STATISTICS_ENABLED, CACHE_STATISTICS_RESET, };
+        final String name = Notification.class.getName();
+        final String description = "Ehcache Hibernate Statistics Event";
+        NOTIFICATION_INFO = new MBeanNotificationInfo[] {new MBeanNotificationInfo(notifTypes, name, description), };
+    }
 
     /**
      * Constructor accepting the backing {@link CacheManager}
@@ -323,13 +333,6 @@ public class EhcacheStatsImpl implements EhcacheStats {
     /**
      * {@inheritDoc}
      */
-    public TabularData getCacheRegionStats() {
-        throw new UnsupportedOperationException("not supported");
-    }
-
-    /**
-     * {@inheritDoc}
-     */
     public int getRegionCacheTargetMaxInMemoryCount(String region) {
         Cache cache = cacheManager.getCache(region);
         if (cache != null) {
@@ -382,6 +385,16 @@ public class EhcacheStatsImpl implements EhcacheStats {
     /**
      * {@inheritDoc}
      */
+    public void setRegionCacheEnabled(String region, boolean enabled) {
+        Cache cache = this.cacheManager.getCache(region);
+        if (cache != null) {
+            cache.setDisabled(!enabled);
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     public boolean isRegionCachesEnabled() {
         for (String name : this.cacheManager.getCacheNames()) {
             Cache cache = this.cacheManager.getCache(name);
@@ -392,6 +405,19 @@ public class EhcacheStatsImpl implements EhcacheStats {
             }
         }
         return true;
+    }
+
+    /**
+     * @see net.sf.ehcache.hibernate.management.api.EhcacheStats#setRegionCachesEnabled(boolean)
+     */
+    public void setRegionCachesEnabled(final boolean flag) {
+        for (String name : this.cacheManager.getCacheNames()) {
+            Cache cache = this.cacheManager.getCache(name);
+            if (cache != null) {
+                cache.setDisabled(!flag);
+            }
+        }
+        sendNotification(CACHE_ENABLED, flag);
     }
 
     /**
@@ -483,7 +509,7 @@ public class EhcacheStatsImpl implements EhcacheStats {
     /**
      * {@inheritDoc}
      * 
-     * @see net.sf.ehcache.hibernate.management.EhcacheStats#getNumberOfElementsInMemory(java.lang.String)
+     * @see net.sf.ehcache.hibernate.management.api.EhcacheStats#getNumberOfElementsInMemory(java.lang.String)
      */
     public int getNumberOfElementsInMemory(String region) {
         Cache cache = this.cacheManager.getCache(region);
@@ -497,7 +523,7 @@ public class EhcacheStatsImpl implements EhcacheStats {
     /**
      * {@inheritDoc}
      * 
-     * @see net.sf.ehcache.hibernate.management.EhcacheStats#getNumberOfElementsOnDisk(java.lang.String)
+     * @see net.sf.ehcache.hibernate.management.api.EhcacheStats#getNumberOfElementsOnDisk(java.lang.String)
      */
     public int getNumberOfElementsOnDisk(String region) {
         Cache cache = this.cacheManager.getCache(region);
@@ -554,7 +580,7 @@ public class EhcacheStatsImpl implements EhcacheStats {
     /**
      * {@inheritDoc}
      * 
-     * @see net.sf.ehcache.hibernate.management.EhcacheStats#getMaxGetTimeMillis(java.lang.String)
+     * @see net.sf.ehcache.hibernate.management.api.EhcacheStats#getMaxGetTimeMillis(java.lang.String)
      */
     public long getMaxGetTimeMillis(String cacheName) {
         Cache cache = cacheManager.getCache(cacheName);
@@ -568,7 +594,7 @@ public class EhcacheStatsImpl implements EhcacheStats {
     /**
      * {@inheritDoc}
      * 
-     * @see net.sf.ehcache.hibernate.management.EhcacheStats#getMinGetTimeMillis(java.lang.String)
+     * @see net.sf.ehcache.hibernate.management.api.EhcacheStats#getMinGetTimeMillis(java.lang.String)
      */
     public long getMinGetTimeMillis(String cacheName) {
         Cache cache = cacheManager.getCache(cacheName);
@@ -582,7 +608,7 @@ public class EhcacheStatsImpl implements EhcacheStats {
     /**
      * {@inheritDoc}
      * 
-     * @see net.sf.ehcache.hibernate.management.EhcacheStats#getAverageGetTimeMillis(java.lang.String)
+     * @see net.sf.ehcache.hibernate.management.api.EhcacheStats#getAverageGetTimeMillis(java.lang.String)
      */
     public float getAverageGetTimeMillis(String region) {
         Cache cache = this.cacheManager.getCache(region);
@@ -593,4 +619,11 @@ public class EhcacheStatsImpl implements EhcacheStats {
         }
     }
 
+    /**
+     * @see BaseEmitterBean#getNotificationInfo()
+     */
+    @Override
+    public MBeanNotificationInfo[] getNotificationInfo() {
+        return NOTIFICATION_INFO;
+    }
 }

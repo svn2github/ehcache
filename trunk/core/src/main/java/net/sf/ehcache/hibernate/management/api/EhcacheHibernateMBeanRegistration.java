@@ -14,7 +14,9 @@
  *  limitations under the License.
  */
 
-package net.sf.ehcache.hibernate.management;
+package net.sf.ehcache.hibernate.management.api;
+
+import java.util.Properties;
 
 import net.sf.ehcache.CacheManager;
 
@@ -31,16 +33,16 @@ import org.hibernate.SessionFactory;
 public interface EhcacheHibernateMBeanRegistration {
 
     /**
-     * Registers MBean for the input manager and session factory name.
+     * Registers MBean for the input manager and session factory properties.
      * <p />
      * MBeans will be registered based on the input session factory name. If the input name is null or blank, the name of the cache-manager
      * is used
      * 
      * @param manager
-     * @param sessionFactoryName
+     * @param properties
      * @throws Exception
      */
-    public void registerMBeanForCacheManager(CacheManager manager, String sessionFactoryName) throws Exception;
+    public void registerMBeanForCacheManager(CacheManager manager, Properties properties) throws Exception;
 
     /**
      * Enable hibernate statistics in the mbean.
