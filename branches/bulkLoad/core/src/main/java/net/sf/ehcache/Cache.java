@@ -2819,13 +2819,6 @@ public class Cache implements Ehcache {
     /**
      * {@inheritDoc}
      */
-    public boolean isCoherentLocally() {
-        return cacheCoherence.isCoherentLocally();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
     public void setCoherent(boolean coherent) {
         this.cacheCoherence.setCoherent(coherent);
     }

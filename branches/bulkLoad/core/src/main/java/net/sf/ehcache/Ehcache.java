@@ -913,19 +913,6 @@ public interface Ehcache extends Cloneable {
      * @return true if the cache is in coherent mode cluster-wide, false otherwise
      */
     public boolean isCoherent();
-    
-    /**
-     * Returns true if the cache is in coherent mode for this node in the cluster. Returns false otherwise.
-     * The cache can be in incoherent mode even when this method returns true as there may be other nodes
-     * where the cache is currently not coherent. Use {@link #isCoherent()} to find out if the cache is
-     * coherent cluster-wide.
-     * <p />
-     * It applies to coherent clustering mechanisms only e.g. Terracotta
-     * 
-     * 
-     * @return true if the cache is in coherent mode in this node in the cluster, false otherwise
-     */
-    public boolean isCoherentLocally();
 
     /**
      * Sets the cache in coherent or incoherent mode depending on the parameter.

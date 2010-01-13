@@ -1125,13 +1125,6 @@ public class BlockingCache implements Ehcache {
     /**
      * {@inheritDoc}
      */
-    public boolean isCoherentLocally() {
-        return cache.isCoherentLocally();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
     public void setCoherent(boolean coherent) {
         cache.setCoherent(coherent);
     }
