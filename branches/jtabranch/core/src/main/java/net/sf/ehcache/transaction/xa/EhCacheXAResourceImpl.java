@@ -14,9 +14,7 @@ import javax.transaction.xa.Xid;
 
 import net.sf.ehcache.Element;
 import net.sf.ehcache.store.Store;
-import net.sf.ehcache.transaction.StoreWriteCommand;
 import net.sf.ehcache.transaction.TransactionContext;
-import net.sf.ehcache.transaction.VersionAwareStoreWriteCommand;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,7 +26,7 @@ public class EhCacheXAResourceImpl implements EhCacheXAResource {
 
     private static final Logger LOG = LoggerFactory.getLogger(EhCacheXAResourceImpl.class.getName());
 
-    private final ConcurrentMap<Transaction, TransactionContext> transactionDataTable = new ConcurrentHashMap<Transaction, TransactionContext>();
+    private final ConcurrentMap<Transaction, XaTransactionContext> transactionDataTable = new ConcurrentHashMap<Transaction, XaTransactionContext>();
     private final ConcurrentMap<Xid, Transaction> transactionXids = new ConcurrentHashMap<Xid, Transaction>();
     private final VersionTable versionTable = new VersionTable();
 
@@ -71,17 +69,12 @@ public class EhCacheXAResourceImpl implements EhCacheXAResource {
             prepare(xid); // TODO if XA_READONLY, do we need to do anymore?
         }
         LOG.info((onePhase ? "One phase c" : "C") + "ommit called for Txn with id: " + xid);
-        TransactionContext context = transactionDataTable.get(transactionXids.get(xid));
-        for (StoreWriteCommand storeWriteCommand : context.getCommands()) {
-            if (storeWriteCommand instanceof VersionAwareStoreWriteCommand) {
-                VersionAwareStoreWriteCommand command = (VersionAwareStoreWriteCommand) storeWriteCommand;
-                Element element = command.getElement();
-                versionTable.checkin(element, context.getTransaction(), false);
-                storeWriteCommand.execute(store);
-            } else {
-                storeWriteCommand.execute(store);
-            }
+        XaTransactionContext context = transactionDataTable.get(transactionXids.get(xid));
+        for (VersionAwareWrapper command : context.getCommands()) {
+            command.execute(store);
+            versionTable.checkin(command.getElement(), context.getTransaction(), command.isWriteCommand());
         }
+    
     }
 
     public void end(final Xid xid, final int flags) throws XAException {
@@ -94,18 +87,18 @@ public class EhCacheXAResourceImpl implements EhCacheXAResource {
 
     public int prepare(final Xid xid) throws XAException {
         LOG.info("Prepare called for Txn with id: " + xid);
-        TransactionContext context = transactionDataTable.get(transactionXids.get(xid));
-        Transaction txn = context.getTransaction();
-        for (StoreWriteCommand storeWriteCommand : context.getCommands()) {
-            if (storeWriteCommand instanceof VersionAwareStoreWriteCommand) {
-                VersionAwareStoreWriteCommand command = (VersionAwareStoreWriteCommand) storeWriteCommand;
-                Element element = command.getElement();
-                if(!versionTable.valid(element, txn)) {
-                    throw new XAException("Invalid versions during prepare phase!.");
-                }
+        XaTransactionContext context = transactionDataTable.get(transactionXids.get(xid));
+        validateCommands(context);
+        return XA_OK;
+    }
+    
+    private void validateCommands(XaTransactionContext context) throws XAException {
+        for(VersionAwareWrapper wrapper : context.getCommands()) {
+            if(wrapper.isVersionAware()) {
+                if(!versionTable.valid(wrapper.getElement(), wrapper.getVersion()));
+                throw new XAException("Invalid version for element: " + wrapper.getElement());
             }
         }
-        return XA_OK;
     }
 
     public Xid[] recover(final int i) throws XAException {
@@ -156,11 +149,11 @@ public class EhCacheXAResourceImpl implements EhCacheXAResource {
      */
     public TransactionContext getOrCreateTransactionContext() throws SystemException, RollbackException {
         Transaction transaction = txnManager.getTransaction();
-        TransactionContext context = transactionDataTable.get(transaction);
+        XaTransactionContext context = transactionDataTable.get(transaction);
         if (context == null) {
-            context = new XaTransactionContext(transaction);
+            context = new XaTransactionContext(transaction, this);
             transaction.enlistResource(this);
-            TransactionContext previous = transactionDataTable.putIfAbsent(transaction, context);
+            XaTransactionContext previous = transactionDataTable.putIfAbsent(transaction, context);
             if (previous != null) {
                 context = previous;
             }
@@ -186,14 +179,13 @@ public class EhCacheXAResourceImpl implements EhCacheXAResource {
 
         protected final ConcurrentMap<Object, Version> versionStore = new ConcurrentHashMap<Object, Version>();
         
-        public synchronized boolean valid(Element element, Transaction txn) {
+        public synchronized boolean valid(Element element, long  currentVersionNumber) {
             long versionNumber = -1;
             Object key = element.getObjectKey();
             Version version = versionStore.get(key);
             if (version != null) {
                 long currentVersion = version.getCurrentVersion();
-                long txnVersion = version.getVersion(txn);
-                return currentVersion == txnVersion;
+                return currentVersion == currentVersionNumber;
             } else {
                 //TODO: Figure out what this case is..
                 return true;

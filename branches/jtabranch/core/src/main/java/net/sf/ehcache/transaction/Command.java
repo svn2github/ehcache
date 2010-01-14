@@ -16,10 +16,16 @@
 
 package net.sf.ehcache.transaction;
 
-import net.sf.ehcache.Element;
+import net.sf.ehcache.store.Store;
 
-public interface VersionAwareStoreWriteCommand extends StoreWriteCommand {
+/**
+ *
+ * @author nelrahma
+ *
+ */
+public interface Command {
     
-    public Element getElement();
+    void execute(Store store);
+    
 
 }

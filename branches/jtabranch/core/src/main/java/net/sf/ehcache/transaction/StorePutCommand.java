@@ -6,11 +6,11 @@ import net.sf.ehcache.store.Store;
 /**
  * @author Alex Snaps
  */
-public class StorePutCommand implements VersionAwareStoreWriteCommand {
+public class StorePutCommand implements StoreWriteCommand {
 
     private final Element element;
-
     public StorePutCommand(final Element element) {
+ 
         this.element = element;
     }
 
@@ -21,4 +21,5 @@ public class StorePutCommand implements VersionAwareStoreWriteCommand {
     public Element getElement() {
         return element;
     }
+
 }

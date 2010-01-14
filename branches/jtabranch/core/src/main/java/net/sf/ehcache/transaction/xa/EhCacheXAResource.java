@@ -18,10 +18,8 @@ package net.sf.ehcache.transaction.xa;
 
 import javax.transaction.RollbackException;
 import javax.transaction.SystemException;
-import javax.transaction.Transaction;
 import javax.transaction.xa.XAResource;
 
-import net.sf.ehcache.Element;
 import net.sf.ehcache.store.Store;
 import net.sf.ehcache.transaction.TransactionContext;
 
@@ -30,9 +28,7 @@ public interface EhCacheXAResource extends XAResource {
     String getCacheName();
 
     Store getStore();
-
-    long checkout(Element element, Transaction txn);
-
+    
     TransactionContext getOrCreateTransactionContext() throws SystemException, RollbackException;
 
 }

@@ -31,26 +31,19 @@ public class XaTransactionalStore implements Store {
 
     public void put(final Element element) throws CacheException {
         TransactionContext context = getOrCreateTransactionContext();
-        context.addCommand(new StorePutCommand(element));
-        // TODO: That's probably not always true... For update yes, but for fresh inserts? 
-        xaResource.checkout(element, context.getTransaction());
+        context.addCommand(new StorePutCommand(element), element);
+    
     }
 
     public Element get(final Object key) {
         TransactionContext context = getOrCreateTransactionContext();
         Element element = underlyingStore.get(key);
-        if(element != null) {
-            xaResource.checkout(element, context.getTransaction());
-        }
         return element;
     }
 
     public Element getQuiet(final Object key) {
         TransactionContext context = getOrCreateTransactionContext();
         Element element = underlyingStore.getQuiet(key);
-        if(element != null) {
-            xaResource.checkout(element, context.getTransaction());
-        }
         return element;
     }
 
@@ -61,15 +54,13 @@ public class XaTransactionalStore implements Store {
     public Element remove(final Object key) {
         Element element = underlyingStore.get(key);
         TransactionContext context = getOrCreateTransactionContext();
-        context.addCommand(new StoreRemoveCommand(key, element));
-        if(element != null) {
-            xaResource.checkout(element, context.getTransaction());
-        }
+        context.addCommand(new StoreRemoveCommand(key), element);
+       
         return element; // Todo is this good enough?
     }
 
-    public void removeAll() throws CacheException {
-        getOrCreateTransactionContext().addCommand(new StoreRemoveAllCommand()); // TODO is this meaningful? WRT getSize()
+    public void removeAll() throws CacheException {     
+        getOrCreateTransactionContext().addCommand(new StoreRemoveAllCommand(), null); // TODO is this meaningful? WRT getSize()
     }
 
     /**
@@ -107,7 +98,7 @@ public class XaTransactionalStore implements Store {
     }
 
     public void expireElements() {
-        getOrCreateTransactionContext().addCommand(new StoreExpireAllElementsCommand()); // TODO is this meaningful? WRT getSize()
+        getOrCreateTransactionContext().addCommand(new StoreExpireAllElementsCommand(), null); // TODO is this meaningful? WRT getSize()
     }
 
     /**
