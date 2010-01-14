@@ -21,6 +21,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import javax.management.MBeanNotificationInfo;
+import javax.management.NotCompliantMBeanException;
 import javax.management.Notification;
 
 import net.sf.ehcache.Cache;
@@ -54,8 +55,10 @@ public class EhcacheStatsImpl extends BaseEmitterBean implements EhcacheStats {
 
     /**
      * Constructor accepting the backing {@link CacheManager}
+     * @throws NotCompliantMBeanException 
      */
-    public EhcacheStatsImpl(CacheManager manager) {
+    public EhcacheStatsImpl(CacheManager manager) throws NotCompliantMBeanException {
+        super(EhcacheStats.class);
         this.sampledCacheManager = new SampledCacheManager(manager);
         this.cacheManager = manager;
     }

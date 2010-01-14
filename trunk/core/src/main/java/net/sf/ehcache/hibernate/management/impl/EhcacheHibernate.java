@@ -20,6 +20,7 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.management.MBeanNotificationInfo;
+import javax.management.NotCompliantMBeanException;
 import javax.management.Notification;
 import javax.management.openmbean.TabularData;
 
@@ -57,8 +58,10 @@ public class EhcacheHibernate extends BaseEmitterBean implements EhcacheHibernat
      * 
      * @param manager
      *            the backing {@link CacheManager}
+     * @throws NotCompliantMBeanException 
      */
-    public EhcacheHibernate(CacheManager manager) {
+    public EhcacheHibernate(CacheManager manager) throws NotCompliantMBeanException {
+        super(EhcacheHibernateMBean.class);
         ehcacheStats = new EhcacheStatsImpl(manager);
     }
 
@@ -67,7 +70,11 @@ public class EhcacheHibernate extends BaseEmitterBean implements EhcacheHibernat
      * 
      */
     public void enableHibernateStatistics(SessionFactory sessionFactory) {
-        hibernateStats = new HibernateStatsImpl(sessionFactory);
+        try {
+            hibernateStats = new HibernateStatsImpl(sessionFactory);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     /**

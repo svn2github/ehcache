@@ -20,17 +20,19 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import javax.management.ListenerNotFoundException;
 import javax.management.MBeanNotificationInfo;
+import javax.management.NotCompliantMBeanException;
 import javax.management.Notification;
 import javax.management.NotificationBroadcasterSupport;
 import javax.management.NotificationEmitter;
 import javax.management.NotificationFilter;
 import javax.management.NotificationListener;
+import javax.management.StandardMBean;
 
 /**
  * @author gkeim
  *
  */
-public abstract class BaseEmitterBean implements NotificationEmitter {
+public abstract class BaseEmitterBean extends StandardMBean implements NotificationEmitter {
     /**
      * emitter
      */
@@ -41,6 +43,17 @@ public abstract class BaseEmitterBean implements NotificationEmitter {
      */
     protected final AtomicLong sequenceNumber = new AtomicLong();
 
+    /**
+     * BaseEmitterBean
+     * 
+     * @param <T>
+     * @param mbeanInterface
+     * @throws NotCompliantMBeanException
+     */
+    protected <T> BaseEmitterBean(Class<T> mbeanInterface) throws NotCompliantMBeanException {
+        super(mbeanInterface);
+    }
+    
     /**
      * sendNotification
      * 

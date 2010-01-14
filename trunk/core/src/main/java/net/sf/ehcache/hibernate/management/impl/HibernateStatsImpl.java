@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.management.MBeanNotificationInfo;
+import javax.management.NotCompliantMBeanException;
 import javax.management.Notification;
 import javax.management.openmbean.CompositeData;
 import javax.management.openmbean.TabularData;
@@ -54,8 +55,10 @@ public class HibernateStatsImpl extends BaseEmitterBean implements HibernateStat
      * Constructor accepting the backing {@link SessionFactory}
      * 
      * @param sessionFactory
+     * @throws NotCompliantMBeanException 
      */
-    public HibernateStatsImpl(SessionFactory sessionFactory) {
+    public HibernateStatsImpl(SessionFactory sessionFactory) throws NotCompliantMBeanException {
+        super(HibernateStats.class);
         this.statistics = sessionFactory.getStatistics();
     }
 
