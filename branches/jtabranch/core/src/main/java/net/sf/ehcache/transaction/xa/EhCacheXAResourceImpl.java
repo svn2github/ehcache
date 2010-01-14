@@ -65,7 +65,7 @@ public class EhCacheXAResourceImpl implements EhCacheXAResource {
     }
 
     public void commit(final Xid xid, final boolean onePhase) throws XAException {
-        if(onePhase) {
+        if (onePhase) {
             prepare(xid); // TODO if XA_READONLY, do we need to do anymore?
         }
         LOG.info((onePhase ? "One phase c" : "C") + "ommit called for Txn with id: " + xid);
@@ -74,7 +74,7 @@ public class EhCacheXAResourceImpl implements EhCacheXAResource {
             command.execute(store);
             versionTable.checkin(command.getElement(), context.getTransaction(), command.isWriteCommand());
         }
-    
+
     }
 
     public void end(final Xid xid, final int flags) throws XAException {
@@ -91,12 +91,13 @@ public class EhCacheXAResourceImpl implements EhCacheXAResource {
         validateCommands(context);
         return XA_OK;
     }
-    
+
     private void validateCommands(XaTransactionContext context) throws XAException {
-        for(VersionAwareWrapper wrapper : context.getCommands()) {
-            if(wrapper.isVersionAware()) {
-                if(!versionTable.valid(wrapper.getElement(), wrapper.getVersion()));
-                throw new XAException("Invalid version for element: " + wrapper.getElement());
+        for (VersionAwareWrapper wrapper : context.getCommands()) {
+            if (wrapper.isVersionAware()) {
+                if (!versionTable.valid(wrapper.getElement(), wrapper.getVersion())) {
+                    throw new XAException("Invalid version for element: " + wrapper.getElement());
+                }
             }
         }
     }
@@ -178,19 +179,19 @@ public class EhCacheXAResourceImpl implements EhCacheXAResource {
     public static class VersionTable {
 
         protected final ConcurrentMap<Object, Version> versionStore = new ConcurrentHashMap<Object, Version>();
-        
-        public synchronized boolean valid(Element element, long  currentVersionNumber) {
-            long versionNumber = -1;
+
+        public synchronized boolean valid(Element element, long currentVersionNumber) {
             Object key = element.getObjectKey();
             Version version = versionStore.get(key);
             if (version != null) {
                 long currentVersion = version.getCurrentVersion();
-                return currentVersion == currentVersionNumber;
+                boolean valid = (currentVersion == currentVersionNumber);
+                return valid;
             } else {
-                //TODO: Figure out what this case is..
+                // TODO: Figure out what this case is..
                 return true;
             }
-          
+
         }
 
         public synchronized long checkout(Element element, Transaction txn) {

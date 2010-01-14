@@ -834,6 +834,10 @@ public class Cache implements Ehcache {
             transactionManagerLookup = null;
         }
     }
+    
+    public TransactionManagerLookup getTransactionManagerLookup() {
+       return transactionManagerLookup; 
+    }
 
     /**
      * Newly created caches do not have a {@link net.sf.ehcache.store.MemoryStore} or a {@link net.sf.ehcache.store.DiskStore}.
