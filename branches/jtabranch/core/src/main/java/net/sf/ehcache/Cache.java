@@ -678,9 +678,9 @@ public class Cache implements Ehcache {
         this(name, maxElementsInMemory, memoryStoreEvictionPolicy, overflowToDisk, diskStorePath, eternal, timeToLiveSeconds,
                 timeToIdleSeconds, diskPersistent, diskExpiryThreadIntervalSeconds, registeredEventListeners,
                 bootstrapCacheLoader, maxElementsOnDisk, diskSpoolBufferSizeMB, clearOnFlush, isTerracottaClustered,
-                terracottaValueMode, terracottaCoherentReads, "OFF", null, TerracottaConfiguration.DEFAULT_ORPHAN_EVICTION,
-                TerracottaConfiguration.DEFAULT_ORPHAN_EVICTION_PERIOD, TerracottaConfiguration.DEFAULT_LOCAL_KEY_CACHE,
-                TerracottaConfiguration.DEFAULT_LOCAL_KEY_CACHE_SIZE, TerracottaConfiguration.DEFAULT_COPY_ON_READ);
+                terracottaValueMode, terracottaCoherentReads, "OFF", null, terracottaOrphanEviction,
+                terracottaOrphanEvictionPeriod, terracottaLocalKeyCache,
+                terracottaLocalKeyCacheSize, terracottaCopyOnRead);
     }
 
     /**
