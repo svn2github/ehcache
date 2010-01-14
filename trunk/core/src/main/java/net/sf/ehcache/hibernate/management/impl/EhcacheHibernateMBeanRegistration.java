@@ -14,7 +14,7 @@
  *  limitations under the License.
  */
 
-package net.sf.ehcache.hibernate.management.api;
+package net.sf.ehcache.hibernate.management.impl;
 
 import java.util.Properties;
 

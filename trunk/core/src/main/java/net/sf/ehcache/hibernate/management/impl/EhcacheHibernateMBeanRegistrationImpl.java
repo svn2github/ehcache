@@ -29,7 +29,6 @@ import net.sf.ehcache.CacheException;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Status;
 import net.sf.ehcache.event.CacheManagerEventListener;
-import net.sf.ehcache.hibernate.management.api.EhcacheHibernateMBeanRegistration;
 
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Environment;

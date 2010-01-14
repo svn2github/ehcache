@@ -24,7 +24,6 @@ import java.util.TimerTask;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import net.sf.ehcache.CacheManager;
-import net.sf.ehcache.hibernate.management.api.EhcacheHibernateMBeanRegistration;
 
 import org.hibernate.SessionFactory;
 import org.hibernate.cache.CacheException;
