@@ -13,7 +13,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package net.sf.ehcache.hibernate.strategy;
+package net.sf.ehcache.hibernate.ccs;
 
 import java.util.Comparator;
 
@@ -31,6 +31,7 @@ import org.hibernate.cache.access.SoftLock;
  *
  * @author Chris Dennis
  */
+@Deprecated
 public class EhCacheReadOnlyCache extends AbstractEhCacheConcurrencyStrategy {
 
     private static final Logger LOG = LoggerFactory.getLogger(EhCacheReadOnlyCache.class);

@@ -13,24 +13,23 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package net.sf.ehcache.hibernate;
+package net.sf.ehcache.hibernate.regions;
 
-import org.hibernate.cache.Cache;
-import org.hibernate.cache.TimestampsRegion;
-import org.hibernate.cache.impl.bridge.BaseGeneralDataRegionAdapter;
-import org.hibernate.cfg.Settings;
+import net.sf.ehcache.Ehcache;
+import org.hibernate.cache.QueryResultsRegion;
 
 /**
- * A timestamps region specific wrapper around an EhCache instance.
+ * A query results region specific wrapper around an EhCache instance.
  *
  * @author Chris Dennis
  */
-class EhCacheTimestampsRegion extends BaseGeneralDataRegionAdapter implements TimestampsRegion {
+public class EhCacheQueryResultsRegion extends EhCacheGeneralDataRegion implements QueryResultsRegion {
 
     /**
-     * Constructs an EhCacheTimestampsRegion around the given underlying cache.
+     * Constructs an EhCacheQueryResultsRegion around the given underlying cache.
      */
-    public EhCacheTimestampsRegion(Cache underlyingCache, Settings settings) {
-        super(underlyingCache, settings);
+    public EhCacheQueryResultsRegion(Ehcache underlyingCache) {
+        super(underlyingCache);
     }
+
 }

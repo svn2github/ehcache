@@ -46,6 +46,7 @@ import org.slf4j.LoggerFactory;
  * @author Emmanuel Bernard
  * @version $Id$
  */
+@Deprecated
 public final class EhCache implements Cache {
 
     private static final Logger LOG = LoggerFactory.getLogger(EhCache.class.getName());

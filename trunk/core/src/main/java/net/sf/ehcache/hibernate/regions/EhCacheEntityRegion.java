@@ -13,21 +13,18 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package net.sf.ehcache.hibernate;
+package net.sf.ehcache.hibernate.regions;
 
-import net.sf.ehcache.hibernate.strategy.EhCacheNonstrictReadWriteCache;
-import net.sf.ehcache.hibernate.strategy.EhCacheReadOnlyCache;
-import net.sf.ehcache.hibernate.strategy.EhCacheReadWriteCache;
+import net.sf.ehcache.Ehcache;
+import net.sf.ehcache.hibernate.strategy.NonStrictReadWriteEhCacheEntityRegionAccessStrategy;
+import net.sf.ehcache.hibernate.strategy.ReadOnlyEhCacheEntityRegionAccessStrategy;
+import net.sf.ehcache.hibernate.strategy.ReadWriteEhCacheEntityRegionAccessStrategy;
 
-import org.hibernate.cache.Cache;
-import org.hibernate.cache.CacheConcurrencyStrategy;
 import org.hibernate.cache.CacheDataDescription;
 import org.hibernate.cache.CacheException;
 import org.hibernate.cache.EntityRegion;
 import org.hibernate.cache.access.AccessType;
 import org.hibernate.cache.access.EntityRegionAccessStrategy;
-import org.hibernate.cache.impl.bridge.BaseTransactionalDataRegionAdapter;
-import org.hibernate.cache.impl.bridge.EntityAccessStrategyAdapter;
 import org.hibernate.cfg.Settings;
 
 import org.slf4j.Logger;
@@ -41,14 +38,14 @@ import org.slf4j.LoggerFactory;
  *
  * @author Chris Dennis
  */
-class EhCacheEntityRegion extends BaseTransactionalDataRegionAdapter implements EntityRegion {
+public class EhCacheEntityRegion extends EhCacheTransactionalDataRegion implements EntityRegion {
 
     private static final Logger LOG = LoggerFactory.getLogger(EhCacheEntityRegion.class);
 
     /**
      * Constructs an EhCacheEntityRegion around the given underlying cache.
      */
-    public EhCacheEntityRegion(Cache underlyingCache, Settings settings, CacheDataDescription metadata) {
+    public EhCacheEntityRegion(Ehcache underlyingCache, Settings settings, CacheDataDescription metadata) {
         super(underlyingCache, settings, metadata);
     }
 
@@ -56,22 +53,19 @@ class EhCacheEntityRegion extends BaseTransactionalDataRegionAdapter implements 
      * {@inheritDoc}
      */
     public EntityRegionAccessStrategy buildAccessStrategy(AccessType accessType) throws CacheException {
-        CacheConcurrencyStrategy ccs;
         if (AccessType.READ_ONLY.equals(accessType)) {
             if (metadata.isMutable()) {
                 LOG.warn("read-only cache configured for mutable entity [" + getName() + "]");
             }
-            ccs = new EhCacheReadOnlyCache();
+            return new ReadOnlyEhCacheEntityRegionAccessStrategy(this, settings);
         } else if (AccessType.READ_WRITE.equals(accessType)) {
-            ccs = new EhCacheReadWriteCache();
+            return new ReadWriteEhCacheEntityRegionAccessStrategy(this, settings);
         } else if (AccessType.NONSTRICT_READ_WRITE.equals(accessType)) {
-            ccs = new EhCacheNonstrictReadWriteCache();
+            return new NonStrictReadWriteEhCacheEntityRegionAccessStrategy(this, settings);
         } else if (AccessType.TRANSACTIONAL.equals(accessType)) {
             throw new CacheException("Transactional access is not supported by the Ehcache region factory.");
         } else {
             throw new IllegalArgumentException("unrecognized access strategy type [" + accessType + "]");
         }
-        ccs.setCache(underlyingCache);
-        return new EntityAccessStrategyAdapter(this, ccs, settings);
     }
 }

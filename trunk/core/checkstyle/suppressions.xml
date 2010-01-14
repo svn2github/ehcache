@@ -30,6 +30,12 @@
     <suppress checks="StrictDuplicateCode" files="LruMemoryStore.java" />
     <suppress checks="StrictDuplicateCode" files="MemoryStore.java" />
 
+    <!-- These classes are deprecated and may not live forever.
+         I don't want to build a common superclass linking them to the cache access strategies -->
+    <suppress checks="StrictDuplicateCode" files="EhCacheReadOnlyCache.java"/>
+    <suppress checks="StrictDuplicateCode" files="EhCacheReadWriteCache.java"/>
+    <suppress checks="StrictDuplicateCode" files="EhCacheNonstrictReadWriteCache.java"/>
+
     <!--Tests-->
     <suppress checks="StrictDuplicateCode" files="NullCountingCacheLoader.java" />
     <suppress checks="StrictDuplicateCode" files="CountingCacheLoader.java" />

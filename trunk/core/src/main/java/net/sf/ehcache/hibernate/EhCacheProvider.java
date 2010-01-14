@@ -19,6 +19,9 @@ import java.net.URL;
 import java.util.Properties;
 
 import net.sf.ehcache.CacheManager;
+import net.sf.ehcache.config.CacheConfiguration;
+import net.sf.ehcache.config.TerracottaConfiguration;
+import net.sf.ehcache.config.TerracottaConfiguration.ValueMode;
 import net.sf.ehcache.hibernate.management.impl.ProviderMBeanRegistrationHelper;
 import net.sf.ehcache.util.ClassLoaderUtil;
 
@@ -54,6 +57,7 @@ import org.slf4j.LoggerFactory;
  * @author Emmanuel Bernard
  * @version $Id$
  */
+@Deprecated
 public final class EhCacheProvider implements CacheProvider {
 
     /**
@@ -95,6 +99,7 @@ public final class EhCacheProvider implements CacheProvider {
                 cache = manager.getEhcache(name);
                 EhCacheProvider.LOG.debug("started EHCache region: " + name);
             }
+            validateEhcache(cache);
             return new net.sf.ehcache.hibernate.EhCache(cache);
         } catch (net.sf.ehcache.CacheException e) {
             throw new CacheException(e);
@@ -146,6 +151,16 @@ public final class EhCacheProvider implements CacheProvider {
         }
     }
 
+    private static void validateEhcache(net.sf.ehcache.Ehcache cache) throws CacheException {
+        CacheConfiguration cacheConfig = cache.getCacheConfiguration();
+
+        if (cacheConfig.isTerracottaClustered()) {
+            TerracottaConfiguration tcCacheConfig = cacheConfig.getTerracottaConfiguration();
+            if (ValueMode.IDENTITY.equals(tcCacheConfig.getValueMode())) {
+                throw new CacheException("Identity mode Terracotta clustered caches cannot be used as Hibernate cache regions.");
+            }
+        }
+    }
 
     private URL loadResource(String configurationResourceName) {
         ClassLoader standardClassloader = ClassLoaderUtil.getStandardClassLoader();

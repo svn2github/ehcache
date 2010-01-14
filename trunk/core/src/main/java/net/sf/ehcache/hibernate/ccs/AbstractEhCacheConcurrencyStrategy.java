@@ -13,7 +13,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package net.sf.ehcache.hibernate.strategy;
+package net.sf.ehcache.hibernate.ccs;
 
 import net.sf.ehcache.hibernate.EhCache;
 import org.hibernate.cache.Cache;
@@ -27,6 +27,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author Chris Dennis
  */
+@Deprecated
 abstract class AbstractEhCacheConcurrencyStrategy implements CacheConcurrencyStrategy {
 
     private static final Logger LOG = LoggerFactory.getLogger(EhCacheReadOnlyCache.class);
