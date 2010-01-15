@@ -16,6 +16,8 @@
 
 package net.sf.ehcache;
 
+import java.util.concurrent.CyclicBarrier;
+
 import javax.transaction.SystemException;
 import javax.transaction.TransactionManager;
 
@@ -30,15 +32,136 @@ public class XACacheTest extends TestCase {
     public void testXACache() throws IllegalStateException, SecurityException, SystemException {
         Cache cache = createTestCache();
         TransactionManager txnManager = cache.getTransactionManagerLookup().getTransactionManager();
+        Element element1 = new Element("key1", "value1");
+        Element element2 = new Element("key1", "value1");
+        CyclicBarrier barrier1 = new CyclicBarrier(2);
+        CyclicBarrier barrier2 = new CyclicBarrier(2);
+        CyclicBarrier txnBarrier = new CyclicBarrier(2);
+
+        Transaction1Thread thread1 = new Transaction1Thread(cache, element1, element2, txnManager, barrier1, barrier2, txnBarrier);
+        Transaction2Thread thread2 = new Transaction2Thread(cache, element1, element2, txnManager, barrier1, barrier2, txnBarrier);
+        thread1.start();
+        thread2.start();
         try {
-           txnManager.begin(); 
-           Element element1 = new Element("key1", "value1");
-           cache.put(element1);
-           txnManager.commit();
-        } catch (Exception e) {
-            txnManager.rollback();
+            thread1.join();
+            thread2.join();
+
+        } catch (InterruptedException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
         }
 
+    }
+
+    private static class Transaction1Thread extends AbstractTxnThread {
+
+        public Transaction1Thread(Cache cache, Element element1, Element element2, TransactionManager txnManager, CyclicBarrier barrier1,
+                CyclicBarrier barrier2, CyclicBarrier txnBarrier) {
+            super(cache, element1, element2, txnManager, barrier1, barrier2, txnBarrier);
+        }
+
+        @Override
+        public void run() {
+            try {
+                txnManager.begin();
+                cache.put(element1);
+                barrier1.await();
+                txnManager.commit();
+                barrier2.await();
+            } catch (Exception e) {
+
+                rollbackQuietly();
+            }
+
+            resetForTxn();
+
+        }
+
+    }
+
+    private static class Transaction2Thread extends AbstractTxnThread {
+
+        public Transaction2Thread(Cache cache, Element element1, Element element2, TransactionManager txnManager, CyclicBarrier barrier1,
+                CyclicBarrier barrier2, CyclicBarrier txnBarrier) {
+            super(cache, element1, element2, txnManager, barrier1, barrier2, txnBarrier);
+        }
+
+        @Override
+        public void run() {
+
+            try {
+                txnManager.begin();
+                Element newElement = cache.get(element1.getKey());
+                assertNull(newElement);
+                barrier1.await();
+                barrier2.await();
+                newElement = cache.get(element1.getKey());
+                assertNotNull(newElement);
+
+                txnManager.commit();
+
+            } catch (Exception e) {
+                rollbackQuietly();
+            }
+
+            resetForTxn();
+
+        }
+    }
+
+    private static abstract class AbstractTxnThread extends Thread {
+        final Element element1;
+        final Element element2;
+        final TransactionManager txnManager;
+        final CyclicBarrier barrier1;
+        final CyclicBarrier barrier2;
+        final CyclicBarrier txnBarrier;
+        final Cache         cache;
+
+        public AbstractTxnThread(Cache cache, Element element1, Element element2, TransactionManager txnManager, CyclicBarrier barrier1,
+                CyclicBarrier barrier2, CyclicBarrier txnBarrier) {
+            this.element1 = element1;
+            this.element2 = element2;
+            this.txnManager = txnManager;
+            this.barrier1 = barrier1;
+            this.barrier2 = barrier2;
+            this.txnBarrier = txnBarrier;
+            this.cache = cache;
+        }
+
+        void rollbackQuietly() {
+            try {
+                txnManager.rollback();
+            } catch (Exception e1) {
+                // TODO Auto-generated catch block
+                e1.printStackTrace();
+            }
+        }
+
+        void resetForTxn() {
+            synchronized (barrier1) {
+                if (barrier1.isBroken()) {
+                    barrier1.reset();
+                }
+            }
+            synchronized (barrier2) {
+                if (barrier2.isBroken()) {
+                    barrier2.reset();
+                }
+            }
+
+            synchronized (txnBarrier) {
+                if (txnBarrier.isBroken()) {
+                    txnBarrier.reset();
+                }
+            }
+            try {
+                txnBarrier.await();
+            } catch (Exception e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            } 
+        }
     }
 
     @Override
