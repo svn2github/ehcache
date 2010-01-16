@@ -212,7 +212,7 @@ pageTracker._trackPageview();
         </replace>
         
         <!--Fix absolute size of architecture diagram-->
-        <replace file="${build.dir}/site/index.html">
+        <replace file="${build.dir}/site/documentation/architecture.html">
             <replacetoken><![CDATA[<img src="images/layered_architecture.png"]]></replacetoken>
             <replacevalue><![CDATA[ <img src="images/layered_architecture.png" width="100%"
             alt="Ehcache Architecture diagram showing core caching capabilities, replication features,
@@ -222,18 +222,28 @@ pageTracker._trackPageview();
             a gzip caching servlet filter, RESTful & SOAP APIs and much more."]]></replacevalue>
         </replace>
         <replace file="${build.dir}/site/index.html">
-            <replacetoken><![CDATA[</head>]]></replacetoken>
+            <replacetoken><![CDATA[<div id="bodyColumn">]]></replacetoken>
             <replacevalue><![CDATA[
-            <META name="description" content="Ehcache is a widely used java distributed cache for general purpose caching,
-            Java EE and light-weight containers. It features memory and disk stores, replicate by copy and invalidate,
-            listeners, cache loaders, cache extensions, cache exception handlers, a gzip caching servlet filter, RESTful
-            & SOAP APIs and much more.  Ehcache is available under an Apache open source license and is actively developed,
-            maintained and supported by Terracotta, Inc."></head>]]></replacevalue>
+            <div id="bodyColumn">
+            <!-- rss widget -->
+            <div id="rssWidget">
+                <iframe src="http://s1.rsspump.com/rss.aspx?s=d97bc621-c09d-4957-85c3-db81450c15e3&amp;speed=2&amp;t=0&amp;d=0&amp;u=0&amp;p=1&amp;b=0&amp;font=Verdana&amp;fontsize=12px&amp;bgcolor=&amp;color=000000&amp;type=fade&amp;su=0&amp;sub=1"
+                        frameborder="0" width="100%" height="16" scrolling="no"
+                        allowtransparency="true">
+                </iframe>
+                <noframes>
+                    <div style="background-color: none transparent;"><a
+                            href="http://www.rsspump.com/?Rss_widget" title="rss widget">Rss
+                        widget</a></div>
+                </noframes>
+            </div>
+            <!-- /rss widget -->
+            ]]></replacevalue>
         </replace>
         <replace file="${build.dir}/site/index.html">
-            <replacetoken><![CDATA[newsticker]]></replacetoken>
+            <replacetoken><![CDATA[Ehcache Distributed Cache]]></replacetoken>
             <replacevalue><![CDATA[
-            <iframe src="http://s1.rsspump.com/rss.aspx?s=d97bc621-c09d-4957-85c3-db81450c15e3&amp;speed=2&amp;t=0&amp;d=0&amp;u=0&amp;p=1&amp;b=0&amp;font=Verdana&amp;fontsize=12px&amp;bgcolor=&amp;color=000000&amp;type=fade&amp;su=0&amp;sub=1" frameborder="0" width="100%" height="16" scrolling="no" allowtransparency="true"></iframe><noframes><div style="background-color: none transparent;"><a href="http://www.rsspump.com/?Rss_widget" title="rss widget">Rss widget</a></div></noframes>
+            Ehcache Distributed Cache <br><font size="-1" color="black">Performance At Any Scale</font>
             ]]></replacevalue>
         </replace>
         <replace file="${build.dir}/site/modules/monitor.html">
@@ -245,8 +255,8 @@ pageTracker._trackPageview();
         <replace file="${build.dir}/site/index.html">
             <replacetoken><![CDATA[ehcache_1_7_talk]]></replacetoken>
             <replacevalue><![CDATA[
-            &nbsp;&nbsp;&nbsp;&nbsp;<a href="https://terracotta.webex.com/terracotta/lsr.php?AT=pb&SP=EC&rID=1702397&rKey=b0920841e529407d" title="Ehcache 1.7 Scaling Applications with Distributed Caches, recorded 5 November 2009. 60 minutes duration"><img src="images/ehcache_1_7_presentation.jpg" border="0"/></a>
-                    ]]></replacevalue>
+            <br>&nbsp;&nbsp;&nbsp;&nbsp;<center><a href="https://terracotta.webex.com/terracotta/lsr.php?AT=pb&SP=EC&rID=1702397&rKey=b0920841e529407d" title="Ehcache 1.7 Scaling Applications with Distributed Caches, recorded 5 November 2009. 60 minutes duration"><img src="images/ehcache_1_7_presentation.jpg" border="0"/></a></center>
+            <br>        ]]></replacevalue>
         </replace>
         <replace file="${build.dir}/site/source-repository.html">
             <replacetoken><![CDATA[ehcache-core]]></replacetoken>

@@ -15,21 +15,69 @@
  */
 package net.sf.ehcache.hibernate;
 
+import java.net.URL;
 import java.util.Properties;
+import java.util.concurrent.atomic.AtomicInteger;
+
+import net.sf.ehcache.CacheManager;
+
+import org.hibernate.cache.CacheException;
+import org.hibernate.cfg.Settings;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A singleton EhCacheRegionFactory implementation.
- * <p>
- * This class uses functionality in the Hibernate 3.2 API SingletonEhCacheProvider.
  *
  * @author Chris Dennis
  */
 public class SingletonEhCacheRegionFactory extends AbstractEhCacheRegionFactory {
 
+    private static final Logger LOG = LoggerFactory.getLogger(EhCacheRegionFactory.class);
+
+    private static final AtomicInteger REFERENCE_COUNT = new AtomicInteger();
+    
     /**
      * Returns a representation of the singleton EhCacheRegionFactory
      */
     public SingletonEhCacheRegionFactory(Properties prop) {
-        super(new SingletonEhCacheProvider());
+        super();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void start(Settings settings, Properties properties) throws CacheException {
+        String configurationResourceName = null;
+        if (properties != null) {
+            configurationResourceName = (String) properties.get(NET_SF_EHCACHE_CONFIGURATION_RESOURCE_NAME);
+        }
+        if (configurationResourceName == null || configurationResourceName.length() == 0) {
+            manager = CacheManager.create();
+            REFERENCE_COUNT.incrementAndGet();
+        } else {
+            if (!configurationResourceName.startsWith("/")) {
+                configurationResourceName = "/" + configurationResourceName;
+                    LOG.debug("prepending / to {}. It should be placed in the rootof the classpath rather than in a package.",
+                            configurationResourceName);
+            }
+            URL url = loadResource(configurationResourceName);
+            manager = CacheManager.create(url);
+            REFERENCE_COUNT.incrementAndGet();
+        }
+        mbeanRegistrationHelper.registerMBean(manager, properties);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void stop() {
+        if (manager != null) {
+            if (REFERENCE_COUNT.decrementAndGet() == 0) {
+                manager.shutdown();
+            }
+            manager = null;
+        }
     }
 }

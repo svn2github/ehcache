@@ -19,14 +19,16 @@ import java.net.URL;
 import java.util.Properties;
 
 import net.sf.ehcache.CacheManager;
-import net.sf.ehcache.hibernate.management.ProviderMBeanRegistrationHelper;
+import net.sf.ehcache.config.CacheConfiguration;
+import net.sf.ehcache.config.TerracottaConfiguration;
+import net.sf.ehcache.config.TerracottaConfiguration.ValueMode;
+import net.sf.ehcache.hibernate.management.impl.ProviderMBeanRegistrationHelper;
 import net.sf.ehcache.util.ClassLoaderUtil;
 
 import org.hibernate.cache.Cache;
 import org.hibernate.cache.CacheException;
 import org.hibernate.cache.CacheProvider;
 import org.hibernate.cache.Timestamper;
-import org.hibernate.cfg.Environment;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -51,6 +53,7 @@ import org.slf4j.LoggerFactory;
  * @author Emmanuel Bernard
  * @version $Id$
  */
+@Deprecated
 public final class SingletonEhCacheProvider implements CacheProvider {
 
     /**
@@ -98,6 +101,7 @@ public final class SingletonEhCacheProvider implements CacheProvider {
                 cache = manager.getEhcache(name);
                 SingletonEhCacheProvider.LOG.debug("started EHCache region: " + name);
             }
+            validateEhcache(cache);
             return new EhCache(cache);
         } catch (net.sf.ehcache.CacheException e) {
             throw new CacheException(e);
@@ -136,9 +140,20 @@ public final class SingletonEhCacheProvider implements CacheProvider {
             manager = CacheManager.create(url);
             referenceCount++;
         }
-        mbeanRegistrationHelper.registerMBean(manager, properties == null ? "" : properties.getProperty(Environment.SESSION_FACTORY_NAME));
+        mbeanRegistrationHelper.registerMBean(manager, properties);
     }
     
+    private static void validateEhcache(net.sf.ehcache.Ehcache cache) throws CacheException {
+        CacheConfiguration cacheConfig = cache.getCacheConfiguration();
+
+        if (cacheConfig.isTerracottaClustered()) {
+            TerracottaConfiguration tcCacheConfig = cacheConfig.getTerracottaConfiguration();
+            if (ValueMode.IDENTITY.equals(tcCacheConfig.getValueMode())) {
+                throw new CacheException("Identity mode Terracotta clustered caches cannot be used as Hibernate cache regions.");
+            }
+        }
+    }
+
     private URL loadResource(String configurationResourceName) {
         ClassLoader standardClassloader = ClassLoaderUtil.getStandardClassLoader();
         URL url = null;
@@ -151,7 +166,6 @@ public final class SingletonEhCacheProvider implements CacheProvider {
 
         LOG.debug("Creating EhCacheProvider from a specified resource: {}. Resolved to URL: ", configurationResourceName, url);
         if (url == null) {
-
                 LOG.warn("A configurationResourceName was set to {} but the resource could not be loaded from the classpath." +
                         "Ehcache will configure itself using defaults.", configurationResourceName);
         }
