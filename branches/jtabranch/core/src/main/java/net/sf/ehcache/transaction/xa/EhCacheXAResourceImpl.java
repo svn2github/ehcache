@@ -1,8 +1,10 @@
 package net.sf.ehcache.transaction.xa;
 
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.atomic.AtomicLong;
+import net.sf.ehcache.Element;
+import net.sf.ehcache.store.Store;
+import net.sf.ehcache.transaction.TransactionContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.transaction.RollbackException;
 import javax.transaction.SystemException;
@@ -11,13 +13,9 @@ import javax.transaction.TransactionManager;
 import javax.transaction.xa.XAException;
 import javax.transaction.xa.XAResource;
 import javax.transaction.xa.Xid;
-
-import net.sf.ehcache.Element;
-import net.sf.ehcache.store.Store;
-import net.sf.ehcache.transaction.TransactionContext;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * @author Nabib El-Rahman
@@ -54,13 +52,22 @@ public class EhCacheXAResourceImpl implements EhCacheXAResource {
      * XAResource Implementation
      */
     public void start(final Xid xid, final int flags) throws XAException {
-        LOG.info("Start called for Txn with id: " + xid);
+        if(LOG.isInfoEnabled()) {
+            LOG.info("Start called for Txn with id: " + xid);
+        }
+        // todo we should probably track state propertly here...
+        Transaction tx;
         try {
-            transactionXids.putIfAbsent(xid, txnManager.getTransaction());
+            tx = txnManager.getTransaction();
         } catch (SystemException e) {
-            XAException xaException = new XAException("Couldn't get to current Transaction: " + e.getMessage());
-            xaException.initCause(e);
-            throw xaException;
+            throw new EhCacheXAException("Couldn't get to current Transaction: " + e.getMessage(), e.errorCode, e);
+        }
+        if(tx == null) {
+            throw new EhCacheXAException("Couldn't get to current Transaction ", XAException.XAER_OUTSIDE);
+        }
+        Transaction previous = transactionXids.putIfAbsent(xid, tx);
+        if(previous != null && !previous.equals(tx)) {
+            throw new EhCacheXAException("Duplicated XID!", XAException.XAER_DUPID);
         }
     }
 
@@ -68,35 +75,51 @@ public class EhCacheXAResourceImpl implements EhCacheXAResource {
         if (onePhase) {
             prepare(xid); // TODO if XA_READONLY, do we need to do anymore?
         }
-        LOG.info((onePhase ? "One phase c" : "C") + "ommit called for Txn with id: " + xid);
+        if(LOG.isInfoEnabled()) {
+            LOG.info((onePhase ? "One" : "Two") + " phase commit called for Txn with id: " + xid);
+        }
         XaTransactionContext context = transactionDataTable.get(transactionXids.get(xid));
         for (VersionAwareWrapper command : context.getCommands()) {
             command.execute(store);
             versionTable.checkin(command.getElement(), context.getTransaction(), command.isWriteCommand());
         }
-
     }
 
     public void end(final Xid xid, final int flags) throws XAException {
-        LOG.info("End called for Txn with id: " + xid);
+        try {
+            if(flags != TMSUSPEND) {
+                transactionXids.get(xid).delistResource(this, flags);
+            } else {
+                //todo move tx data to CDM!
+            }
+        } catch(SystemException e) {
+            throw new EhCacheXAException("Couldn't delist XAResource", e.errorCode, e);
+        }
+        if(LOG.isInfoEnabled()) {
+            LOG.info("End called for Txn with id: " + xid);
+        }
     }
 
     public void forget(final Xid xid) throws XAException {
-        LOG.info("Forget called for Txn with id: " + xid);
+        if(LOG.isInfoEnabled()) {
+            LOG.info("Forget called for Txn with id: " + xid);
+        }
     }
 
     public int prepare(final Xid xid) throws XAException {
-        LOG.info("Prepare called for Txn with id: " + xid);
+        if(LOG.isInfoEnabled()) {
+            LOG.info("Prepare called for Txn with id: " + xid);
+        }
         XaTransactionContext context = transactionDataTable.get(transactionXids.get(xid));
         validateCommands(context);
-        return XA_OK;
+        return context.getCommands().isEmpty() ? XA_RDONLY : XA_OK;
     }
 
     private void validateCommands(XaTransactionContext context) throws XAException {
         for (VersionAwareWrapper wrapper : context.getCommands()) {
             if (wrapper.isVersionAware()) {
                 if (!versionTable.valid(wrapper.getElement(), wrapper.getVersion())) {
-                    throw new XAException("Invalid version for element: " + wrapper.getElement());
+                    throw new EhCacheXAException("Invalid version for element: " + wrapper.getElement(), XAException.XA_RBINTEGRITY);
                 }
             }
         }
@@ -107,7 +130,9 @@ public class EhCacheXAResourceImpl implements EhCacheXAResource {
     }
 
     public void rollback(final Xid xid) throws XAException {
-        LOG.info("Rollback called for Txn with id: " + xid);
+        if(LOG.isInfoEnabled()) {
+            LOG.info("Rollback called for Txn with id: " + xid);
+        }
     }
 
     public boolean isSameRM(final XAResource xaResource) throws XAException {
