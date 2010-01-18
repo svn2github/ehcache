@@ -435,10 +435,10 @@
                     Started</a></li>
                 <li><a href="http://ehcache.org/documentation/samples.html">Code Samples</a>
                 </li>
-                <li><a href="http://ehcache.org/documentation/evaluation_faq.html">Evaluation
+                <li><a href="http://ehcache.org/evaluation_faq.html">Evaluation
                     FAQ</a></li>
                 <li>
-                    <a href="http://ehcache.org/documentation/benchmarks.html">Benchmarks</a>
+                    <a href="http://ehcache.org/benchmarks.html">Benchmarks</a>
                 </li>
                 <li><a href="http://ehcache.org/roadmap.html">Road Map</a></li>
             </ul>
@@ -447,7 +447,7 @@
             <h4>Products & Services</h4>
             <ul>
                 <li>
-                    <a href="http://www.terracotta.org/ehcache/distributed-cache/?source=ehcachebanner">Ehcache
+                    <a href="http://www.terracotta.org/ehcache">Ehcache
                         DX, EX and FX
                         &gt;&gt;</a></li>
                 <li>

@@ -240,6 +240,12 @@ pageTracker._trackPageview();
             <!-- /rss widget -->
             ]]></replacevalue>
         </replace>
+        <replace file="${build.dir}/site/index.html">
+            <replacetoken><![CDATA[Ehcache Distributed Cache]]></replacetoken>
+            <replacevalue><![CDATA[
+            Ehcache Distributed Cache <br><font size="-1" color="black">Performance At Any Scale</font>
+            ]]></replacevalue>
+        </replace>
         <replace file="${build.dir}/site/modules/monitor.html">
             <replacetoken><![CDATA[dx_preview]]></replacetoken>
             <replacevalue><![CDATA[
@@ -249,8 +255,8 @@ pageTracker._trackPageview();
         <replace file="${build.dir}/site/index.html">
             <replacetoken><![CDATA[ehcache_1_7_talk]]></replacetoken>
             <replacevalue><![CDATA[
-            &nbsp;&nbsp;&nbsp;&nbsp;<a href="https://terracotta.webex.com/terracotta/lsr.php?AT=pb&SP=EC&rID=1702397&rKey=b0920841e529407d" title="Ehcache 1.7 Scaling Applications with Distributed Caches, recorded 5 November 2009. 60 minutes duration"><img src="images/ehcache_1_7_presentation.jpg" border="0"/></a>
-                    ]]></replacevalue>
+            <br>&nbsp;&nbsp;&nbsp;&nbsp;<center><a href="https://terracotta.webex.com/terracotta/lsr.php?AT=pb&SP=EC&rID=1702397&rKey=b0920841e529407d" title="Ehcache 1.7 Scaling Applications with Distributed Caches, recorded 5 November 2009. 60 minutes duration"><img src="images/ehcache_1_7_presentation.jpg" border="0"/></a></center>
+            <br>        ]]></replacevalue>
         </replace>
         <replace file="${build.dir}/site/source-repository.html">
             <replacetoken><![CDATA[ehcache-core]]></replacetoken>

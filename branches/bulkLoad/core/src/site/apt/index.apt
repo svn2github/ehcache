@@ -2,26 +2,35 @@
  Distributed Cache - Performance At Any Scale
  ---- 
 
-
 Ehcache Distributed Cache
 
- Ehcache is a widely used java distributed cache for general purpose caching, Java EE and light-weight containers.
+    Ehcache is an open source, standards-based cache used in a wide array of applications to boost performance,
+    offload the database and simplify scalability. Ehcache is robust, proven and full-features and this has made it
+    the most widely used Java-based cache.
 
- It features memory and disk stores, replicate by copy and invalidate, listeners, cache loaders, cache extensions, cache exception handlers,
- a gzip caching servlet filter, RESTful & SOAP APIs, an implementation of JSR107 and much {{{features.html}more}}...
+    Ehcache is available under an {{{/license.html}Apache 2}} and is actively developed, maintained
+    and supported as a professional open source project by {{{http://terracotta.org}Terracotta, Inc.}} and used as
+    a key component of the Terracotta scalability continuum.
 
- It can scale from in-process with one or more nodes through to a mixed in-process/out-of-process configuration with
- terabyte sized caches. It is thread-safe locally and is coherent in distributed form when configured with
- the Terracotta Server Array.
+    Ehcache features memory and disk stores, replicate by copy and invalidate, listeners, cache loaders, cache extensions,
+    cache exception handlers, a gzip caching servlet filter, RESTful & SOAP APIs, an implementation of JSR107 and {{{/features.html}much more...}}.
 
- Ehcache is available under an Apache open source {{{license.html}license}} and is actively developed, maintained and supported.
+    It can scale from in-process with one or more nodes through to a mixed in-process/out-of-process configuration with
+    terabyte sized caches.  For applications needing a coherent distributed cache,  Ehcache can be be distributed using
+    the open source Terracotta Sever Array.
 
- Ehcache is a professional Open Source project and a critical component of the Terracotta suite of products.
- {{{http://www.terracotta.org}Terracotta, Inc.}} offers a
- range of {{{http://www.terracotta.org/support/ehcache-support?source=ehcachebanner}24x7 Professional Support,
- Consulting, and Training services}} worldwide to assist you with Ehcache.
+    In addition to the full-featured open source Ehcache edition, Terracotta offers the following enterprise editions of Ehcache:
 
+     * {{{http://www.terracotta.org/ehcache/ehcache-dx?src=ehcachehome}Ehcache DX}} - Ehcache enterprise support with a console for enhanced cache monitoring and management.
 
+     * {{{http://www.terracotta.org/ehcache/distributed-cache/?src=ehcachehome}Ehcache EX}} - Coherent distributed cache with Terracotta Server Array, plus enterprise support.
+
+     * {{{http://www.terracotta.org/ehcache/distributed-cache/ehcache-fx?src=ehcachehome}Ehcache FX}} - Partitioned distributed cache for extreme scale scenarios, plus enterprise support.
+
+    Terracotta offers a range of 24x7 Professional Support, Consulting, and Training services worldwide to assist you in development and
+    and in operations with Ehcache.
+
+    Ehcache is distributed in the following modules: 
 
 *----------+--------------+
 {{{documentation/index.html}ehcache}} | a packaging of commonly used modules
@@ -46,10 +55,6 @@ Ehcache Distributed Cache
 *----------+--------------+
 {{{documentation/cache_server.html}ehcache-server}} | RESTful cache server in a WAR or standalone
 *----------+--------------:
-
----
-
----
 
   ehcache_1_7_talk
 

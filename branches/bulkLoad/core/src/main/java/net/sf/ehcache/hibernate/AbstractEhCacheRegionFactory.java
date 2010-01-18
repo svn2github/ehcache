@@ -15,75 +15,86 @@
  */
 package net.sf.ehcache.hibernate;
 
+import java.net.URL;
 import java.util.Properties;
+
+import net.sf.ehcache.CacheManager;
+import net.sf.ehcache.Ehcache;
+import net.sf.ehcache.config.CacheConfiguration;
+import net.sf.ehcache.config.TerracottaConfiguration;
+import net.sf.ehcache.config.TerracottaConfiguration.ValueMode;
+import net.sf.ehcache.hibernate.management.impl.ProviderMBeanRegistrationHelper;
+import net.sf.ehcache.hibernate.regions.EhCacheQueryResultsRegion;
+import net.sf.ehcache.hibernate.regions.EhCacheTimestampsRegion;
+import net.sf.ehcache.hibernate.regions.EhCacheEntityRegion;
+import net.sf.ehcache.hibernate.regions.EhCacheCollectionRegion;
+import net.sf.ehcache.util.ClassLoaderUtil;
+
 import org.hibernate.cache.CacheDataDescription;
 import org.hibernate.cache.CacheException;
-import org.hibernate.cache.CacheProvider;
 import org.hibernate.cache.CollectionRegion;
 import org.hibernate.cache.EntityRegion;
 import org.hibernate.cache.QueryResultsRegion;
 import org.hibernate.cache.RegionFactory;
+import org.hibernate.cache.Timestamper;
 import org.hibernate.cache.TimestampsRegion;
 import org.hibernate.cfg.Settings;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * Abstract implementation of an EhCache specific RegionFactory.
- * <p>
- * This abstract class wraps an EhCache CacheProvider as an instance of RegionFactory.
  * 
  * @author Chris Dennis
  */
 abstract class AbstractEhCacheRegionFactory implements RegionFactory {
-    
-    private final EhCacheProvider provider;
-
-    private Settings settings;
 
     /**
-     * Creates an AbstractEhCacheRegionFactory backed by the given CacheProvider.
-     * <p>
-     * The supplied CacheProvider must return instances of EhCache from buildCache otherwise bad things will happen.
-     * 
-     * @param provider backing cache provider.
+     * The Hibernate system property specifying the location of the ehcache configuration file name.
+     * <p/>
+     * If not set, ehcache.xml will be looked for in the root of the classpath.
+     * <p/>
+     * If set to say ehcache-1.xml, ehcache-1.xml will be looked for in the root of the classpath.
      */
-    AbstractEhCacheRegionFactory(CacheProvider provider) {
-        this.provider = new EhCacheProvider();
-    }
+    public static final String NET_SF_EHCACHE_CONFIGURATION_RESOURCE_NAME = "net.sf.ehcache.configurationResourceName";
+
+    private static final Logger LOG = LoggerFactory.getLogger(AbstractEhCacheRegionFactory.class);
 
     /**
-     * {@inheritDoc}
+     * MBean registration helper class instance for EhCache Hibernate MBeans.
      */
-    public void start(Settings settings, Properties properties) throws CacheException {
-        this.settings = settings;
-        provider.start(properties);
-    }
+    protected final ProviderMBeanRegistrationHelper mbeanRegistrationHelper = new ProviderMBeanRegistrationHelper();
 
     /**
-     * {@inheritDoc}
+     * EhCache CacheManager that supplied EhCache instances for this Hibernate RegionFactory.
      */
-    public void stop() {
-        provider.stop();
-    }
+    protected volatile CacheManager manager;
+
+    /**
+     * Settings object for the Hibernate persistence unit.
+     */
+    protected Settings settings;
 
     /**
      * {@inheritDoc}
      */
     public boolean isMinimalPutsEnabledByDefault() {
-        return provider.isMinimalPutsEnabledByDefault();
+        return false;
     }
 
     /**
      * {@inheritDoc}
      */
     public long nextTimestamp() {
-        return provider.nextTimestamp();
+        return Timestamper.next();
     }
 
     /**
      * {@inheritDoc}
      */
     public EntityRegion buildEntityRegion(String regionName, Properties properties, CacheDataDescription metadata) throws CacheException {
-        return new EhCacheEntityRegion(provider.buildCache(regionName, properties), settings, metadata);
+        return new EhCacheEntityRegion(getCache(regionName), settings, metadata);
     }
 
     /**
@@ -91,20 +102,70 @@ abstract class AbstractEhCacheRegionFactory implements RegionFactory {
      */
     public CollectionRegion buildCollectionRegion(String regionName, Properties properties, CacheDataDescription metadata)
             throws CacheException {
-        return new EhCacheCollectionRegion(provider.buildCache(regionName, properties), settings, metadata);
+        return new EhCacheCollectionRegion(getCache(regionName), settings, metadata);
     }
 
     /**
      * {@inheritDoc}
      */
     public QueryResultsRegion buildQueryResultsRegion(String regionName, Properties properties) throws CacheException {
-        return new EhCacheQueryResultsRegion(provider.buildCache(regionName, properties), settings);
+        return new EhCacheQueryResultsRegion(getCache(regionName));
     }
 
     /**
      * {@inheritDoc}
      */
     public TimestampsRegion buildTimestampsRegion(String regionName, Properties properties) throws CacheException {
-        return new EhCacheTimestampsRegion(provider.buildCache(regionName, properties), settings);
+        return new EhCacheTimestampsRegion(getCache(regionName));
+    }
+
+    private Ehcache getCache(String name) throws CacheException {
+                try {
+            Ehcache cache = manager.getEhcache(name);
+            if (cache == null) {
+                LOG.warn("Couldn't find a specific ehcache configuration for cache named [" + name + "]; using defaults.");
+                manager.addCache(name);
+                cache = manager.getEhcache(name);
+                LOG.debug("started EHCache region: " + name);
+            }
+            validateEhcache(cache);
+            return cache;
+        } catch (net.sf.ehcache.CacheException e) {
+            throw new CacheException(e);
+        }
+
+    }
+
+    private static void validateEhcache(Ehcache cache) throws CacheException {
+        CacheConfiguration cacheConfig = cache.getCacheConfiguration();
+
+        if (cacheConfig.isTerracottaClustered()) {
+            TerracottaConfiguration tcCacheConfig = cacheConfig.getTerracottaConfiguration();
+            if (ValueMode.IDENTITY.equals(tcCacheConfig.getValueMode())) {
+                throw new CacheException("Identity mode Terracotta clustered caches cannot be used as Hibernate cache regions.");
+            }
+        }
+    }
+
+    /**
+     * Load a resource from the classpath.
+     */
+    protected static URL loadResource(String configurationResourceName) {
+        ClassLoader standardClassloader = ClassLoaderUtil.getStandardClassLoader();
+        URL url = null;
+        if (standardClassloader != null) {
+            url = standardClassloader.getResource(configurationResourceName);
+        }
+        if (url == null) {
+            url = AbstractEhCacheRegionFactory.class.getResource(configurationResourceName);
+        }
+
+            LOG.debug("Creating EhCacheProvider from a specified resource: {}.  Resolved to URL: {}", configurationResourceName, url);
+        if (url == null) {
+
+                LOG.warn("A configurationResourceName was set to {} but the resource could not be loaded from the classpath." +
+                        "Ehcache will configure itself using defaults.", configurationResourceName);
+        }
+        return url;
     }
 }

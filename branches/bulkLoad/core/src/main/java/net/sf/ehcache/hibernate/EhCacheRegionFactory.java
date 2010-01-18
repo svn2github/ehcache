@@ -15,21 +15,73 @@
  */
 package net.sf.ehcache.hibernate;
 
+import java.net.URL;
 import java.util.Properties;
+
+import net.sf.ehcache.CacheManager;
+
+import org.hibernate.cache.CacheException;
+import org.hibernate.cfg.Settings;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A non-singleton EhCacheRegionFactory implementation.
- * <p>
- * This class uses functionality in the Hibernate 3.2 API EhCacheProvider.
  * 
  * @author Chris Dennis
  */
 public class EhCacheRegionFactory extends AbstractEhCacheRegionFactory {
 
+    private static final Logger LOG = LoggerFactory.getLogger(EhCacheRegionFactory.class);
+
     /**
      * Creates a non-singleton EhCacheRegionFactory
      */
     public EhCacheRegionFactory(Properties prop) {
-        super(new EhCacheProvider());
+        super();
+    }
+    /**
+     * {@inheritDoc}
+     */
+    public void start(Settings settings, Properties properties) throws CacheException {
+        if (manager != null) {
+            LOG.warn("Attempt to restart an already started EhCacheProvider. Use sessionFactory.close() " +
+                    " between repeated calls to buildSessionFactory. Using previously created EhCacheProvider." +
+                    " If this behaviour is required, consider using SingletonEhCacheProvider.");
+            return;
+        }
+        try {
+            String configurationResourceName = null;
+            if (properties != null) {
+                configurationResourceName = (String) properties.get(NET_SF_EHCACHE_CONFIGURATION_RESOURCE_NAME);
+            }
+            if (configurationResourceName == null || configurationResourceName.length() == 0) {
+                manager = new CacheManager();
+            } else {
+                URL url = loadResource(configurationResourceName);
+                manager = new CacheManager(url);
+            }
+            mbeanRegistrationHelper.registerMBean(manager, properties);
+        } catch (net.sf.ehcache.CacheException e) {
+            if (e.getMessage().startsWith("Cannot parseConfiguration CacheManager. Attempt to create a new instance of " +
+                    "CacheManager using the diskStorePath")) {
+                throw new CacheException("Attempt to restart an already started EhCacheRegionFactory. " +
+                        "Use sessionFactory.close() between repeated calls to buildSessionFactory. " +
+                        "Consider using SingletonEhCacheRegionFactory. Error from ehcache was: " + e.getMessage());
+            } else {
+                throw e;
+            }
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void stop() {
+        if (manager != null) {
+            manager.shutdown();
+            manager = null;
+        }
     }
 }
