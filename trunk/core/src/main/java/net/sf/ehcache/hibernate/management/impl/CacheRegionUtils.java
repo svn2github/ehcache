@@ -80,6 +80,9 @@ public abstract class CacheRegionUtils {
 
     if (fullName != null) {
       String[] comps = fullName.split("\\.");
+      if (comps.length == 1) {
+          return fullName;
+      }
       boolean truncate = true;
       for (int i = 0; i < comps.length; i++) {
         String comp = comps[i];
