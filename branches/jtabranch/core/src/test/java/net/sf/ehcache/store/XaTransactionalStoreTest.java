@@ -28,6 +28,7 @@ import javax.transaction.RollbackException;
 import javax.transaction.Synchronization;
 import javax.transaction.SystemException;
 import javax.transaction.Transaction;
+import javax.transaction.TransactionManager;
 import javax.transaction.xa.XAException;
 import javax.transaction.xa.XAResource;
 import javax.transaction.xa.Xid;
@@ -117,6 +118,11 @@ public class XaTransactionalStoreTest extends TestCase {
         }
 
         public void start(Xid xid, int flags) throws XAException {
+        }
+
+        public void initalizeTransients(Store store, TransactionManager txnManager) {
+            // TODO Auto-generated method stub
+            
         }
 
     }

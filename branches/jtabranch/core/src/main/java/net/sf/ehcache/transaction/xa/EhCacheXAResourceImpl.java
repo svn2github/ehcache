@@ -28,10 +28,12 @@ public class EhCacheXAResourceImpl implements EhCacheXAResource {
     private final ConcurrentMap<Xid, Transaction> transactionXids = new ConcurrentHashMap<Xid, Transaction>();
     private final VersionTable versionTable = new VersionTable();
 
+    
     private final String cacheName;
-    private final Store store;
-    private final TransactionManager txnManager;
     private int transactionTimeout;
+
+    private transient Store store;
+    private transient TransactionManager txnManager;
 
     public EhCacheXAResourceImpl(String cacheName, Store store, TransactionManager txnManager) {
         this.cacheName = cacheName;
@@ -287,6 +289,11 @@ public class EhCacheXAResourceImpl implements EhCacheXAResource {
             version.incrementAndGet();
             return txnVersionMap.isEmpty();
         }
+    }
+
+    public void initalizeTransients(Store store, TransactionManager txnManager) {
+        this.store = store;
+        this.txnManager = txnManager;
     }
 
 }

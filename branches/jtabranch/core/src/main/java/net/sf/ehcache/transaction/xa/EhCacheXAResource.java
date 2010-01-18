@@ -18,6 +18,7 @@ package net.sf.ehcache.transaction.xa;
 
 import javax.transaction.RollbackException;
 import javax.transaction.SystemException;
+import javax.transaction.TransactionManager;
 import javax.transaction.xa.XAResource;
 
 import net.sf.ehcache.store.Store;
@@ -30,5 +31,7 @@ public interface EhCacheXAResource extends XAResource {
     Store getStore();
     
     TransactionContext getOrCreateTransactionContext() throws SystemException, RollbackException;
+
+    void initalizeTransients(Store store, TransactionManager txnManager);
 
 }

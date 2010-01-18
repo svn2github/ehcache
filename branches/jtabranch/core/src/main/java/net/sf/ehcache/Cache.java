@@ -16,37 +16,6 @@
 
 package net.sf.ehcache;
 
-import net.sf.ehcache.bootstrap.BootstrapCacheLoader;
-import net.sf.ehcache.config.CacheConfiguration;
-import net.sf.ehcache.config.DiskStoreConfiguration;
-import net.sf.ehcache.config.TerracottaConfiguration;
-import net.sf.ehcache.event.CacheEventListener;
-import net.sf.ehcache.event.RegisteredEventListeners;
-import net.sf.ehcache.exceptionhandler.CacheExceptionHandler;
-import net.sf.ehcache.extension.CacheExtension;
-import net.sf.ehcache.loader.CacheLoader;
-import net.sf.ehcache.statistics.CacheUsageListener;
-import net.sf.ehcache.statistics.LiveCacheStatistics;
-import net.sf.ehcache.statistics.LiveCacheStatisticsData;
-import net.sf.ehcache.statistics.LiveCacheStatisticsWrapper;
-import net.sf.ehcache.statistics.sampled.SampledCacheStatistics;
-import net.sf.ehcache.statistics.sampled.SampledCacheStatisticsWrapper;
-import net.sf.ehcache.store.DiskStore;
-import net.sf.ehcache.store.LruMemoryStore;
-import net.sf.ehcache.store.MemoryStore;
-import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
-import net.sf.ehcache.store.Policy;
-import net.sf.ehcache.store.Store;
-import net.sf.ehcache.store.XaTransactionalStore;
-import net.sf.ehcache.transaction.manager.TransactionManagerLookup;
-import net.sf.ehcache.transaction.xa.EhCacheXAResource;
-import net.sf.ehcache.transaction.xa.XAResourceRepository;
-import net.sf.ehcache.util.NamedThreadFactory;
-import net.sf.ehcache.util.TimeUtil;
-import net.sf.ehcache.writebehind.WriteBehind;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.IOException;
 import java.io.Serializable;
 import java.net.InetAddress;
@@ -71,6 +40,37 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 import javax.transaction.TransactionManager;
+
+import net.sf.ehcache.bootstrap.BootstrapCacheLoader;
+import net.sf.ehcache.config.CacheConfiguration;
+import net.sf.ehcache.config.DiskStoreConfiguration;
+import net.sf.ehcache.config.TerracottaConfiguration;
+import net.sf.ehcache.event.CacheEventListener;
+import net.sf.ehcache.event.RegisteredEventListeners;
+import net.sf.ehcache.exceptionhandler.CacheExceptionHandler;
+import net.sf.ehcache.extension.CacheExtension;
+import net.sf.ehcache.loader.CacheLoader;
+import net.sf.ehcache.statistics.CacheUsageListener;
+import net.sf.ehcache.statistics.LiveCacheStatistics;
+import net.sf.ehcache.statistics.LiveCacheStatisticsData;
+import net.sf.ehcache.statistics.LiveCacheStatisticsWrapper;
+import net.sf.ehcache.statistics.sampled.SampledCacheStatistics;
+import net.sf.ehcache.statistics.sampled.SampledCacheStatisticsWrapper;
+import net.sf.ehcache.store.DiskStore;
+import net.sf.ehcache.store.LruMemoryStore;
+import net.sf.ehcache.store.MemoryStore;
+import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
+import net.sf.ehcache.store.Policy;
+import net.sf.ehcache.store.Store;
+import net.sf.ehcache.store.XaTransactionalStore;
+import net.sf.ehcache.transaction.manager.TransactionManagerLookup;
+import net.sf.ehcache.transaction.xa.EhCacheXAResource;
+import net.sf.ehcache.util.NamedThreadFactory;
+import net.sf.ehcache.util.TimeUtil;
+import net.sf.ehcache.writebehind.WriteBehind;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Cache is the central class in ehcache. Caches have {@link Element}s and are managed
@@ -877,8 +877,7 @@ public class Cache implements Ehcache {
                 // We might want a factory here, and abstract the kinda of TransactionalStore we actually get
                 // (TC or not, and maybe later other non XA)
                 // We should also look into net.sf.ehcache.CacheManager.createTerracottaStore
-                XAResourceRepository xaResourceRepository = new XAResourceRepository(transactionManagerLookup);
-                EhCacheXAResource resource = xaResourceRepository.getOrCreateXAResource(getName(), memoryStore);
+                EhCacheXAResource resource = cacheManager.createEhcacheXAResource(this, memoryStore, transactionManagerLookup.getTransactionManager());
                 this.memoryStore = new XaTransactionalStore(resource);
             } else {
                 this.memoryStore = memoryStore;

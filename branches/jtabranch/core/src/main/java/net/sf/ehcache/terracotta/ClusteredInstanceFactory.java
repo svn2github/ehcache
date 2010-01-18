@@ -15,8 +15,11 @@
  */
 package net.sf.ehcache.terracotta;
 
+import javax.transaction.TransactionManager;
+
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.store.Store;
+import net.sf.ehcache.transaction.xa.EhCacheXAResource;
 import net.sf.ehcache.writebehind.WriteBehind;
 
 /**
@@ -43,4 +46,14 @@ public interface ClusteredInstanceFactory {
    * @return write behind instance
    */
   WriteBehind createAsync(Ehcache cache);
+  
+  
+  /**
+   * 
+   * @param cacheName
+   * @param store
+   * @param txnManager
+   * @return
+   */
+  EhCacheXAResource createXAResource(Ehcache cache, Store store, TransactionManager txnManager);
 }
