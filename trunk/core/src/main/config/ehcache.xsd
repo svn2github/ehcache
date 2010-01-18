@@ -168,6 +168,7 @@
         <xs:restriction base="xs:string">
             <xs:enumeration value="serialization" />
             <xs:enumeration value="identity" />
+            <xs:enumeration value="hibernate" />
         </xs:restriction>
     </xs:simpleType>
 </xs:schema>
