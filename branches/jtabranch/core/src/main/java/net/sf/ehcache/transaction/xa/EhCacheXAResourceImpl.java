@@ -215,6 +215,9 @@ public class EhCacheXAResourceImpl implements EhCacheXAResource {
 
         protected final ConcurrentMap<Object, Version> versionStore;
         
+        public VersionTable() {
+            this.versionStore = new ConcurrentHashMap<Object, Version>();
+        }
         public VersionTable(ConcurrentMap<Object,Version> versionStore) {
             this.versionStore = versionStore;
         }
