@@ -110,4 +110,19 @@ public interface SampledCacheManagerMBean {
      * Clears statistics of all caches for the associated cacheManager
      */
     public void clearStatistics();
+    
+    /**
+     * generateActiveConfigDeclaration
+     * 
+     * @return CacheManager configuration as String
+     */
+    String generateActiveConfigDeclaration();
+    
+    /**
+     * generateActiveConfigDeclaration
+     * 
+     * @param cacheName
+     * @return Cache configuration as String
+     */
+    String generateActiveConfigDeclaration(String cacheName); 
 }

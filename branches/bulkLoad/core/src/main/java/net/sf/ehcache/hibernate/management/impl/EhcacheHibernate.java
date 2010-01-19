@@ -257,13 +257,6 @@ public class EhcacheHibernate extends BaseEmitterBean implements EhcacheHibernat
     /**
      * {@inheritDoc}
      */
-    public TabularData getEvictionStats() {
-        return hibernateStats.getEvictionStats();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
     public long getFlushCount() {
         return hibernateStats.getFlushCount();
     }

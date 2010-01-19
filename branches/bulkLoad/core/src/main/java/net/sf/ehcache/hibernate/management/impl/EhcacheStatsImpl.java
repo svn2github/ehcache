@@ -393,6 +393,7 @@ public class EhcacheStatsImpl extends BaseEmitterBean implements EhcacheStats {
         if (cache != null) {
             cache.setDisabled(!enabled);
         }
+        sendNotification(CACHE_REGION_CHANGED, getRegionCacheAttributes(region), region);
     }
 
     /**
@@ -466,6 +467,7 @@ public class EhcacheStatsImpl extends BaseEmitterBean implements EhcacheStats {
         Cache cache = this.cacheManager.getCache(region);
         if (cache != null) {
             cache.getCacheConfiguration().setLoggingEnabled(loggingEnabled);
+            sendNotification(CACHE_REGION_CHANGED, getRegionCacheAttributes(region), region);
         }
     }
 
@@ -476,6 +478,7 @@ public class EhcacheStatsImpl extends BaseEmitterBean implements EhcacheStats {
         Cache cache = this.cacheManager.getCache(region);
         if (cache != null) {
             cache.getCacheConfiguration().setTimeToIdleSeconds(maxTTISeconds);
+            sendNotification(CACHE_REGION_CHANGED, getRegionCacheAttributes(region), region);
         }
     }
 
@@ -486,6 +489,7 @@ public class EhcacheStatsImpl extends BaseEmitterBean implements EhcacheStats {
         Cache cache = this.cacheManager.getCache(region);
         if (cache != null) {
             cache.getCacheConfiguration().setTimeToLiveSeconds(maxTTLSeconds);
+            sendNotification(CACHE_REGION_CHANGED, getRegionCacheAttributes(region), region);
         }
     }
 
@@ -496,6 +500,7 @@ public class EhcacheStatsImpl extends BaseEmitterBean implements EhcacheStats {
         Cache cache = this.cacheManager.getCache(region);
         if (cache != null) {
             cache.getCacheConfiguration().setMaxElementsInMemory(targetMaxInMemoryCount);
+            sendNotification(CACHE_REGION_CHANGED, getRegionCacheAttributes(region), region);
         }
     }
 
@@ -506,6 +511,7 @@ public class EhcacheStatsImpl extends BaseEmitterBean implements EhcacheStats {
         Cache cache = this.cacheManager.getCache(region);
         if (cache != null) {
             cache.getCacheConfiguration().setMaxElementsOnDisk(targetMaxTotalCount);
+            sendNotification(CACHE_REGION_CHANGED, getRegionCacheAttributes(region), region);
         }
     }
 
@@ -550,6 +556,7 @@ public class EhcacheStatsImpl extends BaseEmitterBean implements EhcacheStats {
         if (flag) {
             clearStats();
         }
+        sendNotification(CACHE_STATISTICS_ENABLED, flag);
     }
 
     /**
