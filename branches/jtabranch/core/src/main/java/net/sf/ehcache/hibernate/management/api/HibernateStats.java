@@ -28,6 +28,35 @@ import javax.management.openmbean.TabularData;
  * 
  */
 public interface HibernateStats extends NotificationEmitter {
+    /**
+     * CACHE_ENABLED
+     */
+    public static final String CACHE_ENABLED = "CacheEnabled";
+    
+    /**
+     * CACHE_REGION_CHANGED
+     */
+    public static final String CACHE_REGION_CHANGED = "CacheRegionChanged";
+    
+    /**
+     * CACHE_FLUSHED
+     */
+    public static final String CACHE_FLUSHED = "CacheFlushed";
+    
+    /**
+     * CACHE_REGION_FLUSHED
+     */
+    public static final String CACHE_REGION_FLUSHED = "CacheRegionFlushed";
+    
+    /**
+     * CACHE_STATISTICS_ENABLED
+     */
+    public static final String CACHE_STATISTICS_ENABLED = "CacheStatisticsEnabled";
+    
+    /**
+     * CACHE_STATISTICS_RESET
+     */
+    public static final String CACHE_STATISTICS_RESET = "CacheStatisticsReset";
 
     /**
      * Returns true if statistics collection is enabled otherwise false
@@ -167,13 +196,6 @@ public interface HibernateStats extends NotificationEmitter {
      * @return Returns {@link TabularData} of query stats
      */
     TabularData getQueryStats();
-
-    /**
-     * Returns {@link TabularData} of eviction stats
-     * 
-     * @return Returns {@link TabularData} of eviction stats
-     */
-    TabularData getEvictionStats();
 
     /**
      * Returns {@link TabularData} of cache region stats

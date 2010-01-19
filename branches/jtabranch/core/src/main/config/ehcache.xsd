@@ -147,13 +147,13 @@
     </xs:element>
     <xs:element name="terracotta">
         <xs:complexType>
-            <xs:attribute default="true" name="clustered" type="xs:boolean" use="optional"/>
-            <xs:attribute default="serialization" name="valueMode" type="terracottaCacheValueType" use="optional"/>
-            <xs:attribute default="true" name="coherentReads" type="xs:boolean" use="optional"/>
-            <xs:attribute default="false" name="localKeyCache" type="xs:boolean" use="optional"/>
-            <xs:attribute default="10000" name="localKeyCacheSize" type="xs:positiveInteger" use="optional"/>
-            <xs:attribute default="true" name="orphanEviction" type="xs:boolean" use="optional"/>
-            <xs:attribute default="4" name="orphanEvictionPeriod" type="xs:positiveInteger" use="optional"/>
+            <xs:attribute name="clustered" use="optional" type="xs:boolean" default="true"/>
+            <xs:attribute name="valueMode" use="optional" type="terracottaCacheValueType" default="serialization"/>
+            <xs:attribute name="coherentReads" use="optional" type="xs:boolean" default="true"/>
+            <xs:attribute name="localKeyCache" use="optional" type="xs:boolean" default="false"/>
+            <xs:attribute name="localKeyCacheSize" use="optional" type="xs:positiveInteger" default="300000"/>
+            <xs:attribute name="orphanEviction" use="optional" type="xs:boolean" default="true"/>
+            <xs:attribute name="orphanEvictionPeriod" use="optional" type="xs:positiveInteger" default="4"/>
             <xs:attribute name="copyOnRead" use="optional" type="xs:boolean" default="false"/>
         </xs:complexType>
     </xs:element>
@@ -168,6 +168,7 @@
         <xs:restriction base="xs:string">
             <xs:enumeration value="serialization"/>
             <xs:enumeration value="identity"/>
+            <xs:enumeration value="hibernate" />
         </xs:restriction>
     </xs:simpleType>
     <xs:simpleType name="transactionalMode">

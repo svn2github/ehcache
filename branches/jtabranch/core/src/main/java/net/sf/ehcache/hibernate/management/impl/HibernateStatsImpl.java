@@ -69,6 +69,7 @@ public class HibernateStatsImpl extends BaseEmitterBean implements HibernateStat
      */
     public void clearStats() {
         statistics.clear();
+        sendNotification(CACHE_STATISTICS_RESET);
     }
 
     /**
@@ -77,7 +78,7 @@ public class HibernateStatsImpl extends BaseEmitterBean implements HibernateStat
      * @see net.sf.ehcache.hibernate.management.api.HibernateStats#disableStats()
      */
     public void disableStats() {
-        statistics.setStatisticsEnabled(false);
+        setStatisticsEnabled(false);
     }
 
     /**
@@ -86,7 +87,7 @@ public class HibernateStatsImpl extends BaseEmitterBean implements HibernateStat
      * @see net.sf.ehcache.hibernate.management.api.HibernateStats#enableStats()
      */
     public void enableStats() {
-        statistics.setStatisticsEnabled(true);
+        setStatisticsEnabled(true);
     }
 
     /**
@@ -224,6 +225,7 @@ public class HibernateStatsImpl extends BaseEmitterBean implements HibernateStat
      */
     public void setStatisticsEnabled(boolean flag) {
         statistics.setStatisticsEnabled(flag);
+        sendNotification(CACHE_STATISTICS_ENABLED, flag);
     }
 
     /**
@@ -256,15 +258,6 @@ public class HibernateStatsImpl extends BaseEmitterBean implements HibernateStat
         TabularData td = CollectionStats.newTabularDataInstance();
         td.putAll(result.toArray(new CompositeData[result.size()]));
         return td;
-    }
-
-    /**
-     * {@inheritDoc}
-     * 
-     * @see net.sf.ehcache.hibernate.management.api.HibernateStats#getEvictionStats()
-     */
-    public TabularData getEvictionStats() {
-        throw new UnsupportedOperationException("TODO: need to impl.");
     }
 
     /**

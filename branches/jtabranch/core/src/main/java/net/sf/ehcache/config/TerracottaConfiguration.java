@@ -62,7 +62,10 @@ public class TerracottaConfiguration implements Cloneable {
         SERIALIZATION,
 
         /** Use Terracotta clustered identity to preserve object identity without serialization */
-        IDENTITY;
+        IDENTITY,
+
+        /** Use a Hibernate optimized ValueMode handler */
+        HIBERNATE;
     }
 
     private boolean clustered = true;

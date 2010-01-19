@@ -216,4 +216,21 @@ public class SampledCacheManager implements SampledCacheManagerMBean {
         }
     }
 
+    /**
+     * generateActiveConfigDeclaration
+     * 
+     * @return CacheManager configuration as String
+     */
+    public String generateActiveConfigDeclaration() {
+        return this.cacheManager.getActiveConfigurationText();
+    }
+
+    /**
+     * generateActiveConfigDeclaration
+     * 
+     * @return Cache configuration as String
+     */
+    public String generateActiveConfigDeclaration(String cacheName) {
+        return this.cacheManager.getActiveConfigurationText(cacheName);
+    }
 }

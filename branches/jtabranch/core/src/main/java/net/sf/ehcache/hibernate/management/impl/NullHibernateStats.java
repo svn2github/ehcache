@@ -128,16 +128,6 @@ public final class NullHibernateStats implements HibernateStats {
     /**
      * {@inheritDoc}
      * 
-     * @see net.sf.ehcache.hibernate.management.api.HibernateStats#getEvictionStats()
-     */
-    public TabularData getEvictionStats() {
-        // no-op
-        return null;
-    }
-
-    /**
-     * {@inheritDoc}
-     * 
      * @see net.sf.ehcache.hibernate.management.api.HibernateStats#getFlushCount()
      */
     public long getFlushCount() {
