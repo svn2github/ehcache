@@ -69,7 +69,7 @@ public class TerracottaConfiguration implements Cloneable {
     }
 
     private boolean clustered = true;
-    private ValueMode valueMode = ValueMode.SERIALIZATION;
+    private ValueMode valueMode = DEFAULT_VALUE_MODE;
     private boolean coherentReads = DEFAULT_COHERENT_READS;
     private boolean orphanEviction = DEFAULT_ORPHAN_EVICTION;
     private int orphanEvictionPeriod = DEFAULT_ORPHAN_EVICTION_PERIOD;

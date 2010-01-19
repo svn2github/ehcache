@@ -22,7 +22,6 @@ import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.TerracottaConfiguration;
-import net.sf.ehcache.config.TerracottaConfiguration.ValueMode;
 import net.sf.ehcache.hibernate.management.impl.ProviderMBeanRegistrationHelper;
 import net.sf.ehcache.hibernate.regions.EhCacheQueryResultsRegion;
 import net.sf.ehcache.hibernate.regions.EhCacheTimestampsRegion;
@@ -140,9 +139,18 @@ abstract class AbstractEhCacheRegionFactory implements RegionFactory {
         CacheConfiguration cacheConfig = cache.getCacheConfiguration();
 
         if (cacheConfig.isTerracottaClustered()) {
-            TerracottaConfiguration tcCacheConfig = cacheConfig.getTerracottaConfiguration();
-            if (ValueMode.IDENTITY.equals(tcCacheConfig.getValueMode())) {
-                throw new CacheException("Identity mode Terracotta clustered caches cannot be used as Hibernate cache regions.");
+            TerracottaConfiguration tcConfig = cacheConfig.getTerracottaConfiguration();
+            switch (tcConfig.getValueMode()) {
+                case IDENTITY:
+                    throw new CacheException("The clustered Hibernate cache " + cache.getName() + " is using IDENTITY value mode.\n"
+                           + "Identity value mode cannot be used with Hibernate cache regions.");
+                case HIBERNATE:
+                    // this is the recommended valueMode
+                    break;
+                default:
+                    LOG.warn("The clustered Hibernate cache " + cache.getName() + " is using " + tcConfig.getValueMode() + " value mode .\n"
+                           + "Using a value mode strategy other than \"hibernate\" will deliver sub-optimal performance.");
+                    break;
             }
         }
     }

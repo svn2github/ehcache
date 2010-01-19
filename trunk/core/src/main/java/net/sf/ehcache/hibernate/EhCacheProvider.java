@@ -19,16 +19,10 @@ import java.net.URL;
 import java.util.Properties;
 
 import net.sf.ehcache.CacheManager;
-import net.sf.ehcache.config.CacheConfiguration;
-import net.sf.ehcache.config.TerracottaConfiguration;
-import net.sf.ehcache.config.TerracottaConfiguration.ValueMode;
 import net.sf.ehcache.hibernate.management.impl.ProviderMBeanRegistrationHelper;
-import net.sf.ehcache.util.ClassLoaderUtil;
 
-import org.hibernate.cache.Cache;
 import org.hibernate.cache.CacheException;
-import org.hibernate.cache.CacheProvider;
-import org.hibernate.cache.Timestamper;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -58,7 +52,7 @@ import org.slf4j.LoggerFactory;
  * @version $Id$
  */
 @Deprecated
-public final class EhCacheProvider implements CacheProvider {
+public final class EhCacheProvider extends AbstractEhCacheProvider {
 
     /**
      * The Hibernate system property specifying the location of the ehcache configuration file name.
@@ -71,47 +65,7 @@ public final class EhCacheProvider implements CacheProvider {
 
     private static final Logger LOG = LoggerFactory.getLogger(EhCacheProvider.class.getName());
 
-    private CacheManager manager;
-    
     private final ProviderMBeanRegistrationHelper mbeanRegistrationHelper = new ProviderMBeanRegistrationHelper();
-
-
-    /**
-     * Builds a Cache.
-     * <p/>
-     * Even though this method provides properties, they are not used.
-     * Properties for EHCache are specified in the ehcache.xml file.
-     * Configuration will be read from ehcache.xml for a cache declaration
-     * where the name attribute matches the name parameter in this builder.
-     *
-     * @param name       the name of the cache. Must match a cache configured in ehcache.xml
-     * @param properties not used
-     * @return a newly built cache will be built and initialised
-     * @throws org.hibernate.cache.CacheException
-     *          inter alia, if a cache of the same name already exists
-     */
-    public final Cache buildCache(String name, Properties properties) throws CacheException {
-        try {
-            net.sf.ehcache.Ehcache cache = manager.getEhcache(name);
-            if (cache == null) {
-                LOG.warn("Could not find a specific ehcache configuration for cache named [" + name + "]; using defaults.");
-                manager.addCache(name);
-                cache = manager.getEhcache(name);
-                EhCacheProvider.LOG.debug("started EHCache region: " + name);
-            }
-            validateEhcache(cache);
-            return new net.sf.ehcache.hibernate.EhCache(cache);
-        } catch (net.sf.ehcache.CacheException e) {
-            throw new CacheException(e);
-        }
-    }
-
-    /**
-     * Returns the next timestamp.
-     */
-    public final long nextTimestamp() {
-        return Timestamper.next();
-    }
 
     /**
      * Callback to perform any necessary initialization of the underlying cache implementation
@@ -151,35 +105,6 @@ public final class EhCacheProvider implements CacheProvider {
         }
     }
 
-    private static void validateEhcache(net.sf.ehcache.Ehcache cache) throws CacheException {
-        CacheConfiguration cacheConfig = cache.getCacheConfiguration();
-
-        if (cacheConfig.isTerracottaClustered()) {
-            TerracottaConfiguration tcCacheConfig = cacheConfig.getTerracottaConfiguration();
-            if (ValueMode.IDENTITY.equals(tcCacheConfig.getValueMode())) {
-                throw new CacheException("Identity mode Terracotta clustered caches cannot be used as Hibernate cache regions.");
-            }
-        }
-    }
-
-    private URL loadResource(String configurationResourceName) {
-        ClassLoader standardClassloader = ClassLoaderUtil.getStandardClassLoader();
-        URL url = null;
-        if (standardClassloader != null) {
-            url = standardClassloader.getResource(configurationResourceName);
-        }
-        if (url == null) {
-            url = this.getClass().getResource(configurationResourceName);
-        }
-
-        LOG.debug("Creating EhCacheProvider from a specified resource: {}.  Resolved to URL: {}", configurationResourceName, url);
-        if (url == null) {
-                LOG.warn("A configurationResourceName was set to {} but the resource could not be loaded from the classpath." +
-                        "Ehcache will configure itself using defaults.", configurationResourceName);
-        }
-        return url;
-    }
-
     /**
      * Callback to perform any necessary cleanup of the underlying cache implementation
      * during SessionFactory.close().
@@ -190,16 +115,5 @@ public final class EhCacheProvider implements CacheProvider {
             manager = null;
         }
     }
-
-
-    /**
-     * Not sure what this is supposed to do.
-     *
-     * @return false to be safe
-     */
-    public final boolean isMinimalPutsEnabledByDefault() {
-        return false;
-    }
-
 }
 
