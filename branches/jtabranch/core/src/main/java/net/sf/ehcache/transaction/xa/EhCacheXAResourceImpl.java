@@ -24,9 +24,9 @@ public class EhCacheXAResourceImpl implements EhCacheXAResource {
 
     private static final Logger LOG = LoggerFactory.getLogger(EhCacheXAResourceImpl.class.getName());
 
-    private final ConcurrentMap<Transaction, XaTransactionContext> transactionDataTable = new ConcurrentHashMap<Transaction, XaTransactionContext>();
-    private final ConcurrentMap<Xid, Transaction> transactionXids = new ConcurrentHashMap<Xid, Transaction>();
-    private final VersionTable versionTable = new VersionTable();
+    private final ConcurrentMap<Transaction, XaTransactionContext> transactionDataTable;
+    private final ConcurrentMap<Xid, Transaction> transactionXids;
+    private final VersionTable versionTable;
 
     
     private final String cacheName;
@@ -36,9 +36,17 @@ public class EhCacheXAResourceImpl implements EhCacheXAResource {
     private transient TransactionManager txnManager;
 
     public EhCacheXAResourceImpl(String cacheName, Store store, TransactionManager txnManager) {
+      this(cacheName, store, txnManager,new ConcurrentHashMap<Transaction, XaTransactionContext>(), new ConcurrentHashMap<Xid, Transaction>(), new ConcurrentHashMap<Object, Version>());
+    }
+    
+    public EhCacheXAResourceImpl(String cacheName, Store store, TransactionManager txnManager,
+            ConcurrentMap transactionDataTable, ConcurrentMap transactionXids, ConcurrentMap versionStore) {
         this.cacheName = cacheName;
         this.store = store;
         this.txnManager = txnManager;
+        this.transactionDataTable = transactionDataTable;
+        this.transactionXids = transactionXids;
+        this.versionTable = new VersionTable(versionStore);
     }
 
     /*
@@ -205,7 +213,12 @@ public class EhCacheXAResourceImpl implements EhCacheXAResource {
 
     public static class VersionTable {
 
-        protected final ConcurrentMap<Object, Version> versionStore = new ConcurrentHashMap<Object, Version>();
+        protected final ConcurrentMap<Object, Version> versionStore;
+        
+        public VersionTable(ConcurrentMap<Object,Version> versionStore) {
+            this.versionStore = versionStore;
+        }
+       
 
         public synchronized boolean valid(Element element, long currentVersionNumber) {
             Object key = element.getObjectKey();
