@@ -37,9 +37,9 @@ import org.slf4j.LoggerFactory;
  * @author Greg Luck
  * @author Emmanuel Bernard
  */
-abstract class AbstractEhCacheProvider implements CacheProvider {
+abstract class AbstractEhcacheProvider implements CacheProvider {
 
-    private static final Logger LOG = LoggerFactory.getLogger(AbstractEhCacheProvider.class.getName());
+    private static final Logger LOG = LoggerFactory.getLogger(AbstractEhcacheProvider.class.getName());
 
     /**
      * CacheManager instance that creates/builds Cache instances for this provider.

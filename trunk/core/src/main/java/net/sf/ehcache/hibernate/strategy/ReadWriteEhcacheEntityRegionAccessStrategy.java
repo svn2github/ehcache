@@ -15,7 +15,7 @@
  */
 package net.sf.ehcache.hibernate.strategy;
 
-import net.sf.ehcache.hibernate.regions.EhCacheEntityRegion;
+import net.sf.ehcache.hibernate.regions.EhcacheEntityRegion;
 
 import org.hibernate.cache.CacheException;
 import org.hibernate.cache.EntityRegion;
@@ -24,17 +24,17 @@ import org.hibernate.cache.access.SoftLock;
 import org.hibernate.cfg.Settings;
 
 /**
- * EhCache specific read/write entity region access strategy
+ * Ehcache specific read/write entity region access strategy
  *
  * @author Chris Dennis
  */
-public class ReadWriteEhCacheEntityRegionAccessStrategy extends AbstractReadWriteEhCacheAccessStrategy<EhCacheEntityRegion>
+public class ReadWriteEhcacheEntityRegionAccessStrategy extends AbstractReadWriteEhcacheAccessStrategy<EhcacheEntityRegion>
         implements EntityRegionAccessStrategy {
 
     /**
      * Create a read/write access strategy accessing the given entity region.
      */
-    public ReadWriteEhCacheEntityRegionAccessStrategy(EhCacheEntityRegion region, Settings settings) {
+    public ReadWriteEhcacheEntityRegionAccessStrategy(EhcacheEntityRegion region, Settings settings) {
         super(region, settings);
     }
 

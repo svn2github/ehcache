@@ -16,9 +16,9 @@
 package net.sf.ehcache.hibernate.regions;
 
 import net.sf.ehcache.Ehcache;
-import net.sf.ehcache.hibernate.strategy.NonStrictReadWriteEhCacheCollectionRegionAccessStrategy;
-import net.sf.ehcache.hibernate.strategy.ReadOnlyEhCacheCollectionRegionAccessStrategy;
-import net.sf.ehcache.hibernate.strategy.ReadWriteEhCacheCollectionRegionAccessStrategy;
+import net.sf.ehcache.hibernate.strategy.NonStrictReadWriteEhcacheCollectionRegionAccessStrategy;
+import net.sf.ehcache.hibernate.strategy.ReadOnlyEhcacheCollectionRegionAccessStrategy;
+import net.sf.ehcache.hibernate.strategy.ReadWriteEhcacheCollectionRegionAccessStrategy;
 
 import org.hibernate.cache.CacheDataDescription;
 import org.hibernate.cache.CacheException;
@@ -31,21 +31,21 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * A collection region specific wrapper around an EhCache instance.
+ * A collection region specific wrapper around an Ehcache instance.
  * <p>
- * This implementation returns EhCache specific access strategy instances for all the non-transactional access types.  Transactional access
+ * This implementation returns Ehcache specific access strategy instances for all the non-transactional access types.  Transactional access
  * is not supported.
  *
  * @author Chris Dennis
  */
-public class EhCacheCollectionRegion extends EhCacheTransactionalDataRegion implements CollectionRegion {
+public class EhcacheCollectionRegion extends EhcacheTransactionalDataRegion implements CollectionRegion {
 
-    private static final Logger LOG = LoggerFactory.getLogger(EhCacheEntityRegion.class);
+    private static final Logger LOG = LoggerFactory.getLogger(EhcacheEntityRegion.class);
 
     /**
-     * Constructs an EhCacheCollectionRegion around the given underlying cache.
+     * Constructs an EhcacheCollectionRegion around the given underlying cache.
      */
-    public EhCacheCollectionRegion(Ehcache underlyingCache, Settings settings, CacheDataDescription metadata) {
+    public EhcacheCollectionRegion(Ehcache underlyingCache, Settings settings, CacheDataDescription metadata) {
         super(underlyingCache, settings, metadata);
     }
 
@@ -57,11 +57,11 @@ public class EhCacheCollectionRegion extends EhCacheTransactionalDataRegion impl
             if (metadata.isMutable()) {
                 LOG.warn("read-only cache configured for mutable entity [" + getName() + "]");
             }
-            return new ReadOnlyEhCacheCollectionRegionAccessStrategy(this, settings);
+            return new ReadOnlyEhcacheCollectionRegionAccessStrategy(this, settings);
         } else if (AccessType.READ_WRITE.equals(accessType)) {
-            return new ReadWriteEhCacheCollectionRegionAccessStrategy(this, settings);
+            return new ReadWriteEhcacheCollectionRegionAccessStrategy(this, settings);
         } else if (AccessType.NONSTRICT_READ_WRITE.equals(accessType)) {
-            return new NonStrictReadWriteEhCacheCollectionRegionAccessStrategy(this, settings);
+            return new NonStrictReadWriteEhcacheCollectionRegionAccessStrategy(this, settings);
         } else if (AccessType.TRANSACTIONAL.equals(accessType)) {
             throw new CacheException("Transactional access is not supported by the Ehcache region factory.");
         } else {

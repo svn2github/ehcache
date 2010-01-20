@@ -25,28 +25,28 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * An EhCache specific data region implementation.
+ * An Ehcache specific data region implementation.
  * <p>
- * This class is the ultimate superclass for all EhCache Hibernate cache regions.
+ * This class is the ultimate superclass for all Ehcache Hibernate cache regions.
  * 
  * @author Chris Dennis
  * @author Greg Luck
  * @author Emmanuel Bernard
  */
-abstract class EhCacheDataRegion implements Region {
+abstract class EhcacheDataRegion implements Region {
 
-    private static final Logger LOG = LoggerFactory.getLogger(EhCacheDataRegion.class);
+    private static final Logger LOG = LoggerFactory.getLogger(EhcacheDataRegion.class);
     private static final int CACHE_LOCK_TIMEOUT = 60000 * Timestamper.ONE_MS;
 
     /**
-     * EhCache instance backing this Hibernate data region.
+     * Ehcache instance backing this Hibernate data region.
      */
     protected final Ehcache cache;
 
     /**
-     * Create a Hibernate data region backed by the given EhCache instance.
+     * Create a Hibernate data region backed by the given Ehcache instance.
      */
-    EhCacheDataRegion(Ehcache cache) {
+    EhcacheDataRegion(Ehcache cache) {
         this.cache = cache;
     }
 

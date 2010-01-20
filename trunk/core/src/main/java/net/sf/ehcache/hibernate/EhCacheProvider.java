@@ -52,7 +52,7 @@ import org.slf4j.LoggerFactory;
  * @version $Id$
  */
 @Deprecated
-public final class EhCacheProvider extends AbstractEhCacheProvider {
+public final class EhCacheProvider extends AbstractEhcacheProvider {
 
     /**
      * The Hibernate system property specifying the location of the ehcache configuration file name.

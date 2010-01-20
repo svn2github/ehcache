@@ -15,33 +15,33 @@
  */
 package net.sf.ehcache.hibernate.strategy;
 
-import net.sf.ehcache.hibernate.regions.EhCacheEntityRegion;
+import net.sf.ehcache.hibernate.regions.EhcacheCollectionRegion;
 
 import org.hibernate.cache.CacheException;
-import org.hibernate.cache.EntityRegion;
-import org.hibernate.cache.access.EntityRegionAccessStrategy;
+import org.hibernate.cache.CollectionRegion;
+import org.hibernate.cache.access.CollectionRegionAccessStrategy;
 import org.hibernate.cache.access.SoftLock;
 import org.hibernate.cfg.Settings;
 
 /**
- * EhCache specific read-only entity region access strategy
+ * Ehcache specific read-only collection region access strategy
  *
  * @author Chris Dennis
  */
-public class ReadOnlyEhCacheEntityRegionAccessStrategy extends AbstractEhCacheAccessStrategy<EhCacheEntityRegion>
-        implements EntityRegionAccessStrategy {
-    
+public class ReadOnlyEhcacheCollectionRegionAccessStrategy extends AbstractEhcacheAccessStrategy<EhcacheCollectionRegion>
+        implements CollectionRegionAccessStrategy {
+
     /**
-     * Create a read-only access strategy accessing the given entity region.
+     * Create a read-only access strategy accessing the given collection region.
      */
-    public ReadOnlyEhCacheEntityRegionAccessStrategy(EhCacheEntityRegion region, Settings settings) {
+    public ReadOnlyEhcacheCollectionRegionAccessStrategy(EhcacheCollectionRegion region, Settings settings) {
         super(region, settings);
     }
 
     /**
      * {@inheritDoc}
      */
-    public EntityRegion getRegion() {
+    public CollectionRegion getRegion() {
         return region;
     }
 
@@ -79,39 +79,5 @@ public class ReadOnlyEhCacheEntityRegionAccessStrategy extends AbstractEhCacheAc
      */
     public void unlockItem(Object key, SoftLock lock) throws CacheException {
         //throw new UnsupportedOperationException("Can't write to a readonly object");
-    }
-
-    /**
-     * This cache is asynchronous hence a no-op
-     */
-    public boolean insert(Object key, Object value, Object version) throws CacheException {
-        return false;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public boolean afterInsert(Object key, Object value, Object version) throws CacheException {
-        region.put(key, value);
-        return true;
-    }
-
-    /**
-     * Throws UnsupportedOperationException since this cache is read-only
-     *
-     * @throws UnsupportedOperationException always
-     */
-    public boolean update(Object key, Object value, Object currentVersion, Object previousVersion) throws UnsupportedOperationException {
-        throw new UnsupportedOperationException("Can't write to a readonly object");
-    }
-
-    /**
-     * Throws UnsupportedOperationException since this cache is read-only
-     *
-     * @throws UnsupportedOperationException always
-     */
-    public boolean afterUpdate(Object key, Object value, Object currentVersion, Object previousVersion, SoftLock lock)
-            throws UnsupportedOperationException {
-        throw new UnsupportedOperationException("Can't write to a readonly object");
     }
 }

@@ -33,7 +33,7 @@ import org.slf4j.LoggerFactory;
  * @author Greg Luck
  * @author Emmanuel Bernard
  */
-public class EhCacheRegionFactory extends AbstractEhCacheRegionFactory {
+public class EhCacheRegionFactory extends AbstractEhcacheRegionFactory {
 
     private static final Logger LOG = LoggerFactory.getLogger(EhCacheRegionFactory.class);
 
@@ -50,7 +50,7 @@ public class EhCacheRegionFactory extends AbstractEhCacheRegionFactory {
     public void start(Settings settings, Properties properties) throws CacheException {
         if (manager != null) {
             LOG.warn("Attempt to restart an already started EhCacheRegionFactory. Use sessionFactory.close() " +
-                    " between repeated calls to buildSessionFactory. Using previously created EhCacheProvider." +
+                    " between repeated calls to buildSessionFactory. Using previously created EhCacheRegionFactory." +
                     " If this behaviour is required, consider using SingletonEhCacheRegionFactory.");
             return;
         }

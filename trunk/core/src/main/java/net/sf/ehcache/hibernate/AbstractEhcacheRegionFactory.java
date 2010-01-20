@@ -23,10 +23,10 @@ import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.TerracottaConfiguration;
 import net.sf.ehcache.hibernate.management.impl.ProviderMBeanRegistrationHelper;
-import net.sf.ehcache.hibernate.regions.EhCacheQueryResultsRegion;
-import net.sf.ehcache.hibernate.regions.EhCacheTimestampsRegion;
-import net.sf.ehcache.hibernate.regions.EhCacheEntityRegion;
-import net.sf.ehcache.hibernate.regions.EhCacheCollectionRegion;
+import net.sf.ehcache.hibernate.regions.EhcacheQueryResultsRegion;
+import net.sf.ehcache.hibernate.regions.EhcacheTimestampsRegion;
+import net.sf.ehcache.hibernate.regions.EhcacheEntityRegion;
+import net.sf.ehcache.hibernate.regions.EhcacheCollectionRegion;
 import net.sf.ehcache.util.ClassLoaderUtil;
 
 import org.hibernate.cache.CacheDataDescription;
@@ -49,7 +49,7 @@ import org.slf4j.LoggerFactory;
  * @author Greg Luck
  * @author Emmanuel Bernard
  */
-abstract class AbstractEhCacheRegionFactory implements RegionFactory {
+abstract class AbstractEhcacheRegionFactory implements RegionFactory {
 
     /**
      * The Hibernate system property specifying the location of the ehcache configuration file name.
@@ -60,7 +60,7 @@ abstract class AbstractEhCacheRegionFactory implements RegionFactory {
      */
     public static final String NET_SF_EHCACHE_CONFIGURATION_RESOURCE_NAME = "net.sf.ehcache.configurationResourceName";
 
-    private static final Logger LOG = LoggerFactory.getLogger(AbstractEhCacheRegionFactory.class);
+    private static final Logger LOG = LoggerFactory.getLogger(AbstractEhcacheRegionFactory.class);
 
     /**
      * MBean registration helper class instance for EhCache Hibernate MBeans.
@@ -95,7 +95,7 @@ abstract class AbstractEhCacheRegionFactory implements RegionFactory {
      * {@inheritDoc}
      */
     public EntityRegion buildEntityRegion(String regionName, Properties properties, CacheDataDescription metadata) throws CacheException {
-        return new EhCacheEntityRegion(getCache(regionName), settings, metadata);
+        return new EhcacheEntityRegion(getCache(regionName), settings, metadata);
     }
 
     /**
@@ -103,21 +103,21 @@ abstract class AbstractEhCacheRegionFactory implements RegionFactory {
      */
     public CollectionRegion buildCollectionRegion(String regionName, Properties properties, CacheDataDescription metadata)
             throws CacheException {
-        return new EhCacheCollectionRegion(getCache(regionName), settings, metadata);
+        return new EhcacheCollectionRegion(getCache(regionName), settings, metadata);
     }
 
     /**
      * {@inheritDoc}
      */
     public QueryResultsRegion buildQueryResultsRegion(String regionName, Properties properties) throws CacheException {
-        return new EhCacheQueryResultsRegion(getCache(regionName));
+        return new EhcacheQueryResultsRegion(getCache(regionName));
     }
 
     /**
      * {@inheritDoc}
      */
     public TimestampsRegion buildTimestampsRegion(String regionName, Properties properties) throws CacheException {
-        return new EhCacheTimestampsRegion(getCache(regionName));
+        return new EhcacheTimestampsRegion(getCache(regionName));
     }
 
     private Ehcache getCache(String name) throws CacheException {
@@ -167,7 +167,7 @@ abstract class AbstractEhCacheRegionFactory implements RegionFactory {
             url = standardClassloader.getResource(configurationResourceName);
         }
         if (url == null) {
-            url = AbstractEhCacheRegionFactory.class.getResource(configurationResourceName);
+            url = AbstractEhcacheRegionFactory.class.getResource(configurationResourceName);
         }
 
             LOG.debug("Creating EhCacheProvider from a specified resource: {}.  Resolved to URL: {}", configurationResourceName, url);

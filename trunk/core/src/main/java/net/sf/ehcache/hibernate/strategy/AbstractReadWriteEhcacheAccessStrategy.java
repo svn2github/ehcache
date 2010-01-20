@@ -20,20 +20,20 @@ import java.util.Comparator;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicLong;
 
-import net.sf.ehcache.hibernate.regions.EhCacheTransactionalDataRegion;
+import net.sf.ehcache.hibernate.regions.EhcacheTransactionalDataRegion;
 
 import org.hibernate.cache.CacheException;
 import org.hibernate.cache.access.SoftLock;
 import org.hibernate.cfg.Settings;
 
 /**
- * Superclass for all EhCache specific read/write AccessStrategy implementations.
+ * Superclass for all Ehcache specific read/write AccessStrategy implementations.
  * 
  * @param <T> the type of the enclosed cache region
  * 
  * @author Chris Dennis
  */
-abstract class AbstractReadWriteEhCacheAccessStrategy<T extends EhCacheTransactionalDataRegion> extends AbstractEhCacheAccessStrategy<T> {
+abstract class AbstractReadWriteEhcacheAccessStrategy<T extends EhcacheTransactionalDataRegion> extends AbstractEhcacheAccessStrategy<T> {
 
     private final UUID uuid = UUID.randomUUID();
     private final AtomicLong nextLockId = new AtomicLong();
@@ -43,7 +43,7 @@ abstract class AbstractReadWriteEhCacheAccessStrategy<T extends EhCacheTransacti
     /**
      * Creates a read/write cache access strategy around the given cache region.
      */
-    public AbstractReadWriteEhCacheAccessStrategy(T region, Settings settings) {
+    public AbstractReadWriteEhcacheAccessStrategy(T region, Settings settings) {
         super(region, settings);
         this.versionComparator = region.getCacheDataDescription().getVersionComparator();
     }

@@ -31,17 +31,17 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * EhCache specific read/write cache concurrency strategy.
+ * Ehcache specific read/write cache concurrency strategy.
  * <p>
- * This is the EhCache specific equivalent to Hibernate's ReadWriteCache.  This implementation uses a more robust soft-lock system (less
+ * This is the Ehcache specific equivalent to Hibernate's ReadWriteCache.  This implementation uses a more robust soft-lock system (less
  * prone to accidental collisions).
  *
  * @author Chris Dennis
  */
 @Deprecated
-public class EhCacheReadWriteCache extends AbstractEhCacheConcurrencyStrategy {
+public class EhcacheReadWriteCache extends AbstractEhcacheConcurrencyStrategy {
 
-    private static final Logger LOG = LoggerFactory.getLogger(EhCacheReadWriteCache.class);
+    private static final Logger LOG = LoggerFactory.getLogger(EhcacheReadWriteCache.class);
     
     private final UUID uuid = UUID.randomUUID();
     private final AtomicLong nextLockId = new AtomicLong();

@@ -23,30 +23,30 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Superclass of all EhCache specific cache concurrency strategies.
+ * Superclass of all Ehcache specific cache concurrency strategies.
  *
  * @author Chris Dennis
  */
 @Deprecated
-abstract class AbstractEhCacheConcurrencyStrategy implements CacheConcurrencyStrategy {
+abstract class AbstractEhcacheConcurrencyStrategy implements CacheConcurrencyStrategy {
 
-    private static final Logger LOG = LoggerFactory.getLogger(EhCacheReadOnlyCache.class);
+    private static final Logger LOG = LoggerFactory.getLogger(EhcacheReadOnlyCache.class);
 
     /**
-     * EhCache instance this strategy accesses.
+     * Ehcache instance this strategy accesses.
      */
     protected EhCache cache;
 
     /**
      * {@inheritDoc}
      * 
-     * @throws CacheException if the underlying cache is not an EhCache
+     * @throws CacheException if the underlying cache is not an Ehcache
      */
     public final void setCache(Cache cache) throws CacheException {
         if (cache instanceof EhCache) {
             this.cache = (EhCache) cache;
         } else {
-            throw new CacheException("EhCache concurrency strategies must be used with EhCache caches");
+            throw new CacheException("Ehcache concurrency strategies must be used with Ehcache caches");
         }
     }
 

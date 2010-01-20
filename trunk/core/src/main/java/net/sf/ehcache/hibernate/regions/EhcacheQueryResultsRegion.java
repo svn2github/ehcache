@@ -19,16 +19,16 @@ import net.sf.ehcache.Ehcache;
 import org.hibernate.cache.QueryResultsRegion;
 
 /**
- * A query results region specific wrapper around an EhCache instance.
+ * A query results region specific wrapper around an Ehcache instance.
  *
  * @author Chris Dennis
  */
-public class EhCacheQueryResultsRegion extends EhCacheGeneralDataRegion implements QueryResultsRegion {
+public class EhcacheQueryResultsRegion extends EhcacheGeneralDataRegion implements QueryResultsRegion {
 
     /**
-     * Constructs an EhCacheQueryResultsRegion around the given underlying cache.
+     * Constructs an EhcacheQueryResultsRegion around the given underlying cache.
      */
-    public EhCacheQueryResultsRegion(Ehcache underlyingCache) {
+    public EhcacheQueryResultsRegion(Ehcache underlyingCache) {
         super(underlyingCache);
     }
 

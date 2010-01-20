@@ -30,7 +30,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * An EhCache specific TransactionalDataRegion.
+ * An Ehcache specific TransactionalDataRegion.
  * <p>
  * This is the common superclass entity and collection regions.
  * 
@@ -38,9 +38,9 @@ import org.slf4j.LoggerFactory;
  * @author Greg Luck
  * @author Emmanuel Bernard
  */
-public class EhCacheTransactionalDataRegion extends EhCacheDataRegion implements TransactionalDataRegion {
+public class EhcacheTransactionalDataRegion extends EhcacheDataRegion implements TransactionalDataRegion {
 
-    private static final Logger LOG = LoggerFactory.getLogger(EhCacheTransactionalDataRegion.class);
+    private static final Logger LOG = LoggerFactory.getLogger(EhcacheTransactionalDataRegion.class);
 
     private static final int LOCAL_LOCK_PROVIDER_CONCURRENCY = 128;
     
@@ -57,9 +57,9 @@ public class EhCacheTransactionalDataRegion extends EhCacheDataRegion implements
     private final CacheLockProvider lockProvider;
     
     /**
-     * Construct an transactional Hibernate cache region around the given EhCache instance.
+     * Construct an transactional Hibernate cache region around the given Ehcache instance.
      */
-    EhCacheTransactionalDataRegion(Ehcache cache, Settings settings, CacheDataDescription metadata) {
+    EhcacheTransactionalDataRegion(Ehcache cache, Settings settings, CacheDataDescription metadata) {
         super(cache);
         this.settings = settings;
         this.metadata = metadata;

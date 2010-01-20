@@ -19,16 +19,16 @@ import net.sf.ehcache.Ehcache;
 import org.hibernate.cache.TimestampsRegion;
 
 /**
- * A timestamps region specific wrapper around an EhCache instance.
+ * A timestamps region specific wrapper around an Ehcache instance.
  *
  * @author Chris Dennis
  */
-public class EhCacheTimestampsRegion extends EhCacheGeneralDataRegion implements TimestampsRegion {
+public class EhcacheTimestampsRegion extends EhcacheGeneralDataRegion implements TimestampsRegion {
 
     /**
-     * Constructs an EhCacheTimestampsRegion around the given underlying cache.
+     * Constructs an EhcacheTimestampsRegion around the given underlying cache.
      */
-    public EhCacheTimestampsRegion(Ehcache underlyingCache) {
+    public EhcacheTimestampsRegion(Ehcache underlyingCache) {
         super(underlyingCache);
     }
 }
