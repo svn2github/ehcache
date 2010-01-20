@@ -16,6 +16,7 @@ import org.mockito.stubbing.Answer;
 import javax.transaction.RollbackException;
 import javax.transaction.SystemException;
 import javax.transaction.Transaction;
+import java.util.Arrays;
 
 /**
  * @author Alex Snaps
@@ -40,6 +41,15 @@ public class XaIsolationTransactionalStoreTest {
         when(xaResource.getStore()).thenReturn(underlyingStore);
         TransactionContext txContext = new XaTransactionContext(tx, xaResource);
         when(xaResource.getOrCreateTransactionContext()).thenReturn(txContext);
+        when(underlyingStore.getKeyArray()).thenAnswer(new Answer<Object>() {
+            public Object answer(InvocationOnMock invocationOnMock)
+                    throws Throwable {
+                if(keyInStore) {
+                    return new Object[] { KEY };
+                }
+                return new Object[0];
+            }
+        });
         when(underlyingStore.containsKey(KEY)).thenAnswer(new Answer<Object>() {
             public Object answer(InvocationOnMock invocationOnMock)
                     throws Throwable {
@@ -76,11 +86,14 @@ public class XaIsolationTransactionalStoreTest {
         assertThat(store.get(element.getKey()), sameInstance(element));
         assertThat(store.getSize(), is(1));
         assertThat(store.containsKey(KEY), is(true));
+        System.out.println(Arrays.toString(store.getKeyArray()));
         assertThat(store.remove(KEY), sameInstance(element));
         assertThat(store.remove(KEY), nullValue());
         store.remove(KEY);
         assertThat(store.getSize(), is(0));
         assertThat(store.get(element.getKey()), nullValue());
+        System.out.println(Arrays.toString(store.getKeyArray()));
+
         assertThat(store.containsKey(KEY), is(false));
     }
 
@@ -92,26 +105,32 @@ public class XaIsolationTransactionalStoreTest {
         keyInStore = true;
         assertThat(store.get(element.getKey()), sameInstance(element));
         assertThat(store.getSize(), is(1));
+        assertThat(store.getKeyArray().length, is(1));
         assertThat(store.containsKey(KEY), is(true));
         Element newElement = new Element(element.getKey(), "NEW_VALUE");
         store.put(newElement);
         assertThat(store.get(element.getKey()), sameInstance(newElement));
         assertThat(store.getSize(), is(1));
+        assertThat(store.getKeyArray().length, is(1));
         assertThat(store.containsKey(KEY), is(true));
         assertThat(store.remove(element.getKey()), sameInstance(newElement));
         assertThat(store.getSize(), is(0));
+        assertThat(store.getKeyArray().length, is(0));
         assertThat(store.get(element.getKey()), nullValue());
         assertThat(store.remove(element.getKey()), nullValue());
         assertThat(store.getSize(), is(0));
+        assertThat(store.getKeyArray().length, is(0));
         assertThat(store.containsKey(KEY), is(false));
         store.put(newElement);
         store.put(newElement);
         assertThat(store.get(element.getKey()), sameInstance(newElement));
         assertThat(store.getSize(), is(1));
+        assertThat(store.getKeyArray().length, is(1));
         assertThat(store.containsKey(KEY), is(true));
         assertThat(store.remove(KEY), sameInstance(newElement));
         assertThat(store.remove(KEY), nullValue());
         assertThat(store.getSize(), is(0));
+        assertThat(store.getKeyArray().length, is(0));
         assertThat(store.get(element.getKey()), nullValue());
         assertThat(store.containsKey(KEY), is(false));
     }
@@ -125,6 +144,7 @@ public class XaIsolationTransactionalStoreTest {
 
         assertThat(store.get(element.getKey()), sameInstance(element));
         assertThat(store.getSize(), is(1));
+        assertThat(store.getKeyArray().length, is(1));
         assertThat(store.containsKey(KEY), is(true));
         assertThat(store.containsKey(OTHER_KEY), is(false));
         Element newElement = new Element(OTHER_KEY, "NEW_VALUE");
@@ -133,20 +153,24 @@ public class XaIsolationTransactionalStoreTest {
         assertThat(store.get(KEY), sameInstance(element));
         assertThat(store.get(OTHER_KEY), sameInstance(newElement));
         assertThat(store.getSize(), is(2));
+        assertThat(store.getKeyArray().length, is(2));
         assertThat(store.containsKey(element.getKey()), is(true));
         assertThat(store.containsKey(KEY), is(true));
         assertThat(store.remove(OTHER_KEY), sameInstance(newElement));
         assertThat(store.getSize(), is(1));
+        assertThat(store.getKeyArray().length, is(1));
         assertThat(store.get(OTHER_KEY), nullValue());
         assertThat(store.get(KEY), sameInstance(element));
         assertThat(store.remove(OTHER_KEY), nullValue());
         assertThat(store.getSize(), is(1));
+        assertThat(store.getKeyArray().length, is(1));
         assertThat(store.containsKey(OTHER_KEY), is(false));
         assertThat(store.containsKey(KEY), is(true));
         store.put(newElement);
         store.put(newElement);
         assertThat(store.get(OTHER_KEY), sameInstance(newElement));
         assertThat(store.getSize(), is(2));
+        assertThat(store.getKeyArray().length, is(2));
         assertThat(store.containsKey(KEY), is(true));
         assertThat(store.containsKey(OTHER_KEY), is(true));
         assertThat(store.remove(OTHER_KEY), sameInstance(newElement));
@@ -154,6 +178,7 @@ public class XaIsolationTransactionalStoreTest {
         assertThat(store.remove(KEY), sameInstance(element));
         assertThat(store.remove(KEY), nullValue());
         assertThat(store.getSize(), is(0));
+        assertThat(store.getKeyArray().length, is(0));
         assertThat(store.get(OTHER_KEY), nullValue());
         assertThat(store.get(KEY), nullValue());
         assertThat(store.containsKey(OTHER_KEY), is(false));

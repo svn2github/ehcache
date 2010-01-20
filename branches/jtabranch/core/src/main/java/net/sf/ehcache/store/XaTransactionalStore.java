@@ -1,6 +1,7 @@
 package net.sf.ehcache.store;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -58,8 +59,7 @@ public class XaTransactionalStore implements Store {
 
     public Object[] getKeyArray() {
         TransactionContext context = getOrCreateTransactionContext();
-        Object[] storeKeys = underlyingStore.getKeyArray();
-        Set<Object> keys = new HashSet<Object>(storeKeys.length);
+        Set<Object> keys = new HashSet<Object>(Arrays.asList(underlyingStore.getKeyArray()));
         keys.addAll(context.getAddedKeys());
         keys.removeAll(context.getRemovedKeys());
         return keys.toArray();
