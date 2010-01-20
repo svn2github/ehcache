@@ -45,8 +45,16 @@ public class VersionAwareWrapper implements Command {
     
     public void execute(Store store) {
         command.execute(store);
-    } 
-    
+    }
+
+    public boolean isPut(Object key) {
+        return command.isPut(key);
+    }
+
+    public boolean isRemove(Object key) {
+        return command.isRemove(key);
+    }
+
     public boolean isVersionAware() {
         return element != null;
     }
@@ -58,7 +66,5 @@ public class VersionAwareWrapper implements Command {
     public Element getElement() {
         return element;
     }
-    
-    
 
 }

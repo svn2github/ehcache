@@ -1,6 +1,8 @@
 package net.sf.ehcache.store;
 
 import java.io.IOException;
+import java.util.HashSet;
+import java.util.Set;
 
 import javax.transaction.RollbackException;
 import javax.transaction.SystemException;
@@ -31,29 +33,44 @@ public class XaTransactionalStore implements Store {
 
     public void put(final Element element) throws CacheException {
         TransactionContext context = getOrCreateTransactionContext();
+        underlyingStore.get(element.getKey());
         context.addCommand(new StorePutCommand(element), element);
     
     }
 
     public Element get(final Object key) {
         TransactionContext context = getOrCreateTransactionContext();
-        Element element = underlyingStore.get(key);
+        Element element = context.get(key);
+        if(element == null && !context.isRemoved(key)) {
+            element = underlyingStore.get(key);
+        }
         return element;
     }
 
     public Element getQuiet(final Object key) {
         TransactionContext context = getOrCreateTransactionContext();
-        Element element = underlyingStore.getQuiet(key);
+        Element element = context.get(key);
+        if(element == null && !context.isRemoved(key)) {
+            element = underlyingStore.getQuiet(key);
+        }
         return element;
     }
 
     public Object[] getKeyArray() {
-        return underlyingStore.getKeyArray();
+        TransactionContext context = getOrCreateTransactionContext();
+        Object[] storeKeys = underlyingStore.getKeyArray();
+        Set<Object> keys = new HashSet<Object>(storeKeys.length);
+        keys.addAll(context.getAddedKeys());
+        keys.removeAll(context.getRemovedKeys());
+        return keys.toArray();
     }
 
     public Element remove(final Object key) {
-        Element element = underlyingStore.get(key);
         TransactionContext context = getOrCreateTransactionContext();
+        Element element = context.get(key);
+        if(element == null && !context.isRemoved(key)) {
+            element = underlyingStore.get(key);
+        }
         context.addCommand(new StoreRemoveCommand(key), element);
        
         return element; // Todo is this good enough?
@@ -71,8 +88,9 @@ public class XaTransactionalStore implements Store {
     }
 
     public int getSize() {
-        getOrCreateTransactionContext();
-        return underlyingStore.getSize(); // TODO Argh?! Can this work outside any transaction? probably...
+        TransactionContext context = getOrCreateTransactionContext();
+        int size = underlyingStore.getSize();
+        return size + context.getSizeModifier();
     }
 
     public int getTerracottaClusteredSize() {
@@ -93,12 +111,12 @@ public class XaTransactionalStore implements Store {
     }
 
     public boolean containsKey(final Object key) {
-        getOrCreateTransactionContext();
-        return underlyingStore.containsKey(key);
+        TransactionContext context = getOrCreateTransactionContext();
+        return !context.isRemoved(key) && (context.getAddedKeys().contains(key) || underlyingStore.containsKey(key));
     }
 
     public void expireElements() {
-        getOrCreateTransactionContext().addCommand(new StoreExpireAllElementsCommand(), null); // TODO is this meaningful? WRT getSize()
+        getOrCreateTransactionContext().addCommand(new StoreExpireAllElementsCommand(), null); // TODO is this meaningful?
     }
 
     /**
@@ -112,7 +130,7 @@ public class XaTransactionalStore implements Store {
      * Non transactional
      */
     public boolean bufferFull() {
-        return underlyingStore.bufferFull(); // TODO verify this really isn't!
+        return underlyingStore.bufferFull(); // TODO verify this really isn't tx!
     }
 
     /**

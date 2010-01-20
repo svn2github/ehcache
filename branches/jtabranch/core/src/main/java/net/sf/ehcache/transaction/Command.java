@@ -27,5 +27,8 @@ public interface Command {
     
     void execute(Store store);
     
+    public boolean isPut(Object key);
+
+    public boolean isRemove(Object key);
 
 }

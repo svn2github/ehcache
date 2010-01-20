@@ -16,5 +16,12 @@ public class StoreRemoveCommand implements StoreWriteCommand {
     public void execute(final Store store) {
         store.remove(key);
     }
-    
+
+    public boolean isPut(Object key) {
+        return false;
+    }
+
+    public boolean isRemove(Object key) {
+        return this.key.equals(key);
+    }
 }

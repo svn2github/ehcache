@@ -17,9 +17,16 @@ public class StorePutCommand implements StoreWriteCommand {
     public void execute(final Store store) {
         store.put(element);
     }
-    
+
+    public boolean isPut(Object key) {
+        return element.getKey().equals(key);
+    }
+
+    public boolean isRemove(Object key) {
+        return false;
+    }
+
     public Element getElement() {
         return element;
     }
-
 }
