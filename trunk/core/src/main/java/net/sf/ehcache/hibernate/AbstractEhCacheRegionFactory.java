@@ -46,6 +46,8 @@ import org.slf4j.LoggerFactory;
  * Abstract implementation of an EhCache specific RegionFactory.
  * 
  * @author Chris Dennis
+ * @author Greg Luck
+ * @author Emmanuel Bernard
  */
 abstract class AbstractEhCacheRegionFactory implements RegionFactory {
 
@@ -119,7 +121,7 @@ abstract class AbstractEhCacheRegionFactory implements RegionFactory {
     }
 
     private Ehcache getCache(String name) throws CacheException {
-                try {
+        try {
             Ehcache cache = manager.getEhcache(name);
             if (cache == null) {
                 LOG.warn("Couldn't find a specific ehcache configuration for cache named [" + name + "]; using defaults.");

@@ -19,6 +19,7 @@ import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.concurrent.CacheLockProvider;
 import net.sf.ehcache.concurrent.LockType;
+import net.sf.ehcache.concurrent.StripedReadWriteLockSync;
 
 import org.hibernate.cache.CacheDataDescription;
 import org.hibernate.cache.CacheException;
@@ -34,10 +35,14 @@ import org.slf4j.LoggerFactory;
  * This is the common superclass entity and collection regions.
  * 
  * @author Chris Dennis
+ * @author Greg Luck
+ * @author Emmanuel Bernard
  */
 public class EhCacheTransactionalDataRegion extends EhCacheDataRegion implements TransactionalDataRegion {
 
     private static final Logger LOG = LoggerFactory.getLogger(EhCacheTransactionalDataRegion.class);
+
+    private static final int LOCAL_LOCK_PROVIDER_CONCURRENCY = 128;
     
     /**
      * Hibernate settings associated with the persistence unit.
@@ -63,7 +68,7 @@ public class EhCacheTransactionalDataRegion extends EhCacheDataRegion implements
         if (context instanceof CacheLockProvider) {
             this.lockProvider = (CacheLockProvider) context;
         } else {
-            this.lockProvider = null;
+            this.lockProvider = new StripedReadWriteLockSync(LOCAL_LOCK_PROVIDER_CONCURRENCY);
         }
     }
 
@@ -143,31 +148,40 @@ public class EhCacheTransactionalDataRegion extends EhCacheDataRegion implements
     }
 
     /**
-     * Returns <code>true</code> if the underlying Ehcache instance supports finegrained locking of individual entries.
+     * Attempts to write lock the mapping for the given key.
      */
-    public final boolean supportsFinegrainedLocking() {
-        return lockProvider != null;
+    public final void writeLock(Object key) {
+        lockProvider.getSyncForKey(key).lock(LockType.WRITE);
     }
 
     /**
-     * Attempts to lock the mapping for the given key.
-     * <p>
-     * This is a no-op if the underlying cache does not support finegrained locking.
+     * Attempts to write unlock the mapping for the given key.
      */
-    public final void lock(Object key) {
-        if (lockProvider != null) {
-            lockProvider.getSyncForKey(key).lock(LockType.WRITE);
-        }
+    public final void writeUnlock(Object key) {
+        lockProvider.getSyncForKey(key).unlock(LockType.WRITE);
     }
 
     /**
-     * Attempts to unlock the mapping for the given key.
-     * <p>
-     * This is a no-op if the underlying cache does not support finegrained locking.
+     * Attempts to read lock the mapping for the given key.
      */
-    public final void unlock(Object key) {
-        if (lockProvider != null) {
-            lockProvider.getSyncForKey(key).unlock(LockType.WRITE);
-        }
+    public final void readLock(Object key) {
+        lockProvider.getSyncForKey(key).lock(LockType.WRITE);
+    }
+
+    /**
+     * Attempts to read unlock the mapping for the given key.
+     */
+    public final void readUnlock(Object key) {
+        lockProvider.getSyncForKey(key).unlock(LockType.WRITE);
+    }
+
+    /**
+     * Returns <code>true</code> if the locks used by the locking methods of this region are the independent of the cache.
+     * <p>
+     * Independent locks are not locked by the cache when the cache is accessed directly.  This means that for an independent lock
+     * lock holds taken through a region method will not block direct access to the cache via other means.
+     */
+    public final boolean locksAreIndependentOfCache() {
+        return lockProvider instanceof StripedReadWriteLockSync;
     }
 }

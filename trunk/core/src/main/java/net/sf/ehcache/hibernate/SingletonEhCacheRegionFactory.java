@@ -31,6 +31,8 @@ import org.slf4j.LoggerFactory;
  * A singleton EhCacheRegionFactory implementation.
  *
  * @author Chris Dennis
+ * @author Greg Luck
+ * @author Emmanuel Bernard
  */
 public class SingletonEhCacheRegionFactory extends AbstractEhCacheRegionFactory {
 

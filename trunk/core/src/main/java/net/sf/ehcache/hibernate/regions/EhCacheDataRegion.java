@@ -30,6 +30,8 @@ import org.slf4j.LoggerFactory;
  * This class is the ultimate superclass for all EhCache Hibernate cache regions.
  * 
  * @author Chris Dennis
+ * @author Greg Luck
+ * @author Emmanuel Bernard
  */
 abstract class EhCacheDataRegion implements Region {
 

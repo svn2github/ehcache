@@ -34,6 +34,8 @@ import org.slf4j.LoggerFactory;
  * Abstract super-class for all Ehcache Hibernate CacheProvider implementations.
  * 
  * @author Chris Dennis
+ * @author Greg Luck
+ * @author Emmanuel Bernard
  */
 abstract class AbstractEhCacheProvider implements CacheProvider {
 

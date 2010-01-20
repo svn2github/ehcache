@@ -19,12 +19,10 @@ import java.io.Serializable;
 import java.util.Comparator;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicLong;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock.ReadLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock.WriteLock;
-import net.sf.ehcache.hibernate.regions.EhCacheTransactionalDataRegion;
-import org.hibernate.cache.CacheException;
 
+import net.sf.ehcache.hibernate.regions.EhCacheTransactionalDataRegion;
+
+import org.hibernate.cache.CacheException;
 import org.hibernate.cache.access.SoftLock;
 import org.hibernate.cfg.Settings;
 
@@ -39,13 +37,6 @@ abstract class AbstractReadWriteEhCacheAccessStrategy<T extends EhCacheTransacti
 
     private final UUID uuid = UUID.randomUUID();
     private final AtomicLong nextLockId = new AtomicLong();
-    private final ReadLock coarseReadLock;
-    private final WriteLock coarseWriteLock;
-    {
-        ReentrantReadWriteLock coarseLock = new ReentrantReadWriteLock();
-        coarseReadLock = coarseLock.readLock();
-        coarseWriteLock = coarseLock.writeLock();
-    }
     
     private final Comparator versionComparator;
 
@@ -65,7 +56,7 @@ abstract class AbstractReadWriteEhCacheAccessStrategy<T extends EhCacheTransacti
      * @see org.hibernate.cache.access.CollectionRegionAccessStrategy#get(java.lang.Object, long)
      */
     public final Object get(Object key, long txTimestamp) throws CacheException {
-        readLockIfCoarse(key);
+        readLockIfNeeded(key);
         try {
             Lockable item = (Lockable) region.get(key);
 
@@ -76,7 +67,7 @@ abstract class AbstractReadWriteEhCacheAccessStrategy<T extends EhCacheTransacti
                 return null;
             }
         } finally {
-            readUnlockIfCoarse(key);
+            readUnlockIfNeeded(key);
         }
     }
 
@@ -89,7 +80,7 @@ abstract class AbstractReadWriteEhCacheAccessStrategy<T extends EhCacheTransacti
      */
     public final boolean putFromLoad(Object key, Object value, long txTimestamp, Object version, boolean minimalPutOverride)
             throws CacheException {
-        writeLock(key);
+        region.writeLock(key);
         try {
             Lockable item = (Lockable) region.get(key);
             boolean writeable = item == null || item.isWriteable(txTimestamp, version, versionComparator);
@@ -100,7 +91,7 @@ abstract class AbstractReadWriteEhCacheAccessStrategy<T extends EhCacheTransacti
                 return false;
             }
         } finally {
-            writeUnlock(key);
+            region.writeUnlock(key);
         }
     }
 
@@ -111,7 +102,7 @@ abstract class AbstractReadWriteEhCacheAccessStrategy<T extends EhCacheTransacti
      * @see org.hibernate.cache.access.CollectionRegionAccessStrategy#lockItem(java.lang.Object, java.lang.Object) 
      */
     public final SoftLock lockItem(Object key, Object version) throws CacheException {
-        writeLock(key);
+        region.writeLock(key);
         try {
             Lockable item = (Lockable) region.get(key);
             long timeout = region.nextTimestamp() + region.getTimeout();
@@ -119,7 +110,7 @@ abstract class AbstractReadWriteEhCacheAccessStrategy<T extends EhCacheTransacti
             region.put(key, lock);
             return lock;
         } finally {
-            writeUnlock(key);
+            region.writeUnlock(key);
         }
     }
 
@@ -130,7 +121,7 @@ abstract class AbstractReadWriteEhCacheAccessStrategy<T extends EhCacheTransacti
      * @see org.hibernate.cache.access.CollectionRegionAccessStrategy#unlockItem(java.lang.Object, org.hibernate.cache.access.SoftLock) 
      */
     public final void unlockItem(Object key, SoftLock lock) throws CacheException {
-        writeLock(key);
+        region.writeLock(key);
         try {
             Lockable item = (Lockable) region.get(key);
 
@@ -140,7 +131,7 @@ abstract class AbstractReadWriteEhCacheAccessStrategy<T extends EhCacheTransacti
                 handleLockExpiry(key);
             }
         } finally {
-            writeUnlock(key);
+            region.writeUnlock(key);
         }
     }
 
@@ -168,42 +159,20 @@ abstract class AbstractReadWriteEhCacheAccessStrategy<T extends EhCacheTransacti
     }
 
     /**
-     * Write lock the entry for the given key as finely as possible.
+     * Read lock the entry for the given key if internal cache locks will not provide correct exclusion.
      */
-    protected void writeLock(Object key) {
-        if (region.supportsFinegrainedLocking()) {
-            region.lock(key);
-        } else {
-            coarseWriteLock.lock();
+    private void readLockIfNeeded(Object key) {
+        if (region.locksAreIndependentOfCache()) {
+            region.readLock(key);
         }
     }
 
     /**
-     * Write unlock the entry for the given key.
+     * Read unlock the entry for the given key if internal cache locks will not provide correct exclusion.
      */
-    protected void writeUnlock(Object key) {
-        if (region.supportsFinegrainedLocking()) {
-            region.unlock(key);
-        } else {
-            coarseWriteLock.unlock();
-        }
-    }
-
-    /**
-     * Read lock the entry for the given key if finegrained locks are not supported.
-     */
-    protected void readLockIfCoarse(Object key) {
-        if (!region.supportsFinegrainedLocking()) {
-            coarseReadLock.lock();
-        }
-    }
-
-    /**
-     * Read unlock the entry for the given key if finegrained locks are not supported
-     */
-    protected void readUnlockIfCoarse(Object key) {
-        if (!region.supportsFinegrainedLocking()) {
-            coarseReadLock.unlock();
+    private void readUnlockIfNeeded(Object key) {
+        if (region.locksAreIndependentOfCache()) {
+            region.readUnlock(key);
         }
     }
 

@@ -30,6 +30,8 @@ import org.slf4j.LoggerFactory;
  * GeneralDataRegion instances are used for both the timestamps and query caches.
  * 
  * @author Chris Dennis
+ * @author Greg Luck
+ * @author Emmanuel Bernard
  */
 abstract class EhCacheGeneralDataRegion extends EhCacheDataRegion implements GeneralDataRegion {
 

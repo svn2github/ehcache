@@ -58,7 +58,7 @@ public class ReadWriteEhCacheEntityRegionAccessStrategy extends AbstractReadWrit
      * Inserts will only succeed if there is no existing value mapped to this key.
      */
     public boolean afterInsert(Object key, Object value, Object version) throws CacheException {
-        writeLock(key);
+        region.writeLock(key);
         try {
             Lockable item = (Lockable) region.get(key);
             if (item == null) {
@@ -68,7 +68,7 @@ public class ReadWriteEhCacheEntityRegionAccessStrategy extends AbstractReadWrit
                 return false;
             }
         } finally {
-            writeUnlock(key);
+            region.writeUnlock(key);
         }
     }
 
@@ -89,7 +89,7 @@ public class ReadWriteEhCacheEntityRegionAccessStrategy extends AbstractReadWrit
     public boolean afterUpdate(Object key, Object value, Object currentVersion, Object previousVersion, SoftLock lock)
             throws CacheException {
         //what should we do with previousVersion here?
-        writeLock(key);
+        region.writeLock(key);
         try {
             Lockable item = (Lockable) region.get(key);
 
@@ -107,7 +107,7 @@ public class ReadWriteEhCacheEntityRegionAccessStrategy extends AbstractReadWrit
                 return false;
             }
         } finally {
-            writeUnlock(key);
+            region.writeUnlock(key);
         }
     }
 }

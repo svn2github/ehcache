@@ -30,6 +30,8 @@ import org.slf4j.LoggerFactory;
  * A non-singleton EhCacheRegionFactory implementation.
  * 
  * @author Chris Dennis
+ * @author Greg Luck
+ * @author Emmanuel Bernard
  */
 public class EhCacheRegionFactory extends AbstractEhCacheRegionFactory {
 
@@ -41,14 +43,15 @@ public class EhCacheRegionFactory extends AbstractEhCacheRegionFactory {
     public EhCacheRegionFactory(Properties prop) {
         super();
     }
+    
     /**
      * {@inheritDoc}
      */
     public void start(Settings settings, Properties properties) throws CacheException {
         if (manager != null) {
-            LOG.warn("Attempt to restart an already started EhCacheProvider. Use sessionFactory.close() " +
+            LOG.warn("Attempt to restart an already started EhCacheRegionFactory. Use sessionFactory.close() " +
                     " between repeated calls to buildSessionFactory. Using previously created EhCacheProvider." +
-                    " If this behaviour is required, consider using SingletonEhCacheProvider.");
+                    " If this behaviour is required, consider using SingletonEhCacheRegionFactory.");
             return;
         }
         try {
