@@ -1,10 +1,12 @@
 package net.sf.ehcache.transaction.xa;
 
-import net.sf.ehcache.Element;
-import net.sf.ehcache.store.Store;
-import net.sf.ehcache.transaction.TransactionContext;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.atomic.AtomicLong;
 
 import javax.transaction.RollbackException;
 import javax.transaction.SystemException;
@@ -13,9 +15,16 @@ import javax.transaction.TransactionManager;
 import javax.transaction.xa.XAException;
 import javax.transaction.xa.XAResource;
 import javax.transaction.xa.Xid;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.atomic.AtomicLong;
+
+import net.sf.ehcache.Element;
+import net.sf.ehcache.concurrent.CacheLockProvider;
+import net.sf.ehcache.concurrent.LockType;
+import net.sf.ehcache.concurrent.Sync;
+import net.sf.ehcache.store.Store;
+import net.sf.ehcache.transaction.TransactionContext;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Nabib El-Rahman
@@ -23,9 +32,11 @@ import java.util.concurrent.atomic.AtomicLong;
 public class EhCacheXAResourceImpl implements EhCacheXAResource {
 
     private static final Logger LOG = LoggerFactory.getLogger(EhCacheXAResourceImpl.class.getName());
-
+    private static final TransactionTableFactory FACTORY = new TransactionTableFactoryImpl();
+    private final TransactionTableFactory factory;
     private final ConcurrentMap<Transaction, XaTransactionContext> transactionDataTable;
     private final ConcurrentMap<Xid, Transaction> transactionXids;
+    private final ConcurrentMap<Xid, Xid> prepareXids;
     private final VersionTable versionTable;
 
     
@@ -33,20 +44,24 @@ public class EhCacheXAResourceImpl implements EhCacheXAResource {
     private int transactionTimeout;
 
     private transient Store store;
+    private transient Store oldVersionStore;
     private transient TransactionManager txnManager;
 
     public EhCacheXAResourceImpl(String cacheName, Store store, TransactionManager txnManager) {
-      this(cacheName, store, txnManager,new ConcurrentHashMap<Transaction, XaTransactionContext>(), new ConcurrentHashMap<Xid, Transaction>(), new ConcurrentHashMap<Object, Version>());
+        this(cacheName, store, txnManager, FACTORY);
     }
     
     public EhCacheXAResourceImpl(String cacheName, Store store, TransactionManager txnManager,
-            ConcurrentMap transactionDataTable, ConcurrentMap transactionXids, ConcurrentMap versionStore) {
+            TransactionTableFactory factory) {
         this.cacheName = cacheName;
         this.store = store;
         this.txnManager = txnManager;
-        this.transactionDataTable = transactionDataTable;
-        this.transactionXids = transactionXids;
-        this.versionTable = new VersionTable(versionStore);
+        this.factory = factory;
+        this.transactionDataTable = factory.getTransactionDataTable();
+        this.transactionXids = factory.getTransactionXids();
+        this.prepareXids = factory.getPrepareXids();
+        this.versionTable = new VersionTable(factory);
+      
     }
 
     /*
@@ -77,7 +92,7 @@ public class EhCacheXAResourceImpl implements EhCacheXAResource {
         }
         Transaction previous = transactionXids.putIfAbsent(xid, tx);
         if(previous != null && !previous.equals(tx)) {
-            throw new EhCacheXAException("Duplicated XID!", XAException.XAER_DUPID);
+            throw new EhCacheXAException("Duplicated XID: " + xid, XAException.XAER_DUPID);
         }
     }
 
@@ -89,16 +104,36 @@ public class EhCacheXAResourceImpl implements EhCacheXAResource {
             LOG.info((onePhase ? "One" : "Two") + " phase commit called for Txn with id: " + xid);
         }
         XaTransactionContext context = transactionDataTable.get(transactionXids.get(xid));
+
+        Set<Serializable> keys = new HashSet<Serializable>();
         for (VersionAwareWrapper command : context.getCommands()) {
-            command.execute(store);
+            if(command.isWriteCommand()) {
+                keys.add(command.getElement().getKey());
+            }
+        }
+
+        Sync[] syncForKeys = ((CacheLockProvider)oldVersionStore.getInternalContext()).getAndWriteLockAllSyncForKeys(keys.toArray());
+        for (VersionAwareWrapper command : context.getCommands()) {
             versionTable.checkin(command.getElement(), context.getTransaction(), command.isWriteCommand());
+            if(command.isWriteCommand()) {
+                Serializable key = command.getElement().getKey();
+                oldVersionStore.remove(key);
+                ((CacheLockProvider)store.getInternalContext()).getSyncForKey(key).unlock(LockType.WRITE);
+            }
+        }
+
+        for (Sync syncForKey : syncForKeys) {
+            syncForKey.unlock(LockType.WRITE);
         }
     }
 
     public void end(final Xid xid, final int flags) throws XAException {
         try {
             if(flags != TMSUSPEND) {
-                transactionXids.get(xid).delistResource(this, flags);
+                Transaction txn = transactionXids.get(xid);
+                txn.delistResource(this, flags);
+                transactionDataTable.remove(txn);
+                transactionXids.remove(xid);           
             } else {
                 //todo move tx data to CDM!
             }
@@ -120,9 +155,47 @@ public class EhCacheXAResourceImpl implements EhCacheXAResource {
         if(LOG.isInfoEnabled()) {
             LOG.info("Prepare called for Txn with id: " + xid);
         }
+
         XaTransactionContext context = transactionDataTable.get(transactionXids.get(xid));
+        CacheLockProvider storeLockProvider = (CacheLockProvider)store.getInternalContext();
+        CacheLockProvider oldVersionStoreLockProvider = (CacheLockProvider)oldVersionStore.getInternalContext();
+
+        // First dirty bulk check? todo keep this?
         validateCommands(context);
-        return context.getCommands().isEmpty() ? XA_RDONLY : XA_OK;
+        Set<Serializable> keys = new HashSet<Serializable>();
+        // Copy old versions in front-accessed store
+        for (VersionAwareWrapper versionAwareWrapper : context.getCommands()) {
+            if(versionAwareWrapper.isWriteCommand()) {
+                Serializable key = versionAwareWrapper.getElement().getKey();
+                Sync syncForKey = oldVersionStoreLockProvider.getSyncForKey(key);
+                syncForKey.lock(LockType.WRITE);
+                try {
+                    if (!versionTable.valid(versionAwareWrapper.getElement(), versionAwareWrapper.getVersion())) {
+                        for (Serializable addedKey : keys) {
+                            oldVersionStore.remove(addedKey);
+                        }
+                        throw new EhCacheXAException("Invalid version for element: " + versionAwareWrapper.getElement(),
+                            XAException.XA_RBINTEGRITY);
+                    }
+                    keys.add(key);
+                    oldVersionStore.put(store.get(key));
+                } finally {
+                    syncForKey.unlock(LockType.WRITE);
+                }
+            }
+        }
+
+        // Lock all keys in real store
+        storeLockProvider.getAndWriteLockAllSyncForKeys(keys.toArray());
+
+        // Execute write command within the real underlying store
+        for (VersionAwareWrapper versionAwareWrapper : context.getCommands()) {
+            if(versionAwareWrapper.isWriteCommand()) {
+                versionAwareWrapper.execute(store);
+            }
+        }
+        prepareXids.put(xid, xid);
+        return context.getCommands().isEmpty() ? XA_RDONLY : XA_OK; // todo is this right?
     }
 
     private void validateCommands(XaTransactionContext context) throws XAException {
@@ -136,7 +209,8 @@ public class EhCacheXAResourceImpl implements EhCacheXAResource {
     }
 
     public Xid[] recover(final int i) throws XAException {
-        return new Xid[0];
+        Set xidSet = prepareXids.keySet();
+        return (Xid[])xidSet.toArray(new Xid[xidSet.size()]);
     }
 
     public void rollback(final Xid xid) throws XAException {
@@ -213,13 +287,13 @@ public class EhCacheXAResourceImpl implements EhCacheXAResource {
 
     public static class VersionTable {
 
+        private final TransactionTableFactory factory;
         protected final ConcurrentMap<Object, Version> versionStore;
         
-        public VersionTable() {
-            this.versionStore = new ConcurrentHashMap<Object, Version>();
-        }
-        public VersionTable(ConcurrentMap<Object,Version> versionStore) {
-            this.versionStore = versionStore;
+
+        public VersionTable(TransactionTableFactory factory) {
+            this.factory = factory;
+            this.versionStore = factory.getVersionStore();
         }
        
 
@@ -242,7 +316,7 @@ public class EhCacheXAResourceImpl implements EhCacheXAResource {
             Object key = element.getObjectKey();
             Version version = versionStore.get(key);
             if (version == null) {
-                version = new Version();
+                version = new Version(factory);
                 versionStore.put(key, version);
             }
             versionNumber = version.checkout(txn);
@@ -266,24 +340,28 @@ public class EhCacheXAResourceImpl implements EhCacheXAResource {
 
     }
 
-    static class Version {
+    public static class Version {
 
-        AtomicLong version = new AtomicLong(0);
+        final AtomicLong version = new AtomicLong(0);
 
         // TODO: We need to figure out a more compressed data-structure (need to performance test to confirm
-        ConcurrentMap<Transaction, Long> txnVersionMap = new ConcurrentHashMap<Transaction, Long>();
+        final ConcurrentMap<Transaction, Long> txnVersions;
+        
+        public Version(TransactionTableFactory factory) {
+            this.txnVersions = factory.getTxnVersions();
+        }
 
         public long getCurrentVersion() {
             return version.get();
         }
 
         public boolean hasTransaction(Transaction txn) {
-            return txnVersionMap.containsKey(txn);
+            return txnVersions.containsKey(txn);
         }
 
         public long getVersion(Transaction txn) {
             try {
-                return txnVersionMap.get(txn);
+                return txnVersions.get(txn);
             } catch (NullPointerException e) {
                 throw new AssertionError("Cannot get version for not existing transaction: " + txn);
             }
@@ -291,24 +369,25 @@ public class EhCacheXAResourceImpl implements EhCacheXAResource {
 
         public long checkout(Transaction txn) {
             long v = version.get();
-            txnVersionMap.put(txn, v);
+            txnVersions.put(txn, v);
             return v;
         }
 
         public boolean checkinRead(Transaction txn) {
-            txnVersionMap.remove(txn);
-            return txnVersionMap.isEmpty();
+            txnVersions.remove(txn);
+            return txnVersions.isEmpty();
         }
 
         public boolean checkinWrite(Transaction txn) {
-            long v = txnVersionMap.remove(txn);
+            long v = txnVersions.remove(txn);
             version.incrementAndGet();
-            return txnVersionMap.isEmpty();
+            return txnVersions.isEmpty();
         }
     }
 
-    public void initalizeTransients(Store store, TransactionManager txnManager) {
+    public void initalizeTransients(Store store, Store oldVersionStore, TransactionManager txnManager) {
         this.store = store;
+        this.oldVersionStore = oldVersionStore;
         this.txnManager = txnManager;
     }
 

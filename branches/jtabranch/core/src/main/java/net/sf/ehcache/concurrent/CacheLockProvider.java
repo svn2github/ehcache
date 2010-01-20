@@ -29,4 +29,15 @@ public interface CacheLockProvider {
      * @return one of a limited number of Sync's.
      */
     Sync getSyncForKey(Object key);
+
+    /**
+     * Gets and write lock the Sync Stripes to use for the given keys.
+     * <p/>
+     * This lookup must always return the same Sync for a given key.
+     * For keys.length > 0, it will return anything between 1 and keys.length Sync's
+     * <p/>
+     * @param keys the keys to lock and get syncs for
+     * @return limited number of write locked Sync's matching the keys.
+     */
+    Sync[] getAndWriteLockAllSyncForKeys(Object... keys);
 }

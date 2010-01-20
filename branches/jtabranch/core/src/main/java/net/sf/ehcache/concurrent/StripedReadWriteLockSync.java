@@ -86,4 +86,8 @@ public class StripedReadWriteLockSync implements CacheLockProvider {
         int lockNumber = ConcurrencyUtil.selectLock(key, numberOfStripes);
         return mutexes[lockNumber];
     }
+
+    public Sync[] getAndWriteLockAllSyncForKeys(Object... keys) {
+        throw new UnsupportedOperationException("Right now this is unsupported in standalone EhCache!");
+    }
 }

@@ -28,7 +28,6 @@ import javax.transaction.RollbackException;
 import javax.transaction.Synchronization;
 import javax.transaction.SystemException;
 import javax.transaction.Transaction;
-import javax.transaction.TransactionManager;
 import javax.transaction.xa.XAException;
 import javax.transaction.xa.XAResource;
 import javax.transaction.xa.Xid;
@@ -39,6 +38,7 @@ import net.sf.ehcache.Element;
 import net.sf.ehcache.Status;
 import net.sf.ehcache.transaction.TransactionContext;
 import net.sf.ehcache.transaction.xa.EhCacheXAResource;
+import net.sf.ehcache.transaction.xa.TransactionTableFactoryImpl;
 import net.sf.ehcache.transaction.xa.EhCacheXAResourceImpl.VersionTable;
 
 public class XaTransactionalStoreTest extends TestCase {
@@ -64,7 +64,7 @@ public class XaTransactionalStoreTest extends TestCase {
 
         private final TestStore store = new TestStore();
         public  final ConcurrentMap checkoutMap = new ConcurrentHashMap();
-        public final VersionTable versionTable = new VersionTable();
+        public final VersionTable versionTable = new VersionTable(new TransactionTableFactoryImpl());
         public TransactionContext txnContext;
 
 
@@ -118,11 +118,6 @@ public class XaTransactionalStoreTest extends TestCase {
         }
 
         public void start(Xid xid, int flags) throws XAException {
-        }
-
-        public void initalizeTransients(Store store, TransactionManager txnManager) {
-            // TODO Auto-generated method stub
-            
         }
 
     }

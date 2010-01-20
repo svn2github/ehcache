@@ -16,20 +16,23 @@
 
 package net.sf.ehcache.transaction.xa;
 
-import javax.transaction.RollbackException;
-import javax.transaction.SystemException;
-import javax.transaction.TransactionManager;
-import javax.transaction.xa.XAResource;
+import java.util.concurrent.ConcurrentMap;
 
-import net.sf.ehcache.store.Store;
-import net.sf.ehcache.transaction.TransactionContext;
+import javax.transaction.Transaction;
+import javax.transaction.xa.Xid;
 
-public interface EhCacheXAResource extends XAResource {
+import net.sf.ehcache.transaction.xa.EhCacheXAResourceImpl.Version;
 
-    String getCacheName();
-
-    Store getStore();
+public interface TransactionTableFactory {
     
-    TransactionContext getOrCreateTransactionContext() throws SystemException, RollbackException;
+    ConcurrentMap<Transaction, XaTransactionContext> getTransactionDataTable();
+    
+    ConcurrentMap<Xid, Transaction> getTransactionXids();
+    
+    ConcurrentMap<Object, Version> getVersionStore();
+    
+    ConcurrentMap<Transaction, Long> getTxnVersions();
+    
+    ConcurrentMap<Xid, Xid> getPrepareXids();
 
 }

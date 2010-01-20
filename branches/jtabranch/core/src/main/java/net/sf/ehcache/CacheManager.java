@@ -79,7 +79,7 @@ public class CacheManager {
      * CacheManagers should remove themselves from this list during shut down.
      */
     public static final List<CacheManager> ALL_CACHE_MANAGERS = new CopyOnWriteArrayList<CacheManager>();
-
+    
     /**
      * System property to enable creation of a shutdown hook for CacheManager.
      */

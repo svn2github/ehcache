@@ -12,5 +12,5 @@ public interface TransactionContext {
     void addCommand(Command command, Element element);
     
     Transaction getTransaction();
-
+   
 }
