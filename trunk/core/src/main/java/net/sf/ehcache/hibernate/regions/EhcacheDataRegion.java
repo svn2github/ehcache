@@ -33,7 +33,7 @@ import org.slf4j.LoggerFactory;
  * @author Greg Luck
  * @author Emmanuel Bernard
  */
-abstract class EhcacheDataRegion implements Region {
+public abstract class EhcacheDataRegion implements Region {
 
     private static final Logger LOG = LoggerFactory.getLogger(EhcacheDataRegion.class);
     private static final int CACHE_LOCK_TIMEOUT = 60000 * Timestamper.ONE_MS;

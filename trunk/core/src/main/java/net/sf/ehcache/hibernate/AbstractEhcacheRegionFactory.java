@@ -43,7 +43,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Abstract implementation of an EhCache specific RegionFactory.
+ * Abstract implementation of an Ehcache specific RegionFactory.
  * 
  * @author Chris Dennis
  * @author Greg Luck
@@ -63,12 +63,12 @@ abstract class AbstractEhcacheRegionFactory implements RegionFactory {
     private static final Logger LOG = LoggerFactory.getLogger(AbstractEhcacheRegionFactory.class);
 
     /**
-     * MBean registration helper class instance for EhCache Hibernate MBeans.
+     * MBean registration helper class instance for Ehcache Hibernate MBeans.
      */
     protected final ProviderMBeanRegistrationHelper mbeanRegistrationHelper = new ProviderMBeanRegistrationHelper();
 
     /**
-     * EhCache CacheManager that supplied EhCache instances for this Hibernate RegionFactory.
+     * Ehcache CacheManager that supplied Ehcache instances for this Hibernate RegionFactory.
      */
     protected volatile CacheManager manager;
 
@@ -170,7 +170,7 @@ abstract class AbstractEhcacheRegionFactory implements RegionFactory {
             url = AbstractEhcacheRegionFactory.class.getResource(configurationResourceName);
         }
 
-            LOG.debug("Creating EhCacheProvider from a specified resource: {}.  Resolved to URL: {}", configurationResourceName, url);
+            LOG.debug("Creating EhCacheRegionFactory from a specified resource: {}.  Resolved to URL: {}", configurationResourceName, url);
         if (url == null) {
 
                 LOG.warn("A configurationResourceName was set to {} but the resource could not be loaded from the classpath." +
