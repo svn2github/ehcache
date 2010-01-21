@@ -71,8 +71,10 @@ public class XaTransactionalStore implements Store {
         if(element == null && !context.isRemoved(key)) {
             element = underlyingStore.get(key);
         }
-        context.addCommand(new StoreRemoveCommand(key), element);
-       
+        if(element != null) {
+            context.addCommand(new StoreRemoveCommand(key), element);
+        }
+
         return element; // Todo is this good enough?
     }
 

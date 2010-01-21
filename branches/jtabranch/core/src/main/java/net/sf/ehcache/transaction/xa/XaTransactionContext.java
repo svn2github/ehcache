@@ -42,7 +42,7 @@ public class XaTransactionContext implements TransactionContext {
     }
 
     public Element get(Object key) {
-        return commandElements.get(key);
+        return removedKeys.contains(key) ? null : commandElements.get(key);
     }
     
     public Transaction getTransaction() {
