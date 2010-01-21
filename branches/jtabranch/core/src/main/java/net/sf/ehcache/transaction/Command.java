@@ -32,7 +32,7 @@ public interface Command {
     
     public String getCommandName();
     
-    void execute(Store store);
+    boolean execute(Store store);
     
     public boolean isPut(Object key);
 

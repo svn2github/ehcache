@@ -14,8 +14,9 @@ public class StorePutCommand implements StoreWriteCommand {
         this.element = element;
     }
 
-    public void execute(final Store store) {
+    public boolean execute(final Store store) {
         store.put(element);
+        return true;
     }
 
     public boolean isPut(Object key) {
@@ -31,6 +32,6 @@ public class StorePutCommand implements StoreWriteCommand {
     }
 
     public String getCommandName() {
-        return Command.PUT;
+        return Command.PUT + " for " + (element != null ? element.getKey() : "NULL ELEMENT!");
     }
 }

@@ -50,8 +50,8 @@ public class VersionAwareWrapper implements Command, VersionAwareCommand {
     /* (non-Javadoc)
      * @see net.sf.ehcache.transaction.xa.VersionAwareCommand#execute(net.sf.ehcache.store.Store)
      */
-    public void execute(Store store) {
-        command.execute(store);
+    public boolean execute(Store store) {
+        return command.execute(store);
     }
 
     /* (non-Javadoc)

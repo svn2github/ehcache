@@ -7,8 +7,9 @@ import net.sf.ehcache.store.Store;
  */
 public class StoreExpireAllElementsCommand implements StoreWriteCommand {
     
-    public void execute(final Store store) {
+    public boolean execute(final Store store) {
         store.expireElements();
+        return true;
     }
 
     public boolean isPut(Object key) {

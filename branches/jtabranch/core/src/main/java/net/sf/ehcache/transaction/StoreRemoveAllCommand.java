@@ -6,8 +6,9 @@ import net.sf.ehcache.store.Store;
  * @author Alex Snaps
  */
 public class StoreRemoveAllCommand implements StoreWriteCommand {
-    public void execute(final Store store) {
+    public boolean execute(final Store store) {
         store.removeAll();
+        return true;
     }
 
     public boolean isPut(Object key) {

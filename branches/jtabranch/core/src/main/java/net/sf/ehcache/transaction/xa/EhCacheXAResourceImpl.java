@@ -162,14 +162,13 @@ public class EhCacheXAResourceImpl implements EhCacheXAResource {
 
         // Execute write command within the real underlying store
         boolean writes = false;
+//        System.out.println("    ====> About to check for writes in " + context.getCommands().size() + " for " + store.toString());
         for (VersionAwareCommand command : context.getCommands()) {
-            if(command.isWriteCommand()) {
-                writes = true;
-                command.execute(store);
-            }
+//            System.out.println("    ====> " + command.getCommandName());
+            writes = command.execute(store) || writes;
         }
         ehCacheXAStore.prepared(xid);
-        return writes ? XA_OK : XA_RDONLY; // todo is this right?
+        return writes ? XA_OK : XA_RDONLY;
     }
 
     private void validateCommands(TransactionContext context) throws XAException {

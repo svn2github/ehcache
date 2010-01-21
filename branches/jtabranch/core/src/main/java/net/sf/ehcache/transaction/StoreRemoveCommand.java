@@ -13,8 +13,8 @@ public class StoreRemoveCommand implements StoreWriteCommand {
         this.key = key;
     }
 
-    public void execute(final Store store) {
-        store.remove(key);
+    public boolean execute(final Store store) {
+        return store.remove(key) != null;
     }
 
     public boolean isPut(Object key) {
@@ -26,7 +26,7 @@ public class StoreRemoveCommand implements StoreWriteCommand {
     }
 
     public String getCommandName() {
-        return Command.EXPIRE_ALL_ELEMENTS;
+        return Command.REMOVE;
     }
     
     

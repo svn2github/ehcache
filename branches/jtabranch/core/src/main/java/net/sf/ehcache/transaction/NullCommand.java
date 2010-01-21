@@ -20,12 +20,12 @@ import net.sf.ehcache.store.Store;
 
 public class NullCommand implements Command {
 
-    public void execute(Store store) {
-        //do nothing
+    public boolean execute(Store store) {
+        return false;
     }
 
     public String getCommandName() {
-        return null;
+        return NULL;
     }
 
     public boolean isPut(Object key) {
