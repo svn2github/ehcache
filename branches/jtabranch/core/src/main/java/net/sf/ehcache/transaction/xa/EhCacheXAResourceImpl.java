@@ -123,15 +123,13 @@ public class EhCacheXAResourceImpl implements EhCacheXAResource {
     }
 
     public int prepare(final Xid xid) throws XAException {
-        if(LOG.isInfoEnabled()) {
-            LOG.info("Prepare called for Txn with id: " + xid);
-        }
+        LOG.debug("Prepare called for Txn with id: {}", xid);
 
         TransactionContext context = ehCacheXAStore.getTransactionContext(xid);
         CacheLockProvider storeLockProvider = (CacheLockProvider)store.getInternalContext();
         CacheLockProvider oldVersionStoreLockProvider = (CacheLockProvider)oldVersionStore.getInternalContext();
 
-        // First dirty bulk check? todo keep this?
+        // First dirty bulk check?
         validateCommands(context);
         Set<Object> keys = new HashSet<Object>();
         // Copy old versions in front-accessed store
@@ -157,16 +155,17 @@ public class EhCacheXAResourceImpl implements EhCacheXAResource {
         }
 
         // Lock all keys in real store
-        storeLockProvider.getAndWriteLockAllSyncForKeys(keys.toArray());
+        Sync[] syncForKeys = storeLockProvider.getAndWriteLockAllSyncForKeys(keys.toArray());
+
+        LOG.info("Locked {} syncs for {} keys", syncForKeys == null ? 0 : syncForKeys.length, keys.size());
+
+        ehCacheXAStore.prepared(xid);
 
         // Execute write command within the real underlying store
         boolean writes = false;
-//        System.out.println("    ====> About to check for writes in " + context.getCommands().size() + " for " + store.toString());
         for (VersionAwareCommand command : context.getCommands()) {
-//            System.out.println("    ====> " + command.getCommandName());
             writes = command.execute(store) || writes;
         }
-        ehCacheXAStore.prepared(xid);
         return writes ? XA_OK : XA_RDONLY;
     }
 
@@ -189,8 +188,28 @@ public class EhCacheXAResourceImpl implements EhCacheXAResource {
             LOG.info("Rollback called for Txn with id: " + xid);
         }
         
+        TransactionContext context = ehCacheXAStore.getTransactionContext(xid);
         CacheLockProvider storeLockProvider = (CacheLockProvider)store.getInternalContext();
         CacheLockProvider oldVersionStoreLockProvider = (CacheLockProvider)oldVersionStore.getInternalContext();
+
+        for (VersionAwareCommand command : context.getCommands()) {
+            if(command.isWriteCommand()) {
+                Object key = command.getKey();
+                Sync syncForKey = oldVersionStoreLockProvider.getSyncForKey(key);
+                syncForKey.lock(LockType.WRITE);
+                try {
+                    Element element = oldVersionStore.remove(key);
+                    if(element != null) {
+                        store.put(element);
+                    } else {
+                        LOG.error("No element found in oldVersionStore for key '{}'", key);
+                    }
+                } finally {
+                    syncForKey.unlock(LockType.WRITE);
+                    storeLockProvider.getSyncForKey(key).unlock(LockType.WRITE);
+                }
+            }
+        }
 
     }
 
