@@ -32,6 +32,6 @@ public class StorePutCommand implements StoreWriteCommand {
     }
 
     public String getCommandName() {
-        return Command.PUT + " for " + (element != null ? element.getKey() : "NULL ELEMENT!");
+        return Command.PUT;
     }
 }
