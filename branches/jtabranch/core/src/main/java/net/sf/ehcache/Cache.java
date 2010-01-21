@@ -206,7 +206,7 @@ public class Cache implements Ehcache {
     private volatile LiveCacheStatisticsData liveCacheStatisticsData;
 
     private volatile SampledCacheStatisticsWrapper sampledCacheStatistics;
-    private final TransactionManagerLookup transactionManagerLookup;
+    private transient TransactionManagerLookup transactionManagerLookup;
 
     private volatile boolean allowDisable = true;
 
