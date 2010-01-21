@@ -1381,4 +1381,18 @@ public class DiskStore implements Store, CacheConfigurationListener {
     public boolean isCacheCoherent() {
         return false;
     }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void setCoherent(boolean coherent) {
+        throw new UnsupportedOperationException();
+    }
+
+    /**
+     * {@inheritDoc}
+     */    
+    public void waitUntilCoherent() {
+        throw new UnsupportedOperationException();
+    }
 }

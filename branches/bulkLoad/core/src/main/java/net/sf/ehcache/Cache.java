@@ -40,8 +40,6 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 import net.sf.ehcache.bootstrap.BootstrapCacheLoader;
-import net.sf.ehcache.coherence.CacheCoherence;
-import net.sf.ehcache.coherence.NoopCacheCoherence;
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.DiskStoreConfiguration;
 import net.sf.ehcache.config.TerracottaConfiguration;
@@ -205,8 +203,6 @@ public class Cache implements Ehcache {
     private volatile SampledCacheStatisticsWrapper sampledCacheStatistics;
 
     private volatile boolean allowDisable = true;
-    
-    private volatile CacheCoherence cacheCoherence = NoopCacheCoherence.INSTANCE;
 
     /**
      * 1.0 Constructor.
@@ -771,11 +767,6 @@ public class Cache implements Ehcache {
 
             if (isTerracottaClustered()) {
                 memoryStore = cacheManager.createTerracottaStore(this);
-                if (memoryStore instanceof CacheCoherence) {
-                    this.cacheCoherence = (CacheCoherence) memoryStore;
-                } else {
-                    throw new CacheException("Clustered Store instances created should also be instances of CacheCoherence");
-                }
                 writeBehind = cacheManager.createWriteBehind(this);
             } else {
                 if (useClassicLru && configuration.getMemoryStoreEvictionPolicy().equals(MemoryStoreEvictionPolicy.LRU)) {
@@ -785,7 +776,7 @@ public class Cache implements Ehcache {
                 }
             }
             
-            cacheCoherence.setCoherent(configuration.getTerracottaConfiguration().isCoherent());
+            memoryStore.setCoherent(configuration.getTerracottaConfiguration().isCoherent());
 
             changeStatus(Status.STATUS_ALIVE);
             initialiseRegisteredCacheExtensions();
@@ -2813,20 +2804,20 @@ public class Cache implements Ehcache {
      * {@inheritDoc}
      */
     public boolean isCoherent() {
-        return cacheCoherence.isCoherent();
+        return memoryStore.isCacheCoherent();
     }
 
     /**
      * {@inheritDoc}
      */
     public void setCoherent(boolean coherent) {
-        this.cacheCoherence.setCoherent(coherent);
+        memoryStore.setCoherent(coherent);
     }
 
     /**
      * {@inheritDoc}
      */
     public void waitUntilCoherent() {
-        this.cacheCoherence.waitUntilCoherent();
+        memoryStore.waitUntilCoherent();
     }
 }
