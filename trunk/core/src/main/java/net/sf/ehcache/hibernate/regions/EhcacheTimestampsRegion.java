@@ -15,7 +15,10 @@
  */
 package net.sf.ehcache.hibernate.regions;
 
+import java.util.Properties;
+
 import net.sf.ehcache.Ehcache;
+
 import org.hibernate.cache.TimestampsRegion;
 
 /**
@@ -28,7 +31,7 @@ public class EhcacheTimestampsRegion extends EhcacheGeneralDataRegion implements
     /**
      * Constructs an EhcacheTimestampsRegion around the given underlying cache.
      */
-    public EhcacheTimestampsRegion(Ehcache underlyingCache) {
-        super(underlyingCache);
+    public EhcacheTimestampsRegion(Ehcache underlyingCache, Properties properties) {
+        super(underlyingCache, properties);
     }
 }

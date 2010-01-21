@@ -95,7 +95,7 @@ abstract class AbstractEhcacheRegionFactory implements RegionFactory {
      * {@inheritDoc}
      */
     public EntityRegion buildEntityRegion(String regionName, Properties properties, CacheDataDescription metadata) throws CacheException {
-        return new EhcacheEntityRegion(getCache(regionName), settings, metadata);
+        return new EhcacheEntityRegion(getCache(regionName), settings, metadata, properties);
     }
 
     /**
@@ -103,21 +103,21 @@ abstract class AbstractEhcacheRegionFactory implements RegionFactory {
      */
     public CollectionRegion buildCollectionRegion(String regionName, Properties properties, CacheDataDescription metadata)
             throws CacheException {
-        return new EhcacheCollectionRegion(getCache(regionName), settings, metadata);
+        return new EhcacheCollectionRegion(getCache(regionName), settings, metadata, properties);
     }
 
     /**
      * {@inheritDoc}
      */
     public QueryResultsRegion buildQueryResultsRegion(String regionName, Properties properties) throws CacheException {
-        return new EhcacheQueryResultsRegion(getCache(regionName));
+        return new EhcacheQueryResultsRegion(getCache(regionName), properties);
     }
 
     /**
      * {@inheritDoc}
      */
     public TimestampsRegion buildTimestampsRegion(String regionName, Properties properties) throws CacheException {
-        return new EhcacheTimestampsRegion(getCache(regionName));
+        return new EhcacheTimestampsRegion(getCache(regionName), properties);
     }
 
     private Ehcache getCache(String name) throws CacheException {

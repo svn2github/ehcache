@@ -15,6 +15,8 @@
  */
 package net.sf.ehcache.hibernate.regions;
 
+import java.util.Properties;
+
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.concurrent.CacheLockProvider;
@@ -59,8 +61,8 @@ public class EhcacheTransactionalDataRegion extends EhcacheDataRegion implements
     /**
      * Construct an transactional Hibernate cache region around the given Ehcache instance.
      */
-    EhcacheTransactionalDataRegion(Ehcache cache, Settings settings, CacheDataDescription metadata) {
-        super(cache);
+    EhcacheTransactionalDataRegion(Ehcache cache, Settings settings, CacheDataDescription metadata, Properties properties) {
+        super(cache, properties);
         this.settings = settings;
         this.metadata = metadata;
 

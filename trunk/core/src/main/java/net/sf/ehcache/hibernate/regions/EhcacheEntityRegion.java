@@ -15,6 +15,7 @@
  */
 package net.sf.ehcache.hibernate.regions;
 
+import java.util.Properties;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.hibernate.strategy.NonStrictReadWriteEhcacheEntityRegionAccessStrategy;
 import net.sf.ehcache.hibernate.strategy.ReadOnlyEhcacheEntityRegionAccessStrategy;
@@ -45,8 +46,8 @@ public class EhcacheEntityRegion extends EhcacheTransactionalDataRegion implemen
     /**
      * Constructs an EhcacheEntityRegion around the given underlying cache.
      */
-    public EhcacheEntityRegion(Ehcache underlyingCache, Settings settings, CacheDataDescription metadata) {
-        super(underlyingCache, settings, metadata);
+    public EhcacheEntityRegion(Ehcache underlyingCache, Settings settings, CacheDataDescription metadata, Properties properties) {
+        super(underlyingCache, settings, metadata, properties);
     }
 
     /**

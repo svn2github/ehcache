@@ -15,6 +15,8 @@
  */
 package net.sf.ehcache.hibernate.regions;
 
+import java.util.Properties;
+
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 
@@ -40,8 +42,8 @@ abstract class EhcacheGeneralDataRegion extends EhcacheDataRegion implements Gen
     /**
      * Creates an EhcacheGeneralDataRegion using the given Ehcache instance as a backing.
      */
-    public EhcacheGeneralDataRegion(Ehcache cache) {
-        super(cache);
+    public EhcacheGeneralDataRegion(Ehcache cache, Properties properties) {
+        super(cache, properties);
     }
 
     /**

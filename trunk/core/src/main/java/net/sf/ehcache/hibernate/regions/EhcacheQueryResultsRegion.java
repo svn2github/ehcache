@@ -15,7 +15,10 @@
  */
 package net.sf.ehcache.hibernate.regions;
 
+import java.util.Properties;
+
 import net.sf.ehcache.Ehcache;
+
 import org.hibernate.cache.QueryResultsRegion;
 
 /**
@@ -28,8 +31,8 @@ public class EhcacheQueryResultsRegion extends EhcacheGeneralDataRegion implemen
     /**
      * Constructs an EhcacheQueryResultsRegion around the given underlying cache.
      */
-    public EhcacheQueryResultsRegion(Ehcache underlyingCache) {
-        super(underlyingCache);
+    public EhcacheQueryResultsRegion(Ehcache underlyingCache, Properties properties) {
+        super(underlyingCache, properties);
     }
 
 }
