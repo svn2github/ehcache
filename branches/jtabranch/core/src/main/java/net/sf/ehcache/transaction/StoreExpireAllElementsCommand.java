@@ -18,4 +18,8 @@ public class StoreExpireAllElementsCommand implements StoreWriteCommand {
     public boolean isRemove(Object key) {
         return false;
     }
+
+    public String getCommandName() {
+        return Command.EXPIRE_ALL_ELEMENTS;
+    }
 }

@@ -1,9 +1,17 @@
 package net.sf.ehcache.transaction.xa;
 
 import java.io.Serializable;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 import javax.transaction.Transaction;
+import javax.transaction.xa.Xid;
 
 import net.sf.ehcache.Element;
 import net.sf.ehcache.transaction.Command;
@@ -14,32 +22,31 @@ import net.sf.ehcache.transaction.TransactionContext;
  */
 public class XaTransactionContext implements TransactionContext {
 
-    private final Set<Object>               removedKeys  = new HashSet<Object>();
-    private final Set<Object>               addedKeys    = new HashSet<Object>();
-    private final List<VersionAwareWrapper> commands     = new ArrayList<VersionAwareWrapper>();
-    private final Transaction               txn;
-    private final EhCacheXAResourceImpl     resourceImpl;
-    private       int                       sizeModifier;
+    private final Set<Object> removedKeys = new HashSet<Object>();
+    private final Set<Object> addedKeys = new HashSet<Object>();
+    private final List<VersionAwareCommand> commands = new ArrayList<VersionAwareCommand>();
+    private final ConcurrentMap<Object, Element> commandElements = new ConcurrentHashMap<Object, Element>();
+    private final EhCacheXAStoreImpl storeImpl;
+    private final Xid xid;
+    private int sizeModifier;
+    private transient Transaction transaction;
 
-    public XaTransactionContext(Transaction txn, EhCacheXAResourceImpl resourceImpl) {
-        this.txn = txn;
-        this.resourceImpl = resourceImpl;
+
+    public XaTransactionContext(Xid xid, EhCacheXAStoreImpl storeImpl) {
+        this.storeImpl = storeImpl;
+        this.xid = xid;
     }
-
-    public Transaction getTransaction() {
-        return this.txn;
+    
+    public void initializeTransients(Transaction transaction) {
+        this.transaction = transaction;
     }
 
     public Element get(Object key) {
-        Element element = null;
-        for(VersionAwareWrapper command : commands) {
-            if(command.isPut(key)) {
-                element = command.getElement();
-            } else if(command.isRemove(key)) {
-                element = null;
-            }
-        }
-        return element;
+        return commandElements.get(key);
+    }
+    
+    public Transaction getTransaction() {
+        return this.transaction;
     }
 
     public boolean isRemoved(Object key) {
@@ -54,28 +61,27 @@ public class XaTransactionContext implements TransactionContext {
         return Collections.unmodifiableSet(removedKeys);
     }
 
-
     public void addCommand(final Command command, final Element element) {
-
+        Serializable key = element.getKey();
         VersionAwareWrapper wrapper = null;
-        if(element != null) {
-            long version = resourceImpl.checkout(element, txn);
-            wrapper = new VersionAwareWrapper(command, version, element);
+        if (key != null) {
+            long version = storeImpl.checkout(key, xid);
+            wrapper = new VersionAwareWrapper(command, version, key);
+            commandElements.put(element.getObjectKey(), element);
         } else {
             wrapper = new VersionAwareWrapper(command);
         }
 
-        if(element != null) {
-            Serializable key = element.getKey();
-            if(command.isPut(key)) {
+        if (key != null) {
+            if (command.isPut(key)) {
                 boolean removed = removedKeys.remove(key);
                 boolean added = addedKeys.add(key);
-                if(removed || added && !resourceImpl.getStore().containsKey(element.getKey())) {
+                if (removed || added && !storeImpl.getUnderlyingStore().containsKey(key)) {
                     sizeModifier++;
                 }
-            } else if(command.isRemove(key)) {
+            } else if (command.isRemove(key)) {
                 removedKeys.add(key);
-                if(addedKeys.remove(key) || resourceImpl.getStore().containsKey(element.getKey())) {
+                if (addedKeys.remove(key) || storeImpl.getUnderlyingStore().containsKey(key)) {
                     sizeModifier--;
                 }
             }
@@ -83,11 +89,12 @@ public class XaTransactionContext implements TransactionContext {
         commands.add(wrapper);
     }
 
-    public List<VersionAwareWrapper> getCommands() {
+    public List<VersionAwareCommand> getCommands() {
         return Collections.unmodifiableList(commands);
     }
 
     public int getSizeModifier() {
         return sizeModifier;
     }
+
 }

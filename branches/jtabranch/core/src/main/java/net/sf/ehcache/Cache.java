@@ -877,7 +877,7 @@ public class Cache implements Ehcache {
                 // We might want a factory here, and abstract the kinda of TransactionalStore we actually get
                 // (TC or not, and maybe later other non XA)
                 // We should also look into net.sf.ehcache.CacheManager.createTerracottaStore
-                EhCacheXAResource resource = cacheManager.createEhcacheXAResource(this, memoryStore, transactionManagerLookup.getTransactionManager());
+                EhCacheXAResource resource = cacheManager.createEhcacheXAResource(this, memoryStore, MemoryStore.create(this, diskStore), transactionManagerLookup.getTransactionManager());
                 this.memoryStore = new XaTransactionalStore(resource);
             } else {
                 this.memoryStore = memoryStore;

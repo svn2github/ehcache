@@ -1,10 +1,12 @@
 package net.sf.ehcache.transaction;
 
+import java.util.Collection;
+import java.util.List;
+
 import javax.transaction.Transaction;
 
 import net.sf.ehcache.Element;
-
-import java.util.Collection;
+import net.sf.ehcache.transaction.xa.VersionAwareCommand;
 
 /**
  * @author Alex Snaps
@@ -14,8 +16,8 @@ public interface TransactionContext {
     void addCommand(Command command, Element element);
     
     Transaction getTransaction();
-
-    Element get(Object key);
+    
+    public Element get(Object key);
 
     boolean isRemoved(Object key);
 
@@ -24,4 +26,6 @@ public interface TransactionContext {
     Collection getRemovedKeys();
 
     int getSizeModifier();
+    
+    List<VersionAwareCommand> getCommands();
 }

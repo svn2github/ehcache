@@ -24,6 +24,13 @@ import net.sf.ehcache.store.Store;
  *
  */
 public interface Command {
+    public static final String NULL = "NULL";  
+    public static final String PUT = "PUT";
+    public static final String REMOVE = "REMOVE";
+    public static final String EXPIRE_ALL_ELEMENTS = "EXPIRE_ALL_ELEMENTS";
+    public static final String REMOVE_ALL = "REMOVE_ALL";
+    
+    public String getCommandName();
     
     void execute(Store store);
     

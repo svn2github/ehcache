@@ -16,23 +16,23 @@
 
 package net.sf.ehcache.transaction.xa;
 
-import java.util.concurrent.ConcurrentMap;
+import java.io.Serializable;
 
-import javax.transaction.Transaction;
-import javax.transaction.xa.Xid;
+import net.sf.ehcache.transaction.Command;
 
-import net.sf.ehcache.transaction.xa.EhCacheXAResourceImpl.Version;
 
-public interface TransactionTableFactory {
+public interface VersionAwareCommand extends Command {
+
+    boolean isWriteCommand();
+
+    boolean isPut(Object key);
+
+    boolean isRemove(Object key);
+
+    boolean isVersionAware();
+
+    long getVersion();
     
-    ConcurrentMap<Transaction, XaTransactionContext> getTransactionDataTable();
-    
-    ConcurrentMap<Xid, Transaction> getTransactionXids();
-    
-    ConcurrentMap<Object, Version> getVersionStore();
-    
-    ConcurrentMap<Transaction, Long> getTxnVersions();
-    
-    ConcurrentMap<Xid, Xid> getPrepareXids();
+    public Serializable getKey();
 
 }

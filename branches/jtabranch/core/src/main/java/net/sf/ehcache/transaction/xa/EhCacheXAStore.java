@@ -16,19 +16,36 @@
 
 package net.sf.ehcache.transaction.xa;
 
-import javax.transaction.RollbackException;
-import javax.transaction.SystemException;
-import javax.transaction.xa.XAResource;
+import java.io.Serializable;
+
+import javax.transaction.Transaction;
+import javax.transaction.xa.Xid;
 
 import net.sf.ehcache.store.Store;
 import net.sf.ehcache.transaction.TransactionContext;
 
-public interface EhCacheXAResource extends XAResource {
 
-    String getCacheName();
-
-    Store getStore();
+public interface EhCacheXAStore {
     
-    TransactionContext getOrCreateTransactionContext() throws SystemException, RollbackException;
+    Xid storeXid2Transaction(Xid xid, Transaction transaction);
+    
+    TransactionContext createTransactionContext(Transaction txn);
+    
+    TransactionContext getTransactionContext(Xid xid);
+   
+    TransactionContext getTransactionContext(Transaction txn);
+    
+    void checkin(Serializable key, Xid xid, boolean readOnly);
+    
+    long checkout(Serializable key, Xid xid);
+    
+    boolean isValid(VersionAwareCommand command);
+    
+    void prepared(Xid xid);
 
+    Xid[] getPreparedXids();
+    
+    Store getUnderlyingStore();
+    
+    Store getOldVersionStore();
 }

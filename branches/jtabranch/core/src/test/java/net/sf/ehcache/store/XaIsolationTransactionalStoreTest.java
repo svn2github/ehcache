@@ -7,6 +7,7 @@ import static org.mockito.Mockito.*;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.transaction.TransactionContext;
 import net.sf.ehcache.transaction.xa.EhCacheXAResourceImpl;
+import net.sf.ehcache.transaction.xa.EhCacheXAStoreImpl;
 import net.sf.ehcache.transaction.xa.XaTransactionContext;
 import org.junit.Before;
 import org.junit.Test;
@@ -16,6 +17,8 @@ import org.mockito.stubbing.Answer;
 import javax.transaction.RollbackException;
 import javax.transaction.SystemException;
 import javax.transaction.Transaction;
+import javax.transaction.xa.Xid;
+
 import java.util.Arrays;
 
 /**
@@ -38,8 +41,9 @@ public class XaIsolationTransactionalStoreTest {
         EhCacheXAResourceImpl xaResource = mock(EhCacheXAResourceImpl.class);
         underlyingStore = mock(Store.class);
         Transaction tx = mock(Transaction.class);
+        Xid xid = mock(Xid.class);
         when(xaResource.getStore()).thenReturn(underlyingStore);
-        TransactionContext txContext = new XaTransactionContext(tx, xaResource);
+        TransactionContext txContext = new XaTransactionContext(xid, new EhCacheXAStoreImpl(underlyingStore, mock(Store.class)));
         when(xaResource.getOrCreateTransactionContext()).thenReturn(txContext);
         when(underlyingStore.getKeyArray()).thenAnswer(new Answer<Object>() {
             public Object answer(InvocationOnMock invocationOnMock)

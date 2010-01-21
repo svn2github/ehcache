@@ -16,55 +16,78 @@
 
 package net.sf.ehcache.transaction.xa;
 
-import net.sf.ehcache.Element;
+import java.io.Serializable;
+
 import net.sf.ehcache.store.Store;
 import net.sf.ehcache.transaction.Command;
 import net.sf.ehcache.transaction.StoreWriteCommand;
 
-public class VersionAwareWrapper implements Command {
+public class VersionAwareWrapper implements Command, VersionAwareCommand {
     
     private final Command command;
     private final long version;
-    private final Element element;
+    private final Serializable key;
     
     public VersionAwareWrapper(Command command) {
         this.command = command;
         this.version = -1;
-        this.element = null;
+        this.key = null;
     }
     
-    public VersionAwareWrapper(Command command,  long version, Element element) {
+    public VersionAwareWrapper(Command command,  long version, Serializable key) {
         this.command = command;
         this.version = version;
-        this.element = element;
+        this.key = key;
     }
     
+    /* (non-Javadoc)
+     * @see net.sf.ehcache.transaction.xa.VersionAwareCommand#isWriteCommand()
+     */
     public boolean isWriteCommand() {
         return (command instanceof StoreWriteCommand);
     }
     
+    /* (non-Javadoc)
+     * @see net.sf.ehcache.transaction.xa.VersionAwareCommand#execute(net.sf.ehcache.store.Store)
+     */
     public void execute(Store store) {
         command.execute(store);
     }
 
+    /* (non-Javadoc)
+     * @see net.sf.ehcache.transaction.xa.VersionAwareCommand#isPut(java.lang.Object)
+     */
     public boolean isPut(Object key) {
         return command.isPut(key);
     }
 
+    /* (non-Javadoc)
+     * @see net.sf.ehcache.transaction.xa.VersionAwareCommand#isRemove(java.lang.Object)
+     */
     public boolean isRemove(Object key) {
         return command.isRemove(key);
     }
 
+    /* (non-Javadoc)
+     * @see net.sf.ehcache.transaction.xa.VersionAwareCommand#isVersionAware()
+     */
     public boolean isVersionAware() {
-        return element != null;
+        return key != null;
     }
     
+    /* (non-Javadoc)
+     * @see net.sf.ehcache.transaction.xa.VersionAwareCommand#getVersion()
+     */
     public long getVersion() {
         return version;
     }
-    
-    public Element getElement() {
-        return element;
+  
+    public Serializable getKey() {
+        return key;
+    }
+
+    public String getCommandName() {
+        return command.getCommandName();
     }
 
 }

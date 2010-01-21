@@ -20,32 +20,26 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-import javax.transaction.HeuristicMixedException;
-import javax.transaction.HeuristicRollbackException;
-import javax.transaction.RollbackException;
-import javax.transaction.Synchronization;
-import javax.transaction.SystemException;
-import javax.transaction.Transaction;
-import javax.transaction.xa.XAResource;
+import javax.transaction.xa.Xid;
 
-import net.sf.ehcache.Element;
-import net.sf.ehcache.transaction.xa.EhCacheXAResourceImpl.Version;
-import net.sf.ehcache.transaction.xa.EhCacheXAResourceImpl.VersionTable;
 import junit.framework.TestCase;
+import net.sf.ehcache.Element;
+import net.sf.ehcache.transaction.xa.EhCacheXAStoreImpl.Version;
+import net.sf.ehcache.transaction.xa.EhCacheXAStoreImpl.VersionTable;
 
 public class VersionTableTest extends TestCase {
     
     public void testCases() {
         
         Element element1 = new Element("key1", "value1");
-        TestVersionTable table = new TestVersionTable(new TransactionTableFactoryImpl());
+        TestVersionTable table = new TestVersionTable();
         ConcurrentMap versionStore = table.getVersionStore();
         //validate clean state
         assertEquals(0, versionStore.size());
-        TestTransaction txn1 = new TestTransaction();
+        TestXid txn1 = new TestXid();
         
         //checkout
-        table.checkout(element1, txn1);
+        table.checkout(element1.getKey(), txn1);
         
         //validate readonly
         assertEquals(1, versionStore.size());
@@ -57,7 +51,7 @@ public class VersionTableTest extends TestCase {
         assertEquals(1, version.txnVersions.size());
         
         //checkout again
-        table.checkout(element1, txn1);
+        table.checkout(element1.getKey(), txn1);
         
        //validate again
         assertEquals(1, versionStore.size());
@@ -71,7 +65,7 @@ public class VersionTableTest extends TestCase {
        
          
         //now lets add the same element and new transaction
-        TestTransaction txn2 = new TestTransaction();
+        TestXid txn2 = new TestXid();
         table.checkout(element1, txn2);
         
         assertEquals(1, versionStore.size());
@@ -157,59 +151,53 @@ public class VersionTableTest extends TestCase {
     
     private static final class TestVersionTable extends VersionTable {
         
-        public TestVersionTable(TransactionTableFactory factory) {
-            super(factory);
-        }
-
+      
         public ConcurrentMap getVersionStore() {
             return versionStore;
         }
     }
     
     
-    private static final class TestTransaction implements Transaction {
+    private static final class TestXid implements Xid {
         
         public ConcurrentMap xaResourceMap = new ConcurrentHashMap();
         
         private final int hashCode;
         
-        public TestTransaction() {
+        public TestXid() {
             hashCode =  UUID.randomUUID().hashCode();
         }
+      
         
         
-        public void commit() throws RollbackException, HeuristicMixedException, HeuristicRollbackException, SecurityException,
-                IllegalStateException, SystemException {
-            throw new UnsupportedOperationException("not used for this test");
-        }
-
-        public boolean delistResource(XAResource resource, int arg1) throws IllegalStateException, SystemException {
-            return (xaResourceMap.remove(resource) == null) ? true : false;
-        }
-
-        public boolean enlistResource(XAResource resource) throws RollbackException, IllegalStateException, SystemException {
-            return (xaResourceMap.put(resource, resource) == null) ? true : false;
-        }
-
-        public int getStatus() throws SystemException {
-            throw new UnsupportedOperationException("not used for this test");
-        }
-
-        public void registerSynchronization(Synchronization arg0) throws RollbackException, IllegalStateException, SystemException {
-            throw new UnsupportedOperationException("not used for this test");
-        }
-
-        public void rollback() throws IllegalStateException, SystemException {
-            throw new UnsupportedOperationException("not used for this test");
-        }
-
-        public void setRollbackOnly() throws IllegalStateException, SystemException {
-            throw new UnsupportedOperationException("not used for this test");
-        }
 
         @Override
         public int hashCode() {
             return hashCode;
+        }
+
+
+
+
+        public byte[] getBranchQualifier() {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
+
+
+
+        public int getFormatId() {
+            // TODO Auto-generated method stub
+            return 0;
+        }
+
+
+
+
+        public byte[] getGlobalTransactionId() {
+            // TODO Auto-generated method stub
+            return null;
         }
         
         

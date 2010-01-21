@@ -53,6 +53,8 @@ import net.sf.ehcache.store.Store;
 import net.sf.ehcache.terracotta.ClusteredInstanceFactory;
 import net.sf.ehcache.transaction.xa.EhCacheXAResource;
 import net.sf.ehcache.transaction.xa.EhCacheXAResourceImpl;
+import net.sf.ehcache.transaction.xa.EhCacheXAStore;
+import net.sf.ehcache.transaction.xa.EhCacheXAStoreImpl;
 import net.sf.ehcache.util.FailSafeTimer;
 import net.sf.ehcache.util.PropertyUtil;
 import net.sf.ehcache.util.UpdateChecker;
@@ -398,12 +400,14 @@ public class CacheManager {
         return getClusteredInstanceFactory(cache).createAsync(cache);
     }
     
-    EhCacheXAResource createEhcacheXAResource(Ehcache cache, Store store, TransactionManager manager) {
+    EhCacheXAResource createEhcacheXAResource(Ehcache cache, Store store, Store oldVersionStore,  TransactionManager txnManager) {
+        EhCacheXAStore ehcacheXAStore = null;
         if(cache.getCacheConfiguration().isTerracottaClustered()) {
-            return getClusteredInstanceFactory(cache).createXAResource(cache, store, manager);
+            ehcacheXAStore = getClusteredInstanceFactory(cache).createXAStore(cache, store);
         } else {
-            return new EhCacheXAResourceImpl(cache.getName(), store, manager);
-        }
+            ehcacheXAStore = new EhCacheXAStoreImpl(store, oldVersionStore);
+        }      
+        return new EhCacheXAResourceImpl(cache.getName(), store, txnManager, ehcacheXAStore);
         
     }
     

@@ -38,8 +38,7 @@ import net.sf.ehcache.Element;
 import net.sf.ehcache.Status;
 import net.sf.ehcache.transaction.TransactionContext;
 import net.sf.ehcache.transaction.xa.EhCacheXAResource;
-import net.sf.ehcache.transaction.xa.TransactionTableFactoryImpl;
-import net.sf.ehcache.transaction.xa.EhCacheXAResourceImpl.VersionTable;
+import net.sf.ehcache.transaction.xa.EhCacheXAStoreImpl.VersionTable;
 
 public class XaTransactionalStoreTest extends TestCase {
 
@@ -64,13 +63,13 @@ public class XaTransactionalStoreTest extends TestCase {
 
         private final TestStore store = new TestStore();
         public  final ConcurrentMap checkoutMap = new ConcurrentHashMap();
-        public final VersionTable versionTable = new VersionTable(new TransactionTableFactoryImpl());
+        public final VersionTable versionTable = new VersionTable();
         public TransactionContext txnContext;
 
 
-        public long checkout(Element element, Transaction txn) {
-             checkoutMap.put(element, txn);
-             return versionTable.checkout(element, txn);
+        public long checkout(Element element, Xid xid) {
+             checkoutMap.put(element, xid);
+             return versionTable.checkout(element, xid);
         }
 
         public String getCacheName() {

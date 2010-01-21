@@ -29,4 +29,8 @@ public class StorePutCommand implements StoreWriteCommand {
     public Element getElement() {
         return element;
     }
+
+    public String getCommandName() {
+        return Command.PUT;
+    }
 }

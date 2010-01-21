@@ -24,4 +24,10 @@ public class StoreRemoveCommand implements StoreWriteCommand {
     public boolean isRemove(Object key) {
         return this.key.equals(key);
     }
+
+    public String getCommandName() {
+        return Command.EXPIRE_ALL_ELEMENTS;
+    }
+    
+    
 }

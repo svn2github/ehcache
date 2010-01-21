@@ -16,7 +16,6 @@
 package net.sf.ehcache.store.chm;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Random;
 import net.sf.ehcache.Element;
 

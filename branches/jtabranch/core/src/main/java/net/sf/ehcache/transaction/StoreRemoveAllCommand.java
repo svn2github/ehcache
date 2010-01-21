@@ -17,4 +17,8 @@ public class StoreRemoveAllCommand implements StoreWriteCommand {
     public boolean isRemove(Object key) {
         return true;
     }
+
+    public String getCommandName() {
+        return Command.REMOVE_ALL;
+    }
 }
