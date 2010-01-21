@@ -77,10 +77,12 @@ public class XaIsolationTransactionalStoreTest {
         Element element = new Element(KEY, "VALUE");
         assertThat(store.get(element.getKey()), nullValue());
         assertThat(store.getSize(), is(0));
+        assertThat(store.getTerracottaClusteredSize(), is(0));
         assertThat(store.containsKey(KEY), is(false));
         store.put(element);
         assertThat(store.get(element.getKey()), sameInstance(element));
         assertThat(store.getSize(), is(1));
+        assertThat(store.getTerracottaClusteredSize(), is(1));
         assertThat(store.containsKey(KEY), is(true));
         assertThat(store.remove(element.getKey()), sameInstance(element));
         assertThat(store.getSize(), is(0));
@@ -88,15 +90,18 @@ public class XaIsolationTransactionalStoreTest {
         assertThat(store.get(element.getKey()), nullValue());
         assertThat(store.remove(element.getKey()), nullValue());
         assertThat(store.getSize(), is(0));
+        assertThat(store.getTerracottaClusteredSize(), is(0));
         store.put(element);
         store.put(element);
         assertThat(store.get(element.getKey()), sameInstance(element));
         assertThat(store.getSize(), is(1));
+        assertThat(store.getTerracottaClusteredSize(), is(1));
         assertThat(store.containsKey(KEY), is(true));
         assertThat(store.remove(KEY), sameInstance(element));
         assertThat(store.remove(KEY), nullValue());
         store.remove(KEY);
         assertThat(store.getSize(), is(0));
+        assertThat(store.getTerracottaClusteredSize(), is(0));
         assertThat(store.get(element.getKey()), nullValue());
 
         assertThat(store.containsKey(KEY), is(false));
@@ -105,36 +110,41 @@ public class XaIsolationTransactionalStoreTest {
     @Test
     public void testIsolationWithKey() {
         Element element = new Element(KEY, "VALUE");
-        when(xaResource.get(element.getKey())).thenReturn(element);
-        when(underlyingStore.getSize()).thenReturn(1);
-        keyInStore = true;
+        putInStore(element);
+
         assertThat(store.get(element.getKey()), sameInstance(element));
         assertThat(store.getSize(), is(1));
+        assertThat(store.getTerracottaClusteredSize(), is(1));
         assertThat(store.getKeyArray().length, is(1));
         assertThat(store.containsKey(KEY), is(true));
         Element newElement = new Element(element.getKey(), "NEW_VALUE");
         store.put(newElement);
         assertThat(store.get(element.getKey()), sameInstance(newElement));
         assertThat(store.getSize(), is(1));
+        assertThat(store.getTerracottaClusteredSize(), is(1));
         assertThat(store.getKeyArray().length, is(1));
         assertThat(store.containsKey(KEY), is(true));
         assertThat(store.remove(element.getKey()), sameInstance(newElement));
         assertThat(store.getSize(), is(0));
+        assertThat(store.getTerracottaClusteredSize(), is(0));
         assertThat(store.getKeyArray().length, is(0));
         assertThat(store.get(element.getKey()), nullValue());
         assertThat(store.remove(element.getKey()), nullValue());
         assertThat(store.getSize(), is(0));
+        assertThat(store.getTerracottaClusteredSize(), is(0));
         assertThat(store.getKeyArray().length, is(0));
         assertThat(store.containsKey(KEY), is(false));
         store.put(newElement);
         store.put(newElement);
         assertThat(store.get(element.getKey()), sameInstance(newElement));
         assertThat(store.getSize(), is(1));
+        assertThat(store.getTerracottaClusteredSize(), is(1));
         assertThat(store.getKeyArray().length, is(1));
         assertThat(store.containsKey(KEY), is(true));
         assertThat(store.remove(KEY), sameInstance(newElement));
         assertThat(store.remove(KEY), nullValue());
         assertThat(store.getSize(), is(0));
+        assertThat(store.getTerracottaClusteredSize(), is(0));
         assertThat(store.getKeyArray().length, is(0));
         assertThat(store.get(element.getKey()), nullValue());
         assertThat(store.containsKey(KEY), is(false));
@@ -143,13 +153,11 @@ public class XaIsolationTransactionalStoreTest {
     @Test
     public void testIsolationWithOtherKey() {
         Element element = new Element(KEY, "VALUE");
-        when(xaResource.get(element.getKey())).thenReturn(element);
-        when(xaResource.getQuiet(element.getKey())).thenReturn(element);
-        when(underlyingStore.getSize()).thenReturn(1);
-        keyInStore = true;
+        putInStore(element);
 
         assertThat(store.get(element.getKey()), sameInstance(element));
         assertThat(store.getSize(), is(1));
+        assertThat(store.getTerracottaClusteredSize(), is(1));
         assertThat(store.getKeyArray().length, is(1));
         assertThat(store.containsKey(KEY), is(true));
         assertThat(store.containsKey(OTHER_KEY), is(false));
@@ -159,16 +167,19 @@ public class XaIsolationTransactionalStoreTest {
         assertThat(store.get(KEY), sameInstance(element));
         assertThat(store.get(OTHER_KEY), sameInstance(newElement));
         assertThat(store.getSize(), is(2));
+        assertThat(store.getTerracottaClusteredSize(), is(2));
         assertThat(store.getKeyArray().length, is(2));
         assertThat(store.containsKey(element.getKey()), is(true));
         assertThat(store.containsKey(KEY), is(true));
         assertThat(store.remove(OTHER_KEY), sameInstance(newElement));
         assertThat(store.getSize(), is(1));
+        assertThat(store.getTerracottaClusteredSize(), is(1));
         assertThat(store.getKeyArray().length, is(1));
         assertThat(store.get(OTHER_KEY), nullValue());
         assertThat(store.get(KEY), sameInstance(element));
         assertThat(store.remove(OTHER_KEY), nullValue());
         assertThat(store.getSize(), is(1));
+        assertThat(store.getTerracottaClusteredSize(), is(1));
         assertThat(store.getKeyArray().length, is(1));
         assertThat(store.containsKey(OTHER_KEY), is(false));
         assertThat(store.containsKey(KEY), is(true));
@@ -176,6 +187,7 @@ public class XaIsolationTransactionalStoreTest {
         store.put(newElement);
         assertThat(store.get(OTHER_KEY), sameInstance(newElement));
         assertThat(store.getSize(), is(2));
+        assertThat(store.getTerracottaClusteredSize(), is(2));
         assertThat(store.getKeyArray().length, is(2));
         assertThat(store.containsKey(KEY), is(true));
         assertThat(store.containsKey(OTHER_KEY), is(true));
@@ -184,11 +196,20 @@ public class XaIsolationTransactionalStoreTest {
         assertThat(store.remove(KEY), sameInstance(element));
         assertThat(store.remove(KEY), nullValue());
         assertThat(store.getSize(), is(0));
+        assertThat(store.getTerracottaClusteredSize(), is(0));
         assertThat(store.getKeyArray().length, is(0));
         assertThat(store.get(OTHER_KEY), nullValue());
         assertThat(store.get(KEY), nullValue());
         assertThat(store.containsKey(OTHER_KEY), is(false));
         assertThat(store.containsKey(KEY), is(false));
+    }
+
+    private void putInStore(final Element element) {
+        when(xaResource.get(element.getKey())).thenReturn(element);
+        when(xaResource.getQuiet(element.getKey())).thenReturn(element);
+        when(underlyingStore.getSize()).thenReturn(1);
+        when(underlyingStore.getTerracottaClusteredSize()).thenReturn(1);
+        keyInStore = true;
     }
 
 }
