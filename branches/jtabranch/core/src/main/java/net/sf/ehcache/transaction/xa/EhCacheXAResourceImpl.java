@@ -57,9 +57,9 @@ public class EhCacheXAResourceImpl implements EhCacheXAResource {
      * XAResource Implementation
      */
     public void start(final Xid xid, final int flags) throws XAException {
-        if(LOG.isInfoEnabled()) {
-            LOG.info("Start called for Txn with id: " + xid);
-        }
+        LOG.info("Start called for Txn with id: " + xid);
+      
+ 
         // todo we should probably track state propertly here...
         Transaction tx;
         try {
@@ -245,9 +245,8 @@ public class EhCacheXAResourceImpl implements EhCacheXAResource {
         Transaction transaction = txnManager.getTransaction();
         TransactionContext context =  ehCacheXAStore.getTransactionContext(transaction);
         if (context == null) {
-            context = ehCacheXAStore.createTransactionContext(transaction);
             transaction.enlistResource(this);
-           
+            context = ehCacheXAStore.createTransactionContext(transaction);
         }
         return context;
     }
