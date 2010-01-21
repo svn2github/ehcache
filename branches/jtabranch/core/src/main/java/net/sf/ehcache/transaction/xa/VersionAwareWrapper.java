@@ -16,8 +16,6 @@
 
 package net.sf.ehcache.transaction.xa;
 
-import java.io.Serializable;
-
 import net.sf.ehcache.store.Store;
 import net.sf.ehcache.transaction.Command;
 import net.sf.ehcache.transaction.StoreWriteCommand;
@@ -26,7 +24,7 @@ public class VersionAwareWrapper implements Command, VersionAwareCommand {
     
     private final Command command;
     private final long version;
-    private final Serializable key;
+    private final Object key;
     
     public VersionAwareWrapper(Command command) {
         this.command = command;
@@ -34,7 +32,7 @@ public class VersionAwareWrapper implements Command, VersionAwareCommand {
         this.key = null;
     }
     
-    public VersionAwareWrapper(Command command,  long version, Serializable key) {
+    public VersionAwareWrapper(Command command,  long version, Object key) {
         this.command = command;
         this.version = version;
         this.key = key;
@@ -82,7 +80,7 @@ public class VersionAwareWrapper implements Command, VersionAwareCommand {
         return version;
     }
   
-    public Serializable getKey() {
+    public Object getKey() {
         return key;
     }
 

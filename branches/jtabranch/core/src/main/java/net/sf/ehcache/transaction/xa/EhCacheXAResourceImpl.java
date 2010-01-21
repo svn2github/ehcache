@@ -1,6 +1,5 @@
 package net.sf.ehcache.transaction.xa;
 
-import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -86,7 +85,7 @@ public class EhCacheXAResourceImpl implements EhCacheXAResource {
         }
         TransactionContext context = ehCacheXAStore.getTransactionContext(xid);
 
-        Set<Serializable> keys = new HashSet<Serializable>();
+        Set<Object> keys = new HashSet<Object>();
         for (VersionAwareCommand command : context.getCommands()) {
             if(command.isWriteCommand()) {
                 keys.add(command.getKey());
@@ -97,7 +96,7 @@ public class EhCacheXAResourceImpl implements EhCacheXAResource {
         for (VersionAwareCommand command : context.getCommands()) {
             ehCacheXAStore.checkin(command.getKey(), xid, command.isWriteCommand());
             if(command.isWriteCommand()) {
-                Serializable key = command.getKey();
+                Object key = command.getKey();
                 oldVersionStore.remove(key);
                 ((CacheLockProvider)store.getInternalContext()).getSyncForKey(key).unlock(LockType.WRITE);
             }
@@ -134,16 +133,16 @@ public class EhCacheXAResourceImpl implements EhCacheXAResource {
 
         // First dirty bulk check? todo keep this?
         validateCommands(context);
-        Set<Serializable> keys = new HashSet<Serializable>();
+        Set<Object> keys = new HashSet<Object>();
         // Copy old versions in front-accessed store
         for (VersionAwareCommand command : context.getCommands()) {
             if(command.isWriteCommand()) {
-                Serializable key = command.getKey();
+                Object key = command.getKey();
                 Sync syncForKey = oldVersionStoreLockProvider.getSyncForKey(key);
                 syncForKey.lock(LockType.WRITE);
                 try {
                     if (!ehCacheXAStore.isValid(command)) {
-                        for (Serializable addedKey : keys) {
+                        for (Object addedKey : keys) {
                             oldVersionStore.remove(addedKey);
                         }
                         throw new EhCacheXAException("Invalid version for element: " + command.getKey(),

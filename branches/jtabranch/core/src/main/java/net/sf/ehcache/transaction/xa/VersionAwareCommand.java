@@ -16,8 +16,6 @@
 
 package net.sf.ehcache.transaction.xa;
 
-import java.io.Serializable;
-
 import net.sf.ehcache.transaction.Command;
 
 
@@ -33,6 +31,6 @@ public interface VersionAwareCommand extends Command {
 
     long getVersion();
     
-    public Serializable getKey();
+    public Object getKey();
 
 }

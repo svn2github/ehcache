@@ -16,7 +16,6 @@
 
 package net.sf.ehcache.transaction.xa;
 
-import java.io.Serializable;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -46,11 +45,11 @@ public class EhCacheXAStoreImpl implements EhCacheXAStore {
         return this.oldVersionStore;
     }
 
-    public void checkin(Serializable key, Xid xid, boolean readOnly) {
+    public void checkin(Object key, Xid xid, boolean readOnly) {
        versionTable.checkin(key, xid, readOnly);
     }
 
-    public long checkout(Serializable key, Xid xid) {
+    public long checkout(Object key, Xid xid) {
         return versionTable.checkout(key, xid);
     }
     
@@ -98,9 +97,9 @@ public class EhCacheXAStoreImpl implements EhCacheXAStore {
 
     public static class VersionTable {
 
-        protected final ConcurrentMap<Serializable, Version> versionStore = new ConcurrentHashMap<Serializable, Version>();
+        protected final ConcurrentMap<Object, Version> versionStore = new ConcurrentHashMap<Object, Version>();
 
-        public synchronized boolean valid(Serializable key, long currentVersionNumber) {
+        public synchronized boolean valid(Object key, long currentVersionNumber) {
             Version version = versionStore.get(key);
             if (version != null) {
                 long currentVersion = version.getCurrentVersion();
@@ -113,7 +112,7 @@ public class EhCacheXAStoreImpl implements EhCacheXAStore {
 
         }
 
-        public synchronized long checkout(Serializable key, Xid xid) {
+        public synchronized long checkout(Object key, Xid xid) {
             long versionNumber = -1;
             Version version = versionStore.get(key);
             if (version == null) {
@@ -125,7 +124,7 @@ public class EhCacheXAStoreImpl implements EhCacheXAStore {
             return versionNumber;
         }
 
-        public synchronized void checkin(Serializable key, Xid xid, boolean readOnly) {
+        public synchronized void checkin(Object key, Xid xid, boolean readOnly) {
             Version version = versionStore.get(key);
             boolean removeEntry = false;
             if (readOnly) {

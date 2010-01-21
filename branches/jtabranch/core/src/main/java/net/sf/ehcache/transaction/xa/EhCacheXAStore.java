@@ -16,8 +16,6 @@
 
 package net.sf.ehcache.transaction.xa;
 
-import java.io.Serializable;
-
 import javax.transaction.Transaction;
 import javax.transaction.xa.Xid;
 
@@ -35,9 +33,9 @@ public interface EhCacheXAStore {
    
     TransactionContext getTransactionContext(Transaction txn);
     
-    void checkin(Serializable key, Xid xid, boolean readOnly);
+    void checkin(Object key, Xid xid, boolean readOnly);
     
-    long checkout(Serializable key, Xid xid);
+    long checkout(Object key, Xid xid);
     
     boolean isValid(VersionAwareCommand command);
     
