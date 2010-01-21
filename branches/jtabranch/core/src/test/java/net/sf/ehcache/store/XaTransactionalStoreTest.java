@@ -80,6 +80,18 @@ public class XaTransactionalStoreTest extends TestCase {
             return txnContext;
         }
 
+        public void put(final Element element) {
+            //To change body of implemented methods use File | Settings | File Templates.
+        }
+
+        public Element get(final Object key) {
+            return null;
+        }
+
+        public Element getQuiet(final Object key) {
+            return null;
+        }
+
         public Store getStore() {
             return store;
         }

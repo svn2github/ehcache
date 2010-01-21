@@ -29,8 +29,9 @@ public class XaIsolationTransactionalStoreTest {
     private static final String KEY       = "KEY";
     private static final String OTHER_KEY = "OTHER";
 
-    private Store   store;
-    private Store   underlyingStore;
+    private Store                 store;
+    private Store                 underlyingStore;
+    private EhCacheXAResourceImpl xaResource;
 
     private boolean keyInStore      = false;
 
@@ -42,9 +43,11 @@ public class XaIsolationTransactionalStoreTest {
         underlyingStore = mock(Store.class);
         Transaction tx = mock(Transaction.class);
         Xid xid = mock(Xid.class);
-        when(xaResource.getStore()).thenReturn(underlyingStore);
+        this.xaResource = xaResource;
+        when(this.xaResource.getStore()).thenReturn(underlyingStore);
         TransactionContext txContext = new XaTransactionContext(xid, new EhCacheXAStoreImpl(underlyingStore, mock(Store.class)));
         when(xaResource.getOrCreateTransactionContext()).thenReturn(txContext);
+        when(underlyingStore.isCacheCoherent()).thenReturn(true);
         when(underlyingStore.getKeyArray()).thenAnswer(new Answer<Object>() {
             public Object answer(InvocationOnMock invocationOnMock)
                     throws Throwable {
@@ -90,13 +93,11 @@ public class XaIsolationTransactionalStoreTest {
         assertThat(store.get(element.getKey()), sameInstance(element));
         assertThat(store.getSize(), is(1));
         assertThat(store.containsKey(KEY), is(true));
-        System.out.println(Arrays.toString(store.getKeyArray()));
         assertThat(store.remove(KEY), sameInstance(element));
         assertThat(store.remove(KEY), nullValue());
         store.remove(KEY);
         assertThat(store.getSize(), is(0));
         assertThat(store.get(element.getKey()), nullValue());
-        System.out.println(Arrays.toString(store.getKeyArray()));
 
         assertThat(store.containsKey(KEY), is(false));
     }
@@ -104,7 +105,7 @@ public class XaIsolationTransactionalStoreTest {
     @Test
     public void testIsolationWithKey() {
         Element element = new Element(KEY, "VALUE");
-        when(underlyingStore.get(element.getKey())).thenReturn(element);
+        when(xaResource.get(element.getKey())).thenReturn(element);
         when(underlyingStore.getSize()).thenReturn(1);
         keyInStore = true;
         assertThat(store.get(element.getKey()), sameInstance(element));
@@ -142,7 +143,8 @@ public class XaIsolationTransactionalStoreTest {
     @Test
     public void testIsolationWithOtherKey() {
         Element element = new Element(KEY, "VALUE");
-        when(underlyingStore.get(element.getKey())).thenReturn(element);
+        when(xaResource.get(element.getKey())).thenReturn(element);
+        when(xaResource.getQuiet(element.getKey())).thenReturn(element);
         when(underlyingStore.getSize()).thenReturn(1);
         keyInStore = true;
 

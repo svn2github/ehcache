@@ -12,6 +12,7 @@ import javax.transaction.xa.XAException;
 import javax.transaction.xa.XAResource;
 import javax.transaction.xa.Xid;
 
+import net.sf.ehcache.Element;
 import net.sf.ehcache.concurrent.CacheLockProvider;
 import net.sf.ehcache.concurrent.LockType;
 import net.sf.ehcache.concurrent.Sync;
@@ -242,5 +243,21 @@ public class EhCacheXAResourceImpl implements EhCacheXAResource {
             context = ehCacheXAStore.createTransactionContext(transaction);
         }
         return context;
+    }
+
+    public Element get(final Object key) {
+        Element element = oldVersionStore.get(key);
+        if(element == null) {
+            element = store.get(key);
+        }
+        return element;
+    }
+
+    public Element getQuiet(final Object key) {
+        Element element = oldVersionStore.getQuiet(key);
+        if(element == null) {
+            element = store.getQuiet(key);
+        }
+        return element;
     }
 }

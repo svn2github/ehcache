@@ -34,6 +34,7 @@ public class XaTransactionalStore implements Store {
 
     public void put(final Element element) throws CacheException {
         TransactionContext context = getOrCreateTransactionContext();
+        // In case this key is currently being updated...
         underlyingStore.get(element.getKey());
         context.addCommand(new StorePutCommand(element), element);
     
@@ -43,7 +44,7 @@ public class XaTransactionalStore implements Store {
         TransactionContext context = getOrCreateTransactionContext();
         Element element = context.get(key);
         if(element == null && !context.isRemoved(key)) {
-            element = underlyingStore.get(key);
+            element = xaResource.get(key);
         }
         return element;
     }
@@ -52,7 +53,7 @@ public class XaTransactionalStore implements Store {
         TransactionContext context = getOrCreateTransactionContext();
         Element element = context.get(key);
         if(element == null && !context.isRemoved(key)) {
-            element = underlyingStore.getQuiet(key);
+            element = xaResource.getQuiet(key);
         }
         return element;
     }
@@ -69,7 +70,7 @@ public class XaTransactionalStore implements Store {
         TransactionContext context = getOrCreateTransactionContext();
         Element element = context.get(key);
         if(element == null && !context.isRemoved(key)) {
-            element = underlyingStore.get(key);
+            element = xaResource.getQuiet(key);
         }
         if(element != null) {
             context.addCommand(new StoreRemoveCommand(key), element);
@@ -96,8 +97,8 @@ public class XaTransactionalStore implements Store {
     }
 
     public int getTerracottaClusteredSize() {
-        getOrCreateTransactionContext();
-        return underlyingStore.getTerracottaClusteredSize(); // todo Can this work outside any transaction? probably...
+        TransactionContext context = getOrCreateTransactionContext();
+        return underlyingStore.getTerracottaClusteredSize() + context.getSizeModifier();
     }
 
     public long getSizeInBytes() {
