@@ -440,7 +440,8 @@ public class Cache implements Ehcache {
                 TerracottaConfiguration.DEFAULT_LOCAL_KEY_CACHE,
                 TerracottaConfiguration.DEFAULT_LOCAL_KEY_CACHE_SIZE,
                 TerracottaConfiguration.DEFAULT_COPY_ON_READ,
-                TerracottaConfiguration.DEFAULT_CACHE_COHERENT);
+                TerracottaConfiguration.DEFAULT_CACHE_COHERENT,
+                TerracottaConfiguration.DEFAULT_SYNCHRONOUS_WRITE);
 
     }
 
@@ -508,7 +509,8 @@ public class Cache implements Ehcache {
                 TerracottaConfiguration.DEFAULT_LOCAL_KEY_CACHE,
                 TerracottaConfiguration.DEFAULT_LOCAL_KEY_CACHE_SIZE,
                 TerracottaConfiguration.DEFAULT_COPY_ON_READ, 
-                TerracottaConfiguration.DEFAULT_CACHE_COHERENT);
+                TerracottaConfiguration.DEFAULT_CACHE_COHERENT, 
+                TerracottaConfiguration.DEFAULT_SYNCHRONOUS_WRITE);
 
     }
 
@@ -561,7 +563,8 @@ public class Cache implements Ehcache {
                 maxElementsOnDisk, diskSpoolBufferSizeMB, clearOnFlush, false, null, TerracottaConfiguration.DEFAULT_COHERENT_READS,
                 TerracottaConfiguration.DEFAULT_ORPHAN_EVICTION, TerracottaConfiguration.DEFAULT_ORPHAN_EVICTION_PERIOD,
                 TerracottaConfiguration.DEFAULT_LOCAL_KEY_CACHE, TerracottaConfiguration.DEFAULT_LOCAL_KEY_CACHE_SIZE,
-                TerracottaConfiguration.DEFAULT_COPY_ON_READ, TerracottaConfiguration.DEFAULT_CACHE_COHERENT);
+                TerracottaConfiguration.DEFAULT_COPY_ON_READ, TerracottaConfiguration.DEFAULT_CACHE_COHERENT, 
+                TerracottaConfiguration.DEFAULT_SYNCHRONOUS_WRITE);
     }
 
     /**
@@ -607,7 +610,7 @@ public class Cache implements Ehcache {
                 terracottaCoherentReads, TerracottaConfiguration.DEFAULT_ORPHAN_EVICTION,
                 TerracottaConfiguration.DEFAULT_ORPHAN_EVICTION_PERIOD, TerracottaConfiguration.DEFAULT_LOCAL_KEY_CACHE,
                 TerracottaConfiguration.DEFAULT_LOCAL_KEY_CACHE_SIZE, TerracottaConfiguration.DEFAULT_COPY_ON_READ,
-                TerracottaConfiguration.DEFAULT_CACHE_COHERENT);
+                TerracottaConfiguration.DEFAULT_CACHE_COHERENT, TerracottaConfiguration.DEFAULT_SYNCHRONOUS_WRITE);
     }
 
     /**
@@ -670,7 +673,8 @@ public class Cache implements Ehcache {
                  boolean terracottaLocalKeyCache,
                  int terracottaLocalKeyCacheSize,
                  boolean terracottaCopyOnRead, 
-                 boolean terracottaCacheCoherent) {
+                 boolean terracottaCacheCoherent,
+                 boolean terracottaSynchronousWrite) {
 
         changeStatus(Status.STATUS_UNINITIALISED);
 
@@ -736,6 +740,7 @@ public class Cache implements Ehcache {
         tcConfig.setLocalKeyCacheSize(terracottaLocalKeyCacheSize);
         tcConfig.setCopyOnRead(terracottaCopyOnRead);
         tcConfig.setCoherent(terracottaCacheCoherent);
+        tcConfig.setSynchronousWrite(terracottaSynchronousWrite);
         configuration.addTerracotta(tcConfig);
 
         //initialize statistics
