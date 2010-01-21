@@ -108,17 +108,8 @@ public class EhCacheXAResourceImpl implements EhCacheXAResource {
     }
 
     public void end(final Xid xid, final int flags) throws XAException {
-        try {
-            if(flags != TMSUSPEND) {
-                Transaction txn = ehCacheXAStore.getTransactionContext(xid).getTransaction();
-                if(txn != null) {
-                    txn.delistResource(this, flags);
-                }
-            } else {
-                //todo move tx data to CDM!
-            }
-        } catch(SystemException e) {
-            throw new EhCacheXAException("Couldn't delist XAResource", e.errorCode, e);
+        if(flags != TMSUSPEND) {
+            Transaction txn = ehCacheXAStore.getTransactionContext(xid).getTransaction();
         }
         if(LOG.isInfoEnabled()) {
             LOG.info("End called for Txn with id: " + xid);
@@ -169,13 +160,15 @@ public class EhCacheXAResourceImpl implements EhCacheXAResource {
         storeLockProvider.getAndWriteLockAllSyncForKeys(keys.toArray());
 
         // Execute write command within the real underlying store
+        boolean writes = false;
         for (VersionAwareCommand command : context.getCommands()) {
             if(command.isWriteCommand()) {
+                writes = true;
                 command.execute(store);
             }
         }
         ehCacheXAStore.prepared(xid);
-        return context.getCommands().isEmpty() ? XA_RDONLY : XA_OK; // todo is this right?
+        return writes ? XA_OK : XA_RDONLY; // todo is this right?
     }
 
     private void validateCommands(TransactionContext context) throws XAException {
