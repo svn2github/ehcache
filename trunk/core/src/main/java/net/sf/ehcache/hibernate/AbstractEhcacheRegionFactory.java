@@ -146,12 +146,9 @@ abstract class AbstractEhcacheRegionFactory implements RegionFactory {
                 case IDENTITY:
                     throw new CacheException("The clustered Hibernate cache " + cache.getName() + " is using IDENTITY value mode.\n"
                            + "Identity value mode cannot be used with Hibernate cache regions.");
-                case HIBERNATE:
-                    // this is the recommended valueMode
-                    break;
+                case SERIALIZATION:
                 default:
-                    LOG.warn("The clustered Hibernate cache " + cache.getName() + " is using " + tcConfig.getValueMode() + " value mode .\n"
-                           + "Using a value mode strategy other than \"hibernate\" will deliver sub-optimal performance.");
+                    // this is the recommended valueMode
                     break;
             }
         }
