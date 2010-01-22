@@ -27,7 +27,7 @@ import javax.transaction.TransactionManager;
 import javax.transaction.xa.XAResource;
 
 import net.sf.ehcache.config.CacheConfiguration;
-import net.sf.ehcache.transaction.xa.EhCacheXAResource;
+import net.sf.ehcache.transaction.xa.EhcacheXAResource;
 
 /**
  * @author Alex Snaps
@@ -72,13 +72,13 @@ public class DefaultTransactionManagerLookup implements TransactionManagerLookup
         return transactionManager;
     }
 
-    public void register(EhCacheXAResource resource) {
+    public void register(EhcacheXAResource resource) {
         if(vendor.equals("Bitronix")) {
             registerResourceWithBitronix(resource.getCacheName(), resource);
         }
     }
 
-    private void registerResourceWithBitronix(String uniqueName, EhCacheXAResource resource) {
+    private void registerResourceWithBitronix(String uniqueName, EhcacheXAResource resource) {
         ClassLoader cl = Thread.currentThread().getContextClassLoader();
         if (cl == null) {
             cl = ClassLoader.getSystemClassLoader();

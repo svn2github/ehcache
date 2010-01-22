@@ -17,7 +17,7 @@ package net.sf.ehcache.terracotta;
 
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.store.Store;
-import net.sf.ehcache.transaction.xa.EhCacheXAStore;
+import net.sf.ehcache.transaction.xa.EhcacheXAStore;
 import net.sf.ehcache.writebehind.WriteBehind;
 
 /**
@@ -53,5 +53,5 @@ public interface ClusteredInstanceFactory {
    * @param txnManager
    * @return
    */
-  EhCacheXAStore createXAStore(Ehcache cache, Store store);
+  EhcacheXAStore createXAStore(Ehcache cache, Store store);
 }

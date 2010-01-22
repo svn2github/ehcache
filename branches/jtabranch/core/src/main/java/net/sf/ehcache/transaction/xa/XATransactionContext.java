@@ -20,19 +20,19 @@ import net.sf.ehcache.transaction.TransactionContext;
 /**
  * @author Alex Snaps
  */
-public class XaTransactionContext implements TransactionContext {
+public class XATransactionContext implements TransactionContext {
 
     private final Set<Object> removedKeys = new HashSet<Object>();
     private final Set<Object> addedKeys = new HashSet<Object>();
     private final List<VersionAwareCommand> commands = new ArrayList<VersionAwareCommand>();
     private final ConcurrentMap<Object, Element> commandElements = new ConcurrentHashMap<Object, Element>();
-    private final EhCacheXAStoreImpl storeImpl;
+    private final EhcacheXAStoreImpl storeImpl;
     private final Xid xid;
     private int sizeModifier;
     private transient Transaction transaction;
 
 
-    public XaTransactionContext(Xid xid, EhCacheXAStoreImpl storeImpl) {
+    public XATransactionContext(Xid xid, EhcacheXAStoreImpl storeImpl) {
         this.storeImpl = storeImpl;
         this.xid = xid;
     }

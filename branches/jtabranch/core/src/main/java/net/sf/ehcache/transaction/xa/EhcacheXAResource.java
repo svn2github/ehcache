@@ -24,7 +24,7 @@ import net.sf.ehcache.Element;
 import net.sf.ehcache.store.Store;
 import net.sf.ehcache.transaction.TransactionContext;
 
-public interface EhCacheXAResource extends XAResource {
+public interface EhcacheXAResource extends XAResource {
 
     String getCacheName();
 

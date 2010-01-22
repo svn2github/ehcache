@@ -6,9 +6,9 @@ import static org.mockito.Mockito.*;
 
 import net.sf.ehcache.Element;
 import net.sf.ehcache.transaction.TransactionContext;
-import net.sf.ehcache.transaction.xa.EhCacheXAResourceImpl;
-import net.sf.ehcache.transaction.xa.EhCacheXAStoreImpl;
-import net.sf.ehcache.transaction.xa.XaTransactionContext;
+import net.sf.ehcache.transaction.xa.EhcacheXAResourceImpl;
+import net.sf.ehcache.transaction.xa.EhcacheXAStoreImpl;
+import net.sf.ehcache.transaction.xa.XATransactionContext;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.invocation.InvocationOnMock;
@@ -31,7 +31,7 @@ public class XaIsolationTransactionalStoreTest {
 
     private Store                 store;
     private Store                 underlyingStore;
-    private EhCacheXAResourceImpl xaResource;
+    private EhcacheXAResourceImpl xaResource;
 
     private boolean keyInStore      = false;
 
@@ -39,13 +39,13 @@ public class XaIsolationTransactionalStoreTest {
     public void setupMockedStore()
             throws SystemException, RollbackException {
         
-        EhCacheXAResourceImpl xaResource = mock(EhCacheXAResourceImpl.class);
+        EhcacheXAResourceImpl xaResource = mock(EhcacheXAResourceImpl.class);
         underlyingStore = mock(Store.class);
         Transaction tx = mock(Transaction.class);
         Xid xid = mock(Xid.class);
         this.xaResource = xaResource;
         when(this.xaResource.getStore()).thenReturn(underlyingStore);
-        TransactionContext txContext = new XaTransactionContext(xid, new EhCacheXAStoreImpl(underlyingStore, mock(Store.class)));
+        TransactionContext txContext = new XATransactionContext(xid, new EhcacheXAStoreImpl(underlyingStore, mock(Store.class)));
         when(xaResource.getOrCreateTransactionContext()).thenReturn(txContext);
         when(underlyingStore.isCacheCoherent()).thenReturn(true);
         when(underlyingStore.getKeyArray()).thenAnswer(new Answer<Object>() {
@@ -69,7 +69,7 @@ public class XaIsolationTransactionalStoreTest {
                 return false;
             }
         });
-        store = new XaTransactionalStore(xaResource);
+        store = new XATransactionalStore(xaResource);
     }
 
     @Test

@@ -37,14 +37,14 @@ import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.Status;
 import net.sf.ehcache.transaction.TransactionContext;
-import net.sf.ehcache.transaction.xa.EhCacheXAResource;
-import net.sf.ehcache.transaction.xa.EhCacheXAStoreImpl.VersionTable;
+import net.sf.ehcache.transaction.xa.EhcacheXAResource;
+import net.sf.ehcache.transaction.xa.EhcacheXAStoreImpl.VersionTable;
 
 public class XaTransactionalStoreTest extends TestCase {
 
     public void testCases() {
         TestEhCacheXAResource resource = new TestEhCacheXAResource();
-        XaTransactionalStore store = new XaTransactionalStore(resource);
+        XATransactionalStore store = new XATransactionalStore(resource);
         TestTransaction txn = new TestTransaction();
     //    resource.txnContext = new XaTransactionContext(txn);
         
@@ -59,7 +59,7 @@ public class XaTransactionalStoreTest extends TestCase {
         
     }
 
-    private static final class TestEhCacheXAResource implements EhCacheXAResource {
+    private static final class TestEhCacheXAResource implements EhcacheXAResource {
 
         private final TestStore store = new TestStore();
         public  final ConcurrentMap checkoutMap = new ConcurrentHashMap();

@@ -27,16 +27,16 @@ import javax.transaction.xa.Xid;
 import net.sf.ehcache.store.Store;
 import net.sf.ehcache.transaction.TransactionContext;
 
-public class EhCacheXAStoreImpl implements EhCacheXAStore {
+public class EhcacheXAStoreImpl implements EhcacheXAStore {
 
     private final ConcurrentMap<Transaction, Xid> localXidTable = new ConcurrentHashMap<Transaction, Xid>();    
-    private final ConcurrentMap<Xid, XaTransactionContext> transactionContextXids = new ConcurrentHashMap<Xid, XaTransactionContext>();
+    private final ConcurrentMap<Xid, XATransactionContext> transactionContextXids = new ConcurrentHashMap<Xid, XATransactionContext>();
     private final ConcurrentMap<Xid, Xid> prepareXids = new ConcurrentHashMap<Xid, Xid>();
     private final VersionTable versionTable = new VersionTable();
     private Store underlyingStore;
     private Store oldVersionStore;
     
-    public EhCacheXAStoreImpl(Store underlyingStore, Store oldVersionStore) {
+    public EhcacheXAStoreImpl(Store underlyingStore, Store oldVersionStore) {
         this.underlyingStore = underlyingStore;
         this.oldVersionStore = oldVersionStore;
     }
@@ -59,9 +59,9 @@ public class EhCacheXAStoreImpl implements EhCacheXAStore {
 
     public TransactionContext createTransactionContext(Transaction txn) {;
         Xid xid = localXidTable.get(txn);
-        XaTransactionContext context = new XaTransactionContext(xid, this);
+        XATransactionContext context = new XATransactionContext(xid, this);
         context.initializeTransients(txn);
-        XaTransactionContext previous = transactionContextXids.putIfAbsent(xid, context);
+        XATransactionContext previous = transactionContextXids.putIfAbsent(xid, context);
         if (previous != null) {
             context = previous;
         }

@@ -24,24 +24,24 @@ import org.slf4j.LoggerFactory;
 /**
  * @author Nabib El-Rahman
  */
-public class EhCacheXAResourceImpl implements EhCacheXAResource {
+public class EhcacheXAResourceImpl implements EhcacheXAResource {
 
-    private static final Logger LOG = LoggerFactory.getLogger(EhCacheXAResourceImpl.class.getName());
+    private static final Logger LOG = LoggerFactory.getLogger(EhcacheXAResourceImpl.class.getName());
     
     private final String cacheName;
-    private final EhCacheXAStore ehCacheXAStore;
+    private final EhcacheXAStore ehcacheXAStore;
     private int transactionTimeout;
 
     private Store store;
     private Store oldVersionStore;
     private TransactionManager txnManager;
 
-    public EhCacheXAResourceImpl(String cacheName, Store store, TransactionManager txnManager, EhCacheXAStore ehcacheXAStore) {
+    public EhcacheXAResourceImpl(String cacheName, Store store, TransactionManager txnManager, EhcacheXAStore ehcacheXAStore) {
         this.cacheName = cacheName;
         this.store = store;
         this.txnManager = txnManager;
-        this.ehCacheXAStore = ehcacheXAStore;
-        this.oldVersionStore = ehCacheXAStore.getOldVersionStore();
+        this.ehcacheXAStore = ehcacheXAStore;
+        this.oldVersionStore = ehcacheXAStore.getOldVersionStore();
     }
 
     /*
@@ -65,14 +65,14 @@ public class EhCacheXAResourceImpl implements EhCacheXAResource {
         try {
             tx = txnManager.getTransaction();
         } catch (SystemException e) {
-            throw new EhCacheXAException("Couldn't get to current Transaction: " + e.getMessage(), e.errorCode, e);
+            throw new EhcacheXAException("Couldn't get to current Transaction: " + e.getMessage(), e.errorCode, e);
         }
         if(tx == null) {
-            throw new EhCacheXAException("Couldn't get to current Transaction ", XAException.XAER_OUTSIDE);
+            throw new EhcacheXAException("Couldn't get to current Transaction ", XAException.XAER_OUTSIDE);
         }
-        Xid prevXid = ehCacheXAStore.storeXid2Transaction(xid, tx);
+        Xid prevXid = ehcacheXAStore.storeXid2Transaction(xid, tx);
         if(prevXid != null && !prevXid.equals(xid)) {
-            throw new EhCacheXAException("Duplicated XID: " + xid, XAException.XAER_DUPID);
+            throw new EhcacheXAException("Duplicated XID: " + xid, XAException.XAER_DUPID);
         }
     }
 
@@ -83,7 +83,7 @@ public class EhCacheXAResourceImpl implements EhCacheXAResource {
         if(LOG.isInfoEnabled()) {
             LOG.info((onePhase ? "One" : "Two") + " phase commit called for Txn with id: " + xid);
         }
-        TransactionContext context = ehCacheXAStore.getTransactionContext(xid);
+        TransactionContext context = ehcacheXAStore.getTransactionContext(xid);
 
         Set<Object> keys = new HashSet<Object>();
         for (VersionAwareCommand command : context.getCommands()) {
@@ -94,7 +94,7 @@ public class EhCacheXAResourceImpl implements EhCacheXAResource {
 
         Sync[] syncForKeys = ((CacheLockProvider)oldVersionStore.getInternalContext()).getAndWriteLockAllSyncForKeys(keys.toArray());
         for (VersionAwareCommand command : context.getCommands()) {
-            ehCacheXAStore.checkin(command.getKey(), xid, command.isWriteCommand());
+            ehcacheXAStore.checkin(command.getKey(), xid, command.isWriteCommand());
             if(command.isWriteCommand()) {
                 Object key = command.getKey();
                 oldVersionStore.remove(key);
@@ -109,7 +109,7 @@ public class EhCacheXAResourceImpl implements EhCacheXAResource {
 
     public void end(final Xid xid, final int flags) throws XAException {
         if(flags != TMSUSPEND) {
-            Transaction txn = ehCacheXAStore.getTransactionContext(xid).getTransaction();
+            Transaction txn = ehcacheXAStore.getTransactionContext(xid).getTransaction();
         }
         if(LOG.isInfoEnabled()) {
             LOG.info("End called for Txn with id: " + xid);
@@ -125,7 +125,7 @@ public class EhCacheXAResourceImpl implements EhCacheXAResource {
     public int prepare(final Xid xid) throws XAException {
         LOG.debug("Prepare called for Txn with id: {}", xid);
 
-        TransactionContext context = ehCacheXAStore.getTransactionContext(xid);
+        TransactionContext context = ehcacheXAStore.getTransactionContext(xid);
         CacheLockProvider storeLockProvider = (CacheLockProvider)store.getInternalContext();
         CacheLockProvider oldVersionStoreLockProvider = (CacheLockProvider)oldVersionStore.getInternalContext();
 
@@ -139,11 +139,11 @@ public class EhCacheXAResourceImpl implements EhCacheXAResource {
                 Sync syncForKey = oldVersionStoreLockProvider.getSyncForKey(key);
                 syncForKey.lock(LockType.WRITE);
                 try {
-                    if (!ehCacheXAStore.isValid(command)) {
+                    if (!ehcacheXAStore.isValid(command)) {
                         for (Object addedKey : keys) {
                             oldVersionStore.remove(addedKey);
                         }
-                        throw new EhCacheXAException("Invalid version for element: " + command.getKey(),
+                        throw new EhcacheXAException("Invalid version for element: " + command.getKey(),
                             XAException.XA_RBINTEGRITY);
                     }
                     keys.add(key);
@@ -159,7 +159,7 @@ public class EhCacheXAResourceImpl implements EhCacheXAResource {
 
         LOG.info("Locked {} syncs for {} keys", syncForKeys == null ? 0 : syncForKeys.length, keys.size());
 
-        ehCacheXAStore.prepared(xid);
+        ehcacheXAStore.prepared(xid);
 
         // Execute write command within the real underlying store
         boolean writes = false;
@@ -172,15 +172,15 @@ public class EhCacheXAResourceImpl implements EhCacheXAResource {
     private void validateCommands(TransactionContext context) throws XAException {
         for (VersionAwareCommand command : context.getCommands()) {
             if (command.isVersionAware()) {
-                if (!ehCacheXAStore.isValid(command)) {
-                    throw new EhCacheXAException("Invalid version for element: " + command.getKey(), XAException.XA_RBINTEGRITY);
+                if (!ehcacheXAStore.isValid(command)) {
+                    throw new EhcacheXAException("Invalid version for element: " + command.getKey(), XAException.XA_RBINTEGRITY);
                 }
             }
         }
     }
 
     public Xid[] recover(final int i) throws XAException {
-        return ehCacheXAStore.getPreparedXids();
+        return ehcacheXAStore.getPreparedXids();
     }
 
     public void rollback(final Xid xid) throws XAException {
@@ -188,7 +188,7 @@ public class EhCacheXAResourceImpl implements EhCacheXAResource {
             LOG.info("Rollback called for Txn with id: " + xid);
         }
         
-        TransactionContext context = ehCacheXAStore.getTransactionContext(xid);
+        TransactionContext context = ehcacheXAStore.getTransactionContext(xid);
         CacheLockProvider storeLockProvider = (CacheLockProvider)store.getInternalContext();
         CacheLockProvider oldVersionStoreLockProvider = (CacheLockProvider)oldVersionStore.getInternalContext();
 
@@ -240,7 +240,7 @@ public class EhCacheXAResourceImpl implements EhCacheXAResource {
 
     @Override
     public boolean equals(Object obj) {
-        EhCacheXAResource resource2 = (EhCacheXAResource) obj;
+        EhcacheXAResource resource2 = (EhcacheXAResource) obj;
         if (cacheName.equals(resource2.getCacheName())) {
             return true;
         }
@@ -254,10 +254,10 @@ public class EhCacheXAResourceImpl implements EhCacheXAResource {
 
     public TransactionContext getOrCreateTransactionContext() throws SystemException, RollbackException {
         Transaction transaction = txnManager.getTransaction();
-        TransactionContext context =  ehCacheXAStore.getTransactionContext(transaction);
+        TransactionContext context =  ehcacheXAStore.getTransactionContext(transaction);
         if (context == null) {
             transaction.enlistResource(this);
-            context = ehCacheXAStore.createTransactionContext(transaction);
+            context = ehcacheXAStore.createTransactionContext(transaction);
         }
         return context;
     }

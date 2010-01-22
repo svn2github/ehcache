@@ -23,7 +23,7 @@ import net.sf.ehcache.store.Store;
 import net.sf.ehcache.transaction.TransactionContext;
 
 
-public interface EhCacheXAStore {
+public interface EhcacheXAStore {
     
     Xid storeXid2Transaction(Xid xid, Transaction transaction);
     

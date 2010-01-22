@@ -16,17 +16,17 @@ import net.sf.ehcache.transaction.StorePutCommand;
 import net.sf.ehcache.transaction.StoreRemoveAllCommand;
 import net.sf.ehcache.transaction.StoreRemoveCommand;
 import net.sf.ehcache.transaction.TransactionContext;
-import net.sf.ehcache.transaction.xa.EhCacheXAResource;
+import net.sf.ehcache.transaction.xa.EhcacheXAResource;
 
 /**
  * @author Alex Snaps
  */
-public class XaTransactionalStore implements Store {
+public class XATransactionalStore implements Store {
 
     private final Store underlyingStore;
-    private final EhCacheXAResource xaResource;
+    private final EhcacheXAResource xaResource;
   
-    public XaTransactionalStore(final EhCacheXAResource xaResource) {
+    public XATransactionalStore(final EhcacheXAResource xaResource) {
         this.xaResource = xaResource;
         this.underlyingStore = xaResource.getStore();
     }

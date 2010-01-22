@@ -51,10 +51,10 @@ import net.sf.ehcache.management.provider.MBeanRegistrationProviderFactoryImpl;
 import net.sf.ehcache.store.DiskStore;
 import net.sf.ehcache.store.Store;
 import net.sf.ehcache.terracotta.ClusteredInstanceFactory;
-import net.sf.ehcache.transaction.xa.EhCacheXAResource;
-import net.sf.ehcache.transaction.xa.EhCacheXAResourceImpl;
-import net.sf.ehcache.transaction.xa.EhCacheXAStore;
-import net.sf.ehcache.transaction.xa.EhCacheXAStoreImpl;
+import net.sf.ehcache.transaction.xa.EhcacheXAResource;
+import net.sf.ehcache.transaction.xa.EhcacheXAResourceImpl;
+import net.sf.ehcache.transaction.xa.EhcacheXAStore;
+import net.sf.ehcache.transaction.xa.EhcacheXAStoreImpl;
 import net.sf.ehcache.util.FailSafeTimer;
 import net.sf.ehcache.util.PropertyUtil;
 import net.sf.ehcache.util.UpdateChecker;
@@ -400,14 +400,14 @@ public class CacheManager {
         return getClusteredInstanceFactory(cache).createAsync(cache);
     }
     
-    EhCacheXAResource createEhcacheXAResource(Ehcache cache, Store store, Store oldVersionStore,  TransactionManager txnManager) {
-        EhCacheXAStore ehcacheXAStore = null;
+    EhcacheXAResource createEhcacheXAResource(Ehcache cache, Store store, Store oldVersionStore,  TransactionManager txnManager) {
+        EhcacheXAStore ehcacheXAStore = null;
         if(cache.getCacheConfiguration().isTerracottaClustered()) {
             ehcacheXAStore = getClusteredInstanceFactory(cache).createXAStore(cache, store);
         } else {
-            ehcacheXAStore = new EhCacheXAStoreImpl(store, oldVersionStore);
+            ehcacheXAStore = new EhcacheXAStoreImpl(store, oldVersionStore);
         }      
-        return new EhCacheXAResourceImpl(cache.getName(), store, txnManager, ehcacheXAStore);
+        return new EhcacheXAResourceImpl(cache.getName(), store, txnManager, ehcacheXAStore);
         
     }
     

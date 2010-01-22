@@ -24,8 +24,8 @@ import javax.transaction.xa.Xid;
 
 import junit.framework.TestCase;
 import net.sf.ehcache.Element;
-import net.sf.ehcache.transaction.xa.EhCacheXAStoreImpl.Version;
-import net.sf.ehcache.transaction.xa.EhCacheXAStoreImpl.VersionTable;
+import net.sf.ehcache.transaction.xa.EhcacheXAStoreImpl.Version;
+import net.sf.ehcache.transaction.xa.EhcacheXAStoreImpl.VersionTable;
 
 public class VersionTableTest extends TestCase {
     
