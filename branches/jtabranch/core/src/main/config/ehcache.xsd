@@ -15,13 +15,19 @@
             <xs:attribute name="name" use="optional"/>
             <xs:attribute default="true" name="updateCheck" type="xs:boolean" use="optional"/>
             <xs:attribute default="autodetect" name="monitoring" type="monitoringType" use="optional"/>
-            <xs:attribute name="transactionManagerLookupClass" type="xs:string" use="optional"/>
             <xs:attribute default="true" name="dynamicConfig" type="xs:boolean" use="optional"/>
         </xs:complexType>
     </xs:element>
     <xs:element name="diskStore">
         <xs:complexType>
             <xs:attribute name="path" use="optional"/>
+        </xs:complexType>
+    </xs:element>
+     <xs:element name="transactionManagerLookup">
+        <xs:complexType>
+            <xs:attribute name="class" use="required"/>
+            <xs:attribute name="properties" use="optional"/>
+            <xs:attribute name="propertySeparator" use="optional"/>
         </xs:complexType>
     </xs:element>
     <xs:element name="cacheManagerEventListenerFactory">

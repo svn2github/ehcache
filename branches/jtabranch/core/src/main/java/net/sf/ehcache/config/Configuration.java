@@ -16,14 +16,14 @@
 
 package net.sf.ehcache.config;
 
-import net.sf.ehcache.ObjectExistsException;
-import net.sf.ehcache.transaction.manager.DefaultTransactionManagerLookup;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import net.sf.ehcache.ObjectExistsException;
+import net.sf.ehcache.transaction.manager.DefaultTransactionManagerLookup;
 
 /**
  * A bean, used by BeanUtils, to set configuration from an XML configuration file.
@@ -55,11 +55,11 @@ public final class Configuration {
     private CacheConfiguration defaultCacheConfiguration;
     private List<FactoryConfiguration> cacheManagerPeerProviderFactoryConfiguration = new ArrayList<FactoryConfiguration>();
     private List<FactoryConfiguration> cacheManagerPeerListenerFactoryConfiguration = new ArrayList<FactoryConfiguration>();
+    private FactoryConfiguration transactionManagerLookupConfiguration;
     private FactoryConfiguration cacheManagerEventListenerFactoryConfiguration;
     private TerracottaConfigConfiguration terracottaConfigConfiguration;
     private final Map<String, CacheConfiguration> cacheConfigurations = new HashMap();
     private String configurationSource;
-    private String transactionManagerLookupClass = DefaultTransactionManagerLookup.class.getName();
     private boolean dynamicConfig = true;
     /**
      * Empty constructor, which is used by {@link ConfigurationFactory}, and can be also used programmatically.
@@ -70,6 +70,12 @@ public final class Configuration {
     public Configuration() {
     }
 
+    
+    private FactoryConfiguration getDefaultTransactionManagerLookupConfiguration() {
+        FactoryConfiguration configuration = new FactoryConfiguration();
+        configuration.setClass(DefaultTransactionManagerLookup.class.getName());
+        return configuration;
+    }
     /**
      * Allows BeanHandler to set the CacheManager name.
      */
@@ -128,22 +134,6 @@ public final class Configuration {
     public final boolean getDynamicConfig() {
         return this.dynamicConfig;
     }
-    
-    /**
-     *
-     * @return
-     */
-    public String getTransactionManagerLookupClass() {
-        return transactionManagerLookupClass;
-    }
-
-    /**
-     *
-     * @return
-     */
-    public void setTransactionManagerLookupClass(final String transactionManagerLookupClass) {
-        this.transactionManagerLookupClass = transactionManagerLookupClass;
-    }
 
     /**
      * Allows BeanHandler to add disk store location to the configuration.
@@ -155,6 +145,15 @@ public final class Configuration {
         diskStoreConfiguration = diskStoreConfigurationParameter;
     }
 
+    /**
+     * Allows BeanHandler to add transaction manager lookup to the configuration.
+     */
+    public final void addTransactionManagerLookup(FactoryConfiguration transactionManagerLookupParameter) throws ObjectExistsException {
+        if (diskStoreConfiguration != null) {
+            throw new ObjectExistsException("The TransactionManagerLookup class has already been configured");
+        }
+        transactionManagerLookupConfiguration = transactionManagerLookupParameter;
+    }
 
     /**
      * Allows BeanHandler to add the CacheManagerEventListener to the configuration.
@@ -242,6 +241,16 @@ public final class Configuration {
      */
     public final DiskStoreConfiguration getDiskStoreConfiguration() {
         return diskStoreConfiguration;
+    }
+    
+    /**
+     * Gets the transaction manager lookup configuration.
+     */
+    public final FactoryConfiguration getTransactionManagerLookupConfiguration() {
+        if(transactionManagerLookupConfiguration == null) {
+            return getDefaultTransactionManagerLookupConfiguration();
+        }
+        return transactionManagerLookupConfiguration;
     }
 
     /**

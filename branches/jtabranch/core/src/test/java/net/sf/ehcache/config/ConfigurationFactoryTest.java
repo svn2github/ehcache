@@ -252,7 +252,7 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
         assertEquals(6, configurationHelper.createCaches().size());
 
         //check config
-        CacheConfiguration sampleCache1Config = (CacheConfiguration) configuration.getCacheConfigurations().get("sampleCache1");
+        CacheConfiguration sampleCache1Config = configuration.getCacheConfigurations().get("sampleCache1");
         assertEquals("sampleCache1", sampleCache1Config.getName());
         assertEquals(false, sampleCache1Config.isEternal());
         assertEquals(300, sampleCache1Config.getTimeToIdleSeconds());
@@ -549,7 +549,7 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
         //  />
         Ehcache sampleCache1 = configurationHelper.createCacheFromName("sampleCache1");
         Ehcache sampleCache4 = configurationHelper.createCacheFromName("sampleCache4");
-        assertEquals("net.sf.ehcache.transaction.manager.DefaultTransactionManagerLookup", configuration.getTransactionManagerLookupClass());
+        assertEquals("net.sf.ehcache.transaction.manager.DefaultTransactionManagerLookup", configuration.getTransactionManagerLookupConfiguration().getFullyQualifiedClassPath());
         assertEquals("sampleCache1", sampleCache1.getName());
         assertEquals(false, sampleCache1.getCacheConfiguration().isEternal());
         assertEquals(300, sampleCache1.getCacheConfiguration().getTimeToIdleSeconds());

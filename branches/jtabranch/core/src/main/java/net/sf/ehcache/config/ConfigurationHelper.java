@@ -489,7 +489,7 @@ public final class ConfigurationHelper {
                 terracottaValueMode,
                 terracottaCoherentReads,
                 cacheConfiguration.getTransactionalMode().name(),
-                configuration.getTransactionManagerLookupClass(),
+                configuration.getTransactionManagerLookupConfiguration().getFullyQualifiedClassPath(),
                 terracottaOrphanEviction,
                 terracottaOrphanEvictionPeriod,
                 terracottaLocalKeyCache,

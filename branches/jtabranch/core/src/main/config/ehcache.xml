@@ -34,7 +34,6 @@ used with JMX monitors.
 <ehcache xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:noNamespaceSchemaLocation="ehcache.xsd"
          updateCheck="true" monitoring="autodetect"
-         transactionManagerLookupClass="net.sf.ehcache.transaction.manager.DefaultTransactionManagerLookup"
          dynamicConfig="true">
 
     <!--
@@ -67,6 +66,14 @@ used with JMX monitors.
 
     -->
     <diskStore path="java.io.tmpdir"/>
+    
+      <!-- 
+    TransactionManagerLookup configuration
+    ======================================
+     -->
+     
+    <transactionManagerLookup class="net.sf.ehcache.transaction.manager.DefaultTransactionManagerLookup" properties="" propertySeparator=":"/>
+    
 
     <!--
     CacheManagerEventListener
