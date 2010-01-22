@@ -72,6 +72,7 @@
                 <xs:element minOccurs="0" maxOccurs="1" ref="bootstrapCacheLoaderFactory"/>
                 <xs:element minOccurs="0" maxOccurs="1" ref="cacheExceptionHandlerFactory"/>
                 <xs:element minOccurs="0" maxOccurs="1" ref="terracotta"/>
+                <xs:element minOccurs="0" maxOccurs="1" ref="cacheWriter"/>
             </xs:sequence>
             <xs:attribute name="diskExpiryThreadIntervalSeconds" use="optional" type="xs:integer"/>
             <xs:attribute name="diskSpoolBufferSizeMB" use="optional" type="xs:integer"/>
@@ -95,6 +96,7 @@
                 <xs:element minOccurs="0" maxOccurs="1" ref="bootstrapCacheLoaderFactory"/>
                 <xs:element minOccurs="0" maxOccurs="1" ref="cacheExceptionHandlerFactory"/>
                 <xs:element minOccurs="0" maxOccurs="1" ref="terracotta"/>
+                <xs:element minOccurs="0" maxOccurs="1" ref="cacheWriter"/>
             </xs:sequence>
             <xs:attribute name="diskExpiryThreadIntervalSeconds" use="optional" type="xs:integer"/>
             <xs:attribute name="diskSpoolBufferSizeMB" use="optional" type="xs:integer"/>
@@ -170,4 +172,33 @@
             <xs:enumeration value="identity" />
         </xs:restriction>
     </xs:simpleType>
+    <xs:element name="cacheWriter">
+        <xs:complexType>
+            <xs:sequence >
+                <xs:element minOccurs="0" maxOccurs="1" ref="cacheWriterFactory"/>
+            </xs:sequence>
+            <xs:attribute name="writeMode" use="optional" type="writeModeType" default="write_through"/>
+            <xs:attribute name="notifyListenersOnException" use="optional" type="xs:boolean" default="false"/>
+            <xs:attribute name="maxWriteDelay" use="optional" type="xs:nonNegativeInteger" default="0"/>
+            <xs:attribute name="rateLimitPerSecond" use="optional" type="xs:nonNegativeInteger" default="0"/>
+            <xs:attribute name="writeCoalescing" use="optional" type="xs:boolean" default="false"/>
+            <xs:attribute name="writeBatching" use="optional" type="xs:boolean" default="false"/>
+            <xs:attribute name="writeBatchSize" use="optional" type="xs:positiveInteger" default="1"/>
+            <xs:attribute name="retryAttempts" use="optional" type="xs:nonNegativeInteger" default="0"/>
+            <xs:attribute name="retryAttemptDelaySeconds" use="optional" type="xs:nonNegativeInteger" default="1"/>
+        </xs:complexType>
+    </xs:element>
+    <xs:simpleType name="writeModeType">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="write_through" />
+            <xs:enumeration value="write_behind" />
+        </xs:restriction>
+    </xs:simpleType>
+    <xs:element name="cacheWriterFactory">
+        <xs:complexType>
+            <xs:attribute name="class" use="required"/>
+            <xs:attribute name="properties" use="optional"/>
+            <xs:attribute name="propertySeparator" use="optional"/>
+        </xs:complexType>
+    </xs:element>
 </xs:schema>

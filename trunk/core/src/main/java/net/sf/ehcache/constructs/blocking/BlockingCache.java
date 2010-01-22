@@ -40,8 +40,8 @@ import net.sf.ehcache.loader.CacheLoader;
 import net.sf.ehcache.statistics.CacheUsageListener;
 import net.sf.ehcache.statistics.LiveCacheStatistics;
 import net.sf.ehcache.statistics.sampled.SampledCacheStatistics;
-import net.sf.ehcache.writebehind.WriteBehind;
-
+import net.sf.ehcache.writer.CacheWriter;
+import net.sf.ehcache.writer.CacheWriterManager;
 
 /**
  * A blocking decorator for an Ehcache, backed by a {@link Ehcache}.
@@ -490,10 +490,10 @@ public class BlockingCache implements Ehcache {
     }
 
   /**
-   * Obtain the write behind functionality tied to this cache instance.
+   * {@inheritDoc}
    */
-    public WriteBehind getWriteBehind() {
-      return cache.getWriteBehind();
+    public CacheWriterManager getWriterManager() {
+      return cache.getWriterManager();
     }
 
     /**
@@ -554,6 +554,13 @@ public class BlockingCache implements Ehcache {
      */
     public void putQuiet(Element element) throws IllegalArgumentException, IllegalStateException, CacheException {
         cache.putQuiet(element);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void putWithWriter(Element element) throws IllegalArgumentException, IllegalStateException, CacheException {
+        cache.putWithWriter(element);
     }
 
     /**
@@ -746,6 +753,13 @@ public class BlockingCache implements Ehcache {
      */
     public boolean removeQuiet(Object key) throws IllegalStateException {
         return cache.removeQuiet(key);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public boolean removeWithWriter(Object key) throws IllegalStateException {
+        return cache.removeWithWriter(key);
     }
 
     /**
@@ -978,6 +992,26 @@ public class BlockingCache implements Ehcache {
         return cache.getRegisteredCacheLoaders();
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    public void registerCacheWriter(CacheWriter cacheWriter) {
+        cache.registerCacheWriter(cacheWriter);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void unregisterCacheWriter() {
+        cache.unregisterCacheWriter();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public CacheWriter getRegisteredCacheWriter() {
+        return cache.getRegisteredCacheWriter();
+    }
 
     /**
      * This method is not appropriate to use with BlockingCache.

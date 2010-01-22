@@ -27,10 +27,11 @@ import net.sf.ehcache.event.RegisteredEventListeners;
 import net.sf.ehcache.exceptionhandler.CacheExceptionHandler;
 import net.sf.ehcache.extension.CacheExtension;
 import net.sf.ehcache.loader.CacheLoader;
+import net.sf.ehcache.writer.CacheWriter;
 import net.sf.ehcache.statistics.CacheUsageListener;
 import net.sf.ehcache.statistics.LiveCacheStatistics;
 import net.sf.ehcache.statistics.sampled.SampledCacheStatistics;
-import net.sf.ehcache.writebehind.WriteBehind;
+import net.sf.ehcache.writer.CacheWriterManager;
 
 /**
  * An interface for Ehcache.
@@ -104,6 +105,27 @@ public interface Ehcache extends Cloneable {
      */
     void putQuiet(Element element) throws IllegalArgumentException, IllegalStateException,
             CacheException;
+
+    /**
+     * Put an element in the cache writing through a CacheWriter. If no CacheWriter has been set for the cache,
+     * then this method has the same effect as cache.put().
+     * <p/>
+     * Resets the access statistics on the element, which would be the case if it has previously been
+     * gotten from a cache, and is now being put back.
+     * <p/>
+     * Also notifies the CacheEventListener, if the writer operation succeeds, that:
+     * <ul>
+     * <li>the element was put, but only if the Element was actually put.
+     * <li>if the element exists in the cache, that an update has occurred, even if the element would be expired
+     * if it was requested
+     * </ul>
+     *
+     * @param element An object. If Serializable it can fully participate in replication and the DiskStore.
+     * @throws IllegalStateException    if the cache is not {@link net.sf.ehcache.Status#STATUS_ALIVE}
+     * @throws IllegalArgumentException if the element is null
+     * @throws CacheException
+     */
+    void putWithWriter(Element element) throws IllegalArgumentException, IllegalStateException, CacheException;
 
     /**
      * Gets an element from the cache. Updates Element Statistics
@@ -292,6 +314,20 @@ public interface Ehcache extends Cloneable {
      * @since 1.2
      */
     boolean removeQuiet(Object key) throws IllegalStateException;
+
+    /**
+     * Removes an {@link net.sf.ehcache.Element} from the Cache and any stores it might be in. This also removes through
+     * to a CacheWriter. If no CacheWriter has been set for the cache, then this method has the same effect as cache.remove().
+     * <p/>
+     * Also notifies the CacheEventListener after the element was removed, but only if an El ement
+     * with the key actually existed.
+     *
+     * @param key
+     * @return true if the element was removed, false if it was not found in the cache
+     * @throws IllegalStateException if the cache is not {@link net.sf.ehcache.Status#STATUS_ALIVE}
+     * @since 2.0
+     */
+    boolean removeWithWriter(Object key) throws IllegalStateException;
 
     /**
      * Removes all cached items.
@@ -688,7 +724,6 @@ public interface Ehcache extends Cloneable {
      */
     public void unregisterCacheExtension(CacheExtension cacheExtension);
 
-
     /**
      *
      * @return the cache extensions as a live list
@@ -726,12 +761,34 @@ public interface Ehcache extends Cloneable {
      */
     public void unregisterCacheLoader(CacheLoader cacheLoader);
 
-
     /**
      *
      * @return the cache loaders as a live list
      */
     public List<CacheLoader> getRegisteredCacheLoaders();
+
+    /**
+     * Register the {@link CacheWriter} for this cache. It will then be tied into the cache lifecycle.
+     * <p/>
+     * If the {@code CacheWriter} is not initialised, initialise it.
+     *
+     * @param cacheWriter A CacheWriter to register
+     */
+    public void registerCacheWriter(CacheWriter cacheWriter);
+
+    /**
+     * Unregister the {@link CacheWriter} from the cache. It will then be detached from the cache lifecycle.
+     * <p/>
+     * If not {@code CacheWriter} was registered beforehand this operation has no effect.
+     */
+    public void unregisterCacheWriter();
+
+    /**
+     * Retrieves the {@link CacheWriter} that was registered for this cache.
+     *
+     * @return the registered {@code CacheWriter}; or {@code null} if none was registered before
+     */
+    public CacheWriter getRegisteredCacheWriter();
 
     /**
      * This method will return, from the cache, the object associated with
@@ -899,9 +956,9 @@ public interface Ehcache extends Cloneable {
     public void disableDynamicFeatures();
 
     /**
-     * Obtain the write behind functionality tied to this cache instance.
+     * Obtain the writer manager that's used by this cache instance.
      *
-     * @return the write behind instance that's associated with this cache
+     * @return the writer manager that's set up for this cache
      */
-    WriteBehind getWriteBehind();
+    public CacheWriterManager getWriterManager();
 }

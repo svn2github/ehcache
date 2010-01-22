@@ -32,7 +32,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import net.sf.ehcache.terracotta.ClusteredInstanceFactory;
-import net.sf.ehcache.writebehind.WriteBehind;
+import net.sf.ehcache.writer.writebehind.WriteBehind;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -380,18 +380,18 @@ public class CacheManager {
      * @param cache The cache for which the Store should be created
      * @return a new (or existing) clustered store
      */
-    Store createTerracottaStore(Ehcache cache) {
+    public Store createTerracottaStore(Ehcache cache) {
       return getClusteredInstanceFactory(cache).createStore(cache);
     }
 
   /**
-   * Create/access the appropriate write behind queue for the given cache
+   * Create/access the appropriate clustered write behind queue for the given cache
    *
    * @param cache The cache for which the write behind queue should be created
    * @return a new (or existing) write behind queue
    */
-    WriteBehind createWriteBehind(Ehcache cache) {
-      return getClusteredInstanceFactory(cache).createAsync(cache);
+    public WriteBehind createTerracottaWriteBehind(Ehcache cache) {
+      return getClusteredInstanceFactory(cache).createWriteBehind(cache);
     }
 
     private ClusteredInstanceFactory getClusteredInstanceFactory(Ehcache cache) {

@@ -18,10 +18,13 @@ package net.sf.ehcache.config;
 
 /**
  * A class to represent the CacheManagerEventListener configuration.
+ *
+ * @param <T> the concrete factory type
+ *
  * @author <a href="mailto:gluck@thoughtworks.com">Greg Luck</a>
  * @version $Id$
  */
-public class FactoryConfiguration {
+public class FactoryConfiguration<T extends FactoryConfiguration> implements Cloneable {
     /**
      * class name.
      */
@@ -39,12 +42,45 @@ public class FactoryConfiguration {
 
 
     /**
+     * Clones this object, following the usual contract.
+     *
+     * @return a copy, which independent other than configurations than cannot change.
+     */
+    @Override
+    public T clone() {
+        FactoryConfiguration config;
+        try {
+            config = (FactoryConfiguration) super.clone();
+        } catch (CloneNotSupportedException e) {
+            throw new RuntimeException(e);
+        }
+
+        return (T)config;
+    }
+
+    /**
      * Sets the class name.
      *
      * @param fullyQualifiedClassPath
      */
     public final void setClass(String fullyQualifiedClassPath) {
         this.fullyQualifiedClassPath = fullyQualifiedClassPath;
+    }
+
+    /**
+     * @return this configuration instance
+     * @see #setClass(String)
+     */
+    public T className(String fullyQualifiedClassPath) {
+        setClass(fullyQualifiedClassPath);
+        return (T)this;
+    }
+
+    /**
+     * Getter.
+     */
+    public final String getFullyQualifiedClassPath() {
+        return fullyQualifiedClassPath;
     }
 
     /**
@@ -57,10 +93,12 @@ public class FactoryConfiguration {
     }
 
     /**
-     * Getter.
+     * @return this configuration instance
+     * @see #setProperties(String)
      */
-    public final String getFullyQualifiedClassPath() {
-        return fullyQualifiedClassPath;
+    public T properties(String properties) {
+        setProperties(properties);
+        return (T)this;
     }
 
     /**
@@ -71,16 +109,25 @@ public class FactoryConfiguration {
     }
 
     /**
-     * Getter
-     */
-    public String getPropertySeparator() {
-        return propertySeparator;
-    }
-
-    /**
      * Setter
      */
     public void setPropertySeparator(String propertySeparator) {
         this.propertySeparator = propertySeparator;
+    }
+
+    /**
+     * @return this configuration instance
+     * @see #setPropertySeparator(String)
+     */
+    public T propertySeparator(String propertySeparator) {
+        setPropertySeparator(propertySeparator);
+        return (T)this;
+    }
+
+    /**
+     * Getter
+     */
+    public String getPropertySeparator() {
+        return propertySeparator;
     }
 }

@@ -40,6 +40,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 import net.sf.ehcache.Cache;
 
+import net.sf.ehcache.writer.CacheWriterManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -190,7 +191,7 @@ public class DiskStore implements Store, CacheConfigurationListener {
      */
     public static Store create(Cache cache, String diskStorePath) {
         DiskStore store = new DiskStore(cache, diskStorePath);
-        cache.getCacheConfiguration().addListener(store);
+        cache.getCacheConfiguration().addConfigurationListener(store);
         return store;
     }
 
@@ -447,6 +448,13 @@ public class DiskStore implements Store, CacheConfigurationListener {
     }
 
     /**
+     * {@inheritDoc}
+     */
+    public void putWithWriter(Element element, CacheWriterManager writerManager) throws CacheException {
+        throw new UnsupportedOperationException("Disk store isn't meant to interact with cache writers.");
+    }
+
+    /**
      * In some circumstances data can be written so quickly to the spool that the VM runs out of memory
      * while waiting for the spooling to disk.
      * <p/>
@@ -488,6 +496,13 @@ public class DiskStore implements Store, CacheConfigurationListener {
             throw new CacheException(message);
         }
         return element;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public Element removeWithWriter(Object key, CacheWriterManager writerManager) {
+        throw new UnsupportedOperationException("Disk store isn't meant to interact with cache writers.");
     }
 
     /**

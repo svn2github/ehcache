@@ -92,7 +92,9 @@ public class SelfPopulatingCacheTest extends CacheTest {
         if (selfPopulatingCache != null) {
             selfPopulatingCache.removeAll();
         }
-        manager.shutdown();
+        if (manager != null) {
+            manager.shutdown();
+        }
         super.tearDown();
     }
 
