@@ -22,14 +22,15 @@ import javax.transaction.SystemException;
 import javax.transaction.TransactionManager;
 
 import junit.framework.TestCase;
-import net.sf.ehcache.config.TerracottaConfiguration;
-import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
+import net.sf.ehcache.config.CacheConfiguration;
+import net.sf.ehcache.transaction.manager.DefaultTransactionManagerLookup;
 
 public class XACacheTest extends TestCase {
 
     CacheManager manager;
 
-    public void testXACache() throws IllegalStateException, SecurityException, SystemException {
+    //TODO: Re-enabled when we can have XA not-clusted.
+    public void xtestXACache() throws IllegalStateException, SecurityException, SystemException {
         Cache cache = createTestCache();
         TransactionManager txnManager = cache.getTransactionManagerLookup().getTransactionManager();
         Element element1 = new Element("key1", "value1");
@@ -175,12 +176,21 @@ public class XACacheTest extends TestCase {
      * @return
      */
     protected Cache createTestCache() {
-        Cache cache = new Cache("sampleCache", 1000, MemoryStoreEvictionPolicy.LRU, false, null, false, 0, 0, false, 0, null, null, 0, 0,
-                false, false, "SERIALIZATION", true, "xa", "net.sf.ehcache.transaction.manager.DefaultTransactionManagerLookup",
-                TerracottaConfiguration.DEFAULT_ORPHAN_EVICTION, TerracottaConfiguration.DEFAULT_ORPHAN_EVICTION_PERIOD,
-                TerracottaConfiguration.DEFAULT_LOCAL_KEY_CACHE, TerracottaConfiguration.DEFAULT_LOCAL_KEY_CACHE_SIZE,
-                TerracottaConfiguration.DEFAULT_COPY_ON_READ);
+        CacheConfiguration cacheConfiguration = new CacheConfiguration("sampleCache", 1000) {
+
+            @Override
+            public boolean isTerracottaClustered() {
+                return true;
+            }
+            
+            
+        };
+        cacheConfiguration.setTransactionalMode("xa");
+        
+        
+        Cache cache = new Cache(cacheConfiguration);
         manager.addCache(cache);
+        cache.setTransactionManagerLookup(new DefaultTransactionManagerLookup());
         return cache;
     }
 

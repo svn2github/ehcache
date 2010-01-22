@@ -39,6 +39,7 @@ import net.sf.ehcache.Status;
 import net.sf.ehcache.transaction.TransactionContext;
 import net.sf.ehcache.transaction.xa.EhcacheXAResource;
 import net.sf.ehcache.transaction.xa.EhcacheXAStoreImpl.VersionTable;
+import net.sf.ehcache.writer.CacheWriterManager;
 
 public class XaTransactionalStoreTest extends TestCase {
 
@@ -249,6 +250,22 @@ public class XaTransactionalStoreTest extends TestCase {
         }
 
         public void setEvictionPolicy(Policy policy) {
+            throw new UnsupportedOperationException("unsupported for this test");
+        }
+
+        public void putWithWriter(Element element, CacheWriterManager writerManager) throws CacheException {
+            throw new UnsupportedOperationException("unsupported for this test");
+        }
+
+        public Element removeWithWriter(Object key, CacheWriterManager writerManager) throws CacheException {
+            throw new UnsupportedOperationException("unsupported for this test");
+        }
+
+        public void setCoherent(boolean coherent) throws UnsupportedOperationException {
+            throw new UnsupportedOperationException("unsupported for this test");
+        }
+
+        public void waitUntilCoherent() throws UnsupportedOperationException {
             throw new UnsupportedOperationException("unsupported for this test");
         }
     }

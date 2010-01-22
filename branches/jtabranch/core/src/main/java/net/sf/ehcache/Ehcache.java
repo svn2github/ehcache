@@ -31,6 +31,7 @@ import net.sf.ehcache.writer.CacheWriter;
 import net.sf.ehcache.statistics.CacheUsageListener;
 import net.sf.ehcache.statistics.LiveCacheStatistics;
 import net.sf.ehcache.statistics.sampled.SampledCacheStatistics;
+import net.sf.ehcache.transaction.manager.TransactionManagerLookup;
 import net.sf.ehcache.writer.CacheWriterManager;
 
 /**
@@ -992,4 +993,10 @@ public interface Ehcache extends Cloneable {
      * @throws UnsupportedOperationException if this cache does not support coherence, like RMI replication
      */
     public void waitUntilCoherent() throws UnsupportedOperationException;
+
+    /**
+     * This class is used to access the transaction manager used during XA.
+     * @param transactionManagerLookup
+     */
+    public void setTransactionManagerLookup(TransactionManagerLookup transactionManagerLookup);
 }

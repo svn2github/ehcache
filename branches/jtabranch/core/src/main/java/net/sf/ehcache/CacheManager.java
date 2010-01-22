@@ -30,9 +30,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import net.sf.ehcache.terracotta.ClusteredInstanceFactory;
-import net.sf.ehcache.writer.writebehind.WriteBehind;
-
 import javax.transaction.TransactionManager;
 
 import net.sf.ehcache.config.CacheConfiguration;
@@ -54,6 +51,7 @@ import net.sf.ehcache.management.provider.MBeanRegistrationProviderFactoryImpl;
 import net.sf.ehcache.store.DiskStore;
 import net.sf.ehcache.store.Store;
 import net.sf.ehcache.terracotta.ClusteredInstanceFactory;
+import net.sf.ehcache.transaction.manager.TransactionManagerLookup;
 import net.sf.ehcache.transaction.xa.EhcacheXAResource;
 import net.sf.ehcache.transaction.xa.EhcacheXAResourceImpl;
 import net.sf.ehcache.transaction.xa.EhcacheXAStore;
@@ -61,6 +59,7 @@ import net.sf.ehcache.transaction.xa.EhcacheXAStoreImpl;
 import net.sf.ehcache.util.FailSafeTimer;
 import net.sf.ehcache.util.PropertyUtil;
 import net.sf.ehcache.util.UpdateChecker;
+import net.sf.ehcache.writer.writebehind.WriteBehind;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -183,6 +182,8 @@ public class CacheManager {
     private Configuration configuration;
 
     private volatile boolean allowsDynamicCacheConfig = true;
+    
+    private volatile TransactionManagerLookup transactionManagerLookup;
 
     /**
      * An constructor for CacheManager, which takes a configuration object, rather than one created by parsing
@@ -296,6 +297,7 @@ public class CacheManager {
 
         this.allowsDynamicCacheConfig = localConfiguration.getDynamicConfig();
         this.terracottaConfigConfiguration = localConfiguration.getTerracottaConfiguration();
+        
 
         Map<String, CacheConfiguration> cacheConfigs = localConfiguration.getCacheConfigurations();
         for (CacheConfiguration config : cacheConfigs.values()) {
@@ -508,6 +510,13 @@ public class CacheManager {
                     + " Using the default disk store path of " + DiskStoreConfiguration.getDefaultPath()
                     + ". Please explicitly configure the diskStore element in ehcache.xml.");
         }
+        
+        String transactionManagerLookupClass = configuration.getTransactionManagerLookupConfiguration().getFullyQualifiedClassPath();
+        try {
+            this.transactionManagerLookup = (TransactionManagerLookup)Class.forName(transactionManagerLookupClass).newInstance();
+        } catch (Exception e) {
+            LOG.error("could not instantiate transaction manager lookup class: " + transactionManagerLookupClass);
+        } 
 
         detectAndFixDiskStorePathConflict(configurationHelper);
 
@@ -896,6 +905,8 @@ public class CacheManager {
         }
         cache.setCacheManager(this);
         cache.setDiskStorePath(diskStorePath);
+        cache.setTransactionManagerLookup(transactionManagerLookup);
+        
         cache.initialise();
         if (!allowsDynamicCacheConfig) {
             cache.disableDynamicFeatures();

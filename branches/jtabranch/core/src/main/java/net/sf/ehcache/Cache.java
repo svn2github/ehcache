@@ -137,6 +137,7 @@ public class Cache implements Ehcache {
      * The default interval between runs of the expiry thread.
      * @deprecated see {@link CacheConfiguration#DEFAULT_EXPIRY_THREAD_INTERVAL_SECONDS}
      */
+    @Deprecated
     public static final long DEFAULT_EXPIRY_THREAD_INTERVAL_SECONDS = CacheConfiguration.DEFAULT_EXPIRY_THREAD_INTERVAL_SECONDS;
 
     private static final Logger LOG = LoggerFactory.getLogger(Cache.class.getName());
@@ -219,7 +220,8 @@ public class Cache implements Ehcache {
     private volatile LiveCacheStatisticsData liveCacheStatisticsData;
 
     private volatile SampledCacheStatisticsWrapper sampledCacheStatistics;
-    private transient TransactionManagerLookup transactionManagerLookup;
+    
+    private volatile TransactionManagerLookup transactionManagerLookup;
 
     private volatile boolean allowDisable = true;
 
@@ -681,6 +683,7 @@ public class Cache implements Ehcache {
                  BootstrapCacheLoader bootstrapCacheLoader) {
         changeStatus(Status.STATUS_UNINITIALISED);
 
+       
         this.configuration = cacheConfiguration.clone();
 
         guid = createGuid();
@@ -900,6 +903,10 @@ public class Cache implements Ehcache {
     public TransactionManagerLookup getTransactionManagerLookup() {
        return transactionManagerLookup; 
     }
+    
+    public void setTransactionManagerLookup(TransactionManagerLookup lookup) {
+        this.transactionManagerLookup = lookup;
+    }
 
     /**
      * Newly created caches do not have a {@link net.sf.ehcache.store.MemoryStore} or a {@link net.sf.ehcache.store.DiskStore}.
@@ -941,7 +948,7 @@ public class Cache implements Ehcache {
                 // (TC or not, and maybe later other non XA)
                 // We should also look into net.sf.ehcache.CacheManager.createTerracottaStore
 
-                if(!(configuration.isTerracottaClustered() && configuration.getTerracottaConfiguration().getValueMode() != TerracottaConfiguration.ValueMode.SERIALIZATION)) {
+                if(!(configuration.isTerracottaClustered()) && configuration.getTerracottaConfiguration().getValueMode() != TerracottaConfiguration.ValueMode.SERIALIZATION) {
                     throw new CacheException("To be transactional, the cache needs to be Terracotta clustered in Serialization value mode");
                 }
 

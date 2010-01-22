@@ -1,25 +1,27 @@
 package net.sf.ehcache.store;
 
-import static org.hamcrest.CoreMatchers.*;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.nullValue;
+import static org.hamcrest.CoreMatchers.sameInstance;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.*;
-
-import net.sf.ehcache.Element;
-import net.sf.ehcache.transaction.TransactionContext;
-import net.sf.ehcache.transaction.xa.EhcacheXAResourceImpl;
-import net.sf.ehcache.transaction.xa.EhcacheXAStoreImpl;
-import net.sf.ehcache.transaction.xa.XATransactionContext;
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import javax.transaction.RollbackException;
 import javax.transaction.SystemException;
 import javax.transaction.Transaction;
 import javax.transaction.xa.Xid;
 
-import java.util.Arrays;
+import net.sf.ehcache.Element;
+import net.sf.ehcache.transaction.TransactionContext;
+import net.sf.ehcache.transaction.xa.EhcacheXAResourceImpl;
+import net.sf.ehcache.transaction.xa.EhcacheXAStoreImpl;
+import net.sf.ehcache.transaction.xa.XATransactionContext;
+
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 
 /**
  * @author Alex Snaps
