@@ -57,7 +57,7 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
      * XAResource Implementation
      */
     public void start(final Xid xid, final int flags) throws XAException {
-        LOG.info("Start called for Txn with id: " + xid);
+        LOG.debug("Start called for Txn with id: " + xid);
       
  
         // todo we should probably track state propertly here...
@@ -80,9 +80,7 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
         if (onePhase) {
             prepare(xid); // TODO if XA_READONLY, do we need to do anymore?
         }
-        if(LOG.isInfoEnabled()) {
-            LOG.info((onePhase ? "One" : "Two") + " phase commit called for Txn with id: " + xid);
-        }
+        LOG.debug("{} phase commit called for Txn with id: {}", (onePhase ? "One" : "Two"), xid);
         TransactionContext context = ehcacheXAStore.getTransactionContext(xid);
 
         Set<Object> keys = new HashSet<Object>();
@@ -111,15 +109,11 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
         if(flags != TMSUSPEND) {
             Transaction txn = ehcacheXAStore.getTransactionContext(xid).getTransaction();
         }
-        if(LOG.isInfoEnabled()) {
-            LOG.info("End called for Txn with id: " + xid);
-        }
+        LOG.debug("End called for Txn with id: {}", xid);
     }
 
     public void forget(final Xid xid) throws XAException {
-        if(LOG.isInfoEnabled()) {
-            LOG.info("Forget called for Txn with id: " + xid);
-        }
+        LOG.debug("Forget called for Txn with id: {}", xid);
     }
 
     public int prepare(final Xid xid) throws XAException {
@@ -157,7 +151,7 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
         // Lock all keys in real store
         Sync[] syncForKeys = storeLockProvider.getAndWriteLockAllSyncForKeys(keys.toArray());
 
-        LOG.info("Locked {} syncs for {} keys", syncForKeys == null ? 0 : syncForKeys.length, keys.size());
+        LOG.debug("Locked {} syncs for {} keys", syncForKeys == null ? 0 : syncForKeys.length, keys.size());
 
         ehcacheXAStore.prepared(xid);
 
@@ -184,10 +178,8 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
     }
 
     public void rollback(final Xid xid) throws XAException {
-        if(LOG.isInfoEnabled()) {
-            LOG.info("Rollback called for Txn with id: " + xid);
-        }
-        
+        LOG.debug("Rollback called for Txn with id: {}", xid);
+
         TransactionContext context = ehcacheXAStore.getTransactionContext(xid);
         CacheLockProvider storeLockProvider = (CacheLockProvider)store.getInternalContext();
         CacheLockProvider oldVersionStoreLockProvider = (CacheLockProvider)oldVersionStore.getInternalContext();
