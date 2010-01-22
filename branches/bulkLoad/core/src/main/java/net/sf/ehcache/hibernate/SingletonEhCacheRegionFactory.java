@@ -31,10 +31,12 @@ import org.slf4j.LoggerFactory;
  * A singleton EhCacheRegionFactory implementation.
  *
  * @author Chris Dennis
+ * @author Greg Luck
+ * @author Emmanuel Bernard
  */
-public class SingletonEhCacheRegionFactory extends AbstractEhCacheRegionFactory {
+public class SingletonEhCacheRegionFactory extends AbstractEhcacheRegionFactory {
 
-    private static final Logger LOG = LoggerFactory.getLogger(EhCacheRegionFactory.class);
+    private static final Logger LOG = LoggerFactory.getLogger(SingletonEhCacheRegionFactory.class);
 
     private static final AtomicInteger REFERENCE_COUNT = new AtomicInteger();
     

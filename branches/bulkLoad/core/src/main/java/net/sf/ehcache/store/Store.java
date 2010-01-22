@@ -16,11 +16,12 @@
 
 package net.sf.ehcache.store;
 
-import java.io.IOException;
-
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.Status;
+import net.sf.ehcache.writer.CacheWriterManager;
+
+import java.io.IOException;
 
 /**
  * This is the interface for all stores. A store is a physical counterpart to a cache, which
@@ -35,6 +36,11 @@ public interface Store {
      * Puts an item into the store.
      */
     void put(Element element) throws CacheException;
+
+    /**
+     * Puts an item into the store and the cache writer manager in an atomic operation
+     */
+    void putWithWriter(Element element, CacheWriterManager writerManager) throws CacheException;
 
     /**
      * Gets an item from the cache.
@@ -61,6 +67,11 @@ public interface Store {
      * @since signature changed in 1.2 from boolean to Element to support notifications
      */
     Element remove(Object key);
+
+    /**
+     * Removes an item from the store and the cache writer manager in an atomic operation.
+     */
+    Element removeWithWriter(Object key, CacheWriterManager writerManager) throws CacheException;
 
     /**
      * Remove all of the elements from the store.

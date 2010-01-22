@@ -16,16 +16,15 @@
 
 package net.sf.ehcache.config;
 
+import net.sf.ehcache.CacheException;
+import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import net.sf.ehcache.CacheException;
-import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
 
 /**
  * A value object to represent Cache configuration that can be set by the BeanHandler.
@@ -54,15 +53,30 @@ import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
  * Dynamic changes are however not persistent across cache restarts.  On restart
  * the cache configuration will be reloaded from its original source, erasing any
  * changes made previously at runtime.
- * 
+ *
  * @author <a href="mailto:gluck@thoughtworks.com">Greg Luck</a>
  * @author <a href="mailto:cdennis@terracottatech.com>Chris Dennis</a>
  * @version $Id$
  */
 public class CacheConfiguration implements Cloneable {
 
-    private static final Logger LOG = LoggerFactory.getLogger(CacheConfiguration.class.getName());
+    /**
+     * The default interval between runs of the expiry thread.
+     */
+    public static final long DEFAULT_EXPIRY_THREAD_INTERVAL_SECONDS = 120;
 
+    /**
+     * Set a buffer size for the spool of approx 30MB.
+     */
+    public static final int DEFAULT_SPOOL_BUFFER_SIZE = 30;
+
+    /**
+     * The default memory store eviction policy is LRU.
+     */
+    public static final MemoryStoreEvictionPolicy DEFAULT_MEMORY_STORE_EVICTION_POLICY = MemoryStoreEvictionPolicy.LRU;
+
+
+    private static final Logger LOG = LoggerFactory.getLogger(CacheConfiguration.class.getName());
     /**
      * the name of the cache.
      */
@@ -90,7 +104,7 @@ public class CacheConfiguration implements Cloneable {
      *
      * @since 1.2
      */
-    protected MemoryStoreEvictionPolicy memoryStoreEvictionPolicy;
+    protected MemoryStoreEvictionPolicy memoryStoreEvictionPolicy = DEFAULT_MEMORY_STORE_EVICTION_POLICY;
 
     /**
      * Sets whether the MemoryStore should be cleared when
@@ -129,11 +143,15 @@ public class CacheConfiguration implements Cloneable {
      */
     protected boolean diskPersistent;
 
+    /**
+     * The path where the disk store is located
+     */
+    protected String diskStorePath = DiskStoreConfiguration.getDefaultPath();
 
     /**
      * The size of the disk spool used to buffer writes
      */
-    protected int diskSpoolBufferSizeMB;
+    protected int diskSpoolBufferSizeMB = DEFAULT_SPOOL_BUFFER_SIZE;
 
     /**
      * The interval in seconds between runs of the disk expiry thread.
@@ -142,8 +160,8 @@ public class CacheConfiguration implements Cloneable {
      * This is not the same thing as time to live or time to idle. When the thread runs it checks
      * these things. So this value is how often we check for expiry.
      */
-    protected long diskExpiryThreadIntervalSeconds;
-    
+    protected long diskExpiryThreadIntervalSeconds = DEFAULT_EXPIRY_THREAD_INTERVAL_SECONDS;
+
     /**
      * Indicates whether logging is enabled or not. False by default
      */
@@ -152,14 +170,14 @@ public class CacheConfiguration implements Cloneable {
     /**
      * The event listener factories added by BeanUtils.
      */
-    protected final List<CacheEventListenerFactoryConfiguration> cacheEventListenerConfigurations =
-        new ArrayList<CacheEventListenerFactoryConfiguration>();
+    protected volatile List<CacheEventListenerFactoryConfiguration> cacheEventListenerConfigurations =
+            new ArrayList<CacheEventListenerFactoryConfiguration>();
 
     /**
      * The cache extension factories added by BeanUtils.
      */
-    protected final List<CacheExtensionFactoryConfiguration> cacheExtensionConfigurations =
-        new ArrayList<CacheExtensionFactoryConfiguration>();
+    protected volatile List<CacheExtensionFactoryConfiguration> cacheExtensionConfigurations =
+            new ArrayList<CacheExtensionFactoryConfiguration>();
 
     /**
      * The BootstrapCacheLoaderFactoryConfiguration.
@@ -175,37 +193,118 @@ public class CacheConfiguration implements Cloneable {
      * The TerracottaConfiguration.
      */
     protected TerracottaConfiguration terracottaConfiguration;
-    
+
+    /**
+     * The CacheWriterConfiguration.
+     */
+    protected CacheWriterConfiguration cacheWriterConfiguration = new CacheWriterConfiguration();
+
     /**
      * The cache loader factories added by BeanUtils.
      */
-    //protected CacheLoaderFactoryConfiguration cacheLoaderFactoryConfiguration;
-    protected List cacheLoaderConfigurations = new ArrayList();
+    protected volatile List<CacheLoaderFactoryConfiguration> cacheLoaderConfigurations = new ArrayList<CacheLoaderFactoryConfiguration>();
 
     /**
      * The listeners for this configuration.
      */
-    private volatile Set<CacheConfigurationListener> listeners = new CopyOnWriteArraySet<CacheConfigurationListener>();
+    protected volatile Set<CacheConfigurationListener> listeners = new CopyOnWriteArraySet<CacheConfigurationListener>();
 
     private volatile boolean frozen;
+
+    /**
+     * Default constructor that can only be used by classes in this package.
+     */
+    CacheConfiguration() {
+        // default constructor is only accessible in this package
+    }
+
+    /**
+     * Create a new cache configuration.
+     * 
+     * @param name                the name of the cache. Note that "default" is a reserved name for the defaultCache.
+     * @param maxElementsInMemory the maximum number of elements in memory, before they are evicted
+     */
+    public CacheConfiguration(String name, int maxElementsInMemory) {
+        this.name = name;
+        this.maxElementsInMemory = maxElementsInMemory;
+    }
 
     /**
      * Clones this object, following the usual contract.
      *
      * @return a copy, which independent other than configurations than cannot change.
-     * @throws CloneNotSupportedException
      */
     @Override
-    public CacheConfiguration clone() throws CloneNotSupportedException {
-        CacheConfiguration config = (CacheConfiguration) super.clone();
+    public CacheConfiguration clone() {
+        CacheConfiguration config;
+        try {
+            config = (CacheConfiguration) super.clone();
+        } catch (CloneNotSupportedException e) {
+            throw new RuntimeException(e);
+        }
+
+        cloneCacheEventListenerConfigurations(config);
+
+        cloneCacheExtensionConfigurations(config);
+
+        if (bootstrapCacheLoaderFactoryConfiguration != null) {
+            config.bootstrapCacheLoaderFactoryConfiguration = bootstrapCacheLoaderFactoryConfiguration.clone();
+        }
+
+        if (cacheExceptionHandlerFactoryConfiguration != null) {
+            config.cacheExceptionHandlerFactoryConfiguration = cacheExceptionHandlerFactoryConfiguration.clone();
+        }
+
+        if (terracottaConfiguration != null) {
+            config.terracottaConfiguration = terracottaConfiguration.clone();
+        }
+
+        if (cacheWriterConfiguration != null) {
+            config.cacheWriterConfiguration = cacheWriterConfiguration.clone();
+        }
+
+        cloneCacheLoaderConfigurations(config);
+
         config.listeners = new CopyOnWriteArraySet<CacheConfigurationListener>();
+
         return config;
+    }
+
+    private void cloneCacheEventListenerConfigurations(CacheConfiguration config) {
+        if (cacheEventListenerConfigurations.size() > 0) {
+            List<CacheEventListenerFactoryConfiguration> copy = new ArrayList<CacheEventListenerFactoryConfiguration>();
+            for (CacheEventListenerFactoryConfiguration item : cacheEventListenerConfigurations) {
+                copy.add(item.clone());
+            }
+            config.cacheEventListenerConfigurations = copy;
+        }
+    }
+
+    private void cloneCacheExtensionConfigurations(CacheConfiguration config) {
+        if (cacheExtensionConfigurations.size() > 0) {
+            List<CacheExtensionFactoryConfiguration> copy = new ArrayList<CacheExtensionFactoryConfiguration>();
+            for (CacheConfiguration.CacheExtensionFactoryConfiguration item : cacheExtensionConfigurations) {
+                copy.add(item.clone());
+            }
+            config.cacheExtensionConfigurations = copy;
+        }
+    }
+
+    private void cloneCacheLoaderConfigurations(CacheConfiguration config) {
+        if (cacheLoaderConfigurations.size() > 0) {
+            List<CacheLoaderFactoryConfiguration> copy = new ArrayList<CacheLoaderFactoryConfiguration>();
+            for (CacheConfiguration.CacheLoaderFactoryConfiguration item : cacheLoaderConfigurations) {
+                copy.add(item.clone());
+            }
+            config.cacheLoaderConfigurations = copy;
+        }
     }
 
     /**
      * Sets the name of the cache. This must be unique.
      * The / character is illegal. The # character does not work
      * with RMI replication.
+     *
      * @param name the cache name
      */
     public final void setName(String name) {
@@ -215,12 +314,21 @@ public class CacheConfiguration implements Cloneable {
         }
         this.name = name;
     }
-    
+
+    /**
+     * @return this configuration instance
+     * @see #setName(String)
+     */
+    public final CacheConfiguration name(String name) {
+        setName(name);
+        return this;
+    }
+
     /**
      * Enables or disables logging for the cache
-     * <p>
+     * <p/>
      * This property can be modified dynamically while the cache is operating.
-     * 
+     *
      * @param enable if true, enables logging otherwise disables logging
      */
     public final void setLoggingEnabled(boolean enable) {
@@ -231,10 +339,19 @@ public class CacheConfiguration implements Cloneable {
     }
 
     /**
+     * @return this configuration instance
+     * @see #setLoggingEnabled(boolean)
+     */
+    public final CacheConfiguration loggingEnabled(boolean enable) {
+        setLoggingEnabled(enable);
+        return this;
+    }
+
+    /**
      * Sets the maximum objects to be held in memory.
-     * <p>
+     * <p/>
      * This property can be modified dynamically while the cache is operating.
-     * 
+     *
      * @param maxElementsInMemory param
      */
     public final void setMaxElementsInMemory(int maxElementsInMemory) {
@@ -246,13 +363,30 @@ public class CacheConfiguration implements Cloneable {
     }
 
     /**
+     * @return this configuration instance
+     * @see #setMaxElementsInMemory(int)
+     */
+    public final CacheConfiguration maxElementsInMemory(int maxElementsInMemory) {
+        setMaxElementsInMemory(maxElementsInMemory);
+        return this;
+    }
+
+    /**
      * Sets the eviction policy. An invalid argument will set it to null.
      *
      * @param memoryStoreEvictionPolicy a String representation of the policy. One of "LRU", "LFU" or "FIFO".
      */
     public final void setMemoryStoreEvictionPolicy(String memoryStoreEvictionPolicy) {
-        checkDynamicChange();
-        this.memoryStoreEvictionPolicy = MemoryStoreEvictionPolicy.fromString(memoryStoreEvictionPolicy);
+        setMemoryStoreEvictionPolicyFromObject(MemoryStoreEvictionPolicy.fromString(memoryStoreEvictionPolicy));
+    }
+
+    /**
+     * @return this configuration instance
+     * @see #setMemoryStoreEvictionPolicy(String)
+     */
+    public final CacheConfiguration memoryStoreEvictionPolicy(String memoryStoreEvictionPolicy) {
+        setMemoryStoreEvictionPolicy(memoryStoreEvictionPolicy);
+        return this;
     }
 
     /**
@@ -260,9 +394,22 @@ public class CacheConfiguration implements Cloneable {
      */
     public final void setMemoryStoreEvictionPolicyFromObject(MemoryStoreEvictionPolicy memoryStoreEvictionPolicy) {
         checkDynamicChange();
-        this.memoryStoreEvictionPolicy = memoryStoreEvictionPolicy;
+        if (null == memoryStoreEvictionPolicy) {
+            this.memoryStoreEvictionPolicy = DEFAULT_MEMORY_STORE_EVICTION_POLICY;
+        } else {
+            this.memoryStoreEvictionPolicy = memoryStoreEvictionPolicy;
+        }
     }
-    
+
+    /**
+     * @return this configuration instance
+     * @see #setMemoryStoreEvictionPolicyFromObject(MemoryStoreEvictionPolicy)
+     */
+    public final CacheConfiguration memoryStoreEvictionPolicy(MemoryStoreEvictionPolicy memoryStoreEvictionPolicy) {
+        setMemoryStoreEvictionPolicyFromObject(memoryStoreEvictionPolicy);
+        return this;
+    }
+
     /**
      * Sets whether the MemoryStore should be cleared when
      * {@link net.sf.ehcache.Ehcache#flush flush()} is called on the cache - true by default.
@@ -270,6 +417,15 @@ public class CacheConfiguration implements Cloneable {
     public final void setClearOnFlush(boolean clearOnFlush) {
         checkDynamicChange();
         this.clearOnFlush = clearOnFlush;
+    }
+
+    /**
+     * @return this configuration instance
+     * @see #setClearOnFlush(boolean)
+     */
+    public final CacheConfiguration clearOnFlush(boolean clearOnFlush) {
+        setClearOnFlush(clearOnFlush);
+        return this;
     }
 
     /**
@@ -282,14 +438,20 @@ public class CacheConfiguration implements Cloneable {
             setTimeToIdleSeconds(0);
             setTimeToLiveSeconds(0);
         }
-//        else {
-//            // XXX: Should this set the TTI/TTL to some default?
-//        }
+    }
+
+    /**
+     * @return this configuration instance
+     * @see #setEternal(boolean)
+     */
+    public final CacheConfiguration eternal(boolean eternal) {
+        setEternal(eternal);
+        return this;
     }
 
     /**
      * Sets the time to idle for an element before it expires. Is only used if the element is not eternal.
-     * <p>
+     * <p/>
      * This property can be modified dynamically while the cache is operating.
      */
     public final void setTimeToIdleSeconds(long timeToIdleSeconds) {
@@ -301,8 +463,17 @@ public class CacheConfiguration implements Cloneable {
     }
 
     /**
+     * @return this configuration instance
+     * @see #setTimeToIdleSeconds(long)
+     */
+    public final CacheConfiguration timeToIdleSeconds(long timeToIdleSeconds) {
+        setTimeToIdleSeconds(timeToIdleSeconds);
+        return this;
+    }
+
+    /**
      * Sets the time to idle for an element before it expires. Is only used if the element is not eternal.
-     * <p>
+     * <p/>
      * This property can be modified dynamically while the cache is operating.
      */
     public final void setTimeToLiveSeconds(long timeToLiveSeconds) {
@@ -311,6 +482,15 @@ public class CacheConfiguration implements Cloneable {
         long newTtl = timeToLiveSeconds;
         this.timeToLiveSeconds = timeToLiveSeconds;
         fireTtlChanged(oldTtl, newTtl);
+    }
+
+    /**
+     * @return this configuration instance
+     * @see #setTimeToLiveSeconds(long)
+     */
+    public final CacheConfiguration timeToLiveSeconds(long timeToLiveSeconds) {
+        setTimeToLiveSeconds(timeToLiveSeconds);
+        return this;
     }
 
     /**
@@ -323,6 +503,15 @@ public class CacheConfiguration implements Cloneable {
     }
 
     /**
+     * @return this configuration instance
+     * @see #setOverflowToDisk(boolean)
+     */
+    public final CacheConfiguration overflowToDisk(boolean overflowToDisk) {
+        setOverflowToDisk(overflowToDisk);
+        return this;
+    }
+
+    /**
      * Sets whether, for caches that overflow to disk, the disk cache persist between CacheManager instances.
      */
     public final void setDiskPersistent(boolean diskPersistent) {
@@ -332,26 +521,61 @@ public class CacheConfiguration implements Cloneable {
     }
 
     /**
-     * Getter
+     * @return this configuration instance
+     * @see #setDiskPersistent(boolean)
      */
-    public int getDiskSpoolBufferSizeMB() {
+    public final CacheConfiguration diskPersistent(boolean diskPersistent) {
+        setDiskPersistent(diskPersistent);
+        return this;
+    }
+
+    /**
+     * Sets the path that will be used for the disk store.
+     */
+    public final void setDiskStorePath(String diskStorePath) {
         checkDynamicChange();
-        return diskSpoolBufferSizeMB;
+        if (null == diskStorePath) {
+            this.diskStorePath = DiskStoreConfiguration.getDefaultPath();
+        }
+        this.diskStorePath = diskStorePath;
+        validateConfiguration();
+    }
+
+    /**
+     * @return this configuration instance
+     * @see #setDiskStorePath(String)
+     */
+    public final CacheConfiguration diskStorePath(String diskStorePath) {
+        setDiskStorePath(diskStorePath);
+        return this;
     }
 
     /**
      * Sets the disk spool size
      *
-     * @param diskSpoolBufferSizeMB a postive number
+     * @param diskSpoolBufferSizeMB a positive number
      */
     public void setDiskSpoolBufferSizeMB(int diskSpoolBufferSizeMB) {
         checkDynamicChange();
-        this.diskSpoolBufferSizeMB = diskSpoolBufferSizeMB;
+        if (diskSpoolBufferSizeMB <= 0) {
+            this.diskSpoolBufferSizeMB = DEFAULT_SPOOL_BUFFER_SIZE;
+        } else {
+            this.diskSpoolBufferSizeMB = diskSpoolBufferSizeMB;
+        }
+    }
+
+    /**
+     * @return this configuration instance
+     * @see #setDiskSpoolBufferSizeMB(int)
+     */
+    public final CacheConfiguration diskSpoolBufferSizeMB(int diskSpoolBufferSizeMB) {
+        setDiskSpoolBufferSizeMB(diskSpoolBufferSizeMB);
+        return this;
     }
 
     /**
      * Sets the maximum number elements on Disk. 0 means unlimited.
-     * <p>
+     * <p/>
      * This property can be modified dynamically while the cache is operating.
      */
     public void setMaxElementsOnDisk(int maxElementsOnDisk) {
@@ -363,6 +587,15 @@ public class CacheConfiguration implements Cloneable {
     }
 
     /**
+     * @return this configuration instance
+     * @see #setMaxElementsOnDisk(int)
+     */
+    public final CacheConfiguration maxElementsOnDisk(int maxElementsOnDisk) {
+        setMaxElementsOnDisk(maxElementsOnDisk);
+        return this;
+    }
+
+    /**
      * Sets the interval in seconds between runs of the disk expiry thread.
      * <p/>
      * 2 minutes is the default.
@@ -371,7 +604,20 @@ public class CacheConfiguration implements Cloneable {
      */
     public final void setDiskExpiryThreadIntervalSeconds(long diskExpiryThreadIntervalSeconds) {
         checkDynamicChange();
-        this.diskExpiryThreadIntervalSeconds = diskExpiryThreadIntervalSeconds;
+        if (diskExpiryThreadIntervalSeconds <= 0) {
+            this.diskExpiryThreadIntervalSeconds = DEFAULT_EXPIRY_THREAD_INTERVAL_SECONDS;
+        } else {
+            this.diskExpiryThreadIntervalSeconds = diskExpiryThreadIntervalSeconds;
+        }
+    }
+
+    /**
+     * @return this configuration instance
+     * @see #setDiskExpiryThreadIntervalSeconds(long)
+     */
+    public final CacheConfiguration diskExpiryThreadIntervalSeconds(long diskExpiryThreadIntervalSeconds) {
+        setDiskExpiryThreadIntervalSeconds(diskExpiryThreadIntervalSeconds);
+        return this;
     }
 
     /**
@@ -384,7 +630,7 @@ public class CacheConfiguration implements Cloneable {
     /**
      * Configuration for the CachePeerListenerFactoryConfiguration.
      */
-    public static final class CacheEventListenerFactoryConfiguration extends FactoryConfiguration {
+    public static final class CacheEventListenerFactoryConfiguration extends FactoryConfiguration<CacheEventListenerFactoryConfiguration> {
     }
 
     /**
@@ -397,9 +643,18 @@ public class CacheConfiguration implements Cloneable {
     }
 
     /**
+     * @return this configuration instance
+     * @see #addCacheEventListenerFactory(CacheEventListenerFactoryConfiguration)
+     */
+    public final CacheConfiguration cacheEventListenerFactory(CacheEventListenerFactoryConfiguration factory) {
+        addCacheEventListenerFactory(factory);
+        return this;
+    }
+
+    /**
      * Configuration for the CacheExtensionFactoryConfiguration.
      */
-    public static final class CacheExtensionFactoryConfiguration extends FactoryConfiguration {
+    public static final class CacheExtensionFactoryConfiguration extends FactoryConfiguration<CacheExtensionFactoryConfiguration> {
     }
 
     /**
@@ -411,44 +666,78 @@ public class CacheConfiguration implements Cloneable {
     }
 
     /**
+     * @return this configuration instance
+     * @see #addCacheExtensionFactory(CacheExtensionFactoryConfiguration)
+     */
+    public final CacheConfiguration cacheExtensionFactory(CacheExtensionFactoryConfiguration factory) {
+        /**
+         * {@inheritDoc}
+         */
+        addCacheExtensionFactory(factory);
+        return this;
+    }
+
+    /**
      * Configuration for the BootstrapCacheLoaderFactoryConfiguration.
      */
-    public static final class BootstrapCacheLoaderFactoryConfiguration extends FactoryConfiguration {
+    public static final class BootstrapCacheLoaderFactoryConfiguration extends
+            FactoryConfiguration<BootstrapCacheLoaderFactoryConfiguration> {
     }
 
     /**
      * Allows BeanHandler to add the CacheManagerEventListener to the configuration.
      */
-    public final void addBootstrapCacheLoaderFactory(BootstrapCacheLoaderFactoryConfiguration
-            bootstrapCacheLoaderFactoryConfiguration) {
+    public final void addBootstrapCacheLoaderFactory(BootstrapCacheLoaderFactoryConfiguration factory) {
         checkDynamicChange();
-        this.bootstrapCacheLoaderFactoryConfiguration = bootstrapCacheLoaderFactoryConfiguration;
+        this.bootstrapCacheLoaderFactoryConfiguration = factory;
+    }
+
+    /**
+     * @return this configuration instance
+     * @see #addBootstrapCacheLoaderFactory(BootstrapCacheLoaderFactoryConfiguration)
+     */
+    public final CacheConfiguration bootstrapCacheLoaderFactory(BootstrapCacheLoaderFactoryConfiguration factory) {
+        addBootstrapCacheLoaderFactory(factory);
+        return this;
     }
 
     /**
      * Configuration for the BootstrapCacheLoaderFactoryConfiguration.
      */
-    public static final class CacheExceptionHandlerFactoryConfiguration extends FactoryConfiguration {
+    public static final class CacheExceptionHandlerFactoryConfiguration extends
+            FactoryConfiguration<CacheExceptionHandlerFactoryConfiguration> {
     }
 
+    /**
+     * Add the CacheExceptionHandlerFactory to the configuration.
+     * <p>
+     * Note that this will not have any effect when creating a cache solely through its constructed. The exception
+     * handler will only be taken into account when {@link ConfigurationHelper} is used, for example through
+     * {@link net.sf.ehcache.CacheManager}.
+     */
+    public final void addCacheExceptionHandlerFactory(CacheExceptionHandlerFactoryConfiguration factory) {
+        checkDynamicChange();
+        this.cacheExceptionHandlerFactoryConfiguration = factory;
+    }
 
     /**
-     * Allows BeanHandler to add the CacheExceptionHandlerFactory to the configuration.
+     * @return this configuration instance
+     * @see #addCacheExceptionHandlerFactory(CacheExceptionHandlerFactoryConfiguration)
      */
-    public final void addCacheExceptionHandlerFactory(CacheExceptionHandlerFactoryConfiguration
-            cacheExceptionHandlerFactoryConfiguration) {
-        checkDynamicChange();
-        this.cacheExceptionHandlerFactoryConfiguration = cacheExceptionHandlerFactoryConfiguration;
+    public final CacheConfiguration cacheExceptionHandlerFactory(CacheExceptionHandlerFactoryConfiguration factory) {
+        addCacheExceptionHandlerFactory(factory);
+        return this;
     }
 
     /**
      * Configuration for the CacheLoaderFactoryConfiguration.
      */
-    public static final class CacheLoaderFactoryConfiguration extends FactoryConfiguration {
+    public static final class CacheLoaderFactoryConfiguration extends FactoryConfiguration<CacheLoaderFactoryConfiguration> {
     }
 
     /**
      * Used by BeanUtils to add each cacheLoaderFactory to the cache configuration.
+     *
      * @param factory
      */
     public final void addCacheLoaderFactory(CacheLoaderFactoryConfiguration factory) {
@@ -457,12 +746,49 @@ public class CacheConfiguration implements Cloneable {
     }
 
     /**
+     * @return this configuration instance
+     * @see #addCacheLoaderFactory(CacheLoaderFactoryConfiguration)
+     */
+    public final CacheConfiguration cacheLoaderFactory(CacheLoaderFactoryConfiguration factory) {
+        addCacheLoaderFactory(factory);
+        return this;
+    }
+
+    /**
      * Allows BeanHandler to add the TerracottaConfiguration to the configuration.
-     * @param terracottaConfiguration
      */
     public final void addTerracotta(TerracottaConfiguration terracottaConfiguration) {
         this.terracottaConfiguration = terracottaConfiguration;
         validateConfiguration();
+    }
+
+    /**
+     * @return this configuration instance
+     * @see #addTerracotta(TerracottaConfiguration)
+     */
+    public final CacheConfiguration terracotta(TerracottaConfiguration terracottaConfiguration) {
+        addTerracotta(terracottaConfiguration);
+        return this;
+    }
+
+    /**
+     * Allows BeanHandler to add the CacheWriterConfiguration to the configuration.
+     */
+    public final void addCacheWriter(CacheWriterConfiguration cacheWriterConfiguration) {
+        if (null == cacheWriterConfiguration) {
+            this.cacheWriterConfiguration = new CacheWriterConfiguration();
+        } else {
+            this.cacheWriterConfiguration = cacheWriterConfiguration;
+        }
+    }
+
+    /**
+     * @return this configuration instance
+     * @see #addCacheWriter(CacheWriterConfiguration)
+     */
+    public final CacheConfiguration cacheWriter(CacheWriterConfiguration cacheWriterConfiguration) {
+        addCacheWriter(cacheWriterConfiguration);
+        return this;
     }
 
     private void validateConfiguration() {
@@ -479,10 +805,10 @@ public class CacheConfiguration implements Cloneable {
                         continue;
                     }
                     if (listenerConfig.getFullyQualifiedClassPath().startsWith("net.sf.ehcache.distribution.")) {
-                        throw new InvalidConfigurationException("cache replication isn't supported" + 
-                                " for a clustered Terracotta cache");                        
+                        throw new InvalidConfigurationException("cache replication isn't supported" +
+                                " for a clustered Terracotta cache");
                     } else if (listenerConfig.getFullyQualifiedClassPath().startsWith("net.sf.ehcache.") &&
-                        LOG.isWarnEnabled()) {
+                            LOG.isWarnEnabled()) {
                         LOG.warn("A non-standard CacheEventListenerFactory is used with a clustered Terracotta cache, " +
                                 "if the purpose of this listener is replication it is not supported in a clustered context");
                     }
@@ -490,7 +816,7 @@ public class CacheConfiguration implements Cloneable {
             }
         }
     }
-    
+
     /**
      * Accessor
      */
@@ -523,7 +849,7 @@ public class CacheConfiguration implements Cloneable {
      * Accessor
      */
     public boolean isClearOnFlush() {
-      return clearOnFlush;
+        return clearOnFlush;
     }
 
     /**
@@ -564,12 +890,27 @@ public class CacheConfiguration implements Cloneable {
     /**
      * Accessor
      */
+    public String getDiskStorePath() {
+        return diskStorePath;
+    }
+
+    /**
+     * Accessor
+     */
+    public int getDiskSpoolBufferSizeMB() {
+        return diskSpoolBufferSizeMB;
+    }
+
+    /**
+     * Accessor
+     */
     public long getDiskExpiryThreadIntervalSeconds() {
         return diskExpiryThreadIntervalSeconds;
     }
 
     /**
      * Accessor
+     *
      * @return true if logging is enabled otherwise false
      */
     public boolean isLoggingEnabled() {
@@ -585,6 +926,7 @@ public class CacheConfiguration implements Cloneable {
 
     /**
      * Accessor
+     *
      * @return the configuration
      */
     public List getCacheExtensionConfigurations() {
@@ -594,6 +936,7 @@ public class CacheConfiguration implements Cloneable {
 
     /**
      * Accessor
+     *
      * @return the configuration
      */
     public List getCacheLoaderConfigurations() {
@@ -602,6 +945,7 @@ public class CacheConfiguration implements Cloneable {
 
     /**
      * Accessor
+     *
      * @return the configuration
      */
     public BootstrapCacheLoaderFactoryConfiguration getBootstrapCacheLoaderFactoryConfiguration() {
@@ -610,14 +954,16 @@ public class CacheConfiguration implements Cloneable {
 
     /**
      * Accessor
+     *
      * @return the configuration
      */
     public CacheExceptionHandlerFactoryConfiguration getCacheExceptionHandlerFactoryConfiguration() {
         return cacheExceptionHandlerFactoryConfiguration;
     }
-    
+
     /**
      * Accessor
+     *
      * @return the terracotta configuration
      */
     public TerracottaConfiguration getTerracottaConfiguration() {
@@ -625,8 +971,18 @@ public class CacheConfiguration implements Cloneable {
     }
 
     /**
+     * Accessor
+     *
+     * @return the writer configuration
+     */
+    public CacheWriterConfiguration getCacheWriterConfiguration() {
+        return cacheWriterConfiguration;
+    }
+
+    /**
      * Helper method to compute whether the cache is clustered or not
-     * @return True if the <terracotta/> element exists with clustered="true"
+     *
+     * @return True if the &lt;terracotta/&gt; element exists with {@code clustered="true"}
      */
     public boolean isTerracottaClustered() {
         return terracottaConfiguration != null && terracottaConfiguration.isClustered();
@@ -638,7 +994,7 @@ public class CacheConfiguration implements Cloneable {
      * @param listener listener instance to add
      * @return true if a listener was added
      */
-    public boolean addListener(CacheConfigurationListener listener) {
+    public boolean addConfigurationListener(CacheConfigurationListener listener) {
         boolean added = listeners.add(listener);
         if (added) {
             listener.registered(this);
@@ -648,11 +1004,11 @@ public class CacheConfiguration implements Cloneable {
 
     /**
      * Remove the supplied cache configuration listener.
-     * 
+     *
      * @param listener listener to remove
      * @return true if a listener was removed
      */
-    public boolean removeListener(CacheConfigurationListener listener) {
+    public boolean removeConfigurationListener(CacheConfigurationListener listener) {
         boolean removed = listeners.remove(listener);
         if (removed) {
             listener.deregistered(this);
@@ -675,7 +1031,7 @@ public class CacheConfiguration implements Cloneable {
             }
         }
     }
-    
+
     private void fireLoggingEnabledChanged(boolean oldValue, boolean newValue) {
         if (oldValue != newValue) {
             for (CacheConfigurationListener l : listeners) {
@@ -705,7 +1061,7 @@ public class CacheConfiguration implements Cloneable {
             throw new CacheException("Dynamic configuration changes are disabled for this cache");
         }
     }
-    
+
     /**
      * internal use only
      */

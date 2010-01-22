@@ -17,7 +17,7 @@ package net.sf.ehcache.terracotta;
 
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.store.Store;
-import net.sf.ehcache.writebehind.WriteBehind;
+import net.sf.ehcache.writer.writebehind.WriteBehind;
 
 /**
  * Factory for creating clustered instances
@@ -42,5 +42,5 @@ public interface ClusteredInstanceFactory {
    * @param cache the cache will backed by the returned store
    * @return write behind instance
    */
-  WriteBehind createAsync(Ehcache cache);
+  WriteBehind createWriteBehind(Ehcache cache);
 }

@@ -15,24 +15,24 @@
  */
 package net.sf.ehcache.hibernate.strategy;
 
-import net.sf.ehcache.hibernate.regions.EhCacheCollectionRegion;
+import net.sf.ehcache.hibernate.regions.EhcacheCollectionRegion;
 import org.hibernate.cache.CollectionRegion;
 
 import org.hibernate.cache.access.CollectionRegionAccessStrategy;
 import org.hibernate.cfg.Settings;
 
 /**
- * EhCache specific read/write collection region access strategy
+ * Ehcache specific read/write collection region access strategy
  *
  * @author Chris Dennis
  */
-public class ReadWriteEhCacheCollectionRegionAccessStrategy extends AbstractReadWriteEhCacheAccessStrategy<EhCacheCollectionRegion>
+public class ReadWriteEhcacheCollectionRegionAccessStrategy extends AbstractReadWriteEhcacheAccessStrategy<EhcacheCollectionRegion>
         implements CollectionRegionAccessStrategy {
 
     /**
      * Create a read/write access strategy accessing the given collection region.
      */
-    public ReadWriteEhCacheCollectionRegionAccessStrategy(EhCacheCollectionRegion region, Settings settings) {
+    public ReadWriteEhcacheCollectionRegionAccessStrategy(EhcacheCollectionRegion region, Settings settings) {
         super(region, settings);
     }
 

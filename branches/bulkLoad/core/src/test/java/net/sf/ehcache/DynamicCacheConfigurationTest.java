@@ -304,11 +304,8 @@ public class DynamicCacheConfigurationTest extends AbstractCacheTest {
     public void testCacheWithFrozenConfig() {
         Configuration managerConfig = new Configuration();
         managerConfig.setDynamicConfig(false);
-        managerConfig.setDefaultCacheConfiguration(new CacheConfiguration());
-        CacheConfiguration cacheConfig = new CacheConfiguration();
-        cacheConfig.setName("definedCache");
-        cacheConfig.setEternal(true);
-        cacheConfig.setMaxElementsInMemory(10);
+        managerConfig.setDefaultCacheConfiguration(new CacheConfiguration("definedCache1", 20));
+        CacheConfiguration cacheConfig = new CacheConfiguration("definedCache", 10).eternal(true);
 
         managerConfig.addCache(cacheConfig);
         

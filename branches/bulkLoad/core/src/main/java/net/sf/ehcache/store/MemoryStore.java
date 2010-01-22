@@ -21,6 +21,7 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 
 import net.sf.ehcache.config.CacheConfiguration;
+import net.sf.ehcache.writer.CacheWriterManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -149,7 +150,7 @@ public class MemoryStore implements Store, CacheConfigurationListener {
      */
     public static MemoryStore create(final Ehcache cache, final Store diskStore) {
         MemoryStore memoryStore = new MemoryStore(cache, diskStore);
-        cache.getCacheConfiguration().addListener(memoryStore);
+        cache.getCacheConfiguration().addConfigurationListener(memoryStore);
         return memoryStore;
     }
 
@@ -158,9 +159,23 @@ public class MemoryStore implements Store, CacheConfigurationListener {
      *
      * @param element the element to add
      */
-    public synchronized final void put(final Element element) throws CacheException {
+    public final void put(final Element element) throws CacheException {
+        putInternal(element, null);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public final void putWithWriter(Element element, CacheWriterManager writerManager) throws CacheException {
+        putInternal(element, writerManager);
+    }
+
+    private synchronized void putInternal(Element element, CacheWriterManager writerManager) throws CacheException {
         if (element != null) {
             map.put(element.getObjectKey(), element);
+            if (writerManager != null) {
+                writerManager.put(element);
+            }
             doPut(element);
         }
     }
@@ -199,6 +214,17 @@ public class MemoryStore implements Store, CacheConfigurationListener {
      * @return the Element if one was found, else null
      */
     public final Element remove(final Object key) {
+        return removeInternal(key, null);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public final Element removeWithWriter(Object key, CacheWriterManager writerManager) throws CacheException {
+        return removeInternal(key, writerManager);
+    }
+
+    private synchronized Element removeInternal(Object key, CacheWriterManager writerManager) throws CacheException {
 
         if (key == null) {
             return null;
@@ -206,6 +232,9 @@ public class MemoryStore implements Store, CacheConfigurationListener {
 
         // remove single item.
         Element element = map.remove(key);
+        if (writerManager != null) {
+            writerManager.remove(key);
+        }
         if (element != null) {
             return element;
         } else {

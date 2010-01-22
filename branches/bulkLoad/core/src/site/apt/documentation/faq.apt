@@ -443,7 +443,7 @@ java.net.ConnectException: Connection refused
 
     Even with this approach there is still some added overhead consumed by a reference consumed by each ArrayList element.
 
-    Update: Ehcache 1.8 will introduce a new implementation for MemoryStore based on a custom ConcurrentHashMap. This version
+    Update: Ehcache 2.0 will introduce a new implementation for MemoryStore based on a custom ConcurrentHashMap. This version
      provides fast iteration and does away with the need for the keyArray thus bringing memory use back down to pre 1.6 levels.
      And with other memory optimisations made to Element in 1.7, memory use will actually be considerably lower than pre
      1.6 levels.

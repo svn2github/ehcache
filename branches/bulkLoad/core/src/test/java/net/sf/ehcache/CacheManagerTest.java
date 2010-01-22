@@ -358,9 +358,7 @@ public class CacheManagerTest {
         Configuration configuration = new Configuration();
         assertNotNull(configuration);
 
-        CacheConfiguration defaultCacheConfiguration = new CacheConfiguration();
-        defaultCacheConfiguration.setEternal(false);
-        defaultCacheConfiguration.setName("defaultCache");
+        CacheConfiguration defaultCacheConfiguration = new CacheConfiguration("defaultCache", 10);
         configuration.addDefaultCache(defaultCacheConfiguration);
 
         DiskStoreConfiguration diskStoreConfiguration = new DiskStoreConfiguration();
@@ -763,11 +761,8 @@ public class CacheManagerTest {
 
     private static Configuration makeCacheManagerConfig() {
         Configuration config = new Configuration();
-        CacheConfiguration defaults = new CacheConfiguration();
-        defaults.setEternal(true);
-        defaults.setDiskPersistent(false);
-        defaults.setOverflowToDisk(false);
-        defaults.setMaxElementsInMemory(10);
+        CacheConfiguration defaults = new CacheConfiguration("cacheName", 10)
+            .eternal(true);
         config.setDefaultCacheConfiguration(defaults);
         return config;
     }

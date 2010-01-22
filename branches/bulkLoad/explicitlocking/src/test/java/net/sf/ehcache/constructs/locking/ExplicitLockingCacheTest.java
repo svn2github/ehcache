@@ -19,15 +19,10 @@ public class ExplicitLockingCacheTest extends TestCase {
     protected void setUp() throws Exception {
         super.setUp();
         Configuration configuration = new Configuration();
-        CacheConfiguration defaultCacheConfiguration = new CacheConfiguration();
-        defaultCacheConfiguration.setEternal(false);
-        defaultCacheConfiguration.setName("default");
+        CacheConfiguration defaultCacheConfiguration = new CacheConfiguration("default", 2000);
         configuration.addDefaultCache(defaultCacheConfiguration);
 
-        CacheConfiguration theCache = new CacheConfiguration();
-        theCache.setName(TEST_CACHE);
-        theCache.setEternal(false);
-        theCache.setMaxElementsInMemory(10000);
+        CacheConfiguration theCache = new CacheConfiguration(TEST_CACHE, 10000);
         // add more settings here!
         configuration.addCache(theCache);
 

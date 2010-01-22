@@ -41,7 +41,8 @@ import net.sf.ehcache.loader.CacheLoader;
 import net.sf.ehcache.statistics.CacheUsageListener;
 import net.sf.ehcache.statistics.LiveCacheStatistics;
 import net.sf.ehcache.statistics.sampled.SampledCacheStatistics;
-import net.sf.ehcache.writebehind.WriteBehind;
+import net.sf.ehcache.writer.CacheWriter;
+import net.sf.ehcache.writer.CacheWriterManager;
 
 /**
  * See description in package.html
@@ -1121,16 +1122,51 @@ public class ExplicitLockingCache implements Ehcache {
     }
 
     /**
-    * {@inheritDoc}
-    */
+     * {@inheritDoc}
+     */
     public void disableDynamicFeatures() {
         cache.disableDynamicFeatures();
     }
 
     /**
-    * {@inheritDoc}
-    */
-    public WriteBehind getWriteBehind() {
-        return cache.getWriteBehind();
+     * {@inheritDoc}
+     */
+    public void putWithWriter(Element element) throws IllegalArgumentException, IllegalStateException, CacheException {
+        cache.putWithWriter(element);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public boolean removeWithWriter(Object key) throws IllegalStateException {
+        return cache.removeWithWriter(key);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void registerCacheWriter(CacheWriter cacheWriter) {
+        cache.registerCacheWriter(cacheWriter);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void unregisterCacheWriter() {
+        cache.unregisterCacheWriter();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public CacheWriter getRegisteredCacheWriter() {
+        return cache.getRegisteredCacheWriter();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public CacheWriterManager getWriterManager() {
+        return cache.getWriterManager();
     }
 }

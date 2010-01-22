@@ -25,16 +25,16 @@ import org.slf4j.LoggerFactory;
 import org.hibernate.cache.access.SoftLock;
 
 /**
- * EhCache specific read-only cache concurrency strategy.
+ * Ehcache specific read-only cache concurrency strategy.
  * <p>
- * This is the EhCache specific equivalent to Hibernate's ReadOnlyCache.
+ * This is the Ehcache specific equivalent to Hibernate's ReadOnlyCache.
  *
  * @author Chris Dennis
  */
 @Deprecated
-public class EhCacheReadOnlyCache extends AbstractEhCacheConcurrencyStrategy {
+public class EhcacheReadOnlyCache extends AbstractEhcacheConcurrencyStrategy {
 
-    private static final Logger LOG = LoggerFactory.getLogger(EhCacheReadOnlyCache.class);
+    private static final Logger LOG = LoggerFactory.getLogger(EhcacheReadOnlyCache.class);
 
     /**
      * {@inheritDoc}

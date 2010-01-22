@@ -22,7 +22,7 @@ public class CacheConfigurationListenerTest extends AbstractCacheTest {
     public void testTtiFires() {
         CacheConfiguration config = new CacheConfiguration();
         RecordingListener listener = new RecordingListener();
-        config.addListener(listener);
+        config.addConfigurationListener(listener);
 
         assertRegistered(listener, config);
         listener.clearFiredEvents();
@@ -48,7 +48,7 @@ public class CacheConfigurationListenerTest extends AbstractCacheTest {
     public void testTtlFires() {
         CacheConfiguration config = new CacheConfiguration();
         RecordingListener listener = new RecordingListener();
-        config.addListener(listener);
+        config.addConfigurationListener(listener);
 
         assertRegistered(listener, config);
         listener.clearFiredEvents();
@@ -74,7 +74,7 @@ public class CacheConfigurationListenerTest extends AbstractCacheTest {
     public void testDiskCapacityFires() {
         CacheConfiguration config = new CacheConfiguration();
         RecordingListener listener = new RecordingListener();
-        config.addListener(listener);
+        config.addConfigurationListener(listener);
 
         assertRegistered(listener, config);
         listener.clearFiredEvents();
@@ -100,7 +100,7 @@ public class CacheConfigurationListenerTest extends AbstractCacheTest {
     public void testMemoryCapacityFires() {
         CacheConfiguration config = new CacheConfiguration();
         RecordingListener listener = new RecordingListener();
-        config.addListener(listener);
+        config.addConfigurationListener(listener);
 
         assertRegistered(listener, config);
         listener.clearFiredEvents();
@@ -126,7 +126,7 @@ public class CacheConfigurationListenerTest extends AbstractCacheTest {
     public void testLoggingEnableDisable() {
         CacheConfiguration config = new CacheConfiguration();
         RecordingListener listener = new RecordingListener();
-        config.addListener(listener);
+        config.addConfigurationListener(listener);
 
         assertRegistered(listener, config);
         listener.clearFiredEvents();
@@ -153,8 +153,8 @@ public class CacheConfigurationListenerTest extends AbstractCacheTest {
         CacheConfiguration config = new CacheConfiguration();
         RecordingListener listener1 = new RecordingListener();
         RecordingListener listener2 = new RecordingListener();
-        config.addListener(listener1);
-        config.addListener(listener2);
+        config.addConfigurationListener(listener1);
+        config.addConfigurationListener(listener2);
 
         assertRegistered(listener1, config);
         assertRegistered(listener2, config);
@@ -180,8 +180,8 @@ public class CacheConfigurationListenerTest extends AbstractCacheTest {
         CacheConfiguration config = new CacheConfiguration();
         RecordingListener listener1 = new RecordingListener();
         RecordingListener listener2 = new RecordingListener();
-        config.addListener(listener1);
-        config.addListener(listener2);
+        config.addConfigurationListener(listener1);
+        config.addConfigurationListener(listener2);
 
         assertRegistered(listener1, config);
         assertRegistered(listener2, config);
@@ -195,7 +195,7 @@ public class CacheConfigurationListenerTest extends AbstractCacheTest {
             config.setMaxElementsOnDisk(i);
         }
 
-        config.removeListener(listener1);
+        config.removeConfigurationListener(listener1);
         assertDeregistered(listener1, config);
 
         for (int i = 5; i < 10; i++) {
@@ -205,7 +205,7 @@ public class CacheConfigurationListenerTest extends AbstractCacheTest {
             config.setMaxElementsOnDisk(i);
         }
 
-        config.removeListener(listener2);
+        config.removeConfigurationListener(listener2);
         assertDeregistered(listener2, config);
 
         List<Event> events1 = listener1.getFiredEvents();
