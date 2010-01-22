@@ -1081,8 +1081,8 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
         assertEquals(true, defaultCache.getCacheConfiguration().isTerracottaClustered());
         assertEquals(true, defaultCache.getCacheConfiguration().getTerracottaConfiguration().getCoherentReads());
 
-      //Check caches
-      assertEquals(13, configurationHelper.createCaches().size());
+        //Check caches
+        assertEquals(13, configurationHelper.createCaches().size());
 
         //  <cache name="clustered-1"
         //   maxElementsInMemory="1000"
@@ -1203,6 +1203,17 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
       assertEquals(true, sampleCache12.getCacheConfiguration().isTerracottaClustered());
       assertEquals(true,
               sampleCache12.getCacheConfiguration().getTerracottaConfiguration().isCoherent());
+
+        //  <cache name="clustered-9"
+        //   maxElementsInMemory="1000"
+        //   memoryStoreEvictionPolicy="LFU">
+        //   <terracotta localKeyCache="true"/>
+        //  </cache>
+        Ehcache sampleCache9 = configurationHelper.createCacheFromName("clustered-9");
+        assertEquals("clustered-9", sampleCache9.getName());
+        assertEquals(true, sampleCache9.getCacheConfiguration().isTerracottaClustered());
+        assertEquals(42,
+                sampleCache9.getCacheConfiguration().getTerracottaConfiguration().getLocalKeyCacheSize());
 
         // <terracottaConfig>
         //  <url>localhost:9510</url>
