@@ -926,6 +926,7 @@ public class Cache implements Ehcache {
             final Store memoryStore;
             if (isTerracottaClustered()) {
                 memoryStore = cacheManager.createTerracottaStore(this);
+                memoryStore.setCoherent(configuration.getTerracottaConfiguration().isCoherent());
             } else {
                 if (useClassicLru && configuration.getMemoryStoreEvictionPolicy().equals(MemoryStoreEvictionPolicy.LRU)) {
                     memoryStore = new LruMemoryStore(this, diskStore);
@@ -934,7 +935,6 @@ public class Cache implements Ehcache {
                 }
             }
             
-            memoryStore.setCoherent(configuration.getTerracottaConfiguration().isCoherent());
             if(configuration.isTransactional()) {
                 // todo this is probably not what we want here:
                 // We might want a factory here, and abstract the kinda of TransactionalStore we actually get
