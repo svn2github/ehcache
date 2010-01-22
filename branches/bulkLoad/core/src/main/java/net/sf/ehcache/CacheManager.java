@@ -31,11 +31,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import net.sf.ehcache.terracotta.ClusteredInstanceFactory;
-import net.sf.ehcache.writer.writebehind.WriteBehind;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.Configuration;
 import net.sf.ehcache.config.ConfigurationFactory;
@@ -58,7 +53,7 @@ import net.sf.ehcache.terracotta.ClusteredInstanceFactory;
 import net.sf.ehcache.util.FailSafeTimer;
 import net.sf.ehcache.util.PropertyUtil;
 import net.sf.ehcache.util.UpdateChecker;
-import net.sf.ehcache.writebehind.WriteBehind;
+import net.sf.ehcache.writer.writebehind.WriteBehind;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -28,6 +28,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.AbstractExecutorService;
@@ -38,13 +39,14 @@ import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.locks.ReentrantLock;
 
 import net.sf.ehcache.bootstrap.BootstrapCacheLoader;
 import net.sf.ehcache.bootstrap.BootstrapCacheLoaderFactory;
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.CacheWriterConfiguration;
 import net.sf.ehcache.config.DiskStoreConfiguration;
-import net.sf.ehcache.config.TerracottaConfiguration;
 import net.sf.ehcache.event.CacheEventListener;
 import net.sf.ehcache.event.CacheEventListenerFactory;
 import net.sf.ehcache.event.RegisteredEventListeners;
@@ -76,32 +78,6 @@ import net.sf.ehcache.writer.CacheWriterManagerException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.IOException;
-import java.io.Serializable;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
-import java.util.UUID;
-import java.util.concurrent.AbstractExecutorService;
-import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Future;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * Cache is the central class in ehcache. Caches have {@link Element}s and are managed
@@ -156,6 +132,7 @@ public class Cache implements Ehcache {
      * The default interval between runs of the expiry thread.
      * @deprecated see {@link CacheConfiguration#DEFAULT_EXPIRY_THREAD_INTERVAL_SECONDS}
      */
+    @Deprecated
     public static final long DEFAULT_EXPIRY_THREAD_INTERVAL_SECONDS = CacheConfiguration.DEFAULT_EXPIRY_THREAD_INTERVAL_SECONDS;
 
     private static final Logger LOG = LoggerFactory.getLogger(Cache.class.getName());
@@ -298,6 +275,7 @@ public class Cache implements Ehcache {
      * @since 1.1
      * @deprecated use {@link #Cache(CacheConfiguration)} instead
      */
+    @Deprecated
     public Cache(String name,
                  int maxElementsInMemory,
                  boolean overflowToDisk,
@@ -347,6 +325,7 @@ public class Cache implements Ehcache {
      * @since 1.2
      * @deprecated use {@link #Cache(CacheConfiguration)} instead
      */
+    @Deprecated
     public Cache(String name,
                  int maxElementsInMemory,
                  MemoryStoreEvictionPolicy memoryStoreEvictionPolicy,
@@ -399,6 +378,7 @@ public class Cache implements Ehcache {
      * @since 1.2.1
      * @deprecated use {@link #Cache(CacheConfiguration, RegisteredEventListeners, BootstrapCacheLoader)} instead
      */
+    @Deprecated
     public Cache(String name,
                  int maxElementsInMemory,
                  MemoryStoreEvictionPolicy memoryStoreEvictionPolicy,
@@ -452,6 +432,7 @@ public class Cache implements Ehcache {
      * @since 1.2.4
      * @deprecated use {@link #Cache(CacheConfiguration, RegisteredEventListeners, BootstrapCacheLoader)} instead
      */
+    @Deprecated
     public Cache(String name,
                  int maxElementsInMemory,
                  MemoryStoreEvictionPolicy memoryStoreEvictionPolicy,
@@ -477,20 +458,7 @@ public class Cache implements Ehcache {
                     .diskExpiryThreadIntervalSeconds(diskExpiryThreadIntervalSeconds)
                     .maxElementsOnDisk(maxElementsOnDisk),
                 registeredEventListeners,
-                bootstrapCacheLoader,
-                maxElementsOnDisk,
-                0,
-                true,
-                false,
-                null,
-                TerracottaConfiguration.DEFAULT_COHERENT_READS,
-                TerracottaConfiguration.DEFAULT_ORPHAN_EVICTION,
-                TerracottaConfiguration.DEFAULT_ORPHAN_EVICTION_PERIOD,
-                TerracottaConfiguration.DEFAULT_LOCAL_KEY_CACHE,
-                TerracottaConfiguration.DEFAULT_LOCAL_KEY_CACHE_SIZE,
-                TerracottaConfiguration.DEFAULT_COPY_ON_READ,
-                TerracottaConfiguration.DEFAULT_CACHE_COHERENT,
-                TerracottaConfiguration.DEFAULT_SYNCHRONOUS_WRITE);
+                bootstrapCacheLoader);
 
     }
 
@@ -522,6 +490,7 @@ public class Cache implements Ehcache {
      * @since 1.3
      * @deprecated use {@link #Cache(CacheConfiguration, RegisteredEventListeners, BootstrapCacheLoader)} instead
      */
+    @Deprecated
     public Cache(String name,
                  int maxElementsInMemory,
                  MemoryStoreEvictionPolicy memoryStoreEvictionPolicy,
@@ -549,20 +518,7 @@ public class Cache implements Ehcache {
                     .maxElementsOnDisk(maxElementsOnDisk)
                     .diskSpoolBufferSizeMB(diskSpoolBufferSizeMB),
                 registeredEventListeners,
-                bootstrapCacheLoader,
-                maxElementsOnDisk,
-                diskSpoolBufferSizeMB,
-                true,
-                false,
-                null,
-                TerracottaConfiguration.DEFAULT_COHERENT_READS,
-                TerracottaConfiguration.DEFAULT_ORPHAN_EVICTION,
-                TerracottaConfiguration.DEFAULT_ORPHAN_EVICTION_PERIOD,
-                TerracottaConfiguration.DEFAULT_LOCAL_KEY_CACHE,
-                TerracottaConfiguration.DEFAULT_LOCAL_KEY_CACHE_SIZE,
-                TerracottaConfiguration.DEFAULT_COPY_ON_READ, 
-                TerracottaConfiguration.DEFAULT_CACHE_COHERENT, 
-                TerracottaConfiguration.DEFAULT_SYNCHRONOUS_WRITE);
+                bootstrapCacheLoader);
 
     }
 
@@ -595,6 +551,7 @@ public class Cache implements Ehcache {
      * @since 1.6.0
      * @deprecated use {@link #Cache(CacheConfiguration, RegisteredEventListeners, BootstrapCacheLoader)} instead
      */
+    @Deprecated
     public Cache(String name,
                  int maxElementsInMemory,
                  MemoryStoreEvictionPolicy memoryStoreEvictionPolicy,
@@ -612,12 +569,7 @@ public class Cache implements Ehcache {
                  boolean clearOnFlush) {
 
         this(name, maxElementsInMemory, memoryStoreEvictionPolicy, overflowToDisk, diskStorePath, eternal, timeToLiveSeconds,
-                timeToIdleSeconds, diskPersistent, diskExpiryThreadIntervalSeconds, registeredEventListeners, bootstrapCacheLoader,
-                maxElementsOnDisk, diskSpoolBufferSizeMB, clearOnFlush, false, null, TerracottaConfiguration.DEFAULT_COHERENT_READS,
-                TerracottaConfiguration.DEFAULT_ORPHAN_EVICTION, TerracottaConfiguration.DEFAULT_ORPHAN_EVICTION_PERIOD,
-                TerracottaConfiguration.DEFAULT_LOCAL_KEY_CACHE, TerracottaConfiguration.DEFAULT_LOCAL_KEY_CACHE_SIZE,
-                TerracottaConfiguration.DEFAULT_COPY_ON_READ, TerracottaConfiguration.DEFAULT_CACHE_COHERENT, 
-                TerracottaConfiguration.DEFAULT_SYNCHRONOUS_WRITE);
+                timeToIdleSeconds, diskPersistent, diskExpiryThreadIntervalSeconds, registeredEventListeners, bootstrapCacheLoader);
     }
 
     /**
@@ -652,6 +604,7 @@ public class Cache implements Ehcache {
      * @since 1.7.0
      * @deprecated use {@link #Cache(CacheConfiguration, RegisteredEventListeners, BootstrapCacheLoader)} instead
      */
+    @Deprecated
     public Cache(String name, int maxElementsInMemory, MemoryStoreEvictionPolicy memoryStoreEvictionPolicy, boolean overflowToDisk,
                  String diskStorePath, boolean eternal, long timeToLiveSeconds, long timeToIdleSeconds, boolean diskPersistent,
                  long diskExpiryThreadIntervalSeconds, RegisteredEventListeners registeredEventListeners,
@@ -659,12 +612,7 @@ public class Cache implements Ehcache {
                  boolean isTerracottaClustered, String terracottaValueMode, boolean terracottaCoherentReads) {
 
         this(name, maxElementsInMemory, memoryStoreEvictionPolicy, overflowToDisk, diskStorePath, eternal, timeToLiveSeconds,
-                timeToIdleSeconds, diskPersistent, diskExpiryThreadIntervalSeconds, registeredEventListeners, bootstrapCacheLoader,
-                maxElementsOnDisk, diskSpoolBufferSizeMB, clearOnFlush, isTerracottaClustered, terracottaValueMode,
-                terracottaCoherentReads, TerracottaConfiguration.DEFAULT_ORPHAN_EVICTION,
-                TerracottaConfiguration.DEFAULT_ORPHAN_EVICTION_PERIOD, TerracottaConfiguration.DEFAULT_LOCAL_KEY_CACHE,
-                TerracottaConfiguration.DEFAULT_LOCAL_KEY_CACHE_SIZE, TerracottaConfiguration.DEFAULT_COPY_ON_READ,
-                TerracottaConfiguration.DEFAULT_CACHE_COHERENT, TerracottaConfiguration.DEFAULT_SYNCHRONOUS_WRITE);
+                timeToIdleSeconds, diskPersistent, diskExpiryThreadIntervalSeconds, registeredEventListeners, bootstrapCacheLoader);
     }
 
     /**
@@ -699,20 +647,7 @@ public class Cache implements Ehcache {
      */
     public Cache(CacheConfiguration cacheConfiguration,
                  RegisteredEventListeners registeredEventListeners,
-                 BootstrapCacheLoader bootstrapCacheLoader,
-                 int maxElementsOnDisk,
-                 int diskSpoolBufferSizeMB,
-                 boolean clearOnFlush,
-                 boolean isTerracottaClustered,
-                 String terracottaValueMode,
-                 boolean terracottaCoherentReads,
-                 boolean terracottaOrphanEviction,
-                 int terracottaOrphanEvictionPeriod,
-                 boolean terracottaLocalKeyCache,
-                 int terracottaLocalKeyCacheSize,
-                 boolean terracottaCopyOnRead, 
-                 boolean terracottaCacheCoherent,
-                 boolean terracottaSynchronousWrite) {
+                 BootstrapCacheLoader bootstrapCacheLoader) {
 
         changeStatus(Status.STATUS_UNINITIALISED);
 
@@ -894,15 +829,6 @@ public class Cache implements Ehcache {
         if (factoryConfiguration != null) {
             className = factoryConfiguration.getFullyQualifiedClassPath();
         }
-        tcConfig.setCoherentReads(terracottaCoherentReads);
-        tcConfig.setOrphanEviction(terracottaOrphanEviction);
-        tcConfig.setOrphanEvictionPeriod(terracottaOrphanEvictionPeriod);
-        tcConfig.setLocalKeyCache(terracottaLocalKeyCache);
-        tcConfig.setLocalKeyCacheSize(terracottaLocalKeyCacheSize);
-        tcConfig.setCopyOnRead(terracottaCopyOnRead);
-        tcConfig.setCoherent(terracottaCacheCoherent);
-        tcConfig.setSynchronousWrite(terracottaSynchronousWrite);
-        configuration.addTerracotta(tcConfig);
         if (null == className) {
             LOG.debug("CacheWriter factory not configured. Skipping...");
         } else {
