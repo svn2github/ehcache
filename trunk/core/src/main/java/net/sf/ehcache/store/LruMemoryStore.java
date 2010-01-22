@@ -511,4 +511,18 @@ public class LruMemoryStore implements Store {
     public boolean isCacheCoherent() {
         return false;
     }
+    
+    /**
+     * {@inheritDoc}
+     */
+    public void setCoherent(boolean coherent) {
+        throw new UnsupportedOperationException();
+    }
+
+    /**
+     * {@inheritDoc}
+     */    
+    public void waitUntilCoherent() {
+        throw new UnsupportedOperationException();
+    }
 }

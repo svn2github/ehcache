@@ -16,6 +16,32 @@
 
 package net.sf.ehcache;
 
+import java.io.IOException;
+import java.io.Serializable;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
+import java.util.UUID;
+import java.util.concurrent.AbstractExecutorService;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Future;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.locks.ReentrantLock;
+
 import net.sf.ehcache.bootstrap.BootstrapCacheLoader;
 import net.sf.ehcache.bootstrap.BootstrapCacheLoaderFactory;
 import net.sf.ehcache.config.CacheConfiguration;
@@ -52,32 +78,6 @@ import net.sf.ehcache.writer.CacheWriterManager;
 import net.sf.ehcache.writer.CacheWriterManagerException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.IOException;
-import java.io.Serializable;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
-import java.util.UUID;
-import java.util.concurrent.AbstractExecutorService;
-import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Future;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * Cache is the central class in ehcache. Caches have {@link Element}s and are managed
@@ -274,6 +274,7 @@ public class Cache implements Ehcache {
      * @since 1.1
      * @deprecated use {@link #Cache(CacheConfiguration)} instead
      */
+    @Deprecated
     public Cache(String name,
                  int maxElementsInMemory,
                  boolean overflowToDisk,
@@ -323,6 +324,7 @@ public class Cache implements Ehcache {
      * @since 1.2
      * @deprecated use {@link #Cache(CacheConfiguration)} instead
      */
+    @Deprecated
     public Cache(String name,
                  int maxElementsInMemory,
                  MemoryStoreEvictionPolicy memoryStoreEvictionPolicy,
@@ -375,6 +377,7 @@ public class Cache implements Ehcache {
      * @since 1.2.1
      * @deprecated use {@link #Cache(CacheConfiguration, RegisteredEventListeners, BootstrapCacheLoader)} instead
      */
+    @Deprecated
     public Cache(String name,
                  int maxElementsInMemory,
                  MemoryStoreEvictionPolicy memoryStoreEvictionPolicy,
@@ -428,6 +431,7 @@ public class Cache implements Ehcache {
      * @since 1.2.4
      * @deprecated use {@link #Cache(CacheConfiguration, RegisteredEventListeners, BootstrapCacheLoader)} instead
      */
+    @Deprecated
     public Cache(String name,
                  int maxElementsInMemory,
                  MemoryStoreEvictionPolicy memoryStoreEvictionPolicy,
@@ -484,6 +488,7 @@ public class Cache implements Ehcache {
      * @since 1.3
      * @deprecated use {@link #Cache(CacheConfiguration, RegisteredEventListeners, BootstrapCacheLoader)} instead
      */
+    @Deprecated
     public Cache(String name,
                  int maxElementsInMemory,
                  MemoryStoreEvictionPolicy memoryStoreEvictionPolicy,
@@ -543,6 +548,7 @@ public class Cache implements Ehcache {
      * @since 1.6.0
      * @deprecated use {@link #Cache(CacheConfiguration, RegisteredEventListeners, BootstrapCacheLoader)} instead
      */
+    @Deprecated
     public Cache(String name,
                  int maxElementsInMemory,
                  MemoryStoreEvictionPolicy memoryStoreEvictionPolicy,
@@ -607,6 +613,7 @@ public class Cache implements Ehcache {
      * @since 1.7.0
      * @deprecated use {@link #Cache(CacheConfiguration, RegisteredEventListeners, BootstrapCacheLoader)} instead
      */
+    @Deprecated
     public Cache(String name, int maxElementsInMemory, MemoryStoreEvictionPolicy memoryStoreEvictionPolicy, boolean overflowToDisk,
                  String diskStorePath, boolean eternal, long timeToLiveSeconds, long timeToIdleSeconds, boolean diskPersistent,
                  long diskExpiryThreadIntervalSeconds, RegisteredEventListeners registeredEventListeners,
@@ -915,6 +922,8 @@ public class Cache implements Ehcache {
                     memoryStore = MemoryStore.create(this, diskStore);
                 }
             }
+            
+            memoryStore.setCoherent(configuration.getTerracottaConfiguration().isCoherent());
 
             this.cacheWriterManager = configuration.getCacheWriterConfiguration().getWriteMode().createWriterManager(this);
             initialiseCacheWriterManager(false);
@@ -3083,5 +3092,26 @@ public class Cache implements Ehcache {
     public void disableDynamicFeatures() {
         configuration.freezeConfiguration();
         allowDisable = false;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public boolean isCoherent() {
+        return memoryStore.isCacheCoherent();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void setCoherent(boolean coherent) {
+        memoryStore.setCoherent(coherent);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void waitUntilCoherent() {
+        memoryStore.waitUntilCoherent();
     }
 }

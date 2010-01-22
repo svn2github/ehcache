@@ -674,4 +674,18 @@ public class MemoryStore implements Store, CacheConfigurationListener {
     public void deregistered(CacheConfiguration config) {
         // no-op
     }
+    
+    /**
+     * {@inheritDoc}
+     */
+    public void setCoherent(boolean coherent) {
+        throw new UnsupportedOperationException();
+    }
+
+    /**
+     * {@inheritDoc}
+     */    
+    public void waitUntilCoherent() {
+        throw new UnsupportedOperationException();
+    }
 }

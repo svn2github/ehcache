@@ -256,7 +256,7 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
         assertEquals(6, configurationHelper.createCaches().size());
 
         //check config
-        CacheConfiguration sampleCache1Config = (CacheConfiguration) configuration.getCacheConfigurations().get("sampleCache1");
+        CacheConfiguration sampleCache1Config = configuration.getCacheConfigurations().get("sampleCache1");
         assertEquals("sampleCache1", sampleCache1Config.getName());
         assertEquals(false, sampleCache1Config.isEternal());
         assertEquals(300, sampleCache1Config.getTimeToIdleSeconds());
@@ -1082,7 +1082,7 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
         assertEquals(true, defaultCache.getCacheConfiguration().getTerracottaConfiguration().getCoherentReads());
 
         //Check caches
-        assertEquals(10, configurationHelper.createCaches().size());
+        assertEquals(13, configurationHelper.createCaches().size());
 
         //  <cache name="clustered-1"
         //   maxElementsInMemory="1000"
@@ -1171,6 +1171,38 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
         assertEquals(true, sampleCache8.getCacheConfiguration().isTerracottaClustered());
         assertEquals(true,
                 sampleCache8.getCacheConfiguration().getTerracottaConfiguration().getLocalKeyCache());
+
+        //  <cache name="clustered-9"
+        //   maxElementsInMemory="1000"
+        //   memoryStoreEvictionPolicy="LFU">
+        //   <terracotta localKeyCache="true"/>
+        //  </cache>
+        Ehcache sampleCache9 = configurationHelper.createCacheFromName("clustered-9");
+        assertEquals("clustered-9", sampleCache9.getName());
+        assertEquals(true, sampleCache9.getCacheConfiguration().isTerracottaClustered());
+        assertEquals(42,
+                sampleCache9.getCacheConfiguration().getTerracottaConfiguration().getLocalKeyCacheSize());
+      
+      // assert default value is true always
+      assertEquals(true, TerracottaConfiguration.DEFAULT_CACHE_COHERENT);
+      
+      Ehcache sampleCache10 = configurationHelper.createCacheFromName("clustered-10");
+      assertEquals("clustered-10", sampleCache10.getName());
+      assertEquals(true, sampleCache10.getCacheConfiguration().isTerracottaClustered());
+      assertEquals(true,
+              sampleCache10.getCacheConfiguration().getTerracottaConfiguration().isCoherent());
+      
+      Ehcache sampleCache11 = configurationHelper.createCacheFromName("clustered-11");
+      assertEquals("clustered-11", sampleCache11.getName());
+      assertEquals(true, sampleCache11.getCacheConfiguration().isTerracottaClustered());
+      assertEquals(false,
+              sampleCache11.getCacheConfiguration().getTerracottaConfiguration().isCoherent());
+      
+      Ehcache sampleCache12 = configurationHelper.createCacheFromName("clustered-12");
+      assertEquals("clustered-12", sampleCache12.getName());
+      assertEquals(true, sampleCache12.getCacheConfiguration().isTerracottaClustered());
+      assertEquals(true,
+              sampleCache12.getCacheConfiguration().getTerracottaConfiguration().isCoherent());
 
         //  <cache name="clustered-9"
         //   maxElementsInMemory="1000"
