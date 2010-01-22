@@ -85,9 +85,7 @@ public class CacheManagerEventListenerTest {
      */
     @Test
     public void testListenerSpecifiedProgrammatically() throws CacheException {
-        CacheConfiguration defaultCache = new CacheConfiguration();
-        defaultCache.setEternal(false);
-        defaultCache.setMaxElementsInMemory(10);
+        CacheConfiguration defaultCache = new CacheConfiguration("cache", 10);
 
         CountingCacheManagerEventListener countingCacheManagerEventListener = new CountingCacheManagerEventListener();
 

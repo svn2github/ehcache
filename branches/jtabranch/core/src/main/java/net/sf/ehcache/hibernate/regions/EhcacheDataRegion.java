@@ -17,35 +17,47 @@ package net.sf.ehcache.hibernate.regions;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Properties;
+
 import net.sf.ehcache.Ehcache;
+
 import org.hibernate.cache.CacheException;
 import org.hibernate.cache.Region;
 import org.hibernate.cache.Timestamper;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * An EhCache specific data region implementation.
+ * An Ehcache specific data region implementation.
  * <p>
- * This class is the ultimate superclass for all EhCache Hibernate cache regions.
+ * This class is the ultimate superclass for all Ehcache Hibernate cache regions.
  * 
  * @author Chris Dennis
+ * @author Greg Luck
+ * @author Emmanuel Bernard
  */
-abstract class EhCacheDataRegion implements Region {
+public abstract class EhcacheDataRegion implements Region {
 
-    private static final Logger LOG = LoggerFactory.getLogger(EhCacheDataRegion.class);
-    private static final int CACHE_LOCK_TIMEOUT = 60000 * Timestamper.ONE_MS;
+    private static final Logger LOG = LoggerFactory.getLogger(EhcacheDataRegion.class);
+
+    private static final String CACHE_LOCK_TIMEOUT_PROPERTY = "net.sf.ehcache.hibernate.cache_lock_timeout";
+    private static final int DEFAULT_CACHE_LOCK_TIMEOUT = 60000;
 
     /**
-     * EhCache instance backing this Hibernate data region.
+     * Ehcache instance backing this Hibernate data region.
      */
     protected final Ehcache cache;
 
+    private final int cacheLockTimeout;
+    
     /**
-     * Create a Hibernate data region backed by the given EhCache instance.
+     * Create a Hibernate data region backed by the given Ehcache instance.
      */
-    EhCacheDataRegion(Ehcache cache) {
+    EhcacheDataRegion(Ehcache cache, Properties properties) {
         this.cache = cache;
+        String timeout = properties.getProperty(CACHE_LOCK_TIMEOUT_PROPERTY, Integer.toString(DEFAULT_CACHE_LOCK_TIMEOUT));
+        this.cacheLockTimeout = Timestamper.ONE_MS * Integer.decode(timeout);
     }
 
     /**
@@ -125,7 +137,7 @@ abstract class EhCacheDataRegion implements Region {
      * {@inheritDoc}
      */
     public int getTimeout() {
-        return CACHE_LOCK_TIMEOUT;
+        return cacheLockTimeout;
     }
 
     /**

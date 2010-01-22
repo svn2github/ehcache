@@ -13,30 +13,36 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package net.sf.ehcache.hibernate.strategy;
+package net.sf.ehcache.hibernate.ccs;
 
 import java.io.Serializable;
+
 import java.util.Comparator;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock.ReadLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock.WriteLock;
-import net.sf.ehcache.hibernate.regions.EhCacheTransactionalDataRegion;
-import org.hibernate.cache.CacheException;
 
+import org.hibernate.cache.CacheException;
 import org.hibernate.cache.access.SoftLock;
-import org.hibernate.cfg.Settings;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
- * Superclass for all EhCache specific read/write AccessStrategy implementations.
- * 
- * @param <T> the type of the enclosed cache region
- * 
+ * Ehcache specific read/write cache concurrency strategy.
+ * <p>
+ * This is the Ehcache specific equivalent to Hibernate's ReadWriteCache.  This implementation uses a more robust soft-lock system (less
+ * prone to accidental collisions).
+ *
  * @author Chris Dennis
  */
-abstract class AbstractReadWriteEhCacheAccessStrategy<T extends EhCacheTransactionalDataRegion> extends AbstractEhCacheAccessStrategy<T> {
+@Deprecated
+public class EhcacheReadWriteCache extends AbstractEhcacheConcurrencyStrategy {
 
+    private static final Logger LOG = LoggerFactory.getLogger(EhcacheReadWriteCache.class);
+    
     private final UUID uuid = UUID.randomUUID();
     private final AtomicLong nextLockId = new AtomicLong();
     private final ReadLock coarseReadLock;
@@ -47,27 +53,13 @@ abstract class AbstractReadWriteEhCacheAccessStrategy<T extends EhCacheTransacti
         coarseWriteLock = coarseLock.writeLock();
     }
     
-    private final Comparator versionComparator;
-
     /**
-     * Creates a read/write cache access strategy around the given cache region.
+     * {@inheritDoc}
      */
-    public AbstractReadWriteEhCacheAccessStrategy(T region, Settings settings) {
-        super(region, settings);
-        this.versionComparator = region.getCacheDataDescription().getVersionComparator();
-    }
-
-    /**
-     * Returns <code>null</code> if the item is not readable.  Locked items are not readable, nor are items created
-     * after the start of this transaction.
-     *
-     * @see org.hibernate.cache.access.EntityRegionAccessStrategy#get(java.lang.Object, long)
-     * @see org.hibernate.cache.access.CollectionRegionAccessStrategy#get(java.lang.Object, long)
-     */
-    public final Object get(Object key, long txTimestamp) throws CacheException {
+    public Object get(Object key, long txTimestamp) throws CacheException {
         readLockIfCoarse(key);
         try {
-            Lockable item = (Lockable) region.get(key);
+            Lockable item = (Lockable) cache.get(key);
 
             boolean readable = item != null && item.isReadable(txTimestamp);
             if (readable) {
@@ -81,20 +73,17 @@ abstract class AbstractReadWriteEhCacheAccessStrategy<T extends EhCacheTransacti
     }
 
     /**
-     * Returns <code>false</code> and fails to put the value if there is an existing un-writeable item mapped to this
-     * key.
-     *
-     * @see org.hibernate.cache.access.EntityRegionAccessStrategy#putFromLoad(java.lang.Object, java.lang.Object, long, java.lang.Object, boolean)
-     * @see org.hibernate.cache.access.CollectionRegionAccessStrategy#putFromLoad(java.lang.Object, java.lang.Object, long, java.lang.Object, boolean) 
+     * {@inheritDoc}
      */
-    public final boolean putFromLoad(Object key, Object value, long txTimestamp, Object version, boolean minimalPutOverride)
+    public boolean put(Object key, Object value, long txTimestamp, Object version, Comparator versionComparator, boolean minimalPut)
             throws CacheException {
+
         writeLock(key);
         try {
-            Lockable item = (Lockable) region.get(key);
+            Lockable item = (Lockable) cache.get(key);
             boolean writeable = item == null || item.isWriteable(txTimestamp, version, versionComparator);
             if (writeable) {
-                region.put(key, new Item(value, version, region.nextTimestamp()));
+                cache.put(key, new Item(value, version, cache.nextTimestamp()));
                 return true;
             } else {
                 return false;
@@ -105,18 +94,15 @@ abstract class AbstractReadWriteEhCacheAccessStrategy<T extends EhCacheTransacti
     }
 
     /**
-     * Soft-lock a cache item.
-     * 
-     * @see org.hibernate.cache.access.EntityRegionAccessStrategy#lockItem(java.lang.Object, java.lang.Object)
-     * @see org.hibernate.cache.access.CollectionRegionAccessStrategy#lockItem(java.lang.Object, java.lang.Object) 
+     * Soft-locks the associated mapping prior to updating/inserting a new value.
      */
-    public final SoftLock lockItem(Object key, Object version) throws CacheException {
+    public SoftLock lock(Object key, Object version) throws CacheException {
         writeLock(key);
         try {
-            Lockable item = (Lockable) region.get(key);
-            long timeout = region.nextTimestamp() + region.getTimeout();
+            Lockable item = (Lockable) cache.get(key);
+            long timeout = cache.nextTimestamp() + cache.getTimeout();
             final Lock lock = (item == null) ? new Lock(timeout, uuid, nextLockId(), version) : item.lock(timeout, uuid, nextLockId());
-            region.put(key, lock);
+            cache.update(key, lock);
             return lock;
         } finally {
             writeUnlock(key);
@@ -124,15 +110,12 @@ abstract class AbstractReadWriteEhCacheAccessStrategy<T extends EhCacheTransacti
     }
 
     /**
-     * Soft-unlock a cache item.
-     *
-     * @see org.hibernate.cache.access.EntityRegionAccessStrategy#unlockItem(java.lang.Object, org.hibernate.cache.access.SoftLock)
-     * @see org.hibernate.cache.access.CollectionRegionAccessStrategy#unlockItem(java.lang.Object, org.hibernate.cache.access.SoftLock) 
+     * Soft-unlocks the associated mapping.
      */
-    public final void unlockItem(Object key, SoftLock lock) throws CacheException {
+    public void release(Object key, SoftLock lock) throws CacheException {
         writeLock(key);
         try {
-            Lockable item = (Lockable) region.get(key);
+            Lockable item = (Lockable) cache.get(key);
 
             if ((item != null) && item.isUnlockable(lock)) {
                 decrementLock(key, (Lock) item);
@@ -144,65 +127,112 @@ abstract class AbstractReadWriteEhCacheAccessStrategy<T extends EhCacheTransacti
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    public boolean afterUpdate(Object key, Object value, Object version, SoftLock softlock) throws CacheException {
+        writeLock(key);
+        try {
+            Lockable item = (Lockable) cache.get(key);
+
+            if (item != null && item.isUnlockable(softlock)) {
+                Lock lock = (Lock) item;
+                if (lock.wasLockedConcurrently()) {
+                    decrementLock(key, lock);
+                    return false;
+                } else {
+                    cache.update(key, new Item(value, version, cache.nextTimestamp()));
+                    return true;
+                }
+            } else {
+                handleLockExpiry(key);
+                return false;
+            }
+        } finally {
+            writeUnlock(key);
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public boolean afterInsert(Object key, Object value, Object version) throws CacheException {
+        writeLock(key);
+        try {
+            Lockable item = (Lockable) cache.get(key);
+            if (item == null) {
+                cache.update(key, new Item(value, version, cache.nextTimestamp()));
+                return true;
+            } else {
+                return false;
+            }
+        } finally {
+            writeUnlock(key);
+        }
+    }
+
+    /**
+     * A No-Op, since we are an asynchronous cache concurrency strategy.
+     */
+    public void evict(Object key) throws CacheException {
+        // no-op - since we are not transactional
+    }
+
+    /**
+     * A No-Op, since we are an asynchronous cache concurrency strategy.
+     */
+    public boolean update(Object key, Object value, Object currentVersion, Object previousVersion) throws CacheException {
+        return false;
+    }
+
+    /**
+     * A No-Op, since we are an asynchronous cache concurrency strategy.
+     */
+    public boolean insert(Object key, Object value, Object currentVersion) throws CacheException {
+        return false;
+    }
+
     private long nextLockId() {
         return nextLockId.getAndIncrement();
     }
-
-    /**
-     * Unlock and re-put the given key, lock combination.
-     */
-    protected void decrementLock(Object key, Lock lock) {
-        lock.unlock(region.nextTimestamp());
-        region.put(key, lock);
+    
+    private void decrementLock(Object key, Lock lock) {
+        lock.unlock(cache.nextTimestamp());
+        cache.update(key, lock);
     }
 
-    /**
-     * Handle the timeout of a previous lock mapped to this key
-     */
-    protected void handleLockExpiry(Object key) {
-        long ts = region.nextTimestamp() + region.getTimeout();
+    private void handleLockExpiry(Object key) {
+        long ts = cache.nextTimestamp() + cache.getTimeout();
         // create new lock that times out immediately
         Lock lock = new Lock(ts, uuid, nextLockId.getAndIncrement(), null);
         lock.unlock(ts);
-        region.put(key, lock);
+        cache.update(key, lock);
     }
 
-    /**
-     * Write lock the entry for the given key as finely as possible.
-     */
-    protected void writeLock(Object key) {
-        if (region.supportsFinegrainedLocking()) {
-            region.lock(key);
+    private void writeLock(Object key) {
+        if (cache.canLockEntries()) {
+            cache.lock(key);
         } else {
             coarseWriteLock.lock();
         }
     }
 
-    /**
-     * Write unlock the entry for the given key.
-     */
-    protected void writeUnlock(Object key) {
-        if (region.supportsFinegrainedLocking()) {
-            region.unlock(key);
+    private void writeUnlock(Object key) {
+        if (cache.canLockEntries()) {
+            cache.unlock(key);
         } else {
             coarseWriteLock.unlock();
         }
     }
 
-    /**
-     * Read lock the entry for the given key if finegrained locks are not supported.
-     */
-    protected void readLockIfCoarse(Object key) {
-        if (!region.supportsFinegrainedLocking()) {
+    private void readLockIfCoarse(Object key) {
+        if (!cache.canLockEntries()) {
             coarseReadLock.lock();
         }
     }
 
-    /**
-     * Read unlock the entry for the given key if finegrained locks are not supported
-     */
-    protected void readUnlockIfCoarse(Object key) {
-        if (!region.supportsFinegrainedLocking()) {
+    private void readUnlockIfCoarse(Object key) {
+        if (!cache.canLockEntries()) {
             coarseReadLock.unlock();
         }
     }
@@ -210,86 +240,51 @@ abstract class AbstractReadWriteEhCacheAccessStrategy<T extends EhCacheTransacti
     /**
      * Interface type implemented by all wrapper objects in the cache.
      */
-    protected static interface Lockable {
+    private static interface Lockable {
 
-        /**
-         * Returns <code>true</code> if the enclosed value can be read by a transaction started at the given time.
-         */
         public boolean isReadable(long txTimestamp);
 
-        /**
-         * Returns <code>true</code> if the enclosed value can be replaced with one of the given version by a
-         * transaction started at the given time.
-         */
         public boolean isWriteable(long txTimestamp, Object version, Comparator versionComparator);
 
-        /**
-         * Returns the enclosed value.
-         */
         public Object getValue();
 
-        /**
-         * Returns <code>true</code> if the given lock can be unlocked using the given SoftLock instance as a handle.
-         */
         public boolean isUnlockable(SoftLock lock);
 
-        /**
-         * Locks this entry, stamping it with the UUID and lockId given, with the lock timeout occuring at the specified
-         * time.  The returned Lock object can be used to unlock the entry in the future.
-         */
         public Lock lock(long timeout, UUID uuid, long lockId);
     }
 
     /**
      * Wrapper type representing unlocked items.
      */
-    protected final static class Item implements Serializable, Lockable {
+    private final static class Item implements Serializable, Lockable {
 
         private static final long serialVersionUID = 1L;
         private final Object value;
         private final Object version;
         private final long timestamp;
 
-        /**
-         * Creates an unlocked item wrapping the given value with a version and creation timestamp.
-         */
-        Item(Object value, Object version, long timestamp) {
+        private Item(Object value, Object version, long timestamp) {
             this.value = value;
             this.version = version;
             this.timestamp = timestamp;
         }
 
-        /**
-         * {@inheritDoc}
-         */
         public boolean isReadable(long txTimestamp) {
             return txTimestamp > timestamp;
         }
 
-        /**
-         * {@inheritDoc}
-         */
         public boolean isWriteable(long txTimestamp, Object newVersion, Comparator versionComparator) {
             return version != null && versionComparator.compare(version, newVersion) < 0;
         }
 
-        /**
-         * {@inheritDoc}
-         */
         public Object getValue() {
             return value;
         }
 
-        /**
-         * {@inheritDoc}
-         */
         public boolean isUnlockable(SoftLock lock) {
             return false;
         }
 
-        /**
-         * {@inheritDoc}
-         */
         public Lock lock(long timeout, UUID uuid, long lockId) {
             return new Lock(timeout, uuid, lockId, version);
         }
@@ -298,22 +293,19 @@ abstract class AbstractReadWriteEhCacheAccessStrategy<T extends EhCacheTransacti
     /**
      * Wrapper type representing locked items.
      */
-    protected final static class Lock implements Serializable, Lockable, SoftLock {
+    private final static class Lock implements Serializable, Lockable, SoftLock {
 
         private static final long serialVersionUID = 2L;
 
         private final UUID sourceUuid;
         private final long lockId;
         private final Object version;
-
+        
         private long timeout;
         private boolean concurrent;
         private int multiplicity;
         private long unlockTimestamp;
 
-        /**
-         * Creates a locked item with the given identifiers and object version.
-         */
         Lock(long timeout, UUID sourceUuid, long lockId, Object version) {
             this.timeout = timeout;
             this.lockId = lockId;
@@ -321,16 +313,10 @@ abstract class AbstractReadWriteEhCacheAccessStrategy<T extends EhCacheTransacti
             this.sourceUuid = sourceUuid;
         }
 
-        /**
-         * {@inheritDoc}
-         */
         public boolean isReadable(long txTimestamp) {
             return false;
         }
 
-        /**
-         * {@inheritDoc}
-         */
         public boolean isWriteable(long txTimestamp, Object newVersion, Comparator versionComparator) {
             if (txTimestamp > timeout) {
                 // if timedout then allow write
@@ -343,23 +329,14 @@ abstract class AbstractReadWriteEhCacheAccessStrategy<T extends EhCacheTransacti
             return version == null ? txTimestamp > unlockTimestamp : versionComparator.compare(version, newVersion) < 0;
         }
 
-        /**
-         * {@inheritDoc}
-         */
         public Object getValue() {
             return null;
         }
 
-        /**
-         * {@inheritDoc}
-         */
         public boolean isUnlockable(SoftLock lock) {
             return equals(lock);
         }
 
-        /**
-         * {@inheritDoc}
-         */
         @Override
         public boolean equals(Object o) {
             if (o == this) {
@@ -371,9 +348,6 @@ abstract class AbstractReadWriteEhCacheAccessStrategy<T extends EhCacheTransacti
             }
         }
 
-        /**
-         * {@inheritDoc}
-         */
         @Override
         public int hashCode() {
             int hash = (sourceUuid != null ? sourceUuid.hashCode() : 0);
@@ -384,16 +358,10 @@ abstract class AbstractReadWriteEhCacheAccessStrategy<T extends EhCacheTransacti
             return hash + temp;
         }
 
-        /**
-         * Returns true if this Lock has been concurrently locked by more than one transaction.
-         */
-        public boolean wasLockedConcurrently() {
+        private boolean wasLockedConcurrently() {
             return concurrent;
         }
 
-        /**
-         * {@inheritDoc}
-         */
         public Lock lock(long timeout, UUID uuid, long lockId) {
             concurrent = true;
             multiplicity++;
@@ -401,10 +369,7 @@ abstract class AbstractReadWriteEhCacheAccessStrategy<T extends EhCacheTransacti
             return this;
         }
 
-        /**
-         * Unlocks this Lock, and timestamps the unlock event.
-         */
-        public void unlock(long timestamp) {
+        private void unlock(long timestamp) {
             if (--multiplicity == 0) {
                 unlockTimestamp = timestamp;
             }

@@ -15,36 +15,33 @@
  */
 package net.sf.ehcache.hibernate.strategy;
 
-import net.sf.ehcache.hibernate.regions.EhCacheEntityRegion;
+import net.sf.ehcache.hibernate.regions.EhcacheCollectionRegion;
 
 import org.hibernate.cache.CacheException;
-import org.hibernate.cache.EntityRegion;
-import org.hibernate.cache.access.EntityRegionAccessStrategy;
+import org.hibernate.cache.CollectionRegion;
+import org.hibernate.cache.access.CollectionRegionAccessStrategy;
 import org.hibernate.cache.access.SoftLock;
 import org.hibernate.cfg.Settings;
 
 /**
- * EhCache specific non-strict read/write entity region access strategy
+ * Ehcache specific non-strict read/write collection region access strategy
  *
  * @author Chris Dennis
  */
-public class NonStrictReadWriteEhCacheEntityRegionAccessStrategy extends AbstractEhCacheAccessStrategy<EhCacheEntityRegion>
-        implements EntityRegionAccessStrategy {
-
-    private final Settings settings;
+public class NonStrictReadWriteEhcacheCollectionRegionAccessStrategy extends AbstractEhcacheAccessStrategy<EhcacheCollectionRegion>
+        implements CollectionRegionAccessStrategy {
 
     /**
      * Create a non-strict read/write access strategy accessing the given collection region.
-     */   
-    public NonStrictReadWriteEhCacheEntityRegionAccessStrategy(EhCacheEntityRegion region, Settings settings) {
+     */
+    public NonStrictReadWriteEhcacheCollectionRegionAccessStrategy(EhcacheCollectionRegion region, Settings settings) {
         super(region, settings);
-        this.settings = settings;
     }
 
     /**
      * {@inheritDoc}
      */
-    public EntityRegion getRegion() {
+    public CollectionRegion getRegion() {
         return region;
     }
 
@@ -80,37 +77,6 @@ public class NonStrictReadWriteEhCacheEntityRegionAccessStrategy extends Abstrac
      */
     public void unlockItem(Object key, SoftLock lock) throws CacheException {
         region.remove(key);
-    }
-
-    /**
-     * Returns <code>false</code> since this is an asynchronous cache access strategy.
-     */
-    public boolean insert(Object key, Object value, Object version) throws CacheException {
-        return false;
-    }
-
-    /**
-     * Returns <code>false</code> since this is a non-strict read/write cache access strategy
-     */
-    public boolean afterInsert(Object key, Object value, Object version) throws CacheException {
-        return false;
-    }
-
-    /**
-     * Removes the entry since this is a non-strict read/write cache strategy.
-     */
-    public boolean update(Object key, Object value, Object currentVersion, Object previousVersion) throws CacheException {
-        remove(key);
-        return false;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public boolean afterUpdate(Object key, Object value, Object currentVersion, Object previousVersion, SoftLock lock)
-            throws CacheException {
-        unlockItem(key, lock);
-        return false;
     }
 
     /**

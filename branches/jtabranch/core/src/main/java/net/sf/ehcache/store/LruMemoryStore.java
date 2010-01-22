@@ -19,6 +19,7 @@ package net.sf.ehcache.store;
 import java.util.Iterator;
 import java.util.Map;
 
+import net.sf.ehcache.writer.CacheWriterManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -87,9 +88,23 @@ public class LruMemoryStore implements Store {
      *
      * @param element the element to add
      */
-    public final synchronized void put(Element element) throws CacheException {
+    public final void put(Element element) throws CacheException {
+        putInternal(element, null);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public final void putWithWriter(Element element, CacheWriterManager writerManager) throws CacheException {
+        putInternal(element, writerManager);
+    }
+
+    private synchronized void putInternal(Element element, CacheWriterManager writerManager) throws CacheException {
         if (element != null) {
             map.put(element.getObjectKey(), element);
+            if (writerManager != null) {
+                writerManager.put(element);
+            }
             doPut(element);
         }
     }
@@ -131,10 +146,23 @@ public class LruMemoryStore implements Store {
      * @param key the key of the Element, usually a String
      * @return the Element if one was found, else null
      */
-    public final synchronized Element remove(Object key) {
+    public final Element remove(Object key) {
+        return removeInternal(key, null);
+    }
 
+    /**
+     * {@inheritDoc}
+     */
+    public final Element removeWithWriter(Object key, CacheWriterManager writerManager) throws CacheException {
+        return removeInternal(key, writerManager);
+    }
+
+    private synchronized Element removeInternal(Object key, CacheWriterManager writerManager) throws CacheException {
         // remove single item.
         Element element = (Element) map.remove(key);
+        if (writerManager != null) {
+            writerManager.remove(key);
+        }
         if (element != null) {
             return element;
         } else {
@@ -482,5 +510,19 @@ public class LruMemoryStore implements Store {
      */
     public boolean isCacheCoherent() {
         return false;
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    public void setCoherent(boolean coherent) {
+        throw new UnsupportedOperationException();
+    }
+
+    /**
+     * {@inheritDoc}
+     */    
+    public void waitUntilCoherent() {
+        throw new UnsupportedOperationException();
     }
 }

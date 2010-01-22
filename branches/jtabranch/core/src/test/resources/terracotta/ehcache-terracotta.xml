@@ -78,6 +78,25 @@
            memoryStoreEvictionPolicy="LFU">
            <terracotta localKeyCacheSize="42"/>
     </cache>
+    
+    <!-- Test coherent, default value -->
+    <cache name="clustered-10"
+           maxElementsInMemory="1000"
+           memoryStoreEvictionPolicy="LFU">
+           <terracotta/>
+    </cache>
+    <!-- Test coherent, false value-->
+    <cache name="clustered-11"
+           maxElementsInMemory="1000"
+           memoryStoreEvictionPolicy="LFU">
+           <terracotta coherent="false"/>
+    </cache>
+    <!-- Test coherent, true value -->
+    <cache name="clustered-12"
+           maxElementsInMemory="1000"
+           memoryStoreEvictionPolicy="LFU">
+           <terracotta coherent="true"/>
+    </cache>
 
     <terracottaConfig url="localhost:9510"/>
 

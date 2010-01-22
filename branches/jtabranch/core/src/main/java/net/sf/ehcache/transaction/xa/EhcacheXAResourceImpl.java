@@ -87,19 +87,19 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
 
         Set<Object> keys = new HashSet<Object>();
         for (VersionAwareCommand command : context.getCommands()) {
-            if(command.isWriteCommand()) {
+//            if(command.isWriteCommand()) {
                 keys.add(command.getKey());
-            }
+//            }
         }
 
         Sync[] syncForKeys = ((CacheLockProvider)oldVersionStore.getInternalContext()).getAndWriteLockAllSyncForKeys(keys.toArray());
         for (VersionAwareCommand command : context.getCommands()) {
             ehcacheXAStore.checkin(command.getKey(), xid, command.isWriteCommand());
-            if(command.isWriteCommand()) {
+//            if(command.isWriteCommand()) {
                 Object key = command.getKey();
                 oldVersionStore.remove(key);
                 ((CacheLockProvider)store.getInternalContext()).getSyncForKey(key).unlock(LockType.WRITE);
-            }
+//            }
         }
 
         for (Sync syncForKey : syncForKeys) {
@@ -130,7 +130,7 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
         Set<Object> keys = new HashSet<Object>();
         // Copy old versions in front-accessed store
         for (VersionAwareCommand command : context.getCommands()) {
-            if(command.isWriteCommand()) {
+//            if(command.isWriteCommand()) {
                 Object key = command.getKey();
                 Sync syncForKey = oldVersionStoreLockProvider.getSyncForKey(key);
                 syncForKey.lock(LockType.WRITE);
@@ -147,7 +147,7 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
                 } finally {
                     syncForKey.unlock(LockType.WRITE);
                 }
-            }
+//            }
         }
 
         // Lock all keys in real store
@@ -187,7 +187,7 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
         CacheLockProvider oldVersionStoreLockProvider = (CacheLockProvider)oldVersionStore.getInternalContext();
 
         for (VersionAwareCommand command : context.getCommands()) {
-            if(command.isWriteCommand()) {
+//            if(command.isWriteCommand()) {
                 Object key = command.getKey();
                 Sync syncForKey = oldVersionStoreLockProvider.getSyncForKey(key);
                 syncForKey.lock(LockType.WRITE);
@@ -202,7 +202,7 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
                     syncForKey.unlock(LockType.WRITE);
                     storeLockProvider.getSyncForKey(key).unlock(LockType.WRITE);
                 }
-            }
+//            }
         }
 
     }

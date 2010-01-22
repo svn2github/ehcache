@@ -17,6 +17,7 @@ import net.sf.ehcache.transaction.StoreRemoveAllCommand;
 import net.sf.ehcache.transaction.StoreRemoveCommand;
 import net.sf.ehcache.transaction.TransactionContext;
 import net.sf.ehcache.transaction.xa.EhcacheXAResource;
+import net.sf.ehcache.writer.CacheWriterManager;
 
 /**
  * @author Alex Snaps
@@ -38,6 +39,10 @@ public class XATransactionalStore implements Store {
         underlyingStore.get(element.getKey());
         context.addCommand(new StorePutCommand(element), element);
     
+    }
+
+    public void putWithWriter(final Element element, final CacheWriterManager writerManager) throws CacheException {
+        throw new UnsupportedOperationException();
     }
 
     public Element get(final Object key) {
@@ -77,6 +82,10 @@ public class XATransactionalStore implements Store {
         }
 
         return element; // Todo is this good enough?
+    }
+
+    public Element removeWithWriter(final Object key, final CacheWriterManager writerManager) throws CacheException {
+        throw new UnsupportedOperationException();
     }
 
     public void removeAll() throws CacheException {     
@@ -162,6 +171,14 @@ public class XATransactionalStore implements Store {
      */
     public boolean isCacheCoherent() {
         return underlyingStore.isCacheCoherent();
+    }
+
+    public void setCoherent(final boolean coherent) throws UnsupportedOperationException {
+        underlyingStore.setCoherent(coherent);
+    }
+
+    public void waitUntilCoherent() throws UnsupportedOperationException {
+        underlyingStore.waitUntilCoherent();
     }
 
     private TransactionContext getOrCreateTransactionContext() {

@@ -186,7 +186,7 @@ final class BeanHandler extends DefaultHandler {
      */
     private static Object createInstance(Object parent, Class childClass)
             throws Exception {
-        final Constructor[] constructors = childClass.getConstructors();
+        final Constructor[] constructors = childClass.getDeclaredConstructors();
         ArrayList candidates = new ArrayList();
         for (final Constructor constructor : constructors) {
             final Class[] params = constructor.getParameterTypes();
@@ -206,6 +206,7 @@ final class BeanHandler extends DefaultHandler {
         }
 
         final Constructor constructor = (Constructor) candidates.remove(0);
+        constructor.setAccessible(true);
         if (constructor.getParameterTypes().length == 0) {
             return constructor.newInstance(new Object[] {});
         } else {

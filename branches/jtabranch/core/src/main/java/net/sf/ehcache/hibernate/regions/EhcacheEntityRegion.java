@@ -15,10 +15,11 @@
  */
 package net.sf.ehcache.hibernate.regions;
 
+import java.util.Properties;
 import net.sf.ehcache.Ehcache;
-import net.sf.ehcache.hibernate.strategy.NonStrictReadWriteEhCacheEntityRegionAccessStrategy;
-import net.sf.ehcache.hibernate.strategy.ReadOnlyEhCacheEntityRegionAccessStrategy;
-import net.sf.ehcache.hibernate.strategy.ReadWriteEhCacheEntityRegionAccessStrategy;
+import net.sf.ehcache.hibernate.strategy.NonStrictReadWriteEhcacheEntityRegionAccessStrategy;
+import net.sf.ehcache.hibernate.strategy.ReadOnlyEhcacheEntityRegionAccessStrategy;
+import net.sf.ehcache.hibernate.strategy.ReadWriteEhcacheEntityRegionAccessStrategy;
 
 import org.hibernate.cache.CacheDataDescription;
 import org.hibernate.cache.CacheException;
@@ -31,22 +32,22 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * An entity region specific wrapper around an EhCache instance.
+ * An entity region specific wrapper around an Ehcache instance.
  * <p>
- * This implementation returns EhCache specific access strategy instances for all the non-transactional access types.  Transactional access
+ * This implementation returns Ehcache specific access strategy instances for all the non-transactional access types.  Transactional access
  * is not supported.
  *
  * @author Chris Dennis
  */
-public class EhCacheEntityRegion extends EhCacheTransactionalDataRegion implements EntityRegion {
+public class EhcacheEntityRegion extends EhcacheTransactionalDataRegion implements EntityRegion {
 
-    private static final Logger LOG = LoggerFactory.getLogger(EhCacheEntityRegion.class);
+    private static final Logger LOG = LoggerFactory.getLogger(EhcacheEntityRegion.class);
 
     /**
-     * Constructs an EhCacheEntityRegion around the given underlying cache.
+     * Constructs an EhcacheEntityRegion around the given underlying cache.
      */
-    public EhCacheEntityRegion(Ehcache underlyingCache, Settings settings, CacheDataDescription metadata) {
-        super(underlyingCache, settings, metadata);
+    public EhcacheEntityRegion(Ehcache underlyingCache, Settings settings, CacheDataDescription metadata, Properties properties) {
+        super(underlyingCache, settings, metadata, properties);
     }
 
     /**
@@ -57,11 +58,11 @@ public class EhCacheEntityRegion extends EhCacheTransactionalDataRegion implemen
             if (metadata.isMutable()) {
                 LOG.warn("read-only cache configured for mutable entity [" + getName() + "]");
             }
-            return new ReadOnlyEhCacheEntityRegionAccessStrategy(this, settings);
+            return new ReadOnlyEhcacheEntityRegionAccessStrategy(this, settings);
         } else if (AccessType.READ_WRITE.equals(accessType)) {
-            return new ReadWriteEhCacheEntityRegionAccessStrategy(this, settings);
+            return new ReadWriteEhcacheEntityRegionAccessStrategy(this, settings);
         } else if (AccessType.NONSTRICT_READ_WRITE.equals(accessType)) {
-            return new NonStrictReadWriteEhCacheEntityRegionAccessStrategy(this, settings);
+            return new NonStrictReadWriteEhcacheEntityRegionAccessStrategy(this, settings);
         } else if (AccessType.TRANSACTIONAL.equals(accessType)) {
             throw new CacheException("Transactional access is not supported by the Ehcache region factory.");
         } else {

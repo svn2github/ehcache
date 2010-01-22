@@ -17,16 +17,15 @@
 package net.sf.ehcache;
 
 import net.sf.ehcache.store.LruMemoryStoreTest;
+import net.sf.ehcache.store.MemoryStore;
 import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
 import net.sf.ehcache.store.Store;
 import org.junit.After;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -34,9 +33,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Random;
 
-import net.sf.ehcache.store.MemoryStore;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import static org.junit.Assert.*;
 
 /**
  * Other than policy differences, the Store implementations should work identically
@@ -44,6 +41,7 @@ import org.slf4j.LoggerFactory;
  * @author Greg Luck
  * @version $Id$
  */
+@Ignore
 public class MemoryStoreTester extends AbstractCacheTest {
 
     private static final Logger LOG = LoggerFactory.getLogger(MemoryStoreTester.class.getName());

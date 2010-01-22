@@ -28,27 +28,17 @@ import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;
-import net.sf.ehcache.bootstrap.BootstrapCacheLoader;
-import net.sf.ehcache.bootstrap.BootstrapCacheLoaderFactory;
 import net.sf.ehcache.distribution.CacheManagerPeerListener;
 import net.sf.ehcache.distribution.CacheManagerPeerListenerFactory;
 import net.sf.ehcache.distribution.CacheManagerPeerProvider;
 import net.sf.ehcache.distribution.CacheManagerPeerProviderFactory;
-import net.sf.ehcache.event.CacheEventListener;
-import net.sf.ehcache.event.CacheEventListenerFactory;
 import net.sf.ehcache.event.CacheManagerEventListener;
 import net.sf.ehcache.event.CacheManagerEventListenerFactory;
-import net.sf.ehcache.event.RegisteredEventListeners;
 import net.sf.ehcache.exceptionhandler.CacheExceptionHandler;
 import net.sf.ehcache.exceptionhandler.CacheExceptionHandlerFactory;
 import net.sf.ehcache.exceptionhandler.ExceptionHandlingDynamicCacheProxy;
-import net.sf.ehcache.extension.CacheExtension;
-import net.sf.ehcache.extension.CacheExtensionFactory;
-import net.sf.ehcache.loader.CacheLoader;
-import net.sf.ehcache.loader.CacheLoaderFactory;
 import net.sf.ehcache.util.ClassLoaderUtil;
 import net.sf.ehcache.util.PropertyUtil;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -85,158 +75,13 @@ public final class ConfigurationHelper {
         this.configuration = configuration;
     }
 
-
-    /**
-     * A factory method to create a RegisteredEventListeners
-     */
-    protected static void registerCacheListeners(CacheConfiguration cacheConfiguration,
-                                                 RegisteredEventListeners registeredEventListeners) {
-        List cacheEventListenerConfigurations = cacheConfiguration.getCacheEventListenerConfigurations();
-        for (Object cacheEventListenerConfiguration : cacheEventListenerConfigurations) {
-            CacheConfiguration.CacheEventListenerFactoryConfiguration factoryConfiguration =
-                    (CacheConfiguration.CacheEventListenerFactoryConfiguration) cacheEventListenerConfiguration;
-            CacheEventListener cacheEventListener = createCacheEventListener(factoryConfiguration);
-            registeredEventListeners.registerListener(cacheEventListener);
-        }
-    }
-
-    /**
-     * A factory method to register cache extensions
-     *
-     * @param cacheConfiguration the cache configuration
-     * @param cache              the cache
-     */
-    protected static void registerCacheExtensions(CacheConfiguration cacheConfiguration, Ehcache cache) {
-        List cacheExtensionConfigurations = cacheConfiguration.getCacheExtensionConfigurations();
-        for (Object cacheExtensionConfiguration : cacheExtensionConfigurations) {
-            CacheConfiguration.CacheExtensionFactoryConfiguration factoryConfiguration =
-                    (CacheConfiguration.CacheExtensionFactoryConfiguration) cacheExtensionConfiguration;
-            CacheExtension cacheExtension = createCacheExtension(factoryConfiguration, cache);
-            cache.registerCacheExtension(cacheExtension);
-        }
-    }
-
-    /**
-     * A factory method to register cache Loaders
-     *
-     * @param cacheConfiguration the cache configuration
-     * @param cache              the cache
-     */
-    protected static void registerCacheLoaders(CacheConfiguration cacheConfiguration, Ehcache cache) {
-        List cacheLoaderConfigurations = cacheConfiguration.getCacheLoaderConfigurations();
-        for (Object cacheLoaderConfiguration : cacheLoaderConfigurations) {
-            CacheConfiguration.CacheLoaderFactoryConfiguration factoryConfiguration =
-                    (CacheConfiguration.CacheLoaderFactoryConfiguration) cacheLoaderConfiguration;
-            CacheLoader cacheLoader = createCacheLoader(factoryConfiguration, cache);
-            cache.registerCacheLoader(cacheLoader);
-        }
-    }
-
-
-    /**
-     * Tries to load the class specified otherwise defaults to null.
-     *
-     * @param factoryConfiguration
-     */
-    private static CacheEventListener createCacheEventListener(
-            CacheConfiguration.CacheEventListenerFactoryConfiguration factoryConfiguration) {
-        String className = null;
-        CacheEventListener cacheEventListener = null;
-        if (factoryConfiguration != null) {
-            className = factoryConfiguration.getFullyQualifiedClassPath();
-        }
-        if (className == null) {
-            LOG.debug("CacheEventListener factory not configured. Skipping...");
-        } else {
-            CacheEventListenerFactory factory = (CacheEventListenerFactory)
-                    ClassLoaderUtil.createNewInstance(className);
-            Properties properties =
-
-                    PropertyUtil.parseProperties(factoryConfiguration.getProperties(),
-                            factoryConfiguration.getPropertySeparator());
-            cacheEventListener =
-                    factory.createCacheEventListener(properties);
-        }
-        return cacheEventListener;
-    }
-
-    /**
-     * Tries to load the class specified otherwise defaults to null.
-     *
-     * @param factoryConfiguration
-     */
-    private static CacheExtension createCacheExtension(
-            CacheConfiguration.CacheExtensionFactoryConfiguration factoryConfiguration, Ehcache cache) {
-        String className = null;
-        CacheExtension cacheExtension = null;
-        if (factoryConfiguration != null) {
-            className = factoryConfiguration.getFullyQualifiedClassPath();
-        }
-        if (className == null) {
-            LOG.debug("CacheExtension factory not configured. Skipping...");
-        } else {
-            CacheExtensionFactory factory = (CacheExtensionFactory) ClassLoaderUtil.createNewInstance(className);
-            Properties properties = PropertyUtil.parseProperties(factoryConfiguration.getProperties(),
-                    factoryConfiguration.getPropertySeparator());
-            cacheExtension = factory.createCacheExtension(cache, properties);
-        }
-        return cacheExtension;
-    }
-
-    /**
-     * Tries to load the class specified otherwise defaults to null.
-     *
-     * @param factoryConfiguration
-     */
-    private static CacheLoader createCacheLoader(
-            CacheConfiguration.CacheLoaderFactoryConfiguration factoryConfiguration, Ehcache cache) {
-        String className = null;
-        CacheLoader cacheLoader = null;
-        if (factoryConfiguration != null) {
-            className = factoryConfiguration.getFullyQualifiedClassPath();
-        }
-        if (className == null) {
-            LOG.debug("CacheLoader factory not configured. Skipping...");
-        } else {
-            CacheLoaderFactory factory = (CacheLoaderFactory) ClassLoaderUtil.createNewInstance(className);
-            Properties properties = PropertyUtil.parseProperties(factoryConfiguration.getProperties(),
-                    factoryConfiguration.getPropertySeparator());
-            cacheLoader = factory.createCacheLoader(cache, properties);
-        }
-        return cacheLoader;
-    }
-
-    /**
-     * Tries to load a BootstrapCacheLoader from the class specified.
-     *
-     * @return If there is none returns null.
-     */
-    public final BootstrapCacheLoader createBootstrapCacheLoader(
-            CacheConfiguration.BootstrapCacheLoaderFactoryConfiguration factoryConfiguration) throws CacheException {
-        String className = null;
-        BootstrapCacheLoader bootstrapCacheLoader = null;
-        if (factoryConfiguration != null) {
-            className = factoryConfiguration.getFullyQualifiedClassPath();
-        }
-        if (className == null || className.length() == 0) {
-            LOG.debug("No BootstrapCacheLoaderFactory class specified. Skipping...");
-        } else {
-            BootstrapCacheLoaderFactory factory = (BootstrapCacheLoaderFactory)
-                    ClassLoaderUtil.createNewInstance(className);
-            Properties properties = PropertyUtil.parseProperties(factoryConfiguration.getProperties(),
-                    factoryConfiguration.getPropertySeparator());
-            return factory.createBootstrapCacheLoader(properties);
-        }
-        return bootstrapCacheLoader;
-    }
-
     /**
      * Tries to create a CacheLoader from the configuration using the factory
      * specified.
      *
      * @return The CacheExceptionHandler, or null if it could not be found.
      */
-    public final CacheExceptionHandler createCacheExceptionHandler(
+    public static CacheExceptionHandler createCacheExceptionHandler(
             CacheConfiguration.CacheExceptionHandlerFactoryConfiguration factoryConfiguration) throws CacheException {
         String className = null;
         CacheExceptionHandler cacheExceptionHandler = null;
@@ -450,58 +295,7 @@ public final class ConfigurationHelper {
      * @param cacheConfiguration
      */
     final Ehcache createCache(CacheConfiguration cacheConfiguration) {
-        boolean terracottaClustered = false;
-        String terracottaValueMode = null;
-        boolean terracottaCoherentReads = TerracottaConfiguration.DEFAULT_COHERENT_READS;
-        boolean terracottaOrphanEviction = TerracottaConfiguration.DEFAULT_ORPHAN_EVICTION;
-        int terracottaOrphanEvictionPeriod = TerracottaConfiguration.DEFAULT_ORPHAN_EVICTION_PERIOD;
-        boolean terracottaLocalKeyCache = TerracottaConfiguration.DEFAULT_LOCAL_KEY_CACHE;
-        int terracottaLocalKeyCacheSize = TerracottaConfiguration.DEFAULT_LOCAL_KEY_CACHE_SIZE;
-        boolean terracottaCopyOnRead = TerracottaConfiguration.DEFAULT_COPY_ON_READ;
-        TerracottaConfiguration tcConfiguration = cacheConfiguration.getTerracottaConfiguration();
-        if (tcConfiguration != null) {
-            terracottaClustered = tcConfiguration.isClustered();
-            terracottaValueMode = tcConfiguration.getValueMode().name();
-            terracottaCoherentReads = tcConfiguration.getCoherentReads();
-            terracottaOrphanEviction = tcConfiguration.getOrphanEviction();
-            terracottaOrphanEvictionPeriod = tcConfiguration.getOrphanEvictionPeriod();
-            terracottaLocalKeyCache = tcConfiguration.getLocalKeyCache();
-            terracottaLocalKeyCacheSize = tcConfiguration.getLocalKeyCacheSize();
-            terracottaCopyOnRead = tcConfiguration.isCopyOnRead();
-        }
-
-        Ehcache cache = new Cache(cacheConfiguration.name,
-                cacheConfiguration.maxElementsInMemory,
-                cacheConfiguration.memoryStoreEvictionPolicy,
-                cacheConfiguration.overflowToDisk,
-                getDiskStorePath(),
-                cacheConfiguration.eternal,
-                cacheConfiguration.timeToLiveSeconds,
-                cacheConfiguration.timeToIdleSeconds,
-                cacheConfiguration.diskPersistent,
-                cacheConfiguration.diskExpiryThreadIntervalSeconds,
-                null,
-                null,
-                cacheConfiguration.maxElementsOnDisk,
-                cacheConfiguration.diskSpoolBufferSizeMB,
-                cacheConfiguration.clearOnFlush,
-                terracottaClustered,
-                terracottaValueMode,
-                terracottaCoherentReads,
-                cacheConfiguration.getTransactionalMode().name(),
-                configuration.getTransactionManagerLookupConfiguration().getFullyQualifiedClassPath(),
-                terracottaOrphanEviction,
-                terracottaOrphanEvictionPeriod,
-                terracottaLocalKeyCache,
-                terracottaLocalKeyCacheSize,
-                terracottaCopyOnRead);
-        RegisteredEventListeners listeners = cache.getCacheEventNotificationService();
-        registerCacheListeners(cacheConfiguration, listeners);
-        registerCacheExtensions(cacheConfiguration, cache);
-        BootstrapCacheLoader bootstrapCacheLoader = createBootstrapCacheLoader(
-                cacheConfiguration.getBootstrapCacheLoaderFactoryConfiguration());
-        cache.setBootstrapCacheLoader(bootstrapCacheLoader);
-        registerCacheLoaders(cacheConfiguration, cache);
+        Ehcache cache = new Cache(cacheConfiguration.clone(), null, null);
         cache = applyCacheExceptionHandler(cacheConfiguration, cache);
         return cache;
     }

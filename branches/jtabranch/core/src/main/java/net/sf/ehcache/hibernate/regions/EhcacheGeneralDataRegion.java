@@ -15,6 +15,8 @@
  */
 package net.sf.ehcache.hibernate.regions;
 
+import java.util.Properties;
+
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 
@@ -25,21 +27,23 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * An EhCache specific GeneralDataRegion.
+ * An Ehcache specific GeneralDataRegion.
  * <p>
  * GeneralDataRegion instances are used for both the timestamps and query caches.
  * 
  * @author Chris Dennis
+ * @author Greg Luck
+ * @author Emmanuel Bernard
  */
-abstract class EhCacheGeneralDataRegion extends EhCacheDataRegion implements GeneralDataRegion {
+abstract class EhcacheGeneralDataRegion extends EhcacheDataRegion implements GeneralDataRegion {
 
-    private static final Logger LOG = LoggerFactory.getLogger(EhCacheGeneralDataRegion.class);
+    private static final Logger LOG = LoggerFactory.getLogger(EhcacheGeneralDataRegion.class);
 
     /**
-     * Creates an EhCacheGeneralDataRegion using the given EhCache instance as a backing.
+     * Creates an EhcacheGeneralDataRegion using the given Ehcache instance as a backing.
      */
-    public EhCacheGeneralDataRegion(Ehcache cache) {
-        super(cache);
+    public EhcacheGeneralDataRegion(Ehcache cache, Properties properties) {
+        super(cache, properties);
     }
 
     /**

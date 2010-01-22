@@ -40,6 +40,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 import net.sf.ehcache.Cache;
 
+import net.sf.ehcache.writer.CacheWriterManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -190,7 +191,7 @@ public class DiskStore implements Store, CacheConfigurationListener {
      */
     public static Store create(Cache cache, String diskStorePath) {
         DiskStore store = new DiskStore(cache, diskStorePath);
-        cache.getCacheConfiguration().addListener(store);
+        cache.getCacheConfiguration().addConfigurationListener(store);
         return store;
     }
 
@@ -447,6 +448,13 @@ public class DiskStore implements Store, CacheConfigurationListener {
     }
 
     /**
+     * {@inheritDoc}
+     */
+    public void putWithWriter(Element element, CacheWriterManager writerManager) throws CacheException {
+        throw new UnsupportedOperationException("Disk store isn't meant to interact with cache writers.");
+    }
+
+    /**
      * In some circumstances data can be written so quickly to the spool that the VM runs out of memory
      * while waiting for the spooling to disk.
      * <p/>
@@ -488,6 +496,13 @@ public class DiskStore implements Store, CacheConfigurationListener {
             throw new CacheException(message);
         }
         return element;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public Element removeWithWriter(Object key, CacheWriterManager writerManager) {
+        throw new UnsupportedOperationException("Disk store isn't meant to interact with cache writers.");
     }
 
     /**
@@ -700,7 +715,6 @@ public class DiskStore implements Store, CacheConfigurationListener {
         }
     }
 
-
     /**
      * Flushes all spooled elements to disk.
      */
@@ -708,9 +722,7 @@ public class DiskStore implements Store, CacheConfigurationListener {
         if (spool.size() == 0) {
             return;
         }
-
         Map copyOfSpool = swapSpoolReference();
-
         //does not guarantee insertion order
         Iterator valuesIterator = copyOfSpool.values().iterator();
         while (valuesIterator.hasNext()) {
@@ -729,7 +741,6 @@ public class DiskStore implements Store, CacheConfigurationListener {
         return copyOfSpool;
     }
 
-
     private void writeOrReplaceEntry(Object object) throws IOException {
         Element element = (Element) object;
         if (element == null) {
@@ -744,7 +755,6 @@ public class DiskStore implements Store, CacheConfigurationListener {
         writeElement(element, key);
     }
 
-
     private void writeElement(Element element, Serializable key) throws IOException {
         try {
             MemoryEfficientByteArrayOutputStream buffer = serializeElement(element);
@@ -755,14 +765,12 @@ public class DiskStore implements Store, CacheConfigurationListener {
             int bufferLength = buffer.size();
             try {
                 DiskElement diskElement = checkForFreeBlock(bufferLength);
-
                 // Write the record
                 synchronized (randomAccessFile) {
                     randomAccessFile.seek(diskElement.position);
                     randomAccessFile.write(buffer.toByteArray(), 0, bufferLength);
                 }
                 buffer = null;
-
                 // Add to index, update stats
                 diskElement.payloadSize = bufferLength;
                 diskElement.key = key;
@@ -775,13 +783,11 @@ public class DiskStore implements Store, CacheConfigurationListener {
                 LOG.error("OutOfMemoryError on serialize: " + key);
 
             }
-
         } catch (Exception e) {
             // Catch any exception that occurs during serialization
             LOG.error(name + "Cache: Failed to write element to disk '" + key
                     + "'. Initial cause was " + e.getMessage(), e);
         }
-
     }
 
     private MemoryEfficientByteArrayOutputStream serializeElement(Element element)
@@ -895,7 +901,6 @@ public class DiskStore implements Store, CacheConfigurationListener {
                 } else {
                     diskElements = new ConcurrentHashMap(diskElementsMap);
                 }
-
                 freeSpace = (List) objectInputStream.readObject();
                 success = true;
             } catch (StreamCorruptedException e) {
@@ -916,7 +921,6 @@ public class DiskStore implements Store, CacheConfigurationListener {
                 } catch (IOException e) {
                     LOG.error("Problem closing the index file.");
                 }
-
                 if (!success) {
                     createNewIndexFile();
                 }
@@ -924,7 +928,6 @@ public class DiskStore implements Store, CacheConfigurationListener {
         } else {
             createNewIndexFile();
         }
-
         //Return the success flag
         return success;
 
@@ -1095,7 +1098,6 @@ public class DiskStore implements Store, CacheConfigurationListener {
         // no-op
     }
 
-
     /**
      * A reference to an on-disk elements.
      * <p/>
@@ -1158,14 +1160,12 @@ public class DiskStore implements Store, CacheConfigurationListener {
      * A background daemon thread that writes objects to the file.
      */
     private final class SpoolAndExpiryThread extends Thread {
-
         public SpoolAndExpiryThread() {
             super("Store " + name + " Spool Thread");
             setDaemon(true);
             setPriority(Thread.NORM_PRIORITY);
             spoolAndExpiryThreadActive = true;
         }
-
         /**
          * RemoteDebugger thread method.
          */
@@ -1284,7 +1284,6 @@ public class DiskStore implements Store, CacheConfigurationListener {
         return leastHit(elements, null);
     }
 
-
     /**
      * Finds the least hit of the sampled elements provided
      *
@@ -1347,7 +1346,6 @@ public class DiskStore implements Store, CacheConfigurationListener {
 
     }
 
-
     /**
      * @return the current eviction policy. This may not be the configured policy, if it has been
      *         dynamically set.
@@ -1380,5 +1378,19 @@ public class DiskStore implements Store, CacheConfigurationListener {
      */
     public boolean isCacheCoherent() {
         return false;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void setCoherent(boolean coherent) {
+        throw new UnsupportedOperationException();
+    }
+
+    /**
+     * {@inheritDoc}
+     */    
+    public void waitUntilCoherent() {
+        throw new UnsupportedOperationException();
     }
 }

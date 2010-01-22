@@ -16,11 +16,12 @@
 
 package net.sf.ehcache.store;
 
-import java.io.IOException;
-
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.Status;
+import net.sf.ehcache.writer.CacheWriterManager;
+
+import java.io.IOException;
 
 /**
  * This is the interface for all stores. A store is a physical counterpart to a cache, which
@@ -35,6 +36,11 @@ public interface Store {
      * Puts an item into the store.
      */
     void put(Element element) throws CacheException;
+
+    /**
+     * Puts an item into the store and the cache writer manager in an atomic operation
+     */
+    void putWithWriter(Element element, CacheWriterManager writerManager) throws CacheException;
 
     /**
      * Gets an item from the cache.
@@ -61,6 +67,11 @@ public interface Store {
      * @since signature changed in 1.2 from boolean to Element to support notifications
      */
     Element remove(Object key);
+
+    /**
+     * Removes an item from the store and the cache writer manager in an atomic operation.
+     */
+    Element removeWithWriter(Object key, CacheWriterManager writerManager) throws CacheException;
 
     /**
      * Remove all of the elements from the store.
@@ -162,4 +173,26 @@ public interface Store {
      * @since 1.7
      */
     boolean isCacheCoherent();
+    
+    /**
+     * Sets the cache in coherent or incoherent mode depending on the parameter.
+     * Calling {@code setCoherent(true)} when the cache is already in coherent mode or
+     * calling {@code setCoherent(false)} when already in incoherent mode will be a no-op.
+     * <p />
+     * It applies to coherent clustering mechanisms only e.g. Terracotta
+     * 
+     * @param coherent
+     *            true transitions to coherent mode, false to incoherent mode
+     * @throws UnsupportedOperationException if this store does not support cache coherence, like RMI replication
+     */
+    public void setCoherent(boolean coherent) throws UnsupportedOperationException;
+
+    /**
+     * This method waits until the cache is in coherent mode in all the connected nodes. If the cache is already in coherent mode it returns
+     * immediately
+     * <p />
+     * It applies to coherent clustering mechanisms only e.g. Terracotta
+     * @throws UnsupportedOperationException if this store does not support cache coherence, like RMI replication
+     */
+    public void waitUntilCoherent() throws UnsupportedOperationException;
 }

@@ -24,16 +24,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * EhCache specific non-strict read/write cache concurrency strategy.
+ * Ehcache specific non-strict read/write cache concurrency strategy.
  * <p>
- * This is the EhCache specific equivalent to Hibernate's NonstrictReadWriteCache.
+ * This is the Ehcache specific equivalent to Hibernate's NonstrictReadWriteCache.
  *
  * @author Chris Dennis
  */
 @Deprecated
-public class EhCacheNonstrictReadWriteCache extends AbstractEhCacheConcurrencyStrategy {
+public class EhcacheNonstrictReadWriteCache extends AbstractEhcacheConcurrencyStrategy {
 
-    private static final Logger LOG = LoggerFactory.getLogger(EhCacheNonstrictReadWriteCache.class);
+    private static final Logger LOG = LoggerFactory.getLogger(EhcacheNonstrictReadWriteCache.class);
 
     /**
      * {@inheritDoc}

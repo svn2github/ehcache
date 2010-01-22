@@ -15,20 +15,24 @@
  */
 package net.sf.ehcache.hibernate.regions;
 
+import java.util.Properties;
+
 import net.sf.ehcache.Ehcache;
-import org.hibernate.cache.TimestampsRegion;
+
+import org.hibernate.cache.QueryResultsRegion;
 
 /**
- * A timestamps region specific wrapper around an EhCache instance.
+ * A query results region specific wrapper around an Ehcache instance.
  *
  * @author Chris Dennis
  */
-public class EhCacheTimestampsRegion extends EhCacheGeneralDataRegion implements TimestampsRegion {
+public class EhcacheQueryResultsRegion extends EhcacheGeneralDataRegion implements QueryResultsRegion {
 
     /**
-     * Constructs an EhCacheTimestampsRegion around the given underlying cache.
+     * Constructs an EhcacheQueryResultsRegion around the given underlying cache.
      */
-    public EhCacheTimestampsRegion(Ehcache underlyingCache) {
-        super(underlyingCache);
+    public EhcacheQueryResultsRegion(Ehcache underlyingCache, Properties properties) {
+        super(underlyingCache, properties);
     }
+
 }

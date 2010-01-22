@@ -30,6 +30,9 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import net.sf.ehcache.terracotta.ClusteredInstanceFactory;
+import net.sf.ehcache.writer.writebehind.WriteBehind;
+
 import javax.transaction.TransactionManager;
 
 import net.sf.ehcache.config.CacheConfiguration;
@@ -58,7 +61,6 @@ import net.sf.ehcache.transaction.xa.EhcacheXAStoreImpl;
 import net.sf.ehcache.util.FailSafeTimer;
 import net.sf.ehcache.util.PropertyUtil;
 import net.sf.ehcache.util.UpdateChecker;
-import net.sf.ehcache.writebehind.WriteBehind;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -385,19 +387,18 @@ public class CacheManager {
      *            The cache for which the Store should be created
      * @return a new (or existing) clustered store
      */
-    Store createTerracottaStore(Ehcache cache) {
-        return getClusteredInstanceFactory(cache).createStore(cache);
+    public Store createTerracottaStore(Ehcache cache) {
+      return getClusteredInstanceFactory(cache).createStore(cache);
     }
 
-    /**
-     * Create/access the appropriate write behind queue for the given cache
-     * 
-     * @param cache
-     *            The cache for which the write behind queue should be created
-     * @return a new (or existing) write behind queue
-     */
-    WriteBehind createWriteBehind(Ehcache cache) {
-        return getClusteredInstanceFactory(cache).createAsync(cache);
+  /**
+   * Create/access the appropriate clustered write behind queue for the given cache
+   *
+   * @param cache The cache for which the write behind queue should be created
+   * @return a new (or existing) write behind queue
+   */
+    public WriteBehind createTerracottaWriteBehind(Ehcache cache) {
+      return getClusteredInstanceFactory(cache).createWriteBehind(cache);
     }
     
     EhcacheXAResource createEhcacheXAResource(Ehcache cache, Store store, Store oldVersionStore,  TransactionManager txnManager) {
@@ -465,7 +466,7 @@ public class CacheManager {
      *             if the configuration cannot be parsed
      */
     private synchronized Configuration parseConfiguration(String configurationFileName, URL configurationURL,
-            InputStream configurationInputStream) throws CacheException {
+                                                          InputStream configurationInputStream) throws CacheException {
         reinitialisationCheck();
         Configuration parsedConfig;
         String configurationSource;
@@ -588,7 +589,8 @@ public class CacheManager {
     }
 
     private void reinitialisationCheck() throws IllegalStateException {
-        if (defaultCache != null || diskStorePath != null || ehcaches.size() != 0 || status.equals(Status.STATUS_SHUTDOWN)) {
+        if (defaultCache != null || diskStorePath != null || ehcaches.size() != 0
+                || status.equals(Status.STATUS_SHUTDOWN)) {
             throw new IllegalStateException("Attempt to reinitialise the CacheManager");
         }
     }

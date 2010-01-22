@@ -35,12 +35,16 @@ import java.net.URI;
 import java.net.URL;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
 import java.util.jar.JarEntry;
 import java.util.jar.JarOutputStream;
 
+import net.sf.ehcache.writer.WriteThroughTestCacheWriter;
+import net.sf.ehcache.writer.WriteThroughTestCacheWriterFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import java.util.regex.Matcher;
 
 import net.sf.ehcache.AbstractCacheTest;
@@ -1064,134 +1068,155 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
      */
     @Test
     public void testTerracottaConfiguration() {
-      File file = new File(TEST_CONFIG_DIR + "terracotta/ehcache-terracotta.xml");
-      Configuration configuration = ConfigurationFactory.parseConfiguration(file);
-      ConfigurationHelper configurationHelper = new ConfigurationHelper(manager, configuration);
+        File file = new File(TEST_CONFIG_DIR + "terracotta/ehcache-terracotta.xml");
+        Configuration configuration = ConfigurationFactory.parseConfiguration(file);
+        ConfigurationHelper configurationHelper = new ConfigurationHelper(manager, configuration);
 
-      assertEquals("tc", configurationHelper.getConfigurationBean().getName());
-      assertEquals(false, configurationHelper.getConfigurationBean().getUpdateCheck());
-      assertEquals(Configuration.Monitoring.AUTODETECT, configurationHelper.getConfigurationBean().getMonitoring());
+        assertEquals("tc", configurationHelper.getConfigurationBean().getName());
+        assertEquals(false, configurationHelper.getConfigurationBean().getUpdateCheck());
+        assertEquals(Configuration.Monitoring.AUTODETECT, configurationHelper.getConfigurationBean().getMonitoring());
 
-      //Check default cache
-      Ehcache defaultCache = configurationHelper.createDefaultCache();
-      assertEquals("default", defaultCache.getName());
-      assertEquals(false, defaultCache.getCacheConfiguration().isEternal());
-      assertEquals(5, defaultCache.getCacheConfiguration().getTimeToIdleSeconds());
-      assertEquals(10, defaultCache.getCacheConfiguration().getTimeToLiveSeconds());
-      assertEquals(false, defaultCache.getCacheConfiguration().isOverflowToDisk());
-      assertEquals(10, defaultCache.getCacheConfiguration().getMaxElementsInMemory());
-      assertEquals(0, defaultCache.getCacheConfiguration().getMaxElementsOnDisk());
-      assertEquals(true, defaultCache.getCacheConfiguration().isTerracottaClustered());
-      assertEquals(true, defaultCache.getCacheConfiguration().getTerracottaConfiguration().getCoherentReads());
+        //Check default cache
+        Ehcache defaultCache = configurationHelper.createDefaultCache();
+        assertEquals("default", defaultCache.getName());
+        assertEquals(false, defaultCache.getCacheConfiguration().isEternal());
+        assertEquals(5, defaultCache.getCacheConfiguration().getTimeToIdleSeconds());
+        assertEquals(10, defaultCache.getCacheConfiguration().getTimeToLiveSeconds());
+        assertEquals(false, defaultCache.getCacheConfiguration().isOverflowToDisk());
+        assertEquals(10, defaultCache.getCacheConfiguration().getMaxElementsInMemory());
+        assertEquals(0, defaultCache.getCacheConfiguration().getMaxElementsOnDisk());
+        assertEquals(true, defaultCache.getCacheConfiguration().isTerracottaClustered());
+        assertEquals(true, defaultCache.getCacheConfiguration().getTerracottaConfiguration().getCoherentReads());
 
-      //Check caches
-      assertEquals(10, configurationHelper.createCaches().size());
+        //Check caches
+        assertEquals(13, configurationHelper.createCaches().size());
 
-      //  <cache name="clustered-1"
-      //   maxElementsInMemory="1000"
-      //   memoryStoreEvictionPolicy="LFU">
-      //   <terracotta/>
-      //  </cache>
-      Ehcache sampleCache1 = configurationHelper.createCacheFromName("clustered-1");
-      assertEquals("clustered-1", sampleCache1.getName());
-      assertEquals(true, sampleCache1.getCacheConfiguration().isTerracottaClustered());
-      assertEquals(TerracottaConfiguration.ValueMode.SERIALIZATION,
-                  sampleCache1.getCacheConfiguration().getTerracottaConfiguration().getValueMode());
+        //  <cache name="clustered-1"
+        //   maxElementsInMemory="1000"
+        //   memoryStoreEvictionPolicy="LFU">
+        //   <terracotta/>
+        //  </cache>
+        Ehcache sampleCache1 = configurationHelper.createCacheFromName("clustered-1");
+        assertEquals("clustered-1", sampleCache1.getName());
+        assertEquals(true, sampleCache1.getCacheConfiguration().isTerracottaClustered());
+        assertEquals(TerracottaConfiguration.ValueMode.SERIALIZATION,
+                sampleCache1.getCacheConfiguration().getTerracottaConfiguration().getValueMode());
 
-      //  <cache name="clustered-2"
-      //      maxElementsInMemory="1000"
-      //            memoryStoreEvictionPolicy="LFU">
-      //          <terracotta clustered="false"/>
-      //   </cache>
-      Ehcache sampleCache2 = configurationHelper.createCacheFromName("clustered-2");
-      assertEquals("clustered-2", sampleCache2.getName());
-      assertEquals(false, sampleCache2.getCacheConfiguration().isTerracottaClustered());
-      assertEquals(TerracottaConfiguration.ValueMode.SERIALIZATION,
-              sampleCache2.getCacheConfiguration().getTerracottaConfiguration().getValueMode());
+        //  <cache name="clustered-2"
+        //      maxElementsInMemory="1000"
+        //            memoryStoreEvictionPolicy="LFU">
+        //          <terracotta clustered="false"/>
+        //   </cache>
+        Ehcache sampleCache2 = configurationHelper.createCacheFromName("clustered-2");
+        assertEquals("clustered-2", sampleCache2.getName());
+        assertEquals(false, sampleCache2.getCacheConfiguration().isTerracottaClustered());
+        assertEquals(TerracottaConfiguration.ValueMode.SERIALIZATION,
+                sampleCache2.getCacheConfiguration().getTerracottaConfiguration().getValueMode());
 
-      //  <cache name="clustered-3"
-      //   maxElementsInMemory="1000"
-      //   memoryStoreEvictionPolicy="LFU">
-      //   <terracotta valueMode="serialization"/>
-      //  </cache>
-      Ehcache sampleCache3 = configurationHelper.createCacheFromName("clustered-3");
-      assertEquals("clustered-3", sampleCache3.getName());
-      assertEquals(true, sampleCache3.getCacheConfiguration().isTerracottaClustered());
-      assertEquals(TerracottaConfiguration.ValueMode.SERIALIZATION,
-              sampleCache3.getCacheConfiguration().getTerracottaConfiguration().getValueMode());
+        //  <cache name="clustered-3"
+        //   maxElementsInMemory="1000"
+        //   memoryStoreEvictionPolicy="LFU">
+        //   <terracotta valueMode="serialization"/>
+        //  </cache>
+        Ehcache sampleCache3 = configurationHelper.createCacheFromName("clustered-3");
+        assertEquals("clustered-3", sampleCache3.getName());
+        assertEquals(true, sampleCache3.getCacheConfiguration().isTerracottaClustered());
+        assertEquals(TerracottaConfiguration.ValueMode.SERIALIZATION,
+                sampleCache3.getCacheConfiguration().getTerracottaConfiguration().getValueMode());
 
-      //  <cache name="clustered-4"
-      //   maxElementsInMemory="1000"
-      //   memoryStoreEvictionPolicy="LFU">
-      //   <terracotta valueMode="identity"/>
-      //  </cache>
-      Ehcache sampleCache4 = configurationHelper.createCacheFromName("clustered-4");
-      assertEquals("clustered-4", sampleCache4.getName());
-      assertEquals(true, sampleCache4.getCacheConfiguration().isTerracottaClustered());
-      assertEquals(TerracottaConfiguration.ValueMode.IDENTITY,
-              sampleCache4.getCacheConfiguration().getTerracottaConfiguration().getValueMode());
+        //  <cache name="clustered-4"
+        //   maxElementsInMemory="1000"
+        //   memoryStoreEvictionPolicy="LFU">
+        //   <terracotta valueMode="identity"/>
+        //  </cache>
+        Ehcache sampleCache4 = configurationHelper.createCacheFromName("clustered-4");
+        assertEquals("clustered-4", sampleCache4.getName());
+        assertEquals(true, sampleCache4.getCacheConfiguration().isTerracottaClustered());
+        assertEquals(TerracottaConfiguration.ValueMode.IDENTITY,
+                sampleCache4.getCacheConfiguration().getTerracottaConfiguration().getValueMode());
 
-      //  <cache name="clustered-5"
-      //   maxElementsInMemory="1000"
-      //   memoryStoreEvictionPolicy="LFU">
-      //   <terracotta coherentReads="false"/>
-      //  </cache>
-      Ehcache sampleCache5 = configurationHelper.createCacheFromName("clustered-5");
-      assertEquals("clustered-5", sampleCache5.getName());
-      assertEquals(true, sampleCache5.getCacheConfiguration().isTerracottaClustered());
-      assertEquals(false,
-              sampleCache5.getCacheConfiguration().getTerracottaConfiguration().getCoherentReads());
+        //  <cache name="clustered-5"
+        //   maxElementsInMemory="1000"
+        //   memoryStoreEvictionPolicy="LFU">
+        //   <terracotta coherentReads="false"/>
+        //  </cache>
+        Ehcache sampleCache5 = configurationHelper.createCacheFromName("clustered-5");
+        assertEquals("clustered-5", sampleCache5.getName());
+        assertEquals(true, sampleCache5.getCacheConfiguration().isTerracottaClustered());
+        assertEquals(false,
+                sampleCache5.getCacheConfiguration().getTerracottaConfiguration().getCoherentReads());
 
-      //  <cache name="clustered-6"
-      //   maxElementsInMemory="1000"
-      //   memoryStoreEvictionPolicy="LFU">
-      //   <terracotta orphanEviction="false"/>
-      //  </cache>
-      Ehcache sampleCache6 = configurationHelper.createCacheFromName("clustered-6");
-      assertEquals("clustered-6", sampleCache6.getName());
-      assertEquals(true, sampleCache6.getCacheConfiguration().isTerracottaClustered());
-      assertEquals(false,
-              sampleCache6.getCacheConfiguration().getTerracottaConfiguration().getOrphanEviction());
+        //  <cache name="clustered-6"
+        //   maxElementsInMemory="1000"
+        //   memoryStoreEvictionPolicy="LFU">
+        //   <terracotta orphanEviction="false"/>
+        //  </cache>
+        Ehcache sampleCache6 = configurationHelper.createCacheFromName("clustered-6");
+        assertEquals("clustered-6", sampleCache6.getName());
+        assertEquals(true, sampleCache6.getCacheConfiguration().isTerracottaClustered());
+        assertEquals(false,
+                sampleCache6.getCacheConfiguration().getTerracottaConfiguration().getOrphanEviction());
 
-      //  <cache name="clustered-7"
-      //   maxElementsInMemory="1000"
-      //   memoryStoreEvictionPolicy="LFU">
-      //   <terracotta orphanEvictionPeriod="42"/>
-      //  </cache>
-      Ehcache sampleCache7 = configurationHelper.createCacheFromName("clustered-7");
-      assertEquals("clustered-7", sampleCache7.getName());
-      assertEquals(true, sampleCache7.getCacheConfiguration().isTerracottaClustered());
-      assertEquals(42,
-              sampleCache7.getCacheConfiguration().getTerracottaConfiguration().getOrphanEvictionPeriod());
+        //  <cache name="clustered-7"
+        //   maxElementsInMemory="1000"
+        //   memoryStoreEvictionPolicy="LFU">
+        //   <terracotta orphanEvictionPeriod="42"/>
+        //  </cache>
+        Ehcache sampleCache7 = configurationHelper.createCacheFromName("clustered-7");
+        assertEquals("clustered-7", sampleCache7.getName());
+        assertEquals(true, sampleCache7.getCacheConfiguration().isTerracottaClustered());
+        assertEquals(42,
+                sampleCache7.getCacheConfiguration().getTerracottaConfiguration().getOrphanEvictionPeriod());
 
-      //  <cache name="clustered-8"
-      //   maxElementsInMemory="1000"
-      //   memoryStoreEvictionPolicy="LFU">
-      //   <terracotta localKeyCache="true"/>
-      //  </cache>
-      Ehcache sampleCache8 = configurationHelper.createCacheFromName("clustered-8");
-      assertEquals("clustered-8", sampleCache8.getName());
-      assertEquals(true, sampleCache8.getCacheConfiguration().isTerracottaClustered());
+        //  <cache name="clustered-8"
+        //   maxElementsInMemory="1000"
+        //   memoryStoreEvictionPolicy="LFU">
+        //   <terracotta localKeyCache="true"/>
+        //  </cache>
+        Ehcache sampleCache8 = configurationHelper.createCacheFromName("clustered-8");
+        assertEquals("clustered-8", sampleCache8.getName());
+        assertEquals(true, sampleCache8.getCacheConfiguration().isTerracottaClustered());
+        assertEquals(true,
+                sampleCache8.getCacheConfiguration().getTerracottaConfiguration().getLocalKeyCache());
+
+        //  <cache name="clustered-9"
+        //   maxElementsInMemory="1000"
+        //   memoryStoreEvictionPolicy="LFU">
+        //   <terracotta localKeyCache="true"/>
+        //  </cache>
+        Ehcache sampleCache9 = configurationHelper.createCacheFromName("clustered-9");
+        assertEquals("clustered-9", sampleCache9.getName());
+        assertEquals(true, sampleCache9.getCacheConfiguration().isTerracottaClustered());
+        assertEquals(42,
+                sampleCache9.getCacheConfiguration().getTerracottaConfiguration().getLocalKeyCacheSize());
+      
+      // assert default value is true always
+      assertEquals(true, TerracottaConfiguration.DEFAULT_CACHE_COHERENT);
+      
+      Ehcache sampleCache10 = configurationHelper.createCacheFromName("clustered-10");
+      assertEquals("clustered-10", sampleCache10.getName());
+      assertEquals(true, sampleCache10.getCacheConfiguration().isTerracottaClustered());
       assertEquals(true,
-              sampleCache8.getCacheConfiguration().getTerracottaConfiguration().getLocalKeyCache());
+              sampleCache10.getCacheConfiguration().getTerracottaConfiguration().isCoherent());
+      
+      Ehcache sampleCache11 = configurationHelper.createCacheFromName("clustered-11");
+      assertEquals("clustered-11", sampleCache11.getName());
+      assertEquals(true, sampleCache11.getCacheConfiguration().isTerracottaClustered());
+      assertEquals(false,
+              sampleCache11.getCacheConfiguration().getTerracottaConfiguration().isCoherent());
+      
+      Ehcache sampleCache12 = configurationHelper.createCacheFromName("clustered-12");
+      assertEquals("clustered-12", sampleCache12.getName());
+      assertEquals(true, sampleCache12.getCacheConfiguration().isTerracottaClustered());
+      assertEquals(true,
+              sampleCache12.getCacheConfiguration().getTerracottaConfiguration().isCoherent());
 
-      //  <cache name="clustered-9"
-      //   maxElementsInMemory="1000"
-      //   memoryStoreEvictionPolicy="LFU">
-      //   <terracotta localKeyCache="true"/>
-      //  </cache>
-      Ehcache sampleCache9 = configurationHelper.createCacheFromName("clustered-9");
-      assertEquals("clustered-9", sampleCache9.getName());
-      assertEquals(true, sampleCache9.getCacheConfiguration().isTerracottaClustered());
-      assertEquals(42,
-              sampleCache9.getCacheConfiguration().getTerracottaConfiguration().getLocalKeyCacheSize());
-
-      // <terracottaConfig>
-      //  <url>localhost:9510</url>
-      // </terracottaConfig>
-      TerracottaConfigConfiguration tcConfig = configuration.getTerracottaConfiguration();
-      assertNotNull(tcConfig);
-      assertEquals("localhost:9510", tcConfig.getUrl());
+        // <terracottaConfig>
+        //  <url>localhost:9510</url>
+        // </terracottaConfig>
+        TerracottaConfigConfiguration tcConfig = configuration.getTerracottaConfiguration();
+        assertNotNull(tcConfig);
+        assertEquals("localhost:9510", tcConfig.getUrl());
     }
 
 
@@ -1200,51 +1225,51 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
      */
     @Test
     public void testTerracottaEmbeddedConfig() {
-      File file = new File(TEST_CONFIG_DIR + "terracotta/ehcache-tc-embedded.xml");
-      Configuration configuration = ConfigurationFactory.parseConfiguration(file);
-      ConfigurationHelper configurationHelper = new ConfigurationHelper(manager, configuration);
+        File file = new File(TEST_CONFIG_DIR + "terracotta/ehcache-tc-embedded.xml");
+        Configuration configuration = ConfigurationFactory.parseConfiguration(file);
+        ConfigurationHelper configurationHelper = new ConfigurationHelper(manager, configuration);
 
-      assertEquals("tc", configurationHelper.getConfigurationBean().getName());
-      assertEquals(false, configurationHelper.getConfigurationBean().getUpdateCheck());
-      assertEquals(Configuration.Monitoring.AUTODETECT, configurationHelper.getConfigurationBean().getMonitoring());
+        assertEquals("tc", configurationHelper.getConfigurationBean().getName());
+        assertEquals(false, configurationHelper.getConfigurationBean().getUpdateCheck());
+        assertEquals(Configuration.Monitoring.AUTODETECT, configurationHelper.getConfigurationBean().getMonitoring());
 
-      //Check default cache
-      Ehcache defaultCache = configurationHelper.createDefaultCache();
-      assertEquals("default", defaultCache.getName());
-      assertEquals(false, defaultCache.getCacheConfiguration().isEternal());
-      assertEquals(5, defaultCache.getCacheConfiguration().getTimeToIdleSeconds());
-      assertEquals(10, defaultCache.getCacheConfiguration().getTimeToLiveSeconds());
-      assertEquals(false, defaultCache.getCacheConfiguration().isOverflowToDisk());
-      assertEquals(10, defaultCache.getCacheConfiguration().getMaxElementsInMemory());
-      assertEquals(0, defaultCache.getCacheConfiguration().getMaxElementsOnDisk());
-      assertEquals(true, defaultCache.getCacheConfiguration().isTerracottaClustered());
+        //Check default cache
+        Ehcache defaultCache = configurationHelper.createDefaultCache();
+        assertEquals("default", defaultCache.getName());
+        assertEquals(false, defaultCache.getCacheConfiguration().isEternal());
+        assertEquals(5, defaultCache.getCacheConfiguration().getTimeToIdleSeconds());
+        assertEquals(10, defaultCache.getCacheConfiguration().getTimeToLiveSeconds());
+        assertEquals(false, defaultCache.getCacheConfiguration().isOverflowToDisk());
+        assertEquals(10, defaultCache.getCacheConfiguration().getMaxElementsInMemory());
+        assertEquals(0, defaultCache.getCacheConfiguration().getMaxElementsOnDisk());
+        assertEquals(true, defaultCache.getCacheConfiguration().isTerracottaClustered());
 
-      //Check caches
-      assertEquals(1, configurationHelper.createCaches().size());
+        //Check caches
+        assertEquals(1, configurationHelper.createCaches().size());
 
-      //  <cache name="clustered-1"
-      //   maxElementsInMemory="1000"
-      //   memoryStoreEvictionPolicy="LFU">
-      //   <terracotta/>
-      //  </cache>
-      Ehcache sampleCache1 = configurationHelper.createCacheFromName("clustered-1");
-      assertEquals("clustered-1", sampleCache1.getName());
-      assertEquals(true, sampleCache1.getCacheConfiguration().isTerracottaClustered());
-      assertEquals(TerracottaConfiguration.ValueMode.SERIALIZATION,
-                  sampleCache1.getCacheConfiguration().getTerracottaConfiguration().getValueMode());
+        //  <cache name="clustered-1"
+        //   maxElementsInMemory="1000"
+        //   memoryStoreEvictionPolicy="LFU">
+        //   <terracotta/>
+        //  </cache>
+        Ehcache sampleCache1 = configurationHelper.createCacheFromName("clustered-1");
+        assertEquals("clustered-1", sampleCache1.getName());
+        assertEquals(true, sampleCache1.getCacheConfiguration().isTerracottaClustered());
+        assertEquals(TerracottaConfiguration.ValueMode.SERIALIZATION,
+                sampleCache1.getCacheConfiguration().getTerracottaConfiguration().getValueMode());
 
-      // <terracottaConfig>
-      //  <tc-config> ... </tc-config>
-      // </terracottaConfig>
-      TerracottaConfigConfiguration tcConfig = configuration.getTerracottaConfiguration();
-      assertNotNull(tcConfig);
-      assertEquals(null, tcConfig.getUrl());
-      String embeddedConfig = tcConfig.getEmbeddedConfig();
-      assertEquals("<tc:tc-config xmlns:tc=\"http://www.terracotta.org/config\"> " +
-              "<servers> <server host=\"server1\" name=\"s1\"></server> " +
-              "<server host=\"server2\" name=\"s2\"></server> </servers> " +
-              "<clients> <logs>app/logs-%i</logs> </clients> </tc:tc-config>",
-              removeLotsOfWhitespace(tcConfig.getEmbeddedConfig()));
+        // <terracottaConfig>
+        //  <tc-config> ... </tc-config>
+        // </terracottaConfig>
+        TerracottaConfigConfiguration tcConfig = configuration.getTerracottaConfiguration();
+        assertNotNull(tcConfig);
+        assertEquals(null, tcConfig.getUrl());
+        String embeddedConfig = tcConfig.getEmbeddedConfig();
+        assertEquals("<tc:tc-config xmlns:tc=\"http://www.terracotta.org/config\"> " +
+                "<servers> <server host=\"server1\" name=\"s1\"></server> " +
+                "<server host=\"server2\" name=\"s2\"></server> </servers> " +
+                "<clients> <logs>app/logs-%i</logs> </clients> </tc:tc-config>",
+                removeLotsOfWhitespace(tcConfig.getEmbeddedConfig()));
     }
 
     @Test
@@ -1283,13 +1308,13 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
      */
     @Test
     public void testTerracottaInvalidConfig1() {
-      File file = new File(TEST_CONFIG_DIR + "terracotta/ehcache-terracotta-invalid1.xml");
-      try {
-        Configuration configuration = ConfigurationFactory.parseConfiguration(file);
-        fail("expecting exception to be thrown");
-      } catch (CacheException e) {
-        assertTrue(e.getMessage().contains("overflowToDisk isn't supported for a clustered Terracotta cache"));
-      }
+        File file = new File(TEST_CONFIG_DIR + "terracotta/ehcache-terracotta-invalid1.xml");
+        try {
+            Configuration configuration = ConfigurationFactory.parseConfiguration(file);
+            fail("expecting exception to be thrown");
+        } catch (CacheException e) {
+            assertTrue(e.getMessage().contains("overflowToDisk isn't supported for a clustered Terracotta cache"));
+        }
     }
 
     /**
@@ -1297,13 +1322,13 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
      */
     @Test
     public void testTerracottaInvalidConfig2() {
-      File file = new File(TEST_CONFIG_DIR + "terracotta/ehcache-terracotta-invalid2.xml");
-      try {
-        Configuration configuration = ConfigurationFactory.parseConfiguration(file);
-        fail("expecting exception to be thrown");
-      } catch (CacheException e) {
-        assertTrue(e.getMessage().contains("diskPersistent isn't supported for a clustered Terracotta cache"));
-      }
+        File file = new File(TEST_CONFIG_DIR + "terracotta/ehcache-terracotta-invalid2.xml");
+        try {
+            Configuration configuration = ConfigurationFactory.parseConfiguration(file);
+            fail("expecting exception to be thrown");
+        } catch (CacheException e) {
+            assertTrue(e.getMessage().contains("diskPersistent isn't supported for a clustered Terracotta cache"));
+        }
     }
 
     /**
@@ -1311,13 +1336,13 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
      */
     @Test
     public void testTerracottaInvalidConfig3() {
-      File file = new File(TEST_CONFIG_DIR + "terracotta/ehcache-terracotta-invalid3.xml");
-      try {
-        Configuration configuration = ConfigurationFactory.parseConfiguration(file);
-        fail("expecting exception to be thrown");
-      } catch (CacheException e) {
-        assertTrue(e.getMessage().contains("cache replication isn't supported for a clustered Terracotta cache"));
-      }
+        File file = new File(TEST_CONFIG_DIR + "terracotta/ehcache-terracotta-invalid3.xml");
+        try {
+            Configuration configuration = ConfigurationFactory.parseConfiguration(file);
+            fail("expecting exception to be thrown");
+        } catch (CacheException e) {
+            assertTrue(e.getMessage().contains("cache replication isn't supported for a clustered Terracotta cache"));
+        }
     }
 
     /**
@@ -1325,13 +1350,13 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
      */
     @Test
     public void testTerracottaInvalidConfig4() {
-      File file = new File(TEST_CONFIG_DIR + "terracotta/ehcache-terracotta-invalid4.xml");
-      try {
-        Configuration configuration = ConfigurationFactory.parseConfiguration(file);
-        fail("expecting exception to be thrown");
-      } catch (CacheException e) {
-        assertTrue(e.getMessage().contains("cache replication isn't supported for a clustered Terracotta cache"));
-      }
+        File file = new File(TEST_CONFIG_DIR + "terracotta/ehcache-terracotta-invalid4.xml");
+        try {
+            Configuration configuration = ConfigurationFactory.parseConfiguration(file);
+            fail("expecting exception to be thrown");
+        } catch (CacheException e) {
+            assertTrue(e.getMessage().contains("cache replication isn't supported for a clustered Terracotta cache"));
+        }
     }
 
     /**
@@ -1339,13 +1364,13 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
      */
     @Test
     public void testTerracottaInvalidConfig5() {
-      File file = new File(TEST_CONFIG_DIR + "terracotta/ehcache-terracotta-invalid5.xml");
-      try {
-        Configuration configuration = ConfigurationFactory.parseConfiguration(file);
-        fail("expecting exception to be thrown");
-      } catch (CacheException e) {
-        assertTrue(e.getMessage().contains("cache replication isn't supported for a clustered Terracotta cache"));
-      }
+        File file = new File(TEST_CONFIG_DIR + "terracotta/ehcache-terracotta-invalid5.xml");
+        try {
+            Configuration configuration = ConfigurationFactory.parseConfiguration(file);
+            fail("expecting exception to be thrown");
+        } catch (CacheException e) {
+            assertTrue(e.getMessage().contains("cache replication isn't supported for a clustered Terracotta cache"));
+        }
     }
 
     private String removeLotsOfWhitespace(String str) {
@@ -1354,28 +1379,137 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
 
     @Test
     public void testMonitoringOn() {
-      File file = new File(TEST_CONFIG_DIR + "ehcache-monitoring-on.xml");
-      Configuration configuration = ConfigurationFactory.parseConfiguration(file);
-      ConfigurationHelper configurationHelper = new ConfigurationHelper(manager, configuration);
+        File file = new File(TEST_CONFIG_DIR + "ehcache-monitoring-on.xml");
+        Configuration configuration = ConfigurationFactory.parseConfiguration(file);
+        ConfigurationHelper configurationHelper = new ConfigurationHelper(manager, configuration);
 
-      assertEquals(Configuration.Monitoring.ON, configurationHelper.getConfigurationBean().getMonitoring());
+        assertEquals(Configuration.Monitoring.ON, configurationHelper.getConfigurationBean().getMonitoring());
     }
 
     @Test
     public void testMonitoringOff() {
-      File file = new File(TEST_CONFIG_DIR + "ehcache-monitoring-off.xml");
-      Configuration configuration = ConfigurationFactory.parseConfiguration(file);
-      ConfigurationHelper configurationHelper = new ConfigurationHelper(manager, configuration);
+        File file = new File(TEST_CONFIG_DIR + "ehcache-monitoring-off.xml");
+        Configuration configuration = ConfigurationFactory.parseConfiguration(file);
+        ConfigurationHelper configurationHelper = new ConfigurationHelper(manager, configuration);
 
-      assertEquals(Configuration.Monitoring.OFF, configurationHelper.getConfigurationBean().getMonitoring());
+        assertEquals(Configuration.Monitoring.OFF, configurationHelper.getConfigurationBean().getMonitoring());
     }
 
     @Test
     public void testMonitoringAutodetect() {
-      File file = new File(TEST_CONFIG_DIR + "ehcache-monitoring-autodetect.xml");
-      Configuration configuration = ConfigurationFactory.parseConfiguration(file);
-      ConfigurationHelper configurationHelper = new ConfigurationHelper(manager, configuration);
+        File file = new File(TEST_CONFIG_DIR + "ehcache-monitoring-autodetect.xml");
+        Configuration configuration = ConfigurationFactory.parseConfiguration(file);
+        ConfigurationHelper configurationHelper = new ConfigurationHelper(manager, configuration);
 
-      assertEquals(Configuration.Monitoring.AUTODETECT, configurationHelper.getConfigurationBean().getMonitoring());
+        assertEquals(Configuration.Monitoring.AUTODETECT, configurationHelper.getConfigurationBean().getMonitoring());
+    }
+
+    /**
+     * Test cache writer config
+     */
+    @Test
+    public void testWriterConfig() {
+        File file = new File(TEST_CONFIG_DIR + "ehcache-writer.xml");
+        Configuration configuration = ConfigurationFactory.parseConfiguration(file);
+        ConfigurationHelper configurationHelper = new ConfigurationHelper(manager, configuration);
+
+        CacheWriterConfiguration defaultCacheWriterConfig = new CacheWriterConfiguration();
+
+        CacheConfiguration configDefault = configurationHelper.getConfigurationBean().getDefaultCacheConfiguration();
+        assertEquals(false, configDefault.isEternal());
+        assertEquals(5, configDefault.getTimeToIdleSeconds());
+        assertEquals(10, configDefault.getTimeToLiveSeconds());
+        assertEquals(false, configDefault.isOverflowToDisk());
+        assertEquals(10, configDefault.getMaxElementsInMemory());
+        assertNotNull(configDefault.getCacheWriterConfiguration());
+        assertEquals(defaultCacheWriterConfig.getWriteMode(), configDefault.getCacheWriterConfiguration().getWriteMode());
+        assertEquals(defaultCacheWriterConfig.getCacheWriterFactoryConfiguration(), configDefault.getCacheWriterConfiguration().getCacheWriterFactoryConfiguration());
+        assertEquals(defaultCacheWriterConfig.getNotifyListenersOnException(), configDefault.getCacheWriterConfiguration().getNotifyListenersOnException());
+        assertEquals(defaultCacheWriterConfig.getMaxWriteDelay(), configDefault.getCacheWriterConfiguration().getMaxWriteDelay());
+        assertEquals(defaultCacheWriterConfig.getRateLimitPerSecond(), configDefault.getCacheWriterConfiguration().getRateLimitPerSecond());
+        assertEquals(defaultCacheWriterConfig.getWriteCoalescing(), configDefault.getCacheWriterConfiguration().getWriteCoalescing());
+        assertEquals(defaultCacheWriterConfig.getWriteBatching(), configDefault.getCacheWriterConfiguration().getWriteBatching());
+        assertEquals(defaultCacheWriterConfig.getWriteBatchSize(), configDefault.getCacheWriterConfiguration().getWriteBatchSize());
+        assertEquals(defaultCacheWriterConfig.getRetryAttempts(), configDefault.getCacheWriterConfiguration().getRetryAttempts());
+        assertEquals(defaultCacheWriterConfig.getRetryAttemptDelaySeconds(), configDefault.getCacheWriterConfiguration().getRetryAttemptDelaySeconds());
+
+        Ehcache defaultCache = configurationHelper.createDefaultCache();
+        assertEquals("default", defaultCache.getName());
+        assertNotNull(defaultCache.getCacheConfiguration().getCacheWriterConfiguration());
+
+        Map<String, CacheConfiguration> configs = configurationHelper.getConfigurationBean().getCacheConfigurations();
+        CacheConfiguration config1 = configs.get("writeThroughCache1");
+        assertNotNull(config1.getCacheWriterConfiguration());
+        assertEquals(defaultCacheWriterConfig.getWriteMode(), config1.getCacheWriterConfiguration().getWriteMode());
+        assertEquals(defaultCacheWriterConfig.getCacheWriterFactoryConfiguration(), config1.getCacheWriterConfiguration().getCacheWriterFactoryConfiguration());
+        assertEquals(defaultCacheWriterConfig.getNotifyListenersOnException(), config1.getCacheWriterConfiguration().getNotifyListenersOnException());
+        assertEquals(defaultCacheWriterConfig.getMaxWriteDelay(), config1.getCacheWriterConfiguration().getMaxWriteDelay());
+        assertEquals(defaultCacheWriterConfig.getRateLimitPerSecond(), config1.getCacheWriterConfiguration().getRateLimitPerSecond());
+        assertEquals(defaultCacheWriterConfig.getWriteCoalescing(), config1.getCacheWriterConfiguration().getWriteCoalescing());
+        assertEquals(defaultCacheWriterConfig.getWriteBatching(), config1.getCacheWriterConfiguration().getWriteBatching());
+        assertEquals(defaultCacheWriterConfig.getWriteBatchSize(), config1.getCacheWriterConfiguration().getWriteBatchSize());
+        assertEquals(defaultCacheWriterConfig.getRetryAttempts(), config1.getCacheWriterConfiguration().getRetryAttempts());
+        assertEquals(defaultCacheWriterConfig.getRetryAttemptDelaySeconds(), config1.getCacheWriterConfiguration().getRetryAttemptDelaySeconds());
+
+        CacheConfiguration config2 = configs.get("writeThroughCache2");
+        assertNotNull(config2.getCacheWriterConfiguration());
+        assertEquals(defaultCacheWriterConfig.getWriteMode(), config2.getCacheWriterConfiguration().getWriteMode());
+        assertEquals(defaultCacheWriterConfig.getCacheWriterFactoryConfiguration(), config2.getCacheWriterConfiguration().getCacheWriterFactoryConfiguration());
+        assertEquals(defaultCacheWriterConfig.getNotifyListenersOnException(), config2.getCacheWriterConfiguration().getNotifyListenersOnException());
+        assertEquals(defaultCacheWriterConfig.getMaxWriteDelay(), config2.getCacheWriterConfiguration().getMaxWriteDelay());
+        assertEquals(defaultCacheWriterConfig.getRateLimitPerSecond(), config2.getCacheWriterConfiguration().getRateLimitPerSecond());
+        assertEquals(defaultCacheWriterConfig.getWriteCoalescing(), config2.getCacheWriterConfiguration().getWriteCoalescing());
+        assertEquals(defaultCacheWriterConfig.getWriteBatching(), config2.getCacheWriterConfiguration().getWriteBatching());
+        assertEquals(defaultCacheWriterConfig.getWriteBatchSize(), config2.getCacheWriterConfiguration().getWriteBatchSize());
+        assertEquals(defaultCacheWriterConfig.getRetryAttempts(), config2.getCacheWriterConfiguration().getRetryAttempts());
+        assertEquals(defaultCacheWriterConfig.getRetryAttemptDelaySeconds(), config2.getCacheWriterConfiguration().getRetryAttemptDelaySeconds());
+
+        CacheConfiguration config3 = configs.get("writeThroughCache3");
+        assertNotNull(config3.getCacheWriterConfiguration());
+        assertEquals(CacheWriterConfiguration.WriteMode.WRITE_THROUGH, config3.getCacheWriterConfiguration().getWriteMode());
+        assertEquals(defaultCacheWriterConfig.getCacheWriterFactoryConfiguration(), config3.getCacheWriterConfiguration().getCacheWriterFactoryConfiguration());
+        assertEquals(true, config3.getCacheWriterConfiguration().getNotifyListenersOnException());
+        assertEquals(30, config3.getCacheWriterConfiguration().getMaxWriteDelay());
+        assertEquals(10, config3.getCacheWriterConfiguration().getRateLimitPerSecond());
+        assertEquals(true, config3.getCacheWriterConfiguration().getWriteCoalescing());
+        assertEquals(true, config3.getCacheWriterConfiguration().getWriteBatching());
+        assertEquals(8, config3.getCacheWriterConfiguration().getWriteBatchSize());
+        assertEquals(20, config3.getCacheWriterConfiguration().getRetryAttempts());
+        assertEquals(60, config3.getCacheWriterConfiguration().getRetryAttemptDelaySeconds());
+
+        CacheConfiguration config4 = configs.get("writeThroughCache4");
+        assertNotNull(config4.getCacheWriterConfiguration());
+        assertEquals(CacheWriterConfiguration.WriteMode.WRITE_THROUGH, config4.getCacheWriterConfiguration().getWriteMode());
+        assertEquals("net.sf.ehcache.writer.WriteThroughTestCacheWriterFactory", config4.getCacheWriterConfiguration().getCacheWriterFactoryConfiguration().getFullyQualifiedClassPath());
+        assertEquals(null, config4.getCacheWriterConfiguration().getCacheWriterFactoryConfiguration().getProperties());
+        assertEquals(null, config4.getCacheWriterConfiguration().getCacheWriterFactoryConfiguration().getPropertySeparator());
+        assertEquals(false, config4.getCacheWriterConfiguration().getNotifyListenersOnException());
+        assertEquals(0, config4.getCacheWriterConfiguration().getMaxWriteDelay());
+        assertEquals(0, config4.getCacheWriterConfiguration().getRateLimitPerSecond());
+        assertEquals(false, config4.getCacheWriterConfiguration().getWriteCoalescing());
+        assertEquals(false, config4.getCacheWriterConfiguration().getWriteBatching());
+        assertEquals(1, config4.getCacheWriterConfiguration().getWriteBatchSize());
+        assertEquals(0, config4.getCacheWriterConfiguration().getRetryAttempts());
+        assertEquals(0, config4.getCacheWriterConfiguration().getRetryAttemptDelaySeconds());
+
+        CacheConfiguration config5 = configs.get("writeBehindCache5");
+        assertNotNull(config5.getCacheWriterConfiguration());
+        assertEquals(CacheWriterConfiguration.WriteMode.WRITE_BEHIND, config5.getCacheWriterConfiguration().getWriteMode());
+        assertEquals("net.sf.ehcache.writer.WriteThroughTestCacheWriterFactory", config5.getCacheWriterConfiguration().getCacheWriterFactoryConfiguration().getFullyQualifiedClassPath());
+        assertEquals("just.some.property=test; another.property=test2", config5.getCacheWriterConfiguration().getCacheWriterFactoryConfiguration().getProperties());
+        assertEquals(";", config5.getCacheWriterConfiguration().getCacheWriterFactoryConfiguration().getPropertySeparator());
+        assertEquals(true, config5.getCacheWriterConfiguration().getNotifyListenersOnException());
+        assertEquals(8, config5.getCacheWriterConfiguration().getMaxWriteDelay());
+        assertEquals(5, config5.getCacheWriterConfiguration().getRateLimitPerSecond());
+        assertEquals(true, config5.getCacheWriterConfiguration().getWriteCoalescing());
+        assertEquals(false, config5.getCacheWriterConfiguration().getWriteBatching());
+        assertEquals(20, config5.getCacheWriterConfiguration().getWriteBatchSize());
+        assertEquals(2, config5.getCacheWriterConfiguration().getRetryAttempts());
+        assertEquals(2, config5.getCacheWriterConfiguration().getRetryAttemptDelaySeconds());
+        Ehcache cache5 = configurationHelper.createCacheFromName("writeBehindCache5");
+        Properties properties5 = ((WriteThroughTestCacheWriter)cache5.getRegisteredCacheWriter()).getProperties();
+        assertEquals(2, properties5.size());
+        assertEquals("test", properties5.getProperty("just.some.property"));
+        assertEquals("test2", properties5.getProperty("another.property"));
     }
 }
