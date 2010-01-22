@@ -4,6 +4,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import javax.transaction.RollbackException;
+import javax.transaction.Status;
 import javax.transaction.SystemException;
 import javax.transaction.Transaction;
 import javax.transaction.TransactionManager;
@@ -11,6 +12,7 @@ import javax.transaction.xa.XAException;
 import javax.transaction.xa.XAResource;
 import javax.transaction.xa.Xid;
 
+import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.concurrent.CacheLockProvider;
 import net.sf.ehcache.concurrent.LockType;
@@ -246,6 +248,14 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
 
     public TransactionContext getOrCreateTransactionContext() throws SystemException, RollbackException {
         Transaction transaction = txnManager.getTransaction();
+        if(transaction == null) {
+            throw new CacheException("Cache " + cacheName + " can only be accessed within a JTA Transaction!");
+        }
+
+        if(transaction.getStatus() != Status.STATUS_ACTIVE) {
+            throw new CacheException("Transaction not active!");
+        }
+
         TransactionContext context =  ehcacheXAStore.getTransactionContext(transaction);
         if (context == null) {
             transaction.enlistResource(this);

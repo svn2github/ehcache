@@ -877,7 +877,17 @@ public class Cache implements Ehcache {
                 // We might want a factory here, and abstract the kinda of TransactionalStore we actually get
                 // (TC or not, and maybe later other non XA)
                 // We should also look into net.sf.ehcache.CacheManager.createTerracottaStore
-                EhcacheXAResource resource = cacheManager.createEhcacheXAResource(this, memoryStore, MemoryStore.create(this, diskStore), transactionManagerLookup.getTransactionManager());
+
+                if(!(configuration.isTerracottaClustered() && configuration.getTerracottaConfiguration().getValueMode() != TerracottaConfiguration.ValueMode.SERIALIZATION)) {
+                    throw new CacheException("To be transactional, the cache needs to be Terracotta clustered in Serialization value mode");
+                }
+
+                TransactionManager txnManager = transactionManagerLookup.getTransactionManager();
+                if(txnManager == null) {
+                    throw new CacheException("You've configured cache " + cacheManager.getName() + "."
+                                             + configuration.getName() + " to be transactional, but no TransactionManager could be found!");
+                }
+                EhcacheXAResource resource = cacheManager.createEhcacheXAResource(this, memoryStore, MemoryStore.create(this, diskStore), txnManager);
                 this.memoryStore = new XATransactionalStore(resource);
             } else {
                 this.memoryStore = memoryStore;
