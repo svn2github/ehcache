@@ -5,6 +5,7 @@
         <xs:complexType>
             <xs:sequence>
                 <xs:element maxOccurs="1" minOccurs="0" ref="diskStore"/>
+                <xs:element maxOccurs="1" minOccurs="0" ref="transactionManagerLookup"/>
                 <xs:element maxOccurs="1" minOccurs="0" ref="cacheManagerEventListenerFactory"/>
                 <xs:element maxOccurs="unbounded" minOccurs="0" ref="cacheManagerPeerProviderFactory"/>
                 <xs:element maxOccurs="unbounded" minOccurs="0" ref="cacheManagerPeerListenerFactory"/>

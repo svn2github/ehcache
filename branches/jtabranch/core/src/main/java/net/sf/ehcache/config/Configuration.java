@@ -149,7 +149,7 @@ public final class Configuration {
      * Allows BeanHandler to add transaction manager lookup to the configuration.
      */
     public final void addTransactionManagerLookup(FactoryConfiguration transactionManagerLookupParameter) throws ObjectExistsException {
-        if (diskStoreConfiguration != null) {
+        if (transactionManagerLookupConfiguration != null) {
             throw new ObjectExistsException("The TransactionManagerLookup class has already been configured");
         }
         transactionManagerLookupConfiguration = transactionManagerLookupParameter;
