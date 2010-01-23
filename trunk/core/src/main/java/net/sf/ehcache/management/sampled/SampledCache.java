@@ -89,16 +89,14 @@ public class SampledCache extends BaseEmitterBean implements SampledCacheMBean {
      * {@inheritDoc}
      */
     public boolean isCoherent() {
-        // return cache.isCoherent();
-        return coherent;
+        return cache.isCoherent();
     }
 
     /**
      * {@inheritDoc}
      */
     public void setCoherent(boolean coherent) {
-        // cache.setCoherent(coherent);
-        this.coherent = coherent;
+        cache.setCoherent(coherent);
         sendNotification(CACHE_CHANGED, getCacheAttributes(), getImmutableCacheName());
     }
 
