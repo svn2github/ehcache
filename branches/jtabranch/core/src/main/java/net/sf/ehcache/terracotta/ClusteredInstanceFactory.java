@@ -49,7 +49,7 @@ public interface ClusteredInstanceFactory {
    * 
    * @param cache
    * @param store
-   * @return
+   * @return return clustered instance of EhcacheXAStore
    */
   EhcacheXAStore createXAStore(Ehcache cache, Store store);
 }

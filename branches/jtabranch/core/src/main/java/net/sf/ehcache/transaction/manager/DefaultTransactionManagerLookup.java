@@ -26,7 +26,6 @@ import javax.naming.NamingException;
 import javax.transaction.TransactionManager;
 import javax.transaction.xa.XAResource;
 
-import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.transaction.xa.EhcacheXAResource;
 
 /**
@@ -45,20 +44,10 @@ public class DefaultTransactionManagerLookup implements TransactionManagerLookup
             new ClassSelector("Atomikos", "com.atomikos.icatch.jta.UserTransactionManager"), };
 
     /**
-     *
-     * @return
+     * Lookup available txnManagers
+     * @return TransactionManager
      */
     public TransactionManager getTransactionManager() {
-        return getTransactionManager(null);
-    }
-
-    /**
-     *
-     * @param configuration
-     * @return
-     */
-    public TransactionManager getTransactionManager(final CacheConfiguration configuration) {
-
         if (transactionManager == null) {
             lock.lock();
             try {
@@ -72,6 +61,9 @@ public class DefaultTransactionManagerLookup implements TransactionManagerLookup
         return transactionManager;
     }
 
+    /**
+     * execute txnManager specific code.
+     */
     public void register(EhcacheXAResource resource) {
         if(vendor.equals("Bitronix")) {
             registerResourceWithBitronix(resource.getCacheName(), resource);
@@ -92,14 +84,6 @@ public class DefaultTransactionManagerLookup implements TransactionManagerLookup
         } catch (Exception e) {
             e.printStackTrace();
         }
-    }
-
-    /**
-     * 
-     * @return
-     */
-    public String getVendor() {
-        return vendor;
     }
 
     private void lookupTransactionManager() {

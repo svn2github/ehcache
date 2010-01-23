@@ -1041,7 +1041,7 @@ public class CacheConfiguration implements Cloneable {
 
         /**
          *
-         * @return
+         * @return transactional
          */
         public boolean isTransactional() {
             return transactional;
