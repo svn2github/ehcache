@@ -46,4 +46,8 @@ public interface EhcacheXAStore {
     Store getUnderlyingStore();
     
     Store getOldVersionStore();
+
+    boolean isPrepared(Xid xid);
+
+    void removeData(Xid xid);
 }

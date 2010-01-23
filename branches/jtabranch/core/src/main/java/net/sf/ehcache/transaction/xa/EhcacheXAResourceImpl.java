@@ -87,24 +87,22 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
 
         Set<Object> keys = new HashSet<Object>();
         for (VersionAwareCommand command : context.getCommands()) {
-//            if(command.isWriteCommand()) {
-                keys.add(command.getKey());
-//            }
+            keys.add(command.getKey());
         }
 
         Sync[] syncForKeys = ((CacheLockProvider)oldVersionStore.getInternalContext()).getAndWriteLockAllSyncForKeys(keys.toArray());
         for (VersionAwareCommand command : context.getCommands()) {
             ehcacheXAStore.checkin(command.getKey(), xid, command.isWriteCommand());
-//            if(command.isWriteCommand()) {
-                Object key = command.getKey();
-                oldVersionStore.remove(key);
-                ((CacheLockProvider)store.getInternalContext()).getSyncForKey(key).unlock(LockType.WRITE);
-//            }
+            Object key = command.getKey();
+            oldVersionStore.remove(key);
+            ((CacheLockProvider)store.getInternalContext()).getSyncForKey(key).unlock(LockType.WRITE);
         }
 
         for (Sync syncForKey : syncForKeys) {
             syncForKey.unlock(LockType.WRITE);
         }
+
+        ehcacheXAStore.removeData(xid);
     }
 
     public void end(final Xid xid, final int flags) throws XAException {
@@ -130,24 +128,22 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
         Set<Object> keys = new HashSet<Object>();
         // Copy old versions in front-accessed store
         for (VersionAwareCommand command : context.getCommands()) {
-//            if(command.isWriteCommand()) {
-                Object key = command.getKey();
-                Sync syncForKey = oldVersionStoreLockProvider.getSyncForKey(key);
-                syncForKey.lock(LockType.WRITE);
-                try {
-                    if (!ehcacheXAStore.isValid(command)) {
-                        for (Object addedKey : keys) {
-                            oldVersionStore.remove(addedKey);
-                        }
-                        throw new EhcacheXAException("Invalid version for element: " + command.getKey(),
-                            XAException.XA_RBINTEGRITY);
+            Object key = command.getKey();
+            Sync syncForKey = oldVersionStoreLockProvider.getSyncForKey(key);
+            syncForKey.lock(LockType.WRITE);
+            try {
+                if (!ehcacheXAStore.isValid(command)) {
+                    for (Object addedKey : keys) {
+                        oldVersionStore.remove(addedKey);
                     }
-                    keys.add(key);
-                    oldVersionStore.put(store.get(key));
-                } finally {
-                    syncForKey.unlock(LockType.WRITE);
+                    throw new EhcacheXAException("Invalid version for element: " + command.getKey(),
+                        XAException.XA_RBINTEGRITY);
                 }
-//            }
+                keys.add(key);
+                oldVersionStore.put(store.get(key));
+            } finally {
+                syncForKey.unlock(LockType.WRITE);
+            }
         }
 
         // Lock all keys in real store
@@ -183,16 +179,17 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
         LOG.debug("Rollback called for Txn with id: {}", xid);
 
         TransactionContext context = ehcacheXAStore.getTransactionContext(xid);
-        CacheLockProvider storeLockProvider = (CacheLockProvider)store.getInternalContext();
-        CacheLockProvider oldVersionStoreLockProvider = (CacheLockProvider)oldVersionStore.getInternalContext();
+        if (ehcacheXAStore.isPrepared(xid)) {
+            CacheLockProvider storeLockProvider = (CacheLockProvider)store.getInternalContext();
+            CacheLockProvider oldVersionStoreLockProvider = (CacheLockProvider)oldVersionStore.getInternalContext();
 
-        for (VersionAwareCommand command : context.getCommands()) {
-//            if(command.isWriteCommand()) {
+            for (VersionAwareCommand command : context.getCommands()) {
                 Object key = command.getKey();
                 Sync syncForKey = oldVersionStoreLockProvider.getSyncForKey(key);
                 syncForKey.lock(LockType.WRITE);
+                Element element = null;
                 try {
-                    Element element = oldVersionStore.remove(key);
+                    element = oldVersionStore.remove(key);
                     if(element != null) {
                         store.put(element);
                     } else {
@@ -200,11 +197,13 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
                     }
                 } finally {
                     syncForKey.unlock(LockType.WRITE);
-                    storeLockProvider.getSyncForKey(key).unlock(LockType.WRITE);
+                    if (element != null) {
+                        storeLockProvider.getSyncForKey(key).unlock(LockType.WRITE);
+                    }
                 }
-//            }
+            }
         }
-
+        ehcacheXAStore.removeData(xid);
     }
 
     public boolean isSameRM(final XAResource xaResource) throws XAException {

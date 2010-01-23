@@ -45,6 +45,15 @@ public class EhcacheXAStoreImpl implements EhcacheXAStore {
         return this.oldVersionStore;
     }
 
+    public boolean isPrepared(final Xid xid) {
+        return prepareXids.containsKey(xid);
+    }
+
+    public void removeData(final Xid xid) {
+        prepareXids.remove(xid);
+        transactionContextXids.remove(xid);
+    }
+
     public void checkin(Object key, Xid xid, boolean readOnly) {
        versionTable.checkin(key, xid, readOnly);
     }

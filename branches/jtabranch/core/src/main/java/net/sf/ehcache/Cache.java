@@ -943,12 +943,7 @@ public class Cache implements Ehcache {
             }
             
             if(configuration.isTransactional()) {
-                // todo this is probably not what we want here:
-                // We might want a factory here, and abstract the kinda of TransactionalStore we actually get
-                // (TC or not, and maybe later other non XA)
-                // We should also look into net.sf.ehcache.CacheManager.createTerracottaStore
-
-                if(!(configuration.isTerracottaClustered()) && configuration.getTerracottaConfiguration().getValueMode() != TerracottaConfiguration.ValueMode.SERIALIZATION) {
+                if(!configuration.isTerracottaClustered() || configuration.getTerracottaConfiguration().getValueMode() == TerracottaConfiguration.ValueMode.IDENTITY) {
                     throw new CacheException("To be transactional, the cache needs to be Terracotta clustered in Serialization value mode");
                 }
 

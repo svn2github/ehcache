@@ -39,7 +39,7 @@ public class DefaultTransactionManagerLookup implements TransactionManagerLookup
     private       transient Properties         properties         = new Properties();
     private final           Lock               lock               = new ReentrantLock();
 
-    private final Selector[] transactionManagerSelectors = new Selector[] { new JndiSelector("JBoss", "java:/TransactionManager"),
+    private final Selector[] transactionManagerSelectors = new Selector[] { new JndiSelector("genericJNDI", "java:/TransactionManager"),
             new FactorySelector("WebSphere 5.1", "com.ibm.ws.Transaction.TransactionManagerFactory"),
             new FactorySelector("Bitronix", "bitronix.tm.TransactionManagerServices"),
             new ClassSelector("Atomikos", "com.atomikos.icatch.jta.UserTransactionManager"), };
@@ -164,6 +164,7 @@ public class DefaultTransactionManagerLookup implements TransactionManagerLookup
     private static final class FactorySelector extends Selector {
 
         private final String factoryClassName;
+        private final boolean isStatic = true;
 
         private FactorySelector(final String vendor, final String factoryClassName) {
             super(vendor);

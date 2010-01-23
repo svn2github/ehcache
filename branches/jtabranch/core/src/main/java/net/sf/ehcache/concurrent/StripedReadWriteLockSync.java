@@ -88,6 +88,6 @@ public class StripedReadWriteLockSync implements CacheLockProvider {
     }
 
     public Sync[] getAndWriteLockAllSyncForKeys(Object... keys) {
-        throw new UnsupportedOperationException("Right now this is unsupported in standalone EhCache!");
+        throw new UnsupportedOperationException("Right now this is unsupported in standalone Ehcache!");
     }
 }
