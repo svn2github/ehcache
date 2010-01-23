@@ -18,6 +18,7 @@ package net.sf.ehcache;
 
 import java.io.File;
 import java.io.InputStream;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.util.Collection;
@@ -25,6 +26,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -37,6 +39,7 @@ import net.sf.ehcache.config.Configuration;
 import net.sf.ehcache.config.ConfigurationFactory;
 import net.sf.ehcache.config.ConfigurationHelper;
 import net.sf.ehcache.config.DiskStoreConfiguration;
+import net.sf.ehcache.config.FactoryConfiguration;
 import net.sf.ehcache.config.TerracottaConfigConfiguration;
 import net.sf.ehcache.config.generator.ConfigurationSource;
 import net.sf.ehcache.config.generator.ConfigurationUtil;
@@ -510,12 +513,31 @@ public class CacheManager {
                     + " Using the default disk store path of " + DiskStoreConfiguration.getDefaultPath()
                     + ". Please explicitly configure the diskStore element in ehcache.xml.");
         }
-        
-        String transactionManagerLookupClass = configuration.getTransactionManagerLookupConfiguration().getFullyQualifiedClassPath();
+
+        FactoryConfiguration lookupConfiguration = configuration.getTransactionManagerLookupConfiguration();
         try {
-            this.transactionManagerLookup = (TransactionManagerLookup)Class.forName(transactionManagerLookupClass).newInstance();
+            Properties properties = null;
+            if(lookupConfiguration.getProperties() != null) {
+                properties = PropertyUtil.parseProperties(lookupConfiguration.getProperties(),
+                        lookupConfiguration.getPropertySeparator());
+            }
+            Class<TransactionManagerLookup> transactionManagerLookupClass
+                = (Class<TransactionManagerLookup>) Class.forName(lookupConfiguration.getFullyQualifiedClassPath());
+            Constructor<TransactionManagerLookup> constructor = null;
+            if (properties != null) {
+                try {
+                    constructor = transactionManagerLookupClass.getConstructor(properties.getClass());
+                } catch (NoSuchMethodException e) {
+                    LOG.error("You've provided properties for {}, yet didn't provide a matching constructor! Properties will not be passed in",
+                        lookupConfiguration.getFullyQualifiedClassPath());
+                }
+            }
+            if(properties == null || constructor == null) {
+                constructor = transactionManagerLookupClass.getConstructor();
+            }
+            this.transactionManagerLookup = constructor.newInstance();
         } catch (Exception e) {
-            LOG.error("could not instantiate transaction manager lookup class: " + transactionManagerLookupClass);
+            LOG.error("could not instantiate transaction manager lookup class: {}", lookupConfiguration.getFullyQualifiedClassPath());
         } 
 
         detectAndFixDiskStorePathConflict(configurationHelper);

@@ -17,6 +17,7 @@ package net.sf.ehcache.transaction.manager;
 
 import java.lang.reflect.Method;
 import java.util.HashSet;
+import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -33,15 +34,22 @@ import net.sf.ehcache.transaction.xa.EhcacheXAResource;
  */
 public class DefaultTransactionManagerLookup implements TransactionManagerLookup {
 
-    private transient TransactionManager transactionManager;
-    private Set xaResources = new HashSet();
-    private transient String vendor;
-    private final Lock lock = new ReentrantLock();
+    private       transient TransactionManager transactionManager;
+    private       transient String             vendor;
+    private       transient Properties         properties         = new Properties();
+    private final           Lock               lock               = new ReentrantLock();
 
     private final Selector[] transactionManagerSelectors = new Selector[] { new JndiSelector("JBoss", "java:/TransactionManager"),
             new FactorySelector("WebSphere 5.1", "com.ibm.ws.Transaction.TransactionManagerFactory"),
             new FactorySelector("Bitronix", "bitronix.tm.TransactionManagerServices"),
             new ClassSelector("Atomikos", "com.atomikos.icatch.jta.UserTransactionManager"), };
+
+    public DefaultTransactionManagerLookup() {
+    }
+
+    public DefaultTransactionManagerLookup(final Properties properties) {
+        this.properties = properties;
+    }
 
     /**
      * Lookup available txnManagers
