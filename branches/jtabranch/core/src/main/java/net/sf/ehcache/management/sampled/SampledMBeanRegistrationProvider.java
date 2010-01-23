@@ -85,9 +85,8 @@ public class SampledMBeanRegistrationProvider implements MBeanRegistrationProvid
         status = Status.STATUS_ALIVE;
         this.cacheManager = cacheManagerParam;
         this.clusteredInstanceFactory = clusteredInstanceFactory;
-        SampledCacheManager cacheManagerMBean = new SampledCacheManager(cacheManager);
         try {
-            registerCacheManagerMBean(cacheManagerMBean);
+            registerCacheManagerMBean(new SampledCacheManager(cacheManager));
         } catch (Exception e) {
             status = Status.STATUS_UNINITIALISED;
             throw new CacheException(e);

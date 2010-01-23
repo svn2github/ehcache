@@ -24,7 +24,6 @@ package net.sf.ehcache.management;
  */
 public interface CacheConfigurationMBean {
 
-
     /**
      * Accessor
      */
@@ -33,13 +32,39 @@ public interface CacheConfigurationMBean {
     /**
      * Accessor
      */
+    public boolean isLoggingEnabled();
+    
+    /**
+     * setLoggingEnabled
+     * 
+     * @param loggingEnabled
+     */
+    public void setLoggingEnabled(boolean loggingEnabled);
+    
+    /**
+     * Accessor
+     */
     public int getMaxElementsInMemory();
 
+    /**
+     * setMaxElementsInMemory
+     * 
+     * @param maxElements
+     */
+    public void setMaxElementsInMemory(int maxElements);
+    
     /**
      * Accessor
      */
     public int getMaxElementsOnDisk();
 
+    /**
+     * setMaxElementsOnDisk
+     * 
+     * @param maxElements
+     */
+    public void setMaxElementsOnDisk(int maxElements);
+    
     /**
      * Accessor
      * @return a String representation of the policy
@@ -47,35 +72,96 @@ public interface CacheConfigurationMBean {
     public String getMemoryStoreEvictionPolicy();
 
     /**
+     * setMemoryStoreEvictionPolicy
+     * 
+     * @param policy
+     */
+    public void setMemoryStoreEvictionPolicy(String policy);
+    
+    /**
      * Accessor
      */
     public boolean isEternal();
 
+    /**
+     * setEternal
+     * 
+     * @param eternal
+     */
+    public void setEternal(boolean eternal);
+    
     /**
      * Accessor
      */
     public long getTimeToIdleSeconds();
 
     /**
+     * setTimeToIdleSeconds
+     * 
+     * @param tti
+     */
+    public void setTimeToIdleSeconds(long tti);
+    
+    /**
      * Accessor
      */
     public long getTimeToLiveSeconds();
 
+    /**
+     * setTimeToLiveSeconds
+     * 
+     * @param ttl
+     */
+    public void setTimeToLiveSeconds(long ttl);
+    
     /**
      * Accessor
      */
     public boolean isOverflowToDisk();
 
     /**
+     * setOverflowToDisk
+     * 
+     * @param overflow
+     */
+    public void setOverflowToDisk(boolean overflow);
+    
+    /**
      * Accessor
      */
     public boolean isDiskPersistent();
 
     /**
+     * setDiskPersistent
+     * 
+     * @param diskPersistent
+     */
+    public void setDiskPersistent(boolean diskPersistent);
+    
+    /**
      * Accessor
      */
     public long getDiskExpiryThreadIntervalSeconds();
 
+    /**
+     * setDiskExpiryThreadIntervalSeconds
+     * 
+     * @param seconds
+     */
+    public void setDiskExpiryThreadIntervalSeconds(long seconds);
+    
+    /**
+     * Accessor
+     */
+    public int getDiskSpoolBufferSizeMB();
+    
+    /**
+     * setDiskSpoolBufferSizeMB
+     * 
+     * @param diskSpoolBufferSizeMB
+     */
+    public void setDiskSpoolBufferSizeMB(int diskSpoolBufferSizeMB);
+    
     /**
      * Accessor
      */

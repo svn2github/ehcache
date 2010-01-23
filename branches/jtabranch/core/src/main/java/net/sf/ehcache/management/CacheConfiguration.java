@@ -16,11 +16,12 @@
 
 package net.sf.ehcache.management;
 
-import net.sf.ehcache.CacheException;
+import java.io.Serializable;
 
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
-import java.io.Serializable;
+
+import net.sf.ehcache.CacheException;
 
 
 /**
@@ -70,7 +71,21 @@ public class CacheConfiguration implements CacheConfigurationMBean, Serializable
         return cacheConfiguration.getName();
     }
 
+    /**
+     * Accessor
+     */
+    public boolean isLoggingEnabled() {
+        return cacheConfiguration.isLoggingEnabled();
+    }
 
+    /**
+     * setLoggingEnabled
+     * 
+     * @param enable
+     */
+    public void setLoggingEnabled(boolean enable) {
+        cacheConfiguration.setLoggingEnabled(enable);
+    }
     /**
      * Accessor
      */
@@ -79,12 +94,30 @@ public class CacheConfiguration implements CacheConfigurationMBean, Serializable
     }
 
     /**
+     * setMaxElementsInMemory
+     *  
+     * @param maxElements
+     */
+    public void setMaxElementsInMemory(int maxElements) {
+       cacheConfiguration.setMaxElementsInMemory(maxElements);
+    }
+    
+    /**
      * Accessor
      */
     public int getMaxElementsOnDisk() {
-        return cacheConfiguration.getMaxElementsOnDisk();
+       return cacheConfiguration.getMaxElementsOnDisk();
     }
 
+    /**
+     * setMaxElementsOnDisk
+     *  
+     * @param maxElements
+     */
+    public void setMaxElementsOnDisk(int maxElements) {
+       cacheConfiguration.setMaxElementsInMemory(maxElements);
+    }
+    
     /**
      * Accessor
      * @return a String representation of the policy
@@ -94,12 +127,30 @@ public class CacheConfiguration implements CacheConfigurationMBean, Serializable
     }
 
     /**
+     * setMemoryStoreEvictionPolicy
+     *  
+     * @param memoryStoreEvictionPolicy
+     */
+    public void setMemoryStoreEvictionPolicy(String memoryStoreEvictionPolicy) {
+        cacheConfiguration.setMemoryStoreEvictionPolicy(memoryStoreEvictionPolicy);
+    }
+    
+    /**
      * Accessor
      */
     public boolean isEternal() {
         return cacheConfiguration.isEternal();
     }
 
+    /**
+     * setEternal
+     * 
+     * @param eternal
+     */
+    public void setEternal(boolean eternal) {
+        cacheConfiguration.setEternal(eternal);
+    }
+    
     /**
      * Accessor
      */
@@ -108,12 +159,30 @@ public class CacheConfiguration implements CacheConfigurationMBean, Serializable
     }
 
     /**
+     * setTimeToIdleSeconds
+     *  
+     * @param tti
+     */
+    public void setTimeToIdleSeconds(long tti) {
+       cacheConfiguration.setTimeToIdleSeconds(tti);
+    }
+    
+    /**
      * Accessor
      */
     public long getTimeToLiveSeconds() {
         return cacheConfiguration.getTimeToLiveSeconds();
     }
 
+    /**
+     * setTimeToLiveSeconds
+     *  
+     * @param ttl
+     */
+    public void setTimeToLiveSeconds(long ttl) {
+        cacheConfiguration.setTimeToLiveSeconds(ttl);
+    }
+    
     /**
      * Accessor
      */
@@ -122,12 +191,30 @@ public class CacheConfiguration implements CacheConfigurationMBean, Serializable
     }
 
     /**
+     * setOverflowToDisk
+     * 
+     * @param overflowToDisk
+     */
+    public void setOverflowToDisk(boolean overflowToDisk) {
+        cacheConfiguration.setOverflowToDisk(overflowToDisk);
+    }
+    
+    /**
      * Accessor
      */
     public boolean isDiskPersistent() {
         return cacheConfiguration.isDiskPersistent();
     }
 
+    /**
+     * setDiskPersistent
+     * 
+     * @param diskPersistent
+     */
+    public void setDiskPersistent(boolean diskPersistent) {
+        cacheConfiguration.setDiskPersistent(diskPersistent);
+    }
+    
     /**
      * Accessor
      */
@@ -136,12 +223,30 @@ public class CacheConfiguration implements CacheConfigurationMBean, Serializable
     }
 
     /**
+     * setDiskSpoolBufferSizeMB
+     * 
+     * @param diskSpoolBufferSizeMB
+     */
+    public void setDiskSpoolBufferSizeMB(int diskSpoolBufferSizeMB) {
+        cacheConfiguration.setDiskSpoolBufferSizeMB(diskSpoolBufferSizeMB);
+    }
+    
+    /**
      * Accessor
      */
     public long getDiskExpiryThreadIntervalSeconds() {
         return cacheConfiguration.getDiskExpiryThreadIntervalSeconds();
     }
 
+    /**
+     * setDiskExpiryThreadIntervalSeconds
+     * 
+     * @param diskExpiryThreadIntervalSeconds
+     */
+    public final void setDiskExpiryThreadIntervalSeconds(long diskExpiryThreadIntervalSeconds) {
+        cacheConfiguration.setDiskExpiryThreadIntervalSeconds(diskExpiryThreadIntervalSeconds);
+    }
+        
     /**
      * Accessor
      */

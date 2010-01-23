@@ -29,7 +29,56 @@ import net.sf.ehcache.statistics.sampled.SampledCacheStatistics;
  * @since 1.7
  */
 public interface SampledCacheMBean extends LiveCacheStatistics, SampledCacheStatistics {
+    /**
+     * CACHE_ENABLED
+     */
+    public static final String CACHE_ENABLED = "CacheEnabled";
+    
+    /**
+     * CACHE_CHANGED
+     */
+    public static final String CACHE_CHANGED = "CacheChanged";
+    
+    /**
+     * CACHE_FLUSHED
+     */
+    public static final String CACHE_FLUSHED = "CacheFlushed";
+    
+    /**
+     * CACHE_CLEARED
+     */
+    public static final String CACHE_CLEARED = "CacheCleared";
+    
+    /**
+     * CACHE_STATISTICS_ENABLED
+     */
+    public static final String CACHE_STATISTICS_ENABLED = "CacheStatisticsEnabled";
+    
+    /**
+     * CACHE_STATISTICS_RESET
+     */
+    public static final String CACHE_STATISTICS_RESET = "CacheStatisticsReset";
 
+    /**
+     * Is the cache enabled?
+     */
+    boolean isEnabled();
+    
+    /**
+     * Enabled/disable cache coherence mode.
+     */
+    void setCoherent(boolean coherent);
+
+    /**
+     * Is the cache coherent?
+     */
+    boolean isCoherent();
+    
+    /**
+     * Enabled/disable the cache.
+     */
+    void setEnabled(boolean enabled);
+    
     /**
      * Removes all cached items.
      */
@@ -90,6 +139,12 @@ public interface SampledCacheMBean extends LiveCacheStatistics, SampledCacheStat
     public int getConfigMaxElementsInMemory();
 
     /**
+     * setConfigMaxElementsInMemory
+     * @param maxElements
+     */
+    public void setConfigMaxElementsInMemory(int maxElements);
+    
+    /**
      * Configuration property accessor
      * 
      * @return Max elements on disk config setting value
@@ -97,11 +152,23 @@ public interface SampledCacheMBean extends LiveCacheStatistics, SampledCacheStat
     public int getConfigMaxElementsOnDisk();
 
     /**
+     * setConfigMaxElementsOnDisk
+     * @param maxElements
+     */
+    public void setConfigMaxElementsOnDisk(int maxElements);
+    
+    /**
      * Configuration property accessor
      * 
      * @return a String representation of the policy
      */
     public String getConfigMemoryStoreEvictionPolicy();
+
+    /**
+     * setConfigMemoryStoreEvictionPolicy
+     * @param evictionPolicy
+     */
+    public void setConfigMemoryStoreEvictionPolicy(String evictionPolicy);
 
     /**
      * Configuration property accessor
@@ -111,12 +178,24 @@ public interface SampledCacheMBean extends LiveCacheStatistics, SampledCacheStat
     public boolean isConfigEternal();
 
     /**
+     * setConfigEternal
+     * @param eternal
+     */
+    public void setConfigEternal(boolean eternal);
+    
+    /**
      * Configuration property accessor
      * 
      * @return TTI in config
      */
     public long getConfigTimeToIdleSeconds();
 
+    /**
+     * setConfigTimeToIdleSeconds
+     * @param tti
+     */
+    public void setConfigTimeToIdleSeconds(long tti);
+    
     /**
      * Configuration property accessor
      * 
@@ -125,12 +204,24 @@ public interface SampledCacheMBean extends LiveCacheStatistics, SampledCacheStat
     public long getConfigTimeToLiveSeconds();
 
     /**
+     * setConfigTimeToLiveSeconds
+     * @param ttl
+     */
+    public void setConfigTimeToLiveSeconds(long ttl);
+    
+    /**
      * Configuration property accessor
      * 
      * @return true if overflow to disk specified in config
      */
     public boolean isConfigOverflowToDisk();
 
+    /**
+     * setConfigOverflowToDisk
+     * @param overflowToDisk
+     */
+    public void setConfigOverflowToDisk(boolean overflowToDisk);
+    
     /**
      * Configuration property accessor
      * 
@@ -139,10 +230,34 @@ public interface SampledCacheMBean extends LiveCacheStatistics, SampledCacheStat
     public boolean isConfigDiskPersistent();
 
     /**
+     * setConfigDiskPersistent
+     * @param diskPersistent
+     */
+    public void setConfigDiskPersistent(boolean diskPersistent);
+    
+    /**
      * Configuration property accessor
      * 
      * @return Value for disk expiry thread interval in seconds specified in config
      */
     public long getConfigDiskExpiryThreadIntervalSeconds();
 
+    /**
+     * setConfigDiskExpiryThreadIntervalSeconds
+     * @param seconds
+     */
+    public void setConfigDiskExpiryThreadIntervalSeconds(long seconds);
+ 
+    /**
+     * Configuration property accessor
+     * 
+     * @return true if logging is enabled on the cache
+     */
+    public boolean isConfigLoggingEnabled();
+
+    /**
+     * setConfigLoggingEnabled
+     * @param enabled
+     */
+    public void setConfigLoggingEnabled(boolean enabled);
 }
