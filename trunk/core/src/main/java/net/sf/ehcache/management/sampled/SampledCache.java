@@ -39,7 +39,6 @@ public class SampledCache extends BaseEmitterBean implements SampledCacheMBean {
 
     private final Ehcache cache;
     private final String immutableCacheName;
-    private boolean coherent;
     
     static {
         final String[] notifTypes = new String[] {CACHE_ENABLED, CACHE_CHANGED, CACHE_FLUSHED,
