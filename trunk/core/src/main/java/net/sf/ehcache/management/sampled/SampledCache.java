@@ -16,7 +16,15 @@
 
 package net.sf.ehcache.management.sampled;
 
+import java.util.HashMap;
+import java.util.Map;
+
+import javax.management.MBeanNotificationInfo;
+import javax.management.NotCompliantMBeanException;
+import javax.management.Notification;
+
 import net.sf.ehcache.Ehcache;
+import net.sf.ehcache.hibernate.management.impl.BaseEmitterBean;
 
 /**
  * An implementation of {@link SampledCacheMBean}
@@ -26,17 +34,28 @@ import net.sf.ehcache.Ehcache;
  * @author <a href="mailto:asanoujam@terracottatech.com">Abhishek Sanoujam</a>
  * @since 1.7
  */
-public class SampledCache implements SampledCacheMBean {
+public class SampledCache extends BaseEmitterBean implements SampledCacheMBean {
+    private static final MBeanNotificationInfo[] NOTIFICATION_INFO;
 
     private final Ehcache cache;
     private final String immutableCacheName;
+    private boolean coherent;
+    
+    static {
+        final String[] notifTypes = new String[] {CACHE_ENABLED, CACHE_CHANGED, CACHE_FLUSHED,
+                CACHE_STATISTICS_ENABLED, CACHE_STATISTICS_RESET, };
+        final String name = Notification.class.getName();
+        final String description = "Ehcache SampledCache Event";
+        NOTIFICATION_INFO = new MBeanNotificationInfo[] {new MBeanNotificationInfo(notifTypes, name, description), };
+    }
 
     /**
      * Constructor accepting the backing {@link Ehcache}
      * 
      * @param cache
      */
-    public SampledCache(Ehcache cache) {
+    public SampledCache(Ehcache cache) throws NotCompliantMBeanException {
+        super(SampledCacheMBean.class);
         this.cache = cache;
         immutableCacheName = cache.getName();
     }
@@ -54,8 +73,41 @@ public class SampledCache implements SampledCacheMBean {
     /**
      * {@inheritDoc}
      */
+    public boolean isEnabled() {
+        return !cache.isDisabled();
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    public void setEnabled(boolean enabled) {
+        cache.setDisabled(!enabled);
+        sendNotification(CACHE_ENABLED, getCacheAttributes(), getImmutableCacheName());
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public boolean isCoherent() {
+        // return cache.isCoherent();
+        return coherent;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void setCoherent(boolean coherent) {
+        // cache.setCoherent(coherent);
+        this.coherent = coherent;
+        sendNotification(CACHE_CHANGED, getCacheAttributes(), getImmutableCacheName());
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     public void flush() {
         cache.flush();
+        sendNotification(CACHE_FLUSHED, getCacheAttributes(), getImmutableCacheName());
     }
 
     /**
@@ -77,6 +129,7 @@ public class SampledCache implements SampledCacheMBean {
      */
     public void removeAll() {
         cache.removeAll();
+        sendNotification(CACHE_CLEARED, getCacheAttributes(), getImmutableCacheName());
     }
 
     /**
@@ -182,6 +235,7 @@ public class SampledCache implements SampledCacheMBean {
      */
     public void clearStatistics() {
         cache.clearStatistics();
+        sendNotification(CACHE_STATISTICS_RESET, getCacheAttributes(), getImmutableCacheName());
     }
 
     /**
@@ -212,6 +266,7 @@ public class SampledCache implements SampledCacheMBean {
      */
     public void enableStatistics() {
         cache.setStatisticsEnabled(true);
+        sendNotification(CACHE_STATISTICS_ENABLED, getCacheAttributes(), getImmutableCacheName());
     }
 
     /**
@@ -221,7 +276,7 @@ public class SampledCache implements SampledCacheMBean {
      */
     public void disableStatistics() {
         cache.setStatisticsEnabled(false);
-
+        sendNotification(CACHE_STATISTICS_ENABLED, getCacheAttributes(), getImmutableCacheName());
     }
 
     /**
@@ -308,12 +363,31 @@ public class SampledCache implements SampledCacheMBean {
     /**
      * {@inheritDoc}
      * 
+     * @see net.sf.ehcache.management.sampled.SampledCacheMBean#setConfigDiskExpiryThreadIntervalSeconds(long)
+     */
+    public void setConfigDiskExpiryThreadIntervalSeconds(long seconds) {
+        cache.getCacheConfiguration().setDiskExpiryThreadIntervalSeconds(seconds);
+    }
+
+    /**
+     * {@inheritDoc}
+     * 
      * @see net.sf.ehcache.management.sampled.SampledCacheMBean#getConfigMaxElementsInMemory()
      */
     public int getConfigMaxElementsInMemory() {
         return cache.getCacheConfiguration().getMaxElementsInMemory();
     }
 
+    /**
+     * {@inheritDoc}
+     * 
+     * @see net.sf.ehcache.management.sampled.SampledCacheMBean#setConfigMaxElementsInMemory(int)
+     */
+    public void setConfigMaxElementsInMemory(int maxElements) {
+        cache.getCacheConfiguration().setMaxElementsInMemory(maxElements);
+        sendNotification(CACHE_CHANGED, getCacheAttributes(), getImmutableCacheName());
+    }
+    
     /**
      * {@inheritDoc}
      * 
@@ -326,12 +400,32 @@ public class SampledCache implements SampledCacheMBean {
     /**
      * {@inheritDoc}
      * 
+     * @see net.sf.ehcache.management.sampled.SampledCacheMBean#setConfigMaxElementsOnDisk(int)
+     */
+    public void setConfigMaxElementsOnDisk(int maxElements) {
+        cache.getCacheConfiguration().setMaxElementsOnDisk(maxElements);
+        sendNotification(CACHE_CHANGED, getCacheAttributes(), getImmutableCacheName());
+    }
+    
+    /**
+     * {@inheritDoc}
+     * 
      * @see net.sf.ehcache.management.sampled.SampledCacheMBean#getConfigMemoryStoreEvictionPolicy()
      */
     public String getConfigMemoryStoreEvictionPolicy() {
         return cache.getCacheConfiguration().getMemoryStoreEvictionPolicy().toString();
     }
 
+    /**
+     * {@inheritDoc}
+     * 
+     * @see net.sf.ehcache.management.sampled.SampledCacheMBean#setConfigMemoryStoreEvictionPolicy(String)
+     */
+    public void setConfigMemoryStoreEvictionPolicy(String evictionPolicy) {
+        cache.getCacheConfiguration().setMemoryStoreEvictionPolicy(evictionPolicy);
+        sendNotification(CACHE_CHANGED, getCacheAttributes(), getImmutableCacheName());
+    }
+    
     /**
      * {@inheritDoc}
      * 
@@ -344,12 +438,109 @@ public class SampledCache implements SampledCacheMBean {
     /**
      * {@inheritDoc}
      * 
+     * @see net.sf.ehcache.management.sampled.SampledCacheMBean#setConfigTimeToIdleSeconds(long)
+     */
+    public void setConfigTimeToIdleSeconds(long tti) {
+        cache.getCacheConfiguration().setTimeToIdleSeconds(tti);
+        sendNotification(CACHE_CHANGED, getCacheAttributes(), getImmutableCacheName());
+    }
+    
+    /**
+     * {@inheritDoc}
+     * 
      * @see net.sf.ehcache.management.sampled.SampledCacheMBean#getConfigTimeToLiveSeconds()
      */
     public long getConfigTimeToLiveSeconds() {
         return cache.getCacheConfiguration().getTimeToLiveSeconds();
     }
 
+    /**
+     * {@inheritDoc}
+     * 
+     * @see net.sf.ehcache.management.sampled.SampledCacheMBean#setConfigTimeToLiveSeconds(long)
+     */
+    public void setConfigTimeToLiveSeconds(long ttl) {
+        cache.getCacheConfiguration().setTimeToLiveSeconds(ttl);
+        sendNotification(CACHE_CHANGED, getCacheAttributes(), getImmutableCacheName());
+    }
+
+
+    /**
+     * {@inheritDoc}
+     * 
+     * @see net.sf.ehcache.management.sampled.SampledCacheMBean#isConfigDiskPersistent()
+     */
+    public boolean isConfigDiskPersistent() {
+        return cache.getCacheConfiguration().isDiskPersistent();
+    }
+
+    /**
+     * {@inheritDoc}
+     * 
+     * @see net.sf.ehcache.management.sampled.SampledCacheMBean#setConfigDiskPersistent(boolean)
+     */
+    public void setConfigDiskPersistent(boolean diskPersistent) {
+        cache.getCacheConfiguration().setDiskPersistent(diskPersistent);
+        sendNotification(CACHE_CHANGED, getCacheAttributes(), getImmutableCacheName());
+    }
+
+    /**
+     * {@inheritDoc}
+     * 
+     * @see net.sf.ehcache.management.sampled.SampledCacheMBean#isConfigEternal()
+     */
+    public boolean isConfigEternal() {
+        return cache.getCacheConfiguration().isEternal();
+    }
+
+    /**
+     * {@inheritDoc}
+     * 
+     * @see net.sf.ehcache.management.sampled.SampledCacheMBean#setConfigEternal(boolean)
+     */
+    public void setConfigEternal(boolean eternal) {
+        cache.getCacheConfiguration().setEternal(eternal);
+        sendNotification(CACHE_CHANGED, getCacheAttributes(), getImmutableCacheName());
+    }
+
+    /**
+     * {@inheritDoc}
+     * 
+     * @see net.sf.ehcache.management.sampled.SampledCacheMBean#isConfigOverflowToDisk()
+     */
+    public boolean isConfigOverflowToDisk() {
+        return cache.getCacheConfiguration().isOverflowToDisk();
+    }
+
+    /**
+     * {@inheritDoc}
+     * 
+     * @see net.sf.ehcache.management.sampled.SampledCacheMBean#setConfigOverflowToDisk(boolean)
+     */
+    public void setConfigOverflowToDisk(boolean overflowToDisk) {
+        cache.getCacheConfiguration().setOverflowToDisk(overflowToDisk);
+        sendNotification(CACHE_CHANGED, getCacheAttributes(), getImmutableCacheName());
+    }
+
+    /**
+     * {@inheritDoc}
+     * 
+     * @see net.sf.ehcache.management.sampled.SampledCacheMBean#isConfigLoggingEnabled()
+     */
+    public boolean isConfigLoggingEnabled() {
+        return cache.getCacheConfiguration().isLoggingEnabled();
+    }
+
+    /**
+     * {@inheritDoc}
+     * 
+     * @see net.sf.ehcache.management.sampled.SampledCacheMBean#setConfigLoggingEnabled(boolean)
+     */
+    public void setConfigLoggingEnabled(boolean enabled) {
+        cache.getCacheConfiguration().setLoggingEnabled(enabled);
+        sendNotification(CACHE_CHANGED, getCacheAttributes(), getImmutableCacheName());
+    }
+    
     /**
      * {@inheritDoc}
      * 
@@ -441,30 +632,32 @@ public class SampledCache implements SampledCacheMBean {
     }
 
     /**
-     * {@inheritDoc}
-     * 
-     * @see net.sf.ehcache.management.sampled.SampledCacheMBean#isConfigDiskPersistent()
+     * getCacheAttributes
+     * @return map of attribute name -> value
      */
-    public boolean isConfigDiskPersistent() {
-        return cache.getCacheConfiguration().isDiskPersistent();
+    public Map<String, Object> getCacheAttributes() {
+        Map<String, Object> result = new HashMap<String, Object>();
+        result.put("Enabled", isEnabled());
+        result.put("LoggingEnabled", isConfigLoggingEnabled());
+        result.put("TimeToIdleSeconds", getConfigTimeToIdleSeconds());
+        result.put("TimeToLiveSeconds", getConfigTimeToLiveSeconds());
+        result.put("MaxElementsInMemory", getConfigMaxElementsInMemory());
+        result.put("MaxElementsOnDisk", getConfigMaxElementsOnDisk());
+        result.put("DiskPersistent", isConfigDiskPersistent());
+        result.put("Eternal", isConfigEternal());
+        result.put("OverflowToDisk", isConfigOverflowToDisk());
+        result.put("DiskExpiryThreadIntervalSeconds", getConfigDiskExpiryThreadIntervalSeconds());
+        result.put("MemoryStoreEvictionPolicy", getConfigMemoryStoreEvictionPolicy());
+        result.put("Coherent", isCoherent());
+        return result;
     }
-
+    
     /**
-     * {@inheritDoc}
-     * 
-     * @see net.sf.ehcache.management.sampled.SampledCacheMBean#isConfigEternal()
+     * @see BaseEmitterBean#getNotificationInfo()
      */
-    public boolean isConfigEternal() {
-        return cache.getCacheConfiguration().isEternal();
-    }
-
-    /**
-     * {@inheritDoc}
-     * 
-     * @see net.sf.ehcache.management.sampled.SampledCacheMBean#isConfigOverflowToDisk()
-     */
-    public boolean isConfigOverflowToDisk() {
-        return cache.getCacheConfiguration().isOverflowToDisk();
+    @Override
+    public MBeanNotificationInfo[] getNotificationInfo() {
+        return NOTIFICATION_INFO;
     }
 
     /**
@@ -475,5 +668,4 @@ public class SampledCache implements SampledCacheMBean {
     public void dispose() {
         // no-op
     }
-
 }

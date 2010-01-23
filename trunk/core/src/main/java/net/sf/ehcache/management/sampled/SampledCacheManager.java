@@ -19,9 +19,15 @@ package net.sf.ehcache.management.sampled;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.management.MBeanNotificationInfo;
+import javax.management.NotCompliantMBeanException;
+import javax.management.Notification;
+
 import net.sf.ehcache.Cache;
+import net.sf.ehcache.CacheException;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;
+import net.sf.ehcache.hibernate.management.impl.BaseEmitterBean;
 import net.sf.ehcache.statistics.sampled.SampledCacheStatistics;
 
 /**
@@ -32,18 +38,27 @@ import net.sf.ehcache.statistics.sampled.SampledCacheStatistics;
  * @author <a href="mailto:asanoujam@terracottatech.com">Abhishek Sanoujam</a>
  * @since 1.7
  */
-public class SampledCacheManager implements SampledCacheManagerMBean {
+public class SampledCacheManager extends BaseEmitterBean implements SampledCacheManagerMBean {
+    private static final MBeanNotificationInfo[] NOTIFICATION_INFO;
 
     private final CacheManager cacheManager;
     private String mbeanRegisteredName;
     private volatile boolean mbeanRegisteredNameSet;
 
+    static {
+        final String[] notifTypes = new String[] {CACHES_ENABLED, CACHES_CLEARED, STATISTICS_RESET, };
+        final String name = Notification.class.getName();
+        final String description = "Ehcache SampledCacheManager Event";
+        NOTIFICATION_INFO = new MBeanNotificationInfo[] {new MBeanNotificationInfo(notifTypes, name, description), };
+    }
+    
     /**
      * Constructor taking the backing {@link CacheManager}
      * 
      * @param cacheManager
      */
-    public SampledCacheManager(CacheManager cacheManager) {
+    public SampledCacheManager(CacheManager cacheManager) throws NotCompliantMBeanException {
+        super(SampledCacheManagerMBean.class);
         this.cacheManager = cacheManager;
     }
 
@@ -64,6 +79,7 @@ public class SampledCacheManager implements SampledCacheManagerMBean {
      */
     public void clearAll() {
         cacheManager.clearAll();
+        sendNotification(CACHES_CLEARED);
     }
 
     /**
@@ -214,6 +230,7 @@ public class SampledCacheManager implements SampledCacheManagerMBean {
                 cache.clearStatistics();
             }
         }
+        sendNotification(STATISTICS_RESET);
     }
 
     /**
@@ -232,5 +249,43 @@ public class SampledCacheManager implements SampledCacheManagerMBean {
      */
     public String generateActiveConfigDeclaration(String cacheName) {
         return this.cacheManager.getActiveConfigurationText(cacheName);
+    }
+
+    /**
+     * Returns if each contained cache is enabled.
+     */
+    public boolean isEnabled() throws CacheException {
+        String[] cacheNames = cacheManager.getCacheNames();
+
+        for (String cacheName : cacheNames) {
+            Ehcache cache = cacheManager.getEhcache(cacheName);
+            if (cache != null && cache.isDisabled()) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * Enables/disables each of the contained caches.
+     */
+    public void setEnabled(boolean enabled) {
+        String[] cacheNames = cacheManager.getCacheNames();
+
+        for (String cacheName : cacheNames) {
+            Ehcache cache = cacheManager.getEhcache(cacheName);
+            if (cache != null) {
+                cache.setDisabled(!enabled);
+            }
+        }
+    }
+    
+    /**
+     * @see BaseEmitterBean#getNotificationInfo()
+     */
+    @Override
+    public MBeanNotificationInfo[] getNotificationInfo() {
+        return NOTIFICATION_INFO;
     }
 }

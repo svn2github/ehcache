@@ -27,6 +27,20 @@ import java.util.Map;
  * @since 1.7
  */
 public interface SampledCacheManagerMBean {
+    /**
+     * CACHES_ENABLED
+     */
+    public static final String CACHES_ENABLED = "CachesEnabled";
+    
+    /**
+     * CACHES_CLEARED
+     */
+    public static final String CACHES_CLEARED = "CachesCleared";
+    
+    /**
+     * STATISTICS_RESET
+     */
+    public static final String STATISTICS_RESET = "StatisticsReset";
 
     /**
      * Gets the actual name of the cache manager. This may be different from the
@@ -47,6 +61,20 @@ public interface SampledCacheManagerMBean {
      */
     public String getStatus();
 
+    /**
+     * Enables/disables each cache contained by this CacheManager
+     * 
+     * @param enabled
+     */
+    public void setEnabled(boolean enabled);
+    
+    /**
+     * Returns if each cache is enabled.
+     * 
+     * @return boolean indicating that each cache is enabled
+     */
+    public boolean isEnabled();
+    
     /**
      * Shuts down the CacheManager.
      * <p/>
