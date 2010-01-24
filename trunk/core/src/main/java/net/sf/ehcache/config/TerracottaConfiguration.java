@@ -348,6 +348,15 @@ public class TerracottaConfiguration implements Cloneable {
     }
 
     /**
+     * @return this configuration instance
+     * @see #setCoherent(boolean)
+     */
+    public TerracottaConfiguration coherent(boolean coherent) {
+        setCoherent(coherent);
+        return this;
+    }
+
+    /**
      * Is the cache configured for coherent or incoherent mode.
      * @return true if configured in coherent mode.
      */
@@ -369,5 +378,14 @@ public class TerracottaConfiguration implements Cloneable {
      */
     public void setSynchronousWrite(boolean synchronousWrite) {
         this.synchronousWrite = synchronousWrite;
+    }
+
+    /**
+     * @return this configuration instance
+     * @see #setSynchronousWrite(boolean)
+     */
+    public TerracottaConfiguration synchronousWrite(boolean synchronousWrite) {
+        setSynchronousWrite(synchronousWrite);
+        return this;
     }
 }
