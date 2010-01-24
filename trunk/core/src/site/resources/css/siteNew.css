@@ -324,6 +324,14 @@ margin: 0;
 color: #333333;
 }
 
+h6 {
+font-size: 12px;
+font-weight: bold;
+padding: 12px 0 10px 0;
+margin: 0;
+color: #333333;
+}
+
 small {
 font-size: 12px;
 }
