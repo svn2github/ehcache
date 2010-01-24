@@ -42,6 +42,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.ReentrantLock;
 
+import javax.transaction.TransactionManager;
+
 import net.sf.ehcache.bootstrap.BootstrapCacheLoader;
 import net.sf.ehcache.bootstrap.BootstrapCacheLoaderFactory;
 import net.sf.ehcache.config.CacheConfiguration;
@@ -68,6 +70,9 @@ import net.sf.ehcache.store.MemoryStore;
 import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
 import net.sf.ehcache.store.Policy;
 import net.sf.ehcache.store.Store;
+import net.sf.ehcache.store.XATransactionalStore;
+import net.sf.ehcache.transaction.manager.TransactionManagerLookup;
+import net.sf.ehcache.transaction.xa.EhcacheXAResource;
 import net.sf.ehcache.util.ClassLoaderUtil;
 import net.sf.ehcache.util.NamedThreadFactory;
 import net.sf.ehcache.util.PropertyUtil;
@@ -132,6 +137,7 @@ public class Cache implements Ehcache {
      * The default interval between runs of the expiry thread.
      * @deprecated see {@link CacheConfiguration#DEFAULT_EXPIRY_THREAD_INTERVAL_SECONDS}
      */
+    @Deprecated
     public static final long DEFAULT_EXPIRY_THREAD_INTERVAL_SECONDS = CacheConfiguration.DEFAULT_EXPIRY_THREAD_INTERVAL_SECONDS;
 
     private static final Logger LOG = LoggerFactory.getLogger(Cache.class.getName());
@@ -214,6 +220,8 @@ public class Cache implements Ehcache {
     private volatile LiveCacheStatisticsData liveCacheStatisticsData;
 
     private volatile SampledCacheStatisticsWrapper sampledCacheStatistics;
+    
+    private volatile TransactionManagerLookup transactionManagerLookup;
 
     private volatile boolean allowDisable = true;
 
@@ -675,6 +683,7 @@ public class Cache implements Ehcache {
                  BootstrapCacheLoader bootstrapCacheLoader) {
         changeStatus(Status.STATUS_UNINITIALISED);
 
+       
         this.configuration = cacheConfiguration.clone();
 
         guid = createGuid();
@@ -890,6 +899,14 @@ public class Cache implements Ehcache {
         }
         return bootstrapCacheLoader;
     }
+    
+    public TransactionManagerLookup getTransactionManagerLookup() {
+       return transactionManagerLookup; 
+    }
+    
+    public void setTransactionManagerLookup(TransactionManagerLookup lookup) {
+        this.transactionManagerLookup = lookup;
+    }
 
     /**
      * Newly created caches do not have a {@link net.sf.ehcache.store.MemoryStore} or a {@link net.sf.ehcache.store.DiskStore}.
@@ -913,6 +930,7 @@ public class Cache implements Ehcache {
 
             this.diskStore = createDiskStore();
 
+            final Store memoryStore;
             if (isTerracottaClustered()) {
                 memoryStore = cacheManager.createTerracottaStore(this);
                 memoryStore.setCoherent(configuration.getTerracottaConfiguration().isCoherent());
@@ -924,7 +942,21 @@ public class Cache implements Ehcache {
                 }
             }
             
+            if(configuration.isTransactional()) {
+                if(!configuration.isTerracottaClustered() || configuration.getTerracottaConfiguration().getValueMode() == TerracottaConfiguration.ValueMode.IDENTITY) {
+                    throw new CacheException("To be transactional, the cache needs to be Terracotta clustered in Serialization value mode");
+                }
 
+                TransactionManager txnManager = transactionManagerLookup.getTransactionManager();
+                if(txnManager == null) {
+                    throw new CacheException("You've configured cache " + cacheManager.getName() + "."
+                                             + configuration.getName() + " to be transactional, but no TransactionManager could be found!");
+                }
+                EhcacheXAResource resource = cacheManager.createEhcacheXAResource(this, memoryStore, MemoryStore.create(this, diskStore), txnManager);
+                this.memoryStore = new XATransactionalStore(resource);
+            } else {
+                this.memoryStore = memoryStore;
+            }
             this.cacheWriterManager = configuration.getCacheWriterConfiguration().getWriteMode().createWriterManager(this);
             initialiseCacheWriterManager(false);
 

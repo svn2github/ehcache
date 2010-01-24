@@ -122,6 +122,17 @@
         diskExpiryThreadIntervalSeconds="1"
         />
 
+    <cache name="sampleCache4"
+        maxElementsInMemory="500"
+        eternal="false"
+        timeToIdleSeconds="300"
+        timeToLiveSeconds="600"
+        overflowToDisk="true"
+        diskPersistent="true"
+        diskExpiryThreadIntervalSeconds="1"
+        transactionalMode="xa"
+        />
+
 
     <!-- Place configuration for your caches following -->
 

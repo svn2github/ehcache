@@ -40,6 +40,7 @@ import net.sf.ehcache.loader.CacheLoader;
 import net.sf.ehcache.statistics.CacheUsageListener;
 import net.sf.ehcache.statistics.LiveCacheStatistics;
 import net.sf.ehcache.statistics.sampled.SampledCacheStatistics;
+import net.sf.ehcache.transaction.manager.TransactionManagerLookup;
 import net.sf.ehcache.writer.CacheWriter;
 import net.sf.ehcache.writer.CacheWriterManager;
 
@@ -1168,6 +1169,13 @@ public class BlockingCache implements Ehcache {
      */
     public void waitUntilCoherent() {
         cache.waitUntilCoherent();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void setTransactionManagerLookup(TransactionManagerLookup transactionManagerLookup) {
+        cache.setTransactionManagerLookup(transactionManagerLookup);
     }
 }
 

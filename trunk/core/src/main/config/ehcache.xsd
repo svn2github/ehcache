@@ -1,29 +1,34 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" version="1.7">
 
-    <xs:element name="ehcache" >
+    <xs:element name="ehcache">
         <xs:complexType>
             <xs:sequence>
-                <xs:element minOccurs="0" maxOccurs="1" ref="diskStore"/>
-                <xs:element minOccurs="0" maxOccurs="1"
-                            ref="cacheManagerEventListenerFactory"/>
-                <xs:element minOccurs="0" maxOccurs="unbounded"
-                            ref="cacheManagerPeerProviderFactory"/>
-                <xs:element minOccurs="0" maxOccurs="unbounded"
-                            ref="cacheManagerPeerListenerFactory"/>
-                <xs:element minOccurs="0" maxOccurs="1"
-                            ref="terracottaConfig"/>
+                <xs:element maxOccurs="1" minOccurs="0" ref="diskStore"/>
+                <xs:element maxOccurs="1" minOccurs="0" ref="transactionManagerLookup"/>
+                <xs:element maxOccurs="1" minOccurs="0" ref="cacheManagerEventListenerFactory"/>
+                <xs:element maxOccurs="unbounded" minOccurs="0" ref="cacheManagerPeerProviderFactory"/>
+                <xs:element maxOccurs="unbounded" minOccurs="0" ref="cacheManagerPeerListenerFactory"/>
+                <xs:element maxOccurs="1" minOccurs="0" ref="terracottaConfig"/>
                 <xs:element ref="defaultCache"/>
-                <xs:element minOccurs="0" maxOccurs="unbounded" ref="cache"/>
+                <xs:element maxOccurs="unbounded" minOccurs="0" ref="cache"/>
             </xs:sequence>
             <xs:attribute name="name" use="optional"/>
-            <xs:attribute name="updateCheck" use="optional" type="xs:boolean" default="true"/>
-            <xs:attribute name="monitoring" use="optional" type="monitoringType" default="autodetect"/>
-            <xs:attribute name="dynamicConfig" use="optional" type="xs:boolean" default="true"/>
+            <xs:attribute default="true" name="updateCheck" type="xs:boolean" use="optional"/>
+            <xs:attribute default="autodetect" name="monitoring" type="monitoringType" use="optional"/>
+            <xs:attribute default="true" name="dynamicConfig" type="xs:boolean" use="optional"/>
         </xs:complexType>
     </xs:element>
     <xs:element name="diskStore">
         <xs:complexType>
-            <xs:attribute name="path" use="optional" />
+            <xs:attribute name="path" use="optional"/>
+        </xs:complexType>
+    </xs:element>
+     <xs:element name="transactionManagerLookup">
+        <xs:complexType>
+            <xs:attribute name="class" use="required"/>
+            <xs:attribute name="properties" use="optional"/>
+            <xs:attribute name="propertySeparator" use="optional"/>
         </xs:complexType>
     </xs:element>
     <xs:element name="cacheManagerEventListenerFactory">
@@ -50,15 +55,15 @@
     <xs:element name="terracottaConfig">
         <xs:complexType>
             <xs:sequence>
-                <xs:element name="tc-config" minOccurs="0" maxOccurs="1">
+                <xs:element maxOccurs="1" minOccurs="0" name="tc-config">
                     <xs:complexType>
                         <xs:sequence>
-                            <xs:any minOccurs="0" maxOccurs="unbounded" processContents="skip" />
+                            <xs:any maxOccurs="unbounded" minOccurs="0" processContents="skip"/>
                         </xs:sequence>
                     </xs:complexType>
                 </xs:element>
             </xs:sequence>
-            <xs:attribute name="url" use="optional" default="localhost:9510"/>
+            <xs:attribute default="localhost:9510" name="url" use="optional"/>
             <xs:attribute name="registerStatsMBean" type="xs:boolean" use="optional"/>
         </xs:complexType>
     </xs:element>
@@ -74,17 +79,18 @@
                 <xs:element minOccurs="0" maxOccurs="1" ref="terracotta"/>
                 <xs:element minOccurs="0" maxOccurs="1" ref="cacheWriter"/>
             </xs:sequence>
-            <xs:attribute name="diskExpiryThreadIntervalSeconds" use="optional" type="xs:integer"/>
-            <xs:attribute name="diskSpoolBufferSizeMB" use="optional" type="xs:integer"/>
-            <xs:attribute name="diskPersistent" use="optional" type="xs:boolean"/>
-            <xs:attribute name="eternal" use="required" type="xs:boolean"/>
-            <xs:attribute name="maxElementsInMemory" use="required" type="xs:integer"/>
-            <xs:attribute name="clearOnFlush" use="optional" type="xs:boolean"/>
-            <xs:attribute name="memoryStoreEvictionPolicy" use="optional" type="xs:string"/>
-            <xs:attribute name="overflowToDisk" use="required" type="xs:boolean"/>
-            <xs:attribute name="timeToIdleSeconds" use="optional" type="xs:integer"/>
-            <xs:attribute name="timeToLiveSeconds" use="optional" type="xs:integer"/>
-            <xs:attribute name="maxElementsOnDisk" use="optional" type="xs:integer"/>
+            <xs:attribute name="diskExpiryThreadIntervalSeconds" type="xs:integer" use="optional"/>
+            <xs:attribute name="diskSpoolBufferSizeMB" type="xs:integer" use="optional"/>
+            <xs:attribute name="diskPersistent" type="xs:boolean" use="optional"/>
+            <xs:attribute name="eternal" type="xs:boolean" use="required"/>
+            <xs:attribute name="maxElementsInMemory" type="xs:integer" use="required"/>
+            <xs:attribute name="clearOnFlush" type="xs:boolean" use="optional"/>
+            <xs:attribute name="memoryStoreEvictionPolicy" type="xs:string" use="optional"/>
+            <xs:attribute name="overflowToDisk" type="xs:boolean" use="required"/>
+            <xs:attribute name="timeToIdleSeconds" type="xs:integer" use="optional"/>
+            <xs:attribute name="timeToLiveSeconds" type="xs:integer" use="optional"/>
+            <xs:attribute name="maxElementsOnDisk" type="xs:integer" use="optional"/>
+            <xs:attribute default="off" name="transactionalMode" type="transactionalMode" use="optional"/>
         </xs:complexType>
     </xs:element>
     <xs:element name="cache">
@@ -98,18 +104,19 @@
                 <xs:element minOccurs="0" maxOccurs="1" ref="terracotta"/>
                 <xs:element minOccurs="0" maxOccurs="1" ref="cacheWriter"/>
             </xs:sequence>
-            <xs:attribute name="diskExpiryThreadIntervalSeconds" use="optional" type="xs:integer"/>
-            <xs:attribute name="diskSpoolBufferSizeMB" use="optional" type="xs:integer"/>
-            <xs:attribute name="diskPersistent" use="optional" type="xs:boolean"/>
-            <xs:attribute name="eternal" use="required" type="xs:boolean"/>
-            <xs:attribute name="maxElementsInMemory" use="required" type="xs:integer"/>
-            <xs:attribute name="memoryStoreEvictionPolicy" use="optional" type="xs:string"/>
-            <xs:attribute name="clearOnFlush" use="optional" type="xs:boolean"/>
-            <xs:attribute name="name" use="required" type="xs:string"/>
-            <xs:attribute name="overflowToDisk" use="required" type="xs:boolean"/>
-            <xs:attribute name="timeToIdleSeconds" use="optional" type="xs:integer"/>
-            <xs:attribute name="timeToLiveSeconds" use="optional" type="xs:integer"/>
-            <xs:attribute name="maxElementsOnDisk" use="optional" type="xs:integer"/>
+            <xs:attribute name="diskExpiryThreadIntervalSeconds" type="xs:integer" use="optional"/>
+            <xs:attribute name="diskSpoolBufferSizeMB" type="xs:integer" use="optional"/>
+            <xs:attribute name="diskPersistent" type="xs:boolean" use="optional"/>
+            <xs:attribute name="eternal" type="xs:boolean" use="required"/>
+            <xs:attribute name="maxElementsInMemory" type="xs:integer" use="required"/>
+            <xs:attribute name="memoryStoreEvictionPolicy" type="xs:string" use="optional"/>
+            <xs:attribute name="clearOnFlush" type="xs:boolean" use="optional"/>
+            <xs:attribute name="name" type="xs:string" use="required"/>
+            <xs:attribute name="overflowToDisk" type="xs:boolean" use="required"/>
+            <xs:attribute name="timeToIdleSeconds" type="xs:integer" use="optional"/>
+            <xs:attribute name="timeToLiveSeconds" type="xs:integer" use="optional"/>
+            <xs:attribute name="maxElementsOnDisk" type="xs:integer" use="optional"/>
+            <xs:attribute default="off" name="transactionalMode" type="transactionalMode" use="optional"/>
         </xs:complexType>
     </xs:element>
     <xs:element name="cacheEventListenerFactory">
@@ -163,9 +170,9 @@
     </xs:element>
     <xs:simpleType name="monitoringType">
         <xs:restriction base="xs:string">
-            <xs:enumeration value="autodetect" />
-            <xs:enumeration value="on" />
-            <xs:enumeration value="off" />
+            <xs:enumeration value="autodetect"/>
+            <xs:enumeration value="on"/>
+            <xs:enumeration value="off"/>
         </xs:restriction>
     </xs:simpleType>
     <xs:simpleType name="terracottaCacheValueType">
@@ -174,6 +181,14 @@
             <xs:enumeration value="identity" />
         </xs:restriction>
     </xs:simpleType>
+
+    <xs:simpleType name="transactionalMode">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="off"/>
+            <xs:enumeration value="xa"/>
+        </xs:restriction>
+    </xs:simpleType>
+
     <xs:element name="cacheWriter">
         <xs:complexType>
             <xs:sequence >

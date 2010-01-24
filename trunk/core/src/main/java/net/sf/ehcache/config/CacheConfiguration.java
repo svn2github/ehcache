@@ -210,6 +210,7 @@ public class CacheConfiguration implements Cloneable {
     protected volatile Set<CacheConfigurationListener> listeners = new CopyOnWriteArraySet<CacheConfigurationListener>();
 
     private volatile boolean frozen;
+    private TransactionalMode transactionalMode = TransactionalMode.OFF;
 
     /**
      * Default constructor that can only be used by classes in this package.
@@ -986,6 +987,65 @@ public class CacheConfiguration implements Cloneable {
      */
     public boolean isTerracottaClustered() {
         return terracottaConfiguration != null && terracottaConfiguration.isClustered();
+    }
+
+    /**
+     * To what transactionalMode was the Cache set
+     * @return transactionaMode
+     */
+    public final TransactionalMode getTransactionalMode() {
+        return transactionalMode;
+    }
+
+    /**
+     * Sets the transactionalMode
+     * @param transactionalMode OFF or XA
+     */
+    public final void setTransactionalMode(final String transactionalMode) {
+        if (transactionalMode == null) {
+            throw new IllegalArgumentException("TransactionMode value must be non-null");
+        }
+        this.transactionalMode = TransactionalMode.valueOf(transactionalMode.toUpperCase());
+    }
+
+    /**
+     * Helper method to compute whether the cache is transactional or not
+     * @return True if transactionalMode="xa"
+     */
+    public boolean isTransactional() {
+        return transactionalMode.isTransactional();
+    }
+
+
+    /**
+      * Represents whether the Cache is transactional or not.
+      * @author alexsnaps
+      */
+    public static enum TransactionalMode {
+
+        /** No Transactions */
+        OFF(false),
+
+        /** XA Transactions */
+        XA(true);
+
+        private final boolean transactional;
+
+        /**
+         *
+         * @param transactional
+         */
+        TransactionalMode(final boolean transactional) {
+            this.transactional = transactional;
+        }
+
+        /**
+         *
+         * @return transactional
+         */
+        public boolean isTransactional() {
+            return transactional;
+        }
     }
 
     /**
