@@ -792,6 +792,39 @@ public class CacheConfiguration implements Cloneable {
         return this;
     }
 
+    /**
+     * Sets the transactionalMode
+     *
+     * @param transactionalMode OFF or XA
+     */
+    public final void setTransactionalMode(final String transactionalMode) {
+        if (null == transactionalMode) {
+            throw new IllegalArgumentException("TransactionalMode value must be non-null");
+        }
+        this.transactionalMode = TransactionalMode.valueOf(transactionalMode.toUpperCase());
+    }
+
+    /**
+     * @return this configuration instance
+     * @see #setTransactionalMode(String)
+     */
+    public final CacheConfiguration transactionalMode(String transactionalMode) {
+        setTransactionalMode(transactionalMode);
+        return this;
+    }
+
+    /**
+     * @return this configuration instance
+     * @see #setTransactionalMode(String)
+     */
+    public final CacheConfiguration transactionalMode(TransactionalMode transactionalMode) {
+        if (null == transactionalMode) {
+            throw new IllegalArgumentException("TransactionalMode value must be non-null");
+        }
+        this.transactionalMode = transactionalMode;
+        return this;
+    }
+
     private void validateConfiguration() {
         if (terracottaConfiguration != null && terracottaConfiguration.isClustered()) {
             if (overflowToDisk) {
@@ -998,17 +1031,6 @@ public class CacheConfiguration implements Cloneable {
     }
 
     /**
-     * Sets the transactionalMode
-     * @param transactionalMode OFF or XA
-     */
-    public final void setTransactionalMode(final String transactionalMode) {
-        if (transactionalMode == null) {
-            throw new IllegalArgumentException("TransactionMode value must be non-null");
-        }
-        this.transactionalMode = TransactionalMode.valueOf(transactionalMode.toUpperCase());
-    }
-
-    /**
      * Helper method to compute whether the cache is transactional or not
      * @return True if transactionalMode="xa"
      */
@@ -1016,23 +1038,26 @@ public class CacheConfiguration implements Cloneable {
         return transactionalMode.isTransactional();
     }
 
-
     /**
-      * Represents whether the Cache is transactional or not.
-      * @author alexsnaps
-      */
+     * Represents whether the Cache is transactional or not.
+     *
+     * @author alexsnaps
+     */
     public static enum TransactionalMode {
 
-        /** No Transactions */
+        /**
+         * No Transactions
+         */
         OFF(false),
 
-        /** XA Transactions */
+        /**
+         * XA Transactions
+         */
         XA(true);
 
         private final boolean transactional;
 
         /**
-         *
          * @param transactional
          */
         TransactionalMode(final boolean transactional) {
@@ -1040,7 +1065,6 @@ public class CacheConfiguration implements Cloneable {
         }
 
         /**
-         *
          * @return transactional
          */
         public boolean isTransactional() {
