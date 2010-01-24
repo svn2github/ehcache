@@ -62,7 +62,10 @@ public class XATransactionContext implements TransactionContext {
     }
 
     public void addCommand(final Command command, final Element element) {
-        Serializable key = element.getKey();
+        Serializable key = null;
+        if(element != null) {
+            key = element.getKey();
+        }
         VersionAwareWrapper wrapper = null;
         if (key != null) {
             long version = storeImpl.checkout(key, xid);

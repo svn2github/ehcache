@@ -87,15 +87,20 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
 
         Set<Object> keys = new HashSet<Object>();
         for (VersionAwareCommand command : context.getCommands()) {
-            keys.add(command.getKey());
+            Object key = command.getKey();
+            if (key != null) {
+                keys.add(key);
+            }
         }
 
         Sync[] syncForKeys = ((CacheLockProvider)oldVersionStore.getInternalContext()).getAndWriteLockAllSyncForKeys(keys.toArray());
         for (VersionAwareCommand command : context.getCommands()) {
-            ehcacheXAStore.checkin(command.getKey(), xid, command.isWriteCommand());
             Object key = command.getKey();
-            oldVersionStore.remove(key);
-            ((CacheLockProvider)store.getInternalContext()).getSyncForKey(key).unlock(LockType.WRITE);
+            if (key != null) {
+                ehcacheXAStore.checkin(key, xid, command.isWriteCommand());
+                oldVersionStore.remove(key);
+                ((CacheLockProvider)store.getInternalContext()).getSyncForKey(key).unlock(LockType.WRITE);
+            }
         }
 
         for (Sync syncForKey : syncForKeys) {
@@ -129,20 +134,22 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
         // Copy old versions in front-accessed store
         for (VersionAwareCommand command : context.getCommands()) {
             Object key = command.getKey();
-            Sync syncForKey = oldVersionStoreLockProvider.getSyncForKey(key);
-            syncForKey.lock(LockType.WRITE);
-            try {
-                if (!ehcacheXAStore.isValid(command)) {
-                    for (Object addedKey : keys) {
-                        oldVersionStore.remove(addedKey);
+            if (key != null) {
+                Sync syncForKey = oldVersionStoreLockProvider.getSyncForKey(key);
+                syncForKey.lock(LockType.WRITE);
+                try {
+                    if (!ehcacheXAStore.isValid(command)) {
+                        for (Object addedKey : keys) {
+                            oldVersionStore.remove(addedKey);
+                        }
+                        throw new EhcacheXAException("Invalid version for element: " + command.getKey(),
+                            XAException.XA_RBINTEGRITY);
                     }
-                    throw new EhcacheXAException("Invalid version for element: " + command.getKey(),
-                        XAException.XA_RBINTEGRITY);
+                    keys.add(key);
+                    oldVersionStore.put(store.get(key));
+                } finally {
+                    syncForKey.unlock(LockType.WRITE);
                 }
-                keys.add(key);
-                oldVersionStore.put(store.get(key));
-            } finally {
-                syncForKey.unlock(LockType.WRITE);
             }
         }
 
@@ -185,20 +192,22 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
 
             for (VersionAwareCommand command : context.getCommands()) {
                 Object key = command.getKey();
-                Sync syncForKey = oldVersionStoreLockProvider.getSyncForKey(key);
-                syncForKey.lock(LockType.WRITE);
-                Element element = null;
-                try {
-                    element = oldVersionStore.remove(key);
-                    if(element != null) {
-                        store.put(element);
-                    } else {
-                        LOG.error("No element found in oldVersionStore for key '{}'", key);
-                    }
-                } finally {
-                    syncForKey.unlock(LockType.WRITE);
-                    if (element != null) {
-                        storeLockProvider.getSyncForKey(key).unlock(LockType.WRITE);
+                if (key != null) {
+                    Sync syncForKey = oldVersionStoreLockProvider.getSyncForKey(key);
+                    syncForKey.lock(LockType.WRITE);
+                    Element element = null;
+                    try {
+                        element = oldVersionStore.remove(key);
+                        if(element != null) {
+                            store.put(element);
+                        } else {
+                            LOG.error("No element found in oldVersionStore for key '{}'", key);
+                        }
+                    } finally {
+                        syncForKey.unlock(LockType.WRITE);
+                        if (element != null) {
+                            storeLockProvider.getSyncForKey(key).unlock(LockType.WRITE);
+                        }
                     }
                 }
             }

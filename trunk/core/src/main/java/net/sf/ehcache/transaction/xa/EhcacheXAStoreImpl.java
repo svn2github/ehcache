@@ -134,15 +134,17 @@ public class EhcacheXAStoreImpl implements EhcacheXAStore {
         }
 
         public synchronized void checkin(Object key, Xid xid, boolean readOnly) {
-            Version version = versionStore.get(key);
-            boolean removeEntry = false;
-            if (readOnly) {
-                removeEntry = version.checkinRead(xid);
-            } else {
-                removeEntry = version.checkinWrite(xid);
-            }
-            if (removeEntry) {
-                versionStore.remove(key);
+            if (key != null) {
+                Version version = versionStore.get(key);
+                boolean removeEntry;
+                if (readOnly) {
+                    removeEntry = version.checkinRead(xid);
+                } else {
+                    removeEntry = version.checkinWrite(xid);
+                }
+                if (removeEntry) {
+                    versionStore.remove(key);
+                }
             }
         }
 
