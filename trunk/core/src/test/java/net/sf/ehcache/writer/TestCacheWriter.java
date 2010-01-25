@@ -44,7 +44,9 @@ public class TestCacheWriter implements CacheWriter {
     }
 
     public void writeAll(Collection<Element> elements) throws CacheException {
-        throw new UnsupportedOperationException();
+        for (Element element : elements) {
+            writtenElements.put(getAdaptedKey(element.getKey()) + "-batched", element);
+        }
     }
 
     public void delete(Object key) throws CacheException {
@@ -52,7 +54,9 @@ public class TestCacheWriter implements CacheWriter {
     }
 
     public void deleteAll(Collection<Object> keys) throws CacheException {
-        throw new UnsupportedOperationException();
+        for (Object key : keys) {
+            writtenElements.remove(getAdaptedKey(key) + "-batched");
+        }
     }
 
     public CacheWriter clone(Ehcache cache) throws CloneNotSupportedException {

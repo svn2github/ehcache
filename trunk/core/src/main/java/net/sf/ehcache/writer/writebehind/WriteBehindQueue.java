@@ -56,8 +56,8 @@ public class WriteBehindQueue implements WriteBehind {
     private final ReentrantReadWriteLock.WriteLock queueWriteLock = queueLock.writeLock();
     private final Condition queueIsEmpty = queueWriteLock.newCondition();
 
-    private final AtomicLong lastProcessing = new AtomicLong();
-    private final AtomicLong lastWorkDone = new AtomicLong();
+    private final AtomicLong lastProcessing = new AtomicLong(System.currentTimeMillis());
+    private final AtomicLong lastWorkDone = new AtomicLong(System.currentTimeMillis());
     private final AtomicBoolean busyProcessing = new AtomicBoolean(false);
 
     private List<SingleOperation> waiting = new ArrayList<SingleOperation>();
@@ -106,8 +106,6 @@ public class WriteBehindQueue implements WriteBehind {
 
                 processItems();
 
-                final long currentLastProcessing = getLastProcessing();
-
                 // Wait for new items or until the min write delay has expired.
                 // Do not continue if the actual min write delay wasn't at least the one specified in the config
                 // otherwise it's possible to create a new work list for just a couple of items in case
@@ -116,16 +114,16 @@ public class WriteBehindQueue implements WriteBehind {
                 queueWriteLock.lock();
                 try {
                     try {
-                        boolean delay;
+                        long delay = minWriteDelayMs;
                         do {
-                            queueIsEmpty.await(minWriteDelayMs, TimeUnit.MILLISECONDS);
-                            long actualDelay = System.currentTimeMillis() - currentLastProcessing;
+                            queueIsEmpty.await(delay, TimeUnit.MILLISECONDS);
+                            long actualDelay = System.currentTimeMillis() - getLastProcessing();
                             if (actualDelay < minWriteDelayMs) {
-                                delay = true;
+                                delay = minWriteDelayMs - actualDelay;
                             } else {
-                                delay = false;
+                                delay = 0;
                             }
-                        } while (delay);
+                        } while (delay > 0);
                     } catch (final InterruptedException e) {
                         // if the wait for items is interrupted, act as if the bucket was canceled
                         stop();
@@ -180,25 +178,27 @@ public class WriteBehindQueue implements WriteBehind {
                 return;
             }
 
-            // if the batching is enabled and work size is smaller than batch size, don't process anything as long as the
-            // max allowed delay hasn't expired
-            final long actualWriteDelay = lastProcessing.get() - lastWorkDone.get();
-            if (maxWriteDelayMs > actualWriteDelay &&
-                    config.getWriteBatching() && config.getWriteBatchSize() > 0 && workSize < config.getWriteBatchSize()) {
-                if (LOGGER.isLoggable(Level.FINER))
-                    LOGGER.finer(getThreadName() + " : processItems() : only " + workSize + " work items available, waiting for "
-                            + config.getWriteBatchSize() + " items to fill up a batch");
-                return;
-            }
-
-            // set some state related to this processing run
-            lastWorkDone.set(System.currentTimeMillis());
-
-            if (LOGGER.isLoggable(Level.FINER))
-                LOGGER.finer(getThreadName() + " : processItems() : processing started");
-
-            // process the quarantined items and remove them as they're processed
             try {
+                // if the batching is enabled and work size is smaller than batch size, don't process anything as long as the
+                // max allowed delay hasn't expired
+                if (config.getWriteBatching()
+                        && config.getWriteBatchSize() > 0
+                        && workSize < config.getWriteBatchSize()
+                        && maxWriteDelayMs > lastProcessing.get() - lastWorkDone.get()) {
+                    if (LOGGER.isLoggable(Level.FINER))
+                        LOGGER.finer(getThreadName() + " : processItems() : only " + workSize + " work items available, waiting for "
+                                + config.getWriteBatchSize() + " items to fill up a batch");
+                    reassemble(quarantined);
+                    return;
+                }
+
+                // set some state related to this processing run
+                lastWorkDone.set(System.currentTimeMillis());
+
+                if (LOGGER.isLoggable(Level.FINER))
+                    LOGGER.finer(getThreadName() + " : processItems() : processing started");
+
+                // process the quarantined items and remove them as they're processed
                 processQuarantinedItems(quarantined);
             } catch (final RuntimeException e) {
                 reassemble(quarantined);
@@ -221,7 +221,6 @@ public class WriteBehindQueue implements WriteBehind {
 
         while (!quarantined.isEmpty()) {
             if (config.getWriteBatching() && config.getWriteBatchSize() > 0) {
-
                 processBatchedOperations(quarantined);
             } else {
                 processSingleOperation(quarantined);
@@ -231,14 +230,14 @@ public class WriteBehindQueue implements WriteBehind {
     }
 
     private void processBatchedOperations(List<SingleOperation> quarantined) {
-        int newBatchSize = config.getWriteBatchSize();
-        if (quarantined.size() < newBatchSize) {
-            newBatchSize = quarantined.size();
+        int batchSize = config.getWriteBatchSize();
+        if (quarantined.size() < batchSize) {
+            batchSize = quarantined.size();
         }
 
         // create batches that are separated by operation type
         final Map<Class, List<SingleOperation>> separatedItemsPerType = new HashMap<Class, List<SingleOperation>>();
-        for (int i = 0; i < newBatchSize; i++) {
+        for (int i = 0; i < batchSize; i++) {
             final SingleOperation item = quarantined.get(i);
 
             if (LOGGER.isLoggable(Level.CONFIG))
@@ -259,7 +258,7 @@ public class WriteBehindQueue implements WriteBehind {
         }
 
         // remove the batched items
-        for (int i = 0; i < newBatchSize; i++) {
+        for (int i = 0; i < batchSize; i++) {
             quarantined.remove(0);
         }
     }

@@ -232,20 +232,18 @@ public class CacheWriterTest extends AbstractCacheTest {
 
     @Test
     public void testWriteBehindSolelyJava() throws InterruptedException {
-    Cache cache = new Cache(
-        new CacheConfiguration("writeBehindSolelyJava", 10)
-            .cacheWriter(new CacheWriterConfiguration()
-                .writeMode(CacheWriterConfiguration.WriteMode.WRITE_BEHIND)
-                .minWriteDelay(2)
-                .maxWriteDelay(8)
-                .cacheWriterFactory(new CacheWriterConfiguration.CacheWriterFactoryConfiguration()
-                    .className("net.sf.ehcache.writer.TestCacheWriterFactory")
-                    .properties("just.some.property=test; another.property=test2")
-                    .propertySeparator(";"))));
+        Cache cache = new Cache(
+                new CacheConfiguration("writeBehindSolelyJava", 10)
+                        .cacheWriter(new CacheWriterConfiguration()
+                        .writeMode(CacheWriterConfiguration.WriteMode.WRITE_BEHIND)
+                        .minWriteDelay(2)
+                        .maxWriteDelay(8)
+                        .cacheWriterFactory(new CacheWriterConfiguration.CacheWriterFactoryConfiguration()
+                        .className("net.sf.ehcache.writer.TestCacheWriterFactory"))));
         assertNotNull(cache.getRegisteredCacheWriter());
 
         CacheManager.getInstance().addCache(cache);
-        TestCacheWriter cacheWriter = (TestCacheWriter)cache.getRegisteredCacheWriter();
+        TestCacheWriter cacheWriter = (TestCacheWriter) cache.getRegisteredCacheWriter();
         assertEquals(0, cacheWriter.getWrittenElements().size());
 
         Element el1 = new Element("key1", "value1");
@@ -257,13 +255,65 @@ public class CacheWriterTest extends AbstractCacheTest {
 
         assertEquals(0, cacheWriter.getWrittenElements().size());
 
-        Thread.sleep(1000);
+        Thread.sleep(3000);
+
+        assertEquals(3, cacheWriter.getWrittenElements().size());
+
+        cache.removeWithWriter(el2.getKey());
+        cache.removeWithWriter(el3.getKey());
+
+        assertEquals(3, cacheWriter.getWrittenElements().size());
+
+        Thread.sleep(3000);
+
+        assertEquals(1, cacheWriter.getWrittenElements().size());
+    }
+
+    @Test
+    public void testWriteBehindBatched() throws InterruptedException {
+        Cache cache = new Cache(
+                new CacheConfiguration("writeBehindBatched", 10)
+                        .cacheWriter(new CacheWriterConfiguration()
+                        .writeMode(CacheWriterConfiguration.WriteMode.WRITE_BEHIND)
+                        .minWriteDelay(1)
+                        .maxWriteDelay(4)
+                        .writeBatching(true)
+                        .writeBatchSize(10)
+                        .cacheWriterFactory(new CacheWriterConfiguration.CacheWriterFactoryConfiguration()
+                        .className("net.sf.ehcache.writer.TestCacheWriterFactory")
+                        .properties("key.prefix=pre2; key.suffix=suff2")
+                        .propertySeparator(";"))));
+        assertNotNull(cache.getRegisteredCacheWriter());
+
+        CacheManager.getInstance().addCache(cache);
+        TestCacheWriter cacheWriter = (TestCacheWriter) cache.getRegisteredCacheWriter();
+        assertEquals(0, cacheWriter.getWrittenElements().size());
+
+        Element el1 = new Element("key1", "value1");
+        Element el2 = new Element("key2", "value2");
+        Element el3 = new Element("key3", "value3");
+        cache.putWithWriter(el1);
+        cache.putWithWriter(el2);
+        cache.putWithWriter(el3);
+
+        assertEquals(0, cacheWriter.getWrittenElements().size());
+
+        Thread.sleep(3000);
 
         assertEquals(0, cacheWriter.getWrittenElements().size());
 
         Thread.sleep(2000);
 
         assertEquals(3, cacheWriter.getWrittenElements().size());
+        assertFalse(cacheWriter.getWrittenElements().containsKey("key1"));
+        assertFalse(cacheWriter.getWrittenElements().containsKey("key2"));
+        assertFalse(cacheWriter.getWrittenElements().containsKey("key3"));
+        assertFalse(cacheWriter.getWrittenElements().containsKey("pre2key1suff2"));
+        assertFalse(cacheWriter.getWrittenElements().containsKey("pre2key2suff2"));
+        assertFalse(cacheWriter.getWrittenElements().containsKey("pre2key3suff2"));
+        assertTrue(cacheWriter.getWrittenElements().containsKey("pre2key1suff2-batched"));
+        assertTrue(cacheWriter.getWrittenElements().containsKey("pre2key2suff2-batched"));
+        assertTrue(cacheWriter.getWrittenElements().containsKey("pre2key3suff2-batched"));
 
         cache.removeWithWriter(el2.getKey());
         cache.removeWithWriter(el3.getKey());
