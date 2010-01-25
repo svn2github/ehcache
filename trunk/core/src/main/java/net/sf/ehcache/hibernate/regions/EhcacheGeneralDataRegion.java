@@ -80,6 +80,8 @@ abstract class EhcacheGeneralDataRegion extends EhcacheDataRegion implements Gen
             throw new CacheException(e);
         } catch (IllegalStateException e) {
             throw new CacheException(e);
+        } catch (net.sf.ehcache.CacheException e) {
+            throw new CacheException(e);
         }
     }
 
@@ -93,6 +95,8 @@ abstract class EhcacheGeneralDataRegion extends EhcacheDataRegion implements Gen
             throw new CacheException(e);
         } catch (IllegalStateException e) {
             throw new CacheException(e);
+        } catch (net.sf.ehcache.CacheException e) {
+            throw new CacheException(e);
         }
     }
 
@@ -103,6 +107,8 @@ abstract class EhcacheGeneralDataRegion extends EhcacheDataRegion implements Gen
         try {
             cache.removeAll();
         } catch (IllegalStateException e) {
+            throw new CacheException(e);
+        } catch (net.sf.ehcache.CacheException e) {
             throw new CacheException(e);
         }
     }

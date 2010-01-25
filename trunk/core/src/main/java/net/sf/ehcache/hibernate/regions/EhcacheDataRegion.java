@@ -108,7 +108,11 @@ public abstract class EhcacheDataRegion implements Region {
      * {@inheritDoc}
      */
     public long getElementCountOnDisk() {
-        return cache.getDiskStoreSize();
+        try {
+            return cache.getDiskStoreSize();
+        } catch (net.sf.ehcache.CacheException e) {
+            throw new CacheException(e);
+        }
     }
 
     /**

@@ -51,35 +51,43 @@ public class SingletonEhCacheRegionFactory extends AbstractEhcacheRegionFactory 
      * {@inheritDoc}
      */
     public void start(Settings settings, Properties properties) throws CacheException {
-        String configurationResourceName = null;
-        if (properties != null) {
-            configurationResourceName = (String) properties.get(NET_SF_EHCACHE_CONFIGURATION_RESOURCE_NAME);
-        }
-        if (configurationResourceName == null || configurationResourceName.length() == 0) {
-            manager = CacheManager.create();
-            REFERENCE_COUNT.incrementAndGet();
-        } else {
-            if (!configurationResourceName.startsWith("/")) {
-                configurationResourceName = "/" + configurationResourceName;
-                    LOG.debug("prepending / to {}. It should be placed in the rootof the classpath rather than in a package.",
-                            configurationResourceName);
+        try {
+            String configurationResourceName = null;
+            if (properties != null) {
+                configurationResourceName = (String) properties.get(NET_SF_EHCACHE_CONFIGURATION_RESOURCE_NAME);
             }
-            URL url = loadResource(configurationResourceName);
-            manager = CacheManager.create(url);
-            REFERENCE_COUNT.incrementAndGet();
+            if (configurationResourceName == null || configurationResourceName.length() == 0) {
+                manager = CacheManager.create();
+                REFERENCE_COUNT.incrementAndGet();
+            } else {
+                if (!configurationResourceName.startsWith("/")) {
+                    configurationResourceName = "/" + configurationResourceName;
+                        LOG.debug("prepending / to {}. It should be placed in the rootof the classpath rather than in a package.",
+                                configurationResourceName);
+                }
+                URL url = loadResource(configurationResourceName);
+                manager = CacheManager.create(url);
+                REFERENCE_COUNT.incrementAndGet();
+            }
+            mbeanRegistrationHelper.registerMBean(manager, properties);
+        } catch (net.sf.ehcache.CacheException e) {
+          throw new CacheException(e);
         }
-        mbeanRegistrationHelper.registerMBean(manager, properties);
     }
 
     /**
      * {@inheritDoc}
      */
     public void stop() {
-        if (manager != null) {
-            if (REFERENCE_COUNT.decrementAndGet() == 0) {
-                manager.shutdown();
+        try {
+            if (manager != null) {
+                if (REFERENCE_COUNT.decrementAndGet() == 0) {
+                    manager.shutdown();
+                }
+                manager = null;
             }
-            manager = null;
+        } catch (net.sf.ehcache.CacheException e) {
+            throw new CacheException(e);
         }
     }
 }

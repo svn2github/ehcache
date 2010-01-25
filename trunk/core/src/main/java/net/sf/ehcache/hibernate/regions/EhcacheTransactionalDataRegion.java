@@ -122,6 +122,8 @@ public class EhcacheTransactionalDataRegion extends EhcacheDataRegion implements
             throw new CacheException(e);
         } catch (IllegalStateException e) {
             throw new CacheException(e);
+        } catch (net.sf.ehcache.CacheException e) {
+            throw new CacheException(e);
         }
     }
 
@@ -145,6 +147,8 @@ public class EhcacheTransactionalDataRegion extends EhcacheDataRegion implements
         try {
             cache.removeAll();
         } catch (IllegalStateException e) {
+            throw new CacheException(e);
+        } catch (net.sf.ehcache.CacheException e) {
             throw new CacheException(e);
         }
     }

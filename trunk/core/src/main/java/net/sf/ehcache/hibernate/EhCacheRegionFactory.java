@@ -73,7 +73,7 @@ public class EhCacheRegionFactory extends AbstractEhcacheRegionFactory {
                         "Use sessionFactory.close() between repeated calls to buildSessionFactory. " +
                         "Consider using SingletonEhCacheRegionFactory. Error from ehcache was: " + e.getMessage());
             } else {
-                throw e;
+                throw new CacheException(e);
             }
         }
     }
@@ -82,9 +82,13 @@ public class EhCacheRegionFactory extends AbstractEhcacheRegionFactory {
      * {@inheritDoc}
      */
     public void stop() {
-        if (manager != null) {
-            manager.shutdown();
-            manager = null;
+        try {
+            if (manager != null) {
+                manager.shutdown();
+                manager = null;
+            }
+        } catch (net.sf.ehcache.CacheException e) {
+            throw new CacheException(e);
         }
     }
 }
