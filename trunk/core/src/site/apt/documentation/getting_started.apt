@@ -51,7 +51,7 @@ Getting Started
 
 * RESTful and SOAP Caching with the Cache Server
 
-    * Download the standalone cache server from {{http://sourceforge.net/project/showfiles.php?group_id=93232}}
+    * Download the ehcache-standalone-server from {{https://sourceforge.net/projects/ehcache/files/ehcache-server}}.
 
     * cd to the bin directory
 
