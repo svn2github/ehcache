@@ -54,6 +54,12 @@ Documentation - Table of Contents
 
     * {{{./jta.html}JTA}}
 
+    * {{{./osgi.html}OSGI}}
+
+    * {{{./monitor.html}Ehcache Monitor}}
+
+    * {{{./bulk_loading.html}Bulk Loading}}
+
     * {{{./cachemanager_event_listeners.html}CacheManager Event Listeners}}
 
     * {{{./cache_event_listeners.html}Cache Event Listeners}}
@@ -70,9 +76,9 @@ Documentation - Table of Contents
 
     * {{{./constructs.html}BlockingCache and SelfPopulatingCache}}
 
-    * {{{./hibernate.html}Using Ehcache with Hibernate}}
+    * {{{./hibernate.html}Hibernate Caching Provider}}
 
-    * {{{./openjpa_provider.html}Using Ehcache with OpenJPA}}
+    * {{{./openjpa_provider.html}OpenJPA Caching Provider}}
 
     * {{{./grails.html}Grails: Using Ehcache as a Second Level Caching Provider for Hibernate within Grails}}
 
