@@ -4,9 +4,9 @@ import net.sf.ehcache.Ehcache;
 
 import java.util.Properties;
 
-public class WriteThroughTestCacheWriterFactory extends CacheWriterFactory {
+public class TestCacheWriterFactory extends CacheWriterFactory {
     @Override
     public CacheWriter createCacheWriter(Ehcache cache, Properties properties) {
-        return new WriteThroughTestCacheWriter(properties);
+        return new TestCacheWriter(properties);
     }
 }

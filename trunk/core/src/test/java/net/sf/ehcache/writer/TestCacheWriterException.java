@@ -6,7 +6,7 @@ import net.sf.ehcache.Element;
 
 import java.util.Collection;
 
-public class WriteThroughTestCacheWriterException implements CacheWriter {
+public class TestCacheWriterException implements CacheWriter {
     public void init() {
         // nothing to do
     }

@@ -9,11 +9,11 @@ import java.util.Collection;
 import java.util.Properties;
 import java.util.concurrent.ConcurrentMap;
 
-public class WriteThroughTestCacheWriter implements CacheWriter {
+public class TestCacheWriter implements CacheWriter {
     private final Properties properties;
     private final ConcurrentMap<Object, Element> writtenElements = new ConcurrentHashMap<Object, Element>();
 
-    public WriteThroughTestCacheWriter(Properties properties) {
+    public TestCacheWriter(Properties properties) {
         this.properties = properties;
     }
 
@@ -38,6 +38,7 @@ public class WriteThroughTestCacheWriter implements CacheWriter {
         String keySuffix = properties.getProperty("key.suffix", "");
         return keyPrefix + key + keySuffix;
     }
+    
     public void write(Element element) throws CacheException {
         writtenElements.put(getAdaptedKey(element.getKey()), element);
     }

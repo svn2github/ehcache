@@ -40,8 +40,7 @@ import java.util.Set;
 import java.util.jar.JarEntry;
 import java.util.jar.JarOutputStream;
 
-import net.sf.ehcache.writer.WriteThroughTestCacheWriter;
-import net.sf.ehcache.writer.WriteThroughTestCacheWriterFactory;
+import net.sf.ehcache.writer.TestCacheWriter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -1528,7 +1527,7 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
         assertEquals(2, config5.getCacheWriterConfiguration().getRetryAttempts());
         assertEquals(2, config5.getCacheWriterConfiguration().getRetryAttemptDelaySeconds());
         Ehcache cache5 = configurationHelper.createCacheFromName("writeBehindCache5");
-        Properties properties5 = ((WriteThroughTestCacheWriter)cache5.getRegisteredCacheWriter()).getProperties();
+        Properties properties5 = ((TestCacheWriter)cache5.getRegisteredCacheWriter()).getProperties();
         assertEquals(2, properties5.size());
         assertEquals("test", properties5.getProperty("just.some.property"));
         assertEquals("test2", properties5.getProperty("another.property"));

@@ -30,7 +30,7 @@
         <cacheWriter writeMode="write_through" notifyListenersOnException="false" maxWriteDelay="0"
                      rateLimitPerSecond="0" writeCoalescing="false" writeBatching="false" writeBatchSize="1"
                      retryAttempts="0" retryAttemptDelaySeconds="0">
-            <cacheWriterFactory class="net.sf.ehcache.writer.WriteThroughTestCacheWriterFactory"/>
+            <cacheWriterFactory class="net.sf.ehcache.writer.TestCacheWriterFactory"/>
         </cacheWriter>
     </cache>
 
@@ -38,21 +38,21 @@
         <cacheWriter writeMode="write_behind" notifyListenersOnException="true" maxWriteDelay="8" rateLimitPerSecond="5"
                      writeCoalescing="true" writeBatching="false" writeBatchSize="20"
                      retryAttempts="2" retryAttemptDelaySeconds="2">
-            <cacheWriterFactory class="net.sf.ehcache.writer.WriteThroughTestCacheWriterFactory"
+            <cacheWriterFactory class="net.sf.ehcache.writer.TestCacheWriterFactory"
                                 properties="just.some.property=test; another.property=test2" propertySeparator=";"/>
         </cacheWriter>
     </cache>
 
     <cache name="writeThroughCacheXml" eternal="false" maxElementsInMemory="1000" overflowToDisk="false">
         <cacheWriter>
-            <cacheWriterFactory class="net.sf.ehcache.writer.WriteThroughTestCacheWriterFactory"/>
+            <cacheWriterFactory class="net.sf.ehcache.writer.TestCacheWriterFactory"/>
         </cacheWriter>
     </cache>
 
 
     <cache name="writeThroughCacheXmlProperties" eternal="false" maxElementsInMemory="1000" overflowToDisk="false">
         <cacheWriter>
-            <cacheWriterFactory class="net.sf.ehcache.writer.WriteThroughTestCacheWriterFactory" properties="key.prefix=pre, key.suffix=suff"/>
+            <cacheWriterFactory class="net.sf.ehcache.writer.TestCacheWriterFactory" properties="key.prefix=pre, key.suffix=suff"/>
         </cacheWriter>
     </cache>
 

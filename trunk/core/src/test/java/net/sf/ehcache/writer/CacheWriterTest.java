@@ -24,7 +24,6 @@ import net.sf.ehcache.Status;
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.CacheWriterConfiguration;
 import net.sf.ehcache.event.CountingCacheEventListener;
-import net.sf.ehcache.event.RegisteredEventListeners;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -66,7 +65,7 @@ public class CacheWriterTest extends AbstractCacheTest {
         Cache cache = manager.getCache("writeThroughCacheXml");
         assertNotNull(cache.getRegisteredCacheWriter());
 
-        WriteThroughTestCacheWriter writer = (WriteThroughTestCacheWriter) cache.getRegisteredCacheWriter();
+        TestCacheWriter writer = (TestCacheWriter) cache.getRegisteredCacheWriter();
 
         Element el1 = new Element("key1", "value1");
         Element el2 = new Element("key2", "value2");
@@ -93,7 +92,7 @@ public class CacheWriterTest extends AbstractCacheTest {
         Cache cache = manager.getCache("writeThroughCacheXmlProperties");
         assertNotNull(cache.getRegisteredCacheWriter());
 
-        WriteThroughTestCacheWriter writer = (WriteThroughTestCacheWriter) cache.getRegisteredCacheWriter();
+        TestCacheWriter writer = (TestCacheWriter) cache.getRegisteredCacheWriter();
 
         Element el1 = new Element("key1", "value1");
         Element el2 = new Element("key2", "value2");
@@ -123,7 +122,7 @@ public class CacheWriterTest extends AbstractCacheTest {
         Cache cache = manager.getCache("writeThroughCacheJavaRegistration");
         assertNull(cache.getRegisteredCacheWriter());
 
-        WriteThroughTestCacheWriter writer = new WriteThroughTestCacheWriter(new Properties());
+        TestCacheWriter writer = new TestCacheWriter(new Properties());
         cache.registerCacheWriter(writer);
 
         Element el1 = new Element("key1", "value1");
@@ -161,7 +160,7 @@ public class CacheWriterTest extends AbstractCacheTest {
 
         CacheManager.getInstance().addCache(cache);
 
-        WriteThroughTestCacheWriterException writer = new WriteThroughTestCacheWriterException();
+        TestCacheWriterException writer = new TestCacheWriterException();
         cache.registerCacheWriter(writer);
 
         // without listeners notification
@@ -230,27 +229,51 @@ public class CacheWriterTest extends AbstractCacheTest {
             assertEquals(1, CountingCacheEventListener.getCacheElementsRemoved(cache).size());
         }
     }
-/*
+
     @Test
-    public void testWriteBehindSolelyJava() {
+    public void testWriteBehindSolelyJava() throws InterruptedException {
     Cache cache = new Cache(
         new CacheConfiguration("writeBehindSolelyJava", 10)
             .cacheWriter(new CacheWriterConfiguration()
                 .writeMode(CacheWriterConfiguration.WriteMode.WRITE_BEHIND)
+                .minWriteDelay(2)
                 .maxWriteDelay(8)
-                .rateLimitPerSecond(5)
-                .writeCoalescing(true)
-                .writeBatching(true)
-                .writeBatchSize(20)
-                .retryAttempts(2)
-                .retryAttemptDelaySeconds(2)
                 .cacheWriterFactory(new CacheWriterConfiguration.CacheWriterFactoryConfiguration()
-                    .className("com.company.MyCacheWriterFactory")
+                    .className("net.sf.ehcache.writer.TestCacheWriterFactory")
                     .properties("just.some.property=test; another.property=test2")
                     .propertySeparator(";"))));
-        assertNull(cache.getRegisteredCacheWriter());
+        assertNotNull(cache.getRegisteredCacheWriter());
 
         CacheManager.getInstance().addCache(cache);
+        TestCacheWriter cacheWriter = (TestCacheWriter)cache.getRegisteredCacheWriter();
+        assertEquals(0, cacheWriter.getWrittenElements().size());
+
+        Element el1 = new Element("key1", "value1");
+        Element el2 = new Element("key2", "value2");
+        Element el3 = new Element("key3", "value3");
+        cache.putWithWriter(el1);
+        cache.putWithWriter(el2);
+        cache.putWithWriter(el3);
+
+        assertEquals(0, cacheWriter.getWrittenElements().size());
+
+        Thread.sleep(1000);
+
+        assertEquals(0, cacheWriter.getWrittenElements().size());
+
+        Thread.sleep(2000);
+
+        assertEquals(3, cacheWriter.getWrittenElements().size());
+
+        cache.removeWithWriter(el2.getKey());
+        cache.removeWithWriter(el3.getKey());
+
+        Thread.sleep(2000);
+
+        assertEquals(3, cacheWriter.getWrittenElements().size());
+
+        Thread.sleep(3000);
+
+        assertEquals(1, cacheWriter.getWrittenElements().size());
     }
-*/
 }

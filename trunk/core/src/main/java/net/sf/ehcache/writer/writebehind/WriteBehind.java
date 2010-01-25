@@ -15,6 +15,7 @@
  */
 package net.sf.ehcache.writer.writebehind;
 
+import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.writer.CacheWriter;
 
@@ -31,7 +32,7 @@ public interface WriteBehind {
      * @param writer the cache writer that should be used to process the operations
      * @see #stop
      */
-    void start(CacheWriter writer);
+    void start(CacheWriter writer) throws CacheException;
 
     /**
      * Add a write operation for a given element.
@@ -56,5 +57,5 @@ public interface WriteBehind {
      *
      * @see #start
      */
-    void stop();
+    void stop() throws CacheException;
 }
