@@ -1457,7 +1457,7 @@ public class CacheTest extends AbstractCacheTest {
 
         Object key = new Object();
         Element element = new Element(key, "value");
-        element.setTimeToLive(2);
+        element.setTimeToLive(3);
         cache.putQuiet(element);
         Thread.sleep(1050);
         assertNotNull(cache.get(key));
@@ -1469,7 +1469,7 @@ public class CacheTest extends AbstractCacheTest {
         assertNull(cache.get(key));
 
         Element element3 = new Element(key, "value");
-        element3.setTimeToLive(2);
+        element3.setTimeToLive(5);
         cache.putQuiet(element3);
         Thread.sleep(1999);
         assertSame(element3, cache.get(key));
