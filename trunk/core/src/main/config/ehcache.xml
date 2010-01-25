@@ -646,6 +646,13 @@ used with JMX monitors.
       is being shared by callers with disparate classloaders or to prevent local drift if keys/values
       are mutated locally w/o putting back to the cache. NOTE: This setting is only relevant for caches
       with valueMode=serialization
+    * coherent=true|false - indicates whether this cache should have coherent reads and writes with guaranteed 
+      consistency across the cluster.  By default, this setting is true.  If you set this property to false, 
+      values from the cache are read without locking, possibly seeing stale values. Writes to the caches are 
+      batched and applied without acquiring  cluster-wide locks, making it possible to see inconsistent values 
+      across cluster. This is a performance optimization with weaker concurrency guarantees and should generally 
+      be used with caches for bulk loading or where the application can tolerate reading stale data or for 
+      loading a read-only cache. This setting overrides coherentReads which is deprecated.
 
     Simplest example to indicate clustering:
         <terracotta/>
@@ -655,6 +662,10 @@ used with JMX monitors.
 
     To indicate the cache should be clustered using identity mode:
         <terracotta clustered="true" valueMode="identity"/>
+        
+    To indicate the cache should be clustered using incoherent mode for bulk load:
+        <terracotta clustered="true" coherent="false"/>
+        
     -->
 
     <!--
