@@ -16,6 +16,9 @@
 
 package net.sf.ehcache.config;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * Class to hold the Terracotta configuration - either a pointer to the real config or a
  * container for embedded config.
@@ -24,6 +27,9 @@ package net.sf.ehcache.config;
  * @author Geert Bevin
  */
 public class TerracottaConfiguration implements Cloneable {
+    
+    private static final Logger LOG = LoggerFactory.getLogger(TerracottaConfiguration.class.getName());
+    
     /**
      * Default clustered mode
      */
@@ -173,6 +179,9 @@ public class TerracottaConfiguration implements Cloneable {
      * @param coherentReads {@code true} if coherent reads should be used; {@code false} otherwise
      */
     public void setCoherentReads(boolean coherentReads) {
+        LOG.warn("The attribute \"coherentReads\" in \"terracotta\" element is deprecated and is "
+                + "overrided by the value of the new \"coherent\" attribute (defaults to \"" + DEFAULT_CACHE_COHERENT
+                + "\"). Please use the new \"coherent\" attribute instead.");
         this.coherentReads = coherentReads;
     }
 
