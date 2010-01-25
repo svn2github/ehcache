@@ -1089,7 +1089,7 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
         assertEquals(true, defaultCache.getCacheConfiguration().getTerracottaConfiguration().getCoherentReads());
 
         //Check caches
-        assertEquals(13, configurationHelper.createCaches().size());
+        assertEquals(16, configurationHelper.createCaches().size());
 
         //  <cache name="clustered-1"
         //   maxElementsInMemory="1000"
@@ -1210,6 +1210,27 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
       assertEquals(true, sampleCache12.getCacheConfiguration().isTerracottaClustered());
       assertEquals(true,
               sampleCache12.getCacheConfiguration().getTerracottaConfiguration().isCoherent());
+      
+   // assert default value is false always
+      assertEquals(false, TerracottaConfiguration.DEFAULT_SYNCHRONOUS_WRITE);
+      
+      Ehcache sampleCache13 = configurationHelper.createCacheFromName("clustered-13");
+      assertEquals("clustered-13", sampleCache13.getName());
+      assertEquals(true, sampleCache13.getCacheConfiguration().isTerracottaClustered());
+      assertEquals(false,
+              sampleCache13.getCacheConfiguration().getTerracottaConfiguration().isSynchronousWrite());
+      
+      Ehcache sampleCache14 = configurationHelper.createCacheFromName("clustered-14");
+      assertEquals("clustered-14", sampleCache14.getName());
+      assertEquals(true, sampleCache14.getCacheConfiguration().isTerracottaClustered());
+      assertEquals(false,
+              sampleCache14.getCacheConfiguration().getTerracottaConfiguration().isSynchronousWrite());
+      
+      Ehcache sampleCache15 = configurationHelper.createCacheFromName("clustered-15");
+      assertEquals("clustered-15", sampleCache15.getName());
+      assertEquals(true, sampleCache15.getCacheConfiguration().isTerracottaClustered());
+      assertEquals(true,
+              sampleCache15.getCacheConfiguration().getTerracottaConfiguration().isSynchronousWrite());
 
         // <terracottaConfig>
         //  <url>localhost:9510</url>

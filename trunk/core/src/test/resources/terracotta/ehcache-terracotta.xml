@@ -97,6 +97,25 @@
            memoryStoreEvictionPolicy="LFU">
            <terracotta coherent="true"/>
     </cache>
+    
+    <!-- Test synchronousWrite, default value -->
+    <cache name="clustered-13"
+           maxElementsInMemory="1000"
+           memoryStoreEvictionPolicy="LFU">
+           <terracotta/>
+    </cache>
+    <!-- Test synchronousWrite, false value-->
+    <cache name="clustered-14"
+           maxElementsInMemory="1000"
+           memoryStoreEvictionPolicy="LFU">
+           <terracotta synchronousWrite="false"/>
+    </cache>
+    <!-- Test synchronousWrite, true value -->
+    <cache name="clustered-15"
+           maxElementsInMemory="1000"
+           memoryStoreEvictionPolicy="LFU">
+           <terracotta synchronousWrite="true"/>
+    </cache>
 
     <terracottaConfig url="localhost:9510"/>
 
