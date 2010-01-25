@@ -41,6 +41,7 @@ import net.sf.ehcache.loader.CacheLoader;
 import net.sf.ehcache.statistics.CacheUsageListener;
 import net.sf.ehcache.statistics.LiveCacheStatistics;
 import net.sf.ehcache.statistics.sampled.SampledCacheStatistics;
+import net.sf.ehcache.transaction.manager.TransactionManagerLookup;
 import net.sf.ehcache.writer.CacheWriter;
 import net.sf.ehcache.writer.CacheWriterManager;
 
@@ -1169,4 +1170,20 @@ public class ExplicitLockingCache implements Ehcache {
     public CacheWriterManager getWriterManager() {
         return cache.getWriterManager();
     }
+
+  public boolean isCoherent() {
+    return cache.isCoherent();
+  }
+
+  public void setCoherent(boolean coherent) throws UnsupportedOperationException {
+    cache.setCoherent(coherent);
+  }
+
+  public void waitUntilCoherent() throws UnsupportedOperationException {
+    cache.waitUntilCoherent();
+  }
+
+  public void setTransactionManagerLookup(TransactionManagerLookup transactionManagerLookup) {
+    cache.setTransactionManagerLookup(transactionManagerLookup);
+  }
 }
