@@ -1500,7 +1500,7 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
         CacheConfiguration config4 = configs.get("writeThroughCache4");
         assertNotNull(config4.getCacheWriterConfiguration());
         assertEquals(CacheWriterConfiguration.WriteMode.WRITE_THROUGH, config4.getCacheWriterConfiguration().getWriteMode());
-        assertEquals("net.sf.ehcache.writer.WriteThroughTestCacheWriterFactory", config4.getCacheWriterConfiguration().getCacheWriterFactoryConfiguration().getFullyQualifiedClassPath());
+        assertEquals("net.sf.ehcache.writer.TestCacheWriterFactory", config4.getCacheWriterConfiguration().getCacheWriterFactoryConfiguration().getFullyQualifiedClassPath());
         assertEquals(null, config4.getCacheWriterConfiguration().getCacheWriterFactoryConfiguration().getProperties());
         assertEquals(null, config4.getCacheWriterConfiguration().getCacheWriterFactoryConfiguration().getPropertySeparator());
         assertEquals(false, config4.getCacheWriterConfiguration().getNotifyListenersOnException());
@@ -1515,7 +1515,7 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
         CacheConfiguration config5 = configs.get("writeBehindCache5");
         assertNotNull(config5.getCacheWriterConfiguration());
         assertEquals(CacheWriterConfiguration.WriteMode.WRITE_BEHIND, config5.getCacheWriterConfiguration().getWriteMode());
-        assertEquals("net.sf.ehcache.writer.WriteThroughTestCacheWriterFactory", config5.getCacheWriterConfiguration().getCacheWriterFactoryConfiguration().getFullyQualifiedClassPath());
+        assertEquals("net.sf.ehcache.writer.TestCacheWriterFactory", config5.getCacheWriterConfiguration().getCacheWriterFactoryConfiguration().getFullyQualifiedClassPath());
         assertEquals("just.some.property=test; another.property=test2", config5.getCacheWriterConfiguration().getCacheWriterFactoryConfiguration().getProperties());
         assertEquals(";", config5.getCacheWriterConfiguration().getCacheWriterFactoryConfiguration().getPropertySeparator());
         assertEquals(true, config5.getCacheWriterConfiguration().getNotifyListenersOnException());
