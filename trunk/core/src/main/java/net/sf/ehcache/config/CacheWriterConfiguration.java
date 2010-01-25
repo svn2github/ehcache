@@ -37,6 +37,10 @@ public class CacheWriterConfiguration implements Cloneable {
      */
     public static final boolean DEFAULT_NOTIFY_LISTENERS_ON_EXCEPTION = false;
     /**
+     * Default minimum write delay
+     */
+    public static final int DEFAULT_MIN_WRITE_DELAY = 1;
+    /**
      * Default maximum write delay
      */
     public static final int DEFAULT_MAX_WRITE_DELAY = 1;
@@ -106,6 +110,7 @@ public class CacheWriterConfiguration implements Cloneable {
 
     private WriteMode writeMode = DEFAULT_WRITE_MODE;
     private boolean notifyListenersOnException = DEFAULT_NOTIFY_LISTENERS_ON_EXCEPTION;
+    private int minWriteDelay = DEFAULT_MIN_WRITE_DELAY;
     private int maxWriteDelay = DEFAULT_MAX_WRITE_DELAY;
     private int rateLimitPerSecond = DEFAULT_RATE_LIMIT_PER_SECOND;
     private boolean writeCoalescing = DEFAULT_WRITE_COALESCING;
@@ -201,6 +206,39 @@ public class CacheWriterConfiguration implements Cloneable {
      */
     public boolean getNotifyListenersOnException() {
         return this.notifyListenersOnException;
+    }
+
+    /**
+     * Set the minimum number of seconds to wait before writing behind. If set to a value greater than 0, it permits
+     * operations to build up in the queue. This is different from the maximum write delay in that by waiting a minimum
+     * amount of time, work is always being built up. If the minimum write delay is set to zero and the {@code CacheWriter}
+     * performs its work very quickly, the overhead of processing the write behind queue items becomes very noticeable
+     * in a cluster since all the operations might be done for individual items instead of for a collection of them.  
+     * <p/>
+     * This is only applicable to write behind mode.
+     * <p/>
+     * Defaults to {@value #DEFAULT_MIN_WRITE_DELAY}).
+     *
+     * @param minWriteDelay the minimum number of seconds to wait before writing behind
+     */
+    public void setMinWriteDelay(int minWriteDelay) {
+        this.minWriteDelay = minWriteDelay;
+    }
+
+    /**
+     * @return this configuration instance
+     * @see #setMinWriteDelay(int)
+     */
+    public CacheWriterConfiguration minWriteDelay(int minWriteDelay) {
+        setMinWriteDelay(minWriteDelay);
+        return this;
+    }
+
+    /**
+     * Get the minimum number of seconds to wait before writing behind
+     */
+    public int getMinWriteDelay() {
+        return this.minWriteDelay;
     }
 
     /**

@@ -196,7 +196,8 @@
             </xs:sequence>
             <xs:attribute name="writeMode" use="optional" type="writeModeType" default="write_through"/>
             <xs:attribute name="notifyListenersOnException" use="optional" type="xs:boolean" default="false"/>
-            <xs:attribute name="maxWriteDelay" use="optional" type="xs:nonNegativeInteger" default="0"/>
+            <xs:attribute name="minWriteDelay" use="optional" type="xs:nonNegativeInteger" default="1"/>
+            <xs:attribute name="maxWriteDelay" use="optional" type="xs:nonNegativeInteger" default="1"/>
             <xs:attribute name="rateLimitPerSecond" use="optional" type="xs:nonNegativeInteger" default="0"/>
             <xs:attribute name="writeCoalescing" use="optional" type="xs:boolean" default="false"/>
             <xs:attribute name="writeBatching" use="optional" type="xs:boolean" default="false"/>
