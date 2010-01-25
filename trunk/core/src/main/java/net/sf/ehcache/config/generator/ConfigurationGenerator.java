@@ -223,8 +223,14 @@ public class ConfigurationGenerator {
                 builder.append(EOL).append(spacer).append(" orphanEvictionPeriod=\"").append(
                         terracottaConfiguration.getOrphanEvictionPeriod()).append("\"");
             }
+            if (TerracottaConfiguration.DEFAULT_CACHE_COHERENT != terracottaConfiguration.isCoherent()) {
                 builder.append(EOL).append(spacer).append(" coherent=\"").append(terracottaConfiguration.isCoherent()).append(
-                        "\"");
+                "\"");
+            }
+            if (TerracottaConfiguration.DEFAULT_SYNCHRONOUS_WRITE != terracottaConfiguration.isSynchronousWrite()) {
+                builder.append(EOL).append(spacer).append(" synchronousWrite=\"").append(terracottaConfiguration.isSynchronousWrite()).append(
+                "\"");
+            }
             builder.append(">").append(EOL);
             indent(-1);
             builder.append(spacer).append("</terracotta>");
