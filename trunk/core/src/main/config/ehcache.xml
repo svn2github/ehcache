@@ -557,6 +557,54 @@ used with JMX monitors.
         <cacheLoaderFactory class="com.example.ExampleCacheLoaderFactory"
                                       properties="type=int,startCounter=10"/>
 
+    Cache Writer
+
+    A CacheWriter maybe be set to write to an underlying resource. Only one CacheWriter can be
+    been to a cache.
+
+    It is configured as per the following example for write-through:
+
+        <cacheWriter writeMode="write-through" notifyListenersOnException="true">
+            <cacheWriterFactory class="net.sf.ehcache.writer.TestCacheWriterFactory"
+                                properties="type=int,startCounter=10"/>
+        </cacheWriter>
+
+    And it is configured as per the following example for write-behind:
+
+        <cacheWriter writeMode="write-behind" minWriteDelay="1" maxWriteDelay="5"
+                     rateLimitPerSecond="5" writeCoalescing="true" writeBatching="true" writeBatchSize="1"
+                     retryAttempts="2" retryAttemptDelaySeconds="1">
+            <cacheWriterFactory class="net.sf.ehcache.writer.TestCacheWriterFactory"
+                                properties="type=int,startCounter=10"/>
+        </cacheWriter>
+
+    The cacheWriter element has the following attributes:
+    * writeMode: the write mode, write-through or write-behind
+
+    These attributes only apply to write-through mode:
+    * notifyListenersOnException: Sets whether to notify listeners when an exception occurs on a writer operation.
+
+    These attributes only apply to write-behind mode:
+    * minWriteDelay: Set the minimum number of seconds to wait before writing behind. If set to a value greater than 0,
+      it permits operations to build up in the queue. This is different from the maximum write delay in that by waiting
+      a minimum amount of time, work is always being built up. If the minimum write delay is set to zero and the
+      CacheWriter performs its work very quickly, the overhead of processing the write behind queue items becomes very
+      noticeable in a cluster since all the operations might be done for individual items instead of for a collection
+      of them.
+    * maxWriteDelay: Set the maximum number of seconds to wait before writing behind. If set to a value greater than 0,
+      it permits operations to build up in the queue to enable effective coalescing and batching optimisations.
+    * writeBatching: Sets whether to batch write operations. If set to true, writeAll and deleteAll will be called on
+      the CacheWriter rather than write and delete being called for each key. Resources such as databases can perform
+      more efficiently if updates are batched, thus reducing load.
+    * writeBatchSize: Sets the number of operations to include in each batch when writeBatching is enabled. If there are
+      less entries in the write-behind queue than the batch size, the queue length size is used.
+    * rateLimitPerSecond: Sets the maximum number of write operations to allow per second when writeBatching is enabled.
+    * writeCoalescing: Sets whether to use write coalescing. If set to true and multiple operations on the same key are
+      present in the write-behind queue, only the latest write is done, as the others are redundant.
+    * retryAttempts: Sets the number of times the operation is retried in the CacheWriter, this happens after the
+      original operation.
+    * retryAttemptDelaySeconds: Sets the number of seconds to wait before retrying an failed operation.
+
     Cache Extension
 
     CacheExtensions are a general purpose mechanism to allow generic extensions to a Cache.

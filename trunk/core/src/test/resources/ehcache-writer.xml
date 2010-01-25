@@ -21,13 +21,13 @@
     </cache>
 
     <cache name="writeThroughCache3" eternal="false" maxElementsInMemory="1000" overflowToDisk="false">
-        <cacheWriter writeMode="write_through" notifyListenersOnException="true" maxWriteDelay="30"
+        <cacheWriter writeMode="write-through" notifyListenersOnException="true" maxWriteDelay="30"
                      rateLimitPerSecond="10" writeCoalescing="true" writeBatching="true" writeBatchSize="8"
                      retryAttempts="20" retryAttemptDelaySeconds="60"/>
     </cache>
 
     <cache name="writeThroughCache4" eternal="false" maxElementsInMemory="1000" overflowToDisk="false">
-        <cacheWriter writeMode="write_through" notifyListenersOnException="false" maxWriteDelay="0"
+        <cacheWriter writeMode="write-through" notifyListenersOnException="false" maxWriteDelay="0"
                      rateLimitPerSecond="0" writeCoalescing="false" writeBatching="false" writeBatchSize="1"
                      retryAttempts="0" retryAttemptDelaySeconds="0">
             <cacheWriterFactory class="net.sf.ehcache.writer.TestCacheWriterFactory"/>
@@ -35,7 +35,7 @@
     </cache>
 
     <cache name="writeBehindCache5" eternal="false" maxElementsInMemory="1000" overflowToDisk="false">
-        <cacheWriter writeMode="write_behind" notifyListenersOnException="true" maxWriteDelay="8" rateLimitPerSecond="5"
+        <cacheWriter writeMode="write-behind" notifyListenersOnException="true" maxWriteDelay="8" rateLimitPerSecond="5"
                      writeCoalescing="true" writeBatching="false" writeBatchSize="20"
                      retryAttempts="2" retryAttemptDelaySeconds="2">
             <cacheWriterFactory class="net.sf.ehcache.writer.TestCacheWriterFactory"

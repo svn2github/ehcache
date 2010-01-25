@@ -148,7 +148,7 @@ public class CacheWriterConfiguration implements Cloneable {
         if (writeMode == null) {
             throw new IllegalArgumentException("WriteMode can't be null");
         }
-        this.writeMode = WriteMode.valueOf(WriteMode.class, writeMode.toUpperCase());
+        this.writeMode = WriteMode.valueOf(WriteMode.class, writeMode.replace('-', '_').toUpperCase());
     }
 
     /**
@@ -213,7 +213,7 @@ public class CacheWriterConfiguration implements Cloneable {
      * operations to build up in the queue. This is different from the maximum write delay in that by waiting a minimum
      * amount of time, work is always being built up. If the minimum write delay is set to zero and the {@code CacheWriter}
      * performs its work very quickly, the overhead of processing the write behind queue items becomes very noticeable
-     * in a cluster since all the operations might be done for individual items instead of for a collection of them.  
+     * in a cluster since all the operations might be done for individual items instead of for a collection of them.
      * <p/>
      * This is only applicable to write behind mode.
      * <p/>
