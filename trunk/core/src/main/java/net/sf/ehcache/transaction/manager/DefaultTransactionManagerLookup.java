@@ -16,9 +16,7 @@
 package net.sf.ehcache.transaction.manager;
 
 import java.lang.reflect.Method;
-import java.util.HashSet;
 import java.util.Properties;
-import java.util.Set;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -84,7 +82,7 @@ public class DefaultTransactionManagerLookup implements TransactionManagerLookup
             cl = ClassLoader.getSystemClassLoader();
         }
         try {
-            Class producerClass = cl.loadClass("bitronix.tm.resource.generic.GenericXAResourceProducer");
+            Class producerClass = cl.loadClass("org.terracotta.agent.repkg.bitronix.tm.resource.generic.GenericXAResourceProducer");
             Class[] signature = new Class[] { String.class, XAResource.class };
             Object[] args = new Object[] { uniqueName, resource };
             Method method = producerClass.getMethod("registerXAResource", signature);

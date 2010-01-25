@@ -953,6 +953,7 @@ public class Cache implements Ehcache {
                                              + configuration.getName() + " to be transactional, but no TransactionManager could be found!");
                 }
                 EhcacheXAResource resource = cacheManager.createEhcacheXAResource(this, memoryStore, MemoryStore.create(this, diskStore), txnManager);
+                transactionManagerLookup.register(resource);
                 this.memoryStore = new XATransactionalStore(resource);
             } else {
                 this.memoryStore = memoryStore;

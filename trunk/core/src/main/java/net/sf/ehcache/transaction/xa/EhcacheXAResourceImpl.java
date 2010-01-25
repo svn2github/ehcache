@@ -111,9 +111,6 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
     }
 
     public void end(final Xid xid, final int flags) throws XAException {
-        if(flags != TMSUSPEND) {
-            Transaction txn = ehcacheXAStore.getTransactionContext(xid).getTransaction();
-        }
         LOG.debug("End called for Txn with id: {}", xid);
     }
 
