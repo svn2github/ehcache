@@ -46,6 +46,9 @@ import net.sf.ehcache.store.Primitive;
 import org.junit.After;
 import org.junit.Test;
 
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
+import static java.util.concurrent.TimeUnit.SECONDS;
+
 /**
  * Test cases for the DiskStore.
  *
@@ -1206,25 +1209,47 @@ public class DiskStoreTest extends AbstractCacheTest {
     }
 
     @Test
-    public void testShrinkingAndGrowingDiskStore() {
+    public void testShrinkingAndGrowingDiskStore() throws InterruptedException {
         DiskStore store = createCapacityLimitedDiskStore();
         int i = 0;
-        for (int size = -1; ; i++) {
-            size = store.getSize();
-            store.put(new Element(Integer.valueOf(i), new byte[100]));
-            if (store.getSize() <= size) break;
+        while (true) {
+            int beforeSize = store.getSize();
+            store.put(new Element(Integer.valueOf(i++), new byte[100]));
+            MILLISECONDS.sleep(500);
+            int afterSize = store.getSize();
+            LOG.info(beforeSize + " ==> " + afterSize);
+            if (afterSize <= beforeSize) {
+                LOG.info("Hit Threshold : Terminating");
+                break;
+            }
         }
 
+        LOG.info("Wait For Spool Thread To Finish");
+        SECONDS.sleep(2);
+        
         final int initialSize = store.getSize();
         final int shrinkSize = initialSize / 2;
         store.diskCapacityChanged(initialSize, shrinkSize);
+        LOG.info("Resized : " + initialSize + " ==> " + shrinkSize);
 
-        for (int size = 0; ; i++) {
-            size = store.getSize();
+        LOG.info("Wait For Spool Thread To Finish");
+        SECONDS.sleep(2);
+
+        for (;; i++) {
+            int beforeSize = store.getSize();
             store.put(new Element(Integer.valueOf(i), new byte[100]));
-            if (store.getSize() <= size) break;
+            MILLISECONDS.sleep(500);
+            int afterSize = store.getSize();
+            LOG.info(beforeSize + " ==> " + afterSize);
+            if (afterSize >= beforeSize && afterSize <= shrinkSize * 1.1) {
+                LOG.info("Hit Threshold : Terminating");
+                break;
+            }
         }
 
+        LOG.info("Wait For Spool Thread To Finish");
+        SECONDS.sleep(2);
+        
         {
             int size = store.getSize();
             assertTrue(size < (shrinkSize * 1.1));
@@ -1233,12 +1258,25 @@ public class DiskStoreTest extends AbstractCacheTest {
         
         final int growSize = initialSize * 2;
         store.diskCapacityChanged(shrinkSize, growSize);
+        LOG.info("Resized : " + shrinkSize + " ==> " + growSize);
         
-        for (int size = 0; ; i++) {
-            size = store.getSize();
+        LOG.info("Wait For Spool Thread To Finish");
+        SECONDS.sleep(2);
+
+        for (;; i++) {
+            int beforeSize = store.getSize();
             store.put(new Element(Integer.valueOf(i), new byte[100]));
-            if (store.getSize() <= size) break;
+            MILLISECONDS.sleep(500);
+            int afterSize = store.getSize();
+            LOG.info(beforeSize + " ==> " + afterSize);
+            if (afterSize <= beforeSize && afterSize > 0.9 * growSize) {
+                LOG.info("Hit Threshold : Terminating");
+                break;
+            }
         }
+
+        LOG.info("Wait For Spool Thread To Finish");
+        SECONDS.sleep(2);
 
         {
             int size = store.getSize();
