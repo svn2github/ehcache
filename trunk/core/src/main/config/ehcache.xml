@@ -21,7 +21,8 @@ particular cache store in the Terracotta clustered memory.
 for new versions of Ehcache over the Internet.  If not specified, updateCheck="true".
 * dynamicConfig - an optional setting that can be used to disable dynamic configuration of caches
 associated with this CacheManager.  By default this is set to true - i.e. dynamic configuration
-is enabled.
+is enabled.  Dynamically configurable caches can have their TTI, TTL and maximum disk and
+in-memory capacity changed at runtime through the cache's configuration object.
 * monitoring - an optional setting that determines whether the CacheManager should
 automatically register the SampledCacheMBean with the system MBean server.
 
