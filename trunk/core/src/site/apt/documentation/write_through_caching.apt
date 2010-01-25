@@ -296,3 +296,37 @@ public interface CacheWriter {
     void deleteAll(Collection<Object> keys) throws CacheException;
 }
 ---
+
+
+*   Configuration Examples
+
+---
+  <cache name="writeThroughCache1" eternal="false" maxElementsInMemory="1000" overflowToDisk="false"/>
+
+  <cache name="writeThroughCache2" eternal="false" maxElementsInMemory="1000" overflowToDisk="false">
+      <cacheWriter/>
+  </cache>
+
+  <cache name="writeThroughCache3" eternal="false" maxElementsInMemory="1000" overflowToDisk="false">
+      <cacheWriter writeMode="write_through" notifyListenersOnException="true" maxWriteDelay="30"
+                   rateLimitPerSecond="10" writeCoalescing="true" writeBatching="true" writeBatchSize="8"
+                   retryAttempts="20" retryAttemptDelaySeconds="60"/>
+  </cache>
+
+  <cache name="writeThroughCache4" eternal="false" maxElementsInMemory="1000" overflowToDisk="false">
+      <cacheWriter writeMode="write_through" notifyListenersOnException="false" maxWriteDelay="0"
+                   rateLimitPerSecond="0" writeCoalescing="false" writeBatching="false" writeBatchSize="1"
+                   retryAttempts="0" retryAttemptDelaySeconds="0">
+          <cacheWriterFactory class="net.sf.ehcache.writer.WriteThroughTestCacheWriterFactory"/>
+      </cacheWriter>
+  </cache>
+
+  <cache name="writeBehindCache5" eternal="false" maxElementsInMemory="1000" overflowToDisk="false">
+      <cacheWriter writeMode="write_behind" notifyListenersOnException="true" maxWriteDelay="8" rateLimitPerSecond="5"
+                   writeCoalescing="true" writeBatching="false" writeBatchSize="20"
+                   retryAttempts="2" retryAttemptDelaySeconds="2">
+          <cacheWriterFactory class="net.sf.ehcache.writer.WriteThroughTestCacheWriterFactory"
+                              properties="just.some.property=test; another.property=test2" propertySeparator=";"/>
+      </cacheWriter>
+  </cache>
+---
