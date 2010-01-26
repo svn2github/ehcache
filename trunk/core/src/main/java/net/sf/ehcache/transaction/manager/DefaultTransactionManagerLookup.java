@@ -82,7 +82,7 @@ public class DefaultTransactionManagerLookup implements TransactionManagerLookup
             cl = ClassLoader.getSystemClassLoader();
         }
         try {
-            Class producerClass = cl.loadClass("org.terracotta.agent.repkg.bitronix.tm.resource.generic.GenericXAResourceProducer");
+            Class producerClass = cl.loadClass("org.terracotta.modules.ehcache.repkg.bitronix.tm.resource.generic.GenericXAResourceProducer");
             Class[] signature = new Class[] { String.class, XAResource.class };
             Object[] args = new Object[] { uniqueName, resource };
             Method method = producerClass.getMethod("registerXAResource", signature);
