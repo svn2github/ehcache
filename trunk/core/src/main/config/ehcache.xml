@@ -68,13 +68,23 @@ used with JMX monitors.
     -->
     <diskStore path="java.io.tmpdir"/>
     
-      <!-- 
+    <!-- 
     TransactionManagerLookup configuration
     ======================================
-     -->
-     
-    <transactionManagerLookup class="net.sf.ehcache.transaction.manager.DefaultTransactionManagerLookup" properties="" propertySeparator=":"/>
+    This class is used by ehcache to lookup the JTA TransactionManager use in the application
+    using an XA enabled ehcache. If no class is specified then DefaultTransactionManagerLookup
+    will find the TransactionManager in the following order
+
+     *GenericJNDI (i.e. jboss)
+     *Websphere
+     *Bitronix
+     *Atomikos
     
+    You can provide you own lookup class that implements the net.sf.ehcache.transaction.manager.TransactionManagerLookup interface. 
+    -->
+
+    <transactionManagerLookup class="net.sf.ehcache.transaction.manager.DefaultTransactionManagerLookup" properties="" propertySeparator=":"/>
+ 
 
     <!--
     CacheManagerEventListener
@@ -557,6 +567,12 @@ used with JMX monitors.
         <cacheLoaderFactory class="com.example.ExampleCacheLoaderFactory"
                                       properties="type=int,startCounter=10"/>
 
+    XA Cache
+
+    To enable an ehcache as a participant in the JTA Transaction, just have the following attribute
+    
+    transactionalMode="xa", otherwise the default is transactionalMode="off"
+
     Cache Writer
 
     A CacheWriter maybe be set to write to an underlying resource. Only one CacheWriter can be
@@ -815,6 +831,19 @@ used with JMX monitors.
     </cache>
     -->
 
+         <!--
+      Sample xa enabled cache name xaCache
+    -->
 
-
+    <cache name="xaCache"
+        maxElementsInMemory="500"
+        eternal="false"
+        timeToIdleSeconds="300"
+        timeToLiveSeconds="600"
+        overflowToDisk="false"
+        diskPersistent="false"
+        diskExpiryThreadIntervalSeconds="1"
+        transactionalMode="xa">
+      <terracotta clustered="true"/>
+	</cache>
 </ehcache>
