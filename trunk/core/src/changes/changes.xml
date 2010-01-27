@@ -10,6 +10,15 @@
             <action dev="Geert Bevin" type="add">
                 Added support for CacheWriters with write-through and write-behind modes.
             </action>
+            <action dev="Abhishek Sanoujam" type="add">
+                Added support for fast bulk-loading with incoherent mode when clustered with Terracotta. Turning on
+                incoherent mode with cache.setCoherent(false) improves performance while loading/warming up the cache.
+            </action>
+            <action dev="Abhishek Sanoujam" type="add">
+            	New attribute for Terracotta clustered-caches, synchronousWrite=true|false -- support for Terracotta's 
+            	Synchronous Write locking level in cache. Synchronous Write locking level gives greater guarantees, but
+            	comes at high cost in terms of scale/latency.
+            </action>
         </release>
 
         <release version="1.7.2" date="2010-1-11" description="Maintenance and bug fixes">
