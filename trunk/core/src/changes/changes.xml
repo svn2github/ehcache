@@ -2,7 +2,7 @@
 <document>
     <body>
 
-        <release version="2.0.0" date="2010-1-31" description="Major release with new features">
+        <release version="2.0.0-beta" date="2010-1-31" description="Major release with new features">
             <action dev="Geert Bevin" type="add">
                 Refactored Cache constructors to allow the use of a fluent interface instead of a huge series of
                 constructor arguments.
