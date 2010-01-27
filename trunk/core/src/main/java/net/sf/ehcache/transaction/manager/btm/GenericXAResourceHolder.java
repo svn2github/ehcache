@@ -27,24 +27,42 @@ import bitronix.tm.resource.common.AbstractXAResourceHolder;
 import bitronix.tm.resource.common.RecoveryXAResourceHolder;
 import bitronix.tm.resource.common.ResourceBean;
 
+/**
+ * @author nelrahma
+ */
 public class GenericXAResourceHolder extends AbstractXAResourceHolder {
 
     private final XAResource resource;
     private final ResourceBean bean;
 
+    /**
+     *
+     * @param resource
+     * @param bean
+     */
     public GenericXAResourceHolder(XAResource resource, ResourceBean bean) {
         this.resource = resource;
         this.bean = bean;
     }
 
+    /**
+     *
+     * @return
+     */
     public RecoveryXAResourceHolder createRecoveryXAResourceHolder() {
         return new RecoveryXAResourceHolder(this);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public XAResource getXAResource() {
         return resource;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public XAResourceHolderState getXAResourceHolderState() {
         XAResourceHolderState state = super.getXAResourceHolderState();
@@ -54,21 +72,33 @@ public class GenericXAResourceHolder extends AbstractXAResourceHolder {
         return super.getXAResourceHolderState();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public void close() throws Exception {
         throw new UnsupportedOperationException(
             "GenericXAResourceHolder cannot be used with an XAPool implementation");
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public Object getConnectionHandle() throws Exception {
         throw new UnsupportedOperationException(
             "GenericXAResourceHolder cannot be used with an XAPool implementation");
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public Date getLastReleaseDate() {
         throw new UnsupportedOperationException(
             "GenericXAResourceHolder cannot be used with an XAPool implementation");
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public List getXAResourceHolders() {
         List xaResourceHolders = new ArrayList();
         xaResourceHolders.add(this);

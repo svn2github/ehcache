@@ -30,21 +30,62 @@ import net.sf.ehcache.transaction.xa.VersionAwareCommand;
  */
 public interface TransactionContext {
 
+    /**
+     * Add a command to the current TransactionContext
+     * @param command Command to be deferred
+     * @param element Element the command impacts, may be null
+     */
     void addCommand(Command command, Element element);
-    
+
+    /**
+     * Getter to the JTA Transaction this context wraps
+     * @return the current Transaction
+     */
     Transaction getTransaction();
-    
+
+    /**
+     * Filter to get operations on underlying Store.<p>
+     * Should the key still be transaction local, or locally pending deletion
+     * @param key the key
+     * @return the potential Element instance for that key
+     */
     public Element get(Object key);
 
+    /**
+     * Queries the local tx context, whether the key is pending removal
+     * @param key the key pending removal
+     * @return true if key is pending removal
+     */
     boolean isRemoved(Object key);
 
+    /**
+     * getter to all keys pending addition to the store
+     * @return list of all keys
+     */
     Collection getAddedKeys();
 
+    /**
+     * getter to all keys pending deletion from the store
+     * @return list of all keys
+     */
     Collection getRemovedKeys();
 
+    /**
+     * The underlying store's size modifier.<p>
+     * Plus all pending put commands, and minus all pending removals (dependent on whether their in the underlying store)
+     * @return
+     */
     int getSizeModifier();
-    
+
+    /**
+     * All ordered pending commands
+     * @return List of all pending commands
+     */
     List<VersionAwareCommand> getCommands();
 
+    /**
+     * All keys to pending keys to update
+     * @return UnmodifiableSet of keys pending changes
+     */
     Set<Object> getUpdatedKeys();
 }

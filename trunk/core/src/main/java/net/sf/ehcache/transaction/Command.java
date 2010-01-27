@@ -24,18 +24,57 @@ import net.sf.ehcache.store.Store;
  *
  */
 public interface Command {
-    public static final String NULL = "NULL";  
+
+    /**
+     * No op command
+     */
+    public static final String NULL = "NULL";
+
+    /**
+     * {@link Store#put(net.sf.ehcache.Element)} command
+     */
     public static final String PUT = "PUT";
+
+    /**
+     * {@link Store#remove(Object)} command
+     */
     public static final String REMOVE = "REMOVE";
+
+    /**
+     * {@link net.sf.ehcache.store.Store#expireElements()} command
+     */
     public static final String EXPIRE_ALL_ELEMENTS = "EXPIRE_ALL_ELEMENTS";
+
+    /**
+     * {@link net.sf.ehcache.store.Store#removeAll()}
+     */
     public static final String REMOVE_ALL = "REMOVE_ALL";
-    
+
+    /**
+     *
+     * @return the command name
+     */
     public String getCommandName();
-    
+
+    /**
+     * Executes the command on some store
+     * @param store the Store on which to execute the command
+     * @return true if the store was mutated, false otherwise
+     */
     boolean execute(Store store);
-    
+
+    /**
+     * Is this command represents adding a key to the store
+     * @param key the key
+     * @return true, if this command would try to add an Element for key, otherwise false
+     */
     public boolean isPut(Object key);
 
+    /**
+     * Is this command represents removing a key to the store
+     * @param key the key
+     * @return true, if this command would try to remove an Element for key, otherwise false
+     */
     public boolean isRemove(Object key);
 
 }

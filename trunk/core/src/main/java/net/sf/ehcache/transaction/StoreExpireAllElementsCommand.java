@@ -22,20 +22,32 @@ import net.sf.ehcache.store.Store;
  * @author Alex Snaps
  */
 public class StoreExpireAllElementsCommand implements StoreWriteCommand {
-    
+
+    /**
+     * {@inheritDoc}
+     */
     public boolean execute(final Store store) {
         store.expireElements();
         return true;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public boolean isPut(Object key) {
         return false;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public boolean isRemove(Object key) {
         return false;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public String getCommandName() {
         return Command.EXPIRE_ALL_ELEMENTS;
     }

@@ -42,9 +42,16 @@ public class DefaultTransactionManagerLookup implements TransactionManagerLookup
             new FactorySelector("Bitronix", "bitronix.tm.TransactionManagerServices"),
             new ClassSelector("Atomikos", "com.atomikos.icatch.jta.UserTransactionManager"), };
 
+    /**
+     * Constructor
+     */
     public DefaultTransactionManagerLookup() {
     }
 
+    /**
+     * Constructor
+     * @param properties props from the config line
+     */
     public DefaultTransactionManagerLookup(final Properties properties) {
         this.properties = properties;
     }

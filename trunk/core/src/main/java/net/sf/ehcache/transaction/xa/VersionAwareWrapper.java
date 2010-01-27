@@ -20,70 +20,89 @@ import net.sf.ehcache.store.Store;
 import net.sf.ehcache.transaction.Command;
 import net.sf.ehcache.transaction.StoreWriteCommand;
 
+/**
+ * @author Nabib El-Rahman
+ */
 public class VersionAwareWrapper implements Command, VersionAwareCommand {
     
     private final Command command;
     private final long version;
     private final Object key;
-    
+
+    /**
+     * Constructor
+     * @param command the underlying command
+     */
     public VersionAwareWrapper(Command command) {
         this.command = command;
         this.version = -1;
         this.key = null;
     }
-    
+
+    /**
+     * Constructor
+     * @param command the underlying command
+     * @param version the version
+     * @param key the key
+     */
     public VersionAwareWrapper(Command command,  long version, Object key) {
         this.command = command;
         this.version = version;
         this.key = key;
     }
-    
-    /* (non-Javadoc)
-     * @see net.sf.ehcache.transaction.xa.VersionAwareCommand#isWriteCommand()
+
+    /**
+     * {@inheritDoc}
      */
     public boolean isWriteCommand() {
         return (command instanceof StoreWriteCommand);
     }
     
-    /* (non-Javadoc)
-     * @see net.sf.ehcache.transaction.xa.VersionAwareCommand#execute(net.sf.ehcache.store.Store)
+    /**
+     * {@inheritDoc}
      */
     public boolean execute(Store store) {
         return command.execute(store);
     }
 
-    /* (non-Javadoc)
-     * @see net.sf.ehcache.transaction.xa.VersionAwareCommand#isPut(java.lang.Object)
+    /**
+     * {@inheritDoc}
      */
     public boolean isPut(Object key) {
         return command.isPut(key);
     }
 
-    /* (non-Javadoc)
-     * @see net.sf.ehcache.transaction.xa.VersionAwareCommand#isRemove(java.lang.Object)
+    /**
+     * {@inheritDoc}
      */
     public boolean isRemove(Object key) {
         return command.isRemove(key);
     }
 
-    /* (non-Javadoc)
-     * @see net.sf.ehcache.transaction.xa.VersionAwareCommand#isVersionAware()
+    /**
+     * {@inheritDoc}
      */
     public boolean isVersionAware() {
         return key != null;
     }
     
-    /* (non-Javadoc)
-     * @see net.sf.ehcache.transaction.xa.VersionAwareCommand#getVersion()
+    /**
+     * {@inheritDoc}
      */
     public long getVersion() {
         return version;
     }
-  
+
+    /**
+     * {@inheritDoc}
+     */
     public Object getKey() {
         return key;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public String getCommandName() {
         return command.getCommandName();
     }

@@ -39,8 +39,11 @@ import javax.naming.Reference;
 import javax.naming.StringRefAddr;
 import javax.transaction.xa.XAResource;
 
-public class GenericXAResourceProducer extends ResourceBean implements
-    XAResourceProducer {
+/**
+ * @author nelrahma
+ */
+public class GenericXAResourceProducer extends ResourceBean implements XAResourceProducer {
+
     private final static Logger LOG = LoggerFactory.getLogger(GenericXAResourceProducer.class);
     private static final long serialVersionUID = 1L;
 
@@ -49,10 +52,18 @@ public class GenericXAResourceProducer extends ResourceBean implements
     private RecoveryXAResourceHolder recoveryXAResourceHolder;
 
 
+    /**
+     *
+     */
     public GenericXAResourceProducer() {
         //
     }
 
+    /**
+     * Util for reflection based handling
+     * @param uniqueName
+     * @param resource
+     */
     public synchronized static void registerXAResource(String uniqueName, XAResource resource) {
         GenericXAResourceProducer producer = new GenericXAResourceProducer();
         producer.setXAResource(resource);
@@ -60,6 +71,10 @@ public class GenericXAResourceProducer extends ResourceBean implements
         producer.init();
     }
 
+    /**
+     *
+     * @param resource
+     */
     public void setXAResource(XAResource resource) {
         this.xaResource = resource;
     }
@@ -114,16 +129,25 @@ public class GenericXAResourceProducer extends ResourceBean implements
 //        }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public void setFailed(boolean failed) {
         //
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public void close() {
         ResourceRegistrar.unregister(this);
         xaResourceHolder = null;
         recoveryXAResourceHolder = null;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public XAStatefulHolder createPooledConnection(Object xaFactory,
                                                    ResourceBean bean) throws Exception {
         if (xaResourceHolder == null) {
@@ -132,6 +156,9 @@ public class GenericXAResourceProducer extends ResourceBean implements
         return xaResourceHolder;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public XAResourceHolder findXAResourceHolder(XAResource aXAResource) {
         return (xaResourceHolder.getXAResource() == aXAResource) ? xaResourceHolder : null;
     }

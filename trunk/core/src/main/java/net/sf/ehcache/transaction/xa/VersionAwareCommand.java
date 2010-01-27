@@ -18,19 +18,33 @@ package net.sf.ehcache.transaction.xa;
 
 import net.sf.ehcache.transaction.Command;
 
-
+/**
+ * @author Alex Snaps
+ */
 public interface VersionAwareCommand extends Command {
 
+    /**
+     * Checks whether this command is a write command to the underlying store
+     * @return true if the command would mutate the store on {@link Command#execute(net.sf.ehcache.store.Store)}
+     */
     boolean isWriteCommand();
 
-    boolean isPut(Object key);
-
-    boolean isRemove(Object key);
-
+    /**
+     * Checks whether this command aware of any version scheme of the Element if affects
+     * @return true if so
+     */
     boolean isVersionAware();
 
+    /**
+     * getter to the version of the Element this affects
+     * @return version number
+     */
     long getVersion();
-    
+
+    /**
+     * Getter to the key of the Element this command affects
+     * @return key
+     */
     public Object getKey();
 
 }

@@ -54,25 +54,31 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
     private Store oldVersionStore;
     private TransactionManager txnManager;
 
+    /**
+     * Constructor
+     * @param cacheName The cache name of the Cache wrapped
+     * @param store the store of the cache
+     * @param txnManager the TransactionManager associated with this XAResource
+     * @param ehcacheXAStore The EhcacheXAStore for this cache
+     */
     public EhcacheXAResourceImpl(String cacheName, Store store, TransactionManager txnManager, EhcacheXAStore ehcacheXAStore) {
         this.cacheName = cacheName;
+        // todo this probably can go away and be replaced by ehcacheXAStore.getUnderlyingStore();
         this.store = store;
         this.txnManager = txnManager;
         this.ehcacheXAStore = ehcacheXAStore;
         this.oldVersionStore = ehcacheXAStore.getOldVersionStore();
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see net.sf.ehcache.transaction.xa.EhCacheXAResource#getCacheName()
+    /**
+     * {@inheritDoc}
      */
     public String getCacheName() {
         return cacheName;
     }
 
     /**
-     * XAResource Implementation
+     * {@inheritDoc}
      */
     public void start(final Xid xid, final int flags) throws XAException {
         LOG.debug("Start called for Txn with id: " + xid);
@@ -94,6 +100,9 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public void commit(final Xid xid, final boolean onePhase) throws XAException {
         if (onePhase) {
             // TODO if XA_READONLY, we can optimize that!
@@ -120,14 +129,23 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
         ehcacheXAStore.removeData(xid);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public void end(final Xid xid, final int flags) throws XAException {
         LOG.debug("End called for Txn with id: {}", xid);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public void forget(final Xid xid) throws XAException {
         LOG.debug("Forget called for Txn with id: {}", xid);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public int prepare(final Xid xid) throws XAException {
         LOG.debug("Prepare called for Txn with id: {}", xid);
 
@@ -185,10 +203,16 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public Xid[] recover(final int i) throws XAException {
         return ehcacheXAStore.getPreparedXids();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public void rollback(final Xid xid) throws XAException {
         LOG.debug("Rollback called for Txn with id: {}", xid);
 
@@ -222,10 +246,16 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
         ehcacheXAStore.removeData(xid);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public boolean isSameRM(final XAResource xaResource) throws XAException {
         return this == xaResource;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public boolean setTransactionTimeout(final int i) throws XAException {
         this.transactionTimeout = i;
         // TODO Figure out what to return here, it should be set to true of
@@ -233,20 +263,24 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
         return false;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public int getTransactionTimeout() throws XAException {
         return this.transactionTimeout;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see net.sf.ehcache.transaction.xa.EhCacheXAResource#getStore()
+    /**
+     * {@inheritDoc}
      */
     public Store getStore() {
         return store;
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public boolean equals(Object obj) {
         EhcacheXAResource resource2 = (EhcacheXAResource) obj;
@@ -256,11 +290,17 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
         return false;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public int hashCode() {
         return cacheName.hashCode();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public TransactionContext getOrCreateTransactionContext() throws SystemException, RollbackException {
         Transaction transaction = txnManager.getTransaction();
         if (transaction == null) {
@@ -279,6 +319,9 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
         return context;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public Element get(final Object key) {
         Element element = oldVersionStore.get(key);
         if (element == null) {
@@ -287,6 +330,9 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
         return element;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public Element getQuiet(final Object key) {
         Element element = oldVersionStore.getQuiet(key);
         if (element == null) {

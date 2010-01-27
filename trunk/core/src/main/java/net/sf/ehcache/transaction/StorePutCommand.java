@@ -25,28 +25,48 @@ import net.sf.ehcache.store.Store;
 public class StorePutCommand implements StoreWriteCommand {
 
     private final Element element;
+
+    /**
+     * Constructs a put command for an Element
+     * @param element to put in the store on {@link net.sf.ehcache.transaction.StorePutCommand#execute(net.sf.ehcache.store.Store)}
+     */
     public StorePutCommand(final Element element) {
- 
         this.element = element;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public boolean execute(final Store store) {
         store.put(element);
         return true;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public boolean isPut(Object key) {
         return element.getKey().equals(key);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public boolean isRemove(Object key) {
         return false;
     }
 
+    /**
+     * Getter to the Element instance to be put in the Store
+     * @return the element instance
+     */
     public Element getElement() {
         return element;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public String getCommandName() {
         return Command.PUT;
     }

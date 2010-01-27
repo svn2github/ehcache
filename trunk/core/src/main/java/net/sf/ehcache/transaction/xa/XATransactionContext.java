@@ -48,35 +48,62 @@ public class XATransactionContext implements TransactionContext {
     private transient Transaction transaction;
 
 
+    /**
+     *
+     * @param xid
+     * @param storeImpl
+     */
     public XATransactionContext(Xid xid, EhcacheXAStoreImpl storeImpl) {
         this.storeImpl = storeImpl;
         this.xid = xid;
     }
-    
+
+    /**
+     * Terracotta express mode clustering callback
+     * @param transaction
+     */
     public void initializeTransients(Transaction transaction) {
         this.transaction = transaction;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public Element get(Object key) {
         return removedKeys.contains(key) ? null : commandElements.get(key);
     }
     
+    /**
+     * {@inheritDoc}
+     */
     public Transaction getTransaction() {
         return this.transaction;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public boolean isRemoved(Object key) {
         return removedKeys.contains(key);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public Collection getAddedKeys() {
         return Collections.unmodifiableSet(addedKeys);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public Collection getRemovedKeys() {
         return Collections.unmodifiableSet(removedKeys);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public void addCommand(final Command command, final Element element) {
         Serializable key = null;
         if (element != null) {
@@ -108,10 +135,16 @@ public class XATransactionContext implements TransactionContext {
         commands.add(wrapper);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public List<VersionAwareCommand> getCommands() {
         return Collections.unmodifiableList(commands);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public Set<Object> getUpdatedKeys() {
         
         Set<Object> keys = new HashSet<Object>();
@@ -125,6 +158,9 @@ public class XATransactionContext implements TransactionContext {
         return Collections.unmodifiableSet(keys);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public int getSizeModifier() {
         return sizeModifier;
     }

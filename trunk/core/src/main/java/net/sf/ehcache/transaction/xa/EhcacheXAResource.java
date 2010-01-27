@@ -24,16 +24,43 @@ import net.sf.ehcache.Element;
 import net.sf.ehcache.store.Store;
 import net.sf.ehcache.transaction.TransactionContext;
 
+/**
+ * @author Nabib El-Rahman
+ */
 public interface EhcacheXAResource extends XAResource {
 
+    /**
+     * Getter to the name of the cache wrapped by this XAResource
+     * @return {@link net.sf.ehcache.Ehcache#getName} value
+     */
     String getCacheName();
 
+    /**
+     * Getter to the store wrapped by this XAResource
+     * @return the real underlying store (not the Transactional wrapper)
+     */
     Store getStore();
-    
+
+    /**
+     *
+     * @return
+     * @throws SystemException
+     * @throws RollbackException
+     */
     TransactionContext getOrCreateTransactionContext() throws SystemException, RollbackException;
 
+    /**
+     * Fall through methods to the underlying cache that will hit potential "guards" or "guarding read-only store"
+     * @param key
+     * @return
+     */
     Element get(Object key);
 
+    /**
+     * Fall through methods to the underlying cache that will hit potential "guards" or "guarding read-only store"
+     * @param key
+     * @return
+     */
     Element getQuiet(Object key);
 
 }

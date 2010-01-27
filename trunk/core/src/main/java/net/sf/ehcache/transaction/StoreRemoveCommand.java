@@ -25,22 +25,38 @@ public class StoreRemoveCommand implements StoreWriteCommand {
 
     private final Object key;
 
+    /**
+     * Constructs a remove command for a key
+     * @param key to remove from the store on {@link net.sf.ehcache.transaction.StorePutCommand#execute(net.sf.ehcache.store.Store)}
+     */
     public StoreRemoveCommand(final Object key) {
         this.key = key;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public boolean execute(final Store store) {
         return store.remove(key) != null;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public boolean isPut(Object key) {
         return false;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public boolean isRemove(Object key) {
         return this.key.equals(key);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public String getCommandName() {
         return Command.REMOVE;
     }

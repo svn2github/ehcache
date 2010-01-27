@@ -42,13 +42,20 @@ public class XATransactionalStore implements Store {
 
     private final Store underlyingStore;
     private final EhcacheXAResource xaResource;
-  
+
+    /**
+     * Constructor
+     * @param xaResource the xaResource wrapping the Cache this store is backing up
+     */
     public XATransactionalStore(final EhcacheXAResource xaResource) {
         this.xaResource = xaResource;
         this.underlyingStore = xaResource.getStore();
     }
-    
 
+
+    /**
+     * {@inheritDoc}
+     */
     public void put(final Element element) throws CacheException {
         TransactionContext context = getOrCreateTransactionContext();
         // In case this key is currently being updated...
@@ -57,10 +64,17 @@ public class XATransactionalStore implements Store {
     
     }
 
+    /**
+     * XATransactionalStore doesn't support putWithWriter
+     * @throws UnsupportedOperationException
+     */
     public void putWithWriter(final Element element, final CacheWriterManager writerManager) throws CacheException {
         throw new UnsupportedOperationException();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public Element get(final Object key) {
         TransactionContext context = getOrCreateTransactionContext();
         Element element = context.get(key);
@@ -70,6 +84,9 @@ public class XATransactionalStore implements Store {
         return element;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public Element getQuiet(final Object key) {
         TransactionContext context = getOrCreateTransactionContext();
         Element element = context.get(key);
@@ -79,6 +96,9 @@ public class XATransactionalStore implements Store {
         return element;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public Object[] getKeyArray() {
         TransactionContext context = getOrCreateTransactionContext();
         Set<Object> keys = new HashSet<Object>(Arrays.asList(underlyingStore.getKeyArray()));
@@ -87,6 +107,9 @@ public class XATransactionalStore implements Store {
         return keys.toArray();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public Element remove(final Object key) {
         TransactionContext context = getOrCreateTransactionContext();
         Element element = context.get(key);
@@ -101,10 +124,17 @@ public class XATransactionalStore implements Store {
         return element;
     }
 
+    /**
+     * XATransactionalStore doesn't support removeWithWriter
+     * @throws UnsupportedOperationException
+     */
     public Element removeWithWriter(final Object key, final CacheWriterManager writerManager) throws CacheException {
         throw new UnsupportedOperationException();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public void removeAll() throws CacheException {
         // todo file jira here
         getOrCreateTransactionContext().addCommand(new StoreRemoveAllCommand(), null);
@@ -112,22 +142,33 @@ public class XATransactionalStore implements Store {
 
     /**
      * Non transactional
+     * <p>{@inheritDoc}
      */
     public void dispose() {
         underlyingStore.dispose();
     }
 
+    /**
+     * TransactionContext impacted size of the store
+     * @return size of the store, including tx local pending changes
+     */
     public int getSize() {
         TransactionContext context = getOrCreateTransactionContext();
         int size = underlyingStore.getSize();
         return size + context.getSizeModifier();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public int getTerracottaClusteredSize() {
         TransactionContext context = getOrCreateTransactionContext();
         return underlyingStore.getTerracottaClusteredSize() + context.getSizeModifier();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public long getSizeInBytes() {
         getOrCreateTransactionContext();
         return underlyingStore.getSizeInBytes();
@@ -135,16 +176,26 @@ public class XATransactionalStore implements Store {
 
     /**
      * Non transactional
+     * <p>{@inheritDoc}
      */
     public Status getStatus() {
         return underlyingStore.getStatus();
     }
 
+    /**
+     * {@inheritDoc}
+     * @param key The Element key
+     * @return whether the element is currently in the cache, or pending put
+     */
     public boolean containsKey(final Object key) {
         TransactionContext context = getOrCreateTransactionContext();
         return !context.isRemoved(key) && (context.getAddedKeys().contains(key) || underlyingStore.containsKey(key));
     }
 
+    /**
+     * Non transactional
+     * {@inheritDoc}
+     */
     public void expireElements() {
         // todo file jira
         getOrCreateTransactionContext().addCommand(new StoreExpireAllElementsCommand(), null);
@@ -152,6 +203,7 @@ public class XATransactionalStore implements Store {
 
     /**
      * Non transactional
+     * {@inheritDoc}
      */
     public void flush() throws IOException {
         underlyingStore.flush();
@@ -159,6 +211,7 @@ public class XATransactionalStore implements Store {
 
     /**
      * Non transactional
+     * {@inheritDoc}
      */
     public boolean bufferFull() {
         return underlyingStore.bufferFull();
@@ -166,6 +219,7 @@ public class XATransactionalStore implements Store {
 
     /**
      * Non transactional
+     * {@inheritDoc}
      */
     public Policy getEvictionPolicy() {
         return underlyingStore.getEvictionPolicy();
@@ -173,6 +227,7 @@ public class XATransactionalStore implements Store {
 
     /**
      * Non transactional
+     * {@inheritDoc}
      */
     public void setEvictionPolicy(final Policy policy) {
         underlyingStore.setEvictionPolicy(policy);
@@ -180,6 +235,7 @@ public class XATransactionalStore implements Store {
 
     /**
      * Non transactional
+     * {@inheritDoc}
      */
     public Object getInternalContext() {
         return underlyingStore.getInternalContext();
@@ -187,15 +243,22 @@ public class XATransactionalStore implements Store {
 
     /**
      * Non transactional
+     * {@inheritDoc}
      */
     public boolean isCacheCoherent() {
         return underlyingStore.isCacheCoherent();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public void setCoherent(final boolean coherent) throws UnsupportedOperationException {
         underlyingStore.setCoherent(coherent);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public void waitUntilCoherent() throws UnsupportedOperationException {
         underlyingStore.waitUntilCoherent();
     }

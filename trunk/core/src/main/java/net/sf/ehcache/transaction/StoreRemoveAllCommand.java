@@ -22,19 +22,32 @@ import net.sf.ehcache.store.Store;
  * @author Alex Snaps
  */
 public class StoreRemoveAllCommand implements StoreWriteCommand {
+
+    /**
+     * {@inheritDoc}
+     */
     public boolean execute(final Store store) {
         store.removeAll();
         return true;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public boolean isPut(Object key) {
         return false;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public boolean isRemove(Object key) {
         return true;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public String getCommandName() {
         return Command.REMOVE_ALL;
     }

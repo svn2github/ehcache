@@ -23,11 +23,23 @@ import javax.transaction.xa.XAException;
  */
 public class EhcacheXAException extends XAException {
 
+    /**
+     * Constructor
+     * @param message The message
+     * @param errorCode the XA error code
+     */
     public EhcacheXAException(String message, int errorCode) {
         super(message);
         this.errorCode = errorCode; 
     }
 
+    /**
+     * Constru
+     * Constructor
+     * @param message The message
+     * @param errorCode the XA error code
+     * @param cause the Exception causing the XAException
+     */
     public EhcacheXAException(String message, int errorCode, Throwable cause) {
         super(message);
         this.errorCode = errorCode;
