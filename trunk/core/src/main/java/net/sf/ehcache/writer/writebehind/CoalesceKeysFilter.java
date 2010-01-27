@@ -19,7 +19,6 @@ import net.sf.ehcache.writer.writebehind.operations.KeyBasedOperation;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -37,9 +36,9 @@ public class CoalesceKeysFilter implements OperationsFilter<KeyBasedOperation> {
         final Map mostRecent = new HashMap();
         final List operationsToRemove = new ArrayList();
 
-        Iterator it = operations.iterator();
-        while (it.hasNext()) {
-            Object operation = it.next();
+        // not using an iterator on purpose since the ehcache express types don't support it
+        for (int i = 0; i < operations.size(); i++) {
+            Object operation = operations.get(i);
             KeyBasedOperation keyBasedOperation = converter.convert(operation);
 
             if (!mostRecent.containsKey(keyBasedOperation.getKey())) {
@@ -49,7 +48,7 @@ public class CoalesceKeysFilter implements OperationsFilter<KeyBasedOperation> {
                 KeyBasedOperation keyBasedPreviousOperation = converter.convert(previousOperation);
 
                 if (keyBasedPreviousOperation.getCreationTime() > keyBasedOperation.getCreationTime()) {
-                    it.remove();
+                    operationsToRemove.add(operation);
                 } else {
                     operationsToRemove.add(previousOperation);
                     mostRecent.put(keyBasedOperation.getKey(), operation);
@@ -57,6 +56,9 @@ public class CoalesceKeysFilter implements OperationsFilter<KeyBasedOperation> {
             }
         }
 
-        operations.removeAll(operationsToRemove);
+        // not using removeAll on purpose since the ehcache express types don't support it
+        for (Object operation : operationsToRemove) {
+            operations.remove(operation);
+        }
     }
 }
