@@ -3149,10 +3149,6 @@ public class Cache implements Ehcache {
      * {@inheritDoc}
      */
     public void setCoherent(boolean coherent) {
-        if (isTerracottaClustered()) {
-            // update the active config too
-            this.configuration.getTerracottaConfiguration().setCoherent(coherent);
-        }
         memoryStore.setCoherent(coherent);
     }
 

@@ -1147,7 +1147,8 @@ public class CacheConfiguration implements Cloneable {
     }
 
     /**
-     * internal use only
+     * internal use only, this is required so that changes in store impl's config 
+     * (probably from other nodes) can propagate up to here
      */
     public void internalSetTimeToIdle(long timeToIdle) {
         this.timeToIdleSeconds = timeToIdle;
@@ -1172,5 +1173,16 @@ public class CacheConfiguration implements Cloneable {
      */
     public void internalSetDiskCapacity(int capacity) {
         this.maxElementsOnDisk = capacity;
+    }
+    
+    /**
+     * internal use only, this is called from the store impl's to reflect the new coherent value
+     * 
+     * @param coherent true for coherent
+     */
+    public void internalSetCoherent(boolean coherent) {
+        if (isTerracottaClustered()) {
+            this.getTerracottaConfiguration().setCoherent(coherent);
+        }
     }
 }
