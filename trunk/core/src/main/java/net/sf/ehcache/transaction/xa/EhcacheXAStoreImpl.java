@@ -189,5 +189,9 @@ public class EhcacheXAStoreImpl implements EhcacheXAStore {
             version.incrementAndGet();
             return txnVersions.isEmpty();
         }
+
+        ConcurrentMap<Xid, Long> getTxnVersions() {
+            return txnVersions;
+        }
     }
 }
