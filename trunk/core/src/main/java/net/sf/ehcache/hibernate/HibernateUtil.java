@@ -25,12 +25,17 @@ import net.sf.ehcache.config.TerracottaConfiguration.ValueMode;
 
 import org.hibernate.cache.CacheException;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  *
  * @author Chris Dennis
  */
 public final class HibernateUtil {
 
+    private static final Logger LOG = LoggerFactory.getLogger(HibernateUtil.class);
+    
     private HibernateUtil() { }
 
     /**
@@ -41,12 +46,20 @@ public final class HibernateUtil {
     static Configuration loadAndCorrectConfiguration(URL url) {
         Configuration config = ConfigurationFactory.parseConfiguration(url);
         if (config.getDefaultCacheConfiguration().isTerracottaClustered()) {
-            config.getDefaultCacheConfiguration().getTerracottaConfiguration().setValueMode(ValueMode.SERIALIZATION.name());
+            if (ValueMode.IDENTITY.equals(config.getDefaultCacheConfiguration().getTerracottaConfiguration().getValueMode())) {
+                LOG.warn("The default cache value mode for this Ehcache configuration is \"identity\". This is incompatible with clustered "
+                        + "Hibernate caching - the value mode has therefore been switched to \"serialization\"");
+                config.getDefaultCacheConfiguration().getTerracottaConfiguration().setValueMode(ValueMode.SERIALIZATION.name());
+            }
         }
 
         for (CacheConfiguration cacheConfig : config.getCacheConfigurations().values()) {
             if (cacheConfig.isTerracottaClustered()) {
-                cacheConfig.getTerracottaConfiguration().setValueMode(ValueMode.SERIALIZATION.name());
+                if (ValueMode.IDENTITY.equals(cacheConfig.getTerracottaConfiguration().getValueMode())) {
+                LOG.warn("The value mode for the {0} cache is \"identity\". This is incompatible with clustered Hibernate caching - "
+                        + "the value mode has therefore been switched to \"serialization\"", cacheConfig.getName());
+                    cacheConfig.getTerracottaConfiguration().setValueMode(ValueMode.SERIALIZATION.name());
+                }
             }
         }
         return config;
