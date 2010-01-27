@@ -16,7 +16,6 @@
 
 package net.sf.ehcache.transaction.xa;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
