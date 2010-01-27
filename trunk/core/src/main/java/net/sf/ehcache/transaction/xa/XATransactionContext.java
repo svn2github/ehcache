@@ -112,6 +112,19 @@ public class XATransactionContext implements TransactionContext {
         return Collections.unmodifiableList(commands);
     }
 
+    public Set<Object> getUpdatedKeys() {
+        
+        Set<Object> keys = new HashSet<Object>();
+        for (VersionAwareCommand command : getCommands()) {
+            Object key = command.getKey();
+            if (key != null) {
+                keys.add(key);
+            }
+        }
+
+        return Collections.unmodifiableSet(keys);
+    }
+
     public int getSizeModifier() {
         return sizeModifier;
     }

@@ -18,6 +18,7 @@ package net.sf.ehcache.transaction;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 
 import javax.transaction.Transaction;
 
@@ -44,4 +45,6 @@ public interface TransactionContext {
     int getSizeModifier();
     
     List<VersionAwareCommand> getCommands();
+
+    Set<Object> getUpdatedKeys();
 }

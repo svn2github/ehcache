@@ -78,7 +78,7 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
         LOG.debug("Start called for Txn with id: " + xid);
       
  
-        // todo we should probably track state propertly here...
+        // todo we should probably track state properly here...
         Transaction tx;
         try {
             tx = txnManager.getTransaction();
@@ -102,15 +102,8 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
         LOG.debug("{} phase commit called for Txn with id: {}", (onePhase ? "One" : "Two"), xid);
         TransactionContext context = ehcacheXAStore.getTransactionContext(xid);
 
-        Set<Object> keys = new HashSet<Object>();
-        for (VersionAwareCommand command : context.getCommands()) {
-            Object key = command.getKey();
-            if (key != null) {
-                keys.add(key);
-            }
-        }
-
-        Sync[] syncForKeys = ((CacheLockProvider)oldVersionStore.getInternalContext()).getAndWriteLockAllSyncForKeys(keys.toArray());
+        Sync[] syncForKeys = ((CacheLockProvider)oldVersionStore.getInternalContext())
+            .getAndWriteLockAllSyncForKeys(context.getUpdatedKeys().toArray());
         for (VersionAwareCommand command : context.getCommands()) {
             Object key = command.getKey();
             if (key != null) {
