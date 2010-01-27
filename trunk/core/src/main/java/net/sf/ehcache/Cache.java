@@ -943,7 +943,6 @@ public class Cache implements Ehcache {
             final Store memStore;
             if (isTerracottaClustered()) {
                 memStore = cacheManager.createTerracottaStore(this);
-                memStore.setCoherent(configuration.getTerracottaConfiguration().isCoherent());
             } else {
                 if (useClassicLru && configuration.getMemoryStoreEvictionPolicy().equals(MemoryStoreEvictionPolicy.LRU)) {
                     memStore = new LruMemoryStore(this, diskStore);
@@ -3150,6 +3149,10 @@ public class Cache implements Ehcache {
      * {@inheritDoc}
      */
     public void setCoherent(boolean coherent) {
+        if (isTerracottaClustered()) {
+            // update the active config too
+            this.configuration.getTerracottaConfiguration().setCoherent(coherent);
+        }
         memoryStore.setCoherent(coherent);
     }
 
