@@ -90,7 +90,7 @@ public final class EhCacheProvider extends AbstractEhcacheProvider {
                 manager = new CacheManager();
             } else {
                 URL url = loadResource(configurationResourceName);
-                manager = new CacheManager(url);
+                manager = new CacheManager(HibernateUtil.loadAndCorrectConfiguration(url));
             }
             mbeanRegistrationHelper.registerMBean(manager, properties);
         } catch (net.sf.ehcache.CacheException e) {

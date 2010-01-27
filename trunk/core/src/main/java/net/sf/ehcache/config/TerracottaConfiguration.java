@@ -87,11 +87,6 @@ public class TerracottaConfiguration implements Cloneable {
          * Use Terracotta clustered identity to preserve object identity without serialization
          */
         IDENTITY,
-
-        /**
-         * Use a Hibernate optimized ValueMode handler
-         */
-        HIBERNATE
     }
 
     private static final Logger LOG = LoggerFactory.getLogger(TerracottaConfiguration.class.getName());

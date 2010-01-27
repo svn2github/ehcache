@@ -19,8 +19,6 @@ import java.net.URL;
 import java.util.Properties;
 
 import net.sf.ehcache.CacheManager;
-import net.sf.ehcache.config.CacheConfiguration;
-import net.sf.ehcache.config.TerracottaConfiguration;
 import net.sf.ehcache.util.ClassLoaderUtil;
 
 import org.hibernate.cache.Cache;
@@ -69,7 +67,7 @@ abstract class AbstractEhcacheProvider implements CacheProvider {
                 cache = manager.getEhcache(name);
                 LOG.debug("started EHCache region: " + name);
             }
-            validateEhcache(cache);
+            HibernateUtil.validateEhcache(cache);
             return new EhCache(cache);
         } catch (net.sf.ehcache.CacheException e) {
             throw new CacheException(e);
@@ -90,26 +88,6 @@ abstract class AbstractEhcacheProvider implements CacheProvider {
      */
     public final boolean isMinimalPutsEnabledByDefault() {
         return false;
-    }
-
-    /**
-     * Validates that the supplied Ehcache instance is valid for use as a Hibernate cache.
-     */
-    protected static void validateEhcache(net.sf.ehcache.Ehcache cache) throws CacheException {
-        CacheConfiguration cacheConfig = cache.getCacheConfiguration();
-
-        if (cacheConfig.isTerracottaClustered()) {
-            TerracottaConfiguration tcConfig = cacheConfig.getTerracottaConfiguration();
-            switch (tcConfig.getValueMode()) {
-                case IDENTITY:
-                    throw new CacheException("The clustered Hibernate cache " + cache.getName() + " is using IDENTITY value mode.\n"
-                           + "Identity value mode cannot be used with Hibernate cache regions.");
-                case SERIALIZATION:
-                default:
-                    // this is the recommended valueMode
-                    break;
-            }
-        }
     }
 
     /**

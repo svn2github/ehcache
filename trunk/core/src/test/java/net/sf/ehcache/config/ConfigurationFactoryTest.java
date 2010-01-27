@@ -946,7 +946,6 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
     @Test
     public void testCreateEmptyConfiguration() {
         Configuration configuration = new Configuration();
-        configuration.setSource("programmatic");
     }
 
 

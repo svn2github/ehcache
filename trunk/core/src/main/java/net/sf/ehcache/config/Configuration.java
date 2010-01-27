@@ -23,6 +23,7 @@ import java.util.Map;
 import java.util.Set;
 
 import net.sf.ehcache.ObjectExistsException;
+import net.sf.ehcache.config.generator.ConfigurationSource;
 import net.sf.ehcache.transaction.manager.DefaultTransactionManagerLookup;
 
 /**
@@ -59,7 +60,7 @@ public final class Configuration {
     private FactoryConfiguration cacheManagerEventListenerFactoryConfiguration;
     private TerracottaConfigConfiguration terracottaConfigConfiguration;
     private final Map<String, CacheConfiguration> cacheConfigurations = new HashMap();
-    private String configurationSource;
+    private ConfigurationSource configurationSource;
     private boolean dynamicConfig = true;
     /**
      * Empty constructor, which is used by {@link ConfigurationFactory}, and can be also used programmatically.
@@ -294,14 +295,14 @@ public final class Configuration {
      * @param configurationSource an informative description of the source, preferably
      *                            including the resource name and location.
      */
-    public final void setSource(String configurationSource) {
+    public final void setSource(ConfigurationSource configurationSource) {
         this.configurationSource = configurationSource;
     }
 
     /**
      * Gets a description of the source from which this configuration was created.
      */
-    public final String getConfigurationSource() {
+    public final ConfigurationSource getConfigurationSource() {
         return configurationSource;
     }
 }

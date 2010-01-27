@@ -38,6 +38,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import net.sf.ehcache.config.generator.ConfigurationSource;
 
 /**
  * A utility class which configures beans from XML, using reflection.
@@ -84,6 +85,7 @@ public final class ConfigurationFactory {
                 LOG.error("IOException while closing configuration input stream. Error was " + e.getMessage());
             }
         }
+        configuration.setSource(ConfigurationSource.getConfigurationSource(file));
         return configuration;
     }
 
@@ -108,6 +110,7 @@ public final class ConfigurationFactory {
                 LOG.error("IOException while closing configuration input stream. Error was " + e.getMessage());
             }
         }
+        configuration.setSource(ConfigurationSource.getConfigurationSource(url));
         return configuration;
     }
 
@@ -132,7 +135,9 @@ public final class ConfigurationFactory {
                     + " found in the classpath: {}", url);
 
         }
-        return parseConfiguration(url);
+        Configuration configuration = parseConfiguration(url);
+        configuration.setSource(ConfigurationSource.getConfigurationSource());
+        return configuration;
     }
 
     /**
@@ -151,6 +156,7 @@ public final class ConfigurationFactory {
         } catch (Exception e) {
             throw new CacheException("Error configuring from input stream. Initial cause was " + e.getMessage(), e);
         }
+        configuration.setSource(ConfigurationSource.getConfigurationSource(inputStream));
         return configuration;
     }
 

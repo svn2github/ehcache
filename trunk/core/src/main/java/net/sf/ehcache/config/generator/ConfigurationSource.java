@@ -42,13 +42,13 @@ public abstract class ConfigurationSource {
     }
 
     /**
-     * Utility factory method for creating a {@link ConfigurationSource} based on file name.
+     * Utility factory method for creating a {@link ConfigurationSource} based on a file.
      * 
-     * @param configFileName
-     * @return ConfigurationSource for the input file name
+     * @param file
+     * @return ConfigurationSource for the input file
      */
-    public static ConfigurationSource getConfigurationSource(String configFileName) {
-        return new FileNameSource(configFileName);
+    public static ConfigurationSource getConfigurationSource(File file) {
+        return new FileNameSource(file);
     }
 
     /**
@@ -94,15 +94,15 @@ public abstract class ConfigurationSource {
      */
     private static class FileNameSource extends ConfigurationSource {
 
-        private final String fileName;
+        private final File file;
 
         /**
          * Constructor accepting the file name
          * 
          * @param fileName
          */
-        public FileNameSource(String fileName) {
-            this.fileName = fileName;
+        public FileNameSource(File file) {
+            this.file = file;
         }
 
         /**
@@ -112,7 +112,7 @@ public abstract class ConfigurationSource {
          */
         @Override
         public Configuration createConfiguration() {
-            return ConfigurationFactory.parseConfiguration(new File(fileName));
+            return ConfigurationFactory.parseConfiguration(file);
         }
     }
 
