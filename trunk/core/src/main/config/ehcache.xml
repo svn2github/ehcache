@@ -831,10 +831,10 @@ used with JMX monitors.
     </cache>
     -->
 
-         <!--
+    <!--
       Sample xa enabled cache name xaCache
     -->
-
+    <!--
     <cache name="xaCache"
         maxElementsInMemory="500"
         eternal="false"
@@ -846,4 +846,5 @@ used with JMX monitors.
         transactionalMode="xa">
       <terracotta clustered="true"/>
 	</cache>
+    -->
 </ehcache>
