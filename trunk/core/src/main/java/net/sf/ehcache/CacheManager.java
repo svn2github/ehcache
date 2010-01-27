@@ -396,7 +396,7 @@ public class CacheManager {
       return getClusteredInstanceFactory(cache).createStore(cache);
     }
 
-  /**
+    /**
    * Create/access the appropriate clustered write behind queue for the given cache
    *
    * @param cache The cache for which the write behind queue should be created
@@ -405,10 +405,18 @@ public class CacheManager {
     public WriteBehind createTerracottaWriteBehind(Ehcache cache) {
       return getClusteredInstanceFactory(cache).createWriteBehind(cache);
     }
-    
+
+    /**
+     * Creates an EhcacheXAResource instance for a cache
+     * @param cache The cache the XAResource should wrap
+     * @param store The real memory store backing the cache
+     * @param oldVersionStore The oldVersionStore, temporary store for inCommitPhase data
+     * @param txnManager TransactionManager for the JTA environment, the one we'll enlist on
+     * @return the configured EhcacheXAResource impl.
+     */
     EhcacheXAResource createEhcacheXAResource(Ehcache cache, Store store, Store oldVersionStore,  TransactionManager txnManager) {
         EhcacheXAStore ehcacheXAStore = null;
-        if(cache.getCacheConfiguration().isTerracottaClustered()) {
+        if (cache.getCacheConfiguration().isTerracottaClustered()) {
             ehcacheXAStore = getClusteredInstanceFactory(cache).createXAStore(cache, store);
         } else {
             ehcacheXAStore = new EhcacheXAStoreImpl(store, oldVersionStore);
@@ -517,22 +525,22 @@ public class CacheManager {
         FactoryConfiguration lookupConfiguration = configuration.getTransactionManagerLookupConfiguration();
         try {
             Properties properties = null;
-            if(lookupConfiguration.getProperties() != null) {
+            if (lookupConfiguration.getProperties() != null) {
                 properties = PropertyUtil.parseProperties(lookupConfiguration.getProperties(),
                         lookupConfiguration.getPropertySeparator());
             }
-            Class<TransactionManagerLookup> transactionManagerLookupClass
-                = (Class<TransactionManagerLookup>) Class.forName(lookupConfiguration.getFullyQualifiedClassPath());
+            Class<TransactionManagerLookup> transactionManagerLookupClass =
+                (Class<TransactionManagerLookup>) Class.forName(lookupConfiguration.getFullyQualifiedClassPath());
             Constructor<TransactionManagerLookup> constructor = null;
             if (properties != null) {
                 try {
                     constructor = transactionManagerLookupClass.getConstructor(properties.getClass());
                 } catch (NoSuchMethodException e) {
-                    LOG.error("You've provided properties for {}, yet didn't provide a matching constructor! Properties will not be passed in",
-                        lookupConfiguration.getFullyQualifiedClassPath());
+                    LOG.error("You've provided properties for {}, yet didn't provide a matching constructor! " +
+                              "Properties will not be passed in", lookupConfiguration.getFullyQualifiedClassPath());
                 }
             }
-            if(properties == null || constructor == null) {
+            if (properties == null || constructor == null) {
                 constructor = transactionManagerLookupClass.getConstructor();
             }
             this.transactionManagerLookup = constructor.newInstance();
@@ -1342,6 +1350,9 @@ public class CacheManager {
         return ConfigurationUtil.generateConfigurationTextForCache(this, cacheName);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public int hashCode() {
         if (name != null) {

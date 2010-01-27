@@ -228,8 +228,8 @@ public class ConfigurationGenerator {
                 "\"");
             }
             if (TerracottaConfiguration.DEFAULT_SYNCHRONOUS_WRITE != terracottaConfiguration.isSynchronousWrite()) {
-                builder.append(EOL).append(spacer).append(" synchronousWrite=\"").append(terracottaConfiguration.isSynchronousWrite()).append(
-                "\"");
+                builder.append(EOL).append(spacer).append(" synchronousWrite=\"").append(terracottaConfiguration.isSynchronousWrite())
+                    .append("\"");
             }
             builder.append(">").append(EOL);
             indent(-1);

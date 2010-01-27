@@ -899,11 +899,21 @@ public class Cache implements Ehcache {
         }
         return bootstrapCacheLoader;
     }
-    
+
+    /**
+     * Get the TransactionManagerLookup implementation used to lookup the TransactionManager.
+     * This is generally only set for XA transactional caches
+     * @return The {@link net.sf.ehcache.transaction.manager.TransactionManagerLookup} instance
+     */
     public TransactionManagerLookup getTransactionManagerLookup() {
        return transactionManagerLookup; 
     }
-    
+
+    /**
+     * Sets the TransactionManagerLookup that needs to be used for this cache to lookup the TransactionManager
+     * This needs to be set before {@link Cache#initialise()} is called
+     * @param lookup The {@link net.sf.ehcache.transaction.manager.TransactionManagerLookup} instance
+     */
     public void setTransactionManagerLookup(TransactionManagerLookup lookup) {
         this.transactionManagerLookup = lookup;
     }
@@ -930,33 +940,35 @@ public class Cache implements Ehcache {
 
             this.diskStore = createDiskStore();
 
-            final Store memoryStore;
+            final Store memStore;
             if (isTerracottaClustered()) {
-                memoryStore = cacheManager.createTerracottaStore(this);
-                memoryStore.setCoherent(configuration.getTerracottaConfiguration().isCoherent());
+                memStore = cacheManager.createTerracottaStore(this);
+                memStore.setCoherent(configuration.getTerracottaConfiguration().isCoherent());
             } else {
                 if (useClassicLru && configuration.getMemoryStoreEvictionPolicy().equals(MemoryStoreEvictionPolicy.LRU)) {
-                    memoryStore = new LruMemoryStore(this, diskStore);
+                    memStore = new LruMemoryStore(this, diskStore);
                 } else {
-                    memoryStore = MemoryStore.create(this, diskStore);
+                    memStore = MemoryStore.create(this, diskStore);
                 }
             }
             
-            if(configuration.isTransactional()) {
-                if(!configuration.isTerracottaClustered() || configuration.getTerracottaConfiguration().getValueMode() == TerracottaConfiguration.ValueMode.IDENTITY) {
+            if (configuration.isTransactional()) {
+                if (!configuration.isTerracottaClustered()
+                    || configuration.getTerracottaConfiguration().getValueMode() == TerracottaConfiguration.ValueMode.IDENTITY) {
                     throw new CacheException("To be transactional, the cache needs to be Terracotta clustered in Serialization value mode");
                 }
 
                 TransactionManager txnManager = transactionManagerLookup.getTransactionManager();
-                if(txnManager == null) {
+                if (txnManager == null) {
                     throw new CacheException("You've configured cache " + cacheManager.getName() + "."
                                              + configuration.getName() + " to be transactional, but no TransactionManager could be found!");
                 }
-                EhcacheXAResource resource = cacheManager.createEhcacheXAResource(this, memoryStore, MemoryStore.create(this, diskStore), txnManager);
+                EhcacheXAResource resource =
+                    cacheManager.createEhcacheXAResource(this, memStore, MemoryStore.create(this, diskStore), txnManager);
                 transactionManagerLookup.register(resource);
                 this.memoryStore = new XATransactionalStore(resource);
             } else {
-                this.memoryStore = memoryStore;
+                this.memoryStore = memStore;
             }
             this.cacheWriterManager = configuration.getCacheWriterConfiguration().getWriteMode().createWriterManager(this);
             initialiseCacheWriterManager(false);

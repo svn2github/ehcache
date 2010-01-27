@@ -66,7 +66,7 @@ public class EhcacheXAStoreImpl implements EhcacheXAStore {
         return localXidTable.putIfAbsent(transaction, xid);
     }
 
-    public TransactionContext createTransactionContext(Transaction txn) {;
+    public TransactionContext createTransactionContext(Transaction txn) {
         Xid xid = localXidTable.get(txn);
         XATransactionContext context = new XATransactionContext(xid, this);
         context.initializeTransients(txn);
@@ -115,7 +115,7 @@ public class EhcacheXAStoreImpl implements EhcacheXAStore {
                 boolean valid = (currentVersion == currentVersionNumber);
                 return valid;
             } else {
-                // TODO: Figure out what this case is..
+                // TODO Figure out what this case is..
                 return true;
             }
 
@@ -152,10 +152,10 @@ public class EhcacheXAStoreImpl implements EhcacheXAStore {
 
     public static class Version {
 
-        final AtomicLong version = new AtomicLong(0);
+        private final AtomicLong version = new AtomicLong(0);
 
-        // TODO: We need to figure out a more compressed data-structure (need to performance test to confirm
-        final ConcurrentMap<Xid, Long> txnVersions = new ConcurrentHashMap<Xid, Long>();
+        // TODO We need to figure out a more compressed data-structure (need to performance test to confirm
+        private final ConcurrentMap<Xid, Long> txnVersions = new ConcurrentHashMap<Xid, Long>();
 
         public long getCurrentVersion() {
             return version.get();

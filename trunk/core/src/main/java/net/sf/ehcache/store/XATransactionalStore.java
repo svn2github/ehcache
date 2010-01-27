@@ -1,3 +1,19 @@
+/**
+ *  Copyright 2003-2009 Terracotta, Inc.
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+
 package net.sf.ehcache.store;
 
 import java.io.IOException;
@@ -48,7 +64,7 @@ public class XATransactionalStore implements Store {
     public Element get(final Object key) {
         TransactionContext context = getOrCreateTransactionContext();
         Element element = context.get(key);
-        if(element == null && !context.isRemoved(key)) {
+        if (element == null && !context.isRemoved(key)) {
             element = xaResource.get(key);
         }
         return element;
@@ -57,7 +73,7 @@ public class XATransactionalStore implements Store {
     public Element getQuiet(final Object key) {
         TransactionContext context = getOrCreateTransactionContext();
         Element element = context.get(key);
-        if(element == null && !context.isRemoved(key)) {
+        if (element == null && !context.isRemoved(key)) {
             element = xaResource.getQuiet(key);
         }
         return element;
@@ -74,22 +90,24 @@ public class XATransactionalStore implements Store {
     public Element remove(final Object key) {
         TransactionContext context = getOrCreateTransactionContext();
         Element element = context.get(key);
-        if(element == null && !context.isRemoved(key)) {
+        if (element == null && !context.isRemoved(key)) {
             element = xaResource.getQuiet(key);
         }
-        if(element != null) {
+        if (element != null) {
             context.addCommand(new StoreRemoveCommand(key), element);
         }
 
-        return element; // Todo is this good enough?
+        //todo is this really good enough?
+        return element;
     }
 
     public Element removeWithWriter(final Object key, final CacheWriterManager writerManager) throws CacheException {
         throw new UnsupportedOperationException();
     }
 
-    public void removeAll() throws CacheException {     
-        getOrCreateTransactionContext().addCommand(new StoreRemoveAllCommand(), null); // TODO is this meaningful? WRT getSize()
+    public void removeAll() throws CacheException {
+        // todo file jira here
+        getOrCreateTransactionContext().addCommand(new StoreRemoveAllCommand(), null);
     }
 
     /**
@@ -112,7 +130,7 @@ public class XATransactionalStore implements Store {
 
     public long getSizeInBytes() {
         getOrCreateTransactionContext();
-        return underlyingStore.getSizeInBytes(); // todo Can this work outside any transaction? probably...
+        return underlyingStore.getSizeInBytes();
     }
 
     /**
@@ -128,7 +146,8 @@ public class XATransactionalStore implements Store {
     }
 
     public void expireElements() {
-        getOrCreateTransactionContext().addCommand(new StoreExpireAllElementsCommand(), null); // TODO is this meaningful?
+        // todo file jira
+        getOrCreateTransactionContext().addCommand(new StoreExpireAllElementsCommand(), null);
     }
 
     /**
@@ -142,7 +161,7 @@ public class XATransactionalStore implements Store {
      * Non transactional
      */
     public boolean bufferFull() {
-        return underlyingStore.bufferFull(); // TODO verify this really isn't tx!
+        return underlyingStore.bufferFull();
     }
 
     /**

@@ -1,3 +1,19 @@
+/**
+ *  Copyright 2003-2009 Terracotta, Inc.
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+
 package net.sf.ehcache.transaction.xa;
 
 import java.util.HashSet;
@@ -69,18 +85,19 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
         } catch (SystemException e) {
             throw new EhcacheXAException("Couldn't get to current Transaction: " + e.getMessage(), e.errorCode, e);
         }
-        if(tx == null) {
+        if (tx == null) {
             throw new EhcacheXAException("Couldn't get to current Transaction ", XAException.XAER_OUTSIDE);
         }
         Xid prevXid = ehcacheXAStore.storeXid2Transaction(xid, tx);
-        if(prevXid != null && !prevXid.equals(xid)) {
+        if (prevXid != null && !prevXid.equals(xid)) {
             throw new EhcacheXAException("Duplicated XID: " + xid, XAException.XAER_DUPID);
         }
     }
 
     public void commit(final Xid xid, final boolean onePhase) throws XAException {
         if (onePhase) {
-            prepare(xid); // TODO if XA_READONLY, do we need to do anymore?
+            // TODO if XA_READONLY, we can optimize that!
+            prepare(xid);
         }
         LOG.debug("{} phase commit called for Txn with id: {}", (onePhase ? "One" : "Two"), xid);
         TransactionContext context = ehcacheXAStore.getTransactionContext(xid);
@@ -195,7 +212,7 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
                     Element element = null;
                     try {
                         element = oldVersionStore.remove(key);
-                        if(element != null) {
+                        if (element != null) {
                             store.put(element);
                         } else {
                             LOG.error("No element found in oldVersionStore for key '{}'", key);
@@ -218,7 +235,7 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
 
     public boolean setTransactionTimeout(final int i) throws XAException {
         this.transactionTimeout = i;
-        // TODO: Figure out what to return here, it should be set to true of
+        // TODO Figure out what to return here, it should be set to true of
         // setting the transaction timeout was successful.
         return false;
     }
@@ -253,11 +270,11 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
 
     public TransactionContext getOrCreateTransactionContext() throws SystemException, RollbackException {
         Transaction transaction = txnManager.getTransaction();
-        if(transaction == null) {
+        if (transaction == null) {
             throw new CacheException("Cache " + cacheName + " can only be accessed within a JTA Transaction!");
         }
 
-        if(transaction.getStatus() != Status.STATUS_ACTIVE) {
+        if (transaction.getStatus() != Status.STATUS_ACTIVE) {
             throw new CacheException("Transaction not active!");
         }
 
@@ -271,7 +288,7 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
 
     public Element get(final Object key) {
         Element element = oldVersionStore.get(key);
-        if(element == null) {
+        if (element == null) {
             element = store.get(key);
         }
         return element;
@@ -279,7 +296,7 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
 
     public Element getQuiet(final Object key) {
         Element element = oldVersionStore.getQuiet(key);
-        if(element == null) {
+        if (element == null) {
             element = store.getQuiet(key);
         }
         return element;

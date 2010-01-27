@@ -37,7 +37,7 @@ public class DefaultTransactionManagerLookup implements TransactionManagerLookup
     private       transient Properties         properties         = new Properties();
     private final           Lock               lock               = new ReentrantLock();
 
-    private final Selector[] transactionManagerSelectors = new Selector[] { new JndiSelector("genericJNDI", "java:/TransactionManager"),
+    private final Selector[] transactionManagerSelectors = new Selector[] {new JndiSelector("genericJNDI", "java:/TransactionManager"),
             new FactorySelector("WebSphere 5.1", "com.ibm.ws.Transaction.TransactionManagerFactory"),
             new FactorySelector("Bitronix", "bitronix.tm.TransactionManagerServices"),
             new ClassSelector("Atomikos", "com.atomikos.icatch.jta.UserTransactionManager"), };
@@ -71,7 +71,7 @@ public class DefaultTransactionManagerLookup implements TransactionManagerLookup
      * execute txnManager specific code.
      */
     public void register(EhcacheXAResource resource) {
-        if(vendor.equals("Bitronix")) {
+        if (vendor.equals("Bitronix")) {
             registerResourceWithBitronix(resource.getCacheName(), resource);
         }
     }
@@ -83,8 +83,8 @@ public class DefaultTransactionManagerLookup implements TransactionManagerLookup
         }
         try {
             Class producerClass = cl.loadClass("net.sf.ehcache.transaction.manager.btm.GenericXAResourceProducer");
-            Class[] signature = new Class[] { String.class, XAResource.class };
-            Object[] args = new Object[] { uniqueName, resource };
+            Class[] signature = new Class[] {String.class, XAResource.class};
+            Object[] args = new Object[] {uniqueName, resource};
             Method method = producerClass.getMethod("registerXAResource", signature);
             method.invoke(null, args);
         } catch (Exception e) {

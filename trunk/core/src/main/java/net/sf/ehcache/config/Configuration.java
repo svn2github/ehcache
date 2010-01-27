@@ -247,7 +247,7 @@ public final class Configuration {
      * Gets the transaction manager lookup configuration.
      */
     public final FactoryConfiguration getTransactionManagerLookupConfiguration() {
-        if(transactionManagerLookupConfiguration == null) {
+        if (transactionManagerLookupConfiguration == null) {
             return getDefaultTransactionManagerLookupConfiguration();
         }
         return transactionManagerLookupConfiguration;

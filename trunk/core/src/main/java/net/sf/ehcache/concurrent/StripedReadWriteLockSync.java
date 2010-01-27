@@ -87,6 +87,9 @@ public class StripedReadWriteLockSync implements CacheLockProvider {
         return mutexes[lockNumber];
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public Sync[] getAndWriteLockAllSyncForKeys(Object... keys) {
         throw new UnsupportedOperationException("Right now this is unsupported in standalone Ehcache!");
     }

@@ -28,8 +28,6 @@ import org.slf4j.LoggerFactory;
  */
 public class TerracottaConfiguration implements Cloneable {
     
-    private static final Logger LOG = LoggerFactory.getLogger(TerracottaConfiguration.class.getName());
-    
     /**
      * Default clustered mode
      */
@@ -96,6 +94,8 @@ public class TerracottaConfiguration implements Cloneable {
         HIBERNATE
     }
 
+    private static final Logger LOG = LoggerFactory.getLogger(TerracottaConfiguration.class.getName());
+    
     private boolean clustered = DEFAULT_CLUSTERED;
     private ValueMode valueMode = DEFAULT_VALUE_MODE;
     private boolean coherentReads = DEFAULT_COHERENT_READS;
