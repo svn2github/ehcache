@@ -326,4 +326,46 @@ public class CacheWriterTest extends AbstractCacheTest {
 
         assertEquals(1, cacheWriter.getWrittenElements().size());
     }
+
+    @Test
+    public void testWriteBehindBatchedCoalescing() throws InterruptedException {
+        Cache cache = new Cache(
+                new CacheConfiguration("writeBehindBatchedCoalescing", 10)
+                        .cacheWriter(new CacheWriterConfiguration()
+                        .writeMode(CacheWriterConfiguration.WriteMode.WRITE_BEHIND)
+                        .minWriteDelay(1)
+                        .maxWriteDelay(1)
+                        .writeBatching(true)
+                        .writeBatchSize(10)
+                        .writeCoalescing(true)
+                        .cacheWriterFactory(new CacheWriterConfiguration.CacheWriterFactoryConfiguration()
+                        .className("net.sf.ehcache.writer.TestCacheWriterFactory"))));
+        assertNotNull(cache.getRegisteredCacheWriter());
+
+        CacheManager.getInstance().addCache(cache);
+        TestCacheWriter cacheWriter = (TestCacheWriter) cache.getRegisteredCacheWriter();
+        assertEquals(0, cacheWriter.getWrittenElements().size());
+
+        Element el1 = new Element("key1", "value1");
+        Element el2a = new Element("key2", "value2a");
+        Element el2b = new Element("key2", "value2b");
+        Element el3 = new Element("key3", "value3");
+        cache.putWithWriter(el1);
+        cache.putWithWriter(el2a);
+        cache.putWithWriter(el3);
+        cache.putWithWriter(el2b);
+        cache.removeWithWriter("key1");
+
+        assertEquals(0, cacheWriter.getWrittenElements().size());
+
+        Thread.sleep(2000);
+
+        assertEquals(2, cacheWriter.getWrittenElements().size());
+
+        assertFalse(cacheWriter.getWrittenElements().containsKey("key1-batched"));
+        assertTrue(cacheWriter.getWrittenElements().containsKey("key2-batched"));
+        assertTrue(cacheWriter.getWrittenElements().containsKey("key3-batched"));
+        assertEquals("value2b", cacheWriter.getWrittenElements().get("key2-batched").getObjectValue());
+        assertEquals("value3", cacheWriter.getWrittenElements().get("key3-batched").getObjectValue());
+    }
 }

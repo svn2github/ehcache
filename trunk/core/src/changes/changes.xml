@@ -2,9 +2,19 @@
 <document>
     <body>
 
+        <release version="2.0.0" date="2010-1-31" description="Major release with new features">
+            <action dev="Geert Bevin" type="add">
+                Refactored Cache constructors to allow the use of a fluent interface instead of a huge series of
+                constructor arguments.
+            </action>
+            <action dev="Geert Bevin" type="add">
+                Added support for CacheWriters with write-through and write-behind modes.
+            </action>
+        </release>
+
         <release version="1.7.2" date="2010-1-11" description="Maintenance and bug fixes">
             <action dev="Chris Dennis" type="fix" issue="EHC-435">
-                Replaced single threaded use of StringBuffer with StringBuilder.  Switched to using 
+                Replaced single threaded use of StringBuffer with StringBuilder.  Switched to using
                 valueOf methods for creative primitive wrapper instances instead of new'ing them.
             </action>
             <action dev="Chris Dennis" type="fix" issue="EHC-513">

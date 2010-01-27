@@ -20,12 +20,12 @@ import net.sf.ehcache.writer.CacheWriter;
 import java.util.List;
 
 /**
- * Interface to implement single operations that are performed in the write behind
+ * Interface to implement single operations that are performed with write-behind
  *
  * @author Geert Bevin
  * @version $Id$
  */
-public interface SingleOperation {
+public interface SingleOperation extends KeyBasedOperation {
     /**
      * Perform this operation as a single execution with the provided cache writer
      *

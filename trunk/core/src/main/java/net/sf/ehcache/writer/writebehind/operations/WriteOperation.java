@@ -29,6 +29,7 @@ import java.util.List;
  */
 public class WriteOperation implements SingleOperation {
     private final Element element;
+    private final long creationTime;
 
     /**
      * Create a new write operation for a particular element
@@ -36,9 +37,20 @@ public class WriteOperation implements SingleOperation {
      * @param element the element to write
      */
     public WriteOperation(Element element) {
+        this(element, System.currentTimeMillis());
+    }
+
+    /**
+     * Create a new write operation for a particular element and creation time
+     *
+     * @param element      the element to write
+     * @param creationTime the creation time of the operation
+     */
+    public WriteOperation(Element element, long creationTime) {
         this.element = new Element(element.getObjectKey(), element.getObjectValue(), element.getVersion(),
                 element.getCreationTime(), element.getLastAccessTime(), element.getHitCount(), false,
                 element.getTimeToLive(), element.getTimeToIdle(), element.getLastUpdateTime());
+        this.creationTime = creationTime;
     }
 
     /**
@@ -53,9 +65,30 @@ public class WriteOperation implements SingleOperation {
      */
     public BatchOperation createBatchOperation(List<SingleOperation> operations) {
         final List<Element> elements = new ArrayList<Element>();
-        for (SingleOperation operation : operations) {
+        for (KeyBasedOperation operation : operations) {
             elements.add(((WriteOperation) operation).element);
         }
         return new WriteAllOperation(elements);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public Object getKey() {
+        return element.getObjectKey();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public long getCreationTime() {
+        return creationTime;
+    }
+
+    /**
+     * Retrieves the element that will be used for this operation
+     */
+    public Element getElement() {
+        return element;
     }
 }

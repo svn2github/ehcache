@@ -27,7 +27,7 @@ import net.sf.ehcache.writer.CacheWriter;
  */
 public interface WriteBehind {
     /**
-     * Start the write behind queue with a write behind committer
+     * Start the write behind queue with a cache writer
      *
      * @param writer the cache writer that should be used to process the operations
      * @see #stop
@@ -47,6 +47,13 @@ public interface WriteBehind {
      * @param key the key for which a delete operation will be added to the write behind queue
      */
     void delete(Object key);
+
+    /**
+     * Set the operations filter that should be used.
+     *
+     * @param filter the filter that will be used as of now
+     */
+    void setOperationsFilter(OperationsFilter filter);
 
     /**
      * Stop the coordinator and all the internal data structures.

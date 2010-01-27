@@ -45,6 +45,8 @@ import java.util.logging.Logger;
 public class WriteBehindQueue implements WriteBehind {
     private final static Logger LOGGER = Logger.getLogger(WriteBehindQueue.class.getName());
 
+    private static final int MS_IN_SEC = 1000;
+
     private final String cacheName;
     private final CacheWriterConfiguration config;
     private final long minWriteDelayMs;
@@ -60,9 +62,11 @@ public class WriteBehindQueue implements WriteBehind {
     private final AtomicLong lastWorkDone = new AtomicLong(System.currentTimeMillis());
     private final AtomicBoolean busyProcessing = new AtomicBoolean(false);
 
+    private volatile OperationsFilter filter;
+
     private List<SingleOperation> waiting = new ArrayList<SingleOperation>();
     private CacheWriter cacheWriter;
-    private boolean cancelled = false;
+    private boolean cancelled;
 
     /**
      * Create a new write behind queue.
@@ -74,12 +78,8 @@ public class WriteBehindQueue implements WriteBehind {
         this.processingThread = new Thread(new ProcessingThread(), cacheName + " write-behind");
         this.processingThread.setDaemon(true);
         this.config = config.getCacheWriterConfiguration();
-        this.minWriteDelayMs = this.config.getMinWriteDelay() * 1000;
-        this.maxWriteDelayMs = this.config.getMaxWriteDelay() * 1000;
-    }
-
-    public long getLastProcessing() {
-        return lastProcessing.get();
+        this.minWriteDelayMs = this.config.getMinWriteDelay() * MS_IN_SEC;
+        this.maxWriteDelayMs = this.config.getMaxWriteDelay() * MS_IN_SEC;
     }
 
     /**
@@ -100,6 +100,20 @@ public class WriteBehindQueue implements WriteBehind {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    public void setOperationsFilter(OperationsFilter filter) {
+        this.filter = filter;
+    }
+
+    private long getLastProcessing() {
+        return lastProcessing.get();
+    }
+
+    /**
+     * Thread this will continuously process the items in the queue.
+     */
     private final class ProcessingThread implements Runnable {
         public void run() {
             while (!isCancelled()) {
@@ -173,21 +187,25 @@ public class WriteBehindQueue implements WriteBehind {
 
             // if there's no work that needs to be done, stop the processing
             if (0 == workSize) {
-                if (LOGGER.isLoggable(Level.FINER))
+                if (LOGGER.isLoggable(Level.FINER)) {
                     LOGGER.finer(getThreadName() + " : processItems() : nothing to process");
+                }
                 return;
             }
 
             try {
+                filterQuarantined(quarantined);
+
                 // if the batching is enabled and work size is smaller than batch size, don't process anything as long as the
                 // max allowed delay hasn't expired
                 if (config.getWriteBatching()
                         && config.getWriteBatchSize() > 0
                         && workSize < config.getWriteBatchSize()
                         && maxWriteDelayMs > lastProcessing.get() - lastWorkDone.get()) {
-                    if (LOGGER.isLoggable(Level.FINER))
+                    if (LOGGER.isLoggable(Level.FINER)) {
                         LOGGER.finer(getThreadName() + " : processItems() : only " + workSize + " work items available, waiting for "
                                 + config.getWriteBatchSize() + " items to fill up a batch");
+                    }
                     reassemble(quarantined);
                     return;
                 }
@@ -195,8 +213,9 @@ public class WriteBehindQueue implements WriteBehind {
                 // set some state related to this processing run
                 lastWorkDone.set(System.currentTimeMillis());
 
-                if (LOGGER.isLoggable(Level.FINER))
+                if (LOGGER.isLoggable(Level.FINER)) {
                     LOGGER.finer(getThreadName() + " : processItems() : processing started");
+                }
 
                 // process the quarantined items and remove them as they're processed
                 processQuarantinedItems(quarantined);
@@ -210,14 +229,23 @@ public class WriteBehindQueue implements WriteBehind {
         } finally {
             busyProcessing.set(false);
 
-            if (LOGGER.isLoggable(Level.FINER))
+            if (LOGGER.isLoggable(Level.FINER)) {
                 LOGGER.finer(getThreadName() + " : processItems() : processing finished");
+            }
+        }
+    }
+
+    private void filterQuarantined(List<SingleOperation> quarantined) {
+        OperationsFilter operationsFilter = this.filter;
+        if (operationsFilter != null) {
+            operationsFilter.filter(quarantined, CastingOperationConverter.getInstance());
         }
     }
 
     private void processQuarantinedItems(List<SingleOperation> quarantined) {
-        if (LOGGER.isLoggable(Level.CONFIG))
+        if (LOGGER.isLoggable(Level.CONFIG)) {
             LOGGER.config(getThreadName() + " : processItems() : processing " + quarantined.size() + " quarantined items");
+        }
 
         while (!quarantined.isEmpty()) {
             if (config.getWriteBatching() && config.getWriteBatchSize() > 0) {
@@ -240,8 +268,9 @@ public class WriteBehindQueue implements WriteBehind {
         for (int i = 0; i < batchSize; i++) {
             final SingleOperation item = quarantined.get(i);
 
-            if (LOGGER.isLoggable(Level.CONFIG))
+            if (LOGGER.isLoggable(Level.CONFIG)) {
                 LOGGER.config(getThreadName() + " : processItems() : adding " + item + " to next batch");
+            }
 
             List<SingleOperation> itemsPerType = separatedItemsPerType.get(item.getClass());
             if (null == itemsPerType) {
@@ -266,8 +295,9 @@ public class WriteBehindQueue implements WriteBehind {
     private void processSingleOperation(List<SingleOperation> quarantined) {
         // process the next item
         final SingleOperation item = quarantined.get(0);
-        if (LOGGER.isLoggable(Level.CONFIG))
+        if (LOGGER.isLoggable(Level.CONFIG)) {
             LOGGER.config(getThreadName() + " : processItems() : processing " + item);
+        }
 
         item.performSingleOperation(cacheWriter);
 

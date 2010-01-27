@@ -72,6 +72,8 @@
     <suppress checks="ParameterNumber" files="Statistics.java"/>
     <suppress checks="CyclomaticComplexity" files="ConfigurationGenerator.java"/>
     <suppress checks="NPathComplexity" files="ConfigurationGenerator.java"/>
+    <suppress checks="CyclomaticComplexity" files="WriteBehindQueue.java"/>
+    <suppress checks="NPathComplexity" files="WriteBehindQueue.java"/>
 
 
 

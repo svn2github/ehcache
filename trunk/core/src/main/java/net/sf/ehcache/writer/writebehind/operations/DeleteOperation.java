@@ -28,6 +28,7 @@ import java.util.List;
  */
 public class DeleteOperation implements SingleOperation {
     private final Object key;
+    private final long creationTime;
 
     /**
      * Create a new delete operation for a particular key
@@ -35,7 +36,18 @@ public class DeleteOperation implements SingleOperation {
      * @param key the key to delete
      */
     public DeleteOperation(Object key) {
+        this(key, System.currentTimeMillis());
+    }
+
+    /**
+     * Create a new delete operation for a particular key and creation time
+     *
+     * @param key          the key to delete
+     * @param creationTime the creation time of the operation
+     */
+    public DeleteOperation(Object key, long creationTime) {
         this.key = key;
+        this.creationTime = creationTime;
     }
 
     /**
@@ -50,9 +62,23 @@ public class DeleteOperation implements SingleOperation {
      */
     public BatchOperation createBatchOperation(List<SingleOperation> operations) {
         final List<Object> keys = new ArrayList<Object>();
-        for (SingleOperation operation : operations) {
+        for (KeyBasedOperation operation : operations) {
             keys.add(((DeleteOperation) operation).key);
         }
         return new DeleteAllOperation(keys);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public Object getKey() {
+        return key;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public long getCreationTime() {
+        return creationTime;
     }
 }

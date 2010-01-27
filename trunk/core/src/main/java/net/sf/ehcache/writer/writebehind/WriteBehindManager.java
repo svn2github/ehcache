@@ -45,6 +45,10 @@ public class WriteBehindManager implements CacheWriterManager {
             throw new CacheException("No cache writer was registered for cache " + cache.getName());
         }
 
+        if (cache.getCacheConfiguration().getCacheWriterConfiguration().getWriteCoalescing()) {
+            writeBehind.setOperationsFilter(new CoalesceKeysFilter());
+        }
+
         writeBehind.start(cacheWriter);
     }
 
