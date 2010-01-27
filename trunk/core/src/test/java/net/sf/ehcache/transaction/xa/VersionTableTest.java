@@ -16,7 +16,6 @@
 
 package net.sf.ehcache.transaction.xa;
 
-import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -36,7 +35,7 @@ public class VersionTableTest extends TestCase {
         ConcurrentMap versionStore = table.getVersionStore();
         //validate clean state
         assertEquals(0, versionStore.size());
-        TestXid txn1 = new TestXid();
+        TestXid txn1 = new TestXid(1);
         
         //checkout
         table.checkout(element1.getKey(), txn1);
@@ -65,8 +64,8 @@ public class VersionTableTest extends TestCase {
        
          
         //now lets add the same element and new transaction
-        TestXid txn2 = new TestXid();
-        table.checkout(element1, txn2);
+        TestXid txn2 = new TestXid(2);
+        table.checkout(element1.getObjectKey(), txn2);
         
         assertEquals(1, versionStore.size());
         version = (Version)versionStore.get(element1.getObjectKey());
@@ -79,7 +78,7 @@ public class VersionTableTest extends TestCase {
         assertEquals(2, version.getTxnVersions().size());
         
         //txn2 write
-        table.checkout(element1, txn2);
+        table.checkout(element1.getObjectKey(), txn2);
         
         assertEquals(1, versionStore.size());
         version = (Version)versionStore.get(element1.getObjectKey());
@@ -93,7 +92,7 @@ public class VersionTableTest extends TestCase {
         
         //Lets introduce a new element but still txn 1
         Element element2 = new Element("key2", "value2");
-        table.checkout(element2, txn1);
+        table.checkout(element2.getObjectKey(), txn1);
         
         assertEquals(2, versionStore.size());
         version = (Version)versionStore.get(element2.getObjectKey());
@@ -104,7 +103,7 @@ public class VersionTableTest extends TestCase {
         assertEquals(1, version.getTxnVersions().size());
         
         //txn2 element2 write
-        table.checkout(element2, txn2);
+        table.checkout(element2.getObjectKey(), txn2);
         
         assertEquals(2, versionStore.size());
         version = (Version)versionStore.get(element2.getObjectKey());
@@ -117,7 +116,7 @@ public class VersionTableTest extends TestCase {
         assertEquals(2, version.getTxnVersions().size());
         
         //lets try out the checkins now, element1 txn1
-        table.checkin(element1, txn1, false);
+        table.checkin(element1.getObjectKey(), txn1, false);
         
         assertEquals(2, versionStore.size());
         version = (Version)versionStore.get(element1.getObjectKey());
@@ -129,13 +128,13 @@ public class VersionTableTest extends TestCase {
         assertEquals(1, version.getTxnVersions().size());
         
         //checkin txn2
-        table.checkin(element1, txn2, false);
+        table.checkin(element1.getObjectKey(), txn2, false);
         
         assertEquals(1, versionStore.size());
         assertFalse(versionStore.containsKey(element1.getObjectKey())); 
         
         //checkin element 2
-        table.checkin(element2, txn1, true);
+        table.checkin(element2.getObjectKey(), txn1, true);
         
         assertEquals(1, versionStore.size());
         version = (Version)versionStore.get(element2.getObjectKey());
@@ -164,8 +163,8 @@ public class VersionTableTest extends TestCase {
         
         private final int hashCode;
         
-        public TestXid() {
-            hashCode =  UUID.randomUUID().hashCode();
+        public TestXid(int i) {
+            hashCode =  i;
         }
       
         

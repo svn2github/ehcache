@@ -105,9 +105,9 @@ public class XATransactionContext implements TransactionContext {
      * {@inheritDoc}
      */
     public void addCommand(final Command command, final Element element) {
-        Serializable key = null;
+        Object key = null;
         if (element != null) {
-            key = element.getKey();
+            key = element.getObjectKey();
         }
         VersionAwareWrapper wrapper = null;
         if (key != null) {
