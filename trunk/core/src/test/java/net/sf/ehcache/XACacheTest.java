@@ -51,7 +51,10 @@ public class XACacheTest extends TestCase {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
+    }
 
+    public void testNothing() {
+        assertTrue(true);
     }
 
     private static class Transaction1Thread extends AbstractTxnThread {
