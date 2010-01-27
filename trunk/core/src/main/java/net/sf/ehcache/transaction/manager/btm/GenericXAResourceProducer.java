@@ -31,7 +31,6 @@ public class GenericXAResourceProducer extends ResourceBean implements
 
 	private XAResource xaResource;
 	private GenericXAResourceHolder xaResourceHolder;
-	private XAResourceHolderState xaResourceHolderState;
 	private RecoveryXAResourceHolder recoveryXAResourceHolder;
 	
 
@@ -58,14 +57,14 @@ public class GenericXAResourceProducer extends ResourceBean implements
 	 */
 	public void init() {
 		 
-		if(xaResource != null && xaResourceHolder != null) {
-			return;
-		}
+//		if(xaResource != null && xaResourceHolder != null) {
+//			return;
+//		}
 		try {
 			xaResource = createXAResource(this);
 			xaResourceHolder = (GenericXAResourceHolder)createPooledConnection(xaResource, this);
 	        ResourceRegistrar.register(this);
-	        xaResourceHolderState =  new XAResourceHolderState(xaResourceHolder, this);
+	        XAResourceHolderState xaResourceHolderState =  new XAResourceHolderState(xaResourceHolder, this);
 	        xaResourceHolder.setXAResourceHolderState(xaResourceHolderState);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -77,10 +76,14 @@ public class GenericXAResourceProducer extends ResourceBean implements
    * @throws RecoveryException  
    */
 	public XAResourceHolderState startRecovery() throws RecoveryException {
-		init();
+	    if(xaResource == null && xaResourceHolder == null) {
+	        init();
+        }
 		recoveryXAResourceHolder = xaResourceHolder.createRecoveryXAResourceHolder();
 		return new XAResourceHolderState(recoveryXAResourceHolder, this);
 	}
+	
+	
 
 	/**
    * @throws RecoveryException  
@@ -110,7 +113,10 @@ public class GenericXAResourceProducer extends ResourceBean implements
 
 	public XAStatefulHolder createPooledConnection(Object xaFactory,
 			ResourceBean bean) throws Exception {
-		return new GenericXAResourceHolder((XAResource)xaFactory, this);
+		if(xaResourceHolder == null) {
+		    xaResourceHolder = new GenericXAResourceHolder((XAResource)xaFactory, this);
+		}
+		return xaResourceHolder;
 	}
 
 	public XAResourceHolder findXAResourceHolder(XAResource aXAResource) {

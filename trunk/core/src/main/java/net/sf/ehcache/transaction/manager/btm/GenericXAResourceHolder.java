@@ -29,8 +29,13 @@ public class GenericXAResourceHolder extends AbstractXAResourceHolder {
 		return resource;
 	}
 	
-	public XAResourceHolderState getXAResourceHolderState() {
-		return new XAResourceHolderState(this, bean);
+	@Override
+    public XAResourceHolderState getXAResourceHolderState() {
+	    XAResourceHolderState state = super.getXAResourceHolderState();
+		if(state == null) {
+		    setXAResourceHolderState(new XAResourceHolderState(this, bean));
+		}
+		return super.getXAResourceHolderState();
 	}
 
 	public void close() throws Exception {
