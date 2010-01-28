@@ -670,11 +670,14 @@ used with JMX monitors.
       with weaker concurrency guarantees and should generally be used for bulk-loading caches, for loading 
       a read-only cache, or where the application that can tolerate reading stale data. This setting overrides 
       coherentReads, which is deprecated.
-    * synchronousWrite=true|false - Only applies when clustered with Terracotta. Default value is false. When this 
-      value is set to true, clustered caches will use SYNCHRONOUS WRITE lock level in Terracotta for the cache, 
-      otherwise by default it uses Terracotta's normal WRITE lock level. Synchronous-write gives you greater guarantees, 
-      but comes at a high cost in terms of scale/latency - so use with caution. To know more about Terracotta locking 
-      levels, please refer to Terracotta's product documentation.
+    * synchronousWrite=true|false - In effect only when the cache is clustered with Terracotta. Default value 
+      is false (clustered caches use normal Terracotta WRITE locks). When set to true, clustered caches use 
+      Terracotta SYNCHRONOUS WRITE locks. Asynchronous writes (synchronousWrite="false") maximize performance by 
+      allowing clients to proceed without waiting for a "transaction received" acknowledgement from the server. 
+      Synchronous writes (synchronousWrite="true")  maximize data safety by requiring that a client receive server 
+      acknowledgement of a transaction before that client can proceed. If coherence mode is disabled using 
+      configuration (coherent="false") or through the coherence API, only asynchronous writes can occur 
+      (synchronousWrite="true" is ignored).
 
     Simplest example to indicate clustering:
         <terracotta/>
