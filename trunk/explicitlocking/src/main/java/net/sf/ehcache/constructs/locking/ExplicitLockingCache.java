@@ -1171,18 +1171,30 @@ public class ExplicitLockingCache implements Ehcache {
         return cache.getWriterManager();
     }
 
+  /**
+    * {@inheritDoc}
+    */
   public boolean isCoherent() {
     return cache.isCoherent();
   }
 
+  /**
+    * {@inheritDoc}
+    */
   public void setCoherent(boolean coherent) throws UnsupportedOperationException {
     cache.setCoherent(coherent);
   }
 
+  /**
+    * {@inheritDoc}
+    */
   public void waitUntilCoherent() throws UnsupportedOperationException {
     cache.waitUntilCoherent();
   }
 
+  /**
+    * {@inheritDoc}
+    */
   public void setTransactionManagerLookup(TransactionManagerLookup transactionManagerLookup) {
     cache.setTransactionManagerLookup(transactionManagerLookup);
   }
