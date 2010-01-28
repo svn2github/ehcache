@@ -32,7 +32,7 @@
             <groupId>net.sf.ehcache</groupId>
             <artifactId>ehcache-core</artifactId>
             <version>2.0.0-SNAPSHOT</version>
-            <type>pom</type>
+            <type>jar</type>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
@@ -130,6 +130,36 @@
                     <enableRulesSummary>true</enableRulesSummary>
                 </configuration>
             </plugin>
+
+            <plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-checkstyle-plugin</artifactId>
+				<version>2.3</version>
+				<executions>
+					<execution>
+						<phase>verify</phase>
+						<goals>
+							<goal>checkstyle</goal>
+						</goals>
+					</execution>
+				</executions>
+				<configuration>
+					<configLocation>${basedir}/checkstyle/checkstyle.xml
+					</configLocation>
+					<suppressionsLocation>${basedir}/checkstyle/suppressions.xml
+					</suppressionsLocation>
+					<headerLocation>${basedir}/checkstyle/ClassHeader.txt
+					</headerLocation>
+					<enableRSS>false</enableRSS>
+					<linkXRef>true</linkXRef>
+					<consoleOutput>true</consoleOutput>
+					<failsOnError>true</failsOnError>
+					<failOnViolation>true</failOnViolation>
+					<includeTestSourceDirectory>false</includeTestSourceDirectory>
+					<enableRulesSummary>true</enableRulesSummary>
+				</configuration>
+			</plugin>
+
 
             <!--Conflicts with Dave Whitla's plugin with the same goal.
             Use mvn org.glassfish:maven-glassfish-plugin:run instead
