@@ -23,6 +23,29 @@
             	Added XA transaction, using JTA API. Configured through the transactionalMode attribute of a cache in your
                 configuration xml file. Currently only supported on caches clustered using Terracotta's serialized value mode.
             </action>
+            <action dev="Chris Dennis" type="fix" issue="EHC-573">
+                Implemented correct cluster wide locking for Terracotta clustered Ehcache Hibernate caches.
+            </action>
+            <action dev="Chris Dennis" type="add" issue="EHC-570">
+                Added dynamic configuration support for Terracotta clustered and unclustered Ehcache instances.  TTI, TTL,
+                and maximum in-memory and on-disk capacities can be modified at runtime by accessing and mutating the Cache
+                object's CacheConfiguration.
+            </action>
+            <action dev="Chris Dennis" type="add" issue="EHC-560">
+                Added Hibernate 3.3+ API cache region factories supporting both singleton and non-singleton cache managers.
+                The new API provides for concurrency improvements that were not possible with the pre-3.3 provider API.
+            </action>
+            <action dev="Chris Dennis" type="add" issue="EHC-584">
+                Add support for all tim-distributed-cache configuration options to the terracotta ehcache configuration element.
+            </action>
+            <action dev="Chris Dennis" type="fix" issue="EHC-569">
+                Rewrite of MemoryStore to prevent bugs whereby the parallel key data structure became inconsistent with the
+                underlying map, and therefore caused errors during capacity eviction.
+            </action>
+            <action dev="Chris Dennis" type="fix" issue="EHC-576">
+                Disabled caches now return null on get rather than returning a potential stale value.  This is important now
+                that caches can be disabled at runtime when they may not be empty.
+            </action>
         </release>
 
         <release version="1.7.2" date="2010-1-11" description="Maintenance and bug fixes">
