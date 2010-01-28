@@ -19,6 +19,8 @@ import javax.transaction.TransactionManager;
 
 import net.sf.ehcache.transaction.xa.EhcacheXAResource;
 
+import java.util.Properties;
+
 /**
  * @author Alex Snaps
  */
@@ -34,4 +36,12 @@ public interface TransactionManagerLookup {
      * execute txnManager specific code.
      */
     void register(EhcacheXAResource resource);
+
+    /**
+     * Setter to the properties properties. This will be called right after the class has been instantiated.
+     *
+     * @param properties the properties parsed from the config file's
+     *                   transactionManagerLookup tag's properties attribute
+     */
+    void setProperties(Properties properties);
 }

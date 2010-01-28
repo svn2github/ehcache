@@ -18,7 +18,6 @@ package net.sf.ehcache;
 
 import java.io.File;
 import java.io.InputStream;
-import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.util.Collection;
@@ -516,21 +515,10 @@ public class CacheManager {
             }
             Class<TransactionManagerLookup> transactionManagerLookupClass =
                 (Class<TransactionManagerLookup>) Class.forName(lookupConfiguration.getFullyQualifiedClassPath());
-            Constructor<TransactionManagerLookup> constructor = null;
-            if (properties != null) {
-                try {
-                    constructor = transactionManagerLookupClass.getConstructor(properties.getClass());
-                } catch (NoSuchMethodException e) {
-                    LOG.error("You've provided properties for {}, yet didn't provide a matching constructor! " +
-                              "Properties will not be passed in", lookupConfiguration.getFullyQualifiedClassPath());
-                }
-            }
-            if (properties == null || constructor == null) {
-                constructor = transactionManagerLookupClass.getConstructor();
-            }
-            this.transactionManagerLookup = constructor.newInstance();
+            this.transactionManagerLookup = transactionManagerLookupClass.newInstance();
+            this.transactionManagerLookup.setProperties(properties);
         } catch (Exception e) {
-            LOG.error("could not instantiate transaction manager lookup class: {}", lookupConfiguration.getFullyQualifiedClassPath());
+            LOG.error("could not instantiate transaction manager lookup class: {}", lookupConfiguration.getFullyQualifiedClassPath(), e);
         } 
 
         detectAndFixDiskStorePathConflict(configurationHelper);
