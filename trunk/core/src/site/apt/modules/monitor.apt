@@ -8,7 +8,6 @@
 
 Monitor Module (Beta)
 
-
 * Sign Up to Get the Beta
 
     A module which provides advanced monitoring features for Ehcache is under development.
@@ -48,6 +47,9 @@ Monitor Module (Beta)
 
  * Memory use statistics and graphs
 
+* Documentation
+
+    See the Monitor documentation {{{/documentation/monitor.html}here}}.
 
 *   {Monitor Beta Sign Up}
 

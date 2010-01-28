@@ -1,13 +1,35 @@
  ---
- Distributed Caching Using Terracotta
+ Distributed Caching Using Terracotta Server Array
  ---
 
-{Distributed Caching Using Terracotta}
+{Distributed Caching Using Terracotta Server Array}
 
     Terracotta has been integrated with Ehcache since Ehcache 1.4.
 
     From version 1.7 Ehcache has been seamlessly integrated with Terracotta 3.1.1 and takes just a few lines
     of config in ehcache.xml to get up and running.
+
+    new-in-2 In Ehcache 2.0 additional configuration options have been added which provide finer grained control.
+
+    Distribution with the Terracotta Server Array ("TSA") is the preferred distribution mechanism. It provides coherency, JTA,
+    HA, scale and high performance. It is available as open source or with additional features in the Ehcache EX and FX product
+    editions.
+
+*   Architecture
+
+    Ehcache distributed with TSA is different to the other distribution mechanisms. They all replicate data, with 100% of
+    data held in each node. Scaling is thus limited to how much can be comfortably held in each node. Replication is also
+    not JTA transactional or guaranteed coherent.
+
+    With TSA the data is split between an Ehcache node, which is the L1 Cache and the TSA, which is the L2 Cache. As with the
+    other replication mechanisms the L1 can hold as much data as is comfortable. All the rest lies in the L2. In Ehcache EX,
+    each CacheManager can have only one logical TSA (there can be multiple redundant TSAs for HA). In Ehcache FX, the TSAs
+    are striped for unlimited scale.
+
+    Data is held in-process in the Ehcache L1 for rapid access, however the data is also always in the TSA. So the cache
+    is unaffected by termination of an Ehcache node. When the node comes back up it reconnects to the TSA L2 and as it uses
+    data fills its local L1. There is thus no notion of a bootstrap as there is with the other distribution mechanisms.
+
 
 *   Worked Example
 
@@ -206,6 +228,36 @@ public class TerracottaExample {
       with caches that contain read-only data or where the application can tolerate reading stale
       data.
 
+      Note that from Ehcache 2.0, this setting has the same affect as <<<coherent>>>.
+
+      * <<<copyOnRead=true|false>>> new-in-2 - indicates whether cache values are deserialized on every read or if the
+        materialized cache value can be re-used between get() calls. This setting is useful if a cache
+        is being shared by callers with disparate classloaders or to prevent local drift if keys/values
+        are mutated locally w/o putting back to the cache. NOTE: This setting is only relevant for caches
+        with valueMode=serialization
+
+      * <<<coherent=true|false>>> new-in-2 - indicates whether this cache should have coherent reads and writes with guaranteed
+        consistency across the cluster.  By default, its value is true.  If this attribute is set to false
+        (or "incoherent" mode), values from the cache are read without locking, possibly yielding stale data.
+        Writes to a cache in incoherent mode are batched and applied without acquiring cluster-wide locks,
+        possibly creating inconsistent values across cluster. Incoherent mode is a performance optimization
+        with weaker concurrency guarantees and should generally be used for bulk-loading caches, for loading
+        a read-only cache, or where the application that can tolerate reading stale data.
+
+        This setting overrides <<<coherentReads>>>, which is deprecated. For backward compatibility any configurations
+        setting a value for <<<coherentReads>>> will apply to <<<coherent>>>.
+
+
+      * <<<synchronousWrite=true|false>>> new-in-2 - When set to true, clustered caches use 
+        Terracotta SYNCHRONOUS WRITE locks. Asynchronous writes (synchronousWrite="false") maximize performance by
+        allowing clients to proceed without waiting for a "transaction received" acknowledgement from the server.
+        Synchronous writes (synchronousWrite="true")  maximize data safety by requiring that a client receive server
+        acknowledgement of a transaction before that client can proceed. If coherence mode is disabled using
+        configuration (coherent="false") or through the coherence API, only asynchronous writes can occur
+        (synchronousWrite="true" is ignored). By default this value is false (i.e. clustered caches use normal
+         Terracotta WRITE locks).
+
+
     The simplest way to enable clustering is to add:
 
 ---
@@ -350,13 +402,22 @@ public class TerracottaExample {
     These are time based gauges, based on once per second measurements. These are different to the JMX MBeans available through the
     <<<ManagementService>>>.
 
-*   What classloader is used to deserialize clustered objects in valueMode="serialization"?
+**   What classloader is used to deserialize clustered objects in valueMode="serialization"?
 
     The following classloaders are tried in this order:
     
       * Thread.currentThread().getContextClassLoader() (so set this to override)
 
       * The classloader used to define the Ehcache CacheManager - the one that loaded the ehcache-terracotta.jar
+
+
+**  What versions of Ehcache and Terracotta work together?
+
+    For full compatibility Ehcache 2.0 should be used with Terracotta Server 3.2.1.
+
+    Ehcache 1.7 works with TC 3.1.1.
+
+    Ehcache Core 1.7.3 core works with TC 3.2.
 
 *   Notes
 

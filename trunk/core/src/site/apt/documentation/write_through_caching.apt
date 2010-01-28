@@ -4,7 +4,7 @@
 
 {Write-through and Write-behind Caching with the CacheWriter}
 
-    Write-through caching is a caching pattern where writes to the cache cause writes to an underlying resource. The cache acts as a facade
+    new-in-2 Write-through caching is a caching pattern where writes to the cache cause writes to an underlying resource. The cache acts as a facade
     to the underlying resource. With this pattern, it often makes sense to read through the cache too.
 
     Write-behind caching uses the same client API, however the write happens asynchronously.
@@ -67,6 +67,14 @@
 
     Note that in practice, if other applications are writing to the database, then a cache can often be inconsistent with the database.
 
+**  Node time synchronisation
+
+    Ideally node times should be synchronised. The write-behind queue is generally written to the underlying resource in timestamp order, based
+    on the timestamp of the cache operation, although there is no guaranteed ordering.
+
+    The ordering will be more consistent if all nodes are using the same time. This can easily be achieved by configuring
+     your system clock to syncrhonise with a time authority using Network Time Protocol.
+
 
 * Using a combined Read-Through and Write-Behind Cache
 
@@ -84,7 +92,7 @@
 
 ** Lazy Loading
 
-    The quesiton arises: Does the entire data set need to be loaded in the cache on startup? The answer is no, because a read-through cache
+    The question arises: Does the entire data set need to be loaded in the cache on startup? The answer is no, because a read-through cache
     uses a <<<CacheLoader>>> which loads data into the cache on demand. In this way the cache be populated lazily.
 
 
@@ -106,6 +114,30 @@
    Even if all of the dataset can fit in the cache, it could be evicted if Elements expire. Accordingly, both <<<timeToLive>>> and
        <<<timeToIlde>>> should be set to eternal to prevent this from happening.
 
+*   Ehcache Versions
+
+    Both Ehcache standalone and with Terracotta Server Array (Ehcache EX and FX) are supported.
+
+**  Ehcache DX (Standalone Ehcache)
+
+    The write-behind queue is stored locally in memory. It supports all configuration options, but any data in the queue
+    will be lost on JVM shutdown.
+
+**  Ehcache EX and FX
+
+*** Durable HA write-behind Queue
+
+    EX and FX when used with the Terracotta Server Array will store the queue on the Terracotta Server Array and can thus be configured
+     for durability and HA. The data is still kept in the originating node for performance.
+
+*** Cluster wide queue processing
+
+    In a cluster each node will have a <<<CacheWriter>>> configured. These will process their local work, but if there is no local
+    work, they will poll the other nodes to see if there is outstanding work and process part of that work.
+
+    This means that workload is balanced across the cluster, and that the write-behind queue will be serviced as long as there is one
+    Ehcache L1 instance in the cluster.
+
 * Configuration
 
     There are many configuration options. See the <<<CacheWriterConfiguration>>> for properties that may be set and their effect.
@@ -121,6 +153,38 @@
                                 properties="just.some.property=test; another.property=test2" propertySeparator=";"/>
         </cacheWriter>
     </cache>
+
+Further examples:
+
+  <cache name="writeThroughCache1" eternal="false" maxElementsInMemory="1000" overflowToDisk="false"/>
+
+  <cache name="writeThroughCache2" eternal="false" maxElementsInMemory="1000" overflowToDisk="false">
+      <cacheWriter/>
+  </cache>
+
+  <cache name="writeThroughCache3" eternal="false" maxElementsInMemory="1000" overflowToDisk="false">
+      <cacheWriter writeMode="write_through" notifyListenersOnException="true" maxWriteDelay="30"
+                   rateLimitPerSecond="10" writeCoalescing="true" writeBatching="true" writeBatchSize="8"
+                   retryAttempts="20" retryAttemptDelaySeconds="60"/>
+  </cache>
+
+  <cache name="writeThroughCache4" eternal="false" maxElementsInMemory="1000" overflowToDisk="false">
+      <cacheWriter writeMode="write_through" notifyListenersOnException="false" maxWriteDelay="0"
+                   rateLimitPerSecond="0" writeCoalescing="false" writeBatching="false" writeBatchSize="1"
+                   retryAttempts="0" retryAttemptDelaySeconds="0">
+          <cacheWriterFactory class="net.sf.ehcache.writer.WriteThroughTestCacheWriterFactory"/>
+      </cacheWriter>
+  </cache>
+
+  <cache name="writeBehindCache5" eternal="false" maxElementsInMemory="1000" overflowToDisk="false">
+      <cacheWriter writeMode="write-behind" notifyListenersOnException="true" maxWriteDelay="8" rateLimitPerSecond="5"
+                   writeCoalescing="true" writeBatching="false" writeBatchSize="20"
+                   retryAttempts="2" retryAttemptDelaySeconds="2">
+          <cacheWriterFactory class="net.sf.ehcache.writer.WriteThroughTestCacheWriterFactory"
+                              properties="just.some.property=test; another.property=test2" propertySeparator=";"/>
+      </cacheWriter>
+  </cache>
+
 ---
 
     This configuration can also be achieved through the <<<Cache>>> constructor in Java, like this:
@@ -152,6 +216,48 @@
     MyCacheWriter writer = new MyCacheWriter(jdbcConnection);
     cache.registerCacheWriter(writer);
 ---
+
+
+** Configuration Attributes
+
+   The CacheWriterFactory supports the following attributes:
+
+*** All modes
+
+   *  write-mode [write-through | write-behind] - whether to run in write-behind or write-through mode. The default is write-through.
+
+
+*** write-through mode only
+
+   *  notifyListenersOnException - whether to notify listeners when a an exception occurs on a storer operation. Defaults to false.
+
+
+*** write-behind mode only
+
+
+     *  maxWriteDelaySeconds        the maximum number of seconds to wait before writing behind. Defaults to 0. If set to a value
+                                      greater than 0, it permits operations to build up in the queue to enable effective coalescing
+                                      and batching optimisations.
+
+     *  rateLimitPerSecond          the maximum number of store operations to allow per second. If writeBatching is enabled,
+
+     *  writeCoalescing             whether to use write coalescing. Defaults to false. If set to true, if multiple operations
+                                      on the same key are present in the write-behind queue, only the latest write is done, as the
+                                      others are redundant. This can dramatically reduce load on the underlying resource.
+
+     *  writeBatching               whether to batch write operations. Defaults to false. If set to true, storeAll and deleteAll
+                                      will be called rather than store and delete being called for each key. Resources such as databases
+                                      can perform more efficiently if updates are batched, thus reducing load.
+
+     *  writeBatchSize              the number of operations to include in each batch. Defaults to 1. If there are less entries in the
+                                      write-behind queue than the batch size, the queue length size is used. Note that batching is split
+                                      across operations. So, if the batch size is 10 and there were 5 puts and 5 deletes, then the
+                                      CacheWriter will be invoked then, not after 10 puts and 10 deletes.
+
+     *  retryAttempts               the number of times to attempt. Defaults to 1.
+
+     *  retryAttemptDelaySeconds    the number of seconds to wait before retrying.
+
 
 * API
 
@@ -297,36 +403,3 @@ public interface CacheWriter {
 }
 ---
 
-
-*   Configuration Examples
-
----
-  <cache name="writeThroughCache1" eternal="false" maxElementsInMemory="1000" overflowToDisk="false"/>
-
-  <cache name="writeThroughCache2" eternal="false" maxElementsInMemory="1000" overflowToDisk="false">
-      <cacheWriter/>
-  </cache>
-
-  <cache name="writeThroughCache3" eternal="false" maxElementsInMemory="1000" overflowToDisk="false">
-      <cacheWriter writeMode="write_through" notifyListenersOnException="true" maxWriteDelay="30"
-                   rateLimitPerSecond="10" writeCoalescing="true" writeBatching="true" writeBatchSize="8"
-                   retryAttempts="20" retryAttemptDelaySeconds="60"/>
-  </cache>
-
-  <cache name="writeThroughCache4" eternal="false" maxElementsInMemory="1000" overflowToDisk="false">
-      <cacheWriter writeMode="write_through" notifyListenersOnException="false" maxWriteDelay="0"
-                   rateLimitPerSecond="0" writeCoalescing="false" writeBatching="false" writeBatchSize="1"
-                   retryAttempts="0" retryAttemptDelaySeconds="0">
-          <cacheWriterFactory class="net.sf.ehcache.writer.WriteThroughTestCacheWriterFactory"/>
-      </cacheWriter>
-  </cache>
-
-  <cache name="writeBehindCache5" eternal="false" maxElementsInMemory="1000" overflowToDisk="false">
-      <cacheWriter writeMode="write_behind" notifyListenersOnException="true" maxWriteDelay="8" rateLimitPerSecond="5"
-                   writeCoalescing="true" writeBatching="false" writeBatchSize="20"
-                   retryAttempts="2" retryAttemptDelaySeconds="2">
-          <cacheWriterFactory class="net.sf.ehcache.writer.WriteThroughTestCacheWriterFactory"
-                              properties="just.some.property=test; another.property=test2" propertySeparator=";"/>
-      </cacheWriter>
-  </cache>
----

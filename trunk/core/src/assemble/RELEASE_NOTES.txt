@@ -1,4 +1,8 @@
-Release Notes For Ehcache 1.7.2
+Release Notes For Ehcache 2.0.0-beta
+
+The project home page is http://ehcache.org. Please see http://ehcache.org for a full change log, usage, product versions 
+and comprehensive documentation.
+
 
 Introduction
 ============
@@ -25,6 +29,8 @@ Ehcache is a pure Java, in-process cache with the following features:
    19. Compatible with Google App Engine
    20. Seamless support for Terracotta Clustering
    21. Works with the Ehcache Monitor for enterprise-class monitoring and management
+   22. JTA support.
+   23. Write-through 
 
 Java Requirements
 =================

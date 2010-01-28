@@ -420,7 +420,7 @@
 				<version>2.3</version>
 				<executions>
 					<execution>
-						<phase>verify</phase>
+						<phase>install</phase>
 						<goals>
 							<goal>checkstyle</goal>
 						</goals>

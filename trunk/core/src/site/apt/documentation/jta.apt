@@ -6,4 +6,4 @@
 
     Ehcache is an {XAResouce} and participates in JTA ("Java Transaction API") transactions.
 
-    JTA is supported in versions of Ehcache 2.0 and higher.
+    new-in-2 JTA is supported in versions of Ehcache 2.0 and higher.

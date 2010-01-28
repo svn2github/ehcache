@@ -4,23 +4,126 @@
 
 {Ehcache Monitor}
 
-  This is the documentation page for the Ehcache Monitor.
+    {{{#Installation_And_Configuration}Installation & Configuration}} | {{{#Using_the_Web_GUI}Web GUI}} | {{{#Using_the_API}Monitor API}} | {{{#Known_Issues}Known Issues}} | {{{#Licensing}Licensing}}
 
-*   Installation
+    This add-on tool for Ehcache is designed to provide enterprise-class monitoring and management capabilities for use in both
+    development and production. It is intended to help understand and tune cache usage, detect errors, and provide an easy to
+    use access point to integrate with production management systems. It provides administrative functionality such as the
+    ability to forcefully remove items from caches.
 
-         
-*   Configuration
-
-
-*   Configuration Tab
-
-
-
-*   Cache Efficieny Tab
-
+    The package contains a probe and a server. The probe installs with your existing Ehcache cache instance, and communicates
+    to a central server. The server aggregates data from multiple probes. It can be accessed via a simple web UI, as well as
+    a scriptable API. In this way, it is easy to integrate with common third party systems management tools
+    (such as Hyperic, Nagios etc). The probe is designed to be compatible with all versions of Ehcache from 1.4.1 and
+    requires JDK 1.5 or 1.6.
 
 
-*   HTTP over XML API
+*   {Installation And Configuration}
+
+    First download and extract the Ehcache Monitor package.
+
+    The package consists of a lib directory with the probe and monitor server jars, a bin directory with startup and shutdown
+    scripts for the monitor server and an etc directory with an example monitor server configuration file.
+
+**  Probe
+
+    To include the probe in your Ehcache application, you need to perform two steps:
+
+    [[1]] Add the ehcache-probe-<version>.jar to your application classpath (or war file). Do this in the same way you added the
+          core ehcache jar to your application.
+
+    [[2]] Configure Ehcache to communicate with the probe by specifying the class name of the probe, the address (or hostname),
+          and the port that the monitor will be running on. This is done by adding the following to ehcache.xml:
+
++---
+<cacheManagerPeerListenerFactory
+    class="org.terracotta.ehcachedx.monitor.ProbePeerListenerFactory"
+    properties="serverAddress=localhost, serverPort=9889" />
++---
+
+
+**  {Monitor}
+
+    Copy the monitor package to a monitoring server.
+
+    To start the monitor, run the startup script provided in the bin directory: startup.sh on Unix and startup.bat on Microsoft Windows.
+    The monitor port selected in this script should match the port specified in ehcache.xml.
+
+    The monitor can be configured, including interface, port and security settings, in the etc/ehcache-monitor.conf.
+
+
+*   {Using the Web GUI}
+
+    The web-based GUI is available by pointing your browser at http://<server-host-name>:<server-port>/monitor. For a default installation on the local machine, this would be http://localhost:9889/monitor
+
+    The GUI contains 4 tabs, described as follows:
+
+**  Cache Managers
+
+    This tab shows aggregate statistics for the cache managers being monitored by probes connected to the monitor server. Double-clicking on any cache manager drills down to the detailed Statistics tab for that manager.
+
+**  Statistics
+
+    This tab shows the statistics being gathered for each cache managed by the selected cache manager.
+
+    The Settings button permits you to add additional statistics fields to the display. Note: only displayed fields are collected and aggregated by the probe. Adding additional display fields will increase the processing required for probe and the server. The selected settings are stored in a preferences cookie in your browser.
+
+    Double-clicking on any cache drills down to the Contents tab for that cache.
+
+**  Configuration
+
+    This tab shows the key configuration information for each cache managed by the selected cache manager.
+
+**  Contents
+
+    This tab enables you to look inside the cache, search for elements via their keys and remove individual or groups of elements from the cache.
+
+    The GUI is set to refresh at the same frequency that the probes aggregate their statistic samples which is every 10 seconds by default. The progress bar at the bottom of the screen indicates the time until the next refresh.
+
+
+*   {Using the API}
+
+    The Monitor provides a API over HTTP on the same port as the Web GUI.
+
+    The list of functions supported by the API can be accessed by pointing your browser at 
+    http://<monitor-host-name>:<monitor-port>/monitor/list. For a default installation on the local machine, this would be
+    http://localhost:9889/monitor/list
+
+    The API returns data as either structured XML or plan text. The default format is txt.
+
+    For example, the getVersion function returns the software version of the monitor server. It can be called as follows:
+
+    http://localhost:9889/monitor/getVersion
+
+    or, to receive the results as XML:
+
+    http://localhost:9889/monitor/getVersion?format=xml
+
+    To query the data collected by the monitor server from scripts that can then be used to pass the data to enterprise system management
+    frameworks, commands such as <<<curl>>> or <<<wget>>> can be used.
+
+    For example, on a Linux system, to query the list of probes that a local server on the default port is currently aware of, and return
+    the data in XML format, the following command could be used:
+
++---
+    $ curl http://localhost:9889/monitor/listProbes?format=xml
++---
+
+*   {Known Issues}
+
+**  Internet Explorer
+
+    The GUI is designed to work in most browsers. Currently it has been tested in Firefox and Safari and is known not to work in Microsoft
+    Internet Explorer. Wider browser support is planned for future release builds.
+
+*   {Licensing}
+
+    Unless otherwise indicated, this module is licensed for usage in development.
+
+    For details see the license terms in the appropriate LICENSE.txt. To obtain a commercial license for use in production,
+    please contact sales@terracottatech.com
+
+
 
 
 

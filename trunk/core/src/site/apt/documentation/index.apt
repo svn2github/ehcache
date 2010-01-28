@@ -16,7 +16,7 @@ Documentation - Table of Contents
 
     * {{{./architecture.html}Architecture}}
 
-    * {{{./configuration.html}Cache Configuration}}
+    * {{{./configuration.html}Configuration}}
 
     * {{{./storage_options.html}Storage Options}}
 
@@ -32,17 +32,19 @@ Documentation - Table of Contents
 
     * {{{./cache_decorators.html}Cache Decorators}} 
 
-    * {{{./web_caching.html}Web Caching}} 
+    * {{{./hibernate.html}Hibernate Caching}} new-in-2
+
+    * {{{./web_caching.html}Web Caching}}
 
     * {{{./distributed_caching.html}Distributed Caching}}
+
+    * {{{./distributed_caching_with_terracotta.html}Distributed Caching With Terracotta}}
 
     * {{{./distributed_caching_with_rmi.html}Distributed Caching With RMI}}
 
     * {{{./distributed_caching_with_jgroups.html}Distributed Caching With JGroups}}
 
     * {{{./distributed_caching_with_jms.html}Distributed Caching With JMS}}
-
-    * {{{./distributed_caching_with_terracotta.html}Distributed Caching With Terracotta}}
 
     * {{{./shutdown.html}Shutting Down Ehcache}}
 
@@ -52,13 +54,13 @@ Documentation - Table of Contents
 
     * {{{./jmx.html}JMX Management & Monitoring}}
 
-    * {{{./jta.html}JTA}}
+    * {{{./jta.html}JTA}} new-in-2
 
-    * {{{./osgi.html}OSGI}}
+    * {{{./osgi.html}OSGI}} new-in-2
 
-    * {{{./monitor.html}Ehcache Monitor}}
+    * {{{./monitor.html}Ehcache Monitor}} -new-
 
-    * {{{./bulk_loading.html}Bulk Loading}}
+    * {{{./bulk_loading.html}Bulk Loading}} new-in-2
 
     * {{{./cachemanager_event_listeners.html}CacheManager Event Listeners}}
 
@@ -70,15 +72,13 @@ Documentation - Table of Contents
 
     * {{{./cache_loaders.html}Cache Loaders}}
 
-    * {{{./write_through_caching.html}Write-through and write-behind caching with Cache Storers}}
+    * {{{./write_through_caching.html}Write-through and write-behind caching with CacheWriters}} new-in-2
 
     * {{{./cache_server.html}Cache Server with SOAP and RESTful Web Services}}
 
     * {{{./constructs.html}BlockingCache and SelfPopulatingCache}}
 
-    * {{{./hibernate.html}Hibernate Caching Provider}}
-
-    * {{{./openjpa_provider.html}OpenJPA Caching Provider}}
+    * {{{./openjpa_provider.html}OpenJPA Caching}}
 
     * {{{./grails.html}Grails: Using Ehcache as a Second Level Caching Provider for Hibernate within Grails}}
 
@@ -95,3 +95,4 @@ Documentation - Table of Contents
     * {{{./faq.html}FAQ}}
 
 
+    This content is also available in a {{{EhcacheUserGuide.html}Single Page HTML User Guide}}.

@@ -8,7 +8,13 @@
 
 *   Versions
 
-    Ehcache is used in production with Glassfish V1 and V2.
+    Ehcache has been tested with and is used in production with Glassfish V1, V2 and V3.
+
+    In particular:
+
+    * Ehcache 1.4 - 1.7 has been tested with Glassfish 1 and 2.
+
+    * Ehcache 2.0 has been tested with Glassfish 3.
 
 *   HowTo
 
@@ -66,17 +72,6 @@
 
 ---
     <jvm-options>-Djava.security.manager</jvm-options>
----
-
-
-**  How To Enable Read Behind Page Caching in Glassfish
-
-    The read behind page caching feature requires that HTTP1.1 keepalives are turned off.
-
-    To do this in Glassfish:
-
----
-    Not sure if this is possible in Glassfish. Not in the documentation
 ---
 
 

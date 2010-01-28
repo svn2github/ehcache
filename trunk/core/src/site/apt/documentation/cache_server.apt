@@ -866,3 +866,6 @@ String result = cacheService.ping();
     Of course, from there you can hook the Cache Server up to your monitoring tool of choice. See the chapter
     on JMX Management and Monitoring for more information.
 
+*   {Download}
+
+    Download the ehcache-standalone-server from {{http://sourceforge.net/projects/ehcache/files/ehcache-server}}.
