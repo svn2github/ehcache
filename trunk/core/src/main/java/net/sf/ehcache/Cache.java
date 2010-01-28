@@ -943,6 +943,10 @@ public class Cache implements Ehcache {
             final Store memStore;
             if (isTerracottaClustered()) {
                 memStore = cacheManager.createTerracottaStore(this);
+                boolean unlockedReads = !this.configuration.getTerracottaConfiguration().getCoherentReads();
+                // if coherentReads=false, make coherent=false
+                boolean coherent = unlockedReads ? false : this.configuration.getTerracottaConfiguration().isCoherent();
+                memStore.setCoherent(coherent);
             } else {
                 if (useClassicLru && configuration.getMemoryStoreEvictionPolicy().equals(MemoryStoreEvictionPolicy.LRU)) {
                     memStore = new LruMemoryStore(this, diskStore);
