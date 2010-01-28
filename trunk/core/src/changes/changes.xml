@@ -46,6 +46,11 @@
                 Disabled caches now return null on get rather than returning a potential stale value.  This is important now
                 that caches can be disabled at runtime when they may not be empty.
             </action>
+            <action dev="Tim Eck" type="add">
+            	Added "copyOnRead" setting for terracotta clustered caches. At a high level this setting will return distinct
+                value objects upon every get() to a cache. The main driver for this feature is to support caches that are 
+                accessed by disparate OSGi bundles
+            </action>
         </release>
 
         <release version="1.7.2" date="2010-1-11" description="Maintenance and bug fixes">
