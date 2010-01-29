@@ -1,3 +1,60 @@
+ehcache-2.0.0-beta
+==================
+
+    <release version="2.0.0-beta" date="2010-1-29" description="Major release with new features">
+        <action dev="Geert Bevin" type="add">
+            Refactored Cache constructors to allow the use of a fluent interface instead of a series of
+            constructor arguments. Existing constructors remain exactly the same for backward compatibility.
+        </action>
+        <action dev="Geert Bevin" type="add">
+            Added support for CacheWriters with write-through and write-behind modes.
+        </action>
+        <action dev="Abhishek Sanoujam" type="add">
+            Added support for fast bulk-loading with incoherent mode when clustered with Terracotta. Turning on
+            incoherent mode with cache.setCoherent(false) improves performance for bulk loading.
+        </action>
+        <action dev="Abhishek Sanoujam" type="add">
+            New attribute for Terracotta clustered-caches, synchronousWrite=true|false -- support for Terracotta's
+            Synchronous Write locking level in cache. Synchronous Write locking level gives greater guarantees, but
+            comes at high cost in terms of scale/latency.
+        </action>
+        <action dev="Alex Snaps" type="add">
+            Added XA transaction, using JTA API. Configured through the transactionalMode attribute of a cache in your
+            configuration xml file. Currently only supported on caches clustered using Terracotta's serialized value mode.
+        </action>
+        <action dev="Chris Dennis" type="fix" issue="EHC-573">
+            Implemented correct cluster wide locking for Terracotta clustered Ehcache Hibernate caches.
+        </action>
+        <action dev="Chris Dennis" type="add" issue="EHC-570">
+            Added dynamic configuration support for Terracotta clustered and unclustered Ehcache instances.  TTI, TTL,
+            and maximum in-memory and on-disk capacities can be modified at runtime by accessing and mutating the Cache
+            object's CacheConfiguration.
+        </action>
+        <action dev="Chris Dennis" type="add" issue="EHC-560">
+            Added Hibernate 3.3+ API cache region factories supporting both singleton and non-singleton cache managers.
+            The new API provides for concurrency improvements that were not possible with the pre-3.3 provider API.
+        </action>
+        <action dev="Chris Dennis" type="add" issue="EHC-584">
+            Add support for all tim-distributed-cache configuration options to the terracotta ehcache configuration element.
+        </action>
+        <action dev="Chris Dennis" type="fix" issue="EHC-569">
+            Rewrite of MemoryStore to prevent bugs whereby the parallel key data structure became inconsistent with the
+            underlying map, and therefore caused errors during capacity eviction.
+        </action>
+        <action dev="Chris Dennis" type="fix" issue="EHC-576">
+            Disabled caches now return null on get rather than returning a potential stale value.  This is important now
+            that caches can be disabled at runtime when they may not be empty.
+        </action>
+        <action dev="Tim Eck" type="add">
+            Added "copyOnRead" setting for terracotta clustered caches. At a high level this setting will return distinct
+            value objects upon every get() to a cache. The main driver for this feature is to support caches that are
+            accessed by disparate OSGi bundles
+        </action>
+    </release>
+
+
+
+
 ehcache-1.7.2
 =============
 

@@ -141,9 +141,13 @@
                 <arg value="remotedebugger.apt"/>
                 <arg value="garbage_collection.apt"/>
                 <arg value="jmx.apt"/>
+                <arg value="jta.apt"/>
+                <arg value="monitor.apt"/>
+                <arg value="bulk_loading.apt"/>
                 <arg value="class_loading.apt"/>
                 <arg value="performance_considerations.apt"/>
                 <arg value="cache_decorators.apt"/>
+                <arg value="hibernate.apt"/>
                 <arg value="shutdown.apt"/>
                 <arg value="web_caching.apt"/>
                 <arg value="distributed_caching.apt"/>
@@ -158,7 +162,7 @@
                 <arg value="cache_exception_handlers.apt"/>
                 <arg value="cache_extensions.apt"/>
                 <arg value="cache_server.apt"/>
-                <arg value="hibernate.apt"/>
+                <arg value="write_through_caching.apt"/>
                 <arg value="openjpa_provider.apt"/>
                 <arg value="grails.apt"/>
                 <arg value="jsr107.apt"/>

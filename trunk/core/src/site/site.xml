@@ -40,8 +40,8 @@
 
         <menu name="Documentation">
             <item name="Getting Started" href="documentation/getting_started.html"/>
+            <item name="User Guide [HTML]" href="documentation/index.html"/>
             <item name="Ehcache Book [PDF]" href="/documentation/EhcacheUserGuide-1.7.1.pdf"/>
-            <item name="HTML User Guide" href="documentation/index.html"/>
             <item name="Earlier Versions [PDF]" href="documentation/older_guides.html" collapse="true">
                 <item name="ehcache 1.6" href="/documentation/EhcacheUserGuide-1.6.pdf"/>
                 <item name="ehcache 1.5" href="/documentation/EhcacheUserGuide-1.5.pdf"/>

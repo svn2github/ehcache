@@ -2,17 +2,17 @@
 <document>
     <body>
 
-        <release version="2.0.0-beta" date="2010-1-31" description="Major release with new features">
+        <release version="2.0.0-beta" date="2010-1-29" description="Major release with new features">
             <action dev="Geert Bevin" type="add">
-                Refactored Cache constructors to allow the use of a fluent interface instead of a huge series of
-                constructor arguments.
+                Refactored Cache constructors to allow the use of a fluent interface instead of a series of
+                constructor arguments. Existing constructors remain exactly the same for backward compatibility.
             </action>
             <action dev="Geert Bevin" type="add">
                 Added support for CacheWriters with write-through and write-behind modes.
             </action>
             <action dev="Abhishek Sanoujam" type="add">
                 Added support for fast bulk-loading with incoherent mode when clustered with Terracotta. Turning on
-                incoherent mode with cache.setCoherent(false) improves performance while loading/warming up the cache.
+                incoherent mode with cache.setCoherent(false) improves performance for bulk loading.
             </action>
             <action dev="Abhishek Sanoujam" type="add">
             	New attribute for Terracotta clustered-caches, synchronousWrite=true|false -- support for Terracotta's 

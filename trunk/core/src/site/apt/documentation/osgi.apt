@@ -1,7 +1,0 @@
- ---
- OSGI
- ---
-
-{OSGI}
-
-    Ehcache 2.0 supports OSGI environments. 

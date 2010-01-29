@@ -56,8 +56,6 @@ Documentation - Table of Contents
 
     * {{{./jta.html}JTA}} new-in-2
 
-    * {{{./osgi.html}OSGI}} new-in-2
-
     * {{{./monitor.html}Ehcache Monitor}} -new-
 
     * {{{./bulk_loading.html}Bulk Loading}} new-in-2
@@ -95,4 +93,4 @@ Documentation - Table of Contents
     * {{{./faq.html}FAQ}}
 
 
-    This content is also available in a {{{EhcacheUserGuide.html}Single Page HTML User Guide}}.
+    This content is also available in a {{{/EhcacheUserGuide.html}Single Page HTML User Guide}}.

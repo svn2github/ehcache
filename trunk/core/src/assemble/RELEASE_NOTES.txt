@@ -30,7 +30,8 @@ Ehcache is a pure Java, in-process cache with the following features:
    20. Seamless support for Terracotta Clustering
    21. Works with the Ehcache Monitor for enterprise-class monitoring and management
    22. JTA support.
-   23. Write-through 
+   23. Write-through and write-behind
+   23. Dynamic Configuration for main cache configuration settings.
 
 Java Requirements
 =================
@@ -54,7 +55,7 @@ Maven POM snippet
      <dependency>
         <groupId>net.sf.ehcache</groupId>
         <artifactId>ehcache-core</artifactId>
-        <version>1.7.2</version>
+        <version>2.0.0-beta</version>
      </dependency>
 
 Installation
