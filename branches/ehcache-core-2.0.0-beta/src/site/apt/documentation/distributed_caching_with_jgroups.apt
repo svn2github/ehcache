@@ -1,0 +1,215 @@
+ ---
+ Distributed Caching using JGroups
+ ---
+
+Distributed Caching using {JGroups}
+
+    As of version 1.5, JGroups can be used as the underlying mechanism for
+    the distributed operations in ehcache. JGroups offers a very flexible
+    protocol stack, reliable unicast and multicast message transmission.
+    On the down side JGroups can be complex to configure and some protocol stacks
+    have dependencies on others.
+
+    To set up distributed caching using JGroups you need to configure a PeerProviderFactory
+    of type JGroupsCacheManagerPeerProviderFactory which is done globally for a CacheManager
+    For each cache that will operate distributed, you then need to add
+    a cacheEventListenerFactory of type JGroupsCacheReplicatorFactory to propagate messages.
+
+* Suitable Element Types
+
+    Only Serializable Elements are suitable for replication.
+
+    Some operations, such as remove,  work off Element keys rather than the full Element itself. In this case
+    the operation will be replicated provided the key is Serializable, even if the Element is not.
+
+* {Peer Discovery}
+
+    If you use the UDP multicast stack there is no additional configuration. If you use a TCP stack
+    you will need to specify the initial hosts in the cluster.
+
+* Configuration
+
+    There are two things to configure:
+
+    * The JGroupsCacheManagerPeerProviderFactory which is done once per CacheManager and therefore once per ehcache.xml file.
+
+    * The JGroupsCacheReplicatorFactory which is added to each cache's configuration.
+
+	The main configuration happens in the JGroupsCacheManagerPeerProviderFactory connect sub-property.
+	A connect property is passed directly to the JGroups channel and therefore all the protocol
+	stacks and options available in JGroups can be set. 
+
+* Example configuration using {UDP Multicast}
+
+    Suppose you have two servers in a cluster. You wish to distribute
+    sampleCache11 and sampleCache12 and you wish to use UDP multicast as the underlying mechanism.
+
+    The configuration for server1 and server2 are identical and will look like this:
+
+---
+<cacheManagerPeerProviderFactory
+     class="net.sf.ehcache.distribution.jgroups.JGroupsCacheManagerPeerProviderFactory"
+     properties="connect=UDP(mcast_addr=231.12.21.132;mcast_port=45566;):PING:
+     MERGE2:FD_SOCK:VERIFY_SUSPECT:pbcast.NAKACK:UNICAST:pbcast.STABLE:FRAG:pbcast.GMS"
+     propertySeparator="::"
+     />
+---
+
+* Example configuration using {TCP Unicast}
+
+     The TCP protocol requires the IP address of all servers to be known.
+     They are configured through the {<<<TCPPING>>> protocol} of Jgroups.
+
+     Suppose you have 2 servers host1 and host2, then the configuration is:
+
+---
+ <cacheManagerPeerProviderFactory
+    class="net.sf.ehcache.distribution.jgroups.JGroupsCacheManagerPeerProviderFactory"
+    properties="connect=TCP(start_port=7800):
+        TCPPING(initial_hosts=host1[7800],host2[7800];port_range=10;timeout=3000;
+        num_initial_members=3;up_thread=true;down_thread=true):
+        VERIFY_SUSPECT(timeout=1500;down_thread=false;up_thread=false):
+        pbcast.NAKACK(down_thread=true;up_thread=true;gc_lag=100;retransmit_timeout=3000):
+        pbcast.GMS(join_timeout=5000;join_retry_timeout=2000;shun=false;
+        print_local_addr=false;down_thread=true;up_thread=true)"
+    propertySeparator="::" />
+---
+
+* Protocol considerations.
+
+	You should read the JGroups documentation to configure the protocols correctly.
+	
+	See {{http://www.jgroups.org/javagroupsnew/docs/manual/html_single/index.html}}.
+	
+	If using UDP you should at least configure PING, FD_SOCK (Failure detection), VERIFY_SUSPECT, pbcast.NAKACK (Message reliability),
+	pbcast.STABLE (message garbage collection).
+
+* Configuring CacheReplicators
+
+    Each cache that will be distributed needs to set a cache event listener
+    which then replicates messages to the other CacheManager peers. This is
+    done by adding a cacheEventListenerFactory element to each cache's
+    configuration. The properties are identical to the one used for RMI replication.
+
+    The listener factory <MUST> be of type <<<JGroupsCacheReplicatorFactory>>>.
+
+----
+<!-- Sample cache named sampleCache2. -->
+<cache name="sampleCache2"
+   maxElementsInMemory="10"
+   eternal="false"
+   timeToIdleSeconds="100"
+   timeToLiveSeconds="100"
+   overflowToDisk="false">
+   <cacheEventListenerFactory
+   class="net.sf.ehcache.distribution.jgroups.JGroupsCacheReplicatorFactory"
+   properties="replicateAsynchronously=true, replicatePuts=true,
+   replicateUpdates=true, replicateUpdatesViaCopy=false, replicateRemovals=true" />
+</cache>
+----
+
+    The configuration options are explained below:
+
+    class - use net.sf.ehcache.distribution.jgroups.JGroupsCacheReplicatorFactory
+
+    The factory recognises the following properties:
+
+    * replicatePuts=true | false - whether new elements placed in a cache are
+      replicated to others. Defaults to true.
+
+    * replicateUpdates=true | false - whether new elements which override an
+      element already existing with the same key are replicated. Defaults to true.
+
+    * replicateRemovals=true - whether element removals are replicated. Defaults to true.
+
+    * replicateAsynchronously=true | false - whether replications are
+      asyncrhonous (true) or synchronous (false). Defaults to true.
+
+    * replicateUpdatesViaCopy=true | false - whether the new elements are
+      copied to other caches (true), or whether a remove message is sent. Defaults to true.
+      
+    * asynchronousReplicationIntervalMillis default 1000ms Time between updates when replication is asynchroneous  
+
+
+* Complete Sample configuration
+
+    A typical complete configuration for one replicated cache configured for UDP will look like:
+	 
+---
+<Ehcache xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+xsi:noNamespaceSchemaLocation="../../../main/config/ehcache.xsd">
+
+<diskStore path="java.io.tmpdir/one"/>
+
+<cacheManagerPeerProviderFactory class="net.sf.ehcache.distribution.jgroups
+    .JGroupsCacheManagerPeerProviderFactory"
+     properties="connect=UDP(mcast_addr=231.12.21.132;mcast_port=45566;ip_ttl=32;
+     mcast_send_buf_size=150000;mcast_recv_buf_size=80000):
+     PING(timeout=2000;num_initial_members=6):
+     MERGE2(min_interval=5000;max_interval=10000):
+     FD_SOCK:VERIFY_SUSPECT(timeout=1500):
+     pbcast.NAKACK(gc_lag=10;retransmit_timeout=3000):
+     UNICAST(timeout=5000):
+     pbcast.STABLE(desired_avg_gossip=20000):
+     FRAG:
+     pbcast.GMS(join_timeout=5000;join_retry_timeout=2000;
+     shun=false;print_local_addr=true)"
+ propertySeparator="::"
+     />
+
+<cache name="sampleCacheAsync"
+   maxElementsInMemory="1000"
+   eternal="false"
+   timeToIdleSeconds="1000"
+   timeToLiveSeconds="1000"
+   overflowToDisk="false">
+    <cacheEventListenerFactory
+    class="net.sf.ehcache.distribution.jgroups.JGroupsCacheReplicatorFactory"
+    properties="replicateAsynchronously=true, replicatePuts=true,
+replicateUpdates=true, replicateUpdatesViaCopy=false,
+replicateRemovals=true" />
+</cache>
+
+</ehcache>
+
+---
+
+
+* Common Problems
+
+	If replication using JGroups doesnt't work the way you have it configured try this configuration which
+	has been extensively tested:
+
+---
+<cacheManagerPeerProviderFactory
+    class="net.sf.ehcache.distribution.jgroups.JGroupsCacheManagerPeerProviderFactory"/>
+
+<cache name="sampleCacheAsync"
+   maxElementsInMemory="1000"
+   eternal="false"
+   timeToIdleSeconds="1000"
+   timeToLiveSeconds="1000"
+   overflowToDisk="false">
+   <cacheEventListenerFactory
+    class="net.sf.ehcache.distribution.jgroups.JGroupsCacheReplicatorFactory"
+    properties="replicateAsynchronously=true, replicatePuts=true,
+    replicateUpdates=true, replicateUpdatesViaCopy=false,
+    replicateRemovals=true" />
+</cache>
+---
+   
+   If this fails to replicate, try to get the example programs from JGroups to run:
+
+   http://www.jgroups.org/javagroupsnew/docs/manual/html/ch02.html#d0e451
+
+   and
+
+   http://www.jgroups.org/javagroupsnew/docs/manual/html/ch02.html#ItDoesntWork
+   
+   Once you have figured out the connection string that works in your network for JGroups, you can directly paste it in the connect property of
+   <<<JGroupsCacheManagerPeerProviderFactory>>>.
+   
+   
+   
+   
+
