@@ -283,6 +283,7 @@ public class SampledCache extends BaseEmitterBean implements SampledCacheMBean {
      */
     public void enableSampledStatistics() {
         cache.setSampledStatisticsEnabled(true);
+        sendNotification(CACHE_STATISTICS_ENABLED, getCacheAttributes(), getImmutableCacheName());
     }
 
     /**
@@ -292,6 +293,7 @@ public class SampledCache extends BaseEmitterBean implements SampledCacheMBean {
      */
     public void disableSampledStatistics() {
         cache.setSampledStatisticsEnabled(false);
+        sendNotification(CACHE_STATISTICS_ENABLED, getCacheAttributes(), getImmutableCacheName());
     }
 
     /**

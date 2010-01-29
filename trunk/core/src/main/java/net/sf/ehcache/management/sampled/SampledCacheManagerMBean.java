@@ -43,6 +43,11 @@ public interface SampledCacheManagerMBean {
     public static final String STATISTICS_RESET = "StatisticsReset";
 
     /**
+     * STATISTICS_ENABLED
+     */
+    public static final String STATISTICS_ENABLED = "StatisticsEnabled";
+    
+    /**
      * Gets the actual name of the cache manager. This may be different from the
      * name used to register this mbean as there can potentially be multiple
      * cache managers with same name
@@ -138,6 +143,26 @@ public interface SampledCacheManagerMBean {
      * Clears statistics of all caches for the associated cacheManager
      */
     public void clearStatistics();
+    
+    /**
+     * Enable statistics for each cache contained by cacheManager
+     */
+    public void enableStatistics();
+    
+    /**
+     * Disable statistics for each cache contained by cacheManager
+     */
+    public void disableStatistics();
+    
+    /**
+     * Enables/disables each contained cache
+     */
+    public void setStatisticsEnabled(boolean enabled);
+    
+    /**
+     * Returns true iff each contained cache has statistics enabled
+     */
+    public boolean isStatisticsEnabled();
     
     /**
      * generateActiveConfigDeclaration

@@ -46,7 +46,7 @@ public class SampledCacheManager extends BaseEmitterBean implements SampledCache
     private volatile boolean mbeanRegisteredNameSet;
 
     static {
-        final String[] notifTypes = new String[] {CACHES_ENABLED, CACHES_CLEARED, STATISTICS_RESET, };
+        final String[] notifTypes = new String[] {CACHES_ENABLED, CACHES_CLEARED, STATISTICS_ENABLED, STATISTICS_RESET, };
         final String name = Notification.class.getName();
         final String description = "Ehcache SampledCacheManager Event";
         NOTIFICATION_INFO = new MBeanNotificationInfo[] {new MBeanNotificationInfo(notifTypes, name, description), };
@@ -234,6 +234,58 @@ public class SampledCacheManager extends BaseEmitterBean implements SampledCache
     }
 
     /**
+     * {@inheritDoc}
+     */
+    public void enableStatistics() {
+        for (String cacheName : cacheManager.getCacheNames()) {
+            Cache cache = cacheManager.getCache(cacheName);
+            if (cache != null) {
+                cache.setSampledStatisticsEnabled(true);
+            }
+        }
+        sendNotification(STATISTICS_ENABLED, Boolean.TRUE);
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    public void disableStatistics() {
+        for (String cacheName : cacheManager.getCacheNames()) {
+            Cache cache = cacheManager.getCache(cacheName);
+            if (cache != null) {
+                cache.setSampledStatisticsEnabled(false);
+            }
+        }
+        sendNotification(STATISTICS_ENABLED, Boolean.FALSE);
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    public void setStatisticsEnabled(boolean enabled) {
+        if (enabled) {
+            enableStatistics();
+        } else {
+            disableStatistics();
+        }
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    public boolean isStatisticsEnabled() {
+        for (String cacheName : cacheManager.getCacheNames()) {
+            Cache cache = cacheManager.getCache(cacheName);
+            if (cache != null) {
+                if (!cache.isSampledStatisticsEnabled()) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+    
+    /**
      * generateActiveConfigDeclaration
      * 
      * @return CacheManager configuration as String
@@ -279,6 +331,7 @@ public class SampledCacheManager extends BaseEmitterBean implements SampledCache
                 cache.setDisabled(!enabled);
             }
         }
+        sendNotification(CACHES_ENABLED, Boolean.valueOf(enabled));
     }
     
     /**
