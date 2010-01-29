@@ -222,7 +222,11 @@ public class CacheWriterConfiguration implements Cloneable {
      * @param minWriteDelay the minimum number of seconds to wait before writing behind
      */
     public void setMinWriteDelay(int minWriteDelay) {
-        this.minWriteDelay = minWriteDelay;
+        if (minWriteDelay < 0) {
+            this.minWriteDelay = 0;
+        } else {
+            this.minWriteDelay = minWriteDelay;
+        }
     }
 
     /**
@@ -252,7 +256,11 @@ public class CacheWriterConfiguration implements Cloneable {
      * @param maxWriteDelay the maximum number of seconds to wait before writing behind
      */
     public void setMaxWriteDelay(int maxWriteDelay) {
-        this.maxWriteDelay = maxWriteDelay;
+        if (maxWriteDelay < 0) {
+            this.maxWriteDelay = 0;
+        } else {
+            this.maxWriteDelay = maxWriteDelay;
+        }
     }
 
     /**
@@ -281,7 +289,11 @@ public class CacheWriterConfiguration implements Cloneable {
      * @param rateLimitPerSecond the number of write operations to allow; use a number {@code &lt;=0} to disable rate limiting.
      */
     public void setRateLimitPerSecond(int rateLimitPerSecond) {
-        this.rateLimitPerSecond = rateLimitPerSecond;
+        if (rateLimitPerSecond < 0) {
+            this.rateLimitPerSecond = 0;
+        } else {
+            this.rateLimitPerSecond = rateLimitPerSecond;
+        }
     }
 
     /**
@@ -371,11 +383,15 @@ public class CacheWriterConfiguration implements Cloneable {
      * <p/>
      * Defaults to {@value #DEFAULT_WRITE_BATCH_SIZE}.
      *
-     * @param writeBatchSize the number of operations to include in each bathc; numbers smaller than {@code 1} will cause
+     * @param writeBatchSize the number of operations to include in each batch; numbers smaller than {@code 1} will cause
      *                       the default batch size to be used
      */
     public void setWriteBatchSize(int writeBatchSize) {
-        this.writeBatchSize = writeBatchSize;
+        if (writeBatchSize < 1) {
+            this.writeBatchSize = DEFAULT_WRITE_BATCH_SIZE;
+        } else {
+            this.writeBatchSize = writeBatchSize;
+        }
     }
 
     /**
@@ -405,7 +421,11 @@ public class CacheWriterConfiguration implements Cloneable {
      * @param retryAttempts the number of retries for a particular element
      */
     public void setRetryAttempts(int retryAttempts) {
-        this.retryAttempts = retryAttempts;
+        if (retryAttempts < 0) {
+            this.retryAttempts = 0;
+        } else {
+            this.retryAttempts = retryAttempts;
+        }
     }
 
     /**
@@ -434,7 +454,11 @@ public class CacheWriterConfiguration implements Cloneable {
      * @param retryAttemptDelaySeconds the number of seconds to wait before retrying an operation
      */
     public void setRetryAttemptDelaySeconds(int retryAttemptDelaySeconds) {
-        this.retryAttemptDelaySeconds = retryAttemptDelaySeconds;
+        if (retryAttemptDelaySeconds < 0) {
+            this.retryAttemptDelaySeconds = 0;
+        } else {
+            this.retryAttemptDelaySeconds = retryAttemptDelaySeconds;
+        }
     }
 
     /**

@@ -45,8 +45,6 @@
     Because the database is being written to outside of the transaction, there is always a risk that a failure on the eventual write
     will occur. While this can be mitigated with retry counts and delays, compensating actions may be required.
 
-
-
 ** Time delay
 
     The obvious implication of asynchronous writes is that there is a delay between when the cache is updated and when the database
@@ -67,13 +65,27 @@
 
     Note that in practice, if other applications are writing to the database, then a cache can often be inconsistent with the database.
 
+
 **  Node time synchronisation
 
     Ideally node times should be synchronised. The write-behind queue is generally written to the underlying resource in timestamp order, based
     on the timestamp of the cache operation, although there is no guaranteed ordering.
 
     The ordering will be more consistent if all nodes are using the same time. This can easily be achieved by configuring
-     your system clock to syncrhonise with a time authority using Network Time Protocol.
+     your system clock to synchronise with a time authority using Network Time Protocol.
+
+** No ordering guarantees
+
+    The items on the write-behind queue are generally in order, but this isn't guaranteed. In certain situation and more particularly in
+    clustered usage, the items can be processed out of order. Additionally, when batching is used, write and delete collections are
+    aggregated separately and can be processed inside the CacheWriter in a different order that the order that was used by the queue.
+
+    Your application must of tolerant for item reordering or you need to compensate for this in your implementation of the
+    CacheWriter. Possible examples here are:
+
+    * Working with versioning in the cache elements.
+
+    * Verifications with the underlying to cache to check if the scheduled write behind operation is still relevant.
 
 
 * Using a combined Read-Through and Write-Behind Cache

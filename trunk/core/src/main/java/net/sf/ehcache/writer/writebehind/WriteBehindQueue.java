@@ -48,9 +48,12 @@ public class WriteBehindQueue implements WriteBehind {
     private static final int MS_IN_SEC = 1000;
 
     private final String cacheName;
-    private final CacheWriterConfiguration config;
     private final long minWriteDelayMs;
     private final long maxWriteDelayMs;
+    private final boolean writeBatching;
+    private final int writeBatchSize;
+    private final int retryAttempts;
+    private final int retryAttemptDelaySeconds;
     private final Thread processingThread;
 
     private final ReentrantReadWriteLock queueLock = new ReentrantReadWriteLock();
@@ -75,11 +78,18 @@ public class WriteBehindQueue implements WriteBehind {
      */
     public WriteBehindQueue(CacheConfiguration config) {
         this.cacheName = config.getName();
+
+        // making a copy of the configuration locally to ensure that it will not be changed at runtime
+        final CacheWriterConfiguration cacheConfig = config.getCacheWriterConfiguration();
+        this.minWriteDelayMs = cacheConfig.getMinWriteDelay() * MS_IN_SEC;
+        this.maxWriteDelayMs = cacheConfig.getMaxWriteDelay() * MS_IN_SEC;
+        this.writeBatching = cacheConfig.getWriteBatching();
+        this.writeBatchSize = cacheConfig.getWriteBatchSize();
+        this.retryAttempts = cacheConfig.getRetryAttempts();
+        this.retryAttemptDelaySeconds = cacheConfig.getRetryAttemptDelaySeconds();
+
         this.processingThread = new Thread(new ProcessingThread(), cacheName + " write-behind");
         this.processingThread.setDaemon(true);
-        this.config = config.getCacheWriterConfiguration();
-        this.minWriteDelayMs = this.config.getMinWriteDelay() * MS_IN_SEC;
-        this.maxWriteDelayMs = this.config.getMaxWriteDelay() * MS_IN_SEC;
     }
 
     /**
@@ -198,13 +208,13 @@ public class WriteBehindQueue implements WriteBehind {
 
                 // if the batching is enabled and work size is smaller than batch size, don't process anything as long as the
                 // max allowed delay hasn't expired
-                if (config.getWriteBatching()
-                        && config.getWriteBatchSize() > 0
-                        && workSize < config.getWriteBatchSize()
+                if (writeBatching
+                        && writeBatchSize > 0
+                        && workSize < writeBatchSize
                         && maxWriteDelayMs > lastProcessing.get() - lastWorkDone.get()) {
                     if (LOGGER.isLoggable(Level.FINER)) {
                         LOGGER.finer(getThreadName() + " : processItems() : only " + workSize + " work items available, waiting for "
-                                + config.getWriteBatchSize() + " items to fill up a batch");
+                                + writeBatchSize + " items to fill up a batch");
                     }
                     reassemble(quarantined);
                     return;
@@ -248,7 +258,7 @@ public class WriteBehindQueue implements WriteBehind {
         }
 
         while (!quarantined.isEmpty()) {
-            if (config.getWriteBatching() && config.getWriteBatchSize() > 0) {
+            if (writeBatching && writeBatchSize > 0) {
                 processBatchedOperations(quarantined);
             } else {
                 processSingleOperation(quarantined);
@@ -258,7 +268,7 @@ public class WriteBehindQueue implements WriteBehind {
     }
 
     private void processBatchedOperations(List<SingleOperation> quarantined) {
-        int batchSize = config.getWriteBatchSize();
+        int batchSize = writeBatchSize;
         if (quarantined.size() < batchSize) {
             batchSize = quarantined.size();
         }
@@ -283,7 +293,26 @@ public class WriteBehindQueue implements WriteBehind {
 
         // execute the batch operations
         for (List<SingleOperation> itemsPerType : separatedItemsPerType.values()) {
-            itemsPerType.get(0).createBatchOperation(itemsPerType).performBatchOperation(cacheWriter);
+            int executionsLeft = retryAttempts + 1;
+            while (executionsLeft-- > 0) {
+                try {
+                    itemsPerType.get(0).createBatchOperation(itemsPerType).performBatchOperation(cacheWriter);
+                    break;
+                } catch (final RuntimeException e) {
+                    if (executionsLeft <= 0) {
+                        throw e;
+                    } else {
+                        LOGGER.warning("Exception while processing write behind queue, retrying in " + retryAttemptDelaySeconds
+                            + " seconds, " + executionsLeft + " retries left : " + e.getMessage());
+                        try {
+                            Thread.sleep(retryAttemptDelaySeconds * MS_IN_SEC);
+                        } catch (InterruptedException e1) {
+                            Thread.currentThread().interrupt();
+                            throw e;
+                        }
+                    }
+                }
+            }
         }
 
         // remove the batched items
@@ -299,7 +328,26 @@ public class WriteBehindQueue implements WriteBehind {
             LOGGER.config(getThreadName() + " : processItems() : processing " + item);
         }
 
-        item.performSingleOperation(cacheWriter);
+        int executionsLeft = retryAttempts + 1;
+        while (executionsLeft-- > 0) {
+            try {
+                item.performSingleOperation(cacheWriter);
+                break;
+            } catch (final RuntimeException e) {
+                if (executionsLeft <= 0) {
+                    throw e;
+                } else {
+                    LOGGER.warning("Exception while processing write behind queue, retrying in " + retryAttemptDelaySeconds
+                        + " seconds, " + executionsLeft + " retries left : " + e.getMessage());
+                    try {
+                        Thread.sleep(retryAttemptDelaySeconds * MS_IN_SEC);
+                    } catch (InterruptedException e1) {
+                        Thread.currentThread().interrupt();
+                        throw e;
+                    }
+                }
+            }
+        }
 
         quarantined.remove(0);
     }

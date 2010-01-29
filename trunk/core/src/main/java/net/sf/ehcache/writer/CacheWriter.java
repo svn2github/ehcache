@@ -26,9 +26,9 @@ import java.util.Collection;
  * <p/>
  * If configured for a cache, CacheWriter's methods will be called on a cache operation. A cache put will cause a CacheWriter write
  * and a cache remove will cause a writer delete.
- * <p>
+ * <p/>
  * Implementers should create an implementation which handles storing and deleting to an underlying resource.
- * </p>
+ * <p/>
  * <h4>Write-Through</h4>
  * In write-through mode, the cache operation will occur and the writer operation will occur before CacheEventListeners are notified. If
  * the write operation fails an exception will be thrown. This can result in a cache which is inconsistent with the underlying resource.
@@ -40,8 +40,13 @@ import java.util.Collection;
  * way. When used with Terracotta Server Array, the queue is highly available. In addition any node in the cluster may perform the
  * write-behind operations.
  * <p/>
+ * It's important to note that the operations that are handled by the {@code CacheWriter} don't have any guaranteed ordering in write-behind mode.
+ * The processing ordering can be different than the scheduling ordering, so your application needs to be written with this
+ * in mind. More information in the CacheWriter chapter of the documentation.
+ * <p/>
  * <h4>Creation and Configuration</h4>
- * CacheWriters can be created using the CacheWriterFactory.
+ * CacheWriters can be created using the CacheWriterFactory or explicitly by instantiating them through Java code, giving
+ * you access to local resources.
  * <p/>
  * The manner upon which a CacheWriter is actually called is determined by the {@link net.sf.ehcache.config.CacheWriterConfiguration} that is set up for cache
  * that is using the CacheWriter.
