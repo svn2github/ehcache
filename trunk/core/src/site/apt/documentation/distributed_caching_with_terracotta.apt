@@ -230,33 +230,38 @@ public class TerracottaExample {
 
       Note that from Ehcache 2.0, this setting has the same affect as <<<coherent>>>.
 
-      * <<<copyOnRead=true|false>>> new-in-2 - indicates whether cache values are deserialized on every read or if the
-        materialized cache value can be re-used between get() calls. This setting is useful if a cache
-        is being shared by callers with disparate classloaders or to prevent local drift if keys/values
-        are mutated locally w/o putting back to the cache. NOTE: This setting is only relevant for caches
-        with valueMode=serialization
+    * <<<copyOnRead=true|false>>> new-in-2
 
-      * <<<coherent=true|false>>> new-in-2 - indicates whether this cache should have coherent reads and writes with guaranteed
-        consistency across the cluster.  By default, its value is true.  If this attribute is set to false
-        (or "incoherent" mode), values from the cache are read without locking, possibly yielding stale data.
-        Writes to a cache in incoherent mode are batched and applied without acquiring cluster-wide locks,
-        possibly creating inconsistent values across cluster. Incoherent mode is a performance optimization
-        with weaker concurrency guarantees and should generally be used for bulk-loading caches, for loading
-        a read-only cache, or where the application that can tolerate reading stale data.
+      Indicates whether cache values are deserialized on every read or if the
+      materialized cache value can be re-used between get() calls. This setting is useful if a cache
+      is being shared by callers with disparate classloaders or to prevent local drift if keys/values
+      are mutated locally w/o putting back to the cache. NOTE: This setting is only relevant for caches
+      with valueMode=serialization
 
-        This setting overrides <<<coherentReads>>>, which is deprecated. For backward compatibility any configurations
-        setting a value for <<<coherentReads>>> will apply to <<<coherent>>>.
+    * <<<coherent=true|false>>> new-in-2
 
+      Indicates whether this cache should have coherent reads and writes with guaranteed
+      consistency across the cluster.  By default, its value is true.  If this attribute is set to false
+      (or "incoherent" mode), values from the cache are read without locking, possibly yielding stale data.
+      Writes to a cache in incoherent mode are batched and applied without acquiring cluster-wide locks,
+      possibly creating inconsistent values across cluster. Incoherent mode is a performance optimization
+      with weaker concurrency guarantees and should generally be used for bulk-loading caches, for loading
+      a read-only cache, or where the application that can tolerate reading stale data.
 
-      * <<<synchronousWrite=true|false>>> new-in-2 - When set to true, clustered caches use 
-        Terracotta SYNCHRONOUS WRITE locks. Asynchronous writes (synchronousWrite="false") maximize performance by
-        allowing clients to proceed without waiting for a "transaction received" acknowledgement from the server.
-        Synchronous writes (synchronousWrite="true")  maximize data safety by requiring that a client receive server
-        acknowledgement of a transaction before that client can proceed. If coherence mode is disabled using
-        configuration (coherent="false") or through the coherence API, only asynchronous writes can occur
-        (synchronousWrite="true" is ignored). By default this value is false (i.e. clustered caches use normal
-         Terracotta WRITE locks).
+      This setting overrides <<<coherentReads>>>, which is deprecated. For backward compatibility any configurations
+      setting a value for <<<coherentReads>>> will apply to <<<coherent>>>.
 
+    * <<<synchronousWrite=true|false>>> new-in-2
+
+      When set to true, clustered caches use Terracotta SYNCHRONOUS WRITE locks. Asynchronous
+      writes(synchronousWrite="false") maximize performance byallowing clients to proceed without waiting for a
+      "transaction received" acknowledgement from the server. Synchronous writes (synchronousWrite="true")
+      maximizes data safety by requiring that a client receive server acknowledgement of a transaction before
+      that client can proceed. If coherence mode is disabled using configuration (coherent="false") or through
+      the coherence API, only asynchronous writes can occur (synchronousWrite="true" is ignored). By default this
+      value is false (i.e. clustered caches use normal Terracotta WRITE locks).
+
+    []
 
     The simplest way to enable clustering is to add:
 
@@ -288,6 +293,63 @@ public class TerracottaExample {
         <terracotta/>
     </cache>
 ---
+
+*   Copy On Read
+
+    The <<<copyOnRead>>> setting is most easily explained by first examining what it does when
+    not enabled and exploring the potential problems that can arise. 
+
+    For a cache for which <<<copyOnRead>>> is NOT enabled, the following reference comparsion
+    will always be true (NOTE: assuming no other thread changes the cache mapping between the get()'s)
+
+---
+    Object obj1 = c.get("key").getValue();
+    Object obj2 = c.get("key").getValue();
+
+    if (obj1 == obj2) {
+      System.err.println("Same value objects!");
+    }
+---
+
+    The fact that the same object reference is returned accross multiple get()'s implies that
+    the cache is storing a direct reference to cache value. When <<<copyOnRead>>> is enabled
+    the object references will be fresh and unique upon every get().
+
+    This default behavior (copyOnRead=false) is usually what you want although there are at least
+    two scenarios in which this is problematic: (1) Caches shared between classloaders and
+    (2) Mutable value objects
+
+    Imagine two web applications that both have access to the same Cache instance (this implies that
+    the core ehcache classes are in a common classloader). Imagine further that the classes for value types
+    in the cache are duplicated in the web application (ie. they are not present in the common loader). 
+    In this scenario you would get ClassCastExceptions when one web application accessed a value previously
+    read by the other application. One solution to this problem is obviously to move the value types to the
+    common loader, but another is to enable <<<copyOnRead>>> so that thread context loader of the caller
+    will be used to materialize the cache values on each get(). This feature has utility in OSGi environments
+    as well where a common cache service might be shared between bundles
+
+    Another subtle issue concerns mutable value objects in a clustered cache. Consider this simple code
+    which shows a Cache that contains a mutable value type (Foo):
+
+---
+    class Foo {
+      int field;
+    }
+
+    Foo foo = (Foo) c.get("key").getValue();
+    foo.field++;
+
+    // foo instance is never re-put() to the cache
+
+    // ...
+---
+
+    If the Foo instance is never re-put() to the Cache your local cache is no longer consistent with
+    the cluster (it is locally modified only). Enabling <<<copyOnRead>>> eliminates this possibility
+    since the only way to affect cache values is to call mutator methods on the Cache.
+
+    It is worth noting that there is a performance penalty to copyOnRead since values are deserialized
+    on every get(). 
 
 *   Behaviour differences with <<<CacheEventListener>>>s when using Terracotta Clustering
 
