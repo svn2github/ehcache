@@ -233,10 +233,13 @@ public class TerracottaExample {
     * <<<copyOnRead=true|false>>> new-in-2
 
       Indicates whether cache values are deserialized on every read or if the
-      materialized cache value can be re-used between get() calls. This setting is useful if a cache
-      is being shared by callers with disparate classloaders or to prevent local drift if keys/values
-      are mutated locally w/o putting back to the cache. NOTE: This setting is only relevant for caches
-      with valueMode=serialization
+      materialized cache value can be re-used between get() calls.
+
+      This setting is useful if a cache is being shared by callers with disparate classloaders or to
+      prevent local drift if keys/values are mutated locally w/o putting back to the cache.
+      i.e. if set to true then each thread has its own copy and cannot affect other threads. 
+
+      NOTE: This setting is only relevant for caches with valueMode=serialization
 
     * <<<coherent=true|false>>> new-in-2
 
@@ -261,7 +264,6 @@ public class TerracottaExample {
       the coherence API, only asynchronous writes can occur (synchronousWrite="true" is ignored). By default this
       value is false (i.e. clustered caches use normal Terracotta WRITE locks).
 
-    []
 
     The simplest way to enable clustering is to add:
 
@@ -480,44 +482,6 @@ public class TerracottaExample {
     Ehcache 1.7 works with TC 3.1.1.
 
     Ehcache Core 1.7.3 core works with TC 3.2.
-
-*   Notes
-
-
-     1 minute failover for SAN
-
-     Works with all containers.
-
-     Works with Sun JDK. Not IBM JDK. Not JRocket. 32 and 64 bit ok and mix works.
-
-     Terracotta server on certified servers.
-
-     99.999 Sabre and Party Poker
-
-     3.1 scale it a lot better. 6-12 million objects. 3000 trans (cache operation) per second going to 20000 in 3.2
-
-     Data consistency huge for Sabre
-
-
-
-     Sessions:
-
-     - web sessions
-     -
-
-
-     If use locking (j.u.c) and synchronization you get same behaviour across threads in a cluster
-     and with threads in a local JVM.
-
-     Thing of a node's JVM as a thread group.
-
-     Problem. Your code will throw a RuntimeException if turn on Terracotta.
-
-     Physically no limit. Tested up to 8 stripes and 10GB.
-
-     Stripes use round robin.
-
-     A Terracotta transaction is a lock and unlock.
 
 
 
