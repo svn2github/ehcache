@@ -252,15 +252,29 @@ public class XATransactionalStore implements Store {
     /**
      * {@inheritDoc}
      */
-    public void setCoherent(final boolean coherent) throws UnsupportedOperationException {
-        underlyingStore.setCoherent(coherent);
+    public boolean isClusterCoherent() {
+        return underlyingStore.isClusterCoherent();
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    public boolean isNodeCoherent() {
+        return underlyingStore.isNodeCoherent();
     }
 
     /**
      * {@inheritDoc}
      */
-    public void waitUntilCoherent() throws UnsupportedOperationException {
-        underlyingStore.waitUntilCoherent();
+    public void setNodeCoherence(boolean coherent) {
+        underlyingStore.setNodeCoherence(coherent);
+    }
+
+    /**
+     * {@inheritDoc}
+     */    
+    public void waitUntilClusterCoherent() {
+        underlyingStore.waitUntilClusterCoherent();
     }
 
     private TransactionContext getOrCreateTransactionContext() {

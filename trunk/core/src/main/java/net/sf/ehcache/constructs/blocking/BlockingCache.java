@@ -1153,22 +1153,29 @@ public class BlockingCache implements Ehcache {
     /**
      * {@inheritDoc}
      */
-    public boolean isCoherent() {
-        return cache.isCoherent();
+    public boolean isClusterCoherent() {
+        return cache.isClusterCoherent();
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    public boolean isNodeCoherent() {
+        return cache.isNodeCoherent();
     }
 
     /**
      * {@inheritDoc}
      */
-    public void setCoherent(boolean coherent) {
-        cache.setCoherent(coherent);
+    public void setNodeCoherence(boolean coherent) {
+        cache.setNodeCoherence(coherent);
     }
 
     /**
      * {@inheritDoc}
      */
-    public void waitUntilCoherent() {
-        cache.waitUntilCoherent();
+    public void waitUntilClusterCoherent() {
+        cache.waitUntilClusterCoherent();
     }
 
     /**

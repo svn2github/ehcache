@@ -13,8 +13,6 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-
-
 package net.sf.ehcache.store;
 
 import java.io.ByteArrayInputStream;
@@ -111,7 +109,6 @@ public class DiskStore implements Store, CacheConfigurationListener {
 
     private File dataFile;
 
-
     /**
      * Used to persist elements
      */
@@ -153,7 +150,6 @@ public class DiskStore implements Store, CacheConfigurationListener {
         this.cache = cache;
         name = cache.getName();
         this.diskPath = diskPath;
-
         CacheConfiguration config = cache.getCacheConfiguration();
         expiryThreadInterval = config.getDiskExpiryThreadIntervalSeconds();
         persistent = config.isDiskPersistent();
@@ -162,17 +158,12 @@ public class DiskStore implements Store, CacheConfigurationListener {
         diskSpoolBufferSizeBytes = cache.getCacheConfiguration().getDiskSpoolBufferSizeMB() * ONE_MEGABYTE;
         writeIndexFlag = new AtomicBoolean(false);
         writeIndexFlagLock = new Object();
-
-
         try {
             initialiseFiles();
-
             active = true;
-
             // Always start up the spool thread
             spoolAndExpiryThread = new SpoolAndExpiryThread();
             spoolAndExpiryThread.start();
-
             status = Status.STATUS_ALIVE;
         } catch (final Exception e) {
             // Cleanup on error
@@ -469,7 +460,6 @@ public class DiskStore implements Store, CacheConfigurationListener {
             LOG.debug("A back up on disk store puts occurred. Consider increasing diskSpoolBufferSizeMB for cache " + name);
         }
         return backedUp;
-
     }
 
     /**
@@ -513,12 +503,10 @@ public class DiskStore implements Store, CacheConfigurationListener {
     private void freeBlock(final DiskElement diskElement) {
         totalSize -= diskElement.payloadSize;
         diskElement.payloadSize = 0;
-
         //reset Element meta data
         diskElement.key = null;
         diskElement.hitcount = 0;
         diskElement.expiryTime = 0;
-
         freeSpace.add(diskElement);
     }
 
@@ -1379,18 +1367,32 @@ public class DiskStore implements Store, CacheConfigurationListener {
     public boolean isCacheCoherent() {
         return false;
     }
+    
+    /**
+     * {@inheritDoc}
+     */
+    public boolean isClusterCoherent() {
+        return false;
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    public boolean isNodeCoherent() {
+        return false;
+    }
 
     /**
      * {@inheritDoc}
      */
-    public void setCoherent(boolean coherent) {
+    public void setNodeCoherence(boolean coherent) {
         throw new UnsupportedOperationException();
     }
 
     /**
      * {@inheritDoc}
      */    
-    public void waitUntilCoherent() {
+    public void waitUntilClusterCoherent() {
         throw new UnsupportedOperationException();
     }
 }

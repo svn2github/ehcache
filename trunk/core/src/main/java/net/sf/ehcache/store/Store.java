@@ -165,7 +165,10 @@ public interface Store {
     
     /**
      * Indicates whether this store provides a coherent view of all the elements
-     * in a cache.
+     * in a cache. 
+     * 
+     * Note that this is same as calling {@link #isClusterCoherent()} (introduced since 2.0)
+     * Use {@link #isNodeCoherent()} to find out if the cache is coherent in the current node in the cluster
      * 
      * @return {@code true} if the store is coherent; or {@code false} if the
      *         store potentially splits the cache storage with another store or
@@ -175,17 +178,38 @@ public interface Store {
     boolean isCacheCoherent();
     
     /**
-     * Sets the cache in coherent or incoherent mode depending on the parameter.
-     * Calling {@code setCoherent(true)} when the cache is already in coherent mode or
-     * calling {@code setCoherent(false)} when already in incoherent mode will be a no-op.
+     * Returns true if the cache is in coherent mode cluster-wide. Returns false otherwise.
+     * <p />
+     * It applies to coherent clustering mechanisms only e.g. Terracotta
+     * 
+     * @return true if the cache is in coherent mode cluster-wide, false otherwise
+     * @since 2.0
+     */
+    public boolean isClusterCoherent();
+    
+    /**
+     * Returns true if the cache is in coherent mode for the current node. Returns false otherwise.
+     * <p />
+     * It applies to coherent clustering mechanisms only e.g. Terracotta
+     * 
+     * @return true if the cache is in coherent mode cluster-wide, false otherwise
+     * @since 2.0
+     */
+    public boolean isNodeCoherent();
+    
+    /**
+     * Sets the cache in coherent or incoherent mode for the current node depending on the parameter.
+     * Calling {@code setNodeCoherence(true)} when the cache is already in coherent mode or
+     * calling {@code setNodeCoherence(false)} when already in incoherent mode will be a no-op.
      * <p />
      * It applies to coherent clustering mechanisms only e.g. Terracotta
      * 
      * @param coherent
      *            true transitions to coherent mode, false to incoherent mode
      * @throws UnsupportedOperationException if this store does not support cache coherence, like RMI replication
+     * @since 2.0
      */
-    public void setCoherent(boolean coherent) throws UnsupportedOperationException;
+    public void setNodeCoherence(boolean coherent) throws UnsupportedOperationException;
 
     /**
      * This method waits until the cache is in coherent mode in all the connected nodes. If the cache is already in coherent mode it returns
@@ -193,6 +217,7 @@ public interface Store {
      * <p />
      * It applies to coherent clustering mechanisms only e.g. Terracotta
      * @throws UnsupportedOperationException if this store does not support cache coherence, like RMI replication
+     * @since 2.0
      */
-    public void waitUntilCoherent() throws UnsupportedOperationException;
+    public void waitUntilClusterCoherent() throws UnsupportedOperationException;
 }

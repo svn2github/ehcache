@@ -83,19 +83,26 @@ public class SampledCache extends BaseEmitterBean implements SampledCacheMBean {
         cache.setDisabled(!enabled);
         sendNotification(CACHE_ENABLED, getCacheAttributes(), getImmutableCacheName());
     }
-
+    
     /**
      * {@inheritDoc}
      */
-    public boolean isCoherent() {
-        return cache.isCoherent();
+    public boolean isClusterCoherent() {
+        return cache.isClusterCoherent();
     }
 
     /**
      * {@inheritDoc}
      */
-    public void setCoherent(boolean coherent) {
-        cache.setCoherent(coherent);
+    public boolean isNodeCoherent() {
+        return cache.isNodeCoherent();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void setNodeCoherence(boolean coherent) {
+        cache.setNodeCoherence(coherent);
         sendNotification(CACHE_CHANGED, getCacheAttributes(), getImmutableCacheName());
     }
 
@@ -647,7 +654,7 @@ public class SampledCache extends BaseEmitterBean implements SampledCacheMBean {
         result.put("OverflowToDisk", isConfigOverflowToDisk());
         result.put("DiskExpiryThreadIntervalSeconds", getConfigDiskExpiryThreadIntervalSeconds());
         result.put("MemoryStoreEvictionPolicy", getConfigMemoryStoreEvictionPolicy());
-        result.put("Coherent", isCoherent());
+        result.put("Coherent", isNodeCoherent());
         return result;
     }
     
