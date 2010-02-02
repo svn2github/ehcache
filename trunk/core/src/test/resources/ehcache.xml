@@ -160,5 +160,13 @@
                                       properties="logLevel=FINE"/>
     </cache>
 
+    <cache name="disabledStats"
+           maxElementsInMemory="10"
+           eternal="false"
+           timeToIdleSeconds="5"
+           timeToLiveSeconds="10"
+           overflowToDisk="true"
+           statistics="false">
+    </cache>
 
 </ehcache>

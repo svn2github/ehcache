@@ -60,7 +60,6 @@ import net.sf.ehcache.loader.CacheLoader;
 import net.sf.ehcache.loader.CacheLoaderFactory;
 import net.sf.ehcache.statistics.CacheUsageListener;
 import net.sf.ehcache.statistics.LiveCacheStatistics;
-import net.sf.ehcache.statistics.LiveCacheStatisticsData;
 import net.sf.ehcache.statistics.LiveCacheStatisticsWrapper;
 import net.sf.ehcache.statistics.sampled.SampledCacheStatistics;
 import net.sf.ehcache.statistics.sampled.SampledCacheStatisticsWrapper;
@@ -217,7 +216,7 @@ public class Cache implements Ehcache {
      */
     private volatile ExecutorService executorService;
 
-    private volatile LiveCacheStatisticsData liveCacheStatisticsData;
+    private volatile LiveCacheStatisticsWrapper liveCacheStatisticsData;
 
     private volatile SampledCacheStatisticsWrapper sampledCacheStatistics;
     
@@ -987,7 +986,7 @@ public class Cache implements Ehcache {
             getCacheEventNotificationService().registerListener(liveCacheStatisticsData);
             // set up default values
             liveCacheStatisticsData.setStatisticsAccuracy(Statistics.STATISTICS_ACCURACY_BEST_EFFORT);
-            liveCacheStatisticsData.setStatisticsEnabled(true);
+            liveCacheStatisticsData.setStatisticsEnabled(configuration.getStatistics());
 
             // register the sampled cache statistics
             this.registerCacheUsageListener(sampledCacheStatistics);
@@ -1311,23 +1310,31 @@ public class Cache implements Ehcache {
             return null;
         }
 
-        Element element;
-        long start = System.currentTimeMillis();
+        if (isStatisticsEnabled()) {
+            Element element;
+            long start = System.currentTimeMillis();
 
-        element = searchInMemoryStore(key, true, true);
-        if (element == null && isDiskStore()) {
-            element = searchInDiskStore(key, true, true);
-        }
-        if (element == null) {
-            liveCacheStatisticsData.cacheMissNotFound();
-            if (LOG.isDebugEnabled()) {
-                LOG.debug(configuration.getName() + " cache - Miss");
+            element = searchInMemoryStore(key, true, false, true);
+            if (element == null && isDiskStore()) {
+                element = searchInDiskStore(key, true, false, true);
             }
+            if (element == null) {
+                liveCacheStatisticsData.cacheMissNotFound();
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug(configuration.getName() + " cache - Miss");
+                }
+            }
+            //todo is this expensive. Maybe ditch.
+            long end = System.currentTimeMillis();
+            liveCacheStatisticsData.addGetTimeMillis(end - start);
+            return element;
+        } else {
+            Element element = searchInMemoryStore(key, false, false, true);
+            if (element == null && isDiskStore()) {
+                element = searchInDiskStore(key, false, false, true);
+            }
+            return element;
         }
-        //todo is this expensive. Maybe ditch.
-        long end = System.currentTimeMillis();
-        liveCacheStatisticsData.addGetTimeMillis(end - start);
-        return element;
     }
 
     /**
@@ -1550,11 +1557,9 @@ public class Cache implements Ehcache {
      */
     public final Element getQuiet(Object key) throws IllegalStateException, CacheException {
         checkStatus();
-        Element element;
-
-        element = searchInMemoryStore(key, false, false);
+        Element element = searchInMemoryStore(key, false, true, false);
         if (element == null && isDiskStore()) {
-            element = searchInDiskStore(key, false, false);
+            element = searchInDiskStore(key, false, true, false);
         }
         return element;
     }
@@ -1664,70 +1669,98 @@ public class Cache implements Ehcache {
         return allKeys;
     }
 
-    private Element searchInMemoryStore(Object key, boolean updateStatistics, boolean notifyListeners) {
+    private Element searchInMemoryStore(Object key, boolean statistics, boolean quiet, boolean notifyListeners) {
         Element element;
-        if (updateStatistics) {
-            element = memoryStore.get(key);
-        } else {
+        if (quiet) {
             element = memoryStore.getQuiet(key);
+        } else {
+            element = memoryStore.get(key);
         }
 
-        if (element != null) {
-            if (isExpired(element)) {
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug(configuration.getName() + " Memory cache hit, but element expired");
-                }
-                if (updateStatistics) {
-                    liveCacheStatisticsData.cacheMissExpired();
-                }
-                removeInternal(key, true, notifyListeners, false, false);
-                element = null;
-            } else {
-                if (updateStatistics) {
-                    element.updateAccessStatistics();
+        if (statistics) {
+            if (element != null) {
+                if (isExpired(element)) {
                     if (LOG.isDebugEnabled()) {
-                        LOG.debug(getName() + "Cache: " + getName() + "MemoryStore hit for " + key);
+                        LOG.debug(configuration.getName() + " Memory cache hit, but element expired");
                     }
-
-                    liveCacheStatisticsData.cacheHitInMemory();
+                    if (!quiet) {
+                        liveCacheStatisticsData.cacheMissExpired();
+                    }
+                    removeInternal(key, true, notifyListeners, false, false);
+                    element = null;
+                } else {
+                    if (!quiet) {
+                        element.updateAccessStatistics();
+                        if (LOG.isDebugEnabled()) {
+                            LOG.debug(getName() + "Cache: " + getName() + "MemoryStore hit for " + key);
+                        }
+                        liveCacheStatisticsData.cacheHitInMemory();
+                    }
+                }
+            } else if (LOG.isDebugEnabled()) {
+                LOG.debug(getName() + "Cache: " + getName() + "MemoryStore miss for " + key);
+            }
+            return element;
+        } else {
+            if (element != null) {
+                if (isExpired(element)) {
+                    removeInternal(key, true, notifyListeners, false, false);
+                    element = null;
+                } else if (!quiet) {
+                    element.updateAccessStatistics();
                 }
             }
-        } else if (LOG.isDebugEnabled()) {
-            LOG.debug(getName() + "Cache: " + getName() + "MemoryStore miss for " + key);
+            return element;
         }
-        return element;
     }
 
-    private Element searchInDiskStore(Object key, boolean updateStatistics, boolean notifyListeners) {
+    private Element searchInDiskStore(Object key, boolean statistics, boolean quiet, boolean notifyListeners) {
         if (!(key instanceof Serializable)) {
             return null;
         }
         Serializable serializableKey = (Serializable) key;
         Element element;
-        if (updateStatistics) {
-            element = diskStore.get(serializableKey);
-        } else {
+        if (quiet) {
             element = diskStore.getQuiet(serializableKey);
+        } else {
+            element = diskStore.get(serializableKey);
         }
-        if (element != null) {
-            if (isExpired(element)) {
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug(configuration.getName() + " cache - Disk Store hit, but element expired");
+        if (statistics) {
+            if (element != null) {
+                if (isExpired(element)) {
+                    if (LOG.isDebugEnabled()) {
+                        LOG.debug(configuration.getName() + " cache - Disk Store hit, but element expired");
+                    }
+                    liveCacheStatisticsData.cacheMissExpired();
+                    removeInternal(key, true, notifyListeners, false, false);
+                    element = null;
+                } else {
+                    if (!quiet) {
+                        element.updateAccessStatistics();
+                    }
+                    liveCacheStatisticsData.cacheHitOnDisk();
+                    //Put the item back into memory to preserve policies in the memory store and to save updated statistics
+                    //todo - maybe make the DiskStore a one-way evict. i.e. Do not replace See testGetSpeedMostlyDisk for speed comp.
+                    memoryStore.put(element);
                 }
-                liveCacheStatisticsData.cacheMissExpired();
-                removeInternal(key, true, notifyListeners, false, false);
-                element = null;
-            } else {
-                if (updateStatistics) {
-                    element.updateAccessStatistics();
-                }
-                liveCacheStatisticsData.cacheHitOnDisk();
-                //Put the item back into memory to preserve policies in the memory store and to save updated statistics
-                //todo - maybe make the DiskStore a one-way evict. i.e. Do not replace See testGetSpeedMostlyDisk for speed comp.
-                memoryStore.put(element);
             }
+            return element;
+        } else {
+            if (element != null) {
+                if (isExpired(element)) {
+                    removeInternal(key, true, notifyListeners, false, false);
+                    element = null;
+                } else {
+                    if (!quiet) {
+                        element.updateAccessStatistics();
+                    }
+                    //Put the item back into memory to preserve policies in the memory store and to save updated statistics
+                    //todo - maybe make the DiskStore a one-way evict. i.e. Do not replace See testGetSpeedMostlyDisk for speed comp.
+                    memoryStore.put(element);
+                }
+            }
+            return element;
         }
-        return element;
     }
 
     /**
@@ -2488,7 +2521,7 @@ public class Cache implements Ehcache {
         Object[] keys = memoryStore.getKeyArray();
 
         for (Object key : keys) {
-            searchInMemoryStore(key, false, true);
+            searchInMemoryStore(key, false, true, true);
         }
 
         //This is called regularly by the expiry thread, but call it here synchronously

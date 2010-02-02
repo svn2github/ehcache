@@ -211,6 +211,7 @@ public class CacheConfiguration implements Cloneable {
 
     private volatile boolean frozen;
     private TransactionalMode transactionalMode = TransactionalMode.OFF;
+    private volatile boolean statistics = true;
 
     /**
      * Default constructor that can only be used by classes in this package.
@@ -825,6 +826,14 @@ public class CacheConfiguration implements Cloneable {
         return this;
     }
 
+    public final void setStatistics(boolean enabled) {
+        this.statistics = enabled;
+    }
+
+    public final boolean getStatistics() {
+        return statistics;
+    }
+    
     private void validateConfiguration() {
         if (terracottaConfiguration != null && terracottaConfiguration.isClustered()) {
             if (overflowToDisk) {
