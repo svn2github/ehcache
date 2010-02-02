@@ -123,6 +123,7 @@
       <xs:attribute name="timeToIdleSeconds" use="optional" type="xs:integer"/>
       <xs:attribute name="timeToLiveSeconds" use="optional" type="xs:integer"/>
       <xs:attribute name="maxElementsOnDisk" use="optional" type="xs:integer"/>
+      <xs:attribute name="statistics" type="xs:boolean" use="optional" default="true"/>
     </xs:complexType>
   </xs:element>
   <xs:element name="cache">
@@ -148,6 +149,7 @@
       <xs:attribute name="timeToIdleSeconds" use="optional" type="xs:integer"/>
       <xs:attribute name="timeToLiveSeconds" use="optional" type="xs:integer"/>
       <xs:attribute name="maxElementsOnDisk" use="optional" type="xs:integer"/>
+      <xs:attribute name="statistics" type="xs:boolean" use="optional" default="true"/>
     </xs:complexType>
   </xs:element>
   <xs:element name="cacheEventListenerFactory">
@@ -674,6 +676,10 @@ Policy would be enforced upon reaching the maxElementsInMemory limit. Default
 policy is Least Recently Used (specified as LRU). Other policies available -
 First In First Out (specified as FIFO) and Less Frequently Used
 (specified as LFU)
+
+statistics:
+Whether the Cache has statistics enabled upon creation.  The default is to
+enable statistics on cache creation.
 
 Cache elements can also contain sub elements which take the same format of a factory class
 and properties. Defined sub-elements are:
