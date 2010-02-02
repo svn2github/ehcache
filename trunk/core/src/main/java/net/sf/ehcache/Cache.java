@@ -1670,6 +1670,45 @@ public class Cache implements Ehcache {
     }
 
     private Element searchInMemoryStore(Object key, boolean statistics, boolean quiet, boolean notifyListeners) {
+        if (statistics) {
+            return searchInMemoryStoreWithStats(key, quiet, notifyListeners);
+        } else {
+            return searchInMemoryStoreWithoutStats(key, quiet, notifyListeners);
+        }
+    }
+    
+    private Element searchInMemoryStoreWithStats(Object key, boolean quiet, boolean notifyListeners) {
+        Element element;
+        if (quiet) {
+            element = memoryStore.getQuiet(key);
+        } else {
+            element = memoryStore.get(key);
+        }
+        
+        if (element != null) {
+            if (isExpired(element)) {
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug(configuration.getName() + " Memory cache hit, but element expired");
+                }
+                if (!quiet) {
+                    liveCacheStatisticsData.cacheMissExpired();
+                }
+                removeInternal(key, true, notifyListeners, false, false);
+                element = null;
+            } else if (!quiet) {
+                element.updateAccessStatistics();
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug(getName() + "Cache: " + getName() + "MemoryStore hit for " + key);
+                }
+                liveCacheStatisticsData.cacheHitInMemory();
+            }
+        } else if (LOG.isDebugEnabled()) {
+            LOG.debug(getName() + "Cache: " + getName() + "MemoryStore miss for " + key);
+        }
+        return element;        
+    }
+
+    private Element searchInMemoryStoreWithoutStats(Object key, boolean quiet, boolean notifyListeners) {
         Element element;
         if (quiet) {
             element = memoryStore.getQuiet(key);
@@ -1677,44 +1716,26 @@ public class Cache implements Ehcache {
             element = memoryStore.get(key);
         }
 
+        if (element != null) {
+            if (isExpired(element)) {
+                removeInternal(key, true, notifyListeners, false, false);
+                element = null;
+            } else if (!quiet) {
+                element.updateAccessStatistics();
+            }
+        }
+        return element;
+    }
+    
+    private Element searchInDiskStore(Object key, boolean statistics, boolean quiet, boolean notifyListeners) {
         if (statistics) {
-            if (element != null) {
-                if (isExpired(element)) {
-                    if (LOG.isDebugEnabled()) {
-                        LOG.debug(configuration.getName() + " Memory cache hit, but element expired");
-                    }
-                    if (!quiet) {
-                        liveCacheStatisticsData.cacheMissExpired();
-                    }
-                    removeInternal(key, true, notifyListeners, false, false);
-                    element = null;
-                } else {
-                    if (!quiet) {
-                        element.updateAccessStatistics();
-                        if (LOG.isDebugEnabled()) {
-                            LOG.debug(getName() + "Cache: " + getName() + "MemoryStore hit for " + key);
-                        }
-                        liveCacheStatisticsData.cacheHitInMemory();
-                    }
-                }
-            } else if (LOG.isDebugEnabled()) {
-                LOG.debug(getName() + "Cache: " + getName() + "MemoryStore miss for " + key);
-            }
-            return element;
+            return searchInDiskStoreWithStats(key, quiet, notifyListeners);
         } else {
-            if (element != null) {
-                if (isExpired(element)) {
-                    removeInternal(key, true, notifyListeners, false, false);
-                    element = null;
-                } else if (!quiet) {
-                    element.updateAccessStatistics();
-                }
-            }
-            return element;
+            return searchInDiskStoreWithoutStats(key, quiet, notifyListeners);
         }
     }
 
-    private Element searchInDiskStore(Object key, boolean statistics, boolean quiet, boolean notifyListeners) {
+    private Element searchInDiskStoreWithStats(Object key, boolean quiet, boolean notifyListeners) {
         if (!(key instanceof Serializable)) {
             return null;
         }
@@ -1725,44 +1746,55 @@ public class Cache implements Ehcache {
         } else {
             element = diskStore.get(serializableKey);
         }
-        if (statistics) {
-            if (element != null) {
-                if (isExpired(element)) {
-                    if (LOG.isDebugEnabled()) {
-                        LOG.debug(configuration.getName() + " cache - Disk Store hit, but element expired");
-                    }
-                    liveCacheStatisticsData.cacheMissExpired();
-                    removeInternal(key, true, notifyListeners, false, false);
-                    element = null;
-                } else {
-                    if (!quiet) {
-                        element.updateAccessStatistics();
-                    }
-                    liveCacheStatisticsData.cacheHitOnDisk();
-                    //Put the item back into memory to preserve policies in the memory store and to save updated statistics
-                    //todo - maybe make the DiskStore a one-way evict. i.e. Do not replace See testGetSpeedMostlyDisk for speed comp.
-                    memoryStore.put(element);
+        
+        if (element != null) {
+            if (isExpired(element)) {
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug(configuration.getName() + " cache - Disk Store hit, but element expired");
                 }
-            }
-            return element;
-        } else {
-            if (element != null) {
-                if (isExpired(element)) {
-                    removeInternal(key, true, notifyListeners, false, false);
-                    element = null;
-                } else {
-                    if (!quiet) {
-                        element.updateAccessStatistics();
-                    }
-                    //Put the item back into memory to preserve policies in the memory store and to save updated statistics
-                    //todo - maybe make the DiskStore a one-way evict. i.e. Do not replace See testGetSpeedMostlyDisk for speed comp.
-                    memoryStore.put(element);
+                liveCacheStatisticsData.cacheMissExpired();
+                removeInternal(key, true, notifyListeners, false, false);
+                element = null;
+            } else {
+                if (!quiet) {
+                    element.updateAccessStatistics();
                 }
+                liveCacheStatisticsData.cacheHitOnDisk();
+                //Put the item back into memory to preserve policies in the memory store and to save updated statistics
+                //todo - maybe make the DiskStore a one-way evict. i.e. Do not replace See testGetSpeedMostlyDisk for speed comp.
+                memoryStore.put(element);
             }
-            return element;
         }
+        return element;
     }
-
+    
+    private Element searchInDiskStoreWithoutStats(Object key, boolean quiet, boolean notifyListeners) {
+        if (!(key instanceof Serializable)) {
+            return null;
+        }
+        Serializable serializableKey = (Serializable) key;
+        Element element;
+        if (quiet) {
+            element = diskStore.getQuiet(serializableKey);
+        } else {
+            element = diskStore.get(serializableKey);
+        }
+        
+        if (element != null) {
+            if (isExpired(element)) {
+                removeInternal(key, true, notifyListeners, false, false);
+                element = null;
+            } else {
+                if (!quiet) {
+                    element.updateAccessStatistics();
+                }
+                //Put the item back into memory to preserve policies in the memory store and to save updated statistics
+                //todo - maybe make the DiskStore a one-way evict. i.e. Do not replace See testGetSpeedMostlyDisk for speed comp.
+                memoryStore.put(element);
+            }
+        }
+        return element;
+    }
     /**
      * Removes an {@link Element} from the Cache. This also removes it from any
      * stores it may be in.
@@ -3086,11 +3118,11 @@ public class Cache implements Ehcache {
     public LiveCacheStatistics getLiveCacheStatistics()
             throws IllegalStateException {
         checkStatus();
-        return (LiveCacheStatistics) liveCacheStatisticsData;
+        return liveCacheStatisticsData;
     }
 
     private LiveCacheStatistics getLiveCacheStatisticsNoCheck() {
-        return (LiveCacheStatistics) liveCacheStatisticsData;
+        return liveCacheStatisticsData;
     }
 
     /**

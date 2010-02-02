@@ -826,10 +826,16 @@ public class CacheConfiguration implements Cloneable {
         return this;
     }
 
+    /**
+     * Sets whether the cache's statistics are enabled. at startup
+     */
     public final void setStatistics(boolean enabled) {
         this.statistics = enabled;
     }
 
+    /**
+     * Gets whether the cache's statistics will be enabled at startup
+     */
     public final boolean getStatistics() {
         return statistics;
     }
