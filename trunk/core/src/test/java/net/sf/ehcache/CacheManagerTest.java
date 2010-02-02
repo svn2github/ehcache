@@ -103,7 +103,7 @@ public class CacheManagerTest {
     public void testCreateCacheManager() throws CacheException {
         singletonManager = CacheManager.create();
         assertNotNull(singletonManager);
-        assertEquals(13, singletonManager.getCacheNames().length);
+        assertEquals(14, singletonManager.getCacheNames().length);
     }
 
     /**
@@ -331,7 +331,7 @@ public class CacheManagerTest {
         instanceManager.shutdown();
 
         // shutting down instance should leave singleton ok
-        assertEquals(13, singletonManager.getCacheNames().length);
+        assertEquals(14, singletonManager.getCacheNames().length);
 
         instanceManager = new CacheManager(secondCacheConfiguration);
         assertNotNull(instanceManager);
@@ -466,7 +466,7 @@ public class CacheManagerTest {
         // check we can recreate the CacheManager on demand.
         singletonManager = CacheManager.create();
         assertNotNull(singletonManager);
-        assertEquals(13, singletonManager.getCacheNames().length);
+        assertEquals(14, singletonManager.getCacheNames().length);
         assertEquals(Status.STATUS_ALIVE, singletonManager.getStatus());
 
         singletonManager.shutdown();
@@ -836,7 +836,7 @@ public class CacheManagerTest {
     public void testClearCacheManager() throws CacheException {
         singletonManager = CacheManager.create();
         assertNotNull(singletonManager);
-        assertEquals(13, singletonManager.getCacheNames().length);
+        assertEquals(14, singletonManager.getCacheNames().length);
         singletonManager.getEhcache("sampleCache1").put(new Element("key1", "value"));
         assertEquals(1, singletonManager.getEhcache("sampleCache1").getSize());
         singletonManager.getEhcache("sampleCache2").put(new Element("key2", "value"));

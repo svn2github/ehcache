@@ -64,13 +64,14 @@ import org.slf4j.LoggerFactory;
 public class ManagementServiceTest extends AbstractCacheTest {
 
     private static final Logger LOG = LoggerFactory.getLogger(ManagementServiceTest.class.getName());
-    private static final int OBJECTS_IN_TEST_EHCACHE = 40;
+    private static final int OBJECTS_IN_TEST_EHCACHE = 43;
     private MBeanServer mBeanServer;
 
 
     /**
      * setup test
      */
+    @Override
     @Before
     public void setUp() throws Exception {
         super.setUp();
@@ -84,6 +85,7 @@ public class ManagementServiceTest extends AbstractCacheTest {
     /**
      * teardown
      */
+    @Override
     @After
     public void tearDown() throws Exception {
         super.tearDown();
@@ -132,7 +134,7 @@ public class ManagementServiceTest extends AbstractCacheTest {
         ManagementService.registerMBeans(manager, mBeanServer, true, true, true, true);
         assertEquals(OBJECTS_IN_TEST_EHCACHE, mBeanServer.queryNames(new ObjectName("net.sf.ehcache:*"), null).size());
         manager.addCache("new cache");
-        assertEquals(43, mBeanServer.queryNames(new ObjectName("net.sf.ehcache:*"), null).size());
+        assertEquals(46, mBeanServer.queryNames(new ObjectName("net.sf.ehcache:*"), null).size());
         manager.removeCache("sampleCache1");
         assertEquals(OBJECTS_IN_TEST_EHCACHE, mBeanServer.queryNames(new ObjectName("net.sf.ehcache:*"), null).size());
 //        Thread.sleep(1000000);
@@ -149,7 +151,7 @@ public class ManagementServiceTest extends AbstractCacheTest {
         Configuration configuration = ConfigurationFactory.parseConfiguration(file);
         net.sf.ehcache.CacheManager secondCacheManager = new net.sf.ehcache.CacheManager(configuration);
         ManagementService.registerMBeans(secondCacheManager, mBeanServer, true, true, true, true);
-        assertEquals(59, mBeanServer.queryNames(new ObjectName("net.sf.ehcache:*"), null).size());
+        assertEquals(62, mBeanServer.queryNames(new ObjectName("net.sf.ehcache:*"), null).size());
         secondCacheManager.shutdown();
         assertEquals(OBJECTS_IN_TEST_EHCACHE, mBeanServer.queryNames(new ObjectName("net.sf.ehcache:*"), null).size());
 
@@ -184,7 +186,7 @@ public class ManagementServiceTest extends AbstractCacheTest {
     @Test
     public void testRegistrationServiceThreeTrue() throws Exception {
         ManagementService.registerMBeans(manager, mBeanServer, true, true, true, false);
-        assertEquals(27, mBeanServer.queryNames(new ObjectName("net.sf.ehcache:*"), null).size());
+        assertEquals(29, mBeanServer.queryNames(new ObjectName("net.sf.ehcache:*"), null).size());
 
     }
 
@@ -194,7 +196,7 @@ public class ManagementServiceTest extends AbstractCacheTest {
     @Test
     public void testRegistrationServiceTwoTrue() throws Exception {
         ManagementService.registerMBeans(manager, mBeanServer, true, true, false, false);
-        assertEquals(14, mBeanServer.queryNames(new ObjectName("net.sf.ehcache:*"), null).size());
+        assertEquals(15, mBeanServer.queryNames(new ObjectName("net.sf.ehcache:*"), null).size());
 
     }
 
@@ -269,7 +271,7 @@ public class ManagementServiceTest extends AbstractCacheTest {
         LOG.info(object.toString());
 
         List caches = (List) mBeanServer.getAttribute(name, "Caches");
-        assertEquals(13, caches.size());
+        assertEquals(14, caches.size());
 
         for (int i = 0; i < caches.size(); i++) {
             Cache cache = (Cache) caches.get(i);
@@ -357,8 +359,7 @@ public class ManagementServiceTest extends AbstractCacheTest {
             ObjectName objectName = (ObjectName) iterator.next();
             MBeanInfo mBeanInfo = connection.getMBeanInfo(objectName);
             MBeanAttributeInfo[] attributes = mBeanInfo.getAttributes();
-            for (int i = 0; i < attributes.length; i++) {
-                MBeanAttributeInfo attribute = attributes[i];
+            for (MBeanAttributeInfo attribute : attributes) {
                 LOG.info(attribute.getName() + " " + connection.getAttribute(objectName, attribute.getName()));
             }
         }
@@ -370,8 +371,7 @@ public class ManagementServiceTest extends AbstractCacheTest {
             ObjectName objectName = (ObjectName) iterator.next();
             MBeanInfo mBeanInfo = mBeanServer.getMBeanInfo(objectName);
             MBeanAttributeInfo[] attributes = mBeanInfo.getAttributes();
-            for (int i = 0; i < attributes.length; i++) {
-                MBeanAttributeInfo attribute = attributes[i];
+            for (MBeanAttributeInfo attribute : attributes) {
                 LOG.info(attribute.getName() + " " + mBeanServer.getAttribute(objectName, attribute.getName()));
             }
         }
