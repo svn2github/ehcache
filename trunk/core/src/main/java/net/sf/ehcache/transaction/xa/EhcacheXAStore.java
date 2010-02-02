@@ -82,8 +82,15 @@ public interface EhcacheXAStore {
     /**
      * Save the Transaction's data as being prepared
      * @param xid the Xid of the Transaction
+     * @param context
      */
-    void prepared(Xid xid);
+    void prepared(Xid xid, PreparedContext context);
+    
+    /**
+     * Return a newly created prepare context if none exist.
+     * @return
+     */
+    PreparedContext createPreparedContext();
 
     /**
      * Lists prepared, yet not commited Xids
@@ -91,6 +98,12 @@ public interface EhcacheXAStore {
      */
     Xid[] getPreparedXids();
 
+    /**
+     * 
+     * @param xid
+     * @return
+     */
+    public PreparedContext getPreparedContext(Xid xid);
     /**
      * Getter to the underlying store
      * @return the store

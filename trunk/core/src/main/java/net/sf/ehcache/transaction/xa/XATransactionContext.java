@@ -41,7 +41,7 @@ public class XATransactionContext implements TransactionContext {
     private final Set<Object> addedKeys = new HashSet<Object>();
     private final List<VersionAwareCommand> commands = new ArrayList<VersionAwareCommand>();
     private final ConcurrentMap<Object, Element> commandElements = new ConcurrentHashMap<Object, Element>();
-    private final EhcacheXAStoreImpl storeImpl;
+    private final EhcacheXAStore store;
     private final Xid xid;
     private int sizeModifier;
     private transient Transaction transaction;
@@ -52,8 +52,8 @@ public class XATransactionContext implements TransactionContext {
      * @param xid
      * @param storeImpl
      */
-    public XATransactionContext(Xid xid, EhcacheXAStoreImpl storeImpl) {
-        this.storeImpl = storeImpl;
+    public XATransactionContext(Xid xid, EhcacheXAStore store) {
+        this.store = store;
         this.xid = xid;
     }
 
@@ -110,7 +110,7 @@ public class XATransactionContext implements TransactionContext {
         }
         VersionAwareWrapper wrapper = null;
         if (key != null) {
-            long version = storeImpl.checkout(key, xid);
+            long version = store.checkout(key, xid);
             wrapper = new VersionAwareWrapper(command, version, key);
             commandElements.put(element.getObjectKey(), element);
         } else {
@@ -121,12 +121,12 @@ public class XATransactionContext implements TransactionContext {
             if (command.isPut(key)) {
                 boolean removed = removedKeys.remove(key);
                 boolean added = addedKeys.add(key);
-                if (removed || added && !storeImpl.getUnderlyingStore().containsKey(key)) {
+                if (removed || added && !store.getUnderlyingStore().containsKey(key)) {
                     sizeModifier++;
                 }
             } else if (command.isRemove(key)) {
                 removedKeys.add(key);
-                if (addedKeys.remove(key) || storeImpl.getUnderlyingStore().containsKey(key)) {
+                if (addedKeys.remove(key) || store.getUnderlyingStore().containsKey(key)) {
                     sizeModifier--;
                 }
             }

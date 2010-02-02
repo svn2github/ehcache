@@ -34,7 +34,7 @@ public class EhcacheXAStoreImpl implements EhcacheXAStore {
 
     private final ConcurrentMap<Transaction, Xid> localXidTable = new ConcurrentHashMap<Transaction, Xid>();    
     private final ConcurrentMap<Xid, XATransactionContext> transactionContextXids = new ConcurrentHashMap<Xid, XATransactionContext>();
-    private final ConcurrentMap<Xid, Xid> prepareXids = new ConcurrentHashMap<Xid, Xid>();
+    private final ConcurrentMap<Xid, PreparedContext> prepareXids = new ConcurrentHashMap<Xid, PreparedContext>();
     private final VersionTable versionTable = new VersionTable();
     private Store underlyingStore;
     private Store oldVersionStore;
@@ -139,10 +139,24 @@ public class EhcacheXAStoreImpl implements EhcacheXAStore {
     /**
      * {@inheritDoc}
      */
-    public void prepared(Xid xid) {
-        prepareXids.put(xid, xid);
+    public void prepared(Xid xid, PreparedContext context) {
+        prepareXids.put(xid, context);
     }
     
+    /**
+     * {@inheritDoc}
+     */
+    public PreparedContext getPreparedContext(Xid xid) {
+        return prepareXids.get(xid);
+    }
+    
+    
+    /**
+     * {@inheritDoc}
+     */
+    public PreparedContext createPreparedContext() {
+        return new PreparedContextImpl();
+    }
     /**
      * {@inheritDoc}
      */
