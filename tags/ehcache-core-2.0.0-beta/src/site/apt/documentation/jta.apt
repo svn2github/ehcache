@@ -1,0 +1,155 @@
+ ---
+ JTA
+ ---
+
+{JTA}
+
+    new-in-2 JTA is supported in versions of Ehcache 2.0 and higher.
+
+    Ehcache acts as an {XAResouce} and participates in JTA ("Java Transaction API") transactions.
+
+*   Transaction Managers
+
+**  Automatically Detected Transaction Managers
+
+    Ehcache automatically detects and uses the following transaction managers in the following order:
+
+     * GenericJNDI (e.g. Glassfish, JBoss, Weblogic, JTOM and any others that register themselves in JNDI at the standard location of java:/TransactionManager
+
+     * Websphere
+
+     * Bitronix
+
+     * Atomikos
+
+    No configuration is required; they work out of the box.
+
+    The first found is used.
+
+
+**  Configuring a Transaction Manager
+
+    If you Transaction Manager is not in the above list or you wish to change the priority you need
+    to configure your own lookup class and specify it in place of
+    the <<<DefaultTransactionManagerLookup>>> in the ehcache.xml config::
+
+---
+        <transactionManagerLookup class="net.sf.ehcache.transaction.manager.DefaultTransactionManagerLookup"
+         properties="" propertySeparator=":"/>
+
+---
+
+*   Configuring a Cache for JTA
+
+    JTA is enabled on a cache by cache basis with the <<<transactionalMode>>> cache attribute
+
+    The allowed values are <<<xa>>> and <<<off>>>. By default it is off.
+
+    Enabling a cache for JTA is shown in the following example:
+
+---
+    <cache name="xaCache"
+        maxElementsInMemory="500"
+        eternal="false"
+        timeToIdleSeconds="300"
+        timeToLiveSeconds="600"
+        overflowToDisk="false"
+        diskPersistent="false"
+        diskExpiryThreadIntervalSeconds="1"
+        transactionalMode="xa">
+      <terracotta clustered="true"/>
+  </cache>
+---
+
+    Note that in Ehcache 2.0 JTA requires Terracotta <<<serialization>>> value mode otherwise a
+    a <<<CacheException>>> will be thrown on start up. We plan to support standalone Ehcache
+    in the next release.
+
+
+*   Using a JTA Cache
+
+**  All or nothing
+
+    If a cache is enabled for JTA all operations on it must happen within a transaction context,
+    otherwise a <<<TransactionRequiredException>>> will be thrown.
+
+**  Change Visibility
+
+    The isolation level offered in Ehcache JTA is <<<READ_COMMITTED>>>.  Ehcache is an XAResource. Full two-phase
+    commit is supported.
+
+    Specifically:
+
+    * All mutating changes to the cache are transactional including <<<put>>>, <<<remove>>> and <<<removeAll>>>.
+
+    * Mutating changes are not visible in the local JVM to or across the cluster until <<<COMMIT>>> has been called.
+
+    * Until then, read such as by <<<cache.get(...)>>> will return the old copy. Reads do not block.
+
+
+*   {Sample Apps}
+
+    We have sample applications showing how to use JTA.
+
+
+**  JTA Sample App
+
+    This sample application shows an example using User managed transactions. While we expect most people will use
+    JTA from within Spring or EJB where the container rather than managing it themselves, it clearly shows what is going
+    on.
+
+    The following snippet from our SimpleTX servlet shows a complete transaction.
+
+---
+
+   Ehcache cache = cacheManager.getEhcache("xaCache");
+
+    UserTransaction ut = getUserTransaction();
+
+    printLine(servletResponse, "Hello...");
+    try {
+        ut.begin();
+        int index = serviceWithinTx(servletResponse, cache);
+        printLine(servletResponse, "Bye #" + index);
+        ut.commit();
+
+    } catch(Exception e) {
+        printLine(servletResponse,
+            "Caught a " + e.getClass() + "! Rolling Tx back");
+        if(!printStackTrace) {
+            PrintWriter s = servletResponse.getWriter();
+            e.printStackTrace(s);
+            s.flush();
+        }
+        rollbackTransaction(ut);
+    }
+---
+
+    The source code for the demo can be checked out from
+    {{https://svn.terracotta.org/repo/forge/projects/ehcache-jta-sample/trunk}} (Terracotta Community Login Required)
+
+    A README.txt explains how to get the JTA Sample app going.
+
+**  Examinator
+
+    Examinator is our complete application that shows many aspects of caching in one web based Exam application,
+     all using the Terracotta Server Array.
+
+    Check out from {{https://svn.terracotta.org/svn/forge/projects/exam/}} (Terracotta Community Login Required)
+
+*   Limitations
+
+    There are two limitations in this first release of JTA for Ehcache.
+
+**  Terracotta Clusters only
+
+    It only has effect then using Ehcache with the Terracotta Server Array ("TSA"). We are planning to add
+    support for standalone Ehcache will be added in the next release. Doing so will require implementing
+    copy on read and copy on write functionality into the core which is not yet present.
+
+**  Hibernate Transactions
+
+    Ehcache is not a "transactional" cache for Hibernate purposes. We expect to add that in the next
+    release.
+
+
