@@ -227,8 +227,8 @@ public class ConfigurationGenerator {
                 builder.append(EOL).append(spacer).append(" coherent=\"").append(terracottaConfiguration.isCoherent()).append(
                 "\"");
             }
-            if (TerracottaConfiguration.DEFAULT_SYNCHRONOUS_WRITE != terracottaConfiguration.isSynchronousWrite()) {
-                builder.append(EOL).append(spacer).append(" synchronousWrite=\"").append(terracottaConfiguration.isSynchronousWrite())
+            if (TerracottaConfiguration.DEFAULT_SYNCHRONOUS_WRITES != terracottaConfiguration.isSynchronousWrites()) {
+                builder.append(EOL).append(spacer).append(" synchronousWrites=\"").append(terracottaConfiguration.isSynchronousWrites())
                     .append("\"");
             }
             builder.append(">").append(EOL);

@@ -668,13 +668,13 @@ used with JMX monitors.
       a read-only cache, or where the application that can tolerate reading stale data. This setting overrides 
       coherentReads, which is deprecated.
 
-    * synchronousWrite=true|false - When set to true, clustered caches use
-      Terracotta SYNCHRONOUS WRITE locks. Asynchronous writes (synchronousWrite="false") maximize performance by 
+    * synchronousWrites=true|false - When set to true, clustered caches use
+      Terracotta SYNCHRONOUS WRITE locks. Asynchronous writes (synchronousWrites="false") maximize performance by 
       allowing clients to proceed without waiting for a "transaction received" acknowledgement from the server. 
-      Synchronous writes (synchronousWrite="true")  maximize data safety by requiring that a client receive server 
+      Synchronous writes (synchronousWrites="true")  maximize data safety by requiring that a client receive server 
       acknowledgement of a transaction before that client can proceed. If coherence mode is disabled using 
       configuration (coherent="false") or through the coherence API, only asynchronous writes can occur 
-      (synchronousWrite="true" is ignored). By default this value is false (i.e. clustered caches use normal
+      (synchronousWrites="true" is ignored). By default this value is false (i.e. clustered caches use normal
        Terracotta WRITE locks).
 
     Simplest example to indicate clustering:
@@ -690,7 +690,7 @@ used with JMX monitors.
         <terracotta clustered="true" coherent="false"/>
     
     To indicate the cache should be clustered using synchronous-write locking level:
-        <terracotta clustered="true" synchronousWrite="true"/>
+        <terracotta clustered="true" synchronousWrites="true"/>
         
     -->
 

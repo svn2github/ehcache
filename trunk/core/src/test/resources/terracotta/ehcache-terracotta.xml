@@ -98,23 +98,23 @@
            <terracotta coherent="true"/>
     </cache>
     
-    <!-- Test synchronousWrite, default value -->
+    <!-- Test synchronousWrites, default value -->
     <cache name="clustered-13"
            maxElementsInMemory="1000"
            memoryStoreEvictionPolicy="LFU">
            <terracotta/>
     </cache>
-    <!-- Test synchronousWrite, false value-->
+    <!-- Test synchronousWrites, false value-->
     <cache name="clustered-14"
            maxElementsInMemory="1000"
            memoryStoreEvictionPolicy="LFU">
-           <terracotta synchronousWrite="false"/>
+           <terracotta synchronousWrites="false"/>
     </cache>
-    <!-- Test synchronousWrite, true value -->
+    <!-- Test synchronousWrites, true value -->
     <cache name="clustered-15"
            maxElementsInMemory="1000"
            memoryStoreEvictionPolicy="LFU">
-           <terracotta synchronousWrite="true"/>
+           <terracotta synchronousWrites="true"/>
     </cache>
 
     <terracottaConfig url="localhost:9510"/>

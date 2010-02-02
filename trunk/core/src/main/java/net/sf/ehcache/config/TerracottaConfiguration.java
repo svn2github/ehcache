@@ -69,7 +69,7 @@ public class TerracottaConfiguration implements Cloneable {
     /**
      * Default setting for synchronous-write
      */
-    public static final boolean DEFAULT_SYNCHRONOUS_WRITE = false;
+    public static final boolean DEFAULT_SYNCHRONOUS_WRITES = false;
 
     /**
      * Represents whether values are stored with serialization in the clustered store
@@ -100,7 +100,7 @@ public class TerracottaConfiguration implements Cloneable {
     private int localKeyCacheSize = DEFAULT_LOCAL_KEY_CACHE_SIZE;
     private boolean isCopyOnRead = DEFAULT_COPY_ON_READ;
     private boolean cacheCoherent = DEFAULT_CACHE_COHERENT;
-    private boolean synchronousWrite = DEFAULT_SYNCHRONOUS_WRITE;
+    private boolean synchronousWrites = DEFAULT_SYNCHRONOUS_WRITES;
 
     /**
      * Clones this object, following the usual contract.
@@ -174,9 +174,8 @@ public class TerracottaConfiguration implements Cloneable {
      * @param coherentReads {@code true} if coherent reads should be used; {@code false} otherwise
      */
     public void setCoherentReads(boolean coherentReads) {
-        LOG.warn("The attribute \"coherentReads\" in \"terracotta\" element is deprecated and is "
-                + "overrided by the value of the new \"coherent\" attribute (defaults to \"" + DEFAULT_CACHE_COHERENT
-                + "\"). Please use the new \"coherent\" attribute instead.");
+        LOG.warn("The attribute \"coherentReads\" in \"terracotta\" element is deprecated."
+                + " Please use the new \"coherent\" attribute instead.");
         this.coherentReads = coherentReads;
     }
 
@@ -372,24 +371,24 @@ public class TerracottaConfiguration implements Cloneable {
      * Is the cache configured for synchronous-write?
      * @return true if configured for synchronouse-write, otherwise false. Default is false
      */
-    public boolean isSynchronousWrite() {
-        return synchronousWrite;
+    public boolean isSynchronousWrites() {
+        return synchronousWrites;
     }
 
     /**
      * Set the value for synchronous-write
-     * @param synchronousWrite true for using synchronous-write
+     * @param synchronousWrites true for using synchronous-write
      */
-    public void setSynchronousWrite(boolean synchronousWrite) {
-        this.synchronousWrite = synchronousWrite;
+    public void setSynchronousWrites(boolean synchronousWrites) {
+        this.synchronousWrites = synchronousWrites;
     }
 
     /**
      * @return this configuration instance
-     * @see #setSynchronousWrite(boolean)
+     * @see #setSynchronousWrites(boolean)
      */
-    public TerracottaConfiguration synchronousWrite(boolean synchronousWrite) {
-        setSynchronousWrite(synchronousWrite);
+    public TerracottaConfiguration synchronousWrites(boolean synchronousWrites) {
+        setSynchronousWrites(synchronousWrites);
         return this;
     }
 }

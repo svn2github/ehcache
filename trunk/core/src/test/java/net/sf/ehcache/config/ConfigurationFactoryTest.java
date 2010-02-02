@@ -1210,25 +1210,25 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
               sampleCache12.getCacheConfiguration().getTerracottaConfiguration().isCoherent());
       
    // assert default value is false always
-      assertEquals(false, TerracottaConfiguration.DEFAULT_SYNCHRONOUS_WRITE);
+      assertEquals(false, TerracottaConfiguration.DEFAULT_SYNCHRONOUS_WRITES);
       
       Ehcache sampleCache13 = configurationHelper.createCacheFromName("clustered-13");
       assertEquals("clustered-13", sampleCache13.getName());
       assertEquals(true, sampleCache13.getCacheConfiguration().isTerracottaClustered());
       assertEquals(false,
-              sampleCache13.getCacheConfiguration().getTerracottaConfiguration().isSynchronousWrite());
+              sampleCache13.getCacheConfiguration().getTerracottaConfiguration().isSynchronousWrites());
       
       Ehcache sampleCache14 = configurationHelper.createCacheFromName("clustered-14");
       assertEquals("clustered-14", sampleCache14.getName());
       assertEquals(true, sampleCache14.getCacheConfiguration().isTerracottaClustered());
       assertEquals(false,
-              sampleCache14.getCacheConfiguration().getTerracottaConfiguration().isSynchronousWrite());
+              sampleCache14.getCacheConfiguration().getTerracottaConfiguration().isSynchronousWrites());
       
       Ehcache sampleCache15 = configurationHelper.createCacheFromName("clustered-15");
       assertEquals("clustered-15", sampleCache15.getName());
       assertEquals(true, sampleCache15.getCacheConfiguration().isTerracottaClustered());
       assertEquals(true,
-              sampleCache15.getCacheConfiguration().getTerracottaConfiguration().isSynchronousWrite());
+              sampleCache15.getCacheConfiguration().getTerracottaConfiguration().isSynchronousWrites());
 
         // <terracottaConfig>
         //  <url>localhost:9510</url>
