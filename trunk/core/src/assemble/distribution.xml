@@ -55,24 +55,9 @@
             <outputDirectory>lib</outputDirectory>
             <unpack>false</unpack>
             <scope>provided</scope>
-            <excludes>
-                <exclude>javax.servlet:servlet-api</exclude>
-                <exclude>net.sf.ehcache:ehcache</exclude>
-                <exclude>org.slf4j:slf4j-api</exclude>
-                <exclude>asm:asm-attrs</exclude>
-                <exclude>asm:asm</exclude>
-                <exclude>org.hibernate:hibernate</exclude>
-                <exclude>org.hibernate:hibernate-core</exclude>
-                <exclude>org.codehaus.btm:btm</exclude>
-                <exclude>org.apache.geronimo.specs:geronimo-jms_1.1_spec</exclude>
-                <exclude>org.apache.geronimo.specs:geronimo-jta_1.0.1B_spec</exclude>
-                <exclude>javax.transaction:jta</exclude>
-                <exclude>xml-apis:xml-apis</exclude>
-                <exclude>commons-collections:commons-collections</exclude>
-                <exclude>antlr:antlr</exclude>
-                <exclude>cglib:cglib</exclude>
-                <exclude>dom4j:dom4j</exclude>
-            </excludes>
+			<includes>
+			  <include>org.slf4j:slf4j-jdk14</include>
+			</includes>
         </dependencySet>
     </dependencySets>
 </assembly>
