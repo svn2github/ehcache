@@ -62,6 +62,12 @@
                 <exclude>asm:asm-attrs</exclude>
                 <exclude>asm:asm</exclude>
                 <exclude>org.hibernate:hibernate</exclude>
+                <exclude>org.hibernate:hibernate-core</exclude>
+                <exclude>org.codehaus.btm:btm</exclude>
+                <exclude>org.apache.geronimo.specs:geronimo-jms_1.1_spec</exclude>
+                <exclude>org.apache.geronimo.specs:geronimo-jta_1.0.1B_spec</exclude>
+                <exclude>javax.transaction:jta</exclude>
+                <exclude>xml-apis:xml-apis</exclude>
                 <exclude>commons-collections:commons-collections</exclude>
                 <exclude>antlr:antlr</exclude>
                 <exclude>cglib:cglib</exclude>
