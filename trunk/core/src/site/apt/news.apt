@@ -7,6 +7,28 @@
 
 News
 
+* 3 February 2010: Project Darwin beta released
+
+  This is a beta release of project Darwing a.k.a Ehcache 2.0.
+
+  Ehcache 2.0 provides a new {{{documentation/hibernate.html}Hibernate 3.3 SPI caching plugin}}, {{{documentation/jta.html}JTA}},
+  {{{documentation/write_through_caching.html}Write-Behind}}, a new ultra-fast {{{documentation/bulk_loading.html}Bulk Loading API}} for clustered caches.
+  and dynamic runtime cache reconfiguration.
+
+  Ehcache 2.0 is fully backward compatible with earlier versions of Ehcache.
+
+  The Terracotta Server Array ("TSA") has also been re-engineered to dovetail with Ehcache to provide these features
+  with cluster coherence, high availability and persistence. Darwin betas with TSA are available {{{http://www.terracotta.org/beta/darwin}here}}.
+
+  This release also introduces some improvements to ehcache which reduce memory use (over 1.6 and 1.7) by the cache and improve
+  the eviction algorithms.
+
+  See the {{{http://ehcache.org/changes-report.html}changelog}} for complete details of ehcache-core changes.
+
+  A GA release is expected at the beginning of March.
+
+
+
 * 11 January 2010: ehcache-1.8, ehcache-core-1.7.2 and ehcache-terracotta-1.8
 
   This is a final GA release of ehcache comprising ehcache, ehcache-core and ehcache-terracotta modules.
