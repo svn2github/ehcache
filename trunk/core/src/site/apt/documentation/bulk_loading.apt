@@ -28,39 +28,55 @@
     What changes is that there is a special mode that suspends Terracotta's normal coherence guarantees
     and provides optimised flushing to the Terracotta Server Array (the L2 cache).
 
-    This mode can be enabled programmatically or statically in ehcache.xml. Programmatically, three methods
-    control coherent behaviour: <<<setCoherent(boolean mode)>>>, <<<isCoherent()>>> and <<<waitUntilCoherent()>>>.
+    This mode can be enabled programmatically or statically in ehcache.xml. Programmatically, four methods
+    control coherent behaviour: <<<setNodeCoherence(boolean mode)>>>, <<<isNodeCoherent()>>>, <<<isClusterCoherent()>>>
+    and <<<waitUntilClusterCoherent()>>>.
 
 
 
 
-**  <<<setCoherent(boolean mode)>>>
+**  <<<setNodeCoherence(boolean mode)>>>
 
-    <<<setCoherent(false)>>> sets coherence to false for the Ehcache node. The setting for the rest of the cluster
-        stays the same. The effect is that normal read and write locks are not obtained.
+    <<<setNodeCoherence(false)>>> sets coherence to false for the Ehcache node. The setting for the rest of the cluster
+        stays the same. The effect is that normal read and write locks are not obtained. <<<setNodeCoherence(true)>>> brings
+        back the cache to coherent mode for the node.
 
-**  <<<{isCoherent()}>>>
+**  <<<{isNodeCoherent()}>>> 
 
-    isCoherent
+        Use this to find out if the node is in coherent mode locally. This does not account for other
+        nodes in the cluster (if any). The node may be coherent while its incoherent cluster-wide (like some other node is
+        incoherent)
+        
+**  <<<{isClusterCoherent()}>>>
 
-        waitUntilCoherent
+        Reflects whether the cache is in coherent or incoherent mode cluster-wide. Coherent cluster-wide
+        means that all nodes in the cluster is using the cache in coherent mode. If even one of the nodes is using the cache
+        in incoherent mode, the cache is incoherent cluster-wide
+        
+**  <<<{waitUntilClusterCoherent()}>>> 
 
-        waits until everyone is coherent. Will not return true until all the entire cluster is coherent.
+       Calling this method will block the calling thread until the cache becomes coherent cluster-wide. 
 
-        setCoherent(true | false)
+
+        waitUntilClusterCoherent
+
+        waits until everyone is coherent. Will not return until the entire cluster is coherent.
+
+        setNodeCoherence(true | false)
 
         This affects the local node only. The settings in the rest of the cluster are not affected.
 
-        Then to put it back call true.
+        Then to put it back call with true parameter.
 
-        This method does not return until all the transactions are flushed to the cluster. Only the calling thread is blocked. This way you know when coherence is restored. This returns as soon  DONT SAY. Will make async later.
+        This method does not return until all the transactions are flushed to the cluster. Only the calling thread is blocked. 
+        This way you know when coherence is restored. This returns as soon  DONT SAY. Will make async later.
 
         Everyone block
 
 
         The initial state is from the config.
 
-        In a local standalone cache, isCoherent will always return true. If we are using an RMI/JGroups/JMS then isCoherent will return false. setCoherent should throw an UnsupportedOperationException. waitUntilCoherent will also throw an UnsupportedOperationException.
+        In a local standalone cache, setNodeCoherence should throw an UnsupportedOperationException. waitUntilClusterCoherent will also throw an UnsupportedOperationException.
 
         *	Configuration
 
@@ -77,7 +93,7 @@
 
 
 
-*   Speed Improvemnt
+*   Speed Improvement
 
     The speed performance improvement is an order of magnitude faster.
 

@@ -151,6 +151,19 @@ public static void registerMBeans(
 
 [images/JConsoleExample.png] CacheStatistics MBeans in JConsole
 
+* {Hibernate statistics}
+
+    If you are running Terracotta clustered caches as hibernate second-level cache provider, it is possible to access 
+    the hibernate statistics + ehcache stats etc via jmx.
+    
+    <<<EhcacheHibernateMBean>>> is the main interface that exposes all the API's via jmx. It basically extends
+    two interfaces -- <<<EhcacheStats>>> and <<<HibernateStats>>>. And as the name implies <<<EhcacheStats>>> contains
+    methods related with Ehcache and <<<HibernateStats>>> related with Hibernate.
+    
+    You can see cache hit/miss/put rates, change config element values dynamically -- like maxElementInMemory, TTI, TTL,
+    enable/disable statistics collection etc and various other things. Please look into the specific interface for more
+    details.  
+
 
 *   {JMX Tutorial}
 
