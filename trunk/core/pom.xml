@@ -9,11 +9,18 @@
     </parent>
     <name>Ehcache Core</name>
     <description>This is the ehcache core module. Pair it with other modules for added
-        functionality
+        functionality.
     </description>
     <artifactId>ehcache-core</artifactId>
     <packaging>jar</packaging>
     <version>2.0.0-SNAPSHOT</version>
+    <licenses>
+        <license>
+            <name>The Apache Software License, Version 2.0</name>
+            <url>/LICENSE.txt</url>
+        </license>
+    </licenses>
+    <url>http://ehcache.org</url>
 
 
     <properties>
@@ -475,6 +482,21 @@
             </plugin>
 
 
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-gpg-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>sign-artifacts</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>sign</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+
         </plugins>
     </build>
 
@@ -562,6 +584,7 @@
         <developerConnection>scm:svn:https://svn.terracotta.org/repo/ehcache/trunk
         </developerConnection>
         <tag/>
+        <url>http://svn.terracotta.org/svn/ehcache/trunk</url>
     </scm>
 
     <issueManagement>
