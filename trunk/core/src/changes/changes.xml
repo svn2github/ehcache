@@ -1,6 +1,13 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <document>
     <body>
+        <release version="2.0.0" date="2010-3-1" description="Major release with new features">
+            <action dev="Chris Dennis" type="add" >
+                Added statistics cache attribute. If set to false, statistics overhead is avoided
+                giving around a significant performance improvement in standalone ehcache. By default
+                statistics are on.
+            </action>
+        </release>
 
         <release version="2.0.0-beta" date="2010-1-29" description="Major release with new features">
             <action dev="Geert Bevin" type="add">
