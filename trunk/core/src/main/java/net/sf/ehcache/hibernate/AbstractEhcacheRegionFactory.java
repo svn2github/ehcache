@@ -35,6 +35,7 @@ import org.hibernate.cache.QueryResultsRegion;
 import org.hibernate.cache.RegionFactory;
 import org.hibernate.cache.Timestamper;
 import org.hibernate.cache.TimestampsRegion;
+import org.hibernate.cache.access.AccessType;
 import org.hibernate.cfg.Settings;
 
 import org.slf4j.Logger;
@@ -155,5 +156,17 @@ abstract class AbstractEhcacheRegionFactory implements RegionFactory {
                         "Ehcache will configure itself using defaults.", configurationResourceName);
         }
         return url;
+    }
+
+    /**
+     * Default access-type used when the configured using JPA 2.0 config.  JPA 2.0 allows <code>@Cacheable(true)</code> to be attached to an
+     * entity without any access type or usage qualification.
+     * <p>
+     * We are conservative here in specifying {@link AccessType#READ_WRITE} so as to follow the mantra of "do no harm".
+     * <p>
+     * This is a Hibernate 3.5 method.
+     */
+    public AccessType getDefaultAccessType() {
+        return AccessType.READ_WRITE;
     }
 }

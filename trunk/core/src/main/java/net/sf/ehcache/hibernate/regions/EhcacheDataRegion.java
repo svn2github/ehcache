@@ -150,4 +150,13 @@ public abstract class EhcacheDataRegion implements Region {
     public Ehcache getEhcache() {
         return cache;
     }
+    
+    /**
+     * Returns <code>true</code> if this region contains data for the given key.
+     * <p>
+     * This is a Hibernate 3.5 method.
+     */
+    public boolean contains(Object key) {
+        return cache.isKeyInCache(key);
+    }
 }
