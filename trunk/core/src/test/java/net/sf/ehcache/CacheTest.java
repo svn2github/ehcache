@@ -42,6 +42,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
 import net.sf.ehcache.bootstrap.BootstrapCacheLoader;
+import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.event.CacheEventListener;
 import net.sf.ehcache.event.RegisteredEventListeners;
 import net.sf.ehcache.exceptionhandler.ExceptionHandlingDynamicCacheProxy;
@@ -57,10 +58,10 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Tests for a Cache
- * 
+ * <p/>
  * Since expiration is rounded on seconds, we need to at least go up to the last
  * millisecond before the next second in many of the tests
- * 
+ *
  * @author Greg Luck, Claus Ibsen
  * @version $Id$
  */
@@ -636,7 +637,7 @@ public class CacheTest extends AbstractCacheTest {
         //Test time to live
         assertNotNull(cache.get("key1"));
         assertNotNull(cache.get("key2"));
-        Thread.sleep(1959); 
+        Thread.sleep(1959);
         assertNull(cache.get("key1"));
         assertNull(cache.get("key2"));
     }
@@ -1195,6 +1196,7 @@ public class CacheTest extends AbstractCacheTest {
 
 
     //@Test
+
     public void testSizesContinuous() throws Exception {
         while (true) {
             testFlushWhenOverflowToDisk();
@@ -1851,6 +1853,15 @@ public class CacheTest extends AbstractCacheTest {
      * INFO: Average Remove All Time for 456174 observations: 0.10433519 ms
      * INFO: Average keySet Time for 4042893 observations: 0.0029669348 ms
      * INFO: Total loads: 123
+     * <p/>
+     * Ehcache 2.0: After turning of statistics.
+     * Feb 3, 2010 1:50:32 PM net.sf.ehcache.CacheTest testConcurrentReadWriteRemove
+     * INFO: Average Get Time for 7251897 observations: 0.006588345 ms
+     * INFO: Average Put Time for 6190 obervations: 0.07479806 ms
+     * INFO: Average Remove Time for 4428 obervations: 0.7606143 ms
+     * INFO: Average Remove All Time for 5183786 observations: 0.0020039408 ms
+     * INFO: Average keySet Time for 4973208 observations: 0.0020630546 ms
+     * INFO: Total loadAlls: 189
      *
      * @throws Exception
      */
@@ -1955,7 +1966,10 @@ public class CacheTest extends AbstractCacheTest {
         final int size = 10000;
         //set it higher for normal continuous integration so occasional higher numbes do not break tests
         final int maxTime = (int) (500 * StopWatch.getSpeedAdjustmentFactor());
-        manager.addCache(new Cache("test3cache", size, policy, false, null, true, 120, 120, false, 1, null));
+        CacheConfiguration cacheConfigurationTest3Cache = new CacheConfiguration("test3cache", size)
+                .eternal(true).memoryStoreEvictionPolicy(MemoryStoreEvictionPolicy.LRU).overflowToDisk(false)
+                .statistics(false);
+        manager.addCache(new Cache(cacheConfigurationTest3Cache));
         final Ehcache cache = manager.getEhcache("test3cache");
 
         System.gc();
@@ -2601,9 +2615,10 @@ public class CacheTest extends AbstractCacheTest {
         }
 
     }
-    
+
     /**
      * test cache clones do not have same statistics
+     *
      * @throws Exception
      */
     @Test
@@ -2715,11 +2730,11 @@ public class CacheTest extends AbstractCacheTest {
         // theoretically we should wait a long time here but the error from EHC-432 
         // has already shown up in the put.  And we don't have time to wait forever
         // to verify this.
-        
+
         Element e2 = cache.get("key");
         assertNotNull(e2);
     }
-    
+
     /**
      * Checks that TTL of Integer.MAX_VALUE means value never expires.
      * See EHC-432.
@@ -2739,7 +2754,7 @@ public class CacheTest extends AbstractCacheTest {
         // theoretically we should wait a long time here but the error from EHC-432 
         // has already shown up in the put.  And we don't have time to wait forever
         // to verify this.
-        
+
         Element e2 = cache.get("key");
         assertNotNull(e2);
     }

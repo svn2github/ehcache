@@ -7,6 +7,11 @@
                 giving around a significant performance improvement in standalone ehcache. By default
                 statistics are on.
             </action>
+            <action dev="Chris Dennis" type="fix" issue="ehc-419" >
+                Fixed performance regression which occurred in 1.7.0 when sampling statistics was added.
+                For maximum performance statistics can now be turned off in config and during
+                cache construction.
+            </action>
         </release>
 
         <release version="2.0.0-beta" date="2010-1-29" description="Major release with new features">

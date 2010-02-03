@@ -222,7 +222,7 @@ public class CacheConfiguration implements Cloneable {
 
     /**
      * Create a new cache configuration.
-     * 
+     *
      * @param name                the name of the cache. Note that "default" is a reserved name for the defaultCache.
      * @param maxElementsInMemory the maximum number of elements in memory, before they are evicted
      */
@@ -404,6 +404,8 @@ public class CacheConfiguration implements Cloneable {
     }
 
     /**
+     * Builder which Sets the eviction policy. An invalid argument will set it to null.
+     *
      * @return this configuration instance
      * @see #setMemoryStoreEvictionPolicyFromObject(MemoryStoreEvictionPolicy)
      */
@@ -712,7 +714,7 @@ public class CacheConfiguration implements Cloneable {
 
     /**
      * Add the CacheExceptionHandlerFactory to the configuration.
-     * <p>
+     * <p/>
      * Note that this will not have any effect when creating a cache solely through its constructed. The exception
      * handler will only be taken into account when {@link ConfigurationHelper} is used, for example through
      * {@link net.sf.ehcache.CacheManager}.
@@ -834,12 +836,24 @@ public class CacheConfiguration implements Cloneable {
     }
 
     /**
+     * Builder which sets whether the cache's statistics are enabled.
+     *
+     * @return this configuration instance
+     * @see #setStatistics(boolean)
+     */
+    public final CacheConfiguration statistics(boolean statistics) {
+        setStatistics(statistics);
+        return this;
+    }
+
+
+    /**
      * Gets whether the cache's statistics will be enabled at startup
      */
     public final boolean getStatistics() {
         return statistics;
     }
-    
+
     private void validateConfiguration() {
         if (terracottaConfiguration != null && terracottaConfiguration.isClustered()) {
             if (overflowToDisk) {
@@ -1039,6 +1053,7 @@ public class CacheConfiguration implements Cloneable {
 
     /**
      * To what transactionalMode was the Cache set
+     *
      * @return transactionaMode
      */
     public final TransactionalMode getTransactionalMode() {
@@ -1047,6 +1062,7 @@ public class CacheConfiguration implements Cloneable {
 
     /**
      * Helper method to compute whether the cache is transactional or not
+     *
      * @return True if transactionalMode="xa"
      */
     public boolean isTransactional() {
@@ -1162,7 +1178,7 @@ public class CacheConfiguration implements Cloneable {
     }
 
     /**
-     * internal use only, this is required so that changes in store impl's config 
+     * internal use only, this is required so that changes in store impl's config
      * (probably from other nodes) can propagate up to here
      */
     public void internalSetTimeToIdle(long timeToIdle) {
@@ -1189,10 +1205,10 @@ public class CacheConfiguration implements Cloneable {
     public void internalSetDiskCapacity(int capacity) {
         this.maxElementsOnDisk = capacity;
     }
-    
+
     /**
      * internal use only, this is called from the store impl's to reflect the new coherent value
-     * 
+     *
      * @param coherent true for coherent
      */
     public void internalSetCoherent(boolean coherent) {
