@@ -215,11 +215,7 @@ public class WriteBehindQueue implements WriteBehind {
                     // wait for another round if the batch size hasn't been filled up yet and the max write delay
                     // hasn't expired yet
                     if (workSize < writeBatchSize && maxWriteDelayMs > lastProcessing.get() - lastWorkDone.get()) {
-                        if (LOGGER.isLoggable(Level.FINER)) {
-                            LOGGER.finer(getThreadName() + " : processItems() : only " + workSize + " work items available, waiting for "
-                                    + writeBatchSize + " items to fill up a batch");
-                        }
-                        reassemble(quarantined);
+                        waitUntilEnoughWorkItemsAvailable(quarantined, workSize);
                         return;
                     }
                     // enforce the rate limit and wait for another round if too much would be processed compared to
@@ -229,12 +225,7 @@ public class WriteBehindQueue implements WriteBehind {
                         final long maxBatchSizeSinceLastWorkDone = rateLimitPerSecond * secondsSinceLastWorkDone;
                         final int batchSize = determineBatchSize(quarantined);
                         if (batchSize > maxBatchSizeSinceLastWorkDone) {
-                            if (LOGGER.isLoggable(Level.FINER)) {
-                                LOGGER.finer(getThreadName() + " : processItems() : last work was done " + secondsSinceLastWorkDone
-                                        + " seconds ago, processing " + batchSize + " batch items would exceed the rate limit of "
-                                        + rateLimitPerSecond + ", waiting for a while.");
-                            }
-                            reassemble(quarantined);
+                            waitUntilEnoughTimeHasPassed(quarantined, batchSize, secondsSinceLastWorkDone);
                             return;
                         }
                     }
@@ -263,6 +254,23 @@ public class WriteBehindQueue implements WriteBehind {
                 LOGGER.finer(getThreadName() + " : processItems() : processing finished");
             }
         }
+    }
+
+    private void waitUntilEnoughWorkItemsAvailable(List<SingleOperation> quarantined, int workSize) {
+        if (LOGGER.isLoggable(Level.FINER)) {
+            LOGGER.finer(getThreadName() + " : processItems() : only " + workSize + " work items available, waiting for "
+                    + writeBatchSize + " items to fill up a batch");
+        }
+        reassemble(quarantined);
+    }
+
+    private void waitUntilEnoughTimeHasPassed(List<SingleOperation> quarantined, int batchSize, long secondsSinceLastWorkDone) {
+        if (LOGGER.isLoggable(Level.FINER)) {
+            LOGGER.finer(getThreadName() + " : processItems() : last work was done " + secondsSinceLastWorkDone
+                    + " seconds ago, processing " + batchSize + " batch items would exceed the rate limit of "
+                    + rateLimitPerSecond + ", waiting for a while.");
+        }
+        reassemble(quarantined);
     }
 
     private int determineBatchSize(List<SingleOperation> quarantined) {

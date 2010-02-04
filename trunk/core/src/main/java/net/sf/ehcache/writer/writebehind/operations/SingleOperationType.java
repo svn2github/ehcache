@@ -20,6 +20,9 @@ package net.sf.ehcache.writer.writebehind.operations;
  * <p/>
  * The order of the entries in the enum is important since it is used to determine the order of execution of
  * batched operations.
+ *
+ * @author Geert Bevin
+ * @version $Id$
  */
 public enum SingleOperationType {
     /**
