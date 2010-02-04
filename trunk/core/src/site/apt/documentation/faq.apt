@@ -298,7 +298,10 @@ class="net.sf.ehcache.distribution.RMICacheManagerPeerListenerFactory"/>
 * How do I get a memory only cache to persist to disk between VM restarts?
 
     While disk persistence between restarts is a feature of the DiskStore only, you can get the same behaviour for a memory only cache
-    by setting up a cache with maxElementsInMemory set to Integer.MAX_VALUE, 2147483647, overflowToDisk set to true and diskPersistent set to true.
+    by setting up a cache with maxElementsInMemory set to Integer.MAX_VALUE, 2147483647 and diskPersistent set to true.
+
+    You can manually call flush() to flush to disk. It is a good idea to set <<<clearOnFlush>>> to false so that the MemoryStore is not
+     cleared each time. You can then call flush() to persist whenever you wish.
 
 
 * I get a javax.servlet.ServletException: Could not initialise servlet filter when using SimplePageCachingFilter. Why?
