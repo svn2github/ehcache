@@ -34,4 +34,9 @@
     * The messages are placed in a queue. As the queue is processed, multiple messages are sent in one RMI
       call, dramatically accelerating replication performance.
 
+* Statistics
 
+    Collection of cache statistics is not entirely free of overhead.  In production systems where monitoring
+    is not required statistics can be disabled.  This can be done either programatically by calling 
+    setStatisticsEnabled(false) on the cache instance, or in configuration by setting the statistics="false"
+    attribute of the relevant cache configuration element.
