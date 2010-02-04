@@ -28,6 +28,19 @@ import javax.transaction.xa.XAResource;
 import net.sf.ehcache.transaction.xa.EhcacheXAResource;
 
 /**
+ * Default {@link TransactionManagerLookup} implementation, that will be used by an {@link net.sf.ehcache.Cache#initialise() initializing}
+ * Cache should the user have not specified otherwise.<p>
+ * This implementation will:
+ * <ol>
+ * <li>try lookup an {@link javax.naming.InitialContext};
+ * <li>if successful, lookup a TransactionManager under java:/TransactionManager;
+ * <li>if it failed, or couldn't find {@link javax.transaction.TransactionManager} instance, look for a WebSphere TransactionManager;
+ * <li>then, a Bitronix;
+ * <li>and finally an Atomikos one.
+ * </ol>
+ *
+ * The first TransactionManager instance is then kept and returned on each {@link #getTransactionManager()} call
+ *
  * @author Alex Snaps
  */
 public class DefaultTransactionManagerLookup implements TransactionManagerLookup {
@@ -130,7 +143,7 @@ public class DefaultTransactionManagerLookup implements TransactionManagerLookup
      */
     private static final class JndiSelector extends Selector {
 
-        private final String jndiName;
+        private String jndiName;
 
         private JndiSelector(final String vendor, final String jndiName) {
             super(vendor);
@@ -139,6 +152,10 @@ public class DefaultTransactionManagerLookup implements TransactionManagerLookup
 
         public String getJndiName() {
             return jndiName;
+        }
+
+        public void setJndiName(final String jndiName) {
+            this.jndiName = jndiName;
         }
 
         @Override

@@ -36,7 +36,12 @@ import net.sf.ehcache.transaction.xa.EhcacheXAResource;
 import net.sf.ehcache.writer.CacheWriterManager;
 
 /**
+ * A transaction aware store that wraps the actual Store.
+ * It will provide proper READ_COMMITED transaction isolation. It does so by queuing write operations on the cache.
+ * These will eventually be executed at transaction commit time, or discarded in case of rollback.
+ *
  * @author Alex Snaps
+ * @author Nabib El-Rahman
  */
 public class XATransactionalStore implements Store {
 

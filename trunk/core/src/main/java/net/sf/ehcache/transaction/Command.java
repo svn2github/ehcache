@@ -19,8 +19,10 @@ package net.sf.ehcache.transaction;
 import net.sf.ehcache.store.Store;
 
 /**
- *
- * @author nelrahma
+ * A Command represents an operation to be executed on a {@link Store}.
+ * 
+ * @author Nabib El-Rahman
+ * @author Alex Snaps
  *
  */
 public interface Command {

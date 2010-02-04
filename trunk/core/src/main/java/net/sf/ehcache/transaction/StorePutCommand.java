@@ -20,6 +20,7 @@ import net.sf.ehcache.Element;
 import net.sf.ehcache.store.Store;
 
 /**
+ * Represents a {@link net.sf.ehcache.store.Store#put(net.sf.ehcache.Element)} put} operation to be executed on a {@link Store}.
  * @author Alex Snaps
  */
 public class StorePutCommand implements StoreWriteCommand {

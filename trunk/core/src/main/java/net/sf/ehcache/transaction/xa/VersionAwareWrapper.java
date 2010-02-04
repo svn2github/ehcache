@@ -21,6 +21,8 @@ import net.sf.ehcache.transaction.Command;
 import net.sf.ehcache.transaction.StoreWriteCommand;
 
 /**
+ * Wraps a {@link net.sf.ehcache.transaction.Command}, that will first be checked against
+ * the optimistic locking strategy before being executed against the {@link Store}.
  * @author Nabib El-Rahman
  */
 public class VersionAwareWrapper implements Command, VersionAwareCommand {

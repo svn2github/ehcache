@@ -19,6 +19,9 @@ package net.sf.ehcache.transaction.xa;
 import javax.transaction.xa.XAException;
 
 /**
+ * Small extension to the XAException defined in the JTA specification, to that the errorCode is provided when
+ * instanciating the Exception thrown 
+ *
  * @author Alex Snaps
  */
 public class EhcacheXAException extends XAException {

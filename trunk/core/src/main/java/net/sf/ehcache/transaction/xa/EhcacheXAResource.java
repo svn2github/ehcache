@@ -25,7 +25,13 @@ import net.sf.ehcache.store.Store;
 import net.sf.ehcache.transaction.TransactionContext;
 
 /**
+ *
+ * EhcacheXAResource represents an {@link net.sf.ehcache.Ehcache Ehcache} instance.
+ * It will provide the interface between the {@link javax.transaction.TransactionManager TransactionManager}
+ * and the {@link net.sf.ehcache.store.XATransactionalStore XATransactionalStore} instance backing the transactional cache.
+ *
  * @author Nabib El-Rahman
+ * @author Alex Snaps
  */
 public interface EhcacheXAResource extends XAResource {
 
@@ -42,24 +48,25 @@ public interface EhcacheXAResource extends XAResource {
     Store getStore();
 
     /**
-     *
-     * @return
-     * @throws SystemException
-     * @throws RollbackException
+     * Obtain the already associated {@link net.sf.ehcache.transaction.TransactionContext} with the current Transaction,
+     * or create a new one should none be there yet.
+     * @return The associated Transaction associated {@link net.sf.ehcache.transaction.TransactionContext} 
+     * @throws SystemException Thrown if the associated transaction manager encounters an unexpected error condition.
+     * @throws RollbackException Thrown if the resource has to be enlisted with the transaction, while it is marked for rollback only.
      */
     TransactionContext getOrCreateTransactionContext() throws SystemException, RollbackException;
 
     /**
      * Fall through methods to the underlying cache that will hit potential "guards" or "guarding read-only store"
-     * @param key
-     * @return
+     * @param key the key to the Element to obtain form the underlying store
+     * @return the Element associated with the key, or null
      */
     Element get(Object key);
 
     /**
      * Fall through methods to the underlying cache that will hit potential "guards" or "guarding read-only store"
-     * @param key
-     * @return
+     * @param key the key to the Element to obtain form the underlying store
+     * @return the Element associated with the key, or null
      */
     Element getQuiet(Object key);
 

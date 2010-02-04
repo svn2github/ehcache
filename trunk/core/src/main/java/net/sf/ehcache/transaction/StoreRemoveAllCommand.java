@@ -19,6 +19,7 @@ package net.sf.ehcache.transaction;
 import net.sf.ehcache.store.Store;
 
 /**
+ * Represents a {@link net.sf.ehcache.store.Store#removeAll() removeAll} operation to be executed on a {@link Store}.
  * @author Alex Snaps
  */
 public class StoreRemoveAllCommand implements StoreWriteCommand {

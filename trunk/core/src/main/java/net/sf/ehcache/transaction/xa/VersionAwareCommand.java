@@ -19,6 +19,7 @@ package net.sf.ehcache.transaction.xa;
 import net.sf.ehcache.transaction.Command;
 
 /**
+ * A more specialized type of Command, that is potentially aware of a version of the Element involved in its execution against the Store.
  * @author Alex Snaps
  */
 public interface VersionAwareCommand extends Command {

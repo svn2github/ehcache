@@ -26,6 +26,11 @@ import net.sf.ehcache.Element;
 import net.sf.ehcache.transaction.xa.VersionAwareCommand;
 
 /**
+ * A TransactionContext represents the data local to a Transaction that involves a transactional Cache.<p>
+ * It will queue operations ({@link net.sf.ehcache.transaction.Command Commands}), filter read operations on the cache (as for
+ * returning null on a get on a "to be removed" key).<p>
+ * It also provides access to the transaction orchestrator (like the {@link javax.transaction.TransactionManager
+ * TransactionManager} in case of JTA) to the deferred operations and other contextual information. 
  * @author Alex Snaps
  */
 public interface TransactionContext {
@@ -73,7 +78,7 @@ public interface TransactionContext {
     /**
      * The underlying store's size modifier.<p>
      * Plus all pending put commands, and minus all pending removals (dependent on whether their in the underlying store)
-     * @return
+     * @return the modifier to be applied on the {@link net.sf.ehcache.store.Store#getSize()}
      */
     int getSizeModifier();
 

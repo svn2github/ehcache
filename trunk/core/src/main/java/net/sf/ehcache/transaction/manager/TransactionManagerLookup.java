@@ -22,6 +22,11 @@ import net.sf.ehcache.transaction.xa.EhcacheXAResource;
 import java.util.Properties;
 
 /**
+ * Interface to enable a XA transactional cache to access the JTA TransactionManager.
+ * The implementing class can be configured in your xml file. It will then be instanciated by the Cache, during
+ * {@link net.sf.ehcache.Cache#initialise() initialization}. It'll then have the properties injected, should any have been specified. And finally,
+ * the TransactionManager will be queried for using #getTransactionManager.
+ *
  * @author Alex Snaps
  */
 public interface TransactionManagerLookup {

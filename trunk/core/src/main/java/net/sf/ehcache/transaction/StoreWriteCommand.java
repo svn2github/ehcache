@@ -17,6 +17,8 @@
 package net.sf.ehcache.transaction;
 
 /**
+ * Marker interface for {@link Command} that mutate the {@link net.sf.ehcache.store.Store} on {@link #execute(net.sf.ehcache.store.Store)}
+ *
  * @author Alex Snaps
  */
 public interface StoreWriteCommand extends Command {

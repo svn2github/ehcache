@@ -28,6 +28,10 @@ import net.sf.ehcache.store.Store;
 import net.sf.ehcache.transaction.TransactionContext;
 
 /**
+ * Default implementation of {@link EhcacheXAStore}.<p>
+ * It uses {@link java.util.concurrent.ConcurrentHashMap} for the local data (non safe in case of failure) and requires
+ * a "safe" {@link net.sf.ehcache.store.Store} for the oldVersionStore, and a reference to the underlying Store.
+ *
  * @author Alex Snaps
  */
 public class EhcacheXAStoreImpl implements EhcacheXAStore {
@@ -110,8 +114,8 @@ public class EhcacheXAStoreImpl implements EhcacheXAStore {
      * {@inheritDoc}
      */
     public Xid[] getPreparedXids() {
-        Set xidSet = prepareXids.keySet();
-        return (Xid[])xidSet.toArray(new Xid[xidSet.size()]);
+        Set<Xid> xidSet = prepareXids.keySet();
+        return xidSet.toArray(new Xid[xidSet.size()]);
     }
 
     /**
@@ -200,7 +204,7 @@ public class EhcacheXAStoreImpl implements EhcacheXAStore {
          * @return the version
          */
         public synchronized long checkout(Object key, Xid xid) {
-            long versionNumber = -1;
+            long versionNumber;
             Version version = versionStore.get(key);
             if (version == null) {
                 version = new Version();

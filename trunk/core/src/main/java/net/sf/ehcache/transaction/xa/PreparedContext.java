@@ -27,19 +27,19 @@ public interface PreparedContext {
 
   /**
    * Add prepared command
-   * @param command
+   * @param command the command to be added to the queue
    */
   public abstract void addCommand(VersionAwareCommand command);
 
   /**
    * Return list of prepared commands
-   * @return
+   * @return all commands from the queue
    */
   public abstract List<VersionAwareCommand> getCommands();
 
   /**
    * return set of keys associated with prepared commands
-   * @return
+   * @return a set of keys to be updated (put or remove)
    */
   public Set<Object> getUpdatedKeys();
 }

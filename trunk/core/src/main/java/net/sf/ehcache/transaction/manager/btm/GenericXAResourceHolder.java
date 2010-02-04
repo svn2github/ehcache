@@ -37,8 +37,8 @@ public class GenericXAResourceHolder extends AbstractXAResourceHolder {
 
     /**
      *
-     * @param resource
-     * @param bean
+     * @param resource the XAResource
+     * @param bean the ResourceBean associated with the resource
      */
     public GenericXAResourceHolder(XAResource resource, ResourceBean bean) {
         this.resource = resource;
@@ -47,7 +47,7 @@ public class GenericXAResourceHolder extends AbstractXAResourceHolder {
 
     /**
      *
-     * @return
+     * @return the Recovery XA Resource Holder
      */
     public RecoveryXAResourceHolder createRecoveryXAResourceHolder() {
         return new RecoveryXAResourceHolder(this);

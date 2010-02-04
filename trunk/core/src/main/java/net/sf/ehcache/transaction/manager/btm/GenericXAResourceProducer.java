@@ -165,11 +165,11 @@ public class GenericXAResourceProducer extends ResourceBean implements XAResourc
 
 
     /**
-     * {@link bitronix.tm.resource.jdbc.PoolingDataSource} must alway have a unique name so this method
+     * PoolingDataSource must alway have a unique name so this method
      * builds a reference to this object using the unique name as
      * {@link javax.naming.RefAddr}.
      *
-     * @return a reference to this {@link bitronix.tm.resource.jdbc.PoolingDataSource}.
+     * @return a reference to this PoolingDataSource.
      */
     public Reference getReference() {
         if (LOG.isDebugEnabled()) {

@@ -508,11 +508,8 @@ public class CacheManager {
 
         FactoryConfiguration lookupConfiguration = configuration.getTransactionManagerLookupConfiguration();
         try {
-            Properties properties = null;
-            if (lookupConfiguration.getProperties() != null) {
-                properties = PropertyUtil.parseProperties(lookupConfiguration.getProperties(),
-                        lookupConfiguration.getPropertySeparator());
-            }
+            Properties properties =
+                PropertyUtil.parseProperties(lookupConfiguration.getProperties(), lookupConfiguration.getPropertySeparator());
             Class<TransactionManagerLookup> transactionManagerLookupClass =
                 (Class<TransactionManagerLookup>) Class.forName(lookupConfiguration.getFullyQualifiedClassPath());
             this.transactionManagerLookup = transactionManagerLookupClass.newInstance();

@@ -23,7 +23,41 @@ import net.sf.ehcache.store.Store;
 import net.sf.ehcache.transaction.TransactionContext;
 
 /**
+ * The EhcacheXAStore is storing XA related data for a Transaction Cache instance on behalf of
+ * {@link net.sf.ehcache.transaction.xa.EhcacheXAResource EhcacheXAResource}:
+ * <ul>
+ * <li>Maps {@link javax.transaction.xa.Xid Xid} to their {@link javax.transaction.Transaction Transaction}
+ * <li>Stores {@link net.sf.ehcache.transaction.TransactionContext TransactionContext} for all Transactions 
+ * <li>Tracks "checked out" versions of keys by active transaction, in order to provide an optimistic locking strategy
+ * <li>Stores in a persistent manner prepared Transaction data
+ * <li>Tracks versioning information on keys which are "in commit" phase (prepared, yet not commited yet)
+ * </ul>
+ *
+ * <p>
+ * Mapping Xid to Transaction is required as the TransactionManager will only ever reference {@link javax.transaction.xa.Xid Xid},
+ * while the {@link EhcacheXAResource} will only get access to the current {@link javax.transaction.Transaction Transaction};
+ * <p>
+ * Based on that, during the UserTransaction, the {@link net.sf.ehcache.transaction.TransactionContext TransactionContext} will store the
+ * {@link net.sf.ehcache.transaction.Command Commands} for the current Transaction. While on
+ * {@link javax.transaction.xa.XAResource#prepare(javax.transaction.xa.Xid) prepare},
+ * {@link javax.transaction.xa.XAResource#commit(javax.transaction.xa.Xid, boolean)} commit},
+ * {@link javax.transaction.xa.XAResource#rollback(javax.transaction.xa.Xid)} rollback} and other JTA
+ * {@link javax.transaction.xa.XAResource XAResource} operations, the
+ * {@link net.sf.ehcache.transaction.xa.EhcacheXAResource EhcacheXAResource} will get data back based on the Xid;
+ * <p>
+ * When an operation on the Cache involves a key, the EhcacheXAStore will track version information on that key. Version information isn't
+ * stored at the {@link net.sf.ehcache.Element} level, but rather in an independent store to minimize the impact on memory (only Element in
+ * use will be versioned, Element "only" referenced by the Cache are not);
+ * <p>
+ * When the {@link net.sf.ehcache.transaction.xa.EhcacheXAResource EhcacheXAResource} has successfully prepared a Transaction, it will ask
+ * EhcacheXAStore to save that data in a "safe" and persistent place, in case of failure;
+ * <p>
+ * The previous version of keys to be updated are "moved" to a read-only oldVersionStore, while the key on the underlying store is
+ * write-locked by the {@link EhcacheXAResource}. That oldVersionStore will always be accessed first, for read operations, providing
+ * non-blocking reads on "in-commit" phase keys.
+ *
  * @author Alex Snaps
+ * @author Nabib El-Rahman
  */
 public interface EhcacheXAStore {
 
@@ -82,13 +116,13 @@ public interface EhcacheXAStore {
     /**
      * Save the Transaction's data as being prepared
      * @param xid the Xid of the Transaction
-     * @param context
+     * @param context the context with the transaction data 
      */
     void prepared(Xid xid, PreparedContext context);
     
     /**
      * Return a newly created prepare context if none exist.
-     * @return
+     * @return a new PreparedContext
      */
     PreparedContext createPreparedContext();
 
@@ -99,9 +133,9 @@ public interface EhcacheXAStore {
     Xid[] getPreparedXids();
 
     /**
-     * 
-     * @param xid
-     * @return
+     * Gets a PreparedContext from a persistent store for a previously prepared Transaction
+     * @param xid The Xid of the Transaction
+     * @return the Prepared context for the Transaction, or null
      */
     public PreparedContext getPreparedContext(Xid xid);
     /**

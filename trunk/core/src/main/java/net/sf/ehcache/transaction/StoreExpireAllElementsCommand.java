@@ -19,6 +19,7 @@ package net.sf.ehcache.transaction;
 import net.sf.ehcache.store.Store;
 
 /**
+ * Represents an {@link net.sf.ehcache.store.Store#expireElements() expireElements} operation to be executed on a {@link Store}.
  * @author Alex Snaps
  */
 public class StoreExpireAllElementsCommand implements StoreWriteCommand {

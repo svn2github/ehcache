@@ -39,7 +39,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
+ * Default implementation for EhcacheXAResource.
+ * It encapsulates the store to be accessed in a transactional way, the TransactionManager
+ * and an {@link net.sf.ehcache.transaction.xa.EhcacheXAStore EhcacheXAStore}, where it'll save transaction data during
+ * the two-phase commit process, and between suspend/resume transaction cycles.<p>
+ * It'll also associate {@link javax.transaction.Transaction Transaction} instances with their {@link javax.transaction.xa.Xid Xid}
+ *
  * @author Nabib El-Rahman
+ * @author Alex Snaps
  */
 public class EhcacheXAResourceImpl implements EhcacheXAResource {
 

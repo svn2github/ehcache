@@ -33,6 +33,9 @@ import net.sf.ehcache.transaction.Command;
 import net.sf.ehcache.transaction.TransactionContext;
 
 /**
+ * XATransactionContext provides a READ_COMMITED transaction isolation to an {@link EhcacheXAResource}.<p>
+ * It uses an {@link EhcacheXAStore} to persist data as needed
+ *
  * @author Alex Snaps
  */
 public class XATransactionContext implements TransactionContext {
@@ -49,8 +52,8 @@ public class XATransactionContext implements TransactionContext {
 
     /**
      *
-     * @param xid
-     * @param storeImpl
+     * @param xid The Xid of the Transaction
+     * @param store The store associated with the this XATransactionContext
      */
     public XATransactionContext(Xid xid, EhcacheXAStore store) {
         this.store = store;
@@ -59,7 +62,7 @@ public class XATransactionContext implements TransactionContext {
 
     /**
      * Terracotta express mode clustering callback
-     * @param transaction
+     * @param transaction re-associates the Transaction with the context (transient field)
      */
     public void initializeTransients(Transaction transaction) {
         this.transaction = transaction;
