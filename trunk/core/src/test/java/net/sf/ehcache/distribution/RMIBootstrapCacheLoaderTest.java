@@ -26,7 +26,6 @@ import net.sf.ehcache.event.CountingCacheEventListener;
 import org.junit.After;
 import static org.junit.Assert.assertEquals;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.Date;
@@ -138,7 +137,6 @@ public class RMIBootstrapCacheLoaderTest {
         }
     }
 
-    @Ignore("MNK-1366")
     /**
      * Tests loading from bootstrap
      */

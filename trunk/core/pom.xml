@@ -345,7 +345,6 @@
                 <artifactId>maven-surefire-plugin</artifactId>
                 <inherited>true</inherited>
                 <configuration>
-                    <!--<skip>true</skip>-->
                     <includes>
                         <include>**/*Test.java</include>
                     </includes>
@@ -389,7 +388,6 @@
                             <goal>test</goal>
                         </goals>
                         <configuration>
-                            <skip>false</skip>
                             <excludes>
                                 <exclude>**/*$*</exclude>
                             </excludes>
@@ -481,24 +479,31 @@
                 <!--</executions>-->
             </plugin>
 
+        </plugins>
+    </build>
 
+    <profiles>
+      <profile>
+        <id>staging</id>
+        <build>
+          <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-gpg-plugin</artifactId>
                 <executions>
                     <execution>
                         <id>sign-artifacts</id>
-                        <phase>verify</phase>
+                        <phase>deploy</phase>
                         <goals>
                             <goal>sign</goal>
                         </goals>
                     </execution>
                 </executions>
             </plugin>
-
-
-        </plugins>
-    </build>
+          </plugins>
+        </build>
+      </profile>
+    </profiles>
 
 
     <!-- Reports -->

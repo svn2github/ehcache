@@ -27,7 +27,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -200,7 +199,6 @@ public class LfuMemoryStoreTest extends MemoryStoreTester {
      * new sampling LFU has no leaks
      */
     @Override
-    @Ignore
     @Test
     public void testMemoryLeak() throws Exception {
         super.testMemoryLeak();
