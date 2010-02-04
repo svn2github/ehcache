@@ -91,4 +91,11 @@ public class WriteOperation implements SingleOperation {
     public Element getElement() {
         return element;
     }
+
+    /**
+     * {@inheritDoc}
+     */
+    public SingleOperationType getType() {
+        return SingleOperationType.WRITE;
+    }
 }

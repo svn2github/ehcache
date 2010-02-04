@@ -44,4 +44,12 @@ public interface SingleOperation extends KeyBasedOperation {
      * @return the created batch operation
      */
     public BatchOperation createBatchOperation(List<SingleOperation> operations);
+
+    /**
+     * Returns a stable identifier for the type this operation can be classified in. This is used to group and order
+     * batched operations.
+     *
+     * @return the identifier for this operation type
+     */
+    public SingleOperationType getType();
 }

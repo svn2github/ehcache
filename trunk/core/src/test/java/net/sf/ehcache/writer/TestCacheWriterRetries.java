@@ -16,7 +16,7 @@ public class TestCacheWriterRetries implements CacheWriter {
     private final Map<Object, Integer> writeCount = new HashMap<Object, Integer>();
     private final Map<Object, Integer> deleteCount = new HashMap<Object, Integer>();
 
-  public TestCacheWriterRetries(int retries) {
+    public TestCacheWriterRetries(int retries) {
         this.retries = retries;
     }
 

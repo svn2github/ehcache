@@ -81,4 +81,11 @@ public class DeleteOperation implements SingleOperation {
     public long getCreationTime() {
         return creationTime;
     }
+
+    /**
+     * {@inheritDoc}
+     */
+    public SingleOperationType getType() {
+        return SingleOperationType.DELETE;
+    }
 }

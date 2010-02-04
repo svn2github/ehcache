@@ -707,4 +707,49 @@ public class CacheWriterTest extends AbstractCacheTest {
         assertEquals(1, (long)writer.getDeleteCount().get("key2"));
         assertFalse(writer.getDeleteCount().containsKey("key3"));
     }
+
+    @Test
+    public void testWriteBehindRateLimitBatched() throws InterruptedException {
+        Cache cache = new Cache(
+                new CacheConfiguration("writeBehindRetryWithDelayBatched", 100)
+                        .cacheWriter(new CacheWriterConfiguration()
+                        .writeMode(CacheWriterConfiguration.WriteMode.WRITE_BEHIND)
+                        .minWriteDelay(1)
+                        .writeBatching(true)
+                        .writeBatchSize(10)
+                        .rateLimitPerSecond(5)));
+        TestCacheWriter writer = new TestCacheWriter(new Properties());
+        cache.registerCacheWriter(writer);
+
+        CacheManager.getInstance().addCache(cache);
+        assertEquals(0, writer.getWrittenElements().size());
+
+        for (int i = 0; i < 30; i++) {
+            cache.putWithWriter(new Element("key" + i, "value" + i));
+        }
+
+        Thread.sleep(1000);
+
+        assertEquals(0, writer.getWrittenElements().size());
+
+        Thread.sleep(2000);
+
+        assertEquals(10, writer.getWrittenElements().size());
+
+        Thread.sleep(1000);
+
+        assertEquals(10, writer.getWrittenElements().size());
+
+        Thread.sleep(1000);
+
+        assertEquals(20, writer.getWrittenElements().size());
+
+        Thread.sleep(1000);
+
+        assertEquals(20, writer.getWrittenElements().size());
+
+        Thread.sleep(1000);
+
+        assertEquals(30, writer.getWrittenElements().size());
+    }
 }
