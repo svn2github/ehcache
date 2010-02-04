@@ -104,12 +104,8 @@
 
 * Can I use Ehcache as a disk cache only?
 
-     Yes. Set the maxElementsInMemory attribute of cache to 0.
-
-     This is strongly not recommended however. The minimum recommended value
-    is 1. Performance is as much as 10 times higher when to one rather than
-    0. If not set to at least 1 a warning will be issued at Cache creation
-    time.
+     As of Ehcache 2.0 this is not possible. You can set the maxElementsInMemory to 1, but
+     setting the max size to 0 now gives an infinite capacity.
 
 * Where is the source code? The source code is distributed in the root directory of the download.
 

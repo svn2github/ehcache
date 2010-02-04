@@ -12,6 +12,15 @@
                 For maximum performance statistics can now be turned off in config and during
                 cache construction.
             </action>
+            <action dev="Chris Dennis" type="fix" issue="EHC-610">
+            	Changed meaning of maxElementsInMemory=0 for MemoryStore to be unlimited.  This puts it 
+            	in-line with DiskStore and ClusteredStore.  This also means that a cache configuration
+            	defining no in-memory capacity limit gets a functioning but unlimited capacity cache.
+            </action>
+            <action dev="Chris Dennis" type="add" issue="EHC-620">
+            	Add necessary methods to make the Hibernate RegionFactory implementations forward
+            	compatible with the upcoming Hibernate 3.5 release.
+            </action>
         </release>
 
         <release version="2.0.0-beta" date="2010-1-29" description="Major release with new features">

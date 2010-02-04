@@ -622,7 +622,8 @@ name:
 Sets the name of the cache. This is used to identify the cache. It must be unique.
 
 maxElementsInMemory:
-Sets the maximum number of objects that will be created in memory
+Sets the maximum number of objects that will be created in memory.
+0 indicates no in-memory limit.
 
 maxElementsOnDisk:
 Sets the maximum number of objects that will be maintained in the DiskStore

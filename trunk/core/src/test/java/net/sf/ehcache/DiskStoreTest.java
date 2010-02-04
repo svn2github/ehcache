@@ -557,7 +557,7 @@ public class DiskStoreTest extends AbstractCacheTest {
      */
     @Test
     public void testLFUEvictionFromDiskStore() throws IOException, InterruptedException {
-        Cache cache = new Cache("testNonPersistent", 0, MemoryStoreEvictionPolicy.LFU, true,
+        Cache cache = new Cache("testNonPersistent", 1, MemoryStoreEvictionPolicy.LFU, true,
                 null, false, 2000, 1000, false, 1, null, null, 10);
         manager.addCache(cache);
         DiskStore store = (DiskStore) cache.getDiskStore();
@@ -566,7 +566,7 @@ public class DiskStoreTest extends AbstractCacheTest {
 
         assertEquals(0, store.getSize());
 
-        for (int i = 0; i < 10; i++) {
+        for (int i = 0; i < 11; i++) {
             element = new Element("key" + i, "value" + i);
             cache.put(element);
         }

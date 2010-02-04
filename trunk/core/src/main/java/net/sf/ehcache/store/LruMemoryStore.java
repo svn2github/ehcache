@@ -63,7 +63,7 @@ public class LruMemoryStore implements Store {
     protected Status status;
 
     /**
-     * The maximum size of the store
+     * The maximum size of the store (0 == no limit)
      */
     protected int maximumSize;
 
@@ -374,7 +374,7 @@ public class LruMemoryStore implements Store {
      * An algorithm to tell if the MemoryStore is at or beyond its carrying capacity.
      */
     protected final boolean isFull() {
-        return map.size() > maximumSize;
+        return maximumSize > 0 && map.size() > maximumSize;
     }
 
     /**

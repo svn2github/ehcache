@@ -84,7 +84,7 @@ public class MemoryStore implements Store, CacheConfigurationListener {
     protected final Store diskStore;
 
     /**
-     * The maximum size of the store
+     * The maximum size of the store (0 == no limit)
      */
     protected volatile int maximumSize;
 
@@ -474,7 +474,7 @@ public class MemoryStore implements Store, CacheConfigurationListener {
      * An algorithm to tell if the MemoryStore is at or beyond its carrying capacity.
      */
     protected final boolean isFull() {
-        return map.size() > maximumSize;
+        return maximumSize > 0 && map.size() > maximumSize;
     }
 
     /**
@@ -489,9 +489,11 @@ public class MemoryStore implements Store, CacheConfigurationListener {
      * Puts an element into the store
      */
     protected void doPut(final Element elementJustAdded) {
-        int evict = Math.min(map.size() - maximumSize, MAX_EVICTION_RATIO);
-        for (int i = 0; i < evict; i++) {
-            removeElementChosenByEvictionPolicy(elementJustAdded);
+        if (maximumSize > 0) {
+            int evict = Math.min(map.size() - maximumSize, MAX_EVICTION_RATIO);
+            for (int i = 0; i < evict; i++) {
+                removeElementChosenByEvictionPolicy(elementJustAdded);
+            }
         }
     }
 

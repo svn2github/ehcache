@@ -241,7 +241,7 @@ public class Cache implements Ehcache {
      * the timeToLiveSeconds.
      *
      * @param name                the name of the cache. Note that "default" is a reserved name for the defaultCache.
-     * @param maxElementsInMemory the maximum number of elements in memory, before they are evicted
+     * @param maxElementsInMemory the maximum number of elements in memory, before they are evicted (0 == no limit)
      * @param overflowToDisk      whether to use the disk store
      * @param eternal             whether the elements in the cache are eternal, i.e. never expire
      * @param timeToLiveSeconds   the default amount of time to live for an element from its creation date
@@ -270,7 +270,7 @@ public class Cache implements Ehcache {
      * Only the CacheManager can initialise them.
      *
      * @param name                the name of the cache. Note that "default" is a reserved name for the defaultCache.
-     * @param maxElementsInMemory the maximum number of elements in memory, before they are evicted
+     * @param maxElementsInMemory the maximum number of elements in memory, before they are evicted (0 == no limit)
      * @param overflowToDisk      whether to use the disk store
      * @param eternal             whether the elements in the cache are eternal, i.e. never expire
      * @param timeToLiveSeconds   the default amount of time to live for an element from its creation date
@@ -316,7 +316,7 @@ public class Cache implements Ehcache {
      * Only the CacheManager can initialise them.
      *
      * @param name                      the name of the cache. Note that "default" is a reserved name for the defaultCache.
-     * @param maxElementsInMemory       the maximum number of elements in memory, before they are evicted
+     * @param maxElementsInMemory       the maximum number of elements in memory, before they are evicted (0 == no limit)
      * @param memoryStoreEvictionPolicy one of LRU, LFU and FIFO. Optionally null, in which case it will be set to LRU.
      * @param overflowToDisk            whether to use the disk store
      * @param diskStorePath             this parameter is ignored. CacheManager sets it using setter injection.
@@ -369,7 +369,7 @@ public class Cache implements Ehcache {
      * Only the CacheManager can initialise them.
      *
      * @param name                      the name of the cache. Note that "default" is a reserved name for the defaultCache.
-     * @param maxElementsInMemory       the maximum number of elements in memory, before they are evicted
+     * @param maxElementsInMemory       the maximum number of elements in memory, before they are evicted (0 == no limit)
      * @param memoryStoreEvictionPolicy one of LRU, LFU and FIFO. Optionally null, in which case it will be set to LRU.
      * @param overflowToDisk            whether to use the disk store
      * @param diskStorePath             this parameter is ignored. CacheManager sets it using setter injection.
@@ -422,7 +422,7 @@ public class Cache implements Ehcache {
      * Only the CacheManager can initialise them.
      *
      * @param name                      the name of the cache. Note that "default" is a reserved name for the defaultCache.
-     * @param maxElementsInMemory       the maximum number of elements in memory, before they are evicted
+     * @param maxElementsInMemory       the maximum number of elements in memory, before they are evicted (0 == no limit)
      * @param memoryStoreEvictionPolicy one of LRU, LFU and FIFO. Optionally null, in which case it will be set to LRU.
      * @param overflowToDisk            whether to use the disk store
      * @param diskStorePath             this parameter is ignored. CacheManager sets it using setter injection.
@@ -478,7 +478,7 @@ public class Cache implements Ehcache {
      * Only the CacheManager can initialise them.
      *
      * @param name                      the name of the cache. Note that "default" is a reserved name for the defaultCache.
-     * @param maxElementsInMemory       the maximum number of elements in memory, before they are evicted
+     * @param maxElementsInMemory       the maximum number of elements in memory, before they are evicted (0 == no limit)
      * @param memoryStoreEvictionPolicy one of LRU, LFU and FIFO. Optionally null, in which case it will be set to LRU.
      * @param overflowToDisk            whether to use the disk store
      * @param diskStorePath             this parameter is ignored. CacheManager sets it using setter injection.
@@ -537,7 +537,7 @@ public class Cache implements Ehcache {
      * Only the CacheManager can initialise them.
      *
      * @param name                      the name of the cache. Note that "default" is a reserved name for the defaultCache.
-     * @param maxElementsInMemory       the maximum number of elements in memory, before they are evicted
+     * @param maxElementsInMemory       the maximum number of elements in memory, before they are evicted (0 == no limit)
      * @param memoryStoreEvictionPolicy one of LRU, LFU and FIFO. Optionally null, in which case it will be set to LRU.
      * @param overflowToDisk            whether to use the disk store
      * @param diskStorePath             this parameter is ignored. CacheManager sets it using setter injection.
@@ -599,7 +599,7 @@ public class Cache implements Ehcache {
      * Only the CacheManager can initialise them.
      *
      * @param name                      the name of the cache. Note that "default" is a reserved name for the defaultCache.
-     * @param maxElementsInMemory       the maximum number of elements in memory, before they are evicted
+     * @param maxElementsInMemory       the maximum number of elements in memory, before they are evicted (0 == no limit)
      * @param memoryStoreEvictionPolicy one of LRU, LFU and FIFO. Optionally null, in which case it will be set to LRU.
      * @param overflowToDisk            whether to use the disk store
      * @param diskStorePath             this parameter is ignored. CacheManager sets it using setter injection.
@@ -930,11 +930,8 @@ public class Cache implements Ehcache {
             }
 
             if (configuration.getMaxElementsInMemory() == 0) {
-
-                LOG.warn("Cache: " + configuration.getName()
-                        + " has a maxElementsInMemory of 0. It is strongly recommended to " +
-                        "have a maximumSize of at least 1. Performance is halved by not using a MemoryStore.");
-
+                LOG.warn("Cache: " + configuration.getName() + " has a maxElementsInMemory of 0.  " +
+                        "In Ehcache 2.0 this has been changed to mean a store with no capacity limit.");
             }
 
             this.diskStore = createDiskStore();

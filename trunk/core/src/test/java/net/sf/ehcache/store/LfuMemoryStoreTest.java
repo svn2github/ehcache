@@ -25,6 +25,7 @@ import net.sf.ehcache.Statistics;
 import net.sf.ehcache.StopWatch;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import org.junit.Before;
 import org.junit.Test;
@@ -89,7 +90,7 @@ public class LfuMemoryStoreTest extends MemoryStoreTester {
         createMemoryStore(AbstractCacheTest.TEST_CONFIG_DIR + "ehcache-policy-test.xml", "sampleLFUCache2");
         Element element = new Element("1", "value");
         store.put(element);
-        assertNull(store.get("1"));
+        assertNotNull(store.get("1"));
     }
 
     /**

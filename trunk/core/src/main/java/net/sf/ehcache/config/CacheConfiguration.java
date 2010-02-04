@@ -84,11 +84,15 @@ public class CacheConfiguration implements Cloneable {
 
     /**
      * the maximum objects to be held in the {@link net.sf.ehcache.store.MemoryStore}.
+     * <p>
+     * <code>0</code> translates to no-limit.
      */
     protected int maxElementsInMemory;
 
     /**
      * the maximum objects to be held in the {@link net.sf.ehcache.store.DiskStore}.
+     * <p>
+     * <code>0</code> translates to no-limit.
      */
     protected int maxElementsOnDisk;
 
@@ -224,7 +228,7 @@ public class CacheConfiguration implements Cloneable {
      * Create a new cache configuration.
      *
      * @param name                the name of the cache. Note that "default" is a reserved name for the defaultCache.
-     * @param maxElementsInMemory the maximum number of elements in memory, before they are evicted
+     * @param maxElementsInMemory the maximum number of elements in memory, before they are evicted (0 == no limit)
      */
     public CacheConfiguration(String name, int maxElementsInMemory) {
         this.name = name;
@@ -350,7 +354,7 @@ public class CacheConfiguration implements Cloneable {
     }
 
     /**
-     * Sets the maximum objects to be held in memory.
+     * Sets the maximum objects to be held in memory (0 = no limit).
      * <p/>
      * This property can be modified dynamically while the cache is operating.
      *
