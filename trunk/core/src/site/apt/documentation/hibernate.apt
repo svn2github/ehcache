@@ -297,7 +297,7 @@ net.sf.ehcache.configurationResourceName=/name_of_ehcache.xml
      overflowToDisk="true"
  />
 <cache
-     name="com.somecompany.someproject.Country.advancedSearchFacilities"
+     name="com.somecompany.someproject.domain.Country.advancedSearchFacilities"
      maxElementsInMemory="450"
      eternal="false"
      timeToLiveSeconds="600"
