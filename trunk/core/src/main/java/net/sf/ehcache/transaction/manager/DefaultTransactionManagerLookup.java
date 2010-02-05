@@ -59,7 +59,7 @@ public class DefaultTransactionManagerLookup implements TransactionManagerLookup
 
     private final JndiSelector defaultJndiSelector = new JndiSelector("genericJNDI", "java:/TransactionManager");
 
-    private final Selector[] transactionManagerSelectors = new Selector[] { defaultJndiSelector,
+    private final Selector[] transactionManagerSelectors = new Selector[] {defaultJndiSelector,
             new FactorySelector("WebSphere 5.1", "com.ibm.ws.Transaction.TransactionManagerFactory"),
             new FactorySelector("Bitronix", "bitronix.tm.TransactionManagerServices"),
             new ClassSelector("Atomikos", "com.atomikos.icatch.jta.UserTransactionManager"), };
@@ -102,7 +102,7 @@ public class DefaultTransactionManagerLookup implements TransactionManagerLookup
     private void parseProperties() {
         if (this.properties != null) {
             String jndiName = this.properties.getProperty("jndi.name");
-            if(jndiName != null) {
+            if (jndiName != null) {
                 defaultJndiSelector.setJndiName(jndiName);
             }
         }
@@ -185,7 +185,7 @@ public class DefaultTransactionManagerLookup implements TransactionManagerLookup
         @Override
         protected TransactionManager lookup(InitialContext initialContext) {
 
-            if(initialContext == null) {
+            if (initialContext == null) {
                 return null;
             }
 
@@ -228,7 +228,7 @@ public class DefaultTransactionManagerLookup implements TransactionManagerLookup
                 Method method = factoryClass.getMethod("getTransactionManager", signature);
                 transactionManager = (TransactionManager) method.invoke(null, args);
             } catch (Exception e) {
-                //
+               //
             }
             return transactionManager;
         }
@@ -257,7 +257,7 @@ public class DefaultTransactionManagerLookup implements TransactionManagerLookup
                 Class txManagerClass = cl.loadClass(classname);
                 transactionManager = (TransactionManager) txManagerClass.newInstance();
             } catch (Exception e) {
-                //
+              //
             }
             return transactionManager;
         }
