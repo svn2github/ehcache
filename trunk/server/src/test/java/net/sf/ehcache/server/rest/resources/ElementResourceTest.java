@@ -121,7 +121,7 @@ public class ElementResourceTest {
         //0 for Jetty. Stack trace for Glassfish
         assertTrue(result.getContentLength() >= 0);
         if (result.getHeaderField("Server").matches("(.*)Jetty(.*)")) {
-            assertEquals("text/plain", result.getContentType());
+            assertEquals("text/html; charset=iso-8859-1", result.getContentType());
         } else if (result.getHeaderField("Server").matches("(.*)Glassfish(.*)")) {
             assertEquals("text/html", result.getContentType());
         }
