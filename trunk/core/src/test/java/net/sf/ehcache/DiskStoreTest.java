@@ -576,7 +576,7 @@ public class DiskStoreTest extends AbstractCacheTest {
         assertEquals(10, store.getSize());
 
 
-        for (int i = 1; i < 10; i++) {
+        for (int i = 1; i < 11; i++) {
             cache.get("key" + i);
             cache.get("key" + i);
             cache.get("key" + i);
