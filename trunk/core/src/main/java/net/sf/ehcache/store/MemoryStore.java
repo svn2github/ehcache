@@ -701,7 +701,7 @@ public class MemoryStore implements Store, CacheConfigurationListener {
     /**
      * {@inheritDoc}
      */
-    public void setNodeCoherence(boolean coherent) {
+    public void setNodeCoherent(boolean coherent) {
         throw new UnsupportedOperationException();
     }
 }

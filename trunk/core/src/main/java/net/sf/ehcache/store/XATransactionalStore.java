@@ -271,8 +271,8 @@ public class XATransactionalStore implements Store {
     /**
      * {@inheritDoc}
      */
-    public void setNodeCoherence(boolean coherent) {
-        underlyingStore.setNodeCoherence(coherent);
+    public void setNodeCoherent(boolean coherent) {
+        underlyingStore.setNodeCoherent(coherent);
     }
 
     /**

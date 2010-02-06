@@ -1167,8 +1167,8 @@ public class BlockingCache implements Ehcache {
     /**
      * {@inheritDoc}
      */
-    public void setNodeCoherence(boolean coherent) {
-        cache.setNodeCoherence(coherent);
+    public void setNodeCoherent(boolean coherent) {
+        cache.setNodeCoherent(coherent);
     }
 
     /**

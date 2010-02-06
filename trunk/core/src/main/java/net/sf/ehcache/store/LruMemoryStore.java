@@ -515,7 +515,7 @@ public class LruMemoryStore implements Store {
     /**
      * {@inheritDoc}
      */
-    public void setNodeCoherence(boolean coherent) {
+    public void setNodeCoherent(boolean coherent) {
         throw new UnsupportedOperationException();
     }
     

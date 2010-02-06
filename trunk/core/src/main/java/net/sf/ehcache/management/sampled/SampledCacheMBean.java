@@ -67,7 +67,7 @@ public interface SampledCacheMBean extends LiveCacheStatistics, SampledCacheStat
     /**
      * Enabled/disable cache coherence mode for this node.
      */
-    void setNodeCoherence(boolean coherent);
+    void setNodeCoherent(boolean coherent);
     
     /**
      * Is the cache coherent cluster-wide?

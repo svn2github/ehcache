@@ -101,8 +101,8 @@ public class SampledCache extends BaseEmitterBean implements SampledCacheMBean {
     /**
      * {@inheritDoc}
      */
-    public void setNodeCoherence(boolean coherent) {
-        cache.setNodeCoherence(coherent);
+    public void setNodeCoherent(boolean coherent) {
+        cache.setNodeCoherent(coherent);
         sendNotification(CACHE_CHANGED, getCacheAttributes(), getImmutableCacheName());
     }
 

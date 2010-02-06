@@ -983,8 +983,8 @@ public interface Ehcache extends Cloneable {
 
     /**
      * Sets the cache in coherent or incoherent mode depending on the parameter on this node.
-     * Calling {@code setNodeCoherence(true)} when the cache is already in coherent mode or
-     * calling {@code setNodeCoherence(false)} when already in incoherent mode will be a no-op.
+     * Calling {@code setNodeCoherent(true)} when the cache is already in coherent mode or
+     * calling {@code setNodeCoherent(false)} when already in incoherent mode will be a no-op.
      * <p />
      * It applies to coherent clustering mechanisms only e.g. Terracotta
      * 
@@ -992,7 +992,7 @@ public interface Ehcache extends Cloneable {
      *            true transitions to coherent mode, false to incoherent mode
      * @throws UnsupportedOperationException if this cache does not support coherence, like RMI replication
      */
-    public void setNodeCoherence(boolean coherent) throws UnsupportedOperationException;
+    public void setNodeCoherent(boolean coherent) throws UnsupportedOperationException;
 
     /**
      * This method waits until the cache is in coherent mode in all the connected nodes. If the cache is already in coherent mode it returns

@@ -942,7 +942,7 @@ public class Cache implements Ehcache {
                 boolean unlockedReads = !this.configuration.getTerracottaConfiguration().getCoherentReads();
                 // if coherentReads=false, make coherent=false
                 boolean coherent = unlockedReads ? false : this.configuration.getTerracottaConfiguration().isCoherent();
-                memStore.setNodeCoherence(coherent);
+                memStore.setNodeCoherent(coherent);
             } else {
                 if (useClassicLru && configuration.getMemoryStoreEvictionPolicy().equals(MemoryStoreEvictionPolicy.LRU)) {
                     memStore = new LruMemoryStore(this, diskStore);
@@ -3221,8 +3221,8 @@ public class Cache implements Ehcache {
     /**
      * {@inheritDoc}
      */
-    public void setNodeCoherence(boolean coherent) {
-        memoryStore.setNodeCoherence(coherent);
+    public void setNodeCoherent(boolean coherent) {
+        memoryStore.setNodeCoherent(coherent);
     }
 
     /**
