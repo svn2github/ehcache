@@ -111,7 +111,7 @@ public interface EhcacheXAStore {
      * @param command the Command
      * @return true if safe, false if cannot be applied anymore
      */
-    boolean isValid(VersionAwareCommand command);
+    boolean isValid(VersionAwareCommand command, Xid xid);
 
     /**
      * Save the Transaction's data as being prepared

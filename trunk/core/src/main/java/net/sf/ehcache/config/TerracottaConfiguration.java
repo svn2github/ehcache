@@ -41,6 +41,10 @@ public class TerracottaConfiguration implements Cloneable {
      */
     public static final boolean DEFAULT_COHERENT_READS = true;
     /**
+     * Default xa enabled
+     */
+    public static final boolean DEFAULT_CACHE_XA = false;
+    /**
      * Default orphan eviction status
      */
     public static final boolean DEFAULT_ORPHAN_EVICTION = true;
@@ -100,6 +104,7 @@ public class TerracottaConfiguration implements Cloneable {
     private int localKeyCacheSize = DEFAULT_LOCAL_KEY_CACHE_SIZE;
     private boolean isCopyOnRead = DEFAULT_COPY_ON_READ;
     private boolean cacheCoherent = DEFAULT_CACHE_COHERENT;
+    private boolean cacheXA = DEFAULT_CACHE_XA;
     private boolean synchronousWrites = DEFAULT_SYNCHRONOUS_WRITES;
 
     /**
@@ -156,6 +161,29 @@ public class TerracottaConfiguration implements Cloneable {
      */
     public TerracottaConfiguration copyOnRead(boolean isCopyOnRead) {
         setCopyOnRead(isCopyOnRead);
+        return this;
+    }
+
+    /**
+     * Check whether the [serialized value] cache is an XA enabled cache
+     */
+    public boolean isCacheXA() {
+        return this.cacheXA;
+    }
+    
+    /**
+     * Used by BeanHandler to set the cacheXA flag during parsing
+     */
+    public void setCacheXA(boolean cacheXA) {
+        this.cacheXA = cacheXA;
+    }
+
+    /**
+     * @return this configuration instance
+     * @see #setCacheXA(boolean)
+     */
+    public TerracottaConfiguration cacheXA(boolean cacheXA) {
+        setCacheXA(cacheXA);
         return this;
     }
 

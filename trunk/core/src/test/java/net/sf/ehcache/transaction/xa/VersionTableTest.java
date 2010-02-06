@@ -43,7 +43,7 @@ public class VersionTableTest extends TestCase {
         //validate readonly
         assertEquals(1, versionStore.size());
         Version version = (Version)versionStore.get(element1.getObjectKey());
-        long currentVersionNumber = version.getCurrentVersion();
+        long currentVersionNumber = version.getVersion();
         assertEquals(0, currentVersionNumber);
         long txn1Version = version.getVersion(txn1);
         assertEquals(0, txn1Version);
@@ -55,7 +55,7 @@ public class VersionTableTest extends TestCase {
        //validate again
         assertEquals(1, versionStore.size());
         version = (Version)versionStore.get(element1.getObjectKey());
-        currentVersionNumber = version.getCurrentVersion();
+        currentVersionNumber = version.getVersion();
         assertEquals(0, currentVersionNumber);
         txn1Version = version.getVersion(txn1);
         assertEquals(0, txn1Version);
@@ -69,7 +69,7 @@ public class VersionTableTest extends TestCase {
         
         assertEquals(1, versionStore.size());
         version = (Version)versionStore.get(element1.getObjectKey());
-        currentVersionNumber = version.getCurrentVersion();
+        currentVersionNumber = version.getVersion();
         assertEquals(0, currentVersionNumber);
         txn1Version = version.getVersion(txn1);
         long txn2Version = version.getVersion(txn2);
@@ -82,7 +82,7 @@ public class VersionTableTest extends TestCase {
         
         assertEquals(1, versionStore.size());
         version = (Version)versionStore.get(element1.getObjectKey());
-        currentVersionNumber = version.getCurrentVersion();
+        currentVersionNumber = version.getVersion();
         assertEquals(0, currentVersionNumber);
         txn1Version = version.getVersion(txn1);
         txn2Version = version.getVersion(txn2);
@@ -96,10 +96,11 @@ public class VersionTableTest extends TestCase {
         
         assertEquals(2, versionStore.size());
         version = (Version)versionStore.get(element2.getObjectKey());
-        currentVersionNumber = version.getCurrentVersion();
+        currentVersionNumber = version.getVersion();
         assertEquals(0, currentVersionNumber);
         txn1Version = version.getVersion(txn1);
-        assertEquals(0, txn1Version);
+        assertEquals(0, txn1Version);        currentVersionNumber = version.getVersion();
+
         assertEquals(1, version.getTxnVersions().size());
         
         //txn2 element2 write
@@ -107,7 +108,6 @@ public class VersionTableTest extends TestCase {
         
         assertEquals(2, versionStore.size());
         version = (Version)versionStore.get(element2.getObjectKey());
-        currentVersionNumber = version.getCurrentVersion();
         assertEquals(0, currentVersionNumber);
         txn1Version = version.getVersion(txn1);
         txn2Version = version.getVersion(txn2);
@@ -120,7 +120,7 @@ public class VersionTableTest extends TestCase {
         
         assertEquals(2, versionStore.size());
         version = (Version)versionStore.get(element1.getObjectKey());
-        currentVersionNumber = version.getCurrentVersion();
+        currentVersionNumber = version.getVersion();
         assertEquals(1, currentVersionNumber);
         assertFalse(version.hasTransaction(txn1));
         txn2Version = version.getVersion(txn2);
@@ -138,7 +138,7 @@ public class VersionTableTest extends TestCase {
         
         assertEquals(1, versionStore.size());
         version = (Version)versionStore.get(element2.getObjectKey());
-        currentVersionNumber = version.getCurrentVersion();
+        currentVersionNumber = version.getVersion();
         assertEquals(0, currentVersionNumber);
         assertFalse(version.hasTransaction(txn1));
         txn2Version = version.getVersion(txn2);

@@ -160,7 +160,7 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
         CacheLockProvider oldVersionStoreLockProvider = (CacheLockProvider)oldVersionStore.getInternalContext();
 
         // First dirty bulk check?
-        validateCommands(context);
+        validateCommands(context, xid);
         PreparedContext preparedContext = ehcacheXAStore.createPreparedContext();
         // Copy old versions in front-accessed store
         for (VersionAwareCommand command : context.getCommands()) {
@@ -169,7 +169,7 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
                 Sync syncForKey = oldVersionStoreLockProvider.getSyncForKey(key);
                 syncForKey.lock(LockType.WRITE);
                 try {
-                    if (!ehcacheXAStore.isValid(command)) {
+                    if (!ehcacheXAStore.isValid(command, xid)) {
                         for (VersionAwareCommand addedCommand : preparedContext.getCommands()) {
                             oldVersionStore.remove(addedCommand.getKey());
                         }
@@ -203,10 +203,10 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
         return writes ? XA_OK : XA_RDONLY;
     }
 
-    private void validateCommands(TransactionContext context) throws XAException {
+    private void validateCommands(TransactionContext context, Xid xid) throws XAException {
         for (VersionAwareCommand command : context.getCommands()) {
             if (command.isVersionAware()) {
-                if (!ehcacheXAStore.isValid(command)) {
+                if (!ehcacheXAStore.isValid(command, xid)) {
                     throw new EhcacheXAException("Invalid version for element: " + command.getKey(), XAException.XA_RBINTEGRITY);
                 }
             }

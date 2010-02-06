@@ -962,6 +962,12 @@ public class Cache implements Ehcache {
                     throw new CacheException("You've configured cache " + cacheManager.getName() + "."
                                              + configuration.getName() + " to be transactional, but no TransactionManager could be found!");
                 }
+                //set xa enabled
+                configuration.getTerracottaConfiguration().setCacheXA(true);
+                
+                //set copy on read
+                configuration.getTerracottaConfiguration().setCopyOnRead(true);
+                
                 EhcacheXAResource resource =
                     cacheManager.createEhcacheXAResource(this, memStore, MemoryStore.create(this, diskStore), txnManager);
                 transactionManagerLookup.register(resource);

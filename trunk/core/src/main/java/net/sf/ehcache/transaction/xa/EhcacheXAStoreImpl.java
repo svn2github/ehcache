@@ -35,7 +35,7 @@ import net.sf.ehcache.transaction.TransactionContext;
  * @author Alex Snaps
  */
 public class EhcacheXAStoreImpl implements EhcacheXAStore {
-
+    
     private final ConcurrentMap<Transaction, Xid> localXidTable = new ConcurrentHashMap<Transaction, Xid>();    
     private final ConcurrentMap<Xid, XATransactionContext> transactionContextXids = new ConcurrentHashMap<Xid, XATransactionContext>();
     private final ConcurrentMap<Xid, PreparedContext> prepareXids = new ConcurrentHashMap<Xid, PreparedContext>();
@@ -136,8 +136,8 @@ public class EhcacheXAStoreImpl implements EhcacheXAStore {
     /**
      * {@inheritDoc}
      */
-    public boolean isValid(VersionAwareCommand command) {
-        return versionTable.valid(command.getKey(), command.getVersion());
+    public boolean isValid(VersionAwareCommand command, Xid xid) {
+        return versionTable.valid(command.getKey(), command.getVersion(), xid);
     }
     
     /**
@@ -185,10 +185,10 @@ public class EhcacheXAStoreImpl implements EhcacheXAStore {
          * @param currentVersionNumber the version checked out
          * @return true if the version is still up to date
          */
-        public synchronized boolean valid(Object key, long currentVersionNumber) {
+        public synchronized boolean valid(Object key, long currentVersionNumber, Xid xid) {
             Version version = versionStore.get(key);
             if (version != null) {
-                long currentVersion = version.getCurrentVersion();
+                long currentVersion = version.getVersion(xid);
                 return (currentVersion == currentVersionNumber);
             } else {
                 // TODO Figure out what this case is..
@@ -248,14 +248,15 @@ public class EhcacheXAStoreImpl implements EhcacheXAStore {
         // TODO We need to figure out a more compressed data-structure (need to performance test to confirm
         private final ConcurrentMap<Xid, Long> txnVersions = new ConcurrentHashMap<Xid, Long>();
 
+        
         /**
-         * Getter to the current version number
-         * @return version number
+         * For testing, get current version
+         * @return
          */
-        public long getCurrentVersion() {
+        public synchronized long getVersion() {
             return version.get();
-        }
-
+          }
+          
         /**
          * Checks whether a Transaction already accessed the key
          * @param xid the Xid for the Transaction
