@@ -41,7 +41,7 @@ import org.slf4j.LoggerFactory;
  * <li>and finally an Atomikos one.
  * </ol>
  *
- * To specify under what specific name the TransactionManager is to be found, you can provide a jndi.name property
+ * To specify under what specific name the TransactionManager is to be found, you can provide a jndiName property
  * using {@link #setProperties(java.util.Properties)}. That can be set in the CacheManager's configuration file.
  *
  * The first TransactionManager instance is then kept and returned on each {@link #getTransactionManager()} call
@@ -101,7 +101,7 @@ public class DefaultTransactionManagerLookup implements TransactionManagerLookup
 
     private void parseProperties() {
         if (this.properties != null) {
-            String jndiName = this.properties.getProperty("jndi.name");
+            String jndiName = this.properties.getProperty("jndiName");
             if (jndiName != null) {
                 defaultJndiSelector.setJndiName(jndiName);
             }

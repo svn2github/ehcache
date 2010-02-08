@@ -75,7 +75,7 @@ used with JMX monitors.
     using an XA enabled ehcache. If no class is specified then DefaultTransactionManagerLookup
     will find the TransactionManager in the following order
 
-     *GenericJNDI (i.e. jboss)
+     *GenericJNDI (i.e. jboss, where the property jndiName controls the name of the TransactionManager object to look up)
      *Websphere
      *Bitronix
      *Atomikos
@@ -83,7 +83,8 @@ used with JMX monitors.
     You can provide you own lookup class that implements the net.sf.ehcache.transaction.manager.TransactionManagerLookup interface. 
     -->
 
-    <transactionManagerLookup class="net.sf.ehcache.transaction.manager.DefaultTransactionManagerLookup" properties="" propertySeparator=":"/>
+    <transactionManagerLookup class="net.sf.ehcache.transaction.manager.DefaultTransactionManagerLookup"
+                              properties="jndiName=java:/TransactionManager" propertySeparator=":"/>
  
 
     <!--
