@@ -109,28 +109,57 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
      */
     public void commit(final Xid xid, final boolean onePhase) throws XAException {
         if (onePhase) {
-            // TODO if XA_READONLY, we can optimize that!
-            prepare(xid);
+            onePhaseCommit(xid);
+        } else {
+            LOG.debug("{} phase commit called for Txn with id: {} Two", xid);
+            PreparedContext context = ehcacheXAStore.getPreparedContext(xid);
+            
+            Sync[] syncForKeys = ((CacheLockProvider)oldVersionStore.getInternalContext())
+                .getAndWriteLockAllSyncForKeys(context.getUpdatedKeys().toArray());
+            for (VersionAwareCommand command : context.getCommands()) {
+                Object key = command.getKey();
+                if (key != null) {
+                    ehcacheXAStore.checkin(key, xid, command.isWriteCommand());
+                    oldVersionStore.remove(key);
+                    ((CacheLockProvider)store.getInternalContext()).getSyncForKey(key).unlock(LockType.WRITE);
+                }
+            }
+            for (Sync syncForKey : syncForKeys) {
+                syncForKey.unlock(LockType.WRITE);
+            }
         }
-        LOG.debug("{} phase commit called for Txn with id: {}", (onePhase ? "One" : "Two"), xid);
-        PreparedContext context = ehcacheXAStore.getPreparedContext(xid);
+       
         
-        Sync[] syncForKeys = ((CacheLockProvider)oldVersionStore.getInternalContext())
-            .getAndWriteLockAllSyncForKeys(context.getUpdatedKeys().toArray());
+        ehcacheXAStore.removeData(xid);
+    }
+    
+    private void onePhaseCommit(final Xid xid) throws XAException {
+        TransactionContext context = ehcacheXAStore.getTransactionContext(xid);
+        CacheLockProvider storeLockProvider = (CacheLockProvider)store.getInternalContext();
+        
+        // First dirty bulk check?
+        validateCommands(context, xid);
+        
+        Set<Object> keys = context.getUpdatedKeys();
+        
+        // Lock all keys in real store
+        Sync[] syncForKeys = storeLockProvider.getAndWriteLockAllSyncForKeys(keys.toArray());
+
+        LOG.debug("{} phase commit called for Txn with id: {} One", xid);
+
+        // Execute write command within the real underlying store
+        boolean writes = false;
         for (VersionAwareCommand command : context.getCommands()) {
+            writes = command.execute(store) || writes;
             Object key = command.getKey();
             if (key != null) {
                 ehcacheXAStore.checkin(key, xid, command.isWriteCommand());
-                oldVersionStore.remove(key);
-                ((CacheLockProvider)store.getInternalContext()).getSyncForKey(key).unlock(LockType.WRITE);
             }
         }
-
+        
         for (Sync syncForKey : syncForKeys) {
             syncForKey.unlock(LockType.WRITE);
         }
-
-        ehcacheXAStore.removeData(xid);
     }
 
     /**
