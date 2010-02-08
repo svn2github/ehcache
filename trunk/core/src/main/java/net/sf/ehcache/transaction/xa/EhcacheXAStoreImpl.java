@@ -251,7 +251,7 @@ public class EhcacheXAStoreImpl implements EhcacheXAStore {
         
         /**
          * For testing, get current version
-         * @return
+         * @return the version
          */
         public synchronized long getVersion() {
             return version.get();

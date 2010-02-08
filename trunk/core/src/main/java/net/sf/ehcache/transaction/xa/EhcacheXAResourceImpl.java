@@ -52,25 +52,23 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
 
     private static final Logger LOG = LoggerFactory.getLogger(EhcacheXAResourceImpl.class.getName());
     
-    private final String cacheName;
-    private final EhcacheXAStore ehcacheXAStore;
-    private int transactionTimeout;
-
-    private Store store;
-    private Store oldVersionStore;
-    private TransactionManager txnManager;
+    private final    String             cacheName;
+    private final    EhcacheXAStore     ehcacheXAStore;
+    
+    private volatile int                transactionTimeout;
+    private volatile Store              store;
+    private volatile Store              oldVersionStore;
+    private volatile TransactionManager txnManager;
 
     /**
      * Constructor
      * @param cacheName The cache name of the Cache wrapped
-     * @param store the store of the cache
      * @param txnManager the TransactionManager associated with this XAResource
      * @param ehcacheXAStore The EhcacheXAStore for this cache
      */
-    public EhcacheXAResourceImpl(String cacheName, Store store, TransactionManager txnManager, EhcacheXAStore ehcacheXAStore) {
+    public EhcacheXAResourceImpl(String cacheName, TransactionManager txnManager, EhcacheXAStore ehcacheXAStore) {
         this.cacheName = cacheName;
-        // todo this probably can go away and be replaced by ehcacheXAStore.getUnderlyingStore();
-        this.store = store;
+        this.store = ehcacheXAStore.getUnderlyingStore();
         this.txnManager = txnManager;
         this.ehcacheXAStore = ehcacheXAStore;
         this.oldVersionStore = ehcacheXAStore.getOldVersionStore();
