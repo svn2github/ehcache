@@ -70,11 +70,17 @@ public class XATransactionalStore implements Store {
     }
 
     /**
-     * XATransactionalStore doesn't support putWithWriter
-     * @throws UnsupportedOperationException
+     * XATransactionalStore to put including to the underlying data store. That needs to be registered with the TransactionManager
+     * and participate in the XA Transaction. The call to {@link net.sf.ehcache.writer.CacheWriterManager#put} will be not held back
+     * until commit time!
+     * @param element the element to add to the store
+     * @param writerManager will only work properly with {@link net.sf.ehcache.writer.writethrough.WriteThroughManager WriteThroughManager}
      */
     public void putWithWriter(final Element element, final CacheWriterManager writerManager) throws CacheException {
-        throw new UnsupportedOperationException();
+        put(element);
+        if(writerManager != null) {
+            writerManager.put(element);
+        }
     }
 
     /**
@@ -130,11 +136,19 @@ public class XATransactionalStore implements Store {
     }
 
     /**
-     * XATransactionalStore doesn't support removeWithWriter
-     * @throws UnsupportedOperationException
+     * XATransactionalStore to remove including from the underlying data store. That needs to be registered with the TransactionManager
+     * and participate in the XA Transaction. The call to {@link net.sf.ehcache.writer.CacheWriterManager#remove} will be not held back
+     * until commit time! 
+     * @param key the key to remove
+     * @param writerManager will only work properly with {@link net.sf.ehcache.writer.writethrough.WriteThroughManager WriteThroughManager} 
+     * @return the value to be removed
      */
     public Element removeWithWriter(final Object key, final CacheWriterManager writerManager) throws CacheException {
-        throw new UnsupportedOperationException();
+        Element element = remove(key);
+        if(writerManager != null) {
+            writerManager.remove(key);
+        }
+        return element;
     }
 
     /**
