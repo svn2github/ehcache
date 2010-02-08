@@ -475,6 +475,31 @@ public List getStreetTypes(final Country country) throws HibernateException {
     singleton cache manager) then an exception will be thrown indicating the misconfigured cache. Serialization mode is in any case the
      default for Terracotta clustered caches.
 
+
+**  I get <<<org.hibernate.cache.ReadWriteCache - An item was expired by the cache while it was locked>>> error messages. What is it?
+
+    Soft locks are implemented by replacing a value with a special type that marks the element as locked, thus indicating
+    to other threads to treat it differently to a normal element.  This is used in the Hibernate Read/Write strategy to
+    force fall-through to the database during the two-phase commit - since we don't know exactly what should be returned by
+    the cache while the commit is in process (but the db does).
+
+    If a soft-locked Element is evicted by the cache during the 2 phase commit, then once the 2 phase commit completes the
+    cache will fail to update (since the soft-locked Element was evicted) and the cache entry will be reloaded from the database
+    on the next read of that object.  This is obviously non-fatal (we're a cache failure here so it should not be a problem).
+
+    The only problem it really causes would I imagine be a small rise in db load.
+
+    So, in summary the Hibernate messages are not problematic.
+
+    The underlying cause is the probabilistic evictor can theoretically evict recently loaded items. This evictor has been
+    tuned over successive ehcache releases. As a result this warning will happen most often in 1.6, less often in 1.7
+    and very rarely in 1.8.
+
+    You can also use the deterministic evictor to avoid this problem. Specify the <<<java -Dnet.sf.ehcache.use.classic.lru=true>>>
+    system property to turn on classic LRU which contains a deterministic evictor.
+
+
+
 *   {Performance Tips}
 
 ** Session.load
