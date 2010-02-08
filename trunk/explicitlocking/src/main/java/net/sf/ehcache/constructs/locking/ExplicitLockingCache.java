@@ -1188,9 +1188,9 @@ public class ExplicitLockingCache implements Ehcache {
     /**
      * {@inheritDoc}
      */
-    public void setNodeCoherence(boolean coherent)
+    public void setNodeCoherent(boolean coherent)
             throws UnsupportedOperationException {
-        cache.setNodeCoherence(coherent);
+        cache.setNodeCoherent(coherent);
     }
 
     /**
