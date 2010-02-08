@@ -240,6 +240,7 @@ public class SampledCacheManager extends BaseEmitterBean implements SampledCache
         for (String cacheName : cacheManager.getCacheNames()) {
             Cache cache = cacheManager.getCache(cacheName);
             if (cache != null) {
+                // enables regular statistics also
                 cache.setSampledStatisticsEnabled(true);
             }
         }
@@ -253,7 +254,8 @@ public class SampledCacheManager extends BaseEmitterBean implements SampledCache
         for (String cacheName : cacheManager.getCacheNames()) {
             Cache cache = cacheManager.getCache(cacheName);
             if (cache != null) {
-                cache.setSampledStatisticsEnabled(false);
+                // disables regular statistics also
+                cache.setStatisticsEnabled(false);
             }
         }
         sendNotification(STATISTICS_ENABLED, Boolean.FALSE);

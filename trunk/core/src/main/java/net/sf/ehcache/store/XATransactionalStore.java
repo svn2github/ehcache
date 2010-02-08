@@ -78,7 +78,7 @@ public class XATransactionalStore implements Store {
      */
     public void putWithWriter(final Element element, final CacheWriterManager writerManager) throws CacheException {
         put(element);
-        if(writerManager != null) {
+        if (writerManager != null) {
             writerManager.put(element);
         }
     }
@@ -145,7 +145,7 @@ public class XATransactionalStore implements Store {
      */
     public Element removeWithWriter(final Object key, final CacheWriterManager writerManager) throws CacheException {
         Element element = remove(key);
-        if(writerManager != null) {
+        if (writerManager != null) {
             writerManager.remove(key);
         }
         return element;

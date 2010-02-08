@@ -24,6 +24,8 @@ import javax.management.NotCompliantMBeanException;
 import javax.management.Notification;
 
 import net.sf.ehcache.Ehcache;
+import net.sf.ehcache.config.CacheConfiguration;
+import net.sf.ehcache.config.CacheConfigurationListener;
 import net.sf.ehcache.hibernate.management.impl.BaseEmitterBean;
 
 /**
@@ -34,7 +36,7 @@ import net.sf.ehcache.hibernate.management.impl.BaseEmitterBean;
  * @author <a href="mailto:asanoujam@terracottatech.com">Abhishek Sanoujam</a>
  * @since 1.7
  */
-public class SampledCache extends BaseEmitterBean implements SampledCacheMBean {
+public class SampledCache extends BaseEmitterBean implements SampledCacheMBean, CacheConfigurationListener {
     private static final MBeanNotificationInfo[] NOTIFICATION_INFO;
 
     private final Ehcache cache;
@@ -57,6 +59,7 @@ public class SampledCache extends BaseEmitterBean implements SampledCacheMBean {
         super(SampledCacheMBean.class);
         this.cache = cache;
         immutableCacheName = cache.getName();
+        cache.getCacheConfiguration().addConfigurationListener(this);
     }
 
     /**
@@ -644,6 +647,7 @@ public class SampledCache extends BaseEmitterBean implements SampledCacheMBean {
     public Map<String, Object> getCacheAttributes() {
         Map<String, Object> result = new HashMap<String, Object>();
         result.put("Enabled", isEnabled());
+        result.put("TerracottaClustered", isTerracottaClustered());
         result.put("LoggingEnabled", isConfigLoggingEnabled());
         result.put("TimeToIdleSeconds", getConfigTimeToIdleSeconds());
         result.put("TimeToLiveSeconds", getConfigTimeToLiveSeconds());
@@ -654,7 +658,8 @@ public class SampledCache extends BaseEmitterBean implements SampledCacheMBean {
         result.put("OverflowToDisk", isConfigOverflowToDisk());
         result.put("DiskExpiryThreadIntervalSeconds", getConfigDiskExpiryThreadIntervalSeconds());
         result.put("MemoryStoreEvictionPolicy", getConfigMemoryStoreEvictionPolicy());
-        result.put("Coherent", isNodeCoherent());
+        result.put("NodeCoherent", isNodeCoherent());
+        result.put("ClusterCoherent", isClusterCoherent());
         return result;
     }
     
@@ -666,6 +671,65 @@ public class SampledCache extends BaseEmitterBean implements SampledCacheMBean {
         return NOTIFICATION_INFO;
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    public void deregistered(CacheConfiguration config) {
+        /**/
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void diskCapacityChanged(int oldCapacity, int newCapacity) {
+        if (oldCapacity != newCapacity) {
+            setConfigMaxElementsOnDisk(newCapacity);
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void loggingEnabledChanged(boolean oldValue, boolean newValue) {
+        if (oldValue != newValue) {
+            setConfigLoggingEnabled(newValue);
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void memoryCapacityChanged(int oldCapacity, int newCapacity) {
+        if (oldCapacity != newCapacity) {
+            setConfigMaxElementsInMemory(newCapacity);
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void registered(CacheConfiguration config) {
+        /**/
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void timeToIdleChanged(long oldTimeToIdle, long newTimeToIdle) {
+        if (oldTimeToIdle != newTimeToIdle) {
+            setConfigTimeToIdleSeconds(newTimeToIdle);
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void timeToLiveChanged(long oldTimeToLive, long newTimeToLive) {
+        if (oldTimeToLive != newTimeToLive) {
+            setConfigTimeToLiveSeconds(newTimeToLive);
+        }
+    }
+    
     /**
      * {@inheritDoc}
      * 
