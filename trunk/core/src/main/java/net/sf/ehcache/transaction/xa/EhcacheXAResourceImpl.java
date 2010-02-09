@@ -16,6 +16,7 @@
 
 package net.sf.ehcache.transaction.xa;
 
+import java.util.HashSet;
 import java.util.Set;
 
 import javax.transaction.RollbackException;
@@ -61,6 +62,7 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
     private volatile Store              store;
     private volatile Store              oldVersionStore;
     private volatile TransactionManager txnManager;
+    private final    Set<Xid>           recoverySet = new HashSet<Xid>();
 
     /**
      * Constructor
@@ -253,35 +255,60 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
     /**
      * {@inheritDoc}
      */
-    public Xid[] recover(final int i) throws XAException {
-        Xid[] preparedXids = ehcacheXAStore.getPreparedXids();
-        for (Xid preparedXid : preparedXids) {
-            PreparedContext context = ehcacheXAStore.getPreparedContext(preparedXid);
-            Set<Object> updatedKeys = context.getUpdatedKeys();
-            if (!updatedKeys.isEmpty()) {
-                Object someKey = updatedKeys.iterator().next();
-                Sync syncForKey = ((CacheLockProvider)store.getInternalContext()).getSyncForKey(someKey);
-                boolean readLocked;
+    public Xid[] recover(final int flags) throws XAException {
+
+        Set<Xid> xids = new HashSet<Xid>();
+
+        if ((flags & TMSTARTRSCAN) == TMSTARTRSCAN) {
+            recoverySet.clear();
+        }
+
+        Xid[] allPreparedXids = ehcacheXAStore.getPreparedXids();
+        for (Xid preparedXid : allPreparedXids) {
+            if (!recoverySet.contains(preparedXid)) {
+                xids.add(preparedXid);
+            }
+            recoverySet.add(preparedXid);
+        }
+
+        for (Xid preparedXid : xids) {
+            markContextForRollback(preparedXid);
+        }
+
+        Xid[] toRecover = xids.toArray(new Xid[xids.size()]);
+
+        if ((flags & TMENDRSCAN) == TMENDRSCAN) {
+            recoverySet.clear();
+        }
+
+        return toRecover;
+    }
+
+    private void markContextForRollback(final Xid preparedXid) throws EhcacheXAException {
+        PreparedContext context = ehcacheXAStore.getPreparedContext(preparedXid);
+        Set<Object> updatedKeys = context.getUpdatedKeys();
+        if (!updatedKeys.isEmpty()) {
+            Object someKey = updatedKeys.iterator().next();
+            Sync syncForKey = ((CacheLockProvider)store.getInternalContext()).getSyncForKey(someKey);
+            boolean readLocked;
+            try {
+                readLocked = syncForKey.tryLock(LockType.READ, 1);
+            } catch (InterruptedException e) {
+                throw new EhcacheXAException("Interrupted testing for Xid's status: " + preparedXid, XAException.XAER_RMFAIL);
+            }
+            if (readLocked) {
                 try {
-                    readLocked = syncForKey.tryLock(LockType.READ, 1);
-                } catch (InterruptedException e) {
-                    throw new EhcacheXAException("Interrupted testing for Xid's status: " + preparedXid, XAException.XAER_RMFAIL);
-                }
-                if (readLocked) {
-                    try {
-                        // Transaction was rolled back! Clean oldVersionStore should we still have stuff lying around in there
-                        for (Object updatedKey : updatedKeys) {
-                            oldVersionStore.remove(updatedKey);
-                        }
-                        context.setRolledBack(true);
-                        ehcacheXAStore.prepared(preparedXid, context);
-                    } finally {
-                        syncForKey.unlock(LockType.READ);
+                    // Transaction was rolled back! Clean oldVersionStore should we still have stuff lying around in there
+                    for (Object updatedKey : updatedKeys) {
+                        oldVersionStore.remove(updatedKey);
                     }
+                    context.setRolledBack(true);
+                    ehcacheXAStore.prepared(preparedXid, context);
+                } finally {
+                    syncForKey.unlock(LockType.READ);
                 }
             }
         }
-        return preparedXids;
     }
 
     /**
