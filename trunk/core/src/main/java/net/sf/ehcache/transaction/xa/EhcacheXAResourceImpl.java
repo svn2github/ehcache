@@ -300,7 +300,7 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
      * {@inheritDoc}
      */
     public boolean setTransactionTimeout(final int i) throws XAException {
-        if(i < 0) {
+        if (i < 0) {
             throw new EhcacheXAException("time out has to be > 0, but was " + i, XAException.XAER_INVAL);
         }
         this.transactionTimeout = i == 0 ? DEFAULT_TIMEOUT : i;
