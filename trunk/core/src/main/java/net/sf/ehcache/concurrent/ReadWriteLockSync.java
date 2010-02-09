@@ -24,7 +24,7 @@ import java.util.concurrent.TimeUnit;
  *
  * @author Alex Snaps
  */
-public class ReadWriteLockSync implements Sync {
+public class ReadWriteLockSync implements Sync, Comparable<ReadWriteLockSync> {
 
     private final ReentrantReadWriteLock rrwl = new ReentrantReadWriteLock();
     private final Lock readLock = rrwl.readLock();
@@ -69,5 +69,12 @@ public class ReadWriteLockSync implements Sync {
             default:
                 throw new IllegalArgumentException("We don't support any other lock type than READ or WRITE!");
         }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public int compareTo(ReadWriteLockSync o) {
+        return  String.valueOf(hashCode()).compareTo(String.valueOf(o.hashCode()));    
     }
 }

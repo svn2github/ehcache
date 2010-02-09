@@ -36,12 +36,20 @@ import net.sf.ehcache.transaction.TransactionContext;
  */
 public class EhcacheXAStoreImpl implements EhcacheXAStore {
     
-    private final ConcurrentMap<Transaction, Xid> localXidTable = new ConcurrentHashMap<Transaction, Xid>();    
-    private final ConcurrentMap<Xid, XATransactionContext> transactionContextXids = new ConcurrentHashMap<Xid, XATransactionContext>();
-    private final ConcurrentMap<Xid, PreparedContext> prepareXids = new ConcurrentHashMap<Xid, PreparedContext>();
-    private final VersionTable versionTable = new VersionTable();
-    private Store underlyingStore;
-    private Store oldVersionStore;
+    /** protected for testing **/
+    protected final ConcurrentMap<Xid, XATransactionContext>   transactionContextXids = new ConcurrentHashMap<Xid, XATransactionContext>();
+    /** protected for testing **/
+    protected final ConcurrentMap<Xid, PreparedContext>        prepareXids            = new ConcurrentHashMap<Xid, PreparedContext>();
+    /** protected for testing **/
+    protected final ConcurrentMap<Transaction, Xid>            localTxn2XidTable      = new ConcurrentHashMap<Transaction, Xid>();
+    /** protected for testing **/
+    protected final ConcurrentMap<Xid, Transaction>            localXid2TxnTable      = new ConcurrentHashMap<Xid, Transaction>();
+    /** protected for testing **/
+    protected final VersionTable                               versionTable           = new VersionTable();
+    /** protected for testing **/
+    protected Store underlyingStore;
+    /** protected for testing **/
+    protected Store oldVersionStore;
 
     /**
      * Constructor
@@ -49,8 +57,8 @@ public class EhcacheXAStoreImpl implements EhcacheXAStore {
      * @param oldVersionStore the old version, read-only, used to access keys during 2pc
      */
     public EhcacheXAStoreImpl(Store underlyingStore, Store oldVersionStore) {
-        this.underlyingStore = underlyingStore;
-        this.oldVersionStore = oldVersionStore;
+        this.underlyingStore = new SyncAwareStore(underlyingStore);
+        this.oldVersionStore = new SyncAwareStore(oldVersionStore);
     }
 
     /**
@@ -73,6 +81,12 @@ public class EhcacheXAStoreImpl implements EhcacheXAStore {
     public void removeData(final Xid xid) {
         prepareXids.remove(xid);
         transactionContextXids.remove(xid);
+        Transaction txn = localXid2TxnTable.get(xid);
+        if (txn != null) {
+          localTxn2XidTable.remove(txn);
+        }
+        localXid2TxnTable.remove(xid);
+
     }
 
     /**
@@ -93,14 +107,15 @@ public class EhcacheXAStoreImpl implements EhcacheXAStore {
      * {@inheritDoc}
      */
     public Xid storeXid2Transaction(Xid xid, Transaction transaction) {
-        return localXidTable.putIfAbsent(transaction, xid);
+        localXid2TxnTable.putIfAbsent(xid, transaction);
+        return localTxn2XidTable.putIfAbsent(transaction, xid);
     }
 
     /**
      * {@inheritDoc}
      */
     public TransactionContext createTransactionContext(Transaction txn) {
-        Xid xid = localXidTable.get(txn);
+        Xid xid = localTxn2XidTable.get(txn);
         XATransactionContext context = new XATransactionContext(xid, this);
         context.initializeTransients(txn);
         XATransactionContext previous = transactionContextXids.putIfAbsent(xid, context);
@@ -129,7 +144,7 @@ public class EhcacheXAStoreImpl implements EhcacheXAStore {
      * {@inheritDoc}
      */
     public TransactionContext getTransactionContext(Transaction txn) {
-        Xid xid = localXidTable.get(txn);
+        Xid xid = localTxn2XidTable.get(txn);
         return transactionContextXids.get(xid);
     }
 

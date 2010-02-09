@@ -87,7 +87,7 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
     public void start(final Xid xid, final int flags) throws XAException {
         LOG.debug("Start called for Txn with id: " + xid);
       
- 
+       
         // todo we should probably track state properly here...
         Transaction tx;
         try {
@@ -167,6 +167,9 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
      */
     public void end(final Xid xid, final int flags) throws XAException {
         LOG.debug("End called for Txn with id: {}", xid);
+        if (XAResource.TMFAIL == flags) {
+            ehcacheXAStore.removeData(xid);
+        }
     }
 
     /**
@@ -174,6 +177,7 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
      */
     public void forget(final Xid xid) throws XAException {
         LOG.debug("Forget called for Txn with id: {}", xid);
+        ehcacheXAStore.removeData(xid);
     }
 
     /**
@@ -295,9 +299,7 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
      */
     public boolean setTransactionTimeout(final int i) throws XAException {
         this.transactionTimeout = i;
-        // TODO Figure out what to return here, it should be set to true of
-        // setting the transaction timeout was successful.
-        return false;
+        return true;
     }
 
     /**

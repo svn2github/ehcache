@@ -50,6 +50,7 @@ import net.sf.ehcache.management.provider.MBeanRegistrationProviderException;
 import net.sf.ehcache.management.provider.MBeanRegistrationProviderFactory;
 import net.sf.ehcache.management.provider.MBeanRegistrationProviderFactoryImpl;
 import net.sf.ehcache.store.DiskStore;
+import net.sf.ehcache.store.MemoryStore;
 import net.sf.ehcache.store.Store;
 import net.sf.ehcache.terracotta.ClusteredInstanceFactory;
 import net.sf.ehcache.transaction.manager.TransactionManagerLookup;
@@ -405,16 +406,15 @@ public class CacheManager {
      * Creates an EhcacheXAResource instance for a cache
      * @param cache The cache the XAResource should wrap
      * @param store The real memory store backing the cache
-     * @param oldVersionStore The oldVersionStore, temporary store for inCommitPhase data
      * @param txnManager TransactionManager for the JTA environment, the one we'll enlist on
      * @return the configured EhcacheXAResource impl.
      */
-    EhcacheXAResource createEhcacheXAResource(Ehcache cache, Store store, Store oldVersionStore,  TransactionManager txnManager) {
+    EhcacheXAResource createEhcacheXAResource(Ehcache cache, Store store, TransactionManager txnManager) {
         EhcacheXAStore ehcacheXAStore = null;
         if (cache.getCacheConfiguration().isTerracottaClustered()) {
             ehcacheXAStore = getClusteredInstanceFactory(cache).createXAStore(cache, store);
         } else {
-            ehcacheXAStore = new EhcacheXAStoreImpl(store, oldVersionStore);
+            ehcacheXAStore = new EhcacheXAStoreImpl(store, MemoryStore.create(cache, null));
         }      
         return new EhcacheXAResourceImpl(cache.getName(), txnManager, ehcacheXAStore);
         

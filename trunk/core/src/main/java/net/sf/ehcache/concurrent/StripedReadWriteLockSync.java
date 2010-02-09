@@ -15,6 +15,9 @@
  */
 package net.sf.ehcache.concurrent;
 
+import java.util.SortedSet;
+import java.util.TreeSet;
+
 import net.sf.ehcache.CacheException;
 
 /**
@@ -91,6 +94,17 @@ public class StripedReadWriteLockSync implements CacheLockProvider {
      * {@inheritDoc}
      */
     public Sync[] getAndWriteLockAllSyncForKeys(Object... keys) {
-        throw new UnsupportedOperationException("Right now this is unsupported in standalone Ehcache!");
+        SortedSet<Sync> locks = new TreeSet<Sync>();
+        for (Object key : keys) {
+            locks.add(getSyncForKey(key));
+        }
+
+        Sync[] syncs = new Sync[locks.size()];
+        int i = 0;
+        for (Sync lock : locks) {
+          lock.lock(LockType.WRITE);
+          syncs[i++] = lock;
+        }
+        return syncs;
     }
 }
