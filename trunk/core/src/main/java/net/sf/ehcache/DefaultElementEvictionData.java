@@ -16,8 +16,6 @@
 
 package net.sf.ehcache;
 
-import net.sf.ehcache.util.TimeUtil;
-
 /**
  * Default implementation of the element eviction data storage that just keeps
  * all the data in instance fields in the heap.
@@ -31,17 +29,17 @@ public class DefaultElementEvictionData implements ElementEvictionData {
     /**
      * The creation time.
      */
-    private int creationTime;
+    private long creationTime;
     
     /**
      * The last access time.
      */
-    private int lastAccessTime;
+    private long lastAccessTime;
 
     /**
      * Default constructor initializing the field to their empty values
      */
-    public DefaultElementEvictionData(int creationTime) {
+    public DefaultElementEvictionData(long creationTime) {
         this.creationTime = creationTime;
     }
     
@@ -50,7 +48,7 @@ public class DefaultElementEvictionData implements ElementEvictionData {
      * 
      * @param lastAccessTime
      */
-    public DefaultElementEvictionData(int creationTime, int lastAccessTime) {
+    public DefaultElementEvictionData(long creationTime, long lastAccessTime) {
         this.creationTime = creationTime;
         this.lastAccessTime = lastAccessTime;
     }
@@ -58,28 +56,28 @@ public class DefaultElementEvictionData implements ElementEvictionData {
     /**
      * {@inheritDoc}
      */
-    public void setCreationTime(int creationTime) {
+    public void setCreationTime(long creationTime) {
         this.creationTime = creationTime;        
     }
 
     /**
      * {@inheritDoc}
      */
-    public int getCreationTime() {
+    public long getCreationTime() {
         return creationTime;        
     }
 
     /**
      * {@inheritDoc}
      */
-    public int getLastAccessTime() {
+    public long getLastAccessTime() {
         return lastAccessTime;        
     }
 
     /**
      * {@inheritDoc}
      */
-    public void updateLastAccessTime(int time, Element element) {
+    public void updateLastAccessTime(long time, Element element) {
         lastAccessTime = time;
     }
 
@@ -87,7 +85,7 @@ public class DefaultElementEvictionData implements ElementEvictionData {
      * {@inheritDoc}
      */
     public void resetLastAccessTime(Element element) {
-        lastAccessTime = TimeUtil.toSecs(System.currentTimeMillis());
+        lastAccessTime = System.currentTimeMillis();
     }
 
     /**

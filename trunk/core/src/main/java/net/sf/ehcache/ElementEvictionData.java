@@ -29,14 +29,14 @@ public interface ElementEvictionData extends Cloneable {
      * 
      * @param creationTime the new element's creation time
      */
-    public void setCreationTime(int creationTime);
+    public void setCreationTime(long creationTime);
     
     /**
      * Get the element's creation time.
      * 
      * @return the element's creation time in seconds
      */
-    public int getCreationTime();
+    public long getCreationTime();
 
     /**
      * Gets the last access time.
@@ -45,7 +45,7 @@ public interface ElementEvictionData extends Cloneable {
      * 
      * @return the element's last access time in seconds
      */
-    public int getLastAccessTime();
+    public long getLastAccessTime();
 
     /**
      * Updates the last access time.
@@ -55,7 +55,7 @@ public interface ElementEvictionData extends Cloneable {
      * @param element
      *            the element for which the last access time is set
      */
-    public void updateLastAccessTime(int time, Element element);
+    public void updateLastAccessTime(long time, Element element);
 
     /**
      * Resets the last access time.

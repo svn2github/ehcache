@@ -25,6 +25,8 @@ import net.sf.ehcache.hibernate.regions.EhcacheTransactionalDataRegion;
 import org.hibernate.cache.CacheException;
 import org.hibernate.cache.access.SoftLock;
 import org.hibernate.cfg.Settings;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Superclass for all Ehcache specific read/write AccessStrategy implementations.
@@ -35,6 +37,8 @@ import org.hibernate.cfg.Settings;
  */
 abstract class AbstractReadWriteEhcacheAccessStrategy<T extends EhcacheTransactionalDataRegion> extends AbstractEhcacheAccessStrategy<T> {
 
+    private static final Logger LOG = LoggerFactory.getLogger(AbstractReadWriteEhcacheAccessStrategy.class);
+    
     private final UUID uuid = UUID.randomUUID();
     private final AtomicLong nextLockId = new AtomicLong();
     
@@ -78,6 +82,7 @@ abstract class AbstractReadWriteEhcacheAccessStrategy<T extends EhcacheTransacti
      * @see org.hibernate.cache.access.EntityRegionAccessStrategy#putFromLoad(java.lang.Object, java.lang.Object, long, java.lang.Object, boolean)
      * @see org.hibernate.cache.access.CollectionRegionAccessStrategy#putFromLoad(java.lang.Object, java.lang.Object, long, java.lang.Object, boolean) 
      */
+    @Override
     public final boolean putFromLoad(Object key, Object value, long txTimestamp, Object version, boolean minimalPutOverride)
             throws CacheException {
         region.writeLock(key);
@@ -151,6 +156,8 @@ abstract class AbstractReadWriteEhcacheAccessStrategy<T extends EhcacheTransacti
      * Handle the timeout of a previous lock mapped to this key
      */
     protected void handleLockExpiry(Object key) {
+        LOG.warn("A soft-locked cache entry was expired by the underlying Ehcache. " 
+                + "If this happens regularly you should consider increasing the cache timeouts and/or capacity limits");
         long ts = region.nextTimestamp() + region.getTimeout();
         // create new lock that times out immediately
         Lock lock = new Lock(ts, uuid, nextLockId.getAndIncrement(), null);

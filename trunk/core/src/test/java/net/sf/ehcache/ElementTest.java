@@ -286,8 +286,8 @@ public class ElementTest extends AbstractCacheTest {
         assertEquals("key", element.getKey());
         assertEquals("value", element.getValue());
         assertEquals(1L, element.getVersion());
-        assertEquals(1000L, element.getCreationTime());
-        assertEquals(2000L, element.getLastAccessTime());
+        assertEquals(123L, element.getCreationTime());
+        assertEquals(1234L, element.getLastAccessTime());
         assertEquals(12345L, element.getLastUpdateTime());
         assertEquals(123456L, element.getHitCount());
 
