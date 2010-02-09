@@ -82,6 +82,7 @@
             <xs:attribute name="diskExpiryThreadIntervalSeconds" type="xs:integer" use="optional"/>
             <xs:attribute name="diskSpoolBufferSizeMB" type="xs:integer" use="optional"/>
             <xs:attribute name="diskPersistent" type="xs:boolean" use="optional"/>
+            <xs:attribute name="diskAccessStripes" type="xs:integer" use="optional" default="1"/>
             <xs:attribute name="eternal" type="xs:boolean" use="required"/>
             <xs:attribute name="maxElementsInMemory" type="xs:integer" use="required"/>
             <xs:attribute name="clearOnFlush" type="xs:boolean" use="optional"/>
@@ -108,6 +109,7 @@
             <xs:attribute name="diskExpiryThreadIntervalSeconds" type="xs:integer" use="optional"/>
             <xs:attribute name="diskSpoolBufferSizeMB" type="xs:integer" use="optional"/>
             <xs:attribute name="diskPersistent" type="xs:boolean" use="optional"/>
+            <xs:attribute name="diskAccessStripes" type="xs:integer" use="optional" default="1"/>
             <xs:attribute name="eternal" type="xs:boolean" use="required"/>
             <xs:attribute name="maxElementsInMemory" type="xs:integer" use="required"/>
             <xs:attribute name="memoryStoreEvictionPolicy" type="xs:string" use="optional"/>

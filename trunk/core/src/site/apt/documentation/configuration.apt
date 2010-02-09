@@ -115,6 +115,7 @@
       <xs:attribute name="diskExpiryThreadIntervalSeconds" use="optional" type="xs:integer"/>
       <xs:attribute name="diskSpoolBufferSizeMB" use="optional" type="xs:integer"/>
       <xs:attribute name="diskPersistent" use="optional" type="xs:boolean"/>
+      <xs:attribute name="diskAccessStripes" type="xs:integer" use="optional" default="1"/>
       <xs:attribute name="eternal" use="required" type="xs:boolean"/>
       <xs:attribute name="maxElementsInMemory" use="required" type="xs:integer"/>
       <xs:attribute name="clearOnFlush" use="optional" type="xs:boolean"/>
@@ -140,6 +141,7 @@
       type="xs:integer"/>
       <xs:attribute name="diskSpoolBufferSizeMB" use="optional" type="xs:integer"/>
       <xs:attribute name="diskPersistent" use="optional" type="xs:boolean"/>
+      <xs:attribute name="diskAccessStripes" type="xs:integer" use="optional" default="1"/>
       <xs:attribute name="eternal" use="required" type="xs:boolean"/>
       <xs:attribute name="maxElementsInMemory" use="required" type="xs:integer"/>
       <xs:attribute name="memoryStoreEvictionPolicy" use="optional" type="xs:string"/>
@@ -667,6 +669,11 @@ to this area and then asynchronously written to disk. The default size is 30MB.
 Each spool buffer is used only by its cache. If you get OutOfMemory errors consider
 lowering this value. To improve DiskStore performance consider increasing it. Trace level
 logging in the DiskStore will show if put back ups are occurring.
+
+diskAccessStripes:
+By default one RandomAccessFile object is created to read/write to and from the disk store.
+By specifying a larger value here, multiple threads can read/write from the store concurrently
+(assuming that the disk controller/driver can correctly optimize the resultant access to the disk).
 
 clearOnFlush:
 whether the MemoryStore should be cleared when flush() is called on the cache.

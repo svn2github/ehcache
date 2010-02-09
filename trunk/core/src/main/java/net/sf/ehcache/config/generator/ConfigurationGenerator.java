@@ -142,6 +142,7 @@ public class ConfigurationGenerator {
                 .append("\"" + EOL);
         builder.append(spacer).append("diskSpoolBufferSizeMB=\"").append(cacheConfiguration.getDiskSpoolBufferSizeMB()).append("\"")
                 .append(EOL);
+        builder.append(spacer).append("diskAccessStripes=\"").append(cacheConfiguration.getDiskAccessStripes()).append("\"").append(EOL);
         MemoryStoreEvictionPolicy memoryStoreEvictionPolicy = cacheConfiguration.getMemoryStoreEvictionPolicy();
         if (memoryStoreEvictionPolicy != null) {
             builder.append(spacer).append("memoryStoreEvictionPolicy=\"").append(memoryStoreEvictionPolicy.toString()).append("\"").append(

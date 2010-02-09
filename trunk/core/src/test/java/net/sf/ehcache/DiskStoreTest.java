@@ -38,6 +38,7 @@ import java.util.Random;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.DiskStoreConfiguration;
 import net.sf.ehcache.store.DiskStore;
 import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
@@ -126,6 +127,15 @@ public class DiskStoreTest extends AbstractCacheTest {
         return (DiskStore) cache.getDiskStore();
     }
 
+    private DiskStore createStripedDiskStore(int stripes) {
+        CacheConfiguration config = new CacheConfiguration("test/NonPersistentStriped_" + stripes, 10000).overflowToDisk(true).eternal(false)
+                .timeToLiveSeconds(2).timeToIdleSeconds(1).diskPersistent(false).diskExpiryThreadIntervalSeconds(1).diskAccessStripes(stripes);
+        Cache cache = new Cache(config);
+        manager.addCache(cache);
+        DiskStore diskStore = (DiskStore) cache.getDiskStore();
+        return diskStore;
+    }
+    
     /**
      * Test to help debug DiskStore test
      */
@@ -959,6 +969,41 @@ public class DiskStoreTest extends AbstractCacheTest {
         runThreads(executables);
     }
 
+    @Test
+    public void testReadRemoveMultipleThreadsMultipleStripes() throws Exception {
+        for (int stripes = 0; stripes < 10; stripes++) {
+            final Random random = new Random();
+            final DiskStore diskStore = createStripedDiskStore(stripes);
+    
+            diskStore.put(new Element("key", "value"));
+    
+            // Run a set of threads that get, put and remove an entry
+            final List executables = new ArrayList();
+            for (int i = 0; i < 5; i++) {
+                final Executable executable = new Executable() {
+                    public void execute() throws Exception {
+                        for (int i = 0; i < 100; i++) {
+                            diskStore.put(new Element("key" + random.nextInt(100), "value"));
+                        }
+                    }
+                };
+                executables.add(executable);
+            }
+            for (int i = 0; i < 5; i++) {
+                final Executable executable = new Executable() {
+                    public void execute() throws Exception {
+                        for (int i = 0; i < 100; i++) {
+                            diskStore.remove("key" + random.nextInt(100));
+                        }
+                    }
+                };
+                executables.add(executable);
+            }
+    
+            runThreads(executables);
+        }
+    }
+    
     /**
      * Tests how data is written to a random access file.
      * <p/>

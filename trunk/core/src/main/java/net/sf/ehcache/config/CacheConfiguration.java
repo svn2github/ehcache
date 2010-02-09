@@ -71,6 +71,11 @@ public class CacheConfiguration implements Cloneable {
     public static final int DEFAULT_SPOOL_BUFFER_SIZE = 30;
 
     /**
+     * 
+     */
+    public static final int DEFAULT_DISK_ACCESS_STRIPES = 1;
+    
+    /**
      * The default memory store eviction policy is LRU.
      */
     public static final MemoryStoreEvictionPolicy DEFAULT_MEMORY_STORE_EVICTION_POLICY = MemoryStoreEvictionPolicy.LRU;
@@ -157,6 +162,11 @@ public class CacheConfiguration implements Cloneable {
      */
     protected int diskSpoolBufferSizeMB = DEFAULT_SPOOL_BUFFER_SIZE;
 
+    /**
+     * The number of concurrent disk access stripes.
+     */
+    protected int diskAccessStripes = DEFAULT_DISK_ACCESS_STRIPES;
+    
     /**
      * The interval in seconds between runs of the disk expiry thread.
      * <p/>
@@ -582,6 +592,29 @@ public class CacheConfiguration implements Cloneable {
     }
 
     /**
+     * Sets the number of RandomAccessFiles used to access the data file.
+     *
+     * @param stripes number of stripes (rounded up to a power-of-2)
+     */
+    public void setDiskAccessStripes(int stripes) {
+        checkDynamicChange();
+        if (stripes <= 0) {
+            this.diskAccessStripes = DEFAULT_DISK_ACCESS_STRIPES;
+        } else {
+            this.diskAccessStripes = stripes;
+        }
+    }
+    
+    /**
+     * @return this configuration instance
+     * @see #setDiskAccessStripes(int)
+     */
+    public final CacheConfiguration diskAccessStripes(int stripes) {
+        setDiskAccessStripes(stripes);
+        return this;
+    }
+    
+    /**
      * Sets the maximum number elements on Disk. 0 means unlimited.
      * <p/>
      * This property can be modified dynamically while the cache is operating.
@@ -975,6 +1008,13 @@ public class CacheConfiguration implements Cloneable {
         return diskExpiryThreadIntervalSeconds;
     }
 
+    /**
+     * Accessor
+     */
+    public int getDiskAccessStripes() {
+        return diskAccessStripes;
+    }
+    
     /**
      * Accessor
      *

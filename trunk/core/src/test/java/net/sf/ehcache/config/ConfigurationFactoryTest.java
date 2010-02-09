@@ -594,6 +594,7 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
         assertEquals(0, sampleCacheNoOptionalAttributes.getCacheConfiguration().getTimeToLiveSeconds());
         assertEquals(false, sampleCacheNoOptionalAttributes.getCacheConfiguration().isDiskPersistent());
         assertEquals(120, sampleCacheNoOptionalAttributes.getCacheConfiguration().getDiskExpiryThreadIntervalSeconds());
+        assertEquals(1, sampleCacheNoOptionalAttributes.getCacheConfiguration().getDiskAccessStripes());
     }
 
 
