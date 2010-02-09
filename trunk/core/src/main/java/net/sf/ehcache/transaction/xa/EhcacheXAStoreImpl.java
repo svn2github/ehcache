@@ -41,6 +41,8 @@ public class EhcacheXAStoreImpl implements EhcacheXAStore {
     /** protected for testing **/
     protected final ConcurrentMap<Xid, PreparedContext>        prepareXids            = new ConcurrentHashMap<Xid, PreparedContext>();
     /** protected for testing **/
+    protected final ConcurrentMap<Xid, XATransactionContext>   suspendXids            = new ConcurrentHashMap<Xid, XATransactionContext>();
+    /** protected for testing **/
     protected final ConcurrentMap<Transaction, Xid>            localTxn2XidTable      = new ConcurrentHashMap<Transaction, Xid>();
     /** protected for testing **/
     protected final ConcurrentMap<Xid, Transaction>            localXid2TxnTable      = new ConcurrentHashMap<Xid, Transaction>();
@@ -80,6 +82,7 @@ public class EhcacheXAStoreImpl implements EhcacheXAStore {
      */
     public void removeData(final Xid xid) {
         prepareXids.remove(xid);
+        suspendXids.remove(xid);
         transactionContextXids.remove(xid);
         Transaction txn = localXid2TxnTable.get(xid);
         if (txn != null) {
@@ -158,7 +161,7 @@ public class EhcacheXAStoreImpl implements EhcacheXAStore {
     /**
      * {@inheritDoc}
      */
-    public void prepared(Xid xid, PreparedContext context) {
+    public void prepare(Xid xid, PreparedContext context) {
         prepareXids.put(xid, context);
     }
     
@@ -176,6 +179,7 @@ public class EhcacheXAStoreImpl implements EhcacheXAStore {
     public PreparedContext createPreparedContext() {
         return new PreparedContextImpl();
     }
+
     /**
      * {@inheritDoc}
      */
@@ -183,6 +187,33 @@ public class EhcacheXAStoreImpl implements EhcacheXAStore {
         return underlyingStore;
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    public boolean resume(Xid xid, Transaction tx) {
+        XATransactionContext context = suspendXids.get(xid);
+        if (context != null) {
+            context.initializeTransients(tx);
+            transactionContextXids.put(xid, context);
+            localTxn2XidTable.put(tx, xid);
+            localXid2TxnTable.put(xid, tx);
+            return true;
+        } 
+        return false;
+        
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void suspend(Xid xid) {
+        XATransactionContext context = transactionContextXids.get(xid);
+        suspendXids.putIfAbsent(xid, context);
+        transactionContextXids.remove(xid);
+        Transaction txn = localXid2TxnTable.get(xid);
+        localTxn2XidTable.remove(txn);
+        localXid2TxnTable.remove(xid);
+    }
 
     /**
      * A table containing element version information

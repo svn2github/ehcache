@@ -70,12 +70,12 @@ public interface EhcacheXAStore {
     Xid storeXid2Transaction(Xid xid, Transaction transaction);
 
     /**
-     * Creates ans stores a new TransactionContext for a given Transaction
+     * Creates a new TransactionContext for a given Transaction
      * @param txn the JTA Transaction
      * @return a TransactionContext for that Transaction
      */
     TransactionContext createTransactionContext(Transaction txn);
-
+    
     /**
      * Gets a stored TransactionContext for a given Transaction
      * @param xid The Xid of the Transaction
@@ -118,7 +118,21 @@ public interface EhcacheXAStore {
      * @param xid the Xid of the Transaction
      * @param context the context with the transaction data 
      */
-    void prepared(Xid xid, PreparedContext context);
+    void prepare(Xid xid, PreparedContext context);
+    
+    /**
+     * Save the Transaction's data on suspend
+     * @param xid the Xid of the Transaction
+     */
+    void suspend(Xid xid);
+    
+    /**
+     * Revive the Transaction's data on resume
+     * @param xid
+     * @param tx
+     * @boolean return's true if suspend Transaction's data existed
+     */
+    boolean resume(Xid xid, Transaction tx);
     
     /**
      * Return a newly created prepare context if none exist.
