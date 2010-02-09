@@ -29,7 +29,9 @@ import java.util.Set;
  */
 public class PreparedContextImpl implements PreparedContext {
 
-    private final List<VersionAwareCommand> commands = new ArrayList<VersionAwareCommand>();
+    private final          List<VersionAwareCommand> commands   = new ArrayList<VersionAwareCommand>();
+    private       volatile boolean                   rolledBack;
+    private       volatile boolean                   commited;
 
     /**
      * {@inheritDoc}
@@ -61,4 +63,37 @@ public class PreparedContextImpl implements PreparedContext {
         return Collections.unmodifiableSet(keys);
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    public boolean isRolledBack() {
+        return rolledBack;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public boolean isCommited() {
+        return commited;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void setRolledBack(final boolean rolledBack) {
+        if (this.commited && rolledBack) {
+            throw new IllegalStateException("Context was marked as commited already!");
+        }
+        this.rolledBack = rolledBack;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void setCommited(final boolean commited) {
+        if (this.rolledBack && commited) {
+            throw new IllegalStateException("Context was marked as rolled back already!");
+        }
+        this.commited = commited;
+    }
 }

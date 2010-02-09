@@ -19,27 +19,53 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * 
  * @author nelrahma
- *
  */
 public interface PreparedContext {
 
-  /**
-   * Add prepared command
-   * @param command the command to be added to the queue
-   */
-  public abstract void addCommand(VersionAwareCommand command);
+    /**
+     * Add prepared command
+     *
+     * @param command the command to be added to the queue
+     */
+    public abstract void addCommand(VersionAwareCommand command);
 
-  /**
-   * Return list of prepared commands
-   * @return all commands from the queue
-   */
-  public abstract List<VersionAwareCommand> getCommands();
+    /**
+     * Return list of prepared commands
+     *
+     * @return all commands from the queue
+     */
+    public abstract List<VersionAwareCommand> getCommands();
 
-  /**
-   * return set of keys associated with prepared commands
-   * @return a set of keys to be updated (put or remove)
-   */
-  public Set<Object> getUpdatedKeys();
+    /**
+     * return set of keys associated with prepared commands
+     *
+     * @return a set of keys to be updated (put or remove)
+     */
+    public Set<Object> getUpdatedKeys();
+
+
+    /**
+     * Checks whether the transaction branch associated with this context was rolled back internally
+     * @return true, if transaction was roleld back internally
+     */
+    boolean isRolledBack();
+
+    /**
+     * Checks whether the transaction branch associated with this context was commited internally
+     * @return true, if transaction was commited internally
+     */
+    boolean isCommited();
+
+    /**
+     * Marks the transaction branch associated with this context as rolled back
+     * @param rolledBack true, if was rolled back, false otherwise
+     */
+    void setRolledBack(boolean rolledBack);
+
+    /**
+     * Marks the transaction branch associated with this context as commited
+     * @param commited true, if was commited, false otherwise
+     */
+    void setCommited(boolean commited);
 }

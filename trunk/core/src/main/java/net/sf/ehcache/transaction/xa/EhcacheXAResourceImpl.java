@@ -115,23 +115,27 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
         } else {
             LOG.debug("{} phase commit called for Txn with id: {} Two", xid);
             PreparedContext context = ehcacheXAStore.getPreparedContext(xid);
-            
-            Sync[] syncForKeys = ((CacheLockProvider)oldVersionStore.getInternalContext())
-                .getAndWriteLockAllSyncForKeys(context.getUpdatedKeys().toArray());
-            for (VersionAwareCommand command : context.getCommands()) {
-                Object key = command.getKey();
-                if (key != null) {
-                    ehcacheXAStore.checkin(key, xid, command.isWriteCommand());
-                    oldVersionStore.remove(key);
-                    ((CacheLockProvider)store.getInternalContext()).getSyncForKey(key).unlock(LockType.WRITE);
+
+            if (!context.isCommited() && !context.isRolledBack()) {
+                Sync[] syncForKeys = ((CacheLockProvider)oldVersionStore.getInternalContext())
+                    .getAndWriteLockAllSyncForKeys(context.getUpdatedKeys().toArray());
+                for (VersionAwareCommand command : context.getCommands()) {
+                    Object key = command.getKey();
+                    if (key != null) {
+                        ehcacheXAStore.checkin(key, xid, command.isWriteCommand());
+                        oldVersionStore.remove(key);
+                        ((CacheLockProvider)store.getInternalContext()).getSyncForKey(key).unlock(LockType.WRITE);
+                    }
                 }
-            }
-            for (Sync syncForKey : syncForKeys) {
-                syncForKey.unlock(LockType.WRITE);
+                for (Sync syncForKey : syncForKeys) {
+                    syncForKey.unlock(LockType.WRITE);
+                }
+                context.setCommited(true);
+            } else if (context.isRolledBack()) {
+                throw new EhcacheXAException("Transaction " + xid + " has been heuristically rolled back", XAException.XA_HEURRB);
             }
         }
        
-        
         ehcacheXAStore.removeData(xid);
     }
     
@@ -250,7 +254,34 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
      * {@inheritDoc}
      */
     public Xid[] recover(final int i) throws XAException {
-        return ehcacheXAStore.getPreparedXids();
+        Xid[] preparedXids = ehcacheXAStore.getPreparedXids();
+        for (Xid preparedXid : preparedXids) {
+            PreparedContext context = ehcacheXAStore.getPreparedContext(preparedXid);
+            Set<Object> updatedKeys = context.getUpdatedKeys();
+            if (!updatedKeys.isEmpty()) {
+                Object someKey = updatedKeys.iterator().next();
+                Sync syncForKey = ((CacheLockProvider)store.getInternalContext()).getSyncForKey(someKey);
+                boolean readLocked;
+                try {
+                    readLocked = syncForKey.tryLock(LockType.READ, 1);
+                } catch (InterruptedException e) {
+                    throw new EhcacheXAException("Interrupted testing for Xid's status: " + preparedXid, XAException.XAER_RMFAIL);
+                }
+                if (readLocked) {
+                    try {
+                        // Transaction was rolled back! Clean oldVersionStore should we still have stuff lying around in there
+                        for (Object updatedKey : updatedKeys) {
+                            oldVersionStore.remove(updatedKey);
+                        }
+                        context.setRolledBack(true);
+                        ehcacheXAStore.prepared(preparedXid, context);
+                    } finally {
+                        syncForKey.unlock(LockType.READ);
+                    }
+                }
+            }
+        }
+        return preparedXids;
     }
 
     /**
@@ -260,7 +291,8 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
         LOG.debug("Rollback called for Txn with id: {}", xid);
 
         PreparedContext context = ehcacheXAStore.getPreparedContext(xid);
-        if (ehcacheXAStore.isPrepared(xid)) {
+        if (ehcacheXAStore.isPrepared(xid) && !context.isRolledBack() && !context.isCommited()) {
+            context.setRolledBack(true);
             CacheLockProvider storeLockProvider = (CacheLockProvider)store.getInternalContext();
             CacheLockProvider oldVersionStoreLockProvider = (CacheLockProvider)oldVersionStore.getInternalContext();
 
@@ -285,6 +317,8 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
                     }
                 }
             }
+        } else if (context != null && context.isCommited()) {
+            throw new EhcacheXAException("Transaction " + xid + " has been heuristically committed", XAException.XA_HEURRB);
         }
         ehcacheXAStore.removeData(xid);
     }
@@ -327,9 +361,9 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
      */
     @Override
     public boolean equals(Object obj) {
-        EhcacheXAResource resource2 = (EhcacheXAResource) obj;
-        if (cacheName.equals(resource2.getCacheName())) {
-            return true;
+        if (obj instanceof EhcacheXAResource) {
+            EhcacheXAResource resource2 = (EhcacheXAResource) obj;
+            return cacheName.equals(resource2.getCacheName());
         }
         return false;
     }
