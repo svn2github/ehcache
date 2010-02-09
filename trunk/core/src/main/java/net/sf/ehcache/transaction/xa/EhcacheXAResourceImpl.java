@@ -50,12 +50,14 @@ import org.slf4j.LoggerFactory;
  */
 public class EhcacheXAResourceImpl implements EhcacheXAResource {
 
+    private static final int DEFAULT_TIMEOUT = 60;
+
     private static final Logger LOG = LoggerFactory.getLogger(EhcacheXAResourceImpl.class.getName());
     
     private final    String             cacheName;
     private final    EhcacheXAStore     ehcacheXAStore;
     
-    private volatile int                transactionTimeout;
+    private volatile int                transactionTimeout = DEFAULT_TIMEOUT;
     private volatile Store              store;
     private volatile Store              oldVersionStore;
     private volatile TransactionManager txnManager;
@@ -298,7 +300,10 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
      * {@inheritDoc}
      */
     public boolean setTransactionTimeout(final int i) throws XAException {
-        this.transactionTimeout = i;
+        if(i < 0) {
+            throw new EhcacheXAException("time out has to be > 0, but was " + i, XAException.XAER_INVAL);
+        }
+        this.transactionTimeout = i == 0 ? DEFAULT_TIMEOUT : i;
         return true;
     }
 
