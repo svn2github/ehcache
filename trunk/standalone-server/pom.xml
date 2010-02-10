@@ -1,4 +1,5 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <!-- Note to IntelliJ users. Run mvn compile before interactively running tests. -->
@@ -15,10 +16,11 @@
         This is packaged as a distribution complete with all required dependencies.
     </description>
     <dependencies>
+
         <dependency>
-            <groupId>org.glassfish.embedded</groupId>
-            <artifactId>glassfish-embedded-all</artifactId>
-            <version>3.0-Prelude-Embedded-b14</version>
+            <groupId>org.glassfish.extras</groupId>
+            <artifactId>glassfish-embedded-web</artifactId>
+            <version>3.0</version>
         </dependency>
         <dependency>
             <groupId>net.sf.ehcache</groupId>
@@ -58,8 +60,10 @@
                 <configuration>
                     <archive>
                         <manifest>
-                            <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
-                            <addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
+                            <addDefaultImplementationEntries>true
+                            </addDefaultImplementationEntries>
+                            <addDefaultSpecificationEntries>true
+                            </addDefaultSpecificationEntries>
                             <addClasspath>true</addClasspath>
                             <mainClass>net.sf.ehcache.server.standalone.Server</mainClass>
                         </manifest>
@@ -95,7 +99,8 @@
                     <printSummary>true</printSummary>
                     <enableAssertions>false</enableAssertions>
                     <additionalClasspathElements>
-                        <additionalClasspathElement>target/classes</additionalClasspathElement>
+                        <additionalClasspathElement>target/classes
+                        </additionalClasspathElement>
                     </additionalClasspathElements>
                     <systemProperties>
                         <property>
@@ -127,7 +132,8 @@
                             </excludes>
                             <enableAssertions>false</enableAssertions>
                             <additionalClasspathElements>
-                                <additionalClasspathElement>target/classes</additionalClasspathElement>
+                                <additionalClasspathElement>target/classes
+                                </additionalClasspathElement>
                             </additionalClasspathElements>
                         </configuration>
                     </execution>

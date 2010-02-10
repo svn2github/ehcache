@@ -20,9 +20,10 @@ package net.sf.ehcache.server.standalone;
 import org.apache.commons.daemon.Daemon;
 import org.apache.commons.daemon.DaemonContext;
 import org.apache.commons.daemon.DaemonController;
-import org.glassfish.embed.EmbeddedException;
-import org.glassfish.embed.EmbeddedInfo;
-import org.glassfish.embed.EmbeddedDeployer;
+import org.glassfish.api.deployment.DeployCommandParameters;
+import org.glassfish.api.embedded.ContainerBuilder;
+import org.glassfish.api.embedded.EmbeddedDeployer;
+import org.glassfish.api.embedded.LifecycleException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,12 +31,12 @@ import java.io.File;
 
 /**
  * The ehcache server.
- *
+ * <p/>
  * By default the server listens for HTTP at 8080 and JMX at 8081.
- *
+ * <p/>
  * The HTTP Port may be passed in. The JMX port is always the HTTP port + 1. So, if the HTTP port is 9076, the JMX
  * listening port will be 9077.
- *
+ * <p/>
  * No other ports are opened.
  *
  * @author <a href="mailto:gluck@gregluck.com">Greg Luck</a>
@@ -69,7 +70,7 @@ public class Server implements Daemon {
     /**
      * Constructs a server listening at the given HTTP port
      *
-     * @param httpPort the HTTP port to listen on. The JMX connector port is always to set to the HTTP port + 1.
+     * @param httpPort         the HTTP port to listen on. The JMX connector port is always to set to the HTTP port + 1.
      * @param ehcacheServerWar the ehcache-server.war
      */
     public Server(Integer httpPort, File ehcacheServerWar) {
@@ -131,7 +132,7 @@ public class Server implements Daemon {
      *
      * @throws InterruptedException if the server is interrupted while stopping
      */
-    static void stopStatic() throws InterruptedException, EmbeddedException {
+    static void stopStatic() throws InterruptedException, LifecycleException {
         serverThread.stopServer();
         //wait indefinitely until it shuts down
         serverThread.join();
@@ -142,7 +143,7 @@ public class Server implements Daemon {
     /**
      * Shuts down the HTTP server in an orderly way.
      */
-    public void stop() throws InterruptedException, EmbeddedException {
+    public void stop() throws InterruptedException, LifecycleException {
         System.out.println("\nEhcache standalone server stopping...");
         stopStatic();
         System.out.println("\nEhcache standalone server stopped.");
@@ -200,9 +201,17 @@ public class Server implements Daemon {
      * @throws Exception
      */
     public static void main(String[] args) throws Exception {
+
+//        String[] arguments = {"9090", "target/war/work/net.sf.ehcache/ehcache-server/greg.war"};
+
         Server server = new Server();
         server.init(new MockDaemonContext(args));
         server.start();
+//        System.out.println("Press Enter to stop server");
+//        // wait for Enter
+//        new BufferedReader(new java.io.InputStreamReader(System.in)).readLine();
+//        //deployer.undeployAll();
+//        server.stop();
     }
 
     /**
@@ -213,7 +222,7 @@ public class Server implements Daemon {
         /**
          * Stops the server.
          */
-        public abstract void stopServer() throws EmbeddedException;
+        public abstract void stopServer() throws LifecycleException;
     }
 
     /**
@@ -221,8 +230,8 @@ public class Server implements Daemon {
      */
     class GlassfishServerThread extends ServerThread {
 
-        private org.glassfish.embed.Server server;
-
+        org.glassfish.api.embedded.Server server;
+        org.glassfish.api.embedded.Server.Builder builder = new org.glassfish.api.embedded.Server.Builder("Ehcache Server");
 
         /**
          * Creates a server in a separate thread.
@@ -238,24 +247,31 @@ public class Server implements Daemon {
 
             try {
 
-                EmbeddedInfo embeddedInfo = new EmbeddedInfo();
-                embeddedInfo.setHttpPort(httpPort);
+                builder.logger(true);
+                builder.verbose(true);
+                //builder.
+
+                server = builder.build();
+                server.createPort(httpPort);
+
+                ContainerBuilder containerBuilder = server.createConfig(ContainerBuilder.Type.web);
+                server.addContainer(containerBuilder);
+
                 Integer jmxPort = httpPort + 1;
-                embeddedInfo.setJmxConnectorPort(jmxPort);
-                embeddedInfo.setServerName("Ehcache Server");
-                embeddedInfo.setLogging(false);
+                // todo embeddedInfo.setJmxConnectorPort(jmxPort);
 
-                server = org.glassfish.embed.Server.getServer("Ehcache Server");
-                if (server == null) {
-                    server = new org.glassfish.embed.Server(embeddedInfo);
-                }
                 server.start();
-                server.setListings(true);
+                DeployCommandParameters params = new DeployCommandParameters();
+                params.contextroot = "ehcache";
+                params.enabled = true;
+                params.force = true;
                 EmbeddedDeployer embeddedDeployer = server.getDeployer();
-                embeddedDeployer.deploy(war);
+                embeddedDeployer.deploy(war, params);
 
-                LOG.info("Glassfish server running on httpPort " + httpPort + " with WAR " + war
-                        + ". JMX is listening at " + jmxPort);
+                LOG.info("Glassfish server running on httpPort " + httpPort + " with WAR "
+                        + war + ". JMX is listening at " + jmxPort);
+
+
             } catch (Exception e) {
                 LOG.error("Cannot start server. ", e);
             }
@@ -264,7 +280,7 @@ public class Server implements Daemon {
         /**
          * Stops the server
          */
-        public void stopServer() throws EmbeddedException {
+        public void stopServer() throws LifecycleException {
             //will cause the startsWithGlassfish method to return, and thus run() thus ending the thread.
             server.stop();
         }
