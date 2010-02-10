@@ -120,7 +120,6 @@ public class EhcacheXAStoreImpl implements EhcacheXAStore {
     public TransactionContext createTransactionContext(Transaction txn) {
         Xid xid = localTxn2XidTable.get(txn);
         XATransactionContext context = new XATransactionContext(xid, this);
-        context.initializeTransients(txn);
         XATransactionContext previous = transactionContextXids.putIfAbsent(xid, context);
         if (previous != null) {
             context = previous;
@@ -190,13 +189,10 @@ public class EhcacheXAStoreImpl implements EhcacheXAStore {
     /**
      * {@inheritDoc}
      */
-    public boolean resume(Xid xid, Transaction tx) {
+    public boolean resume(Xid xid) {
         XATransactionContext context = suspendXids.get(xid);
         if (context != null) {
-            context.initializeTransients(tx);
             transactionContextXids.put(xid, context);
-            localTxn2XidTable.put(tx, xid);
-            localXid2TxnTable.put(xid, tx);
             return true;
         } 
         return false;
@@ -210,9 +206,6 @@ public class EhcacheXAStoreImpl implements EhcacheXAStore {
         XATransactionContext context = transactionContextXids.get(xid);
         suspendXids.putIfAbsent(xid, context);
         transactionContextXids.remove(xid);
-        Transaction txn = localXid2TxnTable.get(xid);
-        localTxn2XidTable.remove(txn);
-        localXid2TxnTable.remove(xid);
     }
 
     /**

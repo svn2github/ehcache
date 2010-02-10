@@ -25,7 +25,6 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-import javax.transaction.Transaction;
 import javax.transaction.xa.Xid;
 
 import net.sf.ehcache.Element;
@@ -47,8 +46,6 @@ public class XATransactionContext implements TransactionContext {
     private final EhcacheXAStore store;
     private final Xid xid;
     private int sizeModifier;
-    private transient Transaction transaction;
-
 
     /**
      *
@@ -61,25 +58,10 @@ public class XATransactionContext implements TransactionContext {
     }
 
     /**
-     * Terracotta express mode clustering callback
-     * @param transaction re-associates the Transaction with the context (transient field)
-     */
-    public void initializeTransients(Transaction transaction) {
-        this.transaction = transaction;
-    }
-
-    /**
      * {@inheritDoc}
      */
     public Element get(Object key) {
         return removedKeys.contains(key) ? null : commandElements.get(key);
-    }
-    
-    /**
-     * {@inheritDoc}
-     */
-    public Transaction getTransaction() {
-        return this.transaction;
     }
 
     /**

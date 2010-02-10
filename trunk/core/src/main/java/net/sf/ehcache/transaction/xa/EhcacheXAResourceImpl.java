@@ -95,20 +95,19 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
      */
     public void start(final Xid xid, final int flags) throws XAException {
         LOG.debug("Start called for Txn with id: " + xid);
-
-        // todo we should probably track state properly here...
-        Transaction tx;
-        try {
-            tx = txnManager.getTransaction();
-        } catch (SystemException e) {
-            throw new EhcacheXAException("Couldn't get to current Transaction: " + e.getMessage(), e.errorCode, e);
-        }
-        if (tx == null) {
-            throw new EhcacheXAException("Couldn't get to current Transaction ", XAException.XAER_OUTSIDE);
-        }
-        if (flags == XAResource.TMRESUME) {
-            ehcacheXAStore.resume(xid, tx);
+        if (flags == XAResource.TMJOIN || flags == XAResource.TMRESUME) {
+            ehcacheXAStore.resume(xid);
         } else {
+            // todo we should probably track state properly here...
+            Transaction tx;
+            try {
+                tx = txnManager.getTransaction();
+            } catch (SystemException e) {
+                throw new EhcacheXAException("Couldn't get to current Transaction: " + e.getMessage(), e.errorCode, e);
+            }
+            if (tx == null) {
+                throw new EhcacheXAException("Couldn't get to current Transaction ", XAException.XAER_OUTSIDE);
+            }
             Xid prevXid = ehcacheXAStore.storeXid2Transaction(xid, tx);
             // If TMJOIN || TMRESUME then the resource manager have seen the xid already.
             if (flags != XAResource.TMJOIN && prevXid != null && !prevXid.equals(xid)) {

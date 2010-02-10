@@ -20,8 +20,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
-import javax.transaction.Transaction;
-
 import net.sf.ehcache.Element;
 import net.sf.ehcache.transaction.xa.VersionAwareCommand;
 
@@ -41,12 +39,6 @@ public interface TransactionContext {
      * @param element Element the command impacts, may be null
      */
     void addCommand(Command command, Element element);
-
-    /**
-     * Getter to the JTA Transaction this context wraps
-     * @return the current Transaction
-     */
-    Transaction getTransaction();
 
     /**
      * Filter to get operations on underlying Store.<p>

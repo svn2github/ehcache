@@ -132,7 +132,7 @@ public interface EhcacheXAStore {
      * @param tx
      * @boolean return's true if suspend Transaction's data existed
      */
-    boolean resume(Xid xid, Transaction tx);
+    boolean resume(Xid xid);
     
     /**
      * Return a newly created prepare context if none exist.
