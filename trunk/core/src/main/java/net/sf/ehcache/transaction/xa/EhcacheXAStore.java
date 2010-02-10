@@ -129,8 +129,7 @@ public interface EhcacheXAStore {
     /**
      * Revive the Transaction's data on resume
      * @param xid
-     * @param tx
-     * @boolean return's true if suspend Transaction's data existed
+     * @return return's true if suspend Transaction's data existed
      */
     boolean resume(Xid xid);
     
