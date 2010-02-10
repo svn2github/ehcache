@@ -164,7 +164,7 @@ used with JMX monitors.
       255 - unrestricted
 
      * hostName - the hostname or IP of the interface to be used for sending and receiving multicast packets
-       (relevant to mulithomed hosts only)
+       (relevant to multi-homed hosts only)
 
     Configuring Manual Discovery:
     Manual discovery requires a unique configuration per host. It is contains a list of rmiURLs for the peers, other
