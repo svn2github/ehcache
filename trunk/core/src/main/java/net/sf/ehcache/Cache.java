@@ -1316,9 +1316,9 @@ public class Cache implements Ehcache {
             Element element;
             long start = System.currentTimeMillis();
 
-            element = searchInMemoryStore(key, true, false, true);
+            element = searchInMemoryStoreWithStats(key, false, true);
             if (element == null && isDiskStore()) {
-                element = searchInDiskStore(key, true, false, true);
+                element = searchInDiskStoreWithStats(key, false, true);
             }
             if (element == null) {
                 liveCacheStatisticsData.cacheMissNotFound();
@@ -1331,9 +1331,9 @@ public class Cache implements Ehcache {
             liveCacheStatisticsData.addGetTimeMillis(end - start);
             return element;
         } else {
-            Element element = searchInMemoryStore(key, false, false, true);
+            Element element = searchInMemoryStoreWithoutStats(key, false, true);
             if (element == null && isDiskStore()) {
-                element = searchInDiskStore(key, false, false, true);
+                element = searchInDiskStoreWithoutStats(key, false, true);
             }
             return element;
         }
@@ -1559,9 +1559,9 @@ public class Cache implements Ehcache {
      */
     public final Element getQuiet(Object key) throws IllegalStateException, CacheException {
         checkStatus();
-        Element element = searchInMemoryStore(key, false, true, false);
+        Element element = searchInMemoryStoreWithoutStats(key, true, false);
         if (element == null && isDiskStore()) {
-            element = searchInDiskStore(key, false, true, false);
+            element = searchInDiskStoreWithoutStats(key, true, false);
         }
         return element;
     }
@@ -1671,14 +1671,6 @@ public class Cache implements Ehcache {
         return allKeys;
     }
 
-    private Element searchInMemoryStore(Object key, boolean statistics, boolean quiet, boolean notifyListeners) {
-        if (statistics) {
-            return searchInMemoryStoreWithStats(key, quiet, notifyListeners);
-        } else {
-            return searchInMemoryStoreWithoutStats(key, quiet, notifyListeners);
-        }
-    }
-    
     private Element searchInMemoryStoreWithStats(Object key, boolean quiet, boolean notifyListeners) {
         Element element;
         if (quiet) {
@@ -1722,19 +1714,17 @@ public class Cache implements Ehcache {
             if (isExpired(element)) {
                 removeInternal(key, true, notifyListeners, false, false);
                 element = null;
-            } else if (!quiet) {
+            } else if (!(quiet || skipUpdateAccessStatistics(element))) {
                 element.updateAccessStatistics();
             }
         }
         return element;
     }
-    
-    private Element searchInDiskStore(Object key, boolean statistics, boolean quiet, boolean notifyListeners) {
-        if (statistics) {
-            return searchInDiskStoreWithStats(key, quiet, notifyListeners);
-        } else {
-            return searchInDiskStoreWithoutStats(key, quiet, notifyListeners);
-        }
+
+    private boolean skipUpdateAccessStatistics(Element element) {
+      return configuration.isFrozen() && element.isEternal()
+              && (configuration.getMaxElementsInMemory() == 0)
+              && (!configuration.isOverflowToDisk() || configuration.getMaxElementsOnDisk() == 0);
     }
 
     private Element searchInDiskStoreWithStats(Object key, boolean quiet, boolean notifyListeners) {
@@ -2555,7 +2545,7 @@ public class Cache implements Ehcache {
         Object[] keys = memoryStore.getKeyArray();
 
         for (Object key : keys) {
-            searchInMemoryStore(key, false, true, true);
+            searchInMemoryStoreWithoutStats(key, true, true);
         }
 
         //This is called regularly by the expiry thread, but call it here synchronously

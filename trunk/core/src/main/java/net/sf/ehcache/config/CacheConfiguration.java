@@ -669,6 +669,12 @@ public class CacheConfiguration implements Cloneable {
     }
 
     /**
+     * Returns true is this configuration is frozen - it cannot be changed dynamically.
+     */
+    public boolean isFrozen() {
+      return frozen;
+    }
+    /**
      * Configuration for the CachePeerListenerFactoryConfiguration.
      */
     public static final class CacheEventListenerFactoryConfiguration extends FactoryConfiguration<CacheEventListenerFactoryConfiguration> {

@@ -28,9 +28,6 @@ import org.hibernate.cache.CacheException;
 import org.hibernate.cache.TransactionalDataRegion;
 import org.hibernate.cfg.Settings;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 /**
  * An Ehcache specific TransactionalDataRegion.
  * <p>
@@ -41,8 +38,6 @@ import org.slf4j.LoggerFactory;
  * @author Emmanuel Bernard
  */
 public class EhcacheTransactionalDataRegion extends EhcacheDataRegion implements TransactionalDataRegion {
-
-    private static final Logger LOG = LoggerFactory.getLogger(EhcacheTransactionalDataRegion.class);
 
     private static final int LOCAL_LOCK_PROVIDER_CONCURRENCY = 128;
     
@@ -92,21 +87,15 @@ public class EhcacheTransactionalDataRegion extends EhcacheDataRegion implements
      * Get the value mapped to this key, or null if no value is mapped to this key.
      */
     public final Object get(Object key) {
-        LOG.debug("key: {}", key);
-        if (key == null) {
-            return null;
-        } else {
-            try {
-                Element element = cache.get(key);
-                if (element == null) {
-                    LOG.debug("Element for key {} is null", key);
-                    return null;
-                } else {
-                    return element.getObjectValue();
-                }
-            } catch (net.sf.ehcache.CacheException e) {
-                throw new CacheException(e);
+        try {
+            Element element = cache.get(key);
+            if (element == null) {
+                return null;
+            } else {
+                return element.getObjectValue();
             }
+        } catch (net.sf.ehcache.CacheException e) {
+            throw new CacheException(e);
         }
     }
 
@@ -114,7 +103,6 @@ public class EhcacheTransactionalDataRegion extends EhcacheDataRegion implements
      * Map the given value to the given key, replacing any existing mapping for this key
      */
     public final void put(Object key, Object value) throws CacheException {
-        LOG.debug("key: {} value: {}", key, value);
         try {
             Element element = new Element(key, value);
             cache.put(element);

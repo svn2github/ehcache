@@ -102,7 +102,7 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
         if (LOG.isDebugEnabled()) {
             LOG.debug("xaResource.start called for Txn with flag: " + getFlagString(flags)  + " and id: " + xid);   
         }
-        if(((flags & TMRESUME) != TMRESUME) && ((flags & TMJOIN) != TMJOIN)) {
+        if (((flags & TMRESUME) != TMRESUME) && ((flags & TMJOIN) != TMJOIN)) {
             Transaction tx;
             try {
                 tx = txnManager.getTransaction();
@@ -121,7 +121,7 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
             }
             Xid prevXid = ehcacheXAStore.storeXid2Transaction(xid, tx);
          
-            if ( prevXid != null && !prevXid.equals(xid)) {
+            if (prevXid != null && !prevXid.equals(xid)) {
                 throw new EhcacheXAException("Duplicated XID: " + xid, XAException.XAER_DUPID);
             }
         }      

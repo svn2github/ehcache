@@ -133,7 +133,7 @@ abstract class AbstractReadWriteEhcacheAccessStrategy<T extends EhcacheTransacti
             if ((item != null) && item.isUnlockable(lock)) {
                 decrementLock(key, (Lock) item);
             } else {
-                handleLockExpiry(key);
+                handleLockExpiry(key, item);
             }
         } finally {
             region.writeUnlock(key);
@@ -155,14 +155,15 @@ abstract class AbstractReadWriteEhcacheAccessStrategy<T extends EhcacheTransacti
     /**
      * Handle the timeout of a previous lock mapped to this key
      */
-    protected void handleLockExpiry(Object key) {
-        LOG.warn("A soft-locked cache entry was expired by the underlying Ehcache. " 
+    protected void handleLockExpiry(Object key, Lockable lock) {
+        LOG.warn("Cache " + region.getName() + " Key " + key + " Lockable : " + lock + "\n"
+                + "A soft-locked cache entry was expired by the underlying Ehcache. " 
                 + "If this happens regularly you should consider increasing the cache timeouts and/or capacity limits");
         long ts = region.nextTimestamp() + region.getTimeout();
         // create new lock that times out immediately
-        Lock lock = new Lock(ts, uuid, nextLockId.getAndIncrement(), null);
-        lock.unlock(ts);
-        region.put(key, lock);
+        Lock newLock = new Lock(ts, uuid, nextLockId.getAndIncrement(), null);
+        newLock.unlock(ts);
+        region.put(key, newLock);
     }
 
     /**
@@ -284,7 +285,7 @@ abstract class AbstractReadWriteEhcacheAccessStrategy<T extends EhcacheTransacti
 
         private long timeout;
         private boolean concurrent;
-        private int multiplicity;
+        private int multiplicity = 1;
         private long unlockTimestamp;
 
         /**

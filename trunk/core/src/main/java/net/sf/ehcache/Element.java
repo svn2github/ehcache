@@ -636,7 +636,7 @@ public class Element implements Serializable, Cloneable {
      * @see #getExpirationTime()
      */
     public boolean isExpired() {
-        if (!isLifespanSet()) {
+        if (!isLifespanSet() || isEternal()) {
             return false;
         }
 
