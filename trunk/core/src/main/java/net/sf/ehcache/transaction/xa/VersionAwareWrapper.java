@@ -19,6 +19,7 @@ package net.sf.ehcache.transaction.xa;
 import net.sf.ehcache.store.Store;
 import net.sf.ehcache.transaction.Command;
 import net.sf.ehcache.transaction.StoreWriteCommand;
+import net.sf.ehcache.writer.CacheWriterManager;
 
 /**
  * Wraps a {@link net.sf.ehcache.transaction.Command}, that will first be checked against
@@ -65,6 +66,13 @@ public class VersionAwareWrapper implements Command, VersionAwareCommand {
      */
     public boolean execute(Store store) {
         return command.execute(store);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public boolean execute(final CacheWriterManager cacheWriterManager) {
+        return command.execute(cacheWriterManager);
     }
 
     /**

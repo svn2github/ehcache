@@ -18,6 +18,7 @@ package net.sf.ehcache.transaction;
 
 import net.sf.ehcache.Element;
 import net.sf.ehcache.store.Store;
+import net.sf.ehcache.writer.CacheWriterManager;
 
 /**
  * Represents a {@link net.sf.ehcache.store.Store#put(net.sf.ehcache.Element)} put} operation to be executed on a {@link Store}.
@@ -40,6 +41,14 @@ public class StorePutCommand implements StoreWriteCommand {
      */
     public boolean execute(final Store store) {
         store.put(element);
+        return true;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public boolean execute(final CacheWriterManager cacheWriterManager) {
+        cacheWriterManager.put(element);
         return true;
     }
 

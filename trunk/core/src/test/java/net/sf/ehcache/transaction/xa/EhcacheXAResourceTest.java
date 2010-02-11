@@ -16,6 +16,9 @@
 
 package net.sf.ehcache.transaction.xa;
 
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -39,6 +42,7 @@ import javax.transaction.xa.Xid;
 
 import junit.framework.TestCase;
 import net.sf.ehcache.CacheException;
+import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.Status;
 import net.sf.ehcache.store.LruPolicy;
@@ -60,7 +64,9 @@ public class EhcacheXAResourceTest extends TestCase {
         TestStore oldVersionStore = new TestStore();
         TestTransactionManager txnManager = new TestTransactionManager();
         EhcacheXAStoreImpl store = new EhcacheXAStoreImpl(underlyingStore, oldVersionStore);
-        EhcacheXAResourceImpl resource = new EhcacheXAResourceImpl("testCache", txnManager, store);
+        Ehcache theCache = mock(Ehcache.class);
+        when(theCache.getName()).thenReturn("testCache");
+        EhcacheXAResourceImpl resource = new EhcacheXAResourceImpl(theCache, txnManager, store);
         TestXid xid1 = new TestXid(1L);
 
         try {

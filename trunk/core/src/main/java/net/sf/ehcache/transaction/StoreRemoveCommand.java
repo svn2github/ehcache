@@ -17,6 +17,7 @@
 package net.sf.ehcache.transaction;
 
 import net.sf.ehcache.store.Store;
+import net.sf.ehcache.writer.CacheWriterManager;
 
 /**
  * Represents a {@link net.sf.ehcache.store.Store#remove(Object) remove} operation to be executed on a {@link Store}.
@@ -39,6 +40,14 @@ public class StoreRemoveCommand implements StoreWriteCommand {
      */
     public boolean execute(final Store store) {
         return store.remove(key) != null;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public boolean execute(final CacheWriterManager cacheWriterManager) {
+        cacheWriterManager.remove(key);
+        return true;
     }
 
     /**

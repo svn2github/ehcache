@@ -416,7 +416,7 @@ public class CacheManager {
         } else {
             ehcacheXAStore = new EhcacheXAStoreImpl(store, MemoryStore.create(cache, null));
         }      
-        return new EhcacheXAResourceImpl(cache.getName(), txnManager, ehcacheXAStore);
+        return new EhcacheXAResourceImpl(cache, txnManager, ehcacheXAStore);
         
     }
     

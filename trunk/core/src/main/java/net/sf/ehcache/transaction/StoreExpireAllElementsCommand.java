@@ -17,6 +17,7 @@
 package net.sf.ehcache.transaction;
 
 import net.sf.ehcache.store.Store;
+import net.sf.ehcache.writer.CacheWriterManager;
 
 /**
  * Represents an {@link net.sf.ehcache.store.Store#expireElements() expireElements} operation to be executed on a {@link Store}.
@@ -30,6 +31,13 @@ public class StoreExpireAllElementsCommand implements StoreWriteCommand {
     public boolean execute(final Store store) {
         store.expireElements();
         return true;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public boolean execute(final CacheWriterManager cacheWriterManager) {
+        return false;
     }
 
     /**

@@ -21,6 +21,7 @@ import java.util.Set;
 
 import javax.transaction.RollbackException;
 import javax.transaction.Status;
+import javax.transaction.Synchronization;
 import javax.transaction.SystemException;
 import javax.transaction.Transaction;
 import javax.transaction.TransactionManager;
@@ -29,12 +30,14 @@ import javax.transaction.xa.XAResource;
 import javax.transaction.xa.Xid;
 
 import net.sf.ehcache.CacheException;
+import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.concurrent.CacheLockProvider;
 import net.sf.ehcache.concurrent.LockType;
 import net.sf.ehcache.concurrent.Sync;
 import net.sf.ehcache.store.Store;
 import net.sf.ehcache.transaction.TransactionContext;
+import net.sf.ehcache.writer.CacheWriterManager;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -52,34 +55,37 @@ import org.slf4j.LoggerFactory;
  */
 public class EhcacheXAResourceImpl implements EhcacheXAResource {
 
-    private static final Logger LOG = LoggerFactory.getLogger(EhcacheXAResourceImpl.class.getName());
     private static final int DEFAULT_TIMEOUT = 60;
 
-    private final String cacheName;
-    private final EhcacheXAStore ehcacheXAStore;
-    private final Set<Xid> recoverySet = new HashSet<Xid>();
+    private static final Logger LOG = LoggerFactory.getLogger(EhcacheXAResourceImpl.class.getName());
 
-    private volatile int transactionTimeout = DEFAULT_TIMEOUT;
-    private volatile Store store;
-    private volatile Store oldVersionStore;
-    private volatile TransactionManager txnManager;
+    private final String             cacheName;
+    private final EhcacheXAStore     ehcacheXAStore;
+    private final Store              store;
+    private final Store              oldVersionStore;
+    private final TransactionManager txnManager;
+    private final CacheWriterManager cacheWriterManager;
+    private final Set<Xid>           recoverySet     = new HashSet<Xid>();
+
+    private       volatile int                transactionTimeout = DEFAULT_TIMEOUT;
 
     /**
      * Constructor
      * 
-     * @param cacheName
+     * @param cache
      *            The cache name of the Cache wrapped
      * @param txnManager
      *            the TransactionManager associated with this XAResource
      * @param ehcacheXAStore
      *            The EhcacheXAStore for this cache
      */
-    public EhcacheXAResourceImpl(String cacheName, TransactionManager txnManager, EhcacheXAStore ehcacheXAStore) {
-        this.cacheName = cacheName;
-        this.store = ehcacheXAStore.getUnderlyingStore();
-        this.txnManager = txnManager;
-        this.ehcacheXAStore = ehcacheXAStore;
-        this.oldVersionStore = ehcacheXAStore.getOldVersionStore();
+    public EhcacheXAResourceImpl(Ehcache cache, TransactionManager txnManager, EhcacheXAStore ehcacheXAStore) {
+        this.cacheName          = cache.getName();
+        this.store              = ehcacheXAStore.getUnderlyingStore();
+        this.txnManager         = txnManager;
+        this.ehcacheXAStore     = ehcacheXAStore;
+        this.oldVersionStore    = ehcacheXAStore.getOldVersionStore();
+        this.cacheWriterManager = cache.getWriterManager();
     }
 
     /**
@@ -100,6 +106,13 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
         Transaction tx;
         try {
             tx = txnManager.getTransaction();
+            if(cacheWriterManager != null) {
+                try {
+                    tx.registerSynchronization(new CacheWriterManagerSynchronization());
+                } catch (RollbackException e) {
+                    // Safely ignore this
+                }
+            }
         } catch (SystemException e) {
             throw new EhcacheXAException("Couldn't get to current Transaction: " + e.getMessage(), e.errorCode, e);
         }
@@ -536,5 +549,37 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
             flagString = "UNKNOWN";
         }
         return flagString;
+    }
+    
+    
+    /**
+     * Writes stuff to the CacheWriterManager just before the Transaction is ended for commit
+     */
+    private class CacheWriterManagerSynchronization implements Synchronization {
+
+        /**
+         * {@inheritDoc}
+         */
+        public void beforeCompletion() {
+            try {
+                TransactionContext context = getOrCreateTransactionContext();
+                context.getRemovedKeys();
+                for (VersionAwareCommand versionAwareCommand : context.getCommands()) {
+                    versionAwareCommand.execute(cacheWriterManager);
+                }
+            } catch (SystemException e) {
+                // this will cause the tx to be rolled back by the TransactionManager
+                throw new CacheException("Error synching writer", e);
+            } catch (RollbackException e) {
+                // Ignore safely
+            }
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        public void afterCompletion(final int status) {
+            // we don't care
+        }
     }
 }

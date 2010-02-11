@@ -17,6 +17,7 @@
 package net.sf.ehcache.transaction;
 
 import net.sf.ehcache.store.Store;
+import net.sf.ehcache.writer.CacheWriterManager;
 
 /**
  * A Command represents an operation to be executed on a {@link Store}.
@@ -64,6 +65,13 @@ public interface Command {
      * @return true if the store was mutated, false otherwise
      */
     boolean execute(Store store);
+
+    /**
+     * Executes the command on some cacheWriterManager 
+     * @param cacheWriterManager the CacheWriterManager on which to execute the command
+     * @return true if the CacheWriterManager was called
+     */
+    boolean execute(CacheWriterManager cacheWriterManager);
 
     /**
      * Is this command represents adding a key to the store
