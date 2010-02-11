@@ -106,7 +106,7 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
         Transaction tx;
         try {
             tx = txnManager.getTransaction();
-            if(cacheWriterManager != null) {
+            if (cacheWriterManager != null) {
                 try {
                     tx.registerSynchronization(new CacheWriterManagerSynchronization());
                 } catch (RollbackException e) {
