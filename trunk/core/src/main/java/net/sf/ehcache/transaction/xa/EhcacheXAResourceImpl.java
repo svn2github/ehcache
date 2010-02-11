@@ -100,9 +100,9 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
      */
     public void start(final Xid xid, final int flags) throws XAException {
         if (LOG.isDebugEnabled()) {
-            LOG.debug("xaResource.start called for Txn with flag: " + getFlagString(flags)  + " and id: " + xid);   
+            LOG.debug("xaResource.start called for Txn with flag: " + prettyPrintFlags(flags)  + " and id: " + xid);   
         }
-        if (((flags & TMRESUME) != TMRESUME) && ((flags & TMJOIN) != TMJOIN)) {
+        if (!isFlagSet(flags, TMRESUME) && !isFlagSet(flags, TMJOIN)) {
             Transaction tx;
             try {
                 tx = txnManager.getTransaction();
@@ -132,9 +132,9 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
      */
     public void end(final Xid xid, final int flags) throws XAException {
         if (LOG.isDebugEnabled()) {
-            LOG.debug("xaResource.end called for Txn with flag: " + getFlagString(flags)  + " and id: " + xid);   
+            LOG.debug("xaResource.end called for Txn with flag: " + prettyPrintFlags(flags)  + " and id: " + xid);   
         }
-        if (TMFAIL == (flags & TMFAIL)) {
+        if (isFlagSet(flags, TMFAIL)) {
             if (ehcacheXAStore.isPrepared(xid)) {
                 markContextForRollback(xid);
             } else {
@@ -205,12 +205,12 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
      */
     public Xid[] recover(final int flags) throws XAException {
         if (LOG.isDebugEnabled()) {
-            LOG.debug("xaResource.recover called for Txn with flag: " + getFlagString(flags));   
+            LOG.debug("xaResource.recover called for Txn with flag: " + prettyPrintFlags(flags));   
         }
 
         Set<Xid> xids = new HashSet<Xid>();
 
-        if ((flags & TMSTARTRSCAN) == TMSTARTRSCAN) {
+        if (isFlagSet(flags, TMSTARTRSCAN)) {
             recoverySet.clear();
         }
 
@@ -228,7 +228,7 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
 
         Xid[] toRecover = xids.toArray(new Xid[xids.size()]);
 
-        if ((flags & TMENDRSCAN) == TMENDRSCAN) {
+        if (isFlagSet(flags, TMENDRSCAN)) {
             recoverySet.clear();
         }
 
@@ -517,40 +517,34 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
     }
     
     /**
+     * 
+     * @param flags
+     * @param flag
+     * @return
+     */
+    private boolean isFlagSet(int flags, int mask) {
+        return mask == (flags & mask);
+    }
+    
+    private String printFlag(int flags, int mask, String flagStr) {
+        return isFlagSet(flags, mask) ? flagStr : "";
+    }
+    /**
      * Return the string version of the flag
      * @param flag
      * @return
      */
-    private String getFlagString(int flags) {
+    private String prettyPrintFlags(int flags) {
         StringBuffer flagStrings = new StringBuffer();
-        if (TMENDRSCAN == (flags & TMENDRSCAN)) {
-            flagStrings.append("TMENDRSCAN ");
-        }
-        if (TMFAIL == (flags & TMFAIL)) {
-            flagStrings.append("TMFAIL ");
-        }
-        if (TMJOIN == (flags & TMJOIN)) {
-            flagStrings.append("TMJOIN ");
-        } 
-        if (TMNOFLAGS == (flags & TMNOFLAGS)) {
-            flagStrings.append("TMNOFLAGS ");
-        } 
-        if (TMONEPHASE == (flags & TMONEPHASE)) {
-            flagStrings.append("TMONEPHASE ");
-        } 
-        if (TMRESUME == (flags & TMRESUME)) {
-            flagStrings.append("TMRESUME ");
-        } 
-        if (TMSTARTRSCAN == (flags & TMSTARTRSCAN)) {
-            flagStrings.append("TMSTARTRSCAN ");
-        }
-        if (TMSUCCESS == (flags & TMSUCCESS)) {
-            flagStrings.append("TMSUCCESS ");
-        }
-        if (TMSUSPEND == (flags & TMSUSPEND)) {
-            flagStrings.append("TMSUSPEND ");
-        }
-       
+        flagStrings.append(printFlag(flags, TMENDRSCAN, "TMENDRSCAN "));
+        flagStrings.append(printFlag(flags, TMFAIL, "TMFAIL "));
+        flagStrings.append(printFlag(flags, TMJOIN, "TMJOIN "));
+        flagStrings.append(printFlag(flags, TMNOFLAGS, "TMNOFLAGS "));
+        flagStrings.append(printFlag(flags, TMONEPHASE, "TMONEPHASE "));
+        flagStrings.append(printFlag(flags, TMRESUME, "TMRESUME "));
+        flagStrings.append(printFlag(flags, TMSTARTRSCAN, "TMSTARTRSCAN "));
+        flagStrings.append(printFlag(flags, TMSUCCESS, "TMSUCCESS "));
+        flagStrings.append(printFlag(flags, TMSUSPEND, "TMSUSPEND ")); 
         String flagStr = flagStrings.toString();
         return flagStr.equals("") ?  "UNKNOWN" : flagStr;
     }
