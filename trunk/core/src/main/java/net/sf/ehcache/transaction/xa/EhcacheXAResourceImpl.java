@@ -102,7 +102,7 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
         if (LOG.isDebugEnabled()) {
             LOG.debug("xaResource.start called for Txn with flag: " + getFlagString(flags)  + " and id: " + xid);   
         }
-        if(((flags & TMRESUME) != TMRESUME)  && ((flags & TMJOIN) != TMJOIN)) {
+        if(((flags & TMRESUME) != TMRESUME) && ((flags & TMJOIN) != TMJOIN)) {
             Transaction tx;
             try {
                 tx = txnManager.getTransaction();
