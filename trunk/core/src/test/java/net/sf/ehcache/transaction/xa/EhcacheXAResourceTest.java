@@ -68,16 +68,21 @@ public class EhcacheXAResourceTest extends TestCase {
         when(theCache.getName()).thenReturn("testCache");
         EhcacheXAResourceImpl resource = new EhcacheXAResourceImpl(theCache, txnManager, store);
         TestXid xid1 = new TestXid(1L);
-
         try {
-            resource.start(xid1, XAResource.TMJOIN);
+            resource.start(xid1, XAResource.TMNOFLAGS);
             fail("XAException if no transaction started by txnManager");
         } catch (XAException e) {
             assertTrue(e.getMessage().contains("Couldn't get to current Transaction"));
         }
-
+        
         TestTransaction testTxn = new TestTransaction();
         txnManager.txn = testTxn;
+
+        try {
+            resource.start(xid1, XAResource.TMNOFLAGS);
+        } catch (XAException e) {
+            fail("XAException if no transaction started by txnManager");
+        }
 
         try {
             resource.start(xid1, XAResource.TMJOIN);
@@ -105,7 +110,7 @@ public class EhcacheXAResourceTest extends TestCase {
         txnManager.txn = testTxn;
 
         try {
-            resource.start(xid1, XAResource.TMJOIN);
+            resource.start(xid1, XAResource.TMONEPHASE);
         } catch (XAException e) {
             fail("shouldn't throw exception since txn is available.");
         }
@@ -159,7 +164,12 @@ public class EhcacheXAResourceTest extends TestCase {
         try {
             resource.commit(xid1, false);
         } catch (XAException e) {
-            fail("Shoudn't throw an exception..");
+            assertTrue(e.getMessage().contains("has been heuristically rolled back"));
+            try {
+                resource.rollback(xid1);
+            } catch (XAException e1) {
+                fail("Shoudn't throw an exception..");
+            }
         }
 
         assertEquals(1, underlyingStore.getSize());

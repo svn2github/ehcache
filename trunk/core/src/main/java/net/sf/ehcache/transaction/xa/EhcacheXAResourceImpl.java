@@ -525,26 +525,34 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
         StringBuffer flagStrings = new StringBuffer();
         if (TMENDRSCAN == (flags & TMENDRSCAN)) {
             flagStrings.append("TMENDRSCAN ");
-        } else if (TMFAIL == (flags & TMFAIL)) {
-            flagStrings.append("TMFAIL ");
-        } else if (TMJOIN == (flags & TMJOIN)) {
-            flagStrings.append("TMJOIN ");
-        } else if (TMNOFLAGS == (flags & TMNOFLAGS)) {
-            flagStrings.append("TMNOFLAGS ");
-        } else if (TMONEPHASE == (flags & TMONEPHASE)) {
-            flagStrings.append("TMONEPHASE ");
-        } else if (TMRESUME == (flags & TMRESUME)) {
-            flagStrings.append("TMRESUME ");
-        } else if (TMSTARTRSCAN == (flags & TMSTARTRSCAN)) {
-            flagStrings.append("TMSTARTRSCAN ");
-        } else if (TMSUCCESS == (flags & TMSUCCESS)) {
-            flagStrings.append("TMSUCCESS ");
-        } else if (TMSUSPEND == (flags & TMSUSPEND)) {
-            flagStrings.append("TMSUSPEND ");
-        } else {
-            flagStrings.append("UNKNOWN,");
         }
-        return flagStrings.toString();
+        if (TMFAIL == (flags & TMFAIL)) {
+            flagStrings.append("TMFAIL ");
+        }
+        if (TMJOIN == (flags & TMJOIN)) {
+            flagStrings.append("TMJOIN ");
+        } 
+        if(TMNOFLAGS == (flags & TMNOFLAGS)) {
+            flagStrings.append("TMNOFLAGS ");
+        } 
+        if (TMONEPHASE == (flags & TMONEPHASE)) {
+            flagStrings.append("TMONEPHASE ");
+        } 
+        if (TMRESUME == (flags & TMRESUME)) {
+            flagStrings.append("TMRESUME ");
+        } 
+        if (TMSTARTRSCAN == (flags & TMSTARTRSCAN)) {
+            flagStrings.append("TMSTARTRSCAN ");
+        }
+        if (TMSUCCESS == (flags & TMSUCCESS)) {
+            flagStrings.append("TMSUCCESS ");
+        }
+        if (TMSUSPEND == (flags & TMSUSPEND)) {
+            flagStrings.append("TMSUSPEND ");
+        }
+       
+        String flagStr = flagStrings.toString();
+        return flagStr.equals("") ?  "UNKNOWN" : flagStr;
     }
     
     
