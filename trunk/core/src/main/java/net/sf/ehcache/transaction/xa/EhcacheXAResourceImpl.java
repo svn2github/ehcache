@@ -102,29 +102,29 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
         if (LOG.isDebugEnabled()) {
             LOG.debug("xaResource.start called for Txn with flag: " + getFlagString(flags)  + " and id: " + xid);   
         }
-        
-        Transaction tx;
-        try {
-            tx = txnManager.getTransaction();
-            if (cacheWriterManager != null) {
-                try {
-                    tx.registerSynchronization(new CacheWriterManagerSynchronization());
-                } catch (RollbackException e) {
-                    // Safely ignore this
+        if(((flags & TMRESUME) != TMRESUME)  && ((flags & TMJOIN) != TMJOIN)) {
+            Transaction tx;
+            try {
+                tx = txnManager.getTransaction();
+                if (cacheWriterManager != null) {
+                    try {
+                        tx.registerSynchronization(new CacheWriterManagerSynchronization());
+                    } catch (RollbackException e) {
+                        // Safely ignore this
+                    }
                 }
+            } catch (SystemException e) {
+                throw new EhcacheXAException("Couldn't get to current Transaction: " + e.getMessage(), e.errorCode, e);
             }
-        } catch (SystemException e) {
-            throw new EhcacheXAException("Couldn't get to current Transaction: " + e.getMessage(), e.errorCode, e);
-        }
-        if (tx == null) {
-            throw new EhcacheXAException("Couldn't get to current Transaction ", XAException.XAER_OUTSIDE);
-        }
-        Xid prevXid = ehcacheXAStore.storeXid2Transaction(xid, tx);
-     
-        if (((flags & TMRESUME) != TMRESUME)  && ((flags & TMJOIN) != TMJOIN) && prevXid != null && !prevXid.equals(xid)) {
-            throw new EhcacheXAException("Duplicated XID: " + xid, XAException.XAER_DUPID);
-        }
-       
+            if (tx == null) {
+                throw new EhcacheXAException("Couldn't get to current Transaction ", XAException.XAER_OUTSIDE);
+            }
+            Xid prevXid = ehcacheXAStore.storeXid2Transaction(xid, tx);
+         
+            if ( prevXid != null && !prevXid.equals(xid)) {
+                throw new EhcacheXAException("Duplicated XID: " + xid, XAException.XAER_DUPID);
+            }
+        }      
     }
 
     /**
