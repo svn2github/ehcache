@@ -35,7 +35,7 @@ public interface PreparedContext {
      *
      * @return all commands from the queue
      */
-    public abstract List<VersionAwareCommand> getCommands();
+    public abstract List<PreparedCommand> getPreparedCommands();
 
     /**
      * return set of keys associated with prepared commands

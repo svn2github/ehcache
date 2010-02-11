@@ -241,7 +241,7 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
             if (!context.isCommited() && !context.isRolledBack()) {
                 Sync[] syncForKeys = ((CacheLockProvider) oldVersionStore.getInternalContext()).getAndWriteLockAllSyncForKeys(context
                         .getUpdatedKeys().toArray());
-                for (VersionAwareCommand command : context.getCommands()) {
+                for (PreparedCommand command : context.getPreparedCommands()) {
                     Object key = command.getKey();
                     if (key != null) {
                         ehcacheXAStore.checkin(key, xid, command.isWriteCommand());
@@ -276,7 +276,7 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
             CacheLockProvider storeLockProvider = (CacheLockProvider) store.getInternalContext();
             CacheLockProvider oldVersionStoreLockProvider = (CacheLockProvider) oldVersionStore.getInternalContext();
 
-            for (VersionAwareCommand command : context.getCommands()) {
+            for (PreparedCommand command : context.getPreparedCommands()) {
                 Object key = command.getKey();
                 if (key != null) {
                     Sync syncForKey = oldVersionStoreLockProvider.getSyncForKey(key);
@@ -463,7 +463,7 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
         syncForKey.lock(LockType.WRITE);
         try {
             if (!ehcacheXAStore.isValid(command, xid)) {
-                for (VersionAwareCommand addedCommand : preparedContext.getCommands()) {
+                for (PreparedCommand addedCommand : preparedContext.getPreparedCommands()) {
                     oldVersionStore.remove(addedCommand.getKey());
                 }
                 throw new EhcacheXAException("Invalid version for element: " + command.getKey(), XAException.XA_RBINTEGRITY);

@@ -29,7 +29,7 @@ import java.util.Set;
  */
 public class PreparedContextImpl implements PreparedContext {
 
-    private final          List<VersionAwareCommand> commands   = new ArrayList<VersionAwareCommand>();
+    private final          List<PreparedCommand> commands   = new ArrayList<PreparedCommand>();
     private       volatile boolean                   rolledBack;
     private       volatile boolean                   commited;
 
@@ -37,13 +37,13 @@ public class PreparedContextImpl implements PreparedContext {
      * {@inheritDoc}
      */    
     public void addCommand(VersionAwareCommand command) {
-      commands.add(command);
+      commands.add(new PreparedCommandImpl(command.getKey(), command.isWriteCommand()));
     }
 
     /**
      * {@inheritDoc}
      */    
-    public List<VersionAwareCommand> getCommands() {
+    public List<PreparedCommand> getPreparedCommands() {
       return Collections.unmodifiableList(commands);
     }
 
@@ -53,7 +53,7 @@ public class PreparedContextImpl implements PreparedContext {
     public Set<Object> getUpdatedKeys() {
         
         Set<Object> keys = new HashSet<Object>();
-        for (VersionAwareCommand command : getCommands()) {
+        for (PreparedCommand command : getPreparedCommands()) {
             Object key = command.getKey();
             if (key != null) {
                 keys.add(key);
