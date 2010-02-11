@@ -532,7 +532,7 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
         if (TMJOIN == (flags & TMJOIN)) {
             flagStrings.append("TMJOIN ");
         } 
-        if(TMNOFLAGS == (flags & TMNOFLAGS)) {
+        if (TMNOFLAGS == (flags & TMNOFLAGS)) {
             flagStrings.append("TMNOFLAGS ");
         } 
         if (TMONEPHASE == (flags & TMONEPHASE)) {
