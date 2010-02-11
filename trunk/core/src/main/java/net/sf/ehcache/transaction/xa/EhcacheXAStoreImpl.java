@@ -41,8 +41,6 @@ public class EhcacheXAStoreImpl implements EhcacheXAStore {
     /** protected for testing **/
     protected final ConcurrentMap<Xid, PreparedContext>        prepareXids            = new ConcurrentHashMap<Xid, PreparedContext>();
     /** protected for testing **/
-    protected final ConcurrentMap<Xid, XATransactionContext>   suspendXids            = new ConcurrentHashMap<Xid, XATransactionContext>();
-    /** protected for testing **/
     protected final ConcurrentMap<Transaction, Xid>            localTxn2XidTable      = new ConcurrentHashMap<Transaction, Xid>();
     /** protected for testing **/
     protected final ConcurrentMap<Xid, Transaction>            localXid2TxnTable      = new ConcurrentHashMap<Xid, Transaction>();
@@ -82,7 +80,6 @@ public class EhcacheXAStoreImpl implements EhcacheXAStore {
      */
     public void removeData(final Xid xid) {
         prepareXids.remove(xid);
-        suspendXids.remove(xid);
         transactionContextXids.remove(xid);
         Transaction txn = localXid2TxnTable.get(xid);
         if (txn != null) {
@@ -184,28 +181,6 @@ public class EhcacheXAStoreImpl implements EhcacheXAStore {
      */
     public Store getUnderlyingStore() {
         return underlyingStore;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public boolean resume(Xid xid) {
-        XATransactionContext context = suspendXids.get(xid);
-        if (context != null) {
-            transactionContextXids.put(xid, context);
-            return true;
-        } 
-        return false;
-        
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public void suspend(Xid xid) {
-        XATransactionContext context = transactionContextXids.get(xid);
-        suspendXids.putIfAbsent(xid, context);
-        transactionContextXids.remove(xid);
     }
 
     /**

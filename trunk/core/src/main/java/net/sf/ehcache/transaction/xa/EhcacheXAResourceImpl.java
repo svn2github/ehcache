@@ -96,24 +96,22 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
         if (LOG.isDebugEnabled()) {
             LOG.debug("xaResource.start called for Txn with flag: " + getFlagString(flags)  + " and id: " + xid);   
         }
-        if (flags == XAResource.TMJOIN || flags == XAResource.TMRESUME) {
-            ehcacheXAStore.resume(xid);
-        } else {
-            Transaction tx;
-            try {
-                tx = txnManager.getTransaction();
-            } catch (SystemException e) {
-                throw new EhcacheXAException("Couldn't get to current Transaction: " + e.getMessage(), e.errorCode, e);
-            }
-            if (tx == null) {
-                throw new EhcacheXAException("Couldn't get to current Transaction ", XAException.XAER_OUTSIDE);
-            }
-            Xid prevXid = ehcacheXAStore.storeXid2Transaction(xid, tx);
-         
-            if (prevXid != null && !prevXid.equals(xid)) {
-                throw new EhcacheXAException("Duplicated XID: " + xid, XAException.XAER_DUPID);
-            }
+        
+        Transaction tx;
+        try {
+            tx = txnManager.getTransaction();
+        } catch (SystemException e) {
+            throw new EhcacheXAException("Couldn't get to current Transaction: " + e.getMessage(), e.errorCode, e);
         }
+        if (tx == null) {
+            throw new EhcacheXAException("Couldn't get to current Transaction ", XAException.XAER_OUTSIDE);
+        }
+        Xid prevXid = ehcacheXAStore.storeXid2Transaction(xid, tx);
+     
+        if (flags == XAResource.TMNOFLAGS && prevXid != null && !prevXid.equals(xid)) {
+            throw new EhcacheXAException("Duplicated XID: " + xid, XAException.XAER_DUPID);
+        }
+       
     }
 
     /**
@@ -129,8 +127,6 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
             } else {
                 ehcacheXAStore.removeData(xid);
             }
-        } else if (XAResource.TMSUSPEND == flags) {
-            ehcacheXAStore.suspend(xid);
         }
 
     }

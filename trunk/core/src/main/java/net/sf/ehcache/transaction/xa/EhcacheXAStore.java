@@ -121,19 +121,6 @@ public interface EhcacheXAStore {
     void prepare(Xid xid, PreparedContext context);
     
     /**
-     * Save the Transaction's data on suspend
-     * @param xid the Xid of the Transaction
-     */
-    void suspend(Xid xid);
-    
-    /**
-     * Revive the Transaction's data on resume
-     * @param xid
-     * @return return's true if suspend Transaction's data existed
-     */
-    boolean resume(Xid xid);
-    
-    /**
      * Return a newly created prepare context if none exist.
      * @return a new PreparedContext
      */
