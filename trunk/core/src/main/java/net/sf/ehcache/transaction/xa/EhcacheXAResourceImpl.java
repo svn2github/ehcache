@@ -121,7 +121,7 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
         }
         Xid prevXid = ehcacheXAStore.storeXid2Transaction(xid, tx);
      
-        if (flags == XAResource.TMNOFLAGS && prevXid != null && !prevXid.equals(xid)) {
+        if (((flags & TMRESUME) != TMRESUME)  && ((flags & TMJOIN) != TMJOIN) && prevXid != null && !prevXid.equals(xid)) {
             throw new EhcacheXAException("Duplicated XID: " + xid, XAException.XAER_DUPID);
         }
        
@@ -134,7 +134,7 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
         if (LOG.isDebugEnabled()) {
             LOG.debug("xaResource.end called for Txn with flag: " + getFlagString(flags)  + " and id: " + xid);   
         }
-        if (XAResource.TMFAIL == flags) {
+        if (TMFAIL == (flags & TMFAIL)) {
             if (ehcacheXAStore.isPrepared(xid)) {
                 markContextForRollback(xid);
             } else {
@@ -521,34 +521,30 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
      * @param flag
      * @return
      */
-    private String getFlagString(int flag) {
-        String flagString = null;
-        if (XAResource.TMENDRSCAN == flag) {
-            flagString = "TMENDRSCAN";
-        } else if (XAResource.TMFAIL == flag) {
-            flagString = "TMFAIL";
-        } else if (XAResource.TMJOIN == flag) {
-            flagString = "TMJOIN";
-        } else if (XAResource.TMNOFLAGS == flag) {
-            flagString = "TMNOFLAGS";
-        } else if (XAResource.TMONEPHASE == flag) {
-            flagString = "TMONEPHASE";
-        } else if (XAResource.TMRESUME == flag) {
-            flagString = "TMRESUME";
-        } else if (XAResource.TMSTARTRSCAN == flag) {
-            flagString = "TMSTARTRSCAN";
-        } else if (XAResource.TMSUCCESS == flag) {
-            flagString = "TMSUCCESS";
-        } else if (XAResource.TMSUSPEND == flag) {
-            flagString = "TMSUSPEND";
-        } else if (XAResource.XA_OK == flag) {
-            flagString = "XA_OK";
-        } else if (XAResource.XA_RDONLY == flag) {
-            flagString = "XA_RDONLY";
+    private String getFlagString(int flags) {
+        StringBuffer flagStrings = new StringBuffer();
+        if (TMENDRSCAN == (flags & TMENDRSCAN)) {
+            flagStrings.append("TMENDRSCAN ");
+        } else if (TMFAIL == (flags & TMFAIL)) {
+            flagStrings.append("TMFAIL ");
+        } else if (TMJOIN == (flags & TMJOIN)) {
+            flagStrings.append("TMJOIN ");
+        } else if (TMNOFLAGS == (flags & TMNOFLAGS)) {
+            flagStrings.append("TMNOFLAGS ");
+        } else if (TMONEPHASE == (flags & TMONEPHASE)) {
+            flagStrings.append("TMONEPHASE ");
+        } else if (TMRESUME == (flags & TMRESUME)) {
+            flagStrings.append("TMRESUME ");
+        } else if (TMSTARTRSCAN == (flags & TMSTARTRSCAN)) {
+            flagStrings.append("TMSTARTRSCAN ");
+        } else if (TMSUCCESS == (flags & TMSUCCESS)) {
+            flagStrings.append("TMSUCCESS ");
+        } else if (TMSUSPEND == (flags & TMSUSPEND)) {
+            flagStrings.append("TMSUSPEND ");
         } else {
-            flagString = "UNKNOWN";
+            flagStrings.append("UNKNOWN,");
         }
-        return flagString;
+        return flagStrings.toString();
     }
     
     
