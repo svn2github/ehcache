@@ -55,7 +55,7 @@ public interface PreparedContext {
      * Checks whether the transaction branch associated with this context was commited internally
      * @return true, if transaction was commited internally
      */
-    boolean isCommited();
+    boolean isCommitted();
 
     /**
      * Marks the transaction branch associated with this context as rolled back
@@ -67,5 +67,5 @@ public interface PreparedContext {
      * Marks the transaction branch associated with this context as commited
      * @param commited true, if was commited, false otherwise
      */
-    void setCommited(boolean commited);
+    void setCommitted(boolean commited);
 }

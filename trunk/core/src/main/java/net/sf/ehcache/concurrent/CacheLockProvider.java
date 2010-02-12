@@ -40,4 +40,10 @@ public interface CacheLockProvider {
      * @return limited number of write locked Sync's matching the keys.
      */
     Sync[] getAndWriteLockAllSyncForKeys(Object... keys);
+    
+    /**
+     * write unlock the Sync Stripes to use for the given keys.
+     * @param keys the keys to unlock
+     */
+    void unlockWriteLockForAllKeys(Object... keys);
 }

@@ -73,7 +73,7 @@ public class PreparedContextImpl implements PreparedContext {
     /**
      * {@inheritDoc}
      */
-    public boolean isCommited() {
+    public boolean isCommitted() {
         return commited;
     }
 
@@ -90,7 +90,7 @@ public class PreparedContextImpl implements PreparedContext {
     /**
      * {@inheritDoc}
      */
-    public void setCommited(final boolean commited) {
+    public void setCommitted(final boolean commited) {
         if (this.rolledBack && commited) {
             throw new IllegalStateException("Context was marked as rolled back already!");
         }

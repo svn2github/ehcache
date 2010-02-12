@@ -107,4 +107,18 @@ public class StripedReadWriteLockSync implements CacheLockProvider {
         }
         return syncs;
     }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void unlockWriteLockForAllKeys(Object... keys) {
+        SortedSet<Sync> locks = new TreeSet<Sync>();
+        for (Object key : keys) {
+            locks.add(getSyncForKey(key));
+        }
+
+        for (Sync lock : locks) {
+          lock.unlock(LockType.WRITE);
+        }
+    }
 }
