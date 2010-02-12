@@ -66,7 +66,7 @@ public class GenericXAResourceHolder extends AbstractXAResourceHolder {
     @Override
     public XAResourceHolderState getXAResourceHolderState() {
         XAResourceHolderState state = super.getXAResourceHolderState();
-        if (state == null) {
+        if (state == null || state.isEnded()) {
             setXAResourceHolderState(new XAResourceHolderState(this, bean));
         }
         return super.getXAResourceHolderState();
