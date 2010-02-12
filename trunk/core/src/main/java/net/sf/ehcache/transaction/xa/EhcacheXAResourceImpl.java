@@ -539,14 +539,13 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
         flagStrings.append(printFlag(flags, TMENDRSCAN, "TMENDRSCAN "));
         flagStrings.append(printFlag(flags, TMFAIL, "TMFAIL "));
         flagStrings.append(printFlag(flags, TMJOIN, "TMJOIN "));
-        flagStrings.append(printFlag(flags, TMNOFLAGS, "TMNOFLAGS "));
         flagStrings.append(printFlag(flags, TMONEPHASE, "TMONEPHASE "));
         flagStrings.append(printFlag(flags, TMRESUME, "TMRESUME "));
         flagStrings.append(printFlag(flags, TMSTARTRSCAN, "TMSTARTRSCAN "));
         flagStrings.append(printFlag(flags, TMSUCCESS, "TMSUCCESS "));
         flagStrings.append(printFlag(flags, TMSUSPEND, "TMSUSPEND ")); 
         String flagStr = flagStrings.toString();
-        return flagStr.equals("") ?  "UNKNOWN" : flagStr;
+        return flagStr.equals("") ?  "TMNOFLAGS" : flagStr;
     }
     
     
