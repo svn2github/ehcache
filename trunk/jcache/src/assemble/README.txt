@@ -1,7 +1,4 @@
-$Id: RELEASE_NOTES.txt,v 1.16 2006/03/01 01:52:03 gregluck Exp $
-
-
-Release Notes For ehcache-jcache
+README For ehcache-jcache
 ================================
 
 See http://ehcache.sourceforge.net/documentation/jsr107.html for full details.

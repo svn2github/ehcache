@@ -1,7 +1,4 @@
-$Id: RELEASE_NOTES.txt,v 1.16 2006/03/01 01:52:03 gregluck Exp $
-
-
-Release Notes For jmsreplication
+README For jmsreplication
 ================================
 
 See http://ehcache.sf.net/documentation/distributed_caching_with_jms.html for full details.

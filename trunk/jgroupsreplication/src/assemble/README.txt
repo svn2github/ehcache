@@ -1,7 +1,4 @@
-$Id: RELEASE_NOTES.txt,v 1.16 2006/03/01 01:52:03 gregluck Exp $
-
-
-Release Notes For ehcache-jgroupsreplication
+README For ehcache-jgroupsreplication
 ============================================
 
 See http://ehcache.sourceforge.net/documentation/distributed_caching_with_jgroups.html for full details.

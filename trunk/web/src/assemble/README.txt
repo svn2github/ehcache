@@ -1,7 +1,4 @@
-$Id: RELEASE_NOTES.txt,v 1.16 2006/03/01 01:52:03 gregluck Exp $
-
-
-Release Notes For ehcache-web
+README For ehcache-web
 =============================
 
 See http://ehcache.sourceforge.net/documentation/web_caching.html for full details.
