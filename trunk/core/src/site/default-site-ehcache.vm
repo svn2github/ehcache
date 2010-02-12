@@ -507,9 +507,11 @@
 
 
         <div id="bodyColumn">
+	  <!-- __START_BODY__-->
             $bodyContent
+	  <!--__END_BODY__-->
         </div>
-
+	
         <div id="Footer"> #copyright() ##            #publishDate( "left" $decoration.publishDate $decoration.version )
         </div>
 
