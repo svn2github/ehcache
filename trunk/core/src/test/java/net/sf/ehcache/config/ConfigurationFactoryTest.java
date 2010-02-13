@@ -17,35 +17,6 @@
 
 package net.sf.ehcache.config;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNotSame;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URI;
-import java.net.URL;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
-import java.util.jar.JarEntry;
-import java.util.jar.JarOutputStream;
-
-import net.sf.ehcache.writer.TestCacheWriter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.util.regex.Matcher;
-
 import net.sf.ehcache.AbstractCacheTest;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheException;
@@ -58,15 +29,44 @@ import net.sf.ehcache.distribution.MulticastRMICacheManagerPeerProvider;
 import net.sf.ehcache.distribution.RMIAsynchronousCacheReplicator;
 import net.sf.ehcache.distribution.RMIBootstrapCacheLoader;
 import net.sf.ehcache.distribution.RMICacheManagerPeerListener;
+import net.sf.ehcache.distribution.RMICacheReplicatorFactory;
 import net.sf.ehcache.event.CacheEventListener;
 import net.sf.ehcache.event.CacheManagerEventListener;
 import net.sf.ehcache.event.CountingCacheEventListener;
 import net.sf.ehcache.event.CountingCacheManagerEventListener;
+import net.sf.ehcache.event.NotificationScope;
 import net.sf.ehcache.exceptionhandler.CacheExceptionHandler;
 import net.sf.ehcache.exceptionhandler.CountingExceptionHandler;
-
+import net.sf.ehcache.writer.TestCacheWriter;
 import org.junit.Before;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URI;
+import java.net.URL;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
+import java.util.jar.JarEntry;
+import java.util.jar.JarOutputStream;
+import java.util.regex.Matcher;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNotSame;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 /**
  * Tests for Store Configuration
@@ -1352,45 +1352,39 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
     }
 
     /**
-     * Test invalid combination of replicated and terracotta ehcache.xml
+     * Test valid combination of replicated and terracotta ehcache.xml
      */
     @Test
-    public void testTerracottaInvalidConfig3() {
-        File file = new File(TEST_CONFIG_DIR + "terracotta/ehcache-terracotta-invalid3.xml");
-        try {
-            Configuration configuration = ConfigurationFactory.parseConfiguration(file);
-            fail("expecting exception to be thrown");
-        } catch (CacheException e) {
-            assertTrue(e.getMessage().contains("cache replication isn't supported for a clustered Terracotta cache"));
-        }
+    public void testTerracottaConfigRMIReplication() {
+        File file = new File(TEST_CONFIG_DIR + "terracotta/ehcache-terracotta-rmi.xml");
+        Configuration configuration = ConfigurationFactory.parseConfiguration(file);
+        List configs = configuration.getCacheConfigurations().get("clustered").getCacheEventListenerConfigurations();
+        assertEquals(1, configs.size());
+        assertEquals(((CacheConfiguration.CacheEventListenerFactoryConfiguration)configs.get(0)).getFullyQualifiedClassPath(), RMICacheReplicatorFactory.class.getName());
     }
 
     /**
-     * Test invalid combination of replicated and terracotta ehcache.xml
+     * Test valid combination of replicated and terracotta ehcache.xml
      */
     @Test
-    public void testTerracottaInvalidConfig4() {
-        File file = new File(TEST_CONFIG_DIR + "terracotta/ehcache-terracotta-invalid4.xml");
-        try {
-            Configuration configuration = ConfigurationFactory.parseConfiguration(file);
-            fail("expecting exception to be thrown");
-        } catch (CacheException e) {
-            assertTrue(e.getMessage().contains("cache replication isn't supported for a clustered Terracotta cache"));
-        }
+    public void testTerracottaConfigJGroupsReplication() {
+        File file = new File(TEST_CONFIG_DIR + "terracotta/ehcache-terracotta-jgroups.xml");
+        Configuration configuration = ConfigurationFactory.parseConfiguration(file);
+        List configs = configuration.getCacheConfigurations().get("clustered").getCacheEventListenerConfigurations();
+        assertEquals(1, configs.size());
+        assertEquals(((CacheConfiguration.CacheEventListenerFactoryConfiguration)configs.get(0)).getFullyQualifiedClassPath(), "net.sf.ehcache.distribution.JGroupsCacheReplicatorFactory");
     }
 
     /**
-     * Test invalid combination of replicated and terracotta ehcache.xml
+     * Test valid combination of replicated and terracotta ehcache.xml
      */
     @Test
     public void testTerracottaInvalidConfig5() {
-        File file = new File(TEST_CONFIG_DIR + "terracotta/ehcache-terracotta-invalid5.xml");
-        try {
-            Configuration configuration = ConfigurationFactory.parseConfiguration(file);
-            fail("expecting exception to be thrown");
-        } catch (CacheException e) {
-            assertTrue(e.getMessage().contains("cache replication isn't supported for a clustered Terracotta cache"));
-        }
+        File file = new File(TEST_CONFIG_DIR + "terracotta/ehcache-terracotta-jms.xml");
+        Configuration configuration = ConfigurationFactory.parseConfiguration(file);
+        List configs = configuration.getCacheConfigurations().get("clustered").getCacheEventListenerConfigurations();
+        assertEquals(1, configs.size());
+        assertEquals(((CacheConfiguration.CacheEventListenerFactoryConfiguration)configs.get(0)).getFullyQualifiedClassPath(), "net.sf.ehcache.distribution.JMSCacheReplicatorFactory");
     }
 
     private String removeLotsOfWhitespace(String str) {
@@ -1532,4 +1526,26 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
         assertEquals("test", properties5.getProperty("just.some.property"));
         assertEquals("test2", properties5.getProperty("another.property"));
     }
+
+
+    private void helpTestListenFor(Configuration configuration, String cacheName, NotificationScope expectedScope) {
+        CacheConfiguration cache = configuration.getCacheConfigurations().get(cacheName);
+        List<CacheConfiguration.CacheEventListenerFactoryConfiguration> listenerConfigs = cache.getCacheEventListenerConfigurations();
+        assertEquals(1, listenerConfigs.size());
+
+        CacheConfiguration.CacheEventListenerFactoryConfiguration listenerFactoryConfig = listenerConfigs.get(0);
+        assertEquals(expectedScope, listenerFactoryConfig.getListenFor());
+    }
+
+    @Test
+    public void testListenForAttributeParsing() {
+        File file = new File(TEST_CONFIG_DIR + "ehcache-listener-scope.xml");
+        Configuration configuration = ConfigurationFactory.parseConfiguration(file);
+
+        helpTestListenFor(configuration, "listenDefault", NotificationScope.ALL);
+        helpTestListenFor(configuration, "listenAll", NotificationScope.ALL);
+        helpTestListenFor(configuration, "listenLocal", NotificationScope.LOCAL);
+        helpTestListenFor(configuration, "listenRemote", NotificationScope.REMOTE);
+    }
+    
 }

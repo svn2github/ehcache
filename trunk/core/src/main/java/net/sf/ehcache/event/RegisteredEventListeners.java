@@ -16,14 +16,16 @@
 
 package net.sf.ehcache.event;
 
-import java.util.Set;
-import java.util.concurrent.CopyOnWriteArraySet;
-import java.util.concurrent.atomic.AtomicLong;
-
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.distribution.CacheReplicator;
+
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Set;
+import java.util.concurrent.CopyOnWriteArraySet;
+import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * Registered listeners for registering and unregistering CacheEventListeners and multicasting notifications to registrants.
@@ -33,6 +35,7 @@ import net.sf.ehcache.distribution.CacheReplicator;
  * This class also has counters to accumulate the numbers of each type of event for statistics purposes.
  *
  * @author Greg Luck
+ * @author Geert Bevin
  * @version $Id$
  */
 public class RegisteredEventListeners {
@@ -43,7 +46,7 @@ public class RegisteredEventListeners {
      *
      * @see CacheEventListener
      */
-    private final Set<CacheEventListener> cacheEventListeners = new CopyOnWriteArraySet<CacheEventListener>();
+    private final Set<ListenerWrapper> cacheEventListeners = new CopyOnWriteArraySet<ListenerWrapper>();
     private final Ehcache cache;
 
     private AtomicLong elementsRemovedCounter = new AtomicLong(0);
@@ -62,7 +65,6 @@ public class RegisteredEventListeners {
         this.cache = cache;
     }
 
-
     /**
      * Notifies all registered listeners, in no guaranteed order, that an element was removed
      *
@@ -73,9 +75,10 @@ public class RegisteredEventListeners {
     public final void notifyElementRemoved(Element element, boolean remoteEvent) throws CacheException {
         elementsRemovedCounter.incrementAndGet();
         if (hasCacheEventListeners()) {
-            for (CacheEventListener cacheEventListener : cacheEventListeners) {
-                if (!isCircularNotification(remoteEvent, cacheEventListener)) {
-                    cacheEventListener.notifyElementRemoved(cache, element);
+            for (ListenerWrapper listenerWrapper : cacheEventListeners) {
+                if (listenerWrapper.getScope().shouldDeliver(remoteEvent)
+                        && !isCircularNotification(remoteEvent, listenerWrapper.getListener())) {
+                    listenerWrapper.getListener().notifyElementRemoved(cache, element);
                 }
             }
         }
@@ -91,9 +94,10 @@ public class RegisteredEventListeners {
     public final void notifyElementPut(Element element, boolean remoteEvent) throws CacheException {
         elementsPutCounter.incrementAndGet();
         if (hasCacheEventListeners()) {
-            for (CacheEventListener cacheEventListener : cacheEventListeners) {
-                if (!isCircularNotification(remoteEvent, cacheEventListener)) {
-                    cacheEventListener.notifyElementPut(cache, element);
+            for (ListenerWrapper listenerWrapper : cacheEventListeners) {
+                if (listenerWrapper.getScope().shouldDeliver(remoteEvent)
+                        && !isCircularNotification(remoteEvent, listenerWrapper.getListener())) {
+                    listenerWrapper.getListener().notifyElementPut(cache, element);
                 }
             }
 
@@ -110,9 +114,10 @@ public class RegisteredEventListeners {
     public final void notifyElementUpdated(Element element, boolean remoteEvent) {
         elementsUpdatedCounter.incrementAndGet();
         if (hasCacheEventListeners()) {
-            for (CacheEventListener cacheEventListener : cacheEventListeners) {
-                if (!isCircularNotification(remoteEvent, cacheEventListener)) {
-                    cacheEventListener.notifyElementUpdated(cache, element);
+            for (ListenerWrapper listenerWrapper : cacheEventListeners) {
+                if (listenerWrapper.getScope().shouldDeliver(remoteEvent)
+                        && !isCircularNotification(remoteEvent, listenerWrapper.getListener())) {
+                    listenerWrapper.getListener().notifyElementUpdated(cache, element);
                 }
             }
         }
@@ -128,9 +133,10 @@ public class RegisteredEventListeners {
     public final void notifyElementExpiry(Element element, boolean remoteEvent) {
         elementsExpiredCounter.incrementAndGet();
         if (hasCacheEventListeners()) {
-            for (CacheEventListener cacheEventListener : cacheEventListeners) {
-                if (!isCircularNotification(remoteEvent, cacheEventListener)) {
-                    cacheEventListener.notifyElementExpired(cache, element);
+            for (ListenerWrapper listenerWrapper : cacheEventListeners) {
+                if (listenerWrapper.getScope().shouldDeliver(remoteEvent)
+                        && !isCircularNotification(remoteEvent, listenerWrapper.getListener())) {
+                    listenerWrapper.getListener().notifyElementExpired(cache, element);
                 }
             }
         }
@@ -156,14 +162,14 @@ public class RegisteredEventListeners {
     public void notifyElementEvicted(Element element, boolean remoteEvent) {
         elementsEvictedCounter.incrementAndGet();
         if (hasCacheEventListeners()) {
-            for (CacheEventListener cacheEventListener : cacheEventListeners) {
-                if (!isCircularNotification(remoteEvent, cacheEventListener)) {
-                    cacheEventListener.notifyElementEvicted(cache, element);
+            for (ListenerWrapper listenerWrapper : cacheEventListeners) {
+                if (listenerWrapper.getScope().shouldDeliver(remoteEvent)
+                        && !isCircularNotification(remoteEvent, listenerWrapper.getListener())) {
+                    listenerWrapper.getListener().notifyElementEvicted(cache, element);
                 }
             }
         }
     }
-
 
     /**
      * Notifies all registered listeners, in no guaranteed order, that removeAll
@@ -175,9 +181,10 @@ public class RegisteredEventListeners {
     public void notifyRemoveAll(boolean remoteEvent) {
         elementsRemoveAllCounter.incrementAndGet();
         if (hasCacheEventListeners()) {
-            for (CacheEventListener cacheEventListener : cacheEventListeners) {
-                if (!isCircularNotification(remoteEvent, cacheEventListener)) {
-                    cacheEventListener.notifyRemoveAll(cache);
+            for (ListenerWrapper listenerWrapper : cacheEventListeners) {
+                if (listenerWrapper.getScope().shouldDeliver(remoteEvent)
+                        && !isCircularNotification(remoteEvent, listenerWrapper.getListener())) {
+                    listenerWrapper.getListener().notifyRemoveAll(cache);
                 }
             }
         }
@@ -204,10 +211,26 @@ public class RegisteredEventListeners {
      * @return true if the listener is being added and was not already added
      */
     public final boolean registerListener(CacheEventListener cacheEventListener) {
+        return registerListener(cacheEventListener, NotificationScope.ALL);
+    }
+
+    /**
+     * Adds a listener to the notification service. No guarantee is made that listeners will be
+     * notified in the order they were added.
+     * <p/>
+     * If a cache is configured in a cluster, listeners in each node will get triggered by an event
+     * depending on the value of the <pre>listenFor</pre> parameter.
+     *
+     * @param cacheEventListener The listener to add
+     * @param scope              The notification scope
+     * @return true if the listener is being added and was not already added
+     * @since 2.0
+     */
+    public final boolean registerListener(CacheEventListener cacheEventListener, NotificationScope scope) {
         if (cacheEventListener == null) {
             return false;
         }
-        return cacheEventListeners.add(cacheEventListener);
+        return cacheEventListeners.add(new ListenerWrapper(cacheEventListener, scope));
     }
 
     /**
@@ -217,17 +240,29 @@ public class RegisteredEventListeners {
      * @return true if the listener was present
      */
     public final boolean unregisterListener(CacheEventListener cacheEventListener) {
-        return cacheEventListeners.remove(cacheEventListener);
+        Iterator<ListenerWrapper> it = cacheEventListeners.iterator();
+        while (it.hasNext()) {
+            ListenerWrapper listenerWrapper = it.next();
+            if (listenerWrapper.getListener().equals(cacheEventListener)) {
+                it.remove();
+                return true;
+            }
+        }
+        return false;
     }
 
 
     /**
-     * Gets a list of the listeners registered to this class
+     * Gets a copy of the set of the listeners registered to this class
      *
-     * @return a list of type <code>CacheEventListener</code>
+     * @return a set of type <code>CacheEventListener</code>
      */
-    public final Set getCacheEventListeners() {
-        return cacheEventListeners;
+    public final Set<CacheEventListener> getCacheEventListeners() {
+        Set<CacheEventListener> listenerSet = new HashSet<CacheEventListener>();
+        for (ListenerWrapper listenerWrapper : cacheEventListeners) {
+            listenerSet.add(listenerWrapper.getListener());
+        }
+        return listenerSet;
     }
 
     /**
@@ -236,8 +271,8 @@ public class RegisteredEventListeners {
      * synchronized.
      */
     public final void dispose() {
-        for (CacheEventListener cacheEventListener : cacheEventListeners) {
-            cacheEventListener.dispose();
+        for (ListenerWrapper listenerWrapper : cacheEventListeners) {
+            listenerWrapper.getListener().dispose();
         }
         cacheEventListeners.clear();
     }
@@ -254,9 +289,9 @@ public class RegisteredEventListeners {
     @Override
     public final String toString() {
         StringBuilder sb = new StringBuilder(" cacheEventListeners: ");
-        for (CacheEventListener cacheEventListener : cacheEventListeners) {
-                sb.append(cacheEventListener.getClass().getName()).append(" ");
-            }
+        for (ListenerWrapper listenerWrapper : cacheEventListeners) {
+            sb.append(listenerWrapper.getListener().getClass().getName()).append(" ");
+        }
         return sb.toString();
     }
 
@@ -325,4 +360,72 @@ public class RegisteredEventListeners {
     public long getElementsRemoveAllCounter() {
         return elementsRemoveAllCounter.get();
     }
+
+    /**
+     * Combine a Listener and its NotificationScope.  Equality and hashcode are based purely on the listener.
+     * This implies that the same listener cannot be added to the set of registered listeners more than
+     * once with different notification scopes.
+     *
+     * @author Alex Miller
+     */
+    private static final class ListenerWrapper {
+        private final CacheEventListener listener;
+        private final NotificationScope scope;
+
+        private ListenerWrapper(CacheEventListener listener, NotificationScope scope) {
+            this.listener = listener;
+            this.scope = scope;
+        }
+
+        private CacheEventListener getListener() {
+            return this.listener;
+        }
+
+        private NotificationScope getScope() {
+            return this.scope;
+        }
+
+        /**
+         * Hash code based on listener
+         *
+         * @see java.lang.Object#hashCode()
+         */
+        @Override
+        public int hashCode() {
+            return listener.hashCode();
+        }
+
+        /**
+         * Equals based on listener (NOT based on scope) - can't have same listener with two different scopes
+         *
+         * @see java.lang.Object#equals(java.lang.Object)
+         */
+        @Override
+        public boolean equals(Object obj) {
+            if (this == obj) {
+                return true;
+            }
+            if (obj == null) {
+                return false;
+            }
+            if (getClass() != obj.getClass()) {
+                return false;
+            }
+            ListenerWrapper other = (ListenerWrapper) obj;
+            if (listener == null) {
+                if (other.listener != null) {
+                    return false;
+                }
+            } else if (!listener.equals(other.listener)) {
+                return false;
+            }
+            return true;
+        }
+
+        @Override
+        public String toString() {
+            return listener.toString();
+        }
+    }
+
 }

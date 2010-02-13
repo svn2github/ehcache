@@ -17,6 +17,7 @@
 package net.sf.ehcache.config;
 
 import net.sf.ehcache.CacheException;
+import net.sf.ehcache.event.NotificationScope;
 import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -678,6 +679,34 @@ public class CacheConfiguration implements Cloneable {
      * Configuration for the CachePeerListenerFactoryConfiguration.
      */
     public static final class CacheEventListenerFactoryConfiguration extends FactoryConfiguration<CacheEventListenerFactoryConfiguration> {
+        private NotificationScope notificationScope = NotificationScope.ALL;
+
+        /**
+         * Used by BeanHandler to set the mode during parsing.  Convert listenFor string to uppercase and
+         * look up enum constant in NotificationScope.
+         */
+        public void setListenFor(String listenFor) {
+            if (listenFor == null) {
+                throw new IllegalArgumentException("listenFor must be non-null");
+            }
+            this.notificationScope = NotificationScope.valueOf(NotificationScope.class, listenFor.toUpperCase());
+        }
+
+        /**
+         * @return this factory configuration instance
+         * @see #setListenFor(String)
+         */
+        public final CacheEventListenerFactoryConfiguration listenFor(String listenFor) {
+            setListenFor(listenFor);
+            return this;
+        }
+
+        /**
+         * Get the value mode in terms of the mode enum
+         */
+        public NotificationScope getListenFor() {
+            return this.notificationScope;
+        }
     }
 
     /**
@@ -910,12 +939,10 @@ public class CacheConfiguration implements Cloneable {
                     if (null == listenerConfig.getFullyQualifiedClassPath()) {
                         continue;
                     }
-                    if (listenerConfig.getFullyQualifiedClassPath().startsWith("net.sf.ehcache.distribution.")) {
-                        throw new InvalidConfigurationException("cache replication isn't supported" +
-                                " for a clustered Terracotta cache");
-                    } else if (listenerConfig.getFullyQualifiedClassPath().startsWith("net.sf.ehcache.") &&
+                    if (!listenerConfig.getFullyQualifiedClassPath().startsWith("net.sf.ehcache.") &&
                             LOG.isWarnEnabled()) {
-                        LOG.warn("A non-standard CacheEventListenerFactory is used with a clustered Terracotta cache, " +
+                        LOG.warn("The non-standard CacheEventListenerFactory '" + listenerConfig.getFullyQualifiedClassPath() +
+                                "' is used with a clustered Terracotta cache, " +
                                 "if the purpose of this listener is replication it is not supported in a clustered context");
                     }
                 }

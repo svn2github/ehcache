@@ -1,10 +1,10 @@
 <ehcache xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../main/config/ehcache.xsd" name="tc" updateCheck="false">
 
-    <cache name="clustered-1"
+    <cache name="clustered"
            maxElementsInMemory="1000"
            memoryStoreEvictionPolicy="LFU">
            <terracotta/>
-           <cacheEventListenerFactory class="net.sf.ehcache.distribution.JMSCacheReplicatorFactory"
+           <cacheEventListenerFactory class="net.sf.ehcache.distribution.JGroupsCacheReplicatorFactory"
 	                                  properties="replicateAsynchronously=true,
 	                                              replicatePuts=true,
 	                                              replicateUpdates=true,

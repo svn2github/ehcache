@@ -16,11 +16,6 @@
 
 package net.sf.ehcache.constructs.blocking;
 
-import java.io.Serializable;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;
@@ -29,9 +24,9 @@ import net.sf.ehcache.Statistics;
 import net.sf.ehcache.Status;
 import net.sf.ehcache.bootstrap.BootstrapCacheLoader;
 import net.sf.ehcache.concurrent.CacheLockProvider;
-import net.sf.ehcache.concurrent.Sync;
 import net.sf.ehcache.concurrent.LockType;
 import net.sf.ehcache.concurrent.StripedReadWriteLockSync;
+import net.sf.ehcache.concurrent.Sync;
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.event.RegisteredEventListeners;
 import net.sf.ehcache.exceptionhandler.CacheExceptionHandler;
@@ -43,6 +38,11 @@ import net.sf.ehcache.statistics.sampled.SampledCacheStatistics;
 import net.sf.ehcache.transaction.manager.TransactionManagerLookup;
 import net.sf.ehcache.writer.CacheWriter;
 import net.sf.ehcache.writer.CacheWriterManager;
+
+import java.io.Serializable;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 
 /**
  * A blocking decorator for an Ehcache, backed by a {@link Ehcache}.
@@ -94,9 +94,9 @@ public class BlockingCache implements Ehcache {
     /**
      * Creates a BlockingCache which decorates the supplied cache.
      *
-     * @param cache a backing ehcache.
+     * @param cache           a backing ehcache.
      * @param numberOfStripes how many stripes to has the keys against. Must be a non-zero even number. This is a trade-off between
-     * memory use and concurrency
+     *                        memory use and concurrency
      * @throws CacheException shouldn't happen
      * @since 1.2
      */
@@ -446,11 +446,11 @@ public class BlockingCache implements Ehcache {
         element = cache.get(key);
         lock.unlock(LockType.READ);
         if (element == null) {
-            acquiredLockForKey(key, lock, LockType.WRITE);
-            element = cache.get(key);
-            if (element != null) {
-                lock.unlock(LockType.WRITE);
-            }
+        acquiredLockForKey(key, lock, LockType.WRITE);
+        element = cache.get(key);
+        if (element != null) {
+            lock.unlock(LockType.WRITE);
+        }
         }
         return element;
     }
@@ -485,11 +485,11 @@ public class BlockingCache implements Ehcache {
         return cacheLockProvider.getSyncForKey(key);
     }
 
-  /**
-   * {@inheritDoc}
-   */
+    /**
+     * {@inheritDoc}
+     */
     public CacheWriterManager getWriterManager() {
-      return cache.getWriterManager();
+        return cache.getWriterManager();
     }
 
     /**
@@ -1114,7 +1114,7 @@ public class BlockingCache implements Ehcache {
     public SampledCacheStatistics getSampledCacheStatistics() {
         return cache.getSampledCacheStatistics();
     }
-    
+
     /**
      * {@inheritDoc}
      */
@@ -1124,7 +1124,7 @@ public class BlockingCache implements Ehcache {
 
     /**
      * {@inheritDoc}
-     * 
+     *
      * @see net.sf.ehcache.Ehcache#isSampledStatisticsEnabled()
      */
     public boolean isSampledStatisticsEnabled() {
@@ -1151,7 +1151,7 @@ public class BlockingCache implements Ehcache {
     public boolean isClusterCoherent() {
         return cache.isClusterCoherent();
     }
-    
+
     /**
      * {@inheritDoc}
      */
