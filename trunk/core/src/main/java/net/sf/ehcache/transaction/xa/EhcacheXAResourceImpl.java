@@ -578,4 +578,13 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
             // we don't care
         }
     }
+
+
+    /**
+     * cache name
+     */
+    @Override
+    public String toString() {
+        return "EhcacheXAResourceImpl [ " + getCacheName() + " ] ";
+    }
 }
