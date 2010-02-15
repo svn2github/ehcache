@@ -402,6 +402,10 @@ public List getStreetTypes(final Country country) throws HibernateException {
 
     The <<<query.setCacheRegion("query.StreetTypes")>>> line sets the name of the Query Cache.
 
+    Alex Miller has a good article on the query cache
+    {{{http://tech.puredanger.com/2009/07/10/hibernate-query-cache/}here}}.
+
+
 ** Hibernate CacheConcurrencyStrategy
 
     None of read-write, nonstrict-read-write and read-only policies apply
