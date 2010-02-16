@@ -23,6 +23,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.concurrent.ThreadFactory;
 
 import javax.transaction.xa.XAException;
 import javax.transaction.xa.XAResource;
@@ -67,9 +68,10 @@ public class TransactionXARequestProcessor implements XARequestProcessor {
         try {
             xaResponse = future.get();
         } catch (InterruptedException e) {
-            throw new XAException(e.getMessage());
+            throw new EhcacheXAException(e.getMessage(), -1, e);
         } catch (ExecutionException e) {
-            throw new XAException(e.getMessage());
+
+            throw new EhcacheXAException(e.getMessage(), -1, e);
         }
         if (xaResponse.getXaException() != null) {
             throw xaResponse.getXaException();
@@ -86,14 +88,13 @@ public class TransactionXARequestProcessor implements XARequestProcessor {
     
     /**
      * 
-     * 
      * @param xid
      * @return
      */
     private ExecutorService getOrCreateExecutorService(Xid xid) {
         ExecutorService service = executorMap.get(xid);
         if (service == null) {
-            service = Executors.newSingleThreadExecutor();
+            service = Executors.newSingleThreadExecutor(new XARequestProcessThreadFactory(xid));
             executorMap.put(xid, service);
         }
         return service;
@@ -109,8 +110,34 @@ public class TransactionXARequestProcessor implements XARequestProcessor {
     }
     
     /**
-     * 
-     * @author nelrahma
+     * The creates the XA Request process thread with the correct thread name
+     * @author Nabib El-Rahman
+     *
+     */
+    private static class XARequestProcessThreadFactory implements ThreadFactory {
+        
+        private final Xid xid;
+        
+        /**
+         * Thread factory for xid
+         * @param xid associated with thread name
+         */
+        public XARequestProcessThreadFactory(Xid xid) {
+            this.xid = xid;
+        }
+
+        /**
+         * return new correctly named thread
+         */
+        public Thread newThread(Runnable runnable) {
+            return new Thread(runnable, "XA-Request Thread Xid [ " + xid + " ] ");
+        }
+        
+    }
+    
+    /**
+     * Class to furnish
+     * @author Nabib El-Rahman
      *
      */
     private static class XARequestCallable implements Callable<XAResponse> {
@@ -205,9 +232,7 @@ public class TransactionXARequestProcessor implements XARequestProcessor {
          */
         public XAException getXaException() {
             return xaException;
-        }
-        
-        
+        }   
         
     }
 
