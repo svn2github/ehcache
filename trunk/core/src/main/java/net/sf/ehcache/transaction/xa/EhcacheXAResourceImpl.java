@@ -37,6 +37,7 @@ import net.sf.ehcache.concurrent.LockType;
 import net.sf.ehcache.concurrent.Sync;
 import net.sf.ehcache.store.Store;
 import net.sf.ehcache.transaction.TransactionContext;
+import net.sf.ehcache.transaction.xa.XARequest.RequestType;
 import net.sf.ehcache.writer.CacheWriterManager;
 
 import org.slf4j.Logger;
@@ -60,6 +61,7 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
     private static final Logger LOG = LoggerFactory.getLogger(EhcacheXAResourceImpl.class.getName());
 
     private final String             cacheName;
+    private final XARequestProcessor processor;
     private final EhcacheXAStore     ehcacheXAStore;
     private final Store              store;
     private final Store              oldVersionStore;
@@ -73,7 +75,7 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
      * Constructor
      * 
      * @param cache
-     *            The cache name of the Cache wrapped
+     *            The cache name of the Cache wrapped    
      * @param txnManager
      *            the TransactionManager associated with this XAResource
      * @param ehcacheXAStore
@@ -86,6 +88,7 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
         this.ehcacheXAStore     = ehcacheXAStore;
         this.oldVersionStore    = ehcacheXAStore.getOldVersionStore();
         this.cacheWriterManager = cache.getWriterManager();
+        this.processor          = new TransactionXARequestProcessor(this);        
     }
 
     /**
@@ -97,15 +100,23 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
 
     /**
      * {@inheritDoc}
-     */
+     */    
     public void start(final Xid xid, final int flags) throws XAException {
+         this.processor.process(new XARequest(RequestType.START, getCurrentTransaction(),  xid, flags));
+    }
+
+    /**
+     * Called by {@link XARequestProcessor}
+     */
+    void startInternal(final Transaction tx, final Xid xid, final int flags) throws XAException {
         if (LOG.isDebugEnabled()) {
             LOG.debug("xaResource.start called for Txn with flag: " + prettyPrintFlags(flags)  + " and id: " + xid);   
         }
         if (!isFlagSet(flags, TMRESUME) && !isFlagSet(flags, TMJOIN)) {
-            Transaction tx;
-            try {
-                tx = txnManager.getTransaction();
+            if (tx == null) {
+                throw new EhcacheXAException("Couldn't get to current Transaction ", XAException.XAER_OUTSIDE);
+            }
+            try {  
                 if (cacheWriterManager != null) {
                     try {
                         tx.registerSynchronization(new CacheWriterManagerSynchronization());
@@ -115,10 +126,7 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
                 }
             } catch (SystemException e) {
                 throw new EhcacheXAException("Couldn't get to current Transaction: " + e.getMessage(), e.errorCode, e);
-            }
-            if (tx == null) {
-                throw new EhcacheXAException("Couldn't get to current Transaction ", XAException.XAER_OUTSIDE);
-            }
+            }   
             Xid prevXid = ehcacheXAStore.storeXid2Transaction(xid, tx);
          
             if (prevXid != null && !prevXid.equals(xid)) {
@@ -131,6 +139,13 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
      * {@inheritDoc}
      */
     public void end(final Xid xid, final int flags) throws XAException {
+        this.processor.process(new XARequest(RequestType.END, getCurrentTransaction(), xid, flags));
+    }
+    
+    /**
+     * Called by {@link XARequestProcessor}
+     */
+    void endInternal(final Xid xid, final int flags) throws XAException {
         if (LOG.isDebugEnabled()) {
             LOG.debug("xaResource.end called for Txn with flag: " + prettyPrintFlags(flags)  + " and id: " + xid);   
         }
@@ -148,6 +163,13 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
      * {@inheritDoc}
      */
     public int prepare(final Xid xid) throws XAException {
+        return this.processor.process(new XARequest(RequestType.PREPARE, getCurrentTransaction(), xid, XAResource.TMNOFLAGS));
+    }
+
+    /**
+     * Called by {@link XARequestProcessor}
+     */
+    int prepareInternal(final Xid xid) throws XAException {
         if (LOG.isDebugEnabled()) {
             LOG.debug("xaResource.prepare called for Txn with id: " + xid);   
         }
@@ -181,10 +203,18 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
         return writes ? XA_OK : XA_RDONLY;
     }
     
+    
     /**
      * {@inheritDoc}
      */
     public void forget(final Xid xid) throws XAException {
+        this.processor.process(new XARequest(RequestType.FORGET, getCurrentTransaction(), xid));
+    }
+    
+    /**
+     * Called by {@link XARequestProcessor}
+     */
+    void forgetInternal(final Xid xid) throws XAException {
         if (LOG.isDebugEnabled()) {
             LOG.debug("xaResource.forget called for Txn with id: " + xid);   
         }
@@ -235,6 +265,14 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
      * {@inheritDoc}
      */
     public void commit(final Xid xid, final boolean onePhase) throws XAException {
+        Transaction txn = getCurrentTransaction();
+        this.processor.process(new XARequest(RequestType.COMMIT, txn , xid, XAResource.TMNOFLAGS, onePhase));
+    }
+    
+    /**
+     * Called by {@link XARequestProcessor}
+     */
+    void commitInternal(final Xid xid, final boolean onePhase) throws XAException {
         if (LOG.isDebugEnabled()) {
             LOG.debug("xaResource.commit called for Txn with phase: " + (onePhase ? "onePhase" : "twoPhase") +  " and id: " + xid);   
         }
@@ -259,7 +297,7 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
                 
                 storeProvider.unlockWriteLockForAllKeys(preparedKeys.toArray());
                 oldVersionStoreProvider.unlockWriteLockForAllKeys(preparedKeys.toArray());
-                
+                             
                 context.setCommitted(true);
             } else if (context.isRolledBack()) {
                 throw new EhcacheXAException("Transaction " + xid + " has been heuristically rolled back", XAException.XA_HEURRB);
@@ -270,10 +308,18 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
     }
 
 
+    
     /**
      * {@inheritDoc}
      */
     public void rollback(final Xid xid) throws XAException {
+       this.processor.process(new XARequest(RequestType.ROLLBACK, getCurrentTransaction(), xid));
+    }
+    
+    /**
+     * Called by {@link XARequestProcessor}
+     */
+    void rollbackInternal(final Xid xid) throws XAException {
         if (LOG.isDebugEnabled()) {
             LOG.debug("xaResource.rollback called for Txn with id: " + xid);   
         }
@@ -406,6 +452,20 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
         return cacheName.hashCode();
     }
     
+    /**
+     * Get the current Transaction from the thread context
+     * @return
+     * @throws EhcacheXAException
+     */
+    private Transaction getCurrentTransaction() throws EhcacheXAException {
+        Transaction txn;
+        try {
+            txn = txnManager.getTransaction();
+        } catch (SystemException e) {
+            throw new EhcacheXAException("Couldn't get to current Transaction: " + e.getMessage(), e.errorCode, e);
+        }
+        return txn;
+    }
     /**
      * Optimized one-phase commit, assumed prepare is never called.
      * @param xid
@@ -579,12 +639,13 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
         }
     }
 
-
     /**
-     * cache name
+     * 
      */
     @Override
     public String toString() {
         return "EhcacheXAResourceImpl [ " + getCacheName() + " ] ";
     }
+    
+    
 }

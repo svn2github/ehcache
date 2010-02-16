@@ -967,6 +967,9 @@ public class Cache implements Ehcache {
                 //set copy on read
                 configuration.getTerracottaConfiguration().setCopyOnRead(true);
                 
+                //set memStore to not coherent
+                memStore.setNodeCoherent(false);
+                
                 EhcacheXAResource resource = cacheManager.createEhcacheXAResource(this, memStore , txnManager);
                 transactionManagerLookup.register(resource);
                 this.memoryStore = new XATransactionalStore(resource);
