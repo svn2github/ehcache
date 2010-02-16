@@ -97,7 +97,7 @@ public class UpdateChecker extends TimerTask {
                 LOG.info("New update(s) found: " + sb.toString() + ". Please check http://ehcache.org for the latest version.");
             }
         } else {
-            LOG.debug("No update found.");
+          // Do nothing at all (ever) on no updates found (DEV-3799)
         }
     }
 
