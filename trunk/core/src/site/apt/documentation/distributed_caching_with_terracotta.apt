@@ -372,6 +372,14 @@ public class TerracottaExample {
     A common use of listeners is to trigger a reload of a just invalidated <<<Element>>>. In Terracotta clustering
     this is avoided as a change in one node is always coherent to the other nodes.
 
+    To send out cache change events across the cluster, you need to set up a local listener on the relevant cache so
+    that these events can be propagated to other nodes. This is done by adding the following
+    <<<cacheEventListenerFactory>>> tag to the cache:
+
+---
+    <cacheEventListenerFactory class="net.sf.ehcache.event.TerracottaCacheEventReplicationFactory"/>
+---
+
 **  Overflow to Disk
 
     Overflow to Disk is not supported when using Terracotta Clustering. However it is also not needed, because the
@@ -456,8 +464,8 @@ public class TerracottaExample {
 
 **  Do CacheEventListeners work?
 
-    A local CacheEventListener will work locally, but other nodes in a Terracotta cluster are not notified. With the Ehcache replication
-     non Terracotta mechanisms the remote nodes are updated.
+    A local CacheEventListener will work locally, but other nodes in a Terracotta cluster are not notified unless the
+    TerracottaCacheEventReplicationFactory event listener is registered for the cache.
 
 **  What are the JMX statistics available in the Terracotta Developer Console?
 
