@@ -327,7 +327,7 @@ diskStore has only one attribute - "path". It is the path to the directory where
 .data and .index files will be created.
 
 If the path is one of the following Java System Property it is replaced by its value
-in the running VM. For backward compatibility these are not specified without being
+in the running VM. For backward compatibility these should be specified without being
 enclosed in the ${token} replacement syntax.
 
 The following properties are translated:
