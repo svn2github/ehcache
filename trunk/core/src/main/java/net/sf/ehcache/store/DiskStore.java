@@ -61,6 +61,9 @@ import net.sf.ehcache.writer.CacheWriterManager;
  * The DiskStore, as of ehcache-1.2.4, supports eviction using an LFU policy, if a maximum disk
  * store size is set. LFU uses statistics held at the Element level which survive moving between
  * maps in the MemoryStore and DiskStores.
+ * <p/>
+ * As of ehcache-2.0, a cache can be configured with a DiskStore with multiple stripes. This enables
+ * much higher throughput.
  *
  * @author Adam Murdoch
  * @author Greg Luck

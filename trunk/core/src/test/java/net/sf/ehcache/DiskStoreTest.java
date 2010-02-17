@@ -1042,7 +1042,14 @@ public class DiskStoreTest extends AbstractCacheTest {
     public void testOverflowToDiskWithLargeNumberofCacheEntries() throws Exception {
 
         //Set size so the second element overflows to disk.
-        Cache cache = new Cache("test", 1000, MemoryStoreEvictionPolicy.LRU, true, null, true, 500, 500, false, 1, null);
+        //Cache cache = new Cache("test", 1000, MemoryStoreEvictionPolicy.LRU, true, null, true, 500, 500, false, 1, null);
+        Cache cache = new Cache(new CacheConfiguration("test", 1000)
+                .memoryStoreEvictionPolicy("LRU")
+                .eternal(true)
+                .overflowToDisk(true)
+                .timeToLiveSeconds(1)
+                .diskAccessStripes(1)
+                .diskExpiryThreadIntervalSeconds(60));
         manager.addCache(cache);
         int i = 0;
         StopWatch stopWatch = new StopWatch();
@@ -1091,7 +1098,14 @@ public class DiskStoreTest extends AbstractCacheTest {
     public void testOverflowToDiskWithLargeNumberofCacheEntriesAndGets() throws Exception {
 
         //Set size so the second element overflows to disk.
-        Cache cache = new Cache("test", 1000, MemoryStoreEvictionPolicy.LRU, true, null, true, 500, 500, false, 60, null);
+        //Cache cache = new Cache("test", 1000, MemoryStoreEvictionPolicy.LRU, true, null, true, 500, 500, false, 60, null);
+        Cache cache = new Cache(new CacheConfiguration("test", 1000)
+                .memoryStoreEvictionPolicy("LRU")
+                .eternal(true)
+                .overflowToDisk(true)
+                .timeToLiveSeconds(1)
+                .diskAccessStripes(5)
+                .diskExpiryThreadIntervalSeconds(60));
         manager.addCache(cache);
         Random random = new Random();
         StopWatch stopWatch = new StopWatch();
@@ -1176,7 +1190,7 @@ public class DiskStoreTest extends AbstractCacheTest {
      * Get took 119s with Cache svn21
      * Get took 42s
      * The change was to stop adding DiskStore retrievals into the MemoryStore. This made sense when the only
-     * policy was LRU. In the new version an Elment, once evicted from the MemoryStore, stays in the DiskStore
+     * policy was LRU. In the new version an Element, once evicted from the MemoryStore, stays in the DiskStore
      * until expiry or removal. This avoids a lot of serialization overhead.
      * <p/>
      * Slow tests

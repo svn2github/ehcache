@@ -28,7 +28,19 @@ import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 
 /**
- * A value object to represent Cache configuration that can be set by the BeanHandler.
+ * A value object used to represent cache configuration.
+ * <h4>Construction Patterns</h4>
+ * The recommended way of creating a <code>Cache</code> in Ehcache 2.0 and above is to create a <code>CacheConfiguration</code> object
+ * and pass it to the <code>Cache</code> constructor. See {@link net.sf.ehcache.Cache#Cache(CacheConfiguration)}.
+ * <p>
+ * This class supports setter injection and also the fluent builder pattern.
+ * e.g.
+ * <code>Cache cache = new Cache(new CacheConfiguration("test2", 1000).eternal(true).memoryStoreEvictionPolicy(MemoryStoreEvictionPolicy.FIFO));</code>
+ * <p/>
+ * Rather than proliferation of new constructors as new versions of Ehcache come out, it intended to add the new configuration to this
+ * class.
+ * <p/>
+ * Another way to set configuration is declaratively in the <code>ehcache.xml</code> configuration file.
  * e.g.
  * <pre>{@code
  * <cache name="testCache1"
@@ -42,6 +54,8 @@ import java.util.concurrent.CopyOnWriteArraySet;
  *   maxElementsOnDisk="10000"
  * />
  * }</pre>
+ * <p/>
+ * <h4>Dynamic Configuration</h4>
  * CacheConfiguration instances retrieved from Cache instances allow the dynamic
  * modification of certain configuration properties.  Currently the dynamic
  * properties are:
@@ -318,11 +332,8 @@ public class CacheConfiguration implements Cloneable {
     }
 
     /**
-     * Sets the name of the cache. This must be unique.
-     * The / character is illegal. The # character does not work
-     * with RMI replication.
-     *
-     * @param name the cache name
+     * Sets the name of the cache.
+     * @param name the cache name. This must be unique. The / character is illegal. The # character does not work with RMI replication.
      */
     public final void setName(String name) {
         checkDynamicChange();
@@ -333,6 +344,8 @@ public class CacheConfiguration implements Cloneable {
     }
 
     /**
+     * Builder to set the name of the cache.
+     * @param name the cache name. This must be unique. The / character is illegal. The # character does not work with RMI replication.
      * @return this configuration instance
      * @see #setName(String)
      */
@@ -345,8 +358,7 @@ public class CacheConfiguration implements Cloneable {
      * Enables or disables logging for the cache
      * <p/>
      * This property can be modified dynamically while the cache is operating.
-     *
-     * @param enable if true, enables logging otherwise disables logging
+     * @param enable If true, enables logging otherwise disables logging
      */
     public final void setLoggingEnabled(boolean enable) {
         checkDynamicChange();
@@ -356,6 +368,10 @@ public class CacheConfiguration implements Cloneable {
     }
 
     /**
+     * Builder to enable or disable logging for the cache
+     * <p/>
+     * This property can be modified dynamically while the cache is operating.
+     * @param enable If true, enables logging otherwise disables logging
      * @return this configuration instance
      * @see #setLoggingEnabled(boolean)
      */
@@ -368,8 +384,7 @@ public class CacheConfiguration implements Cloneable {
      * Sets the maximum objects to be held in memory (0 = no limit).
      * <p/>
      * This property can be modified dynamically while the cache is operating.
-     *
-     * @param maxElementsInMemory param
+     * @param maxElementsInMemory The maximum number of elements in memory, before they are evicted (0 == no limit)
      */
     public final void setMaxElementsInMemory(int maxElementsInMemory) {
         checkDynamicChange();
@@ -380,8 +395,11 @@ public class CacheConfiguration implements Cloneable {
     }
 
     /**
+     * Builder that sets the maximum objects to be held in memory (0 = no limit).
+     * <p/>
+     * This property can be modified dynamically while the cache is operating.
+     * @param maxElementsInMemory The maximum number of elements in memory, before they are evicted (0 == no limit)
      * @return this configuration instance
-     * @see #setMaxElementsInMemory(int)
      */
     public final CacheConfiguration maxElementsInMemory(int maxElementsInMemory) {
         setMaxElementsInMemory(maxElementsInMemory);
@@ -398,6 +416,8 @@ public class CacheConfiguration implements Cloneable {
     }
 
     /**
+     * Builder that sets the eviction policy. An invalid argument will set it to null.
+     * @param memoryStoreEvictionPolicy a String representation of the policy. One of "LRU", "LFU" or "FIFO".
      * @return this configuration instance
      * @see #setMemoryStoreEvictionPolicy(String)
      */
@@ -432,6 +452,7 @@ public class CacheConfiguration implements Cloneable {
     /**
      * Sets whether the MemoryStore should be cleared when
      * {@link net.sf.ehcache.Ehcache#flush flush()} is called on the cache - true by default.
+     * @param clearOnFlush true to clear on flush
      */
     public final void setClearOnFlush(boolean clearOnFlush) {
         checkDynamicChange();
@@ -439,6 +460,9 @@ public class CacheConfiguration implements Cloneable {
     }
 
     /**
+     * Builder which sets whether the MemoryStore should be cleared when
+     * {@link net.sf.ehcache.Ehcache#flush flush()} is called on the cache - true by default.
+     * @param clearOnFlush true to clear on flush
      * @return this configuration instance
      * @see #setClearOnFlush(boolean)
      */
@@ -448,7 +472,8 @@ public class CacheConfiguration implements Cloneable {
     }
 
     /**
-     * Sets whether elements are eternal. If eternal, timeouts are ignored and the element is never expired.
+     * Sets whether elements are eternal. If eternal, timeouts are ignored and the element is never expired. False by default.
+     * @param  eternal true for eternal
      */
     public final void setEternal(boolean eternal) {
         checkDynamicChange();
@@ -460,6 +485,8 @@ public class CacheConfiguration implements Cloneable {
     }
 
     /**
+     * Builder which sets whether elements are eternal. If eternal, timeouts are ignored and the element is never expired. False by default.
+     * @param  eternal true for eternal
      * @return this configuration instance
      * @see #setEternal(boolean)
      */
@@ -469,9 +496,11 @@ public class CacheConfiguration implements Cloneable {
     }
 
     /**
-     * Sets the time to idle for an element before it expires. Is only used if the element is not eternal.
+     * Sets the time to idle for an element before it expires. Is only used if the element is not eternal. This can be overidden in
+     * {@link net.sf.ehcache.Element}
      * <p/>
      * This property can be modified dynamically while the cache is operating.
+     * @param timeToIdleSeconds   the default amount of time to live for an element from its last accessed or modified date
      */
     public final void setTimeToIdleSeconds(long timeToIdleSeconds) {
         checkDynamicChange();
@@ -482,6 +511,11 @@ public class CacheConfiguration implements Cloneable {
     }
 
     /**
+     * Builder which sets the time to idle for an element before it expires. Is only used if the element is not eternal.
+     * This default can be overridden in {@link net.sf.ehcache.Element}
+     * <p/>
+     * This property can be modified dynamically while the cache is operating.
+     * @param timeToIdleSeconds   the default amount of time to live for an element from its last accessed or modified date
      * @return this configuration instance
      * @see #setTimeToIdleSeconds(long)
      */
@@ -492,8 +526,10 @@ public class CacheConfiguration implements Cloneable {
 
     /**
      * Sets the time to idle for an element before it expires. Is only used if the element is not eternal.
+     * This default can be overridden in {@link net.sf.ehcache.Element}
      * <p/>
      * This property can be modified dynamically while the cache is operating.
+     * @param timeToLiveSeconds the default amount of time to live for an element from its creation date
      */
     public final void setTimeToLiveSeconds(long timeToLiveSeconds) {
         checkDynamicChange();
@@ -504,6 +540,11 @@ public class CacheConfiguration implements Cloneable {
     }
 
     /**
+     * Builder which sets the time to idle for an element before it expires. Is only used if the element is not eternal.
+     * This default can be overridden in {@link net.sf.ehcache.Element}
+     * <p/>
+     * This property can be modified dynamically while the cache is operating.
+     * @param timeToLiveSeconds the default amount of time to live for an element from its creation date
      * @return this configuration instance
      * @see #setTimeToLiveSeconds(long)
      */
@@ -514,6 +555,7 @@ public class CacheConfiguration implements Cloneable {
 
     /**
      * Sets whether elements can overflow to disk when the in-memory cache has reached the set limit.
+     * @param overflowToDisk whether to use the disk store
      */
     public final void setOverflowToDisk(boolean overflowToDisk) {
         checkDynamicChange();
@@ -522,6 +564,8 @@ public class CacheConfiguration implements Cloneable {
     }
 
     /**
+     * Builder which sets whether elements can overflow to disk when the in-memory cache has reached the set limit.
+     * @param overflowToDisk whether to use the disk store
      * @return this configuration instance
      * @see #setOverflowToDisk(boolean)
      */
@@ -531,7 +575,8 @@ public class CacheConfiguration implements Cloneable {
     }
 
     /**
-     * Sets whether, for caches that overflow to disk, the disk cache persist between CacheManager instances.
+     * Sets whether the disk store persists between CacheManager instances. Note that this operates independently of {@link #overflowToDisk}.
+     * @param diskPersistent  whether to persist the cache to disk between JVM restarts
      */
     public final void setDiskPersistent(boolean diskPersistent) {
         checkDynamicChange();
@@ -540,6 +585,8 @@ public class CacheConfiguration implements Cloneable {
     }
 
     /**
+     * Builder which sets whether the disk store persists between CacheManager instances. Note that this operates independently of {@link #overflowToDisk}.
+     * @param diskPersistent  whether to persist the cache to disk between JVM restarts.
      * @return this configuration instance
      * @see #setDiskPersistent(boolean)
      */
@@ -550,6 +597,7 @@ public class CacheConfiguration implements Cloneable {
 
     /**
      * Sets the path that will be used for the disk store.
+     * @param diskStorePath this parameter is ignored. CacheManager sets it using setter injection.
      */
     public final void setDiskStorePath(String diskStorePath) {
         checkDynamicChange();
@@ -561,6 +609,8 @@ public class CacheConfiguration implements Cloneable {
     }
 
     /**
+     * Builder which sets the path that will be used for the disk store.
+     * @param diskStorePath this parameter is ignored. CacheManager sets it using setter injection.
      * @return this configuration instance
      * @see #setDiskStorePath(String)
      */
@@ -570,8 +620,8 @@ public class CacheConfiguration implements Cloneable {
     }
 
     /**
-     * Sets the disk spool size
-     *
+     * Sets the disk spool size, which is used to buffer writes to the DiskStore.
+     * If not set it defaults to {@link #DEFAULT_SPOOL_BUFFER_SIZE}
      * @param diskSpoolBufferSizeMB a positive number
      */
     public void setDiskSpoolBufferSizeMB(int diskSpoolBufferSizeMB) {
@@ -584,6 +634,9 @@ public class CacheConfiguration implements Cloneable {
     }
 
     /**
+     * Builder which sets the disk spool size, which is used to buffer writes to the DiskStore.
+     * If not set it defaults to {@link #DEFAULT_SPOOL_BUFFER_SIZE}
+     * @param diskSpoolBufferSizeMB a positive number
      * @return this configuration instance
      * @see #setDiskSpoolBufferSizeMB(int)
      */
@@ -593,7 +646,8 @@ public class CacheConfiguration implements Cloneable {
     }
 
     /**
-     * Sets the number of RandomAccessFiles used to access the data file.
+     * Sets the number of disk stripes. RandomAccessFiles used to access the data file. By default there
+     * is one stripe.
      *
      * @param stripes number of stripes (rounded up to a power-of-2)
      */
@@ -607,6 +661,8 @@ public class CacheConfiguration implements Cloneable {
     }
     
     /**
+     * Builder which sets the number of disk stripes. RandomAccessFiles used to access the data file. By default there
+     * is one stripe.
      * @return this configuration instance
      * @see #setDiskAccessStripes(int)
      */
@@ -619,6 +675,7 @@ public class CacheConfiguration implements Cloneable {
      * Sets the maximum number elements on Disk. 0 means unlimited.
      * <p/>
      * This property can be modified dynamically while the cache is operating.
+     * @param maxElementsOnDisk the maximum number of Elements to allow on the disk. 0 means unlimited.
      */
     public void setMaxElementsOnDisk(int maxElementsOnDisk) {
         checkDynamicChange();
@@ -629,6 +686,10 @@ public class CacheConfiguration implements Cloneable {
     }
 
     /**
+     * Builder which sets the maximum number elements on Disk. 0 means unlimited.
+     * <p/>
+     * This property can be modified dynamically while the cache is operating.
+     * @param maxElementsOnDisk the maximum number of Elements to allow on the disk. 0 means unlimited.
      * @return this configuration instance
      * @see #setMaxElementsOnDisk(int)
      */
@@ -654,6 +715,11 @@ public class CacheConfiguration implements Cloneable {
     }
 
     /**
+     * Builder which sets the interval in seconds between runs of the disk expiry thread.
+     * <p/>
+     * 2 minutes is the default.
+     * This is not the same thing as time to live or time to idle. When the thread runs it checks
+     * these things. So this value is how often we check for expiry.
      * @return this configuration instance
      * @see #setDiskExpiryThreadIntervalSeconds(long)
      */
@@ -670,11 +736,12 @@ public class CacheConfiguration implements Cloneable {
     }
 
     /**
-     * Returns true is this configuration is frozen - it cannot be changed dynamically.
+     * @return true is this configuration is frozen - it cannot be changed dynamically.
      */
     public boolean isFrozen() {
       return frozen;
     }
+
     /**
      * Configuration for the CachePeerListenerFactoryConfiguration.
      */
@@ -880,6 +947,8 @@ public class CacheConfiguration implements Cloneable {
     }
 
     /**
+     * Builder which sets the transactionalMode
+     * @param transactionalMode one of OFF or XA
      * @return this configuration instance
      * @see #setTransactionalMode(String)
      */
@@ -889,6 +958,8 @@ public class CacheConfiguration implements Cloneable {
     }
 
     /**
+     * Builder which sets the transactionalMode
+     * @param transactionalMode one of OFF or XA enum values
      * @return this configuration instance
      * @see #setTransactionalMode(String)
      */
@@ -1140,7 +1211,7 @@ public class CacheConfiguration implements Cloneable {
     /**
      * Helper method to compute whether the cache is transactional or not
      *
-     * @return True if transactionalMode="xa"
+     * @return true if transactionalMode="XA"
      */
     public boolean isTransactional() {
         return transactionalMode.isTransactional();
@@ -1255,7 +1326,8 @@ public class CacheConfiguration implements Cloneable {
     }
 
     /**
-     * internal use only, this is required so that changes in store impl's config
+     * Intended for internal use only, and subject to change.
+     * This is required so that changes in store implementation's config
      * (probably from other nodes) can propagate up to here
      */
     public void internalSetTimeToIdle(long timeToIdle) {
@@ -1263,28 +1335,29 @@ public class CacheConfiguration implements Cloneable {
     }
 
     /**
-     * internal use only
+     * Intended for internal use only, and subject to change.
      */
     public void internalSetTimeToLive(long timeToLive) {
         this.timeToLiveSeconds = timeToLive;
     }
 
     /**
-     * internal use only
+     * Intended for internal use only, and subject to change.
      */
     public void internalSetMemCapacity(int capacity) {
         this.maxElementsInMemory = capacity;
     }
 
     /**
-     * internal use only
+     * Intended for internal use only, and subject to change.
      */
     public void internalSetDiskCapacity(int capacity) {
         this.maxElementsOnDisk = capacity;
     }
 
     /**
-     * internal use only, this is called from the store impl's to reflect the new coherent value
+     * Intended for internal use only, and subject to change.
+     * This is called from the store implementations to reflect the new coherent value
      *
      * @param coherent true for coherent
      */

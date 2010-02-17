@@ -16,6 +16,8 @@
             	Changed meaning of maxElementsInMemory=0 for MemoryStore to be unlimited.  This puts it 
             	in-line with DiskStore and ClusteredStore.  This also means that a cache configuration
             	defining no in-memory capacity limit gets a functioning but unlimited capacity cache.
+                This is not expected to cause practical problems because in previous versions, when
+                0 meant 0, a warning was issued and performance was halved.
             </action>
             <action dev="Chris Dennis" type="add" issue="EHC-620">
             	Add necessary methods to make the Hibernate RegionFactory implementations forward
