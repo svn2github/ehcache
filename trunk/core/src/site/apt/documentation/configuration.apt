@@ -20,7 +20,9 @@
 
      * Configuration errors can be checked for at start-up, rather than causing a runtime error.
 
-    This chapter covers XML declarative configuration. See the Code samples for programmatic configuration.
+    Certain aspects of cache configuration can also be modified dynamically at runtime.
+    
+    This chapter covers XML declarative configuration. See the Code samples for programmatic and dynamic configuration.
 
     Ehcache is redistributed by lots of projects. They may or may not provide a sample Ehcache XML configuration file.
     If one is not provided, download Ehcache from {{http://ehcache.org}}. It, and the ehcache.xsd is provided in

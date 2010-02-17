@@ -38,6 +38,8 @@
 
     * {{{#Distributed}Distributed Caching}}
 
+    * {{{#Dynamic_Runtime_Configuration_of_Caches}Dynamic, Runtime Configuration of Caches}}
+    
  * Standards Based
 
     * {{{#Full implementation of JSR107 JCACHE API}Full implementation of JSR107 JCACHE API}}
@@ -270,6 +272,10 @@
 
     See the {{{./documentation/distributed_caching.html}Distributed Caching}} documentation for more feature details.
 
+** {Dynamic, Runtime Configuration of Caches}
+
+	The time-to-live, time-to-idle, maximum in-memory and on-disk capacities can be tuned at runtime simply by mutating
+	the cache's configuration object.
 
 * Standards Based
 

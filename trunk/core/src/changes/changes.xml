@@ -23,6 +23,10 @@
             	Add necessary methods to make the Hibernate RegionFactory implementations forward
             	compatible with the upcoming Hibernate 3.5 release.
             </action>
+            <action dev="James Abley, Chris Dennis" type="fix" issue="EHC-537">
+            	Modified DiskStore to be configurable to use multiple RandomAccessFile instances to read
+            	the data file.  Reduced the scope of synchronization on reading from the DiskStore.
+            </action>
         </release>
 
         <release version="2.0.0-beta" date="2010-1-29" description="Major release with new features">

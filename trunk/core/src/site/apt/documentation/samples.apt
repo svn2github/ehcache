@@ -35,6 +35,8 @@
 
      * {{{#Creating_a_new_cache_with_custom_parameters}Creating a new cache with custom parameters}}
 
+ *  {{{#Dynamically_Modifying_Cache_Configurations}Dynamically Modifying Cache Configurations}}
+ 
  *  {{{#Registering_CacheStatistics_in_an_MBeanServer}Registering CacheStatistics in an MBeanServer}}
 
  *  {{{#JCache_Examples}JCache Examples}}
@@ -351,6 +353,25 @@ public Cache(
 
    The cache is not usable until it has been added.
 
+*   {Dynamically Modifying Cache Configurations}
+    
+    This example shows how to dynamically modify the cache configuration of an already running cache:
+
+---
+    Cache cache = manager.getCache("sampleCache");
+    CacheConfiguration config = cache.getCacheConfiguration();
+    config.setTimeToIdleSeconds(60);
+    config.setTimeToLiveSeconds(120);
+    config.setMaxElementsInMemory(10000);
+    config.setMaxElementsOnDisk(1000000);
+---
+
+    Dynamic cache configurations can also be frozen to prevent future changes:
+
+---
+    Cache cache = manager.getCache("sampleCache");
+    cache.disableDynamicFeatures();
+---
 
 *   {Registering CacheStatistics in an MBeanServer}
 
