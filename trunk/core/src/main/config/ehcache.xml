@@ -359,9 +359,9 @@ used with JMX monitors.
     maxElementsInMemory:
     Sets the maximum number of objects that will be created in memory.  0 == no limit.
 
-  maxElementsOnDisk:
+    maxElementsOnDisk:
     Sets the maximum number of objects that will be maintained in the DiskStore
-  The default value is zero, meaning unlimited.
+    The default value is zero, meaning unlimited.
 
     eternal:
     Sets whether elements are eternal. If eternal,  timeouts are ignored and the
@@ -495,8 +495,8 @@ used with JMX monitors.
     JGroups Replication
     +++++++++++++++++++
 
-  For the Jgroups replication this is done with:
-  <cacheEventListenerFactory class="net.sf.ehcache.distribution.jgroups.JGroupsCacheReplicatorFactory"
+    For the Jgroups replication this is done with:
+    <cacheEventListenerFactory class="net.sf.ehcache.distribution.jgroups.JGroupsCacheReplicatorFactory"
                             properties="replicateAsynchronously=true, replicatePuts=true,
                replicateUpdates=true, replicateUpdatesViaCopy=false,
                replicateRemovals=true,asynchronousReplicationIntervalMillis=1000"/>
@@ -506,8 +506,8 @@ used with JMX monitors.
     JMS Replication
     +++++++++++++++
 
-  For JMS-based replication this is done with:
-  <cacheEventListenerFactory
+    For JMS-based replication this is done with:
+    <cacheEventListenerFactory
           class="net.sf.ehcache.distribution.jms.JMSCacheReplicatorFactory"
           properties="replicateAsynchronously=true,
                        replicatePuts=true,
@@ -560,6 +560,7 @@ used with JMX monitors.
 
 
     Cache Exception Handling
+    ++++++++++++++++++++++++
 
     By default, most cache operations will propagate a runtime CacheException on failure. An
     interceptor, using a dynamic proxy, may be configured so that a CacheExceptionHandler can
@@ -575,6 +576,7 @@ used with JMX monitors.
 
 
     Cache Loader
+    ++++++++++++
 
     A default CacheLoader may be set which loads objects into the cache through asynchronous and
     synchronous methods on Cache. This is different to the bootstrap cache loader, which is used
@@ -586,12 +588,14 @@ used with JMX monitors.
                                       properties="type=int,startCounter=10"/>
 
     XA Cache
+    ++++++++
 
     To enable an ehcache as a participant in the JTA Transaction, just have the following attribute
     
     transactionalMode="xa", otherwise the default is transactionalMode="off"
 
     Cache Writer
+    ++++++++++++
 
     A CacheWriter maybe be set to write to an underlying resource. Only one CacheWriter can be
     been to a cache.
@@ -640,6 +644,7 @@ used with JMX monitors.
     * retryAttemptDelaySeconds: Sets the number of seconds to wait before retrying an failed operation.
 
     Cache Extension
+    +++++++++++++++
 
     CacheExtensions are a general purpose mechanism to allow generic extensions to a Cache.
     CacheExtensions are tied into the Cache lifecycle.
@@ -656,6 +661,7 @@ used with JMX monitors.
                                          flushPeriod=whatever, someOtherProperty=someValue ..."/>
 
     Terracotta Clustering
+    +++++++++++++++++++++
 
     Cache elements can also contain information about whether the cache can be clustered with Terracotta.
     The <terracotta> sub-element has the following attributes:

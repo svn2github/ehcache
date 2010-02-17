@@ -96,9 +96,7 @@ public class UpdateChecker extends TimerTask {
             if (sb.length() > 0) {
                 LOG.info("New update(s) found: " + sb.toString() + ". Please check http://ehcache.org for the latest version.");
             }
-        } else {
-          // Do nothing at all (ever) on no updates found (DEV-3799)
-        }
+        } 
     }
 
     private Properties getUpdateProperties(URL updateUrl) throws IOException {

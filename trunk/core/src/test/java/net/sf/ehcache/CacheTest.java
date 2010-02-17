@@ -587,6 +587,7 @@ public class CacheTest extends AbstractCacheTest {
      */
     @Test
     public void testCreateAddDisposeAdd() throws CacheException {
+        Cache cache = new Cache(new CacheConfiguration("test2", 1).eternal());
         Cache cache = new Cache("test2", 1, true, true, 0, 0, true, 120);
         manager.addCache(cache);
         cache.put(new Element("key1", "value1"));
