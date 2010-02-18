@@ -138,11 +138,15 @@
 #end
 
 #macro ( mainMenu $menus )
+    <ul id="navList" style="padding:0px;">
     #foreach( $menu in $menus )
         #if ( $menu.name )
+
+    <li class="parent" >
+	<a href=# class="parent" style="padding:0px;">
         <h5><img src="http://ehcache.org/images/arrow_open.png" width="13" height="13" hspace="6"
                  alt="arrow">
-            $menu.name</h5>
+            $menu.name</h5></a>
         #end
         #if ( $menu.items && $menu.items.size() > 0 )
         <ul>
@@ -152,6 +156,7 @@
         </ul>
         #end
     #end
+    </ul>
 #end
 
 #macro ( copyright )
@@ -334,10 +339,13 @@
     <style type="text/css" media="all">
         @import url("$relativePath/css/siteNew.css");
 
+
         ##        @import url("$relativePath/css/maven-base.css");
         ##        @import url("$relativePath/css/maven-theme.css");
 ##        @import url("$relativePath/css/site.css");
     </style>
+    <script language="JavaScript" src="/js/jquery.js"></script>
+    <script language="JavaScript" src="/js/navinit.js"></script>
 
     #foreach( $author in $authors )
         <meta name="author" content="$author"/>
