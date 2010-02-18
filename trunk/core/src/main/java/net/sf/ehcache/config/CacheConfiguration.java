@@ -192,7 +192,8 @@ public class CacheConfiguration implements Cloneable {
     protected long diskExpiryThreadIntervalSeconds = DEFAULT_EXPIRY_THREAD_INTERVAL_SECONDS;
 
     /**
-     * Indicates whether logging is enabled or not. False by default
+     * Indicates whether logging is enabled or not. False by default.
+     * Only used when cache is clustered with Terracotta.
      */
     protected boolean loggingEnabled;
 
@@ -358,6 +359,7 @@ public class CacheConfiguration implements Cloneable {
      * Enables or disables logging for the cache
      * <p/>
      * This property can be modified dynamically while the cache is operating.
+     * Only used when cache is clustered with Terracotta
      * @param enable If true, enables logging otherwise disables logging
      */
     public final void setLoggingEnabled(boolean enable) {
@@ -371,6 +373,7 @@ public class CacheConfiguration implements Cloneable {
      * Builder to enable or disable logging for the cache
      * <p/>
      * This property can be modified dynamically while the cache is operating.
+     * Only used when cache is clustered with Terracotta
      * @param enable If true, enables logging otherwise disables logging
      * @return this configuration instance
      * @see #setLoggingEnabled(boolean)
@@ -1120,7 +1123,7 @@ public class CacheConfiguration implements Cloneable {
     }
     
     /**
-     * Accessor
+     * Only used when cache is clustered with Terracotta
      *
      * @return true if logging is enabled otherwise false
      */
