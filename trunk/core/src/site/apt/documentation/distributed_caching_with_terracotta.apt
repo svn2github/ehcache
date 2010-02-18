@@ -254,14 +254,14 @@ public class TerracottaExample {
       This setting overrides <<<coherentReads>>>, which is deprecated. For backward compatibility any configurations
       setting a value for <<<coherentReads>>> will apply to <<<coherent>>>.
 
-    * <<<synchronousWrite=true|false>>> new-in-2
+    * <<<synchronousWrites=true|false>>> new-in-2
 
       When set to true, clustered caches use Terracotta SYNCHRONOUS WRITE locks. Asynchronous
-      writes(synchronousWrite="false") maximize performance byallowing clients to proceed without waiting for a
-      "transaction received" acknowledgement from the server. Synchronous writes (synchronousWrite="true")
+      writes(synchronousWrites="false") maximize performance byallowing clients to proceed without waiting for a
+      "transaction received" acknowledgement from the server. Synchronous writes (synchronousWrites="true")
       maximizes data safety by requiring that a client receive server acknowledgement of a transaction before
       that client can proceed. If coherence mode is disabled using configuration (coherent="false") or through
-      the coherence API, only asynchronous writes can occur (synchronousWrite="true" is ignored). By default this
+      the coherence API, only asynchronous writes can occur (synchronousWrites="true" is ignored). By default this
       value is false (i.e. clustered caches use normal Terracotta WRITE locks).
 
 

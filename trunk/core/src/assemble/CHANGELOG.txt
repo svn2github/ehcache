@@ -14,7 +14,7 @@ ehcache-2.0.0-beta
             incoherent mode with cache.setCoherent(false) improves performance for bulk loading.
         </action>
         <action dev="Abhishek Sanoujam" type="add">
-            New attribute for Terracotta clustered-caches, synchronousWrite=true|false -- support for Terracotta's
+            New attribute for Terracotta clustered-caches, synchronousWrites=true|false -- support for Terracotta's
             Synchronous Write locking level in cache. Synchronous Write locking level gives greater guarantees, but
             comes at high cost in terms of scale/latency.
         </action>
