@@ -747,18 +747,18 @@ public class CacheTest extends AbstractCacheTest {
         Element element2 = cache.get("key2");
         assertNotNull(element1);
         assertNotNull(element2);
-        Thread.sleep(2999);
+        Thread.sleep(3000);
         assertNull(cache.get("key1"));
         assertNull(cache.get("key2"));
 
         //Test effect of get
         cache.put(new Element("key1", "value1"));
         cache.put(new Element("key2", "value1"));
-        Thread.sleep(1999);
+        Thread.sleep(1000);
         assertNotNull(cache.get("key1"));
         assertNotNull(cache.get("key2"));
 
-        Thread.sleep(2999);
+        Thread.sleep(3000);
         assertNull(cache.get("key1"));
         assertNull(cache.get("key2"));
     }
