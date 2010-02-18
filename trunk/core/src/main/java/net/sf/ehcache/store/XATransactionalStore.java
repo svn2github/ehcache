@@ -61,12 +61,18 @@ public class XATransactionalStore implements Store {
     /**
      * {@inheritDoc}
      */
-    public void put(final Element element) throws CacheException {
+    public boolean put(final Element element) throws CacheException {
+        if (element == null) {
+            return true;
+        }
         TransactionContext context = getOrCreateTransactionContext();
         // In case this key is currently being updated...
-        underlyingStore.get(element.getKey());
+        boolean isNull = underlyingStore.get(element.getKey()) == null;
+        if (isNull) {
+            isNull = context.get(element.getKey()) == null;
+        }
         context.addCommand(new StorePutCommand(element), element);
-    
+        return isNull;
     }
 
     /**
@@ -76,11 +82,12 @@ public class XATransactionalStore implements Store {
      * @param element the element to add to the store
      * @param writerManager will only work properly with {@link net.sf.ehcache.writer.writethrough.WriteThroughManager WriteThroughManager}
      */
-    public void putWithWriter(final Element element, final CacheWriterManager writerManager) throws CacheException {
-        put(element);
+    public boolean putWithWriter(final Element element, final CacheWriterManager writerManager) throws CacheException {
+        boolean newPut = put(element);
         if (writerManager != null) {
             writerManager.put(element);
         }
+        return newPut;
     }
 
     /**

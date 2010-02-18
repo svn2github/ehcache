@@ -88,25 +88,27 @@ public class LruMemoryStore implements Store {
      *
      * @param element the element to add
      */
-    public final void put(Element element) throws CacheException {
-        putInternal(element, null);
+    public final boolean put(Element element) throws CacheException {
+        return putInternal(element, null);
     }
 
     /**
      * {@inheritDoc}
      */
-    public final void putWithWriter(Element element, CacheWriterManager writerManager) throws CacheException {
-        putInternal(element, writerManager);
+    public final boolean putWithWriter(Element element, CacheWriterManager writerManager) throws CacheException {
+        return putInternal(element, writerManager);
     }
 
-    private synchronized void putInternal(Element element, CacheWriterManager writerManager) throws CacheException {
+    private synchronized boolean putInternal(Element element, CacheWriterManager writerManager) throws CacheException {
+        boolean newPut = true;
         if (element != null) {
-            map.put(element.getObjectKey(), element);
+            newPut = map.put(element.getObjectKey(), element) == null;
             if (writerManager != null) {
                 writerManager.put(element);
             }
             doPut(element);
         }
+        return newPut;
     }
 
     /**

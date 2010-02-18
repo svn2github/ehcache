@@ -56,9 +56,9 @@ public class SyncAwareStore implements Store {
      * does underlying store.put after acquiring write lock for key
      * @param element
      */
-    public void put(Element element) throws CacheException {
+    public boolean put(Element element) throws CacheException {
         if (element == null) {
-            return;
+            return true;
         }
         Object key = element.getObjectKey();
         Object value = element.getObjectValue();
@@ -67,7 +67,7 @@ public class SyncAwareStore implements Store {
 
         cacheLockProvider.getSyncForKey(key).lock(LockType.WRITE);
         try {
-            store.put(element);
+            return store.put(element);
         } finally {
             cacheLockProvider.getSyncForKey(key).lock(LockType.WRITE);
         }
@@ -211,8 +211,8 @@ public class SyncAwareStore implements Store {
     /**
      * {@inheritDoc}
      */
-    public void putWithWriter(Element element, CacheWriterManager writerManager) throws CacheException {
-        this.store.putWithWriter(element, writerManager);
+    public boolean putWithWriter(Element element, CacheWriterManager writerManager) throws CacheException {
+        return this.store.putWithWriter(element, writerManager);
     }
 
 

@@ -437,7 +437,8 @@ public class DiskStore implements Store, CacheConfigurationListener {
      * This method is not synchronized. It is however threadsafe. It uses fine-grained
      * synchronization on the spool.
      */
-    public final void put(final Element element) {
+    public final boolean put(final Element element) {
+        boolean newPut = !this.containsKey(element.getObjectKey());
         try {
             checkActive();
 
@@ -448,17 +449,18 @@ public class DiskStore implements Store, CacheConfigurationListener {
                 LOG.error(name + "Cache: Elements cannot be written to disk store because the spool thread has died.");
                 spool.clear();
             }
-
+            return newPut;
         } catch (Exception e) {
             LOG.error(name + "Cache: Could not write disk store element for " + element.getObjectKey()
                     + ". Initial cause was " + e.getMessage(), e);
+            return newPut;
         }
     }
 
     /**
      * {@inheritDoc}
      */
-    public void putWithWriter(Element element, CacheWriterManager writerManager) throws CacheException {
+    public boolean putWithWriter(Element element, CacheWriterManager writerManager) throws CacheException {
         throw new UnsupportedOperationException("Disk store isn't meant to interact with cache writers.");
     }
 

@@ -1193,19 +1193,19 @@ public class Cache implements Ehcache {
         }
 
         element.resetAccessStatistics();
-        boolean elementExists;
-        Object key = element.getObjectKey();
-        elementExists = isElementInMemory(key) || isElementOnDisk(key);
-        if (elementExists) {
-            element.updateUpdateStatistics();
-        }
+        
         applyDefaultsToElementWithoutLifespanSet(element);
 
         backOffIfDiskSpoolFull();
 
         if (useCacheWriter) {
+            boolean elementExists = false;
             try {
-                memoryStore.putWithWriter(element, cacheWriterManager);
+                elementExists = isElementOnDisk(element.getObjectKey());
+                elementExists = !memoryStore.putWithWriter(element, cacheWriterManager) || elementExists;
+                if (elementExists) {
+                    element.updateUpdateStatistics();
+                }
                 notifyPutInternalListeners(element, doNotNotifyCacheReplicators, elementExists);
             } catch (CacheWriterManagerException e) {
                 if (configuration.getCacheWriterConfiguration().getNotifyListenersOnException()) {
@@ -1214,7 +1214,11 @@ public class Cache implements Ehcache {
                 throw e.getCause();
             }
         } else {
-            memoryStore.put(element);
+            boolean elementExists = isElementOnDisk(element.getObjectKey());
+            elementExists = !memoryStore.put(element) || elementExists;
+            if (elementExists) {
+                element.updateUpdateStatistics();
+            }
             notifyPutInternalListeners(element, doNotNotifyCacheReplicators, elementExists);
         }
     }

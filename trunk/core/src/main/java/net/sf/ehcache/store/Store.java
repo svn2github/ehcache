@@ -34,13 +34,15 @@ public interface Store {
 
     /**
      * Puts an item into the store.
+     * @return true if this is a new put for the key or element is null. Returns false if it was an update.
      */
-    void put(Element element) throws CacheException;
+    boolean put(Element element) throws CacheException;
 
     /**
      * Puts an item into the store and the cache writer manager in an atomic operation
+     * @return true if this is a new put for the key or element is null. Returns false if it was an update.
      */
-    void putWithWriter(Element element, CacheWriterManager writerManager) throws CacheException;
+    boolean putWithWriter(Element element, CacheWriterManager writerManager) throws CacheException;
 
     /**
      * Gets an item from the cache.

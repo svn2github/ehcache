@@ -391,8 +391,8 @@ public class EhcacheXAResourceTest extends TestCase {
             return false;
         }
 
-        public void put(Element element) throws CacheException {
-            storeMap.put(element.getObjectKey(), element);
+        public boolean put(Element element) throws CacheException {
+            return storeMap.put(element.getObjectKey(), element) == null;
         }
 
         public Element remove(Object key) {
@@ -407,8 +407,8 @@ public class EhcacheXAResourceTest extends TestCase {
             //
         }
 
-        public void putWithWriter(Element element, CacheWriterManager writerManager) throws CacheException {
-            //
+        public boolean putWithWriter(Element element, CacheWriterManager writerManager) throws CacheException {
+            return true;
         }
 
         public Element removeWithWriter(Object key, CacheWriterManager writerManager) throws CacheException {
