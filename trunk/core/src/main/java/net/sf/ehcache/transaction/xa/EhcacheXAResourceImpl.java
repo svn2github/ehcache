@@ -66,7 +66,7 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
     private final Store              store;
     private final Store              oldVersionStore;
     private final TransactionManager txnManager;
-    private final CacheWriterManager cacheWriterManager;
+    private final Ehcache            cache;
     private final ThreadLocal<Xid>   currentXid      = new ThreadLocal<Xid>();
     private final Set<Xid>           recoverySet     = new HashSet<Xid>();
    
@@ -89,7 +89,7 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
         this.txnManager         = txnManager;
         this.ehcacheXAStore     = ehcacheXAStore;
         this.oldVersionStore    = ehcacheXAStore.getOldVersionStore();
-        this.cacheWriterManager = cache.getWriterManager();
+        this.cache              = cache;
         this.processor          = new TransactionXARequestProcessor(this);        
     }
 
@@ -113,7 +113,7 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
                 throw new EhcacheXAException("Couldn't get to current Transaction ", XAException.XAER_OUTSIDE);
             }
             try {  
-                if (cacheWriterManager != null) {
+                if (cache.getWriterManager() != null) {
                     try {
                         tx.registerSynchronization(new CacheWriterManagerSynchronization(currentXid.get()));
                     } catch (RollbackException e) {
@@ -617,7 +617,7 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
             try {
                 TransactionContext context = getOrCreateTransactionContext();
                 for (VersionAwareCommand versionAwareCommand : context.getCommands()) {
-                    versionAwareCommand.execute(cacheWriterManager);
+                    versionAwareCommand.execute(cache.getWriterManager());
                 }
             } catch (SystemException e) {
                 // this will cause the tx to be rolled back by the TransactionManager
