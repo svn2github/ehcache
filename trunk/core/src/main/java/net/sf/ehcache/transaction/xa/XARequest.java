@@ -77,16 +77,6 @@ public class XARequest {
      *
      */
     public static enum RequestType {
-
-        /**
-         *  start
-         */
-        START,
-
-        /**
-         * end
-         */
-        END,
         
         /**
          * prepare

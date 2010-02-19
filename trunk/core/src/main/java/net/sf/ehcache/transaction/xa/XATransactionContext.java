@@ -149,11 +149,4 @@ public class XATransactionContext implements TransactionContext {
         return sizeModifier;
     }
 
-    @Override
-    public String toString() {
-        return "Transaction Context [ " + xid + " ] ";
-    }
-    
-    
-
 }

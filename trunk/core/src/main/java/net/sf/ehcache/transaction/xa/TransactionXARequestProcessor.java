@@ -162,13 +162,6 @@ public class TransactionXARequestProcessor implements XARequestProcessor {
             XAException xaException = null;
             try {
             switch(request.getRequestType()) {
-                case START:
-                    resourceImpl.startInternal(request.getTransaction(), request.getXid(), request.getFlags());
-                    break;
-                
-                case END:
-                    resourceImpl.endInternal(request.getXid(), request.getFlags());
-                    break;
                 
                 case FORGET:
                     resourceImpl.forgetInternal(request.getXid());

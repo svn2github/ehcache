@@ -104,17 +104,11 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
      * {@inheritDoc}
      */    
     public void start(final Xid xid, final int flags) throws XAException {
-         this.processor.process(new XARequest(RequestType.START, getCurrentTransaction(),  xid, flags));
-    }
-
-    /**
-     * Called by {@link XARequestProcessor}
-     */
-    void startInternal(final Transaction tx, final Xid xid, final int flags) throws XAException {
         if (LOG.isDebugEnabled()) {
             LOG.debug("xaResource.start called for Txn with flag: " + prettyPrintFlags(flags)  + " and id: " + xid);   
         }
         if (!isFlagSet(flags, TMRESUME) && !isFlagSet(flags, TMJOIN)) {
+            Transaction tx = getCurrentTransaction();
             if (tx == null) {
                 throw new EhcacheXAException("Couldn't get to current Transaction ", XAException.XAER_OUTSIDE);
             }
@@ -134,23 +128,15 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
             if (prevXid != null && !prevXid.equals(xid)) {
                 throw new EhcacheXAException("Duplicated XID: " + xid, XAException.XAER_DUPID);
             }
-            
-            currentXid.set(xid);
-        }      
+        }
+        currentXid.set(xid);
     }
 
+   
     /**
      * {@inheritDoc}
      */
     public void end(final Xid xid, final int flags) throws XAException {
-        this.processor.process(new XARequest(RequestType.END, getCurrentTransaction(), xid, flags));
-        currentXid.remove();
-    }
-    
-    /**
-     * Called by {@link XARequestProcessor}
-     */
-    void endInternal(final Xid xid, final int flags) throws XAException {
         if (LOG.isDebugEnabled()) {
             LOG.debug("xaResource.end called for Txn with flag: " + prettyPrintFlags(flags)  + " and id: " + xid);   
         }
@@ -161,7 +147,7 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
                 ehcacheXAStore.removeData(xid);
             }
         }
-
+        currentXid.remove();
     }
 
     /**

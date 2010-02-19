@@ -106,7 +106,7 @@ public class EhcacheXAResourceTest extends TestCase {
         txnManager.txn = testTxn;
 
         try {
-            resource.start(xid1, XAResource.TMONEPHASE);
+            resource.start(xid1, XAResource.TMNOFLAGS);
         } catch (XAException e) {
             fail("shouldn't throw exception since txn is available.");
         }
@@ -115,6 +115,12 @@ public class EhcacheXAResourceTest extends TestCase {
             resource.end(xid1, XAResource.TMSUCCESS);
         } catch (XAException e) {
             fail("Shoudn't throw an exception..");
+        }
+        
+        try {
+            resource.start(xid1, XAResource.TMNOFLAGS);
+        } catch (XAException e) {
+            fail("shouldn't throw exception since txn is available.");
         }
 
         TransactionContext context = null;
