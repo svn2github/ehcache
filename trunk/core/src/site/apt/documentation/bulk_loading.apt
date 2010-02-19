@@ -4,7 +4,7 @@
 
 {Bulk Loading}
 
-    {{{#API}API}} | {{{#Speed_Improvements}Speed Improvements}} | {{{#ehcache.xml}ehcache.xml}}| {{{#FAQ}FAQ}} | {{{#Performance_Tips}Performance Tips}} | {{{#Download}Download}}
+    {{{#API}API}} | {{{#Speed_Improvements}Speed Improvements}} | {{{#ehcache.xml}ehcache.xml}}| {{{#FAQ}FAQ}} | {{{#Performance_Tips}Performance Tips}} | {{{#Download}Download}} | {{{#Further_Information}Further Information}}
 
     new-in-2 Ehcache has a bulk loading mode that dramatically speeds up bulk loading into caches using
     the Terracotta Server Array.
@@ -148,4 +148,7 @@
     For a full distribution enabling connection to the Terracotta Server array download {{{http://sourceforge.net/projects/ehcache/files/ehcache}here}}.
 
 
+*   {Further Information}
+
+    Saravanan who was the lead on this feature has blogged about it {{{http://sarosblog.blogspot.com/2010/02/terracotta-distributed-ehcaches-new.html}here}}.
 

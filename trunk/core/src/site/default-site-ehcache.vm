@@ -175,6 +175,10 @@
     #end
 #end
 
+###macro ( importScript )
+##    $jqueryPath="src=\"greg/js/jquery.js\"""
+###end
+
 #macro ( publishDate $position $publishDate $version )
     #if ( $publishDate && $publishDate.format )
         #set ( $format = $publishDate.format )
@@ -344,8 +348,9 @@
         ##        @import url("$relativePath/css/maven-theme.css");
 ##        @import url("$relativePath/css/site.css");
     </style>
-    <script language="JavaScript" src="/js/jquery.js"></script>
-    <script language="JavaScript" src="/js/navinit.js"></script>
+
+    <script language="JavaScript" src="$relativePath/js/jquery.js"></script>
+    <script language="JavaScript" src="$relativePath/js/navinit.js"></script>
 
     #foreach( $author in $authors )
         <meta name="author" content="$author"/>
