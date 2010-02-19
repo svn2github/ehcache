@@ -390,7 +390,7 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
       
         TransactionContext context = null;
         
-        if(currentXid.get() != null) {
+        if (currentXid.get() != null) {
            context = ehcacheXAStore.getTransactionContext(currentXid.get());
         }
         
