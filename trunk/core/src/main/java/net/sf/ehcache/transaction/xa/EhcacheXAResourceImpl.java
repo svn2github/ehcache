@@ -38,7 +38,6 @@ import net.sf.ehcache.concurrent.Sync;
 import net.sf.ehcache.store.Store;
 import net.sf.ehcache.transaction.TransactionContext;
 import net.sf.ehcache.transaction.xa.XARequest.RequestType;
-import net.sf.ehcache.writer.CacheWriterManager;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
