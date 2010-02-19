@@ -115,7 +115,7 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
             try {  
                 if (cacheWriterManager != null) {
                     try {
-                        tx.registerSynchronization(new CacheWriterManagerSynchronization());
+                        tx.registerSynchronization(new CacheWriterManagerSynchronization(currentXid.get()));
                     } catch (RollbackException e) {
                         // Safely ignore this
                     }
@@ -384,6 +384,14 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
      * {@inheritDoc}
      */
     public TransactionContext getOrCreateTransactionContext() throws SystemException, RollbackException {
+        return getOrCreateTransactionContext(currentXid.get());
+    }
+    
+    /**
+     * 
+     * @return
+     */
+    private TransactionContext getOrCreateTransactionContext(Xid currentXid) throws SystemException, RollbackException {
         Transaction transaction = txnManager.getTransaction();
         if (transaction == null) {
             throw new CacheException("Cache " + cacheName + " can only be accessed within a JTA Transaction!");
@@ -392,11 +400,15 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
         if (transaction.getStatus() != Status.STATUS_ACTIVE) {
             throw new CacheException("Transaction not active!");
         }
-
-        TransactionContext context = ehcacheXAStore.getTransactionContext(currentXid.get());
+        
+        if(currentXid == null) {
+            return null;
+        }
+        
+        TransactionContext context = ehcacheXAStore.getTransactionContext(currentXid);
         if (context == null) {
             transaction.enlistResource(this);
-            context = ehcacheXAStore.createTransactionContext(currentXid.get());
+            context = ehcacheXAStore.createTransactionContext(currentXid);
         }
         return context;
     }
@@ -603,13 +615,19 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
      * Writes stuff to the CacheWriterManager just before the Transaction is ended for commit
      */
     private class CacheWriterManagerSynchronization implements Synchronization {
+        
+        private Xid currentXid;
+        
+        public CacheWriterManagerSynchronization(Xid currentXid) {
+            this.currentXid = currentXid;
+        }
 
         /**
          * {@inheritDoc}
          */
         public void beforeCompletion() {
             try {
-                TransactionContext context = getOrCreateTransactionContext();
+                TransactionContext context = getOrCreateTransactionContext(currentXid);
                 for (VersionAwareCommand versionAwareCommand : context.getCommands()) {
                     versionAwareCommand.execute(cacheWriterManager);
                 }
