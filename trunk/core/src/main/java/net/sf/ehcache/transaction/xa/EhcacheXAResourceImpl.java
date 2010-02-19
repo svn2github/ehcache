@@ -123,11 +123,6 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
             } catch (SystemException e) {
                 throw new EhcacheXAException("Couldn't get to current Transaction: " + e.getMessage(), e.errorCode, e);
             }   
-            Xid prevXid = currentXid.get();
-            
-            if (prevXid != null && prevXid.equals(xid)) {
-                throw new EhcacheXAException("Duplicated XID: " + xid, XAException.XAER_DUPID);
-            }
         }
         currentXid.set(xid);
     }
