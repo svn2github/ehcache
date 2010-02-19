@@ -125,7 +125,7 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
             }   
             Xid prevXid = currentXid.get();
             
-            if (prevXid != null && !prevXid.equals(xid)) {
+            if (prevXid != null && prevXid.equals(xid)) {
                 throw new EhcacheXAException("Duplicated XID: " + xid, XAException.XAER_DUPID);
             }
         }
