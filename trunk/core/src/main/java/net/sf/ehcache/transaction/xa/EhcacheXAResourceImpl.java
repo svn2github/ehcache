@@ -384,14 +384,6 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
      * {@inheritDoc}
      */
     public TransactionContext getOrCreateTransactionContext() throws SystemException, RollbackException {
-        return getOrCreateTransactionContext(currentXid.get());
-    }
-    
-    /**
-     * 
-     * @return
-     */
-    private TransactionContext getOrCreateTransactionContext(Xid currentXid) throws SystemException, RollbackException {
         Transaction transaction = txnManager.getTransaction();
         if (transaction == null) {
             throw new CacheException("Cache " + cacheName + " can only be accessed within a JTA Transaction!");
@@ -400,19 +392,20 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
         if (transaction.getStatus() != Status.STATUS_ACTIVE) {
             throw new CacheException("Transaction not active!");
         }
+      
+        TransactionContext context = null;
         
-        if(currentXid == null) {
-            return null;
+        if(currentXid.get() != null) {
+           context = ehcacheXAStore.getTransactionContext(currentXid.get());
         }
         
-        TransactionContext context = ehcacheXAStore.getTransactionContext(currentXid);
         if (context == null) {
             transaction.enlistResource(this);
-            context = ehcacheXAStore.createTransactionContext(currentXid);
+            context = ehcacheXAStore.createTransactionContext(currentXid.get());
         }
         return context;
     }
-
+    
     /**
      * {@inheritDoc}
      */
@@ -627,7 +620,7 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
          */
         public void beforeCompletion() {
             try {
-                TransactionContext context = getOrCreateTransactionContext(currentXid);
+                TransactionContext context = getOrCreateTransactionContext();
                 for (VersionAwareCommand versionAwareCommand : context.getCommands()) {
                     versionAwareCommand.execute(cacheWriterManager);
                 }
