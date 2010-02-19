@@ -29,8 +29,10 @@ import net.sf.ehcache.Element;
 import net.sf.ehcache.Status;
 import net.sf.ehcache.transaction.StoreExpireAllElementsCommand;
 import net.sf.ehcache.transaction.StorePutCommand;
+import net.sf.ehcache.transaction.StorePutWithWriterCommandImpl;
 import net.sf.ehcache.transaction.StoreRemoveAllCommand;
 import net.sf.ehcache.transaction.StoreRemoveCommand;
+import net.sf.ehcache.transaction.StoreRemoveWithWriterCommand;
 import net.sf.ehcache.transaction.TransactionContext;
 import net.sf.ehcache.transaction.xa.EhcacheXAResource;
 import net.sf.ehcache.writer.CacheWriterManager;
@@ -62,32 +64,34 @@ public class XATransactionalStore implements Store {
      * {@inheritDoc}
      */
     public boolean put(final Element element) throws CacheException {
+        return internalPut(new StorePutCommand(element));
+    }
+
+    private boolean internalPut(final StorePutCommand putCommand) {
+        final Element element = putCommand.getElement();
+        boolean isNull;
         if (element == null) {
             return true;
         }
         TransactionContext context = getOrCreateTransactionContext();
         // In case this key is currently being updated...
-        boolean isNull = underlyingStore.get(element.getKey()) == null;
+        isNull = underlyingStore.get(element.getKey()) == null;
         if (isNull) {
             isNull = context.get(element.getKey()) == null;
         }
-        context.addCommand(new StorePutCommand(element), element);
+        context.addCommand(putCommand, element);
         return isNull;
     }
 
     /**
      * XATransactionalStore to put including to the underlying data store. That needs to be registered with the TransactionManager
-     * and participate in the XA Transaction. The call to {@link net.sf.ehcache.writer.CacheWriterManager#put} will be not held back
+     * and participate in the XA Transaction. The call to {@link net.sf.ehcache.writer.CacheWriterManager#put} will be held back
      * until commit time!
      * @param element the element to add to the store
      * @param writerManager will only work properly with {@link net.sf.ehcache.writer.writethrough.WriteThroughManager WriteThroughManager}
      */
     public boolean putWithWriter(final Element element, final CacheWriterManager writerManager) throws CacheException {
-        boolean newPut = put(element);
-        if (writerManager != null) {
-            writerManager.put(element);
-        }
-        return newPut;
+        return internalPut(new StorePutWithWriterCommandImpl(element));
     }
 
     /**
@@ -129,16 +133,20 @@ public class XATransactionalStore implements Store {
      * {@inheritDoc}
      */
     public Element remove(final Object key) {
+        return removeInternal(new StoreRemoveCommand(key));
+    }
+
+    private Element removeInternal(final StoreRemoveCommand command) {
+        final Object key = command.getKey();
         TransactionContext context = getOrCreateTransactionContext();
         Element element = context.get(key);
         if (element == null && !context.isRemoved(key)) {
             element = xaResource.getQuiet(key);
         }
         if (element != null) {
-            context.addCommand(new StoreRemoveCommand(key), element);
+            context.addCommand(command, element);
         }
 
-        //todo is this really good enough?
         return element;
     }
 
@@ -151,11 +159,7 @@ public class XATransactionalStore implements Store {
      * @return the value to be removed
      */
     public Element removeWithWriter(final Object key, final CacheWriterManager writerManager) throws CacheException {
-        Element element = remove(key);
-        if (writerManager != null) {
-            writerManager.remove(key);
-        }
-        return element;
+        return removeInternal(new StoreRemoveWithWriterCommand(key));
     }
 
     /**

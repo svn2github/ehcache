@@ -48,8 +48,7 @@ public class StorePutCommand implements StoreWriteCommand {
      * {@inheritDoc}
      */
     public boolean execute(final CacheWriterManager cacheWriterManager) {
-        cacheWriterManager.put(element);
-        return true;
+        return false;
     }
 
     /**

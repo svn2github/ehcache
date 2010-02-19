@@ -610,7 +610,6 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
         public void beforeCompletion() {
             try {
                 TransactionContext context = getOrCreateTransactionContext();
-                context.getRemovedKeys();
                 for (VersionAwareCommand versionAwareCommand : context.getCommands()) {
                     versionAwareCommand.execute(cacheWriterManager);
                 }

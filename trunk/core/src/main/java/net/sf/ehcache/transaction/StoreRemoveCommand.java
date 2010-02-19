@@ -46,8 +46,7 @@ public class StoreRemoveCommand implements StoreWriteCommand {
      * {@inheritDoc}
      */
     public boolean execute(final CacheWriterManager cacheWriterManager) {
-        cacheWriterManager.remove(key);
-        return true;
+        return false;
     }
 
     /**
@@ -70,6 +69,12 @@ public class StoreRemoveCommand implements StoreWriteCommand {
     public String getCommandName() {
         return Command.REMOVE;
     }
-    
-    
+
+    /**
+     * Getter to the key to be removed
+     * @return the key
+     */
+    public Object getKey() {
+        return key;
+    }
 }

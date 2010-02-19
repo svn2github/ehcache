@@ -36,12 +36,22 @@ public interface Command {
     /**
      * {@link Store#put(net.sf.ehcache.Element)} command
      */
+    public static final String PUT_WITH_WRITER = "PUT_WITH_WRITER";
+
+    /**
+     * {@link Store#putWithWriter(net.sf.ehcache.Element, net.sf.ehcache.writer.CacheWriterManager)} command
+     */
     public static final String PUT = "PUT";
 
     /**
      * {@link Store#remove(Object)} command
      */
     public static final String REMOVE = "REMOVE";
+
+    /**
+     * {@link Store#removeWithWriter(Object, net.sf.ehcache.writer.CacheWriterManager)} command
+     */
+    public static final String REMOVE_WITH_WRITER = "REMOVE_WITH_WRITER";
 
     /**
      * {@link net.sf.ehcache.store.Store#expireElements()} command
