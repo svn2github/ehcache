@@ -217,16 +217,19 @@ public class CacheWriterTest extends AbstractCacheTest {
             fail("Expected UnsupportedOperationException");
         } catch (UnsupportedOperationException e) {
             // expected
+            assertEquals(0, CountingCacheEventListener.getCacheElementsUpdated(cache).size());
             assertEquals(1, CountingCacheEventListener.getCacheElementsPut(cache).size());
         }
 
         CountingCacheEventListener.resetCounters();
 
         try {
+            assertNotNull(cache.get("key1"));
             cache.putWithWriter(new Element("key1", "value1"));
             fail("Expected UnsupportedOperationException");
         } catch (UnsupportedOperationException e) {
             // expected
+            assertEquals(0, CountingCacheEventListener.getCacheElementsPut(cache).size());
             assertEquals(1, CountingCacheEventListener.getCacheElementsUpdated(cache).size());
         }
 

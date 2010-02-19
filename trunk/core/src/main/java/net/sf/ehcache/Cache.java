@@ -1202,6 +1202,9 @@ public class Cache implements Ehcache {
             boolean elementExists = false;
             try {
                 elementExists = isElementOnDisk(element.getObjectKey());
+                if (!elementExists) {
+                    elementExists = memoryStore.containsKey(element.getObjectKey());
+                }
                 elementExists = !memoryStore.putWithWriter(element, cacheWriterManager) || elementExists;
                 if (elementExists) {
                     element.updateUpdateStatistics();
