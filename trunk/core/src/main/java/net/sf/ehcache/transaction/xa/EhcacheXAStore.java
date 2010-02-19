@@ -16,7 +16,6 @@
 
 package net.sf.ehcache.transaction.xa;
 
-import javax.transaction.Transaction;
 import javax.transaction.xa.Xid;
 
 import net.sf.ehcache.store.Store;
@@ -62,19 +61,11 @@ import net.sf.ehcache.transaction.TransactionContext;
 public interface EhcacheXAStore {
 
     /**
-     * Stores the mapping of Xid to Transaction
-     * @param xid the xid
-     * @param transaction the transaction matching that xid
-     * @return potentially returns a previously stored xid for that transaction, otherwise null
-     */
-    Xid storeXid2Transaction(Xid xid, Transaction transaction);
-
-    /**
      * Creates a new TransactionContext for a given Transaction
-     * @param txn the JTA Transaction
+     * @param xid of current transaction
      * @return a TransactionContext for that Transaction
      */
-    TransactionContext createTransactionContext(Transaction txn);
+    TransactionContext createTransactionContext(Xid xid);
     
     /**
      * Gets a stored TransactionContext for a given Transaction
@@ -82,13 +73,6 @@ public interface EhcacheXAStore {
      * @return the matching TransactionContext
      */
     TransactionContext getTransactionContext(Xid xid);
-
-    /**
-     * Gets a stored TransactionContext for a given Transaction
-     * @param txn the Transaction
-     * @return the matching TransactionContext
-     */
-    TransactionContext getTransactionContext(Transaction txn);
 
     /**
      * Checks in changes to a key

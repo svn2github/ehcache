@@ -89,9 +89,7 @@ public class EhcacheXAResourceTest extends TestCase {
         } catch (XAException e) {
             fail("shouldn't throw exception since txn is available.");
         }
-        assertEquals(1, store.localTxn2XidTable.size());
-        assertEquals(1, store.localXid2TxnTable.size());
-
+    
         try {
             resource.end(xid1, XAResource.TMSUCCESS);
         } catch (XAException e) {
@@ -100,8 +98,6 @@ public class EhcacheXAResourceTest extends TestCase {
 
         try {
             resource.end(xid1, XAResource.TMFAIL);
-            assertEquals(0, store.localTxn2XidTable.size());
-            assertEquals(0, store.localXid2TxnTable.size());
         } catch (XAException e) {
             fail("Shoudn't throw an exception..");
         }
@@ -114,9 +110,7 @@ public class EhcacheXAResourceTest extends TestCase {
         } catch (XAException e) {
             fail("shouldn't throw exception since txn is available.");
         }
-        assertEquals(1, store.localTxn2XidTable.size());
-        assertEquals(1, store.localXid2TxnTable.size());
-
+      
         try {
             resource.end(xid1, XAResource.TMSUCCESS);
         } catch (XAException e) {
@@ -176,8 +170,6 @@ public class EhcacheXAResourceTest extends TestCase {
         assertEquals(0, oldVersionStore.getSize());
         assertEquals(0, store.transactionContextXids.size());
         assertEquals(0, store.prepareXids.size());
-        assertEquals(0, store.localTxn2XidTable.size());
-        assertEquals(0, store.localXid2TxnTable.size());
         
     }
 

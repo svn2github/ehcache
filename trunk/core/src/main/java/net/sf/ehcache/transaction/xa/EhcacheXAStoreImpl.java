@@ -21,7 +21,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicLong;
 
-import javax.transaction.Transaction;
 import javax.transaction.xa.Xid;
 
 import net.sf.ehcache.store.Store;
@@ -40,10 +39,6 @@ public class EhcacheXAStoreImpl implements EhcacheXAStore {
     protected final ConcurrentMap<Xid, XATransactionContext>   transactionContextXids = new ConcurrentHashMap<Xid, XATransactionContext>();
     /** protected for testing **/
     protected final ConcurrentMap<Xid, PreparedContext>        prepareXids            = new ConcurrentHashMap<Xid, PreparedContext>();
-    /** protected for testing **/
-    protected final ConcurrentMap<Transaction, Xid>            localTxn2XidTable      = new ConcurrentHashMap<Transaction, Xid>();
-    /** protected for testing **/
-    protected final ConcurrentMap<Xid, Transaction>            localXid2TxnTable      = new ConcurrentHashMap<Xid, Transaction>();
     /** protected for testing **/
     protected final VersionTable                               versionTable           = new VersionTable();
     /** protected for testing **/
@@ -81,12 +76,6 @@ public class EhcacheXAStoreImpl implements EhcacheXAStore {
     public void removeData(final Xid xid) {
         prepareXids.remove(xid);
         transactionContextXids.remove(xid);
-        Transaction txn = localXid2TxnTable.get(xid);
-        if (txn != null) {
-          localTxn2XidTable.remove(txn);
-        }
-        localXid2TxnTable.remove(xid);
-
     }
 
     /**
@@ -106,17 +95,8 @@ public class EhcacheXAStoreImpl implements EhcacheXAStore {
     /**
      * {@inheritDoc}
      */
-    public Xid storeXid2Transaction(Xid xid, Transaction transaction) {
-        localXid2TxnTable.putIfAbsent(xid, transaction);
-        return localTxn2XidTable.putIfAbsent(transaction, xid);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public TransactionContext createTransactionContext(Transaction txn) {
-        Xid xid = localTxn2XidTable.get(txn);
-        XATransactionContext context = new XATransactionContext(xid, this);
+    public TransactionContext createTransactionContext(Xid xid) {
+         XATransactionContext context = new XATransactionContext(xid, this);
         XATransactionContext previous = transactionContextXids.putIfAbsent(xid, context);
         if (previous != null) {
             context = previous;
@@ -136,14 +116,6 @@ public class EhcacheXAStoreImpl implements EhcacheXAStore {
      * {@inheritDoc}
      */
     public TransactionContext getTransactionContext(Xid xid) {
-        return transactionContextXids.get(xid);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public TransactionContext getTransactionContext(Transaction txn) {
-        Xid xid = localTxn2XidTable.get(txn);
         return transactionContextXids.get(xid);
     }
 

@@ -67,7 +67,9 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
     private final Store              oldVersionStore;
     private final TransactionManager txnManager;
     private final CacheWriterManager cacheWriterManager;
+    private final ThreadLocal<Xid>   currentXid      = new ThreadLocal<Xid>();
     private final Set<Xid>           recoverySet     = new HashSet<Xid>();
+   
 
     private       volatile int                transactionTimeout = DEFAULT_TIMEOUT;
 
@@ -127,11 +129,13 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
             } catch (SystemException e) {
                 throw new EhcacheXAException("Couldn't get to current Transaction: " + e.getMessage(), e.errorCode, e);
             }   
-            Xid prevXid = ehcacheXAStore.storeXid2Transaction(xid, tx);
-         
+            Xid prevXid = currentXid.get();
+            
             if (prevXid != null && !prevXid.equals(xid)) {
                 throw new EhcacheXAException("Duplicated XID: " + xid, XAException.XAER_DUPID);
             }
+            
+            currentXid.set(xid);
         }      
     }
 
@@ -140,6 +144,7 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
      */
     public void end(final Xid xid, final int flags) throws XAException {
         this.processor.process(new XARequest(RequestType.END, getCurrentTransaction(), xid, flags));
+        currentXid.remove();
     }
     
     /**
@@ -402,10 +407,10 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
             throw new CacheException("Transaction not active!");
         }
 
-        TransactionContext context = ehcacheXAStore.getTransactionContext(transaction);
+        TransactionContext context = ehcacheXAStore.getTransactionContext(currentXid.get());
         if (context == null) {
             transaction.enlistResource(this);
-            context = ehcacheXAStore.createTransactionContext(transaction);
+            context = ehcacheXAStore.createTransactionContext(currentXid.get());
         }
         return context;
     }
