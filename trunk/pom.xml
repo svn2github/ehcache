@@ -4,7 +4,7 @@
     <groupId>net.sf.ehcache</groupId>
     <artifactId>ehcache-parent</artifactId>
     <packaging>pom</packaging>
-    <version>2.0</version>
+    <version>2.1</version>
     <name>Ehcache Parent</name>
     <description><![CDATA[Ehcache is a widely used, pure Java, in-process, distributed cache]]>
     </description>
@@ -310,6 +310,37 @@
     </build>
 
     <profiles>
+        <profile>
+          <!-- Profile to sign artifacts with a PGP key (using GPG). -->
+          <id>sign-artifacts</id>
+          <activation>
+            <property>
+              <name>performRelease</name>
+              <value>true</value>
+            </property>
+          </activation>
+          <build>
+            <plugins>
+              <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-gpg-plugin</artifactId>
+                <executions>
+                  <execution>
+                    <id>sign-artifacts</id>
+                    <phase>verify</phase>
+                    <goals>
+                      <goal>sign</goal>
+                    </goals>
+                    <configuration>
+                      <keyname>Terracotta Release Engineer</keyname>
+                    </configuration>
+                  </execution>
+                </executions>
+              </plugin>
+            </plugins>
+          </build>
+        </profile>
+
         <profile>
             <!-- No-test profile:  equivalent to -Dmaven.test.skip=true -->
             <id>nt</id>
