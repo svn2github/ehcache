@@ -546,6 +546,7 @@
         <connection>scm:svn:http://svn.terracotta.org/svn/ehcache</connection>
         <developerConnection>scm:svn:https://svn.terracotta.org/repo/ehcache</developerConnection>
         <tag/>
+        <url>http://svn.terracotta.org/svn/ehcache</url>
     </scm>
 
 </project>
