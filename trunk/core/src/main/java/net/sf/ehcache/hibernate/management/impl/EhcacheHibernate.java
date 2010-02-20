@@ -97,6 +97,7 @@ public class EhcacheHibernate extends BaseEmitterBean implements EhcacheHibernat
             hibernateStats.disableStats();
         }
         statsEnabled.set(flag);
+        sendNotification(HibernateStats.CACHE_STATISTICS_ENABLED, flag);
     }
 
     /**
@@ -133,6 +134,7 @@ public class EhcacheHibernate extends BaseEmitterBean implements EhcacheHibernat
      */
     public void flushRegionCache(String region) {
         ehcacheStats.flushRegionCache(region);
+        sendNotification(HibernateStats.CACHE_REGION_FLUSHED, region);
     }
 
     /**
@@ -140,6 +142,7 @@ public class EhcacheHibernate extends BaseEmitterBean implements EhcacheHibernat
      */
     public void flushRegionCaches() {
         ehcacheStats.flushRegionCaches();
+        sendNotification(HibernateStats.CACHE_FLUSHED);
     }
 
     /**
@@ -420,6 +423,7 @@ public class EhcacheHibernate extends BaseEmitterBean implements EhcacheHibernat
      */
     public void setRegionCachesEnabled(boolean enabled) {
         ehcacheStats.setRegionCachesEnabled(enabled);
+        sendNotification(HibernateStats.CACHE_ENABLED, enabled);
     }
 
     /**
@@ -427,6 +431,7 @@ public class EhcacheHibernate extends BaseEmitterBean implements EhcacheHibernat
      */
     public void setRegionCacheEnabled(String region, boolean enabled) {
         ehcacheStats.setRegionCacheEnabled(region, enabled);
+        sendNotification(HibernateStats.CACHE_REGION_CHANGED, getRegionCacheAttributes(region), region);
     }
 
     /**
@@ -462,6 +467,7 @@ public class EhcacheHibernate extends BaseEmitterBean implements EhcacheHibernat
      */
     public void setRegionCacheLoggingEnabled(String region, boolean loggingEnabled) {
         ehcacheStats.setRegionCacheLoggingEnabled(region, loggingEnabled);
+        sendNotification(HibernateStats.CACHE_REGION_CHANGED, getRegionCacheAttributes(region), region);
     }
 
     /**
@@ -469,6 +475,7 @@ public class EhcacheHibernate extends BaseEmitterBean implements EhcacheHibernat
      */
     public void setRegionCacheMaxTTISeconds(String region, int maxTTISeconds) {
         ehcacheStats.setRegionCacheMaxTTISeconds(region, maxTTISeconds);
+        sendNotification(HibernateStats.CACHE_REGION_CHANGED, getRegionCacheAttributes(region), region);
     }
 
     /**
@@ -476,6 +483,7 @@ public class EhcacheHibernate extends BaseEmitterBean implements EhcacheHibernat
      */
     public void setRegionCacheMaxTTLSeconds(String region, int maxTTLSeconds) {
         ehcacheStats.setRegionCacheMaxTTLSeconds(region, maxTTLSeconds);
+        sendNotification(HibernateStats.CACHE_REGION_CHANGED, getRegionCacheAttributes(region), region);
     }
 
     /**
@@ -483,6 +491,7 @@ public class EhcacheHibernate extends BaseEmitterBean implements EhcacheHibernat
      */
     public void setRegionCacheTargetMaxInMemoryCount(String region, int targetMaxInMemoryCount) {
         ehcacheStats.setRegionCacheTargetMaxInMemoryCount(region, targetMaxInMemoryCount);
+        sendNotification(HibernateStats.CACHE_REGION_CHANGED, getRegionCacheAttributes(region), region);
     }
 
     /**
@@ -490,6 +499,7 @@ public class EhcacheHibernate extends BaseEmitterBean implements EhcacheHibernat
      */
     public void setRegionCacheTargetMaxTotalCount(String region, int targetMaxTotalCount) {
         ehcacheStats.setRegionCacheTargetMaxTotalCount(region, targetMaxTotalCount);
+        sendNotification(HibernateStats.CACHE_REGION_CHANGED, getRegionCacheAttributes(region), region);
     }
 
     /**
