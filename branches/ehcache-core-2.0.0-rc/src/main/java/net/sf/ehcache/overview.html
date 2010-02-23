@@ -1,0 +1,58 @@
+<html>
+  <head>
+  Overview
+  </head>
+  <body>
+  <pre>
+  Introduction
+============
+ehcache is a pure Java, in-process cache with the following features:
+
+   1. Fast.
+   2. Simple.
+   3. Multiple eviction policies: LRU, LFU and FIFO.
+   4. Caches can be in memory or on disk.
+   5. Disk Stores can be persistent between VM restarts.
+   6. Distributed caching using multicast and RMI, with a pluggable API.
+   7. Cache and CacheManager listeners
+   8. Supports multiple Caches per CacheManager, and multiple CacheManagers per application.
+   9. Acts as a pluggable cache for Hibernate 3.1, 3 and 2.1.
+   10. Small foot print. Both in terms of size and memory requirements.
+   11. Minimal dependencies apart from J2SE.
+   12. Fully documented. See the online Documentation and the online JavaDoc.
+   13. Comprehensive Test Coverage. See the clover test report.
+   14. Available under the Apache 1.1 license. EHCache's copyright and licensing has been reviewed and approved by the Apache Software Foundation, making EHCache suitable for use in Apache projects.
+   15. Production tested. EHCache is used on a large and very busy eCommerce site.
+   16. Web caching, pull-through caches and other common caching implementations are provided in the ehcache-constructs module.
+
+Java Requirements
+=================
+ehcache supports 1.3, 1.4, 1.5 and 1.6 at runtime. When compiling from source, the build process requires at least JDK1.5.
+
+ehcache does not work with JDK1.1 and is not tested on JDK1.2.
+
+Dependencies
+============
+For JDK1.4, ehcache requires commons-logging from Apache's Jakarta project.
+
+For JDK 1.3, ehcache requires:
+
+- Apache Jakarta's commons-collections, version 2.1.1
+- Apache xerces (xml-apis.jar and xercesImpl.jar), version 2.5
+
+All three dependencies are also Hibernate dependencies, so if you are using ehcache as a Hibernate plugin, dependency requirements are met.
+
+Installation
+============
+Place the ehcache.jar into your classpath. Ensure the required dependencies are in the classpath.
+
+Create an ehcache.xml configuration from the one supplied in the distribution and place it in your classpath.
+
+Documentation
+=============
+See http://ehcache.sourceforge.net/documentation for full documentation.
+
+The JavaDoc is in the distribution and also online at http://ehcache.sourceforge.net/javadoc.
+</pre>
+  </body>
+</html>

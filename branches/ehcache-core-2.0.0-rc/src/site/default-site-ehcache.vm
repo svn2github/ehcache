@@ -1,0 +1,542 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+## Macros
+
+#macro ( link $href $name )
+    #if ( ( $href.toLowerCase().startsWith("http") || $href.toLowerCase().startsWith("https") ) )
+    <a href="$href" class="externalLink">$name</a>
+    #else
+    <a href="$href">$name</a>
+    #end
+#end
+
+#macro ( banner $banner $id )
+    #if ( $banner )
+        #if( $banner.href )
+        <a href="$banner.href" id="$id" #if( $banner.alt ) title="$banner.alt" #end >
+        #else
+        <div id="$id">
+        #end
+
+        #if( $banner.src )
+            #set ( $src = $banner.src )
+            #if ( ! ( $src.toLowerCase().startsWith("http") || $src.toLowerCase().startsWith("https") ) )
+                #set ( $src = $PathTool.calculateLink( $src, $relativePath ) )
+                #set ( $src = $src.replaceAll( "\\", "/" ) )
+            #end
+            #if ( $banner.alt )
+                #set ( $alt = $banner.alt )
+            #else
+                #set ( $alt = $banner.name )
+            #end
+            <img src="$src" alt="$alt"/>
+        #else
+            $banner.name
+        #end
+
+        #if( $banner.href )
+        </a>
+        #else
+        </div>
+        #end
+    #end
+#end
+
+#macro ( links $links )
+    #set ( $counter = 0 )
+    #foreach( $item in $links )
+        #set ( $counter = $counter + 1 )
+        #set ( $currentItemHref = $PathTool.calculateLink( $item.href, $relativePath ) )
+        #set ( $currentItemHref = $currentItemHref.replaceAll( "\\", "/" ) )
+        #link( $currentItemHref $item.name )
+        #if ( $links.size() > $counter )
+        |
+        #end
+    #end
+#end
+
+#macro ( breadcrumbs $breadcrumbs )
+    #set ( $counter = 0 )
+    #foreach( $item in $breadcrumbs )
+        #set ( $counter = $counter + 1 )
+        #set ( $currentItemHref = $PathTool.calculateLink( $item.href, $relativePath ) )
+        #set ( $currentItemHref = $currentItemHref.replaceAll( "\\", "/" ) )
+
+        #if ( $currentItemHref == $alignedFileName || $currentItemHref == "" )
+            $item.name
+        #else
+            #link( $currentItemHref $item.name )
+        #end
+        #if ( $breadcrumbs.size() > $counter )
+        &gt;
+        #end
+    #end
+#end
+
+#macro ( displayTree $display $item )
+    #if ( $item && $item.items && $item.items.size() > 0 )
+        #foreach( $subitem in $item.items )
+            #set ( $subitemHref = $PathTool.calculateLink( $subitem.href, $relativePath ) )
+            #set ( $subitemHref = $subitemHref.replaceAll( "\\", "/" ) )
+            #set ( $display = false )
+            #if ( $alignedFileName == $subitemHref )
+                #set ( $display = true )
+            #end
+
+            #displayTree( $display $subitem )
+        #end
+    #end
+#end
+
+#macro ( menuItem $item )
+    #set ( $collapse = "none" )
+    #set ( $currentItemHref = $PathTool.calculateLink( $item.href, $relativePath ) )
+    #set ( $currentItemHref = $currentItemHref.replaceAll( "\\", "/" ) )
+
+    #if ( $item && $item.items && $item.items.size() > 0 )
+        #if ( $item.collapse == false )
+            #set ( $collapse = "expanded" )
+        #else
+        ## By default collapsed
+              #set ( $collapse = "collapsed" )
+        #end
+
+        #set ( $display = false )
+        #displayTree( $display $item )
+
+        #if ( $alignedFileName == $currentItemHref || $display )
+            #set ( $collapse = "expanded" )
+        #end
+    #end
+<li class="$collapse">
+    #if ( $item.img )
+        #if ( ! ( $item.img.toLowerCase().startsWith("http") || $item.img.toLowerCase().startsWith("https") ) )
+            #set ( $src = $PathTool.calculateLink( $item.img, $relativePath ) )
+            #set ( $src = $src.replaceAll( "\\", "/" ) )
+            <img src="$src"/>
+        #else
+            <img src="$item.img" align="absbottom" style="border-width: 0"/>
+        #end
+    #end
+    #if ( $alignedFileName == $currentItemHref )
+        <strong>$item.name</strong>
+    #else
+        #link( $currentItemHref $item.name )
+    #end
+    #if ( $item && $item.items && $item.items.size() > 0 )
+        #if ( $collapse == "expanded" )
+            <ul>
+                #foreach( $subitem in $item.items )
+          #menuItem( $subitem )
+        #end
+            </ul>
+        #end
+    #end
+</li>
+#end
+
+#macro ( mainMenu $menus )
+    <ul id="navList" style="padding:0px;">
+    #foreach( $menu in $menus )
+        #if ( $menu.name )
+
+    <li class="parent" >
+	<a href=# class="parent" style="padding:0px;">
+        <h5><img src="http://ehcache.org/images/arrow_open.png" width="13" height="13" hspace="6"
+                 alt="arrow">
+            $menu.name</h5></a>
+        #end
+        #if ( $menu.items && $menu.items.size() > 0 )
+        <ul>
+            #foreach( $item in $menu.items )
+        #menuItem( $item )
+      #end
+        </ul>
+        #end
+    #end
+    </ul>
+#end
+
+#macro ( copyright )
+    #if ( $project )
+        #set ( $currentYear = ${currentDate.year} + 1900 )
+
+        #if ( ${project.inceptionYear} && ( ${project.inceptionYear} != ${currentYear.toString()} ) )
+            ${project.inceptionYear}-${currentYear}
+        #else
+            ${currentYear}
+        #end
+
+        #if ( ${project.organization} && ${project.organization.name} )
+            ${project.organization.name}
+        #end
+    #end
+#end
+
+###macro ( importScript )
+##    $jqueryPath="src=\"greg/js/jquery.js\"""
+###end
+
+#macro ( publishDate $position $publishDate $version )
+    #if ( $publishDate && $publishDate.format )
+        #set ( $format = $publishDate.format )
+    #else
+        #set ( $format = "yyyy-MM-dd" )
+    #end
+
+    $dateFormat.applyPattern( $format )
+
+    #set ( $dateToday = $dateFormat.format( $currentDate ) )
+
+    #if ( $publishDate && $publishDate.position )
+        #set ( $datePosition = $publishDate.position )
+    #else
+        #set ( $datePosition = "left" )
+    #end
+
+    #if ( $version )
+        #if ( $version.position )
+            #set ( $versionPosition = $version.position )
+        #else
+            #set ( $versionPosition = "left" )
+        #end
+    #else
+        #set ( $version = "" )
+        #set ( $versionPosition = "left" )
+    #end
+
+    #set ( $breadcrumbs = $decoration.body.breadcrumbs )
+    #set ( $links = $decoration.body.links )
+
+    #if ( $datePosition.equalsIgnoreCase( "right" ) && $links && $links.size() > 0 )
+        #set ( $prefix = "&nbsp;|" )
+    #else
+        #set ( $prefix = "" )
+    #end
+
+    #if ( $datePosition.equalsIgnoreCase( $position ) )
+        #if ( ( $datePosition.equalsIgnoreCase( "right" ) ) || ( $datePosition.equalsIgnoreCase( "bottom" ) ) )
+            $prefix $i18n.getString( "site-renderer", $locale, "template.lastpublished" ): $dateToday
+            #if ( $versionPosition.equalsIgnoreCase( $position ) )
+            &nbsp;| $i18n.getString( "site-renderer", $locale, "template.version" ): ${project.version}
+            #end
+        #elseif ( ( $datePosition.equalsIgnoreCase( "navigation-bottom" ) ) || ( $datePosition.equalsIgnoreCase( "navigation-top" ) ) )
+        <div id="lastPublished">
+            $i18n.getString( "site-renderer", $locale, "template.lastpublished" )
+            : $dateToday
+            #if ( $versionPosition.equalsIgnoreCase( $position ) )
+                &nbsp;| $i18n.getString( "site-renderer", $locale, "template.version" )
+                : ${project.version}
+            #end
+        </div>
+        #elseif ( $datePosition.equalsIgnoreCase("left") )
+        <div class="xleft">
+            $i18n.getString( "site-renderer", $locale, "template.lastpublished" )
+            : $dateToday
+            #if ( $versionPosition.equalsIgnoreCase( $position ) )
+                &nbsp;| $i18n.getString( "site-renderer", $locale, "template.version" )
+                : ${project.version}
+            #end
+            #if ( $breadcrumbs && $breadcrumbs.size() > 0 )
+                | #breadcrumbs( $breadcrumbs )
+            #end
+        </div>
+        #end
+    #elseif ( $versionPosition.equalsIgnoreCase( $position ) )
+        #if ( ( $versionPosition.equalsIgnoreCase( "right" ) ) || ( $versionPosition.equalsIgnoreCase( "bottom" ) ) )
+            $prefix $i18n.getString( "site-renderer", $locale, "template.version" ): ${project.version}
+        #elseif ( ( $versionPosition.equalsIgnoreCase( "navigation-bottom" ) ) || ( $versionPosition.equalsIgnoreCase( "navigation-top" ) ) )
+        <div id="lastPublished">
+            $i18n.getString( "site-renderer", $locale, "template.version" )
+            : ${project.version}
+        </div>
+        #elseif ( $versionPosition.equalsIgnoreCase("left") )
+        <div class="xleft">
+            $i18n.getString( "site-renderer", $locale, "template.version" )
+            : ${project.version}
+            #if ( $breadcrumbs && $breadcrumbs.size() > 0 )
+                | #breadcrumbs( $breadcrumbs )
+            #end
+        </div>
+        #end
+    #elseif ( $position.equalsIgnoreCase( "left" ) )
+        #if ( $breadcrumbs && $breadcrumbs.size() > 0 )
+        <div class="xleft">
+            #breadcrumbs( $breadcrumbs )
+        </div>
+        #end
+    #end
+#end
+
+#macro ( poweredByLogo $poweredBy )
+    #if( $poweredBy )
+        #foreach ($item in $poweredBy)
+            #if( $item.href )
+                #set ( $href = $PathTool.calculateLink( $item.href, $relativePath ) )
+                #set ( $href = $href.replaceAll( "\\", "/" ) )
+            #else
+                #set ( $href="http://maven.apache.org/" )
+            #end
+
+            #if( $item.name )
+                #set ( $name = $item.name )
+            #else
+                #set ( $name = $i18n.getString( "site-renderer", $locale, "template.builtby" )  )
+                #set ( $name = "${name} Maven"  )
+            #end
+
+            #if( $item.img )
+                #set ( $img = $item.img )
+            #else
+                #set ( $img = "images/logos/maven-feather.png" )
+            #end
+
+        <a href="$href" title="$name" class="poweredBy">
+            #set ( $img = $PathTool.calculateLink( $img, $relativePath ) )
+            #set ( $img = $img.replaceAll( "\\", "/" ) )
+            <img class="poweredBy"
+                 alt="$name"
+                 src="$img"
+                 width="90"
+                 height="30"
+                    />
+        </a>
+        #end
+        #if( $poweredBy.isEmpty() )
+        <a href="http://maven.apache.org/"
+           title="$i18n.getString( "site-renderer", $locale, "template.builtby" ) Maven"
+           class="poweredBy">
+            <img class="poweredBy"
+                 alt="$i18n.getString( "site-renderer", $locale, "template.builtby" ) Maven"
+                 src="$relativePath/images/logos/maven-feather.png"
+                 width="90"
+                 height="30"
+                 border="1"/>
+        </a>
+        #end
+    #else
+    <a href="http://maven.apache.org/"
+       title="$i18n.getString( "site-renderer", $locale, "template.builtby" ) Maven"
+       class="poweredBy">
+        <img class="poweredBy"
+             alt="$i18n.getString( "site-renderer", $locale, "template.builtby" ) Maven"
+             src="$relativePath/images/logos/maven-feather.png"
+             width="90"
+             height="30"
+             border="1"
+                />
+    </a>
+    #end
+#end
+
+## Start of HTML
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+    <title>$title</title>
+
+    <style type="text/css" media="all">
+        @import url("$relativePath/css/siteNew.css");
+
+
+        ##        @import url("$relativePath/css/maven-base.css");
+        ##        @import url("$relativePath/css/maven-theme.css");
+##        @import url("$relativePath/css/site.css");
+    </style>
+
+    <script language="JavaScript" src="$relativePath/js/jquery.js"></script>
+    <script language="JavaScript" src="$relativePath/js/navinit.js"></script>
+
+    #foreach( $author in $authors )
+        <meta name="author" content="$author"/>
+    #end
+    <meta http-equiv="Content-Type" content="text/html; charset=${outputEncoding}"/>
+    <META name="description" content="Ehcache is a widely used java distributed cache for general purpose caching,
+            Java EE and light-weight containers. It features memory and disk stores, replicate by copy and invalidate,
+            listeners, cache loaders, cache extensions, cache exception handlers, a gzip caching servlet filter, RESTful
+            & SOAP APIs and much more.  Ehcache is available under an Apache open source license and is actively developed,
+            maintained and supported by Terracotta, Inc."/>
+    #if ( $decoration.body.head )
+        #foreach( $item in $decoration.body.head.getChildren() )
+        ## Workaround for DOXIA-150 due to a non-desired behaviour in p-u
+        ## @see org.codehaus.plexus.util.xml.Xpp3Dom#toString()
+        ## @see org.codehaus.plexus.util.xml.Xpp3Dom#toUnescapedString()
+        #set ( $documentHeader = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" )
+            #set ( $documentHeader = $documentHeader.replaceAll( "\\", "" ) )
+            #if ( $item.name == "script" )
+                $StringUtils.replace( $item.toUnescapedString(), $documentHeader, "" )
+            #else
+                $StringUtils.replace( $item.toString(), $documentHeader, "" )
+            #end
+        #end
+    #end
+</head>
+
+
+<body>
+
+<div id="Wrapper">
+    <div id="Container">
+
+
+        <div id="Header">
+
+            <div id="logo">
+                <a href="http://ehcache.org"><img src="http://ehcache.org/images/ehcache_logo.gif"
+                                                  alt="ehcache"
+                                                  width="294" height="60" border="0"
+                                                  vspace="22"></a>
+            </div>
+
+            <div id="nav">
+
+                <div id="support"><a
+                        href="http://www.terracotta.org/ehcache/ehcache-dx?src=ehcacheSupportTab"><span>Support</span></a>
+                </div>
+                <div id="products"><a
+                        href="http://www.terracotta.org/products?source=ehcachebanner"><span>Products</span></a>
+                </div>
+                <div id="customers"><a href="/customers.html"><span>Customers</span></a>
+                </div>
+                <FORM method=GET action=http://www.google.com/custom><INPUT TYPE=text name=q
+                                                                            size=15
+                                                                            maxlength=255
+                                                                            value="">
+                    <INPUT type=submit name=sa VALUE="Search"><INPUT type=hidden name=cof
+                                                                     VALUE="GALT:#3C3E29;S:http://gregluck.com;VLC:#9C8E69;AH:left;BGC:white;LH:31;LC:#9C8E69;GFNT:#3C3E29;L:http://ehcache.org/images/ehcache_logo.gif;ALC:#9C8E69;LW:211;T:#4C4E39;GIMP:#3C3E29;AWFID:12c1e42dc993d5c6;"><input
+                            type=hidden name=domains value="ehcache.org"><input type=hidden
+                                                                                name=sitesearch
+                                                                                value="ehcache.org">
+                </FORM>
+
+                <div id="contact"><a
+                        href="http://www.terracotta.org/contact/?ehcache.org"><b>Contact
+                    Us</b></a>&nbsp; | &nbsp;<a href="http://www.terracotta.org/dl/ehcache-oss-sign-up"><b>Download</b></a>
+                </div>
+                <div id="community">Terracotta Community: <a
+                        href="http://www.terracotta.org/account/register"><b>Register</b></a>&nbsp;
+                    |
+                    &nbsp;<a href="http://www.terracotta.org/account/login"><b>Login</b></a>
+                </div>
+
+            </div>
+
+
+        </div>
+
+        <div id="leftColumn">
+            <div id="navColumn">
+                #publishDate( "navigation-top" $decoration.publishDate $decoration.version )
+       #mainMenu( $decoration.body.menus )
+##       #poweredByLogo( $decoration.poweredBy )
+##       #publishDate( "navigation-bottom" $decoration.publishDate $decoration.version )
+            </div>
+        </div>
+
+        <div id="rightColumn">
+            <h4>Quick Start</h4>
+            <ul>
+                <li><a href="http://ehcache.org/documentation/getting_started.html">Getting
+                    Started</a></li>
+                <li><a href="http://ehcache.org/documentation/samples.html">Code Samples</a>
+                </li>
+                <li><a href="http://ehcache.org/evaluation_faq.html">Evaluation
+                    FAQ</a></li>
+                <li>
+                    <a href="http://ehcache.org/benchmarks.html">Benchmarks</a>
+                </li>
+                <li><a href="http://ehcache.org/roadmap.html">Road Map</a></li>
+            </ul>
+            <p>&nbsp;</p>
+
+            <h4>Products & Services</h4>
+            <ul>
+                <li>
+                    <a href="http://www.terracotta.org/ehcache">Ehcache
+                        DX, EX and FX
+                        &gt;&gt;</a></li>
+                <li>
+                    <a href="http://www.terracotta.org/ehcache/ehcache-dx?source=ehcachebanner">Support
+                        &gt;&gt;</a></li>
+                <li><a href="http://ehcache.org/training.html">Training &gt;&gt;</a></li>
+                <li><a href="http://ehcache.org/EhcacheBrochure.pdf">Product Brochure
+                    [PDF]</a></li>
+            </ul>
+            <p>&nbsp;</p>
+
+            <h4>Training Dates</h4>
+
+            <div id="schedule">
+                <b>US - San Francisco</b><br>
+                Feb 4-5, 2010
+                <hr>
+                Apr 29-30, 2010
+                <hr>
+                Jun 28-29, 2010
+                <hr>
+                Oct 6-7, 2010
+                <hr>
+                Nov 11-12, 2010
+                <hr>
+                Dec 2-3, 2010
+                <hr>
+                Feb 4-5, 2011
+                <br>
+                <br>
+                <b>India - Delhi</b><br>
+                Feb 4-5, 2010
+                <hr>
+                June 17-18, 2010
+                <hr>
+                Dec 2-3, 2010
+                <br>
+                <br>
+                See <a href="http://ehcache.org/training.html">training details</a>.
+
+            </div>
+            <p>&nbsp;</p>
+
+            <h4>Blogs &amp; Tweets</h4>
+
+            <div id="blog">
+                <script type="text/javascript"
+                        src="http://cdn.widgetserver.com/syndication/subscriber/InsertWidget.js"></script>
+                <script>if (WIDGETBOX) WIDGETBOX.renderWidget('c93e7f59-6a67-4e8a-b22e-b736833c84d3');</script>
+                <noscript>Get the <a
+                        href="http://www.widgetbox.com/widget/blogroll-gregrluck">blogroll</a>
+                    widget and many other <a href="http://www.widgetbox.com/">great free
+                        widgets</a> at <a href="http://www.widgetbox.com">Widgetbox</a>! Not
+                    seeing a widget? (<a
+                            href="http://docs.widgetbox.com/using-widgets/installing-widgets/why-cant-i-see-my-widget/">More
+                        info</a>)
+                </noscript>
+            </div>
+        </div>
+
+
+        <div id="bodyColumn">
+	  <!-- __START_BODY__-->
+            $bodyContent
+	  <!--__END_BODY__-->
+        </div>
+	
+        <div id="Footer"> #copyright() ##            #publishDate( "left" $decoration.publishDate $decoration.version )
+        </div>
+
+
+    </div>
+</div>
+
+
+<script SRC='/elqNow/elqCfg.js'></SCRIPT>
+<SCRIPT TYPE='text/javascript' LANGUAGE='JavaScript'
+        SRC='/elqNow/elqImg.js'></SCRIPT>
+
+
+</body>
+</html>
