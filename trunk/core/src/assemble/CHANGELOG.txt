@@ -1,7 +1,7 @@
 ehcache-2.0.0
 ==================
 
-    <release version="2.0.0-beta" date="2010-1-29" description="Major release with new features">
+    <release version="2.0.0" date="2010-03-04" description="Major release with new features">
         <action dev="Geert Bevin" type="add">
             Refactored Cache constructors to allow the use of a fluent interface instead of a series of
             constructor arguments. Existing constructors remain exactly the same for backward compatibility.

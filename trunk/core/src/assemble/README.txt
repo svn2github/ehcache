@@ -55,7 +55,7 @@ Maven POM snippet
      <dependency>
         <groupId>net.sf.ehcache</groupId>
         <artifactId>ehcache-core</artifactId>
-        <version>2.0.0-beta</version>
+        <version>2.0.0</version>
      </dependency>
 
 Installation
