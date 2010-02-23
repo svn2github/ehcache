@@ -1,5 +1,6 @@
 package net.sf.ehcache.writer;
 
+import net.sf.ehcache.CacheEntry;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
@@ -101,15 +102,17 @@ public class TestCacheWriterRetries implements CacheWriter {
         increaseDeleteCount(key);
     }
 
-    public synchronized void delete(Object key) throws CacheException {
+    public synchronized void delete(CacheEntry entry) throws CacheException {
+        Object key = entry.getKey();
         failUntilNoMoreRetries(key);
         remove(key);
     }
 
-    public synchronized void deleteAll(Collection<Object> keys) throws CacheException {
-        Iterator<Object> it = keys.iterator();
+    public synchronized void deleteAll(Collection<CacheEntry> entries) throws CacheException {
+        Iterator<CacheEntry> it = entries.iterator();
         while (it.hasNext()) {
-            Object key = it.next();
+            CacheEntry entry = it.next();
+            Object key = entry.getKey();
             if (!it.hasNext()) {
                 failUntilNoMoreRetries(key);
             }

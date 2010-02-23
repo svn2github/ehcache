@@ -15,6 +15,7 @@
  */
 package net.sf.ehcache.writer;
 
+import net.sf.ehcache.CacheEntry;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
@@ -89,7 +90,7 @@ public interface CacheWriter {
      * Cache operations are illegal when this method is called. The cache itself is partly
      * disposed when this method is called.
      */
-    void dispose() throws net.sf.ehcache.CacheException;
+    void dispose() throws CacheException;
 
     /**
      * Write the specified value under the specified key to the underlying store.
@@ -111,11 +112,11 @@ public interface CacheWriter {
 
 
     /**
-     * Remove the key and associated data from the store
+     * Delete the cache entry from the store
      *
-     * @param key the key whose mapping will be removed
+     * @param entry the cache entry that is used for the delete operation
      */
-    void delete(Object key) throws CacheException;
+    void delete(CacheEntry entry) throws CacheException;
 
 
     /**
@@ -124,8 +125,8 @@ public interface CacheWriter {
      * are to be removed from the specified keys, indicating that the erase operation for the keys left in the collection
      * has failed or has not been attempted.
      *
-     * @param keys the keys whose mappings will be removed
+     * @param entries the entries that have been removed from the cache
      */
-    void deleteAll(Collection<Object> keys) throws CacheException;
+    void deleteAll(Collection<CacheEntry> entries) throws CacheException;
 
 }

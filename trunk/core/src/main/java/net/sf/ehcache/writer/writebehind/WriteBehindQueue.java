@@ -15,6 +15,7 @@
  */
 package net.sf.ehcache.writer.writebehind;
 
+import net.sf.ehcache.CacheEntry;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.config.CacheConfiguration;
@@ -335,7 +336,7 @@ public class WriteBehindQueue implements WriteBehind {
                         throw e;
                     } else {
                         LOGGER.warning("Exception while processing write behind queue, retrying in " + retryAttemptDelaySeconds
-                            + " seconds, " + executionsLeft + " retries left : " + e.getMessage());
+                                + " seconds, " + executionsLeft + " retries left : " + e.getMessage());
                         try {
                             Thread.sleep(retryAttemptDelaySeconds * MS_IN_SEC);
                         } catch (InterruptedException e1) {
@@ -375,7 +376,7 @@ public class WriteBehindQueue implements WriteBehind {
                         throw e;
                     } else {
                         LOGGER.warning("Exception while processing write behind queue, retrying in " + retryAttemptDelaySeconds
-                            + " seconds, " + executionsLeft + " retries left : " + e.getMessage());
+                                + " seconds, " + executionsLeft + " retries left : " + e.getMessage());
                         try {
                             Thread.sleep(retryAttemptDelaySeconds * MS_IN_SEC);
                         } catch (InterruptedException e1) {
@@ -406,10 +407,10 @@ public class WriteBehindQueue implements WriteBehind {
     /**
      * {@inheritDoc}
      */
-    public void delete(Object key) {
+    public void delete(CacheEntry entry) {
         queueWriteLock.lock();
         try {
-            waiting.add(new DeleteOperation(key));
+            waiting.add(new DeleteOperation(entry));
             queueIsEmpty.signal();
         } finally {
             queueWriteLock.unlock();

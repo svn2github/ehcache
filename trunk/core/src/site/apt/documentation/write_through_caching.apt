@@ -9,7 +9,7 @@
 
     Write-behind caching uses the same client API, however the write happens asynchronously.
 
-    Ehcache-2.0 introduces write-through caching.
+    Ehcache-2.0 introduces write-through and write-behind caching.
 
     While any resource can sit behind the facade of a w-t cache, such as a file system, or a web service client, the common one is a database.
      To simplify the discussion, we will use database as the example resource.

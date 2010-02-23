@@ -16,30 +16,33 @@
 
 package net.sf.ehcache.transaction;
 
+import net.sf.ehcache.CacheEntry;
 import net.sf.ehcache.store.Store;
 import net.sf.ehcache.writer.CacheWriterManager;
 
 /**
  * Represents a {@link net.sf.ehcache.store.Store#remove(Object) remove} operation to be executed on a {@link Store}.
+ *
  * @author Alex Snaps
  */
 public class StoreRemoveCommand implements StoreWriteCommand {
 
-    private final Object key;
+    private final CacheEntry entry;
 
     /**
-     * Constructs a remove command for a key
-     * @param key to remove from the store on {@link net.sf.ehcache.transaction.StorePutCommand#execute(net.sf.ehcache.store.Store)}
+     * Constructs a remove command for a cache entry
+     *
+     * @param entry to remove from the store on {@link net.sf.ehcache.transaction.StorePutCommand#execute(net.sf.ehcache.store.Store)}
      */
-    public StoreRemoveCommand(final Object key) {
-        this.key = key;
+    public StoreRemoveCommand(final CacheEntry entry) {
+        this.entry = entry;
     }
 
     /**
      * {@inheritDoc}
      */
     public boolean execute(final Store store) {
-        return store.remove(key) != null;
+        return store.remove(entry.getKey()) != null;
     }
 
     /**
@@ -60,7 +63,7 @@ public class StoreRemoveCommand implements StoreWriteCommand {
      * {@inheritDoc}
      */
     public boolean isRemove(Object key) {
-        return this.key.equals(key);
+        return entry.getKey().equals(key);
     }
 
     /**
@@ -72,9 +75,19 @@ public class StoreRemoveCommand implements StoreWriteCommand {
 
     /**
      * Getter to the key to be removed
+     *
      * @return the key
      */
     public Object getKey() {
-        return key;
+        return entry.getKey();
+    }
+
+    /**
+     * Getter to the cache entry to be removed
+     *
+     * @return the cache entry
+     */
+    public CacheEntry getEntry() {
+        return entry;
     }
 }

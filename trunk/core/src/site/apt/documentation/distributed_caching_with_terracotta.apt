@@ -107,7 +107,7 @@ public class TerracottaExample {
     clustered caches, a combination of CacheManager name and cache name uniquely identify a
     particular cache store in the Terracotta clustered memory.
 
-    The name will show up in the Developer Console.s
+    The name will show up in the Developer Consoles.
 
     * {updateCheck}
 

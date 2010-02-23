@@ -16,17 +16,17 @@
 
 package net.sf.ehcache.store;
 
-import java.util.Iterator;
-import java.util.Map;
-
-import net.sf.ehcache.writer.CacheWriterManager;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import net.sf.ehcache.CacheEntry;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.Status;
+import net.sf.ehcache.writer.CacheWriterManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.Iterator;
+import java.util.Map;
 
 
 /**
@@ -141,7 +141,7 @@ public class LruMemoryStore implements Store {
     public final synchronized Element getQuiet(Object key) {
         return get(key);
     }
-    
+
     /**
      * Removes an Element from the store.
      *
@@ -163,7 +163,7 @@ public class LruMemoryStore implements Store {
         // remove single item.
         Element element = (Element) map.remove(key);
         if (writerManager != null) {
-            writerManager.remove(key);
+            writerManager.remove(new CacheEntry(key, element));
         }
         if (element != null) {
             return element;
@@ -288,9 +288,10 @@ public class LruMemoryStore implements Store {
     public final int getSize() {
         return map.size();
     }
-    
+
     /**
      * Returns nothing since a disk store isn't clustered
+     *
      * @return returns 0
      */
     public final int getTerracottaClusteredSize() {
@@ -506,35 +507,35 @@ public class LruMemoryStore implements Store {
     public Object getInternalContext() {
         return null;
     }
-    
+
     /**
      * {@inheritDoc}
-     */    
+     */
     public void waitUntilClusterCoherent() {
         throw new UnsupportedOperationException();
     }
-    
+
     /**
      * {@inheritDoc}
      */
     public void setNodeCoherent(boolean coherent) {
         throw new UnsupportedOperationException();
     }
-    
+
     /**
      * {@inheritDoc}
      */
     public boolean isNodeCoherent() {
         return false;
     }
-    
+
     /**
      * {@inheritDoc}
      */
     public boolean isClusterCoherent() {
         return false;
     }
-    
+
     /**
      * {@inheritDoc}
      */

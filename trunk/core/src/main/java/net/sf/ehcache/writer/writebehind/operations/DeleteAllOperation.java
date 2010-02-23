@@ -15,6 +15,7 @@
  */
 package net.sf.ehcache.writer.writebehind.operations;
 
+import net.sf.ehcache.CacheEntry;
 import net.sf.ehcache.writer.CacheWriter;
 
 import java.util.List;
@@ -26,21 +27,21 @@ import java.util.List;
  * @version $Id$
  */
 public class DeleteAllOperation implements BatchOperation {
-    private final List<Object> keys;
+    private final List<CacheEntry> entries;
 
     /**
-     * Create a new delete all operation for the provided list of keys
+     * Create a new delete all operation for the provided list of cache entries
      *
-     * @param keys the list of keys that are part of this operation
+     * @param entries the list of entries that are part of this operation
      */
-    public DeleteAllOperation(List<Object> keys) {
-        this.keys = keys;
+    public DeleteAllOperation(List<CacheEntry> entries) {
+        this.entries = entries;
     }
 
     /**
      * {@inheritDoc}
      */
     public void performBatchOperation(CacheWriter cacheWriter) {
-        cacheWriter.deleteAll(keys);
+        cacheWriter.deleteAll(entries);
     }
 }

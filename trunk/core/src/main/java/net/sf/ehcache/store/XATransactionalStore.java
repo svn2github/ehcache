@@ -16,14 +16,7 @@
 
 package net.sf.ehcache.store;
 
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
-
-import javax.transaction.RollbackException;
-import javax.transaction.SystemException;
-
+import net.sf.ehcache.CacheEntry;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.Status;
@@ -36,6 +29,13 @@ import net.sf.ehcache.transaction.StoreRemoveWithWriterCommand;
 import net.sf.ehcache.transaction.TransactionContext;
 import net.sf.ehcache.transaction.xa.EhcacheXAResource;
 import net.sf.ehcache.writer.CacheWriterManager;
+
+import javax.transaction.RollbackException;
+import javax.transaction.SystemException;
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * A transaction aware store that wraps the actual Store.
@@ -52,6 +52,7 @@ public class XATransactionalStore implements Store {
 
     /**
      * Constructor
+     *
      * @param xaResource the xaResource wrapping the Cache this store is backing up
      */
     public XATransactionalStore(final EhcacheXAResource xaResource) {
@@ -87,7 +88,8 @@ public class XATransactionalStore implements Store {
      * XATransactionalStore to put including to the underlying data store. That needs to be registered with the TransactionManager
      * and participate in the XA Transaction. The call to {@link net.sf.ehcache.writer.CacheWriterManager#put} will be held back
      * until commit time!
-     * @param element the element to add to the store
+     *
+     * @param element       the element to add to the store
      * @param writerManager will only work properly with {@link net.sf.ehcache.writer.writethrough.WriteThroughManager WriteThroughManager}
      */
     public boolean putWithWriter(final Element element, final CacheWriterManager writerManager) throws CacheException {
@@ -133,33 +135,36 @@ public class XATransactionalStore implements Store {
      * {@inheritDoc}
      */
     public Element remove(final Object key) {
-        return removeInternal(new StoreRemoveCommand(key));
+        return removeInternal(new StoreRemoveCommand(new CacheEntry(key, retrieveElement(key))));
     }
 
-    private Element removeInternal(final StoreRemoveCommand command) {
-        final Object key = command.getKey();
+    private Element retrieveElement(final Object key) {
         TransactionContext context = getOrCreateTransactionContext();
         Element element = context.get(key);
         if (element == null && !context.isRemoved(key)) {
             element = xaResource.getQuiet(key);
         }
-        if (element != null) {
-            context.addCommand(command, element);
-        }
 
+        return element;
+    }
+
+    private Element removeInternal(final StoreRemoveCommand command) {
+        Element element = command.getEntry().getElement();
+        getOrCreateTransactionContext().addCommand(command, element);
         return element;
     }
 
     /**
      * XATransactionalStore to remove including from the underlying data store. That needs to be registered with the TransactionManager
      * and participate in the XA Transaction. The call to {@link net.sf.ehcache.writer.CacheWriterManager#remove} will be not held back
-     * until commit time! 
-     * @param key the key to remove
-     * @param writerManager will only work properly with {@link net.sf.ehcache.writer.writethrough.WriteThroughManager WriteThroughManager} 
+     * until commit time!
+     *
+     * @param key           the key to remove
+     * @param writerManager will only work properly with {@link net.sf.ehcache.writer.writethrough.WriteThroughManager WriteThroughManager}
      * @return the value to be removed
      */
     public Element removeWithWriter(final Object key, final CacheWriterManager writerManager) throws CacheException {
-        return removeInternal(new StoreRemoveWithWriterCommand(key));
+        return removeInternal(new StoreRemoveWithWriterCommand(new CacheEntry(key, retrieveElement(key))));
     }
 
     /**
@@ -180,6 +185,7 @@ public class XATransactionalStore implements Store {
 
     /**
      * TransactionContext impacted size of the store
+     *
      * @return size of the store, including tx local pending changes
      */
     public int getSize() {
@@ -214,6 +220,7 @@ public class XATransactionalStore implements Store {
 
     /**
      * {@inheritDoc}
+     *
      * @param key The Element key
      * @return whether the element is currently in the cache, or pending put
      */
@@ -285,7 +292,7 @@ public class XATransactionalStore implements Store {
     public boolean isClusterCoherent() {
         return underlyingStore.isClusterCoherent();
     }
-    
+
     /**
      * {@inheritDoc}
      */
@@ -302,7 +309,7 @@ public class XATransactionalStore implements Store {
 
     /**
      * {@inheritDoc}
-     */    
+     */
     public void waitUntilClusterCoherent() {
         underlyingStore.waitUntilClusterCoherent();
     }

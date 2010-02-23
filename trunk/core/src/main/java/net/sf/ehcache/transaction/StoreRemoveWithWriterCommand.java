@@ -15,6 +15,7 @@
  */
 package net.sf.ehcache.transaction;
 
+import net.sf.ehcache.CacheEntry;
 import net.sf.ehcache.writer.CacheWriterManager;
 
 /**
@@ -23,12 +24,12 @@ import net.sf.ehcache.writer.CacheWriterManager;
 public class StoreRemoveWithWriterCommand extends StoreRemoveCommand {
 
     /**
-     * Constructs a remove command for a key
+     * Constructs a remove command for a cache entry
      *
-     * @param key to remove from the store on {@link StorePutCommand#execute(net.sf.ehcache.store.Store)}
+     * @param entry to remove from the store on {@link StorePutCommand#execute(net.sf.ehcache.store.Store)}
      */
-    public StoreRemoveWithWriterCommand(final Object key) {
-        super(key);
+    public StoreRemoveWithWriterCommand(final CacheEntry entry) {
+        super(entry);
     }
 
     /**
@@ -36,7 +37,7 @@ public class StoreRemoveWithWriterCommand extends StoreRemoveCommand {
      */
     @Override
     public boolean execute(final CacheWriterManager cacheWriterManager) {
-        cacheWriterManager.remove(getKey());
+        cacheWriterManager.remove(getEntry());
         return true;
     }
 

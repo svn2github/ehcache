@@ -16,6 +16,7 @@
 package net.sf.ehcache.writer.writethrough;
 
 import net.sf.ehcache.Cache;
+import net.sf.ehcache.CacheEntry;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.writer.CacheWriter;
@@ -55,11 +56,11 @@ public class WriteThroughManager implements CacheWriterManager {
     /**
      * {@inheritDoc}
      */
-    public void remove(Object key) throws CacheException {
+    public void remove(CacheEntry entry) throws CacheException {
         try {
             CacheWriter writer = cache.getRegisteredCacheWriter();
             if (writer != null) {
-                writer.delete(key);
+                writer.delete(entry);
             }
         } catch (RuntimeException e) {
             throw new CacheWriterManagerException(e);

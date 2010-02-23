@@ -16,6 +16,7 @@
 package net.sf.ehcache.writer.writebehind;
 
 import net.sf.ehcache.Cache;
+import net.sf.ehcache.CacheEntry;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.writer.CacheWriter;
@@ -62,8 +63,8 @@ public class WriteBehindManager implements CacheWriterManager {
     /**
      * {@inheritDoc}
      */
-    public void remove(Object key) throws CacheException {
-        writeBehind.delete(key);
+    public void remove(CacheEntry entry) throws CacheException {
+        writeBehind.delete(entry);
     }
 
     /**

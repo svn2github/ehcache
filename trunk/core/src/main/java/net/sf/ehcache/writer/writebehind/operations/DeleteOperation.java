@@ -15,6 +15,8 @@
  */
 package net.sf.ehcache.writer.writebehind.operations;
 
+import net.sf.ehcache.CacheEntry;
+import net.sf.ehcache.Element;
 import net.sf.ehcache.writer.CacheWriter;
 
 import java.util.ArrayList;
@@ -27,52 +29,63 @@ import java.util.List;
  * @version $Id$
  */
 public class DeleteOperation implements SingleOperation {
-    private final Object key;
+    private final CacheEntry entry;
     private final long creationTime;
 
     /**
-     * Create a new delete operation for a particular key
+     * Create a new delete operation for a particular entry
      *
-     * @param key the key to delete
+     * @param entry the entry to delete
      */
-    public DeleteOperation(Object key) {
-        this(key, System.currentTimeMillis());
+    public DeleteOperation(CacheEntry entry) {
+        this(entry, System.currentTimeMillis());
     }
 
     /**
-     * Create a new delete operation for a particular key and creation time
+     * Create a new delete operation for a particular entry and creation time
      *
-     * @param key          the key to delete
+     * @param entry        the entry to delete
      * @param creationTime the creation time of the operation
      */
-    public DeleteOperation(Object key, long creationTime) {
-        this.key = key;
+    public DeleteOperation(CacheEntry entry, long creationTime) {
+        this.entry = duplicateCacheEntryElement(entry);
         this.creationTime = creationTime;
+    }
+
+    private CacheEntry duplicateCacheEntryElement(CacheEntry entry) {
+        if (null == entry.getElement()) {
+            return entry;
+        } else {
+            Element element = entry.getElement();
+            return new CacheEntry(entry.getKey(), new Element(element.getObjectKey(), element.getObjectValue(), element.getVersion(),
+                    element.getCreationTime(), element.getLastAccessTime(), element.getHitCount(), false,
+                    element.getTimeToLive(), element.getTimeToIdle(), element.getLastUpdateTime()));
+        }
     }
 
     /**
      * {@inheritDoc}
      */
     public void performSingleOperation(CacheWriter cacheWriter) {
-        cacheWriter.delete(key);
+        cacheWriter.delete(entry);
     }
 
     /**
      * {@inheritDoc}
      */
     public BatchOperation createBatchOperation(List<SingleOperation> operations) {
-        final List<Object> keys = new ArrayList<Object>();
+        final List<CacheEntry> entries = new ArrayList<CacheEntry>();
         for (KeyBasedOperation operation : operations) {
-            keys.add(((DeleteOperation) operation).key);
+            entries.add(((DeleteOperation) operation).entry);
         }
-        return new DeleteAllOperation(keys);
+        return new DeleteAllOperation(entries);
     }
 
     /**
      * {@inheritDoc}
      */
     public Object getKey() {
-        return key;
+        return entry.getKey();
     }
 
     /**
@@ -80,6 +93,13 @@ public class DeleteOperation implements SingleOperation {
      */
     public long getCreationTime() {
         return creationTime;
+    }
+
+    /**
+     * Retrieves the entry that will be used for this operation
+     */
+    public CacheEntry getEntry() {
+        return entry;
     }
 
     /**

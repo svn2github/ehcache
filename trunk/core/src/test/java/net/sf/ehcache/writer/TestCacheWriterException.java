@@ -1,5 +1,6 @@
 package net.sf.ehcache.writer;
 
+import net.sf.ehcache.CacheEntry;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
@@ -14,7 +15,7 @@ public class TestCacheWriterException implements CacheWriter {
     public void dispose() throws CacheException {
         // nothing to do
     }
-    
+
     public void write(Element element) throws CacheException {
         throw new UnsupportedOperationException();
     }
@@ -23,11 +24,11 @@ public class TestCacheWriterException implements CacheWriter {
         throw new UnsupportedOperationException();
     }
 
-    public void delete(Object key) throws CacheException {
+    public void delete(CacheEntry entry) throws CacheException {
         throw new UnsupportedOperationException();
     }
 
-    public void deleteAll(Collection<Object> keys) throws CacheException {
+    public void deleteAll(Collection<CacheEntry> entries) throws CacheException {
         throw new UnsupportedOperationException();
     }
 

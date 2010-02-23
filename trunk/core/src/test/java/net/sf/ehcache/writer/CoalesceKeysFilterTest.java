@@ -16,6 +16,7 @@
 
 package net.sf.ehcache.writer;
 
+import net.sf.ehcache.CacheEntry;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.writer.writebehind.CastingOperationConverter;
 import net.sf.ehcache.writer.writebehind.CoalesceKeysFilter;
@@ -49,12 +50,12 @@ public class CoalesceKeysFilterTest {
         operations.add(new WriteOperation(new Element("key2", "value2"), 10));
         operations.add(new WriteOperation(new Element("key1", "value3"), 30));
         operations.add(new WriteOperation(new Element("key1", "value4"), 20));
-        operations.add(new DeleteOperation("key3", 30));
-        operations.add(new WriteOperation(new Element("key4", "value5"), 40));
-        operations.add(new DeleteOperation("key2", 20));
-        operations.add(new DeleteOperation("key4", 30));
-        operations.add(new WriteOperation(new Element("key4", "value6"), 20));
-        operations.add(new WriteOperation(new Element("key5", "value7"), 50));
+        operations.add(new DeleteOperation(new CacheEntry("key3", new Element("key3", "value5")), 30));
+        operations.add(new WriteOperation(new Element("key4", "value6"), 40));
+        operations.add(new DeleteOperation(new CacheEntry("key2", new Element("key2", "value7")), 20));
+        operations.add(new DeleteOperation(new CacheEntry("key4", new Element("key4", "value8")), 30));
+        operations.add(new WriteOperation(new Element("key4", "value9"), 20));
+        operations.add(new WriteOperation(new Element("key5", "value10"), 50));
 
         new CoalesceKeysFilter().filter(operations, CastingOperationConverter.getInstance());
         
@@ -66,12 +67,12 @@ public class CoalesceKeysFilterTest {
         assertEquals("key3", operations.get(1).getKey());
 
         assertEquals("key4", operations.get(2).getKey());
-        assertEquals("value5", ((WriteOperation)operations.get(2)).getElement().getValue());
+        assertEquals("value6", ((WriteOperation)operations.get(2)).getElement().getValue());
 
         assertTrue(operations.get(3) instanceof DeleteOperation);
         assertEquals("key2", operations.get(3).getKey());
 
         assertEquals("key5", operations.get(4).getKey());
-        assertEquals("value7", ((WriteOperation)operations.get(4)).getElement().getValue());
+        assertEquals("value10", ((WriteOperation)operations.get(4)).getElement().getValue());
     }
 }

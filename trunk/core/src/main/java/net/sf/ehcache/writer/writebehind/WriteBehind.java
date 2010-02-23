@@ -15,6 +15,7 @@
  */
 package net.sf.ehcache.writer.writebehind;
 
+import net.sf.ehcache.CacheEntry;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.writer.CacheWriter;
@@ -42,11 +43,11 @@ public interface WriteBehind {
     void write(Element element);
 
     /**
-     * Add a delete operation for the given key
+     * Add a delete operation for the given cache entry
      *
-     * @param key the key for which a delete operation will be added to the write behind queue
+     * @param entry the cache entry for which a delete operation will be added to the write behind queue
      */
-    void delete(Object key);
+    void delete(CacheEntry entry);
 
     /**
      * Set the operations filter that should be used.

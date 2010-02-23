@@ -16,6 +16,7 @@
 package net.sf.ehcache.writer;
 
 import net.sf.ehcache.Cache;
+import net.sf.ehcache.CacheEntry;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Element;
 
@@ -50,10 +51,10 @@ public interface CacheWriterManager {
     /**
      * Schedule a remove operation for this key in the CacheWriterManager, which will call the CacheWriter when appropriate.
      *
-     * @param key the key that should be used for the operation
+     * @param entry the entry that should be used for the operation
      * @throws CacheException when an exception occurs during the removal of the element
      */
-    void remove(Object key) throws CacheException;
+    void remove(CacheEntry entry) throws CacheException;
 
     /**
      * Cleans up the resources of the cache writer manager.

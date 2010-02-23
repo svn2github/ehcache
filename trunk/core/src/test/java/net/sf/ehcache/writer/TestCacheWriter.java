@@ -1,20 +1,19 @@
 package net.sf.ehcache.writer;
 
+import net.sf.ehcache.CacheEntry;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Properties;
-import java.util.Set;
 
 public class TestCacheWriter implements CacheWriter {
     private final Properties properties;
     private final Map<Object, Element> writtenElements = new HashMap<Object, Element>();
-    private final Set<Object> deletedKeys = new HashSet<Object>();
+    private final Map<Object, Element> deletedElements = new HashMap<Object, Element>();
 
     public TestCacheWriter(Properties properties) {
         this.properties = properties;
@@ -28,8 +27,8 @@ public class TestCacheWriter implements CacheWriter {
         return writtenElements;
     }
 
-    public Set<Object> getDeletedKeys() {
-        return deletedKeys;
+    public Map<Object, Element> getDeletedElements() {
+        return deletedElements;
     }
 
     public void init() {
@@ -45,7 +44,7 @@ public class TestCacheWriter implements CacheWriter {
         String keySuffix = properties.getProperty("key.suffix", "");
         return keyPrefix + key + keySuffix;
     }
-    
+
     public synchronized void write(Element element) throws CacheException {
         writtenElements.put(getAdaptedKey(element.getObjectKey()), element);
     }
@@ -56,13 +55,13 @@ public class TestCacheWriter implements CacheWriter {
         }
     }
 
-    public synchronized void delete(Object key) throws CacheException {
-        deletedKeys.add(getAdaptedKey(key));
+    public synchronized void delete(CacheEntry entry) throws CacheException {
+        deletedElements.put(getAdaptedKey(entry.getKey()), entry.getElement());
     }
 
-    public synchronized void deleteAll(Collection<Object> keys) throws CacheException {
-        for (Object key : keys) {
-            deletedKeys.add(getAdaptedKey(key) + "-batched");
+    public synchronized void deleteAll(Collection<CacheEntry> entries) throws CacheException {
+        for (CacheEntry entry : entries) {
+            deletedElements.put(getAdaptedKey(entry.getKey()) + "-batched", entry.getElement());
         }
     }
 

@@ -16,21 +16,21 @@
 
 package net.sf.ehcache.store;
 
-import java.util.Iterator;
-import java.util.Map;
-import java.util.NoSuchElementException;
-
-import net.sf.ehcache.config.CacheConfiguration;
-import net.sf.ehcache.writer.CacheWriterManager;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import net.sf.ehcache.CacheEntry;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.Status;
+import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.CacheConfigurationListener;
 import net.sf.ehcache.store.chm.SelectableConcurrentHashMap;
+import net.sf.ehcache.writer.CacheWriterManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.Iterator;
+import java.util.Map;
+import java.util.NoSuchElementException;
 
 /**
  * A Store implementation suitable for fast, concurrent in memory stores. The policy is determined by that
@@ -60,7 +60,7 @@ public class MemoryStore implements Store, CacheConfigurationListener {
     protected static final int CONCURRENCY_LEVEL = 100;
 
     private static final int MAX_EVICTION_RATIO = 5;
-    
+
     private static final Logger LOG = LoggerFactory.getLogger(MemoryStore.class.getName());
 
     /**
@@ -110,7 +110,7 @@ public class MemoryStore implements Store, CacheConfigurationListener {
         this.maximumSize = cache.getCacheConfiguration().getMaxElementsInMemory();
         this.diskStore = diskStore;
         this.policy = determineEvictionPolicy();
-        
+
         // create the CHM with initialCapacity sufficient to hold maximumSize
         int initialCapacity = getInitialCapacityForLoadFactor(maximumSize, DEFAULT_LOAD_FACTOR);
         map = new SelectableConcurrentHashMap(initialCapacity, DEFAULT_LOAD_FACTOR, CONCURRENCY_LEVEL);
@@ -129,11 +129,9 @@ public class MemoryStore implements Store, CacheConfigurationListener {
 
     /**
      * Calculates the initialCapacity for a desired maximumSize goal and loadFactor.
-     * 
-     * @param maximumSizeGoal
-     *            the desired maximum size goal
-     * @param loadFactor
-     *            the load factor
+     *
+     * @param maximumSizeGoal the desired maximum size goal
+     * @param loadFactor      the load factor
      * @return the calculated initialCapacity. Returns 0 if the parameter <tt>maximumSizeGoal</tt> is less than or equal to 0
      */
     static int getInitialCapacityForLoadFactor(int maximumSizeGoal, float loadFactor) {
@@ -235,7 +233,7 @@ public class MemoryStore implements Store, CacheConfigurationListener {
         // remove single item.
         Element element = map.remove(key);
         if (writerManager != null) {
-            writerManager.remove(key);
+            writerManager.remove(new CacheEntry(key, element));
         }
         if (element != null) {
             return element;
@@ -266,7 +264,6 @@ public class MemoryStore implements Store, CacheConfigurationListener {
 
     /**
      * Chooses the Policy from the cache configuration
-     * 
      */
     protected final Policy determineEvictionPolicy() {
         MemoryStoreEvictionPolicy policySelection = cache.getCacheConfiguration().getMemoryStoreEvictionPolicy();
@@ -390,9 +387,10 @@ public class MemoryStore implements Store, CacheConfigurationListener {
         return map.size();
     }
 
-    
+
     /**
      * Returns nothing since a disk store isn't clustered
+     *
      * @return returns 0
      */
     public final int getTerracottaClusteredSize() {
@@ -448,7 +446,7 @@ public class MemoryStore implements Store, CacheConfigurationListener {
         boolean spooled = false;
         if (cache.getCacheConfiguration().isOverflowToDisk()) {
             if (!element.isSerializable()) {
-              if (LOG.isDebugEnabled()) {
+                if (LOG.isDebugEnabled()) {
                     LOG.debug(new StringBuilder("Object with key ").append(element.getObjectKey())
                             .append(" is not Serializable and cannot be overflowed to disk").toString());
                 }
@@ -621,7 +619,7 @@ public class MemoryStore implements Store, CacheConfigurationListener {
     public final Status getStatus() {
         return status;
     }
-    
+
     /**
      * {@inheritDoc}
      */
@@ -678,24 +676,24 @@ public class MemoryStore implements Store, CacheConfigurationListener {
     public void deregistered(CacheConfiguration config) {
         // no-op
     }
-    
+
     /**
      * {@inheritDoc}
      */
     public boolean isNodeCoherent() {
         return false;
     }
-    
+
     /**
      * {@inheritDoc}
      */
     public boolean isClusterCoherent() {
         return false;
     }
-    
+
     /**
      * {@inheritDoc}
-     */    
+     */
     public void waitUntilClusterCoherent() {
         throw new UnsupportedOperationException();
     }
