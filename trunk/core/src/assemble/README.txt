@@ -1,4 +1,4 @@
-README Notes For Ehcache 2.0.0-beta
+README Notes For Ehcache 2.0.0
 
 The project home page is http://ehcache.org. Please see http://ehcache.org for a full change log, usage, product versions 
 and comprehensive documentation.
