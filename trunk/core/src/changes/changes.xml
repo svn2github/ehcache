@@ -2,6 +2,10 @@
 <document>
     <body>
         <release version="2.0.0" date="2010-3-4" description="Major release with new features">
+            <action dev="Geert Bevin" type="fix">
+                Changed delete and deleteAll CacheWriter methods to take a newly introduced CacheEntry type that contains
+                a key and possibly the element that belongs to it.
+            </action>
             <action dev="Geert Bevin" type="add">
                 Added support for cluster topology event listeners.
             </action>
