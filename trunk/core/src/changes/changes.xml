@@ -23,7 +23,7 @@
             </action>
             <action dev="Chris Dennis" type="add" >
                 Added statistics cache attribute. If set to false, statistics overhead is avoided
-                giving around a significant performance improvement in standalone ehcache. By default
+                giving a significant performance improvement in standalone ehcache. By default
                 statistics are on.
             </action>
             <action dev="Chris Dennis" type="fix" issue="EHC-419" >
@@ -41,6 +41,9 @@
             <action dev="Chris Dennis" type="add" issue="EHC-620">
             	Add necessary methods to make the Hibernate RegionFactory implementations forward
             	compatible with the upcoming Hibernate 3.5 release.
+            </action>
+            <action dev="Chris Dennis" type="fix" issue="EHC-622">
+            	Switch to using millisecond precision for access timestamps in unclustered Ehcache elements.
             </action>
             <action dev="James Abley, Chris Dennis" type="fix" issue="EHC-537">
             	Modified DiskStore to be configurable to use multiple RandomAccessFile instances to read
