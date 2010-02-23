@@ -315,19 +315,10 @@ manager.addCache("cache name");
 
 * {Creating a new cache with custom parameters}
 
-   The configuration for a Cache can be specified programmatically in the Cache constructor:
+   The configuration for a Cache can be specified programmatically as an argument to the Cache constructor:
 
 --------------------------------------------
-public Cache(
-    String name,
-    int maxElementsInMemory,
-    MemoryStoreEvictionPolicy memoryStoreEvictionPolicy,
-    boolean overflowToDisk,
-    boolean eternal,
-    long timeToLiveSeconds,
-    long timeToIdleSeconds,
-    boolean diskPersistent,
-    long diskExpiryThreadIntervalSeconds) {
+public Cache(CacheConfiguration cacheConfiguration) {
     ...
    }
 --------------------------------------------
@@ -340,8 +331,15 @@ public Cache(
 
    //Create a Cache specifying its configuration.
 
-   Cache testCache = new Cache("test", maxElements,
-   MemoryStoreEvictionPolicy.LFU, true, false, 60, 30, false, 0);
+   Cache testCache = new Cache(
+     new CacheConfiguration("test", maxElements)
+       .memoryStoreEvictionPolicy(MemoryStoreEvictionPolicy.LFU)
+       .overflowToDisk(true)
+       .eternal(false)
+       .timeToLiveSeconds(60)
+       .timeToIdleSeconds(30)
+       .diskPersistent(false)
+       .diskExpiryThreadIntervalSeconds(0));   
    manager.addCache(cache);
 --------------------------------------------
 
