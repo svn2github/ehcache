@@ -384,7 +384,8 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
                 } catch (RollbackException e) {
                     // Safely ignore this
                 } catch (SystemException e) {
-                    throw new CacheException("Couldn't register CacheWriter's Synchronization with the JTA Transaction : " + e.getMessage(), e);
+                    throw new CacheException("Couldn't register CacheWriter's Synchronization with the JTA Transaction : "
+                            + e.getMessage(), e);
                 }
             }
             context = ehcacheXAStore.createTransactionContext(currentXid.get());
