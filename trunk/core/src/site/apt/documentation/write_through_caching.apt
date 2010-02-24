@@ -25,7 +25,7 @@
      written up to a central server. All POS nodes in the same time zone will write all at once. A very large peak will occur. Using rate
      limiting, writes could be limited to 100 TPS, and the queue of writes are whittled down over several hours
 
-     * conflation - consolidation writes so as to result in fewer transactions. Say there is an amount in a database row whic is updated by 5
+     * conflation - consolidation writes so as to result in fewer transactions. Say there is an amount in a database row which is updated by 5
       writes, incrementing it from 10 to 20 to 31 to 40 to 45. Using conflation the 5 transactions are replaced by one which simply updates
       the value from 10 to 45.
 
@@ -38,8 +38,8 @@
    If the cache participates in a JTA transaction (ehcache-2.0 and higher) (i.e. it is an XAResource) then the Cache can be made  consistent with the
    database as the write to the database and commit or rollback happens with the transaction boundary.
 
-    In write-behind, the write to the resource happens after the write to the cache. The transaction boundary is the write to the, not
-     the write behind. In write-through commit can get called and bot the Cache and the underlying resource, e.g. the database can get
+    In write-behind, the write to the resource happens after the write to the cache. The transaction boundary is the write to the outstanding queue, not
+     the write behind. In write-through mode, commit can get called and both the Cache and the underlying resource, e.g. the database can get
      committed at once.
 
     Because the database is being written to outside of the transaction, there is always a risk that a failure on the eventual write
@@ -49,7 +49,8 @@
 
     The obvious implication of asynchronous writes is that there is a delay between when the cache is updated and when the database
     is updated. This introduces an inconsistency between the cache and the database, where the cache holds the correct value and the
-    database will be eventually consistent with the cache.
+    database will be eventually consistent with the cache. The data passed into the CacheWriter methods is a snapshot of the cache
+    entry at the time of the write to operation.
 
     A read against the database will result in incorrect data being loaded.
 
@@ -124,7 +125,7 @@
 *** Expiry
 
    Even if all of the dataset can fit in the cache, it could be evicted if Elements expire. Accordingly, both <<<timeToLive>>> and
-       <<<timeToIlde>>> should be set to eternal to prevent this from happening.
+       <<<timeToIdle>>> should be set to eternal to prevent this from happening.
 
 *   Ehcache Versions
 
