@@ -2,7 +2,6 @@ package net.sf.ehcache.writer;
 
 import net.sf.ehcache.CacheEntry;
 import net.sf.ehcache.CacheException;
-import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 
 import java.util.Collection;
@@ -10,7 +9,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
-public class TestCacheWriterRetries implements CacheWriter {
+public class TestCacheWriterRetries extends AbstractCacheWriter {
     private final int retries;
     private final Map<Object, Element> writtenElements = new HashMap<Object, Element>();
     private final Map<Object, Integer> retryCount = new HashMap<Object, Integer>();
@@ -31,14 +30,6 @@ public class TestCacheWriterRetries implements CacheWriter {
 
     public Map<Object, Integer> getDeleteCount() {
         return deleteCount;
-    }
-
-    public void init() {
-        // nothing to do
-    }
-
-    public void dispose() throws CacheException {
-        // nothing to do
     }
 
     private void failUntilNoMoreRetries(Object key) {
@@ -118,9 +109,5 @@ public class TestCacheWriterRetries implements CacheWriter {
             }
             remove(key);
         }
-    }
-
-    public CacheWriter clone(Ehcache cache) throws CloneNotSupportedException {
-        return null;
     }
 }
