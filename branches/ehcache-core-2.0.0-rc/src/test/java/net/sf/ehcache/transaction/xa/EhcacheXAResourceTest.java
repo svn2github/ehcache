@@ -68,13 +68,7 @@ public class EhcacheXAResourceTest extends TestCase {
         when(theCache.getName()).thenReturn("testCache");
         EhcacheXAResourceImpl resource = new EhcacheXAResourceImpl(theCache, txnManager, store);
         TestXid xid1 = new TestXid(1L);
-        try {
-            resource.start(xid1, XAResource.TMNOFLAGS);
-            fail("XAException if no transaction started by txnManager");
-        } catch (XAException e) {
-            assertTrue(e.getMessage().contains("Couldn't get to current Transaction"));
-        }
-        
+
         TestTransaction testTxn = new TestTransaction();
         txnManager.txn = testTxn;
 
