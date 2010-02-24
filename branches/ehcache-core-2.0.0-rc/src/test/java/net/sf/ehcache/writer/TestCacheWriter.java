@@ -2,7 +2,6 @@ package net.sf.ehcache.writer;
 
 import net.sf.ehcache.CacheEntry;
 import net.sf.ehcache.CacheException;
-import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 
 import java.util.Collection;
@@ -10,7 +9,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
-public class TestCacheWriter implements CacheWriter {
+public class TestCacheWriter extends AbstractCacheWriter {
     private final Properties properties;
     private final Map<Object, Element> writtenElements = new HashMap<Object, Element>();
     private final Map<Object, Element> deletedElements = new HashMap<Object, Element>();
@@ -29,14 +28,6 @@ public class TestCacheWriter implements CacheWriter {
 
     public Map<Object, Element> getDeletedElements() {
         return deletedElements;
-    }
-
-    public void init() {
-        // nothing to do
-    }
-
-    public void dispose() throws CacheException {
-        // nothing to do
     }
 
     private String getAdaptedKey(Object key) {
@@ -63,9 +54,5 @@ public class TestCacheWriter implements CacheWriter {
         for (CacheEntry entry : entries) {
             deletedElements.put(getAdaptedKey(entry.getKey()) + "-batched", entry.getElement());
         }
-    }
-
-    public CacheWriter clone(Ehcache cache) throws CloneNotSupportedException {
-        return null;
     }
 }
