@@ -106,23 +106,6 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
         if (LOG.isDebugEnabled()) {
             LOG.debug("xaResource.start called for Txn with flag: " + prettyPrintFlags(flags)  + " and id: " + xid);   
         }
-        if (!isFlagSet(flags, TMRESUME) && !isFlagSet(flags, TMJOIN)) {
-            Transaction tx = getCurrentTransaction();
-            if (tx == null) {
-                throw new EhcacheXAException("Couldn't get to current Transaction ", XAException.XAER_OUTSIDE);
-            }
-            try {  
-                if (cache.getWriterManager() != null) {
-                    try {
-                        tx.registerSynchronization(new CacheWriterManagerSynchronization(currentXid.get()));
-                    } catch (RollbackException e) {
-                        // Safely ignore this
-                    }
-                }
-            } catch (SystemException e) {
-                throw new EhcacheXAException("Couldn't get to current Transaction: " + e.getMessage(), e.errorCode, e);
-            }   
-        }
         currentXid.set(xid);
     }
 
@@ -395,6 +378,15 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
         
         if (context == null) {
             transaction.enlistResource(this);
+            if (cache.getWriterManager() != null) {
+                try {
+                    transaction.registerSynchronization(new CacheWriterManagerSynchronization(currentXid.get()));
+                } catch (RollbackException e) {
+                    // Safely ignore this
+                } catch (SystemException e) {
+                    throw new CacheException("Couldn't register CacheWriter's Synchronization with the JTA Transaction : " + e.getMessage(), e);
+                }
+            }
             context = ehcacheXAStore.createTransactionContext(currentXid.get());
         }
         return context;
