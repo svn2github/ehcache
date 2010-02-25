@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-        
+       
 <!--
 CacheManager Configuration
 ==========================
@@ -13,27 +13,28 @@ System property either from an environment variable or a system property specifi
 command line switch such as -DmulticastGroupPort=4446.
 
 The attributes of <ehcache> are:
-* name - an optional name for the CacheManager.  The name is optional and primarily used 
-for documentation or to distinguish Terracotta clustered cache state.  With Terracotta 
-clustered caches, a combination of CacheManager name and cache name uniquely identify a 
+* name - an optional name for the CacheManager.  The name is optional and primarily used
+for documentation or to distinguish Terracotta clustered cache state.  With Terracotta
+clustered caches, a combination of CacheManager name and cache name uniquely identify a
 particular cache store in the Terracotta clustered memory.
 * updateCheck - an optional boolean flag specifying whether this CacheManager should check
 for new versions of Ehcache over the Internet.  If not specified, updateCheck="true".
-* monitoring - an optional setting that determines whether the CacheManager should 
-automatically register the SampledCacheMBean with the system MBean server.  Currently,
-this monitoring is only useful when using Terracotta and thus the "autodetect" value 
-will detect the presence of Terracotta and register the MBean.  Other allowed values 
-are "on" and "off".  The default is "autodetect".
+* monitoring - an optional setting that determines whether the CacheManager should
+automatically register the SampledCacheMBean with the system MBean server.  Currently, this monitoring is only useful when using Terracotta clustering and using the 
+Terracotta Developer Console. With the "autodetect" value, the presence of Terracotta clustering 
+will be detected and monitoring, via the Developer Console, will be enabled. Other allowed values 
+are "on" and "off". The default is "autodetect". This setting does not perform any function when 
+used with JMX monitors. 
 * dynamicConfig - an optional setting that can be used to disable dynamic configuration of caches
 associated with this CacheManager.  By default this is set to true - i.e. dynamic configuration
 is enabled.  Dynamically configurable caches can have their TTI, TTL and maximum disk and
 in-memory capacity changed at runtime through the cache's configuration object.
--->    
-<ehcache xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+-->   
+<ehcache xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance";
          xsi:noNamespaceSchemaLocation="ehcache.xsd"
              updateCheck="true" monitoring="autodetect" dynamicConfig="true" >
-    
-    <!-- 
+   
+    <!--
     DiskStore configuration
     =======================
 
@@ -49,7 +50,7 @@ in-memory capacity changed at runtime through the cache's configuration object.
     .data and .index files will be created.
 
     If the path is one of the following Java System Property it is replaced by its value in the
-    running VM. For backward compatibility these are not specified without being enclosed in the ${token}
+    running VM. For backward compatibility these should be specified without being enclosed in the ${token} 
     replacement syntax.
 
     The following properties are translated:
@@ -64,20 +65,20 @@ in-memory capacity changed at runtime through the cache's configuration object.
     -->
     <diskStore path="java.io.tmpdir"/>
 
-    
-    <!-- 
+   
+    <!--
     TransactionManagerLookup configuration
     ======================================
     This class is used by ehcache to lookup the JTA TransactionManager use in the application
     using an XA enabled ehcache. If no class is specified then DefaultTransactionManagerLookup
     will find the TransactionManager in the following order
 
-     *GenericJNDI (i.e. jboss)
+     *GenericJNDI (i.e. jboss, where the property jndiName controls the name of the TransactionManager object to look up) 
      *Websphere
      *Bitronix
      *Atomikos
-    
-    You can provide you own lookup class that implements the net.sf.ehcache.transaction.manager.TransactionManagerLookup interface. 
+   
+    You can provide you own lookup class that implements the net.sf.ehcache.transaction.manager.TransactionManagerLookup interface.
     -->
 
     <transactionManagerLookup class="net.sf.ehcache.transaction.manager.DefaultTransactionManagerLookup" properties="" propertySeparator=":"/>
@@ -104,6 +105,7 @@ in-memory capacity changed at runtime through the cache's configuration object.
 
     If no class is specified, no listener is created. There is no default.
     -->
+
     <cacheManagerEventListenerFactory class="" properties=""/>
 
     <!--
@@ -116,31 +118,31 @@ in-memory capacity changed at runtime through the cache's configuration object.
 
     Specifies a TerracottaConfig which will be used to configure the Terracotta
     runtime for this CacheManager.
-    
-    Configuration can be specified in two main ways: by reference to a source of 
+   
+    Configuration can be specified in two main ways: by reference to a source of
     configuration or by use of an embedded Terracotta configuration file.
-    
-    To specify a reference to a source (or sources) of configuration, use the url 
+   
+    To specify a reference to a source (or sources) of configuration, use the url
     attribute.  The url attribute must contain a comma-separated list of:
     * path to Terracotta configuration file (usually named tc-config.xml)
     * URL to Terracotta configuration file
     * <server host>:<port> of running Terracotta Server instance
-    
+   
     Simplest example for pointing to a Terracotta server on this machine:
     <terracottaConfig url="localhost:9510"/>
-    
+   
     Example using a path to Terracotta configuration file:
     <terracottaConfig url="/app/config/tc-config.xml"/>
-    
+   
     Example using a URL to a Terracotta configuration file:
-    <terracottaConfig url="http://internal/ehcache/app/tc-config.xml"/>
-    
+    <terracottaConfig url="http://internal/ehcache/app/tc-config.xml"/>;
+   
     Example using multiple Terracotta server instance URLs (for fault tolerance):
     <terracottaConfig url="host1:9510,host2:9510,host3:9510"/>
 
-    To embed a Terracotta configuration file within the ehcache configuration, simply 
+    To embed a Terracotta configuration file within the ehcache configuration, simply
     place a normal Terracotta XML config within the <terracottaConfig> element.
-    
+   
     Example:
     <terracottaConfig>
         <tc-config>
@@ -150,10 +152,10 @@ in-memory capacity changed at runtime through the cache's configuration object.
             </servers>
             <clients>
                 <logs>app/logs-%i</logs>
-            </clients>           
+            </clients>          
         </tc-config>
     </terracottaConfig>
-    
+   
     For more information on the Terracotta configuration, see the Terracotta documentation.
     -->
     <terracottaConfig url="localhost:9510"/>
@@ -170,9 +172,9 @@ in-memory capacity changed at runtime through the cache's configuration object.
     maxElementsInMemory:
     Sets the maximum number of objects that will be created in memory
 
-	maxElementsOnDisk:
+     maxElementsOnDisk:
     Sets the maximum number of objects that will be maintained in the DiskStore
-	The default value is zero, meaning unlimited.
+     The default value is zero, meaning unlimited.
 
     eternal:
     Sets whether elements are eternal. If eternal,  timeouts are ignored and the
@@ -242,7 +244,23 @@ in-memory capacity changed at runtime through the cache's configuration object.
       synchronously to load objects into a cache. More than one cacheLoaderFactory element
       can be added, in which case the loaders form a chain which are executed in order. If a
       loader returns null, the next in chain is called.
-                                   
+                                  
+    Cache Event Listeners
+
+    All cacheEventListenerFactory elements can take an optional property listenFor that describes
+    which events will be delivered in a clustered environment.  The listenFor attribute has the
+    following allowed values:
+
+    * all - the default is to deliver all local and remote events
+    * local - deliver only events originating in the current node
+    * remote - deliver only events originating in other nodes
+
+    Example of setting up a logging listener for local cache events:
+
+    <cacheEventListenerFactory class="my.company.log.CacheLogger"
+        listenFor="local" />
+
+
     Cache Exception Handling
 
     By default, most cache operations will propagate a runtime CacheException on failure. An
@@ -272,7 +290,7 @@ in-memory capacity changed at runtime through the cache's configuration object.
     XA Cache
 
     To enable an ehcache as a participant in the JTA Transaction, just have the following attribute
-    
+   
     transactionalMode="xa", otherwise the default is transactionalMode="off"
 
     Cache Writer
@@ -339,51 +357,61 @@ in-memory capacity changed at runtime through the cache's configuration object.
                              properties="refreshIntervalMillis=18000, loaderTimeout=3000,
                                          flushPeriod=whatever, someOtherProperty=someValue ..."/>
 
-    Terracotta Clustering 
-    
+    Terracotta Clustering
+   
     Cache elements can also contain information about whether the cache can be clustered with Terracotta.
     The <terracotta> sub-element has the following attributes:
 
-    * clustered=true|false - indicates whether this cache should be clustered with Terracotta. By 
+    * clustered=true|false - indicates whether this cache should be clustered with Terracotta. By
       default, if the <terracotta> element is included, clustered=true.
-    * valueMode=serialization|identity - indicates whether this cache should be clustered with 
+    * valueMode=serialization|identity - indicates whether this cache should be clustered with
       serialized copies of the values or using Terracotta identity mode.  By default, values will
       be cached in serialization mode which is similar to other replicated Ehcache modes.  The identity
       mode is only available in certain Terracotta deployment scenarios and will maintain actual object
-      identity of the keys and values across the cluster.  In this case, all users of a value retrieved from 
-      the cache are using the same clustered value and must provide appropriate locking for any changes 
+      identity of the keys and values across the cluster.  In this case, all users of a value retrieved from
+      the cache are using the same clustered value and must provide appropriate locking for any changes
       made to the value (or objects referred to by the value).
-    * coherentReads=true|false - indicates whether this cache should have coherent reads with guaranteed 
-      consistency across the cluster.  By default, this setting is true.  If you set this property to 
-      false, reads are allowed to check the local value without locking, possibly seeing stale values.  
-      This is a performance optimization with weaker concurrency guarantees and should generally be used 
-      with caches that contain read-only data or where the application can tolerate reading stale
-      data.
+    * synchronousWrites=true|false - When set to true, clustered caches use Terracotta SYNCHRONOUS WRITE locks. Asynchronous writes (synchronousWrites="false") maximize    
+      performance by allowing clients to proceed without waiting for a "transaction received" acknowledgement from the server. Synchronous writes (synchronousWrites="true")
+      maximize data safety by requiring that a client receive server acknowledgement of a transaction before that client can proceed. If coherence mode is disabled using 
+      configuration (coherent="false") or through the coherence API, only asynchronous writes can occur (synchronousWrites="true" is ignored). By default this value is false (i.e.
+      clustered caches use normal Terracotta WRITE locks).
+    * coherent=true|false - indicates whether this cache should have coherent reads and writes with guaranteed
+      consistency across the cluster.  By default, its value is true.  If this attribute is set to false
+      (or "incoherent" mode), values from the cache are read without locking, possibly yielding stale data.
+      Writes to a cache in incoherent mode are batched and applied without acquiring cluster-wide locks,
+      possibly creating inconsistent values across cluster. Incoherent mode is a performance optimization
+      with weaker concurrency guarantees and should generally be used for bulk-loading caches, for loading
+      a read-only cache, or where the application that can tolerate reading stale data. This setting overrides
+      coherentReads, which is deprecated.
     * copyOnRead=true|false - indicates whether cache values are deserialized on every read or if the
       materialized cache value can be re-used between get() calls. This setting is useful if a cache
       is being shared by callers with disparate classloaders or to prevent local drift if keys/values
       are mutated locally w/o putting back to the cache. NOTE: This setting is only relevant for caches
       with valueMode=serialization
-    * coherent=true|false - indicates whether this cache should have coherent reads and writes with guaranteed 
-      consistency across the cluster.  By default, its value is true.  If this attribute is set to false 
-      (or "incoherent" mode), values from the cache are read without locking, possibly yielding stale data. 
-      Writes to a cache in incoherent mode are batched and applied without acquiring cluster-wide locks, 
-      possibly creating inconsistent values across cluster. Incoherent mode is a performance optimization 
-      with weaker concurrency guarantees and should generally be used for bulk-loading caches, for loading 
-      a read-only cache, or where the application that can tolerate reading stale data. This setting overrides 
+    * coherent=true|false - indicates whether this cache should have coherent reads and writes with guaranteed
+      consistency across the cluster.  By default, its value is true.  If this attribute is set to false
+      (or "incoherent" mode), values from the cache are read without locking, possibly yielding stale data.
+      Writes to a cache in incoherent mode are batched and applied without acquiring cluster-wide locks,
+      possibly creating inconsistent values across cluster. Incoherent mode is a performance optimization
+      with weaker concurrency guarantees and should generally be used for bulk-loading caches, for loading
+      a read-only cache, or where the application that can tolerate reading stale data. This setting overrides
       coherentReads, which is deprecated.
 
     Simplest example to indicate clustering:
         <terracotta/>
-        
-    To indicate the cache should not be clustered (or remove the <terracotta> element altogether):    
-        <terracotta clustered="false"/> 
+       
+    To indicate the cache should not be clustered (or remove the <terracotta> element altogether):   
+        <terracotta clustered="false"/>
 
     To indicate the cache should be clustered using identity mode:
-        <terracotta clustered="true" valueMode="identity"/>        
+        <terracotta clustered="true" valueMode="identity"/>       
 
     To indicate the cache should be clustered using incoherent mode for bulk load:
         <terracotta clustered="true" coherent="false"/>
+
+    To indicate the cache should be clustered using synchronous-write locking level: 
+        <terracotta clustered="true" synchronousWrites="true"/> 
     -->
 
     <!--
@@ -392,13 +420,13 @@ in-memory capacity changed at runtime through the cache's configuration object.
 
     The defaultCache has an implicit name "default" which is a reserved cache name.
     -->
-    <defaultCache
+    <defaultCache>
            maxElementsInMemory="0"
            eternal="false"
            timeToIdleSeconds="1200"
            timeToLiveSeconds="1200
       <terracotta/>
-    </defaultCache> 
+    </defaultCache>
 
     <!--
     Sample caches. Following are some example caches. Remove these before use.
@@ -466,9 +494,10 @@ in-memory capacity changed at runtime through the cache's configuration object.
            timeToIdleSeconds="3600"
            timeToLiveSeconds="1800"
            overflowToDisk="false">
+
         <terracotta/>
     </cache>
-   
+  
       <!--
       Sample xa enabled cache name xaCache
     -->
@@ -487,3 +516,4 @@ in-memory capacity changed at runtime through the cache's configuration object.
 
 
 </ehcache>
+
