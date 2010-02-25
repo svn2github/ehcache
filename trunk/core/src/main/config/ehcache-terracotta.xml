@@ -30,7 +30,7 @@ associated with this CacheManager.  By default this is set to true - i.e. dynami
 is enabled.  Dynamically configurable caches can have their TTI, TTL and maximum disk and
 in-memory capacity changed at runtime through the cache's configuration object.
 -->   
-<ehcache xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance";
+<ehcache xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:noNamespaceSchemaLocation="ehcache.xsd"
              updateCheck="true" monitoring="autodetect" dynamicConfig="true" >
    
@@ -420,11 +420,11 @@ in-memory capacity changed at runtime through the cache's configuration object.
 
     The defaultCache has an implicit name "default" which is a reserved cache name.
     -->
-    <defaultCache>
+    <defaultCache
            maxElementsInMemory="0"
            eternal="false"
            timeToIdleSeconds="1200"
-           timeToLiveSeconds="1200
+           timeToLiveSeconds="1200">
       <terracotta/>
     </defaultCache>
 
