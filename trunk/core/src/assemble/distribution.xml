@@ -36,9 +36,8 @@
         <fileSet>
             <directory>${basedir}/src/main/config</directory>
             <includes>
-                <include>*.txt</include>
-                <include>*.xml</include>
-                <include>*.xsd</include>
+                <include>ehcache.xml</include>
+                <include>ehcache.xsd</include>
             </includes>
             <outputDirectory>/</outputDirectory>
         </fileSet>
