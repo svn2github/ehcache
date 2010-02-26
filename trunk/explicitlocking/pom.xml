@@ -11,7 +11,7 @@
     </parent>
     <groupId>net.sf.ehcache</groupId>
     <artifactId>ehcache-explicitlocking</artifactId>
-    <version>0.1.0-SNAPSHOT</version>
+    <version>0.3-SNAPSHOT</version>
     <name>ehcache-explicitlocking</name>
     <url>http://maven.apache.org</url>
     <dependencies>
@@ -72,6 +72,7 @@
                     </execution>
                 </executions>
                 <configuration>
+                    <skip>true</skip>
                     <configLocation>${basedir}/checkstyle/checkstyle.xml</configLocation>
                     <suppressionsLocation>${basedir}/checkstyle/suppressions.xml
                     </suppressionsLocation>
