@@ -427,7 +427,7 @@ public class TerracottaExample {
      */
     String getIp();
 
-}
+ }
 ---
 
 
@@ -514,6 +514,7 @@ public interface ClusterTopologyListener {
       public void clusterOffline(ClusterNode node) { System.out.println(node + " disabled"); }
 
     });
+---
 
 **  Uses for Cluster Events
 
@@ -662,12 +663,3 @@ public interface ClusterTopologyListener {
       (in DSO) - where the Queue APIs are proxied through to a thread pool - so that you can try/join out in "timeout" seconds
       and throw a timeout to the application. This is however somewhat messy - since the application threads may receive a
       timeout, but the "terracotta transaction" may still make it through to the L2.
-
-
-
-
-
-
-
-
-    
