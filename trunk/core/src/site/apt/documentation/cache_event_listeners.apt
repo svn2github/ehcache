@@ -29,6 +29,10 @@
 
     Elements can be put or removed from a Cache without notifying listeners
     by using the putQuiet and removeQuiet methods.
+
+    new_in_2 In clustered environments event propagation can be configured to
+    be propagated only locally, only remotely, or both. The default is both,
+    to be backwardly compatible.
    
 
 * {Configuration}
@@ -54,13 +58,18 @@
     The attributes of CacheManagerEventListenerFactory are:
 
     * class - a fully qualified factory class name
-    * properties - an optional comma separated properties having
-    meaning only to the factory.
-    * listenFor - describes which events will be delivered in a clustered
-    environment, defaults to 'all'. These are the possible values:
-      - all - the default is to deliver all local and remote events
-      - local - deliver only events originating in the current node
-      - remote - deliver only events originating in other nodes
+
+    * properties - an optional comma separated properties having meaning only to the factory.
+
+    * listenFor - describes which events will be delivered in a clustered environment, defaults to 'all'.
+
+    These are the possible values:
+
+      * all - the default is to deliver all local and remote events
+
+      * local - deliver only events originating in the current node
+
+      * remote - deliver only events originating in other nodes
 
     Callbacks to listener methods are synchronous and unsynchronized. It is
     the responsibility of the implementer to safely handle the potential

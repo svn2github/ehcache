@@ -16,7 +16,7 @@
 
     The net.sf.ehcache.hibernate package provides classes integrating Ehcache with Hibernate. 
 
-*   {Hibernate 3 3} SPI new-in-2
+*   {Hibernate 3 3} SPI new_in_2
 
     The Hibernate 3.2 caching SPI is deprecated from Hibernate 3.3 up. Ehcache 2.0 introduces
      a new Hibernate 3.3 SPI implementation. The SPI changes further in Hibernate 3.5. The Ehcache
@@ -37,7 +37,8 @@
     In September 2009 Terracotta released its Hibernate Caching Provider which was set as follows:
 
 ---
-    <property name="hibernate.cache.provider_class">org.terracotta.hibernate.TerracottaHibernateCacheProvider</property>
+<property name="hibernate.cache.provider_class">
+    org.terracotta.hibernate.TerracottaHibernateCacheProvider</property>
 ---
 
    It features high performance clustered Hibernate caching using the Terracotta Server Array.

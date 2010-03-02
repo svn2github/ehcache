@@ -267,7 +267,7 @@ pageTracker._trackPageview();
             <replacevalue><![CDATA[ehcache]]></replacevalue>
         </replace>
         <replace dir="${build.dir}/site">
-            <replacetoken><![CDATA[new-in-2]]></replacetoken>
+            <replacetoken><![CDATA[new_in_2]]></replacetoken>
             <replacevalue><![CDATA[<img src="images/new_in_2.gif" alt="New feature in Ehcache 2.0">]]></replacevalue>
         </replace>
         <replace dir="${build.dir}/site">
@@ -275,7 +275,7 @@ pageTracker._trackPageview();
             <replacevalue><![CDATA[<img src="images/terracotta_community_login.gif" alt="Terracotta Community Login Required">]]></replacevalue>
         </replace>
         <replace dir="${build.dir}/site">
-            <replacetoken><![CDATA[-new-]]></replacetoken>
+            <replacetoken><![CDATA[_new_]]></replacetoken>
             <replacevalue><![CDATA[<img src="images/new.gif" alt="New feature">]]></replacevalue>
         </replace>
 

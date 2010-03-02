@@ -58,24 +58,6 @@ Ehcache Distributed Cache
 
 * Latest News
 
-** 3 March 2010: Ehcache 2.0 released
-
-  Ehcache 2.0 provides a new {{{documentation/hibernate.html}Hibernate 3.3 SPI caching plugin}}, {{{documentation/jta.html}JTA}},
-  {{{documentation/write_through_caching.html}Write-Behind}}, a new ultra-fast {{{documentation/bulk_loading.html}Bulk Loading API}} for clustered caches.
-  and dynamic runtime cache reconfiguration.
-
-  Ehcache 2.0 is fully backward compatible with earlier versions of Ehcache.
-
-  The Terracotta Server Array ("TSA") has also been re-engineered to dovetail with Ehcache to provide these features
-  with cluster coherence, high availability and persistence. Darwin betas with TSA are available {{{http://www.terracotta.org/beta/darwin}here}}.
-
-  This release also introduces some improvements to ehcache which reduce memory use (over 1.6 and 1.7) by the cache and improve
-  the eviction algorithms.
-
-  See the {{{http://ehcache.org/changes-report.html}changelog}} for complete details of ehcache-core changes.
-
-  To provide an indicator in the documentation on what is new in 2.0, you will this icon: new_in_2.
-
 ** 3 February 2010: Ehcache 2.0 beta released
 
   This is a preview of Ehcache 2.0, aka Project Darwin. Features are as per the GA release.

@@ -3067,7 +3067,8 @@ public class Cache implements Ehcache {
      * <ol>
      * <li>bootstrap is disabled
      * <li>puts are discarded
-     * <li>putQuites are discarded
+     * <li>putQuiets are discarded
+     * <ii>gets return null
      * </ol>
      * In all other respects the cache continues as it is.
      * <p/>

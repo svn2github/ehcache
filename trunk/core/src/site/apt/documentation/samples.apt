@@ -29,6 +29,8 @@
 
      * {{{#Obtaining_Statistics_of_Cache_Hits_and_Misses}Obtaining Statistics of Cache Hits and Misses}}
 
+     * {{{#JTA}JTA}}
+
  * Programmatically Creating Caches
 
      * {{{#Creating_a_new_cache_from_defaults}Creating a new cache from defaults}}
@@ -303,6 +305,68 @@ int hits = cache.getMissCountExpired();
 
  These are just the most commonly used methods. See {{{/xref-test/net/sf/ehcache/CacheTest.html}CacheTest}} for more examples.
  See {{{xref/net/sf/ehcache/Cache.html}Cache}} for the full API.
+
+** {JTA}
+
+ A cache will automatically participate in the ongoing UserTransaction when configured in transactionalMode XA.
+ This can be done programmatically:
+
+--------------------------------------------
+    //Create a CacheManager using defaults
+    CacheManager manager = CacheManager.create();
+
+    //Create a Cache specifying its configuration.
+    Cache xaCache = new Cache(
+            new CacheConfiguration("test", 1000)
+                .overflowToDisk(true)
+                .eternal(false)
+                .transactionalMode(CacheConfiguration.TransactionalMode.XA)
+                .terracotta(new TerracottaConfiguration().clustered(true)));
+    manager.addCache(xaCache);
+--------------------------------------------
+
+ Or in your CacheManager's configuration file :
+
+--------------------------------------------
+    <cache name="xaCache"
+        maxElementsInMemory="500"
+        eternal="false"
+        timeToIdleSeconds="300"
+        timeToLiveSeconds="600"
+        overflowToDisk="false"
+        diskPersistent="false"
+        diskExpiryThreadIntervalSeconds="1"
+        transactionalMode="xa">
+      <terracotta clustered="true"/>
+	</cache>
+--------------------------------------------
+
+Please note that XA Transactional caches are currently only supported when clustered with Terracotta.
+
+The Cache can then be used without any special requirement. Changes will only become visible to others, once the transaction
+has been commited.
+
+--------------------------------------------
+    Ehcache cache = cacheManager.getEhcache("xaCache");
+
+    transactionManager.begin();
+
+    try {
+      Element e = cache.get(key);
+
+      Object result = complexeService.doStuff(element.getValue());
+
+      // This put will be rolled back should complexeService.doMoreStuff throw an Exception
+      cache.put(new Element(key, result));
+
+      // Any changes to result in that call, will be visible to others when the Transaction commits
+      complexeService.doMoreStuff(result);
+
+      transactionManager.commit();
+    } catch (Exception e) {
+      transactionManager.rollback();
+    }
+--------------------------------------------
 
 
 * {Creating a new cache from defaults}

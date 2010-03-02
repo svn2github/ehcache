@@ -4,7 +4,7 @@
 
 {JTA}
 
-    new-in-2 JTA is supported in versions of Ehcache 2.0 and higher.
+    new_in_2 JTA is supported in versions of Ehcache 2.0 and higher.
 
     Ehcache acts as an {XAResouce} and participates in JTA ("Java Transaction API") transactions.
 
@@ -34,8 +34,20 @@
     the <<<DefaultTransactionManagerLookup>>> in the ehcache.xml config::
 
 ---
-        <transactionManagerLookup class="net.sf.ehcache.transaction.manager.DefaultTransactionManagerLookup"
-         properties="" propertySeparator=":"/>
+<transactionManagerLookup
+ class= "net.sf.ehcache.transaction.manager.DefaultTransactionManagerLookup"
+ properties="" propertySeparator=":"/>
+
+---
+
+    You can also provide a different location for the JNDI lookup by providing the jndiName property to the DefaultTransactionManagerLookup.
+
+    For example, this is how to configure the proper location for the TransactionManager in GlassFish v3:
+
+---
+<transactionManagerLookup
+ class="net.sf.ehcache.transaction.manager.DefaultTransactionManagerLookup"
+ properties="jndiName=java:appserver/TransactionManager" propertySeparator=";"/>
 
 ---
 
@@ -80,12 +92,73 @@
 
     Specifically:
 
-    * All mutating changes to the cache are transactional including <<<put>>>, <<<remove>>> and <<<removeAll>>>.
+    * All mutating changes to the cache are transactional including <<<put>>>, <<<remove>>>, <<<putWithWriter>>>,
+      <<<removeWithWriter>>> and <<<removeAll>>>.
 
     * Mutating changes are not visible in the local JVM to or across the cluster until <<<COMMIT>>> has been called.
 
-    * Until then, read such as by <<<cache.get(...)>>> will return the old copy. Reads do not block.
+    * Until then, read such as by <<<cache.get(...)>>> by other transactions will return the old copy. Reads do not block.
 
+**  Write-behind and Write-through
+
+    If your XA-enabled cache is being used with a <<<CacheWriter>>>, write operations will be queued until <<<COMMIT>>> has been called.
+
+    Write-behind, while supported, does not participate in the transaction. The write to the underlying resource happens after the transaction
+    has been committed. THe commit is to the cache.
+
+*   Architecture
+
+    Transactional support is implemented at the <<<Store>>> level, through <<<XaTransactionalStore>>>. The store actually decorates the underlying
+    <<<MemoryStore>>> implementation, augmenting it with transaction, isolation and two-phase commit support.
+
+**  Initialization
+
+    During it's initialization, the XA Cache will look up the <<<TransactionManager>>> using the provided TransactionManagerLookup implementation.
+
+    Using the <<<TransactionManagerLookup.register(XAResouce): void>>> callback, the newly created XAResource is then registered
+    with the TransactionManager.
+
+    That same TransactionManager will from there on be used by the Cache to access the current transaction on all transactional method
+    calls.
+
+    The store is then configured to copy every Element read from or written to it. This feature is called copy-on-read and
+    copy-on-write. This is the mechanism for keeping uncommitted changes invisible.
+
+**  Cache Operatins against a Transactional Cache
+
+    Every read from the Cache, or remove() without a previous get(), will have the transactional cache track versioning information for these
+    cache values. This version information will be checked at commit time, to make sure we're still mutating the same information.
+
+    Write operations to the cache (puts and removes) are not effectively executed against the underlying memory store. Rather a local
+    transaction context is being altered. It queues all commands to be executed against the Store at commit time. This context
+    also alters the behavior of cache accesses: e.g. within the same transaction a put and then a get call will reflect that previous
+    put, while other transactions would not be impacted. This gives read_commited isolation.
+
+    During the two-phase commit, the context is first prepared: this is where all keys to be altered are checked for consistency against
+    the optimistic locking mechanism. If a key to be updated or removed has since been changed by a commited transaction, the transaction will
+    be rolled back.
+
+    If validation succeeds, then, for each key a write-lock is acquired, the version is checked and the previous Element value is copied to a
+    temporary "guarding" store. That store is always queried before the real underlying memory store is. That way, while write-locked, old
+    values that are about to be updated can still be read, non blocking, from the "oldVersionStore". If all keys could be validated and write locked the prepare
+    operation as finished successfully and the cache votes <<<OK>>> on commit.
+
+    If all other XAResource eventually vote <<<OK>>>, the transaction is committed: the old value(s) are removed and write-locks are released.
+    If not, the old values are copied back to the store and the lock released.
+
+*   Failure
+
+    As specified by the JTA specification, only prepared transaction data is recoverable. Which means that any transaction still
+    alive at VM failure will be lost. Since all these operations are non locking, the cluster isn't suffering from these.
+
+    Prepared data on the other hand, is persisted to the L2 and locks on the memory are being held. Should the L1 come back up
+    before the locks timed out, like network failure, the VM will be able to keep doing its work.
+
+**  Recovery
+
+    Should the XA recovery scan be required by the transaction manager, Ehcache will provide all Xid prepared, but these will only
+    be able to be rolled back. Indeed when locks time out, no guarantee can be made about the locked keys and their value. If the
+    transaction manager still asks Ehcache to commit these, a HeuristicException will be thrown.
 
 *   {Sample Apps}
 
@@ -126,7 +199,7 @@
 ---
 
     The source code for the demo can be checked out from
-    {{https://svn.terracotta.org/repo/forge/projects/ehcache-jta-sample/trunk}} (Terracotta Community Login Required)
+    {{http://svn.terracotta.org/svn/forge/projects/ehcache-jta-sample/trunk}} terracotta_community_login
 
     A README.txt explains how to get the JTA Sample app going.
 
@@ -135,7 +208,8 @@
     Examinator is our complete application that shows many aspects of caching in one web based Exam application,
      all using the Terracotta Server Array.
 
-    Check out from {{https://svn.terracotta.org/svn/forge/projects/exam/}} (Terracotta Community Login Required)
+    Check out from {{http://svn.terracotta.org/svn/forge/projects/exam/}} terracotta_community_login
+
 
 *   Limitations
 
@@ -152,4 +226,21 @@
     Ehcache is not a "transactional" cache for Hibernate purposes. We expect to add that in the next
     release.
 
+*   FAQ
+
+**  How do I make WebLogic 10 work with Ehcache JTA?
+
+    WebLogic uses an optimization that is not supported by our implementation. By default WebLogic 10 will spawn threads to
+    start the Transaction on each XAResource in parallel. As we need transaction work to be performed on the same Thread, you will have
+    to turn this optimization off by setting <<<parallel-xa-enabled>>> option to <<<false>>> in your domain configuration :
+
+---
+  <jta>
+    ...
+    <checkpoint-interval-seconds>300</checkpoint-interval-seconds>
+    <parallel-xa-enabled>false</parallel-xa-enabled>
+    <unregister-resource-grace-period>30</unregister-resource-grace-period>
+    ...
+  </jta>
+---
 

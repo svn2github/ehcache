@@ -9,7 +9,7 @@
     From version 1.7 Ehcache has been seamlessly integrated with Terracotta 3.1.1 and takes just a few lines
     of config in ehcache.xml to get up and running.
 
-    new-in-2 In Ehcache 2.0 additional configuration options have been added which provide finer grained control.
+    new_in_2 In Ehcache 2.0 additional configuration options have been added which provide finer grained control.
 
     Distribution with the Terracotta Server Array ("TSA") is the preferred distribution mechanism. It provides coherency, JTA,
     HA, scale and high performance. It is available as open source or with additional features in the Ehcache EX and FX product
@@ -230,7 +230,7 @@ public class TerracottaExample {
 
       Note that from Ehcache 2.0, this setting has the same affect as <<<coherent>>>.
 
-    * <<<copyOnRead=true|false>>> new-in-2
+    * <<<copyOnRead=true|false>>> new_in_2
 
       Indicates whether cache values are deserialized on every read or if the
       materialized cache value can be re-used between get() calls.
@@ -241,7 +241,7 @@ public class TerracottaExample {
 
       NOTE: This setting is only relevant for caches with valueMode=serialization
 
-    * <<<coherent=true|false>>> new-in-2
+    * <<<coherent=true|false>>> new_in_2
 
       Indicates whether this cache should have coherent reads and writes with guaranteed
       consistency across the cluster.  By default, its value is true.  If this attribute is set to false
@@ -254,7 +254,7 @@ public class TerracottaExample {
       This setting overrides <<<coherentReads>>>, which is deprecated. For backward compatibility any configurations
       setting a value for <<<coherentReads>>> will apply to <<<coherent>>>.
 
-    * <<<synchronousWrites=true|false>>> new-in-2
+    * <<<synchronousWrites=true|false>>> new_in_2
 
       When set to true, clustered caches use Terracotta SYNCHRONOUS WRITE locks. Asynchronous
       writes(synchronousWrites="false") maximize performance byallowing clients to proceed without waiting for a
@@ -382,9 +382,165 @@ public class TerracottaExample {
 
 **  Overflow to Disk
 
-    Overflow to Disk is not supported when using Terracotta Clustering. However it is also not needed, because the
+    Overflow to Disk is ignored when using Terracotta Clustering. However it is not needed because the
     Terracotta server has its own overflow to disk. Once the <<<maxElementsInMemory>>> limit is reached <<<Element>>>s will be
     evicted to the cluster.
+
+*   Cluster Topology new_in_2
+
+    The interface <<<net.sf.ehcache.cluster.CacheCluster>>> provides methods for obtaining topology information for a Terracotta cluster.
+
+    The following methods are available:
+
+
+    * <<<String getScheme()>>>   Returns a scheme name for the cluster information. Currently <<<TERRACOTTA>>> is the only scheme supported.
+
+    * <<<Collection<ClusterNode> getNodes()>>>  Returns information on all the nodes in the cluster, including ID, hostname, and IP address.
+
+    * <<<boolean addTopologyListener(ClusterTopologyListener listener)>>>  Adds a cluster-events listener. Returns true if the listener is already active.
+
+    * <<<boolean removeTopologyListener(ClusterTopologyListener)>>>   Removes a cluster-events listener. Returns true if the listener is already inactive.
+
+    The interface <<<net.sf.ehcache.cluster.ClusterNode>>> provides methods for obtaining information on specific cluster nodes.
+
+---
+    public interface ClusterNode {
+
+    /**
+     * Get a unique (per cluster) identifier for this node.
+     *
+     * @return Unique per cluster identifier
+     */
+    String getId();
+
+    /**
+     * Get the host name of the node
+     *
+     * @return Host name of node
+     */
+    String getHostname();
+
+    /**
+     * Get the IP address of the node
+     *
+     * @return IP address of node
+     */
+    String getIp();
+
+}
+---
+
+
+*   Terracotta Cluster Events  new_in_2
+
+    Terracotta has a Terracotta Cluster event notification mechanism. From Ehcache 2.0, Ehcache can receive these events.
+
+    This is not cache event notification, rather it is cluster event notification.
+
+    The Terracotta Distributed Ehcache cluster events API provides access to Terracotta cluster events and cluster topology.
+
+    The interface <<<net.sf.ehcache.cluster.ClusterTopologyListener>>> provides methods for detecting the following cluster events:
+
+---
+public interface ClusterTopologyListener {
+
+    /**
+     * A node has joined the cluster
+     *
+     * @param node The joining node
+     */
+    void nodeJoined(ClusterNode node);
+
+    /**
+     * A node has left the cluster
+     *
+     * @param node The departing node
+     */
+    void nodeLeft(ClusterNode node);
+
+    /**
+     * This node has established contact with the cluster and can execute clustered operations.
+     *
+     * @param node The current node
+     */
+    void clusterOnline(ClusterNode node);
+
+    /**
+     * This node has lost contact (possibly temporarily) with the cluster and cannot execute
+     * clustered operations
+     *
+     * @param node The current node
+     */
+    void clusterOffline(ClusterNode node);
+
+}
+---
+
+
+**  Example Code
+
+    This example prints out the cluster nodes and then registers a <<<ClusterTopologyListener>>>
+    which prints out events as they happen.
+
+---
+    CacheManager mgr = ...
+
+    CacheCluster cluster = mgr.getCluster("Terracotta");
+
+
+
+    // Get current nodes
+
+    Collection<ClusterNode> nodes = cluster.getNodes();
+
+    for(ClusterNode node : nodes) {
+
+      System.out.println(node.getId() + " " + node.getHostname() + " " + node.getIp());
+
+    }
+
+
+
+    // Register listener
+
+    cluster.addTopologyListener(new ClusterTopologyListener() {
+
+      public void nodeJoined(ClusterNode node) { System.out.println(node + " joined"); }
+
+      public void nodeLeft(ClusterNode node) { System.out.println(node + " left"); }
+
+      public void clusterOnline(ClusterNode node) { System.out.println(node + " enabled"); }
+
+      public void clusterOffline(ClusterNode node) { System.out.println(node + " disabled"); }
+
+    });
+
+**  Uses for Cluster Events
+
+    If Ehcache got disconnected from the Terracotta Server Array say due to a network issue,
+    then in Ehcache 2.0 each cache operation will block indefinitely. In other words it is
+    configured for fail-fast to protect the ACIDity of the cluster.
+
+    However this approach will also cause processing of requests to the cache to stop likely
+    causing the outage to cascade. In some cases graceful degradation may be more appropriate.
+    When the <<<clusterOffline>>> events fires you could call <<<Cache.setDisabled()>>>
+    which will cause puts and gets to bypass the cache. Your application would then degrade
+    to operating without a cache, but might be able to do useful work.
+
+    You could also take the whole application off-line.
+
+    When connectivity is restored you could then reverse the action, taking the cache back
+    online or the application back on line as the case may be.
+
+    We expect to add some of these common behaviours into configuration in the next release:
+
+    * blocking - block until connectivity is restored
+
+    * disable cache - cache cleared, puts ignored, gets return null
+
+    * local mode - continue but use local data only. This last one presents problems on
+    reconnect because local changes will not be consistent with the cluster.
+
 
 *   More Information
 
@@ -490,6 +646,24 @@ public class TerracottaExample {
     Ehcache 1.7 works with TC 3.1.1.
 
     Ehcache Core 1.7.3 core works with TC 3.2.
+
+**  What happens when an L1 (i.e. an Ehcache node) disconnects from the L2 (i.e. the Terracotta Server Array)?
+
+    * The L1 receives an operations disabled event. Then spawns a thread with a timer waiting for an operations-enabled event.
+      How long to wait depends on heart beating settings. 65 seconds should work for the default assuming l2.l1.reconnect is
+      enabled with 5s timeout.
+
+    * If in this time there is no Operations-Enabled event, then the L1 can conclude that it is disconnected and flip a
+      Boolean in the application, which instructs incoming requests to not access the Terracotta Shared space.
+
+      Note that existing threads doing I/O against the TC server (whether for data or for locks) are stuck.
+
+    * If the application desires timeouts then you have to employ a proxy collection - e.g. a wrapper around a Queue or Map,
+      (in DSO) - where the Queue APIs are proxied through to a thread pool - so that you can try/join out in "timeout" seconds
+      and throw a timeout to the application. This is however somewhat messy - since the application threads may receive a
+      timeout, but the "terracotta transaction" may still make it through to the L2.
+
+
 
 
 

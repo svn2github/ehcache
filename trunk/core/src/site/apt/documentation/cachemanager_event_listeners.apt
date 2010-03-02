@@ -59,7 +59,8 @@
     The factory class needs to be a concrete subclass of the abstract
     factory CacheManagerEventListenerFactory, which is reproduced below:
 
----
+----
+
 /**
  * An abstract factory for creating {@link CacheManagerEventListener}s. Implementers should
  * provide their own concrete factory extending this factory. It can then be configured in
@@ -81,11 +82,12 @@ public abstract class CacheManagerEventListenerFactory {
     public abstract CacheManagerEventListener
             createCacheManagerEventListener(Properties properties);
 }
----
+
+----
 
     The factory creates a concrete implementation of CacheManagerEventListener, which is reproduced below:
 
----
+----
 /**
  * Allows implementers to register callback methods that will be executed when a
  * <code>CacheManager</code> event occurs.
@@ -143,7 +145,8 @@ void notifyCacheAdded(String cacheName);
 void notifyCacheRemoved(String cacheName);
 
 }
----
+----
+
 
     The implementations need to be placed in the classpath accessible to
     ehcache. Ehcache uses the ClassLoader returned by <<<Thread.currentThread().getContextClassLoader()>>>

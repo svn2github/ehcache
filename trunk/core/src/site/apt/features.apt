@@ -116,6 +116,8 @@
 
   * {{{#Works with Google App Engine}Works with Google App Engine}}
 
+  * {{{#Transactional support through JTA}Transactional support through JTA}}
+
  * High Quality
 
   * {{{#High Test Coverage}High Test Coverage}}
@@ -507,6 +509,13 @@
    Ehcache-1.6 is compatible with Google App Engine.
 
    See the {{{./documentation/googleappengine.html}Google App Engine HowTo}}.
+
+** {Transactional support through JTA}
+
+   Ehcache-2.0 has support for JTA, making it a fully XA compliant resource participating in the transaction, two-phase commit and recovery.
+
+   See the {{{./documentation/jta.html}complete JTA documentation}}.
+
 
 * {High Quality}
 

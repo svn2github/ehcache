@@ -27,16 +27,17 @@ import java.util.Collection;
 public interface CacheCluster {
 
     /**
-     * Get scheme name for this cluster info
+     * Get scheme name for this cluster info.
      *
-     * @return Scheme name
+     * @return  a scheme name for the cluster information.
+     * Currently <code>TERRACOTTA</code> is the only scheme supported.
      */
     ClusterScheme getScheme();
 
     /**
      * Get all the nodes in the cluster
      *
-     * @return All the ClusterNodes
+     * @return information on all the nodes in the cluster, including ID, hostname, and IP address.
      */
     Collection<ClusterNode> getNodes();
 
