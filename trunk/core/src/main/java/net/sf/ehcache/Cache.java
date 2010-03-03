@@ -3065,10 +3065,10 @@ public class Cache implements Ehcache {
     /**
      * Whether this cache is disabled. "Disabled" means:
      * <ol>
-     * <li>bootstrap is disabled
-     * <li>puts are discarded
-     * <li>putQuiets are discarded
-     * <ii>gets return null
+     * <li>bootstrap is disabled</li>
+     * <li>puts are discarded</li>
+     * <li>putQuiets are discarded</li>
+     * <li>gets return null</li>
      * </ol>
      * In all other respects the cache continues as it is.
      * <p/>
