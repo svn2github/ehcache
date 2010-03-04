@@ -143,17 +143,6 @@
         </plugins>
     </build>
 
-    <repositories>
-        <repository>
-            <id>sourceforge-snapshots</id>
-            <url>http://oss.sonatype.org/content/repositories/sourceforge-snapshots</url>
-            <snapshots>
-                <enabled>true</enabled>
-                <updatePolicy>always</updatePolicy>
-            </snapshots>
-        </repository>
-    </repositories>
-
     <!-- Note: site URL repeated here to ensure correct deployment path -->
     <distributionManagement>
         <!--
