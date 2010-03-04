@@ -1,0 +1,154 @@
+ ---
+ Bulk Loading in Ehcache
+ ---
+
+{Bulk Loading}
+
+    {{{#API}API}} | {{{#Speed_Improvements}Speed Improvements}} | {{{#ehcache.xml}ehcache.xml}}| {{{#FAQ}FAQ}} | {{{#Performance_Tips}Performance Tips}} | {{{#Download}Download}} | {{{#Further_Information}Further Information}}
+
+    new-in-2 Ehcache has a bulk loading mode that dramatically speeds up bulk loading into caches using
+    the Terracotta Server Array.
+
+*   Uses
+
+    Bulk loading is designed to be used for:
+
+    *   cache warming - where caches need to be filled before bringing an application online
+
+    *   periodic batch loading - say an overnight batch process that uploads data
+
+    The characteristics of bulk loading are that 
+
+
+*   API
+
+    With bulk loading, the API for putting data into the cache stays the same. Just use <<<cache.put(...)>>>
+    <<<cache.load(...)>>> or cache.loadAll(...)>>>.
+
+    What changes is that there is a special mode that suspends Terracotta's normal coherence guarantees
+    and provides optimised flushing to the Terracotta Server Array (the L2 cache).
+
+    This mode can be enabled programmatically or statically in ehcache.xml. Programmatically, four methods
+    control coherent behaviour: <<<setNodeCoherence(boolean mode)>>>, <<<isNodeCoherent()>>>, <<<isClusterCoherent()>>>
+    and <<<waitUntilClusterCoherent()>>>.
+
+
+
+
+**  <<<setNodeCoherence(boolean mode)>>>
+
+    <<<setNodeCoherence(false)>>> sets coherence to false for the Ehcache node. The setting for the rest of the cluster
+        stays the same. The effect is that normal read and write locks are not obtained. <<<setNodeCoherence(true)>>> brings
+        back the cache to coherent mode for the node.
+
+**  <<<{isNodeCoherent()}>>> 
+
+        Use this to find out if the node is in coherent mode locally. This does not account for other
+        nodes in the cluster (if any). The node may be coherent while its incoherent cluster-wide (like some other node is
+        incoherent)
+        
+**  <<<{isClusterCoherent()}>>>
+
+        Reflects whether the cache is in coherent or incoherent mode cluster-wide. Coherent cluster-wide
+        means that all nodes in the cluster is using the cache in coherent mode. If even one of the nodes is using the cache
+        in incoherent mode, the cache is incoherent cluster-wide
+        
+**  <<<{waitUntilClusterCoherent()}>>> 
+
+       Calling this method will block the calling thread until the cache becomes coherent cluster-wide. 
+
+
+        waitUntilClusterCoherent
+
+        waits until everyone is coherent. Will not return until the entire cluster is coherent.
+
+        setNodeCoherence(true | false)
+
+        This affects the local node only. The settings in the rest of the cluster are not affected.
+
+        Then to put it back call with true parameter.
+
+        This method does not return until all the transactions are flushed to the cluster. Only the calling thread is blocked. 
+        This way you know when coherence is restored. This returns as soon  DONT SAY. Will make async later.
+
+        Everyone block
+
+
+        The initial state is from the config.
+
+        In a local standalone cache, setNodeCoherence should throw an UnsupportedOperationException. waitUntilClusterCoherent will also throw an UnsupportedOperationException.
+
+        *	Configuration
+
+        	Coherent mode may be set by default in the configuration.
+
+        	The terracotta element has an attribute coherent which can be true or false. By default it is true.
+
+        	Ehcache 1.7 introduced a partial implementation of this feature for reads only. That is the coherentRead. It is
+        	still honoured but deprecated.
+
+        **	This can be dynamically controlled through JMX via the Dev Console.
+
+        Writes can also be synchronous or asynchronous. This is controlled by the synchronousWrites. When you are running in incoherent mode synchronousWrites are ignored  - it is always asynchronous.
+
+
+
+*   Speed Improvement
+
+    The speed performance improvement is an order of magnitude faster.
+
+    ehcacheperf (Spring Pet Clinic) now has a bulk load test which shows the performance improvement for using
+    a Terracotta cluster.
+
+*   {FAQ}
+
+**  Why does the bulk loading mode only apply to Terracotta clusters?
+
+    Ehcache, both standalone and replicated is already very fast and nothing needed to be
+     added.
+
+**  How does bulk load with RMI distributed caching work?
+
+    The core updates are very fast. RMI updates are batched by default once per second,
+     so bulk loading will be efficiently replicated.
+
+*   {Performance Tips}
+
+**  When to use Multiple Put Threads
+
+    It is not necessary to create multiple threads when calling <<<cache.put>>>. Only a marginal performance
+    improvement will result, because the call is already so fast.
+
+    It is only necessary if the source is slow. By reading from the source in multiple threads a speed up could result.
+    An example is a database, where multiple reading threads will often be better.
+
+**  Bulk Loading on Multiple Nodes
+
+    The implementation scales very well when the load is split up against multiple Ehcache CacheManagers on multiple
+     machines.
+
+    You add extra nodes for bulk loading to get up to 93 times performance.
+
+**  Why not run in bulk load mode all the time
+
+    Terracotta clustering provides coherence, scaling and durability. Some applications will require coherence, or
+    not for some caches, such as reference data. It is possible to run a cache permanently in incoherent mode.
+
+    In ehcache.xml,  set the <<<coherent>>> attribute to false in the terracotta element. The terracotta element is a
+     sub-element of cache, so this can be configured per cache.
+
+
+*   {Download}
+
+    The bulk loading feature is in the ehcache-core module but only provides a performance improvement to Terracotta clusters
+    (as bulk loading to Ehcache standalone is very fast already)
+
+    Download {{{http://sourceforge.net/projects/ehcache/files/ehcache-core}here}}.
+
+    For a full distribution enabling connection to the Terracotta Server array download {{{http://sourceforge.net/projects/ehcache/files/ehcache}here}}.
+
+
+*   {Further Information}
+
+    Saravanan who was the lead on this feature has blogged about it {{{http://sarosblog.blogspot.com/2010/02/terracotta-distributed-ehcaches-new.html}here}}.
+
