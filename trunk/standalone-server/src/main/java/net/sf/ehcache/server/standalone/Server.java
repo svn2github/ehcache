@@ -207,11 +207,6 @@ public class Server implements Daemon {
         Server server = new Server();
         server.init(new MockDaemonContext(args));
         server.start();
-//        System.out.println("Press Enter to stop server");
-//        // wait for Enter
-//        new BufferedReader(new java.io.InputStreamReader(System.in)).readLine();
-//        //deployer.undeployAll();
-//        server.stop();
     }
 
     /**
@@ -230,8 +225,8 @@ public class Server implements Daemon {
      */
     class GlassfishServerThread extends ServerThread {
 
-        org.glassfish.api.embedded.Server server;
-        org.glassfish.api.embedded.Server.Builder builder = new org.glassfish.api.embedded.Server.Builder("Ehcache Server");
+        private org.glassfish.api.embedded.Server server;
+        private org.glassfish.api.embedded.Server.Builder builder = new org.glassfish.api.embedded.Server.Builder("Ehcache Server");
 
         /**
          * Creates a server in a separate thread.
@@ -249,7 +244,6 @@ public class Server implements Daemon {
 
                 builder.logger(true);
                 builder.verbose(true);
-                //builder.
 
                 server = builder.build();
                 server.createPort(httpPort);
@@ -259,6 +253,7 @@ public class Server implements Daemon {
 
                 Integer jmxPort = httpPort + 1;
                 // todo embeddedInfo.setJmxConnectorPort(jmxPort);
+                // Jerome Dochez confirmed 4 March 2010 this did not make it into 3 embedded
 
                 server.start();
                 DeployCommandParameters params = new DeployCommandParameters();
@@ -268,8 +263,8 @@ public class Server implements Daemon {
                 EmbeddedDeployer embeddedDeployer = server.getDeployer();
                 embeddedDeployer.deploy(war, params);
 
-                LOG.info("Glassfish server running on httpPort " + httpPort + " with WAR "
-                        + war + ". JMX is listening at " + jmxPort);
+                LOG.info("Glassfish server running on httpPort " + httpPort + " with WAR " + war);
+                //+ ". JMX is listening at " + jmxPort);
 
 
             } catch (Exception e) {
