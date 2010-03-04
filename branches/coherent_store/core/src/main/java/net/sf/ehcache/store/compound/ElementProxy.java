@@ -18,5 +18,5 @@ package net.sf.ehcache.store.compound;
 
 public interface ElementProxy<T extends InternalElementProxyFactory> {
 
-    public T getType();
+    public T getFactory();
 }

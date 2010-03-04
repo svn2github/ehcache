@@ -123,7 +123,7 @@ class Segment extends ReentrantReadWriteLock {
         if (object instanceof Element) {
             return identityFactory.decode(key, object);
         } else {
-            InternalElementProxyFactory factory = ((ElementProxy) object).getType();
+            InternalElementProxyFactory factory = ((ElementProxy) object).getFactory();
             return factory.decode(null, object);
         }
     }
@@ -132,31 +132,31 @@ class Segment extends ReentrantReadWriteLock {
         if (object instanceof Element) {
             identityFactory.free(object);
         } else {
-            ((ElementProxy) object).getType().free(object);
+            ((ElementProxy) object).getFactory().free(object);
         }
     }
     
-    void incrementCount(Object value) {
-        if (value instanceof Element) {
+    void incrementCount(Object element) {
+        if (element instanceof Element) {
             incrementCount(identityFactory);
         } else {
-            incrementCount(((ElementProxy) value).getType());
+            incrementCount(((ElementProxy) element).getFactory());
         }
     }
 
-    void incrementCount(InternalElementProxyFactory value) {
+    void incrementCount(InternalElementProxyFactory factory) {
         counts.get(identityFactory).incrementAndGet();
     }
 
-    void decrementCount(Object value) {
-        if (value instanceof Element) {
+    void decrementCount(Object element) {
+        if (element instanceof Element) {
             decrementCount(identityFactory);
         } else {
-            decrementCount(((ElementProxy) value).getType());
+            decrementCount(((ElementProxy) element).getFactory());
         }
     }
 
-    void decrementCount(InternalElementProxyFactory value) {
+    void decrementCount(InternalElementProxyFactory factory) {
         counts.get(identityFactory).decrementAndGet();
     }
     
@@ -167,7 +167,7 @@ class Segment extends ReentrantReadWriteLock {
                 HashEntry e = getFirst(hash);
                 while (e != null) {
                     if (e.hash == hash && key.equals(e.key)) {
-                        return decode(e.key, e.getValue());
+                        return decode(e.key, e.getElement());
                     }
                     e = e.next;
                 }
@@ -204,7 +204,7 @@ class Segment extends ReentrantReadWriteLock {
                 int len = tab.length;
                 for (int i = 0 ; i < len; i++) {
                     for (HashEntry e = tab[i]; e != null ; e = e.next) {
-                        Element element = decode(e.key, e.getValue());
+                        Element element = decode(e.key, e.getElement());
                         if (value.equals(element))
                             return true;
                     }
@@ -216,7 +216,7 @@ class Segment extends ReentrantReadWriteLock {
         }
     }
     
-    boolean replace(Object key, int hash, Element oldValue, Element newValue) {
+    boolean replace(Object key, int hash, Element oldElement, Element newElement) {
         writeLock().lock();
         try {
             HashEntry e = getFirst(hash);
@@ -224,10 +224,10 @@ class Segment extends ReentrantReadWriteLock {
                 e = e.next;
 
             boolean replaced = false;
-            if (e != null && oldValue.equals(decode(e.key, e.getValue()))) {
+            if (e != null && oldElement.equals(decode(e.key, e.getElement()))) {
                 replaced = true;
-                Object old = e.getValue();
-                e.setValue(primaryFactory.encode(e.key, newValue));
+                Object old = e.getElement();
+                e.setElement(primaryFactory.encode(e.key, newElement));
                 incrementCount(primaryFactory);
                 decrementCount(old);
                 free(old);
@@ -238,7 +238,7 @@ class Segment extends ReentrantReadWriteLock {
         }
     }
     
-    Element replace(Object key, int hash, Element newValue) {
+    Element replace(Object key, int hash, Element newElement) {
         writeLock().lock();
         try {
             HashEntry e = getFirst(hash);
@@ -247,8 +247,8 @@ class Segment extends ReentrantReadWriteLock {
 
             Element oldElement = null;
             if (e != null) {
-                Object old = e.getValue();
-                e.setValue(primaryFactory.encode(e.key, newValue));
+                Object old = e.getElement();
+                e.setElement(primaryFactory.encode(e.key, newElement));
                 incrementCount(primaryFactory);
                 decrementCount(old);
                 oldElement = decode(null, old);
@@ -260,7 +260,7 @@ class Segment extends ReentrantReadWriteLock {
         }
     }
     
-    Element put(Object key, int hash, Element value, boolean onlyIfAbsent) {
+    Element put(Object key, int hash, Element element, boolean onlyIfAbsent) {
         writeLock().lock();
         try {
             int c = count;
@@ -273,26 +273,26 @@ class Segment extends ReentrantReadWriteLock {
             while (e != null && (e.hash != hash || !key.equals(e.key)))
                 e = e.next;
 
-            Element oldValue;
+            Element oldElement;
             if (e != null) {
-                Object old = e.getValue();
+                Object old = e.getElement();
                 if (!onlyIfAbsent) {
-                    e.setValue(primaryFactory.encode(e.key, value));
+                    e.setElement(primaryFactory.encode(e.key, element));
                     incrementCount(primaryFactory);
                     decrementCount(old);
-                    oldValue = decode(null, old);
+                    oldElement = decode(null, old);
                 } else {
-                    oldValue = decode(e.key, old);
+                    oldElement = decode(e.key, old);
                 }
             }
             else {
-                oldValue = null;
+                oldElement = null;
                 ++modCount;
-                tab[index] = new HashEntry(key, hash, first, primaryFactory.encode(key, value));
+                tab[index] = new HashEntry(key, hash, first, primaryFactory.encode(key, element));
                 incrementCount(primaryFactory);
                 count = c; // write-volatile
             }
-            return oldValue;
+            return oldElement;
         } finally {
             writeLock().unlock();
         }
@@ -353,7 +353,7 @@ class Segment extends ReentrantReadWriteLock {
                     for (HashEntry p = e; p != lastRun; p = p.next) {
                         int k = p.hash & sizeMask;
                         HashEntry n = newTable[k];
-                        newTable[k] = new HashEntry(p.key, p.hash, n, p.getValue());
+                        newTable[k] = new HashEntry(p.key, p.hash, n, p.getElement());
                     }
                 }
             }
@@ -374,7 +374,7 @@ class Segment extends ReentrantReadWriteLock {
 
             Element oldValue = null;
             if (e != null) {
-                Object v = e.getValue();
+                Object v = e.getElement();
                 Element element = null;
                 if (value == null || value.equals(element = decode(e.key, v))) {
                     oldValue = element;
@@ -384,7 +384,7 @@ class Segment extends ReentrantReadWriteLock {
                     ++modCount;
                     HashEntry newFirst = e.next;
                     for (HashEntry p = first; p != e; p = p.next)
-                        newFirst = new HashEntry(p.key, p.hash, newFirst, p.getValue());
+                        newFirst = new HashEntry(p.key, p.hash, newFirst, p.getElement());
                     tab[index] = newFirst;
                     decrementCount(v);
                     count = c; // write-volatile
@@ -431,7 +431,7 @@ class Segment extends ReentrantReadWriteLock {
             if (count != 0) {
                 for (HashEntry e = getFirst(hash); e != null; e = e.next) {
                     if (e.hash == hash && key.equals(e.key)) {
-                        if (e.casValue(expect, fault)) {
+                        if (e.casElement(expect, fault)) {
                             incrementCount(fault);
                             decrementCount(expect);
                             free(expect);
@@ -467,19 +467,19 @@ class Segment extends ReentrantReadWriteLock {
             ELEMENT_UPDATER.set(this, element);
         }
         
-        Object getValue() {
+        Object getElement() {
             return ELEMENT_UPDATER.get(this);
         }
         
-        public void setValue(Object element) {
+        public void setElement(Object element) {
             ELEMENT_UPDATER.set(this, element);
         }
 
-        boolean casValue(Object expect, Object update) {
+        boolean casElement(Object expect, Object update) {
             return ELEMENT_UPDATER.compareAndSet(this, expect, update);
         }
         
-        Object gasValue(Object element) {
+        Object gasElement(Object element) {
             return ELEMENT_UPDATER.getAndSet(this, element);
         }
     }

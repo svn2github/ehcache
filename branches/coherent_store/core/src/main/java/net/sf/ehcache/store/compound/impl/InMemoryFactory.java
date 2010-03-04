@@ -32,7 +32,7 @@ public class InMemoryFactory extends IdentityElementProxyFactory {
     }
 
     @Override
-    public void free(Element value) {
+    public void free(Element element) {
         // no-op
     }
 

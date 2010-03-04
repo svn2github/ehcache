@@ -37,35 +37,34 @@ public class DiskStorageFactory extends ElementProxyFactory {
     }
     
     @Override
-    public Element decode(Object key, ElementProxy value) {
-        if (value instanceof DiskMarker) {
-            return read((DiskMarker) value);
+    public Element decode(Object key, ElementProxy proxy) {
+        if (proxy instanceof DiskMarker) {
+            return read((DiskMarker) proxy);
         } else {
-            return ((Placeholder) value).element;
+            return ((Placeholder) proxy).element;
         }
     }
 
     @Override
-    public void free(ElementProxy value) {
-        if (value instanceof DiskMarker) {
-            free((DiskMarker) value);
+    public void free(ElementProxy proxy) {
+        if (proxy instanceof DiskMarker) {
+            free((DiskMarker) proxy);
         }
     }
 
     public void freeAll() {
-        // TODO Auto-generated method stub
-        
+        // TODO Auto-generated method stub        
     }
     
-    private Element read(DiskMarker value) {
+    private Element read(DiskMarker marker) {
         throw new UnsupportedOperationException();
     }
 
-    private DiskMarker write(Element e) {
+    private DiskMarker write(Element element) {
         throw new UnsupportedOperationException();
     }
 
-    private void free(DiskMarker m) {
+    private void free(DiskMarker marker) {
         throw new UnsupportedOperationException();
     }
     
@@ -78,7 +77,7 @@ public class DiskStorageFactory extends ElementProxyFactory {
             this.element = element;
         }
 
-        public ElementProxyFactory getType() {
+        public ElementProxyFactory getFactory() {
             return DiskStorageFactory.this;
         }
     }

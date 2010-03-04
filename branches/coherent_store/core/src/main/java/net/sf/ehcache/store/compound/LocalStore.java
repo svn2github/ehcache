@@ -41,16 +41,16 @@ public class LocalStore {
         return segmentFor(hash).get(key, hash);
     }
 
-    public Element put(Element value) {
-        Object key = value.getObjectKey();
+    public Element put(Element element) {
+        Object key = element.getObjectKey();
         int hash = hash(key.hashCode());
-        return segmentFor(hash).put(key, hash, value, false);
+        return segmentFor(hash).put(key, hash, element, false);
     }
 
-    public Element putIfAbsent(Element value) {
-        Object key = value.getObjectKey();
+    public Element putIfAbsent(Element element) {
+        Object key = element.getObjectKey();
         int hash = hash(key.hashCode());
-        return segmentFor(hash).put(key, hash, value, true);
+        return segmentFor(hash).put(key, hash, element, true);
     }
 
     public Element remove(Object key) {
