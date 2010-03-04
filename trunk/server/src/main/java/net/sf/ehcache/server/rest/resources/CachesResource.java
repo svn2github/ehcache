@@ -95,7 +95,7 @@ public class CachesResource {
      */
     @GET
     public Caches getCaches() {
-        LOG.info("GET Caches");
+        LOG.debug("GET Caches");
 
         String[] cacheNames = MANAGER.getCacheNames();
 
