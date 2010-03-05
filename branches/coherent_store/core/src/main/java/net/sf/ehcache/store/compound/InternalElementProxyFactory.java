@@ -18,13 +18,51 @@ package net.sf.ehcache.store.compound;
 
 import net.sf.ehcache.Element;
 
-interface InternalElementProxyFactory {
+/**
+ * Internal interface implemented by all element proxy factories.
+ * <p>
+ * This interface is package private because classes should never implement it directly.
+ * Instead they should implement one of its two sub-interfaces {@link ElementProxyFactory} or
+ * {@link IdentityElementProxyFactory} depending on the implementations intent.
+ * 
+ * @author Chris Dennis
+ *
+ * @param <T> the type of the proxied object (may be {@link Element} itself)
+ */
+interface InternalElementProxyFactory<T> {
 
-    public Object encode(Object key, Element element);
+    /**
+     * Encodes the supplied {@link Element}
+     * <p>
+     * In the case that this element is no longer mapped to a key - if
+     * for example the element is being decoded following a removal - then
+     * the supplied key will be null.
+     * 
+     * @param key key to which this element is mapped 
+     * @param element Element to encode
+     * @return The potentially proxied Element
+     */
+    public T encode(Object key, Element element);
 
-    public Element decode(Object key, Object object);
+    /**
+     * Decodes the supplied {@link Element} or {@link ElementProxy}.
+     * 
+     * @param key key to which this element is mapped
+     * @param object Element or ElementProxy to decode
+     * @return a decoded Element
+     */
+    public Element decode(Object key, T object);
     
-    public void free(Object object);
+    /**
+     * Free any manually managed resources used by this {@link Element} or
+     * {@link ElementProxy}.
+     * 
+     * @param object Element or ElementProxy being free'd.
+     */
+    public void free(T object);
 
+    /**
+     * Free all manually managed resource allocated by this factory.
+     */
     public void freeAll();
 }

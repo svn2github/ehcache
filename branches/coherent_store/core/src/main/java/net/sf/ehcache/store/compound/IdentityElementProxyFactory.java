@@ -18,18 +18,16 @@ package net.sf.ehcache.store.compound;
 
 import net.sf.ehcache.Element;
 
-public abstract class IdentityElementProxyFactory implements InternalElementProxyFactory {
-    public abstract Element encode(Object key, Element element);
-
-    public abstract Element decode(Object key, Element element);
-    
-    public abstract void free(Element element);
-
-    public Element decode(Object key, Object object) {
-        return decode(key, (Element) object);
-    }
-    
-    public void free(Object object) {
-        free((Element) object);
-    }
+/**
+ * IdentityElementProxyFactory is implemented by all non-proxying factories.
+ * <p>
+ * Non-proxying factories are used to implement direct in-heap storage of Elements.
+ * Their encode methods will typically (but not necessarily) return the same element
+ * as was passed to them.  They may however choose to perform eviction operations either
+ * synchronously within their methods, or trigger asynchronous evictions from them.
+ * 
+ * @author Chris Dennis
+ */
+public interface IdentityElementProxyFactory extends InternalElementProxyFactory<Element> {
+    //
 }

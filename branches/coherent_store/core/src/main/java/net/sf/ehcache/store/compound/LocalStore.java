@@ -22,18 +22,21 @@ import net.sf.ehcache.Element;
 
 public class LocalStore {
 
-    static final int MAXIMUM_CAPACITY = 1 << 30; 
-    static final int RETRIES_BEFORE_LOCK = 2;
+    private static final int MAXIMUM_CAPACITY = 1 << 30; 
+    private static final int RETRIES_BEFORE_LOCK = 2;
+    private static final int DEFAULT_INITIAL_CAPACITY = 16;
+    private static final int DEFAULT_SEGMENT_COUNT = 16;
+    private static final float DEFAULT_LOAD_FACTOR = 0.75f;
     
     final Segment[] segments;
     final int segmentShift;
     
     LocalStore(InternalElementProxyFactory primary, Set<InternalElementProxyFactory> factories) {
-        this.segments = new Segment[16];
+        this.segments = new Segment[DEFAULT_SEGMENT_COUNT];
         this.segmentShift = Integer.numberOfLeadingZeros(segments.length - 1);
 
         for (int i = 0; i < this.segments.length; ++i)
-            this.segments[i] = new Segment(16, 0.75f, primary, factories);
+            this.segments[i] = new Segment(DEFAULT_INITIAL_CAPACITY, DEFAULT_LOAD_FACTOR, primary, factories);
     }
 
     public Element get(Object key) {

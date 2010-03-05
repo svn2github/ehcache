@@ -18,19 +18,36 @@ package net.sf.ehcache.store.compound;
 
 import net.sf.ehcache.Element;
 
-public abstract class ElementProxyFactory<T extends ElementProxy> implements InternalElementProxyFactory {
+/**
+ * ElementProxyFactory is implemented by all true proxying factories.
+ * <p>
+ * A true proxying factory returns an ElementProxy instance instead of an Element
+ * on calls to encode.  ElementProxy instances may simply be wrapping Elements with
+ * additional functionality (e.g. a soft/weak reference) or be indirectly referencing
+ * an Element (e.g. a pointer to a secondary storage location).
+ * 
+ * @author Chris Dennis
+ *
+ * @param <T> type of the encoded and decodable element proxies.
+ */
+public interface ElementProxyFactory<T extends ElementProxy> extends InternalElementProxyFactory<T> {
 
-    public abstract T encode(Object key, Element element);
+    /**
+     * @return The proxied Element
+     */
+    public T encode(Object key, Element element);
 
-    public abstract Element decode(Object key, T proxy);
+    /**
+     * Decodes the supplied {@link ElementProxy}.
+     * 
+     * @param object ElementProxy to decode
+     */
+    public Element decode(Object key, T object);
     
-    public abstract void free(T proxy);
-
-    public final Element decode(Object key, Object object) {
-        return decode(key, (T) object);
-    }
-    
-    public final void free(Object object) {
-        free(object);
-    }
+    /**
+     * Free any manually managed resources used by this {@link ElementProxy}.
+     * 
+     * @param object ElementProxy being free'd.
+     */
+    public void free(T object);
 }

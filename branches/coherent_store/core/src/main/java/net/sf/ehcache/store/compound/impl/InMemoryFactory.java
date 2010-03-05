@@ -19,23 +19,37 @@ package net.sf.ehcache.store.compound.impl;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.store.compound.IdentityElementProxyFactory;
 
-public class InMemoryFactory extends IdentityElementProxyFactory {
+/**
+ * A simple unlimited capacity in-memory proxy factory.
+ * 
+ * @author Chris Dennis
+ */
+public class InMemoryFactory implements IdentityElementProxyFactory {
 
-    @Override
+    /**
+     * A no-op decode that just returns the unmodified element.
+     */
     public Element decode(Object key, Element element) {
         return element;
     }
 
-    @Override
+    /**
+     * A no-op encode that just returns the unmodified element.
+     */
     public Element encode(Object key, Element element) {
         return element;
     }
 
-    @Override
+    /**
+     * Nothing to free, so a no-op.
+     */
     public void free(Element element) {
         // no-op
     }
 
+    /**
+     * Nothing to free, so a no-op.
+     */
     public void freeAll() {
         // no-op
     }

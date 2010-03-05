@@ -23,20 +23,42 @@ import net.sf.ehcache.store.compound.ElementProxy;
 import net.sf.ehcache.store.compound.ElementProxyFactory;
 import net.sf.ehcache.store.compound.LocalStore;
 
-public class DiskStorageFactory extends ElementProxyFactory {
+/**
+ * A mock-up of a on-disk element proxy factory.
+ * 
+ * @author Chris Dennis
+ */
+public class DiskStorageFactory implements ElementProxyFactory<ElementProxy> {
 
+    /**
+     * Executor service used to write elements to disk
+     */
     private final ExecutorService diskWriter = null;
-    
+
+    /**
+     * Store instance that we construct proxies for.
+     */
     private final LocalStore store = null;
     
-    @Override
+    /**
+     * Encodes an Element as a marker to on-disk location.
+     * <p>
+     * Immediately substitutes a placeholder for the original
+     * element while the Element itself is asynchronously written
+     * to disk using the executor service.
+     */    
     public ElementProxy encode(Object key, Element element) {
         Placeholder p = new Placeholder(key, element);
         diskWriter.execute(new DiskWriteTask(p));
         return p;
     }
     
-    @Override
+    /**
+     * Decode an ElementProxy from an on disk marker (or a pending placeholder).
+     * <p>
+     * This implementation makes no attempt to fault in the decoded 
+     * Element in place of the proxy.
+     */
     public Element decode(Object key, ElementProxy proxy) {
         if (proxy instanceof DiskMarker) {
             return read((DiskMarker) proxy);
@@ -45,13 +67,21 @@ public class DiskStorageFactory extends ElementProxyFactory {
         }
     }
 
-    @Override
+    /**
+     * {@inheritDoc}
+     * 
+     * For a DiskMarker instance this frees the associated disk space used
+     * to store the Element.
+     */
     public void free(ElementProxy proxy) {
         if (proxy instanceof DiskMarker) {
             free((DiskMarker) proxy);
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public void freeAll() {
         // TODO Auto-generated method stub        
     }
@@ -67,30 +97,47 @@ public class DiskStorageFactory extends ElementProxyFactory {
     private void free(DiskMarker marker) {
         throw new UnsupportedOperationException();
     }
-    
-    class Placeholder implements ElementProxy {
-        final Object key;
-        final Element element;
+
+    /**
+     * Placeholder instances are put in place to prevent
+     * duplicate write requests while Elements are being
+     * written to disk.
+     */
+    private class Placeholder implements ElementProxy {
+        protected final Object key;
+        protected final Element element;
         
-        public Placeholder(Object key, Element element) {
+        Placeholder(Object key, Element element) {
             this.key = key;
             this.element = element;
         }
 
-        public ElementProxyFactory getFactory() {
+        public DiskStorageFactory getFactory() {
             return DiskStorageFactory.this;
         }
     }
     
-    class DiskMarker {
+    /**
+     * DiskMarker instances point to the location of their
+     * associated serialized Element instance.
+     */
+    private class DiskMarker implements ElementProxy {
 
+        public DiskStorageFactory getFactory() {
+            return DiskStorageFactory.this;
+        }
     }
 
-    class DiskWriteTask implements Runnable {
+    /**
+     * DiskWriteTasks are used to serialize elements
+     * to disk and fault in the resultant DiskMarker
+     * instance.
+     */
+    private class DiskWriteTask implements Runnable {
 
-        final Placeholder placeholder;
+        protected final Placeholder placeholder;
         
-        public DiskWriteTask(Placeholder p) {
+        DiskWriteTask(Placeholder p) {
             this.placeholder = p;
         }
 
@@ -100,6 +147,5 @@ public class DiskStorageFactory extends ElementProxyFactory {
                 free(marker);
             }
         }
-
     }
 }
