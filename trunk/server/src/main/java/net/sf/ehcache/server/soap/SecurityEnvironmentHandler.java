@@ -28,6 +28,7 @@ import java.io.IOException;
 
 
 /**
+ * https://xwss.dev.java.net/
  * @author <a href="mailto:gluck@gregluck.com">Greg Luck</a>
  */
 public class SecurityEnvironmentHandler implements CallbackHandler {

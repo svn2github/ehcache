@@ -16,7 +16,7 @@
 
 package net.sf.ehcache.server.rest.resources;
 
-import net.sf.ehcache.server.HttpUtil;
+import net.sf.ehcache.server.util.HttpUtil;
 import net.sf.ehcache.server.jaxb.Cache;
 import net.sf.ehcache.server.jaxb.Caches;
 import net.sf.ehcache.server.jaxb.JAXBContextResolver;
@@ -27,6 +27,7 @@ import net.sf.ehcache.server.soap.jaxws.IllegalStateException_Exception;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;

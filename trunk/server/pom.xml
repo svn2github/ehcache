@@ -1,4 +1,5 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <!-- mvn -Ptest verify to run tests -->
@@ -7,7 +8,7 @@
 
 
     <!-- Note to IntelliJ users. Run mvn compile before interactively running tests. -->
-    
+
     <parent>
         <groupId>net.sf.ehcache</groupId>
         <artifactId>ehcache-parent</artifactId>
@@ -31,7 +32,7 @@
         <dependency>
             <groupId>net.sf.ehcache</groupId>
             <artifactId>ehcache</artifactId>
-            <version>2.0.0-SNAPSHOT</version>
+            <version>2.0.0</version>
             <type>pom</type>
         </dependency>
         <dependency>
@@ -39,23 +40,27 @@
             <artifactId>slf4j-api</artifactId>
             <version>1.5.8</version>
         </dependency>
-        <!--Cannot find these complete anywhere. Bug logged against WSIT project. prefix with metro to stop
-         a broken one coming down. Must be installed locally.
-         Download from https://metro.dev.java.net/1.2/ -->
         <dependency>
             <groupId>com.sun.xml.ws</groupId>
-            <artifactId>metro-webservices-rt</artifactId>
-            <version>1.2</version>
+            <artifactId>jaxws-rt</artifactId>
+            <version>2.1.5</version>
+        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>com.sun.xml.ws</groupId>-->
+            <!--<artifactId>jaxws-tools</artifactId>-->
+            <!--<version>2.1.5</version>-->
+            <!--<scope>compile</scope>-->
+        <!--</dependency>     -->
+        <dependency>
+            <groupId>com.sun.xml.wss</groupId>
+            <artifactId>xws-security</artifactId>
+            <version>3.0</version>
+            <scope>compile</scope>
         </dependency>
         <dependency>
-            <groupId>com.sun.xml.ws</groupId>
-            <artifactId>metro-webservices-api</artifactId>
-            <version>1.2</version>
-        </dependency>
-        <dependency>
-            <groupId>com.sun.xml.ws</groupId>
-            <artifactId>metro-webservices-tools</artifactId>
-            <version>1.2</version>
+            <groupId>dom4j</groupId>
+            <artifactId>dom4j</artifactId>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>javax.servlet</groupId>
@@ -64,15 +69,21 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>com.sun.xml.ws</groupId>
-            <artifactId>jaxws-tools</artifactId>
-            <version>2.1.4</version>
-            <scope>compile</scope>
+            <groupId>httpunit</groupId>
+            <artifactId>httpunit</artifactId>
+            <scope>test</scope>
         </dependency>
+
         <dependency>
             <groupId>com.sun.net.httpserver</groupId>
             <artifactId>http</artifactId>
             <version>20070405</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>commons-httpclient</groupId>
+            <artifactId>commons-httpclient</artifactId>
+            <version>3.1</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -81,6 +92,7 @@
             <version>4.1</version>
             <scope>test</scope>
         </dependency>
+
 
     </dependencies>
     <build>
@@ -103,7 +115,6 @@
                     </execution>
                 </executions>
             </plugin>
-            <!--todo resolve javadoc warnings. Also upgrade Jersey and Glassfish-->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-checkstyle-plugin</artifactId>
@@ -118,7 +129,8 @@
                 </executions>
                 <configuration>
                     <configLocation>${basedir}/checkstyle/checkstyle.xml</configLocation>
-                    <suppressionsLocation>${basedir}/checkstyle/suppressions.xml</suppressionsLocation>
+                    <suppressionsLocation>${basedir}/checkstyle/suppressions.xml
+                    </suppressionsLocation>
                     <headerLocation>${basedir}/checkstyle/ClassHeader.txt</headerLocation>
                     <enableRSS>false</enableRSS>
                     <linkXRef>true</linkXRef>
@@ -132,33 +144,33 @@
             </plugin>
 
             <plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-checkstyle-plugin</artifactId>
-				<version>2.3</version>
-				<executions>
-					<execution>
-						<phase>verify</phase>
-						<goals>
-							<goal>checkstyle</goal>
-						</goals>
-					</execution>
-				</executions>
-				<configuration>
-					<configLocation>${basedir}/checkstyle/checkstyle.xml
-					</configLocation>
-					<suppressionsLocation>${basedir}/checkstyle/suppressions.xml
-					</suppressionsLocation>
-					<headerLocation>${basedir}/checkstyle/ClassHeader.txt
-					</headerLocation>
-					<enableRSS>false</enableRSS>
-					<linkXRef>true</linkXRef>
-					<consoleOutput>true</consoleOutput>
-					<failsOnError>true</failsOnError>
-					<failOnViolation>true</failOnViolation>
-					<includeTestSourceDirectory>false</includeTestSourceDirectory>
-					<enableRulesSummary>true</enableRulesSummary>
-				</configuration>
-			</plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-checkstyle-plugin</artifactId>
+                <version>2.3</version>
+                <executions>
+                    <execution>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>checkstyle</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <configLocation>${basedir}/checkstyle/checkstyle.xml
+                    </configLocation>
+                    <suppressionsLocation>${basedir}/checkstyle/suppressions.xml
+                    </suppressionsLocation>
+                    <headerLocation>${basedir}/checkstyle/ClassHeader.txt
+                    </headerLocation>
+                    <enableRSS>false</enableRSS>
+                    <linkXRef>true</linkXRef>
+                    <consoleOutput>true</consoleOutput>
+                    <failsOnError>true</failsOnError>
+                    <failOnViolation>true</failOnViolation>
+                    <includeTestSourceDirectory>false</includeTestSourceDirectory>
+                    <enableRulesSummary>true</enableRulesSummary>
+                </configuration>
+            </plugin>
 
 
             <!--Conflicts with Dave Whitla's plugin with the same goal.
@@ -187,8 +199,10 @@
                 <configuration>
                     <archive>
                         <manifest>
-                            <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
-                            <addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
+                            <addDefaultImplementationEntries>true
+                            </addDefaultImplementationEntries>
+                            <addDefaultSpecificationEntries>true
+                            </addDefaultSpecificationEntries>
                             <addClasspath>true</addClasspath>
                         </manifest>
                     </archive>
@@ -216,7 +230,8 @@
                     </excludes>
                     <enableAssertions>false</enableAssertions>
                     <additionalClasspathElements>
-                        <additionalClasspathElement>target/classes</additionalClasspathElement>
+                        <additionalClasspathElement>target/classes
+                        </additionalClasspathElement>
                     </additionalClasspathElements>
                     <systemProperties>
                         <property>
@@ -247,7 +262,8 @@
                             </excludes>
                             <enableAssertions>false</enableAssertions>
                             <additionalClasspathElements>
-                                <additionalClasspathElement>target/classes</additionalClasspathElement>
+                                <additionalClasspathElement>target/classes
+                                </additionalClasspathElement>
                             </additionalClasspathElements>
                         </configuration>
                     </execution>
@@ -335,12 +351,16 @@
                                 <type>embedded</type>
                                 <systemProperties>
                                     <com.sun.management.jmxremote></com.sun.management.jmxremote>
-                                    <com.sun.management.jmxremote.port>8999</com.sun.management.jmxremote.port>
-                                    <com.sun.management.jmxremote.ssl>false</com.sun.management.jmxremote.ssl>
+                                    <com.sun.management.jmxremote.port>8999
+                                    </com.sun.management.jmxremote.port>
+                                    <com.sun.management.jmxremote.ssl>false
+                                    </com.sun.management.jmxremote.ssl>
                                     <com.sun.management.jmxremote.authenticate>false
                                     </com.sun.management.jmxremote.authenticate>
-                                    <java.rmi.server.hostname>localhost</java.rmi.server.hostname>
-                                    <com.sun.management.jmxremote>true</com.sun.management.jmxremote>
+                                    <java.rmi.server.hostname>localhost
+                                    </java.rmi.server.hostname>
+                                    <com.sun.management.jmxremote>true
+                                    </com.sun.management.jmxremote>
                                     <Ron>noR</Ron>
                                 </systemProperties>
                             </container>
@@ -454,7 +474,7 @@
             <url>http://oss.sonatype.org/content/repositories/sourceforge-snapshots</url>
             <snapshots>
                 <enabled>true</enabled>
-                <updatePolicy>always</updatePolicy>                            
+                <updatePolicy>always</updatePolicy>
             </snapshots>
         </repository>
     </repositories>

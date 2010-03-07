@@ -14,8 +14,9 @@
  *  limitations under the License.
  */
 
-package net.sf.ehcache.server;
+package net.sf.ehcache.server.util;
 
+import net.sf.ehcache.server.util.Header;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
@@ -50,9 +51,9 @@ public final class HttpUtil {
         urlConnection.setRequestMethod("GET");
 
         int status = urlConnection.getResponseCode();
-        LOG.info("Status " + status);
+//        LOG.info("Status " + status);
         String mediaType = urlConnection.getContentType();
-        LOG.info("Content Type: " + mediaType);
+//        LOG.info("Content Type: " + mediaType);
         return urlConnection;
     }
 
