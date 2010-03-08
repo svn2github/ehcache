@@ -144,7 +144,7 @@
 
     <li class="parent" >
 	<a href=# class="parent" style="padding:0px;">
-        <h5><img src="http://ehcache.org/images/arrow_open.png" width="13" height="13" hspace="6"
+        <h5><img class="icon" src="http://ehcache.org/images/arrow_closed.png" width="13" height="13" hspace="6"
                  alt="arrow">
             $menu.name</h5></a>
         #end
