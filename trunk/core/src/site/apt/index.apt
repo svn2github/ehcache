@@ -55,6 +55,8 @@ Ehcache Distributed Cache
 *----------+--------------+
 {{{documentation/cache_server.html}ehcache-server}} | RESTful cache server in a WAR or standalone
 *----------+--------------:
+{{{documentation/explicitlocking.html}ehcache-explicitlocking}} | Explicit locking control with Terracotta
+*----------+--------------:
 
 * Latest News
 

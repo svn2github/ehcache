@@ -162,6 +162,7 @@
                 <arg value="cache_exception_handlers.apt"/>
                 <arg value="cache_extensions.apt"/>
                 <arg value="cache_server.apt"/>
+                <arg value="explicitlocking.apt"/>
                 <arg value="write_through_caching.apt"/>
                 <arg value="openjpa_provider.apt"/>
                 <arg value="grails.apt"/>
