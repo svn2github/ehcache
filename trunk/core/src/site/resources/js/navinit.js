@@ -34,13 +34,7 @@ function initMenu() {
 
       }
     );
-    $('#navColumn').mouseleave(
-    function() {
-
-        $('#navList ul').filter(function(index) {return $("strong", this).length == 0}).slideUp('normal');
-
-      }
-    );
+   
 
     $('li:parent').css('margin', '0px');
 
