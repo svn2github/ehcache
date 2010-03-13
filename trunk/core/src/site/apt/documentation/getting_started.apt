@@ -4,6 +4,8 @@
 
 Getting Started
 
+    Firstly, if you have not downloaded Ehcache, you can download it {{{http://www.terracotta.org/dl/ehcache-oss-sign-up}here}}. 
+
     Ehcache can be used directly. It can also be used with the popular Hibernate Object/Relational tool. Finally, it
     can be used for Java EE Servlet Caching.
 

@@ -69,7 +69,7 @@ Ehcache Distributed Cache
   Ehcache 2.0 is fully backward compatible with earlier versions of Ehcache.
 
   The Terracotta Server Array ("TSA") has also been re-engineered to dovetail with Ehcache to provide these features
-  with cluster coherence, high availability and persistence. Darwin betas with TSA are available {{{http://www.terracotta.org/beta/darwin}here}}.
+  with cluster coherence, high availability and persistence.
 
   This release also introduces some improvements to ehcache which reduce memory use (over 1.6 and 1.7) by the cache and improve
   the eviction algorithms.

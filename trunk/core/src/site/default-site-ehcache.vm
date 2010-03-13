@@ -447,6 +447,8 @@
         <div id="rightColumn">
             <h4>Quick Start</h4>
             <ul>
+                <li><a href="http://www.terracotta.org/dl/ehcache-oss-sign-up">Download</a>
+                    </li>
                 <li><a href="http://ehcache.org/documentation/getting_started.html">Getting
                     Started</a></li>
                 <li><a href="http://ehcache.org/documentation/samples.html">Code Samples</a>
