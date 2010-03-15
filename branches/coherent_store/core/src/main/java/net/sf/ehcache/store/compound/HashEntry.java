@@ -50,7 +50,7 @@ class HashEntry {
     protected final HashEntry next;
 
     /**
-     * Volatile reference to the current value (or proxied value) for this mapping
+     * Volatile reference to the current value (or substitute value) for this mapping
      */
     private volatile Object element;
 

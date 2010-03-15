@@ -16,8 +16,6 @@
 
 package net.sf.ehcache.store.compound;
 
-import java.util.Set;
-
 import net.sf.ehcache.Element;
 
 public class LocalStore {
@@ -31,12 +29,12 @@ public class LocalStore {
     final Segment[] segments;
     final int segmentShift;
     
-    LocalStore(InternalElementProxyFactory primary, Set<InternalElementProxyFactory> factories) {
+    LocalStore(IdentityElementSubstituteFactory primary) {
         this.segments = new Segment[DEFAULT_SEGMENT_COUNT];
         this.segmentShift = Integer.numberOfLeadingZeros(segments.length - 1);
 
         for (int i = 0; i < this.segments.length; ++i)
-            this.segments[i] = new Segment(DEFAULT_INITIAL_CAPACITY, DEFAULT_LOAD_FACTOR, primary, factories);
+            this.segments[i] = new Segment(DEFAULT_INITIAL_CAPACITY, DEFAULT_LOAD_FACTOR, primary);
     }
 
     public Element get(Object key) {
@@ -96,17 +94,6 @@ public class LocalStore {
                 sum += segments[i].count;
             for (int i = 0; i < segments.length; ++i) 
                 segments[i].readLock().unlock();
-        }
-        if (sum > Integer.MAX_VALUE)
-            return Integer.MAX_VALUE;
-        else
-            return (int)sum;
-    }
-    
-    public int size(InternalElementProxyFactory factory) {
-        long sum = 0;
-        for (int i = 0; i < segments.length; ++i) {
-            sum += segments[i].size(factory);
         }
         if (sum > Integer.MAX_VALUE)
             return Integer.MAX_VALUE;

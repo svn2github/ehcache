@@ -19,35 +19,35 @@ package net.sf.ehcache.store.compound;
 import net.sf.ehcache.Element;
 
 /**
- * ElementProxyFactory is implemented by all true proxying factories.
+ * ElementSubstituteFactory is implemented by all true substituting factories.
  * <p>
- * A true proxying factory returns an ElementProxy instance instead of an Element
- * on calls to encode.  ElementProxy instances may simply be wrapping Elements with
+ * A true substituting factory returns an ElementSubstitute instance instead of an Element
+ * on calls to encode.  ElementSubstitute instances may simply be wrapping Elements with
  * additional functionality (e.g. a soft/weak reference) or be indirectly referencing
  * an Element (e.g. a pointer to a secondary storage location).
  * 
  * @author Chris Dennis
  *
- * @param <T> type of the encoded and decodable element proxies.
+ * @param <T> type of the created and retrievable element substitutes.
  */
-public interface ElementProxyFactory<T extends ElementProxy> extends InternalElementProxyFactory<T> {
+public interface ElementSubstituteFactory<T extends ElementSubstitute> extends InternalElementSubstituteFactory<T> {
 
     /**
-     * @return The proxied Element
+     * @return The substitute element
      */
-    public T encode(Object key, Element element);
+    public T create(Object key, Element element);
 
     /**
-     * Decodes the supplied {@link ElementProxy}.
+     * Decodes the supplied {@link ElementSubstitute}.
      * 
-     * @param object ElementProxy to decode
+     * @param object ElementSubstitute to decode
      */
-    public Element decode(Object key, T object);
+    public Element retrieve(Object key, T object);
     
     /**
-     * Free any manually managed resources used by this {@link ElementProxy}.
+     * Free any manually managed resources used by this {@link ElementSubstitute}.
      * 
-     * @param object ElementProxy being free'd.
+     * @param object ElementSubstitute being free'd.
      */
     public void free(T object);
 }

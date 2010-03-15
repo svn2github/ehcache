@@ -19,11 +19,6 @@
  */
 package net.sf.ehcache.store.compound;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
-import java.util.Map.Entry;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import net.sf.ehcache.Element;
@@ -58,27 +53,19 @@ class Segment extends ReentrantReadWriteLock {
     protected int modCount;
 
     /**
-     * The primary proxy factory.
+     * The primary substitute factory.
      * <p>
-     * This is the proxy type used to store <code>Element</code>s when they are first added to the store.
+     * This is the substitute type used to store <code>Element</code>s when they are first added to the store.
      */
-    private final InternalElementProxyFactory primaryFactory;
+    private final InternalElementSubstituteFactory primaryFactory;
     
     /**
-     * The single identity proxy factory.  Identity proxy factories store the elements as <code>Element</code>s.
+     * The single identity substitute factory.  Identity substitute factories store the elements as <code>Element</code>s.
      * <p>
-     * Only one identity proxy factory can be used in any given Store.  Otherwise there would be ambiguity surrounding counts and
+     * Only one identity substitute factory can be used in any given Store.  Otherwise there would be ambiguity surrounding counts and
      * factory calls for the stored bare elements.
      */
-    private final InternalElementProxyFactory identityFactory;
-    
-    /**
-     * Map from proxy factory instance to AtomicInteger representing the count of elements of that type.
-     * <p>
-     * We use an unlocked HashMap in a multi-threaded context here.  The map is never mutated and visibility is guaranteed by the final
-     * field freeze - fun times!
-     */
-    private final Map<InternalElementProxyFactory, AtomicInteger> counts;
+    private final InternalElementSubstituteFactory identityFactory;
     
     /**
      * Table of HashEntry linked lists, indexed by the least-significant bits of the spread-hash value.
@@ -95,51 +82,38 @@ class Segment extends ReentrantReadWriteLock {
     private int threshold;
 
     /**
-     * Create a Segment with the given initial capacity, load-factor, primary element proxy factory, and set of potential proxy factories.
-     * <p>
-     * The set of factories used by this segment is specified at construction time for two reasons:
-     * <ol>
-     *     <li>Only one subclass of IdentityElementProxyFactory can be used with a Segment.  Without this requirement the mapping between
-     *     bare {@link Element} instances and the factory responsible for them would be ambiguous.</li>
-     *     <li>To avoid having to use a ConcurrentHashMap and a whole load of putIfAbsent logic to on demand create mappings in the
-     *     <code>counts</code> map, we instead load the whole thing on construction and rely on final field freeze semantics to ensure
-     *     visibility to all threads.</li>
-     * </ol>
+     * Create a Segment with the given initial capacity, load factor, and primary element substitute factory.  If the primary factory is not an
+     * identity element substitute factory then it will be assumed that there is no identity element substitute factory.
+     * 
      * @param initialCapacity initial capacity of store
      * @param loadFactor fraction of capacity at which rehash occurs
-     * @param primary primary element proxy factory
-     * @param factories set of proxy factories to be used
+     * @param primary primary element substitute factory
      */
-    Segment(int initialCapacity, float loadFactor, InternalElementProxyFactory primary, Set<InternalElementProxyFactory> factories) {
+    Segment(int initialCapacity, float loadFactor, InternalElementSubstituteFactory primary) {
+        this(initialCapacity, loadFactor, primary, primary instanceof IdentityElementSubstituteFactory ? (IdentityElementSubstituteFactory) primary : null);
+    }
+
+    /**
+     * Create a Segment with the given initial capacity, load-factor, primary element substitute factory, and identity element substitute factory.
+     * <p>
+     * An identity element substitute factory is specified at construction time because only one subclass of IdentityElementProxyFactory
+     * can be used with a Segment.  Without this requirement the mapping between bare {@link Element} instances and the factory
+     * responsible for them would be ambiguous.
+     * <p>
+     * If a <code>null</code> identity element substitute factory is specified then encountering a raw element (i.e. as a result of using an
+     * identity element substitute factory) will result in a null pointer exception during decode.
+     * 
+     * @param initialCapacity initial capacity of store
+     * @param loadFactor fraction of capacity at which rehash occurs
+     * @param primary primary element substitute factory
+     * @param identity identity element substitute factory
+     */
+    Segment(int initialCapacity, float loadFactor, InternalElementSubstituteFactory primary, IdentityElementSubstituteFactory identity) {
         this.table = new HashEntry[initialCapacity];
         this.threshold = (int) (table.length * loadFactor);
         this.modCount = 0;
         this.primaryFactory = primary;
-        this.identityFactory = validate(primary, factories);
-        this.counts = new HashMap<InternalElementProxyFactory, AtomicInteger>(factories.size());
-        for (InternalElementProxyFactory f : factories) {
-            counts.put(f, new AtomicInteger());
-        }
-    }
-    
-    private static IdentityElementProxyFactory validate(InternalElementProxyFactory primary, Set<InternalElementProxyFactory> factories) {
-        if (!factories.contains(primary)) {
-            throw new IllegalArgumentException("The set of factories " + factories + " does not contain the primary factory " + primary);
-        }
-        
-        IdentityElementProxyFactory identityFactory = null;
-        for (InternalElementProxyFactory f : factories) {
-            if (f instanceof IdentityElementProxyFactory) {
-                if (identityFactory == null) {
-                    identityFactory = (IdentityElementProxyFactory) f;
-                } else {
-                    throw new IllegalArgumentException("The set of factories " + factories
-                            + " contains more than one IdentityElementProxyFactory");
-                }
-            }
-        }
-        
-        return identityFactory;
+        this.identityFactory = identity;
     }
     
     private HashEntry getFirst(int hash) {
@@ -149,10 +123,10 @@ class Segment extends ReentrantReadWriteLock {
     
     private Element decode(Object key, Object object) {
         if (object instanceof Element) {
-            return identityFactory.decode(key, object);
+            return identityFactory.retrieve(key, object);
         } else {
-            InternalElementProxyFactory factory = ((ElementProxy) object).getFactory();
-            return factory.decode(null, object);
+            InternalElementSubstituteFactory factory = ((ElementSubstitute) object).getFactory();
+            return factory.retrieve(null, object);
         }
     }
     
@@ -160,34 +134,10 @@ class Segment extends ReentrantReadWriteLock {
         if (object instanceof Element) {
             identityFactory.free(object);
         } else {
-            ((ElementProxy) object).getFactory().free((ElementProxy) object);
+            ((ElementSubstitute) object).getFactory().free((ElementSubstitute) object);
         }
     }
     
-    private void incrementCount(Object element) {
-        if (element instanceof Element) {
-            incrementCount(identityFactory);
-        } else {
-            incrementCount(((ElementProxy) element).getFactory());
-        }
-    }
-
-    private void incrementCount(InternalElementProxyFactory factory) {
-        counts.get(identityFactory).incrementAndGet();
-    }
-
-    private void decrementCount(Object element) {
-        if (element instanceof Element) {
-            decrementCount(identityFactory);
-        } else {
-            decrementCount(((ElementProxy) element).getFactory());
-        }
-    }
-
-    private void decrementCount(InternalElementProxyFactory factory) {
-        counts.get(identityFactory).decrementAndGet();
-    }
-
     /**
      * Get the element mapped to this key (or null if there is no mapping for this key)
      * 
@@ -294,9 +244,7 @@ class Segment extends ReentrantReadWriteLock {
                  * to do the increment/decrement on.
                  */
                 Object old = e.getElement();
-                e.setElement(primaryFactory.encode(e.key, newElement));
-                incrementCount(primaryFactory);
-                decrementCount(old);
+                e.setElement(primaryFactory.create(e.key, newElement));
                 free(old);
             }
             return replaced;
@@ -324,9 +272,7 @@ class Segment extends ReentrantReadWriteLock {
             Element oldElement = null;
             if (e != null) {
                 Object old = e.getElement();
-                e.setElement(primaryFactory.encode(e.key, newElement));
-                incrementCount(primaryFactory);
-                decrementCount(old);
+                e.setElement(primaryFactory.create(e.key, newElement));
                 oldElement = decode(null, old);
                 free(old);
             }
@@ -339,7 +285,7 @@ class Segment extends ReentrantReadWriteLock {
     /**
      * Add the supplied mapping.
      * <p>
-     * The supplied element is proxied using the primary element proxy factory
+     * The supplied element is substituted using the primary element proxy factory
      * before being stored in the cache.  If <code>onlyIfAbsent</code> is set 
      * then the mapping will only be added if no element is currently mapped
      * to that key.
@@ -370,9 +316,7 @@ class Segment extends ReentrantReadWriteLock {
             if (e != null) {
                 Object old = e.getElement();
                 if (!onlyIfAbsent) {
-                    e.setElement(primaryFactory.encode(e.key, element));
-                    incrementCount(primaryFactory);
-                    decrementCount(old);
+                    e.setElement(primaryFactory.create(e.key, element));
                     oldElement = decode(null, old);
                     free(old);
                 } else {
@@ -381,8 +325,7 @@ class Segment extends ReentrantReadWriteLock {
             } else {
                 oldElement = null;
                 ++modCount;
-                tab[index] = new HashEntry(key, hash, first, primaryFactory.encode(key, element));
-                incrementCount(primaryFactory);
+                tab[index] = new HashEntry(key, hash, first, primaryFactory.create(key, element));
                 // write-volatile
                 count = c;
             }
@@ -496,7 +439,6 @@ class Segment extends ReentrantReadWriteLock {
                      * to do the increment/decrement on.
                      */
                     Object v = e.getElement();
-                    decrementCount(v);
                     oldValue = decode(null, v);
                     free(v);
                     // write-volatile
@@ -518,36 +460,17 @@ class Segment extends ReentrantReadWriteLock {
             if (count != 0) {
                 HashEntry[] tab = table;
                 for (int i = 0; i < tab.length; i++) {
+                    for (HashEntry e = tab[i]; e != null; e = e.next) {
+                        free(e);
+                    }
                     tab[i] = null;
                 }
                 ++modCount;
                 // write-volatile
                 count = 0;
-                
-                for (Entry<InternalElementProxyFactory, AtomicInteger> entry : counts.entrySet()) {
-                    entry.getKey().freeAll();
-                    entry.getValue().set(0);
-                }
             }
         } finally {
             writeLock().unlock();
-        }
-    }
-    
-    /**
-     * Return the count of elements/element proxies generated by the given factory present in this segment.
-     * <p>
-     * Passing a factory instance that is not used by this segment will simply result in a zero return.
-     * 
-     * @param factory an {@link ElementProxyFactory} or {@link IdentityElementProxyFactory} instance used by this segment
-     * @return count of elements generated by this factory in this segment
-     */
-    public int size(InternalElementProxyFactory factory) {
-        AtomicInteger i = counts.get(factory);
-        if (i == null) {
-            return 0;
-        } else {
-            return i.get();
         }
     }
     
@@ -572,8 +495,6 @@ class Segment extends ReentrantReadWriteLock {
                 for (HashEntry e = getFirst(hash); e != null; e = e.next) {
                     if (e.hash == hash && key.equals(e.key)) {
                         if (e.casElement(expect, fault)) {
-                            incrementCount(fault);
-                            decrementCount(expect);
                             free(expect);
                             return true;
                         } else {

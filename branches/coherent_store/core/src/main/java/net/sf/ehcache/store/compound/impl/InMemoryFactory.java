@@ -17,26 +17,26 @@
 package net.sf.ehcache.store.compound.impl;
 
 import net.sf.ehcache.Element;
-import net.sf.ehcache.store.compound.IdentityElementProxyFactory;
+import net.sf.ehcache.store.compound.IdentityElementSubstituteFactory;
 
 /**
  * A simple unlimited capacity in-memory proxy factory.
  * 
  * @author Chris Dennis
  */
-public class InMemoryFactory implements IdentityElementProxyFactory {
+public class InMemoryFactory implements IdentityElementSubstituteFactory {
 
     /**
      * A no-op decode that just returns the unmodified element.
      */
-    public Element decode(Object key, Element element) {
+    public Element retrieve(Object key, Element element) {
         return element;
     }
 
     /**
      * A no-op encode that just returns the unmodified element.
      */
-    public Element encode(Object key, Element element) {
+    public Element create(Object key, Element element) {
         return element;
     }
 
@@ -44,13 +44,6 @@ public class InMemoryFactory implements IdentityElementProxyFactory {
      * Nothing to free, so a no-op.
      */
     public void free(Element element) {
-        // no-op
-    }
-
-    /**
-     * Nothing to free, so a no-op.
-     */
-    public void freeAll() {
         // no-op
     }
 }

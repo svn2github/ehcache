@@ -19,8 +19,8 @@ package net.sf.ehcache.store.compound.impl;
 import java.util.concurrent.ExecutorService;
 
 import net.sf.ehcache.Element;
-import net.sf.ehcache.store.compound.ElementProxy;
-import net.sf.ehcache.store.compound.ElementProxyFactory;
+import net.sf.ehcache.store.compound.ElementSubstitute;
+import net.sf.ehcache.store.compound.ElementSubstituteFactory;
 import net.sf.ehcache.store.compound.LocalStore;
 
 /**
@@ -28,7 +28,7 @@ import net.sf.ehcache.store.compound.LocalStore;
  * 
  * @author Chris Dennis
  */
-public class DiskStorageFactory implements ElementProxyFactory<ElementProxy> {
+public class DiskStorageFactory implements ElementSubstituteFactory<ElementSubstitute> {
 
     /**
      * Executor service used to write elements to disk
@@ -47,7 +47,7 @@ public class DiskStorageFactory implements ElementProxyFactory<ElementProxy> {
      * element while the Element itself is asynchronously written
      * to disk using the executor service.
      */    
-    public ElementProxy encode(Object key, Element element) {
+    public ElementSubstitute create(Object key, Element element) {
         Placeholder p = new Placeholder(key, element);
         diskWriter.execute(new DiskWriteTask(p));
         return p;
@@ -59,7 +59,7 @@ public class DiskStorageFactory implements ElementProxyFactory<ElementProxy> {
      * This implementation makes no attempt to fault in the decoded 
      * Element in place of the proxy.
      */
-    public Element decode(Object key, ElementProxy proxy) {
+    public Element retrieve(Object key, ElementSubstitute proxy) {
         if (proxy instanceof DiskMarker) {
             return read((DiskMarker) proxy);
         } else {
@@ -73,19 +73,12 @@ public class DiskStorageFactory implements ElementProxyFactory<ElementProxy> {
      * For a DiskMarker instance this frees the associated disk space used
      * to store the Element.
      */
-    public void free(ElementProxy proxy) {
+    public void free(ElementSubstitute proxy) {
         if (proxy instanceof DiskMarker) {
             free((DiskMarker) proxy);
         }
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public void freeAll() {
-        // TODO Auto-generated method stub        
-    }
-    
     private Element read(DiskMarker marker) {
         throw new UnsupportedOperationException();
     }
@@ -103,7 +96,7 @@ public class DiskStorageFactory implements ElementProxyFactory<ElementProxy> {
      * duplicate write requests while Elements are being
      * written to disk.
      */
-    private class Placeholder implements ElementProxy {
+    private class Placeholder implements ElementSubstitute {
         protected final Object key;
         protected final Element element;
         
@@ -121,7 +114,7 @@ public class DiskStorageFactory implements ElementProxyFactory<ElementProxy> {
      * DiskMarker instances point to the location of their
      * associated serialized Element instance.
      */
-    private class DiskMarker implements ElementProxy {
+    private class DiskMarker implements ElementSubstitute {
 
         public DiskStorageFactory getFactory() {
             return DiskStorageFactory.this;
