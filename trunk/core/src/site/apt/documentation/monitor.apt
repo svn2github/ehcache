@@ -4,7 +4,7 @@
 
 {Ehcache Monitor}
 
-    {{{#Installation_And_Configuration}Installation & Configuration}} | {{{#Using_the_Web_GUI}Web GUI}} | {{{#Using_the_API}Monitor API}} | {{{#Known_Issues}Known Issues}} | {{{#Licensing}Licensing}}
+%{toc|fromDepth=2|toDepth=2}
 
     This add-on tool for Ehcache is designed to provide enterprise-class monitoring and management capabilities for use in both
     development and production. It is intended to help understand and tune cache usage, detect errors, and provide an easy to

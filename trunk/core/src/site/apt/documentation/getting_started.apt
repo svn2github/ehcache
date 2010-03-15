@@ -29,7 +29,7 @@ Getting Started
 
 * Hibernate
 
-    * Perform the same steps as for {{{#General_Purpose_Caching}General Purpose Caching}}.
+    * Perform the same steps as for {{{General_Purpose_Caching}General Purpose Caching}}.
 
     * Create caches in ehcache.xml.
 
@@ -37,7 +37,7 @@ Getting Started
 
 * Java EE Servlet Caching
 
-    * Perform the same steps as for {{{#General_Purpose_Caching}General Purpose Caching}}.
+    * Perform the same steps as for {{{General_Purpose_Caching}General Purpose Caching}}.
 
     * Configure a cache for your web page in ehcache.xml.
 

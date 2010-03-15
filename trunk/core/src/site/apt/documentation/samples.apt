@@ -7,49 +7,7 @@
     This page shows some of the more common code samples to get you started. Code samples for each feature are in the
      relevant chapters. 
 
- * {{{#Using_the_CacheManager}Using the CacheManager}}
-
-    * {{{#Singleton_versus_Instance}Singleton versus Instance}}
-
-    * {{{#Ways_of_loading_Cache_Configuration}Ways of loading Cache Configuration}}
-
-    * {{{#Adding_and_Removing_Caches_Programmatically}Adding and Removing Caches Programmatically}}
-
-    * {{{#Shutdown the CacheManager}Shutdown the CacheManager}}
-
- * {{{#Using_Caches}Using Caches}}
-
-     * {{{#Obtaining_a_reference_to_a_Cache}Obtaining a reference to a Cache}}
-
-     * {{{#Performing_CRUD_operations}Performing CRUD operations}}
-
-     * {{{#Disk_Persistence_on_demand}Disk Persistence on demand}}
-
-     * {{{#Obtaining_Cache_Sizes}Obtaining Cache Sizes}}
-
-     * {{{#Obtaining_Statistics_of_Cache_Hits_and_Misses}Obtaining Statistics of Cache Hits and Misses}}
-
-     * {{{#JTA}JTA}}
-
- * Programmatically Creating Caches
-
-     * {{{#Creating_a_new_cache_from_defaults}Creating a new cache from defaults}}
-
-     * {{{#Creating_a_new_cache_with_custom_parameters}Creating a new cache with custom parameters}}
-
- *  {{{#Dynamically_Modifying_Cache_Configurations}Dynamically Modifying Cache Configurations}}
- 
- *  {{{#Registering_CacheStatistics_in_an_MBeanServer}Registering CacheStatistics in an MBeanServer}}
-
- *  {{{#JCache_Examples}JCache Examples}}
-
- *  {{{#Terracotta_Example}Terracotta Clustering Examples}}
-
- *  {{{#Cache_Server_Examples}Cache Server Examples}}
-
- * {{{#Browse_the_JUnit_Tests}Browse the JUnit Tests}}
-
-
+%{toc|fromDepth=2|toDepth=3}
 
 * {Using the CacheManager}
 

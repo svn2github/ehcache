@@ -1,10 +1,10 @@
  ---
- Hibernate Caching
+ Hibernate Integration
  ---
 
-{Hibernate Caching}
+{Configuring Ehcache for Hibernate}
 
-    {{{#Hibernate_3_3}Hibernate 3.3}} | {{{#Quick_Start}Quick Start}} | {{{#Setting_Ehcache_as_the_Hibernate_Second_Level_Cache}Enabling Ehcache}} | {{{#Mapping_Files}Mapping Files}} | {{{#ehcache.xml}ehcache.xml}}| {{{#Demo_Apps}Demo Apps}} | {{{#FAQ}FAQ}} | {{{#Performance_Tips}Performance Tips}} | {{{#How_to_Scale}How to Scale}} | {{{#Download}Download}}
+%{toc|fromDepth=2|toDepth=2}
 
     Ehcache easily integrates with the {{{http://hibernate.org}Hibernate}}
     Object/Relational persistence and query service. Gavin King, the
@@ -16,50 +16,16 @@
 
     The net.sf.ehcache.hibernate package provides classes integrating Ehcache with Hibernate. 
 
-*   {Hibernate 3 3} SPI new_in_2
+*   {Download}
 
-    The Hibernate 3.2 caching SPI is deprecated from Hibernate 3.3 up. Ehcache 2.0 introduces
-     a new Hibernate 3.3 SPI implementation. The SPI changes further in Hibernate 3.5. The Ehcache
-     implementation is forward compatible with Hibernate 3.5 too.
+    The Hibernate provider is in the ehcache-core module. Download {{{http://sourceforge.net/projects/ehcache/files/ehcache-core}here}}.
 
-    The <<<EhCacheProvider>>> class, which implements the 3.2 API is provided for backward compatibility.
-    Anyone already using Ehcache with Hibernate will be using this version. We encourage you to upgrade
-    to the new class, <<<EhCacheRegionFactory>>> in preparation for when Hibernate drops support for
-    the old SPI. In recognition of this, we have marked <<<EhCacheProvider>>> as deprecated.
+    For a full distribution enabling connection to the Terracotta Server array download {{{http://sourceforge.net/projects/ehcache/files/ehcache}here}}.
 
-    The new cache region factory takes advantage of the new SPI to provide higher performance. The old
-    SPI had heavy synchronization to ensure all of the different caching providers were thread-safe.
-    The new SPI leaves that to the implementer. Ehcache does not require extra synchronization, so this
-    overhead is avoided.
 
-**  Unification with Terracotta's Hibernate 3.2 Provider
+*   Important Notice if Upgrading from Terracotta or Ehcache prior to 2.0
 
-    In September 2009 Terracotta released its Hibernate Caching Provider which was set as follows:
-
----
-<property name="hibernate.cache.provider_class">
-    org.terracotta.hibernate.TerracottaHibernateCacheProvider</property>
----
-
-   It features high performance clustered Hibernate caching using the Terracotta Server Array.
-
-   The new 3.3 EhCacheRegionFactory replaces that provider and the old Ehcache provider - it is a superset
-    of both and also implements the new SPI. The Hibernate provider required a Java agent.
-    That is not required in the new provider.
-
-    We recommend existing Terracotta Hibernate users upgrade to the Ehcache 2.0 provider.
-
-**  Additional Properties
-
-    <<<hibernate.cache.use_minimal_puts>>> - minimalPuts is the equivalent of putIfAbsent; an item is only put in the cache if it does
-    not exist. It is an optimisation for clustered caches. This is off by default but can be set to <<<true>>> in Hibernate's properties
-    when using Ehcache with the Terracotta Server Array (Ehcache EX and FX) for better performance.
-
-     
-    <<<net.sf.ehcache.hibernate.CacheLockTimeoutSeconds>>> - when Hibernate is controlling transactions and a cache is configured for
-    read/write access, Hibernate will "soft lock" the cache entries during the database writes. There is a timeout on these locks that is
-    set by default to 60 seconds.  If the lock times out before the write completes, then the cache entry will be evicted causing Hibernate
-     to reload it when required. If you get lock timeout exceptions consider increasing the lock tieout with this property.
+    Users of Ehcache and/or Terracotta Ehcache for Hibernate prior to Ehcache 2.0 should read {{{./hibernate-upgrade.html}Upgrade Notes for Ehcache versions prior to 2.0}}.
 
 *   {Quick Start}
 
@@ -67,16 +33,13 @@
 
       * Ensure Ehcache is enabled in the Hibernate configuration.
 
-      * Add the cache element to the Hibernate mapping file for each Entity Object you wish to cache.
+      * Configure Hibernate caching for each entity object you wish to cache.
 
-      * Add the cache element to the Hibernate mapping file for each Domain Object collection you wish to cache.
+      * Configure Hibernate caching for each entity collection you wish to cache.
 
-      * Add the cache element to the Hibernate mapping file for each
-        Hibernate query you wish to cache.
+      * Configure Hibernate caching for for each Hibernate query you wish to cache.
 
-      * Create a cache element in ehcache.xml for each of the above.
-
-    Each of these steps is illustrated using a fictional Country Domain Object.
+      * Create a cache element in ehcache.xml for each entity, collection, or query configured for caching  above.
 
     For more about cache configuration in Hibernate see the {{{http://www.hibernate.org/hib_docs/reference/en/html_single/}Hibernate}}
     documentation. Parts of this chapter are drawn from Hibernate documentation and source code comments.
@@ -85,13 +48,11 @@
 
 * {Setting Ehcache as the Hibernate Second Level Cache}
 
-** Using one of the two Ehcache providers from the Ehcache project
+    To configure Ehcache as a Hibernate second level cache, set the region factory property (for Hibernate 3.3 and above) or the factory class property (Hibernate 3.2 and below) to one of the following in the Hibernate configuration.
 
-    To ensure Ehcache is enabled, verify that the Hibernate cache provider or region factory property
-    is set to one of the following in the Hibernate configuration file, either hibernate.cfg.xml
-    or hibernate.properties. The format given is for hibernate.cfg.xml.
+    Hibernate configuration is configured either via hibernate.cfg.xml, hibernate.properties or Spring.  The format given is for hibernate.cfg.xml.
 
-*** Hibernate 3.3 and higher
+** Hibernate 3.3 and higher
 
    Use:
 
@@ -111,7 +72,7 @@
 
        to force Hibernate to use a singleton of Ehcache CacheManager.
 
-*** Hibernate 3.0 - 3.2
+** Hibernate 3.0 - 3.2
 
    Use:
 
@@ -162,9 +123,9 @@ net.sf.ehcache.configurationResourceName=/name_of_ehcache.xml
     Configuration.setProperty("hibernate.cache.region.factory_class", "net.sf.ehcache.hibernate.EhCacheRegionFactory").
 ---
 
-* {Mapping Files}
+* {Configuring Hibernate for Caching}
 
-    In Hibernate, each domain object requires a mapping file.
+    In addition to configuring the Hibernate second level cache provider, Hibernate must also be told to enable caching for entities, collections, and queries.
 
     For example to enable cache entries for
     the domain object com.somecompany.someproject.domain.Country there
@@ -181,6 +142,7 @@ net.sf.ehcache.configurationResourceName=/name_of_ehcache.xml
     dynamic-insert="false"
 >
 ...
+</class>
 </hibernate-mapping>
 
 --------------------------------------------
@@ -198,33 +160,49 @@ net.sf.ehcache.configurationResourceName=/name_of_ehcache.xml
 
 --------------------------------------------
 
-<cache usage="read-write" />
+<hibernate-mapping>
 
+<class
+    name="com.somecompany.someproject.domain.Country"
+    table="ut_Countries"
+    dynamic-update="false"
+    dynamic-insert="false"
+>
+  <cache usage="read-write" />
+...
+</class>
+</hibernate-mapping>
 --------------------------------------------
 
-** read-write
+    This can also be achieved using the @Cache annotation, e.g.
 
-    Caches data that is sometimes updated while maintaining the semantics
-    of "read committed" isolation level. If the database is set to
-    "repeatable read", this concurrency strategy almost maintains the
-    semantics. Repeatable read isolation is compromised in the case
-    of concurrent writes.
+--------------------------------------------
+@Entity
+@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
+public class Country { ... }
+--------------------------------------------
 
-    This is an "asynchronous" concurrency strategy.
+** Definition of the different cache strategies
 
-** nonstrict-read-write
+*** read-only
+
+    Caches data that is never updated.
+
+*** nonstrict-read-write
 
     Caches data that is sometimes updated without ever locking the
     cache. If concurrent access to an item is possible, this
     concurrency strategy makes no guarantee that the item returned
     from the cache is the latest version available in the database.
     Configure your cache timeout accordingly!
-    This is an "asynchronous" concurrency strategy.
 
-** read-only
+*** read-write
 
-    Caches data that is never updated.
-
+    Caches data that is sometimes updated while maintaining the semantics
+    of "read committed" isolation level. If the database is set to
+    "repeatable read", this concurrency strategy almost maintains the
+    semantics. Repeatable read isolation is compromised in the case
+    of concurrent writes.
 
 * Configuring {ehcache.xml}
 
@@ -544,7 +522,7 @@ public List getStreetTypes(final Country country) throws HibernateException {
     database workload goes up. The solution is to turn on {{{/documentation/distributed_caching.html}distributed caching}}.
 
     Ehcache comes with replicated caching via RMI, JGroups or JMS. These replicate without locking and are suitable
-     for databas offload. Generally <<<session.refresh()>>> should be used to check the cache against the database
+     for database offload. Generally <<<session.refresh()>>> should be used to check the cache against the database
      before performing a write that must be correct. Secondly, as each node stores all data, the cache size is limited
      to a comfortable storage size. Memory size is usually limited by garbage collection. Disk can also be used, but
      the graphs are serialized which adds overhead and results in duplication in the deserialized object graphs.
@@ -563,10 +541,4 @@ public List getStreetTypes(final Country country) throws HibernateException {
      can thus be determined during performance testing or based on production experience. Finally a new application
      can scale as it's use grows without expensive re-architecting.
 
-
-*   {Download}
-
-    The Hibernate provider is in the ehcache-core module. Download {{{http://sourceforge.net/projects/ehcache/files/ehcache-core}here}}.
-
-    For a full distribution enabling connection to the Terracotta Server array download {{{http://sourceforge.net/projects/ehcache/files/ehcache}here}}.
 
