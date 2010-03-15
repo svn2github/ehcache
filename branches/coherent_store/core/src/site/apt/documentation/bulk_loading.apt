@@ -4,7 +4,7 @@
 
 {Bulk Loading}
 
-    {{{#API}API}} | {{{#Speed_Improvements}Speed Improvements}} | {{{#ehcache.xml}ehcache.xml}}| {{{#FAQ}FAQ}} | {{{#Performance_Tips}Performance Tips}} | {{{#Download}Download}} | {{{#Further_Information}Further Information}}
+%{toc|fromDepth=2|toDepth=2}
 
     new_in_2 Ehcache has a bulk loading mode that dramatically speeds up bulk loading into caches using
     the Terracotta Server Array.

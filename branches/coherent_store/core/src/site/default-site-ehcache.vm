@@ -144,7 +144,7 @@
 
     <li class="parent" >
 	<a href=# class="parent" style="padding:0px;">
-        <h5><img src="http://ehcache.org/images/arrow_open.png" width="13" height="13" hspace="6"
+        <h5><img class="icon" src="http://ehcache.org/images/arrow_closed.png" width="13" height="13" hspace="6"
                  alt="arrow">
             $menu.name</h5></a>
         #end
@@ -333,7 +333,8 @@
 
 ## Start of HTML
 
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
 <html xmlns="http://www.w3.org/1999/xhtml">
 
@@ -341,6 +342,7 @@
     <title>$title</title>
 
     <style type="text/css" media="all">
+
         @import url("$relativePath/css/siteNew.css");
 
 
@@ -348,6 +350,10 @@
         ##        @import url("$relativePath/css/maven-theme.css");
 ##        @import url("$relativePath/css/site.css");
     </style>
+
+    <!--[if IE 6]>
+         <link rel="stylesheet" type="text/css" href="$relativePath/css/siteNew-IE6.css" />
+    <![endif]-->
 
     <script language="JavaScript" src="$relativePath/js/jquery.js"></script>
     <script language="JavaScript" src="$relativePath/js/navinit.js"></script>
@@ -441,6 +447,8 @@
         <div id="rightColumn">
             <h4>Quick Start</h4>
             <ul>
+                <li><a href="http://www.terracotta.org/dl/ehcache-oss-sign-up">Download</a>
+                    </li>
                 <li><a href="http://ehcache.org/documentation/getting_started.html">Getting
                     Started</a></li>
                 <li><a href="http://ehcache.org/documentation/samples.html">Code Samples</a>

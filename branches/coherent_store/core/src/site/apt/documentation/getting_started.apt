@@ -4,6 +4,8 @@
 
 Getting Started
 
+    Firstly, if you have not downloaded Ehcache, you can download it {{{http://www.terracotta.org/dl/ehcache-oss-sign-up}here}}. 
+
     Ehcache can be used directly. It can also be used with the popular Hibernate Object/Relational tool. Finally, it
     can be used for Java EE Servlet Caching.
 
@@ -27,7 +29,7 @@ Getting Started
 
 * Hibernate
 
-    * Perform the same steps as for {{{#General_Purpose_Caching}General Purpose Caching}}.
+    * Perform the same steps as for {{{General_Purpose_Caching}General Purpose Caching}}.
 
     * Create caches in ehcache.xml.
 
@@ -35,7 +37,7 @@ Getting Started
 
 * Java EE Servlet Caching
 
-    * Perform the same steps as for {{{#General_Purpose_Caching}General Purpose Caching}}.
+    * Perform the same steps as for {{{General_Purpose_Caching}General Purpose Caching}}.
 
     * Configure a cache for your web page in ehcache.xml.
 

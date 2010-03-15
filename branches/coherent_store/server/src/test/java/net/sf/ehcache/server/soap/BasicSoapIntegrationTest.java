@@ -16,9 +16,10 @@
 
 package net.sf.ehcache.server.soap;
 
-import net.sf.ehcache.server.HttpUtil;
+import net.sf.ehcache.server.util.HttpUtil;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+
 import org.junit.Test;
 import org.xml.sax.SAXException;
 

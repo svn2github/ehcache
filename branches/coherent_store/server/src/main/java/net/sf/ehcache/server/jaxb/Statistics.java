@@ -170,7 +170,7 @@ public class Statistics {
     }
 
     /**
-     * The average get time. Because ehcache support JDK1.4.2, each get time uses
+     * @return The average get time. Because ehcache support JDK1.4.2, each get time uses
      * System.currentTimeMilis, rather than nanoseconds. The accuracy is thus limited.
      */
     public float getAverageGetTime() {
@@ -178,105 +178,140 @@ public class Statistics {
     }
 
     /**
-     * Gets the number of cache evictions, since the cache was created, or statistics were cleared.
+     * @return Gets the number of cache evictions, since the cache was created, or statistics were cleared.
      */
     public long getEvictionCount() {
         return evictionCount;
     }
 
     /**
-     * @param statisticsAccuracy
+     * @param statisticsAccuracy setter
      */
     public void setStatisticsAccuracy(StatisticsAccuracy statisticsAccuracy) {
         this.statisticsAccuracy = statisticsAccuracy;
     }
 
     /**
-     * @param cacheHits
+     * @param cacheHits setter
      */
     public void setCacheHits(long cacheHits) {
         this.cacheHits = cacheHits;
     }
 
     /**
-     * @param onDiskHits
+     * @param onDiskHits setter
      */
     public void setOnDiskHits(long onDiskHits) {
         this.onDiskHits = onDiskHits;
     }
 
     /**
-     * @param inMemoryHits
+     * @param inMemoryHits setter
      */
     public void setInMemoryHits(long inMemoryHits) {
         this.inMemoryHits = inMemoryHits;
     }
 
     /**
-     * @param misses
+     * @param misses setter
      */
     public void setMisses(long misses) {
         this.misses = misses;
     }
 
     /**
-     * @param averageGetTime
+     * @param averageGetTime setter
      */
     public void setAverageGetTime(float averageGetTime) {
         this.averageGetTime = averageGetTime;
     }
 
     /**
-     * @param evictionCount
+     * @param evictionCount setter
      */
     public void setEvictionCount(long evictionCount) {
         this.evictionCount = evictionCount;
     }
 
     /**
-     * @return
+     * Gets the number of elements stored in the cache. Caclulating this can be expensive. Accordingly,
+     * this method will return three different values, depending on the statistics accuracy setting.
+     * <h3>Best Effort Size</h3>
+     * This result is returned when the statistics accuracy setting is {@link net.sf.ehcache.Statistics#STATISTICS_ACCURACY_BEST_EFFORT}.
+     * <p/>
+     * The size is the number of {@link net.sf.ehcache.Element}s in the {@link net.sf.ehcache.store.MemoryStore} plus
+     * the number of {@link net.sf.ehcache.Element}s in the {@link net.sf.ehcache.store.DiskStore}.
+     * <p/>
+     * This number is the actual number of elements, including expired elements that have
+     * not been removed. Any duplicates between stores are accounted for.
+     * <p/>
+     * Expired elements are removed from the the memory store when
+     * getting an expired element, or when attempting to spool an expired element to
+     * disk.
+     * <p/>
+     * Expired elements are removed from the disk store when getting an expired element,
+     * or when the expiry thread runs, which is once every five minutes.
+     * <p/>
+     * <h3>Guaranteed Accuracy Size</h3>
+     * This result is returned when the statistics accuracy setting is {@link net.sf.ehcache.Statistics#STATISTICS_ACCURACY_GUARANTEED}.
+     * <p/>
+     * This method accounts for elements which might be expired or duplicated between stores. It take approximately
+     * 200ms per 1000 elements to execute.
+     * <h3>Fast but non-accurate Size</h3>
+     * This result is returned when the statistics accuracy setting is {@link net.sf.ehcache.Statistics#STATISTICS_ACCURACY_NONE}.
+     * <p/>
+     * The number given may contain expired elements. In addition if the DiskStore is used it may contain some double
+     * counting of elements. It takes 6ms for 1000 elements to execute. Time to execute is O(log n). 50,000 elements take
+     * 36ms.
+     *
+     * @return the number of elements in the ehcache, with a varying degree of accuracy, depending on accuracy setting.
      */
     public long getSize() {
         return size;
     }
 
     /**
-     * @return
+     * Warning. This statistic is recorded as a long. If the statistic is large than Integer#MAX_VALUE
+     * precision will be lost.
+     *
+     * @return the number of times a requested element was not found in the cache
      */
     public long getMisses() {
         return misses;
     }
 
     /**
-     * @param size
+     * @param size setter
      */
     public void setSize(long size) {
         this.size = size;
     }
 
     /**
-     * @return
+     * Gets the number of objects in the MemoryStore
+     * @return the MemoryStore size which is always a count unadjusted for duplicates or expiries
      */
     public long getMemoryStoreSize() {
         return memoryStoreSize;
     }
 
     /**
-     * @param memoryStoreSize
+     * @param memoryStoreSize setter
      */
     public void setMemoryStoreSize(long memoryStoreSize) {
         this.memoryStoreSize = memoryStoreSize;
     }
 
     /**
-     * @return
+     * Gets the number of objects in the DiskStore
+     * @return the DiskStore size which is always a count unadjusted for duplicates or expiries
      */
     public long getDiskStoreSize() {
         return diskStoreSize;
     }
 
     /**
-     * @param diskStoreSize
+     * @param diskStoreSize setter
      */
     public void setDiskStoreSize(long diskStoreSize) {
         this.diskStoreSize = diskStoreSize;

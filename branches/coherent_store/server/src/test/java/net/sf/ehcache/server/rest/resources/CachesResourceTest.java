@@ -16,7 +16,7 @@
 
 package net.sf.ehcache.server.rest.resources;
 
-import net.sf.ehcache.server.HttpUtil;
+import net.sf.ehcache.server.util.HttpUtil;
 import net.sf.ehcache.server.jaxb.Caches;
 import net.sf.ehcache.server.jaxb.JAXBContextResolver;
 import net.sf.ehcache.server.soap.jaxws.CacheException_Exception;

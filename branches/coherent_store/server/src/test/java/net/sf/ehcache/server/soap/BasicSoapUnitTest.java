@@ -16,7 +16,7 @@
 
 package net.sf.ehcache.server.soap;
 
-import net.sf.ehcache.server.HttpUtil;
+import net.sf.ehcache.server.util.HttpUtil;
 import net.sf.ehcache.server.soap.jaxws.EhcacheWebServiceEndpointService;
 import org.junit.AfterClass;
 import static org.junit.Assert.assertEquals;

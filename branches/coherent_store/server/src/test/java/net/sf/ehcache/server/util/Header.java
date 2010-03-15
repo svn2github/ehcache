@@ -14,7 +14,7 @@
  *  limitations under the License.
  */
 
-package net.sf.ehcache.server;
+package net.sf.ehcache.server.util;
 
 /**
  * Representation of a header
