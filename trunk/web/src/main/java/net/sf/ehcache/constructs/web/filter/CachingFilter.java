@@ -348,7 +348,7 @@ public abstract class CachingFilter extends Filter {
 
         for (Iterator iterator = headers.iterator(); iterator.hasNext();) {
             final String[] headerPair = (String[]) iterator.next();
-            response.setHeader(headerPair[header], headerPair[value]);
+            response.addHeader(headerPair[header], headerPair[value]);
         }
     }
 

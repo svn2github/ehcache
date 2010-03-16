@@ -184,7 +184,6 @@ public class GenericResponseWrapper extends HttpServletResponseWrapper implement
     public void addHeader(final String name, final String value) {
         final String[] header = new String[]{name, value};
         headers.add(header);
-        super.addHeader(name, value);
 
         Integer count = (Integer) headerTracker.get(name.toLowerCase());
         if (count == null) {
@@ -200,8 +199,6 @@ public class GenericResponseWrapper extends HttpServletResponseWrapper implement
      * it existed.
      */
     public void setHeader(final String name, final String value) {
-        super.setHeader(name, value);
-
         Integer count = (Integer) headerTracker.get(name);
         if (count != null && count.intValue() > 0) {
             for (int i = headers.size() - 1; i >= 0; i--) {
@@ -219,7 +216,9 @@ public class GenericResponseWrapper extends HttpServletResponseWrapper implement
                 }
             }
         } else {
-            headerTracker.put(name.toLowerCase(), value);
+            final String[] header = new String[]{name, value};
+            headers.add(header);
+            headerTracker.put(name.toLowerCase(), new Integer(1));
         }
     }
 
