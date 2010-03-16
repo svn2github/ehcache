@@ -60,6 +60,8 @@ Ehcache Distributed Cache
 
 * Latest News
 
+ news_ticker
+
 ** 8 March 2010: Ehcache 2.0 released
 
   Ehcache 2.0 provides a new {{{documentation/hibernate.html}Hibernate 3.3 SPI caching plugin}}, {{{documentation/jta.html}JTA}},

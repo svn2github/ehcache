@@ -292,7 +292,7 @@ pageTracker._trackPageview();
         </replace>
         <replace dir="${build.dir}/site">
             <replacetoken><![CDATA[terracotta_community_login]]></replacetoken>
-            <replacevalue><![CDATA[<img src="images/terracotta_community_login.gif" alt="Terracotta Community Login Required">]]></replacevalue>
+            <replacevalue><![CDATA[<a href="http://www.terracotta.org/account/login"><img src="images/terracotta_community_login.gif" alt="Terracotta Community Login Required"></a>]]></replacevalue>
         </replace>
         <replace dir="${build.dir}/site">
             <replacetoken><![CDATA[_new_]]></replacetoken>

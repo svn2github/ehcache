@@ -299,10 +299,10 @@ int hits = cache.getMissCountExpired();
 	</cache>
 --------------------------------------------
 
-Please note that XA Transactional caches are currently only supported when clustered with Terracotta.
+    Please note that XA Transactional caches are currently only supported when clustered with Terracotta.
 
-The Cache can then be used without any special requirement. Changes will only become visible to others, once the transaction
-has been commited.
+    The Cache can then be used without any special requirement. Changes will only become visible to others, once the transaction
+    has been commited.
 
 --------------------------------------------
     Ehcache cache = cacheManager.getEhcache("xaCache");

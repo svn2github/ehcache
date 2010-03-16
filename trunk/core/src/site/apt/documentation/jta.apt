@@ -42,7 +42,7 @@
 
     You can also provide a different location for the JNDI lookup by providing the jndiName property to the DefaultTransactionManagerLookup.
 
-    For example, this is how to configure the proper location for the TransactionManager in GlassFish v3:
+    The example below provides the proper location for the TransactionManager in GlassFish v3:
 
 ---
 <transactionManagerLookup
@@ -101,47 +101,48 @@
 
 **  Write-behind and Write-through
 
-    If your XA-enabled cache is being used with a <<<CacheWriter>>>, write operations will be queued until <<<COMMIT>>> has been called.
+    If your XA enabled cache is being used with a writer, write operations will be queued until transaction commit time. Solely
+    a Write-through approach would have its potential XAResource participate in the same transaction. Write-behind, while supported,
+    should probably not be used with an XA transactional Cache, as the operations would never be part of the same transaction. Your writer
+    would also be responsible for obtaining a new transaction...
 
-    Write-behind, while supported, does not participate in the transaction. The write to the underlying resource happens after the transaction
-    has been committed. THe commit is to the cache.
+    Using Write-through with a non XA resource would also work, but there is no guarantee the transaction will succeed after the write
+    operation have been executed successfully. On the other hand, any thrown exception during these write operations would cause the
+    transaction to be rolled back by having UserTransaction.commit() throw a RollbackException.
 
 *   Architecture
 
-    Transactional support is implemented at the <<<Store>>> level, through <<<XaTransactionalStore>>>. The store actually decorates the underlying
-    <<<MemoryStore>>> implementation, augmenting it with transaction, isolation and two-phase commit support.
+**  Bootstrapping
 
-**  Initialization
+    Transactional support is implemented at the Store level, through XaTransactionalStore. The store actually decorates the underlying
+    MemoryStore implementation, augmenting it with transaction isolation and two-phase commit support.
 
-    During it's initialization, the XA Cache will look up the <<<TransactionManager>>> using the provided TransactionManagerLookup implementation.
-
-    Using the <<<TransactionManagerLookup.register(XAResouce): void>>> callback, the newly created XAResource is then registered
+    During it's initialization, the Cache will lookup the TransactionManager using the provided TransactionManagerLookup implementation.
+    Using the <<<TransactionManagerLookup.register(XAResouce): void>>> callback, the newly created XAResource is potentially registered
     with the TransactionManager.
 
     That same TransactionManager will from there on be used by the Cache to access the current transaction on all transactional method
     calls.
 
-    The store is then configured to copy every Element read from or written to it. This feature is called copy-on-read and
-    copy-on-write. This is the mechanism for keeping uncommitted changes invisible.
+    The store is automatically configured to copy every Element read from the cache or written to it. Cache is copy-on-read and
+    copy-on-write.
 
-**  Cache Operatins against a Transactional Cache
+**  A day in the life of a transactional Cache
 
-    Every read from the Cache, or remove() without a previous get(), will have the transactional cache track versioning information for these
-    cache values. This version information will be checked at commit time, to make sure we're still mutating the same information.
+    Every read from the Cache, or remove() without a previous get(), will have the transactional track versioning information for these
+    cache values. This version information will be checked against at commit time, to make sure we're still mutating the same information.
 
-    Write operations to the cache (puts and removes) are not effectively executed against the underlying memory store. Rather a local
+    Write operation to the cache (puts and removes) are not effectively executed against the underlying memory store. Rather a local
     transaction context is being altered. It queues all commands to be executed against the Store at commit time. This context
-    also alters the behavior of cache accesses: e.g. within the same transaction a put and then a get call will reflect that previous
-    put, while other transactions would not be impacted. This gives read_commited isolation.
+    also alters the behavior of cache accesses: e.g. within the same transaction a put and then a getSize call will reflect that previous
+    put, while other transaction would not be impacted. This gives read_commited isolation.
 
-    During the two-phase commit, the context is first prepared: this is where all keys to be altered are checked for consistency against
-    the optimistic locking mechanism. If a key to be updated or removed has since been changed by a commited transaction, the transaction will
-    be rolled back.
-
-    If validation succeeds, then, for each key a write-lock is acquired, the version is checked and the previous Element value is copied to a
-    temporary "guarding" store. That store is always queried before the real underlying memory store is. That way, while write-locked, old
-    values that are about to be updated can still be read, non blocking, from the "oldVersionStore". If all keys could be validated and write locked the prepare
-    operation as finished successfully and the cache votes <<<OK>>> on commit.
+    During the two phase commit, the context is first prepared: where all keys to be altered are checked for consistency against the
+    optimistic locking mechanism. If a key to be updated or removed has since been changed by a commited transaction, the transaction will
+    be rolled back. For each key a write lock is acquired, version checked and the old value is copied to a temporary "guarding" store. That
+    store is always queried before the real underlying memory store is. That way, while write locked, old values that are about to be
+    updated can still be read, non blocking, from the "oldVersionStore". If all keys could be validated and write locked the prepare
+    operation as finished successfully and Ehcache votes OK on commit.
 
     If all other XAResource eventually vote <<<OK>>>, the transaction is committed: the old value(s) are removed and write-locks are released.
     If not, the old values are copied back to the store and the lock released.

@@ -1,8 +1,8 @@
  ---
- Hibernate Integration
+ Hibernate Second Level Cache
  ---
 
-{Configuring Ehcache for Hibernate}
+{Hibernate Second Level Cache}
 
 %{toc|fromDepth=2|toDepth=2}
 
@@ -25,7 +25,7 @@
 
 *   Important Notice if Upgrading from Terracotta or Ehcache prior to 2.0
 
-    Users of Ehcache and/or Terracotta Ehcache for Hibernate prior to Ehcache 2.0 should read {{{./hibernate-upgrade.html}Upgrade Notes for Ehcache versions prior to 2.0}}.
+    new_in_2 Users of Ehcache and/or Terracotta Ehcache for Hibernate prior to Ehcache 2.0 should read {{{./hibernate-upgrade.html}Upgrade Notes for Ehcache versions prior to 2.0}}.
 
 *   {Quick Start}
 
@@ -398,14 +398,14 @@ public List getStreetTypes(final Country country) throws HibernateException {
 
 **  Hibernate Tutorial
 
-    Check out from {{https://svn.terracotta.org/repo/forge/projects/hibernate-tutorial-web/trunk}} (Terracotta Community Login Required)
+    Check out from {{https://svn.terracotta.org/repo/forge/projects/hibernate-tutorial-web/trunk}} terracotta_community_login
 
 ** Examinator
 
     Examinator is our complete application that shows many aspects of caching, all using the
      Terracotta Server Array.
 
-    Check out from {{https://svn.terracotta.org/svn/forge/projects/exam/}} (Terracotta Community Login Required)
+    Check out from {{https://svn.terracotta.org/svn/forge/projects/exam/}} terracotta_community_login
 
 
 *   {FAQ}
