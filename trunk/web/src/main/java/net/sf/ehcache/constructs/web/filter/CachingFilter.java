@@ -184,12 +184,6 @@ public abstract class CachingFilter extends Filter {
         logRequestHeaders(request);
         PageInfo pageInfo = buildPageInfo(request, response, chain);
 
-        //return on error or redirect code
-        int statusCode = pageInfo.getStatusCode();
-        if (statusCode != HttpServletResponse.SC_OK) {
-            return;
-        }
-
         if (response.isCommitted()) {
             throw new AlreadyCommittedException("Response already committed after doing buildPage"
                     + "but before writing response from PageInfo.");
