@@ -101,6 +101,9 @@ public abstract class CachingFilter extends Filter {
                 setCacheNameIfAnyConfigured(filterConfig);
                 final String localCacheName = getCacheName();
                 Ehcache cache = getCacheManager().getEhcache(localCacheName);
+                if (cache == null) {
+                    throw new CacheException("cache '" + localCacheName + "' not found in configuration");
+                }
                 if (!(cache instanceof BlockingCache)) {
                     //decorate and substitute
                     BlockingCache newBlockingCache = new BlockingCache(cache);
