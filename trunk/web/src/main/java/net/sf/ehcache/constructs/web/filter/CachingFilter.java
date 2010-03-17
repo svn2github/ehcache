@@ -415,20 +415,22 @@ public abstract class CachingFilter extends Filter {
                                 final HttpServletResponse response, final PageInfo pageInfo)
             throws IOException, ResponseHeadersNotModifiableException {
         byte[] body;
-        if (acceptsGzipEncoding(request)) {
-            ResponseUtil.addGzipHeader(response);
-            body = pageInfo.getGzippedBody();
-            if (ResponseUtil.shouldGzippedBodyBeZero(body, request)) {
-                body = new byte[0];
-            }
-        } else {
-            body = pageInfo.getUngzippedBody();
-        }
 
         boolean shouldBodyBeZero = ResponseUtil.shouldBodyBeZero(request, pageInfo.getStatusCode());
         if (shouldBodyBeZero) {
             body = new byte[0];
+        } else if (acceptsGzipEncoding(request)) {
+            body = pageInfo.getGzippedBody();
+            if (ResponseUtil.shouldGzippedBodyBeZero(body, request)) {
+                body = new byte[0];
+            } else {
+                ResponseUtil.addGzipHeader(response);
+            }
+                
+        } else {
+            body = pageInfo.getUngzippedBody();
         }
+
 
         response.setContentLength(body.length);
         OutputStream out = new BufferedOutputStream(response.getOutputStream());
