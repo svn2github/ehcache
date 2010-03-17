@@ -244,7 +244,7 @@ public class RegisteredEventListeners {
         while (it.hasNext()) {
             ListenerWrapper listenerWrapper = it.next();
             if (listenerWrapper.getListener().equals(cacheEventListener)) {
-                it.remove();
+                cacheEventListeners.remove(listenerWrapper);
                 return true;
             }
         }
