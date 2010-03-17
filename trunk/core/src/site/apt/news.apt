@@ -9,7 +9,7 @@ News
 
 * 3 February 2010: Project Darwin beta released
 
-  This is a beta release of project Darwing a.k.a Ehcache 2.0.
+  This is a beta release of project Darwin a.k.a Ehcache 2.0.
 
   Ehcache 2.0 provides a new {{{documentation/hibernate.html}Hibernate 3.3 SPI caching plugin}}, {{{documentation/jta.html}JTA}},
   {{{documentation/write_through_caching.html}Write-Behind}}, a new ultra-fast {{{documentation/bulk_loading.html}Bulk Loading API}} for clustered caches.
