@@ -322,15 +322,18 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
 
         ehcacheXAStore.removeData(xid);
 
+        fireAfterCommitOrRollback();
+    }
+
+    private void fireAfterCommitOrRollback() {
         for (TwoPcExecutionListener twoPcExecutionListener : twoPcExecutionListeners) {
             try {
                 twoPcExecutionListener.afterCommitOrRollback(this);
             } catch (RuntimeException ex) {
-                LOG.warn("exception thrown after commit in TwoPcExecutionListener " + twoPcExecutionListener, ex);
+                LOG.warn("exception thrown after commit or rollback in TwoPcExecutionListener " + twoPcExecutionListener, ex);
             }
         }
     }
-
 
 
     /**
@@ -390,13 +393,7 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
         }
         ehcacheXAStore.removeData(xid);
 
-        for (TwoPcExecutionListener twoPcExecutionListener : twoPcExecutionListeners) {
-            try {
-                twoPcExecutionListener.afterCommitOrRollback(this);
-            } catch (RuntimeException ex) {
-                LOG.warn("exception thrown after rollback in TwoPcExecutionListener " + twoPcExecutionListener, ex);
-            }
-        }
+        fireAfterCommitOrRollback();
     }
 
     /**
