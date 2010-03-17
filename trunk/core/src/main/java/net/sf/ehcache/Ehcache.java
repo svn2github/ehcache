@@ -108,8 +108,8 @@ public interface Ehcache extends Cloneable {
             CacheException;
 
     /**
-     * Put an element in the cache writing through a CacheWriter. If no CacheWriter has been set for the cache,
-     * then this method has the same effect as cache.put().
+     * Put an element in the cache writing through a CacheWriter. If no CacheWriter has been registered for the cache,
+     * then this method throws an exception.
      * <p/>
      * Resets the access statistics on the element, which would be the case if it has previously been
      * gotten from a cache, and is now being put back.
@@ -124,7 +124,7 @@ public interface Ehcache extends Cloneable {
      * @param element An object. If Serializable it can fully participate in replication and the DiskStore.
      * @throws IllegalStateException    if the cache is not {@link net.sf.ehcache.Status#STATUS_ALIVE}
      * @throws IllegalArgumentException if the element is null
-     * @throws CacheException
+     * @throws CacheException           if no CacheWriter was registered
      */
     void putWithWriter(Element element) throws IllegalArgumentException, IllegalStateException, CacheException;
 
@@ -318,7 +318,7 @@ public interface Ehcache extends Cloneable {
 
     /**
      * Removes an {@link net.sf.ehcache.Element} from the Cache and any stores it might be in. This also removes through
-     * to a CacheWriter. If no CacheWriter has been set for the cache, then this method has the same effect as cache.remove().
+     * to a CacheWriter. If no CacheWriter has been registered for the cache, then this method throws an exception.
      * <p/>
      * Also notifies the CacheEventListener after the element was removed, but only if an El ement
      * with the key actually existed.
@@ -326,6 +326,7 @@ public interface Ehcache extends Cloneable {
      * @param key
      * @return true if the element was removed, false if it was not found in the cache
      * @throws IllegalStateException if the cache is not {@link net.sf.ehcache.Status#STATUS_ALIVE}
+     * @throws CacheException if no CacheWriter was registered
      * @since 2.0
      */
     boolean removeWithWriter(Object key) throws IllegalStateException;
