@@ -627,25 +627,4 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
         }
     }
 
-    /**
-     * 
-     */
-    @Override
-    public String toString() {
-        //todo: do not display TX but rather XID
-        String txName = "!unknown transaction!";
-        try {
-            Transaction tx = txnManager.getTransaction();
-            if (tx != null) {
-                txName = tx.toString();
-            } else {
-                txName = "no transaction yet";
-            }
-        } catch (SystemException ex) {
-            // ignore
-        }
-        return "EhcacheXAResourceImpl [ " + getCacheName() + " ] bound to " + txName;
-    }
-    
-    
 }
