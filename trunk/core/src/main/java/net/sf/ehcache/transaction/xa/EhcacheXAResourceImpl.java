@@ -389,7 +389,7 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
 //                }
             }
         } else if (context != null && context.isCommitted()) {
-            throw new EhcacheXAException("Transaction " + xid + " has been heuristically committed", XAException.XA_HEURRB);
+            throw new EhcacheXAException("Transaction " + xid + " has been heuristically committed", XAException.XA_HEURCOM);
         }
         ehcacheXAStore.removeData(xid);
 
