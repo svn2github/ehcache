@@ -21,8 +21,17 @@ import javax.xml.parsers.ParserConfigurationException;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 import static org.junit.Assert.assertEquals;
 
@@ -121,7 +130,7 @@ public class SpeedTest extends AbstractWebTest {
             response.getText().indexOf("timestamp");
         }
         long time = stopWatch.getElapsedTime();
-        LOG.info("Time for 1000 cache requests: " + time + ". Latency " + 1000f / time + "ms");
+        LOG.debug("Time for 1000 cache requests: " + time + ". Latency " + 1000f / time + "ms");
 
     }
 
@@ -139,6 +148,108 @@ public class SpeedTest extends AbstractWebTest {
             executables.add(executable);
         }
         runThreads(executables);
+    }
+
+
+    /**
+     * Memcached 1.2.1 with memcache Java lib 1.5.1
+     * 10000 sets: 3396ms
+     * 10000 gets: 3551ms
+     * 10000 getMulti: 2132ms
+     * 10000 deletes: 2065ms
+     *
+     * Ehcache 0.9 with Ehcache 2.0.0
+     * 10000 puts: 3717ms (single threaded put)
+     * 10000 puts: 2691ms (single threaded put after Web Container warm up)
+     * 10000 gets: 31600ms (single threaded get)
+     * 10000 gets: 17398ms (single threaded get)
+     */
+//    @Test
+    public void testMemCachedBench() throws Exception {
+
+        //warm up Java Web Container, which Memcached does not need
+//        testConcurrentRequests();
+
+
+        int cacheOperations = 10000;
+        String cacheUrl = "http://localhost:9090/ehcache/rest/sampleCache1";
+        String mediaType = "text/plain";
+        String keyBase = "testKey";
+        String object = "This is a test of an object blah blah es, serialization does not seem to slow things down so much.  The gzip compression is horrible horrible performance, so we only use it for very large objects.  I have not done any heavy benchmarking recently";
+        byte[] objectAsBytes = object.getBytes();
+
+
+//        ExecutorService executor = Executors.newFixedThreadPool(300);
+//
+//        final AbstractWebTest.Executable executable = new AbstractWebTest.Executable() {
+//            public void execute() throws Exception {
+//                HttpURLConnection urlConnection = HttpUtil.get("http://localhost:9090/ehcache/rest/sampleCache2/1");
+//                if (urlConnection.getResponseCode() != 200) {
+//                    LOG.info("Error on response: " + urlConnection.getResponseCode());
+//                }
+//            }
+//        };
+
+        StopWatch stopWatch = new StopWatch();
+        for (int i = 0; i < cacheOperations; i++) {
+            String keyUrl = new StringBuffer(cacheUrl).append('/').append(keyBase).append(i).toString();
+            assertEquals(201, HttpUtil.put(keyUrl, mediaType, new ByteArrayInputStream(objectAsBytes)));
+        }
+        LOG.info(cacheOperations + " puts: " + stopWatch.getElapsedTime() + "ms");
+
+
+        stopWatch = new StopWatch();
+
+        for (int i = 0; i < cacheOperations; i++) {
+            String keyUrl = new StringBuffer(cacheUrl).append('/').append(keyBase).append(i).toString();
+
+            URL u = new URL(keyUrl);
+            HttpURLConnection urlConnection = (HttpURLConnection) u.openConnection();
+            urlConnection.setUseCaches(true);
+            urlConnection.setRequestMethod("GET");
+            int status = urlConnection.getResponseCode();
+
+            assertEquals(200, HttpUtil.get(keyUrl).getResponseCode());
+        }
+        LOG.info(cacheOperations + " gets: " + stopWatch.getElapsedTime() + "ms");
+
+
+//
+//        long begin = System.currentTimeMillis();
+//        for (int i = start; i < start + runs; i++) {
+//            mc.set(keyBase + i, object);
+//        }
+//        long end = System.currentTimeMillis();
+//        long time = end - begin;
+//        System.out.println(runs + " sets: " + time + "ms");
+//
+//        begin = System.currentTimeMillis();
+//        for (int i = start; i < start + runs; i++) {
+//            String str = (String) mc.get(keyBase + i);
+//        }
+//        end = System.currentTimeMillis();
+//        time = end - begin;
+//        System.out.println(runs + " gets: " + time + "ms");
+//
+//        String[] keys = new String[runs];
+//        int j = 0;
+//        for (int i = start; i < start + runs; i++) {
+//            keys[j] = keyBase + i;
+//            j++;
+//        }
+//        begin = System.currentTimeMillis();
+//        Map vals = mc.getMulti(keys);
+//        end = System.currentTimeMillis();
+//        time = end - begin;
+//        System.out.println(runs + " getMulti: " + time + "ms");
+//
+//        begin = System.currentTimeMillis();
+//        for (int i = start; i < start + runs; i++) {
+//            mc.delete(keyBase + i);
+//        }
+//        end = System.currentTimeMillis();
+//        time = end - begin;
+//        System.out.println(runs + " deletes: " + time + "ms");
     }
 
 
