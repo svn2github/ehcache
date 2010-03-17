@@ -83,12 +83,22 @@ public class DefaultTransactionManagerLookup implements TransactionManagerLookup
     }
 
     /**
-     * execute txnManager specific code.
+     * {@inheritDoc}
      */
     public void register(EhcacheXAResource resource) {
         if (vendor.equals("Bitronix")) {
             registerResourceWithBitronix(resource.getCacheName(), resource);
         }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void unregister(EhcacheXAResource resource) {
+        //todo: unregister
+        //if (vendor.equals("Bitronix")) {
+        //    ...
+        //}
     }
 
     /**

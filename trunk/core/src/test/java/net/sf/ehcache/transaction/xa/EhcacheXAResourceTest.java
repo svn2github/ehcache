@@ -119,7 +119,7 @@ public class EhcacheXAResourceTest extends TestCase {
 
         TransactionContext context = null;
         try {
-            context = resource.getOrCreateTransactionContext();
+            context = resource.createTransactionContext();
         } catch (SystemException e) {
             fail("Shoudn't throw an exception..");
         } catch (RollbackException e) {

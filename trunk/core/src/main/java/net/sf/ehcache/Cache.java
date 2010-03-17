@@ -43,7 +43,8 @@ import net.sf.ehcache.store.Policy;
 import net.sf.ehcache.store.Store;
 import net.sf.ehcache.store.XATransactionalStore;
 import net.sf.ehcache.transaction.manager.TransactionManagerLookup;
-import net.sf.ehcache.transaction.xa.EhcacheXAResource;
+import net.sf.ehcache.transaction.xa.EhcacheXAResourceImpl;
+import net.sf.ehcache.transaction.xa.EhcacheXAStore;
 import net.sf.ehcache.util.ClassLoaderUtil;
 import net.sf.ehcache.util.NamedThreadFactory;
 import net.sf.ehcache.util.PropertyUtil;
@@ -971,9 +972,14 @@ public class Cache implements Ehcache {
                 //set copy on read
                 configuration.getTerracottaConfiguration().setCopyOnRead(true);
 
-                EhcacheXAResource resource = cacheManager.createEhcacheXAResource(this, memStore , txnManager);
-                transactionManagerLookup.register(resource);
-                this.memoryStore = new XATransactionalStore(resource);
+                EhcacheXAStore ehcacheXAStore = cacheManager.createEhcacheXAStore(this, memStore);
+
+                // this xaresource is for initial registration and recovery
+                EhcacheXAResourceImpl xaResource = new EhcacheXAResourceImpl(this, txnManager, ehcacheXAStore);
+                transactionManagerLookup.register(xaResource);
+
+
+                this.memoryStore = new XATransactionalStore(this, ehcacheXAStore, transactionManagerLookup);
             } else {
                 this.memoryStore = memStore;
             }

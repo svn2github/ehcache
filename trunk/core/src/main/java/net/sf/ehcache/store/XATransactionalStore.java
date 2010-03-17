@@ -18,6 +18,7 @@ package net.sf.ehcache.store;
 
 import net.sf.ehcache.CacheEntry;
 import net.sf.ehcache.CacheException;
+import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.Status;
 import net.sf.ehcache.transaction.StoreExpireAllElementsCommand;
@@ -27,15 +28,22 @@ import net.sf.ehcache.transaction.StoreRemoveAllCommand;
 import net.sf.ehcache.transaction.StoreRemoveCommand;
 import net.sf.ehcache.transaction.StoreRemoveWithWriterCommand;
 import net.sf.ehcache.transaction.TransactionContext;
+import net.sf.ehcache.transaction.manager.TransactionManagerLookup;
 import net.sf.ehcache.transaction.xa.EhcacheXAResource;
+import net.sf.ehcache.transaction.xa.EhcacheXAResourceImpl;
+import net.sf.ehcache.transaction.xa.EhcacheXAStore;
+import net.sf.ehcache.transaction.xa.TwoPcExecutionListener;
 import net.sf.ehcache.writer.CacheWriterManager;
 
 import javax.transaction.RollbackException;
 import javax.transaction.SystemException;
+import javax.transaction.Transaction;
+import javax.transaction.TransactionManager;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * A transaction aware store that wraps the actual Store.
@@ -48,16 +56,31 @@ import java.util.Set;
 public class XATransactionalStore implements Store {
 
     private final Store underlyingStore;
-    private final EhcacheXAResource xaResource;
+    private final Store oldVersionStore;
+
+    private Ehcache cache;
+    private EhcacheXAStore ehcacheXAStore;
+    private TransactionManagerLookup transactionManagerLookup;
+    private TransactionManager txnManager;
+
+    private final ConcurrentHashMap<Transaction, TransactionContext> transactionToContextMap =
+            new ConcurrentHashMap<Transaction, TransactionContext>();
+
 
     /**
-     * Constructor
-     *
-     * @param xaResource the xaResource wrapping the Cache this store is backing up
+     * Create a store which will wrap another one to provide XA transactions.
+     * @param cache the cache this store is backing
+     * @param ehcacheXAStore the XAStore to be used by this store
+     * @param transactionManagerLookup the TransactionManagerLookup used to get hold of the JTA transaction manager
      */
-    public XATransactionalStore(final EhcacheXAResource xaResource) {
-        this.xaResource = xaResource;
-        this.underlyingStore = xaResource.getStore();
+    public XATransactionalStore(Ehcache cache, EhcacheXAStore ehcacheXAStore, TransactionManagerLookup transactionManagerLookup) {
+        this.cache = cache;
+        this.ehcacheXAStore = ehcacheXAStore;
+        this.transactionManagerLookup = transactionManagerLookup;
+        this.txnManager = transactionManagerLookup.getTransactionManager();
+
+        this.underlyingStore = ehcacheXAStore.getUnderlyingStore();
+        this.oldVersionStore = ehcacheXAStore.getOldVersionStore();
     }
 
 
@@ -103,7 +126,7 @@ public class XATransactionalStore implements Store {
         TransactionContext context = getOrCreateTransactionContext();
         Element element = context.get(key);
         if (element == null && !context.isRemoved(key)) {
-            element = xaResource.get(key);
+            element = getFromUnderlyingStore(key);
         }
         return element;
     }
@@ -115,7 +138,7 @@ public class XATransactionalStore implements Store {
         TransactionContext context = getOrCreateTransactionContext();
         Element element = context.get(key);
         if (element == null && !context.isRemoved(key)) {
-            element = xaResource.getQuiet(key);
+            element = getQuietFromUnderlyingStore(key);
         }
         return element;
     }
@@ -142,7 +165,7 @@ public class XATransactionalStore implements Store {
         TransactionContext context = getOrCreateTransactionContext();
         Element element = context.get(key);
         if (element == null && !context.isRemoved(key)) {
-            element = xaResource.getQuiet(key);
+            element = getQuietFromUnderlyingStore(key);
         }
 
         return element;
@@ -186,7 +209,7 @@ public class XATransactionalStore implements Store {
     /**
      * TransactionContext impacted size of the store
      *
-     * @return size of the store, including tx local pending changes
+     * @return size of the store, including transaction local pending changes
      */
     public int getSize() {
         TransactionContext context = getOrCreateTransactionContext();
@@ -314,15 +337,76 @@ public class XATransactionalStore implements Store {
         underlyingStore.waitUntilClusterCoherent();
     }
 
+    /* 1 xaresource per transaction */
+
+    private Element getFromUnderlyingStore(final Object key) {
+        Element element = oldVersionStore.get(key);
+        if (element == null) {
+            element = underlyingStore.get(key);
+        }
+        return element;
+    }
+
+    private Element getQuietFromUnderlyingStore(final Object key) {
+        Element element = oldVersionStore.getQuiet(key);
+        if (element == null) {
+            element = underlyingStore.getQuiet(key);
+        }
+        return element;
+    }
+
     private TransactionContext getOrCreateTransactionContext() {
-        TransactionContext context;
         try {
-            context = xaResource.getOrCreateTransactionContext();
+            Transaction transaction = txnManager.getTransaction();
+            if (transaction == null) {
+                throw new CacheException("Cache " + cache.getName() + " can only be accessed within a JTA Transaction!");
+            }
+
+            TransactionContext context = transactionToContextMap.get(transaction);
+            if (context != null) {
+                return context;
+            }
+
+
+            EhcacheXAResource xaResource = new EhcacheXAResourceImpl(cache, txnManager, ehcacheXAStore);
+
+            // xaResource.createTransactionContext() is going to enlist the XAResource in
+            // the transaction so it MUST be registered first
+            transactionManagerLookup.register(xaResource);
+            context = xaResource.createTransactionContext();
+            xaResource.addTwoPcExecutionListener(new CleanupTransactionContext(transaction));
+
+            transactionToContextMap.put(transaction, context);
+
+            return context;
+
         } catch (SystemException e) {
             throw new CacheException(e);
         } catch (RollbackException e) {
             throw new CacheException(e);
         }
-        return context;
     }
+
+    /**
+     * This class is sued to clean up the transactionToContextMap after a transaction
+     * committed or rolled back.
+     */
+    private final class CleanupTransactionContext implements TwoPcExecutionListener {
+
+        private Transaction transaction;
+
+        private CleanupTransactionContext(Transaction transaction) {
+            this.transaction = transaction;
+        }
+
+        public void beforePrepare(EhcacheXAResource xaResource) {
+        }
+
+        public void afterCommitOrRollback(EhcacheXAResource xaResource) {
+            transactionToContextMap.remove(transaction);
+            transactionManagerLookup.unregister(xaResource);
+        }
+    }
+
+
 }

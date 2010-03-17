@@ -16,11 +16,12 @@
 
 package net.sf.ehcache.transaction.xa;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import javax.transaction.RollbackException;
-import javax.transaction.Status;
 import javax.transaction.Synchronization;
 import javax.transaction.SystemException;
 import javax.transaction.Transaction;
@@ -66,11 +67,14 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
     private final Store              oldVersionStore;
     private final TransactionManager txnManager;
     private final Ehcache            cache;
-    private final ThreadLocal<Xid>   currentXid      = new ThreadLocal<Xid>();
     private final Set<Xid>           recoverySet     = new HashSet<Xid>();
    
 
     private       volatile int                transactionTimeout = DEFAULT_TIMEOUT;
+    private       volatile Xid                currentXid;
+
+    private List<TwoPcExecutionListener> twoPcExecutionListeners = new ArrayList<TwoPcExecutionListener>();
+
 
     /**
      * Constructor
@@ -95,6 +99,13 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
     /**
      * {@inheritDoc}
      */
+    public void addTwoPcExecutionListener(TwoPcExecutionListener listener) {
+        twoPcExecutionListeners.add(listener);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     public String getCacheName() {
         return cacheName;
     }
@@ -103,10 +114,12 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
      * {@inheritDoc}
      */    
     public void start(final Xid xid, final int flags) throws XAException {
+        //todo: check flags, do not allow 2X start()
+
         if (LOG.isDebugEnabled()) {
             LOG.debug("xaResource.start called for Txn with flag: " + prettyPrintFlags(flags)  + " and id: " + xid);   
         }
-        currentXid.set(xid);
+        currentXid = xid;
     }
 
    
@@ -114,6 +127,8 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
      * {@inheritDoc}
      */
     public void end(final Xid xid, final int flags) throws XAException {
+        //todo: check flags, throw an exception if start() was not called
+
         if (LOG.isDebugEnabled()) {
             LOG.debug("xaResource.end called for Txn with flag: " + prettyPrintFlags(flags)  + " and id: " + xid);   
         }
@@ -124,13 +139,23 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
                 ehcacheXAStore.removeData(xid);
             }
         }
-        currentXid.remove();
+        currentXid = null;
     }
 
     /**
      * {@inheritDoc}
      */
     public int prepare(final Xid xid) throws XAException {
+        //todo: check XID, throw an exception if end() not called or if start()/end() never called
+
+        for (TwoPcExecutionListener twoPcExecutionListener : twoPcExecutionListeners) {
+            try {
+                twoPcExecutionListener.beforePrepare(this);
+            } catch (RuntimeException ex) {
+                LOG.warn("exception thrown before prepare in TwoPcExecutionListener " + twoPcExecutionListener, ex);
+            }
+        }
+
         return this.processor.process(new XARequest(RequestType.PREPARE, getCurrentTransaction(), xid, XAResource.TMNOFLAGS));
     }
 
@@ -192,6 +217,7 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
      * {@inheritDoc}
      */
     public void forget(final Xid xid) throws XAException {
+        // todo: make sure the XID is tested for existence
         this.processor.process(new XARequest(RequestType.FORGET, getCurrentTransaction(), xid));
     }
     
@@ -249,6 +275,9 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
      * {@inheritDoc}
      */
     public void commit(final Xid xid, final boolean onePhase) throws XAException {
+        //todo: check XID, throw an exception if end() not called or if start()/end() never called
+        //todo: check onePhase: cannot be true if prepare was called, cannot be false if it wasn't
+
         Transaction txn = getCurrentTransaction();
         this.processor.process(new XARequest(RequestType.COMMIT, txn , xid, XAResource.TMNOFLAGS, onePhase));
     }
@@ -292,6 +321,14 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
         }
 
         ehcacheXAStore.removeData(xid);
+
+        for (TwoPcExecutionListener twoPcExecutionListener : twoPcExecutionListeners) {
+            try {
+                twoPcExecutionListener.afterCommitOrRollback(this);
+            } catch (RuntimeException ex) {
+                LOG.warn("exception thrown after commit in TwoPcExecutionListener " + twoPcExecutionListener, ex);
+            }
+        }
     }
 
 
@@ -300,6 +337,7 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
      * {@inheritDoc}
      */
     public void rollback(final Xid xid) throws XAException {
+        //todo: check XID, throw an exception if end() not called or if start()/end() never called
        this.processor.process(new XARequest(RequestType.ROLLBACK, getCurrentTransaction(), xid));
     }
     
@@ -351,6 +389,14 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
             throw new EhcacheXAException("Transaction " + xid + " has been heuristically committed", XAException.XA_HEURRB);
         }
         ehcacheXAStore.removeData(xid);
+
+        for (TwoPcExecutionListener twoPcExecutionListener : twoPcExecutionListeners) {
+            try {
+                twoPcExecutionListener.afterCommitOrRollback(this);
+            } catch (RuntimeException ex) {
+                LOG.warn("exception thrown after rollback in TwoPcExecutionListener " + twoPcExecutionListener, ex);
+            }
+        }
     }
 
     /**
@@ -364,6 +410,7 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
      * {@inheritDoc}
      */
     public boolean setTransactionTimeout(final int i) throws XAException {
+        //todo: is timeout supported? If not, false should be returned
         if (i < 0) {
             throw new EhcacheXAException("time out has to be > 0, but was " + i, XAException.XAER_INVAL);
         }
@@ -381,66 +428,26 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
     /**
      * {@inheritDoc}
      */
-    public Store getStore() {
-        return store;
-    }
-    
-    /**
-     * {@inheritDoc}
-     */
-    public TransactionContext getOrCreateTransactionContext() throws SystemException, RollbackException {
+    public TransactionContext createTransactionContext() throws SystemException, RollbackException {
+        //todo: TX enlistment and TX registerSynchronization() should be moved to XATransactionalStore
         Transaction transaction = txnManager.getTransaction();
-        if (transaction == null) {
-            throw new CacheException("Cache " + cacheName + " can only be accessed within a JTA Transaction!");
-        }
 
-        if (transaction.getStatus() != Status.STATUS_ACTIVE) {
-            throw new CacheException("Transaction not active!");
-        }
-      
-        TransactionContext context = null;
-        
-        if (currentXid.get() != null) {
-           context = ehcacheXAStore.getTransactionContext(currentXid.get());
-        }
-        
-        if (context == null) {
-            transaction.enlistResource(this);
-            if (cache.getWriterManager() != null) {
-                try {
-                    transaction.registerSynchronization(new CacheWriterManagerSynchronization(currentXid.get()));
-                } catch (RollbackException e) {
-                    // Safely ignore this
-                } catch (SystemException e) {
-                    throw new CacheException("Couldn't register CacheWriter's Synchronization with the JTA Transaction : "
-                            + e.getMessage(), e);
-                }
+        transaction.enlistResource(this);
+
+        if (cache.getWriterManager() != null) {
+            try {
+                transaction.registerSynchronization(new CacheWriterManagerSynchronization(currentXid));
+            } catch (RollbackException e) {
+                // Safely ignore this
+            } catch (SystemException e) {
+                throw new CacheException("Couldn't register CacheWriter's Synchronization with the JTA Transaction : "
+                        + e.getMessage(), e);
             }
-            context = ehcacheXAStore.createTransactionContext(currentXid.get());
         }
-        return context;
-    }
-    
-    /**
-     * {@inheritDoc}
-     */
-    public Element get(final Object key) {
-        Element element = oldVersionStore.get(key);
-        if (element == null) {
-            element = store.get(key);
-        }
-        return element;
-    }
 
-    /**
-     * {@inheritDoc}
-     */
-    public Element getQuiet(final Object key) {
-        Element element = oldVersionStore.getQuiet(key);
-        if (element == null) {
-            element = store.getQuiet(key);
-        }
-        return element;
+        // currentXid is set by a call to start() which itself is called by transaction.enlistResource(this)
+        // this is quite confusing, there should be a way to simplify all that.
+        return ehcacheXAStore.createTransactionContext(currentXid);
     }
 
     /**
@@ -477,6 +484,7 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
         }
         return txn;
     }
+
     /**
      * Optimized one-phase commit, assumed prepare is never called.
      * @param xid
@@ -591,15 +599,15 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
         String flagStr = flagStrings.toString();
         return flagStr.equals("") ?  "TMNOFLAGS" : flagStr;
     }
-    
-    
+
+
     /**
      * Writes stuff to the CacheWriterManager just before the Transaction is ended for commit
      */
     private class CacheWriterManagerSynchronization implements Synchronization {
-        
+
         private Xid currentXid;
-        
+
         public CacheWriterManagerSynchronization(Xid currentXid) {
             this.currentXid = currentXid;
         }
@@ -608,16 +616,9 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
          * {@inheritDoc}
          */
         public void beforeCompletion() {
-            try {
-                TransactionContext context = getOrCreateTransactionContext();
-                for (VersionAwareCommand versionAwareCommand : context.getCommands()) {
-                    versionAwareCommand.execute(cache.getWriterManager());
-                }
-            } catch (SystemException e) {
-                // this will cause the tx to be rolled back by the TransactionManager
-                throw new CacheException("Error synching writer", e);
-            } catch (RollbackException e) {
-                // Ignore safely
+            TransactionContext context = ehcacheXAStore.getTransactionContext(currentXid);
+            for (VersionAwareCommand versionAwareCommand : context.getCommands()) {
+                versionAwareCommand.execute(cache.getWriterManager());
             }
         }
 
@@ -634,7 +635,19 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
      */
     @Override
     public String toString() {
-        return "EhcacheXAResourceImpl [ " + getCacheName() + " ] ";
+        //todo: do not display TX but rather XID
+        String txName = "!unknown transaction!";
+        try {
+            Transaction tx = txnManager.getTransaction();
+            if (tx != null) {
+                txName = tx.toString();
+            } else {
+                txName = "no transaction yet";
+            }
+        } catch (SystemException ex) {
+            // ignore
+        }
+        return "EhcacheXAResourceImpl [ " + getCacheName() + " ] bound to " + txName;
     }
     
     

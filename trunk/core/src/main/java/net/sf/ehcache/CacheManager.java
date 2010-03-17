@@ -41,8 +41,6 @@ import net.sf.ehcache.store.MemoryStore;
 import net.sf.ehcache.store.Store;
 import net.sf.ehcache.terracotta.ClusteredInstanceFactory;
 import net.sf.ehcache.transaction.manager.TransactionManagerLookup;
-import net.sf.ehcache.transaction.xa.EhcacheXAResource;
-import net.sf.ehcache.transaction.xa.EhcacheXAResourceImpl;
 import net.sf.ehcache.transaction.xa.EhcacheXAStore;
 import net.sf.ehcache.transaction.xa.EhcacheXAStoreImpl;
 import net.sf.ehcache.util.FailSafeTimer;
@@ -52,7 +50,6 @@ import net.sf.ehcache.writer.writebehind.WriteBehind;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.transaction.TransactionManager;
 import java.io.File;
 import java.io.InputStream;
 import java.lang.reflect.Method;
@@ -414,21 +411,19 @@ public class CacheManager {
     }
 
     /**
-     * Creates an EhcacheXAResource instance for a cache
+     * Create a EhcacheXAStore instance for a cache
      * @param cache The cache the XAResource should wrap
      * @param store The real memory store backing the cache
-     * @param txnManager TransactionManager for the JTA environment, the one we'll enlist on
-     * @return the configured EhcacheXAResource impl.
+     * @return the configured EhcacheXAStore impl.
      */
-    EhcacheXAResource createEhcacheXAResource(Ehcache cache, Store store, TransactionManager txnManager) {
-        EhcacheXAStore ehcacheXAStore = null;
+    EhcacheXAStore createEhcacheXAStore(Ehcache cache, Store store) {
+       EhcacheXAStore ehcacheXAStore;
         if (cache.getCacheConfiguration().isTerracottaClustered()) {
             ehcacheXAStore = getClusteredInstanceFactory(cache).createXAStore(cache, store);
         } else {
             ehcacheXAStore = new EhcacheXAStoreImpl(store, MemoryStore.create(cache, null));
         }
-        return new EhcacheXAResourceImpl(cache, txnManager, ehcacheXAStore);
-
+        return ehcacheXAStore;
     }
 
     /**

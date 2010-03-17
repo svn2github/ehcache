@@ -28,7 +28,10 @@ import javax.transaction.xa.Xid;
 public class XARequest {
 
     private final RequestType requestType;
+
+    //todo: get rid of this field
     private final Transaction txn;
+
     private final Xid xid;
     private final int flags;
     private final boolean onePhase;
@@ -137,6 +140,6 @@ public class XARequest {
     public Transaction getTransaction() {
         return txn;
     }
-    
+
 
 }
