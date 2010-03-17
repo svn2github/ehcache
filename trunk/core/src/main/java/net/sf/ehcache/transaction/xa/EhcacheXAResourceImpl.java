@@ -139,28 +139,44 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
      */
     int prepareInternal(final Xid xid) throws XAException {
         if (LOG.isDebugEnabled()) {
-            LOG.debug("xaResource.prepare called for Txn with id: " + xid);   
+            LOG.debug("xaResource.prepare called for Txn with id: " + xid);
         }
 
         TransactionContext context = ehcacheXAStore.getTransactionContext(xid);
         CacheLockProvider storeLockProvider = (CacheLockProvider) store.getInternalContext();
         CacheLockProvider oldVersionStoreLockProvider = (CacheLockProvider) oldVersionStore.getInternalContext();
 
-        validateCommands(context, xid);
-        
-        PreparedContext preparedContext = ehcacheXAStore.createPreparedContext();
-        // Copy old versions in front-accessed store
-        for (VersionAwareCommand command : context.getCommands()) {
-            Object key = command.getKey();
-            if (key != null) {
-                prepareCommand(xid, oldVersionStoreLockProvider, preparedContext, command);
-            }
+        // Lock all keys in both stores
+        Object[] updatedKeys = context.getUpdatedKeys().toArray();
+
+        // Lock here first, so that threads wait on every get for this to be released?
+        oldVersionStoreLockProvider.getAndWriteLockAllSyncForKeys(updatedKeys);
+        // Then lock here, so that normally no one is staying in line for the lock
+        storeLockProvider.getAndWriteLockAllSyncForKeys(updatedKeys);
+
+        try {
+            // validate we will be able to commit
+            validateCommands(context, xid);
+        } catch (XAException e) {
+            // If something goes
+            storeLockProvider.unlockWriteLockForAllKeys(updatedKeys);
+            oldVersionStoreLockProvider.unlockWriteLockForAllKeys(updatedKeys);
+            throw e;
         }
 
-        // Lock all keys in real store
-        Sync[] syncForKeys = storeLockProvider.getAndWriteLockAllSyncForKeys(preparedContext.getUpdatedKeys().toArray());
+        PreparedContext preparedContext = ehcacheXAStore.createPreparedContext();
+        // Copy old versions in front-accessed store todo crappy coupling going on here!
+        for (VersionAwareCommand command : context.getCommands()) {
+            // as we only have write commands to specific keys here... but this could change, and we'd try to unlock non-locked keys
+            Object key = command.getKey();
+            if (key != null) {
+                oldVersionStore.put(store.get(command.getKey()));
+                preparedContext.addCommand(command);
+            }
+        }
+        oldVersionStoreLockProvider.unlockWriteLockForAllKeys(updatedKeys);
 
-         // Execute write command within the real underlying store
+        // Execute write command within the real underlying store
         boolean writes = false;
         for (VersionAwareCommand command : context.getCommands()) {
             writes = command.execute(store) || writes;
@@ -242,30 +258,33 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
      */
     void commitInternal(final Xid xid, final boolean onePhase) throws XAException {
         if (LOG.isDebugEnabled()) {
-            LOG.debug("xaResource.commit called for Txn with phase: " + (onePhase ? "onePhase" : "twoPhase") +  " and id: " + xid);   
+            LOG.debug("xaResource.commit called for Txn with phase: " + (onePhase ? "onePhase" : "twoPhase") +  " and id: " + xid);
         }
         if (onePhase) {
-            onePhaseCommit(xid);
+            if (ehcacheXAStore.getPreparedContext(xid) == null) {
+                onePhaseCommit(xid);
+            } else {
+                throw new IllegalStateException(xid + " has been prepared! Cannot operate one phased commit!");
+            }
         } else {
             PreparedContext context = ehcacheXAStore.getPreparedContext(xid);
 
-            CacheLockProvider storeProvider = ((CacheLockProvider) store.getInternalContext());
             CacheLockProvider oldVersionStoreProvider = ((CacheLockProvider) oldVersionStore.getInternalContext());
-            Set<Object> preparedKeys = context.getUpdatedKeys();
+            CacheLockProvider storeProvider = ((CacheLockProvider) store.getInternalContext());
+            Object[] keys = context.getUpdatedKeys().toArray();
+            storeProvider.unlockWriteLockForAllKeys(keys);
             if (!context.isCommitted() && !context.isRolledBack()) {
-                Sync[] syncForKeys = oldVersionStoreProvider.getAndWriteLockAllSyncForKeys(preparedKeys.toArray());
+                oldVersionStoreProvider.getAndWriteLockAllSyncForKeys(keys);
                 for (PreparedCommand command : context.getPreparedCommands()) {
                     Object key = command.getKey();
                     if (key != null) {
-                        ehcacheXAStore.checkin(key, xid, command.isWriteCommand());
+                        ehcacheXAStore.checkin(key, xid, !command.isWriteCommand());
                         oldVersionStore.remove(key);
-                        
                     }
                 }
-                
-                storeProvider.unlockWriteLockForAllKeys(preparedKeys.toArray());
-                oldVersionStoreProvider.unlockWriteLockForAllKeys(preparedKeys.toArray());
-                             
+
+                oldVersionStoreProvider.unlockWriteLockForAllKeys(keys);
+
                 context.setCommitted(true);
             } else if (context.isRolledBack()) {
                 throw new EhcacheXAException("Transaction " + xid + " has been heuristically rolled back", XAException.XA_HEURRB);
@@ -276,7 +295,7 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
     }
 
 
-    
+
     /**
      * {@inheritDoc}
      */
@@ -289,35 +308,44 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
      */
     void rollbackInternal(final Xid xid) throws XAException {
         if (LOG.isDebugEnabled()) {
-            LOG.debug("xaResource.rollback called for Txn with id: " + xid);   
+            LOG.debug("xaResource.rollback called for Txn with id: " + xid);
         }
 
         PreparedContext context = ehcacheXAStore.getPreparedContext(xid);
         if (ehcacheXAStore.isPrepared(xid) && !context.isRolledBack() && !context.isCommitted()) {
             context.setRolledBack(true);
-            CacheLockProvider storeLockProvider = (CacheLockProvider) store.getInternalContext();
-            CacheLockProvider oldVersionStoreLockProvider = (CacheLockProvider) oldVersionStore.getInternalContext();
+            CacheLockProvider storeLockProvider = (CacheLockProvider)store.getInternalContext();
+            CacheLockProvider oldVersionStoreLockProvider = (CacheLockProvider)oldVersionStore.getInternalContext();
 
-            for (PreparedCommand command : context.getPreparedCommands()) {
-                Object key = command.getKey();
-                if (key != null) {
-                    Sync syncForKey = oldVersionStoreLockProvider.getSyncForKey(key);
-                    syncForKey.lock(LockType.WRITE);
-                    Element element = null;
-                    try {
-                        element = oldVersionStore.remove(key);
-                        if (element != null) {
-                            store.put(element);
-                        } else {
-                            LOG.error("No element found in oldVersionStore for key '{}'", key);
-                        }
-                    } finally {
-                        syncForKey.unlock(LockType.WRITE);
-                        if (element != null) {
-                            storeLockProvider.getSyncForKey(key).unlock(LockType.WRITE);
-                        }
-                    }
-                }
+            Set<Object> updatedKeys = context.getUpdatedKeys();
+            oldVersionStoreLockProvider.getAndWriteLockAllSyncForKeys(updatedKeys);
+
+            try {
+                for (Object key : updatedKeys) {
+                      if (key != null) {
+                          Element element = null;
+                          try {
+                              element = oldVersionStore.remove(key);
+                              if (element != null) {
+                                  store.put(element);
+                              } else {
+//                                  element = store.remove(key);
+                                  LOG.error("No element found in oldVersionStore for key '{}'", key);
+                              }
+                          } finally {
+                              if (element != null) {
+                                  storeLockProvider.getSyncForKey(key).unlock(LockType.WRITE);
+                              }
+                          }
+                      }
+                  }
+            } finally {
+//                try {
+                    oldVersionStoreLockProvider.unlockWriteLockForAllKeys(updatedKeys);
+//                } catch (RuntimeException e) {
+//                    System . out . println("\n\n\n Error rolling back " + xid + " on " + this + "\n\n");
+//                    System.exit(-1);
+//                }
             }
         } else if (context != null && context.isCommitted()) {
             throw new EhcacheXAException("Transaction " + xid + " has been heuristically committed", XAException.XA_HEURRB);
@@ -458,28 +486,29 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
         TransactionContext context = ehcacheXAStore.getTransactionContext(xid);
         CacheLockProvider storeLockProvider = (CacheLockProvider) store.getInternalContext();
 
-        // First dirty bulk check?
-        validateCommands(context, xid);
-
         Set<Object> keys = context.getUpdatedKeys();
 
         // Lock all keys in real store
         Sync[] syncForKeys = storeLockProvider.getAndWriteLockAllSyncForKeys(keys.toArray());
 
-        LOG.debug("{} phase commit called for Txn with id: {} One", xid);
+        try {
+            validateCommands(context, xid);
 
-        // Execute write command within the real underlying store
-        boolean writes = false;
-        for (VersionAwareCommand command : context.getCommands()) {
-            writes = command.execute(store) || writes;
-            Object key = command.getKey();
-            if (key != null) {
-                ehcacheXAStore.checkin(key, xid, command.isWriteCommand());
+            LOG.debug("{} phase commit called for Txn with id: {} One", xid);
+
+            // Execute write command within the real underlying store
+            boolean writes = false;
+            for (VersionAwareCommand command : context.getCommands()) {
+                writes = command.execute(store) || writes;
+                Object key = command.getKey();
+                if (key != null) {
+                    ehcacheXAStore.checkin(key, xid, !command.isWriteCommand());
+                }
             }
-        }
-
-        for (Sync syncForKey : syncForKeys) {
-            syncForKey.unlock(LockType.WRITE);
+        } finally {
+            for (Sync syncForKey : syncForKeys) {
+                syncForKey.unlock(LockType.WRITE);
+            }
         }
     }
     
@@ -498,34 +527,7 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
             }
         }
     }
-    
-    /**
-     * 
-     * @param xid
-     * @param oldVersionStoreLockProvider
-     * @param preparedContext
-     * @param command
-     * @param key
-     * @throws EhcacheXAException
-     */
-    private void prepareCommand(final Xid xid, CacheLockProvider oldVersionStoreLockProvider, PreparedContext preparedContext,
-            VersionAwareCommand command) throws EhcacheXAException {
-        Sync syncForKey = oldVersionStoreLockProvider.getSyncForKey(command.getKey());
-        syncForKey.lock(LockType.WRITE);
-        try {
-            if (!ehcacheXAStore.isValid(command, xid)) {
-                for (PreparedCommand addedCommand : preparedContext.getPreparedCommands()) {
-                    oldVersionStore.remove(addedCommand.getKey());
-                }
-                throw new EhcacheXAException("Invalid version for element: " + command.getKey(), XAException.XA_RBINTEGRITY);
-            }
-            oldVersionStore.put(store.get(command.getKey()));
-            preparedContext.addCommand(command);          
-        } finally {
-            syncForKey.unlock(LockType.WRITE);
-        }
-    }
-    
+
     /**
      * 
      * @param preparedXid
@@ -561,7 +563,7 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
     /**
      * 
      * @param flags
-     * @param flag
+     * @param mask
      * @return
      */
     private boolean isFlagSet(int flags, int mask) {
@@ -573,7 +575,7 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
     }
     /**
      * Return the string version of the flag
-     * @param flag
+     * @param flags
      * @return
      */
     private String prettyPrintFlags(int flags) {
