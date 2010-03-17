@@ -95,10 +95,9 @@ public class DefaultTransactionManagerLookup implements TransactionManagerLookup
      * {@inheritDoc}
      */
     public void unregister(EhcacheXAResource resource) {
-        //todo: unregister
-        //if (vendor.equals("Bitronix")) {
-        //    ...
-        //}
+        if (vendor.equals("Bitronix")) {
+            unregisterResourceWithBitronix(resource.getCacheName(), resource);
+        }
     }
 
     /**
@@ -124,13 +123,29 @@ public class DefaultTransactionManagerLookup implements TransactionManagerLookup
             cl = ClassLoader.getSystemClassLoader();
         }
         try {
-            Class producerClass = cl.loadClass("net.sf.ehcache.transaction.manager.btm.GenericXAResourceProducer");
+            Class producerClass = cl.loadClass("net.sf.ehcache.transaction.manager.btm.EhCacheXAResourceProducer");
             Class[] signature = new Class[] {String.class, XAResource.class};
             Object[] args = new Object[] {uniqueName, resource};
             Method method = producerClass.getMethod("registerXAResource", signature);
             method.invoke(null, args);
         } catch (Exception e) {
-            e.printStackTrace();
+            LOG.error("unable to register resource of cache " + uniqueName + " with BTM", e);
+        }
+    }
+
+    private void unregisterResourceWithBitronix(String uniqueName, EhcacheXAResource resource) {
+        ClassLoader cl = Thread.currentThread().getContextClassLoader();
+        if (cl == null) {
+            cl = ClassLoader.getSystemClassLoader();
+        }
+        try {
+            Class producerClass = cl.loadClass("net.sf.ehcache.transaction.manager.btm.EhCacheXAResourceProducer");
+            Class[] signature = new Class[] {String.class, XAResource.class};
+            Object[] args = new Object[] {uniqueName, resource};
+            Method method = producerClass.getMethod("unregisterXAResource", signature);
+            method.invoke(null, args);
+        } catch (Exception e) {
+            LOG.error("unable to unregister resource of cache " + uniqueName + " with BTM", e);
         }
     }
 
