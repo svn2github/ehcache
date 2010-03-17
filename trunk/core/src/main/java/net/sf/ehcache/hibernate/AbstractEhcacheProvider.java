@@ -82,12 +82,20 @@ abstract class AbstractEhcacheProvider implements CacheProvider {
     }
 
     /**
-     * Not sure what this is supposed to do.
-     *
-     * @return false to be safe
+     * Whether to optimize for minimals puts or minimal gets.
+     * <p>
+     * Indicates whether when operating in non-strict read/write or read-only mode
+     * Hibernate should optimize the access patterns for minimal puts or minimal gets.
+     * In Ehcache we default to minimal puts since this should have minimal to no
+     * affect on unclustered users, and has great benefit for clustered users.
+     * <p>
+     * This setting can be overridden by setting the "hibernate.cache.use_minimal_puts"
+     * property in the Hibernate configuration.
+     * 
+     * @return true, optimize for minimal puts
      */
     public final boolean isMinimalPutsEnabledByDefault() {
-        return false;
+        return true;
     }
 
     /**
