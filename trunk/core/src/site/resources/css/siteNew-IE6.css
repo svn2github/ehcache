@@ -464,17 +464,7 @@ float: left;
     padding:0;
 }
 
-#navColumn li a.parent {
-    background:none;
-    cursor:default;
-    padding:0px;
-    }
 
-#navColumn li a.parent:link:hover {
-background:none;
-cursor:default;
-padding:0px;
-}
 
 #navColumn li.parent{
     padding:0px;
@@ -494,4 +484,25 @@ a img {
     padding: 5px 10px 10px 10px;
     margin-bottom: 10px;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
