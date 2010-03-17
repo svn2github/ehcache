@@ -795,4 +795,32 @@ public class CachingFilterTest extends AbstractWebTest {
 
         }));
     }
+
+    @Test
+    public void testSetThenAddHeaders() throws Exception {
+        String url = "http://localhost:9090/headers/SetThenAddHeaders.jsp";
+        HttpClient httpClient = new HttpClient();
+        HttpMethod httpMethod = new GetMethod(url);
+        int responseCode = httpClient.executeMethod(httpMethod);
+        assertEquals(HttpURLConnection.HTTP_OK, responseCode);
+        String responseBody = httpMethod.getResponseBodyAsString();
+        assertNotNull(responseBody);
+        assertEquals("sample value 1, sample value 2, sample value 3, sample value 4",
+                httpMethod.getResponseHeader("x-sample-header").getValue());
+    }
+
+    @Test
+    public void testAddThenSetHeaders() throws Exception {
+        String url = "http://localhost:9090/headers/AddThenSetHeaders.jsp";
+        HttpClient httpClient = new HttpClient();
+        HttpMethod httpMethod = new GetMethod(url);
+        int responseCode = httpClient.executeMethod(httpMethod);
+        assertEquals(HttpURLConnection.HTTP_OK, responseCode);
+        String responseBody = httpMethod.getResponseBodyAsString();
+        assertNotNull(responseBody);
+        assertEquals("sample value 3, sample value 4",
+                httpMethod.getResponseHeader("x-sample-header").getValue());
+    }
+
+
 }

@@ -208,6 +208,11 @@
         <url-pattern>/empty_caching_filter/*</url-pattern>
     </filter-mapping>
 
+    <filter-mapping>
+        <filter-name>SimplePageCachingFilter</filter-name>
+        <url-pattern>/headers/*</url-pattern>
+    </filter-mapping>
+
     <!-- 304. Not Modified -->
     <filter-mapping>
         <filter-name>GzipFilter</filter-name>
