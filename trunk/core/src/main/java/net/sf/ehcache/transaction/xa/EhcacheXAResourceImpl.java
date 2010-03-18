@@ -184,12 +184,7 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
             validateCommands(context, xid);
         } catch (XAException e) {
             // If something goes wrong
-            for(Object updatedKey : updatedKeys) {
-                // Decrease counters, readonly operation, as we are "rolling back"
-                ehcacheXAStore.checkin(updatedKey, xid, true);
-            }
-            storeLockProvider.unlockWriteLockForAllKeys(updatedKeys);
-            oldVersionStoreLockProvider.unlockWriteLockForAllKeys(updatedKeys);
+            cleanUpFailure(xid, storeLockProvider, oldVersionStoreLockProvider, updatedKeys);
             throw e;
         }
 
@@ -215,8 +210,19 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
 
         return writes ? XA_OK : XA_RDONLY;
     }
-    
-    
+
+    private void cleanUpFailure(final Xid xid, final CacheLockProvider storeLockProvider,
+                                final CacheLockProvider oldVersionStoreLockProvider,
+                                final Object[] updatedKeys) {
+        for (Object updatedKey : updatedKeys) {
+            // Decrease counters, readonly operation, as we are "rolling back"
+            ehcacheXAStore.checkin(updatedKey, xid, true);
+        }
+        storeLockProvider.unlockWriteLockForAllKeys(updatedKeys);
+        oldVersionStoreLockProvider.unlockWriteLockForAllKeys(updatedKeys);
+    }
+
+
     /**
      * {@inheritDoc}
      */
