@@ -1,8 +1,8 @@
  ----
- Distributed Cache - Performance At Any Scale
+ Ehcache Distributed Cache - Performance At Any Scale
  ---- 
 
-Ehcache Distributed Cache
+%{snippet|file=src/site/include/heading.html|verbatim=false}
 
     Ehcache is an open source, standards-based cache used in a wide array of applications to boost performance,
     offload the database and simplify scalability. Ehcache is robust, proven and full-features and this has made it
@@ -60,7 +60,7 @@ Ehcache Distributed Cache
 
 * Latest News
 
- news_ticker
+%{snippet|file=src/site/include/newsticker.html|verbatim=false}
 
 ** 8 March 2010: Ehcache 2.0 released
 
