@@ -98,7 +98,7 @@ manager.addCache(memoryOnlyCache);
 Cache test = singletonManager.getCache("testCache");
 ---------------------------------
 
- See {{{xref/net/sf/ehcache/Cache.html#262}Cache#Cache(...)}} for the full parameters  for a new Cache:
+ See the cache {{{/xref/net/sf/ehcache/Cache.html}constructor}} for the full parameters  for a new Cache:
 
 
  Remove cache called sampleCache1
@@ -128,6 +128,58 @@ manager.shutdown();
 ---------------------------------
 
  See the {{{/xref-test/net/sf/ehcache/CacheManagerTest.html}CacheManagerTest}} for more examples.
+
+
+* {Creating Caches Programmatically}
+
+** {Creating a new cache from defaults}
+
+    A new cache with a given name can be created from defaults very simply:
+
+---
+manager.addCache(cache name);
+---
+
+** {Creating a new cache with custom parameters}
+
+   The configuration for a Cache can be specified programmatically as an argument to the Cache constructor:
+
+--------------------------------------------
+public Cache(CacheConfiguration cacheConfiguration) {
+    ...
+   }
+--------------------------------------------
+
+   Here is an example which creates a cache called test.
+
+--------------------------------------------
+   //Create a CacheManager using defaults
+   CacheManager manager = CacheManager.create();
+
+   //Create a Cache specifying its configuration.
+
+   Cache testCache = new Cache(
+     new CacheConfiguration("test", maxElements)
+       .memoryStoreEvictionPolicy(MemoryStoreEvictionPolicy.LFU)
+       .overflowToDisk(true)
+       .eternal(false)
+       .timeToLiveSeconds(60)
+       .timeToIdleSeconds(30)
+       .diskPersistent(false)
+       .diskExpiryThreadIntervalSeconds(0));
+   manager.addCache(cache);
+--------------------------------------------
+
+   Once the cache is created, add it to the list of caches managed by the CacheManager:
+
+--------------------------------------------
+     manager.addCache(testCache);
+--------------------------------------------
+
+   The cache is not usable until it has been added.
+
+
+
 
 * {Using Caches}
 
@@ -262,7 +314,7 @@ int hits = cache.getMissCountExpired();
 ---------------------------------
 
  These are just the most commonly used methods. See {{{/xref-test/net/sf/ehcache/CacheTest.html}CacheTest}} for more examples.
- See {{{xref/net/sf/ehcache/Cache.html}Cache}} for the full API.
+ See {{{/xref/net/sf/ehcache/Cache.html}Cache}} for the full API.
 
 ** {JTA}
 
@@ -302,7 +354,7 @@ int hits = cache.getMissCountExpired();
     Please note that XA Transactional caches are currently only supported when clustered with Terracotta.
 
     The Cache can then be used without any special requirement. Changes will only become visible to others, once the transaction
-    has been commited.
+    has been committed.
 
 --------------------------------------------
     Ehcache cache = cacheManager.getEhcache("xaCache");
@@ -327,51 +379,6 @@ int hits = cache.getMissCountExpired();
 --------------------------------------------
 
 
-* {Creating a new cache from defaults}
-
-    A new cache with a given name can be created from defaults very simply:
-
----
-manager.addCache("cache name");
----
-
-* {Creating a new cache with custom parameters}
-
-   The configuration for a Cache can be specified programmatically as an argument to the Cache constructor:
-
---------------------------------------------
-public Cache(CacheConfiguration cacheConfiguration) {
-    ...
-   }
---------------------------------------------
-
-   Here is an example which creates a cache called test.
-
---------------------------------------------
-   //Create a CacheManager using defaults
-   CacheManager manager = CacheManager.create();
-
-   //Create a Cache specifying its configuration.
-
-   Cache testCache = new Cache(
-     new CacheConfiguration("test", maxElements)
-       .memoryStoreEvictionPolicy(MemoryStoreEvictionPolicy.LFU)
-       .overflowToDisk(true)
-       .eternal(false)
-       .timeToLiveSeconds(60)
-       .timeToIdleSeconds(30)
-       .diskPersistent(false)
-       .diskExpiryThreadIntervalSeconds(0));   
-   manager.addCache(cache);
---------------------------------------------
-
-   Once the cache is created, add it to the list of caches managed by the CacheManager:
-
---------------------------------------------
-     manager.addCache(testCache);
---------------------------------------------
-
-   The cache is not usable until it has been added.
 
 *   {Dynamically Modifying Cache Configurations}
     

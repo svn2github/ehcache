@@ -11,8 +11,8 @@ News
 
   This is a beta release of project Darwin a.k.a Ehcache 2.0.
 
-  Ehcache 2.0 provides a new {{{documentation/hibernate.html}Hibernate 3.3 SPI caching plugin}}, {{{documentation/jta.html}JTA}},
-  {{{documentation/write_through_caching.html}Write-Behind}}, a new ultra-fast {{{documentation/bulk_loading.html}Bulk Loading API}} for clustered caches.
+  Ehcache 2.0 provides a new {{{./documentation/hibernate.html}Hibernate 3.3 SPI caching plugin}}, {{{./documentation/jta.html}JTA}},
+  {{{./documentation/write_through_caching.html}Write-Behind}}, a new ultra-fast {{{./documentation/bulk_loading.html}Bulk Loading API}} for clustered caches.
   and dynamic runtime cache reconfiguration.
 
   Ehcache 2.0 is fully backward compatible with earlier versions of Ehcache.
@@ -47,14 +47,14 @@ News
    plugin and more fully implements the OpenJPA API. As with all of the modules we are releasing, this version adds the option,
    when paired with the ehcache-terracotta module of clustering via Terracotta.
 
-   See {{{documentation/openjpa_provider.html}ehcache-openjpa}}.
+   See {{{./documentation/openjpa_provider.html}ehcache-openjpa}}.
 
 
 * 15 December 2009: Ehcache Monitor Beta 2 released
 
    We have had hundreds of people sign up for an play with beta 1 of the Ehcache Monitor. We have fixed over 15 bugs
     in Beta 1 and have released Beta 2. We have also created a roadmap for beta 3 which will add significant new
-    features. See {{{modules/monitor.html}Ehcache Monitor Beta}}.
+    features. See {{{./modules/monitor.html}Ehcache Monitor Beta}}.
 
 * 13 December 2009: Ehcache Web 2.0 released
 
@@ -65,7 +65,7 @@ News
   New in this release is integration with ehcache-terracotta 1.7.1 and higher, so that coherent, terabyte scale
   web caches can be created.
 
-  See {{{documentation/web_caching.html}ehcache-web}}.
+  See {{{./documentation/web_caching.html}ehcache-web}}.
 
 
 * 9 December 2009: Ehcache welcomes Grails as a first-class supported framework
@@ -611,7 +611,7 @@ News
 
     See the {{{http://ehcache.org/changes-report.html#1.3}changelog}} for complete details.
 
-    Work on new features will now start on a new 1.4 branch. See the {{{roadmap.html}Roadmap}} for details. 1.3 will be maintained as
+    Work on new features will now start on a new 1.4 branch. See the {{{./roadmap.html}Roadmap}} for details. 1.3 will be maintained as
      the new stable branch.
 
 
@@ -875,7 +875,7 @@ News
 
 * 20 April 2006: Development Roadmap Updated
 
-     The roadmap for new development has been updated {{{roadmap.html}here}}.
+     The roadmap for new development has been updated {{{./roadmap.html}here}}.
 
 * 17 April 2006: ehcache-1.2rc1 released
 
@@ -912,12 +912,12 @@ News
 * 17 March 2006: New Site Redesign
 
     Ehcache has outgrown its old web design. This new one is produced using {{{http://maven.apache.org}Maven 2}}.
-    Please send any feedback on the new site to the {{{team-list.html}team}}.
+    Please send any feedback on the new site to the {{{./team-list.html}team}}.
 
 
 * 14 March 2006: New Mailing List
 
-    A new mailing list, ehcache-list@lists.sourceforge.net, has been created for Ehcache users and developers. Go {{{mail-list.html}here}}
+    A new mailing list, ehcache-list@lists.sourceforge.net, has been created for Ehcache users and developers. Go {{{./mail-list.html}here}}
     to subscribe or to search the archive.
 
 
@@ -1053,7 +1053,7 @@ there was only one bug reported.
 
  See the release notes and full changelog {{{http://sourceforge.net/project/shownotes.php?release_id=284863}here}}.
 
-* 23 November 2004 Announcing {{{ehcache-constructs/index.html}ehcache-constructs-0.5}}
+* 23 November 2004 Announcing ehcache-constructs-0.5
 
  A subproject of ehcache, ehcache-constructs builds on top of Ehcache to create implementations for common caching patterns.
 All implementations use Ehcache as the backing cache. They also share a common purpose - to create very high performance Java applications.
@@ -1087,7 +1087,7 @@ pages based on the request URI and Query String.
   * SimplePageFragmentCachingFilter - a concrete implementation which
 caches page fragments based on the request URI and Query String.
 
- See the {{{ehcache-constructs/index.html}ehcache-constructs}} subsite for and overview, documentation, javadoc, clover test coverage and more.
+ See the {{{./ehcache-constructs/index.html}ehcache-constructs}} sub-site for and overview, documentation, javadoc, clover test coverage and more.
 
 * 28 September 2004 {{{http://sourceforge.net/project/shownotes.php?release_id=271146} Ehcache 1.0 released}}.
 
@@ -1153,7 +1153,7 @@ and is now ready for a wider audience.
 
   * Fix to a rare null pointer exception.
 
-  * Added {{{clover/index.html}Clover}}
+  * Added {{{./clover/index.html}Clover}}
 test coverage. Many thanks to cortex for the free license. Note that
 Clover is not included in the packaged binary code and no license is
 required to use EHCache.

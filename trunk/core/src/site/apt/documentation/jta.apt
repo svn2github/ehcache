@@ -163,12 +163,12 @@
 
 *   {Sample Apps}
 
-    We have sample applications showing how to use JTA.
+    We have three sample applications showing how to use JTA with a variety of technologies.
 
 
 **  JTA Sample App
 
-    This sample application shows an example using User managed transactions. While we expect most people will use
+    This sample application uses JBoss application server. It shows an example using User managed transactions. While we expect most people will use
     JTA from within Spring or EJB where the container rather than managing it themselves, it clearly shows what is going
     on.
 
@@ -203,6 +203,38 @@
     {{http://svn.terracotta.org/svn/forge/projects/ehcache-jta-sample/trunk}} terracotta_community_login
 
     A README.txt explains how to get the JTA Sample app going.
+
+**   JTA Banking Application
+
+    The Idea of this application is to show a real world scenario. AwWeb app reads <account transfer> messages from a queue
+    and tries to execute these account transfers.
+
+    With JTA turned on, failures are rolled back so that the cached account balance is always the same as the true balance
+    summed from the database.
+
+    This app is a Spring-based Java web app running in a Jetty container. It has (embedded) the following components:
+
+    * A JMS Server (ActiveMQ)
+
+    * 2 databases (embedded Derby XA instances)
+
+    * 2 caches (JTA Ehcache)
+
+    All XA Resources are managed by Atomikos TransactionManager. Transaction demarcation is done using
+    Spring AOP's <<<@Transactional>>> annotation.
+
+    You can run it with: <<<mvn clean jetty:run>>>. Then point your browser at: {{http://localhost:9080}}.
+
+    To see what happens without XA transactions:
+
+    <<<mvn clean jetty:run -Dxa=no>>>
+---
+
+    The source code for the demo can be checked out from
+    {{https://svn.terracotta.org/repo/forge/projects/ehcache-jta-banking/trunk}} terracotta_community_login
+
+    A README.txt explains how to get the JTA Sample app going.
+
 
 **  Examinator
 
