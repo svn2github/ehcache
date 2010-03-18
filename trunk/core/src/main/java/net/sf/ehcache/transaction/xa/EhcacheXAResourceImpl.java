@@ -374,8 +374,7 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
                               if (element != null) {
                                   store.put(element);
                               } else {
-//                                  element = store.remove(key);
-                                  LOG.error("No element found in oldVersionStore for key '{}'", key);
+                                  element = store.remove(key);
                               }
                           } finally {
                               if (element != null) {
