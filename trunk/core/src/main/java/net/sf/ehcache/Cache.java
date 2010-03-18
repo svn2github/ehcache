@@ -940,6 +940,11 @@ public class Cache implements Ehcache {
 
             this.diskStore = createDiskStore();
 
+            if (configuration.isTransactional()) {
+                //set copy on read
+                configuration.getTerracottaConfiguration().setCopyOnRead(true);
+            }
+
             final Store memStore;
             if (isTerracottaClustered()) {
                 memStore = cacheManager.createTerracottaStore(this);
@@ -968,9 +973,6 @@ public class Cache implements Ehcache {
                 }
                 //set xa enabled
                 configuration.getTerracottaConfiguration().setCacheXA(true);
-
-                //set copy on read
-                configuration.getTerracottaConfiguration().setCopyOnRead(true);
 
                 EhcacheXAStore ehcacheXAStore = cacheManager.createEhcacheXAStore(this, memStore);
 
