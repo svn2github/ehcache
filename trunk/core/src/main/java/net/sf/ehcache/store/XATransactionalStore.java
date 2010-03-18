@@ -66,6 +66,8 @@ public class XATransactionalStore implements Store {
     private final ConcurrentHashMap<Transaction, TransactionContext> transactionToContextMap =
             new ConcurrentHashMap<Transaction, TransactionContext>();
 
+    private final ConcurrentHashMap<Transaction, EhcacheXAResource> transactionToXAResourceMap =
+            new ConcurrentHashMap<Transaction, EhcacheXAResource>();
 
     /**
      * Create a store which will wrap another one to provide XA transactions.
@@ -355,6 +357,30 @@ public class XATransactionalStore implements Store {
         return element;
     }
 
+    /**
+     * This method either returns the XAResource associated with the current transaction or creates a new one
+     * if there was none yet.
+     * @return the XAResource bound to this transaction
+     */
+    public EhcacheXAResource getOrCreateXAResource() {
+        try {
+            Transaction transaction = txnManager.getTransaction();
+            if (transaction == null) {
+                throw new CacheException("Cache " + cache.getName() + " can only be accessed within a JTA Transaction!");
+            }
+
+            EhcacheXAResource xaResource = transactionToXAResourceMap.get(transaction);
+            if (xaResource == null) {
+                xaResource = new EhcacheXAResourceImpl(cache, txnManager, ehcacheXAStore);
+                transactionToXAResourceMap.put(transaction, xaResource);
+            }
+
+            return xaResource;
+        } catch (SystemException e) {
+            throw new CacheException(e);
+        }
+    }
+
     private TransactionContext getOrCreateTransactionContext() {
         try {
             Transaction transaction = txnManager.getTransaction();
@@ -367,8 +393,7 @@ public class XATransactionalStore implements Store {
                 return context;
             }
 
-
-            EhcacheXAResource xaResource = new EhcacheXAResourceImpl(cache, txnManager, ehcacheXAStore);
+            EhcacheXAResource xaResource = getOrCreateXAResource();
 
             // xaResource.createTransactionContext() is going to enlist the XAResource in
             // the transaction so it MUST be registered first
@@ -388,7 +413,7 @@ public class XATransactionalStore implements Store {
     }
 
     /**
-     * This class is sued to clean up the transactionToContextMap after a transaction
+     * This class is used to clean up the transactionToContextMap after a transaction
      * committed or rolled back.
      */
     private final class CleanupTransactionContext implements TwoPcExecutionListener {
@@ -404,9 +429,9 @@ public class XATransactionalStore implements Store {
 
         public void afterCommitOrRollback(EhcacheXAResource xaResource) {
             transactionToContextMap.remove(transaction);
+            transactionToXAResourceMap.remove(transaction);
             transactionManagerLookup.unregister(xaResource);
         }
     }
-
 
 }
