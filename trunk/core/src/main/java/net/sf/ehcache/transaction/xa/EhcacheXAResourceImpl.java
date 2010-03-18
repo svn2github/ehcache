@@ -444,6 +444,10 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
 
         // currentXid is set by a call to start() which itself is called by transaction.enlistResource(this)
         // this is quite confusing, there should be a way to simplify all that.
+        if (currentXid == null) {
+            throw new CacheException("enlistment of XAResource of cache named '" + getCacheName() +
+                    "' did not end up calling XAResource.start()"); 
+        }
         return ehcacheXAStore.createTransactionContext(currentXid);
     }
 
