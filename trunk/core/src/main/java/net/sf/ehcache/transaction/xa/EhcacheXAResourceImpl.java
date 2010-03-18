@@ -183,7 +183,11 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
             // validate we will be able to commit
             validateCommands(context, xid);
         } catch (XAException e) {
-            // If something goes
+            // If something goes wrong
+            for(Object updatedKey : updatedKeys) {
+                // Decrease counters, readonly operation, as we are "rolling back"
+                ehcacheXAStore.checkin(updatedKey, xid, true);
+            }
             storeLockProvider.unlockWriteLockForAllKeys(updatedKeys);
             oldVersionStoreLockProvider.unlockWriteLockForAllKeys(updatedKeys);
             throw e;
@@ -381,12 +385,7 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
                       }
                   }
             } finally {
-//                try {
-                    oldVersionStoreLockProvider.unlockWriteLockForAllKeys(updatedKeys);
-//                } catch (RuntimeException e) {
-//                    System . out . println("\n\n\n Error rolling back " + xid + " on " + this + "\n\n");
-//                    System.exit(-1);
-//                }
+                oldVersionStoreLockProvider.unlockWriteLockForAllKeys(updatedKeys);
             }
         } else if (context != null && context.isCommitted()) {
             throw new EhcacheXAException("Transaction " + xid + " has been heuristically committed", XAException.XA_HEURCOM);
