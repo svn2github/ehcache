@@ -329,7 +329,7 @@ public interface Ehcache extends Cloneable {
      * @throws CacheException if no CacheWriter was registered
      * @since 2.0
      */
-    boolean removeWithWriter(Object key) throws IllegalStateException;
+    boolean removeWithWriter(Object key) throws IllegalStateException, CacheException;
 
     /**
      * Removes all cached items.
