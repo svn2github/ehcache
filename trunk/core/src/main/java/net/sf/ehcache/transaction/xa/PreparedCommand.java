@@ -25,13 +25,13 @@ public interface PreparedCommand {
 
     /**
      * Key of command
-     * @return
+     * @return the key involved with that command
      */
     Object getKey();
 
     /**
      * If this is write command (i.e. put, remove)
-     * @return
+     * @return true, if executing that command will mutate the underlying store. Otherwise false
      */
     boolean isWriteCommand();
 
