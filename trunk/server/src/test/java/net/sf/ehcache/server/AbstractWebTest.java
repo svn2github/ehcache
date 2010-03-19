@@ -43,6 +43,8 @@ import java.util.concurrent.TimeUnit;
 
 
 /**
+ *
+ * todo https://jira.terracotta.org/jira/browse/DEV-3939
  * A convenient base class for ehcache filter tests
  *
  * To run these you MUST be online due to a bug in glassfish embedded:

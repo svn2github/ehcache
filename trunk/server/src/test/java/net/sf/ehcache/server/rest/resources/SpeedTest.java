@@ -2,6 +2,10 @@ package net.sf.ehcache.server.rest.resources;
 
 import com.meterware.httpunit.WebConversation;
 import com.meterware.httpunit.WebResponse;
+import com.ning.http.client.AsyncCompletionHandler;
+import com.ning.http.client.AsyncHttpClient;
+import com.ning.http.client.AsyncHttpClientConfig;
+import com.ning.http.client.Response;
 import net.sf.ehcache.Status;
 import net.sf.ehcache.server.AbstractWebTest;
 import net.sf.ehcache.server.util.HttpUtil;
@@ -10,7 +14,6 @@ import net.sf.ehcache.util.MemoryEfficientByteArrayOutputStream;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpMethod;
 import org.apache.commons.httpclient.methods.GetMethod;
-import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -21,17 +24,9 @@ import javax.xml.parsers.ParserConfigurationException;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.net.HttpURLConnection;
-import java.net.URL;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.junit.Assert.assertEquals;
 
@@ -150,6 +145,8 @@ public class SpeedTest extends AbstractWebTest {
         runThreads(executables);
     }
 
+    final AtomicInteger openConnections = new AtomicInteger();
+
 
     /**
      * Memcached 1.2.1 with memcache Java lib 1.5.1
@@ -157,14 +154,14 @@ public class SpeedTest extends AbstractWebTest {
      * 10000 gets: 3551ms
      * 10000 getMulti: 2132ms
      * 10000 deletes: 2065ms
-     *
+     * <p/>
      * Ehcache 0.9 with Ehcache 2.0.0
      * 10000 puts: 3717ms (single threaded put)
      * 10000 puts: 2691ms (single threaded put after Web Container warm up)
-     * 10000 gets: 31600ms (single threaded get)
-     * 10000 gets: 17398ms (single threaded get)
+     * 10000 gets: 15204ms (single threaded get HTTPClient)
+     * INFO: 10000 gets: 386ms (single threaded get with async-http-client)
      */
-//    @Test
+    @Test
     public void testMemCachedBench() throws Exception {
 
         //warm up Java Web Container, which Memcached does not need
@@ -178,18 +175,6 @@ public class SpeedTest extends AbstractWebTest {
         String object = "This is a test of an object blah blah es, serialization does not seem to slow things down so much.  The gzip compression is horrible horrible performance, so we only use it for very large objects.  I have not done any heavy benchmarking recently";
         byte[] objectAsBytes = object.getBytes();
 
-
-//        ExecutorService executor = Executors.newFixedThreadPool(300);
-//
-//        final AbstractWebTest.Executable executable = new AbstractWebTest.Executable() {
-//            public void execute() throws Exception {
-//                HttpURLConnection urlConnection = HttpUtil.get("http://localhost:9090/ehcache/rest/sampleCache2/1");
-//                if (urlConnection.getResponseCode() != 200) {
-//                    LOG.info("Error on response: " + urlConnection.getResponseCode());
-//                }
-//            }
-//        };
-
         StopWatch stopWatch = new StopWatch();
         for (int i = 0; i < cacheOperations; i++) {
             String keyUrl = new StringBuffer(cacheUrl).append('/').append(keyBase).append(i).toString();
@@ -200,16 +185,35 @@ public class SpeedTest extends AbstractWebTest {
 
         stopWatch = new StopWatch();
 
+
+        AsyncHttpClientConfig asyncHttpClientConfig = new AsyncHttpClientConfig.Builder().
+                setKeepAlive(true).setConnectionTimeoutInMs(1000).build();
+        AsyncHttpClient asyncHttpClient = new AsyncHttpClient(asyncHttpClientConfig);
+
+
         for (int i = 0; i < cacheOperations; i++) {
-            String keyUrl = new StringBuffer(cacheUrl).append('/').append(keyBase).append(i).toString();
+            String url = new StringBuffer(cacheUrl).append('/').append(keyBase).append(i).toString();
+            final int finalI = i;
+            openConnections.incrementAndGet();
+            //limit to single threaded
+            if (openConnections.get() <= 1) {
+                asyncHttpClient.prepareGet(url).execute(new AsyncCompletionHandler() {
 
-            URL u = new URL(keyUrl);
-            HttpURLConnection urlConnection = (HttpURLConnection) u.openConnection();
-            urlConnection.setUseCaches(true);
-            urlConnection.setRequestMethod("GET");
-            int status = urlConnection.getResponseCode();
+                    @Override
+                    public Response onCompleted(Response response) throws Exception {
+                        assertEquals(200, response.getStatusCode());
+                        openConnections.decrementAndGet();
+                        return response;
+                    }
 
-            assertEquals(200, HttpUtil.get(keyUrl).getResponseCode());
+                    @Override
+                    public void onThrowable(Throwable t) {
+                        openConnections.decrementAndGet();
+                        LOG.error("On " + finalI + "th request" + t.getMessage());
+                    }
+                });
+            }
+
         }
         LOG.info(cacheOperations + " gets: " + stopWatch.getElapsedTime() + "ms");
 
