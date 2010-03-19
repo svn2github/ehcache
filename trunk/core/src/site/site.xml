@@ -11,6 +11,7 @@
         <!--<href>http://www.terracotta.org</href>-->
     <!--</bannerRight>-->
     <body>
+
         <links>
             <item name="Download" href="http://www.terracotta.org/dl/ehcache-oss-sign-up"/>
         </links>

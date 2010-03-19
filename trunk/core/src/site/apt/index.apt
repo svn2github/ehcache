@@ -2,7 +2,9 @@
  Ehcache Distributed Cache - Performance At Any Scale
  ---- 
 
-%{snippet|file=src/site/include/heading.html|verbatim=false}
+Ehcache Distributed Cache
+
+%{snippet|file=src/site/include/home_page_promo.html|verbatim=false}
 
     Ehcache is an open source, standards-based cache used in a wide array of applications to boost performance,
     offload the database and simplify scalability. Ehcache is robust, proven and full-features and this has made it
@@ -54,7 +56,7 @@
 {{{./documentation/openjpa_provider.html}ehcache-openjpa}} | Caching Plugin for OpenJPA
 *----------+--------------+
 {{{./documentation/cache_server.html}ehcache-server}} | RESTful cache server in a WAR or standalone
-*----------+--------------:
+*----------+--------------+
 {{{./documentation/explicitlocking.html}ehcache-explicitlocking}} | Explicit locking control with Terracotta
 *----------+--------------:
 

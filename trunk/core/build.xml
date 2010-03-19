@@ -199,75 +199,18 @@
         <copy file="${src.config.dir}/ehcache.xml" todir="${build.dir}/site"/>
         <copy file="${src.config.dir}/ehcache.xsd" todir="${build.dir}/site"/>
 
-        <!--Add google code-->
-        <replace dir="${build.dir}/site">
-            <replacetoken><![CDATA[</body>]]></replacetoken>
-            <replacevalue><![CDATA[
-<script type="text/javascript">
-var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
-document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
-</script>
-<script type="text/javascript">
-try {
-var pageTracker = _gat._getTracker("UA-3138913-3");
-pageTracker._trackPageview();
-} catch(err) {}</script>
-</body>
-            ]]></replacevalue>
-        </replace>
-        
-        <!--Fix absolute size of architecture diagram-->
-        <replace file="${build.dir}/site/documentation/architecture.html">
-            <replacetoken><![CDATA[<img src="images/layered_architecture.png"]]></replacetoken>
-            <replacevalue><![CDATA[ <img src="images/layered_architecture.png" width="100%"
-            alt="Ehcache Architecture diagram showing core caching capabilities, replication features,
-            in-process APIs, and network APIs.  These capabilities make Ehcache a widely used java distributed
-            cache for general purpose caching, Java EE and light-weight containers. It features memory and disk stores,
-            replicate by copy and invalidate, listeners, cache loaders, cache extensions, cache exception handlers,
-            a gzip caching servlet filter, RESTful & SOAP APIs and much more."]]></replacevalue>
-        </replace>
         <replace file="${build.dir}/site/index.html">
             <replacetoken><![CDATA[Ehcache Distributed Cache]]></replacetoken>
             <replacevalue><![CDATA[
             Ehcache Distributed Cache <br><font size="-1" color="black">Performance At Any Scale</font></h2>
-            <div class="headline-promo">
-	      <h4 style="margin-top: 0">March 9, 2010: Ehcache 2.0 Released</h4>
-	      <p>In the last six months, we have
-	         invested tens of thousands of person-hours into improving Ehcache, adding
-	         features and improving performance with the Terracotta Server Array.  This latest release represents the culmination of all
-	         of that work. We are pleased to announce <strong>Ehcache 2.0</strong>.</p>
-	      <p><strong>New Features Include:</strong><br/>
-		<ul>
-		  <li><a href="/documentation/hibernate.html">Hibernate 3.3 SPI caching plugin&nbsp;&rsaquo;</a></li>
-		  <li><a href="/documentation/write_through_caching.html">Write-behind&nbsp;&rsaquo;</a></li>
-		  <li><a href="/documentation/jta.html">JTA support&nbsp;&rsaquo;</a></li>
-		  <li><a href="/documentation/bulk_loading.html">Ultra-fast bulk-loading API&nbsp;&rsaquo;</a></li>
-		  <li><a href="http://www.terracotta.org/start">Better scale-out with Terracotta's distributed cache engine&nbsp;&rsaquo;</a></li>
-		  <li><a href="/documentation/jmx.html">Dynamic, runtime cache configuration&nbsp;&rsaquo;</a></li>
-		</ul>
-	      </p>
-	      <p>If you already use Ehcache, you will love Ehcache 2.0, which is fully backward compatible. If you don't use Ehcache yet, take it for a spin and find out why it's the industry-standard Java cache.</p>
-	      <!--<p><em>&mdash;Greg Luck, Founder of Ehcache</em></p>-->
-	      <a href="http://www.terracotta.org/dl/ehcache-oss-sign-up" target="_blank"><img style="margin-right: 10px" src="images/download.png"/></a><a href="/documentation/"><img src="images/documentation-red.png"/></a>
-	    </div>
             ]]></replacevalue>
-        </replace>
-        <replace file="${build.dir}/site/modules/monitor.html">
-            <replacetoken><![CDATA[dx_preview]]></replacetoken>
-            <replacevalue><![CDATA[
-            <object width="425" height="344"><param name="movie" value="http://www.youtube.com/v/XU9ZnOBJ4I0&hl=en&fs=1&"></param><param name="allowFullScreen" value="true"></param><param name="allowscriptaccess" value="always"></param><embed src="http://www.youtube.com/v/XU9ZnOBJ4I0&hl=en&fs=1&" type="application/x-shockwave-flash" allowscriptaccess="always" allowfullscreen="true" width="425" height="344"></embed></object>
-                    ]]></replacevalue>
-        </replace>
-        <replace file="${build.dir}/site/index.html">
-            <replacetoken><![CDATA[ehcache_1_7_talk]]></replacetoken>
-            <replacevalue><![CDATA[
-            <br>&nbsp;&nbsp;&nbsp;&nbsp;<center><a href="https://terracotta.webex.com/terracotta/lsr.php?AT=pb&SP=EC&rID=1702397&rKey=b0920841e529407d" title="Ehcache 1.7 Scaling Applications with Distributed Caches, recorded 5 November 2009. 60 minutes duration"><img src="images/ehcache_1_7_presentation.jpg" border="0"/></a></center>
-            <br>        ]]></replacevalue>
         </replace>
         <replace file="${build.dir}/site/source-repository.html">
             <replacetoken><![CDATA[ehcache-core]]></replacetoken>
             <replacevalue><![CDATA[ehcache]]></replacevalue>
         </replace>
+
+        <!--Add icons wherever they appear-->
         <replace dir="${build.dir}/site">
             <replacetoken><![CDATA[new_in_2]]></replacetoken>
             <replacevalue><![CDATA[<img src="images/new_in_2.gif" alt="New feature in Ehcache 2.0">]]></replacevalue>
@@ -281,106 +224,6 @@ pageTracker._trackPageview();
             <replacevalue><![CDATA[<img src="images/new.gif" alt="New feature">]]></replacevalue>
         </replace>
 
-        <!--Fix absolute size of members' and contributors' lists-->
-        <replace file="${build.dir}/site/team-list.html">
-            <replacetoken><![CDATA[<table class="bodyTable">]]></replacetoken>
-            <replacevalue><![CDATA[<table class="bodyTable" width="100%">]]></replacevalue>
-        </replace>
-        <replace file="${build.dir}/site/team-list.html">
-            <replacetoken><![CDATA[<th>Organization</th>]]></replacetoken>
-            <replacevalue><![CDATA[<th>Org</th>]]></replacevalue>
-        </replace>
-        <replace file="${build.dir}/site/team-list.html">
-            <replacetoken><![CDATA[<th>Organization URL</th>]]></replacetoken>
-            <replacevalue><![CDATA[<th>Org URL</th>]]></replacevalue>
-        </replace>
-        <replace file="${build.dir}/site/modules/monitor.html">
-            <replacetoken><![CDATA[monitor_beta_signup_form]]></replacetoken>
-            <replacevalue><![CDATA[<form method="POST" action="http://now.eloqua.com/e/f2.aspx">
-			<input type="hidden" name="elqFormName" value="311beta"/>
-			<input type="hidden" name="elqSiteID" value="516"/>
-
-<table id="signup-table" cellpadding="0" cellspacing="0">
-  <tr>
-    <td>
-      <img src="/images/spacer.gif" width="122" height="0"/>
-    </td>
-    <td><img src="/images/spacer.gif" width="0" height="0"/>
-    </td>
-  </tr>
-  <tr>
-    <td width="120" valign="top">
-      <strong>First Name:</strong><br/>(required)
-    </td>
-    <td valign="top"><input class="fixedwidth" type="text" name="C_FirstName"/>
-    </td>
-  </tr>
-  <tr>
-    <td width="120" valign="top">
-      <strong>Last Name:</strong><br/>(required)
-    </td>
-    <td valign="top"><input class="fixedwidth" type="text" name="C_LastName"/>
-    </td>
-  </tr>
-  <tr>
-    <td valign="top">
-      <strong>Email:</strong><br/>(required)
-    </td>
-    <td valign="top">
-      <input class="fixedwidth" type="text" name="C_EmailAddress"/>
-    </td>
-  </tr>
-  <tr>
-    <td valign="top"><strong>Company:</strong><br/>(required)</td>
-    <td valign="top"><input class="fixedwidth" type="text" name="C_Company"/>
-    </td>
-  </tr>
-  <tr>
-    <td valign="top">
-      <strong>Title:</strong><br/>
-    </td>
-    <td valign="top">
-      <input class="fixedwidth" type="text" name="C_Title"/>
-    </td>
-  </tr>
-  <tr>
-    <td valign="top">
-      <strong>Address Line 1:</strong><br/>(required)</td>
-      <td valign="top"><input class="fixedwidth" type="text" name="C_Address1"/>
-      </td>
-    </tr>
-    <tr>
-      <td valign="top"><strong>Address Line 2:</strong></td><td valign="top"><input class="fixedwidth" type="text" name="C_Address2"/>
-      </td>
-    </tr>
-    <tr>
-      <td valign="top"><strong>City:</strong><br/>(required)</td><td valign="top"><input class="fixedwidth" type="text" name="C_City"/>
-      </td>
-    </tr>
-    <tr>
-      <td valign="top"><strong>State/Province:</strong><br/>(required)</td><td valign="top"><input class="fixedwidth" type="text" name="C_State_Prov"/>
-      </td>
-    </tr>
-    <tr>
-      <td valign="top"><strong>Postal Code:</strong><br/></td><td valign="top"><input class="fixedwidth" type="text" name="C_Zip_Postal"/></td>
-    </tr>
-    <tr>
-      <td valign="top"><strong>Country:</strong><br/>(required)</td><td valign="top"><input class="fixedwidth" type="text" name="C_Country"/>
-      </td>
-    </tr>
-    <tr>
-      <td valign="top"><strong>Phone:</strong><br/>(required)</td><td valign="top"><input class="fixedwidth" type="text" name="C_BusPhone"/>
-      </td>
-    </tr>
-    <tr>
-      <td valign="top">&nbsp;</td><td valign="top">
-	<input type="image" value="Submit" src="/images/register.png"/>
-      </td>
-    </tr>
-  </table>
-
-		      </form>]]></replacevalue>
-        </replace>
     </target>
 
     <target name="create_singlepageguide" depends="prepare-book-resources">
