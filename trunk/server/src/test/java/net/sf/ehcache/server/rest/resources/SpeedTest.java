@@ -2,10 +2,6 @@ package net.sf.ehcache.server.rest.resources;
 
 import com.meterware.httpunit.WebConversation;
 import com.meterware.httpunit.WebResponse;
-import com.ning.http.client.AsyncCompletionHandler;
-import com.ning.http.client.AsyncHttpClient;
-import com.ning.http.client.AsyncHttpClientConfig;
-import com.ning.http.client.Response;
 import net.sf.ehcache.Status;
 import net.sf.ehcache.server.AbstractWebTest;
 import net.sf.ehcache.server.util.HttpUtil;
@@ -13,6 +9,8 @@ import net.sf.ehcache.server.util.StopWatch;
 import net.sf.ehcache.util.MemoryEfficientByteArrayOutputStream;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpMethod;
+import org.apache.commons.httpclient.cookie.CookiePolicy;
+import org.apache.commons.httpclient.methods.DeleteMethod;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -156,16 +154,16 @@ public class SpeedTest extends AbstractWebTest {
      * 10000 deletes: 2065ms
      * <p/>
      * Ehcache 0.9 with Ehcache 2.0.0
-     * 10000 puts: 3717ms (single threaded put)
-     * 10000 puts: 2691ms (single threaded put after Web Container warm up)
-     * 10000 gets: 15204ms (single threaded get HTTPClient)
-     * INFO: 10000 gets: 386ms (single threaded get with async-http-client)
+     * INFO: 10000 puts: 2961ms
+     * INFO: 10000 gets: 3841ms
+     * INFO: 10000 deletes: 2685ms
      */
     @Test
     public void testMemCachedBench() throws Exception {
 
-        //warm up Java Web Container, which Memcached does not need
-//        testConcurrentRequests();
+        //warm up Java Web Container, which Memcache does not need, as it is C based
+        testConcurrentRequests();
+        Thread.sleep(2000);
 
 
         int cacheOperations = 10000;
@@ -186,75 +184,26 @@ public class SpeedTest extends AbstractWebTest {
         stopWatch = new StopWatch();
 
 
-        AsyncHttpClientConfig asyncHttpClientConfig = new AsyncHttpClientConfig.Builder().
-                setKeepAlive(true).setConnectionTimeoutInMs(1000).build();
-        AsyncHttpClient asyncHttpClient = new AsyncHttpClient(asyncHttpClientConfig);
-
-
+        HttpClient httpClient = new HttpClient();
+        httpClient.getParams().setParameter("http.connection.stalecheck", false);
         for (int i = 0; i < cacheOperations; i++) {
             String url = new StringBuffer(cacheUrl).append('/').append(keyBase).append(i).toString();
-            final int finalI = i;
-            openConnections.incrementAndGet();
-            //limit to single threaded
-            if (openConnections.get() <= 1) {
-                asyncHttpClient.prepareGet(url).execute(new AsyncCompletionHandler() {
-
-                    @Override
-                    public Response onCompleted(Response response) throws Exception {
-                        assertEquals(200, response.getStatusCode());
-                        openConnections.decrementAndGet();
-                        return response;
-                    }
-
-                    @Override
-                    public void onThrowable(Throwable t) {
-                        openConnections.decrementAndGet();
-                        LOG.error("On " + finalI + "th request" + t.getMessage());
-                    }
-                });
-            }
-
+            HttpMethod httpMethod = new GetMethod(url);
+            httpMethod.getParams().setCookiePolicy(CookiePolicy.IGNORE_COOKIES);
+            httpClient.executeMethod(httpMethod);
         }
         LOG.info(cacheOperations + " gets: " + stopWatch.getElapsedTime() + "ms");
 
+        stopWatch = new StopWatch();
 
-//
-//        long begin = System.currentTimeMillis();
-//        for (int i = start; i < start + runs; i++) {
-//            mc.set(keyBase + i, object);
-//        }
-//        long end = System.currentTimeMillis();
-//        long time = end - begin;
-//        System.out.println(runs + " sets: " + time + "ms");
-//
-//        begin = System.currentTimeMillis();
-//        for (int i = start; i < start + runs; i++) {
-//            String str = (String) mc.get(keyBase + i);
-//        }
-//        end = System.currentTimeMillis();
-//        time = end - begin;
-//        System.out.println(runs + " gets: " + time + "ms");
-//
-//        String[] keys = new String[runs];
-//        int j = 0;
-//        for (int i = start; i < start + runs; i++) {
-//            keys[j] = keyBase + i;
-//            j++;
-//        }
-//        begin = System.currentTimeMillis();
-//        Map vals = mc.getMulti(keys);
-//        end = System.currentTimeMillis();
-//        time = end - begin;
-//        System.out.println(runs + " getMulti: " + time + "ms");
-//
-//        begin = System.currentTimeMillis();
-//        for (int i = start; i < start + runs; i++) {
-//            mc.delete(keyBase + i);
-//        }
-//        end = System.currentTimeMillis();
-//        time = end - begin;
-//        System.out.println(runs + " deletes: " + time + "ms");
+        httpClient = new HttpClient();
+        httpClient.getParams().setParameter("http.connection.stalecheck", false);
+        for (int i = 0; i < cacheOperations; i++) {
+            String url = new StringBuffer(cacheUrl).append('/').append(keyBase).append(i).toString();
+            HttpMethod httpMethod = new DeleteMethod(url);
+            httpMethod.getParams().setCookiePolicy(CookiePolicy.IGNORE_COOKIES);
+            httpClient.executeMethod(httpMethod);
+        }
+        LOG.info(cacheOperations + " deletes: " + stopWatch.getElapsedTime() + "ms");
     }
-
-
 }
