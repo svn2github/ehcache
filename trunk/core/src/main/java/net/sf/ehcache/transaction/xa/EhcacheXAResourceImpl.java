@@ -539,7 +539,9 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
         for (VersionAwareCommand command : context.getCommands()) {
             if (command.isVersionAware()) {
                 if (!ehcacheXAStore.isValid(command, xid)) {
-                    throw new EhcacheXAException("Invalid version for element: " + command.getKey(), XAException.XA_RBINTEGRITY);
+                    throw new EhcacheXAException("Element for key <" + command.getKey() + "> has changed since it was " +
+                            command.getCommandName() + " in the cache and the transaction committed (currentVersion: " +
+                            command.getVersion() + ")", XAException.XA_RBINTEGRITY);
                 }
             }
         }

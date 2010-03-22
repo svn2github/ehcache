@@ -70,11 +70,10 @@ public class TransactionXARequestProcessor implements XARequestProcessor {
         } catch (InterruptedException e) {
             throw new EhcacheXAException(e.getMessage(), -1, e);
         } catch (ExecutionException e) {
-
             throw new EhcacheXAException(e.getMessage(), -1, e);
         }
         if (xaResponse.getXaException() != null) {
-            throw xaResponse.getXaException();
+            throw new EhcacheXAException("XA request failed", xaResponse.getXaException().errorCode, xaResponse.getXaException());
         }
         
         if (request.getRequestType().equals(RequestType.COMMIT) || 
@@ -82,7 +81,7 @@ public class TransactionXARequestProcessor implements XARequestProcessor {
            request.getRequestType().equals(RequestType.FORGET)) {
             cleanupExecutorService(request.getXid());
         }
-        
+
         return returnFlags;
     }
     
