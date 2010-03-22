@@ -87,7 +87,11 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
      *            The EhcacheXAStore for this cache
      */
     public EhcacheXAResourceImpl(Ehcache cache, TransactionManager txnManager, EhcacheXAStore ehcacheXAStore) {
-        this.cacheName          = cache.getName();
+        String cacheMgrName = cache.getCacheManager().getName();
+        if (!cache.getCacheManager().isNamed()) {
+          cacheMgrName = "__DEFAULT__";
+        }
+        this.cacheName          = cache.getName() + "@" + cacheMgrName + ".cacheManager";
         this.store              = ehcacheXAStore.getUnderlyingStore();
         this.txnManager         = txnManager;
         this.ehcacheXAStore     = ehcacheXAStore;
