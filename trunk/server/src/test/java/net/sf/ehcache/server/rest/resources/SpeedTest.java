@@ -159,7 +159,7 @@ public class SpeedTest extends AbstractWebTest {
      * INFO: 10000 deletes: 2685ms
      */
     @Test
-    public void testMemCachedBench() throws Exception {
+    public void testMemCacheBench() throws Exception {
 
         //warm up Java Web Container, which Memcache does not need, as it is C based
         testConcurrentRequests();

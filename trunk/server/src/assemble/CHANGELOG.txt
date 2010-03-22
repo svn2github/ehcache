@@ -9,6 +9,10 @@ $Id: CHANGELOG.txt,v 1.31 2006/03/07 00:05:56 gregluck Exp $
     <action dev="Greg Luck" type="add">
         Change logging to SLF4J.
     </action>
+    <action dev="Greg Luck" type="fix">
+        Change ehcache/rest to list <caches><cache>... rather than <caches><caches>.... This
+        change will require anyone parsing the list of changes to change their parser.
+    </action>
 </release>
 
 

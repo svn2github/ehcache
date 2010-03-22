@@ -19,7 +19,6 @@ package net.sf.ehcache.server.rest.resources;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.server.jaxb.Cache;
-import net.sf.ehcache.server.jaxb.Caches;
 import net.sf.ehcache.server.jaxb.Statistics;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -94,7 +93,7 @@ public class CachesResource {
      * @return
      */
     @GET
-    public Caches getCaches() {
+    public List<Cache> getCaches() {
         LOG.debug("GET Caches");
 
         String[] cacheNames = MANAGER.getCacheNames();
@@ -109,7 +108,7 @@ public class CachesResource {
             cacheList.add(cache);
         }
 
-        return new Caches(cacheList);
+        return cacheList;
     }
 
 }

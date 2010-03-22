@@ -33,7 +33,7 @@
         <dependency>
             <groupId>net.sf.ehcache</groupId>
             <artifactId>ehcache</artifactId>
-            <version>2.0.0</version>
+            <version>[1.7.1,]</version>
             <type>pom</type>
         </dependency>
         <dependency>
@@ -498,23 +498,23 @@
                 <updatePolicy>daily</updatePolicy>
             </snapshots>
         </repository>
-        <repository>
-            <id>sourceforge-snapshots</id>
-            <url>http://oss.sonatype.org/content/repositories/sourceforge-snapshots</url>
-            <snapshots>
-                <enabled>true</enabled>
-                <updatePolicy>always</updatePolicy>
-            </snapshots>
-        </repository>
-        <repository>
-            <id>sonatype-nexus-snapshots</id>
-            <name>sonatype-nexus-snapshots</name>
-            <url>http://oss.sonatype.org/content/repositories/snapshots</url>
-            <snapshots>
-                <enabled>true</enabled>
-                <updatePolicy>daily</updatePolicy>
-            </snapshots>
-        </repository>
+        <!--<repository>-->
+            <!--<id>sourceforge-snapshots</id>-->
+            <!--<url>http://oss.sonatype.org/content/repositories/sourceforge-snapshots</url>-->
+            <!--<snapshots>-->
+                <!--<enabled>true</enabled>-->
+                <!--<updatePolicy>always</updatePolicy>-->
+            <!--</snapshots>-->
+        <!--</repository>-->
+        <!--<repository>-->
+            <!--<id>sonatype-nexus-snapshots</id>-->
+            <!--<name>sonatype-nexus-snapshots</name>-->
+            <!--<url>http://oss.sonatype.org/content/repositories/snapshots</url>-->
+            <!--<snapshots>-->
+                <!--<enabled>true</enabled>-->
+                <!--<updatePolicy>daily</updatePolicy>-->
+            <!--</snapshots>-->
+        <!--</repository>-->
         <!--<repository>-->
             <!--<id>repository.jboss.org</id>-->
             <!--<url>http://repository.jboss.org/maven2</url>-->
