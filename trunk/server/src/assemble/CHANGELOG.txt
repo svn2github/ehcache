@@ -4,7 +4,7 @@ $Id: CHANGELOG.txt,v 1.31 2006/03/07 00:05:56 gregluck Exp $
 
     <!-- Features and Enhancements -->
     <action dev="Greg Luck" type="update">
-        Apply checkstyle and clean up code
+        Apply checkstyle and clean up code.
     </action>
     <action dev="Greg Luck" type="add">
         Change logging to SLF4J.
@@ -12,6 +12,9 @@ $Id: CHANGELOG.txt,v 1.31 2006/03/07 00:05:56 gregluck Exp $
     <action dev="Greg Luck" type="fix">
         Change ehcache/rest to list <caches><cache>... rather than <caches><caches>.... This
         change will require anyone parsing the list of changes to change their parser.
+    </action>
+    <action dev="Greg Luck" type="add">
+        Use JAX-RS API rather than Jersey. Patch EHC-431 contributed by Gregoire Autric.    
     </action>
 </release>
 

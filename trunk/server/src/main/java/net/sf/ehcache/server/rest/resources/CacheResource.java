@@ -16,8 +16,6 @@
 
 package net.sf.ehcache.server.rest.resources;
 
-import com.sun.jersey.api.ConflictException;
-import com.sun.jersey.api.NotFoundException;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.server.jaxb.Cache;
 import net.sf.ehcache.server.jaxb.Statistics;
@@ -31,6 +29,7 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Request;
 import javax.ws.rs.core.Response;
@@ -60,6 +59,7 @@ import java.net.URI;
  * Deletes the Cache.
  *
  * @author Greg Luck
+ * @author Gregoire Autric (remove jersey API for full JAX-RS API)
  */
 @Produces("application/xml")
 public class CacheResource {
@@ -115,7 +115,8 @@ public class CacheResource {
 
         net.sf.ehcache.Cache ehcache = MANAGER.getCache(this.cache);
         if (ehcache == null) {
-            throw new NotFoundException("Cache not found");
+            //404
+            throw new WebApplicationException(Response.Status.NOT_FOUND);
         }
         return Response.ok().build();
     }
@@ -131,7 +132,8 @@ public class CacheResource {
 
         net.sf.ehcache.Cache ehcache = MANAGER.getCache(cache);
         if (ehcache == null) {
-            throw new NotFoundException("Cache not found");
+            //404
+            throw new WebApplicationException(Response.Status.NOT_FOUND);
         }
 
         //The REST API has extra information encoded in the String representation.
@@ -161,7 +163,8 @@ public class CacheResource {
             response = Response.created(uri).build();
             LOG.debug("Created Cache {}" + cache);
         } else {
-            throw new ConflictException("Cache already exists " + cache);
+            //409
+            throw new WebApplicationException(Response.Status.CONFLICT);
         }
         return response;
     }
@@ -177,7 +180,8 @@ public class CacheResource {
         net.sf.ehcache.Cache ehcache = MANAGER.getCache(cache);
         Response response;
         if (ehcache == null) {
-            throw new NotFoundException("Cache not found " + cache);
+            //404
+            throw new WebApplicationException(Response.Status.NOT_FOUND);
         } else {
             CacheManager.getInstance().removeCache(cache);
             response = Response.ok().build();
