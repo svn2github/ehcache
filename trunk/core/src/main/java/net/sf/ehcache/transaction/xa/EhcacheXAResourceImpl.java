@@ -307,7 +307,7 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
             if (ehcacheXAStore.getPreparedContext(xid) == null) {
                 onePhaseCommit(xid);
             } else {
-                throw new IllegalStateException(xid + " has been prepared! Cannot operate one phased commit!");
+                throw new EhcacheXAException(xid + " has been prepared! Cannot operate one phased commit!", XAException.XAER_PROTO);
             }
         } else {
             PreparedContext context = ehcacheXAStore.getPreparedContext(xid);
