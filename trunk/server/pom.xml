@@ -5,6 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
     <!-- mvn -Ptest verify to run tests -->
     <!-- mvn -Ptest jetty:run-war to run jetty interactively -->
+    <!-- mvn -Dmaven.test.skip=true clean install to install -->
     <!-- Activate the test profile in your IDE otherwise the concrete logging implementation will not be found. -->
 
 
@@ -17,7 +18,7 @@
     </parent>
     <name>Ehcache Server</name>
     <artifactId>ehcache-server</artifactId>
-    <version>0.9-SNAPSHOT</version>
+    <version>0.9</version>
     <packaging>war</packaging>
     <description>The ehcache W3C and RESTful web services server.</description>
     <licenses>
