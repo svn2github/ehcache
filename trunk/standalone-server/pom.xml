@@ -10,7 +10,7 @@
     </parent>
     <name>Ehcache Standalone Server</name>
     <artifactId>ehcache-standalone-server</artifactId>
-    <version>0.9-SNAPSHOT</version>
+    <version>0.9</version>
     <packaging>jar</packaging>
     <description>The ehcache W3C and RESTful web services standalone server.
         This is packaged as a distribution complete with all required dependencies.
@@ -25,7 +25,7 @@
         <dependency>
             <groupId>net.sf.ehcache</groupId>
             <artifactId>ehcache-server</artifactId>
-            <version>0.9-SNAPSHOT</version>
+            <version>0.9</version>
             <type>war</type>
         </dependency>
         <dependency>
