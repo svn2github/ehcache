@@ -1,18 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+CacheManager Configuration
+==========================
+An ehcache.xml corresponds to a single CacheManager.
+
+See instructions below or the ehcache schema (ehcache.xsd) on how to configure.
+
+System property tokens can be specified in this file which are replaced when the configuration
+is loaded. For example multicastGroupPort=${multicastGroupPort} can be replaced with the
+System property either from an environment variable or a system property specified with a
+command line switch such as -DmulticastGroupPort=4446.
+
+The attributes of <ehcache> are:
+* name - an optional name for the CacheManager.  The name is optional and primarily used
+for documentation or to distinguish Terracotta clustered cache state.  With Terracotta
+clustered caches, a combination of CacheManager name and cache name uniquely identify a
+particular cache store in the Terracotta clustered memory.
+* updateCheck - an optional boolean flag specifying whether this CacheManager should check
+for new versions of Ehcache over the Internet.  If not specified, updateCheck="true".
+* dynamicConfig - an optional setting that can be used to disable dynamic configuration of caches
+associated with this CacheManager.  By default this is set to true - i.e. dynamic configuration
+is enabled.  Dynamically configurable caches can have their TTI, TTL and maximum disk and
+in-memory capacity changed at runtime through the cache's configuration object.
+* monitoring - an optional setting that determines whether the CacheManager should
+automatically register the SampledCacheMBean with the system MBean server.
+
+Currently, this monitoring is only useful when using Terracotta clustering and using the
+Terracotta Developer Console. With the "autodetect" value, the presence of Terracotta clustering
+will be detected and monitoring, via the Developer Console, will be enabled. Other allowed values
+are "on" and "off".  The default is "autodetect". This setting does not perform any function when
+used with JMX monitors.
+-->
 <ehcache xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:noNamespaceSchemaLocation="ehcache.xsd">
+         xsi:noNamespaceSchemaLocation="ehcache.xsd"
+         updateCheck="true" monitoring="autodetect"
+         dynamicConfig="true">
 
     <!--
-    CacheManager Configuration
-    ==========================
-    An ehcache.xml corresponds to a single CacheManager.
-
-    See instructions below or the ehcache schema (ehcache.xsd) on how to configure.
-
-    System property tokens can be specified in this file which are replaced when the configuration is loaded.
-    For example multicastGroupPort=${multicastGroupPort} can be replaced with the System property either
-    from an environment variable or a system property specified with a command line switch such as
-     -DmulticastGroupPort=4446.
-
     DiskStore configuration
     =======================
 
@@ -28,7 +53,7 @@
     .data and .index files will be created.
 
     If the path is one of the following Java System Property it is replaced by its value in the
-    running VM. For backward compatibility these are not specified without being enclosed in the ${token}
+    running VM. For backward compatibility these should be specified without being enclosed in the ${token}
     replacement syntax.
 
     The following properties are translated:
@@ -39,14 +64,34 @@
       e.g. java -Dehcache.disk.store.dir=/u01/myapp/diskdir ...
 
     Subdirectories can be specified below the property e.g. java.io.tmpdir/one
+
     -->
     <diskStore path="java.io.tmpdir"/>
 
     <!--
+    TransactionManagerLookup configuration
+    ======================================
+    This class is used by ehcache to lookup the JTA TransactionManager use in the application
+    using an XA enabled ehcache. If no class is specified then DefaultTransactionManagerLookup
+    will find the TransactionManager in the following order
+
+     *GenericJNDI (i.e. jboss, where the property jndiName controls the name of the TransactionManager object to look up)
+     *Websphere
+     *Bitronix
+     *Atomikos
+
+    You can provide you own lookup class that implements the net.sf.ehcache.transaction.manager.TransactionManagerLookup interface.
+    -->
+
+    <transactionManagerLookup class="net.sf.ehcache.transaction.manager.DefaultTransactionManagerLookup"
+                              properties="jndiName=java:/TransactionManager" propertySeparator=";"/>
+
+
+    <!--
     CacheManagerEventListener
     =========================
-    Specifies a CacheManagerEventListenerFactory, be used to create a CacheManagerPeerProvider,
-    which is notified when Caches are added or removed from the CacheManager.
+    Specifies a CacheManagerEventListenerFactory which is notified when Caches are added
+    or removed from the CacheManager.
 
     The attributes of CacheManagerEventListenerFactory are:
     * class - a fully qualified factory class name
@@ -70,14 +115,22 @@
     <!--
     CacheManagerPeerProvider
     ========================
-    (Enable for distributed operation)
+    (For distributed operation)
 
     Specifies a CacheManagerPeerProviderFactory which will be used to create a
     CacheManagerPeerProvider, which discovers other CacheManagers in the cluster.
 
+    One or more providers can be configured. The first one in the ehcache.xml is the default, which is used
+    for replication and bootstrapping.
+
     The attributes of cacheManagerPeerProviderFactory are:
     * class - a fully qualified factory class name
     * properties - comma separated properties having meaning only to the factory.
+
+    Providers are available for RMI, JGroups and JMS as shown following.
+
+    RMICacheManagerPeerProvider
+    +++++++++++++++++++++++++++
 
     Ehcache comes with a built-in RMI-based distribution system with two means of discovery of
     CacheManager peers participating in the cluster:
@@ -90,7 +143,8 @@
     Automatic discovery is configured as per the following example:
     <cacheManagerPeerProviderFactory
                         class="net.sf.ehcache.distribution.RMICacheManagerPeerProviderFactory"
-                        properties="peerDiscovery=automatic, multicastGroupAddress=230.0.0.1,
+                        properties="hostName=fully_qualified_hostname_or_ip,
+                                    peerDiscovery=automatic, multicastGroupAddress=230.0.0.1,
                                     multicastGroupPort=4446, timeToLive=32"/>
 
     Valid properties are:
@@ -109,8 +163,30 @@
       128 - the same continent
       255 - unrestricted
 
+     * hostName - the hostname or IP of the interface to be used for sending and receiving multicast packets
+       (relevant to multi-homed hosts only)
+
     Configuring Manual Discovery:
-    Manual discovery is configured as per the following example:
+    Manual discovery requires a unique configuration per host. It is contains a list of rmiURLs for the peers, other
+    than itself. So, if we have server1, server2 and server3 the configuration will be:
+
+    In server1's configuration:
+    <cacheManagerPeerProviderFactory class=
+                          "net.sf.ehcache.distribution.RMICacheManagerPeerProviderFactory"
+                          properties="peerDiscovery=manual,
+                          rmiUrls=//server2:40000/sampleCache1|//server3:40000/sampleCache1
+                          | //server2:40000/sampleCache2|//server3:40000/sampleCache2"
+                          propertySeparator="," />
+
+    In server2's configuration:
+    <cacheManagerPeerProviderFactory class=
+                          "net.sf.ehcache.distribution.RMICacheManagerPeerProviderFactory"
+                          properties="peerDiscovery=manual,
+                          rmiUrls=//server1:40000/sampleCache1|//server3:40000/sampleCache1
+                          | //server1:40000/sampleCache2|//server3:40000/sampleCache2"
+                          propertySeparator="," />
+
+    In server3's configuration:
     <cacheManagerPeerProviderFactory class=
                           "net.sf.ehcache.distribution.RMICacheManagerPeerProviderFactory"
                           properties="peerDiscovery=manual,
@@ -118,15 +194,16 @@
                           | //server1:40000/sampleCache2|//server2:40000/sampleCache2"
                           propertySeparator="," />
 
+
     Valid properties are:
     * peerDiscovery (mandatory) - specify "manual"
     * rmiUrls (mandatory) - specify a pipe separated list of rmiUrls, in the form
                             //hostname:port
+    * hostname (optional) - the hostname is the hostname of the remote CacheManager peer. The port is the listening
+      port of the RMICacheManagerPeerListener of the remote CacheManager peer.
 
-    The hostname is the hostname of the remote CacheManager peer. The port is the listening
-    port of the RMICacheManagerPeerListener of the remote CacheManager peer.
-
-    Configuring JGroups replication:
+    JGroupsCacheManagerPeerProvider
+    +++++++++++++++++++++++++++++++
     <cacheManagerPeerProviderFactory class="net.sf.ehcache.distribution.jgroups.JGroupsCacheManagerPeerProviderFactory"
                                      properties="connect=UDP(mcast_addr=231.12.21.132;mcast_port=45566;ip_ttl=32;
                                      mcast_send_buf_size=150000;mcast_recv_buf_size=80000):
@@ -140,10 +217,35 @@
                                      pbcast.GMS(join_timeout=5000;join_retry_timeout=2000;shun=false;print_local_addr=false)"
                                      propertySeparator="::"
             />
-     The only property necessay is the connect String used by jgroups to configure itself. Refer to the Jgroups documentation for explanation
+     The only property necessary is the connect String used by jgroups to configure itself. Refer to the Jgroups documentation for explanation
      of all the protocols. The example above uses UDP multicast. If the connect property is not specified the default JGroups connection will be
      used.
 
+
+    JMSCacheManagerPeerProviderFactory
+    ++++++++++++++++++++++++++++++++++
+    <cacheManagerPeerProviderFactory
+            class="net.sf.ehcache.distribution.jms.JMSCacheManagerPeerProviderFactory"
+            properties="..."
+            propertySeparator=","
+            />
+
+    The JMS PeerProviderFactory uses JNDI to maintain message queue independence. Refer to the manual for full configuration
+    examples using ActiveMQ and Open Message Queue.
+
+    Valid properties are:
+    * initialContextFactoryName (mandatory) - the name of the factory used to create the message queue initial context.
+    * providerURL (mandatory) - the JNDI configuration information for the service provider to use.
+    * topicConnectionFactoryBindingName (mandatory) - the JNDI binding name for the TopicConnectionFactory
+    * topicBindingName (mandatory) - the JNDI binding name for the topic name
+    * getQueueBindingName (mandatory only if using jmsCacheLoader) - the JNDI binding name for the queue name
+    * securityPrincipalName - the JNDI java.naming.security.principal
+    * securityCredentials - the JNDI java.naming.security.credentials
+    * urlPkgPrefixes - the JNDI java.naming.factory.url.pkgs
+    * userName - the user name to use when creating the TopicConnection to the Message Queue
+    * password - the password to use when creating the TopicConnection to the Message Queue
+    * acknowledgementMode - the JMS Acknowledgement mode for both publisher and subscriber. The available choices are
+                            AUTO_ACKNOWLEDGE, DUPS_OK_ACKNOWLEDGE and SESSION_TRANSACTED. The default is AUTO_ACKNOWLEDGE.
     -->
     <cacheManagerPeerProviderFactory
             class="net.sf.ehcache.distribution.RMICacheManagerPeerProviderFactory"
@@ -160,8 +262,7 @@
     (Enable for distributed operation)
 
     Specifies a CacheManagerPeerListenerFactory which will be used to create a
-    CacheManagerPeerListener, which
-    listens for messages from cache replicators participating in the cluster.
+    CacheManagerPeerListener, which listens for messages from cache replicators participating in the cluster.
 
     The attributes of cacheManagerPeerListenerFactory are:
     class - a fully qualified factory class name
@@ -175,6 +276,7 @@
         class="net.sf.ehcache.distribution.RMICacheManagerPeerListenerFactory"
         properties="hostName=fully_qualified_hostname_or_ip,
                     port=40001,
+                    remoteObjectPort=40002,
                     socketTimeoutMillis=120000"
                     propertySeparator="," />
 
@@ -188,12 +290,62 @@
                          This defaults to a free port if not specified.
     * socketTimeoutMillis - the number of ms client sockets will stay open when sending
       messages to the listener. This should be long enough for the slowest message.
-      If not specified it defaults 120000ms.
+      If not specified it defaults to 120000ms.
 
     -->
     <cacheManagerPeerListenerFactory
             class="net.sf.ehcache.distribution.RMICacheManagerPeerListenerFactory"/>
 
+    <!--
+    TerracottaConfig
+    ========================
+    (Enable for Terracotta clustered operation)
+
+    Note: You need to install and run one or more Terracotta servers to use Terracotta clustering.
+    See http://www.terracotta.org/web/display/orgsite/Download.
+
+    Specifies a TerracottaConfig which will be used to configure the Terracotta
+    runtime for this CacheManager.
+
+    Configuration can be specified in two main ways: by reference to a source of
+    configuration or by use of an embedded Terracotta configuration file.
+
+    To specify a reference to a source (or sources) of configuration, use the url
+    attribute.  The url attribute must contain a comma-separated list of:
+    * path to Terracotta configuration file (usually named tc-config.xml)
+    * URL to Terracotta configuration file
+    * <server host>:<port> of running Terracotta Server instance
+
+    Simplest example for pointing to a Terracotta server on this machine:
+    <terracottaConfig url="localhost:9510"/>
+
+    Example using a path to Terracotta configuration file:
+    <terracottaConfig url="/app/config/tc-config.xml"/>
+
+    Example using a URL to a Terracotta configuration file:
+    <terracottaConfig url="http://internal/ehcache/app/tc-config.xml"/>
+
+    Example using multiple Terracotta server instance URLs (for fault tolerance):
+    <terracottaConfig url="host1:9510,host2:9510,host3:9510"/>
+
+    To embed a Terracotta configuration file within the ehcache configuration, simply
+    place a normal Terracotta XML config within the <terracottaConfig> element.
+
+    Example:
+    <terracottaConfig>
+        <tc-config>
+            <servers>
+                <server host="server1" name="s1"/>
+                <server host="server2" name="s2"/>
+            </servers>
+            <clients>
+                <logs>app/logs-%i</logs>
+            </clients>
+        </tc-config>
+    </terracottaConfig>
+
+    For more information on the Terracotta configuration, see the Terracotta documentation.
+    -->
 
     <!--
     Cache configuration
@@ -205,11 +357,11 @@
     Sets the name of the cache. This is used to identify the cache. It must be unique.
 
     maxElementsInMemory:
-    Sets the maximum number of objects that will be created in memory
+    Sets the maximum number of objects that will be created in memory.  0 == no limit.
 
-	maxElementsOnDisk:
+    maxElementsOnDisk:
     Sets the maximum number of objects that will be maintained in the DiskStore
-	The default value is zero, meaning unlimited.
+    The default value is zero, meaning unlimited.
 
     eternal:
     Sets whether elements are eternal. If eternal,  timeouts are ignored and the
@@ -250,6 +402,10 @@
     lowering this value. To improve DiskStore performance consider increasing it. Trace level
     logging in the DiskStore will show if put back ups are occurring.
 
+    clearOnFlush:
+    whether the MemoryStore should be cleared when flush() is called on the cache.
+    By default, this is true i.e. the MemoryStore is cleared.
+
     memoryStoreEvictionPolicy:
     Policy would be enforced upon reaching the maxElementsInMemory limit. Default
     policy is Least Recently Used (specified as LRU). Other policies available -
@@ -272,9 +428,30 @@
       cache exceptions occur.
 
     * cacheLoaderFactory - Specifies a CacheLoader, which can be used both asynchronously and
-      synchronously to load objects into a cache.
+      synchronously to load objects into a cache. More than one cacheLoaderFactory element
+      can be added, in which case the loaders form a chain which are executed in order. If a
+      loader returns null, the next in chain is called.
+
+
+    Cache Event Listeners
+    +++++++++++++++++++++
+
+    All cacheEventListenerFactory elements can take an optional property listenFor that describes
+    which events will be delivered in a clustered environment.  The listenFor attribute has the
+    following allowed values:
+
+    * all - the default is to deliver all local and remote events
+    * local - deliver only events originating in the current node
+    * remote - deliver only events originating in other nodes
+
+    Example of setting up a logging listener for local cache events:
+
+    <cacheEventListenerFactory class="my.company.log.CacheLogger"
+        listenFor="local" />
+
 
     RMI Cache Replication
+    +++++++++++++++++++++
 
     Each cache that will be distributed needs to set a cache event listener which replicates
     messages to the other CacheManager peers. For the built-in RMI implementation this is done
@@ -284,6 +461,7 @@
     <cacheEventListenerFactory class="net.sf.ehcache.distribution.RMICacheReplicatorFactory"
          properties="replicateAsynchronously=true,
          replicatePuts=true,
+         replicatePutsViaCopy=false,
          replicateUpdates=true,
          replicateUpdatesViaCopy=true,
          replicateRemovals=true
@@ -294,6 +472,9 @@
 
     * replicatePuts=true|false - whether new elements placed in a cache are
       replicated to others. Defaults to true.
+
+    * replicatePutsViaCopy=true|false - whether the new elements are
+      copied to other caches (true), or whether a remove message is sent. Defaults to true.
 
     * replicateUpdates=true|false - whether new elements which override an
       element already existing with the same key are replicated. Defaults to true.
@@ -311,14 +492,43 @@
       is 10. This property is only applicable if replicateAsynchronously=true
 
 
-	For the Jgroups replication this is done with:
-	<cacheEventListenerFactory class="net.sf.ehcache.distribution.jgroups.JGroupsCacheReplicatorFactory"
+    JGroups Replication
+    +++++++++++++++++++
+
+    For the Jgroups replication this is done with:
+    <cacheEventListenerFactory class="net.sf.ehcache.distribution.jgroups.JGroupsCacheReplicatorFactory"
                             properties="replicateAsynchronously=true, replicatePuts=true,
- 							replicateUpdates=true, replicateUpdatesViaCopy=false,
- 							replicateRemovals=true,asynchronousReplicationIntervalMillis=1000"/>
-    This listener supports the same property than the RMICacheReplicationFactory.
+               replicateUpdates=true, replicateUpdatesViaCopy=false,
+               replicateRemovals=true,asynchronousReplicationIntervalMillis=1000"/>
+    This listener supports the same properties as the RMICacheReplicationFactory.
+
+
+    JMS Replication
+    +++++++++++++++
+
+    For JMS-based replication this is done with:
+    <cacheEventListenerFactory
+          class="net.sf.ehcache.distribution.jms.JMSCacheReplicatorFactory"
+          properties="replicateAsynchronously=true,
+                       replicatePuts=true,
+                       replicateUpdates=true,
+                       replicateUpdatesViaCopy=true,
+                       replicateRemovals=true,
+                       asynchronousReplicationIntervalMillis=1000"
+           propertySeparator=","/>
+
+    This listener supports the same properties as the RMICacheReplicationFactory.
 
     Cluster Bootstrapping
+    +++++++++++++++++++++
+
+    Bootstrapping a cluster may use a different mechanism to replication. e.g you can mix
+    JMS replication with bootstrap via RMI - just make sure you have the cacheManagerPeerProviderFactory
+    and cacheManagerPeerListenerFactory configured.
+
+    There are two bootstrapping mechanisms: RMI and JGroups.
+
+    RMI Bootstrap
 
     The RMIBootstrapCacheLoader bootstraps caches in clusters where RMICacheReplicators are
     used. It is configured as per the following example:
@@ -338,8 +548,19 @@
       memory limits of the VM. This property allows the bootstraper to fetched elements in
       chunks. The default chunk size is 5000000 (5MB).
 
+    JGroups Bootstrap
+
+    Here is an example of bootstrap configuration using JGroups boostrap:
+
+    <bootstrapCacheLoaderFactory class="net.sf.ehcache.distribution.jgroups.JGroupsBootstrapCacheLoaderFactory"
+                                    properties="bootstrapAsynchronously=true"/>
+
+    The configuration properties are the same as for RMI above. Note that JGroups bootstrap only supports
+    asynchronous bootstrap mode.
+
 
     Cache Exception Handling
+    ++++++++++++++++++++++++
 
     By default, most cache operations will propagate a runtime CacheException on failure. An
     interceptor, using a dynamic proxy, may be configured so that a CacheExceptionHandler can
@@ -355,6 +576,7 @@
 
 
     Cache Loader
+    ++++++++++++
 
     A default CacheLoader may be set which loads objects into the cache through asynchronous and
     synchronous methods on Cache. This is different to the bootstrap cache loader, which is used
@@ -365,7 +587,64 @@
         <cacheLoaderFactory class="com.example.ExampleCacheLoaderFactory"
                                       properties="type=int,startCounter=10"/>
 
+    XA Cache
+    ++++++++
+
+    To enable an ehcache as a participant in the JTA Transaction, just have the following attribute
+
+    transactionalMode="xa", otherwise the default is transactionalMode="off"
+
+    Cache Writer
+    ++++++++++++
+
+    A CacheWriter maybe be set to write to an underlying resource. Only one CacheWriter can be
+    been to a cache.
+
+    It is configured as per the following example for write-through:
+
+        <cacheWriter writeMode="write-through" notifyListenersOnException="true">
+            <cacheWriterFactory class="net.sf.ehcache.writer.TestCacheWriterFactory"
+                                properties="type=int,startCounter=10"/>
+        </cacheWriter>
+
+    And it is configured as per the following example for write-behind:
+
+        <cacheWriter writeMode="write-behind" minWriteDelay="1" maxWriteDelay="5"
+                     rateLimitPerSecond="5" writeCoalescing="true" writeBatching="true" writeBatchSize="1"
+                     retryAttempts="2" retryAttemptDelaySeconds="1">
+            <cacheWriterFactory class="net.sf.ehcache.writer.TestCacheWriterFactory"
+                                properties="type=int,startCounter=10"/>
+        </cacheWriter>
+
+    The cacheWriter element has the following attributes:
+    * writeMode: the write mode, write-through or write-behind
+
+    These attributes only apply to write-through mode:
+    * notifyListenersOnException: Sets whether to notify listeners when an exception occurs on a writer operation.
+
+    These attributes only apply to write-behind mode:
+    * minWriteDelay: Set the minimum number of seconds to wait before writing behind. If set to a value greater than 0,
+      it permits operations to build up in the queue. This is different from the maximum write delay in that by waiting
+      a minimum amount of time, work is always being built up. If the minimum write delay is set to zero and the
+      CacheWriter performs its work very quickly, the overhead of processing the write behind queue items becomes very
+      noticeable in a cluster since all the operations might be done for individual items instead of for a collection
+      of them.
+    * maxWriteDelay: Set the maximum number of seconds to wait before writing behind. If set to a value greater than 0,
+      it permits operations to build up in the queue to enable effective coalescing and batching optimisations.
+    * writeBatching: Sets whether to batch write operations. If set to true, writeAll and deleteAll will be called on
+      the CacheWriter rather than write and delete being called for each key. Resources such as databases can perform
+      more efficiently if updates are batched, thus reducing load.
+    * writeBatchSize: Sets the number of operations to include in each batch when writeBatching is enabled. If there are
+      less entries in the write-behind queue than the batch size, the queue length size is used.
+    * rateLimitPerSecond: Sets the maximum number of write operations to allow per second when writeBatching is enabled.
+    * writeCoalescing: Sets whether to use write coalescing. If set to true and multiple operations on the same key are
+      present in the write-behind queue, only the latest write is done, as the others are redundant.
+    * retryAttempts: Sets the number of times the operation is retried in the CacheWriter, this happens after the
+      original operation.
+    * retryAttemptDelaySeconds: Sets the number of seconds to wait before retrying an failed operation.
+
     Cache Extension
+    +++++++++++++++
 
     CacheExtensions are a general purpose mechanism to allow generic extensions to a Cache.
     CacheExtensions are tied into the Cache lifecycle.
@@ -381,25 +660,77 @@
                              properties="refreshIntervalMillis=18000, loaderTimeout=3000,
                                          flushPeriod=whatever, someOtherProperty=someValue ..."/>
 
-    -->
+    Terracotta Clustering
+    +++++++++++++++++++++
 
+    Cache elements can also contain information about whether the cache can be clustered with Terracotta.
+    The <terracotta> sub-element has the following attributes:
+
+    * clustered=true|false - indicates whether this cache should be clustered with Terracotta. By
+      default, if the <terracotta> element is included, clustered=true.
+
+    * valueMode=serialization|identity - indicates whether this cache should be clustered with
+      serialized copies of the values or using Terracotta identity mode.  By default, values will
+      be cached in serialization mode which is similar to other replicated Ehcache modes.  The identity
+      mode is only available in certain Terracotta deployment scenarios and will maintain actual object
+      identity of the keys and values across the cluster.  In this case, all users of a value retrieved from
+      the cache are using the same clustered value and must provide appropriate locking for any changes
+      made to the value (or objects referred to by the value).
+
+    * copyOnRead=true|false - indicates whether cache values are deserialized on every read or if the
+      materialized cache value can be re-used between get() calls. This setting is useful if a cache
+      is being shared by callers with disparate classloaders or to prevent local drift if keys/values
+      are mutated locally w/o putting back to the cache. NOTE: This setting is only relevant for caches
+      with valueMode=serialization
+
+    * coherent=true|false - indicates whether this cache should have coherent reads and writes with guaranteed
+      consistency across the cluster.  By default, its value is true.  If this attribute is set to false
+      (or "incoherent" mode), values from the cache are read without locking, possibly yielding stale data.
+      Writes to a cache in incoherent mode are batched and applied without acquiring cluster-wide locks,
+      possibly creating inconsistent values across cluster. Incoherent mode is a performance optimization
+      with weaker concurrency guarantees and should generally be used for bulk-loading caches, for loading
+      a read-only cache, or where the application that can tolerate reading stale data. This setting overrides
+      coherentReads, which is deprecated.
+
+    * synchronousWrites=true|false - When set to true, clustered caches use
+      Terracotta SYNCHRONOUS WRITE locks. Asynchronous writes (synchronousWrites="false") maximize performance by
+      allowing clients to proceed without waiting for a "transaction received" acknowledgement from the server.
+      Synchronous writes (synchronousWrites="true")  maximize data safety by requiring that a client receive server
+      acknowledgement of a transaction before that client can proceed. If coherence mode is disabled using
+      configuration (coherent="false") or through the coherence API, only asynchronous writes can occur
+      (synchronousWrites="true" is ignored). By default this value is false (i.e. clustered caches use normal
+       Terracotta WRITE locks).
+
+    Simplest example to indicate clustering:
+        <terracotta/>
+
+    To indicate the cache should not be clustered (or remove the <terracotta> element altogether):
+        <terracotta clustered="false"/>
+
+    To indicate the cache should be clustered using identity mode:
+        <terracotta clustered="true" valueMode="identity"/>
+
+    To indicate the cache should be clustered using incoherent mode for bulk load:
+        <terracotta clustered="true" coherent="false"/>
+
+    To indicate the cache should be clustered using synchronous-write locking level:
+        <terracotta clustered="true" synchronousWrites="true"/>
+
+    -->
 
     <!--
     Mandatory Default Cache configuration. These settings will be applied to caches
     created programmtically using CacheManager.add(String cacheName).
 
     The defaultCache has an implicit name "default" which is a reserved cache name.
-
-    This one is a little different to the ehcache core default one. It aims to be closer to what
-    might be required for server use, with larger memory consumption.
     -->
     <defaultCache
-            maxElementsInMemory="20000"
+            maxElementsInMemory="10000"
             eternal="false"
-            timeToIdleSeconds="300"
-            timeToLiveSeconds="300"
+            timeToIdleSeconds="120"
+            timeToLiveSeconds="120"
             overflowToDisk="true"
-            diskSpoolBufferSizeMB="50"
+            diskSpoolBufferSizeMB="30"
             maxElementsOnDisk="10000000"
             diskPersistent="false"
             diskExpiryThreadIntervalSeconds="120"
@@ -429,6 +760,7 @@
            timeToIdleSeconds="300"
            timeToLiveSeconds="600"
            memoryStoreEvictionPolicy="LFU"
+           transactionalMode="off"
             />
 
 
@@ -473,6 +805,7 @@
            timeToIdleSeconds="100"
            timeToLiveSeconds="100"
            overflowToDisk="false">
+
         <cacheEventListenerFactory
                 class="net.sf.ehcache.distribution.RMICacheReplicatorFactory"/>
         <bootstrapCacheLoaderFactory
@@ -494,25 +827,56 @@
         <cacheEventListenerFactory
                 class="net.sf.ehcache.distribution.RMICacheReplicatorFactory"
                 properties="replicateAsynchronously=false, replicatePuts=false,
-                            replicateUpdates=true, replicateUpdatesViaCopy=true,
-                            replicateRemovals=false"/>
+                            replicatePutsViaCopy=false, replicateUpdates=true,
+                            replicateUpdatesViaCopy=true, replicateRemovals=false"/>
     </cache>
 
     <!--
     Sample distributed cache named sampleDistributedCache3.
     This cache replicates using defaults except that the asynchronous replication
     interval is set to 200ms.
+    This one includes / and # which were illegal in ehcache 1.5.
     -->
-    <cache name="sampleDistributedCache3"
+    <cache name="sample/DistributedCache3"
            maxElementsInMemory="10"
            eternal="false"
            timeToIdleSeconds="100"
            timeToLiveSeconds="100"
-           overflowToDisk="false">
+           overflowToDisk="true">
         <cacheEventListenerFactory
                 class="net.sf.ehcache.distribution.RMICacheReplicatorFactory"
                 properties="asynchronousReplicationIntervalMillis=200"/>
     </cache>
 
+    <!--
+    Sample Terracotta clustered cache named sampleTerracottaCache.
+    This cache uses Terracotta to cluster the contents of the cache.
+    -->
+    <!--
+    <cache name="sampleTerracottaCache"
+           maxElementsInMemory="1000"
+           eternal="false"
+           timeToIdleSeconds="3600"
+           timeToLiveSeconds="1800"
+           overflowToDisk="false">
+        <terracotta/>
+    </cache>
+    -->
 
+    <!--
+      Sample xa enabled cache name xaCache
+    -->
+    <!--
+    <cache name="xaCache"
+        maxElementsInMemory="500"
+        eternal="false"
+        timeToIdleSeconds="300"
+        timeToLiveSeconds="600"
+        overflowToDisk="false"
+        diskPersistent="false"
+        diskExpiryThreadIntervalSeconds="1"
+        transactionalMode="xa">
+      <terracotta clustered="true"/>
+	</cache>
+    -->
 </ehcache>

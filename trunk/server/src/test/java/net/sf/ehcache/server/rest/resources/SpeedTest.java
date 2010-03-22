@@ -143,7 +143,6 @@ public class SpeedTest extends AbstractWebTest {
         runThreads(executables);
     }
 
-    final AtomicInteger openConnections = new AtomicInteger();
 
 
     /**
@@ -153,10 +152,15 @@ public class SpeedTest extends AbstractWebTest {
      * 10000 getMulti: 2132ms
      * 10000 deletes: 2065ms
      * <p/>
-     * Ehcache 0.9 with Ehcache 2.0.0
+     * Ehcache 0.9 with Ehcache 2.0.0 and Jetty
      * INFO: 10000 puts: 2961ms
      * INFO: 10000 gets: 3841ms
      * INFO: 10000 deletes: 2685ms
+     * <p/>
+     * Ehcache 0.9 with Ehcache 2.0.0 and GFV3 (ehcache-standalone)
+     * INFO: 10000 puts: 3784ms
+     * INFO: 10000 gets: 3866ms
+     * INFO: 10000 deletes: 2752ms
      */
     @Test
     public void testMemCacheBench() throws Exception {
@@ -205,5 +209,21 @@ public class SpeedTest extends AbstractWebTest {
             httpClient.executeMethod(httpMethod);
         }
         LOG.info(cacheOperations + " deletes: " + stopWatch.getElapsedTime() + "ms");
+    }
+
+    /**
+     * Manual stability test
+     */
+//    @Test
+    public void testStability() throws Exception {
+        while (true) {
+            testMemCacheBench();
+            testConcurrentRequests();
+            testSpeedNoDom();
+            testSpeedHttpClient();
+            testSpeedUrlConnection();
+
+        }
+
     }
 }
