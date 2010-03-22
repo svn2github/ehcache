@@ -3117,10 +3117,11 @@ public class Cache implements Ehcache {
     }
 
     /**
-     * Sets the eviction policy strategy. The Cache will use a policy at startup. There are three policies
-     * which can be configured: LRU, LFU and FIFO. However many other policies are possible. That the policy
-     * has access to the whole element enables policies based on the key, value, metadata, statistics, or a combination of
-     * any of the above. It is safe to change the policy of a store at any time. The new policy takes effect
+     * Sets the eviction policy strategy. The Cache will use a policy at startup. There
+     * are three policies which can be configured: LRU, LFU and FIFO. However many other
+     * policies are possible. That the policy has access to the whole element enables policies
+     * based on the key, value, metadata, statistics, or a combination of any of the above.
+     * It is safe to change the policy of a store at any time. The new policy takes effect
      * immediately.
      *
      * @param policy the new policy
