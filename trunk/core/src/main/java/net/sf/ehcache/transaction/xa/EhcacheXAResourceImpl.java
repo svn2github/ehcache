@@ -90,8 +90,7 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
         String cacheMgrName;
         if (cache.getCacheManager() == null || !cache.getCacheManager().isNamed()) {
           cacheMgrName = "__DEFAULT__";
-        }
-        else {
+        } else {
             cacheMgrName = cache.getCacheManager().getName();
         }
         this.cacheName          = cache.getName() + "@" + cacheMgrName + ".cacheManager";
@@ -524,7 +523,7 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
         try {
             validateCommands(context, xid);
 
-            LOG.debug("{} phase commit called for Txn with id: {} One", xid);
+            LOG.debug("One phase commit called for Txn with id: {}", xid);
 
             // Execute write command within the real underlying store
             boolean writes = false;
