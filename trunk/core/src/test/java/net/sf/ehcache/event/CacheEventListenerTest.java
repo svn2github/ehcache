@@ -96,13 +96,13 @@ public class CacheEventListenerTest extends AbstractCacheTest {
     public void testRegistration() {
         TestCacheEventListener listener = new TestCacheEventListener();
 
-        assertEquals(3, cache.getCacheEventNotificationService().getCacheEventListeners().size());
+        int count = cache.getCacheEventNotificationService().getCacheEventListeners().size();
         cache.getCacheEventNotificationService().registerListener(listener);
 
-        assertEquals(4, cache.getCacheEventNotificationService().getCacheEventListeners().size());
+        assertEquals(count + 1, cache.getCacheEventNotificationService().getCacheEventListeners().size());
         cache.getCacheEventNotificationService().unregisterListener(listener);
 
-        assertEquals(3, cache.getCacheEventNotificationService().getCacheEventListeners().size());
+        assertEquals(count, cache.getCacheEventNotificationService().getCacheEventListeners().size());
     }
 
 
