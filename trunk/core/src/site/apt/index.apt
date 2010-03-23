@@ -1,5 +1,5 @@
  ----
- Ehcache Distributed Cache - Performance At Any Scale
+ Ehcache - Performance At Any Scale
  ---- 
 
 Ehcache Distributed Cache
@@ -63,6 +63,24 @@ Ehcache Distributed Cache
 * Latest News
 
 %{snippet|file=src/site/include/newsticker.html|verbatim=false}
+
+** 23 March 2010: Ehcache Server 1.0 released
+
+    Ehcache Server and Standalone Server have been released to Sourceforge Downloads. The server provides RESTful and SOAP
+    APIs to Ehcache. It is available as a WAR which works with all app servers, or standalone using Glassfish V3 embedded.
+
+    New in this release is integration with Terracotta Server Array for coherent, scalable and HA caching. Also the Ehcache
+    core has been upgraded to version 2.0, Jersey to 1.1.5, Metro to 2.1.5 and for standalone, Glassfish to V3 embedded.
+
+    This release has been {{{http://gregluck.com/blog/archives/2010/03/comparing-memcache-and-ehcache-server-performance/}performance tested against memcache}}
+     and gives comparable over-the-network performance. Coupled with the simplicity of coding in your HTTP client of choice in your programming language of choice
+     and easily getting the benefits of Terracotta Server Array backing it, this is a killer combination.
+
+     See the Ehcache Server {{{./documentation/cache_server.html}documentation}} to get started or {{{https://sourceforge.net/projects/ehcache/files/ehcache-server}download}} it now.
+
+    Due to an issue with external repository handling, these have not yet been released to Maven. Sonatype are completing
+    a project for Sun whereby they will be adding their artifacts to the Central repository. This is expected to be completed
+    this week or next, so the Maven artifacts will be released then.
 
 ** 8 March 2010: Ehcache 2.0 released
 
