@@ -165,6 +165,9 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
 
     /**
      * Called by {@link XARequestProcessor}
+     * @param xid the Xid of the transaction to prepare
+     * @return XA_OK, or XA_RDONLY if no write operations prepared
+     * @throws XAException if an integrity issue occurs
      */
     int prepareInternal(final Xid xid) throws XAException {
         if (LOG.isDebugEnabled()) {
@@ -234,9 +237,11 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
         // todo: make sure the XID is tested for existence
         this.processor.process(new XARequest(RequestType.FORGET, getCurrentTransaction(), xid));
     }
-    
+
     /**
      * Called by {@link XARequestProcessor}
+     * @param xid The Xid of the transaction to forget
+     * @throws XAException if transaction was prepared already and couldn't be marked for rollback
      */
     void forgetInternal(final Xid xid) throws XAException {
         if (LOG.isDebugEnabled()) {
@@ -295,9 +300,12 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
         Transaction txn = getCurrentTransaction();
         this.processor.process(new XARequest(RequestType.COMMIT, txn , xid, XAResource.TMNOFLAGS, onePhase));
     }
-    
+
     /**
      * Called by {@link XARequestProcessor}
+     * @param xid the Xid of the transaction to commit
+     * @param onePhase flag whether this is a onePhase commit (i.e. Xid was not prepared)
+     * @throws XAException Should some error happen, like if the transaction was already heuristically rolled back
      */
     void commitInternal(final Xid xid, final boolean onePhase) throws XAException {
         if (LOG.isDebugEnabled()) {
@@ -357,9 +365,11 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
         //todo: check XID, throw an exception if end() not called or if start()/end() never called
        this.processor.process(new XARequest(RequestType.ROLLBACK, getCurrentTransaction(), xid));
     }
-    
+
     /**
      * Called by {@link XARequestProcessor}
+     * @param xid the Xid of the Transaction to rollback
+     * @throws XAException should the Transaction have been heuristically commited
      */
     void rollbackInternal(final Xid xid) throws XAException {
         if (LOG.isDebugEnabled()) {
@@ -481,8 +491,8 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
     
     /**
      * Get the current Transaction from the thread context
-     * @return
-     * @throws EhcacheXAException
+     * @return the current transaction
+     * @throws EhcacheXAException If no transaction is alive
      */
     private Transaction getCurrentTransaction() throws EhcacheXAException {
         Transaction txn;
@@ -496,8 +506,8 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
 
     /**
      * Optimized one-phase commit, assumed prepare is never called.
-     * @param xid
-     * @throws XAException
+     * @param xid the Xid of the transaction to commit
+     * @throws XAException Should a MVCC validation error happen
      */
     private void onePhaseCommit(final Xid xid) throws XAException {
         TransactionContext context = ehcacheXAStore.getTransactionContext(xid);
@@ -531,9 +541,9 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
     
     /**
      * Check if commands are still valid for prepare/commit for given Xid
-     * @param context
-     * @param xid
-     * @throws XAException
+     * @param context the context containing the commands to validate against the MVCC optimistic locking mechanism
+     * @param xid the Xid of the Transaction this context is bound to
+     * @throws XAException If a validation error happens
      */
     private void validateCommands(TransactionContext context, Xid xid) throws XAException {
         for (VersionAwareCommand command : context.getCommands()) {
@@ -548,9 +558,9 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
     }
 
     /**
-     * 
-     * @param preparedXid
-     * @throws EhcacheXAException
+     * Marks a prepared Xid for rollback
+     * @param preparedXid the Xid of the Transaction to be marked for rollback
+     * @throws EhcacheXAException Should the operation be cancelled while trying to lock keys
      */
     private void markContextForRollback(final Xid preparedXid) throws EhcacheXAException {
         PreparedContext context = ehcacheXAStore.getPreparedContext(preparedXid);
@@ -580,22 +590,30 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
     }
     
     /**
-     * 
-     * @param flags
-     * @param mask
-     * @return
+     * Checks whether a flag is set, based on a mask, in flags
+     * @param flags the flags
+     * @param mask the mask
+     * @return true if set, false otherwise
      */
     private boolean isFlagSet(int flags, int mask) {
         return mask == (flags & mask);
     }
-    
+
+    /**
+     * Print flagStr if the mask is set in flags
+     * @param flags the current flags set
+     * @param mask the mask to check for
+     * @param flagStr the String to return if flag is set
+     * @return flagStr if set or an empty string otherwise
+     */
     private String printFlag(int flags, int mask, String flagStr) {
         return isFlagSet(flags, mask) ? flagStr : "";
     }
+
     /**
      * Return the string version of the flag
-     * @param flags
-     * @return
+     * @param flags flags to print
+     * @return the string representation of flags set or TMNOFLAGS
      */
     private String prettyPrintFlags(int flags) {
         StringBuffer flagStrings = new StringBuffer();
