@@ -1,0 +1,480 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<xs:schema version="1.0" targetNamespace="http://soap.server.ehcache.sf.net/" xmlns:tns="http://soap.server.ehcache.sf.net/" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
+  <xs:element name="CacheException" type="tns:CacheException"/>
+
+  <xs:element name="IllegalArgumentException" type="tns:IllegalArgumentException"/>
+
+  <xs:element name="IllegalStateException" type="tns:IllegalStateException"/>
+
+  <xs:element name="NoSuchCacheException" type="tns:NoSuchCacheException"/>
+
+  <xs:element name="ObjectExistsException" type="tns:ObjectExistsException"/>
+
+  <xs:element name="addCache" type="tns:addCache"/>
+
+  <xs:element name="addCacheResponse" type="tns:addCacheResponse"/>
+
+  <xs:element name="cache" type="tns:cache"/>
+
+  <xs:element name="cacheNames" type="tns:cacheNames"/>
+
+  <xs:element name="cacheNamesResponse" type="tns:cacheNamesResponse"/>
+
+  <xs:element name="clearStatistics" type="tns:clearStatistics"/>
+
+  <xs:element name="clearStatisticsResponse" type="tns:clearStatisticsResponse"/>
+
+  <xs:element name="element" type="tns:element"/>
+
+  <xs:element name="get" type="tns:get"/>
+
+  <xs:element name="getAllWithLoader" type="tns:getAllWithLoader"/>
+
+  <xs:element name="getAllWithLoaderResponse" type="tns:getAllWithLoaderResponse"/>
+
+  <xs:element name="getCache" type="tns:getCache"/>
+
+  <xs:element name="getCacheResponse" type="tns:getCacheResponse"/>
+
+  <xs:element name="getKeys" type="tns:getKeys"/>
+
+  <xs:element name="getKeysNoDuplicateCheck" type="tns:getKeysNoDuplicateCheck"/>
+
+  <xs:element name="getKeysNoDuplicateCheckResponse" type="tns:getKeysNoDuplicateCheckResponse"/>
+
+  <xs:element name="getKeysResponse" type="tns:getKeysResponse"/>
+
+  <xs:element name="getKeysWithExpiryCheck" type="tns:getKeysWithExpiryCheck"/>
+
+  <xs:element name="getKeysWithExpiryCheckResponse" type="tns:getKeysWithExpiryCheckResponse"/>
+
+  <xs:element name="getQuiet" type="tns:getQuiet"/>
+
+  <xs:element name="getQuietResponse" type="tns:getQuietResponse"/>
+
+  <xs:element name="getResponse" type="tns:getResponse"/>
+
+  <xs:element name="getSize" type="tns:getSize"/>
+
+  <xs:element name="getSizeResponse" type="tns:getSizeResponse"/>
+
+  <xs:element name="getStatistics" type="tns:getStatistics"/>
+
+  <xs:element name="getStatisticsAccuracy" type="tns:getStatisticsAccuracy"/>
+
+  <xs:element name="getStatisticsAccuracyResponse" type="tns:getStatisticsAccuracyResponse"/>
+
+  <xs:element name="getStatisticsResponse" type="tns:getStatisticsResponse"/>
+
+  <xs:element name="getStatus" type="tns:getStatus"/>
+
+  <xs:element name="getStatusResponse" type="tns:getStatusResponse"/>
+
+  <xs:element name="getWithLoader" type="tns:getWithLoader"/>
+
+  <xs:element name="getWithLoaderResponse" type="tns:getWithLoaderResponse"/>
+
+  <xs:element name="load" type="tns:load"/>
+
+  <xs:element name="loadAll" type="tns:loadAll"/>
+
+  <xs:element name="loadAllResponse" type="tns:loadAllResponse"/>
+
+  <xs:element name="loadResponse" type="tns:loadResponse"/>
+
+  <xs:element name="ping" type="tns:ping"/>
+
+  <xs:element name="pingResponse" type="tns:pingResponse"/>
+
+  <xs:element name="put" type="tns:put"/>
+
+  <xs:element name="putQuiet" type="tns:putQuiet"/>
+
+  <xs:element name="putQuietResponse" type="tns:putQuietResponse"/>
+
+  <xs:element name="putResponse" type="tns:putResponse"/>
+
+  <xs:element name="remove" type="tns:remove"/>
+
+  <xs:element name="removeAll" type="tns:removeAll"/>
+
+  <xs:element name="removeAllResponse" type="tns:removeAllResponse"/>
+
+  <xs:element name="removeCache" type="tns:removeCache"/>
+
+  <xs:element name="removeCacheResponse" type="tns:removeCacheResponse"/>
+
+  <xs:element name="removeQuiet" type="tns:removeQuiet"/>
+
+  <xs:element name="removeQuietResponse" type="tns:removeQuietResponse"/>
+
+  <xs:element name="removeResponse" type="tns:removeResponse"/>
+
+  <xs:complexType name="getWithLoader">
+    <xs:sequence>
+      <xs:element name="arg0" type="xs:string" minOccurs="0"/>
+      <xs:element name="arg1" type="xs:string" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="getWithLoaderResponse">
+    <xs:sequence>
+      <xs:element name="return" type="tns:element" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="element">
+    <xs:sequence>
+      <xs:element name="eternal" type="xs:boolean"/>
+      <xs:element name="key" type="xs:anyType" minOccurs="0"/>
+      <xs:element name="mimeType" type="xs:string" minOccurs="0"/>
+      <xs:element name="resourceUri" type="xs:string" minOccurs="0"/>
+      <xs:element name="timeToLiveSeconds" type="xs:int"/>
+      <xs:element name="value" type="xs:base64Binary" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="NoSuchCacheException">
+    <xs:sequence>
+      <xs:element name="message" type="xs:string" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="removeCache">
+    <xs:sequence>
+      <xs:element name="arg0" type="xs:string" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="removeCacheResponse">
+    <xs:sequence/>
+  </xs:complexType>
+
+  <xs:complexType name="IllegalStateException">
+    <xs:sequence>
+      <xs:element name="message" type="xs:string" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="put">
+    <xs:sequence>
+      <xs:element name="arg0" type="xs:string" minOccurs="0"/>
+      <xs:element name="arg1" type="tns:element" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="putResponse">
+    <xs:sequence/>
+  </xs:complexType>
+
+  <xs:complexType name="CacheException">
+    <xs:sequence>
+      <xs:element name="message" type="xs:string" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="ping">
+    <xs:sequence/>
+  </xs:complexType>
+
+  <xs:complexType name="pingResponse">
+    <xs:sequence>
+      <xs:element name="return" type="xs:string" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="getQuiet">
+    <xs:sequence>
+      <xs:element name="arg0" type="xs:string" minOccurs="0"/>
+      <xs:element name="arg1" type="xs:anyType" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="getQuietResponse">
+    <xs:sequence>
+      <xs:element name="return" type="tns:element" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="getKeysWithExpiryCheck">
+    <xs:sequence>
+      <xs:element name="arg0" type="xs:string" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="getKeysWithExpiryCheckResponse">
+    <xs:sequence>
+      <xs:element name="return" type="xs:anyType" minOccurs="0" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="getStatus">
+    <xs:sequence>
+      <xs:element name="arg0" type="xs:string" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="getStatusResponse">
+    <xs:sequence>
+      <xs:element name="return" type="tns:status" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="removeAll">
+    <xs:sequence>
+      <xs:element name="arg0" type="xs:string" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="removeAllResponse">
+    <xs:sequence/>
+  </xs:complexType>
+
+  <xs:complexType name="getAllWithLoader">
+    <xs:sequence>
+      <xs:element name="arg0" type="xs:string" minOccurs="0"/>
+      <xs:element name="arg1" type="xs:anyType" minOccurs="0" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="getAllWithLoaderResponse">
+    <xs:sequence>
+      <xs:element name="return" type="tns:hashMap" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="hashMap">
+    <xs:complexContent>
+      <xs:extension base="tns:abstractMap">
+        <xs:sequence/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="abstractMap" abstract="true">
+    <xs:sequence/>
+  </xs:complexType>
+
+  <xs:complexType name="getKeys">
+    <xs:sequence>
+      <xs:element name="arg0" type="xs:string" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="getKeysResponse">
+    <xs:sequence>
+      <xs:element name="return" type="xs:anyType" minOccurs="0" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="load">
+    <xs:sequence>
+      <xs:element name="arg0" type="xs:string" minOccurs="0"/>
+      <xs:element name="arg1" type="xs:string" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="loadResponse">
+    <xs:sequence/>
+  </xs:complexType>
+
+  <xs:complexType name="clearStatistics">
+    <xs:sequence>
+      <xs:element name="arg0" type="xs:string" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="clearStatisticsResponse">
+    <xs:sequence/>
+  </xs:complexType>
+
+  <xs:complexType name="putQuiet">
+    <xs:sequence>
+      <xs:element name="arg0" type="xs:string" minOccurs="0"/>
+      <xs:element name="arg1" type="tns:element" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="putQuietResponse">
+    <xs:sequence/>
+  </xs:complexType>
+
+  <xs:complexType name="IllegalArgumentException">
+    <xs:sequence>
+      <xs:element name="message" type="xs:string" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="getKeysNoDuplicateCheck">
+    <xs:sequence>
+      <xs:element name="arg0" type="xs:string" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="getKeysNoDuplicateCheckResponse">
+    <xs:sequence>
+      <xs:element name="return" type="xs:anyType" minOccurs="0" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="remove">
+    <xs:sequence>
+      <xs:element name="arg0" type="xs:string" minOccurs="0"/>
+      <xs:element name="arg1" type="xs:string" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="removeResponse">
+    <xs:sequence>
+      <xs:element name="return" type="xs:boolean"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="getCache">
+    <xs:sequence>
+      <xs:element name="arg0" type="xs:string" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="getCacheResponse">
+    <xs:sequence>
+      <xs:element name="return" type="tns:cache" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="cache">
+    <xs:sequence>
+      <xs:element name="description" type="xs:string" minOccurs="0"/>
+      <xs:element name="name" type="xs:string" minOccurs="0"/>
+      <xs:element name="uri" type="xs:string" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="getSize">
+    <xs:sequence>
+      <xs:element name="arg0" type="xs:string" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="getSizeResponse">
+    <xs:sequence>
+      <xs:element name="return" type="xs:int"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="getStatistics">
+    <xs:sequence>
+      <xs:element name="arg0" type="xs:string" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="getStatisticsResponse">
+    <xs:sequence>
+      <xs:element name="return" type="tns:statistics" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="statistics">
+    <xs:sequence>
+      <xs:element name="averageGetTime" type="xs:float"/>
+      <xs:element name="cacheHits" type="xs:long"/>
+      <xs:element name="evictionCount" type="xs:long"/>
+      <xs:element name="inMemoryHits" type="xs:long"/>
+      <xs:element name="onDiskHits" type="xs:long"/>
+      <xs:element name="statisticsAccuracy" type="tns:statisticsAccuracy" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="loadAll">
+    <xs:sequence>
+      <xs:element name="arg0" type="xs:string" minOccurs="0"/>
+      <xs:element name="arg1" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="loadAllResponse">
+    <xs:sequence/>
+  </xs:complexType>
+
+  <xs:complexType name="removeQuiet">
+    <xs:sequence>
+      <xs:element name="arg0" type="xs:string" minOccurs="0"/>
+      <xs:element name="arg1" type="xs:string" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="removeQuietResponse">
+    <xs:sequence>
+      <xs:element name="return" type="xs:boolean"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="getStatisticsAccuracy">
+    <xs:sequence>
+      <xs:element name="arg0" type="xs:string" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="getStatisticsAccuracyResponse">
+    <xs:sequence>
+      <xs:element name="return" type="tns:statisticsAccuracy" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="addCache">
+    <xs:sequence>
+      <xs:element name="arg0" type="xs:string" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="addCacheResponse">
+    <xs:sequence/>
+  </xs:complexType>
+
+  <xs:complexType name="ObjectExistsException">
+    <xs:sequence>
+      <xs:element name="message" type="xs:string" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="get">
+    <xs:sequence>
+      <xs:element name="arg0" type="xs:string" minOccurs="0"/>
+      <xs:element name="arg1" type="xs:string" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="getResponse">
+    <xs:sequence>
+      <xs:element name="return" type="tns:element" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="cacheNames">
+    <xs:sequence/>
+  </xs:complexType>
+
+  <xs:complexType name="cacheNamesResponse">
+    <xs:sequence>
+      <xs:element name="return" type="xs:string" nillable="true" minOccurs="0" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:simpleType name="status">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="STATUS_UNINITIALISED"/>
+      <xs:enumeration value="STATUS_ALIVE"/>
+      <xs:enumeration value="STATUS_SHUTDOWN"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="statisticsAccuracy">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="STATISTICS_ACCURACY_NONE"/>
+      <xs:enumeration value="STATISTICS_ACCURACY_BEST_EFFORT"/>
+      <xs:enumeration value="STATISTICS_ACCURACY_GUARANTEED"/>
+    </xs:restriction>
+  </xs:simpleType>
+</xs:schema>
+
