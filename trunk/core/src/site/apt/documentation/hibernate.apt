@@ -407,6 +407,181 @@ public List getStreetTypes(final Country country) throws HibernateException {
 
     Check out from {{https://svn.terracotta.org/svn/forge/projects/exam/}} terracotta_community_login
 
+*   {Performance Tips}
+
+** Session.load
+
+    Session.load will always try to use the cache.
+
+** Session.find and Query.find
+
+    Session.find does not use the cache for the primary object. Hibernate
+    will try to use the cache for any associated objects. Session.find does
+    however cause the cache to be populated.
+
+    Query.find works in exactly the same way.
+
+    Use these where the chance of getting a cache hit is low.
+
+** Session.iterate and Query.iterate
+
+    Session.iterate always uses the cache for the primary object and any
+    associated objects.
+
+    Query.iterate works in exactly the same way.
+
+    Use these where the chance of getting a cache hit is high.
+
+*   {How to Scale}
+
+    Configuring each Hibernate instance with a standalone ehcache will dramatically improve
+    performance. However most production applications use multiple application instances
+    for redundancy and for scalability. Ideally applications are horizontally scalable, where
+    adding more application instances linearly improves throughput.
+
+    With an application deployed on multiple nodes, using standalone Ehcache means that each instance holds its own data. 
+    On a cache miss on any node, Hibernate will read from the database. This generally results in N reads where N is the number of nodes in the cluster.  
+    As each new node gets added database workload goes up. 
+    Also, when data is written in one node, the other nodes are unaware of the data write, and thus subsequent reads of this data on other nodes will result in stale reads.  
+
+    The solution is to turn on {{{/documentation/distributed_caching.html}distributed caching}}.
+
+    Ehcache supports the followingy methods of distributed caching
+
+      * RMI, JGroups, or JMS replication
+
+      * Terracotta
+
+    Selection of the replication mechanism may be made or changed at any time.  There are no changes to the application.  Only changes to ehcache.xml file are required.  This allows an application to easily scale as it grows without expensive re-architecting.
+
+** Cache replication - RMI, JGroups, or JMS
+
+    Ehcache can use JMS, JGroups or RMI as a cache replication scheme.  The following are the key considerations when selecting this option:
+    
+    * No locking is used during replication, so cached data may be stale.  Your application should be able to deal with stale data.
+
+    * <<<session.refresh()>>> should be used to check the cache against the database before performing a write that must be correct.  This can have a performance inmpact on the database.
+
+    * Each node in the cluster stores all data, thus the cache size is limited to memory size, or disk if disk overflow is selected. 
+
+*** Configuring for RMI Replication
+
+    RMI configuration is described in the {{{./distributed_caching_with_rmi.html}Ehcache User Guide - RMI Distributed Caching}}.  A sample cache configuration (using automatic discovery) is provided here:
+
+--------------------------------------------
+<cacheManagerPeerProviderFactory
+ class="net.sf.ehcache.distribution.RMICacheManagerPeerProviderFactory"
+
+ properties="peerDiscovery=automatic, multicastGroupAddress=230.0.0.1,
+ multicastGroupPort=4446, timeToLive=32"/>
+
+<cache
+    name="com.somecompany.someproject.domain.Country"
+    maxElementsInMemory="10000"
+    eternal="false"
+    timeToIdleSeconds="300"
+    timeToLiveSeconds="600"
+    overflowToDisk="true">
+    <cacheEventListenerFactory
+            class="net.sf.ehcache.distribution.RMICacheReplicatorFactory"/>
+</cache>
+--------------------------------------------
+
+*** Configuring for JGroups Replication
+
+    Configuraging JGroups replication is described in the {{{./distributed_caching_with_jgroups.html}Ehcache User Guide - Distributed Caching with JGroups}}.  A sample cache configuration is provided here:
+
+--------------------------------------------
+<cacheManagerPeerProviderFactory class="net.sf.ehcache.distribution.jgroups
+    .JGroupsCacheManagerPeerProviderFactory"
+     properties="connect=UDP(mcast_addr=231.12.21.132;mcast_port=45566;ip_ttl=32;
+     mcast_send_buf_size=150000;mcast_recv_buf_size=80000):
+     PING(timeout=2000;num_initial_members=6):
+     MERGE2(min_interval=5000;max_interval=10000):
+     FD_SOCK:VERIFY_SUSPECT(timeout=1500):
+     pbcast.NAKACK(gc_lag=10;retransmit_timeout=3000):
+     UNICAST(timeout=5000):
+     pbcast.STABLE(desired_avg_gossip=20000):
+     FRAG:
+     pbcast.GMS(join_timeout=5000;join_retry_timeout=2000;
+     shun=false;print_local_addr=true)"
+ propertySeparator="::"
+     />
+
+<cache
+    name="com.somecompany.someproject.domain.Country"
+    maxElementsInMemory="10000"
+    eternal="false"
+    timeToIdleSeconds="300"
+    timeToLiveSeconds="600"
+    overflowToDisk="true">
+    <cacheEventListenerFactory
+    class="net.sf.ehcache.distribution.jgroups.JGroupsCacheReplicatorFactory"
+    properties="replicateAsynchronously=true, replicatePuts=true,
+replicateUpdates=true, replicateUpdatesViaCopy=false,
+replicateRemovals=true" />
+</cache>
+--------------------------------------------
+
+*** Configuring for JMS Replication
+
+    Configuring JMS replication is described in the {{{./distributed_caching_with_rmi.html}Ehcache User Guide - JMS Distributed Caching}}.  A sample cache configuration (for ActiveMQ) is provided here:
+
+--------------------------------------------
+<cacheManagerPeerProviderFactory
+            class="net.sf.ehcache.distribution.jms.JMSCacheManagerPeerProviderFactory"
+            properties="initialContextFactoryName=ExampleActiveMQInitialContextFactory,
+                providerURL=tcp://localhost:61616,
+                topicConnectionFactoryBindingName=topicConnectionFactory,
+                topicBindingName=ehcache"
+            propertySeparator=","
+            />
+<cache
+    name="com.somecompany.someproject.domain.Country"
+    maxElementsInMemory="10000"
+    eternal="false"
+    timeToIdleSeconds="300"
+    timeToLiveSeconds="600"
+    overflowToDisk="true">
+    <cacheEventListenerFactory
+          class="net.sf.ehcache.distribution.jms.JMSCacheReplicatorFactory"
+          properties="replicateAsynchronously=true,
+                       replicatePuts=true,
+                       replicateUpdates=true,
+                       replicateUpdatesViaCopy=true,
+                       replicateRemovals=true,
+                       asynchronousReplicationIntervalMillis=1000"
+           propertySeparator=","/>
+</cache>
+--------------------------------------------
+
+** Cache replication - Terracotta
+
+    Ehcache can use Terracotta replication.  The following are the key considerations when selecting this option:
+    
+    * Reads and writes are locked ensuring coherent updates across all nodes (thus it is not necessary to call <<<session.refresh()>>>)
+
+    * With Ehcache EX, using a single or redundant Terracotta Server Array can comfortably store approximately 20GB per stripe.
+
+    * With Ehcache FX, it is possible to configure multiple Terracotta Server Array stripes, easily storing 100's of GB 
+
+*** Configuring for Terracotta Replication
+
+    Configuring Terracotta replication is described in the {{{http://www.terracotta.org/documentation/ga/product-documentation-5.html}Terracotta Documentation}}.  A sample cache configuration is provided here:
+
+--------------------------------------------
+<terracottaConfig url="localhost:9510" />
+
+<cache
+    name="com.somecompany.someproject.domain.Country"
+    maxElementsInMemory="10000"
+    eternal="false"
+    timeToIdleSeconds="300"
+    timeToLiveSeconds="600"
+    overflowToDisk="true">
+    <terracotta/>
+</cache>
+--------------------------------------------
 
 *   {FAQ}
 
@@ -480,65 +655,4 @@ public List getStreetTypes(final Country country) throws HibernateException {
 
     You can also use the deterministic evictor to avoid this problem. Specify the <<<java -Dnet.sf.ehcache.use.classic.lru=true>>>
     system property to turn on classic LRU which contains a deterministic evictor.
-
-
-
-*   {Performance Tips}
-
-** Session.load
-
-    Session.load will always try to use the cache.
-
-** Session.find and Query.find
-
-    Session.find does not use the cache for the primary object. Hibernate
-    will try to use the cache for any associated objects. Session.find does
-    however cause the cache to be populated.
-
-    Query.find works in exactly the same way.
-
-    Use these where the chance of getting a cache hit is low.
-
-** Session.iterate and Query.iterate
-
-    Session.iterate always uses the cache for the primary object and any
-    associated objects.
-
-    Query.iterate works in exactly the same way.
-
-    Use these where the chance of getting a cache hit is high.
-
-
-
-*   {How to Scale}
-
-    Configuring each Hibernate instance with a standalone ehcache will dramatically improve
-    performance. However most production applications use multiple application instances
-    for redundancy and for scalability. Ideally applications are horizontally scalable, where
-    adding more application instances linearly improves throughput.
-
-    With an application deployed on multiple nodes, using standalone Ehcache means that each instance holds its own
-    data. On a cache miss on any node, Hibernate will hit the database. As each new node gets added
-    database workload goes up. The solution is to turn on {{{/documentation/distributed_caching.html}distributed caching}}.
-
-    Ehcache comes with replicated caching via RMI, JGroups or JMS. These replicate without locking and are suitable
-     for database offload. Generally <<<session.refresh()>>> should be used to check the cache against the database
-     before performing a write that must be correct. Secondly, as each node stores all data, the cache size is limited
-     to a comfortable storage size. Memory size is usually limited by garbage collection. Disk can also be used, but
-     the graphs are serialized which adds overhead and results in duplication in the deserialized object graphs.
-
-
-    Ehcache is also the caching API to the Terracotta Server Array. Reads and writes use cluster wide locks, so
-    when using read write Hibernate caches, the cache data on all nodes will be correct, and it is not necessary to call
-      <<<session.refresh()>>>.
-
-    Ehcache EX, using a single or redundant Terracotta Server Array server can comfortably store approximately 20GB per stripe.
-    The <<<maxElementsInMemory>>> cache setting is used to apportion a percentage of that in process for added performance, it does
-    not limit the size. Using striping which comes with Ehcache FX, terabyte sized caches are possible. It is possible
-     to cache the entire database with a resulting large database offload.
-
-    These scaling decisions can be deferred. The plugin is the same regardless of how it is configured. The optimal deployment
-     can thus be determined during performance testing or based on production experience. Finally a new application
-     can scale as it's use grows without expensive re-architecting.
-
 
