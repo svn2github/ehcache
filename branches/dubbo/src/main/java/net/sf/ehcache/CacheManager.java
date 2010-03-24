@@ -389,6 +389,17 @@ public class CacheManager {
     public Store createTerracottaStore(Ehcache cache) {
         return getClusteredInstanceFactory(cache).createStore(cache);
     }
+    
+    /**
+     * Create/access the appropriate terracotta clustered store of the view for the given cache
+     *
+     * @param view The cache view for which the Store should be created
+     * @param viewOfCache The actual cache with which the view will share the backend
+     * @return a new (or existing) clustered store for the view
+     */
+    public Store createTerracottaStoreForView(Ehcache view, Ehcache viewOfCache) {
+        return getClusteredInstanceFactory(view).createStoreForView(view, viewOfCache);
+    }
 
     /**
      * Create/access the appropriate clustered write behind queue for the given cache
@@ -825,6 +836,43 @@ public class CacheManager {
             shutdownHook = null;
         }
     }
+    
+    /**
+     * Creates a view with name <code>viewName</code> of the cache specified by <code>cacheName</code>.
+     * The view is also added to the cacheManager as another cache with name <code>viewName</code>.
+     * Throws {@link CacheException} for any of the following reasons:
+     * <ul>
+     * <li>The cache specified by <code>cacheName</code> does not exist</li>
+     * <li>A view with same name already exists</li>
+     * <li>The cache specified by <code>cacheName</code> is not configured  for clustering with Terracotta.</li>
+     * </ul>
+     * 
+     * @param cacheName Name of the cache from which the view will be created
+     * @param viewName Name of the view
+     * @return A view of the cache
+     * @throws CacheException Throws {@link CacheException} if the cache specified by <code>cacheName</code> does not exist OR
+     * A view with same name already exists OR
+     * The cache specified by <code>cacheName</code> is not configured for clustering with Terracotta.
+     */
+    public synchronized Ehcache createCacheView(String cacheName, String viewName) throws CacheException {
+        checkStatus();
+        Ehcache cache = getEhcache(cacheName);
+        if (cache == null) {
+            throw new CacheException("The specified cache does not exist, cacheName: " + cacheName);
+        }
+        if (!cache.getCacheConfiguration().isTerracottaClustered()) {
+            throw new CacheException("Cache views are only supported for caches clustered with Terracotta");
+        }
+        if (getEhcache(viewName) != null || getCache(viewName) != null) {
+            throw new CacheException("A cache/view with the name \"" + viewName + "\" already exists.");
+        }
+        CacheConfiguration viewConfig = cache.getCacheConfiguration().clone();
+        viewConfig.name(viewName);
+        Ehcache view = new Cache(viewConfig);
+        internalAddCacheNoCheck(view, cache);
+        return view;
+    }
+
 
     /**
      * Adds a {@link Ehcache} based on the defaultCache with the given name.
@@ -909,33 +957,58 @@ public class CacheManager {
         }
         addCacheNoCheck(cache);
     }
-
+    
     private void addCacheNoCheck(Ehcache cache) throws IllegalStateException, ObjectExistsException, CacheException {
-        if (ehcaches.get(cache.getName()) != null) {
-            throw new ObjectExistsException("Cache " + cache.getName() + " already exists");
-        }
-        cache.setCacheManager(this);
-        cache.setDiskStorePath(diskStorePath);
-        cache.setTransactionManagerLookup(transactionManagerLookup);
+        internalAddCacheNoCheck(cache, null);
+    }
 
-        cache.initialise();
+    /**
+     * adds the cache to this cache manager. also initializes the cache
+     * @param cacheOrView The cache (or view) to be added
+     * @param actualCacheIfView The actual cache from which a view is being added. Can be null, which means a cache, and not a view, is being added.
+     */
+    private void internalAddCacheNoCheck(Ehcache cacheOrView, Ehcache actualCacheIfView) {
+        boolean isView = actualCacheIfView != null;
+
+        if (ehcaches.get(cacheOrView.getName()) != null) {
+            throw new ObjectExistsException("Cache " + cacheOrView.getName() + " already exists");
+        }
+        cacheOrView.setCacheManager(this);
+        cacheOrView.setDiskStorePath(diskStorePath);
+        cacheOrView.setTransactionManagerLookup(transactionManagerLookup);
+
+        if (isView) {
+            // initialize the cache as view
+            if (!(cacheOrView instanceof Cache)) {
+                throw new CacheException("Unsupported implementation of Ehcache - " + cacheOrView.getClass().getName()
+                        + ". Views are only supported for net.sf.Cache as of now");
+            }
+            ((Cache)cacheOrView).initializeAsViewOf(actualCacheIfView);
+        } else {
+            // initialize the cache normally
+            cacheOrView.initialise();
+        }
         if (!allowsDynamicCacheConfig) {
-            cache.disableDynamicFeatures();
+            cacheOrView.disableDynamicFeatures();
         }
 
-        try {
-            cache.bootstrap();
-        } catch (CacheException e) {
-            LOG.warn("Cache " + cache.getName() + "requested bootstrap but a CacheException occured. " + e.getMessage(), e);
+        // bootstrap only if not a view
+        if (!isView) {            
+            try {
+                cacheOrView.bootstrap();
+            } catch (CacheException e) {
+                LOG.warn("Cache " + cacheOrView.getName() + "requested bootstrap but a CacheException occured. " + e.getMessage(), e);
+            }
         }
-        ehcaches.put(cache.getName(), cache);
-        if (cache instanceof Cache) {
-            caches.put(cache.getName(), cache);
+        
+        ehcaches.put(cacheOrView.getName(), cacheOrView);
+        if (cacheOrView instanceof Cache) {
+            caches.put(cacheOrView.getName(), cacheOrView);
         }
 
         // Don't notify initial config. The init method of each listener should take care of this.
         if (status.equals(Status.STATUS_ALIVE)) {
-            cacheManagerEventListenerRegistry.notifyCacheAdded(cache.getName());
+            cacheManagerEventListenerRegistry.notifyCacheAdded(cacheOrView.getName());
         }
     }
 

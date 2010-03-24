@@ -920,6 +920,13 @@ public class Cache implements Ehcache {
     public void setTransactionManagerLookup(TransactionManagerLookup lookup) {
         this.transactionManagerLookup = lookup;
     }
+    
+    /**
+     * package protected method
+     */
+    void initializeAsViewOf(Ehcache viewOfCache) {
+        initialize(viewOfCache);
+    }
 
     /**
      * Newly created caches do not have a {@link net.sf.ehcache.store.MemoryStore} or a {@link net.sf.ehcache.store.DiskStore}.
@@ -927,6 +934,11 @@ public class Cache implements Ehcache {
      * This method creates those and makes the cache ready to accept elements
      */
     public void initialise() {
+        initialize(null);
+    }
+
+    private void initialize(Ehcache viewOfCache) {
+        boolean isView = viewOfCache != null;
         synchronized (this) {
             if (!status.equals(Status.STATUS_UNINITIALISED)) {
                 throw new IllegalStateException("Cannot initialise the " + configuration.getName()
@@ -937,7 +949,7 @@ public class Cache implements Ehcache {
                 LOG.warn("Cache: " + configuration.getName() + " has a maxElementsInMemory of 0.  " +
                         "In Ehcache 2.0 this has been changed to mean a store with no capacity limit.");
             }
-
+         
             this.diskStore = createDiskStore();
 
             if (configuration.isTransactional()) {
@@ -946,17 +958,22 @@ public class Cache implements Ehcache {
             }
 
             final Store memStore;
-            if (isTerracottaClustered()) {
-                memStore = cacheManager.createTerracottaStore(this);
-                boolean unlockedReads = !this.configuration.getTerracottaConfiguration().getCoherentReads();
-                // if coherentReads=false, make coherent=false
-                boolean coherent = unlockedReads ? false : this.configuration.getTerracottaConfiguration().isCoherent();
-                memStore.setNodeCoherent(coherent);
+            if (isView) {
+                if (!isTerracottaClustered()) {
+                    throw new CacheException("Initialization as views is supported only for caches clustered with Terracotta.");
+                }
+                memStore = cacheManager.createTerracottaStoreForView(this, viewOfCache);
+                initializeNodeCoherence(memStore);
             } else {
-                if (useClassicLru && configuration.getMemoryStoreEvictionPolicy().equals(MemoryStoreEvictionPolicy.LRU)) {
-                    memStore = new LruMemoryStore(this, diskStore);
+                if (isTerracottaClustered()) {
+                    memStore = cacheManager.createTerracottaStore(this);
+                    initializeNodeCoherence(memStore);
                 } else {
-                    memStore = MemoryStore.create(this, diskStore);
+                    if (useClassicLru && configuration.getMemoryStoreEvictionPolicy().equals(MemoryStoreEvictionPolicy.LRU)) {
+                        memStore = new LruMemoryStore(this, diskStore);
+                    } else {
+                        memStore = MemoryStore.create(this, diskStore);
+                    }
                 }
             }
 
@@ -1019,6 +1036,13 @@ public class Cache implements Ehcache {
             LOG.warn("Cache: " + configuration.getName() + " is disabled because the " + NET_SF_EHCACHE_DISABLED
                     + " property was set to true. No elements will be added to the cache.");
         }
+    }
+
+    private void initializeNodeCoherence(final Store memStore) {
+        boolean unlockedReads = !this.configuration.getTerracottaConfiguration().getCoherentReads();
+        // if coherentReads=false, make coherent=false
+        boolean coherent = unlockedReads ? false : this.configuration.getTerracottaConfiguration().isCoherent();
+        memStore.setNodeCoherent(coherent);
     }
 
     /**

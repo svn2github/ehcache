@@ -66,4 +66,13 @@ public interface ClusteredInstanceFactory {
      * @return cache event replicator
      */
     CacheEventListener createEventReplicator(Ehcache cache);
+
+    /**
+     * Create a Store instance for the given view of the cache
+     *
+     * @param view the cache view will backed by the returned store
+     * @param viewOfCache the actual cache of the view
+     * @return store instance for the view that shares common backend with the actual cache
+     */
+    Store createStoreForView(Ehcache view, Ehcache viewOfCache);
 }
