@@ -3,6 +3,15 @@
     <action dev="Greg Luck" type="fix" issue="2620231">
         Content-Type set through a header does not override implicit Content-Type
     </action>
+    <action dev="Ludovic Orban" type="fix" issue="EHC-586">
+        CachingFilter does not short-circuits body/entity data of non-200 responses anymore
+    </action>
+    <action dev="Ludovic Orban" type="fix" issue="EHC-589">
+        SimplePageFragmentCachingFilter does not hardcode cacheName anymore 
+    </action>
+    <action dev="Ludovic Orban" type="fix" issue="EHC-606">
+        Fixed headers management
+    </action>
 </release>
 
 <release version="2.0" date="2009-4-4" desc="Initial release of separate web module">
