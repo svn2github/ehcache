@@ -54,6 +54,10 @@
 
 ** Hibernate 3.3 and higher
 
+   <<ATTENTION HIBERNATE 3.2 USERS>>
+
+   <<Make sure to note the change to BOTH the property name and value.>>
+
    Use:
 
 ---
