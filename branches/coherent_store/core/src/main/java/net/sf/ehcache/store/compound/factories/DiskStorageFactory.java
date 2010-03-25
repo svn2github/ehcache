@@ -52,6 +52,8 @@ import static java.util.concurrent.TimeUnit.MILLISECONDS;
  */
 abstract class DiskStorageFactory<T extends ElementSubstitute> implements ElementSubstituteFactory<T> {
 
+    private static final String AUTO_DISK_PATH_DIRECTORY_PREFIX = "ehcache_auto_created";
+    
     private static final Logger LOG = LoggerFactory.getLogger(DiskStorageFactory.class.getName());
 
     private final BlockingQueue<Runnable> diskQueue = new LinkedBlockingQueue<Runnable>(); 
@@ -93,6 +95,17 @@ abstract class DiskStorageFactory<T extends ElementSubstitute> implements Elemen
     protected void delete() {
         file.delete();
         freeChunks.clear();
+        if (file.getAbsolutePath().contains(AUTO_DISK_PATH_DIRECTORY_PREFIX)) {
+            //try to delete the auto_createtimestamp directory. Will work when the last Disk Store deletes
+            //the last files and the directory becomes empty.
+            File dataDirectory = file.getParentFile();
+            if (dataDirectory != null && dataDirectory.exists()) {
+                if (dataDirectory.delete()) {
+                    LOG.debug("Deleted directory " + dataDirectory.getName());
+                }
+            }
+
+        }
     }
     
     protected <U> Future<U> schedule(Callable<U> call) {
@@ -132,51 +145,38 @@ abstract class DiskStorageFactory<T extends ElementSubstitute> implements Elemen
         }
     }
 
-    protected DiskMarker write(Element element) {
-        try {
-            MemoryEfficientByteArrayOutputStream buffer = serializeElement(element);
-            if (buffer == null) {
-                return null;
-            }
-
-            int bufferLength = buffer.size();
-            try {
-                DiskMarker marker = alloc(element, bufferLength);
-                // Write the record
-                synchronized (data) {
-                    data.seek(marker.getPosition());
-                    data.write(buffer.toByteArray(), 0, bufferLength);
-                }
-                return marker;
-            } catch (OutOfMemoryError e) {
-                LOG.error("OutOfMemoryError on serialize: " + element.getObjectKey());
-            }
-        } catch (Exception e) {
-            // Catch any exception that occurs during serialization
-            LOG.error("Failed to write element to disk '" + element.getObjectKey() + "\'", e);
+    protected DiskMarker write(Element element) throws IOException {
+        MemoryEfficientByteArrayOutputStream buffer = serializeElement(element);
+        int bufferLength = buffer.size();
+        DiskMarker marker = alloc(element, bufferLength);
+        // Write the record
+        synchronized (data) {
+            data.seek(marker.getPosition());
+            data.write(buffer.toByteArray(), 0, bufferLength);
         }
-        return null;
+        return marker;
     }
 
-    private MemoryEfficientByteArrayOutputStream serializeElement(Element element) throws IOException, InterruptedException {
+    private MemoryEfficientByteArrayOutputStream serializeElement(Element element) throws IOException {
         // try two times to Serialize. A ConcurrentModificationException can occur because Java's serialization
         // mechanism is not threadsafe and POJOs are seldom implemented in a threadsafe way.
         // e.g. we are serializing an ArrayList field while another thread somewhere in the application is appending to it.
         // The best we can do is try again and then give up.
-        Exception exception = null;
+        ConcurrentModificationException exception = null;
         for (int retryCount = 0; retryCount < 2; retryCount++) {
             try {
                 return MemoryEfficientByteArrayOutputStream.serialize(element);
             } catch (ConcurrentModificationException e) {
                 exception = e;
-                // wait for the other thread(s) to finish
-                MILLISECONDS.sleep(250);
+                try {
+                    // wait for the other thread(s) to finish
+                    MILLISECONDS.sleep(250);
+                } catch (InterruptedException e1) {
+                    //no-op
+                }
             }
         }
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("Gave up trying to Serialize " + element.getObjectKey(), exception);
-        }
-        return null;
+        throw exception;
     }
 
     private DiskMarker alloc(Element element, int size) throws IOException {

@@ -167,19 +167,14 @@ class Segment extends ReentrantReadWriteLock {
         }
     }
 
-    InternalElementSubstituteFactory<?> getFactory(Object key, int hash) {
+    Object unretrievedGet(Object key, int hash) {
         readLock().lock();
         try {
             if (count != 0) {
                 HashEntry e = getFirst(hash);
                 while (e != null) {
                     if (e.hash == hash && key.equals(e.key)) {
-                        Object element = e.getElement();
-                        if (element instanceof Element) {
-                            return identityFactory;
-                        } else {
-                            return ((ElementSubstitute) element).getFactory();
-                        }
+                        return e.getElement();
                     }
                     e = e.next;
                 }
@@ -571,42 +566,13 @@ class Segment extends ReentrantReadWriteLock {
     }
     
     public <T> void addRandomSample(InternalElementSubstituteFactory<T> factory, int sampleSize, Collection<T> sampled, int rndm) {
-        if (factory == identityFactory) {
-            addIdentityRandomSample((IdentityElementSubstituteFactory) factory, sampleSize, (Collection<Element>) sampled, rndm);
-        } else {
-            addSubstituteRandomSample((ElementSubstituteFactory<ElementSubstitute>) factory, sampleSize, (Collection<ElementSubstitute>) sampled, rndm);
-        }
-    }
-    
-    private void addIdentityRandomSample(IdentityElementSubstituteFactory factory, int sampleSize, Collection<Element> sampled, int rndm) {
         final HashEntry[] tab = table;
         final int tableStart = rndm & (tab.length - 1);
         int tableIndex = tableStart;
         do {
             for (HashEntry e = tab[tableIndex]; e != null; e = e.next) {
                 Object value = e.getElement();
-                if (value instanceof Element) {
-                    sampled.add((Element) value);
-                }
-            }
-
-            if (sampled.size() >= sampleSize) {
-                return;
-            }
-
-            //move to next table slot
-            tableIndex = (tableIndex + 1) & (tab.length - 1);
-        } while (tableIndex != tableStart);
-    }
-    
-    private <T extends ElementSubstitute> void addSubstituteRandomSample(ElementSubstituteFactory<T> factory, int sampleSize, Collection<T> sampled, int rndm) {
-        final HashEntry[] tab = table;
-        final int tableStart = rndm & (tab.length - 1);
-        int tableIndex = tableStart;
-        do {
-            for (HashEntry e = tab[tableIndex]; e != null; e = e.next) {
-                Object value = e.getElement();
-                if (value instanceof ElementSubstitute && factory.equals(((ElementSubstitute) value).getFactory())) {
+                if (factory.created(value)) {
                     sampled.add((T) value);
                 }
             }

@@ -64,4 +64,6 @@ interface InternalElementSubstituteFactory<T> {
      * @param object Element or ElementSubstitute being free'd.
      */
     public void free(T object);
+    
+    public boolean created(Object object);
 }

@@ -18,6 +18,7 @@ package net.sf.ehcache.store.compound.factories;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.NotSerializableException;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -94,19 +95,20 @@ public class DiskOverflowStorageFactory extends DiskStorageFactory<ElementSubsti
      * Immediately substitutes a placeholder for the original
      * element while the Element itself is asynchronously written
      * to disk using the executor service.
+     * @throws NotSerializableException 
      */    
-    public ElementSubstitute create(Object key, Element element) {
+    public ElementSubstitute create(Object key, Element element) throws IllegalArgumentException {
         if (element.isSerializable()) {
             int size = count.incrementAndGet();
             if (capacity > 0) {
                 int overflow = size - capacity;
                 if (overflow > 0) {
-                    evict(Math.min(MAX_EVICT, overflow), key.hashCode());
+                    evict(Math.min(MAX_EVICT, overflow), key);
                 }
             }
             return new Placeholder(key, element);
         } else {
-            return null;
+            throw new IllegalArgumentException();
         }
     }
     
@@ -155,9 +157,9 @@ public class DiskOverflowStorageFactory extends DiskStorageFactory<ElementSubsti
         }
     }
 
-    private void evict(int n, int hashHint) {
+    private void evict(int n, Object keyHint) {
         for (int i = 0; i < n; i++) {
-            List<ElementSubstitute> sample = store.getRandomSample(this, SAMPLE_SIZE, hashHint);
+            List<ElementSubstitute> sample = store.getRandomSample(this, SAMPLE_SIZE, keyHint);
             if (sample.isEmpty()) {
                 continue;
             }
@@ -214,20 +216,12 @@ public class DiskOverflowStorageFactory extends DiskStorageFactory<ElementSubsti
         }
 
         public Boolean call() {
-            DiskMarker marker = write(placeholder.element);
-            if (marker == null) {
-                if (store.evict(placeholder.key, placeholder.element)) {
-                    return Boolean.TRUE;
-                } else {
-                    return Boolean.FALSE;
-                }
-            } else {
+            try {
+                DiskMarker marker = write(placeholder.element);
                 count.incrementAndGet();
-                if (store.fault(placeholder.key, placeholder, marker)) {
-                    return Boolean.TRUE;
-                } else {
-                    return Boolean.FALSE;
-                }
+                return Boolean.valueOf(store.fault(placeholder.key, placeholder, marker));
+            } catch (IOException e) {
+                return Boolean.valueOf(store.evict(placeholder.key, placeholder.element));
             }
         }
     }
@@ -258,5 +252,9 @@ public class DiskOverflowStorageFactory extends DiskStorageFactory<ElementSubsti
 
     public void setCapacity(int newCapacity) {
         throw new UnsupportedOperationException();
+    }
+
+    public boolean created(Object object) {
+        return (object instanceof ElementSubstitute) && (((ElementSubstitute) object).getFactory() == this);
     }
 }

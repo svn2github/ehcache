@@ -102,10 +102,12 @@ public class BlockingCache implements Ehcache {
      */
     public BlockingCache(final Ehcache cache, int numberOfStripes) throws CacheException {
         this.cache = cache;
-        if (cache.getCacheConfiguration().isTerracottaClustered()) {
-            this.cacheLockProvider = ((CacheLockProvider) cache.getInternalContext());
-        } else {
+        
+        Object context = cache.getInternalContext();
+        if (context == null) {
             this.cacheLockProvider = new StripedReadWriteLockSync(numberOfStripes);
+        } else {
+            this.cacheLockProvider = ((CacheLockProvider) context);
         }
     }
 

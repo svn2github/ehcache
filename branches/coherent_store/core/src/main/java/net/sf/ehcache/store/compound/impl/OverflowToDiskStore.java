@@ -18,8 +18,6 @@ package net.sf.ehcache.store.compound.impl;
 
 import java.io.IOException;
 
-import javax.swing.text.Segment;
-
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.CacheConfigurationListener;
@@ -77,11 +75,11 @@ public class OverflowToDiskStore extends LocalStore implements Store, CacheConfi
     }
     
     public boolean containsKeyInMemory(Object key) {
-        return getFactory(key) == memoryFactory;
+        return memoryFactory.created(unretrievedGet(key));
     }
 
     public boolean containsKeyOnDisk(Object key) {
-        return getFactory(key) == diskFactory;
+        return diskFactory.created(unretrievedGet(key));
     }
 
     public int getInMemorySize() {
@@ -143,7 +141,7 @@ public class OverflowToDiskStore extends LocalStore implements Store, CacheConfi
     public void flush() throws IOException {
         if (config.isClearOnFlush()) {
             for (Object key : getKeyArray()) {
-                if (getFactory(key) == memoryFactory) {
+                if (containsKeyInMemory(key)) {
                     remove(key);
                 }
             }

@@ -55,4 +55,8 @@ public class InMemoryFactory implements IdentityElementSubstituteFactory {
     public void free(Element element) {
         // no-op
     }
+
+    public boolean created(Object object) {
+        return object instanceof Element;
+    }
 }

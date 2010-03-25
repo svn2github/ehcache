@@ -66,16 +66,16 @@ public class CapacityLimitedInMemoryFactory implements IdentityElementSubstitute
         if (capacity > 0) {
             int overflow = size - capacity;
             if (overflow > 0) {
-                evict(Math.min(MAX_EVICT, overflow), key.hashCode());
+                evict(Math.min(MAX_EVICT, overflow), key);
             }
         }
         
         return element;
     }
     
-    private void evict(int n, int hashHint) {
+    private void evict(int n, Object keyHint) {
         for (int i = 0; i < n; i++) {
-            List<Element> sample = boundStore.getRandomSample(this, SAMPLE_SIZE, hashHint);
+            List<Element> sample = boundStore.getRandomSample(this, SAMPLE_SIZE, keyHint);
             Element target = policy.selectedBasedOnPolicy(sample.toArray(new Element[sample.size()]), null);
             if (target == null) {
 //                System.err.println("Eviction Selected null Target");
@@ -85,13 +85,13 @@ public class CapacityLimitedInMemoryFactory implements IdentityElementSubstitute
             if (secondary == null) {
                 boundStore.evict(target.getObjectKey(), target);
             } else {
-                ElementSubstitute substitute = secondary.create(target.getObjectKey(), target);
-                if (substitute == null) {
-                    boundStore.evict(target.getObjectKey(), target);
-                } else {
+                try {
+                    ElementSubstitute substitute = secondary.create(target.getObjectKey(), target);
                     if (boundStore.fault(target.getObjectKey(), target, substitute)) {
                         ((Placeholder) substitute).schedule();
                     }
+                } catch (IllegalArgumentException e) {
+                    boundStore.evict(target.getObjectKey(), target);
                 }
             }
         }
@@ -112,11 +112,9 @@ public class CapacityLimitedInMemoryFactory implements IdentityElementSubstitute
     public long getSizeInBytes() {
         long size = 0;
         for (Object o : boundStore.getKeyArray()) {
-            if (boundStore.getFactory(o) == this) {
-                Element e = boundStore.get(o);
-                if (e != null) {
-                    size += e.getSerializedSize();
-                }
+            Object e = boundStore.unretrievedGet(o);
+            if (e instanceof Element) {
+                size += ((Element) e).getSerializedSize();
             }
         }
         return size;
@@ -132,5 +130,9 @@ public class CapacityLimitedInMemoryFactory implements IdentityElementSubstitute
 
     public void setCapacity(int capacity) {
         this.capacity = capacity;
+    }
+
+    public boolean created(Object object) {
+        return object instanceof Element;
     }    
 }

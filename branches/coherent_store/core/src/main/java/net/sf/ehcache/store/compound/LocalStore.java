@@ -36,7 +36,7 @@ import net.sf.ehcache.concurrent.LockType;
 import net.sf.ehcache.concurrent.Sync;
 import net.sf.ehcache.writer.CacheWriterManager;
 
-public class LocalStore /* implements Store */ { //implements the original store not the new one
+public abstract class LocalStore /* implements Store */ { //implements the original store not the new one
 
     private static final int MAXIMUM_CAPACITY = 1 << 30; 
     private static final int RETRIES_BEFORE_LOCK = 2;
@@ -91,9 +91,9 @@ public class LocalStore /* implements Store */ { //implements the original store
         return get(key);
     }
 
-    public InternalElementSubstituteFactory<?> getFactory(Object key) {
+    public Object unretrievedGet(Object key) {
         int hash = hash(key.hashCode());
-        return segmentFor(hash).getFactory(key, hash);
+        return segmentFor(hash).unretrievedGet(key, hash);
     }
     
     public Object[] getKeyArray() {
@@ -222,13 +222,13 @@ public class LocalStore /* implements Store */ { //implements the original store
         return segmentFor(hash).evict(key, hash, element);
     }
     
-    public <T> List<T> getRandomSample(InternalElementSubstituteFactory<T> factory, int sampleSize, int hashHint) {
+    public <T> List<T> getRandomSample(InternalElementSubstituteFactory<T> factory, int sampleSize, Object keyHint) {
         ArrayList<T> sampled = new ArrayList<T>(sampleSize);
         
         // pick a random starting point in the map
         int randomHash = rndm.nextInt();
 
-        final int segmentStart = (hash(hashHint) >>> segmentShift);
+        final int segmentStart = (hash(keyHint.hashCode()) >>> segmentShift);
         int segmentIndex = segmentStart;
         do {
             segments[segmentIndex].addRandomSample(factory, sampleSize, sampled, randomHash);
