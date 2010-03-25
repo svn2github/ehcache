@@ -34,9 +34,10 @@ import net.sf.ehcache.Status;
 import net.sf.ehcache.concurrent.CacheLockProvider;
 import net.sf.ehcache.concurrent.LockType;
 import net.sf.ehcache.concurrent.Sync;
+import net.sf.ehcache.store.Store;
 import net.sf.ehcache.writer.CacheWriterManager;
 
-public abstract class LocalStore /* implements Store */ { //implements the original store not the new one
+public abstract class LocalStore implements Store {
 
     private static final int MAXIMUM_CAPACITY = 1 << 30; 
     private static final int RETRIES_BEFORE_LOCK = 2;
