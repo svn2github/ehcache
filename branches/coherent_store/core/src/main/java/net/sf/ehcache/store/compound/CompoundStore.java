@@ -37,7 +37,7 @@ import net.sf.ehcache.concurrent.Sync;
 import net.sf.ehcache.store.Store;
 import net.sf.ehcache.writer.CacheWriterManager;
 
-public abstract class LocalStore implements Store {
+public abstract class CompoundStore implements Store {
 
     private static final int MAXIMUM_CAPACITY = 1 << 30; 
     private static final int RETRIES_BEFORE_LOCK = 2;
@@ -53,11 +53,11 @@ public abstract class LocalStore implements Store {
 
     private volatile CacheLockProvider lockProvider;
 
-    public LocalStore(InternalElementSubstituteFactory<?> primary) {
+    public CompoundStore(InternalElementSubstituteFactory<?> primary) {
         this(primary, (primary instanceof IdentityElementSubstituteFactory) ? (IdentityElementSubstituteFactory) primary : null);
     }
     
-    public LocalStore(InternalElementSubstituteFactory<?> primary, IdentityElementSubstituteFactory identity) {
+    public CompoundStore(InternalElementSubstituteFactory<?> primary, IdentityElementSubstituteFactory identity) {
         this.segments = new Segment[DEFAULT_SEGMENT_COUNT];
         this.segmentShift = Integer.numberOfLeadingZeros(segments.length - 1);
 
@@ -265,22 +265,22 @@ public abstract class LocalStore implements Store {
 
         @Override
         public int size() {
-            return LocalStore.this.getSize();
+            return CompoundStore.this.getSize();
         }
         
         @Override
         public boolean contains(Object o) {
-            return LocalStore.this.containsKey(o);
+            return CompoundStore.this.containsKey(o);
         }
         
         @Override
         public boolean remove(Object o) {
-            return LocalStore.this.remove(o) != null;
+            return CompoundStore.this.remove(o) != null;
         }
         
         @Override
         public void clear() {
-            LocalStore.this.removeAll();
+            CompoundStore.this.removeAll();
         }
         
         @Override
@@ -302,9 +302,9 @@ public abstract class LocalStore implements Store {
 
     static class LockProvider implements CacheLockProvider {
 
-        private final LocalStore store;
+        private final CompoundStore store;
         
-        LockProvider(LocalStore store) {
+        LockProvider(CompoundStore store) {
             this.store = store;
         }
         

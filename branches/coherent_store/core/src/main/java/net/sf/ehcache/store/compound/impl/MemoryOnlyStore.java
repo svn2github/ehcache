@@ -26,10 +26,10 @@ import net.sf.ehcache.store.LfuPolicy;
 import net.sf.ehcache.store.LruPolicy;
 import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
 import net.sf.ehcache.store.Policy;
-import net.sf.ehcache.store.compound.LocalStore;
+import net.sf.ehcache.store.compound.CompoundStore;
 import net.sf.ehcache.store.compound.factories.CapacityLimitedInMemoryFactory;
 
-public class MemoryOnlyStore extends LocalStore implements CacheConfigurationListener {
+public class MemoryOnlyStore extends CompoundStore implements CacheConfigurationListener {
 
     private final CapacityLimitedInMemoryFactory memoryFactory;
     

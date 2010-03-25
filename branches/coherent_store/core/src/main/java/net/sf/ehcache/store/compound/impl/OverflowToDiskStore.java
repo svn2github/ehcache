@@ -26,11 +26,11 @@ import net.sf.ehcache.store.LfuPolicy;
 import net.sf.ehcache.store.LruPolicy;
 import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
 import net.sf.ehcache.store.Policy;
-import net.sf.ehcache.store.compound.LocalStore;
+import net.sf.ehcache.store.compound.CompoundStore;
 import net.sf.ehcache.store.compound.factories.CapacityLimitedInMemoryFactory;
 import net.sf.ehcache.store.compound.factories.DiskOverflowStorageFactory;
 
-public class OverflowToDiskStore extends LocalStore implements CacheConfigurationListener {
+public class OverflowToDiskStore extends CompoundStore implements CacheConfigurationListener {
 
     private final CapacityLimitedInMemoryFactory memoryFactory;
     private final DiskOverflowStorageFactory diskFactory;

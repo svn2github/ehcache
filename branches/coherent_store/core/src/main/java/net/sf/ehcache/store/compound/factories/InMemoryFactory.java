@@ -18,7 +18,7 @@ package net.sf.ehcache.store.compound.factories;
 
 import net.sf.ehcache.Element;
 import net.sf.ehcache.store.compound.IdentityElementSubstituteFactory;
-import net.sf.ehcache.store.compound.LocalStore;
+import net.sf.ehcache.store.compound.CompoundStore;
 
 /**
  * A simple unlimited capacity in-memory proxy factory.
@@ -27,11 +27,11 @@ import net.sf.ehcache.store.compound.LocalStore;
  */
 public class InMemoryFactory implements IdentityElementSubstituteFactory {
 
-    public void bind(LocalStore store) {
+    public void bind(CompoundStore store) {
         // no-op
     }
     
-    public void unbind(LocalStore store) {
+    public void unbind(CompoundStore store) {
         // no-op
     }
     

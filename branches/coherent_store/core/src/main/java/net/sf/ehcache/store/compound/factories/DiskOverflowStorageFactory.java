@@ -32,7 +32,7 @@ import net.sf.ehcache.Element;
 
 import net.sf.ehcache.store.compound.ElementSubstitute;
 import net.sf.ehcache.store.compound.ElementSubstituteFactory;
-import net.sf.ehcache.store.compound.LocalStore;
+import net.sf.ehcache.store.compound.CompoundStore;
 
 public class DiskOverflowStorageFactory extends DiskStorageFactory<ElementSubstitute> {
     
@@ -46,7 +46,7 @@ public class DiskOverflowStorageFactory extends DiskStorageFactory<ElementSubsti
     private final AtomicInteger placeholders = new AtomicInteger();
     private final AtomicInteger replacements = new AtomicInteger();
     
-    private volatile LocalStore                     store;
+    private volatile CompoundStore                     store;
     private volatile CapacityLimitedInMemoryFactory memory;
 
     private volatile int                            capacity;
@@ -144,11 +144,11 @@ public class DiskOverflowStorageFactory extends DiskStorageFactory<ElementSubsti
         }
     }
 
-    public void bind(LocalStore store) {
+    public void bind(CompoundStore store) {
         this.store = store;
     }
 
-    public void unbind(LocalStore localStore) {
+    public void unbind(CompoundStore localStore) {
         try {
             shutdown();
             delete();

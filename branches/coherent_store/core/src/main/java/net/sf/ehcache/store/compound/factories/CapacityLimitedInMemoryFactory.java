@@ -24,7 +24,7 @@ import net.sf.ehcache.store.Policy;
 
 import net.sf.ehcache.store.compound.ElementSubstitute;
 import net.sf.ehcache.store.compound.IdentityElementSubstituteFactory;
-import net.sf.ehcache.store.compound.LocalStore;
+import net.sf.ehcache.store.compound.CompoundStore;
 import net.sf.ehcache.store.compound.factories.DiskOverflowStorageFactory.Placeholder;
 
 public class CapacityLimitedInMemoryFactory implements IdentityElementSubstituteFactory {
@@ -35,7 +35,7 @@ public class CapacityLimitedInMemoryFactory implements IdentityElementSubstitute
     private final AtomicInteger count = new AtomicInteger();
     private final DiskOverflowStorageFactory secondary;
     
-    private volatile LocalStore boundStore;
+    private volatile CompoundStore boundStore;
     private volatile int capacity;
     private volatile Policy policy;
         
@@ -48,14 +48,14 @@ public class CapacityLimitedInMemoryFactory implements IdentityElementSubstitute
         this.policy = policy;
     }
 
-    public void bind(LocalStore store) {
+    public void bind(CompoundStore store) {
         boundStore = store;
         if (secondary != null) {
             secondary.bind(store);
         }
     }
     
-    public void unbind(LocalStore store) {
+    public void unbind(CompoundStore store) {
         if (secondary != null) {
             secondary.unbind(store);
         }
