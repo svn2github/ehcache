@@ -19,6 +19,9 @@
  */
 package net.sf.ehcache.store.compound;
 
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.NoSuchElementException;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import net.sf.ehcache.Element;
@@ -126,7 +129,7 @@ class Segment extends ReentrantReadWriteLock {
             return identityFactory.retrieve(key, object);
         } else {
             InternalElementSubstituteFactory factory = ((ElementSubstitute) object).getFactory();
-            return factory.retrieve(null, object);
+            return factory.retrieve(key, object);
         }
     }
     
@@ -164,6 +167,29 @@ class Segment extends ReentrantReadWriteLock {
         }
     }
 
+    InternalElementSubstituteFactory<?> getFactory(Object key, int hash) {
+        readLock().lock();
+        try {
+            if (count != 0) {
+                HashEntry e = getFirst(hash);
+                while (e != null) {
+                    if (e.hash == hash && key.equals(e.key)) {
+                        Object element = e.getElement();
+                        if (element instanceof Element) {
+                            return identityFactory;
+                        } else {
+                            return ((ElementSubstitute) element).getFactory();
+                        }
+                    }
+                    e = e.next;
+                }
+            }
+        } finally {
+            readLock().unlock();
+        }
+        return null;
+    }
+    
     /**
      * Return true if this segment contains a mapping for this key
      * 
@@ -228,6 +254,8 @@ class Segment extends ReentrantReadWriteLock {
      * @return <code>true</code> on a successful replace
      */
     boolean replace(Object key, int hash, Element oldElement, Element newElement) {
+        Object encoded = primaryFactory.create(key, newElement);
+        
         writeLock().lock();
         try {
             HashEntry e = getFirst(hash);
@@ -244,8 +272,10 @@ class Segment extends ReentrantReadWriteLock {
                  * to do the increment/decrement on.
                  */
                 Object old = e.getElement();
-                e.setElement(primaryFactory.create(e.key, newElement));
+                e.setElement(encoded);
                 free(old);
+            } else {
+                free(encoded);
             }
             return replaced;
         } finally {
@@ -262,6 +292,8 @@ class Segment extends ReentrantReadWriteLock {
      * @return previous element mapped to this key 
      */
     Element replace(Object key, int hash, Element newElement) {
+        Object encoded = primaryFactory.create(key, newElement);
+        
         writeLock().lock();
         try {
             HashEntry e = getFirst(hash);
@@ -272,9 +304,11 @@ class Segment extends ReentrantReadWriteLock {
             Element oldElement = null;
             if (e != null) {
                 Object old = e.getElement();
-                e.setElement(primaryFactory.create(e.key, newElement));
+                e.setElement(encoded);
                 oldElement = decode(null, old);
                 free(old);
+            } else {
+                free(encoded);
             }
             return oldElement;
         } finally {
@@ -297,11 +331,12 @@ class Segment extends ReentrantReadWriteLock {
      * @return previous element mapped to this key
      */
     Element put(Object key, int hash, Element element, boolean onlyIfAbsent) {
+        Object encoded = primaryFactory.create(key, element);
+        
         writeLock().lock();
         try {
-            int c = count;
             // ensure capacity
-            if (c++ > threshold) {
+            if (count + 1 > threshold) {
                 rehash();
             }
             HashEntry[] tab = table;
@@ -316,18 +351,19 @@ class Segment extends ReentrantReadWriteLock {
             if (e != null) {
                 Object old = e.getElement();
                 if (!onlyIfAbsent) {
-                    e.setElement(primaryFactory.create(e.key, element));
+                    e.setElement(encoded);
                     oldElement = decode(null, old);
                     free(old);
                 } else {
+                    free(encoded);
                     oldElement = decode(e.key, old);
                 }
             } else {
                 oldElement = null;
                 ++modCount;
-                tab[index] = new HashEntry(key, hash, first, primaryFactory.create(key, element));
+                tab[index] = new HashEntry(key, hash, first, encoded);
                 // write-volatile
-                count = c;
+                count = count + 1;
             }
             return oldElement;
         } finally {
@@ -412,7 +448,6 @@ class Segment extends ReentrantReadWriteLock {
     Element remove(Object key, int hash, Object value) {
         writeLock().lock();
         try {
-            int c = count - 1;
             HashEntry[] tab = table;
             int index = hash & (tab.length - 1);
             HashEntry first = tab[index];
@@ -436,13 +471,13 @@ class Segment extends ReentrantReadWriteLock {
                     /*
                      * make sure we re-get from the HashEntry - since the decode in the conditional
                      * may have faulted in a different type - we must make sure we know what type
-                     * to do the increment/decrement on.
+                     * to do the free on.
                      */
                     Object v = e.getElement();
                     oldValue = decode(null, v);
                     free(v);
                     // write-volatile
-                    count = c;
+                    count = count - 1;
                 }
             }
             return oldValue;
@@ -461,7 +496,7 @@ class Segment extends ReentrantReadWriteLock {
                 HashEntry[] tab = table;
                 for (int i = 0; i < tab.length; i++) {
                     for (HashEntry e = tab[i]; e != null; e = e.next) {
-                        free(e);
+                        free(e.getElement());
                     }
                     tab[i] = null;
                 }
@@ -491,22 +526,151 @@ class Segment extends ReentrantReadWriteLock {
     public boolean fault(Object key, int hash, Object expect, Object fault) {
         readLock().lock();
         try {
-            if (count != 0) {
-                for (HashEntry e = getFirst(hash); e != null; e = e.next) {
-                    if (e.hash == hash && key.equals(e.key)) {
-                        if (e.casElement(expect, fault)) {
-                            free(expect);
-                            return true;
-                        } else {
-                            free(fault);
-                            return false;
-                        }
+            return internalFault(key, hash, expect, fault);
+        } finally {
+            readLock().unlock();
+        }
+    }
+
+    public boolean exclusiveFault(Object key, int hash, Object expect, Object fault) {
+        writeLock().lock();
+        try {
+            return internalFault(key, hash, expect, fault);
+        } finally {
+            writeLock().unlock();
+        }
+    }
+    
+    private boolean internalFault(Object key, int hash, Object expect, Object fault) {
+        if (count != 0) {
+            for (HashEntry e = getFirst(hash); e != null; e = e.next) {
+                if (e.hash == hash && key.equals(e.key)) {
+                    if (e.casElement(expect, fault)) {
+                        free(expect);
+                        return true;
+                    } else {
+                        free(fault);
+                        return false;
                     }
                 }
             }
+        }
+        return false;
+    }
+    
+    public boolean evict(Object key, int hash, Element element) {
+        if (writeLock().tryLock()) {
+            try {
+                return remove(key, hash, element) != null;
+            } finally {
+                writeLock().unlock();
+            }
+        } else {
             return false;
-        } finally {
-            readLock().unlock();
+        }
+    }
+    
+    public <T> void addRandomSample(InternalElementSubstituteFactory<T> factory, int sampleSize, Collection<T> sampled, int rndm) {
+        if (factory == identityFactory) {
+            addIdentityRandomSample((IdentityElementSubstituteFactory) factory, sampleSize, (Collection<Element>) sampled, rndm);
+        } else {
+            addSubstituteRandomSample((ElementSubstituteFactory<ElementSubstitute>) factory, sampleSize, (Collection<ElementSubstitute>) sampled, rndm);
+        }
+    }
+    
+    private void addIdentityRandomSample(IdentityElementSubstituteFactory factory, int sampleSize, Collection<Element> sampled, int rndm) {
+        final HashEntry[] tab = table;
+        final int tableStart = rndm & (tab.length - 1);
+        int tableIndex = tableStart;
+        do {
+            for (HashEntry e = tab[tableIndex]; e != null; e = e.next) {
+                Object value = e.getElement();
+                if (value instanceof Element) {
+                    sampled.add((Element) value);
+                }
+            }
+
+            if (sampled.size() >= sampleSize) {
+                return;
+            }
+
+            //move to next table slot
+            tableIndex = (tableIndex + 1) & (tab.length - 1);
+        } while (tableIndex != tableStart);
+    }
+    
+    private <T extends ElementSubstitute> void addSubstituteRandomSample(ElementSubstituteFactory<T> factory, int sampleSize, Collection<T> sampled, int rndm) {
+        final HashEntry[] tab = table;
+        final int tableStart = rndm & (tab.length - 1);
+        int tableIndex = tableStart;
+        do {
+            for (HashEntry e = tab[tableIndex]; e != null; e = e.next) {
+                Object value = e.getElement();
+                if (value instanceof ElementSubstitute && factory.equals(((ElementSubstitute) value).getFactory())) {
+                    sampled.add((T) value);
+                }
+            }
+
+            if (sampled.size() >= sampleSize) {
+                return;
+            }
+
+            //move to next table slot
+            tableIndex = (tableIndex + 1) & (tab.length - 1);
+        } while (tableIndex != tableStart);
+    }
+    
+    public Iterator<HashEntry> hashIterator() {
+        return new HashIterator();
+    }
+    
+    class HashIterator implements Iterator<HashEntry> {
+        int nextTableIndex;
+        final HashEntry[] ourTable;
+        HashEntry nextEntry;
+        HashEntry lastReturned;
+
+        HashIterator() {
+            if (count != 0) {
+                ourTable = table;
+                for (int j = ourTable.length - 1; j >= 0; --j) {
+                    if ( (nextEntry = ourTable[j]) != null) {
+                        nextTableIndex = j - 1;
+                        return;
+                    }
+                }
+            } else {
+                ourTable = null;
+                nextTableIndex = -1;
+            }
+            advance();
+        }
+
+        final void advance() {
+            if (nextEntry != null && (nextEntry = nextEntry.next) != null)
+                return;
+
+            while (nextTableIndex >= 0) {
+                if ( (nextEntry = ourTable[nextTableIndex--]) != null)
+                    return;
+            }
+        }
+
+        public boolean hasNext() { return nextEntry != null; }
+
+        public HashEntry next() {
+            if (nextEntry == null)
+                throw new NoSuchElementException();
+            lastReturned = nextEntry;
+            advance();
+            return lastReturned;
+        }
+
+        public void remove() {
+            if (lastReturned == null)
+                throw new IllegalStateException();
+            Segment.this.remove(lastReturned.key, lastReturned.hash, null);
+            lastReturned = null;
         }
     }
 }

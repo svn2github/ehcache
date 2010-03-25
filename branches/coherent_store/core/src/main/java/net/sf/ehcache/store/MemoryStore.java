@@ -704,5 +704,37 @@ public class MemoryStore implements Store, CacheConfigurationListener {
     public void setNodeCoherent(boolean coherent) {
         throw new UnsupportedOperationException();
     }
+
+    public boolean containsKeyInMemory(Object key) {
+        return containsKey(key);
+    }
+
+    public boolean containsKeyOnDisk(Object key) {
+        return false;
+    }
+
+    public Policy getInMemoryEvictionPolicy() {
+        return getEvictionPolicy();
+    }
+
+    public int getInMemorySize() {
+        return getSize();
+    }
+
+    public long getInMemorySizeInBytes() {
+        return getSizeInBytes();
+    }
+
+    public int getOnDiskSize() {
+        return 0;
+    }
+
+    public long getOnDiskSizeInBytes() {
+        return 0;
+    }
+
+    public void setInMemoryEvictionPolicy(Policy policy) {
+        setEvictionPolicy(policy);
+    }
 }
 

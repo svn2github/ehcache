@@ -339,10 +339,6 @@ public class EhcacheXAResourceTest extends TestCase {
             return storeMap.get(key);
         }
 
-        public Policy getEvictionPolicy() {
-            return LRU_POLICY;
-        }
-
         public Object getInternalContext() {
             return null;
         }
@@ -395,10 +391,6 @@ public class EhcacheXAResourceTest extends TestCase {
             storeMap.clear();
         }
 
-        public void setEvictionPolicy(Policy policy) {
-            //
-        }
-
         public boolean putWithWriter(Element element, CacheWriterManager writerManager) throws CacheException {
             return true;
         }
@@ -412,6 +404,38 @@ public class EhcacheXAResourceTest extends TestCase {
         }
 
         public void waitUntilClusterCoherent() throws UnsupportedOperationException {
+            //
+        }
+
+        public boolean containsKeyInMemory(Object key) {
+            return containsKey(key);
+        }
+
+        public boolean containsKeyOnDisk(Object key) {
+            return false;
+        }
+
+        public Policy getInMemoryEvictionPolicy() {
+            return LRU_POLICY;
+        }
+
+        public int getInMemorySize() {
+            return getSize();
+        }
+
+        public long getInMemorySizeInBytes() {
+            return getSizeInBytes();
+        }
+
+        public int getOnDiskSize() {
+            return 0;
+        }
+
+        public long getOnDiskSizeInBytes() {
+            return 0;
+        }
+
+        public void setInMemoryEvictionPolicy(Policy policy) {
             //
         }
 

@@ -31,6 +31,10 @@ import net.sf.ehcache.Element;
  */
 interface InternalElementSubstituteFactory<T> {
 
+    public void bind(LocalStore store);
+    
+    public void unbind(LocalStore localStore);
+
     /**
      * Creates a substitute for the supplied {@link Element}
      * <p>

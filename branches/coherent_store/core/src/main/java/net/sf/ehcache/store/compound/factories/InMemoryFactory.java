@@ -14,10 +14,11 @@
  *  limitations under the License.
  */
 
-package net.sf.ehcache.store.compound.impl;
+package net.sf.ehcache.store.compound.factories;
 
 import net.sf.ehcache.Element;
 import net.sf.ehcache.store.compound.IdentityElementSubstituteFactory;
+import net.sf.ehcache.store.compound.LocalStore;
 
 /**
  * A simple unlimited capacity in-memory proxy factory.
@@ -26,6 +27,14 @@ import net.sf.ehcache.store.compound.IdentityElementSubstituteFactory;
  */
 public class InMemoryFactory implements IdentityElementSubstituteFactory {
 
+    public void bind(LocalStore store) {
+        // no-op
+    }
+    
+    public void unbind(LocalStore store) {
+        // no-op
+    }
+    
     /**
      * A no-op decode that just returns the unmodified element.
      */

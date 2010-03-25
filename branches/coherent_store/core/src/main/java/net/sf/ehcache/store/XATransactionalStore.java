@@ -194,6 +194,14 @@ public class XATransactionalStore implements Store {
         return size + context.getSizeModifier();
     }
 
+    public int getOnDiskSize() {
+        return underlyingStore.getOnDiskSize();
+    }
+
+    public int getInMemorySize() {
+        return underlyingStore.getInMemorySize();
+    }
+    
     /**
      * {@inheritDoc}
      */
@@ -205,11 +213,19 @@ public class XATransactionalStore implements Store {
     /**
      * {@inheritDoc}
      */
-    public long getSizeInBytes() {
+    public long getInMemorySizeInBytes() {
         getOrCreateTransactionContext();
-        return underlyingStore.getSizeInBytes();
+        return underlyingStore.getInMemorySizeInBytes();
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    public long getOnDiskSizeInBytes() {
+        getOrCreateTransactionContext();
+        return underlyingStore.getOnDiskSizeInBytes();
+    }
+    
     /**
      * Non transactional
      * <p>{@inheritDoc}
@@ -229,6 +245,14 @@ public class XATransactionalStore implements Store {
         return !context.isRemoved(key) && (context.getAddedKeys().contains(key) || underlyingStore.containsKey(key));
     }
 
+    public boolean containsKeyInMemory(final Object key) {
+        return underlyingStore.containsKeyInMemory(key);
+    }
+    
+    public boolean containsKeyOnDisk(final Object key) {
+        return underlyingStore.containsKeyOnDisk(key);
+    }
+    
     /**
      * Non transactional
      * {@inheritDoc}
@@ -258,16 +282,16 @@ public class XATransactionalStore implements Store {
      * Non transactional
      * {@inheritDoc}
      */
-    public Policy getEvictionPolicy() {
-        return underlyingStore.getEvictionPolicy();
+    public Policy getInMemoryEvictionPolicy() {
+        return underlyingStore.getInMemoryEvictionPolicy();
     }
 
     /**
      * Non transactional
      * {@inheritDoc}
      */
-    public void setEvictionPolicy(final Policy policy) {
-        underlyingStore.setEvictionPolicy(policy);
+    public void setInMemoryEvictionPolicy(final Policy policy) {
+        underlyingStore.setInMemoryEvictionPolicy(policy);
     }
 
     /**

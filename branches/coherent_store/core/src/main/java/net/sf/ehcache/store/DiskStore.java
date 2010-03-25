@@ -1402,4 +1402,36 @@ public class DiskStore implements Store, CacheConfigurationListener {
     public void waitUntilClusterCoherent() {
         throw new UnsupportedOperationException();
     }
+
+    public boolean containsKeyInMemory(Object key) {
+        return false;
+    }
+
+    public boolean containsKeyOnDisk(Object key) {
+        return containsKey(key);
+    }
+
+    public Policy getInMemoryEvictionPolicy() {
+        throw new UnsupportedOperationException();
+    }
+
+    public int getInMemorySize() {
+        return 0;
+    }
+
+    public long getInMemorySizeInBytes() {
+        return 0;
+    }
+
+    public int getOnDiskSize() {
+        return getSize();
+    }
+
+    public long getOnDiskSizeInBytes() {
+        return getSizeInBytes();
+    }
+
+    public void setInMemoryEvictionPolicy(Policy policy) {
+        throw new UnsupportedOperationException();
+   }
 }

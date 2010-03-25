@@ -94,6 +94,9 @@ public interface Store {
      */
     int getSize();
 
+    int getInMemorySize();
+    int getOnDiskSize();
+    
     /**
      * Returns the current Terracotta clustered store size
      * @return the count of the Elements in the Store across the cluster
@@ -108,8 +111,10 @@ public interface Store {
      *
      * @return the approximate size of the store in bytes
      */
-    long getSizeInBytes();
+    long getInMemorySizeInBytes();
 
+    long getOnDiskSizeInBytes();
+    
     /**
      * Returns the cache status.
      */
@@ -124,6 +129,9 @@ public interface Store {
      *  1.2
      */
     boolean containsKey(Object key);
+    
+    boolean containsKeyOnDisk(Object key);
+    boolean containsKeyInMemory(Object key);
     
     /**
      * Expire all elements.
@@ -148,7 +156,7 @@ public interface Store {
      *         dynamically set.
      * @see #setEvictionPolicy(Policy)
      */
-    Policy getEvictionPolicy();
+    Policy getInMemoryEvictionPolicy();
 
     /**
      * Sets the eviction policy strategy. The Store will use a policy at startup. The store may allow changing
@@ -157,7 +165,7 @@ public interface Store {
      *
      * @param policy the new policy
      */
-    void setEvictionPolicy(Policy policy);
+    void setInMemoryEvictionPolicy(Policy policy);
 
     /**
      * This should not be used, and will generally return null
