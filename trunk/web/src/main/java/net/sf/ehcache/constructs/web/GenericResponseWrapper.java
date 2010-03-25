@@ -60,6 +60,7 @@ public class GenericResponseWrapper extends HttpServletResponseWrapper implement
     private final List cookies = new ArrayList();
     private ServletOutputStream outstr;
     private PrintWriter writer;
+    private boolean disableFlushBuffer;
 
     /**
      * Creates a GenericResponseWrapper
@@ -249,7 +250,9 @@ public class GenericResponseWrapper extends HttpServletResponseWrapper implement
      */
     public void flushBuffer() throws IOException {
         flush();
-        super.flushBuffer();
+        if (!disableFlushBuffer) {
+            super.flushBuffer();
+        }
     }
 
     /**
@@ -281,6 +284,20 @@ public class GenericResponseWrapper extends HttpServletResponseWrapper implement
         outstr.flush();
     }
 
+    /**
+     * Is the wrapped reponse's buffer flushing disabled?
+     * @return true if the wrapped reponse's buffer flushing disabled
+     */
+    public boolean isDisableFlushBuffer() {
+        return disableFlushBuffer;
+    }
 
+    /**
+     * Set if the wrapped reponse's buffer flushing should be disabled.
+     * @param disableFlushBuffer true if the wrapped reponse's buffer flushing should be disabled
+     */
+    public void setDisableFlushBuffer(boolean disableFlushBuffer) {
+        this.disableFlushBuffer = disableFlushBuffer;
+    }
 }
 

@@ -151,6 +151,16 @@
         <dispatcher>FORWARD</dispatcher>
     </filter-mapping>
 
+    <filter-mapping>
+        <filter-name>GzipFilter</filter-name>
+        <url-pattern>/flush/flushBuffer.jsp</url-pattern>
+    </filter-mapping>
+
+    <filter-mapping>
+        <filter-name>GzipFilter</filter-name>
+        <url-pattern>/flush/hugeContents.jsp</url-pattern>
+    </filter-mapping>
+
 
     <!-- Demonstrates how to create a reentrant CachingFilter chain.
          This should result in an FilterNonReentrantException been thrown. -->

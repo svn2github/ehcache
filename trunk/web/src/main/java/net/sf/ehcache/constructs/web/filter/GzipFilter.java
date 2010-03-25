@@ -64,7 +64,7 @@ public class GzipFilter extends Filter {
      */
     protected void doFilter(final HttpServletRequest request, final HttpServletResponse response,
                             final FilterChain chain) throws Exception {
-        if (!isIncluded(request) && acceptsEncoding(request, "gzip")) {
+        if (!isIncluded(request) && acceptsEncoding(request, "gzip") && !response.isCommitted()) {
             // Client accepts zipped content
             if (LOG.isDebugEnabled()) {
                 LOG.debug(request.getRequestURL() + ". Writing with gzip compression");
@@ -76,6 +76,7 @@ public class GzipFilter extends Filter {
 
             // Handle the request
             final GenericResponseWrapper wrapper = new GenericResponseWrapper(response, gzout);
+            wrapper.setDisableFlushBuffer(true);
             chain.doFilter(request, wrapper);
             wrapper.flush();
 
