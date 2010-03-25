@@ -90,6 +90,23 @@ public class CacheEventListenerTest extends AbstractCacheTest {
 
 
     /**
+     * Tests the registration and unregistration of listeners
+     */
+    @Test
+    public void testRegistration() {
+        TestCacheEventListener listener = new TestCacheEventListener();
+
+        int count = cache.getCacheEventNotificationService().getCacheEventListeners().size();
+        cache.getCacheEventNotificationService().registerListener(listener);
+
+        assertEquals(count + 1, cache.getCacheEventNotificationService().getCacheEventListeners().size());
+        cache.getCacheEventNotificationService().unregisterListener(listener);
+
+        assertEquals(count, cache.getCacheEventNotificationService().getCacheEventListeners().size());
+    }
+
+
+    /**
      * Tests the put listener.
      */
     @Test

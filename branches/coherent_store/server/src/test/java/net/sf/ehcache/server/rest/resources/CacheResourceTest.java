@@ -214,15 +214,6 @@ public class CacheResourceTest {
 
         urlConnection = HttpUtil.delete("http://localhost:9090/ehcache/rest/newcache1");
         assertEquals(404, urlConnection.getResponseCode());
-        assertTrue(urlConnection.getContentType().matches("text/plain(.*)"));
-
-        //todo HttpURLConnection is not giving the actual response message
-        try {
-            responseBody = HttpUtil.inputStreamToText(urlConnection.getInputStream());
-        } catch (IOException e) {
-            //expected
-        }
-
     }
 
     @Test

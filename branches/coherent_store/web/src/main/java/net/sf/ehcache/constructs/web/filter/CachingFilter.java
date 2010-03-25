@@ -101,6 +101,9 @@ public abstract class CachingFilter extends Filter {
                 setCacheNameIfAnyConfigured(filterConfig);
                 final String localCacheName = getCacheName();
                 Ehcache cache = getCacheManager().getEhcache(localCacheName);
+                if (cache == null) {
+                    throw new CacheException("cache '" + localCacheName + "' not found in configuration");
+                }
                 if (!(cache instanceof BlockingCache)) {
                     //decorate and substitute
                     BlockingCache newBlockingCache = new BlockingCache(cache);
@@ -180,12 +183,6 @@ public abstract class CachingFilter extends Filter {
         }
         logRequestHeaders(request);
         PageInfo pageInfo = buildPageInfo(request, response, chain);
-
-        //return on error or redirect code
-        int statusCode = pageInfo.getStatusCode();
-        if (statusCode != HttpServletResponse.SC_OK) {
-            return;
-        }
 
         if (response.isCommitted()) {
             throw new AlreadyCommittedException("Response already committed after doing buildPage"
@@ -351,7 +348,7 @@ public abstract class CachingFilter extends Filter {
 
         for (Iterator iterator = headers.iterator(); iterator.hasNext();) {
             final String[] headerPair = (String[]) iterator.next();
-            response.setHeader(headerPair[header], headerPair[value]);
+            response.addHeader(headerPair[header], headerPair[value]);
         }
     }
 
@@ -418,20 +415,22 @@ public abstract class CachingFilter extends Filter {
                                 final HttpServletResponse response, final PageInfo pageInfo)
             throws IOException, ResponseHeadersNotModifiableException {
         byte[] body;
-        if (acceptsGzipEncoding(request)) {
-            ResponseUtil.addGzipHeader(response);
-            body = pageInfo.getGzippedBody();
-            if (ResponseUtil.shouldGzippedBodyBeZero(body, request)) {
-                body = new byte[0];
-            }
-        } else {
-            body = pageInfo.getUngzippedBody();
-        }
 
         boolean shouldBodyBeZero = ResponseUtil.shouldBodyBeZero(request, pageInfo.getStatusCode());
         if (shouldBodyBeZero) {
             body = new byte[0];
+        } else if (acceptsGzipEncoding(request)) {
+            body = pageInfo.getGzippedBody();
+            if (ResponseUtil.shouldGzippedBodyBeZero(body, request)) {
+                body = new byte[0];
+            } else {
+                ResponseUtil.addGzipHeader(response);
+            }
+                
+        } else {
+            body = pageInfo.getUngzippedBody();
         }
+
 
         response.setContentLength(body.length);
         OutputStream out = new BufferedOutputStream(response.getOutputStream());

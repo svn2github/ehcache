@@ -2,20 +2,26 @@
  Development Roadmap
  ------
 
-Development Roadmap @ 21 November 2009
+Development Roadmap @ 18 March 2010
 
     Ehcache is now modularised. The roadmap is therefore expressed by module name.
 
     Expected feature completion times are given in parentheses. Those proposed but not yet decided on
      are <unscheduled>.
 
-* ehcache-core 1.7.1
+* ehcache-core 2.1
 
- * Bug fixes
+ * local JTA
 
- * Unscheduled: memory limited caches OSCache groups feature, sitting in a branch and in production, contributed by Andrew Liles
+ * JTA for Hibernate
 
-* ehcache-monitor - Management and Monitoring (beta now/early 2010)
+ * Automatic actions when disconnected
+
+ * Search
+
+ * WAN replication
+
+* ehcache-monitor - Management and Monitoring (now in beta)
 
     * commercial license - free for development, licensed for production
 
@@ -25,39 +31,6 @@ Development Roadmap @ 21 November 2009
 
     * simple integration with operations tools such as Nagios, Hyperic, Wily, App Manager etc. 
 
-* ehcache-web (2009)
-
- * Release separate module ga dependent on core 1.7.1
-
- * Bug fixes
-
- * ETag and expires headers
-
-* ehcache-jmsreplication (2009)
-
-    * Release against 1.7 core
-
-* ehcache-jcache (2009)
-
-    * Release against 1.7 core
-
-* ehcache-debugger (2009)
-
-    * Release against 1.7 core
-
-* ehcache-jgroups (2009)
-
-    * Release against 1.7 core
-
-* ehcache-openjpa (2009)
-
-    * Release 0.2 with important bug and functionality fixes and depending on 1.7 core
-
-* hibernate-ehcache
-
-    * Upgrade Hibernate to use ehcache 1.5 (1.2.3 now) (done in trunk)
-
-    * merge Terracotta Hibernate provider and Ehcache provider (2010)
 
 * ehcache-queues (unscheduled)
 

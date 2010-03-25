@@ -84,7 +84,7 @@ used with JMX monitors.
     -->
 
     <transactionManagerLookup class="net.sf.ehcache.transaction.manager.DefaultTransactionManagerLookup"
-                              properties="jndiName=java:/TransactionManager" propertySeparator=":"/>
+                              properties="jndiName=java:/TransactionManager" propertySeparator=";"/>
  
 
     <!--

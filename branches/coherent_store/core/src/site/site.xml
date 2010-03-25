@@ -11,6 +11,7 @@
         <!--<href>http://www.terracotta.org</href>-->
     <!--</bannerRight>-->
     <body>
+
         <links>
             <item name="Download" href="http://www.terracotta.org/dl/ehcache-oss-sign-up"/>
         </links>
@@ -20,9 +21,7 @@
             <item name="Architecture" href="documentation/architecture.html"/>
             <item name="Features" href="/features.html"/>
             <item name="News" href="/news.html"/>
-            <item name="Project License" href="/license.html"/>
-            <item name="Project Team" href="/team-list.html"/>
-            <item name="Name &amp; Logo" href="/nameandlogo.html"/>
+            <item name="License" href="/license.html"/>
         </menu>
 
         <menu name="Code">
@@ -64,6 +63,8 @@
             <item name="Who's Using?" href="/customers.html"/>
             <item name="Maintainer's blog" href="http://gregluck.com/blog"/>
             <item name="Ehcache Merchandise" href="http://cafepress.com/ehcache"/>
+            <item name="Project Team" href="/team-list.html"/>
+            <item name="Name &amp; Logo" href="/nameandlogo.html"/>
         </menu>
 
     </body>

@@ -20,8 +20,6 @@ import javax.transaction.RollbackException;
 import javax.transaction.SystemException;
 import javax.transaction.xa.XAResource;
 
-import net.sf.ehcache.Element;
-import net.sf.ehcache.store.Store;
 import net.sf.ehcache.transaction.TransactionContext;
 
 /**
@@ -36,16 +34,16 @@ import net.sf.ehcache.transaction.TransactionContext;
 public interface EhcacheXAResource extends XAResource {
 
     /**
+     * Add a listener which will be called back according to the 2PC lifecycle
+     * @param listener the TwoPcExecutionListener
+     */
+    void addTwoPcExecutionListener(TwoPcExecutionListener listener);
+
+    /**
      * Getter to the name of the cache wrapped by this XAResource
      * @return {@link net.sf.ehcache.Ehcache#getName} value
      */
     String getCacheName();
-
-    /**
-     * Getter to the store wrapped by this XAResource
-     * @return the real underlying store (not the Transactional wrapper)
-     */
-    Store getStore();
 
     /**
      * Obtain the already associated {@link net.sf.ehcache.transaction.TransactionContext} with the current Transaction,
@@ -54,20 +52,6 @@ public interface EhcacheXAResource extends XAResource {
      * @throws SystemException Thrown if the associated transaction manager encounters an unexpected error condition.
      * @throws RollbackException Thrown if the resource has to be enlisted with the transaction, while it is marked for rollback only.
      */
-    TransactionContext getOrCreateTransactionContext() throws SystemException, RollbackException;
-
-    /**
-     * Fall through methods to the underlying cache that will hit potential "guards" or "guarding read-only store"
-     * @param key the key to the Element to obtain form the underlying store
-     * @return the Element associated with the key, or null
-     */
-    Element get(Object key);
-
-    /**
-     * Fall through methods to the underlying cache that will hit potential "guards" or "guarding read-only store"
-     * @param key the key to the Element to obtain form the underlying store
-     * @return the Element associated with the key, or null
-     */
-    Element getQuiet(Object key);
+    TransactionContext createTransactionContext() throws SystemException, RollbackException;
 
 }

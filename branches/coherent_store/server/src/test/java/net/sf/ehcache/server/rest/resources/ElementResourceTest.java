@@ -267,6 +267,8 @@ public class ElementResourceTest {
         assertEquals(200, urlConnection.getResponseCode());
 
         urlConnection = HttpUtil.delete("http://localhost:9090/ehcache/rest/sampleCache2/1");
+        assertEquals(204, urlConnection.getResponseCode());
+
         assertEquals(404, HttpUtil.get("http://localhost:9090/ehcache/rest/sampleCache2/1").getResponseCode());
     }
 

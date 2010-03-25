@@ -60,6 +60,7 @@ public class GenericResponseWrapper extends HttpServletResponseWrapper implement
     private final List cookies = new ArrayList();
     private ServletOutputStream outstr;
     private PrintWriter writer;
+    private boolean disableFlushBuffer;
 
     /**
      * Creates a GenericResponseWrapper
@@ -184,7 +185,6 @@ public class GenericResponseWrapper extends HttpServletResponseWrapper implement
     public void addHeader(final String name, final String value) {
         final String[] header = new String[]{name, value};
         headers.add(header);
-        super.addHeader(name, value);
 
         Integer count = (Integer) headerTracker.get(name.toLowerCase());
         if (count == null) {
@@ -200,8 +200,6 @@ public class GenericResponseWrapper extends HttpServletResponseWrapper implement
      * it existed.
      */
     public void setHeader(final String name, final String value) {
-        super.setHeader(name, value);
-
         Integer count = (Integer) headerTracker.get(name);
         if (count != null && count.intValue() > 0) {
             for (int i = headers.size() - 1; i >= 0; i--) {
@@ -219,7 +217,9 @@ public class GenericResponseWrapper extends HttpServletResponseWrapper implement
                 }
             }
         } else {
-            headerTracker.put(name.toLowerCase(), value);
+            final String[] header = new String[]{name, value};
+            headers.add(header);
+            headerTracker.put(name.toLowerCase(), new Integer(1));
         }
     }
 
@@ -250,7 +250,9 @@ public class GenericResponseWrapper extends HttpServletResponseWrapper implement
      */
     public void flushBuffer() throws IOException {
         flush();
-        super.flushBuffer();
+        if (!disableFlushBuffer) {
+            super.flushBuffer();
+        }
     }
 
     /**
@@ -282,6 +284,20 @@ public class GenericResponseWrapper extends HttpServletResponseWrapper implement
         outstr.flush();
     }
 
+    /**
+     * Is the wrapped reponse's buffer flushing disabled?
+     * @return true if the wrapped reponse's buffer flushing disabled
+     */
+    public boolean isDisableFlushBuffer() {
+        return disableFlushBuffer;
+    }
 
+    /**
+     * Set if the wrapped reponse's buffer flushing should be disabled.
+     * @param disableFlushBuffer true if the wrapped reponse's buffer flushing should be disabled
+     */
+    public void setDisableFlushBuffer(boolean disableFlushBuffer) {
+        this.disableFlushBuffer = disableFlushBuffer;
+    }
 }
 

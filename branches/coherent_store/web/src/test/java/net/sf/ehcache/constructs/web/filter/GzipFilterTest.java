@@ -28,9 +28,12 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+
+import org.apache.commons.io.IOUtils;
 import org.junit.Test;
 
 import java.net.HttpURLConnection;
+import java.util.zip.GZIPInputStream;
 
 /**
  * Test cases for the Caching filter and Gzip.
@@ -245,6 +248,47 @@ public class GzipFilterTest extends AbstractWebTest {
         String responseBody = httpMethod.getResponseBodyAsString();
         assertNotNull(responseBody);
         assertEquals("gzip", httpMethod.getResponseHeader("Content-Encoding").getValue());
+    }
+
+    /**
+     * When the cached page tries to flush the HTTP response buffer,
+     * can we still GZip the contents?
+     */
+    @Test
+    public void testFlushBuffer() throws Exception {
+        String url = "http://localhost:9090/flush/flushBuffer.jsp";
+        HttpClient httpClient = new HttpClient();
+        HttpMethod httpMethod = new GetMethod(url);
+        httpMethod.addRequestHeader("Accept-Encoding", "gzip");
+        int responseCode = httpClient.executeMethod(httpMethod);
+        assertEquals(HttpURLConnection.HTTP_OK, responseCode);
+
+        String responseBody = IOUtils.toString(new GZIPInputStream(httpMethod.getResponseBodyAsStream()));
+
+        assertNotNull(responseBody);
+        assertEquals("gzip", httpMethod.getResponseHeader("Content-Encoding").getValue());
+        assertTrue(responseBody.contains("Flush buffer test"));
+    }
+
+    /**
+     * When the cached page sends more data than the HTTP response buffer can hold,
+     * can we still GZip the contents?
+     */
+    @Test
+    public void testFlushBufferHugeContents() throws Exception {
+        String url = "http://localhost:9090/flush/hugeContents.jsp";
+        HttpClient httpClient = new HttpClient();
+        HttpMethod httpMethod = new GetMethod(url);
+        httpMethod.addRequestHeader("Accept-Encoding", "gzip");
+        int responseCode = httpClient.executeMethod(httpMethod);
+        assertEquals(HttpURLConnection.HTTP_OK, responseCode);
+
+        String responseBody = IOUtils.toString(new GZIPInputStream(httpMethod.getResponseBodyAsStream()));
+
+        assertNotNull(responseBody);
+        assertEquals("gzip", httpMethod.getResponseHeader("Content-Encoding").getValue());
+        assertTrue(responseBody.contains("Start of flush buffer test"));
+        assertTrue(responseBody.contains("End of flush buffer test"));
     }
 
 }

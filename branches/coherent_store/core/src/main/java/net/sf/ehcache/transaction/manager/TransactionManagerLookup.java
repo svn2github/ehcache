@@ -38,9 +38,16 @@ public interface TransactionManagerLookup {
     TransactionManager getTransactionManager();
 
     /**
-     * execute txnManager specific code.
+     * execute txnManager specific code to register the XAResource for recovery.
+     * @param resource the XAResource to register for recovery in the choosen TM.
      */
     void register(EhcacheXAResource resource);
+
+    /**
+     * execute txnManager specific code to unregister the XAResource for recovery.
+     * @param resource the XAResource to register for recovery in the choosen TM.
+     */
+    void unregister(EhcacheXAResource resource);
 
     /**
      * Setter to the properties properties. This will be called right after the class has been instantiated.

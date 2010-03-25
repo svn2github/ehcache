@@ -16,7 +16,6 @@
 
 package net.sf.ehcache.server.rest.resources;
 
-import com.sun.jersey.api.NotFoundException;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.MimeTypeByteArray;
 import net.sf.ehcache.server.jaxb.Element;
@@ -27,6 +26,7 @@ import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.HEAD;
 import javax.ws.rs.PUT;
+import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.EntityTag;
 import javax.ws.rs.core.HttpHeaders;
@@ -95,11 +95,9 @@ public class ElementResource {
      * HEAD HTTP method implementation
      *
      * @return a response which sets the headers only with no body
-     * @throws com.sun.jersey.api.NotFoundException
-     *          if either the cache or the element is not found. Jersey will send a 404 response with the message.
      */
     @HEAD
-    public Response getElementHeader() throws NotFoundException {
+    public Response getElementHeader()  {
         LOG.debug("HEAD element {}", element);
 
         net.sf.ehcache.Cache ehcache = lookupCache();
@@ -124,12 +122,9 @@ public class ElementResource {
     /**
      * Implements the GET method.
      *
-     * @return
-     * @throws com.sun.jersey.api.NotFoundException
-     *          if either the cache or the element is not found. Jersey will send a 404 response with the message.
      */
     @GET
-    public Response getElement() throws NotFoundException {
+    public Response getElement() {
         LOG.debug("GET element {}", element);
         net.sf.ehcache.Cache ehcache = lookupCache();
         net.sf.ehcache.Element ehcacheElement = lookupElement(ehcache);
@@ -140,7 +135,6 @@ public class ElementResource {
         EntityTag entityTag = createETag(ehcacheElement);
 
 
-//        Response.ResponseBuilder responseBuilder = request.evaluatePreconditions(lastModifiedDate);
         Response.ResponseBuilder responseBuilder = request.evaluatePreconditions(lastModifiedDate, entityTag);
         //returns 304 if preconditions are met
         if (responseBuilder != null) {
@@ -163,11 +157,9 @@ public class ElementResource {
      *                to override the cache's default time to live.
      * @param data    the data is stored in a MimeTypeByteArray
      * @return 201 for a successful PUT
-     * @throws com.sun.jersey.api.NotFoundException
-     *          if the cache is not found a 404 response with the message.
      */
     @PUT
-    public Response putElement(@Context HttpHeaders headers, byte[] data) throws NotFoundException {
+    public Response putElement(@Context HttpHeaders headers, byte[] data) {
         LOG.debug("PUT element {}" + element);
 
         net.sf.ehcache.Cache ehcache = lookupCache();
@@ -229,11 +221,10 @@ public class ElementResource {
      * <p/>
      * If the element resource is specified as "*", then <code>cache.removeAll()</code> is called.
      *
-     * @throws com.sun.jersey.api.NotFoundException
-     *          if either the cache or the element did not exist
+     * @throws javax.ws.rs.WebApplicationException if element did not exist
      */
     @DELETE
-    public void deleteElement() throws NotFoundException {
+    public void deleteElement() throws WebApplicationException {
         LOG.debug("DELETE element {}", element);
         net.sf.ehcache.Cache ehcache = lookupCache();
 
@@ -242,7 +233,7 @@ public class ElementResource {
         } else {
             boolean removed = ehcache.remove(element);
             if (!removed) {
-                throw new NotFoundException("Element " + element + " not found");
+                throw new WebApplicationException(Response.Status.NOT_FOUND);
             }
         }
     }
@@ -284,13 +275,11 @@ public class ElementResource {
      *
      * @param ehcache A cache to be checked for the key
      * @return An ehcache element. This method will not return null.
-     * @throws com.sun.jersey.api.NotFoundException
-     *          if the element is not found. Jersey will send a 404 response with the message.
      */
-    private net.sf.ehcache.Element lookupElement(net.sf.ehcache.Cache ehcache) throws NotFoundException {
+    private net.sf.ehcache.Element lookupElement(net.sf.ehcache.Cache ehcache) throws WebApplicationException {
         net.sf.ehcache.Element ehcacheElement = ehcache.get(element);
         if (ehcacheElement == null) {
-            throw new NotFoundException("Element not found: " + element);
+            throw new WebApplicationException(Response.Status.NOT_FOUND);
         }
         return ehcacheElement;
     }
@@ -299,13 +288,11 @@ public class ElementResource {
      * Looks up the cache in the instance field <code>cache</code>
      *
      * @return An ehcache element. This method will not return null.
-     * @throws com.sun.jersey.api.NotFoundException
-     *          if the cache is not found. Jersey will send a 404 response with the message.
      */
-    private net.sf.ehcache.Cache lookupCache() throws NotFoundException {
+    private net.sf.ehcache.Cache lookupCache() throws WebApplicationException {
         net.sf.ehcache.Cache ehcache = MANAGER.getCache(cache);
         if (ehcache == null) {
-            throw new NotFoundException("Cache not found: " + cache);
+            throw new WebApplicationException(Response.Status.NOT_FOUND);
         }
         return ehcache;
     }

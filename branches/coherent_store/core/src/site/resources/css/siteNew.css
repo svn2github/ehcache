@@ -15,25 +15,27 @@ text-decoration: none;
 
 a:link:hover {
 text-decoration: underline;
-}	
+}
 
 
 #Wrapper {
 background-image:url(../images/bg.gif);
 background-repeat:repeat-y;
+background-position:center;
 position: absolute;
 padding: 0;
 position: absolute;
-left: 50%;
-width: 1170px;
-margin: 0 0 0 -585px;
+width: 100%;
 }
 
 #Container {
 padding: 0;
 margin: 0;
 width: 1170px;
-min-height: 600px
+min-height: 600px;
+
+margin-left:auto;
+margin-right:auto;
 }
 
 
@@ -59,7 +61,7 @@ height: 70px;
 width: 460px;
 position: absolute;
 top: 26px;
-left: 670px;
+left: 50%;
 text-align: right;
 padding: 0;
 margin: 0;
@@ -190,7 +192,7 @@ width: 220px;
 float: left;
 }
 
-#navColumn {				
+#navColumn {
 padding: 0;
 margin: 0;
 }
@@ -238,8 +240,8 @@ margin: 0 0 0 30px;
 padding: 1px 0 0 0;
 }
 
-#navColumn li ul { 
-display: none; 
+#navColumn li ul {
+display: none;
 }
 
 #navColumn ul li a {
@@ -317,7 +319,7 @@ color:  #333333;
 }
 
 h5 {
-font-size: 18px;
+font-size: 16px;
 font-weight: normal;
 padding: 12px 0 10px 0;
 margin: 0;
@@ -392,8 +394,8 @@ margin: 0;
 padding: 1px;
 }
 
-#rightColumn li ul { 
-display: none; 
+#rightColumn li ul {
+display: none;
 }
 
 #rightColumn ul li a {
@@ -464,17 +466,7 @@ float: left;
     padding:0;
 }
 
-#navColumn li a.parent {
-    background:none;
-    cursor:default;
-    padding:0px;
-    }
 
-#navColumn li a.parent:link:hover {
-background:none;
-cursor:default;
-padding:0px;
-}
 
 #navColumn li.parent{
     padding:0px;

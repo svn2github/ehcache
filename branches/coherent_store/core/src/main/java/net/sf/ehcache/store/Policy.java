@@ -36,14 +36,15 @@ public interface Policy {
     String getName();
 
     /**
-     * Finds the best eviction candidate based on the sampled elements. What distuingishes this approach
-     * from the classic data structures approach is that an Element contains metadata (e.g. usage statistics)
-     * which can be used for making policy decisions, while generic data structures do not. It is expected that
-     * implementations will take advantage of that metadata.
+     * Finds the best eviction candidate based on the sampled elements. What distuingishes
+     * this approach from the classic data structures approach is that an Element contains
+     * metadata (e.g. usage statistics) which can be used for making policy decisions,
+     * while generic data structures do not. It is expected that implementations will take
+     * advantage of that metadata.
      *
      * @param sampledElements this should be a random subset of the population
-     * @param justAdded       we probably never want to select the element just added. It is provided so that it can
-     * be ignored if selected. May be null.
+     * @param justAdded       we probably never want to select the element just added.
+     * It is provided so that it can be ignored if selected. May be null.
      * @return the selected Element
      */
     Element selectedBasedOnPolicy(Element[] sampledElements, Element justAdded);
@@ -53,7 +54,8 @@ public interface Policy {
      *
      * @param element1 the element to compare against
      * @param element2 the element to compare
-     * @return true if the second element is preferable for eviction to the first element under ths policy
+     * @return true if the second element is preferable for eviction to the first element
+     * under ths policy
      */
     boolean compare(Element element1, Element element2);
 }

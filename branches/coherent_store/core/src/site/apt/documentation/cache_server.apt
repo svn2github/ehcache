@@ -4,6 +4,9 @@
 
 {Cache Server}
 
+%{toc|fromDepth=2|toDepth=2}
+
+
 *   Introduction
 
     Ehcache now comes with a Cache Server, available as a WAR for most web containers, or as a standalone server.
@@ -869,3 +872,18 @@ String result = cacheService.ping();
 *   {Download}
 
     Download the ehcache-standalone-server from {{http://sourceforge.net/projects/ehcache/files/ehcache-server}}.
+
+*   {FAQ}
+
+**  Does Cache Server work with WebLogic?
+
+    Yes (we have tested 10.3.2), but the SOAP libraries are not compatible. Either comment out the SOAP service from web.xml or do the following:
+
+    [[1]] Unzip ehcache-server.war to a folder called ehcache
+
+    [[2]] Remove the following jars from WEB-INF/lib: jaxws-rt-2.1.4.jar  metro-webservices-api-1.2.jar  metro-webservices-rt-1.2.jar  metro-webservices-tools-1.2.jar
+
+    [[3]] Deploy the folder to WebLogic.
+
+    [[4]] Use the soapUI GUI in WebLogic to add a project from: http://<hostname>:<port>/ehcache/soap/EhcacheWebServiceEndpoint?wsdl
+

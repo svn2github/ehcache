@@ -18,7 +18,8 @@ import static org.junit.Assert.assertTrue;
 /**
  * Tests the server on its own.
  *
- * You need to run mvn war:exploded before running this test from the IDE. It explodes the ehcache-server war
+ * Note: It is recommended to run the suite of tests manually from the ehcache-server module after first starting
+ * GFV3 from a distribution, changing its default port to 9090 first.
  *
  *
  * @author <a href="mailto:gluck@gregluck.com">Greg Luck</a>

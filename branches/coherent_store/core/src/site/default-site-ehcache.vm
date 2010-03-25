@@ -447,17 +447,11 @@
         <div id="rightColumn">
             <h4>Quick Start</h4>
             <ul>
-                <li><a href="http://www.terracotta.org/dl/ehcache-oss-sign-up">Download</a>
-                    </li>
-                <li><a href="http://ehcache.org/documentation/getting_started.html">Getting
-                    Started</a></li>
-                <li><a href="http://ehcache.org/documentation/samples.html">Code Samples</a>
-                </li>
-                <li><a href="http://ehcache.org/evaluation_faq.html">Evaluation
-                    FAQ</a></li>
-                <li>
-                    <a href="http://ehcache.org/benchmarks.html">Benchmarks</a>
-                </li>
+                <li><a href="http://www.terracotta.org/dl/ehcache-oss-sign-up">Download</a></li>
+                <li><a href="http://ehcache.org/documentation/getting_started.html">Getting Started</a></li>
+                <li><a href="http://ehcache.org/documentation/samples.html">Code Samples</a> </li>
+                <li><a href="http://ehcache.org/evaluation_faq.html">Evaluation FAQ</a></li>
+                <li><a href="http://ehcache.org/benchmarks.html">Benchmarks</a></li>
                 <li><a href="http://ehcache.org/roadmap.html">Road Map</a></li>
             </ul>
             <p>&nbsp;</p>
@@ -538,10 +532,21 @@
     </div>
 </div>
 
-
+##Eloqua Script Tag
 <script SRC='/elqNow/elqCfg.js'></SCRIPT>
 <SCRIPT TYPE='text/javascript' LANGUAGE='JavaScript'
         SRC='/elqNow/elqImg.js'></SCRIPT>
+
+##Google Script Tag
+<script type="text/javascript">
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+try {
+var pageTracker = _gat._getTracker("UA-3138913-3");
+pageTracker._trackPageview();
+} catch(err) {}</script>
 
 
 </body>

@@ -30,9 +30,9 @@ public interface XARequestProcessor {
     /**
      * Process the XAResource method to another thread.
      * 
-     * @param request
-     * @return
-     * @throws XAException
+     * @param request the XARequest to be processed
+     * @return the potential XA flags for the XAResource to return to the TransactionManager
+     * @throws XAException Depending on the XARequest type being executed, some XAException can happen
      */
     public int process(XARequest request) throws XAException;
     

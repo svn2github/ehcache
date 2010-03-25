@@ -77,10 +77,20 @@ abstract class AbstractEhcacheRegionFactory implements RegionFactory {
     protected Settings settings;
 
     /**
-     * {@inheritDoc}
+     * Whether to optimize for minimals puts or minimal gets.
+     * <p>
+     * Indicates whether when operating in non-strict read/write or read-only mode
+     * Hibernate should optimize the access patterns for minimal puts or minimal gets.
+     * In Ehcache we default to minimal puts since this should have minimal to no
+     * affect on unclustered users, and has great benefit for clustered users.
+     * <p>
+     * This setting can be overridden by setting the "hibernate.cache.use_minimal_puts"
+     * property in the Hibernate configuration.
+     * 
+     * @return true, optimize for minimal puts
      */
     public boolean isMinimalPutsEnabledByDefault() {
-        return false;
+        return true;
     }
 
     /**

@@ -1,9 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <!-- mvn -Ptest verify to run tests -->
     <!-- mvn -Ptest jetty:run-war to run jetty interactively -->
+    <!-- mvn -Dmaven.test.skip=true clean install to install -->
     <!-- Activate the test profile in your IDE otherwise the concrete logging implementation will not be found. -->
 
 
@@ -16,9 +18,16 @@
     </parent>
     <name>Ehcache Server</name>
     <artifactId>ehcache-server</artifactId>
-    <version>0.9-SNAPSHOT</version>
+    <version>1.0.1-SNAPSHOT</version>
     <packaging>war</packaging>
     <description>The ehcache W3C and RESTful web services server.</description>
+    <licenses>
+        <license>
+            <name>The Apache Software License, Version 2.0</name>
+            <url>src/assemble/LICENSE.txt</url>
+        </license>
+    </licenses>
+    <url>http://ehcache.org/documentation/cache_server.html</url>
     <dependencies>
         <!-- IntelliJ Issue. Hibernate has a transitive dep on asm, but a later
         version is required for javax.ws.rs. The only thing that
@@ -32,7 +41,7 @@
         <dependency>
             <groupId>net.sf.ehcache</groupId>
             <artifactId>ehcache</artifactId>
-            <version>2.0.0</version>
+            <version>[1.7.1,]</version>
             <type>pom</type>
         </dependency>
         <dependency>
@@ -45,17 +54,18 @@
             <artifactId>jaxws-rt</artifactId>
             <version>2.1.5</version>
         </dependency>
-        <!--<dependency>-->
-            <!--<groupId>com.sun.xml.ws</groupId>-->
-            <!--<artifactId>jaxws-tools</artifactId>-->
-            <!--<version>2.1.5</version>-->
-            <!--<scope>compile</scope>-->
-        <!--</dependency>     -->
         <dependency>
             <groupId>com.sun.xml.wss</groupId>
             <artifactId>xws-security</artifactId>
             <version>3.0</version>
             <scope>compile</scope>
+            <exclusions>
+                <!--This must be gotten manually. People can include it if they need it.-->
+                <exclusion>
+                    <groupId>javax.xml.crypto</groupId>
+                    <artifactId>xmldsig</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>dom4j</groupId>
@@ -355,7 +365,7 @@
                                 <containerId>jetty6x</containerId>
                                 <type>embedded</type>
                                 <systemProperties>
-                                    <com.sun.management.jmxremote></com.sun.management.jmxremote>
+                                    <com.sun.management.jmxremote/>
                                     <com.sun.management.jmxremote.port>8999
                                     </com.sun.management.jmxremote.port>
                                     <com.sun.management.jmxremote.ssl>false
@@ -397,7 +407,7 @@
                     <plugin>
                         <groupId>org.mortbay.jetty</groupId>
                         <artifactId>maven-jetty-plugin</artifactId>
-                        <version>6.1.3</version>
+                        <version>6.1.11</version>
                         <configuration>
                             <systemProperties>
                                 <systemProperty>
@@ -474,14 +484,24 @@
                 <updatePolicy>daily</updatePolicy>
             </snapshots>
         </repository>
-        <repository>
-            <id>sourceforge-snapshots</id>
-            <url>http://oss.sonatype.org/content/repositories/sourceforge-snapshots</url>
-            <snapshots>
-                <enabled>true</enabled>
-                <updatePolicy>always</updatePolicy>
-            </snapshots>
-        </repository>
+        <!--Turn off snapshots. We always build against a released Cache version-->
+        <!--<repository>-->
+            <!--<id>sourceforge-snapshots</id>-->
+            <!--<url>http://oss.sonatype.org/content/repositories/sourceforge-snapshots</url>-->
+            <!--<snapshots>-->
+                <!--<enabled>true</enabled>-->
+                <!--<updatePolicy>always</updatePolicy>-->
+            <!--</snapshots>-->
+        <!--</repository>-->
+        <!--<repository>-->
+            <!--<id>sonatype-nexus-snapshots</id>-->
+            <!--<name>sonatype-nexus-snapshots</name>-->
+            <!--<url>http://oss.sonatype.org/content/repositories/snapshots</url>-->
+            <!--<snapshots>-->
+                <!--<enabled>true</enabled>-->
+                <!--<updatePolicy>daily</updatePolicy>-->
+            <!--</snapshots>-->
+        <!--</repository>-->
     </repositories>
     <pluginRepositories>
         <pluginRepository>
@@ -515,4 +535,7 @@
         </snapshotRepository>
     </distributionManagement>
 
-</project>                  
+    <!--<modules>-->
+    <!--<module>ehcache-server-packaging</module>-->
+    <!--</modules>-->
+</project>

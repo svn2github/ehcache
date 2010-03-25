@@ -96,7 +96,11 @@ public class SimplePageFragmentCachingFilter extends PageFragmentCachingFilter {
      * Returns the name of the cache to use for this filter.
      */
     protected String getCacheName() {
-        return NAME;
+        String cacheName = super.getCacheName();
+        if (cacheName == null) {
+            return NAME;
+        }
+        return cacheName;
     }
 }
 

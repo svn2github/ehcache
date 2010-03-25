@@ -63,7 +63,7 @@ public final class HttpUtil {
         urlConnection.setRequestMethod("PUT");
 
         int status = urlConnection.getResponseCode();
-        LOG.info("Status: " + status);
+        LOG.debug("Status: {}", status);
         urlConnection.disconnect();
         return urlConnection;
     }
@@ -85,7 +85,7 @@ public final class HttpUtil {
         out.close();
 
         int status = uc.getResponseCode();
-        LOG.info("Status: " + status);
+        LOG.debug("Status: {}", status);
         uc.disconnect();
         return status;
     }
@@ -108,7 +108,7 @@ public final class HttpUtil {
         out.close();
 
         int status = uc.getResponseCode();
-        LOG.info("Status: " + status);
+        LOG.debug("Status: {}", status);
         uc.disconnect();
         return status;
     }
@@ -130,7 +130,7 @@ public final class HttpUtil {
         out.close();
 
         int status = uc.getResponseCode();
-        LOG.info("Status: " + status);
+        LOG.debug("Status: ", status);
         return status;
     }
 
@@ -140,7 +140,7 @@ public final class HttpUtil {
         urlConnection.setRequestMethod("DELETE");
 
         int status = urlConnection.getResponseCode();
-        LOG.info("Status: " + status);
+        LOG.debug("Status: {}", status);
         return urlConnection;
     }
 
@@ -172,9 +172,9 @@ public final class HttpUtil {
         httpURLConnection.setRequestMethod("HEAD");
 
         int status = httpURLConnection.getResponseCode();
-        LOG.info("Status " + status);
+        LOG.info("Status {}", status);
         String mediaType = httpURLConnection.getContentType();
-        LOG.info("Content Type: " + mediaType);
+        LOG.info("Content Type: {}", mediaType);
         return httpURLConnection;
     }
 
@@ -185,9 +185,9 @@ public final class HttpUtil {
         httpURLConnection.setRequestMethod("OPTIONS");
 
         int status = httpURLConnection.getResponseCode();
-        LOG.info("Status " + status);
+        LOG.info("Status {}", status);
         String mediaType = httpURLConnection.getContentType();
-        LOG.info("Content Type: " + mediaType);
+        LOG.info("Content Type: {}", mediaType);
         return httpURLConnection;
     }
 
