@@ -16,6 +16,24 @@
 
 package net.sf.ehcache;
 
+import java.io.File;
+import java.io.InputStream;
+import java.lang.reflect.Method;
+import java.net.URL;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.atomic.AtomicBoolean;
+
 import net.sf.ehcache.cluster.CacheCluster;
 import net.sf.ehcache.cluster.ClusterScheme;
 import net.sf.ehcache.cluster.NoopCacheCluster;
@@ -47,23 +65,9 @@ import net.sf.ehcache.util.FailSafeTimer;
 import net.sf.ehcache.util.PropertyUtil;
 import net.sf.ehcache.util.UpdateChecker;
 import net.sf.ehcache.writer.writebehind.WriteBehind;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.File;
-import java.io.InputStream;
-import java.lang.reflect.Method;
-import java.net.URL;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * A container for {@link Ehcache}s that maintain all aspects of their lifecycle.
@@ -183,6 +187,8 @@ public class CacheManager {
     private volatile boolean allowsDynamicCacheConfig = true;
 
     private volatile TransactionManagerLookup transactionManagerLookup;
+    
+    private final ConcurrentMap<String, Set<String>> cacheViews = new ConcurrentHashMap<String, Set<String>>();
 
     /**
      * An constructor for CacheManager, which takes a configuration object, rather than one created by parsing
@@ -843,7 +849,8 @@ public class CacheManager {
      * Throws {@link CacheException} for any of the following reasons:
      * <ul>
      * <li>The cache specified by <code>cacheName</code> does not exist</li>
-     * <li>A view with same name already exists</li>
+     * <li>The cache specified by <code>cacheName</code> exists and is a view</li>
+     * <li>A view (or another cache) with same name as <code>viewName</code> already exists</li>
      * <li>The cache specified by <code>cacheName</code> is not configured  for clustering with Terracotta.</li>
      * </ul>
      * 
@@ -851,7 +858,8 @@ public class CacheManager {
      * @param viewName Name of the view
      * @return A view of the cache
      * @throws CacheException Throws {@link CacheException} if the cache specified by <code>cacheName</code> does not exist OR
-     * A view with same name already exists OR
+     * The cache specified by <code>cacheName</code> exists and is a view OR
+     * A view (or another cache) with same name as <code>viewName</code> already exists OR
      * The cache specified by <code>cacheName</code> is not configured for clustering with Terracotta.
      */
     public synchronized Ehcache createCacheView(String cacheName, String viewName) throws CacheException {
@@ -866,13 +874,44 @@ public class CacheManager {
         if (getEhcache(viewName) != null || getCache(viewName) != null) {
             throw new CacheException("A cache/view with the name \"" + viewName + "\" already exists.");
         }
+        if (cache instanceof Cache && ((Cache) cache).isViewOfAnotherCache()) {
+            throw new CacheException("Cannot create a view from another view. Cache specified by name '" + cacheName + "' is also a view");
+        }
         CacheConfiguration viewConfig = cache.getCacheConfiguration().clone();
         viewConfig.name(viewName);
         Ehcache view = new Cache(viewConfig);
         internalAddCacheNoCheck(view, cache);
+        addCacheView(cacheName, view);
         return view;
     }
-
+    
+    private void addCacheView(String cacheName, Ehcache view) {
+        Set<String> viewsOfCache = cacheViews.get(cacheName);
+        if (viewsOfCache == null) {
+            viewsOfCache = new HashSet<String>();
+            Set<String> prev = cacheViews.putIfAbsent(cacheName, viewsOfCache);
+            if (prev != null) {
+                viewsOfCache = prev;
+            }
+        }
+        viewsOfCache.add(view.getName());
+    }
+    
+    /**
+     * Returns set of names of all views for the cache. Use the name of view from the set and {@link #getEhcache(String)} or
+     * {@link #getCache(String)} to get the actual view.
+     * 
+     * @param cacheName
+     *            Name of the cache
+     * @return set of names of all views of the given cache. Returns empty set if no views are created for this cache yet.
+     */
+    public Set<String> getAllViewsOfCache(String cacheName) {
+        Set<String> views = cacheViews.get(cacheName);
+        if (views == null) {
+            views = Collections.EMPTY_SET;
+        }
+        return views;
+    }
 
     /**
      * Adds a {@link Ehcache} based on the defaultCache with the given name.

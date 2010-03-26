@@ -222,6 +222,10 @@ public class Cache implements Ehcache {
     private volatile TransactionManagerLookup transactionManagerLookup;
 
     private volatile boolean allowDisable = true;
+    
+    private boolean isViewOfAnotherCache;
+    
+    private Ehcache originalCacheIfView;
 
     /**
      * 2.0 and higher Constructor
@@ -923,9 +927,23 @@ public class Cache implements Ehcache {
     
     /**
      * package protected method
+     * @return true if this cache is a view of another cache
      */
-    void initializeAsViewOf(Ehcache viewOfCache) {
-        initialize(viewOfCache);
+    boolean isViewOfAnotherCache() {
+        checkStatus();
+        return isViewOfAnotherCache;
+    }
+    
+    /**
+     * package protected method for initializing as view
+     */
+    synchronized void initializeAsViewOf(Ehcache viewOfCache) {
+        if (viewOfCache == null) {
+            throw new AssertionError("Cache cannot be null when initializing its view");
+        }
+        this.isViewOfAnotherCache = true;
+        this.originalCacheIfView = viewOfCache;
+        initialise();
     }
 
     /**
@@ -934,11 +952,6 @@ public class Cache implements Ehcache {
      * This method creates those and makes the cache ready to accept elements
      */
     public void initialise() {
-        initialize(null);
-    }
-
-    private void initialize(Ehcache viewOfCache) {
-        boolean isView = viewOfCache != null;
         synchronized (this) {
             if (!status.equals(Status.STATUS_UNINITIALISED)) {
                 throw new IllegalStateException("Cannot initialise the " + configuration.getName()
@@ -958,11 +971,11 @@ public class Cache implements Ehcache {
             }
 
             final Store memStore;
-            if (isView) {
+            if (isViewOfAnotherCache) {
                 if (!isTerracottaClustered()) {
                     throw new CacheException("Initialization as views is supported only for caches clustered with Terracotta.");
                 }
-                memStore = cacheManager.createTerracottaStoreForView(this, viewOfCache);
+                memStore = cacheManager.createTerracottaStoreForView(this, originalCacheIfView);
                 initializeNodeCoherence(memStore);
             } else {
                 if (isTerracottaClustered()) {
