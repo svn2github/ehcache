@@ -4,6 +4,36 @@ ehcache-2.0.1
         <action dev="Geert Bevin" type="fix" issue="EHC-653">
                 RegisteredEventListeners.unregisterListener(CacheEventListener cacheEventListener) throws java.lang.UnsupportedOperationException
         </action>
+        <action dev="Chris Dennis" type="fix" issue="EHC-647">
+            Clustered Ehcache Hibernate caches are not set to minimalPut=true by default
+        </action>
+        <action dev="Ludovic Orban" type="fix" issue="EHC-658">
+            Interleaving txn not support in EhcacheXAResource when the TM is Atomiko
+        </action>
+        <action dev="Alex Snaps" type="fix" issue="EHC-657">
+            Fix JTA version system
+        </action>
+        <action dev="Alex Snaps" type="fix" issue="EHC-645">
+            JTA prepared transaction for which keys are to be inserted (previously absent) aren't unlocked when rolled
+        </action>
+        <action dev="Alex Snaps" type="fix" issue="EHC-644">
+            Fix JTA Deadlock
+        </action>
+        <action dev="Alex Snaps" type="fix" issue="EHC-642">
+            EhcacheXAResourceImpl.equals is only based on Cache's name
+        </action>
+        <action dev="Ludovic Orban" type="fix" issue="EHC-606">
+            ehcache-web cannot handle headers with non-integer value
+        </action>
+        <action dev="Ludovic Orban" type="fix" issue="EHC-589">
+            Hard-coded cacheName in SimplePageFragmentCachingFilter
+        </action>
+        <action dev="Ludovic Orban" type="fix" issue="EHC-586">
+            CachingFilter short-circuits body/entity data of non-200 responses
+        </action>
+        <action dev="Hung Huynh" type="fix" issue="EHC-447">
+            Fix response already committed issue with Weblogic
+        </action>
     </release>
 
 ehcache-2.0.0
