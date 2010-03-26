@@ -101,7 +101,7 @@ public class CacheTest extends AbstractCacheTest {
     /**
      * Checks we cannot use a cache after shutdown
      */
-    //@Test
+    @Test
     public void testUseCacheAfterManagerShutdown() throws CacheException {
         Ehcache cache = getSampleCache1();
         manager.shutdown();
@@ -131,7 +131,7 @@ public class CacheTest extends AbstractCacheTest {
     /**
      * Checks we cannot use a cache outside the manager
      */
-    //@Test
+    @Test
     public void testUseCacheOutsideManager() throws CacheException {
         //Not put into manager.
         Cache cache = new Cache("testCache", 1, true, false, 5, 2);
@@ -159,7 +159,7 @@ public class CacheTest extends AbstractCacheTest {
     /**
      * Checks when and how we can set the cache name.
      */
-    //@Test
+    @Test
     public void testSetCacheName() throws CacheException {
         //Not put into manager.
         Ehcache cache = new Cache("testCache", 1, true, false, 5, 2);
@@ -186,7 +186,7 @@ public class CacheTest extends AbstractCacheTest {
     /**
      * Test using a cache which has been removed and replaced.
      */
-    //@Test
+    @Test
     public void testStaleCacheReference() throws CacheException {
         manager.addCache("test");
         Ehcache cache = manager.getCache("test");
@@ -210,7 +210,7 @@ public class CacheTest extends AbstractCacheTest {
      *
      * @throws Exception
      */
-    //@Test
+    @Test
     public void testCacheName() throws Exception {
         manager.addCache("test");
         Ehcache cache = manager.getCache("test");
@@ -224,7 +224,7 @@ public class CacheTest extends AbstractCacheTest {
      *
      * @throws Exception
      */
-    //@Test
+    @Test
     public void testCacheWithNoIdle() throws Exception {
         Ehcache cache = manager.getCache("sampleCacheNoIdle");
         assertEquals("sampleCacheNoIdle", cache.getName());
@@ -241,7 +241,7 @@ public class CacheTest extends AbstractCacheTest {
      * overflowToDisk="false"
      * />
      */
-    //@Test
+    @Test
     public void testExpiryBasedOnTimeToLiveWhenNoIdle() throws Exception {
         //Set size so the second element overflows to disk.
         Ehcache cache = manager.getCache("sampleCacheNoIdle");
@@ -271,7 +271,7 @@ public class CacheTest extends AbstractCacheTest {
      * overflowToDisk="false"
      * />
      */
-    //@Test
+    @Test
     public void testLastUpdate() throws Exception {
         //Set size so the second element overflows to disk.
         Ehcache cache = manager.getCache("sampleCache1");
@@ -303,7 +303,7 @@ public class CacheTest extends AbstractCacheTest {
     /**
      * When to search the disk store
      */
-    //@Test
+    @Test
     public void testOverflowToDiskAndDiskPersistent() throws Exception {
         Ehcache cache = manager.getCache("sampleIdlingExpiringCache");
 
@@ -331,7 +331,7 @@ public class CacheTest extends AbstractCacheTest {
      * <p/>
      * where an Elment override is set on TTL
      */
-    //@Test
+    @Test
     public void testExpiryBasedOnTimeToLiveWhenNoIdleElementOverride() throws Exception {
         //Set size so the second element overflows to disk.
         Ehcache cache = manager.getCache("sampleCacheNoIdle");
@@ -367,7 +367,7 @@ public class CacheTest extends AbstractCacheTest {
      * <p/>
      * where an Element override is set on TTL
      */
-    //@Test
+    @Test
     public void testExpiryBasedOnTimeToIdleElementOverride() throws Exception {
         //Set size so the second element overflows to disk.
         Ehcache cache = manager.getCache("sampleCacheNoIdle");
@@ -401,7 +401,7 @@ public class CacheTest extends AbstractCacheTest {
      * <p/>
      * where an Elment override is set on TTL
      */
-    //@Test
+    @Test
     public void testExpiryBasedEternalElementOverride() throws Exception {
         //Set size so the second element overflows to disk.
         Ehcache cache = manager.getCache("sampleCacheNoIdle");
@@ -431,7 +431,7 @@ public class CacheTest extends AbstractCacheTest {
      * overflowToDisk="false"
      * />
      */
-    //@Test
+    @Test
     public void testExpirySampleCacheNotEternalButNoIdleOrExpiry() throws Exception {
         //Set size so the second element overflows to disk.
         Ehcache cache = manager.getCache("sampleCacheNotEternalButNoIdleOrExpiry");
@@ -455,7 +455,7 @@ public class CacheTest extends AbstractCacheTest {
     /**
      * Test overflow to disk = false
      */
-    //@Test
+    @Test
     public void testNoOverflowToDisk() throws Exception {
         //Set size so the second element overflows to disk.
         Cache cache = new Cache("test", 1, false, true, 5, 2);
@@ -481,7 +481,7 @@ public class CacheTest extends AbstractCacheTest {
      * <p/>
      * This test also has a cache with a CacheExceptionHandler registered. The performance effect is not detectable.
      */
-    //@Test
+    @Test
     public void testProportionMemoryAndDiskPerformance() throws Exception {
         StopWatch stopWatch = new StopWatch();
         long time = 0;
@@ -585,7 +585,7 @@ public class CacheTest extends AbstractCacheTest {
      * <li>You can create a new cache with the same name
      * </ol>
      */
-    //@Test
+    @Test
     public void testCreateAddDisposeAdd() throws CacheException {
         Cache cache = new Cache("test2", 1, true, true, 0, 0, true, 120);
         manager.addCache(cache);
@@ -618,7 +618,7 @@ public class CacheTest extends AbstractCacheTest {
     /**
      * Test expiry based on time to live
      */
-    //@Test
+    @Test
     public void testExpiryBasedOnTimeToLive() throws Exception {
         //Set size so the second element overflows to disk.
         Cache cache = new Cache("test", 1, true, false, 3, 0);
@@ -649,7 +649,7 @@ public class CacheTest extends AbstractCacheTest {
      *
      * @throws Exception
      */
-    //@Test
+    @Test
     public void testExpiryBasedOnTimeToLiveForDefault() throws Exception {
         String name = "ThisIsACacheWhichIsNotConfiguredAndWillThereforeUseDefaults";
         Ehcache cache = null;
@@ -682,7 +682,7 @@ public class CacheTest extends AbstractCacheTest {
      * Elements are put quietly back into the cache after being cloned.
      * The elements should expire as if the putQuiet had not happened.
      */
-    //@Test
+    @Test
     public void testExpiryBasedOnTimeToLiveAfterPutQuiet() throws Exception {
         //Set size so the second element overflows to disk.
         Cache cache = new Cache("test", 1, true, false, 5, 2);
@@ -708,7 +708,7 @@ public class CacheTest extends AbstractCacheTest {
     /**
      * Test expiry based on time to live
      */
-    //@Test
+    @Test
     public void testNoIdleOrExpiryBasedOnTimeToLiveForEternal() throws Exception {
         //Set size so the second element overflows to disk.
         Cache cache = new Cache("test", 1, true, true, 5, 2);
@@ -734,7 +734,7 @@ public class CacheTest extends AbstractCacheTest {
     /**
      * Test expiry based on time to idle.
      */
-    //@Test
+    @Test
     public void testExpiryBasedOnTimeToIdle() throws Exception {
         //Set size so the second element overflows to disk.
         Cache cache = new Cache("test", 1, true, false, 6, 2);
@@ -767,7 +767,7 @@ public class CacheTest extends AbstractCacheTest {
     /**
      * Test expiry based on time to idle.
      */
-    //@Test
+    @Test
     public void testExpiryBasedOnTimeToIdleAfterPutQuiet() throws Exception {
         //Set size so the second element overflows to disk.
         Cache cache = new Cache("test", 1, true, false, 5, 3);
@@ -804,7 +804,7 @@ public class CacheTest extends AbstractCacheTest {
      * timeToLiveSeconds="10"
      * overflowToDisk="true"
      */
-    //@Test
+    @Test
     public void testElementStatistics() throws Exception {
         //Set size so the second element overflows to disk.
         Cache cache = new Cache("test", 1, true, false, 5, 2);
@@ -823,7 +823,7 @@ public class CacheTest extends AbstractCacheTest {
     /**
      * Test cache statistics, including get and getQuiet
      */
-    //@Test
+    @Test
     public void testCacheStatistics() throws Exception {
         //Set size so the second element overflows to disk.
         Cache cache = new Cache("test", 1, true, false, 5, 2);
@@ -854,7 +854,7 @@ public class CacheTest extends AbstractCacheTest {
      *
      * @throws Exception
      */
-    //@Test
+    @Test
     public void testGetQuietAndPutQuiet() throws Exception {
         //Set size so the second element overflows to disk.
         Cache cache = new Cache("test", 1, true, false, 5, 2);
@@ -887,7 +887,7 @@ public class CacheTest extends AbstractCacheTest {
      * <p/>
      * It checks that size makes sense, and also that getKeys.size() matches getSize()
      */
-    //@Test
+    @Test
     public void testSizeWithPutAndRemove() throws Exception {
         //Set size so the second element overflows to disk.
         Cache cache = new Cache("test2", 1, true, true, 0, 0);
@@ -931,7 +931,7 @@ public class CacheTest extends AbstractCacheTest {
      * <p/>
      * Makes sure that if an element is expired, its key should also be expired
      */
-    //@Test
+    @Test
     public void testGetKeysAfterExpiry() throws Exception {
         //Set size so the second element overflows to disk.
         Cache cache = new Cache("test2", 1, true, false, 1, 0);
@@ -957,7 +957,7 @@ public class CacheTest extends AbstractCacheTest {
      * Answers the question of whether key references are preserved as elements are written to disk.
      * This is not a mandatory part of the API. If this test breaks in future it should be removed.
      */
-    //@Test
+    @Test
     public void testKeysEqualsEquals() throws Exception {
         //Set size so the second element overflows to disk.
         Cache cache = new Cache("test2", 0, true, false, 1, 0);
@@ -972,7 +972,7 @@ public class CacheTest extends AbstractCacheTest {
     /**
      * Test size after multiple calls, with put and remove
      */
-    //@Test
+    @Test
     public void testSizeMultipleCallsWithPutAndRemove() throws Exception {
         //Set size so the second element overflows to disk.
         Cache cache = new Cache("test3", 1, true, true, 0, 0);
@@ -1009,7 +1009,7 @@ public class CacheTest extends AbstractCacheTest {
      * 187565 for 100000, where 500 is the in-memory size. 964ms without checking expiry. 134ms for getKeysNoDuplicateCheckTime
      * 18795 for 100000, where 50000 is in-memory size. 873ms without checking expiry. 158ms for getKeysNoDuplicateCheckTime
      */
-    //@Test
+    @Test
     public void testGetKeysPerformance() throws Exception {
         //Set size so the second element overflows to disk.
         Ehcache cache = createTestCache();
@@ -1034,7 +1034,7 @@ public class CacheTest extends AbstractCacheTest {
      * Checks the expense of checking in-memory size
      * 3467890 bytes in 1601ms for JDK1.4.2
      */
-    //@Test
+    @Test
     public void testCalculateInMemorySizePerformanceAndReasonableness() throws Exception {
         //Set size so the second element overflows to disk.
         Ehcache cache = createTestCache();
@@ -1061,7 +1061,7 @@ public class CacheTest extends AbstractCacheTest {
     /**
      * Expire elements and verify size is correct.
      */
-    //@Test
+    @Test
     public void testGetSizeAfterExpiry() throws Exception {
         //Set size so the second element overflows to disk.
         Cache cache = new Cache("test", 1, true, false, 1, 0);
@@ -1080,7 +1080,7 @@ public class CacheTest extends AbstractCacheTest {
     /**
      * Test create and access times
      */
-    //@Test
+    @Test
     public void testAccessTimes() throws Exception {
         //Set size so the second element overflows to disk.
         Cache cache = new Cache("test", 5, true, false, 5, 2);
@@ -1111,7 +1111,7 @@ public class CacheTest extends AbstractCacheTest {
     /**
      * Tests initialisation failures
      */
-    //@Test
+    @Test
     public void testInitialiseFailures() {
         try {
             Cache cache = new Cache("testInitialiseFailures2", 1, false, false, 5, 1);
@@ -1129,7 +1129,7 @@ public class CacheTest extends AbstractCacheTest {
      *
      * @throws Exception
      */
-    //@Test
+    @Test
     public void testNullPuts() throws Exception {
         Cache cache = new Cache("testPutFailures", 1, false, false, 5, 1);
         manager.addCache(cache);
@@ -1152,7 +1152,7 @@ public class CacheTest extends AbstractCacheTest {
     /**
      * Tests cache, memory store and disk store sizes from config
      */
-    //@Test
+    @Test
     public void testSizes() throws Exception {
         Ehcache cache = getSampleCache1();
 
@@ -1196,7 +1196,7 @@ public class CacheTest extends AbstractCacheTest {
     }
 
 
-    ////@Test
+    //@Test
 
     public void testSizesContinuous() throws Exception {
         while (true) {
@@ -1213,7 +1213,7 @@ public class CacheTest extends AbstractCacheTest {
      *
      * @throws Exception
      */
-    //@Test
+    @Test
     public void testFlushWhenOverflowToDisk() throws Exception {
         if (manager.getCache("testFlushWhenOverflowToDisk") == null) {
             manager.addCache(new Cache("testFlushWhenOverflowToDisk", 50, true, false, 100, 200, true, 120));
@@ -1274,7 +1274,7 @@ public class CacheTest extends AbstractCacheTest {
 
     }
 
-    //@Test
+    @Test
     public void testFlushWithoutClear() throws InterruptedException {
 
         CacheManager cacheManager = CacheManager.create(AbstractCacheTest.TEST_CONFIG_DIR + "ehcache.xml");
@@ -1297,7 +1297,7 @@ public class CacheTest extends AbstractCacheTest {
 
     }
 
-    //@Test
+    @Test
     public void testFlushWithClear() throws InterruptedException {
 
         CacheManager cacheManager = CacheManager.create(AbstractCacheTest.TEST_CONFIG_DIR + "ehcache.xml");
@@ -1331,7 +1331,7 @@ public class CacheTest extends AbstractCacheTest {
      *
      * @throws Exception
      */
-    //@Test
+    @Test
     public void testMemoryEfficiencyOfFlushWhenOverflowToDisk() throws Exception {
         Cache cache = new Cache("testGetMemoryStoreSize", 40000, true, false, 100, 200, false, 120);
 
@@ -1369,7 +1369,7 @@ public class CacheTest extends AbstractCacheTest {
      * Shows the effect of jamming large amounts of puts into a cache that overflows to disk.
      * The DiskStore should cause puts to back off and avoid an out of memory error.
      */
-    ////@Test
+    @Test
     public void testBehaviourOnDiskStoreBackUp() throws Exception {
         Cache cache = new Cache("testGetMemoryStoreSize", 10, true, false, 100, 200, false, 0);
         manager.addCache(cache);
@@ -1397,7 +1397,7 @@ public class CacheTest extends AbstractCacheTest {
      *
      * @throws Exception
      */
-    //@Test
+    @Test
     public void testElementWithNullValue() throws Exception {
         Cache cache = new Cache("testElementWithNullValue", 10, false, false, 100, 200);
         manager.addCache(cache);
@@ -1421,7 +1421,7 @@ public class CacheTest extends AbstractCacheTest {
      *
      * @throws Exception
      */
-    //@Test
+    @Test
     public void testPutWithOverriddenTTLAndTTI() throws Exception {
         Cache cache = new Cache("testElementWithNullValue", 10, false, false, 1, 1);
         manager.addCache(cache);
@@ -1453,7 +1453,7 @@ public class CacheTest extends AbstractCacheTest {
      *
      * @throws Exception
      */
-    //@Test
+    @Test
     public void testPutQuietWithOverriddenTTLAndTTI() throws Exception {
         Cache cache = new Cache("testElementWithNullValue", 10, false, false, 1, 1);
         manager.addCache(cache);
@@ -1485,7 +1485,7 @@ public class CacheTest extends AbstractCacheTest {
      *
      * @throws Exception
      */
-    //@Test
+    @Test
     public void testNonSerializableElement() throws Exception {
         Cache cache = new Cache("testElementWithNonSerializableValue", 1, true, false, 100, 200);
         manager.addCache(cache);
@@ -1509,7 +1509,7 @@ public class CacheTest extends AbstractCacheTest {
      *
      * @throws Exception
      */
-    //@Test
+    @Test
     public void testNullCollectionsAreSerializable() throws Exception {
         Cache cache = new Cache("testElementWithNonSerializableValue", 1, true, false, 100, 200);
         manager.addCache(cache);
@@ -1540,7 +1540,7 @@ public class CacheTest extends AbstractCacheTest {
      *
      * @throws Exception
      */
-    //@Test
+    @Test
     public void testSpoolThreadHandlesThreadKiller() throws Exception {
         Cache cache = new Cache("testThreadKiller", 0, true, false, 100, 200);
         manager.addCache(cache);
@@ -1564,7 +1564,7 @@ public class CacheTest extends AbstractCacheTest {
      *
      * @throws Exception
      */
-    //@Test
+    @Test
     public void testGetDiskStoreSize() throws Exception {
         Cache cache = new Cache("testGetDiskStoreSize", 1, true, false, 100, 200);
         manager.addCache(cache);
@@ -1626,7 +1626,7 @@ public class CacheTest extends AbstractCacheTest {
      *
      * @throws Exception
      */
-    //@Test
+    @Test
     public void testCloneFailures() throws Exception {
         Cache cache = new Cache("testGetMemoryStore", 10, false, false, 100, 200);
         manager.addCache(cache);
@@ -1642,7 +1642,7 @@ public class CacheTest extends AbstractCacheTest {
     /**
      * Tests that the toString() method works.
      */
-    //@Test
+    @Test
     public void testToString() {
         Ehcache cache = new Cache("testGetMemoryStore", 10, false, false, 100, 200);
         assertTrue(cache.toString().indexOf("testGetMemoryStore") > -1);
@@ -1656,7 +1656,7 @@ public class CacheTest extends AbstractCacheTest {
      * @throws CacheException
      * @throws InterruptedException
      */
-    //@Test
+    @Test
     public void testEquals() throws CacheException, InterruptedException {
         Cache cache = new Cache("cache", 1, true, false, 100, 200, false, 1);
         manager.addCache(cache);
@@ -1686,7 +1686,7 @@ public class CacheTest extends AbstractCacheTest {
      * @throws CacheException
      * @throws InterruptedException
      */
-    //@Test
+    @Test
     public void testIsKeyInCache() throws CacheException, InterruptedException {
         Cache cache = new Cache("cache", 1, true, false, 100, 200, false, 1);
         manager.addCache(cache);
@@ -1704,7 +1704,7 @@ public class CacheTest extends AbstractCacheTest {
     /**
      * Tests the uniqueness of the GUID
      */
-    //@Test
+    @Test
     public void testGuid() {
         Ehcache cache1 = new Cache("testGetMemoryStore", 10, false, false, 100, 200);
         Ehcache cache2 = new Cache("testGetMemoryStore", 10, false, false, 100, 200);
@@ -1719,7 +1719,7 @@ public class CacheTest extends AbstractCacheTest {
     /**
      * Does the Object API work?
      */
-    //@Test
+    @Test
     public void testAPIObjectCompatibility() {
         Cache cache = new Cache("test", 5, true, false, 5, 2);
         manager.addCache(cache);
@@ -1752,7 +1752,7 @@ public class CacheTest extends AbstractCacheTest {
     /**
      * Does the Serializable API work?
      */
-    //@Test
+    @Test
     public void testAPISerializableCompatibility() {
         Cache cache = new Cache("test", 5, true, false, 5, 2);
         manager.addCache(cache);
@@ -1771,7 +1771,7 @@ public class CacheTest extends AbstractCacheTest {
     /**
      * Test issues reported.
      */
-    //@Test
+    @Test
     public void testDiskStoreFlorian() throws InterruptedException {
         manager.shutdown();
 
@@ -1867,7 +1867,7 @@ public class CacheTest extends AbstractCacheTest {
      *
      * @throws Exception
      */
-    //@Test
+    @Test
     public void testConcurrentReadWriteRemoveLRU() throws Exception {
         testConcurrentReadWriteRemove(MemoryStoreEvictionPolicy.LRU);
     }
@@ -1939,7 +1939,7 @@ public class CacheTest extends AbstractCacheTest {
      *
      * @throws Exception
      */
-    //@Test
+    @Test
     public void testConcurrentReadWriteRemoveLFU() throws Exception {
         testConcurrentReadWriteRemove(MemoryStoreEvictionPolicy.LFU);
     }
@@ -1958,7 +1958,7 @@ public class CacheTest extends AbstractCacheTest {
      * INFO: Average Remove All Time for 3500724 observations: 0.0070434003 ms
      * INFO: Average keySet Time for 3207776 observations: 0.011053764 ms
      */
-    //@Test
+    @Test
     public void testConcurrentReadWriteRemoveFIFO() throws Exception {
         testConcurrentReadWriteRemove(MemoryStoreEvictionPolicy.FIFO);
     }
@@ -2213,7 +2213,7 @@ public class CacheTest extends AbstractCacheTest {
      * <p/>
      * </pre>
      */
-    //@Test
+    @Test
     public void testConcurrentReadPerformanceMemoryOnly() throws Exception {
 
         final int size = 10000;
@@ -2272,7 +2272,7 @@ public class CacheTest extends AbstractCacheTest {
      *
      * @throws Exception
      */
-    //@Test
+    @Test
     public void testTimeToLive15552000() throws Exception {
         long timeToLiveSeconds = 15552000;
         doRunTest(timeToLiveSeconds);
@@ -2283,7 +2283,7 @@ public class CacheTest extends AbstractCacheTest {
      *
      * @throws Exception
      */
-    //@Test
+    @Test
     public void testTimeToLive604800() throws Exception {
         long timeToLiveSeconds = 604800;
         doRunTest(timeToLiveSeconds);
@@ -2331,7 +2331,7 @@ public class CacheTest extends AbstractCacheTest {
      *
      * @throws InterruptedException
      */
-    //@Test
+    @Test
     public void testGetQuietFromFinalize() throws InterruptedException {
 
 
@@ -2379,7 +2379,7 @@ public class CacheTest extends AbstractCacheTest {
     }
 
 
-    //@Test
+    @Test
     public void testGetWithLoader() {
 
         /**
@@ -2451,7 +2451,7 @@ public class CacheTest extends AbstractCacheTest {
     /**
      * Tests the async load with a single item
      */
-    //@Test
+    @Test
     public void testAsynchronousLoad() throws InterruptedException, ExecutionException {
 
         CountingCacheLoader countingCacheLoader = new CountingCacheLoader();
@@ -2474,7 +2474,7 @@ public class CacheTest extends AbstractCacheTest {
     /**
      * Tests the async load with a single item
      */
-    //@Test
+    @Test
     public void testGetWithLoaderException() {
         Cache cache = manager.getCache("sampleCache1");
         cache.registerCacheLoader(new ExceptionThrowingLoader());
@@ -2490,7 +2490,7 @@ public class CacheTest extends AbstractCacheTest {
     /**
      * Tests the loadAll async method
      */
-    //@Test
+    @Test
     public void testAsynchronousLoadAll() throws InterruptedException, ExecutionException {
 
         CountingCacheLoader countingCacheLoader = new CountingCacheLoader();
@@ -2519,7 +2519,7 @@ public class CacheTest extends AbstractCacheTest {
     /**
      * Tests programmatically disabling and enabling a cache
      */
-    //@Test
+    @Test
     public void testEnableAndDisable() throws Exception {
         Ehcache cache = manager.getCache("sampleCacheNoIdle");
         cache.put(new Element("key1put", "value1"));
@@ -2545,7 +2545,7 @@ public class CacheTest extends AbstractCacheTest {
     /**
      * Run testConcurrentPutsAreConsistent() repeatedly for 50 times to shake out issues that happen rarely.
      */
-    //@Test
+    @Test
     public void testConcurrentPutsAreConsistentRepeatedly() throws InterruptedException {
         for (int i = 0; i < 20; i++) {
             manager.removalAll();
@@ -2564,7 +2564,7 @@ public class CacheTest extends AbstractCacheTest {
      * <p/>
      * The exact cause is unknown but the behaviour of ConcurrentHashMap is suspected.
      */
-    //@Test
+    @Test
     public void testConcurrentPutsAreConsistent() throws InterruptedException {
         Cache cache = new Cache("someName", 100, true, true, 0, 0);
         manager.addCache(cache);
@@ -2623,7 +2623,7 @@ public class CacheTest extends AbstractCacheTest {
      *
      * @throws Exception
      */
-    //@Test
+    @Test
     public void testCloneCompleteness() throws Exception {
         Cache cache = new Cache("testGetMemoryStore", 10, false, false, 100,
                 200);
@@ -2646,7 +2646,7 @@ public class CacheTest extends AbstractCacheTest {
      * Checks that notification only happens once when clearOnFlush is false i.e.
      * The impact of this is that there will be one copy in each store.
      */
-    //@Test
+    @Test
     public void testRemoveListenersCalledOnce() {
         Cache cache = manager.getCache("sampleCache1");
         RemoveCountingListener l = new RemoveCountingListener();
@@ -2717,7 +2717,7 @@ public class CacheTest extends AbstractCacheTest {
      * Checks that TTL of Long.MAX_VALUE means value never expires.
      * See EHC-432.
      */
-    //@Test
+    @Test
     public void testMaxLongTTLIsEternal() {
         long maxLiveTime = Long.MAX_VALUE;
 
@@ -2741,7 +2741,7 @@ public class CacheTest extends AbstractCacheTest {
      * Checks that TTL of Integer.MAX_VALUE means value never expires.
      * See EHC-432.
      */
-    //@Test
+    @Test
     public void testMaxIntegerTTLIsEternal() {
         long maxLiveTime = Integer.MAX_VALUE;
 
