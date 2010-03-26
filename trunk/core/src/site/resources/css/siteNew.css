@@ -91,7 +91,7 @@ background-position: 0 0px;
 display: block;
 width: 75px;
 height: 21px;
-background-image: url../images/header_button_support.gif);
+background-image: url(../images/header_button_support.gif);
 background-repeat: no-repeat;
 background-position: 0 -21px;
 }
@@ -121,7 +121,7 @@ background-position: 0 0px;
 display: block;
 width: 80px;
 height: 21px;
-background-image: url../images/header_button_products.gif);
+background-image: url(../images/header_button_products.gif);
 background-repeat: no-repeat;
 background-position: 0 -21px;
 }
@@ -303,8 +303,9 @@ color: #843825;
 
 h3 {
 font-size: 24px;
-line-height: 30px;
+line-height: 28px;
 font-weight: normal;
+padding: 0;
 color: #843825;
 }
 
@@ -312,10 +313,11 @@ h4 {
 font-size: 18px;
 line-height: 26px;
 font-weight: normal;
-padding: 10px 0 0 0;
+padding: 6px 0 2px 8px;
 margin: 18px 0 10px 0;
 line-height: 100%;
-color:  #333333;
+color: #333333;
+background-color: #d4d2c9;
 }
 
 h5 {
@@ -339,7 +341,7 @@ font-size: 12px;
 }
 
 p {
-margin: 0 0 8px 0;
+margin: 0;
 }
 
 table {

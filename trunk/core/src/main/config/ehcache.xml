@@ -75,12 +75,14 @@ used with JMX monitors.
     using an XA enabled ehcache. If no class is specified then DefaultTransactionManagerLookup
     will find the TransactionManager in the following order
 
-     *GenericJNDI (i.e. jboss, where the property jndiName controls the name of the TransactionManager object to look up)
+     *GenericJNDI (i.e. jboss, where the property jndiName controls the name of the
+                    TransactionManager object to look up)
      *Websphere
      *Bitronix
      *Atomikos
     
-    You can provide you own lookup class that implements the net.sf.ehcache.transaction.manager.TransactionManagerLookup interface. 
+    You can provide you own lookup class that implements the
+    net.sf.ehcache.transaction.manager.TransactionManagerLookup interface. 
     -->
 
     <transactionManagerLookup class="net.sf.ehcache.transaction.manager.DefaultTransactionManagerLookup"
@@ -163,12 +165,13 @@ used with JMX monitors.
       128 - the same continent
       255 - unrestricted
 
-     * hostName - the hostname or IP of the interface to be used for sending and receiving multicast packets
-       (relevant to multi-homed hosts only)
+     * hostName - the hostname or IP of the interface to be used for sending and receiving multicast
+       packets (relevant to multi-homed hosts only)
 
     Configuring Manual Discovery:
-    Manual discovery requires a unique configuration per host. It is contains a list of rmiURLs for the peers, other
-    than itself. So, if we have server1, server2 and server3 the configuration will be:
+    Manual discovery requires a unique configuration per host. It is contains a list of rmiURLs for
+    the peers, other than itself. So, if we have server1, server2 and server3 the configuration will
+    be:
 
     In server1's configuration:
     <cacheManagerPeerProviderFactory class=
@@ -204,22 +207,23 @@ used with JMX monitors.
 
     JGroupsCacheManagerPeerProvider
     +++++++++++++++++++++++++++++++
-    <cacheManagerPeerProviderFactory class="net.sf.ehcache.distribution.jgroups.JGroupsCacheManagerPeerProviderFactory"
-                                     properties="connect=UDP(mcast_addr=231.12.21.132;mcast_port=45566;ip_ttl=32;
-                                     mcast_send_buf_size=150000;mcast_recv_buf_size=80000):
-                                     PING(timeout=2000;num_initial_members=6):
-                                     MERGE2(min_interval=5000;max_interval=10000):
-                                     FD_SOCK:VERIFY_SUSPECT(timeout=1500):
-                                     pbcast.NAKACK(gc_lag=10;retransmit_timeout=3000):
-                                     UNICAST(timeout=5000):
-                                     pbcast.STABLE(desired_avg_gossip=20000):
-                                     FRAG:
-                                     pbcast.GMS(join_timeout=5000;join_retry_timeout=2000;shun=false;print_local_addr=false)"
-                                     propertySeparator="::"
-            />
-     The only property necessary is the connect String used by jgroups to configure itself. Refer to the Jgroups documentation for explanation
-     of all the protocols. The example above uses UDP multicast. If the connect property is not specified the default JGroups connection will be
-     used.
+    <cacheManagerPeerProviderFactory
+         class="net.sf.ehcache.distribution.jgroups.JGroupsCacheManagerPeerProviderFactory"
+         properties="connect=UDP(mcast_addr=231.12.21.132;mcast_port=45566;ip_ttl=32;
+         mcast_send_buf_size=150000;mcast_recv_buf_size=80000):
+         PING(timeout=2000;num_initial_members=6):
+         MERGE2(min_interval=5000;max_interval=10000):
+         FD_SOCK:VERIFY_SUSPECT(timeout=1500):
+         pbcast.NAKACK(gc_lag=10;retransmit_timeout=3000):
+         UNICAST(timeout=5000):
+         pbcast.STABLE(desired_avg_gossip=20000):
+         FRAG:
+         pbcast.GMS(join_timeout=5000;join_retry_timeout=2000;shun=false;print_local_addr=false)"
+         propertySeparator="::"
+     />
+     The only property necessary is the connect String used by jgroups to configure itself. Refer to the Jgroups
+     documentation for explanation of all the protocols. The example above uses UDP multicast. If the connect property
+     is not specified the default JGroups connection will be used.
 
 
     JMSCacheManagerPeerProviderFactory
