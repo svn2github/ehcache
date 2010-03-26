@@ -735,12 +735,11 @@ public class CacheManagerTest {
         try {
             singletonManager.replaceCacheWithDecoratedCache(cache,
                     newBlockingCache);
+            fail("This should throw an exception!");
         } catch (CacheException e) {
             // expected
         }
-        assertNotNull(singletonManager.getCache("sampleCache1"));
-        assertFalse(singletonManager.getEhcache("sampleCache1") == newBlockingCache);
-        assertTrue(singletonManager.getEhcache("sampleCache1") == cache);
+        assertFalse(singletonManager.getEhcache("sampleCache1") instanceof BlockingCache);
     }
 
     @Test
@@ -754,12 +753,11 @@ public class CacheManagerTest {
         try {
             singletonManager.replaceCacheWithDecoratedCache(cache,
                     newBlockingCache);
+            fail("This should throw an exception!");
         } catch (CacheException e) {
             // expected
         }
-        assertNotNull(singletonManager.getCache("sampleCache1"));
-        assertFalse(singletonManager.getEhcache("sampleCache1") == newBlockingCache);
-        assertTrue(singletonManager.getEhcache("sampleCache1") == cache);
+        assertFalse(singletonManager.getEhcache("sampleCache1") instanceof BlockingCache);
     }
 
     /**

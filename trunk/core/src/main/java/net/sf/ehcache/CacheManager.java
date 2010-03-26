@@ -54,7 +54,6 @@ import java.io.File;
 import java.io.InputStream;
 import java.lang.reflect.Method;
 import java.net.URL;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -108,17 +107,6 @@ public class CacheManager {
     private static MBeanRegistrationProviderFactory mBeanRegistrationProviderFactory = new MBeanRegistrationProviderFactoryImpl();
 
     /**
-     * Ehcaches managed by this manager.
-     */
-    private final ConcurrentMap<String, Ehcache> ehcaches = new ConcurrentHashMap<String, Ehcache>();
-
-    /**
-     * Caches managed by this manager. A Cache is also an Ehcache.
-     * For central managment the cache is also in the ehcaches map.
-     */
-//    protected final Map caches = new ConcurrentHashMap();
-
-    /**
      * A name for this CacheManager to distinguish it from others.
      */
     protected String name;
@@ -152,6 +140,11 @@ public class CacheManager {
      * Of course kill -9 or abrupt termination will not run the shutdown hook. In this case, various sanity checks are made at start up.
      */
     protected Thread shutdownHook;
+
+    /**
+     * Ehcaches managed by this manager.
+     */
+    private final ConcurrentMap<String, Ehcache> ehcaches = new ConcurrentHashMap<String, Ehcache>();
 
     /**
      * Default cache cache.
@@ -886,7 +879,6 @@ public class CacheManager {
             return;
         }
         addCache((Ehcache) cache);
-//        caches.put(cache.getName(), cache);
     }
 
     /**
@@ -929,12 +921,9 @@ public class CacheManager {
         } catch (CacheException e) {
             LOG.warn("Cache " + cache.getName() + "requested bootstrap but a CacheException occured. " + e.getMessage(), e);
         }
-        if(ehcaches.putIfAbsent(cache.getName(), cache) != null) {
+        if (ehcaches.putIfAbsent(cache.getName(), cache) != null) {
             throw new ObjectExistsException("Cache " + cache.getName() + " already exists");
         }
-//        if (cache instanceof Cache) {
-//            caches.put(cache.getName(), cache);
-//        }
 
         // Don't notify initial config. The init method of each listener should take care of this.
         if (status.equals(Status.STATUS_ALIVE)) {
@@ -987,7 +976,6 @@ public class CacheManager {
             cache.dispose();
             cacheManagerEventListenerRegistry.notifyCacheRemoved(cache.getName());
         }
-//        caches.remove(cacheName);
     }
 
     /**
@@ -1024,8 +1012,8 @@ public class CacheManager {
             synchronized (CacheManager.class) {
                 ALL_CACHE_MANAGERS.remove(this);
 
-                for(Ehcache cache : ehcaches.values()) {
-                    if(cache != null) {
+                for (Ehcache cache : ehcaches.values()) {
+                    if (cache != null) {
                         cache.dispose();
                     }
                 }
