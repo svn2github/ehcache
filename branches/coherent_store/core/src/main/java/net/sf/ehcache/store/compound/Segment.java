@@ -135,9 +135,9 @@ class Segment extends ReentrantReadWriteLock {
     
     private void free(Object object) {
         if (object instanceof Element) {
-            identityFactory.free(object);
+            identityFactory.free(writeLock(), object);
         } else {
-            ((ElementSubstitute) object).getFactory().free((ElementSubstitute) object);
+            ((ElementSubstitute) object).getFactory().free(writeLock(), (ElementSubstitute) object);
         }
     }
     
@@ -521,42 +521,61 @@ class Segment extends ReentrantReadWriteLock {
     public boolean fault(Object key, int hash, Object expect, Object fault) {
         readLock().lock();
         try {
-            return internalFault(key, hash, expect, fault);
+            if (count != 0) {
+                for (HashEntry e = getFirst(hash); e != null; e = e.next) {
+                    if (e.hash == hash && key.equals(e.key)) {
+                        if (e.casElement(expect, fault)) {
+                            free(expect);
+                            return true;
+                        } else {
+                            free(fault);
+                            return false;
+                        }
+                    }
+                }
+            }
+            return false;
         } finally {
             readLock().unlock();
         }
     }
 
-    public boolean exclusiveFault(Object key, int hash, Object expect, Object fault) {
-        writeLock().lock();
-        try {
-            return internalFault(key, hash, expect, fault);
-        } finally {
-            writeLock().unlock();
-        }
-    }
-    
-    private boolean internalFault(Object key, int hash, Object expect, Object fault) {
-        if (count != 0) {
-            for (HashEntry e = getFirst(hash); e != null; e = e.next) {
-                if (e.hash == hash && key.equals(e.key)) {
-                    if (e.casElement(expect, fault)) {
-                        free(expect);
-                        return true;
-                    } else {
-                        free(fault);
-                        return false;
-                    }
-                }
-            }
-        }
-        return false;
-    }
-    
-    public boolean evict(Object key, int hash, Element element) {
+    public boolean evict(Object key, int hash, Object value) {
         if (writeLock().tryLock()) {
             try {
-                return remove(key, hash, element) != null;
+                HashEntry[] tab = table;
+                int index = hash & (tab.length - 1);
+                HashEntry first = tab[index];
+                HashEntry e = first;
+                while (e != null && (e.hash != hash || !key.equals(e.key))) {
+                    e = e.next;
+                }
+
+                if (e != null) {
+                    if (value == null || (value == e.getElement())) {
+                        // All entries following removed node can stay
+                        // in list, but all preceding ones need to be
+                        // cloned.
+                        ++modCount;
+                        HashEntry newFirst = e.next;
+                        for (HashEntry p = first; p != e; p = p.next) {
+                            newFirst = new HashEntry(p.key, p.hash, newFirst, p.getElement());
+                        }
+                        tab[index] = newFirst;
+                        /*
+                         * make sure we re-get from the HashEntry - since the decode in the conditional
+                         * may have faulted in a different type - we must make sure we know what type
+                         * to do the free on.
+                         */
+                        Object v = e.getElement();
+                        free(v);
+                        // write-volatile
+                        count = count - 1;
+                        return true;
+                    }
+                }
+                
+                return false;
             } finally {
                 writeLock().unlock();
             }
@@ -600,7 +619,7 @@ class Segment extends ReentrantReadWriteLock {
             if (count != 0) {
                 ourTable = table;
                 for (int j = ourTable.length - 1; j >= 0; --j) {
-                    if ( (nextEntry = ourTable[j]) != null) {
+                    if ((nextEntry = ourTable[j]) != null) {
                         nextTableIndex = j - 1;
                         return;
                     }
@@ -617,7 +636,7 @@ class Segment extends ReentrantReadWriteLock {
                 return;
 
             while (nextTableIndex >= 0) {
-                if ( (nextEntry = ourTable[nextTableIndex--]) != null)
+                if ((nextEntry = ourTable[nextTableIndex--]) != null)
                     return;
             }
         }

@@ -79,7 +79,8 @@ public class SelfPopulatingCacheTest extends CacheTest {
         System.setProperty("net.sf.ehcache.skipUpdateCheck", "true");
         super.setUp();
         manager = new CacheManager();
-        cache = manager.getCache("sampleIdlingExpiringCache");
+        cache = manager.getCache("sampleCacheNoIdle");
+        //cache = manager.getCache("sampleIdlingExpiringCache");
         selfPopulatingCache = new SelfPopulatingCache(cache, new CountingCacheEntryFactory("value"));
         cacheEntryFactoryRequests = 0;
     }

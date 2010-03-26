@@ -26,7 +26,7 @@ import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import net.sf.ehcache.CacheEntry;
 import net.sf.ehcache.Element;
@@ -42,7 +42,7 @@ public abstract class CompoundStore implements Store {
     private static final int MAXIMUM_CAPACITY = 1 << 30; 
     private static final int RETRIES_BEFORE_LOCK = 2;
     private static final int DEFAULT_INITIAL_CAPACITY = 16;
-    private static final int DEFAULT_SEGMENT_COUNT = 16;
+    private static final int DEFAULT_SEGMENT_COUNT = 64;
     private static final float DEFAULT_LOAD_FACTOR = 0.75f;
     
     private final InternalElementSubstituteFactory<?> primary;
@@ -84,6 +84,10 @@ public abstract class CompoundStore implements Store {
     }
 
     public Element get(Object key) {
+        if (key == null) {
+            return null;
+        }
+        
         int hash = hash(key.hashCode());
         return segmentFor(hash).get(key, hash);
     }
@@ -102,6 +106,10 @@ public abstract class CompoundStore implements Store {
     }
     
     public Element remove(Object key) {
+        if (key == null) {
+            return null;
+        }
+        
         int hash = hash(key.hashCode());
         return segmentFor(hash).remove(key, hash, null);
     }
@@ -213,14 +221,9 @@ public abstract class CompoundStore implements Store {
         return segmentFor(hash).fault(key, hash, expect, fault);
     }
     
-    public boolean exclusiveFault(Object key, Object expect, Object fault) {
+    public boolean evict(Object key, Object substitute) {
         int hash = hash(key.hashCode());
-        return segmentFor(hash).exclusiveFault(key, hash, expect, fault);
-    }
-    
-    public boolean evict(Object key, Element element) {
-        int hash = hash(key.hashCode());
-        return segmentFor(hash).evict(key, hash, element);
+        return segmentFor(hash).evict(key, hash, substitute);
     }
     
     public <T> List<T> getRandomSample(InternalElementSubstituteFactory<T> factory, int sampleSize, Object keyHint) {
@@ -323,7 +326,7 @@ public abstract class CompoundStore implements Store {
         }
 
         public Sync getSyncForKey(Object key) {
-            int hash = store.hash(key.hashCode());
+            int hash = key == null ? 0 : store.hash(key.hashCode());
             return new ReadWriteLockSync(store.segmentFor(hash));
         }
 
@@ -411,9 +414,9 @@ public abstract class CompoundStore implements Store {
     
     static class ReadWriteLockSync implements Sync {
 
-        private final ReadWriteLock lock;
+        private final ReentrantReadWriteLock lock;
         
-        ReadWriteLockSync(ReadWriteLock lock) {
+        ReadWriteLockSync(ReentrantReadWriteLock lock) {
             this.lock = lock;
         }
         
@@ -423,7 +426,9 @@ public abstract class CompoundStore implements Store {
                 lock.readLock().lock();
                 break;
             case WRITE:
-                lock.writeLock().lock();
+                if (!lock.isWriteLockedByCurrentThread()) {
+                    lock.writeLock().lock();
+                }
                 break;
             }
         }
@@ -444,7 +449,9 @@ public abstract class CompoundStore implements Store {
                     lock.readLock().unlock();
                     break;
                 case WRITE:
-                    lock.writeLock().unlock();
+                    if (lock.isWriteLockedByCurrentThread()) {
+                        lock.writeLock().unlock();
+                    }
                     break;
             }
         }

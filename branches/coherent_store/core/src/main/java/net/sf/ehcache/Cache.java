@@ -2292,6 +2292,11 @@ public class Cache implements Ehcache {
         return copy;
     }
 
+    final Store getStore() throws IllegalStateException {
+        checkStatus();
+        return compoundStore;
+    }
+    
     /**
      * Gets the internal DiskStore.
      *

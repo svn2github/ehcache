@@ -16,6 +16,8 @@
 
 package net.sf.ehcache.store.compound;
 
+import java.util.concurrent.locks.Lock;
+
 import net.sf.ehcache.Element;
 
 /**
@@ -63,7 +65,7 @@ interface InternalElementSubstituteFactory<T> {
      * 
      * @param object Element or ElementSubstitute being free'd.
      */
-    public void free(T object);
+    public void free(Lock exclusion, T object);
     
     public boolean created(Object object);
 }

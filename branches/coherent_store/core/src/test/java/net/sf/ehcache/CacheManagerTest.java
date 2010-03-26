@@ -559,9 +559,9 @@ public class CacheManagerTest {
                 .getCacheEventNotificationService();
         assertTrue(listeners1 != listeners2);
 
-        Store diskStore1 = cache1.getDiskStore();
-        Store diskStore2 = cache2.getDiskStore();
-        assertTrue(diskStore1 != diskStore2);
+        Store store1 = cache1.getStore();
+        Store store2 = cache2.getStore();
+        assertTrue(store1 != store2);
 
     }
 

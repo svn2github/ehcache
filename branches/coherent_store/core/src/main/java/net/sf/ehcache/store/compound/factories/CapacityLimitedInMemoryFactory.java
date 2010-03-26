@@ -18,6 +18,7 @@ package net.sf.ehcache.store.compound.factories;
 
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.locks.Lock;
 
 import net.sf.ehcache.Element;
 import net.sf.ehcache.store.Policy;
@@ -101,7 +102,7 @@ public class CapacityLimitedInMemoryFactory implements IdentityElementSubstitute
         return object;
     }
 
-    public void free(Element object) {
+    public void free(Lock exclusion, Element object) {
         count.decrementAndGet();
     }
 

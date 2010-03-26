@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectStreamClass;
 import java.io.RandomAccessFile;
+
 import java.util.Collection;
 import java.util.ConcurrentModificationException;
 import java.util.concurrent.BlockingQueue;
@@ -184,7 +185,7 @@ abstract class DiskStorageFactory<T extends ElementSubstitute> implements Elemen
         for (DiskMarker marker : freeChunks) {
             if (marker.getCapacity() >= size) {
                 freeChunks.remove(marker);
-                return new DiskMarker(marker, size, element.getHitCount(), element.getExpirationTime());
+                return new DiskMarker(marker, element.getObjectKey(), size, element.getHitCount(), element.getExpirationTime());
             }
         }
         
@@ -194,7 +195,7 @@ abstract class DiskStorageFactory<T extends ElementSubstitute> implements Elemen
             position = data.length();
             data.setLength(position + size);
         }
-        return new DiskMarker(position, size, element.getHitCount(), element.getExpirationTime());
+        return new DiskMarker(element.getObjectKey(), position, size, element.getHitCount(), element.getExpirationTime());
     }
     
     protected void free(DiskMarker marker) {
@@ -204,11 +205,14 @@ abstract class DiskStorageFactory<T extends ElementSubstitute> implements Elemen
     public boolean bufferFull() {
         return diskQueue.size() > 10000;
     }
+    
     /**
      * DiskMarker instances point to the location of their
      * associated serialized Element instance.
      */
     class DiskMarker implements ElementSubstitute {
+        
+        final Object key;
         
         private final long position;
         private final int capacity;
@@ -217,15 +221,16 @@ abstract class DiskStorageFactory<T extends ElementSubstitute> implements Elemen
         private final long hitCount;
         private final long expiry;
         
-        public DiskMarker(long position, int size, long hitCount, long expiry) {
-            this(position, size, size, hitCount, expiry);
+        public DiskMarker(Object key, long position, int size, long hitCount, long expiry) {
+            this(key, position, size, size, hitCount, expiry);
         }
         
-        public DiskMarker(DiskMarker from, int size, long hitCount, long expiry) {
-            this(from.getPosition(), from.getCapacity(), size, hitCount, expiry);
+        public DiskMarker(DiskMarker from, Object key, int size, long hitCount, long expiry) {
+            this(key, from.getPosition(), from.getCapacity(), size, hitCount, expiry);
         }
         
-        private DiskMarker(long position, int capacity, int size, long hitCount, long expiry) {
+        private DiskMarker(Object key, long position, int capacity, int size, long hitCount, long expiry) {
+            this.key = key;
             this.position = position;
             this.capacity = capacity;
             this.size = size;

@@ -20,8 +20,10 @@ import java.io.File;
 import java.io.IOException;
 import java.io.NotSerializableException;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.locks.Lock;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,10 +45,7 @@ public class DiskOverflowStorageFactory extends DiskStorageFactory<ElementSubsti
 
     private final AtomicInteger                     count = new AtomicInteger();
 
-    private final AtomicInteger placeholders = new AtomicInteger();
-    private final AtomicInteger replacements = new AtomicInteger();
-    
-    private volatile CompoundStore                     store;
+    private volatile CompoundStore                  store;
     private volatile CapacityLimitedInMemoryFactory memory;
 
     private volatile int                            capacity;
@@ -124,7 +123,7 @@ public class DiskOverflowStorageFactory extends DiskStorageFactory<ElementSubsti
                 DiskMarker marker = (DiskMarker) proxy;
                 Element e = read((DiskMarker) proxy);
                 if (key != null) {
-                    schedule(new DiskFaultTask(key, marker, e));
+                    store.fault(key, marker, memory.create(key, e));
                 }
                 return e;
             } catch (IOException e) {
@@ -137,10 +136,11 @@ public class DiskOverflowStorageFactory extends DiskStorageFactory<ElementSubsti
         }
     }
 
-    public void free(ElementSubstitute substitute) {
+    public void free(Lock lock, ElementSubstitute substitute) {
         count.decrementAndGet();
         if (substitute instanceof DiskStorageFactory.DiskMarker) {
-            free((DiskMarker) substitute);
+            //free done asynchronously under the relevant segment lock...
+            schedule(new DiskFaultTask(lock, (DiskMarker) substitute));
         }
     }
 
@@ -167,14 +167,10 @@ public class DiskOverflowStorageFactory extends DiskStorageFactory<ElementSubsti
             ElementSubstitute target = sample.get(0);
             if (target instanceof Placeholder) {
                 Placeholder p = (Placeholder) target;
-                store.evict(p.key, p.element);
+                store.evict(p.key, p);
             } else {
-                try {
-                    Element element = read((DiskMarker) target);
-                    store.evict(element.getObjectKey(), element);
-                } catch (Exception e) {
-                    LOG.error("Could not evict", e);
-                }
+                DiskMarker m = (DiskMarker) target;
+                store.evict(m.key, m);
             }
         }
     }
@@ -226,19 +222,23 @@ public class DiskOverflowStorageFactory extends DiskStorageFactory<ElementSubsti
         }
     }
     
-    class DiskFaultTask implements Callable<Boolean> {
-        private final Object key;
+    class DiskFaultTask implements Callable<Void> {
+        private final Lock lock;
         private final DiskMarker marker;
-        private final Element element;
         
-        DiskFaultTask(Object key, DiskMarker marker, Element element) {
-            this.key = key;
+        DiskFaultTask(Lock lock, DiskMarker marker) {
+            this.lock = lock;
             this.marker = marker;
-            this.element = element;
         }
 
-        public Boolean call() {
-            return Boolean.valueOf(store.exclusiveFault(key, marker, memory.create(key, element)));
+        public Void call() {
+            lock.lock();
+            try {
+                DiskOverflowStorageFactory.this.free(marker);
+            } finally {
+                lock.unlock();
+            }
+            return null;
         }
     }
 
@@ -251,7 +251,7 @@ public class DiskOverflowStorageFactory extends DiskStorageFactory<ElementSubsti
     }
 
     public void setCapacity(int newCapacity) {
-        throw new UnsupportedOperationException();
+        this.capacity = newCapacity;
     }
 
     public boolean created(Object object) {

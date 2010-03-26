@@ -239,7 +239,7 @@ public class DynamicCacheConfigurationTest extends AbstractCacheTest {
         for (int i = 0; i < 20; i++) {
             cache.put(new Element("key" + i, new Object()));
             Assert.assertTrue(cache.getSize() <= 10);
-            Assert.assertTrue(cache.getMemoryStore().getSize() <= 10);
+            Assert.assertTrue(cache.getMemoryStoreSize() <= 10);
         }
 
         cache.getCacheConfiguration().setMaxElementsInMemory(20);
@@ -248,8 +248,8 @@ public class DynamicCacheConfigurationTest extends AbstractCacheTest {
             cache.put(new Element("key" + i, new Object()));
             Assert.assertTrue(cache.getSize() <= 20);
             Assert.assertTrue(cache.getSize() > 10);
-            Assert.assertTrue(cache.getMemoryStore().getSize() <= 20);
-            Assert.assertTrue(cache.getMemoryStore().getSize() > 10);
+            Assert.assertTrue(cache.getMemoryStoreSize() <= 20);
+            Assert.assertTrue(cache.getMemoryStoreSize() > 10);
         }
 
         cache.getCacheConfiguration().setMaxElementsInMemory(5);
@@ -259,7 +259,7 @@ public class DynamicCacheConfigurationTest extends AbstractCacheTest {
         }
 
         Assert.assertEquals(5, cache.getSize());
-        Assert.assertEquals(5, cache.getMemoryStore().getSize());
+        Assert.assertEquals(5, cache.getMemoryStoreSize());
     }
 
     @Test
@@ -272,8 +272,8 @@ public class DynamicCacheConfigurationTest extends AbstractCacheTest {
             cache.put(new Element("key" + i, new byte[0]));
             MILLISECONDS.sleep(400);
             Assert.assertTrue(cache.getSize() <= 20);
-            Assert.assertTrue(cache.getMemoryStore().getSize() <= 10);
-            Assert.assertTrue(cache.getDiskStore().getSize() <= 10);
+            Assert.assertTrue(cache.getMemoryStoreSize() <= 10);
+            Assert.assertTrue(cache.getDiskStoreSize() <= 10);
         }
 
         cache.getCacheConfiguration().setMaxElementsOnDisk(20);
@@ -283,9 +283,9 @@ public class DynamicCacheConfigurationTest extends AbstractCacheTest {
             MILLISECONDS.sleep(400);
             Assert.assertTrue(cache.getSize() <= 30);
             Assert.assertTrue(cache.getSize() > 20);
-            Assert.assertTrue(cache.getMemoryStore().getSize() <= 10);
-            Assert.assertTrue(cache.getDiskStore().getSize() <= 20);
-            Assert.assertTrue(cache.getDiskStore().getSize() > 10);
+            Assert.assertTrue(cache.getMemoryStoreSize() <= 10);
+            Assert.assertTrue(cache.getDiskStoreSize() <= 20);
+            Assert.assertTrue(cache.getDiskStoreSize() > 10);
         }
 
         cache.getCacheConfiguration().setMaxElementsOnDisk(5);
@@ -296,8 +296,8 @@ public class DynamicCacheConfigurationTest extends AbstractCacheTest {
         }
 
         Assert.assertEquals(15, cache.getSize());
-        Assert.assertEquals(10, cache.getMemoryStore().getSize());
-        Assert.assertEquals(5, cache.getDiskStore().getSize());
+        Assert.assertEquals(10, cache.getMemoryStoreSize());
+        Assert.assertEquals(5, cache.getDiskStoreSize());
     }
 
     @Test
@@ -364,13 +364,13 @@ public class DynamicCacheConfigurationTest extends AbstractCacheTest {
         for (int i = 0; i < 20; i++) {
             cache.put(new Element("key" + i, new Object()));
             Assert.assertTrue(cache.getSize() <= 10);
-            Assert.assertTrue(cache.getMemoryStore().getSize() <= 10);
+            Assert.assertTrue(cache.getMemoryStoreSize() <= 10);
         }
 
         for (int i = 0; i < 20; i++) {
             clone.put(new Element("key" + i, new Object()));
             Assert.assertTrue(clone.getSize() <= 10);
-            Assert.assertTrue(clone.getMemoryStore().getSize() <= 10);
+            Assert.assertTrue(clone.getMemoryStoreSize() <= 10);
         }
         
         cache.getCacheConfiguration().setMaxElementsInMemory(20);
@@ -380,8 +380,8 @@ public class DynamicCacheConfigurationTest extends AbstractCacheTest {
             cache.put(new Element("key" + i, new Object()));
             Assert.assertTrue(cache.getSize() <= 20);
             Assert.assertTrue(cache.getSize() > 10);
-            Assert.assertTrue(cache.getMemoryStore().getSize() <= 20);
-            Assert.assertTrue(cache.getMemoryStore().getSize() > 10);
+            Assert.assertTrue(cache.getMemoryStoreSize() <= 20);
+            Assert.assertTrue(cache.getMemoryStoreSize() > 10);
         }
 
         for (int i = 20; i < 40; i++) {
@@ -389,7 +389,7 @@ public class DynamicCacheConfigurationTest extends AbstractCacheTest {
         }
 
         Assert.assertEquals(5, clone.getSize());
-        Assert.assertEquals(5, clone.getMemoryStore().getSize());
+        Assert.assertEquals(5, clone.getMemoryStoreSize());
 
         cache.getCacheConfiguration().setMaxElementsInMemory(5);
         clone.getCacheConfiguration().setMaxElementsInMemory(20);
@@ -399,14 +399,14 @@ public class DynamicCacheConfigurationTest extends AbstractCacheTest {
         }
 
         Assert.assertEquals(5, cache.getSize());
-        Assert.assertEquals(5, cache.getMemoryStore().getSize());
+        Assert.assertEquals(5, cache.getMemoryStoreSize());
 
         for (int i = 40; i < 60; i++) {
             clone.put(new Element("key" + i, new Object()));
             Assert.assertTrue(clone.getSize() <= 20);
             Assert.assertTrue(clone.getSize() > 5);
-            Assert.assertTrue(clone.getMemoryStore().getSize() <= 20);
-            Assert.assertTrue(clone.getMemoryStore().getSize() > 5);
+            Assert.assertTrue(clone.getMemoryStoreSize() <= 20);
+            Assert.assertTrue(clone.getMemoryStoreSize() > 5);
         }
     }
 }

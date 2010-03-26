@@ -16,6 +16,8 @@
 
 package net.sf.ehcache.store.compound.factories;
 
+import java.util.concurrent.locks.Lock;
+
 import net.sf.ehcache.Element;
 import net.sf.ehcache.store.compound.IdentityElementSubstituteFactory;
 import net.sf.ehcache.store.compound.CompoundStore;
@@ -52,7 +54,7 @@ public class InMemoryFactory implements IdentityElementSubstituteFactory {
     /**
      * Nothing to free, so a no-op.
      */
-    public void free(Element element) {
+    public void free(Lock exclusion, Element element) {
         // no-op
     }
 
