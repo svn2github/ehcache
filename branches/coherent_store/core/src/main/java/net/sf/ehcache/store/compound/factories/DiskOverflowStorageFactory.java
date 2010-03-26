@@ -18,9 +18,7 @@ package net.sf.ehcache.store.compound.factories;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.NotSerializableException;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.Lock;
@@ -94,7 +92,7 @@ public class DiskOverflowStorageFactory extends DiskStorageFactory<ElementSubsti
      * Immediately substitutes a placeholder for the original
      * element while the Element itself is asynchronously written
      * to disk using the executor service.
-     * @throws NotSerializableException 
+     * @throws IllegalArgumentException 
      */    
     public ElementSubstitute create(Object key, Element element) throws IllegalArgumentException {
         if (element.isSerializable()) {
@@ -170,7 +168,7 @@ public class DiskOverflowStorageFactory extends DiskStorageFactory<ElementSubsti
                 store.evict(p.key, p);
             } else {
                 DiskMarker m = (DiskMarker) target;
-                store.evict(m.key, m);
+                store.evict(m.getKey(), m);
             }
         }
     }

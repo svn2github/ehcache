@@ -30,7 +30,7 @@ import net.sf.ehcache.store.compound.CompoundStore;
 import net.sf.ehcache.store.compound.factories.CapacityLimitedInMemoryFactory;
 import net.sf.ehcache.store.compound.factories.DiskOverflowStorageFactory;
 
-public class OverflowToDiskStore extends CompoundStore implements CacheConfigurationListener {
+public final class OverflowToDiskStore extends CompoundStore implements CacheConfigurationListener {
 
     private final CapacityLimitedInMemoryFactory memoryFactory;
     private final DiskOverflowStorageFactory diskFactory;

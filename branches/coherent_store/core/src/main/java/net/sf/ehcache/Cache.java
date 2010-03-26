@@ -2292,6 +2292,12 @@ public class Cache implements Ehcache {
         return copy;
     }
 
+    /**
+     * Gets the internal Store.
+     * 
+     * @return the Store referenced by this cache
+     * @throws IllegalStateException if the cache is not {@link Status#STATUS_ALIVE}
+     */
     final Store getStore() throws IllegalStateException {
         checkStatus();
         return compoundStore;
@@ -2426,17 +2432,7 @@ public class Cache implements Ehcache {
      * Causes all elements stored in the Cache to be synchronously checked for expiry, and if expired, evicted.
      */
     public void evictExpiredElements() {
-        throw new UnsupportedOperationException();
-//        Object[] keys = memoryStore.getKeyArray();
-//
-//        for (Object key : keys) {
-//            searchInStoreWithoutStats(key, true, true);
-//        }
-//
-//        //This is called regularly by the expiry thread, but call it here synchronously
-//        if (isDiskStore()) {
-//            diskStore.expireElements();
-//        }
+        compoundStore.expireElements();
     }
 
     /**

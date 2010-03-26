@@ -54,6 +54,8 @@ import static java.util.concurrent.TimeUnit.MILLISECONDS;
 abstract class DiskStorageFactory<T extends ElementSubstitute> implements ElementSubstituteFactory<T> {
 
     private static final String AUTO_DISK_PATH_DIRECTORY_PREFIX = "ehcache_auto_created";
+    private static final int SERIALIZATION_CONCURRENCY_DELAY = 250;
+    private static final int SHUTDOWN_GRACE_PERIOD = 60;
     
     private static final Logger LOG = LoggerFactory.getLogger(DiskStorageFactory.class.getName());
 
@@ -79,7 +81,7 @@ abstract class DiskStorageFactory<T extends ElementSubstitute> implements Elemen
     
     protected void shutdown() throws IOException {
         diskWriter.shutdown();
-        for (int i = 0; i < 60; i++) {
+        for (int i = 0; i < SHUTDOWN_GRACE_PERIOD; i++) {
             try {
                 if (diskWriter.awaitTermination(1, TimeUnit.SECONDS)) {
                     break;
@@ -171,7 +173,7 @@ abstract class DiskStorageFactory<T extends ElementSubstitute> implements Elemen
                 exception = e;
                 try {
                     // wait for the other thread(s) to finish
-                    MILLISECONDS.sleep(250);
+                    MILLISECONDS.sleep(SERIALIZATION_CONCURRENCY_DELAY);
                 } catch (InterruptedException e1) {
                     //no-op
                 }
@@ -212,7 +214,7 @@ abstract class DiskStorageFactory<T extends ElementSubstitute> implements Elemen
      */
     class DiskMarker implements ElementSubstitute {
         
-        final Object key;
+        private final Object key;
         
         private final long position;
         private final int capacity;
@@ -237,6 +239,10 @@ abstract class DiskStorageFactory<T extends ElementSubstitute> implements Elemen
             
             this.hitCount = hitCount;
             this.expiry = expiry;
+        }
+
+        public Object getKey() {
+            return key;
         }
         
         public long getPosition() {

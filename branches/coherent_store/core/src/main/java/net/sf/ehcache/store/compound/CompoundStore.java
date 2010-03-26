@@ -39,7 +39,7 @@ import net.sf.ehcache.writer.CacheWriterManager;
 
 public abstract class CompoundStore implements Store {
 
-    private static final int MAXIMUM_CAPACITY = 1 << 30; 
+    private static final int MAXIMUM_CAPACITY = Integer.highestOneBit(Integer.MAX_VALUE); 
     private static final int RETRIES_BEFORE_LOCK = 2;
     private static final int DEFAULT_INITIAL_CAPACITY = 16;
     private static final int DEFAULT_SEGMENT_COUNT = 64;
@@ -53,28 +53,46 @@ public abstract class CompoundStore implements Store {
 
     private volatile CacheLockProvider lockProvider;
 
+    /**
+     * Create a CompoundStore using the supplied factory as the primary factory.
+     * 
+     * @param primary factory which new elements are passed through
+     */
     public CompoundStore(InternalElementSubstituteFactory<?> primary) {
         this(primary, (primary instanceof IdentityElementSubstituteFactory) ? (IdentityElementSubstituteFactory) primary : null);
     }
-    
+
+    /**
+     * Create a CompoundStore using the supplied primary, and designated identity factory.
+     * 
+     * @param primary factory which new elements are passed through
+     * @param identity factory which performs identity substitution
+     */
     public CompoundStore(InternalElementSubstituteFactory<?> primary, IdentityElementSubstituteFactory identity) {
         this.segments = new Segment[DEFAULT_SEGMENT_COUNT];
         this.segmentShift = Integer.numberOfLeadingZeros(segments.length - 1);
 
-        for (int i = 0; i < this.segments.length; ++i)
+        for (int i = 0; i < this.segments.length; ++i) {
             this.segments[i] = new Segment(DEFAULT_INITIAL_CAPACITY, DEFAULT_LOAD_FACTOR, primary, identity);
+        }
         
         this.primary = primary;
         primary.bind(this);
         status.set(Status.STATUS_ALIVE);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public boolean put(Element element) {
         Object key = element.getObjectKey();
         int hash = hash(key.hashCode());
         return segmentFor(hash).put(key, hash, element, false) == null;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public boolean putWithWriter(Element element, CacheWriterManager writerManager) {
         boolean result = put(element);
         if (writerManager != null) {
@@ -83,6 +101,9 @@ public abstract class CompoundStore implements Store {
         return result;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public Element get(Object key) {
         if (key == null) {
             return null;
@@ -92,6 +113,9 @@ public abstract class CompoundStore implements Store {
         return segmentFor(hash).get(key, hash);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public Element getQuiet(Object key) {
         return get(key);
     }
@@ -101,10 +125,16 @@ public abstract class CompoundStore implements Store {
         return segmentFor(hash).unretrievedGet(key, hash);
     }
     
+    /**
+     * {@inheritDoc}
+     */
     public Object[] getKeyArray() {
         return new KeySet().toArray();
     }
     
+    /**
+     * {@inheritDoc}
+     */
     public Element remove(Object key) {
         if (key == null) {
             return null;
@@ -114,6 +144,9 @@ public abstract class CompoundStore implements Store {
         return segmentFor(hash).remove(key, hash, null);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public Element removeWithWriter(Object key, CacheWriterManager writerManager) {
         Element removed = remove(key);
         if (writerManager != null) {
@@ -122,90 +155,151 @@ public abstract class CompoundStore implements Store {
         return removed;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public void removeAll() {
         for (Segment s : segments) {
             s.clear();
         }
     }
     
+    /**
+     * {@inheritDoc}
+     */
     public void dispose() {
         if (status.compareAndSet(Status.STATUS_ALIVE, Status.STATUS_SHUTDOWN)) {
             primary.unbind(this);
         }
     }
     
+    /**
+     * {@inheritDoc}
+     */
     public int getSize() {
-        final Segment[] segments = this.segments;
-        long sum = 0;
-        long check = 0;
-        int[] mc = new int[segments.length];
+        final Segment[] segs = this.segments;
+        long size = -1;
         // Try a few times to get accurate count. On failure due to
         // continuous async changes in table, resort to locking.
         for (int k = 0; k < RETRIES_BEFORE_LOCK; ++k) {
-            check = 0;
-            sum = 0;
-            int mcsum = 0;
-            for (int i = 0; i < segments.length; ++i) {
-                sum += segments[i].count;
-                mcsum += mc[i] = segments[i].modCount;
-            }
-            if (mcsum != 0) {
-                for (int i = 0; i < segments.length; ++i) {
-                    check += segments[i].count;
-                    if (mc[i] != segments[i].modCount) {
-                        check = -1; // force retry
-                        break;
-                    }
-                }
-            }
-            if (check == sum) 
+            size = volatileSize(segs);
+            if (size >= 0) {
                 break;
+            }
         }
-        if (check != sum) { // Resort to locking all segments
-            sum = 0;
-            for (int i = 0; i < segments.length; ++i) 
-                segments[i].readLock().lock();
-            for (int i = 0; i < segments.length; ++i) 
-                sum += segments[i].count;
-            for (int i = 0; i < segments.length; ++i) 
-                segments[i].readLock().unlock();
+        if (size < 0) { // Resort to locking all segments
+            size = lockedSize(segs);
         }
-        if (sum > Integer.MAX_VALUE)
+        if (size > Integer.MAX_VALUE) {
             return Integer.MAX_VALUE;
-        else
-            return (int)sum;
+        } else {
+            return (int)size;
+        }
     }
 
+    private static long volatileSize(Segment[] segs) {
+        int[] mc = new int[segs.length];
+        long check = 0;
+        long sum = 0;
+        int mcsum = 0;
+        for (int i = 0; i < segs.length; ++i) {
+            sum += segs[i].count;
+            mcsum += mc[i] = segs[i].modCount;
+        }
+        if (mcsum != 0) {
+            for (int i = 0; i < segs.length; ++i) {
+                check += segs[i].count;
+                if (mc[i] != segs[i].modCount) {
+                    return -1;
+                }
+            }
+        }
+        if (check == sum) {
+            return sum;
+        } else {
+            return -1;
+        }
+    }
+    
+    private static long lockedSize(Segment[] segs) {
+        long size = 0;
+        for (int i = 0; i < segs.length; ++i) { 
+            segs[i].readLock().lock();
+        }
+        for (int i = 0; i < segs.length; ++i) { 
+            size += segs[i].count;
+        }
+        for (int i = 0; i < segs.length; ++i) {
+            segs[i].readLock().unlock();
+        }
+        
+        return size;
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
     public Status getStatus() {
         return status.get();
     }
     
+    /**
+     * {@inheritDoc}
+     */
     public boolean containsKey(Object key) {
         int hash = hash(key.hashCode());
         return segmentFor(hash).containsKey(key, hash);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public Object getInternalContext() {
         CacheLockProvider context = lockProvider;
         return (lockProvider != null) ? lockProvider : (lockProvider = new LockProvider(this));
     }
     
+    /**
+     * Not used as this store is not clustered
+     * 
+     * @return <code>false</code>
+     */
     public boolean isCacheCoherent() {
         return false;
     }
     
+    /**
+     * Not used as this store is not clustered
+     * 
+     * @return <code>false</code>
+     */
     public boolean isClusterCoherent() {
         return false;
     }
     
+    /**
+     * Not used as this store is not clustered
+     * 
+     * @return <code>false</code>
+     */
     public boolean isNodeCoherent() {
         return false;
     }
     
+    /**
+     * Not used as this store is not clustered
+     * 
+     * @throws UnsupportedOperationException always
+     */
     public void setNodeCoherent(boolean coherent) {
         throw new UnsupportedOperationException();
     }
     
+    /**
+     * Not used as this store is not clustered
+     * 
+     * @throws UnsupportedOperationException always
+     */
     public void waitUntilClusterCoherent() {
         throw new UnsupportedOperationException();
     }
@@ -289,16 +383,18 @@ public abstract class CompoundStore implements Store {
         @Override
         public Object[] toArray() {
             Collection<Object> c = new ArrayList<Object>();
-            for (Object object : this)
+            for (Object object : this) {
                 c.add(object);
+            }
             return c.toArray();
         }
         
         @Override
         public <T> T[] toArray(T[] a) {
             Collection<Object> c = new ArrayList<Object>();
-            for (Object object : this)
+            for (Object object : this) {
                 c.add(object);
+            }
             return c.toArray(a);
         }
     }
@@ -364,8 +460,9 @@ public abstract class CompoundStore implements Store {
         }
 
         public boolean hasNext() {
-            if (this.currentIterator == null)
+            if (this.currentIterator == null) {
                 return false;
+            }
 
             if (this.currentIterator.hasNext()) {
                 return true;
@@ -384,8 +481,9 @@ public abstract class CompoundStore implements Store {
         public HashEntry nextEntry() {
             HashEntry item = null;
 
-            if (currentIterator == null)
+            if (currentIterator == null) {
                 return null;
+            }
 
             if (currentIterator.hasNext()) {
                 return currentIterator.next();
@@ -422,14 +520,16 @@ public abstract class CompoundStore implements Store {
         
         public void lock(LockType type) {
             switch (type) {
-            case READ:
-                lock.readLock().lock();
-                break;
-            case WRITE:
-                if (!lock.isWriteLockedByCurrentThread()) {
-                    lock.writeLock().lock();
-                }
-                break;
+                case READ:
+                    lock.readLock().lock();
+                    break;
+                case WRITE:
+                    if (!lock.isWriteLockedByCurrentThread()) {
+                        lock.writeLock().lock();
+                    }
+                    break;
+                default:
+                    throw new IllegalArgumentException("We don't support any other lock type than READ or WRITE!");
             }
         }
 
@@ -439,8 +539,9 @@ public abstract class CompoundStore implements Store {
                     return lock.readLock().tryLock(msec, TimeUnit.MILLISECONDS);
                 case WRITE:
                     return lock.writeLock().tryLock(msec, TimeUnit.MILLISECONDS);
+                default:
+                    throw new IllegalArgumentException("We don't support any other lock type than READ or WRITE!");
             }
-            return false;
         }
 
         public void unlock(LockType type) {
@@ -453,6 +554,8 @@ public abstract class CompoundStore implements Store {
                         lock.writeLock().unlock();
                     }
                     break;
+                default:
+                    throw new IllegalArgumentException("We don't support any other lock type than READ or WRITE!");
             }
         }
         

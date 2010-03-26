@@ -29,7 +29,7 @@ import net.sf.ehcache.store.Policy;
 import net.sf.ehcache.store.compound.CompoundStore;
 import net.sf.ehcache.store.compound.factories.CapacityLimitedInMemoryFactory;
 
-public class MemoryOnlyStore extends CompoundStore implements CacheConfigurationListener {
+public final class MemoryOnlyStore extends CompoundStore implements CacheConfigurationListener {
 
     private final CapacityLimitedInMemoryFactory memoryFactory;
     

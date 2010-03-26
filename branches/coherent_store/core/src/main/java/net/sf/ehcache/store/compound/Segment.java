@@ -610,10 +610,10 @@ class Segment extends ReentrantReadWriteLock {
     }
     
     class HashIterator implements Iterator<HashEntry> {
-        int nextTableIndex;
-        final HashEntry[] ourTable;
-        HashEntry nextEntry;
-        HashEntry lastReturned;
+        private int nextTableIndex;
+        private final HashEntry[] ourTable;
+        private HashEntry nextEntry;
+        private HashEntry lastReturned;
 
         HashIterator() {
             if (count != 0) {
@@ -632,28 +632,32 @@ class Segment extends ReentrantReadWriteLock {
         }
 
         final void advance() {
-            if (nextEntry != null && (nextEntry = nextEntry.next) != null)
+            if (nextEntry != null && (nextEntry = nextEntry.next) != null) {
                 return;
+            }
 
             while (nextTableIndex >= 0) {
-                if ((nextEntry = ourTable[nextTableIndex--]) != null)
+                if ((nextEntry = ourTable[nextTableIndex--]) != null) {
                     return;
+                }
             }
         }
 
         public boolean hasNext() { return nextEntry != null; }
 
         public HashEntry next() {
-            if (nextEntry == null)
+            if (nextEntry == null) {
                 throw new NoSuchElementException();
+            }
             lastReturned = nextEntry;
             advance();
             return lastReturned;
         }
 
         public void remove() {
-            if (lastReturned == null)
+            if (lastReturned == null) {
                 throw new IllegalStateException();
+            }
             Segment.this.remove(lastReturned.key, lastReturned.hash, null);
             lastReturned = null;
         }
