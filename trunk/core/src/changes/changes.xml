@@ -5,6 +5,9 @@
             <action dev="Geert Bevin" type="fix" issue="EHC-653">
                 RegisteredEventListeners.unregisterListener(CacheEventListener cacheEventListener) throws java.lang.UnsupportedOperationException
             </action>
+	    <action dev="Chris Dennis" type="fix" issue="EHC-647">
+	        Changed the default value for minimal puts to true for all Hibernate Ehcache instances.
+	    </action>
         </release>
         <release version="2.0.0" date="2010-3-4" description="Major release with new features">
             <action dev="Abhishek Sanoujam" type="fix" issue="EHC-625">
