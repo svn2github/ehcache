@@ -102,6 +102,7 @@ public class CacheManagerTest {
     @Test
     public void testCreateCacheManager() throws CacheException {
         singletonManager = CacheManager.create();
+        singletonManager.getEhcache("");
         assertNotNull(singletonManager);
         assertEquals(14, singletonManager.getCacheNames().length);
     }
@@ -697,7 +698,9 @@ public class CacheManagerTest {
         singletonManager
                 .replaceCacheWithDecoratedCache(cache, newBlockingCache);
         Ehcache blockingCache = singletonManager.getEhcache("sampleCache1");
+        assertNull(singletonManager.getCache("sampleCache1"));
         blockingCache.get("unknownkey");
+        assertTrue(singletonManager.getEhcache("sampleCache1") == newBlockingCache);
     }
 
     /**
@@ -717,6 +720,46 @@ public class CacheManagerTest {
         } catch (CacheException e) {
             // expected
         }
+        assertNotNull(singletonManager.getCache("sampleCache1"));
+    }
+
+    @Test
+    public void testDecoratorFailsIfUnderlyingCacheHasChanged() {
+
+        singletonManager = CacheManager.create();
+        Ehcache cache = singletonManager.getEhcache("sampleCache1");
+        singletonManager.removeCache("sampleCache1");
+        singletonManager.addCache("sampleCache1");
+        // decorate and substitute
+        BlockingCache newBlockingCache = new BlockingCache(cache);
+        try {
+            singletonManager.replaceCacheWithDecoratedCache(cache,
+                    newBlockingCache);
+        } catch (CacheException e) {
+            // expected
+        }
+        assertNotNull(singletonManager.getCache("sampleCache1"));
+        assertFalse(singletonManager.getEhcache("sampleCache1") == newBlockingCache);
+        assertTrue(singletonManager.getEhcache("sampleCache1") == cache);
+    }
+
+    @Test
+    public void testDecoratorFailsIfUnderlyingCacheIsNotPresent() {
+
+        singletonManager = CacheManager.create();
+        Ehcache cache = singletonManager.getEhcache("sampleCache1");
+        singletonManager.removeCache("sampleCache1");
+        // decorate and substitute
+        BlockingCache newBlockingCache = new BlockingCache(cache);
+        try {
+            singletonManager.replaceCacheWithDecoratedCache(cache,
+                    newBlockingCache);
+        } catch (CacheException e) {
+            // expected
+        }
+        assertNotNull(singletonManager.getCache("sampleCache1"));
+        assertFalse(singletonManager.getEhcache("sampleCache1") == newBlockingCache);
+        assertTrue(singletonManager.getEhcache("sampleCache1") == cache);
     }
 
     /**
@@ -740,6 +783,7 @@ public class CacheManagerTest {
                 selfPopulatingCache);
 
         Ehcache decoratedCache = singletonManager.getEhcache("sampleCache1");
+        assertNull(singletonManager.getCache("sampleCache1"));
         Element element2 = cache.get("key");
         assertEquals("value", element2.getObjectValue());
     }
