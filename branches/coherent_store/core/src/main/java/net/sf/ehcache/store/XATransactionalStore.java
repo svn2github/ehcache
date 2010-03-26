@@ -219,10 +219,16 @@ public class XATransactionalStore implements Store {
         return size + context.getSizeModifier();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public int getOnDiskSize() {
         return underlyingStore.getOnDiskSize();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public int getInMemorySize() {
         return underlyingStore.getInMemorySize();
     }
@@ -270,10 +276,16 @@ public class XATransactionalStore implements Store {
         return !context.isRemoved(key) && (context.getAddedKeys().contains(key) || underlyingStore.containsKey(key));
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public boolean containsKeyInMemory(final Object key) {
         return underlyingStore.containsKeyInMemory(key);
     }
     
+    /**
+     * {@inheritDoc}
+     */
     public boolean containsKeyOnDisk(final Object key) {
         return underlyingStore.containsKeyOnDisk(key);
     }

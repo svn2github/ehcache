@@ -49,6 +49,7 @@ import static java.util.concurrent.TimeUnit.MILLISECONDS;
 /**
  * A mock-up of a on-disk element proxy factory.
  * 
+ * @param <T> type of the encoded element substitutes
  * @author Chris Dennis
  */
 abstract class DiskStorageFactory<T extends ElementSubstitute> implements ElementSubstituteFactory<T> {
@@ -70,7 +71,12 @@ abstract class DiskStorageFactory<T extends ElementSubstitute> implements Elemen
 
     private final Collection<DiskMarker> freeChunks = new ConcurrentLinkedQueue<DiskMarker>();
 
-    public DiskStorageFactory(File dataFile) {
+    /**
+     * Constructs a disk storage factory using the given data file.
+     * 
+     * @param dataFile
+     */
+    DiskStorageFactory(File dataFile) {
         this.file = dataFile;
         try {
             data = new RandomAccessFile(file, "rw");
@@ -79,6 +85,25 @@ abstract class DiskStorageFactory<T extends ElementSubstitute> implements Elemen
         }
     }
     
+    /**
+     * Return this size in bytes of this factory
+     */
+    public long getSizeInBytes() {
+        synchronized (data) {
+            try {
+                return data.length();
+            } catch (IOException e) {
+                LOG.warn("Exception trying to determine store size", e);
+                return 0;
+            }
+        }
+    }
+
+    /**
+     * Shuts down this disk factory.
+     * <p>
+     * This shuts down the executor and then waits for its termination, before closing the data file.
+     */
     protected void shutdown() throws IOException {
         diskWriter.shutdown();
         for (int i = 0; i < SHUTDOWN_GRACE_PERIOD; i++) {
@@ -95,6 +120,9 @@ abstract class DiskStorageFactory<T extends ElementSubstitute> implements Elemen
         data.close();
     }
     
+    /**
+     * Deletes the data file for this factory. 
+     */
     protected void delete() {
         file.delete();
         freeChunks.clear();
@@ -110,11 +138,26 @@ abstract class DiskStorageFactory<T extends ElementSubstitute> implements Elemen
 
         }
     }
-    
+
+    /**
+     * Schedule to given task on the disk writer executor service.
+     * 
+     * @param <U> return type of the callable
+     * @param call callable to call
+     * @return Future representing the return of this call
+     */
     protected <U> Future<U> schedule(Callable<U> call) {
         return diskWriter.submit(call);
     }
-    
+
+    /**
+     * Read the data at the given marker, and return the associated deserialized Element.
+     * 
+     * @param marker marker to read
+     * @return deserialized Element
+     * @throws IOException on read error
+     * @throws ClassNotFoundException on deserialization error
+     */
     protected Element read(DiskMarker marker) throws IOException, ClassNotFoundException {
         final byte[] buffer = new byte[marker.getSize()];
         synchronized (data) {
@@ -148,6 +191,13 @@ abstract class DiskStorageFactory<T extends ElementSubstitute> implements Elemen
         }
     }
 
+    /**
+     * Write the given element to disk, and return the associated marker.
+     * 
+     * @param element to write
+     * @return marker representing the element
+     * @throws IOException on write error
+     */
     protected DiskMarker write(Element element) throws IOException {
         MemoryEfficientByteArrayOutputStream buffer = serializeElement(element);
         int bufferLength = buffer.size();
@@ -200,10 +250,18 @@ abstract class DiskStorageFactory<T extends ElementSubstitute> implements Elemen
         return new DiskMarker(element.getObjectKey(), position, size, element.getHitCount(), element.getExpirationTime());
     }
     
+    /**
+     * Free the given marker to be used by a subsequent write.
+     * 
+     * @param marker marker to be free'd
+     */
     protected void free(DiskMarker marker) {
         freeChunks.add(marker);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public boolean bufferFull() {
         return diskQueue.size() > 10000;
     }
@@ -212,7 +270,7 @@ abstract class DiskStorageFactory<T extends ElementSubstitute> implements Elemen
      * DiskMarker instances point to the location of their
      * associated serialized Element instance.
      */
-    class DiskMarker implements ElementSubstitute {
+    final class DiskMarker implements ElementSubstitute {
         
         private final Object key;
         
@@ -223,11 +281,11 @@ abstract class DiskStorageFactory<T extends ElementSubstitute> implements Elemen
         private final long hitCount;
         private final long expiry;
         
-        public DiskMarker(Object key, long position, int size, long hitCount, long expiry) {
+        private DiskMarker(Object key, long position, int size, long hitCount, long expiry) {
             this(key, position, size, size, hitCount, expiry);
         }
         
-        public DiskMarker(DiskMarker from, Object key, int size, long hitCount, long expiry) {
+        private DiskMarker(DiskMarker from, Object key, int size, long hitCount, long expiry) {
             this(key, from.getPosition(), from.getCapacity(), size, hitCount, expiry);
         }
         
@@ -241,22 +299,48 @@ abstract class DiskStorageFactory<T extends ElementSubstitute> implements Elemen
             this.expiry = expiry;
         }
 
-        public Object getKey() {
+        /**
+         * Key to which this Element is mapped.
+         * 
+         * @return key for this Element
+         */
+        Object getKey() {
             return key;
         }
-        
-        public long getPosition() {
+
+        /**
+         * Disk offset at which this element is stored.
+         * 
+         * @return disk offset
+         */
+        private long getPosition() {
             return position;
         }
-        
-        public int getSize() {
+
+        /**
+         * Returns the size of the currently occupying element.
+         * 
+         * @return size of the stored element
+         */
+        private int getSize() {
             return size;
         }
 
-        public int getCapacity() {
+        /**
+         * Returns the capacity of this marker.
+         * <p>
+         * The capacity may be smaller than the size of the current
+         * occupying element.
+         * 
+         * @return the capacity of this marker
+         */
+        private int getCapacity() {
             return capacity;
         }
         
+        /**
+         * {@inheritDoc}
+         */
         public DiskStorageFactory getFactory() {
             return DiskStorageFactory.this;
         }

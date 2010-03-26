@@ -29,6 +29,11 @@ import net.sf.ehcache.store.Policy;
 import net.sf.ehcache.store.compound.CompoundStore;
 import net.sf.ehcache.store.compound.factories.CapacityLimitedInMemoryFactory;
 
+/**
+ * Implements a memory only store.
+ * 
+ * @author Chris Dennis
+ */
 public final class MemoryOnlyStore extends CompoundStore implements CacheConfigurationListener {
 
     private final CapacityLimitedInMemoryFactory memoryFactory;
@@ -41,9 +46,17 @@ public final class MemoryOnlyStore extends CompoundStore implements CacheConfigu
         this.config = config;
     }
     
+    /**
+     * Constructs an in-memory store for the given cache, using the given disk path.
+     * 
+     * @param cache cache that fronts this store
+     * @param diskStorePath disk path to store data in
+     * @return a fully initialized store
+     */
     public static MemoryOnlyStore create(Cache cache, String diskStorePath) {
         CacheConfiguration config = cache.getCacheConfiguration();
-        CapacityLimitedInMemoryFactory memory = new CapacityLimitedInMemoryFactory(null, config.getMaxElementsInMemory(), determineEvictionPolicy(config));
+        CapacityLimitedInMemoryFactory memory = new CapacityLimitedInMemoryFactory(null, config.getMaxElementsInMemory(),
+                determineEvictionPolicy(config));
         MemoryOnlyStore store = new MemoryOnlyStore(memory, config);
         cache.getCacheConfiguration().addConfigurationListener(store);
         return store;
@@ -52,7 +65,7 @@ public final class MemoryOnlyStore extends CompoundStore implements CacheConfigu
     /**
      * Chooses the Policy from the cache configuration
      */
-    protected static final Policy determineEvictionPolicy(CacheConfiguration config) {
+    private static final Policy determineEvictionPolicy(CacheConfiguration config) {
         MemoryStoreEvictionPolicy policySelection = config.getMemoryStoreEvictionPolicy();
 
         if (policySelection.equals(MemoryStoreEvictionPolicy.LRU)) {
@@ -66,80 +79,152 @@ public final class MemoryOnlyStore extends CompoundStore implements CacheConfigu
         throw new IllegalArgumentException(policySelection + " isn't a valid eviction policy");
     }
     
+    /**
+     * {@inheritDoc}
+     */
     public boolean bufferFull() {
         return false;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public boolean containsKeyInMemory(Object key) {
         return containsKey(key);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public boolean containsKeyOnDisk(Object key) {
         return false;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public void expireElements() {
         throw new UnsupportedOperationException();
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     * This store is not persistent, so this simply clears the in-memory store if 
+     * clear-on-flush is set for this cache.
+     */
     public void flush() throws IOException {
         if (config.isClearOnFlush()) {
             removeAll();
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public Policy getInMemoryEvictionPolicy() {
         return memoryFactory.getEvictionPolicy();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public int getInMemorySize() {
         return getSize();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public long getInMemorySizeInBytes() {
         return memoryFactory.getSizeInBytes();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public int getOnDiskSize() {
         return 0;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public long getOnDiskSizeInBytes() {
         return 0;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public int getTerracottaClusteredSize() {
         return 0;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public void setInMemoryEvictionPolicy(Policy policy) {
         memoryFactory.setEvictionPolicy(policy);
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     * A NO-OP
+     */
     public void deregistered(CacheConfiguration config) {
         // no-op
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     * A NO-OP
+     */
     public void diskCapacityChanged(int oldCapacity, int newCapacity) {
         // no-op
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     * A NO-OP
+     */
     public void loggingEnabledChanged(boolean oldValue, boolean newValue) {
         // no-op
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public void memoryCapacityChanged(int oldCapacity, int newCapacity) {
         memoryFactory.setCapacity(newCapacity);
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     * A NO-OP
+     */
     public void registered(CacheConfiguration config) {
         // no-op
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     * A NO-OP
+     */
     public void timeToIdleChanged(long oldTimeToIdle, long newTimeToIdle) {
         // no-op
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     * A NO-OP
+     */
     public void timeToLiveChanged(long oldTimeToLive, long newTimeToLive) {
         // no-op
     }

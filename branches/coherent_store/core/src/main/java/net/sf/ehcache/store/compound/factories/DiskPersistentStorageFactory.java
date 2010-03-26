@@ -16,6 +16,11 @@
 
 package net.sf.ehcache.store.compound.factories;
 
+/**
+ * This will be the disk-persistent element substitute factory
+ * 
+ * @author Chris Dennis
+ */
 public class DiskPersistentStorageFactory {
 
  

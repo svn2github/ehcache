@@ -29,10 +29,16 @@ import net.sf.ehcache.store.compound.CompoundStore;
  */
 public class InMemoryFactory implements IdentityElementSubstituteFactory {
 
+    /**
+     * {@inheritDoc}
+     */
     public void bind(CompoundStore store) {
         // no-op
     }
     
+    /**
+     * {@inheritDoc}
+     */
     public void unbind(CompoundStore store) {
         // no-op
     }
@@ -58,6 +64,9 @@ public class InMemoryFactory implements IdentityElementSubstituteFactory {
         // no-op
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public boolean created(Object object) {
         return object instanceof Element;
     }

@@ -28,6 +28,11 @@ import net.sf.ehcache.store.compound.IdentityElementSubstituteFactory;
 import net.sf.ehcache.store.compound.CompoundStore;
 import net.sf.ehcache.store.compound.factories.DiskOverflowStorageFactory.Placeholder;
 
+/**
+ * An implementation of a capacity limited in-memory factory.
+ * 
+ * @author Chris Dennis
+ */
 public class CapacityLimitedInMemoryFactory implements IdentityElementSubstituteFactory {
 
     private static final int MAX_EVICT = 5;
@@ -40,6 +45,13 @@ public class CapacityLimitedInMemoryFactory implements IdentityElementSubstitute
     private volatile int capacity;
     private volatile Policy policy;
         
+    /**
+     * Constructs a factory with the given secondary (null if none), capacity, and eviction policy.
+     * 
+     * @param secondary factory to evict through
+     * @param capacity maximum capacity
+     * @param policy policy to use on eviction
+     */
     public CapacityLimitedInMemoryFactory(DiskOverflowStorageFactory secondary, int capacity, Policy policy) {
         this.secondary = secondary;
         if (secondary != null) {
@@ -49,6 +61,9 @@ public class CapacityLimitedInMemoryFactory implements IdentityElementSubstitute
         this.policy = policy;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public void bind(CompoundStore store) {
         boundStore = store;
         if (secondary != null) {
@@ -56,12 +71,18 @@ public class CapacityLimitedInMemoryFactory implements IdentityElementSubstitute
         }
     }
     
+    /**
+     * {@inheritDoc}
+     */
     public void unbind(CompoundStore store) {
         if (secondary != null) {
             secondary.unbind(store);
         }
     }
     
+    /**
+     * {@inheritDoc}
+     */
     public Element create(Object key, Element element) {
         int size = count.incrementAndGet();
         if (capacity > 0) {
@@ -98,41 +119,65 @@ public class CapacityLimitedInMemoryFactory implements IdentityElementSubstitute
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public Element retrieve(Object key, Element object) {
         return object;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public void free(Lock exclusion, Element object) {
         count.decrementAndGet();
     }
 
+    /**
+     * Get the count of elements created by this factory
+     */
     public int getSize() {
         return count.get();
     }
     
+    /**
+     * Get the total serialized size of all elements created by this factory
+     */
     public long getSizeInBytes() {
         long size = 0;
         for (Object o : boundStore.getKeyArray()) {
             Object e = boundStore.unretrievedGet(o);
-            if (e instanceof Element) {
+            if (created(e)) {
                 size += ((Element) e).getSerializedSize();
             }
         }
         return size;
     }
     
+    /**
+     * Return the eviction policy used by this factory.
+     */
     public Policy getEvictionPolicy() {
         return policy;
     }
     
+    /**
+     * Set the eviction policy used by this factory.
+     */
     public void setEvictionPolicy(Policy policy) {
         this.policy = policy;
     }
 
+    /**
+     * Set the maximum capacity of this factory.
+     */
     public void setCapacity(int capacity) {
         this.capacity = capacity;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public boolean created(Object object) {
         return object instanceof Element;
     }    

@@ -33,9 +33,18 @@ import net.sf.ehcache.Element;
  */
 interface InternalElementSubstituteFactory<T> {
 
+    /**
+     * Bind a store instance to this factory.
+     * 
+     * @param store store to bind
+     */
     public void bind(CompoundStore store);
-    
-    public void unbind(CompoundStore localStore);
+
+    /**
+     * Unbinds a store instance from this factory
+     * @param store store to unbind
+     */
+    public void unbind(CompoundStore store);
 
     /**
      * Creates a substitute for the supplied {@link Element}
@@ -66,6 +75,12 @@ interface InternalElementSubstituteFactory<T> {
      * @param object Element or ElementSubstitute being free'd.
      */
     public void free(Lock exclusion, T object);
-    
+
+    /**
+     * Returns <code>true</code> if this factory created the given object.
+     * 
+     * @param object object to check
+     * @return <code>true</code> if object created by this factory
+     */
     public boolean created(Object object);
 }

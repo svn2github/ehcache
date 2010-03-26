@@ -34,6 +34,11 @@ import net.sf.ehcache.store.compound.ElementSubstitute;
 import net.sf.ehcache.store.compound.ElementSubstituteFactory;
 import net.sf.ehcache.store.compound.CompoundStore;
 
+/**
+ * A factory that stores elements on disk in their serialized form.
+ * 
+ * @author Chris Dennis
+ */
 public class DiskOverflowStorageFactory extends DiskStorageFactory<ElementSubstitute> {
     
     private static final int MAX_EVICT = 5;
@@ -47,7 +52,13 @@ public class DiskOverflowStorageFactory extends DiskStorageFactory<ElementSubsti
     private volatile CapacityLimitedInMemoryFactory memory;
 
     private volatile int                            capacity;
-    
+
+    /**
+     * Constructs an overflow factory for the given cache and disk path.
+     * 
+     * @param cache cache that fronts this factory
+     * @param diskPath path to store data in
+     */
     public DiskOverflowStorageFactory(Ehcache cache, String diskPath) {
         super(getDataFile(diskPath, cache));
         this.capacity = cache.getCacheConfiguration().getMaxElementsOnDisk();
@@ -77,11 +88,15 @@ public class DiskOverflowStorageFactory extends DiskStorageFactory<ElementSubsti
         return data;
     }
 
-    public static final String getDataFileName(Ehcache cache) {
+    private static final String getDataFileName(Ehcache cache) {
         String safeName = cache.getName().replace('/', '_');
         return safeName + ".data";
     }
     
+    /**
+     * Sets the primary factory that this factory should fault to, when
+     * elements are retrieved.
+     */
     public void primary(CapacityLimitedInMemoryFactory memory) {
         this.memory = memory;
     }
@@ -134,18 +149,36 @@ public class DiskOverflowStorageFactory extends DiskStorageFactory<ElementSubsti
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public void free(Lock lock, ElementSubstitute substitute) {
         count.decrementAndGet();
         if (substitute instanceof DiskStorageFactory.DiskMarker) {
             //free done asynchronously under the relevant segment lock...
-            schedule(new DiskFaultTask(lock, (DiskMarker) substitute));
+            DiskFreeTask free = new DiskFreeTask(lock, (DiskMarker) substitute);
+            if (lock.tryLock()) {
+                try {
+                    free.call();
+                } finally {
+                    lock.unlock();
+                }
+            } else {
+                schedule(free);
+            }
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public void bind(CompoundStore store) {
         this.store = store;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public void unbind(CompoundStore localStore) {
         try {
             shutdown();
@@ -178,20 +211,28 @@ public class DiskOverflowStorageFactory extends DiskStorageFactory<ElementSubsti
      * duplicate write requests while Elements are being
      * written to disk.
      */
-    class Placeholder implements ElementSubstitute {
-        protected final Object key;
-        protected final Element element;
+    final class Placeholder implements ElementSubstitute {
+        private final Object key;
+        private final Element element;
         
-        Placeholder(Object key, Element element) {
+        private Placeholder(Object key, Element element) {
             this.key = key;
             this.element = element;
         }
 
+        /**
+         * {@inheritDoc}
+         */
         public ElementSubstituteFactory<ElementSubstitute> getFactory() {
             return DiskOverflowStorageFactory.this;
         }
 
-        public void schedule() {
+        /**
+         * Schedule the disk write for this placeholder.
+         * <p>
+         * This call is made after the placeholder has been successfully installed.
+         */
+        void schedule() {
             DiskOverflowStorageFactory.this.schedule(new DiskWriteTask(this));
         }
     }
@@ -201,14 +242,17 @@ public class DiskOverflowStorageFactory extends DiskStorageFactory<ElementSubsti
      * to disk and fault in the resultant DiskMarker
      * instance.
      */
-    class DiskWriteTask implements Callable<Boolean> {
+    private final class DiskWriteTask implements Callable<Boolean> {
 
         private final Placeholder placeholder;
         
-        DiskWriteTask(Placeholder p) {
+        private DiskWriteTask(Placeholder p) {
             this.placeholder = p;
         }
 
+        /**
+         * {@inheritDoc}
+         */
         public Boolean call() {
             try {
                 DiskMarker marker = write(placeholder.element);
@@ -219,16 +263,24 @@ public class DiskOverflowStorageFactory extends DiskStorageFactory<ElementSubsti
             }
         }
     }
-    
-    class DiskFaultTask implements Callable<Void> {
+
+    /**
+     * Disk free tasks are used to asynchronously free DiskMarker instances under the correct
+     * exclusive write lock.  This ensure markers are not free'd until no more readers can be
+     * holding references to them.
+     */
+    private final class DiskFreeTask implements Callable<Void> {
         private final Lock lock;
         private final DiskMarker marker;
         
-        DiskFaultTask(Lock lock, DiskMarker marker) {
+        private DiskFreeTask(Lock lock, DiskMarker marker) {
             this.lock = lock;
             this.marker = marker;
         }
 
+        /**
+         * {@inheritDoc}
+         */
         public Void call() {
             lock.lock();
             try {
@@ -240,18 +292,23 @@ public class DiskOverflowStorageFactory extends DiskStorageFactory<ElementSubsti
         }
     }
 
+    /**
+     * Return the count of elements created by this factory.
+     */
     public int getSize() {
         return count.get();
     }
 
-    public long getSizeInBytes() {
-        throw new UnsupportedOperationException();
-    }
-
+    /**
+     * Set the maximum on-disk capacity for this factory.
+     */
     public void setCapacity(int newCapacity) {
         this.capacity = newCapacity;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public boolean created(Object object) {
         return (object instanceof ElementSubstitute) && (((ElementSubstitute) object).getFactory() == this);
     }

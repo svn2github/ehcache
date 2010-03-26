@@ -162,13 +162,6 @@ public class SyncAwareStore implements Store {
     /**
      * {@inheritDoc}
      */
-    public long getSizeInBytes() {
-        return this.getSizeInBytes();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
     public Status getStatus() {
         return this.store.getStatus();
     }
@@ -237,34 +230,58 @@ public class SyncAwareStore implements Store {
         this.store.waitUntilClusterCoherent();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public boolean containsKeyInMemory(Object key) {
         return this.store.containsKeyInMemory(key);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public boolean containsKeyOnDisk(Object key) {
         return this.store.containsKeyOnDisk(key);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public Policy getInMemoryEvictionPolicy() {
         return this.store.getInMemoryEvictionPolicy();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public int getInMemorySize() {
         return this.store.getInMemorySize();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public long getInMemorySizeInBytes() {
         return this.store.getInMemorySizeInBytes();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public int getOnDiskSize() {
         return this.store.getOnDiskSize();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public long getOnDiskSizeInBytes() {
         return this.store.getOnDiskSizeInBytes();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public void setInMemoryEvictionPolicy(Policy policy) {
         this.store.setInMemoryEvictionPolicy(policy);
     }

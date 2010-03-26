@@ -37,7 +37,7 @@ public interface ElementSubstituteFactory<T extends ElementSubstitute> extends I
     /**
      * @return The substitute element
      * 
-     * @throws
+     * @throws IllegalArgumentException if element cannot be substituted
      */
     public T create(Object key, Element element) throws IllegalArgumentException;
 
