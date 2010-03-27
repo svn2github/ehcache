@@ -515,6 +515,61 @@ public class CacheManagerTest {
         singletonManager.addCache("");
     }
 
+    @Test
+    public void testAddCacheIfAbsent() {
+        singletonManager = CacheManager.create();
+        singletonManager.addCache("present");
+        assertTrue(singletonManager.getCache("present")
+                   == singletonManager.addCacheIfAbsent(new Cache(new CacheConfiguration("present", 1000))));
+
+        Cache theCache = new Cache(new CacheConfiguration("absent", 1000));
+        Ehcache cache = singletonManager.addCacheIfAbsent(theCache);
+        assertNotNull(cache);
+        assertTrue(theCache == cache);
+        assertEquals("absent", cache.getName());
+
+        Cache other = new Cache(new CacheConfiguration(cache.getName(), 1000));
+        Ehcache actualCacheRegisteredWithManager = singletonManager.addCacheIfAbsent(other);
+        assertNotNull(actualCacheRegisteredWithManager);
+        assertFalse(other == actualCacheRegisteredWithManager);
+        assertTrue(cache == actualCacheRegisteredWithManager);
+
+        Cache newCache = new Cache(new CacheConfiguration(cache.getName(), 1000));
+        singletonManager.removeCache(actualCacheRegisteredWithManager.getName());
+        actualCacheRegisteredWithManager = singletonManager.addCacheIfAbsent(newCache);
+        assertNotNull(actualCacheRegisteredWithManager);
+        assertFalse(cache == actualCacheRegisteredWithManager);
+        assertTrue(newCache == actualCacheRegisteredWithManager);
+
+        assertTrue(singletonManager.addCacheIfAbsent(new Cache(new CacheConfiguration(actualCacheRegisteredWithManager.getName(), 1000)))
+                   == actualCacheRegisteredWithManager);
+
+        assertNull(singletonManager.addCacheIfAbsent((Ehcache) null));
+    }
+
+    @Test
+    public void testAddNamedCacheIfAbsent() {
+        singletonManager = CacheManager.create();
+        String presentCacheName = "present";
+        singletonManager.addCache(presentCacheName);
+        Cache alreadyPresent = singletonManager.getCache(presentCacheName);
+        Ehcache cache = singletonManager.addCacheIfAbsent(presentCacheName);
+        assertNotNull(cache);
+        assertTrue(alreadyPresent == cache);
+        assertEquals(presentCacheName, cache.getName());
+
+        Ehcache actualCacheRegisteredWithManager = singletonManager.addCacheIfAbsent("absent");
+        assertNotNull(actualCacheRegisteredWithManager);
+        assertTrue(singletonManager.getCache(actualCacheRegisteredWithManager.getName()) == actualCacheRegisteredWithManager);
+        assertEquals("absent", actualCacheRegisteredWithManager.getName());
+        assertTrue(singletonManager.addCacheIfAbsent(actualCacheRegisteredWithManager.getName()) == actualCacheRegisteredWithManager);
+
+        assertTrue(singletonManager.addCacheIfAbsent(new Cache(new CacheConfiguration(actualCacheRegisteredWithManager.getName(), 1000)))
+                   == actualCacheRegisteredWithManager);
+        assertNull(singletonManager.addCacheIfAbsent((String) null));
+        assertNull(singletonManager.addCacheIfAbsent(""));
+    }
+
     /**
      * Tests we can add caches from the default where the default has listeners.
      * Since 1.7, a CacheUsageStatisticsData is also registered.

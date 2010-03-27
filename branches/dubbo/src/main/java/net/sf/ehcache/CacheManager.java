@@ -614,7 +614,7 @@ public class CacheManager {
         Set unitialisedCaches = configurationHelper.createCaches();
         for (Iterator iterator = unitialisedCaches.iterator(); iterator.hasNext();) {
             Ehcache unitialisedCache = (Ehcache) iterator.next();
-            addCacheNoCheck(unitialisedCache);
+            addCacheNoCheck(unitialisedCache, true);
         }
     }
 
@@ -873,7 +873,7 @@ public class CacheManager {
         CacheConfiguration viewConfig = cache.getCacheConfiguration().clone();
         viewConfig.name(viewName);
         Ehcache view = new Cache(viewConfig);
-        internalAddCacheNoCheck(view, cache);
+        internalAddCacheNoCheck(view, cache, true);
         addCacheView(cacheName, view);
         return view;
     }
@@ -933,16 +933,7 @@ public class CacheManager {
         if (ehcaches.get(cacheName) != null) {
             throw new ObjectExistsException("Cache " + cacheName + " already exists");
         }
-        Ehcache cache = null;
-        try {
-            cache = (Ehcache) defaultCache.clone();
-        } catch (CloneNotSupportedException e) {
-            throw new CacheException("Failure adding cache. Initial cause was " + e.getMessage(), e);
-        }
-        if (cache != null) {
-            cache.setName(cacheName);
-        }
-        addCache(cache);
+        addCache(cloneDefaultCache(cacheName));
     }
 
     /**
@@ -958,7 +949,9 @@ public class CacheManager {
      *             if the cache already exists in the CacheManager
      * @throws CacheException
      *             if there was an error adding the cache to the CacheManager
+     * @deprecated
      */
+    @Deprecated
     public void addCache(Cache cache) throws IllegalStateException, ObjectExistsException, CacheException {
         checkStatus();
         if (cache == null) {
@@ -986,11 +979,11 @@ public class CacheManager {
         if (cache == null) {
             return;
         }
-        addCacheNoCheck(cache);
+        addCacheNoCheck(cache, true);
     }
     
-    private void addCacheNoCheck(Ehcache cache) throws IllegalStateException, ObjectExistsException, CacheException {
-        internalAddCacheNoCheck(cache, null);
+    private Ehcache addCacheNoCheck(Ehcache cache, boolean strict) throws IllegalStateException, ObjectExistsException, CacheException {
+        return internalAddCacheNoCheck(cache, null, strict);
     }
 
     /**
@@ -998,11 +991,16 @@ public class CacheManager {
      * @param cacheOrView The cache (or view) to be added
      * @param actualCacheIfView The actual cache from which a view is being added. Can be null, which means a cache, and not a view, is being added.
      */
-    private void internalAddCacheNoCheck(Ehcache cacheOrView, Ehcache actualCacheIfView) {
+    private Ehcache internalAddCacheNoCheck(Ehcache cacheOrView, Ehcache actualCacheIfView, final boolean strict) {
         boolean isView = actualCacheIfView != null;
 
-        if (ehcaches.get(cacheOrView.getName()) != null) {
-            throw new ObjectExistsException("Cache " + cacheOrView.getName() + " already exists");
+        Ehcache ehcache = ehcaches.get(cacheOrView.getName());
+        if (ehcache != null) {
+            if (strict) {
+                throw new ObjectExistsException("Cache " + ehcache.getName() + " already exists");
+            } else {
+                return ehcache;
+            }
         }
         cacheOrView.setCacheManager(this);
         cacheOrView.setDiskStorePath(diskStorePath);
@@ -1031,14 +1029,21 @@ public class CacheManager {
                 LOG.warn("Cache " + cacheOrView.getName() + "requested bootstrap but a CacheException occured. " + e.getMessage(), e);
             }
         }
-        if (ehcaches.putIfAbsent(cacheOrView.getName(), cacheOrView) != null) {
-            throw new ObjectExistsException("Cache " + cacheOrView.getName() + " already exists");
+        ehcache = ehcaches.putIfAbsent(cacheOrView.getName(), cacheOrView);
+        if (ehcache != null) {
+            if (strict) {
+                throw new ObjectExistsException("Cache " + ehcache.getName() + " already exists");
+            } else {
+                return ehcache;
+            }
         }
 
         // Don't notify initial config. The init method of each listener should take care of this.
         if (status.equals(Status.STATUS_ALIVE)) {
             cacheManagerEventListenerRegistry.notifyCacheAdded(cacheOrView.getName());
         }
+
+        return cacheOrView;
     }
 
     /**
@@ -1457,5 +1462,45 @@ public class CacheManager {
         } else {
             return super.hashCode();
         }
+    }
+
+    /**
+     * Only adds the cache to the CacheManager should not one with the same name already be present
+     * @param cache The Ehcache to be added
+     * @return the instance registered with the CacheManager, the cache instance passed in if it was added; or null if Ehcache is null
+     */
+    public Ehcache addCacheIfAbsent(final Ehcache cache) {
+        checkStatus();
+        return cache == null ? null : addCacheNoCheck(cache, false);
+    }
+
+    /**
+     * Only creates and adds the cache to the CacheManager should not one with the same name already be present
+     * @param cacheName the name of the Cache to be created
+     * @return the Ehcache instance created and registered; null if cacheName was null or of length 0
+     */
+    public Ehcache addCacheIfAbsent(final String cacheName) {
+        checkStatus();
+
+        // NPE guard
+        if (cacheName == null || cacheName.length() == 0) {
+            return null;
+        }
+
+        Ehcache ehcache = ehcaches.get(cacheName);
+        return ehcache != null ? ehcache : addCacheIfAbsent(cloneDefaultCache(cacheName));
+    }
+
+    private Ehcache cloneDefaultCache(final String cacheName) {
+        Ehcache cache;
+        try {
+            cache = (Ehcache) defaultCache.clone();
+        } catch (CloneNotSupportedException e) {
+            throw new CacheException("Failure adding cache. Initial cause was " + e.getMessage(), e);
+        }
+        if (cache != null) {
+            cache.setName(cacheName);
+        }
+        return cache;
     }
 }
