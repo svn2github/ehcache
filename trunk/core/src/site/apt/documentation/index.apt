@@ -80,7 +80,7 @@ Documentation - Table of Contents
 
     * {{{./openjpa_provider.html}OpenJPA Caching}}
 
-    * {{{./grails.html}Grails: Using Ehcache as a Second Level Caching Provider for Hibernate within Grails}}
+    * {{{./grails.html}Grails Caching}}
 
     * {{{./glassfish.html}Glassfish HowTo}}
 
