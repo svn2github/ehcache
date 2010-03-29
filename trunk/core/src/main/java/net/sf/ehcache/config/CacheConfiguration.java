@@ -246,7 +246,7 @@ public class CacheConfiguration implements Cloneable {
     /**
      * Default constructor that can only be used by classes in this package.
      */
-    CacheConfiguration() {
+    public CacheConfiguration() {
         // default constructor is only accessible in this package
     }
 
