@@ -188,10 +188,11 @@
         </copy>
     </target>
 
-    <target name="copy_ehcache.xml" description="Copies the config files to the site">
+    <target name="copy_files" description="Copies the config files to the site">
         <copy todir="${build.dir}/site">
             <fileset dir="src/main/config"/>
         </copy>
+        <antcall target="copy-ydoc" inheritall="true"/>
     </target>
 
     <target name="unhide_html" description="extra site processing">

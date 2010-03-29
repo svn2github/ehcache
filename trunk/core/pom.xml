@@ -272,11 +272,11 @@
                     <!--</execution>-->
 
                     <execution>
-                        <id>unhide_embedded_html</id>
+                        <id>copy_files</id>
                         <phase>site</phase>
                         <configuration>
                             <tasks>
-                                <ant target="unhide_html"/>
+                                <ant target="copy_files"/>
                             </tasks>
                         </configuration>
                         <goals>
@@ -284,13 +284,12 @@
                         </goals>
                     </execution>
 
-
                     <execution>
-                        <id>copy_ehcache.xml</id>
+                        <id>unhide_embedded_html</id>
                         <phase>site</phase>
                         <configuration>
                             <tasks>
-                                <ant target="copy_ehcache.xml"/>
+                                <ant target="unhide_html"/>
                             </tasks>
                         </configuration>
                         <goals>
