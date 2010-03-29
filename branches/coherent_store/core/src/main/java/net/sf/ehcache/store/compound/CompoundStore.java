@@ -88,9 +88,13 @@ public abstract class CompoundStore implements Store {
      * {@inheritDoc}
      */
     public boolean put(Element element) {
-        Object key = element.getObjectKey();
-        int hash = hash(key.hashCode());
-        return segmentFor(hash).put(key, hash, element, false) == null;
+        if (element == null) {
+            return false;
+        } else {
+            Object key = element.getObjectKey();
+            int hash = hash(key.hashCode());
+            return segmentFor(hash).put(key, hash, element, false) == null;
+        }
     }
 
     /**

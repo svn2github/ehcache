@@ -62,7 +62,7 @@ public class LruMemoryStoreTest extends MemoryStoreTester {
     public void setUp() throws Exception {
 
         super.setUp();
-        createMemoryStore(MemoryStoreEvictionPolicy.LRU);
+        createMemoryOnlyStore(MemoryStoreEvictionPolicy.LRU);
     }
 
 
@@ -71,7 +71,7 @@ public class LruMemoryStoreTest extends MemoryStoreTester {
      */
     @Test
     public void testPolicy() throws Exception {
-        createMemoryStore(MemoryStoreEvictionPolicy.LRU, 5);
+        createMemoryOnlyStore(MemoryStoreEvictionPolicy.LRU, 5);
 
         //Make sure that the store is empty to start with
         assertEquals(0, cache.getSize());

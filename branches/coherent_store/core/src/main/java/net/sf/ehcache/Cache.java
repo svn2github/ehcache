@@ -2315,18 +2315,6 @@ public class Cache implements Ehcache {
         throw new UnsupportedOperationException();
     }
 
-    /**
-     * Gets the internal MemoryStore.
-     *
-     * @return the MemoryStore referenced by this cache
-     * @throws IllegalStateException if the cache is not {@link Status#STATUS_ALIVE}
-     */
-    final Store getMemoryStore() throws IllegalStateException {
-        checkStatus();
-//        return memoryStore;
-        throw new UnsupportedOperationException();
-    }
-
 
     /**
      * Use this to access the service in order to register and unregister listeners

@@ -50,6 +50,7 @@ import net.sf.ehcache.loader.CacheLoader;
 import net.sf.ehcache.loader.CountingCacheLoader;
 import net.sf.ehcache.loader.ExceptionThrowingLoader;
 import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
+import net.sf.ehcache.store.compound.CompoundStore;
 
 import org.junit.After;
 import org.junit.Test;
@@ -1586,7 +1587,7 @@ public class CacheTest extends AbstractCacheTest {
         assertEquals(1, cache.getMemoryStoreSize());
 
         // remove last element inserted (is in memory store)
-        assertNotNull(cache.getMemoryStore().get("key4"));
+        assertTrue(((CompoundStore) cache.getStore()).unretrievedGet("key4") instanceof Element);
         cache.remove("key4");
         assertEquals(3, cache.getSize());
         assertEquals(3, cache.getDiskStoreSize());

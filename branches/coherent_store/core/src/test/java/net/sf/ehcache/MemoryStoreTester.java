@@ -105,38 +105,13 @@ public class MemoryStoreTester extends AbstractCacheTest {
      * @param evictionPolicy
      * @throws CacheException
      */
-    protected void createMemoryStore(MemoryStoreEvictionPolicy evictionPolicy) throws CacheException {
-        cache = new Cache("test", 12000, evictionPolicy, true, System.getProperty("java.io.tmpdir"), true, 60, 30, false, 60, null);
-        manager.addCache(cache);
-        store = cache.getMemoryStore();
-    }
-
-    /**
-     * Creates a cache with the given policy and adds it to the manager.
-     *
-     * @param evictionPolicy
-     * @throws CacheException
-     */
     protected void createMemoryOnlyStore(MemoryStoreEvictionPolicy evictionPolicy) throws CacheException {
+        manager.removeCache("testMemoryOnly");
         cache = new Cache("testMemoryOnly", 12000, evictionPolicy, false, System.getProperty("java.io.tmpdir"),
                 true, 60, 30, false, 60, null);
         manager.addCache(cache);
-        store = cache.getMemoryStore();
+        store = cache.getStore();
     }
-
-    /**
-     * Creates a cache with the given policy and adds it to the manager.
-     *
-     * @param evictionPolicy
-     * @throws CacheException
-     */
-    protected void createMemoryStore(MemoryStoreEvictionPolicy evictionPolicy, int memoryStoreSize) throws CacheException {
-        manager.removeCache("test");
-        cache = new Cache("test", memoryStoreSize, evictionPolicy, true, null, true, 60, 30, false, 60, null);
-        manager.addCache(cache);
-        store = cache.getMemoryStore();
-    }
-
 
     /**
      * Creates a cache with the given policy with a MemoryStore only and adds it to the manager.
@@ -148,7 +123,7 @@ public class MemoryStoreTester extends AbstractCacheTest {
         manager.removeCache("test");
         cache = new Cache("test", memoryStoreSize, evictionPolicy, false, null, true, 60, 30, false, 60, null);
         manager.addCache(cache);
-        store = cache.getMemoryStore();
+        store = cache.getStore();
     }
 
     /**
@@ -162,7 +137,7 @@ public class MemoryStoreTester extends AbstractCacheTest {
         manager.shutdown();
         manager = CacheManager.create(filePath);
         cache = manager.getCache(cacheName);
-        store = cache.getMemoryStore();
+        store = cache.getStore();
     }
 
 
@@ -453,7 +428,7 @@ public class MemoryStoreTester extends AbstractCacheTest {
     public void testPutSpeed() throws Exception {
         cache = new Cache("testPutSpeed", 4000, false, true, 120, 120);
         manager.addCache(cache);
-        store = cache.getMemoryStore();
+        store = cache.getStore();
         final Long key = 0L;
         byte[] value = new byte[1];
         StopWatch stopWatch = new StopWatch();
@@ -734,7 +709,7 @@ public class MemoryStoreTester extends AbstractCacheTest {
     public void testShrinkingAndGrowingMemoryStore() {
         cache = new Cache("testShrinkingAndGrowingMemoryStore", 50, false, true, 120, 120);
         manager.addCache(cache);
-        store = cache.getMemoryStore();
+        store = cache.getStore();
 
         if (!(store instanceof MemoryStore)) {
             LOG.info("Skipping Growing/Shrinking Memory Store Test - Store is not a subclass of MemoryStore!");

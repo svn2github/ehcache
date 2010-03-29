@@ -97,11 +97,8 @@ public class CapacityLimitedInMemoryFactory implements IdentityElementSubstitute
     
     private void evict(int n, Object keyHint) {
         for (int i = 0; i < n; i++) {
-            List<Element> sample = boundStore.getRandomSample(this, SAMPLE_SIZE, keyHint);
-            Element target = policy.selectedBasedOnPolicy(sample.toArray(new Element[sample.size()]), null);
+            Element target = getEvictionTarget(keyHint);
             if (target == null) {
-//                System.err.println("Eviction Selected null Target");
-//                System.err.println(sample);
                 continue;
             }
             if (secondary == null) {
@@ -119,6 +116,11 @@ public class CapacityLimitedInMemoryFactory implements IdentityElementSubstitute
         }
     }
 
+    private Element getEvictionTarget(Object keyHint) {
+        List<Element> sample = boundStore.getRandomSample(this, SAMPLE_SIZE, keyHint);
+        return policy.selectedBasedOnPolicy(sample.toArray(new Element[sample.size()]), null);
+    }
+    
     /**
      * {@inheritDoc}
      */
