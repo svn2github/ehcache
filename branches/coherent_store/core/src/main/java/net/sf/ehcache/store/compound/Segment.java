@@ -84,6 +84,11 @@ class Segment extends ReentrantReadWriteLock {
      */
     private int threshold;
 
+    private final boolean copyOnRead;
+    private final boolean copyOnWrite;
+
+    private final CopyStrategy copyStrategy;
+
     /**
      * Create a Segment with the given initial capacity, load factor, and primary element substitute factory.  If the primary factory is not an
      * identity element substitute factory then it will be assumed that there is no identity element substitute factory.
@@ -113,11 +118,40 @@ class Segment extends ReentrantReadWriteLock {
      * @param identity identity element substitute factory
      */
     Segment(int initialCapacity, float loadFactor, InternalElementSubstituteFactory primary, IdentityElementSubstituteFactory identity) {
+        this(initialCapacity, loadFactor, primary, identity, false, false, null);
+    }
+    
+    /**
+     * Create a Segment with the given initial capacity, load-factor, primary element substitute factory, and identity element substitute factory.
+     * <p>
+     * An identity element substitute factory is specified at construction time because only one subclass of IdentityElementProxyFactory
+     * can be used with a Segment.  Without this requirement the mapping between bare {@link Element} instances and the factory
+     * responsible for them would be ambiguous.
+     * <p>
+     * If a <code>null</code> identity element substitute factory is specified then encountering a raw element (i.e. as a result of using an
+     * identity element substitute factory) will result in a null pointer exception during decode.
+     *
+     * @param initialCapacity initial capacity of store
+     * @param loadFactor fraction of capacity at which rehash occurs
+     * @param primary primary element substitute factory
+     * @param identity identity element substitute factory
+     * @param copyOnRead true should we copy Elements on reads, otherwise false
+     * @param copyOnWrite true should we copy Elements on writes, otherwise false
+     * @param copyStrategy the strategy to use to copy (can't be null if copyOnRead or copyOnWrite is true)
+     */
+    Segment(int initialCapacity, float loadFactor, InternalElementSubstituteFactory primary, IdentityElementSubstituteFactory identity, 
+            boolean copyOnRead, boolean copyOnWrite, final CopyStrategy copyStrategy) {
         this.table = new HashEntry[initialCapacity];
         this.threshold = (int) (table.length * loadFactor);
         this.modCount = 0;
         this.primaryFactory = primary;
         this.identityFactory = identity;
+        this.copyOnRead = copyOnRead;
+        this.copyOnWrite = copyOnWrite;
+        if((copyOnRead || copyOnWrite) && copyStrategy == null) {
+            throw new NullPointerException("You need to provide a non-null CopyStrategy if copyOnRead or copyOnWrite is set to true!");
+        }
+        this.copyStrategy = copyStrategy;
     }
     
     private HashEntry getFirst(int hash) {
@@ -126,14 +160,26 @@ class Segment extends ReentrantReadWriteLock {
     }
     
     private Element decode(Object key, Object object) {
+        Element element;
         if (object instanceof Element) {
-            return identityFactory.retrieve(key, object);
+            element = identityFactory.retrieve(key, object);
         } else {
             InternalElementSubstituteFactory factory = ((ElementSubstitute) object).getFactory();
-            return factory.retrieve(key, object);
+            element = factory.retrieve(key, object);
         }
+        return potentiallyCopy(element, copyOnRead);
     }
-    
+
+    private Element potentiallyCopy(final Element value, final boolean copy) {
+        Element newValue = null;
+        if (copy) {
+            newValue = copyStrategy.copy(value);
+        } else {
+            newValue = value;
+        }
+        return newValue;
+    }
+
     private void free(Object object) {
         if (object instanceof Element) {
             identityFactory.free(writeLock(), object);
@@ -257,7 +303,7 @@ class Segment extends ReentrantReadWriteLock {
      * @return <code>true</code> on a successful replace
      */
     boolean replace(Object key, int hash, Element oldElement, Element newElement) {
-        Object encoded = primaryFactory.create(key, newElement);
+        Object encoded = create(key, newElement);
         
         writeLock().lock();
         try {
@@ -285,7 +331,11 @@ class Segment extends ReentrantReadWriteLock {
             writeLock().unlock();
         }
     }
-    
+
+    private Object create(final Object key, final Element newElement) {
+        return primaryFactory.create(key, potentiallyCopy(newElement, copyOnWrite));
+    }
+
     /**
      * Replace the entry for this key only if currently mapped to some element.
      * 
@@ -295,7 +345,7 @@ class Segment extends ReentrantReadWriteLock {
      * @return previous element mapped to this key 
      */
     Element replace(Object key, int hash, Element newElement) {
-        Object encoded = primaryFactory.create(key, newElement);
+        Object encoded = create(key, newElement);
         
         writeLock().lock();
         try {
@@ -334,7 +384,7 @@ class Segment extends ReentrantReadWriteLock {
      * @return previous element mapped to this key
      */
     Element put(Object key, int hash, Element element, boolean onlyIfAbsent) {
-        Object encoded = primaryFactory.create(key, element);
+        Object encoded = create(key, element);
         
         writeLock().lock();
         try {

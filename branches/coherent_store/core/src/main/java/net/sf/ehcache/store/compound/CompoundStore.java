@@ -72,11 +72,24 @@ public abstract class CompoundStore implements Store {
      * @param identity factory which performs identity substitution
      */
     public CompoundStore(InternalElementSubstituteFactory<?> primary, IdentityElementSubstituteFactory identity) {
+        this(primary, identity, false, false, null);
+    }
+    /**
+     * Create a CompoundStore using the supplied primary, and designated identity factory.
+     *
+     * @param primary factory which new elements are passed through
+     * @param identity factory which performs identity substitution
+     * @param copyOnRead true should we copy Elements on reads, otherwise false
+     * @param copyOnWrite true should we copy Elements on writes, otherwise false
+     * @param copyStrategy the strategy to copy elements (needs to be non null if copyOnRead or copyOnWrite is true)
+     */
+    public CompoundStore(InternalElementSubstituteFactory<?> primary, IdentityElementSubstituteFactory identity,
+                         boolean copyOnRead, boolean copyOnWrite, CopyStrategy copyStrategy) {
         this.segments = new Segment[DEFAULT_SEGMENT_COUNT];
         this.segmentShift = Integer.numberOfLeadingZeros(segments.length - 1);
 
         for (int i = 0; i < this.segments.length; ++i) {
-            this.segments[i] = new Segment(DEFAULT_INITIAL_CAPACITY, DEFAULT_LOAD_FACTOR, primary, identity);
+            this.segments[i] = new Segment(DEFAULT_INITIAL_CAPACITY, DEFAULT_LOAD_FACTOR, primary, identity, copyOnRead, copyOnWrite, copyStrategy);
         }
         
         this.primary = primary;

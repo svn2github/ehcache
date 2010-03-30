@@ -19,6 +19,8 @@ package net.sf.ehcache.config;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.event.NotificationScope;
 import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
+import net.sf.ehcache.store.compound.CopyStrategy;
+import net.sf.ehcache.store.compound.SerializationCopyStrategy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -242,6 +244,7 @@ public class CacheConfiguration implements Cloneable {
     private volatile boolean frozen;
     private TransactionalMode transactionalMode = TransactionalMode.OFF;
     private volatile boolean statistics = true;
+    private SerializationCopyStrategy defaultCopyStrategy = new SerializationCopyStrategy();
 
     /**
      * Default constructor that can only be used by classes in this package.
@@ -743,6 +746,11 @@ public class CacheConfiguration implements Cloneable {
      */
     public boolean isFrozen() {
       return frozen;
+    }
+
+    public CopyStrategy getCopyStrategy() {
+        // todo really make this pluggable through config!
+        return defaultCopyStrategy;
     }
 
     /**

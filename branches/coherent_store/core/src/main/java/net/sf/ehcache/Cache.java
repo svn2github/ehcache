@@ -961,9 +961,9 @@ public class Cache implements Ehcache {
             }
 
             if (configuration.isTransactional()) {
-                if (!configuration.isTerracottaClustered()
-                    || configuration.getTerracottaConfiguration().getValueMode() == TerracottaConfiguration.ValueMode.IDENTITY) {
-                    throw new CacheException("To be transactional, the cache needs to be Terracotta clustered in Serialization value mode");
+                if (configuration.isTerracottaClustered()
+                    && configuration.getTerracottaConfiguration().getValueMode() != TerracottaConfiguration.ValueMode.SERIALIZATION) {
+                    throw new CacheException("To be transactional, a Terracotta clustered cache needs to be in Serialization value mode");
                 }
 
                 TransactionManager txnManager = transactionManagerLookup.getTransactionManager();
