@@ -22,17 +22,8 @@ ehcache-2.0.1
         <action dev="Alex Snaps" type="fix" issue="EHC-642">
             EhcacheXAResourceImpl.equals is only based on Cache's name
         </action>
-        <action dev="Ludovic Orban" type="fix" issue="EHC-606">
-            ehcache-web cannot handle headers with non-integer value
-        </action>
-        <action dev="Ludovic Orban" type="fix" issue="EHC-589">
-            Hard-coded cacheName in SimplePageFragmentCachingFilter
-        </action>
-        <action dev="Ludovic Orban" type="fix" issue="EHC-586">
-            CachingFilter short-circuits body/entity data of non-200 responses
-        </action>
-        <action dev="Hung Huynh" type="fix" issue="EHC-447">
-            Fix response already committed issue with Weblogic
+        <action dev="Greg Luck" type="fix" issue="EHC-665">
+            Default constructor for CacheConfiguration was removed in 2.0. Put back.
         </action>
     </release>
 
