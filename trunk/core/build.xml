@@ -192,7 +192,9 @@
         <copy todir="${build.dir}/site">
             <fileset dir="src/main/config"/>
         </copy>
-        <antcall target="copy-ydoc" inheritall="true"/>
+        <copy todir="${build.dir}/site/documentation/javadoc">
+            <fileset dir="${build.dir}/site/apidocs"/>
+        </copy>
     </target>
 
     <target name="unhide_html" description="extra site processing">

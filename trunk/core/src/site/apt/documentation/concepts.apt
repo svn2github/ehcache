@@ -7,14 +7,14 @@
 
 * Key Ehcache Classes
 
-[javadoc/net/sf/ehcache/package] Top Level Package Diagram
+[javadoc/net/sf/ehcache/package.png] Top Level Package Diagram
 
     Ehcache consists of a <<<CacheManager>>>, which manages caches. Caches contain elements,
     which are essentially name value pairs. Caches are physically implemented either in-memory, or on disk.
 
 ** {CacheManager}
 
-[javadoc/net/sf/ehcache/CacheManager] CacheManager Class Diagram
+[javadoc/net/sf/ehcache/CacheManager.png] CacheManager Class Diagram
 
     The <<<CacheManager>>> comprises Caches which in turn comprise Elements.
 
@@ -57,7 +57,7 @@
 
 ** {Ehcache}
 
-[javadoc/net/sf/ehcache/Ehcache] Ehcache Interface Diagram
+[javadoc/net/sf/ehcache/Ehcache.png] Ehcache Interface Diagram
 
     All caches implement the <<<Ehcache>>> interface. A cache has a name and attributes. Each cache contains Elements.
 
@@ -67,7 +67,7 @@
 
 ** {Element}
 
-[javadoc/net/sf/ehcache/Element] Element Class Diagram
+[javadoc/net/sf/ehcache/Element.png] Element Class Diagram
 
     An element is an atomic entry in a cache. It has a key, a value and a record of
     accesses. Elements are put into and removed from caches. They can also
