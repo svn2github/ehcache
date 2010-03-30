@@ -22,9 +22,6 @@ ehcache-2.0.1
         <action dev="Alex Snaps" type="fix" issue="EHC-642">
             EhcacheXAResourceImpl.equals is only based on Cache's name
         </action>
-        <action dev="Greg Luck" type="fix" issue="EHC-665">
-            Default constructor for CacheConfiguration was removed in 2.0. Put back.
-        </action>
     </release>
 
 ehcache-2.0.0
