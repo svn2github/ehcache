@@ -89,7 +89,8 @@ public abstract class CompoundStore implements Store {
         this.segmentShift = Integer.numberOfLeadingZeros(segments.length - 1);
 
         for (int i = 0; i < this.segments.length; ++i) {
-            this.segments[i] = new Segment(DEFAULT_INITIAL_CAPACITY, DEFAULT_LOAD_FACTOR, primary, identity, copyOnRead, copyOnWrite, copyStrategy);
+            this.segments[i] = new Segment(DEFAULT_INITIAL_CAPACITY, DEFAULT_LOAD_FACTOR, primary, identity,
+                copyOnRead, copyOnWrite, copyStrategy);
         }
         
         this.primary = primary;

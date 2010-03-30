@@ -148,7 +148,7 @@ class Segment extends ReentrantReadWriteLock {
         this.identityFactory = identity;
         this.copyOnRead = copyOnRead;
         this.copyOnWrite = copyOnWrite;
-        if((copyOnRead || copyOnWrite) && copyStrategy == null) {
+        if ((copyOnRead || copyOnWrite) && copyStrategy == null) {
             throw new NullPointerException("You need to provide a non-null CopyStrategy if copyOnRead or copyOnWrite is set to true!");
         }
         this.copyStrategy = copyStrategy;

@@ -748,6 +748,11 @@ public class CacheConfiguration implements Cloneable {
       return frozen;
     }
 
+    /**
+     * Getter to the CopyStrategy set in the config (really? how?).
+     * This will always return the same unique instance per cache
+     * @return the {@link CopyStrategy} for instance for this cache
+     */
     public CopyStrategy getCopyStrategy() {
         // todo really make this pluggable through config!
         return defaultCopyStrategy;

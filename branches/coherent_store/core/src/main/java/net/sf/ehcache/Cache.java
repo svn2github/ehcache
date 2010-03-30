@@ -36,8 +36,6 @@ import net.sf.ehcache.statistics.LiveCacheStatisticsWrapper;
 import net.sf.ehcache.statistics.sampled.SampledCacheStatistics;
 import net.sf.ehcache.statistics.sampled.SampledCacheStatisticsWrapper;
 import net.sf.ehcache.store.DiskStore;
-import net.sf.ehcache.store.LruMemoryStore;
-import net.sf.ehcache.store.MemoryStore;
 import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
 import net.sf.ehcache.store.Policy;
 import net.sf.ehcache.store.Store;
@@ -175,7 +173,7 @@ public class Cache implements Ehcache {
     private volatile CacheConfiguration configuration;
 
     /**
-     * The {@link MemoryStore} of this {@link Cache}. All caches have a memory store.
+     * The {@link import net.sf.ehcache.store.MemoryStore} of this {@link Cache}. All caches have a memory store.
      */
     private volatile Store compoundStore;
 
@@ -2040,7 +2038,7 @@ public class Cache implements Ehcache {
     /**
      * Gets the size of the cache. This is a subtle concept. See below.
      * <p/>
-     * The size is the number of {@link Element}s in the {@link MemoryStore}
+     * The size is the number of {@link Element}s in the {@link import net.sf.ehcache.store.MemoryStore}
      * plus the number of {@link Element}s in the {@link DiskStore}. However, if
      * the cache is Terracotta clustered, the underlying store has a coherent
      * view of the all the elements in the cache and doesn't have to be
