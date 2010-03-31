@@ -18,6 +18,7 @@ package net.sf.ehcache.store.compound.factories;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.concurrent.Callable;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReferenceFieldUpdater;
 import java.util.concurrent.locks.Lock;
@@ -156,6 +157,7 @@ public class DiskPersistentStorageFactory extends DiskStorageFactory<ElementSubs
             //don't really do this!!!
             delete();
             //schedule index file write
+            new DiskFlushTask().call();
         } catch (IOException e) {
             LOG.error("Could not shut down disk cache. Initial cause was " + e.getMessage(), e);
         }
@@ -270,5 +272,30 @@ public class DiskPersistentStorageFactory extends DiskStorageFactory<ElementSubs
     
     public int getOnDiskSize() {
         return onDisk.get();
+    }
+
+    class DiskFlushTask implements Callable<Void> {
+
+        public Void call() {
+            //lock all segments
+            try {
+                for (Object key : store.keySet()) {
+                    Object o = store.unretrievedGet(key);
+                    if (o instanceof Placeholder) {
+                        //run the disk write task inline here
+                    }
+                    if (o instanceof CachingDiskMarker) {
+                        ((CachingDiskMarker) o).flush();
+                    }
+
+                    //write stuff out to disk here
+                    //key, value pairs
+                }
+            } finally {
+                //unlock all segments
+            }
+            return null;
+        }
+        
     }
 }

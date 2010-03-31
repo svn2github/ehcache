@@ -585,13 +585,11 @@ class Segment extends ReentrantReadWriteLock {
                         if (e.casElement(expect, fault)) {
                             free(expect);
                             return true;
-                        } else {
-                            free(fault);
-                            return false;
                         }
                     }
                 }
             }
+            free(fault);
             return false;
         } finally {
             readLock().unlock();

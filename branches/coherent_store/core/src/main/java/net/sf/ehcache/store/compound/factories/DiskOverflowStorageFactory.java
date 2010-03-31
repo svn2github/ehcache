@@ -190,12 +190,11 @@ public class DiskOverflowStorageFactory extends DiskStorageFactory<ElementSubsti
 
     private void evict(int n, Object keyHint) {
         for (int i = 0; i < n; i++) {
-            List<ElementSubstitute> sample = store.getRandomSample(filter, SAMPLE_SIZE, keyHint);
-            if (sample.isEmpty()) {
+            ElementSubstitute target = getEvictionTarget(keyHint);
+            if (target == null) {
                 continue;
             }
             
-            ElementSubstitute target = sample.get(0);
             if (target instanceof Placeholder) {
                 Placeholder p = (Placeholder) target;
                 store.evict(p.key, p);
@@ -204,6 +203,26 @@ public class DiskOverflowStorageFactory extends DiskStorageFactory<ElementSubsti
                 store.evict(m.getKey(), m);
             }
         }
+    }
+    
+    private ElementSubstitute getEvictionTarget(Object keyHint) {
+        List<ElementSubstitute> sample = store.getRandomSample(filter, SAMPLE_SIZE, keyHint);
+        ElementSubstitute target = null;
+        long hitCount = Long.MAX_VALUE;
+        for (ElementSubstitute substitute : sample) {
+            if (substitute instanceof DiskStorageFactory.DiskMarker) {
+                if (target == null || ((DiskMarker) substitute).getHitCount() < hitCount) {
+                    target = substitute;
+                    hitCount = ((DiskMarker) substitute).getHitCount();
+                }
+            } else {
+                if (target == null || ((Placeholder) substitute).element.getHitCount() < hitCount) {
+                    target = substitute;
+                    hitCount = ((Placeholder) substitute).element.getHitCount();
+                }
+            }
+        }
+        return target;
     }
     
     /**

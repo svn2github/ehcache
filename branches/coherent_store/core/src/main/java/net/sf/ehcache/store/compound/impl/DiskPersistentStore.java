@@ -16,6 +16,7 @@
 
 package net.sf.ehcache.store.compound.impl;
 
+import java.io.File;
 import java.io.IOException;
 
 import net.sf.ehcache.Cache;
@@ -124,5 +125,9 @@ public final class DiskPersistentStore extends CompoundStore implements CacheCon
 
     public void timeToLiveChanged(long oldTimeToLive, long newTimeToLive) {
         //no-op
+    }
+
+    public File getDataFile() {
+        return disk.getDataFile();
     }
 }

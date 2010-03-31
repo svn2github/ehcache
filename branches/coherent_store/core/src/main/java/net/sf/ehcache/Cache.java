@@ -2303,19 +2303,6 @@ public class Cache implements Ehcache {
     }
     
     /**
-     * Gets the internal DiskStore.
-     *
-     * @return the DiskStore referenced by this cache
-     * @throws IllegalStateException if the cache is not {@link Status#STATUS_ALIVE}
-     */
-    final Store getDiskStore() throws IllegalStateException {
-        checkStatus();
-//        return diskStore;
-        throw new UnsupportedOperationException();
-    }
-
-
-    /**
      * Use this to access the service in order to register and unregister listeners
      *
      * @return the RegisteredEventListeners instance for this cache.

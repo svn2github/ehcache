@@ -58,6 +58,8 @@ public abstract class CompoundStore implements Store {
 
     private volatile CacheLockProvider lockProvider;
 
+    private volatile Set<Object> keySet = null;
+    
     /**
      * Create a CompoundStore using the supplied factory as the primary factory.
      * 
@@ -158,7 +160,11 @@ public abstract class CompoundStore implements Store {
      * {@inheritDoc}
      */
     public Object[] getKeyArray() {
-        return new KeySet().toArray();
+        return keySet().toArray();
+    }
+    
+    public Set<Object> keySet() {
+        return keySet != null ? keySet : (keySet = new KeySet()); 
     }
     
     /**

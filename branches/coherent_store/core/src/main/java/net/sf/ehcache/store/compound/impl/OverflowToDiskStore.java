@@ -16,6 +16,7 @@
 
 package net.sf.ehcache.store.compound.impl;
 
+import java.io.File;
 import java.io.IOException;
 
 import net.sf.ehcache.Cache;
@@ -234,5 +235,9 @@ public final class OverflowToDiskStore extends CompoundStore implements CacheCon
      */
     public int getTerracottaClusteredSize() {
         return 0;
+    }
+    
+    public File getDataFile() {
+        return diskFactory.getDataFile();
     }
 }

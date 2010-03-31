@@ -289,6 +289,10 @@ abstract class DiskStorageFactory<T extends ElementSubstitute> implements Elemen
         return diskQueue.size() > 10000;
     }
     
+    public File getDataFile() {
+        return file;
+    }
+    
     /**
      * DiskMarker instances point to the location of their
      * associated serialized Element instance.
@@ -331,6 +335,13 @@ abstract class DiskStorageFactory<T extends ElementSubstitute> implements Elemen
             return key;
         }
 
+        /**
+         * Number of hits on this Element.
+         */
+        long getHitCount() {
+            return hitCount;
+        }
+        
         /**
          * Disk offset at which this element is stored.
          * 
