@@ -36,6 +36,11 @@
     <suppress checks="StrictDuplicateCode" files="EhCacheReadWriteCache.java"/>
     <suppress checks="StrictDuplicateCode" files="EhCacheNonstrictReadWriteCache.java"/>
 
+    <suppress checks="StrictDuplicateCode" files="TransactionalCollectionRegion.java"/>
+    <suppress checks="StrictDuplicateCode" files="TransactionalCollectionRegionAccessStrategy.java"/>
+    <suppress checks="StrictDuplicateCode" files="TransactionalEntityRegion.java"/>
+    <suppress checks="StrictDuplicateCode" files="TransactionalEntityRegionAccessStrategy.java"/>
+
     <!--Tests-->
     <suppress checks="StrictDuplicateCode" files="NullCountingCacheLoader.java" />
     <suppress checks="StrictDuplicateCode" files="CountingCacheLoader.java" />
