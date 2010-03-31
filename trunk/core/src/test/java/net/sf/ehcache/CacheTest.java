@@ -52,6 +52,7 @@ import net.sf.ehcache.loader.ExceptionThrowingLoader;
 import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
 
 import org.junit.After;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -2758,4 +2759,45 @@ public class CacheTest extends AbstractCacheTest {
         Element e2 = cache.get("key");
         assertNotNull(e2);
     }
+
+    /**
+     * Versioning is broken when updates are done. If an Element constructor specifying a version is used, it should
+     * be preserved. If not the version should start at one and then be incremented.
+     *
+     * todo This test fails. When the implementation is corrected it will pass. This test is therefore currently marked @Ignore
+     *
+     * See EHC-666
+     */
+    @Test
+    @Ignore
+    public void testVersioningShouldBePreserved() {
+
+        CacheManager cacheManager = CacheManager.getInstance();
+        cacheManager.addCache(new Cache("mltest", 50, MemoryStoreEvictionPolicy.LRU, true, null, true, 0, 0, false, 120, null, null, 0, 2, false));
+        Cache cache = cacheManager.getCache("mltest");
+
+        Element a = new Element("a key", "a value", 1L);
+        cache.put(a);
+        Element aAfter = cache.get("a key");
+        assertEquals(1L, aAfter.getVersion());
+
+        LOG.info("Element after first put with specific version." + aAfter);
+
+        //A second put of the same key, where the version is not explicitly mentioned, gets updated by the cache.
+        Element b = new Element("a key", "a value");
+        cache.put(b);
+        Element bAfter = cache.get("a key");
+        assertFalse(1L == bAfter.getVersion());
+        LOG.info("Element after second put. No version." + bAfter);
+
+        //Explicit Version should be preserved
+        Element c = new Element("a key", "a value", 3L);
+        cache.put(c);
+        LOG.info("Element after third put with specific version." + cache.get("a key"));
+        Element cAfter = cache.get("a key");
+        assertEquals(3L, cAfter.getVersion());
+
+    }
+
 }
+
