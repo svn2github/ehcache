@@ -1210,7 +1210,7 @@ public class DiskStoreTest extends AbstractCacheTest {
      * <p/>
      * Slow tests
      */
-    //@Test
+    @Test
     public void testMaximumCacheEntriesIn64MBWithOverflowToDisk() throws Exception {
 
         Cache cache = new Cache("test", 1000, MemoryStoreEvictionPolicy.LRU, true, null, true, 500, 500, false, 1, null);
