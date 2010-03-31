@@ -21,9 +21,11 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.Lock;
 
 import net.sf.ehcache.Element;
+import net.sf.ehcache.event.RegisteredEventListeners;
 import net.sf.ehcache.store.Policy;
 
 import net.sf.ehcache.store.compound.ElementSubstitute;
+import net.sf.ehcache.store.compound.ElementSubstituteFilter;
 import net.sf.ehcache.store.compound.IdentityElementSubstituteFactory;
 import net.sf.ehcache.store.compound.CompoundStore;
 import net.sf.ehcache.store.compound.factories.DiskOverflowStorageFactory.Placeholder;
@@ -40,6 +42,12 @@ public class CapacityLimitedInMemoryFactory implements IdentityElementSubstitute
     
     private final AtomicInteger count = new AtomicInteger();
     private final DiskOverflowStorageFactory secondary;
+    private final RegisteredEventListeners eventService;
+    private final ElementSubstituteFilter<Element> filter = new ElementSubstituteFilter<Element>() {
+        public boolean allows(Object object) {
+            return created(object);
+        }
+    };
     
     private volatile CompoundStore boundStore;
     private volatile int capacity;
@@ -52,13 +60,15 @@ public class CapacityLimitedInMemoryFactory implements IdentityElementSubstitute
      * @param capacity maximum capacity
      * @param policy policy to use on eviction
      */
-    public CapacityLimitedInMemoryFactory(DiskOverflowStorageFactory secondary, int capacity, Policy policy) {
+    public CapacityLimitedInMemoryFactory(DiskOverflowStorageFactory secondary, int capacity,
+            Policy policy, RegisteredEventListeners eventService) {
         this.secondary = secondary;
         if (secondary != null) {
             this.secondary.primary(this);
         }
         this.capacity = capacity;
         this.policy = policy;
+        this.eventService = eventService;
     }
 
     /**
@@ -101,8 +111,14 @@ public class CapacityLimitedInMemoryFactory implements IdentityElementSubstitute
             if (target == null) {
                 continue;
             }
-            if (secondary == null) {
-                boundStore.evict(target.getObjectKey(), target);
+            if (target.isExpired()) {
+                if (boundStore.evict(target.getObjectKey(), target)) {
+                    eventService.notifyElementExpiry(target, false);
+                }
+            } else if (secondary == null) {
+                if (boundStore.evict(target.getObjectKey(), target)) {
+                    eventService.notifyElementEvicted(target, false);
+                }
             } else {
                 try {
                     ElementSubstitute substitute = secondary.create(target.getObjectKey(), target);
@@ -110,14 +126,16 @@ public class CapacityLimitedInMemoryFactory implements IdentityElementSubstitute
                         ((Placeholder) substitute).schedule();
                     }
                 } catch (IllegalArgumentException e) {
-                    boundStore.evict(target.getObjectKey(), target);
+                    if (boundStore.evict(target.getObjectKey(), target)) {
+                        eventService.notifyElementEvicted(target, false);
+                    }
                 }
             }
         }
     }
 
     private Element getEvictionTarget(Object keyHint) {
-        List<Element> sample = boundStore.getRandomSample(this, SAMPLE_SIZE, keyHint);
+        List<Element> sample = boundStore.getRandomSample(filter, SAMPLE_SIZE, keyHint);
         return policy.selectedBasedOnPolicy(sample.toArray(new Element[sample.size()]), null);
     }
     

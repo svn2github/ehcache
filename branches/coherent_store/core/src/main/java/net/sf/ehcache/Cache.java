@@ -40,6 +40,7 @@ import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
 import net.sf.ehcache.store.Policy;
 import net.sf.ehcache.store.Store;
 import net.sf.ehcache.store.XATransactionalStore;
+import net.sf.ehcache.store.compound.impl.DiskPersistentStore;
 import net.sf.ehcache.store.compound.impl.MemoryOnlyStore;
 import net.sf.ehcache.store.compound.impl.OverflowToDiskStore;
 import net.sf.ehcache.transaction.manager.TransactionManagerLookup;
@@ -949,7 +950,7 @@ public class Cache implements Ehcache {
                     throw new UnsupportedOperationException();
                 } else {
                     if (configuration.isDiskPersistent()) {
-                        store = MemoryOnlyStore.create(this, diskStorePath);
+                        store = DiskPersistentStore.create(this, diskStorePath);
                     } else if (configuration.isOverflowToDisk()) {
                         store = OverflowToDiskStore.create(this, diskStorePath);
                     } else {

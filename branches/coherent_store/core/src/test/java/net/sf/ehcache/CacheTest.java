@@ -1163,6 +1163,7 @@ public class CacheTest extends AbstractCacheTest {
             cache.put(new Element("key" + i, "value1"));
         }
 
+        Thread.sleep(1000);
 
         assertEquals(10010, cache.getSize());
         assertEquals(10000, cache.getMemoryStoreSize());
@@ -1172,6 +1173,8 @@ public class CacheTest extends AbstractCacheTest {
         Thread.sleep(15);
         cache.put(new Element(new Object(), Object.class));
 
+        Thread.sleep(1000);
+        
         assertEquals(10011, cache.getSize());
         assertEquals(11, cache.getDiskStoreSize());
         assertEquals(10000, cache.getMemoryStoreSize());
@@ -1594,7 +1597,7 @@ public class CacheTest extends AbstractCacheTest {
         assertEquals(0, cache.getMemoryStoreSize());
 
         // remove key1 element
-        assertNotNull(cache.getDiskStore().get("key1"));
+        assertFalse(((CompoundStore) cache.getStore()).unretrievedGet("key1") instanceof Element);
         cache.remove("key1");
         assertEquals(2, cache.getSize());
         assertEquals(2, cache.getDiskStoreSize());

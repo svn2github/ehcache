@@ -24,6 +24,7 @@ import net.sf.ehcache.MemoryStoreTester;
 import net.sf.ehcache.Statistics;
 import net.sf.ehcache.StopWatch;
 import net.sf.ehcache.store.compound.CompoundStore;
+import net.sf.ehcache.store.compound.ElementSubstituteFilter;
 import net.sf.ehcache.store.compound.IdentityElementSubstituteFactory;
 import net.sf.ehcache.store.compound.factories.CapacityLimitedInMemoryFactory;
 import static org.junit.Assert.assertEquals;
@@ -313,30 +314,9 @@ public class LfuMemoryStoreTest extends MemoryStoreTester {
 
     }
 
-    private static final IdentityElementSubstituteFactory DUMMY = new IdentityElementSubstituteFactory() {
-        
-        public void unbind(CompoundStore store) {
-            //no-op
-        }
-        
-        public Element retrieve(Object key, Element object) {
-            return null;
-        }
-        
-        public void free(Lock exclusion, Element object) {
-            //no-op
-        }
-        
-        public boolean created(Object object) {
+    private static final ElementSubstituteFilter<Element> IDENTITY_FILTER = new ElementSubstituteFilter<Element>() {
+        public boolean allows(Object object) {
             return object instanceof Element;
-        }
-        
-        public Element create(Object key, Element element) {
-            return null;
-        }
-        
-        public void bind(CompoundStore store) {
-            //no-op
         }
     };
     
@@ -351,12 +331,12 @@ public class LfuMemoryStoreTest extends MemoryStoreTester {
         List<Element> elements = null;
         for (int i = 0; i < 10; i++) {
             store.put(new Element("" + i, new Date()));
-            elements = ((CompoundStore) store).getRandomSample(DUMMY, i + 1, new Object());
+            elements = ((CompoundStore) store).getRandomSample(IDENTITY_FILTER, i + 1, new Object());
         }
 
         for (int i = 10; i < 2000; i++) {
             store.put(new Element("" + i, new Date()));
-            elements = ((CompoundStore) store).getRandomSample(DUMMY, 10, new Object());
+            elements = ((CompoundStore) store).getRandomSample(IDENTITY_FILTER, 10, new Object());
             assertTrue(elements.size() >= 10);
             assertTrue(elements.size() <= 13);
         }

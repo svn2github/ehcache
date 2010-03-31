@@ -33,6 +33,7 @@ import net.sf.ehcache.Element;
 import net.sf.ehcache.store.compound.ElementSubstitute;
 import net.sf.ehcache.store.compound.ElementSubstituteFactory;
 import net.sf.ehcache.store.compound.CompoundStore;
+import net.sf.ehcache.store.compound.ElementSubstituteFilter;
 
 /**
  * A factory that stores elements on disk in their serialized form.
@@ -46,9 +47,14 @@ public class DiskOverflowStorageFactory extends DiskStorageFactory<ElementSubsti
     
     private static final Logger                     LOG   = LoggerFactory.getLogger(DiskOverflowStorageFactory.class);
 
+    private final ElementSubstituteFilter<ElementSubstitute> filter = new ElementSubstituteFilter<ElementSubstitute>() {
+        public boolean allows(Object object) {
+            return created(object);
+        }
+    };
+    
     private final AtomicInteger                     count = new AtomicInteger();
 
-    private volatile CompoundStore                  store;
     private volatile CapacityLimitedInMemoryFactory memory;
 
     private volatile int                            capacity;
@@ -60,7 +66,8 @@ public class DiskOverflowStorageFactory extends DiskStorageFactory<ElementSubsti
      * @param diskPath path to store data in
      */
     public DiskOverflowStorageFactory(Ehcache cache, String diskPath) {
-        super(getDataFile(diskPath, cache));
+        super(getDataFile(diskPath, cache), cache.getCacheConfiguration().getDiskExpiryThreadIntervalSeconds(),
+                cache.getCacheEventNotificationService());
         this.capacity = cache.getCacheConfiguration().getMaxElementsOnDisk();
     }
 
@@ -172,13 +179,6 @@ public class DiskOverflowStorageFactory extends DiskStorageFactory<ElementSubsti
     /**
      * {@inheritDoc}
      */
-    public void bind(CompoundStore store) {
-        this.store = store;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
     public void unbind(CompoundStore localStore) {
         try {
             shutdown();
@@ -190,7 +190,7 @@ public class DiskOverflowStorageFactory extends DiskStorageFactory<ElementSubsti
 
     private void evict(int n, Object keyHint) {
         for (int i = 0; i < n; i++) {
-            List<ElementSubstitute> sample = store.getRandomSample(this, SAMPLE_SIZE, keyHint);
+            List<ElementSubstitute> sample = store.getRandomSample(filter, SAMPLE_SIZE, keyHint);
             if (sample.isEmpty()) {
                 continue;
             }

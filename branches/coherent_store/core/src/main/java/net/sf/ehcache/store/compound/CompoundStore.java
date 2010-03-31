@@ -39,6 +39,8 @@ import net.sf.ehcache.writer.CacheWriterManager;
 
 /**
  * Abstract compound store implementation.
+ * 
+ * @author Chris Dennis
  */
 public abstract class CompoundStore implements Store {
 
@@ -381,7 +383,7 @@ public abstract class CompoundStore implements Store {
      * @param keyHint a key on which we are currently working
      * @return list of sampled elements/element substitute
      */
-    public <T> List<T> getRandomSample(InternalElementSubstituteFactory<T> factory, int sampleSize, Object keyHint) {
+    public <T> List<T> getRandomSample(ElementSubstituteFilter<T> factory, int sampleSize, Object keyHint) {
         ArrayList<T> sampled = new ArrayList<T>(sampleSize);
         
         // pick a random starting point in the map

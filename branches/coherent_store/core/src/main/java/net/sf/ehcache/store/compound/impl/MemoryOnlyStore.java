@@ -56,7 +56,7 @@ public final class MemoryOnlyStore extends CompoundStore implements CacheConfigu
     public static MemoryOnlyStore create(Cache cache, String diskStorePath) {
         CacheConfiguration config = cache.getCacheConfiguration();
         CapacityLimitedInMemoryFactory memory = new CapacityLimitedInMemoryFactory(null, config.getMaxElementsInMemory(),
-                determineEvictionPolicy(config));
+                determineEvictionPolicy(config), cache.getCacheEventNotificationService());
         MemoryOnlyStore store = new MemoryOnlyStore(memory, config);
         cache.getCacheConfiguration().addConfigurationListener(store);
         return store;

@@ -29,10 +29,8 @@ import java.util.ConcurrentModificationException;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
@@ -40,6 +38,8 @@ import org.slf4j.LoggerFactory;
 
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Element;
+import net.sf.ehcache.event.RegisteredEventListeners;
+import net.sf.ehcache.store.compound.CompoundStore;
 import net.sf.ehcache.store.compound.ElementSubstitute;
 import net.sf.ehcache.store.compound.ElementSubstituteFactory;
 import net.sf.ehcache.util.MemoryEfficientByteArrayOutputStream;
@@ -54,35 +54,43 @@ import static java.util.concurrent.TimeUnit.MILLISECONDS;
  */
 abstract class DiskStorageFactory<T extends ElementSubstitute> implements ElementSubstituteFactory<T> {
 
-    private static final String AUTO_DISK_PATH_DIRECTORY_PREFIX = "ehcache_auto_created";
+    protected static final String AUTO_DISK_PATH_DIRECTORY_PREFIX = "ehcache_auto_created";
     private static final int SERIALIZATION_CONCURRENCY_DELAY = 250;
     private static final int SHUTDOWN_GRACE_PERIOD = 60;
     
     private static final Logger LOG = LoggerFactory.getLogger(DiskStorageFactory.class.getName());
 
-    private final BlockingQueue<Runnable> diskQueue = new LinkedBlockingQueue<Runnable>(); 
+    private final BlockingQueue<Runnable> diskQueue; 
     /**
      * Executor service used to write elements to disk
      */
-    private final ExecutorService diskWriter = new ThreadPoolExecutor(1, 1, 10, TimeUnit.SECONDS, diskQueue);
+    private final ScheduledThreadPoolExecutor diskWriter = new ScheduledThreadPoolExecutor(1);
     
     private final File             file;
     private final RandomAccessFile data;
 
     private final Collection<DiskMarker> freeChunks = new ConcurrentLinkedQueue<DiskMarker>();
 
+    private final RegisteredEventListeners eventService;
+    
+    protected volatile CompoundStore                  store;
+    
     /**
      * Constructs a disk storage factory using the given data file.
      * 
      * @param dataFile
      */
-    DiskStorageFactory(File dataFile) {
+    DiskStorageFactory(File dataFile, long expiryInterval, RegisteredEventListeners eventService) {
         this.file = dataFile;
         try {
             data = new RandomAccessFile(file, "rw");
         } catch (FileNotFoundException e) {
             throw new CacheException(e);
         }
+        this.diskQueue = diskWriter.getQueue();
+        this.eventService = eventService;
+        
+        diskWriter.scheduleWithFixedDelay(new DiskExpiryTask(), expiryInterval, expiryInterval, TimeUnit.SECONDS);
     }
     
     /**
@@ -97,6 +105,13 @@ abstract class DiskStorageFactory<T extends ElementSubstitute> implements Elemen
                 return 0;
             }
         }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void bind(CompoundStore store) {
+        this.store = store;
     }
 
     /**
@@ -237,7 +252,7 @@ abstract class DiskStorageFactory<T extends ElementSubstitute> implements Elemen
         for (DiskMarker marker : freeChunks) {
             if (marker.getCapacity() >= size) {
                 freeChunks.remove(marker);
-                return new DiskMarker(marker, element.getObjectKey(), size, element.getHitCount(), element.getExpirationTime());
+                return createMarker(marker, element.getObjectKey(), size, element.getHitCount(), element.getExpirationTime());
             }
         }
         
@@ -247,7 +262,15 @@ abstract class DiskStorageFactory<T extends ElementSubstitute> implements Elemen
             position = data.length();
             data.setLength(position + size);
         }
-        return new DiskMarker(element.getObjectKey(), position, size, element.getHitCount(), element.getExpirationTime());
+        return createMarker(element.getObjectKey(), position, size, element.getHitCount(), element.getExpirationTime());
+    }
+    
+    protected DiskMarker createMarker(DiskMarker previous, Object key, int size, long hitCount, long expiry) {
+        return new DiskMarker(previous, key, size, hitCount, expiry);
+    }
+    
+    protected DiskMarker createMarker(Object key, long position, int size, long hitCount, long expiry) {
+        return new DiskMarker(key, position, size, hitCount, expiry);
     }
     
     /**
@@ -270,7 +293,7 @@ abstract class DiskStorageFactory<T extends ElementSubstitute> implements Elemen
      * DiskMarker instances point to the location of their
      * associated serialized Element instance.
      */
-    final class DiskMarker implements ElementSubstitute {
+    class DiskMarker implements ElementSubstitute {
         
         private final Object key;
         
@@ -281,11 +304,11 @@ abstract class DiskStorageFactory<T extends ElementSubstitute> implements Elemen
         private final long hitCount;
         private final long expiry;
         
-        private DiskMarker(Object key, long position, int size, long hitCount, long expiry) {
+        DiskMarker(Object key, long position, int size, long hitCount, long expiry) {
             this(key, position, size, size, hitCount, expiry);
         }
         
-        private DiskMarker(DiskMarker from, Object key, int size, long hitCount, long expiry) {
+        DiskMarker(DiskMarker from, Object key, int size, long hitCount, long expiry) {
             this(key, from.getPosition(), from.getCapacity(), size, hitCount, expiry);
         }
         
@@ -343,6 +366,33 @@ abstract class DiskStorageFactory<T extends ElementSubstitute> implements Elemen
          */
         public DiskStorageFactory getFactory() {
             return DiskStorageFactory.this;
+        }
+    }
+    
+    final class DiskExpiryTask implements Runnable {
+
+        public void run() {
+            long now = System.currentTimeMillis();
+            for (Object key : store.getKeyArray()) {
+                Object value = store.unretrievedGet(key);
+                if (created(value) && value instanceof DiskStorageFactory.DiskMarker) {
+                    DiskMarker marker = (DiskMarker) value;
+                    if (marker.expiry < now) {
+                        if (eventService.hasCacheEventListeners()) {
+                            try {
+                                Element element = read(marker);
+                                if (store.evict(marker.getKey(), marker)) {
+                                    eventService.notifyElementExpiry(element, false);
+                                }
+                            } catch (Exception e) {
+                                continue;
+                            }
+                        } else {
+                            store.evict(marker.getKey(), marker);
+                        }
+                    }
+                }
+            }
         }
     }
 }
