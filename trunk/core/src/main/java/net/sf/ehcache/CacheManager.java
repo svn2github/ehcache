@@ -97,6 +97,11 @@ public class CacheManager {
     private static final long EVERY_WEEK = 7 * 24 * 60 * 60 * 1000;
 
     /**
+     * delay period before doing update check
+     */
+    private static final long DELAY_UPDATE_CHECK = 1000;
+
+    /**
      * The Singleton Instance.
      */
     private static volatile CacheManager singleton;
@@ -461,7 +466,7 @@ public class CacheManager {
         try {
             if (updateCheckNeeded) {
                 UpdateChecker updateChecker = new UpdateChecker();
-                cacheManagerTimer.scheduleAtFixedRate(updateChecker, 1, EVERY_WEEK);
+                cacheManagerTimer.scheduleAtFixedRate(updateChecker, DELAY_UPDATE_CHECK, EVERY_WEEK);
             }
         } catch (Throwable t) {
             LOG.debug("Failed to set up update checker", t);
