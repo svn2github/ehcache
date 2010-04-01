@@ -91,7 +91,7 @@
             <xs:attribute name="timeToIdleSeconds" type="xs:integer" use="optional"/>
             <xs:attribute name="timeToLiveSeconds" type="xs:integer" use="optional"/>
             <xs:attribute name="maxElementsOnDisk" type="xs:integer" use="optional"/>
-            <xs:attribute default="off" name="transactionalMode" type="transactionalMode" use="optional"/>
+            <xs:attribute name="transactionalMode" type="transactionalMode" use="optional" default="off"/>
             <xs:attribute name="statistics" type="xs:boolean" use="optional" default="true"/>
         </xs:complexType>
     </xs:element>
@@ -119,7 +119,7 @@
             <xs:attribute name="timeToIdleSeconds" type="xs:integer" use="optional"/>
             <xs:attribute name="timeToLiveSeconds" type="xs:integer" use="optional"/>
             <xs:attribute name="maxElementsOnDisk" type="xs:integer" use="optional"/>
-            <xs:attribute default="off" name="transactionalMode" type="transactionalMode" use="optional"/>
+            <xs:attribute name="transactionalMode" type="transactionalMode" use="optional" default="off" />
             <xs:attribute name="statistics" type="xs:boolean" use="optional" default="true"/>
         </xs:complexType>
     </xs:element>

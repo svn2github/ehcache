@@ -410,6 +410,10 @@ used with JMX monitors.
     whether the MemoryStore should be cleared when flush() is called on the cache.
     By default, this is true i.e. the MemoryStore is cleared.
 
+    statistics:
+    Whether to collect statistics. Ehcache runs twice as slow with statistics turned on.
+    By default they are on. To disable set statistics="false"
+
     memoryStoreEvictionPolicy:
     Policy would be enforced upon reaching the maxElementsInMemory limit. Default
     policy is Least Recently Used (specified as LRU). Other policies available -
@@ -739,6 +743,7 @@ used with JMX monitors.
             diskPersistent="false"
             diskExpiryThreadIntervalSeconds="120"
             memoryStoreEvictionPolicy="LRU"
+            statistics="false"
             />
 
     <!--
