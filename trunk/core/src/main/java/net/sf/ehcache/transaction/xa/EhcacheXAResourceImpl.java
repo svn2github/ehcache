@@ -279,10 +279,6 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
             recoverySet.add(preparedXid);
         }
 
-        for (Xid preparedXid : xids) {
-            markContextForRollback(preparedXid);
-        }
-
         Xid[] toRecover = xids.toArray(new Xid[xids.size()]);
 
         if (isFlagSet(flags, TMENDRSCAN)) {
