@@ -1,0 +1,141 @@
+ ----
+ Ehcache - Performance At Any Scale
+ ---- 
+
+Ehcache Distributed Cache
+
+    Ehcache is an open source, standards-based cache used to boost performance, offload the database and simplify scalability.
+    Ehcache is robust, proven and full-featured and this has made it the most widely-used Java-based cache.
+
+    It can scale from in-process with one or more nodes through to a mixed in-process/out-of-process configuration with terabyte-sized caches.
+    For applications needing a coherent distributed cache, Ehcache uses the open source Terracotta Sever Array.
+    
+    Ehcache is actively developed, maintained and supported as a professional open source project by {{{http://terracotta.org}Terracotta, Inc.}}
+    and is available under an Apache 2 license.
+
+    In addition to the full-featured open source Ehcache edition, Terracotta offers enterprise editions of Ehcache with
+    24x7 Professional Support, Consulting, and Training services worldwide.
+
+    Ehcache is distributed in the following modules: 
+
+*----------+--------------+
+{{{./documentation/index.html}ehcache}} | a packaging of commonly used modules
+*----------+--------------+
+{{{./documentation/index.html}ehcache-core}} | Caching engine, RMI replication and Hibernate plugin
+*----------+--------------+
+{{{./documentation/distributed_caching_with_terracotta.html}ehcache-terracotta}} | Seamless integration with Terracotta clustering
+*----------+--------------+
+{{{./modules/monitor.html}ehcache-monitor (in beta)}} | _new_ Enterprise-class monitoring and management for development and production
+*----------+--------------+
+{{{./documentation/web_caching.html}ehcache-web}} | Java Servlet Container caching, gzipping filters
+*----------+--------------+
+{{{./documentation/remotedebugger.html}ehcache-debugger}} | Allows tracing of distributed replication events
+*----------+--------------+
+{{{./documentation/jsr107.html}ehcache-jcache}} | JSR107 JCACHE Implementation
+*----------+--------------+
+{{{./documentation/distributed_caching_with_jgroups.html}ehcache-jgroupsreplication}} | Replication via JGroups
+*----------+--------------+
+{{{./documentation/distributed_caching_with_jms.html}ehcache-jmsreplication}} | Replication via JMS
+*----------+--------------+
+{{{./documentation/openjpa_provider.html}ehcache-openjpa}} | Caching Plugin for OpenJPA
+*----------+--------------+
+{{{./documentation/cache_server.html}ehcache-server}} | RESTful cache server in a WAR or standalone
+*----------+--------------+
+{{{./documentation/explicitlocking.html}ehcache-explicitlocking}} | Explicit locking control with Terracotta
+*----------+--------------:
+
+* Latest News
+
+%{snippet|file=src/site/include/newsticker.html|verbatim=false}
+
+** 23 March 2010: Ehcache Server 1.0 released
+
+    Ehcache Server and Standalone Server have been released to Sourceforge Downloads. The server provides RESTful and SOAP
+    APIs to Ehcache. It is available as a WAR which works with all app servers, or standalone using Glassfish V3 embedded.
+
+    New in this release is integration with Terracotta Server Array for coherent, scalable and HA caching. Also the Ehcache
+    core has been upgraded to version 2.0, Jersey to 1.1.5, Metro to 2.1.5 and for standalone, Glassfish to V3 embedded.
+
+    This release has been {{{http://gregluck.com/blog/archives/2010/03/comparing-memcache-and-ehcache-server-performance/}performance tested against memcache}}
+     and gives comparable over-the-network performance. Coupled with the simplicity of coding in your HTTP client of choice in your programming language of choice
+     and easily getting the benefits of Terracotta Server Array backing it, this is a killer combination.
+
+     See the Ehcache Server {{{./documentation/cache_server.html}documentation}} to get started or {{{https://sourceforge.net/projects/ehcache/files/ehcache-server}download}} it now.
+
+    Due to an issue with external repository handling, these have not yet been released to Maven. Sonatype are completing
+    a project for Sun whereby they will be adding their artifacts to the Central repository. This is expected to be completed
+    this week or next, so the Maven artifacts will be released then.
+
+** 8 March 2010: Ehcache 2.0 released
+
+  Ehcache 2.0 provides a new {{{./documentation/hibernate.html}Hibernate 3.3 SPI caching plugin}}, {{{./documentation/jta.html}JTA}},
+  {{{./documentation/write_through_caching.html}Write-Behind}}, a new ultra-fast {{{./documentation/bulk_loading.html}Bulk Loading API}} for clustered caches.
+  and dynamic runtime cache reconfiguration.
+
+  Ehcache 2.0 is fully backward compatible with earlier versions of Ehcache.
+
+  The Terracotta Server Array ("TSA") has also been re-engineered to dovetail with Ehcache to provide these features
+  with cluster coherence, high availability and persistence.
+
+  This release also introduces some improvements to ehcache which reduce memory use (over 1.6 and 1.7) by the cache and improve
+  the eviction algorithms.
+
+  See the {{{http://ehcache.org/changes-report.html}changelog}} for complete details of ehcache-core changes.
+
+  To provide an indicator in the documentation on what is new in 2.0, you will this icon: new_in_2.
+
+** 3 February 2010: Ehcache 2.0 beta released
+
+  This is a preview of Ehcache 2.0, aka Project Darwin. Features are as per the GA release.
+
+** 11 January 2010: ehcache-1.8, ehcache-core-1.7.2 and ehcache-terracotta-1.8
+
+  This is a final GA release of ehcache comprising ehcache, ehcache-core and ehcache-terracotta modules.
+
+  This release contains some bug fixes to ehcache-core, but the notable change is the upgrade of the ehcache-terracotta
+  module to support Terracotta 3.2. Terracotta 3.2 is dramatically faster than 3.1. See the {{{http://ehcache.org/changes-report.html}changelog}} for complete details
+  of ehcache-core changes.
+
+  Note: If you experience different caching ergonomics you can enable the <<<LinkedHashMap>>> based engine with
+  <<<java -Dnet.sf.ehcache.use.classic.lru=true>>>. This is the engine enabled up to 1.5.
+
+** 22 December 2009: Ehcache OpenJPA plugin 0.2 released
+
+   Back in July we released the first plugin for OpenJPA. This version brings OpenJPA more into line with the Hibernate
+   plugin and more fully implements the OpenJPA API. As with all of the modules we are releasing, this version adds the option,
+   when paired with the ehcache-terracotta module of clustering via Terracotta.
+
+   See {{{./documentation/openjpa_provider.html}ehcache-openjpa}}.
+
+
+** 15 December 2009: Ehcache Monitor Beta 2 released
+
+   We have had hundreds of people sign up for an play with beta 1 of the Ehcache Monitor. We have fixed over 15 bugs
+    in Beta 1 and have released Beta 2. We have also created a roadmap for beta 3 which will add significant new
+    features. See {{{./modules/monitor.html}Ehcache Monitor Beta}}.
+
+** 13 December 2009: Ehcache Web 2.0 released
+
+  Ehcache Web has been part of Ehcache for years. In this release the web caching is split into its own module.
+   The web module provides a filter based PageCachingFilter and PageFragmentCachingFilter which can
+  be used with any Java web framework for caching of HTML, SOAP, REST, JSON, XML and other types.
+
+  New in this release is integration with ehcache-terracotta 1.7.1 and higher, so that coherent, terabyte scale
+  web caches can be created.
+
+  See {{{./documentation/web_caching.html}ehcache-web}}.
+
+
+** 9 December 2009: Ehcache welcomes Grails as a first-class supported framework
+
+  Grails 1.2RC1 and higher use Ehcache as the default Hibernate second level cache. However earlier versions of Grails
+  ship with the Ehcache library and are very simple to enable.
+
+  A new {{{http://ehcache.org/documentation/grails.html}Grails Chapter}} shows how to configure Grails to use Ehcache and how
+  to tune it for production use.
+
+ More {{{./news.html}news}}...
+
+
+
+
