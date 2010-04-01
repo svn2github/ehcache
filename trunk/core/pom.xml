@@ -126,6 +126,12 @@
             <version>1.8.2</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>net.sf.ehcache</groupId>
+            <artifactId>ehcache-terracotta</artifactId>
+            <version>2.0.0</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>
@@ -259,16 +265,16 @@
                     </execution>
 
                     <!--<execution>-->
-                        <!--<id>singlepageguide</id>-->
-                        <!--<phase>pre-site</phase>-->
-                        <!--<configuration>-->
-                            <!--<tasks>-->
-                                <!--<ant target="singlepageguide"/>-->
-                            <!--</tasks>-->
-                        <!--</configuration>-->
-                        <!--<goals>-->
-                            <!--<goal>run</goal>-->
-                        <!--</goals>-->
+                    <!--<id>singlepageguide</id>-->
+                    <!--<phase>pre-site</phase>-->
+                    <!--<configuration>-->
+                    <!--<tasks>-->
+                    <!--<ant target="singlepageguide"/>-->
+                    <!--</tasks>-->
+                    <!--</configuration>-->
+                    <!--<goals>-->
+                    <!--<goal>run</goal>-->
+                    <!--</goals>-->
                     <!--</execution>-->
 
                     <execution>
@@ -339,6 +345,28 @@
             </plugin>
 
             <plugin>
+                <groupId>org.terracotta.maven.plugins</groupId>
+                <artifactId>tc-maven-plugin</artifactId>
+                <version>1.5.1</version>
+                <executions>
+                    <execution>
+                        <id>run-integration</id>
+                        <phase>pre-integration-test</phase>
+                        <goals>
+                            <goal>run-integration</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>terminate-integration</id>
+                        <phase>post-integration-test</phase>
+                        <goals>
+                            <goal>terminate-integration</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <inherited>true</inherited>
@@ -390,8 +418,8 @@
                                 <exclude>**/*$*</exclude>
                             </excludes>
                             <includes>
-                                <include>**/RMICacheReplicatorWithLargePayloadTest.java
-                                </include>
+                                <include>**/RMICacheReplicatorWithLargePayloadTest.java</include>
+                                <include>**/TerracottaIntegrationTest.java</include>
                             </includes>
                             <argLine>-Xms512m -Xmx512m</argLine>
                         </configuration>
@@ -535,7 +563,7 @@
                         <JIRA>https://jira.terracotta.org/jira/browse/%ISSUE%</JIRA>
                     </issueLinkTemplatePerSystem>
                 </configuration>
-                
+
                 <reportSets>
                     <reportSet>
                         <reports>
@@ -558,6 +586,19 @@
 
         </plugins>
     </reporting>
+
+    <pluginRepositories>
+        <pluginRepository>
+            <id>terracotta-snapshots</id>
+            <url>http://www.terracotta.org/download/reflector/maven2</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+        </pluginRepository>
+    </pluginRepositories>
 
     <distributionManagement>
         <repository>
