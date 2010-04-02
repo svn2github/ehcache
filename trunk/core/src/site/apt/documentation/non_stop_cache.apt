@@ -26,14 +26,14 @@
     * could also be useful for write-through, writes to disk or synchronous writes.
 
 
-*   Creating a TerracottaAwareCache
+*   Creating a NonStopCache
 
 **  Programmatically
 
 ---
     Cache cache = cacheManager.getCache("existingUndecoratedCache");
-    TerracottaAwareCache taCache = new TerracottaAwareCache(cache, configuration);
-    cacheManager.replaceCacheWithDecoratedCache(cache, taCache);
+    NonStopCache nonStopCache = new NonStopCache(cache, newName);
+    cacheManager.addCache(nonStopCache);  //adds an Ehcache
 ---
 
 **  In ehcache.xml
