@@ -1,13 +1,19 @@
  ---
- Terracotta Aware Cache
+ NonStopCache
  ---
 
+{NonStopCache}
 
-{TerracottaAwareCache}
 
 
-    <<<TerracottaAwareCache>>> is a {{{./cache_decorators}decorated cache}} which provides additional features
+    <<<NonStopCache>>> is a {{{./cache_decorators}decorated cache}} which provides additional features
     relevant to Terracotta.
+
+    This is for where you value availability over everything else.
+
+    It is a separate module.
+
+    Note: The features in this cache may evolve over time.
 
     The two things it can do are:
 
@@ -15,7 +21,9 @@
       There is a temporary network interruption which stops Terracotta responding to a cache request. With the timeout
       you can return after 3 seconds. The lookup is then done against the mainframe.
 
-    * automatically respond to cluster topology events to take a preconfigured action.
+    * automatically respond to cluster topology events to take a pre-configured action.
+
+    * could also be useful for write-through, writes to disk or synchronous writes.
 
 
 *   Creating a TerracottaAwareCache
@@ -41,7 +49,7 @@
            timeToLiveSeconds="100"
            overflowToDisk="true">
         <cacheDecoratorFactory
-                class="net.sf.ehcache.terracotta.TerracottaAwareCacheFactory"
+                class="net.sf.ehcache.terracotta.NonStopCacheFactory"
                 properties="failFast=true, localReadsOnDisconnect=true ..."/>
     </cache>
 ---
@@ -71,7 +79,7 @@
 
 **  ThreadPool Management
 
-    Allowcs users to provide their own threadpool or specify max/min threads to use etc.
+    Allows users to provide their own thread pool or specify max/min threads to use etc.
 
     What does this mean? There is no thread pool.
 
@@ -81,26 +89,23 @@
     the cache has of knowing whether the interruption is transitory or permanent. For that reason it is recommended that it be
     used in conjunction with <<<timeoutMillis>>> so that short interruptions do not trigger this.
 
-    Question: How do we control under what circumstances a clusterOfflineEvent is thrown. Is their a timeout that can be configured
-    somewhere?
+    The clusterOfflineEvent is thrown when the socket between the client and server is closed.
 
     These settings apply to all Terracotta clustered caches:
 
 *** immediateTimeout
 
     The property <<<immediateTimeout>>> if set to true will cause cache operations (e.g. put, get, remove, etc. ) to immediately
-    return, overriding the vlaue of <<<timeoutMillis>>>.
+    return, overriding the value of <<<timeoutMillis>>>.
+
+    Would throw a TimeoutException. Applies to both coherent and incoherent caches.
 
 *** disable
 
     The <<<disable>>> property, if set to true, will place the cache in disabled, or bypass mode, so that all mutating cache operations are
     ignored and all data access returns null. This operates by calling <<<cache.setDisabled>>>.
 
-    Question: disable already exists and is suggested in the doc as a way of dealing with a cluster offline event. Let's ditch immediateTimout
-    (this was Saro's failFast option) in favour of disable
-
-
-    These settings only apply to caches configured or operating in <<<coherent=false>>> mode.
+    These settings only apply to caches configured or operating in <<<coherent=false>>> mode. Applies to both coherent and incoherent caches.
 
 *** localReads
 
@@ -108,7 +113,7 @@
 
     This might be useful for a cache with reference or immutable data in it.
 
-    In this mode, mutating operations are ignored.
+    In this mode, mutating operations are ignored. Applies to both coherent and incoherent caches.
 
 
 *** mutateBufferSize
@@ -117,7 +122,11 @@
 
     Note that it is only <<<coherent=false>>> caches that will buffer. Coherent caches will not.
 
+*** fallBackToLocalCache
 
+    Delete the terracotta cache and create a local cache with the same name and CacheConfiguration.
+
+    It starts with an empty cache. Applies to both coherent and incoherent caches.
 
 **  Responding to <<<clusterOnline>>> events
 
@@ -126,3 +135,4 @@
     Once the <<<clusterOnline>>> event occurs the changes will be applied to the cluster in the order in which they happened. Any other
     mutations that happened in the cluster get overwritten.
 
+    This only applies to incoherent caches, because in offline mode a write lock cannot be acquired when offline.
