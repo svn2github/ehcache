@@ -244,7 +244,9 @@ public class CacheConfiguration implements Cloneable {
     private volatile boolean frozen;
     private TransactionalMode transactionalMode = TransactionalMode.OFF;
     private volatile boolean statistics = true;
-    private SerializationCopyStrategy defaultCopyStrategy = new SerializationCopyStrategy();
+    private volatile CopyStrategy copyStrategy = new SerializationCopyStrategy();
+    private volatile Boolean copyOnRead;
+    private volatile Boolean copyOnWrite;
 
     /**
      * Default constructor that can only be used by classes in this package.
@@ -755,7 +757,65 @@ public class CacheConfiguration implements Cloneable {
      */
     public CopyStrategy getCopyStrategy() {
         // todo really make this pluggable through config!
-        return defaultCopyStrategy;
+        return copyStrategy;
+    }
+
+    /**
+     * @see #setCopyOnRead(boolean)
+     */
+    public CacheConfiguration copyOnRead(boolean copyOnRead) {
+        this.setCopyOnRead(copyOnRead);
+        return this;
+    }
+
+    /**
+     * Whether the Cache should copy elements it returns
+     * @return true, is copyOnRead
+     */
+    public boolean isCopyOnRead() {
+        validateTransactionalSettings();
+        return copyOnRead;
+    }
+
+    /**
+     * Whether the Cache should copy elements it returns
+     * @param copyOnRead true, if copyOnRead
+     */
+    public void setCopyOnRead(final boolean copyOnRead) {
+        this.copyOnRead = copyOnRead;
+    }
+
+    /**
+     * @see #copyOnWrite(boolean)
+     */
+    public CacheConfiguration copyOnWrite(boolean copyOnWrite) {
+        this.copyOnWrite = copyOnWrite;
+        return this;
+    }
+
+    /**
+     * Whether the Cache should copy elements it gets
+     * @return true, if copyOnWrite
+     */
+    public boolean isCopyOnWrite() {
+        validateTransactionalSettings();
+        return copyOnWrite;
+    }
+
+    /**
+     * Whether the Cache should copy elements it gets
+     * @param copyOnWrite true, if copyOnWrite
+     */
+    public void setCopyOnWrite(final boolean copyOnWrite) {
+        this.copyOnWrite = copyOnWrite;
+    }
+
+    public void addCopyStrategy(CopyStrategyConfiguration copyStrategyConfiguration) {
+        if(copyStrategyConfiguration == null) {
+            copyStrategy = new CopyStrategyConfiguration().getCopyStrategyInstance();
+        } else {
+            copyStrategy = copyStrategyConfiguration.getCopyStrategyInstance();
+        }
     }
 
     /**
@@ -1014,6 +1074,7 @@ public class CacheConfiguration implements Cloneable {
     }
 
     private void validateConfiguration() {
+
         if (terracottaConfiguration != null && terracottaConfiguration.isClustered()) {
             if (overflowToDisk) {
                 throw new InvalidConfigurationException("overflowToDisk isn't supported for a clustered Terracotta cache");
@@ -1033,6 +1094,22 @@ public class CacheConfiguration implements Cloneable {
                                 "if the purpose of this listener is replication it is not supported in a clustered context");
                     }
                 }
+            }
+        }
+    }
+
+    private void validateTransactionalSettings() {
+        boolean transactional = transactionalMode.isTransactional();
+        if (copyOnRead == null) {
+            copyOnRead = transactional;
+        }
+        if (copyOnWrite == null) {
+            copyOnWrite = transactional;
+        }
+
+        if (transactional) {
+            if (!copyOnRead || !copyOnWrite) {
+                throw new InvalidConfigurationException("A transactional cache has to be copyOnRead and copyOnWrite!");
             }
         }
     }
@@ -1230,6 +1307,7 @@ public class CacheConfiguration implements Cloneable {
      * @return true if transactionalMode="XA"
      */
     public boolean isTransactional() {
+        validateTransactionalSettings();
         return transactionalMode.isTransactional();
     }
 

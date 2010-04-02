@@ -41,7 +41,7 @@ public final class MemoryOnlyStore extends CompoundStore implements CacheConfigu
     private final CacheConfiguration config;
     
     private MemoryOnlyStore(CapacityLimitedInMemoryFactory memory, CacheConfiguration config) {
-        super(memory, memory, config.isTransactional(), config.isTransactional(), config.getCopyStrategy());
+        super(memory, memory, config.isCopyOnRead(), config.isCopyOnWrite(), config.getCopyStrategy());
         this.memoryFactory = memory;
         this.config = config;
     }

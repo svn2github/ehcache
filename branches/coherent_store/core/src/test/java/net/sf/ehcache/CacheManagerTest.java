@@ -96,6 +96,38 @@ public class CacheManagerTest {
         }
     }
 
+    @Test
+    public void testCacheReferenceLookUps() {
+        singletonManager = CacheManager.create();
+        String cacheName = "randomNewCache";
+        singletonManager.addCache(cacheName);
+
+        // Default state by name
+        Cache cache = singletonManager.getCache(cacheName);
+        assertNotNull(cache);
+        assertNotNull(singletonManager.getEhcache(cacheName));
+        assertTrue(singletonManager.getEhcache(cacheName) instanceof Cache);
+        assertTrue(cache == singletonManager.getEhcache(cacheName));
+
+        // replace cache
+        BlockingCache decoratedCache = new BlockingCache(cache);
+        singletonManager.replaceCacheWithDecoratedCache(cache, decoratedCache);
+        assertNull(singletonManager.getCache(cacheName));
+        assertNotNull(singletonManager.getEhcache(cacheName));
+        assertTrue(singletonManager.getEhcache(cacheName) == decoratedCache);
+
+        // Manually adding a BlockingCache
+        cache = new Cache(new CacheConfiguration("someOtherRandomCache", 1000));
+        decoratedCache = new BlockingCache(cache);
+
+        singletonManager.addCache(cache);
+        singletonManager.addCache(decoratedCache);
+        assertNotNull(singletonManager.getCache(cacheName));
+        assertTrue(singletonManager.getCache(cacheName) == cache);
+        assertNotNull(singletonManager.getEhcache(cacheName));
+        assertTrue(singletonManager.getEhcache(cacheName) == decoratedCache);
+    }
+
     /**
      * Tests that the CacheManager was successfully created
      */

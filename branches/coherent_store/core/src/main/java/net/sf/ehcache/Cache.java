@@ -971,7 +971,9 @@ public class Cache implements Ehcache {
                                              + configuration.getName() + " to be transactional, but no TransactionManager could be found!");
                 }
                 //set xa enabled
-                configuration.getTerracottaConfiguration().setCacheXA(true);
+                if (configuration.isTerracottaClustered()) {
+                    configuration.getTerracottaConfiguration().setCacheXA(true);
+                }
 
                 EhcacheXAStore ehcacheXAStore = cacheManager.createEhcacheXAStore(this, store);
 
