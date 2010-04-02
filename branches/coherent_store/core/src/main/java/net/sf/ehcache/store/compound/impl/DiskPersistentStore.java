@@ -26,6 +26,14 @@ import net.sf.ehcache.store.Policy;
 import net.sf.ehcache.store.compound.CompoundStore;
 import net.sf.ehcache.store.compound.factories.DiskPersistentStorageFactory;
 
+/**
+ * Implements a persistent-to-disk store.
+ * <p>
+ * All new elements are automatically scheduled for writing to disk.  In addition 
+ * the store will cache Elements in memory up to the in-memory capacity.
+ * 
+ * @author Chris Dennis
+ */
 public final class DiskPersistentStore extends CompoundStore implements CacheConfigurationListener {
 
     private final DiskPersistentStorageFactory disk;
@@ -35,6 +43,13 @@ public final class DiskPersistentStore extends CompoundStore implements CacheCon
         this.disk = disk;
     }
     
+    /**
+     * Creates a persitent-to-disk store for the given cache, using the given disk path.
+     * 
+     * @param cache cache that fronts this store
+     * @param diskStorePath disk path to store data in
+     * @return a fully initialized store
+     */
     public static DiskPersistentStore create(Cache cache, String diskStorePath) {
         CacheConfiguration config = cache.getCacheConfiguration();
         DiskPersistentStorageFactory disk = new DiskPersistentStorageFactory(cache, diskStorePath);
@@ -43,91 +58,165 @@ public final class DiskPersistentStore extends CompoundStore implements CacheCon
         return store;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public boolean bufferFull() {
-        // TODO Auto-generated method stub
-        return false;
+        return disk.bufferFull();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public boolean containsKeyInMemory(Object key) {
         return disk.isInMemory(unretrievedGet(key));
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public boolean containsKeyOnDisk(Object key) {
         return disk.isOnDisk(unretrievedGet(key));
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public void expireElements() {
         // TODO Auto-generated method stub
 
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public void flush() throws IOException {
-        // TODO Auto-generated method stub
-
+        disk.flush();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public Policy getInMemoryEvictionPolicy() {
         // TODO Auto-generated method stub
         return null;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public int getInMemorySize() {
         return disk.getInMemorySize();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public long getInMemorySizeInBytes() {
         // TODO Auto-generated method stub
         return 0;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public int getOnDiskSize() {
         return disk.getOnDiskSize();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public long getOnDiskSizeInBytes() {
-        // TODO Auto-generated method stub
-        return 0;
+        return disk.getSizeInBytes();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public int getTerracottaClusteredSize() {
         return 0;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public void setInMemoryEvictionPolicy(Policy policy) {
         // TODO Auto-generated method stub
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     * A NO-OP
+     */
     public void deregistered(CacheConfiguration config) {
         //no-op
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public void diskCapacityChanged(int oldCapacity, int newCapacity) {
         // TODO Auto-generated method stub
         
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     * A NO-OP
+     */
     public void loggingEnabledChanged(boolean oldValue, boolean newValue) {
         //no-op
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public void memoryCapacityChanged(int oldCapacity, int newCapacity) {
         // TODO Auto-generated method stub
         
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     * A NO-OP
+     */
     public void registered(CacheConfiguration config) {
         //no-op
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     * A NO-OP
+     */
     public void timeToIdleChanged(long oldTimeToIdle, long newTimeToIdle) {
         //no-op
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     * A NO-OP
+     */
     public void timeToLiveChanged(long oldTimeToLive, long newTimeToLive) {
         //no-op
     }
 
+    /**
+     * Return a reference to the data file backing this store.
+     */
     public File getDataFile() {
         return disk.getDataFile();
+    }
+
+    /**
+     * Return a reference to the index file for this store.
+     */
+    public File getIndexFile() {
+        return disk.getIndexFile();
     }
 }

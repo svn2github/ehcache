@@ -58,7 +58,7 @@ public abstract class CompoundStore implements Store {
 
     private volatile CacheLockProvider lockProvider;
 
-    private volatile Set<Object> keySet = null;
+    private volatile Set<Object> keySet;
     
     /**
      * Create a CompoundStore using the supplied factory as the primary factory.
@@ -157,14 +157,30 @@ public abstract class CompoundStore implements Store {
     }
     
     /**
+     * Put the given encoded element directly into the store
+     */
+    public boolean putRawIfAbsent(Object key, Object encoded) {
+        int hash = hash(key.hashCode());
+        return segmentFor(hash).putRawIfAbsent(key, hash, encoded);
+    }
+    
+    /**
      * {@inheritDoc}
      */
     public Object[] getKeyArray() {
         return keySet().toArray();
     }
-    
+
+    /**
+     * Get a set view of the keys in this store
+     */
     public Set<Object> keySet() {
-        return keySet != null ? keySet : (keySet = new KeySet()); 
+        if (keySet != null) {
+            return keySet;
+        } else {
+            keySet = new KeySet();
+            return keySet;
+        }
     }
     
     /**
@@ -291,8 +307,12 @@ public abstract class CompoundStore implements Store {
      * {@inheritDoc}
      */
     public Object getInternalContext() {
-        CacheLockProvider context = lockProvider;
-        return (lockProvider != null) ? lockProvider : (lockProvider = new LockProvider());
+        if (lockProvider != null) {
+            return lockProvider;
+        } else {
+            lockProvider = new LockProvider();
+            return lockProvider;
+        }
     }
     
     /**

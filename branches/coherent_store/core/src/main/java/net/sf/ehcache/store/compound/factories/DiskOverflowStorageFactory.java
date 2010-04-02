@@ -19,7 +19,6 @@ package net.sf.ehcache.store.compound.factories;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
-import java.util.concurrent.Callable;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.Lock;
 
@@ -31,7 +30,6 @@ import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 
 import net.sf.ehcache.store.compound.ElementSubstitute;
-import net.sf.ehcache.store.compound.ElementSubstituteFactory;
 import net.sf.ehcache.store.compound.CompoundStore;
 import net.sf.ehcache.store.compound.ElementSubstituteFilter;
 
@@ -47,7 +45,11 @@ public class DiskOverflowStorageFactory extends DiskStorageFactory<ElementSubsti
     
     private static final Logger                     LOG   = LoggerFactory.getLogger(DiskOverflowStorageFactory.class);
 
-    private final ElementSubstituteFilter<ElementSubstitute> filter = new ElementSubstituteFilter<ElementSubstitute>() {
+    private final ElementSubstituteFilter<DiskStorageFactory.DiskSubstitute> filter = 
+        new ElementSubstituteFilter<DiskStorageFactory.DiskSubstitute>() {
+        /**
+         * {@inheritDoc}
+         */
         public boolean allows(Object object) {
             return created(object);
         }
@@ -125,7 +127,7 @@ public class DiskOverflowStorageFactory extends DiskStorageFactory<ElementSubsti
                     evict(Math.min(MAX_EVICT, overflow), key);
                 }
             }
-            return new Placeholder(key, element);
+            return new OverflowPlaceholder(element);
         } else {
             throw new IllegalArgumentException();
         }
@@ -152,28 +154,17 @@ public class DiskOverflowStorageFactory extends DiskStorageFactory<ElementSubsti
                 throw new CacheException(e);
             }
         } else {
-            return ((Placeholder) proxy).element;
+            return ((Placeholder) proxy).getElement();
         }
     }
 
     /**
      * {@inheritDoc}
      */
+    @Override
     public void free(Lock lock, ElementSubstitute substitute) {
         count.decrementAndGet();
-        if (substitute instanceof DiskStorageFactory.DiskMarker) {
-            //free done asynchronously under the relevant segment lock...
-            DiskFreeTask free = new DiskFreeTask(lock, (DiskMarker) substitute);
-            if (lock.tryLock()) {
-                try {
-                    free.call();
-                } finally {
-                    lock.unlock();
-                }
-            } else {
-                schedule(free);
-            }
-        }
+        super.free(lock, substitute);
     }
 
     /**
@@ -190,69 +181,45 @@ public class DiskOverflowStorageFactory extends DiskStorageFactory<ElementSubsti
 
     private void evict(int n, Object keyHint) {
         for (int i = 0; i < n; i++) {
-            ElementSubstitute target = getEvictionTarget(keyHint);
+            DiskSubstitute target = getEvictionTarget(keyHint);
             if (target == null) {
                 continue;
-            }
-            
-            if (target instanceof Placeholder) {
-                Placeholder p = (Placeholder) target;
-                store.evict(p.key, p);
             } else {
-                DiskMarker m = (DiskMarker) target;
-                store.evict(m.getKey(), m);
+                store.evict(target.getKey(), target);
             }
         }
     }
     
-    private ElementSubstitute getEvictionTarget(Object keyHint) {
-        List<ElementSubstitute> sample = store.getRandomSample(filter, SAMPLE_SIZE, keyHint);
-        ElementSubstitute target = null;
-        long hitCount = Long.MAX_VALUE;
-        for (ElementSubstitute substitute : sample) {
-            if (substitute instanceof DiskStorageFactory.DiskMarker) {
-                if (target == null || ((DiskMarker) substitute).getHitCount() < hitCount) {
-                    target = substitute;
-                    hitCount = ((DiskMarker) substitute).getHitCount();
-                }
-            } else {
-                if (target == null || ((Placeholder) substitute).element.getHitCount() < hitCount) {
-                    target = substitute;
-                    hitCount = ((Placeholder) substitute).element.getHitCount();
-                }
+    private DiskSubstitute getEvictionTarget(Object keyHint) {
+        List<DiskStorageFactory.DiskSubstitute> sample = store.getRandomSample(filter, SAMPLE_SIZE, keyHint);
+        DiskSubstitute target = null;
+        for (DiskSubstitute substitute : sample) {
+            if ((target == null) || (substitute.getHitCount() < target.getHitCount())) {
+                target = substitute;
             }
         }
         return target;
     }
-    
+
     /**
-     * Placeholder instances are put in place to prevent
-     * duplicate write requests while Elements are being
-     * written to disk.
+     * Placeholder implementation for the overflow-to-disk factory.
      */
-    final class Placeholder implements ElementSubstitute {
-        private final Object key;
-        private final Element element;
-        
-        private Placeholder(Object key, Element element) {
-            this.key = key;
-            this.element = element;
+    class OverflowPlaceholder extends Placeholder {
+
+        /**
+         * Creates a overflow to disk Placeholder for the given key and element
+         */
+        OverflowPlaceholder(Element element) {
+            super(DiskOverflowStorageFactory.this, element);
         }
 
         /**
          * {@inheritDoc}
-         */
-        public ElementSubstituteFactory<ElementSubstitute> getFactory() {
-            return DiskOverflowStorageFactory.this;
-        }
-
-        /**
-         * Schedule the disk write for this placeholder.
          * <p>
-         * This call is made after the placeholder has been successfully installed.
+         * Schedules the disk write for this Placeholder.
          */
-        void schedule() {
-            DiskOverflowStorageFactory.this.schedule(new DiskWriteTask(this));
+        public void installed() {
+            DiskOverflowStorageFactory.this.schedule(new OverflowDiskWriteTask(this));
         }
     }
     
@@ -261,53 +228,21 @@ public class DiskOverflowStorageFactory extends DiskStorageFactory<ElementSubsti
      * to disk and fault in the resultant DiskMarker
      * instance.
      */
-    private final class DiskWriteTask implements Callable<Boolean> {
+    private final class OverflowDiskWriteTask extends DiskWriteTask {
 
-        private final Placeholder placeholder;
-        
-        private DiskWriteTask(Placeholder p) {
-            this.placeholder = p;
+        private OverflowDiskWriteTask(Placeholder p) {
+            super(p);
         }
 
         /**
          * {@inheritDoc}
          */
+        @Override
         public Boolean call() {
-            try {
-                DiskMarker marker = write(placeholder.element);
-                count.incrementAndGet();
-                return Boolean.valueOf(store.fault(placeholder.key, placeholder, marker));
-            } catch (IOException e) {
-                return Boolean.valueOf(store.evict(placeholder.key, placeholder.element));
-            }
-        }
-    }
-
-    /**
-     * Disk free tasks are used to asynchronously free DiskMarker instances under the correct
-     * exclusive write lock.  This ensure markers are not free'd until no more readers can be
-     * holding references to them.
-     */
-    private final class DiskFreeTask implements Callable<Void> {
-        private final Lock lock;
-        private final DiskMarker marker;
-        
-        private DiskFreeTask(Lock lock, DiskMarker marker) {
-            this.lock = lock;
-            this.marker = marker;
-        }
-
-        /**
-         * {@inheritDoc}
-         */
-        public Void call() {
-            lock.lock();
-            try {
-                DiskOverflowStorageFactory.this.free(marker);
-            } finally {
-                lock.unlock();
-            }
-            return null;
+            Boolean result = super.call();
+            //don't want to increment on exception throw
+            count.incrementAndGet();
+            return result;
         }
     }
 

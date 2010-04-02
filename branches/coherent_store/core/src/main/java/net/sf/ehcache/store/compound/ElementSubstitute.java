@@ -25,6 +25,11 @@ package net.sf.ehcache.store.compound;
 public interface ElementSubstitute {
 
     /**
+     * Called after this instance has been installed (outside the store lock scope).
+     */
+    public void installed();
+    
+    /**
      * Returns the {@link ElementSubstituteFactory} instance that generated this <code>ElementProxy</code>
      * 
      * @return an <code>ElementProxyFactory</code>

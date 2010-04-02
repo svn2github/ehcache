@@ -303,6 +303,7 @@ class Segment extends ReentrantReadWriteLock {
      * @return <code>true</code> on a successful replace
      */
     boolean replace(Object key, int hash, Element oldElement, Element newElement) {
+        boolean installed = false;
         Object encoded = create(key, newElement);
         
         writeLock().lock();
@@ -322,6 +323,7 @@ class Segment extends ReentrantReadWriteLock {
                  */
                 Object old = e.getElement();
                 e.setElement(encoded);
+                installed = true;
                 free(old);
             } else {
                 free(encoded);
@@ -329,6 +331,10 @@ class Segment extends ReentrantReadWriteLock {
             return replaced;
         } finally {
             writeLock().unlock();
+            
+            if ((installed && encoded instanceof ElementSubstitute)) {
+                ((ElementSubstitute) encoded).installed();
+            }
         }
     }
 
@@ -345,6 +351,7 @@ class Segment extends ReentrantReadWriteLock {
      * @return previous element mapped to this key 
      */
     Element replace(Object key, int hash, Element newElement) {
+        boolean installed = false;
         Object encoded = create(key, newElement);
         
         writeLock().lock();
@@ -358,6 +365,7 @@ class Segment extends ReentrantReadWriteLock {
             if (e != null) {
                 Object old = e.getElement();
                 e.setElement(encoded);
+                installed = true;
                 oldElement = decode(null, old);
                 free(old);
             } else {
@@ -366,6 +374,10 @@ class Segment extends ReentrantReadWriteLock {
             return oldElement;
         } finally {
             writeLock().unlock();
+            
+            if ((installed && encoded instanceof ElementSubstitute)) {
+                ((ElementSubstitute) encoded).installed();
+            }
         }
     }
 
@@ -384,6 +396,7 @@ class Segment extends ReentrantReadWriteLock {
      * @return previous element mapped to this key
      */
     Element put(Object key, int hash, Element element, boolean onlyIfAbsent) {
+        boolean installed = false;
         Object encoded = create(key, element);
         
         writeLock().lock();
@@ -405,6 +418,7 @@ class Segment extends ReentrantReadWriteLock {
                 Object old = e.getElement();
                 if (!onlyIfAbsent) {
                     e.setElement(encoded);
+                    installed = true;
                     oldElement = decode(null, old);
                     free(old);
                 } else {
@@ -415,13 +429,61 @@ class Segment extends ReentrantReadWriteLock {
                 oldElement = null;
                 ++modCount;
                 tab[index] = new HashEntry(key, hash, first, encoded);
+                installed = true;
                 // write-volatile
                 count = count + 1;
             }
             return oldElement;
         } finally {
             writeLock().unlock();
+            
+            if ((installed && encoded instanceof ElementSubstitute)) {
+                ((ElementSubstitute) encoded).installed();
+            }
         }
+    }
+
+    
+    /**
+     * Add the supplied pre-encoded mapping.
+     * <p>
+     * The supplied encoded element is directly inserted into the segment
+     * if there is no other mapping for this key.
+     * 
+     * @param key key to map the element to
+     * @param hash spread-hash for the key
+     * @param encoded encoded element to store
+     * @return <code>true</code> if the encoded element was installed
+     */
+    boolean putRawIfAbsent(Object key, int hash, Object encoded) {
+        writeLock().lock();
+        try {
+            // ensure capacity
+            if (count + 1 > threshold) {
+                rehash();
+            }
+            HashEntry[] tab = table;
+            int index = hash & (tab.length - 1);
+            HashEntry first = tab[index];
+            HashEntry e = first;
+            while (e != null && (e.hash != hash || !key.equals(e.key))) {
+                e = e.next;
+            }
+
+            Element oldElement;
+            if (e == null) {
+                oldElement = null;
+                ++modCount;
+                tab[index] = new HashEntry(key, hash, first, encoded);
+                // write-volatile
+                count = count + 1;
+                return true;
+            } else {
+                return false;
+            }
+        } finally {
+            writeLock().unlock();
+        }        
     }
     
     private void rehash() {
@@ -577,6 +639,8 @@ class Segment extends ReentrantReadWriteLock {
      * @return <code>true</code> if <code>fault</code> was installed
      */
     boolean fault(Object key, int hash, Object expect, Object fault) {
+        boolean installed = false;
+        
         readLock().lock();
         try {
             if (count != 0) {
@@ -584,6 +648,7 @@ class Segment extends ReentrantReadWriteLock {
                     if (e.hash == hash && key.equals(e.key)) {
                         if (e.casElement(expect, fault)) {
                             free(expect);
+                            installed = true;
                             return true;
                         }
                     }
@@ -593,6 +658,10 @@ class Segment extends ReentrantReadWriteLock {
             return false;
         } finally {
             readLock().unlock();
+            
+            if ((installed && fault instanceof ElementSubstitute)) {
+                ((ElementSubstitute) fault).installed();
+            }
         }
     }
 

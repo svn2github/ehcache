@@ -16,9 +16,17 @@
 
 package net.sf.ehcache.store.compound.factories;
 
+import java.io.EOFException;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
 import java.util.concurrent.Callable;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReferenceFieldUpdater;
 import java.util.concurrent.locks.Lock;
@@ -31,7 +39,6 @@ import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.store.compound.CompoundStore;
 import net.sf.ehcache.store.compound.ElementSubstitute;
-import net.sf.ehcache.store.compound.ElementSubstituteFactory;
 import net.sf.ehcache.store.compound.ElementSubstituteFilter;
 
 /**
@@ -50,9 +57,33 @@ public class DiskPersistentStorageFactory extends DiskStorageFactory<ElementSubs
     private final AtomicInteger inMemory = new AtomicInteger();
     private final AtomicInteger onDisk = new AtomicInteger();
 
+    private final File indexFile;
+    
+    private final IndexWriteTask flushTask;
+
+    /**
+     * Constructs an disk persistent factory for the given cache and disk path.
+     * 
+     * @param cache cache that fronts this factory
+     * @param diskPath path to store data in
+     */
     public DiskPersistentStorageFactory(Ehcache cache, String diskPath) {
         super(getDataFile(diskPath, cache), cache.getCacheConfiguration().getDiskExpiryThreadIntervalSeconds(),
                 cache.getCacheEventNotificationService());
+        
+        indexFile = new File(getDataFile().getParentFile(), getIndexFileName(cache));
+        flushTask = new IndexWriteTask(indexFile);
+        
+        if (!getDataFile().exists() || (getDataFile().length() == 0)) {
+            LOG.debug("Matching data file missing (or empty) for index file. Deleting index file " + indexFile);
+            indexFile.delete();
+        } else if (getDataFile().exists() && indexFile.exists()) {
+            if (getDataFile().lastModified() > (indexFile.lastModified() + TimeUnit.SECONDS.toMillis(1))) {
+                LOG.warn("The index for data file {} is out of date, probably due to an unclean shutdown. " 
+                        + "Deleting index file {}", getDataFile(), indexFile);
+                indexFile.delete();
+            }
+        }        
     }
 
     private static File getDataFile(String diskPath, Ehcache cache) {
@@ -80,11 +111,6 @@ public class DiskPersistentStorageFactory extends DiskStorageFactory<ElementSubs
                     + "Remove diskPersistent or resolve the conflicting disk paths in cache configuration.\n"
                     + "Deleting data file " + data.getAbsolutePath());
             data.delete();
-//        } else if (!readIndex()) {
-//            if (LOG.isDebugEnabled()) {
-//                LOG.debug("Index file dirty or empty. Deleting data file " + data.getAbsolutePath());
-//            }
-//            data.delete();
         }
 
         return data;
@@ -95,13 +121,25 @@ public class DiskPersistentStorageFactory extends DiskStorageFactory<ElementSubs
         return safeName + ".data";
     }
     
+    private static final String getIndexFileName(Ehcache cache) {
+        String safeName = cache.getName().replace('/', '_');
+        return safeName + ".index";
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
     public ElementSubstitute create(Object key, Element element) throws IllegalArgumentException {
         inMemory.incrementAndGet();
-        return new Placeholder(key, element);
+        return new PersistentPlaceholder(element);
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public void free(Lock exclusion, ElementSubstitute object) {
-        if (object instanceof Placeholder) {
+        if (object instanceof PersistentPlaceholder) {
             inMemory.decrementAndGet();
         } else if (object instanceof CachingDiskMarker) {
             CachingDiskMarker marker = (CachingDiskMarker) object;
@@ -110,8 +148,12 @@ public class DiskPersistentStorageFactory extends DiskStorageFactory<ElementSubs
                 inMemory.decrementAndGet();
             }
         }
+        super.free(exclusion, object);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public Element retrieve(Object key, ElementSubstitute object) {
         if (object instanceof CachingDiskMarker) {
             try {
@@ -129,13 +171,16 @@ public class DiskPersistentStorageFactory extends DiskStorageFactory<ElementSubs
             } catch (ClassNotFoundException e) {
                 throw new CacheException(e);
             }
-        } else if (object instanceof Placeholder) {
-            return ((Placeholder) object).element;
+        } else if (object instanceof DiskStorageFactory.Placeholder) {
+            return ((Placeholder) object).getElement();
         } else {
             return null;
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public boolean created(Object object) {
         if (object instanceof ElementSubstitute) {
             return ((ElementSubstitute) object).getFactory() == this;
@@ -144,96 +189,104 @@ public class DiskPersistentStorageFactory extends DiskStorageFactory<ElementSubs
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void bind(CompoundStore store) {
-        //load index file and put existing mappings into the store
-        //add free markers to the list of free markers
+        loadIndex(store);
         super.bind(store);
     }
     
+    /**
+     * {@inheritDoc}
+     */
     public void unbind(CompoundStore store) {
         try {
             shutdown();
-            //don't really do this!!!
-            delete();
-            //schedule index file write
-            new DiskFlushTask().call();
+            flushTask.call();
+            if (getDataFile().getAbsolutePath().contains(AUTO_DISK_PATH_DIRECTORY_PREFIX)) {
+                indexFile.delete();
+                delete();
+            }
         } catch (IOException e) {
             LOG.error("Could not shut down disk cache. Initial cause was " + e.getMessage(), e);
         }
     }
 
-    @Override
-    protected DiskMarker createMarker(DiskMarker previous, Object key, int size, long hitCount, long expiry) {
-        return new CachingDiskMarker(previous, key, size, hitCount, expiry);
+    /**
+     * Schedule a flush (index write) for this factory.
+     */
+    public Future<Void> flush() {
+        return schedule(flushTask);
     }
     
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    protected DiskMarker createMarker(Object key, long position, int size, long hitCount, long expiry) {
-        return new CachingDiskMarker(key, position, size, hitCount, expiry);
+    protected DiskMarker createMarker(DiskMarker previous, int size, Element element) {
+        return new CachingDiskMarker(this, previous, size, element);
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected DiskMarker createMarker(long position, int size, Element element) {
+        return new CachingDiskMarker(this, position, size, element);
     }
 
     /**
-     * Placeholder instances are put in place to prevent
-     * duplicate write requests while Elements are being
-     * written to disk.
+     * Disk marker implementation that can hold a cached Element reference.
      */
-    final class Placeholder implements ElementSubstitute {
-        private final Object key;
-        private final Element element;
+    private final static class CachingDiskMarker extends DiskMarker implements Serializable {
         
-        private Placeholder(Object key, Element element) {
-            this.key = key;
-            this.element = element;
-        }
-
-        /**
-         * {@inheritDoc}
-         */
-        public ElementSubstituteFactory<ElementSubstitute> getFactory() {
-            return DiskPersistentStorageFactory.this;
-        }
-    }
-
-    private static final AtomicReferenceFieldUpdater<CachingDiskMarker, Element> CACHED_UPDATER = AtomicReferenceFieldUpdater.newUpdater(CachingDiskMarker.class, Element.class, "cached");
-    
-    final class CachingDiskMarker extends DiskMarker {
-
-        protected volatile Element cached;
+        private static final long serialVersionUID = 42;
+        private static final AtomicReferenceFieldUpdater<CachingDiskMarker, Element> CACHED_UPDATER =
+            AtomicReferenceFieldUpdater.newUpdater(CachingDiskMarker.class, Element.class, "cached");
         
-        public CachingDiskMarker(DiskMarker previous, Object key, int size, long hitCount, long expiry) {
-            super(previous, key, size, hitCount, expiry);
+        private transient volatile Element cached;
+        
+        CachingDiskMarker(DiskPersistentStorageFactory factory, DiskMarker previous, int size, Element element) {
+            super(factory, previous, size, element);
         }
 
-        public CachingDiskMarker(Object key, long position, int size, long hitCount, long expiry) {
-            super(key, position, size, hitCount, expiry);
+        CachingDiskMarker(DiskPersistentStorageFactory factory, long position, int size, Element element) {
+            super(factory, position, size, element);
         }
 
-        public boolean cache(Element element) {
+        boolean cache(Element element) {
             return CACHED_UPDATER.compareAndSet(this, null, element);
         }
 
-        public boolean flush() {
+        boolean flush() {
             return CACHED_UPDATER.getAndSet(this, null) != null;
         }
         
-        public Element getCached() {
+        Element getCached() {
             return CACHED_UPDATER.get(this);
         }
         
-        public boolean isCaching() {
+        boolean isCaching() {
             return getCached() == null;
         }
     }
     
-    class InMemoryFilter implements ElementSubstituteFilter<ElementSubstitute> {
+    /**
+     * Filters for in-memory elements created by this factory
+     */
+    private class InMemoryFilter implements ElementSubstituteFilter<ElementSubstitute> {
 
+        /**
+         * {@inheritDoc}
+         */
         public boolean allows(Object object) {
             if (!created(object)) {
                 return false;
             }
             
-            if (object instanceof Placeholder) {
+            if (object instanceof DiskStorageFactory.Placeholder) {
                 return true;
             } else if (object instanceof CachingDiskMarker) {
                 return ((CachingDiskMarker) object).isCaching();
@@ -242,9 +295,15 @@ public class DiskPersistentStorageFactory extends DiskStorageFactory<ElementSubs
             }
         }
     }
-    
-    class OnDiskFilter implements ElementSubstituteFilter<ElementSubstitute> {
 
+    /**
+     * Filters for on-disk elements created by this factory
+     */
+    private class OnDiskFilter implements ElementSubstituteFilter<ElementSubstitute> {
+
+        /**
+         * {@inheritDoc}
+         */
         public boolean allows(Object object) {
             if (!created(object)) {
                 return false;
@@ -258,44 +317,158 @@ public class DiskPersistentStorageFactory extends DiskStorageFactory<ElementSubs
         }
     }
 
+    /**
+     * Return {@code true} if the given element is in memory
+     */
     public boolean isInMemory(Object object) {
         return inMemoryFilter.allows(object);
     }
     
+    /**
+     * Return {@code true} if the given element is on disk
+     */
     public boolean isOnDisk(Object object) {
         return onDiskFilter.allows(object);
     }
 
+    /**
+     * Return the number of in-memory elements
+     */
     public int getInMemorySize() {
         return inMemory.get();
     }
     
+    /**
+     * Return the number of on-disk elements
+     */
     public int getOnDiskSize() {
         return onDisk.get();
     }
 
-    class DiskFlushTask implements Callable<Void> {
+    /**
+     * Placeholder implementation for disk persistent stores.
+     */
+    private final class PersistentPlaceholder extends Placeholder {
 
-        public Void call() {
+        /**
+         * Create a disk persistent placeholder around the given key, element pair.
+         */
+        PersistentPlaceholder(Element element) {
+            super(DiskPersistentStorageFactory.this, element);
+        }
+
+        public void installed() {
+            DiskPersistentStorageFactory.this.schedule(new PersistentDiskWriteTask(this));
+        }
+    }
+
+    /**
+     * Disk write task implementation for disk persistent stores.
+     */
+    private final class PersistentDiskWriteTask extends DiskWriteTask {
+
+        /**
+         * Create a disk persistent disk-write task for this placeholder.
+         */
+        PersistentDiskWriteTask(PersistentPlaceholder p) {
+            super(p);
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public Boolean call() {
+            Boolean result = super.call();
+            //don't want to increment on exception throw
+            onDisk.incrementAndGet();
+            return result;
+        }
+    }
+    
+    /**
+     * Task that writes the index file for this factory.
+     */
+    class IndexWriteTask implements Callable<Void> {
+
+        private final File index;
+
+        /**
+         * Create a disk flush task that writes to the given file.
+         */
+        IndexWriteTask(File index) {
+            this.index = index;
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        public synchronized Void call() throws IOException {
             //lock all segments
+            ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(index));
             try {
                 for (Object key : store.keySet()) {
                     Object o = store.unretrievedGet(key);
-                    if (o instanceof Placeholder) {
-                        //run the disk write task inline here
+                    if (o instanceof PersistentPlaceholder) {
+                        new PersistentDiskWriteTask((PersistentPlaceholder) o).call();
+                        o = store.unretrievedGet(key);
                     }
-                    if (o instanceof CachingDiskMarker) {
-                        ((CachingDiskMarker) o).flush();
+                    
+                    CachingDiskMarker marker = (CachingDiskMarker) o;
+                    if (true) {
+                        marker.flush();
                     }
 
                     //write stuff out to disk here
                     //key, value pairs
+                    oos.writeObject(key);
+                    oos.writeObject(marker);
                 }
             } finally {
+                oos.close();
                 //unlock all segments
             }
             return null;
         }
         
+    }
+    
+    private void loadIndex(CompoundStore store) {
+        if (!indexFile.exists()) {
+            return;
+        }
+        
+        try {
+            //lock all segments?
+            ObjectInputStream ois = new ObjectInputStream(new FileInputStream(indexFile));
+            try {
+                while (true) {
+                    Object key = ois.readObject();
+                    CachingDiskMarker marker = (CachingDiskMarker) ois.readObject();
+                    marker.bindFactory(this);
+                    if (store.putRawIfAbsent(key, marker)) {
+                        onDisk.incrementAndGet();
+                    } else {
+                        throw new AssertionError();
+                    }
+                }
+            } finally {
+                ois.close();
+                //unlock all segments?
+            }
+        } catch (EOFException e) {
+            return;
+        } catch (Exception e) {
+            LOG.warn("Index file {} is corrupt, deleting and ignoring it : {}", indexFile, e);
+            store.removeAll();
+            indexFile.delete();
+        }
+    }
+
+    /**
+     * Return the index file for this store.
+     */
+    public File getIndexFile() {
+        return indexFile;
     }
 }

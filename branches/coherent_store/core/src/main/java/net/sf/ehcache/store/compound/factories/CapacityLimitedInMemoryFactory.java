@@ -28,7 +28,6 @@ import net.sf.ehcache.store.compound.ElementSubstitute;
 import net.sf.ehcache.store.compound.ElementSubstituteFilter;
 import net.sf.ehcache.store.compound.IdentityElementSubstituteFactory;
 import net.sf.ehcache.store.compound.CompoundStore;
-import net.sf.ehcache.store.compound.factories.DiskOverflowStorageFactory.Placeholder;
 
 /**
  * An implementation of a capacity limited in-memory factory.
@@ -122,9 +121,7 @@ public class CapacityLimitedInMemoryFactory implements IdentityElementSubstitute
             } else {
                 try {
                     ElementSubstitute substitute = secondary.create(target.getObjectKey(), target);
-                    if (boundStore.fault(target.getObjectKey(), target, substitute)) {
-                        ((Placeholder) substitute).schedule();
-                    }
+                    boundStore.fault(target.getObjectKey(), target, substitute);
                 } catch (IllegalArgumentException e) {
                     if (boundStore.evict(target.getObjectKey(), target)) {
                         eventService.notifyElementEvicted(target, false);

@@ -40,7 +40,6 @@ import org.slf4j.LoggerFactory;
 
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.DiskStoreConfiguration;
-import net.sf.ehcache.store.DiskStore;
 import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
 import net.sf.ehcache.store.Primitive;
 import net.sf.ehcache.store.Store;
@@ -429,34 +428,33 @@ public class DiskStoreTest extends AbstractCacheTest {
      */
     @Test
     public void testLoadPersistentStoreAfterCorruption() throws IOException, InterruptedException {
-        fail("Fix this");
-//        //initialise
-//        String cacheName = "testPersistent";
-//        Store diskStore = createPersistentDiskStore(cacheName);
-//        diskStore.removeAll();
-//
-//
-//        for (int i = 0; i < 100; i++) {
-//            byte[] data = new byte[1024];
-//            diskStore.put(new Element("key" + (i + 100), data));
-//        }
-//        waitShorter();
-//        assertEquals(ELEMENT_ON_DISK_SIZE * 100, diskStore.getOnDiskSizeInBytes());
-//        assertEquals(100, diskStore.getSize());
-//        manager.removeCache(cacheName);
-//
-//        File indexFile = ((DiskPersistentStore) diskStore).getIndexFile();
-//        FileOutputStream fout = new FileOutputStream(indexFile);
-//        //corrupt the index file
-//        fout.write(new byte[]{'q', 'w', 'e', 'r', 't', 'y'});
-//        fout.close();
-//        diskStore = createPersistentDiskStore(cacheName);
-//        File dataFile = ((DiskPersistentStore) diskStore).getDataFile();
-//        assertTrue("File exists", dataFile.exists());
-//
-//        //Make sure the data file got recreated since the index was corrupt
-//        assertEquals("Data file was not recreated", 0, dataFile.length());
-//        assertEquals(0, diskStore.getSize());
+        //initialise
+        String cacheName = "testPersistent";
+        Store diskStore = createPersistentDiskStore(cacheName);
+        diskStore.removeAll();
+
+
+        for (int i = 0; i < 100; i++) {
+            byte[] data = new byte[1024];
+            diskStore.put(new Element("key" + (i + 100), data));
+        }
+        waitShorter();
+        assertEquals(ELEMENT_ON_DISK_SIZE * 100, diskStore.getOnDiskSizeInBytes());
+        assertEquals(100, diskStore.getSize());
+        manager.removeCache(cacheName);
+
+        File indexFile = ((DiskPersistentStore) diskStore).getIndexFile();
+        FileOutputStream fout = new FileOutputStream(indexFile);
+        //corrupt the index file
+        fout.write(new byte[]{'q', 'w', 'e', 'r', 't', 'y'});
+        fout.close();
+        diskStore = createPersistentDiskStore(cacheName);
+        File dataFile = ((DiskPersistentStore) diskStore).getDataFile();
+        assertTrue("File exists", dataFile.exists());
+
+        //Make sure the data file got recreated since the index was corrupt
+        assertEquals("Data file was not recreated", 0, dataFile.length());
+        assertEquals(0, diskStore.getSize());
     }
 
     /**
@@ -1200,7 +1198,7 @@ public class DiskStoreTest extends AbstractCacheTest {
      * <p/>
      * Slow tests
      */
-    @Test
+    //@Test
     public void testMaximumCacheEntriesIn64MBWithOverflowToDisk() throws Exception {
 
         Cache cache = new Cache("test", 1000, MemoryStoreEvictionPolicy.LRU, true, null, true, 500, 500, false, 1, null);

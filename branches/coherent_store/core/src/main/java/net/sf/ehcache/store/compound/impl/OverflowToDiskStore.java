@@ -236,7 +236,10 @@ public final class OverflowToDiskStore extends CompoundStore implements CacheCon
     public int getTerracottaClusteredSize() {
         return 0;
     }
-    
+
+    /**
+     * Return a reference to the file backing this store.
+     */
     public File getDataFile() {
         return diskFactory.getDataFile();
     }
