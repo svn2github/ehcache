@@ -4,6 +4,14 @@
 
 {Key Ehcache Concepts}
 
+* Definitions
+
+    * System of Record : 
+    The core premise of caching assumes that there is a source of truth for 
+    the data.  This is often referred to as a 
+    {{{http://en.wikipedia.org/wiki/System_of_record}System of Record (SOR)}}.
+    The cache acts as a local copy of data retrieved from or stored to 
+    the System of Record.  
 
 * Key Ehcache Classes
 
@@ -82,39 +90,217 @@
     makes it very easy to start with caching Objects and then change your Objects to Seralizable to participate in
     the extra features when needed. Also a large number of Java classes are simply not Serializable.
 
-
 * {Cache Usage Patterns}
 
-    Caches can be used in different ways. Each of these ways follows a cache usage pattern.
-    Ehcache supports the following:
+    Caches can be used in several different ways. Each of these ways 
+    follows a cache usage pattern.  Ehcache supports the following:
 
-    * direct manipulation
+    * cache-aside (or direct manipulation)
 
-    * pull-through
+    * cache-as-sor (combination of the following patterns)
 
-    * self-populating
+        * read-through
+
+        * write-through
+
+        * write-behind (or write-back)
+
+** Cache-aside
+
+    Here, application code uses the cache directly.  
+
+    This means that code that accesses the System of Record must consult
+    the cache first, and if it contains the data, then the data is returned 
+    from the cache.  Otherwise, the data is fetched from the System of 
+    Record, stored in the cache and returned.
+
+    When data is written, the cache must be updated with the System of 
+    Record.
+
+    This results in code that often looks like the following pseudo-code:
+
+------------------------
+public class MyDataAccessClass 
+{
+    private final Ehcache cache;
+
+    public MyDataAccessClass(Ehcache cache)
+    {
+        this.cache = cache;
+    }
+    
+    /* read some data, check cache first, otherwise read from sor */
+    public V readSomeData(K key) 
+    {
+        Element element;
+        if ((element = cache.get(key)) != null) {
+            return element.getValue();
+        }
+
+        value = readDataFromDataStore(key);
+        cache.put(new Element(key, value));
+    
+        return value;
+    }
 
 
-** Direct Manipulation
+    /* write some data, write to sor, then update cache */
+    public void writeSomeData(K key, V value) 
+    {
+        writeDataToDataStore(key, value);
+        cache.put(new Element(key, value);
+    }
+}
+------------------------
 
-    Here, to put something in the cache you do <<<cache.put(Element element)>>> and to get something
-    from the cache you do <<<cache.get(Object key)>>>.
+** Cache-as-sor
 
-    You are aware you are using a cache and you are doing so consciously.
+    Cache as System or Record (SOR) implies using the cache as though it
+    were the primary system of record.  This pattern delegates the 
+    act of reading from and writing to the SOR to cache, so application
+    code is absolved of this responsibility.
 
-** Self Populating
+    To implement the Cache-as-sor pattern requires combining the a read
+    pattern known as read-through with one of the following write patterns:
 
-    Here, you just do gets to the cache using <<<cache.get(Object key)>>>. The cache itself knows
-    how to populate an entry.
+    * write-through
 
-    See the SelfPopulatingCache for more on this pattern.
+    * write-behind
+
+    []
+
+    Advantages of using the Cache-as-sor pattern are:
+    
+    * Less cluttered application code (improved maintainability)
+    
+    * Easily choose between write-through or write-behind strategies on a per-cache basis
+
+    * Allow the cache to solve the "thundering-herd" (TODO: explain) problem
+
+    []
+
+    Disadvantages are:
+
+    * Less directly visible code-path
+
+    []
+
+*** Read-through
+
+    The read-through pattern mimics the structure of the cache-aside pattern
+    when reading data.  The difference is that you must implement the 
+    <<<CacheEntryFactory>>> interface to instruct the cache how to read 
+    objects on a cache miss, and you must wrap the Ehcache instance with
+    an instance of <<<SelfPopulatingCache>>>.
+
+    
+    Compare the appearance of the read-through pattern code to the 
+    code provided in the cache-aside pattern.  (The full example is 
+    provided at the end of this document that includes a read-through 
+    and write-through implementation).
+
+*** Write-through
+
+    The write-through pattern mimics the structure of the cache-aside pattern
+    when writing data.  The difference is that you must implement the
+    <<<CacheWriter>>> interface and configure the cache for write-through
+    or write-behind.
 
 
+    A write-through cache writes data to the System of Record in the same
+    thread of execution, therefore in the common scenario of using a database
+    transaction in context of the thread, the write to the database is covered 
+    by the transaction in scope.
 
 
+    More details (including configuration settings) can be found in the User
+    Guide chapter on 
+    {{{http://ehcache.org/documentation/write_through_caching.html}Write-through and Write-behind Caching}}.
 
+*** Write-behind
 
+    The write-behind pattern changes the timing of the write to the System
+    of Record. Rather than writing to the System of Record in the same thread
+    of execution, write-behind queues the data for write at a later time.
 
+    The consequences of the change from write-through to write-behind are that
+    the data write using write-behind will occur outside of the scope of the 
+    transaction.
 
-     
+    This often-times means that a new transaction must be created to commit
+    the data to the System of Record that is separate from the main transaction.
+    
+    More details (including configuration settings) can be found in the User
+    Guide chapter on 
+    {{{http://ehcache.org/documentation/write_through_caching.html}Write-through and Write-behind Caching}}.
+ 
+*** Cache-as-sor Example
 
+------------------------
+public class MyDataAccessClass 
+{
+    private final Ehcache cache;
+
+    public MyDataAccessClass(Ehcache cache)
+    {
+        cache.registerCacheWriter(new MyCacheWriter());
+        this.cache = new SelfPopulatingCache(cache);
+    }
+
+    /* read some data */
+    public V readSomeData(K key) 
+    {
+        return cache.get(key);
+    }
+
+    /* write some data */
+    public void writeSomeData(K key, V value) 
+    {
+        cache.put(new Element(key, value);
+    }
+
+    /* Data reads from the cache occur here */
+    private class MyCacheEntryFactory implements CacheEntryFactory
+    {
+        public Object createEntry(Object key) throws Exception
+        {
+            return readDataFromDataStore(key);
+        }    
+    }
+
+    /* Data writes from the cache occur here */
+    private class MyCacheWriter implements CacheWriter 
+        public CacheWriter clone(Ehcache cache) throws CloneNotSupportedException;
+        {
+            throw new CloneNotSupportedException();
+        }
+
+        public void init() { }
+        void dispose() throws CacheException { } 
+
+        void write(Element element) throws CacheException;
+        {
+            writeDataToDataStore(element.getKey(), element.getValue());
+        }
+
+        void writeAll(Collection<Element> elements) throws CacheException
+        {
+            for (Element element : elements) {
+                write(element);
+            }
+        }
+
+        void delete(CacheEntry entry) throws CacheException
+        {
+            deleteDataFromDataStore(element.getKey());
+        }
+
+        void deleteAll(Collection<CacheEntry> entries) throws CacheException
+        {
+            for (Element element : elements) {
+                delete(element);
+            }
+        }
+    }
+}
+------------------------

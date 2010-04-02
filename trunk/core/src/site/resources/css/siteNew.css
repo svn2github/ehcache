@@ -341,7 +341,7 @@ font-size: 12px;
 }
 
 p {
-margin: 0;
+margin: 1.2em 0 0 0;
 }
 
 table {
@@ -436,14 +436,6 @@ padding: 0;
 }
 
 
-
-
-
-
-
-
-
-
 #Footer {
 background-color: #f4f2ef;
 color: #666666;
@@ -454,13 +446,6 @@ text-align: center;
 width: 1090px;
 float: left;
 }
-
-
-
-
-
-
-
 
 
 #navList {
@@ -488,25 +473,4 @@ a img {
     padding: 5px 10px 10px 10px;
     margin-bottom: 10px;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
