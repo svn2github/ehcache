@@ -313,7 +313,7 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
             if (ehcacheXAStore.getPreparedContext(xid) == null) {
                 onePhaseCommit(xid);
             } else {
-                throw new IllegalStateException(xid + " has been prepared! Cannot operate one phased commit!");
+                throw new EhcacheXAException(xid + " has been prepared! Cannot operate one phased commit!", XAException.XAER_PROTO);
             }
         } else {
             PreparedContext context = ehcacheXAStore.getPreparedContext(xid);
@@ -519,7 +519,7 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
         try {
             validateCommands(context, xid);
 
-            LOG.debug("{} phase commit called for Txn with id: {} One", xid);
+            LOG.debug("One phase commit called for Txn with id: {}", xid);
 
             // Execute write command within the real underlying store
             boolean writes = false;
