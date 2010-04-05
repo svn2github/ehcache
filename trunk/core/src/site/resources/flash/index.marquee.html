@@ -46,6 +46,9 @@
                 </div>
                 <div id="customers"><a href="/customers.html"><span>Customers</span></a>
                 </div>
+                
+                
+                
                 <form method="GET" action="http://www.google.com/custom"><input name="q" size="15" maxlength="255" value="" type="text">
                     <input name="sa" value="Search" type="submit"><input name="cof" value="GALT:#3C3E29;S:http://gregluck.com;VLC:#9C8E69;AH:left;BGC:white;LH:31;LC:#9C8E69;GFNT:#3C3E29;L:http://ehcache.org/images/ehcache_logo.gif;ALC:#9C8E69;LW:211;T:#4C4E39;GIMP:#3C3E29;AWFID:12c1e42dc993d5c6;" type="hidden"><input name="domains" value="ehcache.org" type="hidden"><input name="sitesearch" value="ehcache.org" type="hidden">
                 </form>
@@ -334,26 +337,76 @@
             
             
             
+   
+
            
              <!--[if !IE]> -->
-            <object type="application/x-shockwave-flash"
-              data="tabparent.swf" width="650" height="400">
-            <!-- <![endif]-->
+			 <script type="text/javascript" language="javascript"> 
+			 
+			 /** 	An auto string sorting from Array handler but for now
+			 *		structure the two strings in a comma delimited list.
+			 *		i.e. no spaces object 1,object 2,object 3
+			 *	
+			 *		Spaces around commas that is.
+			 *		Order them in matching Title->Content pairs.
+			 *
+			 */
+			 var titles = "Scale Continuum,APIs,Editions";
+			 var content = "marquee.swf,apis.swf,apis.swf";
+			 
+			 
+			 
+			 
+			 
+           document.write('<object type="application/x-shockwave-flash"');
+             document.write(' data="tabparent.swf" width="650" height="400"' +
+			  
+              
+              'FlashVars="' +
+              
+              'titles='+titles+ 
+              '&' +
+             'content='+ content +
+              
+			  '"' +
+			  " >");
+			 
+            document.write('<!-- <![endif]-->');
             
-            <!--[if IE]>
-            <object classid="clsid:D27CDB6E-AE6D-11cf-96B8-444553540000"
-              codebase="http://download.macromedia.com/pub/shockwave/cabs/flash/swflash.cab#version=6,0,0,0"
-              width="600" height="400">
-              <param name="movie" value="tabparent.swf" />
-            <!--><!--dgx-->
-              <param name="loop" value="true" />
-              <param name="menu" value="false" />
+            document.write('<!--[if IE]>');
+           document.write(' <object classid="clsid:D27CDB6E-AE6D-11cf-96B8-444553540000"',
+             ' codebase="http://download.macromedia.com/pub/shockwave/cabs/flash/swflash.cab#version=6,0,0,0"',
+             ' width="650" height="400"');
+			  
+               document.write('FlashVars="');
+              
+              document.write('titles='+ titles);
+              document.write('&');
+              document.write('content='+ content);
+              
+			  document.write('"');
+			  document.write(" />");
+			  
+			  document.write(" />");
+              document.write('<param name="movie" value="tabparent.swf" />');
+           document.write(' <!--><!--dgx-->');
+             document.write(' <param name="loop" value="true" />');
+             document.write(' <param name="menu" value="false" />');
+			  
+			  
+              document.write('<param name=FlashVars VALUE="');
+              
+              
+               document.write('titles='+titles);
+              document.write('&');
+              document.write('content='+ content);
+              document.write('" />');
             
-              <p>Get the latest flash player.</p>
-            </object>
-            <!-- <![endif]-->
-            
-            
+             document.write(' <p>Get the latest flash player.</p>',
+           '</object>',
+           ' <!-- <![endif]-->');
+            </script>
+             
             
             
             
