@@ -39,8 +39,9 @@ public class XARequest {
     /**
      * Constructor
      * 
-     * @param requestType
-     * @param xid
+     * @param requestType what request is this representing
+     * @param txn the Transaction this request is being executed for
+     * @param xid the Xid of the transaction this request is being executed for
      */
     public XARequest(RequestType requestType, Transaction txn, Xid xid) {
         this(requestType, txn, xid, XAResource.TMNOFLAGS, false);
@@ -49,9 +50,10 @@ public class XARequest {
     /**
      * Constructor
      * 
-     * @param requestType
-     * @param xid
-     * @param flags
+     * @param requestType what request is this representing
+     * @param txn the Transaction this request is being executed for
+     * @param xid the Xid of the transaction this request is being executed for
+     * @param flags the flags passed to the XAResource, when the request is made
      */
     public XARequest(RequestType requestType, Transaction txn, Xid xid, int flags) {
         this(requestType, txn, xid, flags, false);
@@ -60,10 +62,11 @@ public class XARequest {
     /**
      * Constructor
      * 
-     * @param requestType
-     * @param xid
-     * @param flags
-     * @param onePhase
+     * @param requestType what request is this representing
+     * @param txn the Transaction this request is being executed for
+     * @param xid the Xid of the transaction this request is being executed for
+     * @param flags the flags passed to the XAResource, when the request is made
+     * @param onePhase whether this is a single phase commit
      */
     public XARequest(RequestType requestType, Transaction txn, Xid xid, int flags, boolean onePhase) {
         this.requestType = requestType;
@@ -104,7 +107,7 @@ public class XARequest {
 
     /**
      * 
-     * @return
+     * @return the type of request
      */
     public RequestType getRequestType() {
         return requestType;
@@ -112,7 +115,7 @@ public class XARequest {
 
     /**
      * 
-     * @return
+     * @return the Xid of the Transaction
      */
     public Xid getXid() {
         return xid;
@@ -120,7 +123,7 @@ public class XARequest {
 
     /**
      * 
-     * @return
+     * @return the flags passed to the XAResource when this request was made
      */
     public int getFlags() {
         return flags;
@@ -128,14 +131,16 @@ public class XARequest {
 
     /**
      * 
-     * @return
+     * @return true is one phase commit requested, otherwise false
      */
     public boolean isOnePhase() {
         return onePhase;
     }
 
     /**
-     * get the current transactions
+     * get the current transaction
+     *
+     * @return the transaction for this request
      */
     public Transaction getTransaction() {
         return txn;
