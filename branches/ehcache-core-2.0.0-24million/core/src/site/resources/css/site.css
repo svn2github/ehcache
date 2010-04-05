@@ -1,0 +1,465 @@
+body {
+    font-family: helvetica, arial, sans-serif;
+    color: #666666;
+    font-size: 12px;
+    padding-left: 3px;
+    font-weight: normal;
+    line-height: 16px;
+    margin: 0.0em 5em 5.4em 5em;
+    background: #FFFFFF;
+}
+
+b {
+    color: #666666;
+    font-family: helvetica, arial sans-serif;
+    font-weight: bold;
+}
+
+tt {
+    color: #666666;
+    font-size: 13px;
+
+}
+
+.xright-red {
+    float: right;
+    background: #d42e12;
+    font-size: 11px;
+    font-weight: bold;
+    color: #ffffff;
+    padding-top: 4px;
+    padding-left: 20px;
+    padding-right: 20px;
+    padding-bottom: 4px;
+}
+
+.xright-trans {
+    float: right;
+    font-family: helvetica, arial sans-serif;
+    font-weight: bold;
+    font-size: 11px;
+    font-weight: bold;
+    padding-left: 7px;
+    padding-right: 7px;
+    padding-top: 3px;
+    padding-bottom: 3px;
+}
+
+.xright-orange {
+    float: right;
+    background: #d97300;
+    font-size: 11px;
+    font-weight: bold;
+    color: #ffffff;
+    padding-top: 4px;
+    padding-left: 20px;
+    padding-right: 20px;
+    padding-bottom: 4px;
+}
+
+.panel-orange {
+    float: right;
+    width: 80%;
+    background: #ccc;
+    font-size: 11px;
+    font-weight: bold;
+    font-alignment: center;
+    text-align: center;
+    color: #ffffff;
+    padding-top: 3px;
+    padding-left: 15px;
+    padding-right: 15px;
+    padding-bottom: 3px;
+    border-color: white;
+    border-style: solid;
+    border-bottom-width: 2px
+}
+
+.panel-yellow {
+    float: right;
+    width: 80%;
+    background: #ccc;
+    font-size: 11px;
+    font-weight: bold;
+    font-alignment: center;
+    text-align: center;
+    color: #ffffff;
+    padding-top: 3px;
+    padding-left: 15px;
+    padding-right: 15px;
+    padding-bottom: 3px;
+    border-color: white;
+    border-style: solid;
+    border-bottom-width: 2px
+}
+
+.panel-red {
+    float: right;
+    width: 80%;
+    background: #ccc;
+    font-size: 11px;
+    font-weight: bold;
+    font-alignment: center;
+    text-align: center;
+    color: #ffffff;
+    padding-top: 3px;
+    padding-left: 15px;
+    padding-right: 15px;
+    padding-bottom: 3px;
+    border-color: white;
+    border-style: solid;
+    border-bottom-width: 2px
+}
+
+.panel-blue {
+    float: right;
+    width: 80%;
+    background: #ccc;
+    font-size: 11px;
+    font-weight: bold;
+    font-alignment: center;
+    text-align: center;
+    color: #ffffff;
+    padding-top: 3px;
+    padding-left: 15px;
+    padding-right: 15px;
+    padding-bottom: 3px;
+    border-color: white;
+    border-style: solid;
+    border-bottom-width: 2px
+}
+
+
+.panel-brown {
+    float: right;
+    width: 80%;
+    background: #ccc;
+    font-size: 11px;
+    font-weight: bold;
+    font-alignment: center;
+    text-align: center;
+    color: #ffffff;
+    padding-top: 0px;
+    padding-left: 15px;
+    padding-right: 15px;
+    padding-bottom: 0px;
+    border-color: white;
+    border-style: solid;
+    border-bottom-width: 2px
+}
+
+.xright-orange-small {
+    float: right;
+    background: #d97300;
+    font-size: 11px;
+    font-weight: bold;
+    color: #ffffff;
+    padding-top: 3px;
+    padding-left: 15px;
+    padding-right: 15px;
+    padding-bottom: 3px;
+}
+
+.xright-orange a:visited, .xright-orange a:link, .xright-yellow a:visited, .xright-yellow a:link, .xright-red a:visited, .xright-red a:link {
+    color: #ffffff;
+}
+
+.panel-blue a:visited, .panel-blue a:link, .panel-brown a:visited, .panel-brown a:link, .panel-yellow a:visited, .panel-yellow a:link, .panel-red a:visited, .panel-red a:link, .panel-orange a:visited, .panel-orange a:link, .xright-orange-small a:visited, .xright-orange-small a:link, .xright-trans a:visited, .xright-trans a:link {
+    color: #444444;
+}
+
+.xright-yellow {
+    float: right;
+    background: #fa9e0d;
+    font-size: 11px;
+    font-weight: bold;
+    color: #ffffff;
+    padding-top: 4px;
+    padding-left: 20px;
+    padding-right: 20px;
+    padding-bottom: 4px;
+}
+
+.fixedwidth {
+    width: 30em;
+}
+
+#page-logo {
+    font-family: helvetica, arial, sans-serif;
+    color: #4C4E39;
+    font-size: 30px;
+    font-weight: normal;
+    padding-top: 25px;
+    padding-left: 3px;
+    padding-right: 15px;
+    padding-bottom: 25px;
+    text-align: right;
+}
+
+#page-title {
+    font-family: helvetica, arial, sans-serif;
+    font-size: 16px;
+    color: #dCdEa9;
+}
+
+#page-buttons {
+    padding: 2px;
+    color: #4C4E39;
+    background: #d3d2c4;
+    text-align: left;
+    height: 1.5em;
+    margin-bottom: .1em;
+}
+
+h1, .toc {
+    color: #4C4E39;
+    border-bottom: 3px solid #a6a698;
+    font-size: 1.3em;
+    font-family: helvetica, arial, sans-serif;
+    margin: 1.5em 0em .5em 0em; /*font-weight: bold;*/
+}
+
+h2 {
+    color: #4C4E39;
+    font-size: 1.2em;
+    font-family: helvetica, arial, sans-serif;
+    margin: 1em 0em .5em 0em;
+    font-weight: bold;
+    border-bottom: 1px solid #d3d2c4;
+}
+
+h3 {
+    color: #4C4E39;
+    font-size: 1.1em;
+    font-family: helvetica, arial, sans-serif;
+    margin: 0.4em 0em 0em 0em;
+    border-bottom: 1px solid #d3d2c4;
+}
+
+h4 {
+    color: #4C4E39;
+    font-size: 1.0em;
+    font-family: helvetica, arial, sans-serif;
+    margin: 0.4em 0em 0.4em 0em;
+    font-style: italic;
+}
+
+h5, .toc1, #navcolumn h5 {
+    color: #4C4E39;
+    font-size: 1.2em;
+    font-family: helvetica, arial, sans-serif;
+    margin: 0.4em 0em 0.4em 0em;
+    font-style: italic;
+}
+
+h6 {
+    color: #4C4E39;
+    font-size: 1.1em;
+    font-family: arial, helvetica, sans-serif;
+    margin: 0.4em 0em 0.4em 0em;
+    font-weight: bold;
+}
+
+table {
+    font-family: monospace;
+    border-collapse: collapse;
+    border-spacing: 0px;
+    width: 97%;
+    margin: .5em .5em .5em .5em;
+    text-align: left;
+}
+
+th {
+    background: #edeEb9;
+    font-size: .9em;
+    font-family: arial, helvetica, sans-serif;
+    border-top: 1px solid #ac9e69;
+    border-right: 1px solid #ac9e69;
+    border-left: 1px solid #ac9e69;
+    font-weight: bold;
+    margin: 1.0em 0em 0em 0em;
+    padding: .8em;
+    color: #1C1E09;
+}
+
+td {
+    background: #edeEb9;
+    font-size: .9em;
+    border-bottom: 1px solid #ac9e69;
+    border-top: 1px solid #ac9e69;
+    border-right: 1px solid #ac9e69;
+    border-left: 1px solid #ac9e69;
+    padding: .8em;
+    color: #1C1E09;
+}
+
+caption {
+    margin: .6em 0em 0em 0em;
+    font-family: arial, helvetica, sans-serif;
+    font-size: 1.0em;
+    color: #1C1E09;
+    font-weight: bold;
+}
+
+code {
+    font-family: monospace;
+    color: #666666;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+ul {
+    list-style: square;
+}
+
+ul ul {
+    list-style: disc;
+}
+
+ol ol {
+    list-style: lower-roman;
+}
+
+a:link, a:visited {
+    color: #3686BC;
+    text-decoration: none;
+}
+
+hr {
+    border: 0;
+    height: 1px;
+    color: #9C8E59;
+    background-color: #9C8E59;
+}
+
+#page-logo * {
+    font-family: helvetica, arial, sans-serif;
+    font-size: 30px;
+    font-weight: normal;
+    color: #4C4E39;
+}
+
+#page-tagline {
+    font-family: helvetica, arial, sans-serif;
+    color: #0066CC;
+    font-size: 16px;
+    font-weight: bold;
+    background: #99CCFF;
+    padding-left: 15px;
+    padding-right: 15px; /*modified by Ash*/
+    padding-top: 2px;
+    padding-bottom: 0px;
+    height: 0em; /*end mod*/
+}
+
+#page-wrapper {
+    width: 90%; /*display: table-row;*/
+    table-layout: fixed;
+    background: #FFF;
+}
+
+#footer {
+    border-top: 1px solid #aaa;
+    border-bottom: 1px solid #aaa;
+    background-color: #ccc;
+}
+
+/* Maven overrides */
+#banner {
+    padding: 6px 0px 6px 0px;
+}
+
+#leftColumn {
+    width: 170px;
+    float: left;
+}
+
+#rightColumn {
+    width: 170px;
+    float: right;
+    overflow: hidden;
+}
+
+#bodyColumn {
+    margin-right: 1.5em;
+    margin-left: 197px;
+    margin-right: 197px;
+}
+
+#navcolumn {
+    padding: 4px 4px 20px 4px;
+}
+
+#navcolumn li {
+    list-style-type: none;
+    background-image: none;
+    background-repeat: no-repeat;
+    background-position: 0 0.4em;
+    padding-left: 6px;
+    padding-bottom: 2px;
+    list-style-position: outside;
+    line-height: 1.2em;
+    font-size: smaller;
+}
+
+h2 {
+    padding: 4px 4px 4px 6px;
+    border: 1px solid #999;
+    background-color: #ddd;
+    font-weight: 900;
+    font-size: x-large;
+}
+
+h3 {
+    padding: 4px 4px 4px 6px;
+    border: 1px solid #aaa;
+    background-color: #eee;
+    font-weight: normal;
+    font-size: large;
+}
+
+h4 {
+    padding: 4px 4px 4px 6px;
+    border: 1px solid #bbb;
+    background-color: #fafafa;
+    font-weight: normal;
+    font-size: medium;
+}
+
+h5 {
+    padding: 4px 4px 4px 6px;
+    font-size: large;
+}
+
+p {
+    line-height: 1.3em;
+    font-size: small;
+}
+
+input {
+    font-family: helvetica, arial, sans-serif;
+    color: #666666;
+    font-size: 10px;
+    font-weight: normal;
+    background: #eee;
+}
+
+.submit input {
+    color: #666666;
+    background: #ddd;
+
+}
+
+/* This is the css style that will make your text blink.*/
+.blinkytext {
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 1.2em;
+    text-decoration: blink;
+    font-style: normal;
+}
+
+#search {
+    padding: 8px 5px 2px 5px;
+    text-align: right;
+}
+
