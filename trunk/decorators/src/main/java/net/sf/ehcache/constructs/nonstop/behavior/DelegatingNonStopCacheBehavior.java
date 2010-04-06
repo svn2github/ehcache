@@ -23,155 +23,145 @@ import net.sf.ehcache.Element;
 import net.sf.ehcache.constructs.nonstop.NonStopCacheBehavior;
 
 /**
- * CacheBehavior that delegates all operations to another
- * {@link NonStopCacheBehavior}
+ * CacheBehavior that delegates all operations to another {@link NonStopCacheBehavior}
  * 
  * @author Abhishek Sanoujam
  * 
  */
 public class DelegatingNonStopCacheBehavior implements NonStopCacheBehavior {
 
-	/**
-	 * Interface that knows how to get the delegate
-	 * 
-	 */
-	public static interface DelegateHolder {
-		/**
-		 * returns the delegate associated with this holder
-		 * 
-		 * @return the delegate associated with this holder
-		 */
-		public NonStopCacheBehavior getDelegate();
-	}
+    /**
+     * Interface that knows how to get the delegate
+     * 
+     */
+    public static interface DelegateHolder {
+        /**
+         * returns the delegate associated with this holder
+         * 
+         * @return the delegate associated with this holder
+         */
+        public NonStopCacheBehavior getDelegate();
+    }
 
-	/**
-	 * The delegateHolder
-	 */
-	private final DelegateHolder delegateHolder;
+    /**
+     * The delegateHolder
+     */
+    private final DelegateHolder delegateHolder;
 
-	/**
-	 * Constructor accepting a {@link DelegateHolder} that knows how to locate
-	 * the delegate {@link NonStopCacheBehavior}
-	 * 
-	 * @param delegate
-	 */
-	public DelegatingNonStopCacheBehavior(DelegateHolder holder) {
-		this.delegateHolder = holder;
-	}
+    /**
+     * Constructor accepting a {@link DelegateHolder} that knows how to locate
+     * the delegate {@link NonStopCacheBehavior}
+     * 
+     * @param delegate
+     */
+    public DelegatingNonStopCacheBehavior(DelegateHolder holder) {
+        this.delegateHolder = holder;
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	public Element get(Object key) throws IllegalStateException, CacheException {
-		return delegateHolder.getDelegate().get(key);
-	}
+    /**
+     * {@inheritDoc}
+     */
+    public Element get(Object key) throws IllegalStateException, CacheException {
+        return delegateHolder.getDelegate().get(key);
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	public Element getQuiet(Object key) throws IllegalStateException,
-			CacheException {
-		return delegateHolder.getDelegate().getQuiet(key);
-	}
+    /**
+     * {@inheritDoc}
+     */
+    public Element getQuiet(Object key) throws IllegalStateException, CacheException {
+        return delegateHolder.getDelegate().getQuiet(key);
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	public List getKeys() throws IllegalStateException, CacheException {
-		return delegateHolder.getDelegate().getKeys();
-	}
+    /**
+     * {@inheritDoc}
+     */
+    public List getKeys() throws IllegalStateException, CacheException {
+        return delegateHolder.getDelegate().getKeys();
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	public List getKeysNoDuplicateCheck() throws IllegalStateException {
-		return delegateHolder.getDelegate().getKeysNoDuplicateCheck();
-	}
+    /**
+     * {@inheritDoc}
+     */
+    public List getKeysNoDuplicateCheck() throws IllegalStateException {
+        return delegateHolder.getDelegate().getKeysNoDuplicateCheck();
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	public List getKeysWithExpiryCheck() throws IllegalStateException,
-			CacheException {
-		return delegateHolder.getDelegate().getKeysWithExpiryCheck();
-	}
+    /**
+     * {@inheritDoc}
+     */
+    public List getKeysWithExpiryCheck() throws IllegalStateException, CacheException {
+        return delegateHolder.getDelegate().getKeysWithExpiryCheck();
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	public boolean isKeyInCache(Object key) {
-		return delegateHolder.getDelegate().isKeyInCache(key);
-	}
+    /**
+     * {@inheritDoc}
+     */
+    public boolean isKeyInCache(Object key) {
+        return delegateHolder.getDelegate().isKeyInCache(key);
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	public boolean isValueInCache(Object value) {
-		return delegateHolder.getDelegate().isValueInCache(value);
-	}
+    /**
+     * {@inheritDoc}
+     */
+    public boolean isValueInCache(Object value) {
+        return delegateHolder.getDelegate().isValueInCache(value);
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	public void put(Element element, boolean doNotNotifyCacheReplicators)
-			throws IllegalArgumentException, IllegalStateException,
-			CacheException {
-		delegateHolder.getDelegate().put(element, doNotNotifyCacheReplicators);
-	}
+    /**
+     * {@inheritDoc}
+     */
+    public void put(Element element, boolean doNotNotifyCacheReplicators) throws IllegalArgumentException, IllegalStateException,
+            CacheException {
+        delegateHolder.getDelegate().put(element, doNotNotifyCacheReplicators);
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	public void put(Element element) throws IllegalArgumentException,
-			IllegalStateException, CacheException {
-		delegateHolder.getDelegate().put(element);
-	}
+    /**
+     * {@inheritDoc}
+     */
+    public void put(Element element) throws IllegalArgumentException, IllegalStateException, CacheException {
+        delegateHolder.getDelegate().put(element);
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	public void putQuiet(Element element) throws IllegalArgumentException,
-			IllegalStateException, CacheException {
-		delegateHolder.getDelegate().putQuiet(element);
-	}
+    /**
+     * {@inheritDoc}
+     */
+    public void putQuiet(Element element) throws IllegalArgumentException, IllegalStateException, CacheException {
+        delegateHolder.getDelegate().putQuiet(element);
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	public void putWithWriter(Element element) throws IllegalArgumentException,
-			IllegalStateException, CacheException {
-		delegateHolder.getDelegate().putWithWriter(element);
-	}
+    /**
+     * {@inheritDoc}
+     */
+    public void putWithWriter(Element element) throws IllegalArgumentException, IllegalStateException, CacheException {
+        delegateHolder.getDelegate().putWithWriter(element);
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	public boolean remove(Object key, boolean doNotNotifyCacheReplicators)
-			throws IllegalStateException {
-		return delegateHolder.getDelegate().remove(key,
-				doNotNotifyCacheReplicators);
-	}
+    /**
+     * {@inheritDoc}
+     */
+    public boolean remove(Object key, boolean doNotNotifyCacheReplicators) throws IllegalStateException {
+        return delegateHolder.getDelegate().remove(key, doNotNotifyCacheReplicators);
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	public boolean remove(Object key) throws IllegalStateException {
-		return delegateHolder.getDelegate().remove(key);
-	}
+    /**
+     * {@inheritDoc}
+     */
+    public boolean remove(Object key) throws IllegalStateException {
+        return delegateHolder.getDelegate().remove(key);
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	public void removeAll() throws IllegalStateException, CacheException {
-		delegateHolder.getDelegate().removeAll();
-	}
+    /**
+     * {@inheritDoc}
+     */
+    public void removeAll() throws IllegalStateException, CacheException {
+        delegateHolder.getDelegate().removeAll();
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	public void removeAll(boolean doNotNotifyCacheReplicators)
-			throws IllegalStateException, CacheException {
-		delegateHolder.getDelegate().removeAll(doNotNotifyCacheReplicators);
-	}
+    /**
+     * {@inheritDoc}
+     */
+    public void removeAll(boolean doNotNotifyCacheReplicators) throws IllegalStateException, CacheException {
+        delegateHolder.getDelegate().removeAll(doNotNotifyCacheReplicators);
+    }
 
 }

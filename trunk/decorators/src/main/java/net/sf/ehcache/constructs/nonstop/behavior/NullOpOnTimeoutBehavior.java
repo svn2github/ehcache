@@ -32,137 +32,129 @@ import net.sf.ehcache.constructs.nonstop.NonStopCacheBehavior;
  */
 public class NullOpOnTimeoutBehavior implements NonStopCacheBehavior {
 
-	/**
-	 * the singleton instance
-	 */
-	private static final NullOpOnTimeoutBehavior INSTANCE = new NullOpOnTimeoutBehavior();
+    /**
+     * the singleton instance
+     */
+    private static final NullOpOnTimeoutBehavior INSTANCE = new NullOpOnTimeoutBehavior();
 
-	/**
-	 * Returns the singleton instance
-	 * 
-	 * @return the singleton instance
-	 */
-	public static NullOpOnTimeoutBehavior getInstance() {
-		return INSTANCE;
-	}
+    /**
+     * Returns the singleton instance
+     * 
+     * @return the singleton instance
+     */
+    public static NullOpOnTimeoutBehavior getInstance() {
+        return INSTANCE;
+    }
 
-	/**
-	 * private constructor
-	 */
-	private NullOpOnTimeoutBehavior() {
-		//
-	}
+    /**
+     * private constructor
+     */
+    private NullOpOnTimeoutBehavior() {
+        //
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	public Element get(Object key) throws IllegalStateException, CacheException {
-		return null;
-	}
+    /**
+     * {@inheritDoc}
+     */
+    public Element get(Object key) throws IllegalStateException, CacheException {
+        return null;
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	public Element getQuiet(Object key) throws IllegalStateException,
-			CacheException {
-		return null;
-	}
+    /**
+     * {@inheritDoc}
+     */
+    public Element getQuiet(Object key) throws IllegalStateException, CacheException {
+        return null;
+    }
 
-	public List getKeys() throws IllegalStateException, CacheException {
-		return Collections.EMPTY_LIST;
-	}
+    public List getKeys() throws IllegalStateException, CacheException {
+        return Collections.EMPTY_LIST;
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	public List getKeysNoDuplicateCheck() throws IllegalStateException {
-		return Collections.EMPTY_LIST;
-	}
+    /**
+     * {@inheritDoc}
+     */
+    public List getKeysNoDuplicateCheck() throws IllegalStateException {
+        return Collections.EMPTY_LIST;
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	public List getKeysWithExpiryCheck() throws IllegalStateException,
-			CacheException {
-		return Collections.EMPTY_LIST;
-	}
+    /**
+     * {@inheritDoc}
+     */
+    public List getKeysWithExpiryCheck() throws IllegalStateException, CacheException {
+        return Collections.EMPTY_LIST;
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	public boolean isKeyInCache(Object key) {
-		return false;
-	}
+    /**
+     * {@inheritDoc}
+     */
+    public boolean isKeyInCache(Object key) {
+        return false;
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	public boolean isValueInCache(Object value) {
-		return false;
-	}
+    /**
+     * {@inheritDoc}
+     */
+    public boolean isValueInCache(Object value) {
+        return false;
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
+    /**
+     * {@inheritDoc}
+     */
 
-	public void put(Element element, boolean doNotNotifyCacheReplicators)
-			throws IllegalArgumentException, IllegalStateException,
-			CacheException {
-		// no-op
-	}
+    public void put(Element element, boolean doNotNotifyCacheReplicators) throws IllegalArgumentException, IllegalStateException,
+            CacheException {
+        // no-op
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	public void put(Element element) throws IllegalArgumentException,
-			IllegalStateException, CacheException {
-		// no-op
-	}
+    /**
+     * {@inheritDoc}
+     */
+    public void put(Element element) throws IllegalArgumentException, IllegalStateException, CacheException {
+        // no-op
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	public void putQuiet(Element element) throws IllegalArgumentException,
-			IllegalStateException, CacheException {
-		// no-op
-	}
+    /**
+     * {@inheritDoc}
+     */
+    public void putQuiet(Element element) throws IllegalArgumentException, IllegalStateException, CacheException {
+        // no-op
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	public void putWithWriter(Element element) throws IllegalArgumentException,
-			IllegalStateException, CacheException {
-		// no-op
-	}
+    /**
+     * {@inheritDoc}
+     */
+    public void putWithWriter(Element element) throws IllegalArgumentException, IllegalStateException, CacheException {
+        // no-op
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	public boolean remove(Object key, boolean doNotNotifyCacheReplicators)
-			throws IllegalStateException {
-		return false;
-	}
+    /**
+     * {@inheritDoc}
+     */
+    public boolean remove(Object key, boolean doNotNotifyCacheReplicators) throws IllegalStateException {
+        return false;
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	public boolean remove(Object key) throws IllegalStateException {
-		return false;
-	}
+    /**
+     * {@inheritDoc}
+     */
+    public boolean remove(Object key) throws IllegalStateException {
+        return false;
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	public void removeAll() throws IllegalStateException, CacheException {
-		// no-op
-	}
+    /**
+     * {@inheritDoc}
+     */
+    public void removeAll() throws IllegalStateException, CacheException {
+        // no-op
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	public void removeAll(boolean doNotNotifyCacheReplicators)
-			throws IllegalStateException, CacheException {
-		// no-op
-	}
+    /**
+     * {@inheritDoc}
+     */
+    public void removeAll(boolean doNotNotifyCacheReplicators) throws IllegalStateException, CacheException {
+        // no-op
+    }
 
 }
