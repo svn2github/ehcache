@@ -277,8 +277,11 @@ public class JCacheManager extends CacheManager {
         checkStatus();
         if (jCaches.get(name) != null) {
             return (JCache) jCaches.get(name);
-        } else if (ehcaches.get(name) != null) {
-            jCaches.put(name, new JCache((Ehcache) ehcaches.get(name)));
+        } else {
+            Ehcache ehcache = super.getEhcache(name);
+            if (ehcache != null) {
+                jCaches.put(name, new JCache(ehcache));
+            }
         }
         return (JCache) jCaches.get(name);
     }
@@ -339,19 +342,8 @@ public class JCacheManager extends CacheManager {
      * @throws IllegalStateException if the cache is not {@link net.sf.ehcache.Status#STATUS_ALIVE}
      */
     public synchronized void removeCache(String cacheName) throws IllegalStateException {
-        checkStatus();
-
-        //NPE guard
-        if (cacheName == null || cacheName.length() == 0) {
-            return;
-        }
-        Ehcache cache = (Ehcache) ehcaches.remove(cacheName);
-        if (cache != null && cache.getStatus().equals(Status.STATUS_ALIVE)) {
-            cache.dispose();
-            cacheManagerEventListenerRegistry.notifyCacheRemoved(cache.getName());
-        }
+        super.removeCache(cacheName);
         jCaches.remove(cacheName);
-        caches.remove(cacheName);
     }
 
     /**
