@@ -140,7 +140,8 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
         }
         if (isFlagSet(flags, TMFAIL)) {
             if (ehcacheXAStore.isPrepared(xid)) {
-                markContextForRollback(xid);
+                // todo: throw protocol violation!
+                markContextAsRolledbackIfRecovered(xid);
             } else {
                 ehcacheXAStore.removeData(xid);
             }
@@ -251,7 +252,8 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
         }
        
         if (ehcacheXAStore.isPrepared(xid)) {
-            markContextForRollback(xid);
+            // todo: throw protocol violation!
+            markContextAsRolledbackIfRecovered(xid);
         } else {
             ehcacheXAStore.removeData(xid);
         }
@@ -277,6 +279,10 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
                 xids.add(preparedXid);
             }
             recoverySet.add(preparedXid);
+        }
+
+        for (Xid preparedXid : xids) {
+            markContextAsRolledbackIfRecovered(preparedXid);
         }
 
         Xid[] toRecover = xids.toArray(new Xid[xids.size()]);
@@ -321,8 +327,9 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
             CacheLockProvider oldVersionStoreProvider = ((CacheLockProvider) oldVersionStore.getInternalContext());
             CacheLockProvider storeProvider = ((CacheLockProvider) store.getInternalContext());
             Object[] keys = context.getUpdatedKeys().toArray();
-            storeProvider.unlockWriteLockForAllKeys(keys);
             if (!context.isCommitted() && !context.isRolledBack()) {
+                context.setCommitted(true);
+                storeProvider.unlockWriteLockForAllKeys(keys);
                 oldVersionStoreProvider.getAndWriteLockAllSyncForKeys(keys);
                 for (PreparedCommand command : context.getPreparedCommands()) {
                     Object key = command.getKey();
@@ -334,7 +341,6 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
 
                 oldVersionStoreProvider.unlockWriteLockForAllKeys(keys);
 
-                context.setCommitted(true);
             } else if (context.isRolledBack()) {
                 throw new EhcacheXAException("Transaction " + xid + " has been heuristically rolled back", XAException.XA_HEURRB);
             }
@@ -556,12 +562,16 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
     }
 
     /**
-     * Marks a prepared Xid for rollback
+     * Marks the context of a prepared Xid as rolled back if the context has been recovered after a crash.
      * @param preparedXid the Xid of the Transaction to be marked for rollback
      * @throws EhcacheXAException Should the operation be cancelled while trying to lock keys
      */
-    private void markContextForRollback(final Xid preparedXid) throws EhcacheXAException {
+    private void markContextAsRolledbackIfRecovered(final Xid preparedXid) throws EhcacheXAException {
         PreparedContext context = ehcacheXAStore.getPreparedContext(preparedXid);
+        if (context == null) {
+            return;
+        }
+
         Set<Object> updatedKeys = context.getUpdatedKeys();
         if (!updatedKeys.isEmpty()) {
             Object someKey = updatedKeys.iterator().next();
@@ -574,12 +584,14 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
             }
             if (readLocked) {
                 try {
-                    // Transaction was rolled back! Clean oldVersionStore should we still have stuff lying around in there
-                    for (Object updatedKey : updatedKeys) {
-                        oldVersionStore.remove(updatedKey);
+                    if (!context.isCommitted() && !context.isRolledBack()) {
+                        // Transaction was recovered! Clean oldVersionStore should we still have stuff lying around in there
+                        for (Object updatedKey : updatedKeys) {
+                            oldVersionStore.remove(updatedKey);
+                        }
+                        context.setRolledBack(true);
+                        ehcacheXAStore.prepare(preparedXid, context);
                     }
-                    context.setRolledBack(true);
-                    ehcacheXAStore.prepare(preparedXid, context);
                 } finally {
                     syncForKey.unlock(LockType.READ);
                 }
