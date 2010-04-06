@@ -810,8 +810,12 @@ public class CacheConfiguration implements Cloneable {
         this.copyOnWrite = copyOnWrite;
     }
 
+    /**
+     * Sets the CopyStrategyConfiguration for this cache
+     * @param copyStrategyConfiguration the CopyStrategy Configuration
+     */
     public void addCopyStrategy(CopyStrategyConfiguration copyStrategyConfiguration) {
-        if(copyStrategyConfiguration == null) {
+        if (copyStrategyConfiguration == null) {
             copyStrategy = new CopyStrategyConfiguration().getCopyStrategyInstance();
         } else {
             copyStrategy = copyStrategyConfiguration.getCopyStrategyInstance();
