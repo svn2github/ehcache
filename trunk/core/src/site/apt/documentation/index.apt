@@ -34,6 +34,8 @@ Documentation - Table of Contents
 
     * {{{./hibernate.html}Hibernate Caching}} new_in_2
 
+    * {{{./jdbc.html}JDBC Caching}} new
+
     * {{{./web_caching.html}Web Caching}}
 
     * {{{./distributed_caching.html}Distributed Caching}}

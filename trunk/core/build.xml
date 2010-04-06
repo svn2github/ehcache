@@ -148,6 +148,7 @@
                 <arg value="performance_considerations.apt"/>
                 <arg value="cache_decorators.apt"/>
                 <arg value="hibernate.apt"/>
+                <arg value="jdbc.apt"/>
                 <arg value="shutdown.apt"/>
                 <arg value="web_caching.apt"/>
                 <arg value="distributed_caching.apt"/>

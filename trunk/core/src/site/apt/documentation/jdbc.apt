@@ -6,16 +6,12 @@
 
     Ehcache can easily be combined with your existing JDBC code.  Whether
     you access JDBC directly, or have a DAO/DAL layer, Ehcache can be 
-    combined with your exsisting data access pattern to speed up frequently 
+    combined with your existing data access pattern to speed up frequently 
     accessed data to reduce page load times, improve performance, and 
     reduce load from your database.
 
     This document discusses how to add caching to a JDBC application using
-    two commonly used patterns:
-
-    * DAO/DAL layer
-
-    * Direct access
+    the commonly used DAO/DAL layer patterns:
 
 * Adding JDBC caching to a DAO/DAL layer
 
@@ -24,7 +20,7 @@
 
     * identify methods which can be cached
     
-    * instantiate a cache and add member variable to your DAO to hold a reference to it
+    * instantiate a cache and add a member variable to your DAO to hold a reference to it
 
     * Put and get values from the cache
 
@@ -70,10 +66,6 @@ public Collection<V> findXXX(...);
     []
 
     You can read more about these in the {{{./concepts.html#Cache-aside}Concepts cache-aside}} and {{{./concepts.html#Cache-as-sor}Concepts cache-as-sor}} sections.
-
-* Direct access
-
-TBD
 
 * Putting it all together - an example
 
