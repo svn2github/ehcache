@@ -685,9 +685,7 @@ public abstract class CompoundStore implements Store {
                     lock.readLock().lock();
                     break;
                 case WRITE:
-                    if (!lock.isWriteLockedByCurrentThread()) {
-                        lock.writeLock().lock();
-                    }
+                    lock.writeLock().lock();
                     break;
                 default:
                     throw new IllegalArgumentException("We don't support any other lock type than READ or WRITE!");
@@ -717,10 +715,19 @@ public abstract class CompoundStore implements Store {
                     lock.readLock().unlock();
                     break;
                 case WRITE:
-                    if (lock.isWriteLockedByCurrentThread()) {
-                        lock.writeLock().unlock();
-                    }
+                    lock.writeLock().unlock();
                     break;
+                default:
+                    throw new IllegalArgumentException("We don't support any other lock type than READ or WRITE!");
+            }
+        }
+
+        public boolean isHeldByCurrentThread(LockType type) {
+            switch (type) {
+                case READ:
+                    throw new UnsupportedOperationException("Querying of read lock is not supported.");
+                case WRITE:
+                    return lock.isWriteLockedByCurrentThread();
                 default:
                     throw new IllegalArgumentException("We don't support any other lock type than READ or WRITE!");
             }
