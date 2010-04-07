@@ -57,6 +57,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.transaction.TransactionManager;
+
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeSupport;
 import java.io.IOException;
 import java.io.Serializable;
 import java.net.InetAddress;
@@ -222,6 +225,8 @@ public class Cache implements Ehcache {
     private volatile TransactionManagerLookup transactionManagerLookup;
 
     private volatile boolean allowDisable = true;
+
+    private PropertyChangeSupport propertyChangeSupport = new PropertyChangeSupport(this);
 
     /**
      * 2.0 and higher Constructor
@@ -918,7 +923,9 @@ public class Cache implements Ehcache {
      * @param lookup The {@link net.sf.ehcache.transaction.manager.TransactionManagerLookup} instance
      */
     public void setTransactionManagerLookup(TransactionManagerLookup lookup) {
+        TransactionManagerLookup oldValue = getTransactionManagerLookup();
         this.transactionManagerLookup = lookup;
+        firePropertyChange("TransactionManagerLookup", oldValue, lookup);
     }
 
     /**
@@ -1994,7 +2001,7 @@ public class Cache implements Ehcache {
             }
 
         }
-
+        
         return notifyRemoveInternalListeners(key, expiry, notifyListeners, doNotNotifyCacheReplicators,
                 elementFromMemoryStore, elementFromDiskStore);
     }
@@ -2559,7 +2566,9 @@ public class Cache implements Ehcache {
      * @param statisticsAccuracy one of {@link Statistics#STATISTICS_ACCURACY_BEST_EFFORT}, {@link Statistics#STATISTICS_ACCURACY_GUARANTEED}, {@link Statistics#STATISTICS_ACCURACY_NONE}
      */
     public void setStatisticsAccuracy(int statisticsAccuracy) {
+        int oldValue = getStatisticsAccuracy();
         liveCacheStatisticsData.setStatisticsAccuracy(statisticsAccuracy);
+        firePropertyChange("StatisticsAccuracy", oldValue, statisticsAccuracy);
     }
 
     /**
@@ -2658,7 +2667,9 @@ public class Cache implements Ehcache {
      * @param cacheManager the CacheManager for this cache to use.
      */
     public void setCacheManager(CacheManager cacheManager) {
+        CacheManager oldValue = getCacheManager();
         this.cacheManager = cacheManager;
+        firePropertyChange("CacheManager", oldValue, cacheManager);
     }
 
     /**
@@ -2679,7 +2690,9 @@ public class Cache implements Ehcache {
             throw new CacheException("A bootstrap cache loader can only be set before the cache is initialized. "
                     + configuration.getName());
         }
+        BootstrapCacheLoader oldValue = getBootstrapCacheLoader();
         this.bootstrapCacheLoader = bootstrapCacheLoader;
+        firePropertyChange("BootstrapCacheLoader", oldValue, bootstrapCacheLoader);
     }
 
     /**
@@ -2693,7 +2706,11 @@ public class Cache implements Ehcache {
             throw new CacheException("A DiskStore path can only be set before the cache is initialized. "
                     + configuration.getName());
         }
-        this.diskStorePath = diskStorePath;
+        String oldValue = this.diskStorePath;
+        synchronized (this) {
+            this.diskStorePath = diskStorePath;
+        }
+        firePropertyChange("DiskStorePath", oldValue, diskStorePath);
     }
 
     /**
@@ -2812,7 +2829,9 @@ public class Cache implements Ehcache {
      * @see net.sf.ehcache.exceptionhandler.ExceptionHandlingDynamicCacheProxy
      */
     public void setCacheExceptionHandler(CacheExceptionHandler cacheExceptionHandler) {
+        CacheExceptionHandler oldValue = getCacheExceptionHandler();
         this.cacheExceptionHandler = cacheExceptionHandler;
+        firePropertyChange("CacheExceptionHandler", oldValue, cacheExceptionHandler);
     }
 
     /**
@@ -3102,7 +3121,11 @@ public class Cache implements Ehcache {
      */
     public void setDisabled(boolean disabled) {
         if (allowDisable) {
-            this.disabled = disabled;
+            boolean oldValue = isDisabled();
+            synchronized (this) {
+                this.disabled = disabled;
+            }
+            firePropertyChange("Disabled", oldValue, disabled);
         } else {
             throw new CacheException("Dynamic cache features are disabled");
         }
@@ -3127,7 +3150,9 @@ public class Cache implements Ehcache {
      * @param policy the new policy
      */
     public void setMemoryStoreEvictionPolicy(Policy policy) {
+        Policy oldValue = getMemoryStoreEvictionPolicy();
         memoryStore.setEvictionPolicy(policy);
+        firePropertyChange("MemoryStoreEvictionPolicy", oldValue, policy);
     }
 
     /**
@@ -3172,10 +3197,12 @@ public class Cache implements Ehcache {
      * {@inheritDoc}
      */
     public void setStatisticsEnabled(boolean enableStatistics) {
+        boolean oldValue = isStatisticsEnabled();
         liveCacheStatisticsData.setStatisticsEnabled(enableStatistics);
         if (!enableStatistics) {
             setSampledStatisticsEnabled(false);
         }
+        firePropertyChange("StatisticsEnabled", oldValue, enableStatistics);
     }
 
     /**
@@ -3193,12 +3220,14 @@ public class Cache implements Ehcache {
             throw new IllegalStateException(
                     "You must add the cache to a CacheManager before enabling/disabling sampled statistics.");
         }
+        boolean oldValue = isSampledStatisticsEnabled();
         if (enableStatistics) {
             setStatisticsEnabled(true);
             sampledCacheStatistics.enableSampledStatistics(cacheManager.getTimer());
         } else {
             sampledCacheStatistics.disableSampledStatistics();
         }
+        firePropertyChange("SampledStatisticsEnabled", oldValue, enableStatistics);
     }
 
     /**
@@ -3243,7 +3272,15 @@ public class Cache implements Ehcache {
      * {@inheritDoc}
      */
     public void setNodeCoherent(boolean coherent) {
+        boolean oldValue = isNodeCoherent();
         memoryStore.setNodeCoherent(coherent);
+        firePropertyChange("NodeCoherent", oldValue, coherent);
+        if (!coherent) {
+            boolean clusterCoherent = isClusterCoherent();
+            if (clusterCoherent) {
+                firePropertyChange("ClusterCoherent", true, false);
+            }
+        }
     }
 
     /**
@@ -3251,5 +3288,43 @@ public class Cache implements Ehcache {
      */
     public void waitUntilClusterCoherent() {
         memoryStore.waitUntilClusterCoherent();
+        firePropertyChange("ClusterCoherent", false, true);
     }
+    
+    // PropertyChangeSupport
+
+    /**
+     * @param listener
+     */
+    public synchronized void addPropertyChangeListener(PropertyChangeListener listener) {
+      if (listener != null && propertyChangeSupport != null) {
+        propertyChangeSupport.removePropertyChangeListener(listener);
+        propertyChangeSupport.addPropertyChangeListener(listener);
+      }
+    }
+
+    /**
+     * @param listener
+     */
+    public synchronized void removePropertyChangeListener(PropertyChangeListener listener) {
+      if (listener != null && propertyChangeSupport != null) {
+        propertyChangeSupport.removePropertyChangeListener(listener);
+      }
+    }
+
+    /**
+     * @param propertyName
+     * @param oldValue
+     * @param newValue
+     */
+    public void firePropertyChange(String propertyName, Object oldValue, Object newValue) {
+      PropertyChangeSupport pcs;
+      synchronized (this) {
+        pcs = propertyChangeSupport;
+      }
+      if (pcs != null && (oldValue != null || newValue != null)) {
+        pcs.firePropertyChange(propertyName, oldValue, newValue);
+      }
+    }
+    
 }

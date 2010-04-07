@@ -42,7 +42,7 @@ public class HibernateStatsImpl extends BaseEmitterBean implements HibernateStat
     private static final double MILLIS_PER_SECOND = 1000;
     private static final MBeanNotificationInfo[] NOTIFICATION_INFO;
 
-    private final Statistics statistics;
+    private final SessionFactory sessionFactory;
 
     static {
         final String[] notifTypes = new String[] {};
@@ -59,16 +59,23 @@ public class HibernateStatsImpl extends BaseEmitterBean implements HibernateStat
      */
     public HibernateStatsImpl(SessionFactory sessionFactory) throws NotCompliantMBeanException {
         super(HibernateStats.class);
-        this.statistics = sessionFactory.getStatistics();
+        this.sessionFactory = sessionFactory;
     }
 
+    /**
+     * @return statistics
+     */
+    private Statistics getStatistics() {
+        return sessionFactory.getStatistics();
+    }
+    
     /**
      * {@inheritDoc}
      * 
      * @see net.sf.ehcache.hibernate.management.api.HibernateStats#clearStats()
      */
     public void clearStats() {
-        statistics.clear();
+        getStatistics().clear();
         sendNotification(CACHE_STATISTICS_RESET);
     }
 
@@ -96,7 +103,7 @@ public class HibernateStatsImpl extends BaseEmitterBean implements HibernateStat
      * @see net.sf.ehcache.hibernate.management.api.HibernateStats#getCloseStatementCount()
      */
     public long getCloseStatementCount() {
-        return statistics.getCloseStatementCount();
+        return getStatistics().getCloseStatementCount();
     }
 
     /**
@@ -105,7 +112,7 @@ public class HibernateStatsImpl extends BaseEmitterBean implements HibernateStat
      * @see net.sf.ehcache.hibernate.management.api.HibernateStats#getConnectCount()
      */
     public long getConnectCount() {
-        return statistics.getConnectCount();
+        return getStatistics().getConnectCount();
     }
 
     /**
@@ -122,7 +129,7 @@ public class HibernateStatsImpl extends BaseEmitterBean implements HibernateStat
      * @see net.sf.ehcache.hibernate.management.api.HibernateStats#getFlushCount()
      */
     public long getFlushCount() {
-        return statistics.getFlushCount();
+        return getStatistics().getFlushCount();
     }
 
     /**
@@ -131,7 +138,7 @@ public class HibernateStatsImpl extends BaseEmitterBean implements HibernateStat
      * @see net.sf.ehcache.hibernate.management.api.HibernateStats#getOptimisticFailureCount()
      */
     public long getOptimisticFailureCount() {
-        return statistics.getOptimisticFailureCount();
+        return getStatistics().getOptimisticFailureCount();
     }
 
     /**
@@ -140,7 +147,7 @@ public class HibernateStatsImpl extends BaseEmitterBean implements HibernateStat
      * @see net.sf.ehcache.hibernate.management.api.HibernateStats#getPrepareStatementCount()
      */
     public long getPrepareStatementCount() {
-        return statistics.getPrepareStatementCount();
+        return getStatistics().getPrepareStatementCount();
     }
 
     /**
@@ -149,7 +156,7 @@ public class HibernateStatsImpl extends BaseEmitterBean implements HibernateStat
      * @see net.sf.ehcache.hibernate.management.api.HibernateStats#getQueryExecutionCount()
      */
     public long getQueryExecutionCount() {
-        return statistics.getQueryExecutionCount();
+        return getStatistics().getQueryExecutionCount();
     }
 
     /**
@@ -158,7 +165,7 @@ public class HibernateStatsImpl extends BaseEmitterBean implements HibernateStat
      * @see net.sf.ehcache.hibernate.management.api.HibernateStats#getQueryExecutionRate()
      */
     public double getQueryExecutionRate() {
-        long startTime = statistics.getStartTime();
+        long startTime = getStatistics().getStartTime();
         long now = System.currentTimeMillis();
         double deltaSecs = (now - startTime) / MILLIS_PER_SECOND;
         return getQueryExecutionCount() / deltaSecs;
@@ -179,7 +186,7 @@ public class HibernateStatsImpl extends BaseEmitterBean implements HibernateStat
      * @see net.sf.ehcache.hibernate.management.api.HibernateStats#getSessionCloseCount()
      */
     public long getSessionCloseCount() {
-        return statistics.getSessionCloseCount();
+        return getStatistics().getSessionCloseCount();
     }
 
     /**
@@ -188,7 +195,7 @@ public class HibernateStatsImpl extends BaseEmitterBean implements HibernateStat
      * @see net.sf.ehcache.hibernate.management.api.HibernateStats#getSessionOpenCount()
      */
     public long getSessionOpenCount() {
-        return statistics.getSessionOpenCount();
+        return getStatistics().getSessionOpenCount();
     }
 
     /**
@@ -197,7 +204,7 @@ public class HibernateStatsImpl extends BaseEmitterBean implements HibernateStat
      * @see net.sf.ehcache.hibernate.management.api.HibernateStats#getSuccessfulTransactionCount()
      */
     public long getSuccessfulTransactionCount() {
-        return statistics.getSuccessfulTransactionCount();
+        return getStatistics().getSuccessfulTransactionCount();
     }
 
     /**
@@ -206,7 +213,7 @@ public class HibernateStatsImpl extends BaseEmitterBean implements HibernateStat
      * @see net.sf.ehcache.hibernate.management.api.HibernateStats#getTransactionCount()
      */
     public long getTransactionCount() {
-        return statistics.getTransactionCount();
+        return getStatistics().getTransactionCount();
     }
 
     /**
@@ -215,7 +222,7 @@ public class HibernateStatsImpl extends BaseEmitterBean implements HibernateStat
      * @see net.sf.ehcache.hibernate.management.api.HibernateStats#isStatisticsEnabled()
      */
     public boolean isStatisticsEnabled() {
-        return statistics.isStatisticsEnabled();
+        return getStatistics().isStatisticsEnabled();
     }
 
     /**
@@ -224,7 +231,7 @@ public class HibernateStatsImpl extends BaseEmitterBean implements HibernateStat
      * @see net.sf.ehcache.hibernate.management.api.HibernateStats#setStatisticsEnabled(boolean)
      */
     public void setStatisticsEnabled(boolean flag) {
-        statistics.setStatisticsEnabled(flag);
+        getStatistics().setStatisticsEnabled(flag);
         sendNotification(CACHE_STATISTICS_ENABLED, flag);
     }
 
@@ -235,6 +242,7 @@ public class HibernateStatsImpl extends BaseEmitterBean implements HibernateStat
      */
     public TabularData getEntityStats() {
         List<CompositeData> result = new ArrayList<CompositeData>();
+        Statistics statistics = getStatistics();
         for (String entity : statistics.getEntityNames()) {
             EntityStats entityStats = new EntityStats(entity, statistics.getEntityStatistics(entity));
             result.add(entityStats.toCompositeData());
@@ -251,6 +259,7 @@ public class HibernateStatsImpl extends BaseEmitterBean implements HibernateStat
      */
     public TabularData getCollectionStats() {
         List<CompositeData> result = new ArrayList<CompositeData>();
+        Statistics statistics = getStatistics();
         for (String roleName : statistics.getCollectionRoleNames()) {
             CollectionStats collectionStats = new CollectionStats(roleName, statistics.getCollectionStatistics(roleName));
             result.add(collectionStats.toCompositeData());
@@ -267,6 +276,7 @@ public class HibernateStatsImpl extends BaseEmitterBean implements HibernateStat
      */
     public TabularData getQueryStats() {
         List<CompositeData> result = new ArrayList<CompositeData>();
+        Statistics statistics = getStatistics();
         for (String query : statistics.getQueries()) {
             QueryStats queryStats = new QueryStats(query, statistics.getQueryStatistics(query));
             result.add(queryStats.toCompositeData());
@@ -280,13 +290,14 @@ public class HibernateStatsImpl extends BaseEmitterBean implements HibernateStat
      * {@inheritDoc}
      */
     public TabularData getCacheRegionStats() {
-        List<CompositeData> result = new ArrayList<CompositeData>();
+        List<CompositeData> list = new ArrayList<CompositeData>();
+        Statistics statistics = getStatistics();
         for (String region : statistics.getSecondLevelCacheRegionNames()) {
             CacheRegionStats l2CacheStats = new CacheRegionStats(region, statistics.getSecondLevelCacheStatistics(region));
-            result.add(l2CacheStats.toCompositeData());
+            list.add(l2CacheStats.toCompositeData());
         }
         TabularData td = CacheRegionStats.newTabularDataInstance();
-        td.putAll(result.toArray(new CompositeData[result.size()]));
+        td.putAll(list.toArray(new CompositeData[list.size()]));
         return td;
     }
 

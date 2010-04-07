@@ -247,8 +247,9 @@ public class SampledMBeanRegistrationProvider implements MBeanRegistrationProvid
         ObjectName objectName = null;
         try {
             objectName = SampledEhcacheMBeans.getCacheObjectName(clusteredInstanceFactory, registeredCacheManagerName, cacheName);
-            mBeanServer.unregisterMBean(objectName);
-
+            if (mBeanServer.isRegistered(objectName)) {
+                mBeanServer.unregisterMBean(objectName);
+            }
         } catch (Exception e) {
             LOG.warn("Error unregistering cache for management for " + objectName + " . Error was " + e.getMessage(), e);
         }

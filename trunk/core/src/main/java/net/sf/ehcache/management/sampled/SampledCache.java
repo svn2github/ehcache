@@ -16,6 +16,8 @@
 
 package net.sf.ehcache.management.sampled;
 
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -36,15 +38,15 @@ import net.sf.ehcache.hibernate.management.impl.BaseEmitterBean;
  * @author <a href="mailto:asanoujam@terracottatech.com">Abhishek Sanoujam</a>
  * @since 1.7
  */
-public class SampledCache extends BaseEmitterBean implements SampledCacheMBean, CacheConfigurationListener {
+public class SampledCache extends BaseEmitterBean implements SampledCacheMBean, CacheConfigurationListener, PropertyChangeListener {
     private static final MBeanNotificationInfo[] NOTIFICATION_INFO;
 
     private final Ehcache cache;
     private final String immutableCacheName;
-    
+
     static {
-        final String[] notifTypes = new String[] {CACHE_ENABLED, CACHE_CHANGED, CACHE_FLUSHED,
-                CACHE_STATISTICS_ENABLED, CACHE_STATISTICS_RESET, };
+        final String[] notifTypes = new String[] {CACHE_ENABLED, CACHE_CHANGED, CACHE_FLUSHED, CACHE_STATISTICS_ENABLED,
+                CACHE_STATISTICS_RESET, };
         final String name = Notification.class.getName();
         final String description = "Ehcache SampledCache Event";
         NOTIFICATION_INFO = new MBeanNotificationInfo[] {new MBeanNotificationInfo(notifTypes, name, description), };
@@ -78,7 +80,7 @@ public class SampledCache extends BaseEmitterBean implements SampledCacheMBean, 
     public boolean isEnabled() {
         return !cache.isDisabled();
     }
-    
+
     /**
      * {@inheritDoc}
      */
@@ -86,7 +88,7 @@ public class SampledCache extends BaseEmitterBean implements SampledCacheMBean, 
         cache.setDisabled(!enabled);
         sendNotification(CACHE_ENABLED, getCacheAttributes(), getImmutableCacheName());
     }
-    
+
     /**
      * {@inheritDoc}
      */
@@ -289,6 +291,19 @@ public class SampledCache extends BaseEmitterBean implements SampledCacheMBean, 
     /**
      * {@inheritDoc}
      * 
+     * @see net.sf.ehcache.management.sampled.SampledCacheMBean#setStatisticsEnabled(boolean)
+     */
+    public void setStatisticsEnabled(boolean statsEnabled) {
+        if (statsEnabled) {
+            enableStatistics();
+        } else {
+            disableStatistics();
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     * 
      * @see net.sf.ehcache.management.sampled.SampledCacheMBean#enableSampledStatistics()
      */
     public void enableSampledStatistics() {
@@ -396,7 +411,7 @@ public class SampledCache extends BaseEmitterBean implements SampledCacheMBean, 
         cache.getCacheConfiguration().setMaxElementsInMemory(maxElements);
         sendNotification(CACHE_CHANGED, getCacheAttributes(), getImmutableCacheName());
     }
-    
+
     /**
      * {@inheritDoc}
      * 
@@ -415,7 +430,7 @@ public class SampledCache extends BaseEmitterBean implements SampledCacheMBean, 
         cache.getCacheConfiguration().setMaxElementsOnDisk(maxElements);
         sendNotification(CACHE_CHANGED, getCacheAttributes(), getImmutableCacheName());
     }
-    
+
     /**
      * {@inheritDoc}
      * 
@@ -434,7 +449,7 @@ public class SampledCache extends BaseEmitterBean implements SampledCacheMBean, 
         cache.getCacheConfiguration().setMemoryStoreEvictionPolicy(evictionPolicy);
         sendNotification(CACHE_CHANGED, getCacheAttributes(), getImmutableCacheName());
     }
-    
+
     /**
      * {@inheritDoc}
      * 
@@ -453,7 +468,7 @@ public class SampledCache extends BaseEmitterBean implements SampledCacheMBean, 
         cache.getCacheConfiguration().setTimeToIdleSeconds(tti);
         sendNotification(CACHE_CHANGED, getCacheAttributes(), getImmutableCacheName());
     }
-    
+
     /**
      * {@inheritDoc}
      * 
@@ -472,7 +487,6 @@ public class SampledCache extends BaseEmitterBean implements SampledCacheMBean, 
         cache.getCacheConfiguration().setTimeToLiveSeconds(ttl);
         sendNotification(CACHE_CHANGED, getCacheAttributes(), getImmutableCacheName());
     }
-
 
     /**
      * {@inheritDoc}
@@ -549,7 +563,7 @@ public class SampledCache extends BaseEmitterBean implements SampledCacheMBean, 
         cache.getCacheConfiguration().setLoggingEnabled(enabled);
         sendNotification(CACHE_CHANGED, getCacheAttributes(), getImmutableCacheName());
     }
-    
+
     /**
      * {@inheritDoc}
      * 
@@ -642,6 +656,7 @@ public class SampledCache extends BaseEmitterBean implements SampledCacheMBean, 
 
     /**
      * getCacheAttributes
+     * 
      * @return map of attribute name -> value
      */
     public Map<String, Object> getCacheAttributes() {
@@ -662,7 +677,7 @@ public class SampledCache extends BaseEmitterBean implements SampledCacheMBean, 
         result.put("ClusterCoherent", isClusterCoherent());
         return result;
     }
-    
+
     /**
      * @see BaseEmitterBean#getNotificationInfo()
      */
@@ -729,7 +744,30 @@ public class SampledCache extends BaseEmitterBean implements SampledCacheMBean, 
             setConfigTimeToLiveSeconds(newTimeToLive);
         }
     }
-    
+
+    /**
+     * @see java.beans.PropertyChangeListener#propertyChange(java.beans.PropertyChangeEvent)
+     */
+    public void propertyChange(PropertyChangeEvent evt) {
+        String prop = evt.getPropertyName();
+
+        if ("StatisticsEnabled".equals(prop)) {
+            Boolean newValue = (Boolean) evt.getNewValue();
+            setStatisticsEnabled(newValue.booleanValue());
+        } else if ("Disabled".equals(prop)) {
+            Boolean newValue = (Boolean) evt.getNewValue();
+            setEnabled(!newValue.booleanValue());
+        } else if ("ClusterCoherent".equals(prop)) {
+            Boolean newValue = (Boolean) evt.getNewValue();
+            sendNotification(CACHE_CHANGED, getCacheAttributes(), getImmutableCacheName());
+        } else if ("NodeCoherent".equals(prop)) {
+            Boolean newValue = (Boolean) evt.getNewValue();
+            setNodeCoherent(newValue.booleanValue());
+        } else {
+            sendNotification(CACHE_CHANGED, getCacheAttributes(), getImmutableCacheName());
+        }
+    }
+
     /**
      * {@inheritDoc}
      * 

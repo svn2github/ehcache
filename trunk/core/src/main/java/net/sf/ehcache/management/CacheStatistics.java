@@ -19,6 +19,7 @@ package net.sf.ehcache.management;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Statistics;
+import net.sf.ehcache.hibernate.management.impl.EhcacheHibernateMbeanNames;
 
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
@@ -71,14 +72,13 @@ public class CacheStatistics implements CacheStatisticsMBean, Serializable {
     static ObjectName createObjectName(String cacheManagerName, String cacheName) {
         ObjectName objectName;
         try {
-            objectName = new ObjectName("net.sf.ehcache:type=CacheStatistics,CacheManager="
-                    + cacheManagerName + ",name=" + cacheName);
+            objectName = new ObjectName("net.sf.ehcache:type=CacheStatistics,CacheManager=" + cacheManagerName + ",name="
+                    + EhcacheHibernateMbeanNames.mbeanSafe(cacheName));
         } catch (MalformedObjectNameException e) {
             throw new CacheException(e);
         }
         return objectName;
     }
-
 
     /**
      * Accurately measuring statistics can be expensive. Returns the current accuracy setting used

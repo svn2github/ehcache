@@ -41,6 +41,16 @@ public abstract class EhcacheHibernateMbeanNames {
     public static final String EHCACHE_HIBERNATE_TYPE = "EhcacheHibernateStats";
 
     /**
+     * Filter out invalid ObjectName characters from s.
+     * 
+     * @param s
+     * @return A valid JMX ObjectName attribute value.
+     */
+    public static String mbeanSafe(String s) {
+        return s == null ? "" : s.replaceAll(":|=|\n", ".");
+      }
+    
+    /**
      * Returns an ObjectName for the passed name
      * 
      * @param name
@@ -48,7 +58,7 @@ public abstract class EhcacheHibernateMbeanNames {
      * @throws MalformedObjectNameException
      */
     public static ObjectName getCacheManagerObjectName(String cacheManagerClusterUUID, String name) throws MalformedObjectNameException {
-        ObjectName objectName = new ObjectName(GROUP_ID + ":type=" + EHCACHE_HIBERNATE_TYPE + ",name=" + name
+        ObjectName objectName = new ObjectName(GROUP_ID + ":type=" + EHCACHE_HIBERNATE_TYPE + ",name=" + mbeanSafe(name)
                 + getBeanNameSuffix(cacheManagerClusterUUID));
         return objectName;
     }

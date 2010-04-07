@@ -31,6 +31,7 @@ import javax.transaction.xa.XAResource;
 import javax.transaction.xa.Xid;
 
 import net.sf.ehcache.CacheException;
+import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.concurrent.CacheLockProvider;
@@ -89,9 +90,9 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
     public EhcacheXAResourceImpl(Ehcache cache, TransactionManager txnManager, EhcacheXAStore ehcacheXAStore) {
         String cacheMgrName;
         if (cache.getCacheManager() == null || !cache.getCacheManager().isNamed()) {
-          cacheMgrName = "__DEFAULT__";
+          cacheMgrName = CacheManager.DEFAULT_NAME;
         } else {
-            cacheMgrName = cache.getCacheManager().getName();
+          cacheMgrName = cache.getCacheManager().getName();
         }
         this.cacheName          = cache.getName() + "@" + cacheMgrName + ".cacheManager";
         this.store              = ehcacheXAStore.getUnderlyingStore();

@@ -19,6 +19,7 @@ package net.sf.ehcache.management;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Status;
 import net.sf.ehcache.event.CacheManagerEventListener;
+import net.sf.ehcache.hibernate.management.impl.EhcacheHibernateMbeanNames;
 
 import javax.management.InstanceAlreadyExistsException;
 import javax.management.MBeanRegistrationException;
@@ -211,20 +212,21 @@ public class ManagementService implements CacheManagerEventListener {
     /**
      * Stop the listener and free any resources.
      * Removes registered ObjectNames
-     *
-     * @throws net.sf.ehcache.CacheException - all exceptions are wrapped in CacheException
+     * 
+     * @throws net.sf.ehcache.CacheException
+     *             - all exceptions are wrapped in CacheException
      */
     public void dispose() throws CacheException {
         Set registeredObjectNames = null;
 
         try {
-            //CacheManager MBean
+            // CacheManager MBean
             registeredObjectNames = mBeanServer.queryNames(CacheManager.createObjectName(backingCacheManager), null);
-            //Other MBeans for this CacheManager
+            // Other MBeans for this CacheManager
             registeredObjectNames.addAll(mBeanServer.queryNames(new ObjectName("net.sf.ehcache:*,CacheManager="
-                    + backingCacheManager.toString()), null));
+                    + EhcacheHibernateMbeanNames.mbeanSafe(backingCacheManager.toString())), null));
         } catch (MalformedObjectNameException e) {
-            //this should not happen
+            // this should not happen
             LOG.error("Error querying MBeanServer. Error was " + e.getMessage(), e);
         }
         for (Iterator iterator = registeredObjectNames.iterator(); iterator.hasNext();) {
@@ -232,8 +234,7 @@ public class ManagementService implements CacheManagerEventListener {
             try {
                 mBeanServer.unregisterMBean(objectName);
             } catch (Exception e) {
-                LOG.error("Error unregistering object instance " + objectName
-                        + " . Error was " + e.getMessage(), e);
+                LOG.error("Error unregistering object instance " + objectName + " . Error was " + e.getMessage(), e);
             }
         }
         status = Status.STATUS_SHUTDOWN;

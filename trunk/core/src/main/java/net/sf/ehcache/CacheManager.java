@@ -78,6 +78,11 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class CacheManager {
 
     /**
+     * Default name if not specified in the configuration/
+     */
+    public static final String DEFAULT_NAME = "__DEFAULT__";
+    
+    /**
      * Keeps track of all known CacheManagers. Used to check on conflicts.
      * CacheManagers should remove themselves from this list during shut down.
      */
@@ -294,26 +299,24 @@ public class CacheManager {
         this.allowsDynamicCacheConfig = localConfiguration.getDynamicConfig();
         this.terracottaConfigConfiguration = localConfiguration.getTerracottaConfiguration();
         
-
         Map<String, CacheConfiguration> cacheConfigs = localConfiguration.getCacheConfigurations();
-        for (CacheConfiguration config : cacheConfigs.values()) {
-            if (config.isTerracottaClustered()) {
-                terracottaClusteredInstanceFactory = TerracottaClusteredInstanceHelper.newClusteredInstanceFactory(cacheConfigs,
-                        localConfiguration.getTerracottaConfiguration());
-                break;
+        if (localConfiguration.getDefaultCacheConfiguration().isTerracottaClustered()) {
+            terracottaClusteredInstanceFactory = TerracottaClusteredInstanceHelper.newClusteredInstanceFactory(cacheConfigs,
+                    localConfiguration.getTerracottaConfiguration());
+        } else {
+            for (CacheConfiguration config : cacheConfigs.values()) {
+                if (config.isTerracottaClustered()) {
+                    terracottaClusteredInstanceFactory = TerracottaClusteredInstanceHelper.newClusteredInstanceFactory(cacheConfigs,
+                            localConfiguration.getTerracottaConfiguration());
+                    break;
+                }
             }
         }
-
-        /*
-         * May not have any CacheConfigurations yet, so check the default configuration.
-         */
-        if (null == terracottaClusteredInstanceFactory) {
-            if (localConfiguration.getDefaultCacheConfiguration().isTerracottaClustered()) {
-                terracottaClusteredInstanceFactory = TerracottaClusteredInstanceHelper.newClusteredInstanceFactory(cacheConfigs,
-                        localConfiguration.getTerracottaConfiguration());
-            }
+        
+        if (terracottaClusteredInstanceFactory != null && this.name == null) {
+            this.name = CacheManager.DEFAULT_NAME;
         }
-
+        
         ConfigurationHelper configurationHelper = new ConfigurationHelper(this, localConfiguration);
         configure(configurationHelper);
         status = Status.STATUS_ALIVE;
@@ -546,7 +549,6 @@ public class CacheManager {
 
     private void detectAndFixDiskStorePathConflict(ConfigurationHelper configurationHelper) {
         if (diskStorePath == null) {
-
             LOG.debug("No disk store path defined. Skipping disk store path conflict test.");
             return;
         }
@@ -563,7 +565,6 @@ public class CacheManager {
                 diskStorePath = newDiskStorePath;
                 break;
             }
-
         }
     }
 
@@ -627,11 +628,9 @@ public class CacheManager {
         }
         synchronized (CacheManager.class) {
             if (singleton == null) {
-
                 LOG.debug("Creating new CacheManager with default config");
                 singleton = new CacheManager();
             } else {
-
                 LOG.debug("Attempting to create an existing singleton. Existing singleton returned.");
             }
             return singleton;
@@ -668,7 +667,6 @@ public class CacheManager {
         }
         synchronized (CacheManager.class) {
             if (singleton == null) {
-
                 LOG.debug("Creating new CacheManager with config file: {}", configurationFileName);
                 singleton = new CacheManager(configurationFileName);
             }
@@ -703,10 +701,8 @@ public class CacheManager {
         }
         synchronized (CacheManager.class) {
             if (singleton == null) {
-
                 LOG.debug("Creating new CacheManager with config URL: {}", configurationFileURL);
                 singleton = new CacheManager(configurationFileURL);
-
             }
             return singleton;
         }
@@ -731,7 +727,6 @@ public class CacheManager {
         }
         synchronized (CacheManager.class) {
             if (singleton == null) {
-
                 LOG.debug("Creating new CacheManager with InputStream");
                 singleton = new CacheManager(inputStream);
             }
@@ -789,7 +784,6 @@ public class CacheManager {
                             // clear shutdown hook reference to prevent
                             // removeShutdownHook to remove it during shutdown
                             shutdownHook = null;
-
                             LOG.info("VM shutting down with the CacheManager still active. Calling shutdown.");
                             shutdown();
                         }
@@ -815,7 +809,6 @@ public class CacheManager {
                 // This will be thrown if the VM is shutting down. In this case
                 // we do not need to worry about leaving references to CacheManagers lying
                 // around and the call is ok to fail.
-
                 LOG.debug("IllegalStateException due to attempt to remove a shutdown" + "hook while the VM is actually shutting down.", e);
             }
             shutdownHook = null;
@@ -1000,7 +993,6 @@ public class CacheManager {
     public void shutdown() {
         synchronized (CacheManager.class) {
             if (status.equals(Status.STATUS_SHUTDOWN)) {
-
                 LOG.debug("CacheManager already shutdown");
                 return;
             }

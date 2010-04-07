@@ -22,6 +22,7 @@ import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 
 import net.sf.ehcache.CacheException;
+import net.sf.ehcache.hibernate.management.impl.EhcacheHibernateMbeanNames;
 
 
 /**
@@ -55,14 +56,13 @@ public class CacheConfiguration implements CacheConfigurationMBean, Serializable
     static ObjectName createObjectName(String cacheManagerName, String cacheName) {
         ObjectName objectName;
         try {
-            objectName = new ObjectName("net.sf.ehcache:type=CacheConfiguration,CacheManager="
-                    + cacheManagerName + ",name=" + cacheName);
+            objectName = new ObjectName("net.sf.ehcache:type=CacheConfiguration,CacheManager=" + cacheManagerName + ",name="
+                    + EhcacheHibernateMbeanNames.mbeanSafe(cacheName));
         } catch (MalformedObjectNameException e) {
             throw new CacheException(e);
         }
         return objectName;
     }
-
 
     /**
      * Accessor
