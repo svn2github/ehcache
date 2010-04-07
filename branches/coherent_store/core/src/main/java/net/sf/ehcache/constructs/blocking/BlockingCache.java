@@ -512,7 +512,11 @@ public class BlockingCache implements Ehcache {
         Object key = element.getObjectKey();
         Object value = element.getObjectValue();
 
-        getLockForKey(key).lock(LockType.WRITE);
+        Sync lock = getLockForKey(key);
+        
+        if (!lock.isHeldByCurrentThread(LockType.WRITE)) {
+            lock.lock(LockType.WRITE);
+        }
         try {
             if (value != null) {
                 cache.put(element);
@@ -521,7 +525,7 @@ public class BlockingCache implements Ehcache {
             }
         } finally {
             //Release the readlock here. This will have been acquired in the get, where the element was null
-            getLockForKey(key).unlock(LockType.WRITE);
+            lock.unlock(LockType.WRITE);
         }
     }
 

@@ -319,5 +319,13 @@ public interface Sync {
      * @param type the lock type to acquire
      */
     void unlock(LockType type);
+    
+    /**
+     * Returns true is this is lock is held at given level by the current thread.
+     * 
+     * @param type the lock type to test
+     * @return true if the lock is held
+     */
+    boolean isHeldByCurrentThread(LockType type);
 }
 

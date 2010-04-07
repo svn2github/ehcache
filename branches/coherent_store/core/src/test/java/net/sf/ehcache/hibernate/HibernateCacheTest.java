@@ -104,9 +104,9 @@ public class HibernateCacheTest {
         if (entry instanceof Map) {
             map = (Map) entry;
         } else {
-            Method valueMethod = entry.getClass().getDeclaredMethod("getValue", null);
+            Method valueMethod = entry.getClass().getDeclaredMethod("getValue", (Class[]) null);
             valueMethod.setAccessible(true);
-            map = (Map) valueMethod.invoke(entry, null);
+            map = (Map) valueMethod.invoke(entry, (Object[]) null);
         }
         assertTrue(map.get("description").equals("A bog standard item"));
         assertTrue(map.get("name").equals("widget"));
