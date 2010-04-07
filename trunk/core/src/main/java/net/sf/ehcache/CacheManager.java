@@ -36,8 +36,8 @@ import net.sf.ehcache.management.provider.MBeanRegistrationProviderException;
 import net.sf.ehcache.management.provider.MBeanRegistrationProviderFactory;
 import net.sf.ehcache.management.provider.MBeanRegistrationProviderFactoryImpl;
 import net.sf.ehcache.store.DiskStore;
-import net.sf.ehcache.store.MemoryStore;
 import net.sf.ehcache.store.Store;
+import net.sf.ehcache.store.compound.impl.MemoryOnlyStore;
 import net.sf.ehcache.terracotta.ClusteredInstanceFactory;
 import net.sf.ehcache.transaction.manager.TransactionManagerLookup;
 import net.sf.ehcache.transaction.xa.EhcacheXAStore;
@@ -422,7 +422,8 @@ public class CacheManager {
         if (cache.getCacheConfiguration().isTerracottaClustered()) {
             ehcacheXAStore = getClusteredInstanceFactory(cache).createXAStore(cache, store);
         } else {
-            ehcacheXAStore = new EhcacheXAStoreImpl(store, MemoryStore.create(cache, null));
+            // todo check oldVersionStore's config... what about listeners?!?
+            ehcacheXAStore = new EhcacheXAStoreImpl(store, MemoryOnlyStore.create((Cache) cache, null));
         }
         return ehcacheXAStore;
     }

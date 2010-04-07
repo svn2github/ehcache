@@ -52,8 +52,8 @@ public class EhcacheXAStoreImpl implements EhcacheXAStore {
      * @param oldVersionStore the old version, read-only, used to access keys during 2pc
      */
     public EhcacheXAStoreImpl(Store underlyingStore, Store oldVersionStore) {
-        this.underlyingStore = new SyncAwareStore(underlyingStore);
-        this.oldVersionStore = new SyncAwareStore(oldVersionStore);
+        this.underlyingStore = underlyingStore;
+        this.oldVersionStore = oldVersionStore;
     }
 
     /**
@@ -123,7 +123,7 @@ public class EhcacheXAStoreImpl implements EhcacheXAStore {
      * {@inheritDoc}
      */
     public boolean isValid(VersionAwareCommand command, Xid xid) {
-        return versionTable.valid(command.getKey(), command.getVersion(), xid);
+        return versionTable.valid(command.getKey(), command.getVersion());
     }
     
     /**
@@ -171,16 +171,14 @@ public class EhcacheXAStoreImpl implements EhcacheXAStore {
          * @param currentVersionNumber the version checked out
          * @return true if the version is still up to date
          */
-        public synchronized boolean valid(Object key, long currentVersionNumber, Xid xid) {
+        public boolean valid(Object key, long currentVersionNumber) {
             Version version = versionStore.get(key);
             if (version != null) {
-                long currentVersion = version.getVersion(xid);
+                long currentVersion = version.getVersion();
                 return (currentVersion == currentVersionNumber);
             } else {
-                // TODO Figure out what this case is..
-                return true;
+                throw new RuntimeException("No version checked out for this element, this is... WRONG!");
             }
-
         }
 
         /**
@@ -189,7 +187,7 @@ public class EhcacheXAStoreImpl implements EhcacheXAStore {
          * @param xid the Xid of the Transaction
          * @return the version
          */
-        public synchronized long checkout(Object key, Xid xid) {
+        public long checkout(Object key, Xid xid) {
             long versionNumber;
             Version version = versionStore.get(key);
             if (version == null) {
@@ -207,7 +205,7 @@ public class EhcacheXAStoreImpl implements EhcacheXAStore {
          * @param xid the Xid of the Transaction
          * @param readOnly whether the element was mutated in the Store
          */
-        public synchronized void checkin(Object key, Xid xid, boolean readOnly) {
+        public void checkin(Object key, Xid xid, boolean readOnly) {
             if (key != null) {
                 Version version = versionStore.get(key);
                 boolean removeEntry;
@@ -239,7 +237,7 @@ public class EhcacheXAStoreImpl implements EhcacheXAStore {
          * For testing, get current version
          * @return the version
          */
-        public synchronized long getVersion() {
+        public long getVersion() {
             return version.get();
           }
           

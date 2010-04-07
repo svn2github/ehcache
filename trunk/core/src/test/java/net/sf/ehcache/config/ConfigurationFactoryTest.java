@@ -37,6 +37,7 @@ import net.sf.ehcache.event.CountingCacheManagerEventListener;
 import net.sf.ehcache.event.NotificationScope;
 import net.sf.ehcache.exceptionhandler.CacheExceptionHandler;
 import net.sf.ehcache.exceptionhandler.CountingExceptionHandler;
+import net.sf.ehcache.store.compound.SerializationCopyStrategy;
 import net.sf.ehcache.writer.TestCacheWriter;
 import org.junit.Before;
 import org.junit.Test;
@@ -63,8 +64,10 @@ import java.util.jar.JarOutputStream;
 import java.util.regex.Matcher;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNotSame;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -1060,6 +1063,41 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
                 "multicastGroupPort=4446, timeToLive=${multicastAddress\"/>";
         Set propertyTokens = ConfigurationFactory.extractPropertyTokens(example);
         assertEquals(0, propertyTokens.size());
+    }
+
+    @Test
+    public void testCopyConfiguration() {
+        File file = new File(TEST_CONFIG_DIR + "ehcache-copy.xml");
+        Configuration configuration = ConfigurationFactory.parseConfiguration(file);
+        ConfigurationHelper configurationHelper = new ConfigurationHelper(manager, configuration);
+
+        Ehcache copyOnReadCache = configurationHelper.createCacheFromName("copyOnReadCache");
+        assertTrue(copyOnReadCache.getCacheConfiguration().isCopyOnRead());
+        assertFalse(copyOnReadCache.getCacheConfiguration().isCopyOnWrite());
+        assertNotNull(copyOnReadCache.getCacheConfiguration().getCopyStrategy());
+        assertTrue(copyOnReadCache.getCacheConfiguration().getCopyStrategy() instanceof SerializationCopyStrategy);
+
+        Ehcache copyOnWriteCache = configurationHelper.createCacheFromName("copyOnWriteCache");
+        assertFalse(copyOnWriteCache.getCacheConfiguration().isCopyOnRead());
+        assertTrue(copyOnWriteCache.getCacheConfiguration().isCopyOnWrite());
+        assertNotNull(copyOnWriteCache.getCacheConfiguration().getCopyStrategy());
+        assertTrue(copyOnWriteCache.getCacheConfiguration().getCopyStrategy() instanceof SerializationCopyStrategy);
+
+        Ehcache copyCache = configurationHelper.createCacheFromName("copyCache");
+        assertTrue(copyCache.getCacheConfiguration().isCopyOnRead());
+        assertTrue(copyCache.getCacheConfiguration().isCopyOnWrite());
+        assertNotNull(copyCache.getCacheConfiguration().getCopyStrategy());
+        assertTrue(copyCache.getCacheConfiguration().getCopyStrategy() instanceof FakeCopyStrategy);
+
+        try {
+            new CacheManager(TEST_CONFIG_DIR + "ehcache-copy.xml");
+            fail("This should have thrown an Exception");
+        } catch (Exception e) {
+            if(!(e instanceof InvalidConfigurationException)) {
+                e.printStackTrace();
+                fail("Expected InvalidConfigurationException, but got "+ e.getClass().getSimpleName());
+            }
+        }
     }
 
     /**

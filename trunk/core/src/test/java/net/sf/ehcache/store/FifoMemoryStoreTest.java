@@ -44,7 +44,7 @@ public class FifoMemoryStoreTest extends MemoryStoreTester {
     @Before
     public void setUp() throws Exception {
         super.setUp();
-        createMemoryStore(MemoryStoreEvictionPolicy.FIFO);
+        createMemoryOnlyStore(MemoryStoreEvictionPolicy.FIFO);
     }
 
     /**
@@ -181,7 +181,7 @@ public class FifoMemoryStoreTest extends MemoryStoreTester {
      */
     @Test
     public void testFifoPolicy() throws Exception {
-        createMemoryStore(MemoryStoreEvictionPolicy.FIFO, 5);
+        createMemoryOnlyStore(MemoryStoreEvictionPolicy.FIFO, 5);
         fifoPolicyTest();
     }
 

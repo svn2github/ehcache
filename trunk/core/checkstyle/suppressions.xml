@@ -64,6 +64,7 @@
     <suppress checks="ClassDataAbstractionCoupling" files="Cache.java"/>
     <suppress checks="ClassFanOutComplexity" files="DiskStore.java"/>
     <suppress checks="FileLength" files="DiskStore.java"/>
+    <suppress checks="FileLength" files="CacheConfiguration.java"/>
     <suppress checks="ClassFanOutComplexity" files="Cache.java"/>
     <suppress checks="ClassFanOutComplexity" files="CacheManager.java"/>
     <suppress checks="ClassDataAbstractionCoupling" files="ElementTest.java"/>
@@ -101,4 +102,7 @@
     <!--  We keep adding stuff to these constructors. -->
     <suppress checks="MethodLength" files="Cache.java"/>
 
+    <!--  This file is still in major development so lets just disable everything for the moment -->
+    <!--  It also contains a hash spreading function which checkstyle really hates -->
+    <suppress checks="" files="LocalStore.java"/>
 </suppressions>

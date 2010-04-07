@@ -96,6 +96,27 @@ public class CacheManagerTest {
         }
     }
 
+    @Test
+    public void testCacheReferenceLookUps() {
+        singletonManager = CacheManager.create();
+        String cacheName = "randomNewCache";
+        singletonManager.addCache(cacheName);
+
+        // Default state by name
+        Cache cache = singletonManager.getCache(cacheName);
+        assertNotNull(cache);
+        assertNotNull(singletonManager.getEhcache(cacheName));
+        assertTrue(singletonManager.getEhcache(cacheName) instanceof Cache);
+        assertTrue(cache == singletonManager.getEhcache(cacheName));
+
+        // replace cache
+        BlockingCache decoratedCache = new BlockingCache(cache);
+        singletonManager.replaceCacheWithDecoratedCache(cache, decoratedCache);
+        assertNull(singletonManager.getCache(cacheName));
+        assertNotNull(singletonManager.getEhcache(cacheName));
+        assertTrue(singletonManager.getEhcache(cacheName) == decoratedCache);
+    }
+
     /**
      * Tests that the CacheManager was successfully created
      */
@@ -615,9 +636,9 @@ public class CacheManagerTest {
                 .getCacheEventNotificationService();
         assertTrue(listeners1 != listeners2);
 
-        Store diskStore1 = cache1.getDiskStore();
-        Store diskStore2 = cache2.getDiskStore();
-        assertTrue(diskStore1 != diskStore2);
+        Store store1 = cache1.getStore();
+        Store store2 = cache2.getStore();
+        assertTrue(store1 != store2);
 
     }
 

@@ -95,21 +95,40 @@ public interface Store {
     int getSize();
 
     /**
+     * Returns the current local in-memory store size
+     * @return the count of the Elements in the Store and in-memory on the local machine
+     */
+    int getInMemorySize();
+
+    /**
+     * Returns the current local on-disk store size
+     * @return the count of the Elements in the Store and on-disk on the local machine
+     */
+    int getOnDiskSize();
+    
+    /**
      * Returns the current Terracotta clustered store size
      * @return the count of the Elements in the Store across the cluster
      */
     int getTerracottaClusteredSize();
 
     /**
-     * Gets the size of the store, in bytes.
+     * Gets the size of the in-memory portion of the store, in bytes.
      * <p/>
      * This method may be expensive to run, depending on implementation. Implementers may choose to return
      * an approximate size.
      *
-     * @return the approximate size of the store in bytes
+     * @return the approximate in-memory size of the store in bytes
      */
-    long getSizeInBytes();
+    long getInMemorySizeInBytes();
 
+    /**
+     * Gets the size of the on-disk portion of the store, in bytes.
+     *
+     * @return the on-disk size of the store in bytes
+     */
+    long getOnDiskSizeInBytes();
+    
     /**
      * Returns the cache status.
      */
@@ -124,6 +143,22 @@ public interface Store {
      *  1.2
      */
     boolean containsKey(Object key);
+    
+    /**
+     * A check to see if a key is in the Store and is currently held on disk.
+     *
+     * @param key The Element key
+     * @return true if found. No check is made to see if the Element is expired.
+     */
+    boolean containsKeyOnDisk(Object key);
+
+    /**
+     * A check to see if a key is in the Store and is currently held in memory.
+     *
+     * @param key The Element key
+     * @return true if found. No check is made to see if the Element is expired.
+     */
+    boolean containsKeyInMemory(Object key);
     
     /**
      * Expire all elements.
@@ -146,9 +181,9 @@ public interface Store {
     /**
      * @return the current eviction policy. This may not be the configured policy, if it has been
      *         dynamically set.
-     * @see #setEvictionPolicy(Policy)
+     * @see #setInMemoryEvictionPolicy(Policy)
      */
-    Policy getEvictionPolicy();
+    Policy getInMemoryEvictionPolicy();
 
     /**
      * Sets the eviction policy strategy. The Store will use a policy at startup. The store may allow changing
@@ -157,7 +192,7 @@ public interface Store {
      *
      * @param policy the new policy
      */
-    void setEvictionPolicy(Policy policy);
+    void setInMemoryEvictionPolicy(Policy policy);
 
     /**
      * This should not be used, and will generally return null

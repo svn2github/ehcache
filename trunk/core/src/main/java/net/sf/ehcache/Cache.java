@@ -36,12 +36,15 @@ import net.sf.ehcache.statistics.LiveCacheStatisticsWrapper;
 import net.sf.ehcache.statistics.sampled.SampledCacheStatistics;
 import net.sf.ehcache.statistics.sampled.SampledCacheStatisticsWrapper;
 import net.sf.ehcache.store.DiskStore;
+import net.sf.ehcache.store.LegacyStoreWrapper;
 import net.sf.ehcache.store.LruMemoryStore;
 import net.sf.ehcache.store.MemoryStore;
 import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
 import net.sf.ehcache.store.Policy;
 import net.sf.ehcache.store.Store;
 import net.sf.ehcache.store.XATransactionalStore;
+import net.sf.ehcache.store.compound.impl.MemoryOnlyStore;
+import net.sf.ehcache.store.compound.impl.OverflowToDiskStore;
 import net.sf.ehcache.transaction.manager.TransactionManagerLookup;
 import net.sf.ehcache.transaction.xa.EhcacheXAResourceImpl;
 import net.sf.ehcache.transaction.xa.EhcacheXAStore;
@@ -169,8 +172,6 @@ public class Cache implements Ehcache {
 
     private final boolean useClassicLru = Boolean.getBoolean(NET_SF_EHCACHE_USE_CLASSIC_LRU);
 
-    private volatile Store diskStore;
-
     private volatile String diskStorePath;
 
     private volatile Status status;
@@ -178,9 +179,9 @@ public class Cache implements Ehcache {
     private volatile CacheConfiguration configuration;
 
     /**
-     * The {@link MemoryStore} of this {@link Cache}. All caches have a memory store.
+     * The {@link import net.sf.ehcache.store.MemoryStore} of this {@link Cache}. All caches have a memory store.
      */
-    private volatile Store memoryStore;
+    private volatile Store compoundStore;
 
     private volatile RegisteredEventListeners registeredEventListeners;
 
@@ -945,32 +946,34 @@ public class Cache implements Ehcache {
                         "In Ehcache 2.0 this has been changed to mean a store with no capacity limit.");
             }
 
-            this.diskStore = createDiskStore();
-
-            if (configuration.isTransactional()) {
-                //set copy on read
-                configuration.getTerracottaConfiguration().setCopyOnRead(true);
-            }
-
-            final Store memStore;
+            final Store store;
             if (isTerracottaClustered()) {
-                memStore = cacheManager.createTerracottaStore(this);
+                store = cacheManager.createTerracottaStore(this);
                 boolean unlockedReads = !this.configuration.getTerracottaConfiguration().getCoherentReads();
                 // if coherentReads=false, make coherent=false
                 boolean coherent = unlockedReads ? false : this.configuration.getTerracottaConfiguration().isCoherent();
-                memStore.setNodeCoherent(coherent);
+                store.setNodeCoherent(coherent);
             } else {
                 if (useClassicLru && configuration.getMemoryStoreEvictionPolicy().equals(MemoryStoreEvictionPolicy.LRU)) {
-                    memStore = new LruMemoryStore(this, diskStore);
+                    Store disk = createDiskStore();
+                    store = new LegacyStoreWrapper(new LruMemoryStore(this, disk), disk, registeredEventListeners, configuration);
                 } else {
-                    memStore = MemoryStore.create(this, diskStore);
+                    if (configuration.isDiskPersistent()) {
+                        //store = DiskPersistentStore.create(this, diskStorePath);
+                        Store disk = createDiskStore();
+                        store = new LegacyStoreWrapper(MemoryStore.create(this, disk), disk, registeredEventListeners, configuration);
+                    } else if (configuration.isOverflowToDisk()) {
+                        store = OverflowToDiskStore.create(this, diskStorePath);
+                    } else {
+                        store = MemoryOnlyStore.create(this, diskStorePath);
+                    }
                 }
             }
 
             if (configuration.isTransactional()) {
-                if (!configuration.isTerracottaClustered()
-                    || configuration.getTerracottaConfiguration().getValueMode() == TerracottaConfiguration.ValueMode.IDENTITY) {
-                    throw new CacheException("To be transactional, the cache needs to be Terracotta clustered in Serialization value mode");
+                if (configuration.isTerracottaClustered()
+                    && configuration.getTerracottaConfiguration().getValueMode() != TerracottaConfiguration.ValueMode.SERIALIZATION) {
+                    throw new CacheException("To be transactional, a Terracotta clustered cache needs to be in Serialization value mode");
                 }
 
                 TransactionManager txnManager = transactionManagerLookup.getTransactionManager();
@@ -979,18 +982,19 @@ public class Cache implements Ehcache {
                                              + configuration.getName() + " to be transactional, but no TransactionManager could be found!");
                 }
                 //set xa enabled
-                configuration.getTerracottaConfiguration().setCacheXA(true);
+                if (configuration.isTerracottaClustered()) {
+                    configuration.getTerracottaConfiguration().setCacheXA(true);
+                }
 
-                EhcacheXAStore ehcacheXAStore = cacheManager.createEhcacheXAStore(this, memStore);
+                EhcacheXAStore ehcacheXAStore = cacheManager.createEhcacheXAStore(this, store);
 
                 // this xaresource is for initial registration and recovery
                 EhcacheXAResourceImpl xaResource = new EhcacheXAResourceImpl(this, txnManager, ehcacheXAStore);
                 transactionManagerLookup.register(xaResource);
 
-
-                this.memoryStore = new XATransactionalStore(this, ehcacheXAStore, transactionManagerLookup);
+                this.compoundStore = new XATransactionalStore(this, ehcacheXAStore, transactionManagerLookup);
             } else {
-                this.memoryStore = memStore;
+                this.compoundStore = store;
             }
             this.cacheWriterManager = configuration.getCacheWriterConfiguration().getWriteMode().createWriterManager(this);
             initialiseCacheWriterManager(false);
@@ -1213,11 +1217,8 @@ public class Cache implements Ehcache {
         if (useCacheWriter) {
             boolean elementExists = false;
             try {
-                elementExists = isElementOnDisk(element.getObjectKey());
-                if (!elementExists) {
-                    elementExists = memoryStore.containsKey(element.getObjectKey());
-                }
-                elementExists = !memoryStore.putWithWriter(element, cacheWriterManager) || elementExists;
+                elementExists = compoundStore.containsKey(element.getObjectKey());
+                elementExists = !compoundStore.putWithWriter(element, cacheWriterManager) || elementExists;
                 if (elementExists) {
                     element.updateUpdateStatistics();
                 }
@@ -1229,8 +1230,7 @@ public class Cache implements Ehcache {
                 throw e.getCause();
             }
         } else {
-            boolean elementExists = isElementOnDisk(element.getObjectKey());
-            elementExists = !memoryStore.put(element) || elementExists;
+            boolean elementExists = !compoundStore.put(element);
             if (elementExists) {
                 element.updateUpdateStatistics();
             }
@@ -1254,7 +1254,7 @@ public class Cache implements Ehcache {
      */
     private void backOffIfDiskSpoolFull() {
 
-        if (diskStore != null && diskStore.bufferFull()) {
+        if (compoundStore.bufferFull()) {
             //back off to avoid OutOfMemoryError
             try {
                 Thread.sleep(BACK_OFF_TIME_MILLIS);
@@ -1301,7 +1301,7 @@ public class Cache implements Ehcache {
 
         applyDefaultsToElementWithoutLifespanSet(element);
 
-        memoryStore.put(element);
+        compoundStore.put(element);
     }
 
     /**
@@ -1344,13 +1344,9 @@ public class Cache implements Ehcache {
         }
 
         if (isStatisticsEnabled()) {
-            Element element;
             long start = System.currentTimeMillis();
 
-            element = searchInMemoryStoreWithStats(key, false, true);
-            if (element == null && isDiskStore()) {
-                element = searchInDiskStoreWithStats(key, false, true);
-            }
+            Element element = searchInStoreWithStats(key, false, true);
             if (element == null) {
                 liveCacheStatisticsData.cacheMissNotFound();
                 if (LOG.isDebugEnabled()) {
@@ -1362,11 +1358,7 @@ public class Cache implements Ehcache {
             liveCacheStatisticsData.addGetTimeMillis(end - start);
             return element;
         } else {
-            Element element = searchInMemoryStoreWithoutStats(key, false, true);
-            if (element == null && isDiskStore()) {
-                element = searchInDiskStoreWithoutStats(key, false, true);
-            }
-            return element;
+            return searchInStoreWithoutStats(key, false, true);
         }
     }
 
@@ -1590,11 +1582,7 @@ public class Cache implements Ehcache {
      */
     public final Element getQuiet(Object key) throws IllegalStateException, CacheException {
         checkStatus();
-        Element element = searchInMemoryStoreWithoutStats(key, true, false);
-        if (element == null && isDiskStore()) {
-            element = searchInDiskStoreWithoutStats(key, true, false);
-        }
-        return element;
+        return searchInStoreWithoutStats(key, true, false);
     }
 
     /**
@@ -1612,27 +1600,7 @@ public class Cache implements Ehcache {
      */
     public final List getKeys() throws IllegalStateException, CacheException {
         checkStatus();
-        /* An element with the same key can exist in both the memory store and the
-            disk store at the same time. Because the memory store is always searched first
-            these duplicates do not cause problems when getting elements/
-
-            This method removes these duplicates before returning the list of keys*/
-        List<Object> allKeyList = new ArrayList<Object>();
-        List<Object> keyList = Arrays.asList(memoryStore.getKeyArray());
-        allKeyList.addAll(keyList);
-        if (isDiskStore()) {
-            Set<Object> allKeys = new HashSet<Object>();
-            //within the store keys will be unique
-            allKeys.addAll(keyList);
-            Object[] diskKeys = diskStore.getKeyArray();
-            for (Object diskKey : diskKeys) {
-                if (allKeys.add(diskKey)) {
-                    //Unique, so add it to the list
-                    allKeyList.add(diskKey);
-                }
-            }
-        }
-        return allKeyList;
+        return Arrays.asList(compoundStore.getKeyArray());
     }
 
     /**
@@ -1692,22 +1660,15 @@ public class Cache implements Ehcache {
      */
     public final List getKeysNoDuplicateCheck() throws IllegalStateException {
         checkStatus();
-        ArrayList<Object> allKeys = new ArrayList<Object>();
-        List<Object> memoryKeySet = Arrays.asList(memoryStore.getKeyArray());
-        allKeys.addAll(memoryKeySet);
-        if (isDiskStore()) {
-            List<Object> diskKeySet = Arrays.asList(diskStore.getKeyArray());
-            allKeys.addAll(diskKeySet);
-        }
-        return allKeys;
+        return getKeys();
     }
 
-    private Element searchInMemoryStoreWithStats(Object key, boolean quiet, boolean notifyListeners) {
+    private Element searchInStoreWithStats(Object key, boolean quiet, boolean notifyListeners) {
         Element element;
         if (quiet) {
-            element = memoryStore.getQuiet(key);
+            element = compoundStore.getQuiet(key);
         } else {
-            element = memoryStore.get(key);
+            element = compoundStore.get(key);
         }
 
         if (element != null) {
@@ -1733,12 +1694,12 @@ public class Cache implements Ehcache {
         return element;
     }
 
-    private Element searchInMemoryStoreWithoutStats(Object key, boolean quiet, boolean notifyListeners) {
+    private Element searchInStoreWithoutStats(Object key, boolean quiet, boolean notifyListeners) {
         Element element;
         if (quiet) {
-            element = memoryStore.getQuiet(key);
+            element = compoundStore.getQuiet(key);
         } else {
-            element = memoryStore.get(key);
+            element = compoundStore.get(key);
         }
 
         if (element != null) {
@@ -1758,66 +1719,6 @@ public class Cache implements Ehcache {
               && (!configuration.isOverflowToDisk() || configuration.getMaxElementsOnDisk() == 0);
     }
 
-    private Element searchInDiskStoreWithStats(Object key, boolean quiet, boolean notifyListeners) {
-        if (!(key instanceof Serializable)) {
-            return null;
-        }
-        Serializable serializableKey = (Serializable) key;
-        Element element;
-        if (quiet) {
-            element = diskStore.getQuiet(serializableKey);
-        } else {
-            element = diskStore.get(serializableKey);
-        }
-
-        if (element != null) {
-            if (isExpired(element)) {
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug(configuration.getName() + " cache - Disk Store hit, but element expired");
-                }
-                liveCacheStatisticsData.cacheMissExpired();
-                removeInternal(key, true, notifyListeners, false, false);
-                element = null;
-            } else {
-                if (!quiet) {
-                    element.updateAccessStatistics();
-                }
-                liveCacheStatisticsData.cacheHitOnDisk();
-                //Put the item back into memory to preserve policies in the memory store and to save updated statistics
-                //todo - maybe make the DiskStore a one-way evict. i.e. Do not replace See testGetSpeedMostlyDisk for speed comp.
-                memoryStore.put(element);
-            }
-        }
-        return element;
-    }
-
-    private Element searchInDiskStoreWithoutStats(Object key, boolean quiet, boolean notifyListeners) {
-        if (!(key instanceof Serializable)) {
-            return null;
-        }
-        Serializable serializableKey = (Serializable) key;
-        Element element;
-        if (quiet) {
-            element = diskStore.getQuiet(serializableKey);
-        } else {
-            element = diskStore.get(serializableKey);
-        }
-
-        if (element != null) {
-            if (isExpired(element)) {
-                removeInternal(key, true, notifyListeners, false, false);
-                element = null;
-            } else {
-                if (!quiet) {
-                    element.updateAccessStatistics();
-                }
-                //Put the item back into memory to preserve policies in the memory store and to save updated statistics
-                //todo - maybe make the DiskStore a one-way evict. i.e. Do not replace See testGetSpeedMostlyDisk for speed comp.
-                memoryStore.put(element);
-            }
-        }
-        return element;
-    }
     /**
      * Removes an {@link Element} from the Cache. This also removes it from any
      * stores it may be in.
@@ -1973,60 +1874,39 @@ public class Cache implements Ehcache {
         }
 
         checkStatus();
-        Element elementFromMemoryStore = null;
-        Element elementFromDiskStore = null;
+        Element elementFromStore = null;
 
         if (useCacheWriter) {
             try {
-                elementFromMemoryStore = memoryStore.removeWithWriter(key, cacheWriterManager);
+                elementFromStore = compoundStore.removeWithWriter(key, cacheWriterManager);
             } catch (CacheWriterManagerException e) {
                 if (configuration.getCacheWriterConfiguration().getNotifyListenersOnException()) {
                     notifyRemoveInternalListeners(key, expiry, notifyListeners, doNotNotifyCacheReplicators,
-                            elementFromMemoryStore, elementFromDiskStore);
+                            elementFromStore);
                 }
                 throw e.getCause();
             }
         } else {
-            elementFromMemoryStore = memoryStore.remove(key);
+            elementFromStore = compoundStore.remove(key);
         }
 
-        // TODO check if it might not makes sense to reverse the memory store and disk store removal to have predictable
-        // remove operations in case a CacheWriterManagerException occurs
-
-        //could have been removed from both places, if there are two copies in the cache
-        if (isDiskStore()) {
-            if ((key instanceof Serializable)) {
-                Serializable serializableKey = (Serializable) key;
-                elementFromDiskStore = diskStore.remove(serializableKey);
-            }
-
-        }
-        
         return notifyRemoveInternalListeners(key, expiry, notifyListeners, doNotNotifyCacheReplicators,
-                elementFromMemoryStore, elementFromDiskStore);
+                elementFromStore);
     }
 
     private boolean notifyRemoveInternalListeners(Object key, boolean expiry, boolean notifyListeners, boolean doNotNotifyCacheReplicators,
-                                                  Element elementFromMemoryStore, Element elementFromDiskStore) {
+                                                  Element elementFromStore) {
         boolean removed = false;
         boolean removeNotified = false;
 
         //Elements may be in both places. Always notify the MemoryStore version if there are two
-        if (elementFromMemoryStore != null) {
+        if (elementFromStore != null) {
             if (expiry) {
                 //always notify expire which is lazy regardless of the removeQuiet
-                registeredEventListeners.notifyElementExpiry(elementFromMemoryStore, doNotNotifyCacheReplicators);
+                registeredEventListeners.notifyElementExpiry(elementFromStore, doNotNotifyCacheReplicators);
             } else if (notifyListeners) {
                 removeNotified = true;
-                registeredEventListeners.notifyElementRemoved(elementFromMemoryStore, doNotNotifyCacheReplicators);
-            }
-            removed = true;
-        } else if (elementFromDiskStore != null) {
-            if (expiry) {
-                registeredEventListeners.notifyElementExpiry(elementFromDiskStore, doNotNotifyCacheReplicators);
-            } else if (notifyListeners) {
-                removeNotified = true;
-                registeredEventListeners.notifyElementRemoved(elementFromDiskStore, doNotNotifyCacheReplicators);
+                registeredEventListeners.notifyElementRemoved(elementFromStore, doNotNotifyCacheReplicators);
             }
             removed = true;
         }
@@ -2066,10 +1946,7 @@ public class Cache implements Ehcache {
      */
     public void removeAll(boolean doNotNotifyCacheReplicators) throws IllegalStateException, CacheException {
         checkStatus();
-        memoryStore.removeAll();
-        if (isDiskStore()) {
-            diskStore.removeAll();
-        }
+        compoundStore.removeAll();
         registeredEventListeners.notifyRemoveAll(doNotNotifyCacheReplicators);
     }
 
@@ -2103,11 +1980,8 @@ public class Cache implements Ehcache {
             cacheWriterManager.dispose();
         }
 
-        if (memoryStore != null) {
-            memoryStore.dispose();
-        }
-        if (diskStore != null) {
-            diskStore.dispose();
+        if (compoundStore != null) {
+            compoundStore.dispose();
         }
         changeStatus(Status.STATUS_SHUTDOWN);
     }
@@ -2168,10 +2042,7 @@ public class Cache implements Ehcache {
     public final synchronized void flush() throws IllegalStateException, CacheException {
         checkStatus();
         try {
-            memoryStore.flush();
-            if (isDiskStore()) {
-                diskStore.flush();
-            }
+            compoundStore.flush();
         } catch (IOException e) {
             throw new CacheException("Unable to flush cache: " + configuration.getName()
                     + ". Initial cause was " + e.getMessage(), e);
@@ -2181,7 +2052,7 @@ public class Cache implements Ehcache {
     /**
      * Gets the size of the cache. This is a subtle concept. See below.
      * <p/>
-     * The size is the number of {@link Element}s in the {@link MemoryStore}
+     * The size is the number of {@link Element}s in the {@link import net.sf.ehcache.store.MemoryStore}
      * plus the number of {@link Element}s in the {@link DiskStore}. However, if
      * the cache is Terracotta clustered, the underlying store has a coherent
      * view of the all the elements in the cache and doesn't have to be
@@ -2210,12 +2081,10 @@ public class Cache implements Ehcache {
     public final int getSize() throws IllegalStateException, CacheException {
         checkStatus();
 
-        if (memoryStore.isCacheCoherent()) {
-            return memoryStore.getTerracottaClusteredSize();
+        if (compoundStore.isCacheCoherent()) {
+            return compoundStore.getTerracottaClusteredSize();
         } else {
-            /* The memory store and the disk store can simultaneously contain elements with the same key
-                Cache size is the size of the union of the two key sets.*/
-            return getKeys().size();
+            return compoundStore.getSize();
         }
     }
 
@@ -2249,7 +2118,7 @@ public class Cache implements Ehcache {
      */
     public final long calculateInMemorySize() throws IllegalStateException, CacheException {
         checkStatus();
-        return memoryStore.getSizeInBytes();
+        return compoundStore.getInMemorySizeInBytes();
     }
 
 
@@ -2261,7 +2130,7 @@ public class Cache implements Ehcache {
      */
     public final long getMemoryStoreSize() throws IllegalStateException {
         checkStatus();
-        return memoryStore.getSize();
+        return compoundStore.getInMemorySize();
     }
 
     /**
@@ -2273,12 +2142,9 @@ public class Cache implements Ehcache {
     public final int getDiskStoreSize() throws IllegalStateException {
         checkStatus();
         if (isTerracottaClustered()) {
-            return memoryStore.getTerracottaClusteredSize();
-        }
-        if (isDiskStore()) {
-            return diskStore.getSize();
+            return compoundStore.getTerracottaClusteredSize();
         } else {
-            return 0;
+            return compoundStore.getOnDiskSize();
         }
     }
 
@@ -2391,7 +2257,7 @@ public class Cache implements Ehcache {
      */
     @Override
     public final Cache clone() throws CloneNotSupportedException {
-        if (!(memoryStore == null && diskStore == null)) {
+        if (compoundStore != null) {
             throw new CloneNotSupportedException("Cannot clone an initialized cache.");
         }
         Cache copy = (Cache) super.clone();
@@ -2439,28 +2305,16 @@ public class Cache implements Ehcache {
     }
 
     /**
-     * Gets the internal DiskStore.
-     *
-     * @return the DiskStore referenced by this cache
+     * Gets the internal Store.
+     * 
+     * @return the Store referenced by this cache
      * @throws IllegalStateException if the cache is not {@link Status#STATUS_ALIVE}
      */
-    final Store getDiskStore() throws IllegalStateException {
+    final Store getStore() throws IllegalStateException {
         checkStatus();
-        return diskStore;
+        return compoundStore;
     }
-
-    /**
-     * Gets the internal MemoryStore.
-     *
-     * @return the MemoryStore referenced by this cache
-     * @throws IllegalStateException if the cache is not {@link Status#STATUS_ALIVE}
-     */
-    final Store getMemoryStore() throws IllegalStateException {
-        checkStatus();
-        return memoryStore;
-    }
-
-
+    
     /**
      * Use this to access the service in order to register and unregister listeners
      *
@@ -2487,7 +2341,7 @@ public class Cache implements Ehcache {
      * @since 1.2
      */
     public final boolean isElementInMemory(Object key) {
-        return memoryStore.containsKey(key);
+        return compoundStore.containsKeyInMemory(key);
     }
 
     /**
@@ -2506,15 +2360,7 @@ public class Cache implements Ehcache {
      * @since 1.2
      */
     public final boolean isElementOnDisk(Object key) {
-        if (!(key instanceof Serializable)) {
-            return false;
-        }
-        Serializable serializableKey = (Serializable) key;
-        if (isDiskStore()) {
-            return diskStore != null && diskStore.containsKey(serializableKey);
-        } else {
-            return false;
-        }
+        return compoundStore.containsKeyOnDisk(key);
     }
 
     /**
@@ -2575,16 +2421,7 @@ public class Cache implements Ehcache {
      * Causes all elements stored in the Cache to be synchronously checked for expiry, and if expired, evicted.
      */
     public void evictExpiredElements() {
-        Object[] keys = memoryStore.getKeyArray();
-
-        for (Object key : keys) {
-            searchInMemoryStoreWithoutStats(key, true, true);
-        }
-
-        //This is called regularly by the expiry thread, but call it here synchronously
-        if (isDiskStore()) {
-            diskStore.expireElements();
-        }
+        compoundStore.expireElements();
     }
 
     /**
@@ -2615,15 +2452,7 @@ public class Cache implements Ehcache {
      * @return true if an Element matching the key is found in the cache. No assertions are made about the state of the Element.
      */
     public boolean isValueInCache(Object value) {
-        boolean isSerializable = value instanceof Serializable;
-        List keys;
-        if (isSerializable) {
-            keys = getKeys();
-        } else {
-            keys = Arrays.asList(memoryStore.getKeyArray());
-        }
-
-        for (Object key : keys) {
+        for (Object key : getKeys()) {
             Element element = get(key);
             if (element != null) {
                 Object elementValue = element.getValue();
@@ -3136,7 +2965,7 @@ public class Cache implements Ehcache {
      *         dynamically set.
      */
     public Policy getMemoryStoreEvictionPolicy() {
-        return memoryStore.getEvictionPolicy();
+        return compoundStore.getInMemoryEvictionPolicy();
     }
 
     /**
@@ -3151,7 +2980,7 @@ public class Cache implements Ehcache {
      */
     public void setMemoryStoreEvictionPolicy(Policy policy) {
         Policy oldValue = getMemoryStoreEvictionPolicy();
-        memoryStore.setEvictionPolicy(policy);
+        compoundStore.setInMemoryEvictionPolicy(policy);
         firePropertyChange("MemoryStoreEvictionPolicy", oldValue, policy);
     }
 
@@ -3243,7 +3072,7 @@ public class Cache implements Ehcache {
      * {@inheritDoc}
      */
     public Object getInternalContext() {
-        return memoryStore.getInternalContext();
+        return compoundStore.getInternalContext();
     }
 
     /**
@@ -3258,14 +3087,14 @@ public class Cache implements Ehcache {
      * {@inheritDoc}
      */
     public boolean isClusterCoherent() {
-        return memoryStore.isClusterCoherent();
+        return compoundStore.isClusterCoherent();
     }
 
     /**
      * {@inheritDoc}
      */
     public boolean isNodeCoherent() {
-        return memoryStore.isNodeCoherent();
+        return compoundStore.isNodeCoherent();
     }
 
     /**
@@ -3273,7 +3102,7 @@ public class Cache implements Ehcache {
      */
     public void setNodeCoherent(boolean coherent) {
         boolean oldValue = isNodeCoherent();
-        memoryStore.setNodeCoherent(coherent);
+        compoundStore.setNodeCoherent(coherent);
         firePropertyChange("NodeCoherent", oldValue, coherent);
         if (!coherent) {
             boolean clusterCoherent = isClusterCoherent();
@@ -3287,7 +3116,7 @@ public class Cache implements Ehcache {
      * {@inheritDoc}
      */
     public void waitUntilClusterCoherent() {
-        memoryStore.waitUntilClusterCoherent();
+        compoundStore.waitUntilClusterCoherent();
         firePropertyChange("ClusterCoherent", false, true);
     }
     

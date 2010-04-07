@@ -62,6 +62,7 @@ public class SelfPopulatingCache extends BlockingCache {
     /**
      * Looks up an entry.  creating it if not found.
      */
+    @Override
     public Element get(final Object key) throws LockTimeoutException {
 
         try {
@@ -81,6 +82,7 @@ public class SelfPopulatingCache extends BlockingCache {
             throw new LockTimeoutException(message, e);
 
         } catch (final Throwable throwable) {
+            throwable.printStackTrace();
             // Could not fetch - Ditch the entry from the cache and rethrow
 
             //release the lock you acquired
