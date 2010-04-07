@@ -12,6 +12,7 @@
 	<script language="JavaScript" src="http://www.ehcache.org/js/jquery.js"></script>
 
     <script language="JavaScript" src="http://www.ehcache.org/js/navinit.js"></script>
+   <script language="JavaScript" src="../js/tooltip.js"></script>
 
     <!--[if IE 6]>
          <link rel="stylesheet" type="text/css" href="./css/siteNew-IE6.css" />
@@ -351,15 +352,15 @@
 			 *		Order them in matching Title->Content pairs.
 			 *
 			 */
-			 var titles = "Scale Continuum,APIs,Editions";
-			 var content = "marquee.swf,apis.swf,apis.swf";
+			 var titles = "Scale Continuum,APIs,Editions,Promotion";
+			 var content = "marquee.swf,apis.swf,editions.swf,promo.swf";
 			 
 			 
 			 
 			 
 			 
-           document.write('<object type="application/x-shockwave-flash"');
-             document.write(' data="tabparent.swf" width="650" height="400"' +
+           document.write('<object id="marquee" type="application/x-shockwave-flash"');
+             document.write(' data="tabparent.swf" width="650" height="400" wmode="opaque"' +
 			  
               
               'FlashVars="' +
@@ -369,14 +370,17 @@
              'content='+ content +
               
 			  '"' +
-			  " >");
-			 
-            document.write('<!-- <![endif]-->');
+			  ' />');
+			 </script>
+            <!-- <![endif]-->')
             
-            document.write('<!--[if IE]>');
-           document.write(' <object classid="clsid:D27CDB6E-AE6D-11cf-96B8-444553540000"',
-             ' codebase="http://download.macromedia.com/pub/shockwave/cabs/flash/swflash.cab#version=6,0,0,0"',
-             ' width="650" height="400"');
+           <!--[if IE]>
+		    <script type="text/javascript" language="javascript"> 
+             var titles = "Scale Continuum,APIs,Editions,Promotion";
+			 var content = "marquee.swf,apis.swf,editions.swf,promo.swf";
+           document.write(' <object id="marquee" classid="clsid:D27CDB6E-AE6D-11cf-96B8-444553540000"'+
+             ' codebase="http://download.macromedia.com/pub/shockwave/cabs/flash/swflash.cab#version=6,0,0,0"'+
+             ' width="650" height="400" wmode="opaque"');
 			  
                document.write('FlashVars="');
               
@@ -387,12 +391,16 @@
 			  document.write('"');
 			  document.write(" />");
 			  
-			  document.write(" />");
+			  
               document.write('<param name="movie" value="tabparent.swf" />');
-           document.write(' <!--><!--dgx-->');
+              </script>
+            <!--><!--dgx-->
+            <script type="text/javascript" language="javascript"> 
+			 var titles = "Scale Continuum,APIs,Editions,Promotion";
+			 var content = "marquee.swf,apis.swf,editions.swf,promo.swf";
              document.write(' <param name="loop" value="true" />');
              document.write(' <param name="menu" value="false" />');
-			  
+			  document.write(' <param name="wmode" value="opaque" />');
 			  
               document.write('<param name=FlashVars VALUE="');
               
@@ -403,10 +411,9 @@
               document.write('" />');
             
              document.write(' <p>Get the latest flash player.</p>',
-           '</object>',
-           ' <!-- <![endif]-->');
+           '</object>');
             </script>
-             
+             <!-- <![endif]-->
             
             
             
@@ -465,6 +472,11 @@
     </div>
 </div>
 
+<!-- please ignore/excuse the inline stlyes-->
+<div id="popup" style="display:none;position:absolute; width:200px; height:300px; color:#000000; background:white; padding:0px; border:solid 2px #D6D0C6; "><h4 style="margin:0px;">Extra Info</h4>
+<p style="padding:4px;">
+	Here is where you list sub-modules/functions and other helpful information.
+</p>
 
-
+</div>
 </body></html>
