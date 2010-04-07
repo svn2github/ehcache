@@ -16,6 +16,8 @@
 
 package net.sf.ehcache.hibernate.management.impl;
 
+import org.hibernate.stat.SecondLevelCacheStatistics;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -31,8 +33,6 @@ import javax.management.openmbean.TabularData;
 import javax.management.openmbean.TabularDataSupport;
 import javax.management.openmbean.TabularType;
 
-import org.hibernate.stat.SecondLevelCacheStatistics;
-
 /**
  * @author gkeim
  *
@@ -41,14 +41,11 @@ public class CacheRegionStats implements Serializable {
   private static final String        COMPOSITE_TYPE_NAME        = "CacheRegionStats";
   private static final String        COMPOSITE_TYPE_DESCRIPTION = "Statistics per Cache-region";
   private static final String[]      ITEM_NAMES                 = new String[] {"region", "shortName", "hitCount",
-      "missCount", "putCount", "hitRatio", "elementCountInMemory", "elementCountOnDisk", "elementCountTotal",
-      "hitLatency", "loadLatency", "latencyCacheHit", "latencyCacheTime", "latencyDbHit", "latencyDbTime", };
+      "missCount", "putCount", "hitRatio", "elementCountInMemory", "elementCountOnDisk", "elementCountTotal", };
   private static final String[]      ITEM_DESCRIPTIONS          = new String[] {"region", "shortName", "hitCount",
-      "missCount", "putCount", "hitRatio", "elementCountInMemory", "elementCountOnDisk", "elementCountTotal",
-      "hitLatency", "loadLatency", "latencyCacheHit", "latencyCacheTime", "latencyDbHit", "latencyDbTime", };
+      "missCount", "putCount", "hitRatio", "elementCountInMemory", "elementCountOnDisk", "elementCountTotal", };
   private static final OpenType[]    ITEM_TYPES                 = new OpenType[] {SimpleType.STRING,
       SimpleType.STRING, SimpleType.LONG, SimpleType.LONG, SimpleType.LONG, SimpleType.DOUBLE, SimpleType.LONG,
-      SimpleType.LONG, SimpleType.LONG, SimpleType.LONG, SimpleType.LONG, SimpleType.LONG, SimpleType.LONG,
       SimpleType.LONG, SimpleType.LONG,                         };
   private static final CompositeType COMPOSITE_TYPE;
   private static final String        TABULAR_TYPE_NAME          = "Statistics by Cache-region";
@@ -66,81 +63,50 @@ public class CacheRegionStats implements Serializable {
     }
   }
 
+  /**
+   * region name
+   */
+  protected final String             region;
   
   /**
-   * region
+   * region short name
    */
-  protected final String region;
-
-  /**
-   * shortName
-   */
-  protected final String shortName;
+  protected final String             shortName;
   
   /**
-   * shortName
+   * hit count
    */
-  protected long hitCount;
+  protected long                     hitCount;
   
   /**
-   * missCount
+   * miss count
    */
-  protected long missCount;
+  protected long                     missCount;
   
   /**
-   * putCount
+   * put count
    */
-  protected long putCount;
+  protected long                     putCount;
   
   /**
-   * hitRatio
+   * hit ratio
    */
-  protected double hitRatio;
+  protected double                   hitRatio;
   
   /**
-   * elementCountInMemory
+   * in-memory element count
    */
-  protected long elementCountInMemory;
+  protected long                     elementCountInMemory;
   
   /**
-   * elementCountOnDisk
+   * on-disk element count
    */
-  protected long elementCountOnDisk;
+  protected long                     elementCountOnDisk;
   
   /**
-   * elementCountTotal
+   * total element count
    */
-  protected long elementCountTotal;
-  
-  /**
-   * hitLatency
-   */
-  protected long hitLatency;
-  
-  /**
-   * loadLatency
-   */
-  protected long loadLatency;
-  
-  /**
-   * latencyCacheHit
-   */
-  protected long latencyCacheHit;
-  
-  /**
-   * latencyCacheTime
-   */
-  protected long latencyCacheTime;
-  
-  /**
-   * latencyDbHit
-   */
-  protected long latencyDbHit;
-
-  /**
-   * latencyDbTime
-   */
-  protected long latencyDbTime;
+  protected long                     elementCountTotal;
 
   /**
    * @param region
@@ -162,18 +128,8 @@ public class CacheRegionStats implements Serializable {
     this.hitRatio = determineHitRatio();
     this.elementCountInMemory = src.getElementCountInMemory();
     this.elementCountOnDisk = src.getElementCountOnDisk();
-    this.elementCountTotal = src.getElementCountInMemory() + src.getElementCountOnDisk();
+    this.elementCountTotal = /*src.getElementCountInMemory() +*/ src.getElementCountOnDisk();
   }
-
-//  public CacheRegionStats(String region, SecondLevelCacheStatistics src, ConcurrentLatencyStatistics latencyStats) {
-//    this(region, src);
-//    hitLatency = latencyStats.getAvgLoadTimeFromCache();
-//    loadLatency = latencyStats.getAvgLoadTimeFromDatabase();
-//    this.latencyCacheHit = latencyStats.getHitsToCache();
-//    this.latencyCacheTime = latencyStats.getTimeLoadingFromCache();
-//    this.latencyDbHit = latencyStats.getHitsToDatabase();
-//    this.latencyDbTime = latencyStats.getTimeLoadingFromDatabase();
-//  }
 
   /**
    * @param cData
@@ -189,16 +145,10 @@ public class CacheRegionStats implements Serializable {
     elementCountInMemory = (Long) cData.get(ITEM_NAMES[i++]);
     elementCountOnDisk = (Long) cData.get(ITEM_NAMES[i++]);
     elementCountTotal = (Long) cData.get(ITEM_NAMES[i++]);
-    hitLatency = (Long) cData.get(ITEM_NAMES[i++]);
-    loadLatency = (Long) cData.get(ITEM_NAMES[i++]);
-    latencyCacheHit = (Long) cData.get(ITEM_NAMES[i++]);
-    latencyCacheTime = (Long) cData.get(ITEM_NAMES[i++]);
-    latencyDbHit = (Long) cData.get(ITEM_NAMES[i++]);
-    latencyDbTime = (Long) cData.get(ITEM_NAMES[i++]);
   }
 
   /**
-   * determineHitRatio
+   * @return hit ratio
    */
   protected double determineHitRatio() {
     double result = 0;
@@ -210,145 +160,102 @@ public class CacheRegionStats implements Serializable {
   }
 
   /**
-   * toString
+   * @see java.lang.Object#toString()
    */
   @Override
   public String toString() {
     return "region=" + getRegion() + "shortName=" + getShortName() + ", hitCount=" + getHitCount() + ", missCount="
            + getMissCount() + ", putCount" + getPutCount() + ", hitRatio" + getHitRatio() + ", elementCountInMemory="
            + getElementCountInMemory() + ", elementCountOnDisk=" + getElementCountOnDisk() + ", elementCountTotal="
-           + getElementCountTotal() + ", hitLatency=" + getHitLatency() + ", loadLatency=" + getLoadLatency();
+           + getElementCountTotal();
   }
 
   /**
-   * getRegion
+   * @return region name
    */
   public String getRegion() {
     return region;
   }
 
   /**
-   * getShortName
+   * @return short name
    */
   public String getShortName() {
     return shortName;
   }
 
   /**
-   * getHitCount
+   * @return hit count
    */
   public long getHitCount() {
     return hitCount;
   }
 
   /**
-   * getMissCount
+   * @return miss count
    */
   public long getMissCount() {
     return missCount;
   }
 
   /**
-   * getPutCount
+   * @return put count
    */
   public long getPutCount() {
     return putCount;
   }
 
   /**
-   * getHitRatio
+   * @return hit ratio
    */
   public double getHitRatio() {
     return hitRatio;
   }
 
   /**
-   * getElementCountInMemory
+   * @return in-memory element count
    */
   public long getElementCountInMemory() {
     return elementCountInMemory;
   }
 
   /**
-   * getElementCountOnDisk
+   * @return on-disk element count
    */
   public long getElementCountOnDisk() {
     return elementCountOnDisk;
   }
 
   /**
-   * getElementCountTotal
+   * @return total element count
    */
   public long getElementCountTotal() {
     return elementCountTotal;
   }
 
   /**
-   * getHitLatency
-   */
-  public long getHitLatency() {
-    return hitLatency;
-  }
-
-  /**
-   * getLoadLatency
-   */
-  public long getLoadLatency() {
-    return loadLatency;
-  }
-
-  /**
-   * getLatencyCacheHit
-   */
-  public long getLatencyCacheHit() {
-    return latencyCacheHit;
-  }
-
-  /**
-   * getLatencyCacheTime
-   */
-  public long getLatencyCacheTime() {
-    return latencyCacheTime;
-  }
-
-  /**
-   * getLatencyDbHit
-   */
-  public long getLatencyDbHit() {
-    return latencyDbHit;
-  }
-
-  /**
-   * getLatencyDbTime
-   */
-  public long getLatencyDbTime() {
-    return latencyDbTime;
-  }
-
-  /**
-   * toCompositeData
+   * @return composite data
    */
   public CompositeData toCompositeData() {
     try {
       return new CompositeDataSupport(COMPOSITE_TYPE, ITEM_NAMES, new Object[] {getRegion(), getShortName(),
           getHitCount(), getMissCount(), getPutCount(), getHitRatio(), getElementCountInMemory(),
-          getElementCountOnDisk(), getElementCountTotal(), getHitLatency(), getLoadLatency(), getLatencyCacheHit(),
-          getLatencyCacheTime(), getLatencyDbHit(), getLatencyDbTime(), });
+          getElementCountOnDisk(), getElementCountTotal(), });
     } catch (OpenDataException e) {
       throw new RuntimeException(e);
     }
   }
 
   /**
-   * newTabularDataInstance
+   * @return tabular data
    */
   public static TabularData newTabularDataInstance() {
     return new TabularDataSupport(TABULAR_TYPE);
   }
 
   /**
-   * fromTabularData
    * @param tabularData
+   * @return array of region statistics
    */
   public static CacheRegionStats[] fromTabularData(final TabularData tabularData) {
     final List<CacheRegionStats> countList = new ArrayList(tabularData.size());

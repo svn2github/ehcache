@@ -188,4 +188,30 @@ public class MBeanRegistrationProviderTest extends AbstractCacheTest {
         assertSampledMBeansGroupRegistered(0);
         assertCacheManagerMBeansRegistered(0);
     }
+
+    @Test
+    public void testInvalidCacheNames() throws Exception {
+        System.setProperty("tc.active", "true");
+        
+        File file = new File(TEST_CONFIG_DIR + "ehcache-invalid-cache-names.xml");
+        Configuration configuration = ConfigurationFactory.parseConfiguration(file);
+        cacheManager = new CacheManager(configuration);
+        assertSampledMBeansGroupRegistered(4);
+        assertCacheManagerMBeansRegistered("invalidCacheNames", 1);
+        
+        System.setProperty("tc.active", "false");
+    }
+    
+    @Test
+    public void testInvalidCacheManagerName() throws Exception {
+        System.setProperty("tc.active", "true");
+        
+        File file = new File(TEST_CONFIG_DIR + "ehcache-invalid-cache-manager-name.xml");
+        Configuration configuration = ConfigurationFactory.parseConfiguration(file);
+        cacheManager = new CacheManager(configuration);
+        assertSampledMBeansGroupRegistered(1);
+        assertCacheManagerMBeansRegistered("invalid:CacheManagerName", 1);
+
+        System.setProperty("tc.active", "false");
+    }
 }

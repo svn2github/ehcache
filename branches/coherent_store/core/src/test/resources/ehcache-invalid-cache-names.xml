@@ -1,6 +1,5 @@
 <ehcache xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../main/config/ehcache.xsd"
- name="cacheManagerOn"
- monitoring="on">
+ name="invalidCacheNames">
 
     <defaultCache
         maxElementsInMemory="10"
@@ -10,8 +9,8 @@
         overflowToDisk="false"
         />
 
-    <!-- Sample cache named sampleCache1 -->
-    <cache name="sampleCache1"
+    <!-- Sample cache named sample:Cache1 -->
+    <cache name="sample:Cache1"
         maxElementsInMemory="10000"
         eternal="false"
         timeToIdleSeconds="360"
@@ -19,8 +18,18 @@
         overflowToDisk="false"
         />
 
-    <!-- Sample cache named sampleCache2 -->
-    <cache name="sampleCache2"
+    <!-- Sample cache named sample=Cache2 -->
+    <cache name="sample=Cache2"
+        maxElementsInMemory="1000"
+        eternal="true"
+        timeToIdleSeconds="0"
+        timeToLiveSeconds="0"
+        overflowToDisk="false"
+        />
+
+    <!-- Sample cache named sample=Cache2 -->
+    <cache name="sample
+    Cache3"
         maxElementsInMemory="1000"
         eternal="true"
         timeToIdleSeconds="0"

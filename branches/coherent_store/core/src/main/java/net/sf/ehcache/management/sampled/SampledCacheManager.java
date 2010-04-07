@@ -16,6 +16,8 @@
 
 package net.sf.ehcache.management.sampled;
 
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -27,6 +29,8 @@ import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;
+import net.sf.ehcache.Status;
+import net.sf.ehcache.event.CacheManagerEventListener;
 import net.sf.ehcache.hibernate.management.impl.BaseEmitterBean;
 import net.sf.ehcache.statistics.sampled.SampledCacheStatistics;
 
@@ -38,7 +42,7 @@ import net.sf.ehcache.statistics.sampled.SampledCacheStatistics;
  * @author <a href="mailto:asanoujam@terracottatech.com">Abhishek Sanoujam</a>
  * @since 1.7
  */
-public class SampledCacheManager extends BaseEmitterBean implements SampledCacheManagerMBean {
+public class SampledCacheManager extends BaseEmitterBean implements SampledCacheManagerMBean, PropertyChangeListener {
     private static final MBeanNotificationInfo[] NOTIFICATION_INFO;
 
     private final CacheManager cacheManager;
@@ -60,8 +64,49 @@ public class SampledCacheManager extends BaseEmitterBean implements SampledCache
     public SampledCacheManager(CacheManager cacheManager) throws NotCompliantMBeanException {
         super(SampledCacheManagerMBean.class);
         this.cacheManager = cacheManager;
+        cacheManager.setCacheManagerEventListener(new EventListener());   
+        for (String cacheName : cacheManager.getCacheNames()) {
+            Cache cache = cacheManager.getCache(cacheName);
+            if (cache != null) {
+                cache.addPropertyChangeListener(this);
+            }
+        }
     }
 
+    /**
+     * Listen for caches coming and going so that we can add a PropertyChangeListener.
+     */
+    private class EventListener implements CacheManagerEventListener {
+        private Status status = Status.STATUS_UNINITIALISED;
+        
+        public void dispose() throws CacheException {
+            status = Status.STATUS_SHUTDOWN;
+        }
+
+        public Status getStatus() {
+            return status;
+        }
+
+        public void init() throws CacheException {
+            status = Status.STATUS_ALIVE;
+        }
+
+        public void notifyCacheAdded(String cacheName) {
+            Cache cache = cacheManager.getCache(cacheName);
+            if (cache != null) {
+                cache.addPropertyChangeListener(SampledCacheManager.this);
+            }
+        }
+
+        public void notifyCacheRemoved(String cacheName) {
+            // unfortunately, can't access cache here to remove ourself as a PropertyChangeListener
+            Cache cache = cacheManager.getCache(cacheName);
+            if (cache != null) {
+                cache.removePropertyChangeListener(SampledCacheManager.this);
+            }
+        }
+    }
+    
     /**
      * Set the name used to register this mbean. Can be called only once.
      * Package protected method
@@ -288,6 +333,21 @@ public class SampledCacheManager extends BaseEmitterBean implements SampledCache
     }
     
     /**
+     * @return is each cache's statistics enabled
+     */
+    private boolean determineStatisticsEnabled() {
+        for (String cacheName : cacheManager.getCacheNames()) {
+            Cache cache = cacheManager.getCache(cacheName);
+            if (cache != null) {
+                if (!cache.isStatisticsEnabled()) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+    
+    /**
      * generateActiveConfigDeclaration
      * 
      * @return CacheManager configuration as String
@@ -337,10 +397,40 @@ public class SampledCacheManager extends BaseEmitterBean implements SampledCache
     }
     
     /**
+     * @return is each cache enabled
+     */
+    private boolean determineEnabled() {
+        for (String cacheName : cacheManager.getCacheNames()) {
+            Cache cache = cacheManager.getCache(cacheName);
+            if (cache != null) {
+                if (cache.isDisabled()) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+    
+    /**
      * @see BaseEmitterBean#getNotificationInfo()
      */
     @Override
     public MBeanNotificationInfo[] getNotificationInfo() {
         return NOTIFICATION_INFO;
+    }
+
+    /**
+     * {@inheritDoc}
+     *  
+     * @see java.beans.PropertyChangeListener#propertyChange(java.beans.PropertyChangeEvent)
+     */
+    public void propertyChange(PropertyChangeEvent evt) {
+        String prop = evt.getPropertyName();
+        
+        if ("Disabled".equals(prop)) {
+            setEnabled(determineEnabled());
+        } else if ("StatisticsEnabled".equals(prop)) {
+            setStatisticsEnabled(determineStatisticsEnabled());
+        }
     }
 }

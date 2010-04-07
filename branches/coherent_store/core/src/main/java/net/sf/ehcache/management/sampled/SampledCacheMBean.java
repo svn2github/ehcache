@@ -126,6 +126,12 @@ public interface SampledCacheMBean extends LiveCacheStatistics, SampledCacheStat
     public void disableStatistics();
 
     /**
+     * Controls the statistics. Also controls sampled statistics if it is
+     * enabled.
+     */
+    public void setStatisticsEnabled(boolean statsEnabled);
+    
+    /**
      * Enables statistics collection. As it requires that normal statistics
      * collection to be enabled, it enables it if its not already
      */

@@ -17,6 +17,7 @@
 package net.sf.ehcache.management;
 
 import net.sf.ehcache.CacheException;
+import net.sf.ehcache.hibernate.management.impl.EhcacheHibernateMbeanNames;
 
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
@@ -52,7 +53,8 @@ public class CacheManager implements CacheManagerMBean {
     static ObjectName createObjectName(net.sf.ehcache.CacheManager cacheManager) {
         ObjectName objectName;
         try {
-            objectName = new ObjectName("net.sf.ehcache:type=CacheManager,name=" + cacheManager.getName());
+            objectName = new ObjectName("net.sf.ehcache:type=CacheManager,name="
+                    + EhcacheHibernateMbeanNames.mbeanSafe(cacheManager.getName()));
         } catch (MalformedObjectNameException e) {
             throw new CacheException(e);
         }

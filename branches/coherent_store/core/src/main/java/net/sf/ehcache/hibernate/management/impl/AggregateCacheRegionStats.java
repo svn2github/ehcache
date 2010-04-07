@@ -18,55 +18,45 @@ package net.sf.ehcache.hibernate.management.impl;
 
 /**
  * @author gkeim
- *
+ * 
  */
 public class AggregateCacheRegionStats extends CacheRegionStats {
-  private int nodeCount;
-  
-  /**
-   * @param region
-   */
-  public AggregateCacheRegionStats(String region) {
-    super(region);
-  }
+    private int nodeCount;
 
-  /**
-   * @param stats
-   */
-  public void aggregate(CacheRegionStats stats) {
-    nodeCount++;
-    hitCount += stats.getHitCount();
-    missCount += stats.getMissCount();
-    putCount += stats.getPutCount();
-    hitRatio = determineHitRatio();
-    latencyCacheHit += stats.getLatencyCacheHit();
-    latencyCacheTime += stats.getLatencyCacheTime();
-    latencyDbHit += stats.getLatencyDbHit();
-    latencyDbTime += stats.getLatencyDbTime();
-    if (latencyCacheHit > 0) {
-      hitLatency = latencyCacheTime / latencyCacheHit;
-    }
-    if (latencyDbHit > 0) {
-      loadLatency = latencyDbTime / latencyDbHit;
+    /**
+     * @param region
+     */
+    public AggregateCacheRegionStats(String region) {
+        super(region);
     }
 
-    // just add the in memory count together, an average will be returned when the getter is used
-    elementCountInMemory += stats.getElementCountInMemory();
-    
-    // the largest element count on disk is the one that is the most correct
-    if (stats.getElementCountOnDisk() > elementCountOnDisk) {
-      elementCountOnDisk = stats.getElementCountOnDisk();
-    }
-    // elementCountTotal is the same for each node, since it's the total count in the cluster
-    // no real aggregation is needed, just use the same total count
-    elementCountTotal = stats.getElementCountTotal();
-  }
+    /**
+     * @param stats
+     */
+    public void aggregate(CacheRegionStats stats) {
+        nodeCount++;
+        hitCount += stats.getHitCount();
+        missCount += stats.getMissCount();
+        putCount += stats.getPutCount();
+        hitRatio = determineHitRatio();
 
-  /**
-   * @see net.sf.ehcache.hibernate.management.impl.CacheRegionStats#getElementCountInMemory()
-   */
-  @Override
-  public long getElementCountInMemory() {
-    return elementCountInMemory / nodeCount;
-  }
+        // just add the in memory count together, an average will be returned when the getter is used
+        elementCountInMemory += stats.getElementCountInMemory();
+
+        // the largest element count on disk is the one that is the most correct
+        if (stats.getElementCountOnDisk() > elementCountOnDisk) {
+            elementCountOnDisk = stats.getElementCountOnDisk();
+        }
+        // elementCountTotal is the same for each node, since it's the total count in the cluster
+        // no real aggregation is needed, just use the same total count
+        elementCountTotal = stats.getElementCountTotal();
+    }
+
+    /**
+     * @see net.sf.ehcache.hibernate.management.impl.CacheRegionStats#getElementCountInMemory()
+     */
+    @Override
+    public long getElementCountInMemory() {
+        return elementCountInMemory / nodeCount;
+    }
 }
