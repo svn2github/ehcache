@@ -28,6 +28,7 @@ import java.util.concurrent.Executors;
 
 import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,6 +38,7 @@ import org.slf4j.LoggerFactory;
  * @author James Abley
  * @author Greg Luck
  */
+@Ignore
 public class DiskStorePerformanceTest extends AbstractCacheTest {
 
     private static final Logger LOG = LoggerFactory.getLogger(DiskStorePerformanceTest.class);
@@ -110,7 +112,7 @@ public class DiskStorePerformanceTest extends AbstractCacheTest {
         }
         
         /* Make sure it's all stored. */
-        while (cache.getDiskStore().bufferFull()) {
+        while (cache.getStore().bufferFull()) {
             Thread.sleep(100);
         }
     }

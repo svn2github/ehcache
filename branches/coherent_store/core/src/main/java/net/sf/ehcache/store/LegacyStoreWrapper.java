@@ -23,16 +23,23 @@ import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.Status;
+import net.sf.ehcache.concurrent.LockType;
+import net.sf.ehcache.concurrent.StripedReadWriteLockSync;
+import net.sf.ehcache.concurrent.Sync;
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.event.RegisteredEventListeners;
 import net.sf.ehcache.writer.CacheWriterManager;
 
 public class LegacyStoreWrapper implements Store {
 
+    private static final int SYNC_STRIPES = 64;
+    
     private final Store memory;
     private final Store disk;
     private final RegisteredEventListeners eventListeners;
     private final CacheConfiguration config;
+    
+    private final StripedReadWriteLockSync sync = new StripedReadWriteLockSync(SYNC_STRIPES);
     
     public LegacyStoreWrapper(Store memory, Store disk, RegisteredEventListeners eventListeners, CacheConfiguration config) {
         this.memory = memory;
@@ -50,22 +57,40 @@ public class LegacyStoreWrapper implements Store {
     }
 
     public boolean containsKey(Object key) {
-        if (key instanceof Serializable && (disk !=  null)) {
-            return disk.containsKey(key) || memory.containsKey(key);
-        } else {
-            return memory.containsKey(key);
+        Sync s = sync.getSyncForKey(key);
+        s.lock(LockType.READ);
+        try {
+            if (key instanceof Serializable && (disk !=  null)) {
+                return disk.containsKey(key) || memory.containsKey(key);
+            } else {
+                return memory.containsKey(key);
+            }
+        } finally {
+            s.unlock(LockType.READ);
         }
     }
 
     public boolean containsKeyInMemory(Object key) {
-        return memory.containsKey(key);
+        Sync s = sync.getSyncForKey(key);
+        s.lock(LockType.READ);
+        try {
+            return memory.containsKey(key);
+        } finally {
+            s.unlock(LockType.READ);
+        }
     }
 
     public boolean containsKeyOnDisk(Object key) {
-        if (disk != null) {
-            return disk.containsKey(key);
-        } else {
-            return false;
+        Sync s = sync.getSyncForKey(key);
+        s.lock(LockType.READ);
+        try {
+            if (disk != null) {
+                return disk.containsKey(key);
+            } else {
+                return false;
+            }
+        } finally {
+            s.unlock(LockType.READ);
         }
     }
 
@@ -80,14 +105,20 @@ public class LegacyStoreWrapper implements Store {
         Object[] keys = memory.getKeyArray();
 
         for (Object key : keys) {
-            Element element = memory.getQuiet(key);
-            if (element != null) {
-                if (element.isExpired(config)) {
-                    Element e = remove(key);
-                    if (e != null) {
-                        eventListeners.notifyElementExpiry(e, false);
+            Sync s = sync.getSyncForKey(key);
+            s.lock(LockType.WRITE);
+            try {
+                Element element = memory.getQuiet(key);
+                if (element != null) {
+                    if (element.isExpired(config)) {
+                        Element e = remove(key);
+                        if (e != null) {
+                            eventListeners.notifyElementExpiry(e, false);
+                        }
                     }
                 }
+            } finally {
+                s.unlock(LockType.WRITE);
             }
         }
 
@@ -105,14 +136,20 @@ public class LegacyStoreWrapper implements Store {
     }
 
     public Element get(Object key) {
-        Element e = memory.get(key);
-        if (e == null && disk != null) {
-            e = disk.get(key);
-            if (e != null) {
-                memory.put(e);
+        Sync s = sync.getSyncForKey(key);
+        s.lock(LockType.READ);
+        try {
+            Element e = memory.get(key);
+            if (e == null && disk != null) {
+                e = disk.get(key);
+                if (e != null) {
+                    memory.put(e);
+                }
             }
+            return e;
+        } finally {
+            s.unlock(LockType.READ);
         }
-        return e;
     }
 
     public Policy getInMemoryEvictionPolicy() {
@@ -128,7 +165,7 @@ public class LegacyStoreWrapper implements Store {
     }
 
     public Object getInternalContext() {
-        return null;
+        return sync;
     }
 
     public Object[] getKeyArray() {
@@ -164,11 +201,17 @@ public class LegacyStoreWrapper implements Store {
     }
 
     public Element getQuiet(Object key) {
-        Element e = memory.get(key);
-        if (e == null && disk != null) {
-            e = disk.get(key);
+        Sync s = sync.getSyncForKey(key);
+        s.lock(LockType.READ);
+        try {
+            Element e = memory.getQuiet(key);
+            if (e == null && disk != null) {
+                e = disk.getQuiet(key);
+            }
+            return e;
+        } finally {
+            s.unlock(LockType.READ);
         }
-        return e;
     }
 
     public int getSize() {
@@ -204,24 +247,46 @@ public class LegacyStoreWrapper implements Store {
             return false;
         }
         
-        boolean notOnDisk = !containsKeyOnDisk(element.getObjectKey());
-        return memory.put(element) && notOnDisk;
+        Sync s = sync.getSyncForKey(element.getObjectKey());
+        s.lock(LockType.WRITE);
+        try {
+            boolean notOnDisk = !containsKeyOnDisk(element.getObjectKey());
+            return memory.put(element) && notOnDisk;
+        } finally {
+            s.unlock(LockType.WRITE);
+        }
     }
 
     public boolean putWithWriter(Element element, CacheWriterManager writerManager) throws CacheException {
-        boolean notOnDisk = !containsKey(element.getObjectKey());
-        return memory.putWithWriter(element, writerManager) && notOnDisk;
+        if (element == null) {
+            return false;
+        }
+        
+        Sync s = sync.getSyncForKey(element.getObjectKey());
+        s.lock(LockType.WRITE);
+        try {
+            boolean notOnDisk = !containsKey(element.getObjectKey());
+            return memory.putWithWriter(element, writerManager) && notOnDisk;
+        } finally {
+            s.unlock(LockType.WRITE);
+        }
     }
 
     public Element remove(Object key) {
-        Element m = memory.remove(key);
-        if (disk != null && key instanceof Serializable) {
-            Element d = disk.remove(key);
-            if (m == null) {
-                return d;
+        Sync s = sync.getSyncForKey(key);
+        s.lock(LockType.WRITE);
+        try {
+            Element m = memory.remove(key);
+            if (disk != null && key instanceof Serializable) {
+                Element d = disk.remove(key);
+                if (m == null) {
+                    return d;
+                }
             }
+            return m;
+        } finally {
+            s.unlock(LockType.WRITE);
         }
-        return m;
     }
 
     public void removeAll() throws CacheException {
@@ -232,14 +297,20 @@ public class LegacyStoreWrapper implements Store {
     }
 
     public Element removeWithWriter(Object key, CacheWriterManager writerManager) throws CacheException {
-        Element m = memory.removeWithWriter(key, writerManager);
-        if (disk != null && key instanceof Serializable) {
-            Element d = disk.removeWithWriter(key, writerManager);
-            if (m == null) {
-                return d;
+        Sync s = sync.getSyncForKey(key);
+        s.lock(LockType.WRITE);
+        try {
+            Element m = memory.removeWithWriter(key, writerManager);
+            if (disk != null && key instanceof Serializable) {
+                Element d = disk.removeWithWriter(key, writerManager);
+                if (m == null) {
+                    return d;
+                }
             }
+            return m;
+        } finally {
+            s.unlock(LockType.WRITE);
         }
-        return m;
     }
 
     public void setInMemoryEvictionPolicy(Policy policy) {
