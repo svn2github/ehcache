@@ -34,11 +34,7 @@ public class ReadWriteLockSync implements Sync, Comparable<ReadWriteLockSync> {
      * {@inheritDoc}
      */
     public void lock(final LockType type) {
-        if (type == LockType.WRITE && !rrwl.isWriteLockedByCurrentThread()) {
-            getLock(type).lock();
-        } else if (type != LockType.WRITE) {
-            getLock(type).lock();
-        }
+        getLock(type).lock();
     }
 
     /**
@@ -52,12 +48,7 @@ public class ReadWriteLockSync implements Sync, Comparable<ReadWriteLockSync> {
      * {@inheritDoc}
      */
     public void unlock(final LockType type) {
-        Lock lock = getLock(type);
-        if (type == LockType.WRITE && rrwl.isWriteLockedByCurrentThread()) {
-            lock.unlock();
-        } else if (type != LockType.WRITE) {
-            lock.unlock();
-        }
+        getLock(type).unlock();
     }
 
     private Lock getLock(final LockType type) {
@@ -71,6 +62,20 @@ public class ReadWriteLockSync implements Sync, Comparable<ReadWriteLockSync> {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    public boolean isHeldByCurrentThread(LockType type) {
+        switch (type) {
+            case READ:
+                throw new UnsupportedOperationException("Querying of read lock is not supported.");
+            case WRITE:
+                return rrwl.isWriteLockedByCurrentThread();
+            default:
+                throw new IllegalArgumentException("We don't support any other lock type than READ or WRITE!");
+        }
+    }
+    
     /**
      * {@inheritDoc}
      */
