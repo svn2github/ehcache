@@ -191,12 +191,10 @@ public abstract class AbstractWebTest {
      */
     protected void assertHeadersSane(WebResponse response) {
         //Content type is text/html with an optional character set
-        String contentType = response.getHeaderField(CONTENT_TYPE);
-        assertTrue(contentType.equals("text/html")
-                || contentType.equals("text/html; charset=utf-8")
-                || contentType.equals("text/html;charset=utf-8")
-                || contentType.equals("text/html;charset=ISO-8859-1")
-                || contentType.equals("text/html; charset=iso-8859-1"));
+        String contentType = response.getHeaderField(CONTENT_TYPE).replaceAll(" ", "");
+        assertTrue(contentType.equalsIgnoreCase("text/html")
+                || contentType.equalsIgnoreCase("text/html;charset=utf-8")
+                || contentType.equalsIgnoreCase("text/html;charset=iso-8859-1"));
 
         //The content length set in the header matches the actual content length
         String headerContentLength = response.getHeaderField(CONTENT_LENGTH);

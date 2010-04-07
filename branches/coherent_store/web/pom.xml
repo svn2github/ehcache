@@ -14,13 +14,14 @@
     <name>Ehcache Web Filters</name>
     <artifactId>ehcache-web</artifactId>
     <packaging>jar</packaging>
-    <version>2.0.1-SNAPSHOT</version>
+    <version>2.1.0-SNAPSHOT</version>
     <description><![CDATA[Web caching filters.]]> </description>
     <dependencies>
         <dependency>
             <groupId>${pom.groupId}</groupId>
             <artifactId>ehcache-core</artifactId>
-            <version>[1.7.1,]</version>
+            <!-- <version>[1.7.1,]</version> -->
+            <version>2.0.1</version>
         </dependency>
 
         <dependency>
