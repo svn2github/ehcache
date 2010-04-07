@@ -32,6 +32,7 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 
@@ -56,6 +57,9 @@ import static java.util.concurrent.TimeUnit.MILLISECONDS;
  */
 abstract class DiskStorageFactory<T extends ElementSubstitute> implements ElementSubstituteFactory<T> {
 
+    /**
+     * Path stub used to create unique ehcache directories.
+     */
     protected static final String AUTO_DISK_PATH_DIRECTORY_PREFIX = "ehcache_auto_created";
     private static final int SERIALIZATION_CONCURRENCY_DELAY = 250;
     private static final int SHUTDOWN_GRACE_PERIOD = 60;
@@ -71,7 +75,7 @@ abstract class DiskStorageFactory<T extends ElementSubstitute> implements Elemen
     /**
      * Executor service used to write elements to disk
      */
-    private final ScheduledThreadPoolExecutor diskWriter = new ScheduledThreadPoolExecutor(1);
+    private final ScheduledThreadPoolExecutor diskWriter;
     
     private final File             file;
     private final RandomAccessFile data;
@@ -92,9 +96,16 @@ abstract class DiskStorageFactory<T extends ElementSubstitute> implements Elemen
         } catch (FileNotFoundException e) {
             throw new CacheException(e);
         }
+        diskWriter = new ScheduledThreadPoolExecutor(1, new ThreadFactory() {
+            public Thread newThread(Runnable r) {
+                return new Thread(r, file.getName());
+            }
+        });
         this.diskQueue = diskWriter.getQueue();
         this.eventService = eventService;
         
+        diskWriter.setExecuteExistingDelayedTasksAfterShutdownPolicy(false);
+        diskWriter.setContinueExistingPeriodicTasksAfterShutdownPolicy(false);
         diskWriter.scheduleWithFixedDelay(new DiskExpiryTask(), expiryInterval, expiryInterval, TimeUnit.SECONDS);
     }
     
@@ -150,7 +161,7 @@ abstract class DiskStorageFactory<T extends ElementSubstitute> implements Elemen
                 if (diskWriter.awaitTermination(1, TimeUnit.SECONDS)) {
                     break;
                 } else {
-                    LOG.info("Waited " + (i + 1) + " seconds for shutdown");
+                    LOG.info("Waited " + (i + 1) + " seconds for shutdown of [" + file.getName() + "]");
                 }
             } catch (InterruptedException e) {
                 LOG.warn("Received exception while waiting for shutdown", e);

@@ -115,17 +115,6 @@ public class CacheManagerTest {
         assertNull(singletonManager.getCache(cacheName));
         assertNotNull(singletonManager.getEhcache(cacheName));
         assertTrue(singletonManager.getEhcache(cacheName) == decoratedCache);
-
-        // Manually adding a BlockingCache
-        cache = new Cache(new CacheConfiguration("someOtherRandomCache", 1000));
-        decoratedCache = new BlockingCache(cache);
-
-        singletonManager.addCache(cache);
-        singletonManager.addCache(decoratedCache);
-        assertNotNull(singletonManager.getCache(cacheName));
-        assertTrue(singletonManager.getCache(cacheName) == cache);
-        assertNotNull(singletonManager.getEhcache(cacheName));
-        assertTrue(singletonManager.getEhcache(cacheName) == decoratedCache);
     }
 
     /**

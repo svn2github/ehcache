@@ -36,11 +36,13 @@ import net.sf.ehcache.statistics.LiveCacheStatisticsWrapper;
 import net.sf.ehcache.statistics.sampled.SampledCacheStatistics;
 import net.sf.ehcache.statistics.sampled.SampledCacheStatisticsWrapper;
 import net.sf.ehcache.store.DiskStore;
+import net.sf.ehcache.store.LegacyStoreWrapper;
+import net.sf.ehcache.store.LruMemoryStore;
+import net.sf.ehcache.store.MemoryStore;
 import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
 import net.sf.ehcache.store.Policy;
 import net.sf.ehcache.store.Store;
 import net.sf.ehcache.store.XATransactionalStore;
-import net.sf.ehcache.store.compound.impl.DiskPersistentStore;
 import net.sf.ehcache.store.compound.impl.MemoryOnlyStore;
 import net.sf.ehcache.store.compound.impl.OverflowToDiskStore;
 import net.sf.ehcache.transaction.manager.TransactionManagerLookup;
@@ -946,11 +948,13 @@ public class Cache implements Ehcache {
                 store.setNodeCoherent(coherent);
             } else {
                 if (useClassicLru && configuration.getMemoryStoreEvictionPolicy().equals(MemoryStoreEvictionPolicy.LRU)) {
-//                    store = new LruMemoryStore(this, diskStore);
-                    throw new UnsupportedOperationException();
+                    Store diskStore = createDiskStore();
+                    store = new LegacyStoreWrapper(new LruMemoryStore(this, diskStore), diskStore, registeredEventListeners, configuration);
                 } else {
                     if (configuration.isDiskPersistent()) {
-                        store = DiskPersistentStore.create(this, diskStorePath);
+                        //store = DiskPersistentStore.create(this, diskStorePath);
+                        Store diskStore = createDiskStore();
+                        store = new LegacyStoreWrapper(MemoryStore.create(this, diskStore), diskStore, registeredEventListeners, configuration);
                     } else if (configuration.isOverflowToDisk()) {
                         store = OverflowToDiskStore.create(this, diskStorePath);
                     } else {

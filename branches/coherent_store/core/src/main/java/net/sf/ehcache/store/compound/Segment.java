@@ -768,7 +768,8 @@ class Segment extends ReentrantReadWriteLock {
             if (count != 0) {
                 ourTable = table;
                 for (int j = ourTable.length - 1; j >= 0; --j) {
-                    if ((nextEntry = ourTable[j]) != null) {
+                    nextEntry = ourTable[j];
+                    if (nextEntry != null) {
                         nextTableIndex = j - 1;
                         return;
                     }
@@ -781,12 +782,16 @@ class Segment extends ReentrantReadWriteLock {
         }
 
         private void advance() {
-            if (nextEntry != null && (nextEntry = nextEntry.next) != null) {
-                return;
+            if (nextEntry != null) {
+                nextEntry = nextEntry.next;
+                if (nextEntry != null) {
+                    return;
+                }
             }
 
             while (nextTableIndex >= 0) {
-                if ((nextEntry = ourTable[nextTableIndex--]) != null) {
+                nextEntry = ourTable[nextTableIndex--];
+                if (nextEntry != null) {
                     return;
                 }
             }

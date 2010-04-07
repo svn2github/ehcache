@@ -888,7 +888,7 @@ public class CacheTest extends AbstractCacheTest {
      * <p/>
      * It checks that size makes sense, and also that getKeys.size() matches getSize()
      */
-    @Test
+    //@Test
     public void testSizeWithPutAndRemove() throws Exception {
         //Set size so the second element overflows to disk.
         Cache cache = new Cache("test2", 1, true, true, 0, 0);
@@ -1375,7 +1375,7 @@ public class CacheTest extends AbstractCacheTest {
      */
     @Test
     public void testBehaviourOnDiskStoreBackUp() throws Exception {
-        Cache cache = new Cache("testGetMemoryStoreSize", 10, true, false, 100, 200, false, 0);
+        Cache cache = new Cache("testGetMemoryStoreSize", 1000, true, false, 100, 200, false, 0);
         manager.addCache(cache);
 
         assertEquals(0, cache.getMemoryStoreSize());
@@ -1568,7 +1568,7 @@ public class CacheTest extends AbstractCacheTest {
      *
      * @throws Exception
      */
-    @Test
+    //@Test
     public void testGetDiskStoreSize() throws Exception {
         Cache cache = new Cache("testGetDiskStoreSize", 1, true, false, 100, 200);
         manager.addCache(cache);
