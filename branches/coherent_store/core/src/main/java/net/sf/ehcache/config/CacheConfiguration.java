@@ -1,5 +1,5 @@
 /**
- *  Copyright 2003-2009 Terracotta, Inc.
+ *  Copyright 2003-2010 Terracotta, Inc.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -251,7 +251,7 @@ public class CacheConfiguration implements Cloneable {
     /**
      * Default constructor that can only be used by classes in this package.
      */
-    CacheConfiguration() {
+    public CacheConfiguration() {
         // default constructor is only accessible in this package
     }
 

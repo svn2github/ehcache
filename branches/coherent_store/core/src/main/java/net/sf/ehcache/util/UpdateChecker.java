@@ -1,5 +1,5 @@
 /**
- *  Copyright 2003-2009 Terracotta, Inc.
+ *  Copyright 2003-2010 Terracotta, Inc.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -38,6 +38,7 @@ import org.slf4j.LoggerFactory;
 public class UpdateChecker extends TimerTask {
     private static final Logger LOG = LoggerFactory.getLogger(UpdateChecker.class.getName());
     private static final long MILLIS_PER_SECOND = 1000L;
+    private static final int CONNECT_TIMEOUT = 3000;
     private static final String NOT_AVAILABLE = "UNKNOWN";
     private static final String UPDATE_CHECK_URL = "http://www.terracotta.org/kit/reflector?kitID=ehcache.default&pageID=update.properties";
     private static final long START_TIME = System.currentTimeMillis();
@@ -101,6 +102,7 @@ public class UpdateChecker extends TimerTask {
 
     private Properties getUpdateProperties(URL updateUrl) throws IOException {
         URLConnection connection = updateUrl.openConnection();
+        connection.setConnectTimeout(CONNECT_TIMEOUT);
         InputStream in = connection.getInputStream();
         try {
             Properties props = new Properties();

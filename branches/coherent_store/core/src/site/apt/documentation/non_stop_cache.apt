@@ -1,0 +1,138 @@
+ ---
+ NonStopCache
+ ---
+
+{NonStopCache}
+
+
+
+    <<<NonStopCache>>> is a {{{./cache_decorators}decorated cache}} which provides additional features
+    relevant to Terracotta.
+
+    This is for where you value availability over everything else.
+
+    It is a separate module.
+
+    Note: The features in this cache may evolve over time.
+
+    The two things it can do are:
+
+    * set timeouts on cache operations. Say you use the cache rather than a mainframe. The SLA calls for 3 seconds.
+      There is a temporary network interruption which stops Terracotta responding to a cache request. With the timeout
+      you can return after 3 seconds. The lookup is then done against the mainframe.
+
+    * automatically respond to cluster topology events to take a pre-configured action.
+
+    * could also be useful for write-through, writes to disk or synchronous writes.
+
+
+*   Creating a NonStopCache
+
+**  Programmatically
+
+---
+    Cache cache = cacheManager.getCache("existingUndecoratedCache");
+    NonStopCache nonStopCache = new NonStopCache(cache, newName);
+    cacheManager.addCache(nonStopCache);  //adds an Ehcache
+---
+
+**  In ehcache.xml
+
+---
+
+    NOTE: cacheDecoratorFactory needs to be written!
+
+    <cache name="sample/DistributedCache3"
+           maxElementsInMemory="10"
+           eternal="false"
+           timeToIdleSeconds="100"
+           timeToLiveSeconds="100"
+           overflowToDisk="true">
+        <cacheDecoratorFactory
+                class="net.sf.ehcache.terracotta.NonStopCacheFactory"
+                properties="failFast=true, localReadsOnDisconnect=true ..."/>
+    </cache>
+---
+
+*   How it knows about Terracotta Cluster Events
+
+
+    Behind the scenes, the TerracottaAwareCache constructor looks up the Terracotta cluster
+    and registers a <<<ClusterTopologyListener>>> which calls back on certain cluster events.
+
+---
+   CacheCluster cacheCluster = cacheManager.getCluster(ClusterScheme.TERRACOTTA);
+   cacheCluster.addTopologyListener(yourListener);
+---
+
+    In particular it is interested in the <<<clusterOffline>>> and <<<clusterOnline>>> events.
+
+*   Configuration Options
+
+**   Setting Timeouts
+
+    Set the timeoutMillis property. It applies to all cache operations (put, get, remove ...). After the time elapses the operation is aborted.
+    It is as if the call never happened.
+
+    The exceptionOnTimeout property can be set to true or false. On true a <<<TimeoutException>>>, which is a subtype
+     of <<<CacheException>>> will be thrown. If false, no exception is thrown. get will return null.
+
+**  ThreadPool Management
+
+    Allows users to provide their own thread pool or specify max/min threads to use etc.
+
+    What does this mean? There is no thread pool.
+
+**   Responding to clusterOffline events
+
+    The following properties control what happens when a <<<clusterOffline>>> event is received. Note that there is no way
+    the cache has of knowing whether the interruption is transitory or permanent. For that reason it is recommended that it be
+    used in conjunction with <<<timeoutMillis>>> so that short interruptions do not trigger this.
+
+    The clusterOfflineEvent is thrown when the socket between the client and server is closed.
+
+    These settings apply to all Terracotta clustered caches:
+
+*** immediateTimeout
+
+    The property <<<immediateTimeout>>> if set to true will cause cache operations (e.g. put, get, remove, etc. ) to immediately
+    return, overriding the value of <<<timeoutMillis>>>.
+
+    Would throw a TimeoutException. Applies to both coherent and incoherent caches.
+
+*** disable
+
+    The <<<disable>>> property, if set to true, will place the cache in disabled, or bypass mode, so that all mutating cache operations are
+    ignored and all data access returns null. This operates by calling <<<cache.setDisabled>>>.
+
+    These settings only apply to caches configured or operating in <<<coherent=false>>> mode. Applies to both coherent and incoherent caches.
+
+*** localReads
+
+    If set to true, acts like <<<disable>>> except that any data in the local cache is returned.
+
+    This might be useful for a cache with reference or immutable data in it.
+
+    In this mode, mutating operations are ignored. Applies to both coherent and incoherent caches.
+
+
+*** mutateBufferSize
+
+    The number of mutating cache operations that are buffered and will be reapplied to the cluster once a <<<clusterOnline>>> event.
+
+    Note that it is only <<<coherent=false>>> caches that will buffer. Coherent caches will not.
+
+*** fallBackToLocalCache
+
+    Delete the terracotta cache and create a local cache with the same name and CacheConfiguration.
+
+    It starts with an empty cache. Applies to both coherent and incoherent caches.
+
+**  Responding to <<<clusterOnline>>> events
+
+*** mutateBufferSize
+
+    Once the <<<clusterOnline>>> event occurs the changes will be applied to the cluster in the order in which they happened. Any other
+    mutations that happened in the cluster get overwritten.
+
+    This only applies to incoherent caches, because in offline mode a write lock cannot be acquired when offline.

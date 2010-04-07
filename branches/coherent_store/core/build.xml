@@ -148,6 +148,7 @@
                 <arg value="performance_considerations.apt"/>
                 <arg value="cache_decorators.apt"/>
                 <arg value="hibernate.apt"/>
+                <arg value="jdbc.apt"/>
                 <arg value="shutdown.apt"/>
                 <arg value="web_caching.apt"/>
                 <arg value="distributed_caching.apt"/>
@@ -188,9 +189,12 @@
         </copy>
     </target>
 
-    <target name="copy_ehcache.xml" description="Copies the config files to the site">
+    <target name="copy_files" description="Copies the config files to the site">
         <copy todir="${build.dir}/site">
             <fileset dir="src/main/config"/>
+        </copy>
+        <copy todir="${build.dir}/site/documentation/javadoc">
+            <fileset dir="${build.dir}/site/apidocs"/>
         </copy>
     </target>
 

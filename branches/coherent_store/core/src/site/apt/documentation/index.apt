@@ -34,6 +34,8 @@ Documentation - Table of Contents
 
     * {{{./hibernate.html}Hibernate Caching}} new_in_2
 
+    * {{{./jdbc.html}JDBC Caching}} new
+
     * {{{./web_caching.html}Web Caching}}
 
     * {{{./distributed_caching.html}Distributed Caching}}
@@ -80,7 +82,7 @@ Documentation - Table of Contents
 
     * {{{./openjpa_provider.html}OpenJPA Caching}}
 
-    * {{{./grails.html}Grails: Using Ehcache as a Second Level Caching Provider for Hibernate within Grails}}
+    * {{{./grails.html}Grails Caching}}
 
     * {{{./glassfish.html}Glassfish HowTo}}
 
