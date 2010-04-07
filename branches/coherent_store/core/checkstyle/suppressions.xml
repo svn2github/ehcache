@@ -64,6 +64,7 @@
     <suppress checks="ClassDataAbstractionCoupling" files="Cache.java"/>
     <suppress checks="ClassFanOutComplexity" files="DiskStore.java"/>
     <suppress checks="FileLength" files="DiskStore.java"/>
+    <suppress checks="FileLength" files="CacheConfiguration.java"/>
     <suppress checks="ClassFanOutComplexity" files="Cache.java"/>
     <suppress checks="ClassFanOutComplexity" files="CacheManager.java"/>
     <suppress checks="ClassDataAbstractionCoupling" files="ElementTest.java"/>

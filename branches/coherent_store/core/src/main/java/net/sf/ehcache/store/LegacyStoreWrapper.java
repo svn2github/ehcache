@@ -1,5 +1,5 @@
 /**
- *  Copyright 2003-2009 Terracotta, Inc.
+ *  Copyright 2003-2010 Terracotta, Inc.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -19,7 +19,6 @@ package net.sf.ehcache.store;
 import java.io.IOException;
 import java.io.Serializable;
 
-import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.Status;
@@ -30,6 +29,11 @@ import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.event.RegisteredEventListeners;
 import net.sf.ehcache.writer.CacheWriterManager;
 
+/**
+ * A wrapper to convert a legacy pair of stores into a new style compound store.
+ * 
+ * @author Chris Dennis
+ */
 public class LegacyStoreWrapper implements Store {
 
     private static final int SYNC_STRIPES = 64;
@@ -41,6 +45,14 @@ public class LegacyStoreWrapper implements Store {
     
     private final StripedReadWriteLockSync sync = new StripedReadWriteLockSync(SYNC_STRIPES);
     
+    /**
+     * Create a correctly locked store wrapper around the supplied in-memory and on disk stores.
+     * 
+     * @param memory in-memory store
+     * @param disk on disk store
+     * @param eventListeners event listener to fire on
+     * @param config cache configuration
+     */
     public LegacyStoreWrapper(Store memory, Store disk, RegisteredEventListeners eventListeners, CacheConfiguration config) {
         this.memory = memory;
         this.disk = disk;
@@ -48,6 +60,9 @@ public class LegacyStoreWrapper implements Store {
         this.config = config;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public boolean bufferFull() {
         if (disk == null) {
             return false;
@@ -56,6 +71,9 @@ public class LegacyStoreWrapper implements Store {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public boolean containsKey(Object key) {
         Sync s = sync.getSyncForKey(key);
         s.lock(LockType.READ);
@@ -70,6 +88,9 @@ public class LegacyStoreWrapper implements Store {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public boolean containsKeyInMemory(Object key) {
         Sync s = sync.getSyncForKey(key);
         s.lock(LockType.READ);
@@ -80,6 +101,9 @@ public class LegacyStoreWrapper implements Store {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public boolean containsKeyOnDisk(Object key) {
         Sync s = sync.getSyncForKey(key);
         s.lock(LockType.READ);
@@ -94,6 +118,9 @@ public class LegacyStoreWrapper implements Store {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public void dispose() {
         memory.dispose();
         if (disk != null) {
@@ -101,6 +128,9 @@ public class LegacyStoreWrapper implements Store {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public void expireElements() {
         Object[] keys = memory.getKeyArray();
 
@@ -128,6 +158,9 @@ public class LegacyStoreWrapper implements Store {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public void flush() throws IOException {
         memory.flush();
         if (disk != null) {
@@ -135,6 +168,9 @@ public class LegacyStoreWrapper implements Store {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public Element get(Object key) {
         Sync s = sync.getSyncForKey(key);
         s.lock(LockType.READ);
@@ -152,22 +188,37 @@ public class LegacyStoreWrapper implements Store {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public Policy getInMemoryEvictionPolicy() {
         return memory.getInMemoryEvictionPolicy();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public int getInMemorySize() {
         return memory.getSize();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public long getInMemorySizeInBytes() {
         return memory.getInMemorySizeInBytes();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public Object getInternalContext() {
         return sync;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public Object[] getKeyArray() {
         if (disk == null) {
             return memory.getKeyArray();
@@ -184,6 +235,9 @@ public class LegacyStoreWrapper implements Store {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public int getOnDiskSize() {
         if (disk != null) {
             return disk.getSize();
@@ -192,6 +246,9 @@ public class LegacyStoreWrapper implements Store {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public long getOnDiskSizeInBytes() {
         if (disk != null) {
             return disk.getOnDiskSizeInBytes();
@@ -200,6 +257,9 @@ public class LegacyStoreWrapper implements Store {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public Element getQuiet(Object key) {
         Sync s = sync.getSyncForKey(key);
         s.lock(LockType.READ);
@@ -214,6 +274,9 @@ public class LegacyStoreWrapper implements Store {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public int getSize() {
         if (disk != null) {
             return memory.getSize() + disk.getSize();
@@ -222,26 +285,44 @@ public class LegacyStoreWrapper implements Store {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public Status getStatus() {
         return memory.getStatus();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public int getTerracottaClusteredSize() {
         return 0;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public boolean isCacheCoherent() {
         return false;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public boolean isClusterCoherent() {
         return false;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public boolean isNodeCoherent() {
         return false;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public boolean put(Element element) throws CacheException {
         if (element == null) {
             return false;
@@ -257,6 +338,9 @@ public class LegacyStoreWrapper implements Store {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public boolean putWithWriter(Element element, CacheWriterManager writerManager) throws CacheException {
         if (element == null) {
             return false;
@@ -272,6 +356,9 @@ public class LegacyStoreWrapper implements Store {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public Element remove(Object key) {
         Sync s = sync.getSyncForKey(key);
         s.lock(LockType.WRITE);
@@ -289,6 +376,9 @@ public class LegacyStoreWrapper implements Store {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public void removeAll() throws CacheException {
         memory.removeAll();
         if (disk != null) {
@@ -296,6 +386,9 @@ public class LegacyStoreWrapper implements Store {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public Element removeWithWriter(Object key, CacheWriterManager writerManager) throws CacheException {
         Sync s = sync.getSyncForKey(key);
         s.lock(LockType.WRITE);
@@ -313,22 +406,37 @@ public class LegacyStoreWrapper implements Store {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public void setInMemoryEvictionPolicy(Policy policy) {
         memory.setInMemoryEvictionPolicy(policy);
     }
 
+    /**
+     * Throws UnsupportedOperationException
+     */
     public void setNodeCoherent(boolean coherent) throws UnsupportedOperationException {
         throw new UnsupportedOperationException();
     }
 
+    /**
+     * Throws UnsupportedOperationException
+     */
     public void waitUntilClusterCoherent() throws UnsupportedOperationException {
         throw new UnsupportedOperationException();
     }
 
+    /**
+     * Returns the underlying disk store for this legacy wrapper.
+     */
     public Store getDiskStore() {
         return disk;
     }
 
+    /**
+     * Returns the underlying memory store for this legacy wrapper.
+     */
     public Store getMemoryStore() {
         return memory;
     }

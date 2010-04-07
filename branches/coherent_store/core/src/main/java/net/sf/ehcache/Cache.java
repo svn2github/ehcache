@@ -948,13 +948,13 @@ public class Cache implements Ehcache {
                 store.setNodeCoherent(coherent);
             } else {
                 if (useClassicLru && configuration.getMemoryStoreEvictionPolicy().equals(MemoryStoreEvictionPolicy.LRU)) {
-                    Store diskStore = createDiskStore();
-                    store = new LegacyStoreWrapper(new LruMemoryStore(this, diskStore), diskStore, registeredEventListeners, configuration);
+                    Store disk = createDiskStore();
+                    store = new LegacyStoreWrapper(new LruMemoryStore(this, disk), disk, registeredEventListeners, configuration);
                 } else {
                     if (configuration.isDiskPersistent()) {
                         //store = DiskPersistentStore.create(this, diskStorePath);
-                        Store diskStore = createDiskStore();
-                        store = new LegacyStoreWrapper(MemoryStore.create(this, diskStore), diskStore, registeredEventListeners, configuration);
+                        Store disk = createDiskStore();
+                        store = new LegacyStoreWrapper(MemoryStore.create(this, disk), disk, registeredEventListeners, configuration);
                     } else if (configuration.isOverflowToDisk()) {
                         store = OverflowToDiskStore.create(this, diskStorePath);
                     } else {

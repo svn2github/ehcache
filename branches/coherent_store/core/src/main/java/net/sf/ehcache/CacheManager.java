@@ -704,10 +704,8 @@ public class CacheManager {
         }
         synchronized (CacheManager.class) {
             if (singleton == null) {
-
                 LOG.debug("Creating new CacheManager with config URL: {}", configurationFileURL);
                 singleton = new CacheManager(configurationFileURL);
-
             }
             return singleton;
         }

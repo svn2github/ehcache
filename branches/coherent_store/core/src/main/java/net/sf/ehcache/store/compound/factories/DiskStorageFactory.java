@@ -1,5 +1,5 @@
 /**
- *  Copyright 2003-2009 Terracotta, Inc.
+ *  Copyright 2003-2010 Terracotta, Inc.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -63,6 +63,7 @@ abstract class DiskStorageFactory<T extends ElementSubstitute> implements Elemen
     protected static final String AUTO_DISK_PATH_DIRECTORY_PREFIX = "ehcache_auto_created";
     private static final int SERIALIZATION_CONCURRENCY_DELAY = 250;
     private static final int SHUTDOWN_GRACE_PERIOD = 60;
+    private static final int CAPACITY = 10000;
     
     private static final Logger LOG = LoggerFactory.getLogger(DiskStorageFactory.class.getName());
 
@@ -343,7 +344,7 @@ abstract class DiskStorageFactory<T extends ElementSubstitute> implements Elemen
      * {@inheritDoc}
      */
     public boolean bufferFull() {
-        return diskQueue.size() > 10000;
+        return diskQueue.size() > CAPACITY;
     }
 
     /**
@@ -623,21 +624,24 @@ abstract class DiskStorageFactory<T extends ElementSubstitute> implements Elemen
             for (Object key : store.keySet()) {
                 Object value = store.unretrievedGet(key);
                 if (created(value) && value instanceof DiskStorageFactory.DiskMarker) {
-                    DiskMarker marker = (DiskMarker) value;
-                    if (marker.expiry < now) {
-                        if (eventService.hasCacheEventListeners()) {
-                            try {
-                                Element element = read(marker);
-                                if (store.evict(marker.getKey(), marker)) {
-                                    eventService.notifyElementExpiry(element, false);
-                                }
-                            } catch (Exception e) {
-                                continue;
-                            }
-                        } else {
-                            store.evict(marker.getKey(), marker);
+                    checkExpiry((DiskMarker) value, now);
+                }
+            }
+        }
+        
+        private void checkExpiry(DiskMarker marker, long now) {
+            if (marker.expiry < now) {
+                if (eventService.hasCacheEventListeners()) {
+                    try {
+                        Element element = read(marker);
+                        if (store.evict(marker.getKey(), marker)) {
+                            eventService.notifyElementExpiry(element, false);
                         }
+                    } catch (Exception e) {
+                        return;
                     }
+                } else {
+                    store.evict(marker.getKey(), marker);
                 }
             }
         }
