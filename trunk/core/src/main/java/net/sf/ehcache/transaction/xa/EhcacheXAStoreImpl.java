@@ -21,6 +21,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicLong;
 
+import javax.transaction.xa.XAException;
 import javax.transaction.xa.Xid;
 
 import net.sf.ehcache.store.Store;
@@ -129,8 +130,10 @@ public class EhcacheXAStoreImpl implements EhcacheXAStore {
     /**
      * {@inheritDoc}
      */
-    public void prepare(Xid xid, PreparedContext context) {
-        prepareXids.put(xid, context);
+    public void prepare(Xid xid, PreparedContext context) throws EhcacheXAException {
+        if (prepareXids.putIfAbsent(xid, context) != null) {
+            throw new EhcacheXAException("A prepared context for that Xid already exists", XAException.XAER_INVAL);
+        }
     }
     
     /**

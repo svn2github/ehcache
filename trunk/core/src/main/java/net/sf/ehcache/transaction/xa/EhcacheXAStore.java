@@ -100,9 +100,10 @@ public interface EhcacheXAStore {
     /**
      * Save the Transaction's data as being prepared
      * @param xid the Xid of the Transaction
-     * @param context the context with the transaction data 
+     * @param context the context with the transaction data
+     * @throws EhcacheXAException in case a PreparedContext for that same Xid already exists
      */
-    void prepare(Xid xid, PreparedContext context);
+    void prepare(Xid xid, PreparedContext context) throws EhcacheXAException;
     
     /**
      * Return a newly created prepare context if none exist.
