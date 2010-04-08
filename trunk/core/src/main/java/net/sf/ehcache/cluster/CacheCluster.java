@@ -21,7 +21,7 @@ import java.util.Collection;
 /**
  * Allows you to explore the Terracotta cluster nodes and register for events about the cluster.
  *
- * @author Geert Bevin
+ * @author Geert Bevin, Abhishek Sanoujam
  * @since 2.0
  */
 public interface CacheCluster {
@@ -40,6 +40,13 @@ public interface CacheCluster {
      * @return information on all the nodes in the cluster, including ID, hostname, and IP address.
      */
     Collection<ClusterNode> getNodes();
+    
+    /**
+     * Find out if the current node is connected to the cluster or not
+     * 
+     * @return true if cluster is online otherwise false
+     */
+    boolean isClusterOnline();
 
     /**
      * Add a listener for cluster events

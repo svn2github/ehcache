@@ -62,4 +62,13 @@ public class NoopCacheCluster implements CacheCluster {
         return false;
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    public boolean isClusterOnline() {
+        return true;
+    }
+    
+    
+
 }
