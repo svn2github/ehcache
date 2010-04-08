@@ -37,7 +37,7 @@ public class IncoherentViewCache extends EhcacheDecoratorAdapter {
     public IncoherentViewCache(final Cache decoratedCache, final String incoherentViewName) {
         super(decoratedCache);
         this.viewName = incoherentViewName;
-        Store store = new CacheStoreHelper(decoratedCache).getCacheMemoryStore();
+        Store store = new CacheStoreHelper(decoratedCache).getStore();
         if (!(store instanceof ClusteredStore)) {
             throw new IllegalArgumentException(IncoherentViewCache.class.getName()
                     + " can be used to decorate caches clustered with Terracotta only.");

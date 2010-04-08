@@ -16,8 +16,10 @@
 
 package net.sf.ehcache.constructs.nonstop;
 
+import net.sf.ehcache.Cache;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.constructs.nonstop.behavior.ExceptionOnTimeoutBehavior;
+import net.sf.ehcache.constructs.nonstop.behavior.LocalReadsBehavior;
 import net.sf.ehcache.constructs.nonstop.behavior.NoOpOnTimeoutBehavior;
 
 /**
@@ -68,7 +70,11 @@ public enum NonStopCacheBehaviorType {
          */
         @Override
         public NonStopCacheBehavior newCacheBehavior(final Ehcache ehcache) {
-            throw new UnsupportedOperationException("This feature is not yet implemented");
+            if (!(ehcache instanceof Cache)) {
+                throw new UnsupportedOperationException(LOCAL_READS_ON_TIMEOUT.name() + " behavior is only supported for "
+                        + Cache.class.getName() + " instances.");
+            }
+            return new LocalReadsBehavior((Cache) ehcache);
         }
 
     };

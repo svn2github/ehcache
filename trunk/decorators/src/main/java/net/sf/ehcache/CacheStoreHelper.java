@@ -26,7 +26,7 @@ public class CacheStoreHelper {
         this.cache = cache;
     }
 
-    public Store getCacheMemoryStore() {
+    public Store getStore() {
         return cache.getStore();
     }
 
