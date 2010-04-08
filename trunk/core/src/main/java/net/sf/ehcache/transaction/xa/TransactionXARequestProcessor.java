@@ -68,11 +68,14 @@ public class TransactionXARequestProcessor implements XARequestProcessor {
         try {
             xaResponse = future.get();
         } catch (InterruptedException e) {
+            cleanupExecutorService(request.getXid());
             throw new EhcacheXAException(e.getMessage(), -1, e);
         } catch (ExecutionException e) {
+            cleanupExecutorService(request.getXid());
             throw new EhcacheXAException(e.getMessage(), -1, e);
         }
         if (xaResponse.getXaException() != null) {
+            cleanupExecutorService(request.getXid());
             throw new EhcacheXAException("XA request failed", xaResponse.getXaException().errorCode, xaResponse.getXaException());
         }
         
