@@ -1192,6 +1192,34 @@ public class BlockingCache implements Ehcache {
     public void setTransactionManagerLookup(TransactionManagerLookup transactionManagerLookup) {
         cache.setTransactionManagerLookup(transactionManagerLookup);
     }
+
+    /**
+     * {@inheritDoc}
+     */
+    public Element putIfAbsent(Element element) throws NullPointerException {
+        return cache.putIfAbsent(element);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public boolean removeElement(Element element) throws NullPointerException {
+        return cache.removeElement(element);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public boolean replace(Element old, Element element) throws NullPointerException, IllegalArgumentException {
+        return cache.replace(old, element);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public Element replace(Element element) throws NullPointerException {
+        return cache.replace(element);
+    }
 }
 
 

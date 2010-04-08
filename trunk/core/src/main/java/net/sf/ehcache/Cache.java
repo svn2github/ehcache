@@ -18,6 +18,9 @@ package net.sf.ehcache;
 
 import net.sf.ehcache.bootstrap.BootstrapCacheLoader;
 import net.sf.ehcache.bootstrap.BootstrapCacheLoaderFactory;
+import net.sf.ehcache.concurrent.CacheLockProvider;
+import net.sf.ehcache.concurrent.LockType;
+import net.sf.ehcache.concurrent.Sync;
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.CacheWriterConfiguration;
 import net.sf.ehcache.config.DiskStoreConfiguration;
@@ -182,7 +185,8 @@ public class Cache implements Ehcache {
      * The {@link import net.sf.ehcache.store.MemoryStore} of this {@link Cache}. All caches have a memory store.
      */
     private volatile Store compoundStore;
-
+    private volatile CacheLockProvider lockProvider;
+    
     private volatile RegisteredEventListeners registeredEventListeners;
 
     private volatile List<CacheExtension> registeredCacheExtensions;
@@ -1019,6 +1023,11 @@ public class Cache implements Ehcache {
                 // create this to be sure that it's present on each node to receive clustered events,
                 // even if this node is not sending out its events
                 cacheManager.createTerracottaEventReplicator(this);
+            }
+            
+            Object context = compoundStore.getInternalContext();
+            if (context instanceof CacheLockProvider) {
+                lockProvider = (CacheLockProvider) context; 
             }
         }
 
@@ -3155,5 +3164,119 @@ public class Cache implements Ehcache {
         pcs.firePropertyChange(propertyName, oldValue, newValue);
       }
     }
+
+    /**
+     * {@inheritDoc}
+     */
+    public Element putIfAbsent(Element element) throws NullPointerException {
+        if (element.getObjectKey() == null) {
+            throw new NullPointerException();
+        }
+        
+        Sync s = getSyncForElement(element);
+        
+        s.lock(LockType.WRITE);
+        try {
+            Element e = getQuiet(element.getObjectKey());
+            if (e == null) {
+                put(element);
+            }
+            return e;
+        } finally {
+            s.unlock(LockType.WRITE);
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public boolean removeElement(Element element) throws NullPointerException {
+        if (element.getObjectKey() == null) {
+            throw new NullPointerException();
+        }
+        
+        Sync s = getSyncForElement(element);
+        
+        s.lock(LockType.WRITE);
+        try {
+            Element e = getQuiet(element.getObjectKey());
+            if (fullElementEquals(element, e)) {
+                remove(e.getObjectKey());
+                return true;
+            } else {
+                return false;
+            }
+        } finally {
+            s.unlock(LockType.WRITE);
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public boolean replace(Element old, Element element) throws NullPointerException, IllegalArgumentException {
+        Sync s = getSyncForElement(element);
+        
+        if (old.getObjectKey() == null || element.getObjectKey() == null) {
+            throw new NullPointerException();
+        }
+        if (!old.getObjectKey().equals(element.getObjectKey())) {
+            throw new IllegalArgumentException("The keys for the element arguments to replace must be equal");
+        }
+        
+        s.lock(LockType.WRITE);
+        try {
+            Element e = getQuiet(old.getObjectKey());
+            if (fullElementEquals(old, e)) {
+                put(element);
+                return true;
+            } else {
+                return false;
+            }
+        } finally {
+            s.unlock(LockType.WRITE);
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public Element replace(Element element) throws NullPointerException {
+        if (element.getObjectKey() == null) {
+            throw new NullPointerException();
+        }
+        
+        Sync s = getSyncForElement(element);
+        
+        s.lock(LockType.WRITE);
+        try {
+            Element e = getQuiet(element.getObjectKey());
+            if (e != null) {
+                put(element);
+            }
+            return e;
+        } finally {
+            s.unlock(LockType.WRITE);
+        }
+    }
     
+    private Sync getSyncForElement(Element e) {
+        if (lockProvider == null) {
+            throw new UnsupportedOperationException("This store does not support locked operations");
+        } else {
+            return lockProvider.getSyncForKey(e.getObjectKey());
+        }
+    }
+    
+    private static boolean fullElementEquals(Element e1, Element e2) {
+        if (e1.equals(e2)) {
+            if (e1.getObjectValue() == null) {
+                return e2.getObjectValue() == null;
+            } else {
+                return e1.getObjectValue().equals(e2.getObjectValue());
+            }
+        } else {
+            return false;
+        }
+    }
 }

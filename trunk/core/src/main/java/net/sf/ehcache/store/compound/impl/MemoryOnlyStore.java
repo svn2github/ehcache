@@ -104,7 +104,7 @@ public final class MemoryOnlyStore extends CompoundStore implements CacheConfigu
      * {@inheritDoc}
      */
     public void expireElements() {
-        throw new UnsupportedOperationException();
+        memoryFactory.expireElements();
     }
 
     /**

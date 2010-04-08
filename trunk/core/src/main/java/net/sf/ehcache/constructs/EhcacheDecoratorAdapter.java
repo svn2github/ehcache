@@ -675,4 +675,32 @@ public class EhcacheDecoratorAdapter implements Ehcache {
         return super.clone();
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    public Element putIfAbsent(Element element) throws NullPointerException {
+        return decoratedCache.putIfAbsent(element);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public boolean removeElement(Element element) throws NullPointerException {
+        return decoratedCache.removeElement(element);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public boolean replace(Element old, Element element) throws NullPointerException, IllegalArgumentException {
+        return decoratedCache.replace(old, element);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public Element replace(Element element) throws NullPointerException {
+        return decoratedCache.replace(element);
+    }
+
 }

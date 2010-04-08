@@ -25,7 +25,6 @@ import net.sf.ehcache.Statistics;
 import net.sf.ehcache.StopWatch;
 import net.sf.ehcache.store.compound.CompoundStore;
 import net.sf.ehcache.store.compound.ElementSubstituteFilter;
-import net.sf.ehcache.store.compound.IdentityElementSubstituteFactory;
 import net.sf.ehcache.store.compound.factories.CapacityLimitedInMemoryFactory;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
@@ -45,7 +44,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.locks.Lock;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

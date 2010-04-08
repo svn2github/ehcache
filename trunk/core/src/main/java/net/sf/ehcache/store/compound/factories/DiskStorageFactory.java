@@ -63,7 +63,7 @@ abstract class DiskStorageFactory<T extends ElementSubstitute> implements Elemen
     protected static final String AUTO_DISK_PATH_DIRECTORY_PREFIX = "ehcache_auto_created";
     private static final int SERIALIZATION_CONCURRENCY_DELAY = 250;
     private static final int SHUTDOWN_GRACE_PERIOD = 60;
-    private static final int CAPACITY = 10000;
+    private static final int MEGABYTE = 1024 * 1024;
     
     private static final Logger LOG = LoggerFactory.getLogger(DiskStorageFactory.class.getName());
 
@@ -78,19 +78,23 @@ abstract class DiskStorageFactory<T extends ElementSubstitute> implements Elemen
      */
     private final ScheduledThreadPoolExecutor diskWriter;
     
+    private final long queueCapacity;
+    
     private final File             file;
     private final RandomAccessFile data;
 
     private final Collection<DiskMarker> freeChunks = new ConcurrentLinkedQueue<DiskMarker>();
 
     private final RegisteredEventListeners eventService;
+
+    private volatile int elementSize;
     
     /**
      * Constructs a disk storage factory using the given data file.
      * 
      * @param dataFile
      */
-    DiskStorageFactory(File dataFile, long expiryInterval, RegisteredEventListeners eventService) {
+    DiskStorageFactory(File dataFile, long expiryInterval, long queueCapacity, RegisteredEventListeners eventService) {
         this.file = dataFile;
         try {
             data = new RandomAccessFile(file, "rw");
@@ -104,6 +108,7 @@ abstract class DiskStorageFactory<T extends ElementSubstitute> implements Elemen
         });
         this.diskQueue = diskWriter.getQueue();
         this.eventService = eventService;
+        this.queueCapacity = queueCapacity * MEGABYTE;
         
         diskWriter.setExecuteExistingDelayedTasksAfterShutdownPolicy(false);
         diskWriter.setContinueExistingPeriodicTasksAfterShutdownPolicy(false);
@@ -252,6 +257,7 @@ abstract class DiskStorageFactory<T extends ElementSubstitute> implements Elemen
     protected DiskMarker write(Element element) throws IOException {
         MemoryEfficientByteArrayOutputStream buffer = serializeElement(element);
         int bufferLength = buffer.size();
+        elementSize = bufferLength;
         DiskMarker marker = alloc(element, bufferLength);
         // Write the record
         synchronized (data) {
@@ -344,7 +350,7 @@ abstract class DiskStorageFactory<T extends ElementSubstitute> implements Elemen
      * {@inheritDoc}
      */
     public boolean bufferFull() {
-        return diskQueue.size() > CAPACITY;
+        return (diskQueue.size() * elementSize) > queueCapacity;
     }
 
     /**
@@ -611,6 +617,14 @@ abstract class DiskStorageFactory<T extends ElementSubstitute> implements Elemen
         }        
     }
 
+
+    /**
+     * Remove elements created by this factory if they have expired.
+     */
+    public void expireElements() {
+        new DiskExpiryTask().run();
+    }
+    
     /**
      * Causes removal of all expired elements (and fires the relevant events).
      */

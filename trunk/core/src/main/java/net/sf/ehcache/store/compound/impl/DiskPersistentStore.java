@@ -83,8 +83,7 @@ public final class DiskPersistentStore extends CompoundStore implements CacheCon
      * {@inheritDoc}
      */
     public void expireElements() {
-        // TODO Auto-generated method stub
-
+        disk.expireElements();
     }
 
     /**

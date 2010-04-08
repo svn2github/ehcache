@@ -211,7 +211,8 @@ public final class OverflowToDiskStore extends CompoundStore implements CacheCon
      * {@inheritDoc}
      */
     public void expireElements() {
-        throw new UnsupportedOperationException();
+        memoryFactory.expireElements();
+        diskFactory.expireElements();
     }
 
     /**

@@ -197,5 +197,20 @@ public class CapacityLimitedInMemoryFactory implements IdentityElementSubstitute
      */
     public boolean created(Object object) {
         return object instanceof Element;
+    }
+
+    /**
+     * Remove elements created by this factory if they have expired.
+     */
+    public void expireElements() {
+        for (Object key : boundStore.keySet()) {
+            Object value = boundStore.unretrievedGet(key);
+            if (value instanceof Element) {
+                Element e = (Element) value;
+                if (e.isExpired() && boundStore.evict(key, value)) {
+                    eventService.notifyElementExpiry(e, false);
+                }
+            }
+        }
     }    
 }
