@@ -1098,6 +1098,22 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
                 fail("Expected InvalidConfigurationException, but got "+ e.getClass().getSimpleName());
             }
         }
+        
+        file = new File(TEST_CONFIG_DIR + "ehcache-copy-tc.xml");
+        configuration = ConfigurationFactory.parseConfiguration(file);
+        configurationHelper = new ConfigurationHelper(manager, configuration);
+
+        Ehcache nonCopyCache = configurationHelper.createCacheFromName("nonCopyOnReadCacheTcTrue");
+        assertFalse(nonCopyCache.getCacheConfiguration().isCopyOnRead());
+        assertTrue(nonCopyCache.getCacheConfiguration().getTerracottaConfiguration().isCopyOnRead());
+
+        Ehcache nonCopyCacheTc = configurationHelper.createCacheFromName("copyOnReadCacheTcFalse");
+        assertTrue(nonCopyCacheTc.getCacheConfiguration().isCopyOnRead());
+        assertFalse(nonCopyCacheTc.getCacheConfiguration().getTerracottaConfiguration().isCopyOnRead());
+
+        Ehcache copyOnReadCacheTc = configurationHelper.createCacheFromName("copyOnReadCacheTc");
+        assertTrue(copyOnReadCacheTc.getCacheConfiguration().isCopyOnRead());
+        assertTrue(copyOnReadCacheTc.getCacheConfiguration().getTerracottaConfiguration().isCopyOnRead());
     }
 
     /**

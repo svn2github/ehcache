@@ -27,7 +27,7 @@ import org.slf4j.LoggerFactory;
  * @author Geert Bevin
  */
 public class TerracottaConfiguration implements Cloneable {
-    
+
     /**
      * Default clustered mode
      */
@@ -107,6 +107,8 @@ public class TerracottaConfiguration implements Cloneable {
     private boolean cacheXA = DEFAULT_CACHE_XA;
     private boolean synchronousWrites = DEFAULT_SYNCHRONOUS_WRITES;
 
+    private boolean copyOnReadSet;
+
     /**
      * Clones this object, following the usual contract.
      *
@@ -152,7 +154,18 @@ public class TerracottaConfiguration implements Cloneable {
      * Used by BeanHandler to set the copyOnRead flag during parsing
      */
     public void setCopyOnRead(boolean isCopyOnRead) {
+        LOG.warn("copyOnRead is deprecated on the <terracotta /> element, " +
+                 "please use the copyOnRead attribute on <cache /> or <defaultCache />");
+        this.copyOnReadSet = true;
         this.isCopyOnRead = isCopyOnRead;
+    }
+
+    /**
+     * Whether the copyOnRead was explicitly set 
+     * @return true if set by config
+     */
+    boolean isCopyOnReadSet() {
+        return copyOnReadSet;
     }
 
     /**
