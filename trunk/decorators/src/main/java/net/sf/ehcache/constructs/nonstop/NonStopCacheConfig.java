@@ -22,21 +22,21 @@ public interface NonStopCacheConfig {
 
     public static final NonStopCacheBehaviorType DEFAULT_TIMEOUT_BEHAVIOR_TYPE = NonStopCacheBehaviorType.EXCEPTION_ON_TIMEOUT;
 
-    public static final boolean DEFAULT_FAIL_FAST = true;
+    public static final boolean DEFAULT_IMMEDIATE_TIMEOUT = true;
 
     public static final String TIMEOUT_VALUE_IN_MILLIS_PROP_KEY = "timeoutValueInMillis";
 
     public static final String TIMEOUT_BEHAVIOR_PROP_KEY = "timeoutBehavior";
 
-    public static final String FAIL_FAST_PROP_KEY = "failFast";
+    public static final String IMMEDIATE_TIMEOUT_PROP_KEY = "immediateTimeout";
 
     public long getTimeoutValueInMillis();
 
     public void setTimeoutValueInMillis(long timeoutValueInMillis);
 
-    public void setFailFast(boolean failFast);
+    public void setImmediateTimeoutEnabled(boolean immediateTimeout);
 
-    public boolean isFailFast();
+    public boolean isImmediateTimeoutEnabled();
 
     public void setTimeoutBehaviorType(NonStopCacheBehaviorType timeoutBehaviorType);
 

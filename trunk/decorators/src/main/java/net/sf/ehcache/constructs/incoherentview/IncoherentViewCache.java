@@ -34,7 +34,7 @@ public class IncoherentViewCache extends EhcacheDecoratorAdapter {
     private final ClusteredStore clusteredStore;
     private final LiveCacheStatisticsData liveCacheStatisticsData;
 
-    public IncoherentViewCache(Cache decoratedCache, String incoherentViewName) {
+    public IncoherentViewCache(final Cache decoratedCache, final String incoherentViewName) {
         super(decoratedCache);
         this.viewName = incoherentViewName;
         Store store = new CacheStoreHelper(decoratedCache).getCacheMemoryStore();
@@ -52,7 +52,7 @@ public class IncoherentViewCache extends EhcacheDecoratorAdapter {
     }
 
     @Override
-    public Element get(Object key) throws IllegalStateException, CacheException {
+    public Element get(final Object key) throws IllegalStateException, CacheException {
         if (isStatisticsEnabled()) {
             long start = System.currentTimeMillis();
             Element element = getFromStoreWithExpiryCheck(key, true, true);
@@ -68,17 +68,17 @@ public class IncoherentViewCache extends EhcacheDecoratorAdapter {
     }
 
     @Override
-    public Element get(Serializable key) throws IllegalStateException, CacheException {
+    public Element get(final Serializable key) throws IllegalStateException, CacheException {
         return get((Object) key);
     }
 
     @Override
-    public Element getQuiet(Object key) throws IllegalStateException, CacheException {
+    public Element getQuiet(final Object key) throws IllegalStateException, CacheException {
         return getFromStoreWithExpiryCheck(key, false, false);
     }
 
     @Override
-    public Element getQuiet(Serializable key) throws IllegalStateException, CacheException {
+    public Element getQuiet(final Serializable key) throws IllegalStateException, CacheException {
         return getQuiet((Object) key);
     }
 
@@ -94,7 +94,7 @@ public class IncoherentViewCache extends EhcacheDecoratorAdapter {
      *            notifies listeners if true
      * @return element associated with key if not expired
      */
-    private Element getFromStoreWithExpiryCheck(Object key, boolean updateStats, boolean notifyListeners) {
+    private Element getFromStoreWithExpiryCheck(final Object key, final boolean updateStats, final boolean notifyListeners) {
         Element element = null;
         if (updateStats) {
             element = clusteredStore.unlockedGet(key);

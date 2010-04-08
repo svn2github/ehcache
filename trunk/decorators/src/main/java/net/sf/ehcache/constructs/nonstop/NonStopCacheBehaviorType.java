@@ -18,7 +18,7 @@ package net.sf.ehcache.constructs.nonstop;
 
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.constructs.nonstop.behavior.ExceptionOnTimeoutBehavior;
-import net.sf.ehcache.constructs.nonstop.behavior.NullOpOnTimeoutBehavior;
+import net.sf.ehcache.constructs.nonstop.behavior.NoOpOnTimeoutBehavior;
 
 /**
  * Enum encapsulating different CacheBehavior's used by TimeoutCache
@@ -37,7 +37,7 @@ public enum NonStopCacheBehaviorType {
          * {@inheritDoc}
          */
         @Override
-        public NonStopCacheBehavior newCacheBehavior(Ehcache ehcache) {
+        public NonStopCacheBehavior newCacheBehavior(final Ehcache ehcache) {
             return ExceptionOnTimeoutBehavior.getInstance();
         }
 
@@ -51,8 +51,8 @@ public enum NonStopCacheBehaviorType {
          * {@inheritDoc}
          */
         @Override
-        public NonStopCacheBehavior newCacheBehavior(Ehcache ehcache) {
-            return NullOpOnTimeoutBehavior.getInstance();
+        public NonStopCacheBehavior newCacheBehavior(final Ehcache ehcache) {
+            return NoOpOnTimeoutBehavior.getInstance();
         }
 
     },
@@ -67,7 +67,7 @@ public enum NonStopCacheBehaviorType {
          * {@inheritDoc}
          */
         @Override
-        public NonStopCacheBehavior newCacheBehavior(Ehcache ehcache) {
+        public NonStopCacheBehavior newCacheBehavior(final Ehcache ehcache) {
             throw new UnsupportedOperationException("This feature is not yet implemented");
         }
 

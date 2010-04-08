@@ -25,45 +25,45 @@ import net.sf.ehcache.constructs.nonstop.NonStopCacheBehavior;
 
 /**
  * Implementation of {@link NonStopCacheBehavior} which returns null for all get
- * operations and does nothing for puts and removes.
+ * operations and does nothing for puts and removes. (Null Object pattern)
  * 
  * @author Abhishek Sanoujam
  * 
  */
-public class NullOpOnTimeoutBehavior implements NonStopCacheBehavior {
+public class NoOpOnTimeoutBehavior implements NonStopCacheBehavior {
 
     /**
      * the singleton instance
      */
-    private static final NullOpOnTimeoutBehavior INSTANCE = new NullOpOnTimeoutBehavior();
+    private static final NoOpOnTimeoutBehavior INSTANCE = new NoOpOnTimeoutBehavior();
 
     /**
      * Returns the singleton instance
      * 
      * @return the singleton instance
      */
-    public static NullOpOnTimeoutBehavior getInstance() {
+    public static NoOpOnTimeoutBehavior getInstance() {
         return INSTANCE;
     }
 
     /**
      * private constructor
      */
-    private NullOpOnTimeoutBehavior() {
+    private NoOpOnTimeoutBehavior() {
         //
     }
 
     /**
      * {@inheritDoc}
      */
-    public Element get(Object key) throws IllegalStateException, CacheException {
+    public Element get(final Object key) throws IllegalStateException, CacheException {
         return null;
     }
 
     /**
      * {@inheritDoc}
      */
-    public Element getQuiet(Object key) throws IllegalStateException, CacheException {
+    public Element getQuiet(final Object key) throws IllegalStateException, CacheException {
         return null;
     }
 
@@ -88,14 +88,14 @@ public class NullOpOnTimeoutBehavior implements NonStopCacheBehavior {
     /**
      * {@inheritDoc}
      */
-    public boolean isKeyInCache(Object key) {
+    public boolean isKeyInCache(final Object key) {
         return false;
     }
 
     /**
      * {@inheritDoc}
      */
-    public boolean isValueInCache(Object value) {
+    public boolean isValueInCache(final Object value) {
         return false;
     }
 
@@ -103,43 +103,43 @@ public class NullOpOnTimeoutBehavior implements NonStopCacheBehavior {
      * {@inheritDoc}
      */
 
-    public void put(Element element, boolean doNotNotifyCacheReplicators) throws IllegalArgumentException, IllegalStateException,
-            CacheException {
+    public void put(final Element element, final boolean doNotNotifyCacheReplicators) throws IllegalArgumentException,
+            IllegalStateException, CacheException {
         // no-op
     }
 
     /**
      * {@inheritDoc}
      */
-    public void put(Element element) throws IllegalArgumentException, IllegalStateException, CacheException {
+    public void put(final Element element) throws IllegalArgumentException, IllegalStateException, CacheException {
         // no-op
     }
 
     /**
      * {@inheritDoc}
      */
-    public void putQuiet(Element element) throws IllegalArgumentException, IllegalStateException, CacheException {
+    public void putQuiet(final Element element) throws IllegalArgumentException, IllegalStateException, CacheException {
         // no-op
     }
 
     /**
      * {@inheritDoc}
      */
-    public void putWithWriter(Element element) throws IllegalArgumentException, IllegalStateException, CacheException {
+    public void putWithWriter(final Element element) throws IllegalArgumentException, IllegalStateException, CacheException {
         // no-op
     }
 
     /**
      * {@inheritDoc}
      */
-    public boolean remove(Object key, boolean doNotNotifyCacheReplicators) throws IllegalStateException {
+    public boolean remove(final Object key, final boolean doNotNotifyCacheReplicators) throws IllegalStateException {
         return false;
     }
 
     /**
      * {@inheritDoc}
      */
-    public boolean remove(Object key) throws IllegalStateException {
+    public boolean remove(final Object key) throws IllegalStateException {
         return false;
     }
 
@@ -153,7 +153,7 @@ public class NullOpOnTimeoutBehavior implements NonStopCacheBehavior {
     /**
      * {@inheritDoc}
      */
-    public void removeAll(boolean doNotNotifyCacheReplicators) throws IllegalStateException, CacheException {
+    public void removeAll(final boolean doNotNotifyCacheReplicators) throws IllegalStateException, CacheException {
         // no-op
     }
 

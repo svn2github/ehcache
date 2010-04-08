@@ -17,72 +17,91 @@
 package net.sf.ehcache.constructs.nonstop;
 
 import java.io.Serializable;
-import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 import java.util.Properties;
-import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.TimeoutException;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
+import net.sf.ehcache.cluster.CacheCluster;
+import net.sf.ehcache.cluster.ClusterScheme;
 import net.sf.ehcache.constructs.EhcacheDecoratorAdapter;
-import net.sf.ehcache.constructs.nonstop.behavior.DelegatingNonStopCacheBehavior;
-import net.sf.ehcache.constructs.nonstop.behavior.DelegatingNonStopCacheBehavior.DelegateHolder;
-import net.sf.ehcache.loader.CacheLoader;
+import net.sf.ehcache.constructs.nonstop.behavior.ClusterOfflineBehavior;
+import net.sf.ehcache.constructs.nonstop.behavior.DirectDelegateBehavior;
+import net.sf.ehcache.constructs.nonstop.behavior.ExecutorBehavior;
+import net.sf.ehcache.constructs.nonstop.behavior.NonStopCacheBehaviorResolver;
 
-public class NonStopCache extends EhcacheDecoratorAdapter implements NonStopCacheConfig {
+public class NonStopCache extends EhcacheDecoratorAdapter implements NonStopCacheConfig, NonStopCacheBehaviorResolver {
 
-    private final NonStopCacheConfig timeoutCacheConfig;
-    private final NonStopCacheExecutorService executorService;
+    private final NonStopCacheConfig nonStopCacheConfig;
+    private final NonStopCacheExecutorService nonStopCacheExecutorService;
     private final ConcurrentMap<NonStopCacheBehaviorType, NonStopCacheBehavior> timeoutBehaviors;
-    private final NonStopCacheBehavior failFastBehavior;
+    private final NonStopCacheBehavior executeWithExecutorBehavior;
+    private final NonStopCacheBehavior clusterOfflineBehavior;
+    private final CacheCluster cacheCluster;
+    private final AtomicInteger pendingMutateOperationsCount = new AtomicInteger();
 
     /**
-     * Constructor that accepts only the cache to be decorated.
-     * TimeoutCacheConfig is created using defaults
+     * Constructor that accepts the cache to be decorated. A {@link NonStopCache} will be created with default config
      * 
      * @param decoratedCache
+     *            the cache that needs to be decorated
      */
-    public NonStopCache(Ehcache decoratedCache) {
+    public NonStopCache(final Ehcache decoratedCache) {
         this(decoratedCache, new NonStopCacheConfigImpl());
     }
 
     /**
-     * Constructor that accepts the cache to be decorated and properties map which is used to create a TimeoutCacheConfig
+     * Constructor that accepts the cache to be decorated and properties map containing config. See {@link NonStopCacheConfig} for which
+     * keys and values to use in the {@link Properties}
      * 
      * @param decoratedCache
      * @param configProperties
      */
-    public NonStopCache(Ehcache decoratedCache, Properties configProperties) {
+    public NonStopCache(final Ehcache decoratedCache, final Properties configProperties) {
         this(decoratedCache, new NonStopCacheConfigImpl(configProperties));
     }
 
-    public NonStopCache(Ehcache decoratedCache, NonStopCacheConfig timeoutCacheConfig) {
-        super(decoratedCache);
-        this.timeoutCacheConfig = timeoutCacheConfig;
-        this.executorService = new NonStopCacheExecutorService(decoratedCache, timeoutCacheConfig);
-        this.timeoutBehaviors = new ConcurrentHashMap<NonStopCacheBehaviorType, NonStopCacheBehavior>();
-        this.failFastBehavior = new DelegatingNonStopCacheBehavior(new DelegateHolder() {
+    public NonStopCache(final Ehcache decoratedCache, final NonStopCacheConfig nonStopCacheConfig) {
+        this(decoratedCache, nonStopCacheConfig, new NonStopCacheExecutorService(new ThreadFactory() {
 
-            public NonStopCacheBehavior getDelegate() {
-                return getTimeoutCacheBehavior();
+            private final AtomicInteger count = new AtomicInteger();
+
+            public Thread newThread(final Runnable runnable) {
+                return new Thread(runnable, "NonStopCache [" + decoratedCache.getName() + "] Thread-" + count.incrementAndGet());
             }
-        });
+        }));
     }
 
-    public NonStopCacheConfig getTimeoutCacheConfig() {
-        return timeoutCacheConfig;
+    public NonStopCache(final Ehcache decoratedCache, final NonStopCacheConfig nonStopCacheConfig,
+            final NonStopCacheExecutorService nonStopCacheExecutorService) {
+        super(decoratedCache);
+        this.nonStopCacheConfig = nonStopCacheConfig;
+        this.nonStopCacheExecutorService = nonStopCacheExecutorService;
+        this.timeoutBehaviors = new ConcurrentHashMap<NonStopCacheBehaviorType, NonStopCacheBehavior>();
+        this.cacheCluster = decoratedCache.getCacheManager().getCluster(ClusterScheme.TERRACOTTA);
+        this.executeWithExecutorBehavior = new ExecutorBehavior(new DirectDelegateBehavior(decoratedCache), nonStopCacheConfig,
+                nonStopCacheExecutorService, this);
+        this.clusterOfflineBehavior = new ClusterOfflineBehavior(nonStopCacheConfig, this, executeWithExecutorBehavior);
     }
 
-    private NonStopCacheBehavior getTimeoutCacheBehavior() {
-        NonStopCacheBehavior behavior = timeoutBehaviors.get(timeoutCacheConfig.getTimeoutBehaviorType());
+    public NonStopCacheConfig getNonStopCacheConfig() {
+        return nonStopCacheConfig;
+    }
+
+    public NonStopCacheExecutorService getNonStopCacheExecutorService() {
+        return nonStopCacheExecutorService;
+    }
+
+    public NonStopCacheBehavior resolveBehavior() {
+        NonStopCacheBehavior behavior = timeoutBehaviors.get(nonStopCacheConfig.getTimeoutBehaviorType());
         if (behavior == null) {
-            behavior = timeoutCacheConfig.getTimeoutBehaviorType().newCacheBehavior(decoratedCache);
-            NonStopCacheBehavior prev = timeoutBehaviors.putIfAbsent(timeoutCacheConfig.getTimeoutBehaviorType(), behavior);
+            behavior = nonStopCacheConfig.getTimeoutBehaviorType().newCacheBehavior(decoratedCache);
+            NonStopCacheBehavior prev = timeoutBehaviors.putIfAbsent(nonStopCacheConfig.getTimeoutBehaviorType(), behavior);
             if (prev != null) {
                 behavior = prev;
             }
@@ -90,357 +109,179 @@ public class NonStopCache extends EhcacheDecoratorAdapter implements NonStopCach
         return behavior;
     }
 
-    private boolean failFast() {
-        // TODO: add support for cluster events
-        return timeoutCacheConfig.isFailFast(); // && !cacheCluster.isNodeConnected();
+    private boolean isClusterOffline() {
+        return !cacheCluster.isClusterOnline();
     }
 
     @Override
     public Element get(final Object key) throws IllegalStateException, CacheException {
-        if (failFast()) {
-            return failFastBehavior.get(key);
+        if (isClusterOffline()) {
+            return clusterOfflineBehavior.get(key);
         }
-        Element element = null;
-        try {
-            element = executorService.execute(new Callable<Element>() {
-                public Element call() throws Exception {
-                    return NonStopCache.this.decoratedCache.get(key);
-                }
-            });
-        } catch (TimeoutException e) {
-            return getTimeoutCacheBehavior().get(key);
-        } catch (InterruptedException e) {
-            // rethrow as CacheException
-            throw new CacheException(e);
-        }
-        return element;
+        return executeWithExecutorBehavior.get(key);
     }
 
     @Override
-    public Element get(Serializable key) throws IllegalStateException, CacheException {
+    public Element get(final Serializable key) throws IllegalStateException, CacheException {
         return get((Object) key);
     }
 
     @Override
     public Element getQuiet(final Object key) throws IllegalStateException, CacheException {
-        if (failFast()) {
-            return failFastBehavior.getQuiet(key);
+        if (isClusterOffline()) {
+            return clusterOfflineBehavior.getQuiet(key);
         }
-        Element element = null;
-        try {
-            element = executorService.execute(new Callable<Element>() {
-                public Element call() throws Exception {
-                    return NonStopCache.this.decoratedCache.getQuiet(key);
-                }
-            });
-        } catch (TimeoutException e) {
-            return getTimeoutCacheBehavior().getQuiet(key);
-        } catch (InterruptedException e) {
-            // rethrow as CacheException
-            throw new CacheException(e);
-        }
-        return element;
+        return executeWithExecutorBehavior.getQuiet(key);
     }
 
     @Override
-    public Element getQuiet(Serializable key) throws IllegalStateException, CacheException {
+    public Element getQuiet(final Serializable key) throws IllegalStateException, CacheException {
         return getQuiet((Object) key);
     }
 
     @Override
     public List getKeys() throws IllegalStateException, CacheException {
-        if (failFast()) {
-            return failFastBehavior.getKeys();
+        if (isClusterOffline()) {
+            return clusterOfflineBehavior.getKeys();
         }
-        List keys = null;
-        try {
-            keys = executorService.execute(new Callable<List>() {
-                public List call() throws Exception {
-                    return NonStopCache.this.decoratedCache.getKeys();
-                }
-            });
-        } catch (TimeoutException e) {
-            return getTimeoutCacheBehavior().getKeys();
-        } catch (InterruptedException e) {
-            // rethrow as CacheException
-            throw new CacheException(e);
-        }
-        return keys;
+        return executeWithExecutorBehavior.getKeys();
     }
 
     @Override
     public List getKeysNoDuplicateCheck() throws IllegalStateException {
-        if (failFast()) {
-            return failFastBehavior.getKeysNoDuplicateCheck();
+        if (isClusterOffline()) {
+            return clusterOfflineBehavior.getKeysNoDuplicateCheck();
         }
-        List keys = null;
-        try {
-            keys = executorService.execute(new Callable<List>() {
-                public List call() throws Exception {
-                    return NonStopCache.this.decoratedCache.getKeysNoDuplicateCheck();
-                }
-            });
-        } catch (TimeoutException e) {
-            return getTimeoutCacheBehavior().getKeysNoDuplicateCheck();
-        } catch (InterruptedException e) {
-            // rethrow as CacheException
-            throw new CacheException(e);
-        }
-        return keys;
+        return executeWithExecutorBehavior.getKeysNoDuplicateCheck();
     }
 
     @Override
     public List getKeysWithExpiryCheck() throws IllegalStateException, CacheException {
-        if (failFast()) {
-            return failFastBehavior.getKeysWithExpiryCheck();
+        if (isClusterOffline()) {
+            return clusterOfflineBehavior.getKeysWithExpiryCheck();
         }
-        List keys = null;
-        try {
-            keys = executorService.execute(new Callable<List>() {
-                public List call() throws Exception {
-                    return NonStopCache.this.decoratedCache.getKeysWithExpiryCheck();
-                }
-            });
-        } catch (TimeoutException e) {
-            return getTimeoutCacheBehavior().getKeysWithExpiryCheck();
-        } catch (InterruptedException e) {
-            // rethrow as CacheException
-            throw new CacheException(e);
-        }
-        return keys;
+        return executeWithExecutorBehavior.getKeysWithExpiryCheck();
     }
 
     @Override
     public void put(final Element element, final boolean doNotNotifyCacheReplicators) throws IllegalArgumentException,
             IllegalStateException, CacheException {
-        if (failFast()) {
-            failFastBehavior.put(element, doNotNotifyCacheReplicators);
+        if (isClusterOffline()) {
+            clusterOfflineBehavior.put(element, doNotNotifyCacheReplicators);
             return;
         }
-        try {
-            executorService.execute(new Callable<Void>() {
-                public Void call() throws Exception {
-                    NonStopCache.this.decoratedCache.put(element, doNotNotifyCacheReplicators);
-                    return null;
-                }
-            });
-        } catch (TimeoutException e) {
-            getTimeoutCacheBehavior().put(element, doNotNotifyCacheReplicators);
-        } catch (InterruptedException e) {
-            // rethrow as CacheException
-            throw new CacheException(e);
-        }
+        executeWithExecutorBehavior.put(element, doNotNotifyCacheReplicators);
     }
 
     @Override
     public void put(final Element element) throws IllegalArgumentException, IllegalStateException, CacheException {
-        if (failFast()) {
-            failFastBehavior.put(element);
+        if (isClusterOffline()) {
+            clusterOfflineBehavior.put(element);
             return;
         }
-        try {
-            executorService.execute(new Callable<Void>() {
-                public Void call() throws Exception {
-                    NonStopCache.this.decoratedCache.put(element);
-                    return null;
-                }
-            });
-        } catch (TimeoutException e) {
-            getTimeoutCacheBehavior().put(element);
-        } catch (InterruptedException e) {
-            // rethrow as CacheException
-            throw new CacheException(e);
-        }
+        executeWithExecutorBehavior.put(element);
     }
 
     @Override
     public void putQuiet(final Element element) throws IllegalArgumentException, IllegalStateException, CacheException {
-        if (failFast()) {
-            failFastBehavior.putQuiet(element);
+        if (isClusterOffline()) {
+            clusterOfflineBehavior.putQuiet(element);
             return;
         }
-        try {
-            executorService.execute(new Callable<Void>() {
-                public Void call() throws Exception {
-                    NonStopCache.this.decoratedCache.putQuiet(element);
-                    return null;
-                }
-            });
-        } catch (TimeoutException e) {
-            getTimeoutCacheBehavior().putQuiet(element);
-        } catch (InterruptedException e) {
-            // rethrow as CacheException
-            throw new CacheException(e);
-        }
+        executeWithExecutorBehavior.putQuiet(element);
     }
 
     @Override
     public void putWithWriter(final Element element) throws IllegalArgumentException, IllegalStateException, CacheException {
-        if (failFast()) {
-            failFastBehavior.putWithWriter(element);
+        if (isClusterOffline()) {
+            clusterOfflineBehavior.putWithWriter(element);
             return;
         }
-        try {
-            executorService.execute(new Callable<Void>() {
-                public Void call() throws Exception {
-                    NonStopCache.this.decoratedCache.putWithWriter(element);
-                    return null;
-                }
-            });
-        } catch (TimeoutException e) {
-            getTimeoutCacheBehavior().putWithWriter(element);
-        } catch (InterruptedException e) {
-            // rethrow as CacheException
-            throw new CacheException(e);
-        }
+        executeWithExecutorBehavior.putWithWriter(element);
     }
 
     @Override
     public boolean remove(final Object key, final boolean doNotNotifyCacheReplicators) throws IllegalStateException {
-        if (failFast()) {
-            return failFastBehavior.remove(key, doNotNotifyCacheReplicators);
+        if (isClusterOffline()) {
+            return clusterOfflineBehavior.remove(key, doNotNotifyCacheReplicators);
         }
-        boolean result = false;
-        try {
-            result = executorService.execute(new Callable<Boolean>() {
-                public Boolean call() throws Exception {
-                    return Boolean.valueOf(NonStopCache.this.decoratedCache.remove(key, doNotNotifyCacheReplicators));
-                }
-            });
-        } catch (TimeoutException e) {
-            return getTimeoutCacheBehavior().remove(key, doNotNotifyCacheReplicators);
-        } catch (InterruptedException e) {
-            // rethrow as CacheException
-            throw new CacheException(e);
-        }
-        return result;
+        return executeWithExecutorBehavior.remove(key, doNotNotifyCacheReplicators);
     }
 
     @Override
     public boolean remove(final Object key) throws IllegalStateException {
-        if (failFast()) {
-            return failFastBehavior.remove(key);
+        if (isClusterOffline()) {
+            return clusterOfflineBehavior.remove(key);
         }
-        boolean result = false;
-        try {
-            result = executorService.execute(new Callable<Boolean>() {
-                public Boolean call() throws Exception {
-                    return Boolean.valueOf(NonStopCache.this.decoratedCache.remove(key));
-                }
-            });
-        } catch (TimeoutException e) {
-            return getTimeoutCacheBehavior().remove(key);
-        } catch (InterruptedException e) {
-            // rethrow as CacheException
-            throw new CacheException(e);
-        }
-        return result;
+        return executeWithExecutorBehavior.remove(key);
     }
 
     @Override
-    public boolean remove(Serializable key, boolean doNotNotifyCacheReplicators) throws IllegalStateException {
+    public boolean remove(final Serializable key, final boolean doNotNotifyCacheReplicators) throws IllegalStateException {
         return this.remove((Object) key, doNotNotifyCacheReplicators);
     }
 
     @Override
-    public boolean remove(Serializable key) throws IllegalStateException {
+    public boolean remove(final Serializable key) throws IllegalStateException {
         return this.remove((Object) key);
     }
 
     @Override
     public void removeAll() throws IllegalStateException, CacheException {
-        if (failFast()) {
-            failFastBehavior.removeAll();
+        if (isClusterOffline()) {
+            clusterOfflineBehavior.removeAll();
             return;
         }
-        try {
-            executorService.execute(new Callable<Void>() {
-                public Void call() throws Exception {
-                    NonStopCache.this.decoratedCache.removeAll();
-                    return null;
-                }
-            });
-        } catch (TimeoutException e) {
-            getTimeoutCacheBehavior().removeAll();
-        } catch (InterruptedException e) {
-            // rethrow as CacheException
-            throw new CacheException(e);
-        }
+        executeWithExecutorBehavior.removeAll();
     }
 
     @Override
     public void removeAll(final boolean doNotNotifyCacheReplicators) throws IllegalStateException, CacheException {
-        if (failFast()) {
-            failFastBehavior.removeAll(doNotNotifyCacheReplicators);
+        if (isClusterOffline()) {
+            clusterOfflineBehavior.removeAll(doNotNotifyCacheReplicators);
             return;
         }
-        try {
-            executorService.execute(new Callable<Void>() {
-                public Void call() throws Exception {
-                    NonStopCache.this.decoratedCache.removeAll(doNotNotifyCacheReplicators);
-                    return null;
-                }
-            });
-        } catch (TimeoutException e) {
-            getTimeoutCacheBehavior().removeAll(doNotNotifyCacheReplicators);
-        } catch (InterruptedException e) {
-            // rethrow as CacheException
-            throw new CacheException(e);
+        executeWithExecutorBehavior.removeAll(doNotNotifyCacheReplicators);
+    }
+
+    @Override
+    public boolean isKeyInCache(final Object key) {
+        if (isClusterOffline()) {
+            return clusterOfflineBehavior.isKeyInCache(key);
         }
+        return executeWithExecutorBehavior.isKeyInCache(key);
     }
 
     @Override
-    public Element getWithLoader(Object key, CacheLoader loader, Object loaderArgument) throws CacheException {
-        throw new CacheException("This method is not appropriate for a Timeout Cache");
-    }
-
-    @Override
-    public Map getAllWithLoader(Collection keys, Object loaderArgument) throws CacheException {
-        throw new CacheException("This method is not appropriate for a Timeout Cache");
-    }
-
-    @Override
-    public void registerCacheLoader(CacheLoader cacheLoader) {
-        throw new CacheException("This method is not appropriate for a Timeout Cache");
-    }
-
-    @Override
-    public void unregisterCacheLoader(CacheLoader cacheLoader) {
-        throw new CacheException("This method is not appropriate for a Timeout Cache");
-    }
-
-    @Override
-    public void load(Object key) throws CacheException {
-        throw new CacheException("This method is not appropriate for a Timeout Cache");
-    }
-
-    @Override
-    public void loadAll(Collection keys, Object argument) throws CacheException {
-        throw new CacheException("This method is not appropriate for a Timeout Cache");
+    public boolean isValueInCache(final Object value) {
+        if (isClusterOffline()) {
+            return clusterOfflineBehavior.isValueInCache(value);
+        }
+        return executeWithExecutorBehavior.isValueInCache(value);
     }
 
     public long getTimeoutValueInMillis() {
-        return this.timeoutCacheConfig.getTimeoutValueInMillis();
+        return this.nonStopCacheConfig.getTimeoutValueInMillis();
     }
 
-    public void setTimeoutValueInMillis(long timeoutValueInMillis) {
-        this.timeoutCacheConfig.setTimeoutValueInMillis(timeoutValueInMillis);
+    public void setTimeoutValueInMillis(final long timeoutValueInMillis) {
+        this.nonStopCacheConfig.setTimeoutValueInMillis(timeoutValueInMillis);
     }
 
-    public boolean isFailFast() {
-        return timeoutCacheConfig.isFailFast();
+    public boolean isImmediateTimeoutEnabled() {
+        return nonStopCacheConfig.isImmediateTimeoutEnabled();
     }
 
-    public void setFailFast(boolean failFast) {
-        this.timeoutCacheConfig.setFailFast(failFast);
+    public void setImmediateTimeoutEnabled(final boolean immediateTimeoutEnabled) {
+        this.nonStopCacheConfig.setImmediateTimeoutEnabled(immediateTimeoutEnabled);
     }
 
     public NonStopCacheBehaviorType getTimeoutBehaviorType() {
-        return this.timeoutCacheConfig.getTimeoutBehaviorType();
+        return this.nonStopCacheConfig.getTimeoutBehaviorType();
     }
 
-    public void setTimeoutBehaviorType(NonStopCacheBehaviorType timeoutBehaviorType) {
-        this.timeoutCacheConfig.setTimeoutBehaviorType(timeoutBehaviorType);
+    public void setTimeoutBehaviorType(final NonStopCacheBehaviorType timeoutBehaviorType) {
+        this.nonStopCacheConfig.setTimeoutBehaviorType(timeoutBehaviorType);
     }
 
 }

@@ -24,15 +24,15 @@ public class NonStopCacheException extends CacheException {
         super();
     }
 
-    public NonStopCacheException(String message, Throwable cause) {
+    public NonStopCacheException(final String message, final Throwable cause) {
         super(message, cause);
     }
 
-    public NonStopCacheException(String message) {
+    public NonStopCacheException(final String message) {
         super(message);
     }
 
-    public NonStopCacheException(Throwable cause) {
+    public NonStopCacheException(final Throwable cause) {
         super(cause);
     }
 

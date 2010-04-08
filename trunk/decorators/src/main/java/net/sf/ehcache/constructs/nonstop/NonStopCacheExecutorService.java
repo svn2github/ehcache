@@ -18,47 +18,53 @@ package net.sf.ehcache.constructs.nonstop;
 
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.RejectedExecutionException;
-import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import net.sf.ehcache.CacheException;
-import net.sf.ehcache.Ehcache;
 
 public class NonStopCacheExecutorService {
 
-    private static final int CORE_POOL_SIZE = 10;
-    private static final int MAXIMUM_POOL_SIZE = 1000;
-    private static final long KEEP_ALIVE_TIME_SECS = 10;
+    private static final AtomicInteger DEFAULT_FACTORY_COUNT = new AtomicInteger();
+
+    private static final int DEFAULT_THREAD_POOL_SIZE = 10;
+    private static final long DEFAULT_KEEP_ALIVE_TIME_SECS = 10;
     private final ThreadPoolExecutor threadPoolExecutor;
-    private final NonStopCacheConfig timeoutCacheConfig;
 
-    public NonStopCacheExecutorService(final Ehcache cache, NonStopCacheConfig timeoutCacheConfig) {
-        /**
-         * Use direct handoff queue -- SynchronousQueue, that hands off tasks to threads without otherwise
-         * holding them. Here, an attempt to queue a task will fail if no threads are immediately available to run it, so a new thread will
-         * be constructed. This policy avoids lockups when handling sets of requests that might have internal dependencies. Direct handoffs
-         * generally require unbounded maximumPoolSizes to avoid rejection of new submitted tasks. This in turn admits the possibility of
-         * unbounded thread growth when commands continue to arrive on average faster than they can be processed.
-         */
-        threadPoolExecutor = new ThreadPoolExecutor(CORE_POOL_SIZE, MAXIMUM_POOL_SIZE, KEEP_ALIVE_TIME_SECS, TimeUnit.SECONDS,
-                new SynchronousQueue<Runnable>(), new ThreadFactory() {
-
-                    public Thread newThread(Runnable runnable) {
-                        return new Thread(runnable, NonStopCacheExecutorService.class.getName() + " " + cache.getName() + " Thread");
-                    }
-                });
-        this.timeoutCacheConfig = timeoutCacheConfig;
+    public NonStopCacheExecutorService() {
+        this(DEFAULT_THREAD_POOL_SIZE, DEFAULT_KEEP_ALIVE_TIME_SECS, TimeUnit.SECONDS);
     }
 
-    public <V> V execute(Callable<V> callable) throws TimeoutException, CacheException, InterruptedException {
-        return execute(callable, timeoutCacheConfig.getTimeoutValueInMillis());
+    public NonStopCacheExecutorService(final ThreadFactory threadFactory) {
+        this(DEFAULT_THREAD_POOL_SIZE, DEFAULT_KEEP_ALIVE_TIME_SECS, TimeUnit.SECONDS, threadFactory);
     }
 
-    public <V> V execute(Callable<V> callable, long timeoutValueInMillis) throws TimeoutException, CacheException, InterruptedException {
+    public NonStopCacheExecutorService(final int threadPoolSize, final long keepAliveTime, final TimeUnit keepAliveTimeUnit) {
+        this(threadPoolSize, keepAliveTime, keepAliveTimeUnit, new ThreadFactory() {
+
+            private final AtomicInteger counter = new AtomicInteger();
+
+            public Thread newThread(final Runnable runnable) {
+                return new Thread(runnable, "Default " + NonStopCacheExecutorService.class.getName() + "-"
+                        + DEFAULT_FACTORY_COUNT.incrementAndGet() + " Thread-" + counter.incrementAndGet());
+            }
+        });
+    }
+
+    public NonStopCacheExecutorService(final int threadPoolSize, final long keepAliveTime, final TimeUnit keepAliveTimeUnit,
+            final ThreadFactory threadFactory) {
+        threadPoolExecutor = new ThreadPoolExecutor(threadPoolSize, threadPoolSize, keepAliveTime, keepAliveTimeUnit,
+                new LinkedBlockingQueue<Runnable>(), threadFactory);
+    }
+
+    public <V> V execute(final Callable<V> callable, final long timeoutValueInMillis) throws TimeoutException, CacheException,
+            InterruptedException {
+
         V result = null;
         long startTime = System.currentTimeMillis();
         while (true) {
@@ -68,18 +74,17 @@ public class NonStopCacheExecutorService {
             } catch (InterruptedException e) {
                 // XXX: do something here?
                 throw e;
-            } catch (ExecutionException e) {
-                if (e.getCause() instanceof RejectedExecutionException) {
-                    // if the executor rejects (too many tasks executing), try until timed out
-                    long now = System.currentTimeMillis();
-                    if (now - startTime > timeoutValueInMillis) {
-                        throw new TimeoutException();
-                    } else {
-                        continue;
-                    }
+            } catch (RejectedExecutionException e) {
+                // if the executor rejects (too many tasks executing), try until timed out
+                long now = System.currentTimeMillis();
+                if (now - startTime > timeoutValueInMillis) {
+                    // TODO: throw another sub-class indicating job was never scheduled ?
+                    throw new TimeoutException();
                 } else {
-                    throw new CacheException(e.getCause());
+                    continue;
                 }
+            } catch (ExecutionException e) {
+                throw new CacheException(e.getCause());
             } catch (TimeoutException e) {
                 // rethrow timeout exception
                 throw e;
@@ -87,5 +92,4 @@ public class NonStopCacheExecutorService {
         }
         return result;
     }
-
 }

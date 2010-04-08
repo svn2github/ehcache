@@ -14,20 +14,12 @@
  *  limitations under the License.
  */
 
-package net.sf.ehcache;
+package net.sf.ehcache.constructs.nonstop.behavior;
 
-import net.sf.ehcache.store.Store;
+import net.sf.ehcache.constructs.nonstop.NonStopCacheBehavior;
 
-public class CacheStoreHelper {
+public interface NonStopCacheBehaviorResolver {
 
-    private final Cache cache;
-
-    public CacheStoreHelper(final Cache cache) {
-        this.cache = cache;
-    }
-
-    public Store getCacheMemoryStore() {
-        return cache.getMemoryStore();
-    }
+    NonStopCacheBehavior resolveBehavior();
 
 }

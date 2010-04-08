@@ -55,14 +55,14 @@ public class ExceptionOnTimeoutBehavior implements NonStopCacheBehavior {
     /**
      * {@inheritDoc}
      */
-    public Element get(Object key) throws IllegalStateException, CacheException {
+    public Element get(final Object key) throws IllegalStateException, CacheException {
         throw new NonStopCacheException("get for key - '" + key + "'  timed out");
     }
 
     /**
      * {@inheritDoc}
      */
-    public Element getQuiet(Object key) throws IllegalStateException, CacheException {
+    public Element getQuiet(final Object key) throws IllegalStateException, CacheException {
         throw new NonStopCacheException("getQuite for key - '" + key + "'  timed out");
     }
 
@@ -90,22 +90,22 @@ public class ExceptionOnTimeoutBehavior implements NonStopCacheBehavior {
     /**
      * {@inheritDoc}
      */
-    public boolean isKeyInCache(Object key) {
+    public boolean isKeyInCache(final Object key) {
         throw new NonStopCacheException("isKeyInCache timed out");
     }
 
     /**
      * {@inheritDoc}
      */
-    public boolean isValueInCache(Object value) {
+    public boolean isValueInCache(final Object value) {
         throw new NonStopCacheException("isValueInCache timed out");
     }
 
     /**
      * {@inheritDoc}
      */
-    public void put(Element element, boolean doNotNotifyCacheReplicators) throws IllegalArgumentException, IllegalStateException,
-            CacheException {
+    public void put(final Element element, final boolean doNotNotifyCacheReplicators) throws IllegalArgumentException,
+            IllegalStateException, CacheException {
         throw new NonStopCacheException("put for element - '" + element + "', doNotNotifyCacheReplicators - '"
                 + doNotNotifyCacheReplicators + "' timed out");
     }
@@ -113,14 +113,14 @@ public class ExceptionOnTimeoutBehavior implements NonStopCacheBehavior {
     /**
      * {@inheritDoc}
      */
-    public void put(Element element) throws IllegalArgumentException, IllegalStateException, CacheException {
+    public void put(final Element element) throws IllegalArgumentException, IllegalStateException, CacheException {
         throw new NonStopCacheException("put for element - '" + element + "' timed out");
     }
 
     /**
      * {@inheritDoc}
      */
-    public void putQuiet(Element element) throws IllegalArgumentException, IllegalStateException, CacheException {
+    public void putQuiet(final Element element) throws IllegalArgumentException, IllegalStateException, CacheException {
         throw new NonStopCacheException("putQuiet for element - '" + element + "' timed out");
 
     }
@@ -128,14 +128,14 @@ public class ExceptionOnTimeoutBehavior implements NonStopCacheBehavior {
     /**
      * {@inheritDoc}
      */
-    public void putWithWriter(Element element) throws IllegalArgumentException, IllegalStateException, CacheException {
+    public void putWithWriter(final Element element) throws IllegalArgumentException, IllegalStateException, CacheException {
         throw new NonStopCacheException("putWithWriter for element - '" + element + "' timed out");
     }
 
     /**
      * {@inheritDoc}
      */
-    public boolean remove(Object key, boolean doNotNotifyCacheReplicators) throws IllegalStateException {
+    public boolean remove(final Object key, final boolean doNotNotifyCacheReplicators) throws IllegalStateException {
         throw new NonStopCacheException("remove for key - '" + key + "', doNotNotifyCacheReplicators - '" + doNotNotifyCacheReplicators
                 + "' timed out");
     }
@@ -143,7 +143,7 @@ public class ExceptionOnTimeoutBehavior implements NonStopCacheBehavior {
     /**
      * {@inheritDoc}
      */
-    public boolean remove(Object key) throws IllegalStateException {
+    public boolean remove(final Object key) throws IllegalStateException {
         throw new NonStopCacheException("remove for key - '" + key + "' timed out");
     }
 
@@ -157,7 +157,7 @@ public class ExceptionOnTimeoutBehavior implements NonStopCacheBehavior {
     /**
      * {@inheritDoc}
      */
-    public void removeAll(boolean doNotNotifyCacheReplicators) throws IllegalStateException, CacheException {
+    public void removeAll(final boolean doNotNotifyCacheReplicators) throws IllegalStateException, CacheException {
         throw new NonStopCacheException("removeAll with doNotNotifyCacheReplicators - '" + doNotNotifyCacheReplicators + "' timed out");
     }
 
