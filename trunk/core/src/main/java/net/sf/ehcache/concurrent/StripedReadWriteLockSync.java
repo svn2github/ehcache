@@ -15,8 +15,10 @@
  */
 package net.sf.ehcache.concurrent;
 
-import java.util.SortedSet;
-import java.util.TreeSet;
+import java.util.Map;
+import java.util.SortedMap;
+import java.util.TreeMap;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import net.sf.ehcache.CacheException;
 
@@ -44,8 +46,8 @@ public class StripedReadWriteLockSync implements CacheLockProvider {
      */
     public  static final int    DEFAULT_NUMBER_OF_MUTEXES = 2048;
 
-    private        final Sync[] mutexes;
-    private        final int    numberOfStripes;
+    private final ReadWriteLockSync[] mutexes;
+    private final int                 numberOfStripes;
 
     /**
      * Constructs a striped mutex with the default 2048 stripes.
@@ -70,7 +72,7 @@ public class StripedReadWriteLockSync implements CacheLockProvider {
         }
 
         this.numberOfStripes = numberOfStripes;
-        mutexes = new Sync[numberOfStripes];
+        mutexes = new ReadWriteLockSync[numberOfStripes];
 
         for (int i = 0; i < numberOfStripes; i++) {
             mutexes[i] = new ReadWriteLockSync();
@@ -85,7 +87,7 @@ public class StripedReadWriteLockSync implements CacheLockProvider {
      * @param key the key
      * @return one of a limited number of Sync's.
      */
-    public Sync getSyncForKey(final Object key) {
+    public ReadWriteLockSync getSyncForKey(final Object key) {
         int lockNumber = ConcurrencyUtil.selectLock(key, numberOfStripes);
         return mutexes[lockNumber];
     }
@@ -94,16 +96,15 @@ public class StripedReadWriteLockSync implements CacheLockProvider {
      * {@inheritDoc}
      */
     public Sync[] getAndWriteLockAllSyncForKeys(Object... keys) {
-        SortedSet<Sync> locks = new TreeSet<Sync>();
-        for (Object key : keys) {
-            locks.add(getSyncForKey(key));
-        }
+        SortedMap<ReadWriteLockSync, AtomicInteger> locks = getLockMap(keys);
 
         Sync[] syncs = new Sync[locks.size()];
         int i = 0;
-        for (Sync lock : locks) {
-          lock.lock(LockType.WRITE);
-          syncs[i++] = lock;
+        for (Map.Entry<ReadWriteLockSync, AtomicInteger> entry : locks.entrySet()) {
+            while (entry.getValue().getAndDecrement() > 0) {
+                entry.getKey().lock(LockType.WRITE);
+            }
+            syncs[i++] = entry.getKey();
         }
         return syncs;
     }
@@ -112,13 +113,25 @@ public class StripedReadWriteLockSync implements CacheLockProvider {
      * {@inheritDoc}
      */
     public void unlockWriteLockForAllKeys(Object... keys) {
-        SortedSet<Sync> locks = new TreeSet<Sync>();
-        for (Object key : keys) {
-            locks.add(getSyncForKey(key));
-        }
+        SortedMap<ReadWriteLockSync, AtomicInteger> locks = getLockMap(keys);
 
-        for (Sync lock : locks) {
-          lock.unlock(LockType.WRITE);
+        for (Map.Entry<ReadWriteLockSync, AtomicInteger> entry : locks.entrySet()) {
+            while (entry.getValue().getAndDecrement() > 0) {
+                entry.getKey().unlock(LockType.WRITE);
+            }
         }
+    }
+
+    private SortedMap<ReadWriteLockSync, AtomicInteger> getLockMap(final Object... keys) {
+        SortedMap<ReadWriteLockSync, AtomicInteger> locks = new TreeMap<ReadWriteLockSync, AtomicInteger>();
+        for (Object key : keys) {
+            ReadWriteLockSync syncForKey = getSyncForKey(key);
+            if (locks.containsKey(syncForKey)) {
+                locks.get(syncForKey).incrementAndGet();
+            } else {
+                locks.put(syncForKey, new AtomicInteger(1));
+            }
+        }
+        return locks;
     }
 }
