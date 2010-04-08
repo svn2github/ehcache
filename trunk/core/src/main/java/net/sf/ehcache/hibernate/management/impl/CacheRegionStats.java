@@ -16,12 +16,14 @@
 
 package net.sf.ehcache.hibernate.management.impl;
 
+import org.apache.commons.beanutils.BeanUtils;
 import org.hibernate.stat.SecondLevelCacheStatistics;
 
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import javax.management.openmbean.CompositeData;
 import javax.management.openmbean.CompositeDataSupport;
@@ -122,13 +124,21 @@ public class CacheRegionStats implements Serializable {
    */
   public CacheRegionStats(String region, SecondLevelCacheStatistics src) {
     this(region);
-    this.hitCount = src.getHitCount();
-    this.missCount = src.getMissCount();
-    this.putCount = src.getPutCount();
+    
+    Map map;
+    try {
+        map = BeanUtils.describe(src);
+    } catch (Exception e) {
+        throw new RuntimeException("Describing SecondLevelCacheStatistics bean", e);
+    }
+    
+    this.hitCount = safeParseInt((String)map.get("hitCount"));
+    this.missCount = safeParseInt((String)map.get("missCount"));
+    this.putCount = safeParseInt((String)map.get("putCount"));
     this.hitRatio = determineHitRatio();
-    this.elementCountInMemory = src.getElementCountInMemory();
-    this.elementCountOnDisk = src.getElementCountOnDisk();
-    this.elementCountTotal = /*src.getElementCountInMemory() +*/ src.getElementCountOnDisk();
+    this.elementCountInMemory = safeParseInt((String)map.get("elementCountInMemory"));
+    this.elementCountOnDisk = safeParseInt((String)map.get("elementCountOnDisk"));
+    this.elementCountTotal = safeParseInt((String)map.get("elementCountOnDisk"));
   }
 
   /**
@@ -145,6 +155,14 @@ public class CacheRegionStats implements Serializable {
     elementCountInMemory = (Long) cData.get(ITEM_NAMES[i++]);
     elementCountOnDisk = (Long) cData.get(ITEM_NAMES[i++]);
     elementCountTotal = (Long) cData.get(ITEM_NAMES[i++]);
+  }
+
+  private static int safeParseInt(String s) {
+      try {
+          return Integer.parseInt(s);
+      } catch (Exception e) {
+          return -1;
+      }
   }
 
   /**

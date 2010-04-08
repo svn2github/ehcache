@@ -16,12 +16,14 @@
 
 package net.sf.ehcache.hibernate.management.impl;
 
+import org.apache.commons.beanutils.BeanUtils;
 import org.hibernate.stat.CollectionStatistics;
 
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import javax.management.openmbean.CompositeData;
 import javax.management.openmbean.CompositeDataSupport;
@@ -112,11 +114,19 @@ public class CollectionStats implements Serializable {
    */
   public CollectionStats(String name, CollectionStatistics src) {
     this(name);
-    this.loadCount = src.getLoadCount();
-    this.fetchCount = src.getFetchCount();
-    this.updateCount = src.getUpdateCount();
-    this.removeCount = src.getRemoveCount();
-    this.recreateCount = src.getRecreateCount();
+
+    Map map;
+    try {
+        map = BeanUtils.describe(src);
+    } catch (Exception e) {
+        throw new RuntimeException("Describing CollectionStatistics bean", e);
+    }
+
+    this.loadCount = safeParseInt((String)map.get("loadCount"));
+    this.fetchCount = safeParseInt((String)map.get("fetchCount"));
+    this.updateCount = safeParseInt((String)map.get("updateCount"));
+    this.removeCount = safeParseInt((String)map.get("removeCount"));
+    this.recreateCount = safeParseInt((String)map.get("recreateCount"));
   }
 
   /**
@@ -133,6 +143,14 @@ public class CollectionStats implements Serializable {
     recreateCount = (Long) cData.get(ITEM_NAMES[i++]);
   }
 
+  private static int safeParseInt(String s) {
+      try {
+          return Integer.parseInt(s);
+      } catch (Exception e) {
+          return -1;
+      }
+  }
+  
   /**
    * @param stats
    */

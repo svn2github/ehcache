@@ -16,12 +16,11 @@
 
 package net.sf.ehcache.hibernate.management.impl;
 
-import org.hibernate.stat.EntityStatistics;
-
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import javax.management.openmbean.CompositeData;
 import javax.management.openmbean.CompositeDataSupport;
@@ -32,6 +31,9 @@ import javax.management.openmbean.SimpleType;
 import javax.management.openmbean.TabularData;
 import javax.management.openmbean.TabularDataSupport;
 import javax.management.openmbean.TabularType;
+
+import org.apache.commons.beanutils.BeanUtils;
+import org.hibernate.stat.EntityStatistics;
 
 /**
  * When we only support Java 6, all of this OpenMBean scaffolding can be removed in favor or MXBeans.
@@ -118,12 +120,20 @@ public class EntityStats implements Serializable {
    */
   public EntityStats(String name, EntityStatistics src) {
     this(name);
-    this.loadCount = src.getLoadCount();
-    this.updateCount = src.getUpdateCount();
-    this.insertCount = src.getInsertCount();
-    this.deleteCount = src.getDeleteCount();
-    this.fetchCount = src.getFetchCount();
-    this.optimisticFailureCount = src.getOptimisticFailureCount();
+    
+    Map map;
+    try {
+        map = BeanUtils.describe(src);
+    } catch (Exception e) {
+        throw new RuntimeException("Describing EntityStatistics bean", e);
+    }
+    
+    this.loadCount = safeParseInt((String)map.get("loadCount"));
+    this.updateCount = safeParseInt((String)map.get("updateCount"));
+    this.insertCount = safeParseInt((String)map.get("insertCount"));
+    this.deleteCount = safeParseInt((String)map.get("deleteCount"));
+    this.fetchCount = safeParseInt((String)map.get("fetchCount"));
+    this.optimisticFailureCount = safeParseInt((String)map.get("optimisticFailureCount"));
   }
 
   /**
@@ -141,6 +151,14 @@ public class EntityStats implements Serializable {
     optimisticFailureCount = (Long) cData.get(ITEM_NAMES[i++]);
   }
 
+  private static int safeParseInt(String s) {
+      try {
+          return Integer.parseInt(s);
+      } catch (Exception e) {
+          return -1;
+      }
+  }
+  
   /**
    * @param stats
    */

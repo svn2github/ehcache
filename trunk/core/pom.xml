@@ -84,6 +84,11 @@
             <version>1.1</version>
             <scope>provided</scope>
         </dependency>
+        <dependency>
+          <groupId>commons-beanutils</groupId>
+          <artifactId>commons-beanutils</artifactId>
+         <version>20030211.134440</version>
+        </dependency>
 
         <!-- Test scope -->
         <dependency>

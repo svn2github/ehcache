@@ -20,6 +20,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import javax.management.openmbean.CompositeData;
 import javax.management.openmbean.CompositeDataSupport;
@@ -31,6 +32,7 @@ import javax.management.openmbean.TabularData;
 import javax.management.openmbean.TabularDataSupport;
 import javax.management.openmbean.TabularType;
 
+import org.apache.commons.beanutils.BeanUtils;
 import org.hibernate.stat.QueryStatistics;
 
 /**
@@ -123,14 +125,22 @@ public class QueryStats implements Serializable {
    */
   public QueryStats(String name, QueryStatistics src) {
     this(name);
-    this.cacheHitCount = src.getCacheHitCount();
-    this.cacheMissCount = src.getCacheMissCount();
-    this.cachePutCount = src.getCachePutCount();
-    this.executionCount = src.getExecutionCount();
-    this.executionRowCount = src.getExecutionRowCount();
-    this.executionAvgTime = src.getExecutionAvgTime();
-    this.executionMaxTime = src.getExecutionMaxTime();
-    this.executionMinTime = src.getExecutionMinTime();
+    
+    Map map;
+    try {
+        map = BeanUtils.describe(src);
+    } catch (Exception e) {
+        throw new RuntimeException("Describing QueryStatistics bean", e);
+    }
+    
+    this.cacheHitCount = safeParseInt((String)map.get("cacheHitCount"));
+    this.cacheMissCount = safeParseInt((String)map.get("cacheMissCount"));
+    this.cachePutCount = safeParseInt((String)map.get("cachePutCount"));
+    this.executionCount = safeParseInt((String)map.get("executionCount"));
+    this.executionRowCount = safeParseInt((String)map.get("executionRowCount"));
+    this.executionAvgTime = safeParseInt((String)map.get("executionAvgTime"));
+    this.executionMaxTime = safeParseInt((String)map.get("executionMaxTime"));
+    this.executionMinTime = safeParseInt((String)map.get("executionMinTime"));
   }
 
   /**
@@ -149,6 +159,14 @@ public class QueryStats implements Serializable {
     executionMinTime = (Long) cData.get(ITEM_NAMES[i++]);
   }
 
+  private static int safeParseInt(String s) {
+      try {
+          return Integer.parseInt(s);
+      } catch (Exception e) {
+          return -1;
+      }
+  }
+  
   /**
    * @param stats
    */
