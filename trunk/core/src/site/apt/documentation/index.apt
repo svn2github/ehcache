@@ -22,6 +22,10 @@ Documentation - Table of Contents
 
     * {{{./cache_eviction_algorithms.html}Cache Eviction Algorithms}}
 
+    * {{{./hibernate.html}Hibernate Caching}}
+
+    * {{{./jdbc.html}JDBC Caching}}
+
     * {{{./samples.html}Code Samples}}
 
     * {{{./class_loading.html}Class loading and Class Loaders}}

@@ -1,3 +1,7 @@
+img {
+  max-width: 650px;
+}
+
 body {
 background: #eeece6;
 margin: 0;
