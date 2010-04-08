@@ -13,16 +13,21 @@ function mouseUpdate(x,y){
 	
 	g("popup").style.left = x +60 +"px";
 	g("popup").style.top = (y-90) +"px";
-	g("popup").style.display = "block";
+	$("#popup").fadeIn(100);
 	
 }
 
 function popupHide(){
-	g("popup").style.display = "none";
+	$("#popup").fadeOut(100);
 	
 	
 }
 
 $('#popup').mouseenter(function() {
-  g("popup").style.display = "none";
+								
+								
+  $("#popup").fadeOut(100);
+  
+  
+  
 });
