@@ -16,6 +16,7 @@
 
 package net.sf.ehcache.constructs.nonstop;
 
+import java.io.Serializable;
 import java.util.List;
 
 import net.sf.ehcache.CacheException;
@@ -40,6 +41,8 @@ public interface NonStopCacheBehavior {
      */
     public Element get(Object key) throws IllegalStateException, CacheException;
 
+    public Element get(final Serializable key) throws IllegalStateException, CacheException;
+
     /**
      * This method is called when the same operation times out in the TimeoutCache
      * 
@@ -49,6 +52,8 @@ public interface NonStopCacheBehavior {
      * @throws CacheException
      */
     public Element getQuiet(Object key) throws IllegalStateException, CacheException;
+
+    public Element getQuiet(final Serializable key) throws IllegalStateException, CacheException;
 
     /**
      * This method is called when the same operation times out in the TimeoutCache
@@ -152,6 +157,10 @@ public interface NonStopCacheBehavior {
      * @throws IllegalStateException
      */
     public boolean remove(Object key) throws IllegalStateException;
+
+    public boolean remove(final Serializable key, final boolean doNotNotifyCacheReplicators) throws IllegalStateException;
+
+    public boolean remove(final Serializable key) throws IllegalStateException;
 
     /**
      * This method is called when the same operation times out in the TimeoutCache

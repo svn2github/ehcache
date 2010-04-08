@@ -16,6 +16,7 @@
 
 package net.sf.ehcache.constructs.nonstop.behavior;
 
+import java.io.Serializable;
 import java.util.List;
 
 import net.sf.ehcache.CacheException;
@@ -29,6 +30,22 @@ public class DirectDelegateBehavior implements NonStopCacheBehavior {
 
     public DirectDelegateBehavior(final Ehcache underlyingCache) {
         this.underlyingCache = underlyingCache;
+    }
+
+    public Element get(Serializable key) throws IllegalStateException, CacheException {
+        return get((Object) key);
+    }
+
+    public Element getQuiet(Serializable key) throws IllegalStateException, CacheException {
+        return getQuiet((Object) key);
+    }
+
+    public boolean remove(Serializable key, boolean doNotNotifyCacheReplicators) throws IllegalStateException {
+        return remove((Object) key, doNotNotifyCacheReplicators);
+    }
+
+    public boolean remove(Serializable key) throws IllegalStateException {
+        return remove((Object) key);
     }
 
     public Element get(final Object key) throws IllegalStateException, CacheException {
@@ -59,8 +76,8 @@ public class DirectDelegateBehavior implements NonStopCacheBehavior {
         return underlyingCache.isValueInCache(value);
     }
 
-    public void put(final Element element, final boolean doNotNotifyCacheReplicators) throws IllegalArgumentException, IllegalStateException,
-            CacheException {
+    public void put(final Element element, final boolean doNotNotifyCacheReplicators) throws IllegalArgumentException,
+            IllegalStateException, CacheException {
         underlyingCache.put(element, doNotNotifyCacheReplicators);
     }
 

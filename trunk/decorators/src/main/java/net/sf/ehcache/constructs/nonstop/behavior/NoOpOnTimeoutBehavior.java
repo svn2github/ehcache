@@ -16,6 +16,7 @@
 
 package net.sf.ehcache.constructs.nonstop.behavior;
 
+import java.io.Serializable;
 import java.util.Collections;
 import java.util.List;
 
@@ -65,6 +66,22 @@ public class NoOpOnTimeoutBehavior implements NonStopCacheBehavior {
      */
     public Element getQuiet(final Object key) throws IllegalStateException, CacheException {
         return null;
+    }
+
+    public Element get(Serializable key) throws IllegalStateException, CacheException {
+        return get((Object) key);
+    }
+
+    public Element getQuiet(Serializable key) throws IllegalStateException, CacheException {
+        return getQuiet((Object) key);
+    }
+
+    public boolean remove(Serializable key, boolean doNotNotifyCacheReplicators) throws IllegalStateException {
+        return remove((Object) key, doNotNotifyCacheReplicators);
+    }
+
+    public boolean remove(Serializable key) throws IllegalStateException {
+        return remove((Object) key);
     }
 
     public List getKeys() throws IllegalStateException, CacheException {

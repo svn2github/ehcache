@@ -33,19 +33,14 @@ public class NonStopCacheExecutorService {
     private static final AtomicInteger DEFAULT_FACTORY_COUNT = new AtomicInteger();
 
     private static final int DEFAULT_THREAD_POOL_SIZE = 10;
-    private static final long DEFAULT_KEEP_ALIVE_TIME_SECS = 10;
     private final ThreadPoolExecutor threadPoolExecutor;
 
     public NonStopCacheExecutorService() {
-        this(DEFAULT_THREAD_POOL_SIZE, DEFAULT_KEEP_ALIVE_TIME_SECS, TimeUnit.SECONDS);
+        this(DEFAULT_THREAD_POOL_SIZE);
     }
 
-    public NonStopCacheExecutorService(final ThreadFactory threadFactory) {
-        this(DEFAULT_THREAD_POOL_SIZE, DEFAULT_KEEP_ALIVE_TIME_SECS, TimeUnit.SECONDS, threadFactory);
-    }
-
-    public NonStopCacheExecutorService(final int threadPoolSize, final long keepAliveTime, final TimeUnit keepAliveTimeUnit) {
-        this(threadPoolSize, keepAliveTime, keepAliveTimeUnit, new ThreadFactory() {
+    public NonStopCacheExecutorService(final int threadPoolSize) {
+        this(threadPoolSize, new ThreadFactory() {
 
             private final AtomicInteger counter = new AtomicInteger();
 
@@ -56,15 +51,18 @@ public class NonStopCacheExecutorService {
         });
     }
 
-    public NonStopCacheExecutorService(final int threadPoolSize, final long keepAliveTime, final TimeUnit keepAliveTimeUnit,
-            final ThreadFactory threadFactory) {
-        threadPoolExecutor = new ThreadPoolExecutor(threadPoolSize, threadPoolSize, keepAliveTime, keepAliveTimeUnit,
+    public NonStopCacheExecutorService(final ThreadFactory threadFactory) {
+        this(DEFAULT_THREAD_POOL_SIZE, threadFactory);
+    }
+
+    public NonStopCacheExecutorService(final int threadPoolSize, final ThreadFactory threadFactory) {
+        // keepAlive time and maxPoolSize is ignored (does not have any effect) as we are using an unbounded work queue
+        threadPoolExecutor = new ThreadPoolExecutor(threadPoolSize, threadPoolSize, Integer.MAX_VALUE, TimeUnit.MILLISECONDS,
                 new LinkedBlockingQueue<Runnable>(), threadFactory);
     }
 
     public <V> V execute(final Callable<V> callable, final long timeoutValueInMillis) throws TimeoutException, CacheException,
             InterruptedException {
-
         V result = null;
         long startTime = System.currentTimeMillis();
         while (true) {

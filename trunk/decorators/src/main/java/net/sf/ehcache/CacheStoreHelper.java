@@ -27,7 +27,7 @@ public class CacheStoreHelper {
     }
 
     public Store getCacheMemoryStore() {
-        return cache.getMemoryStore();
+        return cache.getStore();
     }
 
 }
