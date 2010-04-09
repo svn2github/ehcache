@@ -16,6 +16,19 @@
 
 package net.sf.ehcache.concurrent;
 
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
+import java.util.concurrent.atomic.AtomicInteger;
+
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;
@@ -175,4 +188,155 @@ public class ConcurrentCacheMethodsTest {
             //expected
         }
     }
+    
+    @Test
+    public void testMultiThreadedPutIfAbsent() throws InterruptedException, ExecutionException {
+        final Ehcache cache = this.cache;
+        
+        Callable<Element> putIfAbsent = new Callable<Element>() {
+            public Element call() throws Exception {
+                return cache.putIfAbsent(new Element("key", Long.valueOf(Thread.currentThread().getId())));
+            }
+        };
+        
+        ExecutorService executor = Executors.newFixedThreadPool(4 * Runtime.getRuntime().availableProcessors());
+        try {
+            List<Future<Element>> futures = executor.invokeAll(Collections.nCopies(100, putIfAbsent));
+            
+            boolean seenNull = false;
+            Long threadId = null;
+            for (Future<Element> f : futures) {
+                Element e = f.get();
+                if (e == null) {
+                    Assert.assertFalse(seenNull);
+                    seenNull = true;
+                } else if (threadId == null) {
+                    threadId = (Long) e.getValue();
+                } else {
+                    Assert.assertEquals(threadId, e.getValue());
+                }
+            }
+            Assert.assertTrue(seenNull);
+        } finally {
+            executor.shutdownNow();
+            executor.awaitTermination(60, TimeUnit.SECONDS);
+        }
+    }
+
+    @Test
+    public void testMultiThreadedRemoveElement() throws InterruptedException, ExecutionException, TimeoutException {
+        final Ehcache cache = this.cache;
+        
+        Callable<Void> removeElement = new Callable<Void>() {
+            public Void call() throws Exception {
+                while (!cache.removeElement(new Element("key", "value"))) {
+                    Thread.yield();
+                }
+                return null;
+            }
+        };
+        
+        ExecutorService executor = Executors.newFixedThreadPool(4 * Runtime.getRuntime().availableProcessors());
+        try {
+            executor.submit(new Callable<Void>() {
+                public Void call() throws Exception {
+                    for (int i = 0; i < 100; i++) {
+                        cache.put(new Element("key", "value"));
+                        while (cache.get("key") != null) {
+                            Thread.yield();
+                        }
+                    }
+                    return null;
+                }
+            });
+            
+            List<Future<Void>> futures = executor.invokeAll(Collections.nCopies(100, removeElement));
+            
+            Set<Integer> values = new HashSet<Integer>();
+            for (Future<Void> f : futures) {
+                f.get();
+            }
+            Assert.assertNull(cache.get("key"));
+        } finally {
+            executor.shutdownNow();
+            executor.awaitTermination(60, TimeUnit.SECONDS);
+        }
+    }
+    
+    @Test 
+    public void testMultiThreadedTwoArgReplace() throws InterruptedException, ExecutionException {
+        final Ehcache cache = this.cache;
+        
+        cache.put(new Element("key", Integer.valueOf(0)));
+        
+        Callable<Integer> twoArgReplace = new Callable<Integer>() {
+            private final AtomicInteger index = new AtomicInteger();
+            
+            public Integer call() throws Exception {
+                while (true) {
+                    Element old = cache.get("key");
+                    Element replace = new Element("key", Integer.valueOf(((Integer) old.getObjectValue()).intValue() + 1));
+                    if (cache.replace(old, replace)) {
+                        return (Integer) replace.getObjectValue();
+                    }
+                }
+            }
+        };
+        
+        ExecutorService executor = Executors.newFixedThreadPool(4 * Runtime.getRuntime().availableProcessors());
+        try {
+            List<Future<Integer>> futures = executor.invokeAll(Collections.nCopies(100, twoArgReplace));
+            
+            Set<Integer> values = new HashSet<Integer>();
+            for (Future<Integer> f : futures) {
+                values.add(f.get());
+            }
+            Assert.assertEquals(futures.size(), values.size());
+            Assert.assertTrue(Integer.valueOf(futures.size()).equals(cache.get("key").getObjectValue()));
+        } finally {
+            executor.shutdownNow();
+            executor.awaitTermination(60, TimeUnit.SECONDS);
+        }
+    }
+    
+    @Test
+    public void testMultiThreadedOneArgReplace() throws InterruptedException, ExecutionException {
+        final Ehcache cache = this.cache;
+        
+        cache.put(new Element("key", null));
+        
+        Callable<Element> oneArgReplace = new Callable<Element>() {
+            private final AtomicInteger index = new AtomicInteger();
+            
+            public Element call() throws Exception {
+                return cache.replace(new Element("key", Integer.valueOf(index.getAndIncrement())));
+            }
+        };
+        
+        ExecutorService executor = Executors.newFixedThreadPool(4 * Runtime.getRuntime().availableProcessors());
+        try {
+            List<Future<Element>> futures = executor.invokeAll(Collections.nCopies(100, oneArgReplace));
+            
+            boolean seenNull = false;
+            Long threadId = null;
+            Set<Integer> indices = new HashSet<Integer>();
+            for (Future<Element> f : futures) {
+                Element e = f.get();
+                if (e.getValue() == null) {
+                    Assert.assertFalse(seenNull);
+                    seenNull = true;
+                } else {
+                    indices.add((Integer) e.getObjectValue());
+                }
+            }
+            Assert.assertTrue(seenNull);
+            Assert.assertEquals(futures.size() - 1, indices.size());
+            Assert.assertFalse(indices.contains(cache.get("key").getObjectValue()));
+        } finally {
+            executor.shutdownNow();
+            executor.awaitTermination(60, TimeUnit.SECONDS);
+        }
+    }
+    
+    
 }
