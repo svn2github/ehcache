@@ -1102,27 +1102,6 @@ public class ExplicitLockingCache implements Ehcache {
     }
 
     /**
-     * Put an element in the cache if an element for the key doesn't already exist
-     * 
-     * @param element
-     *            to add to the cache
-     * @return boolean did a put occur
-     */
-    public boolean putIfAbsent(Element element) {
-        try {
-            acquireWriteLockOnKey(element.getKey());
-            if (!isKeyInCache(element.getKey())) {
-                this.put(element);
-                return true;
-            }
-            return false;
-        } finally {
-            releaseWriteLockOnKey(element.getKey());
-        }
-
-    }
-
-    /**
      * {@inheritDoc}
      */
     public void disableDynamicFeatures() {
@@ -1206,5 +1185,34 @@ public class ExplicitLockingCache implements Ehcache {
     public void setTransactionManagerLookup(
             TransactionManagerLookup transactionManagerLookup) {
         cache.setTransactionManagerLookup(transactionManagerLookup);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public Element putIfAbsent(Element element) {
+      return cache.putIfAbsent(element);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public boolean removeElement(Element element) throws NullPointerException {
+      return cache.removeElement(element);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public boolean replace(Element old, Element element)
+        throws NullPointerException, IllegalArgumentException {
+      return cache.replace(old, element);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public Element replace(Element element) throws NullPointerException {
+      return cache.replace(element);
     }
 }
