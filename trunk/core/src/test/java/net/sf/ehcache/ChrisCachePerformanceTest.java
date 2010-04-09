@@ -22,7 +22,7 @@ public class ChrisCachePerformanceTest {
 
     private static final Logger LOG = Logger.getLogger(ChrisCachePerformanceTest.class.getName());
     static {
-        System.setProperty("net.sf.ehcache.use.classic.lru", "true");
+        //System.setProperty("net.sf.ehcache.use.classic.lru", "true");
     }
     
     @Test
@@ -39,10 +39,17 @@ public class ChrisCachePerformanceTest {
 
     @Test
     public void testMultiThreadedPut() throws Exception {
+        testMultiThreadedPut(Math.max(2, Runtime.getRuntime().availableProcessors()));
+    }
+    
+    @Test
+    public void testOverThreadedPut() throws Exception {
+        testMultiThreadedPut(4 * Math.max(2, Runtime.getRuntime().availableProcessors()));
+    }
+    
+    private void testMultiThreadedPut(final int cpuCount) throws Exception {
         final Cache testCache = new Cache(UUID.randomUUID().toString(), 100000, false, true, 0, 0);
         CacheManager.getInstance().addCache(testCache);
-
-        final int cpuCount = Math.max(2, Runtime.getRuntime().availableProcessors());
 
         Future<Double>[] futures = new Future[cpuCount];
         ExecutorService[] executors = new ExecutorService[cpuCount];
@@ -52,7 +59,7 @@ public class ChrisCachePerformanceTest {
             executors[i] = Executors.newSingleThreadExecutor();
             futures[i] = executors[i].submit(new Callable<Double>() {
                 public Double call() {
-                    return testPut("Multi-Threaded Put Test, Partition " + cpu, testCache, 20, cpu, cpuCount);
+                    return testPut("Multi-Threaded Put Test [" + cpuCount + " Threads], Partition " + cpu, testCache, 20, cpu, cpuCount);
                 }
             });
         }
@@ -87,12 +94,19 @@ public class ChrisCachePerformanceTest {
 
     @Test
     public void testMultiThreadedPutAtThreshold() throws Exception {
+        testMultiThreadedPutAtThreshold(Math.max(2, Runtime.getRuntime().availableProcessors()));
+    }
+    
+    @Test
+    public void testOverThreadedPutAtThreshold() throws Exception {
+        testMultiThreadedPutAtThreshold(4 * Math.max(2, Runtime.getRuntime().availableProcessors()));
+    }
+    
+    private void testMultiThreadedPutAtThreshold(final int cpuCount) throws Exception {
         final Cache testCache = new Cache(UUID.randomUUID().toString(), 100000, false, true, 0, 0);
         CacheManager.getInstance().addCache(testCache);
 
         testPut("Warming Cache For Multi-Threaded Threshold Put Test", testCache, 1);
-
-        final int cpuCount = Math.max(2, Runtime.getRuntime().availableProcessors());
 
         Future<Double>[] futures = new Future[cpuCount];
         ExecutorService[] executors = new ExecutorService[cpuCount];
@@ -137,12 +151,19 @@ public class ChrisCachePerformanceTest {
 
     @Test
     public void testMultiThreadedGet() throws Exception {
+        testMultiThreadedGet(Math.max(2, Runtime.getRuntime().availableProcessors()));
+    }
+    
+    @Test
+    public void testOverThreadedGet() throws Exception {
+        testMultiThreadedGet(4 * Math.max(2, Runtime.getRuntime().availableProcessors()));
+    }
+    
+    private void testMultiThreadedGet(final int cpuCount) throws Exception {
         final Cache testCache = new Cache(UUID.randomUUID().toString(), 100000, false, true, 0, 0);
         CacheManager.getInstance().addCache(testCache);
 
         testPut("Warming Cache For Multi-Threaded Get Test", testCache, 1);
-
-        final int cpuCount = Math.max(2, Runtime.getRuntime().availableProcessors());
 
         Future<Double>[] futures = new Future[cpuCount];
         ExecutorService[] executors = new ExecutorService[cpuCount];
