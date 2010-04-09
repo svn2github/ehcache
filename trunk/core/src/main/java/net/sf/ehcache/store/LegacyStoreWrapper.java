@@ -276,6 +276,9 @@ public class LegacyStoreWrapper implements Store {
 
     /**
      * {@inheritDoc}
+     * <p/>
+     * The size is the number of {@link Element}s in the memory store
+     * plus the number of {@link Element}s in the disk store.
      */
     public int getSize() {
         if (disk != null) {

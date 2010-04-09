@@ -400,8 +400,8 @@ public abstract class CompoundStore implements Store {
     }
     
     /**
-     * Remove the matching mapping.  Unlike the {@link Segment#remove(Object, int, Object)} method 
-     * evict does referential comparison of the unretrieved substitute against the argument value.
+     * Remove the matching mapping.  The evict method does referential comparison
+     * of the unretrieved substitute against the argument value.
      * 
      * @param key key to match against
      * @param substitute optional value to match against

@@ -1084,7 +1084,7 @@ public class Cache implements Ehcache {
      *
      * @return the disk store
      */
-    protected Store createDiskStore() {
+    protected DiskStore createDiskStore() {
         if (isDiskStore()) {
             return DiskStore.create(this, diskStorePath);
         } else {
@@ -2060,12 +2060,6 @@ public class Cache implements Ehcache {
 
     /**
      * Gets the size of the cache. This is a subtle concept. See below.
-     * <p/>
-     * The size is the number of {@link Element}s in the {@link import net.sf.ehcache.store.MemoryStore}
-     * plus the number of {@link Element}s in the {@link DiskStore}. However, if
-     * the cache is Terracotta clustered, the underlying store has a coherent
-     * view of the all the elements in the cache and doesn't have to be
-     * aggregated from an underlying {@code MemoryStore} and {@code DiskStore}.
      * <p/>
      * This number is the actual number of elements, including expired elements
      * that have not been removed.

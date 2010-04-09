@@ -23,7 +23,6 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
 import javax.management.openmbean.CompositeData;
 import javax.management.openmbean.CompositeDataSupport;
@@ -125,20 +124,17 @@ public class CacheRegionStats implements Serializable {
   public CacheRegionStats(String region, SecondLevelCacheStatistics src) {
     this(region);
     
-    Map map;
     try {
-        map = BeanUtils.describe(src);
+        this.hitCount = safeParseInt(BeanUtils.getProperty(src, "hitCount"));
+        this.missCount = safeParseInt(BeanUtils.getProperty(src, "missCount"));
+        this.putCount = safeParseInt(BeanUtils.getProperty(src, "putCount"));
+        this.hitRatio = determineHitRatio();
+        this.elementCountInMemory = safeParseInt(BeanUtils.getProperty(src, "elementCountInMemory"));
+        this.elementCountOnDisk = safeParseInt(BeanUtils.getProperty(src, "elementCountOnDisk"));
+        this.elementCountTotal = safeParseInt(BeanUtils.getProperty(src, "elementCountOnDisk"));
     } catch (Exception e) {
-        throw new RuntimeException("Describing SecondLevelCacheStatistics bean", e);
+        throw new RuntimeException("Exception retrieving statistics", e);
     }
-    
-    this.hitCount = safeParseInt((String)map.get("hitCount"));
-    this.missCount = safeParseInt((String)map.get("missCount"));
-    this.putCount = safeParseInt((String)map.get("putCount"));
-    this.hitRatio = determineHitRatio();
-    this.elementCountInMemory = safeParseInt((String)map.get("elementCountInMemory"));
-    this.elementCountOnDisk = safeParseInt((String)map.get("elementCountOnDisk"));
-    this.elementCountTotal = safeParseInt((String)map.get("elementCountOnDisk"));
   }
 
   /**

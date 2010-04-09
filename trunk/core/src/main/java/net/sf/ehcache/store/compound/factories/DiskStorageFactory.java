@@ -347,7 +347,7 @@ abstract class DiskStorageFactory<T extends ElementSubstitute> implements Elemen
     }
 
     /**
-     * {@inheritDoc}
+     * Return {@code true} if the disk write queue is full.
      */
     public boolean bufferFull() {
         return (diskQueue.size() * elementSize) > queueCapacity;
