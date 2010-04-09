@@ -34,8 +34,14 @@ import net.sf.ehcache.constructs.nonstop.behavior.ClusterOfflineBehavior;
 import net.sf.ehcache.constructs.nonstop.behavior.DirectDelegateBehavior;
 import net.sf.ehcache.constructs.nonstop.behavior.ExecutorBehavior;
 import net.sf.ehcache.constructs.nonstop.behavior.NonStopCacheBehaviorResolver;
+import net.sf.ehcache.constructs.nonstop.util.OverrideCheck;
 
 public class NonStopCache extends EhcacheDecoratorAdapter implements NonStopCacheConfig, NonStopCacheBehaviorResolver {
+
+    static {
+        // make sure non-stop cache overrides all methods of NonStopCacheBehavior
+        OverrideCheck.check(NonStopCacheBehavior.class, NonStopCache.class);
+    }
 
     private final NonStopCacheConfig nonStopCacheConfig;
     private final NonStopCacheExecutorService nonStopCacheExecutorService;

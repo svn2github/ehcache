@@ -47,7 +47,7 @@ public enum NonStopCacheBehaviorType {
     /**
      * {@link CacheBehavior} which returns null for get operations and does nothing for put's and remove's
      */
-    NULL_OP_ON_TIMEOUT() {
+    NO_OP_ON_TIMEOUT() {
 
         /**
          * {@inheritDoc}
