@@ -93,6 +93,7 @@ public class NonStopCache extends EhcacheDecoratorAdapter implements NonStopCach
         this.executeWithExecutorBehavior = new ExecutorBehavior(new DirectDelegateBehavior(decoratedCache), nonStopCacheConfig,
                 nonStopCacheExecutorService, this);
         this.clusterOfflineBehavior = new ClusterOfflineBehavior(nonStopCacheConfig, this, executeWithExecutorBehavior);
+        this.nonStopCacheExecutorService.attachCache(this);
     }
 
     public NonStopCacheConfig getNonStopCacheConfig() {

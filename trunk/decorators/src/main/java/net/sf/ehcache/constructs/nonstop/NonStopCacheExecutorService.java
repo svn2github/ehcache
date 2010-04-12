@@ -18,6 +18,7 @@ package net.sf.ehcache.constructs.nonstop;
 
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.ThreadFactory;
@@ -27,13 +28,21 @@ import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import net.sf.ehcache.CacheException;
+import net.sf.ehcache.Ehcache;
+import net.sf.ehcache.Element;
+import net.sf.ehcache.event.CacheEventListener;
 
 public class NonStopCacheExecutorService {
 
     protected static final AtomicInteger DEFAULT_FACTORY_COUNT = new AtomicInteger();
     public static final int DEFAULT_THREAD_POOL_SIZE = 10;
 
-    private final ThreadPoolExecutor threadPoolExecutor;
+    private final ExecutorService executorService;
+    private final AtomicInteger attachedCachesCount = new AtomicInteger();
+    private final DisposeListener disposeListener;
+
+    // shutdown executor service when all attached caches are dispose'd -- by default true
+    private volatile boolean shutdownWhenNoCachesAttached = true;
 
     public NonStopCacheExecutorService() {
         this(DEFAULT_THREAD_POOL_SIZE);
@@ -57,8 +66,16 @@ public class NonStopCacheExecutorService {
 
     public NonStopCacheExecutorService(final int threadPoolSize, final ThreadFactory threadFactory) {
         // keepAlive time and maxPoolSize is ignored (does not have any effect) as we are using an unbounded work queue
-        threadPoolExecutor = new ThreadPoolExecutor(threadPoolSize, threadPoolSize, Integer.MAX_VALUE, TimeUnit.MILLISECONDS,
-                new LinkedBlockingQueue<Runnable>(), threadFactory);
+        this(new ThreadPoolExecutor(threadPoolSize, threadPoolSize, Integer.MAX_VALUE, TimeUnit.MILLISECONDS,
+                new LinkedBlockingQueue<Runnable>(), threadFactory));
+    }
+
+    public NonStopCacheExecutorService(final ExecutorService executorService) {
+        if (executorService == null) {
+            throw new IllegalArgumentException("ExecutorService cannot be null");
+        }
+        this.executorService = executorService;
+        this.disposeListener = new DisposeListener();
     }
 
     public <V> V execute(final Callable<V> callable, final long timeoutValueInMillis) throws TimeoutException, CacheException,
@@ -67,7 +84,7 @@ public class NonStopCacheExecutorService {
         long startTime = System.currentTimeMillis();
         while (true) {
             try {
-                result = threadPoolExecutor.submit(callable).get(timeoutValueInMillis, TimeUnit.MILLISECONDS);
+                result = executorService.submit(callable).get(timeoutValueInMillis, TimeUnit.MILLISECONDS);
                 break;
             } catch (InterruptedException e) {
                 // XXX: do something here?
@@ -89,5 +106,61 @@ public class NonStopCacheExecutorService {
             }
         }
         return result;
+    }
+
+    public void attachCache(Ehcache cache) {
+        cache.getCacheEventNotificationService().registerListener(disposeListener);
+        attachedCachesCount.incrementAndGet();
+    }
+
+    private void attachedCacheDisposed() {
+        if (attachedCachesCount.decrementAndGet() == 0 && shutdownWhenNoCachesAttached) {
+            executorService.shutdown();
+        }
+    }
+
+    public void setShutdownWhenNoCachesAttached(boolean shutdownWhenNoCachesAttached) {
+        this.shutdownWhenNoCachesAttached = shutdownWhenNoCachesAttached;
+    }
+
+    // package protected method -- used for testing only
+    ExecutorService getExecutorService() {
+        return this.executorService;
+    }
+
+    private class DisposeListener implements CacheEventListener {
+
+        public void dispose() {
+            attachedCacheDisposed();
+        }
+
+        @Override
+        public Object clone() throws CloneNotSupportedException {
+            throw new CloneNotSupportedException();
+        }
+
+        public void notifyElementEvicted(Ehcache cache, Element element) {
+            // no-op
+        }
+
+        public void notifyElementExpired(Ehcache cache, Element element) {
+            // no-op
+        }
+
+        public void notifyElementPut(Ehcache cache, Element element) throws CacheException {
+            // no-op
+        }
+
+        public void notifyElementRemoved(Ehcache cache, Element element) throws CacheException {
+            // no-op
+        }
+
+        public void notifyElementUpdated(Ehcache cache, Element element) throws CacheException {
+            // no-op
+        }
+
+        public void notifyRemoveAll(Ehcache cache) {
+            // no-op
+        }
     }
 }
