@@ -352,7 +352,9 @@ public class DiskPersistentStorageFactory extends DiskStorageFactory<ElementSubs
         return onDisk.get();
     }
 
-
+    /**
+     * Set the maximum on-disk capacity for this factory.
+     */
     public void setOnDiskCapacity(int capacity) {
         diskCapacity = capacity;
     }

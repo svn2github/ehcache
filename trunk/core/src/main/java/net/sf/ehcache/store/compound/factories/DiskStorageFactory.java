@@ -376,6 +376,9 @@ abstract class DiskStorageFactory<T extends ElementSubstitute> implements Elemen
             this.placeholder = p;
         }
 
+        /**
+         * Return the placeholder that this task will write.
+         */
         Placeholder getPlaceholder() {
             return placeholder;
         }

@@ -599,18 +599,30 @@ public class LruMemoryStore implements Store {
         setEvictionPolicy(policy);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public Element putIfAbsent(Element element) throws NullPointerException {
         throw new UnsupportedOperationException();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public Element removeElement(Element element) throws NullPointerException {
         throw new UnsupportedOperationException();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public boolean replace(Element old, Element element) throws NullPointerException, IllegalArgumentException {
         throw new UnsupportedOperationException();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public Element replace(Element element) throws NullPointerException {
         throw new UnsupportedOperationException();
     }

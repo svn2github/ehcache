@@ -19,8 +19,6 @@ package net.sf.ehcache;
 import net.sf.ehcache.bootstrap.BootstrapCacheLoader;
 import net.sf.ehcache.bootstrap.BootstrapCacheLoaderFactory;
 import net.sf.ehcache.concurrent.CacheLockProvider;
-import net.sf.ehcache.concurrent.LockType;
-import net.sf.ehcache.concurrent.Sync;
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.CacheWriterConfiguration;
 import net.sf.ehcache.config.DiskStoreConfiguration;

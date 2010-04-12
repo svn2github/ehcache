@@ -444,6 +444,9 @@ public class LegacyStoreWrapper implements Store {
         return memory;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public Element putIfAbsent(Element element) throws NullPointerException {
         Sync lock = sync.getSyncForKey(element.getObjectKey());
         
@@ -459,6 +462,9 @@ public class LegacyStoreWrapper implements Store {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public Element removeElement(Element element) throws NullPointerException {
         Sync lock = sync.getSyncForKey(element.getObjectKey());
         
@@ -475,6 +481,9 @@ public class LegacyStoreWrapper implements Store {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public boolean replace(Element old, Element element) throws NullPointerException, IllegalArgumentException {
         Sync lock = sync.getSyncForKey(old.getObjectKey());
         
@@ -492,6 +501,9 @@ public class LegacyStoreWrapper implements Store {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public Element replace(Element element) throws NullPointerException {
         Sync lock = sync.getSyncForKey(element.getObjectKey());
         
