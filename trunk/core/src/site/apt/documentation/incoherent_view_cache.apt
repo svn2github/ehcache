@@ -7,7 +7,8 @@
 
 
     <<<IncoherentViewCache>>> is a {{{./cache_decorators}decorated cache}} which provides an incoherent view
-    of a Terracotta coherent cache.
+    of a Terracotta coherent cache.  Note that this view is only going to give incoherent reads to the underlying
+     cache and not writes. Writes are going to be either coherent or incoherent depending on the underlying cache. 
 
     You can have this and have the underlying coherent cache at the same time.  The IncoherentViewCache is placed
     in the CacheManager under its own name so that it can be separately referenced.
@@ -19,9 +20,10 @@
 
     Note: The features in this cache may evolve over time.
 
-*   Creating an  IncoherentViewCache
 
-**  Programmatically
+
+
+*   Creating an  IncoherentViewCache
 
 ---
     Cache cache = cacheManager.getCache("existingUndecoratedCache");
@@ -29,20 +31,3 @@
     cacheManager.addCache(incoherentViewCache);  //adds an Ehcache
 ---
 
-**  In ehcache.xml
-
----
-
-    NOTE: cacheDecoratorFactory needs to be written!
-
-    <cache name="sample/DistributedCache3"
-           maxElementsInMemory="10"
-           eternal="false"
-           timeToIdleSeconds="100"
-           timeToLiveSeconds="100"
-           overflowToDisk="true">
-        <cacheDecoratorFactory
-                class="net.sf.ehcache.terracotta.IncoherentCacheFactory"
-                properties="failFast=true, localReadsOnDisconnect=true ..."/>
-    </cache>
----
