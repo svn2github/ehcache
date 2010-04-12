@@ -25,24 +25,23 @@ import net.sf.ehcache.Element;
 import net.sf.ehcache.constructs.EhcacheDecoratorAdapter;
 import net.sf.ehcache.statistics.LiveCacheStatisticsData;
 import net.sf.ehcache.store.Store;
-
-import org.terracotta.modules.ehcache.store.ClusteredStore;
+import net.sf.ehcache.store.UnsafeStore;
 
 public class IncoherentViewCache extends EhcacheDecoratorAdapter {
 
     private final String viewName;
-    private final ClusteredStore clusteredStore;
+    private final UnsafeStore unsafeStore;
     private final LiveCacheStatisticsData liveCacheStatisticsData;
 
     public IncoherentViewCache(final Cache decoratedCache, final String incoherentViewName) {
         super(decoratedCache);
         this.viewName = incoherentViewName;
         Store store = new CacheStoreHelper(decoratedCache).getStore();
-        if (!(store instanceof ClusteredStore)) {
+        if (!(store instanceof UnsafeStore)) {
             throw new IllegalArgumentException(IncoherentViewCache.class.getName()
                     + " can be used to decorate caches clustered with Terracotta only.");
         }
-        this.clusteredStore = (ClusteredStore) store;
+        this.unsafeStore = (UnsafeStore) store;
         this.liveCacheStatisticsData = (LiveCacheStatisticsData) decoratedCache.getLiveCacheStatistics();
     }
 
@@ -97,9 +96,9 @@ public class IncoherentViewCache extends EhcacheDecoratorAdapter {
     private Element getFromStoreWithExpiryCheck(final Object key, final boolean updateStats, final boolean notifyListeners) {
         Element element = null;
         if (updateStats) {
-            element = clusteredStore.unlockedGet(key);
+            element = unsafeStore.unlockedGet(key);
         } else {
-            element = clusteredStore.unlockedGetQuiet(key);
+            element = unsafeStore.unlockedGetQuiet(key);
         }
 
         if (element != null) {
@@ -107,7 +106,7 @@ public class IncoherentViewCache extends EhcacheDecoratorAdapter {
                 if (updateStats) {
                     liveCacheStatisticsData.cacheMissExpired();
                 }
-                element = clusteredStore.remove(key);
+                element = unsafeStore.remove(key);
                 if (notifyListeners) {
                     getCacheEventNotificationService().notifyElementExpiry(element, false);
                 }

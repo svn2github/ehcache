@@ -27,24 +27,23 @@ import net.sf.ehcache.CacheStoreHelper;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.constructs.nonstop.NonStopCacheBehavior;
 import net.sf.ehcache.store.Store;
-
-import org.terracotta.modules.ehcache.store.ClusteredStore;
+import net.sf.ehcache.store.UnsafeStore;
 
 public class LocalReadsBehavior implements NonStopCacheBehavior {
 
-    private final ClusteredStore clusteredStore;
+    private final UnsafeStore unsafeStore;
 
     public LocalReadsBehavior(Cache cache) {
         Store store = new CacheStoreHelper(cache).getStore();
-        if (!(store instanceof ClusteredStore)) {
+        if (!(store instanceof UnsafeStore)) {
             throw new IllegalArgumentException(LocalReadsBehavior.class.getName()
                     + " can be only be used with Terracotta clustered caches.");
         }
-        this.clusteredStore = (ClusteredStore) store;
+        this.unsafeStore = (UnsafeStore) store;
     }
 
     public Element get(Object key) throws IllegalStateException, CacheException {
-        return clusteredStore.unsafeGet(key, false);
+        return unsafeStore.unsafeGet(key);
     }
 
     public Element get(Serializable key) throws IllegalStateException, CacheException {
@@ -52,7 +51,7 @@ public class LocalReadsBehavior implements NonStopCacheBehavior {
     }
 
     public List getKeys() throws IllegalStateException, CacheException {
-        return Arrays.asList(clusteredStore.getKeyArray());
+        return Arrays.asList(unsafeStore.getKeyArray());
     }
 
     public List getKeysNoDuplicateCheck() throws IllegalStateException {
@@ -74,7 +73,7 @@ public class LocalReadsBehavior implements NonStopCacheBehavior {
     }
 
     public Element getQuiet(Object key) throws IllegalStateException, CacheException {
-        return clusteredStore.unsafeGet(key, true);
+        return unsafeStore.unsafeGetQuiet(key);
     }
 
     public Element getQuiet(Serializable key) throws IllegalStateException, CacheException {

@@ -78,7 +78,7 @@ public class NonStopCache extends EhcacheDecoratorAdapter implements NonStopCach
             private final AtomicInteger count = new AtomicInteger();
 
             public Thread newThread(final Runnable runnable) {
-                return new Thread(runnable, "NonStopCache [" + decoratedCache.getName() + "] Thread-" + count.incrementAndGet());
+                return new Thread(runnable, "NonStopCache [" + decoratedCache.getName() + "] Executor Thread-" + count.incrementAndGet());
             }
         }));
     }
@@ -88,8 +88,8 @@ public class NonStopCache extends EhcacheDecoratorAdapter implements NonStopCach
         super(decoratedCache);
         this.nonStopCacheConfig = nonStopCacheConfig;
         this.nonStopCacheExecutorService = nonStopCacheExecutorService;
-        this.timeoutBehaviors = new ConcurrentHashMap<NonStopCacheBehaviorType, NonStopCacheBehavior>();
         this.cacheCluster = decoratedCache.getCacheManager().getCluster(ClusterScheme.TERRACOTTA);
+        this.timeoutBehaviors = new ConcurrentHashMap<NonStopCacheBehaviorType, NonStopCacheBehavior>();
         this.executeWithExecutorBehavior = new ExecutorBehavior(new DirectDelegateBehavior(decoratedCache), nonStopCacheConfig,
                 nonStopCacheExecutorService, this);
         this.clusterOfflineBehavior = new ClusterOfflineBehavior(nonStopCacheConfig, this, executeWithExecutorBehavior);

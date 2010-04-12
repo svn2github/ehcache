@@ -30,9 +30,9 @@ import net.sf.ehcache.CacheException;
 
 public class NonStopCacheExecutorService {
 
-    private static final AtomicInteger DEFAULT_FACTORY_COUNT = new AtomicInteger();
+    protected static final AtomicInteger DEFAULT_FACTORY_COUNT = new AtomicInteger();
+    public static final int DEFAULT_THREAD_POOL_SIZE = 10;
 
-    private static final int DEFAULT_THREAD_POOL_SIZE = 10;
     private final ThreadPoolExecutor threadPoolExecutor;
 
     public NonStopCacheExecutorService() {
@@ -46,7 +46,7 @@ public class NonStopCacheExecutorService {
 
             public Thread newThread(final Runnable runnable) {
                 return new Thread(runnable, "Default " + NonStopCacheExecutorService.class.getName() + "-"
-                        + DEFAULT_FACTORY_COUNT.incrementAndGet() + " Thread-" + counter.incrementAndGet());
+                        + DEFAULT_FACTORY_COUNT.incrementAndGet() + " Executor Thread-" + counter.incrementAndGet());
             }
         });
     }
