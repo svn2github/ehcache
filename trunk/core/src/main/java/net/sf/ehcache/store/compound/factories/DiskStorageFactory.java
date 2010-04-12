@@ -376,6 +376,10 @@ abstract class DiskStorageFactory<T extends ElementSubstitute> implements Elemen
             this.placeholder = p;
         }
 
+        Placeholder getPlaceholder() {
+            return placeholder;
+        }
+        
         /**
          * {@inheritDoc}
          */

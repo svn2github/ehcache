@@ -157,8 +157,7 @@ public final class DiskPersistentStore extends CompoundStore implements CacheCon
      * {@inheritDoc}
      */
     public void diskCapacityChanged(int oldCapacity, int newCapacity) {
-        // TODO Auto-generated method stub
-        
+        disk.setOnDiskCapacity(newCapacity);
     }
 
     /**

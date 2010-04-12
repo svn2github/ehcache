@@ -84,6 +84,47 @@ public interface Store {
     void removeAll() throws CacheException;
 
     /**
+     * Put an element in the store if no element is currently mapped to the elements key.
+     * 
+     * @param element element to be added
+     * @return the element previously cached for this key, or null if none.
+     * 
+     * @throws NullPointerException if the element is null, or has a null key
+     */
+    Element putIfAbsent(Element element) throws NullPointerException;
+    
+    /**
+     * Remove the Element mapped to the key for the supplied element if the value of the supplied Element
+     * is equal to the value of the cached Element.
+     * 
+     * @param element Element to be removed
+     * @return the Element removed or null if no Element was removed
+     * 
+     * @throws NullPointerException if the element is null, or has a null key
+     */
+    Element removeElement(Element element) throws NullPointerException;
+
+    /**
+     * Replace the cached element only if the value of the current Element is equal to the value of the
+     * supplied old Element.
+     * 
+     * @param old Element to be test against
+     * @param element Element to be cached
+     * @return true is the Element was replaced
+     * @throws NullPointerException if the either Element is null or has a null key
+     * @throws IllegalArgumentException if the two Element keys are non-null but not equal
+     */
+    boolean replace(Element old, Element element) throws NullPointerException, IllegalArgumentException;
+
+    /**
+     * Replace the cached element only if an Element is currently cached for this key
+     * @param element Element to be cached
+     * @return the Element previously cached for this key, or null if no Element was cached
+     * @throws NullPointerException if the Element is null or has a null key
+     */
+    Element replace(Element element) throws NullPointerException;
+    
+    /**
      * Prepares for shutdown.
      */
     void dispose();

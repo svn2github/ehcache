@@ -182,7 +182,7 @@ public class Cache implements Ehcache {
     private volatile CacheConfiguration configuration;
 
     /**
-     * The {@link import net.sf.ehcache.store.MemoryStore} of this {@link Cache}. All caches have a memory store.
+     * The {@link import net.sf.ehcache.store.Store} of this {@link Cache}.
      */
     private volatile Store compoundStore;
     private volatile CacheLockProvider lockProvider;
@@ -632,7 +632,7 @@ public class Cache implements Ehcache {
      * @param bootstrapCacheLoader      the BootstrapCacheLoader to use to populate the cache when it is first initialised. Null if none is required.
      * @param maxElementsOnDisk         the maximum number of Elements to allow on the disk. 0 means unlimited.
      * @param diskSpoolBufferSizeMB     the amount of memory to allocate the write buffer for puts to the DiskStore.
-     * @param clearOnFlush              whether the MemoryStore should be cleared when {@link #flush flush()} is called on the cache
+     * @param clearOnFlush              whether the in-memory storage should be cleared when {@link #flush flush()} is called on the cache
      * @since 1.6.0
      * @see #Cache(CacheConfiguration, RegisteredEventListeners, BootstrapCacheLoader) Cache(CacheConfiguration, RegisteredEventListeners, BootstrapCacheLoader),
      * for full construction support of version 2.0 and higher features.
@@ -694,7 +694,7 @@ public class Cache implements Ehcache {
      * @param bootstrapCacheLoader      the BootstrapCacheLoader to use to populate the cache when it is first initialised. Null if none is required.
      * @param maxElementsOnDisk         the maximum number of Elements to allow on the disk. 0 means unlimited.
      * @param diskSpoolBufferSizeMB     the amount of memory to allocate the write buffer for puts to the DiskStore.
-     * @param clearOnFlush              whether the MemoryStore should be cleared when {@link #flush flush()} is called on the cache
+     * @param clearOnFlush              whether the in-memory storage should be cleared when {@link #flush flush()} is called on the cache
      * @param isTerracottaClustered     whether to cluster this cache with Terracotta
      * @param terracottaValueMode       either "SERIALIZATION" or "IDENTITY" mode, only used if isTerracottaClustered=true
      * @param terracottaCoherentReads   whether this cache should use coherent reads (usually should be true) unless optimizing for read-only
@@ -934,9 +934,9 @@ public class Cache implements Ehcache {
     }
 
     /**
-     * Newly created caches do not have a {@link net.sf.ehcache.store.MemoryStore} or a {@link net.sf.ehcache.store.DiskStore}.
+     * Newly created caches do not have a {@link net.sf.ehcache.store.Store}.
      * <p/>
-     * This method creates those and makes the cache ready to accept elements
+     * This method creates the store and makes the cache ready to accept elements
      */
     public void initialise() {
         synchronized (this) {
@@ -1683,7 +1683,7 @@ public class Cache implements Ehcache {
         if (element != null) {
             if (isExpired(element)) {
                 if (LOG.isDebugEnabled()) {
-                    LOG.debug(configuration.getName() + " Memory cache hit, but element expired");
+                    LOG.debug(configuration.getName() + " cache hit, but element expired");
                 }
                 if (!quiet) {
                     liveCacheStatisticsData.cacheMissExpired();
@@ -1693,12 +1693,12 @@ public class Cache implements Ehcache {
             } else if (!quiet) {
                 element.updateAccessStatistics();
                 if (LOG.isDebugEnabled()) {
-                    LOG.debug(getName() + "Cache: " + getName() + "MemoryStore hit for " + key);
+                    LOG.debug(getName() + "Cache: " + getName() + " store hit for " + key);
                 }
                 liveCacheStatisticsData.cacheHitInMemory();
             }
         } else if (LOG.isDebugEnabled()) {
-            LOG.debug(getName() + "Cache: " + getName() + "MemoryStore miss for " + key);
+            LOG.debug(getName() + "Cache: " + getName() + " store miss for " + key);
         }
         return element;
     }
@@ -1908,7 +1908,6 @@ public class Cache implements Ehcache {
         boolean removed = false;
         boolean removeNotified = false;
 
-        //Elements may be in both places. Always notify the MemoryStore version if there are two
         if (elementFromStore != null) {
             if (expiry) {
                 //always notify expire which is lazy regardless of the removeQuiet
@@ -2964,7 +2963,7 @@ public class Cache implements Ehcache {
     }
 
     /**
-     * @return the current MemoryStore policy. This may not be the configured policy, if it has been
+     * @return the current in-memory eviction policy. This may not be the configured policy, if it has been
      *         dynamically set.
      */
     public Policy getMemoryStoreEvictionPolicy() {
@@ -3163,53 +3162,57 @@ public class Cache implements Ehcache {
      * {@inheritDoc}
      */
     public Element putIfAbsent(Element element) throws NullPointerException {
+        checkStatus();
+        
         if (element.getObjectKey() == null) {
             throw new NullPointerException();
         }
         
-        Sync s = getSyncForElement(element);
-        
-        s.lock(LockType.WRITE);
-        try {
-            Element e = getQuiet(element.getObjectKey());
-            if (e == null) {
-                put(element);
-            }
-            return e;
-        } finally {
-            s.unlock(LockType.WRITE);
+        if (disabled) {
+            return null;
         }
+
+        //this guard currently ensures reasonable behavior on expiring elements
+        getQuiet(element.getObjectKey());
+
+        element.resetAccessStatistics();
+        applyDefaultsToElementWithoutLifespanSet(element);
+        backOffIfDiskSpoolFull();
+
+        Element result = compoundStore.putIfAbsent(element);
+        if (result == null) {
+            notifyPutInternalListeners(element, false, false);
+        }
+        return result;
     }
 
     /**
      * {@inheritDoc}
      */
     public boolean removeElement(Element element) throws NullPointerException {
+        checkStatus();
+        
         if (element.getObjectKey() == null) {
             throw new NullPointerException();
         }
         
-        Sync s = getSyncForElement(element);
-        
-        s.lock(LockType.WRITE);
-        try {
-            Element e = getQuiet(element.getObjectKey());
-            if (fullElementEquals(element, e)) {
-                remove(e.getObjectKey());
-                return true;
-            } else {
-                return false;
-            }
-        } finally {
-            s.unlock(LockType.WRITE);
+        if (disabled) {
+            return false;
         }
+
+        //this guard currently ensures reasonable behavior on expiring elements
+        getQuiet(element.getObjectKey());
+
+        Element result = compoundStore.removeElement(element);
+        notifyRemoveInternalListeners(element.getObjectKey(), false, true, false, result);
+        return result != null;
     }
 
     /**
      * {@inheritDoc}
      */
     public boolean replace(Element old, Element element) throws NullPointerException, IllegalArgumentException {
-        Sync s = getSyncForElement(element);
+        checkStatus();
         
         if (old.getObjectKey() == null || element.getObjectKey() == null) {
             throw new NullPointerException();
@@ -3218,59 +3221,50 @@ public class Cache implements Ehcache {
             throw new IllegalArgumentException("The keys for the element arguments to replace must be equal");
         }
         
-        s.lock(LockType.WRITE);
-        try {
-            Element e = getQuiet(old.getObjectKey());
-            if (fullElementEquals(old, e)) {
-                put(element);
-                return true;
-            } else {
-                return false;
-            }
-        } finally {
-            s.unlock(LockType.WRITE);
+        if (disabled) {
+            return false;
         }
+
+        getQuiet(old.getObjectKey());
+
+        element.resetAccessStatistics();
+        applyDefaultsToElementWithoutLifespanSet(element);
+        backOffIfDiskSpoolFull();
+
+        boolean result = compoundStore.replace(old, element);
+        
+        if (result) {
+            element.updateUpdateStatistics();
+            notifyPutInternalListeners(element, false, true);
+        }
+        return result;
     }
 
     /**
      * {@inheritDoc}
      */
     public Element replace(Element element) throws NullPointerException {
+        checkStatus();
+        
         if (element.getObjectKey() == null) {
             throw new NullPointerException();
         }
         
-        Sync s = getSyncForElement(element);
-        
-        s.lock(LockType.WRITE);
-        try {
-            Element e = getQuiet(element.getObjectKey());
-            if (e != null) {
-                put(element);
-            }
-            return e;
-        } finally {
-            s.unlock(LockType.WRITE);
+        if (disabled) {
+            return null;
         }
-    }
-    
-    private Sync getSyncForElement(Element e) {
-        if (lockProvider == null) {
-            throw new UnsupportedOperationException("This store does not support locked operations");
-        } else {
-            return lockProvider.getSyncForKey(e.getObjectKey());
+
+        getQuiet(element.getObjectKey());
+
+        element.resetAccessStatistics();
+        applyDefaultsToElementWithoutLifespanSet(element);
+        backOffIfDiskSpoolFull();
+
+        Element result = compoundStore.replace(element);
+        if (result != null) {
+            element.updateUpdateStatistics();
+            notifyPutInternalListeners(element, false, true);
         }
-    }
-    
-    private static boolean fullElementEquals(Element e1, Element e2) {
-        if (e1.equals(e2)) {
-            if (e1.getObjectValue() == null) {
-                return e2.getObjectValue() == null;
-            } else {
-                return e1.getObjectValue().equals(e2.getObjectValue());
-            }
-        } else {
-            return false;
-        }
-    }
+        return result;
+    }    
 }

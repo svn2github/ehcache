@@ -281,7 +281,7 @@ class Segment extends ReentrantReadWriteLock {
                 for (int i = 0; i < len; i++) {
                     for (HashEntry e = tab[i]; e != null; e = e.next) {
                         Element element = decode(e.key, e.getElement());
-                        if (value.equals(element)) {
+                        if (fullElementEquals(value, element)) {
                             return true;
                         }
                     }
@@ -314,7 +314,7 @@ class Segment extends ReentrantReadWriteLock {
             }
 
             boolean replaced = false;
-            if (e != null && oldElement.equals(decode(e.key, e.getElement()))) {
+            if (e != null && fullElementEquals(oldElement, decode(e.key, e.getElement()))) {
                 replaced = true;
                 /*
                  * make sure we re-get from the HashEntry - since the decode in the conditional
@@ -573,7 +573,7 @@ class Segment extends ReentrantReadWriteLock {
 
             Element oldValue = null;
             if (e != null) {
-                if (value == null || value.equals(decode(e.key, e.getElement()))) {
+                if (value == null || fullElementEquals(value, decode(e.key, e.getElement()))) {
                     // All entries following removed node can stay
                     // in list, but all preceding ones need to be
                     // cloned.
@@ -825,6 +825,24 @@ class Segment extends ReentrantReadWriteLock {
             }
             Segment.this.remove(lastReturned.key, lastReturned.hash, null);
             lastReturned = null;
+        }
+    }
+    
+    private static boolean fullElementEquals(Object o1, Object o2) {
+        if (o1 instanceof Element && o2 instanceof Element) {
+            Element e1 = (Element) o1;
+            Element e2 = (Element) o2;
+            if (e1.equals(e2)) {
+                if (e1.getObjectValue() == null) {
+                    return e2.getObjectValue() == null;
+                } else {
+                    return e1.getObjectValue().equals(e2.getObjectValue());
+                }
+            } else {
+                return false;
+            }
+        } else {
+            return o1.equals(o2);
         }
     }
 }

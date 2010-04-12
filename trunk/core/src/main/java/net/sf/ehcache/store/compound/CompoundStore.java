@@ -372,13 +372,29 @@ public abstract class CompoundStore implements Store {
         throw new UnsupportedOperationException();
     }
 
-    /**
-     * New putIfAbsent method for store - this needs to be exposed on the cache too...
-     */
-    public Element putIfAbsent(Element element) {
+
+    public Element putIfAbsent(Element element) throws NullPointerException {
         Object key = element.getObjectKey();
         int hash = hash(key.hashCode());
         return segmentFor(hash).put(key, hash, element, true);
+    }
+
+    public Element removeElement(Element element) throws NullPointerException {
+        Object key = element.getObjectKey();
+        int hash = hash(key.hashCode());
+        return segmentFor(hash).remove(key, hash, element);
+    }
+
+    public boolean replace(Element old, Element element) throws NullPointerException, IllegalArgumentException {
+        Object key = element.getObjectKey();
+        int hash = hash(key.hashCode());
+        return segmentFor(hash).replace(key, hash, old, element);
+    }
+
+    public Element replace(Element element) throws NullPointerException {
+        Object key = element.getObjectKey();
+        int hash = hash(key.hashCode());
+        return segmentFor(hash).replace(key, hash, element);
     }
     
     /**

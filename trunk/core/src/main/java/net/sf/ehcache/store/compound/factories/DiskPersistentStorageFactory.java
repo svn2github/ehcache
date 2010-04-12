@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
+import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
@@ -40,6 +41,7 @@ import net.sf.ehcache.Element;
 import net.sf.ehcache.store.compound.CompoundStore;
 import net.sf.ehcache.store.compound.ElementSubstitute;
 import net.sf.ehcache.store.compound.ElementSubstituteFilter;
+import net.sf.ehcache.store.compound.factories.DiskStorageFactory.DiskSubstitute;
 
 /**
  * This will be the disk-persistent element substitute factory
@@ -50,9 +52,10 @@ public class DiskPersistentStorageFactory extends DiskStorageFactory<ElementSubs
 
     private static final Logger LOG = LoggerFactory.getLogger(DiskPersistentStorageFactory.class);
     private static final int MAX_EVICT = 5;
+    private static final int SAMPLE_SIZE = 30;
     
     private final ElementSubstituteFilter<ElementSubstitute> inMemoryFilter = new InMemoryFilter();
-    private final ElementSubstituteFilter<ElementSubstitute> onDiskFilter = new OnDiskFilter();
+    private final ElementSubstituteFilter<DiskSubstitute> onDiskFilter = new OnDiskFilter();
     
     private final AtomicInteger inMemory = new AtomicInteger();
     private final AtomicInteger onDisk = new AtomicInteger();
@@ -61,6 +64,8 @@ public class DiskPersistentStorageFactory extends DiskStorageFactory<ElementSubs
     
     private final IndexWriteTask flushTask;
 
+    private volatile int diskCapacity;
+    
     /**
      * Constructs an disk persistent factory for the given cache and disk path.
      * 
@@ -73,7 +78,7 @@ public class DiskPersistentStorageFactory extends DiskStorageFactory<ElementSubs
         
         indexFile = new File(getDataFile().getParentFile(), getIndexFileName(cache));
         flushTask = new IndexWriteTask(indexFile);
-        
+
         if (!getDataFile().exists() || (getDataFile().length() == 0)) {
             LOG.debug("Matching data file missing (or empty) for index file. Deleting index file " + indexFile);
             indexFile.delete();
@@ -83,7 +88,9 @@ public class DiskPersistentStorageFactory extends DiskStorageFactory<ElementSubs
                         + "Deleting index file {}", getDataFile(), indexFile);
                 indexFile.delete();
             }
-        }        
+        }
+
+        diskCapacity = cache.getCacheConfiguration().getMaxElementsOnDisk();
     }
 
     private static File getDataFile(String diskPath, Ehcache cache) {
@@ -299,7 +306,7 @@ public class DiskPersistentStorageFactory extends DiskStorageFactory<ElementSubs
     /**
      * Filters for on-disk elements created by this factory
      */
-    private class OnDiskFilter implements ElementSubstituteFilter<ElementSubstitute> {
+    private class OnDiskFilter implements ElementSubstituteFilter<DiskSubstitute> {
 
         /**
          * {@inheritDoc}
@@ -345,6 +352,33 @@ public class DiskPersistentStorageFactory extends DiskStorageFactory<ElementSubs
         return onDisk.get();
     }
 
+
+    public void setOnDiskCapacity(int capacity) {
+        diskCapacity = capacity;
+    }
+    
+    private void onDiskEvict(int n, Object keyHint) {
+        for (int i = 0; i < n; i++) {
+            DiskSubstitute target = getDiskEvictionTarget(keyHint);
+            if (target == null) {
+                continue;
+            } else {
+                store.evict(target.getKey(), target);
+            }
+        }
+    }
+    
+    private DiskSubstitute getDiskEvictionTarget(Object keyHint) {
+        List<DiskStorageFactory.DiskSubstitute> sample = store.getRandomSample(onDiskFilter, SAMPLE_SIZE, keyHint);
+        DiskSubstitute target = null;
+        for (DiskSubstitute substitute : sample) {
+            if ((target == null) || (substitute.getHitCount() < target.getHitCount())) {
+                target = substitute;
+            }
+        }
+        return target;
+    }
+
     /**
      * Placeholder implementation for disk persistent stores.
      */
@@ -381,7 +415,13 @@ public class DiskPersistentStorageFactory extends DiskStorageFactory<ElementSubs
         public Boolean call() {
             Boolean result = super.call();
             //don't want to increment on exception throw
-            onDisk.incrementAndGet();
+            int size = onDisk.incrementAndGet();
+            if (diskCapacity > 0) {
+                int overflow = size - diskCapacity;
+                if (overflow > 0) {
+                    onDiskEvict(Math.min(MAX_EVICT, overflow), getPlaceholder().getKey());
+                }
+            }
             return result;
         }
     }

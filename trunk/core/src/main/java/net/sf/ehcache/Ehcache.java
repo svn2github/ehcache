@@ -139,7 +139,8 @@ public interface Ehcache extends Cloneable {
     Element putIfAbsent(Element element) throws NullPointerException;
     
     /**
-     * Remove the Element mapped to the key for the supplied element if the supplied Element is equal to the cached Element
+     * Remove the Element mapped to the key for the supplied element if the value of the supplied Element
+     * is equal to the value of the cached Element.
      * 
      * @param element Element to be removed
      * @return true if the value was removed
