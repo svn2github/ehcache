@@ -18,7 +18,7 @@ package net.sf.ehcache.constructs.nonstop;
 
 public interface NonStopCacheConfig {
 
-    public static final long DEFAULT_TIMEOUT_MILLIS = 1000;
+    public static final long DEFAULT_TIMEOUT_MILLIS = 5000;
 
     public static final NonStopCacheBehaviorType DEFAULT_TIMEOUT_BEHAVIOR_TYPE = NonStopCacheBehaviorType.EXCEPTION_ON_TIMEOUT;
 
