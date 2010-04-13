@@ -19,15 +19,18 @@ package net.sf.ehcache.store;
 import net.sf.ehcache.Element;
 
 /**
- * Use for internal purpose only.
+ * Use for internal purpose only. Teaser: Stores of Terracotta clustered caches implements this interface.
  * 
  * @author Abhishek Sanoujam
  * 
  */
-public interface UnsafeStore extends Store {
+public interface TerracottaStore extends Store {
 
     /**
-     * Returns the local value associated with the key
+     * Returns the local value associated with the key. Local value means that the object mapped to the key is present in the VM locally. In
+     * case its not, will return null. Note that even when returning null, the value may be present in the Terracotta server array.
+     * <p/>
+     * This operation does not acquire any locks when doing the operation and may return stale values.
      * 
      * @param key
      *            the key
@@ -36,8 +39,7 @@ public interface UnsafeStore extends Store {
     public Element unsafeGet(Object key);
 
     /**
-     * Returns the local value associated with the key.
-     * Same as {{@link #unsafeGet(Object)} but does not update statistics
+     * Same as {@link #unsafeGet(Object)} but does not update last usage statistics
      * 
      * @param key
      *            the key
@@ -46,7 +48,7 @@ public interface UnsafeStore extends Store {
     public Element unsafeGetQuiet(Object key);
 
     /**
-     * Do a dirty read for the key
+     * Gets the value associated with the key without acquiring any locks. This may return stale values as locks are not acquired.
      * 
      * @param key
      * @return the element associated with the key or null
@@ -54,7 +56,7 @@ public interface UnsafeStore extends Store {
     public Element unlockedGet(Object key);
 
     /**
-     * Same as {{@link #unlockedGet(Object)} but does not update statistics
+     * Same as {@link #unlockedGet(Object)} but does not update statistics
      * 
      * @param key
      * @return the element associated with the key or null
