@@ -27,19 +27,19 @@ import net.sf.ehcache.CacheStoreHelper;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.constructs.nonstop.NonStopCacheBehavior;
 import net.sf.ehcache.store.Store;
-import net.sf.ehcache.store.UnsafeStore;
+import net.sf.ehcache.store.TerracottaStore;
 
 public class LocalReadsBehavior implements NonStopCacheBehavior {
 
-    private final UnsafeStore unsafeStore;
+    private final TerracottaStore unsafeStore;
 
     public LocalReadsBehavior(Cache cache) {
         Store store = new CacheStoreHelper(cache).getStore();
-        if (!(store instanceof UnsafeStore)) {
+        if (!(store instanceof TerracottaStore)) {
             throw new IllegalArgumentException(LocalReadsBehavior.class.getName()
                     + " can be only be used with Terracotta clustered caches.");
         }
-        this.unsafeStore = (UnsafeStore) store;
+        this.unsafeStore = (TerracottaStore) store;
     }
 
     public Element get(Object key) throws IllegalStateException, CacheException {

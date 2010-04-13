@@ -25,23 +25,23 @@ import net.sf.ehcache.Element;
 import net.sf.ehcache.constructs.EhcacheDecoratorAdapter;
 import net.sf.ehcache.statistics.LiveCacheStatisticsData;
 import net.sf.ehcache.store.Store;
-import net.sf.ehcache.store.UnsafeStore;
+import net.sf.ehcache.store.TerracottaStore;
 
 public class IncoherentViewCache extends EhcacheDecoratorAdapter {
 
     private final String viewName;
-    private final UnsafeStore unsafeStore;
+    private final TerracottaStore unsafeStore;
     private final LiveCacheStatisticsData liveCacheStatisticsData;
 
     public IncoherentViewCache(final Cache decoratedCache, final String incoherentViewName) {
         super(decoratedCache);
         this.viewName = incoherentViewName;
         Store store = new CacheStoreHelper(decoratedCache).getStore();
-        if (!(store instanceof UnsafeStore)) {
+        if (!(store instanceof TerracottaStore)) {
             throw new IllegalArgumentException(IncoherentViewCache.class.getName()
                     + " can be used to decorate caches clustered with Terracotta only.");
         }
-        this.unsafeStore = (UnsafeStore) store;
+        this.unsafeStore = (TerracottaStore) store;
         this.liveCacheStatisticsData = (LiveCacheStatisticsData) decoratedCache.getLiveCacheStatistics();
     }
 
