@@ -44,7 +44,7 @@ public class ExecutorBehavior implements NonStopCacheBehavior {
 
     private <V> V executeWithExecutor(final Callable<V> callable) throws CacheException, TimeoutException {
         try {
-            return executorService.execute(callable, nonStopCacheConfig.getTimeoutValueInMillis());
+            return executorService.execute(callable, nonStopCacheConfig.getTimeoutMillis());
         } catch (InterruptedException e) {
             // rethrow as CacheException
             throw new CacheException(e);

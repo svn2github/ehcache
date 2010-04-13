@@ -18,25 +18,25 @@ package net.sf.ehcache.constructs.nonstop;
 
 public interface NonStopCacheConfig {
 
-    public static final long DEFAULT_TIMEOUT_VALUE_IN_MILLIS = 1000;
+    public static final long DEFAULT_TIMEOUT_MILLIS = 1000;
 
     public static final NonStopCacheBehaviorType DEFAULT_TIMEOUT_BEHAVIOR_TYPE = NonStopCacheBehaviorType.EXCEPTION_ON_TIMEOUT;
 
     public static final boolean DEFAULT_IMMEDIATE_TIMEOUT = true;
 
-    public static final String TIMEOUT_VALUE_IN_MILLIS_PROP_KEY = "timeoutValueInMillis";
+    public static final String TIMEOUT_MILLIS_PROP_KEY = "timeoutMillis";
 
     public static final String TIMEOUT_BEHAVIOR_PROP_KEY = "timeoutBehavior";
 
     public static final String IMMEDIATE_TIMEOUT_PROP_KEY = "immediateTimeout";
 
-    public long getTimeoutValueInMillis();
+    public long getTimeoutMillis();
 
-    public void setTimeoutValueInMillis(long timeoutValueInMillis);
+    public void setTimeoutMillis(long timeoutMillis);
 
-    public void setImmediateTimeoutEnabled(boolean immediateTimeout);
+    public void setImmediateTimeout(boolean immediateTimeout);
 
-    public boolean isImmediateTimeoutEnabled();
+    public boolean isImmediateTimeout();
 
     public void setTimeoutBehaviorType(NonStopCacheBehaviorType timeoutBehaviorType);
 

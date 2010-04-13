@@ -23,8 +23,8 @@ public class NonStopCacheConfigImpl implements NonStopCacheConfig {
     private static final Properties DEFAULT_VALUES_PROPERTIES = new Properties();
 
     static {
-        DEFAULT_VALUES_PROPERTIES.setProperty(TIMEOUT_VALUE_IN_MILLIS_PROP_KEY, "" + DEFAULT_TIMEOUT_VALUE_IN_MILLIS);
-        DEFAULT_VALUES_PROPERTIES.setProperty(TIMEOUT_BEHAVIOR_PROP_KEY, DEFAULT_TIMEOUT_BEHAVIOR_TYPE.name());
+        DEFAULT_VALUES_PROPERTIES.setProperty(TIMEOUT_MILLIS_PROP_KEY, "" + DEFAULT_TIMEOUT_MILLIS);
+        DEFAULT_VALUES_PROPERTIES.setProperty(TIMEOUT_BEHAVIOR_PROP_KEY, DEFAULT_TIMEOUT_BEHAVIOR_TYPE.getConfigPropertyName());
         DEFAULT_VALUES_PROPERTIES.setProperty(IMMEDIATE_TIMEOUT_PROP_KEY, "" + DEFAULT_IMMEDIATE_TIMEOUT);
     }
 
@@ -48,8 +48,8 @@ public class NonStopCacheConfigImpl implements NonStopCacheConfig {
         }
     }
 
-    private long timeoutValueInMillis;
-    private boolean immediateTimeoutEnabled;
+    private long timeoutMillis;
+    private boolean immediateTimeout;
     private NonStopCacheBehaviorType timeoutBehaviorType;
 
     public NonStopCacheConfigImpl() {
@@ -57,25 +57,26 @@ public class NonStopCacheConfigImpl implements NonStopCacheConfig {
     }
 
     public NonStopCacheConfigImpl(final Properties properties) {
-        this.timeoutValueInMillis = getInt(properties, TIMEOUT_VALUE_IN_MILLIS_PROP_KEY);
-        this.timeoutBehaviorType = NonStopCacheBehaviorType.valueOf(properties.getProperty(TIMEOUT_BEHAVIOR_PROP_KEY));
-        this.immediateTimeoutEnabled = getBoolean(properties, IMMEDIATE_TIMEOUT_PROP_KEY);
+        this.timeoutMillis = getInt(properties, TIMEOUT_MILLIS_PROP_KEY);
+        this.timeoutBehaviorType = NonStopCacheBehaviorType
+                .getTypeFromConfigPropertyName(properties.getProperty(TIMEOUT_BEHAVIOR_PROP_KEY));
+        this.immediateTimeout = getBoolean(properties, IMMEDIATE_TIMEOUT_PROP_KEY);
     }
 
-    public long getTimeoutValueInMillis() {
-        return timeoutValueInMillis;
+    public long getTimeoutMillis() {
+        return timeoutMillis;
     }
 
-    public void setTimeoutValueInMillis(final long timeoutValueInMillis) {
-        this.timeoutValueInMillis = timeoutValueInMillis;
+    public void setTimeoutMillis(final long timeoutMillis) {
+        this.timeoutMillis = timeoutMillis;
     }
 
-    public boolean isImmediateTimeoutEnabled() {
-        return immediateTimeoutEnabled;
+    public boolean isImmediateTimeout() {
+        return immediateTimeout;
     }
 
-    public void setImmediateTimeoutEnabled(final boolean immediateTimeoutEnabled) {
-        this.immediateTimeoutEnabled = immediateTimeoutEnabled;
+    public void setImmediateTimeout(final boolean immediateTimeout) {
+        this.immediateTimeout = immediateTimeout;
     }
 
     public NonStopCacheBehaviorType getTimeoutBehaviorType() {

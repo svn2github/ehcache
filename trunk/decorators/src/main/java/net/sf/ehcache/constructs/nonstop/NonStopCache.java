@@ -267,20 +267,20 @@ public class NonStopCache extends EhcacheDecoratorAdapter implements NonStopCach
         return executeWithExecutorBehavior.isValueInCache(value);
     }
 
-    public long getTimeoutValueInMillis() {
-        return this.nonStopCacheConfig.getTimeoutValueInMillis();
+    public long getTimeoutMillis() {
+        return this.nonStopCacheConfig.getTimeoutMillis();
     }
 
-    public void setTimeoutValueInMillis(final long timeoutValueInMillis) {
-        this.nonStopCacheConfig.setTimeoutValueInMillis(timeoutValueInMillis);
+    public void setTimeoutMillis(final long timeoutMillis) {
+        this.nonStopCacheConfig.setTimeoutMillis(timeoutMillis);
     }
 
-    public boolean isImmediateTimeoutEnabled() {
-        return nonStopCacheConfig.isImmediateTimeoutEnabled();
+    public boolean isImmediateTimeout() {
+        return nonStopCacheConfig.isImmediateTimeout();
     }
 
-    public void setImmediateTimeoutEnabled(final boolean immediateTimeoutEnabled) {
-        this.nonStopCacheConfig.setImmediateTimeoutEnabled(immediateTimeoutEnabled);
+    public void setImmediateTimeout(final boolean immediateTimeout) {
+        this.nonStopCacheConfig.setImmediateTimeout(immediateTimeout);
     }
 
     public NonStopCacheBehaviorType getTimeoutBehaviorType() {

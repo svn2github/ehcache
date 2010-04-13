@@ -16,6 +16,9 @@
 
 package net.sf.ehcache.constructs.nonstop;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.constructs.nonstop.behavior.ExceptionOnTimeoutBehavior;
@@ -43,6 +46,14 @@ public enum NonStopCacheBehaviorType {
             return ExceptionOnTimeoutBehavior.getInstance();
         }
 
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public String getConfigPropertyName() {
+            return EXCEPTION_CONFIG_PROPERTY_NAME;
+        }
+
     },
     /**
      * {@link CacheBehavior} which returns null for get operations and does nothing for put's and remove's
@@ -55,6 +66,14 @@ public enum NonStopCacheBehaviorType {
         @Override
         public NonStopCacheBehavior newCacheBehavior(final Ehcache ehcache) {
             return NoOpOnTimeoutBehavior.getInstance();
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public String getConfigPropertyName() {
+            return NO_OP_CONFIG_PROPERTY_NAME;
         }
 
     },
@@ -77,6 +96,14 @@ public enum NonStopCacheBehaviorType {
             return new LocalReadsBehavior((Cache) ehcache);
         }
 
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public String getConfigPropertyName() {
+            return LOCAL_READS_CONFIG_PROPERTY_NAME;
+        }
+
     };
 
     /**
@@ -86,4 +113,31 @@ public enum NonStopCacheBehaviorType {
      * @return new instance of {@link NonStopCacheBehavior} for this type
      */
     public abstract NonStopCacheBehavior newCacheBehavior(Ehcache ehcache);
+
+    /**
+     * Name to be used for this type, used when configured using String properties
+     * 
+     * @return new instance of {@link NonStopCacheBehavior} for this type
+     */
+    public abstract String getConfigPropertyName();
+
+    public static final String EXCEPTION_CONFIG_PROPERTY_NAME = "exception";
+    public static final String NO_OP_CONFIG_PROPERTY_NAME = "noop";
+    public static final String LOCAL_READS_CONFIG_PROPERTY_NAME = "localReads";
+
+    private static Map<String, NonStopCacheBehaviorType> configNameToTypeMapping = new HashMap<String, NonStopCacheBehaviorType>();
+
+    static {
+        for (NonStopCacheBehaviorType type : NonStopCacheBehaviorType.values()) {
+            configNameToTypeMapping.put(type.getConfigPropertyName(), type);
+        }
+    }
+
+    public static NonStopCacheBehaviorType getTypeFromConfigPropertyName(String configName) {
+        NonStopCacheBehaviorType type = configNameToTypeMapping.get(configName);
+        if (type == null) {
+            throw new IllegalArgumentException("Unrecognized NonStopCacheBehaviorType config property name -- " + configName);
+        }
+        return type;
+    }
 }

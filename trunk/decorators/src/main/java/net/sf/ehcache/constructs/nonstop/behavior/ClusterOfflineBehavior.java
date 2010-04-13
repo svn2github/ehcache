@@ -40,7 +40,7 @@ public class ClusterOfflineBehavior implements NonStopCacheBehavior {
     }
 
     private boolean shouldTimeoutImmediately() {
-        return nonStopCacheConfig.isImmediateTimeoutEnabled();
+        return nonStopCacheConfig.isImmediateTimeout();
     }
 
     /**
