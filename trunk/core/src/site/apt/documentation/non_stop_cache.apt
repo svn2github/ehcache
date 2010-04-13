@@ -6,26 +6,19 @@
 
 %{toc|fromDepth=2|toDepth=2}
 
-    <<<NonStopCache>>> is a {{{./cache_decorators}decorated cache}} which provides additional features
-    relevant to Terracotta.
-
-    This is for where you value availability over everything else.
-
-    It is a separate module.
-
-    Note: The features in this cache may evolve over time.
+    <<<NonStopCache>>> is a {{{./cache_decorators}decorated cache}} which provides additional availability
+    features relevant to caches backed by Terracotta.
 
     The two things it can do are:
 
-    * set timeouts on cache operations. Say you use the cache rather than a mainframe. The SLA calls for 3 seconds.
+    * set timeouts on cache operations.
+
+      For example, say you use the cache rather than a mainframe. The SLA calls for 3 seconds.
       There is a temporary network interruption which stops Terracotta responding to a cache request. With the timeout
       you can return after 3 seconds. The lookup is then done against the mainframe. This could also be useful for
       write-through, writes to disk or synchronous writes.
 
     * automatically respond to cluster topology events to take a pre-configured action.
-
-
-
 
 *   Creating a NonStopCache
 
@@ -51,12 +44,11 @@
            overflowToDisk="true">
         <cacheDecoratorFactory
                 class="net.sf.ehcache.terracotta.NonStopCacheFactory"
-                properties="failFast=true, localReadsOnDisconnect=true ..."/>
+                properties="timeoutMillis=3000, timeoutBehaviour=noop ..."/>
     </cache>
 ---
 
 *   How it knows about Terracotta Cluster Events
-
 
     Behind the scenes, the TerracottaAwareCache constructor looks up the Terracotta cluster
     and registers a <<<ClusterTopologyListener>>> which calls back on certain cluster events.
@@ -70,55 +62,70 @@
 
 *   Configuration Options
 
-**   Setting Timeouts
+**  Timeout Configuration
+
+***   Setting Timeouts
 
     Set the <<<timeoutMillis>>> property. It applies to all cache operations (put, get, remove ...). After the time elapses the operation is aborted.
     It is as if the call never happened.
 
-    The exceptionOnTimeout property can be set to true or false. On true a <<<TimeoutException>>>, which is a subtype
-     of <<<CacheException>>> will be thrown. If false, no exception is thrown. get will return null.
+    The exceptionOnTimeout property can be set to true or false. On true a . If false, no exception is thrown. get will return null.
 
-    <<<timeoutBehavior>>> = noop | exception | localRead  - currently Terracotta only. Returns data if held in local memory
+    What happens on timeout depends on the value of <<<timeoutBehaviour>>>, which can take the following values:
 
+    noop        - gets return null. Mutating operations such as put and removed are ignored.
 
-*** localReads
+    exception   - An unchecked exception, <<<TimeoutException>>>, which is a subtype of <<<CacheException>>> will be thrown.
 
-    If set to true, acts like <<<disable>>> except that any data in the local cache is returned.
+    localRead   - currently Terracotta only. Returns data if held locally in memory in response to gets. Mutating operations such as put and removed are ignored.
 
-    This might be useful for a cache with reference or immutable data in it.
+***  ThreadPool Management
 
-    In this mode, mutating operations are ignored. Applies to both coherent and incoherent caches.
+    The timeout feature uses a SEDA style approach which utilises an Executor thread pool. By default there are 10 threads, allowing
+    10 concurrent cache operations.
 
+    Specify your own value using the <<<threadPoolSize>>> setting.
 
-**  ThreadPool Management
+**  Action on ClusterOffline Configuration
 
-    Allows users to provide their own thread pool or specify max/min threads to use etc. By default there is 10 threads.
-
-
-**   Responding to clusterOffline events
-
-    The following properties control what happens when a <<<clusterOffline>>> event is received. Note that there is no way
+    The clusterOfflineEvent is thrown when the socket between the client and server is closed. Note that there is no way
     the cache has of knowing whether the interruption is transitory or permanent. For that reason it is recommended that it be
     used in conjunction with <<<timeoutMillis>>> so that short interruptions do not trigger this.
 
-    The clusterOfflineEvent is thrown when the socket between the client and server is closed.
-
-    These settings apply to all Terracotta clustered caches:
-
-
-
+    In this version the only action which may be configured is <<<immediateTimeout>>>.
 
 
 *** immediateTimeout
 
-immediateTimeout = On disconnect, times out immediately and does the timeout behavior
+    The property <<<immediateTimeout>>> if set to true will cause the cache operations to act as if they have immediately timed out,
+    without waiting the <<<timeoutMillis>>> value.
 
+    What then happens depends on how <<<timeoutBehaviour>>> is configured.
 
-    The property <<<immediateTimeout>>> if set to true will cause cache operations (e.g. put, get, remove, etc. ) to immediately
-    return, overriding the value of <<<timeoutMillis>>>.
+*   {Download}
 
-    Would throw a TimeoutException. Applies to both coherent and incoherent caches.
+**  File
 
+    Download {{{http://sourceforge.net/projects/ehcache/files/ehcache-nonstopcache}here}}.
 
+**  Maven
+
+    The code is in the ehcache-nonstopcache module in the Maven central repo.
+
+    Add this snippet to your dependencies:
+
+---
+
+<dependency>
+    <groupId>net.sf.ehcache</groupId>
+    <artifactId>ehcache-nonstopcache</artifactId>
+</dependency>
+---
+
+---
+
+*   {Emerging API}
+
+    This API is emerging. It is production quality and supported, but is a new API and may evolve over time.
 
 

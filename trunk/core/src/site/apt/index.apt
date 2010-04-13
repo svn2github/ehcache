@@ -48,6 +48,10 @@ Ehcache Distributed Cache
 
 %{snippet|file=src/site/include/newsticker.html|verbatim=false}
 
+** 10 April 2010: Ehcache 2.0.1 and Ehcache Web 2.0.1 released
+
+  New bug fix versions of ehcache and ehcache-web are available. 
+
 ** 23 March 2010: Ehcache Server 1.0 released
 
     Ehcache Server and Standalone Server have been released to Sourceforge Downloads. The server provides RESTful and SOAP
