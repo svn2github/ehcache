@@ -1460,28 +1460,28 @@ public class DiskStore implements Store, CacheConfigurationListener {
    }
 
    /**
-    * {@inheritDoc}
+    * Unsupported in DiskStore
     */
     public Element putIfAbsent(Element element) throws NullPointerException {
         throw new UnsupportedOperationException();
     }
 
     /**
-     * {@inheritDoc}
+     * Unsupported in DiskStore
      */
     public Element removeElement(Element element) throws NullPointerException {
         throw new UnsupportedOperationException();
     }
 
     /**
-     * {@inheritDoc}
+     * Unsupported in DiskStore
      */
     public boolean replace(Element old, Element element) throws NullPointerException, IllegalArgumentException {
         throw new UnsupportedOperationException();
     }
 
     /**
-     * {@inheritDoc}
+     * Unsupported in DiskStore
      */
     public Element replace(Element element) throws NullPointerException {
         throw new UnsupportedOperationException();

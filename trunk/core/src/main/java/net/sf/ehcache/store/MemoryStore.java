@@ -762,28 +762,28 @@ public class MemoryStore implements Store, CacheConfigurationListener {
     }
 
     /**
-     * {@inheritDoc}
+     * Unsupported in MemoryStore
      */
     public Element putIfAbsent(Element element) throws NullPointerException {
         throw new UnsupportedOperationException();
     }
 
     /**
-     * {@inheritDoc}
+     * Unsupported in MemoryStore
      */
     public Element removeElement(Element element) throws NullPointerException {
         throw new UnsupportedOperationException();
     }
 
     /**
-     * {@inheritDoc}
+     * Unsupported in MemoryStore
      */
     public boolean replace(Element old, Element element) throws NullPointerException, IllegalArgumentException {
         throw new UnsupportedOperationException();
     }
 
     /**
-     * {@inheritDoc}
+     * Unsupported in MemoryStore
      */
     public Element replace(Element element) throws NullPointerException {
         throw new UnsupportedOperationException();

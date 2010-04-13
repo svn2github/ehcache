@@ -600,28 +600,28 @@ public class LruMemoryStore implements Store {
     }
 
     /**
-     * {@inheritDoc}
+     * Unsupported in LruMemoryStore
      */
     public Element putIfAbsent(Element element) throws NullPointerException {
         throw new UnsupportedOperationException();
     }
 
     /**
-     * {@inheritDoc}
+     * Unsupported in LruMemoryStore
      */
     public Element removeElement(Element element) throws NullPointerException {
         throw new UnsupportedOperationException();
     }
 
     /**
-     * {@inheritDoc}
+     * Unsupported in LruMemoryStore
      */
     public boolean replace(Element old, Element element) throws NullPointerException, IllegalArgumentException {
         throw new UnsupportedOperationException();
     }
 
     /**
-     * {@inheritDoc}
+     * Unsupported in LruMemoryStore
      */
     public Element replace(Element element) throws NullPointerException {
         throw new UnsupportedOperationException();

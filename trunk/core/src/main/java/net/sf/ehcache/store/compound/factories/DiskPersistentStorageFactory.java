@@ -65,6 +65,7 @@ public class DiskPersistentStorageFactory extends DiskStorageFactory<ElementSubs
     private final IndexWriteTask flushTask;
 
     private volatile int diskCapacity;
+    private volatile int memoryCapacity;
     
     /**
      * Constructs an disk persistent factory for the given cache and disk path.
@@ -91,6 +92,7 @@ public class DiskPersistentStorageFactory extends DiskStorageFactory<ElementSubs
         }
 
         diskCapacity = cache.getCacheConfiguration().getMaxElementsOnDisk();
+        memoryCapacity = cache.getCacheConfiguration().getMaxElementsInMemory();
     }
 
     private static File getDataFile(String diskPath, Ehcache cache) {
@@ -137,7 +139,8 @@ public class DiskPersistentStorageFactory extends DiskStorageFactory<ElementSubs
      * {@inheritDoc}
      */
     public ElementSubstitute create(Object key, Element element) throws IllegalArgumentException {
-        inMemory.incrementAndGet();
+        int size = inMemory.incrementAndGet();
+        inMemoryEvict(size, key);
         return new PersistentPlaceholder(element);
     }
 
@@ -169,7 +172,8 @@ public class DiskPersistentStorageFactory extends DiskStorageFactory<ElementSubs
                 if (element == null) {
                     element = read(marker);
                     if (marker.cache(element)) {
-                        inMemory.incrementAndGet();
+                        int size = inMemory.incrementAndGet();
+                        inMemoryEvict(size, key);
                     }
                 }
                 return element;
@@ -353,19 +357,49 @@ public class DiskPersistentStorageFactory extends DiskStorageFactory<ElementSubs
     }
 
     /**
+     * Set the maximum in-memory capacity for this factory.
+     */
+    public void setInMemoryCapacity(int capacity) {
+        memoryCapacity = capacity;
+    }
+    
+    /**
      * Set the maximum on-disk capacity for this factory.
      */
     public void setOnDiskCapacity(int capacity) {
         diskCapacity = capacity;
     }
     
-    private void onDiskEvict(int n, Object keyHint) {
-        for (int i = 0; i < n; i++) {
-            DiskSubstitute target = getDiskEvictionTarget(keyHint);
-            if (target == null) {
-                continue;
-            } else {
-                store.evict(target.getKey(), target);
+    private void inMemoryEvict(int size, Object keyHint) {
+        if (memoryCapacity > 0) {
+            int overflow = size - memoryCapacity;
+            for (int i = 0; i < Math.min(MAX_EVICT, overflow); i++) {
+                CachingDiskMarker target = getMemoryEvictionTarget(keyHint);
+                if (target == null) {
+                    continue;
+                } else {
+                    if (target.flush()) {
+                        inMemory.decrementAndGet();
+                    }
+                }
+            }
+        }
+    }
+    
+    private CachingDiskMarker getMemoryEvictionTarget(Object keyHint) {
+        return null;
+    }
+    
+    private void onDiskEvict(int size, Object keyHint) {
+        if (diskCapacity > 0) {
+            int overflow = size - diskCapacity;
+            for (int i = 0; i < Math.min(MAX_EVICT, overflow); i++) {
+                DiskSubstitute target = getDiskEvictionTarget(keyHint);
+                if (target == null) {
+                    continue;
+                } else {
+                    store.evict(target.getKey(), target);
+                }
             }
         }
     }
@@ -418,12 +452,7 @@ public class DiskPersistentStorageFactory extends DiskStorageFactory<ElementSubs
             Boolean result = super.call();
             //don't want to increment on exception throw
             int size = onDisk.incrementAndGet();
-            if (diskCapacity > 0) {
-                int overflow = size - diskCapacity;
-                if (overflow > 0) {
-                    onDiskEvict(Math.min(MAX_EVICT, overflow), getPlaceholder().getKey());
-                }
-            }
+            onDiskEvict(size, getPlaceholder().getKey());
             return result;
         }
     }
