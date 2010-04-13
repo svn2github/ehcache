@@ -41,7 +41,6 @@ import net.sf.ehcache.Element;
 import net.sf.ehcache.store.compound.CompoundStore;
 import net.sf.ehcache.store.compound.ElementSubstitute;
 import net.sf.ehcache.store.compound.ElementSubstituteFilter;
-import net.sf.ehcache.store.compound.factories.DiskStorageFactory.DiskSubstitute;
 
 /**
  * This will be the disk-persistent element substitute factory
