@@ -36,6 +36,7 @@ import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.concurrent.CacheLockProvider;
 import net.sf.ehcache.concurrent.LockType;
+import net.sf.ehcache.concurrent.LocksAcquisitionException;
 import net.sf.ehcache.concurrent.Sync;
 import net.sf.ehcache.store.Store;
 import net.sf.ehcache.transaction.TransactionContext;
@@ -186,9 +187,18 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
         Object[] updatedKeys = context.getUpdatedKeys().toArray();
 
         // Lock here first, so that threads wait on every get for this to be released?
-        oldVersionStoreLockProvider.getAndWriteLockAllSyncForKeys(updatedKeys);
+        try {
+            oldVersionStoreLockProvider.getAndWriteLockAllSyncForKeys(transactionTimeout * 1000, updatedKeys);
+        } catch (LocksAcquisitionException ex) {
+            throw new EhcacheXAException("could not lock all required entries in oldVersionStore", XAException.XA_RBDEADLOCK, ex);
+        }
         // Then lock here, so that normally no one is staying in line for the lock
-        storeLockProvider.getAndWriteLockAllSyncForKeys(updatedKeys);
+        try {
+            storeLockProvider.getAndWriteLockAllSyncForKeys(transactionTimeout * 1000, updatedKeys);
+        } catch (LocksAcquisitionException ex) {
+            oldVersionStoreLockProvider.unlockWriteLockForAllKeys(updatedKeys);
+            throw new EhcacheXAException("could not lock all required entries in storeLockProvider", XAException.XA_RBDEADLOCK, ex);
+        }
 
         try {
             // validate we will be able to commit
@@ -219,7 +229,7 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
 
         ehcacheXAStore.prepare(xid, preparedContext);
 
-        return writes ? XA_OK : XA_RDONLY;
+        return XA_OK;
     }
 
     private void cleanUpFailure(final Xid xid, final CacheLockProvider storeLockProvider,
@@ -429,12 +439,12 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
     /**
      * {@inheritDoc}
      */
-    public boolean setTransactionTimeout(final int i) throws XAException {
+    public boolean setTransactionTimeout(final int timeout) throws XAException {
         //todo: is timeout supported? If not, false should be returned
-        if (i < 0) {
-            throw new EhcacheXAException("time out has to be > 0, but was " + i, XAException.XAER_INVAL);
+        if (timeout < 0) {
+            throw new EhcacheXAException("time out has to be > 0, but was " + timeout, XAException.XAER_INVAL);
         }
-        this.transactionTimeout = i == 0 ? DEFAULT_TIMEOUT : i;
+        this.transactionTimeout = timeout == 0 ? DEFAULT_TIMEOUT : timeout;
         return true;
     }
 
@@ -521,7 +531,12 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
         Set<Object> keys = context.getUpdatedKeys();
 
         // Lock all keys in real store
-        Sync[] syncForKeys = storeLockProvider.getAndWriteLockAllSyncForKeys(keys.toArray());
+        Sync[] syncForKeys;
+        try {
+            syncForKeys = storeLockProvider.getAndWriteLockAllSyncForKeys(transactionTimeout * 1000, keys.toArray());
+        } catch (LocksAcquisitionException ex) {
+            throw new EhcacheXAException("could not lock all required entries in storeLockProvider", XAException.XA_RBDEADLOCK, ex);
+        }
 
         try {
             validateCommands(context, xid);

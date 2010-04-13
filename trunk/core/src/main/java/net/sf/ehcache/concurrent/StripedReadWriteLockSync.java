@@ -15,6 +15,8 @@
  */
 package net.sf.ehcache.concurrent;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
@@ -103,6 +105,37 @@ public class StripedReadWriteLockSync implements CacheLockProvider {
         for (Map.Entry<ReadWriteLockSync, AtomicInteger> entry : locks.entrySet()) {
             while (entry.getValue().getAndDecrement() > 0) {
                 entry.getKey().lock(LockType.WRITE);
+            }
+            syncs[i++] = entry.getKey();
+        }
+        return syncs;
+    }
+
+    public Sync[] getAndWriteLockAllSyncForKeys(long timeout, Object... keys) throws LocksAcquisitionException {
+        SortedMap<ReadWriteLockSync, AtomicInteger> locks = getLockMap(keys);
+
+        boolean lockHeld;
+        List<ReadWriteLockSync> heldLocks = new ArrayList<ReadWriteLockSync>();
+
+        Sync[] syncs = new Sync[locks.size()];
+        int i = 0;
+        for (Map.Entry<ReadWriteLockSync, AtomicInteger> entry : locks.entrySet()) {
+            while (entry.getValue().getAndDecrement() > 0) {
+                try {
+                    ReadWriteLockSync writeLockSync = entry.getKey();
+                    lockHeld = writeLockSync.tryLock(LockType.WRITE, timeout);
+                    heldLocks.add(writeLockSync);
+                } catch (InterruptedException e) {
+                    lockHeld = false;
+                }
+
+                if (!lockHeld) {
+                    for (int j = heldLocks.size(); j >= 0 ; j--) {
+                        ReadWriteLockSync readWriteLockSync = heldLocks.get(j);
+                        readWriteLockSync.unlock(LockType.WRITE);
+                    }
+                    throw new LocksAcquisitionException("could not acquire all locks in " + timeout + " ms");
+                }
             }
             syncs[i++] = entry.getKey();
         }

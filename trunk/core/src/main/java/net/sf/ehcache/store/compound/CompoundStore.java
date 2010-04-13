@@ -33,6 +33,7 @@ import net.sf.ehcache.Element;
 import net.sf.ehcache.Status;
 import net.sf.ehcache.concurrent.CacheLockProvider;
 import net.sf.ehcache.concurrent.LockType;
+import net.sf.ehcache.concurrent.LocksAcquisitionException;
 import net.sf.ehcache.concurrent.Sync;
 import net.sf.ehcache.store.Store;
 import net.sf.ehcache.writer.CacheWriterManager;
@@ -562,7 +563,7 @@ public abstract class CompoundStore implements Store {
          */
         public Sync[] getAndWriteLockAllSyncForKeys(Object... keys) {
             Set<Segment> segs = getSegmentsFor(keys);
-            
+
             List<Sync> ordered = new ArrayList<Sync>();
             for (Segment s : CompoundStore.this.segments) {
                 if (segs.contains(s)) {
@@ -570,7 +571,39 @@ public abstract class CompoundStore implements Store {
                     ordered.add(new ReadWriteLockSync(s));
                 }
             }
-            
+
+            return ordered.toArray(new Sync[ordered.size()]);
+        }
+
+        public Sync[] getAndWriteLockAllSyncForKeys(long timeout, Object... keys) throws LocksAcquisitionException {
+            Set<Segment> segs = getSegmentsFor(keys);
+
+            List<ReentrantReadWriteLock.WriteLock> acquiredLocks = new ArrayList<ReentrantReadWriteLock.WriteLock>();
+            boolean lockHeld;
+
+            List<Sync> ordered = new ArrayList<Sync>();
+            for (Segment s : CompoundStore.this.segments) {
+                if (segs.contains(s)) {
+                    try {
+                        ReentrantReadWriteLock.WriteLock writeLock = s.writeLock();
+                        lockHeld = writeLock.tryLock(timeout, TimeUnit.MILLISECONDS);
+                        acquiredLocks.add(writeLock);
+                    } catch (InterruptedException e) {
+                        lockHeld = false;
+                    }
+
+                    if (!lockHeld) {
+                        for (int i = acquiredLocks.size(); i >= 0 ; i--) {
+                            ReentrantReadWriteLock.WriteLock writeLock = acquiredLocks.get(i);
+                            writeLock.unlock();
+                        }
+                        throw new LocksAcquisitionException("could not acquire all locks in " + timeout + " ms");
+                    }
+
+                    ordered.add(new ReadWriteLockSync(s));
+                }
+            }
+
             return ordered.toArray(new Sync[ordered.size()]);
         }
 

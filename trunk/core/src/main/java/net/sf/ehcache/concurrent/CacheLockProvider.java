@@ -40,7 +40,24 @@ public interface CacheLockProvider {
      * @return limited number of write locked Sync's matching the keys.
      */
     Sync[] getAndWriteLockAllSyncForKeys(Object... keys);
-    
+
+    /**
+     * Gets and write lock the Sync Stripes to use for the given keys.
+     * <p/>
+     * This lookup must always return the same Sync for a given key.
+     * For keys.length > 0, it will return anything between 1 and keys.length Sync's
+     * <p/>
+     * If all locks cannot be acquired within the specified timeout they are all
+     * released and an exception is thrown.
+     * <p/>
+     * @param timeout amount of milliseconds before timeout occurs
+     * @param keys the keys to lock and get syncs for
+     * @return limited number of write locked Sync's matching the keys.
+     * @throws LocksAcquisitionException thrown when locks could not be acquired within
+     *         specified timeout.
+     */
+    Sync[] getAndWriteLockAllSyncForKeys(long timeout, Object... keys) throws LocksAcquisitionException;
+
     /**
      * write unlock the Sync Stripes to use for the given keys.
      * @param keys the keys to unlock
