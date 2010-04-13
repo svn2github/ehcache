@@ -111,6 +111,9 @@ public class StripedReadWriteLockSync implements CacheLockProvider {
         return syncs;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public Sync[] getAndWriteLockAllSyncForKeys(long timeout, Object... keys) throws LocksAcquisitionException {
         SortedMap<ReadWriteLockSync, AtomicInteger> locks = getLockMap(keys);
 
@@ -130,7 +133,7 @@ public class StripedReadWriteLockSync implements CacheLockProvider {
                 }
 
                 if (!lockHeld) {
-                    for (int j = heldLocks.size(); j >= 0 ; j--) {
+                    for (int j = heldLocks.size(); j >= 0; j--) {
                         ReadWriteLockSync readWriteLockSync = heldLocks.get(j);
                         readWriteLockSync.unlock(LockType.WRITE);
                     }

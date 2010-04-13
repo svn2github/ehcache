@@ -59,6 +59,7 @@ import org.slf4j.LoggerFactory;
 public class EhcacheXAResourceImpl implements EhcacheXAResource {
 
     private static final int DEFAULT_TIMEOUT = 60;
+    private static final int MILLISEC_PER_SECOND = 1000;
 
     private static final Logger LOG = LoggerFactory.getLogger(EhcacheXAResourceImpl.class.getName());
 
@@ -185,20 +186,8 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
 
         // Lock all keys in both stores
         Object[] updatedKeys = context.getUpdatedKeys().toArray();
+        tryLockingKeysRequiredForPrepare(storeLockProvider, oldVersionStoreLockProvider, updatedKeys);
 
-        // Lock here first, so that threads wait on every get for this to be released?
-        try {
-            oldVersionStoreLockProvider.getAndWriteLockAllSyncForKeys(transactionTimeout * 1000, updatedKeys);
-        } catch (LocksAcquisitionException ex) {
-            throw new EhcacheXAException("could not lock all required entries in oldVersionStore", XAException.XA_RBDEADLOCK, ex);
-        }
-        // Then lock here, so that normally no one is staying in line for the lock
-        try {
-            storeLockProvider.getAndWriteLockAllSyncForKeys(transactionTimeout * 1000, updatedKeys);
-        } catch (LocksAcquisitionException ex) {
-            oldVersionStoreLockProvider.unlockWriteLockForAllKeys(updatedKeys);
-            throw new EhcacheXAException("could not lock all required entries in storeLockProvider", XAException.XA_RBDEADLOCK, ex);
-        }
 
         try {
             // validate we will be able to commit
@@ -230,6 +219,23 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
         ehcacheXAStore.prepare(xid, preparedContext);
 
         return XA_OK;
+    }
+
+    private void tryLockingKeysRequiredForPrepare(CacheLockProvider storeLockProvider, CacheLockProvider oldVersionStoreLockProvider,
+                                                  Object[] updatedKeys) throws EhcacheXAException {
+        // Lock here first, so that threads wait on every get for this to be released?
+        try {
+            oldVersionStoreLockProvider.getAndWriteLockAllSyncForKeys(transactionTimeout * MILLISEC_PER_SECOND, updatedKeys);
+        } catch (LocksAcquisitionException ex) {
+            throw new EhcacheXAException("could not lock all required entries in oldVersionStore", XAException.XA_RBDEADLOCK, ex);
+        }
+        // Then lock here, so that normally no one is staying in line for the lock
+        try {
+            storeLockProvider.getAndWriteLockAllSyncForKeys(transactionTimeout * MILLISEC_PER_SECOND, updatedKeys);
+        } catch (LocksAcquisitionException ex) {
+            oldVersionStoreLockProvider.unlockWriteLockForAllKeys(updatedKeys);
+            throw new EhcacheXAException("could not lock all required entries in storeLockProvider", XAException.XA_RBDEADLOCK, ex);
+        }
     }
 
     private void cleanUpFailure(final Xid xid, final CacheLockProvider storeLockProvider,
@@ -533,7 +539,7 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
         // Lock all keys in real store
         Sync[] syncForKeys;
         try {
-            syncForKeys = storeLockProvider.getAndWriteLockAllSyncForKeys(transactionTimeout * 1000, keys.toArray());
+            syncForKeys = storeLockProvider.getAndWriteLockAllSyncForKeys(transactionTimeout * MILLISEC_PER_SECOND, keys.toArray());
         } catch (LocksAcquisitionException ex) {
             throw new EhcacheXAException("could not lock all required entries in storeLockProvider", XAException.XA_RBDEADLOCK, ex);
         }

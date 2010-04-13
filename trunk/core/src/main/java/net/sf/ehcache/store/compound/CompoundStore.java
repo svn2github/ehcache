@@ -593,7 +593,7 @@ public abstract class CompoundStore implements Store {
                     }
 
                     if (!lockHeld) {
-                        for (int i = acquiredLocks.size(); i >= 0 ; i--) {
+                        for (int i = acquiredLocks.size(); i >= 0; i--) {
                             ReentrantReadWriteLock.WriteLock writeLock = acquiredLocks.get(i);
                             writeLock.unlock();
                         }
