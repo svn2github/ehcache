@@ -587,7 +587,9 @@ public abstract class CompoundStore implements Store {
                     try {
                         ReentrantReadWriteLock.WriteLock writeLock = s.writeLock();
                         lockHeld = writeLock.tryLock(timeout, TimeUnit.MILLISECONDS);
-                        acquiredLocks.add(writeLock);
+                        if (lockHeld) {
+                            acquiredLocks.add(writeLock);
+                        }
                     } catch (InterruptedException e) {
                         lockHeld = false;
                     }

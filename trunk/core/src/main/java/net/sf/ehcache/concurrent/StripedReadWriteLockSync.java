@@ -127,7 +127,9 @@ public class StripedReadWriteLockSync implements CacheLockProvider {
                 try {
                     ReadWriteLockSync writeLockSync = entry.getKey();
                     lockHeld = writeLockSync.tryLock(LockType.WRITE, timeout);
-                    heldLocks.add(writeLockSync);
+                    if (lockHeld) {
+                        heldLocks.add(writeLockSync);
+                    }
                 } catch (InterruptedException e) {
                     lockHeld = false;
                 }
