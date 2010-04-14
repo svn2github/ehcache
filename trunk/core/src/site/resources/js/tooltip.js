@@ -1,33 +1,53 @@
 function g(id){
 	return document.getElementById(id);
-	
 }
 
 
-function mouseUpdate(x,y){
+function mouseUpdate(x,y, title){
 	
 	var x = $("#marquee").offset().left + x;
 	var y = $("#marquee").offset().top + y;
 	
-	//g('mouse').innerHTML = x + "<br />" + y + "<br />";
-	
-	g("popup").style.left = x +60 +"px";
-	g("popup").style.top = (y-90) +"px";
-	$("#popup").fadeIn(100);
-	
+	g("popup").style.left = x +20 +"px";
+	g("popup").style.top = (y-25) +"px";
+   if(g("popup").style.display == "none"){
+	    $("#popup").fadeIn(100);
+   }
+    g("popupTitle").innerHTML = "<strong>"+ title+" Child Modules</strong>";
+    g("popupTitle").style.fontSize = "15";
+
+
 }
 
 function popupHide(){
-	$("#popup").fadeOut(100);
-	
+    if(g("popup").style.display != "none"){
+        $("#popup").fadeOut(100);
+
+   }
+
 	
 }
 
-$('#popup').mouseenter(function() {
-								
-								
-  $("#popup").fadeOut(100);
-  
-  
-  
+$('#popup').mouseOver(function() {
+
+  if(g("popup").style.display != "none"){
+        $("#popup").fadeOut(100);
+
+   }
+});
+
+$('#popupTitle').mouseOver(function() {
+
+  if(g("popup").style.display != "none"){
+        $("#popup").fadeOut(100);
+
+   }
+});
+
+$('#popupContent').mouseOver(function() {
+
+  if(g("popup").style.display != "none"){
+        $("#popup").fadeOut(100);
+
+   }
 });
