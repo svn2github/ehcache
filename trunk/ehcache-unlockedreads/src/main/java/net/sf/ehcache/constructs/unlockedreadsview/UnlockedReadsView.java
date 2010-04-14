@@ -14,14 +14,14 @@
  *  limitations under the License.
  */
 
-package net.sf.ehcache.constructs.unlockedreads;
+package net.sf.ehcache.constructs.unlockedreadsview;
 
 import java.io.Serializable;
 
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheException;
-import net.sf.ehcache.UnlockedReadsHelper;
 import net.sf.ehcache.Element;
+import net.sf.ehcache.UnlockedReadsViewHelper;
 import net.sf.ehcache.constructs.EhcacheDecoratorAdapter;
 import net.sf.ehcache.statistics.LiveCacheStatisticsData;
 import net.sf.ehcache.store.Store;
@@ -30,18 +30,18 @@ import net.sf.ehcache.store.TerracottaStore;
 public class UnlockedReadsView extends EhcacheDecoratorAdapter {
 
     private final String viewName;
-    private final TerracottaStore unsafeStore;
+    private final TerracottaStore terracottaStore;
     private final LiveCacheStatisticsData liveCacheStatisticsData;
 
     public UnlockedReadsView(final Cache decoratedCache, final String incoherentViewName) {
         super(decoratedCache);
         this.viewName = incoherentViewName;
-        Store store = new UnlockedReadsHelper(decoratedCache).getStore();
+        Store store = new UnlockedReadsViewHelper(decoratedCache).getStore();
         if (!(store instanceof TerracottaStore)) {
             throw new IllegalArgumentException(UnlockedReadsView.class.getName()
                     + " can be used to decorate caches clustered with Terracotta only.");
         }
-        this.unsafeStore = (TerracottaStore) store;
+        this.terracottaStore = (TerracottaStore) store;
         this.liveCacheStatisticsData = (LiveCacheStatisticsData) decoratedCache.getLiveCacheStatistics();
     }
 
@@ -96,9 +96,9 @@ public class UnlockedReadsView extends EhcacheDecoratorAdapter {
     private Element getFromStoreWithExpiryCheck(final Object key, final boolean updateStats, final boolean notifyListeners) {
         Element element = null;
         if (updateStats) {
-            element = unsafeStore.unlockedGet(key);
+            element = terracottaStore.unlockedGet(key);
         } else {
-            element = unsafeStore.unlockedGetQuiet(key);
+            element = terracottaStore.unlockedGetQuiet(key);
         }
 
         if (element != null) {
@@ -106,7 +106,7 @@ public class UnlockedReadsView extends EhcacheDecoratorAdapter {
                 if (updateStats) {
                     liveCacheStatisticsData.cacheMissExpired();
                 }
-                element = unsafeStore.remove(key);
+                element = terracottaStore.remove(key);
                 if (notifyListeners) {
                     getCacheEventNotificationService().notifyElementExpiry(element, false);
                 }

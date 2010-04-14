@@ -18,11 +18,11 @@ package net.sf.ehcache;
 
 import net.sf.ehcache.store.Store;
 
-public class UnlockedReadsHelper {
+public class UnlockedReadsViewHelper {
 
     private final Cache cache;
 
-    public UnlockedReadsHelper(final Cache cache) {
+    public UnlockedReadsViewHelper(final Cache cache) {
         this.cache = cache;
     }
 

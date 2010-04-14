@@ -10,9 +10,9 @@
 	</parent>
 
 	<groupId>net.sf.ehcache</groupId>
-	<artifactId>ehcache-unlockedreads</artifactId>
+	<artifactId>ehcache-unlockedreadsview</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>ehcache-unlockedreads</name>
+	<name>ehcache-unlockedreadsview</name>
 	<url>http://ehcache.org</url>
 
 	<properties>
