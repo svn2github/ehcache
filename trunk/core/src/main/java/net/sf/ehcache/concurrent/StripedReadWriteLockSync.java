@@ -133,7 +133,7 @@ public class StripedReadWriteLockSync implements CacheLockProvider {
                 }
 
                 if (!lockHeld) {
-                    for (int j = heldLocks.size(); j >= 0; j--) {
+                    for (int j = heldLocks.size() - 1; j >= 0; j--) {
                         ReadWriteLockSync readWriteLockSync = heldLocks.get(j);
                         readWriteLockSync.unlock(LockType.WRITE);
                     }
