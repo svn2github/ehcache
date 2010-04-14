@@ -13,61 +13,51 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package net.sf.ehcache.hibernate.regions.jta;
+package net.sf.ehcache.hibernate.strategy;
 
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
-import net.sf.ehcache.hibernate.regions.EhcacheCollectionRegion;
+import net.sf.ehcache.hibernate.regions.EhcacheEntityRegion;
 import org.hibernate.cache.CacheException;
-import org.hibernate.cache.CollectionRegion;
-import org.hibernate.cache.access.CollectionRegionAccessStrategy;
+import org.hibernate.cache.EntityRegion;
+import org.hibernate.cache.access.EntityRegionAccessStrategy;
 import org.hibernate.cache.access.SoftLock;
 import org.hibernate.cfg.Settings;
 
 /**
- * JTA CollectionRegionAccessStrategy.
+ * JTA EntityRegionAccessStrategy.
  *
  * @author Chris Dennis
  * @author Ludovic Orban
  */
-public class TransactionalCollectionRegionAccessStrategy implements CollectionRegionAccessStrategy {
+public class TransactionalEhcacheEntityRegionAccessStrategy extends AbstractEhcacheAccessStrategy<EhcacheEntityRegion>
+        implements EntityRegionAccessStrategy {
 
-    private final CollectionRegion region;
     private final Ehcache ehcache;
-    private final Settings settings;
 
     /**
-     * Construct a new collection region access strategy.
+     * Construct a new entity region access strategy.
      * @param region the Hibernate region.
      * @param ehcache the cache.
      * @param settings the Hibernate settings.
      */
-    public TransactionalCollectionRegionAccessStrategy(EhcacheCollectionRegion region, Ehcache ehcache, Settings settings) {
-        this.region = region;
+    public TransactionalEhcacheEntityRegionAccessStrategy(EhcacheEntityRegion region, Ehcache ehcache, Settings settings) {
+        super(region, settings);
         this.ehcache = ehcache;
-        this.settings = settings;
     }
 
     /**
      * {@inheritDoc}
      */
-    public void evict(Object key) throws CacheException {
-        try {
-            ehcache.remove(key);
-        } catch (net.sf.ehcache.CacheException e) {
-            throw new CacheException(e);
-        }
+    public boolean afterInsert(Object key, Object value, Object version) {
+        return false;
     }
 
     /**
      * {@inheritDoc}
      */
-    public void evictAll() throws CacheException {
-        try {
-            ehcache.removeAll();
-        } catch (net.sf.ehcache.CacheException e) {
-            throw new CacheException(e);
-        }
+    public boolean afterUpdate(Object key, Object value, Object currentVersion, Object previousVersion, SoftLock lock) {
+        return false;
     }
 
     /**
@@ -85,8 +75,22 @@ public class TransactionalCollectionRegionAccessStrategy implements CollectionRe
     /**
      * {@inheritDoc}
      */
-    public CollectionRegion getRegion() {
+    public EntityRegion getRegion() {
         return region;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public boolean insert(Object key, Object value, Object version)
+            throws CacheException {
+        //OptimisticCache? versioning?
+        try {
+            ehcache.put(new Element(key, value));
+            return true;
+        } catch (net.sf.ehcache.CacheException e) {
+            throw new CacheException(e);
+        }
     }
 
     /**
@@ -94,21 +98,6 @@ public class TransactionalCollectionRegionAccessStrategy implements CollectionRe
      */
     public SoftLock lockItem(Object key, Object version) throws CacheException {
         return null;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public SoftLock lockRegion() throws CacheException {
-        return null;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public boolean putFromLoad(Object key, Object value, long txTimestamp,
-                               Object version) throws CacheException {
-        return putFromLoad(key, value, txTimestamp, version, settings.isMinimalPutsEnabled());
     }
 
     /**
@@ -142,17 +131,6 @@ public class TransactionalCollectionRegionAccessStrategy implements CollectionRe
     /**
      * {@inheritDoc}
      */
-    public void removeAll() throws CacheException {
-        try {
-            ehcache.removeAll();
-        } catch (net.sf.ehcache.CacheException e) {
-            throw new CacheException(e);
-        }
-    }
-
-    /**
-     * {@inheritDoc}
-     */
     public void unlockItem(Object key, SoftLock lock) throws CacheException {
         // no-op
     }
@@ -160,7 +138,13 @@ public class TransactionalCollectionRegionAccessStrategy implements CollectionRe
     /**
      * {@inheritDoc}
      */
-    public void unlockRegion(SoftLock lock) throws CacheException {
-        // no-op
+    public boolean update(Object key, Object value, Object currentVersion,
+                          Object previousVersion) throws CacheException {
+        try {
+            ehcache.put(new Element(key, value));
+            return true;
+        } catch (net.sf.ehcache.CacheException e) {
+            throw new CacheException(e);
+        }
     }
 }

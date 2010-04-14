@@ -13,7 +13,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package net.sf.ehcache.hibernate.regions.jta;
+package net.sf.ehcache.hibernate;
 
 import net.sf.ehcache.transaction.manager.DefaultTransactionManagerLookup;
 import org.hibernate.HibernateException;

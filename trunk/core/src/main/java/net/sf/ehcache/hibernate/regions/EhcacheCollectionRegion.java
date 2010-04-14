@@ -21,6 +21,7 @@ import net.sf.ehcache.hibernate.strategy.NonStrictReadWriteEhcacheCollectionRegi
 import net.sf.ehcache.hibernate.strategy.ReadOnlyEhcacheCollectionRegionAccessStrategy;
 import net.sf.ehcache.hibernate.strategy.ReadWriteEhcacheCollectionRegionAccessStrategy;
 
+import net.sf.ehcache.hibernate.strategy.TransactionalEhcacheCollectionRegionAccessStrategy;
 import org.hibernate.cache.CacheDataDescription;
 import org.hibernate.cache.CacheException;
 import org.hibernate.cache.CollectionRegion;
@@ -64,7 +65,7 @@ public class EhcacheCollectionRegion extends EhcacheTransactionalDataRegion impl
         } else if (AccessType.NONSTRICT_READ_WRITE.equals(accessType)) {
             return new NonStrictReadWriteEhcacheCollectionRegionAccessStrategy(this, settings);
         } else if (AccessType.TRANSACTIONAL.equals(accessType)) {
-            throw new CacheException("Transactional access is not supported by the Ehcache region factory.");
+            return new TransactionalEhcacheCollectionRegionAccessStrategy(this, getEhcache(), settings);
         } else {
             throw new IllegalArgumentException("unrecognized access strategy type [" + accessType + "]");
         }
