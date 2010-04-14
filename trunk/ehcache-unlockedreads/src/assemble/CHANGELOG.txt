@@ -1,0 +1,11 @@
+$Id$
+
+<release version="0.0.1" date="" desc="Initial release">
+
+    <!-- Features and Enhancements -->
+    <action dev="Abhishek Sanoujam" type="add">
+        Initial release of the ehcache-decorators module
+    </action>
+
+</release>
+
