@@ -58,7 +58,7 @@ import org.slf4j.LoggerFactory;
  */
 public class EhcacheXAResourceImpl implements EhcacheXAResource {
 
-    private static final int DEFAULT_TIMEOUT = 60;
+    private static final int DEFAULT_TIMEOUT = 15;
     private static final int MILLISEC_PER_SECOND = 1000;
 
     private static final Logger LOG = LoggerFactory.getLogger(EhcacheXAResourceImpl.class.getName());
