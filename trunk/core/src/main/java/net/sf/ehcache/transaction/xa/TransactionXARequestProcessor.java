@@ -16,6 +16,11 @@
 
 package net.sf.ehcache.transaction.xa;
 
+import net.sf.ehcache.transaction.xa.XARequest.RequestType;
+
+import javax.transaction.xa.XAException;
+import javax.transaction.xa.XAResource;
+import javax.transaction.xa.Xid;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -24,12 +29,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.ThreadFactory;
-
-import javax.transaction.xa.XAException;
-import javax.transaction.xa.XAResource;
-import javax.transaction.xa.Xid;
-
-import net.sf.ehcache.transaction.xa.XARequest.RequestType;
 
 /**
  * Default implementation for TransactionXARequestProcessor.
@@ -42,7 +41,7 @@ import net.sf.ehcache.transaction.xa.XARequest.RequestType;
  * @author Nabib El-Rahman
  */
 public class TransactionXARequestProcessor implements XARequestProcessor {
-    
+
     private final ConcurrentMap<Xid, ExecutorService> executorMap = new ConcurrentHashMap<Xid, ExecutorService>();
     private EhcacheXAResourceImpl resourceImpl;
     
@@ -69,14 +68,15 @@ public class TransactionXARequestProcessor implements XARequestProcessor {
             xaResponse = future.get();
         } catch (InterruptedException e) {
             cleanupExecutorService(request.getXid());
-            throw new EhcacheXAException(e.getMessage(), -1, e);
+            throw new EhcacheXAException(e.getMessage(), XAException.XAER_RMERR, e);
         } catch (ExecutionException e) {
             cleanupExecutorService(request.getXid());
-            throw new EhcacheXAException(e.getMessage(), -1, e);
+            throw new EhcacheXAException(e.getMessage(), XAException.XAER_RMERR, e);
         }
         if (xaResponse.getXaException() != null) {
             cleanupExecutorService(request.getXid());
-            throw new EhcacheXAException("XA request failed", xaResponse.getXaException().errorCode, xaResponse.getXaException());
+            throw new EhcacheXAException("XA request on [" + request.getXid() + "] failed", xaResponse.getXaException().errorCode,
+                    xaResponse.getXaException());
         }
         
         if (request.getRequestType().equals(RequestType.COMMIT) || 
@@ -120,7 +120,8 @@ public class TransactionXARequestProcessor implements XARequestProcessor {
     private static class XARequestProcessThreadFactory implements ThreadFactory {
         
         private final Xid xid;
-        
+        private Thread thread;
+
         /**
          * Thread factory for xid
          * @param xid associated with thread name
@@ -132,12 +133,17 @@ public class TransactionXARequestProcessor implements XARequestProcessor {
         /**
          * return new correctly named thread
          */
-        public Thread newThread(Runnable runnable) {
-            return new Thread(runnable, "XA-Request Thread Xid [ " + xid + " ] ");
+        public synchronized Thread newThread(Runnable runnable) {
+            if (this.thread != null) {
+                throw new RuntimeException("more than 1 thread requested to work on XID [" + xid + "]");
+            }
+
+            this.thread = new Thread(runnable, "XA-Request processor Thread Xid [ " + xid + " ]");
+            return thread;
         }
         
     }
-    
+
     /**
      * Class to furnish
      * @author Nabib El-Rahman
