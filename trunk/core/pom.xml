@@ -69,7 +69,7 @@
         <dependency>
             <groupId>org.hibernate</groupId>
             <artifactId>hibernate-core</artifactId>
-            <version>3.3.2.GA</version>
+            <version>3.5.0-Final</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
@@ -596,6 +596,20 @@
 
         </plugins>
     </reporting>
+
+    <!-- The JBoss repository is only here to satisfy the 'provided' dependency on hibernate-core -->
+    <repositories>
+        <repository>
+	    <id>jboss-releases</id>
+	    <url>http://repository.jboss.org/maven2</url>
+	    <releases>
+	        <enabled>true</enabled>
+	    </releases>
+	    <snapshots>
+	        <enabled>false</enabled>
+	    </snapshots>
+	</repository>
+    </repositories>
 
     <pluginRepositories>
         <pluginRepository>
