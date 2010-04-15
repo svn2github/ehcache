@@ -10,8 +10,8 @@
   </parent>
 
   <groupId>net.sf.ehcache</groupId>
-  <artifactId>nonstopcache</artifactId>
-  <version>0.0.1-SNAPSHOT</version>
+  <artifactId>ehcache-nonstopcache</artifactId>
+  <version>1.0.0-SNAPSHOT</version>
   <name>nonstopcache</name>
   <url>http://ehcache.org</url>
 
