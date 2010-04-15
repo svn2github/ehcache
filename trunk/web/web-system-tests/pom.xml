@@ -205,7 +205,7 @@
 								<type>standalone</type>
 								<configfiles>
 									<configfile>
-										<file>src/test/resources/jboss-log4j.xml</file>
+										<file>${basedir}/src/test/resources/jboss-log4j.xml</file>
 										<tofile>conf/jboss-log4j.xml</tofile>
 									</configfile>
 								</configfiles>

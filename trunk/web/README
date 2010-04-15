@@ -27,3 +27,7 @@
 	NOTE: 	* You will see a number of exception on the console during system-tests, those are expected until unless any of the test fails.
 		 	* You might get a feeling that it got stuck at  [cargo:start {execution: start-container}] 
 			  But its downloading the app server zip file over the network to ${user.home}/cargo/${cargo.id}. You can check the size of the zip file downloaded.
+
+-	To assemble ehcache-web as tar.gz
+	From web dir
+		mvn clean install assembly:assembly
