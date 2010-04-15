@@ -66,4 +66,11 @@ public interface ClusteredInstanceFactory {
      * @return cache event replicator
      */
     CacheEventListener createEventReplicator(Ehcache cache);
+    
+    /**
+     * Returns a universally unique identifiers for this factory.
+     * 
+     * @return the identifier as a string
+     */
+    String getUUID();
 }
