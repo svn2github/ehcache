@@ -16,6 +16,9 @@
 
 package net.sf.ehcache.event;
 
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
@@ -30,6 +33,8 @@ import net.sf.ehcache.distribution.CacheReplicator;
  */
 public class TerracottaCacheEventReplication implements CacheReplicator {
     private Status status = Status.STATUS_ALIVE;
+    
+    private final ConcurrentMap<Ehcache, CacheEventListener> replicators = new ConcurrentHashMap<Ehcache, CacheEventListener>();
 
     /**
      * {@inheritDoc}
@@ -74,12 +79,21 @@ public class TerracottaCacheEventReplication implements CacheReplicator {
     }
 
     private CacheEventListener createCacheEventReplicator(Ehcache cache) {
-        return cache.getCacheManager().createTerracottaEventReplicator(cache);
+        // the race is not a problem here, since the event replicator will only be created once in the clustered instance factory
+        // this replicator map is simply a locally cached version, several puts for the same cache will result in the same value being put
+        CacheEventListener replicator = replicators.get(cache);
+        if (null == replicator) {
+            replicator = cache.getCacheManager().createTerracottaEventReplicator(cache);
+            replicators.put(cache, replicator);
+        }
+        
+        return replicator;
     }
 
     /**
      * {@inheritDoc}
      */
+    @Override
     public TerracottaCacheEventReplication clone() throws CloneNotSupportedException {
         return (TerracottaCacheEventReplication) super.clone();
     }
