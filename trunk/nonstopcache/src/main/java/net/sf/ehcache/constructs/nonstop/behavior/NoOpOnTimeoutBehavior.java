@@ -22,6 +22,7 @@ import java.util.List;
 
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Element;
+import net.sf.ehcache.Statistics;
 import net.sf.ehcache.constructs.nonstop.NonStopCacheBehavior;
 
 /**
@@ -172,6 +173,106 @@ public class NoOpOnTimeoutBehavior implements NonStopCacheBehavior {
      */
     public void removeAll(final boolean doNotNotifyCacheReplicators) throws IllegalStateException, CacheException {
         // no-op
+    }
+
+    public long calculateInMemorySize() throws IllegalStateException, CacheException {
+        // no-op
+        return 0;
+    }
+
+    public void evictExpiredElements() {
+        // no-op
+
+    }
+
+    public void flush() throws IllegalStateException, CacheException {
+        // no-op
+
+    }
+
+    public int getDiskStoreSize() throws IllegalStateException {
+        // no-op
+        return 0;
+    }
+
+    public Object getInternalContext() {
+        // no-op
+        return null;
+    }
+
+    public long getMemoryStoreSize() throws IllegalStateException {
+        // no-op
+        return 0;
+    }
+
+    public int getSize() throws IllegalStateException, CacheException {
+        // no-op
+        return 0;
+    }
+
+    public int getSizeBasedOnAccuracy(int statisticsAccuracy) throws IllegalArgumentException, IllegalStateException, CacheException {
+        // no-op
+        return 0;
+    }
+
+    public Statistics getStatistics() throws IllegalStateException {
+        // no-op
+        return null;
+    }
+
+    public boolean isElementInMemory(Object key) {
+        // no-op
+        return false;
+    }
+
+    public boolean isElementInMemory(Serializable key) {
+        // no-op
+        return false;
+    }
+
+    public boolean isElementOnDisk(Object key) {
+        // no-op
+        return false;
+    }
+
+    public boolean isElementOnDisk(Serializable key) {
+        // no-op
+        return false;
+    }
+
+    public Element putIfAbsent(Element element) throws NullPointerException {
+        // no-op
+        return null;
+    }
+
+    public boolean removeElement(Element element) throws NullPointerException {
+        // no-op
+        return false;
+    }
+
+    public boolean removeQuiet(Object key) throws IllegalStateException {
+        // no-op
+        return false;
+    }
+
+    public boolean removeQuiet(Serializable key) throws IllegalStateException {
+        // no-op
+        return false;
+    }
+
+    public boolean removeWithWriter(Object key) throws IllegalStateException, CacheException {
+        // no-op
+        return false;
+    }
+
+    public boolean replace(Element old, Element element) throws NullPointerException, IllegalArgumentException {
+        // no-op
+        return false;
+    }
+
+    public Element replace(Element element) throws NullPointerException {
+        // no-op
+        return null;
     }
 
 }

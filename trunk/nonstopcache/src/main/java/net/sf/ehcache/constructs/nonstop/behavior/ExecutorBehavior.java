@@ -23,6 +23,7 @@ import java.util.concurrent.TimeoutException;
 
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Element;
+import net.sf.ehcache.Statistics;
 import net.sf.ehcache.constructs.nonstop.NonStopCacheBehavior;
 import net.sf.ehcache.constructs.nonstop.NonStopCacheConfig;
 import net.sf.ehcache.constructs.nonstop.NonStopCacheExecutorService;
@@ -272,4 +273,251 @@ public class ExecutorBehavior implements NonStopCacheBehavior {
         return result;
     }
 
+    public long calculateInMemorySize() throws IllegalStateException, CacheException {
+        long result = 0;
+        try {
+            result = executeWithExecutor(new Callable<Long>() {
+                public Long call() throws Exception {
+                    return Long.valueOf(executeBehavior.calculateInMemorySize());
+                }
+            });
+        } catch (TimeoutException e) {
+            return timeoutBehaviorResolver.resolveBehavior().calculateInMemorySize();
+        }
+        return result;
+    }
+
+    public void evictExpiredElements() {
+        try {
+            executeWithExecutor(new Callable<Void>() {
+                public Void call() throws Exception {
+                    executeBehavior.evictExpiredElements();
+                    return null;
+                }
+            });
+        } catch (TimeoutException e) {
+            timeoutBehaviorResolver.resolveBehavior().evictExpiredElements();
+        }
+    }
+
+    public void flush() throws IllegalStateException, CacheException {
+        try {
+            executeWithExecutor(new Callable<Void>() {
+                public Void call() throws Exception {
+                    executeBehavior.flush();
+                    return null;
+                }
+            });
+        } catch (TimeoutException e) {
+            timeoutBehaviorResolver.resolveBehavior().flush();
+        }
+    }
+
+    public int getDiskStoreSize() throws IllegalStateException {
+        int result = 0;
+        try {
+            result = executeWithExecutor(new Callable<Integer>() {
+                public Integer call() throws Exception {
+                    return Integer.valueOf(executeBehavior.getDiskStoreSize());
+                }
+            });
+        } catch (TimeoutException e) {
+            return timeoutBehaviorResolver.resolveBehavior().getDiskStoreSize();
+        }
+        return result;
+    }
+
+    public Object getInternalContext() {
+        Object result = 0;
+        try {
+            result = executeWithExecutor(new Callable<Object>() {
+                public Object call() throws Exception {
+                    return executeBehavior.getInternalContext();
+                }
+            });
+        } catch (TimeoutException e) {
+            return timeoutBehaviorResolver.resolveBehavior().getInternalContext();
+        }
+        return result;
+    }
+
+    public long getMemoryStoreSize() throws IllegalStateException {
+        long result = 0;
+        try {
+            result = executeWithExecutor(new Callable<Long>() {
+                public Long call() throws Exception {
+                    return Long.valueOf(executeBehavior.getMemoryStoreSize());
+                }
+            });
+        } catch (TimeoutException e) {
+            return timeoutBehaviorResolver.resolveBehavior().getMemoryStoreSize();
+        }
+        return result;
+    }
+
+    public int getSize() throws IllegalStateException, CacheException {
+        int result = 0;
+        try {
+            result = executeWithExecutor(new Callable<Integer>() {
+                public Integer call() throws Exception {
+                    return Integer.valueOf(executeBehavior.getSize());
+                }
+            });
+        } catch (TimeoutException e) {
+            return timeoutBehaviorResolver.resolveBehavior().getSize();
+        }
+        return result;
+    }
+
+    public int getSizeBasedOnAccuracy(final int statisticsAccuracy) throws IllegalArgumentException, IllegalStateException, CacheException {
+        int result = 0;
+        try {
+            result = executeWithExecutor(new Callable<Integer>() {
+                public Integer call() throws Exception {
+                    return executeBehavior.getSizeBasedOnAccuracy(statisticsAccuracy);
+                }
+            });
+        } catch (TimeoutException e) {
+            return timeoutBehaviorResolver.resolveBehavior().getSizeBasedOnAccuracy(statisticsAccuracy);
+        }
+        return result;
+    }
+
+    public Statistics getStatistics() throws IllegalStateException {
+        Statistics result = null;
+        try {
+            result = executeWithExecutor(new Callable<Statistics>() {
+                public Statistics call() throws Exception {
+                    return executeBehavior.getStatistics();
+                }
+            });
+        } catch (TimeoutException e) {
+            return timeoutBehaviorResolver.resolveBehavior().getStatistics();
+        }
+        return result;
+    }
+
+    public boolean isElementInMemory(final Object key) {
+        boolean result = false;
+        try {
+            result = executeWithExecutor(new Callable<Boolean>() {
+                public Boolean call() throws Exception {
+                    return executeBehavior.isElementInMemory(key);
+                }
+            });
+        } catch (TimeoutException e) {
+            return timeoutBehaviorResolver.resolveBehavior().isElementInMemory(key);
+        }
+        return result;
+    }
+
+    public boolean isElementInMemory(Serializable key) {
+        return isElementInMemory((Object) key);
+    }
+
+    public boolean isElementOnDisk(final Object key) {
+        boolean result = false;
+        try {
+            result = executeWithExecutor(new Callable<Boolean>() {
+                public Boolean call() throws Exception {
+                    return executeBehavior.isElementOnDisk(key);
+                }
+            });
+        } catch (TimeoutException e) {
+            return timeoutBehaviorResolver.resolveBehavior().isElementOnDisk(key);
+        }
+        return result;
+    }
+
+    public boolean isElementOnDisk(Serializable key) {
+        return isElementOnDisk((Object) key);
+    }
+
+    public Element putIfAbsent(final Element element) throws NullPointerException {
+        Element result = null;
+        try {
+            result = executeWithExecutor(new Callable<Element>() {
+                public Element call() throws Exception {
+                    return executeBehavior.putIfAbsent(element);
+                }
+            });
+        } catch (TimeoutException e) {
+            return timeoutBehaviorResolver.resolveBehavior().putIfAbsent(element);
+        }
+        return result;
+    }
+
+    public boolean removeElement(final Element element) throws NullPointerException {
+        boolean result = false;
+        try {
+            result = executeWithExecutor(new Callable<Boolean>() {
+                public Boolean call() throws Exception {
+                    return executeBehavior.removeElement(element);
+                }
+            });
+        } catch (TimeoutException e) {
+            return timeoutBehaviorResolver.resolveBehavior().removeElement(element);
+        }
+        return result;
+    }
+
+    public boolean removeQuiet(final Object key) throws IllegalStateException {
+        boolean result = false;
+        try {
+            result = executeWithExecutor(new Callable<Boolean>() {
+                public Boolean call() throws Exception {
+                    return executeBehavior.removeQuiet(key);
+                }
+            });
+        } catch (TimeoutException e) {
+            return timeoutBehaviorResolver.resolveBehavior().removeQuiet(key);
+        }
+        return result;
+    }
+
+    public boolean removeQuiet(Serializable key) throws IllegalStateException {
+        return removeQuiet((Object) key);
+    }
+
+    public boolean removeWithWriter(final Object key) throws IllegalStateException, CacheException {
+        boolean result = false;
+        try {
+            result = executeWithExecutor(new Callable<Boolean>() {
+                public Boolean call() throws Exception {
+                    return executeBehavior.removeWithWriter(key);
+                }
+            });
+        } catch (TimeoutException e) {
+            return timeoutBehaviorResolver.resolveBehavior().removeWithWriter(key);
+        }
+        return result;
+    }
+
+    public boolean replace(final Element old, final Element element) throws NullPointerException, IllegalArgumentException {
+        boolean result = false;
+        try {
+            result = executeWithExecutor(new Callable<Boolean>() {
+                public Boolean call() throws Exception {
+                    return executeBehavior.replace(old, element);
+                }
+            });
+        } catch (TimeoutException e) {
+            return timeoutBehaviorResolver.resolveBehavior().replace(old, element);
+        }
+        return result;
+    }
+
+    public Element replace(final Element element) throws NullPointerException {
+        Element result = null;
+        try {
+            result = executeWithExecutor(new Callable<Element>() {
+                public Element call() throws Exception {
+                    return executeBehavior.replace(element);
+                }
+            });
+        } catch (TimeoutException e) {
+            return timeoutBehaviorResolver.resolveBehavior().replace(element);
+        }
+        return result;
+    }
 }

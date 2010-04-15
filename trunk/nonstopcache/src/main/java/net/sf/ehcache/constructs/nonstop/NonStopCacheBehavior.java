@@ -21,6 +21,7 @@ import java.util.List;
 
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Element;
+import net.sf.ehcache.Statistics;
 
 /**
  * Interface that defines behaviors for different get/put/remove operations on a cache.
@@ -80,6 +81,8 @@ public interface NonStopCacheBehavior {
      * @throws CacheException
      */
     public List getKeysWithExpiryCheck() throws IllegalStateException, CacheException;
+
+    int getSizeBasedOnAccuracy(int statisticsAccuracy) throws IllegalArgumentException, IllegalStateException, CacheException;
 
     /**
      * This method is called when the same operation times out in the TimeoutCache
@@ -162,6 +165,10 @@ public interface NonStopCacheBehavior {
 
     public boolean remove(final Serializable key) throws IllegalStateException;
 
+    boolean removeQuiet(Object key) throws IllegalStateException;
+
+    boolean removeQuiet(Serializable key) throws IllegalStateException;
+
     /**
      * This method is called when the same operation times out in the TimeoutCache
      * 
@@ -178,5 +185,39 @@ public interface NonStopCacheBehavior {
      * @throws CacheException
      */
     public void removeAll(boolean doNotNotifyCacheReplicators) throws IllegalStateException, CacheException;
+
+    boolean removeWithWriter(Object key) throws IllegalStateException, CacheException;
+
+    Object getInternalContext();
+
+    Statistics getStatistics() throws IllegalStateException;
+
+    long calculateInMemorySize() throws IllegalStateException, CacheException;
+
+    long getMemoryStoreSize() throws IllegalStateException;
+
+    int getDiskStoreSize() throws IllegalStateException;
+
+    boolean isElementInMemory(Serializable key);
+
+    boolean isElementInMemory(Object key);
+
+    boolean isElementOnDisk(Serializable key);
+
+    boolean isElementOnDisk(Object key);
+
+    void evictExpiredElements();
+
+    boolean replace(Element old, Element element) throws NullPointerException, IllegalArgumentException;
+
+    Element replace(Element element) throws NullPointerException;
+
+    void flush() throws IllegalStateException, CacheException;
+
+    int getSize() throws IllegalStateException, CacheException;
+
+    boolean removeElement(Element element) throws NullPointerException;
+
+    Element putIfAbsent(Element element) throws NullPointerException;
 
 }

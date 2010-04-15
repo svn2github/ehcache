@@ -32,6 +32,12 @@
       <version>4.7</version>
       <scope>test</scope>
     </dependency>
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-simple</artifactId>
+      <version>1.5.8</version>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
 
   <build>
@@ -80,34 +86,8 @@
           </includes>
           <excludes>
             <exclude>**/*$*</exclude>
-            <exclude>**/web/**/*</exclude>
             <exclude>**/Abstract*Test.java</exclude>
-            <exclude>**/constructs/web/**</exclude>
           </excludes>
-          <forkMode>pertest</forkMode>
-          <childDelegation>false</childDelegation>
-          <disableXmlReport>false</disableXmlReport>
-          <printSummary>true</printSummary>
-          <!--<reportFormat>plain</reportFormat>-->
-          <redirectTestOutputToFile>true</redirectTestOutputToFile>
-          <systemProperties>
-            <property>
-              <name>net.sf.ehcache.skipUpdateCheck</name>
-              <value>true</value>
-            </property>
-            <property>
-              <name>java.awt.headless</name>
-              <value>true</value>
-            </property>
-            <property>
-              <name>
-                net.sf.ehcache.speedAdjustmentFactor
-                            </name>
-              <value>
-                ${net.sf.ehcache.speedAdjustmentFactor}
-                            </value>
-            </property>
-          </systemProperties>
         </configuration>
       </plugin>
       <plugin>

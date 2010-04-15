@@ -21,6 +21,7 @@ import java.util.List;
 
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Element;
+import net.sf.ehcache.Statistics;
 import net.sf.ehcache.constructs.nonstop.NonStopCacheBehavior;
 import net.sf.ehcache.constructs.nonstop.NonStopCacheException;
 
@@ -38,9 +39,9 @@ public class ExceptionOnTimeoutBehavior implements NonStopCacheBehavior {
     private static final ExceptionOnTimeoutBehavior INSTANCE = new ExceptionOnTimeoutBehavior();
 
     /**
-     * Returns the singleton instance
+     * throw news the singleton instance
      * 
-     * @return the singleton instance
+     * @throw new the singleton instance
      */
     public static ExceptionOnTimeoutBehavior getInstance() {
         return INSTANCE;
@@ -178,4 +179,83 @@ public class ExceptionOnTimeoutBehavior implements NonStopCacheBehavior {
         throw new NonStopCacheException("removeAll with doNotNotifyCacheReplicators - '" + doNotNotifyCacheReplicators + "' timed out");
     }
 
+    public long calculateInMemorySize() throws IllegalStateException, CacheException {
+        throw new NonStopCacheException("calculateInMemorySize timed out");
+    }
+
+    public void evictExpiredElements() {
+        throw new NonStopCacheException("evictExpiredElements timed out");
+    }
+
+    public void flush() throws IllegalStateException, CacheException {
+        throw new NonStopCacheException("flush timed out");
+    }
+
+    public int getDiskStoreSize() throws IllegalStateException {
+        throw new NonStopCacheException("getDiskStoreSize timed out");
+    }
+
+    public Object getInternalContext() {
+        throw new NonStopCacheException("getInternalContext timed out");
+    }
+
+    public long getMemoryStoreSize() throws IllegalStateException {
+        throw new NonStopCacheException("getMemoryStoreSize timed out");
+    }
+
+    public int getSize() throws IllegalStateException, CacheException {
+        throw new NonStopCacheException("getSize timed out");
+    }
+
+    public int getSizeBasedOnAccuracy(int statisticsAccuracy) throws IllegalArgumentException, IllegalStateException, CacheException {
+        throw new NonStopCacheException("getSizeBasedOnAccuracy statisticsAccuracytimed out");
+    }
+
+    public Statistics getStatistics() throws IllegalStateException {
+        throw new NonStopCacheException("getStatistics timed out");
+    }
+
+    public boolean isElementInMemory(Object key) {
+        throw new NonStopCacheException("isElementInMemory timed out");
+    }
+
+    public boolean isElementInMemory(Serializable key) {
+        return isElementInMemory((Object) key);
+    }
+
+    public boolean isElementOnDisk(Object key) {
+        throw new NonStopCacheException("isElementOnDisk timed out");
+    }
+
+    public boolean isElementOnDisk(Serializable key) {
+        return isElementOnDisk((Object) key);
+    }
+
+    public Element putIfAbsent(Element element) throws NullPointerException {
+        throw new NonStopCacheException("putIfAbsent timed out");
+    }
+
+    public boolean removeElement(Element element) throws NullPointerException {
+        throw new NonStopCacheException("removeElement timed out");
+    }
+
+    public boolean removeQuiet(Object key) throws IllegalStateException {
+        throw new NonStopCacheException("removeQuiet timed out");
+    }
+
+    public boolean removeQuiet(Serializable key) throws IllegalStateException {
+        return removeQuiet((Object) key);
+    }
+
+    public boolean removeWithWriter(Object key) throws IllegalStateException, CacheException {
+        throw new NonStopCacheException("removeWithWriter timed out");
+    }
+
+    public boolean replace(Element old, Element element) throws NullPointerException, IllegalArgumentException {
+        throw new NonStopCacheException("replace timed out");
+    }
+
+    public Element replace(Element element) throws NullPointerException {
+        throw new NonStopCacheException("replace timed out");
+    }
 }

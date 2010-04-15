@@ -22,6 +22,7 @@ import java.util.List;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
+import net.sf.ehcache.Statistics;
 import net.sf.ehcache.constructs.nonstop.NonStopCacheBehavior;
 
 public class DirectDelegateBehavior implements NonStopCacheBehavior {
@@ -107,6 +108,86 @@ public class DirectDelegateBehavior implements NonStopCacheBehavior {
 
     public void removeAll(final boolean doNotNotifyCacheReplicators) throws IllegalStateException, CacheException {
         underlyingCache.removeAll(doNotNotifyCacheReplicators);
+    }
+
+    public long calculateInMemorySize() throws IllegalStateException, CacheException {
+        return underlyingCache.calculateInMemorySize();
+    }
+
+    public void evictExpiredElements() {
+        underlyingCache.evictExpiredElements();
+    }
+
+    public void flush() throws IllegalStateException, CacheException {
+        underlyingCache.flush();
+    }
+
+    public int getDiskStoreSize() throws IllegalStateException {
+        return underlyingCache.getDiskStoreSize();
+    }
+
+    public Object getInternalContext() {
+        return underlyingCache.getInternalContext();
+    }
+
+    public long getMemoryStoreSize() throws IllegalStateException {
+        return underlyingCache.getMemoryStoreSize();
+    }
+
+    public int getSize() throws IllegalStateException, CacheException {
+        return underlyingCache.getSize();
+    }
+
+    public int getSizeBasedOnAccuracy(int statisticsAccuracy) throws IllegalArgumentException, IllegalStateException, CacheException {
+        return underlyingCache.getSizeBasedOnAccuracy(statisticsAccuracy);
+    }
+
+    public Statistics getStatistics() throws IllegalStateException {
+        return underlyingCache.getStatistics();
+    }
+
+    public boolean isElementInMemory(Object key) {
+        return underlyingCache.isElementInMemory(key);
+    }
+
+    public boolean isElementInMemory(Serializable key) {
+        return isElementInMemory((Object) key);
+    }
+
+    public boolean isElementOnDisk(Object key) {
+        return underlyingCache.isElementOnDisk(key);
+    }
+
+    public boolean isElementOnDisk(Serializable key) {
+        return isElementOnDisk((Object) key);
+    }
+
+    public Element putIfAbsent(Element element) throws NullPointerException {
+        return underlyingCache.putIfAbsent(element);
+    }
+
+    public boolean removeElement(Element element) throws NullPointerException {
+        return underlyingCache.removeElement(element);
+    }
+
+    public boolean removeQuiet(Object key) throws IllegalStateException {
+        return underlyingCache.removeQuiet(key);
+    }
+
+    public boolean removeQuiet(Serializable key) throws IllegalStateException {
+        return removeQuiet((Object) key);
+    }
+
+    public boolean removeWithWriter(Object key) throws IllegalStateException, CacheException {
+        return underlyingCache.removeWithWriter(key);
+    }
+
+    public boolean replace(Element old, Element element) throws NullPointerException, IllegalArgumentException {
+        return underlyingCache.replace(old, element);
+    }
+
+    public Element replace(Element element) throws NullPointerException {
+        return underlyingCache.replace(element);
     }
 
 }

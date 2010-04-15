@@ -30,7 +30,7 @@ public class OverrideCheck {
         }
 
         if (!missing.isEmpty()) {
-            throw new RuntimeException("Missing overrides:\n" + missing);
+            throw new RuntimeException(subClass.getName() + " is missing overrides (defined in " + parent.getName() + "):\n" + missing);
         }
     }
 

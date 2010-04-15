@@ -22,6 +22,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Element;
+import net.sf.ehcache.Statistics;
 import net.sf.ehcache.constructs.nonstop.NonStopCacheBehavior;
 import net.sf.ehcache.constructs.nonstop.NonStopCacheConfig;
 
@@ -222,6 +223,154 @@ public class ClusterOfflineBehavior implements NonStopCacheBehavior {
             timeoutBehaviorResolver.resolveBehavior().removeAll(doNotNotifyCacheReplicators);
         } else {
             executorBehavior.removeAll(doNotNotifyCacheReplicators);
+        }
+    }
+
+    public long calculateInMemorySize() throws IllegalStateException, CacheException {
+        if (shouldTimeoutImmediately()) {
+            return timeoutBehaviorResolver.resolveBehavior().calculateInMemorySize();
+        } else {
+            return executorBehavior.calculateInMemorySize();
+        }
+    }
+
+    public void evictExpiredElements() {
+        if (shouldTimeoutImmediately()) {
+            timeoutBehaviorResolver.resolveBehavior().evictExpiredElements();
+        } else {
+            executorBehavior.evictExpiredElements();
+        }
+    }
+
+    public void flush() throws IllegalStateException, CacheException {
+        if (shouldTimeoutImmediately()) {
+            timeoutBehaviorResolver.resolveBehavior().flush();
+        } else {
+            executorBehavior.flush();
+        }
+    }
+
+    public int getDiskStoreSize() throws IllegalStateException {
+        if (shouldTimeoutImmediately()) {
+            return timeoutBehaviorResolver.resolveBehavior().getDiskStoreSize();
+        } else {
+            return executorBehavior.getDiskStoreSize();
+        }
+    }
+
+    public Object getInternalContext() {
+        if (shouldTimeoutImmediately()) {
+            return timeoutBehaviorResolver.resolveBehavior().getInternalContext();
+        } else {
+            return executorBehavior.getInternalContext();
+        }
+    }
+
+    public long getMemoryStoreSize() throws IllegalStateException {
+        if (shouldTimeoutImmediately()) {
+            return timeoutBehaviorResolver.resolveBehavior().getMemoryStoreSize();
+        } else {
+            return executorBehavior.getMemoryStoreSize();
+        }
+    }
+
+    public int getSize() throws IllegalStateException, CacheException {
+        if (shouldTimeoutImmediately()) {
+            return timeoutBehaviorResolver.resolveBehavior().getSize();
+        } else {
+            return executorBehavior.getSize();
+        }
+    }
+
+    public int getSizeBasedOnAccuracy(int statisticsAccuracy) throws IllegalArgumentException, IllegalStateException, CacheException {
+        if (shouldTimeoutImmediately()) {
+            return timeoutBehaviorResolver.resolveBehavior().getSizeBasedOnAccuracy(statisticsAccuracy);
+        } else {
+            return executorBehavior.getSizeBasedOnAccuracy(statisticsAccuracy);
+        }
+    }
+
+    public Statistics getStatistics() throws IllegalStateException {
+        if (shouldTimeoutImmediately()) {
+            return timeoutBehaviorResolver.resolveBehavior().getStatistics();
+        } else {
+            return executorBehavior.getStatistics();
+        }
+    }
+
+    public boolean isElementInMemory(Object key) {
+        if (shouldTimeoutImmediately()) {
+            return timeoutBehaviorResolver.resolveBehavior().isElementInMemory(key);
+        } else {
+            return executorBehavior.isElementInMemory(key);
+        }
+    }
+
+    public boolean isElementInMemory(Serializable key) {
+        return isElementInMemory((Object) key);
+    }
+
+    public boolean isElementOnDisk(Object key) {
+        if (shouldTimeoutImmediately()) {
+            return timeoutBehaviorResolver.resolveBehavior().isElementOnDisk(key);
+        } else {
+            return executorBehavior.isElementOnDisk(key);
+        }
+    }
+
+    public boolean isElementOnDisk(Serializable key) {
+        return isElementOnDisk((Object) key);
+    }
+
+    public Element putIfAbsent(Element element) throws NullPointerException {
+        if (shouldTimeoutImmediately()) {
+            return timeoutBehaviorResolver.resolveBehavior().putIfAbsent(element);
+        } else {
+            return executorBehavior.putIfAbsent(element);
+        }
+    }
+
+    public boolean removeElement(Element element) throws NullPointerException {
+        if (shouldTimeoutImmediately()) {
+            return timeoutBehaviorResolver.resolveBehavior().removeElement(element);
+        } else {
+            return executorBehavior.removeElement(element);
+        }
+    }
+
+    public boolean removeQuiet(Object key) throws IllegalStateException {
+        if (shouldTimeoutImmediately()) {
+            return timeoutBehaviorResolver.resolveBehavior().removeQuiet(key);
+        } else {
+            return executorBehavior.removeQuiet(key);
+        }
+    }
+
+    public boolean removeQuiet(Serializable key) throws IllegalStateException {
+        return removeQuiet((Object) key);
+    }
+
+    public boolean removeWithWriter(Object key) throws IllegalStateException, CacheException {
+        if (shouldTimeoutImmediately()) {
+            return timeoutBehaviorResolver.resolveBehavior().removeWithWriter(key);
+        } else {
+            return executorBehavior.removeWithWriter(key);
+        }
+    }
+
+    public boolean replace(Element old, Element element) throws NullPointerException, IllegalArgumentException {
+        if (shouldTimeoutImmediately()) {
+            return timeoutBehaviorResolver.resolveBehavior().replace(old, element);
+        } else {
+            return executorBehavior.replace(old, element);
+        }
+    }
+
+    public Element replace(Element element) throws NullPointerException {
+        if (shouldTimeoutImmediately()) {
+            return timeoutBehaviorResolver.resolveBehavior().replace(element);
+        } else {
+            return executorBehavior.replace(element);
         }
     }
 

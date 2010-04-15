@@ -27,8 +27,10 @@ import java.util.concurrent.atomic.AtomicInteger;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
+import net.sf.ehcache.Statistics;
 import net.sf.ehcache.cluster.CacheCluster;
 import net.sf.ehcache.cluster.ClusterScheme;
+import net.sf.ehcache.cluster.ClusterSchemeNotAvailableException;
 import net.sf.ehcache.constructs.EhcacheDecoratorAdapter;
 import net.sf.ehcache.constructs.nonstop.behavior.ClusterOfflineBehavior;
 import net.sf.ehcache.constructs.nonstop.behavior.DirectDelegateBehavior;
@@ -36,7 +38,12 @@ import net.sf.ehcache.constructs.nonstop.behavior.ExecutorBehavior;
 import net.sf.ehcache.constructs.nonstop.behavior.NonStopCacheBehaviorResolver;
 import net.sf.ehcache.constructs.nonstop.util.OverrideCheck;
 
-public class NonStopCache extends EhcacheDecoratorAdapter implements NonStopCacheConfig, NonStopCacheBehaviorResolver {
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+public class NonStopCache extends EhcacheDecoratorAdapter implements NonStopCacheConfig, NonStopCacheBehavior, NonStopCacheBehaviorResolver {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(NonStopCache.class);
 
     static {
         // make sure non-stop cache overrides all methods of NonStopCacheBehavior
@@ -88,12 +95,19 @@ public class NonStopCache extends EhcacheDecoratorAdapter implements NonStopCach
         super(decoratedCache);
         this.nonStopCacheConfig = nonStopCacheConfig;
         this.nonStopCacheExecutorService = nonStopCacheExecutorService;
-        this.cacheCluster = decoratedCache.getCacheManager().getCluster(ClusterScheme.TERRACOTTA);
         this.timeoutBehaviors = new ConcurrentHashMap<NonStopCacheBehaviorType, NonStopCacheBehavior>();
         this.executeWithExecutorBehavior = new ExecutorBehavior(new DirectDelegateBehavior(decoratedCache), nonStopCacheConfig,
                 nonStopCacheExecutorService, this);
         this.clusterOfflineBehavior = new ClusterOfflineBehavior(nonStopCacheConfig, this, executeWithExecutorBehavior);
         this.nonStopCacheExecutorService.attachCache(this);
+        CacheCluster cluster;
+        try {
+            cluster = decoratedCache.getCacheManager().getCluster(ClusterScheme.TERRACOTTA);
+        } catch (ClusterSchemeNotAvailableException e) {
+            LOGGER.info("Terracotta ClusterScheme is not available, using ClusterScheme.NONE");
+            cluster = decoratedCache.getCacheManager().getCluster(ClusterScheme.NONE);
+        }
+        this.cacheCluster = cluster;
     }
 
     public NonStopCacheConfig getNonStopCacheConfig() {
@@ -265,6 +279,158 @@ public class NonStopCache extends EhcacheDecoratorAdapter implements NonStopCach
             return clusterOfflineBehavior.isValueInCache(value);
         }
         return executeWithExecutorBehavior.isValueInCache(value);
+    }
+
+    @Override
+    public long calculateInMemorySize() throws IllegalStateException, CacheException {
+        if (isClusterOffline()) {
+            return clusterOfflineBehavior.calculateInMemorySize();
+        }
+        return executeWithExecutorBehavior.calculateInMemorySize();
+    }
+
+    @Override
+    public void evictExpiredElements() {
+        if (isClusterOffline()) {
+            clusterOfflineBehavior.evictExpiredElements();
+        }
+        executeWithExecutorBehavior.evictExpiredElements();
+    }
+
+    @Override
+    public void flush() throws IllegalStateException, CacheException {
+        if (isClusterOffline()) {
+            clusterOfflineBehavior.flush();
+        }
+        executeWithExecutorBehavior.flush();
+    }
+
+    @Override
+    public int getDiskStoreSize() throws IllegalStateException {
+        if (isClusterOffline()) {
+            return clusterOfflineBehavior.getDiskStoreSize();
+        }
+        return executeWithExecutorBehavior.getDiskStoreSize();
+    }
+
+    @Override
+    public Object getInternalContext() {
+        if (isClusterOffline()) {
+            return clusterOfflineBehavior.getInternalContext();
+
+        }
+        return executeWithExecutorBehavior.getInternalContext();
+    }
+
+    @Override
+    public long getMemoryStoreSize() throws IllegalStateException {
+        if (isClusterOffline()) {
+            return clusterOfflineBehavior.getMemoryStoreSize();
+        }
+        return executeWithExecutorBehavior.getMemoryStoreSize();
+    }
+
+    @Override
+    public int getSize() throws IllegalStateException, CacheException {
+        if (isClusterOffline()) {
+            return clusterOfflineBehavior.getSize();
+        }
+        return executeWithExecutorBehavior.getSize();
+    }
+
+    @Override
+    public int getSizeBasedOnAccuracy(int statisticsAccuracy) throws IllegalArgumentException, IllegalStateException, CacheException {
+        if (isClusterOffline()) {
+            return clusterOfflineBehavior.getSizeBasedOnAccuracy(statisticsAccuracy);
+        }
+        return executeWithExecutorBehavior.getSizeBasedOnAccuracy(statisticsAccuracy);
+    }
+
+    @Override
+    public Statistics getStatistics() throws IllegalStateException {
+        if (isClusterOffline()) {
+            return clusterOfflineBehavior.getStatistics();
+        }
+        return executeWithExecutorBehavior.getStatistics();
+    }
+
+    @Override
+    public boolean isElementInMemory(Object key) {
+        if (isClusterOffline()) {
+            return clusterOfflineBehavior.isElementInMemory(key);
+        }
+        return executeWithExecutorBehavior.isElementInMemory(key);
+    }
+
+    @Override
+    public boolean isElementInMemory(Serializable key) {
+        return isElementInMemory((Object) key);
+    }
+
+    @Override
+    public boolean isElementOnDisk(Object key) {
+        if (isClusterOffline()) {
+            return clusterOfflineBehavior.isElementOnDisk(key);
+        }
+        return executeWithExecutorBehavior.isElementOnDisk(key);
+    }
+
+    @Override
+    public boolean isElementOnDisk(Serializable key) {
+        return isElementOnDisk((Object) key);
+    }
+
+    @Override
+    public Element putIfAbsent(Element element) throws NullPointerException {
+        if (isClusterOffline()) {
+            return clusterOfflineBehavior.putIfAbsent(element);
+        }
+        return executeWithExecutorBehavior.putIfAbsent(element);
+    }
+
+    @Override
+    public boolean removeElement(Element element) throws NullPointerException {
+        if (isClusterOffline()) {
+            return clusterOfflineBehavior.removeElement(element);
+        }
+        return executeWithExecutorBehavior.removeElement(element);
+    }
+
+    @Override
+    public boolean removeQuiet(Object key) throws IllegalStateException {
+        if (isClusterOffline()) {
+            return clusterOfflineBehavior.removeQuiet(key);
+        }
+        return executeWithExecutorBehavior.removeQuiet(key);
+    }
+
+    @Override
+    public boolean removeQuiet(Serializable key) throws IllegalStateException {
+        return removeQuiet((Object) key);
+    }
+
+    @Override
+    public boolean removeWithWriter(Object key) throws IllegalStateException, CacheException {
+        if (isClusterOffline()) {
+            return clusterOfflineBehavior.removeWithWriter(key);
+        }
+        return executeWithExecutorBehavior.removeWithWriter(key);
+    }
+
+    @Override
+    public boolean replace(Element old, Element element) throws NullPointerException, IllegalArgumentException {
+        if (isClusterOffline()) {
+            return clusterOfflineBehavior.replace(old, element);
+        }
+        return executeWithExecutorBehavior.replace(old, element);
+    }
+
+    @Override
+    public Element replace(Element element) throws NullPointerException {
+        if (isClusterOffline()) {
+            return clusterOfflineBehavior.replace(element);
+        }
+        return executeWithExecutorBehavior.replace(element);
     }
 
     public long getTimeoutMillis() {
