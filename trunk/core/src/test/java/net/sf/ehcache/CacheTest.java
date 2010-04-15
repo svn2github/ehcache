@@ -128,6 +128,20 @@ public class CacheTest extends AbstractCacheTest {
         }
 
     }
+    
+    /**
+     * Test multiple calls to dispose is not a problem
+     */
+    @Test
+    public void testMultipleDispose() {
+        Ehcache cache = new Cache("testCache", 1, true, false, 5, 2);
+        manager.addCache(cache);
+        cache.dispose();
+        // call dispose multiple times, shouldn't throw IllegalStateException anymore
+        for (int i = 0; i < 10; i++) {
+            cache.dispose();
+        }
+    }
 
 
     /**

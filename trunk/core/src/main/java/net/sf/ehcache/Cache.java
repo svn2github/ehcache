@@ -1971,7 +1971,9 @@ public class Cache implements Ehcache {
      * @throws IllegalStateException if the cache is already {@link Status#STATUS_SHUTDOWN}
      */
     public synchronized void dispose() throws IllegalStateException {
-        checkStatusNotDisposed();
+        if (checkStatusAlreadyDisposed()) {
+            return;
+        }
 
         if (executorService != null) {
             executorService.shutdown();
@@ -2163,11 +2165,9 @@ public class Cache implements Ehcache {
             throw new IllegalStateException("The " + configuration.getName() + " Cache is not alive.");
         }
     }
-
-    private void checkStatusNotDisposed() throws IllegalStateException {
-        if (status.equals(Status.STATUS_SHUTDOWN)) {
-            throw new IllegalStateException("The " + configuration.getName() + " Cache is disposed.");
-        }
+    
+    private boolean checkStatusAlreadyDisposed() throws IllegalStateException {
+        return status.equals(Status.STATUS_SHUTDOWN);
     }
 
 
