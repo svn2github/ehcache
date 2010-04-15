@@ -19,12 +19,17 @@ package net.sf.ehcache.store.compound;
 import java.util.AbstractSet;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 import java.util.Set;
+import java.util.SortedMap;
+import java.util.TreeMap;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
@@ -562,12 +567,15 @@ public abstract class CompoundStore implements Store {
          * {@inheritDoc}
          */
         public Sync[] getAndWriteLockAllSyncForKeys(Object... keys) {
-            Set<Segment> segs = getSegmentsFor(keys);
+            Map<Segment, AtomicInteger> segs = getSegmentsFor(keys);
 
             List<Sync> ordered = new ArrayList<Sync>();
             for (Segment s : CompoundStore.this.segments) {
-                if (segs.contains(s)) {
-                    s.writeLock().lock();
+                if (segs.containsKey(s)) {
+                    AtomicInteger counter = segs.get(s);
+                    while(counter.getAndDecrement() > 0) {
+                        s.writeLock().lock();
+                    }
                     ordered.add(new ReadWriteLockSync(s));
                 }
             }
@@ -576,18 +584,22 @@ public abstract class CompoundStore implements Store {
         }
 
         public Sync[] getAndWriteLockAllSyncForKeys(long timeout, Object... keys) throws LocksAcquisitionException {
-            Set<Segment> segs = getSegmentsFor(keys);
+            Map<Segment, AtomicInteger> segs = getSegmentsFor(keys);
 
             List<ReentrantReadWriteLock.WriteLock> acquiredLocks = new ArrayList<ReentrantReadWriteLock.WriteLock>();
             boolean lockHeld;
 
             List<Sync> ordered = new ArrayList<Sync>();
             for (Segment s : CompoundStore.this.segments) {
-                if (segs.contains(s)) {
+                if (segs.containsKey(s)) {
                     try {
                         ReentrantReadWriteLock.WriteLock writeLock = s.writeLock();
                         lockHeld = writeLock.tryLock(timeout, TimeUnit.MILLISECONDS);
                         if (lockHeld) {
+                            AtomicInteger counter = segs.get(s);
+                            while(counter.decrementAndGet() > 0) {
+                                s.writeLock().lock();
+                            }
                             acquiredLocks.add(writeLock);
                         }
                     } catch (InterruptedException e) {
@@ -621,16 +633,23 @@ public abstract class CompoundStore implements Store {
          * {@inheritDoc}
          */
         public void unlockWriteLockForAllKeys(Object... keys) {
-            for (Segment s : getSegmentsFor(keys)) {
-                s.writeLock().unlock();
+            for (Map.Entry<Segment, AtomicInteger> entry : getSegmentsFor(keys).entrySet()) {
+                while(entry.getValue().getAndDecrement() > 0) {
+                    entry.getKey().writeLock().unlock();
+                }
             }
         }
         
-        private Set<Segment> getSegmentsFor(Object... keys) {
-            Set<Segment> segs = new HashSet<Segment>();
+        private Map<Segment, AtomicInteger> getSegmentsFor(Object... keys) {
+            Map<Segment, AtomicInteger> segs = new HashMap<Segment, AtomicInteger>();
             
             for (Object k : keys) {
-                segs.add(segmentFor(hash(k.hashCode())));
+                Segment key = segmentFor(hash(k.hashCode()));
+                if(segs.containsKey(key)) {
+                    segs.get(key).getAndIncrement();
+                } else {
+                    segs.put(key, new AtomicInteger(1));
+                }
             }
             
             return segs;
