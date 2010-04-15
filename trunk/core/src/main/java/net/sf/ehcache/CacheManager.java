@@ -17,6 +17,7 @@ package net.sf.ehcache;
 
 import net.sf.ehcache.cluster.CacheCluster;
 import net.sf.ehcache.cluster.ClusterScheme;
+import net.sf.ehcache.cluster.ClusterSchemeNotAvailableException;
 import net.sf.ehcache.cluster.NoopCacheCluster;
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.Configuration;
@@ -1281,15 +1282,20 @@ public class CacheManager {
      *
      * @param scheme The clustering scheme to retrieve information about (such as "Terracotta")
      * @return Cluster API (never null, but possibly a simple single node implementation)
+     * @throws ClusterSchemeNotAvailableException If the CacheCluster specified by scheme is not available.
      * @see ClusterScheme
      * @since 2.0
      */
-    public CacheCluster getCluster(ClusterScheme scheme) {
+    public CacheCluster getCluster(ClusterScheme scheme) throws ClusterSchemeNotAvailableException {
         switch (scheme) {
-            case TERRACOTTA:
-                return terracottaClusteredInstanceFactory.getTopology();
-            default:
-                return NoopCacheCluster.INSTANCE;
+        case TERRACOTTA:
+            if (terracottaClusteredInstanceFactory == null) {
+                throw new ClusterSchemeNotAvailableException(ClusterScheme.TERRACOTTA,
+                        "Terracotta cluster scheme is not available");
+            }
+            return terracottaClusteredInstanceFactory.getTopology();
+        default:
+            return NoopCacheCluster.INSTANCE;
         }
     }
 
