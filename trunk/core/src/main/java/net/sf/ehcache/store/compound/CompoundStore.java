@@ -20,14 +20,11 @@ import java.util.AbstractSet;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.Set;
-import java.util.SortedMap;
-import java.util.TreeMap;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
@@ -573,7 +570,7 @@ public abstract class CompoundStore implements Store {
             for (Segment s : CompoundStore.this.segments) {
                 if (segs.containsKey(s)) {
                     AtomicInteger counter = segs.get(s);
-                    while(counter.getAndDecrement() > 0) {
+                    while (counter.getAndDecrement() > 0) {
                         s.writeLock().lock();
                     }
                     ordered.add(new ReadWriteLockSync(s));
@@ -597,7 +594,7 @@ public abstract class CompoundStore implements Store {
                         lockHeld = writeLock.tryLock(timeout, TimeUnit.MILLISECONDS);
                         if (lockHeld) {
                             AtomicInteger counter = segs.get(s);
-                            while(counter.decrementAndGet() > 0) {
+                            while (counter.decrementAndGet() > 0) {
                                 s.writeLock().lock();
                             }
                             acquiredLocks.add(writeLock);
@@ -634,7 +631,7 @@ public abstract class CompoundStore implements Store {
          */
         public void unlockWriteLockForAllKeys(Object... keys) {
             for (Map.Entry<Segment, AtomicInteger> entry : getSegmentsFor(keys).entrySet()) {
-                while(entry.getValue().getAndDecrement() > 0) {
+                while (entry.getValue().getAndDecrement() > 0) {
                     entry.getKey().writeLock().unlock();
                 }
             }
@@ -645,7 +642,7 @@ public abstract class CompoundStore implements Store {
             
             for (Object k : keys) {
                 Segment key = segmentFor(hash(k.hashCode()));
-                if(segs.containsKey(key)) {
+                if (segs.containsKey(key)) {
                     segs.get(key).getAndIncrement();
                 } else {
                     segs.put(key, new AtomicInteger(1));
