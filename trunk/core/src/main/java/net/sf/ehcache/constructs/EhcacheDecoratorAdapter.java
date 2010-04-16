@@ -53,7 +53,7 @@ public class EhcacheDecoratorAdapter implements Ehcache {
     /**
      * The decorated {@link Ehcache}, has protected visibility so that sub-classes can have access to it.
      */
-    protected final Ehcache decoratedCache;
+    protected final Ehcache underlyingCache;
 
     /**
      * Constructor accepting the cache to be decorated
@@ -61,35 +61,35 @@ public class EhcacheDecoratorAdapter implements Ehcache {
      * @param decoratedCache
      */
     public EhcacheDecoratorAdapter(Ehcache decoratedCache) {
-        this.decoratedCache = decoratedCache;
+        this.underlyingCache = decoratedCache;
     }
 
     /**
      * {@inheritDoc}
      */
     public Element get(Object key) throws IllegalStateException, CacheException {
-        return decoratedCache.get(key);
+        return underlyingCache.get(key);
     }
 
     /**
      * {@inheritDoc}
      */
     public Element get(Serializable key) throws IllegalStateException, CacheException {
-        return decoratedCache.get(key);
+        return underlyingCache.get(key);
     }
 
     /**
      * {@inheritDoc}
      */
     public Element getQuiet(Object key) throws IllegalStateException, CacheException {
-        return decoratedCache.getQuiet(key);
+        return underlyingCache.getQuiet(key);
     }
 
     /**
      * {@inheritDoc}
      */
     public Element getQuiet(Serializable key) throws IllegalStateException, CacheException {
-        return decoratedCache.getQuiet(key);
+        return underlyingCache.getQuiet(key);
     }
 
     /**
@@ -97,189 +97,189 @@ public class EhcacheDecoratorAdapter implements Ehcache {
      */
     public void put(Element element, boolean doNotNotifyCacheReplicators) throws IllegalArgumentException, IllegalStateException,
             CacheException {
-        decoratedCache.put(element, doNotNotifyCacheReplicators);
+        underlyingCache.put(element, doNotNotifyCacheReplicators);
     }
 
     /**
      * {@inheritDoc}
      */
     public void put(Element element) throws IllegalArgumentException, IllegalStateException, CacheException {
-        decoratedCache.put(element);
+        underlyingCache.put(element);
     }
 
     /**
      * {@inheritDoc}
      */
     public void putQuiet(Element element) throws IllegalArgumentException, IllegalStateException, CacheException {
-        decoratedCache.putQuiet(element);
+        underlyingCache.putQuiet(element);
     }
 
     /**
      * {@inheritDoc}
      */
     public void putWithWriter(Element element) throws IllegalArgumentException, IllegalStateException, CacheException {
-        decoratedCache.putWithWriter(element);
+        underlyingCache.putWithWriter(element);
     }
 
     /**
      * {@inheritDoc}
      */
     public boolean remove(Object key, boolean doNotNotifyCacheReplicators) throws IllegalStateException {
-        return decoratedCache.remove(key, doNotNotifyCacheReplicators);
+        return underlyingCache.remove(key, doNotNotifyCacheReplicators);
     }
 
     /**
      * {@inheritDoc}
      */
     public boolean remove(Object key) throws IllegalStateException {
-        return decoratedCache.remove(key);
+        return underlyingCache.remove(key);
     }
 
     /**
      * {@inheritDoc}
      */
     public boolean remove(Serializable key, boolean doNotNotifyCacheReplicators) throws IllegalStateException {
-        return decoratedCache.remove(key, doNotNotifyCacheReplicators);
+        return underlyingCache.remove(key, doNotNotifyCacheReplicators);
     }
 
     /**
      * {@inheritDoc}
      */
     public boolean remove(Serializable key) throws IllegalStateException {
-        return decoratedCache.remove(key);
+        return underlyingCache.remove(key);
     }
 
     /**
      * {@inheritDoc}
      */
     public void removeAll() throws IllegalStateException, CacheException {
-        decoratedCache.removeAll();
+        underlyingCache.removeAll();
     }
 
     /**
      * {@inheritDoc}
      */
     public void removeAll(boolean doNotNotifyCacheReplicators) throws IllegalStateException, CacheException {
-        decoratedCache.removeAll(doNotNotifyCacheReplicators);
+        underlyingCache.removeAll(doNotNotifyCacheReplicators);
     }
 
     /**
      * {@inheritDoc}
      */
     public void bootstrap() {
-        decoratedCache.bootstrap();
+        underlyingCache.bootstrap();
     }
 
     /**
      * {@inheritDoc}
      */
     public long calculateInMemorySize() throws IllegalStateException, CacheException {
-        return decoratedCache.calculateInMemorySize();
+        return underlyingCache.calculateInMemorySize();
     }
 
     /**
      * {@inheritDoc}
      */
     public void clearStatistics() {
-        decoratedCache.clearStatistics();
+        underlyingCache.clearStatistics();
     }
 
     /**
      * {@inheritDoc}
      */
     public void disableDynamicFeatures() {
-        decoratedCache.disableDynamicFeatures();
+        underlyingCache.disableDynamicFeatures();
     }
 
     /**
      * {@inheritDoc}
      */
     public void dispose() throws IllegalStateException {
-        decoratedCache.dispose();
+        underlyingCache.dispose();
     }
 
     /**
      * {@inheritDoc}
      */
     public void evictExpiredElements() {
-        decoratedCache.evictExpiredElements();
+        underlyingCache.evictExpiredElements();
     }
 
     /**
      * {@inheritDoc}
      */
     public void flush() throws IllegalStateException, CacheException {
-        decoratedCache.flush();
+        underlyingCache.flush();
     }
 
     /**
      * {@inheritDoc}
      */
     public Element getWithLoader(Object key, CacheLoader loader, Object loaderArgument) throws CacheException {
-        return decoratedCache.getWithLoader(key, loader, loaderArgument);
+        return underlyingCache.getWithLoader(key, loader, loaderArgument);
     }
 
     /**
      * {@inheritDoc}
      */
     public Map getAllWithLoader(Collection keys, Object loaderArgument) throws CacheException {
-        return decoratedCache.getAllWithLoader(keys, loaderArgument);
+        return underlyingCache.getAllWithLoader(keys, loaderArgument);
     }
 
     /**
      * {@inheritDoc}
      */
     public void registerCacheLoader(CacheLoader cacheLoader) {
-        decoratedCache.registerCacheLoader(cacheLoader);
+        underlyingCache.registerCacheLoader(cacheLoader);
     }
 
     /**
      * {@inheritDoc}
      */
     public void unregisterCacheLoader(CacheLoader cacheLoader) {
-        decoratedCache.unregisterCacheLoader(cacheLoader);
+        underlyingCache.unregisterCacheLoader(cacheLoader);
     }
 
     /**
      * {@inheritDoc}
      */
     public void load(Object key) throws CacheException {
-        decoratedCache.load(key);
+        underlyingCache.load(key);
     }
 
     /**
      * {@inheritDoc}
      */
     public void loadAll(Collection keys, Object argument) throws CacheException {
-        decoratedCache.loadAll(keys, argument);
+        underlyingCache.loadAll(keys, argument);
     }
 
     /**
      * {@inheritDoc}
      */
     public float getAverageGetTime() {
-        return decoratedCache.getAverageGetTime();
+        return underlyingCache.getAverageGetTime();
     }
 
     /**
      * {@inheritDoc}
      */
     public BootstrapCacheLoader getBootstrapCacheLoader() {
-        return decoratedCache.getBootstrapCacheLoader();
+        return underlyingCache.getBootstrapCacheLoader();
     }
 
     /**
      * {@inheritDoc}
      */
     public CacheConfiguration getCacheConfiguration() {
-        return decoratedCache.getCacheConfiguration();
+        return underlyingCache.getCacheConfiguration();
     }
 
     /**
      * {@inheritDoc}
      */
     public RegisteredEventListeners getCacheEventNotificationService() {
-        return decoratedCache.getCacheEventNotificationService();
+        return underlyingCache.getCacheEventNotificationService();
     }
 
     /**
@@ -293,378 +293,378 @@ public class EhcacheDecoratorAdapter implements Ehcache {
      * {@inheritDoc}
      */
     public CacheManager getCacheManager() {
-        return decoratedCache.getCacheManager();
+        return underlyingCache.getCacheManager();
     }
 
     /**
      * {@inheritDoc}
      */
     public int getDiskStoreSize() throws IllegalStateException {
-        return decoratedCache.getDiskStoreSize();
+        return underlyingCache.getDiskStoreSize();
     }
 
     /**
      * {@inheritDoc}
      */
     public String getGuid() {
-        return decoratedCache.getGuid();
+        return underlyingCache.getGuid();
     }
 
     /**
      * {@inheritDoc}
      */
     public Object getInternalContext() {
-        return decoratedCache.getInternalContext();
+        return underlyingCache.getInternalContext();
     }
 
     /**
      * {@inheritDoc}
      */
     public List getKeys() throws IllegalStateException, CacheException {
-        return decoratedCache.getKeys();
+        return underlyingCache.getKeys();
     }
 
     /**
      * {@inheritDoc}
      */
     public List getKeysNoDuplicateCheck() throws IllegalStateException {
-        return decoratedCache.getKeysNoDuplicateCheck();
+        return underlyingCache.getKeysNoDuplicateCheck();
     }
 
     /**
      * {@inheritDoc}
      */
     public List getKeysWithExpiryCheck() throws IllegalStateException, CacheException {
-        return decoratedCache.getKeysWithExpiryCheck();
+        return underlyingCache.getKeysWithExpiryCheck();
     }
 
     /**
      * {@inheritDoc}
      */
     public LiveCacheStatistics getLiveCacheStatistics() throws IllegalStateException {
-        return decoratedCache.getLiveCacheStatistics();
+        return underlyingCache.getLiveCacheStatistics();
     }
 
     /**
      * {@inheritDoc}
      */
     public long getMemoryStoreSize() throws IllegalStateException {
-        return decoratedCache.getMemoryStoreSize();
+        return underlyingCache.getMemoryStoreSize();
     }
 
     /**
      * {@inheritDoc}
      */
     public String getName() {
-        return decoratedCache.getName();
+        return underlyingCache.getName();
     }
 
     /**
      * {@inheritDoc}
      */
     public List<CacheExtension> getRegisteredCacheExtensions() {
-        return decoratedCache.getRegisteredCacheExtensions();
+        return underlyingCache.getRegisteredCacheExtensions();
     }
 
     /**
      * {@inheritDoc}
      */
     public List<CacheLoader> getRegisteredCacheLoaders() {
-        return decoratedCache.getRegisteredCacheLoaders();
+        return underlyingCache.getRegisteredCacheLoaders();
     }
 
     /**
      * {@inheritDoc}
      */
     public CacheWriter getRegisteredCacheWriter() {
-        return decoratedCache.getRegisteredCacheWriter();
+        return underlyingCache.getRegisteredCacheWriter();
     }
 
     /**
      * {@inheritDoc}
      */
     public SampledCacheStatistics getSampledCacheStatistics() {
-        return decoratedCache.getSampledCacheStatistics();
+        return underlyingCache.getSampledCacheStatistics();
     }
 
     /**
      * {@inheritDoc}
      */
     public int getSize() throws IllegalStateException, CacheException {
-        return decoratedCache.getSize();
+        return underlyingCache.getSize();
     }
 
     /**
      * {@inheritDoc}
      */
     public int getSizeBasedOnAccuracy(int statisticsAccuracy) throws IllegalArgumentException, IllegalStateException, CacheException {
-        return decoratedCache.getSizeBasedOnAccuracy(statisticsAccuracy);
+        return underlyingCache.getSizeBasedOnAccuracy(statisticsAccuracy);
     }
 
     /**
      * {@inheritDoc}
      */
     public Statistics getStatistics() throws IllegalStateException {
-        return decoratedCache.getStatistics();
+        return underlyingCache.getStatistics();
     }
 
     /**
      * {@inheritDoc}
      */
     public int getStatisticsAccuracy() {
-        return decoratedCache.getStatisticsAccuracy();
+        return underlyingCache.getStatisticsAccuracy();
     }
 
     /**
      * {@inheritDoc}
      */
     public Status getStatus() {
-        return decoratedCache.getStatus();
+        return underlyingCache.getStatus();
     }
 
     /**
      * {@inheritDoc}
      */
     public CacheWriterManager getWriterManager() {
-        return decoratedCache.getWriterManager();
+        return underlyingCache.getWriterManager();
     }
 
     /**
      * {@inheritDoc}
      */
     public void initialise() {
-        decoratedCache.initialise();
+        underlyingCache.initialise();
     }
 
     /**
      * {@inheritDoc}
      */
     public boolean isClusterCoherent() {
-        return decoratedCache.isClusterCoherent();
+        return underlyingCache.isClusterCoherent();
     }
 
     /**
      * {@inheritDoc}
      */
     public boolean isDisabled() {
-        return decoratedCache.isDisabled();
+        return underlyingCache.isDisabled();
     }
 
     /**
      * {@inheritDoc}
      */
     public boolean isElementInMemory(Object key) {
-        return decoratedCache.isElementInMemory(key);
+        return underlyingCache.isElementInMemory(key);
     }
 
     /**
      * {@inheritDoc}
      */
     public boolean isElementInMemory(Serializable key) {
-        return decoratedCache.isElementInMemory(key);
+        return underlyingCache.isElementInMemory(key);
     }
 
     /**
      * {@inheritDoc}
      */
     public boolean isElementOnDisk(Object key) {
-        return decoratedCache.isElementOnDisk(key);
+        return underlyingCache.isElementOnDisk(key);
     }
 
     /**
      * {@inheritDoc}
      */
     public boolean isElementOnDisk(Serializable key) {
-        return decoratedCache.isElementOnDisk(key);
+        return underlyingCache.isElementOnDisk(key);
     }
 
     /**
      * {@inheritDoc}
      */
     public boolean isExpired(Element element) throws IllegalStateException, NullPointerException {
-        return decoratedCache.isExpired(element);
+        return underlyingCache.isExpired(element);
     }
 
     /**
      * {@inheritDoc}
      */
     public boolean isKeyInCache(Object key) {
-        return decoratedCache.isKeyInCache(key);
+        return underlyingCache.isKeyInCache(key);
     }
 
     /**
      * {@inheritDoc}
      */
     public boolean isNodeCoherent() {
-        return decoratedCache.isNodeCoherent();
+        return underlyingCache.isNodeCoherent();
     }
 
     /**
      * {@inheritDoc}
      */
     public boolean isSampledStatisticsEnabled() {
-        return decoratedCache.isSampledStatisticsEnabled();
+        return underlyingCache.isSampledStatisticsEnabled();
     }
 
     /**
      * {@inheritDoc}
      */
     public boolean isStatisticsEnabled() {
-        return decoratedCache.isStatisticsEnabled();
+        return underlyingCache.isStatisticsEnabled();
     }
 
     /**
      * {@inheritDoc}
      */
     public boolean isValueInCache(Object value) {
-        return decoratedCache.isValueInCache(value);
+        return underlyingCache.isValueInCache(value);
     }
 
     /**
      * {@inheritDoc}
      */
     public void registerCacheExtension(CacheExtension cacheExtension) {
-        decoratedCache.registerCacheExtension(cacheExtension);
+        underlyingCache.registerCacheExtension(cacheExtension);
     }
 
     /**
      * {@inheritDoc}
      */
     public void registerCacheUsageListener(CacheUsageListener cacheUsageListener) throws IllegalStateException {
-        decoratedCache.registerCacheUsageListener(cacheUsageListener);
+        underlyingCache.registerCacheUsageListener(cacheUsageListener);
     }
 
     /**
      * {@inheritDoc}
      */
     public void registerCacheWriter(CacheWriter cacheWriter) {
-        decoratedCache.registerCacheWriter(cacheWriter);
+        underlyingCache.registerCacheWriter(cacheWriter);
     }
 
     /**
      * {@inheritDoc}
      */
     public void removeCacheUsageListener(CacheUsageListener cacheUsageListener) throws IllegalStateException {
-        decoratedCache.removeCacheUsageListener(cacheUsageListener);
+        underlyingCache.removeCacheUsageListener(cacheUsageListener);
     }
 
     /**
      * {@inheritDoc}
      */
     public boolean removeQuiet(Object key) throws IllegalStateException {
-        return decoratedCache.removeQuiet(key);
+        return underlyingCache.removeQuiet(key);
     }
 
     /**
      * {@inheritDoc}
      */
     public boolean removeQuiet(Serializable key) throws IllegalStateException {
-        return decoratedCache.removeQuiet(key);
+        return underlyingCache.removeQuiet(key);
     }
 
     /**
      * {@inheritDoc}
      */
     public boolean removeWithWriter(Object key) throws IllegalStateException, CacheException {
-        return decoratedCache.removeWithWriter(key);
+        return underlyingCache.removeWithWriter(key);
     }
 
     /**
      * {@inheritDoc}
      */
     public void setBootstrapCacheLoader(BootstrapCacheLoader bootstrapCacheLoader) throws CacheException {
-        decoratedCache.setBootstrapCacheLoader(bootstrapCacheLoader);
+        underlyingCache.setBootstrapCacheLoader(bootstrapCacheLoader);
     }
 
     /**
      * {@inheritDoc}
      */
     public void setCacheExceptionHandler(CacheExceptionHandler cacheExceptionHandler) {
-        decoratedCache.setCacheExceptionHandler(cacheExceptionHandler);
+        underlyingCache.setCacheExceptionHandler(cacheExceptionHandler);
     }
 
     /**
      * {@inheritDoc}
      */
     public void setCacheManager(CacheManager cacheManager) {
-        decoratedCache.setCacheManager(cacheManager);
+        underlyingCache.setCacheManager(cacheManager);
     }
 
     /**
      * {@inheritDoc}
      */
     public void setDisabled(boolean disabled) {
-        decoratedCache.setDisabled(disabled);
+        underlyingCache.setDisabled(disabled);
     }
 
     /**
      * {@inheritDoc}
      */
     public void setDiskStorePath(String diskStorePath) throws CacheException {
-        decoratedCache.setDiskStorePath(diskStorePath);
+        underlyingCache.setDiskStorePath(diskStorePath);
     }
 
     /**
      * {@inheritDoc}
      */
     public void setName(String name) {
-        decoratedCache.setName(name);
+        underlyingCache.setName(name);
     }
 
     /**
      * {@inheritDoc}
      */
     public void setNodeCoherent(boolean coherent) throws UnsupportedOperationException {
-        decoratedCache.setNodeCoherent(coherent);
+        underlyingCache.setNodeCoherent(coherent);
     }
 
     /**
      * {@inheritDoc}
      */
     public void setSampledStatisticsEnabled(boolean enableStatistics) {
-        decoratedCache.setSampledStatisticsEnabled(enableStatistics);
+        underlyingCache.setSampledStatisticsEnabled(enableStatistics);
     }
 
     /**
      * {@inheritDoc}
      */
     public void setStatisticsAccuracy(int statisticsAccuracy) {
-        decoratedCache.setStatisticsAccuracy(statisticsAccuracy);
+        underlyingCache.setStatisticsAccuracy(statisticsAccuracy);
     }
 
     /**
      * {@inheritDoc}
      */
     public void setStatisticsEnabled(boolean enableStatistics) {
-        decoratedCache.setStatisticsEnabled(enableStatistics);
+        underlyingCache.setStatisticsEnabled(enableStatistics);
     }
 
     /**
      * {@inheritDoc}
      */
     public void setTransactionManagerLookup(TransactionManagerLookup transactionManagerLookup) {
-        decoratedCache.setTransactionManagerLookup(transactionManagerLookup);
+        underlyingCache.setTransactionManagerLookup(transactionManagerLookup);
     }
 
     /**
      * {@inheritDoc}
      */
     public void unregisterCacheExtension(CacheExtension cacheExtension) {
-        decoratedCache.unregisterCacheExtension(cacheExtension);
+        underlyingCache.unregisterCacheExtension(cacheExtension);
     }
 
     /**
      * {@inheritDoc}
      */
     public void unregisterCacheWriter() {
-        decoratedCache.unregisterCacheWriter();
+        underlyingCache.unregisterCacheWriter();
     }
 
     /**
      * {@inheritDoc}
      */
     public void waitUntilClusterCoherent() throws UnsupportedOperationException {
-        decoratedCache.waitUntilClusterCoherent();
+        underlyingCache.waitUntilClusterCoherent();
     }
 
     /**
@@ -679,28 +679,28 @@ public class EhcacheDecoratorAdapter implements Ehcache {
      * {@inheritDoc}
      */
     public Element putIfAbsent(Element element) throws NullPointerException {
-        return decoratedCache.putIfAbsent(element);
+        return underlyingCache.putIfAbsent(element);
     }
 
     /**
      * {@inheritDoc}
      */
     public boolean removeElement(Element element) throws NullPointerException {
-        return decoratedCache.removeElement(element);
+        return underlyingCache.removeElement(element);
     }
 
     /**
      * {@inheritDoc}
      */
     public boolean replace(Element old, Element element) throws NullPointerException, IllegalArgumentException {
-        return decoratedCache.replace(old, element);
+        return underlyingCache.replace(old, element);
     }
 
     /**
      * {@inheritDoc}
      */
     public Element replace(Element element) throws NullPointerException {
-        return decoratedCache.replace(element);
+        return underlyingCache.replace(element);
     }
 
 }
