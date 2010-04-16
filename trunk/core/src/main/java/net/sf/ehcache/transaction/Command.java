@@ -64,6 +64,26 @@ public interface Command {
     public static final String REMOVE_ALL = "REMOVE_ALL";
 
     /**
+     * {@link net.sf.ehcache.store.Store#putIfAbsent(net.sf.ehcache.Element)}
+     */
+    public static final String PUT_IF_ABSENT = "PUT_IF_ABSENT";
+
+    /**
+     * {@link net.sf.ehcache.store.Store#removeElement(net.sf.ehcache.Element)}
+     */
+    public static final String REMOVE_ELEMENT = "REMOVE_ELEMENT";
+
+    /**
+     * {@link net.sf.ehcache.store.Store#replace(net.sf.ehcache.Element, net.sf.ehcache.Element)}
+     */
+    public static final String REPLACE_ELEMENT = "REPLACE_ELEMENT";
+
+    /**
+     * {@link net.sf.ehcache.store.Store#replace(net.sf.ehcache.Element)}
+     */
+    public static final String REPLACE = "REPLACE";
+
+    /**
      *
      * @return the command name
      */

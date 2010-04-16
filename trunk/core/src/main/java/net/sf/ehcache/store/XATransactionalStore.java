@@ -23,10 +23,14 @@ import net.sf.ehcache.Element;
 import net.sf.ehcache.Status;
 import net.sf.ehcache.transaction.StoreExpireAllElementsCommand;
 import net.sf.ehcache.transaction.StorePutCommand;
+import net.sf.ehcache.transaction.StorePutIfAbsentCommand;
 import net.sf.ehcache.transaction.StorePutWithWriterCommandImpl;
 import net.sf.ehcache.transaction.StoreRemoveAllCommand;
 import net.sf.ehcache.transaction.StoreRemoveCommand;
+import net.sf.ehcache.transaction.StoreRemoveElementCommand;
 import net.sf.ehcache.transaction.StoreRemoveWithWriterCommand;
+import net.sf.ehcache.transaction.StoreReplaceCommand;
+import net.sf.ehcache.transaction.StoreReplaceElementCommand;
 import net.sf.ehcache.transaction.TransactionContext;
 import net.sf.ehcache.transaction.manager.TransactionManagerLookup;
 import net.sf.ehcache.transaction.xa.EhcacheXAResource;
@@ -40,6 +44,7 @@ import javax.transaction.SystemException;
 import javax.transaction.Transaction;
 import javax.transaction.TransactionManager;
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
@@ -379,30 +384,66 @@ public class XATransactionalStore implements Store {
      * {@inheritDoc}
      */
     public Element putIfAbsent(Element element) throws NullPointerException {
-        throw new UnsupportedOperationException();
+        TransactionContext context = getOrCreateTransactionContext();
+        Element previous = getCurrentElement(element.getKey(), context);
+
+        if (previous == null) {
+            context.addCommand(new StorePutIfAbsentCommand(element), element);
+        }
+
+        return previous;
     }
 
     /**
      * {@inheritDoc}
      */
     public Element removeElement(Element element) throws NullPointerException {
-        throw new UnsupportedOperationException();
+        TransactionContext context = getOrCreateTransactionContext();
+        Element previous = getCurrentElement(element.getKey(), context);
+
+        if (previous != null && previous.getValue().equals(element.getValue())) {
+            context.addCommand(new StoreRemoveElementCommand(element), element);
+            return previous;
+        }
+        return null;
     }
 
     /**
      * {@inheritDoc}
      */
     public boolean replace(Element old, Element element) throws NullPointerException, IllegalArgumentException {
-        throw new UnsupportedOperationException();
+        TransactionContext context = getOrCreateTransactionContext();
+        Element previous = getCurrentElement(element.getKey(), context);
+
+        boolean replaced = false;
+        if (previous != null && previous.getValue().equals(old.getValue())) {
+            context.addCommand(new StoreReplaceElementCommand(old, element), element);
+            replaced = true;
+        }
+        return replaced;
     }
 
     /**
      * {@inheritDoc}
      */
     public Element replace(Element element) throws NullPointerException {
-        throw new UnsupportedOperationException();
+        TransactionContext context = getOrCreateTransactionContext();
+        Element previous = getCurrentElement(element.getKey(), context);
+
+        if (previous != null) {
+            context.addCommand(new StoreReplaceCommand(element), element);
+        }
+        return previous;
     }
-    
+
+    private Element getCurrentElement(final Serializable key, final TransactionContext context) {
+        Element previous = context.get(key);
+        if (previous == null && !context.isRemoved(key)) {
+            previous = getFromUnderlyingStore(key);
+        }
+        return previous;
+    }
+
     /* 1 xaresource per transaction */
 
     private Element getFromUnderlyingStore(final Object key) {
