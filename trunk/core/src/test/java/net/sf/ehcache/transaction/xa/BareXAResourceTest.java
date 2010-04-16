@@ -254,7 +254,6 @@ public class BareXAResourceTest {
             getXAResource().prepare(xid21);
             throw new AssertionFailedError("expected XAException");
         } catch (XAException ex) {
-            assertEquals("XA request failed", ex.getMessage());
             assertEquals(XAException.XA_RBINTEGRITY, ex.errorCode);
             assertEquals("Element for key <1> has changed since it was PUT in the cache and the transaction committed (currentVersion: 0)", ex
                 .getCause().getMessage());
@@ -305,7 +304,6 @@ public class BareXAResourceTest {
             getXAResource().prepare(xid11);
             throw new AssertionFailedError("expected XAException");
         } catch (XAException ex) {
-            assertEquals("XA request failed", ex.getMessage());
             assertEquals(XAException.XA_RBINTEGRITY, ex.errorCode);
             assertEquals("Element for key <1> has changed since it was PUT in the cache and the transaction committed (currentVersion: 0)", ex
                 .getCause().getMessage());
