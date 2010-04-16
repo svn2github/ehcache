@@ -18,6 +18,8 @@ package net.sf.ehcache.store;
 
 import java.io.IOException;
 import java.io.Serializable;
+import java.util.Arrays;
+import java.util.HashSet;
 
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Element;
@@ -223,15 +225,10 @@ public class LegacyStoreWrapper implements Store {
         if (disk == null) {
             return memory.getKeyArray();
         } else {
-            Object[] m = memory.getKeyArray();
-            Object[] d = disk.getKeyArray();
-    
-            Object[] c = new Object[m.length + d.length];
-            
-            System.arraycopy(m, 0, c, 0, m.length);
-            System.arraycopy(d, 0, c, m.length, d.length);
-            
-            return c;
+            HashSet<Object> keys = new HashSet<Object>();
+            keys.addAll(Arrays.asList(memory.getKeyArray()));
+            keys.addAll(Arrays.asList(disk.getKeyArray()));            
+            return keys.toArray();
         }
     }
 
@@ -282,7 +279,10 @@ public class LegacyStoreWrapper implements Store {
      */
     public int getSize() {
         if (disk != null) {
-            return memory.getSize() + disk.getSize();
+            HashSet<Object> keys = new HashSet<Object>();
+            keys.addAll(Arrays.asList(memory.getKeyArray()));
+            keys.addAll(Arrays.asList(disk.getKeyArray()));
+            return keys.size();
         } else {
             return memory.getSize();
         }

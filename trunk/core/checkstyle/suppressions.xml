@@ -47,6 +47,8 @@
     <!-- super.clone won't work here -->
     <suppress checks="SuperClone" files="Element.java"/>
 
+    <!-- tree walking is neater with parameter assignment - imho -->
+    <suppress checks="ParameterAssignment" files="RegionSet.java" />
 
     <!-- Candidates for refactoring. Cyclomatic complexity is blown out mostly
      because of the LOG guards (if (LOG.isDebugEnabled) { ...) which are there for

@@ -166,6 +166,10 @@ public abstract class CompoundStore implements Store {
      * @return Element or ElementSubstitute
      */
     public Object unretrievedGet(Object key) {
+        if (key == null) {
+            return null;
+        }
+        
         int hash = hash(key.hashCode());
         return segmentFor(hash).unretrievedGet(key, hash);
     }
@@ -457,7 +461,14 @@ public abstract class CompoundStore implements Store {
         // pick a random starting point in the map
         int randomHash = rndm.nextInt();
 
-        final int segmentStart = (hash(keyHint.hashCode()) >>> segmentShift);
+        
+        final int segmentStart;
+        if (keyHint == null) {
+            segmentStart = (randomHash >>> segmentShift);
+        } else {
+            segmentStart = (hash(keyHint.hashCode()) >>> segmentShift);
+        }
+        
         int segmentIndex = segmentStart;
         do {
             segments[segmentIndex].addRandomSample(factory, sampleSize, sampled, randomHash);

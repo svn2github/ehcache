@@ -909,6 +909,8 @@ public class DiskStore implements Store, CacheConfigurationListener {
                 success = true;
             } catch (StreamCorruptedException e) {
                 LOG.error("Corrupt index file. Creating new index.");
+            } catch (ClassCastException e) {
+                LOG.error("Index file appears to be using the new format. Creating new index");
             } catch (IOException e) {
                 //normal when creating the cache for the first time
                 LOG.debug("IOException reading index. Creating new index. ");
@@ -1100,7 +1102,7 @@ public class DiskStore implements Store, CacheConfigurationListener {
      * Copies of expiryTime and hitcount are held here as a performance optimisation, so
      * that we do not need to load the data from Disk to get this often used information.
      */
-    private static final class DiskElement implements Serializable {
+    public static final class DiskElement implements Serializable {
 
         private static final long serialVersionUID = -717310932566592289L;
 
@@ -1149,6 +1151,27 @@ public class DiskStore implements Store, CacheConfigurationListener {
          */
         public long getHitCount() {
             return hitcount;
+        }
+
+        /**
+         * @return the time at which this element will expire
+         */
+        public long getExpiry() {
+            return expiryTime;
+        }
+
+        /**
+         * @return the size of this element on disk
+         */
+        public int getSize() {
+            return payloadSize;
+        }
+
+        /**
+         * @return the starting offset of this element on disk
+         */
+        public long getPosition() {
+            return position;
         }
     }
 

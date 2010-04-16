@@ -25,11 +25,9 @@ import java.io.ObjectStreamClass;
 import java.io.RandomAccessFile;
 import java.io.Serializable;
 
-import java.util.Collection;
 import java.util.ConcurrentModificationException;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Callable;
-import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.ThreadFactory;
@@ -45,6 +43,7 @@ import net.sf.ehcache.event.RegisteredEventListeners;
 import net.sf.ehcache.store.compound.CompoundStore;
 import net.sf.ehcache.store.compound.ElementSubstitute;
 import net.sf.ehcache.store.compound.ElementSubstituteFactory;
+import net.sf.ehcache.store.compound.factories.RegionSet.Region;
 import net.sf.ehcache.util.MemoryEfficientByteArrayOutputStream;
 
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
@@ -83,7 +82,7 @@ abstract class DiskStorageFactory<T extends ElementSubstitute> implements Elemen
     private final File             file;
     private final RandomAccessFile data;
 
-    private final Collection<DiskMarker> freeChunks = new ConcurrentLinkedQueue<DiskMarker>();
+    private final FileAllocationTree allocator;
 
     private final RegisteredEventListeners eventService;
 
@@ -101,6 +100,8 @@ abstract class DiskStorageFactory<T extends ElementSubstitute> implements Elemen
         } catch (FileNotFoundException e) {
             throw new CacheException(e);
         }
+        this.allocator = new FileAllocationTree(Long.MAX_VALUE, data);
+        
         diskWriter = new ScheduledThreadPoolExecutor(1, new ThreadFactory() {
             public Thread newThread(Runnable r) {
                 return new Thread(r, file.getName());
@@ -156,6 +157,25 @@ abstract class DiskStorageFactory<T extends ElementSubstitute> implements Elemen
     }
     
     /**
+     * Mark this on-disk marker as used (hooks into the file space allocation structure).
+     */
+    protected void markUsed(DiskMarker marker) {
+        allocator.mark(new Region(marker.getPosition(), marker.getPosition() + marker.getSize() - 1));
+    }
+
+    /**
+     * Shrink this store's data file down to a minimal size for its contents.
+     */
+    protected void shrinkDataFile() {
+        synchronized (data) {
+            try {
+                data.setLength(allocator.getFileSize());
+            } catch (IOException e) {
+                LOG.error("Exception trying to shrink data file to size", e);
+            }
+        }
+    }
+    /**
      * Shuts down this disk factory.
      * <p>
      * This shuts down the executor and then waits for its termination, before closing the data file.
@@ -181,7 +201,7 @@ abstract class DiskStorageFactory<T extends ElementSubstitute> implements Elemen
      */
     protected void delete() {
         file.delete();
-        freeChunks.clear();
+        allocator.clear();
         if (file.getAbsolutePath().contains(AUTO_DISK_PATH_DIRECTORY_PREFIX)) {
             //try to delete the auto_createtimestamp directory. Will work when the last Disk Store deletes
             //the last files and the directory becomes empty.
@@ -291,38 +311,10 @@ abstract class DiskStorageFactory<T extends ElementSubstitute> implements Elemen
 
     private DiskMarker alloc(Element element, int size) throws IOException {
         //check for a matching chunk
-        for (DiskMarker marker : freeChunks) {
-            if (marker.getCapacity() >= size) {
-                if (freeChunks.remove(marker)) {
-                    return createMarker(marker, size, element);
-                }
-            }
-        }
-        
-        //extend file
-        long position;
-        synchronized (data) {
-            position = data.length();
-            data.setLength(position + size);
-        }
-        return createMarker(position, size, element);
+        Region r = allocator.alloc(size);
+        return createMarker(r.start(), size, element);
     }
     
-    /**
-     * Create a disk marker representing the given element, and reusing the same
-     * area on disk as the supplied marker.
-     * <p>
-     * This method can be overridden by subclasses to use different marker types.
-     * 
-     * @param previous previously occupying marker
-     * @param size size of in disk area
-     * @param element element to be written to area
-     * @return marker representing the element.
-     */
-    protected DiskMarker createMarker(DiskMarker previous, int size, Element element) {
-        return new DiskMarker(this, previous, size, element);
-    }
-
     /**
      * Create a disk marker representing the given element, and area on disk.
      * <p>
@@ -343,7 +335,7 @@ abstract class DiskStorageFactory<T extends ElementSubstitute> implements Elemen
      * @param marker marker to be free'd
      */
     protected void free(DiskMarker marker) {
-        freeChunks.add(marker);
+        allocator.free(new Region(marker.getPosition(), marker.getPosition() + marker.getSize() - 1));
     }
 
     /**
@@ -365,7 +357,7 @@ abstract class DiskStorageFactory<T extends ElementSubstitute> implements Elemen
      * to disk and fault in the resultant DiskMarker
      * instance.
      */
-    abstract class DiskWriteTask implements Callable<Boolean> {
+    abstract class DiskWriteTask implements Callable<DiskMarker> {
 
         private final Placeholder placeholder;
         
@@ -386,12 +378,18 @@ abstract class DiskStorageFactory<T extends ElementSubstitute> implements Elemen
         /**
          * {@inheritDoc}
          */
-        public Boolean call() {
+        public DiskMarker call() {
             try {
                 DiskMarker marker = write(placeholder.getElement());
-                return Boolean.valueOf(store.fault(placeholder.getKey(), placeholder, marker));
+                if (store.fault(placeholder.getKey(), placeholder, marker)) {
+                    return marker;
+                } else {
+                    return null;
+                }
             } catch (IOException e) {
-                return Boolean.valueOf(store.evict(placeholder.getKey(), placeholder));
+                LOG.error("Disk Write of " + placeholder.getKey() + " failed (it will be evicted instead): ", e);
+                store.evict(placeholder.getKey(), placeholder);
+                return null;
             }
         }
     }
@@ -524,7 +522,6 @@ abstract class DiskStorageFactory<T extends ElementSubstitute> implements Elemen
         private final Object key;
         
         private final long position;
-        private final int capacity;
         private final int size;
         
         private final long hitCount;
@@ -539,26 +536,8 @@ abstract class DiskStorageFactory<T extends ElementSubstitute> implements Elemen
          * @param element element being stored
          */
         DiskMarker(DiskStorageFactory<? extends ElementSubstitute> factory, long position, int size, Element element) {
-            this(factory, position, size, size, element);
-        }
-        
-        /**
-         * Create a marker that reuses the space of another marker, and tied to the given factory instance.
-         * 
-         * @param factory factory responsible for this marker
-         * @param from marker we are replacing
-         * @param size size of the serialized element
-         * @param element element being stored
-         */
-        DiskMarker(DiskStorageFactory<? extends ElementSubstitute> factory, DiskMarker from, int size, Element element) {
-            this(factory, from.getPosition(), from.getCapacity(), size, element);
-        }
-        
-        private DiskMarker(DiskStorageFactory<? extends ElementSubstitute> factory, long position, int capacity, int size,
-                Element element) {
             super(factory);
             this.position = position;
-            this.capacity = capacity;
             this.size = size;
             
             this.key = element.getObjectKey();
@@ -566,6 +545,26 @@ abstract class DiskStorageFactory<T extends ElementSubstitute> implements Elemen
             this.expiry = element.getExpirationTime();
         }
 
+        /**
+         * Create a new marker tied to the given factory instance.
+         * 
+         * @param factory factory responsible for this marker
+         * @param position position on disk where the element will be stored
+         * @param size size of the serialized element
+         * @param key key to which this element is mapped
+         * @param hits hit count for this element
+         * @param expiry time at which this element will expire
+         */
+        DiskMarker(DiskStorageFactory<? extends ElementSubstitute> factory, long position, int size, Object key, long hits, long expiry) {
+            super(factory);
+            this.position = position;
+            this.size = size;
+            
+            this.key = key;
+            this.hitCount = hits;
+            this.expiry = expiry;
+        }
+        
         /**
          * Key to which this Element is mapped.
          * 
@@ -600,18 +599,6 @@ abstract class DiskStorageFactory<T extends ElementSubstitute> implements Elemen
          */
         private int getSize() {
             return size;
-        }
-
-        /**
-         * Returns the capacity of this marker.
-         * <p>
-         * The capacity may be smaller than the size of the current
-         * occupying element.
-         * 
-         * @return the capacity of this marker
-         */
-        private int getCapacity() {
-            return capacity;
         }
 
         /**

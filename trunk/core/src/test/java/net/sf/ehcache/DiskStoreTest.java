@@ -40,8 +40,6 @@ import org.slf4j.LoggerFactory;
 
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.DiskStoreConfiguration;
-import net.sf.ehcache.store.DiskStore;
-import net.sf.ehcache.store.LegacyStoreWrapper;
 import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
 import net.sf.ehcache.store.Primitive;
 import net.sf.ehcache.store.Store;
@@ -50,6 +48,7 @@ import net.sf.ehcache.store.compound.impl.DiskPersistentStore;
 import net.sf.ehcache.store.compound.impl.OverflowToDiskStore;
 
 import org.junit.After;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
@@ -84,6 +83,8 @@ public class DiskStoreTest extends AbstractCacheTest {
         deleteFile("persistentLongExpiryIntervalCache");
         deleteFile("fileTest");
         deleteFile("testPersistent");
+        deleteFile("testLoadPersistent");
+        deleteFile("testPersistentWithDelete");
     }
 
     /**
@@ -189,7 +190,7 @@ public class DiskStoreTest extends AbstractCacheTest {
     /**
      * Tests that the Disk Store can be changed
      */
-    //@Test
+    @Test
     public void testSetDiskStorePath() throws IOException, InterruptedException {
         Cache cache = new Cache("testChangePath", 10000, true, true, 5, 1, true, 600);
         manager2 = new CacheManager();
@@ -213,16 +214,15 @@ public class DiskStoreTest extends AbstractCacheTest {
         Store store = createPersistentDiskStoreFromCacheManager();
         store.removeAll();
 
-        DiskStore diskStore = (DiskStore) ((LegacyStoreWrapper) store).getDiskStore();
-        File dataFile = new File(diskStore.getDataFilePath(), diskStore.getDataFileName());
+        File dataFile = ((DiskPersistentStore) store).getDataFile();
 
         for (int i = 0; i < 100; i++) {
             byte[] data = new byte[1024];
-            diskStore.put(new Element("key" + (i + 100), data));
+            store.put(new Element("key" + (i + 100), data));
         }
         waitShorter();
-        assertEquals(100, diskStore.getSize());
-        diskStore.dispose();
+        assertEquals(100, store.getSize());
+        store.dispose();
 
         assertTrue("File exists", dataFile.exists());
         assertEquals(100 * ELEMENT_ON_DISK_SIZE, dataFile.length());
@@ -231,7 +231,7 @@ public class DiskStoreTest extends AbstractCacheTest {
     /**
      * An integration test, at the CacheManager level, to make sure persistence works
      */
-    //@Test
+    @Test
     public void testPersistentStoreFromCacheManager() throws IOException, InterruptedException, CacheException {
         //initialise with an instance CacheManager so that the following line actually does something
         CacheManager manager = new CacheManager(AbstractCacheTest.TEST_CONFIG_DIR + "ehcache-disk.xml");
@@ -261,7 +261,7 @@ public class DiskStoreTest extends AbstractCacheTest {
      * It should work by putting elements in the DiskStore initially and then loading them into memory as they
      * are called.
      */
-    //@Test
+    @Test
     public void testPersistentNonOverflowToDiskStoreFromCacheManager() throws IOException, InterruptedException, CacheException {
         //initialise with an instance CacheManager so that the following line actually does something
         CacheManager manager = new CacheManager(AbstractCacheTest.TEST_CONFIG_DIR + "ehcache-disk.xml");
@@ -299,29 +299,6 @@ public class DiskStoreTest extends AbstractCacheTest {
     }
 
     /**
-     * Tests that the spool thread dies on dispose.
-     */
-    //@Test
-    public void testSpoolThreadDiesOnDispose() throws IOException, InterruptedException {
-        fail("This test may be pointless now");
-//        Cache cache = new Cache("testNonPersistent", 10000, true, false, 5, 1, false, 100);
-//        cache.initialise();
-//        DiskStore diskStore = (DiskStore) cache.getDiskStore();
-//
-//        //Put in some data
-//        for (int i = 0; i < 100; i++) {
-//            byte[] data = new byte[1024];
-//            diskStore.put(new Element("key" + (i + 100), data));
-//        }
-//        waitShorter();
-//
-//        diskStore.dispose();
-//        //Give the spool thread time to be interrupted and die
-//        Thread.sleep(100);
-//        assertTrue(!diskStore.isSpoolThreadAlive());
-    }
-
-    /**
      * Tests that we can save and load a persistent store in a repeatable way
      */
     @Test
@@ -330,6 +307,7 @@ public class DiskStoreTest extends AbstractCacheTest {
         String cacheName = "testLoadPersistent";
         Store store = createPersistentDiskStore(cacheName);
         store.removeAll();
+        waitShorter();
 
 
         for (int i = 0; i < 100; i++) {
@@ -345,8 +323,7 @@ public class DiskStoreTest extends AbstractCacheTest {
         //check that we can create and dispose several times with no problems and no lost data
         for (int i = 0; i < 10; i++) {
             store = createPersistentDiskStore(cacheName);
-            DiskStore diskStore = (DiskStore) ((LegacyStoreWrapper) store).getDiskStore();
-            File dataFile = new File(diskStore.getDataFilePath(), diskStore.getDataFileName());
+            File dataFile = ((DiskPersistentStore) store).getDataFile();
             assertTrue("File exists", dataFile.exists());
             assertEquals(100 * ELEMENT_ON_DISK_SIZE, dataFile.length());
             assertEquals(100, store.getSize());
@@ -361,7 +338,7 @@ public class DiskStoreTest extends AbstractCacheTest {
     /**
      * Any disk store with an auto generated random directory should not be able to be loaded.
      */
-    //@Test
+    @Test
     public void testCannotLoadPersistentStoreWithAutoDir() throws IOException, InterruptedException {
         //initialise
         String cacheName = "testPersistent";
@@ -395,7 +372,7 @@ public class DiskStoreTest extends AbstractCacheTest {
      * Tests that we can save and load a persistent store in a repeatable way,
      * and delete and add data.
      */
-    //@Test
+    @Test
     public void testLoadPersistentStoreWithDelete() throws IOException, InterruptedException {
         //initialise
         String cacheName = "testPersistentWithDelete";
@@ -424,14 +401,22 @@ public class DiskStoreTest extends AbstractCacheTest {
 
         manager.removeCache(cacheName);
 
+        diskStore = createPersistentDiskStore(cacheName);
         assertTrue("File exists", dataFile.exists());
         assertEquals(100 * ELEMENT_ON_DISK_SIZE, dataFile.length());
+        assertEquals(99, diskStore.getSize());
+
+        diskStore.put(new Element("key100", new byte[1024]));
+        diskStore.flush();
+        waitShorter();        
+        assertEquals(100 * ELEMENT_ON_DISK_SIZE, dataFile.length());
+        assertEquals(100, diskStore.getSize());
     }
 
     /**
      * Tests that we can load a store after the index has been corrupted
      */
-    //@Test
+    @Test
     public void testLoadPersistentStoreAfterCorruption() throws IOException, InterruptedException {
         //initialise
         String cacheName = "testPersistent";
@@ -466,7 +451,7 @@ public class DiskStoreTest extends AbstractCacheTest {
      * Tests that we can save and load a persistent store in a repeatable way,
      * and delete and add data.
      */
-    //@Test
+    @Test
     public void testFreeSpaceBehaviour() throws IOException, InterruptedException {
         //initialise
         String cacheName = "testPersistent";
@@ -835,41 +820,40 @@ public class DiskStoreTest extends AbstractCacheTest {
     /**
      * Tests bulk load.
      */
-    //@Test
+    @Test
     public void testBulkLoad() throws Exception {
-        fail("Needs Fixing");
-//        final DiskStore diskStore = createDiskStore();
-//
-//        final Random random = new Random();
-//
-//        // Add a bunch of entries
-//        for (int i = 0; i < 500; i++) {
-//            // Use a random length value
-//            final String key = "key" + i;
-//            final String value = "This is a value" + random.nextInt(1000);
-//
-//            // Add an element, and make sure it is present
-//            Element element = new Element(key, value);
-//            diskStore.put(element);
-//            element = diskStore.get(key);
-//            assertNotNull(element);
-//
-//            // Chuck in a delay, to give the spool thread a chance to catch up
-//            Thread.sleep(2);
-//
-//            // Remove the element
-//            diskStore.remove(key);
-//            element = diskStore.get(key);
-//            assertNull(element);
-//
-//            element = new Element(key, value);
-//            diskStore.put(element);
-//            element = diskStore.get(key);
-//            assertNotNull(element);
-//
-//            // Chuck in a delay
-//            Thread.sleep(2);
-//        }
+        final Store diskStore = createDiskStore();
+
+        final Random random = new Random();
+
+        // Add a bunch of entries
+        for (int i = 0; i < 500; i++) {
+            // Use a random length value
+            final String key = "key" + i;
+            final String value = "This is a value" + random.nextInt(1000);
+
+            // Add an element, and make sure it is present
+            Element element = new Element(key, value);
+            diskStore.put(element);
+            element = diskStore.get(key);
+            assertNotNull(element);
+
+            // Chuck in a delay, to give the spool thread a chance to catch up
+            Thread.sleep(2);
+
+            // Remove the element
+            diskStore.remove(key);
+            element = diskStore.get(key);
+            assertNull(element);
+
+            element = new Element(key, value);
+            diskStore.put(element);
+            element = diskStore.get(key);
+            assertNotNull(element);
+
+            // Chuck in a delay
+            Thread.sleep(2);
+        }
     }
 
     /**
@@ -1203,7 +1187,8 @@ public class DiskStoreTest extends AbstractCacheTest {
      * <p/>
      * Slow tests
      */
-    //@Test
+    @Test
+    @Ignore
     public void testMaximumCacheEntriesIn64MBWithOverflowToDisk() throws Exception {
 
         Cache cache = new Cache("test", 1000, MemoryStoreEvictionPolicy.LRU, true, null, true, 500, 500, false, 1, null);

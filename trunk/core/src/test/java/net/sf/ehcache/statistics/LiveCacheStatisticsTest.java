@@ -127,9 +127,8 @@ public class LiveCacheStatisticsTest extends AbstractCacheTest {
         LiveCacheStatistics statistics = cache.getLiveCacheStatistics();
         if (statisticsEnabled) {
             assertEquals(1, statistics.getCacheHitCount());
-            //this should be re-enabled when disk stats are fixed
-            //assertEquals(1, statistics.getOnDiskHitCount());
-            //assertEquals(0, statistics.getInMemoryHitCount());
+            assertEquals(1, statistics.getOnDiskHitCount());
+            assertEquals(0, statistics.getInMemoryHitCount());
             assertEquals(0, statistics.getCacheMissCount());
             assertEquals(2, statistics.getSize());
             assertEquals(1, statistics.getInMemorySize());
@@ -150,9 +149,8 @@ public class LiveCacheStatisticsTest extends AbstractCacheTest {
         statistics = cache.getLiveCacheStatistics();
         if (statisticsEnabled) {
             assertEquals(2, statistics.getCacheHitCount());
-            //this should be re-enabled when disk stats are fixed
-            //assertEquals(1, statistics.getOnDiskHitCount());
-            //assertEquals(1, statistics.getInMemoryHitCount());
+            assertEquals(1, statistics.getOnDiskHitCount());
+            assertEquals(1, statistics.getInMemoryHitCount());
             assertEquals(0, statistics.getCacheMissCount());
         } else {
             assertEquals(0, statistics.getCacheHitCount());
@@ -169,9 +167,8 @@ public class LiveCacheStatisticsTest extends AbstractCacheTest {
         statistics = cache.getLiveCacheStatistics();
         if (statisticsEnabled) {
             assertEquals(2, statistics.getCacheHitCount());
-            //this should be re-enabled when disk stats are fixed
-            //assertEquals(1, statistics.getOnDiskHitCount());
-            //assertEquals(1, statistics.getInMemoryHitCount());
+            assertEquals(1, statistics.getOnDiskHitCount());
+            assertEquals(1, statistics.getInMemoryHitCount());
             assertEquals(1, statistics.getCacheMissCount());
         } else {
             assertEquals(0, statistics.getCacheHitCount());
@@ -185,9 +182,8 @@ public class LiveCacheStatisticsTest extends AbstractCacheTest {
         statistics = cache.getLiveCacheStatistics();
         if (statisticsEnabled) {
             assertEquals(2, statistics.getCacheHitCount());
-            //this should be re-enabled when disk stats are fixed
-            //assertEquals(1, statistics.getOnDiskHitCount());
-            //assertEquals(1, statistics.getInMemoryHitCount());
+            assertEquals(1, statistics.getOnDiskHitCount());
+            assertEquals(1, statistics.getInMemoryHitCount());
             assertEquals(2, statistics.getCacheMissCount());
         } else {
             assertEquals(0, statistics.getCacheHitCount());

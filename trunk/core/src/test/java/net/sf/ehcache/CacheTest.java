@@ -903,7 +903,7 @@ public class CacheTest extends AbstractCacheTest {
      * <p/>
      * It checks that size makes sense, and also that getKeys.size() matches getSize()
      */
-    //@Test
+    @Test
     public void testSizeWithPutAndRemove() throws Exception {
         //Set size so the second element overflows to disk.
         Cache cache = new Cache("test2", 1, true, true, 0, 0);
@@ -959,9 +959,8 @@ public class CacheTest extends AbstractCacheTest {
         assertEquals(cache.getSize(), cache.getKeys().size());
         //getKeys does not do an expiry check, so the expired elements are counted
         assertEquals(2, cache.getSize());
-//        WTF?
-//        String keyFromDisk = (String) cache.get(key1).getObjectKey();
-//        assertTrue(key1 == keyFromDisk);
+        String keyFromDisk = (String) cache.get(key1).getObjectKey();
+        assertEquals(key1, keyFromDisk);
         Thread.sleep(1999);
         assertEquals(2, cache.getKeys().size());
         //getKeysWithExpiryCheck does check and gives the correct answer of 0
@@ -1246,11 +1245,15 @@ public class CacheTest extends AbstractCacheTest {
 
         for (int i = 0; i < 100; i++) {
             cache.put(new Element("" + i, new Date()));
-            //hit
+        }
+
+        Thread.sleep(200);
+        
+        for (int i = 0; i < 100; i++) {
             cache.get("" + i);
         }
         assertEquals(50, cache.getMemoryStoreSize());
-        assertEquals(50, cache.getDiskStoreSize());
+        assertEquals(100, cache.getDiskStoreSize());
         assertEquals(100, cache.getSize());
 
 
@@ -1260,12 +1263,12 @@ public class CacheTest extends AbstractCacheTest {
         cache.put(new Element("key1", "value"));
 
         //get it and make sure it is mru
-        Thread.sleep(15);
+        Thread.sleep(200);
         cache.get("key1");
 
         assertEquals(103, cache.getSize());
         assertEquals(50, cache.getMemoryStoreSize());
-        assertEquals(53, cache.getDiskStoreSize());
+        assertEquals(103, cache.getDiskStoreSize());
 
 
         //these "null" Elements are ignored and do not get put in
@@ -1274,17 +1277,21 @@ public class CacheTest extends AbstractCacheTest {
 
         assertEquals(103, cache.getSize());
         assertEquals(50, cache.getMemoryStoreSize());
-        assertEquals(53, cache.getDiskStoreSize());
+        assertEquals(103, cache.getDiskStoreSize());
 
         //this one does
         cache.put(new Element("nullValue", null));
 
+        Thread.sleep(200);
+
         LOG.info("Size: " + cache.getDiskStoreSize());
 
         assertEquals(50, cache.getMemoryStoreSize());
-        assertEquals(54, cache.getDiskStoreSize());
+        assertEquals(104, cache.getDiskStoreSize());
 
         cache.flush();
+        Thread.sleep(200);
+        
         assertEquals(0, cache.getMemoryStoreSize());
         //Non Serializable Elements get discarded
         assertEquals(104, cache.getDiskStoreSize());
@@ -1301,14 +1308,19 @@ public class CacheTest extends AbstractCacheTest {
         cache.removeAll();
         for (int i = 0; i < 100; i++) {
             cache.put(new Element("" + i, new Date()));
-            //hit
+        }
+        
+        Thread.sleep(200);
+
+        for (int i = 0; i < 100; i++) {            
             cache.get("" + i);
         }
+
         assertEquals(10, cache.getMemoryStoreSize());
-        assertEquals(90, cache.getDiskStoreSize());
+        assertEquals(100, cache.getDiskStoreSize());
 
         cache.flush();
-        Thread.sleep(1000);
+        Thread.sleep(200);
 
         assertEquals(10, cache.getMemoryStoreSize());
         assertEquals(100, cache.getDiskStoreSize());
@@ -1324,14 +1336,19 @@ public class CacheTest extends AbstractCacheTest {
         cache.removeAll();
         for (int i = 0; i < 100; i++) {
             cache.put(new Element("" + i, new Date()));
-            //hit
+        }
+        
+        Thread.sleep(200);
+        
+        for (int i = 0; i < 100; i++) {            
             cache.get("" + i);
         }
+
         assertEquals(10, cache.getMemoryStoreSize());
-        assertEquals(90, cache.getDiskStoreSize());
+        assertEquals(100, cache.getDiskStoreSize());
 
         cache.flush();
-        Thread.sleep(1000);
+        Thread.sleep(200);
 
         assertEquals(0, cache.getMemoryStoreSize());
         assertEquals(100, cache.getDiskStoreSize());
@@ -1583,7 +1600,7 @@ public class CacheTest extends AbstractCacheTest {
      *
      * @throws Exception
      */
-    //@Test
+    @Test
     public void testGetDiskStoreSize() throws Exception {
         Cache cache = new Cache("testGetDiskStoreSize", 1, true, false, 100, 200);
         manager.addCache(cache);
@@ -1634,6 +1651,9 @@ public class CacheTest extends AbstractCacheTest {
         cache.put(new Element(new Object(), new Object()));
         cache.put(new Element(new Object(), new Object()));
         cache.put(new Element(new Object(), new Object()));
+        
+        Thread.sleep(200);
+        
         assertEquals(1, cache.getSize());
         assertEquals(0, cache.getDiskStoreSize());
         assertEquals(1, cache.getMemoryStoreSize());
@@ -2338,7 +2358,7 @@ public class CacheTest extends AbstractCacheTest {
         this.manager.addCache(memoryAndDisk);
 
         String key = "test";
-        Object value = new Object();
+        Object value = "value";
 
         memoryAndDisk.put(new Element(key, value));
 

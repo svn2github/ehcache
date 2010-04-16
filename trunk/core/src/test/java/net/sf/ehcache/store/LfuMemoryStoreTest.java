@@ -30,6 +30,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertFalse;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -65,7 +66,7 @@ public class LfuMemoryStoreTest extends MemoryStoreTester {
         try {
             PRIMARY_FACTORY = CompoundStore.class.getDeclaredField("primary");
             PRIMARY_FACTORY.setAccessible(true);
-            GET_EVICTION_TARGET = CapacityLimitedInMemoryFactory.class.getDeclaredMethod("getEvictionTarget", Object.class);
+            GET_EVICTION_TARGET = CapacityLimitedInMemoryFactory.class.getDeclaredMethod("getEvictionTarget", Object.class, Integer.TYPE);
             GET_EVICTION_TARGET.setAccessible(true);
         } catch (SecurityException e) {
             throw new RuntimeException(e);
@@ -153,7 +154,7 @@ public class LfuMemoryStoreTest extends MemoryStoreTester {
     }
 
 
-    private void lfuPolicyTest() throws IOException {
+    private void lfuPolicyTest() throws IOException, InterruptedException {
         //Make sure that the store is empty to start with
         assertEquals(0, cache.getSize());
 
@@ -186,11 +187,12 @@ public class LfuMemoryStoreTest extends MemoryStoreTester {
         element = new Element("key5", "value5");
         cache.put(element);
 
+        Thread.sleep(200);
+        
         assertEquals(4, store.getInMemorySize());
         //The element with key "key2" is the LFU element so should be removed
         // directly access the memory store here since the LFU evicted elements have been flushed to the disk store
-        //this needs to be uncommented and fixed when all callers use CompoundStore uniformly
-        //assertNull(store.get("key2"));
+        assertFalse(((CompoundStore) store).unretrievedGet("key2") instanceof Element);
 
         // Make some more accesses
         cache.get("key5");
@@ -199,9 +201,11 @@ public class LfuMemoryStoreTest extends MemoryStoreTester {
         // Insert another element to force the policy
         element = new Element("key6", "value6");
         cache.put(element);
+        
+        Thread.sleep(200);
+        
         assertEquals(4, store.getInMemorySize());
-        //this needs to be uncommented and fixed when all callers use CompoundStore uniformly
-        //assertNull(store.get("key4"));
+        assertFalse(((CompoundStore) store).unretrievedGet("key2") instanceof Element);
     }
 
     /**
@@ -396,7 +400,7 @@ public class LfuMemoryStoreTest extends MemoryStoreTester {
             }
             if (i > 0) {
                 try {
-                    element = (Element) GET_EVICTION_TARGET.invoke(PRIMARY_FACTORY.get(store), new Object());
+                    element = (Element) GET_EVICTION_TARGET.invoke(PRIMARY_FACTORY.get(store), new Object(), Integer.MAX_VALUE);
                 } catch (Exception e) {
                     throw new RuntimeException(e);
                 }
@@ -420,7 +424,7 @@ public class LfuMemoryStoreTest extends MemoryStoreTester {
 
             stopWatch.getElapsedTime();
             try {
-                element = (Element) GET_EVICTION_TARGET.invoke(PRIMARY_FACTORY.get(store), new Object());
+                element = (Element) GET_EVICTION_TARGET.invoke(PRIMARY_FACTORY.get(store), new Object(), Integer.MAX_VALUE);
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }

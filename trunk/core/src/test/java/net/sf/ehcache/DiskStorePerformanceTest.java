@@ -38,7 +38,6 @@ import org.slf4j.LoggerFactory;
  * @author James Abley
  * @author Greg Luck
  */
-@Ignore
 public class DiskStorePerformanceTest extends AbstractCacheTest {
 
     private static final Logger LOG = LoggerFactory.getLogger(DiskStorePerformanceTest.class);
@@ -53,7 +52,7 @@ public class DiskStorePerformanceTest extends AbstractCacheTest {
      */
     @Test
     public void concurrencyThroughputOfReads() throws Exception {
-        Cache cache = new Cache("test", 1, MemoryStoreEvictionPolicy.LRU, true, null, false, 500, 500, false, 10000, null);
+        Cache cache = new Cache("test", 0, MemoryStoreEvictionPolicy.LRU, true, null, false, 500, 500, true, 10000, null);
         manager.addCache(cache);
         
         /* Stick over half a GB of stuff into the DiskStore. */
@@ -115,6 +114,10 @@ public class DiskStorePerformanceTest extends AbstractCacheTest {
         while (cache.getStore().bufferFull()) {
             Thread.sleep(100);
         }
+        
+        cache.flush();
+        
+        Thread.sleep(1000);
     }
 
     private byte[] getResource(String name) throws IOException {

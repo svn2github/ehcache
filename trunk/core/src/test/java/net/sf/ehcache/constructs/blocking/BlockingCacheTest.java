@@ -59,8 +59,7 @@ public class BlockingCacheTest extends CacheTest {
     @Before
     public void setUp() throws Exception {
         super.setUp();
-        Ehcache cache = manager.getCache("sampleCacheNoIdle");
-        //Ehcache cache = manager.getCache("sampleIdlingExpiringCache");
+        Ehcache cache = manager.getCache("sampleIdlingExpiringCache");
         blockingCache = new BlockingCache(cache);
     }
 

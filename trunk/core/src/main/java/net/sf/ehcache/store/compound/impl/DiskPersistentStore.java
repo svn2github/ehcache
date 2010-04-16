@@ -97,8 +97,7 @@ public final class DiskPersistentStore extends CompoundStore implements CacheCon
      * {@inheritDoc}
      */
     public Policy getInMemoryEvictionPolicy() {
-        // TODO Auto-generated method stub
-        return null;
+        return disk.getInMemoryEvictionPolicy();
     }
 
     /**
@@ -141,7 +140,7 @@ public final class DiskPersistentStore extends CompoundStore implements CacheCon
      * {@inheritDoc}
      */
     public void setInMemoryEvictionPolicy(Policy policy) {
-        // TODO Auto-generated method stub
+        disk.setInMemoryEvictionPolicy(policy);
     }
 
     /**

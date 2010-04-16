@@ -39,11 +39,11 @@ import net.sf.ehcache.statistics.sampled.SampledCacheStatisticsWrapper;
 import net.sf.ehcache.store.DiskStore;
 import net.sf.ehcache.store.LegacyStoreWrapper;
 import net.sf.ehcache.store.LruMemoryStore;
-import net.sf.ehcache.store.MemoryStore;
 import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
 import net.sf.ehcache.store.Policy;
 import net.sf.ehcache.store.Store;
 import net.sf.ehcache.store.XATransactionalStore;
+import net.sf.ehcache.store.compound.impl.DiskPersistentStore;
 import net.sf.ehcache.store.compound.impl.MemoryOnlyStore;
 import net.sf.ehcache.store.compound.impl.OverflowToDiskStore;
 import net.sf.ehcache.transaction.manager.TransactionManagerLookup;
@@ -961,9 +961,7 @@ public class Cache implements Ehcache {
                     store = new LegacyStoreWrapper(new LruMemoryStore(this, disk), disk, registeredEventListeners, configuration);
                 } else {
                     if (configuration.isDiskPersistent()) {
-                        //store = DiskPersistentStore.create(this, diskStorePath);
-                        Store disk = createDiskStore();
-                        store = new LegacyStoreWrapper(MemoryStore.create(this, disk), disk, registeredEventListeners, configuration);
+                        store = DiskPersistentStore.create(this, diskStorePath);
                     } else if (configuration.isOverflowToDisk()) {
                         store = OverflowToDiskStore.create(this, diskStorePath);
                     } else {
@@ -1671,10 +1669,12 @@ public class Cache implements Ehcache {
     }
 
     private Element searchInStoreWithStats(Object key, boolean quiet, boolean notifyListeners) {
+        boolean wasOnDisk = false;
         Element element;
         if (quiet) {
             element = compoundStore.getQuiet(key);
         } else {
+            wasOnDisk = compoundStore.containsKeyOnDisk(key);
             element = compoundStore.get(key);
         }
 
@@ -1693,7 +1693,11 @@ public class Cache implements Ehcache {
                 if (LOG.isDebugEnabled()) {
                     LOG.debug(getName() + "Cache: " + getName() + " store hit for " + key);
                 }
-                liveCacheStatisticsData.cacheHitInMemory();
+                if (wasOnDisk) {
+                    liveCacheStatisticsData.cacheHitOnDisk();
+                } else {
+                    liveCacheStatisticsData.cacheHitInMemory();
+                }
             }
         } else if (LOG.isDebugEnabled()) {
             LOG.debug(getName() + "Cache: " + getName() + " store miss for " + key);
@@ -1702,12 +1706,7 @@ public class Cache implements Ehcache {
     }
 
     private Element searchInStoreWithoutStats(Object key, boolean quiet, boolean notifyListeners) {
-        Element element;
-        if (quiet) {
-            element = compoundStore.getQuiet(key);
-        } else {
-            element = compoundStore.get(key);
-        }
+        Element element = compoundStore.getQuiet(key);
 
         if (element != null) {
             if (isExpired(element)) {

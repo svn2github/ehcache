@@ -124,7 +124,7 @@ public class DiskOverflowStorageFactory extends DiskStorageFactory<ElementSubsti
             if (capacity > 0) {
                 int overflow = size - capacity;
                 if (overflow > 0) {
-                    evict(Math.min(MAX_EVICT, overflow), key);
+                    evict(Math.min(MAX_EVICT, overflow), key, size);
                 }
             }
             return new OverflowPlaceholder(element);
@@ -154,7 +154,11 @@ public class DiskOverflowStorageFactory extends DiskStorageFactory<ElementSubsti
                 throw new CacheException(e);
             }
         } else {
-            return ((Placeholder) proxy).getElement();
+            Element e = ((Placeholder) proxy).getElement();
+            if (key != null) {
+                store.fault(key, proxy, memory.create(key, e));
+            }
+            return e;
         }
     }
 
@@ -179,9 +183,9 @@ public class DiskOverflowStorageFactory extends DiskStorageFactory<ElementSubsti
         }
     }
 
-    private void evict(int n, Object keyHint) {
+    private void evict(int n, Object keyHint, int size) {
         for (int i = 0; i < n; i++) {
-            DiskSubstitute target = getEvictionTarget(keyHint);
+            DiskSubstitute target = getEvictionTarget(keyHint, size);
             if (target == null) {
                 continue;
             } else {
@@ -190,8 +194,8 @@ public class DiskOverflowStorageFactory extends DiskStorageFactory<ElementSubsti
         }
     }
     
-    private DiskSubstitute getEvictionTarget(Object keyHint) {
-        List<DiskStorageFactory.DiskSubstitute> sample = store.getRandomSample(filter, SAMPLE_SIZE, keyHint);
+    private DiskSubstitute getEvictionTarget(Object keyHint, int size) {
+        List<DiskStorageFactory.DiskSubstitute> sample = store.getRandomSample(filter, Math.min(SAMPLE_SIZE, size), keyHint);
         DiskSubstitute target = null;
         for (DiskSubstitute substitute : sample) {
             if ((target == null) || (substitute.getHitCount() < target.getHitCount())) {
@@ -238,8 +242,8 @@ public class DiskOverflowStorageFactory extends DiskStorageFactory<ElementSubsti
          * {@inheritDoc}
          */
         @Override
-        public Boolean call() {
-            Boolean result = super.call();
+        public DiskMarker call() {
+            DiskMarker result = super.call();
             //don't want to increment on exception throw
             count.incrementAndGet();
             return result;

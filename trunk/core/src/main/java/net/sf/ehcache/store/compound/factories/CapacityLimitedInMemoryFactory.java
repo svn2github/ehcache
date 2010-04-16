@@ -97,16 +97,16 @@ public class CapacityLimitedInMemoryFactory implements IdentityElementSubstitute
         if (capacity > 0) {
             int overflow = size - capacity;
             if (overflow > 0) {
-                evict(Math.min(MAX_EVICT, overflow), key);
+                evict(Math.min(MAX_EVICT, overflow), key, size);
             }
         }
         
         return element;
     }
     
-    private void evict(int n, Object keyHint) {
+    private void evict(int n, Object keyHint, int size) {
         for (int i = 0; i < n; i++) {
-            Element target = getEvictionTarget(keyHint);
+            Element target = getEvictionTarget(keyHint, size);
             if (target == null) {
                 continue;
             }
@@ -131,8 +131,8 @@ public class CapacityLimitedInMemoryFactory implements IdentityElementSubstitute
         }
     }
 
-    private Element getEvictionTarget(Object keyHint) {
-        List<Element> sample = boundStore.getRandomSample(filter, SAMPLE_SIZE, keyHint);
+    private Element getEvictionTarget(Object keyHint, int size) {
+        List<Element> sample = boundStore.getRandomSample(filter, Math.min(SAMPLE_SIZE, size), keyHint);
         return policy.selectedBasedOnPolicy(sample.toArray(new Element[sample.size()]), null);
     }
     

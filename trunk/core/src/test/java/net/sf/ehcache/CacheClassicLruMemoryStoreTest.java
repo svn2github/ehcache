@@ -1,8 +1,14 @@
 package net.sf.ehcache;
 
+import net.sf.ehcache.store.LegacyStoreWrapper;
 import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
+import net.sf.ehcache.store.compound.CompoundStore;
+
 import org.junit.AfterClass;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -125,5 +131,113 @@ public class CacheClassicLruMemoryStoreTest extends CacheTest {
 
     }
 
+    @Override
+    @Test
+    public void testFlushWithoutClear() throws InterruptedException {
 
+        CacheManager cacheManager = CacheManager.create(AbstractCacheTest.TEST_CONFIG_DIR + "ehcache.xml");
+        Cache cache = cacheManager.getCache("SimplePageCachingFilter");
+        cache.removeAll();
+        for (int i = 0; i < 100; i++) {
+            cache.put(new Element("" + i, new Date()));
+            //hit
+            cache.get("" + i);
+        }
+        assertEquals(10, cache.getMemoryStoreSize());
+        assertEquals(90, cache.getDiskStoreSize());
+
+        cache.flush();
+        Thread.sleep(1000);
+
+        assertEquals(10, cache.getMemoryStoreSize());
+        assertEquals(100, cache.getDiskStoreSize());
+        cacheManager.shutdown();
+
+    }
+
+    @Override
+    @Test
+    public void testFlushWithClear() throws InterruptedException {
+
+        CacheManager cacheManager = CacheManager.create(AbstractCacheTest.TEST_CONFIG_DIR + "ehcache.xml");
+        Cache cache = cacheManager.getCache("SimplePageFragmentCachingFilter");
+        cache.removeAll();
+        for (int i = 0; i < 100; i++) {
+            cache.put(new Element("" + i, new Date()));
+            //hit
+            cache.get("" + i);
+        }
+        assertEquals(10, cache.getMemoryStoreSize());
+        assertEquals(90, cache.getDiskStoreSize());
+
+        cache.flush();
+        Thread.sleep(1000);
+
+        assertEquals(0, cache.getMemoryStoreSize());
+        assertEquals(100, cache.getDiskStoreSize());
+        cacheManager.shutdown();
+
+    }
+
+    /**
+     * Tests disk store and memory store size
+     *
+     * This is overridden because the classic LRU store uses different classes
+     */
+    @Test @Override
+    public void testGetDiskStoreSize() throws Exception {
+        Cache cache = new Cache("testGetDiskStoreSize", 1, true, false, 100, 200);
+        manager.addCache(cache);
+        assertEquals(0, cache.getDiskStoreSize());
+
+        cache.put(new Element("key1", "value1"));
+        assertEquals(0, cache.getDiskStoreSize());
+        assertEquals(1, cache.getSize());
+
+        cache.put(new Element("key2", "value2"));
+        assertEquals(2, cache.getSize());
+        assertEquals(1, cache.getDiskStoreSize());
+        assertEquals(1, cache.getMemoryStoreSize());
+
+        cache.put(new Element("key3", "value3"));
+        cache.put(new Element("key4", "value4"));
+        assertEquals(4, cache.getSize());
+        assertEquals(3, cache.getDiskStoreSize());
+        assertEquals(1, cache.getMemoryStoreSize());
+
+        // remove last element inserted (is in memory store)
+        
+        assertTrue(((LegacyStoreWrapper) cache.getStore()).getMemoryStore().containsKey("key4"));
+        cache.remove("key4");
+        assertEquals(3, cache.getSize());
+        assertEquals(3, cache.getDiskStoreSize());
+        assertEquals(0, cache.getMemoryStoreSize());
+
+        // remove key1 element
+        assertFalse(((LegacyStoreWrapper) cache.getStore()).getMemoryStore().containsKey("key1"));
+        cache.remove("key1");
+        assertEquals(2, cache.getSize());
+        assertEquals(2, cache.getDiskStoreSize());
+        assertEquals(0, cache.getMemoryStoreSize());
+
+        // add another
+        cache.put(new Element("key5", "value5"));
+        assertEquals(3, cache.getSize());
+        assertEquals(2, cache.getDiskStoreSize());
+        assertEquals(1, cache.getMemoryStoreSize());
+
+        // remove all
+        cache.removeAll();
+        assertEquals(0, cache.getSize());
+        assertEquals(0, cache.getDiskStoreSize());
+        assertEquals(0, cache.getMemoryStoreSize());
+
+        //Check behaviour of NonSerializable objects
+        cache.put(new Element(new Object(), new Object()));
+        cache.put(new Element(new Object(), new Object()));
+        cache.put(new Element(new Object(), new Object()));
+        assertEquals(1, cache.getSize());
+        assertEquals(0, cache.getDiskStoreSize());
+        assertEquals(1, cache.getMemoryStoreSize());
+    }
 }
