@@ -19,6 +19,7 @@ package net.sf.ehcache.transaction.xa;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Set;
 
 import javax.transaction.RollbackException;
@@ -351,7 +352,7 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
                 for (PreparedCommand command : context.getPreparedCommands()) {
                     Object key = command.getKey();
                     if (key != null) {
-                        ehcacheXAStore.checkin(key, xid, !command.isWriteCommand());
+                        potentiallyCheckin(context, command, xid);
                         oldVersionStore.remove(key);
                     }
                 }
@@ -367,6 +368,25 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
 
         fireAfterCommitOrRollback();
     }
+
+    private boolean isLastCommandForKey(PreparedContext context, PreparedCommand command) {
+        List<PreparedCommand> commands = context.getPreparedCommands();
+        ListIterator<PreparedCommand> listIterator = commands.listIterator(commands.lastIndexOf(command) + 1);
+        while (listIterator.hasNext()) {
+            if (listIterator.next().getKey().equals(command.getKey())) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    private void potentiallyCheckin(final PreparedContext context, final PreparedCommand command, final Xid xid) {
+        if (isLastCommandForKey(context, command)) {
+            ehcacheXAStore.checkin(command.getKey(), xid, !command.isWriteCommand());
+        }
+    }
+
 
     private void fireAfterCommitOrRollback() {
         for (TwoPcExecutionListener twoPcExecutionListener : twoPcExecutionListeners) {
@@ -551,11 +571,12 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
 
             // Execute write command within the real underlying store
             boolean writes = false;
-            for (VersionAwareCommand command : context.getCommands()) {
+            List<VersionAwareCommand> commands = context.getCommands();
+            for (VersionAwareCommand command : commands) {
                 writes = command.execute(store) || writes;
                 Object key = command.getKey();
                 if (key != null) {
-                    ehcacheXAStore.checkin(key, xid, !command.isWriteCommand());
+                    potentiallyCheckin(context, command, xid);
                 }
             }
         } finally {
@@ -564,7 +585,22 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
             }
         }
     }
-    
+
+    private void potentiallyCheckin(final TransactionContext context, final VersionAwareCommand command, final Xid xid) {
+        List<VersionAwareCommand> commands = context.getCommands();
+        ListIterator<VersionAwareCommand> listIterator = commands.listIterator(commands.lastIndexOf(command) + 1);
+        boolean lastCommandForKey = true;
+        while (listIterator.hasNext()) {
+            if (listIterator.next().getKey().equals(command.getKey())) {
+                lastCommandForKey = false;
+                break;
+            }
+        }
+        if (lastCommandForKey) {
+            ehcacheXAStore.checkin(command.getKey(), xid, !command.isWriteCommand());
+        }
+    }
+
     /**
      * Check if commands are still valid for prepare/commit for given Xid
      * @param context the context containing the commands to validate against the MVCC optimistic locking mechanism
