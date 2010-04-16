@@ -34,6 +34,8 @@ import org.junit.Test;
 
 public class BasicNonStopCacheTest extends TestCase {
 
+    private static final int SYSTEM_CLOCK_EPSILON_MILLIS = 20;
+
     private static String getMethodSignature(Method method) {
         StringBuilder sb = new StringBuilder();
         sb.append(method.getName()).append('(');
@@ -174,7 +176,7 @@ public class BasicNonStopCacheTest extends TestCase {
                 invokeOne(behavior, m, getMethodArguments(m));
                 long timeTaken = System.currentTimeMillis() - start;
                 System.out.println("      ... underlying cacheTimeout: " + underlyingCacheTimeout + ", actual time taken: " + timeTaken);
-                Assert.assertTrue(timeTaken >= underlyingCacheTimeout);
+                Assert.assertTrue((timeTaken + SYSTEM_CLOCK_EPSILON_MILLIS) >= underlyingCacheTimeout);
             }
         }
 

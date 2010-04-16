@@ -46,7 +46,7 @@ public class NonStopCache extends EhcacheDecoratorAdapter implements NonStopCach
     private static final Logger LOGGER = LoggerFactory.getLogger(NonStopCache.class);
 
     static {
-        // make sure non-stop cache overrides all methods of NonStopCacheBehavior
+        // make sure non-stop cache overrides all methods of NonStopCacheBehavior (already implemented by EhcacheDecoratorAdapter)
         OverrideCheck.check(NonStopCacheBehavior.class, NonStopCache.class);
     }
 
@@ -56,7 +56,6 @@ public class NonStopCache extends EhcacheDecoratorAdapter implements NonStopCach
     private final NonStopCacheBehavior executeWithExecutorBehavior;
     private final NonStopCacheBehavior clusterOfflineBehavior;
     private final CacheCluster cacheCluster;
-    private final AtomicInteger pendingMutateOperationsCount = new AtomicInteger();
 
     /**
      * Constructor that accepts the cache to be decorated. A {@link NonStopCache} will be created with default config
