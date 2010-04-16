@@ -860,9 +860,7 @@ public class CacheManager {
      *             if the cache already exists in the CacheManager
      * @throws CacheException
      *             if there was an error adding the cache to the CacheManager
-     * @deprecated
      */
-    @Deprecated
     public void addCache(Cache cache) throws IllegalStateException, ObjectExistsException, CacheException {
         checkStatus();
         if (cache == null) {
