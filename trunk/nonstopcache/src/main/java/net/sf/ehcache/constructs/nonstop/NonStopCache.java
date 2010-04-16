@@ -50,6 +50,7 @@ public class NonStopCache extends EhcacheDecoratorAdapter implements NonStopCach
         OverrideCheck.check(NonStopCacheBehavior.class, NonStopCache.class);
     }
 
+    private final String name;
     private final NonStopCacheConfig nonStopCacheConfig;
     private final NonStopCacheExecutorService nonStopCacheExecutorService;
     private final ConcurrentMap<NonStopCacheBehaviorType, NonStopCacheBehavior> timeoutBehaviors;
@@ -63,8 +64,8 @@ public class NonStopCache extends EhcacheDecoratorAdapter implements NonStopCach
      * @param underlyingCache
      *            the cache that needs to be decorated
      */
-    public NonStopCache(final Ehcache underlyingCache) {
-        this(underlyingCache, new NonStopCacheConfigImpl());
+    public NonStopCache(final Ehcache underlyingCache, final String name) {
+        this(underlyingCache, name, new NonStopCacheConfigImpl());
     }
 
     /**
@@ -74,12 +75,12 @@ public class NonStopCache extends EhcacheDecoratorAdapter implements NonStopCach
      * @param underlyingCache
      * @param configProperties
      */
-    public NonStopCache(final Ehcache underlyingCache, final Properties configProperties) {
-        this(underlyingCache, new NonStopCacheConfigImpl(configProperties));
+    public NonStopCache(final Ehcache underlyingCache, final String name, final Properties configProperties) {
+        this(underlyingCache, name, new NonStopCacheConfigImpl(configProperties));
     }
 
-    public NonStopCache(final Ehcache underlyingCache, final NonStopCacheConfig nonStopCacheConfig) {
-        this(underlyingCache, nonStopCacheConfig, new NonStopCacheExecutorService(new ThreadFactory() {
+    public NonStopCache(final Ehcache underlyingCache, final String name, final NonStopCacheConfig nonStopCacheConfig) {
+        this(underlyingCache, name, nonStopCacheConfig, new NonStopCacheExecutorService(new ThreadFactory() {
 
             private final AtomicInteger count = new AtomicInteger();
 
@@ -89,9 +90,10 @@ public class NonStopCache extends EhcacheDecoratorAdapter implements NonStopCach
         }));
     }
 
-    public NonStopCache(final Ehcache underlyingCache, final NonStopCacheConfig nonStopCacheConfig,
+    public NonStopCache(final Ehcache underlyingCache, final String name, final NonStopCacheConfig nonStopCacheConfig,
             final NonStopCacheExecutorService nonStopCacheExecutorService) {
         super(underlyingCache);
+        this.name = name;
         this.nonStopCacheConfig = nonStopCacheConfig;
         this.nonStopCacheExecutorService = nonStopCacheExecutorService;
         this.timeoutBehaviors = new ConcurrentHashMap<NonStopCacheBehaviorType, NonStopCacheBehavior>();
@@ -131,6 +133,11 @@ public class NonStopCache extends EhcacheDecoratorAdapter implements NonStopCach
 
     private boolean isClusterOffline() {
         return !cacheCluster.isClusterOnline();
+    }
+
+    @Override
+    public String getName() {
+        return name;
     }
 
     @Override

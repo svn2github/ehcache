@@ -98,7 +98,7 @@ public class BasicNonStopCacheTest extends TestCase {
         NonStopCacheConfigImpl nonStopCacheConfig = new NonStopCacheConfigImpl();
         System.out.println("Configuring cache with timeoutMillis of: " + timeoutMillis);
         nonStopCacheConfig.setTimeoutMillis(timeoutMillis);
-        NonStopCache nonStopCache = new NonStopCache(cache, nonStopCacheConfig);
+        NonStopCache nonStopCache = new NonStopCache(cache, "non-stop-test-cache", nonStopCacheConfig);
 
         System.out.println("########## Testing TimeoutBehavior ");
         // check for default behavior -- timeout behavior
