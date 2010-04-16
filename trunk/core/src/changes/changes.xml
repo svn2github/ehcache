@@ -1,6 +1,29 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <document>
     <body>
+        <release version="2.1.0-beta">
+            <action dev="Chris Dennis" type="fix" issue="EHC-450">
+                Change the internal store structures to be fully coherent. 
+                This allows for the addition of concurrent map like methods
+                (e.g. putIfAbsent) and also for JTA caching in unclustered
+                caches. 
+            </action>
+            <action dev="Chris Dennis" type="update" issue="EHC-621">
+                Change the ehcache-core Hibernate dependency to the newly 
+                released 3.5.0-Final.
+            </action>
+            <action dev="Chris Dennis" type="fix" issue="EHC-633">
+                Change CacheLockProvider lock method to support reentrant acquires.
+                Add a lock state query method, and update BlockingCache accordingly.
+            </action>
+            <action dev="Chris Dennis" type="change" issue="EHC-673">
+                Change caches to have statistics disabled by default.
+            </action>
+            <action dev="Chris Dennis" type="fix" issue="EHC-674">
+                Allow Elements in clustered caches to be serialized, and hence
+                enable replication of clustered caches. 
+            </action>
+        </release>
         <release version="2.0.1" date="2010-04-05" description="Bug fixes">
             <action dev="Geert Bevin" type="fix" issue="EHC-653">
                 RegisteredEventListeners.unregisterListener(CacheEventListener

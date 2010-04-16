@@ -825,6 +825,9 @@ public class CacheTest extends AbstractCacheTest {
         //Set size so the second element overflows to disk.
         Cache cache = new Cache("test", 1, true, false, 5, 2);
         manager.addCache(cache);
+        
+        cache.setStatisticsEnabled(true);
+        
         cache.put(new Element("key1", "value1"));
         cache.put(new Element("key2", "value1"));
 
@@ -844,6 +847,9 @@ public class CacheTest extends AbstractCacheTest {
         //Set size so the second element overflows to disk.
         Cache cache = new Cache("test", 1, true, false, 5, 2);
         manager.addCache(cache);
+        
+        cache.setStatisticsEnabled(true);
+        
         cache.put(new Element("key1", "value1"));
         cache.put(new Element("key2", "value1"));
 
@@ -875,6 +881,9 @@ public class CacheTest extends AbstractCacheTest {
         //Set size so the second element overflows to disk.
         Cache cache = new Cache("test", 1, true, false, 5, 2);
         manager.addCache(cache);
+        
+        cache.setStatisticsEnabled(true);
+        
         cache.put(new Element("key1", "value1"));
         cache.put(new Element("key2", "value1"));
 
@@ -2608,6 +2617,8 @@ public class CacheTest extends AbstractCacheTest {
         Cache cache = new Cache("someName", 100, true, true, 0, 0);
         manager.addCache(cache);
 
+        cache.setStatisticsEnabled(true);
+        
         ExecutorService executor = Executors.newFixedThreadPool(10);
 
         for (int i = 0; i < 5000; i++) {
@@ -2671,6 +2682,9 @@ public class CacheTest extends AbstractCacheTest {
         manager.addCache(cache);
         manager.addCache(clone);
 
+        cache.setStatisticsEnabled(true);
+        clone.setStatisticsEnabled(true);
+        
         assertFalse(cache.getGuid().equals(clone.getGuid()));
 
         // validate updating the statistics of one cache does NOT affect a

@@ -248,7 +248,7 @@ public class CacheConfiguration implements Cloneable {
 
     private volatile boolean frozen;
     private TransactionalMode transactionalMode = TransactionalMode.OFF;
-    private volatile boolean statistics = true;
+    private volatile boolean statistics = false;
     private volatile CopyStrategy copyStrategy = new SerializationCopyStrategy();
     private volatile Boolean copyOnRead;
     private volatile Boolean copyOnWrite;

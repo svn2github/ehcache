@@ -79,6 +79,9 @@ public class BlockingCacheTest extends CacheTest {
      */
     @Test
     public void testAddEntry() throws Exception {
+        //some other test was leaving this non-empty
+        blockingCache.removeAll();
+        
         final String key = "key";
         final String value = "value";
         Element element = new Element(key, value);

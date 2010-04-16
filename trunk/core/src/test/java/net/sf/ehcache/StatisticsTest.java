@@ -52,6 +52,8 @@ public class StatisticsTest extends AbstractCacheTest {
         Cache cache = new Cache("test", 1, true, false, 5, 2);
         manager.addCache(cache);
 
+        cache.setStatisticsEnabled(true);
+        
         cache.put(new Element("key1", "value1"));
         cache.put(new Element("key2", "value1"));
         // key1 should be in the Disk Store
@@ -106,6 +108,8 @@ public class StatisticsTest extends AbstractCacheTest {
         Cache cache = new Cache("test", 1, true, false, 5, 2);
         manager.addCache(cache);
 
+        cache.setStatisticsEnabled(true);
+        
         cache.put(new Element("key1", "value1"));
         cache.put(new Element("key2", "value1"));
         // key1 should be in the Disk Store
@@ -151,6 +155,8 @@ public class StatisticsTest extends AbstractCacheTest {
         Cache cache = new Cache("test", 1, true, false, 5, 2);
         manager.addCache(cache);
 
+        cache.setStatisticsEnabled(true);
+        
         cache.put(new Element("key1", "value1"));
         cache.put(new Element("key2", "value1"));
         cache.get("key1");
@@ -215,6 +221,9 @@ public class StatisticsTest extends AbstractCacheTest {
     public void testAverageGetTime() {
         Ehcache cache = new Cache("test", 0, true, false, 5, 2);
         manager.addCache(cache);
+        
+        cache.setStatisticsEnabled(true);
+        
         Statistics statistics = cache.getStatistics();
         float averageGetTime = statistics.getAverageGetTime();
         assertTrue(0 == statistics.getAverageGetTime());
@@ -245,6 +254,9 @@ public class StatisticsTest extends AbstractCacheTest {
         Ehcache ehcache = new net.sf.ehcache.Cache("test", 10, false, false, 2,
                 2);
         manager.addCache(ehcache);
+        
+        ehcache.setStatisticsEnabled(true);
+        
         Statistics statistics = ehcache.getStatistics();
         assertEquals(0, statistics.getEvictionCount());
 

@@ -93,7 +93,7 @@
             <xs:attribute name="timeToLiveSeconds" type="xs:integer" use="optional"/>
             <xs:attribute name="maxElementsOnDisk" type="xs:integer" use="optional"/>
             <xs:attribute name="transactionalMode" type="transactionalMode" use="optional" default="off"/>
-            <xs:attribute name="statistics" type="xs:boolean" use="optional" default="true"/>
+            <xs:attribute name="statistics" type="xs:boolean" use="optional" default="false"/>
             <xs:attribute name="copyOnRead" type="xs:boolean" use="optional" default="false"/>
             <xs:attribute name="copyOnWrite" type="xs:boolean" use="optional" default="false"/>
         </xs:complexType>
@@ -124,7 +124,7 @@
             <xs:attribute name="timeToLiveSeconds" type="xs:integer" use="optional"/>
             <xs:attribute name="maxElementsOnDisk" type="xs:integer" use="optional"/>
             <xs:attribute name="transactionalMode" type="transactionalMode" use="optional" default="off" />
-            <xs:attribute name="statistics" type="xs:boolean" use="optional" default="true"/>
+            <xs:attribute name="statistics" type="xs:boolean" use="optional" default="false"/>
             <xs:attribute name="copyOnRead" type="xs:boolean" use="optional" default="false"/>
             <xs:attribute name="copyOnWrite" type="xs:boolean" use="optional" default="false"/>
             <xs:attribute name="logging" type="xs:boolean" use="optional" default="false"/>

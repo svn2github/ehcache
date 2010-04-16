@@ -264,6 +264,9 @@ public class LegacyStoreWrapper extends AbstractStore {
             Element e = memory.getQuiet(key);
             if (e == null && disk != null) {
                 e = disk.getQuiet(key);
+                if (e != null) {
+                    memory.put(e);
+                }
             }
             return e;
         } finally {
