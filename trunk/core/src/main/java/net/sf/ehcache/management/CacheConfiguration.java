@@ -75,7 +75,7 @@ public class CacheConfiguration implements CacheConfigurationMBean, Serializable
      * Accessor
      */
     public boolean isLoggingEnabled() {
-        return cacheConfiguration.isLoggingEnabled();
+        return cacheConfiguration.getLogging();
     }
 
     /**
@@ -84,7 +84,7 @@ public class CacheConfiguration implements CacheConfigurationMBean, Serializable
      * @param enable
      */
     public void setLoggingEnabled(boolean enable) {
-        cacheConfiguration.setLoggingEnabled(enable);
+        cacheConfiguration.setLogging(enable);
     }
     /**
      * Accessor

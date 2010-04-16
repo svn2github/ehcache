@@ -131,11 +131,11 @@ public class CacheConfigurationListenerTest extends AbstractCacheTest {
         assertRegistered(listener, config);
         listener.clearFiredEvents();
 
-        config.setLoggingEnabled(true);
+        config.setLogging(true);
         List<Event> events = listener.getFiredEvents();
         Assert.assertEquals(1, events.size());
         
-        config.setLoggingEnabled(false);
+        config.setLogging(false);
         events = listener.getFiredEvents();
         Assert.assertEquals(2, events.size());
 
@@ -247,7 +247,7 @@ public class CacheConfigurationListenerTest extends AbstractCacheTest {
             firedEvents.add(new Event("disk", Integer.valueOf(oldCapacity), Integer.valueOf(newCapacity)));
         }
         
-        public void loggingEnabledChanged(boolean oldValue, boolean newValue) {
+        public void loggingChanged(boolean oldValue, boolean newValue) {
             firedEvents.add(new Event("logging", Boolean.valueOf(oldValue), Boolean.valueOf(newValue)));
         }
 

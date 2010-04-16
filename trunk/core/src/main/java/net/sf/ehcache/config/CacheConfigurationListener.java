@@ -61,7 +61,7 @@ public interface CacheConfigurationListener {
      * @param oldValue old value whether logging was enabled or not
      * @param newValue new value whether logging was enabled or not
      */
-    public void loggingEnabledChanged(boolean oldValue, boolean newValue);
+    public void loggingChanged(boolean oldValue, boolean newValue);
 
     /**
      * Indicates that this listener was registered with the given configuration

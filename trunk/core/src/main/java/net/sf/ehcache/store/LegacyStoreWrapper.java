@@ -36,7 +36,7 @@ import net.sf.ehcache.writer.CacheWriterManager;
  * 
  * @author Chris Dennis
  */
-public class LegacyStoreWrapper implements Store {
+public class LegacyStoreWrapper extends AbstractStore {
 
     private static final int SYNC_STRIPES = 64;
     
@@ -305,27 +305,6 @@ public class LegacyStoreWrapper implements Store {
     /**
      * {@inheritDoc}
      */
-    public boolean isCacheCoherent() {
-        return false;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public boolean isClusterCoherent() {
-        return false;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public boolean isNodeCoherent() {
-        return false;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
     public boolean put(Element element) throws CacheException {
         if (element == null) {
             return false;
@@ -414,20 +393,6 @@ public class LegacyStoreWrapper implements Store {
      */
     public void setInMemoryEvictionPolicy(Policy policy) {
         memory.setInMemoryEvictionPolicy(policy);
-    }
-
-    /**
-     * Throws UnsupportedOperationException
-     */
-    public void setNodeCoherent(boolean coherent) throws UnsupportedOperationException {
-        throw new UnsupportedOperationException();
-    }
-
-    /**
-     * Throws UnsupportedOperationException
-     */
-    public void waitUntilClusterCoherent() throws UnsupportedOperationException {
-        throw new UnsupportedOperationException();
     }
 
     /**

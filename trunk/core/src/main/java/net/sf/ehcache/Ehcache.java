@@ -16,6 +16,7 @@
 
 package net.sf.ehcache;
 
+import java.beans.PropertyChangeListener;
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.List;
@@ -27,11 +28,11 @@ import net.sf.ehcache.event.RegisteredEventListeners;
 import net.sf.ehcache.exceptionhandler.CacheExceptionHandler;
 import net.sf.ehcache.extension.CacheExtension;
 import net.sf.ehcache.loader.CacheLoader;
-import net.sf.ehcache.writer.CacheWriter;
 import net.sf.ehcache.statistics.CacheUsageListener;
 import net.sf.ehcache.statistics.LiveCacheStatistics;
 import net.sf.ehcache.statistics.sampled.SampledCacheStatistics;
 import net.sf.ehcache.transaction.manager.TransactionManagerLookup;
+import net.sf.ehcache.writer.CacheWriter;
 import net.sf.ehcache.writer.CacheWriterManager;
 
 /**
@@ -1049,4 +1050,18 @@ public interface Ehcache extends Cloneable {
      * @param transactionManagerLookup
      */
     public void setTransactionManagerLookup(TransactionManagerLookup transactionManagerLookup);
+    
+    /**
+     * Add a PropertyChangeListener.
+     * 
+     * @param listener
+     */
+    public void addPropertyChangeListener(PropertyChangeListener listener);
+    
+    /**
+     * Remove a PropertyChangeListener.
+     * 
+     * @param listener
+     */
+    public void removePropertyChangeListener(PropertyChangeListener listener);
 }

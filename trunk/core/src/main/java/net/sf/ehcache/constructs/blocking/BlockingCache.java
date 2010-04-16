@@ -16,6 +16,12 @@
 
 package net.sf.ehcache.constructs.blocking;
 
+import java.beans.PropertyChangeListener;
+import java.io.Serializable;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;
@@ -38,11 +44,6 @@ import net.sf.ehcache.statistics.sampled.SampledCacheStatistics;
 import net.sf.ehcache.transaction.manager.TransactionManagerLookup;
 import net.sf.ehcache.writer.CacheWriter;
 import net.sf.ehcache.writer.CacheWriterManager;
-
-import java.io.Serializable;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
 
 /**
  * A blocking decorator for an Ehcache, backed by a {@link Ehcache}.
@@ -1219,6 +1220,24 @@ public class BlockingCache implements Ehcache {
      */
     public Element replace(Element element) throws NullPointerException {
         return cache.replace(element);
+    }
+    
+    /**
+     * {@inheritDoc}
+     * 
+     * @see net.sf.ehcache.Ehcache#addPropertyChangeListener(java.beans.PropertyChangeListener)
+     */
+    public void addPropertyChangeListener(PropertyChangeListener listener) {
+        cache.addPropertyChangeListener(listener);
+    }
+
+    /**
+     * {@inheritDoc}
+     * 
+     * @see net.sf.ehcache.Ehcache#removePropertyChangeListener(java.beans.PropertyChangeListener)
+     */
+    public void removePropertyChangeListener(PropertyChangeListener listener) {
+        cache.addPropertyChangeListener(listener);
     }
 }
 

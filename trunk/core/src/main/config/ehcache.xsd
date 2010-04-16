@@ -127,6 +127,7 @@
             <xs:attribute name="statistics" type="xs:boolean" use="optional" default="true"/>
             <xs:attribute name="copyOnRead" type="xs:boolean" use="optional" default="false"/>
             <xs:attribute name="copyOnWrite" type="xs:boolean" use="optional" default="false"/>
+            <xs:attribute name="logging" type="xs:boolean" use="optional" default="false"/>
         </xs:complexType>
     </xs:element>
     <xs:element name="cacheEventListenerFactory">

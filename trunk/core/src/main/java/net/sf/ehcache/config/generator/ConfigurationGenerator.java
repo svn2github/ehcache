@@ -149,6 +149,9 @@ public class ConfigurationGenerator {
                     EOL);
         }
         builder.append(spacer).append("clearOnFlush=\"").append(cacheConfiguration.isClearOnFlush()).append("\">").append(EOL);
+        if (cacheConfiguration.getLogging() != CacheConfiguration.DEFAULT_LOGGING) {
+            builder.append(spacer).append("logging=\"").append(cacheConfiguration.getLogging()).append("\">").append(EOL);
+        }
 
         indent(1);
 

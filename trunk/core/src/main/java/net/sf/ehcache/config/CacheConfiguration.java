@@ -88,9 +88,14 @@ public class CacheConfiguration implements Cloneable {
     public static final int DEFAULT_SPOOL_BUFFER_SIZE = 30;
 
     /**
-     * 
+     * Default number of diskAccessStripes.
      */
     public static final int DEFAULT_DISK_ACCESS_STRIPES = 1;
+    
+    /**
+     * Logging is off by default.
+     */
+    public static final boolean DEFAULT_LOGGING = false;
     
     /**
      * The default memory store eviction policy is LRU.
@@ -102,21 +107,21 @@ public class CacheConfiguration implements Cloneable {
     /**
      * the name of the cache.
      */
-    protected String name;
+    protected volatile String name;
 
     /**
      * the maximum objects to be held in the {@link net.sf.ehcache.store.MemoryStore}.
      * <p>
      * <code>0</code> translates to no-limit.
      */
-    protected int maxElementsInMemory;
+    protected volatile int maxElementsInMemory;
 
     /**
      * the maximum objects to be held in the {@link net.sf.ehcache.store.DiskStore}.
      * <p>
      * <code>0</code> translates to no-limit.
      */
-    protected int maxElementsOnDisk;
+    protected volatile int maxElementsOnDisk;
 
     /**
      * The policy used to evict elements from the {@link net.sf.ehcache.store.MemoryStore}.
@@ -130,59 +135,59 @@ public class CacheConfiguration implements Cloneable {
      *
      * @since 1.2
      */
-    protected MemoryStoreEvictionPolicy memoryStoreEvictionPolicy = DEFAULT_MEMORY_STORE_EVICTION_POLICY;
+    protected volatile MemoryStoreEvictionPolicy memoryStoreEvictionPolicy = DEFAULT_MEMORY_STORE_EVICTION_POLICY;
 
     /**
      * Sets whether the MemoryStore should be cleared when
      * {@link net.sf.ehcache.Ehcache#flush flush()} is called on the cache - true by default.
      */
-    protected boolean clearOnFlush = true;
+    protected volatile boolean clearOnFlush = true;
 
 
     /**
      * Sets whether elements are eternal. If eternal,  timeouts are ignored and the element
      * is never expired.
      */
-    protected boolean eternal;
+    protected volatile boolean eternal;
 
     /**
      * the time to idle for an element before it expires. Is only used
      * if the element is not eternal.A value of 0 means do not check for idling.
      */
-    protected long timeToIdleSeconds;
+    protected volatile long timeToIdleSeconds;
 
     /**
      * Sets the time to idle for an element before it expires. Is only used
      * if the element is not eternal. This attribute is optional in the configuration.
      * A value of 0 means do not check time to live.
      */
-    protected long timeToLiveSeconds;
+    protected volatile long timeToLiveSeconds;
 
     /**
      * whether elements can overflow to disk when the in-memory cache
      * has reached the set limit.
      */
-    protected boolean overflowToDisk;
+    protected volatile boolean overflowToDisk;
 
     /**
      * For caches that overflow to disk, whether the disk cache persists between CacheManager instances.
      */
-    protected boolean diskPersistent;
+    protected volatile boolean diskPersistent;
 
     /**
      * The path where the disk store is located
      */
-    protected String diskStorePath = DiskStoreConfiguration.getDefaultPath();
+    protected volatile String diskStorePath = DiskStoreConfiguration.getDefaultPath();
 
     /**
      * The size of the disk spool used to buffer writes
      */
-    protected int diskSpoolBufferSizeMB = DEFAULT_SPOOL_BUFFER_SIZE;
+    protected volatile int diskSpoolBufferSizeMB = DEFAULT_SPOOL_BUFFER_SIZE;
 
     /**
      * The number of concurrent disk access stripes.
      */
-    protected int diskAccessStripes = DEFAULT_DISK_ACCESS_STRIPES;
+    protected volatile int diskAccessStripes = DEFAULT_DISK_ACCESS_STRIPES;
     
     /**
      * The interval in seconds between runs of the disk expiry thread.
@@ -191,13 +196,13 @@ public class CacheConfiguration implements Cloneable {
      * This is not the same thing as time to live or time to idle. When the thread runs it checks
      * these things. So this value is how often we check for expiry.
      */
-    protected long diskExpiryThreadIntervalSeconds = DEFAULT_EXPIRY_THREAD_INTERVAL_SECONDS;
+    protected volatile long diskExpiryThreadIntervalSeconds = DEFAULT_EXPIRY_THREAD_INTERVAL_SECONDS;
 
     /**
      * Indicates whether logging is enabled or not. False by default.
      * Only used when cache is clustered with Terracotta.
      */
-    protected boolean loggingEnabled;
+    protected volatile boolean logging;
 
     /**
      * The event listener factories added by BeanUtils.
@@ -367,11 +372,11 @@ public class CacheConfiguration implements Cloneable {
      * Only used when cache is clustered with Terracotta
      * @param enable If true, enables logging otherwise disables logging
      */
-    public final void setLoggingEnabled(boolean enable) {
+    public final void setLogging(boolean enable) {
         checkDynamicChange();
-        boolean oldLoggingEnabled = this.loggingEnabled;
-        this.loggingEnabled = enable;
-        fireLoggingEnabledChanged(oldLoggingEnabled, enable);
+        boolean oldLoggingEnabled = this.logging;
+        this.logging = enable;
+        fireLoggingChanged(oldLoggingEnabled, enable);
     }
 
     /**
@@ -381,10 +386,10 @@ public class CacheConfiguration implements Cloneable {
      * Only used when cache is clustered with Terracotta
      * @param enable If true, enables logging otherwise disables logging
      * @return this configuration instance
-     * @see #setLoggingEnabled(boolean)
+     * @see #setLogging(boolean)
      */
-    public final CacheConfiguration loggingEnabled(boolean enable) {
-        setLoggingEnabled(enable);
+    public final CacheConfiguration logging(boolean enable) {
+        setLogging(enable);
         return this;
     }
 
@@ -1225,8 +1230,8 @@ public class CacheConfiguration implements Cloneable {
      *
      * @return true if logging is enabled otherwise false
      */
-    public boolean isLoggingEnabled() {
-        return loggingEnabled;
+    public boolean getLogging() {
+        return logging;
     }
 
     /**
@@ -1397,10 +1402,10 @@ public class CacheConfiguration implements Cloneable {
         }
     }
 
-    private void fireLoggingEnabledChanged(boolean oldValue, boolean newValue) {
+    private void fireLoggingChanged(boolean oldValue, boolean newValue) {
         if (oldValue != newValue) {
             for (CacheConfigurationListener l : listeners) {
-                l.loggingEnabledChanged(oldValue, newValue);
+                l.loggingChanged(oldValue, newValue);
             }
         }
     }
@@ -1457,6 +1462,13 @@ public class CacheConfiguration implements Cloneable {
         this.maxElementsOnDisk = capacity;
     }
 
+    /**
+     * Intended for internal use only, and subject to change.
+     */
+    public void internalSetLogging(boolean logging) {
+        this.logging = logging;
+    }
+    
     /**
      * Intended for internal use only, and subject to change.
      * This is called from the store implementations to reflect the new coherent value

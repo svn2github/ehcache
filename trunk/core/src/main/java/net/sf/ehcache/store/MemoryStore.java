@@ -39,7 +39,7 @@ import java.util.NoSuchElementException;
  * @author <a href="mailto:ssuravarapu@users.sourceforge.net">Surya Suravarapu</a>
  * @version $Id$
  */
-public class MemoryStore implements Store, CacheConfigurationListener {
+public class MemoryStore extends AbstractStore implements CacheConfigurationListener {
 
     /**
      * This number is magic. It was established using empirical testing of the two approaches
@@ -623,13 +623,6 @@ public class MemoryStore implements Store, CacheConfigurationListener {
     /**
      * {@inheritDoc}
      */
-    public boolean isCacheCoherent() {
-        return false;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
     public void timeToIdleChanged(long oldTti, long newTti) {
         // no-op
     }
@@ -651,7 +644,7 @@ public class MemoryStore implements Store, CacheConfigurationListener {
     /**
      * {@inheritDoc}
      */
-    public void loggingEnabledChanged(boolean oldValue, boolean newValue) {
+    public void loggingChanged(boolean oldValue, boolean newValue) {
         // no-op
     }
 
@@ -675,34 +668,6 @@ public class MemoryStore implements Store, CacheConfigurationListener {
      */
     public void deregistered(CacheConfiguration config) {
         // no-op
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public boolean isNodeCoherent() {
-        return false;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public boolean isClusterCoherent() {
-        return false;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public void waitUntilClusterCoherent() {
-        throw new UnsupportedOperationException();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public void setNodeCoherent(boolean coherent) {
-        throw new UnsupportedOperationException();
     }
 
     /**

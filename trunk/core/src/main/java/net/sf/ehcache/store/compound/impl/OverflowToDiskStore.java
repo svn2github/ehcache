@@ -167,7 +167,7 @@ public final class OverflowToDiskStore extends CompoundStore implements CacheCon
      * <p>
      * A NO-OP
      */
-    public void loggingEnabledChanged(boolean oldValue, boolean newValue) {
+    public void loggingChanged(boolean oldValue, boolean newValue) {
         //no-op
     }
 

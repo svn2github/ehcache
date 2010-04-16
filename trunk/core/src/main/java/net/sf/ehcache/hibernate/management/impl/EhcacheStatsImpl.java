@@ -430,7 +430,7 @@ public class EhcacheStatsImpl extends BaseEmitterBean implements EhcacheStats {
     public boolean isRegionCacheLoggingEnabled(String region) {
         Cache cache = this.cacheManager.getCache(region);
         if (cache != null) {
-            return cache.getCacheConfiguration().isLoggingEnabled();
+            return cache.getCacheConfiguration().getLogging();
         } else {
             return false;
         }
@@ -466,7 +466,7 @@ public class EhcacheStatsImpl extends BaseEmitterBean implements EhcacheStats {
     public void setRegionCacheLoggingEnabled(String region, boolean loggingEnabled) {
         Cache cache = this.cacheManager.getCache(region);
         if (cache != null) {
-            cache.getCacheConfiguration().setLoggingEnabled(loggingEnabled);
+            cache.getCacheConfiguration().setLogging(loggingEnabled);
             sendNotification(CACHE_REGION_CHANGED, getRegionCacheAttributes(region), region);
         }
     }

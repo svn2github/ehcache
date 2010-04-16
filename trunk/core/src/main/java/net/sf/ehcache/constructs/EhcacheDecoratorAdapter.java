@@ -16,6 +16,7 @@
 
 package net.sf.ehcache.constructs;
 
+import java.beans.PropertyChangeListener;
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.List;
@@ -701,6 +702,24 @@ public class EhcacheDecoratorAdapter implements Ehcache {
      */
     public Element replace(Element element) throws NullPointerException {
         return underlyingCache.replace(element);
+    }
+    
+    /**
+     * {@inheritDoc}
+     * 
+     * @see net.sf.ehcache.Ehcache#addPropertyChangeListener(java.beans.PropertyChangeListener)
+     */
+    public void addPropertyChangeListener(PropertyChangeListener listener) {
+        underlyingCache.addPropertyChangeListener(listener);
+    }
+
+    /**
+     * {@inheritDoc}
+     * 
+     * @see net.sf.ehcache.Ehcache#removePropertyChangeListener(java.beans.PropertyChangeListener)
+     */
+    public void removePropertyChangeListener(PropertyChangeListener listener) {
+        underlyingCache.addPropertyChangeListener(listener);
     }
 
 }

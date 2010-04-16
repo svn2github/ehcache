@@ -469,8 +469,8 @@
                     <enableRSS>false</enableRSS>
                     <linkXRef>true</linkXRef>
                     <consoleOutput>true</consoleOutput>
-                    <failsOnError>true</failsOnError>
-                    <failOnViolation>true</failOnViolation>
+                    <failsOnError>false</failsOnError>
+                    <failOnViolation>false</failOnViolation>
                     <includeTestSourceDirectory>false</includeTestSourceDirectory>
                     <enableRulesSummary>true</enableRulesSummary>
                 </configuration>

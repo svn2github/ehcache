@@ -37,9 +37,6 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Ehcache;
@@ -51,6 +48,9 @@ import net.sf.ehcache.config.CacheConfigurationListener;
 import net.sf.ehcache.event.RegisteredEventListeners;
 import net.sf.ehcache.util.MemoryEfficientByteArrayOutputStream;
 import net.sf.ehcache.writer.CacheWriterManager;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A disk store implementation.
@@ -71,7 +71,7 @@ import net.sf.ehcache.writer.CacheWriterManager;
  * @author patches contributed: James Abley
  * @version $Id$
  */
-public class DiskStore implements Store, CacheConfigurationListener {
+public class DiskStore extends AbstractStore implements CacheConfigurationListener {
     /**
      * If the CacheManager needs to resolve a conflict with the disk path, it will create a
      * subdirectory in the given disk path with this prefix followed by a number. The presence of this
@@ -1078,7 +1078,7 @@ public class DiskStore implements Store, CacheConfigurationListener {
     /**
      * {@inheritDoc}
      */
-    public void loggingEnabledChanged(boolean oldValue, boolean newValue) {
+    public void loggingChanged(boolean oldValue, boolean newValue) {
         // no-op
     }
 
@@ -1389,41 +1389,6 @@ public class DiskStore implements Store, CacheConfigurationListener {
      */
     public Object getInternalContext() {
         return null;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public boolean isCacheCoherent() {
-        return false;
-    }
-    
-    /**
-     * {@inheritDoc}
-     */
-    public boolean isClusterCoherent() {
-        return false;
-    }
-    
-    /**
-     * {@inheritDoc}
-     */
-    public boolean isNodeCoherent() {
-        return false;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public void setNodeCoherent(boolean coherent) {
-        throw new UnsupportedOperationException();
-    }
-
-    /**
-     * {@inheritDoc}
-     */    
-    public void waitUntilClusterCoherent() {
-        throw new UnsupportedOperationException();
     }
 
     /**

@@ -38,7 +38,7 @@ import java.util.Map;
  * @author <a href="mailto:gluck@thoughtworks.com">Greg Luck</a>
  * @version $Id$
  */
-public class LruMemoryStore implements Store {
+public class LruMemoryStore extends AbstractStore {
 
     private static final Logger LOG = LoggerFactory.getLogger(LruMemoryStore.class.getName());
 
@@ -506,41 +506,6 @@ public class LruMemoryStore implements Store {
      */
     public Object getInternalContext() {
         return null;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public void waitUntilClusterCoherent() {
-        throw new UnsupportedOperationException();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public void setNodeCoherent(boolean coherent) {
-        throw new UnsupportedOperationException();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public boolean isNodeCoherent() {
-        return false;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public boolean isClusterCoherent() {
-        return false;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public boolean isCacheCoherent() {
-        return false;
     }
 
     /**

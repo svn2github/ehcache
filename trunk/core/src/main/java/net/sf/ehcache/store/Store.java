@@ -33,6 +33,29 @@ import java.io.IOException;
 public interface Store {
 
     /**
+     * clusterCoherent property
+     */
+    static final String CLUSTER_COHERENT = "ClusterCoherent";
+    
+    
+    /**
+     * nodeCoherent property
+     */
+    static final String NODE_COHERENT = "NodeCoherent";
+    
+    /**
+     * Add a listener to the store.
+     * @param listener
+     */
+    void addStoreListener(StoreListener listener);
+    
+    /**
+     * Remove listener from store.
+     * @param listener
+     */
+    void removeStoreListener(StoreListener listener);
+    
+    /**
      * Puts an item into the store.
      * @return true if this is a new put for the key or element is null. Returns false if it was an update.
      */

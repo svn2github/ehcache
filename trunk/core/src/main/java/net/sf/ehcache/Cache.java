@@ -16,52 +16,6 @@
 
 package net.sf.ehcache;
 
-import net.sf.ehcache.bootstrap.BootstrapCacheLoader;
-import net.sf.ehcache.bootstrap.BootstrapCacheLoaderFactory;
-import net.sf.ehcache.concurrent.CacheLockProvider;
-import net.sf.ehcache.config.CacheConfiguration;
-import net.sf.ehcache.config.CacheWriterConfiguration;
-import net.sf.ehcache.config.DiskStoreConfiguration;
-import net.sf.ehcache.config.TerracottaConfiguration;
-import net.sf.ehcache.event.CacheEventListener;
-import net.sf.ehcache.event.CacheEventListenerFactory;
-import net.sf.ehcache.event.RegisteredEventListeners;
-import net.sf.ehcache.exceptionhandler.CacheExceptionHandler;
-import net.sf.ehcache.extension.CacheExtension;
-import net.sf.ehcache.extension.CacheExtensionFactory;
-import net.sf.ehcache.loader.CacheLoader;
-import net.sf.ehcache.loader.CacheLoaderFactory;
-import net.sf.ehcache.statistics.CacheUsageListener;
-import net.sf.ehcache.statistics.LiveCacheStatistics;
-import net.sf.ehcache.statistics.LiveCacheStatisticsWrapper;
-import net.sf.ehcache.statistics.sampled.SampledCacheStatistics;
-import net.sf.ehcache.statistics.sampled.SampledCacheStatisticsWrapper;
-import net.sf.ehcache.store.DiskStore;
-import net.sf.ehcache.store.LegacyStoreWrapper;
-import net.sf.ehcache.store.LruMemoryStore;
-import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
-import net.sf.ehcache.store.Policy;
-import net.sf.ehcache.store.Store;
-import net.sf.ehcache.store.XATransactionalStore;
-import net.sf.ehcache.store.compound.impl.DiskPersistentStore;
-import net.sf.ehcache.store.compound.impl.MemoryOnlyStore;
-import net.sf.ehcache.store.compound.impl.OverflowToDiskStore;
-import net.sf.ehcache.transaction.manager.TransactionManagerLookup;
-import net.sf.ehcache.transaction.xa.EhcacheXAResourceImpl;
-import net.sf.ehcache.transaction.xa.EhcacheXAStore;
-import net.sf.ehcache.util.ClassLoaderUtil;
-import net.sf.ehcache.util.NamedThreadFactory;
-import net.sf.ehcache.util.PropertyUtil;
-import net.sf.ehcache.util.TimeUtil;
-import net.sf.ehcache.writer.CacheWriter;
-import net.sf.ehcache.writer.CacheWriterFactory;
-import net.sf.ehcache.writer.CacheWriterManager;
-import net.sf.ehcache.writer.CacheWriterManagerException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import javax.transaction.TransactionManager;
-
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.io.IOException;
@@ -90,6 +44,54 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.ReentrantLock;
 
+import javax.transaction.TransactionManager;
+
+import net.sf.ehcache.bootstrap.BootstrapCacheLoader;
+import net.sf.ehcache.bootstrap.BootstrapCacheLoaderFactory;
+import net.sf.ehcache.concurrent.CacheLockProvider;
+import net.sf.ehcache.config.CacheConfiguration;
+import net.sf.ehcache.config.CacheWriterConfiguration;
+import net.sf.ehcache.config.DiskStoreConfiguration;
+import net.sf.ehcache.config.TerracottaConfiguration;
+import net.sf.ehcache.event.CacheEventListener;
+import net.sf.ehcache.event.CacheEventListenerFactory;
+import net.sf.ehcache.event.RegisteredEventListeners;
+import net.sf.ehcache.exceptionhandler.CacheExceptionHandler;
+import net.sf.ehcache.extension.CacheExtension;
+import net.sf.ehcache.extension.CacheExtensionFactory;
+import net.sf.ehcache.loader.CacheLoader;
+import net.sf.ehcache.loader.CacheLoaderFactory;
+import net.sf.ehcache.statistics.CacheUsageListener;
+import net.sf.ehcache.statistics.LiveCacheStatistics;
+import net.sf.ehcache.statistics.LiveCacheStatisticsWrapper;
+import net.sf.ehcache.statistics.sampled.SampledCacheStatistics;
+import net.sf.ehcache.statistics.sampled.SampledCacheStatisticsWrapper;
+import net.sf.ehcache.store.DiskStore;
+import net.sf.ehcache.store.LegacyStoreWrapper;
+import net.sf.ehcache.store.LruMemoryStore;
+import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
+import net.sf.ehcache.store.Policy;
+import net.sf.ehcache.store.Store;
+import net.sf.ehcache.store.StoreListener;
+import net.sf.ehcache.store.XATransactionalStore;
+import net.sf.ehcache.store.compound.impl.DiskPersistentStore;
+import net.sf.ehcache.store.compound.impl.MemoryOnlyStore;
+import net.sf.ehcache.store.compound.impl.OverflowToDiskStore;
+import net.sf.ehcache.transaction.manager.TransactionManagerLookup;
+import net.sf.ehcache.transaction.xa.EhcacheXAResourceImpl;
+import net.sf.ehcache.transaction.xa.EhcacheXAStore;
+import net.sf.ehcache.util.ClassLoaderUtil;
+import net.sf.ehcache.util.NamedThreadFactory;
+import net.sf.ehcache.util.PropertyUtil;
+import net.sf.ehcache.util.TimeUtil;
+import net.sf.ehcache.writer.CacheWriter;
+import net.sf.ehcache.writer.CacheWriterFactory;
+import net.sf.ehcache.writer.CacheWriterManager;
+import net.sf.ehcache.writer.CacheWriterManagerException;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * Cache is the central class in ehcache. Caches have {@link Element}s and are managed
  * by the {@link CacheManager}. The Cache performs logical actions. It delegates physical
@@ -111,7 +113,7 @@ import java.util.concurrent.locks.ReentrantLock;
  * @author Geert Bevin
  * @version $Id$
  */
-public class Cache implements Ehcache {
+public class Cache implements Ehcache, StoreListener {
 
     /**
      * A reserved word for cache names. It denotes a default configuration
@@ -1027,6 +1029,8 @@ public class Cache implements Ehcache {
             }
         }
 
+        compoundStore.addStoreListener(this);
+        
         if (LOG.isDebugEnabled()) {
             LOG.debug("Initialised cache: " + configuration.getName());
         }
@@ -1988,8 +1992,10 @@ public class Cache implements Ehcache {
         }
 
         if (compoundStore != null) {
+            compoundStore.removeStoreListener(this);
             compoundStore.dispose();
         }
+        
         changeStatus(Status.STATUS_SHUTDOWN);
     }
 
@@ -2412,8 +2418,10 @@ public class Cache implements Ehcache {
      */
     public void setStatisticsAccuracy(int statisticsAccuracy) {
         int oldValue = getStatisticsAccuracy();
-        liveCacheStatisticsData.setStatisticsAccuracy(statisticsAccuracy);
-        firePropertyChange("StatisticsAccuracy", oldValue, statisticsAccuracy);
+        if (statisticsAccuracy != oldValue) {
+            liveCacheStatisticsData.setStatisticsAccuracy(statisticsAccuracy);
+            firePropertyChange("StatisticsAccuracy", oldValue, statisticsAccuracy);
+        }
     }
 
     /**
@@ -2950,10 +2958,12 @@ public class Cache implements Ehcache {
     public void setDisabled(boolean disabled) {
         if (allowDisable) {
             boolean oldValue = isDisabled();
-            synchronized (this) {
-                this.disabled = disabled;
+            if (oldValue != disabled) {
+                synchronized (this) {
+                    this.disabled = disabled;
+                }
+                firePropertyChange("Disabled", oldValue, disabled);
             }
-            firePropertyChange("Disabled", oldValue, disabled);
         } else {
             throw new CacheException("Dynamic cache features are disabled");
         }
@@ -3026,11 +3036,13 @@ public class Cache implements Ehcache {
      */
     public void setStatisticsEnabled(boolean enableStatistics) {
         boolean oldValue = isStatisticsEnabled();
-        liveCacheStatisticsData.setStatisticsEnabled(enableStatistics);
-        if (!enableStatistics) {
-            setSampledStatisticsEnabled(false);
+        if (oldValue != enableStatistics) {
+            liveCacheStatisticsData.setStatisticsEnabled(enableStatistics);
+            if (!enableStatistics) {
+                setSampledStatisticsEnabled(false);
+            }
+            firePropertyChange("StatisticsEnabled", oldValue, enableStatistics);
         }
-        firePropertyChange("StatisticsEnabled", oldValue, enableStatistics);
     }
 
     /**
@@ -3049,13 +3061,15 @@ public class Cache implements Ehcache {
                     "You must add the cache to a CacheManager before enabling/disabling sampled statistics.");
         }
         boolean oldValue = isSampledStatisticsEnabled();
-        if (enableStatistics) {
-            setStatisticsEnabled(true);
-            sampledCacheStatistics.enableSampledStatistics(cacheManager.getTimer());
-        } else {
-            sampledCacheStatistics.disableSampledStatistics();
+        if (oldValue != enableStatistics) {
+            if (enableStatistics) {
+                setStatisticsEnabled(true);
+                sampledCacheStatistics.enableSampledStatistics(cacheManager.getTimer());
+            } else {
+                sampledCacheStatistics.disableSampledStatistics();
+            }
+            firePropertyChange("SampledStatisticsEnabled", oldValue, enableStatistics);
         }
-        firePropertyChange("SampledStatisticsEnabled", oldValue, enableStatistics);
     }
 
     /**
@@ -3101,13 +3115,8 @@ public class Cache implements Ehcache {
      */
     public void setNodeCoherent(boolean coherent) {
         boolean oldValue = isNodeCoherent();
-        compoundStore.setNodeCoherent(coherent);
-        firePropertyChange("NodeCoherent", oldValue, coherent);
-        if (!coherent) {
-            boolean clusterCoherent = isClusterCoherent();
-            if (clusterCoherent) {
-                firePropertyChange("ClusterCoherent", true, false);
-            }
+        if (oldValue != coherent) {
+            compoundStore.setNodeCoherent(coherent);
         }
     }
 
@@ -3116,7 +3125,6 @@ public class Cache implements Ehcache {
      */
     public void waitUntilClusterCoherent() {
         compoundStore.waitUntilClusterCoherent();
-        firePropertyChange("ClusterCoherent", false, true);
     }
     
     // PropertyChangeSupport
@@ -3263,5 +3271,23 @@ public class Cache implements Ehcache {
             notifyPutInternalListeners(element, false, true);
         }
         return result;
-    }    
+    }
+
+    /**
+     * {@inheritDoc}
+     * 
+     * @see net.sf.ehcache.store.StoreListener#clusterCoherent(boolean)
+     */
+    public void clusterCoherent(boolean clusterCoherent) {
+        firePropertyChange("ClusterCoherent", !clusterCoherent, clusterCoherent);
+    }
+
+    /**
+     * {@inheritDoc}
+     * 
+     * @see net.sf.ehcache.store.StoreListener#nodeCoherent(boolean)
+     */
+    public void nodeCoherent(boolean nodeCoherent) {
+        firePropertyChange("NodeCoherent", !nodeCoherent, nodeCoherent);
+    }
 }

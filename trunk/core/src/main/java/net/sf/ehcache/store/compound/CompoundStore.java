@@ -37,7 +37,7 @@ import net.sf.ehcache.concurrent.CacheLockProvider;
 import net.sf.ehcache.concurrent.LockType;
 import net.sf.ehcache.concurrent.LocksAcquisitionException;
 import net.sf.ehcache.concurrent.Sync;
-import net.sf.ehcache.store.Store;
+import net.sf.ehcache.store.AbstractStore;
 import net.sf.ehcache.writer.CacheWriterManager;
 
 /**
@@ -45,7 +45,7 @@ import net.sf.ehcache.writer.CacheWriterManager;
  * 
  * @author Chris Dennis
  */
-public abstract class CompoundStore implements Store {
+public abstract class CompoundStore extends AbstractStore {
 
     /**
      * Checkstyle is crap - this is pointless
@@ -334,51 +334,6 @@ public abstract class CompoundStore implements Store {
         }
     }
     
-    /**
-     * Not used as this store is not clustered
-     * 
-     * @return <code>false</code>
-     */
-    public boolean isCacheCoherent() {
-        return false;
-    }
-    
-    /**
-     * Not used as this store is not clustered
-     * 
-     * @return <code>false</code>
-     */
-    public boolean isClusterCoherent() {
-        return false;
-    }
-    
-    /**
-     * Not used as this store is not clustered
-     * 
-     * @return <code>false</code>
-     */
-    public boolean isNodeCoherent() {
-        return false;
-    }
-    
-    /**
-     * Not used as this store is not clustered
-     * 
-     * @throws UnsupportedOperationException always
-     */
-    public void setNodeCoherent(boolean coherent) throws UnsupportedOperationException {
-        throw new UnsupportedOperationException();
-    }
-    
-    /**
-     * Not used as this store is not clustered
-     * 
-     * @throws UnsupportedOperationException always
-     */
-    public void waitUntilClusterCoherent() throws UnsupportedOperationException {
-        throw new UnsupportedOperationException();
-    }
-
     /**
      * {@inheritDoc}
      */

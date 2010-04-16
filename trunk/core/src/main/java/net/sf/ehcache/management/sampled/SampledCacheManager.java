@@ -16,8 +16,6 @@
 
 package net.sf.ehcache.management.sampled;
 
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -42,7 +40,7 @@ import net.sf.ehcache.statistics.sampled.SampledCacheStatistics;
  * @author <a href="mailto:asanoujam@terracottatech.com">Abhishek Sanoujam</a>
  * @since 1.7
  */
-public class SampledCacheManager extends BaseEmitterBean implements SampledCacheManagerMBean, PropertyChangeListener {
+public class SampledCacheManager extends BaseEmitterBean implements SampledCacheManagerMBean {
     private static final MBeanNotificationInfo[] NOTIFICATION_INFO;
 
     private final CacheManager cacheManager;
@@ -65,12 +63,6 @@ public class SampledCacheManager extends BaseEmitterBean implements SampledCache
         super(SampledCacheManagerMBean.class);
         this.cacheManager = cacheManager;
         cacheManager.setCacheManagerEventListener(new EventListener());   
-        for (String cacheName : cacheManager.getCacheNames()) {
-            Cache cache = cacheManager.getCache(cacheName);
-            if (cache != null) {
-                cache.addPropertyChangeListener(this);
-            }
-        }
     }
 
     /**
@@ -92,18 +84,11 @@ public class SampledCacheManager extends BaseEmitterBean implements SampledCache
         }
 
         public void notifyCacheAdded(String cacheName) {
-            Cache cache = cacheManager.getCache(cacheName);
-            if (cache != null) {
-                cache.addPropertyChangeListener(SampledCacheManager.this);
-            }
+            /**/
         }
 
         public void notifyCacheRemoved(String cacheName) {
-            // unfortunately, can't access cache here to remove ourself as a PropertyChangeListener
-            Cache cache = cacheManager.getCache(cacheName);
-            if (cache != null) {
-                cache.removePropertyChangeListener(SampledCacheManager.this);
-            }
+            /**/
         }
     }
     
@@ -417,20 +402,5 @@ public class SampledCacheManager extends BaseEmitterBean implements SampledCache
     @Override
     public MBeanNotificationInfo[] getNotificationInfo() {
         return NOTIFICATION_INFO;
-    }
-
-    /**
-     * {@inheritDoc}
-     *  
-     * @see java.beans.PropertyChangeListener#propertyChange(java.beans.PropertyChangeEvent)
-     */
-    public void propertyChange(PropertyChangeEvent evt) {
-        String prop = evt.getPropertyName();
-        
-        if ("Disabled".equals(prop)) {
-            setEnabled(determineEnabled());
-        } else if ("StatisticsEnabled".equals(prop)) {
-            setStatisticsEnabled(determineStatisticsEnabled());
-        }
     }
 }

@@ -58,7 +58,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * @author Alex Snaps
  * @author Nabib El-Rahman
  */
-public class XATransactionalStore implements Store {
+public class XATransactionalStore extends AbstractStore {
 
     private final Store underlyingStore;
     private final Store oldVersionStore;
@@ -348,6 +348,7 @@ public class XATransactionalStore implements Store {
      * Non transactional
      * {@inheritDoc}
      */
+    @Override
     public boolean isCacheCoherent() {
         return underlyingStore.isCacheCoherent();
     }
@@ -355,6 +356,7 @@ public class XATransactionalStore implements Store {
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean isClusterCoherent() {
         return underlyingStore.isClusterCoherent();
     }
@@ -362,6 +364,7 @@ public class XATransactionalStore implements Store {
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean isNodeCoherent() {
         return underlyingStore.isNodeCoherent();
     }
@@ -369,6 +372,7 @@ public class XATransactionalStore implements Store {
     /**
      * {@inheritDoc}
      */
+    @Override
     public void setNodeCoherent(boolean coherent) {
         underlyingStore.setNodeCoherent(coherent);
     }
@@ -376,6 +380,7 @@ public class XATransactionalStore implements Store {
     /**
      * {@inheritDoc}
      */
+    @Override
     public void waitUntilClusterCoherent() {
         underlyingStore.waitUntilClusterCoherent();
     }

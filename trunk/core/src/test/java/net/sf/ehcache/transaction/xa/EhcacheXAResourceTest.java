@@ -46,9 +46,9 @@ import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.Status;
 import net.sf.ehcache.concurrent.StripedReadWriteLockSync;
+import net.sf.ehcache.store.AbstractStore;
 import net.sf.ehcache.store.LruPolicy;
 import net.sf.ehcache.store.Policy;
-import net.sf.ehcache.store.Store;
 import net.sf.ehcache.transaction.StorePutCommand;
 import net.sf.ehcache.transaction.TransactionContext;
 import net.sf.ehcache.writer.CacheWriterManager;
@@ -258,14 +258,13 @@ public class EhcacheXAResourceTest extends TestCase {
         }
     }
 
-    private static class TestStore implements Store {
+    private static class TestStore extends AbstractStore {
 
         final static LruPolicy LRU_POLICY = new LruPolicy();
         final ConcurrentMap<Object, Element> storeMap = new ConcurrentHashMap<Object, Element>();
         final StripedReadWriteLockSync syncs = new StripedReadWriteLockSync(2);
         
         public boolean bufferFull() {
-
             return false;
         }
 
@@ -320,18 +319,6 @@ public class EhcacheXAResourceTest extends TestCase {
             return storeMap.size();
         }
 
-        public boolean isCacheCoherent() {
-            return false;
-        }
-
-        public boolean isClusterCoherent() {
-            return false;
-        }
-
-        public boolean isNodeCoherent() {
-            return false;
-        }
-
         public boolean put(Element element) throws CacheException {
             if (element == null) {
                 return false;
@@ -356,10 +343,12 @@ public class EhcacheXAResourceTest extends TestCase {
             return null;
         }
 
+        @Override
         public void setNodeCoherent(boolean coherent) throws UnsupportedOperationException {
             // 
         }
 
+        @Override
         public void waitUntilClusterCoherent() throws UnsupportedOperationException {
             //
         }

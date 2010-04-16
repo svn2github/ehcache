@@ -16,8 +16,6 @@
 
 package net.sf.ehcache.management.sampled;
 
-import java.lang.reflect.Method;
-
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 
@@ -66,25 +64,12 @@ public abstract class SampledEhcacheMBeans {
     private static String getBeanNameSuffix(ClusteredInstanceFactory clusteredInstanceFactory) {
         String suffix = "";
         if (clusteredInstanceFactory != null) {
-            String uuid = getClientUUID(clusteredInstanceFactory);
+            String uuid = clusteredInstanceFactory.getUUID();
             if (uuid != null) {
                 suffix = ",node=" + uuid;
             }
         }
         return suffix;
-    }
-
-    private static String getClientUUID(ClusteredInstanceFactory clusteredInstanceFactory) {
-        try {
-            Class c = clusteredInstanceFactory.getClass();
-            Method m = c.getMethod("getUUID");
-            if (m == null) {
-                return null;
-            }
-            return (String) m.invoke(clusteredInstanceFactory);
-        } catch (Exception e) {
-            return null;
-        }
     }
 
     /**
