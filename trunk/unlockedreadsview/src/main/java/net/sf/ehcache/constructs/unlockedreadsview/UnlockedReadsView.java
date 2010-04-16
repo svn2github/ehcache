@@ -33,16 +33,16 @@ public class UnlockedReadsView extends EhcacheDecoratorAdapter {
     private final TerracottaStore terracottaStore;
     private final LiveCacheStatisticsData liveCacheStatisticsData;
 
-    public UnlockedReadsView(final Cache decoratedCache, final String incoherentViewName) {
-        super(decoratedCache);
+    public UnlockedReadsView(final Cache underlyingCache, final String incoherentViewName) {
+        super(underlyingCache);
         this.viewName = incoherentViewName;
-        Store store = new UnlockedReadsViewHelper(decoratedCache).getStore();
+        Store store = new UnlockedReadsViewHelper(underlyingCache).getStore();
         if (!(store instanceof TerracottaStore)) {
             throw new IllegalArgumentException(UnlockedReadsView.class.getName()
                     + " can be used to decorate caches clustered with Terracotta only.");
         }
         this.terracottaStore = (TerracottaStore) store;
-        this.liveCacheStatisticsData = (LiveCacheStatisticsData) decoratedCache.getLiveCacheStatistics();
+        this.liveCacheStatisticsData = (LiveCacheStatisticsData) underlyingCache.getLiveCacheStatistics();
     }
 
     @Override
