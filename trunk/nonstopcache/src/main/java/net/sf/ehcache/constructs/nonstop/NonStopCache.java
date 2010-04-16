@@ -60,51 +60,51 @@ public class NonStopCache extends EhcacheDecoratorAdapter implements NonStopCach
     /**
      * Constructor that accepts the cache to be decorated. A {@link NonStopCache} will be created with default config
      * 
-     * @param decoratedCache
+     * @param underlyingCache
      *            the cache that needs to be decorated
      */
-    public NonStopCache(final Ehcache decoratedCache) {
-        this(decoratedCache, new NonStopCacheConfigImpl());
+    public NonStopCache(final Ehcache underlyingCache) {
+        this(underlyingCache, new NonStopCacheConfigImpl());
     }
 
     /**
      * Constructor that accepts the cache to be decorated and properties map containing config. See {@link NonStopCacheConfig} for which
      * keys and values to use in the {@link Properties}
      * 
-     * @param decoratedCache
+     * @param underlyingCache
      * @param configProperties
      */
-    public NonStopCache(final Ehcache decoratedCache, final Properties configProperties) {
-        this(decoratedCache, new NonStopCacheConfigImpl(configProperties));
+    public NonStopCache(final Ehcache underlyingCache, final Properties configProperties) {
+        this(underlyingCache, new NonStopCacheConfigImpl(configProperties));
     }
 
-    public NonStopCache(final Ehcache decoratedCache, final NonStopCacheConfig nonStopCacheConfig) {
-        this(decoratedCache, nonStopCacheConfig, new NonStopCacheExecutorService(new ThreadFactory() {
+    public NonStopCache(final Ehcache underlyingCache, final NonStopCacheConfig nonStopCacheConfig) {
+        this(underlyingCache, nonStopCacheConfig, new NonStopCacheExecutorService(new ThreadFactory() {
 
             private final AtomicInteger count = new AtomicInteger();
 
             public Thread newThread(final Runnable runnable) {
-                return new Thread(runnable, "NonStopCache [" + decoratedCache.getName() + "] Executor Thread-" + count.incrementAndGet());
+                return new Thread(runnable, "NonStopCache [" + underlyingCache.getName() + "] Executor Thread-" + count.incrementAndGet());
             }
         }));
     }
 
-    public NonStopCache(final Ehcache decoratedCache, final NonStopCacheConfig nonStopCacheConfig,
+    public NonStopCache(final Ehcache underlyingCache, final NonStopCacheConfig nonStopCacheConfig,
             final NonStopCacheExecutorService nonStopCacheExecutorService) {
-        super(decoratedCache);
+        super(underlyingCache);
         this.nonStopCacheConfig = nonStopCacheConfig;
         this.nonStopCacheExecutorService = nonStopCacheExecutorService;
         this.timeoutBehaviors = new ConcurrentHashMap<NonStopCacheBehaviorType, NonStopCacheBehavior>();
-        this.executeWithExecutorBehavior = new ExecutorBehavior(new DirectDelegateBehavior(decoratedCache), nonStopCacheConfig,
+        this.executeWithExecutorBehavior = new ExecutorBehavior(new DirectDelegateBehavior(underlyingCache), nonStopCacheConfig,
                 nonStopCacheExecutorService, this);
         this.clusterOfflineBehavior = new ClusterOfflineBehavior(nonStopCacheConfig, this, executeWithExecutorBehavior);
         this.nonStopCacheExecutorService.attachCache(this);
         CacheCluster cluster;
         try {
-            cluster = decoratedCache.getCacheManager().getCluster(ClusterScheme.TERRACOTTA);
+            cluster = underlyingCache.getCacheManager().getCluster(ClusterScheme.TERRACOTTA);
         } catch (ClusterSchemeNotAvailableException e) {
             LOGGER.info("Terracotta ClusterScheme is not available, using ClusterScheme.NONE");
-            cluster = decoratedCache.getCacheManager().getCluster(ClusterScheme.NONE);
+            cluster = underlyingCache.getCacheManager().getCluster(ClusterScheme.NONE);
         }
         this.cacheCluster = cluster;
     }
@@ -120,7 +120,7 @@ public class NonStopCache extends EhcacheDecoratorAdapter implements NonStopCach
     public NonStopCacheBehavior resolveBehavior() {
         NonStopCacheBehavior behavior = timeoutBehaviors.get(nonStopCacheConfig.getTimeoutBehaviorType());
         if (behavior == null) {
-            behavior = nonStopCacheConfig.getTimeoutBehaviorType().newCacheBehavior(decoratedCache);
+            behavior = nonStopCacheConfig.getTimeoutBehaviorType().newCacheBehavior(underlyingCache);
             NonStopCacheBehavior prev = timeoutBehaviors.putIfAbsent(nonStopCacheConfig.getTimeoutBehaviorType(), behavior);
             if (prev != null) {
                 behavior = prev;
