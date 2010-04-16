@@ -70,7 +70,13 @@ public class NonStopCacheExecutorService {
                 new LinkedBlockingQueue<Runnable>(), threadFactory));
     }
 
-    public NonStopCacheExecutorService(final ExecutorService executorService) {
+    /**
+     * This constructor is private as executorService's are shut down when all associated caches are disposed. Accepting executorServices
+     * from outside and shutting it down may hamper other app tasks scheduled using same executor service.
+     * 
+     * @param executorService
+     */
+    private NonStopCacheExecutorService(final ExecutorService executorService) {
         if (executorService == null) {
             throw new IllegalArgumentException("ExecutorService cannot be null");
         }
