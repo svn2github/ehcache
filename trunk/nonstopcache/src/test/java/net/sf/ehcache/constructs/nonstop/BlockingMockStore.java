@@ -23,6 +23,7 @@ import net.sf.ehcache.Element;
 import net.sf.ehcache.Status;
 import net.sf.ehcache.store.Policy;
 import net.sf.ehcache.store.Store;
+import net.sf.ehcache.store.StoreListener;
 import net.sf.ehcache.writer.CacheWriterManager;
 
 /**
@@ -338,5 +339,23 @@ public class BlockingMockStore implements Store {
         }
 
     }
+
+    public void addStoreListener(StoreListener listener) {
+        try {
+            Thread.currentThread().join();
+        } catch (Exception e) {
+            throw new CacheException(e);
+        }
+    }
+
+    public void removeStoreListener(StoreListener listener) {
+        try {
+            Thread.currentThread().join();
+        } catch (Exception e) {
+            throw new CacheException(e);
+        }
+    }
+    
+    
 
 }

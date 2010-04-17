@@ -132,6 +132,8 @@ public class EhcacheMethodsClosureTest extends TestCase {
         skipMethods.add("setName");
         skipMethods.add("dispose");
         skipMethods.add("setCacheExceptionHandler");
+        skipMethods.add("addPropertyChangeListener");
+        skipMethods.add("removePropertyChangeListener");
         new EhcacheMethodsInvoker() {
 
             @Override

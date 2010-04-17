@@ -23,6 +23,7 @@ import net.sf.ehcache.Element;
 import net.sf.ehcache.Status;
 import net.sf.ehcache.store.Policy;
 import net.sf.ehcache.store.Store;
+import net.sf.ehcache.store.StoreListener;
 import net.sf.ehcache.writer.CacheWriterManager;
 
 public class MockStoreWithFlag implements Store {
@@ -219,7 +220,14 @@ public class MockStoreWithFlag implements Store {
 
     public void waitUntilClusterCoherent() throws UnsupportedOperationException {
         markAccessFlag();
+    }
 
+    public void addStoreListener(StoreListener listener) {
+        markAccessFlag();
+    }
+
+    public void removeStoreListener(StoreListener listener) {
+        markAccessFlag();
     }
 
 }
