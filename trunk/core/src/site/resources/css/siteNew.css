@@ -305,6 +305,15 @@ font-weight: normal;
 color: #843825;
 }
 
+h2.banner {
+font-size: 28px;
+line-height: 34px;
+font-weight: normal;
+color: #843825;
+margin: 0px;
+}
+
+
 h3 {
 font-size: 24px;
 line-height: 28px;
