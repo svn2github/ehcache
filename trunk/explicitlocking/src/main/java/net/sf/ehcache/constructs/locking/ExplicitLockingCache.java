@@ -21,6 +21,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
+import java.beans.PropertyChangeListener;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;
@@ -146,6 +147,20 @@ public class ExplicitLockingCache implements Ehcache {
     public RegisteredEventListeners getCacheEventNotificationService() {
         return cache.getCacheEventNotificationService();
     }
+ 
+    /**
+     * {@inheritDoc}
+     */
+    public void addPropertyChangeListener(PropertyChangeListener listener) {
+        cache.addPropertyChangeListener(listener);
+    }
+
+   /**
+     * {@inheritDoc}
+     */
+    public void removePropertyChangeListener(PropertyChangeListener listener) {
+        cache.removePropertyChangeListener(listener);
+    } 
 
     /**
      * Whether an Element is stored in the cache in Memory, indicating a very low cost of retrieval.
@@ -385,22 +400,7 @@ public class ExplicitLockingCache implements Ehcache {
     }
 
     /**
-     * Looks up an entry. Blocks if the entry is null until a call to {@link #put} is done to put an Element in.
-     * <p/>
-     * If a put is not done, the lock is never released.
-     * <p/>
-     * If this method throws an exception, it is the responsibility of the caller to catch that exception and call
-     * <code>put(new Element(key, null));</code> to release the lock acquired. See
-     * {@link net.sf.ehcache.constructs.blocking.SelfPopulatingCache} for an example.
-     * <p/>
-     * Note. If a LockTimeoutException is thrown while doing a <code>get</code> it means the lock was never acquired, therefore it is a
-     * threading error to call {@link #put}
-     * 
-     * @throws LockTimeoutException
-     *             if timeout millis is non zero and this method has been unable to acquire a lock in that time
-     * @throws RuntimeException
-     *             if thrown the lock will not released. Catch and call <code>put(new Element(key, null));</code> to release the lock
-     *             acquired.
+     * {@inheritDoc}
      */
     public Element get(final Object key) throws RuntimeException, LockTimeoutException {
         return cache.get(key);
@@ -848,43 +848,31 @@ public class ExplicitLockingCache implements Ehcache {
     }
 
     /**
-     * This method is not appropriate to use with BlockingCache.
-     * 
-     * @throws CacheException
-     *             if this method is called
+     * {@inheritDoc}
      */
     public Element getWithLoader(Object key, CacheLoader loader, Object loaderArgument) throws CacheException {
-        throw new CacheException("This method is not appropriate for a Blocking Cache");
+        return cache.getWithLoader(key, loader, loaderArgument);
     }
 
-    /**
-     * This method is not appropriate to use with BlockingCache.
-     * 
-     * @throws CacheException
-     *             if this method is called
+   /**
+     * {@inheritDoc}
      */
     public Map getAllWithLoader(Collection keys, Object loaderArgument) throws CacheException {
-        throw new CacheException("This method is not appropriate for a Blocking Cache");
+        return cache.getAllWithLoader(keys, loaderArgument);
     }
 
     /**
-     * This method is not appropriate to use with BlockingCache.
-     * 
-     * @throws CacheException
-     *             if this method is called
+     * {@inheritDoc}
      */
     public void load(Object key) throws CacheException {
-        throw new CacheException("This method is not appropriate for a Blocking Cache");
+        cache.load(key);
     }
 
     /**
-     * This method is not appropriate to use with BlockingCache.
-     * 
-     * @throws CacheException
-     *             if this method is called
+     * {@inheritDoc}
      */
     public void loadAll(Collection keys, Object argument) throws CacheException {
-        throw new CacheException("This method is not appropriate for a Blocking Cache");
+        loadAll(keys, argument);
     }
 
     /**
