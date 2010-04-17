@@ -407,7 +407,7 @@ public class ExplicitLockingCache implements Ehcache {
     }
 
     /**
-     * Adds an entry and unlocks it
+     * {@inheritDoc}
      */
     public void put(Element element) {
         cache.put(element);
