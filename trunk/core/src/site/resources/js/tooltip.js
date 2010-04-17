@@ -13,8 +13,21 @@ function mouseUpdate(x,y, title){
    if(g("popup").style.display == "none"){
 	    $("#popup").fadeIn(100);
    }
-    g("popupTitle").innerHTML = "<strong>"+ title+" Child Modules</strong>";
+    var caption = "";
+    switch(title){
+        case "hibernate":
+                caption = "Hibernate Cache Provider";
+        break;
+
+
+
+    }
+
+
+    g("popupTitle").innerHTML = "<strong>"+ caption+"</strong>";
     g("popupTitle").style.fontSize = "15";
+
+    
 
 
 }

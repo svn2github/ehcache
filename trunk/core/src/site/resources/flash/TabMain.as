@@ -14,6 +14,9 @@
 	import flash.events.ProgressEvent;
 	import flash.utils.*;
 	import flash.system.*;
+	import fl.transitions.Tween;
+	import fl.transitions.easing.*;
+	import fl.transitions.TweenEvent;
 	
 	/**
 	 * ...
@@ -38,7 +41,7 @@
 				
 					tab.x = (tab.x + target + tab.width/2)/2 ;
 					tab.width = tab.width + (Twidth - tab.width);
-					main.x = (main.x - pageTarget )/2
+					
 			}
 			
 			
@@ -75,7 +78,7 @@
 				upperText.text = titleArray[i];
 				top.addChild(upperText);
 				upperText.x = leftX;
-				upperText.y = 4;
+				upperText.y = 6;
 				upperText.selectable = false;
 				upperText.autoSize = TextFieldAutoSize.CENTER;
 				
@@ -93,21 +96,23 @@
 				
 				
 				var upper:TextFormat = new TextFormat();  
-				upper.color = 0x644E4F;   
-				upper.size = 16;  
+				upper.color = 0xFFFFFF;   
+				upper.size = 26;  
 				upper.bold = true;  
 				upper.font = "Arial";
-				upperText.setTextFormat(upper);  
+				
 				
 				
 				
 				var lower:TextFormat = new TextFormat();  
-				lower.color = 0x000;   
+				lower.color = 0x000000;   
 				lower.size = 16;  
 				lower.bold = true;  
 				lower.font = "Arial";
-				lowerText.setTextFormat(lower); 
 				
+				
+				lowerText.setTextFormat(lower); 
+				upperText.setTextFormat(upper);  
 				
 				var overlay:Sprite = new Sprite();
 				var g:Graphics = overlay.graphics;
@@ -123,6 +128,10 @@
 					Twidth = overlay.width;
 				}
 				
+				if (i == titleArray.length -1) {
+					white.x = overlay.x + overlay.width;
+				}
+				
 				addChild(overlay);
 				
 				overlay.addEventListener(MouseEvent.MOUSE_OVER, onOver);
@@ -131,7 +140,27 @@
 					
 					target = e.target.x - e.target.width/2;
 				  Twidth = e.target.width;
-				  pageTarget =e.target.tabIndex*650 ;
+				  pageTarget = e.target.tabIndex * 650 ;
+				  
+				  
+				  var myTweenX:Tween = new Tween(main, "alpha", Strong.easeOut, main.alpha, 0, 0.5, true);
+					myTweenX.addEventListener(TweenEvent.MOTION_FINISH, doNextTween);
+				  
+				  
+				function doNextTween(e:TweenEvent):void {
+					main.x = - pageTarget;
+					var myTweenAlpha:Tween = new Tween(main, "alpha", Strong.easeOut, main.alpha, 1, 0.2, true);
+					
+					}	
+					
+					
+				  
+				  
+				  
+				  
+				  
+				  
+				  
 				}
 				
 				
