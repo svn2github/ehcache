@@ -70,8 +70,9 @@ public class ExplicitLockingCache implements Ehcache {
      */
     public ExplicitLockingCache(Ehcache cache) throws CacheException {
         this.cache = cache;
-        if (cache.getCacheConfiguration().isTerracottaClustered()) {
-            this.cacheLockProvider = ((CacheLockProvider) cache.getInternalContext());
+        Object context = cache.getInternalContext();
+        if (context instanceof CacheLockProvider) {
+            this.cacheLockProvider = ((CacheLockProvider) context);
         } else {
             this.cacheLockProvider = new StripedReadWriteLockSync(StripedReadWriteLockSync.DEFAULT_NUMBER_OF_MUTEXES);
         }
