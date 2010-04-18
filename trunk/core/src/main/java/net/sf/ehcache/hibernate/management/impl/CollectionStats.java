@@ -16,14 +16,10 @@
 
 package net.sf.ehcache.hibernate.management.impl;
 
-import org.apache.commons.beanutils.BeanUtils;
-import org.hibernate.stat.CollectionStatistics;
-
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
 import javax.management.openmbean.CompositeData;
 import javax.management.openmbean.CompositeDataSupport;
@@ -34,6 +30,8 @@ import javax.management.openmbean.SimpleType;
 import javax.management.openmbean.TabularData;
 import javax.management.openmbean.TabularDataSupport;
 import javax.management.openmbean.TabularType;
+
+import org.hibernate.stat.CollectionStatistics;
 
 /**
  * CollectionStats
@@ -115,18 +113,16 @@ public class CollectionStats implements Serializable {
   public CollectionStats(String name, CollectionStatistics src) {
     this(name);
 
-    Map map;
     try {
-        map = BeanUtils.describe(src);
+      this.loadCount = BeanUtils.getLongBeanProperty(src, "loadCount");
+      this.fetchCount = BeanUtils.getLongBeanProperty(src, "fetchCount");
+      this.updateCount = BeanUtils.getLongBeanProperty(src, "updateCount");
+      this.removeCount = BeanUtils.getLongBeanProperty(src, "removeCount");
+      this.recreateCount = BeanUtils.getLongBeanProperty(src, "recreateCount");
     } catch (Exception e) {
-        throw new RuntimeException("Describing CollectionStatistics bean", e);
+      e.printStackTrace();
+      throw new RuntimeException("Exception retrieving statistics", e);
     }
-
-    this.loadCount = safeParseInt((String)map.get("loadCount"));
-    this.fetchCount = safeParseInt((String)map.get("fetchCount"));
-    this.updateCount = safeParseInt((String)map.get("updateCount"));
-    this.removeCount = safeParseInt((String)map.get("removeCount"));
-    this.recreateCount = safeParseInt((String)map.get("recreateCount"));
   }
 
   /**

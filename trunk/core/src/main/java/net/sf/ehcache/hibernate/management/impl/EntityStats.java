@@ -20,7 +20,6 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
 import javax.management.openmbean.CompositeData;
 import javax.management.openmbean.CompositeDataSupport;
@@ -32,7 +31,6 @@ import javax.management.openmbean.TabularData;
 import javax.management.openmbean.TabularDataSupport;
 import javax.management.openmbean.TabularType;
 
-import org.apache.commons.beanutils.BeanUtils;
 import org.hibernate.stat.EntityStatistics;
 
 /**
@@ -121,19 +119,17 @@ public class EntityStats implements Serializable {
   public EntityStats(String name, EntityStatistics src) {
     this(name);
     
-    Map map;
     try {
-        map = BeanUtils.describe(src);
+      this.loadCount = BeanUtils.getLongBeanProperty(src, "loadCount");
+      this.updateCount = BeanUtils.getLongBeanProperty(src, "updateCount");
+      this.insertCount = BeanUtils.getLongBeanProperty(src, "insertCount");
+      this.deleteCount = BeanUtils.getLongBeanProperty(src, "deleteCount");
+      this.fetchCount = BeanUtils.getLongBeanProperty(src, "fetchCount");
+      this.optimisticFailureCount = BeanUtils.getLongBeanProperty(src, "optimisticFailureCount");
     } catch (Exception e) {
-        throw new RuntimeException("Describing EntityStatistics bean", e);
+      e.printStackTrace();
+      throw new RuntimeException("Exception retrieving statistics", e);
     }
-    
-    this.loadCount = safeParseInt((String)map.get("loadCount"));
-    this.updateCount = safeParseInt((String)map.get("updateCount"));
-    this.insertCount = safeParseInt((String)map.get("insertCount"));
-    this.deleteCount = safeParseInt((String)map.get("deleteCount"));
-    this.fetchCount = safeParseInt((String)map.get("fetchCount"));
-    this.optimisticFailureCount = safeParseInt((String)map.get("optimisticFailureCount"));
   }
 
   /**

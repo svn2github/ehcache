@@ -1,28 +1,27 @@
 package net.sf.ehcache.store;
 
-import bitronix.tm.TransactionManagerServices;
-import net.sf.ehcache.Cache;
-import net.sf.ehcache.CacheManager;
-import net.sf.ehcache.Element;
-import net.sf.ehcache.concurrent.CacheLockProvider;
-import net.sf.ehcache.concurrent.LockType;
-import net.sf.ehcache.config.CacheConfiguration;
-import org.junit.Before;
-import org.junit.Test;
-
-import javax.transaction.HeuristicMixedException;
-import javax.transaction.HeuristicRollbackException;
-import javax.transaction.RollbackException;
-import javax.transaction.SystemException;
-import javax.transaction.Transaction;
-import javax.transaction.TransactionManager;
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+
+import javax.transaction.RollbackException;
+import javax.transaction.Transaction;
+import javax.transaction.TransactionManager;
+
+import net.sf.ehcache.Cache;
+import net.sf.ehcache.CacheManager;
+import net.sf.ehcache.Element;
+import net.sf.ehcache.concurrent.CacheLockProvider;
+import net.sf.ehcache.concurrent.LockType;
+import net.sf.ehcache.config.CacheConfiguration;
+
+import org.junit.Before;
+import org.junit.Test;
+
+import bitronix.tm.TransactionManagerServices;
 
 /**
  * @author Alex Snaps

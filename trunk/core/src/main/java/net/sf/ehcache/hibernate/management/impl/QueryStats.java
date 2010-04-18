@@ -20,7 +20,6 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
 import javax.management.openmbean.CompositeData;
 import javax.management.openmbean.CompositeDataSupport;
@@ -32,7 +31,6 @@ import javax.management.openmbean.TabularData;
 import javax.management.openmbean.TabularDataSupport;
 import javax.management.openmbean.TabularType;
 
-import org.apache.commons.beanutils.BeanUtils;
 import org.hibernate.stat.QueryStatistics;
 
 /**
@@ -126,21 +124,19 @@ public class QueryStats implements Serializable {
   public QueryStats(String name, QueryStatistics src) {
     this(name);
     
-    Map map;
     try {
-        map = BeanUtils.describe(src);
+      this.cacheHitCount = BeanUtils.getLongBeanProperty(src, "cacheHitCount");
+      this.cacheMissCount = BeanUtils.getLongBeanProperty(src, "cacheMissCount");
+      this.cachePutCount = BeanUtils.getLongBeanProperty(src, "cachePutCount");
+      this.executionCount = BeanUtils.getLongBeanProperty(src, "executionCount");
+      this.executionRowCount = BeanUtils.getLongBeanProperty(src, "executionRowCount");
+      this.executionAvgTime = BeanUtils.getLongBeanProperty(src, "executionAvgTime");
+      this.executionMaxTime = BeanUtils.getLongBeanProperty(src, "executionMaxTime");
+      this.executionMinTime = BeanUtils.getLongBeanProperty(src, "executionMinTime");
     } catch (Exception e) {
-        throw new RuntimeException("Describing QueryStatistics bean", e);
+      e.printStackTrace();
+      throw new RuntimeException("Exception retrieving statistics", e);
     }
-    
-    this.cacheHitCount = safeParseInt((String)map.get("cacheHitCount"));
-    this.cacheMissCount = safeParseInt((String)map.get("cacheMissCount"));
-    this.cachePutCount = safeParseInt((String)map.get("cachePutCount"));
-    this.executionCount = safeParseInt((String)map.get("executionCount"));
-    this.executionRowCount = safeParseInt((String)map.get("executionRowCount"));
-    this.executionAvgTime = safeParseInt((String)map.get("executionAvgTime"));
-    this.executionMaxTime = safeParseInt((String)map.get("executionMaxTime"));
-    this.executionMinTime = safeParseInt((String)map.get("executionMinTime"));
   }
 
   /**

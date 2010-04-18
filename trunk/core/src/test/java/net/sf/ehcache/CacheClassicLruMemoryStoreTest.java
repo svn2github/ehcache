@@ -1,19 +1,17 @@
 package net.sf.ehcache;
 
-import net.sf.ehcache.store.LegacyStoreWrapper;
-import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
-import net.sf.ehcache.store.compound.CompoundStore;
-
-import org.junit.AfterClass;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-import org.junit.BeforeClass;
-import org.junit.Test;
-
 import java.util.Date;
 
+import net.sf.ehcache.store.LegacyStoreWrapper;
+import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
+
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
+import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -59,6 +57,7 @@ public class CacheClassicLruMemoryStoreTest extends CacheTest {
      *
      * @throws Exception
      */
+    @Override
     @Test
     public void testConcurrentReadWriteRemoveLRU() throws Exception {
         testConcurrentReadWriteRemove(MemoryStoreEvictionPolicy.LRU);
@@ -71,6 +70,7 @@ public class CacheClassicLruMemoryStoreTest extends CacheTest {
      *
      * @throws Exception
      */
+    @Override
     @Test
     public void testFlushWhenOverflowToDisk() throws Exception {
         if (manager.getCache("testFlushWhenOverflowToDisk") == null) {

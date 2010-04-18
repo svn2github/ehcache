@@ -16,9 +16,6 @@
 
 package net.sf.ehcache.hibernate.management.impl;
 
-import org.apache.commons.beanutils.BeanUtils;
-import org.hibernate.stat.SecondLevelCacheStatistics;
-
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -33,6 +30,8 @@ import javax.management.openmbean.SimpleType;
 import javax.management.openmbean.TabularData;
 import javax.management.openmbean.TabularDataSupport;
 import javax.management.openmbean.TabularType;
+
+import org.hibernate.stat.SecondLevelCacheStatistics;
 
 /**
  * @author gkeim
@@ -125,14 +124,15 @@ public class CacheRegionStats implements Serializable {
     this(region);
     
     try {
-        this.hitCount = safeParseInt(BeanUtils.getProperty(src, "hitCount"));
-        this.missCount = safeParseInt(BeanUtils.getProperty(src, "missCount"));
-        this.putCount = safeParseInt(BeanUtils.getProperty(src, "putCount"));
+        this.hitCount = BeanUtils.getLongBeanProperty(src, "hitCount");
+        this.missCount = BeanUtils.getLongBeanProperty(src, "missCount");
+        this.putCount = BeanUtils.getLongBeanProperty(src, "putCount");
         this.hitRatio = determineHitRatio();
-        this.elementCountInMemory = safeParseInt(BeanUtils.getProperty(src, "elementCountInMemory"));
-        this.elementCountOnDisk = safeParseInt(BeanUtils.getProperty(src, "elementCountOnDisk"));
-        this.elementCountTotal = safeParseInt(BeanUtils.getProperty(src, "elementCountOnDisk"));
+        this.elementCountInMemory = BeanUtils.getLongBeanProperty(src, "elementCountInMemory");
+        this.elementCountOnDisk = BeanUtils.getLongBeanProperty(src, "elementCountOnDisk");
+        this.elementCountTotal = BeanUtils.getLongBeanProperty(src, "elementCountOnDisk");
     } catch (Exception e) {
+        e.printStackTrace();
         throw new RuntimeException("Exception retrieving statistics", e);
     }
   }

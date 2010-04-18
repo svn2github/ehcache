@@ -69,7 +69,7 @@
         <dependency>
             <groupId>org.hibernate</groupId>
             <artifactId>hibernate-core</artifactId>
-            <version>3.5.0-Final</version>
+            <version>3.5.1-Final</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
@@ -83,11 +83,6 @@
             <artifactId>jta</artifactId>
             <version>1.1</version>
             <scope>provided</scope>
-        </dependency>
-        <dependency>
-          <groupId>commons-beanutils</groupId>
-          <artifactId>commons-beanutils</artifactId>
-         <version>20030211.134440</version>
         </dependency>
 
         <!-- Test scope -->
@@ -469,8 +464,8 @@
                     <enableRSS>false</enableRSS>
                     <linkXRef>true</linkXRef>
                     <consoleOutput>true</consoleOutput>
-                    <failsOnError>false</failsOnError>
-                    <failOnViolation>false</failOnViolation>
+                    <failsOnError>true</failsOnError>
+                    <failOnViolation>true</failOnViolation>
                     <includeTestSourceDirectory>false</includeTestSourceDirectory>
                     <enableRulesSummary>true</enableRulesSummary>
                 </configuration>

@@ -16,7 +16,8 @@
 
 package net.sf.ehcache;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -28,7 +29,6 @@ import java.util.concurrent.Executors;
 
 import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
 
-import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

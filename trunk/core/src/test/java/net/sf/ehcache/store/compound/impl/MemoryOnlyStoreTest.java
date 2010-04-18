@@ -88,7 +88,7 @@ public class MemoryOnlyStoreTest {
         SomeKey[] keys = {new SomeKey(0), new SomeKey(1)};
         memoryStore.put(new Element(keys[0], "VALUE0"));
         memoryStore.put(new Element(keys[1], "VALUE2"));
-        Sync[] syncForKeys = clp.getAndWriteLockAllSyncForKeys(keys);
+        Sync[] syncForKeys = clp.getAndWriteLockAllSyncForKeys((Object[]) keys);
         assertEquals(1, syncForKeys.length);
         assertTrue("Segment should now be write locked!", syncForKeys[0].isHeldByCurrentThread(LockType.WRITE));
         try {
@@ -101,7 +101,7 @@ public class MemoryOnlyStoreTest {
         assertFalse("Segment should now be entirely unlocked!", syncForKeys[0].isHeldByCurrentThread(LockType.WRITE));
 
 
-        syncForKeys = clp.getAndWriteLockAllSyncForKeys(50, keys);
+        syncForKeys = clp.getAndWriteLockAllSyncForKeys(50, (Object[]) keys);
         assertEquals(1, syncForKeys.length);
         assertTrue("Segment should now be write locked!", syncForKeys[0].isHeldByCurrentThread(LockType.WRITE));
         try {
@@ -113,11 +113,11 @@ public class MemoryOnlyStoreTest {
         }
         assertFalse("Segment should now be entirely unlocked!", syncForKeys[0].isHeldByCurrentThread(LockType.WRITE));
 
-        syncForKeys = clp.getAndWriteLockAllSyncForKeys(50, keys);
+        syncForKeys = clp.getAndWriteLockAllSyncForKeys(50, (Object[]) keys);
         assertEquals(1, syncForKeys.length);
         assertTrue("Segment should now be write locked!", syncForKeys[0].isHeldByCurrentThread(LockType.WRITE));
         try {
-            clp.unlockWriteLockForAllKeys(keys);
+            clp.unlockWriteLockForAllKeys((Object[]) keys);
         } catch (java.lang.IllegalMonitorStateException e) {
             fail("This shouldn't throw an IllegalMonitorStateException, segment should have been locked twice!");
         }
