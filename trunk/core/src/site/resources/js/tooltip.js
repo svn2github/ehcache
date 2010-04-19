@@ -13,43 +13,11 @@ function mouseUpdate(x,y, title){
    if(g("popup").style.display == "none"){
 	    $("#popup").fadeIn(100);
    }
-    var caption = "";
-    /*switch(title){
-        case "hibernate":
-                caption = "Hibernate Cache Provider";
-        break;
-        case "core":
-                caption = "EhCache Core";
-        break;
-        case "rest":
-                caption = "RAST/SOAP";
-        break;
-        case "jms":
-                caption = "JMS Replication";
-        break;
-        case "rmi":
-                caption = "RMI Replication";
-        break;
-        case "jgroup":
-                caption = "JGroups Replication";
-        break;
-        case "cluster":
-                caption = "Terracotta Distributed Caching";
-        break;
-        case "cluster":
-                caption = "Terracotta Distributed Caching";
-        break;
-
-        default:
-              caption = title;
-        break;
+   
 
 
-    }  */
 
 
-   // g("popupTitle").innerHTML = "<strong>"+ title+"</strong>";
-  //  g("popupTitle").style.fontSize = "13";
       g("popupContent").innerHTML = "";
       g("popupContent").innerHTML = g(title).innerHTML;
     
