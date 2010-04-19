@@ -39,6 +39,7 @@
 
         <menu name="Documentation">
             <item name="Getting Started" href="documentation/getting_started.html"/>
+            <item name="Recipes" href="recipes/index.html"/>
             <item name="Hibernate Caching" href="documentation/hibernate.html"/>
             <item name="JDBC Caching" href="documentation/jdbc.html"/>
             <item name="User Guide [HTML]" href="documentation/index.html"/>
