@@ -9,7 +9,7 @@
     <groupId>net.sf.ehcache</groupId>
     <artifactId>ehcache-openjpa</artifactId>
     <name>OpenJPA Caching Plugin</name>
-    <version>0.2.0</version>
+    <version>0.2.1-SNAPSHOT</version>
     <packaging>jar</packaging>
     <description>This module provides replication via JGroups</description>
     <url>http://ehcache.sf.net/documentation/openjpa.html</url>
