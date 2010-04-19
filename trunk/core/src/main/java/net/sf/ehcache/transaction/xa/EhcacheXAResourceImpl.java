@@ -554,12 +554,11 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
         TransactionContext context = ehcacheXAStore.getTransactionContext(xid);
         CacheLockProvider storeLockProvider = (CacheLockProvider) store.getInternalContext();
 
-        Set<Object> keys = context.getUpdatedKeys();
+        Object[] keys = context.getUpdatedKeys().toArray();
 
         // Lock all keys in real store
-        Sync[] syncForKeys;
         try {
-            syncForKeys = storeLockProvider.getAndWriteLockAllSyncForKeys(transactionTimeout * MILLISEC_PER_SECOND, keys.toArray());
+            storeLockProvider.getAndWriteLockAllSyncForKeys(transactionTimeout * MILLISEC_PER_SECOND, keys);
         } catch (LocksAcquisitionException ex) {
             throw new EhcacheXAException("could not lock all required entries in storeLockProvider", XAException.XA_RBDEADLOCK, ex);
         }
@@ -570,19 +569,16 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
             LOG.debug("One phase commit called for Txn with id: {}", xid);
 
             // Execute write command within the real underlying store
-            boolean writes = false;
             List<VersionAwareCommand> commands = context.getCommands();
             for (VersionAwareCommand command : commands) {
-                writes = command.execute(store) || writes;
+                command.execute(store);
                 Object key = command.getKey();
                 if (key != null) {
                     potentiallyCheckin(context, command, xid);
                 }
             }
         } finally {
-            for (Sync syncForKey : syncForKeys) {
-                syncForKey.unlock(LockType.WRITE);
-            }
+            storeLockProvider.unlockWriteLockForAllKeys(keys);
         }
     }
 
