@@ -69,13 +69,12 @@
         diskPersistent="false"
         diskExpiryThreadIntervalSeconds="1"
         transactionalMode="xa">
-      <terracotta clustered="true"/>
   </cache>
 ---
 
     Note that in Ehcache 2.0 JTA requires Terracotta <<<serialization>>> value mode otherwise a
-    a <<<CacheException>>> will be thrown on start up. We plan to support standalone Ehcache
-    in the next release.
+    a <<<CacheException>>> will be thrown on start up.
+    Standalone Ehcache is supported as of Ehcache 2.1.0
 
 
 *   Using a JTA Cache
@@ -200,7 +199,7 @@
 ---
 
     The source code for the demo can be checked out from
-    {{http://svn.terracotta.org/svn/forge/projects/ehcache-jta-sample/trunk}} terracotta_community_login
+    {{http://svn.terracotta.org/svn/forge/projects/ehcache-jta-sample/trunk}}
 
     A README.txt explains how to get the JTA Sample app going.
 
@@ -231,7 +230,7 @@
 ---
 
     The source code for the demo can be checked out from
-    {{https://svn.terracotta.org/repo/forge/projects/ehcache-jta-banking/trunk}} terracotta_community_login
+    {{http://svn.terracotta.org/svn/forge/projects/ehcache-jta-banking/trunk}}
 
     A README.txt explains how to get the JTA Sample app going.
 
@@ -241,18 +240,12 @@
     Examinator is our complete application that shows many aspects of caching in one web based Exam application,
      all using the Terracotta Server Array.
 
-    Check out from {{http://svn.terracotta.org/svn/forge/projects/exam/}} terracotta_community_login
+    Check out from {{http://svn.terracotta.org/svn/forge/projects/exam/}}
 
 
 *   Limitations
 
     There are two limitations in this first release of JTA for Ehcache.
-
-**  Terracotta Clusters only
-
-    It only has effect then using Ehcache with the Terracotta Server Array ("TSA"). We are planning to add
-    support for standalone Ehcache will be added in the next release. Doing so will require implementing
-    copy on read and copy on write functionality into the core which is not yet present.
 
 **  Hibernate Transactions
 
