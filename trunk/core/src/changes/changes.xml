@@ -23,6 +23,29 @@
                 Allow Elements in clustered caches to be serialized, and hence
                 enable replication of clustered caches. 
             </action>
+            <action dev="Alex Snaps" type="add" issue="EHC-668">
+                Caches can now be configured to be copyOnRead and copyOnWrite, with user provided copy strategy or the default
+                serialization one. Configuration on the Terracotta config is now deprecated...
+            </action>
+            <action dev="Alex Snaps" type="fix" issue="EHC-650">
+                XA transactional Caches now automatically set copyOnRead on terracotta clustered stores properly
+            </action>
+            <action dev="Alex Snaps" type="add" issue="EHC-628">
+                Actual copyOnRead and copyOnWrite implementation
+            </action>
+            <action dev="Chris Dennis, Alex Snaps" type="add" issue="EHC-368">
+                Added putIfAbsent(Element), replace(Element), replace(Element, Element) and removeElement(Element) methods to Cache
+            </action>
+            <action dev="Alex Snaps" type="add" issue="EHC-234">
+                Added addCacheIfAbsent method to CacheManager, implied removing races in managing Cache's and Ehcache's in
+                the CacheManager's implementation.
+            </action>
+            <action dev="Alex Snaps" type="add">
+                XA Transactional caches are now also supported with non clustered caches.
+            </action>
+            <action dev="Alex Snaps" type="fix">
+                Fixed issue to support BTM and Atomikos TransactionManager's suspend/resume cycles
+            </action>
         </release>
         <release version="2.0.1" date="2010-04-05" description="Bug fixes">
             <action dev="Geert Bevin" type="fix" issue="EHC-653">
