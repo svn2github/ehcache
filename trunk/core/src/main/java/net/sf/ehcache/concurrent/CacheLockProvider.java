@@ -15,6 +15,8 @@
  */
 package net.sf.ehcache.concurrent;
 
+import java.util.concurrent.TimeoutException;
+
 /**
  * @author Alex Snaps
  */
@@ -53,10 +55,10 @@ public interface CacheLockProvider {
      * @param timeout amount of milliseconds before timeout occurs
      * @param keys the keys to lock and get syncs for
      * @return limited number of write locked Sync's matching the keys.
-     * @throws LocksAcquisitionException thrown when locks could not be acquired within
+     * @throws TimeoutException thrown when locks could not be acquired within
      *         specified timeout.
      */
-    Sync[] getAndWriteLockAllSyncForKeys(long timeout, Object... keys) throws LocksAcquisitionException;
+    Sync[] getAndWriteLockAllSyncForKeys(long timeout, Object... keys) throws TimeoutException;
 
     /**
      * write unlock the Sync Stripes to use for the given keys.

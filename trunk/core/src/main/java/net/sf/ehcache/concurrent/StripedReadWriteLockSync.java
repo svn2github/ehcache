@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
+import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import net.sf.ehcache.CacheException;
@@ -114,7 +115,7 @@ public class StripedReadWriteLockSync implements CacheLockProvider {
     /**
      * {@inheritDoc}
      */
-    public Sync[] getAndWriteLockAllSyncForKeys(long timeout, Object... keys) throws LocksAcquisitionException {
+    public Sync[] getAndWriteLockAllSyncForKeys(long timeout, Object... keys) throws TimeoutException {
         SortedMap<ReadWriteLockSync, AtomicInteger> locks = getLockMap(keys);
 
         boolean lockHeld;
@@ -139,7 +140,7 @@ public class StripedReadWriteLockSync implements CacheLockProvider {
                         ReadWriteLockSync readWriteLockSync = heldLocks.get(j);
                         readWriteLockSync.unlock(LockType.WRITE);
                     }
-                    throw new LocksAcquisitionException("could not acquire all locks in " + timeout + " ms");
+                    throw new TimeoutException("could not acquire all locks in " + timeout + " ms");
                 }
             }
             syncs[i++] = entry.getKey();

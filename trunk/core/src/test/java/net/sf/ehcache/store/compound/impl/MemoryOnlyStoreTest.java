@@ -10,6 +10,7 @@ import net.sf.ehcache.config.CacheConfiguration;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicLong;
 
 import static junit.framework.Assert.assertEquals;
@@ -83,7 +84,7 @@ public class MemoryOnlyStoreTest {
     }
 
     @Test
-    public void testUsesReentrantLocks() {
+    public void testUsesReentrantLocks() throws TimeoutException {
         CacheLockProvider clp = (CacheLockProvider) memoryStore.getInternalContext();
         SomeKey[] keys = {new SomeKey(0), new SomeKey(1)};
         memoryStore.put(new Element(keys[0], "VALUE0"));

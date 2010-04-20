@@ -26,6 +26,7 @@ import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -35,7 +36,6 @@ import net.sf.ehcache.Element;
 import net.sf.ehcache.Status;
 import net.sf.ehcache.concurrent.CacheLockProvider;
 import net.sf.ehcache.concurrent.LockType;
-import net.sf.ehcache.concurrent.LocksAcquisitionException;
 import net.sf.ehcache.concurrent.Sync;
 import net.sf.ehcache.store.AbstractStore;
 import net.sf.ehcache.writer.CacheWriterManager;
@@ -546,7 +546,7 @@ public abstract class CompoundStore extends AbstractStore {
             return ordered.toArray(new Sync[ordered.size()]);
         }
 
-        public Sync[] getAndWriteLockAllSyncForKeys(long timeout, Object... keys) throws LocksAcquisitionException {
+        public Sync[] getAndWriteLockAllSyncForKeys(long timeout, Object... keys) throws TimeoutException {
             Map<Segment, AtomicInteger> segs = getSegmentsFor(keys);
 
             List<ReentrantReadWriteLock.WriteLock> acquiredLocks = new ArrayList<ReentrantReadWriteLock.WriteLock>();
@@ -574,7 +574,7 @@ public abstract class CompoundStore extends AbstractStore {
                             ReentrantReadWriteLock.WriteLock writeLock = acquiredLocks.get(i);
                             writeLock.unlock();
                         }
-                        throw new LocksAcquisitionException("could not acquire all locks in " + timeout + " ms");
+                        throw new TimeoutException("could not acquire all locks in " + timeout + " ms");
                     }
 
                     ordered.add(new ReadWriteLockSync(s));

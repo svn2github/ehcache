@@ -21,6 +21,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Set;
+import java.util.concurrent.TimeoutException;
 
 import javax.transaction.RollbackException;
 import javax.transaction.Synchronization;
@@ -37,7 +38,6 @@ import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.concurrent.CacheLockProvider;
 import net.sf.ehcache.concurrent.LockType;
-import net.sf.ehcache.concurrent.LocksAcquisitionException;
 import net.sf.ehcache.concurrent.Sync;
 import net.sf.ehcache.store.Store;
 import net.sf.ehcache.transaction.TransactionContext;
@@ -227,13 +227,13 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
         // Lock here first, so that threads wait on every get for this to be released?
         try {
             oldVersionStoreLockProvider.getAndWriteLockAllSyncForKeys(transactionTimeout * MILLISEC_PER_SECOND, updatedKeys);
-        } catch (LocksAcquisitionException ex) {
+        } catch (TimeoutException ex) {
             throw new EhcacheXAException("could not lock all required entries in oldVersionStore", XAException.XA_RBDEADLOCK, ex);
         }
         // Then lock here, so that normally no one is staying in line for the lock
         try {
             storeLockProvider.getAndWriteLockAllSyncForKeys(transactionTimeout * MILLISEC_PER_SECOND, updatedKeys);
-        } catch (LocksAcquisitionException ex) {
+        } catch (TimeoutException ex) {
             oldVersionStoreLockProvider.unlockWriteLockForAllKeys(updatedKeys);
             throw new EhcacheXAException("could not lock all required entries in storeLockProvider", XAException.XA_RBDEADLOCK, ex);
         }
@@ -554,7 +554,7 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
         // Lock all keys in real store
         try {
             storeLockProvider.getAndWriteLockAllSyncForKeys(transactionTimeout * MILLISEC_PER_SECOND, keys);
-        } catch (LocksAcquisitionException ex) {
+        } catch (TimeoutException ex) {
             throw new EhcacheXAException("could not lock all required entries in storeLockProvider", XAException.XA_RBDEADLOCK, ex);
         }
 
