@@ -11,8 +11,8 @@
 
     It is possible to get more control over Ehcache's locking behaviour.
 
-    This initial version (0.2) works with Ehcache when used with the Terracotta Server Array.
-    0.3, which depends upon Ehcache 2.1, works both with Terracotta and standalone.
+    The initial version (0.2) works with Ehcache when used with the Terracotta Server Array.
+    0.3, works both with Terracotta and standalone when combined with Ehcache 2.1 or later.
 
 *   Locking Modes
 
@@ -43,7 +43,7 @@
 *  How it works
 
     A READ lock does not prevent other READers from also acquiring a READ lock and reading. A
-    READ lock cannot be obtained if there is an oustanding WRITE lock - it will queue.
+    READ lock cannot be obtained if there is an outstanding WRITE lock - it will queue.
 
     A WRITE lock cannot be obtained while there are outstanding READ locks - it will queue.
 
