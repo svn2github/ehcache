@@ -874,19 +874,34 @@ used with JMX monitors.
     -->
 
     <!--
-      Sample xa enabled cache name xaCache
+      Sample xa enabled cache named xaCache
     -->
-    <!--
     <cache name="xaCache"
-        maxElementsInMemory="500"
-        eternal="false"
-        timeToIdleSeconds="300"
-        timeToLiveSeconds="600"
-        overflowToDisk="false"
-        diskPersistent="false"
-        diskExpiryThreadIntervalSeconds="1"
-        transactionalMode="xa">
-      <terracotta clustered="true"/>
+           maxElementsInMemory="500"
+           eternal="false"
+           timeToIdleSeconds="300"
+           timeToLiveSeconds="600"
+           overflowToDisk="false"
+           diskPersistent="false"
+           diskExpiryThreadIntervalSeconds="1"
+           transactionalMode="xa">
 	</cache>
+
+    <!--
+      Sample copy on both read and write cache named copyCache
+      using the default (explicitly configured here as an example) SerializationCopyStrategy
+      class could be any implementation of net.sf.ehcache.store.compound.CopyStrategy
     -->
+    <cache name="copyCache"
+           maxElementsInMemory="500"
+           eternal="false"
+           timeToIdleSeconds="300"
+           timeToLiveSeconds="600"
+           overflowToDisk="false"
+           diskPersistent="false"
+           diskExpiryThreadIntervalSeconds="1"
+           copyOnRead="true"
+           copyOnWrite="true">
+        <copyStrategy class="net.sf.ehcache.store.compound.SerializationCopyStrategy" />
+	</cache>
 </ehcache>
