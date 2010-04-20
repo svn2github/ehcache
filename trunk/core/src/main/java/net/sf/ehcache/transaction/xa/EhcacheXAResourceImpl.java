@@ -430,17 +430,20 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
                 for (Object key : updatedKeys) {
                     if (key != null) {
                         Element element;
-                        element = oldVersionStore.remove(key);
-                        if (element != null) {
-                            store.put(element);
-                        } else {
-                            store.remove(key);
+                        try {
+                            element = oldVersionStore.remove(key);
+                            if (element != null) {
+                                store.put(element);
+                            } else {
+                                store.remove(key);
+                            }
+                        } finally {
+                            storeLockProvider.getSyncForKey(key).unlock(LockType.WRITE);
                         }
                     }
                 }
             } finally {
                 oldVersionStoreLockProvider.unlockWriteLockForAllKeys(updatedKeys);
-                storeLockProvider.unlockWriteLockForAllKeys(updatedKeys);
             }
         } else if (context != null && context.isCommitted()) {
             throw new EhcacheXAException("Transaction " + xid + " has been heuristically committed", XAException.XA_HEURCOM);
