@@ -1,3 +1,52 @@
+ehcache-2.1.0
+==================
+    <release version="2.1.0-beta">
+        <action dev="Chris Dennis" type="fix" issue="EHC-450">
+            Change the internal store structures to be fully coherent. 
+            This allows for the addition of concurrent map like methods
+            (e.g. putIfAbsent) and also for JTA caching in unclustered
+            caches. 
+        </action>
+        <action dev="Chris Dennis" type="update" issue="EHC-621">
+            Change the ehcache-core Hibernate dependency to the newly 
+            released 3.5.0-Final.
+        </action>
+        <action dev="Chris Dennis" type="fix" issue="EHC-633">
+            Change CacheLockProvider lock method to support reentrant acquires.
+            Add a lock state query method, and update BlockingCache accordingly.
+        </action>
+        <action dev="Chris Dennis" type="change" issue="EHC-673">
+            Change caches to have statistics disabled by default.
+        </action>
+        <action dev="Chris Dennis" type="fix" issue="EHC-674">
+            Allow Elements in clustered caches to be serialized, and hence
+            enable replication of clustered caches. 
+        </action>
+        <action dev="Alex Snaps" type="add" issue="EHC-668">
+            Caches can now be configured to be copyOnRead and copyOnWrite, with user provided copy strategy or the default
+            serialization one. Configuration on the Terracotta config is now deprecated...
+        </action>
+        <action dev="Alex Snaps" type="fix" issue="EHC-650">
+            XA transactional Caches now automatically set copyOnRead on terracotta clustered stores properly
+        </action>
+        <action dev="Alex Snaps" type="add" issue="EHC-628">
+            Actual copyOnRead and copyOnWrite implementation
+        </action>
+        <action dev="Chris Dennis, Alex Snaps" type="add" issue="EHC-368">
+            Added putIfAbsent(Element), replace(Element), replace(Element, Element) and removeElement(Element) methods to Cache
+        </action>
+        <action dev="Alex Snaps" type="add" issue="EHC-234">
+            Added addCacheIfAbsent method to CacheManager, implied removing races in managing Cache's and Ehcache's in
+            the CacheManager's implementation.
+        </action>
+        <action dev="Alex Snaps" type="add">
+            XA Transactional caches are now also supported with non clustered caches.
+        </action>
+        <action dev="Alex Snaps" type="fix">
+            Fixed issue to support BTM and Atomikos TransactionManager's suspend/resume cycles
+        </action>
+    </release>
+
 ehcache-2.0.1
 ==================
     <release version="2.0.1" date="2010-04-05" description="Bug fixes">
