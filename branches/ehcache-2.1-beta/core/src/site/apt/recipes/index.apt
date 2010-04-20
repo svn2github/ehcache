@@ -1,0 +1,15 @@
+ ------
+ Recipes
+ ------
+
+Recipes
+
+    * {{{./pagecaching.html}Web Page and Web Page Fragment Caching}}
+
+    * {{{./expiration.html}Data Freshness and Expiration}}
+
+    * {{{./cachenull.html}Caching Empty Values}}
+
+    * {{{./thunderingherd.html}Thundering Herd}}
+
+    * {{{./wrapper.html}Cache Wrapper}}

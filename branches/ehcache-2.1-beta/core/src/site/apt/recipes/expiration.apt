@@ -1,0 +1,67 @@
+ ------
+ Data Freshness and Expiration
+ ------
+
+Data Freshness and Expiration
+
+* Problem
+
+    Data in the cache is out of sync with the SOR (the database). 
+
+* Solution
+
+    Databases (and other SORs) weren't built with caching outside of the 
+    database in mind, and therefore don't normally come with any default 
+    mechanism for notifying external processes when data has been updated 
+    or modified.
+
+    Use on of the following strategies to keep the data in the cache 
+    in sync:
+
+    * <<data expiration>>: use the eviction algorithms included with Ehcache
+    along with the <<<timeToIdleSeconds>>> and <<<timetoLiveSeconds>>> setting 
+    to enforce a maximum time for elements to live in the cache (forcing a 
+    re-load from the database or SOR).  
+
+    * <<message bus>>: use an application to make all updates to the database.
+    When updates are made, post a message onto a message queue with a key
+    to the item that was updated.  All application instances can subscribe
+    to the message bus and receive messages about data that is updated, and
+    can synchronize their local copy of the data accordingly (for example
+    by invalidating the cache entry for updated data)
+
+    * <<triggers>>: Using a database trigger can accomplish a similar task
+    as the message bus approach.  Use the database trigger to execute code
+    that can publish a message to a message bus.  The advantage to this
+    approach is that all updates can be protected, but not all database
+    triggers support full execution environments and it is often unadvisable
+    to execute heavy-weight processing such as publishing messages on a
+    queue during a database trigger.
+
+    []
+
+* Discussion
+
+    The data expiration method is the simplest and most straightforward.
+
+    It gives you the programmer the most control over the data synchronization,
+    and doesn't require cooperation from any external systems, you simply
+    set a data expiration policy and let Ehcache expire data from the cache,
+    thus allowing fresh reads to re-populate and re-synchronize the cache.
+
+    If you choose the data expiration method, you can read more about
+    the cache configuration settings at 
+    {{{../documentation//cache_eviction_algorithms.html}cache eviction 
+    algorithms}} and  
+    {{{../documentation/configuration.html}timeToIdle and timeToLive 
+    configuration settings}}.
+
+    The most important concern to consider when using the expiration method
+    is balancing data-freshness with database load.  The shorter you 
+    make the expiration settings - meaning the more "fresh" you try to make
+    the data, the more load you will incur on the database.
+
+    Try out some numbers and see what kind of load your application generates.
+    Even modestly short values such as 5 or 10 minutes will afford 
+    significant load reductions.
+
