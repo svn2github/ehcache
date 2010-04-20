@@ -639,7 +639,6 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
                             oldVersionStore.remove(updatedKey);
                         }
                         context.setRolledBack(true);
-                        ehcacheXAStore.prepare(preparedXid, context);
                     }
                 } finally {
                     syncForKey.unlock(LockType.READ);
