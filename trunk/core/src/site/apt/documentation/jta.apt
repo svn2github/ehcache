@@ -243,14 +243,15 @@
     Check out from {{http://svn.terracotta.org/svn/forge/projects/exam/}}
 
 
-*   Limitations
-
-    There are two limitations in this first release of JTA for Ehcache.
-
 **  Hibernate Transactions
 
-    Ehcache is not a "transactional" cache for Hibernate purposes. We expect to add that in the next
-    release.
+    Ehcache is a "transactional" cache for Hibernate purposes. The <<<net.sf.ehcache.hibernate.EhCacheRegionFactory>>>
+    has support for Hibernate entities configured with <cache usage="transactional"/>.
+
+
+*   Limitations
+
+    There is one limitation left in this second release of JTA for Ehcache.
 
 *   FAQ
 
