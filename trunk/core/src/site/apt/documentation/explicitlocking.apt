@@ -11,7 +11,8 @@
 
     It is possible to get more control over Ehcache's locking behaviour.
 
-    This initial version works with Ehcache when used with the Terracotta Server Array.
+    This initial version (0.2) works with Ehcache when used with the Terracotta Server Array.
+    0.3, which depends upong Ehcache 2.1, works both with Terracotta and standalone.
 
 *   Locking Modes
 
