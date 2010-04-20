@@ -12,14 +12,17 @@
     It is possible to get more control over Ehcache's locking behaviour.
 
     This initial version (0.2) works with Ehcache when used with the Terracotta Server Array.
-    0.3, which depends upong Ehcache 2.1, works both with Terracotta and standalone.
+    0.3, which depends upon Ehcache 2.1, works both with Terracotta and standalone.
 
 *   Locking Modes
 
 **  Standalone Ehcache
 
-    In standalone ehcache core, there is no locking. The last write wins. This is akin to
+    When using the Ehcache APIs in standalone ehcache core, there is no locking. The last write wins. This is akin to
     the READ_UNCOMMITTED isolation level.
+
+    However the using the Explicit locking API uses the lock manager which as of Ehcache 2.1, has been
+    extended to support local caching.
 
 **  Standard Ehcache clustered with Terracotta
 
