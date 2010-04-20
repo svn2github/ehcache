@@ -37,8 +37,33 @@
     With this module you can first get the lock
     for the key, then perform your app level operations preventing anyone else from writing to the
     object. When the app level operations are completed you put the Element back in the cache and
-    release the lock so that others can now access it.
+    release the lock so that others can now access it. 
 
+	Here is a brief example:
+
+----
+
+	String key = "123";
+	Foo val = new Foo();
+	cache.acquireWriteLockOnKey(key);
+	try {
+		cache.put(new Element(key, val));
+	} finally {
+		cache.releaseWriteLockOnKey(key);
+	}
+	...sometime later
+
+	String key = "123";
+	cache.acquireWriteLockOnKey(key);
+	try {
+		Object cachedVal = cache.get(key).getValue();
+		cachedVal.setSomething("abc");
+	 	cache.put(new Element(key, cachedVal));
+	 } finally {
+	   cache.releaseWriteLockOnKey(key);
+	 }
+
+---
 
 *  How it works
 
