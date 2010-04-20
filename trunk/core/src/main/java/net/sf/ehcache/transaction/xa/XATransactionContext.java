@@ -129,9 +129,9 @@ public class XATransactionContext implements TransactionContext {
     /**
      * {@inheritDoc}
      */
-    public Set<Object> getUpdatedKeys() {
+    public Object[] getUpdatedKeys() {
         
-        Set<Object> keys = new HashSet<Object>();
+        List<Object> keys = new ArrayList<Object>(getCommands().size());
         for (VersionAwareCommand command : getCommands()) {
             Object key = command.getKey();
             if (key != null) {
@@ -139,7 +139,7 @@ public class XATransactionContext implements TransactionContext {
             }
         }
 
-        return Collections.unmodifiableSet(keys);
+        return keys.toArray(new Object[keys.size()]);
     }
 
     /**

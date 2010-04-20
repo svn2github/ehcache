@@ -16,7 +16,6 @@
 package net.sf.ehcache.transaction.xa;
 
 import java.util.List;
-import java.util.Set;
 
 /**
  * @author nelrahma
@@ -40,9 +39,9 @@ public interface PreparedContext {
     /**
      * return set of keys associated with prepared commands
      *
-     * @return a set of keys to be updated (put or remove)
+     * @return an array of keys to be updated (put or remove)
      */
-    public Set<Object> getUpdatedKeys();
+    public Object[] getUpdatedKeys();
 
 
     /**

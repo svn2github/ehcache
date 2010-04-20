@@ -186,7 +186,7 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
         CacheLockProvider oldVersionStoreLockProvider = (CacheLockProvider) oldVersionStore.getInternalContext();
 
         // Lock all keys in both stores
-        Object[] updatedKeys = context.getUpdatedKeys().toArray();
+        Object[] updatedKeys = context.getUpdatedKeys();
         tryLockingKeysRequiredForPrepare(storeLockProvider, oldVersionStoreLockProvider, updatedKeys);
 
 
@@ -344,7 +344,7 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
 
             CacheLockProvider oldVersionStoreProvider = ((CacheLockProvider) oldVersionStore.getInternalContext());
             CacheLockProvider storeProvider = ((CacheLockProvider) store.getInternalContext());
-            Object[] keys = context.getUpdatedKeys().toArray();
+            Object[] keys = context.getUpdatedKeys();
             if (!context.isCommitted() && !context.isRolledBack()) {
                 context.setCommitted(true);
                 storeProvider.unlockWriteLockForAllKeys(keys);
@@ -423,29 +423,24 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
             CacheLockProvider storeLockProvider = (CacheLockProvider)store.getInternalContext();
             CacheLockProvider oldVersionStoreLockProvider = (CacheLockProvider)oldVersionStore.getInternalContext();
 
-            Set<Object> updatedKeys = context.getUpdatedKeys();
+            Object[] updatedKeys = context.getUpdatedKeys();
             oldVersionStoreLockProvider.getAndWriteLockAllSyncForKeys(updatedKeys);
 
             try {
                 for (Object key : updatedKeys) {
-                      if (key != null) {
-                          Element element = null;
-                          try {
-                              element = oldVersionStore.remove(key);
-                              if (element != null) {
-                                  store.put(element);
-                              } else {
-                                  element = store.remove(key);
-                              }
-                          } finally {
-                              if (element != null) {
-                                  storeLockProvider.getSyncForKey(key).unlock(LockType.WRITE);
-                              }
-                          }
-                      }
-                  }
+                    if (key != null) {
+                        Element element;
+                        element = oldVersionStore.remove(key);
+                        if (element != null) {
+                            store.put(element);
+                        } else {
+                            store.remove(key);
+                        }
+                    }
+                }
             } finally {
                 oldVersionStoreLockProvider.unlockWriteLockForAllKeys(updatedKeys);
+                storeLockProvider.unlockWriteLockForAllKeys(updatedKeys);
             }
         } else if (context != null && context.isCommitted()) {
             throw new EhcacheXAException("Transaction " + xid + " has been heuristically committed", XAException.XA_HEURCOM);
@@ -554,7 +549,7 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
         TransactionContext context = ehcacheXAStore.getTransactionContext(xid);
         CacheLockProvider storeLockProvider = (CacheLockProvider) store.getInternalContext();
 
-        Object[] keys = context.getUpdatedKeys().toArray();
+        Object[] keys = context.getUpdatedKeys();
 
         // Lock all keys in real store
         try {
@@ -626,9 +621,9 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
             return;
         }
 
-        Set<Object> updatedKeys = context.getUpdatedKeys();
-        if (!updatedKeys.isEmpty()) {
-            Object someKey = updatedKeys.iterator().next();
+        Object[] updatedKeys = context.getUpdatedKeys();
+        if (updatedKeys.length > 0) {
+            Object someKey = updatedKeys[0];
             Sync syncForKey = ((CacheLockProvider) store.getInternalContext()).getSyncForKey(someKey);
             boolean readLocked;
             try {

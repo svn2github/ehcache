@@ -18,9 +18,7 @@ package net.sf.ehcache.transaction.xa;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 /**
  * 
@@ -50,9 +48,9 @@ public class PreparedContextImpl implements PreparedContext {
     /**
      * {@inheritDoc}
      */
-    public Set<Object> getUpdatedKeys() {
+    public Object[] getUpdatedKeys() {
         
-        Set<Object> keys = new HashSet<Object>();
+        List<Object> keys = new ArrayList<Object>(getPreparedCommands().size());
         for (PreparedCommand command : getPreparedCommands()) {
             Object key = command.getKey();
             if (key != null) {
@@ -60,7 +58,7 @@ public class PreparedContextImpl implements PreparedContext {
             }
         }
 
-        return Collections.unmodifiableSet(keys);
+        return keys.toArray(new Object[keys.size()]);
     }
 
     /**

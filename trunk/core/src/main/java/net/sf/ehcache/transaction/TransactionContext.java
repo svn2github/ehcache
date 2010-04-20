@@ -18,7 +18,6 @@ package net.sf.ehcache.transaction;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.Set;
 
 import net.sf.ehcache.Element;
 import net.sf.ehcache.transaction.xa.VersionAwareCommand;
@@ -82,7 +81,7 @@ public interface TransactionContext {
 
     /**
      * All keys to pending keys to update
-     * @return UnmodifiableSet of keys pending changes
+     * @return array of keys pending changes
      */
-    Set<Object> getUpdatedKeys();
+    Object[] getUpdatedKeys();
 }
