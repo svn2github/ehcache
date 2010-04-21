@@ -54,4 +54,9 @@ public interface EhcacheXAResource extends XAResource {
      */
     TransactionContext createTransactionContext() throws SystemException, RollbackException;
 
+    /**
+     * Gets the current TransactionContext associated with this resource
+     * @return the current TransactionContext, or null if none
+     */
+    TransactionContext getCurrentTransactionContext();
 }

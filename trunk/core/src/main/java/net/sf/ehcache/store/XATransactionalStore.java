@@ -68,9 +68,6 @@ public class XATransactionalStore extends AbstractStore {
     private TransactionManagerLookup transactionManagerLookup;
     private TransactionManager txnManager;
 
-    private final ConcurrentHashMap<Transaction, TransactionContext> transactionToContextMap =
-            new ConcurrentHashMap<Transaction, TransactionContext>();
-
     private final ConcurrentHashMap<Transaction, EhcacheXAResource> transactionToXAResourceMap =
             new ConcurrentHashMap<Transaction, EhcacheXAResource>();
 
@@ -498,20 +495,18 @@ public class XATransactionalStore extends AbstractStore {
                 throw new CacheException("Cache " + cache.getName() + " can only be accessed within a JTA Transaction!");
             }
 
-            TransactionContext context = transactionToContextMap.get(transaction);
+            TransactionContext context;
+            EhcacheXAResource xaResource = getOrCreateXAResource();
+            context = xaResource.getCurrentTransactionContext();
             if (context != null) {
                 return context;
             }
-
-            EhcacheXAResource xaResource = getOrCreateXAResource();
 
             // xaResource.createTransactionContext() is going to enlist the XAResource in
             // the transaction so it MUST be registered first
             transactionManagerLookup.register(xaResource);
             context = xaResource.createTransactionContext();
             xaResource.addTwoPcExecutionListener(new CleanupTransactionContext(transaction));
-
-            transactionToContextMap.put(transaction, context);
 
             return context;
 
@@ -538,7 +533,6 @@ public class XATransactionalStore extends AbstractStore {
         }
 
         public void afterCommitOrRollback(EhcacheXAResource xaResource) {
-            transactionToContextMap.remove(transaction);
             transactionToXAResourceMap.remove(transaction);
             transactionManagerLookup.unregister(xaResource);
         }

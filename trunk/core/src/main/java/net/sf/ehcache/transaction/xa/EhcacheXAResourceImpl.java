@@ -513,6 +513,13 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
     /**
      * {@inheritDoc}
      */
+    public TransactionContext getCurrentTransactionContext() {
+        return currentXid != null ? ehcacheXAStore.getTransactionContext(currentXid) : null;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public boolean equals(Object obj) {
         if (obj instanceof EhcacheXAResource) {
