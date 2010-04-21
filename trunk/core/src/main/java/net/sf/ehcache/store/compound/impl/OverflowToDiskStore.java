@@ -45,7 +45,7 @@ public final class OverflowToDiskStore extends CompoundStore implements CacheCon
     private final CacheConfiguration config;
     
     private OverflowToDiskStore(CapacityLimitedInMemoryFactory memory, DiskOverflowStorageFactory disk, CacheConfiguration config) {
-        super(memory);
+        super(memory, config.isCopyOnRead(), config.isCopyOnWrite(), config.getCopyStrategy());
         this.memoryFactory = memory;
         this.diskFactory = disk;
         this.config = config;

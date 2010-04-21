@@ -7,9 +7,11 @@ import net.sf.ehcache.concurrent.CacheLockProvider;
 import net.sf.ehcache.concurrent.LockType;
 import net.sf.ehcache.concurrent.Sync;
 import net.sf.ehcache.config.CacheConfiguration;
+import net.sf.ehcache.store.Store;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.io.Serializable;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -24,29 +26,23 @@ import static org.junit.Assert.fail;
 /**
  * @author Alex Snaps
  */
-public class MemoryOnlyStoreTest {
+public abstract class CompoundStoreTest {
 
     private static final String KEY = "KEY";
 
-    private MemoryOnlyStore memoryStore;
-    private MemoryOnlyStore xaMemoryStore;
-
-    @Before
-    public void init() {
-        memoryStore = MemoryOnlyStore.create(new Cache(new CacheConfiguration("SomeCache", 1000)), null);
-        xaMemoryStore = MemoryOnlyStore.create(new Cache(new CacheConfiguration("SomeXaCache", 1000).transactionalMode("XA")), null);
-    }
+    protected Store store;
+    protected Store xaStore;
 
     @Test
     public void testSupportsCopyOnRead() {
         Element element = new Element(KEY, "Some String", 1);
-        xaMemoryStore.put(element);
-        Element copy = xaMemoryStore.get(KEY);
+        xaStore.put(element);
+        Element copy = xaStore.get(KEY);
         assertNotNull(copy);
-        assertNotSame(copy, xaMemoryStore.get(KEY));
+        assertNotSame(copy, xaStore.get(KEY));
         assertEquals("Some String", copy.getValue());
-        assertEquals(copy.getValue(), xaMemoryStore.get(KEY).getValue());
-        assertNotSame(copy.getValue(), xaMemoryStore.get(KEY).getValue());
+        assertEquals(copy.getValue(), xaStore.get(KEY).getValue());
+        assertNotSame(copy.getValue(), xaStore.get(KEY).getValue());
     }
     
     @Test
@@ -56,39 +52,39 @@ public class MemoryOnlyStoreTest {
 
         Element element = new Element(KEY, atomicLong, 1);
         atomicLong.getAndIncrement();
-        xaMemoryStore.put(element);
+        xaStore.put(element);
 
         atomicLong.getAndIncrement();
         element.setVersion(2);
 
-        assertEquals(1, ((AtomicLong)xaMemoryStore.get(KEY).getValue()).get());
-        assertEquals(1, xaMemoryStore.get(KEY).getVersion());
+        assertEquals(1, ((AtomicLong)xaStore.get(KEY).getValue()).get());
+        assertEquals(1, xaStore.get(KEY).getVersion());
 
-        xaMemoryStore.put(new Element(KEY, atomicLong, 1));
-        assertEquals(2, ((AtomicLong)xaMemoryStore.get(KEY).getValue()).get());
+        xaStore.put(new Element(KEY, atomicLong, 1));
+        assertEquals(2, ((AtomicLong)xaStore.get(KEY).getValue()).get());
         atomicLong.getAndIncrement();
         
-        assertEquals(2, ((AtomicLong)xaMemoryStore.get(KEY).getValue()).get());
-        assertEquals(1, xaMemoryStore.get(KEY).getVersion());
+        assertEquals(2, ((AtomicLong)xaStore.get(KEY).getValue()).get());
+        assertEquals(1, xaStore.get(KEY).getVersion());
     }
 
     @Test
     public void testThrowsExceptionOnNonSerializableValue() {
         try {
-            xaMemoryStore.put(new Element(KEY, new Object()));
+            xaStore.put(new Element(KEY, new Object()));
             fail("Should have thrown an Exception");
         } catch (Exception e) {
             assertTrue("Expected " + CacheException.class.getName() + ", but was " + e.getClass().getName(), e instanceof CacheException);
         }
-        assertNull(xaMemoryStore.get(KEY));
+        assertNull(xaStore.get(KEY));
     }
 
     @Test
     public void testUsesReentrantLocks() throws TimeoutException {
-        CacheLockProvider clp = (CacheLockProvider) memoryStore.getInternalContext();
+        CacheLockProvider clp = (CacheLockProvider) store.getInternalContext();
         SomeKey[] keys = {new SomeKey(0), new SomeKey(1)};
-        memoryStore.put(new Element(keys[0], "VALUE0"));
-        memoryStore.put(new Element(keys[1], "VALUE2"));
+        store.put(new Element(keys[0], "VALUE0"));
+        store.put(new Element(keys[1], "VALUE2"));
         Sync[] syncForKeys = clp.getAndWriteLockAllSyncForKeys((Object[]) keys);
         assertEquals(1, syncForKeys.length);
         assertTrue("Segment should now be write locked!", syncForKeys[0].isHeldByCurrentThread(LockType.WRITE));
@@ -125,7 +121,7 @@ public class MemoryOnlyStoreTest {
         assertFalse("Segment should now be entirely unlocked!", syncForKeys[0].isHeldByCurrentThread(LockType.WRITE));
     }
 
-    public static class SomeKey {
+    public static class SomeKey implements Serializable {
 
         private final int value;
 

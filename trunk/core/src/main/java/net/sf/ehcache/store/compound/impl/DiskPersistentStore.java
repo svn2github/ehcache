@@ -38,8 +38,8 @@ public final class DiskPersistentStore extends CompoundStore implements CacheCon
 
     private final DiskPersistentStorageFactory disk;
     
-    private DiskPersistentStore(DiskPersistentStorageFactory disk) {
-        super(disk);
+    private DiskPersistentStore(DiskPersistentStorageFactory disk, CacheConfiguration config) {
+        super(disk, config.isCopyOnRead(), config.isCopyOnWrite(), config.getCopyStrategy());
         this.disk = disk;
     }
     
@@ -53,7 +53,7 @@ public final class DiskPersistentStore extends CompoundStore implements CacheCon
     public static DiskPersistentStore create(Cache cache, String diskStorePath) {
         CacheConfiguration config = cache.getCacheConfiguration();
         DiskPersistentStorageFactory disk = new DiskPersistentStorageFactory(cache, diskStorePath);
-        DiskPersistentStore store = new DiskPersistentStore(disk);
+        DiskPersistentStore store = new DiskPersistentStore(disk, config);
         cache.getCacheConfiguration().addConfigurationListener(store);
         return store;
     }

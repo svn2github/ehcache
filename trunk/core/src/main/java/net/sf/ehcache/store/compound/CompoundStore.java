@@ -78,9 +78,13 @@ public abstract class CompoundStore extends AbstractStore {
      * Create a CompoundStore using the supplied factory as the primary factory.
      * 
      * @param primary factory which new elements are passed through
+     * @param copyOnRead true should we copy Elements on reads, otherwise false
+     * @param copyOnWrite true should we copy Elements on writes, otherwise false
+     * @param copyStrategy the strategy to copy elements (needs to be non null if copyOnRead or copyOnWrite is true)
      */
-    public CompoundStore(InternalElementSubstituteFactory<?> primary) {
-        this(primary, (primary instanceof IdentityElementSubstituteFactory) ? (IdentityElementSubstituteFactory) primary : null);
+    public CompoundStore(InternalElementSubstituteFactory<?> primary, boolean copyOnRead, boolean copyOnWrite, CopyStrategy copyStrategy) {
+        this(primary, (primary instanceof IdentityElementSubstituteFactory) ? (IdentityElementSubstituteFactory) primary : null,
+            copyOnRead, copyOnWrite, copyStrategy);
     }
 
     /**
