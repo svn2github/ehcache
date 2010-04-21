@@ -84,7 +84,7 @@
 
     <<<noop>>>        - gets return null. Mutating operations such as put and removed are ignored.
 
-    <<<exception>>>   - An unchecked exception, <<<TimeoutException>>>, which is a subtype of <<<CacheException>>> will be thrown.
+    <<<exception>>>   - An unchecked exception, <<<NonStopCacheException>>>, which is a subtype of <<<CacheException>>> will be thrown.
 
     <<<localRead>>>   - currently Terracotta only. Returns data if held locally in memory in response to gets. Mutating operations such as put and removed are ignored.
     
