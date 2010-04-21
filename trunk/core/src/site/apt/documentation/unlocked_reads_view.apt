@@ -14,7 +14,7 @@
     The purpose of this is to allow business logic faster access to data. It is
     akin to the READ_UNCOMMITTED database isolation level. Normally a read lock must first be obtained to read data
     backed with Terracotta. If there is an outstanding write lock, the read lock queues up. This is done so that
-    the <happens after> guarantee can be made. However if the business logic is happy to read stale data even
+    the <happens before> guarantee can be made. However if the business logic is happy to read stale data even
     if a write lock has been acquired in preparation for changing it, then much higher speeds can be obtained.
 
     Note that this view is only going to give incoherent reads to the underlying
