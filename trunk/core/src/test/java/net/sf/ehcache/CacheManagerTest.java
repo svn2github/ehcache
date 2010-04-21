@@ -117,6 +117,13 @@ public class CacheManagerTest {
         assertTrue(singletonManager.getEhcache(cacheName) == decoratedCache);
     }
 
+    @Test
+    public void testProgrammaticConfigurationFailsProperlyWhenNoDefaultCacheConfigured() {
+        Configuration mgrConfig = new Configuration();
+        mgrConfig.setUpdateCheck(false);
+        CacheManager cacheManager = new CacheManager(mgrConfig);
+    }
+
     /**
      * Tests that the CacheManager was successfully created
      */

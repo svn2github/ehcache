@@ -301,7 +301,7 @@ public class CacheManager {
         this.terracottaConfigConfiguration = localConfiguration.getTerracottaConfiguration();
         
         Map<String, CacheConfiguration> cacheConfigs = localConfiguration.getCacheConfigurations();
-        if (localConfiguration.getDefaultCacheConfiguration().isTerracottaClustered()) {
+        if (localConfiguration.getDefaultCacheConfiguration() != null && localConfiguration.getDefaultCacheConfiguration().isTerracottaClustered()) {
             terracottaClusteredInstanceFactory = TerracottaClusteredInstanceHelper.newClusteredInstanceFactory(cacheConfigs,
                     localConfiguration.getTerracottaConfiguration());
         } else {
