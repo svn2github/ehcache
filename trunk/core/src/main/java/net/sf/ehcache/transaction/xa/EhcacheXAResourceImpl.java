@@ -17,6 +17,7 @@
 package net.sf.ehcache.transaction.xa;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.ListIterator;
@@ -242,7 +243,8 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
     private void cleanUpFailure(final Xid xid, final CacheLockProvider storeLockProvider,
                                 final CacheLockProvider oldVersionStoreLockProvider,
                                 final Object[] updatedKeys) {
-        for (Object updatedKey : updatedKeys) {
+        Set<Object> keys = new HashSet<Object>(Arrays.asList(updatedKeys));
+        for (Object updatedKey : keys) {
             // Decrease counters, readonly operation, as we are "rolling back"
             ehcacheXAStore.checkin(updatedKey, xid, true);
         }
