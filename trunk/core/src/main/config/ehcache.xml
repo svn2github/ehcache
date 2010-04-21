@@ -875,7 +875,6 @@ used with JMX monitors.
 
     <!--
       Sample xa enabled cache named xaCache
-    -->
     <cache name="xaCache"
            maxElementsInMemory="500"
            eternal="false"
@@ -886,12 +885,12 @@ used with JMX monitors.
            diskExpiryThreadIntervalSeconds="1"
            transactionalMode="xa">
 	</cache>
+    -->
 
     <!--
       Sample copy on both read and write cache named copyCache
       using the default (explicitly configured here as an example) SerializationCopyStrategy
       class could be any implementation of net.sf.ehcache.store.compound.CopyStrategy
-    -->
     <cache name="copyCache"
            maxElementsInMemory="500"
            eternal="false"
@@ -904,4 +903,5 @@ used with JMX monitors.
            copyOnWrite="true">
         <copyStrategy class="net.sf.ehcache.store.compound.SerializationCopyStrategy" />
 	</cache>
+    -->
 </ehcache>
