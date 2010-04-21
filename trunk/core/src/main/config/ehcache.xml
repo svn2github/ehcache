@@ -420,6 +420,14 @@ used with JMX monitors.
     First In First Out (specified as FIFO) and Less Frequently Used
     (specified as LFU)
 
+    copyOnRead:
+    Whether an Element is copied when being added to the cache.
+    By default this is false.
+
+    copyOnWrite:
+    Whether an Element is copied when being read from a cache.
+    By default this is false.
+
     Cache elements can also contain sub elements which take the same format of a factory class
     and properties. Defined sub-elements are:
 
@@ -429,7 +437,7 @@ used with JMX monitors.
     * bootstrapCacheLoaderFactory - Specifies a BootstrapCacheLoader, which is called by a
       cache on initialisation to prepopulate itself.
 
-    * cacheExtensionFactory - Specifies a CacheExtension, a generic mechansim to tie a class
+    * cacheExtensionFactory - Specifies a CacheExtension, a generic mechanism to tie a class
       which holds a reference to a cache to the cache lifecycle.
 
     * cacheExceptionHandlerFactory - Specifies a CacheExceptionHandler, which is called when
@@ -439,6 +447,10 @@ used with JMX monitors.
       synchronously to load objects into a cache. More than one cacheLoaderFactory element
       can be added, in which case the loaders form a chain which are executed in order. If a
       loader returns null, the next in chain is called.
+
+    * copyStrategy - Specifies a fully qualified class which implements
+      net.sf.ehcache.store.compound.CopyStrategy. This strategy will be used for copyOnRead
+      and copyOnWrite in place of the default which is serialization.
 
 
     Cache Event Listeners

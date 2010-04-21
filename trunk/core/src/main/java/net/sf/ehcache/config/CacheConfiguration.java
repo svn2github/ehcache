@@ -766,7 +766,8 @@ public class CacheConfiguration implements Cloneable {
     }
 
     /**
-     * @see #setCopyOnRead(boolean)
+     * Whether the Cache should copy elements it returns
+     * @param copyOnRead true, if copyOnRead
      */
     public CacheConfiguration copyOnRead(boolean copyOnRead) {
         this.setCopyOnRead(copyOnRead);
@@ -791,7 +792,8 @@ public class CacheConfiguration implements Cloneable {
     }
 
     /**
-     * @see #copyOnWrite(boolean)
+     * Whether the Cache should copy elements it gets
+     * @param copyOnWrite true, if copyOnWrite
      */
     public CacheConfiguration copyOnWrite(boolean copyOnWrite) {
         this.copyOnWrite = copyOnWrite;

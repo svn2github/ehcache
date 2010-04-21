@@ -64,8 +64,8 @@
 
 * {copyOnRead and copyOnWrite cache configuration}
 
-    A cache can be configured to copy the data that gets in and/or out of it. This is configured using the copyOnRead and copyOnWrite
-    attributes of cache and defaultCache elements in your configuration or programmatically as follow:
+    A cache can be configured to copy the data, rather than return reference to it on get or put. This is configured using the <<<copyOnRead>>> and <<<copyOnWrite>>>
+    attributes of cache and defaultCache elements in your configuration or programmatically as follows:
 
 ---
     CacheConfiguration config = new CacheConfiguration("copyCache", 1000).copyOnRead(true).copyOnWrite(true);
@@ -74,8 +74,8 @@
 
     The default configuration will be false for both options.
 
-    In order to copy elements on put()-like and/or get()-like operations, a CopyStrategy is being used. The default implementation is
-    using serialization to copy elements. You can provide your own implementation of net.sf.ehcache.store.compound.CopyStrategy like
+    In order to copy elements on put()-like and/or get()-like operations, a CopyStrategy is being used. The default implementation
+    uses serialization to copy elements. You can provide your own implementation of <<<net.sf.ehcache.store.compound.CopyStrategy>>> like
     this:
 
 ---
@@ -91,8 +91,8 @@
     </cache>
 ---
 
-    Per cache, a single instance of your CopyStrategy will be use, hence your implementation of CopyStrategy.copy(T): T has to
-    thread-safe.
+    Per cache, a single instance of your <<<CopyStrategy>>> will be use, hence your implementation of CopyStrategy.copy(T): T has to
+    be thread-safe.
 
 * Special System Properties
 
