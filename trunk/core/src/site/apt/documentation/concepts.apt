@@ -330,3 +330,21 @@ public class MyDataAccessClass
     }
 }
 ------------------------
+
+** copy cache
+
+    A copy cache can have two behaviors: it can copy Element instances it returns, setting copyOnRead to true; and copy elements it stores,
+    setting copyOnWrite to true.
+    A copy on read cache can be useful when you can't let multiple threads access the same Element instance (and the
+    value it holds) concurrently. Whether the programming model doesn't allow it, or you want to isolation changes done concurrently from
+    each other.
+    Copying on write also lets you determine exactly what goes in the cache and when. i.e. when the value that will be in the cache will be
+    in state it was when it actually was put in cache. All mutations to the value, or the element, after the put operation will not be
+    reflected in the cache.
+    A concrete example of a copy cache is a Cache configured XA. It will always be configured copyOnRead and copyOnWrite to provide proper
+    transaction isolation and clear boundaries (the state the objects are in at commit time is the state making it into the cache).
+
+    By default, the copy operation will be performed using standard Java object serialization. We do recognize though that for some
+    application this might not be good (or fast) enough. For that matter, you can configure the CopyStrategy the cache will use to perform
+    these copy operations. One could easily implement the net.sf.ehcache.store.compound.CopyStrategy interface to use cloning rather than
+    Serialization. More on configuration here: {{./configuration.html}copyOnRead and copyOnWrite cache configuration}.

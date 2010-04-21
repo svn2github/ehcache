@@ -62,8 +62,37 @@
     cache.disableDynamicFeatures();
 ---
 
+* {copyOnRead and copyOnWrite cache configuration}
 
+    A cache can be configured to copy the data that gets in and/or out of it. This is configured using the copyOnRead and copyOnWrite
+    attributes of cache and defaultCache elements in your configuration or programmatically as follow:
 
+---
+    CacheConfiguration config = new CacheConfiguration("copyCache", 1000).copyOnRead(true).copyOnWrite(true);
+    Cache copyCache = new Cache(config);
+---
+
+    The default configuration will be false for both options.
+
+    In order to copy elements on put()-like and/or get()-like operations, a CopyStrategy is being used. The default implementation is
+    using serialization to copy elements. You can provide your own implementation of net.sf.ehcache.store.compound.CopyStrategy like
+    this:
+
+---
+    <cache name="copyCache"
+           maxElementsInMemory="10"
+           eternal="false"
+           timeToIdleSeconds="5"
+           timeToLiveSeconds="10"
+           overflowToDisk="false"
+           copyOnRead="true"
+           copyOnWrite="true">
+        <copyStrategy class="com.company.ehcache.MyCopyStrategy"/>
+    </cache>
+---
+
+    Per cache, a single instance of your CopyStrategy will be use, hence your implementation of CopyStrategy.copy(T): T has to
+    thread-safe.
 
 * Special System Properties
 
