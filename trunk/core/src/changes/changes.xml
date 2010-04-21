@@ -1,3 +1,4 @@
+
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <document>
     <body>
@@ -45,6 +46,12 @@
             </action>
             <action dev="Alex Snaps" type="fix">
                 Fixed issue to support BTM and Atomikos TransactionManager's suspend/resume cycles
+            </action>
+            <action dev="Alex Snaps" type="fix" issue="EHC-687">
+                Fixed NPE when no DefaultCache is provided at CacheManager's instantiation
+            </action>
+            <action dev="Alex Snaps" type="fix" issue="EHC-686">
+                Updated to latest slf4j 1.5.11
             </action>
         </release>
         <release version="2.0.1" date="2010-04-05" description="Bug fixes">

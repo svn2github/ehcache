@@ -35,7 +35,7 @@
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
-            <version>1.5.8</version>
+            <version>1.5.11</version>
             <scope>compile</scope>
         </dependency>
 
@@ -44,11 +44,11 @@
               deploy time, which they provide The maven dependency declarations are
               reproduced here for convenience. <dependency>
               <groupId>org.slf4j</groupId> <artifactId>slf4j-jdk14</artifactId>
-              <version>1.5.8</version> </dependency> <dependency>
+              <version>1.5.11</version> </dependency> <dependency>
               <groupId>org.slf4j</groupId> <artifactId>slf4j-log4j12</artifactId>
-              <version>1.5.8</version> </dependency> <dependency>
+              <version>1.5.11</version> </dependency> <dependency>
               <groupId>org.slf4j</groupId> <artifactId>slf4j-simple</artifactId>
-              <version>1.5.8</version> </dependency>
+              <version>1.5.11</version> </dependency>
           -->
 
         <!--
@@ -58,7 +58,7 @@
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-jdk14</artifactId>
-            <version>1.5.8</version>
+            <version>1.5.11</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
