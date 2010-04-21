@@ -18,7 +18,7 @@
 
 **  Standalone Ehcache
 
-    When using the Ehcache APIs in standalone ehcache core, there is no locking. The last write wins. This is akin to
+    When using the Ehcache APIs in standalone ehcache core, there is no direct control over locking. The last write wins. This is akin to
     the READ_UNCOMMITTED isolation level.
 
     However the using the Explicit locking API uses the lock manager which as of Ehcache 2.1, has been
