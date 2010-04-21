@@ -121,7 +121,12 @@ public class CacheManagerTest {
     public void testProgrammaticConfigurationFailsProperlyWhenNoDefaultCacheConfigured() {
         Configuration mgrConfig = new Configuration();
         mgrConfig.setUpdateCheck(false);
-        CacheManager cacheManager = new CacheManager(mgrConfig);
+        try {
+            CacheManager cacheManager = new CacheManager(mgrConfig);
+            fail("This should have thrown an Exception, as no default cache is configured!");
+        } catch (Exception e) {
+            assertEquals("Illegal configuration. No default cache is configured.", e.getMessage());
+        }
     }
 
     /**
