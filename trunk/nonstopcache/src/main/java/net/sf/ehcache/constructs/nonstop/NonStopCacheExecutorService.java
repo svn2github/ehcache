@@ -32,9 +32,22 @@ import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.event.CacheEventListener;
 
+/**
+ * Class used by NonStopCache for executing tasks within a timeout limit.
+ * 
+ * @author Abhishek Sanoujam
+ * 
+ */
 public class NonStopCacheExecutorService {
 
+    /**
+     * Counter used for maintaining number of threads created by default ThreadFactory
+     */
     protected static final AtomicInteger DEFAULT_FACTORY_COUNT = new AtomicInteger();
+
+    /**
+     * Default number of threads in the thread pool
+     */
     public static final int DEFAULT_THREAD_POOL_SIZE = 10;
 
     private final ExecutorService executorService;
@@ -44,10 +57,18 @@ public class NonStopCacheExecutorService {
     // shutdown executor service when all attached caches are dispose'd -- by default true
     private volatile boolean shutdownWhenNoCachesAttached = true;
 
+    /**
+     * Default constructor, uses {@link NonStopCacheExecutorService#DEFAULT_THREAD_POOL_SIZE} number of threads in the pool
+     */
     public NonStopCacheExecutorService() {
         this(DEFAULT_THREAD_POOL_SIZE);
     }
 
+    /**
+     * Constructor accepting the maximum number of threads that can be present in the thread pool
+     * 
+     * @param threadPoolSize
+     */
     public NonStopCacheExecutorService(final int threadPoolSize) {
         this(threadPoolSize, new ThreadFactory() {
 
@@ -60,10 +81,21 @@ public class NonStopCacheExecutorService {
         });
     }
 
+    /**
+     * Constructor accepting a {@link ThreadFactory} that will be used to create threads for the pool
+     * 
+     * @param threadFactory
+     */
     public NonStopCacheExecutorService(final ThreadFactory threadFactory) {
         this(DEFAULT_THREAD_POOL_SIZE, threadFactory);
     }
 
+    /**
+     * Constructor accepting both number of threads and the thread factory to be used
+     * 
+     * @param threadPoolSize
+     * @param threadFactory
+     */
     public NonStopCacheExecutorService(final int threadPoolSize, final ThreadFactory threadFactory) {
         // keepAlive time and maxPoolSize is ignored (does not have any effect) as we are using an unbounded work queue
         this(new ThreadPoolExecutor(threadPoolSize, threadPoolSize, Integer.MAX_VALUE, TimeUnit.MILLISECONDS,
@@ -84,6 +116,18 @@ public class NonStopCacheExecutorService {
         this.disposeListener = new DisposeListener();
     }
 
+    /**
+     * Execute a {@link Callable} task with timeout. If the task does not complete within the timeout specified, throws a
+     * {@link TimeoutException}
+     * 
+     * @param <V>
+     * @param callable
+     * @param timeoutValueInMillis
+     * @return the return value from the callable
+     * @throws TimeoutException
+     * @throws CacheException
+     * @throws InterruptedException
+     */
     public <V> V execute(final Callable<V> callable, final long timeoutValueInMillis) throws TimeoutException, CacheException,
             InterruptedException {
         V result = null;
@@ -114,6 +158,12 @@ public class NonStopCacheExecutorService {
         return result;
     }
 
+    /**
+     * Associates a cache with this {@link NonStopCacheExecutorService}. The thread pool in {@link NonStopCacheExecutorService} shuts down
+     * once all the {@link Ehcache}'s associated with this {@link NonStopCacheExecutorService} are disposed
+     * 
+     * @param cache
+     */
     public void attachCache(Ehcache cache) {
         cache.getCacheEventNotificationService().registerListener(disposeListener);
         attachedCachesCount.incrementAndGet();
@@ -125,46 +175,87 @@ public class NonStopCacheExecutorService {
         }
     }
 
+    /**
+     * Set whether to shutdown or not the thread pool when all associated {@link Ehcache}'s are disposed. By default its true
+     * 
+     * @param shutdownWhenNoCachesAttached
+     *            if true, shuts down the thread pool when no cache is associated with this {@link NonStopCacheExecutorService}
+     */
     public void setShutdownWhenNoCachesAttached(boolean shutdownWhenNoCachesAttached) {
         this.shutdownWhenNoCachesAttached = shutdownWhenNoCachesAttached;
     }
 
-    // package protected method -- used for testing only
+    /**
+     * package protected method -- used for testing only
+     * 
+     * @return
+     */
     ExecutorService getExecutorService() {
         return this.executorService;
     }
 
+    /**
+     * Private listener class for Cache.dispose()
+     * 
+     * @author Abhishek Sanoujam
+     * 
+     */
     private class DisposeListener implements CacheEventListener {
 
+        /**
+         * Call back to the {@link NonStopCacheExecutorService} that cache has disposed
+         */
         public void dispose() {
             attachedCacheDisposed();
         }
 
         @Override
+        /**
+         * {@inheritDoc}.
+         * Throws CloneNotSupportedException
+         */
         public Object clone() throws CloneNotSupportedException {
             throw new CloneNotSupportedException();
         }
 
+        /**
+         * no-op
+         */
         public void notifyElementEvicted(Ehcache cache, Element element) {
             // no-op
         }
 
+        /**
+         * no-op
+         */
         public void notifyElementExpired(Ehcache cache, Element element) {
             // no-op
         }
 
+        /**
+         * no-op
+         */
         public void notifyElementPut(Ehcache cache, Element element) throws CacheException {
             // no-op
         }
 
+        /**
+         * no-op
+         */
         public void notifyElementRemoved(Ehcache cache, Element element) throws CacheException {
             // no-op
         }
 
+        /**
+         * no-op
+         */
         public void notifyElementUpdated(Ehcache cache, Element element) throws CacheException {
             // no-op
         }
 
+        /**
+         * no-op
+         */
         public void notifyRemoveAll(Ehcache cache) {
             // no-op
         }

@@ -18,6 +18,12 @@ package net.sf.ehcache.constructs.nonstop;
 
 import java.util.Properties;
 
+/**
+ * Implementation of {@link NonStopCacheConfig}
+ * 
+ * @author Abhishek Sanoujam
+ * 
+ */
 public class NonStopCacheConfigImpl implements NonStopCacheConfig {
 
     private static final Properties DEFAULT_VALUES_PROPERTIES = new Properties();
@@ -52,10 +58,19 @@ public class NonStopCacheConfigImpl implements NonStopCacheConfig {
     private boolean immediateTimeout;
     private NonStopCacheBehaviorType timeoutBehaviorType;
 
+    /**
+     * Default constructor. Uses default values defined in {@link NonStopCacheConfig}
+     */
     public NonStopCacheConfigImpl() {
         this(DEFAULT_VALUES_PROPERTIES);
     }
 
+    /**
+     * Constructor accepting a {@link Properties} that contains mappings for the {@link NonStopCacheConfig}. See {@link NonStopCacheConfig}
+     * for allowed key and values
+     * 
+     * @param properties
+     */
     public NonStopCacheConfigImpl(final Properties properties) {
         this.timeoutMillis = getInt(properties, TIMEOUT_MILLIS_PROP_KEY);
         this.timeoutBehaviorType = NonStopCacheBehaviorType
@@ -63,26 +78,44 @@ public class NonStopCacheConfigImpl implements NonStopCacheConfig {
         this.immediateTimeout = getBoolean(properties, IMMEDIATE_TIMEOUT_PROP_KEY);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public long getTimeoutMillis() {
         return timeoutMillis;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public void setTimeoutMillis(final long timeoutMillis) {
         this.timeoutMillis = timeoutMillis;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public boolean isImmediateTimeout() {
         return immediateTimeout;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public void setImmediateTimeout(final boolean immediateTimeout) {
         this.immediateTimeout = immediateTimeout;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public NonStopCacheBehaviorType getTimeoutBehaviorType() {
         return this.timeoutBehaviorType;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public void setTimeoutBehaviorType(final NonStopCacheBehaviorType timeoutBehaviorType) {
         this.timeoutBehaviorType = timeoutBehaviorType;
     }

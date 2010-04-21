@@ -18,6 +18,7 @@ package net.sf.ehcache.constructs.nonstop;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Properties;
 
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.Ehcache;
@@ -26,7 +27,7 @@ import net.sf.ehcache.constructs.nonstop.behavior.LocalReadsBehavior;
 import net.sf.ehcache.constructs.nonstop.behavior.NoOpOnTimeoutBehavior;
 
 /**
- * Enum encapsulating different CacheBehavior's used by TimeoutCache
+ * Enum encapsulating different {@link NonStopCacheBehavior} types used by {@link NonStopCache}
  * 
  * @author Abhishek Sanoujam
  * 
@@ -34,7 +35,7 @@ import net.sf.ehcache.constructs.nonstop.behavior.NoOpOnTimeoutBehavior;
 public enum NonStopCacheBehaviorType {
 
     /**
-     * {@link CacheBehavior} which throws exception for all timed out operations
+     * {@link NonStopCacheBehaviorType} encapsulating {@link NonStopCacheBehavior} which throws exception for all timed out operations
      */
     EXCEPTION_ON_TIMEOUT() {
 
@@ -48,6 +49,8 @@ public enum NonStopCacheBehaviorType {
 
         /**
          * {@inheritDoc}
+         * <p>
+         * Returns {@link NonStopCacheBehaviorType#EXCEPTION_CONFIG_PROPERTY_NAME}
          */
         @Override
         public String getConfigPropertyName() {
@@ -56,7 +59,8 @@ public enum NonStopCacheBehaviorType {
 
     },
     /**
-     * {@link CacheBehavior} which returns null for get operations and does nothing for put's and remove's
+     * {@link NonStopCacheBehaviorType} encapsulating {@link NonStopCacheBehavior} which returns null for get operations and does nothing
+     * for put's and remove's
      */
     NO_OP_ON_TIMEOUT() {
 
@@ -70,6 +74,8 @@ public enum NonStopCacheBehaviorType {
 
         /**
          * {@inheritDoc}
+         * <p>
+         * Returns {@link NonStopCacheBehaviorType#NO_OP_CONFIG_PROPERTY_NAME}
          */
         @Override
         public String getConfigPropertyName() {
@@ -78,9 +84,9 @@ public enum NonStopCacheBehaviorType {
 
     },
     /**
-     * {@link CacheBehavior} which returns whatever local value is associated with the key for get operations and does nothing for put's
-     * and remove's. Note that if the cache is clustered (e.g. with Terracotta), and the current node is not part of the cluster, it
-     * may return stale/dirty values
+     * {@link NonStopCacheBehaviorType} encapsulating {@link NonStopCacheBehavior} which returns whatever local value is associated with the
+     * key for get operations and does nothing for put's and remove's. Works only when decorating {@link Cache} instances clustered with
+     * Terracotta.
      */
     LOCAL_READS_ON_TIMEOUT() {
 
@@ -98,6 +104,8 @@ public enum NonStopCacheBehaviorType {
 
         /**
          * {@inheritDoc}
+         * <p>
+         * Returns {@link NonStopCacheBehaviorType#LOCAL_READS_CONFIG_PROPERTY_NAME}
          */
         @Override
         public String getConfigPropertyName() {
@@ -115,14 +123,27 @@ public enum NonStopCacheBehaviorType {
     public abstract NonStopCacheBehavior newCacheBehavior(Ehcache ehcache);
 
     /**
-     * Name to be used for this type, used when configured using String properties
+     * Name to be used for this type. This value is used for "timeoutBehavior" key when configuring {@link NonStopCache} with
+     * {@link Properties}
      * 
      * @return new instance of {@link NonStopCacheBehavior} for this type
      */
     public abstract String getConfigPropertyName();
 
+    /**
+     * Value for {@link #EXCEPTION_ON_TIMEOUT} behavior. This value is used for "timeoutBehavior" key when configuring NonStopCache with
+     * {@link Properties}.
+     */
     public static final String EXCEPTION_CONFIG_PROPERTY_NAME = "exception";
+    /**
+     * Value for {@link #NO_OP_ON_TIMEOUT} behavior. This value is used for "timeoutBehavior" key when configuring NonStopCache with
+     * {@link Properties}.
+     */
     public static final String NO_OP_CONFIG_PROPERTY_NAME = "noop";
+    /**
+     * Value for {@link #LOCAL_READS_ON_TIMEOUT} behavior. This value is used for "timeoutBehavior" key when configuring NonStopCache with
+     * {@link Properties}.
+     */
     public static final String LOCAL_READS_CONFIG_PROPERTY_NAME = "localReads";
 
     private static Map<String, NonStopCacheBehaviorType> configNameToTypeMapping = new HashMap<String, NonStopCacheBehaviorType>();
@@ -133,6 +154,19 @@ public enum NonStopCacheBehaviorType {
         }
     }
 
+    /**
+     * Return a {@link NonStopCacheBehaviorType} for the string property name.
+     * 
+     * @param configName
+     * @return {@link NonStopCacheBehaviorType} for the string property name.
+     * @throws IllegalArgumentException
+     *             if the passed in configName is <b>NOT</b> one of:
+     *             <ul>
+     *             <li>{@link #EXCEPTION_CONFIG_PROPERTY_NAME}</li>
+     *             <li>{@link #NO_OP_CONFIG_PROPERTY_NAME}</li>
+     *             <li>{@link #LOCAL_READS_CONFIG_PROPERTY_NAME}</li>
+     *             </ul>
+     */
     public static NonStopCacheBehaviorType getTypeFromConfigPropertyName(String configName) {
         NonStopCacheBehaviorType type = configNameToTypeMapping.get(configName);
         if (type == null) {

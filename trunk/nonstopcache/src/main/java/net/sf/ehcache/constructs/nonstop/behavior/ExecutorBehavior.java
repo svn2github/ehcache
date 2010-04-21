@@ -28,6 +28,13 @@ import net.sf.ehcache.constructs.nonstop.NonStopCacheBehavior;
 import net.sf.ehcache.constructs.nonstop.NonStopCacheConfig;
 import net.sf.ehcache.constructs.nonstop.NonStopCacheExecutorService;
 
+/**
+ * A {@link NonStopCacheBehavior} that takes another {@link NonStopCacheBehavior} as direct delegate behavior, the
+ * {@link NonStopCacheConfig}, {@link NonStopCacheExecutorService} and {@link NonStopCacheBehaviorResolver}
+ * 
+ * @author Abhishek Sanoujam
+ * 
+ */
 public class ExecutorBehavior implements NonStopCacheBehavior {
 
     private final NonStopCacheBehavior executeBehavior;
@@ -35,6 +42,15 @@ public class ExecutorBehavior implements NonStopCacheBehavior {
     private final NonStopCacheBehaviorResolver timeoutBehaviorResolver;
     private final NonStopCacheConfig nonStopCacheConfig;
 
+    /**
+     * Constructor accepting the direct delegate behavior, {@link NonStopCacheConfig}, {@link NonStopCacheExecutorService} and
+     * {@link NonStopCacheBehaviorResolver}
+     * 
+     * @param executeBehavior
+     * @param nonStopCacheConfig
+     * @param executorService
+     * @param timeoutBehaviorResolver
+     */
     public ExecutorBehavior(final NonStopCacheBehavior executeBehavior, final NonStopCacheConfig nonStopCacheConfig,
             final NonStopCacheExecutorService executorService, final NonStopCacheBehaviorResolver timeoutBehaviorResolver) {
         this.executeBehavior = executeBehavior;
@@ -52,6 +68,13 @@ public class ExecutorBehavior implements NonStopCacheBehavior {
         }
     }
 
+    /**
+     * {@inheritDoc}.
+     * <p>
+     * Executes the direct delegate behavior with the {@link NonStopCacheExecutorService} using the timeout from the
+     * {@link NonStopCacheConfig}. On timeout from the {@link NonStopCacheExecutorService}, uses the behavior resolved from the
+     * {@link NonStopCacheBehaviorResolver} to execute the behavior
+     */
     public Element get(final Object key) throws IllegalStateException, CacheException {
         Element element = null;
         try {
@@ -66,10 +89,24 @@ public class ExecutorBehavior implements NonStopCacheBehavior {
         return element;
     }
 
+    /**
+     * {@inheritDoc}.
+     * <p>
+     * Executes the direct delegate behavior with the {@link NonStopCacheExecutorService} using the timeout from the
+     * {@link NonStopCacheConfig}. On timeout from the {@link NonStopCacheExecutorService}, uses the behavior resolved from the
+     * {@link NonStopCacheBehaviorResolver} to execute the behavior
+     */
     public Element get(final Serializable key) throws IllegalStateException, CacheException {
         return get((Object) key);
     }
 
+    /**
+     * {@inheritDoc}.
+     * <p>
+     * Executes the direct delegate behavior with the {@link NonStopCacheExecutorService} using the timeout from the
+     * {@link NonStopCacheConfig}. On timeout from the {@link NonStopCacheExecutorService}, uses the behavior resolved from the
+     * {@link NonStopCacheBehaviorResolver} to execute the behavior
+     */
     public Element getQuiet(final Object key) throws IllegalStateException, CacheException {
         Element element = null;
         try {
@@ -84,10 +121,24 @@ public class ExecutorBehavior implements NonStopCacheBehavior {
         return element;
     }
 
+    /**
+     * {@inheritDoc}.
+     * <p>
+     * Executes the direct delegate behavior with the {@link NonStopCacheExecutorService} using the timeout from the
+     * {@link NonStopCacheConfig}. On timeout from the {@link NonStopCacheExecutorService}, uses the behavior resolved from the
+     * {@link NonStopCacheBehaviorResolver} to execute the behavior
+     */
     public Element getQuiet(final Serializable key) throws IllegalStateException, CacheException {
         return getQuiet((Object) key);
     }
 
+    /**
+     * {@inheritDoc}.
+     * <p>
+     * Executes the direct delegate behavior with the {@link NonStopCacheExecutorService} using the timeout from the
+     * {@link NonStopCacheConfig}. On timeout from the {@link NonStopCacheExecutorService}, uses the behavior resolved from the
+     * {@link NonStopCacheBehaviorResolver} to execute the behavior
+     */
     public List getKeys() throws IllegalStateException, CacheException {
         List keys = null;
         try {
@@ -102,6 +153,13 @@ public class ExecutorBehavior implements NonStopCacheBehavior {
         return keys;
     }
 
+    /**
+     * {@inheritDoc}.
+     * <p>
+     * Executes the direct delegate behavior with the {@link NonStopCacheExecutorService} using the timeout from the
+     * {@link NonStopCacheConfig}. On timeout from the {@link NonStopCacheExecutorService}, uses the behavior resolved from the
+     * {@link NonStopCacheBehaviorResolver} to execute the behavior
+     */
     public List getKeysNoDuplicateCheck() throws IllegalStateException {
         List keys = null;
         try {
@@ -116,6 +174,13 @@ public class ExecutorBehavior implements NonStopCacheBehavior {
         return keys;
     }
 
+    /**
+     * {@inheritDoc}.
+     * <p>
+     * Executes the direct delegate behavior with the {@link NonStopCacheExecutorService} using the timeout from the
+     * {@link NonStopCacheConfig}. On timeout from the {@link NonStopCacheExecutorService}, uses the behavior resolved from the
+     * {@link NonStopCacheBehaviorResolver} to execute the behavior
+     */
     public List getKeysWithExpiryCheck() throws IllegalStateException, CacheException {
         List keys = null;
         try {
@@ -130,6 +195,13 @@ public class ExecutorBehavior implements NonStopCacheBehavior {
         return keys;
     }
 
+    /**
+     * {@inheritDoc}.
+     * <p>
+     * Executes the direct delegate behavior with the {@link NonStopCacheExecutorService} using the timeout from the
+     * {@link NonStopCacheConfig}. On timeout from the {@link NonStopCacheExecutorService}, uses the behavior resolved from the
+     * {@link NonStopCacheBehaviorResolver} to execute the behavior
+     */
     public void put(final Element element, final boolean doNotNotifyCacheReplicators) throws IllegalArgumentException,
             IllegalStateException, CacheException {
         try {
@@ -144,6 +216,13 @@ public class ExecutorBehavior implements NonStopCacheBehavior {
         }
     }
 
+    /**
+     * {@inheritDoc}.
+     * <p>
+     * Executes the direct delegate behavior with the {@link NonStopCacheExecutorService} using the timeout from the
+     * {@link NonStopCacheConfig}. On timeout from the {@link NonStopCacheExecutorService}, uses the behavior resolved from the
+     * {@link NonStopCacheBehaviorResolver} to execute the behavior
+     */
     public void put(final Element element) throws IllegalArgumentException, IllegalStateException, CacheException {
         try {
             executeWithExecutor(new Callable<Void>() {
@@ -157,6 +236,13 @@ public class ExecutorBehavior implements NonStopCacheBehavior {
         }
     }
 
+    /**
+     * {@inheritDoc}.
+     * <p>
+     * Executes the direct delegate behavior with the {@link NonStopCacheExecutorService} using the timeout from the
+     * {@link NonStopCacheConfig}. On timeout from the {@link NonStopCacheExecutorService}, uses the behavior resolved from the
+     * {@link NonStopCacheBehaviorResolver} to execute the behavior
+     */
     public void putQuiet(final Element element) throws IllegalArgumentException, IllegalStateException, CacheException {
         try {
             executeWithExecutor(new Callable<Void>() {
@@ -170,6 +256,13 @@ public class ExecutorBehavior implements NonStopCacheBehavior {
         }
     }
 
+    /**
+     * {@inheritDoc}.
+     * <p>
+     * Executes the direct delegate behavior with the {@link NonStopCacheExecutorService} using the timeout from the
+     * {@link NonStopCacheConfig}. On timeout from the {@link NonStopCacheExecutorService}, uses the behavior resolved from the
+     * {@link NonStopCacheBehaviorResolver} to execute the behavior
+     */
     public void putWithWriter(final Element element) throws IllegalArgumentException, IllegalStateException, CacheException {
         try {
             executeWithExecutor(new Callable<Void>() {
@@ -183,6 +276,13 @@ public class ExecutorBehavior implements NonStopCacheBehavior {
         }
     }
 
+    /**
+     * {@inheritDoc}.
+     * <p>
+     * Executes the direct delegate behavior with the {@link NonStopCacheExecutorService} using the timeout from the
+     * {@link NonStopCacheConfig}. On timeout from the {@link NonStopCacheExecutorService}, uses the behavior resolved from the
+     * {@link NonStopCacheBehaviorResolver} to execute the behavior
+     */
     public boolean remove(final Object key, final boolean doNotNotifyCacheReplicators) throws IllegalStateException {
         boolean result = false;
         try {
@@ -197,6 +297,13 @@ public class ExecutorBehavior implements NonStopCacheBehavior {
         return result;
     }
 
+    /**
+     * {@inheritDoc}.
+     * <p>
+     * Executes the direct delegate behavior with the {@link NonStopCacheExecutorService} using the timeout from the
+     * {@link NonStopCacheConfig}. On timeout from the {@link NonStopCacheExecutorService}, uses the behavior resolved from the
+     * {@link NonStopCacheBehaviorResolver} to execute the behavior
+     */
     public boolean remove(final Object key) throws IllegalStateException {
         boolean result = false;
         try {
@@ -211,14 +318,35 @@ public class ExecutorBehavior implements NonStopCacheBehavior {
         return result;
     }
 
+    /**
+     * {@inheritDoc}.
+     * <p>
+     * Executes the direct delegate behavior with the {@link NonStopCacheExecutorService} using the timeout from the
+     * {@link NonStopCacheConfig}. On timeout from the {@link NonStopCacheExecutorService}, uses the behavior resolved from the
+     * {@link NonStopCacheBehaviorResolver} to execute the behavior
+     */
     public boolean remove(final Serializable key, final boolean doNotNotifyCacheReplicators) throws IllegalStateException {
         return this.remove((Object) key, doNotNotifyCacheReplicators);
     }
 
+    /**
+     * {@inheritDoc}.
+     * <p>
+     * Executes the direct delegate behavior with the {@link NonStopCacheExecutorService} using the timeout from the
+     * {@link NonStopCacheConfig}. On timeout from the {@link NonStopCacheExecutorService}, uses the behavior resolved from the
+     * {@link NonStopCacheBehaviorResolver} to execute the behavior
+     */
     public boolean remove(final Serializable key) throws IllegalStateException {
         return this.remove((Object) key);
     }
 
+    /**
+     * {@inheritDoc}.
+     * <p>
+     * Executes the direct delegate behavior with the {@link NonStopCacheExecutorService} using the timeout from the
+     * {@link NonStopCacheConfig}. On timeout from the {@link NonStopCacheExecutorService}, uses the behavior resolved from the
+     * {@link NonStopCacheBehaviorResolver} to execute the behavior
+     */
     public void removeAll() throws IllegalStateException, CacheException {
         try {
             executeWithExecutor(new Callable<Void>() {
@@ -232,6 +360,13 @@ public class ExecutorBehavior implements NonStopCacheBehavior {
         }
     }
 
+    /**
+     * {@inheritDoc}.
+     * <p>
+     * Executes the direct delegate behavior with the {@link NonStopCacheExecutorService} using the timeout from the
+     * {@link NonStopCacheConfig}. On timeout from the {@link NonStopCacheExecutorService}, uses the behavior resolved from the
+     * {@link NonStopCacheBehaviorResolver} to execute the behavior
+     */
     public void removeAll(final boolean doNotNotifyCacheReplicators) throws IllegalStateException, CacheException {
         try {
             executeWithExecutor(new Callable<Void>() {
@@ -245,6 +380,13 @@ public class ExecutorBehavior implements NonStopCacheBehavior {
         }
     }
 
+    /**
+     * {@inheritDoc}.
+     * <p>
+     * Executes the direct delegate behavior with the {@link NonStopCacheExecutorService} using the timeout from the
+     * {@link NonStopCacheConfig}. On timeout from the {@link NonStopCacheExecutorService}, uses the behavior resolved from the
+     * {@link NonStopCacheBehaviorResolver} to execute the behavior
+     */
     public boolean isKeyInCache(final Object key) {
         boolean result = false;
         try {
@@ -259,6 +401,13 @@ public class ExecutorBehavior implements NonStopCacheBehavior {
         return result;
     }
 
+    /**
+     * {@inheritDoc}.
+     * <p>
+     * Executes the direct delegate behavior with the {@link NonStopCacheExecutorService} using the timeout from the
+     * {@link NonStopCacheConfig}. On timeout from the {@link NonStopCacheExecutorService}, uses the behavior resolved from the
+     * {@link NonStopCacheBehaviorResolver} to execute the behavior
+     */
     public boolean isValueInCache(final Object value) {
         boolean result = false;
         try {
@@ -273,6 +422,13 @@ public class ExecutorBehavior implements NonStopCacheBehavior {
         return result;
     }
 
+    /**
+     * {@inheritDoc}.
+     * <p>
+     * Executes the direct delegate behavior with the {@link NonStopCacheExecutorService} using the timeout from the
+     * {@link NonStopCacheConfig}. On timeout from the {@link NonStopCacheExecutorService}, uses the behavior resolved from the
+     * {@link NonStopCacheBehaviorResolver} to execute the behavior
+     */
     public long calculateInMemorySize() throws IllegalStateException, CacheException {
         long result = 0;
         try {
@@ -287,6 +443,13 @@ public class ExecutorBehavior implements NonStopCacheBehavior {
         return result;
     }
 
+    /**
+     * {@inheritDoc}.
+     * <p>
+     * Executes the direct delegate behavior with the {@link NonStopCacheExecutorService} using the timeout from the
+     * {@link NonStopCacheConfig}. On timeout from the {@link NonStopCacheExecutorService}, uses the behavior resolved from the
+     * {@link NonStopCacheBehaviorResolver} to execute the behavior
+     */
     public void evictExpiredElements() {
         try {
             executeWithExecutor(new Callable<Void>() {
@@ -300,6 +463,13 @@ public class ExecutorBehavior implements NonStopCacheBehavior {
         }
     }
 
+    /**
+     * {@inheritDoc}.
+     * <p>
+     * Executes the direct delegate behavior with the {@link NonStopCacheExecutorService} using the timeout from the
+     * {@link NonStopCacheConfig}. On timeout from the {@link NonStopCacheExecutorService}, uses the behavior resolved from the
+     * {@link NonStopCacheBehaviorResolver} to execute the behavior
+     */
     public void flush() throws IllegalStateException, CacheException {
         try {
             executeWithExecutor(new Callable<Void>() {
@@ -313,6 +483,13 @@ public class ExecutorBehavior implements NonStopCacheBehavior {
         }
     }
 
+    /**
+     * {@inheritDoc}.
+     * <p>
+     * Executes the direct delegate behavior with the {@link NonStopCacheExecutorService} using the timeout from the
+     * {@link NonStopCacheConfig}. On timeout from the {@link NonStopCacheExecutorService}, uses the behavior resolved from the
+     * {@link NonStopCacheBehaviorResolver} to execute the behavior
+     */
     public int getDiskStoreSize() throws IllegalStateException {
         int result = 0;
         try {
@@ -327,6 +504,13 @@ public class ExecutorBehavior implements NonStopCacheBehavior {
         return result;
     }
 
+    /**
+     * {@inheritDoc}.
+     * <p>
+     * Executes the direct delegate behavior with the {@link NonStopCacheExecutorService} using the timeout from the
+     * {@link NonStopCacheConfig}. On timeout from the {@link NonStopCacheExecutorService}, uses the behavior resolved from the
+     * {@link NonStopCacheBehaviorResolver} to execute the behavior
+     */
     public Object getInternalContext() {
         Object result = 0;
         try {
@@ -341,6 +525,13 @@ public class ExecutorBehavior implements NonStopCacheBehavior {
         return result;
     }
 
+    /**
+     * {@inheritDoc}.
+     * <p>
+     * Executes the direct delegate behavior with the {@link NonStopCacheExecutorService} using the timeout from the
+     * {@link NonStopCacheConfig}. On timeout from the {@link NonStopCacheExecutorService}, uses the behavior resolved from the
+     * {@link NonStopCacheBehaviorResolver} to execute the behavior
+     */
     public long getMemoryStoreSize() throws IllegalStateException {
         long result = 0;
         try {
@@ -355,6 +546,13 @@ public class ExecutorBehavior implements NonStopCacheBehavior {
         return result;
     }
 
+    /**
+     * {@inheritDoc}.
+     * <p>
+     * Executes the direct delegate behavior with the {@link NonStopCacheExecutorService} using the timeout from the
+     * {@link NonStopCacheConfig}. On timeout from the {@link NonStopCacheExecutorService}, uses the behavior resolved from the
+     * {@link NonStopCacheBehaviorResolver} to execute the behavior
+     */
     public int getSize() throws IllegalStateException, CacheException {
         int result = 0;
         try {
@@ -369,6 +567,13 @@ public class ExecutorBehavior implements NonStopCacheBehavior {
         return result;
     }
 
+    /**
+     * {@inheritDoc}.
+     * <p>
+     * Executes the direct delegate behavior with the {@link NonStopCacheExecutorService} using the timeout from the
+     * {@link NonStopCacheConfig}. On timeout from the {@link NonStopCacheExecutorService}, uses the behavior resolved from the
+     * {@link NonStopCacheBehaviorResolver} to execute the behavior
+     */
     public int getSizeBasedOnAccuracy(final int statisticsAccuracy) throws IllegalArgumentException, IllegalStateException, CacheException {
         int result = 0;
         try {
@@ -383,6 +588,13 @@ public class ExecutorBehavior implements NonStopCacheBehavior {
         return result;
     }
 
+    /**
+     * {@inheritDoc}.
+     * <p>
+     * Executes the direct delegate behavior with the {@link NonStopCacheExecutorService} using the timeout from the
+     * {@link NonStopCacheConfig}. On timeout from the {@link NonStopCacheExecutorService}, uses the behavior resolved from the
+     * {@link NonStopCacheBehaviorResolver} to execute the behavior
+     */
     public Statistics getStatistics() throws IllegalStateException {
         Statistics result = null;
         try {
@@ -397,6 +609,13 @@ public class ExecutorBehavior implements NonStopCacheBehavior {
         return result;
     }
 
+    /**
+     * {@inheritDoc}.
+     * <p>
+     * Executes the direct delegate behavior with the {@link NonStopCacheExecutorService} using the timeout from the
+     * {@link NonStopCacheConfig}. On timeout from the {@link NonStopCacheExecutorService}, uses the behavior resolved from the
+     * {@link NonStopCacheBehaviorResolver} to execute the behavior
+     */
     public boolean isElementInMemory(final Object key) {
         boolean result = false;
         try {
@@ -411,10 +630,24 @@ public class ExecutorBehavior implements NonStopCacheBehavior {
         return result;
     }
 
+    /**
+     * {@inheritDoc}.
+     * <p>
+     * Executes the direct delegate behavior with the {@link NonStopCacheExecutorService} using the timeout from the
+     * {@link NonStopCacheConfig}. On timeout from the {@link NonStopCacheExecutorService}, uses the behavior resolved from the
+     * {@link NonStopCacheBehaviorResolver} to execute the behavior
+     */
     public boolean isElementInMemory(Serializable key) {
         return isElementInMemory((Object) key);
     }
 
+    /**
+     * {@inheritDoc}.
+     * <p>
+     * Executes the direct delegate behavior with the {@link NonStopCacheExecutorService} using the timeout from the
+     * {@link NonStopCacheConfig}. On timeout from the {@link NonStopCacheExecutorService}, uses the behavior resolved from the
+     * {@link NonStopCacheBehaviorResolver} to execute the behavior
+     */
     public boolean isElementOnDisk(final Object key) {
         boolean result = false;
         try {
@@ -429,10 +662,24 @@ public class ExecutorBehavior implements NonStopCacheBehavior {
         return result;
     }
 
+    /**
+     * {@inheritDoc}.
+     * <p>
+     * Executes the direct delegate behavior with the {@link NonStopCacheExecutorService} using the timeout from the
+     * {@link NonStopCacheConfig}. On timeout from the {@link NonStopCacheExecutorService}, uses the behavior resolved from the
+     * {@link NonStopCacheBehaviorResolver} to execute the behavior
+     */
     public boolean isElementOnDisk(Serializable key) {
         return isElementOnDisk((Object) key);
     }
 
+    /**
+     * {@inheritDoc}.
+     * <p>
+     * Executes the direct delegate behavior with the {@link NonStopCacheExecutorService} using the timeout from the
+     * {@link NonStopCacheConfig}. On timeout from the {@link NonStopCacheExecutorService}, uses the behavior resolved from the
+     * {@link NonStopCacheBehaviorResolver} to execute the behavior
+     */
     public Element putIfAbsent(final Element element) throws NullPointerException {
         Element result = null;
         try {
@@ -447,6 +694,13 @@ public class ExecutorBehavior implements NonStopCacheBehavior {
         return result;
     }
 
+    /**
+     * {@inheritDoc}.
+     * <p>
+     * Executes the direct delegate behavior with the {@link NonStopCacheExecutorService} using the timeout from the
+     * {@link NonStopCacheConfig}. On timeout from the {@link NonStopCacheExecutorService}, uses the behavior resolved from the
+     * {@link NonStopCacheBehaviorResolver} to execute the behavior
+     */
     public boolean removeElement(final Element element) throws NullPointerException {
         boolean result = false;
         try {
@@ -461,6 +715,13 @@ public class ExecutorBehavior implements NonStopCacheBehavior {
         return result;
     }
 
+    /**
+     * {@inheritDoc}.
+     * <p>
+     * Executes the direct delegate behavior with the {@link NonStopCacheExecutorService} using the timeout from the
+     * {@link NonStopCacheConfig}. On timeout from the {@link NonStopCacheExecutorService}, uses the behavior resolved from the
+     * {@link NonStopCacheBehaviorResolver} to execute the behavior
+     */
     public boolean removeQuiet(final Object key) throws IllegalStateException {
         boolean result = false;
         try {
@@ -475,10 +736,24 @@ public class ExecutorBehavior implements NonStopCacheBehavior {
         return result;
     }
 
+    /**
+     * {@inheritDoc}.
+     * <p>
+     * Executes the direct delegate behavior with the {@link NonStopCacheExecutorService} using the timeout from the
+     * {@link NonStopCacheConfig}. On timeout from the {@link NonStopCacheExecutorService}, uses the behavior resolved from the
+     * {@link NonStopCacheBehaviorResolver} to execute the behavior
+     */
     public boolean removeQuiet(Serializable key) throws IllegalStateException {
         return removeQuiet((Object) key);
     }
 
+    /**
+     * {@inheritDoc}.
+     * <p>
+     * Executes the direct delegate behavior with the {@link NonStopCacheExecutorService} using the timeout from the
+     * {@link NonStopCacheConfig}. On timeout from the {@link NonStopCacheExecutorService}, uses the behavior resolved from the
+     * {@link NonStopCacheBehaviorResolver} to execute the behavior
+     */
     public boolean removeWithWriter(final Object key) throws IllegalStateException, CacheException {
         boolean result = false;
         try {
@@ -493,6 +768,13 @@ public class ExecutorBehavior implements NonStopCacheBehavior {
         return result;
     }
 
+    /**
+     * {@inheritDoc}.
+     * <p>
+     * Executes the direct delegate behavior with the {@link NonStopCacheExecutorService} using the timeout from the
+     * {@link NonStopCacheConfig}. On timeout from the {@link NonStopCacheExecutorService}, uses the behavior resolved from the
+     * {@link NonStopCacheBehaviorResolver} to execute the behavior
+     */
     public boolean replace(final Element old, final Element element) throws NullPointerException, IllegalArgumentException {
         boolean result = false;
         try {
@@ -507,6 +789,13 @@ public class ExecutorBehavior implements NonStopCacheBehavior {
         return result;
     }
 
+    /**
+     * {@inheritDoc}.
+     * <p>
+     * Executes the direct delegate behavior with the {@link NonStopCacheExecutorService} using the timeout from the
+     * {@link NonStopCacheConfig}. On timeout from the {@link NonStopCacheExecutorService}, uses the behavior resolved from the
+     * {@link NonStopCacheBehaviorResolver} to execute the behavior
+     */
     public Element replace(final Element element) throws NullPointerException {
         Element result = null;
         try {

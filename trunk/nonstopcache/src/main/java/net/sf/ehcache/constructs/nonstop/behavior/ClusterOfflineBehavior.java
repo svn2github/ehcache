@@ -26,6 +26,12 @@ import net.sf.ehcache.Statistics;
 import net.sf.ehcache.constructs.nonstop.NonStopCacheBehavior;
 import net.sf.ehcache.constructs.nonstop.NonStopCacheConfig;
 
+/**
+ * Implementation of {@link NonStopCacheBehavior} which should be used when cluster is offline
+ * 
+ * @author Abhishek Sanoujam
+ * 
+ */
 public class ClusterOfflineBehavior implements NonStopCacheBehavior {
 
     private final NonStopCacheConfig nonStopCacheConfig;
@@ -33,6 +39,18 @@ public class ClusterOfflineBehavior implements NonStopCacheBehavior {
     private final NonStopCacheBehavior executorBehavior;
     private final AtomicInteger pendingMutateBufferSize = new AtomicInteger();
 
+    /**
+     * Constructor accepting the {@link NonStopCacheConfig}, a {@link NonStopCacheBehaviorResolver} and {@link NonStopCacheBehavior} which
+     * will be invoked if immediateTimeout is false
+     * 
+     * For every operation in {@link NonStopCacheBehavior}, if the {@link NonStopCacheConfig} is configured with immediateTimeout, the
+     * behavior resolved from the {@link NonStopCacheBehaviorResolver} is invoked. Otherwise the executor service
+     * {@link NonStopCacheBehavior} is invoked
+     * 
+     * @param nonStopCacheConfig
+     * @param timeoutBehaviorResolver
+     * @param executorBehavior
+     */
     public ClusterOfflineBehavior(final NonStopCacheConfig nonStopCacheConfig, final NonStopCacheBehaviorResolver timeoutBehaviorResolver,
             final NonStopCacheBehavior executorBehavior) {
         this.nonStopCacheConfig = nonStopCacheConfig;
@@ -55,18 +73,30 @@ public class ClusterOfflineBehavior implements NonStopCacheBehavior {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public Element get(Serializable key) throws IllegalStateException, CacheException {
         return get((Object) key);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public Element getQuiet(Serializable key) throws IllegalStateException, CacheException {
         return getQuiet((Object) key);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public boolean remove(Serializable key, boolean doNotNotifyCacheReplicators) throws IllegalStateException {
         return remove((Object) key, doNotNotifyCacheReplicators);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public boolean remove(Serializable key) throws IllegalStateException {
         return remove((Object) key);
     }
@@ -226,6 +256,9 @@ public class ClusterOfflineBehavior implements NonStopCacheBehavior {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public long calculateInMemorySize() throws IllegalStateException, CacheException {
         if (shouldTimeoutImmediately()) {
             return timeoutBehaviorResolver.resolveBehavior().calculateInMemorySize();
@@ -234,6 +267,9 @@ public class ClusterOfflineBehavior implements NonStopCacheBehavior {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public void evictExpiredElements() {
         if (shouldTimeoutImmediately()) {
             timeoutBehaviorResolver.resolveBehavior().evictExpiredElements();
@@ -242,6 +278,9 @@ public class ClusterOfflineBehavior implements NonStopCacheBehavior {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public void flush() throws IllegalStateException, CacheException {
         if (shouldTimeoutImmediately()) {
             timeoutBehaviorResolver.resolveBehavior().flush();
@@ -250,6 +289,9 @@ public class ClusterOfflineBehavior implements NonStopCacheBehavior {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public int getDiskStoreSize() throws IllegalStateException {
         if (shouldTimeoutImmediately()) {
             return timeoutBehaviorResolver.resolveBehavior().getDiskStoreSize();
@@ -258,6 +300,9 @@ public class ClusterOfflineBehavior implements NonStopCacheBehavior {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public Object getInternalContext() {
         if (shouldTimeoutImmediately()) {
             return timeoutBehaviorResolver.resolveBehavior().getInternalContext();
@@ -266,6 +311,9 @@ public class ClusterOfflineBehavior implements NonStopCacheBehavior {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public long getMemoryStoreSize() throws IllegalStateException {
         if (shouldTimeoutImmediately()) {
             return timeoutBehaviorResolver.resolveBehavior().getMemoryStoreSize();
@@ -274,6 +322,9 @@ public class ClusterOfflineBehavior implements NonStopCacheBehavior {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public int getSize() throws IllegalStateException, CacheException {
         if (shouldTimeoutImmediately()) {
             return timeoutBehaviorResolver.resolveBehavior().getSize();
@@ -282,6 +333,9 @@ public class ClusterOfflineBehavior implements NonStopCacheBehavior {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public int getSizeBasedOnAccuracy(int statisticsAccuracy) throws IllegalArgumentException, IllegalStateException, CacheException {
         if (shouldTimeoutImmediately()) {
             return timeoutBehaviorResolver.resolveBehavior().getSizeBasedOnAccuracy(statisticsAccuracy);
@@ -290,6 +344,9 @@ public class ClusterOfflineBehavior implements NonStopCacheBehavior {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public Statistics getStatistics() throws IllegalStateException {
         if (shouldTimeoutImmediately()) {
             return timeoutBehaviorResolver.resolveBehavior().getStatistics();
@@ -298,6 +355,9 @@ public class ClusterOfflineBehavior implements NonStopCacheBehavior {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public boolean isElementInMemory(Object key) {
         if (shouldTimeoutImmediately()) {
             return timeoutBehaviorResolver.resolveBehavior().isElementInMemory(key);
@@ -306,10 +366,16 @@ public class ClusterOfflineBehavior implements NonStopCacheBehavior {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public boolean isElementInMemory(Serializable key) {
         return isElementInMemory((Object) key);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public boolean isElementOnDisk(Object key) {
         if (shouldTimeoutImmediately()) {
             return timeoutBehaviorResolver.resolveBehavior().isElementOnDisk(key);
@@ -318,10 +384,16 @@ public class ClusterOfflineBehavior implements NonStopCacheBehavior {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public boolean isElementOnDisk(Serializable key) {
         return isElementOnDisk((Object) key);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public Element putIfAbsent(Element element) throws NullPointerException {
         if (shouldTimeoutImmediately()) {
             return timeoutBehaviorResolver.resolveBehavior().putIfAbsent(element);
@@ -330,6 +402,9 @@ public class ClusterOfflineBehavior implements NonStopCacheBehavior {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public boolean removeElement(Element element) throws NullPointerException {
         if (shouldTimeoutImmediately()) {
             return timeoutBehaviorResolver.resolveBehavior().removeElement(element);
@@ -338,6 +413,9 @@ public class ClusterOfflineBehavior implements NonStopCacheBehavior {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public boolean removeQuiet(Object key) throws IllegalStateException {
         if (shouldTimeoutImmediately()) {
             return timeoutBehaviorResolver.resolveBehavior().removeQuiet(key);
@@ -346,10 +424,16 @@ public class ClusterOfflineBehavior implements NonStopCacheBehavior {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public boolean removeQuiet(Serializable key) throws IllegalStateException {
         return removeQuiet((Object) key);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public boolean removeWithWriter(Object key) throws IllegalStateException, CacheException {
         if (shouldTimeoutImmediately()) {
             return timeoutBehaviorResolver.resolveBehavior().removeWithWriter(key);
@@ -358,6 +442,9 @@ public class ClusterOfflineBehavior implements NonStopCacheBehavior {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public boolean replace(Element old, Element element) throws NullPointerException, IllegalArgumentException {
         if (shouldTimeoutImmediately()) {
             return timeoutBehaviorResolver.resolveBehavior().replace(old, element);
@@ -366,6 +453,9 @@ public class ClusterOfflineBehavior implements NonStopCacheBehavior {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public Element replace(Element element) throws NullPointerException {
         if (shouldTimeoutImmediately()) {
             return timeoutBehaviorResolver.resolveBehavior().replace(element);

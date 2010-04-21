@@ -56,220 +56,333 @@ public class NoOpOnTimeoutBehavior implements NonStopCacheBehavior {
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritDoc}.
+     * No-op operation and returns null
      */
     public Element get(final Object key) throws IllegalStateException, CacheException {
         return null;
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritDoc}.
+     * No-op operation
      */
     public Element getQuiet(final Object key) throws IllegalStateException, CacheException {
         return null;
     }
 
+    /**
+     * {@inheritDoc}.
+     * No-op operation
+     */
     public Element get(Serializable key) throws IllegalStateException, CacheException {
         return get((Object) key);
     }
 
+    /**
+     * {@inheritDoc}.
+     * No-op operation
+     */
     public Element getQuiet(Serializable key) throws IllegalStateException, CacheException {
         return getQuiet((Object) key);
     }
 
+    /**
+     * {@inheritDoc}.
+     * No-op operation
+     */
     public boolean remove(Serializable key, boolean doNotNotifyCacheReplicators) throws IllegalStateException {
         return remove((Object) key, doNotNotifyCacheReplicators);
     }
 
+    /**
+     * {@inheritDoc}.
+     * No-op operation
+     */
     public boolean remove(Serializable key) throws IllegalStateException {
         return remove((Object) key);
     }
 
+    /**
+     * {@inheritDoc}.
+     * No-op operation
+     */
     public List getKeys() throws IllegalStateException, CacheException {
         return Collections.EMPTY_LIST;
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritDoc}.
+     * No-op operation
      */
     public List getKeysNoDuplicateCheck() throws IllegalStateException {
         return Collections.EMPTY_LIST;
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritDoc}.
+     * No-op operation
      */
     public List getKeysWithExpiryCheck() throws IllegalStateException, CacheException {
         return Collections.EMPTY_LIST;
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritDoc}.
+     * No-op operation
      */
     public boolean isKeyInCache(final Object key) {
         return false;
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritDoc}.
+     * No-op operation
      */
     public boolean isValueInCache(final Object value) {
         return false;
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritDoc}.
+     * No-op operation
      */
-
     public void put(final Element element, final boolean doNotNotifyCacheReplicators) throws IllegalArgumentException,
             IllegalStateException, CacheException {
         // no-op
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritDoc}.
+     * No-op operation
      */
     public void put(final Element element) throws IllegalArgumentException, IllegalStateException, CacheException {
         // no-op
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritDoc}.
+     * No-op operation
      */
     public void putQuiet(final Element element) throws IllegalArgumentException, IllegalStateException, CacheException {
         // no-op
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritDoc}.
+     * No-op operation
      */
     public void putWithWriter(final Element element) throws IllegalArgumentException, IllegalStateException, CacheException {
         // no-op
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritDoc}.
+     * No-op operation
      */
     public boolean remove(final Object key, final boolean doNotNotifyCacheReplicators) throws IllegalStateException {
         return false;
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritDoc}.
+     * No-op operation
      */
     public boolean remove(final Object key) throws IllegalStateException {
         return false;
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritDoc}.
+     * No-op operation
      */
     public void removeAll() throws IllegalStateException, CacheException {
         // no-op
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritDoc}.
+     * No-op operation
      */
     public void removeAll(final boolean doNotNotifyCacheReplicators) throws IllegalStateException, CacheException {
         // no-op
     }
 
+    /**
+     * {@inheritDoc}.
+     * No-op operation
+     */
     public long calculateInMemorySize() throws IllegalStateException, CacheException {
         // no-op
         return 0;
     }
 
+    /**
+     * {@inheritDoc}.
+     * No-op operation
+     */
     public void evictExpiredElements() {
         // no-op
 
     }
 
+    /**
+     * {@inheritDoc}.
+     * No-op operation
+     */
     public void flush() throws IllegalStateException, CacheException {
         // no-op
 
     }
 
+    /**
+     * {@inheritDoc}.
+     * No-op operation
+     */
     public int getDiskStoreSize() throws IllegalStateException {
         // no-op
         return 0;
     }
 
+    /**
+     * {@inheritDoc}.
+     * No-op operation
+     */
     public Object getInternalContext() {
         // no-op
         return null;
     }
 
+    /**
+     * {@inheritDoc}.
+     * No-op operation
+     */
     public long getMemoryStoreSize() throws IllegalStateException {
         // no-op
         return 0;
     }
 
+    /**
+     * {@inheritDoc}.
+     * No-op operation
+     */
     public int getSize() throws IllegalStateException, CacheException {
         // no-op
         return 0;
     }
 
+    /**
+     * {@inheritDoc}.
+     * No-op operation
+     */
     public int getSizeBasedOnAccuracy(int statisticsAccuracy) throws IllegalArgumentException, IllegalStateException, CacheException {
         // no-op
         return 0;
     }
 
+    /**
+     * {@inheritDoc}.
+     * No-op operation
+     */
     public Statistics getStatistics() throws IllegalStateException {
         // no-op
         return null;
     }
 
+    /**
+     * {@inheritDoc}.
+     * No-op operation
+     */
     public boolean isElementInMemory(Object key) {
         // no-op
         return false;
     }
 
+    /**
+     * {@inheritDoc}.
+     * No-op operation
+     */
     public boolean isElementInMemory(Serializable key) {
         // no-op
         return false;
     }
 
+    /**
+     * {@inheritDoc}.
+     * No-op operation
+     */
     public boolean isElementOnDisk(Object key) {
         // no-op
         return false;
     }
 
+    /**
+     * {@inheritDoc}.
+     * No-op operation
+     */
     public boolean isElementOnDisk(Serializable key) {
         // no-op
         return false;
     }
 
+    /**
+     * {@inheritDoc}.
+     * No-op operation
+     */
     public Element putIfAbsent(Element element) throws NullPointerException {
         // no-op
         return null;
     }
 
+    /**
+     * {@inheritDoc}.
+     * No-op operation
+     */
     public boolean removeElement(Element element) throws NullPointerException {
         // no-op
         return false;
     }
 
+    /**
+     * {@inheritDoc}.
+     * No-op operation
+     */
     public boolean removeQuiet(Object key) throws IllegalStateException {
         // no-op
         return false;
     }
 
+    /**
+     * {@inheritDoc}.
+     * No-op operation
+     */
     public boolean removeQuiet(Serializable key) throws IllegalStateException {
         // no-op
         return false;
     }
 
+    /**
+     * {@inheritDoc}.
+     * No-op operation
+     */
     public boolean removeWithWriter(Object key) throws IllegalStateException, CacheException {
         // no-op
         return false;
     }
 
+    /**
+     * {@inheritDoc}.
+     * No-op operation
+     */
     public boolean replace(Element old, Element element) throws NullPointerException, IllegalArgumentException {
         // no-op
         return false;
     }
 
+    /**
+     * {@inheritDoc}.
+     * No-op operation and returns null
+     */
     public Element replace(Element element) throws NullPointerException {
         // no-op
         return null;

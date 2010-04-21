@@ -41,6 +41,37 @@ import net.sf.ehcache.constructs.nonstop.util.OverrideCheck;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * An Ehcache decorator that can be configured and used with timeouts. Mainly useful for decorating Terracotta clustered caches to avoid
+ * blocking on cache operations forever when the cluster goes down. This can also be used with other features like write-behind, synchronous
+ * writes etc to meet certain SLA's.
+ * 
+ * The {@link NonStopCache} can be configured with certain timeouts and desired actions when the timeout happens. Currently supported
+ * behaviors are:
+ * <ul>
+ * <li>noop - gets return null. Mutating operations such as put and removes are ignored.</li>
+ * <li>exception - An unchecked exception, {@link NonStopCacheException}, which is a subtype of CacheException will be thrown.</li>
+ * <li>localRead - currently Terracotta only. Returns data if held locally in memory in response to gets. Mutating operations such as put
+ * and removed are ignored.</li>
+ * 
+ * NOTE: localRead behavior works only with Cache instances which are clustered using Terracotta. One obvious disadvantage is that it cannot
+ * be used to decorate unclustered Cache's. Another not so obvious disadvantage is that localRead cannot be used when decorating other
+ * already decorated Caches like UnlockedReadsView
+ * 
+ * The timeout feature uses a SEDA style approach which utilises an Executor thread pool. By default one {@link NonStopCache} is associated
+ * with one Executor thread pool ({@link NonStopCacheExecutorService}). The default NonStopCacheExecutorService has 10 threads, allowing 10
+ * concurrent cache operations. Different NonStopCache's can use the same Executor thread pool if desired. It can be achieved by using the
+ * NonStopCache constructor {{@link #NonStopCache(Ehcache, String, NonStopCacheConfig, NonStopCacheExecutorService)} that accepts the
+ * NonStopCacheExecutorService. You can specify your own thread pool size for each NonStopCacheExecutorService in its constructor that
+ * accepts threadPoolSize. The thread pool is shut down when the associated NonStopCache (or all of them, if multiple NonStopCache uses the
+ * same NonStopCacheExecutorService) is disposed.
+ * 
+ * The {@link NonStopCache} can also be configured with immediateTimeout=true, which means that if the cluster is already offline, it will
+ * timeout immediately without waiting for the timeoutMillis value
+ * 
+ * @author Abhishek Sanoujam
+ * 
+ */
 public class NonStopCache extends EhcacheDecoratorAdapter implements NonStopCacheConfig, NonStopCacheBehavior, NonStopCacheBehaviorResolver {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(NonStopCache.class);
@@ -59,26 +90,43 @@ public class NonStopCache extends EhcacheDecoratorAdapter implements NonStopCach
     private final CacheCluster cacheCluster;
 
     /**
-     * Constructor that accepts the cache to be decorated. A {@link NonStopCache} will be created with default config
+     * Constructor that accepts the cache to be decorated and the name of this decorated cache. A {@link NonStopCache} will be created with
+     * default config
      * 
      * @param underlyingCache
      *            the cache that needs to be decorated
+     * @param name
+     *            Name for this decorated NonStopCache
      */
     public NonStopCache(final Ehcache underlyingCache, final String name) {
         this(underlyingCache, name, new NonStopCacheConfigImpl());
     }
 
     /**
-     * Constructor that accepts the cache to be decorated and properties map containing config. See {@link NonStopCacheConfig} for which
-     * keys and values to use in the {@link Properties}
+     * Constructor that accepts the cache to be decorated, name and properties map containing config. See {@link NonStopCacheConfig} for
+     * which keys and values to use in the {@link Properties}
      * 
      * @param underlyingCache
+     *            the cache that needs to be decorated
+     * @param name
+     *            name of the decorated NonStopCache
      * @param configProperties
+     *            {@link Properties} containing the NonStopCache config
      */
     public NonStopCache(final Ehcache underlyingCache, final String name, final Properties configProperties) {
         this(underlyingCache, name, new NonStopCacheConfigImpl(configProperties));
     }
 
+    /**
+     * Constructor that accepts the cache to be decorated, name and {@link NonStopCacheConfig}.
+     * 
+     * @param underlyingCache
+     *            the cache that needs to be decorated
+     * @param name
+     *            name of the decorated NonStopCache
+     * @param nonStopCacheConfig
+     *            NonStopCache configuration
+     */
     public NonStopCache(final Ehcache underlyingCache, final String name, final NonStopCacheConfig nonStopCacheConfig) {
         this(underlyingCache, name, nonStopCacheConfig, new NonStopCacheExecutorService(new ThreadFactory() {
 
@@ -90,6 +138,15 @@ public class NonStopCache extends EhcacheDecoratorAdapter implements NonStopCach
         }));
     }
 
+    /**
+     * Constructor that accepts the underlying cache, name, config and a {@link NonStopCacheExecutorService}. This constructor is useful to
+     * make NonStopCache use the same thread pool
+     * 
+     * @param underlyingCache
+     * @param name
+     * @param nonStopCacheConfig
+     * @param nonStopCacheExecutorService
+     */
     public NonStopCache(final Ehcache underlyingCache, final String name, final NonStopCacheConfig nonStopCacheConfig,
             final NonStopCacheExecutorService nonStopCacheExecutorService) {
         super(underlyingCache);
@@ -111,14 +168,29 @@ public class NonStopCache extends EhcacheDecoratorAdapter implements NonStopCach
         this.cacheCluster = cluster;
     }
 
+    /**
+     * returns the {@link NonStopCacheConfig} associated with this {@link NonStopCache}
+     * 
+     * @return the {@link NonStopCacheConfig} associated with this {@link NonStopCache}
+     */
     public NonStopCacheConfig getNonStopCacheConfig() {
         return nonStopCacheConfig;
     }
 
+    /**
+     * Returns the {@link NonStopCacheExecutorService} associated with this {@link NonStopCache}
+     * 
+     * @return the {@link NonStopCacheExecutorService} associated with this {@link NonStopCache}
+     */
     public NonStopCacheExecutorService getNonStopCacheExecutorService() {
         return nonStopCacheExecutorService;
     }
 
+    /**
+     * Method implementing {@link NonStopCacheBehaviorResolver#resolveBehavior()}. This will return the timeoutBehavior configured for this
+     * {@link NonStopCache}. The timeoutBehavior associated with this NonStopCache can be changed directly using
+     * {@link #setTimeoutBehaviorType(NonStopCacheBehaviorType)}.
+     */
     public NonStopCacheBehavior resolveBehavior() {
         NonStopCacheBehavior behavior = timeoutBehaviors.get(nonStopCacheConfig.getTimeoutBehaviorType());
         if (behavior == null) {
@@ -136,11 +208,17 @@ public class NonStopCache extends EhcacheDecoratorAdapter implements NonStopCach
     }
 
     @Override
+    /**
+     * Returns the name for this NonStopCache
+     */
     public String getName() {
         return name;
     }
 
     @Override
+    /**
+     * {@inheritDoc}
+     */
     public Element get(final Object key) throws IllegalStateException, CacheException {
         if (isClusterOffline()) {
             return clusterOfflineBehavior.get(key);
@@ -149,11 +227,17 @@ public class NonStopCache extends EhcacheDecoratorAdapter implements NonStopCach
     }
 
     @Override
+    /**
+     * {@inheritDoc}
+     */
     public Element get(final Serializable key) throws IllegalStateException, CacheException {
         return get((Object) key);
     }
 
     @Override
+    /**
+     * {@inheritDoc}
+     */
     public Element getQuiet(final Object key) throws IllegalStateException, CacheException {
         if (isClusterOffline()) {
             return clusterOfflineBehavior.getQuiet(key);
@@ -162,11 +246,17 @@ public class NonStopCache extends EhcacheDecoratorAdapter implements NonStopCach
     }
 
     @Override
+    /**
+     * {@inheritDoc}
+     */
     public Element getQuiet(final Serializable key) throws IllegalStateException, CacheException {
         return getQuiet((Object) key);
     }
 
     @Override
+    /**
+     * {@inheritDoc}
+     */
     public List getKeys() throws IllegalStateException, CacheException {
         if (isClusterOffline()) {
             return clusterOfflineBehavior.getKeys();
@@ -175,6 +265,9 @@ public class NonStopCache extends EhcacheDecoratorAdapter implements NonStopCach
     }
 
     @Override
+    /**
+     * {@inheritDoc}
+     */
     public List getKeysNoDuplicateCheck() throws IllegalStateException {
         if (isClusterOffline()) {
             return clusterOfflineBehavior.getKeysNoDuplicateCheck();
@@ -183,6 +276,9 @@ public class NonStopCache extends EhcacheDecoratorAdapter implements NonStopCach
     }
 
     @Override
+    /**
+     * {@inheritDoc}
+     */
     public List getKeysWithExpiryCheck() throws IllegalStateException, CacheException {
         if (isClusterOffline()) {
             return clusterOfflineBehavior.getKeysWithExpiryCheck();
@@ -191,6 +287,9 @@ public class NonStopCache extends EhcacheDecoratorAdapter implements NonStopCach
     }
 
     @Override
+    /**
+     * {@inheritDoc}
+     */
     public void put(final Element element, final boolean doNotNotifyCacheReplicators) throws IllegalArgumentException,
             IllegalStateException, CacheException {
         if (isClusterOffline()) {
@@ -201,6 +300,9 @@ public class NonStopCache extends EhcacheDecoratorAdapter implements NonStopCach
     }
 
     @Override
+    /**
+     * {@inheritDoc}
+     */
     public void put(final Element element) throws IllegalArgumentException, IllegalStateException, CacheException {
         if (isClusterOffline()) {
             clusterOfflineBehavior.put(element);
@@ -210,6 +312,9 @@ public class NonStopCache extends EhcacheDecoratorAdapter implements NonStopCach
     }
 
     @Override
+    /**
+     * {@inheritDoc}
+     */
     public void putQuiet(final Element element) throws IllegalArgumentException, IllegalStateException, CacheException {
         if (isClusterOffline()) {
             clusterOfflineBehavior.putQuiet(element);
@@ -219,6 +324,9 @@ public class NonStopCache extends EhcacheDecoratorAdapter implements NonStopCach
     }
 
     @Override
+    /**
+     * {@inheritDoc}
+     */
     public void putWithWriter(final Element element) throws IllegalArgumentException, IllegalStateException, CacheException {
         if (isClusterOffline()) {
             clusterOfflineBehavior.putWithWriter(element);
@@ -228,6 +336,9 @@ public class NonStopCache extends EhcacheDecoratorAdapter implements NonStopCach
     }
 
     @Override
+    /**
+     * {@inheritDoc}
+     */
     public boolean remove(final Object key, final boolean doNotNotifyCacheReplicators) throws IllegalStateException {
         if (isClusterOffline()) {
             return clusterOfflineBehavior.remove(key, doNotNotifyCacheReplicators);
@@ -236,6 +347,9 @@ public class NonStopCache extends EhcacheDecoratorAdapter implements NonStopCach
     }
 
     @Override
+    /**
+     * {@inheritDoc}
+     */
     public boolean remove(final Object key) throws IllegalStateException {
         if (isClusterOffline()) {
             return clusterOfflineBehavior.remove(key);
@@ -244,16 +358,25 @@ public class NonStopCache extends EhcacheDecoratorAdapter implements NonStopCach
     }
 
     @Override
+    /**
+     * {@inheritDoc}
+     */
     public boolean remove(final Serializable key, final boolean doNotNotifyCacheReplicators) throws IllegalStateException {
         return this.remove((Object) key, doNotNotifyCacheReplicators);
     }
 
     @Override
+    /**
+     * {@inheritDoc}
+     */
     public boolean remove(final Serializable key) throws IllegalStateException {
         return this.remove((Object) key);
     }
 
     @Override
+    /**
+     * {@inheritDoc}
+     */
     public void removeAll() throws IllegalStateException, CacheException {
         if (isClusterOffline()) {
             clusterOfflineBehavior.removeAll();
@@ -263,6 +386,9 @@ public class NonStopCache extends EhcacheDecoratorAdapter implements NonStopCach
     }
 
     @Override
+    /**
+     * {@inheritDoc}
+     */
     public void removeAll(final boolean doNotNotifyCacheReplicators) throws IllegalStateException, CacheException {
         if (isClusterOffline()) {
             clusterOfflineBehavior.removeAll(doNotNotifyCacheReplicators);
@@ -272,6 +398,9 @@ public class NonStopCache extends EhcacheDecoratorAdapter implements NonStopCach
     }
 
     @Override
+    /**
+     * {@inheritDoc}
+     */
     public boolean isKeyInCache(final Object key) {
         if (isClusterOffline()) {
             return clusterOfflineBehavior.isKeyInCache(key);
@@ -280,6 +409,9 @@ public class NonStopCache extends EhcacheDecoratorAdapter implements NonStopCach
     }
 
     @Override
+    /**
+     * {@inheritDoc}
+     */
     public boolean isValueInCache(final Object value) {
         if (isClusterOffline()) {
             return clusterOfflineBehavior.isValueInCache(value);
@@ -288,6 +420,9 @@ public class NonStopCache extends EhcacheDecoratorAdapter implements NonStopCach
     }
 
     @Override
+    /**
+     * {@inheritDoc}
+     */
     public long calculateInMemorySize() throws IllegalStateException, CacheException {
         if (isClusterOffline()) {
             return clusterOfflineBehavior.calculateInMemorySize();
@@ -296,6 +431,9 @@ public class NonStopCache extends EhcacheDecoratorAdapter implements NonStopCach
     }
 
     @Override
+    /**
+     * {@inheritDoc}
+     */
     public void evictExpiredElements() {
         if (isClusterOffline()) {
             clusterOfflineBehavior.evictExpiredElements();
@@ -304,6 +442,9 @@ public class NonStopCache extends EhcacheDecoratorAdapter implements NonStopCach
     }
 
     @Override
+    /**
+     * {@inheritDoc}
+     */
     public void flush() throws IllegalStateException, CacheException {
         if (isClusterOffline()) {
             clusterOfflineBehavior.flush();
@@ -312,6 +453,9 @@ public class NonStopCache extends EhcacheDecoratorAdapter implements NonStopCach
     }
 
     @Override
+    /**
+     * {@inheritDoc}
+     */
     public int getDiskStoreSize() throws IllegalStateException {
         if (isClusterOffline()) {
             return clusterOfflineBehavior.getDiskStoreSize();
@@ -320,6 +464,9 @@ public class NonStopCache extends EhcacheDecoratorAdapter implements NonStopCach
     }
 
     @Override
+    /**
+     * {@inheritDoc}
+     */
     public Object getInternalContext() {
         if (isClusterOffline()) {
             return clusterOfflineBehavior.getInternalContext();
@@ -329,6 +476,9 @@ public class NonStopCache extends EhcacheDecoratorAdapter implements NonStopCach
     }
 
     @Override
+    /**
+     * {@inheritDoc}
+     */
     public long getMemoryStoreSize() throws IllegalStateException {
         if (isClusterOffline()) {
             return clusterOfflineBehavior.getMemoryStoreSize();
@@ -337,6 +487,9 @@ public class NonStopCache extends EhcacheDecoratorAdapter implements NonStopCach
     }
 
     @Override
+    /**
+     * {@inheritDoc}
+     */
     public int getSize() throws IllegalStateException, CacheException {
         if (isClusterOffline()) {
             return clusterOfflineBehavior.getSize();
@@ -345,6 +498,9 @@ public class NonStopCache extends EhcacheDecoratorAdapter implements NonStopCach
     }
 
     @Override
+    /**
+     * {@inheritDoc}
+     */
     public int getSizeBasedOnAccuracy(int statisticsAccuracy) throws IllegalArgumentException, IllegalStateException, CacheException {
         if (isClusterOffline()) {
             return clusterOfflineBehavior.getSizeBasedOnAccuracy(statisticsAccuracy);
@@ -353,6 +509,9 @@ public class NonStopCache extends EhcacheDecoratorAdapter implements NonStopCach
     }
 
     @Override
+    /**
+     * {@inheritDoc}
+     */
     public Statistics getStatistics() throws IllegalStateException {
         if (isClusterOffline()) {
             return clusterOfflineBehavior.getStatistics();
@@ -361,6 +520,9 @@ public class NonStopCache extends EhcacheDecoratorAdapter implements NonStopCach
     }
 
     @Override
+    /**
+     * {@inheritDoc}
+     */
     public boolean isElementInMemory(Object key) {
         if (isClusterOffline()) {
             return clusterOfflineBehavior.isElementInMemory(key);
@@ -369,11 +531,17 @@ public class NonStopCache extends EhcacheDecoratorAdapter implements NonStopCach
     }
 
     @Override
+    /**
+     * {@inheritDoc}
+     */
     public boolean isElementInMemory(Serializable key) {
         return isElementInMemory((Object) key);
     }
 
     @Override
+    /**
+     * {@inheritDoc}
+     */
     public boolean isElementOnDisk(Object key) {
         if (isClusterOffline()) {
             return clusterOfflineBehavior.isElementOnDisk(key);
@@ -382,11 +550,17 @@ public class NonStopCache extends EhcacheDecoratorAdapter implements NonStopCach
     }
 
     @Override
+    /**
+     * {@inheritDoc}
+     */
     public boolean isElementOnDisk(Serializable key) {
         return isElementOnDisk((Object) key);
     }
 
     @Override
+    /**
+     * {@inheritDoc}
+     */
     public Element putIfAbsent(Element element) throws NullPointerException {
         if (isClusterOffline()) {
             return clusterOfflineBehavior.putIfAbsent(element);
@@ -395,6 +569,9 @@ public class NonStopCache extends EhcacheDecoratorAdapter implements NonStopCach
     }
 
     @Override
+    /**
+     * {@inheritDoc}
+     */
     public boolean removeElement(Element element) throws NullPointerException {
         if (isClusterOffline()) {
             return clusterOfflineBehavior.removeElement(element);
@@ -403,6 +580,9 @@ public class NonStopCache extends EhcacheDecoratorAdapter implements NonStopCach
     }
 
     @Override
+    /**
+     * {@inheritDoc}
+     */
     public boolean removeQuiet(Object key) throws IllegalStateException {
         if (isClusterOffline()) {
             return clusterOfflineBehavior.removeQuiet(key);
@@ -411,11 +591,17 @@ public class NonStopCache extends EhcacheDecoratorAdapter implements NonStopCach
     }
 
     @Override
+    /**
+     * {@inheritDoc}
+     */
     public boolean removeQuiet(Serializable key) throws IllegalStateException {
         return removeQuiet((Object) key);
     }
 
     @Override
+    /**
+     * {@inheritDoc}
+     */
     public boolean removeWithWriter(Object key) throws IllegalStateException, CacheException {
         if (isClusterOffline()) {
             return clusterOfflineBehavior.removeWithWriter(key);
@@ -424,6 +610,9 @@ public class NonStopCache extends EhcacheDecoratorAdapter implements NonStopCach
     }
 
     @Override
+    /**
+     * {@inheritDoc}
+     */
     public boolean replace(Element old, Element element) throws NullPointerException, IllegalArgumentException {
         if (isClusterOffline()) {
             return clusterOfflineBehavior.replace(old, element);
@@ -432,6 +621,9 @@ public class NonStopCache extends EhcacheDecoratorAdapter implements NonStopCach
     }
 
     @Override
+    /**
+     * {@inheritDoc}
+     */
     public Element replace(Element element) throws NullPointerException {
         if (isClusterOffline()) {
             return clusterOfflineBehavior.replace(element);
@@ -439,26 +631,44 @@ public class NonStopCache extends EhcacheDecoratorAdapter implements NonStopCach
         return executeWithExecutorBehavior.replace(element);
     }
 
+    /**
+     * Returns the configured timeout value in millis. This can be changed dynamically
+     */
     public long getTimeoutMillis() {
         return this.nonStopCacheConfig.getTimeoutMillis();
     }
 
+    /**
+     * Set the timeout value in millis
+     */
     public void setTimeoutMillis(final long timeoutMillis) {
         this.nonStopCacheConfig.setTimeoutMillis(timeoutMillis);
     }
 
+    /**
+     * Returns whether this {@link NonStopCache} is configured or not
+     */
     public boolean isImmediateTimeout() {
         return nonStopCacheConfig.isImmediateTimeout();
     }
 
+    /**
+     * Set the immediateTimeout property for this {@link NonStopCache}
+     */
     public void setImmediateTimeout(final boolean immediateTimeout) {
         this.nonStopCacheConfig.setImmediateTimeout(immediateTimeout);
     }
 
+    /**
+     * Returns the configured timeout behavior type
+     */
     public NonStopCacheBehaviorType getTimeoutBehaviorType() {
         return this.nonStopCacheConfig.getTimeoutBehaviorType();
     }
 
+    /**
+     * Set the timeout behavior type
+     */
     public void setTimeoutBehaviorType(final NonStopCacheBehaviorType timeoutBehaviorType) {
         this.nonStopCacheConfig.setTimeoutBehaviorType(timeoutBehaviorType);
     }

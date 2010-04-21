@@ -11,8 +11,20 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+/**
+ * A utility class to check whether one class overrides all methods of its superclass or an interface that it implements
+ * 
+ * @author Abhishek Sanoujam
+ * 
+ */
 public class OverrideCheck {
 
+    /**
+     * Method to check a subclass overrides all methods in its superclass or the interface it implements
+     * 
+     * @param parent
+     * @param subClass
+     */
     public static void check(Class parent, Class subClass) {
         boolean excludeSuper = parent.isAssignableFrom(subClass);
 

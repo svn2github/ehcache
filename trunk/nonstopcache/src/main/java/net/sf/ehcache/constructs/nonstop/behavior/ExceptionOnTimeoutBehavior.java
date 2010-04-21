@@ -26,12 +26,12 @@ import net.sf.ehcache.constructs.nonstop.NonStopCacheBehavior;
 import net.sf.ehcache.constructs.nonstop.NonStopCacheException;
 
 /**
- * Implementation of {@link NonStopCacheBehavior} which throws {@link NonStopCacheException} for all operations.
+ * Implementation of {@link NonStopCacheBehavior} that throws {@link NonStopCacheException} for all operations.
  * 
  * @author Abhishek Sanoujam
  * 
  */
-public class ExceptionOnTimeoutBehavior implements NonStopCacheBehavior {
+public final class ExceptionOnTimeoutBehavior implements NonStopCacheBehavior {
 
     /**
      * the singleton instance
@@ -39,9 +39,8 @@ public class ExceptionOnTimeoutBehavior implements NonStopCacheBehavior {
     private static final ExceptionOnTimeoutBehavior INSTANCE = new ExceptionOnTimeoutBehavior();
 
     /**
-     * throw news the singleton instance
+     * returns the singleton instance
      * 
-     * @throw new the singleton instance
      */
     public static ExceptionOnTimeoutBehavior getInstance() {
         return INSTANCE;
@@ -55,7 +54,9 @@ public class ExceptionOnTimeoutBehavior implements NonStopCacheBehavior {
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritDoc}.
+     * <p>
+     * Throws {@link NonStopCacheException}
      */
     public Element get(final Object key) throws IllegalStateException, CacheException {
         throw new NonStopCacheException("get for key - '" + key + "'  timed out");
@@ -68,59 +69,91 @@ public class ExceptionOnTimeoutBehavior implements NonStopCacheBehavior {
         throw new NonStopCacheException("getQuite for key - '" + key + "'  timed out");
     }
 
+    /**
+     * {@inheritDoc}.
+     * <p>
+     * Throws {@link NonStopCacheException}
+     */
     public Element get(Serializable key) throws IllegalStateException, CacheException {
         return get((Object) key);
     }
 
+    /**
+     * {@inheritDoc}.
+     * <p>
+     * Throws {@link NonStopCacheException}
+     */
     public Element getQuiet(Serializable key) throws IllegalStateException, CacheException {
         return getQuiet((Object) key);
     }
 
+    /**
+     * {@inheritDoc}.
+     * <p>
+     * Throws {@link NonStopCacheException}
+     */
     public boolean remove(Serializable key, boolean doNotNotifyCacheReplicators) throws IllegalStateException {
         return remove((Object) key, doNotNotifyCacheReplicators);
     }
 
+    /**
+     * {@inheritDoc}.
+     * <p>
+     * Throws {@link NonStopCacheException}
+     */
     public boolean remove(Serializable key) throws IllegalStateException {
         return remove((Object) key);
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritDoc}.
+     * <p>
+     * Throws {@link NonStopCacheException}
      */
     public List getKeys() throws IllegalStateException, CacheException {
         throw new NonStopCacheException("getKeys timed out");
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritDoc}.
+     * <p>
+     * Throws {@link NonStopCacheException}
      */
     public List getKeysNoDuplicateCheck() throws IllegalStateException {
         throw new NonStopCacheException("getKeysNoDuplicateCheck timed out");
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritDoc}.
+     * <p>
+     * Throws {@link NonStopCacheException}
      */
     public List getKeysWithExpiryCheck() throws IllegalStateException, CacheException {
         throw new NonStopCacheException("getKeysWithExpiryCheck timed out");
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritDoc}.
+     * <p>
+     * Throws {@link NonStopCacheException}
      */
     public boolean isKeyInCache(final Object key) {
         throw new NonStopCacheException("isKeyInCache timed out");
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritDoc}.
+     * <p>
+     * Throws {@link NonStopCacheException}
      */
     public boolean isValueInCache(final Object value) {
         throw new NonStopCacheException("isValueInCache timed out");
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritDoc}.
+     * <p>
+     * Throws {@link NonStopCacheException}
      */
     public void put(final Element element, final boolean doNotNotifyCacheReplicators) throws IllegalArgumentException,
             IllegalStateException, CacheException {
@@ -129,14 +162,18 @@ public class ExceptionOnTimeoutBehavior implements NonStopCacheBehavior {
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritDoc}.
+     * <p>
+     * Throws {@link NonStopCacheException}
      */
     public void put(final Element element) throws IllegalArgumentException, IllegalStateException, CacheException {
         throw new NonStopCacheException("put for element - '" + element + "' timed out");
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritDoc}.
+     * <p>
+     * Throws {@link NonStopCacheException}
      */
     public void putQuiet(final Element element) throws IllegalArgumentException, IllegalStateException, CacheException {
         throw new NonStopCacheException("putQuiet for element - '" + element + "' timed out");
@@ -144,14 +181,18 @@ public class ExceptionOnTimeoutBehavior implements NonStopCacheBehavior {
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritDoc}.
+     * <p>
+     * Throws {@link NonStopCacheException}
      */
     public void putWithWriter(final Element element) throws IllegalArgumentException, IllegalStateException, CacheException {
         throw new NonStopCacheException("putWithWriter for element - '" + element + "' timed out");
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritDoc}.
+     * <p>
+     * Throws {@link NonStopCacheException}
      */
     public boolean remove(final Object key, final boolean doNotNotifyCacheReplicators) throws IllegalStateException {
         throw new NonStopCacheException("remove for key - '" + key + "', doNotNotifyCacheReplicators - '" + doNotNotifyCacheReplicators
@@ -159,102 +200,208 @@ public class ExceptionOnTimeoutBehavior implements NonStopCacheBehavior {
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritDoc}.
+     * <p>
+     * Throws {@link NonStopCacheException}
      */
     public boolean remove(final Object key) throws IllegalStateException {
         throw new NonStopCacheException("remove for key - '" + key + "' timed out");
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritDoc}.
+     * <p>
+     * Throws {@link NonStopCacheException}
      */
     public void removeAll() throws IllegalStateException, CacheException {
         throw new NonStopCacheException("removeAll timed out");
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritDoc}.
+     * <p>
+     * Throws {@link NonStopCacheException}
      */
     public void removeAll(final boolean doNotNotifyCacheReplicators) throws IllegalStateException, CacheException {
         throw new NonStopCacheException("removeAll with doNotNotifyCacheReplicators - '" + doNotNotifyCacheReplicators + "' timed out");
     }
 
+    /**
+     * {@inheritDoc}.
+     * <p>
+     * Throws {@link NonStopCacheException}
+     */
     public long calculateInMemorySize() throws IllegalStateException, CacheException {
         throw new NonStopCacheException("calculateInMemorySize timed out");
     }
 
+    /**
+     * {@inheritDoc}.
+     * <p>
+     * Throws {@link NonStopCacheException}
+     */
     public void evictExpiredElements() {
         throw new NonStopCacheException("evictExpiredElements timed out");
     }
 
+    /**
+     * {@inheritDoc}.
+     * <p>
+     * Throws {@link NonStopCacheException}
+     */
     public void flush() throws IllegalStateException, CacheException {
         throw new NonStopCacheException("flush timed out");
     }
 
+    /**
+     * {@inheritDoc}.
+     * <p>
+     * Throws {@link NonStopCacheException}
+     */
     public int getDiskStoreSize() throws IllegalStateException {
         throw new NonStopCacheException("getDiskStoreSize timed out");
     }
 
+    /**
+     * {@inheritDoc}.
+     * <p>
+     * Throws {@link NonStopCacheException}
+     */
     public Object getInternalContext() {
         throw new NonStopCacheException("getInternalContext timed out");
     }
 
+    /**
+     * {@inheritDoc}.
+     * <p>
+     * Throws {@link NonStopCacheException}
+     */
     public long getMemoryStoreSize() throws IllegalStateException {
         throw new NonStopCacheException("getMemoryStoreSize timed out");
     }
 
+    /**
+     * {@inheritDoc}.
+     * <p>
+     * Throws {@link NonStopCacheException}
+     */
     public int getSize() throws IllegalStateException, CacheException {
         throw new NonStopCacheException("getSize timed out");
     }
 
+    /**
+     * {@inheritDoc}.
+     * <p>
+     * Throws {@link NonStopCacheException}
+     */
     public int getSizeBasedOnAccuracy(int statisticsAccuracy) throws IllegalArgumentException, IllegalStateException, CacheException {
         throw new NonStopCacheException("getSizeBasedOnAccuracy statisticsAccuracytimed out");
     }
 
+    /**
+     * {@inheritDoc}.
+     * <p>
+     * Throws {@link NonStopCacheException}
+     */
     public Statistics getStatistics() throws IllegalStateException {
         throw new NonStopCacheException("getStatistics timed out");
     }
 
+    /**
+     * {@inheritDoc}.
+     * <p>
+     * Throws {@link NonStopCacheException}
+     */
     public boolean isElementInMemory(Object key) {
         throw new NonStopCacheException("isElementInMemory timed out");
     }
 
+    /**
+     * {@inheritDoc}.
+     * <p>
+     * Throws {@link NonStopCacheException}
+     */
     public boolean isElementInMemory(Serializable key) {
         return isElementInMemory((Object) key);
     }
 
+    /**
+     * {@inheritDoc}.
+     * <p>
+     * Throws {@link NonStopCacheException}
+     */
     public boolean isElementOnDisk(Object key) {
         throw new NonStopCacheException("isElementOnDisk timed out");
     }
 
+    /**
+     * {@inheritDoc}.
+     * <p>
+     * Throws {@link NonStopCacheException}
+     */
     public boolean isElementOnDisk(Serializable key) {
         return isElementOnDisk((Object) key);
     }
 
+    /**
+     * {@inheritDoc}.
+     * <p>
+     * Throws {@link NonStopCacheException}
+     */
     public Element putIfAbsent(Element element) throws NullPointerException {
         throw new NonStopCacheException("putIfAbsent timed out");
     }
 
+    /**
+     * {@inheritDoc}.
+     * <p>
+     * Throws {@link NonStopCacheException}
+     */
     public boolean removeElement(Element element) throws NullPointerException {
         throw new NonStopCacheException("removeElement timed out");
     }
 
+    /**
+     * {@inheritDoc}.
+     * <p>
+     * Throws {@link NonStopCacheException}
+     */
     public boolean removeQuiet(Object key) throws IllegalStateException {
         throw new NonStopCacheException("removeQuiet timed out");
     }
 
+    /**
+     * {@inheritDoc}.
+     * <p>
+     * Throws {@link NonStopCacheException}
+     */
     public boolean removeQuiet(Serializable key) throws IllegalStateException {
         return removeQuiet((Object) key);
     }
 
+    /**
+     * {@inheritDoc}.
+     * <p>
+     * Throws {@link NonStopCacheException}
+     */
     public boolean removeWithWriter(Object key) throws IllegalStateException, CacheException {
         throw new NonStopCacheException("removeWithWriter timed out");
     }
 
+    /**
+     * {@inheritDoc}.
+     * <p>
+     * Throws {@link NonStopCacheException}
+     */
     public boolean replace(Element old, Element element) throws NullPointerException, IllegalArgumentException {
         throw new NonStopCacheException("replace timed out");
     }
 
+    /**
+     * {@inheritDoc}.
+     * <p>
+     * Throws {@link NonStopCacheException}
+     */
     public Element replace(Element element) throws NullPointerException {
         throw new NonStopCacheException("replace timed out");
     }

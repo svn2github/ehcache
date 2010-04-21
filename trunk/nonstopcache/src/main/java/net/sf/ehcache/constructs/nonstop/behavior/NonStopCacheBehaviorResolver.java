@@ -18,8 +18,19 @@ package net.sf.ehcache.constructs.nonstop.behavior;
 
 import net.sf.ehcache.constructs.nonstop.NonStopCacheBehavior;
 
+/**
+ * Interface for resolving a {@link NonStopCacheBehavior}
+ * 
+ * @author Abhishek Sanoujam
+ * 
+ */
 public interface NonStopCacheBehaviorResolver {
 
+    /**
+     * Resolve the {@link NonStopCacheBehavior} to be used
+     * 
+     * @return the resolved {@link NonStopCacheBehavior}
+     */
     NonStopCacheBehavior resolveBehavior();
 
 }

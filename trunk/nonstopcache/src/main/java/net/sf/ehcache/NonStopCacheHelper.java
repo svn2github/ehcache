@@ -18,14 +18,30 @@ package net.sf.ehcache;
 
 import net.sf.ehcache.store.Store;
 
+/**
+ * A helper class to get the internal Store from a Cache
+ * 
+ * @author Abhishek Sanoujam
+ * 
+ */
 public class NonStopCacheHelper {
 
     private final Cache cache;
 
+    /**
+     * Constructor accepting the cache
+     * 
+     * @param cache
+     */
     public NonStopCacheHelper(final Cache cache) {
         this.cache = cache;
     }
 
+    /**
+     * Returns the internal {@link Store} of the cache
+     * 
+     * @return the internal {@link Store} of the cache
+     */
     public Store getStore() {
         return cache.getStore();
     }
