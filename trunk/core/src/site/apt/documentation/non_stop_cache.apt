@@ -28,13 +28,24 @@
     Cache cache = cacheManager.getCache("existingUndecoratedCache");
     NonStopCache nonStopCache = new NonStopCache(cache, newName);
     cacheManager.addCache(nonStopCache);  //adds an Ehcache
+--- 
+
+     Creating a NonStopCache does not put itself to the CacheManager. It is optional and up to the app to put the decorated
+     NonStopCache back in the CacheManager. Putting the NonStopCache back in the CacheManger makes it available to other 
+     areas of the app where the CacheManager is accessible. If added to the CacheManager, it can be accessed like following:
+     
+---
+    Ehcache nonStopCache = cacheManager.getEhcache(newName);
 ---
 
 **  In ehcache.xml
 
+    Configuring using ehcache.xml is not supported yet. Though there are plans to support a "cacheDecoratorFactory" element inside
+    the "cache" element in ehcache.xml. You can specify a factory to create decorated caches and <<<NonStopCacheFactory>>> will 
+    be available from the nonstopcache module.
+    Something like following will be coming up soon...
+    
 ---
-
-    NOTE: cacheDecoratorFactory needs to be written!
 
     <cache name="sample/DistributedCache3"
            maxElementsInMemory="10"
@@ -66,25 +77,30 @@
 
 ***   Setting Timeouts
 
-    Set the <<<timeoutMillis>>> property. It applies to all cache operations (put, get, remove ...). After the time elapses the operation is aborted.
-    It is as if the call never happened.
-
-    The exceptionOnTimeout property can be set to true or false. On true a . If false, no exception is thrown. get will return null.
+    Set the <<<timeoutMillis>>> property. It applies to all cache operations (put, get, remove ...). After the time elapses the operation is aborted. For mutate
+    operations (put, remove etc), it cannot be guaranteed whether the operation succeeded or not when the timeout happened.
 
     What happens on timeout depends on the value of <<<timeoutBehaviour>>>, which can take the following values:
 
-    noop        - gets return null. Mutating operations such as put and removed are ignored.
+    <<<noop>>>        - gets return null. Mutating operations such as put and removed are ignored.
 
-    exception   - An unchecked exception, <<<TimeoutException>>>, which is a subtype of <<<CacheException>>> will be thrown.
+    <<<exception>>>   - An unchecked exception, <<<TimeoutException>>>, which is a subtype of <<<CacheException>>> will be thrown.
 
-    localRead   - currently Terracotta only. Returns data if held locally in memory in response to gets. Mutating operations such as put and removed are ignored.
+    <<<localRead>>>   - currently Terracotta only. Returns data if held locally in memory in response to gets. Mutating operations such as put and removed are ignored.
+    
+    NOTE: <<<localRead>>> behavior works only with <<<Cache>>> instances which are clustered using Terracotta. One obvious disadvantage is that it cannot be used to 
+    decorate unclustered Cache's. Another not so obvious disadvantage is that <<<localRead>>> cannot be used when decorating other already decorated Caches 
+    like <<<UnlockedReadsView>>>
 
 ***  ThreadPool Management
 
-    The timeout feature uses a SEDA style approach which utilises an Executor thread pool. By default there are 10 threads, allowing
-    10 concurrent cache operations.
+    The timeout feature uses a SEDA style approach which utilises an Executor thread pool. By default one NonStopCache is associated with one Executor thread pool
+    (NonStopCacheExecutorService). The default NonStopCacheExecutorService has 10 threads, allowing 10 concurrent cache operations.
 
-    Specify your own value using the <<<threadPoolSize>>> setting.
+    Different NonStopCache's can use the same Executor thread pool if desired. It can be achieved by using the NonStopCache constructor that accepts the
+    NonStopCacheExecutorService. You can specify your own thread pool size for each NonStopCacheExecutorService using the constructor that accepts <<<threadPoolSize>>>.
+    
+    The thread pool is shut down when the associated NonStopCache (or all of them, if multiple NonStopCache uses the same NonStopCacheExecutorService) is disposed.
 
 **  Action on ClusterOffline Configuration
 
