@@ -40,7 +40,7 @@ public class UnlockedReadsViewHelper {
     /**
      * Returns the internal {@link Store} of the underlying cache
      * 
-     * @return
+     * @return the internal {@link Store} of the underlying cache
      */
     public Store getStore() {
         return cache.getStore();
