@@ -90,7 +90,7 @@
      cache. Memory sizing of an application must always take into
      account the maximum size of each cache. There is a convenience method
      which can provide an estimate of the size in bytes of the <<<MemoryStore>>>.
-     See {{{http://ehcache.org/javadoc/net/sf/ehcache/Cache.html#calculateInMemorySize%28%29}calculateInMemorySize()}}.
+     See {{{http://ehcache.org/apidocs/net/sf/ehcache/Cache.html#calculateInMemorySize%28%29}calculateInMemorySize()}}.
      It returns the serialized size of the cache. Do not use this method in
      production. It is very slow. It is only meant to provide a rough
      estimate.
@@ -213,7 +213,7 @@
      In all cases the index file is only written when dispose is called on the <<<DiskStore>>>.
      This happens when the CacheManager is shut down, a Cache is disposed,
      or the VM is being shut down. It is recommended that the
-     CacheManager {{{http://ehcache.org/javadoc/net/sf/ehcache/CacheManager.html#shutdown%28%29}shutdown()}}
+     CacheManager {{{http://ehcache.org/apidocs/net/sf/ehcache/CacheManager.html#shutdown%28%29}shutdown()}}
      method be used. See Virtual Machine Shutdown Considerations for guidance on how to safely shut the Virtual
      Machine down.
 

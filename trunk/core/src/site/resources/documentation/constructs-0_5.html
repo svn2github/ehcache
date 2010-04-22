@@ -327,9 +327,9 @@ minutes old.&nbsp; The page is hit very heavily and will be hit an
 average of 20 times per minute each 5 minutes.<br>
 <h3><a name="mozTocId22662" class="mozTocH4"></a>Solution</h3>
 You could use Cache directly here and do a <a
- href="http://ehcache.sourceforge.net/javadoc/net/sf/ehcache/Cache.html#put%28net.sf.ehcache.Element%29">Cache.put(Element
+ href="http://ehcache.sourceforge.net/apidocs/net/sf/ehcache/Cache.html#put%28net.sf.ehcache.Element%29">Cache.put(Element
 element)</a> to put it in after rendering and then a <a
- href="http://ehcache.sourceforge.net/javadoc/net/sf/ehcache/Cache.html#get%28java.io.Serializable%29">Cache.get(Serializable
+ href="http://ehcache.sourceforge.net/apidocs/net/sf/ehcache/Cache.html#get%28java.io.Serializable%29">Cache.get(Serializable
 key)</a> to get the cached versions out. This will work quite well.
 However once every five minutes the page will expire and it will need
 to be re-rendered. In the 30 seconds required to do so, 9 more requests

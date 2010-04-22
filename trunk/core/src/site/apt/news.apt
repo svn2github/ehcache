@@ -7,6 +7,21 @@
 
 News
 
+* 22 April 2010: Ehcache 2.1.0-beta, and new ehcache-nonstopcache and ehcache-unclockedreadsview betas released
+
+  Ehcache 2.1.0 will rounds out Ehcache 2.0. JTA support has been added for standalone ehcache. JTA for Hibernate has been added
+   which now means Ehcache supports <all> Hibernate strategies. ehcache-nonstopcache adds a new API with support for timeouts
+    on Cache Operations and configurable actions on disconnection from a cluster. ehcache-unlockedreadsview adds support for
+    a coherent cache to expose an unlocked view at the same time, for rapid response.
+
+  The maturity and depth of the integration between Ehcache and Terracotta server is now such that, for distributed caching, the
+  two best way to use each technology is with each other. With that in mind Terracotta server is now distributed in the Ehcache
+  download. Servers at dev time need to fit into the development process. Terracotta has a tc-maven-plugin that works as well and
+  simply as the famed Jetty plugin. Instructions on its use are included in the download.
+
+  Finally, the Architecture page has been updated with rich flash animations showing how Ehcache and Terracotta work together
+   and illustrating the major APIs. Feedback on this material to gluck AT terracottatech.com is appreciated.
+
 * 10 April 2010: Ehcache 2.0.1 and Ehcache Web 2.0.1 released
 
   New bug fix versions of ehcache and ehcache-web are available.

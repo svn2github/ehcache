@@ -62,7 +62,7 @@ Documentation - Table of Contents
 
     * {{{./jta.html}JTA}} new_in_2
 
-    * {{{./monitor.html}Ehcache Monitor}} _new_
+    * {{{./monitor.html}Ehcache Monitor}} 
 
     * {{{./bulk_loading.html}Bulk Loading}} new_in_2
 

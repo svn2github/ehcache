@@ -52,7 +52,7 @@
                 <item name="ehcache 1.2.3" href="/documentation/EhcacheUserGuide-1.2.3.pdf"/>
                 <item name="ehcache 1.1" href="/documentation/documentation-1_1.html"/>
             </item>
-            <item name="JavaDoc" href="apidocs/index.html"/>
+            <item name="JavaDoc" href="javadoc/index.html"/>
             <item name="FAQ" href="/documentation/faq.html"/>
         </menu>
 

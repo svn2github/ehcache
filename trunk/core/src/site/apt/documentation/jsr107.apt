@@ -118,7 +118,7 @@ net.sf.jsr107cache.Cache cache = new JCache(manager.getCache("sampleCacheNoIdle"
 
 **  Using a JCache
 
-    The {{{http://ehcache.org/javadoc/net/sf/ehcache/jcache/JCache.html}JavaDoc}} is the best place to learn how to use a JCache.
+    The {{{http://ehcache.org/apidocs/net/sf/ehcache/jcache/JCache.html}JavaDoc}} is the best place to learn how to use a JCache.
 
     The main point to remember is that JCache implements Map and that is the best way to think about it.
 

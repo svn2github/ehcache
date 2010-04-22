@@ -185,16 +185,13 @@
     <!-- Produce the ydocs images for the book and singlepage guide. Relies on Maven javadoc.  -->
     <target name="copy-ydoc" description="Creates the javadocs">
         <copy todir="${build.dir}/book/javadoc">
-            <fileset dir="${build.dir}/site/apidocs"/>
+            <fileset dir="${build.dir}/site/javadoc"/>
         </copy>
     </target>
 
     <target name="copy_files" description="Copies the config files to the site">
         <copy todir="${build.dir}/site">
             <fileset dir="src/main/config"/>
-        </copy>
-        <copy todir="${build.dir}/site/documentation/javadoc">
-            <fileset dir="${build.dir}/site/apidocs"/>
         </copy>
     </target>
 
@@ -230,11 +227,11 @@
             <replacetoken><![CDATA[terracotta_community_login]]></replacetoken>
             <replacevalue><![CDATA[<a href="http://www.terracotta.org/account/login"><img src="images/terracotta_community_login.gif" alt="Terracotta Community Login Required"></a>]]></replacevalue>
         </replace>
-        <replace dir="${build.dir}/site">
-            <include name="**/*.html"/>
-            <replacetoken><![CDATA[_new_]]></replacetoken>
-            <replacevalue><![CDATA[<img src="images/new.gif" alt="New feature">]]></replacevalue>
-        </replace>
+        <!--<replace dir="${build.dir}/site">-->
+            <!--<include name="**/*.html"/>-->
+            <!--<replacetoken><![CDATA[_new_]]></replacetoken>-->
+            <!--<replacevalue><![CDATA[<img src="images/new.gif" alt="New feature">]]></replacevalue>-->
+        <!--</replace>-->
 
     </target>
 

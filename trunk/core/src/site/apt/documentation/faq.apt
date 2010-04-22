@@ -56,7 +56,7 @@
     It is safer to retrieve a value, delete the cache element and then
     reinsert the value.
 
-     The {{{http://ehcache.org/javadoc/net/sf/ehcache/constructs/blocking/UpdatingCacheEntryFactory.html}UpdatingCacheEntryFactory}}
+     The {{{http://ehcache.org/apidocs/net/sf/ehcache/constructs/blocking/UpdatingCacheEntryFactory.html}UpdatingCacheEntryFactory}}
     does work by modifying the contents of values in place in the
     cache. This is outside of the core of Ehcache and is targeted at
     high performance CacheEntryFactories for SelfPopulatingCaches.
@@ -115,7 +115,7 @@
 
 * How do you get statistics on an Element without affecting them?
 
-     Use the {{{http://ehcache.org/javadoc/net/sf/ehcache/Cache.html#getQuiet%28java.io.Serializable%29}Cache.getQuiet()}} method. It returns an Element without updating statistics.
+     Use the {{{http://ehcache.org/apidocs/net/sf/ehcache/Cache.html#getQuiet%28java.io.Serializable%29}Cache.getQuiet()}} method. It returns an Element without updating statistics.
 
 * How do you get WebSphere to work with ehcache?
 

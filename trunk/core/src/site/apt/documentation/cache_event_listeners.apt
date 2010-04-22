@@ -35,7 +35,7 @@
     to be backwardly compatible.
    
 
-[javadoc/net/sf/ehcache/event/CacheEventListener.png]  CacheEventListener Class Diagram
+[apidocs/net/sf/ehcache/event/CacheEventListener.png]  CacheEventListener Class Diagram
 
 * {Configuration}
 
