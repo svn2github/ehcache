@@ -412,7 +412,7 @@ used with JMX monitors.
 
     statistics:
     Whether to collect statistics. Ehcache runs twice as slow with statistics turned on.
-    By default they are on. To disable set statistics="false"
+    By default they are off. To enable set statistics="true"
 
     memoryStoreEvictionPolicy:
     Policy would be enforced upon reaching the maxElementsInMemory limit. Default
