@@ -351,4 +351,4 @@ public class MyDataAccessClass
     applications this might not be good (or fast) enough. You can configure your own <<<CopyStrategy>>> which will be used to perform
     these copy operations. For example, you could easily implement use cloning rather than Serialization.
 
-    More information on configuration can be found here: {{./configuration.html}copyOnRead and copyOnWrite cache configuration}.
+    More information on configuration can be found here: {{{./configuration.html}copyOnRead and copyOnWrite cache configuration}}.
