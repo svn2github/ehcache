@@ -18,14 +18,30 @@ package net.sf.ehcache;
 
 import net.sf.ehcache.store.Store;
 
+/**
+ * A helper class to get the internal Store from a Cache
+ * 
+ * @author Abhishek Sanoujam
+ * 
+ */
 public class UnlockedReadsViewHelper {
 
     private final Cache cache;
 
+    /**
+     * Constructor accepting the cache
+     * 
+     * @param cache
+     */
     public UnlockedReadsViewHelper(final Cache cache) {
         this.cache = cache;
     }
 
+    /**
+     * Returns the internal {@link Store} of the underlying cache
+     * 
+     * @return
+     */
     public Store getStore() {
         return cache.getStore();
     }
