@@ -350,10 +350,10 @@
 			 */
 			 var titles = "Scale Continuum,APIs,Editions,Promotion";
 			 var content = "marquee.swf,apis.swf,editions.swf,promo.swf";
-			 
-			 
-			 
-			 
+
+
+
+
 			 
            document.write('<object id="marquee" type="application/x-shockwave-flash"');
              document.write(' data="tabparent.swf" width="650" height="400" wmode="opaque"' +
@@ -445,7 +445,7 @@
 </div>
 
 <!-- please ignore/excuse the inline stlyes-->
-<div id="popup" style="display:none;position:absolute; width:222px; height:'100%'; color:#000000;">
+<div id="popup" style="display:none;position:absolute; width:222px; height:100%; color:#000000;">
 
     <div id="popupTitle" style="background: url('../images/popupTop.png'); height:38px; padding:5px; padding-left: 30px;">
         
@@ -469,7 +469,7 @@
 
 
 <div id="hibernate" class="popupContent">
-        <strong>Hibernate Caching Provider</strong>
+        <span class="content">Hibernate Caching Provider</span>
         <p style="margin: 0px; padding: 0px;">
             Full featured Hibernate caching provider supporting all cache strategies.
 
@@ -477,7 +477,7 @@
 </div>
 
 <div id="jms" class="popupContent">
-        <strong>JMS Replication</strong>
+        <span class="content">JMS Replication</span>
         <p style="margin: 0px; padding: 0px;">
             The Ehcache jmsreplication module lets organisations with a message queue investment leverage it for caching.
 
@@ -485,14 +485,14 @@
 </div>
 
 <div id="rmi" class="popupContent">
-        <strong>RMI Replication</strong>
+        <span class="content">RMI Replication</span>
         <p style="margin: 0px; padding: 0px;">
 While RMI is a point-to-point protocol, which can generate a lot of network traffic, Ehcache manages this through batching of communications for the asynchronous replicator.
         </p>
 </div>
 
 <div id="core" class="popupContent">
-        <strong>EHCache Core</strong>
+        <span class="content">EHCache Core</span>
         <p style="margin: 0px; padding: 0px;">
               Ehcache is a cache library. Before getting into ehcache, it is worth stepping back and thinking about caching generally.
 
@@ -500,7 +500,7 @@ While RMI is a point-to-point protocol, which can generate a lot of network traf
 </div>
 
 <div id="jgroup" class="popupContent">
-        <strong>JGroups Replication</strong>
+        <span class="content">JGroups Replication</span>
         <p style="margin: 0px; padding: 0px;">
                JGroups offers a very flexible protocol stack, reliable unicast and multicast message transmission. On the down side JGroups can be complex to configure and some protocol stacks have dependencies on others.
 
@@ -508,16 +508,16 @@ While RMI is a point-to-point protocol, which can generate a lot of network traf
 </div>
 
 <div id="web" class="popupContent">
-        <strong>Web Caching</strong>
+        <span class="content">Web Caching</span>
         <p style="margin: 0px; padding: 0px;">
              Ehcache provides a set of general purpose web caching filters in the ehcache-web module.
-Using these can make an amazing difference to web application performance. A typical server can deliver 5000+ pages per second from the page cache. With built-in gzipping, storage and network transmission is highly efficient. Cache pages and fragments make excellent candidates for DiskStore storage, because the object graphs are simple and the largest part is already a byte[].
+Using these can make an amazing difference to web application performance. A typical server can deliver 5000+ pages per second from the page cache. With built-in gzipping, storage and network transmission is highly efficient. Cache pages and fragments make excellent candidates for DiskStore storage, because the object graphs are simple and the largest part is already a byte.
 
         </p>
 </div>
 
 <div id="rest" class="popupContent">
-        <strong>Cache Server</strong>
+        <span class="content">Cache Server</span>
         <p style="margin: 0px; padding: 0px;">
              Ehcache now comes with a Cache Server, available as a WAR for most web containers, or as a standalone server. The Cache Server has two APIs: RESTful resource oriented, and SOAP. Both support clients in any programming language.
 
@@ -525,14 +525,14 @@ Using these can make an amazing difference to web application performance. A typ
 </div>
 
 <div id="cluster" class="popupContent">
-        <strong>Terracotta Distributed Caching</strong>
+        <span class="content">Terracotta Distributed Caching</span>
         <p style="margin: 0px; padding: 0px;">
               Distribution with the Terracotta Server Array ("TSA") is the preferred distribution mechanism. It provides coherency, JTA, HA, scale and high performance. It is available as open source or with additional features in the Ehcache EX and FX product editions.
         </p>
 </div>
 
 <div id="jcache" class="popupContent">
-        <strong>JCache Support</strong>
+        <span class="content">JCache Support</span>
         <p style="margin: 0px; padding: 0px;">
              Ehcache provides a preview implementation of JSR107 via the net.sf.cache.jcache package.
 
@@ -540,7 +540,7 @@ Using these can make an amazing difference to web application performance. A typ
 </div>
 
 <div id="jpa" class="popupContent">
-        <strong>OpenJPA Caching Provider</strong>
+        <span class="content">OpenJPA Caching Provider</span>
         <p style="margin: 0px; padding: 0px;">
                 As with Hibernate, Ehcache's OpenJPA module (from 0.2) uses the defaultCache configured in ehcache.xml to create caches.
 For production, we recommend configuring a cache configuration in ehcache.xml for each cache, so that it may be correctly tuned.
@@ -549,7 +549,7 @@ For production, we recommend configuring a cache configuration in ehcache.xml fo
 </div>
 
 <div id="daojdbc" class="popupContent">
-        <strong>DAO/JDBC Caching</strong>
+        <span class="content">DAO/JDBC Caching</span>
         <p style="margin: 0px; padding: 0px;">
               Ehcache can easily be combined with your existing JDBC code. Whether you access JDBC directly, or have a DAO/DAL layer, Ehcache can be combined with your existing data access pattern to speed up frequently accessed data to reduce page load times, improve performance, and reduce load from your database.
 

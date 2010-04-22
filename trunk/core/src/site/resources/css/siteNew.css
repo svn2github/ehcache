@@ -491,3 +491,13 @@ a img {
 .popupContent {
     display : none;
 }
+
+span.content {
+   font-size: 20px;
+    margin: 10px;
+    margin-left:0px;
+    padding: 0px;
+    line-height:24px;
+   color: #843825;
+    background: none;
+}
