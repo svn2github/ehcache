@@ -27,7 +27,7 @@ import net.sf.ehcache.store.StoreListener;
 import net.sf.ehcache.writer.CacheWriterManager;
 
 /**
- * All operations in this Store never return
+ * All operations in this Store never returns
  * 
  * @author Abhishek Sanoujam
  * 
@@ -35,327 +35,182 @@ import net.sf.ehcache.writer.CacheWriterManager;
 public class BlockingMockStore implements Store {
 
     public boolean bufferFull() {
-        try {
-            Thread.currentThread().join();
-        } catch (Exception e) {
-            throw new CacheException(e);
-        }
+        neverReturn();
         return false;
     }
 
-    public boolean containsKey(Object key) {
+    private void neverReturn() {
         try {
             Thread.currentThread().join();
         } catch (Exception e) {
             throw new CacheException(e);
         }
+    }
+
+    public boolean containsKey(Object key) {
+        neverReturn();
         return false;
     }
 
     public boolean containsKeyInMemory(Object key) {
-        try {
-            Thread.currentThread().join();
-        } catch (Exception e) {
-            throw new CacheException(e);
-        }
+        neverReturn();
         return false;
     }
 
     public boolean containsKeyOnDisk(Object key) {
-        try {
-            Thread.currentThread().join();
-        } catch (Exception e) {
-            throw new CacheException(e);
-        }
+        neverReturn();
         return false;
     }
 
     public void dispose() {
-        try {
-            Thread.currentThread().join();
-        } catch (Exception e) {
-            throw new CacheException(e);
-        }
-
+        neverReturn();
     }
 
     public void expireElements() {
-        try {
-            Thread.currentThread().join();
-        } catch (Exception e) {
-            throw new CacheException(e);
-        }
-
+        neverReturn();
     }
 
     public void flush() throws IOException {
-        try {
-            Thread.currentThread().join();
-        } catch (Exception e) {
-            throw new CacheException(e);
-        }
-
+        neverReturn();
     }
 
     public Element get(Object key) {
-        try {
-            Thread.currentThread().join();
-        } catch (Exception e) {
-            throw new CacheException(e);
-        }
+        neverReturn();
         return null;
     }
 
     public Policy getInMemoryEvictionPolicy() {
-        try {
-            Thread.currentThread().join();
-        } catch (Exception e) {
-            throw new CacheException(e);
-        }
+        neverReturn();
         return null;
     }
 
     public int getInMemorySize() {
-        try {
-            Thread.currentThread().join();
-        } catch (Exception e) {
-            throw new CacheException(e);
-        }
+        neverReturn();
         return 0;
     }
 
     public long getInMemorySizeInBytes() {
-        try {
-            Thread.currentThread().join();
-        } catch (Exception e) {
-            throw new CacheException(e);
-        }
+        neverReturn();
         return 0;
     }
 
     public Object getInternalContext() {
-        try {
-            Thread.currentThread().join();
-        } catch (Exception e) {
-            throw new CacheException(e);
-        }
+        neverReturn();
         return null;
     }
 
     public Object[] getKeyArray() {
-        try {
-            Thread.currentThread().join();
-        } catch (Exception e) {
-            throw new CacheException(e);
-        }
+        neverReturn();
         return null;
     }
 
     public int getOnDiskSize() {
-        try {
-            Thread.currentThread().join();
-        } catch (Exception e) {
-            throw new CacheException(e);
-        }
+        neverReturn();
         return 0;
     }
 
     public long getOnDiskSizeInBytes() {
-        try {
-            Thread.currentThread().join();
-        } catch (Exception e) {
-            throw new CacheException(e);
-        }
+        neverReturn();
         return 0;
     }
 
     public Element getQuiet(Object key) {
-        try {
-            Thread.currentThread().join();
-        } catch (Exception e) {
-            throw new CacheException(e);
-        }
+        neverReturn();
         return null;
     }
 
     public int getSize() {
-        try {
-            Thread.currentThread().join();
-        } catch (Exception e) {
-            throw new CacheException(e);
-        }
+        neverReturn();
         return 0;
     }
 
     public Status getStatus() {
-        try {
-            Thread.currentThread().join();
-        } catch (Exception e) {
-            throw new CacheException(e);
-        }
+        neverReturn();
         return null;
     }
 
     public int getTerracottaClusteredSize() {
-        try {
-            Thread.currentThread().join();
-        } catch (Exception e) {
-            throw new CacheException(e);
-        }
+        neverReturn();
         return 0;
     }
 
     public boolean isCacheCoherent() {
-        try {
-            Thread.currentThread().join();
-        } catch (Exception e) {
-            throw new CacheException(e);
-        }
+        neverReturn();
         return false;
     }
 
     public boolean isClusterCoherent() {
-        try {
-            Thread.currentThread().join();
-        } catch (Exception e) {
-            throw new CacheException(e);
-        }
+        neverReturn();
         return false;
     }
 
     public boolean isNodeCoherent() {
-        try {
-            Thread.currentThread().join();
-        } catch (Exception e) {
-            throw new CacheException(e);
-        }
+        neverReturn();
         return false;
     }
 
     public boolean put(Element element) throws CacheException {
-        try {
-            Thread.currentThread().join();
-        } catch (Exception e) {
-            throw new CacheException(e);
-        }
+        neverReturn();
         return false;
     }
 
     public Element putIfAbsent(Element element) throws NullPointerException {
-        try {
-            Thread.currentThread().join();
-        } catch (Exception e) {
-            throw new CacheException(e);
-        }
+        neverReturn();
         return null;
     }
 
     public boolean putWithWriter(Element element, CacheWriterManager writerManager) throws CacheException {
-        try {
-            Thread.currentThread().join();
-        } catch (Exception e) {
-            throw new CacheException(e);
-        }
+        neverReturn();
         return false;
     }
 
     public Element remove(Object key) {
-        try {
-            Thread.currentThread().join();
-        } catch (Exception e) {
-            throw new CacheException(e);
-        }
+        neverReturn();
         return null;
     }
 
     public void removeAll() throws CacheException {
-        try {
-            Thread.currentThread().join();
-        } catch (Exception e) {
-            throw new CacheException(e);
-        }
-
+        neverReturn();
     }
 
     public Element removeElement(Element element) throws NullPointerException {
-        try {
-            Thread.currentThread().join();
-        } catch (Exception e) {
-            throw new CacheException(e);
-        }
+        neverReturn();
         return null;
     }
 
     public Element removeWithWriter(Object key, CacheWriterManager writerManager) throws CacheException {
-        try {
-            Thread.currentThread().join();
-        } catch (Exception e) {
-            throw new CacheException(e);
-        }
+        neverReturn();
         return null;
     }
 
     public boolean replace(Element old, Element element) throws NullPointerException, IllegalArgumentException {
-        try {
-            Thread.currentThread().join();
-        } catch (Exception e) {
-            throw new CacheException(e);
-        }
+        neverReturn();
         return false;
     }
 
     public Element replace(Element element) throws NullPointerException {
-        try {
-            Thread.currentThread().join();
-        } catch (Exception e) {
-            throw new CacheException(e);
-        }
+        neverReturn();
         return null;
     }
 
     public void setInMemoryEvictionPolicy(Policy policy) {
-        try {
-            Thread.currentThread().join();
-        } catch (Exception e) {
-            throw new CacheException(e);
-        }
-
+        neverReturn();
     }
 
     public void setNodeCoherent(boolean coherent) throws UnsupportedOperationException {
-        try {
-            Thread.currentThread().join();
-        } catch (Exception e) {
-            throw new CacheException(e);
-        }
-
+        neverReturn();
     }
 
     public void waitUntilClusterCoherent() throws UnsupportedOperationException {
-        try {
-            Thread.currentThread().join();
-        } catch (Exception e) {
-            throw new CacheException(e);
-        }
-
+        neverReturn();
     }
 
     public void addStoreListener(StoreListener listener) {
-        try {
-            Thread.currentThread().join();
-        } catch (Exception e) {
-            throw new CacheException(e);
-        }
+        neverReturn();
     }
 
     public void removeStoreListener(StoreListener listener) {
-        try {
-            Thread.currentThread().join();
-        } catch (Exception e) {
-            throw new CacheException(e);
-        }
+        neverReturn();
     }
-    
-    
 
 }

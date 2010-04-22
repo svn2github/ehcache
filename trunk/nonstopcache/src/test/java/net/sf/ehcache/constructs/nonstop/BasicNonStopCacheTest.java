@@ -26,7 +26,6 @@ import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.Statistics;
-import net.sf.ehcache.constructs.nonstop.behavior.DirectDelegateBehavior;
 import net.sf.ehcache.store.Store;
 
 import org.junit.Assert;
@@ -100,9 +99,9 @@ public class BasicNonStopCacheTest extends TestCase {
         nonStopCacheConfig.setTimeoutMillis(timeoutMillis);
         NonStopCache nonStopCache = new NonStopCache(cache, "non-stop-test-cache", nonStopCacheConfig);
 
-        System.out.println("########## Testing TimeoutBehavior ");
+        System.out.println("########## Testing ExceptionOnTimeoutBehavior ");
         // check for default behavior -- timeout behavior
-        NonStopCacheBehaviorInvoker timeoutBehaviorInvoker = new NonStopCacheBehaviorInvoker(timeoutMillis) {
+        new NonStopCacheBehaviorInvoker(timeoutMillis) {
 
             @Override
             protected void invokeOne(NonStopCacheBehavior behavior, Method method, Object[] args) throws IllegalArgumentException,
@@ -112,26 +111,24 @@ public class BasicNonStopCacheTest extends TestCase {
                     fail("NonStopCache's configured with timeout behavior should throw NonStopCacheException");
                 } catch (InvocationTargetException e) {
                     if (e.getCause() instanceof NonStopCacheException) {
-                        System.out.println("   ... caught expected exception.");
+                        System.out.println("   ... caught expected exception -- " + e.getCause());
                     } else {
                         throw e;
                     }
                 }
             }
 
-        };
-        // default behavior is timeoutOnException
-        timeoutBehaviorInvoker.invokeAll(new DirectDelegateBehavior(nonStopCache));
+        }.invokeAll(nonStopCache);
 
         System.out.println("########## Testing NoopBehavior ");
         // test null-op
-        NonStopCacheBehaviorInvoker noopBehaviorInvoker = new NonStopCacheBehaviorInvoker(timeoutMillis);
         nonStopCache.setTimeoutBehaviorType(NonStopCacheBehaviorType.NO_OP_ON_TIMEOUT);
-        noopBehaviorInvoker.invokeAll(new DirectDelegateBehavior(nonStopCache));
+        new NonStopCacheBehaviorInvoker(timeoutMillis).invokeAll(nonStopCache);
 
         System.out.println("########## Testing LocalReadsBehavior ");
         // localReadsBehavior -- only works when clustered
-        NonStopCacheBehaviorInvoker localReadsInvoker = new NonStopCacheBehaviorInvoker(timeoutMillis) {
+        nonStopCache.setTimeoutBehaviorType(NonStopCacheBehaviorType.LOCAL_READS_ON_TIMEOUT);
+        new NonStopCacheBehaviorInvoker(timeoutMillis) {
 
             @Override
             protected void invokeOne(NonStopCacheBehavior behavior, Method method, Object[] args) throws IllegalArgumentException,
@@ -148,9 +145,7 @@ public class BasicNonStopCacheTest extends TestCase {
                 }
             }
 
-        };
-        nonStopCache.setTimeoutBehaviorType(NonStopCacheBehaviorType.LOCAL_READS_ON_TIMEOUT);
-        localReadsInvoker.invokeAll(new DirectDelegateBehavior(nonStopCache));
+        }.invokeAll(nonStopCache);
     }
 
     private void replaceStoreField(Cache cache, Store replaceWith) throws Exception {
