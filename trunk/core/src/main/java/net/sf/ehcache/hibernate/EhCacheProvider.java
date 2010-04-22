@@ -15,6 +15,7 @@
  */
 package net.sf.ehcache.hibernate;
 
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Properties;
 
@@ -89,7 +90,12 @@ public final class EhCacheProvider extends AbstractEhcacheProvider {
             if (configurationResourceName == null || configurationResourceName.length() == 0) {
                 manager = new CacheManager();
             } else {
-                URL url = loadResource(configurationResourceName);
+                URL url;
+                try {
+                    url = new URL(configurationResourceName);
+                } catch (MalformedURLException e) {
+                    url = loadResource(configurationResourceName);
+                }
                 manager = new CacheManager(HibernateUtil.loadAndCorrectConfiguration(url));
             }
             mbeanRegistrationHelper.registerMBean(manager, properties);
