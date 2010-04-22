@@ -30,6 +30,10 @@
     cacheManager.addCache(unlockedReadsView);  //adds an Ehcache
 ---
 
+	NOTE: Right now, <<<UnlockedReadsView>>> only accepts <<<net.sf.ehcache.Cache>>> instances in the constructor, meaning
+	it can be used to decorate only <<<net.sf.ehcache.Cache>>> instances. One disadvantage is that it cannot be used to 
+	decorate other already decorated <<<net.sf.ehcache.Ehcache>>> instances like <<<NonStopCache>>>
+	
 **  By Configuration
 
     This view cannot be configured in ehcache.xml at this time - it must be configured programmatically.
