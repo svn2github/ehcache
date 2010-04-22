@@ -43,7 +43,7 @@ public interface NonStopCacheBehavior {
      * @throws IllegalStateException
      * @throws CacheException
      */
-    public Element get(Object key) throws IllegalStateException, CacheException;
+    Element get(Object key) throws IllegalStateException, CacheException;
 
     /**
      * Method defining the {@link #get(Serializable)} behavior
@@ -53,7 +53,7 @@ public interface NonStopCacheBehavior {
      * @throws IllegalStateException
      * @throws CacheException
      */
-    public Element get(final Serializable key) throws IllegalStateException, CacheException;
+    Element get(final Serializable key) throws IllegalStateException, CacheException;
 
     /**
      * Method defining the {@link #getQuiet(Object)} behavior
@@ -63,7 +63,7 @@ public interface NonStopCacheBehavior {
      * @throws IllegalStateException
      * @throws CacheException
      */
-    public Element getQuiet(Object key) throws IllegalStateException, CacheException;
+    Element getQuiet(Object key) throws IllegalStateException, CacheException;
 
     /**
      * Method defining the {@link #getQuiet(Serializable)} behavior
@@ -73,7 +73,7 @@ public interface NonStopCacheBehavior {
      * @throws IllegalStateException
      * @throws CacheException
      */
-    public Element getQuiet(final Serializable key) throws IllegalStateException, CacheException;
+    Element getQuiet(final Serializable key) throws IllegalStateException, CacheException;
 
     /**
      * Method defining the {@link #getKeys()} behavior
@@ -82,7 +82,7 @@ public interface NonStopCacheBehavior {
      * @throws IllegalStateException
      * @throws CacheException
      */
-    public List getKeys() throws IllegalStateException, CacheException;
+    List getKeys() throws IllegalStateException, CacheException;
 
     /**
      * Method defining the {@link #getKeysNoDuplicateCheck()} behavior
@@ -90,7 +90,7 @@ public interface NonStopCacheBehavior {
      * @return list of keys
      * @throws IllegalStateException
      */
-    public List getKeysNoDuplicateCheck() throws IllegalStateException;
+    List getKeysNoDuplicateCheck() throws IllegalStateException;
 
     /**
      * Method defining the {@link #getKeysWithExpiryCheck()} behavior
@@ -99,7 +99,7 @@ public interface NonStopCacheBehavior {
      * @throws IllegalStateException
      * @throws CacheException
      */
-    public List getKeysWithExpiryCheck() throws IllegalStateException, CacheException;
+    List getKeysWithExpiryCheck() throws IllegalStateException, CacheException;
 
     /**
      * Method defining the {@link #getSizeBasedOnAccuracy(int)} behavior
@@ -118,7 +118,7 @@ public interface NonStopCacheBehavior {
      * @param key
      * @return true if the key is in the cache otherwise false
      */
-    public boolean isKeyInCache(Object key);
+    boolean isKeyInCache(Object key);
 
     /**
      * Method defining the {@link #isValueInCache(Object)} behavior
@@ -126,7 +126,7 @@ public interface NonStopCacheBehavior {
      * @param value
      * @return true if the value is in the cache otherwise false
      */
-    public boolean isValueInCache(Object value);
+    boolean isValueInCache(Object value);
 
     /**
      * Method defining the {@link #put(Element, boolean)} behavior
@@ -137,7 +137,7 @@ public interface NonStopCacheBehavior {
      * @throws IllegalStateException
      * @throws CacheException
      */
-    public void put(Element element, boolean doNotNotifyCacheReplicators) throws IllegalArgumentException, IllegalStateException,
+    void put(Element element, boolean doNotNotifyCacheReplicators) throws IllegalArgumentException, IllegalStateException,
             CacheException;
 
     /**
@@ -148,7 +148,7 @@ public interface NonStopCacheBehavior {
      * @throws IllegalStateException
      * @throws CacheException
      */
-    public void put(Element element) throws IllegalArgumentException, IllegalStateException, CacheException;
+    void put(Element element) throws IllegalArgumentException, IllegalStateException, CacheException;
 
     /**
      * Method defining the {@link #putQuiet(Element)} behavior
@@ -158,7 +158,7 @@ public interface NonStopCacheBehavior {
      * @throws IllegalStateException
      * @throws CacheException
      */
-    public void putQuiet(Element element) throws IllegalArgumentException, IllegalStateException, CacheException;
+    void putQuiet(Element element) throws IllegalArgumentException, IllegalStateException, CacheException;
 
     /**
      * Method defining the {@link #putWithWriter(Element)} behavior
@@ -168,7 +168,7 @@ public interface NonStopCacheBehavior {
      * @throws IllegalStateException
      * @throws CacheException
      */
-    public void putWithWriter(Element element) throws IllegalArgumentException, IllegalStateException, CacheException;
+    void putWithWriter(Element element) throws IllegalArgumentException, IllegalStateException, CacheException;
 
     /**
      * Method defining the {@link #remove(Object, boolean)} behavior
@@ -178,7 +178,7 @@ public interface NonStopCacheBehavior {
      * @return depends on the implementation
      * @throws IllegalStateException
      */
-    public boolean remove(Object key, boolean doNotNotifyCacheReplicators) throws IllegalStateException;
+    boolean remove(Object key, boolean doNotNotifyCacheReplicators) throws IllegalStateException;
 
     /**
      * Method defining the {@link #remove(Object)} behavior
@@ -187,7 +187,7 @@ public interface NonStopCacheBehavior {
      * @return depends on the implementation
      * @throws IllegalStateException
      */
-    public boolean remove(Object key) throws IllegalStateException;
+    boolean remove(Object key) throws IllegalStateException;
 
     /**
      * Method defining the {@link #remove(Serializable, boolean)} behavior
@@ -197,7 +197,7 @@ public interface NonStopCacheBehavior {
      * @return depends on the implementation
      * @throws IllegalStateException
      */
-    public boolean remove(final Serializable key, final boolean doNotNotifyCacheReplicators) throws IllegalStateException;
+    boolean remove(final Serializable key, final boolean doNotNotifyCacheReplicators) throws IllegalStateException;
 
     /**
      * Method defining the {@link #remove(Serializable)} behavior
@@ -206,7 +206,7 @@ public interface NonStopCacheBehavior {
      * @return depends on the implementation
      * @throws IllegalStateException
      */
-    public boolean remove(final Serializable key) throws IllegalStateException;
+    boolean remove(final Serializable key) throws IllegalStateException;
 
     /**
      * Method defining the {@link #removeQuiet(Object)} behavior
@@ -232,7 +232,7 @@ public interface NonStopCacheBehavior {
      * @throws IllegalStateException
      * @throws CacheException
      */
-    public void removeAll() throws IllegalStateException, CacheException;
+    void removeAll() throws IllegalStateException, CacheException;
 
     /**
      * Method defining the {@link #removeAll()} behavior
@@ -241,7 +241,7 @@ public interface NonStopCacheBehavior {
      * @throws IllegalStateException
      * @throws CacheException
      */
-    public void removeAll(boolean doNotNotifyCacheReplicators) throws IllegalStateException, CacheException;
+    void removeAll(boolean doNotNotifyCacheReplicators) throws IllegalStateException, CacheException;
 
     /**
      * Method defining the {@link #removeWithWriter(Object)} behavior

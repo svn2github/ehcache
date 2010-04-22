@@ -28,6 +28,30 @@ public class NonStopCacheConfigImpl implements NonStopCacheConfig {
 
     private static final Properties DEFAULT_VALUES_PROPERTIES = new Properties();
 
+    private long timeoutMillis;
+    private boolean immediateTimeout;
+    private NonStopCacheBehaviorType timeoutBehaviorType;
+
+    /**
+     * Default constructor. Uses default values defined in {@link NonStopCacheConfig}
+     */
+    public NonStopCacheConfigImpl() {
+        this(DEFAULT_VALUES_PROPERTIES);
+    }
+
+    /**
+     * Constructor accepting a {@link Properties} that contains mappings for the {@link NonStopCacheConfig}. See {@link NonStopCacheConfig}
+     * for allowed key and values
+     * 
+     * @param properties
+     */
+    public NonStopCacheConfigImpl(final Properties properties) {
+        this.timeoutMillis = getInt(properties, TIMEOUT_MILLIS_PROP_KEY);
+        this.timeoutBehaviorType = NonStopCacheBehaviorType
+                .getTypeFromConfigPropertyName(properties.getProperty(TIMEOUT_BEHAVIOR_PROP_KEY));
+        this.immediateTimeout = getBoolean(properties, IMMEDIATE_TIMEOUT_PROP_KEY);
+    }
+
     static {
         DEFAULT_VALUES_PROPERTIES.setProperty(TIMEOUT_MILLIS_PROP_KEY, "" + DEFAULT_TIMEOUT_MILLIS);
         DEFAULT_VALUES_PROPERTIES.setProperty(TIMEOUT_BEHAVIOR_PROP_KEY, DEFAULT_TIMEOUT_BEHAVIOR_TYPE.getConfigPropertyName());
@@ -52,30 +76,6 @@ public class NonStopCacheConfigImpl implements NonStopCacheConfig {
         } catch (NumberFormatException e) {
             throw new IllegalArgumentException("Specified value for '" + key + "' is not a number - " + value);
         }
-    }
-
-    private long timeoutMillis;
-    private boolean immediateTimeout;
-    private NonStopCacheBehaviorType timeoutBehaviorType;
-
-    /**
-     * Default constructor. Uses default values defined in {@link NonStopCacheConfig}
-     */
-    public NonStopCacheConfigImpl() {
-        this(DEFAULT_VALUES_PROPERTIES);
-    }
-
-    /**
-     * Constructor accepting a {@link Properties} that contains mappings for the {@link NonStopCacheConfig}. See {@link NonStopCacheConfig}
-     * for allowed key and values
-     * 
-     * @param properties
-     */
-    public NonStopCacheConfigImpl(final Properties properties) {
-        this.timeoutMillis = getInt(properties, TIMEOUT_MILLIS_PROP_KEY);
-        this.timeoutBehaviorType = NonStopCacheBehaviorType
-                .getTypeFromConfigPropertyName(properties.getProperty(TIMEOUT_BEHAVIOR_PROP_KEY));
-        this.immediateTimeout = getBoolean(properties, IMMEDIATE_TIMEOUT_PROP_KEY);
     }
 
     /**

@@ -53,6 +53,7 @@ import org.slf4j.LoggerFactory;
  * <li>exception - An unchecked exception, {@link NonStopCacheException}, which is a subtype of CacheException will be thrown.</li>
  * <li>localRead - currently Terracotta only. Returns data if held locally in memory in response to gets. Mutating operations such as put
  * and removed are ignored.</li>
+ * </ul>
  * 
  * NOTE: localRead behavior works only with Cache instances which are clustered using Terracotta. One obvious disadvantage is that it cannot
  * be used to decorate unclustered Cache's. Another not so obvious disadvantage is that localRead cannot be used when decorating other
@@ -72,7 +73,8 @@ import org.slf4j.LoggerFactory;
  * @author Abhishek Sanoujam
  * 
  */
-public class NonStopCache extends EhcacheDecoratorAdapter implements NonStopCacheConfig, NonStopCacheBehavior, NonStopCacheBehaviorResolver {
+public class NonStopCache extends EhcacheDecoratorAdapter 
+        implements NonStopCacheConfig, NonStopCacheBehavior, NonStopCacheBehaviorResolver {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(NonStopCache.class);
 
@@ -207,18 +209,18 @@ public class NonStopCache extends EhcacheDecoratorAdapter implements NonStopCach
         return !cacheCluster.isClusterOnline();
     }
 
-    @Override
     /**
      * Returns the name for this NonStopCache
      */
+    @Override
     public String getName() {
         return name;
     }
 
-    @Override
     /**
      * {@inheritDoc}
      */
+    @Override
     public Element get(final Object key) throws IllegalStateException, CacheException {
         if (isClusterOffline()) {
             return clusterOfflineBehavior.get(key);
@@ -226,18 +228,18 @@ public class NonStopCache extends EhcacheDecoratorAdapter implements NonStopCach
         return executeWithExecutorBehavior.get(key);
     }
 
-    @Override
     /**
      * {@inheritDoc}
      */
+    @Override
     public Element get(final Serializable key) throws IllegalStateException, CacheException {
         return get((Object) key);
     }
 
-    @Override
     /**
      * {@inheritDoc}
      */
+    @Override
     public Element getQuiet(final Object key) throws IllegalStateException, CacheException {
         if (isClusterOffline()) {
             return clusterOfflineBehavior.getQuiet(key);
@@ -245,18 +247,18 @@ public class NonStopCache extends EhcacheDecoratorAdapter implements NonStopCach
         return executeWithExecutorBehavior.getQuiet(key);
     }
 
-    @Override
     /**
      * {@inheritDoc}
      */
+    @Override
     public Element getQuiet(final Serializable key) throws IllegalStateException, CacheException {
         return getQuiet((Object) key);
     }
 
-    @Override
     /**
      * {@inheritDoc}
      */
+    @Override
     public List getKeys() throws IllegalStateException, CacheException {
         if (isClusterOffline()) {
             return clusterOfflineBehavior.getKeys();
@@ -264,10 +266,10 @@ public class NonStopCache extends EhcacheDecoratorAdapter implements NonStopCach
         return executeWithExecutorBehavior.getKeys();
     }
 
-    @Override
     /**
      * {@inheritDoc}
      */
+    @Override
     public List getKeysNoDuplicateCheck() throws IllegalStateException {
         if (isClusterOffline()) {
             return clusterOfflineBehavior.getKeysNoDuplicateCheck();
@@ -275,10 +277,10 @@ public class NonStopCache extends EhcacheDecoratorAdapter implements NonStopCach
         return executeWithExecutorBehavior.getKeysNoDuplicateCheck();
     }
 
-    @Override
     /**
      * {@inheritDoc}
      */
+    @Override
     public List getKeysWithExpiryCheck() throws IllegalStateException, CacheException {
         if (isClusterOffline()) {
             return clusterOfflineBehavior.getKeysWithExpiryCheck();
@@ -286,10 +288,10 @@ public class NonStopCache extends EhcacheDecoratorAdapter implements NonStopCach
         return executeWithExecutorBehavior.getKeysWithExpiryCheck();
     }
 
-    @Override
     /**
      * {@inheritDoc}
      */
+    @Override
     public void put(final Element element, final boolean doNotNotifyCacheReplicators) throws IllegalArgumentException,
             IllegalStateException, CacheException {
         if (isClusterOffline()) {
@@ -299,10 +301,10 @@ public class NonStopCache extends EhcacheDecoratorAdapter implements NonStopCach
         executeWithExecutorBehavior.put(element, doNotNotifyCacheReplicators);
     }
 
-    @Override
     /**
      * {@inheritDoc}
      */
+    @Override
     public void put(final Element element) throws IllegalArgumentException, IllegalStateException, CacheException {
         if (isClusterOffline()) {
             clusterOfflineBehavior.put(element);
@@ -311,10 +313,10 @@ public class NonStopCache extends EhcacheDecoratorAdapter implements NonStopCach
         executeWithExecutorBehavior.put(element);
     }
 
-    @Override
     /**
      * {@inheritDoc}
      */
+    @Override
     public void putQuiet(final Element element) throws IllegalArgumentException, IllegalStateException, CacheException {
         if (isClusterOffline()) {
             clusterOfflineBehavior.putQuiet(element);
@@ -323,10 +325,10 @@ public class NonStopCache extends EhcacheDecoratorAdapter implements NonStopCach
         executeWithExecutorBehavior.putQuiet(element);
     }
 
-    @Override
     /**
      * {@inheritDoc}
      */
+    @Override
     public void putWithWriter(final Element element) throws IllegalArgumentException, IllegalStateException, CacheException {
         if (isClusterOffline()) {
             clusterOfflineBehavior.putWithWriter(element);
@@ -335,10 +337,10 @@ public class NonStopCache extends EhcacheDecoratorAdapter implements NonStopCach
         executeWithExecutorBehavior.putWithWriter(element);
     }
 
-    @Override
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean remove(final Object key, final boolean doNotNotifyCacheReplicators) throws IllegalStateException {
         if (isClusterOffline()) {
             return clusterOfflineBehavior.remove(key, doNotNotifyCacheReplicators);
@@ -346,10 +348,10 @@ public class NonStopCache extends EhcacheDecoratorAdapter implements NonStopCach
         return executeWithExecutorBehavior.remove(key, doNotNotifyCacheReplicators);
     }
 
-    @Override
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean remove(final Object key) throws IllegalStateException {
         if (isClusterOffline()) {
             return clusterOfflineBehavior.remove(key);
@@ -357,26 +359,26 @@ public class NonStopCache extends EhcacheDecoratorAdapter implements NonStopCach
         return executeWithExecutorBehavior.remove(key);
     }
 
-    @Override
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean remove(final Serializable key, final boolean doNotNotifyCacheReplicators) throws IllegalStateException {
         return this.remove((Object) key, doNotNotifyCacheReplicators);
     }
 
-    @Override
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean remove(final Serializable key) throws IllegalStateException {
         return this.remove((Object) key);
     }
 
-    @Override
     /**
      * {@inheritDoc}
      */
+    @Override
     public void removeAll() throws IllegalStateException, CacheException {
         if (isClusterOffline()) {
             clusterOfflineBehavior.removeAll();
@@ -385,10 +387,10 @@ public class NonStopCache extends EhcacheDecoratorAdapter implements NonStopCach
         executeWithExecutorBehavior.removeAll();
     }
 
-    @Override
     /**
      * {@inheritDoc}
      */
+    @Override
     public void removeAll(final boolean doNotNotifyCacheReplicators) throws IllegalStateException, CacheException {
         if (isClusterOffline()) {
             clusterOfflineBehavior.removeAll(doNotNotifyCacheReplicators);
@@ -397,10 +399,10 @@ public class NonStopCache extends EhcacheDecoratorAdapter implements NonStopCach
         executeWithExecutorBehavior.removeAll(doNotNotifyCacheReplicators);
     }
 
-    @Override
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean isKeyInCache(final Object key) {
         if (isClusterOffline()) {
             return clusterOfflineBehavior.isKeyInCache(key);
@@ -408,10 +410,10 @@ public class NonStopCache extends EhcacheDecoratorAdapter implements NonStopCach
         return executeWithExecutorBehavior.isKeyInCache(key);
     }
 
-    @Override
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean isValueInCache(final Object value) {
         if (isClusterOffline()) {
             return clusterOfflineBehavior.isValueInCache(value);
@@ -419,10 +421,10 @@ public class NonStopCache extends EhcacheDecoratorAdapter implements NonStopCach
         return executeWithExecutorBehavior.isValueInCache(value);
     }
 
-    @Override
     /**
      * {@inheritDoc}
      */
+    @Override
     public long calculateInMemorySize() throws IllegalStateException, CacheException {
         if (isClusterOffline()) {
             return clusterOfflineBehavior.calculateInMemorySize();
@@ -430,10 +432,10 @@ public class NonStopCache extends EhcacheDecoratorAdapter implements NonStopCach
         return executeWithExecutorBehavior.calculateInMemorySize();
     }
 
-    @Override
     /**
      * {@inheritDoc}
      */
+    @Override
     public void evictExpiredElements() {
         if (isClusterOffline()) {
             clusterOfflineBehavior.evictExpiredElements();
@@ -441,10 +443,10 @@ public class NonStopCache extends EhcacheDecoratorAdapter implements NonStopCach
         executeWithExecutorBehavior.evictExpiredElements();
     }
 
-    @Override
     /**
      * {@inheritDoc}
      */
+    @Override
     public void flush() throws IllegalStateException, CacheException {
         if (isClusterOffline()) {
             clusterOfflineBehavior.flush();
@@ -452,10 +454,10 @@ public class NonStopCache extends EhcacheDecoratorAdapter implements NonStopCach
         executeWithExecutorBehavior.flush();
     }
 
-    @Override
     /**
      * {@inheritDoc}
      */
+    @Override
     public int getDiskStoreSize() throws IllegalStateException {
         if (isClusterOffline()) {
             return clusterOfflineBehavior.getDiskStoreSize();
@@ -463,10 +465,10 @@ public class NonStopCache extends EhcacheDecoratorAdapter implements NonStopCach
         return executeWithExecutorBehavior.getDiskStoreSize();
     }
 
-    @Override
     /**
      * {@inheritDoc}
      */
+    @Override
     public Object getInternalContext() {
         if (isClusterOffline()) {
             return clusterOfflineBehavior.getInternalContext();
@@ -475,10 +477,10 @@ public class NonStopCache extends EhcacheDecoratorAdapter implements NonStopCach
         return executeWithExecutorBehavior.getInternalContext();
     }
 
-    @Override
     /**
      * {@inheritDoc}
      */
+    @Override
     public long getMemoryStoreSize() throws IllegalStateException {
         if (isClusterOffline()) {
             return clusterOfflineBehavior.getMemoryStoreSize();
@@ -486,10 +488,10 @@ public class NonStopCache extends EhcacheDecoratorAdapter implements NonStopCach
         return executeWithExecutorBehavior.getMemoryStoreSize();
     }
 
-    @Override
     /**
      * {@inheritDoc}
      */
+    @Override
     public int getSize() throws IllegalStateException, CacheException {
         if (isClusterOffline()) {
             return clusterOfflineBehavior.getSize();
@@ -497,10 +499,10 @@ public class NonStopCache extends EhcacheDecoratorAdapter implements NonStopCach
         return executeWithExecutorBehavior.getSize();
     }
 
-    @Override
     /**
      * {@inheritDoc}
      */
+    @Override
     public int getSizeBasedOnAccuracy(int statisticsAccuracy) throws IllegalArgumentException, IllegalStateException, CacheException {
         if (isClusterOffline()) {
             return clusterOfflineBehavior.getSizeBasedOnAccuracy(statisticsAccuracy);
@@ -508,10 +510,10 @@ public class NonStopCache extends EhcacheDecoratorAdapter implements NonStopCach
         return executeWithExecutorBehavior.getSizeBasedOnAccuracy(statisticsAccuracy);
     }
 
-    @Override
     /**
      * {@inheritDoc}
      */
+    @Override
     public Statistics getStatistics() throws IllegalStateException {
         if (isClusterOffline()) {
             return clusterOfflineBehavior.getStatistics();
@@ -519,10 +521,10 @@ public class NonStopCache extends EhcacheDecoratorAdapter implements NonStopCach
         return executeWithExecutorBehavior.getStatistics();
     }
 
-    @Override
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean isElementInMemory(Object key) {
         if (isClusterOffline()) {
             return clusterOfflineBehavior.isElementInMemory(key);
@@ -530,18 +532,18 @@ public class NonStopCache extends EhcacheDecoratorAdapter implements NonStopCach
         return executeWithExecutorBehavior.isElementInMemory(key);
     }
 
-    @Override
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean isElementInMemory(Serializable key) {
         return isElementInMemory((Object) key);
     }
 
-    @Override
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean isElementOnDisk(Object key) {
         if (isClusterOffline()) {
             return clusterOfflineBehavior.isElementOnDisk(key);
@@ -549,18 +551,18 @@ public class NonStopCache extends EhcacheDecoratorAdapter implements NonStopCach
         return executeWithExecutorBehavior.isElementOnDisk(key);
     }
 
-    @Override
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean isElementOnDisk(Serializable key) {
         return isElementOnDisk((Object) key);
     }
 
-    @Override
     /**
      * {@inheritDoc}
      */
+    @Override
     public Element putIfAbsent(Element element) throws NullPointerException {
         if (isClusterOffline()) {
             return clusterOfflineBehavior.putIfAbsent(element);
@@ -568,10 +570,10 @@ public class NonStopCache extends EhcacheDecoratorAdapter implements NonStopCach
         return executeWithExecutorBehavior.putIfAbsent(element);
     }
 
-    @Override
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean removeElement(Element element) throws NullPointerException {
         if (isClusterOffline()) {
             return clusterOfflineBehavior.removeElement(element);
@@ -579,10 +581,10 @@ public class NonStopCache extends EhcacheDecoratorAdapter implements NonStopCach
         return executeWithExecutorBehavior.removeElement(element);
     }
 
-    @Override
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean removeQuiet(Object key) throws IllegalStateException {
         if (isClusterOffline()) {
             return clusterOfflineBehavior.removeQuiet(key);
@@ -590,18 +592,18 @@ public class NonStopCache extends EhcacheDecoratorAdapter implements NonStopCach
         return executeWithExecutorBehavior.removeQuiet(key);
     }
 
-    @Override
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean removeQuiet(Serializable key) throws IllegalStateException {
         return removeQuiet((Object) key);
     }
 
-    @Override
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean removeWithWriter(Object key) throws IllegalStateException, CacheException {
         if (isClusterOffline()) {
             return clusterOfflineBehavior.removeWithWriter(key);
@@ -609,10 +611,10 @@ public class NonStopCache extends EhcacheDecoratorAdapter implements NonStopCach
         return executeWithExecutorBehavior.removeWithWriter(key);
     }
 
-    @Override
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean replace(Element old, Element element) throws NullPointerException, IllegalArgumentException {
         if (isClusterOffline()) {
             return clusterOfflineBehavior.replace(old, element);
@@ -620,10 +622,10 @@ public class NonStopCache extends EhcacheDecoratorAdapter implements NonStopCach
         return executeWithExecutorBehavior.replace(old, element);
     }
 
-    @Override
     /**
      * {@inheritDoc}
      */
+    @Override
     public Element replace(Element element) throws NullPointerException {
         if (isClusterOffline()) {
             return clusterOfflineBehavior.replace(element);

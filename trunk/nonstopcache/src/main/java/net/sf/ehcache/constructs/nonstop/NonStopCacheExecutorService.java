@@ -41,14 +41,14 @@ import net.sf.ehcache.event.CacheEventListener;
 public class NonStopCacheExecutorService {
 
     /**
-     * Counter used for maintaining number of threads created by default ThreadFactory
-     */
-    protected static final AtomicInteger DEFAULT_FACTORY_COUNT = new AtomicInteger();
-
-    /**
      * Default number of threads in the thread pool
      */
     public static final int DEFAULT_THREAD_POOL_SIZE = 10;
+
+    /**
+     * Counter used for maintaining number of threads created by default ThreadFactory
+     */
+    protected static final AtomicInteger DEFAULT_FACTORY_COUNT = new AtomicInteger();
 
     private final ExecutorService executorService;
     private final AtomicInteger attachedCachesCount = new AtomicInteger();
@@ -143,7 +143,7 @@ public class NonStopCacheExecutorService {
                 // if the executor rejects (too many tasks executing), try until timed out
                 long now = System.currentTimeMillis();
                 if (now - startTime > timeoutValueInMillis) {
-                    // TODO: throw another sub-class indicating job was never scheduled ?
+                    // XXX: throw another sub-class indicating job was never scheduled ?
                     throw new TimeoutException();
                 } else {
                     continue;
@@ -215,6 +215,7 @@ public class NonStopCacheExecutorService {
          * Throws CloneNotSupportedException
          */
         public Object clone() throws CloneNotSupportedException {
+            super.clone();
             throw new CloneNotSupportedException();
         }
 

@@ -18,7 +18,6 @@ package net.sf.ehcache.constructs.nonstop;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Properties;
 
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.Ehcache;
@@ -124,7 +123,7 @@ public enum NonStopCacheBehaviorType {
 
     /**
      * Name to be used for this type. This value is used for "timeoutBehavior" key when configuring {@link NonStopCache} with
-     * {@link Properties}
+     * java.util.Properties
      * 
      * @return new instance of {@link NonStopCacheBehavior} for this type
      */
@@ -132,17 +131,17 @@ public enum NonStopCacheBehaviorType {
 
     /**
      * Value for {@link #EXCEPTION_ON_TIMEOUT} behavior. This value is used for "timeoutBehavior" key when configuring NonStopCache with
-     * {@link Properties}.
+     * java.util.Properties.
      */
     public static final String EXCEPTION_CONFIG_PROPERTY_NAME = "exception";
     /**
      * Value for {@link #NO_OP_ON_TIMEOUT} behavior. This value is used for "timeoutBehavior" key when configuring NonStopCache with
-     * {@link Properties}.
+     * java.util.Properties.
      */
     public static final String NO_OP_CONFIG_PROPERTY_NAME = "noop";
     /**
      * Value for {@link #LOCAL_READS_ON_TIMEOUT} behavior. This value is used for "timeoutBehavior" key when configuring NonStopCache with
-     * {@link Properties}.
+     * java.util.Properties.
      */
     public static final String LOCAL_READS_CONFIG_PROPERTY_NAME = "localReads";
 
@@ -167,7 +166,7 @@ public enum NonStopCacheBehaviorType {
      *             <li>{@link #LOCAL_READS_CONFIG_PROPERTY_NAME}</li>
      *             </ul>
      */
-    public static NonStopCacheBehaviorType getTypeFromConfigPropertyName(String configName) {
+    public static NonStopCacheBehaviorType getTypeFromConfigPropertyName(String configName) throws IllegalArgumentException {
         NonStopCacheBehaviorType type = configNameToTypeMapping.get(configName);
         if (type == null) {
             throw new IllegalArgumentException("Unrecognized NonStopCacheBehaviorType config property name -- " + configName);

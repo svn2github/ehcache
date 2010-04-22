@@ -39,18 +39,18 @@ public final class ExceptionOnTimeoutBehavior implements NonStopCacheBehavior {
     private static final ExceptionOnTimeoutBehavior INSTANCE = new ExceptionOnTimeoutBehavior();
 
     /**
+     * private constructor
+     */
+    private ExceptionOnTimeoutBehavior() {
+        //
+    }
+
+    /**
      * returns the singleton instance
      * 
      */
     public static ExceptionOnTimeoutBehavior getInstance() {
         return INSTANCE;
-    }
-
-    /**
-     * private constructor
-     */
-    private ExceptionOnTimeoutBehavior() {
-        //
     }
 
     /**

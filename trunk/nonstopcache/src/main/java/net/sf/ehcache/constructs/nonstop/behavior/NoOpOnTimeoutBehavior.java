@@ -32,12 +32,19 @@ import net.sf.ehcache.constructs.nonstop.NonStopCacheBehavior;
  * @author Abhishek Sanoujam
  * 
  */
-public class NoOpOnTimeoutBehavior implements NonStopCacheBehavior {
+public final class NoOpOnTimeoutBehavior implements NonStopCacheBehavior {
 
     /**
      * the singleton instance
      */
     private static final NoOpOnTimeoutBehavior INSTANCE = new NoOpOnTimeoutBehavior();
+
+    /**
+     * private constructor
+     */
+    private NoOpOnTimeoutBehavior() {
+        //
+    }
 
     /**
      * Returns the singleton instance
@@ -46,13 +53,6 @@ public class NoOpOnTimeoutBehavior implements NonStopCacheBehavior {
      */
     public static NoOpOnTimeoutBehavior getInstance() {
         return INSTANCE;
-    }
-
-    /**
-     * private constructor
-     */
-    private NoOpOnTimeoutBehavior() {
-        //
     }
 
     /**
