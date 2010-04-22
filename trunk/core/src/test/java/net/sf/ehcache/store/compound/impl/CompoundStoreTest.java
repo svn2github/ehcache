@@ -1,14 +1,11 @@
 package net.sf.ehcache.store.compound.impl;
 
-import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.concurrent.CacheLockProvider;
 import net.sf.ehcache.concurrent.LockType;
 import net.sf.ehcache.concurrent.Sync;
-import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.store.Store;
-import org.junit.Before;
 import org.junit.Test;
 
 import java.io.Serializable;
