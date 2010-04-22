@@ -81,7 +81,7 @@ public class UnlockedReadsView extends EhcacheDecoratorAdapter {
     public Element get(final Object key) throws IllegalStateException, CacheException {
         if (isStatisticsEnabled()) {
             long start = System.currentTimeMillis();
-            Element element = getFromStoreWithExpiryCheck(key, true, true);
+            Element element = getFromStoreWithExpiryCheck(key, false, true, true);
             if (element == null) {
                 liveCacheStatisticsData.cacheMissNotFound();
             }
@@ -89,7 +89,7 @@ public class UnlockedReadsView extends EhcacheDecoratorAdapter {
             liveCacheStatisticsData.addGetTimeMillis(end - start);
             return element;
         } else {
-            return getFromStoreWithExpiryCheck(key, false, true);
+            return getFromStoreWithExpiryCheck(key, false, false, true);
         }
     }
 
@@ -106,7 +106,7 @@ public class UnlockedReadsView extends EhcacheDecoratorAdapter {
      */
     @Override
     public Element getQuiet(final Object key) throws IllegalStateException, CacheException {
-        return getFromStoreWithExpiryCheck(key, false, false);
+        return getFromStoreWithExpiryCheck(key, true, false, false);
     }
 
     /**
@@ -122,18 +122,21 @@ public class UnlockedReadsView extends EhcacheDecoratorAdapter {
      * Provides unlocked reads to the underlying cache.
      * 
      * @param key
+     * @param quiet
+     *            does not update last access time if true
      * @param updateStats
      *            updates stats if true
      * @param notifyListeners
      *            notifies listeners if true
      * @return element associated with key if not expired
      */
-    private Element getFromStoreWithExpiryCheck(final Object key, final boolean updateStats, final boolean notifyListeners) {
+    private Element getFromStoreWithExpiryCheck(final Object key, final boolean quiet, final boolean updateStats,
+            final boolean notifyListeners) {
         Element element = null;
-        if (updateStats) {
-            element = terracottaStore.unlockedGet(key);
-        } else {
+        if (quiet) {
             element = terracottaStore.unlockedGetQuiet(key);
+        } else {
+            element = terracottaStore.unlockedGet(key);
         }
 
         if (element != null) {
@@ -147,8 +150,10 @@ public class UnlockedReadsView extends EhcacheDecoratorAdapter {
                 }
                 element = null;
             } else {
-                if (updateStats) {
+                if (!quiet) {
                     element.updateAccessStatistics();
+                }
+                if (updateStats) {
                     liveCacheStatisticsData.cacheHitInMemory();
                 }
             }
