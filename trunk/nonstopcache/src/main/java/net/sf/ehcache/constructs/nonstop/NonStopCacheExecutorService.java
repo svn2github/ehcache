@@ -130,10 +130,12 @@ public class NonStopCacheExecutorService {
      */
     public <V> V execute(final Callable<V> callable, final long timeoutValueInMillis) throws TimeoutException, CacheException,
             InterruptedException {
+        int attempt = 0;
         V result = null;
         long startTime = System.currentTimeMillis();
         while (true) {
             try {
+                attempt++;
                 result = executorService.submit(callable).get(timeoutValueInMillis, TimeUnit.MILLISECONDS);
                 break;
             } catch (InterruptedException e) {
@@ -143,8 +145,7 @@ public class NonStopCacheExecutorService {
                 // if the executor rejects (too many tasks executing), try until timed out
                 long now = System.currentTimeMillis();
                 if (now - startTime > timeoutValueInMillis) {
-                    // XXX: throw another sub-class indicating job was never scheduled ?
-                    throw new TimeoutException();
+                    throw new TaskNotSubmittedTimeoutException(attempt);
                 } else {
                     continue;
                 }
