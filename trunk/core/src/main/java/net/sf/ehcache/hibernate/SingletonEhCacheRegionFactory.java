@@ -15,6 +15,7 @@
  */
 package net.sf.ehcache.hibernate;
 
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Properties;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -60,12 +61,17 @@ public class SingletonEhCacheRegionFactory extends AbstractEhcacheRegionFactory 
                 manager = CacheManager.create();
                 REFERENCE_COUNT.incrementAndGet();
             } else {
-                if (!configurationResourceName.startsWith("/")) {
-                    configurationResourceName = "/" + configurationResourceName;
-                        LOG.debug("prepending / to {}. It should be placed in the rootof the classpath rather than in a package.",
-                                configurationResourceName);
+                URL url;
+                try {
+                    url = new URL(configurationResourceName);
+                } catch (MalformedURLException e) {
+                    if (!configurationResourceName.startsWith("/")) {
+                        configurationResourceName = "/" + configurationResourceName;
+                            LOG.debug("prepending / to {}. It should be placed in the root of the classpath rather than in a package.",
+                                    configurationResourceName);
+                    }
+                    url = loadResource(configurationResourceName);
                 }
-                URL url = loadResource(configurationResourceName);
                 manager = CacheManager.create(url);
                 REFERENCE_COUNT.incrementAndGet();
             }

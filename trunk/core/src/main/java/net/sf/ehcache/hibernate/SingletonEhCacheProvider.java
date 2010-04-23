@@ -86,15 +86,15 @@ public final class SingletonEhCacheProvider extends AbstractEhcacheProvider {
             manager = CacheManager.create();
             referenceCount++;
         } else {
-            if (!configurationResourceName.startsWith("/")) {
-                configurationResourceName = "/" + configurationResourceName;
-                    LOG.debug("prepending / to {}. It should be placed in the rootof the classpath rather than in a package.", 
-                            configurationResourceName);
-            }
             URL url;
             try {
                 url = new URL(configurationResourceName);
             } catch (MalformedURLException e) {
+                if (!configurationResourceName.startsWith("/")) {
+                    configurationResourceName = "/" + configurationResourceName;
+                        LOG.debug("prepending / to {}. It should be placed in the rootof the classpath rather than in a package.", 
+                                configurationResourceName);
+                }
                 url = loadResource(configurationResourceName);
             }
             manager = CacheManager.create(url);
