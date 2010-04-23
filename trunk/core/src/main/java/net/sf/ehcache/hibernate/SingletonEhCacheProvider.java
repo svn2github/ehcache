@@ -15,6 +15,7 @@
  */
 package net.sf.ehcache.hibernate;
 
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Properties;
 
@@ -90,7 +91,12 @@ public final class SingletonEhCacheProvider extends AbstractEhcacheProvider {
                     LOG.debug("prepending / to {}. It should be placed in the rootof the classpath rather than in a package.", 
                             configurationResourceName);
             }
-            URL url = loadResource(configurationResourceName);
+            URL url;
+            try {
+                url = new URL(configurationResourceName);
+            } catch (MalformedURLException e) {
+                url = loadResource(configurationResourceName);
+            }
             manager = CacheManager.create(url);
             referenceCount++;
         }
