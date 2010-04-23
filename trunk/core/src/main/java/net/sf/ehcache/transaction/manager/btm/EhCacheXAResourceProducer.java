@@ -54,6 +54,7 @@ public final class EhCacheXAResourceProducer extends ResourceBean implements XAR
 
 
     private EhCacheXAResourceProducer() {
+        setApplyTransactionTimeout(true);
     }
 
 
