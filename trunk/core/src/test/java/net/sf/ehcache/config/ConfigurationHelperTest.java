@@ -109,8 +109,9 @@ public class ConfigurationHelperTest extends AbstractCacheTest {
             assertTrue(diskDir.isDirectory());
         } finally {
             //delete only paths we created, not existing system paths, for repeatability
-            if (diskDir.getPath().indexOf("cacheManager1") != -1) {
+            while (diskDir.getPath().indexOf("cacheManager1") != -1) {
                 diskDir.delete();
+                diskDir = diskDir.getParentFile();
             }
         }
     }
