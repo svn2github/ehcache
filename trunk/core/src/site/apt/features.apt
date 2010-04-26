@@ -456,7 +456,7 @@
 
 ** {Full public information on the history of every bug}
 
- Through the {{{http://sourceforge.net/tracker/?group_id=93232&atid=603559}SourceForge project bug tracker}}, the full
+ Through the {{{https://jira.terracotta.org/jira/browse/EHC}JIRA bug tracker}}, the full
  history of all bugs are shown, including current status. We take this for granted in an open source project, as this
  is typically a feature that all open source projects have, but this transparency makes it possible to gauge the
  quality and riskiness of a library, something not usually possible in commercial products.
