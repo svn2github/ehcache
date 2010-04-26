@@ -6,7 +6,7 @@
 
 %{toc|fromDepth=2|toDepth=2}
 
-    <<<NonStopCache>>> is a {{{./cache_decorators}decorated cache}} which provides additional availability
+    <<<NonStopCache>>> is a {{{./cache_decorators.html}decorated cache}} which provides additional availability
     features relevant to caches backed by Terracotta.
 
     The two things it can do are:
