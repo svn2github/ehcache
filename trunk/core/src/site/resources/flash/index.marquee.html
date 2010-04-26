@@ -444,115 +444,137 @@
     </div>
 </div>
 
-<!-- please ignore/excuse the inline stlyes-->
-<div id="popup" style="display:none;position:absolute; width:222px; height:100%; color:#000000;">
 
-    <div id="popupTitle" style="background: url('../images/popupTop.png'); height:38px; padding:5px; padding-left: 30px;">
-        
+
+<!-- please ignore/excuse the inline styles-->
+<div id="popup"
+     style="display:none;position:absolute; width:222px; height:'100%'; color:#000000;">
+
+    <div id="popupTitle"
+         style="background: url('../images/popupTop.png'); height:38px; padding:5px; padding-left: 30px;">
+
     </div>
-    
+
     <div style="background: url('../images/popupBG.png'); background-repeat:repeat-y; padding:5px; padding-left: 30px;">
         <div id="popupContent" style="position: relative; top: -45;">
-        <p style="margin: 0px; padding: 0px;">
-           
-        </p>
+            <p style="margin: 0px; padding: 0px;">
+
+            </p>
         </div>
     </div>
-    <div id="popupBottom" style="background: url('../images/popupBottom.png'); height: 20px; ">
+    <div id="popupBottom"
+         style="background: url('../images/popupBottom.png'); height: 20px; ">
         &nbsp;
     </div>
 
 </div>
 
 
-<!-- Separate Divs for Easy HTML Content editting -->
+<!-- Separate Divs for Easy HTML Content editing -->
 
 
 <div id="hibernate" class="popupContent">
-        <span class="content">Hibernate Caching Provider</span>
-        <p style="margin: 0px; padding: 0px;">
-            Full featured Hibernate caching provider supporting all cache strategies.
+    <span class="content">Hibernate Caching Provider</span>
 
-        </p>
+    <p style="margin: 0px; padding: 0px;">
+        Full featured Hibernate caching provider supporting all cache strategies.
+
+    </p>
 </div>
 
 <div id="jms" class="popupContent">
-        <span class="content">JMS Replication</span>
-        <p style="margin: 0px; padding: 0px;">
-            The Ehcache jmsreplication module lets organisations with a message queue investment leverage it for caching.
+    <span class="content">JMS Replication</span>
 
-        </p>
+    <p style="margin: 0px; padding: 0px;">
+        The Ehcache jmsreplication module lets organisations with a message queue investment
+        leverage it for replicating caches.
+
+    </p>
 </div>
 
 <div id="rmi" class="popupContent">
-        <span class="content">RMI Replication</span>
-        <p style="margin: 0px; padding: 0px;">
-While RMI is a point-to-point protocol, which can generate a lot of network traffic, Ehcache manages this through batching of communications for the asynchronous replicator.
-        </p>
+    <span class="content">RMI Replication</span>
+
+    <p style="margin: 0px; padding: 0px;">
+        RMI-based replication in clusters. Does not support coherency or transactions.
+    </p>
 </div>
 
 <div id="core" class="popupContent">
-        <span class="content">EHCache Core</span>
-        <p style="margin: 0px; padding: 0px;">
-              Ehcache is a cache library. Before getting into ehcache, it is worth stepping back and thinking about caching generally.
+    <span class="content">Ehcache Core</span>
 
-        </p>
+    <p style="margin: 0px; padding: 0px;">
+        The core API. Most usages of Ehcache interact with CacheManager, Cache and Elements,
+        contained in this API.
+    </p>
 </div>
 
 <div id="jgroup" class="popupContent">
-        <span class="content">JGroups Replication</span>
-        <p style="margin: 0px; padding: 0px;">
-               JGroups offers a very flexible protocol stack, reliable unicast and multicast message transmission. On the down side JGroups can be complex to configure and some protocol stacks have dependencies on others.
+    <span class="content">JGroups Replication</span>
 
-        </p>
+    <p style="margin: 0px; padding: 0px;">
+        JGroups based replication in clusters. Does not support coherency or transactions.
+    </p>
 </div>
 
 <div id="web" class="popupContent">
-        <span class="content">Web Caching</span>
-        <p style="margin: 0px; padding: 0px;">
-             Ehcache provides a set of general purpose web caching filters in the ehcache-web module.
-Using these can make an amazing difference to web application performance. A typical server can deliver 5000+ pages per second from the page cache. With built-in gzipping, storage and network transmission is highly efficient. Cache pages and fragments make excellent candidates for DiskStore storage, because the object graphs are simple and the largest part is already a byte.
+    <span class="content">Web Caching</span>
 
-        </p>
+    <p style="margin: 0px; padding: 0px;">
+        Ehcache provides a set of general purpose web caching filters.
+    </p>
 </div>
 
 <div id="rest" class="popupContent">
-        <span class="content">Cache Server</span>
-        <p style="margin: 0px; padding: 0px;">
-             Ehcache now comes with a Cache Server, available as a WAR for most web containers, or as a standalone server. The Cache Server has two APIs: RESTful resource oriented, and SOAP. Both support clients in any programming language.
+    <span class="content">Cache Server</span>
 
-        </p>
+    <p style="margin: 0px; padding: 0px;">
+        A Cache Server, available as a WAR for most web containers,
+        or as a standalone server. The Cache Server has two APIs: RESTful resource oriented,
+        and SOAP. Both support clients in any programming language.
+
+    </p>
 </div>
 
 <div id="cluster" class="popupContent">
-        <span class="content">Terracotta Distributed Caching</span>
-        <p style="margin: 0px; padding: 0px;">
-              Distribution with the Terracotta Server Array ("TSA") is the preferred distribution mechanism. It provides coherency, JTA, HA, scale and high performance. It is available as open source or with additional features in the Ehcache EX and FX product editions.
-        </p>
+    <span class="content">Terracotta Distributed Caching</span>
+
+    <p style="margin: 0px; padding: 0px;">
+        Distribution with the Terracotta Server Array ("TSA") is the preferred distribution
+        mechanism. It provides coherency, JTA, HA, scale and high performance. It is
+        available as open source or with additional features in the Ehcache EX and FX
+        product editions. This requires a Terracotta server which is included in the Ehcache
+        download, since 2.1.
+    </p>
 </div>
 
 <div id="jcache" class="popupContent">
-        <span class="content">JCache Support</span>
-        <p style="margin: 0px; padding: 0px;">
-             Ehcache provides a preview implementation of JSR107 via the net.sf.cache.jcache package.
+    <span class="content">JCache Support</span>
 
-        </p>
+    <p style="margin: 0px; padding: 0px;">
+        Ehcache provides a preview implementation of JSR107 via the net.sf.cache.jcache
+        package.
+
+    </p>
 </div>
 
 <div id="jpa" class="popupContent">
-        <span class="content">OpenJPA Caching Provider</span>
-        <p style="margin: 0px; padding: 0px;">
-                As with Hibernate, Ehcache's OpenJPA module (from 0.2) uses the defaultCache configured in ehcache.xml to create caches.
-For production, we recommend configuring a cache configuration in ehcache.xml for each cache, so that it may be correctly tuned.
+    <span class="content">OpenJPA Caching Provider</span>
 
-        </p>
+    <p style="margin: 0px; padding: 0px;">
+        A cache provider for the OpenJPA ORM.
+    </p>
 </div>
 
 <div id="daojdbc" class="popupContent">
-        <span class="content">DAO/JDBC Caching</span>
-        <p style="margin: 0px; padding: 0px;">
-              Ehcache can easily be combined with your existing JDBC code. Whether you access JDBC directly, or have a DAO/DAL layer, Ehcache can be combined with your existing data access pattern to speed up frequently accessed data to reduce page load times, improve performance, and reduce load from your database.
+    <span class="content">DAO/JDBC Caching</span>
 
-        </p>
+    <p style="margin: 0px; padding: 0px;">
+        Interaction with a database directly rather than via ORM remains popular.
+        Ehcache's core API is useful for caching these accesses which are documented
+        in this API.
+    </p>
 </div>
+
+
 </body></html>

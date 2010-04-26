@@ -67,7 +67,7 @@
 			trace('test');
 			var contentArray:Array = contentString.split(',');
 			trace('test');
-			var leftX:int = 22;
+			var leftX:int = 5;
 			
 			for (var i:int; i < titleArray.length; i++) {
 				
@@ -77,10 +77,10 @@
 				var upperText:TextField = new TextField();
 				upperText.text = titleArray[i];
 				top.addChild(upperText);
-				upperText.x = leftX;
+				upperText.x = leftX ;
 				upperText.y = 6;
 				upperText.selectable = false;
-				upperText.autoSize = TextFieldAutoSize.CENTER;
+				upperText.autoSize = TextFieldAutoSize.LEFT;
 				
 				
 				var lowerText:TextField = new TextField();
@@ -89,7 +89,7 @@
 				lowerText.x = leftX ;
 				lowerText.y = 4;
 				lowerText.selectable = false;
-				lowerText.autoSize = TextFieldAutoSize.CENTER;
+				lowerText.autoSize = TextFieldAutoSize.LEFT;
 				
 				
 				
@@ -153,19 +153,8 @@
 					
 					}	
 					
-					
-				  
-				  
-				  
-				  
-				  
-				  
-				  
+				
 				}
-				
-				
-				
-				
 				
 				
 				/*
@@ -194,7 +183,7 @@
 				
 				
 				
-				leftX = upperText.x + upperText.width +25;
+				leftX = upperText.x + upperText.width + 25;
 				
 				
 				
@@ -203,11 +192,6 @@
 			mainLayer.addChild(main);
 			
 			
-			
-			
-			
-
-
 			var loadingArr = new Array();
 			for (var i:int; i < contentArray.length; i++) {
 				loadingArr[i] = new URLRequest(contentArray[i]);
