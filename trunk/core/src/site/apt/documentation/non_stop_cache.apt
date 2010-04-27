@@ -55,7 +55,7 @@
            overflowToDisk="true">
         <cacheDecoratorFactory
                 class="net.sf.ehcache.terracotta.NonStopCacheFactory"
-                properties="timeoutMillis=3000, timeoutBehaviour=noop ..."/>
+                properties="timeoutMillis=3000, timeoutBehavior=noop ..."/>
     </cache>
 ---
 
@@ -80,7 +80,7 @@
     Set the <<<timeoutMillis>>> property. It applies to all cache operations (put, get, remove ...). After the time elapses the operation is aborted. For mutate
     operations (put, remove etc), it cannot be guaranteed whether the operation succeeded or not when the timeout happened.
 
-    What happens on timeout depends on the value of <<<timeoutBehaviour>>>, which can take the following values:
+    What happens on timeout depends on the value of <<<timeoutBehavior>>>, which can take the following values:
 
     <<<noop>>>        - gets return null. Mutating operations such as put and removed are ignored.
 
@@ -116,7 +116,7 @@
     The property <<<immediateTimeout>>> if set to true will cause the cache operations to act as if they have immediately timed out,
     without waiting the <<<timeoutMillis>>> value.
 
-    What then happens depends on how <<<timeoutBehaviour>>> is configured.
+    What then happens depends on how <<<timeoutBehavior>>> is configured.
 
 *   {Download}
 
