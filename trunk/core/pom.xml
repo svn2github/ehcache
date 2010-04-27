@@ -292,7 +292,6 @@
                         <!--</goals>-->
                     <!--</execution>-->
 
-
                     <execution>
                         <id>copy_files</id>
                         <phase>site</phase>
