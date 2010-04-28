@@ -7,8 +7,8 @@
                 Ehcache 2.1.0 JTA support with Atomikos requires Atomikos 3.6.5.
             </action>
         </release>
-        <release version="2.1.0-beta">
-            <action dev="Chris Dennis" type="fix" issue="EHC-450">
+ <release version="2.1.0-beta" date="2010-04-21" description="Beta for 2.1.0 a major release with new features">
+             <action dev="Chris Dennis" type="fix" issue="EHC-450">
                 Change the internal store structures to be fully coherent. 
                 This allows for the addition of concurrent map like methods
                 (e.g. putIfAbsent) and also for JTA caching in unclustered
