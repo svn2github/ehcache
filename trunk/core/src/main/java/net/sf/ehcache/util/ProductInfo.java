@@ -57,7 +57,13 @@ public class ProductInfo {
             props.load(in);
         } catch (IOException e) {
             throw new RuntimeException(e);
-        }
+        } finally {
+          try {
+            in.close();
+          } catch (IOException e2) {
+            // ignore
+          }
+        } 
     }
 
     /**
