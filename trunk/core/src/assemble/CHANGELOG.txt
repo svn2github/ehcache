@@ -1,5 +1,10 @@
 ehcache-2.1.0
 ==================
+   	<release version="2.1.0">
+    	<action dev="Fiona O'Shea" type="info" issue="EHC-693">
+                Ehcache 2.1.0 JTA support with Atomikos requires Atomikos 3.6.5.
+            </action>
+        </release>
     <release version="2.1.0-beta">
         <action dev="Chris Dennis" type="fix" issue="EHC-450">
             Change the internal store structures to be fully coherent. 
