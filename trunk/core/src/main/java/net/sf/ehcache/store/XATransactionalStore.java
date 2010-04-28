@@ -494,6 +494,9 @@ public class XATransactionalStore extends AbstractStore {
             if (transaction == null) {
                 throw new CacheException("Cache " + cache.getName() + " can only be accessed within a JTA Transaction!");
             }
+            if (transaction.getStatus() == javax.transaction.Status.STATUS_MARKED_ROLLBACK) {
+                throw new CacheException("Cache [" + cache.getName() + "] cannot be used anymore, transaction is marked for rollback: " + transaction);                
+            }
 
             TransactionContext context;
             EhcacheXAResource xaResource = getOrCreateXAResource();
