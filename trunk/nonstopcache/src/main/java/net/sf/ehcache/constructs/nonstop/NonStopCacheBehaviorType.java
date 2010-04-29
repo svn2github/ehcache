@@ -169,7 +169,7 @@ public enum NonStopCacheBehaviorType {
     public static NonStopCacheBehaviorType getTypeFromConfigPropertyName(String configName) throws IllegalArgumentException {
         NonStopCacheBehaviorType type = configNameToTypeMapping.get(configName);
         if (type == null) {
-            throw new IllegalArgumentException("Unrecognized NonStopCacheBehaviorType config property name -- " + configName);
+            throw new IllegalArgumentException("Unrecognized NonStopCacheBehaviorType config property value -- " + configName);
         }
         return type;
     }

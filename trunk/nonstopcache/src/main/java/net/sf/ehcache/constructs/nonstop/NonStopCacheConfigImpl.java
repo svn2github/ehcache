@@ -18,6 +18,9 @@ package net.sf.ehcache.constructs.nonstop;
 
 import java.util.Properties;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * Implementation of {@link NonStopCacheConfig}
  * 
@@ -26,6 +29,7 @@ import java.util.Properties;
  */
 public class NonStopCacheConfigImpl implements NonStopCacheConfig {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(NonStopCacheConfigImpl.class);
     private static final Properties DEFAULT_VALUES_PROPERTIES = new Properties();
 
     private long timeoutMillis;
@@ -41,15 +45,17 @@ public class NonStopCacheConfigImpl implements NonStopCacheConfig {
 
     /**
      * Constructor accepting a {@link Properties} that contains mappings for the {@link NonStopCacheConfig}. See {@link NonStopCacheConfig}
-     * for allowed key and values
+     * for allowed key and values.
+     * <p>
+     * For all config keys whose value is not specified in the Properties mapping, the default value will be used. If the value is specified
+     * and is not a legal value, exception will be thrown
      * 
      * @param properties
      */
     public NonStopCacheConfigImpl(final Properties properties) {
-        this.timeoutMillis = getInt(properties, TIMEOUT_MILLIS_PROP_KEY);
-        this.timeoutBehaviorType = NonStopCacheBehaviorType
-                .getTypeFromConfigPropertyName(properties.getProperty(TIMEOUT_BEHAVIOR_PROP_KEY));
-        this.immediateTimeout = getBoolean(properties, IMMEDIATE_TIMEOUT_PROP_KEY);
+        this.timeoutMillis = getLong(properties, TIMEOUT_MILLIS_PROP_KEY, DEFAULT_TIMEOUT_MILLIS);
+        this.timeoutBehaviorType = getTimeoutBehavior(properties, TIMEOUT_BEHAVIOR_PROP_KEY, DEFAULT_TIMEOUT_BEHAVIOR_TYPE);
+        this.immediateTimeout = getBoolean(properties, IMMEDIATE_TIMEOUT_PROP_KEY, DEFAULT_IMMEDIATE_TIMEOUT);
     }
 
     static {
@@ -58,23 +64,40 @@ public class NonStopCacheConfigImpl implements NonStopCacheConfig {
         DEFAULT_VALUES_PROPERTIES.setProperty(IMMEDIATE_TIMEOUT_PROP_KEY, "" + DEFAULT_IMMEDIATE_TIMEOUT);
     }
 
-    private static boolean getBoolean(final Properties properties, final String key) {
+    private NonStopCacheBehaviorType getTimeoutBehavior(Properties properties, String key, NonStopCacheBehaviorType defaultValue) {
+        String value = properties.getProperty(key);
+        if (value == null) {
+            LOGGER.info("No value was specified for key '" + key + "'. Using default value - '" + defaultValue.getConfigPropertyName()
+                    + "'");
+            return defaultValue;
+        }
+        return NonStopCacheBehaviorType.getTypeFromConfigPropertyName(value);
+    }
+
+    private static boolean getBoolean(final Properties properties, final String key, boolean defaultValue) {
         String value = properties.getProperty(key);
         if ("true".equalsIgnoreCase(value)) {
             return true;
         } else if ("false".equalsIgnoreCase(value)) {
             return false;
+        } else if (value == null) {
+            LOGGER.info("No value was specified for key '" + key + "'. Using default value - '" + defaultValue + "'");
+            return defaultValue;
         } else {
             throw new IllegalArgumentException("Value for '" + key + "' should be either 'true' or 'false' -- " + value);
         }
     }
 
-    private static int getInt(final Properties properties, final String key) {
+    private static long getLong(final Properties properties, final String key, long defaultValue) {
         String value = properties.getProperty(key);
+        if (value == null) {
+            LOGGER.info("No value was specified for key '" + key + "'. Using default value - '" + defaultValue + "'");
+            return defaultValue;
+        }
         try {
-            return Integer.parseInt(value);
+            return Long.parseLong(value);
         } catch (NumberFormatException e) {
-            throw new IllegalArgumentException("Specified value for '" + key + "' is not a number - " + value);
+            throw new IllegalArgumentException("Value for '" + key + "' is not a number -- " + value);
         }
     }
 
