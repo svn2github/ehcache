@@ -605,6 +605,12 @@ public class CacheManager {
         for (Iterator iterator = unitialisedCaches.iterator(); iterator.hasNext();) {
             Ehcache unitialisedCache = (Ehcache) iterator.next();
             addCacheNoCheck(unitialisedCache, true);
+            
+            // add the cache decorators for the cache, if any
+            List<Ehcache> cacheDecorators = configurationHelper.createCacheDecorators(unitialisedCache);
+            for (Ehcache decoratedCache : cacheDecorators) {
+                addDecoratedCache(decoratedCache);
+            }
         }
     }
 
@@ -742,7 +748,11 @@ public class CacheManager {
      * Consider using getEhcache(String name) instead, which will return decorated caches that are registered.
      * <p/>
      * If a decorated ehcache is registered in CacheManager, an undecorated Cache with the same name will also exist.
-     *
+     * 
+     * Since version ehcache-core-2.1.0, when an {@link Ehcache} decorator is present in the CacheManager, its not necessary that a
+     * {@link Cache} instance is also present for the same name. Decorators can have different names other than the name of the cache its
+     * decorating.
+     * 
      * @return a Cache, if an object of that type exists by that name, else null
      * @throws IllegalStateException
      *             if the cache is not {@link Status#STATUS_ALIVE}
@@ -890,6 +900,30 @@ public class CacheManager {
             return;
         }
         addCacheNoCheck(cache, true);
+    }
+
+    /**
+     * Adds a decorated {@link Ehcache} to the CacheManager. This method neither creates the memory/disk store nor initializes the cache.
+     * It only adds the cache reference to the map of caches held by this cacheManager.
+     * <p/>
+     * It is generally required that a decorated cache, once constructed, is made available to other execution threads. The simplest way of
+     * doing this is to either add it to the cacheManager with a different name or substitute the original cache with the decorated one.
+     * This method adds the decorated cache assuming it has a different name. If another cache (decorated or not) with the same name already
+     * exists, it will throw {@link ObjectExistsException}. For replacing existing cache with another decorated cache having same name,
+     * please use {@link #replaceCacheWithDecoratedCache(Ehcache, Ehcache)}
+     * <p/>
+     * Note that any overridden Ehcache methods by the decorator will take on new behaviours without casting. Casting is only required for
+     * new methods that the decorator introduces. For more information see the well known Gang of Four Decorator pattern.
+     * 
+     * @param decoratedCache
+     * @throws ObjectExistsException
+     *             if another cache with the same name already exists.
+     */
+    public void addDecoratedCache(Ehcache decoratedCache) throws ObjectExistsException {
+        Ehcache old = ehcaches.putIfAbsent(decoratedCache.getName(), decoratedCache);
+        if (old != null) {
+            throw new ObjectExistsException("Cache " + decoratedCache.getName() + " already exists in the CacheManager");
+        }
     }
 
     private Ehcache addCacheNoCheck(Ehcache cache, final boolean strict)

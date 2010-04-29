@@ -16,18 +16,19 @@
 
 package net.sf.ehcache.config;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+import java.util.concurrent.CopyOnWriteArraySet;
+
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.event.NotificationScope;
 import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
 import net.sf.ehcache.store.compound.CopyStrategy;
 import net.sf.ehcache.store.compound.SerializationCopyStrategy;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-import java.util.concurrent.CopyOnWriteArraySet;
 
 /**
  * A value object used to represent cache configuration.
@@ -240,6 +241,12 @@ public class CacheConfiguration implements Cloneable {
      * The cache loader factories added by BeanUtils.
      */
     protected volatile List<CacheLoaderFactoryConfiguration> cacheLoaderConfigurations = new ArrayList<CacheLoaderFactoryConfiguration>();
+    
+    /**
+     * The cache decorator factories added by BeanUtils.
+     */
+    protected volatile List<CacheDecoratorFactoryConfiguration> cacheDecoratorConfigurations = 
+        new ArrayList<CacheDecoratorFactoryConfiguration>();
 
     /**
      * The listeners for this configuration.
@@ -306,6 +313,8 @@ public class CacheConfiguration implements Cloneable {
         }
 
         cloneCacheLoaderConfigurations(config);
+        
+        cloneCacheDecoratorConfigurations(config);
 
         config.listeners = new CopyOnWriteArraySet<CacheConfigurationListener>();
 
@@ -339,6 +348,16 @@ public class CacheConfiguration implements Cloneable {
                 copy.add(item.clone());
             }
             config.cacheLoaderConfigurations = copy;
+        }
+    }
+    
+    private void cloneCacheDecoratorConfigurations(CacheConfiguration config) {
+        if (cacheDecoratorConfigurations.size() > 0) {
+            List<CacheDecoratorFactoryConfiguration> copy = new ArrayList<CacheDecoratorFactoryConfiguration>();
+            for (CacheDecoratorFactoryConfiguration item : cacheDecoratorConfigurations) {
+                copy.add(item.clone());
+            }
+            config.cacheDecoratorConfigurations = copy;
         }
     }
 
@@ -974,6 +993,22 @@ public class CacheConfiguration implements Cloneable {
         checkDynamicChange();
         cacheLoaderConfigurations.add(factory);
     }
+    
+    /**
+     * Configuration for the CacheDecoratorFactoryConfiguration.
+     */
+    public static final class CacheDecoratorFactoryConfiguration extends FactoryConfiguration<CacheDecoratorFactoryConfiguration> {
+    }
+
+    /**
+     * Used by BeanUtils to add each cacheDecoratorFactory to the cache configuration.
+     *
+     * @param factory
+     */
+    public final void addCacheDecoratorFactory(CacheDecoratorFactoryConfiguration factory) {
+        checkDynamicChange();
+        cacheDecoratorConfigurations.add(factory);
+    }
 
     /**
      * @return this configuration instance
@@ -1260,6 +1295,15 @@ public class CacheConfiguration implements Cloneable {
      */
     public List getCacheLoaderConfigurations() {
         return cacheLoaderConfigurations;
+    }
+    
+    /**
+     * Accessor
+     *
+     * @return the configuration
+     */
+    public List<CacheDecoratorFactoryConfiguration> getCacheDecoratorConfigurations() {
+        return cacheDecoratorConfigurations;
     }
 
     /**

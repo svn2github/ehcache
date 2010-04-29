@@ -104,6 +104,7 @@
                 <xs:element minOccurs="0" maxOccurs="unbounded" ref="cacheEventListenerFactory"/>
                 <xs:element minOccurs="0" maxOccurs="unbounded" ref="cacheExtensionFactory"/>
                 <xs:element minOccurs="0" maxOccurs="unbounded" ref="cacheLoaderFactory"/>
+                <xs:element minOccurs="0" maxOccurs="unbounded" ref="cacheDecoratorFactory"/>
                 <xs:element minOccurs="0" maxOccurs="1" ref="bootstrapCacheLoaderFactory"/>
                 <xs:element minOccurs="0" maxOccurs="1" ref="cacheExceptionHandlerFactory"/>
                 <xs:element minOccurs="0" maxOccurs="1" ref="terracotta"/>
@@ -160,6 +161,13 @@
         </xs:complexType>
     </xs:element>
     <xs:element name="cacheLoaderFactory">
+        <xs:complexType>
+            <xs:attribute name="class" use="required"/>
+            <xs:attribute name="properties" use="optional"/>
+            <xs:attribute name="propertySeparator" use="optional"/>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="cacheDecoratorFactory">
         <xs:complexType>
             <xs:attribute name="class" use="required"/>
             <xs:attribute name="properties" use="optional"/>

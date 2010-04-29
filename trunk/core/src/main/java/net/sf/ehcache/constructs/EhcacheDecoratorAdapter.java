@@ -61,8 +61,8 @@ public class EhcacheDecoratorAdapter implements Ehcache {
      * 
      * @param decoratedCache
      */
-    public EhcacheDecoratorAdapter(Ehcache decoratedCache) {
-        this.underlyingCache = decoratedCache;
+    public EhcacheDecoratorAdapter(Ehcache underlyingCache) {
+        this.underlyingCache = underlyingCache;
     }
 
     /**

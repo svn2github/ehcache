@@ -16,6 +16,8 @@
 
 package net.sf.ehcache.config;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -28,6 +30,8 @@ import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;
+import net.sf.ehcache.config.CacheConfiguration.CacheDecoratorFactoryConfiguration;
+import net.sf.ehcache.constructs.CacheDecoratorFactory;
 import net.sf.ehcache.distribution.CacheManagerPeerListener;
 import net.sf.ehcache.distribution.CacheManagerPeerListenerFactory;
 import net.sf.ehcache.distribution.CacheManagerPeerProvider;
@@ -309,6 +313,52 @@ public final class ConfigurationHelper {
             return ExceptionHandlingDynamicCacheProxy.createProxy(cache);
         }
         return cache;
+    }
+    
+    /**
+     * Creates decorated ehcaches for the cache, if any configured in ehcache.xml
+     * 
+     * @param cache the cache
+     * @return List of the decorated ehcaches, if any configured in ehcache.xml otherwise returns empty list
+     */
+    public List<Ehcache> createCacheDecorators(Ehcache cache) {
+        CacheConfiguration cacheConfiguration = cache.getCacheConfiguration();
+        if (cacheConfiguration == null) {
+            return Collections.emptyList();
+        }
+        List<CacheDecoratorFactoryConfiguration> cacheDecoratorConfigurations = cacheConfiguration.getCacheDecoratorConfigurations();
+        if (cacheDecoratorConfigurations == null || cacheDecoratorConfigurations.size() == 0) {
+            LOG.debug("CacheDecoratorFactory not configured. Skipping...");
+            return Collections.emptyList();
+        }
+        List<Ehcache> result = new ArrayList<Ehcache>();
+        for (CacheDecoratorFactoryConfiguration factoryConfiguration : cacheDecoratorConfigurations) {
+            Ehcache decoratedCache = createDecoratedCache(cache, factoryConfiguration);
+            if (decoratedCache != null) {
+                result.add(decoratedCache);
+            }
+        }
+        return result;
+    }
+    
+    /**
+     * Creates the decorated cache from the decorator config specified. Returns null if the name of the factory class is not specified
+     */
+    private static Ehcache createDecoratedCache(Ehcache cache,
+            CacheConfiguration.CacheDecoratorFactoryConfiguration factoryConfiguration) {
+        if (factoryConfiguration == null) {
+            return null;
+        }
+        String className = factoryConfiguration.getFullyQualifiedClassPath();
+        if (className == null) {
+            LOG.debug("CacheDecoratorFactory was specified without the name of the factory. Skipping...");
+            return null;
+        } else {
+            CacheDecoratorFactory factory = (CacheDecoratorFactory) ClassLoaderUtil.createNewInstance(className);
+            Properties properties = PropertyUtil.parseProperties(factoryConfiguration.getProperties(),
+                    factoryConfiguration.getPropertySeparator());
+            return factory.createDecoratedEhcache(cache, properties);
+        }
     }
 
     /**
