@@ -12,6 +12,15 @@
     <artifactId>ehcache-web</artifactId>
     <packaging>jar</packaging>
     <description><![CDATA[Web caching filters.]]> </description>
+
+    <licenses>
+        <license>
+            <name>The Apache Software License, Version 2.0</name>
+            <url>http://ehcache.org/license.html</url>
+        </license>
+    </licenses>
+
+
     <dependencies>
         <dependency>
             <groupId>${pom.groupId}</groupId>
