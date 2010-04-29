@@ -35,22 +35,27 @@
 
 package net.sf.ehcache.constructs.web.filter;
 
-import net.sf.ehcache.config.CacheConfiguration;
-import net.sf.ehcache.constructs.web.AlreadyGzippedException;
-import net.sf.ehcache.constructs.web.HttpDateFormatter;
-import net.sf.ehcache.constructs.web.PageInfo;
-import net.sf.ehcache.constructs.web.ResponseHeadersNotModifiableException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.io.IOException;
+import java.io.Serializable;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
+import java.util.zip.DataFormatException;
 
 import javax.servlet.FilterChain;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.util.Collection;
-import java.util.Date;
-import java.util.List;
-import java.util.zip.DataFormatException;
+
+import net.sf.ehcache.config.CacheConfiguration;
+import net.sf.ehcache.constructs.web.AlreadyGzippedException;
+import net.sf.ehcache.constructs.web.Header;
+import net.sf.ehcache.constructs.web.HttpDateFormatter;
+import net.sf.ehcache.constructs.web.PageInfo;
+import net.sf.ehcache.constructs.web.ResponseHeadersNotModifiableException;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -161,6 +166,8 @@ public class SimpleCachingHeadersPageCachingFilter extends SimplePageCachingFilt
 
     private static final long ONE_YEAR_IN_MILLISECONDS = 60 * 60 * 24 * 365 * 1000L;
     private static final int MILLISECONDS_PER_SECOND = 1000;
+    
+    private HttpDateFormatter httpDateFormatter;
 
 
     /**
@@ -185,23 +192,40 @@ public class SimpleCachingHeadersPageCachingFilter extends SimplePageCachingFilt
      * @throws Exception
      *
      */
-    @SuppressWarnings("unchecked")
     @Override
     protected PageInfo buildPage(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
             throws AlreadyGzippedException, Exception {
         PageInfo pageInfo = super.buildPage(request, response, chain);
-        //add expires and last-modified headers
-        Date now = new Date();
 
-        List<String[]> headers = pageInfo.getResponseHeaders();
+        final List<Header<? extends Serializable>> headers = pageInfo.getHeaders();
 
-        HttpDateFormatter httpDateFormatter = new HttpDateFormatter();
-        String lastModified = httpDateFormatter.formatHttpDate(pageInfo.getCreated());
         long ttlMilliseconds = calculateTimeToLiveMilliseconds();
-        headers.add(new String[]{"Last-Modified", lastModified});
-        headers.add(new String[]{"Expires", httpDateFormatter.formatHttpDate(new Date(now.getTime() + ttlMilliseconds))});
-        headers.add(new String[]{"Cache-Control", "max-age=" + ttlMilliseconds / MILLISECONDS_PER_SECOND});
-        headers.add(new String[]{"ETag", generateEtag(ttlMilliseconds)});
+        
+        //Remove any conflicting headers
+        for (final Iterator<Header<? extends Serializable>> headerItr = headers.iterator(); headerItr.hasNext();) {
+            final Header<? extends Serializable> header = headerItr.next();
+            
+            final String name = header.getName();
+            if ("Last-Modified".equalsIgnoreCase(name) || 
+                    "Expires".equalsIgnoreCase(name) || 
+                    "Cache-Control".equalsIgnoreCase(name) || 
+                    "ETag".equalsIgnoreCase(name)) {
+                headerItr.remove();
+            }
+        }
+        
+        //add expires and last-modified headers
+        
+        //trim the milliseconds off the value since the header is only accurate down to the second
+        long lastModified = pageInfo.getCreated().getTime();
+        lastModified = TimeUnit.MILLISECONDS.toSeconds(lastModified);
+        lastModified = TimeUnit.SECONDS.toMillis(lastModified);
+        
+        headers.add(new Header<Long>("Last-Modified", lastModified));
+        headers.add(new Header<Long>("Expires", System.currentTimeMillis() + ttlMilliseconds));
+        headers.add(new Header<String>("Cache-Control", "max-age=" + ttlMilliseconds / MILLISECONDS_PER_SECOND));
+        headers.add(new Header<String>("ETag", generateEtag(ttlMilliseconds)));
+        
         return pageInfo;
     }
 
@@ -226,7 +250,17 @@ public class SimpleCachingHeadersPageCachingFilter extends SimplePageCachingFilt
         return eTag;
     }
 
-
+    /**
+     * @return A lazily created HttpDateFormatter instance scoped to this filter
+     */
+    protected final HttpDateFormatter getHttpDateFormatter() {
+        if (httpDateFormatter == null) {
+            //Delay init since SimpleDateFormat is expensive to create
+            httpDateFormatter = new HttpDateFormatter();
+        }
+        
+        return this.httpDateFormatter;
+    }
 
     /**
      * Writes the response from a PageInfo object.
@@ -240,19 +274,11 @@ public class SimpleCachingHeadersPageCachingFilter extends SimplePageCachingFilt
     protected void writeResponse(HttpServletRequest request, HttpServletResponse response, PageInfo pageInfo)
             throws IOException, DataFormatException, ResponseHeadersNotModifiableException {
 
-        HttpDateFormatter httpDateFormatter = new HttpDateFormatter();
-
-
-        final Collection responseHeaders = pageInfo.getResponseHeaders();
-        final int header = 0;
-        final int value = 1;
-        for (Object header1 : responseHeaders) {
-            final String[] headerPair = (String[]) header1;
-
-
-            if (headerPair[header].equals("ETag")) {
+        final List<Header<? extends Serializable>> headers = pageInfo.getHeaders();
+        for (final Header<? extends Serializable> header : headers) {
+            if ("ETag".equals(header.getName())) {
                 String requestIfNoneMatch = request.getHeader("If-None-Match");
-                if (headerPair[value].equals(requestIfNoneMatch)) {
+                if (header.getValue().equals(requestIfNoneMatch)) {
                     response.sendError(HttpServletResponse.SC_NOT_MODIFIED);
                     // use the same date we sent when we created the ETag the first time through
                     //response.setHeader("Last-Modified", request.getHeader("If-Modified-Since"));
@@ -260,12 +286,23 @@ public class SimpleCachingHeadersPageCachingFilter extends SimplePageCachingFilt
                 }
                 break;
             }
-            if (headerPair[header].equals("Last-Modified")) {
-                String requestIfModifiedSince = request.getHeader("If-Modified-Since");
-                if (requestIfModifiedSince != null) {
-                    Date requestDate = httpDateFormatter.parseDateFromHttpDate(requestIfModifiedSince);
-                    Date pageInfoDate = httpDateFormatter.parseDateFromHttpDate(headerPair[value]);
-                    if (requestDate.getTime() >= pageInfoDate.getTime()) {
+            if ("Last-Modified".equals(header.getName())) {
+                long requestIfModifiedSince = request.getDateHeader("If-Modified-Since");
+                if (requestIfModifiedSince != -1) {
+                    final Date requestDate = new Date(requestIfModifiedSince);
+                    final Date pageInfoDate;
+                    switch (header.getType()) {
+                        case STRING:
+                            pageInfoDate = this.getHttpDateFormatter().parseDateFromHttpDate((String)header.getValue());
+                        break;
+                        case DATE:
+                            pageInfoDate = new Date((Long)header.getValue());
+                        break;
+                        default:
+                            throw new IllegalArgumentException("Header " + header + " is not supported as type: " + header.getType()); 
+                    }
+                    
+                    if (!requestDate.before(pageInfoDate)) {
                         response.sendError(HttpServletResponse.SC_NOT_MODIFIED);
                         response.setHeader("Last-Modified", request.getHeader("If-Modified-Since"));
                         return;

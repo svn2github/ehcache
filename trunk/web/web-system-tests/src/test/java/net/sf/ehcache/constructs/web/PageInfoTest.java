@@ -16,15 +16,9 @@
 
 package net.sf.ehcache.constructs.web;
 
-import net.sf.ehcache.StopWatch;
-import org.junit.After;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
-import org.junit.Before;
-import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -32,10 +26,19 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
+
+import net.sf.ehcache.StopWatch;
+
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * PageInfo is a {@link java.io.Serializable} representation of a {@link javax.servlet.http.HttpServletResponse}.
@@ -93,7 +96,7 @@ public class PageInfoTest extends AbstractWebTest {
     public void testAttemptedDoubleGzip() throws IOException {
         byte[] gzip = getGzipFileAsBytes();
         try {
-            new PageInfo(200, "text/plain", new ArrayList(), new ArrayList(), gzip, true, 0);
+            new PageInfo(200, "text/plain", new ArrayList(), gzip, true, 0, null);
             fail();
         } catch (AlreadyGzippedException e) {
             assertEquals("The byte[] is already gzipped. It should not be gzipped again.", e.getMessage());
@@ -113,10 +116,10 @@ public class PageInfoTest extends AbstractWebTest {
     @Test
     public void testUsedGunzipImplementationPerformance() throws IOException, AlreadyGzippedException, InterruptedException {
         byte[] gzip = getGzipFileAsBytes();
-        Collection headers = new ArrayList();
-        String[] header = new String[]{"Content-Encoding", "gzip"};
+        Collection<Header<? extends Serializable>> headers = new ArrayList<Header<? extends Serializable>>();
+        Header<String> header = new Header<String>("Content-Encoding", "gzip");
         headers.add(header);
-        PageInfo pageInfo = new PageInfo(200, "text/plain", headers, new ArrayList(), gzip, true, 0);
+        PageInfo pageInfo = new PageInfo(200, "text/plain", new ArrayList(), gzip, true, 0, headers);
         long initialMemoryUsed = memoryUsed();
         StopWatch stopWatch = new StopWatch();
         int size = 0;

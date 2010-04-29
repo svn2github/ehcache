@@ -24,7 +24,10 @@
     <!--<suppress checks="JavadocTypeCheck" files="Test.java"/>-->
     <suppress checks="JavadocMethodCheck" files="Test.java"/>
     
-
+    <!-- Fails on the most-efficient way to implement equals(Object) -->
+    <suppress checks="CyclomaticComplexity" files="Header.java"/>
+    <suppress checks="NPathComplexity" files="Header.java"/>
+    
     <suppress checks="IllegalTypeCheck" files="JMSCachePeer.java"/>
     <suppress checks="NPathComplexity" files="JMSCacheReplicator.java"/>
     <suppress checks="GenericIllegalRegexpCheck" files="Server.java"/>

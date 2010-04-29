@@ -16,6 +16,22 @@
 
 package net.sf.ehcache.constructs.web.filter;
 
+import java.io.BufferedOutputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.Serializable;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.TreeSet;
+import java.util.zip.DataFormatException;
+
+import javax.servlet.FilterChain;
+import javax.servlet.FilterConfig;
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;
@@ -25,25 +41,14 @@ import net.sf.ehcache.constructs.blocking.LockTimeoutException;
 import net.sf.ehcache.constructs.web.AlreadyCommittedException;
 import net.sf.ehcache.constructs.web.AlreadyGzippedException;
 import net.sf.ehcache.constructs.web.GenericResponseWrapper;
+import net.sf.ehcache.constructs.web.Header;
 import net.sf.ehcache.constructs.web.PageInfo;
 import net.sf.ehcache.constructs.web.ResponseHeadersNotModifiableException;
 import net.sf.ehcache.constructs.web.ResponseUtil;
 import net.sf.ehcache.constructs.web.SerializableCookie;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.servlet.FilterChain;
-import javax.servlet.FilterConfig;
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.BufferedOutputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.zip.DataFormatException;
 
 /**
  * An abstract CachingFilter.
@@ -265,8 +270,9 @@ public abstract class CachingFilter extends Filter {
         long timeToLiveSeconds = blockingCache.getCacheConfiguration().getTimeToLiveSeconds();
 
         // Return the page info
-        return new PageInfo(wrapper.getStatus(), wrapper.getContentType(), wrapper.getHeaders(), wrapper.getCookies(),
-                outstr.toByteArray(), true, timeToLiveSeconds);
+        return new PageInfo(wrapper.getStatus(), wrapper.getContentType(), 
+                wrapper.getCookies(),
+                outstr.toByteArray(), true, timeToLiveSeconds, wrapper.getAllHeaders());
     }
 
     /**
@@ -343,14 +349,43 @@ public abstract class CachingFilter extends Filter {
     protected void setHeaders(final PageInfo pageInfo,
                               boolean requestAcceptsGzipEncoding,
                               final HttpServletResponse response) {
-
-        final Collection headers = pageInfo.getResponseHeaders();
-        final int header = 0;
-        final int value = 1;
-
-        for (Iterator iterator = headers.iterator(); iterator.hasNext();) {
-            final String[] headerPair = (String[]) iterator.next();
-            response.addHeader(headerPair[header], headerPair[value]);
+        
+        final Collection<Header<? extends Serializable>> headers = pageInfo.getHeaders();
+        
+        //Track which headers have been set so all headers of the same name after the first are added
+        final TreeSet<String> setHeaders = new TreeSet<String>(String.CASE_INSENSITIVE_ORDER);
+        
+        for (final Header<? extends Serializable> header : headers) {
+            final String name = header.getName();
+            
+            switch (header.getType()) {
+                case STRING:
+                    if (setHeaders.contains(name)) {
+                        response.addHeader(name, (String)header.getValue());
+                    } else {
+                        setHeaders.add(name);
+                        response.setHeader(name, (String)header.getValue());
+                    }
+                break;
+                case DATE:
+                    if (setHeaders.contains(name)) {
+                        response.addDateHeader(name, (Long)header.getValue());
+                    } else {
+                        setHeaders.add(name);
+                        response.setDateHeader(name, (Long)header.getValue());
+                    }
+                break;
+                case INT:
+                    if (setHeaders.contains(name)) {
+                        response.addIntHeader(name, (Integer)header.getValue());
+                    } else {
+                        setHeaders.add(name);
+                        response.setIntHeader(name, (Integer)header.getValue());
+                    }
+                break;
+                default:
+                    throw new IllegalArgumentException("No mapping for Header: " + header);
+            }
         }
     }
 

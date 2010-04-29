@@ -16,14 +16,6 @@
 
 package net.sf.ehcache.constructs.web;
 
-import net.sf.ehcache.constructs.web.filter.FilterServletOutputStream;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import javax.servlet.ServletOutputStream;
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpServletResponseWrapper;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
@@ -31,9 +23,23 @@ import java.io.PrintWriter;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
+import java.util.Collections;
+import java.util.Date;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
+
+import javax.servlet.ServletOutputStream;
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpServletResponseWrapper;
+
+import net.sf.ehcache.constructs.web.Header.Type;
+import net.sf.ehcache.constructs.web.filter.FilterServletOutputStream;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -49,18 +55,18 @@ import java.util.Map;
  */
 public class GenericResponseWrapper extends HttpServletResponseWrapper implements Serializable {
 
-    private static final long serialVersionUID = -5976708169031065498L;
+    private static final long serialVersionUID = -5976708169031065497L;
 
     private static final Logger LOG = LoggerFactory.getLogger(GenericResponseWrapper.class);
     private int statusCode = SC_OK;
     private int contentLength;
     private String contentType;
-    private Map headerTracker = new HashMap();
-    private final List headers = new ArrayList();
+    private final Map<String, List<Serializable>> headersMap = new TreeMap<String, List<Serializable>>(String.CASE_INSENSITIVE_ORDER);
     private final List cookies = new ArrayList();
     private ServletOutputStream outstr;
     private PrintWriter writer;
     private boolean disableFlushBuffer;
+    private transient HttpDateFormatter httpDateFormatter;
 
     /**
      * Creates a GenericResponseWrapper
@@ -179,54 +185,157 @@ public class GenericResponseWrapper extends HttpServletResponseWrapper implement
         return writer;
     }
 
-    /**
-     * Adds a header, even if one already exists, in accordance with the spec
-     */
-    public void addHeader(final String name, final String value) {
-        final String[] header = new String[]{name, value};
-        headers.add(header);
 
-        Integer count = (Integer) headerTracker.get(name.toLowerCase());
-        if (count == null) {
-            count = new Integer(1);
-        } else {
-            count = new Integer(count.intValue() + 1);
+
+    /**
+     * @see javax.servlet.http.HttpServletResponseWrapper#addHeader(java.lang.String, java.lang.String)
+     */
+    @Override
+    public void addHeader(String name, String value) {
+        List<Serializable> values = this.headersMap.get(name);
+        if (values == null) {
+            values = new LinkedList<Serializable>();
+            this.headersMap.put(name, values);
         }
-        headerTracker.put(name.toLowerCase(), count);
+        values.add(value);
+        
+        super.addHeader(name, value);
     }
 
     /**
-     * Sets a header overwriting any previous values for the header if
-     * it existed.
+     * @see javax.servlet.http.HttpServletResponseWrapper#setHeader(java.lang.String, java.lang.String)
      */
-    public void setHeader(final String name, final String value) {
-        Integer count = (Integer) headerTracker.get(name);
-        if (count != null && count.intValue() > 0) {
-            for (int i = headers.size() - 1; i >= 0; i--) {
-                String[] header = (String[]) headers.get(i);
-                String hName = header[0];
-                if (hName.equalsIgnoreCase(name)) {
-                    if (count > 1) {
-                        headers.remove(i);
-                        count = count.intValue() - 1;
-                        headerTracker.put(name.toLowerCase(), new Integer(count));
-                    } else {
-                        ((String[]) headers.get(i))[1] = value;
-                    }
+    @Override
+    public void setHeader(String name, String value) {
+        final LinkedList<Serializable> values = new LinkedList<Serializable>();
+        values.add(value);
+        this.headersMap.put(name, values);
+        
+        super.setHeader(name, value);
+    }
 
+    /**
+     * @see javax.servlet.http.HttpServletResponseWrapper#addDateHeader(java.lang.String, long)
+     */
+    @Override
+    public void addDateHeader(String name, long date) {
+        List<Serializable> values = this.headersMap.get(name);
+        if (values == null) {
+            values = new LinkedList<Serializable>();
+            this.headersMap.put(name, values);
+        }
+        values.add(date);
+        
+        super.addDateHeader(name, date);
+    }
+
+    /**
+     * @see javax.servlet.http.HttpServletResponseWrapper#setDateHeader(java.lang.String, long)
+     */
+    @Override
+    public void setDateHeader(String name, long date) {
+        final LinkedList<Serializable> values = new LinkedList<Serializable>();
+        values.add(date);
+        this.headersMap.put(name, values);
+        
+        super.setDateHeader(name, date);
+    }
+
+    /**
+     * @see javax.servlet.http.HttpServletResponseWrapper#addIntHeader(java.lang.String, int)
+     */
+    @Override
+    public void addIntHeader(String name, int value) {
+        List<Serializable> values = this.headersMap.get(name);
+        if (values == null) {
+            values = new LinkedList<Serializable>();
+            this.headersMap.put(name, values);
+        }
+        values.add(value);
+        
+        super.addIntHeader(name, value);
+    }
+
+    /**
+     * @see javax.servlet.http.HttpServletResponseWrapper#setIntHeader(java.lang.String, int)
+     */
+    @Override
+    public void setIntHeader(String name, int value) {
+        final LinkedList<Serializable> values = new LinkedList<Serializable>();
+        values.add(value);
+        this.headersMap.put(name, values);
+        
+        super.setIntHeader(name, value);
+    }
+    
+    private HttpDateFormatter getHttpDateFormatter() {
+        if (this.httpDateFormatter == null) {
+            this.httpDateFormatter = new HttpDateFormatter();
+        }
+        
+        return this.httpDateFormatter;
+    }
+
+    /**
+     * Gets the headersMap.
+     * @deprecated use {@link #getAllHeaders()} instead
+     */
+    @Deprecated
+    public Collection getHeaders() {
+        final Collection<String[]> headers = new ArrayList<String[]>(this.headersMap.size());
+        
+        for (final Map.Entry<String, List<Serializable>> headerEntry : this.headersMap.entrySet()) {
+            final String name = headerEntry.getKey();
+            for (final Serializable value : headerEntry.getValue()) {
+                final Type type = Header.Type.determineType(value.getClass());
+                switch (type) {
+                    case STRING:
+                        headers.add(new String[]{name, (String)value});
+                    break;
+                    case DATE:
+                        final HttpDateFormatter localHttpDateFormatter = this.getHttpDateFormatter();
+                        final String formattedValue = localHttpDateFormatter.formatHttpDate(new Date((Long)value));
+                        headers.add(new String[]{name, formattedValue});
+                    break;
+                    case INT:
+                        headers.add(new String[]{name, ((Integer)value).toString()});
+                    break;
+                    default: 
+                        throw new IllegalArgumentException("No mapping for Header.Type: " + type);
                 }
             }
-        } else {
-            final String[] header = new String[]{name, value};
-            headers.add(header);
-            headerTracker.put(name.toLowerCase(), new Integer(1));
         }
+        
+        return Collections.unmodifiableCollection(headers);
     }
 
+    
     /**
-     * Gets the headers.
+     * @return All of the headersMap set/added on the response
      */
-    public Collection getHeaders() {
+    public Collection<Header<? extends Serializable>> getAllHeaders() {
+        final List<Header<? extends Serializable>> headers = new LinkedList<Header<? extends Serializable>>();
+        
+        for (final Map.Entry<String, List<Serializable>> headerEntry : this.headersMap.entrySet()) {
+            final String name = headerEntry.getKey();
+            for (final Serializable value : headerEntry.getValue()) {
+                final Type type = Header.Type.determineType(value.getClass());
+                switch (type) {
+                    case STRING:
+                        headers.add(new Header<String>(name, (String)value));
+                    break;
+                    case DATE:
+                        headers.add(new Header<Long>(name, (Long)value));
+                    break;
+                    case INT:
+                        headers.add(new Header<Integer>(name, (Integer)value));
+                    break;
+                    default:
+                        throw new IllegalArgumentException("No mapping for Header.Type: " + type);
+                }
+            }
+        }
+        
         return headers;
     }
 
@@ -261,7 +370,7 @@ public class GenericResponseWrapper extends HttpServletResponseWrapper implement
     public void reset() {
         super.reset();
         cookies.clear();
-        headers.clear();
+        headersMap.clear();
         statusCode = SC_OK;
         contentType = null;
         contentLength = 0;

@@ -16,16 +16,18 @@
 
 package net.sf.ehcache.constructs.web;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
+import java.io.OutputStream;
+import java.io.Serializable;
+
+import javax.servlet.http.HttpServletResponse;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-
-import javax.servlet.http.HttpServletResponse;
-import java.io.OutputStream;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 /**
  * Tests for the GenericResponseWrapper
@@ -49,19 +51,38 @@ public class GenericResponseWrapperTest {
     public void verifySetHeaderOverwritesExistingHeaderValues() {
         impl.addHeader("Cache-Control", "public, max-age=0, stale-if-error=600");
         impl.addHeader("CACHE-CONTROL", "public, max-age=120, stale-if-error=600");
-        int headerSize = impl.getHeaders().size();
+        int headerSize = impl.getAllHeaders().size();
         assertTrue(String.format("Expected size for headers is two but got %d", headerSize), headerSize == 2);
 
         String cacheHeader = "public, max-age=120, stale-if-error=300";
 
         impl.setHeader("cache-control", cacheHeader);
 
-        headerSize = impl.getHeaders().size();
+        headerSize = impl.getAllHeaders().size();
         assertTrue(String.format("Expected size for headers is 1 but got %d", headerSize), headerSize == 1);
 
-        String[] retrievedHeader = (String[]) impl.getHeaders().iterator().next();
+        final Header<? extends Serializable> retrievedHeader = impl.getAllHeaders().iterator().next();
 
-        assertEquals(cacheHeader, retrievedHeader[1]);
+        assertEquals(cacheHeader, retrievedHeader.getValue());
+    }
+    
+    @Test
+    public void testHeaderCrossTypeOverwrite() {
+        impl.addHeader("Expires", "Tue, 29 Mar 2011 19:46:30 GMT");
+        impl.addDateHeader("Expires", 123456789L);
+        impl.addIntHeader("Expires", 123456789);
+        int headerSize = impl.getAllHeaders().size();
+        assertTrue(String.format("Expected size for headers is 3 but got %d", headerSize), headerSize == 3);
+
+        String expiresHeader = "Tue, 29 Mar 2011 19:46:30 GMT";
+        impl.setHeader("Expires", "Tue, 29 Mar 2011 19:46:30 GMT");
+
+        headerSize = impl.getAllHeaders().size();
+        assertTrue(String.format("Expected size for headers is 1 but got %d", headerSize), headerSize == 1);
+
+        final Header<? extends Serializable> retrievedHeader = impl.getAllHeaders().iterator().next();
+
+        assertEquals(expiresHeader, retrievedHeader.getValue());
     }
 
 }

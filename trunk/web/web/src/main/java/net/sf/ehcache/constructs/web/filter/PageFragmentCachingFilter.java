@@ -16,15 +16,16 @@
 
 package net.sf.ehcache.constructs.web.filter;
 
-import net.sf.ehcache.constructs.web.AlreadyGzippedException;
-import net.sf.ehcache.constructs.web.GenericResponseWrapper;
-import net.sf.ehcache.constructs.web.PageInfo;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 
 import javax.servlet.FilterChain;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
+
+import net.sf.ehcache.constructs.web.AlreadyGzippedException;
+import net.sf.ehcache.constructs.web.GenericResponseWrapper;
+import net.sf.ehcache.constructs.web.PageInfo;
 
 
 /**
@@ -74,8 +75,9 @@ public abstract class PageFragmentCachingFilter extends CachingFilter {
         long timeToLiveSeconds = blockingCache.getCacheConfiguration().getTimeToLiveSeconds();
 
         // Return the page info
-        return new PageInfo(wrapper.getStatus(), wrapper.getContentType(), wrapper.getHeaders(), wrapper.getCookies(),
-                outstr.toByteArray(), false, timeToLiveSeconds);
+        return new PageInfo(wrapper.getStatus(), wrapper.getContentType(), 
+                wrapper.getCookies(),
+                outstr.toByteArray(), false, timeToLiveSeconds, wrapper.getAllHeaders());
     }
 
 
