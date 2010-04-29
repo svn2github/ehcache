@@ -214,13 +214,34 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
 
         // Execute write command within the real underlying store
         boolean writes = false;
-        for (VersionAwareCommand command : context.getCommands()) {
-            writes = command.execute(store) || writes;
+        Set<Object> keysAlreadyProcessed = new HashSet<Object>(updatedKeys.length);
+        try {
+            for (VersionAwareCommand command : context.getCommands()) {
+                writes = command.execute(store) || writes;
+                keysAlreadyProcessed.add(command.getKey());
+            }
+        } catch (IllegalStateException e) {
+            switchValuesBack(keysAlreadyProcessed);
+            cleanUpFailure(xid, storeLockProvider, null, updatedKeys);
+            throw new EhcacheXAException("Couldn't execute command on store!", XAException.XA_RBINTEGRITY);
         }
 
         ehcacheXAStore.prepare(xid, preparedContext);
 
         return XA_OK;
+    }
+
+    private void switchValuesBack(final Object... keysAlreadyProcessed) {
+        for (Object key : keysAlreadyProcessed) {
+            if (key != null) {
+                Element element = oldVersionStore.remove(key);
+                if (element != null) {
+                    store.put(element);
+                } else {
+                    store.remove(key);
+                }
+            }
+        }
     }
 
     private void tryLockingKeysRequiredForPrepare(CacheLockProvider storeLockProvider, CacheLockProvider oldVersionStoreLockProvider,
@@ -249,7 +270,9 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
             ehcacheXAStore.checkin(updatedKey, xid, true);
         }
         storeLockProvider.unlockWriteLockForAllKeys(updatedKeys);
-        oldVersionStoreLockProvider.unlockWriteLockForAllKeys(updatedKeys);
+        if (oldVersionStoreLockProvider != null) {
+            oldVersionStoreLockProvider.unlockWriteLockForAllKeys(updatedKeys);
+        }
     }
 
 
@@ -429,22 +452,9 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
             oldVersionStoreLockProvider.getAndWriteLockAllSyncForKeys(updatedKeys);
 
             try {
-                for (Object key : updatedKeys) {
-                    if (key != null) {
-                        Element element;
-                        try {
-                            element = oldVersionStore.remove(key);
-                            if (element != null) {
-                                store.put(element);
-                            } else {
-                                store.remove(key);
-                            }
-                        } finally {
-                            storeLockProvider.getSyncForKey(key).unlock(LockType.WRITE);
-                        }
-                    }
-                }
+                switchValuesBack(updatedKeys);
             } finally {
+                storeLockProvider.unlockWriteLockForAllKeys(updatedKeys);
                 oldVersionStoreLockProvider.unlockWriteLockForAllKeys(updatedKeys);
             }
         } else if (context != null && context.isCommitted()) {

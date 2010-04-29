@@ -45,7 +45,10 @@ public class StoreRemoveElementCommand implements StoreWriteCommand {
      * {@inheritDoc}
      */
     public boolean execute(final Store store) {
-        return store.removeElement(element) != null;
+        if (store.removeElement(element) == null) {
+            throw new IllegalStateException();
+        }
+        return true;
     }
 
     /**

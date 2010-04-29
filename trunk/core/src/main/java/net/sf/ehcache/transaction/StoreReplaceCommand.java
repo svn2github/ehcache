@@ -45,7 +45,10 @@ public class StoreReplaceCommand implements StoreWriteCommand {
      * {@inheritDoc}
      */
     public boolean execute(final Store store) {
-        return store.replace(element) != null;
+        if (store.replace(element) == null) {
+            throw new IllegalStateException();
+        }
+        return true;
     }
 
     /**

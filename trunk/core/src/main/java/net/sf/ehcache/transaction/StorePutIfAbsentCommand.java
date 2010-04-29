@@ -45,7 +45,10 @@ public class StorePutIfAbsentCommand implements StoreWriteCommand {
       * {@inheritDoc}
       */
      public boolean execute(final Store store) {
-        return store.putIfAbsent(element) == null;
+        if (store.putIfAbsent(element) != null) {
+            throw new IllegalStateException();
+        }
+        return true;
     }
 
     /**
