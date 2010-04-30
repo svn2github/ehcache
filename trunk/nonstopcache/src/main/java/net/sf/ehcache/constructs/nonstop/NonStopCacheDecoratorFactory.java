@@ -24,6 +24,33 @@ import net.sf.ehcache.constructs.CacheDecoratorFactory;
 
 /**
  * Concrete factory for creating {@link NonStopCache} decorators using ehcache.xml
+ * <p>
+ * It is mandatory to specify properties when configuring {@link NonStopCacheDecoratorFactory} in ehcache.xml. List of all the properties
+ * supported by {@link NonStopCacheDecoratorFactory} and corresponding valid values are:
+ * <ul>
+ * <li>name : any string name for the NonStopCache. This property is mandatory.</li>
+ * <li>timeoutMillis : Any number for use as the timeout time in milliseconds before timing out for any operation. After operation times
+ * out, behavior as specified by <tt>timeoutBehavior</tt> happens. This property is optional and uses a default value if not specified.</li>
+ * <li>timeoutBehavior : {exception | noop | localReads}. This property is optional and uses a default value if not specified.</li>
+ * <li>immediateTimeout = {true | false}. This property is optional and uses a default value if not specified.</li>
+ * </ul>
+ * The default values for the optional properties are:
+ * <ul>
+ * <li>timeoutMillis = 5000</li>
+ * <li>timeoutBehavior = exception</li>
+ * <li>immediateTimeout = true</li>
+ * </ul>
+ * Example sample config:
+ * 
+ * <pre>
+ * &lt;cache>
+ * ...
+ * &lt;cacheDecoratorFactory
+ * class="net.sf.ehcache.constructs.nonstop.NonStopCacheDecoratorFactory"
+ * properties="name=myNonStopCacheName, timeoutMillis=1000, timeoutBehavior=exception, immediateTimeout=true" />
+ * ...
+ * &lt;/cache>
+ * </pre>
  * 
  * @author Abhishek Sanoujam
  * 
