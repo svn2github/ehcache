@@ -110,7 +110,7 @@ public class EhcacheXAStoreImpl implements EhcacheXAStore {
      */
     public Xid[] getPreparedXids() {
         Set<Xid> xidSet = prepareXids.keySet();
-        return xidSet.toArray(new Xid[xidSet.size()]);
+        return xidSet.toArray(new Xid[0]);
     }
 
     /**
