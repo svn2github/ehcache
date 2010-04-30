@@ -680,6 +680,20 @@ used with JMX monitors.
                              properties="refreshIntervalMillis=18000, loaderTimeout=3000,
                                          flushPeriod=whatever, someOtherProperty=someValue ..."/>
 
+    Cache Decorator Factory
+    +++++++++++++++++++++++
+
+    Cache decorators can be configured directly in ehcache.xml. The decorators will be created and added to the CacheManager.
+    It accepts the name of a concrete class that extends net.sf.ehcache.constructs.CacheDecoratorFactory
+    The properties will be parsed according to the delimiter (default is comma ',') and passed to the concrete factory's
+    <code>createDecoratedEhcache(Ehcache cache, Properties properties)</code> method alongwith the reference to the owning cache.
+
+    It is configured as per the following example:
+
+        <cacheDecoratorFactory
+			class="net.sf.ehcache.constructs.nonstop.NonStopCacheDecoratorFactory"
+			properties="name=localReadsCacheDecorator, timeoutBehavior=localReads ..." />
+
     Terracotta Clustering
     +++++++++++++++++++++
 
