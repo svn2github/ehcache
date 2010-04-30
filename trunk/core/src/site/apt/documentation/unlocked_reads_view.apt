@@ -27,7 +27,17 @@
 ---
     Cache cache = cacheManager.getCache("existingUndecoratedCache");
     UnlockedReadsView unlockedReadsView = new UnlockedReadsView(cache, newName);
-    cacheManager.addCache(unlockedReadsView);  //adds an Ehcache
+    cacheManager.addDecoratedCache(unlockedReadsView);  //adds a decorated Ehcache
+---
+
+    If the UnlockedReadsView has the same name as the cache its decorating, 
+    <<<CacheManager.replaceCacheWithDecoratedCache(Ehcache ehcache, Ehcache decoratedCache)>>> should be used instead of
+    using <<<CacheManager.addDecoratedCache(Ehcache decoratedCache)>>> as shown above.
+     
+    If added to the CacheManager, it can be accessed like following:
+     
+---
+    Ehcache unlockedReadsView = cacheManager.getEhcache(newName);
 ---
 
 	NOTE: Right now, <<<UnlockedReadsView>>> only accepts <<<net.sf.ehcache.Cache>>> instances in the constructor, meaning
@@ -36,7 +46,26 @@
 	
 **  By Configuration
 
-    This view cannot be configured in ehcache.xml at this time - it must be configured programmatically.
+    It can be configured in ehcache.xml using the "cacheDecoratorFactory" element. You can specify a factory to create 
+    decorated caches and <<<net.sf.ehcache.constructs.unlockedreadsview.UnlockedReadsViewDecoratorFactory>>> is available in
+    the unlockedreadsview module itself.
+    
+---
+
+    <cache name="sample/DistributedCache3"
+           maxElementsInMemory="10"
+           eternal="false"
+           timeToIdleSeconds="100"
+           timeToLiveSeconds="100"
+           overflowToDisk="true">
+        <cacheDecoratorFactory
+           class="net.sf.ehcache.constructs.unlockedreadsview.UnlockedReadsViewDecoratorFactory"
+           properties="name=unlockedReadsViewOne" />
+    </cache>
+---
+
+    It is mandatory to specify the properties for the UnlockedReadsViewDecoratorFactory with "name" property. That property
+    is used as the name of the UnlockedReadsView that will be created.
 
 
 *   {Download}
