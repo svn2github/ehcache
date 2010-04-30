@@ -2,6 +2,10 @@
 <document>
     <body>
         <release version="2.1.0">
+            <action dev="Geert Bevin" type="fix" issue="EHC-641">
+                Properly register MBeans for Terracotta clustered caches when they're added programmatically as the first
+                clustered caches for a cache manager.
+            </action>
             <action dev="Abhishek Sanoujam" type="add">
                 Cache decorators can now be configured through config using "cacheDecoratorFactory" tag inside the "cache" tag.
             </action>

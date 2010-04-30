@@ -44,6 +44,6 @@ public interface MBeanRegistrationProvider {
      * 
      * @throws MBeanRegistrationProviderException
      */
-    public void reinitialize() throws MBeanRegistrationProviderException;
+    public void reinitialize(ClusteredInstanceFactory clusteredInstanceFactory) throws MBeanRegistrationProviderException;
 
 }

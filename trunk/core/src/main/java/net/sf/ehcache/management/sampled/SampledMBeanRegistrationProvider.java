@@ -135,8 +135,12 @@ public class SampledMBeanRegistrationProvider implements MBeanRegistrationProvid
     /**
      * {@inheritDoc}
      */
-    public synchronized void reinitialize() throws MBeanRegistrationProviderException {
+    public synchronized void reinitialize(ClusteredInstanceFactory clusteredInstanceFactory) throws MBeanRegistrationProviderException {
+        if (this.clusteredInstanceFactory != null && this.clusteredInstanceFactory != clusteredInstanceFactory) {
+            throw new MBeanRegistrationProviderException("Can't reinitialize the MBean provider with another ClusteredInstanceFactory.");
+        }
         dispose();
+        this.clusteredInstanceFactory = clusteredInstanceFactory;
         initialize(this.cacheManager, this.clusteredInstanceFactory);
     }
 

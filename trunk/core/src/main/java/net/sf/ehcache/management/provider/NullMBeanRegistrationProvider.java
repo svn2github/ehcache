@@ -37,7 +37,7 @@ public class NullMBeanRegistrationProvider implements MBeanRegistrationProvider 
     /**
      * A null implementation of {@link MBeanRegistrationProvider#reinitialize()}
      */
-    public void reinitialize() throws MBeanRegistrationProviderException {
+    public void reinitialize(ClusteredInstanceFactory clusteredInstanceFactory) throws MBeanRegistrationProviderException {
         // no-op
 
     }

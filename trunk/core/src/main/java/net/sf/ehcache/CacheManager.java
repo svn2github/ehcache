@@ -180,7 +180,7 @@ public class CacheManager {
      */
     private TerracottaConfigConfiguration terracottaConfigConfiguration;
 
-    private AtomicBoolean terracottaStoreFactoryCreated = new AtomicBoolean(false);
+    private AtomicBoolean terracottaClusteredInstanceFactoryCreated = new AtomicBoolean(false);
 
     private Configuration configuration;
 
@@ -333,7 +333,7 @@ public class CacheManager {
         cacheManagerTimer = new FailSafeTimer(getName());
         checkForUpdateIfNeeded(localConfiguration.getUpdateCheck());
 
-        terracottaStoreFactoryCreated.set(terracottaClusteredInstanceFactory != null);
+        terracottaClusteredInstanceFactoryCreated.set(terracottaClusteredInstanceFactory != null);
 
         // do this last
         addConfiguredCaches(configurationHelper);
@@ -443,14 +443,14 @@ public class CacheManager {
             // synchronized so that multiple threads will wait till the store is created
             synchronized (this) {
                 // only 1 thread will create the store
-                if (!terracottaStoreFactoryCreated.getAndSet(true)) {
+                if (!terracottaClusteredInstanceFactoryCreated.getAndSet(true)) {
                     // use the TerracottaConfigConfiguration of this CacheManager to create a new ClusteredInstanceFactory
                     Map<String, CacheConfiguration> map = new HashMap<String, CacheConfiguration>(1);
                     map.put(cache.getName(), cache.getCacheConfiguration());
                     terracottaClusteredInstanceFactory = TerracottaClusteredInstanceHelper.newClusteredInstanceFactory(map,
                             terracottaConfigConfiguration);
                     try {
-                        mbeanRegistrationProvider.reinitialize();
+                        mbeanRegistrationProvider.reinitialize(terracottaClusteredInstanceFactory);
                     } catch (MBeanRegistrationProviderException e) {
                         LOG.warn("Failed to initialize the MBeanRegistrationProvider - " + mbeanRegistrationProvider.getClass().getName(),
                                 e);
@@ -1274,7 +1274,7 @@ public class CacheManager {
     public void setName(String name) {
         this.name = name;
         try {
-            mbeanRegistrationProvider.reinitialize();
+            mbeanRegistrationProvider.reinitialize(terracottaClusteredInstanceFactory);
         } catch (MBeanRegistrationProviderException e) {
             throw new CacheException("Problem in reinitializing MBeanRegistrationProvider - "
                     + mbeanRegistrationProvider.getClass().getName(), e);
@@ -1322,7 +1322,7 @@ public class CacheManager {
     public CacheCluster getCluster(ClusterScheme scheme) throws ClusterSchemeNotAvailableException {
         switch (scheme) {
         case TERRACOTTA:
-            if (terracottaClusteredInstanceFactory == null) {
+            if (null == terracottaClusteredInstanceFactory) {
                 throw new ClusterSchemeNotAvailableException(ClusterScheme.TERRACOTTA,
                         "Terracotta cluster scheme is not available");
             }

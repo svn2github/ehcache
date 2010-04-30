@@ -36,7 +36,6 @@ public class MBeanRegistrationProviderImpl implements MBeanRegistrationProvider 
     private final AtomicBoolean initialized = new AtomicBoolean(false);
     private SampledMBeanRegistrationProvider sampledProvider;
     private CacheManager cachedCacheManager;
-    private ClusteredInstanceFactory clusteredInstanceFactory;
 
     /**
      * Constructor accepting the {@link Configuration}
@@ -64,7 +63,6 @@ public class MBeanRegistrationProviderImpl implements MBeanRegistrationProvider 
                 getSampledMBeanRegistrationProvider().initialize(cacheManager, clusteredInstanceFactory);
             }
             this.cachedCacheManager = cacheManager;
-            this.clusteredInstanceFactory = clusteredInstanceFactory;
         } else {
             throw new IllegalStateException("MBeanRegistrationProvider is already initialized");
         }
@@ -73,10 +71,10 @@ public class MBeanRegistrationProviderImpl implements MBeanRegistrationProvider 
     /**
      * {@inheritDoc}
      */
-    public void reinitialize() throws MBeanRegistrationProviderException {
+    public void reinitialize(ClusteredInstanceFactory clusteredInstanceFactory) throws MBeanRegistrationProviderException {
         if (shouldRegisterMBeans()) {
             if (getSampledMBeanRegistrationProvider().isAlive()) {
-                getSampledMBeanRegistrationProvider().reinitialize();
+                getSampledMBeanRegistrationProvider().reinitialize(clusteredInstanceFactory);
             } else {
                 getSampledMBeanRegistrationProvider().initialize(cachedCacheManager, clusteredInstanceFactory);
             }
