@@ -15,7 +15,7 @@ Data Freshness and Expiration
     mechanism for notifying external processes when data has been updated 
     or modified.
 
-    Use on of the following strategies to keep the data in the cache 
+    Use one of the following strategies to keep the data in the cache 
     in sync:
 
     * <<data expiration>>: use the eviction algorithms included with Ehcache
@@ -33,7 +33,8 @@ Data Freshness and Expiration
     * <<triggers>>: Using a database trigger can accomplish a similar task
     as the message bus approach.  Use the database trigger to execute code
     that can publish a message to a message bus.  The advantage to this
-    approach is that all updates can be protected, but not all database
+    approach is that updates to the database do not have to be made only 
+    through a special application.  The downside is that not all database
     triggers support full execution environments and it is often unadvisable
     to execute heavy-weight processing such as publishing messages on a
     queue during a database trigger.
@@ -59,7 +60,7 @@ Data Freshness and Expiration
     The most important concern to consider when using the expiration method
     is balancing data-freshness with database load.  The shorter you 
     make the expiration settings - meaning the more "fresh" you try to make
-    the data, the more load you will incur on the database.
+    the data - the more load you will incur on the database.
 
     Try out some numbers and see what kind of load your application generates.
     Even modestly short values such as 5 or 10 minutes will afford 

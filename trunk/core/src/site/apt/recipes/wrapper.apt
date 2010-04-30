@@ -35,7 +35,7 @@ public class EhcacheWrapper<K, V> implements CacheWrapper<K, V>
     private final String cacheName;
     private final CacheManager cacheManager;
 
-    public EhCacheWrapper(final String cacheName, final CacheManager cacheManager)
+    public EhcacheWrapper(final String cacheName, final CacheManager cacheManager)
     {
         this.cacheName = cacheName;
         this.cacheManager = cacheManager;

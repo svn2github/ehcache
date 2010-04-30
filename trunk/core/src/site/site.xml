@@ -32,7 +32,6 @@
             <item name="ehcache.xml" href="/ehcache.xml"/>
             <item name="ehcache.xsd" href="/ehcache.xsd"/>
             <item name="Change logs" href="/changes-report.html"/>
-            <item name="Code Samples" href="documentation/samples.html"/>
             <item name="Source Repository" href="/source-repository.html"/>
             <item name="Browsable Source Code" href="/jxr.html"/>
             <item name="Fisheye" href="http://fisheye2.atlassian.com/changelog/ehcache/"/>
@@ -40,7 +39,7 @@
 
         <menu name="Documentation">
             <item name="Getting Started" href="documentation/getting_started.html"/>
-            <item name="Recipes" href="recipes/index.html"/>
+            <item name="Recipes and Code Samples" href="recipes/index.html"/>
             <item name="Hibernate Caching" href="documentation/hibernate.html"/>
             <item name="JDBC Caching" href="documentation/jdbc.html"/>
             <item name="User Guide [HTML]" href="documentation/index.html"/>

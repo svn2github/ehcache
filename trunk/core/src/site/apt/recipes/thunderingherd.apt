@@ -12,13 +12,16 @@ Thundering Herd
 
 * Solution
 
-    Implement the {{{../documentation/concepts.html#cache-as-sor}cache-as-sor}}} 
-    pattern by using a blocking cache provided by Ehcache.
+    Implement the {{{../documentation/concepts.html#cache-as-sor}cache-as-sor}}
+    pattern by using a 
+    {{{../documentation/constructs.html}<<<BlockingCache>>> or <<<SelfPopulatingCache>>>}}
+    included with Ehcache.
 
-    Ehcache will automatically block all threads that are simultaneously
-    requesting a particular value and let one and only one thread through
-    to the database.  Once that thread has populated the cache, the
-    other threads will be allowed to read the cached value.
+    Using the <<<BlockingCache>>> Ehcache will automatically block all 
+    threads that are simultaneously requesting a particular value and 
+    let one and only one thread through to the database.  Once that 
+    thread has populated the cache, the other threads will be allowed 
+    to read the cached value.
 
     Even better, when used in a cluster with Terracotta, Ehcache will
     automatically coordinate access to the cache across the cluster,
