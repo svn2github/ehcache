@@ -2,6 +2,9 @@
 <document>
     <body>
         <release version="2.1.0">
+            <action dev="Abhishek Sanoujam" type="add">
+                Cache decorators can now be configured through config using "cacheDecoratorFactory" tag inside the "cache" tag.
+            </action>
             <action dev="Fiona O'Shea" type="update" issue="EHC-693">
                 Ehcache 2.1.0 JTA support with Atomikos requires Atomikos 3.6.5.
             </action>
