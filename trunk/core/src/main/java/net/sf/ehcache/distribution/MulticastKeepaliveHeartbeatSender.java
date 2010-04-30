@@ -177,7 +177,14 @@ public final class MulticastKeepaliveHeartbeatSender {
          * @return a gzipped byte[]
          */
         private List createCachePeersPayload() {
-            List localCachePeers = cacheManager.getCachePeerListener("RMI").getBoundCachePeers();
+
+            CacheManagerPeerListener cacheManagerPeerListener = cacheManager.getCachePeerListener("RMI");
+            if (cacheManagerPeerListener == null) {
+                LOG.warn("The RMICacheManagerPeerListener is missing. You need to configure a cacheManagerPeerListenerFactory" +
+                        " with class=\"net.sf.ehcache.distribution.RMICacheManagerPeerListenerFactory\" in ehcache.xml.");
+                return new ArrayList();
+            }
+            List localCachePeers = cacheManagerPeerListener.getBoundCachePeers();
             int newCachePeersHash = localCachePeers.hashCode();
             if (cachePeersHash != newCachePeersHash) {
                 cachePeersHash = newCachePeersHash;

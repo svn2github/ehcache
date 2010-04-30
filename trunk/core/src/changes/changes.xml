@@ -1,21 +1,26 @@
-
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <document>
     <body>
-    	<release version="2.1.0">
-    	<action dev="Fiona O'Shea" type="info" issue="EHC-693">
+        <release version="2.1.0">
+            <action dev="Fiona O'Shea" type="update" issue="EHC-693">
                 Ehcache 2.1.0 JTA support with Atomikos requires Atomikos 3.6.5.
             </action>
+            <action dev="Greg Luck" type="update" issue="EHC-621">
+                A meaningful log message, rather than an NPE is emitted if you configure RMI replication without
+                configuring a net.sf.ehcache.distribution.RMICacheManagerPeerListenerFactory in ehcache.xml. This is
+                apparently a relatively common configuration error.
+            </action>
         </release>
- <release version="2.1.0-beta" date="2010-04-21" description="Beta for 2.1.0 a major release with new features">
-             <action dev="Chris Dennis" type="fix" issue="EHC-450">
-                Change the internal store structures to be fully coherent. 
+
+        <release version="2.1.0-beta" date="2010-04-21" description="Beta for 2.1.0 a major release with new features">
+            <action dev="Chris Dennis" type="fix" issue="EHC-450">
+                Change the internal store structures to be fully coherent.
                 This allows for the addition of concurrent map like methods
                 (e.g. putIfAbsent) and also for JTA caching in unclustered
-                caches. 
+                caches.
             </action>
             <action dev="Chris Dennis" type="update" issue="EHC-621">
-                Change the ehcache-core Hibernate dependency to the newly 
+                Change the ehcache-core Hibernate dependency to the newly
                 released 3.5.0-Final.
             </action>
             <action dev="Chris Dennis" type="fix" issue="EHC-633">
@@ -27,7 +32,7 @@
             </action>
             <action dev="Chris Dennis" type="fix" issue="EHC-674">
                 Allow Elements in clustered caches to be serialized, and hence
-                enable replication of clustered caches. 
+                enable replication of clustered caches.
             </action>
             <action dev="Alex Snaps" type="add" issue="EHC-668">
                 Caches can now be configured to be copyOnRead and copyOnWrite, with user provided copy strategy or the default
