@@ -18,7 +18,7 @@ public class ImmutableValueElementCopyStrategy implements CopyStrategy {
     public <T> T copy(final T value) {
 
         final T newValue;
-        if(value instanceof Element) {
+        if (value instanceof Element) {
             Element element = (Element) value;
             Element newElement = new Element(element.getObjectKey(), element.getObjectValue(), element.getVersion(),
                 element.getCreationTime(), element.getLastAccessTime(), element.getHitCount(), element.usesCacheDefaultLifespan(),
