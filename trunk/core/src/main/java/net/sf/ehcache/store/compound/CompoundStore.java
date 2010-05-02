@@ -566,6 +566,7 @@ public abstract class CompoundStore extends AbstractStore {
                             AtomicInteger counter = segs.get(s);
                             while (counter.decrementAndGet() > 0) {
                                 s.writeLock().lock();
+                                acquiredLocks.add(writeLock);
                             }
                             acquiredLocks.add(writeLock);
                         }
