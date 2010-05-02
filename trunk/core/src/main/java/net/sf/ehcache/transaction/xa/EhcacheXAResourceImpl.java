@@ -452,9 +452,11 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
             oldVersionStoreLockProvider.getAndWriteLockAllSyncForKeys(updatedKeys);
 
             try {
-                switchValuesBack(updatedKeys);
+                for (Object updatedKey : updatedKeys) {
+                    switchValuesBack(updatedKey);
+                    storeLockProvider.getSyncForKey(updatedKey).unlock(LockType.WRITE);
+                }
             } finally {
-                storeLockProvider.unlockWriteLockForAllKeys(updatedKeys);
                 oldVersionStoreLockProvider.unlockWriteLockForAllKeys(updatedKeys);
             }
         } else if (context != null && context.isCommitted()) {
