@@ -17,7 +17,7 @@
         </links>
 
         <menu name="About">
-            <!--<item name="Overview" href="/index.html"/>-->
+            <item name="Overview" href="documentation/overview.html"/>
             <item name="Architecture" href="documentation/architecture.html"/>
             <item name="Modules" href="/modules.html"/>
             <item name="Features" href="/features.html"/>
@@ -39,7 +39,7 @@
 
         <menu name="Documentation">
             <item name="Getting Started" href="documentation/getting_started.html"/>
-            <item name="Recipes and Code Samples" href="recipes/index.html"/>
+            <item name="Recipes and Code Samples" href="documentation/samples.html"/>
             <item name="Hibernate Caching" href="documentation/hibernate.html"/>
             <item name="JDBC Caching" href="documentation/jdbc.html"/>
             <item name="User Guide [HTML]" href="documentation/index.html"/>
