@@ -372,7 +372,6 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
             Object[] keys = context.getUpdatedKeys();
             if (!context.isCommitted() && !context.isRolledBack()) {
                 context.setCommitted(true);
-                storeProvider.unlockWriteLockForAllKeys(keys);
                 oldVersionStoreProvider.getAndWriteLockAllSyncForKeys(keys);
                 for (PreparedCommand command : context.getPreparedCommands()) {
                     Object key = command.getKey();
@@ -382,6 +381,7 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
                     }
                 }
 
+                storeProvider.unlockWriteLockForAllKeys(keys);
                 oldVersionStoreProvider.unlockWriteLockForAllKeys(keys);
 
             } else if (context.isRolledBack()) {
