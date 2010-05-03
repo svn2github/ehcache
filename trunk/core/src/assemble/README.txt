@@ -1,4 +1,4 @@
-README Notes For Ehcache 2.0.1
+README Notes For Ehcache 2.1.0
 
 The project home page is http://ehcache.org. Please see http://ehcache.org for a full change log, usage, product versions 
 and comprehensive documentation.
@@ -55,7 +55,7 @@ Maven POM snippet
      <dependency>
         <groupId>net.sf.ehcache</groupId>
         <artifactId>ehcache-core</artifactId>
-        <version>2.0.1</version>
+        <version>2.1.0</version>
      </dependency>
 
 Installation
