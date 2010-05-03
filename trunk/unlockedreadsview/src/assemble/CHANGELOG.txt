@@ -1,6 +1,4 @@
-$Id$
-
-<release version="0.0.1" date="" desc="Initial release">
+<release version="1.0.0" date="2010-05-03" desc="Initial release">
 
     <!-- Features and Enhancements -->
     <action dev="Abhishek Sanoujam" type="add">
