@@ -60,7 +60,8 @@ import org.slf4j.LoggerFactory;
  */
 public class EhcacheXAResourceImpl implements EhcacheXAResource {
 
-    private static final int DEFAULT_TIMEOUT = 15;
+    private static final int LOCK_TIMEOUT = 15000;
+    private static final int DEFAULT_TX_TIMEOUT = 60;
     private static final int MILLISEC_PER_SECOND = 1000;
 
     private static final Logger LOG = LoggerFactory.getLogger(EhcacheXAResourceImpl.class.getName());
@@ -75,7 +76,7 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
     private final Set<Xid>           recoverySet     = new HashSet<Xid>();
    
 
-    private       volatile int                transactionTimeout = DEFAULT_TIMEOUT;
+    private       volatile int                transactionTimeout = DEFAULT_TX_TIMEOUT;
     private       volatile Xid                currentXid;
 
     private List<TwoPcExecutionListener> twoPcExecutionListeners = new ArrayList<TwoPcExecutionListener>();
@@ -248,13 +249,13 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
                                                   Object[] updatedKeys) throws EhcacheXAException {
         // Lock here first, so that threads wait on every get for this to be released?
         try {
-            oldVersionStoreLockProvider.getAndWriteLockAllSyncForKeys(transactionTimeout * MILLISEC_PER_SECOND, updatedKeys);
+            oldVersionStoreLockProvider.getAndWriteLockAllSyncForKeys(LOCK_TIMEOUT, updatedKeys);
         } catch (TimeoutException ex) {
             throw new EhcacheXAException("could not lock all required entries in oldVersionStore", XAException.XA_RBDEADLOCK, ex);
         }
         // Then lock here, so that normally no one is staying in line for the lock
         try {
-            storeLockProvider.getAndWriteLockAllSyncForKeys(transactionTimeout * MILLISEC_PER_SECOND, updatedKeys);
+            storeLockProvider.getAndWriteLockAllSyncForKeys(LOCK_TIMEOUT, updatedKeys);
         } catch (TimeoutException ex) {
             oldVersionStoreLockProvider.unlockWriteLockForAllKeys(updatedKeys);
             throw new EhcacheXAException("could not lock all required entries in storeLockProvider", XAException.XA_RBDEADLOCK, ex);
@@ -482,8 +483,8 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
         if (timeout < 0) {
             throw new EhcacheXAException("time out has to be > 0, but was " + timeout, XAException.XAER_INVAL);
         }
-        this.transactionTimeout = timeout == 0 ? DEFAULT_TIMEOUT : timeout;
-        return true;
+        //this.transactionTimeout = timeout == 0 ? DEFAULT_TX_TIMEOUT : timeout;
+        return false;
     }
 
     /**
