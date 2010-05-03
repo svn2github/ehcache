@@ -61,5 +61,5 @@ public interface CacheWriterManager {
      * <p>
      * This method is called when the manager is unregistered from a cache.
      */
-    void dispose();
+    void dispose() throws CacheException;
 }

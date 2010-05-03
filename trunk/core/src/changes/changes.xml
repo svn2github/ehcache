@@ -2,6 +2,9 @@
 <document>
     <body>
         <release version="2.1.0">
+            <action dev="Geert Bevin" type="fix" issue="EHC-701">
+                closing a chache the WriteBehindManager attached to the queue does not by default finish flushing
+            </action>
             <action dev="Geert Bevin" type="fix" issue="EHC-641">
                 Properly register MBeans for Terracotta clustered caches when they're added programmatically as the first
                 clustered caches for a cache manager.

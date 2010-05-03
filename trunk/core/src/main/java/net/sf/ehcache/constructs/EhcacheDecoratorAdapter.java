@@ -59,7 +59,7 @@ public class EhcacheDecoratorAdapter implements Ehcache {
     /**
      * Constructor accepting the cache to be decorated
      * 
-     * @param decoratedCache
+     * @param underlyingCache
      */
     public EhcacheDecoratorAdapter(Ehcache underlyingCache) {
         this.underlyingCache = underlyingCache;

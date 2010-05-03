@@ -32,10 +32,11 @@ public class CacheWriterManagerException extends CacheException {
     public CacheWriterManagerException(RuntimeException cause) {
         super(cause);
     }
-
+    
     /**
      * {@inheritDoc}
      */
+    @Override
     public RuntimeException getCause() {
         return (RuntimeException)super.getCause();
     }

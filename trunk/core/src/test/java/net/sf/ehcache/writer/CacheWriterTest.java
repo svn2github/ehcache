@@ -16,6 +16,15 @@
 
 package net.sf.ehcache.writer;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
+import java.util.Properties;
+
 import net.sf.ehcache.AbstractCacheTest;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
@@ -24,20 +33,12 @@ import net.sf.ehcache.Status;
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.CacheWriterConfiguration;
 import net.sf.ehcache.event.CountingCacheEventListener;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.Properties;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
 /**
  * Tests for a CacheWriters
@@ -51,11 +52,13 @@ public class CacheWriterTest extends AbstractCacheTest {
 
     protected CacheManager manager;
 
+    @Override
     @Before
     public void setUp() throws Exception {
         manager = CacheManager.create(AbstractCacheTest.TEST_CONFIG_DIR + "ehcache-writer.xml");
     }
 
+    @Override
     @After
     public void tearDown() throws Exception {
         if (!manager.getStatus().equals(Status.STATUS_SHUTDOWN)) {
@@ -283,6 +286,43 @@ public class CacheWriterTest extends AbstractCacheTest {
 
         Thread.sleep(3000);
 
+        assertEquals(3, writer.getWrittenElements().size());
+        assertEquals(2, writer.getDeletedElements().size());
+        assertTrue(writer.getDeletedElements().containsKey("key2"));
+        assertTrue(writer.getDeletedElements().containsKey("key3"));
+    }
+
+    @Test
+    public void testWriteBehindStopWaitsForEmptyQueue() throws InterruptedException {
+        Cache cache = new Cache(
+                new CacheConfiguration("writeBehindSolelyJavaStopWaitsForEmptyQueue", 10)
+                        .cacheWriter(new CacheWriterConfiguration()
+                        .writeMode(CacheWriterConfiguration.WriteMode.WRITE_BEHIND)
+                        .minWriteDelay(2)
+                        .maxWriteDelay(8)));
+        TestCacheWriterSlow writer = new TestCacheWriterSlow();
+        cache.registerCacheWriter(writer);
+        assertNotNull(cache.getRegisteredCacheWriter());
+
+        CacheManager.getInstance().addCache(cache);
+        assertEquals(0, writer.getWrittenElements().size());
+
+        Element el1 = new Element("key1", "value1");
+        Element el2 = new Element("key2", "value2");
+        Element el3 = new Element("key3", "value3");
+        cache.putWithWriter(el1);
+        cache.putWithWriter(el2);
+        cache.putWithWriter(el3);
+        cache.removeWithWriter(el2.getKey());
+        cache.removeWithWriter(el3.getKey());
+        cache.dispose();
+
+        Thread.sleep(3000);
+
+        assertEquals(3, writer.getWrittenElements().size());
+        assertNotNull(writer.getWrittenElements().get("key1"));
+        assertNotNull(writer.getWrittenElements().get("key2"));
+        assertNotNull(writer.getWrittenElements().get("key3"));
         assertEquals(3, writer.getWrittenElements().size());
         assertEquals(2, writer.getDeletedElements().size());
         assertTrue(writer.getDeletedElements().containsKey("key2"));
@@ -735,7 +775,7 @@ public class CacheWriterTest extends AbstractCacheTest {
 
         assertEquals(0, writer.getWrittenElements().size());
 
-        Thread.sleep(2000);
+        Thread.sleep(1500);
 
         assertEquals(10, writer.getWrittenElements().size());
 

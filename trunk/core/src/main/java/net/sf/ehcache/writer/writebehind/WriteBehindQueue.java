@@ -63,6 +63,7 @@ public class WriteBehindQueue implements WriteBehind {
     private final ReentrantReadWriteLock.ReadLock queueReadLock = queueLock.readLock();
     private final ReentrantReadWriteLock.WriteLock queueWriteLock = queueLock.writeLock();
     private final Condition queueIsEmpty = queueWriteLock.newCondition();
+    private final Condition queueIsStopped = queueWriteLock.newCondition();
 
     private final AtomicLong lastProcessing = new AtomicLong(System.currentTimeMillis());
     private final AtomicLong lastWorkDone = new AtomicLong(System.currentTimeMillis());
@@ -72,7 +73,8 @@ public class WriteBehindQueue implements WriteBehind {
 
     private List<SingleOperation> waiting = new ArrayList<SingleOperation>();
     private CacheWriter cacheWriter;
-    private boolean cancelled;
+    private boolean stopping;
+    private boolean stopped;
 
     /**
      * Create a new write behind queue.
@@ -80,6 +82,9 @@ public class WriteBehindQueue implements WriteBehind {
      * @param config the configuration for the queue
      */
     public WriteBehindQueue(CacheConfiguration config) {
+        this.stopping = false;
+        this.stopped = true;
+
         this.cacheName = config.getName();
 
         // making a copy of the configuration locally to ensure that it will not be changed at runtime
@@ -102,11 +107,17 @@ public class WriteBehindQueue implements WriteBehind {
     public void start(CacheWriter writer) {
         queueWriteLock.lock();
         try {
-            this.cacheWriter = writer;
+            if (!stopped) {
+                throw new CacheException("The write-behind queue for cache '" + cacheName + "' can't be started more than once");
+            }
 
             if (processingThread.isAlive()) {
-                throw new CacheException("A thread with name " + processingThread.getName() + " already exists and is still running");
+                throw new CacheException("The thread with name " + processingThread.getName() + " already exists and is still running");
             }
+
+            this.stopping = false;
+            this.stopped = false;
+            this.cacheWriter = writer;
 
             processingThread.start();
         } finally {
@@ -130,37 +141,57 @@ public class WriteBehindQueue implements WriteBehind {
      */
     private final class ProcessingThread implements Runnable {
         public void run() {
-            while (!isCancelled()) {
-
-                processItems();
-
-                // Wait for new items or until the min write delay has expired.
-                // Do not continue if the actual min write delay wasn't at least the one specified in the config
-                // otherwise it's possible to create a new work list for just a couple of items in case
-                // the item processor is very fast, causing a large amount of data churn.
-                // However, if the write delay is expired, the processing should start immediately.
-                queueWriteLock.lock();
-                try {
+            try {
+                while (!isStopped()) {
+    
+                    processItems();
+                    
+                    queueWriteLock.lock();
                     try {
-                        long delay = minWriteDelayMs;
-                        do {
-                            queueIsEmpty.await(delay, TimeUnit.MILLISECONDS);
-                            long actualDelay = System.currentTimeMillis() - getLastProcessing();
-                            if (actualDelay < minWriteDelayMs) {
-                                delay = minWriteDelayMs - actualDelay;
-                            } else {
-                                delay = 0;
-                            }
-                        } while (delay > 0);
-                    } catch (final InterruptedException e) {
-                        // if the wait for items is interrupted, act as if the bucket was canceled
-                        stop();
-                        Thread.currentThread().interrupt();
+                        // Wait for new items or until the min write delay has expired.
+                        // Do not continue if the actual min write delay wasn't at least the one specified in the config
+                        // otherwise it's possible to create a new work list for just a couple of items in case
+                        // the item processor is very fast, causing a large amount of data churn.
+                        // However, if the write delay is expired, the processing should start immediately.
+                        try {
+                            long delay = minWriteDelayMs;
+                            do {
+                                queueIsEmpty.await(delay, TimeUnit.MILLISECONDS);
+                                long actualDelay = System.currentTimeMillis() - getLastProcessing();
+                                if (actualDelay < minWriteDelayMs) {
+                                    delay = minWriteDelayMs - actualDelay;
+                                } else {
+                                    delay = 0;
+                                }
+                            } while (delay > 0);
+                        } catch (final InterruptedException e) {
+                            // if the wait for items is interrupted, act as if the bucket was cancelled
+                            stop();
+                            Thread.currentThread().interrupt();
+                        }
+                        
+                        // If the queue is stopping and no more work is outstanding, perform the actual stop operation
+                        if (stopping && waiting.isEmpty()) {
+                            stopTheQueueThread();
+                        }                        
+                    } finally {
+                        queueWriteLock.unlock();
                     }
-
-                } finally {
-                    queueWriteLock.unlock();
                 }
+            } finally {
+                stopTheQueueThread();
+            }
+        }
+
+        private void stopTheQueueThread() {
+            // Perform the actual stop operation and wake up everyone that is waiting for it.
+            queueWriteLock.lock();
+            try {
+                stopped = true;
+                stopping = false;
+                queueIsStopped.signalAll();
+            } finally {
+                queueWriteLock.unlock();
             }
         }
     }
@@ -397,6 +428,10 @@ public class WriteBehindQueue implements WriteBehind {
     public void write(Element element) {
         queueWriteLock.lock();
         try {
+            if (stopping || stopped) {
+                throw new CacheException("The element '" + element + "' couldn't be added through the write-behind queue for cache '"
+                        + cacheName + "' since it's not started.");
+            }
             waiting.add(new WriteOperation(element));
             queueIsEmpty.signal();
         } finally {
@@ -410,6 +445,10 @@ public class WriteBehindQueue implements WriteBehind {
     public void delete(CacheEntry entry) {
         queueWriteLock.lock();
         try {
+            if (stopping || stopped) {
+                throw new CacheException("The entry for key '" + entry.getKey() + "' couldn't be deleted through the write-behind " 
+                        + "queue for cache '" + cacheName + "' since it's not started.");
+            }
             waiting.add(new DeleteOperation(entry));
             queueIsEmpty.signal();
         } finally {
@@ -420,20 +459,30 @@ public class WriteBehindQueue implements WriteBehind {
     /**
      * {@inheritDoc}
      */
-    public void stop() {
+    public void stop() throws CacheException {
         queueWriteLock.lock();
         try {
-            cancelled = true;
+            if (stopped) {
+                return;
+            }
+            
+            stopping = true;
             queueIsEmpty.signal();
+            while (!stopped) {
+                queueIsStopped.await();
+            }
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new CacheException(e);
         } finally {
             queueWriteLock.unlock();
         }
     }
 
-    private boolean isCancelled() {
+    private boolean isStopped() {
         queueReadLock.lock();
         try {
-            return cancelled;
+            return stopped;
         } finally {
             queueReadLock.unlock();
         }
