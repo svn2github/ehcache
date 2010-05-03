@@ -36,7 +36,7 @@ Code Samples
 
  All usages of Ehcache start with the creation of a CacheManager.
 
-** {Singleton versus Instance}
+** Singleton versus Instance
 
  As of ehcache-1.2, Ehcache CacheManagers can be created as either singletons (use the create factory method) or instances (use new).
 
@@ -63,7 +63,7 @@ String[] cacheNames = CacheManager.getInstance().getCacheNames();
  String[] cacheNamesForManager2 = manager2.getCacheNames();
 ---------------------------------
 
-** {Ways of loading Cache Configuration}
+** Ways of loading Cache Configuration
 
  When the CacheManager is created it creates caches found in the configuration.
 
@@ -97,7 +97,7 @@ try {
 }
 ---------------------------------
 
-** {Adding and Removing Caches Programmatically}
+** Adding and Removing Caches Programmatically
 
  You are not just stuck with the caches that were placed in the configuration. You can create and remove them
  programmatically.
@@ -131,9 +131,7 @@ CacheManager singletonManager = CacheManager.create();
 singletonManager.removeCache("sampleCache1");
 ---------------------------------
 
-
-
-** {Shutdown the CacheManager}
+** Shutdown the CacheManager
 
  Ehcache should be shutdown after use. It does have a shutdown hook, but it is best practice to shut it down
  in your code.
@@ -153,9 +151,9 @@ manager.shutdown();
  See the {{{/xref-test/net/sf/ehcache/CacheManagerTest.html}CacheManagerTest}} for more examples.
 
 
-* {Creating Caches Programmatically}
+* Creating Caches Programmatically
 
-** {Creating a new cache from defaults}
+** Creating a new cache from defaults
 
     A new cache with a given name can be created from defaults very simply:
 
@@ -163,7 +161,7 @@ manager.shutdown();
 manager.addCache(cache name);
 ---
 
-** {Creating a new cache with custom parameters}
+** Creating a new cache with custom parameters
 
    The configuration for a Cache can be specified programmatically as an argument to the Cache constructor:
 
@@ -204,7 +202,7 @@ public Cache(CacheConfiguration cacheConfiguration) {
 
 
 
-* {Using Caches}
+* Using Caches
 
   All of these examples refer to <manager>, which is a reference to a CacheManager, which has a cache in it
   called <sampleCache1>.
@@ -217,7 +215,7 @@ public Cache(CacheConfiguration cacheConfiguration) {
 Cache cache = manager.getCache("sampleCache1");
 ---------------------------------
 
-** {Performing CRUD operations}
+** Performing CRUD operations
 
 
  Put an element into a cache
@@ -264,7 +262,7 @@ cache.remove("key1");
 ---------------------------------
 
 
-** {Disk Persistence on demand}
+** Disk Persistence on demand
 
  <sampleCache1> has a persistent diskStore. We wish to ensure that the data and index are written immediately.
 
@@ -274,7 +272,7 @@ cache.flush();
 ---------------------------------
 
 
-** {Obtaining Cache Sizes}
+** Obtaining Cache Sizes
 
  Get the number of elements currently in the <<<Cache>>>.
 
@@ -297,7 +295,7 @@ Cache cache = manager.getCache("sampleCache1");
 long elementsInMemory = cache.getDiskStoreSize();
 ---------------------------------
 
-** {Obtaining Statistics of Cache Hits and Misses}
+** Obtaining Statistics of Cache Hits and Misses
 
  These methods are useful for tuning cache configurations.
 
@@ -339,7 +337,27 @@ int hits = cache.getMissCountExpired();
  These are just the most commonly used methods. See {{{/xref-test/net/sf/ehcache/CacheTest.html}CacheTest}} for more examples.
  See {{{/xref/net/sf/ehcache/Cache.html}Cache}} for the full API.
 
-** {JTA}
+** Dynamically Modifying Cache Configurations
+    
+    This example shows how to dynamically modify the cache configuration of an already running cache:
+
+---
+    Cache cache = manager.getCache("sampleCache");
+    CacheConfiguration config = cache.getCacheConfiguration();
+    config.setTimeToIdleSeconds(60);
+    config.setTimeToLiveSeconds(120);
+    config.setMaxElementsInMemory(10000);
+    config.setMaxElementsOnDisk(1000000);
+---
+
+    Dynamic cache configurations can also be frozen to prevent future changes:
+
+---
+    Cache cache = manager.getCache("sampleCache");
+    cache.disableDynamicFeatures();
+---
+
+** JTA
 
  A cache will automatically participate in the ongoing UserTransaction when configured in transactionalMode XA.
  This can be done programmatically:
@@ -401,29 +419,15 @@ int hits = cache.getMissCountExpired();
     }
 --------------------------------------------
 
+* Using Distributed Caches
 
+**  Terracotta Example
 
-*   {Dynamically Modifying Cache Configurations}
-    
-    This example shows how to dynamically modify the cache configuration of an already running cache:
+    See the fully worked examples in the {{{./distributed_caching_with_terracotta.html}Terracotta Clustering}} Chapter.
 
----
-    Cache cache = manager.getCache("sampleCache");
-    CacheConfiguration config = cache.getCacheConfiguration();
-    config.setTimeToIdleSeconds(60);
-    config.setTimeToLiveSeconds(120);
-    config.setMaxElementsInMemory(10000);
-    config.setMaxElementsOnDisk(1000000);
----
+* Cache Statistics and Monitoring
 
-    Dynamic cache configurations can also be frozen to prevent future changes:
-
----
-    Cache cache = manager.getCache("sampleCache");
-    cache.disableDynamicFeatures();
----
-
-*   {Registering CacheStatistics in an MBeanServer}
+**   {Registering CacheStatistics in an MBeanServer}
 
     This example shows how to register CacheStatistics in the JDK1.5 platform MBeanServer, which
     works with the JConsole management agent.
@@ -434,22 +438,19 @@ int hits = cache.getMissCountExpired();
     ManagementService.registerMBeans(manager, mBeanServer, false, false, false, true);
 ---
 
-* {Browse the JUnit Tests}
+* More examples
+
+** JCache Examples
+
+    See the examples in the {{{./jsr107.html}JCache}} Chapter.
+
+** Cache Server Examples
+
+    See the examples in the {{{./cache_server.html}Cache Server}} Chapter.
+
+** Browse the JUnit Tests
 
  Ehcache comes with a comprehensive JUnit test suite, which not only tests the code, but shows you how to use ehcache.
 
  A link to {{{/xref-test/index.html}browsable unit test source code}} for the major Ehcache classes is given per section. The unit tests are also
    in the src.zip in the Ehcache tarball.
-
-
-*  {JCache Examples}
-
-    See the examples in the {{{./jsr107.html}JCache}} Chapter.
-
-*  {Terracotta Example}
-
-    See the fully worked examples in the {{{./distributed_caching_with_terracotta.html}Terracotta Clustering}} Chapter.
-
-*  {Cache Server Examples}
-
-    See the examples in the {{{./cache_server.html}Cache Server}} Chapter.
