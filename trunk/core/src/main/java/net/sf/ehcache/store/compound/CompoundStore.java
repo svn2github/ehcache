@@ -555,6 +555,7 @@ public abstract class CompoundStore extends AbstractStore {
 
             List<ReentrantReadWriteLock.WriteLock> acquiredLocks = new ArrayList<ReentrantReadWriteLock.WriteLock>();
             boolean lockHeld;
+            ReentrantReadWriteLock.WriteLock unheldLock = null;
 
             List<Sync> ordered = new ArrayList<Sync>();
             for (Segment s : CompoundStore.this.segments) {
@@ -569,6 +570,8 @@ public abstract class CompoundStore extends AbstractStore {
                                 acquiredLocks.add(writeLock);
                             }
                             acquiredLocks.add(writeLock);
+                        } else {
+                            unheldLock = writeLock;
                         }
                     } catch (InterruptedException e) {
                         lockHeld = false;
@@ -579,7 +582,7 @@ public abstract class CompoundStore extends AbstractStore {
                             ReentrantReadWriteLock.WriteLock writeLock = acquiredLocks.get(i);
                             writeLock.unlock();
                         }
-                        throw new TimeoutException("could not acquire all locks in " + timeout + " ms");
+                        throw new TimeoutException("could not acquire all locks in " + timeout + " ms - did not get " + unheldLock);
                     }
 
                     ordered.add(new ReadWriteLockSync(s));
