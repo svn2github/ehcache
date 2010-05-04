@@ -58,12 +58,10 @@ public class TransactionXARequestProcessor implements XARequestProcessor {
      * {@inheritDoc}
      */
     public int process(XARequest request) throws XAException {
-        int returnFlags = XAResource.TMNOFLAGS;
-        
         ExecutorService service = getOrCreateExecutorService(request.getXid());
         Future<XAResponse> future = service.submit(new XARequestCallable(resourceImpl, request));
       
-        XAResponse xaResponse = null;
+        XAResponse xaResponse;
         try {
             xaResponse = future.get();
         } catch (InterruptedException e) {
@@ -83,9 +81,12 @@ public class TransactionXARequestProcessor implements XARequestProcessor {
            request.getRequestType().equals(RequestType.ROLLBACK) ||
            request.getRequestType().equals(RequestType.FORGET)) {
             cleanupExecutorService(request.getXid());
+        } else if (request.getRequestType().equals(RequestType.PREPARE) &&
+                xaResponse.getFlags() == XAResource.XA_RDONLY) {
+            cleanupExecutorService(request.getXid());
         }
 
-        return returnFlags;
+        return xaResponse.getFlags();
     }
     
     /**

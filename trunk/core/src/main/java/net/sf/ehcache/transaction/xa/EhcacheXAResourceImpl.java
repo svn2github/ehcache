@@ -227,9 +227,25 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
             throw new EhcacheXAException("Couldn't execute command on store!", XAException.XA_RBINTEGRITY);
         }
 
-        ehcacheXAStore.prepare(xid, preparedContext);
+        return determinePrepareReturnCode(xid, updatedKeys, preparedContext, writes);
+    }
 
-        return XA_OK;
+    private int determinePrepareReturnCode(Xid xid, Object[] updatedKeys, PreparedContext preparedContext, boolean writes)
+            throws EhcacheXAException {
+        if (writes) {
+            ehcacheXAStore.prepare(xid, preparedContext);
+            return XA_OK;
+        } else {
+            if (updatedKeys.length > 0) {
+                LOG.warn(updatedKeys.length + " updated keys, but nothing got changed?!");
+                ehcacheXAStore.prepare(xid, preparedContext);
+                return XA_OK;
+            }
+
+            ehcacheXAStore.removeData(xid);
+            fireAfterCommitOrRollback();
+            return XA_RDONLY;
+        }
     }
 
     private void switchValuesBack(final Object... keysAlreadyProcessed) {
