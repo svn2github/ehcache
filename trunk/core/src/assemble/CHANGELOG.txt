@@ -1,6 +1,6 @@
 ehcache-2.1.0
 ==================
-    <release version="2.1.0" date="2010-05-03" description="2.1.0 major release with new features">
+    <release version="2.1.0" date="2010-05-19" description="2.1.0 major release with new features">
         <action dev="Geert Bevin" type="fix" issue="EHC-701">
             closing a chache the WriteBehindManager attached to the queue does not by default finish flushing
         </action>
