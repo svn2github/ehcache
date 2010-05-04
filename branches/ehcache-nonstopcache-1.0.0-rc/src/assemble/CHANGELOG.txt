@@ -1,4 +1,4 @@
-<release version="1.0.0" date="2010-05-03" desc="Initial release">
+<release version="1.0.0" date="2010-05-19" desc="Initial release">
 
     <!-- Features and Enhancements -->
     <action dev="Abhishek Sanoujam" type="add">
