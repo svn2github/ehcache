@@ -25,6 +25,15 @@ Monitor Module (Beta)
 
 * News
 
+** 4 May 2010: New nightlies released
+
+    We anticipate releasing the GA version of monitor in mid May. New nightly released have been put up with the latest features including:
+
+    * Charts
+
+    * IE7/8 support
+
+
 **  15 December 2009: Beta 2 Released
 
   Beta 2 has been released. Beta 2 fixes bugs in Beta 1.  
@@ -35,15 +44,6 @@ Monitor Module (Beta)
  We have listened to feedback. A new Beta 3 will be available in the new year which will provide
  the following additional features:
 
- * History
-
- * Garbage Collection statistics and graphs
-
- * Very simple SLA setting and monitoring from Ops tools
-
- * Cache Efficiency statistics and graphs
-
- * Memory use statistics and graphs
 
 * Documentation
 

@@ -56,7 +56,7 @@
 
     The web-based GUI is available by pointing your browser at http://<monitor-host-name>:<monitor-port>/monitor. For a default installation on the local machine, this would be http://localhost:9889/monitor
 
-    The GUI contains 4 tabs, described as follows:
+    The GUI contains six tabs, described as follows:
 
 **  Cache Managers
 
@@ -66,7 +66,8 @@
 
     This tab shows the statistics being gathered for each cache managed by the selected cache manager.
 
-    The Settings button permits you to add additional statistics fields to the display. Note: only displayed fields are collected and aggregated by the probe. Adding additional display fields will increase the processing required for probe and the monitor. The selected settings are stored in a preferences cookie in your browser.
+    The Settings button permits you to add additional statistics fields to the display. Note: only displayed fields are collected and aggregated by the probe.
+    Adding additional display fields will increase the processing required for probe and the monitor. The selected settings are stored in a preferences cookie in your browser.
 
     Double-clicking on any cache drills down to the Contents tab for that cache.
 
@@ -79,6 +80,17 @@
     This tab enables you to look inside the cache, search for elements via their keys and remove individual or groups of elements from the cache.
 
     The GUI is set to refresh at the same frequency that the probes aggregate their statistic samples which is every 10 seconds by default. The progress bar at the bottom of the screen indicates the time until the next refresh.
+
+**  Charts
+
+    This tab contains various live charts of cache statistics. It gives you a feel for the trending of the each statistic, rather than
+    just the latest value.
+
+**  API
+
+    This tab contains a listing of the API methods. Each is a hyperlink, which may be clicked on. Some will display data and some will require
+    additional arguments. If additional arguments are required an error message will be displayed with the details. This tab is meant for
+    interative testing of the API.   
 
 
 *   {Using the API}
@@ -109,12 +121,6 @@
     $ curl http://localhost:9889/monitor/listProbes?format=xml
 +---
 
-*   {Known Issues}
-
-**  Internet Explorer
-
-    The GUI is designed to work in most browsers. Currently it has been tested in Firefox and Safari and is known not to work in Microsoft
-    Internet Explorer. Wider browser support is planned for future release builds.
 
 *   {Licensing}
 
