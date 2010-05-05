@@ -47,14 +47,18 @@ public class EhcacheXAStoreImpl implements EhcacheXAStore {
     /** protected for testing **/
     protected Store oldVersionStore;
 
+    private final boolean bypassValidation;
+
     /**
      * Constructor
      * @param underlyingStore the real underlying store
      * @param oldVersionStore the old version, read-only, used to access keys during 2pc
+     * @param bypassValidation whether versioning for checked out elements should be traced
      */
-    public EhcacheXAStoreImpl(Store underlyingStore, Store oldVersionStore) {
-        this.underlyingStore = underlyingStore;
-        this.oldVersionStore = oldVersionStore;
+    public EhcacheXAStoreImpl(Store underlyingStore, Store oldVersionStore, boolean bypassValidation) {
+        this.underlyingStore  = underlyingStore;
+        this.oldVersionStore  = oldVersionStore;
+        this.bypassValidation = bypassValidation;
     }
 
     /**
@@ -80,6 +84,14 @@ public class EhcacheXAStoreImpl implements EhcacheXAStore {
     }
 
     /**
+     * Whether we currently do Versioning of Elements
+     * @return true if versioning is bypassed, false otherwise
+     */
+    public boolean isBypassingValidation() {
+        return bypassValidation;
+    }
+
+    /**
      * {@inheritDoc}
      */
     public void checkin(Object key, Xid xid, boolean readOnly) {
@@ -97,7 +109,7 @@ public class EhcacheXAStoreImpl implements EhcacheXAStore {
      * {@inheritDoc}
      */
     public TransactionContext createTransactionContext(Xid xid) {
-         XATransactionContext context = new XATransactionContext(xid, this);
+        XATransactionContext context = new XATransactionContext(xid, this);
         XATransactionContext previous = transactionContextXids.putIfAbsent(xid, context);
         if (previous != null) {
             context = previous;

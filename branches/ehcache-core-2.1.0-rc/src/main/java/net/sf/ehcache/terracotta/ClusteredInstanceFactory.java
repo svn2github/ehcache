@@ -57,7 +57,7 @@ public interface ClusteredInstanceFactory {
      * @param store
      * @return return clustered instance of EhcacheXAStore
      */
-    EhcacheXAStore createXAStore(Ehcache cache, Store store);
+    EhcacheXAStore createXAStore(Ehcache cache, Store store, boolean bypassValidation);
 
     /**
      * Create a replicator for the cache events of a given cache

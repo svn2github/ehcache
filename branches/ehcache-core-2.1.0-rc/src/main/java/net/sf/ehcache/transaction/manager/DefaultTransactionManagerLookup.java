@@ -53,7 +53,7 @@ public class DefaultTransactionManagerLookup implements TransactionManagerLookup
     private static final Logger LOG = LoggerFactory.getLogger(DefaultTransactionManagerLookup.class.getName());
 
     private       transient TransactionManager transactionManager;
-    private       transient String             vendor;
+    private       transient String             vendor             = "";
     private       transient Properties         properties         = new Properties();
     private final           Lock               lock               = new ReentrantLock();
 

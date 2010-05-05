@@ -76,12 +76,14 @@ public class XATransactionalStore extends AbstractStore {
      * @param cache the cache this store is backing
      * @param ehcacheXAStore the XAStore to be used by this store
      * @param transactionManagerLookup the TransactionManagerLookup used to get hold of the JTA transaction manager
+     * @param txnManager
      */
-    public XATransactionalStore(Ehcache cache, EhcacheXAStore ehcacheXAStore, TransactionManagerLookup transactionManagerLookup) {
+    public XATransactionalStore(Ehcache cache, EhcacheXAStore ehcacheXAStore,
+                                TransactionManagerLookup transactionManagerLookup, TransactionManager txnManager) {
         this.cache = cache;
         this.ehcacheXAStore = ehcacheXAStore;
         this.transactionManagerLookup = transactionManagerLookup;
-        this.txnManager = transactionManagerLookup.getTransactionManager();
+        this.txnManager = txnManager;
 
         this.underlyingStore = ehcacheXAStore.getUnderlyingStore();
         this.oldVersionStore = ehcacheXAStore.getOldVersionStore();

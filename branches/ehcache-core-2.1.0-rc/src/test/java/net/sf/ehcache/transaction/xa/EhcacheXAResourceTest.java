@@ -64,7 +64,7 @@ public class EhcacheXAResourceTest extends TestCase {
         TestStore underlyingStore = new TestStore();
         TestStore oldVersionStore = new TestStore();
         TestTransactionManager txnManager = new TestTransactionManager();
-        EhcacheXAStoreImpl store = new EhcacheXAStoreImpl(underlyingStore, oldVersionStore);
+        EhcacheXAStoreImpl store = new EhcacheXAStoreImpl(underlyingStore, oldVersionStore, false);
         Ehcache theCache = mock(Ehcache.class);
         when(theCache.getName()).thenReturn("testCache");
         EhcacheXAResourceImpl resource = new EhcacheXAResourceImpl(theCache, txnManager, store);

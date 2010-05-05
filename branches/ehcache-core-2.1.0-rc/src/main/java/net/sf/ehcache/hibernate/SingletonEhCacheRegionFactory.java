@@ -21,12 +21,15 @@ import java.util.Properties;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import net.sf.ehcache.CacheManager;
+import net.sf.ehcache.config.Configuration;
 
 import org.hibernate.cache.CacheException;
 import org.hibernate.cfg.Settings;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.transaction.TransactionManager;
 
 /**
  * A singleton EhCacheRegionFactory implementation.
@@ -40,7 +43,7 @@ public class SingletonEhCacheRegionFactory extends AbstractEhcacheRegionFactory 
     private static final Logger LOG = LoggerFactory.getLogger(SingletonEhCacheRegionFactory.class);
 
     private static final AtomicInteger REFERENCE_COUNT = new AtomicInteger();
-    
+
     /**
      * Returns a representation of the singleton EhCacheRegionFactory
      */
@@ -52,6 +55,9 @@ public class SingletonEhCacheRegionFactory extends AbstractEhcacheRegionFactory 
      * {@inheritDoc}
      */
     public void start(Settings settings, Properties properties) throws CacheException {
+
+        TransactionManager transactionManager = getOnePhaseCommitSyncTransactionManager(settings, properties);
+
         try {
             String configurationResourceName = null;
             if (properties != null) {
@@ -72,7 +78,9 @@ public class SingletonEhCacheRegionFactory extends AbstractEhcacheRegionFactory 
                     }
                     url = loadResource(configurationResourceName);
                 }
-                manager = CacheManager.create(url);
+                Configuration configuration = HibernateUtil.loadAndCorrectConfiguration(url);
+                configuration.setDefaultTransactionManager(transactionManager);
+                manager = CacheManager.create(configuration);
                 REFERENCE_COUNT.incrementAndGet();
             }
             mbeanRegistrationHelper.registerMBean(manager, properties);

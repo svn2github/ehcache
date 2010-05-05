@@ -417,15 +417,16 @@ public class CacheManager {
      * Create a EhcacheXAStore instance for a cache
      * @param cache The cache the XAResource should wrap
      * @param store The real memory store backing the cache
+     * @param bypassValidation whether versioning for checked out elements should be traced
      * @return the configured EhcacheXAStore impl.
      */
-    EhcacheXAStore createEhcacheXAStore(Ehcache cache, Store store) {
+    EhcacheXAStore createEhcacheXAStore(Ehcache cache, Store store, boolean bypassValidation) {
        EhcacheXAStore ehcacheXAStore;
         if (cache.getCacheConfiguration().isTerracottaClustered()) {
-            ehcacheXAStore = getClusteredInstanceFactory(cache).createXAStore(cache, store);
+            ehcacheXAStore = getClusteredInstanceFactory(cache).createXAStore(cache, store, bypassValidation);
         } else {
             // todo check oldVersionStore's config... what about listeners?!?
-            ehcacheXAStore = new EhcacheXAStoreImpl(store, MemoryOnlyStore.create((Cache) cache, null));
+            ehcacheXAStore = new EhcacheXAStoreImpl(store, MemoryOnlyStore.create((Cache) cache, null), bypassValidation);
         }
         return ehcacheXAStore;
     }
@@ -738,6 +739,28 @@ public class CacheManager {
             if (singleton == null) {
                 LOG.debug("Creating new CacheManager with InputStream");
                 singleton = new CacheManager(inputStream);
+            }
+            return singleton;
+        }
+    }
+
+    /**
+     * A factory method to create a singleton CacheManager from a net.sf.ehcache.config.Configuration.
+     * <p/>
+     * This method makes it possible to use an inputstream for configuration. Note: it is the clients responsibility to close the
+     * inputstream.
+     * <p/>
+     *
+     * @param config
+     */
+    public static CacheManager create(Configuration config) throws CacheException {
+        if (singleton != null) {
+            return singleton;
+        }
+        synchronized (CacheManager.class) {
+            if (singleton == null) {
+                LOG.debug("Creating new CacheManager with InputStream");
+                singleton = new CacheManager(config);
             }
             return singleton;
         }

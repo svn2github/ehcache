@@ -59,6 +59,7 @@ import net.sf.ehcache.event.RegisteredEventListeners;
 import net.sf.ehcache.exceptionhandler.CacheExceptionHandler;
 import net.sf.ehcache.extension.CacheExtension;
 import net.sf.ehcache.extension.CacheExtensionFactory;
+import net.sf.ehcache.hibernate.tm.SyncTransactionManager;
 import net.sf.ehcache.loader.CacheLoader;
 import net.sf.ehcache.loader.CacheLoaderFactory;
 import net.sf.ehcache.statistics.CacheUsageListener;
@@ -978,7 +979,10 @@ public class Cache implements Ehcache, StoreListener {
                     throw new CacheException("To be transactional, a Terracotta clustered cache needs to be in Serialization value mode");
                 }
 
-                TransactionManager txnManager = transactionManagerLookup.getTransactionManager();
+                TransactionManager txnManager = configuration.getDefaultTransactionManager();
+                if (txnManager == null) {
+                    txnManager = transactionManagerLookup.getTransactionManager();
+                }
                 if (txnManager == null) {
                     throw new CacheException("You've configured cache " + cacheManager.getName() + "."
                                              + configuration.getName() + " to be transactional, but no TransactionManager could be found!");
@@ -988,13 +992,14 @@ public class Cache implements Ehcache, StoreListener {
                     configuration.getTerracottaConfiguration().setCacheXA(true);
                 }
 
-                EhcacheXAStore ehcacheXAStore = cacheManager.createEhcacheXAStore(this, store);
+                EhcacheXAStore ehcacheXAStore =
+                    cacheManager.createEhcacheXAStore(this, store, txnManager instanceof SyncTransactionManager);
 
                 // this xaresource is for initial registration and recovery
                 EhcacheXAResourceImpl xaResource = new EhcacheXAResourceImpl(this, txnManager, ehcacheXAStore);
                 transactionManagerLookup.register(xaResource);
 
-                this.compoundStore = new XATransactionalStore(this, ehcacheXAStore, transactionManagerLookup);
+                this.compoundStore = new XATransactionalStore(this, ehcacheXAStore, transactionManagerLookup, txnManager);
             } else {
                 this.compoundStore = store;
             }
