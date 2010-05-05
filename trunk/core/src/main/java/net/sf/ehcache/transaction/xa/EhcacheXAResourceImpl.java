@@ -40,6 +40,7 @@ import net.sf.ehcache.Element;
 import net.sf.ehcache.concurrent.CacheLockProvider;
 import net.sf.ehcache.concurrent.LockType;
 import net.sf.ehcache.concurrent.Sync;
+import net.sf.ehcache.hibernate.tm.SyncTransactionManager;
 import net.sf.ehcache.store.Store;
 import net.sf.ehcache.transaction.TransactionContext;
 import net.sf.ehcache.transaction.xa.XARequest.RequestType;
@@ -73,8 +74,9 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
     private final Store              oldVersionStore;
     private final TransactionManager txnManager;
     private final Ehcache            cache;
-    private final Set<Xid>           recoverySet     = new HashSet<Xid>();
-   
+    private final Set<Xid>           recoverySet      = new HashSet<Xid>();
+    private final boolean            bypassValidation;
+
 
     private       volatile int                transactionTimeout = DEFAULT_TX_TIMEOUT;
     private       volatile Xid                currentXid;
@@ -105,7 +107,8 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
         this.ehcacheXAStore     = ehcacheXAStore;
         this.oldVersionStore    = ehcacheXAStore.getOldVersionStore();
         this.cache              = cache;
-        this.processor          = new TransactionXARequestProcessor(this);        
+        this.processor          = new TransactionXARequestProcessor(this);
+        this.bypassValidation   = txnManager instanceof SyncTransactionManager;
     }
 
     /**
@@ -282,9 +285,11 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
                                 final CacheLockProvider oldVersionStoreLockProvider,
                                 final Object[] updatedKeys) {
         Set<Object> keys = new HashSet<Object>(Arrays.asList(updatedKeys));
-        for (Object updatedKey : keys) {
-            // Decrease counters, readonly operation, as we are "rolling back"
-            ehcacheXAStore.checkin(updatedKey, xid, true);
+        if (!bypassValidation) {
+            for (Object updatedKey : keys) {
+                // Decrease counters, readonly operation, as we are "rolling back"
+                ehcacheXAStore.checkin(updatedKey, xid, true);
+            }
         }
         storeLockProvider.unlockWriteLockForAllKeys(updatedKeys);
         if (oldVersionStoreLockProvider != null) {
@@ -362,7 +367,11 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
         //todo: check onePhase: cannot be true if prepare was called, cannot be false if it wasn't
 
         Transaction txn = getCurrentTransaction();
-        this.processor.process(new XARequest(RequestType.COMMIT, txn , xid, XAResource.TMNOFLAGS, onePhase));
+        if (onePhase) {
+            onePhaseCommit(xid);
+        } else {
+            this.processor.process(new XARequest(RequestType.COMMIT, txn , xid, XAResource.TMNOFLAGS, onePhase));
+        }
     }
 
     /**
@@ -424,7 +433,7 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
     }
 
     private void potentiallyCheckin(final PreparedContext context, final PreparedCommand command, final Xid xid) {
-        if (isLastCommandForKey(context, command)) {
+        if (!bypassValidation && isLastCommandForKey(context, command)) {
             ehcacheXAStore.checkin(command.getKey(), xid, !command.isWriteCommand());
         }
     }
@@ -616,6 +625,10 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
         } finally {
             storeLockProvider.unlockWriteLockForAllKeys(keys);
         }
+
+        ehcacheXAStore.removeData(xid);
+        fireAfterCommitOrRollback();
+        
     }
 
     private void potentiallyCheckin(final TransactionContext context, final VersionAwareCommand command, final Xid xid) {
@@ -628,7 +641,7 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
                 break;
             }
         }
-        if (lastCommandForKey) {
+        if (!bypassValidation && lastCommandForKey) {
             ehcacheXAStore.checkin(command.getKey(), xid, !command.isWriteCommand());
         }
     }
@@ -640,6 +653,10 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
      * @throws XAException If a validation error happens
      */
     private void validateCommands(TransactionContext context, Xid xid) throws XAException {
+        if (bypassValidation) {
+            return;
+        }
+
         for (VersionAwareCommand command : context.getCommands()) {
             if (command.isVersionAware()) {
                 if (!ehcacheXAStore.isValid(command, xid)) {

@@ -72,7 +72,7 @@ public class XaIsolationTransactionalStoreTest {
         when(cacheConfiguration.getCacheEventListenerConfigurations()).thenReturn(new ArrayList());
         Cache cache = new Cache(cacheConfiguration);
 
-        EhcacheXAStoreImpl xaStore = new EhcacheXAStoreImpl(underlyingStore, oldVersionStore);
+        EhcacheXAStoreImpl xaStore = new EhcacheXAStoreImpl(underlyingStore, oldVersionStore, false);
         when(underlyingStore.isCacheCoherent()).thenReturn(true);
         when(underlyingStore.getKeyArray()).thenAnswer(new Answer<Object>() {
             public Object answer(InvocationOnMock invocationOnMock)
@@ -95,7 +95,7 @@ public class XaIsolationTransactionalStoreTest {
                 return false;
             }
         });
-        store = new XATransactionalStore(cache, xaStore, transactionManagerLookup);
+        store = new XATransactionalStore(cache, xaStore, transactionManagerLookup, transactionManagerLookup.getTransactionManager());
     }
 
     @Test

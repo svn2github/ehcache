@@ -147,4 +147,10 @@ public interface EhcacheXAStore {
      * @param xid the Xid of the Transaction
      */
     void removeData(Xid xid);
+
+    /**
+     * Whether versioning for checked out elements should be traced
+     * @return true if so, otherwise false
+     */
+    boolean isBypassingValidation();
 }

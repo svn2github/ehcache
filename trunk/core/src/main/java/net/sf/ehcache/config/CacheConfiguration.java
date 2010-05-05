@@ -30,6 +30,8 @@ import net.sf.ehcache.store.compound.SerializationCopyStrategy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.transaction.TransactionManager;
+
 /**
  * A value object used to represent cache configuration.
  * <h4>Construction Patterns</h4>
@@ -259,6 +261,7 @@ public class CacheConfiguration implements Cloneable {
     private volatile CopyStrategy copyStrategy = new SerializationCopyStrategy();
     private volatile Boolean copyOnRead;
     private volatile Boolean copyOnWrite;
+    private TransactionManager defaultTransactionManager;
 
     /**
      * Default constructor that can only be used by classes in this package.
@@ -846,6 +849,22 @@ public class CacheConfiguration implements Cloneable {
         } else {
             copyStrategy = copyStrategyConfiguration.getCopyStrategyInstance();
         }
+    }
+
+    /**
+     * Getter to the default TM to use
+     * @return the default one if set, or null
+     */
+    public TransactionManager getDefaultTransactionManager() {
+        return defaultTransactionManager;
+    }
+
+    /**
+     * Setter to the default TM
+     * @param defaultTransactionManager the default TM, can be null to fall back to TMLookup
+     */
+    public void setDefaultTransactionManager(final TransactionManager defaultTransactionManager) {
+        this.defaultTransactionManager = defaultTransactionManager;
     }
 
     /**

@@ -45,6 +45,7 @@ public class XATransactionContext implements TransactionContext {
     private final ConcurrentMap<Object, Element> commandElements = new ConcurrentHashMap<Object, Element>();
     private final EhcacheXAStore store;
     private final Xid xid;
+    private final boolean bypassValidation;
     private int sizeModifier;
 
     /**
@@ -55,6 +56,7 @@ public class XATransactionContext implements TransactionContext {
     public XATransactionContext(Xid xid, EhcacheXAStore store) {
         this.store = store;
         this.xid = xid;
+        this.bypassValidation = store.isBypassingValidation();
     }
 
     /**
@@ -93,9 +95,9 @@ public class XATransactionContext implements TransactionContext {
         if (element != null) {
             key = element.getObjectKey();
         }
-        VersionAwareWrapper wrapper = null;
+        VersionAwareWrapper wrapper;
         if (key != null) {
-            long version = store.checkout(key, xid);
+            long version = bypassValidation ? 0 : store.checkout(key, xid);
             wrapper = new VersionAwareWrapper(command, version, key);
             commandElements.put(element.getObjectKey(), element);
         } else {

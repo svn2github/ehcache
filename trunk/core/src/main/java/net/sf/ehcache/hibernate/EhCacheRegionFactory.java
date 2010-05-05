@@ -20,12 +20,15 @@ import java.net.URL;
 import java.util.Properties;
 
 import net.sf.ehcache.CacheManager;
+import net.sf.ehcache.config.Configuration;
 
 import org.hibernate.cache.CacheException;
 import org.hibernate.cfg.Settings;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.transaction.TransactionManager;
 
 /**
  * A non-singleton EhCacheRegionFactory implementation.
@@ -55,13 +58,18 @@ public class EhCacheRegionFactory extends AbstractEhcacheRegionFactory {
                     " If this behaviour is required, consider using SingletonEhCacheRegionFactory.");
             return;
         }
+
+        TransactionManager transactionManager = getOnePhaseCommitSyncTransactionManager(settings, properties);
+
         try {
             String configurationResourceName = null;
             if (properties != null) {
                 configurationResourceName = (String) properties.get(NET_SF_EHCACHE_CONFIGURATION_RESOURCE_NAME);
             }
             if (configurationResourceName == null || configurationResourceName.length() == 0) {
-                manager = new CacheManager();
+                Configuration configuration = new Configuration();
+                configuration.setDefaultTransactionManager(transactionManager);
+                manager = new CacheManager(configuration);
             } else {
                 URL url;
                 try {
@@ -69,7 +77,9 @@ public class EhCacheRegionFactory extends AbstractEhcacheRegionFactory {
                 } catch (MalformedURLException e) {
                     url = loadResource(configurationResourceName);
                 }
-                manager = new CacheManager(HibernateUtil.loadAndCorrectConfiguration(url));
+                Configuration configuration = HibernateUtil.loadAndCorrectConfiguration(url);
+                configuration.setDefaultTransactionManager(transactionManager);
+                manager = new CacheManager(configuration);
             }
             mbeanRegistrationHelper.registerMBean(manager, properties);
         } catch (net.sf.ehcache.CacheException e) {
