@@ -43,8 +43,6 @@ import org.hibernate.transaction.TransactionManagerLookup;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.transaction.TransactionManager;
-
 /**
  * Abstract implementation of an Ehcache specific RegionFactory.
  * 
@@ -195,8 +193,8 @@ abstract class AbstractEhcacheRegionFactory implements RegionFactory {
      * @param properties the Hibernate config props
      * @return null or the decorated TM 
      */
-    protected TransactionManager getOnePhaseCommitSyncTransactionManager(final Settings settings, final Properties properties) {
-        TransactionManager transactionManager = null;
+    protected Object getOnePhaseCommitSyncTransactionManager(final Settings settings, final Properties properties) {
+        Object transactionManager = null;
         if (Boolean.valueOf(properties.getProperty(NET_SF_EHCACHE_ONE_PHASE_SYNC, "true"))) {
             TransactionManagerLookup transactionManagerLookup = settings.getTransactionManagerLookup();
             if (transactionManagerLookup == null) {

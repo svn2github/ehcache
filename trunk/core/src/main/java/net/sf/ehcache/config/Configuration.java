@@ -16,17 +16,15 @@
 
 package net.sf.ehcache.config;
 
+import net.sf.ehcache.ObjectExistsException;
+import net.sf.ehcache.config.generator.ConfigurationSource;
+import net.sf.ehcache.transaction.manager.DefaultTransactionManagerLookup;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
-import net.sf.ehcache.ObjectExistsException;
-import net.sf.ehcache.config.generator.ConfigurationSource;
-import net.sf.ehcache.transaction.manager.DefaultTransactionManagerLookup;
-
-import javax.transaction.TransactionManager;
 
 /**
  * A bean, used by BeanUtils, to set configuration from an XML configuration file.
@@ -64,7 +62,7 @@ public final class Configuration {
     private final Map<String, CacheConfiguration> cacheConfigurations = new HashMap();
     private ConfigurationSource configurationSource;
     private boolean dynamicConfig = true;
-    private TransactionManager defaultTransactionManager;
+    private Object defaultTransactionManager;
     /**
      * Empty constructor, which is used by {@link ConfigurationFactory}, and can be also used programmatically.
      * <p/>
@@ -313,7 +311,7 @@ public final class Configuration {
      * Should the CacheManager inject a specific TransactionManager in the XA Caches
      * @param defaultTransactionManager TransactionManager to inject
      */
-    public void setDefaultTransactionManager(final TransactionManager defaultTransactionManager) {
+    public void setDefaultTransactionManager(final Object defaultTransactionManager) {
         this.defaultTransactionManager = defaultTransactionManager;
     }
 
@@ -321,7 +319,7 @@ public final class Configuration {
      * The default CacheManager XA Caches should use
      * @return the default one, or null
      */
-    public TransactionManager getDefaultTransactionManager() {
+    public Object getDefaultTransactionManager() {
         return defaultTransactionManager;
     }
 }

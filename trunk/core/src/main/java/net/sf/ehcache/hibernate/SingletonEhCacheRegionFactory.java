@@ -29,8 +29,6 @@ import org.hibernate.cfg.Settings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.transaction.TransactionManager;
-
 /**
  * A singleton EhCacheRegionFactory implementation.
  *
@@ -56,7 +54,7 @@ public class SingletonEhCacheRegionFactory extends AbstractEhcacheRegionFactory 
      */
     public void start(Settings settings, Properties properties) throws CacheException {
 
-        TransactionManager transactionManager = getOnePhaseCommitSyncTransactionManager(settings, properties);
+        Object transactionManager = getOnePhaseCommitSyncTransactionManager(settings, properties);
 
         try {
             String configurationResourceName = null;

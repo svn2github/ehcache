@@ -16,21 +16,18 @@
 
 package net.sf.ehcache.config;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-import java.util.concurrent.CopyOnWriteArraySet;
-
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.event.NotificationScope;
 import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
 import net.sf.ehcache.store.compound.CopyStrategy;
 import net.sf.ehcache.store.compound.SerializationCopyStrategy;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.transaction.TransactionManager;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+import java.util.concurrent.CopyOnWriteArraySet;
 
 /**
  * A value object used to represent cache configuration.
@@ -261,7 +258,7 @@ public class CacheConfiguration implements Cloneable {
     private volatile CopyStrategy copyStrategy = new SerializationCopyStrategy();
     private volatile Boolean copyOnRead;
     private volatile Boolean copyOnWrite;
-    private TransactionManager defaultTransactionManager;
+    private Object defaultTransactionManager;
 
     /**
      * Default constructor that can only be used by classes in this package.
@@ -855,7 +852,7 @@ public class CacheConfiguration implements Cloneable {
      * Getter to the default TM to use
      * @return the default one if set, or null
      */
-    public TransactionManager getDefaultTransactionManager() {
+    public Object getDefaultTransactionManager() {
         return defaultTransactionManager;
     }
 
@@ -863,7 +860,7 @@ public class CacheConfiguration implements Cloneable {
      * Setter to the default TM
      * @param defaultTransactionManager the default TM, can be null to fall back to TMLookup
      */
-    public void setDefaultTransactionManager(final TransactionManager defaultTransactionManager) {
+    public void setDefaultTransactionManager(final Object defaultTransactionManager) {
         this.defaultTransactionManager = defaultTransactionManager;
     }
 
