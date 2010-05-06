@@ -1,5 +1,6 @@
-README For ehcache-decorators
+README For ehcache-unlockedreadsview
 =========================================
 
-Ehcache core at least version 1.7.1, together with Java 5 is required.
+Ehcache core at least version 2.1.0, together with Java 5 is required.
+
 

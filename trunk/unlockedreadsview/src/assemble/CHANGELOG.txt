@@ -2,7 +2,7 @@
 
     <!-- Features and Enhancements -->
     <action dev="Abhishek Sanoujam" type="add">
-        Initial release of the ehcache-decorators module
+        Initial release of the ehcache-unlockedreadsview module
     </action>
 
 </release>
