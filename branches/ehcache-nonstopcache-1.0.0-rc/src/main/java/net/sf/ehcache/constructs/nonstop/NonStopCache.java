@@ -135,7 +135,9 @@ public class NonStopCache extends EhcacheDecoratorAdapter
             private final AtomicInteger count = new AtomicInteger();
 
             public Thread newThread(final Runnable runnable) {
-                return new Thread(runnable, "NonStopCache [" + underlyingCache.getName() + "] Executor Thread-" + count.incrementAndGet());
+                Thread thread = new Thread(runnable, "NonStopCache [" + name + "] Executor Thread-" + count.incrementAndGet());
+                thread.setDaemon(true);
+                return thread;
             }
         }));
     }

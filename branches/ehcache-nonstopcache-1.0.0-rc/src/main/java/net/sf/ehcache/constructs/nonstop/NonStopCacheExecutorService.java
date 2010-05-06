@@ -75,8 +75,10 @@ public class NonStopCacheExecutorService {
             private final AtomicInteger counter = new AtomicInteger();
 
             public Thread newThread(final Runnable runnable) {
-                return new Thread(runnable, "Default " + NonStopCacheExecutorService.class.getName() + "-"
+                Thread thread = new Thread(runnable, "Default " + NonStopCacheExecutorService.class.getName() + "-"
                         + DEFAULT_FACTORY_COUNT.incrementAndGet() + " Executor Thread-" + counter.incrementAndGet());
+                thread.setDaemon(true);
+                return thread;
             }
         });
     }
