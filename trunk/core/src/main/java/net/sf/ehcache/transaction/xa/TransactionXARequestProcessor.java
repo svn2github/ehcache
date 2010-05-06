@@ -25,10 +25,6 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import java.util.concurrent.ThreadFactory;
 
 /**
  * Default implementation for TransactionXARequestProcessor.
@@ -42,9 +38,12 @@ import java.util.concurrent.ThreadFactory;
  */
 public class TransactionXARequestProcessor implements XARequestProcessor {
 
-    private final ConcurrentMap<Xid, ExecutorService> executorMap = new ConcurrentHashMap<Xid, ExecutorService>();
+    private final static XAThreadPool XA_PROCESSOR_POOL = new XAThreadPool();
+
+    private final ConcurrentMap<Xid, XAThreadPool.MultiRunner> executorMap =
+            new ConcurrentHashMap<Xid, XAThreadPool.MultiRunner>();
     private EhcacheXAResourceImpl resourceImpl;
-    
+
     /**
      * Constructor
      * 
@@ -58,32 +57,29 @@ public class TransactionXARequestProcessor implements XARequestProcessor {
      * {@inheritDoc}
      */
     public int process(XARequest request) throws XAException {
-        ExecutorService service = getOrCreateExecutorService(request.getXid());
-        Future<XAResponse> future = service.submit(new XARequestCallable(resourceImpl, request));
-      
+        XAThreadPool.MultiRunner multiRunner = getOrCreateThread(request.getXid());
+
         XAResponse xaResponse;
         try {
-            xaResponse = future.get();
+            xaResponse = (XAResponse) multiRunner.execute(new XARequestCallable(resourceImpl, request, request.getXid()));
         } catch (InterruptedException e) {
-            cleanupExecutorService(request.getXid());
+            cleanupThread(request.getXid());
             throw new EhcacheXAException(e.getMessage(), XAException.XAER_RMERR, e);
         } catch (ExecutionException e) {
-            cleanupExecutorService(request.getXid());
+            cleanupThread(request.getXid());
             throw new EhcacheXAException(e.getMessage(), XAException.XAER_RMERR, e);
         }
         if (xaResponse.getXaException() != null) {
-            cleanupExecutorService(request.getXid());
+            cleanupThread(request.getXid());
             throw new EhcacheXAException("XA request on [" + request.getXid() + "] failed", xaResponse.getXaException().errorCode,
                     xaResponse.getXaException());
         }
         
         if (request.getRequestType().equals(RequestType.COMMIT) || 
-           request.getRequestType().equals(RequestType.ROLLBACK) ||
-           request.getRequestType().equals(RequestType.FORGET)) {
-            cleanupExecutorService(request.getXid());
-        } else if (request.getRequestType().equals(RequestType.PREPARE) &&
-                xaResponse.getFlags() == XAResource.XA_RDONLY) {
-            cleanupExecutorService(request.getXid());
+            request.getRequestType().equals(RequestType.ROLLBACK) ||
+            request.getRequestType().equals(RequestType.FORGET) ||
+            (request.getRequestType().equals(RequestType.PREPARE) && xaResponse.getFlags() == XAResource.XA_RDONLY)) {
+            cleanupThread(request.getXid());
         }
 
         return xaResponse.getFlags();
@@ -95,54 +91,22 @@ public class TransactionXARequestProcessor implements XARequestProcessor {
      * @param xid The Xid of the Transaction
      * @return the ExecutorService for that Transaction
      */
-    private ExecutorService getOrCreateExecutorService(Xid xid) {
-        ExecutorService service = executorMap.get(xid);
+    private XAThreadPool.MultiRunner getOrCreateThread(Xid xid) {
+        XAThreadPool.MultiRunner service = executorMap.get(xid);
         if (service == null) {
-            service = Executors.newSingleThreadExecutor(new XARequestProcessThreadFactory(xid));
+            service = XA_PROCESSOR_POOL.getMultiRunner();
             executorMap.put(xid, service);
         }
         return service;
     }
-    
+
     /**
      * Removes the ExecutorService from the map and shuts it down
      * @param xid The Xid of the Transaction
      */
-    private void cleanupExecutorService(Xid xid) {
-        ExecutorService service = executorMap.remove(xid);
-        service.shutdown();
-    }
-    
-    /**
-     * The creates the XA Request process thread with the correct thread name
-     * @author Nabib El-Rahman
-     *
-     */
-    private static class XARequestProcessThreadFactory implements ThreadFactory {
-        
-        private final Xid xid;
-        private Thread thread;
-
-        /**
-         * Thread factory for xid
-         * @param xid associated with thread name
-         */
-        public XARequestProcessThreadFactory(Xid xid) {
-            this.xid = xid;
-        }
-
-        /**
-         * return new correctly named thread
-         */
-        public synchronized Thread newThread(Runnable runnable) {
-            if (this.thread != null) {
-                throw new RuntimeException("more than 1 thread requested to work on XID [" + xid + "]");
-            }
-
-            this.thread = new Thread(runnable, "XA-Request processor Thread Xid [ " + xid + " ]");
-            return thread;
-        }
-        
+    private void cleanupThread(Xid xid) {
+        XAThreadPool.MultiRunner service = executorMap.remove(xid);
+        service.release();
     }
 
     /**
@@ -153,21 +117,26 @@ public class TransactionXARequestProcessor implements XARequestProcessor {
     private static class XARequestCallable implements Callable<XAResponse> {
         private final EhcacheXAResourceImpl resourceImpl;
         private final XARequest request;
-        
+        private Xid xid;
+
         /**
          * Constructor
          * @param resourceImpl the EhcacheXAResourceImpl this Request will be used for
          * @param request the actual Request
+         * @param xid
          */
-        public XARequestCallable(EhcacheXAResourceImpl resourceImpl, XARequest request) {
+        public XARequestCallable(EhcacheXAResourceImpl resourceImpl, XARequest request, Xid xid) {
             this.resourceImpl = resourceImpl;
             this.request = request;
+            this.xid = xid;
         }
              
         /**
          * 
          */
         public XAResponse call() throws Exception {
+            Thread.currentThread().setName("XA-Request processor Thread Xid [ " + xid + " ]");
+
             int returnFlag = XAResource.TMNOFLAGS;
             XAException xaException = null;
             try {
@@ -190,7 +159,7 @@ public class TransactionXARequestProcessor implements XARequestProcessor {
                     break;
                 
                 default:
-                    throw new XAException("Unknown enum type: " + request.getRequestType());
+                    throw new EhcacheXAException("Unknown enum type: " + request.getRequestType(), XAException.XAER_RMERR);
             }
             } catch (XAException xaE) {
                 xaException = xaE;
