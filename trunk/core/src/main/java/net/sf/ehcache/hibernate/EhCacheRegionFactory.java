@@ -21,6 +21,7 @@ import java.util.Properties;
 
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.config.Configuration;
+import net.sf.ehcache.config.ConfigurationFactory;
 
 import org.hibernate.cache.CacheException;
 import org.hibernate.cfg.Settings;
@@ -65,7 +66,7 @@ public class EhCacheRegionFactory extends AbstractEhcacheRegionFactory {
                 configurationResourceName = (String) properties.get(NET_SF_EHCACHE_CONFIGURATION_RESOURCE_NAME);
             }
             if (configurationResourceName == null || configurationResourceName.length() == 0) {
-                Configuration configuration = new Configuration();
+                Configuration configuration = ConfigurationFactory.parseConfiguration();
                 configuration.setDefaultTransactionManager(transactionManager);
                 manager = new CacheManager(configuration);
             } else {
