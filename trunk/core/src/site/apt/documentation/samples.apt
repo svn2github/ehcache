@@ -25,6 +25,8 @@ Recipes
 *----+----+
 {{{../recipes/thunderingherd.html}Thundering Herd}}|When many readers simultaneously request the same data element it is called the "Thundering Herd" problem.  How to prevent it in a single jvm or clustered configuration
 *----+----+
+{{{../recipes/spring-annotations.html}Caching methods with Spring Annotations}}|Adding caching to methods using Ehcache Annotations for Spring project
+*----+----+
 {{{../recipes/wrapper.html}Cache Wrapper}}|A simple class to make accessing Ehcache easier for simple use cases
 *----+----+
 
