@@ -444,11 +444,14 @@ public class BlockingCache implements Ehcache {
         element = cache.get(key);
         lock.unlock(LockType.READ);
         if (element == null) {
-        acquiredLockForKey(key, lock, LockType.WRITE);
-        element = cache.get(key);
-        if (element != null) {
-            lock.unlock(LockType.WRITE);
-        }
+            acquiredLockForKey(key, lock, LockType.WRITE);
+            element = cache.getQuiet(key);
+            if (element != null) {
+                if (cache.isStatisticsEnabled()) {
+                    element = cache.get(key);
+                }
+                lock.unlock(LockType.WRITE);
+            }
         }
         return element;
     }

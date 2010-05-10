@@ -17,6 +17,7 @@
 package net.sf.ehcache.constructs.blocking;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
@@ -34,8 +35,10 @@ import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheTest;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
+import net.sf.ehcache.Statistics;
 import net.sf.ehcache.Status;
 import net.sf.ehcache.StopWatch;
+import net.sf.ehcache.statistics.LiveCacheStatistics;
 
 import org.junit.After;
 import org.junit.Before;
@@ -72,6 +75,25 @@ public class BlockingCacheTest extends CacheTest {
             blockingCache.removeAll();
         }
         super.tearDown();
+    }
+
+    @Test
+    public void testSupportsStatsCorrectly() {
+        blockingCache.setStatisticsEnabled(true);
+        LiveCacheStatistics statistics = blockingCache.getLiveCacheStatistics();
+        long cacheMisses = statistics.getCacheMissCount();
+        long cacheHits = statistics.getCacheHitCount();
+        String key = "123451234";
+        blockingCache.get(key);
+        assertEquals("Misses stat should have incremented by one", cacheMisses + 1, statistics.getCacheMissCount());
+        assertEquals("Hits stat should have remain the same", cacheHits, statistics.getCacheHitCount());
+        blockingCache.put(new Element(key, "value"));
+        assertEquals("Misses stat should have incremented by one", cacheMisses + 1, statistics.getCacheMissCount());
+        assertEquals("Hits stat should have remain the same", cacheHits, statistics.getCacheHitCount());
+        assertNotNull(blockingCache.get(key));
+        assertEquals("Hits stat should have incremented by one", cacheHits + 1, statistics.getCacheHitCount());
+        blockingCache.setStatisticsEnabled(false);
+        blockingCache.remove(key);
     }
 
     /**
