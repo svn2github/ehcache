@@ -1,0 +1,67 @@
+ ------
+ Enable Terracotta Support Programmatically
+ ------
+
+Enable Terracotta Support Programmatically
+
+* Problem
+
+    You configure and use Ehcache programmatically.  You'd like to
+    enable Terracotta support.
+
+* Solution
+
+    You can create a Terracotta configuration programmatically and
+    configure it in your <<<CacheManager>>>.
+
+* Discussion
+
+    Here is some code that you can use to create a Terracotta Configuration
+    and add it to your Ehcache configuration:
+
+-------------------------------------
+import net.sf.ehcache.Cache;
+import net.sf.ehcache.CacheManager;
+import net.sf.ehcache.config.Configuration;
+import net.sf.ehcache.config.CacheConfiguration;
+import net.sf.ehcache.config.TerracottaConfiguration;
+import net.sf.ehcache.config.TerracottaConfigConfiguration;
+
+
+public class Main
+{
+    private static final String CACHE_NAME = "myCache";
+
+    public static void main(String args[]) throws Exception
+    {
+        // The main configuration bean
+        Configuration configuration = new Configuration();
+
+        // Setup the Terracotta cluster config
+        TerracottaConfigConfiguration terracottaConfig = new TerracottaConfigConfiguration();
+
+        // If you want to point to a different URL, do it here, otherwise the default will 
+        // point to a local Terracotta server array
+        // terracottaConfig.setUrl(...);
+        configuration.addTerracottaConfig(terracottaConfig);
+
+        // Setup a default cache and add to the configuration
+        CacheConfiguration defaultCache = new CacheConfiguration("default", 1000)
+            .eternal(false);
+        configuration.addDefaultCache(defaultCache);
+
+        // Setup "myCache"
+        CacheConfiguration myCache = new CacheConfiguration(CACHE_NAME, 10000)
+            .eternal(false);
+
+        // Make "myCache" a Terracotta clustered cache
+        myCache.addTerracotta(new TerracottaConfiguration());
+
+        configuration.addCache(myCache);
+
+        CacheManager mgr = new CacheManager(configuration);
+        Cache exampleCache = mgr.getCache(CACHE_NAME);
+        assert (exampleCache != null);
+    }
+}
+-------------------------------------

@@ -21,6 +21,9 @@ Recipes
 *----+----+
 {{{../recipes/expiration.html}Data Freshness and Expiration}}|How to maintain cache "freshness" by configuring TTL and data expiration properly
 *----+----+
+{{{../recipes/programmatic.html}Enable Terracotta Programmatically}}|How to enable Terracotta support for Ehcache programmatically
+*----+----+
+*----+----+
 {{{../recipes/cachenull.html}Caching Empty Values}}|Why caching empty values can be desirable to deflect load from the database
 *----+----+
 {{{../recipes/thunderingherd.html}Thundering Herd}}|When many readers simultaneously request the same data element it is called the "Thundering Herd" problem.  How to prevent it in a single jvm or clustered configuration
