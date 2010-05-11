@@ -310,7 +310,7 @@ public class LocalReadsBehavior implements NonStopCacheBehavior {
      * This is a no-op and always returns zero
      */
     public long getMemoryStoreSize() throws IllegalStateException {
-        return 0;
+        return getKeys().size();
     }
 
     /**
@@ -319,7 +319,7 @@ public class LocalReadsBehavior implements NonStopCacheBehavior {
      * This is a no-op and always returns zero
      */
     public int getSize() throws IllegalStateException, CacheException {
-        return 0;
+        return getKeys().size();
     }
 
     /**
@@ -328,7 +328,7 @@ public class LocalReadsBehavior implements NonStopCacheBehavior {
      * This is a no-op
      */
     public int getSizeBasedOnAccuracy(int statisticsAccuracy) throws IllegalArgumentException, IllegalStateException, CacheException {
-        return 0;
+        return getKeys().size();
     }
 
     /**
