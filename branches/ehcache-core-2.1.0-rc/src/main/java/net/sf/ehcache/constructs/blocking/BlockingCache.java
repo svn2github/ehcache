@@ -438,17 +438,17 @@ public class BlockingCache implements Ehcache {
      */
     public Element get(final Object key) throws RuntimeException, LockTimeoutException {
 
-        Sync lock = getLockForKey(key);
-        Element element;
-        acquiredLockForKey(key, lock, LockType.READ);
-        element = cache.get(key);
-        lock.unlock(LockType.READ);
+        Element element = cache.get(key);
         if (element == null) {
-        acquiredLockForKey(key, lock, LockType.WRITE);
-        element = cache.get(key);
-        if (element != null) {
-            lock.unlock(LockType.WRITE);
-        }
+            Sync lock = getLockForKey(key);
+            acquiredLockForKey(key, lock, LockType.WRITE);
+            element = cache.getQuiet(key);
+            if (element != null) {
+                if (cache.isStatisticsEnabled()) {
+                    element = cache.get(key);
+                }
+                lock.unlock(LockType.WRITE);
+            }
         }
         return element;
     }
@@ -1238,6 +1238,14 @@ public class BlockingCache implements Ehcache {
      */
     public void removePropertyChangeListener(PropertyChangeListener listener) {
         cache.addPropertyChangeListener(listener);
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String toString() {
+        return cache.toString();
     }
 }
 

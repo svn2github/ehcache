@@ -26,6 +26,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -270,6 +274,34 @@ public class BlockingCacheTest extends CacheTest {
         LOG.debug("Thrash Duration:" + duration);
     }
 
+    @Test
+    public void testNoDeadlockOnRemovingExpiredElement() throws Exception {
+        final String key = "key";
+        final String value = "value";
+
+        // Put the entry
+        blockingCache.put(new Element(key, value, false, 0, 1));
+
+        Thread.sleep(3000);
+        
+        Callable<Element> getter = new Callable<Element>() {
+            public Element call() {
+                Element e = blockingCache.get(key);
+                if (e == null) {
+                    blockingCache.put(new Element(key, value));
+                }
+                return e;
+            }
+        };
+        
+        ExecutorService e = Executors.newSingleThreadExecutor();
+        try {
+            assertNull(e.submit(getter).get(10, TimeUnit.SECONDS));
+        } finally {
+            e.shutdownNow();
+        }
+    }
+    
     /**
      * This method tries to get the cache to slow up.
      * It creates 300 threads, does blocking gets and monitors the liveness right the way through
