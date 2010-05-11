@@ -6,10 +6,14 @@
 
 %{toc|fromDepth=2|toDepth=2}
 
-    <<<NonStopCache>>> is a {{{./cache_decorators.html}decorated cache}} which provides additional availability
-    features relevant to caches backed by Terracotta.
+    <<<NonStopCache>>> is a {{{./cache_decorators.html}decorated cache}} which provides SLA level control
+    features for your cache. It is difficult to rely on your, disk, Database (For write-through), distribution
+	mechanism etc  all being tuned perfectly to provide you the timing characteristics/semantics your application needs. 
+	Non-stop cache allows a developer to take a layered approach to SLAs. Each portion of an application can specify
+	the timing characteristics it needs for a given cache. No matter what happens beneath the Non-stop cache decorator those 
+	semantics are maintained.
 
-    The two things it can do are:
+    Usecases include:
 
     * set timeouts on cache operations.
 
@@ -19,6 +23,16 @@
       write-through, writes to disk or synchronous writes.
 
     * automatically respond to cluster topology events to take a pre-configured action.
+
+	* Your using a disk based cache and your hard drive becomes unavailable. If you are using the Non-stop cache decorator
+	  you can control whether operations timeout, or drop back to noop, or even switch over to an in memory only cache.
+	
+	* Your using a write-through cache and your DB hangs. Use your Non-stop cache decorator to keep it from hanging your entire
+	  Application Server.
+	
+	* You have one cache that is accessed for multiple functions. For some of those functions you want operations to timeout after
+	  5 seconds and for others you want 20 seconds. You can have multiple decorators on the same cache with the different semantics
+      defined.
 
 *   Creating a NonStopCache
 
@@ -166,4 +180,6 @@
 
     This API is emerging. It is production quality and supported, but is a new API and may evolve over time.
 
+**  More information
 
+    {{{http://dsoguy.blogspot.com/2010/05/couple-minutes-with-non-stop-ehcache_07.html}A Couple Minutes With Non-Stop Ehcache}}.
