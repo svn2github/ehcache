@@ -320,10 +320,10 @@ public class SimpleCachingHeadersPageCachingFilter extends SimplePageCachingFilt
      * @return time to live in milliseconds
      */
     protected long calculateTimeToLiveMilliseconds() {
-        if (filterCache.isDisabled()) {
+        if (blockingCache.isDisabled()) {
             return -1;
         } else {
-            CacheConfiguration cacheConfiguration = filterCache.getCacheConfiguration();
+            CacheConfiguration cacheConfiguration = blockingCache.getCacheConfiguration();
             if (cacheConfiguration.isEternal()) {
                 return ONE_YEAR_IN_MILLISECONDS;
             } else {

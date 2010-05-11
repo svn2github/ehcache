@@ -72,7 +72,7 @@ public abstract class PageFragmentCachingFilter extends CachingFilter {
         chain.doFilter(request, wrapper);
         wrapper.flush();
 
-        long timeToLiveSeconds = filterCache.getCacheConfiguration().getTimeToLiveSeconds();
+        long timeToLiveSeconds = blockingCache.getCacheConfiguration().getTimeToLiveSeconds();
 
         // Return the page info
         return new PageInfo(wrapper.getStatus(), wrapper.getContentType(), 
