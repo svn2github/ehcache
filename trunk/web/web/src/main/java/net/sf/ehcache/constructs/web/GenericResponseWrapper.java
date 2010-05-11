@@ -65,7 +65,7 @@ public class GenericResponseWrapper extends HttpServletResponseWrapper implement
     private final List cookies = new ArrayList();
     private ServletOutputStream outstr;
     private PrintWriter writer;
-    private boolean disableFlushBuffer;
+    private boolean disableFlushBuffer = true;
     private transient HttpDateFormatter httpDateFormatter;
 
     /**
@@ -359,6 +359,13 @@ public class GenericResponseWrapper extends HttpServletResponseWrapper implement
      */
     public void flushBuffer() throws IOException {
         flush();
+        
+        // doing this might leads to response already committed exception
+        // when the PageInfo has not yet built but the buffer already flushed
+        // Happens in Weblogic when a servlet forward to a JSP page and the forward
+        // method trigger a flush before it forwarded to the JSP
+        // disableFlushBuffer for that purpose is 'true' by default
+        // EHC-447
         if (!disableFlushBuffer) {
             super.flushBuffer();
         }
