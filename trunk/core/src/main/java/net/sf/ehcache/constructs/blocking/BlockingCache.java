@@ -1239,6 +1239,14 @@ public class BlockingCache implements Ehcache {
     public void removePropertyChangeListener(PropertyChangeListener listener) {
         cache.addPropertyChangeListener(listener);
     }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String toString() {
+        return cache.toString();
+    }
 }
 
 
