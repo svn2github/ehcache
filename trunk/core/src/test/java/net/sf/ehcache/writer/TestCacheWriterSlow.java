@@ -1,13 +1,12 @@
 package net.sf.ehcache.writer;
 
-import net.sf.ehcache.CacheEntry;
-import net.sf.ehcache.CacheException;
-import net.sf.ehcache.Element;
-
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Properties;
+
+import net.sf.ehcache.CacheEntry;
+import net.sf.ehcache.CacheException;
+import net.sf.ehcache.Element;
 
 public class TestCacheWriterSlow extends AbstractCacheWriter {
     private final Map<Object, Element> writtenElements = new HashMap<Object, Element>();
