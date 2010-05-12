@@ -74,6 +74,11 @@ public class TerracottaConfiguration implements Cloneable {
      * Default setting for synchronous-write
      */
     public static final boolean DEFAULT_SYNCHRONOUS_WRITES = false;
+    
+    /**
+     * Default setting for storageStrategy
+     */
+    public static final StorageStrategy DEFAULT_STORAGE_STRATEGY = StorageStrategy.LOCAL;
 
     /**
      * Represents whether values are stored with serialization in the clustered store
@@ -92,6 +97,23 @@ public class TerracottaConfiguration implements Cloneable {
          */
         IDENTITY,
     }
+    
+    /**
+     * Represents whether keys/values are to be stored in the local vm or the Terracotta server
+     *
+     * @author Abhishek Sanoujam
+     */
+    public static enum StorageStrategy {
+        /**
+         * Store the key/values in the local vm
+         */
+        LOCAL,
+
+        /**
+         * Store the key/values in the Terracotta Server
+         */
+        SERVER,
+    }
 
     private static final Logger LOG = LoggerFactory.getLogger(TerracottaConfiguration.class.getName());
     
@@ -106,6 +128,7 @@ public class TerracottaConfiguration implements Cloneable {
     private boolean cacheCoherent = DEFAULT_CACHE_COHERENT;
     private boolean cacheXA = DEFAULT_CACHE_XA;
     private boolean synchronousWrites = DEFAULT_SYNCHRONOUS_WRITES;
+    private StorageStrategy storageStrategy = DEFAULT_STORAGE_STRATEGY;
 
     private boolean copyOnReadSet;
 
@@ -431,5 +454,43 @@ public class TerracottaConfiguration implements Cloneable {
     public TerracottaConfiguration synchronousWrites(boolean synchronousWrites) {
         setSynchronousWrites(synchronousWrites);
         return this;
+    }
+    
+    /**
+     * Converts the {@code storageStrategy} string argument to uppercase and looks up enum constant in StorageStrategy.
+     */
+    public void setStorageStrategy(String storageStrategy) {
+        if (storageStrategy == null) {
+            throw new IllegalArgumentException("Storage Strategy must be non-null");
+        }
+        this.storageStrategy = StorageStrategy.valueOf(StorageStrategy.class, storageStrategy.toUpperCase());
+    }
+
+    /**
+     * @return this configuration instance
+     * @see #setStorageStrategy(String)
+     */
+    public TerracottaConfiguration storageStrategy(String storageStrategy) {
+        setStorageStrategy(storageStrategy);
+        return this;
+    }
+
+    /**
+     * @return this configuration instance
+     * @see #setStorageStrategy(String)
+     */
+    public TerracottaConfiguration storageStrategy(StorageStrategy storageStrategy) {
+        if (storageStrategy == null) {
+            throw new IllegalArgumentException("Storage Strategy must be non-null");
+        }
+        this.storageStrategy = storageStrategy;
+        return this;
+    }
+
+    /**
+     * Get the value mode in terms of the mode enum
+     */
+    public StorageStrategy getStorageStrategy() {
+        return this.storageStrategy;
     }
 }

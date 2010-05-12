@@ -186,6 +186,7 @@
             <xs:attribute name="copyOnRead" use="optional" type="xs:boolean" default="false"/>
             <xs:attribute name="coherent" use="optional" type="xs:boolean" default="true"/>
             <xs:attribute name="synchronousWrites" use="optional" type="xs:boolean" default="false"/>
+            <xs:attribute name="storageStrategy" use="optional" type="storageStrategyType" default="local"/>
         </xs:complexType>
     </xs:element>
     <xs:simpleType name="monitoringType">
@@ -199,6 +200,12 @@
         <xs:restriction base="xs:string">
             <xs:enumeration value="serialization" />
             <xs:enumeration value="identity" />
+        </xs:restriction>
+    </xs:simpleType>
+    <xs:simpleType name="storageStrategyType">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="local" />
+            <xs:enumeration value="server" />
         </xs:restriction>
     </xs:simpleType>
 

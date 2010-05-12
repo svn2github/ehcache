@@ -734,6 +734,11 @@ used with JMX monitors.
       configuration (coherent="false") or through the coherence API, only asynchronous writes can occur 
       (synchronousWrites="true" is ignored). By default this value is false (i.e. clustered caches use normal
        Terracotta WRITE locks).
+    
+    * storageStrategy=local|server - Can be used to configure how the key/values of the cache are stored. The key/values
+      can be stored locally in the vm or stored in the Terracotta Server Array. "local" value for the attribute stores 
+      the key/values in the local vm and using "server" stores it in the Terracotta Server Array. This attribute is 
+      optional and default value is "local"
 
     Simplest example to indicate clustering:
         <terracotta/>
@@ -749,6 +754,9 @@ used with JMX monitors.
     
     To indicate the cache should be clustered using synchronous-write locking level:
         <terracotta clustered="true" synchronousWrites="true"/>
+        
+    To indicate the key/values should be stored in the Terracotta Server Array:
+        <terracotta clustered="true" storageStrategy="server"/>
         
     -->
 
