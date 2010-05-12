@@ -86,6 +86,19 @@
     This tab contains various live charts of cache statistics. It gives you a feel for the trending of the each statistic, rather than
     just the latest value.
 
+*** Estimated Memory Use Chart
+
+    This chart shows the estimated memory use of the Cache.
+
+    Memory is estimated by sampling. The first 15 puts or updates are measured and then every 100th put or update. Most caches
+    contain objects of similar size. If this is not the case for your cache, then the estimate will not be accurate.
+
+    Measurements are performed by walking the object graph of sampled elements through reflection. In some cases such as classes
+    not visible to the classloader, the measurement fails and 0 is recorded for cache size. If you see a chart with 0 memory
+    size values but the cache has data in it, then this is the cause. For this release, caches distributed via Terracotta
+    server show as 0.
+
+
 **  API
 
     This tab contains a listing of the API methods. Each is a hyperlink, which may be clicked on. Some will display data and some will require
@@ -128,6 +141,14 @@
 
     For details see the license terms in the appropriate LICENSE.txt. To obtain a commercial license for use in production,
     please contact sales@terracottatech.com
+
+*   Limitations
+
+**  History not Implemented
+
+    This release has server side history configuration in place, however history is not implemented. It is anticipated
+    it will be implemented in the next release. In the meantime, the charts with their recent history provide trending.
+
 
 
 
