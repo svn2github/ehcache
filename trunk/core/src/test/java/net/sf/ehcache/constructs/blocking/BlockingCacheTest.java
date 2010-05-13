@@ -27,20 +27,21 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.BrokenBarrierException;
+import java.util.concurrent.CyclicBarrier;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import net.sf.ehcache.Cache;
+import net.sf.ehcache.CacheException;
 import net.sf.ehcache.CacheTest;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
+import net.sf.ehcache.Statistics;
 import net.sf.ehcache.Status;
 import net.sf.ehcache.StopWatch;
+import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.statistics.LiveCacheStatistics;
 
 import org.junit.After;
@@ -295,34 +296,6 @@ public class BlockingCacheTest extends CacheTest {
         LOG.debug("Thrash Duration:" + duration);
     }
 
-    @Test
-    public void testNoDeadlockOnRemovingExpiredElement() throws Exception {
-        final String key = "key";
-        final String value = "value";
-
-        // Put the entry
-        blockingCache.put(new Element(key, value, false, 0, 1));
-
-        Thread.sleep(3000);
-        
-        Callable<Element> getter = new Callable<Element>() {
-            public Element call() {
-                Element e = blockingCache.get(key);
-                if (e == null) {
-                    blockingCache.put(new Element(key, value));
-                }
-                return e;
-            }
-        };
-        
-        ExecutorService e = Executors.newSingleThreadExecutor();
-        try {
-            assertNull(e.submit(getter).get(10, TimeUnit.SECONDS));
-        } finally {
-            e.shutdownNow();
-        }
-    }
-    
     /**
      * This method tries to get the cache to slow up.
      * It creates 300 threads, does blocking gets and monitors the liveness right the way through
@@ -439,6 +412,49 @@ public class BlockingCacheTest extends CacheTest {
     @Test
     public void testConcurrentPutsAreConsistent() throws InterruptedException {
         //do nothing
+    }
+
+    @Test
+    public void testInlineEviction() throws InterruptedException {
+
+        final Serializable KEY = "DUH";
+        Cache cache = new Cache(new CacheConfiguration("fastExpiry", 1000).timeToIdleSeconds(2).timeToLiveSeconds(2));
+        manager.addCache(cache);
+        manager.replaceCacheWithDecoratedCache(cache, new BlockingCache(cache));
+
+        Ehcache blockingCache = manager.getEhcache("fastExpiry");
+        blockingCache.put(new Element(KEY, "VALUE"));
+        assertNotNull(blockingCache.get(KEY));
+        // This tests inline eviction (EHC-420)
+        Thread.sleep(3000);
+        assertNull(blockingCache.get(KEY));
+    }
+
+    @Test
+    public void testTimeout() throws BrokenBarrierException, InterruptedException {
+        final CyclicBarrier barrier = new CyclicBarrier(2);
+        final String KEY = "BLOCKING_KEY";
+        blockingCache.setTimeoutMillis(1000);
+        Thread thread = new Thread(new Runnable() {
+            public void run() {
+                assertNull(blockingCache.get(KEY));
+                try {
+                    barrier.await();
+                    Thread.sleep(5000);
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+                blockingCache.put(new Element(KEY, "VALUE"));
+            }
+        });
+        thread.start();
+        barrier.await();
+        try {
+            blockingCache.get(KEY);
+            fail("BlockingCache.get should have not returned!");
+        } catch (CacheException e) {
+            // Expected
+        }
     }
 }
 
