@@ -73,6 +73,7 @@ public class SelfPopulatingCacheTest extends CacheTest {
     /**
      * Load up the test cache
      */
+    @Override
     @Before
     public void setUp() throws Exception {
         //Skip update checks. Causing an OutOfMemoryError
@@ -87,6 +88,7 @@ public class SelfPopulatingCacheTest extends CacheTest {
     /**
      * teardown
      */
+    @Override
     @After
     public void tearDown() throws Exception {
         if (selfPopulatingCache != null) {
@@ -432,6 +434,7 @@ public class SelfPopulatingCacheTest extends CacheTest {
         /**
          * Thread run method
          */
+        @Override
         public void run() {
             try {
                 cache.get(key);
@@ -470,6 +473,7 @@ public class SelfPopulatingCacheTest extends CacheTest {
      * Shows the effect of jamming large amounts of puts into a cache that overflows to disk.
      * The DiskStore should cause puts to back off and avoid an out of memory error.
      */
+    @Override
     @Test
     public void testBehaviourOnDiskStoreBackUp() throws Exception {
         Cache newCache = new Cache("testGetMemoryStoreSize", 10, true, false, 100, 200, false, 0);
@@ -487,7 +491,7 @@ public class SelfPopulatingCacheTest extends CacheTest {
                 cache.put(a);
             }
         } catch (OutOfMemoryError e) {
-            //the disk store backs up on the laptop. 
+            //the disk store backs up on the laptop.
             LOG.info("OutOfMemoryError: " + e.getMessage() + " " + i);
             fail();
         }
@@ -601,7 +605,7 @@ public class SelfPopulatingCacheTest extends CacheTest {
         assertEquals(4, factory.getCount());
         //we cannot be sure which order key1 or key2 gets refreshed,
         //as the implementation makes no guarantee over the sequence
-        //of the refresh; all we can be sure of is that between 
+        //of the refresh; all we can be sure of is that between
         //them key1&2 must have the values 3 & 4
         int e1i = ((Integer) e1.getValue()).intValue();
         int e2i = ((Integer) e2.getValue()).intValue();
@@ -729,8 +733,11 @@ public class SelfPopulatingCacheTest extends CacheTest {
         assertEquals(2, CountingCacheEventListener.getCacheElementsUpdated(cache).size());
         e1 = selfPopulatingCache.get("key1");
         e2 = selfPopulatingCache.get("key2");
-        assertFalse("getLastUpdateTime() should not be the same", lastUpdateTime1 == e1.getLastUpdateTime());
-        assertFalse("getLastUpdateTime() should not be the same", lastUpdateTime2 == e2.getLastUpdateTime());
+        assertEquals(4, factory.getCount());
+        assertEquals(2, CountingCacheEventListener.getCacheElementsPut(cache).size());
+        assertEquals(2, CountingCacheEventListener.getCacheElementsUpdated(cache).size());
+        assertFalse("getLastUpdateTime() should not be the same (" + lastUpdateTime1 + ")", lastUpdateTime1 == e1.getLastUpdateTime());
+        assertFalse("getLastUpdateTime() should not be the same (" + lastUpdateTime2 + ")", lastUpdateTime2 == e2.getLastUpdateTime());
         lastUpdateTime2 = e2.getLastUpdateTime();
 
         //wait a little to allow CPU clock to advance
@@ -741,7 +748,7 @@ public class SelfPopulatingCacheTest extends CacheTest {
         assertEquals(5, factory.getCount());
         assertEquals(2, CountingCacheEventListener.getCacheElementsPut(cache).size());
         assertEquals(3, CountingCacheEventListener.getCacheElementsUpdated(cache).size());
-        assertFalse("getLastUpdateTime() should not be the same", lastUpdateTime2 == e2.getLastUpdateTime());
+        assertFalse("getLastUpdateTime() should not be the same (" + lastUpdateTime2 + ")", lastUpdateTime2 == e2.getLastUpdateTime());
     }
 
     /**
