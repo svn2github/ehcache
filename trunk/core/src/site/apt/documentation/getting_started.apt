@@ -35,6 +35,22 @@ Getting Started
 
     See the {{{./hibernate.html}Hibernate Caching}} chapter for more information.
 
+* Distributed Caching
+
+    Ehcache supports distributed caching with two lines of configuration. 
+
+    * Download the {{{http://www.terracotta.org/dl/ehcache-oss-sign-up}ehcache-distribution package}}.
+    
+    * Add ehcache-core jar to your classpath
+
+    * Add ehcache-terracotta jar to your classpath
+
+    * Add a 'terracotta' element to your 'cache' stanza(s) in ehcache.xml
+
+    * Add a 'terracottaConfig' element to your 'ehcache' stanza in ehcache.xml.
+
+    * See the {{{./distributed_caching_with_terracotta.html}Distributed Caching With Terracotta}} chapter for more information.
+
 * Java EE Servlet Caching
 
     * Perform the same steps as for {{{General_Purpose_Caching}General Purpose Caching}}.
