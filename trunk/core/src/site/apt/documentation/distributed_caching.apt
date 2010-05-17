@@ -1,20 +1,51 @@
  ---
- Distributed Caching Options
+ Distributed and Replicated Caching
  ---
 
 
-Distributed Caching Options
+Distributed and Replicated Caching
 
-    Ehcache provides a pluggable distributed caching mechanism. This enables for multiple CacheManagers and their caches in multiple
-    JVMs to share data with each other.
+     Many production applications are deployed in clusters of multiple
+     instances for availability and scalability.  However, without a
+     distributed or replicated cache, application
+     clusters exhibit a number of undesirable behaviors, such as:
 
-*   Pluggable Mechanisms
+     * <<Cache Drift>>--if each application instance maintains its own cache,
+       updates made to one cache will not appear in the other instances.  This
+       also happens to web session data.  A distributed or replicated cache ensures that all
+       of the cache instances are kept in sync with each other.
+     
+     * <<Database Bottlenecks>>--In a single-instance
+       application, a cache effectively shields a database from the overhead of
+       redundant queries.  However, in a distributed application environment,
+       each instance much load and keep its own cache fresh.  The overhead of
+       loading and refreshing multiple caches leads to database bottlenecks as
+       more application instances are added.  A distributed or replicated cache eliminates
+       the per-instance overhead of loading and refreshing multiple caches from
+       a database.
 
-    Ehcache has a pluggable cache replication scheme which enables the addition of cache replication mechanisms.
+     []
 
-    The following distribution mechanisms are supported in Ehcache 1.7:
+* Distributed Caching
 
-    * Terracotta
+     Ehcache comes bundled with a distributed caching mechanism using Terracotta that enables
+     multiple CacheManagers and their caches in multiple JVMs to share data
+     with each other.  Adding distributed caching to Ehcache takes only two lines of configuration.
+
+     Using Terracotta for Ehcache distributed caching is the recommended
+     method of operating Ehcache in a distributed or scaled-out application
+     environment.  It provides the highest level of performance, availability,
+     and scalability.  As the maintainers of Ehcache, the Terracotta development
+     team has invested million of hours developing Ehcache and its distributed
+     cache capabilities.
+
+     To get started, see the {{{./distributed_caching_with_terracotta.html}Distributed Caching With Terracotta chapter}}. 
+
+* Replicated Caching
+
+    In addition to the built-in distributed caching, Ehcache has a pluggable cache replication scheme which enables the addition of cache replication mechanisms.
+
+    The following additional replicated caching mechanisms are available:
 
     * RMI
 
@@ -25,20 +56,6 @@ Distributed Caching Options
     * Cache Server
 
    Each of the is covered in its own chapter.
-
-* The need for shared cache data
-
-     Many production applications are deployed in clusters. If each
-     application maintains its own cache, then updates made to one cache
-     will not appear in the others. A workaround for web based applications
-     is to use sticky sessions, so that a user, having established a session
-     on one server, stays on that server for the rest of the session. A
-     workaround for transaction processing systems using Hibernate is to do
-     a session.refresh on each persistent object as part of the save.
-     session.refresh explicitly reloads the object from the database,
-     ignoring any cache values.
-
-* Replicated Caches
 
      One solution is to replicate data between the caches to keep them
      consistent, or coherent. Typical operations which Applicable
@@ -56,19 +73,19 @@ Distributed Caching Options
       a lower cost option than a copy.
 
 
-*   Using a Cache Server
+** Using a Cache Server
 
     Ehcache 1.5 supports the Ehcache Cache Server.
 
     To achieve shared data, all JVMs read to and write from a Cache Server, which runs
-     it in its own JVM.
+    it in its own JVM.
 
     To achieve redundancy, the Ehcache inside the Cache Server can be set up in its own cluster.
 
     This technique will be expanded upon in Ehcache 1.6.
 
 
-* Notification Strategies
+** Notification Strategies
 
      The best way of notifying of put and update depends on the nature of
      the cache.
@@ -85,9 +102,9 @@ Distributed Caching Options
 
      Ehcache supports notification through copy and invalidate, selectable per cache.
 
-*   Potential Issues with Distributed Caching
+**   Potential Issues with Replicated Caching
 
-** Potential for Inconsistent Data
+*** Potential for Inconsistent Data
 
      Timing scenarios, race conditions, delivery, reliability
      constraints and concurrent updates to the same cached data can cause
@@ -102,7 +119,7 @@ Distributed Caching Options
      is used. For those times when it is important, Ehcache provides for
      synchronous delivery of puts and updates via invalidation. These are discussed below:
 
-*** Synchronous Delivery
+**** Synchronous Delivery
 
      Delivery can be specified to be synchronous or asynchronous.
      Asynchronous delivery gives faster returns to operations on the local
@@ -111,7 +128,7 @@ Distributed Caching Options
      all peers in the cluster happens before the cache operation returns.
 
 
-*** Put and Update via Invalidation
+**** Put and Update via Invalidation
 
      The default is to update other caches by copying the new value to
      them. If the replicatePutsViaCopy property is set to false in the
@@ -131,9 +148,9 @@ Distributed Caching Options
      coherency.
 
 
-**  Use of Time To Idle
+***  Use of Time To Idle
 
-     Time To Idle is inconsistent with distributed caching. Time-to-idle makes some entries live longer on some
+     Time To Idle is inconsistent with replicated caching. Time-to-idle makes some entries live longer on some
      nodes than in others because of cache usage patterns. However, the cache entry "last touched" timestamp
      is not replicated across the distributed cache.
 

@@ -40,7 +40,7 @@ Documentation - Table of Contents
 
     * {{{./web_caching.html}Web Caching}}
 
-    * {{{./distributed_caching.html}Distributed Caching}}
+    * {{{./distributed_caching.html}Distributed and Replicated Caching}}
 
     * {{{./distributed_caching_with_terracotta.html}Distributed Caching With Terracotta}}
 
