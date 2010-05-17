@@ -52,7 +52,7 @@ Ehcache Distributed Cache
 
 %{snippet|file=src/site/include/newsticker.html|verbatim=false}
 
-** 22 April 2010: Ehcache 2.1.0-beta, and new ehcache-nonstopcache and ehcache-unclockedreadsview betas released
+** 22 April 2010: Ehcache 2.1.0-beta, and new ehcache-nonstopcache and ehcache-unlockedreadsview betas released
 
   Ehcache 2.1.0 will rounds out Ehcache 2.0. JTA support has been added for standalone ehcache. JTA for Hibernate has been added
    which now means Ehcache supports <all> Hibernate strategies. ehcache-nonstopcache adds a new API with support for timeouts

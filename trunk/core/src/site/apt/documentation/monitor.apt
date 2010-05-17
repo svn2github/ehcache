@@ -2,14 +2,17 @@
  Ehcache Monitor
  ---
 
-{Ehcache Monitor}
+
 
 %{toc|fromDepth=2|toDepth=2}
 
-    This add-on tool for Ehcache is designed to provide enterprise-class monitoring and management capabilities for use in both
+    _new_ This add-on tool for Ehcache provides enterprise-class monitoring and management capabilities for use in both
     development and production. It is intended to help understand and tune cache usage, detect errors, and provide an easy to
-    use access point to integrate with production management systems. It provides administrative functionality such as the
+    use access point to integrate with production management systems. It also provides administrative functionality such as the
     ability to forcefully remove items from caches.
+
+    Simply install the Monitor on an Operations server, add the Monitor Probe jar to your app,
+    add a few lines of config in ehcache.xml and your done.
 
     The package contains a probe and a server. The probe installs with your existing Ehcache cache instance, and communicates
     to a central server. The server aggregates data from multiple probes. It can be accessed via a simple web UI, as well as
@@ -17,13 +20,23 @@
     (such as Hyperic, Nagios etc). The probe is designed to be compatible with all versions of Ehcache from 1.4.1 and
     requires JDK 1.5 or 1.6.
 
+%{snippet|file=src/site/include/monitor_preview.html|verbatim=false}
+
+    Get the {{{/modules/monitor.html}Ehcache Monitor}} now.
 
 *   {Installation And Configuration}
 
-    First download and extract the Ehcache Monitor package.
+    First {{{/modules/monitor.html}download}} and extract the Ehcache Monitor package.
 
     The package consists of a lib directory with the probe and monitor server jars, a bin directory with startup and shutdown
     scripts for the monitor server and an etc directory with an example monitor server configuration file.
+
+*   {Recommended Deployment Topology}
+
+[images/monitor.png]
+
+    It is recommended to place the Monitor on an Operations server separate to production. The Monitor acts as an aggregation point
+    for access by end users and for scripted connection from Operations tools for data feeds and set up of alerts.
 
 **  Probe
 

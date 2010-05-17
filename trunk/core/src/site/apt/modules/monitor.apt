@@ -1,55 +1,14 @@
  ------
- {Monitor Module}
+ {Ehcache Monitor Download}
  ------
  ------
  Date
  ------
 
-Monitor Module (Beta)
-
-* Sign Up to Get the Beta
-
-    A module which provides advanced monitoring features for Ehcache is under development.
-
-    Complete the {{{Monitor_Beta_Sign_Up}sign up}} to download the beta release and join the beta program.
-
-    By signing up, you will have early access to Ehcache DX beta builds, plus access to the Ehcache and Terracotta forums for support and to our JIRA issue tracker to report bugs and submit feature requests.
-
-    When you confirm your registration, you will have access to the beta download. We will contact you shortly with the details of the beta program. If you have any questions, please contact sales@terracottatech.com.
-
-* Feature Preview Video - Greg Luck
-
-%{snippet|file=src/site/include/monitor_preview.html|verbatim=false}
-  This is a 3 minute video of Greg Luck previewing the features of the new Ehcache Monitor, which is in under development. Ehcache DX, which includes a new Ehcache Monitoring and Management server, for Ehcache versions 1.5 and higher. Get the {{{/modules/monitor.html}Ehcache Monitor Beta}} now.
+Ehcache Monitor Download
 
 
-* News
-
-** 4 May 2010: New nightlies released
-
-    We anticipate releasing the GA version of monitor in mid May. New nightly released have been put up with the latest features including:
-
-    * Charts
-
-    * IE7/8 support
-
-
-**  15 December 2009: Beta 2 Released
-
-  Beta 2 has been released. Beta 2 fixes bugs in Beta 1.  
-
-
-**  15 December 2009: Roadmap Update
-
- We have listened to feedback. A new Beta 3 will be available in the new year which will provide
- the following additional features:
-
-
-* Documentation
-
-    See the Monitor documentation {{{/documentation/monitor.html}here}}.
-
-*   {Monitor Beta Sign Up}
+    Please complete the following details to download the Monitor.
 
 %{snippet|file=src/site/include/monitor_signup_form.html|verbatim=false}
 
