@@ -1,12 +1,12 @@
   ---
-  RMI Distributed Caching
+  RMI Replicated Caching
   ---
 
-{RMI Distributed Caching}
+{RMI Replicated Caching}
 
 [images/rmi_replication.png]
 
-    Since version 1.2, Ehcache has provided distributed caching using RMI.
+    Since version 1.2, Ehcache has provided replicated caching using RMI.
 
     An RMI implementation is desirable because:
 
@@ -27,13 +27,13 @@
        batching of communications for the asynchronous replicator.
 
 
-    To set up RMI distributed caching you need to configure the CacheManager with:
+    To set up RMI replicated caching you need to configure the CacheManager with:
 
     * a PeerProvider
 
     * a CacheManagerPeerListener
 
-    The for each cache that will operate distributed, you then need to add
+    The for each cache that will be replicated, you then need to add
     one of the RMI cacheEventListener types to propagate messages.
 
     You can also optionally configure a cache to bootstrap from other caches in the cluster.
@@ -49,7 +49,7 @@
 
 ** {Peer Discovery}
 
-    Ehcache has the notion of a group of caches acting as a distributed
+    Ehcache has the notion of a group of caches acting as a replicated
     cache. Each of the caches is a peer to the others. There is no
     master cache. How do you know about the other caches that are in your
     cluster? This problem can be given the name Peer Discovery.
@@ -205,7 +205,7 @@ socketTimeoutMillis=2000"/>
 
 * Configuring Cache Replicators
 
-    Each cache that will be distributed needs to set a cache event listener
+    Each cache that will be replicated needs to set a cache event listener
     which then replicates messages to the other CacheManager peers. This is
     done by adding a cacheEventListenerFactory element to each cache's
     configuration.
@@ -264,7 +264,7 @@ socketTimeoutMillis=2000"/>
 
   When a peer comes up, it will be incoherent with other caches. When the bootstrap completes it will be partially
   coherent. Bootstrap gets the list of keys from a random peer, and then loads those in batches from random
-  peers. If bootstrap fails then the Cache will not start (not like this right now). However if a distributed cache operation occurs
+  peers. If bootstrap fails then the Cache will not start (not like this right now). However if a cache replication operation occurs
   which is then overwritten by bootstrap there is a chance that the cache could be inconsistent.
 
   Here are some scenarios:
@@ -306,7 +306,7 @@ socketTimeoutMillis=2000"/>
    The best example is the integration test for cache replication. You can see it online here:
    {{http://ehcache.org/xref-test/net/sf/ehcache/distribution/RMICacheReplicatorTest.html}}
 
-   The test uses 5 ehcache.xml's representing 5 CacheManagers set up to distribute using RMI.
+   The test uses 5 ehcache.xml's representing 5 CacheManagers set up to replicate using RMI.
 
 
 * Common Problems
