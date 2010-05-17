@@ -1,18 +1,18 @@
  ---
- Distributed Caching using JGroups
+ Replicated Caching using JGroups
  ---
 
-Distributed Caching using {JGroups}
+Replicated Caching using {JGroups}
 
     As of version 1.5, JGroups can be used as the underlying mechanism for
-    the distributed operations in ehcache. JGroups offers a very flexible
+    the replication operations in ehcache. JGroups offers a very flexible
     protocol stack, reliable unicast and multicast message transmission.
     On the down side JGroups can be complex to configure and some protocol stacks
     have dependencies on others.
 
-    To set up distributed caching using JGroups you need to configure a PeerProviderFactory
+    To set up replicated caching using JGroups you need to configure a PeerProviderFactory
     of type JGroupsCacheManagerPeerProviderFactory which is done globally for a CacheManager
-    For each cache that will operate distributed, you then need to add
+    For each cache that will be replicated, you then need to add
     a cacheEventListenerFactory of type JGroupsCacheReplicatorFactory to propagate messages.
 
 * Suitable Element Types
@@ -41,7 +41,7 @@ Distributed Caching using {JGroups}
 
 * Example configuration using {UDP Multicast}
 
-    Suppose you have two servers in a cluster. You wish to distribute
+    Suppose you have two servers in a cluster. You wish to replicated
     sampleCache11 and sampleCache12 and you wish to use UDP multicast as the underlying mechanism.
 
     The configuration for server1 and server2 are identical and will look like this:
@@ -86,7 +86,7 @@ Distributed Caching using {JGroups}
 
 * Configuring CacheReplicators
 
-    Each cache that will be distributed needs to set a cache event listener
+    Each cache that will be replicated needs to set a cache event listener
     which then replicates messages to the other CacheManager peers. This is
     done by adding a cacheEventListenerFactory element to each cache's
     configuration. The properties are identical to the one used for RMI replication.
