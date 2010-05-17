@@ -1221,16 +1221,12 @@ public class CacheConfiguration implements Cloneable {
 
     private void validateTransactionalSettings() {
         boolean transactional = transactionalMode.isTransactional();
-        if (copyOnRead == null) {
-            if (terracottaConfiguration != null && terracottaConfiguration.isCopyOnReadSet()) {
-                copyOnRead = terracottaConfiguration.isCopyOnRead();
-            } else {
-                copyOnRead = transactional;
-            }
+        if (terracottaConfiguration != null && terracottaConfiguration.isCopyOnReadSet()) {
+            copyOnRead = terracottaConfiguration.isCopyOnRead();
+        } else {
+            copyOnRead = transactional;
         }
-        if (copyOnWrite == null) {
-            copyOnWrite = transactional;
-        }
+        copyOnWrite = transactional;
 
         if (transactional) {
             if (!copyOnRead || !copyOnWrite) {
