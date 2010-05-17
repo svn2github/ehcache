@@ -18,9 +18,10 @@ package net.sf.ehcache.config;
 
 /**
  * A class to represent the CacheManagerEventListener configuration.
- *
- * @param <T> the concrete factory type
- *
+ * 
+ * @param <T>
+ *            the concrete factory type
+ * 
  * @author <a href="mailto:gluck@thoughtworks.com">Greg Luck</a>
  * @version $Id$
  */
@@ -40,10 +41,9 @@ public class FactoryConfiguration<T extends FactoryConfiguration> implements Clo
      */
     protected String propertySeparator;
 
-
     /**
      * Clones this object, following the usual contract.
-     *
+     * 
      * @return a copy, which independent other than configurations than cannot change.
      */
     @Override
@@ -55,12 +55,12 @@ public class FactoryConfiguration<T extends FactoryConfiguration> implements Clo
             throw new RuntimeException(e);
         }
 
-        return (T)config;
+        return (T) config;
     }
 
     /**
      * Sets the class name.
-     *
+     * 
      * @param fullyQualifiedClassPath
      */
     public final void setClass(String fullyQualifiedClassPath) {
@@ -73,7 +73,7 @@ public class FactoryConfiguration<T extends FactoryConfiguration> implements Clo
      */
     public T className(String fullyQualifiedClassPath) {
         setClass(fullyQualifiedClassPath);
-        return (T)this;
+        return (T) this;
     }
 
     /**
@@ -85,7 +85,7 @@ public class FactoryConfiguration<T extends FactoryConfiguration> implements Clo
 
     /**
      * Sets the configuration properties.
-     *
+     * 
      * @param properties
      */
     public final void setProperties(String properties) {
@@ -98,7 +98,7 @@ public class FactoryConfiguration<T extends FactoryConfiguration> implements Clo
      */
     public T properties(String properties) {
         setProperties(properties);
-        return (T)this;
+        return (T) this;
     }
 
     /**
@@ -121,7 +121,7 @@ public class FactoryConfiguration<T extends FactoryConfiguration> implements Clo
      */
     public T propertySeparator(String propertySeparator) {
         setPropertySeparator(propertySeparator);
-        return (T)this;
+        return (T) this;
     }
 
     /**
@@ -130,4 +130,57 @@ public class FactoryConfiguration<T extends FactoryConfiguration> implements Clo
     public String getPropertySeparator() {
         return propertySeparator;
     }
+
+    /**
+     * Overrided hashCode()
+     */
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((fullyQualifiedClassPath == null) ? 0 : fullyQualifiedClassPath.hashCode());
+        result = prime * result + ((properties == null) ? 0 : properties.hashCode());
+        result = prime * result + ((propertySeparator == null) ? 0 : propertySeparator.hashCode());
+        return result;
+    }
+
+    /**
+     * Overrided equals
+     */
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        FactoryConfiguration other = (FactoryConfiguration) obj;
+        if (fullyQualifiedClassPath == null) {
+            if (other.fullyQualifiedClassPath != null) {
+                return false;
+            }
+        } else if (!fullyQualifiedClassPath.equals(other.fullyQualifiedClassPath)) {
+            return false;
+        }
+        if (properties == null) {
+            if (other.properties != null) {
+                return false;
+            }
+        } else if (!properties.equals(other.properties)) {
+            return false;
+        }
+        if (propertySeparator == null) {
+            if (other.propertySeparator != null) {
+                return false;
+            }
+        } else if (!propertySeparator.equals(other.propertySeparator)) {
+            return false;
+        }
+        return true;
+    }
+
 }

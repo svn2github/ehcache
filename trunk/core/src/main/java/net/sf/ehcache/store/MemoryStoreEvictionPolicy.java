@@ -70,6 +70,7 @@ public final class MemoryStoreEvictionPolicy implements Serializable {
     /**
      * @return a String representation of the policy
      */
+    @Override
     public String toString() {
         return myName;
     }
@@ -92,5 +93,24 @@ public final class MemoryStoreEvictionPolicy implements Serializable {
         }
             LOG.warn("The memoryStoreEvictionPolicy of {} cannot be resolved. The policy will be set to LRU", policy);
         return LRU;
+    }
+    
+    /**
+     * Enum for {@link MemoryStoreEvictionPolicy}
+     * 
+     */
+    public static enum MemoryStoreEvictionPolicyEnum {
+        /**
+         * Value for {@link MemoryStoreEvictionPolicy#LFU}
+         */
+        LFU,
+        /**
+         * Value for {@link MemoryStoreEvictionPolicy#LRU}
+         */
+        LRU,
+        /**
+         * Value for {@link MemoryStoreEvictionPolicy#FIFO}
+         */
+        FIFO;
     }
 }

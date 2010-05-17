@@ -20,7 +20,6 @@ import net.sf.ehcache.CacheException;
 import net.sf.ehcache.event.NotificationScope;
 import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
 import net.sf.ehcache.store.compound.CopyStrategy;
-import net.sf.ehcache.store.compound.SerializationCopyStrategy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -78,6 +77,11 @@ import java.util.concurrent.CopyOnWriteArraySet;
 public class CacheConfiguration implements Cloneable {
 
     /**
+     * Default value for clearOnFlush
+     */
+    public static final boolean DEFAULT_CLEAR_ON_FLUSH = true;
+
+    /**
      * The default interval between runs of the expiry thread.
      */
     public static final long DEFAULT_EXPIRY_THREAD_INTERVAL_SECONDS = 120;
@@ -103,7 +107,58 @@ public class CacheConfiguration implements Cloneable {
     public static final MemoryStoreEvictionPolicy DEFAULT_MEMORY_STORE_EVICTION_POLICY = MemoryStoreEvictionPolicy.LRU;
 
 
+    /**
+     * The default cacheWriterConfiguration
+     */
+    public static final CacheWriterConfiguration DEFAULT_CACHE_WRITER_CONFIGURATION = new CacheWriterConfiguration();
+    
+    /**
+     * Default value for copyOnRead
+     */
+    public static final boolean DEFAULT_COPY_ON_READ = false;
+    
+    /**
+     * Default value for copyOnRead
+     */
+    public static final boolean DEFAULT_COPY_ON_WRITE = false;
+    
+    /**
+     * Default value for ttl
+     */
+    public static final long DEFAULT_TTL = 0;
+    
+    /**
+     * Default value for tti
+     */
+    public static final long DEFAULT_TTI = 0;
+
+    /**
+     * Default value for maxElementsOnDisk
+     */
+    public static final int DEFAULT_MAX_ELEMENTS_ON_DISK = 0;
+
+    /**
+     * Default value for transactionalMode
+     */
+    public static final TransactionalMode DEFAULT_TRANSACTIONAL_MODE = TransactionalMode.OFF;
+
+    /**
+     * Default value for statistics
+     */
+    public static final boolean DEFAULT_STATISTICS = false;
+
+    /**
+     * Default value for diskPersistent
+     */
+    public static final boolean DEFAULT_DISK_PERSISTENT = false;
+
+    /**
+     * Default copyStrategyConfiguration
+     */
+    public static final CopyStrategyConfiguration DEFAULT_COPY_STRATEGY_CONFIGURATION = new CopyStrategyConfiguration();
+    
     private static final Logger LOG = LoggerFactory.getLogger(CacheConfiguration.class.getName());
+    
     /**
      * the name of the cache.
      */
@@ -121,7 +176,7 @@ public class CacheConfiguration implements Cloneable {
      * <p>
      * <code>0</code> translates to no-limit.
      */
-    protected volatile int maxElementsOnDisk;
+    protected volatile int maxElementsOnDisk = DEFAULT_MAX_ELEMENTS_ON_DISK;
 
     /**
      * The policy used to evict elements from the {@link net.sf.ehcache.store.MemoryStore}.
@@ -141,7 +196,7 @@ public class CacheConfiguration implements Cloneable {
      * Sets whether the MemoryStore should be cleared when
      * {@link net.sf.ehcache.Ehcache#flush flush()} is called on the cache - true by default.
      */
-    protected volatile boolean clearOnFlush = true;
+    protected volatile boolean clearOnFlush = DEFAULT_CLEAR_ON_FLUSH;
 
 
     /**
@@ -154,14 +209,14 @@ public class CacheConfiguration implements Cloneable {
      * the time to idle for an element before it expires. Is only used
      * if the element is not eternal.A value of 0 means do not check for idling.
      */
-    protected volatile long timeToIdleSeconds;
+    protected volatile long timeToIdleSeconds = DEFAULT_TTI;
 
     /**
      * Sets the time to idle for an element before it expires. Is only used
      * if the element is not eternal. This attribute is optional in the configuration.
      * A value of 0 means do not check time to live.
      */
-    protected volatile long timeToLiveSeconds;
+    protected volatile long timeToLiveSeconds = DEFAULT_TTL;
 
     /**
      * whether elements can overflow to disk when the in-memory cache
@@ -172,7 +227,7 @@ public class CacheConfiguration implements Cloneable {
     /**
      * For caches that overflow to disk, whether the disk cache persists between CacheManager instances.
      */
-    protected volatile boolean diskPersistent;
+    protected volatile boolean diskPersistent = DEFAULT_DISK_PERSISTENT;
 
     /**
      * The path where the disk store is located
@@ -202,7 +257,7 @@ public class CacheConfiguration implements Cloneable {
      * Indicates whether logging is enabled or not. False by default.
      * Only used when cache is clustered with Terracotta.
      */
-    protected volatile boolean logging;
+    protected volatile boolean logging = DEFAULT_LOGGING;
 
     /**
      * The event listener factories added by BeanUtils.
@@ -234,7 +289,7 @@ public class CacheConfiguration implements Cloneable {
     /**
      * The CacheWriterConfiguration.
      */
-    protected CacheWriterConfiguration cacheWriterConfiguration = new CacheWriterConfiguration();
+    protected CacheWriterConfiguration cacheWriterConfiguration = DEFAULT_CACHE_WRITER_CONFIGURATION;
 
     /**
      * The cache loader factories added by BeanUtils.
@@ -253,11 +308,11 @@ public class CacheConfiguration implements Cloneable {
     protected volatile Set<CacheConfigurationListener> listeners = new CopyOnWriteArraySet<CacheConfigurationListener>();
 
     private volatile boolean frozen;
-    private TransactionalMode transactionalMode = TransactionalMode.OFF;
-    private volatile boolean statistics;
-    private volatile CopyStrategy copyStrategy = new SerializationCopyStrategy();
-    private volatile Boolean copyOnRead;
-    private volatile Boolean copyOnWrite;
+    private TransactionalMode transactionalMode = DEFAULT_TRANSACTIONAL_MODE;
+    private volatile boolean statistics = DEFAULT_STATISTICS;
+    private volatile CopyStrategyConfiguration copyStrategyConfiguration = DEFAULT_COPY_STRATEGY_CONFIGURATION;
+    private volatile Boolean copyOnRead = DEFAULT_COPY_ON_READ;
+    private volatile Boolean copyOnWrite = DEFAULT_COPY_ON_WRITE;
     private Object defaultTransactionManager;
 
     /**
@@ -781,7 +836,7 @@ public class CacheConfiguration implements Cloneable {
      */
     public CopyStrategy getCopyStrategy() {
         // todo really make this pluggable through config!
-        return copyStrategy;
+        return copyStrategyConfiguration.getCopyStrategyInstance();
     }
 
     /**
@@ -841,11 +896,15 @@ public class CacheConfiguration implements Cloneable {
      * @param copyStrategyConfiguration the CopyStrategy Configuration
      */
     public void addCopyStrategy(CopyStrategyConfiguration copyStrategyConfiguration) {
-        if (copyStrategyConfiguration == null) {
-            copyStrategy = new CopyStrategyConfiguration().getCopyStrategyInstance();
-        } else {
-            copyStrategy = copyStrategyConfiguration.getCopyStrategyInstance();
-        }
+        this.copyStrategyConfiguration = copyStrategyConfiguration;
+    }
+    
+    /**
+     * Returns the copyStrategyConfiguration
+     * @return the copyStrategyConfiguration
+     */
+    public CopyStrategyConfiguration getCopyStrategyConfiguration() {
+        return this.copyStrategyConfiguration;
     }
 
     /**

@@ -27,6 +27,7 @@ public class CopyStrategyConfiguration {
 
     /**
      * Returns the fully qualified class name for the CopyStrategy to use
+     * 
      * @return FQCN to the CopyStrategy implementation to use
      */
     public String getClassName() {
@@ -35,7 +36,9 @@ public class CopyStrategyConfiguration {
 
     /**
      * Sets the fully qualified class name for the CopyStrategy to use
-     * @param className FQCN
+     * 
+     * @param className
+     *            FQCN
      */
     public void setClass(final String className) {
         this.className = className;
@@ -43,6 +46,7 @@ public class CopyStrategyConfiguration {
 
     /**
      * Get (and potentially) instantiate the instance
+     * 
      * @return the instance
      */
     public synchronized CopyStrategy getCopyStrategyInstance() {
@@ -59,10 +63,46 @@ public class CopyStrategyConfiguration {
                 throw new RuntimeException("Couldn't instantiate the CopyStrategy instance!", e);
             } catch (ClassCastException e) {
                 throw new RuntimeException(copyStrategy != null ? copyStrategy.getSimpleName()
-                                                                  + " doesn't implement net.sf.ehcache.store.compound.CopyStrategy"
-                    : "Error with CopyStrategy", e);
+                        + " doesn't implement net.sf.ehcache.store.compound.CopyStrategy" : "Error with CopyStrategy", e);
             }
         }
         return strategy;
     }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((className == null) ? 0 : className.hashCode());
+        return result;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        CopyStrategyConfiguration other = (CopyStrategyConfiguration) obj;
+        if (className == null) {
+            if (other.className != null) {
+                return false;
+            }
+        } else if (!className.equals(other.className)) {
+            return false;
+        }
+        return true;
+    }
+
 }

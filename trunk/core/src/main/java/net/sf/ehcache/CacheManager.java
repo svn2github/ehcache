@@ -1364,7 +1364,8 @@ public class CacheManager {
         if (configuration.getConfigurationSource() == null) {
             return "Originally configured programmatically. No original configuration source text.";
         } else {
-            return ConfigurationUtil.generateConfigurationTextFromSource(configuration.getConfigurationSource());
+            Configuration originalConfiguration = configuration.getConfigurationSource().createConfiguration();
+            return ConfigurationUtil.generateCacheManagerConfigurationText(originalConfiguration);
         }
     }
 
@@ -1374,7 +1375,7 @@ public class CacheManager {
      * @return Returns the active configuration text for this {@link CacheManager}
      */
     public String getActiveConfigurationText() {
-        return ConfigurationUtil.generateConfigurationTextFromConfiguration(this, configuration);
+        return ConfigurationUtil.generateCacheManagerConfigurationText(configuration);
     }
 
     /**
@@ -1382,12 +1383,18 @@ public class CacheManager {
      *
      * @param cacheName
      * @return Returns the original configuration text for the input cacheName
+     * @throws CacheException if the cache with <code>cacheName</code> does not exist in the original config
      */
-    public String getOriginalConfigurationText(String cacheName) {
+    public String getOriginalConfigurationText(String cacheName) throws CacheException {
         if (configuration.getConfigurationSource() == null) {
             return "Originally configured programmatically. No original configuration source text.";
         } else {
-            return ConfigurationUtil.generateConfigurationTextForCacheFromSource(configuration.getConfigurationSource(), cacheName);
+            Configuration originalConfiguration = configuration.getConfigurationSource().createConfiguration();
+            CacheConfiguration cacheConfiguration = originalConfiguration.getCacheConfigurations().get(cacheName);
+            if (cacheConfiguration == null) {
+                throw new CacheException("Cache with name '" + cacheName + "' does not exist in the original configuration");
+            }
+            return ConfigurationUtil.generateCacheConfigurationText(cacheConfiguration);
         }
     }
 
@@ -1396,9 +1403,14 @@ public class CacheManager {
      *
      * @param cacheName
      * @return Returns the active configuration text for the input cacheName
+     * @throws CacheException if the cache with <code>cacheName</code> does not exist
      */
-    public String getActiveConfigurationText(String cacheName) {
-        return ConfigurationUtil.generateConfigurationTextForCache(this, cacheName);
+    public String getActiveConfigurationText(String cacheName) throws CacheException {
+        CacheConfiguration config = configuration.getCacheConfigurations().get(cacheName);
+        if (config == null) {
+            throw new CacheException("Cache with name '" + cacheName + "' does not exist");
+        }
+        return ConfigurationUtil.generateCacheConfigurationText(config);
     }
 
     /**

@@ -35,6 +35,24 @@ import java.util.Set;
 public final class Configuration {
 
     /**
+     * Default value for dynamicConfig
+     */
+    public static final boolean DEFAULT_DYNAMIC_CONFIG = true;
+    /**
+     * Default value for updateCheck
+     */
+    public static final boolean DEFAULT_UPDATE_CHECK = true;
+    /**
+     * Default value for monitoring
+     */
+    public static final Monitoring DEFAULT_MONITORING = Monitoring.AUTODETECT;
+    
+    /**
+     * Default transactionManagerLookupConfiguration
+     */
+    public static final FactoryConfiguration DEFAULT_TRANSACTION_MANAGER_LOOKUP_CONFIG = getDefaultTransactionManagerLookupConfiguration();
+
+    /**
      * Represents whether monitoring should be enabled or not.
      * @author amiller
      */
@@ -50,8 +68,8 @@ public final class Configuration {
     }
     
     private String cacheManagerName;
-    private boolean updateCheck = true;
-    private Monitoring monitoring = Monitoring.AUTODETECT;
+    private boolean updateCheck = DEFAULT_UPDATE_CHECK;
+    private Monitoring monitoring = DEFAULT_MONITORING;
     private DiskStoreConfiguration diskStoreConfiguration;
     private CacheConfiguration defaultCacheConfiguration;
     private List<FactoryConfiguration> cacheManagerPeerProviderFactoryConfiguration = new ArrayList<FactoryConfiguration>();
@@ -61,7 +79,7 @@ public final class Configuration {
     private TerracottaConfigConfiguration terracottaConfigConfiguration;
     private final Map<String, CacheConfiguration> cacheConfigurations = new HashMap();
     private ConfigurationSource configurationSource;
-    private boolean dynamicConfig = true;
+    private boolean dynamicConfig = DEFAULT_DYNAMIC_CONFIG;
     private Object defaultTransactionManager;
     /**
      * Empty constructor, which is used by {@link ConfigurationFactory}, and can be also used programmatically.
@@ -73,7 +91,7 @@ public final class Configuration {
     }
 
     
-    private FactoryConfiguration getDefaultTransactionManagerLookupConfiguration() {
+    private static FactoryConfiguration getDefaultTransactionManagerLookupConfiguration() {
         FactoryConfiguration configuration = new FactoryConfiguration();
         configuration.setClass(DefaultTransactionManagerLookup.class.getName());
         return configuration;

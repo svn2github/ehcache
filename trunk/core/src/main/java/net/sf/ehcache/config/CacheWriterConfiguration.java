@@ -481,6 +481,22 @@ public class CacheWriterConfiguration implements Cloneable {
      * Configuration for the CacheWriterFactoryConfiguration.
      */
     public static final class CacheWriterFactoryConfiguration extends FactoryConfiguration<CacheWriterFactoryConfiguration> {
+        
+        /**
+         * Overrided hashCode()
+         */
+        @Override
+        public int hashCode() {
+            return super.hashCode();
+        }
+
+        /**
+         * Overrided equals
+         */
+        @Override
+        public boolean equals(Object obj) {
+            return super.equals(obj);
+        }
     }
 
     /**
@@ -507,4 +523,88 @@ public class CacheWriterConfiguration implements Cloneable {
     public CacheWriterFactoryConfiguration getCacheWriterFactoryConfiguration() {
         return cacheWriterFactoryConfiguration;
     }
+
+    /**
+     * Overrided hashCode()
+     */
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        final int primeTwo = 1231;
+        final int primeThree = 1237;
+        int result = 1;
+        result = prime * result + ((cacheWriterFactoryConfiguration == null) ? 0 : cacheWriterFactoryConfiguration.hashCode());
+        result = prime * result + maxWriteDelay;
+        result = prime * result + minWriteDelay;
+        result = prime * result + (notifyListenersOnException ? primeTwo : primeThree);
+        result = prime * result + rateLimitPerSecond;
+        result = prime * result + retryAttemptDelaySeconds;
+        result = prime * result + retryAttempts;
+        result = prime * result + writeBatchSize;
+        result = prime * result + (writeBatching ? primeTwo : primeThree);
+        result = prime * result + (writeCoalescing ? primeTwo : primeThree);
+        result = prime * result + ((writeMode == null) ? 0 : writeMode.hashCode());
+        return result;
+    }
+
+    /**
+     * Overrided equals()
+     */
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        CacheWriterConfiguration other = (CacheWriterConfiguration) obj;
+        if (cacheWriterFactoryConfiguration == null) {
+            if (other.cacheWriterFactoryConfiguration != null) {
+                return false;
+            }
+        } else if (!cacheWriterFactoryConfiguration.equals(other.cacheWriterFactoryConfiguration)) {
+            return false;
+        }
+        if (maxWriteDelay != other.maxWriteDelay) {
+            return false;
+        }
+        if (minWriteDelay != other.minWriteDelay) {
+            return false;
+        }
+        if (notifyListenersOnException != other.notifyListenersOnException) {
+            return false;
+        }
+        if (rateLimitPerSecond != other.rateLimitPerSecond) {
+            return false;
+        }
+        if (retryAttemptDelaySeconds != other.retryAttemptDelaySeconds) {
+            return false;
+        }
+        if (retryAttempts != other.retryAttempts) {
+            return false;
+        }
+        if (writeBatchSize != other.writeBatchSize) {
+            return false;
+        }
+        if (writeBatching != other.writeBatching) {
+            return false;
+        }
+        if (writeCoalescing != other.writeCoalescing) {
+            return false;
+        }
+        if (writeMode == null) {
+            if (other.writeMode != null) {
+                return false;
+            }
+        } else if (!writeMode.equals(other.writeMode)) {
+            return false;
+        }
+        return true;
+    }
+    
+    
 }

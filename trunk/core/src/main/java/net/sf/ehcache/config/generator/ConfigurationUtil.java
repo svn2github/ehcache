@@ -16,12 +16,16 @@
 
 package net.sf.ehcache.config.generator;
 
-import java.util.Map;
+import java.io.ByteArrayOutputStream;
+import java.io.PrintWriter;
 
-import net.sf.ehcache.Cache;
-import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.Configuration;
+import net.sf.ehcache.config.generator.model.NodeElementVisitor;
+import net.sf.ehcache.config.generator.model.XMLGeneratorVisitor;
+import net.sf.ehcache.config.generator.model.XMLGeneratorVisitor.OutputBehavior;
+import net.sf.ehcache.config.generator.model.elements.CacheConfigurationElement;
+import net.sf.ehcache.config.generator.model.elements.ConfigurationElement;
 
 /**
  * Utility class with static methods for generating configuration texts in different ways based on input
@@ -34,83 +38,61 @@ import net.sf.ehcache.config.Configuration;
 public abstract class ConfigurationUtil {
 
     /**
-     * Generate configuration text based on the input {@link ConfigurationSource}
+     * Generates Configuration text from a {@link Configuration}
      * 
-     * @param configSource
-     * @return String representing the input {@link ConfigurationSource}
-     */
-    public static String generateConfigurationTextFromSource(ConfigurationSource configSource) {
-        if (configSource == null) {
-            throw new AssertionError("ConfigSource cannot be null");
-        }
-        Configuration config = configSource.createConfiguration();
-        return generateConfigurationText(config, config.getDefaultCacheConfiguration(), config.getCacheConfigurations());
-    }
-
-    /**
-     * Generates configuration text based on the input {@link Configuration}. {@link CacheConfiguration}'s from the input
-     * {@link CacheManager} will override the {@link CacheConfiguration} present in the {@link Configuration}
-     * 
-     * @param cacheManager
      * @param configuration
-     * @return String representing the configuration based on the input {@link Configuration} and {@link CacheManager}
+     *            the configuration
+     * @return text representing the {@link Configuration}
      */
-    public static String generateConfigurationTextFromConfiguration(CacheManager cacheManager, Configuration configuration) {
-        if (configuration == null) {
-            throw new AssertionError("Confuguration cannot be null");
-        }
-        if (cacheManager == null) {
-            throw new AssertionError("CacheManager cannot be null");
-        }
-        Map<String, CacheConfiguration> cacheConfigs = configuration.getCacheConfigurations();
-        for (String name : cacheManager.getCacheNames()) {
-            Cache cache = cacheManager.getCache(name);
-            if (cache != null) {
-                // use the actual CacheConfiguration from the cache and not the cache manager
-                cacheConfigs.put(cache.getCacheConfiguration().getName(), cache.getCacheConfiguration());
-            }
-        }
-        return generateConfigurationText(configuration, configuration.getDefaultCacheConfiguration(), cacheConfigs);
-    }
-
-    private static String generateConfigurationText(Configuration configuration, CacheConfiguration defaultCacheConfiguration,
-            Map<String, CacheConfiguration> cacheConfigs) {
-        return new ConfigurationGenerator().generate(configuration, defaultCacheConfiguration, cacheConfigs);
+    public static String generateCacheManagerConfigurationText(Configuration configuration) {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        PrintWriter out = new PrintWriter(baos);
+        XMLGeneratorVisitor configGenerator = new XMLGeneratorVisitor(out);
+        configGenerator.disableOutputBehavior(OutputBehavior.OUTPUT_OPTIONAL_ATTRIBUTES_WITH_DEFAULT_VALUES);
+        visitConfiguration(configuration, configGenerator);
+        out.flush();
+        out.close();
+        return baos.toString();
     }
 
     /**
-     * Generates configuration text for a cache from the {@link ConfigurationSource}
+     * package protected access so that tests can have access
      * 
-     * @param configSource
-     * @param cacheName
-     * @return String representing the cache configuration for the input cacheName
+     * @param configuration
+     * @param visitor
      */
-    public static String generateConfigurationTextForCacheFromSource(ConfigurationSource configSource, String cacheName) {
-        if (configSource == null) {
-            throw new AssertionError("ConfigSource cannot be null");
-        }
-        Configuration config = configSource.createConfiguration();
-        CacheConfiguration cacheConfig = config.getCacheConfigurations().get(cacheName);
-        if (cacheConfig == null) {
-            return "";
-        } else {
-            return new ConfigurationGenerator().generate(cacheConfig);
-        }
+    static void visitConfiguration(Configuration configuration, NodeElementVisitor visitor) {
+        ConfigurationElement configElement = new ConfigurationElement(configuration);
+        configElement.accept(visitor);
     }
 
     /**
-     * Generates configuration text for a cache based on the {@link Cache} present in the input {@link CacheManager} for the input cacheName
+     * Generates configuration text for a {@link CacheConfiguration}
      * 
-     * @param cacheManager
-     * @param cacheName
-     * @return String representing configuration for the cacheName
+     * @param cacheConfiguration
+     *            the {@link CacheConfiguration}
+     * @return text representing the {@link CacheConfiguration}
      */
-    public static String generateConfigurationTextForCache(CacheManager cacheManager, String cacheName) {
-        Cache cache = cacheManager.getCache(cacheName);
-        if (cache == null) {
-            return "";
-        } else {
-            return new ConfigurationGenerator().generate(cache.getCacheConfiguration());
-        }
+    public static String generateCacheConfigurationText(CacheConfiguration cacheConfiguration) {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        PrintWriter out = new PrintWriter(baos);
+        XMLGeneratorVisitor configGenerator = new XMLGeneratorVisitor(out);
+        configGenerator.disableOutputBehavior(OutputBehavior.OUTPUT_OPTIONAL_ATTRIBUTES_WITH_DEFAULT_VALUES);
+        visitCacheConfiguration(cacheConfiguration, configGenerator);
+        out.flush();
+        out.close();
+        return baos.toString();
     }
+
+    /**
+     * package protected access so that tests can have access
+     * 
+     * @param cacheConfiguration
+     * @param configGenerator
+     */
+    static void visitCacheConfiguration(CacheConfiguration cacheConfiguration, NodeElementVisitor configGenerator) {
+        CacheConfigurationElement element = new CacheConfigurationElement(null, cacheConfiguration);
+        element.accept(configGenerator);
+    }
+
 }

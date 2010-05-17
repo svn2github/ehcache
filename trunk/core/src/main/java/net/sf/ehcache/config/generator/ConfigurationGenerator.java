@@ -38,8 +38,10 @@ import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
  * <p />
  * 
  * @author <a href="mailto:asanoujam@terracottatech.com">Abhishek Sanoujam</a>
- * 
+ * @deprecated Use {@link ConfigurationUtil#generateCacheManagerConfigurationText(Configuration)} or
+ *             {@link ConfigurationUtil#generateCacheConfigurationText(CacheConfiguration)} instead
  */
+@Deprecated
 public class ConfigurationGenerator {
 
     private static final String EOL = System.getProperty("line.separator");
@@ -228,12 +230,11 @@ public class ConfigurationGenerator {
                         terracottaConfiguration.getOrphanEvictionPeriod()).append("\"");
             }
             if (TerracottaConfiguration.DEFAULT_CACHE_COHERENT != terracottaConfiguration.isCoherent()) {
-                builder.append(EOL).append(spacer).append(" coherent=\"").append(terracottaConfiguration.isCoherent()).append(
-                "\"");
+                builder.append(EOL).append(spacer).append(" coherent=\"").append(terracottaConfiguration.isCoherent()).append("\"");
             }
             if (TerracottaConfiguration.DEFAULT_SYNCHRONOUS_WRITES != terracottaConfiguration.isSynchronousWrites()) {
                 builder.append(EOL).append(spacer).append(" synchronousWrites=\"").append(terracottaConfiguration.isSynchronousWrites())
-                    .append("\"");
+                        .append("\"");
             }
             builder.append(">").append(EOL);
             indent(-1);
