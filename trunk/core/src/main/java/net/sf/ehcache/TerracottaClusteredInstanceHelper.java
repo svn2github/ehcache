@@ -28,81 +28,127 @@ import java.util.Map;
 
 /**
  * A small helper class that knows how to create terracotta store factories
- *
+ * 
  * @author teck
  */
 class TerracottaClusteredInstanceHelper {
 
-  /**
-   * Boolean indicating if TC is running or not.
-   * Can be stored in a static final field as required only in DSO mode.
-   */
-  private static final boolean TC_DSO_MODE = Boolean.getBoolean("tc.active");
+    /**
+     * Boolean indicating if TC is running or not.
+     * Can be stored in a static final field as required only in DSO mode.
+     */
+    private static final boolean TC_DSO_MODE = Boolean.getBoolean("tc.active");
 
-  private static final String STANDALONE_FACTORY = "net.sf.ehcache.terracotta.StandaloneTerracottaClusteredInstanceFactory";
-  private static final String DIRECT_FACTORY = "org.terracotta.modules.ehcache.store.TerracottaClusteredInstanceFactory";
+    private static final String ENTERPRISE_EXPRESS_FACTORY = "net.sf.ehcache.terracotta.ExpressEnterpriseTerracottaClusteredInstanceFactory";
+    private static final String ENTERPRISE_DIRECT_FACTORY = "org.terracotta.modules.ehcache.store.EnterpriseTerracottaClusteredInstanceFactory";
+    private static final String STANDALONE_FACTORY = "net.sf.ehcache.terracotta.StandaloneTerracottaClusteredInstanceFactory";
+    private static final String DIRECT_FACTORY = "org.terracotta.modules.ehcache.store.TerracottaClusteredInstanceFactory";
 
-  /**
-   * Locate and decide which terracotta ClusteredInstanceFactory should be used. If the standalone factory class is available
-   * it is preferred (ie. if ehcache-terracotta-xxx.jar is present)
-   *
-   * @param cacheConfigs
-   * @return the selected terracotta store factory
-   */
-  static ClusteredInstanceFactory newClusteredInstanceFactory(Map<String, CacheConfiguration> cacheConfigs,
-    TerracottaConfigConfiguration terracottaConfig) {
-    Class factoryClass;
+    /**
+     * Locate and decide which terracotta ClusteredInstanceFactory should be used. If the standalone factory class is available
+     * it is preferred (ie. if ehcache-terracotta-xxx.jar is present)
+     * 
+     * @param cacheConfigs
+     * @return the selected terracotta store factory
+     */
+    static ClusteredInstanceFactory newClusteredInstanceFactory(Map<String, CacheConfiguration> cacheConfigs,
+            TerracottaConfigConfiguration terracottaConfig) {
+        Class factoryClass = null;
 
-    try {
-      factoryClass = ClassLoaderUtil.loadClass(STANDALONE_FACTORY);
+        try {
+            factoryClass = ClassLoaderUtil.loadClass(ENTERPRISE_EXPRESS_FACTORY);
 
-      // verify no identity caches if standalone will be used
-      List<String> identityCaches = new ArrayList<String>();
-      for (CacheConfiguration config : cacheConfigs.values()) {
-        TerracottaConfiguration tcConfig = config.getTerracottaConfiguration();
-        if (tcConfig != null && tcConfig.getValueMode() == TerracottaConfiguration.ValueMode.IDENTITY) {
-          identityCaches.add(config.getName());
+            // verify no identity caches if standalone will be used
+            List<String> identityCaches = new ArrayList<String>();
+            for (CacheConfiguration config : cacheConfigs.values()) {
+                TerracottaConfiguration tcConfig = config.getTerracottaConfiguration();
+                if (tcConfig != null && tcConfig.getValueMode() == TerracottaConfiguration.ValueMode.IDENTITY) {
+                    identityCaches.add(config.getName());
+                }
+            }
+            if (!identityCaches.isEmpty()) {
+                throw new CacheException("One or more caches are configured for identity value "
+                        + "mode which is not permitted with standalone deployment " + identityCaches.toString());
+            }
+
+            // This is required in standalone but in non-standalone, this stuff is picked up through
+            // the normal tc-config mechanisms instead
+            if (terracottaConfig == null) {
+                throw new CacheException("Terracotta caches are defined but no <terracottaConfig> element was used "
+                        + "to specify the Terracotta configuration.");
+            }
+        } catch (ClassNotFoundException cnfe) {
+            // assume not standalone usage if standalone factory not present
+            try {
+                factoryClass = ClassLoaderUtil.loadClass(ENTERPRISE_DIRECT_FACTORY);
+                if (!TC_DSO_MODE) {
+                    // required tim jars found in classpath but tc is not running.
+                    throw new CacheException("When not using standalone deployment, you need to use full install of Terracotta"
+                            + " in order to use Terracotta Clustered Caches.");
+                }
+
+                if (terracottaConfig != null) {
+                    throw new CacheException("The ehcache configuration specified Terracotta configuration information, "
+                            + "but when using the full install of Terracotta, you must specify the Terracotta configuration "
+                            + "only with an external tc-config.xml file, not embedded or referenced from the ehcache "
+                            + "configuration file.");
+                }
+
+            } catch (ClassNotFoundException e) {
+                //
+            }
+
         }
-      }
-      if (!identityCaches.isEmpty()) {
-        throw new CacheException("One or more caches are configured for identity value " +
-          "mode which is not permitted with standalone deployment " +
-          identityCaches.toString());
-      }
 
-      // This is required in standalone but in non-standalone, this stuff is picked up through
-      // the normal tc-config mechanisms instead
-      if (terracottaConfig == null) {
-        throw new CacheException(
-          "Terracotta caches are defined but no <terracottaConfig> element was used " +
-            "to specify the Terracotta configuration.");
-      }
+        if (factoryClass == null) {
+            try {
+                factoryClass = ClassLoaderUtil.loadClass(STANDALONE_FACTORY);
 
-    } catch (ClassNotFoundException cnfe) {
-      // assume not standalone usage if standalone factory not present
-      try {
-        factoryClass = ClassLoaderUtil.loadClass(DIRECT_FACTORY);
-        if (!TC_DSO_MODE) {
-          // required tim jars found in classpath but tc is not running.
-          throw new CacheException("When not using standalone deployment, you need to use full install of Terracotta"
-            + " in order to use Terracotta Clustered Caches.");
+                // verify no identity caches if standalone will be used
+                List<String> identityCaches = new ArrayList<String>();
+                for (CacheConfiguration config : cacheConfigs.values()) {
+                    TerracottaConfiguration tcConfig = config.getTerracottaConfiguration();
+                    if (tcConfig != null && tcConfig.getValueMode() == TerracottaConfiguration.ValueMode.IDENTITY) {
+                        identityCaches.add(config.getName());
+                    }
+                }
+                if (!identityCaches.isEmpty()) {
+                    throw new CacheException("One or more caches are configured for identity value "
+                            + "mode which is not permitted with standalone deployment " + identityCaches.toString());
+                }
+
+                // This is required in standalone but in non-standalone, this stuff is picked up through
+                // the normal tc-config mechanisms instead
+                if (terracottaConfig == null) {
+                    throw new CacheException("Terracotta caches are defined but no <terracottaConfig> element was used "
+                            + "to specify the Terracotta configuration.");
+                }
+
+            } catch (ClassNotFoundException cnfe) {
+                // assume not standalone usage if standalone factory not present
+                try {
+                    factoryClass = ClassLoaderUtil.loadClass(DIRECT_FACTORY);
+                    if (!TC_DSO_MODE) {
+                        // required tim jars found in classpath but tc is not running.
+                        throw new CacheException("When not using standalone deployment, you need to use full install of Terracotta"
+                                + " in order to use Terracotta Clustered Caches.");
+                    }
+                } catch (ClassNotFoundException e) {
+                    // XXX: improve exception message here? A exception here can be caused by missing the TIM jar(s) in your app
+                    throw new CacheException("Terracotta cache classes are not available, you are missing jar(s) most likely", e);
+                }
+
+                if (terracottaConfig != null) {
+                    throw new CacheException("The ehcache configuration specified Terracotta configuration information, "
+                            + "but when using the full install of Terracotta, you must specify the Terracotta configuration "
+                            + "only with an external tc-config.xml file, not embedded or referenced from the ehcache "
+                            + "configuration file.");
+                }
+            }
         }
-      } catch (ClassNotFoundException e) {
-        // XXX: improve exception message here? A exception here can be caused by missing the TIM jar(s) in your app
-        throw new CacheException("Terracotta cache classes are not available, you are missing jar(s) most likely", e);
-      }
 
-      if (terracottaConfig != null) {
-        throw new CacheException("The ehcache configuration specified Terracotta configuration information, " +
-          "but when using the full install of Terracotta, you must specify the Terracotta configuration " +
-          "only with an external tc-config.xml file, not embedded or referenced from the ehcache " +
-          "configuration file.");
-      }
+        return (ClusteredInstanceFactory) ClassLoaderUtil.createNewInstance(factoryClass.getName(),
+                new Class[] { TerracottaConfigConfiguration.class }, new Object[] { terracottaConfig });
     }
-
-    return (ClusteredInstanceFactory) ClassLoaderUtil.createNewInstance(factoryClass.getName(),
-      new Class[]{TerracottaConfigConfiguration.class},
-      new Object[]{terracottaConfig});
-  }
 
 }
