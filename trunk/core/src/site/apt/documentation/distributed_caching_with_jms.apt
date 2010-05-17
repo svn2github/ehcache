@@ -1,11 +1,11 @@
  ---
- Distributed Caching using JMS
+ Replicated Caching using JMS
  ---
 
-Distributed Caching using {JMS}
+Replicated Caching using {JMS}
 
     As of version 1.6, JMS can be used as the underlying mechanism for
-    the distributed operations in Ehcache with the jmsreplication module.
+    the replicated operations in Ehcache with the jmsreplication module.
 
     JMS, ("Java Message Service") is an industry standard mechanism for interacting with message queues.
     Message queues themselves are a very mature piece of infrastructure used in many enterprise software contexts.
@@ -36,7 +36,7 @@ Distributed Caching using {JMS}
     * Each replicated cache publishes cache <<<Element>>>s to that topic. Replication is configured per cache.
 
 
-    To set up distributed caching using JMS you need to configure a JMSCacheManagerPeerProviderFactory
+    To set up replicated caching using JMS you need to configure a JMSCacheManagerPeerProviderFactory
      which is done globally for a CacheManager.
 
     For each cache that wishing to replicate, you add
