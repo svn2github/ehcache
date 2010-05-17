@@ -50,13 +50,10 @@ public class Main
             .eternal(false);
         configuration.addDefaultCache(defaultCache);
 
-        // Setup "myCache"
+        // Setup "myCache", make it clustered and add to the configuration
         CacheConfiguration myCache = new CacheConfiguration(CACHE_NAME, 10000)
-            .eternal(false);
-
-        // Make "myCache" a Terracotta clustered cache
-        myCache.addTerracotta(new TerracottaConfiguration());
-
+            .eternal(false)
+            .terracotta(new TerracottaConfiguration());
         configuration.addCache(myCache);
 
         CacheManager mgr = new CacheManager(configuration);
