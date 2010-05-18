@@ -78,7 +78,7 @@ public class TerracottaConfiguration implements Cloneable {
     /**
      * Default setting for storageStrategy
      */
-    public static final StorageStrategy DEFAULT_STORAGE_STRATEGY = StorageStrategy.LOCAL;
+    public static final StorageStrategy DEFAULT_STORAGE_STRATEGY = StorageStrategy.CLASSIC;
 
     /**
      * Represents whether values are stored with serialization in the clustered store
@@ -107,12 +107,12 @@ public class TerracottaConfiguration implements Cloneable {
         /**
          * Store the key/values in the local vm
          */
-        LOCAL,
+        CLASSIC,
 
         /**
          * Store the key/values in the Terracotta Server
          */
-        SERVER,
+        DCV2,
     }
 
     private static final Logger LOG = LoggerFactory.getLogger(TerracottaConfiguration.class.getName());

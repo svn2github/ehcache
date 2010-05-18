@@ -468,6 +468,7 @@
                     </headerLocation>
                     <enableRSS>false</enableRSS>
                     <linkXRef>true</linkXRef>
+                    <skip>true</skip>
                     <consoleOutput>true</consoleOutput>
                     <failsOnError>true</failsOnError>
                     <failOnViolation>true</failOnViolation>

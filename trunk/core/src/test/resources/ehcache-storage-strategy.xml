@@ -12,15 +12,15 @@
 		<terracotta clustered="false" />
 	</cache>
 	
-	<cache name="localStorageStrategy" maxElementsInMemory="10"
+	<cache name="classicStorageStrategy" maxElementsInMemory="10"
 		eternal="false" timeToIdleSeconds="5" timeToLiveSeconds="10"
 		overflowToDisk="true" copyOnRead="true">
-		<terracotta clustered="false" storageStrategy="local" />
+		<terracotta clustered="false" storageStrategy="classic" />
 	</cache>
 	
-	<cache name="serverStorageStrategy" maxElementsInMemory="10"
+	<cache name="DCV2StorageStrategy" maxElementsInMemory="10"
 		eternal="false" timeToIdleSeconds="5" timeToLiveSeconds="10"
 		overflowToDisk="true" copyOnRead="true">
-		<terracotta clustered="false" storageStrategy="server" />
+		<terracotta clustered="false" storageStrategy="DCV2" />
 	</cache>
 </ehcache>

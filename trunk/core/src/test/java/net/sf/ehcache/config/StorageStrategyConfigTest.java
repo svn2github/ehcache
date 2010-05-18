@@ -36,36 +36,36 @@ public class StorageStrategyConfigTest extends TestCase {
         Cache cache = cacheManager.getCache("defaultStorageStrategy");
         StorageStrategy storageStrategy = cache.getCacheConfiguration().getTerracottaConfiguration().getStorageStrategy();
         System.out.println("default storageStrategy: " + storageStrategy);
-        assertEquals(StorageStrategy.LOCAL, storageStrategy);
+        assertEquals(StorageStrategy.CLASSIC, storageStrategy);
 
-        cache = cacheManager.getCache("localStorageStrategy");
+        cache = cacheManager.getCache("classicStorageStrategy");
         storageStrategy = cache.getCacheConfiguration().getTerracottaConfiguration().getStorageStrategy();
-        System.out.println("local storageStrategy: " + storageStrategy);
-        assertEquals(StorageStrategy.LOCAL, storageStrategy);
+        System.out.println("classic storageStrategy: " + storageStrategy);
+        assertEquals(StorageStrategy.CLASSIC, storageStrategy);
 
-        cache = cacheManager.getCache("serverStorageStrategy");
+        cache = cacheManager.getCache("DCV2StorageStrategy");
         storageStrategy = cache.getCacheConfiguration().getTerracottaConfiguration().getStorageStrategy();
-        System.out.println("server storageStrategy: " + storageStrategy);
-        assertEquals(StorageStrategy.SERVER, storageStrategy);
+        System.out.println("DCV2 storageStrategy: " + storageStrategy);
+        assertEquals(StorageStrategy.DCV2, storageStrategy);
 
         TerracottaConfiguration config = cache.getCacheConfiguration().getTerracottaConfiguration();
-        config.setStorageStrategy("local");
-        assertEquals(StorageStrategy.LOCAL, config.getStorageStrategy());
+        config.setStorageStrategy("classic");
+        assertEquals(StorageStrategy.CLASSIC, config.getStorageStrategy());
 
-        config.setStorageStrategy("server");
-        assertEquals(StorageStrategy.SERVER, config.getStorageStrategy());
+        config.setStorageStrategy("DCV2");
+        assertEquals(StorageStrategy.DCV2, config.getStorageStrategy());
 
-        config.storageStrategy("local");
-        assertEquals(StorageStrategy.LOCAL, config.getStorageStrategy());
+        config.storageStrategy("classic");
+        assertEquals(StorageStrategy.CLASSIC, config.getStorageStrategy());
 
-        config.storageStrategy("server");
-        assertEquals(StorageStrategy.SERVER, config.getStorageStrategy());
+        config.storageStrategy("DCV2");
+        assertEquals(StorageStrategy.DCV2, config.getStorageStrategy());
 
-        config.storageStrategy(StorageStrategy.LOCAL);
-        assertEquals(StorageStrategy.LOCAL, config.getStorageStrategy());
+        config.storageStrategy(StorageStrategy.CLASSIC);
+        assertEquals(StorageStrategy.CLASSIC, config.getStorageStrategy());
 
-        config.storageStrategy(StorageStrategy.SERVER);
-        assertEquals(StorageStrategy.SERVER, config.getStorageStrategy());
+        config.storageStrategy(StorageStrategy.DCV2);
+        assertEquals(StorageStrategy.DCV2, config.getStorageStrategy());
     }
 
 }

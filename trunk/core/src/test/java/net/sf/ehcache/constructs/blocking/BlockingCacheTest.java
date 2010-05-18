@@ -38,7 +38,6 @@ import net.sf.ehcache.CacheException;
 import net.sf.ehcache.CacheTest;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
-import net.sf.ehcache.Statistics;
 import net.sf.ehcache.Status;
 import net.sf.ehcache.StopWatch;
 import net.sf.ehcache.config.CacheConfiguration;
@@ -63,6 +62,7 @@ public class BlockingCacheTest extends CacheTest {
     /**
      * Load up the test cache
      */
+    @Override
     @Before
     public void setUp() throws Exception {
         super.setUp();
@@ -73,6 +73,7 @@ public class BlockingCacheTest extends CacheTest {
     /**
      * teardown
      */
+    @Override
     @After
     public void tearDown() throws Exception {
         if (manager.getStatus() == Status.STATUS_ALIVE) {
@@ -185,6 +186,7 @@ public class BlockingCacheTest extends CacheTest {
         assertNull(blockingCache.get("key"));
 
         Thread secondThread = new Thread() {
+            @Override
             public void run() {
                 threadResults.add(blockingCache.get("key"));
             }
@@ -371,6 +373,7 @@ public class BlockingCacheTest extends CacheTest {
     /**
      * Creates a blocking test cache
      */
+    @Override
     protected Ehcache createTestCache() {
         Ehcache cache = super.createTestCache();
         return new BlockingCache(cache);
@@ -379,6 +382,7 @@ public class BlockingCacheTest extends CacheTest {
     /**
      * Gets the sample cache 1
      */
+    @Override
     protected Ehcache getSampleCache1() {
         Cache cache = manager.getCache("sampleCache1");
         manager.replaceCacheWithDecoratedCache(cache, new BlockingCache(cache));
@@ -393,22 +397,26 @@ public class BlockingCacheTest extends CacheTest {
         super.testSizes();
     }
 
+    @Override
     @Test
     public void testGetWithLoader() {
         super.testGetWithLoader();
     }
 
 
+    @Override
     @Test
     public void testFlushWhenOverflowToDisk() throws Exception {
         super.testFlushWhenOverflowToDisk();
     }
 
+    @Override
     @Test
     public void testConcurrentPutsAreConsistentRepeatedly() throws InterruptedException {
         //do nothing
     }
 
+    @Override
     @Test
     public void testConcurrentPutsAreConsistent() throws InterruptedException {
         //do nothing

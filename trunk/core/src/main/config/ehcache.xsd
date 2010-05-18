@@ -185,7 +185,7 @@
             <xs:attribute name="copyOnRead" use="optional" type="xs:boolean" default="false"/>
             <xs:attribute name="coherent" use="optional" type="xs:boolean" default="true"/>
             <xs:attribute name="synchronousWrites" use="optional" type="xs:boolean" default="false"/>
-            <xs:attribute name="storageStrategy" use="optional" type="storageStrategyType" default="local"/>
+            <xs:attribute name="storageStrategy" use="optional" type="storageStrategyType" default="classic"/>
         </xs:complexType>
     </xs:element>
     <xs:simpleType name="monitoringType">
@@ -203,8 +203,8 @@
     </xs:simpleType>
     <xs:simpleType name="storageStrategyType">
         <xs:restriction base="xs:string">
-            <xs:enumeration value="local" />
-            <xs:enumeration value="server" />
+            <xs:enumeration value="classic" />
+            <xs:enumeration value="DCV2" />
         </xs:restriction>
     </xs:simpleType>
 
