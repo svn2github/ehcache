@@ -2,11 +2,11 @@
  Ehcache Monitor
  ---
 
-
+Ehcache Monitor
 
 %{toc|fromDepth=2|toDepth=2}
 
-    _new_ This add-on tool for Ehcache provides enterprise-class monitoring and management capabilities for use in both
+    This add-on tool for Ehcache provides enterprise-class monitoring and management capabilities for use in both
     development and production. It is intended to help understand and tune cache usage, detect errors, and provide an easy to
     use access point to integrate with production management systems. It also provides administrative functionality such as the
     ability to forcefully remove items from caches.
@@ -20,9 +20,12 @@
     (such as Hyperic, Nagios etc). The probe is designed to be compatible with all versions of Ehcache from 1.4.1 and
     requires JDK 1.5 or 1.6.
 
+    Get the {{{/modules/monitor.html}Ehcache Monitor}} now.
+
+*   {Demonstration Video}    
+
 %{snippet|file=src/site/include/monitor_preview.html|verbatim=false}
 
-    Get the {{{/modules/monitor.html}Ehcache Monitor}} now.
 
 *   {Installation And Configuration}
 

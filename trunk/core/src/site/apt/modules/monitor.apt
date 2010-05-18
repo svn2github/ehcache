@@ -7,8 +7,7 @@
 
 Ehcache Monitor Download
 
-
-    Please complete the following details to download the Monitor.
+    Please register to download the Monitor.
 
 %{snippet|file=src/site/include/monitor_signup_form.html|verbatim=false}
 

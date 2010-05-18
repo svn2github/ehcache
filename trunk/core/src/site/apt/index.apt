@@ -25,7 +25,7 @@ Ehcache Distributed Cache
 *----------+--------------+
 {{{./documentation/distributed_caching_with_terracotta.html}ehcache-terracotta}} | Seamless integration with Terracotta clustering
 *----------+--------------+
-{{{./modules/monitor.html}ehcache-monitor (in beta)}} |  Enterprise-class monitoring and management for development and production
+{{{./documentation/monitor.html}ehcache-monitor}} |  Enterprise-class monitoring and management for development and production
 *----------+--------------+
 {{{./documentation/web_caching.html}ehcache-web}} | Java Servlet Container caching, gzipping filters
 *----------+--------------+
