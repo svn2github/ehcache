@@ -311,8 +311,8 @@ public class CacheConfiguration implements Cloneable {
     private TransactionalMode transactionalMode = DEFAULT_TRANSACTIONAL_MODE;
     private volatile boolean statistics = DEFAULT_STATISTICS;
     private volatile CopyStrategyConfiguration copyStrategyConfiguration = DEFAULT_COPY_STRATEGY_CONFIGURATION;
-    private volatile Boolean copyOnRead = DEFAULT_COPY_ON_READ;
-    private volatile Boolean copyOnWrite = DEFAULT_COPY_ON_WRITE;
+    private volatile Boolean copyOnRead;
+    private volatile Boolean copyOnWrite;
     private Object defaultTransactionManager;
 
     /**
@@ -1221,12 +1221,16 @@ public class CacheConfiguration implements Cloneable {
 
     private void validateTransactionalSettings() {
         boolean transactional = transactionalMode.isTransactional();
-        if (terracottaConfiguration != null && terracottaConfiguration.isCopyOnReadSet()) {
-            copyOnRead = terracottaConfiguration.isCopyOnRead();
-        } else {
-            copyOnRead = transactional;
+        if (copyOnRead == null) {
+            if (terracottaConfiguration != null && terracottaConfiguration.isCopyOnReadSet()) {
+                copyOnRead = terracottaConfiguration.isCopyOnRead();
+            } else {
+                copyOnRead = transactional;
+            }
         }
-        copyOnWrite = transactional;
+        if (copyOnWrite == null) {
+            copyOnWrite = transactional;
+        }
 
         if (transactional) {
             if (!copyOnRead || !copyOnWrite) {
