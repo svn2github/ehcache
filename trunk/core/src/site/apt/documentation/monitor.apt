@@ -17,7 +17,7 @@ Ehcache Monitor
     The package contains a probe and a server. The probe installs with your existing Ehcache cache instance, and communicates
     to a central server. The server aggregates data from multiple probes. It can be accessed via a simple web UI, as well as
     a scriptable API. In this way, it is easy to integrate with common third party systems management tools
-    (such as Hyperic, Nagios etc). The probe is designed to be compatible with all versions of Ehcache from 1.4.1 and
+    (such as Hyperic, Nagios etc). The probe is designed to be compatible with all versions of Ehcache from 1.5 and
     requires JDK 1.5 or 1.6.
 
     Get the {{{/modules/monitor.html}Ehcache Monitor}} now.
