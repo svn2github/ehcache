@@ -52,6 +52,37 @@ Ehcache Distributed Cache
 
 %{snippet|file=src/site/include/newsticker.html|verbatim=false}
 
+* 17 May 2010: Ehcache Monitor 1.0 released
+
+    This add-on tool for Ehcache provides enterprise-class monitoring and management capabilities for use in both
+    development and production. It is intended to help understand and tune cache usage, detect errors, and provide an easy to
+    use access point to integrate with production management systems. It also provides administrative functionality such as the
+    ability to forcefully remove items from caches.
+
+    Note: Ehcache Monitor is not open source. It is available free for development use but must be licensed for production use.
+    A production license is provided as part of the {{{http://www.terracotta.org/ehcache/}commercial versions}} of Ehcache, either DX, EX or FX.
+
+    Simply install the Monitor on an Operations server, add the Monitor Probe jar to your app,
+    add a few lines of config in ehcache.xml and your done.
+
+    See the {{{./documentation/monitor.html}documentation}} for Ehcache Monitor, including a usage video from Ehcache founder Greg Luck,
+    or download {{{./modules/monitor.html}here}}.
+
+* 17 May 2010: Ehcache 2.1.0 and new ehcache-nonstopcache and ehcache-unlockedreadsview betas released
+
+  Ehcache 2.1.0 rounds out Ehcache 2.0. JTA support has been added for standalone ehcache. JTA for Hibernate has been added
+   which now means Ehcache supports <all> Hibernate strategies. ehcache-nonstopcache adds a new API with support for timeouts
+    on Cache Operations and configurable actions on disconnection from a cluster. ehcache-unlockedreadsview adds support for
+    a coherent cache to expose an unlocked view at the same time, for rapid response.
+
+  The maturity and depth of the integration between Ehcache and Terracotta server is now such that, for distributed caching, the
+  two best way to use each technology is with each other. With that in mind Terracotta server is now distributed in the Ehcache
+  download. Servers at dev time need to fit into the development process. Terracotta has a tc-maven-plugin that works as well and
+  simply as the famed Jetty plugin. Instructions on its use are included in the download.
+
+  For more information on this release see Steve Harris's excellent {{{http://dsoguy.blogspot.com/2010/04/ehcache-21-beta-lots-of-stuff-still.html}blog}} article on it.
+
+
 ** 22 April 2010: Ehcache 2.1.0-beta, and new ehcache-nonstopcache and ehcache-unlockedreadsview betas released
 
   Ehcache 2.1.0 will rounds out Ehcache 2.0. JTA support has been added for standalone ehcache. JTA for Hibernate has been added
