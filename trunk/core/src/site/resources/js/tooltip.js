@@ -31,7 +31,7 @@ function popupHide(){
 
    }
 
-	
+
 }
 
 $('#popupTitle').mouseover(function() {
@@ -71,5 +71,5 @@ document.onmousemove = follow;
 $('#Wrapper').mouseover(
     function() {
       popupHide();
-        
-}); 
+
+});
