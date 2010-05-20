@@ -23,6 +23,7 @@
     <artifactId>ehcache-web-parent</artifactId>
     <packaging>pom</packaging>
     <version>2.0.2-SNAPSHOT</version>
+    <description>parent pom for web module</description>
 
 
     <licenses>
@@ -33,38 +34,13 @@
     </licenses>
 
     <scm>
-        <connection>scm:svn:http://svn.terracotta.org/svn/forge/projects/tim-spring-security/trunk</connection>
-        <developerConnection>scm:svn:https://svn.terracotta.org/repo/forge/projects/tim-spring-security/trunk</developerConnection>
-        <url>http://svn.terracotta.org/svn/forge/projects/tim-spring-security/trunk</url>
+        <connection>scm:svn:http://svn.terracotta.org/svn/ehcache/trunk/web</connection>
+        <developerConnection>scm:svn:https://svn.terracotta.org/repo/ehcache/trunk/web</developerConnection>
+        <url>http://svn.terracotta.org/svn/ehcache/trunk/web</url>
     </scm>
 
     <modules>
         <module>web</module>
         <module>web-system-tests</module>
     </modules>
-
-    <repositories>
-        <repository>
-            <id>terracotta-repository</id>
-            <url>http://www.terracotta.org/download/reflector/maven2</url>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-            <snapshots>
-                <enabled>true</enabled>
-            </snapshots>
-        </repository>
-    </repositories>
-    <pluginRepositories>
-        <pluginRepository>
-            <id>terracotta-repository</id>
-            <url>http://www.terracotta.org/download/reflector/maven2</url>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-            <snapshots>
-                <enabled>true</enabled>
-            </snapshots>
-        </pluginRepository>
-    </pluginRepositories>
 </project>
