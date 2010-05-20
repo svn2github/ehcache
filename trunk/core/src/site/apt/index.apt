@@ -52,7 +52,7 @@ Ehcache Distributed Cache
 
 %{snippet|file=src/site/include/newsticker.html|verbatim=false}
 
-* 17 May 2010: Ehcache Monitor 1.0 released
+** 17 May 2010: Ehcache Monitor 1.0 released
 
     This add-on tool for Ehcache provides enterprise-class monitoring and management capabilities for use in both
     development and production. It is intended to help understand and tune cache usage, detect errors, and provide an easy to
@@ -68,7 +68,7 @@ Ehcache Distributed Cache
     See the {{{./documentation/monitor.html}documentation}} for Ehcache Monitor, including a usage video from Ehcache founder Greg Luck,
     or download {{{./modules/monitor.html}here}}.
 
-* 17 May 2010: Ehcache 2.1.0 and new ehcache-nonstopcache and ehcache-unlockedreadsview released
+** 17 May 2010: Ehcache 2.1.0 and new ehcache-nonstopcache and ehcache-unlockedreadsview released
 
   Ehcache 2.1.0 rounds out Ehcache 2.0. JTA support has been added for standalone ehcache. JTA for Hibernate has been added
    which now means Ehcache supports <all> Hibernate strategies. ehcache-nonstopcache adds a new API with support for timeouts
