@@ -258,7 +258,7 @@
 			</activation>
 			<properties>
 				<cargo.id>jetty6x</cargo.id>
-				<cargo.zipUrl>http://dist.codehaus.org/jetty/jetty-6.1.22/jetty-6.1.22.zip</cargo.zipUrl>
+				<cargo.zipUrl>http://dist.codehaus.org/jetty/jetty-6.1.24/jetty-6.1.24.zip</cargo.zipUrl>
 			</properties>
 		</profile>
 
