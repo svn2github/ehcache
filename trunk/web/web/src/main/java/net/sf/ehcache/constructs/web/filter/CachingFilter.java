@@ -77,6 +77,14 @@ public abstract class CachingFilter extends Filter {
     private static final Logger LOG = LoggerFactory.getLogger(CachingFilter.class);
     private static final String BLOCKING_TIMEOUT_MILLIS = "blockingTimeoutMillis";
     private static final String CACHE_NAME = "cacheName";
+    
+    private final ThreadLocal <Boolean> visited = 
+        new ThreadLocal <Boolean> () {
+            @Override protected Boolean initialValue() {
+                return Boolean.FALSE;
+        }
+    };
+
 
     /**
      * The cache name can be set through init parameters. If it is set it is stored here.
@@ -210,7 +218,6 @@ public abstract class CachingFilter extends Filter {
         // Look up the cached page
         final String key = calculateKey(request);
         PageInfo pageInfo = null;
-        String originalThreadName = Thread.currentThread().getName();
         try {
             checkNoReentry(request);
             Element element = blockingCache.get(key);
@@ -242,7 +249,8 @@ public abstract class CachingFilter extends Filter {
             //do not release the lock, because you never acquired it
             throw e;
         } finally {
-            Thread.currentThread().setName(originalThreadName);
+        	// all done building page, reset the reentrant flag
+        	visited.set(false);
         }
         return pageInfo;
     }
@@ -487,21 +495,19 @@ public abstract class CachingFilter extends Filter {
      * @throws FilterNonReentrantException if reentry is detected
      */
     protected void checkNoReentry(final HttpServletRequest httpRequest) throws FilterNonReentrantException {
-        Thread thread = Thread.currentThread();
-        String threadName = thread.getName();
         String filterName = getClass().getName();
-        if (thread.getName().indexOf(" been through " + filterName) != -1) {
+        if (visited.get()) {
             throw new FilterNonReentrantException("The request thread is attempting to reenter"
                     + " filter "
                     + filterName
                     + ". URL: "
                     + httpRequest.getRequestURL());
-        }
-        //Instrument thread name
-        thread.setName(thread.getName() + " been through " + filterName);
-        String newThreadName = thread.getName();
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("Thread name changed from " + threadName + " to " + newThreadName);
+        } else {
+        	// mark this thread as already visited
+        	visited.set(true);
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Thread {}  has been marked as visited.", Thread.currentThread().getName());
+            }
         }
     }
 }
