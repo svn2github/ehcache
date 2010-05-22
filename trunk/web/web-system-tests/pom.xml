@@ -1,73 +1,77 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
-    <modelVersion>4.0.0</modelVersion>
-    <parent>
-        <groupId>net.sf.ehcache</groupId>
-        <artifactId>ehcache-web-parent</artifactId>
-        <version>2.0.2-SNAPSHOT</version>
-    </parent>
-    <name>Ehcache Web Filters Integration Tests</name>
-    <artifactId>ehcache-web-system-tests</artifactId>
-    <packaging>war</packaging>
-    <description><![CDATA[Integration tests for Web caching filters.]]> </description>
-    <dependencies>
-        <dependency>
-            <groupId>${pom.groupId}</groupId>
-            <artifactId>ehcache-web</artifactId>
-            <version>${project.version}</version>
-        </dependency>
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>net.sf.ehcache</groupId>
+    <artifactId>ehcache-web-parent</artifactId>
+    <version>2.0.2-SNAPSHOT</version>
+  </parent>
+  <name>Ehcache Web Filters Integration Tests</name>
+  <artifactId>ehcache-web-system-tests</artifactId>
+  <packaging>war</packaging>
+  <description><![CDATA[Integration tests for Web caching filters.]]> </description>
+  <dependencies>
+    <dependency>
+      <groupId>${pom.groupId}</groupId>
+      <artifactId>ehcache-web</artifactId>
+      <version>${project.version}</version>
+    </dependency>
 
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>4.1</version>
-        </dependency>
-        <dependency>
-            <groupId>dom4j</groupId>
-            <artifactId>dom4j</artifactId>
-            <version>1.6.1</version>
-        </dependency>
-        <dependency>
-            <groupId>httpunit</groupId>
-            <artifactId>httpunit</artifactId>
-            <version>1.6.2</version>
-        </dependency>
-        <dependency>
-            <groupId>commons-io</groupId>
-            <artifactId>commons-io</artifactId>
-            <version>1.4</version>
-        </dependency>
-        <dependency>
-            <groupId>commons-httpclient</groupId>
-            <artifactId>commons-httpclient</artifactId>
-            <version>3.1</version>
-        </dependency>
-        <dependency>
-          <groupId>org.slf4j</groupId>
-          <artifactId>slf4j-jdk14</artifactId>
-          <version>1.5.8</version>
-        </dependency>
-        <dependency>
-          <groupId>javax.servlet</groupId>
-          <artifactId>servlet-api</artifactId>
-          <version>2.4</version>
-          <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.mockito</groupId>
-            <artifactId>mockito-all</artifactId>
-            <version>1.8.0</version>
-        </dependency>
-    </dependencies>
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <version>4.1</version>
+    </dependency>
+    <dependency>
+      <groupId>dom4j</groupId>
+      <artifactId>dom4j</artifactId>
+      <version>1.6.1</version>
+    </dependency>
+    <dependency>
+      <groupId>httpunit</groupId>
+      <artifactId>httpunit</artifactId>
+      <version>1.7</version>
+    </dependency>
+    <dependency>
+      <groupId>rhino</groupId>
+      <artifactId>js</artifactId>
+      <version>1.6R5</version>
+    </dependency>
+    <dependency>
+      <groupId>commons-io</groupId>
+      <artifactId>commons-io</artifactId>
+      <version>1.4</version>
+    </dependency>
+    <dependency>
+      <groupId>commons-httpclient</groupId>
+      <artifactId>commons-httpclient</artifactId>
+      <version>3.1</version>
+    </dependency>
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-jdk14</artifactId>
+      <version>1.5.8</version>
+    </dependency>
+    <dependency>
+      <groupId>javax.servlet</groupId>
+      <artifactId>servlet-api</artifactId>
+      <version>2.4</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.mockito</groupId>
+      <artifactId>mockito-all</artifactId>
+      <version>1.8.0</version>
+    </dependency>
+  </dependencies>
 
-    <properties>
+  <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     <test.server.host>localhost</test.server.host>
-    <test.server.port>9090</test.server.port>
+    <test.server.port>8080</test.server.port>
   </properties>
 
   <build>
@@ -80,11 +84,11 @@
           <target>1.5</target>
         </configuration>
       </plugin>
-        <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-surefire-plugin</artifactId>
-          <inherited>true</inherited>
-          <configuration>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <inherited>true</inherited>
+        <configuration>
           <skip>true</skip>
           <includes>
             <include>**/*Test.java</include>
@@ -99,6 +103,7 @@
           <printSummary>true</printSummary>
           <reportFormat>plain</reportFormat>
           <redirectTestOutputToFile>true</redirectTestOutputToFile>
+          <argLine>-Xms128m -Xmx512m</argLine>
           <systemProperties>
             <property>
               <name>java.awt.headless</name>
@@ -173,19 +178,14 @@
 
     <profile>
       <id>no-cargo</id>
-      <!-- 
-        To run the test manually without having maven to run an app server 
-        1. Create the war, mvn clean package
-        2. Start and deploy the war on the app server running on ${test.server.host}:${test.server.port}
-        3. To run the test, mvn clean integration-test -Pno-cargo
-      -->
+      <!-- To run the test manually without having maven to run an app server 1. Create the war, mvn clean package 2. Start 
+        and deploy the war on the app server running on ${test.server.host}:${test.server.port} 3. To run the test, mvn clean integration-test 
+        -Pno-cargo -->
     </profile>
-    
+
     <profile>
-      <!-- 
-        To run the test with cargo, choose the app server profile
-        1. To run the test, mvn clean integration-test -Pcargo -Pjetty5x
-      -->
+      <!-- To run the test with cargo, choose the app server profile 1. To run the test, mvn clean integration-test -Pcargo 
+        -Pjetty5x -->
       <id>cargo</id>
       <activation>
         <activeByDefault>true</activeByDefault>
@@ -256,7 +256,7 @@
         </plugins>
       </build>
     </profile>
-    
+
     <profile>
       <id>jetty6x</id>
       <activation>
@@ -291,7 +291,7 @@
         <cargo.zipUrl>http://www.apache.org/dist/tomcat/tomcat-6/v6.0.26/bin/apache-tomcat-6.0.26.zip</cargo.zipUrl>
       </properties>
     </profile>
-    
+
     <profile>
       <id>jboss42x</id>
       <properties>
@@ -312,29 +312,29 @@
 
   </profiles>
 
-    <contributors>
-        <contributor>
-            <name>Craig Andrews</name>
-            <email/>
-            <url/>
-            <organization/>
-            <organizationUrl/>
-            <roles>
-                <role>Developer</role>
-            </roles>
-            <timezone>+10</timezone>
-            <properties>
-                <contribution>Contributed to the CachingHeaders implementation.
+  <contributors>
+    <contributor>
+      <name>Craig Andrews</name>
+      <email />
+      <url />
+      <organization />
+      <organizationUrl />
+      <roles>
+        <role>Developer</role>
+      </roles>
+      <timezone>+10</timezone>
+      <properties>
+        <contribution>Contributed to the CachingHeaders implementation.
                 </contribution>
-            </properties>
-        </contributor>
-    </contributors>
-    <pluginRepositories>
-        <pluginRepository>
-            <id>maven.java.net</id>
-            <name>Java.net Maven2 Repository</name>
-            <url>http://download.java.net/maven/2</url>
-        </pluginRepository>
-    </pluginRepositories>
+      </properties>
+    </contributor>
+  </contributors>
+  <pluginRepositories>
+    <pluginRepository>
+      <id>maven.java.net</id>
+      <name>Java.net Maven2 Repository</name>
+      <url>http://download.java.net/maven/2</url>
+    </pluginRepository>
+  </pluginRepositories>
 
 </project>
