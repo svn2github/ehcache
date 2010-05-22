@@ -14,7 +14,7 @@
   <description><![CDATA[Integration tests for Web caching filters.]]> </description>
   <dependencies>
     <dependency>
-      <groupId>${pom.groupId}</groupId>
+      <groupId>${project.groupId}</groupId>
       <artifactId>ehcache-web</artifactId>
       <version>${project.version}</version>
     </dependency>
@@ -71,7 +71,7 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     <test.server.host>localhost</test.server.host>
-    <test.server.port>8080</test.server.port>
+    <test.server.port>9090</test.server.port>
   </properties>
 
   <build>
@@ -246,7 +246,7 @@
               </execution>
               <execution>
                 <id>stop-container</id>
-                <phase>post-integration-test</phase>
+                <phase>integration-test</phase>
                 <goals>
                   <goal>stop</goal>
                 </goals>
