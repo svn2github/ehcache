@@ -19,16 +19,16 @@ package net.sf.ehcache;
 import java.io.Serializable;
 
 /**
- * An immutable Cache statistics implementation}
+ * An immutable Cache statistics implementation
  * <p/>
  * This is like a value object, with the added ability to clear cache statistics on the cache.
  * That ability does not survive any Serialization of this class. On deserialization the cache
  * can be considered disconnected.
  * <p/>
- * The accuracy of these statistics are determined by the value of {#getStatisticsAccuracy()}
+ * The accuracy of these statistics are determined by the value of {@link Cache#getStatisticsAccuracy()}
  * at the time the statistic was computed. This can be changed by setting {@link Cache#setStatisticsAccuracy}.
  * <p/>
- * Because this class maintains a reference to an Ehcache, any references held to this class will precent the Ehcache
+ * Because this class maintains a reference to an Ehcache, any references held to this class will prevent the Ehcache
  * from getting garbage collected.
  * <p/>
  * todo Add missCountExpired. Request from user.
