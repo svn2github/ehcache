@@ -36,6 +36,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicLong;
 
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheException;
@@ -69,6 +70,7 @@ import org.slf4j.LoggerFactory;
  * @author Greg Luck
  * @author patches contributed: Ben Houston
  * @author patches contributed: James Abley
+ * @author patches contributed: Manuel Dominguez Sarmiento
  * @version $Id$
  */
 public class DiskStore extends AbstractStore implements CacheConfigurationListener {
@@ -90,7 +92,7 @@ public class DiskStore extends AbstractStore implements CacheConfigurationListen
 
     private long expiryThreadInterval;
     private final String name;
-    private boolean active;
+    private volatile boolean active;
     private RandomAccessFile[] randomAccessFiles;
 
     private ConcurrentHashMap diskElements = new ConcurrentHashMap();
@@ -115,12 +117,12 @@ public class DiskStore extends AbstractStore implements CacheConfigurationListen
      */
     private File indexFile;
 
-    private Status status;
+    private volatile Status status;
 
     /**
      * The size in bytes of the disk elements
      */
-    private long totalSize;
+    private final AtomicLong totalSize = new AtomicLong();
 
     /**
      * The maximum elements to allow in the disk file.
@@ -130,7 +132,7 @@ public class DiskStore extends AbstractStore implements CacheConfigurationListen
      * Whether the cache is eternal
      */
     private boolean eternal;
-    private int lastElementSize;
+    private volatile int lastElementSize;
     private int diskSpoolBufferSizeBytes;
 
     // indicates to the spoolAndExpiryThread that it needs to write the index on next flush to disk.
@@ -305,7 +307,14 @@ public class DiskStore extends AbstractStore implements CacheConfigurationListen
                 return null;
             }
 
-            return loadElementFromDiskElement(diskElement);
+            synchronized (diskElement) {
+                if (diskElement.isValid()) {
+                    return loadElementFromDiskElement(diskElement);
+                } else {
+                    return null;
+                }
+            }
+
         } catch (Exception exception) {
             LOG.error(name + "Cache: Could not read disk store element for key " + key + ". Error was "
 + exception.getMessage(), exception);
@@ -519,13 +528,21 @@ public class DiskStore extends AbstractStore implements CacheConfigurationListen
      * @param diskElement the DiskElement to move to the free space list
      */
     private void freeBlock(final DiskElement diskElement) {
-        totalSize -= diskElement.payloadSize;
-        diskElement.payloadSize = 0;
-        //reset Element meta data
-        diskElement.key = null;
-        diskElement.hitcount = 0;
-        diskElement.expiryTime = 0;
-        freeSpace.add(diskElement);
+        // Instantiate new DiskElement representing free block
+        DiskElement freeBlock = new DiskElement();
+        freeBlock.position = diskElement.position;
+        freeBlock.blockSize = diskElement.blockSize;
+        freeBlock.payloadSize = 0;
+        freeBlock.key = null;
+        freeBlock.hitcount = 0;
+        freeBlock.expiryTime = 0;
+        
+        synchronized (diskElement) {
+            diskElement.free();
+        }
+
+    	totalSize.addAndGet(diskElement.payloadSize * -1L);
+        freeSpace.add(freeBlock);
     }
 
     /**
@@ -541,10 +558,12 @@ public class DiskStore extends AbstractStore implements CacheConfigurationListen
             spool = new ConcurrentHashMap();
             diskElements = new ConcurrentHashMap();
             freeSpace = Collections.synchronizedList(new ArrayList());
-            totalSize = 0;
+            totalSize.set(0L);
             synchronized (randomAccessFiles) {
                 for (RandomAccessFile file : this.randomAccessFiles) {
-                    file.setLength(0);    
+                    synchronized (file) {
+                        file.setLength(0);
+                    }
                 }
             }
             if (persistent) {
@@ -593,7 +612,9 @@ public class DiskStore extends AbstractStore implements CacheConfigurationListen
             if (randomAccessFiles != null) {
                 synchronized (randomAccessFiles) {
                     for (RandomAccessFile file : randomAccessFiles) {
-                        file.close();
+                        synchronized (file) {
+                            file.close();
+                        }
                     }
                 }
             }
@@ -784,7 +805,7 @@ public class DiskStore extends AbstractStore implements CacheConfigurationListen
                 diskElement.key = key;
                 diskElement.expiryTime = element.getExpirationTime();
                 diskElement.hitcount = element.getHitCount();
-                totalSize += bufferLength;
+                totalSize.addAndGet(bufferLength);
                 lastElementSize = bufferLength;
                 diskElements.put(key, diskElement);
             } catch (OutOfMemoryError e) {
@@ -822,7 +843,7 @@ public class DiskStore extends AbstractStore implements CacheConfigurationListen
 
     private int estimatedPayloadSize() {
         try {
-            int size = (int) (totalSize / diskElements.size());
+            int size = (int) (totalSize.get() / diskElements.size());
             if (size <= 0) {
                 return ESTIMATED_MINIMUM_PAYLOAD_SIZE;
             }
@@ -980,25 +1001,28 @@ public class DiskStore extends AbstractStore implements CacheConfigurationListen
         // Clean up disk elements
         for (Iterator iterator = diskElements.entrySet().iterator(); iterator.hasNext();) {
             final Map.Entry entry = (Map.Entry) iterator.next();
-            final DiskElement diskElement = (DiskElement) entry.getValue();
+            DiskElement diskElement = (DiskElement) entry.getValue();
 
             if (now >= diskElement.expiryTime) {
                 // An expired element
                 if (LOG.isDebugEnabled()) {
                     LOG.debug(name + "Cache: Removing expired spool element " + entry.getKey() + " from Disk Store");
                 }
-                iterator.remove();
-                // only load the element from the file if there is a listener interested in hearing about its expiration
-                if (listeners.hasCacheEventListeners()) {
-                    try {
-                        Element element = loadElementFromDiskElement(diskElement);
-                        notifyExpiryListeners(element);
-                    } catch (Exception exception) {
-                        LOG.error(name + "Cache: Could not remove disk store entry for " + entry.getKey()
-                                + ". Error was " + exception.getMessage(), exception);
+                // This ensures the DiskElement is only removed and processed once
+                diskElement = (DiskElement) diskElements.remove(entry.getKey());
+                if (diskElement != null) {
+                    // only load the element from the file if there is a listener interested in hearing about its expiration
+                    if (listeners.hasCacheEventListeners()) {
+                        try {
+                            Element element = loadElementFromDiskElement(diskElement);
+                            notifyExpiryListeners(element);
+                        } catch (Exception exception) {
+                            LOG.error(name + "Cache: Could not remove disk store entry for " + entry.getKey()
+                                    + ". Error was " + exception.getMessage(), exception);
+                        }
                     }
+                    freeBlock(diskElement);
                 }
-                freeBlock(diskElement);
             }
         }
     }
@@ -1173,6 +1197,14 @@ public class DiskStore extends AbstractStore implements CacheConfigurationListen
         public long getPosition() {
             return position;
         }
+        
+        public void free() {
+            this.position = -1;
+        }
+        
+        public boolean isValid() {
+            return position >= 0;
+        }
     }
 
     /**
@@ -1226,7 +1258,7 @@ public class DiskStore extends AbstractStore implements CacheConfigurationListen
      * {@link #getDataFileSize()} as a measure of fragmentation.
      */
     public final long getUsedDataSize() {
-        return totalSize;
+        return totalSize.get();
     }
 
     /**
@@ -1283,10 +1315,11 @@ public class DiskStore extends AbstractStore implements CacheConfigurationListen
     }
 
     private void evictLfuDiskElements(int count) {
-        synchronized (diskElements) {
-            for (int i = 0; i < count; i++) {
-                DiskElement diskElement = findRelativelyUnused();
-                diskElements.remove(diskElement.key);
+        for (int i = 0; i < count; i++) {
+            DiskElement diskElement = findRelativelyUnused();
+            // This ensures the DiskElement is only removed and processed once
+            diskElement = (DiskElement) diskElements.remove(diskElement.key);
+            if (diskElement != null) {
                 notifyEvictionListeners(diskElement);
                 freeBlock(diskElement);
             }
