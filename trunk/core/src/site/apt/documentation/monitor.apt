@@ -49,12 +49,12 @@ Ehcache Monitor
           core ehcache jar to your application.
 
     [[2]] Configure Ehcache to communicate with the probe by specifying the class name of the probe, the address (or hostname),
-          and the port that the monitor will be running on. This is done by adding the following to ehcache.xml:
+          the port that the monitor will be running on and whether to do memory measurement. This is done by adding the following to ehcache.xml:
 
 +---
 <cacheManagerPeerListenerFactory
     class="org.terracotta.ehcachedx.monitor.ProbePeerListenerFactory"
-    properties="monitorAddress=localhost, monitorPort=9889" />
+    properties="monitorAddress=localhost, monitorPort=9889, memoryMeasurement=true" />
 +---
 
 
@@ -164,6 +164,16 @@ Ehcache Monitor
 
     This release has server side history configuration in place, however history is not implemented. It is anticipated
     it will be implemented in the next release. In the meantime, the charts with their recent history provide trending.
+
+**  Memory Measurement limitations
+
+    Unfortunately in Java, there is no JSR for memory measurement of objects. Implementations, such as the sizeof one we use
+    are subject to fragilities.
+
+    For example, Java 7 memory measurement is not supported at this time. You will get a <<<java.lang.NoSuchFieldException: header>>>
+    exception message if you use memory measurement with Java 7.
+
+    Memory measurement can optionally be turned off by setting <<<memoryMeasurement=false>>> in the probe configuration.
 
 
 
