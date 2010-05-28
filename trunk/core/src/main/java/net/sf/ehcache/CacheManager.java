@@ -951,7 +951,12 @@ public class CacheManager {
 
     private Ehcache addCacheNoCheck(Ehcache cache, final boolean strict)
         throws IllegalStateException, ObjectExistsException, CacheException {
-
+        
+        if (cache.getStatus() != Status.STATUS_UNINITIALISED) {
+            throw new CacheException(
+                    "Trying to add an already initialized cache. If you are adding a decorated cache, use CacheManager.addDecoratedCache(Ehcache decoratedCache) instead.");
+        }
+        
         Ehcache ehcache = ehcaches.get(cache.getName());
         if (ehcache != null) {
             if (strict) {
