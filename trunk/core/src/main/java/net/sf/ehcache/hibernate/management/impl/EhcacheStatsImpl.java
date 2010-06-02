@@ -310,10 +310,10 @@ public class EhcacheStatsImpl extends BaseEmitterBean implements EhcacheStats {
      */
     public int getRegionCacheOrphanEvictionPeriod(String region) {
         Cache cache = this.cacheManager.getCache(region);
-        if (cache == null) {
-            return -1;
+        if (cache != null && cache.isTerracottaClustered()) {
+          return cache.getCacheConfiguration().getTerracottaConfiguration().getOrphanEvictionPeriod();
         } else {
-            return cache.getCacheConfiguration().getTerracottaConfiguration().getOrphanEvictionPeriod();
+          return -1;
         }
     }
 
@@ -441,7 +441,7 @@ public class EhcacheStatsImpl extends BaseEmitterBean implements EhcacheStats {
      */
     public boolean isRegionCacheOrphanEvictionEnabled(String region) {
         Cache cache = this.cacheManager.getCache(region);
-        if (cache != null) {
+        if (cache != null && cache.isTerracottaClustered()) {
             return cache.getCacheConfiguration().getTerracottaConfiguration().getOrphanEviction();
         } else {
             return false;
