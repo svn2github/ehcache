@@ -32,7 +32,8 @@ Ehcache Monitor
     First {{{/modules/monitor.html}download}} and extract the Ehcache Monitor package.
 
     The package consists of a lib directory with the probe and monitor server jars, a bin directory with startup and shutdown
-    scripts for the monitor server and an etc directory with an example monitor server configuration file.
+    scripts for the monitor server and an etc directory with an example monitor server configuration file and a Jetty Server
+    configuration file.
 
 *   {Recommended Deployment Topology}
 
@@ -65,8 +66,67 @@ Ehcache Monitor
     To start the monitor, run the startup script provided in the bin directory: startup.sh on Unix and startup.bat on Microsoft Windows.
     The monitor port selected in this script should match the port specified in ehcache.xml.
 
-    The monitor can be configured, including interface, port and security settings, in the etc/ehcache-monitor.conf.
+    The monitor can be configured, including interface, port and simple security settings, in the etc/ehcache-monitor.conf.
 
+*   {Securing the Monitor}
+
+    The Monitor can be secured in a variety of ways. The simplest method involves simply editing ehcache-monitor.conf to specify
+    a single user name and password. This method has the obvious drawbacks that (1) it provides only a single login identity, and (2)
+    the credentials are stored in clear-text.
+
+    A more comprehensive security solution can be achieved by configuring the Jetty Server with one ore more UserRealms as described by
+    {{{http://docs.codehaus.org/display/JETTY/JAAS} Jetty and JAAS}}. Simply edit etc/jetty.xml to use the appropriate UserRealm implementation
+    for your needs. To configure the Monitor to authenticate against an existing LDAP server, first ensure that you have defined and properly
+    registered a LoginConfig, such as the following example:
+
++---
+MyExistingLDAPLoginConfig {
+  com.sun.security.auth.module.LdapLoginModule REQUIRED
+  java.naming.security.authentication="simple"
+  userProvider="ldap://ldap-host:389"
+  authIdentity="uid={USERNAME},ou=People,dc=myorg,dc=org"
+  useSSL=false
+  bindDn="cn=Manager"
+  bindCredential="secretBindCredential"
+  bindAuthenticationType="simple"
+  debug=true;
+};
++---
+
+    JAAS supports many different types of login modules and it is up to the reader to provide a valid, working JAAS
+    environment.  For more information regarding JAAS refer to {{{http://java.sun.com/javase/6/docs/technotes/guides/security/jaas/JAASRefGuide.html} JAAS Reference Guide}}.
+
+    For information on how to register your LoginConfig refer to $JAVA_HOME/jre/lib/security/java.security.
+
+    Next, edit etc/jetty.xml like so:
+
++---
+<?xml version="1.0"?>
+<!DOCTYPE Configure PUBLIC "-//Mort Bay Consulting//DTD Configure//EN"
+  "http://jetty.mortbay.org/configure.dtd">
+
+<Configure id="Server" class="org.terracotta.ehcachedx.org.mortbay.jetty.Server">
+    <Set name="UserRealms">
+      <Array type="org.terracotta.ehcachedx.org.mortbay.jetty.security.UserRealm">
+        <Item>
+          <New class="org.terracotta.ehcachedx.org.mortbay.jetty.plus.jaas.JAASUserRealm">
+           <Set name="Name">MyArbitraryLDAPRealmName</Set>
+           <Set name="LoginModuleName">MyExistingLDAPLoginConfig</Set>
+          </New>
+        </Item>
+      </Array>
+    </Set>
+</Configure>
++---
+
+    The <<<LoginModuleName>>> you specify as the second constructor parameter to the <<<JAASUserRealm>>> class must exactly match
+    the name of your LoginModule. The realm name specified as the first constructor parameter can be an arbitrary value.
+
+    Note: the version of Jetty used in the Monitor has been repackaged so be sure to prefix any standard Jetty class names with
+    org.terracitta.ehcachedx.
+
+    If the Jetty Server is found to have been configured with any security realms, the simple user name and password from
+    ehcache-monitor.conf is ignored.
 
 *   {Using the Web GUI}
 
