@@ -74,10 +74,10 @@ Ehcache Monitor
     a single user name and password. This method has the obvious drawbacks that (1) it provides only a single login identity, and (2)
     the credentials are stored in clear-text.
 
-    A more comprehensive security solution can be achieved by configuring the Jetty Server with one ore more UserRealms as described by
-    {{{http://docs.codehaus.org/display/JETTY/JAAS} Jetty and JAAS}}. Simply edit etc/jetty.xml to use the appropriate UserRealm implementation
-    for your needs. To configure the Monitor to authenticate against an existing LDAP server, first ensure that you have defined and properly
-    registered a LoginConfig, such as the following example:
+    A more comprehensive security solution can be achieved by configuring the Jetty Server with one ore more <<<UserRealm>>>s as described by
+    {{{http://docs.codehaus.org/display/JETTY/JAAS} Jetty and JAAS}}. Simply edit etc/jetty.xml to use the appropriate <<<UserRealm>>>
+    implementation for your needs. To configure the Monitor to authenticate against an existing LDAP server, first ensure that you have
+    defined and properly registered a <<<LoginConfig>>>, such as the following example:
 
 +---
 MyExistingLDAPLoginConfig {
@@ -92,6 +92,8 @@ MyExistingLDAPLoginConfig {
   debug=true;
 };
 +---
+
+    Note: the <<<LdapLoginModule>>> is new with JDK 1.6.
 
     JAAS supports many different types of login modules and it is up to the reader to provide a valid, working JAAS
     environment.  For more information regarding JAAS refer to {{{http://java.sun.com/javase/6/docs/technotes/guides/security/jaas/JAASRefGuide.html} JAAS Reference Guide}}.
@@ -120,10 +122,10 @@ MyExistingLDAPLoginConfig {
 +---
 
     The <<<LoginModuleName>>> you specify as the second constructor parameter to the <<<JAASUserRealm>>> class must exactly match
-    the name of your LoginModule. The realm name specified as the first constructor parameter can be an arbitrary value.
+    the name of your <<<LoginModule>>>. The realm name specified as the first constructor parameter can be an arbitrary value.
 
     Note: the version of Jetty used in the Monitor has been repackaged so be sure to prefix any standard Jetty class names with
-    org.terracitta.ehcachedx.
+    <<<org.terracotta.ehcachedx>>>.
 
     If the Jetty Server is found to have been configured with any security realms, the simple user name and password from
     ehcache-monitor.conf is ignored.
