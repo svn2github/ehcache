@@ -33,6 +33,17 @@
       <groupId>httpunit</groupId>
       <artifactId>httpunit</artifactId>
       <version>1.7</version>
+      <exclusions>
+        <exclusion>
+          <groupId>jtidy</groupId>
+          <artifactId>jtidy</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>nekohtml</groupId>
+      <artifactId>nekohtml</artifactId>
+      <version>1.9.6.2</version>
     </dependency>
     <dependency>
       <groupId>rhino</groupId>
