@@ -29,6 +29,8 @@ public final class EMF {
             Persistence.createEntityManagerFactory("transactions-optional");
 
     private EMF() {
+        javax.persistence.criteria.QueryBuilder qb;
+        org.datanucleus.store.appengine.DatastoreConnectionFactoryImpl impl;
         //noop
     }
 
