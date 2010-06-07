@@ -68,7 +68,18 @@ public class NoopCacheCluster implements CacheCluster {
     public boolean isClusterOnline() {
         return true;
     }
-    
-    
 
+    /**
+     * {@inheritDoc}
+     */
+    public ClusterNode getCurrentNode() {
+        return null;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public ClusterNode waitUntilNodeJoinsCluster() {
+        return null;
+    }
 }

@@ -33,6 +33,20 @@ public interface CacheCluster {
      * Currently <code>TERRACOTTA</code> is the only scheme supported.
      */
     ClusterScheme getScheme();
+    
+    /**
+     * Retrieves the {@code ClusterNode} instance that corresponds to the current node.
+     * 
+     * @return the {@code ClusterNode} instance that corresponds to the current node
+     */
+    ClusterNode getCurrentNode();
+    
+    /**
+     * Waits until the current node has successfully joined the cluster.
+     * 
+     * @return the {@code ClusterNode} instance that corresponds to the current node
+     */
+    ClusterNode waitUntilNodeJoinsCluster();
 
     /**
      * Get all the nodes in the cluster
