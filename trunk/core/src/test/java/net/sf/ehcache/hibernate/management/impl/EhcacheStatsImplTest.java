@@ -1,12 +1,11 @@
 package net.sf.ehcache.hibernate.management.impl;
 
-import net.sf.ehcache.Cache;
-import net.sf.ehcache.CacheManager;
-import org.junit.BeforeClass;
-import org.junit.Test;
-
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
+import net.sf.ehcache.CacheManager;
+
+import org.junit.BeforeClass;
+import org.junit.Test;
 
 /**
  * @author Alex Snaps
