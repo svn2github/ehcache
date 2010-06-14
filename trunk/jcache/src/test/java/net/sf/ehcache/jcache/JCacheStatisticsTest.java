@@ -55,18 +55,21 @@ public class JCacheStatisticsTest extends AbstractCacheTest {
         //Set size so the second element overflows to disk.
         Ehcache ehcache = new net.sf.ehcache.Cache("testStatistics", 1, true, false, 5, 2);
         manager.addCache(ehcache);
+        ehcache.setStatisticsEnabled(true);
         JCache cache = new JCache(ehcache, null);
         exerciseStatistics(cache);
 
         //Exercise aftter setting accuracy
         ehcache = new net.sf.ehcache.Cache("testStatistics2", 1, true, false, 5, 2);
         manager.addCache(ehcache);
+        ehcache.setStatisticsEnabled(true);
         cache = new JCache(ehcache, null);
         cache.setStatisticsAccuracy(CacheStatistics.STATISTICS_ACCURACY_NONE);
         exerciseStatistics(cache);
 
         ehcache = new net.sf.ehcache.Cache("testStatistics4", 1, true, false, 5, 2);
         manager.addCache(ehcache);
+        ehcache.setStatisticsEnabled(true);
         cache = new JCache(ehcache, null);
         cache.setStatisticsAccuracy(CacheStatistics.STATISTICS_ACCURACY_BEST_EFFORT);
         exerciseStatistics(cache);
@@ -128,6 +131,7 @@ public class JCacheStatisticsTest extends AbstractCacheTest {
 
         Ehcache ehcache = new net.sf.ehcache.Cache("test", 1, true, false, 5, 2);
         manager.addCache(ehcache);
+        ehcache.setStatisticsEnabled(true);
         Cache cache = new JCache(ehcache, null);
         cache.put("key1", "value1");
         cache.put("key2", "value1");
@@ -169,6 +173,7 @@ public class JCacheStatisticsTest extends AbstractCacheTest {
         //Set size so the second element overflows to disk.
         Ehcache ehcache = new net.sf.ehcache.Cache("test", 1, true, false, 5, 2);
         manager.addCache(ehcache);
+        ehcache.setStatisticsEnabled(true);
         Cache cache = new JCache(ehcache, null);
 
         cache.put("key1", "value1");
@@ -195,6 +200,7 @@ public class JCacheStatisticsTest extends AbstractCacheTest {
         //set to 0 to make it run slow
         Ehcache ehcache = new net.sf.ehcache.Cache("test", 0, true, false, 5, 2);
         manager.addCache(ehcache);
+        ehcache.setStatisticsEnabled(true);
         Cache cache = new JCache(ehcache, null);
         JCacheStatistics statistics = (JCacheStatistics) cache.getCacheStatistics();
         float averageGetTime = statistics.getAverageGetTime();
@@ -225,6 +231,7 @@ public class JCacheStatisticsTest extends AbstractCacheTest {
         //set to 0 to make it run slow
         Ehcache ehcache = new net.sf.ehcache.Cache("test", 10, false, false, 2, 2);
         manager.addCache(ehcache);
+        ehcache.setStatisticsEnabled(true);
         Cache cache = new JCache(ehcache, null);
         JCacheStatistics statistics = (JCacheStatistics) cache.getCacheStatistics();
         assertEquals(0L, statistics.getEvictionCount());

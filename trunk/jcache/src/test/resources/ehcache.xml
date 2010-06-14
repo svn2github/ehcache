@@ -38,7 +38,8 @@
            maxElementsInMemory="1000"
            eternal="true"
            overflowToDisk="false"
-           diskPersistent="true"
+           diskPersistent="false"
+           statistics="true"
             />
 
     <!-- Sample cache named sampleCacheNoIdle, which does not specify the optional idle time -->

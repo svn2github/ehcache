@@ -609,7 +609,7 @@ public class JCacheTest extends AbstractCacheTest {
         // 273 ms v1.42 DiskStore
         Ehcache diskOnlyEhcache = new net.sf.ehcache.Cache("testDiskOnly", 0, true, false, 5, 2);
         manager.addCache(diskOnlyEhcache);
-        Cache diskOnlyCache = new JCache(ehcache);
+        Cache diskOnlyCache = new JCache(diskOnlyEhcache);
         time = stopWatch.getElapsedTime();
         for (int i = 0; i < 5000; i++) {
             Integer key = new Integer(i);
@@ -641,7 +641,7 @@ public class JCacheTest extends AbstractCacheTest {
         // 47 ms v1.42 DiskStore
         Ehcache m500d500Ehcache = new net.sf.ehcache.Cache("m500d500Cache", 500, true, false, 5, 2);
         manager.addCache(m500d500Ehcache);
-        Cache m500d500Cache = new JCache(m1d999Ehcache);
+        Cache m500d500Cache = new JCache(m500d500Ehcache);
 
         time = stopWatch.getElapsedTime();
         for (int i = 0; i < 5000; i++) {
@@ -889,6 +889,7 @@ public class JCacheTest extends AbstractCacheTest {
     public void testCacheStatistics() throws Exception {
         Ehcache ehcache = new net.sf.ehcache.Cache("testCacheStatistics", 1, true, false, 5, 2);
         manager.addCache(ehcache);
+        ehcache.setStatisticsEnabled(true);
         Cache cache = new JCache(ehcache);
         cache.put("key1", "value1");
         cache.put("key2", "value1");
