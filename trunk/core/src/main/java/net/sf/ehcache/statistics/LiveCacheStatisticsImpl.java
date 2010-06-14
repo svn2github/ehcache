@@ -21,6 +21,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
@@ -34,6 +37,8 @@ import net.sf.ehcache.Statistics;
  */
 public class LiveCacheStatisticsImpl implements LiveCacheStatistics, LiveCacheStatisticsData {
     
+    private static final Logger LOG = LoggerFactory.getLogger(LiveCacheStatisticsImpl.class.getName());
+
     private static final int MIN_MAX_DEFAULT_VALUE = -1;
 
     private final AtomicBoolean statisticsEnabled = new AtomicBoolean(true);
@@ -300,6 +305,10 @@ public class LiveCacheStatisticsImpl implements LiveCacheStatistics, LiveCacheSt
      * {@inheritDoc}
      */
     public void registerCacheUsageListener(CacheUsageListener cacheUsageListener) throws IllegalStateException {
+        if (!isStatisticsEnabled()) {
+            LOG.warn("Registering a CacheUsageListener on {} whose statistics are currently disabled.  "
+                    + "No events will be fired until statistics are enabled.", cache.getName());
+        }
         listeners.add(cacheUsageListener);
     }
 
