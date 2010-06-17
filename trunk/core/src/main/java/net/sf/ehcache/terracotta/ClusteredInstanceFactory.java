@@ -73,4 +73,9 @@ public interface ClusteredInstanceFactory {
      * @return the identifier as a string
      */
     String getUUID();
+    
+    /**
+     * Cleans up any resources left behind after the shutdown of the associated CacheManager
+     */
+    void shutdown();
 }

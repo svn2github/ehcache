@@ -1088,6 +1088,9 @@ public class CacheManager {
                 if (this == singleton) {
                     singleton = null;
                 }
+                if (terracottaClusteredInstanceFactory != null) {
+                    terracottaClusteredInstanceFactory.shutdown();
+                }
                 removeShutdownHook();
             }
         }
