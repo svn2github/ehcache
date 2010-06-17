@@ -93,7 +93,7 @@ abstract class DiskStorageFactory<T extends ElementSubstitute> implements Elemen
      * 
      * @param dataFile
      */
-    DiskStorageFactory(File dataFile, long expiryInterval, long queueCapacity, RegisteredEventListeners eventService) {
+    DiskStorageFactory(File dataFile, long expiryInterval, long queueCapacity, RegisteredEventListeners eventService, final boolean daemonWriter) {
         this.file = dataFile;
         try {
             data = new RandomAccessFile(file, "rw");
@@ -104,7 +104,9 @@ abstract class DiskStorageFactory<T extends ElementSubstitute> implements Elemen
         
         diskWriter = new ScheduledThreadPoolExecutor(1, new ThreadFactory() {
             public Thread newThread(Runnable r) {
-                return new Thread(r, file.getName());
+                Thread t = new Thread(r, file.getName());
+                t.setDaemon(daemonWriter);
+                return t;
             }
         });
         this.diskQueue = diskWriter.getQueue();

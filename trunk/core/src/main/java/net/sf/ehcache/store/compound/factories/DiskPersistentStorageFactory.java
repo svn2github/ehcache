@@ -85,7 +85,7 @@ public class DiskPersistentStorageFactory extends DiskStorageFactory<ElementSubs
      */
     public DiskPersistentStorageFactory(Ehcache cache, String diskPath) {
         super(getDataFile(diskPath, cache), cache.getCacheConfiguration().getDiskExpiryThreadIntervalSeconds(),
-                cache.getCacheConfiguration().getDiskSpoolBufferSizeMB(), cache.getCacheEventNotificationService());
+                cache.getCacheConfiguration().getDiskSpoolBufferSizeMB(), cache.getCacheEventNotificationService(), false);
         
         indexFile = new File(getDataFile().getParentFile(), getIndexFileName(cache));
         flushTask = new IndexWriteTask(indexFile, cache.getCacheConfiguration().isClearOnFlush());
