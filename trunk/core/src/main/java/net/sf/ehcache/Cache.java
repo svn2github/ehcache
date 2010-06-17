@@ -948,7 +948,7 @@ public class Cache implements Ehcache, StoreListener {
 
             if (configuration.getMaxElementsInMemory() == 0) {
                 LOG.warn("Cache: " + configuration.getName() + " has a maxElementsInMemory of 0.  " +
-                        "In Ehcache 2.0 this has been changed to mean a store with no capacity limit.");
+                        "In Ehcache 2.0 this has been changed to mean a store with no capacity limit. Set it to 1 if you want no elements cached in memory");
             }
 
             final Store store;
