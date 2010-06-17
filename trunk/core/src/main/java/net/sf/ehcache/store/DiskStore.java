@@ -33,6 +33,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -1373,10 +1374,16 @@ public class DiskStore extends AbstractStore implements CacheConfigurationListen
         DiskElement[] elements = new DiskElement[offsets.length];
         Iterator iterator = map.values().iterator();
         for (int i = 0; i < offsets.length; i++) {
-            for (int j = 0; j < offsets[i]; j++) {
-                iterator.next();
+            try {
+                for (int j = 0; j < offsets[i]; j++) {
+                    iterator.next();
+                }
+                elements[i] = (DiskElement) iterator.next();
+            } catch (NoSuchElementException e) {
+                DiskElement[] trimmed = new DiskElement[i];
+                System.arraycopy(elements, 0, trimmed, 0, i);
+                return trimmed;
             }
-            elements[i] = (DiskElement) iterator.next();
         }
         return elements;
     }
