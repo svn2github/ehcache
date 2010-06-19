@@ -1,5 +1,5 @@
 /**
- *  Copyright 2003-2009 Terracotta, Inc.
+ *  Copyright 2003-2010 Terracotta, Inc.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -17,25 +17,27 @@
 
 package net.sf.ehcache.googleappengine;
 
-import com.google.appengine.api.memcache.MemcacheService;
-import com.google.appengine.api.memcache.MemcacheServiceFactory;
-import com.google.appengine.api.memcache.Stats;
-import net.sf.ehcache.CacheManager;
-import net.sf.ehcache.Ehcache;
-import net.sf.ehcache.Statistics;
+import java.io.IOException;
+import java.io.PrintWriter;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.io.PrintWriter;
+
+import com.google.appengine.api.memcache.MemcacheService;
+import com.google.appengine.api.memcache.MemcacheServiceFactory;
+import com.google.appengine.api.memcache.Stats;
+
+import net.sf.ehcache.CacheManager;
+import net.sf.ehcache.Ehcache;
+import net.sf.ehcache.Statistics;
 
 /**
  * Display statistics about Ehcache and MemCache
- * todo: i18n, number formatting, etc...
+ * TODO: i18n, number formatting, etc...
  *
- * @author &eacute;drik LIME
+ * @author C&eacute;drik LIME
  */
 public class CacheStatisticsServlet extends HttpServlet {
 
@@ -51,7 +53,7 @@ public class CacheStatisticsServlet extends HttpServlet {
      */
     @Override
     public String getServletInfo() {
-        return "GAE MemCache Statistics, Copyright (c) 2009 Terracotta";
+        return "GAE MemCache Statistics, Copyright (c) 2009-2010 Terracotta";
     }
 
     /**
@@ -66,7 +68,11 @@ public class CacheStatisticsServlet extends HttpServlet {
         MemcacheService service = MemcacheServiceFactory.getMemcacheService();
         Stats mcStats = service.getStatistics();
 
-        out.println("MemCache Statistics: " + service.getNamespace());
+        String cacheServiceNamespace = "";
+        if (service.getNamespace() != null) {
+			cacheServiceNamespace = " (namespace: "+service.getNamespace() + ')';
+		}
+        out.println("AppEngine MemCache Statistics" + cacheServiceNamespace + ':');
 
         out.print("ItemCount: ");
         out.print(mcStats.getItemCount());
@@ -95,7 +101,7 @@ public class CacheStatisticsServlet extends HttpServlet {
             String ehCacheManagerName = ehCacheManager.getName() + " (" + ehCacheManager.getStatus().toString() + ')';
             String[] ehCacheNames = ehCacheManager.getCacheNames();
             for (String ehCacheName : ehCacheNames) {
-                out.println("Ehcache statistics " + ehCacheManagerName + ": " + ehCacheName);
+                out.println("Ehcache statistics for " + ehCacheManagerName + ": " + ehCacheName);
                 Ehcache ehCache = ehCacheManager.getEhcache(ehCacheName);
                 Statistics ehStats = ehCache.getStatistics();
 
@@ -144,9 +150,8 @@ public class CacheStatisticsServlet extends HttpServlet {
         // <strong>NOTE</strong> - This header will be overridden
         // automatically if a <code>RequestDispatcher.forward()</code> call is
         // ultimately invoked.
-        //resp.setHeader("Pragma", "No-cache"); // HTTP 1.0 //$NON-NLS-1$ //$NON-NLS-2$
-        // HTTP 1.1 //$NON-NLS-1$
-        response.setHeader("Cache-Control", "no-cache,no-store,max-age=0");
+        //resp.setHeader("Pragma", "No-cache"); // HTTP 1.0
+        response.setHeader("Cache-Control", "no-cache,no-store,max-age=0");// HTTP 1.1
         // should we decide to enable caching, here are the current vary:
         response.addHeader("Vary", "Accept-Language,Accept-Encoding,Accept-Charset");
     }
