@@ -1,5 +1,5 @@
 /**
- *  Copyright 2003-2009 Terracotta, Inc.
+ *  Copyright 2003-2010 Terracotta, Inc.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -17,16 +17,18 @@
 
 package net.sf.ehcache.googleappengine;
 
+import java.util.Properties;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.google.appengine.api.memcache.MemcacheService;
 import com.google.appengine.api.memcache.MemcacheServiceFactory;
+
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.event.CacheEventListener;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.util.Properties;
 
 /**
  * Listens to {@link net.sf.ehcache.CacheManager} and {@link net.sf.ehcache.Cache} events and propagates those to
@@ -73,8 +75,7 @@ public class AppEngineCacheEventListener implements CacheEventListener, Cloneabl
             if (LOG.isDebugEnabled()) {
                 LOG.debug("put in MemCache element with key: " + element.getKey());
             }
-            MemcacheService memCache = MemcacheServiceFactory.getMemcacheService();
-            memCache.setNamespace(cache.getName());
+            MemcacheService memCache = MemcacheServiceFactory.getMemcacheService(cache.getName());
             memCache.put(element.getKey(), element.getValue());
         }
     }
@@ -87,8 +88,7 @@ public class AppEngineCacheEventListener implements CacheEventListener, Cloneabl
             if (LOG.isDebugEnabled()) {
                 LOG.debug("update in MemCache element with key: " + element.getKey());
             }
-            MemcacheService memCache = MemcacheServiceFactory.getMemcacheService();
-            memCache.setNamespace(cache.getName());
+            MemcacheService memCache = MemcacheServiceFactory.getMemcacheService(cache.getName());
             memCache.put(element.getKey(), element.getValue());
         }
     }
@@ -121,8 +121,7 @@ public class AppEngineCacheEventListener implements CacheEventListener, Cloneabl
             if (LOG.isDebugEnabled()) {
                 LOG.debug("delete in MemCache element with key: " + element.getKey());
             }
-            MemcacheService memCache = MemcacheServiceFactory.getMemcacheService();
-            memCache.setNamespace(cache.getName());
+            MemcacheService memCache = MemcacheServiceFactory.getMemcacheService(cache.getName());
             memCache.delete(element.getKey());
         }
     }

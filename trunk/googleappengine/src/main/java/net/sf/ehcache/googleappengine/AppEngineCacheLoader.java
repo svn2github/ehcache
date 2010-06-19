@@ -1,5 +1,5 @@
 /**
- *  Copyright 2003-2009 Terracotta, Inc.
+ *  Copyright 2003-2010 Terracotta, Inc.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -17,15 +17,16 @@
 
 package net.sf.ehcache.googleappengine;
 
+import java.util.Collection;
+import java.util.Map;
+
 import com.google.appengine.api.memcache.MemcacheService;
 import com.google.appengine.api.memcache.MemcacheServiceFactory;
+
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Status;
 import net.sf.ehcache.loader.CacheLoader;
-
-import java.util.Collection;
-import java.util.Map;
 
 /**
  * To search against MemCache on a local cache miss, use cache.getWithLoader() together with a CacheLoader for MemCache.
@@ -36,7 +37,7 @@ import java.util.Map;
  * @see "http://ehcache.org/documentation/cache_loaders.html"
  */
 public class AppEngineCacheLoader implements CacheLoader {
-    private String cacheName; 
+    private String cacheName;
     private String guid;
     private MemcacheService memCache;
 
@@ -60,8 +61,7 @@ public class AppEngineCacheLoader implements CacheLoader {
      * {@inheritDoc}
      */
     public void init() {
-        memCache = MemcacheServiceFactory.getMemcacheService();
-        memCache.setNamespace(cacheName);
+        memCache = MemcacheServiceFactory.getMemcacheService(cacheName);
     }
 
     /**
