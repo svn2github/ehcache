@@ -4,8 +4,7 @@ $Id: CHANGELOG.txt,v 1.31 2006/03/07 00:05:56 gregluck Exp $
 
     <!-- Features and Enhancements -->
     <action dev="Greg Luck" type="add">
-        Add contribution by CŽdric Lime with integration to GAE caching infrastructure
+        Add contribution by C&eacute;drik Lime with integration to GAE caching infrastructure
     </action>
 
 </release>
-
