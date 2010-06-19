@@ -3,6 +3,10 @@
     <application>gregrlucksamplejpapp</application>
     <version>3</version>
 
+	<admin-console>
+		<page name="Cache statistics" url="/_ah/stats/cache" />
+	</admin-console>
+
     <system-properties>
         <property name="java.util.logging.config.file" value="WEB-INF/classes/logging.properties"/>
     </system-properties>
