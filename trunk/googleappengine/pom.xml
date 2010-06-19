@@ -43,7 +43,7 @@
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
-            <version>1.5.8</version>
+            <version>${slf4j.version}</version>
             <scope>compile</scope>
         </dependency>
 
@@ -51,14 +51,14 @@
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-jdk14</artifactId>
-            <version>1.5.8</version>
+            <version>${slf4j.version}</version>
             <scope>runtime</scope>
         </dependency>
 
         <dependency>
             <groupId>com.google.appengine</groupId>
             <artifactId>appengine-api-1.0-sdk</artifactId>
-            <version>1.3.1</version>
+            <version>${gae.version}</version>
             <scope>compile</scope>
         </dependency>
         <!-- Provided dependencies -->
@@ -81,21 +81,21 @@
         <dependency>
             <groupId>com.google.appengine</groupId>
             <artifactId>appengine-api-labs</artifactId>
-            <version>1.3.1</version>
+            <version>${gae.version}</version>
             <scope>test</scope>
         </dependency>
         <!--
         <dependency>
             <groupId>com.google.appengine</groupId>
             <artifactId>appengine-api-1.0-runtime</artifactId>
-            <version>1.3.1</version>
+            <version>${gae.version}</version>
             <scope>test</scope>
         </dependency>
         -->
         <dependency>
             <groupId>com.google.appengine</groupId>
             <artifactId>appengine-tools-sdk</artifactId>
-            <version>1.3.1</version>
+            <version>${gae.version}</version>
             <scope>test</scope>
         </dependency>
         <!--servlet and jsp api -->
@@ -115,7 +115,7 @@
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
-            <version>1.5.8</version>
+            <version>${slf4j.version}</version>
             <scope>compile</scope>
         </dependency>
 
@@ -123,14 +123,14 @@
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-jdk14</artifactId>
-            <version>1.5.8</version>
+            <version>${slf4j.version}</version>
             <scope>runtime</scope>
         </dependency>
         <!--app engine related dependencies-->
         <dependency>
             <groupId>com.google.appengine</groupId>
             <artifactId>appengine-api-1.0-sdk</artifactId>
-            <version>1.3.1</version>
+            <version>${gae.version}</version>
         </dependency>
         <dependency>
             <groupId>com.google.appengine.orm</groupId>
@@ -284,7 +284,7 @@
         <dependency>
             <groupId>commons-lang</groupId>
             <artifactId>commons-lang</artifactId>
-            <version>2.4</version>
+            <version>2.5</version>
         </dependency>
         <dependency>
             <groupId>commons-logging</groupId>
@@ -305,14 +305,14 @@
                 </exclusion>
             </exclusions>
         </dependency>
-
-
     </dependencies>
 
     <properties>
         <project_charset>UTF-8</project_charset>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+        <gae.version>1.3.4</gae.version>
+        <slf4j.version>1.5.11</slf4j.version>
     </properties>
 
     <build>
@@ -579,6 +579,10 @@
         <repository>
             <id>datanucleus</id>
             <url>http://www.datanucleus.org/downloads/maven2</url>
+        </repository>
+        <repository>
+        	<id>gae</id>
+        	<url>http://maven-gae-plugin.googlecode.com/svn/repository</url>
         </repository>
         <repository>
             <id>JBoss Repo</id>
