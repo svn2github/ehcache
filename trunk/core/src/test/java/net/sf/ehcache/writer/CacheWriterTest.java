@@ -72,6 +72,7 @@ public class CacheWriterTest extends AbstractCacheTest {
         assertNotNull(cache.getRegisteredCacheWriter());
 
         TestCacheWriter writer = (TestCacheWriter) cache.getRegisteredCacheWriter();
+        assertTrue(writer.isInitialized());
 
         Element el1 = new Element("key1", "value1");
         Element el2 = new Element("key2", "value2");
@@ -101,6 +102,7 @@ public class CacheWriterTest extends AbstractCacheTest {
         assertNotNull(cache.getRegisteredCacheWriter());
 
         TestCacheWriter writer = (TestCacheWriter) cache.getRegisteredCacheWriter();
+        assertTrue(writer.isInitialized());
 
         Element el1 = new Element("key1", "value1");
         Element el2 = new Element("key2", "value2");
@@ -134,6 +136,7 @@ public class CacheWriterTest extends AbstractCacheTest {
 
         TestCacheWriter writer = new TestCacheWriter(new Properties());
         cache.registerCacheWriter(writer);
+        assertTrue(writer.isInitialized());
 
         Element el1 = new Element("key1", "value1");
         Element el2 = new Element("key2", "value2");
@@ -176,6 +179,7 @@ public class CacheWriterTest extends AbstractCacheTest {
 
         TestCacheWriterException writer = new TestCacheWriterException();
         cache.registerCacheWriter(writer);
+        assertTrue(writer.isInitialized());
 
         // without listeners notification
         cache.getCacheConfiguration().getCacheWriterConfiguration().setNotifyListenersOnException(false);
@@ -261,6 +265,7 @@ public class CacheWriterTest extends AbstractCacheTest {
 
         CacheManager.getInstance().addCache(cache);
         TestCacheWriter writer = (TestCacheWriter) cache.getRegisteredCacheWriter();
+        assertTrue(writer.isInitialized());
         assertEquals(0, writer.getWrittenElements().size());
 
         Element el1 = new Element("key1", "value1");
@@ -305,6 +310,7 @@ public class CacheWriterTest extends AbstractCacheTest {
         assertNotNull(cache.getRegisteredCacheWriter());
 
         CacheManager.getInstance().addCache(cache);
+        assertTrue(writer.isInitialized());
         assertEquals(0, writer.getWrittenElements().size());
 
         Element el1 = new Element("key1", "value1");
@@ -347,6 +353,7 @@ public class CacheWriterTest extends AbstractCacheTest {
 
         CacheManager.getInstance().addCache(cache);
         TestCacheWriter writer = (TestCacheWriter) cache.getRegisteredCacheWriter();
+        assertTrue(writer.isInitialized());
         assertEquals(0, writer.getWrittenElements().size());
 
         Element el1 = new Element("key1", "value1");
@@ -408,6 +415,7 @@ public class CacheWriterTest extends AbstractCacheTest {
 
         CacheManager.getInstance().addCache(cache);
         TestCacheWriter writer = (TestCacheWriter) cache.getRegisteredCacheWriter();
+        assertTrue(writer.isInitialized());
         assertEquals(0, writer.getWrittenElements().size());
 
         Element el1 = new Element("key1", "value1");
@@ -449,6 +457,7 @@ public class CacheWriterTest extends AbstractCacheTest {
         cache.registerCacheWriter(writer);
 
         CacheManager.getInstance().addCache(cache);
+        assertTrue(writer.isInitialized());
         assertEquals(0, writer.getWrittenElements().size());
 
         cache.putWithWriter(new Element("key1", "value1"));
@@ -475,6 +484,7 @@ public class CacheWriterTest extends AbstractCacheTest {
         cache.registerCacheWriter(writer);
 
         CacheManager.getInstance().addCache(cache);
+        assertTrue(writer.isInitialized());
         assertEquals(0, writer.getWrittenElements().size());
 
         cache.putWithWriter(new Element("key1", "value1"));
@@ -507,6 +517,7 @@ public class CacheWriterTest extends AbstractCacheTest {
         cache.registerCacheWriter(writer);
 
         CacheManager.getInstance().addCache(cache);
+        assertTrue(writer.isInitialized());
         assertEquals(0, writer.getWrittenElements().size());
 
         cache.putWithWriter(new Element("key1", "value1"));
@@ -537,6 +548,7 @@ public class CacheWriterTest extends AbstractCacheTest {
         cache.registerCacheWriter(writer);
 
         CacheManager.getInstance().addCache(cache);
+        assertTrue(writer.isInitialized());
         assertEquals(0, writer.getWrittenElements().size());
 
         cache.putWithWriter(new Element("key1", "value1"));
@@ -613,6 +625,7 @@ public class CacheWriterTest extends AbstractCacheTest {
         cache.registerCacheWriter(writer);
 
         CacheManager.getInstance().addCache(cache);
+        assertTrue(writer.isInitialized());
         assertEquals(0, writer.getWrittenElements().size());
 
         cache.putWithWriter(new Element("key1", "value1"));
@@ -647,6 +660,7 @@ public class CacheWriterTest extends AbstractCacheTest {
         cache.registerCacheWriter(writer);
 
         CacheManager.getInstance().addCache(cache);
+        assertTrue(writer.isInitialized());
         assertEquals(0, writer.getWrittenElements().size());
 
         cache.putWithWriter(new Element("key1", "value1"));
@@ -681,6 +695,7 @@ public class CacheWriterTest extends AbstractCacheTest {
         cache.registerCacheWriter(writer);
 
         CacheManager.getInstance().addCache(cache);
+        assertTrue(writer.isInitialized());
         assertEquals(0, writer.getWrittenElements().size());
 
         cache.putWithWriter(new Element("key1", "value1"));
@@ -713,6 +728,7 @@ public class CacheWriterTest extends AbstractCacheTest {
         cache.registerCacheWriter(writer);
 
         CacheManager.getInstance().addCache(cache);
+        assertTrue(writer.isInitialized());
         assertEquals(0, writer.getWrittenElements().size());
 
         cache.putWithWriter(new Element("key1", "value1"));
@@ -765,6 +781,7 @@ public class CacheWriterTest extends AbstractCacheTest {
         cache.registerCacheWriter(writer);
 
         CacheManager.getInstance().addCache(cache);
+        assertTrue(writer.isInitialized());
         assertEquals(0, writer.getWrittenElements().size());
 
         for (int i = 0; i < 30; i++) {

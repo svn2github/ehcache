@@ -8,7 +8,7 @@ import net.sf.ehcache.CacheEntry;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Element;
 
-public class TestCacheWriterSlow extends AbstractCacheWriter {
+public class TestCacheWriterSlow extends AbstractTestCacheWriter {
     private final Map<Object, Element> writtenElements = new HashMap<Object, Element>();
     private final Map<Object, Element> deletedElements = new HashMap<Object, Element>();
 

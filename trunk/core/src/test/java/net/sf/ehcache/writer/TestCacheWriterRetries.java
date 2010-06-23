@@ -9,7 +9,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
-public class TestCacheWriterRetries extends AbstractCacheWriter {
+public class TestCacheWriterRetries extends AbstractTestCacheWriter {
     private final int retries;
     private final Map<Object, Element> writtenElements = new HashMap<Object, Element>();
     private final Map<Object, Integer> retryCount = new HashMap<Object, Integer>();
@@ -69,12 +69,14 @@ public class TestCacheWriterRetries extends AbstractCacheWriter {
         increaseWriteCount(key);
     }
 
+    @Override
     public synchronized void write(Element element) throws CacheException {
         final Object key = element.getObjectKey();
         failUntilNoMoreRetries(key);
         put(key, element);
     }
 
+    @Override
     public synchronized void writeAll(Collection<Element> elements) throws CacheException {
         Iterator<Element> it = elements.iterator();
         while (it.hasNext()) {
@@ -93,12 +95,14 @@ public class TestCacheWriterRetries extends AbstractCacheWriter {
         increaseDeleteCount(key);
     }
 
+    @Override
     public synchronized void delete(CacheEntry entry) throws CacheException {
         Object key = entry.getKey();
         failUntilNoMoreRetries(key);
         remove(key);
     }
 
+    @Override
     public synchronized void deleteAll(Collection<CacheEntry> entries) throws CacheException {
         Iterator<CacheEntry> it = entries.iterator();
         while (it.hasNext()) {

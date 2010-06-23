@@ -2743,7 +2743,12 @@ public class Cache implements Ehcache, StoreListener {
      * {@inheritDoc}
      */
     public void registerCacheWriter(CacheWriter cacheWriter) {
-        this.registeredCacheWriter = cacheWriter;
+        synchronized (this) {
+            this.registeredCacheWriter = cacheWriter;
+            if (!status.equals(Status.STATUS_UNINITIALISED)) {
+                initialiseRegisteredCacheWriter();
+            }
+        }
         initialiseCacheWriterManager(false);
     }
 

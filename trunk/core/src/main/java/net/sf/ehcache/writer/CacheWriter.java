@@ -77,7 +77,15 @@ public interface CacheWriter {
      * Notifies writer to initialise themselves.
      * <p/>
      * This method is called during the Cache's initialise method after it has changed it's
-     * status to alive. Cache operations are legal in this method.
+     * status to alive. Cache operations are legal in this method. If you register a cache writer
+     * manually after a cache has been initialised already, this method will be called on the
+     * cache writer as soon as it has been registered.
+     * <p/>
+     * Note that if you reuse cache writer instances or create a factory that returns the
+     * same cache writer instance as a singleton, your <code>init</code> method should be able
+     * to handle that situation. Unless you perform this multiple usage of a cache writer yourself,
+     * Ehcache will not do this though. So in the majority of the use cases, you don't need to do
+     * anything special. 
      *
      * @throws net.sf.ehcache.CacheException
      */
