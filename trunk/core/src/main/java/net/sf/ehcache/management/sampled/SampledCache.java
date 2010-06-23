@@ -279,6 +279,7 @@ public class SampledCache extends BaseEmitterBean implements SampledCacheMBean, 
      */
     public void enableStatistics() {
         if (!cache.isStatisticsEnabled()) {
+            cache.setSampledStatisticsEnabled(true);
             cache.setStatisticsEnabled(true);
             sendNotification(CACHE_STATISTICS_ENABLED, getCacheAttributes(), getImmutableCacheName());
         }
@@ -291,6 +292,7 @@ public class SampledCache extends BaseEmitterBean implements SampledCacheMBean, 
      */
     public void disableStatistics() {
         if (cache.isStatisticsEnabled()) {
+            cache.setSampledStatisticsEnabled(false);
             cache.setStatisticsEnabled(false);
             sendNotification(CACHE_STATISTICS_ENABLED, getCacheAttributes(), getImmutableCacheName());
         }
@@ -710,6 +712,7 @@ public class SampledCache extends BaseEmitterBean implements SampledCacheMBean, 
         result.put("MemoryStoreEvictionPolicy", getConfigMemoryStoreEvictionPolicy());
         result.put("NodeCoherent", isNodeCoherent());
         result.put("ClusterCoherent", isClusterCoherent());
+        result.put("StatisticsEnabled", isStatisticsEnabled());
         return result;
     }
 
