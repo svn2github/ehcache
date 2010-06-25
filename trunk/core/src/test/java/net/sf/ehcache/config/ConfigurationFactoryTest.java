@@ -1287,7 +1287,7 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
         // <terracottaConfig>
         //  <url>localhost:9510</url>
         // </terracottaConfig>
-        TerracottaConfigConfiguration tcConfig = configuration.getTerracottaConfiguration();
+        GlobalTerracottaConfiguration tcConfig = configuration.getTerracottaConfiguration();
         assertNotNull(tcConfig);
         assertEquals("localhost:9510", tcConfig.getUrl());
     }
@@ -1334,7 +1334,7 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
         // <terracottaConfig>
         //  <tc-config> ... </tc-config>
         // </terracottaConfig>
-        TerracottaConfigConfiguration tcConfig = configuration.getTerracottaConfiguration();
+        GlobalTerracottaConfiguration tcConfig = configuration.getTerracottaConfiguration();
         assertNotNull(tcConfig);
         assertEquals(null, tcConfig.getUrl());
         String embeddedConfig = tcConfig.getEmbeddedConfig();
@@ -1363,7 +1363,7 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
         // <terracottaConfig>
         // <tc-config> ... </tc-config>
         // </terracottaConfig>
-        TerracottaConfigConfiguration tcConfig = configuration
+        GlobalTerracottaConfiguration tcConfig = configuration
                 .getTerracottaConfiguration();
         assertNotNull(tcConfig);
         assertEquals(null, tcConfig.getUrl());

@@ -17,7 +17,7 @@
 package net.sf.ehcache;
 
 import net.sf.ehcache.config.CacheConfiguration;
-import net.sf.ehcache.config.TerracottaConfigConfiguration;
+import net.sf.ehcache.config.GlobalTerracottaConfiguration;
 import net.sf.ehcache.config.TerracottaConfiguration;
 import net.sf.ehcache.terracotta.ClusteredInstanceFactory;
 import net.sf.ehcache.util.ClassLoaderUtil;
@@ -52,7 +52,7 @@ class TerracottaClusteredInstanceHelper {
      * @return the selected terracotta store factory
      */
     static ClusteredInstanceFactory newClusteredInstanceFactory(Map<String, CacheConfiguration> cacheConfigs,
-            TerracottaConfigConfiguration terracottaConfig) {
+            GlobalTerracottaConfiguration terracottaConfig) {
         Class factoryClass = null;
 
         try {
@@ -148,7 +148,7 @@ class TerracottaClusteredInstanceHelper {
         }
 
         return (ClusteredInstanceFactory) ClassLoaderUtil.createNewInstance(factoryClass.getName(),
-                new Class[] { TerracottaConfigConfiguration.class }, new Object[] { terracottaConfig });
+                new Class[] { GlobalTerracottaConfiguration.class }, new Object[] { terracottaConfig });
     }
 
 }

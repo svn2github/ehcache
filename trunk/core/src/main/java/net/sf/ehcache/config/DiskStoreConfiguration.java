@@ -16,7 +16,6 @@
 
 package net.sf.ehcache.config;
 
-
 import java.io.File;
 
 import org.slf4j.Logger;
@@ -25,25 +24,23 @@ import org.slf4j.LoggerFactory;
 /**
  * A class to represent DiskStore configuration
  * e.g. <diskStore path="java.io.tmpdir" />
- *
+ * 
  * @author <a href="mailto:gluck@thoughtworks.com">Greg Luck</a>
  * @version $Id$
  */
 public final class DiskStoreConfiguration {
 
     private static final Logger LOG = LoggerFactory.getLogger(DiskStoreConfiguration.class.getName());
-    
+
     /**
      * The path as specified in the config
      */
     private String originalPath;
 
-
     /**
      * The path to the directory where .data and .index files will be created.
      */
     private String path;
-
 
     /**
      * A constants class for environment variables used in disk store paths
@@ -72,20 +69,31 @@ public final class DiskStoreConfiguration {
     }
 
     /**
+     * Builder method to set the disk store path, see {@link #setPath(String)}
+     * 
+     * @return this configuration instance
+     */
+    public final DiskStoreConfiguration path(final String path) {
+        setPath(path);
+        return this;
+    }
+
+    /**
      * Translates and sets the path.
-     *
-     * @param path If the path contains a Java System Property token it is replaced by
-     *             its value in the running VM. Subdirectories can be specified below the property e.g. java.io.tmpdir/one.
-     *             The following properties are translated:
-     *             <ul>
-     *             <li><code>user.home</code> - User's home directory
-     *             <li><code>user.dir</code> - User's current working directory
-     *             <li><code>java.io.tmpdir</code> - Default temp file path
-     *             <li><code>ehcache.disk.store.di?r</code> - A system property you would normally specify on the command linecan specify with -DDefault temp file path
-     *             e.g. <code>java -Dehcache.disk.store.dir=/u01/myapp/diskdir ...</code>
-     *             </ul>
-     *             Additional strings can be placed before and after tokens?
-     *             e.g. <code>java.io/tmpdir/caches</code> might become <code>/tmp/caches</code>
+     * 
+     * @param path
+     *            If the path contains a Java System Property token it is replaced by
+     *            its value in the running VM. Subdirectories can be specified below the property e.g. java.io.tmpdir/one.
+     *            The following properties are translated:
+     *            <ul>
+     *            <li><code>user.home</code> - User's home directory
+     *            <li><code>user.dir</code> - User's current working directory
+     *            <li><code>java.io.tmpdir</code> - Default temp file path
+     *            <li><code>ehcache.disk.store.di?r</code> - A system property you would normally specify on the command linecan specify
+     *            with -DDefault temp file path e.g. <code>java -Dehcache.disk.store.dir=/u01/myapp/diskdir ...</code>
+     *            </ul>
+     *            Additional strings can be placed before and after tokens?
+     *            e.g. <code>java.io/tmpdir/caches</code> might become <code>/tmp/caches</code>
      */
     public final void setPath(final String path) {
         this.originalPath = path;
@@ -105,7 +113,7 @@ public final class DiskStoreConfiguration {
         translatedPath = replaceToken(Env.USER_DIR, System.getProperty(Env.USER_DIR), translatedPath);
         translatedPath = replaceToken(Env.JAVA_IO_TMPDIR, System.getProperty(Env.JAVA_IO_TMPDIR), translatedPath);
         translatedPath = replaceToken(Env.EHCACHE_DISK_STORE_DIR, System.getProperty(Env.EHCACHE_DISK_STORE_DIR), translatedPath);
-        //Remove duplicate separators: Windows and Solaris
+        // Remove duplicate separators: Windows and Solaris
         translatedPath = replaceToken(File.separator + File.separator, File.separator, translatedPath);
         LOG.debug("Disk Store Path: " + translatedPath);
         return translatedPath;
@@ -113,7 +121,7 @@ public final class DiskStoreConfiguration {
 
     /**
      * Replaces a token with replacement text.
-     *
+     * 
      * @param token
      * @param replacement
      * @param source
@@ -126,11 +134,7 @@ public final class DiskStoreConfiguration {
         } else {
             String firstFragment = source.substring(0, foundIndex);
             String lastFragment = source.substring(foundIndex + token.length(), source.length());
-            return new StringBuilder()
-                    .append(firstFragment)
-                    .append(replacement)
-                    .append(lastFragment)
-                    .toString();
+            return new StringBuilder().append(firstFragment).append(replacement).append(lastFragment).toString();
         }
     }
 

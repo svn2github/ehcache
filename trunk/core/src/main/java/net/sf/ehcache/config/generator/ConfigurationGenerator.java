@@ -23,7 +23,7 @@ import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.Configuration;
 import net.sf.ehcache.config.DiskStoreConfiguration;
 import net.sf.ehcache.config.FactoryConfiguration;
-import net.sf.ehcache.config.TerracottaConfigConfiguration;
+import net.sf.ehcache.config.GlobalTerracottaConfiguration;
 import net.sf.ehcache.config.TerracottaConfiguration;
 import net.sf.ehcache.config.CacheConfiguration.BootstrapCacheLoaderFactoryConfiguration;
 import net.sf.ehcache.config.CacheConfiguration.CacheEventListenerFactoryConfiguration;
@@ -98,7 +98,7 @@ public class ConfigurationGenerator {
             }
         }
 
-        TerracottaConfigConfiguration terracottaConfig = configuration.getTerracottaConfiguration();
+        GlobalTerracottaConfiguration terracottaConfig = configuration.getTerracottaConfiguration();
         if (terracottaConfig != null) {
             if (terracottaConfig.isUrlConfig()) {
                 builder.append(spacer).append("<terracottaConfig url=\"").append(terracottaConfig.getUrl()).append("\">");

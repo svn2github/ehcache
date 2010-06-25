@@ -389,15 +389,10 @@ public class CacheManagerTest {
     @Test
     public void testCreateCacheManagersProgrammatically() throws CacheException {
 
-        Configuration configuration = new Configuration();
+        Configuration configuration = new Configuration()
+            .defaultCache(new CacheConfiguration("defaultCache", 10))
+            .diskStore(new DiskStoreConfiguration().path("java.io.tmpdir"));
         assertNotNull(configuration);
-
-        CacheConfiguration defaultCacheConfiguration = new CacheConfiguration("defaultCache", 10);
-        configuration.addDefaultCache(defaultCacheConfiguration);
-
-        DiskStoreConfiguration diskStoreConfiguration = new DiskStoreConfiguration();
-        diskStoreConfiguration.setPath("java.io.tmpdir");
-        configuration.addDiskStore(diskStoreConfiguration);
 
         instanceManager = new CacheManager(configuration);
         assertNotNull(instanceManager);

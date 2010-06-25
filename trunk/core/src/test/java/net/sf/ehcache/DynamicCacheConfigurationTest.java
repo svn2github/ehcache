@@ -4,25 +4,24 @@
  */
 package net.sf.ehcache;
 
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
+import static java.util.concurrent.TimeUnit.SECONDS;
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.Configuration;
+
 import org.junit.Assert;
 import org.junit.Test;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static java.util.concurrent.TimeUnit.MILLISECONDS;
-import static java.util.concurrent.TimeUnit.SECONDS;
-
 /**
- *
+ * 
  * @author cdennis
  */
 public class DynamicCacheConfigurationTest extends AbstractCacheTest {
 
     private static final Logger LOG = LoggerFactory.getLogger(DynamicCacheConfigurationTest.class.getName());
-    
+
     @Test
     public void testTimeToIdleChange() throws InterruptedException {
         Cache cache = new Cache("testTimeToIdleChange", 10, false, false, 0, 10);
@@ -44,7 +43,7 @@ public class DynamicCacheConfigurationTest extends AbstractCacheTest {
         cache.getCacheConfiguration().setTimeToIdleSeconds(20);
 
         cache.put(new Element("key1", new Object()));
-        
+
         SECONDS.sleep(15);
 
         Assert.assertNotNull(cache.get("key1"));
@@ -116,7 +115,7 @@ public class DynamicCacheConfigurationTest extends AbstractCacheTest {
     @Test
     public void testTimeToIdleChangeWithCustomElements() throws InterruptedException {
         Cache cache = new Cache("testTimeToIdleChangeWithCustomElements", 10, false, false, 0, 10);
-        
+
         manager.addCache(cache);
 
         cache.put(new Element("default", new Object()));
@@ -253,7 +252,7 @@ public class DynamicCacheConfigurationTest extends AbstractCacheTest {
         }
 
         cache.getCacheConfiguration().setMaxElementsInMemory(5);
-        
+
         for (int i = 40; i < 60; i++) {
             cache.put(new Element("key" + i, new Object()));
         }
@@ -302,13 +301,11 @@ public class DynamicCacheConfigurationTest extends AbstractCacheTest {
 
     @Test
     public void testCacheWithFrozenConfig() {
-        Configuration managerConfig = new Configuration();
-        managerConfig.setDynamicConfig(false);
-        managerConfig.setDefaultCacheConfiguration(new CacheConfiguration("definedCache1", 20));
-        CacheConfiguration cacheConfig = new CacheConfiguration("definedCache", 10).eternal(true);
+        Configuration managerConfig = new Configuration()
+            .dynamicConfig(false)
+            .defaultCache(new CacheConfiguration("definedCache1", 20))
+            .cache(new CacheConfiguration("definedCache", 10).eternal(true));
 
-        managerConfig.addCache(cacheConfig);
-        
         CacheManager manager = new CacheManager(managerConfig);
 
         Cache defined = manager.getCache("definedCache");
@@ -360,7 +357,7 @@ public class DynamicCacheConfigurationTest extends AbstractCacheTest {
 
         Assert.assertEquals(10, cache.getCacheConfiguration().getMaxElementsInMemory());
         Assert.assertEquals(10, clone.getCacheConfiguration().getMaxElementsInMemory());
-        
+
         for (int i = 0; i < 20; i++) {
             cache.put(new Element("key" + i, new Object()));
             Assert.assertTrue(cache.getSize() <= 10);
@@ -372,10 +369,10 @@ public class DynamicCacheConfigurationTest extends AbstractCacheTest {
             Assert.assertTrue(clone.getSize() <= 10);
             Assert.assertTrue(clone.getMemoryStoreSize() <= 10);
         }
-        
+
         cache.getCacheConfiguration().setMaxElementsInMemory(20);
         clone.getCacheConfiguration().setMaxElementsInMemory(5);
-        
+
         for (int i = 20; i < 40; i++) {
             cache.put(new Element("key" + i, new Object()));
             Assert.assertTrue(cache.getSize() <= 20);

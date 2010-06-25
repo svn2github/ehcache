@@ -21,7 +21,7 @@ package net.sf.ehcache.config;
  * 
  * @author amiller@terracotta.org
  */
-public class TerracottaConfigConfiguration implements Cloneable {
+public class GlobalTerracottaConfiguration implements Cloneable {
     private static final String TC_CONFIG_HEADER = "<tc:tc-config xmlns:tc=\"http://www.terracotta.org/config\">";
     private static final String TC_CONFIG_FOOTER = "</tc:tc-config>";
 
@@ -35,14 +35,40 @@ public class TerracottaConfigConfiguration implements Cloneable {
      * @throws CloneNotSupportedException
      */
     @Override
-    public TerracottaConfigConfiguration clone() throws CloneNotSupportedException {
-        return (TerracottaConfigConfiguration) super.clone();
+    public GlobalTerracottaConfiguration clone() throws CloneNotSupportedException {
+        return (GlobalTerracottaConfiguration) super.clone();
+    }
+
+    /**
+     * Builder method to set the URL.
+     * 
+     * @param url
+     *            the URL to set
+     * @return this configuration instance
+     */
+    public final GlobalTerracottaConfiguration url(String url) {
+        setUrl(url);
+        return this;
+    }
+
+    /**
+     * Builder method to set the URL for a host and a port.
+     * 
+     * @param host
+     *            the host where to get the Terracotta configuration from
+     * @param port
+     *            the port on that host
+     * @return this configuration instance
+     */
+    public final GlobalTerracottaConfiguration url(String host, String port) {
+        setUrl(host + ":" + port);
+        return this;
     }
 
     /**
      * Set url
      */
-    final public void setUrl(String url) {
+    public final void setUrl(String url) {
         this.url = url;
         validateConfiguration();
     }
@@ -50,7 +76,7 @@ public class TerracottaConfigConfiguration implements Cloneable {
     /**
      * Get url string
      */
-    final public String getUrl() {
+    public final String getUrl() {
         return this.url;
     }
 

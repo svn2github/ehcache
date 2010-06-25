@@ -46,8 +46,8 @@ public class ConfigurationHelperTest extends AbstractCacheTest {
     @Test
     public void testValidParameters() {
         Configuration configuration = new Configuration();
-        CacheConfiguration defaultCache = new CacheConfiguration();
-        defaultCache.setEternal(false);
+        CacheConfiguration defaultCache = new CacheConfiguration()
+            .eternal(false);
 
         ConfigurationHelper configurationHelper =
                 new ConfigurationHelper(manager, configuration);

@@ -25,7 +25,7 @@ import net.sf.ehcache.config.ConfigurationFactory;
 import net.sf.ehcache.config.ConfigurationHelper;
 import net.sf.ehcache.config.DiskStoreConfiguration;
 import net.sf.ehcache.config.FactoryConfiguration;
-import net.sf.ehcache.config.TerracottaConfigConfiguration;
+import net.sf.ehcache.config.GlobalTerracottaConfiguration;
 import net.sf.ehcache.config.generator.ConfigurationUtil;
 import net.sf.ehcache.distribution.CacheManagerPeerListener;
 import net.sf.ehcache.distribution.CacheManagerPeerProvider;
@@ -176,9 +176,9 @@ public class CacheManager {
     private volatile ClusteredInstanceFactory terracottaClusteredInstanceFactory;
 
     /**
-     * The {@link TerracottaConfigConfiguration} used for this {@link CacheManager}
+     * The {@link GlobalTerracottaConfiguration} used for this {@link CacheManager}
      */
-    private TerracottaConfigConfiguration terracottaConfigConfiguration;
+    private GlobalTerracottaConfiguration terracottaConfigConfiguration;
 
     private AtomicBoolean terracottaClusteredInstanceFactoryCreated = new AtomicBoolean(false);
 
