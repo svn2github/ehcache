@@ -23,6 +23,7 @@ Recipes
 *----+----+
 {{{../recipes/programmatic.html}Enable Terracotta Programmatically}}|How to enable Terracotta support for Ehcache programmatically
 *----+----+
+{{{../recipes/wan.html}WAN Replication}}|3 Strategies for configuring WAN replication
 *----+----+
 {{{../recipes/cachenull.html}Caching Empty Values}}|Why caching empty values can be desirable to deflect load from the database
 *----+----+
