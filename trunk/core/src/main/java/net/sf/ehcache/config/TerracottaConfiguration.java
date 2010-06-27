@@ -22,7 +22,7 @@ import org.slf4j.LoggerFactory;
 /**
  * Class to hold the Terracotta configuration - either a pointer to the real config or a
  * container for embedded config.
- *
+ * 
  * @author Alex Miller
  * @author Geert Bevin
  */
@@ -64,26 +64,31 @@ public class TerracottaConfiguration implements Cloneable {
      * Default copy on read setting
      */
     public static final boolean DEFAULT_COPY_ON_READ = false;
-    
+
     /**
      * Default cache coherence setting
      */
     public static final boolean DEFAULT_CACHE_COHERENT = true;
-    
+
     /**
      * Default setting for synchronous-write
      */
     public static final boolean DEFAULT_SYNCHRONOUS_WRITES = false;
-    
+
     /**
      * Default setting for storageStrategy
      */
     public static final StorageStrategy DEFAULT_STORAGE_STRATEGY = StorageStrategy.CLASSIC;
 
     /**
+     * Default value for concurrency of the internal Store.
+     */
+    public static final int DEFAULT_CONCURRENCY = 0;
+
+    /**
      * Represents whether values are stored with serialization in the clustered store
      * or through Terracotta clustered identity.
-     *
+     * 
      * @author amiller
      */
     public static enum ValueMode {
@@ -97,10 +102,10 @@ public class TerracottaConfiguration implements Cloneable {
          */
         IDENTITY,
     }
-    
+
     /**
      * Represents whether keys/values are to be stored in the local vm or the Terracotta server
-     *
+     * 
      * @author Abhishek Sanoujam
      */
     public static enum StorageStrategy {
@@ -116,7 +121,7 @@ public class TerracottaConfiguration implements Cloneable {
     }
 
     private static final Logger LOG = LoggerFactory.getLogger(TerracottaConfiguration.class.getName());
-    
+
     private boolean clustered = DEFAULT_CLUSTERED;
     private ValueMode valueMode = DEFAULT_VALUE_MODE;
     private boolean coherentReads = DEFAULT_COHERENT_READS;
@@ -129,12 +134,13 @@ public class TerracottaConfiguration implements Cloneable {
     private boolean cacheXA = DEFAULT_CACHE_XA;
     private boolean synchronousWrites = DEFAULT_SYNCHRONOUS_WRITES;
     private StorageStrategy storageStrategy = DEFAULT_STORAGE_STRATEGY;
+    private int concurrency = DEFAULT_CONCURRENCY;
 
     private boolean copyOnReadSet;
 
     /**
      * Clones this object, following the usual contract.
-     *
+     * 
      * @return a copy, which independent other than configurations than cannot change.
      */
     @Override
@@ -150,8 +156,9 @@ public class TerracottaConfiguration implements Cloneable {
      * Indicates whether to cluster this cache with Terracotta.
      * <p/>
      * Defaults to {@value #DEFAULT_CLUSTERED}.
-     *
-     * @param clustered {@code true} if the cache should be clustered with Terracotta; {@code false} otherwise
+     * 
+     * @param clustered
+     *            {@code true} if the cache should be clustered with Terracotta; {@code false} otherwise
      */
     public void setClustered(boolean clustered) {
         this.clustered = clustered;
@@ -177,14 +184,15 @@ public class TerracottaConfiguration implements Cloneable {
      * Used by BeanHandler to set the copyOnRead flag during parsing
      */
     public void setCopyOnRead(boolean isCopyOnRead) {
-        LOG.warn("copyOnRead is deprecated on the <terracotta /> element, " +
-                 "please use the copyOnRead attribute on <cache /> or <defaultCache />");
+        LOG.warn("copyOnRead is deprecated on the <terracotta /> element, "
+                + "please use the copyOnRead attribute on <cache /> or <defaultCache />");
         this.copyOnReadSet = true;
         this.isCopyOnRead = isCopyOnRead;
     }
 
     /**
-     * Whether the copyOnRead was explicitly set 
+     * Whether the copyOnRead was explicitly set
+     * 
      * @return true if set by config
      */
     boolean isCopyOnReadSet() {
@@ -206,7 +214,7 @@ public class TerracottaConfiguration implements Cloneable {
     public boolean isCacheXA() {
         return this.cacheXA;
     }
-    
+
     /**
      * Used by BeanHandler to set the cacheXA flag during parsing
      */
@@ -231,11 +239,13 @@ public class TerracottaConfiguration implements Cloneable {
     }
 
     /**
-     * Sets whether this cache should use coherent reads (usually should be {@value #DEFAULT_COHERENT_READS} unless optimizing for read-only).
+     * Sets whether this cache should use coherent reads (usually should be {@value #DEFAULT_COHERENT_READS} unless optimizing for
+     * read-only).
      * <p/>
      * Defaults to {@value #DEFAULT_COHERENT_READS}.
-     *
-     * @param coherentReads {@code true} if coherent reads should be used; {@code false} otherwise
+     * 
+     * @param coherentReads
+     *            {@code true} if coherent reads should be used; {@code false} otherwise
      */
     public void setCoherentReads(boolean coherentReads) {
         LOG.warn("The attribute \"coherentReads\" in \"terracotta\" element is deprecated."
@@ -300,11 +310,13 @@ public class TerracottaConfiguration implements Cloneable {
     /**
      * Sets whether this cache should perform orphan eviction (usually should be {@value #DEFAULT_ORPHAN_EVICTION}).
      * <p/>
-     * Orphans are elements that are not present on any node in the cluster anymore and hence need additional routines to be detected since they're not locally available anywhere.
+     * Orphans are elements that are not present on any node in the cluster anymore and hence need additional routines to be detected since
+     * they're not locally available anywhere.
      * <p/>
      * Defaults to {@value #DEFAULT_ORPHAN_EVICTION}.
-     *
-     * @param orphanEviction {@code true} if orphan eviction should be used; {@code false} otherwise
+     * 
+     * @param orphanEviction
+     *            {@code true} if orphan eviction should be used; {@code false} otherwise
      */
     public void setOrphanEviction(boolean orphanEviction) {
         this.orphanEviction = orphanEviction;
@@ -330,8 +342,9 @@ public class TerracottaConfiguration implements Cloneable {
      * Set how often this cache should perform orphan eviction (measured in regular eviction periods).
      * <p/>
      * Defaults to {@value #DEFAULT_ORPHAN_EVICTION_PERIOD}).
-     *
-     * @param orphanEvictionPeriod every how many regular evictions an orphan eviction should occur
+     * 
+     * @param orphanEvictionPeriod
+     *            every how many regular evictions an orphan eviction should occur
      */
     public void setOrphanEvictionPeriod(int orphanEvictionPeriod) {
         this.orphanEvictionPeriod = orphanEvictionPeriod;
@@ -354,11 +367,13 @@ public class TerracottaConfiguration implements Cloneable {
     }
 
     /**
-     * Sets whether this cache should use an unclustered local key cache (usually should be {@value #DEFAULT_LOCAL_KEY_CACHE} unless optimizing for a small read-only cache)
+     * Sets whether this cache should use an unclustered local key cache (usually should be {@value #DEFAULT_LOCAL_KEY_CACHE} unless
+     * optimizing for a small read-only cache)
      * <p/>
      * Defaults to {@value #DEFAULT_LOCAL_KEY_CACHE}.
-     *
-     * @param localKeyCache {@code true} if a local key cache should be used; {@code false} otherwise
+     * 
+     * @param localKeyCache
+     *            {@code true} if a local key cache should be used; {@code false} otherwise
      */
     public void setLocalKeyCache(boolean localKeyCache) {
         this.localKeyCache = localKeyCache;
@@ -384,8 +399,9 @@ public class TerracottaConfiguration implements Cloneable {
      * Sets maximum size of the local key cache (usually the size of the key set of the cache or cache partition).
      * <p/>
      * Defaults to {@value #DEFAULT_LOCAL_KEY_CACHE_SIZE}.
-     *
-     * @param localKeyCacheSize the size of the local key cache in number of keys
+     * 
+     * @param localKeyCacheSize
+     *            the size of the local key cache in number of keys
      */
     public void setLocalKeyCacheSize(int localKeyCacheSize) {
         this.localKeyCacheSize = localKeyCacheSize;
@@ -406,7 +422,7 @@ public class TerracottaConfiguration implements Cloneable {
     public int getLocalKeyCacheSize() {
         return this.localKeyCacheSize;
     }
-    
+
     /**
      * Used by BeanHandler to set the <tt>coherent</tt> during parsing
      */
@@ -425,6 +441,7 @@ public class TerracottaConfiguration implements Cloneable {
 
     /**
      * Is the cache configured for coherent or incoherent mode.
+     * 
      * @return true if configured in coherent mode.
      */
     public boolean isCoherent() {
@@ -433,6 +450,7 @@ public class TerracottaConfiguration implements Cloneable {
 
     /**
      * Is the cache configured for synchronous-write?
+     * 
      * @return true if configured for synchronouse-write, otherwise false. Default is false
      */
     public boolean isSynchronousWrites() {
@@ -441,7 +459,9 @@ public class TerracottaConfiguration implements Cloneable {
 
     /**
      * Set the value for synchronous-write
-     * @param synchronousWrites true for using synchronous-write
+     * 
+     * @param synchronousWrites
+     *            true for using synchronous-write
      */
     public void setSynchronousWrites(boolean synchronousWrites) {
         this.synchronousWrites = synchronousWrites;
@@ -455,7 +475,7 @@ public class TerracottaConfiguration implements Cloneable {
         setSynchronousWrites(synchronousWrites);
         return this;
     }
-    
+
     /**
      * Converts the {@code storageStrategy} string argument to uppercase and looks up enum constant in StorageStrategy.
      */
@@ -492,5 +512,33 @@ public class TerracottaConfiguration implements Cloneable {
      */
     public StorageStrategy getStorageStrategy() {
         return this.storageStrategy;
+    }
+
+    /**
+     * @return this configuration instance
+     * @see #setConcurrency(int)
+     */
+    public TerracottaConfiguration concurrency(final int concurrency) {
+        setConcurrency(concurrency);
+        return this;
+    }
+
+    /**
+     * Sets the value of concurrency. Throws {@link IllegalArgumentException} if the value is less than 0.
+     * This value cannot be changed once cache is initialized.
+     */
+    public void setConcurrency(final int concurrency) {
+        if (concurrency < 0) {
+            throw new IllegalArgumentException("Only non-negative integers allowed");
+        }
+        this.concurrency = concurrency;
+    }
+
+    /**
+     * Get the value of concurrency.
+     * This value cannot be changed once cache is initialized.
+     */
+    public int getConcurrency() {
+        return this.concurrency;
     }
 }

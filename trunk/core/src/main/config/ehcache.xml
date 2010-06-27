@@ -739,6 +739,10 @@ used with JMX monitors.
       can be stored locally in the vm or stored in the Terracotta Server Array. "classic" value for the attribute stores 
       the key/values in the local vm and using "DCV2" stores it in the Terracotta Server Array. This attribute is 
       optional and default value is "classic"
+      
+    * concurrency - A non-negative integer that can be used to specify the number of segments that will be used by the map 
+      underneath the Terracotta Store. Its optional and has default value of 0 -- which means will use default values based
+      on the internal Map being used underneath the store. This value cannot be changed programmatically once cache is initialized.
 
     Simplest example to indicate clustering:
         <terracotta/>
