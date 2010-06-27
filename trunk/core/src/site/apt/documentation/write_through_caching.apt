@@ -81,7 +81,7 @@
     clustered usage, the items can be processed out of order. Additionally, when batching is used, write and delete collections are
     aggregated separately and can be processed inside the CacheWriter in a different order that the order that was used by the queue.
 
-    Your application must of tolerant for item reordering or you need to compensate for this in your implementation of the
+    Your application must be tolerant of item reordering or you need to compensate for this in your implementation of the
     CacheWriter. Possible examples here are:
 
     * Working with versioning in the cache elements.

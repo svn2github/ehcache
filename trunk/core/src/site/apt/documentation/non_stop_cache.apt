@@ -15,19 +15,19 @@
 
     Usecases include:
 
-    * set timeouts on cache operations.
+    * Set timeouts on cache operations.
 
       For example, say you use the cache rather than a mainframe. The SLA calls for 3 seconds.
       There is a temporary network interruption which stops Terracotta responding to a cache request. With the timeout
       you can return after 3 seconds. The lookup is then done against the mainframe. This could also be useful for
       write-through, writes to disk or synchronous writes.
 
-    * automatically respond to cluster topology events to take a pre-configured action.
+    * Automatically respond to cluster topology events to take a pre-configured action.
 
-	* Your using a disk based cache and your hard drive becomes unavailable. If you are using the Non-stop cache decorator
+	* You're using a disk based cache and your hard drive becomes unavailable. If you are using the Non-stop cache decorator
 	  you can control whether operations timeout, or drop back to noop, or even switch over to an in memory only cache.
 	
-	* Your using a write-through cache and your DB hangs. Use your Non-stop cache decorator to keep it from hanging your entire
+	* You're using a write-through cache and your DB hangs. Use your Non-stop cache decorator to keep it from hanging your entire
 	  Application Server.
 	
 	* You have one cache that is accessed for multiple functions. For some of those functions you want operations to timeout after
@@ -52,7 +52,7 @@
      <<<CacheManager.replaceCacheWithDecoratedCache(Ehcache ehcache, Ehcache decoratedCache)>>> should be used instead of
      using <<<CacheManager.addDecoratedCache(Ehcache decoratedCache)>>> as shown above.
      
-     If added to the CacheManager, it can be accessed like following:
+     If added to the CacheManager, it can be accessed per the following:
      
 ---
     Ehcache nonStopCache = cacheManager.getEhcache(newName);

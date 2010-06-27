@@ -43,7 +43,7 @@
     multiple listeners.
 
     Each listener is configured by adding a
-    cacheManagerEventListenerFactory element as follows:
+    cacheEventListenerFactory element as follows:
 
 ------------------------------------------
 
