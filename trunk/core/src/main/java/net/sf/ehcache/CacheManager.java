@@ -445,7 +445,7 @@ public class CacheManager {
             synchronized (this) {
                 // only 1 thread will create the store
                 if (!terracottaClusteredInstanceFactoryCreated.getAndSet(true)) {
-                    // use the GlobalTerracottaConfiguration of this CacheManager to create a new ClusteredInstanceFactory
+                    // use the TerracottaClientConfiguration of this CacheManager to create a new ClusteredInstanceFactory
                     Map<String, CacheConfiguration> map = new HashMap<String, CacheConfiguration>(1);
                     map.put(cache.getName(), cache.getCacheConfiguration());
                     terracottaClusteredInstanceFactory = TerracottaClusteredInstanceHelper.newClusteredInstanceFactory(map,
