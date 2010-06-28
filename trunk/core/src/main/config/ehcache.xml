@@ -741,7 +741,7 @@ used with JMX monitors.
       optional and default value is "classic"
       
     * concurrency - A non-negative integer that can be used to specify the number of segments that will be used by the map 
-      underneath the Terracotta Store. Its optional and has default value of 0 -- which means will use default values based
+      underneath the Terracotta Store. Its optional and has default value of 0, which means will use default values based
       on the internal Map being used underneath the store. This value cannot be changed programmatically once cache is initialized.
 
     Simplest example to indicate clustering:
