@@ -25,7 +25,7 @@ import net.sf.ehcache.config.ConfigurationFactory;
 import net.sf.ehcache.config.ConfigurationHelper;
 import net.sf.ehcache.config.DiskStoreConfiguration;
 import net.sf.ehcache.config.FactoryConfiguration;
-import net.sf.ehcache.config.GlobalTerracottaConfiguration;
+import net.sf.ehcache.config.TerracottaClientConfiguration;
 import net.sf.ehcache.config.generator.ConfigurationUtil;
 import net.sf.ehcache.distribution.CacheManagerPeerListener;
 import net.sf.ehcache.distribution.CacheManagerPeerProvider;
@@ -176,9 +176,9 @@ public class CacheManager {
     private volatile ClusteredInstanceFactory terracottaClusteredInstanceFactory;
 
     /**
-     * The {@link GlobalTerracottaConfiguration} used for this {@link CacheManager}
+     * The {@link TerracottaClientConfiguration} used for this {@link CacheManager}
      */
-    private GlobalTerracottaConfiguration terracottaConfigConfiguration;
+    private TerracottaClientConfiguration terracottaClientConfiguration;
 
     private AtomicBoolean terracottaClusteredInstanceFactoryCreated = new AtomicBoolean(false);
 
@@ -298,7 +298,7 @@ public class CacheManager {
         }
 
         this.allowsDynamicCacheConfig = localConfiguration.getDynamicConfig();
-        this.terracottaConfigConfiguration = localConfiguration.getTerracottaConfiguration();
+        this.terracottaClientConfiguration = localConfiguration.getTerracottaConfiguration();
         
         Map<String, CacheConfiguration> cacheConfigs = localConfiguration.getCacheConfigurations();
         if (localConfiguration.getDefaultCacheConfiguration() != null
@@ -445,11 +445,11 @@ public class CacheManager {
             synchronized (this) {
                 // only 1 thread will create the store
                 if (!terracottaClusteredInstanceFactoryCreated.getAndSet(true)) {
-                    // use the TerracottaConfigConfiguration of this CacheManager to create a new ClusteredInstanceFactory
+                    // use the GlobalTerracottaConfiguration of this CacheManager to create a new ClusteredInstanceFactory
                     Map<String, CacheConfiguration> map = new HashMap<String, CacheConfiguration>(1);
                     map.put(cache.getName(), cache.getCacheConfiguration());
                     terracottaClusteredInstanceFactory = TerracottaClusteredInstanceHelper.newClusteredInstanceFactory(map,
-                            terracottaConfigConfiguration);
+                            terracottaClientConfiguration);
                     try {
                         mbeanRegistrationProvider.reinitialize(terracottaClusteredInstanceFactory);
                     } catch (MBeanRegistrationProviderException e) {

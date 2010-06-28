@@ -25,7 +25,7 @@ import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.config.Configuration;
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.TerracottaConfiguration;
-import net.sf.ehcache.config.TerracottaConfigConfiguration;
+import net.sf.ehcache.config.TerracottaClientConfiguration;
 
 
 public class Main
@@ -38,7 +38,7 @@ public class Main
         Configuration configuration = new Configuration();
 
         // Setup the Terracotta cluster config
-        TerracottaConfigConfiguration terracottaConfig = new TerracottaConfigConfiguration();
+        TerracottaClientConfiguration terracottaConfig = new TerracottaClientConfiguration();
 
         // If you want to point to a different URL, do it here, otherwise the default will 
         // point to a local Terracotta server array

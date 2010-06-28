@@ -16,28 +16,28 @@
 
 package net.sf.ehcache.config.generator.model.elements;
 
-import net.sf.ehcache.config.GlobalTerracottaConfiguration;
+import net.sf.ehcache.config.TerracottaClientConfiguration;
 import net.sf.ehcache.config.generator.model.NodeElement;
 import net.sf.ehcache.config.generator.model.SimpleNodeAttribute;
 import net.sf.ehcache.config.generator.model.SimpleNodeElement;
 
 /**
- * {@link NodeElement} representing the {@link GlobalTerracottaConfiguration}
+ * {@link NodeElement} representing the {@link TerracottaClientConfiguration}
  * 
  * @author Abhishek Sanoujam
  * 
  */
 public class TerracottaConfigConfigurationElement extends SimpleNodeElement {
 
-    private final GlobalTerracottaConfiguration tcConfigConfiguration;
+    private final TerracottaClientConfiguration tcConfigConfiguration;
 
     /**
-     * Constructor accepting the parent and the {@link GlobalTerracottaConfiguration}
+     * Constructor accepting the parent and the {@link TerracottaClientConfiguration}
      * 
      * @param parent
      * @param tcConfigConfiguration
      */
-    public TerracottaConfigConfigurationElement(NodeElement parent, GlobalTerracottaConfiguration tcConfigConfiguration) {
+    public TerracottaConfigConfigurationElement(NodeElement parent, TerracottaClientConfiguration tcConfigConfiguration) {
         super(parent, "terracottaConfig");
         this.tcConfigConfiguration = tcConfigConfiguration;
         init();

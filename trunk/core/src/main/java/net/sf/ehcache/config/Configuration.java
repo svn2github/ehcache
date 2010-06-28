@@ -77,7 +77,7 @@ public final class Configuration {
     private List<FactoryConfiguration> cacheManagerPeerListenerFactoryConfiguration = new ArrayList<FactoryConfiguration>();
     private FactoryConfiguration transactionManagerLookupConfiguration;
     private FactoryConfiguration cacheManagerEventListenerFactoryConfiguration;
-    private GlobalTerracottaConfiguration terracottaConfigConfiguration;
+    private TerracottaClientConfiguration terracottaConfigConfiguration;
     private final Map<String, CacheConfiguration> cacheConfigurations = new HashMap();
     private ConfigurationSource configurationSource;
     private boolean dynamicConfig = DEFAULT_DYNAMIC_CONFIG;
@@ -318,7 +318,7 @@ public final class Configuration {
      * @throws ObjectExistsException
      *             if the Terracotta config has already been configured
      */
-    public final Configuration terracotta(GlobalTerracottaConfiguration terracottaConfiguration) throws ObjectExistsException {
+    public final Configuration terracotta(TerracottaClientConfiguration terracottaConfiguration) throws ObjectExistsException {
         addTerracottaConfig(terracottaConfiguration);
         return this;
     }
@@ -326,7 +326,7 @@ public final class Configuration {
     /**
      * Allows BeanHandler to add a Terracotta configuration to the configuration
      */
-    public final void addTerracottaConfig(GlobalTerracottaConfiguration terracottaConfiguration) throws ObjectExistsException {
+    public final void addTerracottaConfig(TerracottaClientConfiguration terracottaConfiguration) throws ObjectExistsException {
         if (this.terracottaConfigConfiguration != null) {
             throw new ObjectExistsException("The TerracottaConfig has already been configured");
         }
@@ -441,9 +441,9 @@ public final class Configuration {
     }
 
     /**
-     * Gets the TerracottaConfigConfiguration
+     * Gets the TerracottaClientConfiguration
      */
-    public final GlobalTerracottaConfiguration getTerracottaConfiguration() {
+    public final TerracottaClientConfiguration getTerracottaConfiguration() {
         return this.terracottaConfigConfiguration;
     }
 

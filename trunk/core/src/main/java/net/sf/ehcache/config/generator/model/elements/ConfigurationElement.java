@@ -22,7 +22,7 @@ import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.Configuration;
 import net.sf.ehcache.config.DiskStoreConfiguration;
 import net.sf.ehcache.config.FactoryConfiguration;
-import net.sf.ehcache.config.GlobalTerracottaConfiguration;
+import net.sf.ehcache.config.TerracottaClientConfiguration;
 import net.sf.ehcache.config.generator.model.SimpleNodeAttribute;
 import net.sf.ehcache.config.generator.model.SimpleNodeElement;
 
@@ -90,7 +90,7 @@ public class ConfigurationElement extends SimpleNodeElement {
         for (CacheConfiguration cacheConfiguration : configuration.getCacheConfigurations().values()) {
             addChildElement(new CacheConfigurationElement(this, cacheConfiguration));
         }
-        GlobalTerracottaConfiguration terracottaConfiguration = configuration.getTerracottaConfiguration();
+        TerracottaClientConfiguration terracottaConfiguration = configuration.getTerracottaConfiguration();
         if (terracottaConfiguration != null) {
             addChildElement(new TerracottaConfigConfigurationElement(this, terracottaConfiguration));
         }
