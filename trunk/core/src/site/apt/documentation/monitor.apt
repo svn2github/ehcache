@@ -54,7 +54,7 @@ Ehcache Monitor
 
 +---
 <cacheManagerPeerListenerFactory
-    class="org.terracotta.ehcachedx.monitor.ProbePeerListenerFactory"
+    class="org.terracotta.ehcachedx.monitor.probe.ProbePeerListenerFactory"
     properties="monitorAddress=localhost, monitorPort=9889, memoryMeasurement=true" />
 +---
 
