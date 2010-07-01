@@ -1,3 +1,21 @@
+ehcache-2.2.0
+==================
+    <release version="2.2.0" date="2010-07-16" description="Bug fixes">
+        <action dev="Geert Bevin" type="fix">
+            Renamed TerracottaConfigConfiguration to TerracottaClientConfiguration.
+        </action>
+        <action dev="Geert Bevin" type="fix" issue="EHC-736">
+            Creating a new cache manager ready to talk to terracotta is way too verbose
+        </action>
+        <action dev="Geert Bevin" type="fix" issue="EHC-742">
+            The CacheWriter init method is only called when it was declared through config since
+            that code triggers when the CacheManager inits the cache
+        </action>
+        <action dev="Geert Bevin" type="fix" issue="EHC-733">
+            Support getCurrentNode and waitUntilNodeJoins in Ehcache cluster API
+        </action>
+    </release>
+
 ehcache-2.1.0
 ==================
     <release version="2.1.0" date="2010-05-19" description="2.1.0 major release with new features">
