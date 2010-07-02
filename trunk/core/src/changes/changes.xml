@@ -15,6 +15,25 @@
             <action dev="Geert Bevin" type="fix" issue="EHC-733">
                 Support getCurrentNode and waitUntilNodeJoins in Ehcache cluster API
             </action>
+            <action dev="Abhishek Sanoujam" type="add">
+                Added new attribute "storageStrategy" for Terracotta Clustered Caches. This attribute is optional with default
+                value "classic". The other allowed value is "DCV2" and only available for enterprise users. 
+                storageStrategy=DCV2 provides far greater scale and throughput.
+            </action>
+            <action dev="Abhishek Sanoujam" type="fix" issue="EHC-713">
+                Cleaned up Configuration Generator, accessible using cacheManager.get[Active/Original]ConfigurationText method(s).
+                Can be used independently giving greater control over output format - indentation, newlines, suppressing 
+                default values etc.
+            </action>
+            <action dev="Abhishek Sanoujam" type="fix">
+                Better exception message when adding a decorated cache/already initialized cache to CacheManager
+            </action>
+            <action dev="Abhishek Sanoujam" type="add">
+                Added new attribute "concurrency" for Terracotta Clustered Caches. Its a non-negative integer that can be used 
+                to specify the number of segments that will be used by the map underneath the Terracotta Store. Its optional
+                and has default value of 0 - which means will use default values based on the internal Map being used 
+                underneath the store (based on storageStrategy).
+            </action>
         </release>
 
         <release version="2.1.0" date="2010-05-19" description="Major release with new features">
