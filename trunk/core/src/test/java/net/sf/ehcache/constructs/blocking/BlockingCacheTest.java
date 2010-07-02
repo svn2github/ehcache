@@ -16,11 +16,17 @@
 
 package net.sf.ehcache.constructs.blocking;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import net.sf.ehcache.Cache;
+import net.sf.ehcache.CacheException;
+import net.sf.ehcache.CacheTest;
+import net.sf.ehcache.Ehcache;
+import net.sf.ehcache.Element;
+import net.sf.ehcache.Status;
+import net.sf.ehcache.config.CacheConfiguration;
+import net.sf.ehcache.statistics.LiveCacheStatistics;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -30,22 +36,11 @@ import java.util.Map;
 import java.util.concurrent.BrokenBarrierException;
 import java.util.concurrent.CyclicBarrier;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import net.sf.ehcache.Cache;
-import net.sf.ehcache.CacheException;
-import net.sf.ehcache.CacheTest;
-import net.sf.ehcache.Ehcache;
-import net.sf.ehcache.Element;
-import net.sf.ehcache.Status;
-import net.sf.ehcache.StopWatch;
-import net.sf.ehcache.config.CacheConfiguration;
-import net.sf.ehcache.statistics.LiveCacheStatistics;
-
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 /**
  * Test cases for the {@link BlockingCache}.
@@ -56,7 +51,6 @@ import org.junit.Test;
  */
 public class BlockingCacheTest extends CacheTest {
 
-    private static final Logger LOG = LoggerFactory.getLogger(BlockingCacheTest.class.getName());
     private BlockingCache blockingCache;
 
     /**
@@ -108,7 +102,7 @@ public class BlockingCacheTest extends CacheTest {
     public void testAddEntry() throws Exception {
         //some other test was leaving this non-empty
         blockingCache.removeAll();
-        
+
         final String key = "key";
         final String value = "value";
         Element element = new Element(key, value);
@@ -145,11 +139,11 @@ public class BlockingCacheTest extends CacheTest {
         assertEquals(100, elements.size());
         Map map = new HashMap();
         for (int i = 0; i < elements.size(); i++) {
-            Element element = (Element) elements.get(i);
+            Element element = (Element)elements.get(i);
             map.put(element.getObjectKey(), element.getObjectValue());
         }
         for (int i = 0; i < 100; i++) {
-            Serializable value = (Serializable) map.get(Integer.valueOf(i));
+            Serializable value = (Serializable)map.get(Integer.valueOf(i));
             assertEquals("value" + i, value);
         }
     }
@@ -252,123 +246,6 @@ public class BlockingCacheTest extends CacheTest {
         assertEquals(0, blockingCache.getKeys().size());
     }
 
-
-    /**
-     * Thrashes a BlockingCache and looks for liveness problems
-     * Note. These timings are without logging. Turn logging off to run this test.
-     */
-    @Test
-    public void testThrashBlockingCache() throws Exception {
-        Ehcache cache = manager.getCache("sampleCache1");
-        blockingCache = new BlockingCache(cache);
-        long duration = thrashCache(blockingCache, 50, 500L, 1000L);
-        LOG.debug("Thrash Duration:" + duration);
-    }
-
-    /**
-     * Thrashes a BlockingCache which has a tiny timeout. Should throw
-     * a LockTimeoutException caused by queued threads not getting the lock
-     * in the required time.
-     */
-    @Test
-    public void testThrashBlockingCacheTinyTimeout() throws Exception {
-        Ehcache cache = manager.getCache("sampleCache1");
-        blockingCache = new BlockingCache(cache);
-        blockingCache.setTimeoutMillis(1);
-        long duration = 0;
-        try {
-            duration = thrashCache(blockingCache, 50, 400L, 100L);
-            fail();
-        } catch (Exception e) {
-            //expected
-        }
-        LOG.debug("Thrash Duration:" + duration);
-    }
-
-    /**
-     * Thrashes a BlockingCache which has a reasonable timeout. Should work.
-     * The old implementation, which had scalability limits, needed 5, 1000L, 5000L to pass
-     */
-    @Test
-    public void testThrashBlockingCacheReasonableTimeout() throws Exception {
-        Ehcache cache = manager.getCache("sampleCache1");
-        blockingCache = new BlockingCache(cache);
-        blockingCache.setTimeoutMillis((int) (400 * StopWatch.getSpeedAdjustmentFactor()));
-        long duration = thrashCache(blockingCache, 50, 400L, (long) (1000L * StopWatch.getSpeedAdjustmentFactor()));
-        LOG.debug("Thrash Duration:" + duration);
-    }
-
-    /**
-     * This method tries to get the cache to slow up.
-     * It creates 300 threads, does blocking gets and monitors the liveness right the way through
-     */
-    private long thrashCache(final BlockingCache cache, final int numberOfThreads,
-                             final long liveness, final long retrievalTime) throws Exception {
-        StopWatch stopWatch = new StopWatch();
-
-        // Create threads that do gets
-        final List executables = new ArrayList();
-        for (int i = 0; i < numberOfThreads; i++) {
-            final Executable executable = new Executable() {
-                public void execute() throws Exception {
-                    for (int i = 0; i < 10; i++) {
-                        final String key = "key" + i;
-                        Object value = cache.get(key);
-                        checkLiveness(cache, liveness);
-                        if (value == null) {
-                            cache.put(new Element(key, "value" + i));
-                        }
-                        //The key will be in. Now check we can get it quickly
-                        checkRetrievalOnKnownKey(cache, retrievalTime, key);
-                    }
-                }
-            };
-            executables.add(executable);
-        }
-
-        int failures = runThreadsNoCheck(executables, true);
-        if (failures > 0) {
-
-            throw new Exception("failures");
-        }
-        assertTrue("Failures: " + failures, failures <= 0);
-        cache.removeAll();
-        return stopWatch.getElapsedTime();
-    }
-
-    /**
-     * Checks that the liveness method returns in less than a given amount of time.
-     * liveness() is a method that simply returns a String. It should be very fast. It can be
-     * delayed because it is a synchronized method, and must acquire an object lock before continuing
-     * The old blocking cache was taking up to several minutes in production
-     *
-     * @param cache a BlockingCache
-     */
-    private void checkLiveness(BlockingCache cache, long liveness) {
-        StopWatch stopWatch = new StopWatch();
-        cache.liveness();
-        long measuredLiveness = stopWatch.getElapsedTime();
-        assertTrue("liveness is " + measuredLiveness + " but should be less than " + liveness + "ms",
-                measuredLiveness < liveness);
-    }
-
-    /**
-     * Checks that the liveness method returns in less than a given amount of time.
-     * liveness() is a method that simply returns a String. It should be very fast. It can be
-     * delayed because it is a synchronized method, and must acquire
-     * an object lock before continuing. The old blocking cache was taking up to several minutes in production
-     *
-     * @param cache a BlockingCache
-     */
-    private void checkRetrievalOnKnownKey(BlockingCache cache, long requiredRetrievalTime, Serializable key)
-            throws LockTimeoutException {
-        StopWatch stopWatch = new StopWatch();
-        cache.get(key);
-        long measuredRetrievalTime = stopWatch.getElapsedTime();
-        assertTrue("Retrieval time on known key is " + measuredRetrievalTime
-                + " but should be less than " + requiredRetrievalTime + "ms",
-                measuredRetrievalTime < requiredRetrievalTime);
-    }
 
     /**
      * Creates a blocking test cache

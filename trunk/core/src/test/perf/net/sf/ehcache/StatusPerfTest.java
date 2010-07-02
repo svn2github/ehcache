@@ -31,9 +31,9 @@ import org.slf4j.LoggerFactory;
  * @author <a href="mailto:gluck@thoughtworks.com">Greg Luck</a>
  * @version $Id$
  */
-public class StatusTest {
+public class StatusPerfTest {
 
-    private static final Logger LOG = LoggerFactory.getLogger(StatusTest.class.getName());
+    private static final Logger LOG = LoggerFactory.getLogger(StatusPerfTest.class.getName());
 
     private static int int1 = 1;
     private int int2 = 2;

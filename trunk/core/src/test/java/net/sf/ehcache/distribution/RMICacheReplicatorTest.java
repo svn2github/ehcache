@@ -22,30 +22,28 @@ import net.sf.ehcache.CacheException;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
-import net.sf.ehcache.StopWatch;
 import net.sf.ehcache.ThreadKiller;
 import net.sf.ehcache.event.CountingCacheEventListener;
 import net.sf.ehcache.management.ManagementService;
 import org.junit.After;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 import org.junit.Before;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.Serializable;
-import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Random;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 /**
  * Tests replication of Cache events
@@ -410,34 +408,6 @@ public class RMICacheReplicatorTest extends AbstractCacheTest {
     }
 
     /**
-     * Enables long stabilty runs using replication to be done.
-     * <p/>
-     * This test has been run in a profile for 15 hours without any observed issues.
-     *
-     * @throws InterruptedException
-     */
-    public void manualStabilityTest() throws InterruptedException {
-        forceVMGrowth();
-
-        ManagementService.registerMBeans(manager3, createMBeanServer(), true, true, true, true);
-        while (true) {
-            testBigPutsProgagatesAsynchronous();
-        }
-    }
-
-    /**
-     * Non JUnit invocation of stability test to get cleaner run
-     *
-     * @param args
-     * @throws InterruptedException
-     */
-    public static void main(String[] args) throws Exception {
-        RMICacheReplicatorTest replicatorTest = new RMICacheReplicatorTest();
-        replicatorTest.setUp();
-        replicatorTest.manualStabilityTest();
-    }
-
-    /**
      * The number of caches there should be.
      */
     protected int getNumberOfReplicatingCachesInCacheManager() {
@@ -445,291 +415,6 @@ public class RMICacheReplicatorTest extends AbstractCacheTest {
     }
 
 
-    /**
-     * Performance and capacity tests.
-     * <p/>
-     * The numbers given are for the remote peer tester (java -jar ehcache-1.x-remote-debugger.jar ehcache-distributed1.xml)
-     * running on a 10Mbit ethernet network and are measured from the time the peer starts receiving to when
-     * it has fully received.
-     * <p/>
-     * r37 and earlier - initial implementation
-     * 38 seconds to get all notifications with 6 peers, 2000 Elements and 400 byte payload
-     * 18 seconds to get all notifications with 2 peers, 2000 Elements and 400 byte payload
-     * 40 seconds to get all notifications with 2 peers, 2000 Elements and 10k payload
-     * 22 seconds to get all notifications with 2 peers, 2000 Elements and 1k payload
-     * 26 seconds to get all notifications with 2 peers, 200 Elements and 100k payload
-     * <p/>
-     * r38 - RMI stub lookup on registration rather than at each lookup. Saves quite a few lookups. Also change to 5 second heartbeat
-     * 38 seconds to get 2000 notifications with 6 peers, Elements with 400 byte payload (1 second heartbeat)
-     * 16 seconds to get 2000 notifications with 6 peers, Elements with 400 byte payload (5 second heartbeat)
-     * 13 seconds to get 2000 notifications with 2 peers, Elements with 400 byte payload
-     * <p/>
-     * r39 - Batching asyn replicator. Send all queued messages in one RMI call once per second.
-     * 2 seconds to get 2000 notifications with 6 peers, Elements with 400 byte payload (5 second heartbeat)
-     */
-    
-    @Test
-    public void testBigPutsProgagatesAsynchronous() throws CacheException, InterruptedException {
-
-        //Give everything a chance to startup
-        //Thread.sleep(10000);
-        StopWatch stopWatch = new StopWatch();
-        Integer index = null;
-        for (int i = 0; i < 2; i++) {
-            for (int j = 0; j < 1000; j++) {
-                index = Integer.valueOf(((1000 * i) + j));
-                cache1.put(new Element(index,
-                        "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
-                                + "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
-                                + "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
-                                + "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
-                                + "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"));
-            }
-
-        }
-        long elapsed = stopWatch.getElapsedTime();
-        long putTime = ((elapsed / 1000));
-        LOG.info("Put Elapsed time: " + putTime);
-        //assertTrue(putTime < 8);
-
-        assertEquals(2000, cache1.getSize());
-
-        Thread.sleep(2000);
-        assertEquals(2000, manager2.getCache("sampleCache1").getSize());
-        assertEquals(2000, manager3.getCache("sampleCache1").getSize());
-        assertEquals(2000, manager4.getCache("sampleCache1").getSize());
-        assertEquals(2000, manager5.getCache("sampleCache1").getSize());
-
-        CountingCacheEventListener.resetCounters();
-
-    }
-
-
-    /**
-     * Performance and capacity tests.
-     * <p/>
-     */
-    
-    @Test
-    public void testBootstrap() throws CacheException, InterruptedException, RemoteException {
-
-        //load up some data
-        StopWatch stopWatch = new StopWatch();
-        Integer index = null;
-        for (int i = 0; i < 2; i++) {
-            for (int j = 0; j < 1000; j++) {
-                index = Integer.valueOf(((1000 * i) + j));
-                cache1.put(new Element(index,
-                        "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
-                                + "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
-                                + "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
-                                + "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
-                                + "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"));
-            }
-
-        }
-        long elapsed = stopWatch.getElapsedTime();
-        long putTime = ((elapsed / 1000));
-        LOG.info("Put Elapsed time: " + putTime);
-
-        assertEquals(2000, cache1.getSize());
-
-        Thread.sleep(7000);
-        assertEquals(2000, manager2.getCache("sampleCache1").getSize());
-        assertEquals(2000, manager3.getCache("sampleCache1").getSize());
-        assertEquals(2000, manager4.getCache("sampleCache1").getSize());
-        assertEquals(2000, manager5.getCache("sampleCache1").getSize());
-
-        //now test bootstrap
-        manager1.addCache("bootStrapResults");
-        Cache cache = manager1.getCache("bootStrapResults");
-        List cachePeers = manager1.getCacheManagerPeerProvider("RMI").listRemoteCachePeers(cache1);
-        CachePeer cachePeer = (CachePeer) cachePeers.get(0);
-
-        List keys = cachePeer.getKeys();
-        assertEquals(2000, keys.size());
-
-        Element firstElement = cachePeer.getQuiet((Serializable) keys.get(0));
-        long size = firstElement.getSerializedSize();
-        assertEquals(504, size);
-
-        int chunkSize = (int) (5000000 / size);
-
-        List requestChunk = new ArrayList();
-        for (int i = 0; i < keys.size(); i++) {
-            Serializable serializable = (Serializable) keys.get(i);
-            requestChunk.add(serializable);
-            if (requestChunk.size() == chunkSize) {
-                fetchAndPutElements(cache, requestChunk, cachePeer);
-                requestChunk.clear();
-            }
-        }
-        //get leftovers
-        fetchAndPutElements(cache, requestChunk, cachePeer);
-
-        assertEquals(keys.size(), cache.getSize());
-
-    }
-
-    private void fetchAndPutElements(Ehcache cache, List requestChunk, CachePeer cachePeer) throws RemoteException {
-        List receivedChunk = cachePeer.getElements(requestChunk);
-        for (int i = 0; i < receivedChunk.size(); i++) {
-            Element element = (Element) receivedChunk.get(i);
-            assertNotNull(element);
-            cache.put(element, true);
-        }
-
-    }
-
-
-    /**
-     * Drive everything to point of breakage within a 64MB VM.
-     */
-    public void xTestHugePutsBreaksAsynchronous() throws CacheException, InterruptedException {
-
-        //Give everything a chance to startup
-        StopWatch stopWatch = new StopWatch();
-        Integer index = null;
-        for (int i = 0; i < 500; i++) {
-            for (int j = 0; j < 1000; j++) {
-                index = Integer.valueOf(((1000 * i) + j));
-                cache1.put(new Element(index,
-                        "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
-                                + "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
-                                + "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
-                                + "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
-                                + "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"));
-            }
-
-        }
-        long elapsed = stopWatch.getElapsedTime();
-        long putTime = ((elapsed / 1000));
-        LOG.info("Put Elapsed time: " + putTime);
-        //assertTrue(putTime < 8);
-
-        assertEquals(100000, cache1.getSize());
-
-        Thread.sleep(100000);
-        assertEquals(20000, manager2.getCache("sampleCache1").getSize());
-        assertEquals(20000, manager3.getCache("sampleCache1").getSize());
-        assertEquals(20000, manager4.getCache("sampleCache1").getSize());
-        assertEquals(20000, manager5.getCache("sampleCache1").getSize());
-
-    }
-
-
-    /**
-     * Performance and capacity tests.
-     * <p/>
-     * The numbers given are for the remote peer tester (java -jar ehcache-1.x-remote-debugger.jar ehcache-distributed1.xml)
-     * running on a 10Mbit ethernet network and are measured from the time the peer starts receiving to when
-     * it has fully received.
-     * <p/>
-     * 4 seconds to get all remove notifications with 6 peers, 5000 Elements and 400 byte payload
-     */
-    @Test
-    public void testBigRemovesProgagatesAsynchronous() throws CacheException, InterruptedException {
-
-        //Give everything a chance to startup
-        Integer index = null;
-        for (int i = 0; i < 5; i++) {
-            for (int j = 0; j < 1000; j++) {
-                index = Integer.valueOf(((1000 * i) + j));
-                cache1.put(new Element(index,
-                        "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
-                                + "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
-                                + "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
-                                + "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
-                                + "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"));
-            }
-
-        }
-
-
-        Ehcache[] caches = {
-            cache1,
-            manager2.getCache("sampleCache1"),
-            manager3.getCache("sampleCache1"),
-            manager4.getCache("sampleCache1"),
-            manager5.getCache("sampleCache1") };
-
-        waitForCacheSize(5000, 25, caches);
-        //Let the disk stores catch up before the next stage of the test
-        Thread.sleep(2000);
-
-        for (int i = 0; i < 5; i++) {
-            for (int j = 0; j < 1000; j++) {
-                cache1.remove(Integer.valueOf(((1000 * i) + j)));
-            }
-        }
-
-        long timeForPropagate = waitForCacheSize(0, 25, caches);
-        LOG.info("Remove Elapsed time: " + timeForPropagate);
-
-    }
-
-    public long waitForCacheSize(long size, int maxSeconds, Ehcache... caches) throws InterruptedException {
-
-        StopWatch stopWatch = new StopWatch();
-        while(checkForCacheSize(size, caches)) {
-            Thread.sleep(500);
-            if(stopWatch.getElapsedTime() > maxSeconds * 1000) {
-                fail("Caches still haven't reached the expected size after " + maxSeconds + " seconds");
-            }
-        }
-
-        return stopWatch.getElapsedTime();
-    }
-
-    private boolean checkForCacheSize(long size, Ehcache... caches) {
-        boolean sizeReached = true;
-        for (Ehcache cache : caches) {
-            if(cache.getSize() != size) {
-                sizeReached = false;
-                break;
-            }
-        }
-        return sizeReached;
-    }
-
-
-    /**
-     * Performance and capacity tests.
-     * <p/>
-     * 5 seconds to send all notifications synchronously with 5 peers, 2000 Elements and 400 byte payload
-     * The numbers given below are for the remote peer tester (java -jar ehcache-1.x-remote-debugger.jar ehcache-distributed1.xml)
-     * running on a 10Mbit ethernet network and are measured from the time the peer starts receiving to when
-     * it has fully received.
-     */
-    @Test
-    public void testBigPutsProgagatesSynchronous() throws CacheException, InterruptedException {
-
-        //Give everything a chance to startup
-        StopWatch stopWatch = new StopWatch();
-        Integer index;
-        for (int i = 0; i < 2; i++) {
-            for (int j = 0; j < 1000; j++) {
-                index = Integer.valueOf(((1000 * i) + j));
-                manager1.getCache("sampleCache3").put(new Element(index,
-                        "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
-                                + "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
-                                + "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
-                                + "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
-                                + "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"));
-            }
-
-        }
-        long elapsed = stopWatch.getElapsedTime();
-        long putTime = ((elapsed / 1000));
-        LOG.info("Put and Propagate Synchronously Elapsed time: " + putTime + " seconds");
-
-        assertEquals(2000, manager1.getCache("sampleCache3").getSize());
-        assertEquals(2000, manager2.getCache("sampleCache3").getSize());
-        assertEquals(2000, manager3.getCache("sampleCache3").getSize());
-        assertEquals(2000, manager4.getCache("sampleCache3").getSize());
-        assertEquals(2000, manager5.getCache("sampleCache3").getSize());
-
-    }
 
 
     /**

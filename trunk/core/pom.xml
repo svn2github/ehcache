@@ -27,6 +27,8 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <net.sf.ehcache.speedAdjustmentFactor>5</net.sf.ehcache.speedAdjustmentFactor>
+        <testDir>src/test/java</testDir>
+        <testResources>src/test/resources</testResources>
         <name>ehcache</name>
     </properties>
 
@@ -149,12 +151,13 @@
                 <filtering>true</filtering>
             </resource>
         </resources>
+        <testSourceDirectory>${basedir}/${testDir}</testSourceDirectory>
         <testResources>
             <testResource>
                 <directory>${basedir}/src/main/config/jcache</directory>
             </testResource>
             <testResource>
-                <directory>${basedir}/src/test/resources</directory>
+                <directory>${basedir}/${testResources}</directory>
             </testResource>
         </testResources>
         <filters>
@@ -537,6 +540,13 @@
                     </plugin>
                 </plugins>
             </build>
+        </profile>
+        <profile>
+            <id>perfTests</id>
+            <properties>
+                <testDir>src/test/perf</testDir>
+                <testResources>src/test/perfResources</testResources>
+            </properties>
         </profile>
     </profiles>
 

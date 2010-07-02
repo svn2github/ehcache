@@ -22,7 +22,6 @@ import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.MemoryStoreTester;
 import net.sf.ehcache.Statistics;
-import net.sf.ehcache.StopWatch;
 import net.sf.ehcache.store.compound.CompoundStore;
 import net.sf.ehcache.store.compound.ElementSubstituteFilter;
 import net.sf.ehcache.store.compound.factories.CapacityLimitedInMemoryFactory;
@@ -125,15 +124,6 @@ public class LfuMemoryStoreTest extends MemoryStoreTester {
         removeTest();
     }
 
-    /**
-     * Benchmark to test speed.
-     * This takes a little longer for LFU than the others.
-     * Used to take about 7400ms. Now takes 827.
-     */
-    @Test
-    public void testBenchmarkPutGetSurya() throws Exception {
-        benchmarkPutGetSuryaTest(9000);
-    }
 
     /**
      * Tests the LFU policy
@@ -208,16 +198,6 @@ public class LfuMemoryStoreTest extends MemoryStoreTester {
         assertFalse(((CompoundStore) store).unretrievedGet("key2") instanceof Element);
     }
 
-    /**
-     * Benchmark to test speed.
-     * new sampling LFU 417ms
-     */
-    @Override
-    @Test
-    public void testBenchmarkPutGetRemove() throws Exception {
-        super.testBenchmarkPutGetRemove();
-    }
-
 
     /**
      * Multi-thread read, put and removeAll test.
@@ -229,16 +209,6 @@ public class LfuMemoryStoreTest extends MemoryStoreTester {
     @Test
     public void testMemoryLeak() throws Exception {
         super.testMemoryLeak();
-    }
-
-    /**
-     * Benchmark to test speed.
-     * new sampling LFU 132ms
-     */
-    @Override
-    @Test
-    public void testBenchmarkPutGet() throws Exception {
-        super.testBenchmarkPutGet();
     }
 
     /**
@@ -288,34 +258,6 @@ public class LfuMemoryStoreTest extends MemoryStoreTester {
     }
 
 
-    /**
-     * HashMap
-     * INFO: done putting: 128ms
-     * INFO: 15ms
-     * <p/>
-     * ConcurrentHashMap
-     * INFO: done putting: 200ms
-     * INFO: 117ms
-     * <p/>
-     * ConcurrentHashMap
-     */
-//    @Test
-    public void testSpeedOfIteration() {
-        StopWatch stopWatch = new StopWatch();
-        Map map = new ConcurrentHashMap(100000);
-        for (int i = 1; i <= 100000; i++) {
-            map.put(i, i);
-        }
-        LOG.info("done putting: " + stopWatch.getElapsedTimeString());
-
-        Collection collection = map.values();
-        for (Object o : collection) {
-            o.toString();
-        }
-        LOG.info(stopWatch.getElapsedTimeString());
-
-    }
-
     private static final ElementSubstituteFilter<Element> IDENTITY_FILTER = new ElementSubstituteFilter<Element>() {
         public boolean allows(Object object) {
             return object instanceof Element;
@@ -343,106 +285,6 @@ public class LfuMemoryStoreTest extends MemoryStoreTester {
         }
     }
 
-
-    /**
-     * Check we get reasonable results for 2000 entries where entry 0 is accessed once increasing to entry 1999 accessed
-     * 2000 times.
-     * <p/>
-     * 1 to 5000 population, with hit counts ranging from 1 to 500, not selecting lowest half. 5000 tests
-     * <p/>
-     * Samples  Cost    No
-     * 7        38      99.24% confidence
-     * 8        27      99.46% confidence
-     * 9        10
-     * 10       11300 4       99.92% confidence
-     * 12       2
-     * 20 11428 0  99.99% confidence
-     * <p/>
-     * 1 to 5000 population, with hit counts ranging from 1 to 500, not selecting lowest quarter. 5000 tests
-     * S        No
-     * 10       291 94.18% confidence
-     * 20       15
-     * 30       11536 1 99.99% confidence
-     * <p/>
-     * For those with a statistical background the branch of stats which deals with this is hypothesis testing and
-     * the Student's T distribution. The higher your sample the greater confidence you can have in a hypothesis, in
-     * this case whether or not the "lowest" value lies in the bottom half or quarter of the distribution. Adding
-     * samples rapidly increases confidence but the return from extra sampling rapidly diminishes.
-     * <p/>
-     * Cost is not affected much by sample size. Profiling shows that it is the iteration that is causing most of the
-     * time. If we had access to the array backing Map, all would work very fast. Still, it is fast enough.
-     * <p/>
-     * A 99.99% confidence interval can be achieved that the "lowest" element is actually in the bottom quarter of the
-     * hit count distribution.
-     *
-     * @throws IOException Performance:
-     *                     With a sample size of 10: 523ms for 5000 runs = 104 ?s per run
-     *                     With a sample size of 30: 628ms for 5000 runs = 125 ?s per run
-     */
-    @Test
-    public void testLowest() throws IOException {
-        createMemoryOnlyStore(MemoryStoreEvictionPolicy.LFU, 5000);
-        //fully populate the otherwise we just find nulls
-        for (int i = 0; i < 5000; i++) {
-            Element newElement = new Element("" + i, new Date());
-            store.put(newElement);
-        }
-
-        Element element = null;
-
-        Element newElement = null;
-        for (int i = 0; i < 10; i++) {
-            newElement = new Element("" + i, new Date());
-            store.put(newElement);
-            int j;
-            for (j = 0; j <= i; j++) {
-                store.get("" + i);
-            }
-            if (i > 0) {
-                try {
-                    element = (Element) GET_EVICTION_TARGET.invoke(PRIMARY_FACTORY.get(store), new Object(), Integer.MAX_VALUE);
-                } catch (Exception e) {
-                    throw new RuntimeException(e);
-                }
-                assertTrue(!element.equals(newElement));
-                assertTrue(element.getHitCount() < 2);
-            }
-        }
-
-        int lowestQuarterNotIdentified = 0;
-
-        long findTime = 0;
-        StopWatch stopWatch = new StopWatch();
-        for (int i = 10; i < 5000; i++) {
-            store.put(new Element("" + i, new Date()));
-            int j;
-            int maximumHitCount = 0;
-            for (j = 0; j <= i; j += 10) {
-                store.get("" + i);
-                maximumHitCount++;
-            }
-
-            stopWatch.getElapsedTime();
-            try {
-                element = (Element) GET_EVICTION_TARGET.invoke(PRIMARY_FACTORY.get(store), new Object(), Integer.MAX_VALUE);
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
-            findTime += stopWatch.getElapsedTime();
-            long lowest = element.getHitCount();
-            long bottomQuarter = (Math.round(maximumHitCount / 4.0) + 1);
-            assertTrue(!element.equals(newElement));
-            if (lowest > bottomQuarter) {
-                LOG.info("" + element.getKey() + " hit count: " + element.getHitCount() + " bottomQuarter: " + bottomQuarter);
-                lowestQuarterNotIdentified++;
-            }
-        }
-        LOG.info("Find time: " + findTime);
-        assertTrue(findTime < 200);
-        LOG.info("Selections not in lowest quartile: " + lowestQuarterNotIdentified);
-        assertTrue(lowestQuarterNotIdentified <= 10);
-
-    }
 
     /**
      * Can we deal with NonSerializable objects?

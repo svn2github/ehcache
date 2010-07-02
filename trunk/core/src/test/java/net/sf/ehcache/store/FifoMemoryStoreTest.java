@@ -131,17 +131,6 @@ public class FifoMemoryStoreTest extends MemoryStoreTester {
 
 
     /**
-     * Benchmark to test speed.
-     * v 1.38 DiskStore 7238
-     * v 1.42 DiskStore 1907
-     */
-    @Test
-    public void testBenchmarkPutGetSurya() throws Exception {
-        benchmarkPutGetSuryaTest(1500);
-    }
-
-
-    /**
      * Remove test and check policy
      *
      * @throws IOException

@@ -20,7 +20,6 @@ import net.sf.ehcache.AbstractCacheTest;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;
-import net.sf.ehcache.StopWatch;
 import org.junit.After;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -30,7 +29,6 @@ import org.junit.Test;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.MulticastSocket;
-import java.rmi.RemoteException;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -50,8 +48,6 @@ import org.slf4j.LoggerFactory;
  * @version $Id$
  */
 public class MulticastRMIPeerProviderTest {
-
-    private static final Logger LOG = LoggerFactory.getLogger(MulticastRMIPeerProviderTest.class.getName());
 
     /**
      * Cache Manager 1
@@ -207,38 +203,6 @@ public class MulticastRMIPeerProviderTest {
         return 2;
     }
 
-
-    /**
-     * Tests the speed of remotely looking up.
-     *
-     * @throws RemoteException
-     * @throws InterruptedException .19ms
-     *                              This seems to imply a maximum of 5000 per second best case. Not bad.
-     */
-    @Test
-    public void testRemoteGetName() throws RemoteException, InterruptedException {
-
-
-        Ehcache m1sampleCache1 = manager1.getCache("sampleCache1");
-        Thread.sleep(2000);
-        List peerUrls = manager1.getCacheManagerPeerProvider("RMI").listRemoteCachePeers(m1sampleCache1);
-
-        CachePeer m1SampleCach1Peer = (CachePeer) peerUrls.get(0);
-
-        for (int i = 0; i < 100; i++) {
-            m1SampleCach1Peer.getName();
-        }
-        Thread.sleep(2000);
-
-        StopWatch stopWatch = new StopWatch();
-        for (int i = 0; i < 1000; i++) {
-            m1SampleCach1Peer.getName();
-        }
-        long time = stopWatch.getElapsedTime();
-
-        LOG.info("Remote name lookup time in ms: " + time / 1000f);
-
-    }
 
     /**
      * Determines that the multicast TTL default is 1, which means that packets are restricted to the same subnet.

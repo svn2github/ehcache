@@ -185,18 +185,6 @@ public class LruMemoryStoreTest extends MemoryStoreTester {
 
 
     /**
-     * Benchmark to test speed. This uses both memory and disk and tries to be realistic
-     * v 1.38 DiskStore 7355
-     * v 1.41 DiskStore 1609
-     * Adjusted for change to laptop
-     */
-    @Test
-    public void testBenchmarkPutGetSurya() throws Exception {
-        benchmarkPutGetSuryaTest(2500);
-    }
-
-
-    /**
      * Multi-thread read, put and removeAll test.
      * This checks for memory leaks
      * using the removeAll which was the known cause of memory leaks with MemoryStore in JCS

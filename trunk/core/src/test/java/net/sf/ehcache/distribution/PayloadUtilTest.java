@@ -32,7 +32,6 @@ import org.slf4j.LoggerFactory;
 import net.sf.ehcache.AbstractCacheTest;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Element;
-import net.sf.ehcache.StopWatch;
 
 import org.junit.After;
 import org.junit.Before;
@@ -87,63 +86,6 @@ public class PayloadUtilTest {
         LOG.info("gzipped size: " + length);
         assertTrue("Heartbeat too big for one Datagram " + length, length <= 1500);
 
-    }
-
-    /**
-     * 376 µs per one gzipping each time.
-     * .1 µs if we compare hashCodes on the String and only gzip as necessary.
-     * 
-     * @throws IOException
-     * @throws InterruptedException
-     */
-    @Test
-    public void testGzipSanityAndPerformance() throws IOException, InterruptedException {
-        String payload = createReferenceString();
-        // warmup vm
-        for (int i = 0; i < 10; i++) {
-            byte[] compressed = PayloadUtil.gzip(payload.getBytes());
-            // make sure we don't forget to close the stream
-            assertTrue(compressed.length > 300);
-            Thread.sleep(20);
-        }
-        int hashCode = payload.hashCode();
-        StopWatch stopWatch = new StopWatch();
-        for (int i = 0; i < 10000; i++) {
-            if (hashCode != payload.hashCode()) {
-                PayloadUtil.gzip(payload.getBytes());
-            }
-        }
-        long elapsed = stopWatch.getElapsedTime();
-        LOG.info("Gzip took " + elapsed / 10F + " µs");
-    }
-
-    /**
-     * 169 µs per one.
-     * 
-     * @throws IOException
-     * @throws InterruptedException
-     */
-    @Test
-    public void testUngzipPerformance() throws IOException, InterruptedException {
-        String payload = createReferenceString();
-        int length = payload.toCharArray().length;
-        byte[] original = payload.getBytes();
-        int byteLength = original.length;
-        assertEquals(length, byteLength);
-        byte[] compressed = PayloadUtil.gzip(original);
-        // warmup vm
-        for (int i = 0; i < 10; i++) {
-            byte[] uncompressed = PayloadUtil.ungzip(compressed);
-            uncompressed.hashCode();
-            assertEquals(original.length, uncompressed.length);
-            Thread.sleep(20);
-        }
-        StopWatch stopWatch = new StopWatch();
-        for (int i = 0; i < 10000; i++) {
-            PayloadUtil.ungzip(compressed);
-        }
-        long elapsed = stopWatch.getElapsedTime();
-        LOG.info("Ungzip took " + elapsed / 10000F + " µs");
     }
 
     private String createReferenceString() {

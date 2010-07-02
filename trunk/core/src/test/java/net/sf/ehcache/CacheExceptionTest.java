@@ -34,7 +34,6 @@ public class CacheExceptionTest extends AbstractCacheTest {
      */
     @Test
     public void testFullConstructor() {
-        new StopWatch();
         try {
             throw new CacheException("test");
         } catch (CacheException e) {

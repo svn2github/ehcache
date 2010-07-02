@@ -18,8 +18,6 @@ package net.sf.ehcache;
 
 
 import net.sf.ehcache.util.PropertyUtil;
-
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -163,5 +161,3 @@ public class StopWatch {
     }
 
 }
-
-

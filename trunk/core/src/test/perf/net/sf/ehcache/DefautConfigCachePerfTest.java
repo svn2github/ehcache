@@ -1,5 +1,4 @@
 package net.sf.ehcache;
-
 import org.junit.After;
 import static org.junit.Assert.assertTrue;
 import org.junit.Before;
@@ -15,9 +14,9 @@ import org.slf4j.LoggerFactory;
  * @author <a href="mailto:gluck@gregluck.com">Greg Luck</a>
  * @version $Id$
  */
-public class CachePerformanceTest {
+public class DefautConfigCachePerfTest {
 
-    private static final Logger LOG = LoggerFactory.getLogger(CachePerformanceTest.class.getName());
+    private static final Logger LOG = LoggerFactory.getLogger(DefautConfigCachePerfTest.class.getName());
 
 
     /**
@@ -30,7 +29,7 @@ public class CachePerformanceTest {
      */
     @Before
     public void setUp() throws Exception {
-        manager = new CacheManager(AbstractCacheTest.TEST_CONFIG_DIR + "ehcache-defaultonly.xml");
+        manager = new CacheManager(AbstractCachePerfTest.TEST_CONFIG_DIR + "ehcache-defaultonly.xml");
     }
 
     /**
