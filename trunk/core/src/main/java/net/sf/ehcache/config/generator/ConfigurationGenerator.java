@@ -101,13 +101,13 @@ public class ConfigurationGenerator {
         TerracottaClientConfiguration terracottaConfig = configuration.getTerracottaConfiguration();
         if (terracottaConfig != null) {
             if (terracottaConfig.isUrlConfig()) {
-                builder.append(spacer).append("<terracottaConfig url=\"").append(terracottaConfig.getUrl()).append("\">");
+                builder.append(spacer).append("<terracottaConfig url=\"").append(terracottaConfig.getUrl()).append("\"/>");
                 builder.append(EOL);
             } else {
                 builder.append(spacer).append("<terracottaConfig>");
                 builder.append(EOL);
                 builder.append(terracottaConfig.getOriginalEmbeddedConfig());
-                builder.append(spacer).append("<terracottaConfig>");
+                builder.append(spacer).append("</terracottaConfig>");
                 builder.append(EOL);
             }
         }
