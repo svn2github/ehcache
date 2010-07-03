@@ -115,7 +115,7 @@ public class CacheConfiguration implements CacheConfigurationMBean, Serializable
      * @param maxElements
      */
     public void setMaxElementsOnDisk(int maxElements) {
-       cacheConfiguration.setMaxElementsInMemory(maxElements);
+       cacheConfiguration.setMaxElementsOnDisk(maxElements);
     }
     
     /**
