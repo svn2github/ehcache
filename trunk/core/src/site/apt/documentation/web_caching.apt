@@ -43,14 +43,14 @@
 
    A cache entry in ehcache.xml should be configured with the name of the filter.
 
-   Names can be set using the init-param <code>cacheName</code>, or by sub-classing this class and overriding the name.
+   Names can be set using the init-param <<<cacheName>>>, or by sub-classing this class and overriding the name.
 
 * Concurent Cache Misses
 
    A cache miss will cause the filter chain, upstream of the caching filter to be processed. To avoid threads requesting
    the same key to do useless duplicate work, these threads block behind the first thread.
 
-   The thead timeout can be set to fail after a certain wait by setting the init-param <code>blockingTimeoutMillis</code>.
+   The thead timeout can be set to fail after a certain wait by setting the init-param <<<blockingTimeoutMillis>>>.
    By default threads wait indefinitely. In the event upstream processing never returns, eventually the web server
    may get overwhelmed with connections it has not responded to. By setting a timeout, the waiting threads will only block
    for the set time, and then throw a {@link net.sf.ehcache.constructs.blocking.LockTimeoutException}. Under either
