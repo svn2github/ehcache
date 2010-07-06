@@ -497,6 +497,7 @@
 
             <plugin>
                 <artifactId>maven-assembly-plugin</artifactId>
+                <version>2.2-beta-5</version>
                 <configuration>
                     <filters>
                         <filter>src/assemble/filter.properties</filter>
@@ -562,7 +563,7 @@
                 <version>2.1.2</version>
                 <reportSets>
                     <reportSet>
-                        <reports>
+                        <reports> 
                             <report>project-team</report>
                             <report>mailing-list</report>
                             <report>issue-tracking</report>
