@@ -23,6 +23,7 @@
             <excludes>
                 <exclude>*LICENSE*</exclude>
             </excludes>
+            <filtered>true</filtered>
             <outputDirectory>/</outputDirectory>
         </fileSet>
         <fileSet>
