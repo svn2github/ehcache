@@ -220,6 +220,6 @@ public final class JMSUtil {
      * @return an identifier for the local CacheManager
      */
     public static int localCacheManagerUid(CacheManager cacheManager) {
-        return cacheManager.hashCode();
+        return System.identityHashCode(cacheManager);
     }
 }
