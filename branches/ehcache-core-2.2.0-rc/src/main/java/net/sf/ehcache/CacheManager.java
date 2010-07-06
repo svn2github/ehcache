@@ -969,6 +969,14 @@ public class CacheManager {
         cache.setDiskStorePath(diskStorePath);
         cache.setTransactionManagerLookup(transactionManagerLookup);
 
+        Map<String, CacheConfiguration> configMap = configuration.getCacheConfigurations();
+        if (!configMap.containsKey(cache.getName())) {
+            CacheConfiguration cacheConfig = cache.getCacheConfiguration();
+            if (cacheConfig != null) {
+                configuration.addCache(cacheConfig);
+            }
+        }
+        
         cache.initialise();
         if (!allowsDynamicCacheConfig) {
             cache.disableDynamicFeatures();
