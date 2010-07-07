@@ -221,10 +221,10 @@ public class ActiveMQJMSReplicationTest {
         manager1.getCache(cacheName).put(new Element(3, new Date()));
         Thread.sleep(2000);
 
-        assertTrue(manager1.getCache(cacheName).getKeys().size() == manager2.getCache(cacheName).getKeys().size() &&
-                manager1.getCache(cacheName).getKeys().size() == manager3.getCache(cacheName).getKeys().size() &&
-                manager1.getCache(cacheName).getKeys().size() == manager4.getCache(cacheName).getKeys().size() &&
-                manager1.getCache(cacheName).getKeys().size() == 2);
+        assertEquals(manager1.getCache(cacheName).getKeys().size(), manager2.getCache(cacheName).getKeys().size());
+        assertEquals(manager1.getCache(cacheName).getKeys().size(), manager3.getCache(cacheName).getKeys().size());
+        assertEquals(manager1.getCache(cacheName).getKeys().size(), manager4.getCache(cacheName).getKeys().size());
+        assertEquals(2, manager1.getCache(cacheName).getKeys().size());
 
     }
 
@@ -668,7 +668,7 @@ public class ActiveMQJMSReplicationTest {
 
         }
 
-        //verify was replicated as usualy using JMS
+        //verify was replicated as usually using JMS
         Thread.sleep(3000);
         assertEquals(1000, cache2.getSize());
 
