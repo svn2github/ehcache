@@ -121,7 +121,7 @@ public class DynamicCacheConfigurationTest extends AbstractCacheTest {
         cache.put(new Element("default", new Object()));
         cache.put(new Element("eternal", new Object(), true, 0, 0));
         cache.put(new Element("short", new Object(), false, 1, 1));
-        cache.put(new Element("long", new Object(), true, 100, 100));
+        cache.put(new Element("long", new Object(), false, 100, 100));
 
         SECONDS.sleep(6);
 
@@ -175,7 +175,7 @@ public class DynamicCacheConfigurationTest extends AbstractCacheTest {
         cache.put(new Element("default", new Object()));
         cache.put(new Element("eternal", new Object(), true, 0, 0));
         cache.put(new Element("short", new Object(), false, 1, 1));
-        cache.put(new Element("long", new Object(), true, 100, 100));
+        cache.put(new Element("long", new Object(), false, 100, 100));
 
         SECONDS.sleep(6);
 
