@@ -15,7 +15,7 @@ Three Strategies For Configuring WAN Replication
 * Solution
 
     There are three mechanisms offered by Terracotta to replicate your
-    EHCache.  This recipe highlights the general approach taken by 
+    Ehcache.  This recipe highlights the general approach taken by 
     each of these three solutions.
 
 * Solution 1: Built-in Terracotta Active/Passive Replication

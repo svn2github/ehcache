@@ -19,6 +19,8 @@ Recipes
 *----+----+
 {{{../recipes/pagecaching.html}Web Page and Fragment Caching}}|How to use inluded Servlet Filters to Cache Web Page and Web Page Fragments
 *----+----+
+{{{../recipes/grails.html}Configure a Grails App for Clustering}}|How to configure a Grails Application for clustered Hibernate 2nd Level Cache
+*----+----+
 {{{../recipes/expiration.html}Data Freshness and Expiration}}|How to maintain cache "freshness" by configuring TTL and data expiration properly
 *----+----+
 {{{../recipes/programmatic.html}Enable Terracotta Programmatically}}|How to enable Terracotta support for Ehcache programmatically
