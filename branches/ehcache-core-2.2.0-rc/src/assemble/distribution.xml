@@ -29,8 +29,7 @@
         <fileSet>
             <directory>${basedir}/src/assemble</directory>
             <includes>
-                <include>*LICENSE.txt</include>
-                <include>*LICENSE.TXT</include>
+                <include>*LICENSE*</include>
             </includes>
             <outputDirectory>/licenses</outputDirectory>
         </fileSet>
