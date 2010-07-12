@@ -411,8 +411,9 @@ used with JMX monitors.
     By default, this is true i.e. the MemoryStore is cleared.
 
     statistics:
-    Whether to collect statistics. Ehcache runs twice as slow with statistics turned on.
-    By default they are off. To enable set statistics="true"
+    Whether to collect statistics. Note that this should be turned on if you are using
+    the Ehcache Monitor. By default statistics is turned off to favour raw performance.
+    To enable set statistics="true"
 
     memoryStoreEvictionPolicy:
     Policy would be enforced upon reaching the maxElementsInMemory limit. Default
