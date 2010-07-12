@@ -58,6 +58,20 @@ Ehcache Monitor
     properties="monitorAddress=localhost, monitorPort=9889, memoryMeasurement=true" />
 +---
 
+    Note that statistics capture in each cache also needs to be turned on for the probe to gather statistics.
+
+    Statistics were turned off by default from Ehcache 2.1 onwards.
+
++---
+<cache name="sampleCache2"
+           maxElementsInMemory="1000"
+           eternal="true"
+           overflowToDisk="false"
+           memoryStoreEvictionPolicy="FIFO"
+           statistics="true"
+            />
++---
+
 
 **  {Monitor}
 
