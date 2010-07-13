@@ -205,14 +205,14 @@ public class ElementResourceTest {
         ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(originalString.getBytes());
 
         assertEquals(404, HttpUtil.get("http://localhost:9090/ehcache/rest/sampleCache2/1").getResponseCode());
-        Header header = new Header("ehcacheTimeToLiveSeconds", "2");
+        Header header = new Header("ehcacheTimeToLiveSeconds", "10");
         int status = HttpUtil.put("http://localhost:9090/ehcache/rest/sampleCache2/1", "text/plain", byteArrayInputStream, header);
         assertEquals(201, status);
 
         HttpURLConnection urlConnection = HttpUtil.get("http://localhost:9090/ehcache/rest/sampleCache2/1");
         assertEquals(200, urlConnection.getResponseCode());
 
-        Thread.sleep(3000);
+        Thread.sleep(15000);
         urlConnection = HttpUtil.get("http://localhost:9090/ehcache/rest/sampleCache2/1");
         assertEquals(404, urlConnection.getResponseCode());
 
@@ -221,7 +221,7 @@ public class ElementResourceTest {
         assertEquals(201, status);
 
         //Should have not parsed
-        Thread.sleep(3000);
+        Thread.sleep(15000);
         urlConnection = HttpUtil.get("http://localhost:9090/ehcache/rest/sampleCache2/1");
         assertEquals(200, urlConnection.getResponseCode());
 
@@ -231,7 +231,7 @@ public class ElementResourceTest {
         assertEquals(201, status);
 
         //Should have not parsed
-        Thread.sleep(3000);
+        Thread.sleep(15000);
         urlConnection = HttpUtil.get("http://localhost:9090/ehcache/rest/sampleCache2/1");
         assertEquals(200, urlConnection.getResponseCode());
 
@@ -240,7 +240,7 @@ public class ElementResourceTest {
         status = HttpUtil.put("http://localhost:9090/ehcache/rest/sampleCache2/1", "text/plain", byteArrayInputStream, header);
         assertEquals(201, status);
 
-        Thread.sleep(3000);
+        Thread.sleep(5000);
         urlConnection = HttpUtil.get("http://localhost:9090/ehcache/rest/sampleCache2/1");
         assertEquals(404, urlConnection.getResponseCode());
 
