@@ -33,7 +33,7 @@ import net.sf.ehcache.store.Store;
  */
 public class SharingNonStopCacheTest extends TestCase {
 
-    private static final int SYSTEM_CLOCK_EPSILON_MILLIS = 20;
+    private static final int SYSTEM_CLOCK_EPSILON_MILLIS = 90;
 
     public void testShare() throws Exception {
         CacheManager cacheManager = new CacheManager(getClass().getResourceAsStream("/basic-cache-test.xml"));
@@ -75,7 +75,7 @@ public class SharingNonStopCacheTest extends TestCase {
             } catch (NonStopCacheException e) {
                 System.out.println("Caught expected exception - " + e);
                 long duration = System.currentTimeMillis() - start;
-                assertTrue("Get operation should have taken at least " + timeout + " ms", duration + SYSTEM_CLOCK_EPSILON_MILLIS >= timeout);
+                assertTrue("Get operation should have taken at least " + timeout + " ms. actual: " + duration, duration + SYSTEM_CLOCK_EPSILON_MILLIS >= timeout);
             }
         }
     }

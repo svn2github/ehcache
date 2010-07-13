@@ -31,7 +31,7 @@ import org.junit.Assert;
 
 public abstract class AbstractBasicNonStopCacheTest extends TestCase {
 
-    private static final int SYSTEM_CLOCK_EPSILON_MILLIS = 20;
+    private static final int SYSTEM_CLOCK_EPSILON_MILLIS = 90;
 
     private static String getMethodSignature(Method method) {
         StringBuilder sb = new StringBuilder();
@@ -183,7 +183,8 @@ public abstract class AbstractBasicNonStopCacheTest extends TestCase {
                 invokeOne(behavior, m, getMethodArguments(m));
                 long timeTaken = System.currentTimeMillis() - start;
                 System.out.println("      ... underlying cacheTimeout: " + underlyingCacheTimeout + ", actual time taken: " + timeTaken);
-                Assert.assertTrue((timeTaken + SYSTEM_CLOCK_EPSILON_MILLIS) >= underlyingCacheTimeout);
+                Assert.assertTrue("Method " + m.getName() + " should have taken at least " + underlyingCacheTimeout + ". Actual: "
+                        + timeTaken, (timeTaken + SYSTEM_CLOCK_EPSILON_MILLIS) >= underlyingCacheTimeout);
             }
         }
 
