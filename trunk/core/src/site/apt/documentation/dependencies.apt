@@ -11,7 +11,7 @@ Java Requirements and Dependencies
 
     Ehcache 1.5 requires Java 1.4.
 
-    The Ehcache DX product which provides management and monitoring will work
+    The ehcache-monitor module, which provides management and monitoring, will work
     with Ehcache 1.2.3 but only for Java 1.5 or higher.
 
 
