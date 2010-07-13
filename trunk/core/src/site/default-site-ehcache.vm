@@ -402,10 +402,10 @@
             <div id="nav">
 
                 <div id="support"><a
-                        href="http://www.terracotta.org/ehcache/ehcache-dx?src=ehcacheSupportTab"><span>Support</span></a>
+                        href="http://www.terracotta.org/support?src=ehcacheSupportTab"><span>Support</span></a>
                 </div>
                 <div id="products"><a
-                        href="http://www.terracotta.org/products?source=ehcachebanner"><span>Products</span></a>
+                        href="http://www.terracotta.org/ehcache?source=ehcachebanner"><span>Products</span></a>
                 </div>
                 <div id="customers"><a href="/customers.html"><span>Customers</span></a>
                 </div>
@@ -459,13 +459,10 @@
             <h4>Products & Services</h4>
             <ul>
                 <li>
-                    <a href="http://www.terracotta.org/ehcache">Ehcache
-                        DX, EX and FX
-                        &gt;&gt;</a></li>
+                    <a href="http://www.terracotta.org/ehcache">Enterprise Ehcache&nbsp;&rsaquo;</a></li>
                 <li>
-                    <a href="http://www.terracotta.org/support">Support
-                        &gt;&gt;</a></li>
-                <li><a href="http://ehcache.org/training.html">Training &gt;&gt;</a></li>
+                    <a href="http://www.terracotta.org/support">Support&nbsp;&rsaquo;</a></li>
+                <li><a href="http://ehcache.org/training.html">Training&nbsp;&rsaquo;</a></li>
             </ul>
             <p>&nbsp;</p>
 

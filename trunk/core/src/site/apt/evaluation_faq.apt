@@ -5,31 +5,26 @@
 Evaluation FAQ
 
  See the {{{/documentation/faq.html}FAQ}} for general FAQ questions. These ones are Q and A geared towards those evaluating
- Ehcache.
+ Ehcache for inclusion in production applications.
 
 
-* There are a lot of product choices? Which one should I use?
+* I understand Ehcache is available as both an open source project and as a commercially supported Enterprise Ehcache product. Which one should I use?
 
-   Terracotta Ehcache is available in DX, EX and FX versions.
+   The Ehcache open source project is a great choice for developers and for less critical production deployments, however many of the most successful users of Ehcache choose to deploy in production with Enterprise Ehcache – Terracotta’s commercial product offering
 
-   There is an Ehcache {{{/EhcacheBrochure.pdf}product brochure}} which explains the choices. That is a good
-   start.
 
-   Simply put Ehcache DX is standalone and non-Terracotta clustering, EX and FX are Terracotta clustered. FX adds
-   striping for massive scale.
+* How does the commercial Enterprise Ehcache product differ from the Ehcache open source project?
+  
 
-   DX and EX are supported and indemnified versions. These editions are also available as open source, simply by downloading
-      from the ehcache.org and terracotta.org respectively.
+  Enterprise Ehcache is built on the core open source technology, but is augmented with value-added features targeted for production use. Enterprise Ehcache comes in a series of editions that are hardened, tested, and qualified on multiple production environments, delivered with commercial licensing, indemnification, and backed by SLA-driven support contracts.
 
-   FX is commercial only.
+  See the attached {{{/EhcacheBrochure.pdf}product brochure}} for more information.
 
-* What are the software licenses used.
+  For a detailed description of Enterprise Ehcache, see {{{http://www.terracotta.org/echache} terracotta.org/ehcache}}.
 
-    Terracotta Open Source is available with TPL.
 
-    The Ehcache open source modules are released under an Apache license.
-
-    There are some modules which are part of the commercial product offering e.g. monitoring server.
-    These are available under a Terracotta Commercial License.
+* What are the software licenses used?
+  
+  See {{{/license} ehcache.org/license}}.
 
 

@@ -227,6 +227,7 @@
     To see what happens without XA transactions:
 
     <<<mvn clean jetty:run -Dxa=no>>>
+
 ---
 
     The source code for the demo can be checked out from
