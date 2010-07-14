@@ -7,14 +7,14 @@
 
 *   Terracotta Monitoring Products
 
-    An extensive new monitoring product, available in Ehcache DX, provides a monitoring
+    An extensive monitoring product, available in Enterprise Ehcache, provides a monitoring
     server with probes supporting Ehcache-1.2.3 and higher for standalone and clustered
     Ehcache. It comes with a web console and a RESTful API for operations integration.
 
-    See the Ehcache DX documentation for more information. 
+    See the {{{/documentation/monitor.html} ehcache-monitor documentation}} for more information. 
 
     When using Ehcache 1.7 with Terracotta clustering, the Terracotta Developer Console
-    shows statistics for ehcache.
+    shows statistics for Ehcache.
 
 
 * {JMX} Overview
