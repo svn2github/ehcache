@@ -27,11 +27,11 @@ Modules and APIs
 *----------+--------------+
 {{{./documentation/cache_server.html}ehcache-server}} | RESTful cache server in a WAR or standalone
 *----------+--------------+
-{{{./documentation/explicitlocking.html}ehcache-explicitlocking}} | Emerging API: Explicit locking control for standalone and Terracotta
+{{{./documentation/explicitlocking.html}ehcache-explicitlocking}} | Explicit locking control for standalone and Terracotta
 *----------+--------------+
-{{{./documentation/unlocked_reads_view.html}ehcache-unlockedreadsview}} | Emerging API: Unlocked reads view of a coherent Terracotta cache
+{{{./documentation/unlocked_reads_view.html}ehcache-unlockedreadsview}} | Unlocked reads view of a coherent Terracotta cache
 *----------+--------------+
-{{{./documentation/non_stop_cache.html}ehcache-nonstopcache}} | Emerging API: Fine-grained control over timeouts and offline events
+{{{./documentation/non_stop_cache.html}ehcache-nonstopcache}} | Fine-grained control over timeouts and offline events
 *----------+--------------+
 {{{./documentation/remotedebugger.html}ehcache-debugger}} | Allows tracing of RMI distributed replication events
 *----------+--------------+*----------+--------------:
