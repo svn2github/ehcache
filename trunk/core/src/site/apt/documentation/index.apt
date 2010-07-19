@@ -40,6 +40,8 @@ Documentation - Table of Contents
 
     * {{{./web_caching.html}Web Caching}}
 
+    * {{{./coldfusion.html}Using ColdFusion with Ehcache}}
+
     * {{{./distributed_caching.html}Distributed and Replicated Caching}}
 
     * {{{./distributed_caching_with_terracotta.html}Distributed Caching With Terracotta}}

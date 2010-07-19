@@ -1,0 +1,75 @@
+ ---
+ {Using Coldfusion and Ehcache}
+ ---
+
+Using Ehcache with ColdFusion
+
+%{toc|fromDepth=2|toDepth=2}
+
+
+*   Which version of Ehcache comes with which version of ColdFusion?
+
+    ColdFusion now ships with Ehcache. Here are the versions shipped:
+
+    *   ColdFusion 9.0.1 includes Ehcache 2.0 out-of-the-box
+
+    *   ColdFusion 9 includes Ehcache 1.6 out-of-the-box
+
+    *   ColdFusion 8 caching was not built on Ehcache, but Ehcache can easily be integrated with a CF8 application (see below).
+
+*   Which version of Ehcache should I use if I want a distributed cache?
+
+    Ehcache is designed so that applications written to use it can easily scale out. A standalone cache (the default in ColdFusion 9) can easily be distributed. A distributed cache solves database bottleneck problems, cache drift (where the data cached in individual application server nodes becomes out of sync), and also (when using the recommended 2-tier Terracotta distributed cache) provides the ability to have a highly available, coherent in-memory cache that is far larger than can fit in any single JVM heap.
+    See http://ehcache.org/documentation/distributed_caching.html for details.
+
+    Note: Ehcache 1.7 and higher support the Terracotta distributed cache out of the box. Due to Ehcache's API backward compatibility, it is easy to swap out older versions of ehcache with newer ones to leverage the features of new releases.
+
+*   Using Ehcache with ColdFusion 9 and 9.0.1
+
+    For a short introduction - check out Raymond Camden's blog:
+    http://www.coldfusionjedi.com/index.cfm/2009/7/18/ColdFusion-9-and-Caching-Enhancements
+
+    For more in-depth analysis read Rob Brooks-Bilson's awesome 9 part Blog Series:
+    http://www.brooks-bilson.com/blogs/rob/index.cfm/2009/7/21/Caching-Enhancements-in-ColdFusion-9--Part-1-Why-Cache
+
+*   Using Ehcache with ColdFusion 8
+
+    To integrate Ehcache with ColdFusion 8, first add the ehcache-core jar (and its dependent jars) to your web application lib directory.
+
+    The following code demonstrates how to call Ehcache from ColdFusion 8.
+    It will cache a CF object in Ehcache and the set expiration time to 30 seconds. If you refresh the page many times within 30 seconds, you will see the data from cache. After 30 seconds, you will see a cache miss, then the code will generate a new object and put in cache again.
+
+---
+<CFOBJECT type="JAVA" class="net.sf.ehcache.CacheManager" name="cacheManager">
+<cfset cache=cacheManager.getInstance().getCache("MyBookCache")>
+<cfset myBookElement=#cache.get("myBook")#>
+<cfif IsDefined("myBookElement")>
+        <cfoutput>
+         myBookElement: #myBookElement#<br />
+        </cfoutput>
+        <cfif IsStruct(myBookElement.getObjectValue())>
+                <strong>Cache Hit</strong><p/>
+                <!-- Found the object from cache -->
+                <cfset myBook = #myBookElement.getObjectValue()#>
+        </cfif>
+</cfif>
+<cfif IsDefined("myBook")>
+<cfelse>
+<strong>Cache Miss</strong>
+        <!-- object not found in cache, go ahead create it -->
+        <cfset myBook = StructNew()>
+        <cfset a = StructInsert(myBook, "cacheTime", LSTimeFormat(Now(), 'hh:mm:sstt'), 1)>
+        <cfset a = StructInsert(myBook, "title", "EhCache Book", 1)>
+        <cfset a = StructInsert(myBook, "author", "Greg Luck", 1)>
+        <cfset a = StructInsert(myBook, "ISBN", "ABCD123456", 1)>
+        <CFOBJECT type="JAVA" class="net.sf.ehcache.Element" name="myBookElement">
+        <cfset myBookElement.init("myBook", myBook)>
+        <cfset cache.put(myBookElement)>
+</cfif>
+<cfoutput>
+ Cache time: #myBook["cacheTime"]#<br />
+ Title: #myBook["title"]#<br />
+ Author: #myBook["author"]#<br />
+ ISBN: #myBook["ISBN"]#
+</cfoutput>
+---
