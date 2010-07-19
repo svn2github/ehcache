@@ -1,0 +1,43 @@
+<html>
+  <head>
+  </head>
+  <body>
+
+  The constructs package builds on top of the core ehcache classes to create
+  implementations for common caching patterns. <br>
+  <br>
+  All implementations use ehcache as the backing cache. They also share a
+  common purpose - to create very high performance Java applications.<br>
+  <br>
+  <h2>Pattern Implementations</h2>
+  <h4>General Purpose Caching </h4>
+  <ul>
+  <li>BlockingCache
+  - a cache which blocks subsequent threads until the
+  first read thread populates a cache entry </li>
+  <li>SelfPopulatingCache</li>
+  - a read-through cache. A cache that
+  populates elements as they are requested without requiring the caller
+  to know how the entries are populated. It also enables refreshes of
+  cache entries without blocking reads on the same entries.</li>
+  <li>UpdatingSelfPopulatingCache - a read-through cache. A cache that
+  populates elements as they are requested without requiring the caller
+  to know how the entries are populated. The cache entry is automatically
+  updated on subsequent reads.</li>
+  </ul>
+  <h4>Web Caching</h4>
+  Servlet 2.3 caching filters that cache HTTP/S responses:<br>
+  <ul>
+  <li>CachingFilter - an abstract, extensible caching filter.<br>
+  </li>
+  <li>SimplePageCachingFilter - a concrete implementation which caches
+  pages based on the request URI and Query String.<br>
+  </li>
+  <li>SimplePageFragmentCachingFilter - a concrete implementation which
+  caches page fragments based on the request URI and Query String. </li>
+  </ul>
+
+
+
+  </body>
+</html>

@@ -1,0 +1,32 @@
+ ------
+ Web Page and Web Page Fragment Caching
+ ------
+
+Web Page and Web Page Fragment Caching
+
+* Problem
+
+    Your web application is too slow or requires too many resources.  Many
+    of the pages it generates are not specific to an end-user and could
+    be cached for a period of time.
+
+* Solution
+
+    Cache the entirety of the web page, or a fragment of the web page
+    for a period of time.  Rather than having to generate the page on
+    each page hit, it will be served out of the cache.
+
+    Modern application hardware should be able to server as many as 
+    5,000 pages per second, affording a significant speedup in your
+    application for pages that are frequently read but infrequently 
+    change.
+    
+* Discussion
+
+    There are no code changes required for this - your application server
+    should support servlet filtering already.  Simply update your
+    web.xml file, re-deploy and you should see the speedup right away.
+
+    For details and configuration settings, see the 
+    {{{../documentation/web_caching.html}Web Caching}} page in the user 
+    documentation. 
