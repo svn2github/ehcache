@@ -231,8 +231,10 @@ public class LruMemoryStore extends AbstractStore {
             Element element = (Element) map.get(key);
             if (element != null) {
                 if (!element.isSerializable()) {
-                    LOG.warn("Object with key " + element.getObjectKey()
-                             + " is not Serializable and is not being overflowed to disk.");
+                    if (LOG.isWarnEnabled()) {
+                        LOG.warn("Object with key " + element.getObjectKey()
+                                 + " is not Serializable and is not being overflowed to disk.");
+                    }
                 } else {
                     spoolToDisk(element);
                     //Don't notify listeners. They are not being removed from the cache, only a store
@@ -346,8 +348,10 @@ public class LruMemoryStore extends AbstractStore {
         boolean spooled = false;
         if (cache.getCacheConfiguration().isOverflowToDisk()) {
             if (!element.isSerializable()) {
-                LOG.debug(new StringBuilder("Object with key ").append(element.getObjectKey())
-                        .append(" is not Serializable and cannot be overflowed to disk").toString());
+                if (LOG.isWarnEnabled()) { 
+                    LOG.warn(new StringBuilder("Object with key ").append(element.getObjectKey())
+                            .append(" is not Serializable and cannot be overflowed to disk").toString());
+                }
             } else {
                 spoolToDisk(element);
                 spooled = true;
