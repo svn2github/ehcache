@@ -88,9 +88,9 @@ Documentation - Table of Contents
 
     * {{{./grails.html}Grails Caching}}
 
-    * {{{./unlocked_reads_view.html}ehcache-unlockedreadsview}} - Emerging API: Unlocked reads view of a coherent Terracotta cache new_in_2
+    * {{{./unlocked_reads_view.html}ehcache-unlockedreadsview}} - Unlocked reads view of a coherent Terracotta cache new_in_2
 
-    * {{{./non_stop_cache.html}ehcache-nonstopcache}} - Emerging API: Fine-grained control over timeouts and offline events new_in_2
+    * {{{./non_stop_cache.html}ehcache-nonstopcache}} - Fine-grained control over timeouts and offline events new_in_2
 
     * {{{./glassfish.html}Glassfish HowTo}}
 

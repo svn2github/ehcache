@@ -20,17 +20,50 @@ Using Ehcache with ColdFusion
 *   Which version of Ehcache should I use if I want a distributed cache?
 
     Ehcache is designed so that applications written to use it can easily scale out. A standalone cache (the default in ColdFusion 9) can easily be distributed. A distributed cache solves database bottleneck problems, cache drift (where the data cached in individual application server nodes becomes out of sync), and also (when using the recommended 2-tier Terracotta distributed cache) provides the ability to have a highly available, coherent in-memory cache that is far larger than can fit in any single JVM heap.
-    See http://ehcache.org/documentation/distributed_caching.html for details.
+    See {{http://ehcache.org/documentation/distributed_caching.html}} for details.
 
     Note: Ehcache 1.7 and higher support the Terracotta distributed cache out of the box. Due to Ehcache's API backward compatibility, it is easy to swap out older versions of ehcache with newer ones to leverage the features of new releases.
 
 *   Using Ehcache with ColdFusion 9 and 9.0.1
 
     For a short introduction - check out Raymond Camden's blog:
-    http://www.coldfusionjedi.com/index.cfm/2009/7/18/ColdFusion-9-and-Caching-Enhancements
+    {{http://www.coldfusionjedi.com/index.cfm/2009/7/18/ColdFusion-9-and-Caching-Enhancements}}
 
     For more in-depth analysis read Rob Brooks-Bilson's awesome 9 part Blog Series:
-    http://www.brooks-bilson.com/blogs/rob/index.cfm/2009/7/21/Caching-Enhancements-in-ColdFusion-9--Part-1-Why-Cache
+    {{http://www.brooks-bilson.com/blogs/rob/index.cfm/2009/7/21/Caching-Enhancements-in-ColdFusion-9--Part-1-Why-Cache}}
+
+*   Switching from a local cache to a distributed cache with ColdFusion 9.0.1
+
+    1. Download the Terracotta kit. For the quickest results, use Terracotta 3.2.1. Download it here:
+    {{http://www.terracotta.org/dl/oss-download-destination?name=terracotta-3.2.1-installer.jar&bucket=tcdistributions&file=terracotta-3.2.1-installer.jar}}
+
+    Install the kit with 'java -jar terracotta-3.2.1-installer.jar'. We will refer to the directory you installed it into as TCHOME. Similarly, we will refer to the location of ColdFusion as CFHOME. These instructions assume you are working with a standalone server install of ColdFusion, if working with a EAR/WAR install you will need to modify the steps accordingly (file locations may vary, additional steps may be need to rebuild the EAR/WAR).
+
+    Before integrating the distributed cache with ColdFusion, you may want to follow the simple self-contained tutorial which uses one of the samples in the kit to demonstrate distributed caching:
+    {{http://www.terracotta.org/start/distributed-cache-tutorial}}
+
+    2. Copy TCHOME/ehcache/ehcache-terracotta-2.0.0.jar into CFHOME/lib
+
+    3. Edit the CFHOME/lib/ehcache.xml to add the necessary two lines of config to turn on distributed caching
+
+    <terracottaConfig url="localhost:9510"/>
+    <defaultCache
+            ...
+            >
+                    <terracotta clustered="true" />
+    </defaultCache>
+
+    4. Edit jvm.config (typically in CFHOME/runtime/bin) properties to ensure that coldfusion.classPath (set with -Dcoldfusion.classPath= in java.args) DOES NOT include any relative paths (ie ../ ) - ie replace the relative paths with full paths [This is to work around a known issue in ehcache-terracotta-2.0.0.jar].
+
+    5. Start the Terracotta server
+    TCHOME/bin/start-tc-server.sh (or start-tc-server.bat on Windows)
+    NOTE: In production, you would run your servers on a set of separate machines for fault tolerance and performance.
+
+    6. Start ColdFusion, access your application, and see the distributed cache in action.
+
+    7. This is just the tip of the iceberg & you'll probably have lots of questions. Drop us an email to info@terracottatech.com to let us know how you got on, and if you have questions you'd like answers to.
+
+
 
 *   Using Ehcache with ColdFusion 8
 
