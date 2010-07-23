@@ -7,7 +7,7 @@
 cd target/site
 
 # remove Marketing owned paths
-#rm index.html
+rm index.html
 
 # upload
 rsync -v -r * ehcache-stage.terracotta.lan:/export1/ehcache.org

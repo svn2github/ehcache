@@ -26,11 +26,17 @@ Using Ehcache with ColdFusion
 
 *   Using Ehcache with ColdFusion 9 and 9.0.1
 
+    The ColdFusion community has actively engaged with Ehcache and have put out lots of great blogs. Here are three to get you
+     started.
+
     For a short introduction - check out Raymond Camden's blog:
     {{http://www.coldfusionjedi.com/index.cfm/2009/7/18/ColdFusion-9-and-Caching-Enhancements}}
 
     For more in-depth analysis read Rob Brooks-Bilson's awesome 9 part Blog Series:
     {{http://www.brooks-bilson.com/blogs/rob/index.cfm/2009/7/21/Caching-Enhancements-in-ColdFusion-9--Part-1-Why-Cache}}
+
+    14 days of ColdFusion caching, by Aaron West, covering a different topic each day:
+    {{http://www.aaronwest.net/blog/index.cfm/2009/11/17/14-Days-of-ColdFusion-9-Caching-Day-1--Caching-a-Full-Page}}
 
 *   Switching from a local cache to a distributed cache with ColdFusion 9.0.1
 
@@ -46,18 +52,26 @@ Using Ehcache with ColdFusion
 
     3. Edit the CFHOME/lib/ehcache.xml to add the necessary two lines of config to turn on distributed caching
 
+---
     <terracottaConfig url="localhost:9510"/>
     <defaultCache
             ...
             >
                     <terracotta clustered="true" />
     </defaultCache>
+---
 
     4. Edit jvm.config (typically in CFHOME/runtime/bin) properties to ensure that coldfusion.classPath (set with -Dcoldfusion.classPath= in java.args) DOES NOT include any relative paths (ie ../ ) - ie replace the relative paths with full paths [This is to work around a known issue in ehcache-terracotta-2.0.0.jar].
 
     5. Start the Terracotta server
-    TCHOME/bin/start-tc-server.sh (or start-tc-server.bat on Windows)
-    NOTE: In production, you would run your servers on a set of separate machines for fault tolerance and performance.
+
+---
+    $TCHOME/bin/start-tc-server.sh
+
+    start-tc-server.bat
+---
+
+    Note: In production, you would run your servers on a set of separate machines for fault tolerance and performance.
 
     6. Start ColdFusion, access your application, and see the distributed cache in action.
 

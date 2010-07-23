@@ -1,5 +1,5 @@
  --------------------
- Ehcache Write-Behind
+ Writing to the Database is a Bottleneck - Write-behind
  --------------------
 
 Ehcache Write-Behind
@@ -41,4 +41,4 @@ Ehcache Write-Behind
 	In a clustered cache, the write-behind queue is managed by Terracotta Server Array. The background thread on each JVM will check the shared queue and save each data change left in the queue. With clustered Ehcache, this background process is scaled across the cluster for both performance and high availability reasons.  If one client JVM were to go down, any changes it put into the write-behind queue can always be loaded by threads in other clustered JVMs, therefore will be applied to the database without any data loss. 
 	
 	There are many advanced configurations for Write-behind Cache.  Because of nature of asynchronous writing, there're also restrictions on when Write-Behind Cache can be used. More details can be found at:
-	http://ehcache.org/documentation/write_through_caching.html
+	{{http://ehcache.org/documentation/write_through_caching.html}}
