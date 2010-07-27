@@ -317,7 +317,7 @@ public class RMIAsynchronousCacheReplicator extends RMISynchronousCacheReplicato
                 cachePeer.send(resolvedEventMessages);
             } catch (UnmarshalException e) {
                 String message = e.getMessage();
-                if (message.indexOf("Read time out") != 0) {
+                if (message.indexOf("Read time out") != 0 | message.indexOf("Read timed out") != 0) {
                     LOG.warn("Unable to send message to remote peer due to socket read timeout. Consider increasing" +
                             " the socketTimeoutMillis setting in the cacheManagerPeerListenerFactory. " +
                             "Message was: " + e.getMessage());
