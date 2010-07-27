@@ -58,7 +58,20 @@ Ehcache Monitor
     properties="monitorAddress=localhost, monitorPort=9889, memoryMeasurement=true" />
 +---
 
-    Note that statistics capture in each cache also needs to be turned on for the probe to gather statistics.
+    [[3]] Include required SLF4J logging jars.
+
+    Ehcache 1.7.1 and above require SLF4J. Earlier versions used commons logging. The probe, like all new Ehcache modules,
+    uses SLF4J, which is becoming a new standard in open source projects.
+
+    If you are using Ehcache 1.5 to 1.7.0, you will need to add slf4j-api and one concrete logger.
+
+    If you are using Ehcache 1.7.1 and above you should not need to do anything because you will already be using
+    slf4j-api and one concrete logger.
+
+    More information on SLF4J is available from http://www.slf4j.org.
+
+
+    [[4]] Ensure that statistics capture in each cache is turned on for the probe to gather statistics.
 
     Statistics were turned off by default from Ehcache 2.1 onwards.
 
