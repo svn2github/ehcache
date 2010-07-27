@@ -54,12 +54,18 @@ public final class MemoryEfficientByteArrayOutputStream extends ByteArrayOutputS
 
 
     /**
-     * Gets the bytes. Not all may be valid. Use only up to getSize()
+     * Gets the bytes.
      *
-     * @return the underlying byte[]
+     * @return the underlying byte[], or a copy if the byte[] is oversized
      */
     public synchronized byte getBytes()[] {
-        return buf;
+        if (buf.length == size()) {
+            return buf;
+        } else {
+            byte[] copy = new byte[size()];
+            System.arraycopy(buf, 0, copy, 0, size());
+            return copy;
+        }
     }
 
     /**
