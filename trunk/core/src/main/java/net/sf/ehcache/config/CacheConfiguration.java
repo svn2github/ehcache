@@ -564,10 +564,15 @@ public class CacheConfiguration implements Cloneable {
      */
     public final void setEternal(boolean eternal) {
         checkDynamicChange();
+        checkConflictingEternalValues(eternal, getTimeToLiveSeconds(), getTimeToIdleSeconds());
         this.eternal = eternal;
-        if (eternal) {
-            setTimeToIdleSeconds(0);
-            setTimeToLiveSeconds(0);
+    }
+
+    private void checkConflictingEternalValues(boolean newEternalValue, long newTTLValue, long newTTIValue) {
+        if (newEternalValue && (newTTLValue != 0 || newTTIValue != 0)) {
+            throw new CacheException(
+                    "Conflicting values detected. When eternal is true, timeToLiveSeconds and timeToIdleSeconds should be zero. Trying to set eternal="
+                            + newEternalValue + ", timeToLiveSeconds=" + newTTLValue + ", timeToIdleSeconds=" + newTTIValue + " )");
         }
     }
 
@@ -591,6 +596,7 @@ public class CacheConfiguration implements Cloneable {
      */
     public final void setTimeToIdleSeconds(long timeToIdleSeconds) {
         checkDynamicChange();
+        checkConflictingEternalValues(eternal, getTimeToLiveSeconds(), timeToIdleSeconds);
         long oldTti = this.timeToIdleSeconds;
         long newTti = timeToIdleSeconds;
         this.timeToIdleSeconds = timeToIdleSeconds;
@@ -620,6 +626,7 @@ public class CacheConfiguration implements Cloneable {
      */
     public final void setTimeToLiveSeconds(long timeToLiveSeconds) {
         checkDynamicChange();
+        checkConflictingEternalValues(eternal, timeToLiveSeconds, getTimeToIdleSeconds());
         long oldTtl = this.timeToLiveSeconds;
         long newTtl = timeToLiveSeconds;
         this.timeToLiveSeconds = timeToLiveSeconds;
