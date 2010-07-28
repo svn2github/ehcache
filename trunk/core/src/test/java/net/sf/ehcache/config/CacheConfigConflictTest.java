@@ -50,15 +50,7 @@ public class CacheConfigConflictTest extends TestCase {
         }
 
         try {
-            cacheConfig.timeToIdleSeconds(10);
-            fail("Config with conflicting values should have thrown exception.");
-        } catch (Exception e) {
-            // expected
-            Assert.assertTrue(e.getMessage().contains("Conflicting values"));
-        }
-
-        try {
-            cacheConfig.timeToIdleSeconds(10);
+            cacheConfig.timeToLiveSeconds(10);
             fail("Config with conflicting values should have thrown exception.");
         } catch (Exception e) {
             // expected
