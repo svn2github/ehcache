@@ -240,7 +240,7 @@ public class JCacheTest extends AbstractCacheTest {
      */
     @Test
     public void testNoOverflowToDisk() throws Exception {
-        Ehcache ehcache = new net.sf.ehcache.Cache("testNoOverflowToDisk", 1, false, true, 500, 200);
+        Ehcache ehcache = new net.sf.ehcache.Cache("testNoOverflowToDisk", 1, false, false, 500, 200);
         manager.addCache(ehcache);
         Cache cache = new JCache(ehcache);
         cache.put("key1", "value1");
@@ -255,7 +255,7 @@ public class JCacheTest extends AbstractCacheTest {
      */
     @Test
     public void testIsEmpty() throws Exception {
-        Ehcache ehcache = new net.sf.ehcache.Cache("testIsEmpty", 1, true, true, 500, 200);
+        Ehcache ehcache = new net.sf.ehcache.Cache("testIsEmpty", 1, true, false, 500, 200);
         manager.addCache(ehcache);
         Cache cache = new JCache(ehcache);
         assertTrue(cache.isEmpty());
@@ -278,7 +278,7 @@ public class JCacheTest extends AbstractCacheTest {
      */
     @Test
     public void testEhcacheConstructor() throws Exception {
-        Ehcache ehcache = new net.sf.ehcache.Cache("testJCacheCreation", 1, true, true, 500, 200);
+        Ehcache ehcache = new net.sf.ehcache.Cache("testJCacheCreation", 1, true, false, 500, 200);
         JCache cache = new JCache(ehcache);
         manager.addCache(cache);
 
@@ -334,7 +334,7 @@ public class JCacheTest extends AbstractCacheTest {
      */
     @Test
     public void testContainsKey() throws Exception {
-        Ehcache ehcache = new net.sf.ehcache.Cache("testContainsKey", 1, true, true, 500, 200);
+        Ehcache ehcache = new net.sf.ehcache.Cache("testContainsKey", 1, true, false, 500, 200);
         manager.addCache(ehcache);
         Cache cache = new JCache(ehcache);
         assertFalse(cache.containsKey("key1"));
@@ -358,7 +358,7 @@ public class JCacheTest extends AbstractCacheTest {
      */
     @Test
     public void testContainsValue() throws Exception {
-        Ehcache ehcache = new net.sf.ehcache.Cache("testContainsValue", 2, true, true, 500, 200);
+        Ehcache ehcache = new net.sf.ehcache.Cache("testContainsValue", 2, true, false, 500, 200);
         manager.addCache(ehcache);
         Cache cache = new JCache(ehcache);
         assertFalse(cache.containsValue("value1"));
@@ -382,7 +382,7 @@ public class JCacheTest extends AbstractCacheTest {
      */
     @Test
     public void testGet() throws Exception {
-        Ehcache ehcache = new net.sf.ehcache.Cache("testGet", 10, true, true, 500, 200);
+        Ehcache ehcache = new net.sf.ehcache.Cache("testGet", 10, true, false, 500, 200);
         manager.addCache(ehcache);
         JCache jcache = new JCache(manager.getCache("sampleCache1"));
         CountingCacheLoader specificCacheLoader = new CountingCacheLoader();
@@ -466,7 +466,7 @@ public class JCacheTest extends AbstractCacheTest {
      */
     @Test
     public void testLoaderName() throws Exception {
-        Ehcache ehcache = new net.sf.ehcache.Cache("testName", 10, true, true, 500, 200);
+        Ehcache ehcache = new net.sf.ehcache.Cache("testName", 10, true, false, 500, 200);
         manager.addCache(ehcache);
         JCache jcache = new JCache(manager.getCache("sampleCache1"));
 
@@ -483,7 +483,7 @@ public class JCacheTest extends AbstractCacheTest {
      */
     @Test
     public void testGetValues() throws Exception {
-        Ehcache ehcache = new net.sf.ehcache.Cache("testGetValue", 2, true, true, 500, 200);
+        Ehcache ehcache = new net.sf.ehcache.Cache("testGetValue", 2, true, false, 500, 200);
         manager.addCache(ehcache);
 
         CountingCacheLoader countingCacheLoader = new CountingCacheLoader();
@@ -514,7 +514,7 @@ public class JCacheTest extends AbstractCacheTest {
      */
     @Test
     public void testPutAll() {
-        Ehcache ehcache = new net.sf.ehcache.Cache("testPutAll", 2, true, true, 500, 200);
+        Ehcache ehcache = new net.sf.ehcache.Cache("testPutAll", 2, true, false, 500, 200);
         manager.addCache(ehcache);
         Cache cache = new JCache(ehcache);
         assertTrue(cache.isEmpty());
@@ -539,7 +539,7 @@ public class JCacheTest extends AbstractCacheTest {
      */
     @Test
     public void testClear() {
-        Ehcache ehcache = new net.sf.ehcache.Cache("testClear", 2, true, true, 500, 200);
+        Ehcache ehcache = new net.sf.ehcache.Cache("testClear", 2, true, false, 500, 200);
         manager.addCache(ehcache);
         Cache cache = new JCache(ehcache);
 
@@ -558,7 +558,7 @@ public class JCacheTest extends AbstractCacheTest {
      */
     @Test
     public void testKeySet() {
-        Ehcache ehcache = new net.sf.ehcache.Cache("testKeySet", 2, true, true, 500, 200);
+        Ehcache ehcache = new net.sf.ehcache.Cache("testKeySet", 2, true, false, 500, 200);
         manager.addCache(ehcache);
         Cache cache = new JCache(ehcache);
 
@@ -779,7 +779,7 @@ public class JCacheTest extends AbstractCacheTest {
     @Test
     public void testNoIdleOrExpiryBasedOnTimeToLiveForEternal() throws Exception {
         //Set size so the second element overflows to disk.
-        Ehcache ehcache = new net.sf.ehcache.Cache("testNoIdleOrExpiryBasedOnTimeToLiveForEternal", 1, true, true, 5, 2);
+        Ehcache ehcache = new net.sf.ehcache.Cache("testNoIdleOrExpiryBasedOnTimeToLiveForEternal", 1, true, false, 5, 2);
         manager.addCache(ehcache);
         Cache cache = new JCache(ehcache);
 
