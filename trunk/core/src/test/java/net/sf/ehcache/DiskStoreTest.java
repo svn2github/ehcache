@@ -93,7 +93,7 @@ public class DiskStoreTest extends AbstractCacheTest {
      * size-related characteristics without elements being deleted under us.
      */
     private Store createNonExpiringDiskStore() {
-        Cache cache = new Cache("test/NonPersistent", 1, true, true, 2, 1, false, 1);
+        Cache cache = new Cache("test/NonPersistent", 1, true, false, 2, 1, false, 1);
         manager.addCache(cache);
         return cache.getStore();
     }
@@ -105,13 +105,13 @@ public class DiskStoreTest extends AbstractCacheTest {
     }
 
     private Store createPersistentDiskStore(String cacheName) {
-        Cache cache = new Cache(cacheName, 10000, true, true, 5, 1, true, 600);
+        Cache cache = new Cache(cacheName, 10000, true, false, 5, 1, true, 600);
         manager.addCache(cache);
         return cache.getStore();
     }
 
     private Store createAutoPersistentDiskStore(String cacheName) {
-        Cache cache = new Cache(cacheName, 10000, true, true, 5, 1, true, 600);
+        Cache cache = new Cache(cacheName, 10000, true, false, 5, 1, true, 600);
         manager2 = new CacheManager();
         //manager.setDiskStorePath(System.getProperty("java.io.tmpdir") + File.separator + DiskStore.generateUniqueDirectory());
         manager2.addCache(cache);
@@ -193,7 +193,7 @@ public class DiskStoreTest extends AbstractCacheTest {
      */
     @Test
     public void testSetDiskStorePath() throws IOException, InterruptedException {
-        Cache cache = new Cache("testChangePath", 10000, true, true, 5, 1, true, 600);
+        Cache cache = new Cache("testChangePath", 10000, true, false, 5, 1, true, 600);
         manager2 = new CacheManager();
         cache.setDiskStorePath(System.getProperty("java.io.tmpdir") + File.separator + "changedDiskStorePath");
         manager2.addCache(cache);
@@ -1089,7 +1089,7 @@ public class DiskStoreTest extends AbstractCacheTest {
     public void testOutOfMemoryErrorOnOverflowToDisk() throws Exception {
 
         //Set size so the second element overflows to disk.
-        Cache cache = new Cache("test", 1000, MemoryStoreEvictionPolicy.LRU, true, null, true, 500, 500, false, 1, null);
+        Cache cache = new Cache("test", 1000, MemoryStoreEvictionPolicy.LRU, true, null, false, 500, 500, false, 1, null);
         manager.addCache(cache);
         int i = 0;
 

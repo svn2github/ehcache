@@ -473,7 +473,7 @@ public class CacheTest extends AbstractCacheTest {
     @Test
     public void testNoOverflowToDisk() throws Exception {
         //Set size so the second element overflows to disk.
-        Cache cache = new Cache("test", 1, false, true, 5, 2);
+        Cache cache = new Cache("test", 1, false, false, 5, 2);
         manager.addCache(cache);
         cache.put(new Element("key1", "value1"));
         cache.put(new Element("key2", "value1"));
@@ -616,7 +616,7 @@ public class CacheTest extends AbstractCacheTest {
     @Test
     public void testNoIdleOrExpiryBasedOnTimeToLiveForEternal() throws Exception {
         //Set size so the second element overflows to disk.
-        Cache cache = new Cache("test", 1, true, true, 5, 2);
+        Cache cache = new Cache("test", 1, true, false, 5, 2);
         manager.addCache(cache);
         cache.put(new Element("key1", "value1"));
         cache.put(new Element("key2", "value1"));
@@ -1648,7 +1648,7 @@ public class CacheTest extends AbstractCacheTest {
 
 
         CacheManager cacheManager = new CacheManager(new ByteArrayInputStream(config));
-        Cache cache = new Cache("test3cache", 20000, false, true, 50, 30);
+        Cache cache = new Cache("test3cache", 20000, false, false, 50, 30);
         //assertTrue(cache.getCacheConfiguration().isOverflowToDisk());
         cacheManager.addCache(cache);
 

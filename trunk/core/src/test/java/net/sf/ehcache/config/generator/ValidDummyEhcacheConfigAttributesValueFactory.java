@@ -31,6 +31,10 @@ public class ValidDummyEhcacheConfigAttributesValueFactory implements XSDAttribu
                 && "transactionalMode".equals(attribute.getName())) {
             return "off";
         }
+        // always generate with eternal=false
+        if (("defaultCache".equals(element.getName()) || "cache".equals(element.getName())) && "eternal".equals(attribute.getName())) {
+            return "false";
+        }
         return xsdAttributeValueType.getRandomAllowedValue();
     }
 }

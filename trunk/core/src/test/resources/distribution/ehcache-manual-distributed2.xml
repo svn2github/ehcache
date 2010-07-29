@@ -168,7 +168,7 @@
     <!-- Sample cache named sampleCache1 -->
         <cache name="sampleCache1"
                maxElementsInMemory="10"
-               eternal="true"
+               eternal="false"
                timeToIdleSeconds="100"
                timeToLiveSeconds="100"
                overflowToDisk="true"

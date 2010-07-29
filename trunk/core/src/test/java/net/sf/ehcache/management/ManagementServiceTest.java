@@ -226,7 +226,7 @@ public class ManagementServiceTest extends AbstractCacheTest {
     @Test
     public void testRegisterCacheManager() throws Exception {
         //Set size so the second element overflows to disk.
-        Ehcache ehcache = new net.sf.ehcache.Cache("testNoOverflowToDisk", 1, false, true, 500, 200);
+        Ehcache ehcache = new net.sf.ehcache.Cache("testNoOverflowToDisk", 1, false, false, 500, 200);
         manager.addCache(ehcache);
 
         ehcache.put(new Element("key1", "value1"));
