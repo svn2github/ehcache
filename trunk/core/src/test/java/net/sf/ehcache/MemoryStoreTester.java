@@ -121,7 +121,7 @@ public class MemoryStoreTester extends AbstractCacheTest {
      */
     protected void createMemoryOnlyStore(MemoryStoreEvictionPolicy evictionPolicy, int memoryStoreSize) throws CacheException {
         manager.removeCache("test");
-        cache = new Cache("test", memoryStoreSize, evictionPolicy, false, null, true, 60, 30, false, 60, null);
+        cache = new Cache("test", memoryStoreSize, evictionPolicy, false, null, false, 60, 30, false, 60, null);
         manager.addCache(cache);
         store = cache.getStore();
     }

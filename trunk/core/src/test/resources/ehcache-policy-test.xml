@@ -39,7 +39,7 @@
         are not used and do not need to be specified -->
     <cache name="sampleFIFOCache2"
            maxElementsInMemory="5"
-           eternal="true"
+           eternal="false"
            overflowToDisk="false"
            timeToIdleSeconds="300"
            timeToLiveSeconds="600"

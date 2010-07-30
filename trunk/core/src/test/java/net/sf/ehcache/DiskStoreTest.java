@@ -357,7 +357,7 @@ public class DiskStoreTest extends AbstractCacheTest {
         manager2.removeCache(cacheName);
         Thread.sleep(1000);
 
-        Cache cache = new Cache(cacheName, 10000, true, true, 5, 1, true, 600);
+        Cache cache = new Cache(cacheName, 10000, true, false, 5, 1, true, 600);
         manager2.addCache(cache);
 
         File dataFile = ((DiskPersistentStore) diskStore).getDataFile();
