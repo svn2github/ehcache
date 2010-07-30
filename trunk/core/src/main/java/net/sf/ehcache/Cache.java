@@ -271,6 +271,7 @@ public class Cache implements Ehcache, StoreListener {
 
 
         this.configuration = cacheConfiguration.clone();
+        configuration.validateCompleteConfiguration();
 
         guid = createGuid();
 

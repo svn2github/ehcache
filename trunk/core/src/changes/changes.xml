@@ -5,6 +5,10 @@
             <action dev="Greg Luck" type="fix">
                 EHC-740. Pick up "Read timed out" in RMI UnmarshalException".
             </action>
+            <action dev="Greg Luck" type="fix">
+                Throw an InvalidConfigurationException when a cache is created from CacheConfiguration
+                without specifying a name.
+            </action>
         </release>
         <release version="2.2.0" date="2010-07-16" description="Bug fixes">
             <action dev="Geert Bevin" type="fix">

@@ -37,6 +37,7 @@ import net.sf.ehcache.event.CountingCacheManagerEventListener;
 import net.sf.ehcache.event.NotificationScope;
 import net.sf.ehcache.exceptionhandler.CacheExceptionHandler;
 import net.sf.ehcache.exceptionhandler.CountingExceptionHandler;
+import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
 import net.sf.ehcache.store.compound.SerializationCopyStrategy;
 import net.sf.ehcache.writer.TestCacheWriter;
 import org.junit.Before;
@@ -1600,5 +1601,23 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
         helpTestListenFor(configuration, "listenLocal", NotificationScope.LOCAL);
         helpTestListenFor(configuration, "listenRemote", NotificationScope.REMOTE);
     }
+
     
+    @Test
+    public void testCacheConfigurationWithNoName() {
+
+        //Don't set cache name
+        CacheConfiguration cacheConfigurationTest3Cache = new CacheConfiguration().maxElementsInMemory(10)
+                .eternal(true).memoryStoreEvictionPolicy(MemoryStoreEvictionPolicy.LRU).overflowToDisk(false)
+                .statistics(false);
+
+        try {
+            Cache cache = new Cache(cacheConfigurationTest3Cache);
+        } catch (InvalidConfigurationException e) {
+            //expected
+        }
+
+    }
+
+
 }

@@ -22,10 +22,13 @@ import net.sf.ehcache.CacheException;
  * An exception to report invalid configuration settings.
  *  
  * @author gbevin
+ * @author Greg Luck
  */
 public class InvalidConfigurationException extends CacheException {
+
     /**
      * Constructs a new exception with a detailed message that explains the cause.
+     * @param message the exception message
      */
     public InvalidConfigurationException(String message) {
         super(message);
