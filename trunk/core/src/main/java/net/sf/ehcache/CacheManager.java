@@ -54,6 +54,7 @@ import java.io.File;
 import java.io.InputStream;
 import java.lang.reflect.Method;
 import java.net.URL;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -1196,6 +1197,13 @@ public class CacheManager {
      */
     public CacheManagerPeerProvider getCacheManagerPeerProvider(String scheme) {
         return cacheManagerPeerProviders.get(scheme);
+    }
+    
+    /**
+     * @return Read-only map of the registered {@link CacheManagerPeerProvider}s keyed by scheme.
+     */
+    public Map<String, CacheManagerPeerProvider> getCacheManagerPeerProviders() {
+        return Collections.unmodifiableMap(this.cacheManagerPeerProviders);
     }
 
     /**

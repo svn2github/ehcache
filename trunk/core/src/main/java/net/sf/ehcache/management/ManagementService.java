@@ -18,6 +18,7 @@ package net.sf.ehcache.management;
 
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Status;
+import net.sf.ehcache.distribution.CacheManagerPeerProvider;
 import net.sf.ehcache.event.CacheManagerEventListener;
 import net.sf.ehcache.hibernate.management.impl.EhcacheHibernateMbeanNames;
 
@@ -29,6 +30,7 @@ import javax.management.NotCompliantMBeanException;
 import javax.management.ObjectName;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.slf4j.Logger;
@@ -156,6 +158,8 @@ public class ManagementService implements CacheManagerEventListener {
         try {
             registerCacheManager(cacheManager);
 
+            registerPeerProviders();
+
             List caches = cacheManager.getCaches();
             for (int i = 0; i < caches.size(); i++) {
                 Cache cache = (Cache) caches.get(i);
@@ -168,6 +172,16 @@ public class ManagementService implements CacheManagerEventListener {
         }
         status = Status.STATUS_ALIVE;
         backingCacheManager.getCacheManagerEventListenerRegistry().registerListener(this);
+    }
+
+
+    private void registerPeerProviders() {
+        final Map<String, CacheManagerPeerProvider> cacheManagerPeerProviders = this.backingCacheManager.getCacheManagerPeerProviders();
+        for (final CacheManagerPeerProvider cacheManagerPeerProvider : cacheManagerPeerProviders.values()) {
+            if (cacheManagerPeerProvider instanceof ManagedCacheManagerPeerProvider) {
+                ((ManagedCacheManagerPeerProvider)cacheManagerPeerProvider).register(this.mBeanServer);
+            }
+        }
     }
 
     private void registerCacheManager(CacheManager cacheManager) throws InstanceAlreadyExistsException,
