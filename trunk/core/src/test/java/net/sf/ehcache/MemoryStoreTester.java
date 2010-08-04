@@ -561,7 +561,7 @@ public class MemoryStoreTester extends AbstractCacheTest {
 
     @Test
     public void testShrinkingAndGrowingMemoryStore() {
-        cache = new Cache("testShrinkingAndGrowingMemoryStore", 50, false, true, 120, 120);
+        cache = new Cache("testShrinkingAndGrowingMemoryStore", 50, false, false, 120, 120);
         manager.addCache(cache);
         store = cache.getStore();
 
