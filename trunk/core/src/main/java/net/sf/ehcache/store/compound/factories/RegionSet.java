@@ -189,8 +189,6 @@ class RegionSet {
      * @param t
      *            the node that roots the tree.
      * @return the new root.
-     * @throws DuplicateItemException
-     *             if x is already present.
      */
     private Region insert(Region x, Region t) {
         if (t == NULL_NODE) {
