@@ -23,19 +23,22 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import javax.management.MBeanServer;
+
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.Status;
-import net.sf.ehcache.distribution.CacheManagerPeerProvider;
 import net.sf.ehcache.distribution.CachePeer;
+import net.sf.ehcache.management.ManagedCacheManagerPeerProvider;
 
 import org.jgroups.Address;
 import org.jgroups.Channel;
+import org.jgroups.JChannel;
 import org.jgroups.blocks.NotificationBus;
-import org.jgroups.stack.IpAddress;
+import org.jgroups.jmx.JmxConfigurator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -48,13 +51,16 @@ import org.slf4j.LoggerFactory;
  * @author <a href="mailto:gluck@gregluck.com">Greg Luck</a>
  * @version $Id$
  */
-public class JGroupManager implements NotificationBus.Consumer, CachePeer, CacheManagerPeerProvider {
+public class JGroupManager implements NotificationBus.Consumer, CachePeer, ManagedCacheManagerPeerProvider {
+
+    private static final String JMX_DOMAIN_NAME = "JGroupsReplication";
 
     private static final Logger LOG = LoggerFactory.getLogger(JGroupManager.class.getName());
 
     private static final int CHUNK_SIZE = 100;
 
     private NotificationBus notificationBus;
+    private MBeanServer mBeanServer;
 
     private CacheManager cacheManager;
 
@@ -109,7 +115,7 @@ public class JGroupManager implements NotificationBus.Consumer, CachePeer, Cache
     }
 
     private void sendBootstrapResponse(JGroupSerializable e, Cache cache) {
-        IpAddress requestAddress = (IpAddress) e.getKey();
+        Address requestAddress = (Address) e.getKey();
         LOG.debug("received bootstrap request from {}, cache={}", requestAddress, e.getCacheName());
         List keys = cache.getKeys();
         if (keys != null && keys.size() > 0) {
@@ -138,7 +144,7 @@ public class JGroupManager implements NotificationBus.Consumer, CachePeer, Cache
         }
     }
 
-    private void sendResponseChunk(Cache cache, IpAddress requestAddress, List events) {
+    private void sendResponseChunk(Cache cache, Address requestAddress, List events) {
         LOG.debug("reply {} elements to {} to boot cache {}", new Object[] {events.size(), requestAddress, cache.getName()});
         try {
             send(requestAddress, events);
@@ -304,12 +310,42 @@ public class JGroupManager implements NotificationBus.Consumer, CachePeer, Cache
 
         return Status.STATUS_ALIVE;
     }
+    
+    /**
+     * @return The cluster name for JMX registration 
+     */
+    protected String getJmxClusterName() {
+        return this.cacheManager.getName();
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    public void register(MBeanServer mBeanServer) {
+        this.mBeanServer = mBeanServer;
+        
+        final Channel channel = this.notificationBus.getChannel();
+        try {
+            JmxConfigurator.registerChannel((JChannel)channel, mBeanServer, JMX_DOMAIN_NAME, this.getJmxClusterName(), true);
+        } catch (Exception e) {
+            LOG.error("Error occured while registering MBeans:", e);
+        }        
+    }
 
     /**
      * {@inheritDoc}
      */
     public void dispose() throws CacheException {
         if (notificationBus != null) {
+            if (this.mBeanServer != null) {
+                final Channel channel = this.notificationBus.getChannel();
+                try {
+                    JmxConfigurator.unregisterChannel((JChannel)channel, mBeanServer, JMX_DOMAIN_NAME, this.getJmxClusterName());
+                } catch (Exception e) {
+                    LOG.error("Error occured while unregistering MBeans:", e);
+                }
+            }
+            
             try {
                 notificationBus.stop();
             } catch (Exception e) {

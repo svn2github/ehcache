@@ -29,7 +29,7 @@ import net.sf.ehcache.distribution.CacheManagerPeerProvider;
 import net.sf.ehcache.distribution.CachePeer;
 import net.sf.ehcache.distribution.RemoteCacheException;
 
-import org.jgroups.stack.IpAddress;
+import org.jgroups.Address;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -138,11 +138,12 @@ public class JGroupsBootstrapCacheLoader implements BootstrapCacheLoader {
 
 
         jGroupManager = (JGroupManager) cachePeers.get(0);
-        IpAddress localAddress = (IpAddress) jGroupManager.getBusLocalAddress();
+        //Object object = jGroupManager.getBusLocalAddress();
+        Address localAddress = (Address) jGroupManager.getBusLocalAddress();
         if (LOG.isDebugEnabled()) {
-            LOG.debug("({}) localAddress: {}", cache.getName(), localAddress);
+            LOG.debug("({}) localAddress: {}", cache.getName(), localAddress.toString());
         }
-        List<IpAddress> addresses = buildCachePeerAddressList(cache, jGroupManager, localAddress);
+        List<Address> addresses = buildCachePeerAddressList(cache, jGroupManager, localAddress);
 
 
         if (addresses == null || addresses.size() == 0) {
@@ -150,7 +151,7 @@ public class JGroupsBootstrapCacheLoader implements BootstrapCacheLoader {
             return;
         }
 
-        IpAddress address = null;
+        Address address = null;
         Random random = new Random();
 
         while (addresses.size() > 0 && (address == null || cache.getSize() == 0)) {
@@ -185,14 +186,14 @@ public class JGroupsBootstrapCacheLoader implements BootstrapCacheLoader {
 
     }
 
-    private List<IpAddress> buildCachePeerAddressList(Ehcache cache, JGroupManager jGroupManager, IpAddress localAddress) {
+    private List<Address> buildCachePeerAddressList(Ehcache cache, JGroupManager jGroupManager, Address localAddress) {
         List members = jGroupManager.getBusMembership();
-        List<IpAddress> addresses = new ArrayList<IpAddress>();
+        List<Address> addresses = new ArrayList<Address>();
         for (int i = 0; i < members.size(); i++) {
-            IpAddress member = (IpAddress) members.get(i);
+            Address member = (Address) members.get(i);
             if (LOG.isDebugEnabled()) {
                 LOG.debug("({}) member {}: {}{}",
-                        new Object[] {cache.getName(), i, member.getIpAddress(), member.equals(localAddress) ? " ***" : "" });
+                        new Object[] {cache.getName(), i, member.toString(), member.equals(localAddress) ? " ***" : "" });
             }
             if (!member.equals(localAddress)) {
                 addresses.add(member);

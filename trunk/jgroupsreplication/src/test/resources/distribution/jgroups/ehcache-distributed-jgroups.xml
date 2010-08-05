@@ -26,7 +26,7 @@
                                      UNICAST(timeout=5000):
                                      pbcast.STABLE(desired_avg_gossip=20000):
                                      FRAG:
-                                     pbcast.GMS(join_timeout=5000;shun=false;print_local_addr=false)"
+                                     pbcast.GMS(join_timeout=5000;print_local_addr=false)"
                                      propertySeparator="::"
             />
 
