@@ -314,6 +314,7 @@ public class CacheConfiguration implements Cloneable {
     private volatile Boolean copyOnRead;
     private volatile Boolean copyOnWrite;
     private Object defaultTransactionManager;
+    private boolean conflictingValuesWarningLogged = false;
 
     /**
      * Default constructor.
@@ -585,13 +586,19 @@ public class CacheConfiguration implements Cloneable {
         checkDynamicChange();
         checkConflictingEternalValues(eternal, getTimeToLiveSeconds(), getTimeToIdleSeconds());
         this.eternal = eternal;
+        if (eternal) {
+            setTimeToIdleSeconds(0);
+            setTimeToLiveSeconds(0);
+        }
     }
 
     private void checkConflictingEternalValues(boolean newEternalValue, long newTTLValue, long newTTIValue) {
-        if (newEternalValue && (newTTLValue != 0 || newTTIValue != 0)) {
-            throw new CacheException(
-                    "Conflicting values detected. When eternal is true, timeToLiveSeconds and timeToIdleSeconds should be zero. Trying to set eternal="
-                            + newEternalValue + ", timeToLiveSeconds=" + newTTLValue + ", timeToIdleSeconds=" + newTTIValue + " )");
+        if (!conflictingValuesWarningLogged && newEternalValue && (newTTLValue != 0 || newTTIValue != 0)) {
+            conflictingValuesWarningLogged = true;
+            LOG
+                    .warn("Cache '"
+                            + getName()
+                            + "' is set to eternal but also has TTI/TTL set. To avoid this warning, clean up the config removing conflicting values of eternal, TTI and TTL.");
         }
     }
 

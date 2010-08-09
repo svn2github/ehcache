@@ -18,22 +18,20 @@ package net.sf.ehcache.config;
 
 import java.util.Arrays;
 
-import junit.framework.Assert;
 import junit.framework.TestCase;
-import net.sf.ehcache.CacheException;
 import net.sf.ehcache.CacheManager;
 
 public class CacheConfigConflictTest extends TestCase {
 
     public void testConflictingValuesFromConfig() {
-        try {
-            CacheManager cacheManager = new CacheManager(this.getClass().getResourceAsStream("/ehcache-conflict-eternal.xml"));
-            System.out.println("Cache names: " + Arrays.asList(cacheManager.getCacheNames()));
-            fail("Config with conflicting values should have thrown exception.");
-        } catch (CacheException e) {
-            // expected
-            Assert.assertTrue(e.getMessage().contains("Conflicting values"));
-        }
+        // try {
+        CacheManager cacheManager = new CacheManager(this.getClass().getResourceAsStream("/ehcache-conflict-eternal.xml"));
+        System.out.println("Cache names: " + Arrays.asList(cacheManager.getCacheNames()));
+        // fail("Config with conflicting values should have thrown exception.");
+        // } catch (CacheException e) {
+        // // expected
+        // Assert.assertTrue(e.getMessage().contains("Conflicting values"));
+        // }
     }
 
     public void testConflictingValuesProgrammatic() {
@@ -41,27 +39,33 @@ public class CacheConfigConflictTest extends TestCase {
         cacheConfig.setEternal(true);
         cacheConfig.timeToIdleSeconds(0);
         cacheConfig.timeToLiveSeconds(0);
-        try {
-            cacheConfig.timeToIdleSeconds(10);
-            fail("Config with conflicting values should have thrown exception.");
-        } catch (Exception e) {
-            // expected
-            Assert.assertTrue(e.getMessage().contains("Conflicting values"));
-        }
-
-        try {
-            cacheConfig.timeToLiveSeconds(10);
-            fail("Config with conflicting values should have thrown exception.");
-        } catch (Exception e) {
-            // expected
-            Assert.assertTrue(e.getMessage().contains("Conflicting values"));
-        }
-
-        cacheConfig.eternal(false);
+        // try {
         cacheConfig.timeToIdleSeconds(10);
+        // fail("Config with conflicting values should have thrown exception.");
+        // } catch (Exception e) {
+        // // expected
+        // Assert.assertTrue(e.getMessage().contains("Conflicting values"));
+        // }
+
+        // try {
         cacheConfig.timeToLiveSeconds(10);
-        cacheConfig.timeToIdleSeconds(0);
-        cacheConfig.timeToLiveSeconds(0);
+        // fail("Config with conflicting values should have thrown exception.");
+        // } catch (Exception e) {
+        // // expected
+        // Assert.assertTrue(e.getMessage().contains("Conflicting values"));
+        // }
+
+        cacheConfig.eternal(true);
+        cacheConfig.timeToIdleSeconds(10);
+        cacheConfig.timeToLiveSeconds(20);
+        // even if eternal=true, tti/ttl should have values as ordering matters
+        assertEquals(10, cacheConfig.getTimeToIdleSeconds());
+        assertEquals(20, cacheConfig.getTimeToLiveSeconds());
+
+        // setting eternal again resets tti/ttl as ordering matters
+        cacheConfig.eternal(true);
+        assertEquals(0, cacheConfig.getTimeToIdleSeconds());
+        assertEquals(0, cacheConfig.getTimeToLiveSeconds());
 
     }
 
