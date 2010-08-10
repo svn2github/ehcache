@@ -3,7 +3,7 @@
     <body>
         <release version="2.2.1" date="2010-12-31" description="Maintenance release">
             <action dev="Greg Luck" type="fix">
-                EHC-740. Pick up "Read timed out" in RMI UnmarshalException".
+                EHC-740. Pick up "Read timed out" in RMI UnmarshalException.
             </action>
             <action dev="Greg Luck" type="fix">
                 Throw an InvalidConfigurationException when a cache is created from CacheConfiguration
@@ -13,6 +13,10 @@
                 Add support for JMX registration of ManagedCacheManagerPeerProviders. 
                 Thanks to Eric Dalquist for this contribution.
             </action>
+	    <action dev="Chris Dennis" type="fix" issue="EHC-754">
+	        Fix MemoryEfficientByteArrayOutputStream to return a correctly sized byte array to prevent
+		network/disk wastage in ehcache-server/disk stores respectively.
+	    </action>
         </release>
         <release version="2.2.0" date="2010-07-16" description="Bug fixes">
             <action dev="Geert Bevin" type="fix">
