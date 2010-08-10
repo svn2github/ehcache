@@ -569,7 +569,7 @@ public abstract class CachingFilter extends Filter {
         }
 
         public void clear() {
-            set(false);
+            super.remove();
         }
     }
 }
