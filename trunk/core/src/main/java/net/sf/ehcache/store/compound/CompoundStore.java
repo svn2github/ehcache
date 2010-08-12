@@ -47,9 +47,6 @@ import net.sf.ehcache.writer.CacheWriterManager;
  */
 public abstract class CompoundStore extends AbstractStore {
 
-    /**
-     * Checkstyle is crap - this is pointless
-     */
     private static final int FFFFCD7D = 0xffffcd7d;
     private static final int FIFTEEN = 15;
     private static final int TEN = 10;
