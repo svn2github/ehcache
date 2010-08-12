@@ -41,7 +41,14 @@ import net.sf.ehcache.store.AbstractStore;
 import net.sf.ehcache.writer.CacheWriterManager;
 
 /**
- * Abstract compound store implementation.
+ * The store used by default in Ehcache version 2.
+ *
+ * It is compound in the sense that whether the element is in memory or on disk, the key
+ * is held in memory. This store does not suffer from races which could occur in the
+ * older MemoryStore and DiskStore which could theoretically cause a cache miss if
+ * an element was moving between the stores due to overflow or retrieval.
+ *
+ * Subclasses allow for memory only, overflow to disk and persist to disk.
  * 
  * @author Chris Dennis
  */
