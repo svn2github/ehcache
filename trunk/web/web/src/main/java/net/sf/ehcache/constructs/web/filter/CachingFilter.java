@@ -274,7 +274,7 @@ public abstract class CachingFilter extends Filter {
             // do not release the lock, because you never acquired it
             throw e;
         } finally {
-            // all done building page, reset the reentrant flag
+            // all done building page, reset the re-entrant flag
             visitLog.clear();
         }
         return pageInfo;
