@@ -223,7 +223,7 @@ public final class OverflowToDiskStore extends CompoundStore implements CacheCon
      */
     public void flush() throws IOException {
         if (config.isClearOnFlush()) {
-            for (Object key : getKeyArray()) {
+            for (Object key : getKeys()) {
                 if (containsKeyInMemory(key)) {
                     remove(key);
                 }

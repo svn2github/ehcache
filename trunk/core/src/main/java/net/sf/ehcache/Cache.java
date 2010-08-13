@@ -1615,7 +1615,7 @@ public class Cache implements Ehcache, StoreListener {
      */
     public final List getKeys() throws IllegalStateException, CacheException {
         checkStatus();
-        return Arrays.asList(compoundStore.getKeyArray());
+        return compoundStore.getKeys();
     }
 
     /**

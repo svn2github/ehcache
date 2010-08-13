@@ -20,8 +20,10 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -295,8 +297,8 @@ public class EhcacheXAResourceTest extends TestCase {
             return syncs;
         }
 
-        public Object[] getKeyArray() {
-            return storeMap.keySet().toArray();
+        public List getKeys() {
+            return new ArrayList(storeMap.keySet());
         }
 
         public Element getQuiet(Object key) {

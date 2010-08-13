@@ -28,7 +28,9 @@ import net.sf.ehcache.writer.CacheWriterManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 
@@ -332,7 +334,7 @@ public class MemoryStore extends AbstractStore implements CacheConfigurationList
      */
     protected final void spoolAllToDisk() {
         boolean clearOnFlush = cache.getCacheConfiguration().isClearOnFlush();
-        for (Object key : getKeyArray()) {
+        for (Object key : getKeys()) {
             Element element = map.get(key);
             if (element != null) {
                 if (!element.isSerializable()) {
@@ -372,10 +374,10 @@ public class MemoryStore extends AbstractStore implements CacheConfigurationList
      * <p/>
      * Does not check for expired entries
      *
-     * @return An Object[]
+     * @return An List
      */
-    public final Object[] getKeyArray() {
-        return map.keySet().toArray();
+    public final List getKeys() {
+        return new ArrayList(map.keySet());
     }
 
     /**

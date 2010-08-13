@@ -162,7 +162,7 @@ public class CapacityLimitedInMemoryFactory implements IdentityElementSubstitute
      */
     public long getSizeInBytes() {
         long size = 0;
-        for (Object o : boundStore.getKeyArray()) {
+        for (Object o : boundStore.getKeys()) {
             Object e = boundStore.unretrievedGet(o);
             if (created(e)) {
                 size += ((Element) e).getSerializedSize();

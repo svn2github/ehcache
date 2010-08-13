@@ -193,8 +193,8 @@ public abstract class CompoundStore extends AbstractStore {
     /**
      * {@inheritDoc}
      */
-    public Object[] getKeyArray() {
-        return keySet().toArray();
+    public List getKeys() {
+        return new ArrayList(keySet());
     }
 
     /**
