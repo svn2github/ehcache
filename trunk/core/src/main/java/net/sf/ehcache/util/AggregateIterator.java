@@ -19,6 +19,7 @@ public class AggregateIterator<T> implements Iterator<T> {
 	protected final Iterator<Iterator<T>> iterators;
 	protected Iterator<T> currentIterator;
 	protected T next = null;
+	protected T current = null;
 
 	private Iterator<T> getNextIterator() {
 		return iterators.next();
@@ -57,6 +58,7 @@ public class AggregateIterator<T> implements Iterator<T> {
 			throw new NoSuchElementException();
 		} else {
 			T returnNext = next;
+			current = returnNext;
 			next = null;
 			if (this.currentIterator == null) {
 				throw new NoSuchElementException();
@@ -93,7 +95,10 @@ public class AggregateIterator<T> implements Iterator<T> {
 	 * Is not supported.
 	 */
 	public void remove() {
-		throw new UnsupportedOperationException();
+		if (current == null)
+            throw new IllegalStateException();
+        this.removeColl.remove(current);
+        current = null;
 	}
 
 }
