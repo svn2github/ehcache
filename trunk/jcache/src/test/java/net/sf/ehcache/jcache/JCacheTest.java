@@ -779,7 +779,7 @@ public class JCacheTest extends AbstractCacheTest {
     @Test
     public void testNoIdleOrExpiryBasedOnTimeToLiveForEternal() throws Exception {
         //Set size so the second element overflows to disk.
-        Ehcache ehcache = new net.sf.ehcache.Cache("testNoIdleOrExpiryBasedOnTimeToLiveForEternal", 1, true, false, 5, 2);
+        Ehcache ehcache = new net.sf.ehcache.Cache("testNoIdleOrExpiryBasedOnTimeToLiveForEternal", 1, true, false, 5, 0);
         manager.addCache(ehcache);
         Cache cache = new JCache(ehcache);
 
@@ -791,14 +791,14 @@ public class JCacheTest extends AbstractCacheTest {
         assertNotNull(cache.get("key2"));
 
         //Check that we did not idle out
-        Thread.sleep(2020);
+        Thread.sleep(1000);
         assertNotNull(cache.get("key1"));
-        assertNotNull(cache.get("key2"));
+        assertNotNull("Key should not be null", cache.get("key2"));
 
         //Check that we did not expire out
         Thread.sleep(6000);
-        assertNotNull(cache.get("key1"));
-        assertNotNull(cache.get("key2"));
+        assertNull("Key should be null", cache.get("key1"));
+        assertNull("Key should be null", cache.get("key2"));
     }
 
     /**

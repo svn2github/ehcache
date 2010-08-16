@@ -1,4 +1,5 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
@@ -14,7 +15,9 @@
 
 
     <properties>
-      <net.sf.ehcache.speedAdjustmentFactor>2</net.sf.ehcache.speedAdjustmentFactor>
+        <net.sf.ehcache.speedAdjustmentFactor>2</net.sf.ehcache.speedAdjustmentFactor>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     </properties>
 
     <dependencies>
@@ -39,7 +42,7 @@
             <version>4.1</version>
             <scope>test</scope>
         </dependency>
-        
+
         <!--With slf4j, users choose a concrete logging implementation at deploy time-->
         <dependency>
             <groupId>org.slf4j</groupId>
@@ -75,7 +78,8 @@
                 </executions>
                 <configuration>
                     <configLocation>${basedir}/checkstyle/checkstyle.xml</configLocation>
-                    <suppressionsLocation>${basedir}/checkstyle/suppressions.xml</suppressionsLocation>
+                    <suppressionsLocation>${basedir}/checkstyle/suppressions.xml
+                    </suppressionsLocation>
                     <headerLocation>${basedir}/checkstyle/ClassHeader.txt</headerLocation>
                     <enableRSS>false</enableRSS>
                     <linkXRef>true</linkXRef>
@@ -113,7 +117,7 @@
                         <property>
                             <name>net.sf.ehcache.skipUpdateCheck</name>
                             <value>true</value>
-                        </property>                    
+                        </property>
                         <property>
                             <name>java.awt.headless</name>
                             <value>true</value>
