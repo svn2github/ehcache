@@ -361,7 +361,9 @@ used with JMX monitors.
     Sets the name of the cache. This is used to identify the cache. It must be unique.
 
     maxElementsInMemory:
-    Sets the maximum number of objects that will be created in memory.  0 == no limit.
+    Sets the maximum number of objects that will be created in memory.  0 = no limit.
+    In practice no limit means Integer.MAX_SIZE (2147483647) unless the cache is distributed
+    with a Terracotta server in which case it is limited by resources.
 
     maxElementsOnDisk:
     Sets the maximum number of objects that will be maintained in the DiskStore
