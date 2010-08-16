@@ -77,8 +77,8 @@
         <dependency>
             <groupId>org.codehaus.btm</groupId>
             <artifactId>btm</artifactId>
-            <version>1.3.3</version>
-            <scope>provided</scope>
+            <version>2.0.1</version>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>javax.transaction</groupId>
