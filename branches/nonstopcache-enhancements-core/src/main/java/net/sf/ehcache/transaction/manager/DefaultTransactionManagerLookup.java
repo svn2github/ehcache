@@ -123,7 +123,9 @@ public class DefaultTransactionManagerLookup implements TransactionManagerLookup
             cl = ClassLoader.getSystemClassLoader();
         }
         try {
-            Class producerClass = cl.loadClass("net.sf.ehcache.transaction.manager.btm.EhCacheXAResourceProducer");
+            // This requires BTM 2.0.0 at least
+            Class producerClass = cl.loadClass("bitronix.tm.resource.ehcache.EhCacheXAResourceProducer");
+            
             Class[] signature = new Class[] {String.class, XAResource.class};
             Object[] args = new Object[] {uniqueName, resource};
             Method method = producerClass.getMethod("registerXAResource", signature);

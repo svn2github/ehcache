@@ -37,6 +37,8 @@ import net.sf.ehcache.transaction.xa.EhcacheXAResource;
 import net.sf.ehcache.transaction.xa.EhcacheXAResourceImpl;
 import net.sf.ehcache.transaction.xa.EhcacheXAStore;
 import net.sf.ehcache.transaction.xa.TwoPcExecutionListener;
+import net.sf.ehcache.util.LargeSet;
+import net.sf.ehcache.util.SetWrapperList;
 import net.sf.ehcache.writer.CacheWriterManager;
 
 import javax.transaction.RollbackException;
@@ -45,8 +47,8 @@ import javax.transaction.Transaction;
 import javax.transaction.TransactionManager;
 import java.io.IOException;
 import java.io.Serializable;
-import java.util.Arrays;
-import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -152,12 +154,23 @@ public class XATransactionalStore extends AbstractStore {
     /**
      * {@inheritDoc}
      */
-    public Object[] getKeyArray() {
+    public List getKeys() {
         TransactionContext context = getOrCreateTransactionContext();
-        Set<Object> keys = new HashSet<Object>(Arrays.asList(underlyingStore.getKeyArray()));
+        Set<Object> keys = new LargeSet<Object>() {
+
+			@Override
+			public int sourceSize() {
+				return cache.getSize();
+			}
+        	
+			@Override
+			public Iterator<Object> sourceIterator() {
+				return cache.getKeys().iterator();
+			}
+        };
         keys.addAll(context.getAddedKeys());
         keys.removeAll(context.getRemovedKeys());
-        return keys.toArray();
+        return new SetWrapperList(keys);
     }
 
     /**

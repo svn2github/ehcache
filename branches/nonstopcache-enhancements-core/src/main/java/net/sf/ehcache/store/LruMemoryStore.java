@@ -25,7 +25,9 @@ import net.sf.ehcache.writer.CacheWriterManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 
@@ -226,8 +228,7 @@ public class LruMemoryStore extends AbstractStore {
      */
     protected final void spoolAllToDisk() {
         boolean clearOnFlush = cache.getCacheConfiguration().isClearOnFlush();
-        Object[] keys = getKeyArray();
-        for (Object key : keys) {
+        for (Object key : getKeys()) {
             Element element = (Element) map.get(key);
             if (element != null) {
                 if (!element.isSerializable()) {
@@ -276,8 +277,8 @@ public class LruMemoryStore extends AbstractStore {
      *
      * @return An Object[]
      */
-    public final synchronized Object[] getKeyArray() {
-        return map.keySet().toArray();
+    public final synchronized List getKeys() {
+        return new ArrayList(map.keySet());
     }
 
     /**

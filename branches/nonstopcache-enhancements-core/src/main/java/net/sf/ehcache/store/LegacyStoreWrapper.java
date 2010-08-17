@@ -18,8 +18,10 @@ package net.sf.ehcache.store;
 
 import java.io.IOException;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Element;
@@ -134,9 +136,8 @@ public class LegacyStoreWrapper extends AbstractStore {
      * {@inheritDoc}
      */
     public void expireElements() {
-        Object[] keys = memory.getKeyArray();
-
-        for (Object key : keys) {
+     
+        for (Object key : memory.getKeys()) {
             Sync s = sync.getSyncForKey(key);
             s.lock(LockType.WRITE);
             try {
@@ -221,14 +222,14 @@ public class LegacyStoreWrapper extends AbstractStore {
     /**
      * {@inheritDoc}
      */
-    public Object[] getKeyArray() {
+    public List getKeys() {
         if (disk == null) {
-            return memory.getKeyArray();
+            return memory.getKeys();
         } else {
             HashSet<Object> keys = new HashSet<Object>();
-            keys.addAll(Arrays.asList(memory.getKeyArray()));
-            keys.addAll(Arrays.asList(disk.getKeyArray()));            
-            return keys.toArray();
+            keys.addAll(memory.getKeys());
+            keys.addAll(disk.getKeys());            
+            return new ArrayList(keys);
         }
     }
 
@@ -283,8 +284,8 @@ public class LegacyStoreWrapper extends AbstractStore {
     public int getSize() {
         if (disk != null) {
             HashSet<Object> keys = new HashSet<Object>();
-            keys.addAll(Arrays.asList(memory.getKeyArray()));
-            keys.addAll(Arrays.asList(disk.getKeyArray()));
+            keys.addAll(Arrays.asList(memory.getKeys()));
+            keys.addAll(Arrays.asList(disk.getKeys()));
             return keys.size();
         } else {
             return memory.getSize();

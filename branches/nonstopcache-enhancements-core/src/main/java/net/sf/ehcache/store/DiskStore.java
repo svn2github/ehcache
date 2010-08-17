@@ -385,13 +385,13 @@ public class DiskStore extends AbstractStore implements CacheConfigurationListen
      *
      * @return An Object[] of {@link Serializable} keys
      */
-    public final synchronized Object[] getKeyArray() {
+    public final synchronized List getKeys() {
         Set elementKeySet = diskElements.keySet();
         Set spoolKeySet = spool.keySet();
         Set allKeysSet = new HashSet(elementKeySet.size() + spoolKeySet.size());
         allKeysSet.addAll(elementKeySet);
         allKeysSet.addAll(spoolKeySet);
-        return allKeysSet.toArray();
+        return new ArrayList(allKeysSet);
     }
 
     /**
