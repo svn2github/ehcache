@@ -129,11 +129,20 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-          <groupId>com.sun.xsom</groupId>
-          <artifactId>xsom</artifactId>
-          <version>20081112</version>
-          <scope>test</scope>
+            <groupId>com.sun.xsom</groupId>
+            <artifactId>xsom</artifactId>
+            <version>20081112</version>
+            <scope>test</scope>
         </dependency>
+        <!--Required for site generation-->
+        <!--<dependency>-->
+        <!--<groupId>org.apache.maven.doxia</groupId>-->
+        <!--<version>1.1</version>-->
+        <!--<artifactId>doxia-converter</artifactId>-->
+        <!--<scope>test</scope>-->
+        <!--</dependency>-->
+
+
         <!--
         <dependency>
             <groupId>net.sf.ehcache</groupId>
@@ -276,29 +285,29 @@
                     </execution>
 
                     <!--<execution>-->
-                    <!--<id>singlepageguide</id>-->
-                    <!--<phase>pre-site</phase>-->
-                    <!--<configuration>-->
-                    <!--<tasks>-->
-                    <!--<ant target="singlepageguide"/>-->
-                    <!--</tasks>-->
-                    <!--</configuration>-->
-                    <!--<goals>-->
-                    <!--<goal>run</goal>-->
-                    <!--</goals>-->
-                    <!--</execution>-->
-
-                    <!--<execution>-->
-                        <!--<id>unhide_embedded_html</id>-->
-                        <!--<phase>site</phase>-->
+                        <!--<id>singlepageguide</id>-->
+                        <!--<phase>pre-site</phase>-->
                         <!--<configuration>-->
                             <!--<tasks>-->
-                                <!--<ant target="unhide_html"/>-->
+                                <!--<ant target="singlepageguide"/>-->
                             <!--</tasks>-->
                         <!--</configuration>-->
                         <!--<goals>-->
                             <!--<goal>run</goal>-->
                         <!--</goals>-->
+                    <!--</execution>-->
+
+                    <!--<execution>-->
+                    <!--<id>unhide_embedded_html</id>-->
+                    <!--<phase>site</phase>-->
+                    <!--<configuration>-->
+                    <!--<tasks>-->
+                    <!--<ant target="unhide_html"/>-->
+                    <!--</tasks>-->
+                    <!--</configuration>-->
+                    <!--<goals>-->
+                    <!--<goal>run</goal>-->
+                    <!--</goals>-->
                     <!--</execution>-->
 
                     <execution>
@@ -429,7 +438,8 @@
                                 <exclude>**/*$*</exclude>
                             </excludes>
                             <includes>
-                                <include>**/RMICacheReplicatorWithLargePayloadTest.java</include>
+                                <include>**/RMICacheReplicatorWithLargePayloadTest.java
+                                </include>
                                 <include>**/TerracottaIntegrationTest.java</include>
                             </includes>
                             <argLine>-Xms512m -Xmx512m</argLine>
@@ -477,6 +487,35 @@
                     <failOnViolation>true</failOnViolation>
                     <includeTestSourceDirectory>false</includeTestSourceDirectory>
                     <enableRulesSummary>true</enableRulesSummary>
+                </configuration>
+            </plugin>
+
+
+            <plugin>
+                <groupId>org.apache.maven.doxia</groupId>
+                <artifactId>doxia-maven-plugin</artifactId>
+                <version>1.1.3</version>
+                <executions>
+                    <execution>
+                        <phase>pre-site</phase>
+                        <goals>
+                            <goal>render-books</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <!--Single Page HTML-->
+                    <books>
+                        <book>
+                            <directory>src/site/apt</directory>
+                            <descriptor>src/site/apt/book.xml</descriptor>
+                            <formats>
+                                <format>
+                                    <id>xhtml</id>
+                                </format>
+                            </formats>
+                        </book>
+                    </books>
                 </configuration>
             </plugin>
 
@@ -563,7 +602,7 @@
                 <version>2.1.2</version>
                 <reportSets>
                     <reportSet>
-                        <reports> 
+                        <reports>
                             <report>project-team</report>
                             <report>mailing-list</report>
                             <report>issue-tracking</report>
@@ -612,25 +651,25 @@
     <!-- The JBoss repository is only here to satisfy the 'provided' dependency on hibernate-core -->
     <repositories>
         <repository>
-      <id>jboss-releases</id>
-      <url>http://repository.jboss.org/maven2</url>
-      <releases>
-          <enabled>true</enabled>
-      </releases>
-      <snapshots>
-          <enabled>false</enabled>
-      </snapshots>
-  </repository>
-  <repository>
-      <id>java-net</id>
-      <url>http://download.java.net/maven/2/</url>
-      <releases>
-          <enabled>true</enabled>
-      </releases>
-      <snapshots>
-          <enabled>false</enabled>
-      </snapshots>
-  </repository>
+            <id>jboss-releases</id>
+            <url>http://repository.jboss.org/maven2</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </repository>
+        <repository>
+            <id>java-net</id>
+            <url>http://download.java.net/maven/2/</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </repository>
     </repositories>
 
     <pluginRepositories>

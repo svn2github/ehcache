@@ -7,11 +7,11 @@ Preface
     Ehcache is now used for Hibernate caching, data access object caching, security credential caching, web caching,
     SOAP and RESTful server caching, application persistence and distributed caching.
 
-    In August 2009, Ehcache was acquired by Terracotta, Inc.
+    In August 2009, Ehcache was acquired by Terracotta, Inc. and has been continously enhanced since then.
 
 * Version
 
-   This book is for Ehcache version 1.7.1.
+   This book is for Ehcache version 2.2.1.
 
 
 * Audience
@@ -35,22 +35,9 @@ Preface
 
     * Bug reports and features requests appear in the changes report here: {{{http://ehcache.org/changes-report.html}}}
 
-    * Patch contributors generally end up with an author tag in the source they contributed to
+    * Patch contributors generally end up with an author tag in the source they contributed to.
 
     * Team members appear on the team list page here: {{{./team-list.html}}}
 
-    Thanks to Denis Orlov for suggesting the need for a book in the first place.
 
 
-* {About the Ehcache name and logo}
-
-[images/ehcache_logo]
-
-    {Adam Murdoch} (an all round top Java coder) came up with the name in a moment of inspiration while we were stuck on the
-    SourceForge project create page. Ehcache is a palindrome. He thought the name was wicked cool and we agreed.
-
-     The logo is similarly symmetrical, and is evocative of the diagram symbol
-    for a doubly-linked list. That structure lies at the heart of ehcache.
-
-
-

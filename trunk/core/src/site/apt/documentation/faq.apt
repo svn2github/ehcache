@@ -4,6 +4,8 @@
 
 {Frequently Asked Questions}
 
+%{toc|fromDepth=2|toDepth=2}
+
 
 * Does Ehcache run on {JDK1.3}/{JDK1.4}?
 
@@ -437,7 +439,6 @@ java.net.ConnectException: Connection refused
     pool.replace(key))
 
     You can take this approach when producing the keys before handing them over to EhCache.
-
 ---
 
     Even with this approach there is still some added overhead consumed by a reference consumed by each ArrayList element.
