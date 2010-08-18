@@ -17,6 +17,8 @@
 package net.sf.ehcache.constructs.nonstop;
 
 import java.io.IOException;
+import java.util.Collections;
+import java.util.List;
 
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Element;
@@ -113,9 +115,9 @@ public class MockStoreWithFlag implements Store {
         return null;
     }
 
-    public Object[] getKeyArray() {
+    public List getKeys() {
         markAccessFlag();
-        return new Object[0];
+        return Collections.EMPTY_LIST;
     }
 
     public int getOnDiskSize() {

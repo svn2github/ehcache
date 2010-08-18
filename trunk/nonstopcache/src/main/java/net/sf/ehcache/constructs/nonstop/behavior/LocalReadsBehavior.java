@@ -18,7 +18,6 @@ package net.sf.ehcache.constructs.nonstop.behavior;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import net.sf.ehcache.Cache;
@@ -79,7 +78,7 @@ public class LocalReadsBehavior implements NonStopCacheBehavior {
      * Uses the underlying store to get the local value present in the VM
      */
     public List getKeys() throws IllegalStateException, CacheException {
-        return Arrays.asList(unsafeStore.getKeyArray());
+        return unsafeStore.getKeys();
     }
 
     /**
