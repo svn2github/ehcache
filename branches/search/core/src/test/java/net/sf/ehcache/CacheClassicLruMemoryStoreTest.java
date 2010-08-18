@@ -7,7 +7,6 @@ import static org.junit.Assert.assertTrue;
 import java.util.Date;
 
 import net.sf.ehcache.store.LegacyStoreWrapper;
-import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
