@@ -86,7 +86,7 @@ public abstract class LargeCollection<E> extends AbstractCollection<E> {
      * {@inheritDoc}
      */
 	public int size() {
-		return sourceSize() + addSet.size();
+		return sourceSize() + addSet.size() - removeSet.size();
 	}
 
 	/**
