@@ -803,7 +803,6 @@ public class CacheTest extends AbstractCacheTest {
      * It checks that size makes sense, and also that getKeys.size() matches getSize()
      */
     @Test
-    @Ignore //FIXME started breaking 8/10
     public void testSizeWithPutAndRemove() throws Exception {
         //Set size so the second element overflows to disk.
         Cache cache = new Cache("test2", 1, true, true, 0, 0);
@@ -888,7 +887,6 @@ public class CacheTest extends AbstractCacheTest {
      * Test size after multiple calls, with put and remove
      */
     @Test
-    @Ignore //FIXME started breaking 8/10
     public void testSizeMultipleCallsWithPutAndRemove() throws Exception {
         //Set size so the second element overflows to disk.
         Cache cache = new Cache("test3", 1, true, true, 0, 0);
@@ -921,7 +919,6 @@ public class CacheTest extends AbstractCacheTest {
      * Expire elements and verify size is correct.
      */
     @Test
-    @Ignore //FIXME started breaking 8/10
     public void testGetSizeAfterExpiry() throws Exception {
         //Set size so the second element overflows to disk.
         Cache cache = new Cache("test", 1, true, false, 1, 0);
@@ -1013,7 +1010,6 @@ public class CacheTest extends AbstractCacheTest {
      * Tests cache, memory store and disk store sizes from config
      */
     @Test
-    @Ignore //FIXME started breaking 8/10 in ClassicLRU
     public void testSizes() throws Exception {
         Ehcache cache = getSampleCache1();
 
@@ -1078,7 +1074,6 @@ public class CacheTest extends AbstractCacheTest {
      * @throws Exception
      */
     @Test
-    @Ignore //FIXME started breaking 8/10 in ClassicLru
     public void testFlushWhenOverflowToDisk() throws Exception {
         if (manager.getCache("testFlushWhenOverflowToDisk") == null) {
             manager.addCache(new Cache("testFlushWhenOverflowToDisk", 50, true, false, 100, 200, true, 120));
@@ -1176,7 +1171,6 @@ public class CacheTest extends AbstractCacheTest {
     }
 
     @Test
-    @Ignore //FIXME started breaking 8/10
     public void testFlushWithClear() throws InterruptedException {
 
         CacheManager cacheManager = CacheManager.create(AbstractCacheTest.TEST_CONFIG_DIR + "ehcache.xml");
@@ -1402,11 +1396,9 @@ public class CacheTest extends AbstractCacheTest {
     /**
      * Tests disk store and memory store size
      *
-     * @Ignore FIXME started breaking 8/10
      * @throws Exception
      */
     @Test
-    @Ignore //FIXME started breaking 8/10
     public void testGetDiskStoreSize() throws Exception {
         Cache cache = new Cache("testGetDiskStoreSize", 1, true, false, 100, 200);
         manager.addCache(cache);
@@ -1860,7 +1852,6 @@ public class CacheTest extends AbstractCacheTest {
      * Tests the async load with a single item
      */
     @Test
-    @Ignore //FIXME started breaking 8/10
     public void testAsynchronousLoad() throws InterruptedException, ExecutionException {
 
         CountingCacheLoader countingCacheLoader = new CountingCacheLoader();
@@ -1900,7 +1891,6 @@ public class CacheTest extends AbstractCacheTest {
      * Tests the loadAll async method
      */
     @Test
-    @Ignore //FIXME started breaking 8/10
     public void testAsynchronousLoadAll() throws InterruptedException, ExecutionException {
 
         CountingCacheLoader countingCacheLoader = new CountingCacheLoader();
