@@ -142,15 +142,6 @@
         <!--<scope>test</scope>-->
         <!--</dependency>-->
 
-
-        <!--
-        <dependency>
-            <groupId>net.sf.ehcache</groupId>
-            <artifactId>ehcache-terracotta</artifactId>
-            <version>2.3.0-SNAPSHOT</version>
-            <scope>test</scope>
-        </dependency>
-        -->
     </dependencies>
 
     <build>
@@ -363,33 +354,11 @@
                 <!--</execution>-->
                 <!--</executions>-->
             </plugin>
-            <!-- temp ingore since test is ignored
-            <plugin>
-                <groupId>org.terracotta.maven.plugins</groupId>
-                <artifactId>tc-maven-plugin</artifactId>
-                <version>1.5.1</version>
-                <executions>
-                    <execution>
-                        <id>run-integration</id>
-                        <phase>pre-integration-test</phase>
-                        <goals>
-                            <goal>run-integration</goal>
-                        </goals>
-                    </execution>
-                    <execution>
-                        <id>terminate-integration</id>
-                        <phase>post-integration-test</phase>
-                        <goals>
-                            <goal>terminate-integration</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin> -->
 
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <inherited>true</inherited>
+                <version>2.6</version>
                 <configuration>
                     <includes>
                         <include>**/*Test.java</include>
@@ -400,7 +369,6 @@
                         <exclude>**/RMICacheReplicatorWithLargePayloadTest.java</exclude>
                     </excludes>
                     <forkMode>pertest</forkMode>
-                    <debugForkedProcess>true</debugForkedProcess>
                     <childDelegation>false</childDelegation>
                     <disableXmlReport>false</disableXmlReport>
                     <printSummary>true</printSummary>
@@ -447,19 +415,7 @@
                     </execution>
                 </executions>
             </plugin>
-            <!--
-                   <plugin> <groupId>org.apache.felix</groupId>
-                   <artifactId>maven-bundle-plugin</artifactId>
-                   <extensions>true</extensions> <configuration> <instructions>
-                   <Bundle-SymbolicName> ${pom.artifactId} </Bundle-SymbolicName>
-                   <Export-Package> *;version=${pom.version} </Export-Package>
-                   <Import-Package>
-                   net.sf.hibernate.cache;resolution:=optional,*;-split-package:=merge-first
-                   </Import-Package> </instructions> <classifier>osgi</classifier>
-                   </configuration> <executions> <execution> <id>bundle</id>
-                   <phase>package</phase> <goals> <goal>bundle</goal> </goals>
-                   </execution> </executions> </plugin>
-               -->
+
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-checkstyle-plugin</artifactId>
