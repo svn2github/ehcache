@@ -284,8 +284,8 @@ public class LegacyStoreWrapper extends AbstractStore {
     public int getSize() {
         if (disk != null) {
             HashSet<Object> keys = new HashSet<Object>();
-            keys.addAll(Arrays.asList(memory.getKeys()));
-            keys.addAll(Arrays.asList(disk.getKeys()));
+            keys.addAll(memory.getKeys());
+            keys.addAll(disk.getKeys());
             return keys.size();
         } else {
             return memory.getSize();

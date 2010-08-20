@@ -160,12 +160,12 @@ public class XATransactionalStore extends AbstractStore {
 
 			@Override
 			public int sourceSize() {
-				return cache.getSize();
+				return underlyingStore.getSize();
 			}
         	
 			@Override
 			public Iterator<Object> sourceIterator() {
-				return cache.getKeys().iterator();
+				return underlyingStore.getKeys().iterator();
 			}
         };
         keys.addAll(context.getAddedKeys());

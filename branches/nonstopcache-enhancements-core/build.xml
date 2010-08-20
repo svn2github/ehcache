@@ -1,3 +1,4 @@
+
 <project name="ehcache" default="build" xmlns:artifact="urn:maven-artifact-ant">
 
 
@@ -183,8 +184,8 @@
 
     <!-- Produce the ydocs images for the book and singlepage guide. Relies on Maven javadoc.  -->
     <target name="copy-ydoc" description="Creates the javadocs">
-        <copy todir="${build.dir}/book/javadoc">
-            <fileset dir="${build.dir}/site/javadoc"/>
+        <copy todir="${build.dir}/book/apidocs">
+            <fileset dir="${build.dir}/site/apidocs"/>
         </copy>
     </target>
 

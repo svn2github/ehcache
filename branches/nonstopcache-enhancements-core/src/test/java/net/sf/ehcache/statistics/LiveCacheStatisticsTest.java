@@ -30,6 +30,7 @@ import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.Statistics;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 /**
