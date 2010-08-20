@@ -722,4 +722,12 @@ public class EhcacheDecoratorAdapter implements Ehcache {
         underlyingCache.addPropertyChangeListener(listener);
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String toString() {
+        return underlyingCache.toString();
+    }
+
 }
