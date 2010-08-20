@@ -16,23 +16,22 @@
 
 package net.sf.ehcache.distribution;
 
-import net.sf.ehcache.AbstractCacheTest;
-import net.sf.ehcache.Cache;
-import net.sf.ehcache.CacheManager;
-import net.sf.ehcache.Ehcache;
-import org.junit.After;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
-import org.junit.Before;
-import org.junit.Test;
 
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.MulticastSocket;
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import net.sf.ehcache.AbstractCacheTest;
+import net.sf.ehcache.Cache;
+import net.sf.ehcache.CacheManager;
+import net.sf.ehcache.Ehcache;
+
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 
 /**
  * Multicast tests. These require special machine configuration.
