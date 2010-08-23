@@ -325,28 +325,56 @@ public final class ConfigurationHelper {
     public List<Ehcache> createCacheDecorators(Ehcache cache) {
         CacheConfiguration cacheConfiguration = cache.getCacheConfiguration();
         if (cacheConfiguration == null) {
-            return Collections.emptyList();
+            return createDefaultCacheDecorators(cache, configuration.getDefaultCacheConfiguration());
         }
         List<CacheDecoratorFactoryConfiguration> cacheDecoratorConfigurations = cacheConfiguration.getCacheDecoratorConfigurations();
         if (cacheDecoratorConfigurations == null || cacheDecoratorConfigurations.size() == 0) {
-            LOG.debug("CacheDecoratorFactory not configured. Skipping...");
-            return Collections.emptyList();
+            LOG.debug("CacheDecoratorFactory not configured. Skipping for '" + cache.getName() + "'.");
+            return createDefaultCacheDecorators(cache, configuration.getDefaultCacheConfiguration());
         }
         List<Ehcache> result = new ArrayList<Ehcache>();
         for (CacheDecoratorFactoryConfiguration factoryConfiguration : cacheDecoratorConfigurations) {
-            Ehcache decoratedCache = createDecoratedCache(cache, factoryConfiguration);
+            Ehcache decoratedCache = createDecoratedCache(cache, factoryConfiguration, false);
             if (decoratedCache != null) {
+                result.add(decoratedCache);
+            }
+        }
+        for (Ehcache defaultDecoratedCache : createDefaultCacheDecorators(cache, configuration.getDefaultCacheConfiguration())) {
+            result.add(defaultDecoratedCache);
+        }
+        return result;
+    }
+    
+    public static List<Ehcache> createDefaultCacheDecorators(Ehcache cache, CacheConfiguration defaultCacheConfiguration) {
+        List<CacheDecoratorFactoryConfiguration> defaultCacheDecoratorConfigurations = defaultCacheConfiguration
+                .getCacheDecoratorConfigurations();
+        if (defaultCacheDecoratorConfigurations == null || defaultCacheDecoratorConfigurations.size() == 0) {
+            LOG.debug("CacheDecoratorFactory not configured for defaultCache. Skipping for '" + cache.getName() + "'.");
+            return Collections.emptyList();
+        }
+        List<Ehcache> result = new ArrayList<Ehcache>();
+        Set<String> newCacheNames = new HashSet<String>();
+        for (CacheDecoratorFactoryConfiguration factoryConfiguration : defaultCacheDecoratorConfigurations) {
+            Ehcache decoratedCache = createDecoratedCache(cache, factoryConfiguration, true);
+            if (decoratedCache != null) {
+                if (newCacheNames.contains(decoratedCache.getName())) {
+                    throw new InvalidConfigurationException(
+                            "Looks like the defaultCache is configured with multiple CacheDecoratorFactory's "
+                                    + "that does not set unique names for newly created caches. Please fix the "
+                                    + "CacheDecoratorFactory to set unique names for newly created caches.");
+                }
+                newCacheNames.add(decoratedCache.getName());
                 result.add(decoratedCache);
             }
         }
         return result;
     }
-    
+
     /**
      * Creates the decorated cache from the decorator config specified. Returns null if the name of the factory class is not specified
      */
     private static Ehcache createDecoratedCache(Ehcache cache,
-            CacheConfiguration.CacheDecoratorFactoryConfiguration factoryConfiguration) {
+            CacheConfiguration.CacheDecoratorFactoryConfiguration factoryConfiguration, boolean forDefaultCache) {
         if (factoryConfiguration == null) {
             return null;
         }
@@ -358,7 +386,11 @@ public final class ConfigurationHelper {
             CacheDecoratorFactory factory = (CacheDecoratorFactory) ClassLoaderUtil.createNewInstance(className);
             Properties properties = PropertyUtil.parseProperties(factoryConfiguration.getProperties(),
                     factoryConfiguration.getPropertySeparator());
-            return factory.createDecoratedEhcache(cache, properties);
+            if (forDefaultCache) {
+                return factory.createDefaultDecoratedEhcache(cache, properties);
+            } else {
+                return factory.createDecoratedEhcache(cache, properties);
+            }
         }
     }
 

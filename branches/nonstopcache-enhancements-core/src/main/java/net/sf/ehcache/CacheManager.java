@@ -54,6 +54,7 @@ import java.io.File;
 import java.io.InputStream;
 import java.lang.reflect.Method;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -611,7 +612,11 @@ public class CacheManager {
             // add the cache decorators for the cache, if any
             List<Ehcache> cacheDecorators = configurationHelper.createCacheDecorators(unitialisedCache);
             for (Ehcache decoratedCache : cacheDecorators) {
-                addDecoratedCache(decoratedCache);
+                if (decoratedCache.getName().equals(unitialisedCache.getName())) {
+                    this.replaceCacheWithDecoratedCache(unitialisedCache, decoratedCache);
+                } else {                    
+                    addDecoratedCache(decoratedCache);
+                }
             }
         }
     }
@@ -879,7 +884,9 @@ public class CacheManager {
         if (ehcaches.get(cacheName) != null) {
             throw new ObjectExistsException("Cache " + cacheName + " already exists");
         }
-        addCache(cloneDefaultCache(cacheName));
+        for (Ehcache ehcache : createCachesFromNameUsingDefaultCache(cacheName)) {            
+            addCache(ehcache);
+        }
     }
 
     /**
@@ -1473,7 +1480,23 @@ public class CacheManager {
         }
 
         Ehcache ehcache = ehcaches.get(cacheName);
-        return ehcache != null ? ehcache : addCacheIfAbsent(cloneDefaultCache(cacheName));
+        if (ehcache != null) {
+            return ehcache;
+        }
+        else {
+            Ehcache returnValue = null;
+            for (Ehcache createdCache : createCachesFromNameUsingDefaultCache(cacheName)) {
+                if (createdCache.getName().equals(cacheName)) {
+                    returnValue = createdCache;
+                }
+                addCacheIfAbsent(createdCache);
+            }
+            if (returnValue == null) {
+                throw new CacheException("Creating cache passing name should create at least one cache with that name "
+                        + "(in addition to decorated caches using defaultCache's cacheDecoratorFactory's, if any)");
+            }
+            return returnValue;
+        }
     }
 
     private Ehcache cloneDefaultCache(final String cacheName) {
@@ -1487,5 +1510,14 @@ public class CacheManager {
             cache.setName(cacheName);
         }
         return cache;
+    }
+
+    private List<Ehcache> createCachesFromNameUsingDefaultCache(String cacheName) {
+        Ehcache clonedDefaultCache = cloneDefaultCache(name);
+        List<Ehcache> defaultCacheDecorators = ConfigurationHelper.createDefaultCacheDecorators(clonedDefaultCache, configuration.getDefaultCacheConfiguration());
+        List<Ehcache> result = new ArrayList<Ehcache>(defaultCacheDecorators.size() + 1);
+        result.add(clonedDefaultCache);
+        result.addAll(defaultCacheDecorators);
+        return result;
     }
 }
