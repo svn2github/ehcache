@@ -22,6 +22,7 @@ import net.sf.ehcache.distribution.CacheManagerPeerProvider;
 
 /**
  * A CacheManagerPeerProvider that supports MBean registration
+ * @author Greg Luck
  */
 public interface ManagedCacheManagerPeerProvider extends CacheManagerPeerProvider {
     /**

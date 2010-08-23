@@ -39,8 +39,10 @@ class TerracottaClusteredInstanceHelper {
      */
     private static final boolean TC_DSO_MODE = Boolean.getBoolean("tc.active");
 
-    private static final String ENTERPRISE_EXPRESS_FACTORY = "net.sf.ehcache.terracotta.ExpressEnterpriseTerracottaClusteredInstanceFactory";
-    private static final String ENTERPRISE_DIRECT_FACTORY = "org.terracotta.modules.ehcache.store.EnterpriseTerracottaClusteredInstanceFactory";
+    private static final String ENTERPRISE_EXPRESS_FACTORY = 
+        "net.sf.ehcache.terracotta.ExpressEnterpriseTerracottaClusteredInstanceFactory";
+    private static final String ENTERPRISE_DIRECT_FACTORY =
+        "org.terracotta.modules.ehcache.store.EnterpriseTerracottaClusteredInstanceFactory";
     private static final String STANDALONE_FACTORY = "net.sf.ehcache.terracotta.StandaloneTerracottaClusteredInstanceFactory";
     private static final String DIRECT_FACTORY = "org.terracotta.modules.ehcache.store.TerracottaClusteredInstanceFactory";
 
@@ -148,7 +150,7 @@ class TerracottaClusteredInstanceHelper {
         }
 
         return (ClusteredInstanceFactory) ClassLoaderUtil.createNewInstance(factoryClass.getName(),
-                new Class[] { TerracottaClientConfiguration.class }, new Object[] { terracottaConfig });
+                new Class[] {TerracottaClientConfiguration.class}, new Object[] {terracottaConfig});
     }
 
 }

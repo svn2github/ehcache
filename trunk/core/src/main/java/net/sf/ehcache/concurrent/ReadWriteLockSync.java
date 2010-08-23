@@ -30,10 +30,17 @@ public class ReadWriteLockSync implements Sync, Comparable<ReadWriteLockSync> {
     private final Lock readLock;
     private final Lock writeLock;
 
+    /**
+     * default constructor.
+     */
     public ReadWriteLockSync() {
       this(new ReentrantReadWriteLock());
     }
 
+    /**
+     * Constructor.
+     * @param lock
+     */
     public ReadWriteLockSync(ReentrantReadWriteLock lock) {
       this.rrwl = lock;
       this.readLock = rrwl.readLock();

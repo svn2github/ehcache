@@ -269,7 +269,7 @@ public class CacheConfiguration implements Cloneable {
      * whether elements can overflow to off heap memory when the in-memory cache
      * has reached the set limit.
      */
-    protected volatile boolean overflowToOffHeap = false;
+    protected volatile boolean overflowToOffHeap;
 
     /**
      * Maximum size of the off heap memory allocated to this cache.
@@ -332,7 +332,7 @@ public class CacheConfiguration implements Cloneable {
     private volatile Boolean copyOnRead;
     private volatile Boolean copyOnWrite;
     private Object defaultTransactionManager;
-    private boolean conflictingValuesWarningLogged = false;
+    private boolean conflictingValuesWarningLogged;
 
     /**
      * Default constructor.
@@ -682,7 +682,10 @@ public class CacheConfiguration implements Cloneable {
             LOG
                     .warn("Cache '"
                             + getName()
-                            + "' is set to eternal but also has TTI/TTL set. To avoid this warning, clean up the config removing conflicting values of eternal, TTI and TTL.");
+                            + "' is set to eternal but also has TTI/TTL set." +
+                            " To avoid this warning, clean up the config " +
+                            "removing conflicting values of eternal," +
+                            " TTI and TTL.");
         }
     }
 
@@ -1344,7 +1347,7 @@ public class CacheConfiguration implements Cloneable {
     /**
      * Used to validate what should be a complete Cache Configuration.
      *
-     * @throws InvalidConfigurationException if the configuration is invalid.
+     * throws @{link InvalidConfigurationException} if the configuration is invalid.
      */
     public void validateCompleteConfiguration() {
 
@@ -1361,7 +1364,7 @@ public class CacheConfiguration implements Cloneable {
     /**
      * Used to validate a Cache Configuration.
      *
-     * @throws InvalidConfigurationException if the configuration is invalid.
+     * throws @{link InvalidConfigurationException} if the configuration is invalid.
      */
     public void validateConfiguration() {
 

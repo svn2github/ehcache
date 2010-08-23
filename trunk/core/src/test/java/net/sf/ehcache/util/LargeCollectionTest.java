@@ -14,7 +14,6 @@ import org.junit.Test;
 public class LargeCollectionTest {
 
 	@Test
-    @Ignore //FIXME Fails on my Mac
 	public void testIteration() throws IOException {
 		
 		AggregateIterator<String> iterator = newIterator();
