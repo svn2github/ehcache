@@ -152,7 +152,7 @@ public class Cache implements Ehcache, StoreListener {
      */
     public static final long DEFAULT_EXPIRY_THREAD_INTERVAL_SECONDS = CacheConfiguration.DEFAULT_EXPIRY_THREAD_INTERVAL_SECONDS;
 
-    private static final String OFF_HEAP_STORE_CLASSNAME = "net.sf.ehcache.ee.store.OffHeapStore";
+    private static final String OFF_HEAP_STORE_CLASSNAME = "net.sf.ehcache.store.offheap.OffHeapStore";
     
     private static final Logger LOG = LoggerFactory.getLogger(Cache.class.getName());
 
@@ -964,12 +964,10 @@ public class Cache implements Ehcache, StoreListener {
                     Class<Store> storeClass = (Class<Store>) ClassLoaderUtil.loadClass(OFF_HEAP_STORE_CLASSNAME);
 
                     try {
-                        store = storeClass.getConstructor(CacheConfiguration.class).newInstance(configuration);
+                        store = (Store) storeClass.getMethod("create", Ehcache.class, String.class).invoke(null, this, diskStorePath);
                     } catch (NoSuchMethodException e) {
-                        throw new CacheException("Cannot find constructor <init>(CacheConfiguration) in store class " + OFF_HEAP_STORE_CLASSNAME, e);
+                        throw new CacheException("Cannot find static factory method create(Ehcache, String) in store class " + OFF_HEAP_STORE_CLASSNAME, e);
                     } catch (InvocationTargetException e) {
-                        throw new CacheException("Cannot instantiate store " + OFF_HEAP_STORE_CLASSNAME, e);
-                    } catch (InstantiationException e) {
                         throw new CacheException("Cannot instantiate store " + OFF_HEAP_STORE_CLASSNAME, e);
                     } catch (IllegalAccessException e) {
                         throw new CacheException("Cannot instantiate store " + OFF_HEAP_STORE_CLASSNAME, e);

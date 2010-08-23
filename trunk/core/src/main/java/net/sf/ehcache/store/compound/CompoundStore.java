@@ -36,6 +36,7 @@ import net.sf.ehcache.Element;
 import net.sf.ehcache.Status;
 import net.sf.ehcache.concurrent.CacheLockProvider;
 import net.sf.ehcache.concurrent.LockType;
+import net.sf.ehcache.concurrent.ReadWriteLockSync;
 import net.sf.ehcache.concurrent.Sync;
 import net.sf.ehcache.store.AbstractStore;
 import net.sf.ehcache.writer.CacheWriterManager;
@@ -719,75 +720,5 @@ public abstract class CompoundStore extends AbstractStore {
         public Object next() {
             return super.nextEntry().key;
         }
-    }
-
-    /**
-     * Sync implementation that wraps the segment locks
-     */
-    private final static class ReadWriteLockSync implements Sync {
-
-        private final ReentrantReadWriteLock lock;
-        
-        private ReadWriteLockSync(ReentrantReadWriteLock lock) {
-            this.lock = lock;
-        }
-        
-        /**
-         * {@inheritDoc}
-         */
-        public void lock(LockType type) {
-            switch (type) {
-                case READ:
-                    lock.readLock().lock();
-                    break;
-                case WRITE:
-                    lock.writeLock().lock();
-                    break;
-                default:
-                    throw new IllegalArgumentException("We don't support any other lock type than READ or WRITE!");
-            }
-        }
-
-        /**
-         * {@inheritDoc}
-         */
-        public boolean tryLock(LockType type, long msec) throws InterruptedException {
-            switch (type) {
-                case READ:
-                    return lock.readLock().tryLock(msec, TimeUnit.MILLISECONDS);
-                case WRITE:
-                    return lock.writeLock().tryLock(msec, TimeUnit.MILLISECONDS);
-                default:
-                    throw new IllegalArgumentException("We don't support any other lock type than READ or WRITE!");
-            }
-        }
-
-        /**
-         * {@inheritDoc}
-         */
-        public void unlock(LockType type) {
-            switch (type) {
-                case READ:
-                    lock.readLock().unlock();
-                    break;
-                case WRITE:
-                    lock.writeLock().unlock();
-                    break;
-                default:
-                    throw new IllegalArgumentException("We don't support any other lock type than READ or WRITE!");
-            }
-        }
-
-        public boolean isHeldByCurrentThread(LockType type) {
-            switch (type) {
-                case READ:
-                    throw new UnsupportedOperationException("Querying of read lock is not supported.");
-                case WRITE:
-                    return lock.isWriteLockedByCurrentThread();
-                default:
-                    throw new IllegalArgumentException("We don't support any other lock type than READ or WRITE!");
-            }
-        }
-        
     }
 }

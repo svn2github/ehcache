@@ -26,10 +26,19 @@ import java.util.concurrent.TimeUnit;
  */
 public class ReadWriteLockSync implements Sync, Comparable<ReadWriteLockSync> {
 
-    private final ReentrantReadWriteLock rrwl = new ReentrantReadWriteLock();
-    private final Lock readLock = rrwl.readLock();
-    private final Lock writeLock = rrwl.writeLock();
+    private final ReentrantReadWriteLock rrwl;
+    private final Lock readLock;
+    private final Lock writeLock;
 
+    public ReadWriteLockSync() {
+      this(new ReentrantReadWriteLock());
+    }
+
+    public ReadWriteLockSync(ReentrantReadWriteLock lock) {
+      this.rrwl = lock;
+      this.readLock = rrwl.readLock();
+      this.writeLock = rrwl.writeLock();
+    }
     /**
      * {@inheritDoc}
      */

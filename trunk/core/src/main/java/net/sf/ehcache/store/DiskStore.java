@@ -186,7 +186,7 @@ public class DiskStore extends AbstractStore implements CacheConfigurationListen
      * @param diskStorePath
      * @return an instance of a DiksStore
      */
-    public static DiskStore create(Cache cache, String diskStorePath) {
+    public static DiskStore create(Ehcache cache, String diskStorePath) {
         DiskStore store = new DiskStore(cache, diskStorePath);
         cache.getCacheConfiguration().addConfigurationListener(store);
         return store;
