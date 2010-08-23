@@ -20,6 +20,7 @@ import net.sf.ehcache.CacheException;
 import net.sf.ehcache.event.NotificationScope;
 import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
 import net.sf.ehcache.store.compound.CopyStrategy;
+import net.sf.ehcache.util.MemorySizeParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -259,6 +260,11 @@ public class CacheConfiguration implements Cloneable {
      */
     protected volatile boolean logging = DEFAULT_LOGGING;
 
+    protected volatile boolean overflowToOffHeap = false;
+
+    protected volatile String maxMemoryOffHeap;
+
+
     /**
      * The event listener factories added by BeanUtils.
      */
@@ -464,6 +470,27 @@ public class CacheConfiguration implements Cloneable {
         boolean oldLoggingEnabled = this.logging;
         this.logging = enable;
         fireLoggingChanged(oldLoggingEnabled, enable);
+    }
+
+    public final void setOverflowToOffHeap(boolean overflowToOffHeap) {
+        checkDynamicChange();
+        this.overflowToOffHeap = overflowToOffHeap;
+    }
+
+    public CacheConfiguration overflowToOffHeap(boolean overflowToOffHeap) {
+        setOverflowToOffHeap(overflowToOffHeap);
+        return this;
+    }
+
+    public final void setMaxMemoryOffHeap(String maxMemoryOffHeap) {
+        checkDynamicChange();
+        MemorySizeParser.parse(maxMemoryOffHeap);
+        this.maxMemoryOffHeap = maxMemoryOffHeap;
+    }
+
+    public CacheConfiguration maxMemoryOffHeap(String maxMemoryOffHeap) {
+        setMaxMemoryOffHeap(maxMemoryOffHeap);
+        return this;
     }
 
     /**
@@ -1430,6 +1457,18 @@ public class CacheConfiguration implements Cloneable {
      */
     public boolean getLogging() {
         return logging;
+    }
+
+    public boolean isOverflowToOffHeap() {
+        return overflowToOffHeap;
+    }
+
+    public String getMaxMemoryOffHeap() {
+        return maxMemoryOffHeap;
+    }
+
+    public long getMaxMemoryOffHeapInBytes() {
+        return MemorySizeParser.parse(maxMemoryOffHeap);
     }
 
     /**

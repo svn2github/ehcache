@@ -1619,5 +1619,18 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
 
     }
 
+    @Test
+    public void testValidStoreConfigElements() throws Exception {
+        File file = new File(TEST_CONFIG_DIR + "ehcache-store.xml");
+        Configuration configuration = ConfigurationFactory.parseConfiguration(file);
+
+        CacheConfiguration cacheConfiguration = configuration.getCacheConfigurations().get("offheap1");
+        assertEquals(16777216, cacheConfiguration.getMaxMemoryOffHeapInBytes());
+        assertEquals(true, cacheConfiguration.isOverflowToOffHeap());
+
+        cacheConfiguration = configuration.getCacheConfigurations().get("offheap2");
+        assertEquals(2147483648L, cacheConfiguration.getMaxMemoryOffHeapInBytes());
+        assertEquals(false, cacheConfiguration.isOverflowToOffHeap());
+    }
 
 }
