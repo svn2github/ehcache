@@ -30,6 +30,7 @@
         <testDir>src/test/java</testDir>
         <testResources>src/test/resources</testResources>
         <name>ehcache</name>
+        <skipCheckstyle>false</skipCheckstyle>
     </properties>
 
     <dependencies>
@@ -435,6 +436,7 @@
                     </suppressionsLocation>
                     <headerLocation>${basedir}/checkstyle/ClassHeader.txt
                     </headerLocation>
+                    <skip>${skipCheckstyle}</skip>
                     <enableRSS>false</enableRSS>
                     <linkXRef>true</linkXRef>
                     <consoleOutput>true</consoleOutput>
