@@ -151,6 +151,8 @@ public class Cache implements Ehcache, StoreListener {
      */
     public static final long DEFAULT_EXPIRY_THREAD_INTERVAL_SECONDS = CacheConfiguration.DEFAULT_EXPIRY_THREAD_INTERVAL_SECONDS;
 
+    private static final String OFF_HEAP_STORE_CLASSNAME = "net.sf.ehcache.ee.store.OffHeapStore";
+    
     private static final Logger LOG = LoggerFactory.getLogger(Cache.class.getName());
 
     private static InetAddress localhost;
@@ -236,7 +238,6 @@ public class Cache implements Ehcache, StoreListener {
     private volatile boolean allowDisable = true;
 
     private PropertyChangeSupport propertyChangeSupport = new PropertyChangeSupport(this);
-    private static final String OFF_HEAP_STORE_CLASSNAME = "net.sf.ehcache.ee.store.OffHeapStore";
 
     /**
      * 2.0 and higher Constructor

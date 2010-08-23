@@ -260,8 +260,15 @@ public class CacheConfiguration implements Cloneable {
      */
     protected volatile boolean logging = DEFAULT_LOGGING;
 
+    /**
+     * whether elements can overflow to off heap memory when the in-memory cache
+     * has reached the set limit.
+     */
     protected volatile boolean overflowToOffHeap = false;
 
+    /**
+     * Maximum size of the off heap memory allocated to this cache.
+     */
     protected volatile String maxMemoryOffHeap;
 
 
@@ -472,22 +479,46 @@ public class CacheConfiguration implements Cloneable {
         fireLoggingChanged(oldLoggingEnabled, enable);
     }
 
+    /**
+     * Enables or disables offheap store for the cache.
+     *
+     * @param overflowToOffHeap If true, enables offheap store otherwise disables it.
+     */
     public final void setOverflowToOffHeap(boolean overflowToOffHeap) {
         checkDynamicChange();
         this.overflowToOffHeap = overflowToOffHeap;
     }
 
+    /**
+     * Builder to enable or disable offheap store for the cache.
+     *
+     * @param overflowToOffHeap If true, enables offheap store otherwise disables it.
+     * @return this configuration instance
+     * @see #setOverflowToOffHeap(boolean)
+     */
     public CacheConfiguration overflowToOffHeap(boolean overflowToOffHeap) {
         setOverflowToOffHeap(overflowToOffHeap);
         return this;
     }
 
+    /**
+     * Sets the max off heap memory size allocated for this cache.
+     *
+     * @param maxMemoryOffHeap the max off heap memory size allocated for this cache.
+     */
     public final void setMaxMemoryOffHeap(String maxMemoryOffHeap) {
         checkDynamicChange();
         MemorySizeParser.parse(maxMemoryOffHeap);
         this.maxMemoryOffHeap = maxMemoryOffHeap;
     }
 
+    /**
+     * Builder to set the max off heap memory size allocated for this cache.
+     * 
+     * @param maxMemoryOffHeap the max off heap memory size allocated for this cache.
+     * @return this configuration instance
+     * @see #setMaxMemoryOffHeap(String)
+     */
     public CacheConfiguration maxMemoryOffHeap(String maxMemoryOffHeap) {
         setMaxMemoryOffHeap(maxMemoryOffHeap);
         return this;
@@ -1459,14 +1490,30 @@ public class CacheConfiguration implements Cloneable {
         return logging;
     }
 
+    /**
+     * Accessor
+     *
+     * @return true if offheap store is enabled, otherwise false.
+     */
     public boolean isOverflowToOffHeap() {
         return overflowToOffHeap;
     }
 
+    /**
+     * Accessor
+     *
+     * @return the max memory of the offheap store for this cache.
+     */
     public String getMaxMemoryOffHeap() {
         return maxMemoryOffHeap;
     }
 
+    /**
+     * Accessor
+     *
+     * @return the max memory of the offheap store for this cache, in bytes.
+     * @see #getMaxMemoryOffHeap()
+     */
     public long getMaxMemoryOffHeapInBytes() {
         return MemorySizeParser.parse(maxMemoryOffHeap);
     }

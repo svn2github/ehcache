@@ -1,10 +1,17 @@
 package net.sf.ehcache.util;
 
 /**
- * @author lorban
+ * Memory size parser using the letter k or K to indicate kilobytes, the letter m or M to indicate megabytes,
+ * the letter g or G to indicate gigabytes.
+ * @author Ludovic Orban
  */
 public class MemorySizeParser {
 
+    /**
+     * Parse a String containing a human-readable memory size.
+     * @param memorySize the String containing a human-readable memory size.
+     * @return the memory size in bytes.
+     */
     public static long parse(String memorySize) {
         if (memorySize == null || "".equals(memorySize))
             return 0;
