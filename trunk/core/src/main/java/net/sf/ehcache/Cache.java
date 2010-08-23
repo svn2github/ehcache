@@ -42,6 +42,7 @@ import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -1436,8 +1437,17 @@ public class Cache implements Ehcache, StoreListener {
                 return element;
             }
             Future future = asynchronousLoad(key, loader, loaderArgument);
+
             //wait for result
-            future.get();
+            long timeoutMillis = configuration.getTimeoutMillis();
+            if (timeoutMillis > 0) {
+                future.get(timeoutMillis, TimeUnit.MILLISECONDS);
+            }
+            else {
+                future.get();
+            }
+        } catch (TimeoutException e) {
+            throw new LoadTimeoutException("Timeout on load for key " + key, e);
         } catch (Exception e) {
             throw new CacheException("Exception on load for key " + key, e);
         }

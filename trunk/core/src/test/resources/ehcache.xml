@@ -43,6 +43,19 @@
            diskPersistent="true"
             />
 
+    <!-- Sample cache with a loader timeout -->
+    <cache name="sampleCacheTimeout"
+           maxElementsInMemory="10000"
+           maxElementsOnDisk="1000"
+           eternal="false"
+           timeToIdleSeconds="360"
+           timeToLiveSeconds="1000"
+           overflowToDisk="true"
+           timeoutMillis="1000"
+           memoryStoreEvictionPolicy="LRU">
+        <cacheEventListenerFactory class="net.sf.ehcache.event.NullCacheEventListenerFactory"/>
+    </cache>
+
     <!-- Sample cache named sampleCacheNoIdle, which does not specify the optional idle time -->
     <cache name="sampleCacheNoIdle"
            maxElementsInMemory="1000"

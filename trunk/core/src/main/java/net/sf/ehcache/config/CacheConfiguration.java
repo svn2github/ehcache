@@ -166,6 +166,11 @@ public class CacheConfiguration implements Cloneable {
     protected volatile String name;
 
     /**
+     * Timeout in milliseconds for CacheLoader related calls
+     */
+    protected volatile long timeoutMillis;
+
+    /**
      * the maximum objects to be held in the {@link net.sf.ehcache.store.MemoryStore}.
      * <p/>
      * <code>0</code> translates to no-limit.
@@ -564,6 +569,27 @@ public class CacheConfiguration implements Cloneable {
      */
     public final CacheConfiguration maxElementsInMemory(int maxElementsInMemory) {
         setMaxElementsInMemory(maxElementsInMemory);
+        return this;
+    }
+
+    /**
+     * Sets the timeout for CacheLoader execution (0 = no timeout).
+     *
+     * @param timeoutMillis the timeout in milliseconds.
+     */
+    public final void setTimeoutMillis(long timeoutMillis) {
+        checkDynamicChange();
+        this.timeoutMillis = timeoutMillis;
+    }
+
+    /**
+     * Builder that sets the timeout for CacheLoader execution (0 = no timeout).
+
+     * @param timeoutMillis the timeout in milliseconds.
+     * @return this configuration instance
+     */
+    public CacheConfiguration timeoutMillis(long timeoutMillis) {
+        setTimeoutMillis(timeoutMillis);
         return this;
     }
 
@@ -1395,6 +1421,13 @@ public class CacheConfiguration implements Cloneable {
      */
     public int getMaxElementsInMemory() {
         return maxElementsInMemory;
+    }
+
+    /**
+     * Accessor
+     */
+    public long getTimeoutMillis() {
+        return timeoutMillis;
     }
 
     /**
