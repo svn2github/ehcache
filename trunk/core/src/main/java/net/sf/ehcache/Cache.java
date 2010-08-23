@@ -960,7 +960,7 @@ public class Cache implements Ehcache, StoreListener {
             final Store store;
             if (configuration.isOverflowToOffHeap()) {
                 try {
-                    Class<Store> storeClass = (Class<Store>) Class.forName(OFF_HEAP_STORE_CLASSNAME);
+                    Class<Store> storeClass = (Class<Store>) ClassLoaderUtil.loadClass(OFF_HEAP_STORE_CLASSNAME);
 
                     try {
                         store = storeClass.getConstructor(CacheConfiguration.class).newInstance(configuration);
