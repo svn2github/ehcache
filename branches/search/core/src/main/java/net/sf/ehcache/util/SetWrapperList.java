@@ -1,3 +1,19 @@
+/**
+ *  Copyright 2003-2010 Terracotta, Inc.
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+
 package net.sf.ehcache.util;
 
 import java.util.Collection;
@@ -7,194 +23,216 @@ import java.util.ListIterator;
 
 /**
  * Wraps a set to provide a list interface.
- * 
- * All list methods not application to set throws an {@link UnsupportedOperationException}
- * 
+ * All list methods not application to set throws an
+ * {@link UnsupportedOperationException}
  * @author Nabib El-Rahman
- *
  */
 public class SetWrapperList implements List {
 
-	private final Collection delegate;
+    /**
+     * Wrapped collection.
+     */
+    private final Collection delegate;
 
-	/**
-	 * Collection to delegate to.
-	 * 
-	 * @param delegate
-	 */
-	public SetWrapperList(Collection delegate) {
-		this.delegate = delegate;
-	}
+    /**
+     * Collection to delegate to.
+     * @param aDelegate delegate
+     */
+    public SetWrapperList(final Collection aDelegate) {
+       this.delegate = aDelegate;
+    }
 
-	/**
+    /**
      * {@inheritDoc}
      */
-	public boolean add(Object obj) {
-		return this.delegate.add(obj);
-	}
+    public final boolean add(final Object obj) {
+       return this.delegate.add(obj);
+    }
 
-	 /**
-     * Unsupported
+    /**
+     * Does not support List methods {@link UnsupportedOperationException}.
+     * @param index Index
+     * @param entry Entry
      */
-	public void add(int paramInt, Object paramE) {
-		throw new UnsupportedOperationException(
-				"Delegates to set, operation not supported");
-	}
+    public final void add(final int index, final Object entry) {
+      throw new UnsupportedOperationException(
+         "Delegates to set, operation not supported");
+    }
 
-	 /**
+    /**
      * {@inheritDoc}
      */
-	public boolean addAll(Collection coll) {
-		return this.delegate.addAll(coll);
-	}
+    public final boolean addAll(final Collection coll) {
+      return this.delegate.addAll(coll);
+    }
 
-	 /**
-     * Unsupported
+    /**
+     * Does not support List methods {@link UnsupportedOperationException}.
+     * @param index Index
+     * @param coll Collection
+     * @return boolean
      */
-	public boolean addAll(int paramInt, Collection paramCollection) {
-		throw new UnsupportedOperationException(
-				"Delegates to set, operation not supported");
-	}
+    public final boolean addAll(final int index, final Collection coll) {
+       throw new UnsupportedOperationException(
+          "Delegates to set, operation not supported");
+    }
 
-	 /**
+    /**
      * {@inheritDoc}
      */
-	public void clear() {
-		this.delegate.clear();
-	}
+    public final void clear() {
+      this.delegate.clear();
+    }
 
-	 /**
+    /**
      * {@inheritDoc}
      */
-	public boolean contains(Object obj) {
-		return this.delegate.contains(obj);
-	}
+    public final boolean contains(final Object obj) {
+      return this.delegate.contains(obj);
+    }
 
-	 /**
+    /**
      * {@inheritDoc}
      */
-	public boolean containsAll(Collection coll) {
-		return this.delegate.containsAll(coll);
-	}
+    public final boolean containsAll(final Collection coll) {
+      return this.delegate.containsAll(coll);
+    }
 
-	 /**
-     * Unsupported
+    /**
+     * Does not support List methods {@link UnsupportedOperationException}.
+     * @param index Index
+     * @return Object
      */
-	public Object get(int paramInt) {
-		throw new UnsupportedOperationException(
-				"Delegates to set, operation not supported");
-	}
+    public final Object get(final int index) {
+      throw new UnsupportedOperationException(
+          "Delegates to set, operation not supported");
+    }
 
-	 /**
-     * Unsupported
+    /**
+     * Does not support List methods {@link UnsupportedOperationException}.
+     * @param object Object
+     * @return integer
      */
-	public int indexOf(Object paramObject) {
-		throw new UnsupportedOperationException(
-				"Delegates to set, operation not supported");
-	}
+     public final int indexOf(final Object object) {
+       throw new UnsupportedOperationException(
+          "Delegates to set, operation not supported");
+     }
 
-	 /**
+    /**
      * {@inheritDoc}
      */
-	public boolean isEmpty() {
-		return this.delegate.isEmpty();
-	}
+    public final boolean isEmpty() {
+      return this.delegate.isEmpty();
+    }
 
-	 /**
+    /**
      * {@inheritDoc}
      */
-	public Iterator iterator() {
-		return this.delegate.iterator();
-	}
+    public final Iterator iterator() {
+      return this.delegate.iterator();
+    }
 
-	 /**
-     * Unsupported
+    /**
+     * Does not support List methods {@link UnsupportedOperationException}.
+     * @param object Object
+     * @return integer
      */
-	public int lastIndexOf(Object paramObject) {
-		throw new UnsupportedOperationException(
-				"Delegates to set, operation not supported");
-	}
+    public final int lastIndexOf(final Object object) {
+      throw new UnsupportedOperationException(
+          "Delegates to set, operation not supported");
+    }
 
-	 /**
-     * Unsupported
+    /**
+     * Does not support List methods {@link UnsupportedOperationException}.
+     * @return ListIterator
      */
-	public ListIterator listIterator() {
-		throw new UnsupportedOperationException(
-				"Delegates to set, operation not supported");
-	}
+    public final ListIterator listIterator() {
+      throw new UnsupportedOperationException(
+         "Delegates to set, operation not supported");
+    }
 
-	 /**
-     * Unsupported
+    /**
+     * Does not support List methods {@link UnsupportedOperationException}.
+     * @param index Index
+     * @return ListIterator
      */
-	public ListIterator listIterator(int paramInt) {
-		throw new UnsupportedOperationException(
-				"Delegates to set, operation not supported");
-	}
+    public final ListIterator listIterator(final int index) {
+       throw new UnsupportedOperationException(
+          "Delegates to set, operation not supported");
+    }
 
-	 /**
+    /**
      * {@inheritDoc}
      */
-	public boolean remove(Object obj) {
-		return this.delegate.remove(obj);
-	}
+    public final boolean remove(final Object obj) {
+      return this.delegate.remove(obj);
+    }
 
-	 /**
-     * Unsupported
+    /**
+     * Does not support List methods {@link UnsupportedOperationException}.
+     * @param index Index
+     * @return Object
      */
-	public Object remove(int paramInt) {
-		throw new UnsupportedOperationException(
-				"Delegates to set, operation not supported");
-	}
+    public final Object remove(final int index) {
+      throw new UnsupportedOperationException(
+        "Delegates to set, operation not supported");
+    }
 
-	 /**
+    /**
      * {@inheritDoc}
      */
-	public boolean removeAll(Collection coll) {
-		return this.delegate.removeAll(coll);
-	}
+    public final boolean removeAll(final Collection coll) {
+       return this.delegate.removeAll(coll);
+    }
 
-	 /**
+    /**
      * {@inheritDoc}
      */
-	public boolean retainAll(Collection coll) {
-		return this.delegate.retainAll(coll);
-	}
+    public final boolean retainAll(final Collection coll) {
+       return this.delegate.retainAll(coll);
+    }
 
-	 /**
-     * Unsupported
+    /**
+     * Does not support List methods {@link UnsupportedOperationException}.
+     * @param index Index
+     * @param object Object
+     * @return Object
      */
-	public Object set(int paramInt, Object paramE) {
-		throw new UnsupportedOperationException(
-				"Delegates to set, operation not supported");
-	}
+    public final Object set(final int index, final Object object) {
+      throw new UnsupportedOperationException(
+        "Delegates to set, operation not supported");
+    }
 
-	 /**
+    /**
      * {@inheritDoc}
      */
-	public int size() {
-		return this.delegate.size();
-	}
+    public final  int size() {
+      return this.delegate.size();
+    }
 
-	 /**
-     * Unsupported
+    /**
+     * Does not support List methods {@link UnsupportedOperationException}.
+     * @param start Start
+     * @param offset Offset
+     * @return List
      */
-	public List subList(int paramInt1, int paramInt2) {
-		throw new UnsupportedOperationException(
-				"Delegates to set, operation not supported");
-	}
+    public final List subList(final int start, final int offset) {
+       throw new UnsupportedOperationException(
+          "Delegates to set, operation not supported");
+    }
 
-	 /**
+    /**
      * {@inheritDoc}
      */
-	public Object[] toArray() {
-		return this.delegate.toArray();
-	}
+    public final Object[] toArray() {
+       return this.delegate.toArray();
+    }
 
-	 /**
+    /**
      * {@inheritDoc}
      */
-	public Object[] toArray(Object[] arr) {
-		return this.delegate.toArray(arr);
-	}
+    public final Object[] toArray(final Object[] arr) {
+       return this.delegate.toArray(arr);
+    }
 
 }

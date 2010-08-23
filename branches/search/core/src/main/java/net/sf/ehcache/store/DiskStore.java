@@ -542,7 +542,7 @@ public class DiskStore extends AbstractStore implements CacheConfigurationListen
             diskElement.free();
         }
 
-    	totalSize.addAndGet(diskElement.payloadSize * -1L);
+        totalSize.addAndGet(diskElement.payloadSize * -1L);
         freeSpace.add(freeBlock);
     }
 
@@ -1199,10 +1199,17 @@ public class DiskStore extends AbstractStore implements CacheConfigurationListen
             return position;
         }
         
+        /**
+         * free.
+         */
         public void free() {
             this.position = -1;
         }
         
+        /**
+         * isValid.
+         * @return boolean
+         */
         public boolean isValid() {
             return position >= 0;
         }

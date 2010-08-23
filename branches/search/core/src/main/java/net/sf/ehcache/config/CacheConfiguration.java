@@ -20,6 +20,7 @@ import net.sf.ehcache.CacheException;
 import net.sf.ehcache.event.NotificationScope;
 import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
 import net.sf.ehcache.store.compound.CopyStrategy;
+import net.sf.ehcache.util.MemorySizeParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -165,6 +166,11 @@ public class CacheConfiguration implements Cloneable {
     protected volatile String name;
 
     /**
+     * Timeout in milliseconds for CacheLoader related calls
+     */
+    protected volatile long timeoutMillis;
+
+    /**
      * the maximum objects to be held in the {@link net.sf.ehcache.store.MemoryStore}.
      * <p/>
      * <code>0</code> translates to no-limit.
@@ -260,6 +266,18 @@ public class CacheConfiguration implements Cloneable {
     protected volatile boolean logging = DEFAULT_LOGGING;
 
     /**
+     * whether elements can overflow to off heap memory when the in-memory cache
+     * has reached the set limit.
+     */
+    protected volatile boolean overflowToOffHeap;
+
+    /**
+     * Maximum size of the off heap memory allocated to this cache.
+     */
+    protected volatile String maxMemoryOffHeap;
+
+
+    /**
      * The event listener factories added by BeanUtils.
      */
     protected volatile List<CacheEventListenerFactoryConfiguration> cacheEventListenerConfigurations =
@@ -314,7 +332,7 @@ public class CacheConfiguration implements Cloneable {
     private volatile Boolean copyOnRead;
     private volatile Boolean copyOnWrite;
     private Object defaultTransactionManager;
-    private boolean conflictingValuesWarningLogged = false;
+    private boolean conflictingValuesWarningLogged;
 
     /**
      * Default constructor.
@@ -467,6 +485,51 @@ public class CacheConfiguration implements Cloneable {
     }
 
     /**
+     * Enables or disables offheap store for the cache.
+     *
+     * @param overflowToOffHeap If true, enables offheap store otherwise disables it.
+     */
+    public final void setOverflowToOffHeap(boolean overflowToOffHeap) {
+        checkDynamicChange();
+        this.overflowToOffHeap = overflowToOffHeap;
+    }
+
+    /**
+     * Builder to enable or disable offheap store for the cache.
+     *
+     * @param overflowToOffHeap If true, enables offheap store otherwise disables it.
+     * @return this configuration instance
+     * @see #setOverflowToOffHeap(boolean)
+     */
+    public CacheConfiguration overflowToOffHeap(boolean overflowToOffHeap) {
+        setOverflowToOffHeap(overflowToOffHeap);
+        return this;
+    }
+
+    /**
+     * Sets the max off heap memory size allocated for this cache.
+     *
+     * @param maxMemoryOffHeap the max off heap memory size allocated for this cache.
+     */
+    public final void setMaxMemoryOffHeap(String maxMemoryOffHeap) {
+        checkDynamicChange();
+        MemorySizeParser.parse(maxMemoryOffHeap);
+        this.maxMemoryOffHeap = maxMemoryOffHeap;
+    }
+
+    /**
+     * Builder to set the max off heap memory size allocated for this cache.
+     * 
+     * @param maxMemoryOffHeap the max off heap memory size allocated for this cache.
+     * @return this configuration instance
+     * @see #setMaxMemoryOffHeap(String)
+     */
+    public CacheConfiguration maxMemoryOffHeap(String maxMemoryOffHeap) {
+        setMaxMemoryOffHeap(maxMemoryOffHeap);
+        return this;
+    }
+
+    /**
      * Builder to enable or disable logging for the cache
      * <p/>
      * This property can be modified dynamically while the cache is operating.
@@ -506,6 +569,27 @@ public class CacheConfiguration implements Cloneable {
      */
     public final CacheConfiguration maxElementsInMemory(int maxElementsInMemory) {
         setMaxElementsInMemory(maxElementsInMemory);
+        return this;
+    }
+
+    /**
+     * Sets the timeout for CacheLoader execution (0 = no timeout).
+     *
+     * @param timeoutMillis the timeout in milliseconds.
+     */
+    public final void setTimeoutMillis(long timeoutMillis) {
+        checkDynamicChange();
+        this.timeoutMillis = timeoutMillis;
+    }
+
+    /**
+     * Builder that sets the timeout for CacheLoader execution (0 = no timeout).
+
+     * @param timeoutMillis the timeout in milliseconds.
+     * @return this configuration instance
+     */
+    public CacheConfiguration timeoutMillis(long timeoutMillis) {
+        setTimeoutMillis(timeoutMillis);
         return this;
     }
 
@@ -598,7 +682,10 @@ public class CacheConfiguration implements Cloneable {
             LOG
                     .warn("Cache '"
                             + getName()
-                            + "' is set to eternal but also has TTI/TTL set. To avoid this warning, clean up the config removing conflicting values of eternal, TTI and TTL.");
+                            + "' is set to eternal but also has TTI/TTL set." +
+                            " To avoid this warning, clean up the config " +
+                            "removing conflicting values of eternal," +
+                            " TTI and TTL.");
         }
     }
 
@@ -1260,7 +1347,7 @@ public class CacheConfiguration implements Cloneable {
     /**
      * Used to validate what should be a complete Cache Configuration.
      *
-     * @throws InvalidConfigurationException if the configuration is invalid.
+     * throws @{link InvalidConfigurationException} if the configuration is invalid.
      */
     public void validateCompleteConfiguration() {
 
@@ -1277,7 +1364,7 @@ public class CacheConfiguration implements Cloneable {
     /**
      * Used to validate a Cache Configuration.
      *
-     * @throws InvalidConfigurationException if the configuration is invalid.
+     * throws @{link InvalidConfigurationException} if the configuration is invalid.
      */
     public void validateConfiguration() {
 
@@ -1337,6 +1424,13 @@ public class CacheConfiguration implements Cloneable {
      */
     public int getMaxElementsInMemory() {
         return maxElementsInMemory;
+    }
+
+    /**
+     * Accessor
+     */
+    public long getTimeoutMillis() {
+        return timeoutMillis;
     }
 
     /**
@@ -1430,6 +1524,34 @@ public class CacheConfiguration implements Cloneable {
      */
     public boolean getLogging() {
         return logging;
+    }
+
+    /**
+     * Accessor
+     *
+     * @return true if offheap store is enabled, otherwise false.
+     */
+    public boolean isOverflowToOffHeap() {
+        return overflowToOffHeap;
+    }
+
+    /**
+     * Accessor
+     *
+     * @return the max memory of the offheap store for this cache.
+     */
+    public String getMaxMemoryOffHeap() {
+        return maxMemoryOffHeap;
+    }
+
+    /**
+     * Accessor
+     *
+     * @return the max memory of the offheap store for this cache, in bytes.
+     * @see #getMaxMemoryOffHeap()
+     */
+    public long getMaxMemoryOffHeapInBytes() {
+        return MemorySizeParser.parse(maxMemoryOffHeap);
     }
 
     /**

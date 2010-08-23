@@ -20,6 +20,7 @@ import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.io.IOException;
 import java.io.Serializable;
+import java.lang.reflect.InvocationTargetException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
@@ -27,6 +28,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -40,6 +42,7 @@ import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -149,6 +152,8 @@ public class Cache implements Ehcache, StoreListener {
      */
     public static final long DEFAULT_EXPIRY_THREAD_INTERVAL_SECONDS = CacheConfiguration.DEFAULT_EXPIRY_THREAD_INTERVAL_SECONDS;
 
+    private static final String OFF_HEAP_STORE_CLASSNAME = "net.sf.ehcache.store.offheap.OffHeapStore";
+    
     private static final Logger LOG = LoggerFactory.getLogger(Cache.class.getName());
 
     private static InetAddress localhost;
@@ -254,10 +259,12 @@ public class Cache implements Ehcache, StoreListener {
     /**
      * 2.0 and higher Constructor
      * <p/>
-     * The {@link net.sf.ehcache.config.ConfigurationFactory} and clients can create these.
+     * The {@link net.sf.ehcache.config.ConfigurationFactory}
+     * and clients can create these.
      * <p/>
-     * A client can specify their own settings here and pass the {@link Cache} object
-     * into {@link CacheManager#addCache} to specify parameters other than the defaults.
+     * A client can specify their own settings here and pass the {@link Cache}
+     * object into {@link CacheManager#addCache} to specify parameters other
+     * than the defaults.
      * <p/>
      * Only the CacheManager can initialise them.
      *
@@ -949,12 +956,33 @@ public class Cache implements Ehcache, StoreListener {
             }
 
             if (configuration.getMaxElementsInMemory() == 0) {
-                LOG.warn("Cache: " + configuration.getName() + " has a maxElementsInMemory of 0.  " +
-                        "In Ehcache 2.0 this has been changed to mean a store with no capacity limit. Set it to 1 if you want no elements cached in memory");
+                LOG.warn("Cache: " + configuration.getName() +
+                        " has a maxElementsInMemory of 0.  " +
+                        "In Ehcache 2.0 this has been changed to mean a store" +
+                        " with no capacity limit. Set it to 1 if you want" +
+                        " no elements cached in memory");
             }
 
             final Store store;
-            if (isTerracottaClustered()) {
+            if (configuration.isOverflowToOffHeap()) {
+                try {
+                    Class<Store> storeClass = (Class<Store>) ClassLoaderUtil.loadClass(OFF_HEAP_STORE_CLASSNAME);
+
+                    try {
+                        store = (Store) storeClass.getMethod("create", Ehcache.class, String.class).invoke(null, this, diskStorePath);
+                    } catch (NoSuchMethodException e) {
+                       throw new CacheException("Cannot find static factory" +
+                        " method create(Ehcache, String)" +
+                        " in store class " + OFF_HEAP_STORE_CLASSNAME, e);
+                    } catch (InvocationTargetException e) {
+                        throw new CacheException("Cannot instantiate store " + OFF_HEAP_STORE_CLASSNAME, e);
+                    } catch (IllegalAccessException e) {
+                        throw new CacheException("Cannot instantiate store " + OFF_HEAP_STORE_CLASSNAME, e);
+                    }
+                } catch (ClassNotFoundException e) {
+                    throw new CacheException("Cannot load offheap store class " + OFF_HEAP_STORE_CLASSNAME, e);
+                }
+            } else if (isTerracottaClustered()) {
                 store = cacheManager.createTerracottaStore(this);
                 boolean unlockedReads = !this.configuration.getTerracottaConfiguration().getCoherentReads();
                 // if coherentReads=false, make coherent=false
@@ -1413,8 +1441,16 @@ public class Cache implements Ehcache, StoreListener {
                 return element;
             }
             Future future = asynchronousLoad(key, loader, loaderArgument);
+
             //wait for result
-            future.get();
+            long timeoutMillis = configuration.getTimeoutMillis();
+            if (timeoutMillis > 0) {
+                future.get(timeoutMillis, TimeUnit.MILLISECONDS);
+            } else {
+                future.get();
+            }
+        } catch (TimeoutException e) {
+            throw new LoadTimeoutException("Timeout on load for key " + key, e);
         } catch (Exception e) {
             throw new CacheException("Exception on load for key " + key, e);
         }
@@ -1641,19 +1677,18 @@ public class Cache implements Ehcache, StoreListener {
      * @throws IllegalStateException if the cache is not {@link Status#STATUS_ALIVE}
      */
     public final List getKeysWithExpiryCheck() throws IllegalStateException, CacheException {
-        List allKeyList = getKeys();
-        //removeInternal keys of expired elements
-        ArrayList<Object> nonExpiredKeys = new ArrayList<Object>(allKeyList.size());
-        int allKeyListSize = allKeyList.size();
-        for (int i = 0; i < allKeyListSize; i++) {
-            Object key = allKeyList.get(i);
-            Element element = getQuiet(key);
-            if (element != null) {
-                nonExpiredKeys.add(key);
-            }
-        }
-        nonExpiredKeys.trimToSize();
-        return nonExpiredKeys;
+         List allKeyList = getKeys();
+         //removeInternal keys of expired elements
+         ArrayList < Object > nonExpiredKeys = new ArrayList(allKeyList.size());
+         for (Iterator iter = allKeyList.iterator(); iter.hasNext();) {
+             Object key = iter.next();
+             Element element = getQuiet(key);
+             if (element != null) {
+                 nonExpiredKeys.add(key);
+             }
+         }
+         nonExpiredKeys.trimToSize();
+         return nonExpiredKeys;
     }
 
 
@@ -1738,10 +1773,8 @@ public class Cache implements Ehcache, StoreListener {
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
         } catch (Error e) {
-            if (e.getClass().getName().equals("com.tc.exception.TCLockUpgradeNotSupportedError")) {
-                // Safely ignore this
-            } else {
-                throw e;
+            if (!(e.getClass().getName().equals("com.tc.exception.TCLockUpgradeNotSupportedError"))) {
+               throw e;
             }
         }
         if (writeLocked) {

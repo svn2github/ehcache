@@ -42,6 +42,7 @@ import net.sf.ehcache.event.CacheEventListener;
 import net.sf.ehcache.event.RegisteredEventListeners;
 import net.sf.ehcache.loader.CacheLoader;
 import net.sf.ehcache.loader.CountingCacheLoader;
+import net.sf.ehcache.loader.DelayingLoader;
 import net.sf.ehcache.loader.ExceptionThrowingLoader;
 import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
 import net.sf.ehcache.store.compound.CompoundStore;
@@ -610,7 +611,7 @@ public class CacheTest extends AbstractCacheTest {
     @Test
     public void testNoIdleOrExpiryBasedOnTimeToLiveForEternal() throws Exception {
         //Set size so the second element overflows to disk.
-        Cache cache = new Cache("test", 1, true, false, 5, 2);
+        Cache cache = new Cache("test", 1, true, true, 5, 2);
         manager.addCache(cache);
         cache.put(new Element("key1", "value1"));
         cache.put(new Element("key2", "value1"));
@@ -1879,6 +1880,20 @@ public class CacheTest extends AbstractCacheTest {
         }
     }
 
+    /**
+     * Tests the async load with a timeout
+     */
+    @Test
+    public void testGetWithLoaderTimeout() {
+        Cache cache = manager.getCache("sampleCacheTimeout");
+        cache.registerCacheLoader(new DelayingLoader(2000));
+        try {
+            cache.getWithLoader("key1", null, null);
+            fail();
+        } catch (CacheException e) {
+            //expected
+        }
+    }
 
     /**
      * Tests the loadAll async method

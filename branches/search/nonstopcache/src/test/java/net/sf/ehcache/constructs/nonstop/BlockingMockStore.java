@@ -17,6 +17,7 @@
 package net.sf.ehcache.constructs.nonstop;
 
 import java.io.IOException;
+import java.util.List;
 
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Element;
@@ -99,7 +100,7 @@ public class BlockingMockStore implements Store {
         return null;
     }
 
-    public Object[] getKeyArray() {
+    public List getKeys() {
         neverReturn();
         return null;
     }
