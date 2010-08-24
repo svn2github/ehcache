@@ -62,7 +62,8 @@ import org.slf4j.LoggerFactory;
  */
 public class CacheManagerTest {
 
-    private static final Logger LOG = LoggerFactory.getLogger(CacheManagerTest.class.getName());
+  private static final Logger LOG                   = LoggerFactory.getLogger(CacheManagerTest.class.getName());
+  private static final int    CACHES_IN_EHCACHE_XML = 15;
 
     /**
      * the CacheManager Singleton instance
@@ -137,7 +138,7 @@ public class CacheManagerTest {
         singletonManager = CacheManager.create();
         singletonManager.getEhcache("");
         assertNotNull(singletonManager);
-        assertEquals(14, singletonManager.getCacheNames().length);
+        assertEquals(CACHES_IN_EHCACHE_XML, singletonManager.getCacheNames().length);
     }
 
     /**
@@ -365,7 +366,7 @@ public class CacheManagerTest {
         instanceManager.shutdown();
 
         // shutting down instance should leave singleton ok
-        assertEquals(14, singletonManager.getCacheNames().length);
+        assertEquals(CACHES_IN_EHCACHE_XML, singletonManager.getCacheNames().length);
 
         instanceManager = new CacheManager(secondCacheConfiguration);
         assertNotNull(instanceManager);
@@ -495,7 +496,7 @@ public class CacheManagerTest {
         // check we can recreate the CacheManager on demand.
         singletonManager = CacheManager.create();
         assertNotNull(singletonManager);
-        assertEquals(14, singletonManager.getCacheNames().length);
+        assertEquals(CACHES_IN_EHCACHE_XML, singletonManager.getCacheNames().length);
         assertEquals(Status.STATUS_ALIVE, singletonManager.getStatus());
 
         singletonManager.shutdown();
@@ -921,7 +922,7 @@ public class CacheManagerTest {
     public void testClearCacheManager() throws CacheException {
         singletonManager = CacheManager.create();
         assertNotNull(singletonManager);
-        assertEquals(14, singletonManager.getCacheNames().length);
+        assertEquals(CACHES_IN_EHCACHE_XML, singletonManager.getCacheNames().length);
         singletonManager.getEhcache("sampleCache1").put(new Element("key1", "value"));
         assertEquals(1, singletonManager.getEhcache("sampleCache1").getSize());
         singletonManager.getEhcache("sampleCache2").put(new Element("key2", "value"));
