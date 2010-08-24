@@ -1346,8 +1346,6 @@ public class CacheConfiguration implements Cloneable {
 
     /**
      * Used to validate what should be a complete Cache Configuration.
-     *
-     * throws @{link InvalidConfigurationException} if the configuration is invalid.
      */
     public void validateCompleteConfiguration() {
 
@@ -1363,12 +1361,8 @@ public class CacheConfiguration implements Cloneable {
 
     /**
      * Used to validate a Cache Configuration.
-     *
-     * throws @{link InvalidConfigurationException} if the configuration is invalid.
      */
     public void validateConfiguration() {
-
-
         if (terracottaConfiguration != null && terracottaConfiguration.isClustered()) {
             if (overflowToDisk) {
                 throw new InvalidConfigurationException("overflowToDisk isn't supported for a clustered Terracotta cache");

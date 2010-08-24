@@ -644,14 +644,9 @@ class Segment extends ReentrantReadWriteLock {
         if (readLock().tryLock()) {
             try {
                 if (count != 0) {
-                    for (HashEntry e = getFirst(hash); e != null; e = e.next) {
-                        if (e.hash == hash && key.equals(e.key)) {
-                            if (e.casElement(expect, fault)) {
-                                free(expect);
-                                installed = true;
-                                return true;
-                            }
-                        }
+                    installed = install(key, hash, expect, fault);
+                    if (installed) {
+                        return true;
                     }
                 }
             } finally {
@@ -664,6 +659,18 @@ class Segment extends ReentrantReadWriteLock {
         }
         
         free(fault);
+        return false;
+    }
+
+    private boolean install(Object key, int hash, Object expect, Object fault) {
+        for (HashEntry e = getFirst(hash); e != null; e = e.next) {
+            if (e.hash == hash && key.equals(e.key)) {
+                if (e.casElement(expect, fault)) {
+                    free(expect);
+                    return true;
+                }
+            }
+        }
         return false;
     }
 
