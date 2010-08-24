@@ -17,7 +17,7 @@
                 Fix MemoryEfficientByteArrayOutputStream to return a correctly sized byte array to prevent
                 network/disk wastage in ehcache-server/disk stores respectively.
             </action>
-            <action dev="Ludovic Orban" type="fix" issue="EHC-764">
+            <action dev="Ludovic Orban" type="add" issue="EHC-764">
                 Added timeout to cache.getWithLoader.
             </action>
         </release>

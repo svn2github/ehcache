@@ -24,28 +24,28 @@ package net.sf.ehcache;
  * @version $Id$
  *
  */
-public class LoadTimeoutException extends CacheException {
+public class LoaderTimeoutException extends CacheException {
 
 
     /**
-     * Constructor for the LoadTimeoutException object.
+     * Constructor for the LoaderTimeoutException object.
      */
-    public LoadTimeoutException() {
+    public LoaderTimeoutException() {
         super();
     }
 
     /**
-     * Constructor for the LoadTimeoutException object.
+     * Constructor for the LoaderTimeoutException object.
      * @param message the exception detail message
      */
-    public LoadTimeoutException(String message) {
+    public LoaderTimeoutException(String message) {
         super(message);
     }
 
 
 
     /**
-     * Constructs a new LoadTimeoutException with the specified detail message and
+     * Constructs a new LoaderTimeoutException with the specified detail message and
      * cause.  <p>Note that the detail message associated with
      * <code>cause</code> is <i>not</i> automatically incorporated in
      * this runtime exception's detail message.
@@ -58,11 +58,11 @@ public class LoadTimeoutException extends CacheException {
      *         unknown.)
      * @since  1.2.4
      */
-    public LoadTimeoutException(String message, Throwable cause) {
+    public LoaderTimeoutException(String message, Throwable cause) {
         super(message, cause);
     }
 
-    /** Constructs a new LoadTimeoutException with the specified cause and a
+    /** Constructs a new LoaderTimeoutException with the specified cause and a
      * detail message of <tt>(cause==null ? null : cause.toString())</tt>
      * (which typically contains the class and detail message of
      * <tt>cause</tt>).  This constructor is useful for runtime exceptions
@@ -74,7 +74,7 @@ public class LoadTimeoutException extends CacheException {
      *         unknown.)
      * @since  1.2.4
      */
-    public LoadTimeoutException(Throwable cause) {
+    public LoaderTimeoutException(Throwable cause) {
         super(cause);
     }
 
