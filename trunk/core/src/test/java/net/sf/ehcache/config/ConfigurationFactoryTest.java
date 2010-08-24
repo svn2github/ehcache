@@ -81,7 +81,7 @@ import static org.junit.Assert.fail;
  * @version $Id$
  */
 public class ConfigurationFactoryTest extends AbstractCacheTest {
-    private static final int CACHES_IN_TEST_EHCACHE = 14;
+    private static final int CACHES_IN_TEST_EHCACHE = 15;
 
     private static final Logger LOG = LoggerFactory.getLogger(ConfigurationFactoryTest.class.getName());
 
