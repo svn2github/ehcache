@@ -92,6 +92,7 @@
     <suppress checks="NPathComplexity" files="FactoryConfiguration.java"/>
     <suppress checks="NPathComplexity" files="CacheConfigurationElement.java"/>
     <suppress checks="NPathComplexity" files="ConfigurationElement.java"/>
+    
 
 
 
@@ -101,7 +102,12 @@
 
     <!-- Candidates for refactoring -->
     <suppress checks="CyclomaticComplexity" files="AsynchronousCommandExecutor.java"/>
+    <suppress checks="CyclomaticComplexity" files="TerracottaClusteredInstanceHelper.java"/>
+    <suppress checks="CyclomaticComplexity" files="MemorySizeParser.java"/>
     <suppress checks="NPathComplexity" files="AsynchronousCommandExecutor.java"/>
+    <suppress checks="NPathComplexity" files="TerracottaClusteredInstanceHelper.java"/>
+    <suppress checks="NPathComplexity" files="MemorySizeParser.java"/>
+    <suppress checks="NestedIfDepth" files="Segment.java"/>
 
     <!-- Contributed code -->
     <suppress checks="CyclomaticComplexity" files="Mutex.java"/>

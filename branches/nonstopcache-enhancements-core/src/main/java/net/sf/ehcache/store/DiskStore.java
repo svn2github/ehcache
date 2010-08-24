@@ -39,7 +39,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 
-import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
@@ -186,7 +185,7 @@ public class DiskStore extends AbstractStore implements CacheConfigurationListen
      * @param diskStorePath
      * @return an instance of a DiksStore
      */
-    public static DiskStore create(Cache cache, String diskStorePath) {
+    public static DiskStore create(Ehcache cache, String diskStorePath) {
         DiskStore store = new DiskStore(cache, diskStorePath);
         cache.getCacheConfiguration().addConfigurationListener(store);
         return store;
@@ -542,7 +541,7 @@ public class DiskStore extends AbstractStore implements CacheConfigurationListen
             diskElement.free();
         }
 
-    	totalSize.addAndGet(diskElement.payloadSize * -1L);
+        totalSize.addAndGet(diskElement.payloadSize * -1L);
         freeSpace.add(freeBlock);
     }
 
@@ -1199,10 +1198,17 @@ public class DiskStore extends AbstractStore implements CacheConfigurationListen
             return position;
         }
         
+        /**
+         * free.
+         */
         public void free() {
             this.position = -1;
         }
         
+        /**
+         * isValid.
+         * @return boolean
+         */
         public boolean isValid() {
             return position >= 0;
         }

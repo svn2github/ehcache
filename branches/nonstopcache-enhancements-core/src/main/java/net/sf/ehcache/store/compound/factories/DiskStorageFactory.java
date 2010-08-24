@@ -93,7 +93,8 @@ abstract class DiskStorageFactory<T extends ElementSubstitute> implements Elemen
      * 
      * @param dataFile
      */
-    DiskStorageFactory(File dataFile, long expiryInterval, long queueCapacity, RegisteredEventListeners eventService, final boolean daemonWriter) {
+    DiskStorageFactory(File dataFile, long expiryInterval, long queueCapacity,
+        RegisteredEventListeners eventService, final boolean daemonWriter) {
         this.file = dataFile;
         try {
             data = new RandomAccessFile(file, "rw");

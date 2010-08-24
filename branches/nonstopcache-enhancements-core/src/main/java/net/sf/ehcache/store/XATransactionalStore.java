@@ -154,19 +154,19 @@ public class XATransactionalStore extends AbstractStore {
     /**
      * {@inheritDoc}
      */
-    public List getKeys() {
+    public final List getKeys() {
         TransactionContext context = getOrCreateTransactionContext();
-        Set<Object> keys = new LargeSet<Object>() {
+        Set < Object > keys = new LargeSet() {
 
-			@Override
-			public int sourceSize() {
-				return underlyingStore.getSize();
-			}
-        	
-			@Override
-			public Iterator<Object> sourceIterator() {
-				return underlyingStore.getKeys().iterator();
-			}
+        @Override
+        public int sourceSize() {
+           return underlyingStore.getSize();
+        }
+
+        @Override
+        public Iterator < Object > sourceIterator() {
+          return underlyingStore.getKeys().iterator();
+        }
         };
         keys.addAll(context.getAddedKeys());
         keys.removeAll(context.getRemovedKeys());
