@@ -51,7 +51,7 @@
            timeToIdleSeconds="360"
            timeToLiveSeconds="1000"
            overflowToDisk="true"
-           timeoutMillis="1000"
+           cacheLoaderTimeoutMillis="1000"
            memoryStoreEvictionPolicy="LRU">
         <cacheEventListenerFactory class="net.sf.ehcache.event.NullCacheEventListenerFactory"/>
     </cache>

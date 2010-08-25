@@ -1443,14 +1443,14 @@ public class Cache implements Ehcache, StoreListener {
             Future future = asynchronousLoad(key, loader, loaderArgument);
 
             //wait for result
-            long timeoutMillis = configuration.getTimeoutMillis();
-            if (timeoutMillis > 0) {
-                future.get(timeoutMillis, TimeUnit.MILLISECONDS);
+            long cacheLoaderTimeoutMillis = configuration.getCacheLoaderTimeoutMillis();
+            if (cacheLoaderTimeoutMillis > 0) {
+                future.get(cacheLoaderTimeoutMillis, TimeUnit.MILLISECONDS);
             } else {
                 future.get();
             }
         } catch (TimeoutException e) {
-            throw new LoadTimeoutException("Timeout on load for key " + key, e);
+            throw new LoaderTimeoutException("Timeout on load for key " + key, e);
         } catch (Exception e) {
             throw new CacheException("Exception on load for key " + key, e);
         }
@@ -1543,7 +1543,18 @@ public class Cache implements Ehcache, StoreListener {
 
                 //now load everything that's missing.
                 Future future = asynchronousLoadAll(missingKeys, loaderArgument);
-                future.get();
+
+                //wait for result
+                long cacheLoaderTimeoutMillis = configuration.getCacheLoaderTimeoutMillis();
+                if (cacheLoaderTimeoutMillis > 0) {
+                    try {
+                        future.get(cacheLoaderTimeoutMillis, TimeUnit.MILLISECONDS);
+                    } catch (TimeoutException e) {
+                        throw new LoaderTimeoutException("Timeout on load for key " + key, e);
+                    }
+                } else {
+                    future.get();
+                }
 
 
                 for (Object missingKey : missingKeys) {

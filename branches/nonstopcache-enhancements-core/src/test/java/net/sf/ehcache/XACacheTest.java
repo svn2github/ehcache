@@ -16,6 +16,7 @@
 
 package net.sf.ehcache;
 
+import bitronix.tm.TransactionManagerServices;
 import net.sf.ehcache.config.CacheConfiguration;
 
 import java.util.concurrent.CyclicBarrier;
@@ -23,13 +24,23 @@ import java.util.concurrent.CyclicBarrier;
 import javax.transaction.TransactionManager;
 
 import junit.framework.TestCase;
+import net.sf.ehcache.transaction.manager.DefaultTransactionManagerLookup;
 
 public class XACacheTest extends TestCase {
 
     private Cache cache;
+    private DefaultTransactionManagerLookup transactionManagerLookup;
+
+    private DefaultTransactionManagerLookup getTransactionManagerLookup() {
+        if (transactionManagerLookup == null) {
+            this.transactionManagerLookup = new DefaultTransactionManagerLookup();
+            TransactionManagerServices.getConfiguration().setJournal("null");
+        }
+        return this.transactionManagerLookup;
+    }
 
     public void testXACache() throws Exception {
-        TransactionManager txnManager = cache.getTransactionManagerLookup().getTransactionManager();
+        TransactionManager txnManager = getTransactionManagerLookup().getTransactionManager();
         Element element1 = new Element("key1", "value1");
         Element element2 = new Element("key2", "value2");
         CyclicBarrier barrier = new CyclicBarrier(2);
@@ -134,6 +145,7 @@ public class XACacheTest extends TestCase {
     protected void setUp() throws Exception {
         final CacheManager manager = CacheManager.create();
         cache = new Cache(new CacheConfiguration("sampleCache", 1000).transactionalMode(CacheConfiguration.TransactionalMode.XA));
+        cache.setTransactionManagerLookup(getTransactionManagerLookup());
         manager.addCache(cache);
     }
 }

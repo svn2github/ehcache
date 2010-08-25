@@ -75,19 +75,12 @@ public class DelayingLoader extends CountingCacheLoader {
      */
 
     public Map loadAll(Collection keys) throws CacheException {
-        Map map = new HashMap(keys.size());
-        for (Iterator iterator = keys.iterator(); iterator.hasNext();) {
-            Object key = iterator.next();
-            try {
-                Thread.sleep(random.nextInt(4));
-            } catch (InterruptedException e) {
-                LOG.error("Interrupted");
-            }
-            map.put(key, Integer.valueOf(loadAllCounter++));
-            throw new CacheException("Some exception with key " + key);
+        try {
+            Thread.sleep(delayMillis);
+        } catch (InterruptedException e) {
+            LOG.error("Interrupted");
         }
-
-        return map;
+        throw new CacheException("Some exception with keys " + keys);
     }
 
 
