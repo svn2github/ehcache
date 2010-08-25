@@ -99,8 +99,8 @@ public class CacheConfigurationElement extends SimpleNodeElement {
                 .defaultValue((String) null));
         element.addAttribute(new SimpleNodeAttribute("overflowToOffHeap", cacheConfiguration.isOverflowToOffHeap()).optional(true)
                 .defaultValue(false));
-        element.addAttribute(new SimpleNodeAttribute("cacheLoaderTimeoutMillis", cacheConfiguration.getCacheLoaderTimeoutMillis()).optional(true)
-                .defaultValue(0L));
+        element.addAttribute(new SimpleNodeAttribute("cacheLoaderTimeoutMillis", cacheConfiguration.getCacheLoaderTimeoutMillis())
+                .optional(true).defaultValue(0L));
         element.addAttribute(new SimpleNodeAttribute("transactionalMode", cacheConfiguration.getTransactionalMode()).optional(true)
                 .defaultValue(CacheConfiguration.DEFAULT_TRANSACTIONAL_MODE));
         element.addAttribute(new SimpleNodeAttribute("statistics", cacheConfiguration.getStatistics()).optional(true).defaultValue(
