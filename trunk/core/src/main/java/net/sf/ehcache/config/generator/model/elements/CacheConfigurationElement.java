@@ -95,11 +95,11 @@ public class CacheConfigurationElement extends SimpleNodeElement {
                 .defaultValue(CacheConfiguration.DEFAULT_TTL));
         element.addAttribute(new SimpleNodeAttribute("maxElementsOnDisk", cacheConfiguration.getMaxElementsOnDisk()).optional(true)
                 .defaultValue(CacheConfiguration.DEFAULT_MAX_ELEMENTS_ON_DISK));
-        element.addAttribute(new SimpleNodeAttribute("maxMemoryOffHeap", cacheConfiguration.getMaxElementsOnDisk()).optional(true)
+        element.addAttribute(new SimpleNodeAttribute("maxMemoryOffHeap", cacheConfiguration.getMaxMemoryOffHeap()).optional(true)
                 .defaultValue((String) null));
-        element.addAttribute(new SimpleNodeAttribute("overflowToOffHeap", cacheConfiguration.getMaxElementsOnDisk()).optional(true)
+        element.addAttribute(new SimpleNodeAttribute("overflowToOffHeap", cacheConfiguration.isOverflowToOffHeap()).optional(true)
                 .defaultValue(false));
-        element.addAttribute(new SimpleNodeAttribute("cacheLoaderTimeoutMillis", cacheConfiguration.getMaxElementsOnDisk()).optional(true)
+        element.addAttribute(new SimpleNodeAttribute("cacheLoaderTimeoutMillis", cacheConfiguration.getCacheLoaderTimeoutMillis()).optional(true)
                 .defaultValue(0L));
         element.addAttribute(new SimpleNodeAttribute("transactionalMode", cacheConfiguration.getTransactionalMode()).optional(true)
                 .defaultValue(CacheConfiguration.DEFAULT_TRANSACTIONAL_MODE));
