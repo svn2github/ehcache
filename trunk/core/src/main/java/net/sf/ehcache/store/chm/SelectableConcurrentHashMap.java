@@ -70,4 +70,26 @@ public class SelectableConcurrentHashMap extends ConcurrentHashMap<Object, Eleme
 
         return sampled.toArray(new Element[sampled.size()]);
     }
+
+
+    /**
+     * Returns the number of key-value mappings in this map without locking anything.
+     * This may not give the exact element count as locking is avoided.
+     * If the map contains more than <tt>Integer.MAX_VALUE</tt> elements, returns
+     * <tt>Integer.MAX_VALUE</tt>.
+     *
+     * @return the number of key-value mappings in this map
+     */
+    public int quickSize() {
+        long size = 0;
+
+        for (Segment<Object, Element> segment : this.segments) {
+            size += segment.count;
+        }
+
+        if (size > Integer.MAX_VALUE)
+            return Integer.MAX_VALUE;
+        return (int) size;
+    }
+
 }
