@@ -4,7 +4,7 @@
 
 Replicated Caching using {JGroups}
 
-    As of version 1.5, JGroups can be used as the underlying mechanism for
+    JGroups can be used as the underlying mechanism for
     the replication operations in ehcache. JGroups offers a very flexible
     protocol stack, reliable unicast and multicast message transmission.
     On the down side JGroups can be complex to configure and some protocol stacks
@@ -177,7 +177,7 @@ replicateRemovals=true" />
 
 * Common Problems
 
-	If replication using JGroups doesnt't work the way you have it configured try this configuration which
+	If replication using JGroups doesn't work the way you have it configured try this configuration which
 	has been extensively tested:
 
 ---

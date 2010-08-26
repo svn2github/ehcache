@@ -221,9 +221,10 @@ used with JMX monitors.
          pbcast.GMS(join_timeout=5000;join_retry_timeout=2000;shun=false;print_local_addr=false)"
          propertySeparator="::"
      />
-     The only property necessary is the connect String used by jgroups to configure itself. Refer to the Jgroups
-     documentation for explanation of all the protocols. The example above uses UDP multicast. If the connect property
-     is not specified the default JGroups connection will be used.
+     JGroups configuration is done by providing a connect string using connect= as in the above example which uses
+     multicast, or since version 1.4, a file= to specify the location of a JGroups configuration file.
+
+     If neither a connect or file property is specified, the default JGroups JChannel will be used.
 
 
     JMSCacheManagerPeerProviderFactory

@@ -170,7 +170,7 @@ public class MemoryStore extends AbstractStore implements CacheConfigurationList
         return putInternal(element, writerManager);
     }
 
-    private synchronized boolean putInternal(Element element, CacheWriterManager writerManager) throws CacheException {
+    private boolean putInternal(Element element, CacheWriterManager writerManager) throws CacheException {
         boolean newPut = true;
         if (element != null) {
             newPut = map.put(element.getObjectKey(), element) == null;
@@ -226,7 +226,7 @@ public class MemoryStore extends AbstractStore implements CacheConfigurationList
         return removeInternal(key, writerManager);
     }
 
-    private synchronized Element removeInternal(Object key, CacheWriterManager writerManager) throws CacheException {
+    private Element removeInternal(Object key, CacheWriterManager writerManager) throws CacheException {
 
         if (key == null) {
             return null;
@@ -492,7 +492,7 @@ public class MemoryStore extends AbstractStore implements CacheConfigurationList
      */
     protected void doPut(final Element elementJustAdded) {
         if (maximumSize > 0) {
-            int evict = Math.min(map.size() - maximumSize, MAX_EVICTION_RATIO);
+            int evict = Math.min(map.quickSize() - maximumSize, MAX_EVICTION_RATIO);
             for (int i = 0; i < evict; i++) {
                 removeElementChosenByEvictionPolicy(elementJustAdded);
             }

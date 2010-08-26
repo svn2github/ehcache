@@ -16,6 +16,8 @@
 
 package net.sf.ehcache.store;
 
+import java.util.Set;
+
 import net.sf.ehcache.Element;
 
 /**
@@ -62,5 +64,12 @@ public interface TerracottaStore extends Store {
      * @return the element associated with the key or null
      */
     public Element unlockedGetQuiet(Object key);
+    
+    
+    /**
+     * Returns set of keys from the cache which are present in the node locally.
+     * @return set of keys present locally in the node
+     */
+    public Set getLocalKeys();
 
 }
