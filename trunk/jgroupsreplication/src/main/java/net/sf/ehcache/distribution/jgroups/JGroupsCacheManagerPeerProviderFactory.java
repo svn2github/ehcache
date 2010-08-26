@@ -1,5 +1,5 @@
 /**
- *  Copyright 2003-2009 Terracotta, Inc.
+ *  Copyright 2003-2010 Terracotta, Inc.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -20,11 +20,13 @@ package net.sf.ehcache.distribution.jgroups;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.distribution.CacheManagerPeerProvider;
 import net.sf.ehcache.distribution.CacheManagerPeerProviderFactory;
+import net.sf.ehcache.util.ClassLoaderUtil;
 import net.sf.ehcache.util.PropertyUtil;
-
-import java.util.Properties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.net.URL;
+import java.util.Properties;
 
 /**
  * @author Pierre Monestie (pmonestie__REMOVE__THIS__@gmail.com)
@@ -34,25 +36,49 @@ import org.slf4j.LoggerFactory;
 
 public class JGroupsCacheManagerPeerProviderFactory extends CacheManagerPeerProviderFactory {
     private static final Logger LOG = LoggerFactory.getLogger(JGroupsCacheManagerPeerProviderFactory.class.getName());
+    
     private static final String CONNECT = "connect";
+    private static final String FILE = "file";
 
     /**
      * {@inheritDoc}
      */
+    @Override
     public CacheManagerPeerProvider createCachePeerProvider(CacheManager cacheManager, Properties properties) {
-        LOG.debug("CREATING JGOUPS PEER PROVIDER");
-        String connect = PropertyUtil.extractAndLogProperty(CONNECT, properties);
-        if (connect == null) {
-            connect = "";
+        LOG.trace("Creating JGroups CacheManagerPeerProvider for {} with properties:\n{}", cacheManager.getName(), properties);
+        
+        final String connect = this.getProperty(CONNECT, properties);
+        final String file = this.getProperty(FILE, properties);
+        
+        final JGroupsCacheManagerPeerProvider peerProvider;
+        if (file != null) {
+            if (connect != null) {
+                LOG.warn("Both '" + CONNECT + "' and '" + FILE + "' properties set. '" + CONNECT + "' will be ignored");
+            }
+            
+            final ClassLoader contextClassLoader = ClassLoaderUtil.getStandardClassLoader();
+            final URL configUrl = contextClassLoader.getResource(file);
+            
+            LOG.debug("Creating JGroups CacheManagerPeerProvider for {} with configuration file: {}", cacheManager.getName(), configUrl);
+            peerProvider = new JGroupsCacheManagerPeerProvider(cacheManager, configUrl);
+        } else {
+            LOG.debug("Creating JGroups CacheManagerPeerProvider for {} with configuration:\n{}", cacheManager.getName(), connect);
+            peerProvider = new JGroupsCacheManagerPeerProvider(cacheManager, connect);
         }
+        
+        return peerProvider;
+    }
 
-        connect = connect.replaceAll(" ", "");
-        if (connect.trim().equals("")) {
-            connect = null;
+    private String getProperty(final String name, Properties properties) {
+        String connect = PropertyUtil.extractAndLogProperty(name, properties);
+        if (connect != null) {
+            connect = connect.trim();
+            connect = connect.replaceAll(" ", "");
+            if (connect.equals("")) {
+                connect = null;
+            }
         }
-        LOG.debug("Connect is: {}", connect);
-        return new JGroupManager(cacheManager, connect);
-
+        return connect;
     }
 
 }

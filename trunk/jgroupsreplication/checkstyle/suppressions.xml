@@ -24,6 +24,10 @@
     <!--<suppress checks="JavadocTypeCheck" files="Test.java"/>-->
     <suppress checks="JavadocMethodCheck" files="Test.java"/>
 
+    <suppress checks="VisibilityModifier" files="JGroupsBootstrapCacheLoaderTest.java"/>
+    <suppress checks="VisibilityModifier" files="JGroupsBootstrapTest.java"/>
+    <suppress checks="VisibilityModifier" files="JGroupsReplicationTest.java"/>
+
     <!--Hard to understand but I did not write it so hard to refactor-->
     <suppress checks="CyclomaticComplexity" files="JGroupsBootstrapCacheLoader.java"/>
     <suppress checks="NPathComplexity" files="JGroupsBootstrapCacheLoader.java"/>

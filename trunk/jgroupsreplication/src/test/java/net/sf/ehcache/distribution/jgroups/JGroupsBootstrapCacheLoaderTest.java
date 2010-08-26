@@ -16,40 +16,38 @@
 
 package net.sf.ehcache.distribution.jgroups;
 
-import net.sf.ehcache.CacheManager;
-import net.sf.ehcache.CacheException;
-import net.sf.ehcache.Element;
 import net.sf.ehcache.Cache;
-import net.sf.ehcache.distribution.MulticastKeepaliveHeartbeatSender;
-
+import net.sf.ehcache.CacheException;
+import net.sf.ehcache.CacheManager;
+import net.sf.ehcache.Element;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.TestName;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import java.util.Date;
 
-import org.junit.Before;
-import org.junit.After;
-import org.junit.Ignore;
-import org.junit.Test;
+import static net.sf.ehcache.distribution.jgroups.CacheTestUtilities.ASYNC_CONFIG_URL;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
 
 /**
  * @author Greg Luck
  */
 public class JGroupsBootstrapCacheLoaderTest {
+    
 
-    /**
-     * A value to represent replicate asynchronously
-     */
-    protected static final boolean ASYNCHRONOUS = true;
 
-    /**
-     * A value to represent replicate synchronously
-     */
-    protected static final boolean SYNCHRONOUS = false;
-
+    
     private static final Logger LOG = LoggerFactory.getLogger(JGroupsBootstrapCacheLoaderTest.class.getName());
-
+    
+    /**
+     * Used for getting the current test's name
+     */
+    @Rule public TestName name = new TestName();
+    
     /**
      * CacheManager 1 in the cluster
      */
@@ -67,6 +65,7 @@ public class JGroupsBootstrapCacheLoaderTest {
      * The name of the cache under test
      */
     protected String cacheName = "sampleCacheAsync";
+    
 
     /**
      * {@inheritDoc}
@@ -76,22 +75,22 @@ public class JGroupsBootstrapCacheLoaderTest {
      */
     @Before
     public void setUp() throws Exception {
+        CacheTestUtilities.startTest(name.getMethodName());
+        LOG.info("SETUP");
 
-        MulticastKeepaliveHeartbeatSender.setHeartBeatInterval(1000);
-
-        manager1 = new CacheManager(AbstractCacheTest.TEST_CONFIG_DIR + "distribution/jgroups/ehcache-distributed-jgroups.xml");
-        manager2 = new CacheManager(AbstractCacheTest.TEST_CONFIG_DIR + "distribution/jgroups/ehcache-distributed-jgroups.xml");
-
-        //allow cluster to be established
-        Thread.sleep(10000);
+        manager1 = new CacheManager(ASYNC_CONFIG_URL);
+        CacheTestUtilities.waitForBootstrap(manager1, 10000);
+        
+        manager2 = new CacheManager(ASYNC_CONFIG_URL);
+        CacheTestUtilities.waitForBootstrap(manager2, 10000);
     }
 
     /**
-     * Force the VM to grow to its full size. This stops SoftReferences from being reclaimed in favour of
+     * Force the VM to grow to its full size. This stops SoftReferences from being reclaimed in favor of
      * Heap growth. Only an issue when a VM is cold.
      */
-    protected void forceVMGrowth() {
-        byte[] forceVMGrowth = new byte[50000000];
+    protected byte[] forceVMGrowth() {
+        return new byte[50000000];
     }
 
 
@@ -112,80 +111,93 @@ public class JGroupsBootstrapCacheLoaderTest {
         if (manager3 != null) {
             manager3.shutdown();
         }
+        
+        LOG.info("TEARDOWN");
+        CacheTestUtilities.endTest();
     }
 
-    @Ignore("MNK-1404")
     /**
      * Tests loading from bootstrap
      */
     @Test
     public void testBootstrapFromClusterWithAsyncLoader() throws CacheException, InterruptedException {
-
+        LOG.info("START TEST");
+        
         forceVMGrowth();
+        
+        final Cache cache1 = manager1.getCache("sampleCacheAsync");
+        final Cache cache2 = manager2.getCache("sampleCacheAsync");
+        
+        final int testElementCount = 2000;
 
         //Give everything a chance to startup
-        Integer index = null;
-        for (int i = 0; i < 2; i++) {
-            for (int j = 0; j < 1000; j++) {
-                index = new Integer(((1000 * i) + j));
-                manager2.getCache("sampleCacheAsync").put(new Element(index,
-                        "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
-                                + "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
-                                + "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
-                                + "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
-                                + "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"));
-            }
+        for (int i = 0; i < testElementCount; i++) {
+            cache2.put(new Element(i + 1000,
+                    "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+                            + "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+                            + "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+                            + "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+                            + "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"));
 
         }
-        assertEquals(2000, manager2.getCache("sampleCacheAsync").getSize());
+        assertEquals(testElementCount, cache2.getSize());
 
-        Thread.sleep(8000);
-        assertEquals(2000, manager1.getCache("sampleCacheAsync").getSize());
+        //Wait up to 10 seconds for normal replication to complete
+        CacheTestUtilities.waitForReplication(testElementCount, 20000, cache1);
+        
+        //Verify normal replication worked
+        assertEquals(testElementCount, cache1.getSize());
 
-        manager3 = new CacheManager(AbstractCacheTest.TEST_CONFIG_DIR + "distribution/jgroups/ehcache-distributed-jgroups.xml");
-        Thread.sleep(8000);
-        assertEquals(2000, manager3.getCache("sampleCacheAsync").getSize());
+        manager3 = new CacheManager(ASYNC_CONFIG_URL);
+        //Wait up to 10 seconds for bootstrap to complete
+        CacheTestUtilities.waitForBootstrap(manager3, 10000);
+        
+        final Cache cache3 = manager3.getCache("sampleCacheAsync");
+        assertEquals(testElementCount, cache3.getSize());
 
-
+        LOG.info("END TEST");
     }
 
-    @Ignore("MNK-1404")
     /**
      * Tests loading from bootstrap
      */
     @Test
     public void testBootstrapFromClusterWithSyncLoader() throws CacheException, InterruptedException {
-
+        LOG.info("START TEST");
+        
         forceVMGrowth();
+        
+        final Cache cache1 = manager1.getCache("sampleCacheAsync2");
+        final Cache cache2 = manager2.getCache("sampleCacheAsync2");
+        
+        final int testElementCount = 2000;
 
         //Give everything a chance to startup
-        Integer index = null;
-        for (int i = 0; i < 2; i++) {
-            for (int j = 0; j < 1000; j++) {
-                index = new Integer(((1000 * i) + j));
-                manager2.getCache("sampleCacheAsync2").put(new Element(index,
-                        "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
-                                + "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
-                                + "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
-                                + "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
-                                + "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"));
-            }
+        for (int i = 0; i < testElementCount; i++) {
+            cache2.put(new Element(i + 1000,
+                    "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+                            + "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+                            + "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+                            + "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+                            + "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"));
 
         }
+        assertEquals(testElementCount, cache2.getSize());
 
-        assertEquals(2000, manager2.getCache("sampleCacheAsync2").getSize());
+        //Wait up to 10 seconds for normal replication to complete
+        CacheTestUtilities.waitForReplication(testElementCount, 20000, cache1);
+        
+        //Verify normal replication worked
+        assertEquals(testElementCount, cache1.getSize());
 
-        Thread.sleep(8000);
-        //normal replication
-        assertEquals(2000, manager1.getCache("sampleCacheAsync2").getSize());
+        manager3 = new CacheManager(ASYNC_CONFIG_URL);
+        //Wait up to 10 seconds for bootstrap to complete
+        CacheTestUtilities.waitForBootstrap(manager3, 10000);
+        
+        final Cache cache3 = manager3.getCache("sampleCacheAsync2");
+        assertEquals(testElementCount, cache3.getSize());
 
-        manager3 = new CacheManager(AbstractCacheTest.TEST_CONFIG_DIR + "distribution/jgroups/ehcache-distributed-jgroups.xml");
-
-        //Should not need to wait because the load is synchronous
-        Thread.sleep(10000);
-        assertEquals(2000, manager3.getCache("sampleCacheAsync2").getSize());
-
-
+        LOG.info("END TEST");
     }
 
 
@@ -195,11 +207,14 @@ public class JGroupsBootstrapCacheLoaderTest {
      */
     @Test
     public void testAddCacheAndBootstrapOccurs() throws InterruptedException {
+        LOG.info("START TEST");
+        
+        final int expectedSize = 1000;
 
         manager1.addCache("testBootstrap1");
         Cache testBootstrap1 = manager1.getCache("testBootstrap1");
-        for (int i = 0; i < 1000; i++) {
-            testBootstrap1.put(new Element("key" + i, new Date()));
+        for (int i = 0; i < expectedSize; i++) {
+            testBootstrap1.put(new Element("key" + (i + 1000), new Date()));
         }
 
 
@@ -208,27 +223,12 @@ public class JGroupsBootstrapCacheLoaderTest {
         Cache testBootstrap2 = manager2.getCache("testBootstrap1");
         //wait for async bootstrap
 
-        Thread.sleep(8000);
-        assertEquals(1000, testBootstrap2.getSize());
+        //Wait up to 10 seconds for normal replication to complete
+        CacheTestUtilities.waitForReplication(expectedSize, 10000, testBootstrap2);
+        
+        assertEquals(expectedSize, testBootstrap2.getSize());
 
-
+        LOG.info("END TEST");
     }
-
-    /**
-     * Not supported.
-     */
-    @Test
-    public void testSynchronousBootstrap() {
-
-        try {
-            manager1 = new CacheManager(AbstractCacheTest.TEST_CONFIG_DIR + "distribution/jgroups/ehcache-distributed-jgroups-sync.xml");
-            fail();
-        } catch (UnsupportedOperationException e) {
-            //expected
-        }
-
-    }
-
-
 }
 

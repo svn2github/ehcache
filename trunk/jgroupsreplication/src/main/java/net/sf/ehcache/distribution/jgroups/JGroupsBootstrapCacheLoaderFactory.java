@@ -1,5 +1,5 @@
 /**
- *  Copyright 2003-2009 Terracotta, Inc.
+ *  Copyright 2003-2010 Terracotta, Inc.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -20,10 +20,10 @@ package net.sf.ehcache.distribution.jgroups;
 import net.sf.ehcache.bootstrap.BootstrapCacheLoader;
 import net.sf.ehcache.bootstrap.BootstrapCacheLoaderFactory;
 import net.sf.ehcache.util.PropertyUtil;
-
-import java.util.Properties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.Properties;
 
 
 /**
@@ -34,9 +34,8 @@ import org.slf4j.LoggerFactory;
  */
 public class JGroupsBootstrapCacheLoaderFactory extends BootstrapCacheLoaderFactory {
 
-
     /**
-     * The property name expected in ehcache.xml for the bootstrap asyncrhonously switch.
+     * The property name expected in ehcache.xml for the bootstrap asynchronously switch.
      */
     public static final String BOOTSTRAP_ASYNCHRONOUSLY = "bootstrapAsynchronously";
 
@@ -70,56 +69,56 @@ public class JGroupsBootstrapCacheLoaderFactory extends BootstrapCacheLoaderFact
      *                   separated name value pairs in ehcache.xml
      * @return a constructed BootstrapCacheLoader
      */
+    @Override
     public BootstrapCacheLoader createBootstrapCacheLoader(Properties properties) {
+        if (properties == null) {
+            LOG.debug("Creating JGroups BootstrapCacheLoader with default configuration.");
+        } else {
+            LOG.debug("Creating JGroups BootstrapCacheLoader with configuration:\n{}", properties);
+        }
+        
         boolean bootstrapAsynchronously = extractAndValidateBootstrapAsynchronously(properties);
         int maximumChunkSizeBytes = extractMaximumChunkSizeBytes(properties);
         return new JGroupsBootstrapCacheLoader(bootstrapAsynchronously, maximumChunkSizeBytes);
     }
 
     /**
-     * @param properties
+     * Extracts the value of maximumChunkSizeBytes from the properties
      */
     protected int extractMaximumChunkSizeBytes(Properties properties) {
         int maximumChunkSizeBytes = 0;
         String maximumChunkSizeBytesString = PropertyUtil.extractAndLogProperty(MAXIMUM_CHUNK_SIZE_BYTES, properties);
-        if (maximumChunkSizeBytesString != null) {
-            try {
-                int maximumChunkSizeBytesCandidate = Integer.parseInt(maximumChunkSizeBytesString);
-                if ((maximumChunkSizeBytesCandidate < FIVE_KB) || (maximumChunkSizeBytesCandidate > ONE_HUNDRED_MB)) {
-                    LOG.warn("Trying to set the chunk size to an unreasonable number. Using the default instead.");
-                    maximumChunkSizeBytes = DEFAULT_MAXIMUM_CHUNK_SIZE_BYTES;
-                } else {
-                    maximumChunkSizeBytes = maximumChunkSizeBytesCandidate;
-                }
-            } catch (NumberFormatException e) {
-                LOG.warn("Number format exception trying to set chunk size. Using the default instead.");
-                maximumChunkSizeBytes = DEFAULT_MAXIMUM_CHUNK_SIZE_BYTES;
-            }
-
-        } else {
-            maximumChunkSizeBytes = DEFAULT_MAXIMUM_CHUNK_SIZE_BYTES;
+        if (maximumChunkSizeBytesString == null) {
+            return DEFAULT_MAXIMUM_CHUNK_SIZE_BYTES;
         }
+        
+        int maximumChunkSizeBytesCandidate;
+        try {
+            maximumChunkSizeBytesCandidate = Integer.parseInt(maximumChunkSizeBytesString);
+        } catch (NumberFormatException e) {
+            LOG.warn("Number format exception trying to set chunk size to '{}'. Using the default instead.", maximumChunkSizeBytesString);
+            return DEFAULT_MAXIMUM_CHUNK_SIZE_BYTES;
+        }
+        
+        if ((maximumChunkSizeBytesCandidate < FIVE_KB) || (maximumChunkSizeBytesCandidate > ONE_HUNDRED_MB)) {
+            LOG.warn("Trying to set the chunk size to an unreasonable number: {}. Using the default instead.", 
+                    maximumChunkSizeBytesCandidate);
+            return DEFAULT_MAXIMUM_CHUNK_SIZE_BYTES;
+        }
+
         return maximumChunkSizeBytes;
     }
 
 
     /**
      * Extracts the value of bootstrapAsynchronously from the properties
-     *
-     * @param properties
      */
     protected boolean extractAndValidateBootstrapAsynchronously(Properties properties) {
-        boolean bootstrapAsynchronously;
         String bootstrapAsynchronouslyString = PropertyUtil.extractAndLogProperty(BOOTSTRAP_ASYNCHRONOUSLY, properties);
         if (bootstrapAsynchronouslyString != null) {
-            bootstrapAsynchronously = PropertyUtil.parseBoolean(bootstrapAsynchronouslyString);
-        } else {
-            bootstrapAsynchronously = true;
+            return Boolean.parseBoolean(bootstrapAsynchronouslyString);
         }
-
-        if (!bootstrapAsynchronously) {
-            throw new UnsupportedOperationException("JGroups bootstrap does not support synchronous bootstrap.");
-        }
-        return bootstrapAsynchronously;
+        
+        return true;
     }
 }

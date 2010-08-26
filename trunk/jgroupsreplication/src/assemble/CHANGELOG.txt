@@ -9,6 +9,35 @@ $Id: CHANGELOG.txt,v 1.31 2006/03/07 00:05:56 gregluck Exp $
     <action dev="Greg Luck" type="add" fix="EHC-760>
         Support registration of JGroups with JMX.
     </action>
+    <action dev="Eric Dalquist" type="update">
+
+       Significant clean up and improvement of the code base from Eric Dalquist, a production user
+       of ehcache jgroups replication.
+
+       1.  Significant improvement to logging at all levels to provide easier debugging of configuration
+         and runtime execution
+
+       2.    Use JGroups Channel directly instead of NotificationBus which was documented as demonstration code.
+             The NotificationBus also performed a significant amount of cluster state tracking which was not needed for Ehcache integration. This change also removed a layer of object serialization which should reduce the messages sizes slightly.
+
+       3.   Allow configuration of JGroups from a separate file. This allows the XML configuration files that
+            JGroups provides to be used directly instead of translating them into the connect string inline in the ehcache.xml file.
+
+       4.   Moved the Ehcache CachePeer and JGroups Receiver implementations into their own classes instead of having the main CacheManagerPeerProvider implement all of the interfaces. This also fixes a potential class reference leak where the old JGroupManager passed a reference to this to another class in its constructor.
+
+       5.   Moved bootstrap handling code into its own class.
+
+       6.   Use a ThreadPoolExecutor to handle requesting cache bootstrap and responding to cache bootstrap. The pool defaults to zero threads and will dynamically grow and shrink as needed.
+
+       7.   Expanded the messaging around bootstrapping to allow peers to signal if they were not able to respond to a bootstrap request.
+
+       8.   Now that a bootstrap should always return a response the simple thread.sleep approach used previously to wait for the bootstrap to complete is no longer needed. a CountDownLatch is used so that the Receiver of the bootstrap complete message can signal the bootstrap request thread that it is done. A 30 second max wait timeout is still used as a fail-safe in case of a lost message. In general this results in a significantly faster bootstrap process.
+
+       9.  Bootstrap requests are now tracked by the bootstrap manager. This allows for more graceful shutdown of the cache manager in the case of a still-pending bootstrap request as well as a cache manager's ability to decline responding to a bootstrap request that it is currently in the process of being bootstrapped from another peer.
+
+       10.  Remove JGroupSerializable which essentially cloned the functionality of JGroupEventMessage. Since JGroupEventMessage is serializable it is passed directly.
+        </action>
+
 </release>
 
 <release version="1.3" date="2009-6-21" desc="This release adds bootstrap">
