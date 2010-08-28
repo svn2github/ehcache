@@ -63,7 +63,12 @@ public class LicenseManager {
         }
     }
     
-    private static void assertLicenseExists() {
+    /**
+     * This function should be called before accessing a Enterprise only feature
+     * to check for the existence of a licence key
+     * LicenceseException will be thrown if no key was found
+     */
+    public static void assertLicenseExists() {
         if (getLicense() == null) {
             throw new LicenseException("Access to Enterprise feature required Enterprise edition and a license key");
         }
