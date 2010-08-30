@@ -270,7 +270,7 @@ public class Element implements Serializable, Cloneable {
             valueAsSerializable = (Serializable) value;
         } catch (Exception e) {
             throw new CacheException("The value " + value + " for key " + key +
-                    " is not Serializable. Consider using Element#getObjectKey()");
+                    " is not Serializable. Consider using Element#getObjectValue()");
         }
         return valueAsSerializable;
     }

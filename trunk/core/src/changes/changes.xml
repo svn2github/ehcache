@@ -20,6 +20,9 @@
             <action dev="Ludovic Orban" type="add" issue="EHC-764">
                 Added timeout to cache.getWithLoader.
             </action>
+            <action dev="Greg Luck" type="fix" issue="EHC-763">
+                Fix exception message to do with Element.getValue(). Thanks to Ken Dombeck for reporting this. 
+            </action>
         </release>
         <release version="2.2.0" date="2010-07-16" description="Bug fixes">
             <action dev="Geert Bevin" type="fix">
