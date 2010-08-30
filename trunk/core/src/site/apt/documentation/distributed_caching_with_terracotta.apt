@@ -131,6 +131,25 @@ public class TerracottaExample {
 
 ---
 
+**  Programmatic Configuration
+
+    CacheManagers can be configured programmatically with a fluent API. The example below
+    creates a CacheManager with a Terracotta config specified in an URL, and creates a defaultCache
+    and a cache named "example".
+
+---
+Configuration configuration = new Configuration()
+.terracotta(new GlobalTerracottaConfiguration().url("localhost:9510"))
+.defaultCache(new CacheConfiguration("defaultCache", 100))
+.cache(new CacheConfiguration("example", 100)
+.timeToIdleSeconds(5)
+.timeToLiveSeconds(120)
+.terracotta(new TerracottaConfiguration()));
+
+CacheManager manager = new CacheManager(configuration);
+---
+
+
 **  {Terracotta Server Configuration}
 
     Note: You need to install and run one or more Terracotta servers to use Terracotta clustering.
