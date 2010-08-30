@@ -28,13 +28,6 @@ public class MemorySizeParserTest {
 
     @Test
     public void testParse() {
-        try {
-            assertEquals(0, MemorySizeParser.parse("-1G"));
-            Assert.fail("expected IllegalArgumentException");
-        } catch (IllegalArgumentException e) {
-            // expected
-        }
-
         assertEquals(0, MemorySizeParser.parse("0"));
         assertEquals(0, MemorySizeParser.parse(""));
         assertEquals(0, MemorySizeParser.parse(null));
@@ -45,5 +38,26 @@ public class MemorySizeParserTest {
         assertEquals(16777216, MemorySizeParser.parse("16M"));
         assertEquals(2147483648L, MemorySizeParser.parse("2g"));
         assertEquals(2147483648L, MemorySizeParser.parse("2G"));
+        assertEquals(3298534883328L, MemorySizeParser.parse("3t"));
+        assertEquals(3298534883328L, MemorySizeParser.parse("3T"));
+    }
+
+    @Test
+    public void testParseErrors() {
+        try {
+            MemorySizeParser.parse("-1G");
+            Assert.fail("expected IllegalArgumentException");
+        } catch (IllegalArgumentException e) {
+            // expected
+        }
+
+        try {
+            MemorySizeParser.parse("1000y");
+            Assert.fail("expected IllegalArgumentException");
+        } catch (IllegalArgumentException e) {
+            // expected
+        }
+
+
     }
 }
