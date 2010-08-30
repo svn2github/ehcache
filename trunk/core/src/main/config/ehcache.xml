@@ -209,7 +209,7 @@ used with JMX monitors.
     +++++++++++++++++++++++++++++++
     <cacheManagerPeerProviderFactory
          class="net.sf.ehcache.distribution.jgroups.JGroupsCacheManagerPeerProviderFactory"
-         properties="connect=UDP(mcast_addr=231.12.21.132;mcast_port=45566;ip_ttl=32;
+         properties="channel=ehcache^connect=UDP(mcast_addr=231.12.21.132;mcast_port=45566;ip_ttl=32;
          mcast_send_buf_size=150000;mcast_recv_buf_size=80000):
          PING(timeout=2000;num_initial_members=6):
          MERGE2(min_interval=5000;max_interval=10000):
@@ -219,12 +219,15 @@ used with JMX monitors.
          pbcast.STABLE(desired_avg_gossip=20000):
          FRAG:
          pbcast.GMS(join_timeout=5000;join_retry_timeout=2000;shun=false;print_local_addr=false)"
-         propertySeparator="::"
+         propertySeparator="^"
      />
      JGroups configuration is done by providing a connect string using connect= as in the above example which uses
      multicast, or since version 1.4, a file= to specify the location of a JGroups configuration file.
 
      If neither a connect or file property is specified, the default JGroups JChannel will be used.
+
+     Multiple JGroups clusters may be run on the same network by specifying the channel name to a unique name
+     per cluster. In the above example it is set to ehcache.
 
 
     JMSCacheManagerPeerProviderFactory
