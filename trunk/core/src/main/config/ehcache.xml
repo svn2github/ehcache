@@ -226,8 +226,8 @@ used with JMX monitors.
 
      If neither a connect or file property is specified, the default JGroups JChannel will be used.
 
-     Multiple JGroups clusters may be run on the same network by specifying the channel name to a unique name
-     per cluster. In the above example it is set to ehcache.
+     Multiple JGroups clusters may be run on the same network by specifying a different CacheManager name. The name
+     is used as the cluster name.
 
 
     JMSCacheManagerPeerProviderFactory
