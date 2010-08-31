@@ -129,7 +129,7 @@ public class JGroupsCacheReceiver implements Receiver {
                 break;
             }
             default: {
-                final Ehcache cache = this.cacheManager.getCache(cacheName);
+                final Ehcache cache = this.cacheManager.getEhcache(cacheName);
                 if (cache == null) {
                     LOG.warn("Received message {} for cache that does not exist: {}", message, cacheName);
                     return;
