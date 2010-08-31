@@ -96,7 +96,6 @@ import net.sf.ehcache.writer.CacheWriterManagerException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.terracotta.ehcachedx.license.LicenseManager;
 
 /**
  * Cache is the central class in ehcache. Caches have {@link Element}s and are managed
@@ -967,9 +966,6 @@ public class Cache implements Ehcache, StoreListener {
             final Store store;
             if (configuration.isOverflowToOffHeap()) {
                 try {
-                    // offheap is an enterprise feature, a license key is required
-                    LicenseManager.verifyOffHeapUsage(configuration.getMaxMemoryOffHeap());
-                    
                     Class<Store> storeClass = ClassLoaderUtil.loadClass(OFF_HEAP_STORE_CLASSNAME);
                     try {
                         store = (Store) storeClass.getMethod("create", Ehcache.class, String.class).invoke(null, this, diskStorePath);

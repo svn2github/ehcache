@@ -92,9 +92,6 @@
     <suppress checks="NPathComplexity" files="FactoryConfiguration.java"/>
     <suppress checks="NPathComplexity" files="CacheConfigurationElement.java"/>
     <suppress checks="NPathComplexity" files="ConfigurationElement.java"/>
-    <suppress checks="JavadocVariable" files="LicenseConstants.java"/>
-    <suppress checks="IllegalType" files="AbstractFactory.java"/>
-    <suppress checks="IllegalType" files="AbstractLicenseResolverFactory.java"/>
 
 
 
