@@ -513,7 +513,6 @@ public class CacheConfiguration implements Cloneable {
      */
     public final void setMaxMemoryOffHeap(String maxMemoryOffHeap) {
         checkDynamicChange();
-        MemorySizeParser.parse(maxMemoryOffHeap);
         this.maxMemoryOffHeap = maxMemoryOffHeap;
     }
 

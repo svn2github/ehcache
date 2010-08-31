@@ -974,13 +974,15 @@ public class Cache implements Ehcache, StoreListener {
                     try {
                         store = (Store) storeClass.getMethod("create", Ehcache.class, String.class).invoke(null, this, diskStorePath);
                     } catch (NoSuchMethodException e) {
-                       throw new CacheException("Cannot find static factory" +
+                       throw new CacheException("Cache: " + configuration.getName() + " cannot find static factory" +
                         " method create(Ehcache, String)" +
                         " in store class " + OFF_HEAP_STORE_CLASSNAME, e);
                     } catch (InvocationTargetException e) {
-                        throw new CacheException("Cannot instantiate store " + OFF_HEAP_STORE_CLASSNAME, e);
+                        throw new CacheException("Cache: " + configuration.getName() +
+                                " cannot instantiate store " + OFF_HEAP_STORE_CLASSNAME, e);
                     } catch (IllegalAccessException e) {
-                        throw new CacheException("Cannot instantiate store " + OFF_HEAP_STORE_CLASSNAME, e);
+                        throw new CacheException("Cache: " + configuration.getName() +
+                                " cannot instantiate store " + OFF_HEAP_STORE_CLASSNAME, e);
                     }
                 } catch (ClassNotFoundException e) {
                     throw new CacheException("Cache " + configuration.getName() +
