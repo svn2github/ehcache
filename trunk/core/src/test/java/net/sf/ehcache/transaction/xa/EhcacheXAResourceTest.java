@@ -402,5 +402,17 @@ public class EhcacheXAResourceTest extends TestCase {
         public Element replace(Element element) throws NullPointerException {
             throw new UnsupportedOperationException();
         }
+
+        public int getOffHeapSize() {
+            return 0;
+        }
+
+        public long getOffHeapSizeInBytes() {
+            return 0;
+        }
+
+        public boolean containsKeyOffHeap(Object key) {
+            return false;
+        }
     }
 }
