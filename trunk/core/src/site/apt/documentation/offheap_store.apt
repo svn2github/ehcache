@@ -65,7 +65,15 @@ The
 
 *   Advanced Configuration Parameters
 
-    maxOffHeapValueSize
+
+    Set yb cerating a system property cache_Name.property_name whic hcan either be done in the command line
+    or programattically. It mustb edone beofre the CacheManager is started.
+
+    e.g. com.company.domain.State.maxOffHeapValueSize=30MB
+
+**  maxOffHeapValueSize
+
+    The default is 4MB.
 
 
 
