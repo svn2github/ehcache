@@ -1,0 +1,73 @@
+Off-heap Store
+
+
+
+
+Questions:
+
+Disk Access Stripes.
+
+Exists for off-heap only. Will exist again in the future.
+
+Deadlocks
+All fixed in BlockingCache
+
+DiskStore Persistence
+If you try to persist to disk, currently you will get an OOME if you have more than a few GB.
+
+The
+
+21 minutes
+
+50MB/s
+8MB/s
+
+
+* Puts
+
+
+    Puts get into all three places.
+
+
+
+    You will get an OOME on the Disk on overflow.
+
+
+    Is your collective buffer full?
+
+
+
+* Eviction Algorithms
+
+    In-memory store eviction algorithm
+
+    Off-heap uses a Clock Cache, a standard paging algorithm, an approximation of LRU
+
+
+
+*   Issue
+
+    stripe
+
+    n segments with a lock for each in off heap. They allocate space from a pool.
+
+    Each cache allocates all the speace it is allowed on startup. It is not used until the cache starts.
+
+    Performance looks like a sine wave during cache filling.
+
+
+    Max serialized size is 4MB. 256KB for a pathological
+
+    8MB would 
+
+    Assuming good hashcodes, 
+
+
+*   Advanced Configuration Parameters
+
+    maxOffHeapValueSize
+
+
+
+
+
