@@ -150,20 +150,6 @@ public final class MemoryOnlyStore extends CompoundStore implements CacheConfigu
     /**
      * {@inheritDoc}
      */
-    public int getOffHeapSize() {
-        return 0;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public long getOffHeapSizeInBytes() {
-        return 0;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
     public int getOnDiskSize() {
         return 0;
     }
@@ -172,6 +158,20 @@ public final class MemoryOnlyStore extends CompoundStore implements CacheConfigu
      * {@inheritDoc}
      */
     public long getOnDiskSizeInBytes() {
+        return 0;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public int getOffHeapSize() {
+        return 0;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public long getOffHeapSizeInBytes() {
         return 0;
     }
 
