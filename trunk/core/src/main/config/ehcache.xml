@@ -383,6 +383,19 @@ used with JMX monitors.
 
     The following attributes and elements are optional.
 
+    overflowToOffHeap:
+    (boolean) When set to true, enables the cache to utilize "off-heap" memory
+    storage to improve performance. Off-heap memory is not subject to Java
+    GC cycles. It has a limit set by the Java property MaxDirectMemorySize.
+    The default value is false.
+    
+    maxMemoryOffHeap:
+    (string) Sets the amount of off-heap memory available to the cache.
+    This attribute's values are given as <number>k|K|m|M|g|G|t|T for
+    kilobytes (k|K), megabytes (m|M), gigabytes (g|G), or terrabytes
+    (t|T). For example, maxMemoryOffHeap="2g" allots 2 gigabytes to
+    off-heap memory. In effect only if overflowToOffHeap is true.
+
     timeToIdleSeconds:
     Sets the time to idle for an element before it expires.
     i.e. The maximum amount of time between accesses before an element expires
@@ -428,11 +441,11 @@ used with JMX monitors.
     (specified as LFU)
 
     copyOnRead:
-    Whether an Element is copied when being added to the cache.
+    Whether an Element is copied when being read from a cache.
     By default this is false.
 
     copyOnWrite:
-    Whether an Element is copied when being read from a cache.
+    Whether an Element is copied when being added to the cache.
     By default this is false.
 
     Cache elements can also contain sub elements which take the same format of a factory class
