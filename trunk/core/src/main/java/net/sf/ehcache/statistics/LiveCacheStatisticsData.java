@@ -43,6 +43,11 @@ public interface LiveCacheStatisticsData extends CacheEventListener {
     public void cacheHitInMemory();
 
     /**
+     * Called on a cache hit in the off-heap
+     */
+    public void cacheHitOffHeap();
+
+    /**
      * Called on a cache hit in the DiskStore
      */
     public void cacheHitOnDisk();

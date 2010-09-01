@@ -95,6 +95,15 @@ public class AnotherStatistics extends LiveCacheStatisticsImpl implements
 
     /**
      * {@inheritDoc}
+     *
+     * @see net.sf.ehcache.statistics.CacheUsageListener#notifyCacheHitOffHeap()
+     */
+    public void notifyCacheHitOffHeap() {
+        super.cacheHitOffHeap();
+    }
+
+    /**
+     * {@inheritDoc}
      * 
      * @see net.sf.ehcache.statistics.CacheUsageListener#notifyCacheHitOnDisk()
      */

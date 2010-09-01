@@ -232,4 +232,19 @@ public class MockStoreWithFlag implements Store {
         markAccessFlag();
     }
 
+    public int getOffHeapSize() {
+        markAccessFlag();
+        return 0;
+    }
+
+    public long getOffHeapSizeInBytes() {
+        markAccessFlag();
+        return 0;
+    }
+
+    public boolean containsKeyOffHeap(Object key) {
+        markAccessFlag();
+        return false;
+    }
+
 }

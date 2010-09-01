@@ -166,6 +166,12 @@ public interface Store {
     int getInMemorySize();
 
     /**
+     * Returns the current local off-heap store size
+     * @return the count of the Elements in the Store and off-heap on the local machine
+     */
+    int getOffHeapSize();
+
+    /**
      * Returns the current local on-disk store size
      * @return the count of the Elements in the Store and on-disk on the local machine
      */
@@ -186,6 +192,13 @@ public interface Store {
      * @return the approximate in-memory size of the store in bytes
      */
     long getInMemorySizeInBytes();
+
+    /**
+     * Gets the size of the off-heap portion of the store, in bytes.
+     *
+     * @return the approximate off-heap size of the store in bytes
+     */
+    long getOffHeapSizeInBytes();
 
     /**
      * Gets the size of the on-disk portion of the store, in bytes.
@@ -216,6 +229,14 @@ public interface Store {
      * @return true if found. No check is made to see if the Element is expired.
      */
     boolean containsKeyOnDisk(Object key);
+
+    /**
+     * A check to see if a key is in the Store and is currently held off-heap.
+     *
+     * @param key The Element key
+     * @return true if found. No check is made to see if the Element is expired.
+     */
+    boolean containsKeyOffHeap(Object key);
 
     /**
      * A check to see if a key is in the Store and is currently held in memory.

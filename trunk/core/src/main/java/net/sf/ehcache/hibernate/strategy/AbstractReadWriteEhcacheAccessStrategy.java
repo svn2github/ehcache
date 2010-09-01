@@ -386,5 +386,13 @@ abstract class AbstractReadWriteEhcacheAccessStrategy<T extends EhcacheTransacti
                 unlockTimestamp = timestamp;
             }
         }
+
+        /**
+         * {@inheritDoc}
+         */
+        public String toString() {
+            StringBuilder sb = new StringBuilder("Lock Source-UUID:" + sourceUuid + " Lock-ID:" + lockId);
+            return sb.toString();
+        }
     }
 }

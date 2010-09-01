@@ -1730,11 +1730,17 @@ public class Cache implements Ehcache, StoreListener {
 
     private Element searchInStoreWithStats(Object key, boolean quiet, boolean notifyListeners) {
         boolean wasOnDisk = false;
+        boolean wasOffHeap = false;
         Element element;
         if (quiet) {
             element = compoundStore.getQuiet(key);
         } else {
-            wasOnDisk = compoundStore.containsKeyOnDisk(key);
+            if (!compoundStore.containsKeyInMemory(key)) {
+              wasOffHeap = compoundStore.containsKeyOffHeap(key);
+              if (!wasOffHeap) {
+                wasOnDisk = compoundStore.containsKeyOnDisk(key);
+              }
+            }
             element = compoundStore.get(key);
         }
 
@@ -1753,7 +1759,10 @@ public class Cache implements Ehcache, StoreListener {
                 if (LOG.isDebugEnabled()) {
                     LOG.debug(getName() + "Cache: " + getName() + " store hit for " + key);
                 }
-                if (wasOnDisk) {
+                
+                if (wasOffHeap) {
+                    liveCacheStatisticsData.cacheHitOffHeap();
+                } else if (wasOnDisk) {
                     liveCacheStatisticsData.cacheHitOnDisk();
                 } else {
                     liveCacheStatisticsData.cacheHitInMemory();
@@ -2206,6 +2215,16 @@ public class Cache implements Ehcache, StoreListener {
         return compoundStore.getInMemorySizeInBytes();
     }
 
+    /**
+     * Gets the size of the off-heap store for this cache.
+     *
+     * @return the size of the off-heap store in bytes
+     * @throws IllegalStateException
+     */
+    public final long calculateOffHeapSize() throws IllegalStateException, CacheException {
+        checkStatus();
+        return compoundStore.getOffHeapSizeInBytes();
+    }
 
     /**
      * Returns the number of elements in the memory store.
@@ -2216,6 +2235,17 @@ public class Cache implements Ehcache, StoreListener {
     public final long getMemoryStoreSize() throws IllegalStateException {
         checkStatus();
         return compoundStore.getInMemorySize();
+    }
+
+    /**
+     * Returns the number of elements in the off-heap store.
+     *
+     * @return the number of elements in the off-heap store
+     * @throws IllegalStateException if the cache is not {@link Status#STATUS_ALIVE}
+     */
+    public long getOffHeapStoreSize() throws IllegalStateException {
+        checkStatus();
+        return compoundStore.getOffHeapSize();
     }
 
     /**
@@ -2428,6 +2458,16 @@ public class Cache implements Ehcache, StoreListener {
     }
 
     /**
+     * Whether an Element is stored in the cache in off-heap memory, indicating an intermediate cost of retrieval.
+     *
+     * @return true if an element matching the key is found in off-heap
+     * @since 2.3
+     */
+    public final boolean isElementOffHeap(Object key) {
+        return compoundStore.containsKeyOffHeap(key);
+    }
+
+    /**
      * Whether an Element is stored in the cache on Disk, indicating a higher cost of retrieval.
      *
      * @return true if an element matching the key is found in the diskStore
@@ -2522,7 +2562,7 @@ public class Cache implements Ehcache, StoreListener {
         if (key == null) {
             return false;
         }
-        return isElementInMemory(key) || isElementOnDisk(key);
+        return isElementInMemory(key) || isElementOffHeap(key) || isElementOnDisk(key);
     }
 
     /**
@@ -2569,10 +2609,11 @@ public class Cache implements Ehcache, StoreListener {
                 .getStatisticsAccuracy(), getLiveCacheStatistics()
                 .getCacheHitCount(), getLiveCacheStatistics()
                 .getOnDiskHitCount(), getLiveCacheStatistics()
+                .getOffHeapHitCount(), getLiveCacheStatistics()
                 .getInMemoryHitCount(), getLiveCacheStatistics()
                 .getCacheMissCount(), size, getAverageGetTime(),
                 getLiveCacheStatistics().getEvictedCount(),
-                getMemoryStoreSize(), getDiskStoreSize());
+                getMemoryStoreSize(), getOffHeapStoreSize(), getDiskStoreSize());
     }
 
     /**

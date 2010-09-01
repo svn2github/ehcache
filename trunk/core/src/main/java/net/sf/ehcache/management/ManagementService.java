@@ -68,6 +68,7 @@ public class ManagementService implements CacheManagerEventListener {
     private boolean registerCaches;
     private boolean registerCacheConfigurations;
     private boolean registerCacheStatistics;
+    private boolean registerCacheStores;
     private Status status;
 
 
@@ -103,7 +104,8 @@ public class ManagementService implements CacheManagerEventListener {
                              boolean registerCacheManager,
                              boolean registerCaches,
                              boolean registerCacheConfigurations,
-                             boolean registerCacheStatistics) throws CacheException {
+                             boolean registerCacheStatistics,
+                             boolean registerCacheStores) throws CacheException {
 
         status = Status.STATUS_UNINITIALISED;
         backingCacheManager = cacheManager;
@@ -112,6 +114,7 @@ public class ManagementService implements CacheManagerEventListener {
         this.registerCaches = registerCaches;
         this.registerCacheConfigurations = registerCacheConfigurations;
         this.registerCacheStatistics = registerCacheStatistics;
+        this.registerCacheStores = registerCacheStores;
     }
 
 
@@ -133,14 +136,16 @@ public class ManagementService implements CacheManagerEventListener {
             boolean registerCacheManager,
             boolean registerCaches,
             boolean registerCacheConfigurations,
-            boolean registerCacheStatistics) throws CacheException {
+            boolean registerCacheStatistics,
+            boolean registerCacheStores) throws CacheException {
 
         ManagementService registry = new ManagementService(cacheManager,
                 mBeanServer,
                 registerCacheManager,
                 registerCaches,
                 registerCacheConfigurations,
-                registerCacheStatistics);
+                registerCacheStatistics,
+                registerCacheStores);
 
         registry.init();
     }
@@ -214,6 +219,15 @@ public class ManagementService implements CacheManagerEventListener {
         }
     }
 
+    private void registerCacheStoreIfRequired(Cache cache) throws InstanceAlreadyExistsException,
+            MBeanRegistrationException, NotCompliantMBeanException {
+        if (registerCacheStores) {
+            CacheStore cacheStore = cache.getStore();
+            if (cacheStore != null) {
+                mBeanServer.registerMBean(cacheStore, cacheStore.getObjectName());
+            }
+        }
+    }
     /**
      * Returns the listener status.
      *
@@ -283,6 +297,7 @@ public class ManagementService implements CacheManagerEventListener {
                 registerCachesIfRequired(cache);
                 registerCacheStatisticsIfRequired(cache);
                 registerCacheConfigurationIfRequired(cache);
+                registerCacheStoreIfRequired(cache);
             } catch (Exception e) {
                 LOG.error("Error registering cache for management for " + cache.getObjectName()
                         + " . Error was " + e.getMessage(), e);
@@ -317,6 +332,12 @@ public class ManagementService implements CacheManagerEventListener {
             if (registerCacheStatistics) {
                 objectName = CacheStatistics.createObjectName(backingCacheManager.toString(), cacheName);
                 mBeanServer.unregisterMBean(objectName);
+            }
+            if (registerCacheStores) {
+                objectName = CacheStore.createObjectName(backingCacheManager.toString(), cacheName);
+                if (mBeanServer.isRegistered(objectName)) {
+                    mBeanServer.unregisterMBean(objectName);
+                }
             }
         } catch (Exception e) {
             LOG.error("Error unregistering cache for management for " + objectName

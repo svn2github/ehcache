@@ -96,6 +96,13 @@ public final class MemoryOnlyStore extends CompoundStore implements CacheConfigu
     /**
      * {@inheritDoc}
      */
+    public boolean containsKeyOffHeap(Object key) {
+        return false;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     public boolean containsKeyOnDisk(Object key) {
         return false;
     }
@@ -138,6 +145,20 @@ public final class MemoryOnlyStore extends CompoundStore implements CacheConfigu
      */
     public long getInMemorySizeInBytes() {
         return memoryFactory.getSizeInBytes();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public int getOffHeapSize() {
+        return 0;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public long getOffHeapSizeInBytes() {
+        return 0;
     }
 
     /**

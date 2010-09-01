@@ -65,6 +65,8 @@ public class Statistics implements Serializable {
 
     private final long onDiskHits;
 
+    private final long offHeapHits;
+
     private final long inMemoryHits;
 
     private final long misses;
@@ -72,6 +74,8 @@ public class Statistics implements Serializable {
     private final long size;
 
     private final long memoryStoreSize;
+
+    private final long offHeapStoreSize;
 
     private final long diskStoreSize;
 
@@ -87,17 +91,19 @@ public class Statistics implements Serializable {
      * @param statisticsAccuracy
      * @param cacheHits
      * @param onDiskHits
+     * @param offHeapHits 
      * @param inMemoryHits
      * @param misses
      * @param size
      */
-    public Statistics(Ehcache cache, int statisticsAccuracy, long cacheHits, long onDiskHits, long inMemoryHits,
-                      long misses, long size, float averageGetTime, long evictionCount, long memoryStoreSize,
-                      long diskStoreSize) {
+    public Statistics(Ehcache cache, int statisticsAccuracy, long cacheHits, long onDiskHits, long offHeapHits,
+                      long inMemoryHits, long misses, long size, float averageGetTime, long evictionCount,
+                      long memoryStoreSize, long offHeapStoreSize, long diskStoreSize) {
         this.cacheName = cache.getName();
         this.statisticsAccuracy = statisticsAccuracy;
         this.cacheHits = cacheHits;
         this.onDiskHits = onDiskHits;
+        this.offHeapHits = offHeapHits;
         this.inMemoryHits = inMemoryHits;
         this.misses = misses;
         this.cache = cache;
@@ -105,6 +111,7 @@ public class Statistics implements Serializable {
         this.averageGetTime = averageGetTime;
         this.evictionCount = evictionCount;
         this.memoryStoreSize = memoryStoreSize;
+        this.offHeapStoreSize = offHeapStoreSize;
         this.diskStoreSize = diskStoreSize;
     }
 
@@ -134,6 +141,15 @@ public class Statistics implements Serializable {
      */
     public long getInMemoryHits() {
         return inMemoryHits;
+    }
+
+    /**
+     * Number of times a requested item was found in the off-heap store.
+     *
+     * @return the number of times a requested item was found in off-heap
+     */
+    public long getOffHeapHits() {
+        return offHeapHits;
     }
 
     /**
@@ -196,6 +212,14 @@ public class Statistics implements Serializable {
      */
     public long getMemoryStoreObjectCount() {
         return memoryStoreSize;
+    }
+
+    /**
+     *
+     * @return the number of objects in the off-heap store
+     */
+    public long getOffHeapStoreObjectCount() {
+        return offHeapStoreSize;
     }
 
     /**
@@ -265,6 +289,7 @@ public class Statistics implements Serializable {
                 .append(" name = ").append(getAssociatedCacheName())
                 .append(" cacheHits = ").append(cacheHits)
                 .append(" onDiskHits = ").append(onDiskHits)
+                .append(" offHeapHits = ").append(offHeapHits)
                 .append(" inMemoryHits = ").append(inMemoryHits)
                 .append(" misses = ").append(misses)
                 .append(" size = ").append(size)

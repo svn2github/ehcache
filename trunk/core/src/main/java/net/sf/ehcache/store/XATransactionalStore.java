@@ -246,6 +246,13 @@ public class XATransactionalStore extends AbstractStore {
     /**
      * {@inheritDoc}
      */
+    public int getOffHeapSize() {
+        return underlyingStore.getOffHeapSize();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     public int getInMemorySize() {
         return underlyingStore.getInMemorySize();
     }
@@ -264,6 +271,14 @@ public class XATransactionalStore extends AbstractStore {
     public long getInMemorySizeInBytes() {
         getOrCreateTransactionContext();
         return underlyingStore.getInMemorySizeInBytes();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public long getOffHeapSizeInBytes() {
+        getOrCreateTransactionContext();
+        return underlyingStore.getOffHeapSizeInBytes();
     }
 
     /**
@@ -300,6 +315,13 @@ public class XATransactionalStore extends AbstractStore {
         return underlyingStore.containsKeyInMemory(key);
     }
     
+    /**
+     * {@inheritDoc}
+     */
+    public boolean containsKeyOffHeap(final Object key) {
+        return underlyingStore.containsKeyOffHeap(key);
+    }
+
     /**
      * {@inheritDoc}
      */

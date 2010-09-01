@@ -95,6 +95,20 @@ public class NullLiveCacheStatisticsData implements LiveCacheStatistics, LiveCac
     /**
      * {@inheritDoc}
      */
+    public long getOffHeapHitCount() {
+        return 0;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public long getOffHeapSize() {
+        return 0;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     public long getOnDiskHitCount() {
         return 0;
     }
@@ -166,6 +180,13 @@ public class NullLiveCacheStatisticsData implements LiveCacheStatistics, LiveCac
      * {@inheritDoc}
      */
     public void cacheHitInMemory() {
+        // no-op
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void cacheHitOffHeap() {
         // no-op
     }
 

@@ -43,6 +43,7 @@ public class LiveCacheStatisticsImpl implements LiveCacheStatistics, LiveCacheSt
 
     private final AtomicBoolean statisticsEnabled = new AtomicBoolean(true);
     private final AtomicLong cacheHitInMemoryCount = new AtomicLong();
+    private final AtomicLong cacheHitOffHeapCount = new AtomicLong();
     private final AtomicLong cacheHitOnDiskCount = new AtomicLong();
     private final AtomicLong cacheMissNotFound = new AtomicLong();
     private final AtomicLong cacheMissExpired = new AtomicLong();
@@ -74,6 +75,7 @@ public class LiveCacheStatisticsImpl implements LiveCacheStatistics, LiveCacheSt
      */
     public void clearStatistics() {
         cacheHitInMemoryCount.set(0);
+        cacheHitOffHeapCount.set(0);
         cacheHitOnDiskCount.set(0);
         cacheMissExpired.set(0);
         cacheMissNotFound.set(0);
@@ -139,6 +141,19 @@ public class LiveCacheStatisticsImpl implements LiveCacheStatistics, LiveCacheSt
         cacheHitInMemoryCount.incrementAndGet();
         for (CacheUsageListener l : listeners) {
             l.notifyCacheHitInMemory();
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void cacheHitOffHeap() {
+        if (!statisticsEnabled.get()) {
+            return;
+        }
+        cacheHitOffHeapCount.incrementAndGet();
+        for (CacheUsageListener l : listeners) {
+            l.notifyCacheHitOffHeap();
         }
     }
 
@@ -323,7 +338,7 @@ public class LiveCacheStatisticsImpl implements LiveCacheStatistics, LiveCacheSt
      * {@inheritDoc}
      */
     public long getCacheHitCount() {
-        return cacheHitInMemoryCount.get() + cacheHitOnDiskCount.get();
+        return cacheHitInMemoryCount.get() + cacheHitOffHeapCount.get() + cacheHitOnDiskCount.get();
     }
 
     /**
@@ -357,6 +372,13 @@ public class LiveCacheStatisticsImpl implements LiveCacheStatistics, LiveCacheSt
     /**
      * {@inheritDoc}
      */
+    public long getOffHeapHitCount() {
+        return cacheHitOffHeapCount.get();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     public long getOnDiskHitCount() {
         return cacheHitOnDiskCount.get();
     }
@@ -381,6 +403,16 @@ public class LiveCacheStatisticsImpl implements LiveCacheStatistics, LiveCacheSt
         return cache.getMemoryStoreSize();
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    public long getOffHeapSize() {
+        if (!statisticsEnabled.get()) {
+            return 0;
+        }
+        return cache.getOffHeapStoreSize();
+    }
+    
     /**
      * {@inheritDoc}
      */

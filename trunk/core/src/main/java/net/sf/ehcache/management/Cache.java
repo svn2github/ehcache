@@ -131,6 +131,12 @@ public class Cache implements CacheMBean, Serializable {
         return new CacheStatistics(cache);
     }
 
+    /**
+     * Gets the JMX store bean
+     */
+    CacheStore getStore() {
+        return null;
+    }
 
     /**
      * @return the object name for this MBean

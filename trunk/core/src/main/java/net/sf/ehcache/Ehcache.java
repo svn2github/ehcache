@@ -455,12 +455,28 @@ public interface Ehcache extends Cloneable {
     long calculateInMemorySize() throws IllegalStateException, CacheException;
 
     /**
+     * Gets the size of the off-heap store for this cache
+     *
+     * @return the size of the off-heap store in bytes
+     * @throws IllegalStateException
+     */
+    long calculateOffHeapSize() throws IllegalStateException, CacheException;
+
+    /**
      * Returns the number of elements in the memory store.
      *
      * @return the number of elements in the memory store
      * @throws IllegalStateException if the cache is not {@link net.sf.ehcache.Status#STATUS_ALIVE}
      */
     long getMemoryStoreSize() throws IllegalStateException;
+
+    /**
+     * Returns the number of elements in the off-heap store.
+     *
+     * @return the number of elements in the off-heap store
+     * @throws IllegalStateException if the cache is not {@link net.sf.ehcache.Status#STATUS_ALIVE}
+     */
+    long getOffHeapStoreSize() throws IllegalStateException;
 
     /**
      * Returns the number of elements in the disk store.

@@ -513,6 +513,15 @@ public class EhcacheHibernate extends BaseEmitterBean implements EhcacheHibernat
 
     /**
      * {@inheritDoc}
+     *
+     * @see net.sf.ehcache.hibernate.management.api.EhcacheStats#getNumberOfElementsInMemory(java.lang.String)
+     */
+    public int getNumberOfElementsOffHeap(String region) {
+        return ehcacheStats.getNumberOfElementsOffHeap(region);
+    }
+
+    /**
+     * {@inheritDoc}
      * 
      * @see net.sf.ehcache.hibernate.management.api.EhcacheStats#getNumberOfElementsOnDisk(java.lang.String)
      */

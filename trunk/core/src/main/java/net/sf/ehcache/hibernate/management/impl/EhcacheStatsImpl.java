@@ -531,6 +531,20 @@ public class EhcacheStatsImpl extends BaseEmitterBean implements EhcacheStats {
 
     /**
      * {@inheritDoc}
+     *
+     * @see net.sf.ehcache.hibernate.management.api.EhcacheStats#getNumberOfElementsOffHeap(java.lang.String)
+     */
+    public int getNumberOfElementsOffHeap(String region) {
+        Cache cache = this.cacheManager.getCache(region);
+        if (cache != null) {
+            return (int) cache.getOffHeapStoreSize();
+        } else {
+            return -1;
+        }
+    }
+
+    /**
+     * {@inheritDoc}
      * 
      * @see net.sf.ehcache.hibernate.management.api.EhcacheStats#getNumberOfElementsOnDisk(java.lang.String)
      */

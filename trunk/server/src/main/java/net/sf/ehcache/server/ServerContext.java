@@ -57,8 +57,7 @@ public class ServerContext implements ServletContextListener {
         LOG.info("Starting JMS MBeanServer");
         MBeanServer mBeanServer = ManagementFactory.getPlatformMBeanServer();
         managementService = new ManagementService(CacheManager.getInstance(), mBeanServer,
-                true, true, true, true);
-
+                true, true, true, true, true);
     }
 
 
