@@ -343,4 +343,11 @@ public interface Store {
      * @since 2.0
      */
     public void waitUntilClusterCoherent() throws UnsupportedOperationException;
+
+    /**
+     * Optional implementation specific MBean exposed by the store.
+     *
+     * @return implementation specific management bean
+     */
+    public Object getMBean();
 }

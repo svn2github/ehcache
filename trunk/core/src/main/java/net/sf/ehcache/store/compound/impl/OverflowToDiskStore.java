@@ -265,4 +265,11 @@ public final class OverflowToDiskStore extends CompoundStore implements CacheCon
     public File getDataFile() {
         return diskFactory.getDataFile();
     }
+
+    /**
+     * {@inheritDoc}
+     */
+    public Object getMBean() {
+        return null;
+    }
 }

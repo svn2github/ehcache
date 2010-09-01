@@ -770,5 +770,12 @@ public class MemoryStore extends AbstractStore implements CacheConfigurationList
     public Element replace(Element element) throws NullPointerException {
         throw new UnsupportedOperationException();
     }
+
+    /**
+     * {@inheritDoc}
+     */
+    public Object getMBean() {
+        return null;
+    }
 }
 

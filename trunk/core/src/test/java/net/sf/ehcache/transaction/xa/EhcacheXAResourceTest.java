@@ -16,6 +16,7 @@
 
 package net.sf.ehcache.transaction.xa;
 
+import javax.management.DynamicMBean;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -413,6 +414,10 @@ public class EhcacheXAResourceTest extends TestCase {
 
         public boolean containsKeyOffHeap(Object key) {
             return false;
+        }
+
+        public Object getMBean() {
+            return null;
         }
     }
 }

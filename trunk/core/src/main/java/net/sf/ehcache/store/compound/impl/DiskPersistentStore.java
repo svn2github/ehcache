@@ -236,4 +236,11 @@ public final class DiskPersistentStore extends CompoundStore implements CacheCon
     public File getIndexFile() {
         return disk.getIndexFile();
     }
+
+    /**
+     * {@inheritDoc}
+     */
+    public Object getMBean() {
+        return null;
+    }
 }

@@ -2427,7 +2427,14 @@ public class Cache implements Ehcache, StoreListener {
         checkStatus();
         return compoundStore;
     }
-    
+
+    /**
+     * Get the optional store management bean for this cache.
+     */
+    public final Object getStoreMBean() {
+      return getStore().getMBean();
+    }
+
     /**
      * Use this to access the service in order to register and unregister listeners
      *

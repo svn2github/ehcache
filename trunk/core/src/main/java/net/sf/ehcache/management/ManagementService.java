@@ -128,7 +128,7 @@ public class ManagementService implements CacheManagerEventListener {
      * @param registerCaches              Whether to register the Cache MBeans
      * @param registerCacheConfigurations Whether to register the CacheConfiguration MBeans
      * @param registerCacheStatistics     Whether to register the CacheStatistics MBeans
-     * @see ManagementService#ManagementService(net.sf.ehcache.CacheManager, javax.management.MBeanServer, boolean, boolean, boolean, boolean)
+     * @see ManagementService#ManagementService(net.sf.ehcache.CacheManager, javax.management.MBeanServer, boolean, boolean, boolean, boolean, boolean)
      */
     public static void registerMBeans(
             net.sf.ehcache.CacheManager cacheManager,
@@ -171,6 +171,7 @@ public class ManagementService implements CacheManagerEventListener {
                 registerCachesIfRequired(cache);
                 registerCacheStatisticsIfRequired(cache);
                 registerCacheConfigurationIfRequired(cache);
+                registerCacheStoreIfRequired(cache);
             }
         } catch (Exception e) {
             throw new CacheException(e);
@@ -222,7 +223,7 @@ public class ManagementService implements CacheManagerEventListener {
     private void registerCacheStoreIfRequired(Cache cache) throws InstanceAlreadyExistsException,
             MBeanRegistrationException, NotCompliantMBeanException {
         if (registerCacheStores) {
-            CacheStore cacheStore = cache.getStore();
+            Store cacheStore = cache.getStore();
             if (cacheStore != null) {
                 mBeanServer.registerMBean(cacheStore, cacheStore.getObjectName());
             }
@@ -334,7 +335,7 @@ public class ManagementService implements CacheManagerEventListener {
                 mBeanServer.unregisterMBean(objectName);
             }
             if (registerCacheStores) {
-                objectName = CacheStore.createObjectName(backingCacheManager.toString(), cacheName);
+                objectName = Store.createObjectName(backingCacheManager.toString(), cacheName);
                 if (mBeanServer.isRegistered(objectName)) {
                     mBeanServer.unregisterMBean(objectName);
                 }

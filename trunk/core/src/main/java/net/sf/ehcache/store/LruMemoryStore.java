@@ -407,6 +407,13 @@ public class LruMemoryStore extends AbstractStore {
     }
 
     /**
+     * {@inheritDoc}
+     */
+    public Object getMBean() {
+        return null;
+    }
+
+    /**
      * An extension of LinkedHashMap which overrides {@link #removeEldestEntry}
      * to persist cache entries to the auxiliary cache before they are removed.
      * <p/>

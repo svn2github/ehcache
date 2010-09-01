@@ -250,4 +250,11 @@ public final class MemoryOnlyStore extends CompoundStore implements CacheConfigu
         // no-op
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    public Object getMBean() {
+        return null;
+    }
+
 }

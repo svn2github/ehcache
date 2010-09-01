@@ -527,4 +527,11 @@ public class LegacyStoreWrapper extends AbstractStore {
             return false;
         }
     }
+
+    /**
+     * {@inheritDoc}
+     */
+    public Object getMBean() {
+        return null;
+    }
 }

@@ -1121,6 +1121,13 @@ public class DiskStore extends AbstractStore implements CacheConfigurationListen
     }
 
     /**
+     * {@inheritDoc}
+     */
+    public Object getMBean() {
+        return null;
+    }
+
+    /**
      * A reference to an on-disk elements.
      * <p/>
      * Copies of expiryTime and hitcount are held here as a performance optimisation, so

@@ -559,6 +559,13 @@ public class XATransactionalStore extends AbstractStore {
     }
 
     /**
+     * {@inheritDoc}
+     */
+    public Object getMBean() {
+        return underlyingStore.getMBean();
+    }
+
+    /**
      * This class is used to clean up the transactionToContextMap after a transaction
      * committed or rolled back.
      */
