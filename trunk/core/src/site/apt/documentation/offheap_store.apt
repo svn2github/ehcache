@@ -28,6 +28,12 @@ The
 
     Puts get into all three places.
 
+    Yes, any cache which uses offheap puts to all levels of the cache when any put is performed.
+    This means that gets which pull from the lower levels of the cache and therefore populate higher tiers
+    (think pulling from offheap to onheap) don't trigger serialization when the incoming element triggers
+    an eviction from the higher tier (in this case on-heap).  Since normal running for a cache would involve
+    the memory store being constantly at the eviction threshold, without this we would incur serialization
+    overhead on every on-heap cache miss.
 
 
     You will get an OOME on the Disk on overflow.
