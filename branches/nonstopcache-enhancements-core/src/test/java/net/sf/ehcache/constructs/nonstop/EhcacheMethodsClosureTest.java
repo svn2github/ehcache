@@ -134,6 +134,9 @@ public class EhcacheMethodsClosureTest extends TestCase {
         skipMethods.add("setCacheExceptionHandler");
         skipMethods.add("addPropertyChangeListener");
         skipMethods.add("removePropertyChangeListener");
+        // off-heap methods don't reach terracotta layer.. yet
+        skipMethods.add("calculateOffHeapSize");
+        skipMethods.add("getOffHeapStoreSize");
         new EhcacheMethodsInvoker() {
 
             @Override
