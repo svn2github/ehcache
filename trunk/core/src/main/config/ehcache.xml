@@ -384,13 +384,15 @@ used with JMX monitors.
     The following attributes and elements are optional.
 
     overflowToOffHeap:
-    (boolean) When set to true, enables the cache to utilize "off-heap" memory
+    (boolean) This feature is available only in enterprise versions of Ehcache.
+    When set to true, enables the cache to utilize "off-heap" memory
     storage to improve performance. Off-heap memory is not subject to Java
-    GC cycles. It has a limit set by the Java property MaxDirectMemorySize.
+    GC cycles and has a size limit set by the Java property MaxDirectMemorySize.
     The default value is false.
     
     maxMemoryOffHeap:
-    (string) Sets the amount of off-heap memory available to the cache.
+    (string) This feature is available only in enterprise versions of Ehcache.
+    Sets the amount of off-heap memory available to the cache.
     This attribute's values are given as <number>k|K|m|M|g|G|t|T for
     kilobytes (k|K), megabytes (m|M), gigabytes (g|G), or terrabytes
     (t|T). For example, maxMemoryOffHeap="2g" allots 2 gigabytes to
