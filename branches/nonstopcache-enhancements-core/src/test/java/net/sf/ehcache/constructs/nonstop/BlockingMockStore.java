@@ -214,4 +214,23 @@ public class BlockingMockStore implements Store {
         neverReturn();
     }
 
+    public int getOffHeapSize() {
+        neverReturn();
+        return 0;
+    }
+
+    public long getOffHeapSizeInBytes() {
+        neverReturn();
+        return 0;
+    }
+
+    public boolean containsKeyOffHeap(Object key) {
+        neverReturn();
+        return false;
+    }
+
+    public Object getMBean() {
+        return null;
+    }
+
 }
