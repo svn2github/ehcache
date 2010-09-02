@@ -370,7 +370,7 @@ public final class ConfigurationHelper {
                     throw new InvalidConfigurationException(
                             "Looks like the defaultCache is configured with multiple CacheDecoratorFactory's "
                                     + "that does not set unique names for newly created caches. Please fix the "
-                                    + "CacheDecoratorFactory to set unique names for newly created caches.");
+                                    + "CacheDecoratorFactory and/or the config to set unique names for newly created caches.");
                 }
                 newCacheNames.add(decoratedCache.getName());
                 result.add(decoratedCache);

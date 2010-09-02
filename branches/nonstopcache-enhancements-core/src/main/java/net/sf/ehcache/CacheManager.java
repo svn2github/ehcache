@@ -611,12 +611,16 @@ public class CacheManager {
             // add the cache decorators for the cache, if any
             List<Ehcache> cacheDecorators = configurationHelper.createCacheDecorators(unitialisedCache);
             for (Ehcache decoratedCache : cacheDecorators) {
-                if (decoratedCache.getName().equals(unitialisedCache.getName())) {
-                    this.replaceCacheWithDecoratedCache(unitialisedCache, decoratedCache);
-                } else {                    
-                    addDecoratedCache(decoratedCache);
-                }
+                addOrReplaceDecoratedCache(unitialisedCache, decoratedCache);
             }
+        }
+    }
+
+    private void addOrReplaceDecoratedCache(final Ehcache underlyingCache, final Ehcache decoratedCache) {
+        if (decoratedCache.getName().equals(underlyingCache.getName())) {
+            this.replaceCacheWithDecoratedCache(underlyingCache, decoratedCache);
+        } else {                    
+            addDecoratedCache(decoratedCache);
         }
     }
 
@@ -886,7 +890,7 @@ public class CacheManager {
         Ehcache clonedDefaultCache = cloneDefaultCache(cacheName);
         addCache(clonedDefaultCache);
         for (Ehcache ehcache : createDefaultCacheDecorators(clonedDefaultCache)) {            
-            addDecoratedCache(ehcache);
+            addOrReplaceDecoratedCache(clonedDefaultCache, ehcache);
         }
     }
 
@@ -1498,16 +1502,14 @@ public class CacheManager {
         }
 
         Ehcache ehcache = ehcaches.get(cacheName);
-        if (ehcache != null) {
-            return ehcache; 
-        } else {
+        if (ehcache == null) {
             Ehcache clonedDefaultCache = cloneDefaultCache(cacheName);
             addCacheIfAbsent(clonedDefaultCache);
             for (Ehcache createdCache : createDefaultCacheDecorators(clonedDefaultCache)) {
-                addDecoratedCacheIfAbsent(createdCache);
+                addOrReplaceDecoratedCache(clonedDefaultCache, createdCache);
             }
-            return clonedDefaultCache;
         }
+        return ehcaches.get(cacheName);
     }
 
     private Ehcache cloneDefaultCache(final String cacheName) {
