@@ -67,7 +67,7 @@ public class NonStopCacheDecoratorFactory extends CacheDecoratorFactory {
         }
         String name = properties.getProperty("name");
         if (name == null || name.trim().length() == 0) {
-            throw new CacheException("NonStopCacheDecoratorFactory needs to be configured with a mandatory 'name' property");
+            name = cache.getName();
         }
         return new NonStopCache(cache, name, properties);
     }
@@ -80,12 +80,7 @@ public class NonStopCacheDecoratorFactory extends CacheDecoratorFactory {
         if (properties == null) {
             throw new CacheException(NonStopCacheDecoratorFactory.class.getName() + " cannot be used without any configuration properties");
         }
-        // use the name specified in the default cache factory config as suffix
-        String cacheNameSuffix = properties.getProperty("name");
-        if (cacheNameSuffix == null || cacheNameSuffix.trim().length() == 0) {
-            throw new CacheException("NonStopCacheDecoratorFactory needs to be configured with a mandatory 'name' property");
-        }
-        return new NonStopCache(cache, generateDefaultDecoratedCacheName(cache, cacheNameSuffix), properties);
+        return new NonStopCache(cache, generateDefaultDecoratedCacheName(cache, properties.getProperty("name")), properties);
     }
 
 }

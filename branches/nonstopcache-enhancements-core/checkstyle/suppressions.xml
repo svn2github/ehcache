@@ -64,6 +64,7 @@
     <suppress checks="NPathComplexity" files="RMIBootstrapCacheLoader.java"/>
     <suppress checks="NPathComplexity" files="Cache.java"/>
     <suppress checks="NPathComplexity" files="CacheManager.java"/>
+    <suppress checks="ClassDataAbstractionCoupling" files="CacheManager.java"/>
     <suppress checks="ClassDataAbstractionCoupling" files="DiskStore.java"/>
     <suppress checks="ClassDataAbstractionCoupling" files="Cache.java"/>
     <suppress checks="ClassDataAbstractionCoupling" files="XATransactionalStore.java"/>
@@ -95,6 +96,7 @@
     <suppress checks="NPathComplexity" files="FactoryConfiguration.java"/>
     <suppress checks="NPathComplexity" files="CacheConfigurationElement.java"/>
     <suppress checks="NPathComplexity" files="ConfigurationElement.java"/>
+    <suppress checks="DeclarationOrder" files="NonStopCacheBehaviorType.java"/>
 
 
 

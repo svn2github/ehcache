@@ -344,8 +344,17 @@ public final class ConfigurationHelper {
         }
         return result;
     }
-    
+
+    /**
+     * Creates default cache decorators specified in the default cache configuration if any
+     * @param cache the underlying cache that will be decorated
+     * @param defaultCacheConfiguration default cache configuration
+     * @return list of decorated caches
+     */
     public static List<Ehcache> createDefaultCacheDecorators(Ehcache cache, CacheConfiguration defaultCacheConfiguration) {
+        if (cache == null) {
+            throw new CacheException("Underlying cache cannot be null when creating decorated caches.");
+        }
         List<CacheDecoratorFactoryConfiguration> defaultCacheDecoratorConfigurations = defaultCacheConfiguration
                 .getCacheDecoratorConfigurations();
         if (defaultCacheDecoratorConfigurations == null || defaultCacheDecoratorConfigurations.size() == 0) {

@@ -54,7 +54,6 @@ import java.io.File;
 import java.io.InputStream;
 import java.lang.reflect.Method;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -884,8 +883,10 @@ public class CacheManager {
         if (ehcaches.get(cacheName) != null) {
             throw new ObjectExistsException("Cache " + cacheName + " already exists");
         }
-        for (Ehcache ehcache : createCachesFromNameUsingDefaultCache(cacheName)) {            
-            addCache(ehcache);
+        Ehcache clonedDefaultCache = cloneDefaultCache(cacheName);
+        addCache(clonedDefaultCache);
+        for (Ehcache ehcache : createDefaultCacheDecorators(clonedDefaultCache)) {            
+            addDecoratedCache(ehcache);
         }
     }
 
@@ -951,8 +952,22 @@ public class CacheManager {
      *             if another cache with the same name already exists.
      */
     public void addDecoratedCache(Ehcache decoratedCache) throws ObjectExistsException {
+        internalAddDecoratedCache(decoratedCache, true);
+    }
+    
+    /**
+     * Same as {@link #addDecoratedCache(Ehcache)} but does not throw exception if another cache with same name already exists.
+     * 
+     * @param decoratedCache
+     * @throws ObjectExistsException
+     */
+    public void addDecoratedCacheIfAbsent(Ehcache decoratedCache) throws ObjectExistsException {
+        internalAddDecoratedCache(decoratedCache, false);
+    }
+
+    private void internalAddDecoratedCache(final Ehcache decoratedCache, final boolean strict) {
         Ehcache old = ehcaches.putIfAbsent(decoratedCache.getName(), decoratedCache);
-        if (old != null) {
+        if (strict && old != null) {
             throw new ObjectExistsException("Cache " + decoratedCache.getName() + " already exists in the CacheManager");
         }
     }
@@ -1484,21 +1499,14 @@ public class CacheManager {
 
         Ehcache ehcache = ehcaches.get(cacheName);
         if (ehcache != null) {
-            return ehcache;
-        }
-        else {
-            Ehcache returnValue = null;
-            for (Ehcache createdCache : createCachesFromNameUsingDefaultCache(cacheName)) {
-                if (createdCache.getName().equals(cacheName)) {
-                    returnValue = createdCache;
-                }
-                addCacheIfAbsent(createdCache);
+            return ehcache; 
+        } else {
+            Ehcache clonedDefaultCache = cloneDefaultCache(cacheName);
+            addCacheIfAbsent(clonedDefaultCache);
+            for (Ehcache createdCache : createDefaultCacheDecorators(clonedDefaultCache)) {
+                addDecoratedCacheIfAbsent(createdCache);
             }
-            if (returnValue == null) {
-                throw new CacheException("Creating cache passing name should create at least one cache with that name "
-                        + "(in addition to decorated caches using defaultCache's cacheDecoratorFactory's, if any)");
-            }
-            return returnValue;
+            return clonedDefaultCache;
         }
     }
 
@@ -1507,20 +1515,15 @@ public class CacheManager {
         try {
             cache = (Ehcache) defaultCache.clone();
         } catch (CloneNotSupportedException e) {
-            throw new CacheException("Failure adding cache. Initial cause was " + e.getMessage(), e);
+            throw new CacheException("Failure cloning default cache. Initial cause was " + e.getMessage(), e);
         }
         if (cache != null) {
             cache.setName(cacheName);
         }
         return cache;
     }
-
-    private List<Ehcache> createCachesFromNameUsingDefaultCache(String cacheName) {
-        Ehcache clonedDefaultCache = cloneDefaultCache(name);
-        List<Ehcache> defaultCacheDecorators = ConfigurationHelper.createDefaultCacheDecorators(clonedDefaultCache, configuration.getDefaultCacheConfiguration());
-        List<Ehcache> result = new ArrayList<Ehcache>(defaultCacheDecorators.size() + 1);
-        result.add(clonedDefaultCache);
-        result.addAll(defaultCacheDecorators);
-        return result;
+    
+    private List<Ehcache> createDefaultCacheDecorators(Ehcache underlyingCache) {
+        return ConfigurationHelper.createDefaultCacheDecorators(underlyingCache, configuration.getDefaultCacheConfiguration());
     }
 }
