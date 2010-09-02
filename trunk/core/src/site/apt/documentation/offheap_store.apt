@@ -62,6 +62,8 @@ The
 
     Assuming good hashcodes, 
 
+*   Configuration
+
 
 *   Advanced Configuration Parameters
 
@@ -76,6 +78,9 @@ The
     The default is 4MB.
 
 
+**   -XX:+UseLargePages
 
+    This is a JVM flag which is meant to improve performance of memory-hungry applications.
+    In testing, this option gives a 5% speed improvement with a 1Gb off-heap cache.
 
 
