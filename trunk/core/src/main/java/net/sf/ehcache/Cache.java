@@ -983,7 +983,7 @@ public class Cache implements Ehcache, StoreListener {
                 } catch (ClassNotFoundException e) {
                     throw new CacheException("Cache " + configuration.getName() +
                             " cannot be configured because the Off Heap store class could not be found. " +
-                            "You need the Enterprise version of Ehcache to be able to enable overflowToOffHeap.");
+                            "You need Enterprise version of Ehcache to be able to enable overflowToOffHeap.");
                 }
             } else if (isTerracottaClustered()) {
                 store = cacheManager.createTerracottaStore(this);
