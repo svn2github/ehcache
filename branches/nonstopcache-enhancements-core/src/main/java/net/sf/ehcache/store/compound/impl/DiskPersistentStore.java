@@ -75,6 +75,13 @@ public final class DiskPersistentStore extends CompoundStore implements CacheCon
     /**
      * {@inheritDoc}
      */
+    public boolean containsKeyOffHeap(Object key) {
+        return false;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     public boolean containsKeyOnDisk(Object key) {
         return disk.isOnDisk(unretrievedGet(key));
     }
@@ -112,6 +119,20 @@ public final class DiskPersistentStore extends CompoundStore implements CacheCon
      */
     public long getInMemorySizeInBytes() {
         // TODO Auto-generated method stub
+        return 0;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public int getOffHeapSize() {
+        return 0;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public long getOffHeapSizeInBytes() {
         return 0;
     }
 
@@ -214,5 +235,12 @@ public final class DiskPersistentStore extends CompoundStore implements CacheCon
      */
     public File getIndexFile() {
         return disk.getIndexFile();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public Object getMBean() {
+        return null;
     }
 }

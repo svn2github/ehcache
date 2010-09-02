@@ -505,7 +505,7 @@ public class DiskPersistentStorageFactory extends DiskStorageFactory<ElementSubs
          * {@inheritDoc}
          */
         @Override
-        public DiskMarker call() {
+        public CachingDiskMarker call() {
             CachingDiskMarker result = (CachingDiskMarker) super.call();
             //don't want to increment on exception throw
             int disk = onDisk.incrementAndGet();
@@ -542,19 +542,19 @@ public class DiskPersistentStorageFactory extends DiskStorageFactory<ElementSubs
             try {
                 for (Object key : store.keySet()) {
                     Object o = store.unretrievedGet(key);
+                    CachingDiskMarker marker;
                     if (o instanceof PersistentPlaceholder) {
-                        new PersistentDiskWriteTask((PersistentPlaceholder) o).call();
-                        o = store.unretrievedGet(key);
+                        marker = new PersistentDiskWriteTask((PersistentPlaceholder) o).call();
+                    } else {
+                        marker = (CachingDiskMarker) o;
                     }
-                    
-                    CachingDiskMarker marker = (CachingDiskMarker) o;
 
                     if (marker == null) {
                         continue;
                     }
                     
                     if (clearOnFlush && marker.flush()) {
-                        int size = inMemory.decrementAndGet();
+                        inMemory.decrementAndGet();
                     }
 
                     oos.writeObject(key);

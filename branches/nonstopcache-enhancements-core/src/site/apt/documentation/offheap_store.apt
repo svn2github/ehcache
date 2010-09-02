@@ -1,0 +1,92 @@
+Off-heap Store
+
+
+
+
+Questions:
+
+Disk Access Stripes.
+
+Exists for off-heap only. Will exist again in the future.
+
+Deadlocks
+All fixed in BlockingCache
+
+DiskStore Persistence
+If you try to persist to disk, currently you will get an OOME if you have more than a few GB.
+
+The
+
+21 minutes
+
+50MB/s
+8MB/s
+
+
+* Puts
+
+
+    Puts get into all three places.
+
+    Yes, any cache which uses offheap puts to all levels of the cache when any put is performed.
+    This means that gets which pull from the lower levels of the cache and therefore populate higher tiers
+    (think pulling from offheap to onheap) don't trigger serialization when the incoming element triggers
+    an eviction from the higher tier (in this case on-heap).  Since normal running for a cache would involve
+    the memory store being constantly at the eviction threshold, without this we would incur serialization
+    overhead on every on-heap cache miss.
+
+
+    You will get an OOME on the Disk on overflow.
+
+
+    Is your collective buffer full?
+
+
+
+* Eviction Algorithms
+
+    In-memory store eviction algorithm
+
+    Off-heap uses a Clock Cache, a standard paging algorithm, an approximation of LRU
+
+
+
+*   Issue
+
+    stripe
+
+    n segments with a lock for each in off heap. They allocate space from a pool.
+
+    Each cache allocates all the speace it is allowed on startup. It is not used until the cache starts.
+
+    Performance looks like a sine wave during cache filling.
+
+
+    Max serialized size is 4MB. 256KB for a pathological
+
+    8MB would 
+
+    Assuming good hashcodes, 
+
+*   Configuration
+
+
+*   Advanced Configuration Parameters
+
+
+    Set yb cerating a system property cache_Name.property_name whic hcan either be done in the command line
+    or programattically. It mustb edone beofre the CacheManager is started.
+
+    e.g. com.company.domain.State.maxOffHeapValueSize=30MB
+
+**  maxOffHeapValueSize
+
+    The default is 4MB.
+
+
+**   -XX:+UseLargePages
+
+    This is a JVM flag which is meant to improve performance of memory-hungry applications.
+    In testing, this option gives a 5% speed improvement with a 1Gb off-heap cache.
+
+

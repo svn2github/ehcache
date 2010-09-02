@@ -151,6 +151,15 @@ public class LiveCacheStatisticsWrapper implements LiveCacheStatistics, LiveCach
 
     /**
      * {@inheritDoc}
+     *
+     * @see net.sf.ehcache.statistics.LiveCacheStatistics#getOffHeapSize()
+     */
+    public long getOffHeapSize() {
+        return delegate.getOffHeapSize();
+    }
+
+    /**
+     * {@inheritDoc}
      * 
      * @see net.sf.ehcache.statistics.LiveCacheStatistics#getOnDiskSize()
      */
@@ -219,6 +228,15 @@ public class LiveCacheStatisticsWrapper implements LiveCacheStatistics, LiveCach
      */
     public long getInMemoryHitCount() {
         return delegate.getInMemoryHitCount();
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @see net.sf.ehcache.statistics.LiveCacheStatistics#getOffHeapHitCount()
+     */
+    public long getOffHeapHitCount() {
+        return delegate.getOffHeapHitCount();
     }
 
     /**
@@ -295,6 +313,15 @@ public class LiveCacheStatisticsWrapper implements LiveCacheStatistics, LiveCach
      */
     public void cacheHitInMemory() {
         getDelegateAsLiveStatisticsData().cacheHitInMemory();
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @see net.sf.ehcache.statistics.LiveCacheStatisticsData#cacheHitOffHeap()
+     */
+    public void cacheHitOffHeap() {
+        getDelegateAsLiveStatisticsData().cacheHitOffHeap();
     }
 
     /**

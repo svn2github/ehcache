@@ -51,6 +51,7 @@ public class SampledCacheStatisticsImpl implements CacheUsageListener, SampledCa
     private volatile CounterManager counterManager;
     private final SampledCounter cacheHitCount;
     private final SampledCounter cacheHitInMemoryCount;
+    private final SampledCounter cacheHitOffHeapCount;
     private final SampledCounter cacheHitOnDiskCount;
     private final SampledCounter cacheMissCount;
     private final SampledCounter cacheMissExpiredCount;
@@ -73,6 +74,7 @@ public class SampledCacheStatisticsImpl implements CacheUsageListener, SampledCa
         counterManager = new CounterManagerImpl(timer);
         cacheHitCount = createSampledCounter(DEFAULT_SAMPLED_COUNTER_CONFIG);
         cacheHitInMemoryCount = createSampledCounter(DEFAULT_SAMPLED_COUNTER_CONFIG);
+        cacheHitOffHeapCount = createSampledCounter(DEFAULT_SAMPLED_COUNTER_CONFIG);
         cacheHitOnDiskCount = createSampledCounter(DEFAULT_SAMPLED_COUNTER_CONFIG);
         cacheMissCount = createSampledCounter(DEFAULT_SAMPLED_COUNTER_CONFIG);
         cacheMissExpiredCount = createSampledCounter(DEFAULT_SAMPLED_COUNTER_CONFIG);
@@ -108,6 +110,7 @@ public class SampledCacheStatisticsImpl implements CacheUsageListener, SampledCa
     public void clearStatistics() {
         cacheHitCount.getAndReset();
         cacheHitInMemoryCount.getAndReset();
+        cacheHitOffHeapCount.getAndReset();
         cacheHitOnDiskCount.getAndReset();
         cacheMissCount.getAndReset();
         cacheMissExpiredCount.getAndReset();
@@ -132,6 +135,13 @@ public class SampledCacheStatisticsImpl implements CacheUsageListener, SampledCa
      */
     public void notifyCacheHitInMemory() {
         incrementIfStatsEnabled(cacheHitCount, cacheHitInMemoryCount);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void notifyCacheHitOffHeap() {
+        incrementIfStatsEnabled(cacheHitCount, cacheHitOffHeapCount);
     }
 
     /**
@@ -242,6 +252,7 @@ public class SampledCacheStatisticsImpl implements CacheUsageListener, SampledCa
     public void notifyStatisticsCleared() {
         cacheHitCount.getAndReset();
         cacheHitInMemoryCount.getAndReset();
+        cacheHitOffHeapCount.getAndReset();
         cacheHitOnDiskCount.getAndReset();
         cacheMissCount.getAndReset();
         cacheMissExpiredCount.getAndReset();
@@ -280,6 +291,13 @@ public class SampledCacheStatisticsImpl implements CacheUsageListener, SampledCa
      */
     public long getCacheHitInMemoryMostRecentSample() {
         return cacheHitInMemoryCount.getMostRecentSample().getCounterValue();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public long getCacheHitOffHeapMostRecentSample() {
+        return cacheHitOffHeapCount.getMostRecentSample().getCounterValue();
     }
 
     /**

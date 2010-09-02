@@ -181,6 +181,13 @@ public class EhcacheDecoratorAdapter implements Ehcache {
     /**
      * {@inheritDoc}
      */
+    public long calculateOffHeapSize() throws IllegalStateException, CacheException {
+        return underlyingCache.calculateOffHeapSize();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     public void clearStatistics() {
         underlyingCache.clearStatistics();
     }
@@ -295,6 +302,13 @@ public class EhcacheDecoratorAdapter implements Ehcache {
      */
     public CacheManager getCacheManager() {
         return underlyingCache.getCacheManager();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public long getOffHeapStoreSize() throws IllegalStateException {
+        return underlyingCache.getOffHeapStoreSize();
     }
 
     /**

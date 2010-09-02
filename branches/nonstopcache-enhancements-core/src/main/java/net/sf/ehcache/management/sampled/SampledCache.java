@@ -197,6 +197,13 @@ public class SampledCache extends BaseEmitterBean implements SampledCacheMBean, 
     /**
      * {@inheritDoc}
      */
+    public long getCacheHitOffHeapMostRecentSample() {
+        return cache.getSampledCacheStatistics().getCacheHitOffHeapMostRecentSample();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     public long getCacheHitMostRecentSample() {
         return cache.getSampledCacheStatistics().getCacheHitMostRecentSample();
     }
@@ -635,6 +642,24 @@ public class SampledCache extends BaseEmitterBean implements SampledCacheMBean, 
      */
     public long getInMemorySize() {
         return cache.getLiveCacheStatistics().getInMemorySize();
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @see net.sf.ehcache.management.sampled.SampledCacheMBean#getOffHeapHitCount()
+     */
+    public long getOffHeapHitCount() {
+        return cache.getLiveCacheStatistics().getOffHeapHitCount();
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @see net.sf.ehcache.management.sampled.SampledCacheMBean#getOffHeapSize()
+     */
+    public long getOffHeapSize() {
+        return cache.getLiveCacheStatistics().getOffHeapSize();
     }
 
     /**

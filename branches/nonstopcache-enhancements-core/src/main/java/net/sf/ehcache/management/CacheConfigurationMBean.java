@@ -166,4 +166,14 @@ public interface CacheConfigurationMBean {
      * Accessor
      */
     boolean isTerracottaClustered();
+
+    /**
+     * Accessor
+     */
+    public boolean isOverflowToOffHeap();
+
+    /**
+     * Accessor
+     */
+    public long getMaxMemoryOffHeapInBytes();
 }

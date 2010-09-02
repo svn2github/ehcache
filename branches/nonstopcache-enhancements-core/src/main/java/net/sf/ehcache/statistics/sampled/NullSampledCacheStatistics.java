@@ -80,6 +80,13 @@ public class NullSampledCacheStatistics implements CacheUsageListener, SampledCa
     /**
      * {@inheritDoc}
      */
+    public long getCacheHitOffHeapMostRecentSample() {
+      return 0;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     public long getCacheHitMostRecentSample() {
         return 0;
     }
@@ -193,6 +200,15 @@ public class NullSampledCacheStatistics implements CacheUsageListener, SampledCa
      * @see net.sf.ehcache.statistics.CacheUsageListener#notifyCacheHitInMemory()
      */
     public void notifyCacheHitInMemory() {
+        // no-op
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @see net.sf.ehcache.statistics.CacheUsageListener#notifyCacheHitOffHeap()
+     */
+    public void notifyCacheHitOffHeap() {
         // no-op
     }
 

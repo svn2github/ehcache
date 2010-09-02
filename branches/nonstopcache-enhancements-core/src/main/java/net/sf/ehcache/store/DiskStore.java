@@ -1121,6 +1121,13 @@ public class DiskStore extends AbstractStore implements CacheConfigurationListen
     }
 
     /**
+     * {@inheritDoc}
+     */
+    public Object getMBean() {
+        return null;
+    }
+
+    /**
      * A reference to an on-disk elements.
      * <p/>
      * Copies of expiryTime and hitcount are held here as a performance optimisation, so
@@ -1447,6 +1454,13 @@ public class DiskStore extends AbstractStore implements CacheConfigurationListen
     /**
      * {@inheritDoc}
      */
+    public boolean containsKeyOffHeap(Object key) {
+        return false;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     public boolean containsKeyOnDisk(Object key) {
         return containsKey(key);
     }
@@ -1469,6 +1483,20 @@ public class DiskStore extends AbstractStore implements CacheConfigurationListen
      * {@inheritDoc}
      */
     public long getInMemorySizeInBytes() {
+        return 0;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public int getOffHeapSize() {
+        return 0;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public long getOffHeapSizeInBytes() {
         return 0;
     }
 

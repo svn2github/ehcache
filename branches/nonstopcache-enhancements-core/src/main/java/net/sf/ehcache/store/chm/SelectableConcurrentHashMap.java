@@ -36,13 +36,19 @@ public class SelectableConcurrentHashMap extends ConcurrentHashMap<Object, Eleme
         super(initialCapacity, loadFactor, concurrency);
     }
 
-    public Element[] getRandomValues(final int size) {
+    public Element[] getRandomValues(final int size, Object keyHint) {
         ArrayList<Element> sampled = new ArrayList<Element>(size);
 
         // pick a random starting point in the map
         int randomHash = rndm.nextInt();
 
-        final int segmentStart = (randomHash >>> segmentShift) & segmentMask;
+        final int segmentStart;
+        if (keyHint == null) {
+            segmentStart = (randomHash >>> segmentShift) & segmentMask;
+        } else {
+            segmentStart = (hash(keyHint.hashCode()) >>> segmentShift) & segmentMask;
+        }
+
         int segmentIndex = segmentStart;
         do {
             final HashEntry<Object, Element>[] table = segments[segmentIndex].table;

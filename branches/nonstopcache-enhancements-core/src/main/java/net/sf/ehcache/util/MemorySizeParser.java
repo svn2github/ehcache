@@ -18,7 +18,7 @@ package net.sf.ehcache.util;
 
 /**
  * Memory size parser using the letter k or K to indicate kilobytes, the letter m or M to indicate megabytes,
- * the letter g or G to indicate gigabytes.
+ * the letter g or G to indicate gigabytes and the letter t or T to indicate terabytes.
  *
  * @author Ludovic Orban
  */
@@ -27,69 +27,79 @@ public class MemorySizeParser {
     private static final long KILOBYTE = 1024;
     private static final long MEGABYTE = 1024 * KILOBYTE;
     private static final long GIGABYTE = 1024 * MEGABYTE;
+    private static final long TERABYTE = 1024 * GIGABYTE;
 
     /**
      * Parse a String containing a human-readable memory size.
      *
-     * @param memorySize the String containing a human-readable memory size.
+     * @param configuredMemorySize the String containing a human-readable memory size.
      * @return the memory size in bytes.
+     * @throws IllegalArgumentException thrown when the configured memory size cannot be parsed.
      */
-    public static long parse(String memorySize) {
-        if (memorySize == null || "".equals(memorySize)) {
-            return 0;
-        }
-
-        MemorySize size = toUnit(memorySize);
+    public static long parse(String configuredMemorySize) throws IllegalArgumentException {
+        MemorySize size = parseIncludingUnit(configuredMemorySize);
         return size.calculateMemorySizeInBytes();
     }
 
-    private static MemorySize toUnit(String memorySize) {
-        char unit = memorySize.charAt(memorySize.length() - 1);
+    private static MemorySize parseIncludingUnit(String configuredMemorySize) throws IllegalArgumentException {
+        if (configuredMemorySize == null || "".equals(configuredMemorySize)) {
+            return new MemorySize("0", BYTE);
+        }
+
+        char unit = configuredMemorySize.charAt(configuredMemorySize.length() - 1);
+        MemorySize memorySize;
 
         switch (unit) {
             case 'k':
             case 'K':
-                if (memorySize.length() < 2) {
-                    throw new IllegalArgumentException("invalid format for memory size [" + memorySize + "]");
-                }
-                return new MemorySize(memorySize.substring(0, memorySize.length() - 1), KILOBYTE);
+                memorySize = toMemorySize(configuredMemorySize, KILOBYTE);
+                break;
             case 'm':
             case 'M':
-                if (memorySize.length() < 2) {
-                    throw new IllegalArgumentException("invalid format for memory size [" + memorySize + "]");
-                }
-                return new MemorySize(memorySize.substring(0, memorySize.length() - 1), MEGABYTE);
+                memorySize = toMemorySize(configuredMemorySize, MEGABYTE);
+                break;
             case 'g':
             case 'G':
-                if (memorySize.length() < 2) {
-                    throw new IllegalArgumentException("invalid format for memory size [" + memorySize + "]");
-                }
-                return new MemorySize(memorySize.substring(0, memorySize.length() - 1), GIGABYTE);
+                memorySize = toMemorySize(configuredMemorySize, GIGABYTE);
+                break;
+            case 't':
+            case 'T':
+                memorySize = toMemorySize(configuredMemorySize, TERABYTE);
+                break;
             default:
                 try {
                     Integer.parseInt("" + unit);
                 } catch (NumberFormatException e) {
-                    throw new IllegalArgumentException("invalid format for memory size [" + memorySize + "]");
+                    throw new IllegalArgumentException("invalid format for memory size [" + configuredMemorySize + "]");
                 }
-                return new MemorySize(memorySize, BYTE);
+                memorySize = new MemorySize(configuredMemorySize, BYTE);
         }
+
+        return memorySize;
+    }
+
+    private static MemorySize toMemorySize(String configuredMemorySize, long unitMultiplier) {
+        if (configuredMemorySize.length() < 2) {
+            throw new IllegalArgumentException("invalid format for memory size [" + configuredMemorySize + "]");
+        }
+        return new MemorySize(configuredMemorySize.substring(0, configuredMemorySize.length() - 1), unitMultiplier);
     }
 
     /**
      * Memory size calculator.
      */
     private static final class MemorySize {
+        private String configuredMemorySizeWithoutUnit;
         private long multiplicationFactor;
-        private String memorySizeString;
 
-        private MemorySize(String memorySizeString, long multiplicationFactor) {
+        private MemorySize(String configuredMemorySizeWithoutUnit, long multiplicationFactor) {
+            this.configuredMemorySizeWithoutUnit = configuredMemorySizeWithoutUnit;
             this.multiplicationFactor = multiplicationFactor;
-            this.memorySizeString = memorySizeString;
         }
 
-        public long calculateMemorySizeInBytes() {
+        public long calculateMemorySizeInBytes() throws IllegalArgumentException {
             try {
-                long memorySizeLong = Long.parseLong(memorySizeString);
+                long memorySizeLong = Long.parseLong(configuredMemorySizeWithoutUnit);
                 long result = memorySizeLong * multiplicationFactor;
                 if (result < 0) {
                     throw new IllegalArgumentException("memory size cannot be negative");

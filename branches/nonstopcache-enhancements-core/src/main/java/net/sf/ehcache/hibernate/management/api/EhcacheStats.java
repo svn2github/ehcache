@@ -366,6 +366,14 @@ public interface EhcacheStats extends NotificationEmitter {
     int getNumberOfElementsInMemory(String region);
 
     /**
+     * Returns number of elements off-heap in the cache for the input region
+     *
+     * @param region
+     * @return Returns number of elements off-heap in the cache for the input region
+     */
+    int getNumberOfElementsOffHeap(String region);
+
+    /**
      * Returns number of elements on-disk in the cache for the input region
      * 
      * @param region

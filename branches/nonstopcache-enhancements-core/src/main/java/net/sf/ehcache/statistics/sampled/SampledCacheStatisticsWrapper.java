@@ -134,6 +134,14 @@ public class SampledCacheStatisticsWrapper implements CacheUsageListener, Sample
 
     /**
      * {@inheritDoc}
+     *
+     */
+    public long getCacheHitOffHeapMostRecentSample() {
+        return delegate.getCacheHitOffHeapMostRecentSample();
+    }
+
+    /**
+     * {@inheritDoc}
      * 
      */
     public long getCacheHitMostRecentSample() {
@@ -247,6 +255,13 @@ public class SampledCacheStatisticsWrapper implements CacheUsageListener, Sample
      */
     public void notifyCacheHitInMemory() {
         getDelegateAsListener().notifyCacheHitInMemory();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void notifyCacheHitOffHeap() {
+        getDelegateAsListener().notifyCacheHitOffHeap();
     }
 
     /**

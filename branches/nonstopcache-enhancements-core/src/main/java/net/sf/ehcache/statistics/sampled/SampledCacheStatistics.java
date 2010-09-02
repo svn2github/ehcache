@@ -40,6 +40,13 @@ public interface SampledCacheStatistics {
     public long getCacheHitInMemoryMostRecentSample();
 
     /**
+     * Get most recent value for off-heap cache hit
+     *
+     * @return Most recent sample for cache hit count in off-heap
+     */
+    public long getCacheHitOffHeapMostRecentSample();
+
+    /**
      * Get most recent value for on-disk cache hit
      * 
      * @return Most recent sample for cache hit count on disk

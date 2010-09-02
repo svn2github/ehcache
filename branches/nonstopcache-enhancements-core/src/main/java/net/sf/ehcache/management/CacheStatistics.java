@@ -150,6 +150,16 @@ public class CacheStatistics implements CacheStatisticsMBean, Serializable {
     }
 
     /**
+     * Number of times a requested item was found in the off-heap store.
+     *
+     * @return the number of times a requested item was found in off-heap
+     */
+    public long getOffHeapHits() {
+        updateIfNeeded();
+        return statistics.getOffHeapHits();
+    }
+
+    /**
      * Number of times a requested item was found in the Disk Store.
      *
      * @return the number of times a requested item was found on Disk, or 0 if there is no disk storage configured.

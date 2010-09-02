@@ -16,6 +16,7 @@
 
 package net.sf.ehcache.management;
 
+import javax.management.NotCompliantMBeanException;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.hibernate.management.impl.EhcacheHibernateMbeanNames;
@@ -131,6 +132,12 @@ public class Cache implements CacheMBean, Serializable {
         return new CacheStatistics(cache);
     }
 
+    /**
+     * Gets the JMX store bean
+     */
+    Store getStore() throws NotCompliantMBeanException {
+        return Store.getBean(cache);
+    }
 
     /**
      * @return the object name for this MBean

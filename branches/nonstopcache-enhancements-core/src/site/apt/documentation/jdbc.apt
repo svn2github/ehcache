@@ -227,7 +227,7 @@ public class PetDaoImpl extends GenericDao<Integer, Pet> implements PetDao
 </bean>
 
 <!-- the cache manager -->
-<bean id="cacheManager" class="EhcacheManagerFactoryBean">
+<bean id="cacheManager" class="EhCacheManagerFactoryBean">
     <property name="configLocation" value="classpath:${ehcache.config}"/>
 </bean>
 

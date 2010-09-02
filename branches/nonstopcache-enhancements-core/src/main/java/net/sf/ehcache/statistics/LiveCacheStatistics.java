@@ -51,6 +51,13 @@ public interface LiveCacheStatistics {
     public long getInMemoryHitCount();
 
     /**
+     * Number of times a requested item was found in the off-heap store.
+     *
+     * @return the number of times a requested item was found in off-heap
+     */
+    public long getOffHeapHitCount();
+
+    /**
      * Number of times a requested item was found in the Disk Store.
      * 
      * @return the number of times a requested item was found on Disk, or 0 if
@@ -83,6 +90,13 @@ public interface LiveCacheStatistics {
      * @return the number of elements in memory
      */
     public long getInMemorySize();
+
+    /**
+     * Number of elements in the off-heap store
+     *
+     * @return the number of elements in off-heap
+     */
+    public long getOffHeapSize();
 
     /**
      * Number of elements in the DiskStore

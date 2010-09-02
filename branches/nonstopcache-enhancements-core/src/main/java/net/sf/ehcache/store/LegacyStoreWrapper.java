@@ -107,6 +107,13 @@ public class LegacyStoreWrapper extends AbstractStore {
     /**
      * {@inheritDoc}
      */
+    public boolean containsKeyOffHeap(Object key) {
+        return false;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     public boolean containsKeyOnDisk(Object key) {
         Sync s = sync.getSyncForKey(key);
         s.lock(LockType.READ);
@@ -229,6 +236,28 @@ public class LegacyStoreWrapper extends AbstractStore {
             keys.addAll(memory.getKeys());
             keys.addAll(disk.getKeys());            
             return new ArrayList(keys);
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public int getOffHeapSize() {
+        if (disk == null) {
+            return memory.getOffHeapSize();
+        } else {
+            return memory.getOffHeapSize() + disk.getOffHeapSize();
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public long getOffHeapSizeInBytes() {
+        if (disk == null) {
+            return memory.getOffHeapSizeInBytes();
+        } else {
+            return memory.getOffHeapSizeInBytes() + disk.getOffHeapSizeInBytes();
         }
     }
 
@@ -497,5 +526,12 @@ public class LegacyStoreWrapper extends AbstractStore {
         } else {
             return false;
         }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public Object getMBean() {
+        return null;
     }
 }

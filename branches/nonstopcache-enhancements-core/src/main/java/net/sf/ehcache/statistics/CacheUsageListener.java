@@ -47,6 +47,11 @@ public interface CacheUsageListener {
     public void notifyCacheHitInMemory();
 
     /**
+     * Called on a cache hit in the off-heap store
+     */
+    public void notifyCacheHitOffHeap();
+
+    /**
      * Called on a cache hit in the DiskStore
      */
     public void notifyCacheHitOnDisk();

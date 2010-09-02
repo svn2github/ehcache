@@ -966,21 +966,24 @@ public class Cache implements Ehcache, StoreListener {
             final Store store;
             if (configuration.isOverflowToOffHeap()) {
                 try {
-                    Class<Store> storeClass = (Class<Store>) ClassLoaderUtil.loadClass(OFF_HEAP_STORE_CLASSNAME);
-
+                    Class<Store> storeClass = ClassLoaderUtil.loadClass(OFF_HEAP_STORE_CLASSNAME);
                     try {
                         store = (Store) storeClass.getMethod("create", Ehcache.class, String.class).invoke(null, this, diskStorePath);
                     } catch (NoSuchMethodException e) {
-                       throw new CacheException("Cannot find static factory" +
+                       throw new CacheException("Cache: " + configuration.getName() + " cannot find static factory" +
                         " method create(Ehcache, String)" +
                         " in store class " + OFF_HEAP_STORE_CLASSNAME, e);
                     } catch (InvocationTargetException e) {
-                        throw new CacheException("Cannot instantiate store " + OFF_HEAP_STORE_CLASSNAME, e);
+                        throw new CacheException("Cache: " + configuration.getName() +
+                                " cannot instantiate store " + OFF_HEAP_STORE_CLASSNAME, e);
                     } catch (IllegalAccessException e) {
-                        throw new CacheException("Cannot instantiate store " + OFF_HEAP_STORE_CLASSNAME, e);
+                        throw new CacheException("Cache: " + configuration.getName() +
+                                " cannot instantiate store " + OFF_HEAP_STORE_CLASSNAME, e);
                     }
                 } catch (ClassNotFoundException e) {
-                    throw new CacheException("Cannot load offheap store class " + OFF_HEAP_STORE_CLASSNAME, e);
+                    throw new CacheException("Cache " + configuration.getName() +
+                            " cannot be configured because the Off Heap store class could not be found. " +
+                            "You need Enterprise version of Ehcache to be able to enable overflowToOffHeap.");
                 }
             } else if (isTerracottaClustered()) {
                 store = cacheManager.createTerracottaStore(this);
@@ -1727,11 +1730,17 @@ public class Cache implements Ehcache, StoreListener {
 
     private Element searchInStoreWithStats(Object key, boolean quiet, boolean notifyListeners) {
         boolean wasOnDisk = false;
+        boolean wasOffHeap = false;
         Element element;
         if (quiet) {
             element = compoundStore.getQuiet(key);
         } else {
-            wasOnDisk = compoundStore.containsKeyOnDisk(key);
+            if (!compoundStore.containsKeyInMemory(key)) {
+              wasOffHeap = compoundStore.containsKeyOffHeap(key);
+              if (!wasOffHeap) {
+                wasOnDisk = compoundStore.containsKeyOnDisk(key);
+              }
+            }
             element = compoundStore.get(key);
         }
 
@@ -1750,7 +1759,10 @@ public class Cache implements Ehcache, StoreListener {
                 if (LOG.isDebugEnabled()) {
                     LOG.debug(getName() + "Cache: " + getName() + " store hit for " + key);
                 }
-                if (wasOnDisk) {
+                
+                if (wasOffHeap) {
+                    liveCacheStatisticsData.cacheHitOffHeap();
+                } else if (wasOnDisk) {
                     liveCacheStatisticsData.cacheHitOnDisk();
                 } else {
                     liveCacheStatisticsData.cacheHitInMemory();
@@ -2203,6 +2215,16 @@ public class Cache implements Ehcache, StoreListener {
         return compoundStore.getInMemorySizeInBytes();
     }
 
+    /**
+     * Gets the size of the off-heap store for this cache.
+     *
+     * @return the size of the off-heap store in bytes
+     * @throws IllegalStateException
+     */
+    public final long calculateOffHeapSize() throws IllegalStateException, CacheException {
+        checkStatus();
+        return compoundStore.getOffHeapSizeInBytes();
+    }
 
     /**
      * Returns the number of elements in the memory store.
@@ -2213,6 +2235,17 @@ public class Cache implements Ehcache, StoreListener {
     public final long getMemoryStoreSize() throws IllegalStateException {
         checkStatus();
         return compoundStore.getInMemorySize();
+    }
+
+    /**
+     * Returns the number of elements in the off-heap store.
+     *
+     * @return the number of elements in the off-heap store
+     * @throws IllegalStateException if the cache is not {@link Status#STATUS_ALIVE}
+     */
+    public long getOffHeapStoreSize() throws IllegalStateException {
+        checkStatus();
+        return compoundStore.getOffHeapSize();
     }
 
     /**
@@ -2394,7 +2427,14 @@ public class Cache implements Ehcache, StoreListener {
         checkStatus();
         return compoundStore;
     }
-    
+
+    /**
+     * Get the optional store management bean for this cache.
+     */
+    public final Object getStoreMBean() {
+      return getStore().getMBean();
+    }
+
     /**
      * Use this to access the service in order to register and unregister listeners
      *
@@ -2422,6 +2462,16 @@ public class Cache implements Ehcache, StoreListener {
      */
     public final boolean isElementInMemory(Object key) {
         return compoundStore.containsKeyInMemory(key);
+    }
+
+    /**
+     * Whether an Element is stored in the cache in off-heap memory, indicating an intermediate cost of retrieval.
+     *
+     * @return true if an element matching the key is found in off-heap
+     * @since 2.3
+     */
+    public final boolean isElementOffHeap(Object key) {
+        return compoundStore.containsKeyOffHeap(key);
     }
 
     /**
@@ -2519,7 +2569,7 @@ public class Cache implements Ehcache, StoreListener {
         if (key == null) {
             return false;
         }
-        return isElementInMemory(key) || isElementOnDisk(key);
+        return isElementInMemory(key) || isElementOffHeap(key) || isElementOnDisk(key);
     }
 
     /**
@@ -2566,10 +2616,11 @@ public class Cache implements Ehcache, StoreListener {
                 .getStatisticsAccuracy(), getLiveCacheStatistics()
                 .getCacheHitCount(), getLiveCacheStatistics()
                 .getOnDiskHitCount(), getLiveCacheStatistics()
+                .getOffHeapHitCount(), getLiveCacheStatistics()
                 .getInMemoryHitCount(), getLiveCacheStatistics()
                 .getCacheMissCount(), size, getAverageGetTime(),
                 getLiveCacheStatistics().getEvictedCount(),
-                getMemoryStoreSize(), getDiskStoreSize());
+                getMemoryStoreSize(), getOffHeapStoreSize(), getDiskStoreSize());
     }
 
     /**

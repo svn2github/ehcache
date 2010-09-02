@@ -261,4 +261,18 @@ public class CacheConfiguration implements CacheConfigurationMBean, Serializable
     ObjectName getObjectName() {
         return objectName;
     }
+
+    /**
+     * Accessor
+     */
+    public boolean isOverflowToOffHeap() {
+        return cacheConfiguration.isOverflowToOffHeap();
+    }
+
+    /**
+     * Accessor
+     */
+    public long getMaxMemoryOffHeapInBytes() {
+        return cacheConfiguration.getMaxMemoryOffHeapInBytes();
+    }
 }
