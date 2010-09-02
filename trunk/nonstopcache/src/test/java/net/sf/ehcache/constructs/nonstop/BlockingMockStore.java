@@ -229,4 +229,8 @@ public class BlockingMockStore implements Store {
         return false;
     }
 
+    public Object getMBean() {
+        return null;
+    }
+
 }

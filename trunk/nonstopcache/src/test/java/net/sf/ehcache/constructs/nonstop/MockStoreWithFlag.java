@@ -246,5 +246,9 @@ public class MockStoreWithFlag implements Store {
         markAccessFlag();
         return false;
     }
+    
+    public Object getMBean() {
+        return null;
+    }
 
 }
