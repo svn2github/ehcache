@@ -41,12 +41,12 @@ public class CacheRegionStats implements Serializable {
   private static final String        COMPOSITE_TYPE_NAME        = "CacheRegionStats";
   private static final String        COMPOSITE_TYPE_DESCRIPTION = "Statistics per Cache-region";
   private static final String[]      ITEM_NAMES                 = new String[] {"region", "shortName", "hitCount",
-      "missCount", "putCount", "hitRatio", "elementCountInMemory", "elementCountOffHeap", "elementCountOnDisk", "elementCountTotal", };
+      "missCount", "putCount", "hitRatio", "elementCountInMemory", "elementCountOnDisk", "elementCountTotal", };
   private static final String[]      ITEM_DESCRIPTIONS          = new String[] {"region", "shortName", "hitCount",
-      "missCount", "putCount", "hitRatio", "elementCountInMemory", "elementCountOffHeap", "elementCountOnDisk", "elementCountTotal", };
+      "missCount", "putCount", "hitRatio", "elementCountInMemory", "elementCountOnDisk", "elementCountTotal", };
   private static final OpenType[]    ITEM_TYPES                 = new OpenType[] {SimpleType.STRING,
       SimpleType.STRING, SimpleType.LONG, SimpleType.LONG, SimpleType.LONG, SimpleType.DOUBLE, SimpleType.LONG,
-      SimpleType.LONG, SimpleType.LONG, SimpleType.LONG,                         };
+      SimpleType.LONG, SimpleType.LONG,                         };
   private static final CompositeType COMPOSITE_TYPE;
   private static final String        TABULAR_TYPE_NAME          = "Statistics by Cache-region";
   private static final String        TABULAR_TYPE_DESCRIPTION   = "All Cache Region Statistics";
@@ -99,11 +99,6 @@ public class CacheRegionStats implements Serializable {
   protected long                     elementCountInMemory;
   
   /**
-   * off-heap element count
-   */
-  protected long                     elementCountOffHeap;
-
-  /**
    * on-disk element count
    */
   protected long                     elementCountOnDisk;
@@ -134,7 +129,6 @@ public class CacheRegionStats implements Serializable {
         this.putCount = BeanUtils.getLongBeanProperty(src, "putCount");
         this.hitRatio = determineHitRatio();
         this.elementCountInMemory = BeanUtils.getLongBeanProperty(src, "elementCountInMemory");
-        this.elementCountOffHeap = BeanUtils.getLongBeanProperty(src, "elementCountOffHeap");
         this.elementCountOnDisk = BeanUtils.getLongBeanProperty(src, "elementCountOnDisk");
         this.elementCountTotal = BeanUtils.getLongBeanProperty(src, "elementCountOnDisk");
     } catch (Exception e) {
@@ -155,7 +149,6 @@ public class CacheRegionStats implements Serializable {
     putCount = (Long) cData.get(ITEM_NAMES[i++]);
     hitRatio = (Double) cData.get(ITEM_NAMES[i++]);
     elementCountInMemory = (Long) cData.get(ITEM_NAMES[i++]);
-    elementCountOffHeap = (Long) cData.get(ITEM_NAMES[i++]);
     elementCountOnDisk = (Long) cData.get(ITEM_NAMES[i++]);
     elementCountTotal = (Long) cData.get(ITEM_NAMES[i++]);
   }
@@ -187,8 +180,8 @@ public class CacheRegionStats implements Serializable {
   public String toString() {
     return "region=" + getRegion() + "shortName=" + getShortName() + ", hitCount=" + getHitCount() + ", missCount="
            + getMissCount() + ", putCount" + getPutCount() + ", hitRatio" + getHitRatio() + ", elementCountInMemory="
-           + getElementCountInMemory() + ", elementCountOffHeap=" + getElementCountOffHeap() + ", elementCountOnDisk="
-           + getElementCountOnDisk() + ", elementCountTotal=" + getElementCountTotal();
+           + getElementCountInMemory() + ", elementCountOnDisk=" + getElementCountOnDisk() + ", elementCountTotal="
+           + getElementCountTotal();
   }
 
   /**
@@ -238,13 +231,6 @@ public class CacheRegionStats implements Serializable {
    */
   public long getElementCountInMemory() {
     return elementCountInMemory;
-  }
-
-  /**
-   * @return off-heap element count
-   */
-  public long getElementCountOffHeap() {
-    return elementCountOffHeap;
   }
 
   /**
