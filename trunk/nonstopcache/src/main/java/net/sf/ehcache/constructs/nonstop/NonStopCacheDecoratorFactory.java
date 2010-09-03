@@ -67,9 +67,20 @@ public class NonStopCacheDecoratorFactory extends CacheDecoratorFactory {
         }
         String name = properties.getProperty("name");
         if (name == null || name.trim().length() == 0) {
-            throw new CacheException("NonStopCacheDecoratorFactory needs to be configured with a mandatory 'name' property");
+            name = cache.getName();
         }
         return new NonStopCache(cache, name, properties);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Ehcache createDefaultDecoratedEhcache(Ehcache cache, Properties properties) {
+        if (properties == null) {
+            throw new CacheException(NonStopCacheDecoratorFactory.class.getName() + " cannot be used without any configuration properties");
+        }
+        return new NonStopCache(cache, generateDefaultDecoratedCacheName(cache, properties.getProperty("name")), properties);
     }
 
 }
