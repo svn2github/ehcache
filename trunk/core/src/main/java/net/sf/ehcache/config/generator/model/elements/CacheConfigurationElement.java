@@ -60,7 +60,6 @@ public class CacheConfigurationElement extends SimpleNodeElement {
                 CacheConfiguration.DEFAULT_LOGGING));
 
         addCommonChildElementsWithDefaultCache(this, cacheConfiguration);
-        addAllFactoryConfigsAsChildElements(this, "cacheDecoratorFactory", cacheConfiguration.getCacheDecoratorConfigurations());
     }
 
     /**
@@ -148,6 +147,7 @@ public class CacheConfigurationElement extends SimpleNodeElement {
         if (cacheWriterConfiguration != null && !CacheConfiguration.DEFAULT_CACHE_WRITER_CONFIGURATION.equals(cacheWriterConfiguration)) {
             element.addChildElement(new CacheWriterConfigurationElement(element, cacheWriterConfiguration));
         }
+        addAllFactoryConfigsAsChildElements(element, "cacheDecoratorFactory", cacheConfiguration.getCacheDecoratorConfigurations());
         TerracottaConfiguration terracottaConfiguration = cacheConfiguration.getTerracottaConfiguration();
         if (terracottaConfiguration != null) {
             element.addChildElement(new TerracottaConfigurationElement(element, terracottaConfiguration));
