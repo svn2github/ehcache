@@ -21,7 +21,7 @@ import java.util.List;
 
 import junit.framework.TestCase;
 import net.sf.ehcache.CacheManager;
-import net.sf.ehcache.constructs.MockDecoratorFactory.DecoratedTestEhcache;
+import net.sf.ehcache.constructs.MockDecoratorFactory.MockDecoratorFactoryCache;
 
 import org.junit.Test;
 
@@ -58,19 +58,19 @@ public class DefaultCacheDecoratorFactoryTest extends TestCase {
         List<String> cacheNames = Arrays.asList(cacheManager.getCacheNames());
         assertEquals(7, cacheNames.size());
 
-        DecoratedTestEhcache cache = (DecoratedTestEhcache) cacheManager.getEhcache("noDecoratorCache-defaultDecoratorOne");
+        MockDecoratorFactoryCache cache = (MockDecoratorFactoryCache) cacheManager.getEhcache("noDecoratorCache-defaultDecoratorOne");
         assertEquals("defaultDecoratorOne", cache.getProperties().getProperty("someKey"));
 
-        cache = (DecoratedTestEhcache) cacheManager.getEhcache("noDecoratorCache-defaultDecoratorTwo");
+        cache = (MockDecoratorFactoryCache) cacheManager.getEhcache("noDecoratorCache-defaultDecoratorTwo");
         assertEquals("defaultDecoratorTwo", cache.getProperties().getProperty("someKey"));
 
-        cache = (DecoratedTestEhcache) cacheManager.getEhcache("oneDecoratorCache-defaultDecoratorOne");
+        cache = (MockDecoratorFactoryCache) cacheManager.getEhcache("oneDecoratorCache-defaultDecoratorOne");
         assertEquals("defaultDecoratorOne", cache.getProperties().getProperty("someKey"));
 
-        cache = (DecoratedTestEhcache) cacheManager.getEhcache("oneDecoratorCache-defaultDecoratorTwo");
+        cache = (MockDecoratorFactoryCache) cacheManager.getEhcache("oneDecoratorCache-defaultDecoratorTwo");
         assertEquals("defaultDecoratorTwo", cache.getProperties().getProperty("someKey"));
 
-        cache = (DecoratedTestEhcache) cacheManager.getEhcache("oneDecoratorCacheFirst");
+        cache = (MockDecoratorFactoryCache) cacheManager.getEhcache("oneDecoratorCacheFirst");
         assertEquals("oneFirst", cache.getProperties().getProperty("someKey"));
 
     }

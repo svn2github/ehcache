@@ -9,9 +9,7 @@
 	<defaultCache maxElementsInMemory="10" eternal="false"
 		timeToIdleSeconds="5" timeToLiveSeconds="10" overflowToDisk="false">
 		<cacheDecoratorFactory
-			class="net.sf.ehcache.constructs.nonstop.NonStopCacheDecoratorFactory" properties="name=defaultDecoratorOne,timeoutBehavior=noop" />
-		<cacheDecoratorFactory
-			class="net.sf.ehcache.constructs.nonstop.NonStopCacheDecoratorFactory" properties="name=defaultDecoratorTwo,timeoutBehavior=exception" />
+			class="net.sf.ehcache.constructs.MockDecoratorFactory" properties="someKey=defaultDecoratorKeyValue" />
 	</defaultCache>
 
 	<cache name="noDecoratorCache" eternal="false"
@@ -20,7 +18,15 @@
 	<cache name="oneDecoratorCache" eternal="false"
 		maxElementsInMemory="1000" overflowToDisk="false">
 		<cacheDecoratorFactory
-			class="net.sf.ehcache.constructs.nonstop.NonStopCacheDecoratorFactory" properties="name=oneDecoratorCacheFirst" />
+			class="net.sf.ehcache.constructs.MockDecoratorFactory" properties="name=oneDecoratorCacheFirst, someKey=oneDecoratorCacheFirstKey" />
+	</cache>
+	
+	<cache name="twoDecoratorCache" eternal="false"
+		maxElementsInMemory="1000" overflowToDisk="false">
+		<cacheDecoratorFactory
+			class="net.sf.ehcache.constructs.MockDecoratorFactory" properties="name=twoDecoratorCacheFirst, someKey=twoDecoratorCacheFirstKey" />
+		<cacheDecoratorFactory
+			class="net.sf.ehcache.constructs.MockDecoratorFactory" properties="name=twoDecoratorCacheSecond, someKey=twoDecoratorCacheSecondKey" />
 	</cache>
 
 </ehcache>

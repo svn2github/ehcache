@@ -10,9 +10,9 @@
 		timeToIdleSeconds="5" timeToLiveSeconds="10" overflowToDisk="false">
 		<!-- This config should fail, defaultCache cannot define multiple ambiguous decrators -->
 		<cacheDecoratorFactory
-			class="net.sf.ehcache.constructs.nonstop.NonStopCacheDecoratorFactory" properties="timeoutBehavior=noop" />
+			class="net.sf.ehcache.constructs.MockDecoratorFactory" properties="someKey=defaultDecoratorOne" />
 		<cacheDecoratorFactory
-			class="net.sf.ehcache.constructs.nonstop.NonStopCacheDecoratorFactory" properties="timeoutBehavior=noop" />
+			class="net.sf.ehcache.constructs.MockDecoratorFactory" properties="someKey=defaultDecoratorTwo" />
 	</defaultCache>
 
 	<cache name="noDecoratorCache" eternal="false"
