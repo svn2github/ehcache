@@ -23,6 +23,15 @@
             <action dev="Greg Luck" type="fix" issue="EHC-763">
                 Fix exception message to do with Element.getValue(). Thanks to Ken Dombeck for reporting this. 
             </action>
+            <action dev="Abhishek Sanoujam" type="add" issue="EHC-729">
+                Added support for cacheDecorators in defaultCache. 
+            </action>
+            <action dev="Abhishek Sanoujam" type="add">
+                Added support for cacheDecorators replacing the original cache when decorated cache has same name
+                as the cache. For use-cases like Hibernate where it helps to replace the original cache declared
+                in the config with the decorated cache. This can be used by making the CacheDecoratorFactory return 
+                the decorated cache with same name as the cache.
+            </action>
         </release>
         <release version="2.2.0" date="2010-07-16" description="Bug fixes">
             <action dev="Geert Bevin" type="fix">
