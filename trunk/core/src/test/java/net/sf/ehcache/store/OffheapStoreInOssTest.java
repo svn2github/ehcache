@@ -40,7 +40,7 @@ public class OffheapStoreInOssTest {
             Assert.fail();
         } catch (CacheException e) {
             // expected
-            Assert.assertTrue(e.getMessage().contains("You need Enterprise version"));
+            Assert.assertTrue(e.getMessage().contains("You must use an enterprise version of Ehcache"));
         }
     }
 }
