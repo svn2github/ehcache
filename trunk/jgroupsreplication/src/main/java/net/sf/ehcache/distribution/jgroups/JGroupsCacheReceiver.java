@@ -68,7 +68,7 @@ public class JGroupsCacheReceiver implements Receiver {
             this.safeHandleJGroupNotification((JGroupEventMessage)object);
         } else if (object instanceof List<?>) {
             final List<?> messages = (List<?>)object;
-            LOG.debug("Recieved List of {} JGroupEventMessages", messages.size());
+            LOG.trace("Recieved List of {} JGroupEventMessages", messages.size());
             
             for (final Object message : messages) {
                 if (message == null) {
@@ -129,48 +129,55 @@ public class JGroupsCacheReceiver implements Receiver {
                 break;
             }
             default: {
-                final Ehcache cache = this.cacheManager.getEhcache(cacheName);
-                if (cache == null) {
-                    LOG.warn("Received message {} for cache that does not exist: {}", message, cacheName);
-                    return;
-                }
+                this.handleEhcacheNotification(message, cacheName);
                 
-                switch (message.getEvent()) {
-                    case JGroupEventMessage.REMOVE_ALL: {
-                        LOG.debug("received remove all:      cache={}", cacheName);
-                        cache.removeAll(true);
-                        break;
-                    }
-                    case JGroupEventMessage.REMOVE: {
-                        final Serializable serializableKey = message.getSerializableKey();
-                        if (cache.getQuiet(serializableKey) != null) {
-                            LOG.debug("received remove:          cache={}, key={}", cacheName, serializableKey);
-                            cache.remove(serializableKey, true);
-                        }
-                        break;
-                    }
-                    case JGroupEventMessage.PUT: {
-                        final Serializable serializableKey = message.getSerializableKey();
-                        LOG.debug("received put:             cache={}, key={}", cacheName, serializableKey);
-                        cache.put(message.getElement(), true);
-                        break;
-                    }
-                    case JGroupEventMessage.BOOTSTRAP_RESPONSE: {
-                        final Serializable serializableKey = message.getSerializableKey();
-                        LOG.debug("received bootstrap reply:      cache={}, key={}", cacheName, serializableKey);
-                        cache.put(message.getElement(), true);
-                        
-                        final BootstrapRequest bootstrapRequestStatus = this.bootstrapManager.getBootstrapRequestStatus(cacheName);
-                        bootstrapRequestStatus.countReplication();
-                        
-                        break;
-                    }
-                    default: { 
-                        LOG.warn("Unknown JGroupsEventMessage type recieved, ignoring message: " + message);
-                        break;
-                    }
+                break;
+            }
+        }
+    }
+
+    private void handleEhcacheNotification(final JGroupEventMessage message, final String cacheName) {
+        final Ehcache cache = this.cacheManager.getEhcache(cacheName);
+        if (cache == null) {
+            LOG.warn("Received message {} for cache that does not exist: {}", message, cacheName);
+            return;
+        }
+        
+        switch (message.getEvent()) {
+            case JGroupEventMessage.REMOVE_ALL: {
+                LOG.debug("received remove all:      cache={}", cacheName);
+                cache.removeAll(true);
+                break;
+            }
+            case JGroupEventMessage.REMOVE: {
+                final Serializable serializableKey = message.getSerializableKey();
+                if (cache.getQuiet(serializableKey) != null) {
+                    LOG.debug("received remove:          cache={}, key={}", cacheName, serializableKey);
+                    cache.remove(serializableKey, true);
+                } else if (LOG.isTraceEnabled()) {
+                    LOG.trace("received remove:          cache={}, key={} - Ignoring, key is not in the local cache.", 
+                            cacheName, serializableKey);
                 }
+                break;
+            }
+            case JGroupEventMessage.PUT: {
+                final Serializable serializableKey = message.getSerializableKey();
+                LOG.debug("received put:             cache={}, key={}", cacheName, serializableKey);
+                cache.put(message.getElement(), true);
+                break;
+            }
+            case JGroupEventMessage.BOOTSTRAP_RESPONSE: {
+                final Serializable serializableKey = message.getSerializableKey();
+                LOG.debug("received bootstrap reply:      cache={}, key={}", cacheName, serializableKey);
+                cache.put(message.getElement(), true);
                 
+                final BootstrapRequest bootstrapRequestStatus = this.bootstrapManager.getBootstrapRequestStatus(cacheName);
+                bootstrapRequestStatus.countReplication();
+                
+                break;
+            }
+            default: { 
+                LOG.warn("Unknown JGroupsEventMessage type recieved, ignoring message: " + message);
                 break;
             }
         }

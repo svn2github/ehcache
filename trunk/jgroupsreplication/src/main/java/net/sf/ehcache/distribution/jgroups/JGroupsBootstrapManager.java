@@ -51,6 +51,7 @@ public class JGroupsBootstrapManager {
     
     private static final int BOOTSTRAP_CORE_THREADS = 0;
     private static final int BOOTSTRAP_MAX_THREADS = 50;
+    private static final int BOOTSTRAP_THREAD_TIMEOUT = 60;
     private static final long BOOTSTRAP_REQUEST_CLEANUP_INTERVAL = 60000;
     private static final Random BOOTSTRAP_PEER_CHOOSER = new Random();
     private static final long BOOTSTRAP_RESPONSE_WINDOW = 30000;
@@ -60,8 +61,10 @@ public class JGroupsBootstrapManager {
     private volatile boolean alive = true;
     private final AtomicBoolean referenceTimerScheduled = new AtomicBoolean(false);
     private final BootstrapRequestMap bootstrapRequests = new BootstrapRequestMap();
+    private Timer bootstrapRequestCleanupTimer;
 
     private final ThreadPoolExecutor bootstrapThreadPool;
+    private final String clusterName;
     private final JGroupsCachePeer cachePeer;
     private final CacheManager cacheManager;
 
@@ -71,15 +74,15 @@ public class JGroupsBootstrapManager {
     public JGroupsBootstrapManager(String clusterName, 
             JGroupsCachePeer cachePeer,
             CacheManager cacheManager) {
+        this.clusterName = clusterName;
         this.cachePeer = cachePeer;
         this.cacheManager = cacheManager;
         
         this.bootstrapThreadPool = new ThreadPoolExecutor(BOOTSTRAP_CORE_THREADS, BOOTSTRAP_MAX_THREADS, 
-                1, TimeUnit.MINUTES, 
+                BOOTSTRAP_THREAD_TIMEOUT, TimeUnit.SECONDS, 
                 new SynchronousQueue<Runnable>(true), 
                 new NamedThreadFactory(clusterName + " Bootstrap"), 
                 new ThreadPoolExecutor.CallerRunsPolicy());
-        this.bootstrapThreadPool.allowCoreThreadTimeOut(true);
     }
     
     /**
@@ -113,6 +116,11 @@ public class JGroupsBootstrapManager {
         } catch (InterruptedException e) {
             LOG.warn("Interrupted while waiting for bootstrap threads to complete", e);
         }
+        
+        if (this.bootstrapRequestCleanupTimer != null) {
+            this.bootstrapRequestCleanupTimer.cancel();
+            this.bootstrapRequestCleanupTimer.purge();
+        }
     }
     
     /**
@@ -134,13 +142,14 @@ public class JGroupsBootstrapManager {
      */
     public void handleBootstrapRequest(BootstrapRequest bootstrapRequest) {
         if (!this.alive) {
-            LOG.warn("dispose has been called, no new BootstrapRequests will be handled");
+            LOG.warn("dispose has been called, no new BootstrapRequests will be handled, ignoring: {}", bootstrapRequest);
             return;
         }
         
         if (!this.referenceTimerScheduled.getAndSet(true)) {
-            final Timer timer = new Timer();
-            timer.schedule(new BootstrapRequestCleanerTimerTask(), BOOTSTRAP_REQUEST_CLEANUP_INTERVAL, BOOTSTRAP_REQUEST_CLEANUP_INTERVAL);
+            this.bootstrapRequestCleanupTimer = new Timer(clusterName + " Bootstrap Request Cleanup Thread", true);
+            this.bootstrapRequestCleanupTimer.schedule(new BootstrapRequestCleanerTimerTask(), 
+                    BOOTSTRAP_REQUEST_CLEANUP_INTERVAL, BOOTSTRAP_REQUEST_CLEANUP_INTERVAL);
             LOG.debug("Scheduled BootstrapRequest Reference cleanup timer with {}ms period", BOOTSTRAP_REQUEST_CLEANUP_INTERVAL);
         }
         
@@ -150,7 +159,8 @@ public class JGroupsBootstrapManager {
         final BootstrapRequest oldRequest = this.bootstrapRequests.put(cacheName, bootstrapRequest);
         
         if (oldRequest != null) {
-            LOG.warn("There is already a BootstrapRequest registered for {} with value {}", cacheName, oldRequest);
+            LOG.warn("There is already a BootstrapRequest registered for {} with value {}, it has been replaced with the current request.",
+                    cacheName, oldRequest);
         }
         
         LOG.debug("Registered BootstrapRequest for {}", cacheName);
@@ -159,7 +169,7 @@ public class JGroupsBootstrapManager {
         final Future<?> future = this.bootstrapThreadPool.submit(bootstrapRequestRunnable);
         
         if (!bootstrapRequest.isAsynchronous()) {
-            LOG.debug("Waiting for BootstrapRequest of {} to complete", cacheName);
+            LOG.debug("Waiting up to {}ms for BootstrapRequest of {} to complete", BOOTSTRAP_RESPONSE_WINDOW, cacheName);
             try {
                 future.get(BOOTSTRAP_RESPONSE_WINDOW, TimeUnit.MILLISECONDS);
             } catch (InterruptedException e) {

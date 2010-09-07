@@ -16,7 +16,6 @@
 
 package net.sf.ehcache.distribution.jgroups;
 
-import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.distribution.CachePeer;
 import net.sf.ehcache.store.chm.ConcurrentHashMap;
@@ -53,7 +52,6 @@ public class JGroupsCachePeer implements CachePeer {
 
     private static final int CHUNK_SIZE = 100;
 
-    private final CacheManager cacheManager;
     private final Channel channel;
     private final ConcurrentMap<Long, Queue<JGroupEventMessage>> asyncReplicationQueues =
             new ConcurrentHashMap<Long, Queue<JGroupEventMessage>>();
@@ -63,11 +61,10 @@ public class JGroupsCachePeer implements CachePeer {
     /**
      * Create a new {@link CachePeer}
      */
-    public JGroupsCachePeer(CacheManager cacheManager, Channel channel) {
-        this.cacheManager = cacheManager;
+    public JGroupsCachePeer(Channel channel, String clusterName) {
         this.channel = channel;
         this.alive = true;
-        timer = new Timer();
+        this.timer = new Timer(clusterName + " Async Replication Thread", true);
     }
 
     /**
@@ -140,6 +137,8 @@ public class JGroupsCachePeer implements CachePeer {
      */
     public void send(Address dest, List<JGroupEventMessage> eventMessages) {
         if (!this.alive || eventMessages == null || eventMessages.isEmpty()) {
+            LOG.warn("Ignoring send request of {} messages. Replicator alive = {}", 
+                    eventMessages == null ? null : eventMessages.size() , this.alive);
             return;
         }
 
@@ -150,7 +149,7 @@ public class JGroupsCachePeer implements CachePeer {
                 final long asyncTime = groupEventMessage.getAsyncTime();
                 final Queue<JGroupEventMessage> queue = this.getMessageQueue(asyncTime);
 
-                queue.add(groupEventMessage);
+                queue.offer(groupEventMessage);
                 LOG.trace("Queued {} for asynchronous sending.", groupEventMessage);
             } else {
                 synchronousEventMessages.add(groupEventMessage);
@@ -158,22 +157,13 @@ public class JGroupsCachePeer implements CachePeer {
             }
         }
 
-        //See if there are any messages to send synchronously
+        //If there are no synchronous messages queued return
         if (synchronousEventMessages.size() == 0) {
             return;
         }
 
         LOG.debug("Sending {} JGroupEventMessages synchronously.", synchronousEventMessages.size());
-
-        //Send a single message
-        if (synchronousEventMessages.size() == 1) {
-            final JGroupEventMessage groupEventMessage = eventMessages.get(0);
-            this.send(dest, groupEventMessage);
-            return;
-        }
-
-        //Send multiple messages
-        this.send(dest, (Serializable) synchronousEventMessages);
+        this.sendData(dest, synchronousEventMessages);
     }
 
     private Queue<JGroupEventMessage> getMessageQueue(long asyncTime) {
@@ -198,21 +188,32 @@ public class JGroupsCachePeer implements CachePeer {
      * Sends a serializable object to the specified address. If no address is specified it is sent to the
      * entire group.
      */
-    private void send(Address dest, final Serializable serializable) {
+    private void sendData(Address dest, List<? extends Serializable> dataList) {
+        //Remove the list wrapper if only a single event is being sent
+        final Serializable toSend;
+        if (dataList.size() == 1) {
+            toSend = dataList.get(0);
+        } else {
+            toSend = (Serializable)dataList;
+        }
+        
+        //Serialize the data into a byte[] for sending
         final byte[] data;
         try {
-            data = Util.objectToByteBuffer(serializable);
+            data = Util.objectToByteBuffer(toSend);
         } catch (Exception e) {
-            LOG.error("Error serializing data, it will not be sent: " + serializable, e);
+            LOG.error("Error serializing data, it will not be sent: " + toSend, e);
             return;
         }
+        
+        //Send it off to the group
         final Message msg = new Message(dest, null, data);
         try {
             this.channel.send(msg);
         } catch (ChannelNotConnectedException e) {
-            LOG.error("Failed to send message(s) due to the channel being disconnected: " + serializable, e);
+            LOG.error("Failed to send message(s) due to the channel being disconnected: " + toSend, e);
         } catch (ChannelClosedException e) {
-            LOG.error("Failed to send message(s) due to the channel being closed: " + serializable, e);
+            LOG.error("Failed to send message(s) due to the channel being closed: " + toSend, e);
         }
     }
 
@@ -223,23 +224,26 @@ public class JGroupsCachePeer implements CachePeer {
     }
 
     private void flushQueue(Queue<JGroupEventMessage> queue) {
-        final List<JGroupEventMessage> events = new ArrayList<JGroupEventMessage>(CHUNK_SIZE);
+        final ArrayList<JGroupEventMessage> events = new ArrayList<JGroupEventMessage>(CHUNK_SIZE);
 
         while (!queue.isEmpty()) {
             events.clear();
 
             while (!queue.isEmpty() && events.size() < CHUNK_SIZE) {
                 final JGroupEventMessage event = queue.poll();
+                if (event == null) {
+                    break;
+                }
+
                 if (event.isValid()) {
                     events.add(event);
                 } else {
-                    LOG.error("Collected soft reference during async flush: " + event);
+                    LOG.warn("Collected soft reference during asynchronous queue flush, this event will not be replicated: " + event);
                 }
             }
 
-            LOG.debug("Flushing {} events from asynchronous queue.", events.size());
-
-            send(null, (Serializable) events);
+            LOG.debug("Sending {} JGroupEventMessages from the asynchronous queue.", events.size());
+            this.sendData(null, events);
         }
     }
 

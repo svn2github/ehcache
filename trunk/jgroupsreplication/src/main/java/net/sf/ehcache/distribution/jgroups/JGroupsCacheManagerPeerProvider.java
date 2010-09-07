@@ -138,7 +138,7 @@ public class JGroupsCacheManagerPeerProvider implements ManagedCacheManagerPeerP
 
         final String clusterName = this.getClusterName();
         
-        this.cachePeer = new JGroupsCachePeer(this.cacheManager, this.channel);
+        this.cachePeer = new JGroupsCachePeer(this.channel, clusterName);
         this.bootstrapManager = new JGroupsBootstrapManager(clusterName, this.cachePeer, this.cacheManager);
         this.cacheReceiver = new JGroupsCacheReceiver(this.cacheManager, this.bootstrapManager);
         this.channel.setReceiver(this.cacheReceiver);
