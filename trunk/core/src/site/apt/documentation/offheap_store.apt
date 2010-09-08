@@ -99,7 +99,7 @@
 
 *  Advanced Configuration Options
 
-    There are some rarer configuration options which can be used for fine grained control 
+    There are some rarer configuration options which can be used for fine grained control
 
 **   -XX:+UseLargePages
 
@@ -186,6 +186,39 @@
 
     * When the Cache is disposed, only a final sync is required to
       shut the DiskStore down. Tests show that
+
+*   32 bits virtual machines and off-heap caches
+
+    A warning is issued by the licensing code when the JVM is running with a 32 bits data model.
+
+    In such case, you always have to keep in mind that everything has to fit in 4GB of addressable space. If you
+    allocate 2GB of heap (with -Xmx2g) then you have at most 2GB left for your off-heap caches. There unfortunately
+    are other limiting factors and caveats to keep in mind:
+
+        * Don't expect to be able to use all of the 4GB of addressable space for yourself. The JVM process requires
+          some of it for its code and shared libraries plus any extra Operating System overhead.
+        * If you allocate a 3GB heap with -Xmx as well as 2047MB of off-heap memory the virtual machine certainly won't
+          complain at startup but when it's time to grow the heap you will get an OOME.
+        * If you use both -Xms3G and -Xmx3G with 2047MB of off-heap memory the virtual machine will complain as soon as
+          the off-heap code tries to allocate the off-heap buffers.
+        * Some API may mmap files in memory, like java.util.zip.ZipFile does on Sun VM <= 1.5. If you want to open a
+          1GB zip file then this requires another 1GB of addressing space. Either it's free or you get an OOME. There
+          certainly are some other API internally using mmap'ed files that we don't know about.
+
+    TODO: maybe we should include the DEV-4649 matrix
+    TODO: maybe we should include a pointer to this paragraph in DEV-4707
+
+*   Slow off-heap allocation
+
+    Off-heap allocation time is measured to avoid allocating too large buffers which cannot fit in memory. If it takes
+    more than 1.5s to allocate a buffer a warning is issued as it could very well be that the OS has started paging to
+    disk. If it takes more than 15s then the JVM is halted (with System.exit, but different things are tried when the
+    Security Manager prevents this) unless the net.sf.ehcache.offheap.DoNotHaltOnCriticalAllocationDelay system
+    property is set to true.
+
+    This mechanism was built in because allocating a off-heap buffer too large to fit in RAM can quickly and easily
+    deplete critical system resources like RAM and swap space and crash the host operating system. Linux and Mac OS X
+    do not survive to such mistake.
 
 
 *   FAQ
