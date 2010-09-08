@@ -34,7 +34,6 @@ import org.slf4j.LoggerFactory;
 import java.io.Serializable;
 import java.util.Date;
 
-import static net.sf.ehcache.distribution.jgroups.CacheTestUtilities.ASYNC_CONFIG_URL;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
@@ -47,7 +46,7 @@ import static org.junit.Assert.fail;
  * @author <a href="mailto:gluck@gregluck.com">Greg Luck</a>
  */
 public class JGroupsReplicationTest {
-
+    private static final long MAX_WAIT_TIME = 60000;
 
     
     private static final String SAMPLE_CACHE_NOREP = "sampleCacheNorep";
@@ -75,17 +74,17 @@ public class JGroupsReplicationTest {
         CacheTestUtilities.startTest(name.getMethodName());
         LOG.info("SETUP");
         
-        manager1 = new CacheManager(ASYNC_CONFIG_URL);
-        CacheTestUtilities.waitForBootstrap(manager1, 10000);
+        manager1 = new CacheManager(CacheTestUtilities.ASYNC_CONFIG_URL);
+        CacheTestUtilities.waitForBootstrap(manager1, MAX_WAIT_TIME);
         
-        manager2 = new CacheManager(ASYNC_CONFIG_URL);
-        CacheTestUtilities.waitForBootstrap(manager2, 10000);
+        manager2 = new CacheManager(CacheTestUtilities.ASYNC_CONFIG_URL);
+        CacheTestUtilities.waitForBootstrap(manager2, MAX_WAIT_TIME);
         
-        manager3 = new CacheManager(ASYNC_CONFIG_URL);
-        CacheTestUtilities.waitForBootstrap(manager3, 10000);
+        manager3 = new CacheManager(CacheTestUtilities.ASYNC_CONFIG_URL);
+        CacheTestUtilities.waitForBootstrap(manager3, MAX_WAIT_TIME);
         
-        manager4 = new CacheManager(ASYNC_CONFIG_URL);
-        CacheTestUtilities.waitForBootstrap(manager4, 10000);
+        manager4 = new CacheManager(CacheTestUtilities.ASYNC_CONFIG_URL);
+        CacheTestUtilities.waitForBootstrap(manager4, MAX_WAIT_TIME);
         
         cacheName = SAMPLE_CACHE1;
     }
@@ -119,7 +118,7 @@ public class JGroupsReplicationTest {
         }
         
         //Wait up to 3 seconds for the caches to become coherent
-        CacheTestUtilities.waitForReplication(NBR_ELEMENTS, 3000, cache2, cache3, cache4);
+        CacheTestUtilities.waitForReplication(NBR_ELEMENTS, MAX_WAIT_TIME, cache2, cache3, cache4);
         
         assertEquals(NBR_ELEMENTS, cache1.getKeys().size());
         assertEquals(NBR_ELEMENTS, cache2.getKeys().size());
@@ -129,7 +128,7 @@ public class JGroupsReplicationTest {
         cache1.removeAll();
         
         //Wait up to 3 seconds for the caches to become coherent
-        CacheTestUtilities.waitForReplication(0, 3000, cache2, cache3, cache4);
+        CacheTestUtilities.waitForReplication(0, MAX_WAIT_TIME, cache2, cache3, cache4);
         
         assertEquals(0, cache1.getKeys().size());
         assertEquals(0, cache2.getKeys().size());
@@ -151,7 +150,7 @@ public class JGroupsReplicationTest {
         cache1.removeAll();
         
         //Wait up to 2 seconds for the caches to become coherent
-        CacheTestUtilities.waitForReplication(0, 2000, cache2);
+        CacheTestUtilities.waitForReplication(0, MAX_WAIT_TIME, cache2);
 
         CacheManagerPeerProvider provider = manager1.getCacheManagerPeerProvider(JGroupsCacheManagerPeerProvider.SCHEME_NAME);
         JGroupsCacheManagerPeerProvider jg = (JGroupsCacheManagerPeerProvider) provider;
@@ -168,7 +167,7 @@ public class JGroupsReplicationTest {
         final Ehcache cache4 = manager4.getEhcache(cacheName);
         
         //Wait up to 2 seconds for the caches to become coherent
-        CacheTestUtilities.waitForReplication(1, 2000, cache3, cache4);
+        CacheTestUtilities.waitForReplication(1, MAX_WAIT_TIME, cache3, cache4);
 
         try {
             cache1.getKeys();
@@ -192,8 +191,8 @@ public class JGroupsReplicationTest {
             manager1.shutdown();
         }
         
-        manager1 = new CacheManager(ASYNC_CONFIG_URL);
-        CacheTestUtilities.waitForBootstrap(manager1, 10000);
+        manager1 = new CacheManager(CacheTestUtilities.ASYNC_CONFIG_URL);
+        CacheTestUtilities.waitForBootstrap(manager1, MAX_WAIT_TIME);
         
         final Ehcache cache1 = manager1.getEhcache(cacheName);
         final Ehcache cache2 = manager2.getEhcache(cacheName);
@@ -201,13 +200,13 @@ public class JGroupsReplicationTest {
         final Ehcache cache4 = manager4.getEhcache(cacheName);
         
         //Wait up to 2 seconds for the caches to become coherent
-        CacheTestUtilities.waitForReplication(0, 2000, cache1, cache2, cache3, cache4);
+        CacheTestUtilities.waitForReplication(0, MAX_WAIT_TIME, cache1, cache2, cache3, cache4);
 
         cache1.put(new Element(1, new Date()));
         cache2.put(new Element(2, new Date()));
 
         //Wait up to 2 seconds for the caches to become coherent
-        CacheTestUtilities.waitForReplication(2, 2000, cache1, cache2, cache3, cache4);
+        CacheTestUtilities.waitForReplication(2, MAX_WAIT_TIME, cache1, cache2, cache3, cache4);
         
         assertEquals(2, cache1.getKeys().size());
         assertEquals(2, cache2.getKeys().size());
@@ -228,8 +227,8 @@ public class JGroupsReplicationTest {
         Element element = new Element(1, new Date());
         cache2.put(element);
         
-        //Wait up 2 seconds to see if replication happens
-        Thread.sleep(1000);
+        //Wait up 2 seconds to see if replication happens (it shouldn't)
+        Thread.sleep(2000);
 
         assertEquals(0, cache1.getKeys().size());
         assertEquals(1, cache2.getKeys().size());
@@ -257,7 +256,7 @@ public class JGroupsReplicationTest {
         cache1.put(element);
 
         //Wait up to 2 seconds for the caches to become coherent
-        CacheTestUtilities.waitForReplication(1, 2000, cache2);
+        CacheTestUtilities.waitForReplication(1, MAX_WAIT_TIME, cache2);
 
         //Should have been replicated to cache2.
         Element element2 = cache2.get(key);
@@ -268,7 +267,7 @@ public class JGroupsReplicationTest {
         assertNull(cache1.get(key));
 
         //Wait up to 2 seconds for the caches to become coherent
-        CacheTestUtilities.waitForReplication(0, 2000, cache2);
+        CacheTestUtilities.waitForReplication(0, MAX_WAIT_TIME, cache2);
 
         element2 = cache2.get(key);
         assertNull(element2);
@@ -278,7 +277,7 @@ public class JGroupsReplicationTest {
         cache2.put(element3);
 
         //Wait up to 2 seconds for the caches to become coherent
-        CacheTestUtilities.waitForReplication(1, 2000, cache2);
+        CacheTestUtilities.waitForReplication(1, MAX_WAIT_TIME, cache2);
 
         Element element4 = cache2.get("3");
         assertEquals(element3, element4);
@@ -306,29 +305,29 @@ public class JGroupsReplicationTest {
         cache1.put(element);
 
         //Wait up to 2 seconds for the caches to become coherent
-        CacheTestUtilities.waitForReplication(1, 2000, cache2);
+        CacheTestUtilities.waitForReplication(1, MAX_WAIT_TIME, cache2);
 
         cache2.remove(element.getKey());
         
         //Wait up to 2 seconds for the caches to become coherent
-        CacheTestUtilities.waitForReplication(0, 2000, cache1);
+        CacheTestUtilities.waitForReplication(0, MAX_WAIT_TIME, cache1);
 
         assertNull(cache1.get(element.getKey()));
         manager1.clearAll();
 
         //Wait up to 2 seconds for the caches to become coherent
-        CacheTestUtilities.waitForReplication(0, 2000, cache2);
+        CacheTestUtilities.waitForReplication(0, MAX_WAIT_TIME, cache2);
 
         cache2.put(element);
         cache2.remove(element.getKey());
 
         //Wait up to 2 seconds for the caches to become coherent
-        CacheTestUtilities.waitForReplication(0, 2000, cache2);
+        CacheTestUtilities.waitForReplication(0, MAX_WAIT_TIME, cache2);
 
         cache1.put(element);
         
         //Wait up to 2 seconds for the caches to become coherent
-        CacheTestUtilities.waitForReplication(1, 2000, cache2);
+        CacheTestUtilities.waitForReplication(1, MAX_WAIT_TIME, cache2);
 
         assertNotNull(cache2.get(element.getKey()));
 

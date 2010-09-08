@@ -16,10 +16,15 @@
 
 package net.sf.ehcache.distribution.jgroups;
 
+import static org.junit.Assert.assertEquals;
+
+import java.util.Date;
+
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Element;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -28,16 +33,11 @@ import org.junit.rules.TestName;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Date;
-
-import static net.sf.ehcache.distribution.jgroups.CacheTestUtilities.ASYNC_CONFIG_URL;
-import static org.junit.Assert.assertEquals;
-
 /**
  * @author Greg Luck
  */
 public class JGroupsBootstrapCacheLoaderTest {
-    
+    private static final long MAX_WAIT_TIME = 60000;
 
 
     
@@ -78,11 +78,11 @@ public class JGroupsBootstrapCacheLoaderTest {
         CacheTestUtilities.startTest(name.getMethodName());
         LOG.info("SETUP");
 
-        manager1 = new CacheManager(ASYNC_CONFIG_URL);
-        CacheTestUtilities.waitForBootstrap(manager1, 10000);
+        manager1 = new CacheManager(CacheTestUtilities.ASYNC_CONFIG_URL);
+        CacheTestUtilities.waitForBootstrap(manager1, MAX_WAIT_TIME);
         
-        manager2 = new CacheManager(ASYNC_CONFIG_URL);
-        CacheTestUtilities.waitForBootstrap(manager2, 10000);
+        manager2 = new CacheManager(CacheTestUtilities.ASYNC_CONFIG_URL);
+        CacheTestUtilities.waitForBootstrap(manager2, MAX_WAIT_TIME);
     }
 
     /**
@@ -132,8 +132,9 @@ public class JGroupsBootstrapCacheLoaderTest {
 
         //Give everything a chance to startup
         for (int i = 0; i < testElementCount; i++) {
-            cache2.put(new Element(i + 1000,
-                    "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+            final int value = i + 1000;
+            cache2.put(new Element(value,
+                      value + "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
                             + "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
                             + "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
                             + "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
@@ -142,15 +143,15 @@ public class JGroupsBootstrapCacheLoaderTest {
         }
         assertEquals(testElementCount, cache2.getSize());
 
-        //Wait up to 10 seconds for normal replication to complete
-        CacheTestUtilities.waitForReplication(testElementCount, 20000, cache1);
+        //Wait for normal replication to complete
+        CacheTestUtilities.waitForReplication(testElementCount, MAX_WAIT_TIME, cache1);
         
         //Verify normal replication worked
         assertEquals(testElementCount, cache1.getSize());
 
-        manager3 = new CacheManager(ASYNC_CONFIG_URL);
-        //Wait up to 10 seconds for bootstrap to complete
-        CacheTestUtilities.waitForBootstrap(manager3, 10000);
+        manager3 = new CacheManager(CacheTestUtilities.ASYNC_CONFIG_URL);
+        //Wait for bootstrap to complete
+        CacheTestUtilities.waitForBootstrap(manager3, MAX_WAIT_TIME);
         
         final Cache cache3 = manager3.getCache("sampleCacheAsync");
         assertEquals(testElementCount, cache3.getSize());
@@ -174,8 +175,9 @@ public class JGroupsBootstrapCacheLoaderTest {
 
         //Give everything a chance to startup
         for (int i = 0; i < testElementCount; i++) {
-            cache2.put(new Element(i + 1000,
-                    "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+            final int value = i + 1000;
+            cache2.put(new Element(value,
+                      value + "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
                             + "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
                             + "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
                             + "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
@@ -184,15 +186,15 @@ public class JGroupsBootstrapCacheLoaderTest {
         }
         assertEquals(testElementCount, cache2.getSize());
 
-        //Wait up to 10 seconds for normal replication to complete
-        CacheTestUtilities.waitForReplication(testElementCount, 20000, cache1);
+        //Wait for normal replication to complete
+        CacheTestUtilities.waitForReplication(testElementCount, MAX_WAIT_TIME, cache1);
         
         //Verify normal replication worked
         assertEquals(testElementCount, cache1.getSize());
 
-        manager3 = new CacheManager(ASYNC_CONFIG_URL);
-        //Wait up to 10 seconds for bootstrap to complete
-        CacheTestUtilities.waitForBootstrap(manager3, 10000);
+        manager3 = new CacheManager(CacheTestUtilities.ASYNC_CONFIG_URL);
+        //Wait for bootstrap to complete
+        CacheTestUtilities.waitForBootstrap(manager3, MAX_WAIT_TIME);
         
         final Cache cache3 = manager3.getCache("sampleCacheAsync2");
         assertEquals(testElementCount, cache3.getSize());
@@ -216,15 +218,16 @@ public class JGroupsBootstrapCacheLoaderTest {
         for (int i = 0; i < expectedSize; i++) {
             testBootstrap1.put(new Element("key" + (i + 1000), new Date()));
         }
-
+        CacheTestUtilities.waitForBootstrap(manager1, MAX_WAIT_TIME);
 
 
         manager2.addCache("testBootstrap1");
         Cache testBootstrap2 = manager2.getCache("testBootstrap1");
         //wait for async bootstrap
+        CacheTestUtilities.waitForBootstrap(manager2, MAX_WAIT_TIME);
 
-        //Wait up to 10 seconds for normal replication to complete
-        CacheTestUtilities.waitForReplication(expectedSize, 10000, testBootstrap2);
+        //Wait for normal replication to complete
+        CacheTestUtilities.waitForReplication(expectedSize, MAX_WAIT_TIME, testBootstrap2);
         
         assertEquals(expectedSize, testBootstrap2.getSize());
 

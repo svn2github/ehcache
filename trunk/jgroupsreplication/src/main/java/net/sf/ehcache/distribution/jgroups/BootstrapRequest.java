@@ -16,13 +16,11 @@
 
 package net.sf.ehcache.distribution.jgroups;
 
-import net.sf.ehcache.Ehcache;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
+
+import net.sf.ehcache.Ehcache;
 
 /**
  * Tracks the status of a bootstrap request
@@ -31,8 +29,6 @@ import java.util.concurrent.atomic.AtomicLong;
  * @version $Revision$
  */
 public class BootstrapRequest {
-    private static final Logger LOG = LoggerFactory.getLogger(BootstrapRequest.class.getName());
-    
     /**
      * Possible states of a BootstrapRequest
      */
@@ -122,10 +118,8 @@ public class BootstrapRequest {
     /**
      * Waits for the receiver to signal that the current bootstrap request is complete
      */
-    public void waitForBoostrap(long timeout, TimeUnit unit) throws InterruptedException {
-        if (!this.boostrapCompleteLatch.await(timeout, unit)) {
-            LOG.warn("Timed out waiting for bootstrap of {}", this.cache.getName());
-        }
+    public boolean waitForBoostrap(long timeout, TimeUnit unit) throws InterruptedException {
+        return this.boostrapCompleteLatch.await(timeout, unit);
     }
     
     /**

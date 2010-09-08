@@ -16,18 +16,18 @@
 
 package net.sf.ehcache.distribution.jgroups;
 
+import java.io.Serializable;
+import java.util.List;
+
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;
-import net.sf.ehcache.distribution.jgroups.BootstrapRequest.BootstrapStatus;
+
 import org.jgroups.Address;
 import org.jgroups.Message;
 import org.jgroups.Receiver;
 import org.jgroups.View;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.Serializable;
-import java.util.List;
 
 /**
  * Handles {@link Receiver} functions around for a {@link CacheManager}
@@ -108,29 +108,27 @@ public class JGroupsCacheReceiver implements Receiver {
         switch (message.getEvent()) {
             case JGroupEventMessage.BOOTSTRAP_REQUEST: {
                 LOG.debug("received bootstrap request:    from {} for cache={}", message.getSerializableKey(), cacheName);
-                this.bootstrapManager.handleBootstrapResponse(message);
-                
+                this.bootstrapManager.sendBootstrapResponse(message);
                 break;
             }
             case JGroupEventMessage.BOOTSTRAP_COMPLETE: {
                 LOG.debug("received bootstrap complete:   cache={}", cacheName);
-                
-                final BootstrapRequest bootstrapRequestStatus = this.bootstrapManager.getBootstrapRequestStatus(cacheName);
-                bootstrapRequestStatus.boostrapComplete(BootstrapStatus.COMPLETE);
-                
+                this.bootstrapManager.handleBootstrapComplete(message);
                 break;
             }
             case JGroupEventMessage.BOOTSTRAP_INCOMPLETE: {
                 LOG.debug("received bootstrap incomplete: cache={}", cacheName);
-                
-                final BootstrapRequest bootstrapRequestStatus = this.bootstrapManager.getBootstrapRequestStatus(cacheName);
-                bootstrapRequestStatus.boostrapComplete(BootstrapStatus.INCOMPLETE);
-                
+                this.bootstrapManager.handleBootstrapIncomplete(message);
+                break;
+            }
+            case JGroupEventMessage.BOOTSTRAP_RESPONSE: {
+                final Serializable serializableKey = message.getSerializableKey();
+                LOG.debug("received bootstrap reply:      cache={}, key={}", cacheName, serializableKey);
+                this.bootstrapManager.handleBootstrapResponse(message);
                 break;
             }
             default: {
                 this.handleEhcacheNotification(message, cacheName);
-                
                 break;
             }
         }
@@ -164,16 +162,6 @@ public class JGroupsCacheReceiver implements Receiver {
                 final Serializable serializableKey = message.getSerializableKey();
                 LOG.debug("received put:             cache={}, key={}", cacheName, serializableKey);
                 cache.put(message.getElement(), true);
-                break;
-            }
-            case JGroupEventMessage.BOOTSTRAP_RESPONSE: {
-                final Serializable serializableKey = message.getSerializableKey();
-                LOG.debug("received bootstrap reply:      cache={}, key={}", cacheName, serializableKey);
-                cache.put(message.getElement(), true);
-                
-                final BootstrapRequest bootstrapRequestStatus = this.bootstrapManager.getBootstrapRequestStatus(cacheName);
-                bootstrapRequestStatus.countReplication();
-                
                 break;
             }
             default: { 
