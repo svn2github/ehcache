@@ -71,7 +71,7 @@
 
 ***  In the classpath
 
-    Add the <<<terracotta.key>>> to the root of your classpath, which is also where you add ehcache.xml. It will be
+    Add the <<<terracotta-license.key>>> to the root of your classpath, which is also where you add ehcache.xml. It will be
     automatically found.
 
 ***  Specify the key in a Java system property
