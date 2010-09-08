@@ -76,12 +76,12 @@
 
 ***  Specify the key in a Java system property
 
-    Add a <<<org.terracotta.ehcachedx.productkey.path>>> system property which points to the key location.
+    Add a <<<org.terracotta.license.path=/path/to/key>>> system property which points to the key location.
 
     e.g.
 
 ---
-     java -Dorg.terracotta.ehcachedx.productkey.path=./terracotta.key
+     java -Dorg.terracotta.license.path=/path/to/key
 ---
 
 
