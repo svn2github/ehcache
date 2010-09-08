@@ -97,6 +97,30 @@
 ---
 
 
+*  Advanced Configuration Options
+
+    There are some rarer configuration options which can be used for fine grained control 
+
+**   -XX:+UseLargePages
+
+    This is a JVM flag which is meant to improve performance of memory-hungry applications.
+    In testing, this option gives a 5% speed improvement with a 1Gb off-heap cache.
+
+**  Increasing the maximum serialized size of an Element that can be stored in the OffHeapStore
+
+    Firstly, the MemoryStore and the DiskStore do not have any limits.
+
+    By default, the OffHeapStore has a 4MB limit for classes with high quality hashcodes, and
+    256KB for those with pathologically bad hashcodes. The built-in classes such as the
+    <<<java.lang.Number>>> subclasses such as Long, Integer etc and and <<<String>>> have
+    high quality hashcodes.
+
+    You can increase the size by setting a system property cache_name.maxOffHeapValueSize to
+    the size you require.
+
+    e.g. com.company.domain.State.maxOffHeapValueSize=30MB
+
+
 *   Sample application
 
     Download here a simple Maven-based application that uses the ehcache off-heap functionality.
@@ -104,106 +128,95 @@
     Note: You will need to get a license key as discussed above to run this.
 
 
+*   Storage Hierarchy
+
+    With the OffHeapStore, Ehcache Enterprise has three stores:
+
+    * MemoryStore - very fast storage of Objects on heap. Limited by the size of heap you can comfortably garbage collect
+
+    * OffHeapStore - fast (one order of magnitude slower than MemoryStore) storage of Serialized objects off heap. Limited
+      only by the amount of RAM on your hardware and address space. You need a 64 bit OS to address higher than 2-4GB.
+
+    * DiskStore - speedy storage on disk. It is two orders of magnitude slower than the OffHeapStore but still much faster
+      than a database or a distributed cache
 
 
+**  Storage Consumption
+
+    As a performance optimisation, and because storage gets much cheaper as you drop down through the hierarchy, we write
+    each put to as many stores as are configured. So, if all three are configured, the Element gets written to MemoryStore,
+    OffHeapStore and DiskStore.
+
+    The result is that each store consumes storage for itself and the other stores higher up the hierarchy. So, if the MemoryStore
+    has 1000,000 Elements which consume 2Gb, and the OffHeapStore is configured for 8GB, then 2GB of that will be duplicate
+    of what is in the MemoryStore. And the 8GB will also be duplicated on the DiskStore plus the DiskStore will have what
+    cannot fit in any of the other stores.
+
+    This needs to be taken into account when configuring the OffHeap and Disk stores.
+
+    It has the great benefit, which pays for the duplication, of not requiring copy on eviction. On eviction from a store,
+    an Element can simply be removed. It is already in the next store down.
+
+*   Handling JVM startup and shutdown
+
+    So you can have a huge in-process cache. But this is not a distributed cache, so when you shut down
+    you will lose what is in the cache. And when you start up, how long will it take to load the cache?
+
+    In caches up to a GB or two, these issues are not hugely problematic. You can often pre-load the cache
+    on start-up before you bring the application online. Provided this only takes a few minutes, there is
+    minimal operations impact.
+
+    But when we go to tens of GBs, these startup times are O(n), and what took 2 minutes now takes 20 minutes.
+
+    To solve this problem, we provide a new implementation of Ehcache's DiskStore, available in the enterprise
+    version.
+
+    You simply mark the cache <<<diskPersistent=true>>> as you normally would for a disk persistent cache.
+
+    It works as follows:
+
+    * on startup, which is immediate, the cache will get elements from disk and gradually fill the MemoryStore and
+      the OffHeapStore.
+
+    * when running elements are written to the OffHeapStore, they are already serialized. We write these to the DiskStore
+      asynchronously in a write behind pattern. Tests show they can be written at a rate of 20MB/s on server class machines
+      with fast disks. If writes get behind, they will back up and once they reach the <<<diskSpoolBufferSizeMB>>>
+      cache puts will be slowed while the DiskStore writer catches up. By default this buffer is 30MB but can be increased
+      through configuration.
+
+    * When the Cache is disposed, only a final sync is required to
+      shut the DiskStore down. Tests show that
 
 
+*   FAQ
 
-* Disk
+**   The DiskStore  Access stripes configuration no longer has effect. Why?
 
-20MB per second asynchronously
-
-Shutdown just does a flush
-
-Startup
+    This has been reimplemented for Ehcache Enterprise and will get added back into the core in the future.
 
 
+**  What Eviction Algorithms are supported?
 
-Questions:
+    The pluggable MemoryStore eviction algorithms work as normal. The OffHeapStore and DiskStore use a
+    Clock Cache,a standard paging algorithm which is an approximation of LRU.
 
-Disk Access Stripes.
+**  Why do I see performance slow down and speed up in a cyclical pattern when I am filling a cache?
 
-Exists for off-heap only. Will exist again in the future.
+    This is due to repartitioning in the OffHeapStore which is normal. Once the cache is fully filled
+    the performance slow downs cease.
 
-Deadlocks
-All fixed in BlockingCache
+**  What is the maximum serialized size of an object when using OffHeapStore?
 
-DiskStore Persistence
-If you try to persist to disk, currently you will get an OOME if you have more than a few GB.
+    Firstly, the MemoryStore and the DiskStore do not have any limits.
 
-The
+    By default, the OffHeapStore has a 4MB limit for classes with high quality hashcodes, and
+    256KB for those with pathologically bad hashcodes. The built-in classes such as the
+    <<<java.lang.Number>>> subclasses such as Long, Integer etc and and <<<String>>> have
+    high quality hashcodes.
 
-21 minutes
-
-50MB/s
-8MB/s
-
-
-* Puts
-
-
-    Puts get into all three places.
-
-    Yes, any cache which uses offheap puts to all levels of the cache when any put is performed.
-    This means that gets which pull from the lower levels of the cache and therefore populate higher tiers
-    (think pulling from offheap to onheap) don't trigger serialization when the incoming element triggers
-    an eviction from the higher tier (in this case on-heap).  Since normal running for a cache would involve
-    the memory store being constantly at the eviction threshold, without this we would incur serialization
-    overhead on every on-heap cache miss.
-
-
-    You will get an OOME on the Disk on overflow.
-
-
-    Is your collective buffer full?
-
-
-
-* Eviction Algorithms
-
-    In-memory store eviction algorithm
-
-    Off-heap uses a Clock Cache, a standard paging algorithm, an approximation of LRU
-
-
-
-*   Issue
-
-    stripe
-
-    n segments with a lock for each in off heap. They allocate space from a pool.
-
-    Each cache allocates all the speace it is allowed on startup. It is not used until the cache starts.
-
-    Performance looks like a sine wave during cache filling.
-
-
-    Max serialized size is 4MB. 256KB for a pathological
-
-    8MB would 
-
-    Assuming good hashcodes, 
-
-*   Configuration
-
-
-*   Advanced Configuration Parameters
-
-
-    Set yb cerating a system property cache_Name.property_name whic hcan either be done in the command line
-    or programattically. It mustb edone beofre the CacheManager is started.
+    You can increase the size by setting a system property cache_name.maxOffHeapValueSize to
+    the size you require.
 
     e.g. com.company.domain.State.maxOffHeapValueSize=30MB
 
-**  maxOffHeapValueSize
-
-    The default is 4MB.
-
-
-**   -XX:+UseLargePages
-
-    This is a JVM flag which is meant to improve performance of memory-hungry applications.
-    In testing, this option gives a 5% speed improvement with a 1Gb off-heap cache.
-
-* FAQ (to be added)
 
