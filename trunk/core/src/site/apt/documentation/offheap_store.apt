@@ -1,5 +1,121 @@
-Off-heap Store
+ ---
+ Off-heap Store
+ ---
 
+{Off-heap Store}
+
+    The off-heap store permits a cache to use a new type of memory store which is implemented using the <<<DirectByteBuffer>>> class,
+    which has been available on all JVMs since JDK1.4.
+
+    It allows very large caches to be created (we have tested up to 256GB). Because the data is stored in bytes, there are two
+    implications:
+
+    * only Serializable cache keys and values can be placed in the store, similar to DiskStore
+
+    * Serialization and deserialization take place on putting and getting from the store. As a result, the off-heap store
+      is around 10 times slower than the MemoryStore. It is still 100 times faster than the DiskStore because there is use of
+      hard disk.
+
+    The Off-heap store is only available as an the BigMemory add-on to Enterprise Ehcache.
+
+
+*   Configuration
+
+**  Configuring caches to overflow to off-heap.
+
+    Configuring a cache to use an off-heap store can be done either through XML or programmatically.
+
+***  Declarative Configuration
+
+    The following XML configuration creates an offheap-cache with a in-heap store (maxElementsInMemory) of 10,000 elements which
+    overflow to a 1-gigabyte off-heap area.
+
+---
+    <?xml version="1.0" encoding="UTF-8"?>
+    <ehcache updateCheck="false" monitoring="off"
+             dynamicConfig="false">
+
+        <defaultCache maxElementsInMemory="10000"
+                      eternal="true"
+                      memoryStoreEvictionPolicy="LRU"
+                      statistics="false" />
+
+        <cache name="sample-offheap-cache"
+               maxElementsInMemory="10000"
+               eternal="true"
+               memoryStoreEvictionPolicy="LRU"
+               overflowToOffHeap="true"
+               maxMemoryOffHeap="1G"/>
+    </ehcache>
+---
+
+***  Programmatic Configuration
+
+    The equivalent cache can be created using the following programmatic configuration:
+
+---
+    public Cache createOffHeapCache() {
+      CacheConfiguration config = new CacheConfiguration("sample-offheap-cache", 10000).overflowToOffHeap(true).maxMemoryOffHeap("1G");
+      Cache cache = new Cache(config);
+      manager.addCache(cache);
+      return cache;
+    }
+---
+
+**   Add The License
+
+    The Ehcache Enterprise download kit (available here - please add URL) contains a trial license key which must be added to activate
+    the off-heap store.
+
+    It can be added in two ways:
+
+***  In the classpath
+
+    Add the <<<terracotta.key>>> to the root of your classpath, which is also where you add ehcache.xml. It will be
+    automatically found.
+
+***  Specify the key in a Java system property
+
+    Add a <<<org.terracotta.ehcachedx.productkey.path>>> system property which points to the key location.
+
+    e.g.
+
+---
+     java -Dorg.terracotta.ehcachedx.productkey.path=./terracotta.key
+---
+
+
+**  Allocating Direct Memory in the JVM
+
+    In order to use these configurations you must then use the ehcache-core-ee jar on your classpath, and modify your JVM command-line
+    to increase the amount of direct memory allowed by the JVM.
+
+    e.g. to allocate 2GB of memory in the JVM.
+
+---
+    java -XX:MaxDirectMemorySize=2G -cp "ehcache-core-ee-2.3.0.jar:slf4j-api-1.5.11.jar:slf4j-jdk14-1.5.11.jar"
+---
+
+
+*   Sample application
+
+    Download here a simple Maven-based application that uses the ehcache off-heap functionality.
+
+    Note: You will need to get a license key as discussed above to run this.
+
+
+
+
+
+
+
+* Disk
+
+20MB per second asynchronously
+
+Shutdown just does a flush
+
+Startup
 
 
 
@@ -89,4 +205,5 @@ The
     This is a JVM flag which is meant to improve performance of memory-hungry applications.
     In testing, this option gives a 5% speed improvement with a 1Gb off-heap cache.
 
+* FAQ (to be added)
 
