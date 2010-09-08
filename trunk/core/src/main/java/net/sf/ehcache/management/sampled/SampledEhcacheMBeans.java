@@ -43,6 +43,11 @@ public abstract class SampledEhcacheMBeans {
     public static final String SAMPLED_CACHE_TYPE = "SampledCache";
 
     /**
+     * Type used for store mbean
+     */
+    public static final String STORE_TYPE = "Store";
+
+    /**
      * Group id for all sampled mbeans registered
      */
     public static final String GROUP_ID = "net.sf.ehcache";
@@ -85,6 +90,24 @@ public abstract class SampledEhcacheMBeans {
     public static ObjectName getCacheObjectName(ClusteredInstanceFactory clusteredInstanceFactory,
             String cacheManagerName, String cacheName) throws MalformedObjectNameException {
         ObjectName objectName = new ObjectName(GROUP_ID + ":type=" + SAMPLED_CACHE_TYPE + "," + SAMPLED_CACHE_MANAGER_TYPE + "="
+                + EhcacheHibernateMbeanNames.mbeanSafe(cacheManagerName) + ",name=" + EhcacheHibernateMbeanNames.mbeanSafe(cacheName)
+                + getBeanNameSuffix(clusteredInstanceFactory));
+        return objectName;
+    }
+
+    /**
+     * Returns an ObjectName for the passed cacheManagerName, cacheName
+     * combination
+     *
+     * @param cacheManagerName
+     * @param cacheName
+     * @return An {@link ObjectName} representing the cache using the passed
+     *         cache and the cache manager name
+     * @throws MalformedObjectNameException
+     */
+    static ObjectName getStoreObjectName(ClusteredInstanceFactory clusteredInstanceFactory,
+            String cacheManagerName, String cacheName) throws MalformedObjectNameException {
+        ObjectName objectName = new ObjectName(GROUP_ID + ":type=" + STORE_TYPE + "," + SAMPLED_CACHE_MANAGER_TYPE + "="
                 + EhcacheHibernateMbeanNames.mbeanSafe(cacheManagerName) + ",name=" + EhcacheHibernateMbeanNames.mbeanSafe(cacheName)
                 + getBeanNameSuffix(clusteredInstanceFactory));
         return objectName;

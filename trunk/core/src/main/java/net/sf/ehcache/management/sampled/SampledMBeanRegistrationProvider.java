@@ -129,6 +129,7 @@ public class SampledMBeanRegistrationProvider implements MBeanRegistrationProvid
         for (String cacheName : caches) {
             Ehcache cache = cacheManager.getEhcache(cacheName);
             registerCacheMBean(cache);
+            registerStoreMBean(cache);
         }
     }
 
@@ -171,6 +172,24 @@ public class SampledMBeanRegistrationProvider implements MBeanRegistrationProvid
         }
     }
 
+    private void registerStoreMBean(Ehcache cache) throws InstanceAlreadyExistsException, MBeanRegistrationException,
+            NotCompliantMBeanException {
+        // enable sampled stats
+        Object bean;
+        if (cache instanceof net.sf.ehcache.Cache) {
+          bean = ((net.sf.ehcache.Cache) cache).getStoreMBean();
+          if (bean != null) {
+             try {
+                 mBeanServer.registerMBean(bean,
+                         SampledEhcacheMBeans.getStoreObjectName(clusteredInstanceFactory, registeredCacheManagerName,
+                                 cache.getName()));
+             } catch (MalformedObjectNameException e) {
+                 throw new MBeanRegistrationException(e);
+             }
+          }
+       }
+    }
+    
     /**
      * Returns the listener status.
      * 
@@ -231,6 +250,7 @@ public class SampledMBeanRegistrationProvider implements MBeanRegistrationProvid
         try {
             Ehcache cache = cacheManager.getEhcache(cacheName);
             registerCacheMBean(cache);
+            registerStoreMBean(cache);
         } catch (Exception e) {
             LOG.warn("Error registering cache for management for " + cacheName + " . Error was " + e.getMessage(), e);
         }
