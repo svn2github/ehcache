@@ -30,8 +30,6 @@ import net.sf.ehcache.Element;
  */
 public class SelectableConcurrentHashMap extends ConcurrentHashMap<Object, Element> {
 
-    private static final int SAMPLED_ARRAY_OVERHEAD_RESERVE = 5;
-
     private final Random rndm = new Random();
 
     public SelectableConcurrentHashMap(int initialCapacity, float loadFactor, int concurrency) {
@@ -39,7 +37,7 @@ public class SelectableConcurrentHashMap extends ConcurrentHashMap<Object, Eleme
     }
 
     public Element[] getRandomValues(final int size, Object keyHint) {
-        ArrayList<Element> sampled = new ArrayList<Element>(size + SAMPLED_ARRAY_OVERHEAD_RESERVE);
+        ArrayList<Element> sampled = new ArrayList<Element>(size * 2);
 
         // pick a random starting point in the map
         int randomHash = rndm.nextInt();
