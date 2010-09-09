@@ -974,8 +974,13 @@ public class Cache implements Ehcache, StoreListener {
                         " method create(Ehcache, String)" +
                         " in store class " + OFF_HEAP_STORE_CLASSNAME, e);
                     } catch (InvocationTargetException e) {
-                        throw new CacheException("Cache: " + configuration.getName() +
-                                " cannot instantiate store " + OFF_HEAP_STORE_CLASSNAME, e);
+                        Throwable cause = e.getCause();
+                        if (cause.getClass().getSimpleName().equals("LicenseException")) {
+                            throw new CacheException(cause.getMessage());
+                        } else {
+                            throw new CacheException("Cache: " + configuration.getName() +
+                                    " cannot instantiate store " + OFF_HEAP_STORE_CLASSNAME, cause);
+                        }
                     } catch (IllegalAccessException e) {
                         throw new CacheException("Cache: " + configuration.getName() +
                                 " cannot instantiate store " + OFF_HEAP_STORE_CLASSNAME, e);
