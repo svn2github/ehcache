@@ -121,6 +121,35 @@
     e.g. com.company.domain.State.maxOffHeapValueSize=30MB
 
 
+**  Avoiding OS Swapping
+
+    Operating systems use swap partitions for virtual memory and are free to move less frequently used pages of memory to
+    the swap partition. This is generally not what you want when using the OffHeapStore, as the time it takes to swap a page
+    back in when demanded will add to cache latency.
+
+    It is recommended that you minimise swap use for maximum performance.
+
+    On Linux, you can set <<</proc/sys/vm/swappiness>>> to reduce the risk of memory pages being swapped out. See {{http://lwn.net/Articles/83588/}}
+    for details of tuning this parameter. Note that there are bugs in this which were fixed in kernel 2.6.30 and higher.
+
+    Another option is to configure HugePages. See {{http://unixfoo.blogspot.com/2007/10/hugepages.html}}
+    
+
+    This kind of problem bit us several times in the past in Linux. Although there's a swappiness kernel parameter that can be set to zero, it is usually not enough to avoid swapping altogether. The only surefire way to avoid any kind of swapping is either (a) disabling the swap partition, with the undesirable consequences which that may bring, or (b) using HugePages, which are always mapped to physical memory and cannot be swapped out to disk.
+
+**  Controlling Overallocation of Memory to the OffHeapStore
+
+    If the memory use is dramatically overallocated, you may end up trying to use more than the physical and even virtual memory
+    available on your OS. We attempt to detect this situation. If it takes more than 3 seconds to allocate a 1GB chunk of memory
+    we will log an error message and call <<<System.exit(1)>>> to protect the stability of your OS.
+
+    
+
+In case this detection is bogus on some JVM / OS combination I added a net.sf.ehcache.offheap.DoNotHaltOnCriticalAllocationDelay system property that when set to true, prevents the VM halt code from being executed and only warnings are logged then.
+
+
+
+
 *   Sample application
 
     Download here a simple Maven-based application that uses the ehcache off-heap functionality.
@@ -187,38 +216,44 @@
     * When the Cache is disposed, only a final sync is required to
       shut the DiskStore down. Tests show that
 
-*   32 bits virtual machines and off-heap caches
+*   Using OffHeapStore with 32 bit JVMs
+    
+    On a 32 bit operating system, Java will always start with a 32 bit data model. On 64 bit OSs, it will default to
+    64 bit, but can be forced into 32 bit mode with the Java command line option <<<-d32>>>.
+    The problem is that this limits the size of the process to 4GB. Because garbage collection problems are generally
+    manageable up to this size, there is not much point in using the OffHeapStore, as it will simply be slower.
 
-    A warning is issued by the licensing code when the JVM is running with a 32 bits data model.
+    If you are suffering GC issues with a 32 bit JVM, then OffHeapStore can help. There are a few points to keep in mind.
 
-    In such case, you always have to keep in mind that everything has to fit in 4GB of addressable space. If you
-    allocate 2GB of heap (with -Xmx2g) then you have at most 2GB left for your off-heap caches. There unfortunately
-    are other limiting factors and caveats to keep in mind:
+    * Everything has to fit in 4GB of addressable space. If you allocate 2GB of heap (with <<<-Xmx2g>>>) then you have
+      at most 2GB left for your off-heap caches.
 
-        * Don't expect to be able to use all of the 4GB of addressable space for yourself. The JVM process requires
+    * Don't expect to be able to use all of the 4GB of addressable space for yourself. The JVM process requires
           some of it for its code and shared libraries plus any extra Operating System overhead.
-        * If you allocate a 3GB heap with -Xmx as well as 2047MB of off-heap memory the virtual machine certainly won't
-          complain at startup but when it's time to grow the heap you will get an OOME.
-        * If you use both -Xms3G and -Xmx3G with 2047MB of off-heap memory the virtual machine will complain as soon as
-          the off-heap code tries to allocate the off-heap buffers.
-        * Some API may mmap files in memory, like java.util.zip.ZipFile does on Sun VM <= 1.5. If you want to open a
-          1GB zip file then this requires another 1GB of addressing space. Either it's free or you get an OOME. There
-          certainly are some other API internally using mmap'ed files that we don't know about.
 
-    TODO: maybe we should include the DEV-4649 matrix
-    TODO: maybe we should include a pointer to this paragraph in DEV-4707
+    * If you allocate a 3GB heap with -Xmx as well as 2047MB of off-heap memory the virtual machine certainly won't
+          complain at startup but when it's time to grow the heap you will get an OutOfMemoryError.
+
+    * If you use both -Xms3G and -Xmx3G with 2047MB of off-heap memory the virtual machine will start but then complain
+      as soon as the OffHeapStore tries to allocate the off-heap buffers.
+
+    * Some APIs, such as java.util.zip.ZipFile on Sun 1.5 JVMs, may <mmap> files in memory. This will also use
+      up process space and may trigger an OutOfMemoryError.
+
+    For these reasons we issue a warning to the log when OffHeapStore is used with 32 bit JVMs.
+
 
 *   Slow off-heap allocation
 
     Off-heap allocation time is measured to avoid allocating too large buffers which cannot fit in memory. If it takes
     more than 1.5s to allocate a buffer a warning is issued as it could very well be that the OS has started paging to
-    disk. If it takes more than 15s then the JVM is halted (with System.exit, but different things are tried when the
-    Security Manager prevents this) unless the net.sf.ehcache.offheap.DoNotHaltOnCriticalAllocationDelay system
+    disk. If it takes more than 15s then the JVM is halted (with <<<System.exit()>>>, but different things are tried when the
+    Security Manager prevents this) unless the <<<net.sf.ehcache.offheap.DoNotHaltOnCriticalAllocationDelay>>> system
     property is set to true.
 
     This mechanism was built in because allocating a off-heap buffer too large to fit in RAM can quickly and easily
     deplete critical system resources like RAM and swap space and crash the host operating system. Linux and Mac OS X
-    do not survive to such mistake.
+    will crash in these circumstances.
 
 
 *   FAQ
