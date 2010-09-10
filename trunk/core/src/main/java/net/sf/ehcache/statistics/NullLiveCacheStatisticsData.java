@@ -60,6 +60,27 @@ public class NullLiveCacheStatisticsData implements LiveCacheStatistics, LiveCac
     /**
      * {@inheritDoc}
      */
+    public long getInMemoryMissCount() {
+        return 0;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public long getOffHeapMissCount() {
+        return 0;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public long getOnDiskMissCount() {
+        return 0;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     public long getCacheMissCountExpired() {
         return 0;
     }
@@ -214,6 +235,27 @@ public class NullLiveCacheStatisticsData implements LiveCacheStatistics, LiveCac
     /**
      * {@inheritDoc}
      */
+    public void cacheMissInMemory() {
+        // no-op
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void cacheMissOffHeap() {
+        // no-op
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void cacheMissOnDisk() {
+        // no-op
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
     public void clearStatistics() {
         // no-op
     }
@@ -323,5 +365,4 @@ public class NullLiveCacheStatisticsData implements LiveCacheStatistics, LiveCac
     public long getMinGetTimeMillis() {
         return 0;
     }
-
 }

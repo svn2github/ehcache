@@ -61,6 +61,27 @@ public interface SampledCacheStatistics {
     public long getCacheMissMostRecentSample();
 
     /**
+     * Get most recent value for in-memory cache miss
+     * 
+     * @return Most recent sample for cache miss count in memory
+     */
+    public long getCacheMissInMemoryMostRecentSample();
+
+    /**
+     * Get most recent value for off-heap cache miss
+     *
+     * @return Most recent sample for cache miss count in off-heap
+     */
+    public long getCacheMissOffHeapMostRecentSample();
+
+    /**
+     * Get most recent value for on-disk cache miss
+     * 
+     * @return Most recent sample for cache miss count on disk
+     */
+    public long getCacheMissOnDiskMostRecentSample();
+    
+    /**
      * Get most recent value for cache miss as result of the element getting
      * expired
      * 

@@ -115,6 +115,27 @@ public class NullSampledCacheStatistics implements CacheUsageListener, SampledCa
     /**
      * {@inheritDoc}
      */
+    public long getCacheMissInMemoryMostRecentSample() {
+        return 0;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public long getCacheMissOffHeapMostRecentSample() {
+        return 0;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public long getCacheMissOnDiskMostRecentSample() {
+        return 0;
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
     public long getCacheMissNotFoundMostRecentSample() {
         return 0;
     }
@@ -242,6 +263,33 @@ public class NullSampledCacheStatistics implements CacheUsageListener, SampledCa
     /**
      * {@inheritDoc}
      * 
+     * @see net.sf.ehcache.statistics.CacheUsageListener#notifyCacheMissInMemory()
+     */
+    public void notifyCacheMissInMemory() {
+        // no-op
+    }
+
+    /**
+     * {@inheritDoc}
+     * 
+     * @see net.sf.ehcache.statistics.CacheUsageListener#notifyCacheMissOffHeap()
+     */
+    public void notifyCacheMissOffHeap() {
+        // no-op
+    }
+
+    /**
+     * {@inheritDoc}
+     * 
+     * @see net.sf.ehcache.statistics.CacheUsageListener#notifyCacheMissOnDisk()
+     */
+    public void notifyCacheMissOnDisk() {
+        // no-op
+    }
+    
+    /**
+     * {@inheritDoc}
+     * 
      * @see net.sf.ehcache.statistics.CacheUsageListener#notifyRemoveAll()
      */
     public void notifyRemoveAll() {
@@ -293,5 +341,4 @@ public class NullSampledCacheStatistics implements CacheUsageListener, SampledCa
         // no-op
 
     }
-
 }

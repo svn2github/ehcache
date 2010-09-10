@@ -1397,14 +1397,7 @@ public class Cache implements Ehcache, StoreListener {
 
         if (isStatisticsEnabled()) {
             long start = System.currentTimeMillis();
-
-            Element element = searchInStoreWithStats(key, false, true);
-            if (element == null) {
-                liveCacheStatisticsData.cacheMissNotFound();
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug(configuration.getName() + " cache - Miss");
-                }
-            }
+            Element element = searchInStoreWithStats(key);
             //todo is this expensive. Maybe ditch.
             long end = System.currentTimeMillis();
             liveCacheStatisticsData.addGetTimeMillis(end - start);
@@ -1733,33 +1726,40 @@ public class Cache implements Ehcache, StoreListener {
         return getKeys();
     }
 
-    private Element searchInStoreWithStats(Object key, boolean quiet, boolean notifyListeners) {
+    private Element searchInStoreWithStats(Object key) {
         boolean wasOnDisk = false;
         boolean wasOffHeap = false;
+        boolean hasOffHeap = getCacheConfiguration().isOverflowToOffHeap();
+        boolean isTCClustered = getCacheConfiguration().isTerracottaClustered();
+        boolean hasOnDisk = isTCClustered || getCacheConfiguration().isOverflowToDisk();
         Element element;
-        if (quiet) {
-            element = compoundStore.getQuiet(key);
-        } else {
-            if (!compoundStore.containsKeyInMemory(key)) {
-              wasOffHeap = compoundStore.containsKeyOffHeap(key);
-              if (!wasOffHeap) {
-                wasOnDisk = compoundStore.containsKeyOnDisk(key);
-              }
+        
+        if (!compoundStore.containsKeyInMemory(key)) {
+            liveCacheStatisticsData.cacheMissInMemory();
+            if (hasOffHeap) {
+                wasOffHeap = compoundStore.containsKeyOffHeap(key);
             }
-            element = compoundStore.get(key);
+          if (!wasOffHeap) {
+              if (hasOffHeap) {
+                  liveCacheStatisticsData.cacheMissOffHeap();
+              }
+              wasOnDisk = compoundStore.containsKeyOnDisk(key);
+              if (hasOnDisk && !wasOnDisk) {
+                  liveCacheStatisticsData.cacheMissOnDisk();
+              }
+          }
         }
+        element = compoundStore.get(key);
 
         if (element != null) {
             if (isExpired(element)) {
                 if (LOG.isDebugEnabled()) {
                     LOG.debug(configuration.getName() + " cache hit, but element expired");
                 }
-                if (!quiet) {
-                    liveCacheStatisticsData.cacheMissExpired();
-                }
-                tryRemoveImmediately(key, notifyListeners);
+                liveCacheStatisticsData.cacheMissExpired();
+                tryRemoveImmediately(key, true);
                 element = null;
-            } else if (!quiet) {
+            } else {
                 element.updateAccessStatistics();
                 if (LOG.isDebugEnabled()) {
                     LOG.debug(getName() + "Cache: " + getName() + " store hit for " + key);
@@ -1773,8 +1773,11 @@ public class Cache implements Ehcache, StoreListener {
                     liveCacheStatisticsData.cacheHitInMemory();
                 }
             }
-        } else if (LOG.isDebugEnabled()) {
-            LOG.debug(getName() + "Cache: " + getName() + " store miss for " + key);
+        } else {
+            liveCacheStatisticsData.cacheMissNotFound();
+            if (LOG.isDebugEnabled()) {
+                LOG.debug(configuration.getName() + " cache - Miss");
+            }
         }
         return element;
     }
@@ -2623,7 +2626,10 @@ public class Cache implements Ehcache, StoreListener {
                 .getOnDiskHitCount(), getLiveCacheStatistics()
                 .getOffHeapHitCount(), getLiveCacheStatistics()
                 .getInMemoryHitCount(), getLiveCacheStatistics()
-                .getCacheMissCount(), size, getAverageGetTime(),
+                .getCacheMissCount(), getLiveCacheStatistics()
+                .getOnDiskMissCount(), getLiveCacheStatistics()
+                .getOffHeapMissCount(), getLiveCacheStatistics()
+                .getInMemoryMissCount(), size, getAverageGetTime(),
                 getLiveCacheStatistics().getEvictedCount(),
                 getMemoryStoreSize(), getOffHeapStoreSize(), getDiskStoreSize());
     }

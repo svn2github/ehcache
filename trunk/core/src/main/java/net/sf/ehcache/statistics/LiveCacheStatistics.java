@@ -72,6 +72,28 @@ public interface LiveCacheStatistics {
     public long getCacheMissCount();
 
     /**
+     * Number of times a requested item was not found in the Memory Store.
+     * 
+     * @return the number of times a requested item was not found in memory
+     */
+    public long getInMemoryMissCount();
+
+    /**
+     * Number of times a requested item was not found in the off-heap store.
+     *
+     * @return the number of times a requested item was not found in off-heap
+     */
+    public long getOffHeapMissCount();
+
+    /**
+     * Number of times a requested item was not found in the Disk Store.
+     * 
+     * @return the number of times a requested item was not found on Disk, or 0 if
+     *         there is no disk storage configured.
+     */
+    public long getOnDiskMissCount();
+    
+    /**
      * @return the number of times a requested element was not found in the
      *         cache and the reason being the element already expired
      */

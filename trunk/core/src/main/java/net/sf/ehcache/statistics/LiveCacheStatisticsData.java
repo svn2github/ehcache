@@ -58,6 +58,21 @@ public interface LiveCacheStatisticsData extends CacheEventListener {
     public void cacheMissNotFound();
 
     /**
+     * Called on a cache miss in the MemoryStore
+     */
+    public void cacheMissInMemory();
+
+    /**
+     * Called on a cache miss in the off-heap
+     */
+    public void cacheMissOffHeap();
+
+    /**
+     * Called on a cache miss in the DiskStore
+     */
+    public void cacheMissOnDisk();
+    
+    /**
      * Called when an element is found in the cache but already expired
      */
     public void cacheMissExpired();

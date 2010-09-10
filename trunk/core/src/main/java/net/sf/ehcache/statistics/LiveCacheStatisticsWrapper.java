@@ -197,6 +197,33 @@ public class LiveCacheStatisticsWrapper implements LiveCacheStatistics, LiveCach
     /**
      * {@inheritDoc}
      * 
+     * @see net.sf.ehcache.statistics.LiveCacheStatistics#getInMemoryMissCount()
+     */
+    public long getInMemoryMissCount() {
+        return delegate.getInMemoryMissCount();
+    }
+
+    /**
+     * {@inheritDoc}
+     * 
+     * @see net.sf.ehcache.statistics.LiveCacheStatistics#getOffHeapMissCount()
+     */
+    public long getOffHeapMissCount() {
+        return delegate.getOffHeapMissCount();
+    }
+
+    /**
+     * {@inheritDoc}
+     * 
+     * @see net.sf.ehcache.statistics.LiveCacheStatistics#getOnDiskMissCount()
+     */
+    public long getOnDiskMissCount() {
+        return delegate.getOnDiskMissCount();
+    }
+    
+    /**
+     * {@inheritDoc}
+     * 
      * @see net.sf.ehcache.statistics.LiveCacheStatistics#getCacheMissCountExpired()
      */
     public long getCacheMissCountExpired() {
@@ -350,6 +377,33 @@ public class LiveCacheStatisticsWrapper implements LiveCacheStatistics, LiveCach
     public void cacheMissNotFound() {
         getDelegateAsLiveStatisticsData().cacheMissNotFound();
     }
+    
+    /**
+     * {@inheritDoc}
+     * 
+     * @see net.sf.ehcache.statistics.LiveCacheStatisticsData#cacheMissNotFound()
+     */
+    public void cacheMissInMemory() {
+        getDelegateAsLiveStatisticsData().cacheMissInMemory();
+    }
+
+    /**
+     * {@inheritDoc}
+     * 
+     * @see net.sf.ehcache.statistics.LiveCacheStatisticsData#cacheMissNotFound()
+     */
+    public void cacheMissOffHeap() {
+        getDelegateAsLiveStatisticsData().cacheMissOffHeap();
+    }
+
+    /**
+     * {@inheritDoc}
+     * 
+     * @see net.sf.ehcache.statistics.LiveCacheStatisticsData#cacheMissNotFound()
+     */
+    public void cacheMissOnDisk() {
+        getDelegateAsLiveStatisticsData().cacheMissOnDisk();
+    }
 
     /**
      * {@inheritDoc}
@@ -433,5 +487,4 @@ public class LiveCacheStatisticsWrapper implements LiveCacheStatistics, LiveCach
         super.clone();
         throw new CloneNotSupportedException();
     }
-
 }

@@ -132,6 +132,33 @@ public class AnotherStatistics extends LiveCacheStatisticsImpl implements
     /**
      * {@inheritDoc}
      * 
+     * @see net.sf.ehcache.statistics.CacheUsageListener#notifyCacheMissInMemory()
+     */
+    public void notifyCacheMissInMemory() {
+        super.cacheMissInMemory();
+    }
+
+    /**
+     * {@inheritDoc}
+     * 
+     * @see net.sf.ehcache.statistics.CacheUsageListener#notifyCacheMissOffHeap()
+     */
+    public void notifyCacheMissOffHeap() {
+        super.cacheMissOffHeap();
+    }
+
+    /**
+     * {@inheritDoc}
+     * 
+     * @see net.sf.ehcache.statistics.CacheUsageListener#notifyCacheMissOnDisk()
+     */
+    public void notifyCacheMissOnDisk() {
+        super.cacheMissOnDisk();
+    }
+
+    /**
+     * {@inheritDoc}
+     * 
      * @see net.sf.ehcache.statistics.CacheUsageListener#notifyRemoveAll()
      */
     public void notifyRemoveAll() {
@@ -173,5 +200,4 @@ public class AnotherStatistics extends LiveCacheStatisticsImpl implements
     public void notifyTimeTakenForGet(long millis) {
         super.addGetTimeMillis(millis);
     }
-
 }

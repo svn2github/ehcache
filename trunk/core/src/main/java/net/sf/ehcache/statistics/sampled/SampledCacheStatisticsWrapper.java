@@ -176,6 +176,30 @@ public class SampledCacheStatisticsWrapper implements CacheUsageListener, Sample
      * {@inheritDoc}
      * 
      */
+    public long getCacheMissInMemoryMostRecentSample() {
+        return delegate.getCacheMissInMemoryMostRecentSample();
+    }
+
+    /**
+     * {@inheritDoc}
+     * 
+     */
+    public long getCacheMissOffHeapMostRecentSample() {
+        return delegate.getCacheMissOffHeapMostRecentSample();
+    }
+
+    /**
+     * {@inheritDoc}
+     * 
+     */
+    public long getCacheMissOnDiskMostRecentSample() {
+        return delegate.getCacheMissOnDiskMostRecentSample();
+    }
+
+    /**
+     * {@inheritDoc}
+     * 
+     */
     public long getCacheMissNotFoundMostRecentSample() {
         return delegate.getCacheMissNotFoundMostRecentSample();
     }
@@ -292,6 +316,30 @@ public class SampledCacheStatisticsWrapper implements CacheUsageListener, Sample
      * {@inheritDoc}
      * 
      */
+    public void notifyCacheMissInMemory() {
+        getDelegateAsListener().notifyCacheMissInMemory();
+    }
+
+    /**
+     * {@inheritDoc}
+     * 
+     */
+    public void notifyCacheMissOffHeap() {
+        getDelegateAsListener().notifyCacheMissOffHeap();
+    }
+
+    /**
+     * {@inheritDoc}
+     * 
+     */
+    public void notifyCacheMissOnDisk() {
+        getDelegateAsListener().notifyCacheMissOnDisk();
+    }
+    
+    /**
+     * {@inheritDoc}
+     * 
+     */
     public void notifyRemoveAll() {
         getDelegateAsListener().notifyRemoveAll();
     }
@@ -327,5 +375,4 @@ public class SampledCacheStatisticsWrapper implements CacheUsageListener, Sample
     public void notifyTimeTakenForGet(long millis) {
         getDelegateAsListener().notifyTimeTakenForGet(millis);
     }
-
 }
