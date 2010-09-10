@@ -969,7 +969,6 @@ public class Cache implements Ehcache, StoreListener {
                     Class<Store> storeClass = ClassLoaderUtil.loadClass(OFF_HEAP_STORE_CLASSNAME);
                     try {
                         store = (Store) storeClass.getMethod("create", Ehcache.class, String.class).invoke(null, this, diskStorePath);
-                        this.getCacheManager().markEnterprised();                   
                     } catch (NoSuchMethodException e) {
                        throw new CacheException("Cache: " + configuration.getName() + " cannot find static factory" +
                         " method create(Ehcache, String)" +
