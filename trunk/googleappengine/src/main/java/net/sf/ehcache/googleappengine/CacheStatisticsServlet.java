@@ -70,8 +70,8 @@ public class CacheStatisticsServlet extends HttpServlet {
 
         String cacheServiceNamespace = "";
         if (service.getNamespace() != null) {
-			cacheServiceNamespace = " (namespace: "+service.getNamespace() + ')';
-		}
+            cacheServiceNamespace = " (namespace: " + service.getNamespace() + ')';
+        }
         out.println("AppEngine MemCache Statistics" + cacheServiceNamespace + ':');
 
         out.print("ItemCount: ");
@@ -151,7 +151,9 @@ public class CacheStatisticsServlet extends HttpServlet {
         // automatically if a <code>RequestDispatcher.forward()</code> call is
         // ultimately invoked.
         //resp.setHeader("Pragma", "No-cache"); // HTTP 1.0
-        response.setHeader("Cache-Control", "no-cache,no-store,max-age=0");// HTTP 1.1
+        // HTTP 1.1
+        response.setHeader("Cache-Control", "no-cache,no-store,max-age=0");
+        
         // should we decide to enable caching, here are the current vary:
         response.addHeader("Vary", "Accept-Language,Accept-Encoding,Accept-Charset");
     }
