@@ -385,10 +385,9 @@ used with JMX monitors.
 
     overflowToOffHeap:
     (boolean) This feature is available only in enterprise versions of Ehcache.
-    When set to true, enables the cache to utilize "off-heap" memory
+    When set to true, enables the cache to utilize off-heap memory
     storage to improve performance. Off-heap memory is not subject to Java
-    GC cycles and has a size limit set by the Java property MaxDirectMemorySize.
-    The default value is false.
+    GC. The default value is false.
     
     maxMemoryOffHeap:
     (string) This feature is available only in enterprise versions of Ehcache.
@@ -396,7 +395,13 @@ used with JMX monitors.
     This attribute's values are given as <number>k|K|m|M|g|G|t|T for
     kilobytes (k|K), megabytes (m|M), gigabytes (g|G), or terrabytes
     (t|T). For example, maxMemoryOffHeap="2g" allots 2 gigabytes to
-    off-heap memory. In effect only if overflowToOffHeap is true.
+    off-heap memory.
+
+    This setting is in effect only if overflowToOffHeap is true.
+
+    Note that it is recommended to set maxElementsInMemory to at least 100 elements
+    when using an off-heap store, otherwise performance will be seriously degraded,
+    and a warning will be logged.
 
     timeToIdleSeconds:
     Sets the time to idle for an element before it expires.

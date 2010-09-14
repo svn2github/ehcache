@@ -4,17 +4,34 @@
 
 {Off-heap Store}
 
-    Terracotta BigMemory is an add-on to Enterprise Ehcache that permits caches to use a memory store outside the object heap.
+    Put logo in here to right.
+
+
+    Terracotta {{{http://www.terracotta.org/bigmemory?src=ehcache_off_heap_store}BigMemory}} is an add-on to Enterprise Ehcache that permits caches to use an additional
+    type of memory store outside the object heap.
     
-    This off-heap store, which is not subject to Java GC, is 100 times faster than the DiskStore and allows very large caches to be created (we have tested up to 350GB).
+    This off-heap store, which is not subject to Java GC, is 100 times faster than the DiskStore and allows
+    very large caches to be created (we have tested this up to 350GB).
     
-    Because off-heap data is stored in bytes, there are two
-    implications:
+    Because off-heap data is stored in bytes, there are two implications:
 
     * Only Serializable cache keys and values can be placed in the store, similar to DiskStore.
 
-    * Serialization and deserialization take place on putting and getting from the store. While this may make the off-heap store seem slower (in theory
-      10 times slower than the MemoryStore), overall performance makes substantial gains bypassing the latency of hard-disk access and the pauses of Java GC.
+    * Serialization and deserialization take place on putting and getting from the store. This means that the
+      off-heap store is slower in an absolute sense (around 10 times slower than the MemoryStore), but this
+      theoretical difference disappears due to two effects:
+
+      * the superfast MemoryStore, holds a hot set of data, according to the eviction algorithm chosen, in
+        deserialzed form.
+
+      * when the GC involved with larger heaps is taken into account.
+
+
+    The relationship between speed and capacity is illustrated below.
+
+    Put graphic here
+
+
 
 
 *   Configuration
@@ -25,8 +42,8 @@
 
 ***  Declarative Configuration
 
-    The following XML configuration creates an offheap-cache with a in-heap store (maxElementsInMemory) of 10,000 elements which
-    overflow to a 1-gigabyte off-heap area.
+    The following XML configuration creates an off-heap cache with an in-heap store (maxElementsInMemory)
+    of 10,000 elements which overflow to a 1-gigabyte off-heap area.
 
 ---
     <?xml version="1.0" encoding="UTF-8"?>
@@ -47,6 +64,29 @@
     </ehcache>
 ---
 
+    The configuration options are:
+
+    <overflowToOffHeap>
+
+    true|false.
+
+    When set to true, enables the cache to utilize off-heap memory
+    storage to improve performance. Off-heap memory is not subject to Java
+    GC cycles and has a size limit set by the Java property MaxDirectMemorySize.
+    The default value is false.
+
+    <maxMemoryOffHeap>
+
+    text.
+
+    Sets the amount of off-heap memory available to the cache.
+    This attribute's values are given as <number>k|K|m|M|g|G|t|T for
+    kilobytes (k|K), megabytes (m|M), gigabytes (g|G), or terrabytes
+    (t|T). For example, maxMemoryOffHeap="2g" allots 2 gigabytes to
+    off-heap memory. In effect only if overflowToOffHeap is true.
+
+
+
 ***  Programmatic Configuration
 
     The equivalent cache can be created using the following programmatic configuration:
@@ -59,6 +99,9 @@
       return cache;
     }
 ---
+
+
+
 
 **   Add The License
 

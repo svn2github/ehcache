@@ -2,12 +2,16 @@
  Storage Options
  ---
 
+TODO update this document
+
 
 {Storage Options}
 
- Ehcache has two stores:
+ Ehcache has three stores:
 
-   * a MemoryStore and
+   * a MemoryStore
+
+   * an OffHeapStore (BigMemory, Enterprise Ehcache only) and
 
    * a DiskStore
 

@@ -22,6 +22,10 @@ Documentation - Table of Contents
 
     * {{{./cache_eviction_algorithms.html}Cache Eviction Algorithms}}
 
+    * {{{./off_heap.html}BigMemory}} - See Off-Heap Store
+
+    * {{{./off_heap.html}Off-Heap Store}}
+
     * {{{./hibernate.html}Hibernate Caching}}
 
     * {{{./jdbc.html}JDBC Caching}}
