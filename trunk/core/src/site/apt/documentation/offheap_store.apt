@@ -4,19 +4,17 @@
 
 {Off-heap Store}
 
-    The off-heap store permits a cache to use a new type of memory store which is implemented using the <<<DirectByteBuffer>>> class,
-    which has been available on all JVMs since JDK1.4.
-
-    It allows very large caches to be created (we have tested up to 256GB). Because the data is stored in bytes, there are two
+    Terracotta BigMemory add-on to Enterprise Ehcache permits caches to use a memory store that is outside the object heap and is 100 times faster than the DiskStore.
+    
+    This off-heap store, which is not subject to Java GC, allows very large caches to be created (we have tested up to 256GB).
+    
+    Because off-heap data is stored in bytes, there are two
     implications:
 
-    * only Serializable cache keys and values can be placed in the store, similar to DiskStore
+    * Only Serializable cache keys and values can be placed in the store, similar to DiskStore.
 
-    * Serialization and deserialization take place on putting and getting from the store. As a result, the off-heap store
-      is around 10 times slower than the MemoryStore. It is still 100 times faster than the DiskStore because there is use of
-      hard disk.
-
-    The Off-heap store is only available as an the BigMemory add-on to Enterprise Ehcache.
+    * Serialization and deserialization take place on putting and getting from the store. While this may make the off-heap store seem slower (in theory
+      10 times slower than the MemoryStore), overall performance makes substantial gains bypassing the latency of hard-disk access and the pauses of Java GC.
 
 
 *   Configuration
