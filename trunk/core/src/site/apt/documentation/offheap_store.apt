@@ -4,9 +4,9 @@
 
 {Off-heap Store}
 
-    Terracotta BigMemory add-on to Enterprise Ehcache permits caches to use a memory store that is outside the object heap and is 100 times faster than the DiskStore.
+    Terracotta BigMemory is an add-on to Enterprise Ehcache that permits caches to use a memory store outside the object heap.
     
-    This off-heap store, which is not subject to Java GC, allows very large caches to be created (we have tested up to 256GB).
+    This off-heap store, which is not subject to Java GC, is 100 times faster than the DiskStore and allows very large caches to be created (we have tested up to 256GB).
     
     Because off-heap data is stored in bytes, there are two
     implications:
