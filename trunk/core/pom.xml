@@ -277,16 +277,16 @@
                     </execution>
 
                     <!--<execution>-->
-                        <!--<id>singlepageguide</id>-->
-                        <!--<phase>pre-site</phase>-->
-                        <!--<configuration>-->
-                            <!--<tasks>-->
-                                <!--<ant target="singlepageguide"/>-->
-                            <!--</tasks>-->
-                        <!--</configuration>-->
-                        <!--<goals>-->
-                            <!--<goal>run</goal>-->
-                        <!--</goals>-->
+                    <!--<id>singlepageguide</id>-->
+                    <!--<phase>pre-site</phase>-->
+                    <!--<configuration>-->
+                    <!--<tasks>-->
+                    <!--<ant target="singlepageguide"/>-->
+                    <!--</tasks>-->
+                    <!--</configuration>-->
+                    <!--<goals>-->
+                    <!--<goal>run</goal>-->
+                    <!--</goals>-->
                     <!--</execution>-->
 
                     <!--<execution>-->
@@ -487,7 +487,16 @@
                 <configuration>
                     <templateFile>${basedir}/src/site/default-site-ehcache.vm
                     </templateFile>
+                    <inputEncoding>UTF-8</inputEncoding>
+                    <outputEncoding>UTF-8</outputEncoding>
                 </configuration>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.apache.maven.doxia</groupId>
+                        <artifactId>doxia-module-confluence</artifactId>
+                        <version>1.1.3</version>
+                    </dependency>
+                </dependencies>
             </plugin>
 
 

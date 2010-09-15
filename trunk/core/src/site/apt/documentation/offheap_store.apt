@@ -57,16 +57,16 @@
 
     The configuration options are:
 
-    <overflowToOffHeap>
+****  overflowToOffHeap
 
-    true|false.
+    Values may be true or false.
 
     When set to true, enables the cache to utilize off-heap memory
     storage to improve performance. Off-heap memory is not subject to Java
     GC cycles and has a size limit set by the Java property MaxDirectMemorySize.
     The default value is false.
 
-    <maxMemoryOffHeap>
+****  maxMemoryOffHeap
 
     Sets the amount of off-heap memory available to the cache.
     This attribute's values are given as <number>k|K|m|M|g|G|t|T for
@@ -85,12 +85,13 @@
     The equivalent cache can be created using the following programmatic configuration:
 
 ---
-    public Cache createOffHeapCache() {
-      CacheConfiguration config = new CacheConfiguration("sample-offheap-cache", 10000).overflowToOffHeap(true).maxMemoryOffHeap("1G");
-      Cache cache = new Cache(config);
-      manager.addCache(cache);
-      return cache;
-    }
+public Cache createOffHeapCache() {
+  CacheConfiguration config = new CacheConfiguration("sample-offheap-cache", 10000)
+    .overflowToOffHeap(true).maxMemoryOffHeap("1G");
+  Cache cache = new Cache(config);
+  manager.addCache(cache);
+  return cache;
+}
 ---
 
 **   Add The License
@@ -98,14 +99,14 @@
     The Ehcache Enterprise download kit (available here - please add URL) contains a trial license key which must be added to activate
     the off-heap store.
 
-    It can be added in two ways:
+    It can be added to the classpath or via a system property.
 
-***  In the classpath
+*** Configuring the License in the Classpath
 
     Add the <<<terracotta-license.key>>> to the root of your classpath, which is also where you add ehcache.xml. It will be
     automatically found.
 
-***  Specify the key in a Java system property
+***  Configuring the License as a Java system property
 
     Add a <<<org.terracotta.license.path=/path/to/key>>> system property which points to the key location.
 
@@ -124,9 +125,8 @@
     e.g. to allocate 2GB of memory in the JVM.
 
 ---
-    java -XX:MaxDirectMemorySize=2G -cp "ehcache-core-ee-2.3.0.jar:slf4j-api-1.5.11.jar:slf4j-jdk14-1.5.11.jar"
+    java -XX:MaxDirectMemorySize=2G ..."
 ---
-
 
 *  Advanced Configuration Options
 
@@ -178,12 +178,15 @@
 
 *   Sample application
 
-    Download here a simple Maven-based application that uses the ehcache off-heap functionality.
+    The easiest way to get started is to play with a simple sample app.
 
-    Note: You will need to get a license key as discussed above to run this.
+    Download {{{/ehcache-offheap-sample.zip}here}} a simple Maven-based application that uses the ehcache off-heap functionality.
 
+    Note: You will need to get a {{{http://www.terracotta.org/bigmemory?src=ehcache.org}license key}} as discussed above to run this.
 
-*   Storage Hierarchy
+*   Storage
+
+**  Storage Hierarchy
 
     With the OffHeapStore, Ehcache Enterprise has three stores:
 
@@ -195,8 +198,12 @@
     * DiskStore - speedy storage on disk. It is two orders of magnitude slower than the OffHeapStore but still much faster
       than a database or a distributed cache
 
+    The relationship between speed and size for each store is illustrated below:
+    
 
-**  Storage Consumption
+[images/tiered_storage.png]
+
+**  Memory Use in each Store
 
     As a performance optimisation, and because storage gets much cheaper as you drop down through the hierarchy, we write
     each put to as many stores as are configured. So, if all three are configured, the Element gets written to MemoryStore,
