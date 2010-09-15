@@ -12,16 +12,6 @@
         <context-artifact name="googleappengine-system-tests:war exploded" />
       </configuration>
     </facet>
-    <facet type="jpa" name="JPA">
-      <configuration>
-        <setting name="validation-enabled" value="true" />
-        <setting name="provider-name" value="" />
-        <datasource-mapping>
-          <factory-entry name="transactions-optional" />
-        </datasource-mapping>
-        <deploymentDescriptor name="persistence.xml" url="file://$MODULE_DIR$/src/main/resources/META-INF/persistence.xml" />
-      </configuration>
-    </facet>
   </component>
   <component name="NewModuleRootManager" LANGUAGE_LEVEL="JDK_1_6" inherit-compiler-output="false">
     <output url="file://$MODULE_DIR$/target/classes" />
@@ -29,15 +19,21 @@
     <content url="file://$MODULE_DIR$">
       <sourceFolder url="file://$MODULE_DIR$/src/main/java" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/main/resources" isTestSource="false" />
-      <excludeFolder url="file://$MODULE_DIR$/${project.build.directory}/classes" />
-      <excludeFolder url="file://$MODULE_DIR$/${project.build.directory}/test-classes" />
       <excludeFolder url="file://$MODULE_DIR$/target" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="library" scope="RUNTIME" name="Maven: com.google.appengine:appengine-api-1.0-sdk:1.3.7" level="project" />
+    <orderEntry type="library" scope="RUNTIME" name="Maven: org.apache.geronimo.specs:geronimo-jta_1.1_spec:1.1.1" level="project" />
+    <orderEntry type="library" scope="RUNTIME" name="Maven: org.apache.geronimo.specs:geronimo-jpa_3.0_spec:1.1.1" level="project" />
+    <orderEntry type="library" scope="RUNTIME" name="Maven: com.google.appengine.orm:jdo2-api:2.3-eb" level="project" />
+    <orderEntry type="library" scope="RUNTIME" name="Maven: com.google.appengine.orm:datanucleus-core:1.1.5" level="project" />
+    <orderEntry type="library" scope="RUNTIME" name="Maven: com.google.appengine.orm:datanucleus-appengine:1.0.7" level="project" />
+    <orderEntry type="library" scope="RUNTIME" name="Maven: com.google.appengine.orm:datanucleus-jpa:1.1.5" level="project" />
+    <orderEntry type="library" scope="RUNTIME" name="Maven: com.google.appengine:appengine-tools-sdk:1.3.7" level="project" />
     <orderEntry type="library" name="Maven: greg:jdo2-api:2.3" level="project" />
     <orderEntry type="library" name="Maven: javax.transaction:jta:1.1" level="project" />
-    <orderEntry type="library" scope="PROVIDED" name="Maven: org.apache.geronimo.specs:geronimo-servlet_2.5_spec:1.2" level="project" />
+    <orderEntry type="library" name="Maven: org.apache.geronimo.specs:geronimo-servlet_2.5_spec:1.2" level="project" />
     <orderEntry type="library" scope="RUNTIME" name="Maven: taglibs:standard:1.1.2" level="project" />
     <orderEntry type="library" name="Maven: org.slf4j:slf4j-api:1.6.1" level="project" />
     <orderEntry type="library" name="Maven: ch.qos.logback:logback-classic:0.9.24" level="project" />
