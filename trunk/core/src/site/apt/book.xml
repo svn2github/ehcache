@@ -20,70 +20,70 @@
             <sections>
                 <section>
                     <id>introduction</id>
-                    <file>documentation/introduction.apt</file>
+                    <file>documentation/offheap_store.confluence</file>
                 </section>
             </sections>
         </chapter>
-        <chapter>
-            <id>getting_started</id>
-            <title>Getting Started</title>
-            <sections>
-                <section>
-                    <id>getting_started</id>
-                    <file>documentation/getting_started.apt</file>
-                </section>
-            </sections>
-        </chapter>
-        <chapter>
-            <id>features</id>
-            <title>Features</title>
-            <sections>
-                <section>
-                    <id>features</id>
-                    <file>documentation/features.apt</file>
-                </section>
-            </sections>
-        </chapter>
-        <chapter>
-            <id>concepts</id>
-            <title>Concepts</title>
-            <sections>
-                <section>
-                    <id>concepts</id>
-                    <file>documentation/concepts.apt</file>
-                </section>
-            </sections>
-        </chapter>
-        <chapter>
-            <id>architecture</id>
-            <title>Architecture</title>
-            <sections>
-                <section>
-                    <id>architecture</id>
-                    <file>documentation/architecture.apt</file>
-                </section>
-            </sections>
-        </chapter>
-        <chapter>
-            <id>configuration</id>
-            <title>Configuration</title>
-            <sections>
-                <section>
-                    <id>configuration</id>
-                    <file>documentation/configuration.apt</file>
-                </section>
-            </sections>
-        </chapter>
-        <chapter>
-            <id>cache_eviction_algorithms</id>
-            <title>Cache Eviction Algorithms</title>
-            <sections>
-                <section>
-                    <id>cache_eviction_algorithms</id>
-                    <file>documentation/cache_eviction_algorithms.apt</file>
-                </section>
-            </sections>
-        </chapter>
+        <!--<chapter>-->
+            <!--<id>getting_started</id>-->
+            <!--<title>Getting Started</title>-->
+            <!--<sections>-->
+                <!--<section>-->
+                    <!--<id>getting_started</id>-->
+                    <!--<file>documentation/getting_started.apt</file>-->
+                <!--</section>-->
+            <!--</sections>-->
+        <!--</chapter>-->
+        <!--<chapter>-->
+            <!--<id>features</id>-->
+            <!--<title>Features</title>-->
+            <!--<sections>-->
+                <!--<section>-->
+                    <!--<id>features</id>-->
+                    <!--<file>documentation/features.apt</file>-->
+                <!--</section>-->
+            <!--</sections>-->
+        <!--</chapter>-->
+        <!--<chapter>-->
+            <!--<id>concepts</id>-->
+            <!--<title>Concepts</title>-->
+            <!--<sections>-->
+                <!--<section>-->
+                    <!--<id>concepts</id>-->
+                    <!--<file>documentation/concepts.apt</file>-->
+                <!--</section>-->
+            <!--</sections>-->
+        <!--</chapter>-->
+        <!--<chapter>-->
+            <!--<id>architecture</id>-->
+            <!--<title>Architecture</title>-->
+            <!--<sections>-->
+                <!--<section>-->
+                    <!--<id>architecture</id>-->
+                    <!--<file>documentation/architecture.apt</file>-->
+                <!--</section>-->
+            <!--</sections>-->
+        <!--</chapter>-->
+        <!--<chapter>-->
+            <!--<id>configuration</id>-->
+            <!--<title>Configuration</title>-->
+            <!--<sections>-->
+                <!--<section>-->
+                    <!--<id>configuration</id>-->
+                    <!--<file>documentation/configuration.apt</file>-->
+                <!--</section>-->
+            <!--</sections>-->
+        <!--</chapter>-->
+        <!--<chapter>-->
+            <!--<id>cache_eviction_algorithms</id>-->
+            <!--<title>Cache Eviction Algorithms</title>-->
+            <!--<sections>-->
+                <!--<section>-->
+                    <!--<id>cache_eviction_algorithms</id>-->
+                    <!--<file>documentation/cache_eviction_algorithms.apt</file>-->
+                <!--</section>-->
+            <!--</sections>-->
+        <!--</chapter>-->
     </chapters>
 
 

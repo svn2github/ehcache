@@ -4,7 +4,7 @@
 
 {Off-heap Store}
 
-    Put logo in here to right.
+[images/big_memory.png]    
 
 
     Terracotta {{{http://www.terracotta.org/bigmemory?src=ehcache_off_heap_store}BigMemory}} is an add-on to Enterprise Ehcache that permits caches to use an additional
@@ -21,18 +21,9 @@
       off-heap store is slower in an absolute sense (around 10 times slower than the MemoryStore), but this
       theoretical difference disappears due to two effects:
 
-      * the superfast MemoryStore, holds a hot set of data, according to the eviction algorithm chosen, in
-        deserialzed form.
+      * the MemoryStore holds the hottest subset of data from the off-heap store, already in deserialized form
 
-      * when the GC involved with larger heaps is taken into account.
-
-
-    The relationship between speed and capacity is illustrated below.
-
-    Put graphic here
-
-
-
+      * when the GC involved with larger heaps is taken into account, the off-heap store is faster on average
 
 *   Configuration
 
@@ -77,15 +68,17 @@
 
     <maxMemoryOffHeap>
 
-    text.
-
     Sets the amount of off-heap memory available to the cache.
     This attribute's values are given as <number>k|K|m|M|g|G|t|T for
     kilobytes (k|K), megabytes (m|M), gigabytes (g|G), or terrabytes
     (t|T). For example, maxMemoryOffHeap="2g" allots 2 gigabytes to
     off-heap memory. In effect only if overflowToOffHeap is true.
 
+    The minimum amount that can be allocated is 128MB. There is no maximum.
 
+    Note that it is recommended to set maxElementsInMemory to at least 100 elements
+    when using an off-heap store, otherwise performance will be seriously degraded,
+    and a warning will be logged.
 
 ***  Programmatic Configuration
 
@@ -99,9 +92,6 @@
       return cache;
     }
 ---
-
-
-
 
 **   Add The License
 
@@ -184,12 +174,7 @@
     available on your OS. We attempt to detect this situation. If it takes more than 3 seconds to allocate a 1GB chunk of memory
     we will log an error message and call <<<System.exit(1)>>> to protect the stability of your OS.
 
-    
-
-In case this detection is bogus on some JVM / OS combination I added a net.sf.ehcache.offheap.DoNotHaltOnCriticalAllocationDelay system property that when set to true, prevents the VM halt code from being executed and only warnings are logged then.
-
-
-
+    If you wish to force Ehcache to wait set the system property <<<net.sf.ehcache.offheap.DoNotHaltOnCriticalAllocationDelay>>> to <<<true>>>.
 
 *   Sample application
 
@@ -328,4 +313,19 @@ In case this detection is bogus on some JVM / OS combination I added a net.sf.eh
 
     e.g. com.company.domain.State.maxOffHeapValueSize=30MB
 
+**  Why is my application startup slower?
 
+    On startup the CacheManager will calculate the amount of off-heap storage required for all caches
+    using off-heap stores. The memory will be allocated from the OS and zeroed out by Java. The time taken
+    will depend on the OS. A server class machine running Linux will take approximately half a second per GB.
+
+    We print out log messages for each 10% allocated, and also report the total time taken.
+
+    This time is only incurred once at startup. The pre-allocation of memory from the OS is one of the reasons
+    that runtime performance is so fast.
+
+
+
+
+
+    

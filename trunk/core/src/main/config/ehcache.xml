@@ -403,6 +403,8 @@ used with JMX monitors.
     when using an off-heap store, otherwise performance will be seriously degraded,
     and a warning will be logged.
 
+    The minimum amount that can be allocated is 128MB. There is no maximum.
+
     timeToIdleSeconds:
     Sets the time to idle for an element before it expires.
     i.e. The maximum amount of time between accesses before an element expires

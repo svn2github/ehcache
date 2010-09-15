@@ -2,9 +2,6 @@
  Storage Options
  ---
 
-TODO update this document
-
-
 {Storage Options}
 
  Ehcache has three stores:
@@ -103,6 +100,37 @@ TODO update this document
      trade-off between lower memory use and short locking periods and cpu
      utilisation. The design is in favour of the latter. For those concerned
      with memory use, simply reduce the <<<maxElementsInMemory>>>.
+
+
+*   {Off-Heap Store}
+
+
+    Terracotta {{{http://www.terracotta.org/bigmemory?src=ehcache_off_heap_store}BigMemory}} is an add-on to Enterprise Ehcache that permits caches to use an additional
+    type of memory store outside the object heap.
+
+    This off-heap store, which is not subject to Java GC, is 100 times faster than the DiskStore and allows
+    very large caches to be created (we have tested this up to 350GB).
+
+    Because off-heap data is stored in bytes, there are two implications:
+
+    * Only Serializable cache keys and values can be placed in the store, similar to DiskStore.
+
+    * Serialization and deserialization take place on putting and getting from the store. This means that the
+      off-heap store is slower in an absolute sense (around 10 times slower than the MemoryStore), but this
+      theoretical difference disappears due to two effects:
+
+      * the MemoryStore holds the hottest subset of data from the off-heap store, already in deserialized form
+
+      * when the GC involved with larger heaps is taken into account, the off-heap store is faster on average
+
+** Suitable Element Types
+
+     Only <<<Element>>>s which are <<<Serializable>>> can be placed in the DiskStore. Any non serializable
+     <<<Element>>>s which attempt to overflow to the <<<OffHeapMemoryStore>>> will be removed instead, and a WARNING level
+     log message emitted.
+
+    See the {{{./offheap_store.html}Off-Heap Store}} chapter for more details.
+
 
 * {DiskStore}
 
@@ -310,3 +338,64 @@ TODO update this document
      So, the Ehcache design does not load them all into memory on start up, but lazily loads them as
      required.
 
+*   Some Configuration Examples
+
+    These examples show how to allocate 8GB of machine memory to different stores. It assumes a
+    data set of 7GB - say for a cache of 7M items (each 1kb in size).
+
+    Those who want minimal application response time variance (ie minimizing GC pause times), will likely
+    want all the cache to be off-heap.
+
+    Assuming that 1GB of heap is needed for the rest of the app, they will set their Java config as follows:
+
+---
+    java -Xms1G -Xmx1G -XX:maxDirectMemorySize=7G
+---
+
+    And their Ehcache config as
+
+---
+    <cache
+    maxElementsInMemory=100
+    overflowToOffHeap="true"
+    maxMemoryOffHeap="7G"
+    ... />
+---
+
+    Those who want best possible performance for a hot set of data while still reducing overall application repsonse time variance will likely want a combination of on-heap and off-heap. The heap will be used for the hot set, the offheap for the rest. So, for example
+    if the hot set is 1M items (or 1GB) of the 7GB data. They will set their Java config as follows
+
+---
+    java -Xms2G -Xmx2G -XX:maxDirectMemorySize=6G
+---
+
+    And their Ehcache config as
+
+---
+    <cache
+    maxElementsInMemory=1M
+    overflowToOffHeap="true"
+    maxMemoryOffHeap="6G"
+    ...>
+---
+
+    This configuration will compare VERY favorably against the alternative of keeping the less-hot set in a
+    database (100x slower) or caching on local disk (20x slower).
+
+    Where pauses are not a problem, the whole data set can be kept on heap:
+
+---
+    <cache
+    maxElementsInMemory=1
+    overflowToOffHeap="false"
+    ...>
+
+
+    Where latency isn't an issue overflow to disk can be used:
+
+---
+    <cache
+    maxElementsInMemory=1M
+    overflowToOffDisk="true"
+    ...>
+---
