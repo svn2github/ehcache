@@ -10,7 +10,9 @@ See instructions below or the ehcache schema (ehcache.xsd) on how to configure.
 System property tokens can be specified in this file which are replaced when the configuration
 is loaded. For example multicastGroupPort=${multicastGroupPort} can be replaced with the
 System property either from an environment variable or a system property specified with a
-command line switch such as -DmulticastGroupPort=4446.
+command line switch such as -DmulticastGroupPort=4446. Another example, useful for Terracotta
+server based deployments is <terracottaConfig url="${serverAndPort}"/ and specify a command line
+switch of -Dserver36:9510
 
 The attributes of <ehcache> are:
 * name - an optional name for the CacheManager.  The name is optional and primarily used
@@ -393,7 +395,7 @@ used with JMX monitors.
     (string) This feature is available only in enterprise versions of Ehcache.
     Sets the amount of off-heap memory available to the cache.
     This attribute's values are given as <number>k|K|m|M|g|G|t|T for
-    kilobytes (k|K), megabytes (m|M), gigabytes (g|G), or terrabytes
+    kilobytes (k|K), megabytes (m|M), gigabytes (g|G), or terabytes
     (t|T). For example, maxMemoryOffHeap="2g" allots 2 gigabytes to
     off-heap memory.
 
