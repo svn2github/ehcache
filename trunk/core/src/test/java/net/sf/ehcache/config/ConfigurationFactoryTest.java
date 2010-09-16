@@ -974,6 +974,7 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
     @Test
     public void testLoadConfigurationWithReplacement() throws Exception {
         System.setProperty("multicastGroupPort", "4446");
+        System.setProperty("serverAndPort", "server.com:9510");
         File file = new File(TEST_CONFIG_DIR + "ehcache-replacement.xml");
         Configuration configuration = ConfigurationFactory.parseConfiguration(file);
         ConfigurationHelper configurationHelper = new ConfigurationHelper(manager, configuration);
@@ -1022,6 +1023,19 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
         String firstPropertyToken = (String) (propertyTokens.toArray())[0];
         assertEquals("${multicastAddress}", firstPropertyToken);
     }
+
+    /**
+     * Tests the property token extraction logic
+     */
+    @Test
+    public void testMatchPropertyTokensProperlyFormedUrl() {
+        String example="<terracottaConfig url=\"${serverAndPort}\"/>";
+        Set propertyTokens = ConfigurationFactory.extractPropertyTokens(example);
+        assertEquals(1, propertyTokens.size());
+        String firstPropertyToken = (String) (propertyTokens.toArray())[0];
+        assertEquals("${serverAndPort}", firstPropertyToken);
+    }
+
 
     /**
      * Tests the property token extraction logic
