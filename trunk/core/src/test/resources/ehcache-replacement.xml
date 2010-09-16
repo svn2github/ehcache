@@ -9,6 +9,10 @@
                                         multicastGroupPort=${multicastGroupPort}, timeToLive=0"/>
 
 
+    <terracottaConfig url="${serverAndPort}"/>
+    
+
+
     <defaultCache
         maxElementsInMemory="10"
         eternal="false"
@@ -34,5 +38,8 @@
         timeToLiveSeconds="0"
         overflowToDisk="false"
         />
+
+
+
 
 </ehcache>
