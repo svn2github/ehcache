@@ -12,9 +12,21 @@
         </servlet-class>
     </servlet>
 
+    <servlet>
+        <servlet-name>MessageServlet</servlet-name>
+        <servlet-class>
+            com.myapp.test.MessageServlet
+        </servlet-class>
+    </servlet>
+
     <servlet-mapping>
         <servlet-name>IndexServlet</servlet-name>
         <url-pattern>/index</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>MessageServlet</servlet-name>
+        <url-pattern>/message</url-pattern>
     </servlet-mapping>
 
     <welcome-file-list>

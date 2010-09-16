@@ -12,7 +12,7 @@
   <ul>
     <c:forEach var="message" items="${messages}">
       <li>
-        <div><c:out value="${message.text}"/></div>
+        <div><a href="message?id=<c:out value="${message.id}"/>"><c:out value="${message.text}"/></a></div>
         <div><a href="index?id=<c:out value="${message.id}"/>">Delete</a></div>
       </li>
     </c:forEach>

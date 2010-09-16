@@ -2,11 +2,9 @@
     <defaultCache maxElementsInMemory="100000" eternal="true"
                   timeToIdleSeconds="0" timeToLiveSeconds="0" overflowToDisk="false"/>
 
-    <cache name="messageCache"
-           maxElementsInMemory="500"
-           eternal="true"
-            >
+    <cache name="messageCache" maxElementsInMemory="5">
         <cacheEventListenerFactory class="net.sf.ehcache.googleappengine.AppEngineCacheEventListenerFactory"/>
+        <cacheLoaderFactory class="net.sf.ehcache.googleappengine.AppEngineCacheLoaderFactory"/>
     </cache>
 
 </ehcache>
