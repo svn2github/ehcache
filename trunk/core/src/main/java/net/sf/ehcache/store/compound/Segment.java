@@ -25,6 +25,7 @@ import java.util.NoSuchElementException;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import net.sf.ehcache.Element;
+import net.sf.ehcache.util.VmUtils;
 
 /**
  * Segment implementation used in LocalStore.
@@ -428,7 +429,7 @@ class Segment extends ReentrantReadWriteLock {
             } else {
                 oldElement = null;
                 ++modCount;
-                tab[index] = new HashEntry(key, hash, first, encoded);
+                tab[index] = newHashEntry(key, hash, first, encoded);
                 installed = true;
                 // write-volatile
                 count = count + 1;
@@ -474,7 +475,7 @@ class Segment extends ReentrantReadWriteLock {
             if (e == null) {
                 oldElement = null;
                 ++modCount;
-                tab[index] = new HashEntry(key, hash, first, encoded);
+                tab[index] = newHashEntry(key, hash, first, encoded);
                 // write-volatile
                 count = count + 1;
                 return true;
@@ -541,7 +542,7 @@ class Segment extends ReentrantReadWriteLock {
                     for (HashEntry p = e; p != lastRun; p = p.next) {
                         int k = p.hash & sizeMask;
                         HashEntry n = newTable[k];
-                        newTable[k] = new HashEntry(p.key, p.hash, n, p.getElement());
+                        newTable[k] = newHashEntry(p.key, p.hash, n, p.getElement());
                     }
                 }
             }
@@ -580,7 +581,7 @@ class Segment extends ReentrantReadWriteLock {
                     ++modCount;
                     HashEntry newFirst = e.next;
                     for (HashEntry p = first; p != e; p = p.next) {
-                        newFirst = new HashEntry(p.key, p.hash, newFirst, p.getElement());
+                        newFirst = newHashEntry(p.key, p.hash, newFirst, p.getElement());
                     }
                     tab[index] = newFirst;
                     /*
@@ -702,7 +703,7 @@ class Segment extends ReentrantReadWriteLock {
                         ++modCount;
                         HashEntry newFirst = e.next;
                         for (HashEntry p = first; p != e; p = p.next) {
-                            newFirst = new HashEntry(p.key, p.hash, newFirst, p.getElement());
+                            newFirst = newHashEntry(p.key, p.hash, newFirst, p.getElement());
                         }
                         tab[index] = newFirst;
                         /*
@@ -854,4 +855,12 @@ class Segment extends ReentrantReadWriteLock {
             return o1.equals(o2);
         }
     }
+
+    private HashEntry newHashEntry(Object key, int hash, HashEntry newFirst, Object element) {
+        if (VmUtils.isInGoogleAppEngine()) {
+            return new SynchronizedHashEntry(key, hash, newFirst, element);
+        }
+        return new AtomicHashEntry(key, hash, newFirst, element);
+    }
+
 }

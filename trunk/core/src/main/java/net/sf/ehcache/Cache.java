@@ -89,6 +89,7 @@ import net.sf.ehcache.util.ClassLoaderUtil;
 import net.sf.ehcache.util.NamedThreadFactory;
 import net.sf.ehcache.util.PropertyUtil;
 import net.sf.ehcache.util.TimeUtil;
+import net.sf.ehcache.util.VmUtils;
 import net.sf.ehcache.writer.CacheWriter;
 import net.sf.ehcache.writer.CacheWriterFactory;
 import net.sf.ehcache.writer.CacheWriterManager;
@@ -3014,17 +3015,7 @@ public class Cache implements Ehcache, StoreListener {
     ExecutorService getExecutorService() {
         if (executorService == null) {
             synchronized (this) {
-                boolean inGoogleAppEngine;
-
-                try {
-                    Class.forName("com.google.apphosting.api.DeadlineExceededException");
-                    inGoogleAppEngine = true;
-                } catch (ClassNotFoundException cnfe) {
-                    inGoogleAppEngine = false;
-                }
-
-                if (inGoogleAppEngine) {
-
+                if (VmUtils.isInGoogleAppEngine()) {
                     // no Thread support. Run all tasks on the caller thread
                     executorService = new AbstractExecutorService() {
                         /** {@inheritDoc} */
