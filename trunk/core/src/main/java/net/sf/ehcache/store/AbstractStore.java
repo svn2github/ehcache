@@ -16,31 +16,32 @@
 
 package net.sf.ehcache.store;
 
-import javax.swing.event.EventListenerList;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author gkeim
- * 
+ *
  */
 public abstract class AbstractStore implements Store {
     /**
      * listener list
      */
-    private transient EventListenerList listenerList;
+    private transient List<StoreListener> listenerList;
 
     /**
      * onLoad initializer
      */
-    protected synchronized EventListenerList getEventListenerList() {
+    protected synchronized List<StoreListener> getEventListenerList() {
         if (listenerList == null) {
-            listenerList = new EventListenerList();
+            listenerList = new ArrayList<StoreListener>();
         }
         return listenerList;
     }
-    
+
     /**
      * {@inheritDoc}
-     * 
+     *
      * @see net.sf.ehcache.store.Store#isCacheCoherent()
      */
     public boolean isCacheCoherent() {
@@ -49,7 +50,7 @@ public abstract class AbstractStore implements Store {
 
     /**
      * {@inheritDoc}
-     * 
+     *
      * @see net.sf.ehcache.store.Store#isClusterCoherent()
      */
     public boolean isClusterCoherent() {
@@ -58,7 +59,7 @@ public abstract class AbstractStore implements Store {
 
     /**
      * {@inheritDoc}
-     * 
+     *
      * @see net.sf.ehcache.store.Store#isNodeCoherent()
      */
     public boolean isNodeCoherent() {
@@ -67,7 +68,7 @@ public abstract class AbstractStore implements Store {
 
     /**
      * {@inheritDoc}
-     * 
+     *
      * @see net.sf.ehcache.store.Store#setNodeCoherent(boolean)
      */
     public void setNodeCoherent(boolean coherent) throws UnsupportedOperationException {
@@ -76,7 +77,7 @@ public abstract class AbstractStore implements Store {
 
     /**
      * {@inheritDoc}
-     * 
+     *
      * @see net.sf.ehcache.store.Store#waitUntilClusterCoherent()
      */
     public void waitUntilClusterCoherent() throws UnsupportedOperationException {
@@ -85,32 +86,31 @@ public abstract class AbstractStore implements Store {
 
     /**
      * {@inheritDoc}
-     * 
+     *
      * @see net.sf.ehcache.store.Store#addStoreListener(net.sf.ehcache.store.StoreListener)
      */
     public synchronized void addStoreListener(StoreListener listener) {
         removeStoreListener(listener);
-        getEventListenerList().add(StoreListener.class, listener);
+        getEventListenerList().add(listener);
     }
 
     /**
      * {@inheritDoc}
-     * 
+     *
      * @see net.sf.ehcache.store.Store#removeStoreListener(net.sf.ehcache.store.StoreListener)
      */
     public synchronized void removeStoreListener(StoreListener listener) {
-        getEventListenerList().remove(StoreListener.class, listener);
+        getEventListenerList().remove(listener);
     }
 
     /**
      * Message to StoreListeners the node's coherence state.
      */
     public void fireNodeCoherent(final boolean nodeCoherent) {
-        Object[] listeners = getEventListenerList().getListenerList();
-        for (int i = listeners.length - 2; i >= 0; i -= 2) {
-            if (listeners[i] == StoreListener.class) {
-                ((StoreListener) listeners[i + 1]).nodeCoherent(nodeCoherent);
-            }
+        List<StoreListener> listeners = getEventListenerList();
+
+        for (StoreListener listener : listeners) {
+            listener.nodeCoherent(nodeCoherent);
         }
     }
 
@@ -118,11 +118,10 @@ public abstract class AbstractStore implements Store {
      * Message to StoreListeners the cluster's coherence state.
      */
     public void fireClusterCoherent(final boolean clusterCoherent) {
-        Object[] listeners = getEventListenerList().getListenerList();
-        for (int i = listeners.length - 2; i >= 0; i -= 2) {
-            if (listeners[i] == StoreListener.class) {
-                ((StoreListener) listeners[i + 1]).clusterCoherent(clusterCoherent);
-            }
+        List<StoreListener> listeners = getEventListenerList();
+
+        for (StoreListener listener : listeners) {
+            listener.clusterCoherent(clusterCoherent);
         }
     }
 }
