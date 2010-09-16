@@ -21,7 +21,7 @@ public class IndexServlet extends HttpServlet {
 	private static final Logger log = LoggerFactory
 			.getLogger(IndexServlet.class);
 
-	private MessageRepository messageRepository = new MessageRepository();
+	private MessageRepository messageRepository = new CachingMessageRepository();
 	
 	@Override
 	protected void doGet(HttpServletRequest request,
