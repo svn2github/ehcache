@@ -1,3 +1,17 @@
+JRuby code sample:
+---
+require 'ehcache'
+
+manager = Ehcache::CacheManager.new
+cache = manager.cache
+
+cache.put("time", Time.now, {:ttl => 120})
+value = cache.get("time")
+puts("Value from cache: #{value}")
+
+manager.shutdown
+---
+
  ---
  {Using Grails and Ehcache}
  ---
