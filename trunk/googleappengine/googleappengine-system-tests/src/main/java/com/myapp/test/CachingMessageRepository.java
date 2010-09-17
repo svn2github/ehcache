@@ -32,7 +32,7 @@ public class CachingMessageRepository extends MessageRepository {
 
     @Override
     public Message getById(Long id) {
-        Element element = cache.get(id);
+        Element element = cache.getWithLoader(id, null, null);
         Message message;
         if (element != null) {
             if (log.isDebugEnabled()) log.debug("loading object from cache: " + id);
