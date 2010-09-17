@@ -167,6 +167,14 @@
     </dependencies>
 
     <build>
+        <resources>
+            <resource>
+                <directory>src/main/webapp/WEB-INF</directory>
+                <filtering>true</filtering>
+            </resource>
+        </resources>
+
+
         <plugins>
             <!--
                    This plug-in "enhances" your domain model objects (i.e. makes them
@@ -291,7 +299,7 @@
               version pointed to by ${gae.home} property (Typically, one used by
               your Eclipse plug-in)
           -->
-        <gae.home>/Users/gluck/work/appengine-java-sdk-1.3.7</gae.home>
+        <gae.home>/work/java/appengine-java-sdk-1.3.7</gae.home>
 
 
         <gae.version>1.3.7</gae.version>
