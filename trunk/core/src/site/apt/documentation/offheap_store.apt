@@ -4,15 +4,16 @@
 
 {BigMemory: Off-heap Store}
 
-[images/big_memory.png]    
+[images/big_memory.png]
 
+%{toc|fromDepth=2|toDepth=3}
 
-    Terracotta {{{http://www.terracotta.org/bigmemory?src=ehcache_off_heap_store}BigMemory}} is an add-on to Enterprise Ehcache that permits caches to use an additional
-    type of memory store outside the object heap.
-    
+    Terracotta {{{http://www.terracotta.org/bigmemory?src=ehcache_off_heap_store}BigMemory}} is an add-on to Enterprise Ehcache
+    that permits caches to use an additional type of memory store outside the object heap.
+
     This off-heap store, which is not subject to Java GC, is 100 times faster than the DiskStore and allows
     very large caches to be created (we have tested this up to 350GB).
-    
+
     Because off-heap data is stored in bytes, there are two implications:
 
     * Only Serializable cache keys and values can be placed in the store, similar to DiskStore.
@@ -70,7 +71,7 @@
 
     Sets the amount of off-heap memory available to the cache.
     This attribute's values are given as <number>k|K|m|M|g|G|t|T for
-    kilobytes (k|K), megabytes (m|M), gigabytes (g|G), or terrabytes
+    kilobytes (k|K), megabytes (m|M), gigabytes (g|G), or terabytes
     (t|T). For example, maxMemoryOffHeap="2g" allots 2 gigabytes to
     off-heap memory. In effect only if overflowToOffHeap is true.
 
@@ -96,8 +97,8 @@ public Cache createOffHeapCache() {
 
 **   Add The License
 
-    The Ehcache Enterprise download kit (available here - please add URL) contains a trial license key which must be added to activate
-    the off-heap store.
+    The Ehcache Enterprise trial download (available here - {{www.terracotta.org/bigmemory}}) comes with a trial license key
+    which must be added to activate the off-heap store.
 
     It can be added to the classpath or via a system property.
 
@@ -164,7 +165,7 @@ public Cache createOffHeapCache() {
     for details of tuning this parameter. Note that there are bugs in this which were fixed in kernel 2.6.30 and higher.
 
     Another option is to configure HugePages. See {{http://unixfoo.blogspot.com/2007/10/hugepages.html}}
-    
+
 
     This kind of problem bit us several times in the past in Linux. Although there's a swappiness kernel parameter that can be set to zero, it is usually not enough to avoid swapping altogether. The only surefire way to avoid any kind of swapping is either (a) disabling the swap partition, with the undesirable consequences which that may bring, or (b) using HugePages, which are always mapped to physical memory and cannot be swapped out to disk.
 
@@ -182,7 +183,10 @@ public Cache createOffHeapCache() {
 
     Download {{{/ehcache-offheap-sample.zip}here}} a simple Maven-based application that uses the ehcache off-heap functionality.
 
-    Note: You will need to get a {{{http://www.terracotta.org/bigmemory?src=ehcache.org}license key}} as discussed above to run this.
+    Note: You will need to get a {{{http://www.terracotta.org/bigmemory?src=ehcache.org}license key}} and install it as
+    discussed above to run this.
+
+
 
 *   Storage
 
@@ -199,9 +203,10 @@ public Cache createOffHeapCache() {
       than a database or a distributed cache
 
     The relationship between speed and size for each store is illustrated below:
-    
+
 
 [images/tiered_storage.png]
+
 
 **  Memory Use in each Store
 
@@ -250,7 +255,7 @@ public Cache createOffHeapCache() {
       shut the DiskStore down. Tests show that
 
 *   Using OffHeapStore with 32 bit JVMs
-    
+
     On a 32 bit operating system, Java will always start with a 32 bit data model. On 64 bit OSs, it will default to
     64 bit, but can be forced into 32 bit mode with the Java command line option <<<-d32>>>.
     The problem is that this limits the size of the process to 4GB. Because garbage collection problems are generally
@@ -335,4 +340,4 @@ public Cache createOffHeapCache() {
 
 
 
-    
+
