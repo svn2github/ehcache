@@ -24,6 +24,11 @@ package net.sf.ehcache.store.compound;
 class SynchronizedHashEntry extends HashEntry {
 
     /**
+     * Volatile reference to the current value (or substitute value) for this mapping
+     */
+    private volatile Object element;
+
+    /**
      * Constructs a AtomicHashEntry instance mapping the supplied key, value pair
      * and linking it to the supplied AtomicHashEntry
      *

@@ -42,10 +42,6 @@ public abstract class HashEntry {
      */
     protected final HashEntry next;
 
-    /**
-     * Volatile reference to the current value (or substitute value) for this mapping
-     */
-    protected volatile Object element;
 
     /**
      * Constructs a HashEntry instance mapping the supplied key, value pair
