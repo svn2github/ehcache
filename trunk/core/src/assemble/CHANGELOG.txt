@@ -1,5 +1,14 @@
-ehcache-2.2.0
+ehcache-2.3.0
 ==================
+ <release version="2.3.0" date="2010-10-15" description="Major release with new features">
+            <action dev="Gary Keim" type="add">
+                Additional statistics that break out missNotFound into missInMemory, missOffHeap, and
+                missOnDisk.
+            </action>
+        </release>
+
+ehcache-2.2.0
+===================
     <release version="2.2.0" date="2010-07-16" description="Bug fixes">
         <action dev="Geert Bevin" type="fix">
             Renamed TerracottaConfigConfiguration to TerracottaClientConfiguration.
