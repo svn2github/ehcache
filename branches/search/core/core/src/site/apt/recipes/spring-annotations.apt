@@ -1,0 +1,84 @@
+ ------
+ Caching Methods with Spring 3 Annotations
+ ------
+
+Caching Methods with Spring 3 Annotations
+
+* Problem
+
+    You'd like to cache methods of your application with minimal code changes
+    and use configuration to control the cache settings.
+
+* Solution
+
+    Use the 
+    {{{http://code.google.com/p/ehcache-spring-annotations/}Ehcache Annotations for Spring project}} 
+    at code.google.com to dynamically configure caching of method return values.
+
+* Discussion
+
+    The Ehcache Annotations for Spring project is a successor to the 
+    Spring-Modules project.  This project will allow you to configure caching
+    of method calls dynamically using just configuration.
+
+    The way it works is that the parameter values of the method will be
+    used as a composite key into the cache, caching the return value of the 
+    method.
+
+    For example, suppose you have a method <<<Dog getDog(String name)>>>.
+
+    Once caching is added to this method, all calls to the method will
+    be cached using the "name" parameter as a key.
+
+    So, assume at time <<<t0>>> the application calls this method with the 
+    name equal to "fido".  Since "fido" doesn't exist, the method is allowed
+    to run, generating the "fido" Dog object, and returning it.  This object
+    is then put into the cache using the key "fido". 
+
+    Then assume at time <<<t1>>> the application calls this method with the name
+    equal to "spot".  The same process is repeated, and the cache is
+    now populated with the Dog object named "spot".  
+
+    Finally, at time <<<t2>>> the application again calls the method with the name
+    "fido".  Since "fido" exists in the cache, the "fido" Dog object is 
+    returned from the cache instead of calling the method.
+
+    To implement this in your application, follow these steps:
+
+    <<Step 1:>>
+
+    Add the jars to your application as listed on the 
+    {{{http://code.google.com/p/ehcache-spring-annotations}Ehcache Annotations for Spring project}} 
+    site.
+
+    <<Step 2:>>
+
+    Add the Annotation to methods you would like to cache.  Lets assume
+    you are using the <<<Dog getDog(String name)>>> method from above:
+
+----------------------------
+@Cacheable(name="getDog")
+Dog getDog(String name)
+{
+    ....
+}
+----------------------------
+
+    <<Step 3:>>
+
+    Configure Spring.  You must add the following to your Spring 
+    configuration file in the <<<beans>>> declaration section:
+
+----------------------------
+    <ehcache:annotation-driven cache-manager="ehCacheManager" />
+----------------------------
+
+    More details can be found at: 
+
+    * {{{http://code.google.com/p/ehcache-spring-annotations}Ehcache Annotations for Spring project}} 
+
+    * {{{http://code.google.com/p/ehcache-spring-annotations/wiki/UsingCacheAnnotations}}the project getting started page}}.
+
+    * {{{http://www.jeviathon.com/2010/04/caching-java-methods-with-spring-3.html}this blog}} 
+
+    {}

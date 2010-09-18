@@ -1,0 +1,579 @@
+<html xmlns="http://www.w3.org/1999/xhtml"><head>
+<title>Ehcache - Ehcache Distributed Cache</title>
+
+    <style type="text/css" media="all">
+
+        @import url("../css/siteNew.css");
+
+
+                    </style>
+	<script language="JavaScript" src="http://www.ehcache.org/js/jquery.js"></script>
+
+    <script language="JavaScript" src="http://www.ehcache.org/js/navinit.js"></script>
+   <script language="JavaScript" src="../js/tooltip.js"></script>
+
+    <!--[if IE 6]>
+         <link rel="stylesheet" type="text/css" href="../css/siteNew-IE6.css" />
+    <![endif]-->
+
+
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="description" content="Ehcache is a widely used java distributed cache for general purpose caching,
+            Java EE and light-weight containers. It features memory and disk stores, replicate by copy and invalidate,
+            listeners, cache loaders, cache extensions, cache exception handlers, a gzip caching servlet filter, RESTful
+            &amp; SOAP APIs and much more.  Ehcache is available under an Apache open source license and is actively developed,
+            maintained and supported by Terracotta, Inc.">
+    </head>
+    
+    <div firebugversion="1.5.3" style="display: none;" id="_firebugConsole"></div><body>
+
+<div id="Wrapper">
+    <div id="Container">
+
+        <div id="Header">
+
+            <div id="logo">
+                <a href="http://ehcache.org"><img src="http://ehcache.org/images/ehcache_logo.gif" alt="ehcache" vspace="22" width="294" border="0" height="60"></a>
+            </div>
+
+            <div id="nav">
+
+                <div id="support"><a href="http://www.terracotta.org/ehcache/ehcache-dx?src=ehcacheSupportTab"><span>Support</span></a>
+
+                </div>
+                <div id="products"><a href="http://www.terracotta.org/products?source=ehcachebanner"><span>Products</span></a>
+                </div>
+                <div id="customers"><a href="/customers.html"><span>Customers</span></a>
+                </div>
+                
+                
+                
+                <form method="GET" action="http://www.google.com/custom"><input name="q" size="15" maxlength="255" value="" type="text">
+                    <input name="sa" value="Search" type="submit"><input name="cof" value="GALT:#3C3E29;S:http://gregluck.com;VLC:#9C8E69;AH:left;BGC:white;LH:31;LC:#9C8E69;GFNT:#3C3E29;L:http://ehcache.org/images/ehcache_logo.gif;ALC:#9C8E69;LW:211;T:#4C4E39;GIMP:#3C3E29;AWFID:12c1e42dc993d5c6;" type="hidden"><input name="domains" value="ehcache.org" type="hidden"><input name="sitesearch" value="ehcache.org" type="hidden">
+                </form>
+
+                <div id="contact"><a href="http://www.terracotta.org/contact/?ehcache.org"><b>Contact
+                    Us</b></a>&nbsp; | &nbsp;<a href="http://www.terracotta.org/dl/ehcache-oss-sign-up"><b>Download</b></a>
+                </div>
+                <div id="community">Terracotta Community: <a href="http://www.terracotta.org/account/register"><b>Register</b></a>&nbsp;
+                    |
+                    &nbsp;<a href="http://www.terracotta.org/account/login"><b>Login</b></a>
+
+                </div>
+
+            </div>
+
+
+        </div>
+
+        <div id="leftColumn">
+            <div id="navColumn">
+                        
+    
+
+    
+        
+        
+    
+        
+               <ul id="navList" style="padding: 0px;">
+            
+    <li style="margin: 0px;" class="parent">
+
+	<a href="#" class="parent" style="padding: 0px;">
+        <h5><img class="icon" src="http://ehcache.org/images/arrow_closed.png" alt="arrow" width="13" height="13" hspace="6">
+            About</h5></a>
+                        <ul>
+                    
+    <li style="margin: 0px;" class="none">
+                        <a href="documentation/architecture.html">Architecture</a>
+            </li>
+              
+    <li style="margin: 0px;" class="none">
+
+                        <a href="features.html">Features</a>
+            </li>
+              
+    <li style="margin: 0px;" class="none">
+                        <a href="news.html">News</a>
+            </li>
+              
+    <li style="margin: 0px;" class="none">
+                        <a href="license.html">License</a>
+
+            </li>
+              </ul>
+                    
+    </li><li style="margin: 0px;" class="parent">
+	<a href="#" class="parent" style="padding: 0px;">
+        <h5><img class="icon" src="http://ehcache.org/images/arrow_closed.png" alt="arrow" width="13" height="13" hspace="6">
+            Code</h5></a>
+                        <ul>
+                    
+    <li style="margin: 0px;" class="none">
+
+                        <a href="http://www.terracotta.org/dl/ehcache-oss-sign-up" class="externalLink">Download</a>
+            </li>
+              
+    <li style="margin: 0px;" class="none">
+                        <a href="http://oss.sonatype.org/content/repositories/sourceforge-releases/net/sf/ehcache/" class="externalLink">Maven Release Repository</a>
+            </li>
+              
+    <li style="margin: 0px;" class="none">
+                        <a href="http://oss.sonatype.org/content/repositories/sourceforge-snapshots/net/sf/ehcache/" class="externalLink">Maven Snapshot Repository</a>
+
+            </li>
+              
+    <li style="margin: 0px;" class="none">
+                        <a href="ehcache.xml">ehcache.xml</a>
+            </li>
+              
+    <li style="margin: 0px;" class="none">
+                        <a href="ehcache.xsd">ehcache.xsd</a>
+            </li>
+              
+    <li style="margin: 0px;" class="none">
+
+                        <a href="changes-report.html">Change logs</a>
+            </li>
+              
+    <li style="margin: 0px;" class="none">
+                        <a href="documentation/samples.html">Code Samples</a>
+            </li>
+              
+    <li style="margin: 0px;" class="none">
+                        <a href="source-repository.html">Source Repository</a>
+
+            </li>
+              
+    <li style="margin: 0px;" class="none">
+                        <a href="jxr.html">Browsable Source Code</a>
+            </li>
+              
+    <li style="margin: 0px;" class="none">
+                        <a href="http://fisheye2.atlassian.com/changelog/ehcache/" class="externalLink">Fisheye</a>
+            </li>
+              </ul>
+
+                    
+    </li><li style="margin: 0px;" class="parent">
+	<a href="#" class="parent" style="padding: 0px;">
+        <h5><img class="icon" src="http://ehcache.org/images/arrow_closed.png" alt="arrow" width="13" height="13" hspace="6">
+            Documentation</h5></a>
+                        <ul>
+                    
+    <li style="margin: 0px;" class="none">
+                        <a href="documentation/getting_started.html">Getting Started</a>
+            </li>
+
+              
+    <li style="margin: 0px;" class="none">
+                        <a href="documentation/hibernate.html">Hibernate</a>
+            </li>
+              
+    <li style="margin: 0px;" class="none">
+                        <a href="documentation/index.html">User Guide [HTML]</a>
+            </li>
+              
+    <li style="margin: 0px;" class="none">
+                        <a href="documentation/EhcacheUserGuide-1.7.1.pdf">Ehcache Book [PDF]</a>
+
+            </li>
+              
+                            
+                                        
+                                    
+                                    
+                                    
+                                    
+                                    
+                            
+            <li style="margin: 0px;" class="collapsed">
+                        <a href="documentation/older_guides.html">Earlier Versions [PDF]</a>
+                        </li>
+              
+    <li style="margin: 0px;" class="none">
+                        <a href="apidocs/index.html">JavaDoc</a>
+            </li>
+              
+    <li style="margin: 0px;" class="none">
+
+                        <a href="documentation/faq.html">FAQ</a>
+            </li>
+              </ul>
+                    
+    </li><li style="margin: 0px;" class="parent">
+	<a href="#" class="parent" style="padding: 0px;">
+        <h5><img class="icon" src="http://ehcache.org/images/arrow_closed.png" alt="arrow" width="13" height="13" hspace="6">
+            Community</h5></a>
+                        <ul>
+
+                    
+    <li style="margin: 0px;" class="none">
+                        <a href="mail-lists.html">Mailing Lists</a>
+            </li>
+              
+    <li style="margin: 0px;" class="none">
+                        <a href="issue-tracking.html">Issue Tracking</a>
+            </li>
+              
+    <li style="margin: 0px;" class="none">
+                        <a href="http://forums.terracotta.org/forums/forums/show/16.page" class="externalLink">Forums</a>
+
+            </li>
+              
+    <li style="margin: 0px;" class="none">
+                        <a href="https://jira.terracotta.org/jira/browse/EHC" class="externalLink">Bugs</a>
+            </li>
+              
+    <li style="margin: 0px;" class="none">
+                        <a href="https://jira.terracotta.org/jira/browse/EHC" class="externalLink">Feature Requests</a>
+            </li>
+              
+    <li style="margin: 0px;" class="none">
+
+                        <a href="customers.html">Who's Using?</a>
+            </li>
+              
+    <li style="margin: 0px;" class="none">
+                        <a href="http://gregluck.com/blog" class="externalLink">Maintainer's blog</a>
+            </li>
+              
+    <li style="margin: 0px;" class="none">
+                        <a href="http://cafepress.com/ehcache" class="externalLink">Ehcache Merchandise</a>
+
+            </li>
+              
+    <li style="margin: 0px;" class="none">
+                        <a href="team-list.html">Project Team</a>
+            </li>
+              
+    <li style="margin: 0px;" class="none">
+                        <a href="nameandlogo.html">Name &amp; Logo</a>
+            </li>
+
+              </ul>
+                </li></ul>
+            </div>
+        </div>
+
+        <div id="rightColumn">
+            <h4>Quick Start</h4>
+            <ul>
+                <li style="margin: 0px;"><a href="http://www.terracotta.org/dl/ehcache-oss-sign-up">Download</a></li>
+
+                <li style="margin: 0px;"><a href="http://ehcache.org/documentation/getting_started.html">Getting Started</a></li>
+                <li style="margin: 0px;"><a href="http://ehcache.org/documentation/samples.html">Code Samples</a> </li>
+                <li style="margin: 0px;"><a href="http://ehcache.org/evaluation_faq.html">Evaluation FAQ</a></li>
+                <li style="margin: 0px;"><a href="http://ehcache.org/benchmarks.html">Benchmarks</a></li>
+            </ul>
+
+            <p>&nbsp;</p>
+
+            <h4>Products &amp; Services</h4>
+            <ul>
+                <li style="margin: 0px;">
+                    <a href="http://www.terracotta.org/ehcache">Ehcache
+                        DX, EX and FX
+                        &gt;&gt;</a></li>
+                <li style="margin: 0px;">
+
+                    <a href="http://www.terracotta.org/ehcache/ehcache-dx?source=ehcachebanner">Support
+                        &gt;&gt;</a></li>
+                <li style="margin: 0px;"><a href="http://ehcache.org/training.html">Training &gt;&gt;</a></li>
+                <li style="margin: 0px;"><a href="http://ehcache.org/EhcacheBrochure.pdf">Product Brochure
+                    [PDF]</a></li>
+            </ul>
+            <p>&nbsp;</p>
+
+            <h4>Training Dates</h4>
+
+            <div id="schedule">
+                <b>US - San Francisco</b><br>
+                Apr 29-30, 2010
+                <hr>
+                Jun 28-29, 2010
+                <hr>
+                Oct 6-7, 2010
+                <hr>
+                Nov 11-12, 2010
+                <hr>
+
+                Dec 2-3, 2010
+                <hr>
+                Feb 4-5, 2011
+                <br>
+                <br>
+                <b>India - Delhi</b><br>
+                Feb 4-5, 2010
+                <hr>
+                June 17-18, 2010
+                <hr>
+
+                Dec 2-3, 2010
+                <br>
+                <br>
+                See <a href="http://ehcache.org/training.html">training details</a>.
+
+            </div>
+            <p>&nbsp;</p>
+
+            <h4>Blogs &amp; Tweets</h4>
+
+            <div id="blog">
+               
+                
+            </div>
+        </div>
+
+        <div id="bodyColumn">
+	  <!-- __START_BODY__-->
+            <div class="section"><h2 class="banner" >
+            Ehcache Distributed Cache <br /><span style="font-style:italic;font-weight:bold; color:#555555; font-size:0.65em;">The world's most widely used Java cache.</span>
+            <a name="Ehcache_Distributed_Cache"></a></h2>
+            
+            
+   
+
+           
+             <!--[if !IE]> -->
+			 <script type="text/javascript" language="javascript"> 
+			 
+			 /** 	An auto string sorting from Array handler but for now
+			 *		structure the two strings in a comma delimited list.
+			 *		i.e. no spaces object 1,object 2,object 3
+			 *	
+			 *		Spaces around commas that is.
+			 *		Order them in matching Title->Content pairs.
+			 *
+			 */
+			 var titles = "Scale Continuum,APIs,Editions,Promotion";
+			 var content = "marquee.swf,apis.swf,editions.swf,promo.swf";
+
+
+
+
+			 
+           document.write('<object id="marquee" type="application/x-shockwave-flash"');
+             document.write(' data="tabparent.swf" width="650" height="400" wmode="opaque"' +
+			  
+              
+              'FlashVars="' +
+              
+              'titles='+titles+ 
+              '&' +
+             'content='+ content +
+              
+			  '"' +
+			  ' />');
+			 </script>
+            <!-- <![endif]-->')
+            
+           <!--[if IE]>
+		    <script type="text/javascript" language="javascript"> 
+             var titles = "Scale Continuum,APIs,Editions,Promotion";
+			 var content = "marquee.swf,apis.swf,editions.swf,promo.swf";
+           document.write(' <object id="marquee" classid="clsid:D27CDB6E-AE6D-11cf-96B8-444553540000"'+
+             ' codebase="http://download.macromedia.com/pub/shockwave/cabs/flash/swflash.cab#version=6,0,0,0"'+
+             ' width="650" height="400" wmode="opaque"');
+			  
+               document.write('FlashVars="');
+              
+              document.write('titles='+ titles);
+              document.write('&');
+              document.write('content='+ content);
+              
+			  document.write('"');
+			  document.write(" />");
+			  
+			  
+              document.write('<param name="movie" value="tabparent.swf" />');
+              </script>
+            <!--><!--dgx-->
+            <script type="text/javascript" language="javascript"> 
+			 var titles = "Scale Continuum,APIs,Editions";
+			 var content = "marquee.swf,apis.swf,editions.swf";
+             document.write(' <param name="loop" value="true" />');
+             document.write(' <param name="menu" value="false" />');
+			  document.write(' <param name="wmode" value="opaque" />');
+			  
+              document.write('<param name=FlashVars VALUE="');
+              
+              
+               document.write('titles='+titles);
+              document.write('&');
+              document.write('content='+ content);
+              document.write('" />');
+            
+             document.write(' <p>Get the latest flash player.</p>',
+           '</object>');
+            </script>
+             <!-- <![endif]-->
+            
+            
+            
+            
+            
+            
+
+<p>Ehcache is an open source, standards-based cache used to boost performance, offload the database and simplify scalability. Ehcache is robust, proven and full-featured and this has made it the most widely-used Java-based cache.</p><p>It can scale from in-process with one or more nodes through to a mixed in-process/out-of-process configuration with terabyte-sized caches. For applications needing a coherent distributed cache, Ehcache uses the open source Terracotta Sever Array.</p><p>Ehcache is actively developed, maintained and supported as a professional open source project by <a class="externalLink" href="http://terracotta.org">Terracotta, Inc.</a> and is available under an Apache 2 license.</p><p>In addition to the full-featured open source Ehcache edition, Terracotta offers enterprise editions of Ehcache with 24x7 Professional Support, Consulting, and Training services worldwide.</p><p>Ehcache is distributed in the following modules: </p><table align="center" border="0" class="bodyTable"><tr class="a"><td align="left"><a href="./documentation/index.html">ehcache</a></td><td align="left">a packaging of commonly used modules</td></tr><tr class="b"><td align="left"><a href="./documentation/index.html">ehcache-core</a></td><td align="left">Caching engine, RMI replication and Hibernate plugin</td></tr><tr class="a"><td align="left"><a href="./documentation/distributed_caching_with_terracotta.html">ehcache-terracotta</a></td><td align="left">Seamless integration with Terracotta clustering</td></tr><tr class="b"><td align="left"><a href="./modules/monitor.html">ehcache-monitor (in beta)</a></td><td align="left"><img src="images/new.gif" alt="New feature"> Enterprise-class monitoring and management for development and production</td></tr><tr class="a"><td align="left"><a href="./documentation/web_caching.html">ehcache-web</a></td><td align="left">Java Servlet Container caching, gzipping filters</td></tr><tr class="b"><td align="left"><a href="./documentation/remotedebugger.html">ehcache-debugger</a></td><td align="left">Allows tracing of distributed replication events</td></tr><tr class="a"><td align="left"><a href="./documentation/jsr107.html">ehcache-jcache</a></td><td align="left">JSR107 JCACHE Implementation</td></tr><tr class="b"><td align="left"><a href="./documentation/distributed_caching_with_jgroups.html">ehcache-jgroupsreplication</a></td><td align="left">Replication via JGroups</td></tr><tr class="a"><td align="left"><a href="./documentation/distributed_caching_with_jms.html">ehcache-jmsreplication</a></td><td align="left">Replication via JMS</td></tr><tr class="b"><td align="left"><a href="./documentation/openjpa_provider.html">ehcache-openjpa</a></td><td align="left">Caching Plugin for OpenJPA</td></tr><tr class="a"><td align="left"><a href="./documentation/cache_server.html">ehcache-server</a></td><td align="left">RESTful cache server in a WAR or standalone</td></tr><tr class="b"><td align="left"><a href="./documentation/explicitlocking.html">ehcache-explicitlocking</a></td><td align="left">Explicit locking control with Terracotta</td></tr></table><div class="section"><h3>Latest News<a name="Latest_News"></a></h3><!-- rss widget -->
+<div id="rssWidget">
+    <iframe src="http://s1.rsspump.com/rss.aspx?s=d97bc621-c09d-4957-85c3-db81450c15e3&amp;speed=2&amp;t=0&amp;d=0&amp;u=0&amp;p=1&amp;b=0&amp;font=Verdana&amp;fontsize=12px&amp;bgcolor=&amp;color=000000&amp;type=fade&amp;su=0&amp;sub=1"
+            frameborder="0" width="100%" height="16" scrolling="no"
+            allowtransparency="true">
+    </iframe>
+    <noframes>
+        <div style="background-color: transparent;"><a
+                href="http://www.rsspump.com/?Rss_widget" title="rss widget">Rss
+            widget</a></div>
+    </noframes>
+</div>
+<!-- /rss widget -->
+<div class="section"><h4>10 April 2010: Ehcache 2.0.1 and Ehcache Web 2.0.1 released<a name="a10_April_2010:_Ehcache_2.0.1_and_Ehcache_Web_2.0.1_released"></a></h4><p>New bug fix versions of ehcache and ehcache-web are available. </p></div><div class="section"><h4>23 March 2010: Ehcache Server 1.0 released<a name="a23_March_2010:_Ehcache_Server_1.0_released"></a></h4><p>Ehcache Server and Standalone Server have been released to Sourceforge Downloads. The server provides RESTful and SOAP APIs to Ehcache. It is available as a WAR which works with all app servers, or standalone using Glassfish V3 embedded.</p><p>New in this release is integration with Terracotta Server Array for coherent, scalable and HA caching. Also the Ehcache core has been upgraded to version 2.0, Jersey to 1.1.5, Metro to 2.1.5 and for standalone, Glassfish to V3 embedded.</p><p>This release has been <a class="externalLink" href="http://gregluck.com/blog/archives/2010/03/comparing-memcache-and-ehcache-server-performance/">performance tested against memcache</a> and gives comparable over-the-network performance. Coupled with the simplicity of coding in your HTTP client of choice in your programming language of choice and easily getting the benefits of Terracotta Server Array backing it, this is a killer combination.</p><p>See the Ehcache Server <a href="./documentation/cache_server.html">documentation</a> to get started or <a class="externalLink" href="https://sourceforge.net/projects/ehcache/files/ehcache-server">download</a> it now.</p><p>Due to an issue with external repository handling, these have not yet been released to Maven. Sonatype are completing a project for Sun whereby they will be adding their artifacts to the Central repository. This is expected to be completed this week or next, so the Maven artifacts will be released then.</p></div><div class="section"><h4>8 March 2010: Ehcache 2.0 released<a name="a8_March_2010:_Ehcache_2.0_released"></a></h4><p>Ehcache 2.0 provides a new <a href="./documentation/hibernate.html">Hibernate 3.3 SPI caching plugin</a>, <a href="./documentation/jta.html">JTA</a>, <a href="./documentation/write_through_caching.html">Write-Behind</a>, a new ultra-fast <a href="./documentation/bulk_loading.html">Bulk Loading API</a> for clustered caches. and dynamic runtime cache reconfiguration.</p><p>Ehcache 2.0 is fully backward compatible with earlier versions of Ehcache.</p><p>The Terracotta Server Array (&quot;TSA&quot;) has also been re-engineered to dovetail with Ehcache to provide these features with cluster coherence, high availability and persistence.</p><p>This release also introduces some improvements to ehcache which reduce memory use (over 1.6 and 1.7) by the cache and improve the eviction algorithms.</p><p>See the <a class="externalLink" href="http://ehcache.org/changes-report.html">changelog</a> for complete details of ehcache-core changes.</p><p>To provide an indicator in the documentation on what is new in 2.0, you will this icon: <img src="images/new_in_2.gif" alt="New feature in Ehcache 2.0">.</p></div><div class="section"><h4>3 February 2010: Ehcache 2.0 beta released<a name="a3_February_2010:_Ehcache_2.0_beta_released"></a></h4><p>This is a preview of Ehcache 2.0, aka Project Darwin. Features are as per the GA release.</p></div><div class="section"><h4>11 January 2010: ehcache-1.8, ehcache-core-1.7.2 and ehcache-terracotta-1.8<a name="a11_January_2010:_ehcache-1.8_ehcache-core-1.7.2_and_ehcache-terracotta-1.8"></a></h4><p>This is a final GA release of ehcache comprising ehcache, ehcache-core and ehcache-terracotta modules.</p><p>This release contains some bug fixes to ehcache-core, but the notable change is the upgrade of the ehcache-terracotta module to support Terracotta 3.2. Terracotta 3.2 is dramatically faster than 3.1. See the <a class="externalLink" href="http://ehcache.org/changes-report.html">changelog</a> for complete details of ehcache-core changes.</p><p>Note: If you experience different caching ergonomics you can enable the <tt>LinkedHashMap</tt> based engine with <tt>java -Dnet.sf.ehcache.use.classic.lru=true</tt>. This is the engine enabled up to 1.5.</p></div><div class="section"><h4>22 December 2009: Ehcache OpenJPA plugin 0.2 released<a name="a22_December_2009:_Ehcache_OpenJPA_plugin_0.2_released"></a></h4><p>Back in July we released the first plugin for OpenJPA. This version brings OpenJPA more into line with the Hibernate plugin and more fully implements the OpenJPA API. As with all of the modules we are releasing, this version adds the option, when paired with the ehcache-terracotta module of clustering via Terracotta.</p><p>See <a href="./documentation/openjpa_provider.html">ehcache-openjpa</a>.</p></div><div class="section"><h4>15 December 2009: Ehcache Monitor Beta 2 released<a name="a15_December_2009:_Ehcache_Monitor_Beta_2_released"></a></h4><p>We have had hundreds of people sign up for an play with beta 1 of the Ehcache Monitor. We have fixed over 15 bugs in Beta 1 and have released Beta 2. We have also created a roadmap for beta 3 which will add significant new features. See <a href="./modules/monitor.html">Ehcache Monitor Beta</a>.</p></div><div class="section"><h4>13 December 2009: Ehcache Web 2.0 released<a name="a13_December_2009:_Ehcache_Web_2.0_released"></a></h4><p>Ehcache Web has been part of Ehcache for years. In this release the web caching is split into its own module. The web module provides a filter based PageCachingFilter and PageFragmentCachingFilter which can be used with any Java web framework for caching of HTML, SOAP, REST, JSON, XML and other types.</p><p>New in this release is integration with ehcache-terracotta 1.7.1 and higher, so that coherent, terabyte scale web caches can be created.</p><p>See <a href="./documentation/web_caching.html">ehcache-web</a>.</p></div><div class="section"><h4>9 December 2009: Ehcache welcomes Grails as a first-class supported framework<a name="a9_December_2009:_Ehcache_welcomes_Grails_as_a_first-class_supported_framework"></a></h4><p>Grails 1.2RC1 and higher use Ehcache as the default Hibernate second level cache. However earlier versions of Grails ship with the Ehcache library and are very simple to enable.</p><p>A new <a class="externalLink" href="http://ehcache.org/documentation/grails.html">Grails Chapter</a> shows how to configure Grails to use Ehcache and how to tune it for production use.</p><p>More <a href="./news.html">news</a>...</p></div></div></div> 
+	  <!--__END_BODY__-->
+        </div>
+	
+        <div id="Footer">     
+                    2003-2010
+        
+                    Terracotta, Inc.
+                     </div>
+
+
+    </div>
+</div>
+
+
+
+<!-- please ignore/excuse the inline styles-->
+<div id="popup"
+     style="display:none;position:absolute; width:222px; height:'100%'; color:#000000;">
+
+    <div id="popupTitle"
+         style="background: url('../images/popupTop.png'); height:38px; padding:5px; padding-left: 30px;">
+
+    </div>
+
+    <div style="background: url('../images/popupBG.png'); background-repeat:repeat-y; padding:5px; padding-left: 30px;">
+        <div id="popupContent" style="position: relative; top: -45;">
+            <p style="margin: 0px; padding: 0px;">
+
+            </p>
+        </div>
+    </div>
+    <div id="popupBottom"
+         style="background: url('../images/popupBottom.png'); height: 20px; ">
+        &nbsp;
+    </div>
+
+</div>
+
+
+<!-- Separate Divs for Easy HTML Content editing -->
+
+
+<div id="hibernate" class="popupContent">
+    <span class="content">Hibernate Caching Provider</span>
+
+    <p style="margin: 0px; padding: 0px;">
+        Full featured Hibernate caching provider supporting all cache strategies.
+
+    </p>
+</div>
+
+<div id="jms" class="popupContent">
+    <span class="content">JMS Replication</span>
+
+    <p style="margin: 0px; padding: 0px;">
+        The Ehcache jmsreplication module lets organisations with a message queue investment
+        leverage it for replicating caches.
+
+    </p>
+</div>
+
+<div id="rmi" class="popupContent">
+    <span class="content">RMI Replication</span>
+
+    <p style="margin: 0px; padding: 0px;">
+        RMI-based replication in clusters. Does not support coherency or transactions.
+    </p>
+</div>
+
+<div id="core" class="popupContent">
+    <span class="content">Ehcache Core</span>
+
+    <p style="margin: 0px; padding: 0px;">
+        The core API. Most usages of Ehcache interact with CacheManager, Cache and Elements,
+        contained in this API.
+    </p>
+</div>
+
+<div id="jgroup" class="popupContent">
+    <span class="content">JGroups Replication</span>
+
+    <p style="margin: 0px; padding: 0px;">
+        JGroups based replication in clusters. Does not support coherency or transactions.
+    </p>
+</div>
+
+<div id="web" class="popupContent">
+    <span class="content">Web Caching</span>
+
+    <p style="margin: 0px; padding: 0px;">
+        Ehcache provides a set of general purpose web caching filters.
+    </p>
+</div>
+
+<div id="rest" class="popupContent">
+    <span class="content">Cache Server</span>
+
+    <p style="margin: 0px; padding: 0px;">
+        A Cache Server, available as a WAR for most web containers,
+        or as a standalone server. The Cache Server has two APIs: RESTful resource oriented,
+        and SOAP. Both support clients in any programming language.
+
+    </p>
+</div>
+
+<div id="cluster" class="popupContent">
+    <span class="content">Terracotta Distributed Caching</span>
+
+    <p style="margin: 0px; padding: 0px;">
+        Distribution with the Terracotta Server Array ("TSA") is the preferred distribution
+        mechanism. It provides coherency, JTA, HA, scale and high performance. It is
+        available as open source or with additional features in the Ehcache EX and FX
+        product editions. This requires a Terracotta server which is included in the Ehcache
+        download, since 2.1.
+    </p>
+</div>
+
+<div id="jcache" class="popupContent">
+    <span class="content">JCache Support</span>
+
+    <p style="margin: 0px; padding: 0px;">
+        Ehcache provides a preview implementation of JSR107 via the net.sf.cache.jcache
+        package.
+
+    </p>
+</div>
+
+<div id="jpa" class="popupContent">
+    <span class="content">OpenJPA Caching Provider</span>
+
+    <p style="margin: 0px; padding: 0px;">
+        A cache provider for the OpenJPA ORM.
+    </p>
+</div>
+
+<div id="daojdbc" class="popupContent">
+    <span class="content">DAO/JDBC Caching</span>
+
+    <p style="margin: 0px; padding: 0px;">
+        Interaction with a database directly rather than via ORM remains popular.
+        Ehcache's core API is useful for caching these accesses which are documented
+        in this API.
+    </p>
+</div>
+
+
+</body></html>
