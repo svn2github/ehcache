@@ -180,13 +180,13 @@
     <build>
         <!--TODO put back resource filtering-->
         <!--<resources>-->
-            <!--<resource>-->
-                <!--<directory>src/main/webapp/WEB-INF</directory>-->
-                <!--<filtering>true</filtering>-->
-                <!--<includes>-->
-                    <!--<include>**/*</include>-->
-                <!--</includes>-->
-            <!--</resource>-->
+        <!--<resource>-->
+        <!--<directory>src/main/webapp/WEB-INF</directory>-->
+        <!--<filtering>true</filtering>-->
+        <!--<includes>-->
+        <!--<include>**/*</include>-->
+        <!--</includes>-->
+        <!--</resource>-->
         <!--</resources>-->
 
 
@@ -298,6 +298,32 @@
                     <target>1.6</target>
                 </configuration>
             </plugin>
+
+
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>buildnumber-maven-plugin</artifactId>
+                <version>1.0-beta-3</version>
+                <executions>
+                    <execution>
+                        <phase>generate-resources</phase>
+                        <goals>
+                            <goal>create</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <doCheck>false</doCheck>
+                    <doUpdate>false</doUpdate>
+                    <!--<format>{0,date,yyyy-MM-dd_HH-mm}_{1}</format>-->
+                    <!--<items>-->
+                        <!--<item>timestamp</item>-->
+                        <!--<item>${user.name}</item>-->
+                    <!--</items>-->
+                </configuration>
+            </plugin>
+
+
         </plugins>
     </build>
 
@@ -322,7 +348,7 @@
         <!--
               Upload to http://test.latest.<applicationName>.appspot.com by default
           -->
-        <gae.application.version>gregrluckapptest</gae.application.version>
+        <gae.application.version>ehcache-g-a-e-demo</gae.application.version>
 
 
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

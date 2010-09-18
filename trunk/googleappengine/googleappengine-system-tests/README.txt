@@ -7,7 +7,7 @@ Dependencies
 
 1. Set up an account on Google App Engine (these are free!)
 
-2. Create on GAE an application. Note the name.
+2. Create on GAE an application. Note the name, which we will call <appname> in these instructions.
 
 3. Download v 1.3.7 of the GAE SDK
 
@@ -21,7 +21,9 @@ Override the following properties in pom.xml:
 <gae.home>/work/java/appengine-java-sdk-1.3.7</gae.home>
 
 <!-- Use the name here you defined in step 2 -->
-<gae.application.version>gregrluckapptest</gae.application.version>
+<gae.application.version><appname></gae.application.version>
+
+e.g. <gae.application.version>gregrluckapptest</gae.application.version>
 
 
 Running the Sample Locally
@@ -34,4 +36,10 @@ mvn gae:run
 
 Running the Sample on GAE
 -------------------------
+
+To deploy and run the sample on GAE:
+
+mvn gae:deploy
+
+You will then need to go to <appname>.appspot.com to view it.
 
