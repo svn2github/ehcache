@@ -187,6 +187,72 @@ public Cache createOffHeapCache() {
     discussed above to run this.
 
 
+*   Performance Comparisons
+
+    Checkout {{https://svn.terracotta.org/repo/forge/offHeap-test/}} terracotta_community_login a Maven-based performance comparisons between different store
+    configurations.
+
+    Note: You will need to get a demo {{{http://www.terracotta.org/bigmemory?src=ehcache.org}license key}} and install it as discussed
+    above to run the test.
+
+    Here are some charts from tests we have run on a pre-release alpha version of BigMemory.
+    The test machine was an AMD Opteron with 2.8Mhz 4 cpu/8 cores and 64GB memory running RHEL5.1
+    with Sun JDK 1.6.0_21 in 64 bit mode.
+
+    We used 50 threads doing an even mix of reads and writes with 1KB elements. We used the default
+    garbage collection settings.
+
+    The tests all go through a load/warmup phase then start a performance run. You can use the tests in your own environments and extend
+    them to cover different read/write ratios, data sizes, -Xmx settings and hot sets. The full suite, which is done with
+    <<<run.sh>>> takes 4-5 hours to complete.
+
+    The following charts show the most common caching use case. The read/write ratio is 90% reads and 10% writes. The hot set is that 90%
+    of the time <<<cache.get()>>> will access 10% of the key set. This is representative of the the familiar Pareto distribution that is
+    very commonly observed.
+
+
+**  Largest Full GC
+
+[images/offheap_fullgc.png]
+
+
+    This chart shows the largest observed full GC duration which occurred during the performance run. Most non-batch applications have maximum response time
+    SLAs. As can be seen in the chart, as data sizes grow the full GC gets worse and worse for cache held on heap, whereas off-heap remains
+    a low constant.
+
+    The off-heap store will therefore enable applications with maximum response time SLAs to reliably meet those SLAs.
+
+
+**  Latency
+
+
+[images/offheap_maxlatency.png]
+
+    This chart shows the maximum observed latency while perfomring either a <<<cache.put()>>> or a <<<cache.get()>>>. It is very similar to the
+    Full GC chart because the reason the on-heap latencies blow out is full GCs, where all threads in the test app get frozen.
+
+    Once again the off-heap store can be observed to have a flat, low maximum latency, because any full GCs are tiny, and the cache has excellent
+    concurrency properties.
+
+
+[images/offheap_latency.png]
+
+    This chart shows the off-heap mean latency in microseconds. It can be observed to be flat from 2GB up to 40GB. Further in-house testing shows
+    that the it remains flat up to the limits we have tested to which is currently 350GB.
+
+    Lower latencies are observed at smaller data set sizes because we use a <<<maxElementsInMemory>>> setting which approximates to
+    200MB of on-heap store. On-heap, excluding GC effects is faster than off-heap because there is no deserialization on gets.
+    At lower data sizes there is a higher probability that the small on-heap store will be hit, which is reflected in the lower average
+    latencies.
+
+
+**  Throughput
+
+[images/offheap_tps.png]
+
+    This chart shows the cache operations per second achieved with off-heap. It is the inverse of average latency and shows much the same
+     thing. Once the effect of the on-heap store becomes marginal, throughput remains constant, regardless of cache size. Once again we
+     have verified this constancy up to 350GB.
 
 *   Storage
 

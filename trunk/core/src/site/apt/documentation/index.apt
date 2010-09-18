@@ -22,9 +22,7 @@ Documentation - Table of Contents
 
     * {{{./cache_eviction_algorithms.html}Cache Eviction Algorithms}}
 
-    * {{{./offheap_store.html}BigMemory}}
-
-    * {{{./offheap_store.html}Off-Heap Store}}
+    * {{{./offheap_store.html}BigMemory:Off-Heap Store}} _new_
 
     * {{{./hibernate.html}Hibernate Caching}}
 
@@ -40,7 +38,7 @@ Documentation - Table of Contents
 
     * {{{./cache_decorators.html}Cache Decorators}} 
 
-    * {{{./hibernate.html}Hibernate Caching}} new_in_2
+    * {{{./hibernate.html}Hibernate Caching}}
 
     * {{{./web_caching.html}Web Caching}}
 
@@ -64,11 +62,11 @@ Documentation - Table of Contents
 
     * {{{./jmx.html}JMX Management & Monitoring}}
 
-    * {{{./jta.html}JTA}} new_in_2
+    * {{{./jta.html}JTA}}
 
     * {{{./monitor.html}Ehcache Monitor}} 
 
-    * {{{./bulk_loading.html}Bulk Loading}} new_in_2
+    * {{{./bulk_loading.html}Bulk Loading}}
 
     * {{{./cachemanager_event_listeners.html}CacheManager Event Listeners}}
 
@@ -80,7 +78,7 @@ Documentation - Table of Contents
 
     * {{{./cache_loaders.html}Cache Loaders}}
 
-    * {{{./write_through_caching.html}Write-through and write-behind caching with CacheWriters}} new_in_2
+    * {{{./write_through_caching.html}Write-through and write-behind caching with CacheWriters}}
 
     * {{{./cache_server.html}Cache Server with SOAP and RESTful Web Services}}
 
@@ -94,13 +92,13 @@ Documentation - Table of Contents
 
     * {{{./jruby.html}JRuby Caching}}
 
-    * {{{./unlocked_reads_view.html}ehcache-unlockedreadsview}} - Unlocked reads view of a coherent Terracotta cache new_in_2
+    * {{{./unlocked_reads_view.html}ehcache-unlockedreadsview}} - Unlocked reads view of a coherent Terracotta cache
 
-    * {{{./non_stop_cache.html}ehcache-nonstopcache}} - Fine-grained control over timeouts and offline events new_in_2
+    * {{{./non_stop_cache.html}ehcache-nonstopcache}} - Fine-grained control over timeouts and offline events
 
     * {{{./glassfish.html}Glassfish HowTo}}
 
-    * {{{./googleappengine.html}Google App Engine HowTo}}
+    * {{{./googleappengine.html}Google App Engine Caching}}
 
     * {{{./tomcat.html}Tomcat Issues and Best Practices}}
 

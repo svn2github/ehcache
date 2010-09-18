@@ -19,6 +19,14 @@ Using {JRuby} and Ehcache
 
   ehcache.gem is configured using an ehcache.yaml file which is placed in your ~/lib/config
 
+*   Dependencies
+
+    *   JRuby 1.5 and higher
+
+    *   Rails 3 and higher, for the ehcache-rails.gem
+
+    *   Ehcache 2.2 is the declared dependency, although any version of Ehcache will work 
+
 
 * Using the ehcache.gem API directly
 
