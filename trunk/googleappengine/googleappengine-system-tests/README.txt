@@ -24,10 +24,14 @@ Override the following properties in pom.xml:
 <gae.application.version>gregrluckapptest</gae.application.version>
 
 
-Running the Sample
-------------------
+Running the Sample Locally
+--------------------------
 
 To run the sample locally in the GAE Test Environment:
 
 mvn gae:run         
+		
+
+Running the Sample on GAE
+-------------------------
 

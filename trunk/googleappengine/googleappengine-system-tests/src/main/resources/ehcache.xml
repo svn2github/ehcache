@@ -3,7 +3,10 @@
                   timeToIdleSeconds="0" timeToLiveSeconds="0" overflowToDisk="false"/>
 
     <cache name="messageCache" maxElementsInMemory="5">
+        <!--Writes changes to memcacheg-->
         <cacheEventListenerFactory class="net.sf.ehcache.googleappengine.AppEngineCacheEventListenerFactory"/>
+
+        <!--Reads through to memcacheg on misses but only when cache.getWithLoader() is used-->
         <cacheLoaderFactory class="net.sf.ehcache.googleappengine.AppEngineCacheLoaderFactory"/>
     </cache>
 

@@ -178,12 +178,16 @@
     </dependencies>
 
     <build>
-        <resources>
-            <resource>
-                <directory>src/main/webapp/WEB-INF</directory>
-                <filtering>true</filtering>
-            </resource>
-        </resources>
+        <!--TODO put back resource filtering-->
+        <!--<resources>-->
+            <!--<resource>-->
+                <!--<directory>src/main/webapp/WEB-INF</directory>-->
+                <!--<filtering>true</filtering>-->
+                <!--<includes>-->
+                    <!--<include>**/*</include>-->
+                <!--</includes>-->
+            <!--</resource>-->
+        <!--</resources>-->
 
 
         <plugins>
