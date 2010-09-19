@@ -66,4 +66,16 @@ public class UnlockedReadsViewDecoratorFactory extends CacheDecoratorFactory {
         return new UnlockedReadsView(cache, name);
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Ehcache createDefaultDecoratedEhcache(Ehcache cache, Properties properties) {
+        if (properties == null) {
+            throw new CacheException(UnlockedReadsViewDecoratorFactory.class.getName()
+                    + " cannot be used without any configuration properties");
+        }
+        return new UnlockedReadsView((Cache) cache, generateDefaultDecoratedCacheName(cache, properties.getProperty("name")));
+    }
+
 }
