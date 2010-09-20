@@ -170,7 +170,7 @@ public class MemoryStore extends AbstractStore implements CacheConfigurationList
         return putInternal(element, writerManager);
     }
 
-    private synchronized boolean putInternal(Element element, CacheWriterManager writerManager) throws CacheException {
+    private boolean putInternal(Element element, CacheWriterManager writerManager) throws CacheException {
         boolean newPut = true;
         if (element != null) {
             newPut = map.put(element.getObjectKey(), element) == null;
@@ -226,7 +226,7 @@ public class MemoryStore extends AbstractStore implements CacheConfigurationList
         return removeInternal(key, writerManager);
     }
 
-    private synchronized Element removeInternal(Object key, CacheWriterManager writerManager) throws CacheException {
+    private Element removeInternal(Object key, CacheWriterManager writerManager) throws CacheException {
 
         if (key == null) {
             return null;
@@ -363,9 +363,11 @@ public class MemoryStore extends AbstractStore implements CacheConfigurationList
      * @param element The Element
      */
     protected void spoolToDisk(final Element element) {
-        diskStore.put(element);
-        if (LOG.isDebugEnabled()) {
-            LOG.debug(cache.getName() + "Cache: spool to disk done for: " + element.getObjectKey());
+        if (diskStore != null) {
+            diskStore.put(element);
+            if (LOG.isDebugEnabled()) {
+                LOG.debug(cache.getName() + "Cache: spool to disk done for: " + element.getObjectKey());
+            }
         }
     }
 
@@ -492,7 +494,7 @@ public class MemoryStore extends AbstractStore implements CacheConfigurationList
      */
     protected void doPut(final Element elementJustAdded) {
         if (maximumSize > 0) {
-            int evict = Math.min(map.size() - maximumSize, MAX_EVICTION_RATIO);
+            int evict = Math.min(map.quickSize() - maximumSize, MAX_EVICTION_RATIO);
             for (int i = 0; i < evict; i++) {
                 removeElementChosenByEvictionPolicy(elementJustAdded);
             }
@@ -529,19 +531,11 @@ public class MemoryStore extends AbstractStore implements CacheConfigurationList
      * Find a "relatively" unused element, but not the element just added.
      */
     protected final Element findEvictionCandidate(final Element elementJustAdded) {
-        Element element = null;
-
         //attempt quicker eviction
         if (useKeySample) {
-            Element[] elements = sampleElements();
+            Element[] elements = sampleElements(elementJustAdded.getObjectKey());
             //this can return null. Let the cache get bigger by one.
-            element = policy.selectedBasedOnPolicy(elements, elementJustAdded);
-
-            if (element != null) {
-                return element;
-            } else {
-                return null;
-            }
+            return policy.selectedBasedOnPolicy(elements, elementJustAdded);
         } else {
             //Using iterate technique
             Element[] elements = sampleElements(map.size());
@@ -557,9 +551,9 @@ public class MemoryStore extends AbstractStore implements CacheConfigurationList
      *
      * @return a random sample of elements
      */
-    protected Element[] sampleElements() {
+    protected Element[] sampleElements(Object keyHint) {
         int size = AbstractPolicy.calculateSampleSize(maximumSize);
-        return map.getRandomValues(size);
+        return map.getRandomValues(size, keyHint);
     }
 
     /**
@@ -682,6 +676,13 @@ public class MemoryStore extends AbstractStore implements CacheConfigurationList
     /**
      * {@inheritDoc}
      */
+    public boolean containsKeyOffHeap(Object key) {
+        return false;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     public boolean containsKeyOnDisk(Object key) {
         return false;
     }
@@ -705,6 +706,20 @@ public class MemoryStore extends AbstractStore implements CacheConfigurationList
      */
     public long getInMemorySizeInBytes() {
         return getSizeInBytes();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public int getOffHeapSize() {
+        return 0;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public long getOffHeapSizeInBytes() {
+        return 0;
     }
 
     /**
@@ -754,6 +769,13 @@ public class MemoryStore extends AbstractStore implements CacheConfigurationList
      */
     public Element replace(Element element) throws NullPointerException {
         throw new UnsupportedOperationException();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public Object getMBean() {
+        return null;
     }
 }
 

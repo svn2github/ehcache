@@ -73,6 +73,7 @@
                 <xs:element minOccurs="0" maxOccurs="unbounded" ref="cacheEventListenerFactory"/>
                 <xs:element minOccurs="0" maxOccurs="unbounded" ref="cacheExtensionFactory"/>
                 <xs:element minOccurs="0" maxOccurs="unbounded" ref="cacheLoaderFactory"/>
+                <xs:element minOccurs="0" maxOccurs="unbounded" ref="cacheDecoratorFactory"/>
                 <xs:element minOccurs="0" maxOccurs="1" ref="bootstrapCacheLoaderFactory"/>
                 <xs:element minOccurs="0" maxOccurs="1" ref="cacheExceptionHandlerFactory"/>
                 <xs:element minOccurs="0" maxOccurs="1" ref="terracotta"/>
@@ -95,7 +96,7 @@
             <xs:attribute name="statistics" type="xs:boolean" use="optional" default="false"/>
             <xs:attribute name="copyOnRead" type="xs:boolean" use="optional" default="false"/>
             <xs:attribute name="copyOnWrite" type="xs:boolean" use="optional" default="false"/>
-            <xs:attribute name="timeoutMillis" type="xs:integer" use="optional" default="0"/>
+            <xs:attribute name="cacheLoaderTimeoutMillis" type="xs:integer" use="optional" default="0"/>
             <xs:attribute name="overflowToOffHeap" type="xs:boolean" use="optional" default="false"/>
             <xs:attribute name="maxMemoryOffHeap" type="xs:string" use="optional"/>
         </xs:complexType>
@@ -131,7 +132,7 @@
             <xs:attribute name="copyOnRead" type="xs:boolean" use="optional" default="false"/>
             <xs:attribute name="copyOnWrite" type="xs:boolean" use="optional" default="false"/>
             <xs:attribute name="logging" type="xs:boolean" use="optional" default="false"/>
-            <xs:attribute name="timeoutMillis" type="xs:integer" use="optional" default="0"/>
+            <xs:attribute name="cacheLoaderTimeoutMillis" type="xs:integer" use="optional" default="0"/>
             <xs:attribute name="overflowToOffHeap" type="xs:boolean" use="optional" default="false"/>
             <xs:attribute name="maxMemoryOffHeap" type="xs:string" use="optional"/>
         </xs:complexType>

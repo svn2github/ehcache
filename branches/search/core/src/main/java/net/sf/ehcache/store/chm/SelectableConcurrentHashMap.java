@@ -36,13 +36,19 @@ public class SelectableConcurrentHashMap extends ConcurrentHashMap<Object, Eleme
         super(initialCapacity, loadFactor, concurrency);
     }
 
-    public Element[] getRandomValues(final int size) {
-        ArrayList<Element> sampled = new ArrayList<Element>(size);
+    public Element[] getRandomValues(final int size, Object keyHint) {
+        ArrayList<Element> sampled = new ArrayList<Element>(size * 2);
 
         // pick a random starting point in the map
         int randomHash = rndm.nextInt();
 
-        final int segmentStart = (randomHash >>> segmentShift) & segmentMask;
+        final int segmentStart;
+        if (keyHint == null) {
+            segmentStart = (randomHash >>> segmentShift) & segmentMask;
+        } else {
+            segmentStart = (hash(keyHint.hashCode()) >>> segmentShift) & segmentMask;
+        }
+
         int segmentIndex = segmentStart;
         do {
             final HashEntry<Object, Element>[] table = segments[segmentIndex].table;
@@ -70,4 +76,26 @@ public class SelectableConcurrentHashMap extends ConcurrentHashMap<Object, Eleme
 
         return sampled.toArray(new Element[sampled.size()]);
     }
+
+
+    /**
+     * Returns the number of key-value mappings in this map without locking anything.
+     * This may not give the exact element count as locking is avoided.
+     * If the map contains more than <tt>Integer.MAX_VALUE</tt> elements, returns
+     * <tt>Integer.MAX_VALUE</tt>.
+     *
+     * @return the number of key-value mappings in this map
+     */
+    public int quickSize() {
+        long size = 0;
+
+        for (Segment<Object, Element> segment : this.segments) {
+            size += segment.count;
+        }
+
+        if (size > Integer.MAX_VALUE)
+            return Integer.MAX_VALUE;
+        return (int) size;
+    }
+
 }

@@ -168,7 +168,7 @@ public class CacheConfiguration implements Cloneable {
     /**
      * Timeout in milliseconds for CacheLoader related calls
      */
-    protected volatile long timeoutMillis;
+    protected volatile long cacheLoaderTimeoutMillis;
 
     /**
      * the maximum objects to be held in the {@link net.sf.ehcache.store.MemoryStore}.
@@ -513,7 +513,6 @@ public class CacheConfiguration implements Cloneable {
      */
     public final void setMaxMemoryOffHeap(String maxMemoryOffHeap) {
         checkDynamicChange();
-        MemorySizeParser.parse(maxMemoryOffHeap);
         this.maxMemoryOffHeap = maxMemoryOffHeap;
     }
 
@@ -575,11 +574,11 @@ public class CacheConfiguration implements Cloneable {
     /**
      * Sets the timeout for CacheLoader execution (0 = no timeout).
      *
-     * @param timeoutMillis the timeout in milliseconds.
+     * @param cacheLoaderTimeoutMillis the timeout in milliseconds.
      */
-    public final void setTimeoutMillis(long timeoutMillis) {
+    public final void setCacheLoaderTimeoutMillis(long cacheLoaderTimeoutMillis) {
         checkDynamicChange();
-        this.timeoutMillis = timeoutMillis;
+        this.cacheLoaderTimeoutMillis = cacheLoaderTimeoutMillis;
     }
 
     /**
@@ -589,7 +588,7 @@ public class CacheConfiguration implements Cloneable {
      * @return this configuration instance
      */
     public CacheConfiguration timeoutMillis(long timeoutMillis) {
-        setTimeoutMillis(timeoutMillis);
+        setCacheLoaderTimeoutMillis(timeoutMillis);
         return this;
     }
 
@@ -1346,8 +1345,6 @@ public class CacheConfiguration implements Cloneable {
 
     /**
      * Used to validate what should be a complete Cache Configuration.
-     *
-     * throws @{link InvalidConfigurationException} if the configuration is invalid.
      */
     public void validateCompleteConfiguration() {
 
@@ -1363,12 +1360,8 @@ public class CacheConfiguration implements Cloneable {
 
     /**
      * Used to validate a Cache Configuration.
-     *
-     * throws @{link InvalidConfigurationException} if the configuration is invalid.
      */
     public void validateConfiguration() {
-
-
         if (terracottaConfiguration != null && terracottaConfiguration.isClustered()) {
             if (overflowToDisk) {
                 throw new InvalidConfigurationException("overflowToDisk isn't supported for a clustered Terracotta cache");
@@ -1429,8 +1422,8 @@ public class CacheConfiguration implements Cloneable {
     /**
      * Accessor
      */
-    public long getTimeoutMillis() {
-        return timeoutMillis;
+    public long getCacheLoaderTimeoutMillis() {
+        return cacheLoaderTimeoutMillis;
     }
 
     /**

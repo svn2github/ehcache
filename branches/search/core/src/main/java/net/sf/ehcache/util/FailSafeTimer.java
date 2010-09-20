@@ -22,10 +22,13 @@ import java.util.TimerTask;
 
 /**
  * A fail-safe timer in the sense that if the runtime environment restricts
- * creating new threads, it doesn't blow up with exception. TimerTasks that are
+ * creating new threads, it doesn't blow up with an exception. TimerTasks that are
  * scheduled will run at least once (inline when they are scheduled) if creating
  * threads is not allowed.
  * For example, Google App Engine does not allow creation of new threads.
+ * <p/>
+ * Clients should not use this as a general purpose timing service. To do so could
+ * interfere with the running of the Cache.
  * 
  * @author <a href="mailto:asanoujam@terracottatech.com">Abhishek Sanoujam</a>
  * @since 1.7

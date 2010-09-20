@@ -60,7 +60,6 @@ public class CacheConfigurationElement extends SimpleNodeElement {
                 CacheConfiguration.DEFAULT_LOGGING));
 
         addCommonChildElementsWithDefaultCache(this, cacheConfiguration);
-        addAllFactoryConfigsAsChildElements(this, "cacheDecoratorFactory", cacheConfiguration.getCacheDecoratorConfigurations());
     }
 
     /**
@@ -95,6 +94,12 @@ public class CacheConfigurationElement extends SimpleNodeElement {
                 .defaultValue(CacheConfiguration.DEFAULT_TTL));
         element.addAttribute(new SimpleNodeAttribute("maxElementsOnDisk", cacheConfiguration.getMaxElementsOnDisk()).optional(true)
                 .defaultValue(CacheConfiguration.DEFAULT_MAX_ELEMENTS_ON_DISK));
+        element.addAttribute(new SimpleNodeAttribute("maxMemoryOffHeap", cacheConfiguration.getMaxMemoryOffHeap()).optional(true)
+                .defaultValue((String) null));
+        element.addAttribute(new SimpleNodeAttribute("overflowToOffHeap", cacheConfiguration.isOverflowToOffHeap()).optional(true)
+                .defaultValue(false));
+        element.addAttribute(new SimpleNodeAttribute("cacheLoaderTimeoutMillis", cacheConfiguration.getCacheLoaderTimeoutMillis())
+                .optional(true).defaultValue(0L));
         element.addAttribute(new SimpleNodeAttribute("transactionalMode", cacheConfiguration.getTransactionalMode()).optional(true)
                 .defaultValue(CacheConfiguration.DEFAULT_TRANSACTIONAL_MODE));
         element.addAttribute(new SimpleNodeAttribute("statistics", cacheConfiguration.getStatistics()).optional(true).defaultValue(
@@ -142,6 +147,7 @@ public class CacheConfigurationElement extends SimpleNodeElement {
         if (cacheWriterConfiguration != null && !CacheConfiguration.DEFAULT_CACHE_WRITER_CONFIGURATION.equals(cacheWriterConfiguration)) {
             element.addChildElement(new CacheWriterConfigurationElement(element, cacheWriterConfiguration));
         }
+        addAllFactoryConfigsAsChildElements(element, "cacheDecoratorFactory", cacheConfiguration.getCacheDecoratorConfigurations());
         TerracottaConfiguration terracottaConfiguration = cacheConfiguration.getTerracottaConfiguration();
         if (terracottaConfiguration != null) {
             element.addChildElement(new TerracottaConfigurationElement(element, terracottaConfiguration));

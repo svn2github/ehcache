@@ -198,7 +198,7 @@ public final class ConfigurationFactory {
                         " token specified in the configuration.");
             }
         }
-        return new ByteArrayInputStream(configuration.getBytes());
+        return new ByteArrayInputStream(configuration.getBytes("UTF-8"));
     }
 
     /**

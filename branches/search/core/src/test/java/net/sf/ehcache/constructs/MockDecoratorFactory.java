@@ -24,27 +24,40 @@ import net.sf.ehcache.Ehcache;
 /**
  * 
  * @author Abhishek Sanoujam
- *
+ * 
  */
 public class MockDecoratorFactory extends CacheDecoratorFactory {
 
     @Override
     public Ehcache createDecoratedEhcache(Ehcache cache, Properties properties) {
-        return new DecoratedTestEhcache(cache, properties);
+        return new MockDecoratorFactoryCache(cache, properties, false);
     }
 
-    public static class DecoratedTestEhcache extends EhcacheDecoratorAdapter {
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Ehcache createDefaultDecoratedEhcache(Ehcache cache, Properties properties) {
+        return new MockDecoratorFactoryCache(cache, properties, true);
+    }
+
+    public static class MockDecoratorFactoryCache extends EhcacheDecoratorAdapter {
 
         private final Properties properties;
         private final String name;
 
-        public DecoratedTestEhcache(Ehcache underlyingCache, Properties properties) {
+        public MockDecoratorFactoryCache(Ehcache underlyingCache, Properties properties, boolean forDefaultCache) {
             super(underlyingCache);
             this.properties = properties;
-            name = properties.getProperty("name");
-            if (name == null || name.trim().equalsIgnoreCase("")) {
-                throw new CacheException("MockDecoratorFactory should be configured with a mandatory name property - " + properties);
+            String tmpName = properties.getProperty("name");
+            if (forDefaultCache) {
+                if (tmpName == null || tmpName.trim().equals("")) {
+                   tmpName = underlyingCache.getName(); 
+                } else {
+                    tmpName = CacheDecoratorFactory.generateDefaultDecoratedCacheName(underlyingCache, tmpName);
+                }
             }
+            this.name = tmpName;
         }
 
         public Properties getProperties() {

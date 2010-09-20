@@ -30,6 +30,7 @@
         <testDir>src/test/java</testDir>
         <testResources>src/test/resources</testResources>
         <name>ehcache</name>
+        <skipCheckstyle>false</skipCheckstyle>
     </properties>
 
     <dependencies>
@@ -73,6 +74,12 @@
             <artifactId>hibernate-core</artifactId>
             <version>3.5.1-Final</version>
             <scope>provided</scope>
+            <exclusions>
+            	<exclusion>
+            		<artifactId>ehcache</artifactId>
+            		<groupId>net.sf.ehcache</groupId>
+            	</exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.codehaus.btm</groupId>
@@ -115,6 +122,12 @@
             <artifactId>hibernate-ehcache</artifactId>
             <version>3.3.2.GA</version>
             <scope>test</scope>
+            <exclusions>
+              <exclusion>
+                <artifactId>ehcache</artifactId>
+                <groupId>net.sf.ehcache</groupId>
+              </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.apache.derby</groupId>
@@ -276,16 +289,16 @@
                     </execution>
 
                     <!--<execution>-->
-                        <!--<id>singlepageguide</id>-->
-                        <!--<phase>pre-site</phase>-->
-                        <!--<configuration>-->
-                            <!--<tasks>-->
-                                <!--<ant target="singlepageguide"/>-->
-                            <!--</tasks>-->
-                        <!--</configuration>-->
-                        <!--<goals>-->
-                            <!--<goal>run</goal>-->
-                        <!--</goals>-->
+                    <!--<id>singlepageguide</id>-->
+                    <!--<phase>pre-site</phase>-->
+                    <!--<configuration>-->
+                    <!--<tasks>-->
+                    <!--<ant target="singlepageguide"/>-->
+                    <!--</tasks>-->
+                    <!--</configuration>-->
+                    <!--<goals>-->
+                    <!--<goal>run</goal>-->
+                    <!--</goals>-->
                     <!--</execution>-->
 
                     <!--<execution>-->
@@ -435,6 +448,7 @@
                     </suppressionsLocation>
                     <headerLocation>${basedir}/checkstyle/ClassHeader.txt
                     </headerLocation>
+                    <skip>${skipCheckstyle}</skip>
                     <enableRSS>false</enableRSS>
                     <linkXRef>true</linkXRef>
                     <consoleOutput>true</consoleOutput>
@@ -485,7 +499,16 @@
                 <configuration>
                     <templateFile>${basedir}/src/site/default-site-ehcache.vm
                     </templateFile>
+                    <inputEncoding>UTF-8</inputEncoding>
+                    <outputEncoding>UTF-8</outputEncoding>
                 </configuration>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.apache.maven.doxia</groupId>
+                        <artifactId>doxia-module-confluence</artifactId>
+                        <version>1.1.3</version>
+                    </dependency>
+                </dependencies>
             </plugin>
 
 
@@ -542,6 +565,45 @@
                 <testDir>src/test/perf</testDir>
                 <testResources>src/test/perfResources</testResources>
             </properties>
+        </profile>
+        <profile>
+            <!--
+            This profile is here for triggering when another scm than svn is
+            used (for example git). Instead of getting the version build number
+            from svn we will use the build date and the user name.
+            -->
+            <id>buildnumber-git</id>
+            <activation>
+                <file>
+                    <missing>.svn</missing>
+                </file>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>buildnumber-maven-plugin</artifactId>
+                        <version>1.0-beta-3</version>
+                        <executions>
+                            <execution>
+                                <phase>generate-resources</phase>
+                                <goals>
+                                    <goal>create</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                        <configuration>
+                            <doCheck>false</doCheck>
+                            <doUpdate>false</doUpdate>
+                            <format>{0,date,yyyy-MM-dd_HH-mm}_{1}</format>
+                            <items>
+                                <item>timestamp</item>
+                                <item>${user.name}</item>
+                            </items>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
         </profile>
     </profiles>
 
@@ -604,28 +666,28 @@
     </reporting>
 
     <!-- The JBoss repository is only here to satisfy the 'provided' dependency on hibernate-core -->
-    <repositories>
-        <repository>
-            <id>jboss-releases</id>
-            <url>http://repository.jboss.org/maven2</url>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-        </repository>
-        <repository>
-            <id>java-net</id>
-            <url>http://download.java.net/maven/2/</url>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-        </repository>
-    </repositories>
+    <!--<repositories>-->
+        <!--<repository>-->
+            <!--<id>jboss-releases</id>-->
+            <!--<url>http://repository.jboss.org/maven2</url>-->
+            <!--<releases>-->
+                <!--<enabled>true</enabled>-->
+            <!--</releases>-->
+            <!--<snapshots>-->
+                <!--<enabled>false</enabled>-->
+            <!--</snapshots>-->
+        <!--</repository>-->
+        <!--<repository>-->
+            <!--<id>java-net</id>-->
+            <!--<url>http://download.java.net/maven/2/</url>-->
+            <!--<releases>-->
+                <!--<enabled>true</enabled>-->
+            <!--</releases>-->
+            <!--<snapshots>-->
+                <!--<enabled>false</enabled>-->
+            <!--</snapshots>-->
+        <!--</repository>-->
+    <!--</repositories>-->
 
     <pluginRepositories>
         <pluginRepository>
@@ -682,4 +744,3 @@
     </issueManagement>
 
 </project>
-

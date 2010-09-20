@@ -10,7 +10,9 @@ See instructions below or the ehcache schema (ehcache.xsd) on how to configure.
 System property tokens can be specified in this file which are replaced when the configuration
 is loaded. For example multicastGroupPort=${multicastGroupPort} can be replaced with the
 System property either from an environment variable or a system property specified with a
-command line switch such as -DmulticastGroupPort=4446.
+command line switch such as -DmulticastGroupPort=4446. Another example, useful for Terracotta
+server based deployments is <terracottaConfig url="${serverAndPort}"/ and specify a command line
+switch of -Dserver36:9510
 
 The attributes of <ehcache> are:
 * name - an optional name for the CacheManager.  The name is optional and primarily used
@@ -209,7 +211,7 @@ used with JMX monitors.
     +++++++++++++++++++++++++++++++
     <cacheManagerPeerProviderFactory
          class="net.sf.ehcache.distribution.jgroups.JGroupsCacheManagerPeerProviderFactory"
-         properties="connect=UDP(mcast_addr=231.12.21.132;mcast_port=45566;ip_ttl=32;
+         properties="channel=ehcache^connect=UDP(mcast_addr=231.12.21.132;mcast_port=45566;ip_ttl=32;
          mcast_send_buf_size=150000;mcast_recv_buf_size=80000):
          PING(timeout=2000;num_initial_members=6):
          MERGE2(min_interval=5000;max_interval=10000):
@@ -219,11 +221,15 @@ used with JMX monitors.
          pbcast.STABLE(desired_avg_gossip=20000):
          FRAG:
          pbcast.GMS(join_timeout=5000;join_retry_timeout=2000;shun=false;print_local_addr=false)"
-         propertySeparator="::"
+         propertySeparator="^"
      />
-     The only property necessary is the connect String used by jgroups to configure itself. Refer to the Jgroups
-     documentation for explanation of all the protocols. The example above uses UDP multicast. If the connect property
-     is not specified the default JGroups connection will be used.
+     JGroups configuration is done by providing a connect string using connect= as in the above example which uses
+     multicast, or since version 1.4, a file= to specify the location of a JGroups configuration file.
+
+     If neither a connect or file property is specified, the default JGroups JChannel will be used.
+
+     Multiple JGroups clusters may be run on the same network by specifying a different CacheManager name. The name
+     is used as the cluster name.
 
 
     JMSCacheManagerPeerProviderFactory
@@ -379,6 +385,28 @@ used with JMX monitors.
 
     The following attributes and elements are optional.
 
+    overflowToOffHeap:
+    (boolean) This feature is available only in enterprise versions of Ehcache.
+    When set to true, enables the cache to utilize off-heap memory
+    storage to improve performance. Off-heap memory is not subject to Java
+    GC. The default value is false.
+    
+    maxMemoryOffHeap:
+    (string) This feature is available only in enterprise versions of Ehcache.
+    Sets the amount of off-heap memory available to the cache.
+    This attribute's values are given as <number>k|K|m|M|g|G|t|T for
+    kilobytes (k|K), megabytes (m|M), gigabytes (g|G), or terabytes
+    (t|T). For example, maxMemoryOffHeap="2g" allots 2 gigabytes to
+    off-heap memory.
+
+    This setting is in effect only if overflowToOffHeap is true.
+
+    Note that it is recommended to set maxElementsInMemory to at least 100 elements
+    when using an off-heap store, otherwise performance will be seriously degraded,
+    and a warning will be logged.
+
+    The minimum amount that can be allocated is 128MB. There is no maximum.
+
     timeToIdleSeconds:
     Sets the time to idle for an element before it expires.
     i.e. The maximum amount of time between accesses before an element expires
@@ -424,11 +452,11 @@ used with JMX monitors.
     (specified as LFU)
 
     copyOnRead:
-    Whether an Element is copied when being added to the cache.
+    Whether an Element is copied when being read from a cache.
     By default this is false.
 
     copyOnWrite:
-    Whether an Element is copied when being read from a cache.
+    Whether an Element is copied when being added to the cache.
     By default this is false.
 
     Cache elements can also contain sub elements which take the same format of a factory class

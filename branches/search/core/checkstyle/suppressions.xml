@@ -50,6 +50,9 @@
     <!-- tree walking is neater with parameter assignment - imho -->
     <suppress checks="ParameterAssignment" files="RegionSet.java" />
 
+    <!-- the DynamicMBean interface defines the exception set here -->
+    <suppress checks="ThrowsCount" files="Store.java"/>
+
     <!-- Candidates for refactoring. Cyclomatic complexity is blown out mostly
      because of the LOG guards (if (LOG.isDebugEnabled) { ...) which are there for
      runtime performance.-->
@@ -61,6 +64,7 @@
     <suppress checks="NPathComplexity" files="RMIBootstrapCacheLoader.java"/>
     <suppress checks="NPathComplexity" files="Cache.java"/>
     <suppress checks="NPathComplexity" files="CacheManager.java"/>
+    <suppress checks="ClassDataAbstractionCoupling" files="CacheManager.java"/>
     <suppress checks="ClassDataAbstractionCoupling" files="DiskStore.java"/>
     <suppress checks="ClassDataAbstractionCoupling" files="Cache.java"/>
     <suppress checks="ClassDataAbstractionCoupling" files="XATransactionalStore.java"/>
@@ -93,7 +97,6 @@
     <suppress checks="NPathComplexity" files="CacheConfigurationElement.java"/>
     <suppress checks="NPathComplexity" files="ConfigurationElement.java"/>
     
-
 
 
 

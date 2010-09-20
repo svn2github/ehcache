@@ -19,10 +19,28 @@
         <menu name="About">
             <item name="Overview" href="documentation/overview.html"/>
             <item name="Architecture" href="documentation/architecture.html"/>
-            <item name="Modules" href="/modules.html"/>
             <item name="Features" href="/features.html"/>
             <item name="News" href="/news.html"/>
             <item name="License" href="/license.html"/>
+        </menu>
+
+        <menu name="Modules">
+            <item name="Module Listing" href="/modules.html"/>
+            <item name="Ehcache" href="/documentation/index.html"/>
+            <item name="Ehcache Core" href="/documentation/index.html"/>
+            <item name="Distributed Caching with Terracotta" href="/documentation/distributed_caching_with_terracotta.html"/>
+            <item name="Monitor" href="/documentation/monitor.html"/>
+            <item name="Ehcache Web" href="/documentation/web_caching.html"/>
+            <item name="Ehcache JCache" href="/documentation/jsr107.html"/>
+            <item name="Replication with JGroups" href="/documentation/distributed_caching_with_jgroups.html"/>
+            <item name="Replication with JMS" href="/documentation/distributed_caching_with_jms.html"/>
+            <item name="OpenJPA Caching Plugin" href="/documentation/openjpa_provider.html"/>
+            <item name="OpenJPA Caching Plugin" href="/documentation/openjpa_provider.html"/>
+            <item name="RESTful Cache Server" href="/documentation/cache_server.html"/>
+            <item name="Explicit Locking" href="/documentation/explicitlocking.html"/>
+            <item name="Unlocked Reads View" href="/documentation/unlocked_reads_view.html"/>
+            <item name="NonStop Cache" href="/documentation/non_stop_cache.html"/>
+            <item name="RMI Remote Debugger" href="/documentation/remotedebugger.html"/>
         </menu>
 
         <menu name="Code">
@@ -40,8 +58,9 @@
         <menu name="Documentation">
             <item name="Getting Started" href="documentation/getting_started.html"/>
             <item name="Code Samples and Recipes" href="documentation/samples.html"/>
+            <item name="BigMemory" href="documentation/offheap_store.html"/>
             <item name="Hibernate Caching" href="documentation/hibernate.html"/>
-	    <item name="Distributed Caching" href="documentation/distributed_caching.html"/>
+	        <item name="Distributed Caching" href="documentation/distributed_caching.html"/>
             <item name="JDBC Caching" href="documentation/jdbc.html"/>
             <item name="User Guide [HTML]" href="documentation/index.html"/>
             <item name="Ehcache Book [PDF]" href="/documentation/EhcacheUserGuide-1.7.1.pdf"/>

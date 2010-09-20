@@ -151,6 +151,15 @@ public class LiveCacheStatisticsWrapper implements LiveCacheStatistics, LiveCach
 
     /**
      * {@inheritDoc}
+     *
+     * @see net.sf.ehcache.statistics.LiveCacheStatistics#getOffHeapSize()
+     */
+    public long getOffHeapSize() {
+        return delegate.getOffHeapSize();
+    }
+
+    /**
+     * {@inheritDoc}
      * 
      * @see net.sf.ehcache.statistics.LiveCacheStatistics#getOnDiskSize()
      */
@@ -188,6 +197,33 @@ public class LiveCacheStatisticsWrapper implements LiveCacheStatistics, LiveCach
     /**
      * {@inheritDoc}
      * 
+     * @see net.sf.ehcache.statistics.LiveCacheStatistics#getInMemoryMissCount()
+     */
+    public long getInMemoryMissCount() {
+        return delegate.getInMemoryMissCount();
+    }
+
+    /**
+     * {@inheritDoc}
+     * 
+     * @see net.sf.ehcache.statistics.LiveCacheStatistics#getOffHeapMissCount()
+     */
+    public long getOffHeapMissCount() {
+        return delegate.getOffHeapMissCount();
+    }
+
+    /**
+     * {@inheritDoc}
+     * 
+     * @see net.sf.ehcache.statistics.LiveCacheStatistics#getOnDiskMissCount()
+     */
+    public long getOnDiskMissCount() {
+        return delegate.getOnDiskMissCount();
+    }
+    
+    /**
+     * {@inheritDoc}
+     * 
      * @see net.sf.ehcache.statistics.LiveCacheStatistics#getCacheMissCountExpired()
      */
     public long getCacheMissCountExpired() {
@@ -219,6 +255,15 @@ public class LiveCacheStatisticsWrapper implements LiveCacheStatistics, LiveCach
      */
     public long getInMemoryHitCount() {
         return delegate.getInMemoryHitCount();
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @see net.sf.ehcache.statistics.LiveCacheStatistics#getOffHeapHitCount()
+     */
+    public long getOffHeapHitCount() {
+        return delegate.getOffHeapHitCount();
     }
 
     /**
@@ -299,6 +344,15 @@ public class LiveCacheStatisticsWrapper implements LiveCacheStatistics, LiveCach
 
     /**
      * {@inheritDoc}
+     *
+     * @see net.sf.ehcache.statistics.LiveCacheStatisticsData#cacheHitOffHeap()
+     */
+    public void cacheHitOffHeap() {
+        getDelegateAsLiveStatisticsData().cacheHitOffHeap();
+    }
+
+    /**
+     * {@inheritDoc}
      * 
      * @see net.sf.ehcache.statistics.LiveCacheStatisticsData#cacheHitOnDisk()
      */
@@ -322,6 +376,33 @@ public class LiveCacheStatisticsWrapper implements LiveCacheStatistics, LiveCach
      */
     public void cacheMissNotFound() {
         getDelegateAsLiveStatisticsData().cacheMissNotFound();
+    }
+    
+    /**
+     * {@inheritDoc}
+     * 
+     * @see net.sf.ehcache.statistics.LiveCacheStatisticsData#cacheMissNotFound()
+     */
+    public void cacheMissInMemory() {
+        getDelegateAsLiveStatisticsData().cacheMissInMemory();
+    }
+
+    /**
+     * {@inheritDoc}
+     * 
+     * @see net.sf.ehcache.statistics.LiveCacheStatisticsData#cacheMissNotFound()
+     */
+    public void cacheMissOffHeap() {
+        getDelegateAsLiveStatisticsData().cacheMissOffHeap();
+    }
+
+    /**
+     * {@inheritDoc}
+     * 
+     * @see net.sf.ehcache.statistics.LiveCacheStatisticsData#cacheMissNotFound()
+     */
+    public void cacheMissOnDisk() {
+        getDelegateAsLiveStatisticsData().cacheMissOnDisk();
     }
 
     /**
@@ -406,5 +487,4 @@ public class LiveCacheStatisticsWrapper implements LiveCacheStatistics, LiveCach
         super.clone();
         throw new CloneNotSupportedException();
     }
-
 }

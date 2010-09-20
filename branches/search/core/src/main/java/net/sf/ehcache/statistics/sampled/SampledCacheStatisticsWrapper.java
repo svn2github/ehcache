@@ -134,6 +134,14 @@ public class SampledCacheStatisticsWrapper implements CacheUsageListener, Sample
 
     /**
      * {@inheritDoc}
+     *
+     */
+    public long getCacheHitOffHeapMostRecentSample() {
+        return delegate.getCacheHitOffHeapMostRecentSample();
+    }
+
+    /**
+     * {@inheritDoc}
      * 
      */
     public long getCacheHitMostRecentSample() {
@@ -162,6 +170,30 @@ public class SampledCacheStatisticsWrapper implements CacheUsageListener, Sample
      */
     public long getCacheMissMostRecentSample() {
         return delegate.getCacheMissMostRecentSample();
+    }
+
+    /**
+     * {@inheritDoc}
+     * 
+     */
+    public long getCacheMissInMemoryMostRecentSample() {
+        return delegate.getCacheMissInMemoryMostRecentSample();
+    }
+
+    /**
+     * {@inheritDoc}
+     * 
+     */
+    public long getCacheMissOffHeapMostRecentSample() {
+        return delegate.getCacheMissOffHeapMostRecentSample();
+    }
+
+    /**
+     * {@inheritDoc}
+     * 
+     */
+    public long getCacheMissOnDiskMostRecentSample() {
+        return delegate.getCacheMissOnDiskMostRecentSample();
     }
 
     /**
@@ -251,6 +283,13 @@ public class SampledCacheStatisticsWrapper implements CacheUsageListener, Sample
 
     /**
      * {@inheritDoc}
+     */
+    public void notifyCacheHitOffHeap() {
+        getDelegateAsListener().notifyCacheHitOffHeap();
+    }
+
+    /**
+     * {@inheritDoc}
      * 
      */
     public void notifyCacheHitOnDisk() {
@@ -273,6 +312,30 @@ public class SampledCacheStatisticsWrapper implements CacheUsageListener, Sample
         getDelegateAsListener().notifyCacheMissedWithNotFound();
     }
 
+    /**
+     * {@inheritDoc}
+     * 
+     */
+    public void notifyCacheMissInMemory() {
+        getDelegateAsListener().notifyCacheMissInMemory();
+    }
+
+    /**
+     * {@inheritDoc}
+     * 
+     */
+    public void notifyCacheMissOffHeap() {
+        getDelegateAsListener().notifyCacheMissOffHeap();
+    }
+
+    /**
+     * {@inheritDoc}
+     * 
+     */
+    public void notifyCacheMissOnDisk() {
+        getDelegateAsListener().notifyCacheMissOnDisk();
+    }
+    
     /**
      * {@inheritDoc}
      * 
@@ -312,5 +375,4 @@ public class SampledCacheStatisticsWrapper implements CacheUsageListener, Sample
     public void notifyTimeTakenForGet(long millis) {
         getDelegateAsListener().notifyTimeTakenForGet(millis);
     }
-
 }

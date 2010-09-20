@@ -96,6 +96,13 @@ public final class MemoryOnlyStore extends CompoundStore implements CacheConfigu
     /**
      * {@inheritDoc}
      */
+    public boolean containsKeyOffHeap(Object key) {
+        return false;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     public boolean containsKeyOnDisk(Object key) {
         return false;
     }
@@ -151,6 +158,20 @@ public final class MemoryOnlyStore extends CompoundStore implements CacheConfigu
      * {@inheritDoc}
      */
     public long getOnDiskSizeInBytes() {
+        return 0;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public int getOffHeapSize() {
+        return 0;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public long getOffHeapSizeInBytes() {
         return 0;
     }
 
@@ -227,6 +248,13 @@ public final class MemoryOnlyStore extends CompoundStore implements CacheConfigu
      */
     public void timeToLiveChanged(long oldTimeToLive, long newTimeToLive) {
         // no-op
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public Object getMBean() {
+        return null;
     }
 
 }

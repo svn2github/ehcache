@@ -732,7 +732,7 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
      * @return the string representation of flags set or TMNOFLAGS
      */
     private String prettyPrintFlags(int flags) {
-        StringBuffer flagStrings = new StringBuffer();
+        StringBuilder flagStrings = new StringBuilder();
         flagStrings.append(printFlag(flags, TMENDRSCAN, "TMENDRSCAN "));
         flagStrings.append(printFlag(flags, TMFAIL, "TMFAIL "));
         flagStrings.append(printFlag(flags, TMJOIN, "TMJOIN "));

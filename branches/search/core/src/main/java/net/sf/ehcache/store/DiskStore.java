@@ -39,7 +39,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 
-import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
@@ -186,7 +185,7 @@ public class DiskStore extends AbstractStore implements CacheConfigurationListen
      * @param diskStorePath
      * @return an instance of a DiksStore
      */
-    public static DiskStore create(Cache cache, String diskStorePath) {
+    public static DiskStore create(Ehcache cache, String diskStorePath) {
         DiskStore store = new DiskStore(cache, diskStorePath);
         cache.getCacheConfiguration().addConfigurationListener(store);
         return store;
@@ -1122,6 +1121,13 @@ public class DiskStore extends AbstractStore implements CacheConfigurationListen
     }
 
     /**
+     * {@inheritDoc}
+     */
+    public Object getMBean() {
+        return null;
+    }
+
+    /**
      * A reference to an on-disk elements.
      * <p/>
      * Copies of expiryTime and hitcount are held here as a performance optimisation, so
@@ -1448,6 +1454,13 @@ public class DiskStore extends AbstractStore implements CacheConfigurationListen
     /**
      * {@inheritDoc}
      */
+    public boolean containsKeyOffHeap(Object key) {
+        return false;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     public boolean containsKeyOnDisk(Object key) {
         return containsKey(key);
     }
@@ -1470,6 +1483,20 @@ public class DiskStore extends AbstractStore implements CacheConfigurationListen
      * {@inheritDoc}
      */
     public long getInMemorySizeInBytes() {
+        return 0;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public int getOffHeapSize() {
+        return 0;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public long getOffHeapSizeInBytes() {
         return 0;
     }
 

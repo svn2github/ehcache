@@ -80,6 +80,13 @@ public class NullSampledCacheStatistics implements CacheUsageListener, SampledCa
     /**
      * {@inheritDoc}
      */
+    public long getCacheHitOffHeapMostRecentSample() {
+      return 0;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     public long getCacheHitMostRecentSample() {
         return 0;
     }
@@ -105,6 +112,27 @@ public class NullSampledCacheStatistics implements CacheUsageListener, SampledCa
         return 0;
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    public long getCacheMissInMemoryMostRecentSample() {
+        return 0;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public long getCacheMissOffHeapMostRecentSample() {
+        return 0;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public long getCacheMissOnDiskMostRecentSample() {
+        return 0;
+    }
+    
     /**
      * {@inheritDoc}
      */
@@ -198,6 +226,15 @@ public class NullSampledCacheStatistics implements CacheUsageListener, SampledCa
 
     /**
      * {@inheritDoc}
+     *
+     * @see net.sf.ehcache.statistics.CacheUsageListener#notifyCacheHitOffHeap()
+     */
+    public void notifyCacheHitOffHeap() {
+        // no-op
+    }
+
+    /**
+     * {@inheritDoc}
      * 
      * @see net.sf.ehcache.statistics.CacheUsageListener#notifyCacheHitOnDisk()
      */
@@ -223,6 +260,33 @@ public class NullSampledCacheStatistics implements CacheUsageListener, SampledCa
         // no-op
     }
 
+    /**
+     * {@inheritDoc}
+     * 
+     * @see net.sf.ehcache.statistics.CacheUsageListener#notifyCacheMissInMemory()
+     */
+    public void notifyCacheMissInMemory() {
+        // no-op
+    }
+
+    /**
+     * {@inheritDoc}
+     * 
+     * @see net.sf.ehcache.statistics.CacheUsageListener#notifyCacheMissOffHeap()
+     */
+    public void notifyCacheMissOffHeap() {
+        // no-op
+    }
+
+    /**
+     * {@inheritDoc}
+     * 
+     * @see net.sf.ehcache.statistics.CacheUsageListener#notifyCacheMissOnDisk()
+     */
+    public void notifyCacheMissOnDisk() {
+        // no-op
+    }
+    
     /**
      * {@inheritDoc}
      * 
@@ -277,5 +341,4 @@ public class NullSampledCacheStatistics implements CacheUsageListener, SampledCa
         // no-op
 
     }
-
 }

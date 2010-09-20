@@ -51,8 +51,12 @@ public class SampledCacheStatisticsImpl implements CacheUsageListener, SampledCa
     private volatile CounterManager counterManager;
     private final SampledCounter cacheHitCount;
     private final SampledCounter cacheHitInMemoryCount;
+    private final SampledCounter cacheHitOffHeapCount;
     private final SampledCounter cacheHitOnDiskCount;
     private final SampledCounter cacheMissCount;
+    private final SampledCounter cacheMissInMemoryCount;
+    private final SampledCounter cacheMissOffHeapCount;
+    private final SampledCounter cacheMissOnDiskCount;
     private final SampledCounter cacheMissExpiredCount;
     private final SampledCounter cacheMissNotFoundCount;
     private final SampledCounter cacheElementEvictedCount;
@@ -73,8 +77,12 @@ public class SampledCacheStatisticsImpl implements CacheUsageListener, SampledCa
         counterManager = new CounterManagerImpl(timer);
         cacheHitCount = createSampledCounter(DEFAULT_SAMPLED_COUNTER_CONFIG);
         cacheHitInMemoryCount = createSampledCounter(DEFAULT_SAMPLED_COUNTER_CONFIG);
+        cacheHitOffHeapCount = createSampledCounter(DEFAULT_SAMPLED_COUNTER_CONFIG);
         cacheHitOnDiskCount = createSampledCounter(DEFAULT_SAMPLED_COUNTER_CONFIG);
         cacheMissCount = createSampledCounter(DEFAULT_SAMPLED_COUNTER_CONFIG);
+        cacheMissInMemoryCount = createSampledCounter(DEFAULT_SAMPLED_COUNTER_CONFIG);
+        cacheMissOffHeapCount = createSampledCounter(DEFAULT_SAMPLED_COUNTER_CONFIG);
+        cacheMissOnDiskCount = createSampledCounter(DEFAULT_SAMPLED_COUNTER_CONFIG);
         cacheMissExpiredCount = createSampledCounter(DEFAULT_SAMPLED_COUNTER_CONFIG);
         cacheMissNotFoundCount = createSampledCounter(DEFAULT_SAMPLED_COUNTER_CONFIG);
         cacheElementEvictedCount = createSampledCounter(DEFAULT_SAMPLED_COUNTER_CONFIG);
@@ -108,8 +116,12 @@ public class SampledCacheStatisticsImpl implements CacheUsageListener, SampledCa
     public void clearStatistics() {
         cacheHitCount.getAndReset();
         cacheHitInMemoryCount.getAndReset();
+        cacheHitOffHeapCount.getAndReset();
         cacheHitOnDiskCount.getAndReset();
         cacheMissCount.getAndReset();
+        cacheMissInMemoryCount.getAndReset();
+        cacheMissOffHeapCount.getAndReset();
+        cacheMissOnDiskCount.getAndReset();
         cacheMissExpiredCount.getAndReset();
         cacheMissNotFoundCount.getAndReset();
         cacheElementEvictedCount.getAndReset();
@@ -137,6 +149,13 @@ public class SampledCacheStatisticsImpl implements CacheUsageListener, SampledCa
     /**
      * {@inheritDoc}
      */
+    public void notifyCacheHitOffHeap() {
+        incrementIfStatsEnabled(cacheHitCount, cacheHitOffHeapCount);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     public void notifyCacheHitOnDisk() {
         incrementIfStatsEnabled(cacheHitCount, cacheHitOnDiskCount);
     }
@@ -153,6 +172,27 @@ public class SampledCacheStatisticsImpl implements CacheUsageListener, SampledCa
      */
     public void notifyCacheMissedWithNotFound() {
         incrementIfStatsEnabled(cacheMissCount, cacheMissNotFoundCount);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void notifyCacheMissInMemory() {
+        incrementIfStatsEnabled(cacheMissCount, cacheMissInMemoryCount);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void notifyCacheMissOffHeap() {
+        incrementIfStatsEnabled(cacheMissCount, cacheMissOffHeapCount);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void notifyCacheMissOnDisk() {
+        incrementIfStatsEnabled(cacheMissCount, cacheMissOnDiskCount);
     }
 
     /**
@@ -242,8 +282,12 @@ public class SampledCacheStatisticsImpl implements CacheUsageListener, SampledCa
     public void notifyStatisticsCleared() {
         cacheHitCount.getAndReset();
         cacheHitInMemoryCount.getAndReset();
+        cacheHitOffHeapCount.getAndReset();
         cacheHitOnDiskCount.getAndReset();
         cacheMissCount.getAndReset();
+        cacheMissInMemoryCount.getAndReset();
+        cacheMissOffHeapCount.getAndReset();
+        cacheMissOnDiskCount.getAndReset();
         cacheMissExpiredCount.getAndReset();
         cacheMissNotFoundCount.getAndReset();
         cacheElementEvictedCount.getAndReset();
@@ -285,6 +329,13 @@ public class SampledCacheStatisticsImpl implements CacheUsageListener, SampledCa
     /**
      * {@inheritDoc}
      */
+    public long getCacheHitOffHeapMostRecentSample() {
+        return cacheHitOffHeapCount.getMostRecentSample().getCounterValue();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     public long getCacheHitOnDiskMostRecentSample() {
         return cacheHitOnDiskCount.getMostRecentSample().getCounterValue();
     }
@@ -303,6 +354,27 @@ public class SampledCacheStatisticsImpl implements CacheUsageListener, SampledCa
         return cacheMissCount.getMostRecentSample().getCounterValue();
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    public long getCacheMissInMemoryMostRecentSample() {
+        return cacheMissInMemoryCount.getMostRecentSample().getCounterValue();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public long getCacheMissOffHeapMostRecentSample() {
+        return cacheMissOffHeapCount.getMostRecentSample().getCounterValue();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public long getCacheMissOnDiskMostRecentSample() {
+        return cacheMissOnDiskCount.getMostRecentSample().getCounterValue();
+    }
+    
     /**
      * {@inheritDoc}
      */
@@ -365,5 +437,4 @@ public class SampledCacheStatisticsImpl implements CacheUsageListener, SampledCa
     public boolean isSampledStatisticsEnabled() {
         return sampledStatisticsEnabled.get();
     }
-
 }

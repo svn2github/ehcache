@@ -23,7 +23,7 @@ import org.junit.Test;
 
 import junit.framework.TestCase;
 import net.sf.ehcache.CacheManager;
-import net.sf.ehcache.constructs.MockDecoratorFactory.DecoratedTestEhcache;
+import net.sf.ehcache.constructs.MockDecoratorFactory.MockDecoratorFactoryCache;
 
 /**
  * 
@@ -61,28 +61,28 @@ public class CacheDecoratorFactoryTest extends TestCase {
         List<String> cacheNames = Arrays.asList(cacheManager.getCacheNames());
         assertEquals(12, cacheNames.size());
 
-        DecoratedTestEhcache cache = (DecoratedTestEhcache) cacheManager.getEhcache("oneDecoratorFirst");
+        MockDecoratorFactoryCache cache = (MockDecoratorFactoryCache) cacheManager.getEhcache("oneDecoratorFirst");
         assertEquals("oneFirst", cache.getProperties().getProperty("someKey"));
 
-        cache = (DecoratedTestEhcache) cacheManager.getEhcache("twoDecoratorFirst");
+        cache = (MockDecoratorFactoryCache) cacheManager.getEhcache("twoDecoratorFirst");
         assertEquals("twoFirst", cache.getProperties().getProperty("someKey"));
 
-        cache = (DecoratedTestEhcache) cacheManager.getEhcache("twoDecoratorSecond");
+        cache = (MockDecoratorFactoryCache) cacheManager.getEhcache("twoDecoratorSecond");
         assertEquals("twoSecond", cache.getProperties().getProperty("someKey"));
 
-        cache = (DecoratedTestEhcache) cacheManager.getEhcache("fiveDecoratorFirst");
+        cache = (MockDecoratorFactoryCache) cacheManager.getEhcache("fiveDecoratorFirst");
         assertEquals("fiveFirst", cache.getProperties().getProperty("someKey"));
 
-        cache = (DecoratedTestEhcache) cacheManager.getEhcache("fiveDecoratorSecond");
+        cache = (MockDecoratorFactoryCache) cacheManager.getEhcache("fiveDecoratorSecond");
         assertEquals("fiveSecond", cache.getProperties().getProperty("someKey"));
 
-        cache = (DecoratedTestEhcache) cacheManager.getEhcache("fiveDecoratorThird");
+        cache = (MockDecoratorFactoryCache) cacheManager.getEhcache("fiveDecoratorThird");
         assertEquals("fiveThird", cache.getProperties().getProperty("someKey"));
 
-        cache = (DecoratedTestEhcache) cacheManager.getEhcache("fiveDecoratorFourth");
+        cache = (MockDecoratorFactoryCache) cacheManager.getEhcache("fiveDecoratorFourth");
         assertEquals("fiveFourth", cache.getProperties().getProperty("someKey"));
 
-        cache = (DecoratedTestEhcache) cacheManager.getEhcache("fiveDecoratorFifth");
+        cache = (MockDecoratorFactoryCache) cacheManager.getEhcache("fiveDecoratorFifth");
         assertEquals("fiveFifth", cache.getProperties().getProperty("someKey"));
 
     }

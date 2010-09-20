@@ -89,6 +89,7 @@ import net.sf.ehcache.util.ClassLoaderUtil;
 import net.sf.ehcache.util.NamedThreadFactory;
 import net.sf.ehcache.util.PropertyUtil;
 import net.sf.ehcache.util.TimeUtil;
+import net.sf.ehcache.util.VmUtils;
 import net.sf.ehcache.writer.CacheWriter;
 import net.sf.ehcache.writer.CacheWriterFactory;
 import net.sf.ehcache.writer.CacheWriterManager;
@@ -966,21 +967,29 @@ public class Cache implements Ehcache, StoreListener {
             final Store store;
             if (configuration.isOverflowToOffHeap()) {
                 try {
-                    Class<Store> storeClass = (Class<Store>) ClassLoaderUtil.loadClass(OFF_HEAP_STORE_CLASSNAME);
-
+                    Class<Store> storeClass = ClassLoaderUtil.loadClass(OFF_HEAP_STORE_CLASSNAME);
                     try {
                         store = (Store) storeClass.getMethod("create", Ehcache.class, String.class).invoke(null, this, diskStorePath);
                     } catch (NoSuchMethodException e) {
-                       throw new CacheException("Cannot find static factory" +
+                       throw new CacheException("Cache: " + configuration.getName() + " cannot find static factory" +
                         " method create(Ehcache, String)" +
                         " in store class " + OFF_HEAP_STORE_CLASSNAME, e);
                     } catch (InvocationTargetException e) {
-                        throw new CacheException("Cannot instantiate store " + OFF_HEAP_STORE_CLASSNAME, e);
+                        Throwable cause = e.getCause();
+                        if (cause instanceof CacheException) {
+                            throw (CacheException)cause;
+                        } else {
+                            throw new CacheException("Cache: " + configuration.getName() +
+                                    " cannot instantiate store " + OFF_HEAP_STORE_CLASSNAME, cause);
+                        }
                     } catch (IllegalAccessException e) {
-                        throw new CacheException("Cannot instantiate store " + OFF_HEAP_STORE_CLASSNAME, e);
+                        throw new CacheException("Cache: " + configuration.getName() +
+                                " cannot instantiate store " + OFF_HEAP_STORE_CLASSNAME, e);
                     }
                 } catch (ClassNotFoundException e) {
-                    throw new CacheException("Cannot load offheap store class " + OFF_HEAP_STORE_CLASSNAME, e);
+                    throw new CacheException("Cache " + configuration.getName() +
+                            " cannot be configured because the off-heap store class could not be found. " +
+                            "You must use an enterprise version of Ehcache to successfully enable overflowToOffHeap.");
                 }
             } else if (isTerracottaClustered()) {
                 store = cacheManager.createTerracottaStore(this);
@@ -1389,14 +1398,7 @@ public class Cache implements Ehcache, StoreListener {
 
         if (isStatisticsEnabled()) {
             long start = System.currentTimeMillis();
-
-            Element element = searchInStoreWithStats(key, false, true);
-            if (element == null) {
-                liveCacheStatisticsData.cacheMissNotFound();
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug(configuration.getName() + " cache - Miss");
-                }
-            }
+            Element element = searchInStoreWithStats(key);
             //todo is this expensive. Maybe ditch.
             long end = System.currentTimeMillis();
             liveCacheStatisticsData.addGetTimeMillis(end - start);
@@ -1443,14 +1445,14 @@ public class Cache implements Ehcache, StoreListener {
             Future future = asynchronousLoad(key, loader, loaderArgument);
 
             //wait for result
-            long timeoutMillis = configuration.getTimeoutMillis();
-            if (timeoutMillis > 0) {
-                future.get(timeoutMillis, TimeUnit.MILLISECONDS);
+            long cacheLoaderTimeoutMillis = configuration.getCacheLoaderTimeoutMillis();
+            if (cacheLoaderTimeoutMillis > 0) {
+                future.get(cacheLoaderTimeoutMillis, TimeUnit.MILLISECONDS);
             } else {
                 future.get();
             }
         } catch (TimeoutException e) {
-            throw new LoadTimeoutException("Timeout on load for key " + key, e);
+            throw new LoaderTimeoutException("Timeout on load for key " + key, e);
         } catch (Exception e) {
             throw new CacheException("Exception on load for key " + key, e);
         }
@@ -1543,7 +1545,18 @@ public class Cache implements Ehcache, StoreListener {
 
                 //now load everything that's missing.
                 Future future = asynchronousLoadAll(missingKeys, loaderArgument);
-                future.get();
+
+                //wait for result
+                long cacheLoaderTimeoutMillis = configuration.getCacheLoaderTimeoutMillis();
+                if (cacheLoaderTimeoutMillis > 0) {
+                    try {
+                        future.get(cacheLoaderTimeoutMillis, TimeUnit.MILLISECONDS);
+                    } catch (TimeoutException e) {
+                        throw new LoaderTimeoutException("Timeout on load for key " + key, e);
+                    }
+                } else {
+                    future.get();
+                }
 
 
                 for (Object missingKey : missingKeys) {
@@ -1714,39 +1727,58 @@ public class Cache implements Ehcache, StoreListener {
         return getKeys();
     }
 
-    private Element searchInStoreWithStats(Object key, boolean quiet, boolean notifyListeners) {
+    private Element searchInStoreWithStats(Object key) {
         boolean wasOnDisk = false;
+        boolean wasOffHeap = false;
+        boolean hasOffHeap = getCacheConfiguration().isOverflowToOffHeap();
+        boolean isTCClustered = getCacheConfiguration().isTerracottaClustered();
+        boolean hasOnDisk = isTCClustered || getCacheConfiguration().isOverflowToDisk();
         Element element;
-        if (quiet) {
-            element = compoundStore.getQuiet(key);
-        } else {
-            wasOnDisk = compoundStore.containsKeyOnDisk(key);
-            element = compoundStore.get(key);
+        
+        if (!compoundStore.containsKeyInMemory(key)) {
+            liveCacheStatisticsData.cacheMissInMemory();
+            if (hasOffHeap) {
+                wasOffHeap = compoundStore.containsKeyOffHeap(key);
+            }
+          if (!wasOffHeap) {
+              if (hasOffHeap) {
+                  liveCacheStatisticsData.cacheMissOffHeap();
+              }
+              wasOnDisk = compoundStore.containsKeyOnDisk(key);
+              if (hasOnDisk && !wasOnDisk) {
+                  liveCacheStatisticsData.cacheMissOnDisk();
+              }
+          }
         }
+        element = compoundStore.get(key);
 
         if (element != null) {
             if (isExpired(element)) {
                 if (LOG.isDebugEnabled()) {
                     LOG.debug(configuration.getName() + " cache hit, but element expired");
                 }
-                if (!quiet) {
-                    liveCacheStatisticsData.cacheMissExpired();
-                }
-                tryRemoveImmediately(key, notifyListeners);
+                liveCacheStatisticsData.cacheMissExpired();
+                tryRemoveImmediately(key, true);
                 element = null;
-            } else if (!quiet) {
+            } else {
                 element.updateAccessStatistics();
                 if (LOG.isDebugEnabled()) {
                     LOG.debug(getName() + "Cache: " + getName() + " store hit for " + key);
                 }
-                if (wasOnDisk) {
+                
+                if (wasOffHeap) {
+                    liveCacheStatisticsData.cacheHitOffHeap();
+                } else if (wasOnDisk) {
                     liveCacheStatisticsData.cacheHitOnDisk();
                 } else {
                     liveCacheStatisticsData.cacheHitInMemory();
                 }
             }
-        } else if (LOG.isDebugEnabled()) {
-            LOG.debug(getName() + "Cache: " + getName() + " store miss for " + key);
+        } else {
+            liveCacheStatisticsData.cacheMissNotFound();
+            if (LOG.isDebugEnabled()) {
+                LOG.debug(configuration.getName() + " cache - Miss");
+            }
         }
         return element;
     }
@@ -2192,6 +2224,16 @@ public class Cache implements Ehcache, StoreListener {
         return compoundStore.getInMemorySizeInBytes();
     }
 
+    /**
+     * Gets the size of the off-heap store for this cache.
+     *
+     * @return the size of the off-heap store in bytes
+     * @throws IllegalStateException
+     */
+    public final long calculateOffHeapSize() throws IllegalStateException, CacheException {
+        checkStatus();
+        return compoundStore.getOffHeapSizeInBytes();
+    }
 
     /**
      * Returns the number of elements in the memory store.
@@ -2202,6 +2244,17 @@ public class Cache implements Ehcache, StoreListener {
     public final long getMemoryStoreSize() throws IllegalStateException {
         checkStatus();
         return compoundStore.getInMemorySize();
+    }
+
+    /**
+     * Returns the number of elements in the off-heap store.
+     *
+     * @return the number of elements in the off-heap store
+     * @throws IllegalStateException if the cache is not {@link Status#STATUS_ALIVE}
+     */
+    public long getOffHeapStoreSize() throws IllegalStateException {
+        checkStatus();
+        return compoundStore.getOffHeapSize();
     }
 
     /**
@@ -2383,7 +2436,14 @@ public class Cache implements Ehcache, StoreListener {
         checkStatus();
         return compoundStore;
     }
-    
+
+    /**
+     * Get the optional store management bean for this cache.
+     */
+    public final Object getStoreMBean() {
+      return getStore().getMBean();
+    }
+
     /**
      * Use this to access the service in order to register and unregister listeners
      *
@@ -2411,6 +2471,16 @@ public class Cache implements Ehcache, StoreListener {
      */
     public final boolean isElementInMemory(Object key) {
         return compoundStore.containsKeyInMemory(key);
+    }
+
+    /**
+     * Whether an Element is stored in the cache in off-heap memory, indicating an intermediate cost of retrieval.
+     *
+     * @return true if an element matching the key is found in off-heap
+     * @since 2.3
+     */
+    public final boolean isElementOffHeap(Object key) {
+        return compoundStore.containsKeyOffHeap(key);
     }
 
     /**
@@ -2508,7 +2578,7 @@ public class Cache implements Ehcache, StoreListener {
         if (key == null) {
             return false;
         }
-        return isElementInMemory(key) || isElementOnDisk(key);
+        return isElementInMemory(key) || isElementOffHeap(key) || isElementOnDisk(key);
     }
 
     /**
@@ -2555,10 +2625,14 @@ public class Cache implements Ehcache, StoreListener {
                 .getStatisticsAccuracy(), getLiveCacheStatistics()
                 .getCacheHitCount(), getLiveCacheStatistics()
                 .getOnDiskHitCount(), getLiveCacheStatistics()
+                .getOffHeapHitCount(), getLiveCacheStatistics()
                 .getInMemoryHitCount(), getLiveCacheStatistics()
-                .getCacheMissCount(), size, getAverageGetTime(),
+                .getCacheMissCount(), getLiveCacheStatistics()
+                .getOnDiskMissCount(), getLiveCacheStatistics()
+                .getOffHeapMissCount(), getLiveCacheStatistics()
+                .getInMemoryMissCount(), size, getAverageGetTime(),
                 getLiveCacheStatistics().getEvictedCount(),
-                getMemoryStoreSize(), getDiskStoreSize());
+                getMemoryStoreSize(), getOffHeapStoreSize(), getDiskStoreSize());
     }
 
     /**
@@ -2941,17 +3015,7 @@ public class Cache implements Ehcache, StoreListener {
     ExecutorService getExecutorService() {
         if (executorService == null) {
             synchronized (this) {
-                boolean inGoogleAppEngine;
-
-                try {
-                    Class.forName("com.google.apphosting.api.DeadlineExceededException");
-                    inGoogleAppEngine = true;
-                } catch (ClassNotFoundException cnfe) {
-                    inGoogleAppEngine = false;
-                }
-
-                if (inGoogleAppEngine) {
-
+                if (VmUtils.isInGoogleAppEngine()) {
                     // no Thread support. Run all tasks on the caller thread
                     executorService = new AbstractExecutorService() {
                         /** {@inheritDoc} */

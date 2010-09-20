@@ -27,6 +27,7 @@ import static org.junit.Assert.fail;
 import java.io.ByteArrayInputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
@@ -1889,6 +1890,21 @@ public class CacheTest extends AbstractCacheTest {
         cache.registerCacheLoader(new DelayingLoader(2000));
         try {
             cache.getWithLoader("key1", null, null);
+            fail();
+        } catch (CacheException e) {
+            //expected
+        }
+    }
+
+    /**
+     * Tests the async load with a timeout
+     */
+    @Test
+    public void testGetAllWithLoaderTimeout() {
+        Cache cache = manager.getCache("sampleCacheTimeout");
+        cache.registerCacheLoader(new DelayingLoader(2000));
+        try {
+            cache.getAllWithLoader(Arrays.asList("key1"), null);
             fail();
         } catch (CacheException e) {
             //expected

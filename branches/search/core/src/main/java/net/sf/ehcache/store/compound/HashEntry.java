@@ -15,49 +15,38 @@
  */
 
 /**
- * 
+ *
  */
 package net.sf.ehcache.store.compound;
 
-import java.util.concurrent.atomic.AtomicReferenceFieldUpdater;
-
 /**
  * Internal entry structure used by the {@link Segment} class.
- * 
+ *
  * @author Chris Dennis
+ * @author Ludovic Orban
  */
-class HashEntry {
-    
-    /**
-     * Field updater used to atomically update the volatile Element reference.
-     */
-    private static final AtomicReferenceFieldUpdater<HashEntry, Object> ELEMENT_UPDATER =
-        AtomicReferenceFieldUpdater.newUpdater(HashEntry.class, Object.class, "element");
+public abstract class HashEntry {
 
     /**
      * Key instance for this mapping.
      */
     protected final Object key;
-    
+
     /**
      * Spread hash value for they key.
      */
     protected final int hash;
-    
+
     /**
      * Reference to the next HashEntry in this chain.
      */
     protected final HashEntry next;
 
-    /**
-     * Volatile reference to the current value (or substitute value) for this mapping
-     */
-    private volatile Object element;
 
     /**
      * Constructs a HashEntry instance mapping the supplied key, value pair
      * and linking it to the supplied HashEntry
-     * 
+     *
      * @param key key for this entry
      * @param hash spread-hash for this entry
      * @param next next HashEntry in the chain
@@ -67,46 +56,39 @@ class HashEntry {
         this.key = key;
         this.hash = hash;
         this.next = next;
-        
+
         setElement(element);
     }
-    
+
     /**
      * Volatile read of this entry's element reference.
-     * 
+     *
      * @return mapped element
      */
-    Object getElement() {
-        return ELEMENT_UPDATER.get(this);
-    }
+    abstract Object getElement();
 
     /**
      * Volatile write of this entry's element reference.
-     * 
+     *
      * @param element to map
      */
-    void setElement(Object element) {
-        ELEMENT_UPDATER.set(this, element);
-    }
+    abstract void setElement(Object element);
 
     /**
      * Atomic compare-and-swap of this entry's element reference.
-     * 
+     *
      * @param expect expected value
      * @param update value to install
      * @return <code>true</code> if the CAS succeeded
      */
-    boolean casElement(Object expect, Object update) {
-        return ELEMENT_UPDATER.compareAndSet(this, expect, update);
-    }
-    
+    abstract boolean casElement(Object expect, Object update);
+
     /**
      * Atomic get-and-set of this entry's element reference.
-     * 
+     *
      * @param element value to install
      * @return previous value
      */
-    Object gasElement(Object element) {
-        return ELEMENT_UPDATER.getAndSet(this, element);
-    }
+    abstract Object gasElement(Object element);
+
 }

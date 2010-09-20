@@ -47,6 +47,11 @@ public interface CacheUsageListener {
     public void notifyCacheHitInMemory();
 
     /**
+     * Called on a cache hit in the off-heap store
+     */
+    public void notifyCacheHitOffHeap();
+
+    /**
      * Called on a cache hit in the DiskStore
      */
     public void notifyCacheHitOnDisk();
@@ -67,6 +72,21 @@ public interface CacheUsageListener {
      */
     public void notifyCacheMissedWithNotFound();
 
+    /**
+     * Called on a cache miss in the MemoryStore
+     */
+    public void notifyCacheMissInMemory();
+
+    /**
+     * Called on a cache miss in the off-heap store
+     */
+    public void notifyCacheMissOffHeap();
+
+    /**
+     * Called on a cache miss in the DiskStore
+     */
+    public void notifyCacheMissOnDisk();
+    
     /**
      * Called when an element is found in the cache but already expired
      */

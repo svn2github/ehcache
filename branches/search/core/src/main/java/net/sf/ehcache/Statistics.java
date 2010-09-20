@@ -65,13 +65,23 @@ public class Statistics implements Serializable {
 
     private final long onDiskHits;
 
+    private final long offHeapHits;
+
     private final long inMemoryHits;
 
     private final long misses;
 
+    private final long onDiskMisses;
+
+    private final long offHeapMisses;
+
+    private final long inMemoryMisses;
+    
     private final long size;
 
     private final long memoryStoreSize;
+
+    private final long offHeapStoreSize;
 
     private final long diskStoreSize;
 
@@ -87,24 +97,31 @@ public class Statistics implements Serializable {
      * @param statisticsAccuracy
      * @param cacheHits
      * @param onDiskHits
+     * @param offHeapHits 
      * @param inMemoryHits
      * @param misses
      * @param size
      */
-    public Statistics(Ehcache cache, int statisticsAccuracy, long cacheHits, long onDiskHits, long inMemoryHits,
-                      long misses, long size, float averageGetTime, long evictionCount, long memoryStoreSize,
-                      long diskStoreSize) {
+    public Statistics(Ehcache cache, int statisticsAccuracy, long cacheHits, long onDiskHits, long offHeapHits,
+                      long inMemoryHits, long misses, long onDiskMisses, long offHeapMisses,
+                      long inMemoryMisses, long size, float averageGetTime, long evictionCount,
+                      long memoryStoreSize, long offHeapStoreSize, long diskStoreSize) {
         this.cacheName = cache.getName();
         this.statisticsAccuracy = statisticsAccuracy;
         this.cacheHits = cacheHits;
         this.onDiskHits = onDiskHits;
+        this.offHeapHits = offHeapHits;
         this.inMemoryHits = inMemoryHits;
         this.misses = misses;
+        this.onDiskMisses = onDiskMisses;
+        this.offHeapMisses = offHeapMisses;
+        this.inMemoryMisses = inMemoryMisses;
         this.cache = cache;
         this.size = size;
         this.averageGetTime = averageGetTime;
         this.evictionCount = evictionCount;
         this.memoryStoreSize = memoryStoreSize;
+        this.offHeapStoreSize = offHeapStoreSize;
         this.diskStoreSize = diskStoreSize;
     }
 
@@ -137,6 +154,15 @@ public class Statistics implements Serializable {
     }
 
     /**
+     * Number of times a requested item was found in the off-heap store.
+     *
+     * @return the number of times a requested item was found in off-heap
+     */
+    public long getOffHeapHits() {
+        return offHeapHits;
+    }
+
+    /**
      * Number of times a requested item was found in the Disk Store.
      *
      * @return the number of times a requested item was found on Disk, or 0 if there is no disk storage configured.
@@ -151,6 +177,33 @@ public class Statistics implements Serializable {
     public long getCacheMisses() {
         return misses;
 
+    }
+
+    /**
+     * Number of times a requested item was not found in the Memory Store.
+     *
+     * @return the number of times a requested item was not found in memory
+     */
+    public long getInMemoryMisses() {
+        return inMemoryMisses;
+    }
+
+    /**
+     * Number of times a requested item was not found in the off-heap store.
+     *
+     * @return the number of times a requested item was not found in off-heap
+     */
+    public long getOffHeapMisses() {
+        return offHeapMisses;
+    }
+
+    /**
+     * Number of times a requested item was not found in the Disk Store.
+     *
+     * @return the number of times a requested item was not found on Disk, or 0 if there is no disk storage configured.
+     */
+    public long getOnDiskMisses() {
+        return onDiskMisses;
     }
 
     /**
@@ -196,6 +249,14 @@ public class Statistics implements Serializable {
      */
     public long getMemoryStoreObjectCount() {
         return memoryStoreSize;
+    }
+
+    /**
+     *
+     * @return the number of objects in the off-heap store
+     */
+    public long getOffHeapStoreObjectCount() {
+        return offHeapStoreSize;
     }
 
     /**
@@ -265,8 +326,12 @@ public class Statistics implements Serializable {
                 .append(" name = ").append(getAssociatedCacheName())
                 .append(" cacheHits = ").append(cacheHits)
                 .append(" onDiskHits = ").append(onDiskHits)
+                .append(" offHeapHits = ").append(offHeapHits)
                 .append(" inMemoryHits = ").append(inMemoryHits)
                 .append(" misses = ").append(misses)
+                .append(" onDiskMisses = ").append(onDiskMisses)
+                .append(" offHeapMisses = ").append(offHeapMisses)
+                .append(" inMemoryMisses = ").append(inMemoryMisses)
                 .append(" size = ").append(size)
                 .append(" averageGetTime = ").append(averageGetTime)
                 .append(" evictionCount = ").append(evictionCount)

@@ -197,6 +197,13 @@ public class SampledCache extends BaseEmitterBean implements SampledCacheMBean, 
     /**
      * {@inheritDoc}
      */
+    public long getCacheHitOffHeapMostRecentSample() {
+        return cache.getSampledCacheStatistics().getCacheHitOffHeapMostRecentSample();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     public long getCacheHitMostRecentSample() {
         return cache.getSampledCacheStatistics().getCacheHitMostRecentSample();
     }
@@ -222,6 +229,27 @@ public class SampledCache extends BaseEmitterBean implements SampledCacheMBean, 
         return cache.getSampledCacheStatistics().getCacheMissMostRecentSample();
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    public long getCacheMissInMemoryMostRecentSample() {
+        return cache.getSampledCacheStatistics().getCacheMissInMemoryMostRecentSample();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public long getCacheMissOffHeapMostRecentSample() {
+        return cache.getSampledCacheStatistics().getCacheMissOffHeapMostRecentSample();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public long getCacheMissOnDiskMostRecentSample() {
+        return cache.getSampledCacheStatistics().getCacheMissOnDiskMostRecentSample();
+    }
+    
     /**
      * {@inheritDoc}
      */
@@ -383,6 +411,33 @@ public class SampledCache extends BaseEmitterBean implements SampledCacheMBean, 
         return cache.getLiveCacheStatistics().getCacheMissCount();
     }
 
+    /**
+     * {@inheritDoc}
+     * 
+     * @see net.sf.ehcache.management.sampled.SampledCacheMBean#getInMemoryMissCount()
+     */
+    public long getInMemoryMissCount() {
+        return cache.getLiveCacheStatistics().getInMemoryMissCount();
+    }
+
+    /**
+     * {@inheritDoc}
+     * 
+     * @see net.sf.ehcache.management.sampled.SampledCacheMBean#getOffHeapMissCount()
+     */
+    public long getOffHeapMissCount() {
+        return cache.getLiveCacheStatistics().getOffHeapMissCount();
+    }
+
+    /**
+     * {@inheritDoc}
+     * 
+     * @see net.sf.ehcache.management.sampled.SampledCacheMBean#getOnDiskMissCount()
+     */
+    public long getOnDiskMissCount() {
+        return cache.getLiveCacheStatistics().getOnDiskMissCount();
+    }
+    
     /**
      * {@inheritDoc}
      * 
@@ -635,6 +690,24 @@ public class SampledCache extends BaseEmitterBean implements SampledCacheMBean, 
      */
     public long getInMemorySize() {
         return cache.getLiveCacheStatistics().getInMemorySize();
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @see net.sf.ehcache.management.sampled.SampledCacheMBean#getOffHeapHitCount()
+     */
+    public long getOffHeapHitCount() {
+        return cache.getLiveCacheStatistics().getOffHeapHitCount();
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @see net.sf.ehcache.management.sampled.SampledCacheMBean#getOffHeapSize()
+     */
+    public long getOffHeapSize() {
+        return cache.getLiveCacheStatistics().getOffHeapSize();
     }
 
     /**
