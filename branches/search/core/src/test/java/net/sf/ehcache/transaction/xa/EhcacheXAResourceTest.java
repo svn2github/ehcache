@@ -16,7 +16,6 @@
 
 package net.sf.ehcache.transaction.xa;
 
-import javax.management.DynamicMBean;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -57,7 +56,7 @@ import net.sf.ehcache.transaction.TransactionContext;
 import net.sf.ehcache.writer.CacheWriterManager;
 
 /**
- * 
+ *
  * @author nelrahma
  *
  */
@@ -79,7 +78,7 @@ public class EhcacheXAResourceTest extends TestCase {
         resource.start(xid1, XAResource.TMNOFLAGS);
 
         resource.start(xid1, XAResource.TMJOIN);
-    
+
         resource.end(xid1, XAResource.TMSUCCESS);
 
         resource.end(xid1, XAResource.TMFAIL);
@@ -88,13 +87,13 @@ public class EhcacheXAResourceTest extends TestCase {
         txnManager.txn = testTxn;
 
         resource.start(xid1, XAResource.TMNOFLAGS);
-      
+
         resource.end(xid1, XAResource.TMSUCCESS);
-        
+
         resource.start(xid1, XAResource.TMNOFLAGS);
 
         TransactionContext context = resource.createTransactionContext();
-        
+
         assertEquals(1, store.transactionContextXids.size());
 
         Element element = new Element("key1", "value1");
@@ -110,9 +109,9 @@ public class EhcacheXAResourceTest extends TestCase {
         assertEquals(1, underlyingStore.getSize());
         assertEquals(0, oldVersionStore.getSize());
         assertEquals(1, store.prepareXids.size());
-        
+
         Xid [] recoverXids = resource.recover(XAResource.TMSUCCESS);
-        
+
         assertEquals(1, recoverXids.length);
         try {
             resource.commit(xid1, false);
@@ -125,7 +124,7 @@ public class EhcacheXAResourceTest extends TestCase {
         assertEquals(0, oldVersionStore.getSize());
         assertEquals(0, store.transactionContextXids.size());
         assertEquals(0, store.prepareXids.size());
-        
+
     }
 
     public static final class TestXid implements Xid {
@@ -266,7 +265,7 @@ public class EhcacheXAResourceTest extends TestCase {
         final static LruPolicy LRU_POLICY = new LruPolicy();
         final ConcurrentMap<Object, Element> storeMap = new ConcurrentHashMap<Object, Element>();
         final StripedReadWriteLockSync syncs = new StripedReadWriteLockSync(2);
-        
+
         public boolean bufferFull() {
             return false;
         }
@@ -348,7 +347,7 @@ public class EhcacheXAResourceTest extends TestCase {
 
         @Override
         public void setNodeCoherent(boolean coherent) throws UnsupportedOperationException {
-            // 
+            //
         }
 
         @Override
