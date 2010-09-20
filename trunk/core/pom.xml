@@ -74,12 +74,6 @@
             <artifactId>hibernate-core</artifactId>
             <version>3.5.1-Final</version>
             <scope>provided</scope>
-            <exclusions>
-            	<exclusion>
-            		<artifactId>ehcache</artifactId>
-            		<groupId>net.sf.ehcache</groupId>
-            	</exclusion>
-            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.codehaus.btm</groupId>
@@ -122,12 +116,6 @@
             <artifactId>hibernate-ehcache</artifactId>
             <version>3.3.2.GA</version>
             <scope>test</scope>
-            <exclusions>
-              <exclusion>
-                <artifactId>ehcache</artifactId>
-                <groupId>net.sf.ehcache</groupId>
-              </exclusion>
-            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.apache.derby</groupId>
