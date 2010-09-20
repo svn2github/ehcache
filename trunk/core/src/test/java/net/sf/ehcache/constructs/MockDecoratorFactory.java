@@ -18,13 +18,12 @@ package net.sf.ehcache.constructs;
 
 import java.util.Properties;
 
-import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Ehcache;
 
 /**
- * 
+ *
  * @author Abhishek Sanoujam
- * 
+ *
  */
 public class MockDecoratorFactory extends CacheDecoratorFactory {
 
@@ -52,7 +51,7 @@ public class MockDecoratorFactory extends CacheDecoratorFactory {
             String tmpName = properties.getProperty("name");
             if (forDefaultCache) {
                 if (tmpName == null || tmpName.trim().equals("")) {
-                   tmpName = underlyingCache.getName(); 
+                   tmpName = underlyingCache.getName();
                 } else {
                     tmpName = CacheDecoratorFactory.generateDefaultDecoratedCacheName(underlyingCache, tmpName);
                 }
