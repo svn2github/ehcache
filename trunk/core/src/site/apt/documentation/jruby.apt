@@ -123,5 +123,5 @@ Rails.cache.read("city")   # => "Brisbane"
     The sample app shows you how to use ehcache as a caching plugin and how to use it directly from the Rails
     caching API.
 
-    svn checkout {{https://svn.terracotta.org/repo/forge/projects/ehcache-rails-demo/trunk}} ehcache-rails-demo
+    svn checkout {{http://svn.terracotta.org/svn/forge/projects/ehcache-rails-demo/trunk}} ehcache-rails-demo
 
