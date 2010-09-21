@@ -6,24 +6,30 @@ Using {JRuby} and Ehcache
 
 %{toc|fromDepth=2|toDepth=2}
 
-    ehcache.gem is a JRuby Ehcache library which makes a commonly used subset of Ehcache's API available to
+    jruby-ehcache.gem is a JRuby Ehcache library which makes a commonly used subset of Ehcache's API available to
      JRuby. All of the strength of Ehcache is there, including BigMemory and the ability to cluster with Terracotta.
 
-    It can be used directly via it's own API, or as a <<<rails.cache>>> caching provider.
+    It can be used directly via it's own API, or as a <<<Rails.cache>>> caching provider.
 
 * Installation
 
-    sudo gem install ehcache
+    sudo jruby -S gem install jruby-ehcache
+
+  If you also want Rails caching support, also install the correct gem for your Rails version:
+
+    sudo jruby -S gem install ehcache-rails3
+  OR
+    sudo jruby -S gem install ehcache-rails2
 
 * Configuring Ehcache
 
-  ehcache.gem is configured using an ehcache.yaml file which is placed in your ~/lib/config
+  jruby-ehcache.gem is configured using an ehcache.yml file which is placed in your ~/lib/config
 
 *   Dependencies
 
     *   JRuby 1.5 and higher
 
-    *   Rails 3 and higher, for the ehcache-rails.gem
+    *   Rails 3 and higher, for the ehcache-rails3.gem
 
     *   Ehcache 2.2 is the declared dependency, although any version of Ehcache will work 
 
@@ -88,7 +94,7 @@ manager = Ehcache::CacheManager.new
 * Using ehcache.gem from within Rails
 
 
-**   Configuring the <<<rails.cache>>> provider
+**   Configuring the <<<Rails.cache>>> provider
 
     Change the following property in your environment file (e.g. developement.rb or production.rb)
 
