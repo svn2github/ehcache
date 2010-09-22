@@ -4,16 +4,21 @@
 
 {Google App Engine} Caching
 
-*   Why?
+%{toc|fromDepth=2|toDepth=2}
 
-    * Speed - Ehcache cache operations take a few µs, versus around 60ms for Google's provided client-server cache, memcacheg.
+
+*   Using Ehcache on Google App Engine (GAE)
+
+    The ehcache-googleappengine module combines the speed of Ehcache with the scale of Google's memcache
+    and provide the best of both worlds:
+
+    * Speed - Ehcache cache operations take a few microseconds, versus around 60ms for Google's provided client-server cache, memcacheg.
 
     * Cost -  Because it uses way less resources, it is also cheaper.
 
     * Object Storage - Ehcache in-process cache works with Objects that are not Serializable.
 
-    We are planning an ehcache-googleappengine module which will integrate the speed of Ehcache with the scale of Google's Cache Infrastructure
-    and provide the best of both worlds. Check {{http://ehcache.org}} regularly for updates.
+
 
 
 *   Compatibility
