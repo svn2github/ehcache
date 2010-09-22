@@ -16,6 +16,7 @@
 
 package net.sf.ehcache.store.compound.factories;
 
+import net.sf.ehcache.concurrent.ConcurrencyUtil;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -80,7 +81,7 @@ abstract class DiskStorageFactory<T extends ElementSubstitute> implements Elemen
     private final long queueCapacity;
     
     private final File             file;
-    private final RandomAccessFile data;
+    private final RandomAccessFile[] dataAccess;
 
     private final FileAllocationTree allocator;
 
@@ -94,14 +95,14 @@ abstract class DiskStorageFactory<T extends ElementSubstitute> implements Elemen
      * @param dataFile
      */
     DiskStorageFactory(File dataFile, long expiryInterval, long queueCapacity,
-        RegisteredEventListeners eventService, final boolean daemonWriter) {
+        RegisteredEventListeners eventService, final boolean daemonWriter, int stripes) {
         this.file = dataFile;
         try {
-            data = new RandomAccessFile(file, "rw");
+            dataAccess = allocateRandomAccessFiles(file, stripes);
         } catch (FileNotFoundException e) {
             throw new CacheException(e);
         }
-        this.allocator = new FileAllocationTree(Long.MAX_VALUE, data);
+        this.allocator = new FileAllocationTree(Long.MAX_VALUE, dataAccess[0]);
         
         diskWriter = new ScheduledThreadPoolExecutor(1, new ThreadFactory() {
             public Thread newThread(Runnable r) {
@@ -119,13 +120,31 @@ abstract class DiskStorageFactory<T extends ElementSubstitute> implements Elemen
         diskWriter.scheduleWithFixedDelay(new DiskExpiryTask(), expiryInterval, expiryInterval, TimeUnit.SECONDS);
     }
     
+    private static RandomAccessFile[] allocateRandomAccessFiles(File f, int stripes) throws FileNotFoundException {
+        int roundedStripes = stripes;
+        while ((roundedStripes & (roundedStripes - 1)) != 0) {
+            ++roundedStripes;
+        }
+
+        RandomAccessFile [] result = new RandomAccessFile[roundedStripes];
+        for (int i = 0; i < result.length; ++i) {
+            result[i] = new RandomAccessFile(f, "rw");
+        }
+
+        return result;
+    }
+
+    private RandomAccessFile getDataAccess(Object key) {
+        return this.dataAccess[ConcurrencyUtil.selectLock(key, dataAccess.length)];
+    }
+
     /**
      * Return this size in bytes of this factory
      */
     public long getSizeInBytes() {
-        synchronized (data) {
+        synchronized (dataAccess[0]) {
             try {
-                return data.length();
+                return dataAccess[0].length();
             } catch (IOException e) {
                 LOG.warn("Exception trying to determine store size", e);
                 return 0;
@@ -170,9 +189,9 @@ abstract class DiskStorageFactory<T extends ElementSubstitute> implements Elemen
      * Shrink this store's data file down to a minimal size for its contents.
      */
     protected void shrinkDataFile() {
-        synchronized (data) {
+        synchronized (dataAccess[0]) {
             try {
-                data.setLength(allocator.getFileSize());
+                dataAccess[0].setLength(allocator.getFileSize());
             } catch (IOException e) {
                 LOG.error("Exception trying to shrink data file to size", e);
             }
@@ -196,7 +215,12 @@ abstract class DiskStorageFactory<T extends ElementSubstitute> implements Elemen
                 LOG.warn("Received exception while waiting for shutdown", e);
             }
         }
-        data.close();
+
+        for (RandomAccessFile raf : dataAccess) {
+            synchronized (raf) {
+                raf.close();
+            }
+        }
     }
     
     /**
@@ -239,6 +263,7 @@ abstract class DiskStorageFactory<T extends ElementSubstitute> implements Elemen
      */
     protected Element read(DiskMarker marker) throws IOException, ClassNotFoundException {
         final byte[] buffer = new byte[marker.getSize()];
+        RandomAccessFile data = getDataAccess(marker.getKey());
         synchronized (data) {
             // Load the element
             data.seek(marker.getPosition());
@@ -283,6 +308,7 @@ abstract class DiskStorageFactory<T extends ElementSubstitute> implements Elemen
         elementSize = bufferLength;
         DiskMarker marker = alloc(element, bufferLength);
         // Write the record
+        RandomAccessFile data = getDataAccess(element.getObjectKey());
         synchronized (data) {
             data.seek(marker.getPosition());
             data.write(buffer.toByteArray(), 0, bufferLength);

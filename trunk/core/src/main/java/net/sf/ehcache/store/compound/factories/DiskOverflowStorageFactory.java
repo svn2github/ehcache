@@ -69,7 +69,8 @@ public class DiskOverflowStorageFactory extends DiskStorageFactory<ElementSubsti
      */
     public DiskOverflowStorageFactory(Ehcache cache, String diskPath) {
         super(getDataFile(diskPath, cache), cache.getCacheConfiguration().getDiskExpiryThreadIntervalSeconds(),
-                cache.getCacheConfiguration().getDiskSpoolBufferSizeMB(), cache.getCacheEventNotificationService(), true);
+                cache.getCacheConfiguration().getDiskSpoolBufferSizeMB(), cache.getCacheEventNotificationService(),
+                true, cache.getCacheConfiguration().getDiskAccessStripes());
         this.capacity = cache.getCacheConfiguration().getMaxElementsOnDisk();
     }
 

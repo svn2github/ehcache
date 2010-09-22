@@ -85,7 +85,8 @@ public class DiskPersistentStorageFactory extends DiskStorageFactory<ElementSubs
      */
     public DiskPersistentStorageFactory(Ehcache cache, String diskPath) {
         super(getDataFile(diskPath, cache), cache.getCacheConfiguration().getDiskExpiryThreadIntervalSeconds(),
-                cache.getCacheConfiguration().getDiskSpoolBufferSizeMB(), cache.getCacheEventNotificationService(), false);
+                cache.getCacheConfiguration().getDiskSpoolBufferSizeMB(), cache.getCacheEventNotificationService(),
+                false, cache.getCacheConfiguration().getDiskAccessStripes());
         
         indexFile = new File(getDataFile().getParentFile(), getIndexFileName(cache));
         flushTask = new IndexWriteTask(indexFile, cache.getCacheConfiguration().isClearOnFlush());
@@ -542,23 +543,23 @@ public class DiskPersistentStorageFactory extends DiskStorageFactory<ElementSubs
             try {
                 for (Object key : store.keySet()) {
                     Object o = store.unretrievedGet(key);
-                    CachingDiskMarker marker;
                     if (o instanceof PersistentPlaceholder) {
-                        marker = new PersistentDiskWriteTask((PersistentPlaceholder) o).call();
-                    } else {
-                        marker = (CachingDiskMarker) o;
+                        o = new PersistentDiskWriteTask((PersistentPlaceholder) o).call();
+                        if (o == null) {
+                            o = store.unretrievedGet(key);
+                        }
                     }
 
-                    if (marker == null) {
-                        continue;
-                    }
-                    
-                    if (clearOnFlush && marker.flush()) {
-                        inMemory.decrementAndGet();
-                    }
+                    if (o instanceof CachingDiskMarker) {
+                        CachingDiskMarker marker = (CachingDiskMarker) o;
 
-                    oos.writeObject(key);
-                    oos.writeObject(marker);
+                        if (clearOnFlush && marker.flush()) {
+                            inMemory.decrementAndGet();
+                        }
+
+                        oos.writeObject(key);
+                        oos.writeObject(marker);
+                    }
                 }
             } finally {
                 oos.close();
