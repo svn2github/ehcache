@@ -18,6 +18,9 @@ package net.sf.ehcache.store;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+
+import net.sf.ehcache.search.attribute.AttributeExtractor;
 
 /**
  * @author gkeim
@@ -123,5 +126,9 @@ public abstract class AbstractStore implements Store {
         for (StoreListener listener : listeners) {
             listener.clusterCoherent(clusterCoherent);
         }
+    }
+
+    public void setAttributeExtractors(Map<String, AttributeExtractor> extractors) {
+        // ignore (subclasses can override if interested)
     }
 }
