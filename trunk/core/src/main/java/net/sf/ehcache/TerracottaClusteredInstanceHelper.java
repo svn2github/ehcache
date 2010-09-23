@@ -19,6 +19,7 @@ package net.sf.ehcache;
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.TerracottaClientConfiguration;
 import net.sf.ehcache.config.TerracottaConfiguration;
+import net.sf.ehcache.config.TerracottaConfiguration.StorageStrategy;
 import net.sf.ehcache.terracotta.ClusteredInstanceFactory;
 import net.sf.ehcache.util.ClassLoaderUtil;
 
@@ -34,6 +35,13 @@ import java.util.Map;
 class TerracottaClusteredInstanceHelper {
 
     /**
+     * Enum for type of Terracotta runtime
+     */
+    private static enum TerracottaRuntimeType {
+        EnterpriseExpress, Express, EnterpriseCustom, Custom
+    }
+
+    /**
      * Boolean indicating if TC is running or not.
      * Can be stored in a static final field as required only in DSO mode.
      */
@@ -45,6 +53,7 @@ class TerracottaClusteredInstanceHelper {
         "org.terracotta.modules.ehcache.store.EnterpriseTerracottaClusteredInstanceFactory";
     private static final String STANDALONE_FACTORY = "net.sf.ehcache.terracotta.StandaloneTerracottaClusteredInstanceFactory";
     private static final String DIRECT_FACTORY = "org.terracotta.modules.ehcache.store.TerracottaClusteredInstanceFactory";
+    private static TerracottaRuntimeType terracottaRuntimeType;
 
     /**
      * Locate and decide which terracotta ClusteredInstanceFactory should be used. If the standalone factory class is available
@@ -59,6 +68,7 @@ class TerracottaClusteredInstanceHelper {
 
         try {
             factoryClass = ClassLoaderUtil.loadClass(ENTERPRISE_EXPRESS_FACTORY);
+            terracottaRuntimeType = TerracottaRuntimeType.EnterpriseExpress;
 
             // verify no identity caches if standalone will be used
             List<String> identityCaches = new ArrayList<String>();
@@ -83,6 +93,7 @@ class TerracottaClusteredInstanceHelper {
             // assume not standalone usage if standalone factory not present
             try {
                 factoryClass = ClassLoaderUtil.loadClass(ENTERPRISE_DIRECT_FACTORY);
+                terracottaRuntimeType = TerracottaRuntimeType.EnterpriseCustom;
                 if (!TC_DSO_MODE) {
                     // required tim jars found in classpath but tc is not running.
                     throw new CacheException("When not using standalone deployment, you need to use full install of Terracotta"
@@ -105,6 +116,7 @@ class TerracottaClusteredInstanceHelper {
         if (factoryClass == null) {
             try {
                 factoryClass = ClassLoaderUtil.loadClass(STANDALONE_FACTORY);
+                terracottaRuntimeType = TerracottaRuntimeType.Express;
 
                 // verify no identity caches if standalone will be used
                 List<String> identityCaches = new ArrayList<String>();
@@ -130,6 +142,7 @@ class TerracottaClusteredInstanceHelper {
                 // assume not standalone usage if standalone factory not present
                 try {
                     factoryClass = ClassLoaderUtil.loadClass(DIRECT_FACTORY);
+                    terracottaRuntimeType = TerracottaRuntimeType.Custom;
                     if (!TC_DSO_MODE) {
                         // required tim jars found in classpath but tc is not running.
                         throw new CacheException("When not using standalone deployment, you need to use full install of Terracotta"
@@ -151,6 +164,23 @@ class TerracottaClusteredInstanceHelper {
 
         return (ClusteredInstanceFactory) ClassLoaderUtil.createNewInstance(factoryClass.getName(),
                 new Class[] {TerracottaClientConfiguration.class}, new Object[] {terracottaConfig});
+    }
+
+    /**
+     * Returns the default {@link StorageStrategy} type for the current Terracotta runtime.
+     * @return the default {@link StorageStrategy} type for the current Terracotta runtime.
+     */
+    static StorageStrategy getDefaultStorageStrategyForCurrentRuntime() {
+        if (terracottaRuntimeType == null) {
+            throw new CacheException("Please use newClusteredInstanceFactory(...) method before using this method.");
+        }
+        switch (terracottaRuntimeType) {
+            case Express:
+            case Custom: return StorageStrategy.CLASSIC;
+            case EnterpriseCustom:
+            case EnterpriseExpress: return StorageStrategy.DCV2;
+            default: throw new CacheException("Unknown Terracotta runtime type - " + terracottaRuntimeType);
+        }
     }
 
 }

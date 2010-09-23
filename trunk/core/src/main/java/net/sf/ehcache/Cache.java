@@ -992,6 +992,10 @@ public class Cache implements Ehcache, StoreListener {
                             "You must use an enterprise version of Ehcache to successfully enable overflowToOffHeap.");
                 }
             } else if (isTerracottaClustered()) {
+                if (!getCacheConfiguration().getTerracottaConfiguration().isStorageStrategySet()) {
+                    getCacheConfiguration().getTerracottaConfiguration().storageStrategy(
+                            TerracottaClusteredInstanceHelper.getDefaultStorageStrategyForCurrentRuntime());
+                }
                 store = cacheManager.createTerracottaStore(this);
                 boolean unlockedReads = !this.configuration.getTerracottaConfiguration().getCoherentReads();
                 // if coherentReads=false, make coherent=false
