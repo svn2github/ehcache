@@ -128,6 +128,9 @@ public abstract class AbstractStore implements Store {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public void setAttributeExtractors(Map<String, AttributeExtractor> extractors) {
         // ignore (subclasses can override if interested)
     }

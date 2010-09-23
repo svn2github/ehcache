@@ -31,6 +31,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Set;
 import java.util.UUID;
@@ -56,6 +57,7 @@ import net.sf.ehcache.concurrent.Sync;
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.CacheWriterConfiguration;
 import net.sf.ehcache.config.DiskStoreConfiguration;
+import net.sf.ehcache.config.SearchAttribute;
 import net.sf.ehcache.config.TerracottaConfiguration;
 import net.sf.ehcache.event.CacheEventListener;
 import net.sf.ehcache.event.CacheEventListenerFactory;
@@ -66,6 +68,7 @@ import net.sf.ehcache.extension.CacheExtensionFactory;
 import net.sf.ehcache.hibernate.tm.SyncTransactionManager;
 import net.sf.ehcache.loader.CacheLoader;
 import net.sf.ehcache.loader.CacheLoaderFactory;
+import net.sf.ehcache.search.attribute.AttributeExtractor;
 import net.sf.ehcache.statistics.CacheUsageListener;
 import net.sf.ehcache.statistics.LiveCacheStatistics;
 import net.sf.ehcache.statistics.LiveCacheStatisticsWrapper;
@@ -154,7 +157,7 @@ public class Cache implements Ehcache, StoreListener {
     public static final long DEFAULT_EXPIRY_THREAD_INTERVAL_SECONDS = CacheConfiguration.DEFAULT_EXPIRY_THREAD_INTERVAL_SECONDS;
 
     private static final String OFF_HEAP_STORE_CLASSNAME = "net.sf.ehcache.store.offheap.OffHeapStore";
-    
+
     private static final Logger LOG = LoggerFactory.getLogger(Cache.class.getName());
 
     private static InetAddress localhost;
@@ -194,7 +197,7 @@ public class Cache implements Ehcache, StoreListener {
      */
     private volatile Store compoundStore;
     private volatile CacheLockProvider lockProvider;
-    
+
     private volatile RegisteredEventListeners registeredEventListeners;
 
     private volatile List<CacheExtension> registeredCacheExtensions;
@@ -1012,6 +1015,14 @@ public class Cache implements Ehcache, StoreListener {
                 }
             }
 
+            Map<String, AttributeExtractor> extractors = new HashMap<String, AttributeExtractor>();
+            for (Entry<String, SearchAttribute> entry : configuration.getSearchAttributes().entrySet()) {
+                extractors.put(entry.getKey(), entry.getValue().constructExtractor());
+            }
+
+            store.setAttributeExtractors(extractors);
+
+
             if (configuration.isTransactional()) {
                 if (configuration.isTerracottaClustered()
                     && configuration.getTerracottaConfiguration().getValueMode() != TerracottaConfiguration.ValueMode.SERIALIZATION) {
@@ -1066,15 +1077,15 @@ public class Cache implements Ehcache, StoreListener {
                 // even if this node is not sending out its events
                 cacheManager.createTerracottaEventReplicator(this);
             }
-            
+
             Object context = compoundStore.getInternalContext();
             if (context instanceof CacheLockProvider) {
-                lockProvider = (CacheLockProvider) context; 
+                lockProvider = (CacheLockProvider) context;
             }
         }
 
         compoundStore.addStoreListener(this);
-        
+
         if (LOG.isDebugEnabled()) {
             LOG.debug("Initialised cache: " + configuration.getName());
         }
@@ -1262,7 +1273,7 @@ public class Cache implements Ehcache, StoreListener {
         }
 
         element.resetAccessStatistics();
-        
+
         applyDefaultsToElementWithoutLifespanSet(element);
 
         backOffIfDiskSpoolFull();
@@ -1734,7 +1745,7 @@ public class Cache implements Ehcache, StoreListener {
         boolean isTCClustered = getCacheConfiguration().isTerracottaClustered();
         boolean hasOnDisk = isTCClustered || getCacheConfiguration().isOverflowToDisk();
         Element element;
-        
+
         if (!compoundStore.containsKeyInMemory(key)) {
             liveCacheStatisticsData.cacheMissInMemory();
             if (hasOffHeap) {
@@ -1765,7 +1776,7 @@ public class Cache implements Ehcache, StoreListener {
                 if (LOG.isDebugEnabled()) {
                     LOG.debug(getName() + "Cache: " + getName() + " store hit for " + key);
                 }
-                
+
                 if (wasOffHeap) {
                     liveCacheStatisticsData.cacheHitOffHeap();
                 } else if (wasOnDisk) {
@@ -2091,7 +2102,7 @@ public class Cache implements Ehcache, StoreListener {
             compoundStore.removeStoreListener(this);
             compoundStore.dispose();
         }
-        
+
         changeStatus(Status.STATUS_SHUTDOWN);
     }
 
@@ -2287,7 +2298,7 @@ public class Cache implements Ehcache, StoreListener {
             throw new IllegalStateException("The " + configuration.getName() + " Cache is not alive.");
         }
     }
-    
+
     private boolean checkStatusAlreadyDisposed() throws IllegalStateException {
         return status.equals(Status.STATUS_SHUTDOWN);
     }
@@ -2428,7 +2439,7 @@ public class Cache implements Ehcache, StoreListener {
 
     /**
      * Gets the internal Store.
-     * 
+     *
      * @return the Store referenced by this cache
      * @throws IllegalStateException if the cache is not {@link Status#STATUS_ALIVE}
      */
@@ -3259,7 +3270,7 @@ public class Cache implements Ehcache, StoreListener {
     public void waitUntilClusterCoherent() {
         compoundStore.waitUntilClusterCoherent();
     }
-    
+
     // PropertyChangeSupport
 
     /**
@@ -3301,11 +3312,11 @@ public class Cache implements Ehcache, StoreListener {
      */
     public Element putIfAbsent(Element element) throws NullPointerException {
         checkStatus();
-        
+
         if (element.getObjectKey() == null) {
             throw new NullPointerException();
         }
-        
+
         if (disabled) {
             return null;
         }
@@ -3329,11 +3340,11 @@ public class Cache implements Ehcache, StoreListener {
      */
     public boolean removeElement(Element element) throws NullPointerException {
         checkStatus();
-        
+
         if (element.getObjectKey() == null) {
             throw new NullPointerException();
         }
-        
+
         if (disabled) {
             return false;
         }
@@ -3351,14 +3362,14 @@ public class Cache implements Ehcache, StoreListener {
      */
     public boolean replace(Element old, Element element) throws NullPointerException, IllegalArgumentException {
         checkStatus();
-        
+
         if (old.getObjectKey() == null || element.getObjectKey() == null) {
             throw new NullPointerException();
         }
         if (!old.getObjectKey().equals(element.getObjectKey())) {
             throw new IllegalArgumentException("The keys for the element arguments to replace must be equal");
         }
-        
+
         if (disabled) {
             return false;
         }
@@ -3370,7 +3381,7 @@ public class Cache implements Ehcache, StoreListener {
         backOffIfDiskSpoolFull();
 
         boolean result = compoundStore.replace(old, element);
-        
+
         if (result) {
             element.updateUpdateStatistics();
             notifyPutInternalListeners(element, false, true);
@@ -3383,11 +3394,11 @@ public class Cache implements Ehcache, StoreListener {
      */
     public Element replace(Element element) throws NullPointerException {
         checkStatus();
-        
+
         if (element.getObjectKey() == null) {
             throw new NullPointerException();
         }
-        
+
         if (disabled) {
             return null;
         }
@@ -3408,7 +3419,7 @@ public class Cache implements Ehcache, StoreListener {
 
     /**
      * {@inheritDoc}
-     * 
+     *
      * @see net.sf.ehcache.store.StoreListener#clusterCoherent(boolean)
      */
     public void clusterCoherent(boolean clusterCoherent) {
@@ -3417,7 +3428,7 @@ public class Cache implements Ehcache, StoreListener {
 
     /**
      * {@inheritDoc}
-     * 
+     *
      * @see net.sf.ehcache.store.StoreListener#nodeCoherent(boolean)
      */
     public void nodeCoherent(boolean nodeCoherent) {
