@@ -1019,14 +1019,6 @@ public class Cache implements Ehcache, StoreListener {
                 }
             }
 
-            Map<String, AttributeExtractor> extractors = new HashMap<String, AttributeExtractor>();
-            for (Entry<String, SearchAttribute> entry : configuration.getSearchAttributes().entrySet()) {
-                extractors.put(entry.getKey(), entry.getValue().constructExtractor());
-            }
-
-            store.setAttributeExtractors(extractors);
-
-
             if (configuration.isTransactional()) {
                 if (configuration.isTerracottaClustered()
                     && configuration.getTerracottaConfiguration().getValueMode() != TerracottaConfiguration.ValueMode.SERIALIZATION) {
@@ -1057,6 +1049,15 @@ public class Cache implements Ehcache, StoreListener {
             } else {
                 this.compoundStore = store;
             }
+
+            Map<String, AttributeExtractor> extractors = new HashMap<String, AttributeExtractor>();
+            for (Entry<String, SearchAttribute> entry : configuration.getSearchAttributes().entrySet()) {
+                extractors.put(entry.getKey(), entry.getValue().constructExtractor());
+            }
+
+            store.setAttributeExtractors(extractors);
+
+
             this.cacheWriterManager = configuration.getCacheWriterConfiguration().getWriteMode().createWriterManager(this);
             initialiseCacheWriterManager(false);
 
