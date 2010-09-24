@@ -170,7 +170,7 @@ final class BeanHandler extends DefaultHandler {
                 return createInstance(parent.bean, method.getParameterTypes()[0]);
             }
         } catch (final Exception e) {
-            throw new SAXException(getLocation() + ": Could not create nested element <" + name + ">.");
+            throw new SAXException(getLocation() + ": Could not create nested element <" + name + ">.", e);
         }
 
         throw new SAXException(getLocation()

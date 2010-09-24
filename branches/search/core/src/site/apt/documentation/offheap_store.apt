@@ -210,6 +210,8 @@ public Cache createOffHeapCache() {
     of the time <<<cache.get()>>> will access 10% of the key set. This is representative of the the familiar Pareto distribution that is
     very commonly observed.
 
+    There are of course many other caching use cases. Further performance results are covered on the {{{./offheap_store_further_performance_analysis.html}Further Performance Analysis}} page.
+
 
 **  Largest Full GC
 
@@ -251,8 +253,21 @@ public Cache createOffHeapCache() {
 [images/offheap_tps.png]
 
     This chart shows the cache operations per second achieved with off-heap. It is the inverse of average latency and shows much the same
-     thing. Once the effect of the on-heap store becomes marginal, throughput remains constant, regardless of cache size. Once again we
-     have verified this constancy up to 350GB.
+    thing. Once the effect of the on-heap store becomes marginal, throughput remains constant, regardless of cache size. Once again we
+    have verified this constancy up to 350GB.
+
+    Note that much larger throughputs than those shown in this chart are achievable. Throughput is affected by:
+
+    * the number of threads (more threads -> more throughput)
+
+    * the read/write ratio (reads are slightly faster)
+
+    * data payload per operation (more data implies a lower throughput in tps but similar in bytes)
+
+    * cpu cores available and their speed (our testing shows that the cpu is always the limiting factor with enough threads. In other
+      words cache throughput can be increased by adding threads until all cores are utilised and then adding cpu cores - an ideal
+      situation where the software can use as much hardware as you can throw at it.)
+    
 
 *   Storage
 

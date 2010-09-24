@@ -1400,16 +1400,19 @@ public class CacheTest extends AbstractCacheTest {
         assertEquals(0, cache.getDiskStoreSize());
 
         cache.put(new Element("key1", "value1"));
+        Thread.sleep(100);
         assertEquals(0, cache.getDiskStoreSize());
         assertEquals(1, cache.getSize());
 
         cache.put(new Element("key2", "value2"));
+        Thread.sleep(100);
         assertEquals(2, cache.getSize());
         assertEquals(1, cache.getDiskStoreSize());
         assertEquals(1, cache.getMemoryStoreSize());
 
         cache.put(new Element("key3", "value3"));
         cache.put(new Element("key4", "value4"));
+        Thread.sleep(100);
         assertEquals(4, cache.getSize());
         assertEquals(3, cache.getDiskStoreSize());
         assertEquals(1, cache.getMemoryStoreSize());
@@ -1417,6 +1420,7 @@ public class CacheTest extends AbstractCacheTest {
         // remove last element inserted (is in memory store)
         assertTrue(((CompoundStore) cache.getStore()).unretrievedGet("key4") instanceof Element);
         cache.remove("key4");
+        Thread.sleep(100);
         assertEquals(3, cache.getSize());
         assertEquals(3, cache.getDiskStoreSize());
         assertEquals(0, cache.getMemoryStoreSize());
@@ -1424,18 +1428,21 @@ public class CacheTest extends AbstractCacheTest {
         // remove key1 element
         assertFalse(((CompoundStore) cache.getStore()).unretrievedGet("key1") instanceof Element);
         cache.remove("key1");
+        Thread.sleep(100);
         assertEquals(2, cache.getSize());
         assertEquals(2, cache.getDiskStoreSize());
         assertEquals(0, cache.getMemoryStoreSize());
 
         // add another
         cache.put(new Element("key5", "value5"));
+        Thread.sleep(100);
         assertEquals(3, cache.getSize());
         assertEquals(2, cache.getDiskStoreSize());
         assertEquals(1, cache.getMemoryStoreSize());
 
         // remove all
         cache.removeAll();
+        Thread.sleep(100);
         assertEquals(0, cache.getSize());
         assertEquals(0, cache.getDiskStoreSize());
         assertEquals(0, cache.getMemoryStoreSize());

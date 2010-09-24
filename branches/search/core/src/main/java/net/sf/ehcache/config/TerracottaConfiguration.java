@@ -137,6 +137,7 @@ public class TerracottaConfiguration implements Cloneable {
     private int concurrency = DEFAULT_CONCURRENCY;
 
     private boolean copyOnReadSet;
+    private volatile boolean storageStrategySet;
 
     /**
      * Clones this object, following the usual contract.
@@ -483,7 +484,7 @@ public class TerracottaConfiguration implements Cloneable {
         if (storageStrategy == null) {
             throw new IllegalArgumentException("Storage Strategy must be non-null");
         }
-        this.storageStrategy = StorageStrategy.valueOf(StorageStrategy.class, storageStrategy.toUpperCase());
+        this.storageStrategy(StorageStrategy.valueOf(StorageStrategy.class, storageStrategy.toUpperCase()));
     }
 
     /**
@@ -504,7 +505,16 @@ public class TerracottaConfiguration implements Cloneable {
             throw new IllegalArgumentException("Storage Strategy must be non-null");
         }
         this.storageStrategy = storageStrategy;
+        this.storageStrategySet = true;
         return this;
+    }
+
+    /**
+     * Returns true is storageStrategy is set explicitly
+     * @return true is storageStrategy is set explicitly
+     */
+    public boolean isStorageStrategySet() {
+        return storageStrategySet;
     }
 
     /**
