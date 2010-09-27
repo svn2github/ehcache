@@ -125,7 +125,7 @@
 
 ** Suitable Element Types
 
-     Only <<<Element>>>s which are <<<Serializable>>> can be placed in the DiskStore. Any non serializable
+     Only <<<Element>>>s which are <<<Serializable>>> can be placed in the <<<OffHeapMemoryStore>>>. Any non serializable
      <<<Element>>>s which attempt to overflow to the <<<OffHeapMemoryStore>>> will be removed instead, and a WARNING level
      log message emitted.
 
@@ -165,8 +165,8 @@
 
 *** Files
 
-     The disk store creates a data file for each cache on startup called "<cache_name>.data", and, if the
-      <<<DiskStore>>> is configured to be persistent, an index file called "<<cache name>>.index" on flushing
+     The disk store creates a data file for each cache on startup called "<cache_name>.data". If the
+      <<<DiskStore>>> is configured to be persistent, an index file called "<<cache name>>.index" is created on flushing
       of the <<<DiskStore>>> either explicitly using <<<Cache.flush>>> or on <<<CacheManager>>> shutdown.
 
 *** Storage Location

@@ -327,18 +327,18 @@ public Cache createOffHeapCache() {
       the OffHeapStore.
 
     * when running elements are written to the OffHeapStore, they are already serialized. We write these to the DiskStore
-      asynchronously in a write behind pattern. Tests show they can be written at a rate of 20MB/s on server class machines
+      asynchronously in a write-behind pattern. Tests show they can be written at a rate of 20MB/s on server-class machines
       with fast disks. If writes get behind, they will back up and once they reach the <<<diskSpoolBufferSizeMB>>>
       cache puts will be slowed while the DiskStore writer catches up. By default this buffer is 30MB but can be increased
       through configuration.
 
     * When the Cache is disposed, only a final sync is required to
-      shut the DiskStore down. Tests show that
+      shut the DiskStore down.
 
 *   Using OffHeapStore with 32 bit JVMs
 
     On a 32 bit operating system, Java will always start with a 32 bit data model. On 64 bit OSs, it will default to
-    64 bit, but can be forced into 32 bit mode with the Java command line option <<<-d32>>>.
+    64 bit, but can be forced into 32 bit mode with the Java command-line option <<<-d32>>>.
     The problem is that this limits the size of the process to 4GB. Because garbage collection problems are generally
     manageable up to this size, there is not much point in using the OffHeapStore, as it will simply be slower.
 
@@ -364,16 +364,21 @@ public Cache createOffHeapCache() {
 
 *   Slow off-heap allocation
 
-    Off-heap allocation time is measured to avoid allocating too large buffers which cannot fit in memory. If it takes
+    Off-heap allocation time is measured to avoid allocating buffers too large to fit in memory. If it takes
     more than 1.5s to allocate a buffer a warning is issued as it could very well be that the OS has started paging to
     disk. If it takes more than 15s then the JVM is halted (with <<<System.exit()>>>, but different things are tried when the
     Security Manager prevents this) unless the <<<net.sf.ehcache.offheap.DoNotHaltOnCriticalAllocationDelay>>> system
     property is set to true.
 
-    This mechanism was built in because allocating a off-heap buffer too large to fit in RAM can quickly and easily
+    This mechanism was built in because allocating an off-heap buffer too large to fit in RAM can quickly and easily
     deplete critical system resources like RAM and swap space and crash the host operating system. Linux and Mac OS X
     will crash in these circumstances.
 
+*   Reducing Cache Misses
+
+    While the MemoryStore holds a hotset (a subset) of the entire data set, the off-heap store should be large enough to hold the entire data set. The frequency of cache misses begins to rise when the data is too large to fit into off-heap memory, forcing gets to fetch data from the DiskStore. More misses in turn raise latency and lower performance.
+    
+    For example, tests with a 4GB data set and a 5GB off-heap store recorded no misses. With the off-heap store reduced to 4GB, 1.7 percent of cache operations resulted in misses. With the off-heap store at 3GB, misses reached 15 percent.
 
 *   FAQ
 
@@ -385,12 +390,12 @@ public Cache createOffHeapCache() {
 **  What Eviction Algorithms are supported?
 
     The pluggable MemoryStore eviction algorithms work as normal. The OffHeapStore and DiskStore use a
-    Clock Cache,a standard paging algorithm which is an approximation of LRU.
+    Clock Cache, a standard paging algorithm which is an approximation of LRU.
 
 **  Why do I see performance slow down and speed up in a cyclical pattern when I am filling a cache?
 
     This is due to repartitioning in the OffHeapStore which is normal. Once the cache is fully filled
-    the performance slow downs cease.
+    the performance slow-downs cease.
 
 **  What is the maximum serialized size of an object when using OffHeapStore?
 
@@ -401,7 +406,7 @@ public Cache createOffHeapCache() {
     <<<java.lang.Number>>> subclasses such as Long, Integer etc and and <<<String>>> have
     high quality hashcodes.
 
-    You can increase the size by setting a system property cache_name.maxOffHeapValueSize to
+    You can increase the size by setting the system property cache_name.maxOffHeapValueSize to
     the size you require.
 
     e.g. com.company.domain.State.maxOffHeapValueSize=30MB
@@ -410,11 +415,11 @@ public Cache createOffHeapCache() {
 
     On startup the CacheManager will calculate the amount of off-heap storage required for all caches
     using off-heap stores. The memory will be allocated from the OS and zeroed out by Java. The time taken
-    will depend on the OS. A server class machine running Linux will take approximately half a second per GB.
+    will depend on the OS. A server-class machine running Linux will take approximately half a second per GB.
 
     We print out log messages for each 10% allocated, and also report the total time taken.
 
-    This time is only incurred once at startup. The pre-allocation of memory from the OS is one of the reasons
+    This time is incurred only once at startup. The pre-allocation of memory from the OS is one of the reasons
     that runtime performance is so fast.
 
 
