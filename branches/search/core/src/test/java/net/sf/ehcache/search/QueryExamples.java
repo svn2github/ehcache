@@ -30,7 +30,7 @@ public class QueryExamples {
         Aggregator count = new Count();
 
         // include all keys in the cache
-        query = new Query(cache).includeKeys().end();
+        query = cache.createQuery().includeKeys().end();
         results = query.execute();
         for (Result hit : results.all()) {
             System.err.println(hit.getKey());
@@ -38,7 +38,7 @@ public class QueryExamples {
         results.discard(); // not required but will speed resource freeing
 
         // access results in a "paged" manner
-        query = new Query(cache).includeKeys().end();
+        query = cache.createQuery().includeKeys().end();
         results = query.execute();
 
         int pageSize = 100;
@@ -55,14 +55,14 @@ public class QueryExamples {
         } while (page.size() == pageSize);
 
         // select attr1 from the cache
-        query = new Query(cache).includeAttribute(attr1).end();
+        query = cache.createQuery().includeAttribute(attr1).end();
         results = query.execute();
         for (Result hit : results.all()) {
             System.err.println(hit.getAttribute(attr1));
         }
 
         // select attr1, attr2 from the cache
-        query = new Query(cache).includeAttribute(attr1, attr2).end();
+        query = cache.createQuery().includeAttribute(attr1, attr2).end();
         results = query.execute();
         for (Result hit : results.all()) {
             System.err.println(hit.getAttribute(attr1));
@@ -70,24 +70,24 @@ public class QueryExamples {
         }
 
         // select max(attr1) -- named indexed attribute "attr1"
-        Query sumQuery = new Query(cache).includeAggregator(sum, attr1).end();
+        Query sumQuery = cache.createQuery().includeAggregator(sum, attr1).end();
         results = sumQuery.execute();
         Integer max = (Integer) results.aggregateResult();
         System.err.println(max);
 
         // select keys with criteria attr1 == 12 AND attr2 = "timmy"
-        query = new Query(cache).includeKeys().add(and(attr1.eq(12), attr2.eq("timmy"))).end();
+        query = cache.createQuery().includeKeys().add(and(attr1.eq(12), attr2.eq("timmy"))).end();
 
         // same as above without static import
-        query = new Query(cache).includeKeys().add(new And(attr1.eq(12), attr2.eq("timmy"))).end();
+        query = cache.createQuery().includeKeys().add(new And(attr1.eq(12), attr2.eq("timmy"))).end();
 
         // same as above (but without AND, uses two add() -- multiple
         // criteria implies AND)
-        query = new Query(cache).includeKeys().add(attr1.eq(12)).add(attr2.eq("timmy")).end();
+        query = cache.createQuery().includeKeys().add(attr1.eq(12)).add(attr2.eq("timmy")).end();
 
         // slightly more complicated expression and multiple ordering
         // attr1 = 13 OR (attr1 == 12 AND attr2 = "timmy") order by attr1 asc, attr2 desc limit 10
-        query = new Query(cache).includeKeys().add(or(attr1.eq(13), and(attr1.eq(12), attr2.eq("timmy"))))
+        query = cache.createQuery().includeKeys().add(or(attr1.eq(13), and(attr1.eq(12), attr2.eq("timmy"))))
                 .addOrder(attr1, Direction.ASCENDING).addOrder(attr2, Direction.DESCENDING).maxResults(10).end();
     }
 }

@@ -69,6 +69,8 @@ import net.sf.ehcache.hibernate.tm.SyncTransactionManager;
 import net.sf.ehcache.loader.CacheLoader;
 import net.sf.ehcache.loader.CacheLoaderFactory;
 import net.sf.ehcache.search.Attribute;
+import net.sf.ehcache.search.Query;
+import net.sf.ehcache.search.Results;
 import net.sf.ehcache.search.attribute.AttributeExtractor;
 import net.sf.ehcache.statistics.CacheUsageListener;
 import net.sf.ehcache.statistics.LiveCacheStatistics;
@@ -3461,5 +3463,24 @@ public class Cache implements Ehcache, StoreListener {
         }
 
         throw new CacheException("No such search attribute [" + attributeName + "] defined for this cache");
+    }
+
+    /**
+     * Create a new query builder for this cache
+     * 
+     * @return a new query builder
+     */
+    public Query createQuery() {
+        return new CacheQuery(this);
+    }
+
+    /**
+     * Execute the given query
+     * 
+     * @param query query to execute
+     * @return query results
+     */
+    Results executeQuery(ImmutableQuery query) {
+        throw new AssertionError(); 
     }
 }
