@@ -68,6 +68,7 @@ import net.sf.ehcache.extension.CacheExtensionFactory;
 import net.sf.ehcache.hibernate.tm.SyncTransactionManager;
 import net.sf.ehcache.loader.CacheLoader;
 import net.sf.ehcache.loader.CacheLoaderFactory;
+import net.sf.ehcache.search.Attribute;
 import net.sf.ehcache.search.attribute.AttributeExtractor;
 import net.sf.ehcache.statistics.CacheUsageListener;
 import net.sf.ehcache.statistics.LiveCacheStatistics;
@@ -3438,5 +3439,27 @@ public class Cache implements Ehcache, StoreListener {
      */
     public void nodeCoherent(boolean nodeCoherent) {
         firePropertyChange("NodeCoherent", !nodeCoherent, nodeCoherent);
+    }
+    
+
+    /**
+     * Retrieve the given named search attribute
+     * 
+     * @param <T>
+     *            type of the attribute
+     * @param attributeName
+     *            the name of the attribute to retrieve
+     * @throws CacheException
+     *             if no such attribute is defined for the given name
+     * @return the search attribute
+     */
+    public <T> Attribute<T> getSearchAttribute(String attributeName) throws CacheException {
+        // ??? Should we cache these instances?
+        
+        if (configuration.getSearchAttributes().containsKey(attributeName)) {
+            return new Attribute<T>(attributeName);
+        }
+
+        throw new CacheException("No such search attribute [" + attributeName + "] defined for this cache");
     }
 }
