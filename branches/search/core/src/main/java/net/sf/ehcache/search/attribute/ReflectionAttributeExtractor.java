@@ -39,7 +39,7 @@ import net.sf.ehcache.config.InvalidConfigurationException;
  * <li>"element.toString()" -- call toString() on the element
  * </ol>
  * Expressions are case sensitive
- *
+ * 
  * @author teck
  */
 public class ReflectionAttributeExtractor implements AttributeExtractor {
@@ -54,7 +54,7 @@ public class ReflectionAttributeExtractor implements AttributeExtractor {
 
     /**
      * Create a new ReflectionAttributeExtractor
-     *
+     * 
      * @param expression
      */
     public ReflectionAttributeExtractor(String expression) throws InvalidConfigurationException {
@@ -85,8 +85,9 @@ public class ReflectionAttributeExtractor implements AttributeExtractor {
 
     /**
      * Evaluate the expression for the given element
-     *
-     * @throws CacheException if there is an error in evaluating the expression
+     * 
+     * @throws CacheException
+     *             if there is an error in evaluating the expression
      * @return the attribute value
      */
     public Object attributeFor(Element e) throws CacheException {

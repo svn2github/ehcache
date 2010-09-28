@@ -22,9 +22,20 @@ import java.util.Map;
 
 import net.sf.ehcache.search.SearchException;
 
+/**
+ * Defines the legal set of runtime types for search attributes
+ * 
+ * @author teck
+ */
 public enum AttributeType {
 
+    /**
+     * Boolean type
+     */
     BOOLEAN {
+        /**
+         * {@inheritDoc}
+         */
         @Override
         public void validateValue(String name, Object value) {
             if (!(value instanceof Boolean)) {
@@ -32,7 +43,14 @@ public enum AttributeType {
             }
         }
     },
+
+    /**
+     * Byte type
+     */
     BYTE {
+        /**
+         * {@inheritDoc}
+         */
         @Override
         public void validateValue(String name, Object value) {
             if (!(value instanceof Byte)) {
@@ -40,7 +58,14 @@ public enum AttributeType {
             }
         }
     },
+
+    /**
+     * Character type
+     */
     CHAR {
+        /**
+         * {@inheritDoc}
+         */
         @Override
         public void validateValue(String name, Object value) {
             if (!(value instanceof Character)) {
@@ -48,7 +73,14 @@ public enum AttributeType {
             }
         }
     },
+
+    /**
+     * Double type
+     */
     DOUBLE {
+        /**
+         * {@inheritDoc}
+         */
         @Override
         public void validateValue(String name, Object value) {
             if (!(value instanceof Double)) {
@@ -56,7 +88,14 @@ public enum AttributeType {
             }
         }
     },
+
+    /**
+     * Float type
+     */
     FLOAT {
+        /**
+         * {@inheritDoc}
+         */
         @Override
         public void validateValue(String name, Object value) {
             if (!(value instanceof Float)) {
@@ -64,7 +103,14 @@ public enum AttributeType {
             }
         }
     },
+
+    /**
+     * Integer type
+     */
     INT {
+        /**
+         * {@inheritDoc}
+         */
         @Override
         public void validateValue(String name, Object value) {
             if (!(value instanceof Integer)) {
@@ -72,7 +118,14 @@ public enum AttributeType {
             }
         }
     },
+
+    /**
+     * Long type
+     */
     LONG {
+        /**
+         * {@inheritDoc}
+         */
         @Override
         public void validateValue(String name, Object value) {
             if (!(value instanceof Long)) {
@@ -80,7 +133,14 @@ public enum AttributeType {
             }
         }
     },
+
+    /**
+     * Short type
+     */
     SHORT {
+        /**
+         * {@inheritDoc}
+         */
         @Override
         public void validateValue(String name, Object value) {
             if (!(value instanceof Short)) {
@@ -88,7 +148,14 @@ public enum AttributeType {
             }
         }
     },
+
+    /**
+     * Date type
+     */
     DATE {
+        /**
+         * {@inheritDoc}
+         */
         @Override
         public void validateValue(String name, Object value) {
             if (value == null || value.getClass() != Date.class) {
@@ -96,7 +163,14 @@ public enum AttributeType {
             }
         }
     },
+
+    /**
+     * Enum type
+     */
     ENUM {
+        /**
+         * {@inheritDoc}
+         */
         @Override
         public void validateValue(String name, Object value) {
             if (!(value instanceof Enum)) {
@@ -104,7 +178,14 @@ public enum AttributeType {
             }
         }
     },
+
+    /**
+     * String type
+     */
     STRING {
+        /**
+         * {@inheritDoc}
+         */
         @Override
         public void validateValue(String name, Object value) {
             if (!(value instanceof String)) {
@@ -113,15 +194,32 @@ public enum AttributeType {
         }
     };
 
-    public static AttributeType typeFor(String name, Object value) {
-        if (name == null)
-            throw new NullPointerException("null name");
-        if (value == null)
-            throw new NullPointerException("null value");
+    private static final Map<Class, AttributeType> MAPPINGS = new HashMap<Class, AttributeType>();
 
-        AttributeType type = mappings.get(value.getClass());
-        if (type != null)
+    /**
+     * Get the appropriate @{link {@link AttributeType} enum for the given object value.
+     * 
+     * 
+     * @param name
+     *            the attribute name (only meaningful to message if exception thrown)
+     * @param value
+     *            the value to lookup the type for
+     * @throws SearchException
+     *             if the given value is not valid for a search attribute
+     * @return the attribute type for this value
+     */
+    public static AttributeType typeFor(String name, Object value) throws SearchException {
+        if (name == null) {
+            throw new NullPointerException("null name");
+        }
+        if (value == null) {
+            throw new NullPointerException("null value");
+        }
+
+        AttributeType type = MAPPINGS.get(value.getClass());
+        if (type != null) {
             return type;
+        }
 
         // check for enum -- calling getClass().isEnum() isn't correct in this context
         if (value instanceof Enum) {
@@ -131,7 +229,17 @@ public enum AttributeType {
         throw new SearchException("Unsupported type for search attribute [" + name + "]: " + value.getClass().getName());
     }
 
-    public abstract void validateValue(String name, Object value);
+    /**
+     * Validate that the given value is in fact of the correct type
+     * 
+     * @param name
+     *            the attribute name (only meaningful to message if exception thrown)
+     * @param value
+     *            the value to validate against this type
+     * @throws SearchException
+     *             if the given value is not a valid instance of this type
+     */
+    public abstract void validateValue(String name, Object value) throws SearchException;
 
     private static String type(Object value) {
         if (value == null) {
@@ -140,19 +248,17 @@ public enum AttributeType {
         return value.getClass().getName();
     }
 
-    private static final Map<Class, AttributeType> mappings = new HashMap<Class, AttributeType>();
-
     static {
-        mappings.put(Boolean.class, BOOLEAN);
-        mappings.put(Byte.class, BYTE);
-        mappings.put(Character.class, CHAR);
-        mappings.put(Double.class, DOUBLE);
-        mappings.put(Float.class, FLOAT);
-        mappings.put(Integer.class, INT);
-        mappings.put(Long.class, LONG);
-        mappings.put(Short.class, SHORT);
-        mappings.put(String.class, STRING);
-        mappings.put(java.util.Date.class, DATE);
+        MAPPINGS.put(Boolean.class, BOOLEAN);
+        MAPPINGS.put(Byte.class, BYTE);
+        MAPPINGS.put(Character.class, CHAR);
+        MAPPINGS.put(Double.class, DOUBLE);
+        MAPPINGS.put(Float.class, FLOAT);
+        MAPPINGS.put(Integer.class, INT);
+        MAPPINGS.put(Long.class, LONG);
+        MAPPINGS.put(Short.class, SHORT);
+        MAPPINGS.put(String.class, STRING);
+        MAPPINGS.put(java.util.Date.class, DATE);
     }
 
 }
