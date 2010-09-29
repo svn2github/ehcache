@@ -16,22 +16,34 @@
 
 package net.sf.ehcache.search.expression;
 
-import net.sf.ehcache.store.ElementAttributeValues;
-
 /**
- * Criteria interface defines a boolean function that computes a search match result
+ * Greater than criteria
  * 
  * @author teck
  */
-public interface Criteria {
+public class GreaterThanCriteria extends ComparableValueCriteria {
+
+    private final Comparable comparableValue;
 
     /**
-     * Test this criteria against a cache element
+     * Constructor
      * 
-     * @param attributeValues
-     *            accessor for attributes values on the current element this critetia executed against
-     * @return true if the criteria matches this element
+     * @param attributeName
+     *            attribute name
+     * @param value
      */
-    boolean execute(ElementAttributeValues attributeValues);
+    public GreaterThanCriteria(String attributeName, Object value) {
+        super(attributeName, value);
+        this.comparableValue = (Comparable) value;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected boolean executeComparable(Comparable attributeValue) {
+        return attributeValue.compareTo(comparableValue) > 0;
+
+    }
 
 }

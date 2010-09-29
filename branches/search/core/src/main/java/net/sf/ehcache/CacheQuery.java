@@ -27,14 +27,17 @@ import net.sf.ehcache.search.Results;
 import net.sf.ehcache.search.SearchException;
 import net.sf.ehcache.search.aggregator.Aggregator;
 import net.sf.ehcache.search.aggregator.AggregatorException;
+import net.sf.ehcache.search.expression.AlwaysMatchCriteria;
+import net.sf.ehcache.search.expression.And;
 import net.sf.ehcache.search.expression.Criteria;
+import net.sf.ehcache.store.StoreQuery;
 
 /**
  * Query builder implementation. Instances are bound to a specific cache
  * 
  * @author teck
  */
-class CacheQuery implements Query, ImmutableQuery {
+class CacheQuery implements Query, StoreQuery {
 
     private volatile boolean frozen;
     private volatile boolean includeKeys;
@@ -143,19 +146,109 @@ class CacheQuery implements Query, ImmutableQuery {
         return this;
     }
 
-    private ImmutableQuery snapshot() {
+    /**
+     * {@inheritDoc}
+     */
+    public Criteria getCriteria() {
+        return getCriteria(true);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public boolean requestsKeys() {
+        assertFrozen();
+        return includeKeys;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public boolean requestsValues() {
+        assertFrozen();
+        return includeValues;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public Cache getCache() {
+        assertFrozen();
+        return cache;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public List<Attribute<?>> requestedAttributes() {
+        assertFrozen();
+        return Collections.unmodifiableList(this.includedAttributes);
+    }
+
+    private Criteria getCriteria(boolean checkFrozen) {
+        if (checkFrozen) {
+            assertFrozen();
+        }
+
+        int count = criteria.size();
+        if (count == 0) {
+            return new AlwaysMatchCriteria();
+        } else if (count == 1) {
+            return criteria.get(0);
+        } else {
+            return new And(criteria.toArray(new Criteria[count]));
+        }
+
+        // unreachable
+    }
+
+    private void assertFrozen() {
+        if (!frozen) {
+            throw new AssertionError("not frozen");
+        }
+    }
+
+    private StoreQuery snapshot() {
         if (frozen) {
             return this;
         }
-
-        return new ImmutableQuery() {
-            // XXX: fill me out as needed
-        };
+        
+        return new StoreQueryImpl();
     }
 
     private void checkFrozen() {
         if (frozen) {
             throw new SearchException("Query is frozen and cannot be mutated");
+        }
+    }
+
+    /**
+     * StoreQuery implementation (essentially a snapshot of this (non-frozen) query builder
+     */
+    private class StoreQueryImpl implements StoreQuery {
+        private final Criteria copiedCriteria = CacheQuery.this.getCriteria(false);
+        private final boolean copiedIncludeKeys = includeKeys;
+        private final boolean copiedIncludeValues = includeValues;
+        private final List<Attribute<?>> copiedAttributes = Collections.unmodifiableList(new ArrayList<Attribute<?>>(includedAttributes));
+
+        public Criteria getCriteria() {
+            return copiedCriteria;
+        }
+
+        public boolean requestsKeys() {
+            return copiedIncludeKeys;
+        }
+
+        public boolean requestsValues() {
+            return copiedIncludeValues;
+        }
+
+        public Cache getCache() {
+            return cache;
+        }
+
+        public List<Attribute<?>> requestedAttributes() {
+            return copiedAttributes;
         }
     }
 

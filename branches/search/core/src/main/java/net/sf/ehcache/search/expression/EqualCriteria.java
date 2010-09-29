@@ -16,49 +16,48 @@
 
 package net.sf.ehcache.search.expression;
 
+import net.sf.ehcache.search.attribute.AttributeType;
 import net.sf.ehcache.store.ElementAttributeValues;
 
 /**
- * A search criteria composed of the logical "and" of two or more other criteria
+ * Criteria for plain "equals to" condition
  * 
  * @author teck
  */
-public class And implements Criteria {
+public class EqualCriteria implements Criteria {
 
-    private final Criteria[] criterion;
-
-    /**
-     * Simple constructor for two criteria
-     * 
-     * @param lhs
-     *            the left hand side of the "and" expression
-     * @param rhs
-     *            the right hand side of the "and" expression
-     */
-    public And(Criteria lhs, Criteria rhs) {
-        this(new Criteria[] {lhs, rhs});
-    }
+    private final Object value;
+    private final String attributeName;
+    private final AttributeType type;
 
     /**
-     * Var-args style constructor to allow a variable number of criteria
+     * Constructor
      * 
-     * @param criterion
+     * @param attributeName
+     *            attribute name
+     * @param value
      */
-    public And(Criteria... criterion) {
-        this.criterion = criterion;
+    public EqualCriteria(String attributeName, Object value) {
+        if (value == null || attributeName == null) {
+            throw new NullPointerException();
+        }
+
+        this.attributeName = attributeName;
+        this.value = value;
+
+        this.type = AttributeType.typeFor(attributeName, value);
     }
 
     /**
      * {@inheritDoc}
      */
     public boolean execute(ElementAttributeValues attributeValues) {
-        for (Criteria c : criterion) {
-            if (!c.execute(attributeValues)) {
-                return false;
-            }
+        Object attributeValue = attributeValues.getAttributeValue(attributeName, type);
+        if (attributeValue == null) {
+            return false;
         }
 
-        return true;
+        return this.value.equals(attributeValue);
     }
 
 }

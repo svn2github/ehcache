@@ -16,12 +16,16 @@
 
 package net.sf.ehcache.search.expression;
 
+import net.sf.ehcache.store.ElementAttributeValues;
+
 /**
  * A search criteria composed of the logical "or" of two or more other criteria
  * 
  * @author teck
  */
 public class Or implements Criteria {
+
+    private final Criteria[] criterion;
 
     /**
      * Simple constructor for two criteria
@@ -32,7 +36,7 @@ public class Or implements Criteria {
      *            the right hand side of the "or" expression
      */
     public Or(Criteria lhs, Criteria rhs) {
-        //
+        this(new Criteria[] {lhs, rhs});
     }
 
     /**
@@ -41,7 +45,20 @@ public class Or implements Criteria {
      * @param criterion
      */
     public Or(Criteria... criterion) {
-        //
+        this.criterion = criterion;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public boolean execute(ElementAttributeValues attributeValues) {
+        for (Criteria c : criterion) {
+            if (c.execute(attributeValues)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
 }

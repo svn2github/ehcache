@@ -86,13 +86,6 @@ public interface Results {
     boolean hasKeys();
 
     /**
-     * Whether the Results have cache values included
-     * 
-     * @return true if values included
-     */
-    boolean hasValues();
-
-    /**
      * Whether the results are an aggregate, in which case there is no list returned,
      * just a single value
      * 

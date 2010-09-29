@@ -9,6 +9,7 @@
   <cache name="cache1" maxElementsInMemory="0" eternal="true"
     overflowToDisk="false">
     <searchAttribute name="age" expression="value.getAge()" />
+    <searchAttribute name="gender" expression="value.getGender()" />
   </cache>
 
   <cache name="cache2" maxElementsInMemory="0" eternal="true"

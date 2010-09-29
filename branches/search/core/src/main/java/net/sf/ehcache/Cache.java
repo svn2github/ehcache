@@ -84,6 +84,7 @@ import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
 import net.sf.ehcache.store.Policy;
 import net.sf.ehcache.store.Store;
 import net.sf.ehcache.store.StoreListener;
+import net.sf.ehcache.store.StoreQuery;
 import net.sf.ehcache.store.XATransactionalStore;
 import net.sf.ehcache.store.compound.impl.DiskPersistentStore;
 import net.sf.ehcache.store.compound.impl.MemoryOnlyStore;
@@ -3462,7 +3463,7 @@ public class Cache implements Ehcache, StoreListener {
             return new Attribute<T>(attributeName);
         }
 
-        throw new CacheException("No such search attribute [" + attributeName + "] defined for this cache");
+        throw new CacheException("No such search attribute [" + attributeName + "] defined for this cache [" + getName() + "]");
     }
 
     /**
@@ -3480,7 +3481,7 @@ public class Cache implements Ehcache, StoreListener {
      * @param query query to execute
      * @return query results
      */
-    Results executeQuery(ImmutableQuery query) {
-        throw new AssertionError(); 
+    Results executeQuery(StoreQuery query) {
+        return this.compoundStore.executeQuery(query); 
     }
 }

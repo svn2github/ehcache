@@ -28,10 +28,10 @@ public interface Result {
      * Return the key for this cache entry.
      * 
      * @return key object (never null)
-     * @throws UnsupportedOperationException
+     * @throws SearchException
      *             if keys were not selected by the originating query
      */
-    Object getKey() throws UnsupportedOperationException;
+    Object getKey() throws SearchException;
 
     /**
      * Return the value object for this cache entry. Upon every call, this
@@ -42,10 +42,8 @@ public interface Result {
      * 
      * @return value object (which might be null if this entry no longer exists
      *         in the cache)
-     * @throws UnsupportedOperationException
-     *             if keys were not selected by the originating query
      */
-    Object getValue() throws UnsupportedOperationException;
+    Object getValue();
 
     /**
      * Retrieve the given attribute value for this cache entry
@@ -53,9 +51,9 @@ public interface Result {
      * @param attribute
      *            the attribute to retrieve
      * @return the attribute value, or null if there is none
-     * @throws UnsupportedOperationException
+     * @throws SearchException
      *             if the given attribute was not explicitly selected by the
      *             originating query
      */
-    <T> T getAttribute(Attribute<T> attribute) throws UnsupportedOperationException;
+    <T> T getAttribute(Attribute<T> attribute) throws SearchException;
 }

@@ -18,7 +18,15 @@ package net.sf.ehcache.search;
 
 import java.util.Collection;
 
+import net.sf.ehcache.search.expression.BetweenCriteria;
 import net.sf.ehcache.search.expression.Criteria;
+import net.sf.ehcache.search.expression.EqualCriteria;
+import net.sf.ehcache.search.expression.GreaterThanCriteria;
+import net.sf.ehcache.search.expression.GreaterThanOrEqualCriteria;
+import net.sf.ehcache.search.expression.InCollectionCriteria;
+import net.sf.ehcache.search.expression.LessThanCriteria;
+import net.sf.ehcache.search.expression.LessThanOrEqualCriteria;
+import net.sf.ehcache.search.expression.NotEqualCriteria;
 
 /**
  * A search attribute. The main purpose of this class is to construct search {@link Criteria} referencing this attribute
@@ -38,6 +46,9 @@ public class Attribute<T> {
      *            the name of search attribute
      */
     public Attribute(String attributeName) {
+        if (attributeName == null) {
+            throw new NullPointerException();
+        }
         this.attributeName = attributeName;
     }
 
@@ -77,26 +88,19 @@ public class Attribute<T> {
      * @return criteria instance
      */
     public Criteria between(T min, T max, boolean minInclusive, boolean maxInclusive) {
-        throw new AssertionError();
+        return new BetweenCriteria(attributeName, min, max, minInclusive, maxInclusive);
     }
 
     /**
-     * Create a criteria where this attribute is 'in' (ie. contained within) the given collection of values.
+     * Create a criteria where this attribute is 'in' (ie. contained within) the given collection of values. With the exception of very
+     * small collections a {@link java.util.Set} should perform better here to get constant time <code>contains()</code> checks
      * 
      * @param values
      * @return criteria instance
      */
     public Criteria in(Collection<? extends T> values) {
-        throw new AssertionError();
+        return new InCollectionCriteria(attributeName, values);
     }
-
-    // public Criteria isNull() {
-    // throw new AssertionError();
-    // }
-    //
-    // public Criteria isNotNull() {
-    // throw new AssertionError();
-    // }
 
     /**
      * Create a criteria where this attribute is not equal to the given value
@@ -105,7 +109,7 @@ public class Attribute<T> {
      * @return criteria instance
      */
     public Criteria ne(T value) {
-        throw new AssertionError();
+        return new NotEqualCriteria(attributeName, value);
     }
 
     /**
@@ -115,7 +119,7 @@ public class Attribute<T> {
      * @return criteria instance
      */
     public Criteria lt(T value) {
-        throw new AssertionError();
+        return new LessThanCriteria(attributeName, value);
     }
 
     /**
@@ -125,7 +129,7 @@ public class Attribute<T> {
      * @return criteria instance
      */
     public Criteria le(T value) {
-        throw new AssertionError();
+        return new LessThanOrEqualCriteria(attributeName, value);
     }
 
     /**
@@ -135,7 +139,7 @@ public class Attribute<T> {
      * @return criteria instance
      */
     public Criteria gt(T value) {
-        throw new AssertionError();
+        return new GreaterThanCriteria(attributeName, value);
     }
 
     /**
@@ -145,7 +149,7 @@ public class Attribute<T> {
      * @return criteria instance
      */
     public Criteria ge(T value) {
-        throw new AssertionError();
+        return new GreaterThanOrEqualCriteria(attributeName, value);
     }
 
     /**
@@ -155,7 +159,7 @@ public class Attribute<T> {
      * @return criteria instance
      */
     public Criteria eq(T value) {
-        throw new AssertionError();
+        return new EqualCriteria(attributeName, value);
     }
 
     // // XXX: need to define exactly what regex format/subset we support

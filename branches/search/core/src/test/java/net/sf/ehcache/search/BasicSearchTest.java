@@ -16,19 +16,135 @@
 
 package net.sf.ehcache.search;
 
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
+
 import junit.framework.TestCase;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
+import net.sf.ehcache.Element;
+import net.sf.ehcache.search.expression.Or;
 
 public class BasicSearchTest extends TestCase {
 
     public void testBasic() {
         CacheManager cacheManager = new CacheManager(getClass().getResource("/ehcache-search.xml"));
         Cache cache = cacheManager.getCache("cache1");
-        System.err.println(cache);
+
+        cache.put(new Element(1, new Person("Tim Eck", 35, Gender.MALE)));
+        cache.put(new Element(2, new Person("Loretta Johnson", 23, Gender.FEMALE)));
+        cache.put(new Element(3, new Person("Ari Zilka", 35, Gender.MALE)));
+        cache.put(new Element(4, new Person("Nabib El-Rahman", 30, Gender.MALE)));
+
+        Query query;
+        Attribute<Integer> age = cache.getSearchAttribute("age");
+
+        query = cache.createQuery();
+        query.includeKeys();
+        query.add(age.ne(35));
+        query.end();
+        verify(cache, query, 2, 4);
+
+        query = cache.createQuery();
+        query.includeKeys();
+        query.add(cache.getSearchAttribute("age").lt(30));
+        query.end();
+        query.execute();
+        verify(cache, query, 2);
+
+        query = cache.createQuery();
+        query.includeKeys();
+        query.add(cache.getSearchAttribute("age").le(30));
+        query.end();
+        query.execute();
+        verify(cache, query, 2, 4);
+
+        query = cache.createQuery();
+        query.includeKeys();
+        query.add(cache.getSearchAttribute("age").in(new HashSet(Arrays.asList(23, 35))));
+        query.end();
+        query.execute();
+        verify(cache, query, 1, 2, 3);
+
+        query = cache.createQuery();
+        query.includeKeys();
+        query.add(cache.getSearchAttribute("age").gt(30));
+        query.end();
+        query.execute();
+        verify(cache, query, 1, 3);
+
+        query = cache.createQuery();
+        query.includeKeys();
+        query.add(cache.getSearchAttribute("age").between(23, 35, true, false));
+        query.end();
+        query.execute();
+        verify(cache, query, 2, 4);
+
+        query = cache.createQuery();
+        query.includeKeys();
+        query.add(cache.getSearchAttribute("age").ge(30));
+        query.end();
+        query.execute();
+        verify(cache, query, 1, 3, 4);
+
+        query = cache.createQuery();
+        query.includeKeys();
+        query.add(new Or(cache.getSearchAttribute("age").eq(35), cache.getSearchAttribute("gender").eq(Gender.FEMALE)));
+        query.end();
+        verify(cache, query, 1, 2, 3);
 
         Cache cache2 = cacheManager.getCache("cache2");
         System.err.println(cache2);
+    }
+
+    private void verify(Cache cache, Query query, Integer... expectedKeys) {
+        Results results = query.execute();
+        assertEquals(results.size(), expectedKeys.length);
+
+        Set<Integer> keys = new HashSet<Integer>(Arrays.asList(expectedKeys));
+
+        for (Result result : results.all()) {
+            int key = (Integer) result.getKey();
+            if (!keys.remove(key)) {
+                throw new AssertionError("unexpected key: " + key);
+            }
+            assertEquals(cache.get(key).getObjectValue(), result.getValue());
+        }
+    }
+
+    enum Gender {
+        MALE, FEMALE;
+    }
+
+    private static class Person {
+
+        private final String name;
+        private final int age;
+        private final Gender gender;
+
+        public Person(String name, int age, Gender gender) {
+            this.name = name;
+            this.age = age;
+            this.gender = gender;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public int getAge() {
+            return age;
+        }
+
+        public Gender getGender() {
+            return gender;
+        }
+
+        @Override
+        public String toString() {
+            return getClass().getSimpleName() + "(name:" + name + ", age:" + age + ", sex:" + gender.name().toLowerCase() + ")";
+        }
     }
 
 }

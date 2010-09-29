@@ -241,6 +241,16 @@ public enum AttributeType {
      */
     public abstract void validateValue(String name, Object value) throws SearchException;
 
+    /**
+     * Is this type comparable?
+     * 
+     * @return true if this type is comparable
+     */
+    public boolean isComparable() {
+        // some types might want to override this
+        return true;
+    }
+
     private static String type(Object value) {
         if (value == null) {
             return "null";

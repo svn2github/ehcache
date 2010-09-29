@@ -16,12 +16,16 @@
 
 package net.sf.ehcache.search.expression;
 
+import net.sf.ehcache.store.ElementAttributeValues;
+
 /**
  * A search criteria composed of the logical "not" (ie. negation) of another criteria
  * 
  * @author teck
  */
 public class Not implements Criteria {
+
+    private final Criteria c;
 
     /**
      * Construct a "not" criteria of the given criteria
@@ -30,7 +34,14 @@ public class Not implements Criteria {
      *            the criteria to "not"
      */
     public Not(Criteria c) {
-        //
+        this.c = c;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public boolean execute(ElementAttributeValues attributeValues) {
+        return !c.execute(attributeValues);
     }
 
 }
