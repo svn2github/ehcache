@@ -20,6 +20,7 @@ import java.util.List;
 
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.search.Attribute;
+import net.sf.ehcache.search.Direction;
 import net.sf.ehcache.search.expression.Criteria;
 
 /**
@@ -63,5 +64,38 @@ public interface StoreQuery {
      * @return the requested attributes (if any)
      */
     List<Attribute<?>> requestedAttributes();
+
+    /**
+     * Get the requested search orderings
+     * 
+     * @return the request sort orders (if any)
+     */
+    List<Ordering> getOrdering();
+
+    /**
+     * Get the maximum number of results to return
+     * 
+     * @return max results. A negative number means unlimited results
+     */
+    int maxResults();
+
+    /**
+     * An attribute / direction ordering pair
+     */
+    public interface Ordering {
+        /**
+         * Attribute to order by
+         * 
+         * @return attribute
+         */
+        Attribute<?> getAttribute();
+
+        /**
+         * Ordering direction
+         * 
+         * @return direction
+         */
+        Direction getDirection();
+    }
 
 }

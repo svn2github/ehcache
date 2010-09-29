@@ -42,7 +42,7 @@ public interface Result {
      * @throws SearchException
      *             if keys were not selected by the originating query
      */
-    Object getValue();
+    Object getValue() throws SearchException;
 
     /**
      * Retrieve the given attribute value for this cache entry

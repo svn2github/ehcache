@@ -109,7 +109,7 @@ class CacheQuery implements Query, StoreQuery {
      */
     public Query addOrder(Attribute<?> attribute, Direction direction) {
         checkFrozen();
-        this.orderings.add(new Ordering(attribute, direction));
+        this.orderings.add(new OrderingImpl(attribute, direction));
         return this;
     }
 
@@ -145,12 +145,21 @@ class CacheQuery implements Query, StoreQuery {
         frozen = true;
         return this;
     }
+    
+    /**
+     * {@inheritDoc}
+     */
+    public List<net.sf.ehcache.store.StoreQuery.Ordering> getOrdering() {
+        assertFrozen();
+        return Collections.unmodifiableList(orderings);
+    }
 
     /**
      * {@inheritDoc}
      */
     public Criteria getCriteria() {
-        return getCriteria(true);
+        assertFrozen();
+        return getEffectiveCriteriaCopy();
     }
 
     /**
@@ -185,11 +194,15 @@ class CacheQuery implements Query, StoreQuery {
         return Collections.unmodifiableList(this.includedAttributes);
     }
 
-    private Criteria getCriteria(boolean checkFrozen) {
-        if (checkFrozen) {
-            assertFrozen();
-        }
+    /**
+     * {@inheritDoc}
+     */
+    public int maxResults() {
+        assertFrozen();
+        return maxResults;
+    }
 
+    private Criteria getEffectiveCriteriaCopy() {
         int count = criteria.size();
         if (count == 0) {
             return new AlwaysMatchCriteria();
@@ -212,7 +225,7 @@ class CacheQuery implements Query, StoreQuery {
         if (frozen) {
             return this;
         }
-        
+
         return new StoreQueryImpl();
     }
 
@@ -226,10 +239,12 @@ class CacheQuery implements Query, StoreQuery {
      * StoreQuery implementation (essentially a snapshot of this (non-frozen) query builder
      */
     private class StoreQueryImpl implements StoreQuery {
-        private final Criteria copiedCriteria = CacheQuery.this.getCriteria(false);
+        private final Criteria copiedCriteria = CacheQuery.this.getEffectiveCriteriaCopy();
         private final boolean copiedIncludeKeys = includeKeys;
         private final boolean copiedIncludeValues = includeValues;
         private final List<Attribute<?>> copiedAttributes = Collections.unmodifiableList(new ArrayList<Attribute<?>>(includedAttributes));
+        private final int copiedMaxResults = maxResults;
+        private final List<Ordering> copiedOrdering = Collections.unmodifiableList(new ArrayList<Ordering>(orderings));
 
         public Criteria getCriteria() {
             return copiedCriteria;
@@ -250,21 +265,38 @@ class CacheQuery implements Query, StoreQuery {
         public List<Attribute<?>> requestedAttributes() {
             return copiedAttributes;
         }
+        
+        public int maxResults() {
+            return copiedMaxResults;
+        }
+
+        public List<Ordering> getOrdering() {
+            return copiedOrdering;
+        }
     }
 
     /**
      * An attribute/direction pair
      */
-    private static class Ordering {
+    private static class OrderingImpl implements Ordering {
 
         private final Attribute<?> attribute;
         private final Direction direction;
 
-        public Ordering(Attribute<?> attribute, Direction direction) {
+        public OrderingImpl(Attribute<?> attribute, Direction direction) {
             this.attribute = attribute;
             this.direction = direction;
         }
-
+        
+        public Attribute<?> getAttribute() {
+            return attribute;
+        }
+        
+        public Direction getDirection() {
+            return direction;
+        }       
     }
+
+
 
 }

@@ -38,6 +38,71 @@ public class BasicSearchTest extends TestCase {
         basicQueries(cacheManager.getCache("cache2"));
     }
 
+    public void testMaxResults() {
+        CacheManager cacheManager = new CacheManager(getClass().getResource("/ehcache-search.xml"));
+        Cache cache = cacheManager.getCache("cache1");
+        populateData(cache);
+
+        Attribute<Integer> age = cache.getSearchAttribute("age");
+        Attribute<Gender> gender = cache.getSearchAttribute("gender");
+
+        Query query = cache.createQuery();
+        query.includeKeys();
+        query.add(age.ne(35));
+        query.maxResults(1);
+        query.end();
+
+        Results results = query.execute();
+        assertEquals(1, results.size());
+        for (Result result : results.all()) {
+            switch ((Integer) result.getKey()) {
+            case 2:
+            case 4: {
+                break;
+            }
+            default: {
+                throw new AssertionError(result.getKey());
+            }
+            }
+        }
+        
+        query = cache.createQuery();
+        query.includeKeys();
+        query.add(age.ne(35));
+        query.maxResults(0);
+        query.end();
+
+        results = query.execute();
+        assertEquals(0, results.size());
+
+        query = cache.createQuery();
+        query.includeKeys();
+        query.add(age.ne(35));
+        query.maxResults(2);
+        query.end();
+
+        results = query.execute();
+        assertEquals(2, results.size());
+        
+        query = cache.createQuery();
+        query.includeKeys();
+        query.add(age.ne(35));
+        query.maxResults(2);
+        query.end();
+
+        results = query.execute();
+        assertEquals(2, results.size());
+        
+        query = cache.createQuery();
+        query.includeKeys();
+        query.add(age.ne(35));
+        query.maxResults(-1);
+        query.end();
+
+        results = query.execute();
+        assertEquals(2, results.size());   
+    }
+
     public void testAttributeQuery() {
         CacheManager cacheManager = new CacheManager(getClass().getResource("/ehcache-search.xml"));
         Cache cache = cacheManager.getCache("cache1");

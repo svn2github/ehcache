@@ -293,7 +293,13 @@ public final class MemoryOnlyStore extends CompoundStore implements CacheConfigu
 
         List<Result> results = new ArrayList<Result>();
 
+        boolean hasOrder = !query.getOrdering().isEmpty();
+
         for (Object key : getKeys()) {
+            if (!hasOrder && query.maxResults() >= 0 && results.size() == query.maxResults()) {
+                break;
+            }
+
             Element element = get(key);
             if (element != null) {
                 ElementAttributeValues elementAttributeValues = new ElementAttributeValuesImpl(element, attributeExtractors);
