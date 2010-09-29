@@ -16,6 +16,7 @@
     overflowToDisk="false">
     <searchAttribute name="age"
       class="net.sf.ehcache.search.TestAttributeExtractor" />
+    <searchAttribute name="gender" expression="value.getGender()" />
   </cache>
 
 

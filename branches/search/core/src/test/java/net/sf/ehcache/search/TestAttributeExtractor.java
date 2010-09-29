@@ -17,12 +17,14 @@
 package net.sf.ehcache.search;
 
 import net.sf.ehcache.Element;
+import net.sf.ehcache.search.BasicSearchTest.Person;
 import net.sf.ehcache.search.attribute.AttributeExtractor;
 
 public class TestAttributeExtractor implements AttributeExtractor {
 
     public Object attributeFor(Element element) {
-        throw new AssertionError();
+        Person person = (Person) element.getObjectValue();
+        return person.getAge();
     }
 
 }

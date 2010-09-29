@@ -30,12 +30,72 @@ public class BasicSearchTest extends TestCase {
 
     public void testBasic() {
         CacheManager cacheManager = new CacheManager(getClass().getResource("/ehcache-search.xml"));
-        Cache cache = cacheManager.getCache("cache1");
 
-        cache.put(new Element(1, new Person("Tim Eck", 35, Gender.MALE)));
-        cache.put(new Element(2, new Person("Loretta Johnson", 23, Gender.FEMALE)));
-        cache.put(new Element(3, new Person("Ari Zilka", 35, Gender.MALE)));
-        cache.put(new Element(4, new Person("Nabib El-Rahman", 30, Gender.MALE)));
+        // uses expression attribute extractors
+        basicQueries(cacheManager.getCache("cache1"));
+
+        // uses a "custom" attribute extractor too
+        basicQueries(cacheManager.getCache("cache2"));
+    }
+
+    public void testAttributeQuery() {
+        CacheManager cacheManager = new CacheManager(getClass().getResource("/ehcache-search.xml"));
+        Cache cache = cacheManager.getCache("cache1");
+        populateData(cache);
+
+        Attribute<Integer> age = cache.getSearchAttribute("age");
+        Attribute<Gender> gender = cache.getSearchAttribute("gender");
+
+        Query query = cache.createQuery();
+        // not including keys
+        query.add(age.ne(35));
+        query.includeAttribute(age, gender);
+        query.end();
+
+        Results results = query.execute();
+        for (Result result : results.all()) {
+            try {
+                result.getKey();
+                fail();
+            } catch (SearchException se) {
+                // expected
+            }
+
+            try {
+                result.getValue();
+                fail();
+            } catch (SearchException se) {
+                // expected
+            }
+
+            try {
+                result.getKey();
+                fail();
+            } catch (SearchException se) {
+                // expected
+            }
+
+            int ageAttr = result.getAttribute(age);
+            if (ageAttr == 23) {
+                assertEquals(Gender.FEMALE, result.getAttribute(gender));
+            } else if (ageAttr == 30) {
+                assertEquals(Gender.MALE, result.getAttribute(gender));
+            } else {
+                throw new AssertionError("unexpected age: " + ageAttr);
+            }
+
+            try {
+                result.getAttribute(new Attribute("does-not-exist"));
+                fail();
+            } catch (SearchException se) {
+                // expected
+            }
+        }
+
+    }
+
+    private void basicQueries(Cache cache) {
+        populateData(cache);
 
         Query query;
         Attribute<Integer> age = cache.getSearchAttribute("age");
@@ -93,9 +153,14 @@ public class BasicSearchTest extends TestCase {
         query.add(new Or(cache.getSearchAttribute("age").eq(35), cache.getSearchAttribute("gender").eq(Gender.FEMALE)));
         query.end();
         verify(cache, query, 1, 2, 3);
+    }
 
-        Cache cache2 = cacheManager.getCache("cache2");
-        System.err.println(cache2);
+    private void populateData(Cache cache) {
+        cache.removeAll();
+        cache.put(new Element(1, new Person("Tim Eck", 35, Gender.MALE)));
+        cache.put(new Element(2, new Person("Loretta Johnson", 23, Gender.FEMALE)));
+        cache.put(new Element(3, new Person("Ari Zilka", 35, Gender.MALE)));
+        cache.put(new Element(4, new Person("Nabib El-Rahman", 30, Gender.MALE)));
     }
 
     private void verify(Cache cache, Query query, Integer... expectedKeys) {
@@ -117,7 +182,7 @@ public class BasicSearchTest extends TestCase {
         MALE, FEMALE;
     }
 
-    private static class Person {
+    public static class Person {
 
         private final String name;
         private final int age;

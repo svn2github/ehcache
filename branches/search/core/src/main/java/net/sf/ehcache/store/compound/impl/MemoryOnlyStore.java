@@ -436,7 +436,7 @@ public final class MemoryOnlyStore extends CompoundStore implements CacheConfigu
         }
 
         public Object getValue() {
-            Element e = query.getCache().get(key);
+            Element e = query.getCache().get(getKey());
             if (e == null) {
                 return null;
             }

@@ -37,11 +37,10 @@ public interface Result {
      * Return the value object for this cache entry. Upon every call, this
      * method performs a get() on the underlying Cache for this entry's key.
      * 
-     * If the query results were summarised with an Aggregator, the result will be
-     * present in Value
-     * 
      * @return value object (which might be null if this entry no longer exists
      *         in the cache)
+     * @throws SearchException
+     *             if keys were not selected by the originating query
      */
     Object getValue();
 
