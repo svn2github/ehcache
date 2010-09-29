@@ -6,8 +6,18 @@
                 Additional statistics that break out missNotFound into missInMemory, missOffHeap, and
                 missOnDisk.
             </action>
-        </release>
-        <release version="2.2.1" date="2010-12-31" description="Maintenance release">
+            <action dev="Chris Dennis" type="add">
+                Extend Ehcache existing in-memory and on-disk concepts to include off-heap as an additional
+                possible location.
+            </action>
+            <action dev="Chris Dennis" type="add">
+                Add the ability for store implementations to return a store specific MBean implementation
+                that is exposed in the same manner as the existing Ehcache MBeans.
+            </action>
+            <action dev="Chris Dennis" type="add" issue="EHC-778">
+                Restore support for the disk access stripes configuration property in the disk store
+                implementation.
+            </action>
             <action dev="Greg Luck" type="fix">
                 EHC-740. Pick up "Read timed out" in RMI UnmarshalException.
             </action>
