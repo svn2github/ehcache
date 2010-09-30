@@ -19,6 +19,7 @@ package net.sf.ehcache.store.compound.impl;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -42,6 +43,7 @@ import net.sf.ehcache.store.LruPolicy;
 import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
 import net.sf.ehcache.store.Policy;
 import net.sf.ehcache.store.StoreQuery;
+import net.sf.ehcache.store.StoreQuery.Ordering;
 import net.sf.ehcache.store.compound.CompoundStore;
 import net.sf.ehcache.store.compound.factories.CapacityLimitedInMemoryFactory;
 
@@ -291,7 +293,7 @@ public final class MemoryOnlyStore extends CompoundStore implements CacheConfigu
     public Results executeQuery(StoreQuery query) {
         Criteria c = query.getCriteria();
 
-        List<Result> results = new ArrayList<Result>();
+        ArrayList<Result> results = new ArrayList<Result>();
 
         boolean hasOrder = !query.getOrdering().isEmpty();
 
@@ -309,6 +311,20 @@ public final class MemoryOnlyStore extends CompoundStore implements CacheConfigu
                 if (match) {
                     results.add(new ResultImpl(element, query, elementAttributeValues));
                 }
+            }
+        }
+
+        if (hasOrder) {
+            Collections.sort(results, new OrderComparator(query.getOrdering()));
+
+            // trim results to max length if necessary
+            int max = query.maxResults();
+            if (max >= 0 && (results.size() > max)) {
+                int trim = results.size() - max;
+                for (int i = 0; i < trim; i++) {
+                    results.remove(results.size() - 1);
+                }
+                results.trimToSize();
             }
         }
 
@@ -416,6 +432,7 @@ public final class MemoryOnlyStore extends CompoundStore implements CacheConfigu
         private final Object key;
         private final StoreQuery query;
         private final Map<String, Object> attributes;
+        private final Object[] sortAttributes;
 
         ResultImpl(Element element, StoreQuery query, ElementAttributeValues elementAttributeValues) {
             this.query = query;
@@ -431,6 +448,20 @@ public final class MemoryOnlyStore extends CompoundStore implements CacheConfigu
                 }
             }
 
+            List<Ordering> orderings = query.getOrdering();
+            if (orderings.isEmpty()) {
+                sortAttributes = null;
+            } else {
+                sortAttributes = new Object[orderings.size()];
+                for (int i = 0; i < sortAttributes.length; i++) {
+                    String name = orderings.get(i).getAttribute().getAttributeName();
+                    sortAttributes[i] = elementAttributeValues.getAttributeValue(name);
+                }
+            }
+        }
+
+        Object getSortAttribute(int pos) {
+            return sortAttributes[pos];
         }
 
         public Object getKey() {
@@ -511,6 +542,108 @@ public final class MemoryOnlyStore extends CompoundStore implements CacheConfigu
 
         public boolean isAggregate() {
             return aggregateResult != null;
+        }
+    }
+
+    /**
+     * A compound comparator to implements query ordering
+     */
+    private static class OrderComparator implements Comparator<Result> {
+
+        private final List<Comparator<Result>> comparators;
+
+        OrderComparator(List<Ordering> orderings) {
+            comparators = new ArrayList<Comparator<Result>>();
+            int pos = 0;
+            for (Ordering ordering : orderings) {
+                switch (ordering.getDirection()) {
+                case ASCENDING: {
+                    comparators.add(new AscendingComparator(pos));
+                    break;
+                }
+                case DESCENDING: {
+                    comparators.add(new DescendingComparator(pos));
+                    break;
+                }
+                default: {
+                    throw new AssertionError(ordering.getDirection());
+                }
+                }
+
+                pos++;
+            }
+        }
+
+        public int compare(Result o1, Result o2) {
+            for (Comparator<Result> c : comparators) {
+                int cmp = c.compare(o1, o2);
+                if (cmp != 0) {
+                    return cmp;
+                }
+            }
+            return 0;
+        }
+
+        /**
+         * Simple ascending comparator
+         */
+        private static class AscendingComparator implements Comparator<Result> {
+
+            private final int pos;
+
+            AscendingComparator(int pos) {
+                this.pos = pos;
+            }
+
+            public int compare(Result o1, Result o2) {
+                Object attr1 = ((ResultImpl) o1).getSortAttribute(pos);
+                Object attr2 = ((ResultImpl) o2).getSortAttribute(pos);
+
+                if ((attr1 == null) && (attr2 == null)) {
+                    return 0;
+                }
+
+                if (attr1 == null) {
+                    return -1;
+                }
+
+                if (attr2 == null) {
+                    return 1;
+                }
+
+                return ((Comparable) attr1).compareTo(attr2);
+            }
+        }
+
+        /**
+         * Simple descending comparator
+         */
+        private static class DescendingComparator implements Comparator<Result> {
+
+            private final int pos;
+
+            DescendingComparator(int pos) {
+                this.pos = pos;
+            }
+
+            public int compare(Result o1, Result o2) {
+                Object attr1 = ((ResultImpl) o1).getSortAttribute(pos);
+                Object attr2 = ((ResultImpl) o2).getSortAttribute(pos);
+
+                if ((attr1 == null) && (attr2 == null)) {
+                    return 0;
+                }
+
+                if (attr1 == null) {
+                    return 1;
+                }
+
+                if (attr2 == null) {
+                    return -1;
+                }
+
+                return ((Comparable) attr2).compareTo(attr1);
+            }
         }
     }
 

@@ -283,7 +283,7 @@ class CacheQuery implements Query, StoreQuery {
         private final Attribute<?> attribute;
         private final Direction direction;
 
-        public OrderingImpl(Attribute<?> attribute, Direction direction) {
+        public OrderingImpl(Attribute<?> attribute, Direction direction) {           
             this.attribute = attribute;
             this.direction = direction;
         }

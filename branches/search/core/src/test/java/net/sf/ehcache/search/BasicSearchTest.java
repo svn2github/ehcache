@@ -65,7 +65,7 @@ public class BasicSearchTest extends TestCase {
             }
             }
         }
-        
+
         query = cache.createQuery();
         query.includeKeys();
         query.add(age.ne(35));
@@ -83,7 +83,7 @@ public class BasicSearchTest extends TestCase {
 
         results = query.execute();
         assertEquals(2, results.size());
-        
+
         query = cache.createQuery();
         query.includeKeys();
         query.add(age.ne(35));
@@ -92,7 +92,7 @@ public class BasicSearchTest extends TestCase {
 
         results = query.execute();
         assertEquals(2, results.size());
-        
+
         query = cache.createQuery();
         query.includeKeys();
         query.add(age.ne(35));
@@ -100,7 +100,7 @@ public class BasicSearchTest extends TestCase {
         query.end();
 
         results = query.execute();
-        assertEquals(2, results.size());   
+        assertEquals(2, results.size());
     }
 
     public void testAttributeQuery() {
@@ -220,6 +220,36 @@ public class BasicSearchTest extends TestCase {
         verify(cache, query, 1, 2, 3);
     }
 
+    public void testOrdering() {
+        CacheManager cacheManager = new CacheManager(getClass().getResource("/ehcache-search.xml"));
+        Cache cache = cacheManager.getCache("cache1");
+        populateData(cache);
+
+        Attribute<Integer> age = cache.getSearchAttribute("age");
+        Attribute<String> name = cache.getSearchAttribute("name");
+
+        Query query;
+
+        query = cache.createQuery();
+        query.includeKeys();
+        // no critera -- select all elements
+        query.addOrder(age, Direction.DESCENDING);
+        query.addOrder(name, Direction.ASCENDING);
+        query.end();
+
+        verifyOrdered(cache, query, 3, 1, 4, 2);
+
+        query = cache.createQuery();
+        query.includeKeys();
+        // no critera -- select all elements
+        query.addOrder(age, Direction.DESCENDING);
+        query.addOrder(name, Direction.ASCENDING);
+        query.maxResults(2);
+        query.end();
+
+        verifyOrdered(cache, query, 3, 1);
+    }
+
     private void populateData(Cache cache) {
         cache.removeAll();
         cache.put(new Element(1, new Person("Tim Eck", 35, Gender.MALE)));
@@ -240,6 +270,18 @@ public class BasicSearchTest extends TestCase {
                 throw new AssertionError("unexpected key: " + key);
             }
             assertEquals(cache.get(key).getObjectValue(), result.getValue());
+        }
+    }
+
+    private void verifyOrdered(Cache cache, Query query, Integer... expectedKeys) {
+        Results results = query.execute();
+        assertEquals(results.size(), expectedKeys.length);
+
+        int pos = 0;
+        for (Result result : results.all()) {
+            Object expectedKey = expectedKeys[pos++];
+            assertEquals(expectedKey, result.getKey());
+            assertEquals(cache.get(expectedKey).getObjectValue(), result.getValue());
         }
     }
 
