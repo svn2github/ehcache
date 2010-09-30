@@ -177,10 +177,10 @@ public class BlockingCache extends EhcacheDecoratorAdapter {
     private CacheLockProvider getCacheLockProvider() {
         if (cacheLockProvider == null) {
             Object context = underlyingCache.getInternalContext();
-            if (context == null) {
-                this.cacheLockProvider = new StripedReadWriteLockSync(stripes);
-            } else {
+            if (underlyingCache.getCacheConfiguration().isTerracottaClustered() && context != null) {
                 this.cacheLockProvider = ((CacheLockProvider) context);
+            } else {
+                this.cacheLockProvider = new StripedReadWriteLockSync(stripes);
             }
         }
         return cacheLockProvider;
