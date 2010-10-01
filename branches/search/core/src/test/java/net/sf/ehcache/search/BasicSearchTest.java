@@ -250,6 +250,87 @@ public class BasicSearchTest extends TestCase {
         verifyOrdered(cache, query, 3, 1);
     }
 
+    public void testLike() {
+        CacheManager cacheManager = new CacheManager(getClass().getResource("/ehcache-search.xml"));
+        Cache cache = cacheManager.getCache("cache1");
+        populateData(cache);
+
+        Attribute<String> name = cache.getSearchAttribute("name");
+
+        Query query;
+
+        query = cache.createQuery();
+        query.includeKeys();
+        query.add(new Or(name.like("tim*"), name.like("ari*")));
+        query.end();
+
+        verify(cache, query, 3, 1);
+
+        cache.removeAll();
+        cache.put(new Element(1, new Person("Test \\ Bob * ?", 35, Gender.MALE)));
+        cache.put(new Element(2, new Person("(..Test", 35, Gender.MALE)));
+        cache.put(new Element(3, new Person("lowercase", 35, Gender.MALE)));
+        cache.put(new Element(4, new Person("UPPERCASE", 35, Gender.MALE)));
+        cache.put(new Element(5, new Person("MiXeD", 35, Gender.MALE)));
+
+        query = cache.createQuery();
+        query.includeKeys();
+        query.add(name.like("Test \\\\ Bob \\* \\?"));
+        query.end();
+
+        verify(cache, query, 1);
+        
+        query = cache.createQuery();
+        query.includeKeys();
+        query.add(name.like("Test*"));
+        query.end();
+
+        verify(cache, query, 1);
+        
+        query = cache.createQuery();
+        query.includeKeys();
+        query.add(name.like("Test*\\?"));
+        query.end();
+
+        verify(cache, query, 1);
+        
+        query = cache.createQuery();
+        query.includeKeys();
+        query.add(name.like("(..*"));
+        query.end();
+
+        verify(cache, query, 2);  
+        
+        query = cache.createQuery();
+        query.includeKeys();
+        query.add(name.like("Lowercase"));
+        query.end();
+
+        verify(cache, query, 3);
+        
+        query = cache.createQuery();
+        query.includeKeys();
+        query.add(name.like("LOWER*"));
+        query.end();
+
+        verify(cache, query, 3);                
+        
+        
+        query = cache.createQuery();
+        query.includeKeys();
+        query.add(name.like("uppercase"));
+        query.end();
+
+        verify(cache, query, 4);
+        
+        query = cache.createQuery();
+        query.includeKeys();
+        query.add(name.like("mixed"));
+        query.end();
+
+        verify(cache, query, 5);                
+    }
+
     private void populateData(Cache cache) {
         cache.removeAll();
         cache.put(new Element(1, new Person("Tim Eck", 35, Gender.MALE)));

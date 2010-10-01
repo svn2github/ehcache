@@ -26,6 +26,7 @@ import net.sf.ehcache.search.expression.GreaterThanOrEqualCriteria;
 import net.sf.ehcache.search.expression.InCollectionCriteria;
 import net.sf.ehcache.search.expression.LessThanCriteria;
 import net.sf.ehcache.search.expression.LessThanOrEqualCriteria;
+import net.sf.ehcache.search.expression.LikeCriteria;
 import net.sf.ehcache.search.expression.NotEqualCriteria;
 
 /**
@@ -162,13 +163,15 @@ public class Attribute<T> {
         return new EqualCriteria(attributeName, value);
     }
 
-    // // XXX: need to define exactly what regex format/subset we support
-    // public Criteria like(String regex) {
-    // throw new AssertionError();
-    // }
-    //
-    // public Criteria ilike(String regex) {
-    // throw new AssertionError();
-    // }
+    /**
+     * Create a criteria where this attribute's toString() matches the given expression
+     * See {@link LikeCriteria} for the expression syntax
+     * 
+     * @param regex
+     * @return criteria instance
+     */
+    public Criteria like(String regex) {
+        return new LikeCriteria(attributeName, regex);
+    }
 
 }

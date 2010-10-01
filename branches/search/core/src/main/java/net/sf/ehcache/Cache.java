@@ -31,7 +31,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Set;
 import java.util.UUID;
@@ -57,7 +56,6 @@ import net.sf.ehcache.concurrent.Sync;
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.CacheWriterConfiguration;
 import net.sf.ehcache.config.DiskStoreConfiguration;
-import net.sf.ehcache.config.SearchAttribute;
 import net.sf.ehcache.config.TerracottaConfiguration;
 import net.sf.ehcache.event.CacheEventListener;
 import net.sf.ehcache.event.CacheEventListenerFactory;
@@ -71,7 +69,6 @@ import net.sf.ehcache.loader.CacheLoaderFactory;
 import net.sf.ehcache.search.Attribute;
 import net.sf.ehcache.search.Query;
 import net.sf.ehcache.search.Results;
-import net.sf.ehcache.search.attribute.AttributeExtractor;
 import net.sf.ehcache.statistics.CacheUsageListener;
 import net.sf.ehcache.statistics.LiveCacheStatistics;
 import net.sf.ehcache.statistics.LiveCacheStatisticsWrapper;
@@ -1054,12 +1051,7 @@ public class Cache implements Ehcache, StoreListener {
                 this.compoundStore = store;
             }
 
-            Map<String, AttributeExtractor> extractors = new HashMap<String, AttributeExtractor>();
-            for (Entry<String, SearchAttribute> entry : configuration.getSearchAttributes().entrySet()) {
-                extractors.put(entry.getKey(), entry.getValue().constructExtractor());
-            }
-
-            store.setAttributeExtractors(extractors);
+            store.setAttributeExtractors(configuration.getSearchAttributeExtractors());
 
 
             this.cacheWriterManager = configuration.getCacheWriterConfiguration().getWriteMode().createWriterManager(this);
@@ -3459,7 +3451,7 @@ public class Cache implements Ehcache, StoreListener {
     public <T> Attribute<T> getSearchAttribute(String attributeName) throws CacheException {
         // ??? Should we cache these instances?
         
-        if (configuration.getSearchAttributes().containsKey(attributeName)) {
+        if (configuration.getSearchAttributeExtractors().containsKey(attributeName)) {
             return new Attribute<T>(attributeName);
         }
 

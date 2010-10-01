@@ -18,6 +18,7 @@ package net.sf.ehcache.config;
 
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.event.NotificationScope;
+import net.sf.ehcache.search.attribute.AttributeExtractor;
 import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
 import net.sf.ehcache.store.compound.CopyStrategy;
 import net.sf.ehcache.util.MemorySizeParser;
@@ -26,6 +27,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -326,9 +328,9 @@ public class CacheConfiguration implements Cloneable {
     protected volatile Set<CacheConfigurationListener> listeners = new CopyOnWriteArraySet<CacheConfigurationListener>();
 
     /**
-     * The defined search attributes for this cache (if any) indexed by name
+     * The defined search attribute extractors for this cache (if any) indexed by name
      */
-    protected final Map<String, SearchAttribute> searchAttributes = new HashMap<String, SearchAttribute>();
+    protected final Map<String, AttributeExtractor> searchAttributeExtractors = new HashMap<String, AttributeExtractor>();
 
     private volatile boolean frozen;
     private TransactionalMode transactionalMode = DEFAULT_TRANSACTIONAL_MODE;
@@ -971,12 +973,12 @@ public class CacheConfiguration implements Cloneable {
     }
 
     /**
-     * Get the search attributes defined for this cache (if any) indexed by attribute name
+     * Get the search attribute extractors defined for this cache (if any) indexed by attribute name
      *
-     * @return map of the search attributes
+     * @return map of the search attribute extractors
      */
-    public Map<String, SearchAttribute> getSearchAttributes() {
-        return this.searchAttributes;
+    public Map<String, AttributeExtractor> getSearchAttributeExtractors() {
+        return Collections.unmodifiableMap(this.searchAttributeExtractors);
     }
 
     /**
@@ -1064,17 +1066,30 @@ public class CacheConfiguration implements Cloneable {
      * @param searchAttribute to add
      */
     public final void addSearchAttribute(SearchAttribute searchAttribute) throws InvalidConfigurationException {
+        checkDynamicChange();
+        
         String attributeName = searchAttribute.getName();
 
         if (attributeName == null) {
             throw new InvalidConfigurationException("Search attribute has null name");
         }
 
-        if (searchAttributes.containsKey(attributeName)) {
+        if (searchAttributeExtractors.containsKey(attributeName)) {
             throw new InvalidConfigurationException("Repeated searchAttribute name: " + attributeName);
         }
 
-        searchAttributes.put(attributeName, searchAttribute);
+        searchAttributeExtractors.put(attributeName, searchAttribute.constructExtractor());
+    }
+    
+    /**
+     * Add a search attribute
+     * 
+     * @param searchAttribute attribute to add
+     * @return this
+     */
+    public CacheConfiguration searchAttribute(SearchAttribute searchAttribute) {
+        addSearchAttribute(searchAttribute);
+        return this;
     }
 
     /**
