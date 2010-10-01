@@ -297,7 +297,7 @@ public final class MemoryOnlyStore extends CompoundStore implements CacheConfigu
 
         boolean hasOrder = !query.getOrdering().isEmpty();
 
-        for (Object key : getKeys()) {
+        for (Object key : keySet()) {
             if (!hasOrder && query.maxResults() >= 0 && results.size() == query.maxResults()) {
                 break;
             }
