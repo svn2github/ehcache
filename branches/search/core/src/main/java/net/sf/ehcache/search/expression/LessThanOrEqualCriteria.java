@@ -44,5 +44,14 @@ public class LessThanOrEqualCriteria extends ComparableValueCriteria {
     protected boolean executeComparable(Comparable attributeValue) {
         return attributeValue.compareTo(comparableValue) <= 0;
     }
+    
+    /**
+     * Comparable value.
+     * 
+     * @return value
+     */
+    public Comparable getComparableValue() {
+        return comparableValue;
+    }
 
 }

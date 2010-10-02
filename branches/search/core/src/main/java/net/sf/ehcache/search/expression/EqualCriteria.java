@@ -47,6 +47,33 @@ public class EqualCriteria implements Criteria {
 
         this.type = AttributeType.typeFor(attributeName, value);
     }
+    
+    /**
+     * Get attribute value.
+     * 
+     * @return attribute value
+     */
+    public Object getValue() {
+        return value;
+    }
+
+    /**
+     * Get attribute name.
+     * 
+     * @return attribute name.
+     */
+    public String getAttributeName() {
+        return attributeName;
+    }
+
+    /**
+     * Get attribute type.
+     * 
+     * @return attribute type.
+     */
+    public AttributeType getType() {
+        return type;
+    }
 
     /**
      * {@inheritDoc}
@@ -59,5 +86,4 @@ public class EqualCriteria implements Criteria {
 
         return this.value.equals(attributeValue);
     }
-
 }

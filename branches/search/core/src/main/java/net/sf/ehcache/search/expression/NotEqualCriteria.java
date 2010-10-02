@@ -43,5 +43,5 @@ public class NotEqualCriteria extends EqualCriteria {
     public boolean execute(ElementAttributeValues attributeValues) {
         return !super.execute(attributeValues);
     }
-
+   
 }

@@ -36,7 +36,7 @@ public class And implements Criteria {
      *            the right hand side of the "and" expression
      */
     public And(Criteria lhs, Criteria rhs) {
-        this(new Criteria[] {lhs, rhs});
+        this(new Criteria[] { lhs, rhs });
     }
 
     /**
@@ -46,6 +46,15 @@ public class And implements Criteria {
      */
     public And(Criteria... criterion) {
         this.criterion = criterion;
+    }
+    
+    /**
+     * Return criterion
+     * 
+     * @return criterion
+     */
+    public Criteria[] getCriterion() {
+        return this.criterion;
     }
 
     /**
@@ -60,5 +69,4 @@ public class And implements Criteria {
 
         return true;
     }
-
 }

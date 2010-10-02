@@ -58,6 +58,24 @@ public abstract class ComparableValueCriteria implements Criteria {
             throw new SearchException("Illegal (non-comparable) type for comparsion (" + type + ")");
         }
     }
+    
+    /**
+     * Attribute name.
+     * 
+     * @return name
+     */
+    public String getAttributeName() {
+        return attributeName;
+    }
+
+    /**
+     * Attribute type.
+     * 
+     * @return type
+     */
+    public AttributeType getType() {
+        return type;
+    }
 
     /**
      * {@inheritDoc}

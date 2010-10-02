@@ -36,6 +36,16 @@ public class GreaterThanCriteria extends ComparableValueCriteria {
         super(attributeName, value);
         this.comparableValue = (Comparable) value;
     }
+    
+    /**
+     * Comparable value.
+     * 
+     * @return value
+     */
+    public Comparable getComparableValue() {
+        return comparableValue;
+    }
+
 
     /**
      * {@inheritDoc}
@@ -45,5 +55,5 @@ public class GreaterThanCriteria extends ComparableValueCriteria {
         return attributeValue.compareTo(comparableValue) > 0;
 
     }
-
+   
 }

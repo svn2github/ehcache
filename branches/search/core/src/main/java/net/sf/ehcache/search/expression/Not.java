@@ -26,7 +26,7 @@ import net.sf.ehcache.store.ElementAttributeValues;
 public class Not implements Criteria {
 
     private final Criteria c;
-
+    
     /**
      * Construct a "not" criteria of the given criteria
      * 
@@ -35,6 +35,14 @@ public class Not implements Criteria {
      */
     public Not(Criteria c) {
         this.c = c;
+    }
+    
+    /**
+     * 
+     * @return criteria
+     */
+    public Criteria getCriteria() {
+        return c;
     }
 
     /**

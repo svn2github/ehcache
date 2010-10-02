@@ -31,5 +31,5 @@ public class AlwaysMatchCriteria implements Criteria {
     public boolean execute(ElementAttributeValues attributeValues) {
         return true;
     }
-
+    
 }

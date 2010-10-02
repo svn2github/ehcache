@@ -26,7 +26,7 @@ import net.sf.ehcache.store.ElementAttributeValues;
 public class Or implements Criteria {
 
     private final Criteria[] criterion;
-
+    
     /**
      * Simple constructor for two criteria
      * 
@@ -47,6 +47,15 @@ public class Or implements Criteria {
     public Or(Criteria... criterion) {
         this.criterion = criterion;
     }
+    
+    /**
+     * Return criterion
+     * 
+     * @return criterion
+     */
+    public Criteria[] getCriterion() {
+        return this.criterion;
+    }
 
     /**
      * {@inheritDoc}
@@ -59,6 +68,20 @@ public class Or implements Criteria {
         }
 
         return false;
+    }
+    
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        builder.append(" ( ");
+        for (int i = 0; i < criterion.length; i++) {
+            builder.append(criterion[i]);
+            if (i < criterion.length - 1) {
+                builder.append(" OR ");
+            }
+        }
+        builder.append(" ) ");
+        return builder.toString();
     }
 
 }
