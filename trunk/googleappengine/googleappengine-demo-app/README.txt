@@ -41,5 +41,21 @@ To deploy and run the sample on GAE:
 
 mvn gae:deploy
 
-You will then need to go to <appname>.appspot.com to view it.
+
+You will need to add the username and password for your GAE account to your settings.xml:
+
+
+Add this to your settings.xml:
+
+        <server>
+            <id>appengine.google.com</id>
+            <username>MyEmail@gmail.com</username>
+            <password>MyPassword</password>
+        </server>
+
+
+
+Go to <appname>.appspot.com to view it.
+
+
 

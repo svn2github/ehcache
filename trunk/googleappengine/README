@@ -1,33 +1,11 @@
--	To install ehcache-web-parent, ehcache-web and ehcache-web-system-tests along with running integration-tests w/ jetty6x (default)
-	From root dir
-		mvn clean install
+Building this project
+---------------------
 
--	To install only ehcache-web
-	From web dir
-		mvn clean install
+mvn clean install
 
--	To run integration-test with cargo maven. Working profiles: jetty6x, tomcat50x, tomcat55x tomcat6x
-	From web-system-tests dir
-		mvn clean integration-test -Pcargo -P<appserver-profile>
-		mvn clean integration-test -Pcargo -Ptomcat6x 
 
--	To run integration-test without cargo maven or app server other than mentioned above.
-	From web-system-tests dir
-		1. Create the war
-			mvn clean package
-		2. Start and deploy the war on the app server running on ${test.server.host}:${test.server.port} (DEFAULT: localhost:9090)
-		3. To run the test, modify the ${test.server.host}, ${test.server.port} properties in pom.xml, if needed.
-			mvn clean integration-test -Pno-cargo
+Dependencies
+------------
 
--	To run single integration-test
-	From web-system-tests dir
-		mvn clean integration-test -Pcargo -P<appserver-profile> -Dtest=<test-name>
-		mvn clean integration-test -Pcargo -Ptomcat6x -Dtest=CachingFilterTest 
+See the README.txt in googleappengine-demo-app.
 
-	NOTE: 	* You will see a number of exception on the console during system-tests, those are expected until unless any of the test fails.
-		 	* You might get a feeling that it got stuck at  [cargo:start {execution: start-container}] 
-			  But its downloading the app server zip file over the network to ${user.home}/cargo/${cargo.id}. You can check the size of the zip file downloaded.
-
--	To assemble ehcache-web as tar.gz
-	From web dir
-		mvn clean install assembly:assembly
