@@ -154,7 +154,7 @@ CacheManager manager = new CacheManager(configuration);
 
     Note: You need to install and run one or more Terracotta servers to use Terracotta clustering.
 
-    See http://www.terracotta.org/web/display/orgsite/Download.
+    See http://www.terracotta.org/dl.
 
     With a server/servers up and running you need to specify the location of the servers.
 
@@ -566,7 +566,7 @@ public interface ClusterTopologyListener {
 
 *   More Information
 
-    Please see {{{http://www.terracotta.org/web/display/orgsite/Terracotta+Ehcache+Overview}Terracotta Documentation}}
+    Please see {{{http://www.terracotta.org/documentation}Terracotta Documentation}}
     for much more information.
 
 *   {Development Setup}
