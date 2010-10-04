@@ -125,6 +125,13 @@
         
 
         <plugins>
+            <plugin>
+              <artifactId>maven-deploy-plugin</artifactId>
+              <configuration>
+                <skip>true</skip>
+              </configuration>
+            </plugin>
+
             <!--
                    This plug-in "enhances" your domain model objects (i.e. makes them
                    persistent for datanucleus)
