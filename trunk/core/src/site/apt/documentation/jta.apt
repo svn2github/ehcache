@@ -29,7 +29,7 @@
 
 **  Configuring a Transaction Manager
 
-    If you Transaction Manager is not in the above list or you wish to change the priority you need
+    If your Transaction Manager is not in the above list or you wish to change the priority you need
     to configure your own lookup class and specify it in place of
     the <<<DefaultTransactionManagerLookup>>> in the ehcache.xml config::
 
