@@ -342,7 +342,7 @@
         <!--
               Upload to http://test.latest.<applicationName>.appspot.com by default
           -->
-        <gae.application.version>ehcache-g-a-e-demo</gae.application.version>
+        <gae.application.version>ehcache-gae-demo</gae.application.version>
 
 
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
