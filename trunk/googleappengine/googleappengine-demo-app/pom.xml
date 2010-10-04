@@ -11,11 +11,11 @@
 
     <!-- The Basics -->
     <groupId>com.myapp.test</groupId>
-    <artifactId>googleappengine-system-tests</artifactId>
+    <artifactId>googleappengine-demo-app</artifactId>
     <version>1.0-SNAPSHOT</version>
     <packaging>war</packaging>
 
-    <name>googleappengine-system-tests</name>
+    <name>googleappengine-demo-app</name>
     <description>Test app</description>
 
 
@@ -24,6 +24,10 @@
             <id>datanucleus</id>
             <url>http://www.datanucleus.org/downloads/maven2</url>
         </repository>
+        <!--<repository>-->
+            <!--<id>terracotta-repository</id>-->
+            <!--<url>http://www.terracotta.org/download/reflector/maven2</url>-->
+        <!--</repository>-->
     </repositories>
 
     <pluginRepositories>
@@ -68,6 +72,13 @@
             <version>2.3-ec</version>
             <scope>compile</scope>
         </dependency>
+
+
+        <!--<dependency>-->
+            <!--<groupId>org.terracotta</groupId>-->
+            <!--<artifactId>ehcache-probe</artifactId>-->
+            <!--<version>1.0.1</version>-->
+        <!--</dependency>-->
 
 
         <!--<dependency>-->
@@ -317,8 +328,8 @@
                     <doUpdate>false</doUpdate>
                     <!--<format>{0,date,yyyy-MM-dd_HH-mm}_{1}</format>-->
                     <!--<items>-->
-                        <!--<item>timestamp</item>-->
-                        <!--<item>${user.name}</item>-->
+                    <!--<item>timestamp</item>-->
+                    <!--<item>${user.name}</item>-->
                     <!--</items>-->
                 </configuration>
             </plugin>

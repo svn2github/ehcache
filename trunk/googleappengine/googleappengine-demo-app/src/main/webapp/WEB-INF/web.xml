@@ -19,6 +19,14 @@
         </servlet-class>
     </servlet>
 
+    <servlet>
+        <servlet-name>CacheStatistics</servlet-name>
+        <servlet-class>
+            net.sf.ehcache.googleappengine.CacheStatisticsServlet
+        </servlet-class>
+    </servlet>
+
+
     <servlet-mapping>
         <servlet-name>IndexServlet</servlet-name>
         <url-pattern>/index</url-pattern>
@@ -27,6 +35,12 @@
     <servlet-mapping>
         <servlet-name>MessageServlet</servlet-name>
         <url-pattern>/message</url-pattern>
+    </servlet-mapping>
+
+
+    <servlet-mapping>
+        <servlet-name>CacheStatistics</servlet-name>
+        <url-pattern>/statistics</url-pattern>
     </servlet-mapping>
 
     <welcome-file-list>

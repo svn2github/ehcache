@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <properties>
         <forgeTags>Integration Module</forgeTags>
         <Bundle-RequiredExecutionEnvironment>J2SE-1.5</Bundle-RequiredExecutionEnvironment>
@@ -15,7 +17,7 @@
     <artifactId>ehcache-googleappengine-parent</artifactId>
     <packaging>pom</packaging>
     <version>0.0.1-SNAPSHOT</version>
-    <description>parent pom for googleappengine  module</description>
+    <description>parent pom for googleappengine module</description>
 
 
     <licenses>
@@ -26,13 +28,16 @@
     </licenses>
 
     <scm>
-        <connection>scm:svn:http://svn.terracotta.org/svn/ehcache/trunk/googleappengine</connection>
-        <developerConnection>scm:svn:https://svn.terracotta.org/repo/ehcache/trunk/googleappengine</developerConnection>
+        <connection>scm:svn:http://svn.terracotta.org/svn/ehcache/trunk/googleappengine
+        </connection>
+        <developerConnection>
+            scm:svn:https://svn.terracotta.org/repo/ehcache/trunk/googleappengine
+        </developerConnection>
         <url>http://svn.terracotta.org/svn/ehcache/trunk/googleappengine</url>
     </scm>
 
     <modules>
         <module>googleappengine</module>
-    <module>googleappengine-system-tests</module>
-  </modules>
+        <module>googleappengine-demo-app</module>
+    </modules>
 </project>
