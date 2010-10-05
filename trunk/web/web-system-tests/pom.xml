@@ -3,15 +3,19 @@
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
   <modelVersion>4.0.0</modelVersion>
+  
   <parent>
     <groupId>net.sf.ehcache</groupId>
     <artifactId>ehcache-web-parent</artifactId>
     <version>2.0.2-SNAPSHOT</version>
   </parent>
+  
   <name>Ehcache Web Filters Integration Tests</name>
   <artifactId>ehcache-web-system-tests</artifactId>
   <packaging>war</packaging>
+  
   <description><![CDATA[Integration tests for Web caching filters.]]> </description>
+  
   <dependencies>
     <dependency>
       <groupId>${project.groupId}</groupId>

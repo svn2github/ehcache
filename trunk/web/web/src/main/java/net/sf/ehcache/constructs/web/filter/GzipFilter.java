@@ -41,13 +41,18 @@ import java.util.zip.GZIPOutputStream;
 public class GzipFilter extends Filter {
 
     private static final Logger LOG = LoggerFactory.getLogger(GzipFilter.class);
-
+    private static final String SET_VARY_HEADER_PARAM = "setVaryHeader";
+    
+    private boolean setVaryHeader;
     /**
      * Performs initialisation.
      * @param filterConfig
      */
     protected void doInit(FilterConfig filterConfig) throws Exception {
-        //nothing required.
+        String varyParam = filterConfig.getInitParameter(SET_VARY_HEADER_PARAM);
+        if (varyParam != null) {
+            setVaryHeader = Boolean.valueOf(varyParam);
+        }
     }
 
 
@@ -98,9 +103,14 @@ public class GzipFilter extends Filter {
 
             // Write the zipped body
             ResponseUtil.addGzipHeader(response);
+            
+            // Only write out header Vary as needed
+            if (setVaryHeader) {
+              ResponseUtil.addVaryAcceptEncoding(wrapper);
+            }
+            
             response.setContentLength(compressedBytes.length);
-
-
+            
             response.getOutputStream().write(compressedBytes);
         } else {
             // Client does not accept zipped content - don't bother zipping

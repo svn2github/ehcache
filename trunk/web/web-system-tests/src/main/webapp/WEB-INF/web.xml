@@ -23,6 +23,27 @@
         </init-param>
     </filter>
     <filter>
+        <filter-name>GzipFilterWithVaryHeader</filter-name>
+        <filter-class>net.sf.ehcache.constructs.web.filter.GzipFilter</filter-class>
+        <init-param>
+            <param-name>exceptionsToLogDifferently</param-name>
+            <param-value>net.sf.ehcache.CacheException, java.lang.NullPointerException
+            </param-value>
+        </init-param>
+        <init-param>
+            <param-name>exceptionsToLogDifferentlyLevel</param-name>
+            <param-value>fine</param-value>
+        </init-param>
+        <init-param>
+            <param-name>suppressStackTraces</param-name>
+            <param-value>false</param-value>
+        </init-param>
+        <init-param>
+            <param-name>setVaryHeader</param-name>
+            <param-value>true</param-value>
+        </init-param>        
+    </filter>    
+    <filter>
         <filter-name>SimplePageCachingFilter</filter-name>
         <filter-class>net.sf.ehcache.constructs.web.filter.SimplePageCachingFilter
         </filter-class>
@@ -191,7 +212,12 @@
         <filter-name>GzipFilter</filter-name>
         <url-pattern>/GzipOnlyPage.jsp</url-pattern>
     </filter-mapping>
-
+    
+    <filter-mapping>
+        <filter-name>GzipFilterWithVaryHeader</filter-name>
+        <url-pattern>/GzipOnlyPageWithVaryHeader.jsp</url-pattern>
+    </filter-mapping>
+    
     <filter-mapping>
         <filter-name>GzipFilter</filter-name>
         <url-pattern>/errors/CacheException.jsp</url-pattern>

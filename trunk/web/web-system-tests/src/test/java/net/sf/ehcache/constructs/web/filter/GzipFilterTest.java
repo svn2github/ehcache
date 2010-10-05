@@ -80,6 +80,7 @@ public class GzipFilterTest extends AbstractWebTest {
         String responseURL = response.getURL().toString();
         assertEquals(url, responseURL);
         assertEquals("gzip", response.getHeaderField("Content-Encoding"));
+        assertNull(response.getHeaderField("Vary"));
 
         //Check that we are dealing with Cyrillic characters ok
         assertTrue(response.getText().indexOf("&#8593;") != -1);
@@ -87,6 +88,30 @@ public class GzipFilterTest extends AbstractWebTest {
         assertTrue(response.getText().indexOf("&#1052;") != -1);
     }
 
+    /**
+     * Tests that a page which is storeGzipped is gzipped when the user agent accepts gzip encoding
+     */
+    @Test
+    public void testGzippedWithVaryHeader() throws Exception {
+        WebConversation client = createWebConversation(true);
+        client.getClientProperties().setAcceptGzip(true);
+        String url = buildUrl("/GzipOnlyPageWithVaryHeader.jsp");
+        WebResponse response = client.getResponse(url);
+
+        assertNotNull(response);
+        assertEquals(HttpURLConnection.HTTP_OK, response.getResponseCode());
+
+        String responseURL = response.getURL().toString();
+        assertEquals(url, responseURL);
+        assertEquals("gzip", response.getHeaderField("Content-Encoding"));
+        assertEquals("Accept-Encoding", response.getHeaderField("Vary"));
+
+        //Check that we are dealing with Cyrillic characters ok
+        assertTrue(response.getText().indexOf("&#8593;") != -1);
+        //Check non ascii symbol
+        assertTrue(response.getText().indexOf("&#1052;") != -1);
+    }
+    
     /**
      * A 0 length body should give a 0 length gzip body and content length
      * <p/>

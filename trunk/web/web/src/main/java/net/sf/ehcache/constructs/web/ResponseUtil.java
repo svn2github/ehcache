@@ -17,6 +17,9 @@
 package net.sf.ehcache.constructs.web;
 
 
+import java.io.Serializable;
+import java.util.Collection;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -129,5 +132,32 @@ public final class ResponseUtil {
         }
     }
 
+    /**
+     * Adds the Vary: Accept-Encoding header to the response if needed
+     * 
+     * <p/>
+     * 
+     * @param wrapper
+     */
+    public static void addVaryAcceptEncoding(final GenericResponseWrapper wrapper) {
+        Collection<Header<? extends Serializable>> headers = wrapper.getAllHeaders();
+        
+        Header<? extends Serializable> varyHeader = null;
+        for (Header<? extends Serializable> header : headers) {
+            if (header.getName().equals("Vary")) {
+                varyHeader = header;
+                break;
+            }
+        }
+        
+        if (varyHeader == null) {
+            wrapper.setHeader("Vary", "Accept-Encoding");
+        } else {
+            String varyValue = varyHeader.getValue().toString();
+            if (!varyValue.equals("*") && !varyValue.contains("Accept-Encoding")) {
+                wrapper.setHeader("Vary", varyHeader.getValue().toString() + ",Accept-Encoding");
+            }
+        }
+    }
 
 }
