@@ -39,7 +39,7 @@
             <param-value>false</param-value>
         </init-param>
         <init-param>
-            <param-name>setVaryHeader</param-name>
+            <param-name>varyHeader</param-name>
             <param-value>true</param-value>
         </init-param>        
     </filter>    

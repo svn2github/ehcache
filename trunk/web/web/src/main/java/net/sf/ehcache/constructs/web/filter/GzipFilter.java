@@ -41,7 +41,7 @@ import java.util.zip.GZIPOutputStream;
 public class GzipFilter extends Filter {
 
     private static final Logger LOG = LoggerFactory.getLogger(GzipFilter.class);
-    private static final String SET_VARY_HEADER_PARAM = "setVaryHeader";
+    private static final String VARY_HEADER_PARAM = "varyHeader";
     
     private boolean setVaryHeader;
     /**
@@ -49,7 +49,7 @@ public class GzipFilter extends Filter {
      * @param filterConfig
      */
     protected void doInit(FilterConfig filterConfig) throws Exception {
-        String varyParam = filterConfig.getInitParameter(SET_VARY_HEADER_PARAM);
+        String varyParam = filterConfig.getInitParameter(VARY_HEADER_PARAM);
         if (varyParam != null) {
             setVaryHeader = Boolean.valueOf(varyParam);
         }

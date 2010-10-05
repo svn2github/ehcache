@@ -6,8 +6,8 @@
         Fix threadlocal leak introduced in 2.0.1.
     </action>
     <action dev="Hung Huynh" type="fix" issue="EHC-752">
-        GzipFilter should send header "Vary: Accept-Encoding" to support HTTP proxies
-        By setting filter param setVaryHeader to true
+        GzipFilter should send header "Vary:Accept-Encoding" to support HTTP proxies
+        It's off by default, to turn it on set filter param varyHeader to true
     </action>
 </release>
 
