@@ -122,16 +122,9 @@
     </dependencies>
 
     <build>
-        
+
 
         <plugins>
-            <plugin>
-              <artifactId>maven-deploy-plugin</artifactId>
-              <configuration>
-                <skip>true</skip>
-              </configuration>
-            </plugin>
-
             <!--
                    This plug-in "enhances" your domain model objects (i.e. makes them
                    persistent for datanucleus)
@@ -294,6 +287,10 @@
                             <name>java.awt.headless</name>
                             <value>true</value>
                         </property>
+                        <property>
+                            <name>appname</name>
+                            <value>${gae.application.name}</value>
+                        </property>
                     </systemProperties>
                 </configuration>
                 <executions>
@@ -322,7 +319,7 @@
                 </executions>
             </plugin>
 
-            
+
 
 
         </plugins>
@@ -349,7 +346,7 @@
         <!--
               Upload to http://test.latest.<applicationName>.appspot.com by default
           -->
-        <gae.application.version>ehcache-gae-demo</gae.application.version>
+        <gae.application.name>ehcache-g-a-e-demo</gae.application.name>
 
 
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -370,7 +367,7 @@
         <profile>
             <id>integration-build</id>
             <properties>
-                <gae.application.version>stage</gae.application.version>
+                <gae.application.name>stage</gae.application.name>
             </properties>
         </profile>
 
@@ -393,7 +390,7 @@
                 <!--
                         During release, set application version in appengine-web.xml to 2
                     -->
-                <gae.application.version>release</gae.application.version>
+                <gae.application.name>release</gae.application.name>
             </properties>
         </profile>
     </profiles>

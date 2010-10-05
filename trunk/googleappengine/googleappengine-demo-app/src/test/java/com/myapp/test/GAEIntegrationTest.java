@@ -30,6 +30,7 @@ import static org.junit.Assert.assertTrue;
 
 public class GAEIntegrationTest {
 
+        private static String name = System.getProperty("appname");
 
 
         /**
@@ -37,7 +38,8 @@ public class GAEIntegrationTest {
          */
         @Test
         public void testListenerExists() throws Exception {
-            URL u = new URL("http://ehcache-g-a-e-demo.appspot.com/");
+            URL u = new URL("http://" + name + ".appspot.com/");
+            System.out.println("URL: " + u);
             HttpURLConnection httpURLConnection = (HttpURLConnection) u.openConnection();
             httpURLConnection.setRequestMethod("GET");
 

@@ -21,9 +21,9 @@ Override the following properties in pom.xml:
 <gae.home>/work/java/appengine-java-sdk-1.3.7</gae.home>
 
 <!-- Use the name here you defined in step 2 -->
-<gae.application.version><appname></gae.application.version>
+<gae.application.name><appname></gae.application.name>
 
-e.g. <gae.application.version>gregrluckapptest</gae.application.version>
+e.g. <gae.application.name>gregrluckapptest</gae.application.name>
 
 
 Running the Sample Locally
