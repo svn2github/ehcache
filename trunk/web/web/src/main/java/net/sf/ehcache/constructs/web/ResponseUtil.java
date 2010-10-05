@@ -155,7 +155,7 @@ public final class ResponseUtil {
         } else {
             String varyValue = varyHeader.getValue().toString();
             if (!varyValue.equals("*") && !varyValue.contains("Accept-Encoding")) {
-                wrapper.setHeader("Vary", varyHeader.getValue().toString() + ",Accept-Encoding");
+                wrapper.setHeader("Vary", varyValue + ",Accept-Encoding");
             }
         }
     }
