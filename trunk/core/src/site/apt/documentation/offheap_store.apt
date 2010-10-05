@@ -138,6 +138,8 @@ public Cache createOffHeapCache() {
     This is a JVM flag which is meant to improve performance of memory-hungry applications.
     In testing, this option gives a 5% speed improvement with a 1Gb off-heap cache.
 
+    See {{http://andrigoss.blogspot.com/2008/02/jvm-performance-tuning.html}} for a discussion.
+
 **  Increasing the maximum serialized size of an Element that can be stored in the OffHeapStore
 
     Firstly, the MemoryStore and the DiskStore do not have any limits.
