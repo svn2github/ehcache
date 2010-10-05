@@ -12,16 +12,16 @@
     It is possible to get more control over Ehcache's locking behaviour.
 
     The initial version (0.2) works with Ehcache when used with the Terracotta Server Array.
-    0.3, works both with Terracotta and standalone when combined with Ehcache 2.1 or later.
+    Version 0.3 works both with Terracotta and standalone when combined with Ehcache 2.1 or later.
 
 *   Locking Modes
 
 **  Standalone Ehcache
 
-    When using the Ehcache APIs in standalone ehcache core, there is no direct control over locking. The last write wins. This is akin to
+    When using the Ehcache APIs in standalone ehcache core there is no direct control over locking. The last write wins. This is akin to
     the READ_UNCOMMITTED isolation level.
 
-    However the using the Explicit locking API uses the lock manager which as of Ehcache 2.1, has been
+    However the Explicit locking API uses the lock manager, which as of Ehcache 2.1 has been
     extended to support local caching.
 
 **  Standard Ehcache clustered with Terracotta
@@ -30,7 +30,6 @@
     package simply gives you more control over when locks are acquired and released. In regular
     Ehcache if you get an object to read or write it can be changed underneath you while you are
     performing your application level operations on the object.
-    <p/>
 
 **  Explicit Locking Ehcache clustered with Terracotta
 
@@ -72,10 +71,10 @@
 
     A WRITE lock cannot be obtained while there are outstanding READ locks - it will queue.
 
-    In each case to avoid locking problems, the lock should be released after use. The lock
-    release should be in a <pre>finally</pre> block.
+    In each case the lock should be released after use to avoid locking problems. The lock
+    release should be in a <<<finally>>> block.
 
-    If before each read, you acquire a READ lock and then before each write you acquire a WRITE
+    If before each read you acquire a READ lock and then before each write you acquire a WRITE
     lock, then an isolation level akin to READ_COMMITTED is achieved.
 
 
