@@ -108,7 +108,7 @@
 
 ---
 <init-param>
-   <param-name>aryHeader</param-name>
+   <param-name>varyHeader</param-name>
    <param-value>true</param-value>
 </init-param>
 ---
