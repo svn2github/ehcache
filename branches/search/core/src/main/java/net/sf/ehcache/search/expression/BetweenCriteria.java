@@ -69,18 +69,34 @@ public class BetweenCriteria extends ComparableValueCriteria {
         return minType;
     }
 
+    /**
+     * Get the minimum value
+     * 
+     * @return min value
+     */
     public Comparable getMin() {
         return min;
     }
 
+    /**
+     * Get the maximum value
+     * 
+     * @return max value
+     */
     public Comparable getMax() {
         return max;
     }
 
+    /**
+     * @return true if the min is included in range
+     */
     public boolean isMinInclusive() {
         return minInclusive;
     }
 
+    /**
+     * @return true if the max is included in range
+     */
     public boolean isMaxInclusive() {
         return maxInclusive;
     }
@@ -110,6 +126,5 @@ public class BetweenCriteria extends ComparableValueCriteria {
 
         return true;
     }
-    
-    
+
 }

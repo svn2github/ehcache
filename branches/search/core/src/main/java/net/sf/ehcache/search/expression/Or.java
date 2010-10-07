@@ -69,19 +69,4 @@ public class Or implements Criteria {
 
         return false;
     }
-    
-    @Override
-    public String toString() {
-        StringBuilder builder = new StringBuilder();
-        builder.append(" ( ");
-        for (int i = 0; i < criterion.length; i++) {
-            builder.append(criterion[i]);
-            if (i < criterion.length - 1) {
-                builder.append(" OR ");
-            }
-        }
-        builder.append(" ) ");
-        return builder.toString();
-    }
-
 }

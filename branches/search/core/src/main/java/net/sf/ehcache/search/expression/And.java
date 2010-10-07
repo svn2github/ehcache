@@ -36,7 +36,7 @@ public class And implements Criteria {
      *            the right hand side of the "and" expression
      */
     public And(Criteria lhs, Criteria rhs) {
-        this(new Criteria[] { lhs, rhs });
+        this(new Criteria[] {lhs, rhs});
     }
 
     /**
