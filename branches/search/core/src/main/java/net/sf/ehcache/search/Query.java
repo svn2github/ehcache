@@ -23,7 +23,8 @@ import net.sf.ehcache.search.expression.Criteria;
 /**
  * Creates queries for performing cache searches.
  * 
- * Queries are created using a fluent builder style.
+ * Queries are created using our fluent builder API which follows Java DSL conventions.
+ * See http://www.infoq.com/articles/internal-dsls-java for a description of these conventions.
  * 
  * A query can be executed and then modified and re-executed. If {@link #end} is called
  * the query is made immutable.
@@ -37,20 +38,24 @@ import net.sf.ehcache.search.expression.Criteria;
  * A {@link Query} instance can be used by multiple threads
  * 
  * @author teck
+ * @author Greg Luck
  */
 public interface Query {
 
     /**
-     * Request that the key object be present in the results. A query that only
-     * selects attributes need not select keys.
+     * Request that the key object be present in the results.
      * 
      * @return this
      */
     public Query includeKeys();
 
     /**
-     * Hint that cache values will be accessed in the result set (distributed
-     * caches might use this hint to pre-emptively fetch data)
+     * Request that the Element values be present in the results.
+     * <p/>
+     * Note that in a distributed cache values may need to come over the network.
+     * To prevent very large network transfers, consider limiting the results size
+     * with {@link #maxResults(int)} or by using {@link Results#range} rathern
+     * than {@link Results#all()}
      * 
      * @return this
      */
@@ -59,10 +64,13 @@ public interface Query {
     /**
      * Request that the given attribute(s) should be present in the result for
      * this query. This call can be made multiple times to add to the set of
-     * selected attributes
-     * 
-     * @param attributes
-     *            The query attributes to select
+     * selected attributes.
+     * <p/>
+     * Note that in a distributed cache attributes may need to come over the network. 
+     * To prevent very large network transfers, consider limiting the results size
+     * with {@link #maxResults(int)} or by using {@link Results#range} rathern
+     * than {@link Results#all()}
+     * @param attributes the query attributes to select
      * @return this
      */
     public Query includeAttribute(Attribute<?>... attributes);

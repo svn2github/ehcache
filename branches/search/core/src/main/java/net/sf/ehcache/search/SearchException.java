@@ -19,7 +19,7 @@ package net.sf.ehcache.search;
 import net.sf.ehcache.CacheException;
 
 /**
- * Generic search exception. This exception (or a more specific subclass) will be
+ * A generic search exception. This exception (or a more specific subclass) will be
  * thrown for a number of conditions including (but not limited to):
  * <ul>
  * <li>Type conflict for search attribute. For example a search attribute is of type "int" but the query criteria is for

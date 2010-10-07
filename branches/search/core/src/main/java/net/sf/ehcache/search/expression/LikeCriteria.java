@@ -22,8 +22,8 @@ import net.sf.ehcache.search.SearchException;
 import net.sf.ehcache.store.ElementAttributeValues;
 
 /**
- * Regular expression criteria that matches attribute string values. For non java.lang.String attributes, the toString() form is used in the
- * comparison. <br>
+ * A regular expression criteria that matches attribute string values. For non <code>java.lang.String attributes</code>,
+ * the <code>toString()</code> form is used in the comparison. <br>
  * <br>
  * Expressions are <b>always case insensitive</b><br>
  * <br>
@@ -34,7 +34,12 @@ import net.sf.ehcache.store.ElementAttributeValues;
  * </ul>
  * The supported wildcard characters can be escaped with a backslash '\', and a literal backslash can be included with '\\'<br>
  * <br>
- * Expressions may not start with a wildcard character
+ * Expressions may not start with a wildcard character.
+ * <p/>
+ *
+ *
+ *
+ *
  * @author teck
  */
 public class LikeCriteria implements Criteria {
@@ -43,14 +48,14 @@ public class LikeCriteria implements Criteria {
     private final Pattern pattern;
 
     /**
-     * Consturct a "like" criteria for the given expression
+     * Construct a "like" criteria for the given expression
      * 
      * @param attributeName attribute name 
      * @param regex expression
      */
     public LikeCriteria(String attributeName, String regex) {
         if ((attributeName == null) || (regex == null)) {
-            throw new NullPointerException();
+            throw new SearchException("Both the attribute name and regex must be non null.");
         }
 
         this.attributeName = attributeName;
