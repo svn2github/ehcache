@@ -779,7 +779,7 @@ public class CacheManager {
      * Returns a concrete implementation of Cache, it it is available in the CacheManager.
      * Consider using getEhcache(String name) instead, which will return decorated caches that are registered.
      * <p/>
-     * If a decorated ehcache is registered in CacheManager, an undecorated Cache with the same name will also exist.
+     * If a decorated ehcache is registered in CacheManager, an undecorated Cache with the same name may also exist.
      * 
      * Since version ehcache-core-2.1.0, when an {@link Ehcache} decorator is present in the CacheManager, its not necessary that a
      * {@link Cache} instance is also present for the same name. Decorators can have different names other than the name of the cache its
