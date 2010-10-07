@@ -1,0 +1,75 @@
+ ------
+ Development Roadmap
+ ------
+
+Development Roadmap @ 18 March 2010
+
+    Ehcache is now modularised. The roadmap is therefore expressed by module name.
+
+    Expected feature completion times are given in parentheses. Those proposed but not yet decided on
+     are <unscheduled>.
+
+* ehcache-core 2.1
+
+ * local JTA
+
+ * JTA for Hibernate
+
+ * Automatic actions when disconnected
+
+ * Search
+
+ * WAN replication
+
+* ehcache-monitor - Management and Monitoring (now in beta)
+
+    * commercial license - free for development, licensed for production
+
+    * JMX and HTTP monitoring console with ehcache probes.
+
+    * Tuning and visualisation web app.
+
+    * simple integration with operations tools such as Nagios, Hyperic, Wily, App Manager etc. 
+
+
+* ehcache-queues (unscheduled)
+
+    * Do a new module to accept queue wrapper contribs
+
+* ehcache-googleappengine (snapshots available now/2009)
+
+    Integration into Google App Engine apps by accepting contrib
+
+    Highlights:
+
+    * plugs in using Jcache
+
+    * local events propagate to memcacheg via a CacheEventListener
+
+    * misses hit memcacheg via a CacheLoader
+
+    * inconsistency controlled by either TTL or a dirty elements list maintained on memcacheg
+
+* ehcache-search (unscheduled)
+
+    * Searchable API
+
+* ehcache-cacheserver
+
+    * Release against 1.7.1
+
+    * client side consistent hashing
+
+    * integration of the cache server with ehcache-core
+
+    * publihsed performance results
+
+    * memcache API?
+
+    * clustering of partitions via Terracotta for high availabilty/consistency (already delivered)
+
+
+* How to suggest features
+
+ Please send your feature suggestions to ehcache-list@lists.terracotta.org
+
