@@ -18,6 +18,9 @@ package net.sf.ehcache;
 
 import net.sf.ehcache.bootstrap.BootstrapCacheLoader;
 import net.sf.ehcache.bootstrap.BootstrapCacheLoaderFactory;
+import net.sf.ehcache.concurrent.CacheLockProvider;
+import net.sf.ehcache.concurrent.LockType;
+import net.sf.ehcache.concurrent.Sync;
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.CacheWriterConfiguration;
 import net.sf.ehcache.config.DiskStoreConfiguration;
@@ -1711,7 +1714,7 @@ public class Cache implements Ehcache {
                 if (!quiet) {
                     liveCacheStatisticsData.cacheMissExpired();
                 }
-                removeInternal(key, true, notifyListeners, false, false);
+                tryRemoveImmediately(key, notifyListeners);
                 element = null;
             } else if (!quiet) {
                 element.updateAccessStatistics();
@@ -1736,13 +1739,41 @@ public class Cache implements Ehcache {
 
         if (element != null) {
             if (isExpired(element)) {
-                removeInternal(key, true, notifyListeners, false, false);
+                tryRemoveImmediately(key, notifyListeners);
                 element = null;
             } else if (!(quiet || skipUpdateAccessStatistics(element))) {
                 element.updateAccessStatistics();
             }
         }
         return element;
+    }
+
+    private void tryRemoveImmediately(final Object key, final boolean notifyListeners) {
+        if (getCacheConfiguration().isTerracottaClustered()) {
+            Sync syncForKey = ((CacheLockProvider)getInternalContext()).getSyncForKey(key);
+            boolean writeLocked = false;
+            try {
+                writeLocked = syncForKey.tryLock(LockType.WRITE, 0);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            } catch (Error e) {
+                if (e.getClass().getName().equals("com.tc.exception.TCLockUpgradeNotSupportedError")) {
+                    // Safely ignore this
+                } else {
+                    throw e;
+                }
+            }
+            if (writeLocked) {
+                removeInternal(key, true, notifyListeners, false, false);
+                syncForKey.unlock(LockType.WRITE);
+            } else {
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug(configuration.getName() + " cache: element " + key + " expired, but couldn't be inline evicted");
+                }
+            }
+        } else {
+            removeInternal(key, true, notifyListeners, false, false);
+        }
     }
 
     private boolean skipUpdateAccessStatistics(Element element) {
