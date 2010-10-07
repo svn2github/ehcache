@@ -1736,9 +1736,7 @@ public class Cache implements Ehcache, StoreListener {
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
         } catch (Error e) {
-            if (e.getClass().getName().equals("com.tc.exception.TCLockUpgradeNotSupportedError")) {
-                // Safely ignore this
-            } else {
+            if (!e.getClass().getName().equals("com.tc.exception.TCLockUpgradeNotSupportedError")) {
                 throw e;
             }
         }
