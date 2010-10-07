@@ -1730,17 +1730,25 @@ public class Cache implements Ehcache, StoreListener {
 
     private void tryRemoveImmediately(final Object key, final boolean notifyListeners) {
         Sync syncForKey = ((CacheLockProvider)getInternalContext()).getSyncForKey(key);
+        boolean writeLocked = false;
         try {
-            if (syncForKey.tryLock(LockType.WRITE, 0)) {
-                removeInternal(key, true, notifyListeners, false, false);
-                syncForKey.unlock(LockType.WRITE);
-            } else {
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug(configuration.getName() + " cache: element " + key + " expired, but couldn't be inline evicted");
-                }
-            }
+            writeLocked = syncForKey.tryLock(LockType.WRITE, 0);
         } catch (InterruptedException e) {
-            throw new CacheException(e);
+            Thread.currentThread().interrupt();
+        } catch (Error e) {
+            if (e.getClass().getName().equals("com.tc.exception.TCLockUpgradeNotSupportedError")) {
+                // Safely ignore this
+            } else {
+                throw e;
+            }
+        }
+        if (writeLocked) {
+            removeInternal(key, true, notifyListeners, false, false);
+            syncForKey.unlock(LockType.WRITE);
+        } else {
+            if (LOG.isDebugEnabled()) {
+                LOG.debug(configuration.getName() + " cache: element " + key + " expired, but couldn't be inline evicted");
+            }
         }
     }
 
