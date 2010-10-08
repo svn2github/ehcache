@@ -25,6 +25,8 @@ import junit.framework.TestCase;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Element;
+import net.sf.ehcache.search.aggregator.Aggregator;
+import net.sf.ehcache.search.aggregator.AggregatorException;
 import net.sf.ehcache.search.aggregator.Average;
 import net.sf.ehcache.search.aggregator.Count;
 import net.sf.ehcache.search.aggregator.Max;
@@ -42,6 +44,38 @@ public class BasicSearchTest extends TestCase {
 
         // uses a "custom" attribute extractor too
         basicQueries(cacheManager.getCache("cache2"));
+    }
+
+    public void testCustomAggregator() {
+        CacheManager cacheManager = new CacheManager(getClass().getResource("/ehcache-search.xml"));
+        Cache cache = cacheManager.getCache("cache1");
+        populateData(cache);
+
+        Attribute<Integer> age = cache.getSearchAttribute("age");
+
+        Query query = cache.createQuery();
+        query.includeAggregator(new Aggregator<Integer>() {
+            private int doubledSum;
+            
+            public void accept(Object input) throws AggregatorException {
+                if (doubledSum == 0) {
+                    doubledSum = (2 * (Integer)input);
+                } else {
+                    doubledSum += (2 * (Integer)input);
+                }
+            };
+
+            public Integer aggregateResult() {
+                return doubledSum;
+            };
+
+        }, age);
+        query.end();
+
+        Results results = query.execute();
+
+        int count = (Integer) results.aggregateResult();
+        assertEquals(246, count);
     }
 
     public void testBuiltinFunctions() {
