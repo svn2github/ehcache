@@ -16,15 +16,32 @@
 
 package net.sf.ehcache.search.aggregator;
 
+/**
+ * Determine the maximum value
+ * 
+ * @param <T>
+ * 
+ * @author teck
+ */
 public class Max<T> implements Aggregator<T> {
 
-    private Comparable max = null;
+    private Comparable max;
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     * NOTE: May return null if no input provided
+     */
     public T aggregateResult() {
         return (T) max;
 
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     * NOTE: null input values are ignored
+     */
     public void accept(Object input) throws AggregatorException {
         if (input == null) {
             return;

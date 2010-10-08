@@ -336,11 +336,7 @@ public final class MemoryOnlyStore extends CompoundStore implements CacheConfigu
             }
         }
 
-        if (aggregators.isEmpty()) {
-            return new ResultsImpl(results, query.requestsKeys());
-        } else {
-            return new ResultsImpl(aggregators);
-        }
+        return new ResultsImpl(results, query.requestsKeys(), aggregators);
     }
 
     /**
@@ -512,27 +508,23 @@ public final class MemoryOnlyStore extends CompoundStore implements CacheConfigu
         private final Object aggregateResult;
         private final boolean hasKeys;
 
-        public ResultsImpl(List<Result> results, boolean hasKeys) {
-            this.hasKeys = hasKeys;
-            this.results = Collections.unmodifiableList(results);
-            this.aggregateResult = null;
-        }
-
-        public ResultsImpl(List<AttributeAggregator> aggregators) {
-            this.hasKeys = false;
-            this.results = Collections.EMPTY_LIST;
+        ResultsImpl(List<Result> results, boolean hasKeys, List<AttributeAggregator> aggregators) {
             if (aggregators.isEmpty()) {
-                throw new AssertionError();
-            }
-
-            if (aggregators.size() == 1) {
-                this.aggregateResult = aggregators.iterator().next().getAggregator().aggregateResult();
+                this.hasKeys = hasKeys;
+                this.results = Collections.unmodifiableList(results);
+                this.aggregateResult = null;
             } else {
-                List<Object> tmp = new ArrayList<Object>();
-                for (AttributeAggregator aggregator : aggregators) {
-                    tmp.add(aggregator.getAggregator().aggregateResult());
+                this.hasKeys = false;
+                this.results = Collections.EMPTY_LIST;
+                if (aggregators.size() == 1) {
+                    this.aggregateResult = aggregators.iterator().next().getAggregator().aggregateResult();
+                } else {
+                    List<Object> tmp = new ArrayList<Object>();
+                    for (AttributeAggregator aggregator : aggregators) {
+                        tmp.add(aggregator.getAggregator().aggregateResult());
+                    }
+                    this.aggregateResult = Collections.unmodifiableList(tmp);
                 }
-                this.aggregateResult = Collections.unmodifiableList(tmp);
             }
         }
 

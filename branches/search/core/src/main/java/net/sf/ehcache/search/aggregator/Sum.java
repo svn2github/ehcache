@@ -27,6 +27,11 @@ public class Sum implements Aggregator<Long> {
 
     private long sum;
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     * NOTE: null inputs are ignored
+     */
     public void accept(Object input) throws AggregatorException {
         if (input == null) {
             return;
@@ -39,6 +44,11 @@ public class Sum implements Aggregator<Long> {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     * NOTE: May return null if no input supplied
+     */
     public Long aggregateResult() {
         return sum;
     }

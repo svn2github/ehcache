@@ -16,15 +16,32 @@
 
 package net.sf.ehcache.search.aggregator;
 
+/**
+ * Determine the minimum value
+ * 
+ * @param <T>
+ * 
+ * @author teck
+ */
 public class Min<T> implements Aggregator<T> {
 
-    private Comparable min = null;
+    private Comparable min;
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     * NOTE: May return null if no input provided
+     */
     public T aggregateResult() {
         return (T) min;
 
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     * NOTE: null input values are ignored
+     */
     public void accept(Object input) throws AggregatorException {
         if (input == null) {
             return;

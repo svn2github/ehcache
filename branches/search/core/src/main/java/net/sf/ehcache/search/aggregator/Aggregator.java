@@ -19,6 +19,8 @@ package net.sf.ehcache.search.aggregator;
 /**
  * An Aggregator takes input objects and computes an aggregate function from them.
  * 
+ * @param <T>
+ *            the runtime type of aggregation result
  * @author Greg Luck
  */
 public interface Aggregator<T> {

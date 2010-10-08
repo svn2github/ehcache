@@ -320,6 +320,9 @@ class CacheQuery implements Query, StoreQuery {
         }
     }
 
+    /**
+     * An attribute / aggregator pair
+     */
     private static class AttributeAggegatorImpl implements AttributeAggregator {
 
         private final Attribute<?> attribute;

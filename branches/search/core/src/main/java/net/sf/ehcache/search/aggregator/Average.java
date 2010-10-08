@@ -23,8 +23,8 @@ package net.sf.ehcache.search.aggregator;
  */
 public class Average implements Aggregator<Double> {
 
-    private long count = 0;
-    private double sum = 0;
+    private long count;
+    private double sum;
 
     /**
      * {@inheritDoc}
