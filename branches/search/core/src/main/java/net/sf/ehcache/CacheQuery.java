@@ -47,6 +47,7 @@ class CacheQuery implements Query, StoreQuery {
     private final List<Ordering> orderings = Collections.synchronizedList(new ArrayList<Ordering>());
     private final List<Attribute<?>> includedAttributes = Collections.synchronizedList(new ArrayList<Attribute<?>>());
     private final List<Criteria> criteria = Collections.synchronizedList(new ArrayList<Criteria>());
+    private final List<AttributeAggregator> aggregators = Collections.synchronizedList(new ArrayList<AttributeAggregator>());
     private final Cache cache;
 
     /**
@@ -83,6 +84,10 @@ class CacheQuery implements Query, StoreQuery {
         checkFrozen();
 
         for (Attribute<?> attribute : attributes) {
+            if (attribute == null) {
+                throw new NullPointerException("null attribute");
+            }
+
             this.includedAttributes.add(attribute);
         }
 
@@ -94,13 +99,7 @@ class CacheQuery implements Query, StoreQuery {
      */
     public Query includeAggregator(Aggregator aggregator, Attribute<?> attribute) throws SearchException, AggregatorException {
         checkFrozen();
-
-        // we should check the aggregator for attributes, keys and values
-        // XXX: getClass() is not right. Attributes don't currently know their specifc type either
-        if (!aggregator.supports(attribute.getClass())) {
-            throw new AggregatorException("Attributes of type " + attribute.getClass().getName() + " is not supported");
-        }
-
+        aggregators.add(new AttributeAggegatorImpl(attribute, aggregator));
         return this;
     }
 
@@ -127,6 +126,11 @@ class CacheQuery implements Query, StoreQuery {
      */
     public Query add(Criteria criteria) {
         checkFrozen();
+
+        if (criteria == null) {
+            throw new NullPointerException("null criteria");
+        }
+
         this.criteria.add(criteria);
         return this;
     }
@@ -145,11 +149,11 @@ class CacheQuery implements Query, StoreQuery {
         frozen = true;
         return this;
     }
-    
+
     /**
      * {@inheritDoc}
      */
-    public List<net.sf.ehcache.store.StoreQuery.Ordering> getOrdering() {
+    public List<Ordering> getOrdering() {
         assertFrozen();
         return Collections.unmodifiableList(orderings);
     }
@@ -201,6 +205,15 @@ class CacheQuery implements Query, StoreQuery {
         assertFrozen();
         return maxResults;
     }
+    
+    /**
+     * {@inheritDoc}
+     */
+    public List<AttributeAggregator> getAggregators() {
+        assertFrozen();
+        return Collections.unmodifiableList(aggregators);
+    }
+    
 
     private Criteria getEffectiveCriteriaCopy() {
         int count = criteria.size();
@@ -245,6 +258,8 @@ class CacheQuery implements Query, StoreQuery {
         private final List<Attribute<?>> copiedAttributes = Collections.unmodifiableList(new ArrayList<Attribute<?>>(includedAttributes));
         private final int copiedMaxResults = maxResults;
         private final List<Ordering> copiedOrdering = Collections.unmodifiableList(new ArrayList<Ordering>(orderings));
+        private final List<AttributeAggregator> copiedAggregators = Collections.unmodifiableList(new ArrayList<AttributeAggregator>(
+                aggregators));
 
         public Criteria getCriteria() {
             return copiedCriteria;
@@ -265,13 +280,17 @@ class CacheQuery implements Query, StoreQuery {
         public List<Attribute<?>> requestedAttributes() {
             return copiedAttributes;
         }
-        
+
         public int maxResults() {
             return copiedMaxResults;
         }
 
         public List<Ordering> getOrdering() {
             return copiedOrdering;
+        }
+
+        public List<AttributeAggregator> getAggregators() {
+            return copiedAggregators;
         }
     }
 
@@ -283,20 +302,46 @@ class CacheQuery implements Query, StoreQuery {
         private final Attribute<?> attribute;
         private final Direction direction;
 
-        public OrderingImpl(Attribute<?> attribute, Direction direction) {           
+        public OrderingImpl(Attribute<?> attribute, Direction direction) {
+            if ((attribute == null) || (direction == null)) {
+                throw new NullPointerException();
+            }
+
             this.attribute = attribute;
             this.direction = direction;
         }
-        
+
         public Attribute<?> getAttribute() {
             return attribute;
         }
-        
+
         public Direction getDirection() {
             return direction;
-        }       
+        }
     }
 
+    private static class AttributeAggegatorImpl implements AttributeAggregator {
 
+        private final Attribute<?> attribute;
+        private final Aggregator<?> aggregator;
+
+        public AttributeAggegatorImpl(Attribute<?> attribute, Aggregator<?> aggregator) {
+            if ((attribute == null) || (aggregator == null)) {
+                throw new NullPointerException();
+            }
+
+            this.attribute = attribute;
+            this.aggregator = aggregator;
+        }
+
+        public Attribute<?> getAttribute() {
+            return attribute;
+        }
+
+        public Aggregator<?> getAggregator() {
+            return aggregator;
+        }
+
+    }
 
 }

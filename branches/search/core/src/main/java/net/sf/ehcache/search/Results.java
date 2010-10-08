@@ -65,7 +65,8 @@ public interface Results {
     List<Result> range(int start, int length) throws SearchException, IndexOutOfBoundsException;
 
     /**
-     * Retrieves the result of an aggregate function.
+     * Retrieves the result of an aggregate function. If multiple aggregate functions were requested in this query, the a {@link List} of
+     * the results will be returned (in the same order they were added to the original query)
      * 
      * @throws SearchException
      */

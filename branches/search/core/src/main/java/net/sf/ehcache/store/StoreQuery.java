@@ -21,6 +21,7 @@ import java.util.List;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.search.Attribute;
 import net.sf.ehcache.search.Direction;
+import net.sf.ehcache.search.aggregator.Aggregator;
 import net.sf.ehcache.search.expression.Criteria;
 
 /**
@@ -78,6 +79,13 @@ public interface StoreQuery {
      * @return max results. A negative number means unlimited results
      */
     int maxResults();
+    
+    /**
+     * Get the requested attribute aggregators
+     * 
+     * @return the include aggregators (if any)
+     */
+    List<AttributeAggregator> getAggregators();
 
     /**
      * An attribute / direction ordering pair
@@ -97,5 +105,26 @@ public interface StoreQuery {
          */
         Direction getDirection();
     }
+
+    /**
+     * An attribute / aggregator pair
+     */
+    public interface AttributeAggregator {
+        /**
+         * Attribute to aggregate
+         * 
+         * @return attribute
+         */
+        Attribute<?> getAttribute();
+
+        /**
+         * Aggregator instance
+         * 
+         * @return aggregator
+         */
+        Aggregator<?> getAggregator();
+    }
+
+   
 
 }

@@ -52,10 +52,8 @@ public interface Query {
     /**
      * Request that the Element values be present in the results.
      * <p/>
-     * Note that in a distributed cache values may need to come over the network.
-     * To prevent very large network transfers, consider limiting the results size
-     * with {@link #maxResults(int)} or by using {@link Results#range} rathern
-     * than {@link Results#all()}
+     * Note that in a distributed cache values may need to come over the network. To prevent very large network transfers, consider limiting
+     * the results size with {@link #maxResults(int)} or by using {@link Results#range} rathern than {@link Results#all()}
      * 
      * @return this
      */
@@ -66,11 +64,11 @@ public interface Query {
      * this query. This call can be made multiple times to add to the set of
      * selected attributes.
      * <p/>
-     * Note that in a distributed cache attributes may need to come over the network. 
-     * To prevent very large network transfers, consider limiting the results size
-     * with {@link #maxResults(int)} or by using {@link Results#range} rathern
-     * than {@link Results#all()}
-     * @param attributes the query attributes to select
+     * Note that in a distributed cache attributes may need to come over the network. To prevent very large network transfers, consider
+     * limiting the results size with {@link #maxResults(int)} or by using {@link Results#range} rathern than {@link Results#all()}
+     * 
+     * @param attributes
+     *            the query attributes to select
      * @return this
      */
     public Query includeAttribute(Attribute<?>... attributes);
@@ -78,7 +76,7 @@ public interface Query {
     /**
      * Request this query to aggregate the results by the given Aggregator
      * 
-     * This method can only be called once.
+     * This method may be called multiple times to request multiple aggregations
      * 
      * If an aggregator is specified, then neither {@link #includeKeys()} or {@link #includeValues()} can
      * be used.
@@ -86,10 +84,6 @@ public interface Query {
      * Ehcache standalone supports user-defined aggregators. Terracotta clustered, which executes on the
      * Terracotta server only supports predefined aggregators in the {@link net.sf.ehcache.search.aggregator} package.
      * 
-     * @throws SearchException
-     *             if more than one column of results was specified.
-     * @throws AggregatorException
-     *             if the result type is not supported by the aggregator
      * @return this
      */
     public Query includeAggregator(Aggregator aggregator, Attribute<?> attribute) throws SearchException, AggregatorException;

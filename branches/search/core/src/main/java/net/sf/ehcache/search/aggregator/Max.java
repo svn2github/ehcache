@@ -16,31 +16,35 @@
 
 package net.sf.ehcache.search.aggregator;
 
-/**
- * Sums the results
- * 
- * Sum can be used with most numeric types
- * 
- * @author Greg Luck
- */
-public class Sum implements Aggregator<Long> {
+public class Max<T> implements Aggregator<T> {
 
-    private long sum;
+    private Comparable max = null;
+
+    public T aggregateResult() {
+        return (T) max;
+
+    }
 
     public void accept(Object input) throws AggregatorException {
         if (input == null) {
             return;
         }
 
-        if (input instanceof Number) {
-            sum += ((Number) input).longValue();
-        } else {
-            throw new AggregatorException("Non-number type encounted: " + input.getClass());
+        Comparable next = getComparable(input);
+
+        if (max == null) {
+            max = next;
+        } else if (next.compareTo(max) > 0) {
+            max = next;
         }
     }
 
-    public Long aggregateResult() {
-        return sum;
+    private static Comparable getComparable(Object o) {
+        if (o instanceof Comparable) {
+            return (Comparable) o;
+        }
+
+        throw new AggregatorException("Value is not Comparable: " + o.getClass());
     }
 
 }

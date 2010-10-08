@@ -43,6 +43,7 @@ import net.sf.ehcache.store.LruPolicy;
 import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
 import net.sf.ehcache.store.Policy;
 import net.sf.ehcache.store.StoreQuery;
+import net.sf.ehcache.store.StoreQuery.AttributeAggregator;
 import net.sf.ehcache.store.StoreQuery.Ordering;
 import net.sf.ehcache.store.compound.CompoundStore;
 import net.sf.ehcache.store.compound.factories.CapacityLimitedInMemoryFactory;
@@ -293,6 +294,8 @@ public final class MemoryOnlyStore extends CompoundStore implements CacheConfigu
     public Results executeQuery(StoreQuery query) {
         Criteria c = query.getCriteria();
 
+        List<AttributeAggregator> aggregators = query.getAggregators();
+
         ArrayList<Result> results = new ArrayList<Result>();
 
         boolean hasOrder = !query.getOrdering().isEmpty();
@@ -310,6 +313,11 @@ public final class MemoryOnlyStore extends CompoundStore implements CacheConfigu
 
                 if (match) {
                     results.add(new ResultImpl(element, query, elementAttributeValues));
+
+                    for (AttributeAggregator aggregator : aggregators) {
+                        Object val = elementAttributeValues.getAttributeValue(aggregator.getAttribute().getAttributeName());
+                        aggregator.getAggregator().accept(val);
+                    }
                 }
             }
         }
@@ -328,7 +336,11 @@ public final class MemoryOnlyStore extends CompoundStore implements CacheConfigu
             }
         }
 
-        return new ResultsImpl(results, query.requestsKeys());
+        if (aggregators.isEmpty()) {
+            return new ResultsImpl(results, query.requestsKeys());
+        } else {
+            return new ResultsImpl(aggregators);
+        }
     }
 
     /**
@@ -506,10 +518,22 @@ public final class MemoryOnlyStore extends CompoundStore implements CacheConfigu
             this.aggregateResult = null;
         }
 
-        public ResultsImpl(Object aggregateResult) {
+        public ResultsImpl(List<AttributeAggregator> aggregators) {
             this.hasKeys = false;
             this.results = Collections.EMPTY_LIST;
-            this.aggregateResult = aggregateResult;
+            if (aggregators.isEmpty()) {
+                throw new AssertionError();
+            }
+
+            if (aggregators.size() == 1) {
+                this.aggregateResult = aggregators.iterator().next().getAggregator().aggregateResult();
+            } else {
+                List<Object> tmp = new ArrayList<Object>();
+                for (AttributeAggregator aggregator : aggregators) {
+                    tmp.add(aggregator.getAggregator().aggregateResult());
+                }
+                this.aggregateResult = Collections.unmodifiableList(tmp);
+            }
         }
 
         public void discard() {

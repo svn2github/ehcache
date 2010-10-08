@@ -16,33 +16,28 @@
 
 package net.sf.ehcache.search.aggregator;
 
-import java.util.List;
-
 /**
- * An Aggregator takes a list of Objects and computes an aggregate function from them.
+ * An Aggregator takes input objects and computes an aggregate function from them.
  * 
  * @author Greg Luck
  */
-public interface Aggregator {
+public interface Aggregator<T> {
 
     /**
-     * Computes a function on the list of objects to create an aggregate result
+     * Add the given value to the aggregator function
      * 
-     * @param inputs
-     *            the arguments to the aggregate function
+     * @param input
+     *            a single input value
      * @throws AggregatorException
      *             if the function cannot be computed, possibly due to unsupported types
-     * @return the output of the aggregation function.
      */
-    Object aggregate(List<Object> inputs) throws AggregatorException;
+    void accept(Object input) throws AggregatorException;
 
     /**
-     * Determines whether a Class is supported to be computed
+     * Retrieve the final result
      * 
-     * @param clazz
-     *            the Class to check
-     * @return true if aggregating the clazz is supported
+     * @return aggregate result
      */
-    boolean supports(Class clazz);
+    T aggregateResult();
 
 }

@@ -17,30 +17,44 @@
 package net.sf.ehcache.search.aggregator;
 
 /**
- * Sums the results
+ * Compute the average (arithmetic mean) as a double
  * 
- * Sum can be used with most numeric types
- * 
- * @author Greg Luck
+ * @author teck
  */
-public class Sum implements Aggregator<Long> {
+public class Average implements Aggregator<Double> {
 
-    private long sum;
+    private long count = 0;
+    private double sum = 0;
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     * NOTE: Null values are ignored and not included in the computation
+     */
     public void accept(Object input) throws AggregatorException {
         if (input == null) {
             return;
         }
 
         if (input instanceof Number) {
-            sum += ((Number) input).longValue();
+            count++;
+            sum += ((Number) input).doubleValue();
         } else {
             throw new AggregatorException("Non-number type encounted: " + input.getClass());
         }
     }
 
-    public Long aggregateResult() {
-        return sum;
+    /**
+     * {@inheritDoc}
+     * <p>
+     * NOTE: null is returned if there was no input supplied to this function
+     */
+    public Double aggregateResult() {
+        if (count == 0) {
+            return null;
+        }
+
+        return sum / count;
     }
 
 }

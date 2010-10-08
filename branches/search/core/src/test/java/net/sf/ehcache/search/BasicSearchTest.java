@@ -18,12 +18,18 @@ package net.sf.ehcache.search;
 
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import junit.framework.TestCase;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Element;
+import net.sf.ehcache.search.aggregator.Average;
+import net.sf.ehcache.search.aggregator.Count;
+import net.sf.ehcache.search.aggregator.Max;
+import net.sf.ehcache.search.aggregator.Min;
+import net.sf.ehcache.search.aggregator.Sum;
 import net.sf.ehcache.search.expression.Or;
 
 public class BasicSearchTest extends TestCase {
@@ -36,6 +42,83 @@ public class BasicSearchTest extends TestCase {
 
         // uses a "custom" attribute extractor too
         basicQueries(cacheManager.getCache("cache2"));
+    }
+
+    public void testBuiltinFunctions() {
+        CacheManager cacheManager = new CacheManager(getClass().getResource("/ehcache-search.xml"));
+        Cache cache = cacheManager.getCache("cache1");
+        populateData(cache);
+
+        Attribute<Integer> age = cache.getSearchAttribute("age");
+
+        {
+            Query query = cache.createQuery();
+            query.includeAggregator(new Count(), age);
+            query.end();
+
+            Results results = query.execute();
+
+            int count = (Integer) results.aggregateResult();
+            assertEquals(4, count);
+        }
+
+        {
+            Query query = cache.createQuery();
+            query.includeAggregator(new Max(), age);
+            query.end();
+
+            Results results = query.execute();
+
+            int max = (Integer) results.aggregateResult();
+            assertEquals(35, max);
+        }
+
+        {
+            Query query = cache.createQuery();
+            query.includeAggregator(new Min(), age);
+            query.end();
+
+            Results results = query.execute();
+
+            int min = (Integer) results.aggregateResult();
+            assertEquals(23, min);
+        }
+
+        {
+            Query query = cache.createQuery();
+            query.includeAggregator(new Sum(), age);
+            query.end();
+
+            Results results = query.execute();
+
+            long sum = (Long) results.aggregateResult();
+            assertEquals(123, sum);
+        }
+
+        {
+            Query query = cache.createQuery();
+            query.includeAggregator(new Average(), age);
+            query.end();
+
+            Results results = query.execute();
+
+            double avg = (Double) results.aggregateResult();
+            assertEquals(30.75D, avg);
+        }
+
+        {
+            Query query = cache.createQuery();
+            query.includeAggregator(new Min(), age);
+            query.includeAggregator(new Max(), age);
+            query.end();
+
+            Results results = query.execute();
+
+            List aggregateResults = (List) results.aggregateResult();
+            assertEquals(23, aggregateResults.get(0));
+            assertEquals(35, aggregateResults.get(1));
+        }
+
     }
 
     public void testMaxResults() {
@@ -279,56 +362,55 @@ public class BasicSearchTest extends TestCase {
         query.end();
 
         verify(cache, query, 1);
-        
+
         query = cache.createQuery();
         query.includeKeys();
         query.add(name.like("Test*"));
         query.end();
 
         verify(cache, query, 1);
-        
+
         query = cache.createQuery();
         query.includeKeys();
         query.add(name.like("Test*\\?"));
         query.end();
 
         verify(cache, query, 1);
-        
+
         query = cache.createQuery();
         query.includeKeys();
         query.add(name.like("(..*"));
         query.end();
 
-        verify(cache, query, 2);  
-        
+        verify(cache, query, 2);
+
         query = cache.createQuery();
         query.includeKeys();
         query.add(name.like("Lowercase"));
         query.end();
 
         verify(cache, query, 3);
-        
+
         query = cache.createQuery();
         query.includeKeys();
         query.add(name.like("LOWER*"));
         query.end();
 
-        verify(cache, query, 3);                
-        
-        
+        verify(cache, query, 3);
+
         query = cache.createQuery();
         query.includeKeys();
         query.add(name.like("uppercase"));
         query.end();
 
         verify(cache, query, 4);
-        
+
         query = cache.createQuery();
         query.includeKeys();
         query.add(name.like("mixed"));
         query.end();
 
-        verify(cache, query, 5);                
+        verify(cache, query, 5);
     }
 
     private void populateData(Cache cache) {

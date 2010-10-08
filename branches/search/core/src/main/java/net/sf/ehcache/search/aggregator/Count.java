@@ -16,38 +16,26 @@
 
 package net.sf.ehcache.search.aggregator;
 
-import java.util.List;
-
 /**
  * Counts the number of results
  * 
  * @author Greg Luck
  */
-public class Count implements Aggregator {
+public class Count implements Aggregator<Integer> {
+
+    private int count;
 
     /**
-     * Computes a function on the list of objects to create an aggregate result
-     * 
-     * @param inputs
-     *            the arguments to the aggregate function
-     * @return the output of the aggregation function.
-     * @throws AggregatorException
-     *             if the function cannot be computed, possibly due to unsupported types
+     * {@inheritDoc}
      */
-    public Object aggregate(List<Object> inputs) throws AggregatorException {
-        return inputs.size();
+    public void accept(Object input) throws AggregatorException {
+        count++;
     }
 
     /**
-     * Determines whether a Class is supported to be computed
-     * 
-     * todo can generics replace this
-     * 
-     * @param clazz
-     *            the Class to check
-     * @return true if aggregating the clazz is supported
+     * {@inheritDoc}
      */
-    public boolean supports(Class clazz) {
-        return true;
+    public Integer aggregateResult() {
+        return count;
     }
 }
