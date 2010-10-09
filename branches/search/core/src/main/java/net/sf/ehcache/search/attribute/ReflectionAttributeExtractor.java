@@ -38,7 +38,7 @@ import net.sf.ehcache.config.InvalidConfigurationException;
  * <li>"value.person.getAge()" -- get the "person" field of the value object and call getAge() on it
  * <li>"element.toString()" -- call toString() on the element
  * </ol>
- * Expressions are case sensitive
+ * The method and field name portions of the expression are case sensitive
  * 
  * @author teck
  */
@@ -68,11 +68,11 @@ public class ReflectionAttributeExtractor implements AttributeExtractor {
 
         String startToken = tokens[0];
 
-        if (startToken.equals(ELEMENT)) {
+        if (startToken.equalsIgnoreCase(ELEMENT)) {
             start = StartType.ELEMENT;
-        } else if (startToken.equals(KEY)) {
+        } else if (startToken.equalsIgnoreCase(KEY)) {
             start = StartType.KEY;
-        } else if (startToken.equals(VALUE)) {
+        } else if (startToken.equalsIgnoreCase(VALUE)) {
             start = StartType.VALUE;
         } else {
             throw new InvalidConfigurationException("Expression must start with either \"" + ELEMENT + "\", \"" + KEY + "\" or \"" + VALUE
@@ -91,10 +91,6 @@ public class ReflectionAttributeExtractor implements AttributeExtractor {
      * @return the attribute value
      */
     public Object attributeFor(Element e) throws CacheException {
-        // NOTE: minimally we'll want to end something that doesn't do the
-        // method/field lookups for each execution (since that likely doesn't
-        // change assuming homogeneous runtime types)
-        //
         // NOTE: We can play all kinds of tricks of generating java classes and
         // using Unsafe if needed
 
@@ -188,30 +184,72 @@ public class ReflectionAttributeExtractor implements AttributeExtractor {
 
         private final String fieldName;
 
+        private volatile FieldRef cache;
+
         public FieldPart(String field) {
             this.fieldName = field;
         }
 
         public Object eval(Object target) {
             Class c = target.getClass();
+            FieldRef ref = cache;
 
-            while (c != null) {
-                try {
-                    Field field = c.getDeclaredField(fieldName);
-                    field.setAccessible(true);
-                    return field.get(target);
-                } catch (SecurityException e) {
-                    throw new CacheException(e);
-                } catch (NoSuchFieldException e) {
-                    c = c.getSuperclass();
-                } catch (IllegalArgumentException e) {
-                    throw new CacheException(e);
-                } catch (IllegalAccessException e) {
-                    throw new CacheException(e);
+            if (ref == null || ref.target != c) {
+                while (true) {
+                    try {
+                        Field field = c.getDeclaredField(fieldName);
+                        field.setAccessible(true);
+                        ref = new FieldRef(target.getClass(), field);
+                        cache = ref;
+                        break;
+                    } catch (SecurityException e) {
+                        throw new CacheException(e);
+                    } catch (NoSuchFieldException e) {
+                        c = c.getSuperclass();
+                        if (c == null) {
+                            throw new CacheException("No such field named \"" + fieldName + "\" present in instance of "
+                                    + target.getClass());
+                        }
+                    } catch (IllegalArgumentException e) {
+                        throw new CacheException(e);
+                    }
                 }
             }
 
-            throw new CacheException("No such field named \"" + fieldName + "\" present in instance of " + target.getClass());
+            try {
+                return ref.field.get(target);
+            } catch (IllegalArgumentException e) {
+                throw new CacheException(e);
+            } catch (IllegalAccessException e) {
+                throw new CacheException(e);
+            }
+        }
+
+    }
+
+    /**
+     * A reference to a resolved Field instance
+     */
+    private static class FieldRef {
+        private final Class target;
+        private final Field field;
+
+        FieldRef(Class target, Field field) {
+            this.target = target;
+            this.field = field;
+        }
+    }
+
+    /**
+     * A reference to a resolved Method instance
+     */
+    private static class MethodRef {
+        private final Method method;
+        private final Class target;
+
+        MethodRef(Class target, Method method) {
+            this.target = target;
+            this.method = method;
         }
     }
 
@@ -221,6 +259,7 @@ public class ReflectionAttributeExtractor implements AttributeExtractor {
     private static class MethodPart implements Part {
 
         private final String methodName;
+        private volatile MethodRef cache;
 
         public MethodPart(String method) {
             this.methodName = method;
@@ -229,26 +268,37 @@ public class ReflectionAttributeExtractor implements AttributeExtractor {
         public Object eval(Object target) {
             Class c = target.getClass();
 
-            while (c != null) {
-                try {
-                    Method method = c.getDeclaredMethod(methodName);
-                    method.setAccessible(true);
-                    return method.invoke(target);
-                } catch (SecurityException e) {
-                    throw new CacheException(e);
-                } catch (NoSuchMethodException e) {
-                    c = c.getSuperclass();
-                } catch (IllegalArgumentException e) {
-                    throw new CacheException(e);
-                } catch (IllegalAccessException e) {
-                    throw new CacheException(e);
-                } catch (InvocationTargetException e) {
-                    throw new CacheException(e.getTargetException());
+            MethodRef ref = cache;
+
+            if (ref == null || ref.target != c) {                
+                while (true) {
+                    try {
+                        Method method = c.getDeclaredMethod(methodName);
+                        method.setAccessible(true);
+                        ref = new MethodRef(target.getClass(), method);
+                        cache = ref;
+                        break;
+                    } catch (SecurityException e) {
+                        throw new CacheException(e);
+                    } catch (NoSuchMethodException e) {
+                        c = c.getSuperclass();
+                        if (c == null) {
+                            throw new CacheException("No such method named \"" + methodName + "\" present on instance of "
+                                    + target.getClass());
+                        }
+                    } catch (IllegalArgumentException e) {
+                        throw new CacheException(e);
+                    }
                 }
             }
 
-            throw new CacheException("No such method named \"" + methodName + "\" present on instance of " + target.getClass());
+            try {
+                return ref.method.invoke(target);
+            } catch (IllegalAccessException e) {
+                throw new CacheException(e);
+            } catch (InvocationTargetException e) {
+                throw new CacheException(e.getTargetException());
+            }
         }
     }
-
 }
