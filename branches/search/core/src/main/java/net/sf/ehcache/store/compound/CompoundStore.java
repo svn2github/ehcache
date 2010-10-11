@@ -480,56 +480,85 @@ public abstract class CompoundStore extends AbstractStore {
      */
     final class ElementSet extends AbstractSet<Element> {
 
+        /**
+         * {@inheritDoc}
+         */
         @Override
         public Iterator<Element> iterator() {
             return new ElementIterator();
         }
 
+        /**
+         * {@inheritDoc}
+         */
         @Override
         public int size() {
             return CompoundStore.this.getSize();
         }
 
+        /**
+         * {@inheritDoc}
+         */
         @Override
         public boolean add(Element o) {
             throw new UnsupportedOperationException();
         }
 
+        /**
+         * {@inheritDoc}
+         */
         @Override
         public boolean addAll(Collection<? extends Element> c) {
             throw new UnsupportedOperationException();
         }
 
+        /**
+         * {@inheritDoc}
+         */
         @Override
         public void clear() {
             CompoundStore.this.removeAll();
         }
 
+        /**
+         * {@inheritDoc}
+         */
         @Override
         public boolean contains(Object o) {
             throw new UnsupportedOperationException();
         }
 
+        /**
+         * {@inheritDoc}
+         */
         @Override
         public boolean containsAll(Collection<?> c) {
             throw new UnsupportedOperationException();
         }
 
+        /**
+         * {@inheritDoc}
+         */
         @Override
         public boolean remove(Object o) {
             throw new UnsupportedOperationException();
         }
 
+        /**
+         * {@inheritDoc}
+         */
         @Override
         public boolean retainAll(Collection<?> c) {
             throw new UnsupportedOperationException();
         }
 
+        /**
+         * {@inheritDoc}
+         */
         @Override
         public boolean removeAll(Collection<?> c) {
             throw new UnsupportedOperationException();
         }
-
     }
 
     /**
@@ -794,6 +823,11 @@ public abstract class CompoundStore extends AbstractStore {
             currentIterator.remove();
         }
 
+        /**
+         * Get the current segment index of this iterator
+         * 
+         * @return the current segment index
+         */
         int getCurrentSegmentIndex() {
             return segmentIndex;
         }

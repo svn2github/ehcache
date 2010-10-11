@@ -160,6 +160,13 @@ class Segment extends ReentrantReadWriteLock {
         return tab[hash & (tab.length - 1)];
     }
     
+    /**
+     * Decode the possible ElementSubstitute 
+     * 
+     * @param key
+     * @param object
+     * @return
+     */
     Element decode(Object key, Object object) {
         Element element;
         if (object instanceof Element) {
