@@ -224,11 +224,19 @@
                 </configuration>
                 <executions>
                     <execution>
+                        <id>deploy-sample-app</id>
                         <phase>pre-integration-test</phase>
                         <goals>
                             <goal>deploy</goal>
                         </goals>
                     </execution>
+                    <!--<execution>-->
+                        <!--<id>undeploy-sample-app</id>-->
+                        <!--<phase>post-integration-test</phase>-->
+                        <!--<goals>-->
+                            <!--<goal>rollback</goal>-->
+                        <!--</goals>-->
+                    <!--</execution>-->
                 </executions>
             </plugin>
 
@@ -296,9 +304,10 @@
                             <name>java.awt.headless</name>
                             <value>true</value>
                         </property>
+                        <!--Used in the integration test to work out what host to hit-->
                         <property>
                             <name>appname</name>
-                            <value>${gae.application.name}</value>
+                            <value>${buildNumber}.latest.${gae.application.name}</value>
                         </property>
                     </systemProperties>
                 </configuration>
