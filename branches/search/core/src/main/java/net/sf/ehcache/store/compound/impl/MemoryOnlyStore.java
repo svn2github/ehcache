@@ -300,24 +300,21 @@ public final class MemoryOnlyStore extends CompoundStore implements CacheConfigu
 
         boolean hasOrder = !query.getOrdering().isEmpty();
 
-        for (Object key : keySet()) {
+        for (Element element : elementSet()) {
             if (!hasOrder && query.maxResults() >= 0 && results.size() == query.maxResults()) {
                 break;
             }
 
-            Element element = get(key);
-            if (element != null) {
-                ElementAttributeValues elementAttributeValues = new ElementAttributeValuesImpl(element, attributeExtractors);
+            ElementAttributeValues elementAttributeValues = new ElementAttributeValuesImpl(element, attributeExtractors);
 
-                boolean match = c.execute(elementAttributeValues);
+            boolean match = c.execute(elementAttributeValues);
 
-                if (match) {
-                    results.add(new ResultImpl(element, query, elementAttributeValues));
+            if (match) {
+                results.add(new ResultImpl(element, query, elementAttributeValues));
 
-                    for (AttributeAggregator aggregator : aggregators) {
-                        Object val = elementAttributeValues.getAttributeValue(aggregator.getAttribute().getAttributeName());
-                        aggregator.getAggregator().accept(val);
-                    }
+                for (AttributeAggregator aggregator : aggregators) {
+                    Object val = elementAttributeValues.getAttributeValue(aggregator.getAttribute().getAttributeName());
+                    aggregator.getAggregator().accept(val);
                 }
             }
         }
