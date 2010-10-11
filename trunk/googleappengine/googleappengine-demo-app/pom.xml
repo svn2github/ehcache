@@ -230,6 +230,7 @@
                             <goal>deploy</goal>
                         </goals>
                     </execution>
+                    <!--Used to roll back the last deployment after the test because GAE only allows 10 versions to be deployed-->
                     <execution>
                         <id>undeploy-sample-app</id>
                         <phase>post-integration-test</phase>
