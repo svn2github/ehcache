@@ -160,7 +160,7 @@ class Segment extends ReentrantReadWriteLock {
         return tab[hash & (tab.length - 1)];
     }
     
-    private Element decode(Object key, Object object) {
+    Element decode(Object key, Object object) {
         Element element;
         if (object instanceof Element) {
             element = identityFactory.retrieve(key, object);
