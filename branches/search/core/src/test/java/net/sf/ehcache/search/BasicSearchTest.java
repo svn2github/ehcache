@@ -36,6 +36,107 @@ import net.sf.ehcache.search.expression.Or;
 
 public class BasicSearchTest extends TestCase {
 
+    public void testQueryBuilder() {
+        CacheManager cacheManager = new CacheManager(getClass().getResource("/ehcache-search.xml"));
+        Cache cache = cacheManager.getCache("cache1");
+
+        Query query1 = cache.createQuery();
+        Query query2 = cache.createQuery();
+
+        // query instances should be unique
+        assertFalse(query1 == query2);
+
+        // null checks
+        try {
+            query1.add(null);
+            fail();
+        } catch (NullPointerException npe) {
+            // expected
+        }
+        try {
+            query1.addOrder(null, Direction.ASCENDING);
+            fail();
+        } catch (NullPointerException npe) {
+            // expected
+        }
+        try {
+            query1.addOrder(new Attribute("foo"), null);
+            fail();
+        } catch (NullPointerException npe) {
+            // expected
+        }
+        try {
+            query1.includeAggregator(null, new Attribute("foo"));
+            fail();
+        } catch (NullPointerException npe) {
+            // expected
+        }
+        try {
+            query1.includeAggregator(new Count(), null);
+            fail();
+        } catch (NullPointerException npe) {
+            // expected
+        }
+        try {
+            query1.includeAttribute((Attribute[]) null);
+            fail();
+        } catch (NullPointerException npe) {
+            // expected
+        }
+        try {
+            query1.includeAttribute(new Attribute[] { new Attribute("foo"), null });
+            fail();
+        } catch (NullPointerException npe) {
+            // expected
+        }
+
+        // freeze query
+        query1.end();
+
+        try {
+            query1.add(new Attribute("foo").le(35));
+            fail();
+        } catch (SearchException se) {
+            // expected
+        }
+        try {
+            query1.addOrder(new Attribute("foo"), Direction.ASCENDING);
+            fail();
+        } catch (SearchException se) {
+            // expected
+        }
+        try {
+            query1.includeAggregator(new Count(), new Attribute("foo"));
+            fail();
+        } catch (SearchException se) {
+            // expected
+        }
+        try {
+            query1.includeAttribute(new Attribute("foo"));
+            fail();
+        } catch (SearchException se) {
+            // expected
+        }
+        try {
+            query1.includeKeys();
+            fail();
+        } catch (SearchException se) {
+            // expected
+        }
+        try {
+            query1.includeValues();
+            fail();
+        } catch (SearchException se) {
+            // expected
+        }
+        try {
+            query1.maxResults(3);
+            fail();
+        } catch (SearchException se) {
+            // expected
+        }
+    }
+
     public void testBasic() {
         CacheManager cacheManager = new CacheManager(getClass().getResource("/ehcache-search.xml"));
 
@@ -56,12 +157,12 @@ public class BasicSearchTest extends TestCase {
         Query query = cache.createQuery();
         query.includeAggregator(new Aggregator<Integer>() {
             private int doubledSum;
-            
+
             public void accept(Object input) throws AggregatorException {
                 if (doubledSum == 0) {
-                    doubledSum = (2 * (Integer)input);
+                    doubledSum = (2 * (Integer) input);
                 } else {
-                    doubledSum += (2 * (Integer)input);
+                    doubledSum += (2 * (Integer) input);
                 }
             };
 
