@@ -230,13 +230,13 @@
                             <goal>deploy</goal>
                         </goals>
                     </execution>
-                    <!--<execution>-->
-                        <!--<id>undeploy-sample-app</id>-->
-                        <!--<phase>post-integration-test</phase>-->
-                        <!--<goals>-->
-                            <!--<goal>rollback</goal>-->
-                        <!--</goals>-->
-                    <!--</execution>-->
+                    <execution>
+                        <id>undeploy-sample-app</id>
+                        <phase>post-integration-test</phase>
+                        <goals>
+                            <goal>rollback</goal>
+                        </goals>
+                    </execution>
                 </executions>
             </plugin>
 
