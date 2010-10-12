@@ -264,8 +264,13 @@ public class CacheStatistics implements CacheStatisticsMBean, Serializable {
         updateIfNeeded();
         long hits = statistics.getCacheHits();
         long misses = statistics.getCacheMisses();
-        
-        return hits * ONE_HUNDRED / (hits + misses);
+
+        long denominator = hits + misses;
+        if (denominator == 0) {
+            return 0;
+        } else {
+            return hits * ONE_HUNDRED / (hits + misses);
+        }
     }
 
     /**
@@ -275,8 +280,14 @@ public class CacheStatistics implements CacheStatisticsMBean, Serializable {
         updateIfNeeded();
         long hits = statistics.getCacheHits();
         long misses = statistics.getCacheMisses();
-        
-        return misses * ONE_HUNDRED / (hits + misses);
+
+        long denominator = hits + misses;
+        if (denominator == 0) {
+            return 0;
+        } else {
+            return misses * ONE_HUNDRED / (denominator);
+        }
+
     }
 
     /**
@@ -287,8 +298,14 @@ public class CacheStatistics implements CacheStatisticsMBean, Serializable {
         long memoryHits = statistics.getInMemoryHits();
         long hits = statistics.getCacheHits();
         long misses = statistics.getCacheMisses();
-        
-        return memoryHits * ONE_HUNDRED / (hits + misses);
+
+        long denominator = hits + misses;
+        if (denominator == 0) {
+            return 0;
+        } else {
+            return memoryHits * ONE_HUNDRED / (denominator);
+        }
+
     }
 
     /**
@@ -299,7 +316,12 @@ public class CacheStatistics implements CacheStatisticsMBean, Serializable {
         long diskHits = statistics.getOnDiskHits();
         long hits = statistics.getCacheHits();
         long misses = statistics.getCacheMisses();
-        
-        return diskHits * ONE_HUNDRED / (hits + misses);
+
+        long denominator = hits + misses;
+        if (denominator == 0) {
+            return 0;
+        } else {
+            return diskHits * ONE_HUNDRED / (denominator);
+        }
     }
 }

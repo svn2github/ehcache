@@ -123,4 +123,32 @@ public interface CacheStatisticsMBean {
      */
     public String getAssociatedCacheName();
 
+    /**
+     * Returns the percentage of cache accesses that found a requested item in the cache.
+     *
+     * @return the percentage of successful hits
+     */
+    public long getCacheHitPercentage();
+
+    /**
+     * Returns the percentage of cache accesses that did not find a requested element in the cache.
+     *
+     * @return the percentage of accesses that failed to find anything
+     */
+    public long getCacheMissPercentage();
+
+    /**
+     * Returns the percentage of cache accesses that found a requested item cached in-memory.
+     *
+     * @return the percentage of successful hits from the MemoryStore
+     */
+    public long getInMemoryHitPercentage();
+
+    /**
+     * Returns the percentage of cache accesses that found a requested item cached on disk.
+     *
+     * @return the percentage of successful hits from the DiskStore.
+     */
+    public long getOnDiskHitPercentage();
+
 }
