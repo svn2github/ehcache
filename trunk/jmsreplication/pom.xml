@@ -19,16 +19,15 @@
             <version>2.3.0-SNAPSHOT</version>
         </dependency>
         <dependency>
-
-            <groupId>javax.jms</groupId>
-            <artifactId>jms-api</artifactId>
-            <version>1.1-rev-1</version>
+            <groupId>javax</groupId>
+            <artifactId>javaee-api</artifactId>
+            <version>6.0</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
-            <version>4.4</version>
+            <version>4.8.1</version>
             <scope>test</scope>
         </dependency>
         <!--  Test scope -->
@@ -66,22 +65,6 @@
         <openmq.bin.dir>${env.OPENMQ_HOME}/bin</openmq.bin.dir>
     </properties>
 
-    <repositories>
-        <repository>
-            <id>java.net2</id>
-            <name>Java.net Maven2 Repository</name>
-            <url>http://download.java.net/maven/2</url>
-            <releases>
-                <enabled>true</enabled>
-                <updatePolicy>daily</updatePolicy>
-            </releases>
-            <snapshots>
-                <enabled>true</enabled>
-                <updatePolicy>daily</updatePolicy>
-            </snapshots>
-        </repository>
-    </repositories>
-
     <build>
         <plugins>
             <plugin>
@@ -115,7 +98,7 @@
                         <property>
                             <name>net.sf.ehcache.skipUpdateCheck</name>
                             <value>true</value>
-                        </property>                        
+                        </property>
                         <property>
                             <name>java.awt.headless</name>
                             <value>true</value>
@@ -166,7 +149,8 @@
                 <configuration>
                     <skip>true</skip>
                     <configLocation>${basedir}/checkstyle/checkstyle.xml</configLocation>
-                    <suppressionsLocation>${basedir}/checkstyle/suppressions.xml</suppressionsLocation>
+                    <suppressionsLocation>${basedir}/checkstyle/suppressions.xml
+                    </suppressionsLocation>
                     <headerLocation>${basedir}/checkstyle/ClassHeader.txt</headerLocation>
                     <enableRSS>false</enableRSS>
                     <linkXRef>true</linkXRef>
@@ -221,41 +205,53 @@
                                 <phase>pre-integration-test</phase>
                                 <configuration>
                                     <tasks>
-                                        <echo>Starting Active MQ from ${activemq.bin.dir} on ${os.name}</echo>
-                                        <exec dir="${activemq.bin.dir}" spawn="true" os="Mac OS X, Linux, AIX, Solaris"
-                                            executable="sh">
+                                        <echo>Starting Active MQ from ${activemq.bin.dir} on
+                                            ${os.name}
+                                        </echo>
+                                        <exec dir="${activemq.bin.dir}" spawn="true"
+                                              os="Mac OS X, Linux, AIX, Solaris"
+                                              executable="sh">
                                             <arg line="activemq"/>
                                         </exec>
-                                        <echo>Starting Open MQ from ${openmq.bin.dir} on ${os.name}</echo>
-                                        <exec dir="${openmq.bin.dir}" spawn="true" os="Mac OS X, Linux, AIX, Solaris"
-                                            executable="sh">
+                                        <echo>Starting Open MQ from ${openmq.bin.dir} on
+                                            ${os.name}
+                                        </echo>
+                                        <exec dir="${openmq.bin.dir}" spawn="true"
+                                              os="Mac OS X, Linux, AIX, Solaris"
+                                              executable="sh">
                                             <arg line="imqbrokerd"/>
                                         </exec>
-                                        <echo>Creating Open MQ administered objects in object store at /tmp from
+                                        <echo>Creating Open MQ administered objects in
+                                            object store at /tmp from
                                             ${openmq.bin.dir} on ${os.name}
                                         </echo>
-                                        <exec dir="${openmq.bin.dir}" spawn="false" os="Mac OS X, Linux, AIX, Solaris"
-                                            executable="sh">
+                                        <exec dir="${openmq.bin.dir}" spawn="false"
+                                              os="Mac OS X, Linux, AIX, Solaris"
+                                              executable="sh">
                                             <arg line="imqusermgr add -u test -p test -f"/>
                                         </exec>
-                                        <exec dir="${openmq.bin.dir}" spawn="false" os="Mac OS X, Linux, AIX, Solaris"
-                                            executable="sh">
+                                        <exec dir="${openmq.bin.dir}" spawn="false"
+                                              os="Mac OS X, Linux, AIX, Solaris"
+                                              executable="sh">
                                             <arg line="imqobjmgr add -t tf -l 'MyConnectionFactory' -o imqReconnect='true' -o imqPingInterval='5'
                                             -o imqDefaultUsername='test' -o imqDefaultPassword='test'
                                             -j java.naming.provider.url=file:///tmp -j java.naming.factory.initial=com.sun.jndi.fscontext.RefFSContextFactory -f "/>
                                         </exec>
-                                        <exec dir="${openmq.bin.dir}" spawn="false" os="Mac OS X, Linux, AIX, Solaris"
-                                            executable="sh">
+                                        <exec dir="${openmq.bin.dir}" spawn="false"
+                                              os="Mac OS X, Linux, AIX, Solaris"
+                                              executable="sh">
                                             <arg line="imqobjmgr add -t qf -l 'queueConnectionFactory' -o imqReconnect='true' -o imqPingInterval='5'
                                             -o imqDefaultUsername='test' -o imqDefaultPassword='test'
                                             -j java.naming.provider.url=file:///tmp -j java.naming.factory.initial=com.sun.jndi.fscontext.RefFSContextFactory -f "/>
                                         </exec>
-                                        <exec dir="${openmq.bin.dir}" spawn="false" os="Mac OS X, Linux, AIX, Solaris"
-                                            executable="sh">
+                                        <exec dir="${openmq.bin.dir}" spawn="false"
+                                              os="Mac OS X, Linux, AIX, Solaris"
+                                              executable="sh">
                                             <arg line="imqobjmgr add -t t -l 'ehcache' -o 'imqDestinationName=EhcacheTopicDest' -j java.naming.provider.url=file:///tmp -j java.naming.factory.initial=com.sun.jndi.fscontext.RefFSContextFactory -f "/>
                                         </exec>
-                                        <exec dir="${openmq.bin.dir}" spawn="false" os="Mac OS X, Linux, AIX, Solaris"
-                                            executable="sh">
+                                        <exec dir="${openmq.bin.dir}" spawn="false"
+                                              os="Mac OS X, Linux, AIX, Solaris"
+                                              executable="sh">
                                             <arg line="imqobjmgr add -t q -l 'ehcacheGetQueue' -o 'imqDestinationName=EhcacheGetQueueDest' -j java.naming.provider.url=file:///tmp -j java.naming.factory.initial=com.sun.jndi.fscontext.RefFSContextFactory -f "/>
                                         </exec>
                                         <sleep seconds="5"/>
@@ -278,8 +274,9 @@
                                 <configuration>
                                     <tasks>
                                         <echo>Stopping Message Queues on ${os.name}</echo>
-                                        <exec dir="src/test/scripts" spawn="false" os="Mac OS X, Linux, AIX, Solaris"
-                                            executable="sh">
+                                        <exec dir="src/test/scripts" spawn="false"
+                                              os="Mac OS X, Linux, AIX, Solaris"
+                                              executable="sh">
                                             <arg line="stop_message_queues"/>
                                         </exec>
                                     </tasks>

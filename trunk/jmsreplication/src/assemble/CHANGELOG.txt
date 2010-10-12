@@ -1,5 +1,14 @@
 $Id: CHANGELOG.txt,v 1.31 2006/03/07 00:05:56 gregluck Exp $
 
+<release version="0.5" date="2010-12-31" desc="Maintenance release of jmsreplication">
+
+    <!-- Features and Enhancements -->
+    <action dev="Greg Luck" type="update">
+        Upgrade to SLF4J as with the other modules.
+    </action>
+</release>
+
+
 <release version="0.4" date="2009-5-8" desc="Maintenance release of jmsreplication">
 
     <!-- Features and Enhancements -->
