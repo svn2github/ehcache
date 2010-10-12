@@ -433,3 +433,23 @@ public interface CacheWriter {
 }
 ---
 
+* FAQ
+
+**  What happens if an exception occurs when the writer is called?
+
+    In the clustered async implementation inside the Terracotta Toolkit this is implemented as such;
+
+---
+    try {
+        processItems();
+      } catch (final Throwable e) {
+        errorHandler.onError(ProcessingBucket.this, e);
+        continue;
+      }
+---
+
+    This works since there's a concept of error handlers that isn't present in the non-clustered write behind implementation in Ehcache core.
+    The default error handler simply logs the exceptions that occurred.
+
+    In standalone Ehcache, users should be careful to catch Exceptions. One solution is to put the item back on the queue with a call to
+     <<<cache.write()>>>.
