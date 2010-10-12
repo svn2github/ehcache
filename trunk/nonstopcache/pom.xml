@@ -11,7 +11,7 @@
 
   <groupId>net.sf.ehcache</groupId>
   <artifactId>ehcache-nonstopcache</artifactId>
-  <version>1.0.1-SNAPSHOT</version>
+  <version>1.0.2-SNAPSHOT</version>
   <name>nonstopcache</name>
   <url>http://ehcache.org</url>
 
@@ -24,7 +24,7 @@
     <dependency>
       <groupId>${pom.groupId}</groupId>
       <artifactId>ehcache-core</artifactId>
-      <version>2.3.0-SNAPSHOT</version>
+      <version>2.3.1-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>junit</groupId>
