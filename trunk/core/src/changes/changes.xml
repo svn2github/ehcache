@@ -39,6 +39,10 @@
             <action dev="Greg Luck" type="fix" issue="EHC-763">
                 Fix exception message to do with Element.getValue(). Thanks to Ken Dombeck for reporting this. 
             </action>
+            <action dev="Greg Luck" type="fix" issue="EHC-538">
+                Monitoring solutions (Ganglia, Advent Manage Engine, Hyperic) typically allow a JMX property
+                to be polled and graphs produced, using percentages. Add basic percentages for cache statistics.
+            </action>
             <action dev="Abhishek Sanoujam" type="add" issue="EHC-729">
                 Added support for cacheDecorators in defaultCache. 
             </action>

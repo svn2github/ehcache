@@ -23,6 +23,7 @@ import net.sf.ehcache.hibernate.management.impl.EhcacheHibernateMbeanNames;
 
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
+
 import java.io.Serializable;
 
 
@@ -252,5 +253,51 @@ public class CacheStatistics implements CacheStatisticsMBean, Serializable {
      */
     public Ehcache getEhcache() {
         return ehcache;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public long getCacheHitPercentage() {
+        updateIfNeeded();
+        long hits = statistics.getCacheHits();
+        long misses = statistics.getCacheMisses();
+        
+        return hits * 100 / (hits + misses);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public long getCacheMissPercentage() {
+        updateIfNeeded();
+        long hits = statistics.getCacheHits();
+        long misses = statistics.getCacheMisses();
+        
+        return misses * 100 / (hits + misses);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public long getInMemoryHitPercentage() {
+        updateIfNeeded();
+        long memoryHits = statistics.getInMemoryHits();
+        long hits = statistics.getCacheHits();
+        long misses = statistics.getCacheMisses();
+        
+        return memoryHits * 100 / (hits + misses);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public long getOnDiskHitPercentage() {
+        updateIfNeeded();
+        long diskHits = statistics.getOnDiskHits();
+        long hits = statistics.getCacheHits();
+        long misses = statistics.getCacheMisses();
+        
+        return diskHits * 100 / (hits + misses);
     }
 }

@@ -1,5 +1,5 @@
 /**
- *  Copyright 2003-2010 Terracotta, Inc.
+ *  Copyright 2003-2009 Terracotta, Inc.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -41,13 +41,6 @@ public interface CacheStatisticsMBean {
      * @return the number of times a requested item was found in memory
      */
     public long getInMemoryHits();
-
-    /**
-     * Number of times a requested item was found in the off-heap store.
-     *
-     * @return the number of times a requested item was found in off-heap
-     */
-    public long getOffHeapHits();
 
     /**
      * Number of times a requested item was found in the Disk Store.
