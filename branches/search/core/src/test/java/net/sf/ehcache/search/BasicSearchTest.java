@@ -25,6 +25,9 @@ import junit.framework.TestCase;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Element;
+import net.sf.ehcache.config.CacheConfiguration;
+import net.sf.ehcache.config.Configuration;
+import net.sf.ehcache.config.SearchAttribute;
 import net.sf.ehcache.search.aggregator.Aggregator;
 import net.sf.ehcache.search.aggregator.AggregatorException;
 import net.sf.ehcache.search.aggregator.Average;
@@ -546,6 +549,50 @@ public class BasicSearchTest extends TestCase {
         query.end();
 
         verify(cache, query, 5);
+    }
+    
+    public void testTypeChecking() {
+        CacheManager cm = new CacheManager(new Configuration().defaultCache(new CacheConfiguration()));
+        
+        CacheConfiguration config = new CacheConfiguration("test", 0);     
+        config.setOverflowToDisk(false);
+        config.diskPersistent(false);
+        config.setEternal(true);
+        config.addSearchAttribute(new SearchAttribute().name("attr").expression("value.getAttr()"));        
+        cm.addCache(new Cache(config));
+        
+       
+        
+        class Value {
+            private final Object attr;
+
+            Value(Object attr) {
+                this.attr = attr;
+            }
+            
+            Object getAttr() {
+                return attr;
+            }
+        }
+        
+        Cache cache = cm.getCache("test");
+        cache.put(new Element(1, new Value("foo")));  
+        
+        Query query = cache.createQuery();
+        query.includeKeys();
+        query.add(cache.getSearchAttribute("attr").le(4));
+        query.end();
+        
+        try {
+            query.execute();
+            fail();
+        } catch (SearchException se) {
+            // expected since the criteria wants INT, but actual attribute value is STRING
+        }
+        
+        // with proper type search will execute
+        cache.put(new Element(1, new Value(4)));
+        assertEquals(1, query.execute().all().iterator().next().getKey());
     }
 
     private void populateData(Cache cache) {

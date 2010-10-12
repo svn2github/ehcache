@@ -134,7 +134,9 @@ public abstract class AbstractStore implements Store {
      * {@inheritDoc}
      */
     public void setAttributeExtractors(Map<String, AttributeExtractor> extractors) {
-        throw new InvalidConfigurationException("Search attributes not supported by this store type: " + getClass().getName());
+        if (!extractors.isEmpty()) {
+            throw new InvalidConfigurationException("Search attributes not supported by this store type: " + getClass().getName());
+        }
     }
     
     /**

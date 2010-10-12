@@ -386,7 +386,15 @@ public final class MemoryOnlyStore extends CompoundStore implements CacheConfigu
             if (value == null) {
                 cache.put(attributeName, new TypedValue(attributeName, NULL, null));
             } else {
-                cache.put(attributeName, new TypedValue(attributeName, value, AttributeType.typeFor(attributeName, value)));
+                AttributeType actualType = AttributeType.typeFor(attributeName, value);
+
+                if (checkType) {
+                    if (actualType != expectedType) {
+                        throw new SearchException("Expecting attribute of type " + expectedType.name() + " but was " + actualType.name());
+                    }
+                }
+
+                cache.put(attributeName, new TypedValue(attributeName, value, actualType));
             }
             return value;
         }
