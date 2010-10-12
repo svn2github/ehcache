@@ -48,6 +48,8 @@ import java.io.Serializable;
  */
 public class CacheStatistics implements CacheStatisticsMBean, Serializable {
 
+    private static final int ONE_HUNDRED = 100;
+
     private static final long serialVersionUID = 8085302752781762030L;
 
     private transient Ehcache ehcache;
@@ -263,7 +265,7 @@ public class CacheStatistics implements CacheStatisticsMBean, Serializable {
         long hits = statistics.getCacheHits();
         long misses = statistics.getCacheMisses();
         
-        return hits * 100 / (hits + misses);
+        return hits * ONE_HUNDRED / (hits + misses);
     }
 
     /**
@@ -274,7 +276,7 @@ public class CacheStatistics implements CacheStatisticsMBean, Serializable {
         long hits = statistics.getCacheHits();
         long misses = statistics.getCacheMisses();
         
-        return misses * 100 / (hits + misses);
+        return misses * ONE_HUNDRED / (hits + misses);
     }
 
     /**
@@ -286,7 +288,7 @@ public class CacheStatistics implements CacheStatisticsMBean, Serializable {
         long hits = statistics.getCacheHits();
         long misses = statistics.getCacheMisses();
         
-        return memoryHits * 100 / (hits + misses);
+        return memoryHits * ONE_HUNDRED / (hits + misses);
     }
 
     /**
@@ -298,6 +300,6 @@ public class CacheStatistics implements CacheStatisticsMBean, Serializable {
         long hits = statistics.getCacheHits();
         long misses = statistics.getCacheMisses();
         
-        return diskHits * 100 / (hits + misses);
+        return diskHits * ONE_HUNDRED / (hits + misses);
     }
 }
