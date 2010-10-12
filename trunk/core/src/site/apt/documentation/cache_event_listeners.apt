@@ -242,4 +242,13 @@ public Object clone() throws CloneNotSupportedException;
 
 
 
+*   FAQ
+
+**  Can I add a listener to an already running cache?
+
+    Yes.
+
+---
+    cache.getCacheEventNotificationService().getCacheEventListeners().add(myListener);
+---
 
