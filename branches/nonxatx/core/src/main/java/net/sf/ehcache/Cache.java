@@ -75,6 +75,7 @@ import net.sf.ehcache.store.DiskStore;
 import net.sf.ehcache.store.LegacyStoreWrapper;
 import net.sf.ehcache.store.LruMemoryStore;
 import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
+import net.sf.ehcache.store.NonXaTransactionalStore;
 import net.sf.ehcache.store.Policy;
 import net.sf.ehcache.store.Store;
 import net.sf.ehcache.store.StoreListener;
@@ -1016,7 +1017,7 @@ public class Cache implements Ehcache, StoreListener {
                 }
             }
 
-            if (configuration.isTransactional()) {
+            if (configuration.isXaTransactional()) {
                 if (configuration.isTerracottaClustered()
                     && configuration.getTerracottaConfiguration().getValueMode() != TerracottaConfiguration.ValueMode.SERIALIZATION) {
                     throw new CacheException("To be transactional, a Terracotta clustered cache needs to be in Serialization value mode");
@@ -1043,6 +1044,9 @@ public class Cache implements Ehcache, StoreListener {
                 transactionManagerLookup.register(xaResource);
 
                 this.compoundStore = new XATransactionalStore(this, ehcacheXAStore, transactionManagerLookup, txnManager);
+            } else if (configuration.isNonXaTransactional()) {
+                configuration.copyOnRead(true).copyOnWrite(true);
+                this.compoundStore = new NonXaTransactionalStore(configuration.getName(), store);
             } else {
                 this.compoundStore = store;
             }
@@ -2436,7 +2440,7 @@ public class Cache implements Ehcache, StoreListener {
      * @return the Store referenced by this cache
      * @throws IllegalStateException if the cache is not {@link Status#STATUS_ALIVE}
      */
-    final Store getStore() throws IllegalStateException {
+    public final Store getStore() throws IllegalStateException {
         checkStatus();
         return compoundStore;
     }
