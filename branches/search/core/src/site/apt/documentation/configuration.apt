@@ -155,6 +155,35 @@
 </ehcache>
 ---
 
+*   Update Checker
+
+    The update checker is used to see if you have the latest version of Ehcache. It is also used 
+    to get non-identifying feedback on the OS architectures using Ehcache.
+
+    To disable the check, do one of the following:
+
+**  By System Property
+
+---
+    -Dnet.sf.ehcache.skipUpdateCheck=true
+---
+
+**  By Configuration
+
+    The outer <<<ehcache>>> element takes an <<<updateCheck>>> attribute, which is set to false as in the
+    following example.
+
+---
+    -->
+    <ehcache xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xsi:noNamespaceSchemaLocation="ehcache.xsd"
+             updateCheck="false" monitoring="autodetect"
+             dynamicConfig="true">
+
+---
+
+
+
 * ehcache.xml and other configuration files
 
    Prior to ehcache-1.6, Ehcache only supported ASCII ehcache.xml configuration files.

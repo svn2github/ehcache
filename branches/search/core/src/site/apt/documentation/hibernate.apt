@@ -25,7 +25,8 @@
 
 *   Important Notice if Upgrading from Terracotta or Ehcache prior to 2.0
 
-    new_in_2 Users of Ehcache and/or Terracotta Ehcache for Hibernate prior to Ehcache 2.0 should read {{{./hibernate-upgrade.html}Upgrade Notes for Ehcache versions prior to 2.0}}.
+    Users of Ehcache and/or Terracotta Ehcache for Hibernate prior to Ehcache 2.0 should read {{{./hibernate-upgrade.html}Upgrade Notes for Ehcache versions prior to 2.0}}.
+    Also, ensure that when upgrading you change all nodes to use the new SPI and that you clear any clustered caches.
 
 *   {Quick Start}
 
@@ -742,3 +743,15 @@ replicateRemovals=true" />
     You can also use the deterministic evictor to avoid this problem. Specify the <<<java -Dnet.sf.ehcache.use.classic.lru=true>>>
     system property to turn on classic LRU which contains a deterministic evictor.
 
+**  I get java.lang.ClassCastException: org.hibernate.cache.ReadWriteCache$Item incompatible with net.sf.ehcache.hibernate.strategy.AbstractReadWriteEhcacheAccessStrategy$Lockable
+
+    This is the tell-tale error you get if you are:
+
+    * using a Terracotta cluster with Ehcache
+
+    * you have upgraded part of the cluster to use net.sf.ehcache.hibernate.EhCacheRegionFactory but part of it is still using
+      the old SPI of EhCacheProvider.
+
+    * you are upgrading a Hibernate version
+
+    Ensure you have changed all nodes and that you clear any caches during the upgrade.

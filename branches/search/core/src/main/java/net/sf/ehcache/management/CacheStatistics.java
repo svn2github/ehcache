@@ -23,6 +23,7 @@ import net.sf.ehcache.hibernate.management.impl.EhcacheHibernateMbeanNames;
 
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
+
 import java.io.Serializable;
 
 
@@ -46,6 +47,8 @@ import java.io.Serializable;
  * @since 1.3
  */
 public class CacheStatistics implements CacheStatisticsMBean, Serializable {
+
+    private static final int ONE_HUNDRED = 100;
 
     private static final long serialVersionUID = 8085302752781762030L;
 
@@ -252,5 +255,73 @@ public class CacheStatistics implements CacheStatisticsMBean, Serializable {
      */
     public Ehcache getEhcache() {
         return ehcache;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public long getCacheHitPercentage() {
+        updateIfNeeded();
+        long hits = statistics.getCacheHits();
+        long misses = statistics.getCacheMisses();
+
+        long denominator = hits + misses;
+        if (denominator == 0) {
+            return 0;
+        } else {
+            return hits * ONE_HUNDRED / (hits + misses);
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public long getCacheMissPercentage() {
+        updateIfNeeded();
+        long hits = statistics.getCacheHits();
+        long misses = statistics.getCacheMisses();
+
+        long denominator = hits + misses;
+        if (denominator == 0) {
+            return 0;
+        } else {
+            return misses * ONE_HUNDRED / (denominator);
+        }
+
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public long getInMemoryHitPercentage() {
+        updateIfNeeded();
+        long memoryHits = statistics.getInMemoryHits();
+        long hits = statistics.getCacheHits();
+        long misses = statistics.getCacheMisses();
+
+        long denominator = hits + misses;
+        if (denominator == 0) {
+            return 0;
+        } else {
+            return memoryHits * ONE_HUNDRED / (denominator);
+        }
+
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public long getOnDiskHitPercentage() {
+        updateIfNeeded();
+        long diskHits = statistics.getOnDiskHits();
+        long hits = statistics.getCacheHits();
+        long misses = statistics.getCacheMisses();
+
+        long denominator = hits + misses;
+        if (denominator == 0) {
+            return 0;
+        } else {
+            return diskHits * ONE_HUNDRED / (denominator);
+        }
     }
 }

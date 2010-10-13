@@ -42,10 +42,6 @@
     Older versions will not work.
 
 
-
-
-
-
 *   Configuring ehcache.xml
 
     Make sure the following elements are commented out:

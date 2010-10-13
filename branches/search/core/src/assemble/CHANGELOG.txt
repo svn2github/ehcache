@@ -7,6 +7,15 @@ ehcache-2.3.0
             </action>
         </release>
 
+ehcache-2.2.1
+==================
+ <release version="2.2.1" date="2010-10-11" description="Bug fixes">
+        <action dev=Alex Snaps" date="2010-10-04" type="fix">                
+          Ehcache evictor not clearing objects as expected            
+        </action>        
+ </release>
+
+
 ehcache-2.2.0
 ===================
     <release version="2.2.0" date="2010-07-16" description="Bug fixes">

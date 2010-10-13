@@ -43,13 +43,6 @@ public interface CacheStatisticsMBean {
     public long getInMemoryHits();
 
     /**
-     * Number of times a requested item was found in the off-heap store.
-     *
-     * @return the number of times a requested item was found in off-heap
-     */
-    public long getOffHeapHits();
-
-    /**
      * Number of times a requested item was found in the Disk Store.
      *
      * @return the number of times a requested item was found on Disk, or 0 if there is no disk storage configured.
@@ -129,5 +122,33 @@ public interface CacheStatisticsMBean {
      * @return the name of the Ehcache, or null is there no associated cache
      */
     public String getAssociatedCacheName();
+
+    /**
+     * Returns the percentage of cache accesses that found a requested item in the cache.
+     *
+     * @return the percentage of successful hits
+     */
+    public long getCacheHitPercentage();
+
+    /**
+     * Returns the percentage of cache accesses that did not find a requested element in the cache.
+     *
+     * @return the percentage of accesses that failed to find anything
+     */
+    public long getCacheMissPercentage();
+
+    /**
+     * Returns the percentage of cache accesses that found a requested item cached in-memory.
+     *
+     * @return the percentage of successful hits from the MemoryStore
+     */
+    public long getInMemoryHitPercentage();
+
+    /**
+     * Returns the percentage of cache accesses that found a requested item cached on disk.
+     *
+     * @return the percentage of successful hits from the DiskStore.
+     */
+    public long getOnDiskHitPercentage();
 
 }
