@@ -5,7 +5,6 @@ import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.TransactionController;
-import net.sf.ehcache.transaction.nonxa.TransactionException;
 
 /**
  * @author lorban
@@ -230,7 +229,8 @@ public class TransactionTest extends TestCase {
         assertEquals(el1TxName, el2TxName);
 
         // make sure the winning TX could insert its unique element
-        assertNotNull(cache1.get(el1TxName));
+        String winningTx = losingTx[0].equals("tx1") ? "tx2" : "tx1";
+        assertNotNull(cache1.get(winningTx));
 
         // make sure the losing TX could NOT insert its unique element
         assertNull(cache1.get(losingTx[0]));

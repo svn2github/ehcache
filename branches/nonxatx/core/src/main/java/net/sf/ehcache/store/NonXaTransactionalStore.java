@@ -40,8 +40,7 @@ public class NonXaTransactionalStore extends AbstractStore {
 
     private static final Logger LOG = LoggerFactory.getLogger(NonXaTransactionalStore.class.getName());
 
-
-    private String cacheName;
+    private final String cacheName;
     private final Store underlyingStore;
     private final Lock lock = new ReentrantLock();
 
@@ -92,7 +91,7 @@ public class NonXaTransactionalStore extends AbstractStore {
             oldElement = underlyingStore.getQuiet(element.getKey());
 
             SoftLock softLock = new SoftLock(getCurrentTransactionContext(), cacheName, oldElement, element);
-            if (LOG.isDebugEnabled()) LOG.debug("put replacing value with softlock: " + softLock);
+            LOG.debug("put replacing value with softlock: {}", softLock);
             return underlyingStore.put(new Element(element.getKey(), softLock));
         } finally {
             lock.unlock();
@@ -110,20 +109,20 @@ public class NonXaTransactionalStore extends AbstractStore {
     public Element getQuiet(Object key) {
         lock.lock();
         try {
-            Element element = underlyingStore.get(key);
+            Element element = underlyingStore.getQuiet(key);
             if (element != null && element.getValue() instanceof SoftLock) {
                 SoftLock softLock = (SoftLock) element.getValue();
 
                 if (softLock.inContext(getCurrentTransactionContext())) {
-                    if (LOG.isDebugEnabled()) LOG.debug("get in context, returning new element: " + softLock.getNewElement());
+                    LOG.debug("get in context, returning new element: {}", softLock.getNewElement());
                     return softLock.getNewElement();
                 }
 
-                if (LOG.isDebugEnabled()) LOG.debug("get not in context, returning old element: " + softLock.getOldElement());
+                LOG.debug("get not in context, returning old element: {}", softLock.getOldElement());
                 return softLock.getOldElement();
             }
 
-            if (LOG.isDebugEnabled()) LOG.debug("no tx, returning actual element: " + element);
+            LOG.debug("no tx, returning actual element: {}", element);
             return element;
         } finally {
             lock.unlock();
@@ -249,7 +248,7 @@ public class NonXaTransactionalStore extends AbstractStore {
     public TransactionContext getCurrentTransactionContext() {
         TransactionContext context = TransactionController.getInstance().getCurrentTransactionContext();
         if (context == null) {
-            throw new CacheException("no transaction started");
+            throw new TransactionException("no transaction started");
         }
         return context;
     }

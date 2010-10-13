@@ -7,8 +7,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 
-import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 /**
  * @author lorban
@@ -21,7 +21,7 @@ public final class TransactionController {
     private static final int DEFAULT_TRANSACTION_TIMEOUT = 15;
 
     private static ThreadLocal<TransactionID> currentTxIdIntegerThreadLocal = new ThreadLocal<TransactionID>();
-    private static Map<TransactionID, TransactionContext> contextMap = new ConcurrentHashMap<TransactionID, TransactionContext>();
+    private static ConcurrentMap<TransactionID, TransactionContext> contextMap = new ConcurrentHashMap<TransactionID, TransactionContext>();
 
     private static TransactionController _instance;
 
@@ -57,7 +57,7 @@ public final class TransactionController {
         currentTxIdIntegerThreadLocal.set(newTx.getTransactionId());
 
         MDC.put(MDC_KEY, newTx.getTransactionId().toString());
-        if (LOG.isDebugEnabled()) LOG.debug("begun " + newTx.getTransactionId());
+        LOG.debug("begun {}", newTx.getTransactionId());
     }
 
     public void commit() {
@@ -72,7 +72,7 @@ public final class TransactionController {
         } finally {
             contextMap.remove(txId);
             currentTxIdIntegerThreadLocal.remove();
-            if (LOG.isDebugEnabled()) LOG.debug("committed " + currentTx.getTransactionId());
+            LOG.debug("committed {}", currentTx.getTransactionId());
             MDC.remove(MDC_KEY);
         }
     }
@@ -89,7 +89,7 @@ public final class TransactionController {
         } finally {
             contextMap.remove(txId);
             currentTxIdIntegerThreadLocal.remove();
-            if (LOG.isDebugEnabled()) LOG.debug("rolled back " + currentTx.getTransactionId());
+            LOG.debug("rolled back {}", currentTx.getTransactionId());
             MDC.remove(MDC_KEY);
         }
     }

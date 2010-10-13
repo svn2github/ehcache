@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -19,12 +20,12 @@ public class TransactionContext {
 
     private static final Logger LOG = LoggerFactory.getLogger(TransactionContext.class.getName());
 
-    private CacheManager cacheManager;
-    private int transactionTimeout;
-    private final TransactionID transactionId;
     private boolean rollbackOnly;
-    private Map<String, Map<Object, SoftLock>> softLocksMap = new ConcurrentHashMap<String, Map<Object, SoftLock>>();
-    private Map<SoftLock, Lock> locksMap = new ConcurrentHashMap<SoftLock, Lock>();
+    private final CacheManager cacheManager;
+    private final int transactionTimeout;
+    private final TransactionID transactionId;
+    private final ConcurrentMap<String, ConcurrentMap<Object, SoftLock>> softLocksMap = new ConcurrentHashMap<String, ConcurrentMap<Object, SoftLock>>();
+    private final ConcurrentMap<SoftLock, Lock> locksMap = new ConcurrentHashMap<SoftLock, Lock>();
 
     public TransactionContext(CacheManager cacheManager, int transactionTimeout) {
         this.cacheManager = cacheManager;
@@ -41,7 +42,7 @@ public class TransactionContext {
     }
 
     public void put(String cacheName, Object key, SoftLock softLock) {
-        Map<Object, SoftLock> map = softLocksMap.get(cacheName);
+        ConcurrentMap<Object, SoftLock> map = softLocksMap.get(cacheName);
         if (map == null) {
             map = new ConcurrentHashMap<Object, SoftLock>();
             softLocksMap.put(cacheName, map);
@@ -68,10 +69,10 @@ public class TransactionContext {
             throw new TransactionException("transaction was marked as rollback only, rolled back on commit");
         }
 
-        for (Map.Entry<String, Map<Object, SoftLock>> stringMapEntry : softLocksMap.entrySet()) {
+        for (Map.Entry<String, ConcurrentMap<Object, SoftLock>> stringMapEntry : softLocksMap.entrySet()) {
             Set<Map.Entry<Object, SoftLock>> entries = stringMapEntry.getValue().entrySet();
             for (Map.Entry<Object, SoftLock> entry : entries) {
-                if (LOG.isDebugEnabled()) LOG.debug("committing " + entry.getValue());
+                LOG.debug("committing {}", entry.getValue());
                 entry.getValue().commit();
             }
         }
@@ -80,7 +81,7 @@ public class TransactionContext {
     }
 
     public void rollback() {
-        for (Map.Entry<String, Map<Object, SoftLock>> stringMapEntry : softLocksMap.entrySet()) {
+        for (Map.Entry<String, ConcurrentMap<Object, SoftLock>> stringMapEntry : softLocksMap.entrySet()) {
             Set<Map.Entry<Object, SoftLock>> entries = stringMapEntry.getValue().entrySet();
             for (Map.Entry<Object, SoftLock> entry : entries) {
                 entry.getValue().rollback();
