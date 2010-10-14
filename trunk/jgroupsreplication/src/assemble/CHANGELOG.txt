@@ -12,6 +12,9 @@ $Id: CHANGELOG.txt,v 1.31 2006/03/07 00:05:56 gregluck Exp $
     <action dev="Greg Luck" type="add" fix="EHC-383>
         Use Ehcaches rather than Caches, so that decorated caches can also be replicated.
     </action>
+    <action dev="Eric Dalquist" type="add" fix="EHC-33>
+        Allow for a configurable channelName.     
+    </action>
     <action dev="Eric Dalquist" type="update">
 
        Significant clean up and improvement of the code base from Eric Dalquist, a production user

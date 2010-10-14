@@ -37,8 +37,23 @@ public final class CacheTestUtilities {
      * config file location. We have three thats less us test, with a manual change, different ways of configuring
      * JGroups
      */
-    public static final URL ASYNC_CONFIG_URL =
-            ClassLoaderUtil.getStandardClassLoader().getResource("distribution/jgroups/ehcache-distributed-jgroups-file.xml");
+    public static final URL ASYNC_CONFIG_URL1 =
+            ClassLoaderUtil.getStandardClassLoader().getResource("distribution/jgroups/ehcache-distributed-jgroups-file-manager1.xml");
+    /**
+     * Config file 2
+     */
+    public static final URL ASYNC_CONFIG_URL2 =
+            ClassLoaderUtil.getStandardClassLoader().getResource("distribution/jgroups/ehcache-distributed-jgroups-file-manager2.xml");
+    /**
+     * Config file 3
+     */
+    public static final URL ASYNC_CONFIG_URL3 =
+            ClassLoaderUtil.getStandardClassLoader().getResource("distribution/jgroups/ehcache-distributed-jgroups-file-manager3.xml");
+    /**
+     * Config file 4
+     */
+    public static final URL ASYNC_CONFIG_URL4 =
+            ClassLoaderUtil.getStandardClassLoader().getResource("distribution/jgroups/ehcache-distributed-jgroups-file-manager4.xml");
 
     private static final ThreadLocal<String> THREAD_NAME = new ThreadLocal<String>();
 

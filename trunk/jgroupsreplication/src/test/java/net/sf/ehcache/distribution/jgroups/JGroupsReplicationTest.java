@@ -74,16 +74,16 @@ public class JGroupsReplicationTest {
         CacheTestUtilities.startTest(name.getMethodName());
         LOG.info("SETUP");
         
-        manager1 = new CacheManager(CacheTestUtilities.ASYNC_CONFIG_URL);
+        manager1 = new CacheManager(CacheTestUtilities.ASYNC_CONFIG_URL1);
         CacheTestUtilities.waitForBootstrap(manager1, MAX_WAIT_TIME);
         
-        manager2 = new CacheManager(CacheTestUtilities.ASYNC_CONFIG_URL);
+        manager2 = new CacheManager(CacheTestUtilities.ASYNC_CONFIG_URL2);
         CacheTestUtilities.waitForBootstrap(manager2, MAX_WAIT_TIME);
         
-        manager3 = new CacheManager(CacheTestUtilities.ASYNC_CONFIG_URL);
+        manager3 = new CacheManager(CacheTestUtilities.ASYNC_CONFIG_URL3);
         CacheTestUtilities.waitForBootstrap(manager3, MAX_WAIT_TIME);
         
-        manager4 = new CacheManager(CacheTestUtilities.ASYNC_CONFIG_URL);
+        manager4 = new CacheManager(CacheTestUtilities.ASYNC_CONFIG_URL4);
         CacheTestUtilities.waitForBootstrap(manager4, MAX_WAIT_TIME);
         
         cacheName = SAMPLE_CACHE1;
@@ -191,7 +191,7 @@ public class JGroupsReplicationTest {
             manager1.shutdown();
         }
         
-        manager1 = new CacheManager(CacheTestUtilities.ASYNC_CONFIG_URL);
+        manager1 = new CacheManager(CacheTestUtilities.ASYNC_CONFIG_URL1);
         CacheTestUtilities.waitForBootstrap(manager1, MAX_WAIT_TIME);
         
         final Ehcache cache1 = manager1.getEhcache(cacheName);

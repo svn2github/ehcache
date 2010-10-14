@@ -37,6 +37,7 @@ import java.util.Properties;
 public class JGroupsCacheManagerPeerProviderFactory extends CacheManagerPeerProviderFactory {
     private static final Logger LOG = LoggerFactory.getLogger(JGroupsCacheManagerPeerProviderFactory.class.getName());
     
+    private static final String CHANNEL_NAME = "channelName";
     private static final String CONNECT = "connect";
     private static final String FILE = "file";
 
@@ -49,6 +50,7 @@ public class JGroupsCacheManagerPeerProviderFactory extends CacheManagerPeerProv
         
         final String connect = this.getProperty(CONNECT, properties);
         final String file = this.getProperty(FILE, properties);
+        final String channelName = this.getProperty(CHANNEL_NAME, properties);
         
         final JGroupsCacheManagerPeerProvider peerProvider;
         if (file != null) {
@@ -66,19 +68,21 @@ public class JGroupsCacheManagerPeerProviderFactory extends CacheManagerPeerProv
             peerProvider = new JGroupsCacheManagerPeerProvider(cacheManager, connect);
         }
         
+        peerProvider.setChannelName(channelName);
+        
         return peerProvider;
     }
 
     private String getProperty(final String name, Properties properties) {
-        String connect = PropertyUtil.extractAndLogProperty(name, properties);
-        if (connect != null) {
-            connect = connect.trim();
-            connect = connect.replaceAll(" ", "");
-            if (connect.equals("")) {
-                connect = null;
+        String property = PropertyUtil.extractAndLogProperty(name, properties);
+        if (property != null) {
+            property = property.trim();
+            property = property.replaceAll(" ", "");
+            if (property.equals("")) {
+                property = null;
             }
         }
-        return connect;
+        return property;
     }
 
 }

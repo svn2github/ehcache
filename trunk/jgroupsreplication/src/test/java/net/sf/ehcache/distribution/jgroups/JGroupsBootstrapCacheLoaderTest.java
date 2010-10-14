@@ -78,10 +78,10 @@ public class JGroupsBootstrapCacheLoaderTest {
         CacheTestUtilities.startTest(name.getMethodName());
         LOG.info("SETUP");
 
-        manager1 = new CacheManager(CacheTestUtilities.ASYNC_CONFIG_URL);
+        manager1 = new CacheManager(CacheTestUtilities.ASYNC_CONFIG_URL1);
         CacheTestUtilities.waitForBootstrap(manager1, MAX_WAIT_TIME);
         
-        manager2 = new CacheManager(CacheTestUtilities.ASYNC_CONFIG_URL);
+        manager2 = new CacheManager(CacheTestUtilities.ASYNC_CONFIG_URL2);
         CacheTestUtilities.waitForBootstrap(manager2, MAX_WAIT_TIME);
     }
 
@@ -149,7 +149,7 @@ public class JGroupsBootstrapCacheLoaderTest {
         //Verify normal replication worked
         assertEquals(testElementCount, cache1.getSize());
 
-        manager3 = new CacheManager(CacheTestUtilities.ASYNC_CONFIG_URL);
+        manager3 = new CacheManager(CacheTestUtilities.ASYNC_CONFIG_URL3);
         //Wait for bootstrap to complete
         CacheTestUtilities.waitForBootstrap(manager3, MAX_WAIT_TIME);
         
@@ -192,7 +192,7 @@ public class JGroupsBootstrapCacheLoaderTest {
         //Verify normal replication worked
         assertEquals(testElementCount, cache1.getSize());
 
-        manager3 = new CacheManager(CacheTestUtilities.ASYNC_CONFIG_URL);
+        manager3 = new CacheManager(CacheTestUtilities.ASYNC_CONFIG_URL3);
         //Wait for bootstrap to complete
         CacheTestUtilities.waitForBootstrap(manager3, MAX_WAIT_TIME);
         

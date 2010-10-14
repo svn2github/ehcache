@@ -59,6 +59,7 @@ public class JGroupsCacheManagerPeerProvider implements ManagedCacheManagerPeerP
     private final CacheManager cacheManager;
     private final String groupProperties;
     private final URL groupUrl;
+    private String channelName;
     
     private JChannel channel;
     private JGroupsCachePeer cachePeer;
@@ -94,6 +95,13 @@ public class JGroupsCacheManagerPeerProvider implements ManagedCacheManagerPeerP
         this.groupUrl = configUrl;
     }
     
+    /**
+     * Set the name of the JChannel, if null the cache manager name is used.
+     */
+    public void setChannelName(String channelName) {
+        this.channelName = channelName;
+    }
+
     /**
      * Given an {@link Ehcache} get the corresponding instance of this class.
      */
@@ -295,6 +303,10 @@ public class JGroupsCacheManagerPeerProvider implements ManagedCacheManagerPeerP
      * @return The cluster name for JMX registration 
      */
     public String getClusterName() {
+        if (this.channelName != null) {
+            return this.channelName;
+        }
+        
         if (this.cacheManager.isNamed()) {
             return this.cacheManager.getName();
         }
