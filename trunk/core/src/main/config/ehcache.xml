@@ -231,6 +231,8 @@ used with JMX monitors.
      Multiple JGroups clusters may be run on the same network by specifying a different CacheManager name. The name
      is used as the cluster name.
 
+     Since version 1.4 you can specify a channelName to avoid conflicts.
+
 
     JMSCacheManagerPeerProviderFactory
     ++++++++++++++++++++++++++++++++++
