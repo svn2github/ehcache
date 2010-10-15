@@ -50,7 +50,7 @@ import net.sf.ehcache.store.compound.factories.CapacityLimitedInMemoryFactory;
 
 /**
  * Implements a memory only store.
- *
+ * 
  * @author Chris Dennis
  */
 public final class MemoryOnlyStore extends CompoundStore implements CacheConfigurationListener {
@@ -69,8 +69,8 @@ public final class MemoryOnlyStore extends CompoundStore implements CacheConfigu
 
     /**
      * Constructs an in-memory store for the given cache, using the given disk path.
-     *
-     * @param cache         cache that fronts this store
+     * 
+     * @param cache cache that fronts this store
      * @param diskStorePath disk path to store data in
      * @return a fully initialized store
      */
@@ -556,15 +556,15 @@ public final class MemoryOnlyStore extends CompoundStore implements CacheConfigu
 
         /**
          * todo Don't throw an IndexOutOfBoundsException. Handle other cases where this can happen
+         * 
          * @inheritdoc
          */
         public List<Result> range(int start, int length) throws SearchException {
-
             int size = results.size();
             int end = start + length;
 
             if (start > size - 1) {
-                return new ArrayList<Result>();
+                return Collections.EMPTY_LIST;
             }
 
             if (end > size - 1) {
