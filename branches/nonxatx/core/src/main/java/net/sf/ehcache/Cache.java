@@ -75,7 +75,7 @@ import net.sf.ehcache.store.DiskStore;
 import net.sf.ehcache.store.LegacyStoreWrapper;
 import net.sf.ehcache.store.LruMemoryStore;
 import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
-import net.sf.ehcache.store.NonXaTransactionalStore;
+import net.sf.ehcache.store.ReadCommittedNonXaTransactionalStore;
 import net.sf.ehcache.store.Policy;
 import net.sf.ehcache.store.Store;
 import net.sf.ehcache.store.StoreListener;
@@ -1046,7 +1046,7 @@ public class Cache implements Ehcache, StoreListener {
                 this.compoundStore = new XATransactionalStore(this, ehcacheXAStore, transactionManagerLookup, txnManager);
             } else if (configuration.isNonXaTransactional()) {
                 configuration.copyOnRead(true).copyOnWrite(true);
-                this.compoundStore = new NonXaTransactionalStore(getCacheManager().getTransactionController(), configuration.getName(), store);
+                this.compoundStore = new ReadCommittedNonXaTransactionalStore(getCacheManager().getTransactionController(), configuration.getName(), store);
             } else {
                 this.compoundStore = store;
             }

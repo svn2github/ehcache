@@ -1,6 +1,6 @@
 package net.sf.ehcache.transaction.nonxa;
 
-import net.sf.ehcache.store.NonXaTransactionalStore;
+import net.sf.ehcache.store.AbstractNonXaTransactionalStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,7 +20,7 @@ public class TransactionContext {
     private final int transactionTimeout;
     private final TransactionID transactionId;
     private final Map<String, List<SoftLock>> softLockMap = new HashMap<String, List<SoftLock>>();
-    private final Map<String, NonXaTransactionalStore> storeMap = new HashMap<String, NonXaTransactionalStore>();
+    private final Map<String, AbstractNonXaTransactionalStore> storeMap = new HashMap<String, AbstractNonXaTransactionalStore>();
 
     public TransactionContext(int transactionTimeout) {
         this.transactionTimeout = transactionTimeout;
@@ -35,7 +35,7 @@ public class TransactionContext {
         this.rollbackOnly = rollbackOnly;
     }
 
-    public void registerSoftLock(String cacheName, NonXaTransactionalStore store, SoftLock softLock) {
+    public void registerSoftLock(String cacheName, AbstractNonXaTransactionalStore store, SoftLock softLock) {
         List<SoftLock> softLocks = softLockMap.get(cacheName);
         if (softLocks == null) {
             softLocks = new ArrayList<SoftLock>();
@@ -53,7 +53,7 @@ public class TransactionContext {
 
         for (Map.Entry<String, List<SoftLock>> stringListEntry : softLockMap.entrySet()) {
             String cacheName = stringListEntry.getKey();
-            NonXaTransactionalStore store = storeMap.get(cacheName);
+            AbstractNonXaTransactionalStore store = storeMap.get(cacheName);
             List<SoftLock> softLocks = stringListEntry.getValue();
             for (SoftLock softLock : softLocks) {
                 LOG.debug("committing {}", softLock);
@@ -73,7 +73,7 @@ public class TransactionContext {
     public void rollback() {
         for (Map.Entry<String, List<SoftLock>> stringListEntry : softLockMap.entrySet()) {
             String cacheName = stringListEntry.getKey();
-            NonXaTransactionalStore store = storeMap.get(cacheName);
+            AbstractNonXaTransactionalStore store = storeMap.get(cacheName);
             List<SoftLock> softLocks = stringListEntry.getValue();
             for (SoftLock softLock : softLocks) {
                 LOG.debug("rolling back {}", softLock);
