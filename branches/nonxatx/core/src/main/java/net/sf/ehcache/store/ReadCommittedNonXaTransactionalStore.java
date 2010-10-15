@@ -217,6 +217,9 @@ public class ReadCommittedNonXaTransactionalStore extends AbstractNonXaTransacti
         lock.writeLock().lock();
         try {
             Element oldElement = getQuiet(element.getObjectKey());
+            if (oldElement == null) {
+                return null;
+            }
             if ((oldElement.getObjectValue() == null && element.getObjectValue() == null) ||
                     (oldElement.getObjectValue().equals(element.getObjectValue()))) {
                 return remove(element.getObjectKey());
@@ -242,6 +245,9 @@ public class ReadCommittedNonXaTransactionalStore extends AbstractNonXaTransacti
         lock.writeLock().lock();
         try {
             Element oldElement = getQuiet(element.getObjectKey());
+            if (oldElement == null) {
+                return false;
+            }
             if ((oldElement.getObjectValue() == null && old.getObjectValue() == null) ||
                     (oldElement.getObjectValue().equals(old.getObjectValue()))) {
                 remove(old.getObjectKey());
@@ -263,6 +269,9 @@ public class ReadCommittedNonXaTransactionalStore extends AbstractNonXaTransacti
         lock.writeLock().lock();
         try {
             Element oldElement = getQuiet(element.getObjectKey());
+            if (oldElement == null) {
+                return null;
+            }
             if ((oldElement.getObjectValue() == null && element.getObjectValue() == null) ||
                     (oldElement.getObjectValue().equals(element.getObjectValue()))) {
                 Element removed = remove(element.getObjectKey());
