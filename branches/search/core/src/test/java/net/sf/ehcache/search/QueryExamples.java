@@ -6,10 +6,12 @@ import static net.sf.ehcache.search.expression.Logic.or;
 import java.util.List;
 
 import net.sf.ehcache.Cache;
+import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.search.aggregator.Aggregator;
 import net.sf.ehcache.search.aggregator.Count;
 import net.sf.ehcache.search.aggregator.Sum;
 import net.sf.ehcache.search.expression.And;
+import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,10 +25,19 @@ public class QueryExamples {
 
     private static final Logger LOG = LoggerFactory.getLogger(QueryExamples.class);
 
+    @Test
+    public void testExamples() {
+        CacheManager cacheManager = new CacheManager(getClass().getResource("/ehcache-search.xml"));
+        Cache cache = cacheManager.getCache("cache1");
+        examples(cache);
+    }
+
+
     void examples(Cache cache) throws SearchException {
 
-        Attribute<Integer> attr1 = cache.getSearchAttribute("attr1");
-        Attribute<String> attr2 = cache.getSearchAttribute("attr2");
+        Attribute<Integer> attr1 = cache.getSearchAttribute("age");
+        Attribute<String> attr2 = cache.getSearchAttribute("gender");
+        Attribute<String> attr3 = cache.getSearchAttribute("name");
 
         Query query;
         Results results;
@@ -41,6 +52,7 @@ public class QueryExamples {
         }
         results.discard(); // not required but will speed resource freeing
 
+        
         // access results in a "paged" manner
         query = cache.createQuery().includeKeys().end();
         results = query.execute();
@@ -76,8 +88,8 @@ public class QueryExamples {
         // select max(attr1) -- named indexed attribute "attr1"
         Query sumQuery = cache.createQuery().includeAggregator(sum, attr1).end();
         results = sumQuery.execute();
-        Integer max = (Integer) results.aggregateResult();
-        System.err.println(max);
+        Long sumResult = (Long) results.aggregateResult();
+        LOG.info("Sum is: " + sumResult);
 
         // select keys with criteria attr1 == 12 AND attr2 = "timmy"
         query = cache.createQuery().includeKeys().add(and(attr1.eq(12), attr2.eq("timmy"))).end();

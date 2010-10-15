@@ -48,16 +48,14 @@ public interface Results {
 
     /**
      * Retrieve a subset of the cache results. This method is useful when
-     * showing "paged" results in a UI or simply to keep memory overhead fixed
+     * showing "paged" results in a user interface or simply to keep memory overhead fixed
      *
      * @param start  starting index to access
      * @param length length of the chunk to access
-     * @return a List of the given size. This list might not match the requested
-     *         size if no more results are available
+     * @return a List of the given size. This list will be smaller than the requested
+     *         size if no more results are available. If there are no more results an empty
+     *         list will be returned.
      * @throws SearchException
-     * @throws IndexOutOfBoundsException if the start index exceeds the
-     *                                   result size or is negative, or if the startIndex + length exceeds
-     *                                   the total size
      */
     List<Result> range(int start, int length) throws SearchException, IndexOutOfBoundsException;
 

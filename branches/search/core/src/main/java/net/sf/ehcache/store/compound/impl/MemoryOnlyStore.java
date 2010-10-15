@@ -50,7 +50,7 @@ import net.sf.ehcache.store.compound.factories.CapacityLimitedInMemoryFactory;
 
 /**
  * Implements a memory only store.
- * 
+ *
  * @author Chris Dennis
  */
 public final class MemoryOnlyStore extends CompoundStore implements CacheConfigurationListener {
@@ -69,11 +69,9 @@ public final class MemoryOnlyStore extends CompoundStore implements CacheConfigu
 
     /**
      * Constructs an in-memory store for the given cache, using the given disk path.
-     * 
-     * @param cache
-     *            cache that fronts this store
-     * @param diskStorePath
-     *            disk path to store data in
+     *
+     * @param cache         cache that fronts this store
+     * @param diskStorePath disk path to store data in
      * @return a fully initialized store
      */
     public static MemoryOnlyStore create(Cache cache, String diskStorePath) {
@@ -139,7 +137,7 @@ public final class MemoryOnlyStore extends CompoundStore implements CacheConfigu
 
     /**
      * {@inheritDoc}
-     * <p>
+     * <p/>
      * This store is not persistent, so this simply clears the in-memory store if clear-on-flush is set for this cache.
      */
     public void flush() throws IOException {
@@ -213,7 +211,7 @@ public final class MemoryOnlyStore extends CompoundStore implements CacheConfigu
 
     /**
      * {@inheritDoc}
-     * <p>
+     * <p/>
      * A NO-OP
      */
     public void deregistered(CacheConfiguration config) {
@@ -222,7 +220,7 @@ public final class MemoryOnlyStore extends CompoundStore implements CacheConfigu
 
     /**
      * {@inheritDoc}
-     * <p>
+     * <p/>
      * A NO-OP
      */
     public void diskCapacityChanged(int oldCapacity, int newCapacity) {
@@ -231,7 +229,7 @@ public final class MemoryOnlyStore extends CompoundStore implements CacheConfigu
 
     /**
      * {@inheritDoc}
-     * <p>
+     * <p/>
      * A NO-OP
      */
     public void loggingChanged(boolean oldValue, boolean newValue) {
@@ -247,7 +245,7 @@ public final class MemoryOnlyStore extends CompoundStore implements CacheConfigu
 
     /**
      * {@inheritDoc}
-     * <p>
+     * <p/>
      * A NO-OP
      */
     public void registered(CacheConfiguration config) {
@@ -256,7 +254,7 @@ public final class MemoryOnlyStore extends CompoundStore implements CacheConfigu
 
     /**
      * {@inheritDoc}
-     * <p>
+     * <p/>
      * A NO-OP
      */
     public void timeToIdleChanged(long oldTimeToIdle, long newTimeToIdle) {
@@ -265,7 +263,7 @@ public final class MemoryOnlyStore extends CompoundStore implements CacheConfigu
 
     /**
      * {@inheritDoc}
-     * <p>
+     * <p/>
      * A NO-OP
      */
     public void timeToLiveChanged(long oldTimeToLive, long newTimeToLive) {
@@ -477,6 +475,9 @@ public final class MemoryOnlyStore extends CompoundStore implements CacheConfigu
             return sortAttributes[pos];
         }
 
+        /**
+         * @inheritdoc
+         */
         public Object getKey() {
             if (query.requestsKeys()) {
                 return key;
@@ -485,6 +486,9 @@ public final class MemoryOnlyStore extends CompoundStore implements CacheConfigu
             throw new SearchException("keys not included in query");
         }
 
+        /**
+         * @inheritdoc
+         */
         public Object getValue() {
             Element e = query.getCache().get(getKey());
             if (e == null) {
@@ -493,6 +497,9 @@ public final class MemoryOnlyStore extends CompoundStore implements CacheConfigu
             return e.getObjectValue();
         }
 
+        /**
+         * @inheritdoc
+         */
         public <T> T getAttribute(Attribute<T> attribute) {
             String name = attribute.getAttributeName();
             Object value = attributes.get(name);
@@ -533,18 +540,39 @@ public final class MemoryOnlyStore extends CompoundStore implements CacheConfigu
             }
         }
 
+        /**
+         * @inheritdoc
+         */
         public void discard() {
             // no-op
         }
 
+        /**
+         * @inheritdoc
+         */
         public List<Result> all() throws SearchException {
             return results;
         }
 
-        public List<Result> range(int start, int length) throws SearchException, IndexOutOfBoundsException {
-            return results.subList(start, start + length);
+        /**
+         * todo Don't throw an IndexOutOfBoundsException. Handle other cases where this can happen
+         * @inheritdoc
+         */
+        public List<Result> range(int start, int length) throws SearchException {
+
+            int size = results.size();
+            int end = start + length;
+
+            if (start > size - 1) {
+                return new ArrayList<Result>();
+            }
+
+            return results.subList(start, end);
         }
 
+        /**
+         * @inheritdoc
+         */
         public Object aggregateResult() throws SearchException {
             if (isAggregate()) {
                 return aggregateResult;
@@ -553,14 +581,23 @@ public final class MemoryOnlyStore extends CompoundStore implements CacheConfigu
             throw new SearchException("No aggregate present");
         }
 
+        /**
+         * @inheritdoc
+         */
         public int size() {
             return results.size();
         }
 
+        /**
+         * @inheritdoc
+         */
         public boolean hasKeys() {
             return hasKeys;
         }
 
+        /**
+         * @inheritdoc
+         */
         public boolean isAggregate() {
             return aggregateResult != null;
         }
@@ -578,17 +615,17 @@ public final class MemoryOnlyStore extends CompoundStore implements CacheConfigu
             int pos = 0;
             for (Ordering ordering : orderings) {
                 switch (ordering.getDirection()) {
-                case ASCENDING: {
-                    comparators.add(new AscendingComparator(pos));
-                    break;
-                }
-                case DESCENDING: {
-                    comparators.add(new DescendingComparator(pos));
-                    break;
-                }
-                default: {
-                    throw new AssertionError(ordering.getDirection());
-                }
+                    case ASCENDING: {
+                        comparators.add(new AscendingComparator(pos));
+                        break;
+                    }
+                    case DESCENDING: {
+                        comparators.add(new DescendingComparator(pos));
+                        break;
+                    }
+                    default: {
+                        throw new AssertionError(ordering.getDirection());
+                    }
                 }
 
                 pos++;
