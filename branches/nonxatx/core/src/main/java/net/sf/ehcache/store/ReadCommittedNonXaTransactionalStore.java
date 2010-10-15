@@ -78,10 +78,6 @@ public class ReadCommittedNonXaTransactionalStore extends AbstractNonXaTransacti
         }
     }
 
-    public Element get(Object key) {
-        return getQuiet(key);
-    }
-
     public Element getQuiet(Object key) {
         lock.readLock().lock();
         try {
@@ -180,6 +176,10 @@ public class ReadCommittedNonXaTransactionalStore extends AbstractNonXaTransacti
         }
     }
 
+    public Element get(Object key) {
+        return getQuiet(key);
+    }
+
     public boolean putWithWriter(Element element, CacheWriterManager writerManager) throws CacheException {
         throw new UnsupportedOperationException();
         //return underlyingStore.putWithWriter(element, writerManager);
@@ -191,23 +191,89 @@ public class ReadCommittedNonXaTransactionalStore extends AbstractNonXaTransacti
     }
 
     public Element putIfAbsent(Element element) throws NullPointerException {
-        throw new UnsupportedOperationException();
-        //return underlyingStore.putIfAbsent(element);
+        if (element == null || element.getObjectKey() == null) {
+            throw new NullPointerException("element and element key cannot be null");
+        }
+
+        lock.writeLock().lock();
+        try {
+            Element oldElement = getQuiet(element.getObjectKey());
+            if (oldElement == null) {
+                put(element);
+                return null;
+            } else {
+                return oldElement;
+            }
+        } finally {
+            lock.writeLock().unlock();
+        }
     }
 
     public Element removeElement(Element element) throws NullPointerException {
-        throw new UnsupportedOperationException();
-        //return underlyingStore.removeElement(element);
+        if (element == null || element.getObjectKey() == null) {
+            throw new NullPointerException("element and element key cannot be null");
+        }
+
+        lock.writeLock().lock();
+        try {
+            Element oldElement = getQuiet(element.getObjectKey());
+            if ((oldElement.getObjectValue() == null && element.getObjectValue() == null) ||
+                    (oldElement.getObjectValue().equals(element.getObjectValue()))) {
+                return remove(element.getObjectKey());
+            } else {
+                return null;
+            }
+        } finally {
+            lock.writeLock().unlock();
+        }
     }
 
     public boolean replace(Element old, Element element) throws NullPointerException, IllegalArgumentException {
-        throw new UnsupportedOperationException();
-        //return underlyingStore.replace(old, element);
+        if (old == null || old.getObjectKey() == null) {
+            throw new NullPointerException("old element and element key cannot be null");
+        }
+        if (element == null || element.getObjectKey() == null) {
+            throw new NullPointerException("element and element key cannot be null");
+        }
+        if (!old.getObjectKey().equals(element.getObjectKey())) {
+            throw new NullPointerException("old and new element keys are not equal");
+        }
+
+        lock.writeLock().lock();
+        try {
+            Element oldElement = getQuiet(element.getObjectKey());
+            if ((oldElement.getObjectValue() == null && old.getObjectValue() == null) ||
+                    (oldElement.getObjectValue().equals(old.getObjectValue()))) {
+                remove(old.getObjectKey());
+                put(element);
+                return true;
+            } else {
+                return false;
+            }
+        } finally {
+            lock.writeLock().unlock();
+        }
     }
 
     public Element replace(Element element) throws NullPointerException {
-        throw new UnsupportedOperationException();
-        //return underlyingStore.replace(element);
+        if (element == null || element.getObjectKey() == null) {
+            throw new NullPointerException("element and element key cannot be null");
+        }
+
+        lock.writeLock().lock();
+        try {
+            Element oldElement = getQuiet(element.getObjectKey());
+            if ((oldElement.getObjectValue() == null && element.getObjectValue() == null) ||
+                    (oldElement.getObjectValue().equals(element.getObjectValue()))) {
+                Element removed = remove(element.getObjectKey());
+                put(element);
+                return removed;
+            } else {
+                return null;
+            }
+        } finally {
+            lock.writeLock().unlock();
+        }
     }
 
     public int getSize() {
