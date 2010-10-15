@@ -16,6 +16,7 @@
 
 package net.sf.ehcache.search;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
@@ -138,6 +139,53 @@ public class BasicSearchTest extends TestCase {
             query1.maxResults(3);
             fail();
         } catch (SearchException se) {
+            // expected
+        }
+    }
+
+    public void testRange() {
+        CacheManager cacheManager = new CacheManager(getClass().getResource("/ehcache-search.xml"));
+        Cache cache = cacheManager.getCache("cache1");
+        SearchTestUtil.populateData(cache);
+
+        Query query = cache.createQuery();
+        query.includeKeys();
+        query.end();
+
+        Results results = query.execute();
+        assertEquals(4, results.all().size());
+
+        List<Integer> keys = new ArrayList<Integer>();
+        for (int i = 0; i < 4; i++) {
+            List<Result> range = results.range(i, 1);
+            assertEquals(1, range.size());
+            keys.add((Integer) range.get(0).getKey());
+        }
+        assertEquals(4, keys.size());
+
+        for (int i = 0; i < 4; i++) {
+            assertEquals(0, results.range(i, 0).size());
+        }
+
+        assertEquals(0, results.range(0, 0).size());
+        assertEquals(1, results.range(0, 1).size());
+        assertEquals(2, results.range(0, 2).size());
+        assertEquals(3, results.range(0, 3).size());
+        assertEquals(4, results.range(0, 4).size());
+        assertEquals(4, results.range(0, 5).size());
+        assertEquals(4, results.range(0, Integer.MAX_VALUE).size());
+
+        try {
+            results.range(-1, 1);
+            fail();
+        } catch (IllegalArgumentException iae) {
+            // expected
+        }
+
+        try {
+            results.range(0, -1);
+            fail();
+        } catch (IllegalArgumentException iae) {
             // expected
         }
     }
@@ -279,13 +327,13 @@ public class BasicSearchTest extends TestCase {
         assertEquals(1, results.size());
         for (Result result : results.all()) {
             switch ((Integer) result.getKey()) {
-            case 2:
-            case 4: {
-                break;
-            }
-            default: {
-                throw new AssertionError(result.getKey());
-            }
+                case 2:
+                case 4: {
+                    break;
+                }
+                default: {
+                    throw new AssertionError(result.getKey());
+                }
             }
         }
 
@@ -341,6 +389,9 @@ public class BasicSearchTest extends TestCase {
         query.end();
 
         Results results = query.execute();
+        assertFalse(results.hasKeys());
+        assertFalse(results.isAggregate());
+
         for (Result result : results.all()) {
             try {
                 result.getKey();
@@ -552,56 +603,53 @@ public class BasicSearchTest extends TestCase {
 
         verify(cache, query, 5);
     }
-    
+
     public void testTypeChecking() {
         CacheManager cm = new CacheManager(new Configuration().defaultCache(new CacheConfiguration()));
-        
-        CacheConfiguration config = new CacheConfiguration("test", 0);     
+
+        CacheConfiguration config = new CacheConfiguration("test", 0);
         config.setOverflowToDisk(false);
         config.diskPersistent(false);
         config.setEternal(true);
-        config.addSearchAttribute(new SearchAttribute().name("attr").expression("value.getAttr()"));        
+        config.addSearchAttribute(new SearchAttribute().name("attr").expression("value.getAttr()"));
         cm.addCache(new Cache(config));
-        
-       
-        
+
         class Value {
             private final Object attr;
 
             Value(Object attr) {
                 this.attr = attr;
             }
-            
+
             Object getAttr() {
                 return attr;
             }
         }
-        
+
         Cache cache = cm.getCache("test");
-        cache.put(new Element(1, new Value("foo")));  
-        
+        cache.put(new Element(1, new Value("foo")));
+
         Query query = cache.createQuery();
         query.includeKeys();
         query.add(cache.getSearchAttribute("attr").le(4));
         query.end();
-        
+
         try {
             query.execute();
             fail();
         } catch (SearchException se) {
             // expected since the criteria wants INT, but actual attribute value is STRING
         }
-        
+
         // with proper type search will execute
         cache.put(new Element(1, new Value(4)));
         assertEquals(1, query.execute().all().iterator().next().getKey());
     }
 
-
-
     private void verify(Cache cache, Query query, Integer... expectedKeys) {
         Results results = query.execute();
         assertEquals(results.size(), expectedKeys.length);
+        assertTrue(results.hasKeys());
 
         Set<Integer> keys = new HashSet<Integer>(Arrays.asList(expectedKeys));
 
@@ -625,8 +673,5 @@ public class BasicSearchTest extends TestCase {
             assertEquals(cache.get(expectedKey).getObjectValue(), result.getValue());
         }
     }
-
-
-
 
 }

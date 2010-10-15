@@ -555,20 +555,27 @@ public final class MemoryOnlyStore extends CompoundStore implements CacheConfigu
         }
 
         /**
-         * todo Don't throw an IndexOutOfBoundsException. Handle other cases where this can happen
-         * 
          * @inheritdoc
          */
         public List<Result> range(int start, int length) throws SearchException {
-            int size = results.size();
-            int end = start + length;
+            if (start < 0) {
+                throw new IllegalArgumentException("start: " + start);
+            }
 
-            if (start > size - 1) {
+            if (length < 0) {
+                throw new IllegalArgumentException("length: " + length);
+            }
+
+            int size = results.size();
+
+            if (start > size - 1 || length == 0) {
                 return Collections.EMPTY_LIST;
             }
 
-            if (end > size - 1) {
-                end = size - 1;
+            int end = start + length;
+
+            if (end > size) {
+                end = size;
             }
 
             return results.subList(start, end);
