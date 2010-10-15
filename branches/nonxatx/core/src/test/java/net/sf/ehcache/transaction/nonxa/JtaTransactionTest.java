@@ -21,6 +21,10 @@ public class JtaTransactionTest extends TestCase {
 
     @Override
     protected void setUp() throws Exception {
+        TransactionManagerServices.getConfiguration().setGracefulShutdownInterval(0);
+        TransactionManagerServices.getConfiguration().setJournal("null");
+        TransactionManagerServices.getConfiguration().setWarnAboutZeroResourceTransaction(false);
+        TransactionManagerServices.getConfiguration().setServerId(JtaTransactionTest.class.getName());
         transactionManager = TransactionManagerServices.getTransactionManager();
         cacheManager = new CacheManager(JtaTransactionTest.class.getResourceAsStream("/ehcache-jtanonxa.xml"));
 
@@ -38,6 +42,7 @@ public class JtaTransactionTest extends TestCase {
             transactionManager.rollback();
         }
         cacheManager.shutdown();
+        TransactionManagerServices.getTransactionManager().shutdown();
     }
 
     public void testTwoCaches() throws Exception {
@@ -182,7 +187,7 @@ public class JtaTransactionTest extends TestCase {
     }
 
     public void testTwoConcurrentUpdates() throws Exception {
-        final long WAIT_TIME = 1500;
+        final long WAIT_TIME = 500; // this must be shorter than the local ehcache TX timeout
         final long[] times = new long[2];
 
         transactionManager.begin(); //TX 0
