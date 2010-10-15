@@ -20,51 +20,17 @@ public class TransactionTest extends TestCase {
     protected void setUp() throws Exception {
         cacheManager = new CacheManager(TransactionTest.class.getResourceAsStream("/ehcache-nonxa.xml"));
         transactionController = cacheManager.getTransactionController();
+        transactionController.begin();
         cache1 = cacheManager.getEhcache("txCache1");
         cache1.removeAll();
         cache2 = cacheManager.getEhcache("txCache2");
         cache2.removeAll();
+        transactionController.commit();
     }
 
     @Override
     protected void tearDown() throws Exception {
         cacheManager.shutdown();
-    }
-
-    public void testGetKeys() throws Exception {
-        transactionController.begin();
-
-        cache1.put(new Element(1, "one"));
-        assertEquals(1, cache1.getKeys().size());
-
-        cache1.put(new Element(2, "two"));
-        assertEquals(2, cache1.getKeys().size());
-
-        cache1.remove(1);
-        assertEquals(1, cache1.getKeys().size());
-
-        transactionController.commit();
-
-        
-        transactionController.begin();
-
-        cache1.put(new Element(1, "one"));
-
-        Thread tx2 = new Thread() {
-            @Override
-            public void run() {
-                transactionController.begin();
-
-                assertEquals(1, cache1.getKeys().size());
-
-                transactionController.commit();
-            }
-        };
-        tx2.start();
-        tx2.join();
-
-
-        transactionController.commit();
     }
 
     public void testTwoCaches() throws Exception {
@@ -313,6 +279,100 @@ public class TransactionTest extends TestCase {
 
         // make sure the losing TX could NOT insert its unique element
         assertNull(cache1.get(losingTx[0]));
+
+        transactionController.commit();
+    }
+
+    public void testGetKeys() throws Exception {
+        transactionController.begin();
+
+        cache1.put(new Element(1, "one"));
+        assertEquals(1, cache1.getKeys().size());
+
+        cache1.put(new Element(2, "two"));
+        assertEquals(2, cache1.getKeys().size());
+
+        cache1.remove(1);
+        assertEquals(1, cache1.getKeys().size());
+
+        transactionController.commit();
+
+
+        transactionController.begin();
+
+        cache1.put(new Element(1, "one"));
+
+        Thread tx2 = new Thread() {
+            @Override
+            public void run() {
+                transactionController.begin();
+
+                assertEquals(1, cache1.getKeys().size());
+
+                transactionController.commit();
+            }
+        };
+        tx2.start();
+        tx2.join();
+
+        transactionController.commit();
+    }
+
+    public void testRemoveAll() throws Exception {
+        transactionController.begin();
+
+        cache1.put(new Element(1, "one"));
+        cache1.put(new Element(2, "two"));
+        assertEquals(2, cache1.getSize());
+
+        transactionController.commit();
+
+
+        transactionController.begin();
+
+        assertEquals(2, cache1.getSize());
+        cache1.removeAll();
+        assertEquals(0, cache1.getSize());
+
+        Thread tx2 = new Thread() {
+            @Override
+            public void run() {
+                transactionController.begin();
+
+                assertEquals(2, cache1.getSize());
+
+                transactionController.commit();
+            }
+        };
+        tx2.start();
+        tx2.join();
+
+        transactionController.commit();
+    }
+
+    public void testGetSize() throws Exception {
+        transactionController.begin();
+        assertEquals(0, cache1.getSize());
+        cache1.put(new Element(1, "one"));
+        cache1.put(new Element(2, "two"));
+        assertEquals(2, cache1.getSize());
+
+        Thread tx2 = new Thread() {
+            @Override
+            public void run() {
+                transactionController.begin();
+
+                assertEquals(0, cache1.getSize());
+                cache1.put(new Element(3, "three"));
+                assertEquals(1, cache1.getSize());
+
+                transactionController.commit();
+            }
+        };
+        tx2.start();
+        tx2.join();
+
+        assertEquals(3, cache1.getSize());
 
         transactionController.commit();
     }

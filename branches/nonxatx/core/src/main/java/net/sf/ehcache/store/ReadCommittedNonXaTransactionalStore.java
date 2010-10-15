@@ -21,12 +21,16 @@ import net.sf.ehcache.Element;
 import net.sf.ehcache.Status;
 import net.sf.ehcache.TransactionController;
 import net.sf.ehcache.transaction.nonxa.SoftLock;
+import net.sf.ehcache.util.LargeSet;
+import net.sf.ehcache.util.SetWrapperList;
 import net.sf.ehcache.writer.CacheWriterManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 /**
  *
@@ -100,11 +104,21 @@ public class ReadCommittedNonXaTransactionalStore extends AbstractNonXaTransacti
 
     public List getKeys() {
         @SuppressWarnings("unchecked")
-        List<Object> underlyingKeys = underlyingStore.getKeys();
+        Set< Object > keys = new LargeSet() {
 
-        underlyingKeys.addAll(getCurrentTransactionContext().getPutKeys(cacheName));
-        underlyingKeys.removeAll(getCurrentTransactionContext().getRemovedKeys(cacheName));
-        return underlyingKeys;
+        @Override
+        public int sourceSize() {
+           return underlyingStore.getSize();
+        }
+
+        @Override
+        public Iterator< Object > sourceIterator() {
+          return underlyingStore.getKeys().iterator();
+        }
+        };
+        keys.addAll(getCurrentTransactionContext().getPutKeys(cacheName));
+        keys.removeAll(getCurrentTransactionContext().getRemovedKeys(cacheName));
+        return new SetWrapperList(keys);
     }
 
     public Element remove(Object key) {
@@ -148,7 +162,10 @@ public class ReadCommittedNonXaTransactionalStore extends AbstractNonXaTransacti
     }
 
     public void removeAll() throws CacheException {
-        underlyingStore.removeAll();
+        List keys = getKeys();
+        for (Object key : keys) {
+            remove(key);
+        }
     }
 
     public Element putIfAbsent(Element element) throws NullPointerException {
@@ -172,7 +189,10 @@ public class ReadCommittedNonXaTransactionalStore extends AbstractNonXaTransacti
     }
 
     public int getSize() {
-        return underlyingStore.getSize();
+        int sizeModifier = 0;
+        sizeModifier += getCurrentTransactionContext().getPutKeys(cacheName).size();
+        sizeModifier -= getCurrentTransactionContext().getRemovedKeys(cacheName).size();
+        return underlyingStore.getSize() + sizeModifier;
     }
 
     public int getInMemorySize() {
@@ -188,7 +208,10 @@ public class ReadCommittedNonXaTransactionalStore extends AbstractNonXaTransacti
     }
 
     public int getTerracottaClusteredSize() {
-        return underlyingStore.getTerracottaClusteredSize();
+        int sizeModifier = 0;
+        sizeModifier += getCurrentTransactionContext().getPutKeys(cacheName).size();
+        sizeModifier -= getCurrentTransactionContext().getRemovedKeys(cacheName).size();
+        return underlyingStore.getTerracottaClusteredSize() + sizeModifier;
     }
 
     public long getInMemorySizeInBytes() {
@@ -208,7 +231,10 @@ public class ReadCommittedNonXaTransactionalStore extends AbstractNonXaTransacti
     }
 
     public boolean containsKey(Object key) {
-        return underlyingStore.containsKey(key);
+        getCurrentTransactionContext().getPutKeys(cacheName);
+        return !getCurrentTransactionContext().getRemovedKeys(cacheName).contains(key) &&
+               getCurrentTransactionContext().getPutKeys(cacheName).contains(key) ||
+               underlyingStore.containsKey(key);
     }
 
     public boolean containsKeyOnDisk(Object key) {
