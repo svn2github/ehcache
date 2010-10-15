@@ -40,9 +40,9 @@ public class TransactionContext {
         if (softLocks == null) {
             softLocks = new ArrayList<SoftLock>();
             softLockMap.put(cacheName, softLocks);
+            storeMap.put(cacheName, store);
         }
         softLocks.add(softLock);
-        storeMap.put(cacheName, store); //TODO: move inside if?
     }
 
     public void unregisterSoftLock(String cacheName, AbstractNonXaTransactionalStore store, SoftLock softLock) {
