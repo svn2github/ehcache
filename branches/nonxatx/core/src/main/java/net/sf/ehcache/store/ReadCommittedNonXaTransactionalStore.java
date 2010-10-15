@@ -103,18 +103,18 @@ public class ReadCommittedNonXaTransactionalStore extends AbstractNonXaTransacti
     }
 
     public List getKeys() {
-        @SuppressWarnings("unchecked")
-        Set< Object > keys = new LargeSet() {
+        Set<Object> keys = new LargeSet<Object>() {
+            @Override
+            public int sourceSize() {
+                return underlyingStore.getSize();
+            }
 
-        @Override
-        public int sourceSize() {
-           return underlyingStore.getSize();
-        }
-
-        @Override
-        public Iterator< Object > sourceIterator() {
-          return underlyingStore.getKeys().iterator();
-        }
+            @Override
+            public Iterator<Object> sourceIterator() {
+                @SuppressWarnings("unchecked")
+                Iterator iterator = underlyingStore.getKeys().iterator();
+                return iterator;
+            }
         };
         keys.addAll(getCurrentTransactionContext().getPutKeys(cacheName));
         keys.removeAll(getCurrentTransactionContext().getRemovedKeys(cacheName));
@@ -138,10 +138,18 @@ public class ReadCommittedNonXaTransactionalStore extends AbstractNonXaTransacti
             } else {
                 // softLock cannot be null here
                 if (softLock.getTransactionID().equals(getCurrentTransactionContext().getTransactionId())) {
-                    LOG.debug("remove: key [{}] locked in current transaction, removing it", key);
-                    Element currentElement = softLock.getNewElement();
-                    softLock.setNewElement(null);
-                    return currentElement;
+                    if (underlyingStore.getQuiet(key) == null) {
+                        LOG.debug("remove: key [{}] locked and put in current transaction, removing and unlocking it", key);
+                        softLockMap.remove(softLock);
+                        getCurrentTransactionContext().unregisterSoftLock(cacheName, this, softLock);
+                        softLock.unlock();
+                        return softLock.getNewElement();
+                    } else {
+                        LOG.debug("remove: key [{}] locked in another transaction, removing it", key);
+                        Element currentElement = softLock.getNewElement();
+                        softLock.setNewElement(null);
+                        return currentElement;
+                    }
                 } else {
                     LOG.debug("remove: element [{}] locked in transaction [{}], waiting until lock gets removed", key, softLock.getTransactionID());
                     tryLockSoftLock(softLock);

@@ -42,7 +42,12 @@ public class TransactionContext {
             softLockMap.put(cacheName, softLocks);
         }
         softLocks.add(softLock);
-        storeMap.put(cacheName, store);
+        storeMap.put(cacheName, store); //TODO: move inside if?
+    }
+
+    public void unregisterSoftLock(String cacheName, AbstractNonXaTransactionalStore store, SoftLock softLock) {
+        List<SoftLock> softLocks = softLockMap.get(cacheName);
+        softLocks.remove(softLock);
     }
 
     public List<Object> getPutKeys(String cacheName) {
