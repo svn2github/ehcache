@@ -1651,6 +1651,11 @@ public class CacheConfiguration implements Cloneable {
         return transactionalMode.equals(TransactionalMode.NON_XA);
     }
 
+    public boolean isJtaNonXaTransactional() {
+        validateTransactionalSettings();
+        return transactionalMode.equals(TransactionalMode.JTA_NON_XA);
+    }
+
     /**
      * Represents whether the Cache is transactional or not.
      *
@@ -1669,7 +1674,12 @@ public class CacheConfiguration implements Cloneable {
         NON_XA(true),
 
         /**
-         * XA Transactions
+         * Non-XA Transactions bound to JTA transactions
+         */
+        JTA_NON_XA(true),
+
+        /**
+         * True XA Transactions
          */
         XA(true);
 

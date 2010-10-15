@@ -84,6 +84,7 @@ import net.sf.ehcache.store.compound.impl.DiskPersistentStore;
 import net.sf.ehcache.store.compound.impl.MemoryOnlyStore;
 import net.sf.ehcache.store.compound.impl.OverflowToDiskStore;
 import net.sf.ehcache.transaction.manager.TransactionManagerLookup;
+import net.sf.ehcache.transaction.nonxa.JtaNonXaTransactionalStore;
 import net.sf.ehcache.transaction.xa.EhcacheXAResourceImpl;
 import net.sf.ehcache.transaction.xa.EhcacheXAStore;
 import net.sf.ehcache.util.ClassLoaderUtil;
@@ -1044,6 +1045,10 @@ public class Cache implements Ehcache, StoreListener {
                 transactionManagerLookup.register(xaResource);
 
                 this.compoundStore = new XATransactionalStore(this, ehcacheXAStore, transactionManagerLookup, txnManager);
+            } else if (configuration.isJtaNonXaTransactional()) {
+                configuration.copyOnRead(true).copyOnWrite(true);
+                ReadCommittedNonXaTransactionalStore nonXaStore = new ReadCommittedNonXaTransactionalStore(getCacheManager().getTransactionController(), configuration.getName(), store);
+                this.compoundStore = new JtaNonXaTransactionalStore(nonXaStore, transactionManagerLookup, cacheManager.getTransactionController());
             } else if (configuration.isNonXaTransactional()) {
                 configuration.copyOnRead(true).copyOnWrite(true);
                 this.compoundStore = new ReadCommittedNonXaTransactionalStore(getCacheManager().getTransactionController(), configuration.getName(), store);
