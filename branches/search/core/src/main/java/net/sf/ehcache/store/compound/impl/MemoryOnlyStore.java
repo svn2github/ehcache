@@ -567,6 +567,10 @@ public final class MemoryOnlyStore extends CompoundStore implements CacheConfigu
                 return new ArrayList<Result>();
             }
 
+            if (end > size - 1) {
+                end = size - 1;
+            }
+
             return results.subList(start, end);
         }
 

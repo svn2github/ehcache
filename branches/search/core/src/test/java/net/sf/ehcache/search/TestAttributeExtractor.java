@@ -17,7 +17,7 @@
 package net.sf.ehcache.search;
 
 import net.sf.ehcache.Element;
-import net.sf.ehcache.search.BasicSearchTest.Person;
+import net.sf.ehcache.search.Person;
 import net.sf.ehcache.search.attribute.AttributeExtractor;
 
 public class TestAttributeExtractor implements AttributeExtractor {

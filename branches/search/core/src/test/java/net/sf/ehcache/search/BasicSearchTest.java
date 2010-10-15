@@ -37,6 +37,8 @@ import net.sf.ehcache.search.aggregator.Min;
 import net.sf.ehcache.search.aggregator.Sum;
 import net.sf.ehcache.search.expression.Or;
 
+import static net.sf.ehcache.search.Person.Gender;
+
 public class BasicSearchTest extends TestCase {
 
     public void testQueryBuilder() {
@@ -153,7 +155,7 @@ public class BasicSearchTest extends TestCase {
     public void testCustomAggregator() {
         CacheManager cacheManager = new CacheManager(getClass().getResource("/ehcache-search.xml"));
         Cache cache = cacheManager.getCache("cache1");
-        populateData(cache);
+        SearchTestUtil.populateData(cache);
 
         Attribute<Integer> age = cache.getSearchAttribute("age");
 
@@ -167,11 +169,11 @@ public class BasicSearchTest extends TestCase {
                 } else {
                     doubledSum += (2 * (Integer) input);
                 }
-            };
+            }
 
             public Integer aggregateResult() {
                 return doubledSum;
-            };
+            }
 
         }, age);
         query.end();
@@ -185,7 +187,7 @@ public class BasicSearchTest extends TestCase {
     public void testBuiltinFunctions() {
         CacheManager cacheManager = new CacheManager(getClass().getResource("/ehcache-search.xml"));
         Cache cache = cacheManager.getCache("cache1");
-        populateData(cache);
+        SearchTestUtil.populateData(cache);
 
         Attribute<Integer> age = cache.getSearchAttribute("age");
 
@@ -262,10 +264,10 @@ public class BasicSearchTest extends TestCase {
     public void testMaxResults() {
         CacheManager cacheManager = new CacheManager(getClass().getResource("/ehcache-search.xml"));
         Cache cache = cacheManager.getCache("cache1");
-        populateData(cache);
+        SearchTestUtil.populateData(cache);
 
         Attribute<Integer> age = cache.getSearchAttribute("age");
-        Attribute<Gender> gender = cache.getSearchAttribute("gender");
+        Attribute<Person.Gender> gender = cache.getSearchAttribute("gender");
 
         Query query = cache.createQuery();
         query.includeKeys();
@@ -327,10 +329,10 @@ public class BasicSearchTest extends TestCase {
     public void testAttributeQuery() {
         CacheManager cacheManager = new CacheManager(getClass().getResource("/ehcache-search.xml"));
         Cache cache = cacheManager.getCache("cache1");
-        populateData(cache);
+        SearchTestUtil.populateData(cache);
 
         Attribute<Integer> age = cache.getSearchAttribute("age");
-        Attribute<Gender> gender = cache.getSearchAttribute("gender");
+        Attribute<Person.Gender> gender = cache.getSearchAttribute("gender");
 
         Query query = cache.createQuery();
         // not including keys
@@ -381,7 +383,7 @@ public class BasicSearchTest extends TestCase {
     }
 
     private void basicQueries(Cache cache) {
-        populateData(cache);
+        SearchTestUtil.populateData(cache);
 
         Query query;
         Attribute<Integer> age = cache.getSearchAttribute("age");
@@ -444,7 +446,7 @@ public class BasicSearchTest extends TestCase {
     public void testOrdering() {
         CacheManager cacheManager = new CacheManager(getClass().getResource("/ehcache-search.xml"));
         Cache cache = cacheManager.getCache("cache1");
-        populateData(cache);
+        SearchTestUtil.populateData(cache);
 
         Attribute<Integer> age = cache.getSearchAttribute("age");
         Attribute<String> name = cache.getSearchAttribute("name");
@@ -474,7 +476,7 @@ public class BasicSearchTest extends TestCase {
     public void testLike() {
         CacheManager cacheManager = new CacheManager(getClass().getResource("/ehcache-search.xml"));
         Cache cache = cacheManager.getCache("cache1");
-        populateData(cache);
+        SearchTestUtil.populateData(cache);
 
         Attribute<String> name = cache.getSearchAttribute("name");
 
@@ -595,13 +597,7 @@ public class BasicSearchTest extends TestCase {
         assertEquals(1, query.execute().all().iterator().next().getKey());
     }
 
-    private void populateData(Cache cache) {
-        cache.removeAll();
-        cache.put(new Element(1, new Person("Tim Eck", 35, Gender.MALE)));
-        cache.put(new Element(2, new Person("Loretta Johnson", 23, Gender.FEMALE)));
-        cache.put(new Element(3, new Person("Ari Zilka", 35, Gender.MALE)));
-        cache.put(new Element(4, new Person("Nabib El-Rahman", 30, Gender.MALE)));
-    }
+
 
     private void verify(Cache cache, Query query, Integer... expectedKeys) {
         Results results = query.execute();
@@ -630,38 +626,7 @@ public class BasicSearchTest extends TestCase {
         }
     }
 
-    enum Gender {
-        MALE, FEMALE;
-    }
 
-    public static class Person {
 
-        private final String name;
-        private final int age;
-        private final Gender gender;
-
-        public Person(String name, int age, Gender gender) {
-            this.name = name;
-            this.age = age;
-            this.gender = gender;
-        }
-
-        public String getName() {
-            return name;
-        }
-
-        public int getAge() {
-            return age;
-        }
-
-        public Gender getGender() {
-            return gender;
-        }
-
-        @Override
-        public String toString() {
-            return getClass().getSimpleName() + "(name:" + name + ", age:" + age + ", sex:" + gender.name().toLowerCase() + ")";
-        }
-    }
 
 }
