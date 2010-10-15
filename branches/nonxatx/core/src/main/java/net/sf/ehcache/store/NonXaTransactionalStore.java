@@ -20,6 +20,7 @@ import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.Status;
 import net.sf.ehcache.TransactionController;
+import net.sf.ehcache.store.chm.ConcurrentHashMap;
 import net.sf.ehcache.transaction.nonxa.SoftLock;
 import net.sf.ehcache.transaction.nonxa.TransactionContext;
 import net.sf.ehcache.transaction.nonxa.TransactionException;
@@ -44,6 +45,7 @@ public class NonXaTransactionalStore extends AbstractStore {
     private final String cacheName;
     private final Store underlyingStore;
     private final Lock lock = new ReentrantLock();
+    private final ConcurrentMap<Object, SoftLock> softLockMap = new ConcurrentHashMap<Object, SoftLock>();
 
     public NonXaTransactionalStore(String cacheName, Store underlyingStore) {
         this.cacheName = cacheName;
@@ -61,17 +63,21 @@ public class NonXaTransactionalStore extends AbstractStore {
     public boolean put(Element element) throws CacheException {
         lock.lock();
         try {
-            ConcurrentMap<Object, SoftLock> softLocks = getCurrentTransactionContext().getOrCreateSoftLocksMap(cacheName);
-
             Object key = element.getObjectKey();
-            SoftLock softLock = softLocks.get(key);
+            SoftLock softLock = softLockMap.get(key);
             if (softLock == null) {
                 softLock = new SoftLock(this, getCurrentTransactionContext(), element);
-                softLocks.put(key, softLock);
+                softLockMap.put(key, softLock);
+                getCurrentTransactionContext().add(cacheName, softLock);
                 return !underlyingStore.containsKey(key);
             } else {
-                softLock.setNewElement(element);
-                return false;
+                if (softLock.getTransactionID().equals(getCurrentTransactionContext().getTransactionId())) {
+                    softLock.setNewElement(element);
+                    return false;
+                } else {
+                    //softLock.tryLock(getCurrentTransactionContext().getTransactionTimeout());
+                    throw new TransactionException("element " + element + " locked in different TX: " + softLock.getTransactionID());
+                }
             }
         } finally {
             lock.unlock();
@@ -89,9 +95,7 @@ public class NonXaTransactionalStore extends AbstractStore {
     public Element getQuiet(Object key) {
         lock.lock();
         try {
-            ConcurrentMap<Object, SoftLock> softLocks = getCurrentTransactionContext().getOrCreateSoftLocksMap(cacheName);
-
-            SoftLock softLock = softLocks.get(key);
+            SoftLock softLock = softLockMap.get(key);
             if (softLock == null) {
                 return underlyingStore.getQuiet(key);
             }

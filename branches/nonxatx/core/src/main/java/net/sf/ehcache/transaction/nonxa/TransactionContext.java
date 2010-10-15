@@ -3,8 +3,9 @@ package net.sf.ehcache.transaction.nonxa;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -18,7 +19,7 @@ public class TransactionContext {
     private boolean rollbackOnly;
     private final int transactionTimeout;
     private final TransactionID transactionId;
-    private final ConcurrentMap<String, ConcurrentMap<Object, SoftLock>> softLocksMap = new ConcurrentHashMap<String, ConcurrentMap<Object, SoftLock>>();
+    private final ConcurrentMap<String, List<SoftLock>> softLockMap = new ConcurrentHashMap<String, List<SoftLock>>();
 
     public TransactionContext(int transactionTimeout) {
         this.transactionTimeout = transactionTimeout;
@@ -33,16 +34,14 @@ public class TransactionContext {
         this.rollbackOnly = rollbackOnly;
     }
 
-    public ConcurrentMap<Object, SoftLock> getOrCreateSoftLocksMap(String cacheName) {
-        ConcurrentMap<Object, SoftLock> map = softLocksMap.get(cacheName);
-        if (map == null) {
-            map = new ConcurrentHashMap<Object, SoftLock>();
-            softLocksMap.put(cacheName, map);
+    public void add(String cacheName, SoftLock softLock) {
+        List<SoftLock> softLocks = softLockMap.get(cacheName);
+        if (softLocks == null) {
+            softLocks = new ArrayList<SoftLock>();
+            softLockMap.put(cacheName, softLocks);
         }
-        return map;
+        softLocks.add(softLock);
     }
-
-
 
     public void commit() {
         if (rollbackOnly) {
@@ -50,18 +49,18 @@ public class TransactionContext {
             throw new TransactionException("transaction was marked as rollback only, rolled back on commit");
         }
 
-        for (Map.Entry<String, ConcurrentMap<Object, SoftLock>> stringMapEntry : softLocksMap.entrySet()) {
-            Set<Map.Entry<Object, SoftLock>> entries = stringMapEntry.getValue().entrySet();
-            for (Map.Entry<Object, SoftLock> entry : entries) {
-                LOG.debug("committing {}", entry.getValue());
-                entry.getValue().commitNewElement();
+        for (Map.Entry<String, List<SoftLock>> stringListEntry : softLockMap.entrySet()) {
+            List<SoftLock> softLocks = stringListEntry.getValue();
+            for (SoftLock softLock : softLocks) {
+                LOG.debug("committing {}", softLock);
+                softLock.commitNewElement();
             }
         }
-        softLocksMap.clear();
+        softLockMap.clear();
     }
 
     public void rollback() {
-        softLocksMap.clear();
+        softLockMap.clear();
     }
 
     public TransactionID getTransactionId() {
