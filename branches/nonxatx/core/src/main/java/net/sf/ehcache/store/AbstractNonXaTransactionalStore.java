@@ -9,8 +9,8 @@ import net.sf.ehcache.transaction.nonxa.TransactionContext;
 import net.sf.ehcache.transaction.nonxa.TransactionException;
 
 import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
  * @author Ludovic Orban
@@ -20,7 +20,7 @@ public abstract class AbstractNonXaTransactionalStore extends AbstractStore {
     protected final TransactionController transactionController;
     protected final String cacheName;
     protected final Store underlyingStore;
-    protected final Lock lock = new ReentrantLock();
+    protected final ReadWriteLock lock = new ReentrantReadWriteLock();
     protected final ConcurrentMap<Object, SoftLock> softLockMap = new ConcurrentHashMap<Object, SoftLock>();
 
     protected AbstractNonXaTransactionalStore(TransactionController transactionController, String cacheName, Store underlyingStore) {
@@ -46,20 +46,20 @@ public abstract class AbstractNonXaTransactionalStore extends AbstractStore {
     }
 
     public void release(SoftLock softLock) {
-        lock.lock();
+        lock.writeLock().lock();
         try {
             softLockMap.remove(softLock.getKey());
         } finally {
-            lock.unlock();
+            lock.writeLock().unlock();
         }
     }
 
     protected void tryLockSoftLock(SoftLock softLock) throws TransactionException {
-        lock.unlock();
+        lock.writeLock().unlock();
         while (true) {
             try {
                 boolean locked = softLock.tryLock(getCurrentTransactionContext().getTransactionTimeout());
-                lock.lock();
+                lock.writeLock().lock();
                 if (!locked) {
                     throw new TransactionException("deadlock detected in cache [" + cacheName +
                             "] during transaction [" + getCurrentTransactionContext().getTransactionId() +

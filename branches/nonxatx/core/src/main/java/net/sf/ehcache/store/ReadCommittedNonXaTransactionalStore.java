@@ -45,8 +45,10 @@ public class ReadCommittedNonXaTransactionalStore extends AbstractNonXaTransacti
         super(transactionController, cacheName, underlyingStore);
     }
 
+    /* transactional methods */
+
     public boolean put(Element element) throws CacheException {
-        lock.lock();
+        lock.writeLock().lock();
         try {
             Object key = element.getObjectKey();
             SoftLock softLock = softLockMap.get(key);
@@ -72,12 +74,8 @@ public class ReadCommittedNonXaTransactionalStore extends AbstractNonXaTransacti
                 }
             }
         } finally {
-            lock.unlock();
+            lock.writeLock().unlock();
         }
-    }
-
-    public boolean putWithWriter(Element element, CacheWriterManager writerManager) throws CacheException {
-        return underlyingStore.putWithWriter(element, writerManager);
     }
 
     public Element get(Object key) {
@@ -85,7 +83,7 @@ public class ReadCommittedNonXaTransactionalStore extends AbstractNonXaTransacti
     }
 
     public Element getQuiet(Object key) {
-        lock.lock();
+        lock.readLock().lock();
         try {
             SoftLock softLock = softLockMap.get(key);
             if (softLock == null) {
@@ -98,31 +96,36 @@ public class ReadCommittedNonXaTransactionalStore extends AbstractNonXaTransacti
                 return underlyingStore.getQuiet(key);
             }
         } finally {
-            lock.unlock();
+            lock.readLock().unlock();
         }
     }
 
     public List getKeys() {
-        Set<Object> keys = new LargeSet<Object>() {
-            @Override
-            public int sourceSize() {
-                return underlyingStore.getSize();
-            }
+        lock.readLock().lock();
+        try {
+            Set<Object> keys = new LargeSet<Object>() {
+                @Override
+                public int sourceSize() {
+                    return underlyingStore.getSize();
+                }
 
-            @Override
-            public Iterator<Object> sourceIterator() {
-                @SuppressWarnings("unchecked")
-                Iterator iterator = underlyingStore.getKeys().iterator();
-                return iterator;
-            }
-        };
-        keys.addAll(getCurrentTransactionContext().getPutKeys(cacheName));
-        keys.removeAll(getCurrentTransactionContext().getRemovedKeys(cacheName));
-        return new SetWrapperList(keys);
+                @Override
+                public Iterator<Object> sourceIterator() {
+                    @SuppressWarnings("unchecked")
+                    Iterator iterator = underlyingStore.getKeys().iterator();
+                    return iterator;
+                }
+            };
+            keys.addAll(getCurrentTransactionContext().getPutKeys(cacheName));
+            keys.removeAll(getCurrentTransactionContext().getRemovedKeys(cacheName));
+            return new SetWrapperList(keys);
+        } finally {
+            lock.readLock().unlock();
+        }
     }
 
     public Element remove(Object key) {
-        lock.lock();
+        lock.writeLock().lock();
         try {
             SoftLock softLock = softLockMap.get(key);
 
@@ -161,46 +164,92 @@ public class ReadCommittedNonXaTransactionalStore extends AbstractNonXaTransacti
                 }
             }
         } finally {
-            lock.unlock();
+            lock.writeLock().unlock();
         }
-    }
-
-    public Element removeWithWriter(Object key, CacheWriterManager writerManager) throws CacheException {
-        return underlyingStore.removeWithWriter(key, writerManager);
     }
 
     public void removeAll() throws CacheException {
-        List keys = getKeys();
-        for (Object key : keys) {
-            remove(key);
+        lock.writeLock().lock();
+        try {
+            List keys = getKeys();
+            for (Object key : keys) {
+                remove(key);
+            }
+        } finally {
+            lock.writeLock().unlock();
         }
     }
 
+    public boolean putWithWriter(Element element, CacheWriterManager writerManager) throws CacheException {
+        throw new UnsupportedOperationException();
+        //return underlyingStore.putWithWriter(element, writerManager);
+    }
+
+    public Element removeWithWriter(Object key, CacheWriterManager writerManager) throws CacheException {
+        throw new UnsupportedOperationException();
+        //return underlyingStore.removeWithWriter(key, writerManager);
+    }
+
     public Element putIfAbsent(Element element) throws NullPointerException {
-        return underlyingStore.putIfAbsent(element);
+        throw new UnsupportedOperationException();
+        //return underlyingStore.putIfAbsent(element);
     }
 
     public Element removeElement(Element element) throws NullPointerException {
-        return underlyingStore.removeElement(element);
+        throw new UnsupportedOperationException();
+        //return underlyingStore.removeElement(element);
     }
 
     public boolean replace(Element old, Element element) throws NullPointerException, IllegalArgumentException {
-        return underlyingStore.replace(old, element);
+        throw new UnsupportedOperationException();
+        //return underlyingStore.replace(old, element);
     }
 
     public Element replace(Element element) throws NullPointerException {
-        return underlyingStore.replace(element);
-    }
-
-    public void dispose() {
-        underlyingStore.dispose();
+        throw new UnsupportedOperationException();
+        //return underlyingStore.replace(element);
     }
 
     public int getSize() {
-        int sizeModifier = 0;
-        sizeModifier += getCurrentTransactionContext().getPutKeys(cacheName).size();
-        sizeModifier -= getCurrentTransactionContext().getRemovedKeys(cacheName).size();
-        return underlyingStore.getSize() + sizeModifier;
+        lock.readLock().lock();
+        try {
+            int sizeModifier = 0;
+            sizeModifier += getCurrentTransactionContext().getPutKeys(cacheName).size();
+            sizeModifier -= getCurrentTransactionContext().getRemovedKeys(cacheName).size();
+            return underlyingStore.getSize() + sizeModifier;
+        } finally {
+            lock.readLock().unlock();
+        }
+    }
+
+    public int getTerracottaClusteredSize() {
+        lock.readLock().lock();
+        try {
+            int sizeModifier = 0;
+            sizeModifier += getCurrentTransactionContext().getPutKeys(cacheName).size();
+            sizeModifier -= getCurrentTransactionContext().getRemovedKeys(cacheName).size();
+            return underlyingStore.getTerracottaClusteredSize() + sizeModifier;
+        } finally {
+            lock.readLock().unlock();
+        }
+    }
+
+    public boolean containsKey(Object key) {
+        lock.readLock().lock();
+        try {
+            getCurrentTransactionContext().getPutKeys(cacheName);
+            return !getCurrentTransactionContext().getRemovedKeys(cacheName).contains(key) &&
+                   getCurrentTransactionContext().getPutKeys(cacheName).contains(key) ||
+                   underlyingStore.containsKey(key);
+        } finally {
+            lock.readLock().unlock();
+        }
+    }
+
+    /* non-transactional methods */
+
+    public void dispose() {
+        underlyingStore.dispose();
     }
 
     public int getInMemorySize() {
@@ -213,13 +262,6 @@ public class ReadCommittedNonXaTransactionalStore extends AbstractNonXaTransacti
 
     public int getOnDiskSize() {
         return underlyingStore.getOnDiskSize();
-    }
-
-    public int getTerracottaClusteredSize() {
-        int sizeModifier = 0;
-        sizeModifier += getCurrentTransactionContext().getPutKeys(cacheName).size();
-        sizeModifier -= getCurrentTransactionContext().getRemovedKeys(cacheName).size();
-        return underlyingStore.getTerracottaClusteredSize() + sizeModifier;
     }
 
     public long getInMemorySizeInBytes() {
@@ -236,13 +278,6 @@ public class ReadCommittedNonXaTransactionalStore extends AbstractNonXaTransacti
 
     public Status getStatus() {
         return underlyingStore.getStatus();
-    }
-
-    public boolean containsKey(Object key) {
-        getCurrentTransactionContext().getPutKeys(cacheName);
-        return !getCurrentTransactionContext().getRemovedKeys(cacheName).contains(key) &&
-               getCurrentTransactionContext().getPutKeys(cacheName).contains(key) ||
-               underlyingStore.containsKey(key);
     }
 
     public boolean containsKeyOnDisk(Object key) {
