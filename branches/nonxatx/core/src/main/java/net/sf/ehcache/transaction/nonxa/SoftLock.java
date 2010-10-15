@@ -1,10 +1,11 @@
 package net.sf.ehcache.transaction.nonxa;
 
 import net.sf.ehcache.Element;
-import net.sf.ehcache.TransactionController;
 import net.sf.ehcache.store.NonXaTransactionalStore;
 
-import java.io.Serializable;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * @author lorban
@@ -13,11 +14,13 @@ public class SoftLock {
     private final NonXaTransactionalStore store;
     private final TransactionContext transactionContext;
     private Element newElement;
+    private final Lock lock = new ReentrantLock();
 
     public SoftLock(NonXaTransactionalStore store, TransactionContext transactionContext, Element newElement) {
         this.store = store;
         this.transactionContext = transactionContext;
         this.newElement = newElement;
+        lock.lock();
     }
 
     public Element getNewElement() {
@@ -32,15 +35,13 @@ public class SoftLock {
         return transactionContext.getTransactionId();
     }
 
-/*
-    public boolean tryLock(int timeoutInSeconds) throws InterruptedException {
-        return getTransactionContext().tryLock(this, timeoutInSeconds);
+    public boolean tryLock(int transactionTimeout) throws InterruptedException {
+        return lock.tryLock(transactionTimeout, TimeUnit.SECONDS);
     }
 
     public void unlock() {
-        getTransactionContext().unlock(this);
+        lock.unlock();
     }
-*/
 
     public void commitNewElement() {
         store.store(newElement.getKey(), newElement);
@@ -81,6 +82,6 @@ public class SoftLock {
 
     @Override
     public String toString() {
-        return "SoftLock [transactionContext: " + transactionContext + ", newElement: " + newElement + "]";
+        return "SoftLock [transactionID: " + transactionContext.getTransactionId() + ", newElement: " + newElement + "]";
     }
 }

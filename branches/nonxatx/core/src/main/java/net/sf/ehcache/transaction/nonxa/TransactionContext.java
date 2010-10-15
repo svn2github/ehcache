@@ -1,5 +1,6 @@
 package net.sf.ehcache.transaction.nonxa;
 
+import net.sf.ehcache.store.NonXaTransactionalStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,6 +21,7 @@ public class TransactionContext {
     private final int transactionTimeout;
     private final TransactionID transactionId;
     private final ConcurrentMap<String, List<SoftLock>> softLockMap = new ConcurrentHashMap<String, List<SoftLock>>();
+    private final ConcurrentMap<String, NonXaTransactionalStore> storeMap = new ConcurrentHashMap<String, NonXaTransactionalStore>();
 
     public TransactionContext(int transactionTimeout) {
         this.transactionTimeout = transactionTimeout;
@@ -34,13 +36,14 @@ public class TransactionContext {
         this.rollbackOnly = rollbackOnly;
     }
 
-    public void add(String cacheName, SoftLock softLock) {
+    public void add(String cacheName, NonXaTransactionalStore store, SoftLock softLock) {
         List<SoftLock> softLocks = softLockMap.get(cacheName);
         if (softLocks == null) {
             softLocks = new ArrayList<SoftLock>();
             softLockMap.put(cacheName, softLocks);
         }
         softLocks.add(softLock);
+        storeMap.put(cacheName, store);
     }
 
     public void commit() {
@@ -50,17 +53,33 @@ public class TransactionContext {
         }
 
         for (Map.Entry<String, List<SoftLock>> stringListEntry : softLockMap.entrySet()) {
+            String cacheName = stringListEntry.getKey();
+            NonXaTransactionalStore store = storeMap.get(cacheName);
             List<SoftLock> softLocks = stringListEntry.getValue();
             for (SoftLock softLock : softLocks) {
                 LOG.debug("committing {}", softLock);
                 softLock.commitNewElement();
+                softLock.unlock();
+                store.remove(softLock);
             }
         }
         softLockMap.clear();
+        storeMap.clear();
     }
 
     public void rollback() {
+        for (Map.Entry<String, List<SoftLock>> stringListEntry : softLockMap.entrySet()) {
+            String cacheName = stringListEntry.getKey();
+            NonXaTransactionalStore store = storeMap.get(cacheName);
+            List<SoftLock> softLocks = stringListEntry.getValue();
+            for (SoftLock softLock : softLocks) {
+                LOG.debug("rolling back {}", softLock);
+                softLock.unlock();
+                store.remove(softLock);
+            }
+        }
         softLockMap.clear();
+        storeMap.clear();
     }
 
     public TransactionID getTransactionId() {

@@ -60,6 +60,10 @@ public class NonXaTransactionalStore extends AbstractStore {
         }
     }
 
+    public void remove(SoftLock softLock) {
+        softLockMap.remove(softLock.getNewElement().getObjectKey());
+    }
+
     public boolean put(Element element) throws CacheException {
         lock.lock();
         try {
@@ -68,15 +72,32 @@ public class NonXaTransactionalStore extends AbstractStore {
             if (softLock == null) {
                 softLock = new SoftLock(this, getCurrentTransactionContext(), element);
                 softLockMap.put(key, softLock);
-                getCurrentTransactionContext().add(cacheName, softLock);
+                getCurrentTransactionContext().add(cacheName, this, softLock);
                 return !underlyingStore.containsKey(key);
             } else {
                 if (softLock.getTransactionID().equals(getCurrentTransactionContext().getTransactionId())) {
                     softLock.setNewElement(element);
                     return false;
                 } else {
-                    //softLock.tryLock(getCurrentTransactionContext().getTransactionTimeout());
-                    throw new TransactionException("element " + element + " locked in different TX: " + softLock.getTransactionID());
+                    lock.unlock();
+                    boolean locked;
+                    while (true) {
+                        try {
+                            locked = softLock.tryLock(getCurrentTransactionContext().getTransactionTimeout());
+                            lock.lock();
+                            if (!locked) {
+                                throw new TransactionException("deadlock detected on " + softLock);
+                            }
+                            break;
+                        } catch (InterruptedException e) {
+                            // ignore
+                        }
+                    }
+
+                    softLock = new SoftLock(this, getCurrentTransactionContext(), element);
+                    softLockMap.put(key, softLock);
+                    getCurrentTransactionContext().add(cacheName, this, softLock);
+                    return !underlyingStore.containsKey(key);
                 }
             }
         } finally {
