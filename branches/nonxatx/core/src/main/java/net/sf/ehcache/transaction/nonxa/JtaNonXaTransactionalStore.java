@@ -35,7 +35,7 @@ public class JtaNonXaTransactionalStore extends AbstractStore {
         }
     }
 
-    private void registerInJtaContext() {
+    private synchronized void registerInJtaContext() {
         if (transactionController.getCurrentTransactionContext() != null) {
             // already started local TX and registered in JTA
             return;
