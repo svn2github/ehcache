@@ -61,7 +61,9 @@ public abstract class AbstractNonXaTransactionalStore extends AbstractStore {
                 boolean locked = softLock.tryLock(getCurrentTransactionContext().getTransactionTimeout());
                 lock.lock();
                 if (!locked) {
-                    throw new TransactionException("deadlock detected on " + softLock);
+                    throw new TransactionException("deadlock detected in cache [" + cacheName +
+                            "] during transaction [" + getCurrentTransactionContext().getTransactionId() +
+                            "], conflict: " + softLock);
                 }
                 break;
             } catch (InterruptedException e) {
