@@ -97,20 +97,7 @@ public class NonXaTransactionalStore extends AbstractStore {
                     return false;
                 } else {
                     LOG.debug("put: key [{}] locked in transaction [{}], waiting until lock gets removed", element.getObjectKey(), softLock.getTransactionID());
-                    lock.unlock();
-                    while (true) {
-                        try {
-                            boolean locked = softLock.tryLock(getCurrentTransactionContext().getTransactionTimeout());
-                            lock.lock();
-                            if (!locked) {
-                                throw new TransactionException("deadlock detected on " + softLock);
-                            }
-                            break;
-                        } catch (InterruptedException e) {
-                            // ignore
-                        }
-                    }
-
+                    tryLockSoftLock(softLock);
                     LOG.debug("put: key [{}] unlocked, locking it again", element.getObjectKey());
                     softLock = new SoftLock(getCurrentTransactionContext().getTransactionId(), element.getObjectKey(), element);
                     softLockMap.put(key, softLock);
@@ -120,6 +107,22 @@ public class NonXaTransactionalStore extends AbstractStore {
             }
         } finally {
             lock.unlock();
+        }
+    }
+
+    private void tryLockSoftLock(SoftLock softLock) throws TransactionException {
+        lock.unlock();
+        while (true) {
+            try {
+                boolean locked = softLock.tryLock(getCurrentTransactionContext().getTransactionTimeout());
+                lock.lock();
+                if (!locked) {
+                    throw new TransactionException("deadlock detected on " + softLock);
+                }
+                break;
+            } catch (InterruptedException e) {
+                // ignore
+            }
         }
     }
 
@@ -176,20 +179,7 @@ public class NonXaTransactionalStore extends AbstractStore {
                     return currentElement;
                 } else {
                     LOG.debug("remove: element [{}] locked in transaction [{}], waiting until lock gets removed", key, softLock.getTransactionID());
-                    lock.unlock();
-                    while (true) {
-                        try {
-                            boolean locked = softLock.tryLock(getCurrentTransactionContext().getTransactionTimeout());
-                            lock.lock();
-                            if (!locked) {
-                                throw new TransactionException("deadlock detected on " + softLock);
-                            }
-                            break;
-                        } catch (InterruptedException e) {
-                            // ignore
-                        }
-                    }
-
+                    tryLockSoftLock(softLock);
                     LOG.debug("remove: key [{}] unlocked, locking it again", key);
                     softLock = new SoftLock(getCurrentTransactionContext().getTransactionId(), key, null);
                     softLockMap.put(key, softLock);
