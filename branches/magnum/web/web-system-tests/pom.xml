@@ -303,7 +303,7 @@
       <id>tomcat6x</id>
       <properties>
         <cargo.id>tomcat6x</cargo.id>
-        <cargo.zipUrl>http://www.apache.org/dist/tomcat/tomcat-6/v6.0.26/bin/apache-tomcat-6.0.26.zip</cargo.zipUrl>
+        <cargo.zipUrl>http://apache.osuosl.org//tomcat/tomcat-6/v6.0.29/bin/apache-tomcat-6.0.29.zip</cargo.zipUrl>
       </properties>
     </profile>
 
