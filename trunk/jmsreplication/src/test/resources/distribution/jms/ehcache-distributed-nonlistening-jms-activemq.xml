@@ -117,7 +117,7 @@
                                                 replicateUpdates=true,
                                                 replicateUpdatesViaCopy=true,
                                                 replicateRemovals=true,
-                                                asynchronousReplicationIntervalMillis=1000"
+                                                asynchronousReplicationIntervalMillis=500"
                                     propertySeparator=","/>
     </cache>
 

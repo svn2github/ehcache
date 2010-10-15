@@ -128,7 +128,8 @@ public class JMSCachePeer implements CachePeer, MessageListener {
 
         switch (event) {
             case JMSEventMessage.PUT:
-                put(cache, message.getElement());
+                Element element = message.getElement();
+                put(cache, element);
                 break;
             case JMSEventMessage.REMOVE:
                 remove(cache, message.getSerializableKey());
@@ -297,7 +298,7 @@ public class JMSCachePeer implements CachePeer, MessageListener {
                 }
                 cache = cacheManager.getEhcache(cacheName);
                 if (cache == null) {
-                    throw new InvalidJMSMessageException("No cache named " + cacheName + "exists in the target CacheManager.");
+                    throw new InvalidJMSMessageException("No cache named " + cacheName + " exists in the target CacheManager.");
                 }
             } catch (Exception e) {
                 LOG.log(Level.SEVERE, e.getMessage(), e);

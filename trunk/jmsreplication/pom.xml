@@ -19,9 +19,10 @@
             <version>2.3.1-SNAPSHOT</version>
         </dependency>
         <dependency>
-            <groupId>javax</groupId>
-            <artifactId>javaee-api</artifactId>
-            <version>6.0</version>
+            <!--This must be manually installed as it is not available in any repo-->
+            <groupId>javax.jms</groupId>
+            <artifactId>jms-api</artifactId>
+            <version>1.1-rev-1</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
@@ -63,6 +64,8 @@
         <!-- you have to set these 2 env variables to be able to run system-tests-->
         <activemq.bin.dir>${env.ACTIVEMQ_HOME}/bin</activemq.bin.dir>
         <openmq.bin.dir>${env.OPENMQ_HOME}/bin</openmq.bin.dir>
+        <!--Tested with Open MQ 4.2 and Active MQ 5.1-->
+        <!--e.g. mvn -Denv.ACTIVEMQ_HOME=../../apache-activemq-5.1.0 -Denv.OPENMQ_HOME=../../mq  clean pre-integration-test -->
     </properties>
 
     <build>

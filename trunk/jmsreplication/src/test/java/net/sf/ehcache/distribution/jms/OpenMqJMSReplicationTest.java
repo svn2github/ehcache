@@ -15,6 +15,8 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.Before;
 
@@ -578,6 +580,8 @@ public class OpenMqJMSReplicationTest extends ActiveMQJMSReplicationTest {
     }
 
 
+    //allow tests to run faster
+    @Ignore
     @Test
     public void testGetConcurrent() throws Exception {
 
@@ -585,6 +589,9 @@ public class OpenMqJMSReplicationTest extends ActiveMQJMSReplicationTest {
         cacheName = SAMPLE_CACHE_SYNC;
         manager3.shutdown();
         manager4.shutdown();
+
+        Thread.sleep(2000);
+
         final Ehcache cache1 = manager1.getCache("sampleCacheNorep");
         final Ehcache cache2 = manager2.getCache("sampleCacheNorep");
 
@@ -641,6 +648,8 @@ public class OpenMqJMSReplicationTest extends ActiveMQJMSReplicationTest {
      * 2. Find a UID so that the reqestor does not satisfy its own request
      * 3. Pause for 125 seconds between the two runs. Open MQ closes unused destinations after 120 seconds.
      */
+    //allow tests to run faster
+    @Ignore
     @Test
     public void testGetStability() throws InterruptedException {
         cacheName = SAMPLE_CACHE_SYNC;
@@ -739,8 +748,20 @@ public class OpenMqJMSReplicationTest extends ActiveMQJMSReplicationTest {
         }
     }
 
+
+//    @Test
+//    public void testOneWayReplicateContinuous() throws Exception {
+//        for (int i = 0; i < 10; i++) {
+//            testOneWayReplicate();
+//        }
+//    }
+
+
     @Test
     public void testOneWayReplicate() throws Exception {
+
+        //CacheManagers 1 - 4 just complicate this test. 
+        tearDown();
 
         CacheManager managerA, managerB, managerC;
 
@@ -754,13 +775,16 @@ public class OpenMqJMSReplicationTest extends ActiveMQJMSReplicationTest {
         managerC = new CacheManager(TestUtil.TEST_CONFIG_DIR + nonListeningConfigurationFile);
         managerC.setName("managerC");
 
+        Thread.sleep(5000);
+
         Element element = new Element("1", "value");
         managerA.getCache(SAMPLE_CACHE_ASYNC).put(element);
 
-        Thread.sleep(1000);
+        Thread.sleep(2000);
 
-        assertNotNull(managerB.getCache(SAMPLE_CACHE_ASYNC).get("1"));
-        assertNull(managerC.getCache(SAMPLE_CACHE_ASYNC).get("1"));
+        assertNotNull("Element 1 should not be null", managerA.getCache(SAMPLE_CACHE_ASYNC).get("1"));
+        assertNotNull("Element 1 should not be null", managerB.getCache(SAMPLE_CACHE_ASYNC).get("1"));
+        assertNull("Element 1 should be null because CacheManager C should not be listening", managerC.getCache(SAMPLE_CACHE_ASYNC).get("1"));
 
         managerA.shutdown();
         managerB.shutdown();

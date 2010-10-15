@@ -541,6 +541,8 @@ public class JMSCacheReplicator implements CacheReplicator {
         }
 
 
+
+
         List<EventMessage> messages = new ArrayList<EventMessage>(1);
 
         for (AsyncJMSEventMessage message : replicationQueueCopy) {
@@ -551,7 +553,7 @@ public class JMSCacheReplicator implements CacheReplicator {
                 try {
                     peer.send(messages);
                 } catch (RemoteException e) {
-                    LOG.warning("Unable to send message to remote peer. Message was: " + e.getMessage() + " continuing to send" +
+                    LOG.warning("Unable to send message to remote peer. Message was: " + e.getMessage() + " Continuing to send" +
                             "remaining messages.");
                 }
             }

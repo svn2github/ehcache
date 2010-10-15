@@ -1,2 +1,5 @@
-ps ax | grep 'apache-activemq' | head -1 | awk '{print $1}' | xargs kill
-ps ax | grep 'imqbroker.jar' | head -1 | awk '{print $1}' | xargs kill
+echo "Shutting down Active MQ"
+ps ax | grep 'apache-activemq' | grep -v grep | head -1 | awk '{print $1}' | xargs kill
+
+echo "Shutting down Open MQ"
+ps ax | grep 'imqbroker.jar' | grep -v grep | head -1 | awk '{print $1}' | xargs kill
