@@ -64,6 +64,7 @@
     <activemq.bin.dir>${env.ACTIVEMQ_HOME}/bin</activemq.bin.dir>
     <openmq.bin.dir>${env.OPENMQ_HOME}/bin</openmq.bin.dir>
   
+  
     <!--Tested with Open MQ 4.2 and Active MQ 5.1-->
     <!--e.g. mvn -Denv.ACTIVEMQ_HOME=../../apache-activemq-5.1.0 -Denv.OPENMQ_HOME=../../mq  clean pre-integration-test -->
     </properties>
@@ -75,25 +76,6 @@
           <source>1.5</source>
           <target>1.5</target>
         </configuration>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-failsafe-plugin</artifactId>
-        <version>2.6</version>
-        <executions>
-          <execution>
-            <id>integration-test</id>
-            <goals>
-              <goal>integration-test</goal>
-            </goals>
-          </execution>
-          <execution>
-            <id>verify</id>
-            <goals>
-              <goal>verify</goal>
-            </goals>
-          </execution>
-        </executions>
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
@@ -110,9 +92,6 @@
             <exclude>**/constructs/web/**</exclude>
           </excludes>
           <forkMode>pertest</forkMode>
-          <childDelegation>false</childDelegation>
-          <disableXmlReport>false</disableXmlReport>
-          <printSummary>true</printSummary>
           <useFile>false</useFile>
           <systemProperties>
             <property>
@@ -214,6 +193,34 @@
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-antrun-plugin</artifactId>
+            <configuration>
+              <tasks>
+                <echo>Stopping Message Queues on ${os.name}</echo>
+                <exec dir="src/test/scripts" executable="sh" os="Mac OS X, Linux, AIX, Solaris" spawn="false">
+                  <arg line="stop_message_queues"/>
+                </exec>
+              </tasks>
+            </configuration>
+            <executions>
+              <execution>
+                <id>stop-message-queues-if-running</id>
+                <phase>pre-integration-test</phase>
+                <goals>
+                  <goal>run</goal>
+                </goals>
+              </execution>
+              <execution>
+                <id>stop-message-queues</id>
+                <phase>post-integration-test</phase>
+                <goals>
+                  <goal>run</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-antrun-plugin</artifactId>
             <executions>
               <execution>
                 <!--We test using two popular message queues -->
@@ -257,27 +264,6 @@
                       <arg line="imqobjmgr add -t q -l 'ehcacheGetQueue' -o 'imqDestinationName=EhcacheGetQueueDest' -j java.naming.provider.url=file:///tmp -j java.naming.factory.initial=com.sun.jndi.fscontext.RefFSContextFactory -f "/>
                     </exec>
                     <sleep seconds="5"/>
-                  </tasks>
-                </configuration>
-                <goals>
-                  <goal>run</goal>
-                </goals>
-              </execution>
-            </executions>
-          </plugin>
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-antrun-plugin</artifactId>
-            <executions>
-              <execution>
-                <id>stop-message-queues</id>
-                <phase>post-integration-test</phase>
-                <configuration>
-                  <tasks>
-                    <echo>Stopping Message Queues on ${os.name}</echo>
-                    <exec dir="src/test/scripts" executable="sh" os="Mac OS X, Linux, AIX, Solaris" spawn="false">
-                      <arg line="stop_message_queues"/>
-                    </exec>
                   </tasks>
                 </configuration>
                 <goals>
