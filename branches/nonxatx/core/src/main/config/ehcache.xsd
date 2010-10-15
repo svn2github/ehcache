@@ -220,6 +220,7 @@
         <xs:restriction base="xs:string">
             <xs:enumeration value="off"/>
             <xs:enumeration value="xa"/>
+            <xs:enumeration value="non_xa"/>
         </xs:restriction>
     </xs:simpleType>
 
