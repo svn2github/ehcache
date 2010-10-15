@@ -31,6 +31,42 @@ public class TransactionTest extends TestCase {
         cacheManager.shutdown();
     }
 
+    public void testGetKeys() throws Exception {
+        transactionController.begin();
+
+        cache1.put(new Element(1, "one"));
+        assertEquals(1, cache1.getKeys().size());
+
+        cache1.put(new Element(2, "two"));
+        assertEquals(2, cache1.getKeys().size());
+
+        cache1.remove(1);
+        assertEquals(1, cache1.getKeys().size());
+
+        transactionController.commit();
+
+        
+        transactionController.begin();
+
+        cache1.put(new Element(1, "one"));
+
+        Thread tx2 = new Thread() {
+            @Override
+            public void run() {
+                transactionController.begin();
+
+                assertEquals(1, cache1.getKeys().size());
+
+                transactionController.commit();
+            }
+        };
+        tx2.start();
+        tx2.join();
+
+
+        transactionController.commit();
+    }
+
     public void testTwoCaches() throws Exception {
         transactionController.begin();
 

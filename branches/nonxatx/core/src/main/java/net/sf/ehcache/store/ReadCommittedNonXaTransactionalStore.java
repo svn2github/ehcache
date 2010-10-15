@@ -99,7 +99,12 @@ public class ReadCommittedNonXaTransactionalStore extends AbstractNonXaTransacti
     }
 
     public List getKeys() {
-        return underlyingStore.getKeys();
+        @SuppressWarnings("unchecked")
+        List<Object> underlyingKeys = underlyingStore.getKeys();
+
+        underlyingKeys.addAll(getCurrentTransactionContext().getPutKeys(cacheName));
+        underlyingKeys.removeAll(getCurrentTransactionContext().getRemovedKeys(cacheName));
+        return underlyingKeys;
     }
 
     public Element remove(Object key) {

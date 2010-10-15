@@ -45,6 +45,40 @@ public class TransactionContext {
         storeMap.put(cacheName, store);
     }
 
+    public List<Object> getPutKeys(String cacheName) {
+        List<Object> result = new ArrayList<Object>();
+
+        List<SoftLock> softLocks = softLockMap.get(cacheName);
+        if (softLocks == null) {
+            return result;
+        }
+
+        for (SoftLock softLock : softLocks) {
+            if (softLock.getNewElement() != null) {
+                result.add(softLock.getKey());
+            }
+        }
+
+        return result;
+    }
+
+    public List<Object> getRemovedKeys(String cacheName) {
+        List<Object> result = new ArrayList<Object>();
+
+        List<SoftLock> softLocks = softLockMap.get(cacheName);
+        if (softLocks == null) {
+            return result;
+        }
+
+        for (SoftLock softLock : softLocks) {
+            if (softLock.getNewElement() == null) {
+                result.add(softLock.getKey());
+            }
+        }
+
+        return result;
+    }
+
     public void commit() {
         if (rollbackOnly) {
             rollback();
