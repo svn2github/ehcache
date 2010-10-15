@@ -20,37 +20,35 @@ import net.sf.ehcache.store.ElementAttributeValues;
 
 /**
  * A search criteria composed of the logical "or" of two or more other criteria
- * 
+ *
  * @author teck
  */
 public class Or implements Criteria {
 
     private final Criteria[] criterion;
-    
+
     /**
      * Simple constructor for two criteria
-     * 
-     * @param lhs
-     *            the left hand side of the "or" expression
-     * @param rhs
-     *            the right hand side of the "or" expression
+     *
+     * @param lhs the left hand side of the "or" expression
+     * @param rhs the right hand side of the "or" expression
      */
     public Or(Criteria lhs, Criteria rhs) {
-        this(new Criteria[] {lhs, rhs});
+        this(new Criteria[]{lhs, rhs});
     }
 
     /**
      * Var-args style constructor to allow a variable number of criteria
-     * 
+     *
      * @param criterion
      */
     public Or(Criteria... criterion) {
         this.criterion = criterion;
     }
-    
+
     /**
      * Return criterion
-     * 
+     *
      * @return criterion
      */
     public Criteria[] getCriterion() {

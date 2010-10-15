@@ -18,26 +18,24 @@ package net.sf.ehcache.search.aggregator;
 
 /**
  * An Aggregator takes input objects and computes an aggregate function from them.
- * 
- * @param <T>
- *            the runtime type of aggregation result
+ *
  * @author Greg Luck
+ * @param <T>
+ * the runtime type of aggregation result
  */
 public interface Aggregator<T> {
 
     /**
      * Add the given value to the aggregator function
-     * 
-     * @param input
-     *            a single input value
-     * @throws AggregatorException
-     *             if the function cannot be computed, possibly due to unsupported types
+     *
+     * @param input a single input value
+     * @throws AggregatorException if the function cannot be computed, possibly due to unsupported types
      */
     void accept(Object input) throws AggregatorException;
 
     /**
      * Retrieve the final result
-     * 
+     *
      * @return aggregate result
      */
     T aggregateResult();

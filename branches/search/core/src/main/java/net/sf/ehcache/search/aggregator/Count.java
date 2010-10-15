@@ -18,7 +18,7 @@ package net.sf.ehcache.search.aggregator;
 
 /**
  * Counts the number of results
- * 
+ *
  * @author Greg Luck
  */
 public class Count implements Aggregator<Integer> {

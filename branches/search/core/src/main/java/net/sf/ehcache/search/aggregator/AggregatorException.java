@@ -25,7 +25,7 @@ import net.sf.ehcache.search.SearchException;
  * <li>The specified Aggregator cannot be found by the class loader, which could happen if the aggregator executes on a node which does not
  * have the Aggregator class.
  * </ul>
- * 
+ *
  * @author Greg Luck
  */
 public class AggregatorException extends SearchException {
@@ -34,7 +34,7 @@ public class AggregatorException extends SearchException {
 
     /**
      * AggregatorException
-     * 
+     *
      * @param message
      */
     public AggregatorException(String message) {

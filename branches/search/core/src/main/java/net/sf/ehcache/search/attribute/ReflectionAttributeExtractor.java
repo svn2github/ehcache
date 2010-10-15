@@ -39,7 +39,7 @@ import net.sf.ehcache.config.InvalidConfigurationException;
  * <li>"element.toString()" -- call toString() on the element
  * </ol>
  * The method and field name portions of the expression are case sensitive
- * 
+ *
  * @author teck
  */
 public class ReflectionAttributeExtractor implements AttributeExtractor {
@@ -54,7 +54,7 @@ public class ReflectionAttributeExtractor implements AttributeExtractor {
 
     /**
      * Create a new ReflectionAttributeExtractor
-     * 
+     *
      * @param expression
      */
     public ReflectionAttributeExtractor(String expression) throws InvalidConfigurationException {
@@ -85,10 +85,9 @@ public class ReflectionAttributeExtractor implements AttributeExtractor {
 
     /**
      * Evaluate the expression for the given element
-     * 
-     * @throws CacheException
-     *             if there is an error in evaluating the expression
+     *
      * @return the attribute value
+     * @throws CacheException if there is an error in evaluating the expression
      */
     public Object attributeFor(Element e) throws CacheException {
         // NOTE: We can play all kinds of tricks of generating java classes and
@@ -96,21 +95,21 @@ public class ReflectionAttributeExtractor implements AttributeExtractor {
 
         Object startObject;
         switch (start) {
-        case ELEMENT: {
-            startObject = e;
-            break;
-        }
-        case KEY: {
-            startObject = e.getObjectKey();
-            break;
-        }
-        case VALUE: {
-            startObject = e.getObjectValue();
-            break;
-        }
-        default: {
-            throw new AssertionError(start.name());
-        }
+            case ELEMENT: {
+                startObject = e;
+                break;
+            }
+            case KEY: {
+                startObject = e.getObjectKey();
+                break;
+            }
+            case VALUE: {
+                startObject = e.getObjectValue();
+                break;
+            }
+            default: {
+                throw new AssertionError(start.name());
+            }
         }
 
         Object rv = startObject;
@@ -270,7 +269,7 @@ public class ReflectionAttributeExtractor implements AttributeExtractor {
 
             MethodRef ref = cache;
 
-            if (ref == null || ref.target != c) {                
+            if (ref == null || ref.target != c) {
                 while (true) {
                     try {
                         Method method = c.getDeclaredMethod(methodName);

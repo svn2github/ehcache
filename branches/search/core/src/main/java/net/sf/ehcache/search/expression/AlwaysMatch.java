@@ -20,10 +20,10 @@ import net.sf.ehcache.store.ElementAttributeValues;
 
 /**
  * Criteria that always return true
- * 
+ *
  * @author teck
  */
-public class AlwaysMatchCriteria implements Criteria {
+public class AlwaysMatch implements Criteria {
 
     /**
      * {@inheritDoc}
@@ -31,5 +31,5 @@ public class AlwaysMatchCriteria implements Criteria {
     public boolean execute(ElementAttributeValues attributeValues) {
         return true;
     }
-    
+
 }

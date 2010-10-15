@@ -18,10 +18,9 @@ package net.sf.ehcache.search.aggregator;
 
 /**
  * Determine the minimum value
- * 
- * @param <T>
- * 
+ *
  * @author teck
+ * @param <T>
  */
 public class Min<T> implements Aggregator<T> {
 
@@ -29,7 +28,7 @@ public class Min<T> implements Aggregator<T> {
 
     /**
      * {@inheritDoc}
-     * <p>
+     * <p/>
      * NOTE: May return null if no input provided
      */
     public T aggregateResult() {
@@ -39,7 +38,7 @@ public class Min<T> implements Aggregator<T> {
 
     /**
      * {@inheritDoc}
-     * <p>
+     * <p/>
      * NOTE: null input values are ignored
      */
     public void accept(Object input) throws AggregatorException {

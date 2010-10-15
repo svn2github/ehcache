@@ -19,8 +19,9 @@ package net.sf.ehcache.search.expression;
 /**
  * The purpose of this class is to allow static imports to make query building
  * look nicer in source code
- * 
+ *
  * @author teck
+ * @author Greg Luck
  */
 public final class Logic {
 
@@ -30,9 +31,8 @@ public final class Logic {
 
     /**
      * Create a criteria for the logical "and" of the given criteria
-     * 
-     * @param c
-     *            the criteria to "and" together
+     *
+     * @param c the criteria to "and" together
      * @return an "and" criteria instance
      */
     public static Criteria and(Criteria... c) {
@@ -41,9 +41,8 @@ public final class Logic {
 
     /**
      * Create a criteria for the logical "or" of the given criteria
-     * 
-     * @param c
-     *            the criteria to "or" together
+     *
+     * @param c the criteria to "or" together
      * @return an "or" criteria instance
      */
     public static Criteria or(Criteria... c) {
@@ -52,13 +51,23 @@ public final class Logic {
 
     /**
      * Create a criteria for the logical "not" of the given criteria
-     * 
-     * @param c
-     *            the criteria to "not" (ie. negate)
+     *
+     * @param c the criteria to "not" (ie. negate)
      * @return a "not" criteria instance
      */
     public static Criteria not(Criteria c) {
         return new Not(c);
     }
+
+    /**
+     * Create a criteria for the logical "not" of the given criteria
+     *
+     * @param c the criteria to "not" (ie. negate)
+     * @return a "not" criteria instance
+     */
+//    public static Criteria between(Criteria c) {
+//        return new Between(c);
+//    }
+
 
 }

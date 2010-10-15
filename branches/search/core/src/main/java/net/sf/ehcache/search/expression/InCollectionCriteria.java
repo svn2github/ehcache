@@ -24,7 +24,7 @@ import net.sf.ehcache.store.ElementAttributeValues;
 
 /**
  * Criteria for inclusion in a given Collection (presumably a Set) of values
- * 
+ *
  * @author teck
  */
 public class InCollectionCriteria implements Criteria {
@@ -36,9 +36,8 @@ public class InCollectionCriteria implements Criteria {
 
     /**
      * Constructor
-     * 
-     * @param attributeName
-     *            attribute name
+     *
+     * @param attributeName attribute name
      * @param values
      */
     public InCollectionCriteria(String attributeName, Collection<?> values) {

@@ -21,7 +21,7 @@ import java.util.List;
 /**
  * Results object for an execution of a {@link Query}. Instances of this class
  * are thread safe
- * 
+ *
  * @author teck
  * @author Greg Luck
  */
@@ -40,7 +40,7 @@ public interface Results {
     /**
      * Retrieve all of the cache results in one shot. For large result sets this
      * might consume large amount of memory
-     * 
+     *
      * @return a List of all the matching cache entries
      * @throws SearchException
      */
@@ -49,39 +49,36 @@ public interface Results {
     /**
      * Retrieve a subset of the cache results. This method is useful when
      * showing "paged" results in a UI or simply to keep memory overhead fixed
-     * 
-     * @param start
-     *            starting index to access
-     * @param length
-     *            length of the chunk to access
+     *
+     * @param start  starting index to access
+     * @param length length of the chunk to access
      * @return a List of the given size. This list might not match the requested
      *         size if no more results are available
      * @throws SearchException
-     * @throws IndexOutOfBoundsException
-     *             if the start index exceeds the
-     *             result size or is negative, or if the startIndex + length exceeds
-     *             the total size
+     * @throws IndexOutOfBoundsException if the start index exceeds the
+     *                                   result size or is negative, or if the startIndex + length exceeds
+     *                                   the total size
      */
     List<Result> range(int start, int length) throws SearchException, IndexOutOfBoundsException;
 
     /**
      * Retrieves the result of an aggregate function. If multiple aggregate functions were requested in this query, the a {@link List} of
      * the results will be returned (in the same order they were added to the original query)
-     * 
+     *
      * @throws SearchException
      */
     Object aggregateResult() throws SearchException;
 
     /**
      * Results size
-     * 
+     *
      * @return number of results present
      */
     int size();
 
     /**
      * Whether the Results have cache keys included
-     * 
+     *
      * @return true if keys included
      */
     boolean hasKeys();
@@ -89,7 +86,7 @@ public interface Results {
     /**
      * Whether the results are an aggregate, in which case there is no list returned,
      * just a single value
-     * 
+     *
      * @return true if this is an aggregate
      */
     boolean isAggregate();

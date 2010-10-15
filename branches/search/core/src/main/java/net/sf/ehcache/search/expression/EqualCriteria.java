@@ -21,7 +21,7 @@ import net.sf.ehcache.store.ElementAttributeValues;
 
 /**
  * Criteria for plain "equals to" condition
- * 
+ *
  * @author teck
  */
 public class EqualCriteria implements Criteria {
@@ -32,9 +32,8 @@ public class EqualCriteria implements Criteria {
 
     /**
      * Constructor
-     * 
-     * @param attributeName
-     *            attribute name
+     *
+     * @param attributeName attribute name
      * @param value
      */
     public EqualCriteria(String attributeName, Object value) {
@@ -47,10 +46,10 @@ public class EqualCriteria implements Criteria {
 
         this.type = AttributeType.typeFor(attributeName, value);
     }
-    
+
     /**
      * Get attribute value.
-     * 
+     *
      * @return attribute value
      */
     public Object getValue() {
@@ -59,7 +58,7 @@ public class EqualCriteria implements Criteria {
 
     /**
      * Get attribute name.
-     * 
+     *
      * @return attribute name.
      */
     public String getAttributeName() {
@@ -68,7 +67,7 @@ public class EqualCriteria implements Criteria {
 
     /**
      * Get attribute type.
-     * 
+     *
      * @return attribute type.
      */
     public AttributeType getType() {

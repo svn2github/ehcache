@@ -20,16 +20,15 @@ import net.sf.ehcache.store.ElementAttributeValues;
 
 /**
  * Criteria interface defines a boolean function that computes a search match result
- * 
+ *
  * @author teck
  */
 public interface Criteria {
 
     /**
      * Test this criteria against a cache element
-     * 
-     * @param attributeValues
-     *            accessor for attributes values on the current element this critetia executed against
+     *
+     * @param attributeValues accessor for attributes values on the current element this critetia executed against
      * @return true if the criteria matches this element
      */
     boolean execute(ElementAttributeValues attributeValues);

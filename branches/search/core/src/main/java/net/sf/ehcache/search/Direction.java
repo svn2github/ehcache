@@ -18,7 +18,7 @@ package net.sf.ehcache.search;
 
 /**
  * The direction for search result ordering
- * 
+ *
  * @author teck
  */
 public enum Direction {

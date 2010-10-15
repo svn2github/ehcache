@@ -27,7 +27,7 @@ import net.sf.ehcache.search.Results;
 import net.sf.ehcache.search.SearchException;
 import net.sf.ehcache.search.aggregator.Aggregator;
 import net.sf.ehcache.search.aggregator.AggregatorException;
-import net.sf.ehcache.search.expression.AlwaysMatchCriteria;
+import net.sf.ehcache.search.expression.AlwaysMatch;
 import net.sf.ehcache.search.expression.And;
 import net.sf.ehcache.search.expression.Criteria;
 import net.sf.ehcache.store.StoreQuery;
@@ -218,7 +218,7 @@ class CacheQuery implements Query, StoreQuery {
     private Criteria getEffectiveCriteriaCopy() {
         int count = criteria.size();
         if (count == 0) {
-            return new AlwaysMatchCriteria();
+            return new AlwaysMatch();
         } else if (count == 1) {
             return criteria.get(0);
         } else {

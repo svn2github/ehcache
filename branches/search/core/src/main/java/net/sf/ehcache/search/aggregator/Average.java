@@ -18,7 +18,7 @@ package net.sf.ehcache.search.aggregator;
 
 /**
  * Compute the average (arithmetic mean) as a double
- * 
+ *
  * @author teck
  */
 public class Average implements Aggregator<Double> {
@@ -28,7 +28,7 @@ public class Average implements Aggregator<Double> {
 
     /**
      * {@inheritDoc}
-     * <p>
+     * <p/>
      * NOTE: Null values are ignored and not included in the computation
      */
     public void accept(Object input) throws AggregatorException {
@@ -46,7 +46,7 @@ public class Average implements Aggregator<Double> {
 
     /**
      * {@inheritDoc}
-     * <p>
+     * <p/>
      * NOTE: null is returned if there was no input supplied to this function
      */
     public Double aggregateResult() {

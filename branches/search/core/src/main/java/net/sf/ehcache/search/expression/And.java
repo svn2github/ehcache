@@ -20,7 +20,7 @@ import net.sf.ehcache.store.ElementAttributeValues;
 
 /**
  * A search criteria composed of the logical "and" of two or more other criteria
- * 
+ *
  * @author teck
  */
 public class And implements Criteria {
@@ -29,28 +29,26 @@ public class And implements Criteria {
 
     /**
      * Simple constructor for two criteria
-     * 
-     * @param lhs
-     *            the left hand side of the "and" expression
-     * @param rhs
-     *            the right hand side of the "and" expression
+     *
+     * @param lhs the left hand side of the "and" expression
+     * @param rhs the right hand side of the "and" expression
      */
     public And(Criteria lhs, Criteria rhs) {
-        this(new Criteria[] {lhs, rhs});
+        this(new Criteria[]{lhs, rhs});
     }
 
     /**
      * Var-args style constructor to allow a variable number of criteria
-     * 
+     *
      * @param criterion
      */
     public And(Criteria... criterion) {
         this.criterion = criterion;
     }
-    
+
     /**
      * Return criterion
-     * 
+     *
      * @return criterion
      */
     public Criteria[] getCriterion() {

@@ -18,7 +18,7 @@ package net.sf.ehcache.search;
 
 /**
  * Represents a single cache entry that has been selected by a cache query
- * 
+ *
  * @author teck
  * @author Greg Luck
  */
@@ -26,33 +26,29 @@ public interface Result {
 
     /**
      * Return the key for this cache entry.
-     * 
+     *
      * @return key object (never null)
-     * @throws SearchException
-     *             if keys were not selected by the originating query
+     * @throws SearchException if keys were not selected by the originating query
      */
     Object getKey() throws SearchException;
 
     /**
      * Return the value object for this cache entry. Upon every call, this
      * method performs a get() on the underlying Cache for this entry's key.
-     * 
+     *
      * @return value object (which might be null if this entry no longer exists
      *         in the cache)
-     * @throws SearchException
-     *             if keys were not selected by the originating query
+     * @throws SearchException if keys were not selected by the originating query
      */
     Object getValue() throws SearchException;
 
     /**
      * Retrieve the given attribute value for this cache entry
-     * 
-     * @param attribute
-     *            the attribute to retrieve
+     *
+     * @param attribute the attribute to retrieve
      * @return the attribute value, or null if there is none
-     * @throws SearchException
-     *             if the given attribute was not explicitly selected by the
-     *             originating query
+     * @throws SearchException if the given attribute was not explicitly selected by the
+     *                         originating query
      */
     <T> T getAttribute(Attribute<T> attribute) throws SearchException;
 }

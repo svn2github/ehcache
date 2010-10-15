@@ -24,7 +24,7 @@ import net.sf.ehcache.search.SearchException;
 
 /**
  * Defines the legal set of runtime types for search attributes
- * 
+ *
  * @author teck
  */
 public enum AttributeType {
@@ -198,15 +198,11 @@ public enum AttributeType {
 
     /**
      * Get the appropriate @{link {@link AttributeType} enum for the given object value.
-     * 
-     * 
-     * @param name
-     *            the attribute name (only meaningful to message if exception thrown)
-     * @param value
-     *            the value to lookup the type for
-     * @throws SearchException
-     *             if the given value is not valid for a search attribute
+     *
+     * @param name  the attribute name (only meaningful to message if exception thrown)
+     * @param value the value to lookup the type for
      * @return the attribute type for this value
+     * @throws SearchException if the given value is not valid for a search attribute
      */
     public static AttributeType typeFor(String name, Object value) throws SearchException {
         if (name == null) {
@@ -231,19 +227,16 @@ public enum AttributeType {
 
     /**
      * Validate that the given value is in fact of the correct type
-     * 
-     * @param name
-     *            the attribute name (only meaningful to message if exception thrown)
-     * @param value
-     *            the value to validate against this type
-     * @throws SearchException
-     *             if the given value is not a valid instance of this type
+     *
+     * @param name  the attribute name (only meaningful to message if exception thrown)
+     * @param value the value to validate against this type
+     * @throws SearchException if the given value is not a valid instance of this type
      */
     public abstract void validateValue(String name, Object value) throws SearchException;
 
     /**
      * Is this type comparable?
-     * 
+     *
      * @return true if this type is comparable
      */
     public boolean isComparable() {

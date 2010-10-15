@@ -17,43 +17,40 @@
 package net.sf.ehcache.search.expression;
 
 /**
- * Greater than criteria
- * 
+ * Less than criteria
+ *
  * @author teck
  */
-public class GreaterThanCriteria extends ComparableValueCriteria {
+public class LessThan extends ComparableValue {
 
     private final Comparable comparableValue;
 
     /**
      * Constructor
-     * 
-     * @param attributeName
-     *            attribute name
+     *
+     * @param attributeName attribute name
      * @param value
      */
-    public GreaterThanCriteria(String attributeName, Object value) {
+    public LessThan(String attributeName, Object value) {
         super(attributeName, value);
         this.comparableValue = (Comparable) value;
     }
-    
-    /**
-     * Comparable value.
-     * 
-     * @return value
-     */
-    public Comparable getComparableValue() {
-        return comparableValue;
-    }
-
 
     /**
      * {@inheritDoc}
      */
     @Override
     protected boolean executeComparable(Comparable attributeValue) {
-        return attributeValue.compareTo(comparableValue) > 0;
-
+        return attributeValue.compareTo(comparableValue) < 0;
     }
-   
+
+    /**
+     * Comparable value.
+     *
+     * @return value
+     */
+    public Comparable getComparableValue() {
+        return comparableValue;
+    }
+
 }

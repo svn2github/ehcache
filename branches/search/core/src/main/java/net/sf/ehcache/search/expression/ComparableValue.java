@@ -22,35 +22,31 @@ import net.sf.ehcache.store.ElementAttributeValues;
 
 /**
  * Abstract base class for criteria involving {@link java.lang.Comparable} values
- * 
+ *
  * @author teck
  */
-public abstract class ComparableValueCriteria implements Criteria {
+public abstract class ComparableValue implements Criteria {
 
     private final String attributeName;
     private final AttributeType type;
 
     /**
      * Constructor
-     * 
-     * @param attributeName
-     *            attribute name
-     * @param value
-     *            comparable value (used to infer type)
+     *
+     * @param attributeName attribute name
+     * @param value         comparable value (used to infer type)
      */
-    public ComparableValueCriteria(String attributeName, Object value) {
+    public ComparableValue(String attributeName, Object value) {
         this(attributeName, AttributeType.typeFor(attributeName, value));
     }
 
     /**
      * Constructor
-     * 
-     * @param attributeName
-     *            attribute name
-     * @param type
-     *            the expeceted type for values evaluated by this criteria
+     *
+     * @param attributeName attribute name
+     * @param type          the expeceted type for values evaluated by this criteria
      */
-    public ComparableValueCriteria(String attributeName, AttributeType type) {
+    public ComparableValue(String attributeName, AttributeType type) {
         this.attributeName = attributeName;
         this.type = type;
 
@@ -58,10 +54,10 @@ public abstract class ComparableValueCriteria implements Criteria {
             throw new SearchException("Illegal (non-comparable) type for comparsion (" + type + ")");
         }
     }
-    
+
     /**
      * Attribute name.
-     * 
+     *
      * @return name
      */
     public String getAttributeName() {
@@ -70,7 +66,7 @@ public abstract class ComparableValueCriteria implements Criteria {
 
     /**
      * Attribute type.
-     * 
+     *
      * @return type
      */
     public AttributeType getType() {
@@ -91,9 +87,8 @@ public abstract class ComparableValueCriteria implements Criteria {
 
     /**
      * Execute this criteria for the given {@link Comparable} attribute value
-     * 
-     * @param attributeValue
-     *            Comparable attribute value
+     *
+     * @param attributeValue Comparable attribute value
      * @return true if criteria is met
      */
     protected abstract boolean executeComparable(Comparable attributeValue);

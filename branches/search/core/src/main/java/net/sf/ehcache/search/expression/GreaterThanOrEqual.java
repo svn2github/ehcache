@@ -18,21 +18,20 @@ package net.sf.ehcache.search.expression;
 
 /**
  * Greater than or equal criteria
- * 
+ *
  * @author teck
  */
-public class GreaterThanOrEqualCriteria extends ComparableValueCriteria {
+public class GreaterThanOrEqual extends ComparableValue {
 
     private final Comparable comparableValue;
 
     /**
      * Constructor
-     * 
-     * @param attributeName
-     *            attribute name
+     *
+     * @param attributeName attribute name
      * @param value
      */
-    public GreaterThanOrEqualCriteria(String attributeName, Object value) {
+    public GreaterThanOrEqual(String attributeName, Object value) {
         super(attributeName, value);
         this.comparableValue = (Comparable) value;
     }
@@ -44,10 +43,10 @@ public class GreaterThanOrEqualCriteria extends ComparableValueCriteria {
     protected boolean executeComparable(Comparable attributeValue) {
         return attributeValue.compareTo(comparableValue) >= 0;
     }
-    
+
     /**
      * Comparable value.
-     * 
+     *
      * @return value
      */
     public Comparable getComparableValue() {

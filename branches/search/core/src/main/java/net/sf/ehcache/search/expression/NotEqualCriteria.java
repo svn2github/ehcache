@@ -20,16 +20,15 @@ import net.sf.ehcache.store.ElementAttributeValues;
 
 /**
  * Criteria for plain "not equals to" condition
- * 
+ *
  * @author teck
  */
 public class NotEqualCriteria extends EqualCriteria {
 
     /**
      * Constructor
-     * 
-     * @param attributeName
-     *            attribute name
+     *
+     * @param attributeName attribute name
      * @param value
      */
     public NotEqualCriteria(String attributeName, Object value) {
@@ -43,5 +42,5 @@ public class NotEqualCriteria extends EqualCriteria {
     public boolean execute(ElementAttributeValues attributeValues) {
         return !super.execute(attributeValues);
     }
-   
+
 }

@@ -27,7 +27,7 @@ import net.sf.ehcache.CacheException;
  * <li>IOException or timeout communicating with a remote server or performing disk I/O
  * <li>Attempting to read from a discard()'d {@link Results} instance
  * </ul>
- * 
+ *
  * @author teck
  */
 public class SearchException extends CacheException {
@@ -36,7 +36,7 @@ public class SearchException extends CacheException {
 
     /**
      * Construct a search exception
-     * 
+     *
      * @param message
      */
     public SearchException(String message) {
@@ -45,7 +45,7 @@ public class SearchException extends CacheException {
 
     /**
      * Construct a search exception with an underlying cause
-     * 
+     *
      * @param message
      * @param cause
      */

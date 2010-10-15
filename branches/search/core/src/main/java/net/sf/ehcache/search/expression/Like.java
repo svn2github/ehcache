@@ -37,23 +37,20 @@ import net.sf.ehcache.store.ElementAttributeValues;
  * Expressions may not start with a wildcard character.
  * <p/>
  *
- *
- *
- *
  * @author teck
  */
-public class LikeCriteria implements Criteria {
+public class Like implements Criteria {
 
     private final String attributeName;
     private final Pattern pattern;
 
     /**
      * Construct a "like" criteria for the given expression
-     * 
-     * @param attributeName attribute name 
-     * @param regex expression
+     *
+     * @param attributeName attribute name
+     * @param regex         expression
      */
-    public LikeCriteria(String attributeName, String regex) {
+    public Like(String attributeName, String regex) {
         if ((attributeName == null) || (regex == null)) {
             throw new SearchException("Both the attribute name and regex must be non null.");
         }
@@ -80,36 +77,36 @@ public class LikeCriteria implements Criteria {
 
             if (escape) {
                 switch (ch) {
-                case '\\':
-                case '?':
-                case '*': {
-                    javaRegex.append(Pattern.quote(lowerCase(ch)));
-                    break;
-                }
+                    case '\\':
+                    case '?':
+                    case '*': {
+                        javaRegex.append(Pattern.quote(lowerCase(ch)));
+                        break;
+                    }
 
-                default: {
-                    throw new SearchException("Illegal escape character (" + ch + ") in regex: " + expr);
-                }
+                    default: {
+                        throw new SearchException("Illegal escape character (" + ch + ") in regex: " + expr);
+                    }
                 }
 
                 escape = false;
             } else {
                 switch (ch) {
-                case '\\': {
-                    escape = true;
-                    break;
-                }
-                case '?': {
-                    javaRegex.append(".");
-                    break;
-                }
-                case '*': {
-                    javaRegex.append(".*");
-                    break;
-                }
-                default: {
-                    javaRegex.append(Pattern.quote(lowerCase(ch)));
-                }
+                    case '\\': {
+                        escape = true;
+                        break;
+                    }
+                    case '?': {
+                        javaRegex.append(".");
+                        break;
+                    }
+                    case '*': {
+                        javaRegex.append(".*");
+                        break;
+                    }
+                    default: {
+                        javaRegex.append(Pattern.quote(lowerCase(ch)));
+                    }
                 }
             }
         }
@@ -119,7 +116,7 @@ public class LikeCriteria implements Criteria {
 
     private static String lowerCase(char ch) {
         // heeding the advice in Character.toLowerCase() and using String.toLowerCase() instead here
-        return new String(new char[] {ch}).toLowerCase();
+        return new String(new char[]{ch}).toLowerCase();
     }
 
     /**

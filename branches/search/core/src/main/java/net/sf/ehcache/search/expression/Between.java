@@ -21,10 +21,10 @@ import net.sf.ehcache.search.attribute.AttributeType;
 
 /**
  * Range criteria
- * 
+ *
  * @author teck
  */
-public class BetweenCriteria extends ComparableValueCriteria {
+public class Between extends ComparableValue {
 
     private final Comparable min;
     private final Comparable max;
@@ -33,19 +33,14 @@ public class BetweenCriteria extends ComparableValueCriteria {
 
     /**
      * Constructor
-     * 
-     * @param attributeName
-     *            attribute name
-     * @param min
-     *            minimum value of range
-     * @param max
-     *            maximum value of range
-     * @param minInclusive
-     *            is minimum inclusive?
-     * @param maxInclusive
-     *            is maximum inclusive?
+     *
+     * @param attributeName attribute name
+     * @param min           minimum value of range
+     * @param max           maximum value of range
+     * @param minInclusive  is minimum inclusive?
+     * @param maxInclusive  is maximum inclusive?
      */
-    public BetweenCriteria(String attributeName, Object min, Object max, boolean minInclusive, boolean maxInclusive) {
+    public Between(String attributeName, Object min, Object max, boolean minInclusive, boolean maxInclusive) {
         super(attributeName, computeType(attributeName, min, max));
 
         this.min = (Comparable) min;
@@ -71,7 +66,7 @@ public class BetweenCriteria extends ComparableValueCriteria {
 
     /**
      * Get the minimum value
-     * 
+     *
      * @return min value
      */
     public Comparable getMin() {
@@ -80,7 +75,7 @@ public class BetweenCriteria extends ComparableValueCriteria {
 
     /**
      * Get the maximum value
-     * 
+     *
      * @return max value
      */
     public Comparable getMax() {
