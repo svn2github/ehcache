@@ -20,7 +20,7 @@ public final class TransactionController {
     private static final String MDC_KEY = "__ehcache_txId";
     private static final int DEFAULT_TRANSACTION_TIMEOUT = 15;
 
-    private ThreadLocal<TransactionID> currentTxIdIntegerThreadLocal = new ThreadLocal<TransactionID>();
+    private ThreadLocal<TransactionID> currentTransactionIdThreadLocal = new ThreadLocal<TransactionID>();
     private ConcurrentMap<TransactionID, TransactionContext> contextMap = new ConcurrentHashMap<TransactionID, TransactionContext>();
 
     protected TransactionController() {
@@ -32,22 +32,24 @@ public final class TransactionController {
     }
 
     public void begin(int transactionTimeout) {
-        TransactionID txId = currentTxIdIntegerThreadLocal.get();
-        if (txId != null)
+        TransactionID txId = currentTransactionIdThreadLocal.get();
+        if (txId != null) {
             throw new TransactionException("transaction already started");
+        }
 
         TransactionContext newTx = new TransactionContext(transactionTimeout);
         contextMap.put(newTx.getTransactionId(), newTx);
-        currentTxIdIntegerThreadLocal.set(newTx.getTransactionId());
+        currentTransactionIdThreadLocal.set(newTx.getTransactionId());
 
         MDC.put(MDC_KEY, newTx.getTransactionId().toString());
         LOG.debug("begun {}", newTx.getTransactionId());
     }
 
     public void commit() {
-        TransactionID txId = currentTxIdIntegerThreadLocal.get();
-        if (txId == null)
+        TransactionID txId = currentTransactionIdThreadLocal.get();
+        if (txId == null) {
             throw new TransactionException("no transaction started");
+        }
 
         TransactionContext currentTx = contextMap.get(txId);
 
@@ -55,16 +57,17 @@ public final class TransactionController {
             currentTx.commit();
         } finally {
             contextMap.remove(txId);
-            currentTxIdIntegerThreadLocal.remove();
+            currentTransactionIdThreadLocal.remove();
             LOG.debug("committed {}", currentTx.getTransactionId());
             MDC.remove(MDC_KEY);
         }
     }
 
     public void rollback() {
-        TransactionID txId = currentTxIdIntegerThreadLocal.get();
-        if (txId == null)
+        TransactionID txId = currentTransactionIdThreadLocal.get();
+        if (txId == null) {
             throw new TransactionException("no transaction started");
+        }
 
         TransactionContext currentTx = contextMap.get(txId);
 
@@ -72,16 +75,17 @@ public final class TransactionController {
             currentTx.rollback();
         } finally {
             contextMap.remove(txId);
-            currentTxIdIntegerThreadLocal.remove();
+            currentTransactionIdThreadLocal.remove();
             LOG.debug("rolled back {}", currentTx.getTransactionId());
             MDC.remove(MDC_KEY);
         }
     }
 
     public void setRollbackOnly() {
-        TransactionID txId = currentTxIdIntegerThreadLocal.get();
-        if (txId == null)
+        TransactionID txId = currentTransactionIdThreadLocal.get();
+        if (txId == null) {
             throw new TransactionException("no transaction started");
+        }
 
         TransactionContext currentTx = contextMap.get(txId);
 
@@ -89,10 +93,10 @@ public final class TransactionController {
     }
 
     public TransactionContext getCurrentTransactionContext() {
-        TransactionID txId = currentTxIdIntegerThreadLocal.get();
-        if (txId == null)
-            throw new TransactionException("no transaction started");
-
+        TransactionID txId = currentTransactionIdThreadLocal.get();
+        if (txId == null) {
+            return null;
+        }
         return contextMap.get(txId);
     }
 }

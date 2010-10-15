@@ -56,7 +56,7 @@ public class TransactionTest extends TestCase {
     }
 
 
-    public void testOneCache() throws Exception {
+    public void testPut() throws Exception {
         transactionController.begin();
 
         cache1.put(new Element(1, "one"));
@@ -97,6 +97,48 @@ public class TransactionTest extends TestCase {
         };
         tx3.start();
         tx3.join();
+    }
+
+    public void testRemove() throws Exception {
+        transactionController.begin();
+        cache1.put(new Element(1, "one"));
+        transactionController.commit();
+
+        transactionController.begin();
+
+        assertEquals(new Element(1, "one"), cache1.get(1));
+
+        assertTrue(cache1.remove(1));
+
+        assertNull(cache1.get(1));
+
+
+        Thread tx2 = new Thread() {
+            @Override
+            public void run() {
+                transactionController.begin(1);
+
+                assertEquals(new Element(1, "one"), cache1.get(1));
+
+                try {
+                    cache1.remove(1);
+                    fail("expected TransactionException");
+                } catch (TransactionException e) {
+                    // expected
+                }
+
+                transactionController.commit();
+            }
+        };
+        tx2.start();
+        tx2.join();
+
+
+        transactionController.commit();
+
+        transactionController.begin();
+        assertNull(cache1.get(1));
+        transactionController.commit();
     }
 
     public void testRollback() throws Exception {

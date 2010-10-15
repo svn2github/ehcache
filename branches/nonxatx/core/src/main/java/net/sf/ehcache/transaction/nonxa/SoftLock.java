@@ -11,13 +11,19 @@ import java.util.concurrent.locks.ReentrantLock;
  */
 public class SoftLock {
     private final TransactionID transactionID;
+    private final Object key;
     private Element newElement;
     private final Lock lock = new ReentrantLock();
 
-    public SoftLock(TransactionID transactionID, Element newElement) {
+    public SoftLock(TransactionID transactionID, Object key, Element newElement) {
         this.transactionID = transactionID;
+        this.key = key;
         this.newElement = newElement;
         lock.lock();
+    }
+
+    public Object getKey() {
+        return key;
     }
 
     public Element getNewElement() {
@@ -49,6 +55,10 @@ public class SoftLock {
                 return false;
             }
 
+            if (!key.equals(other.key)) {
+                return false;
+            }
+
             if (newElement != null) {
                 if (!newElement.equals(other.newElement)) {
                     return false;
@@ -65,6 +75,7 @@ public class SoftLock {
         int hashCode = 31;
 
         hashCode *= transactionID.hashCode();
+        hashCode *= key.hashCode();
 
         if (newElement != null) {
             hashCode *= newElement.hashCode();
@@ -75,6 +86,6 @@ public class SoftLock {
 
     @Override
     public String toString() {
-        return "SoftLock [transactionID: " + transactionID + ", newElement: " + newElement + "]";
+        return "[transactionID: " + transactionID + ", key: " + key + ", newElement: " + newElement + "]";
     }
 }

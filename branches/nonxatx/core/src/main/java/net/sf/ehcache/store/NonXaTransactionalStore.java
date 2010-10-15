@@ -55,19 +55,28 @@ public class NonXaTransactionalStore extends AbstractStore {
     }
 
     private TransactionContext getCurrentTransactionContext() {
-        return transactionController.getCurrentTransactionContext();
-    }
-
-    public void store(Object key, Element element) throws CacheException {
-        if (element != null) {
-            underlyingStore.put(element);
-        } else {
-            underlyingStore.remove(key);
+        TransactionContext currentTransactionContext = transactionController.getCurrentTransactionContext();
+        if (currentTransactionContext == null) {
+            throw new TransactionException("no transaction started");
         }
+        return currentTransactionContext;
     }
 
-    public void remove(SoftLock softLock) {
-        softLockMap.remove(softLock.getNewElement().getObjectKey());
+    public boolean underlyingPut(Element element) throws CacheException {
+        return underlyingStore.put(element);
+    }
+
+    public Element underlyingRemove(Object key) throws CacheException {
+        return underlyingStore.remove(key);
+    }
+
+    public void release(SoftLock softLock) {
+        lock.lock();
+        try {
+            softLockMap.remove(softLock.getKey());
+        } finally {
+            lock.unlock();
+        }
     }
 
     public boolean put(Element element) throws CacheException {
@@ -76,15 +85,18 @@ public class NonXaTransactionalStore extends AbstractStore {
             Object key = element.getObjectKey();
             SoftLock softLock = softLockMap.get(key);
             if (softLock == null) {
-                softLock = new SoftLock(getCurrentTransactionContext().getTransactionId(), element);
+                LOG.debug("put: key [{}] not locked, locking it now", element.getObjectKey());
+                softLock = new SoftLock(getCurrentTransactionContext().getTransactionId(), element.getObjectKey(), element);
                 softLockMap.put(key, softLock);
                 getCurrentTransactionContext().registerSoftLock(cacheName, this, softLock);
                 return !underlyingStore.containsKey(key);
             } else {
                 if (softLock.getTransactionID().equals(getCurrentTransactionContext().getTransactionId())) {
+                    LOG.debug("put: key [{}] locked in current transaction, updating new value", element.getObjectKey());
                     softLock.setNewElement(element);
                     return false;
                 } else {
+                    LOG.debug("put: key [{}] locked in transaction [{}], waiting until lock gets removed", element.getObjectKey(), softLock.getTransactionID());
                     lock.unlock();
                     while (true) {
                         try {
@@ -99,7 +111,8 @@ public class NonXaTransactionalStore extends AbstractStore {
                         }
                     }
 
-                    softLock = new SoftLock(getCurrentTransactionContext().getTransactionId(), element);
+                    LOG.debug("put: key [{}] unlocked, locking it again", element.getObjectKey());
+                    softLock = new SoftLock(getCurrentTransactionContext().getTransactionId(), element.getObjectKey(), element);
                     softLockMap.put(key, softLock);
                     getCurrentTransactionContext().registerSoftLock(cacheName, this, softLock);
                     return !underlyingStore.containsKey(key);
@@ -141,7 +154,52 @@ public class NonXaTransactionalStore extends AbstractStore {
     }
 
     public Element remove(Object key) {
-        return underlyingStore.remove(key);
+        lock.lock();
+        try {
+            SoftLock softLock = softLockMap.get(key);
+
+            if (softLock == null && underlyingStore.getQuiet(key) == null) {
+                LOG.debug("remove: key [{}] is not locked and is not in cache, nothing to do", key);
+                return null;
+            } else if (softLock == null && underlyingStore.getQuiet(key) != null) {
+                LOG.debug("remove: key [{}] not locked and in cache, locking it now", key);
+                softLock = new SoftLock(getCurrentTransactionContext().getTransactionId(), key, null);
+                softLockMap.put(key, softLock);
+                getCurrentTransactionContext().registerSoftLock(cacheName, this, softLock);
+                return underlyingStore.getQuiet(key);
+            } else {
+                // softLock cannot be null here
+                if (softLock.getTransactionID().equals(getCurrentTransactionContext().getTransactionId())) {
+                    LOG.debug("remove: key [{}] locked in current transaction, removing it", key);
+                    Element currentElement = softLock.getNewElement();
+                    softLock.setNewElement(null);
+                    return currentElement;
+                } else {
+                    LOG.debug("remove: element [{}] locked in transaction [{}], waiting until lock gets removed", key, softLock.getTransactionID());
+                    lock.unlock();
+                    while (true) {
+                        try {
+                            boolean locked = softLock.tryLock(getCurrentTransactionContext().getTransactionTimeout());
+                            lock.lock();
+                            if (!locked) {
+                                throw new TransactionException("deadlock detected on " + softLock);
+                            }
+                            break;
+                        } catch (InterruptedException e) {
+                            // ignore
+                        }
+                    }
+
+                    LOG.debug("remove: key [{}] unlocked, locking it again", key);
+                    softLock = new SoftLock(getCurrentTransactionContext().getTransactionId(), key, null);
+                    softLockMap.put(key, softLock);
+                    getCurrentTransactionContext().registerSoftLock(cacheName, this, softLock);
+                    return underlyingStore.getQuiet(key);
+                }
+            }
+        } finally {
+            lock.unlock();
+        }
     }
 
     public Element removeWithWriter(Object key, CacheWriterManager writerManager) throws CacheException {

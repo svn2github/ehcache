@@ -57,9 +57,13 @@ public class TransactionContext {
             List<SoftLock> softLocks = stringListEntry.getValue();
             for (SoftLock softLock : softLocks) {
                 LOG.debug("committing {}", softLock);
-                store.store(softLock.getNewElement().getKey(), softLock.getNewElement());
+                if (softLock.getNewElement() != null) {
+                    store.underlyingPut(softLock.getNewElement());
+                } else {
+                    store.underlyingRemove(softLock.getKey());
+                }
+                store.release(softLock);
                 softLock.unlock();
-                store.remove(softLock);
             }
         }
         softLockMap.clear();
@@ -73,8 +77,8 @@ public class TransactionContext {
             List<SoftLock> softLocks = stringListEntry.getValue();
             for (SoftLock softLock : softLocks) {
                 LOG.debug("rolling back {}", softLock);
+                store.release(softLock);
                 softLock.unlock();
-                store.remove(softLock);
             }
         }
         softLockMap.clear();
