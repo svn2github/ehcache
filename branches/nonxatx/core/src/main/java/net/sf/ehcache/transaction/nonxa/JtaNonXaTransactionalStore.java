@@ -122,39 +122,9 @@ public class JtaNonXaTransactionalStore extends AbstractStore {
         return transactionalStore.getSize();
     }
 
-    public int getInMemorySize() {
-        registerInJtaContext();
-        return transactionalStore.getInMemorySize();
-    }
-
-    public int getOffHeapSize() {
-        registerInJtaContext();
-        return transactionalStore.getOffHeapSize();
-    }
-
-    public int getOnDiskSize() {
-        registerInJtaContext();
-        return transactionalStore.getOnDiskSize();
-    }
-
     public int getTerracottaClusteredSize() {
         registerInJtaContext();
         return transactionalStore.getTerracottaClusteredSize();
-    }
-
-    public long getInMemorySizeInBytes() {
-        registerInJtaContext();
-        return transactionalStore.getInMemorySizeInBytes();
-    }
-
-    public long getOffHeapSizeInBytes() {
-        registerInJtaContext();
-        return transactionalStore.getOffHeapSizeInBytes();
-    }
-
-    public long getOnDiskSizeInBytes() {
-        registerInJtaContext();
-        return transactionalStore.getOnDiskSizeInBytes();
     }
 
     public boolean containsKey(Object key) {
@@ -162,22 +132,43 @@ public class JtaNonXaTransactionalStore extends AbstractStore {
         return transactionalStore.containsKey(key);
     }
 
+    /* non-transactional methods */
+
+    public int getInMemorySize() {
+        return transactionalStore.getInMemorySize();
+    }
+
+    public int getOffHeapSize() {
+        return transactionalStore.getOffHeapSize();
+    }
+
+    public int getOnDiskSize() {
+        return transactionalStore.getOnDiskSize();
+    }
+
+    public long getInMemorySizeInBytes() {
+        return transactionalStore.getInMemorySizeInBytes();
+    }
+
+    public long getOffHeapSizeInBytes() {
+        return transactionalStore.getOffHeapSizeInBytes();
+    }
+
+    public long getOnDiskSizeInBytes() {
+        return transactionalStore.getOnDiskSizeInBytes();
+    }
+
     public boolean containsKeyOnDisk(Object key) {
-        registerInJtaContext();
         return transactionalStore.containsKeyOnDisk(key);
     }
 
     public boolean containsKeyOffHeap(Object key) {
-        registerInJtaContext();
         return transactionalStore.containsKeyOffHeap(key);
     }
 
     public boolean containsKeyInMemory(Object key) {
-        registerInJtaContext();
         return transactionalStore.containsKeyInMemory(key);
     }
-
-    /* non-transactional methods */
 
     public void dispose() {
         transactionalStore.dispose();
