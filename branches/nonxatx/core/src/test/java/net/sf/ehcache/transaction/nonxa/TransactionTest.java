@@ -18,7 +18,6 @@ public class TransactionTest extends TestCase {
     @Override
     protected void setUp() throws Exception {
         cacheManager = new CacheManager(TransactionTest.class.getResourceAsStream("/ehcache-nonxa.xml"));
-        TransactionController.setCacheManager(cacheManager);
         cache1 = cacheManager.getEhcache("txCache1");
         cache1.removeAll();
         cache2 = cacheManager.getEhcache("txCache2");

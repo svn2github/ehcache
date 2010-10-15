@@ -25,12 +25,6 @@ public final class TransactionController {
 
     private static TransactionController _instance;
 
-    private static CacheManager cacheManager;
-
-    public static void setCacheManager(CacheManager cacheManager) {
-        TransactionController.cacheManager = cacheManager;
-    }
-
     public synchronized static TransactionController getInstance() {
         if (_instance == null) {
             _instance = new TransactionController();
@@ -52,7 +46,7 @@ public final class TransactionController {
         if (txId != null)
             throw new TransactionException("transaction already started");
 
-        TransactionContext newTx = new TransactionContext(cacheManager, transactionTimeout);
+        TransactionContext newTx = new TransactionContext(transactionTimeout);
         contextMap.put(newTx.getTransactionId(), newTx);
         currentTxIdIntegerThreadLocal.set(newTx.getTransactionId());
 

@@ -2440,7 +2440,7 @@ public class Cache implements Ehcache, StoreListener {
      * @return the Store referenced by this cache
      * @throws IllegalStateException if the cache is not {@link Status#STATUS_ALIVE}
      */
-    public final Store getStore() throws IllegalStateException {
+    final Store getStore() throws IllegalStateException {
         checkStatus();
         return compoundStore;
     }

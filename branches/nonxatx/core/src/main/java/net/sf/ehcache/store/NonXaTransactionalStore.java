@@ -19,9 +19,9 @@ package net.sf.ehcache.store;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.Status;
-import net.sf.ehcache.transaction.nonxa.TransactionContext;
 import net.sf.ehcache.TransactionController;
 import net.sf.ehcache.transaction.nonxa.SoftLock;
+import net.sf.ehcache.transaction.nonxa.TransactionContext;
 import net.sf.ehcache.transaction.nonxa.TransactionException;
 import net.sf.ehcache.writer.CacheWriterManager;
 import org.slf4j.Logger;
@@ -29,6 +29,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -60,39 +61,18 @@ public class NonXaTransactionalStore extends AbstractStore {
     public boolean put(Element element) throws CacheException {
         lock.lock();
         try {
-            Element oldElement;
-            while ((oldElement = underlyingStore.getQuiet(element.getKey())) != null && oldElement.getValue() instanceof SoftLock) {
-                SoftLock softLock = (SoftLock) oldElement.getValue();
+            ConcurrentMap<Object, SoftLock> softLocks = getCurrentTransactionContext().getOrCreateSoftLocksMap(cacheName);
 
-                boolean locked;
-                // release the store lock, we don't want all put calls to block
-                lock.unlock();
-                while (true) {
-                    try {
-                        locked = softLock.tryLock(getCurrentTransactionContext().getTransactionTimeout());
-                        break;
-                    } catch (InterruptedException e) {
-                        // ignore
-                    }
-                }
-                lock.lock();
-                if (!locked) {
-                    throw new TransactionException("softlock could not be locked before tx timeout: " + softLock);
-                }
+            Object key = element.getObjectKey();
+            SoftLock softLock = softLocks.get(key);
+            if (softLock == null) {
+                softLock = new SoftLock(this, getCurrentTransactionContext(), element);
+                softLocks.put(key, softLock);
+                return !underlyingStore.containsKey(key);
+            } else {
+                softLock.setNewElement(element);
+                return false;
             }
-
-            // release the softlock as it's going to be GC'ed
-            if (oldElement != null && oldElement.getValue() instanceof SoftLock) {
-                SoftLock softLock = (SoftLock) oldElement.getValue();
-                softLock.unlock();
-            }
-
-            // oldElement must be refreshed as another TX may have committed
-            oldElement = underlyingStore.getQuiet(element.getKey());
-
-            SoftLock softLock = new SoftLock(getCurrentTransactionContext(), cacheName, oldElement, element);
-            LOG.debug("put replacing value with softlock: {}", softLock);
-            return underlyingStore.put(new Element(element.getKey(), softLock));
         } finally {
             lock.unlock();
         }
@@ -109,21 +89,18 @@ public class NonXaTransactionalStore extends AbstractStore {
     public Element getQuiet(Object key) {
         lock.lock();
         try {
-            Element element = underlyingStore.getQuiet(key);
-            if (element != null && element.getValue() instanceof SoftLock) {
-                SoftLock softLock = (SoftLock) element.getValue();
+            ConcurrentMap<Object, SoftLock> softLocks = getCurrentTransactionContext().getOrCreateSoftLocksMap(cacheName);
 
-                if (softLock.inContext(getCurrentTransactionContext())) {
-                    LOG.debug("get in context, returning new element: {}", softLock.getNewElement());
-                    return softLock.getNewElement();
-                }
-
-                LOG.debug("get not in context, returning old element: {}", softLock.getOldElement());
-                return softLock.getOldElement();
+            SoftLock softLock = softLocks.get(key);
+            if (softLock == null) {
+                return underlyingStore.getQuiet(key);
             }
 
-            LOG.debug("no tx, returning actual element: {}", element);
-            return element;
+            if (softLock.getTransactionID().equals(getCurrentTransactionContext().getTransactionId())) {
+                return softLock.getNewElement();
+            } else {
+                return underlyingStore.getQuiet(key);
+            }
         } finally {
             lock.unlock();
         }

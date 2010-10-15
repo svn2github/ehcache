@@ -9,38 +9,30 @@ import java.io.Serializable;
 /**
  * @author lorban
  */
-public class SoftLock implements Serializable {
-    private final TransactionID txId;
-    private final String cacheName;
-    private final Element oldElement;
-    private final Element newElement;
+public class SoftLock {
+    private final NonXaTransactionalStore store;
+    private final TransactionContext transactionContext;
+    private Element newElement;
 
-    public SoftLock(TransactionContext transactionContext, String cacheName, Element oldElement, Element newElement) {
-        this.txId = transactionContext.getTransactionId();
-        this.cacheName = cacheName;
-        this.oldElement = oldElement;
+    public SoftLock(NonXaTransactionalStore store, TransactionContext transactionContext, Element newElement) {
+        this.store = store;
+        this.transactionContext = transactionContext;
         this.newElement = newElement;
-
-        transactionContext.put(cacheName, newElement.getKey(), this);
-        transactionContext.lock(this);
-    }
-
-    public Element getOldElement() {
-        return oldElement;
     }
 
     public Element getNewElement() {
         return newElement;
     }
 
-    public boolean inContext(TransactionContext ctx) {
-        return txId.equals(ctx.getTransactionId());
+    public void setNewElement(Element newElement) {
+        this.newElement = newElement;
     }
 
-    private TransactionContext getTransactionContext() {
-        return TransactionController.getInstance().getTransactionContext(txId);
+    public TransactionID getTransactionID() {
+        return transactionContext.getTransactionId();
     }
 
+/*
     public boolean tryLock(int timeoutInSeconds) throws InterruptedException {
         return getTransactionContext().tryLock(this, timeoutInSeconds);
     }
@@ -48,17 +40,10 @@ public class SoftLock implements Serializable {
     public void unlock() {
         getTransactionContext().unlock(this);
     }
+*/
 
-    public void commit() {
-        NonXaTransactionalStore transactionalStore = getTransactionContext().getTransactionalStore(cacheName);
-        transactionalStore.store(newElement.getKey(), newElement);
-        getTransactionContext().unlock(this);
-    }
-
-    public void rollback() {
-        NonXaTransactionalStore transactionalStore = getTransactionContext().getTransactionalStore(cacheName);
-        transactionalStore.store(newElement.getKey(), oldElement);
-        getTransactionContext().unlock(this);
+    public void commitNewElement() {
+        store.store(newElement.getKey(), newElement);
     }
 
     @Override
@@ -66,18 +51,8 @@ public class SoftLock implements Serializable {
         if (object instanceof SoftLock) {
             SoftLock other = (SoftLock) object;
 
-            if (!cacheName.equals(other.cacheName)) {
+            if (!transactionContext.equals(other.transactionContext)) {
                 return false;
-            }
-
-            if (!txId.equals(other.txId)) {
-                return false;
-            }
-
-            if (oldElement != null) {
-                if (!oldElement.equals(other.oldElement)) {
-                    return false;
-                }
             }
 
             if (newElement != null) {
@@ -95,12 +70,7 @@ public class SoftLock implements Serializable {
     public int hashCode() {
         int hashCode = 31;
 
-        hashCode *= cacheName.hashCode();
-        hashCode *= txId.hashCode();
-
-        if (oldElement != null) {
-            hashCode *= oldElement.hashCode();
-        }
+        hashCode *= transactionContext.hashCode();
 
         if (newElement != null) {
             hashCode *= newElement.hashCode();
@@ -111,6 +81,6 @@ public class SoftLock implements Serializable {
 
     @Override
     public String toString() {
-        return "SoftLock [cacheName: " + cacheName + ", txId: " + txId + ", oldElement: " + oldElement + ", newElement: " + newElement + "]";
+        return "SoftLock [transactionContext: " + transactionContext + ", newElement: " + newElement + "]";
     }
 }
