@@ -5,10 +5,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 
 /**
  * @author lorban
@@ -20,8 +19,8 @@ public class TransactionContext {
     private boolean rollbackOnly;
     private final int transactionTimeout;
     private final TransactionID transactionId;
-    private final ConcurrentMap<String, List<SoftLock>> softLockMap = new ConcurrentHashMap<String, List<SoftLock>>();
-    private final ConcurrentMap<String, NonXaTransactionalStore> storeMap = new ConcurrentHashMap<String, NonXaTransactionalStore>();
+    private final Map<String, List<SoftLock>> softLockMap = new HashMap<String, List<SoftLock>>();
+    private final Map<String, NonXaTransactionalStore> storeMap = new HashMap<String, NonXaTransactionalStore>();
 
     public TransactionContext(int transactionTimeout) {
         this.transactionTimeout = transactionTimeout;
@@ -36,7 +35,7 @@ public class TransactionContext {
         this.rollbackOnly = rollbackOnly;
     }
 
-    public void add(String cacheName, NonXaTransactionalStore store, SoftLock softLock) {
+    public void registerSoftLock(String cacheName, NonXaTransactionalStore store, SoftLock softLock) {
         List<SoftLock> softLocks = softLockMap.get(cacheName);
         if (softLocks == null) {
             softLocks = new ArrayList<SoftLock>();
@@ -58,7 +57,7 @@ public class TransactionContext {
             List<SoftLock> softLocks = stringListEntry.getValue();
             for (SoftLock softLock : softLocks) {
                 LOG.debug("committing {}", softLock);
-                softLock.commitNewElement();
+                store.store(softLock.getNewElement().getKey(), softLock.getNewElement());
                 softLock.unlock();
                 store.remove(softLock);
             }

@@ -14,10 +14,12 @@ public class TransactionTest extends TestCase {
     private CacheManager cacheManager;
     private Ehcache cache1;
     private Ehcache cache2;
+    private TransactionController transactionController;
 
     @Override
     protected void setUp() throws Exception {
         cacheManager = new CacheManager(TransactionTest.class.getResourceAsStream("/ehcache-nonxa.xml"));
+        transactionController = cacheManager.getTransactionController();
         cache1 = cacheManager.getEhcache("txCache1");
         cache1.removeAll();
         cache2 = cacheManager.getEhcache("txCache2");
@@ -30,7 +32,7 @@ public class TransactionTest extends TestCase {
     }
 
     public void testTwoCaches() throws Exception {
-        TransactionController.getInstance().begin();
+        transactionController.begin();
 
         cache1.put(new Element(1, "one"));
         cache2.put(new Element(1, "one"));
@@ -38,24 +40,24 @@ public class TransactionTest extends TestCase {
         Thread tx2 = new Thread() {
             @Override
             public void run() {
-                TransactionController.getInstance().begin();
+                transactionController.begin();
 
                 assertNull(cache1.get(1));
                 assertNull(cache2.get(1));
 
-                TransactionController.getInstance().commit();
+                transactionController.commit();
             }
         };
         tx2.start();
         tx2.join();
 
-        TransactionController.getInstance().commit();
+        transactionController.commit();
 
     }
 
 
     public void testOneCache() throws Exception {
-        TransactionController.getInstance().begin();
+        transactionController.begin();
 
         cache1.put(new Element(1, "one"));
 
@@ -64,33 +66,33 @@ public class TransactionTest extends TestCase {
         Thread tx2 = new Thread() {
             @Override
             public void run() {
-                TransactionController.getInstance().begin();
+                transactionController.begin();
 
                 assertNull(cache1.get(1));
 
-                TransactionController.getInstance().commit();
+                transactionController.commit();
             }
         };
         tx2.start();
         tx2.join();
 
 
-        TransactionController.getInstance().commit();
+        transactionController.commit();
 
-        TransactionController.getInstance().begin();
+        transactionController.begin();
 
         assertEquals(new Element(1, "one"), cache1.get(1));
 
-        TransactionController.getInstance().commit();
+        transactionController.commit();
 
         Thread tx3 = new Thread() {
             @Override
             public void run() {
-                TransactionController.getInstance().begin();
+                transactionController.begin();
 
                 assertEquals(new Element(1, "one"), cache1.get(1));
 
-                TransactionController.getInstance().commit();
+                transactionController.commit();
             }
         };
         tx3.start();
@@ -98,85 +100,85 @@ public class TransactionTest extends TestCase {
     }
 
     public void testRollback() throws Exception {
-        TransactionController.getInstance().begin();
+        transactionController.begin();
         cache1.put(new Element(1, "one"));
-        TransactionController.getInstance().rollback();
+        transactionController.rollback();
 
-        TransactionController.getInstance().begin();
+        transactionController.begin();
         assertNull(cache1.get(1));
-        TransactionController.getInstance().rollback();
+        transactionController.rollback();
     }
 
     public void testRollbackOnly() throws Exception {
-        TransactionController.getInstance().begin();
+        transactionController.begin();
 
         cache1.put(new Element(1, "one"));
 
-        TransactionController.getInstance().setRollbackOnly();
+        transactionController.setRollbackOnly();
         try {
-            TransactionController.getInstance().commit();
+            transactionController.commit();
             fail("expected TransactionException");
         } catch (TransactionException e) {
             // expected
         }
 
-        TransactionController.getInstance().begin();
+        transactionController.begin();
 
         assertNull(cache1.get(1));
 
-        TransactionController.getInstance().commit();
+        transactionController.commit();
     }
 
     public void testTwoConcurrentUpdates() throws Exception {
         final long WAIT_TIME = 1500;
         final long[] times = new long[2];
 
-        TransactionController.getInstance().begin(); //TX 0
+        transactionController.begin(); //TX 0
 
         cache1.put(new Element(1, "tx1-one"));
 
         Thread tx2 = new Thread() {
             @Override
             public void run() {
-                TransactionController.getInstance().begin(); //TX 1
+                transactionController.begin(); //TX 1
 
                 times[0] = System.currentTimeMillis();
                 cache1.put(new Element(1, "tx2-one"));
                 times[1] = System.currentTimeMillis();
 
-                TransactionController.getInstance().commit(); //TX 1
+                transactionController.commit(); //TX 1
             }
         };
         tx2.start();
         tx2.join(WAIT_TIME);
 
-        TransactionController.getInstance().commit(); //TX 0
+        transactionController.commit(); //TX 0
 
 
-        TransactionController.getInstance().begin(); //TX 2
+        transactionController.begin(); //TX 2
         assertEquals(new Element(1, "tx1-one"), cache1.get(1));
-        TransactionController.getInstance().commit(); //TX 2
+        transactionController.commit(); //TX 2
 
         tx2.join();
 
         assertTrue(times[1] - times[0] >= WAIT_TIME);
 
-        TransactionController.getInstance().begin(); // TX 3
+        transactionController.begin(); // TX 3
         assertEquals(new Element(1, "tx2-one"), cache1.get(1));
-        TransactionController.getInstance().commit(); // TX 3
+        transactionController.commit(); // TX 3
     }
 
     public void testDeadlock() throws Exception {
         final String[] losingTx = new String[1];
 
-        TransactionController.getInstance().begin(1);
+        transactionController.begin(1);
 
         cache1.put(new Element(1, "tx1-one"));
 
         Thread tx2 = new Thread() {
             @Override
             public void run() {
-                TransactionController.getInstance().begin(1);
+                transactionController.begin(1);
 
                 cache1.put(new Element(2, "tx2-two"));
 
@@ -191,10 +193,10 @@ public class TransactionTest extends TestCase {
 
                     cache1.put(new Element("tx2", ""));
 
-                    TransactionController.getInstance().commit();
+                    transactionController.commit();
                 } catch (TransactionException e) {
                     losingTx[0] = "tx2";
-                    TransactionController.getInstance().rollback();
+                    transactionController.rollback();
                 }
             }
         };
@@ -206,16 +208,16 @@ public class TransactionTest extends TestCase {
 
             cache1.put(new Element("tx1", ""));
 
-            TransactionController.getInstance().commit();
+            transactionController.commit();
         } catch (TransactionException e) {
             losingTx[0] = "tx1";
-            TransactionController.getInstance().rollback();
+            transactionController.rollback();
         }
 
         tx2.join();
 
 
-        TransactionController.getInstance().begin();
+        transactionController.begin();
         Element el1 = cache1.get(1);
         Element el2 = cache1.get(2);
 
@@ -234,7 +236,7 @@ public class TransactionTest extends TestCase {
         // make sure the losing TX could NOT insert its unique element
         assertNull(cache1.get(losingTx[0]));
 
-        TransactionController.getInstance().commit();
+        transactionController.commit();
     }
 
 }

@@ -189,6 +189,8 @@ public class CacheManager {
 
     private volatile TransactionManagerLookup transactionManagerLookup;
 
+    private final TransactionController transactionController = new TransactionController();
+
     /**
      * An constructor for CacheManager, which takes a configuration object, rather than one created by parsing
      * an ehcache.xml file. This constructor gives complete control over the creation of the CacheManager.
@@ -1527,5 +1529,9 @@ public class CacheManager {
     
     private List<Ehcache> createDefaultCacheDecorators(Ehcache underlyingCache) {
         return ConfigurationHelper.createDefaultCacheDecorators(underlyingCache, configuration.getDefaultCacheConfiguration());
+    }
+
+    public TransactionController getTransactionController() {
+        return transactionController;
     }
 }

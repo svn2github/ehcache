@@ -42,14 +42,20 @@ public class NonXaTransactionalStore extends AbstractStore {
 
     private static final Logger LOG = LoggerFactory.getLogger(NonXaTransactionalStore.class.getName());
 
+    private TransactionController transactionController;
     private final String cacheName;
     private final Store underlyingStore;
     private final Lock lock = new ReentrantLock();
     private final ConcurrentMap<Object, SoftLock> softLockMap = new ConcurrentHashMap<Object, SoftLock>();
 
-    public NonXaTransactionalStore(String cacheName, Store underlyingStore) {
+    public NonXaTransactionalStore(TransactionController transactionController, String cacheName, Store underlyingStore) {
+        this.transactionController = transactionController;
         this.cacheName = cacheName;
         this.underlyingStore = underlyingStore;
+    }
+
+    private TransactionContext getCurrentTransactionContext() {
+        return transactionController.getCurrentTransactionContext();
     }
 
     public void store(Object key, Element element) throws CacheException {
@@ -70,9 +76,9 @@ public class NonXaTransactionalStore extends AbstractStore {
             Object key = element.getObjectKey();
             SoftLock softLock = softLockMap.get(key);
             if (softLock == null) {
-                softLock = new SoftLock(this, getCurrentTransactionContext(), element);
+                softLock = new SoftLock(getCurrentTransactionContext().getTransactionId(), element);
                 softLockMap.put(key, softLock);
-                getCurrentTransactionContext().add(cacheName, this, softLock);
+                getCurrentTransactionContext().registerSoftLock(cacheName, this, softLock);
                 return !underlyingStore.containsKey(key);
             } else {
                 if (softLock.getTransactionID().equals(getCurrentTransactionContext().getTransactionId())) {
@@ -80,10 +86,9 @@ public class NonXaTransactionalStore extends AbstractStore {
                     return false;
                 } else {
                     lock.unlock();
-                    boolean locked;
                     while (true) {
                         try {
-                            locked = softLock.tryLock(getCurrentTransactionContext().getTransactionTimeout());
+                            boolean locked = softLock.tryLock(getCurrentTransactionContext().getTransactionTimeout());
                             lock.lock();
                             if (!locked) {
                                 throw new TransactionException("deadlock detected on " + softLock);
@@ -94,9 +99,9 @@ public class NonXaTransactionalStore extends AbstractStore {
                         }
                     }
 
-                    softLock = new SoftLock(this, getCurrentTransactionContext(), element);
+                    softLock = new SoftLock(getCurrentTransactionContext().getTransactionId(), element);
                     softLockMap.put(key, softLock);
-                    getCurrentTransactionContext().add(cacheName, this, softLock);
+                    getCurrentTransactionContext().registerSoftLock(cacheName, this, softLock);
                     return !underlyingStore.containsKey(key);
                 }
             }
@@ -245,14 +250,6 @@ public class NonXaTransactionalStore extends AbstractStore {
 
     public Object getMBean() {
         return underlyingStore.getMBean();
-    }
-
-    public TransactionContext getCurrentTransactionContext() {
-        TransactionContext context = TransactionController.getInstance().getCurrentTransactionContext();
-        if (context == null) {
-            throw new TransactionException("no transaction started");
-        }
-        return context;
     }
 
 }

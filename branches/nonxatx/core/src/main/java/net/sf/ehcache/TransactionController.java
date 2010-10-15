@@ -20,20 +20,10 @@ public final class TransactionController {
     private static final String MDC_KEY = "__ehcache_txId";
     private static final int DEFAULT_TRANSACTION_TIMEOUT = 15;
 
-    private static ThreadLocal<TransactionID> currentTxIdIntegerThreadLocal = new ThreadLocal<TransactionID>();
-    private static ConcurrentMap<TransactionID, TransactionContext> contextMap = new ConcurrentHashMap<TransactionID, TransactionContext>();
+    private ThreadLocal<TransactionID> currentTxIdIntegerThreadLocal = new ThreadLocal<TransactionID>();
+    private ConcurrentMap<TransactionID, TransactionContext> contextMap = new ConcurrentHashMap<TransactionID, TransactionContext>();
 
-    private static TransactionController _instance;
-
-    public synchronized static TransactionController getInstance() {
-        if (_instance == null) {
-            _instance = new TransactionController();
-        }
-        return _instance;
-    }
-
-
-    private TransactionController() {
+    protected TransactionController() {
         //
     }
 
@@ -98,15 +88,11 @@ public final class TransactionController {
         currentTx.setRollbackOnly(true);
     }
 
-    public TransactionContext getTransactionContext(TransactionID txId) {
-        return contextMap.get(txId);
-    }
-
     public TransactionContext getCurrentTransactionContext() {
         TransactionID txId = currentTxIdIntegerThreadLocal.get();
         if (txId == null)
             throw new TransactionException("no transaction started");
-        
+
         return contextMap.get(txId);
     }
 }

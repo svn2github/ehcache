@@ -1,7 +1,6 @@
 package net.sf.ehcache.transaction.nonxa;
 
 import net.sf.ehcache.Element;
-import net.sf.ehcache.store.NonXaTransactionalStore;
 
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
@@ -11,14 +10,12 @@ import java.util.concurrent.locks.ReentrantLock;
  * @author lorban
  */
 public class SoftLock {
-    private final NonXaTransactionalStore store;
-    private final TransactionContext transactionContext;
+    private final TransactionID transactionID;
     private Element newElement;
     private final Lock lock = new ReentrantLock();
 
-    public SoftLock(NonXaTransactionalStore store, TransactionContext transactionContext, Element newElement) {
-        this.store = store;
-        this.transactionContext = transactionContext;
+    public SoftLock(TransactionID transactionID, Element newElement) {
+        this.transactionID = transactionID;
         this.newElement = newElement;
         lock.lock();
     }
@@ -32,7 +29,7 @@ public class SoftLock {
     }
 
     public TransactionID getTransactionID() {
-        return transactionContext.getTransactionId();
+        return transactionID;
     }
 
     public boolean tryLock(int transactionTimeout) throws InterruptedException {
@@ -43,16 +40,12 @@ public class SoftLock {
         lock.unlock();
     }
 
-    public void commitNewElement() {
-        store.store(newElement.getKey(), newElement);
-    }
-
     @Override
     public boolean equals(Object object) {
         if (object instanceof SoftLock) {
             SoftLock other = (SoftLock) object;
 
-            if (!transactionContext.equals(other.transactionContext)) {
+            if (!transactionID.equals(other.transactionID)) {
                 return false;
             }
 
@@ -71,7 +64,7 @@ public class SoftLock {
     public int hashCode() {
         int hashCode = 31;
 
-        hashCode *= transactionContext.hashCode();
+        hashCode *= transactionID.hashCode();
 
         if (newElement != null) {
             hashCode *= newElement.hashCode();
@@ -82,6 +75,6 @@ public class SoftLock {
 
     @Override
     public String toString() {
-        return "SoftLock [transactionID: " + transactionContext.getTransactionId() + ", newElement: " + newElement + "]";
+        return "SoftLock [transactionID: " + transactionID + ", newElement: " + newElement + "]";
     }
 }

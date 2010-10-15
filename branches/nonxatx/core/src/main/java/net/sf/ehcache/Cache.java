@@ -1046,7 +1046,7 @@ public class Cache implements Ehcache, StoreListener {
                 this.compoundStore = new XATransactionalStore(this, ehcacheXAStore, transactionManagerLookup, txnManager);
             } else if (configuration.isNonXaTransactional()) {
                 configuration.copyOnRead(true).copyOnWrite(true);
-                this.compoundStore = new NonXaTransactionalStore(configuration.getName(), store);
+                this.compoundStore = new NonXaTransactionalStore(getCacheManager().getTransactionController(), configuration.getName(), store);
             } else {
                 this.compoundStore = store;
             }
