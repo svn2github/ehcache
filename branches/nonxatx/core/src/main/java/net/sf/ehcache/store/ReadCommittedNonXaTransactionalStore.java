@@ -16,11 +16,13 @@
 
 package net.sf.ehcache.store;
 
+import net.sf.ehcache.CacheEntry;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.Status;
 import net.sf.ehcache.TransactionController;
 import net.sf.ehcache.transaction.nonxa.SoftLock;
+import net.sf.ehcache.transaction.nonxa.TransactionListener;
 import net.sf.ehcache.util.LargeSet;
 import net.sf.ehcache.util.SetWrapperList;
 import net.sf.ehcache.writer.CacheWriterManager;
@@ -75,6 +77,24 @@ public class ReadCommittedNonXaTransactionalStore extends AbstractNonXaTransacti
             }
         } finally {
             lock.writeLock().unlock();
+        }
+    }
+
+    public Element get(Object key) {
+        lock.readLock().lock();
+        try {
+            SoftLock softLock = softLockMap.get(key);
+            if (softLock == null) {
+                return underlyingStore.get(key);
+            }
+
+            if (softLock.getTransactionID().equals(getCurrentTransactionContext().getTransactionId())) {
+                return softLock.getNewElement();
+            } else {
+                return underlyingStore.get(key);
+            }
+        } finally {
+            lock.readLock().unlock();
         }
     }
 
@@ -176,18 +196,50 @@ public class ReadCommittedNonXaTransactionalStore extends AbstractNonXaTransacti
         }
     }
 
-    public Element get(Object key) {
-        return getQuiet(key);
+    public boolean putWithWriter(final Element element, final CacheWriterManager writerManager) throws CacheException {
+        lock.writeLock().lock();
+        try {
+            boolean rc = put(element);
+            if (writerManager != null) {
+                getCurrentTransactionContext().addListener(new TransactionListener() {
+                    public void beforeCommit() {
+                        writerManager.put(element);
+                    }
+
+                    public void afterCommit() {
+                    }
+
+                    public void afterRollback() {
+                    }
+                });
+            }
+            return rc;
+        } finally {
+            lock.writeLock().unlock();
+        }
     }
 
-    public boolean putWithWriter(Element element, CacheWriterManager writerManager) throws CacheException {
-        throw new UnsupportedOperationException();
-        //return underlyingStore.putWithWriter(element, writerManager);
-    }
+    public Element removeWithWriter(final Object key, final CacheWriterManager writerManager) throws CacheException {
+        lock.writeLock().lock();
+        try {
+            Element rc = remove(key);
+            if (writerManager != null) {
+                getCurrentTransactionContext().addListener(new TransactionListener() {
+                    public void beforeCommit() {
+                        writerManager.remove(new CacheEntry(key, getQuiet(key)));
+                    }
 
-    public Element removeWithWriter(Object key, CacheWriterManager writerManager) throws CacheException {
-        throw new UnsupportedOperationException();
-        //return underlyingStore.removeWithWriter(key, writerManager);
+                    public void afterCommit() {
+                    }
+
+                    public void afterRollback() {
+                    }
+                });
+            }
+            return rc;
+        } finally {
+            lock.writeLock().unlock();
+        }
     }
 
     public Element putIfAbsent(Element element) throws NullPointerException {

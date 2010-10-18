@@ -21,6 +21,7 @@ public class TransactionContext {
     private final TransactionID transactionId;
     private final Map<String, List<SoftLock>> softLockMap = new HashMap<String, List<SoftLock>>();
     private final Map<String, AbstractNonXaTransactionalStore> storeMap = new HashMap<String, AbstractNonXaTransactionalStore>();
+    private final List<TransactionListener> listeners = new ArrayList<TransactionListener>();
 
     public TransactionContext(int transactionTimeout) {
         this.transactionTimeout = transactionTimeout;
@@ -90,6 +91,8 @@ public class TransactionContext {
             throw new TransactionException("transaction was marked as rollback only, rolled back on commit");
         }
 
+        fireBeforeCommitEvent();
+
         for (Map.Entry<String, List<SoftLock>> stringListEntry : softLockMap.entrySet()) {
             String cacheName = stringListEntry.getKey();
             AbstractNonXaTransactionalStore store = storeMap.get(cacheName);
@@ -107,6 +110,8 @@ public class TransactionContext {
         }
         softLockMap.clear();
         storeMap.clear();
+
+        fireAfterCommitEvent();
     }
 
     public void rollback() {
@@ -122,11 +127,35 @@ public class TransactionContext {
         }
         softLockMap.clear();
         storeMap.clear();
+
+        fireAfterRollbackEvent();
     }
 
     public TransactionID getTransactionId() {
         return transactionId;
     }
+
+    public void addListener(TransactionListener listener) {
+        this.listeners.add(listener);
+    }
+
+    private void fireBeforeCommitEvent() {
+        for (TransactionListener listener : listeners) {
+            listener.beforeCommit();
+        }
+    }
+
+    private void fireAfterCommitEvent() {
+        for (TransactionListener listener : listeners) {
+            listener.afterCommit();
+        }
+    }
+
+    private void fireAfterRollbackEvent() {
+        for (TransactionListener listener : listeners) {
+            listener.afterRollback();
+        }
+    }    
 
     @Override
     public int hashCode() {
