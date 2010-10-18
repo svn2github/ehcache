@@ -1,8 +1,9 @@
 package net.sf.ehcache;
 
+import net.sf.ehcache.transaction.TransactionID;
 import net.sf.ehcache.transaction.nonxa.TransactionContext;
 import net.sf.ehcache.transaction.nonxa.TransactionException;
-import net.sf.ehcache.transaction.nonxa.TransactionID;
+import net.sf.ehcache.transaction.nonxa.TransactionIDFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
@@ -20,11 +21,12 @@ public final class TransactionController {
     private static final String MDC_KEY = "__ehcache_txId";
     private static final int DEFAULT_TRANSACTION_TIMEOUT = 15;
 
-    private ThreadLocal<TransactionID> currentTransactionIdThreadLocal = new ThreadLocal<TransactionID>();
-    private ConcurrentMap<TransactionID, TransactionContext> contextMap = new ConcurrentHashMap<TransactionID, TransactionContext>();
+    private final ThreadLocal<TransactionID> currentTransactionIdThreadLocal = new ThreadLocal<TransactionID>();
+    private final ConcurrentMap<TransactionID, TransactionContext> contextMap = new ConcurrentHashMap<TransactionID, TransactionContext>();
+    private final TransactionIDFactory transactionIDFactory;
 
-    protected TransactionController() {
-        //
+    protected TransactionController(TransactionIDFactory transactionIDFactory) {
+        this.transactionIDFactory = transactionIDFactory;
     }
 
     public void begin() {
@@ -37,7 +39,7 @@ public final class TransactionController {
             throw new TransactionException("transaction already started");
         }
 
-        TransactionContext newTx = new TransactionContext(transactionTimeout);
+        TransactionContext newTx = new TransactionContext(transactionTimeout, transactionIDFactory.createTransactionID());
         contextMap.put(newTx.getTransactionId(), newTx);
         currentTransactionIdThreadLocal.set(newTx.getTransactionId());
 

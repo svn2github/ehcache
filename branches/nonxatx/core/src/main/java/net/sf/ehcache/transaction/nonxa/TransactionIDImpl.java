@@ -1,25 +1,27 @@
 package net.sf.ehcache.transaction.nonxa;
 
+import net.sf.ehcache.transaction.TransactionID;
+
 import java.io.Serializable;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * @author lorban
  */
-public final class TransactionID implements Serializable {
+public final class TransactionIDImpl implements TransactionID {
 
     private static final AtomicInteger idGenerator = new AtomicInteger();
 
     private final int id;
 
-    public TransactionID() {
+    public TransactionIDImpl() {
         this.id = idGenerator.getAndIncrement();
     }
 
     @Override
     public final boolean equals(Object obj) {
-        if (obj instanceof TransactionID) {
-            TransactionID otherId = (TransactionID) obj;
+        if (obj instanceof TransactionIDImpl) {
+            TransactionIDImpl otherId = (TransactionIDImpl) obj;
             return id == otherId.id;
         }
         return false;

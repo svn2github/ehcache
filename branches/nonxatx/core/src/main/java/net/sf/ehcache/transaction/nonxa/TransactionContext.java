@@ -1,6 +1,7 @@
 package net.sf.ehcache.transaction.nonxa;
 
 import net.sf.ehcache.store.AbstractNonXaTransactionalStore;
+import net.sf.ehcache.transaction.TransactionID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,9 +24,9 @@ public class TransactionContext {
     private final Map<String, AbstractNonXaTransactionalStore> storeMap = new HashMap<String, AbstractNonXaTransactionalStore>();
     private final List<TransactionListener> listeners = new ArrayList<TransactionListener>();
 
-    public TransactionContext(int transactionTimeout) {
+    public TransactionContext(int transactionTimeout, TransactionID transactionId) {
         this.transactionTimeout = transactionTimeout;
-        this.transactionId = new TransactionID();
+        this.transactionId = transactionId;
     }
 
     public int getTransactionTimeout() {

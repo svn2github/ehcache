@@ -85,6 +85,8 @@ import net.sf.ehcache.store.compound.impl.MemoryOnlyStore;
 import net.sf.ehcache.store.compound.impl.OverflowToDiskStore;
 import net.sf.ehcache.transaction.manager.TransactionManagerLookup;
 import net.sf.ehcache.transaction.nonxa.JtaNonXaTransactionalStore;
+import net.sf.ehcache.transaction.nonxa.SoftLockFactory;
+import net.sf.ehcache.transaction.nonxa.SoftLockFactoryImpl;
 import net.sf.ehcache.transaction.xa.EhcacheXAResourceImpl;
 import net.sf.ehcache.transaction.xa.EhcacheXAStore;
 import net.sf.ehcache.util.ClassLoaderUtil;
@@ -1047,11 +1049,23 @@ public class Cache implements Ehcache, StoreListener {
                 this.compoundStore = new XATransactionalStore(this, ehcacheXAStore, transactionManagerLookup, txnManager);
             } else if (configuration.isJtaNonXaTransactional()) {
                 configuration.copyOnRead(true).copyOnWrite(true);
-                ReadCommittedNonXaTransactionalStore nonXaStore = new ReadCommittedNonXaTransactionalStore(getCacheManager().getTransactionController(), configuration.getName(), store);
+                SoftLockFactory softLockFactory;
+                if (configuration.getTerracottaConfiguration().isClustered()) {
+                    throw new CacheException("non-xa TX not yet supported");
+                } else {
+                    softLockFactory = new SoftLockFactoryImpl();
+                }
+                ReadCommittedNonXaTransactionalStore nonXaStore = new ReadCommittedNonXaTransactionalStore(getCacheManager().getTransactionController(), softLockFactory, configuration.getName(), store);
                 this.compoundStore = new JtaNonXaTransactionalStore(nonXaStore, transactionManagerLookup, cacheManager.getTransactionController());
             } else if (configuration.isNonXaTransactional()) {
                 configuration.copyOnRead(true).copyOnWrite(true);
-                this.compoundStore = new ReadCommittedNonXaTransactionalStore(getCacheManager().getTransactionController(), configuration.getName(), store);
+                SoftLockFactory softLockFactory;
+                if (configuration.getTerracottaConfiguration().isClustered()) {
+                    throw new CacheException("non-xa TX not yet supported");
+                } else {
+                    softLockFactory = new SoftLockFactoryImpl();
+                }
+                this.compoundStore = new ReadCommittedNonXaTransactionalStore(getCacheManager().getTransactionController(), softLockFactory, configuration.getName(), store);
             } else {
                 this.compoundStore = store;
             }

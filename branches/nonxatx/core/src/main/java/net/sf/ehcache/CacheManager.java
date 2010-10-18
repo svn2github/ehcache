@@ -41,6 +41,8 @@ import net.sf.ehcache.store.Store;
 import net.sf.ehcache.store.compound.impl.MemoryOnlyStore;
 import net.sf.ehcache.terracotta.ClusteredInstanceFactory;
 import net.sf.ehcache.transaction.manager.TransactionManagerLookup;
+import net.sf.ehcache.transaction.nonxa.TransactionIDFactory;
+import net.sf.ehcache.transaction.nonxa.TransactionIDFactoryImpl;
 import net.sf.ehcache.transaction.xa.EhcacheXAStore;
 import net.sf.ehcache.transaction.xa.EhcacheXAStoreImpl;
 import net.sf.ehcache.util.FailSafeTimer;
@@ -189,7 +191,7 @@ public class CacheManager {
 
     private volatile TransactionManagerLookup transactionManagerLookup;
 
-    private final TransactionController transactionController = new TransactionController();
+    private TransactionController transactionController;
 
     /**
      * An constructor for CacheManager, which takes a configuration object, rather than one created by parsing
@@ -321,7 +323,15 @@ public class CacheManager {
         if (terracottaClusteredInstanceFactory != null && this.name == null) {
             this.name = CacheManager.DEFAULT_NAME;
         }
-        
+
+        TransactionIDFactory transactionIDFactory;
+        if (terracottaClusteredInstanceFactory != null) {
+            throw new CacheException("non-xa TX not yet supported in clustered mode");
+        } else {
+            transactionIDFactory = new TransactionIDFactoryImpl();
+        }
+        this.transactionController = new TransactionController(transactionIDFactory);
+
         ConfigurationHelper configurationHelper = new ConfigurationHelper(this, localConfiguration);
         configure(configurationHelper);
         status = Status.STATUS_ALIVE;

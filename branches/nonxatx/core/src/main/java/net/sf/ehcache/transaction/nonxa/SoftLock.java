@@ -1,91 +1,23 @@
 package net.sf.ehcache.transaction.nonxa;
 
 import net.sf.ehcache.Element;
-
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
+import net.sf.ehcache.transaction.TransactionID;
 
 /**
- * @author lorban
+ * @author Ludovic Orban
  */
-public class SoftLock {
-    private final TransactionID transactionID;
-    private final Object key;
-    private Element newElement;
-    private final Lock lock = new ReentrantLock();
+public interface SoftLock {
 
-    public SoftLock(TransactionID transactionID, Object key, Element newElement) {
-        this.transactionID = transactionID;
-        this.key = key;
-        this.newElement = newElement;
-        lock.lock();
-    }
+    Object getKey();
 
-    public Object getKey() {
-        return key;
-    }
+    Element getNewElement();
 
-    public Element getNewElement() {
-        return newElement;
-    }
+    void setNewElement(Element newElement);
 
-    public void setNewElement(Element newElement) {
-        this.newElement = newElement;
-    }
+    TransactionID getTransactionID();
 
-    public TransactionID getTransactionID() {
-        return transactionID;
-    }
+    boolean tryLock(int transactionTimeout) throws InterruptedException;
 
-    public boolean tryLock(int transactionTimeout) throws InterruptedException {
-        return lock.tryLock(transactionTimeout, TimeUnit.SECONDS);
-    }
+    void unlock();
 
-    public void unlock() {
-        lock.unlock();
-    }
-
-    @Override
-    public boolean equals(Object object) {
-        if (object instanceof SoftLock) {
-            SoftLock other = (SoftLock) object;
-
-            if (!transactionID.equals(other.transactionID)) {
-                return false;
-            }
-
-            if (!key.equals(other.key)) {
-                return false;
-            }
-
-            if (newElement != null) {
-                if (!newElement.equals(other.newElement)) {
-                    return false;
-                }
-            }
-
-            return true;
-        }
-        return false;
-    }
-
-    @Override
-    public int hashCode() {
-        int hashCode = 31;
-
-        hashCode *= transactionID.hashCode();
-        hashCode *= key.hashCode();
-
-        if (newElement != null) {
-            hashCode *= newElement.hashCode();
-        }
-
-        return hashCode;
-    }
-
-    @Override
-    public String toString() {
-        return "[transactionID: " + transactionID + ", key: " + key + ", newElement: " + newElement + "]";
-    }
 }
