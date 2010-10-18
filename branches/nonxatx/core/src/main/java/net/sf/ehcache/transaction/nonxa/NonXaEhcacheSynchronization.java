@@ -26,4 +26,9 @@ public class NonXaEhcacheSynchronization implements Synchronization {
             transactionController.rollback();
         }
     }
+
+    @Override
+    public String toString() {
+        return "NonXaEhcacheSynchronization of transaction [" + transactionController.getCurrentTransactionContext().getTransactionId() + "]";
+    }
 }

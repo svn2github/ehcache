@@ -32,6 +32,6 @@ public final class TransactionID implements Serializable {
 
     @Override
     public String toString() {
-        return "TransactionID [" + id + "]";
+        return "" + id;
     }
 }

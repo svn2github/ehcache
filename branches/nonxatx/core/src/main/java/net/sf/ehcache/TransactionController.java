@@ -42,7 +42,7 @@ public final class TransactionController {
         currentTransactionIdThreadLocal.set(newTx.getTransactionId());
 
         MDC.put(MDC_KEY, newTx.getTransactionId().toString());
-        LOG.debug("begun {}", newTx.getTransactionId());
+        LOG.debug("begun transaction {}", newTx.getTransactionId());
     }
 
     public void commit() {
@@ -58,7 +58,7 @@ public final class TransactionController {
         } finally {
             contextMap.remove(txId);
             currentTransactionIdThreadLocal.remove();
-            LOG.debug("committed {}", currentTx.getTransactionId());
+            LOG.debug("committed transaction {}", currentTx.getTransactionId());
             MDC.remove(MDC_KEY);
         }
     }
@@ -76,7 +76,7 @@ public final class TransactionController {
         } finally {
             contextMap.remove(txId);
             currentTransactionIdThreadLocal.remove();
-            LOG.debug("rolled back {}", currentTx.getTransactionId());
+            LOG.debug("rolled back transaction {}", currentTx.getTransactionId());
             MDC.remove(MDC_KEY);
         }
     }
