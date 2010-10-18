@@ -23,6 +23,7 @@ import net.sf.ehcache.Status;
 import net.sf.ehcache.TransactionController;
 import net.sf.ehcache.transaction.nonxa.SoftLock;
 import net.sf.ehcache.transaction.nonxa.SoftLockFactory;
+import net.sf.ehcache.transaction.nonxa.SoftLockStore;
 import net.sf.ehcache.transaction.nonxa.TransactionListener;
 import net.sf.ehcache.util.LargeSet;
 import net.sf.ehcache.util.SetWrapperList;
@@ -46,8 +47,8 @@ public class ReadCommittedNonXaTransactionalStore extends AbstractNonXaTransacti
     private final SoftLockFactory softLockFactory;
 
 
-    public ReadCommittedNonXaTransactionalStore(TransactionController transactionController, SoftLockFactory softLockFactory, String cacheName, Store underlyingStore) {
-        super(transactionController, cacheName, underlyingStore);
+    public ReadCommittedNonXaTransactionalStore(TransactionController transactionController, SoftLockStore softLockStore, SoftLockFactory softLockFactory, String cacheName, Store underlyingStore) {
+        super(transactionController, softLockStore, cacheName, underlyingStore);
         this.softLockFactory = softLockFactory;
     }
 
@@ -451,4 +452,8 @@ public class ReadCommittedNonXaTransactionalStore extends AbstractNonXaTransacti
         return underlyingStore.getMBean();
     }
 
+    @Override
+    public void setNodeCoherent(boolean coherent) throws UnsupportedOperationException {
+        underlyingStore.setNodeCoherent(coherent);
+    }
 }

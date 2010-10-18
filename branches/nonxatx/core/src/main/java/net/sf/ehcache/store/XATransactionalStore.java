@@ -131,7 +131,11 @@ public class XATransactionalStore extends AbstractStore {
      * {@inheritDoc}
      */
     public Element get(final Object key) {
-        TransactionContext context = getOrCreateTransactionContext();
+        TransactionContext context = getTransactionContext();
+        if (context == null) {
+            return getFromUnderlyingStore(key);
+        }
+
         Element element = context.get(key);
         if (element == null && !context.isRemoved(key)) {
             element = getFromUnderlyingStore(key);
@@ -143,7 +147,11 @@ public class XATransactionalStore extends AbstractStore {
      * {@inheritDoc}
      */
     public Element getQuiet(final Object key) {
-        TransactionContext context = getOrCreateTransactionContext();
+        TransactionContext context = getTransactionContext();
+        if (context == null) {
+            return getQuietFromUnderlyingStore(key);
+        }
+
         Element element = context.get(key);
         if (element == null && !context.isRemoved(key)) {
             element = getQuietFromUnderlyingStore(key);
@@ -520,6 +528,24 @@ public class XATransactionalStore extends AbstractStore {
             }
 
             return xaResource;
+        } catch (SystemException e) {
+            throw new CacheException(e);
+        }
+    }
+
+    private TransactionContext getTransactionContext() {
+        try {
+            Transaction transaction = txnManager.getTransaction();
+            if (transaction == null) {
+                throw new CacheException("Cache " + cache.getName() + " can only be accessed within a JTA Transaction!");
+            }
+
+            EhcacheXAResource xaResource = transactionToXAResourceMap.get(transaction);
+            if (xaResource == null) {
+                return null;
+            }
+
+            return getOrCreateTransactionContext();
         } catch (SystemException e) {
             throw new CacheException(e);
         }

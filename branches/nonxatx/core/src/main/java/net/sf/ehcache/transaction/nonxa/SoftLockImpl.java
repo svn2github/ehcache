@@ -60,12 +60,6 @@ public class SoftLockImpl implements SoftLock {
                 return false;
             }
 
-            if (newElement != null) {
-                if (!newElement.equals(other.newElement)) {
-                    return false;
-                }
-            }
-
             return true;
         }
         return false;
@@ -77,10 +71,6 @@ public class SoftLockImpl implements SoftLock {
 
         hashCode *= transactionID.hashCode();
         hashCode *= key.hashCode();
-
-        if (newElement != null) {
-            hashCode *= newElement.hashCode();
-        }
 
         return hashCode;
     }

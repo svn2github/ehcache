@@ -41,8 +41,7 @@ import net.sf.ehcache.store.Store;
 import net.sf.ehcache.store.compound.impl.MemoryOnlyStore;
 import net.sf.ehcache.terracotta.ClusteredInstanceFactory;
 import net.sf.ehcache.transaction.manager.TransactionManagerLookup;
-import net.sf.ehcache.transaction.nonxa.TransactionIDFactory;
-import net.sf.ehcache.transaction.nonxa.TransactionIDFactoryImpl;
+import net.sf.ehcache.transaction.nonxa.*;
 import net.sf.ehcache.transaction.xa.EhcacheXAStore;
 import net.sf.ehcache.transaction.xa.EhcacheXAStoreImpl;
 import net.sf.ehcache.util.FailSafeTimer;
@@ -324,12 +323,7 @@ public class CacheManager {
             this.name = CacheManager.DEFAULT_NAME;
         }
 
-        TransactionIDFactory transactionIDFactory;
-        if (terracottaClusteredInstanceFactory != null) {
-            throw new CacheException("non-xa TX not yet supported in clustered mode");
-        } else {
-            transactionIDFactory = new TransactionIDFactoryImpl();
-        }
+        TransactionIDFactory transactionIDFactory = createTransactionIDFactory();
         this.transactionController = new TransactionController(transactionIDFactory);
 
         ConfigurationHelper configurationHelper = new ConfigurationHelper(this, localConfiguration);
@@ -1543,5 +1537,35 @@ public class CacheManager {
 
     public TransactionController getTransactionController() {
         return transactionController;
+    }
+
+    SoftLockFactory createSoftLockFactory(Ehcache cache) {
+        SoftLockFactory softLockFactory;
+        if (cache.getCacheConfiguration().isTerracottaClustered()) {
+            softLockFactory = getClusteredInstanceFactory(cache).createSoftLockFactory();
+        } else {
+            softLockFactory = new SoftLockFactoryImpl();
+        }
+        return softLockFactory;
+    }
+
+    private TransactionIDFactory createTransactionIDFactory() {
+        TransactionIDFactory transactionIDFactory;
+        if (terracottaClusteredInstanceFactory != null) {
+            transactionIDFactory = terracottaClusteredInstanceFactory.createTransactionIDFactory();
+        } else {
+            transactionIDFactory = new TransactionIDFactoryImpl();
+        }
+        return transactionIDFactory;
+    }
+
+    SoftLockStore createSoftLockStore(Ehcache cache) {
+        SoftLockStore softLockStore;
+        if (cache.getCacheConfiguration().isTerracottaClustered()) {
+            softLockStore = getClusteredInstanceFactory(cache).createSoftLockStore();
+        } else {
+            softLockStore = new SoftLockStoreImpl();
+        }
+        return softLockStore;
     }
 }
