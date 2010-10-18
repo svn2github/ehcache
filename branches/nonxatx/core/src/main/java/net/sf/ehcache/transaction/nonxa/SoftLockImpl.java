@@ -16,7 +16,7 @@ public class SoftLockImpl implements SoftLock {
     private Element newElement;
     private final Lock lock = new ReentrantLock();
 
-    public SoftLockImpl(TransactionID transactionID, Object key, Element newElement) {
+    SoftLockImpl(TransactionID transactionID, Object key, Element newElement) {
         this.transactionID = transactionID;
         this.key = key;
         this.newElement = newElement;

@@ -14,7 +14,7 @@ public final class TransactionIDImpl implements TransactionID {
 
     private final int id;
 
-    public TransactionIDImpl() {
+    TransactionIDImpl() {
         this.id = idGenerator.getAndIncrement();
     }
 
