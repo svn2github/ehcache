@@ -16,6 +16,8 @@ public interface SoftLock {
 
     TransactionID getTransactionID();
 
+    void lock();
+
     boolean tryLock(int transactionTimeout) throws InterruptedException;
 
     void unlock();

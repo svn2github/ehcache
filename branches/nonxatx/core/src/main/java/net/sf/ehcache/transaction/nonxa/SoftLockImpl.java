@@ -20,7 +20,6 @@ public class SoftLockImpl implements SoftLock {
         this.transactionID = transactionID;
         this.key = key;
         this.newElement = newElement;
-        lock.lock();
     }
 
     public Object getKey() {
@@ -37,6 +36,10 @@ public class SoftLockImpl implements SoftLock {
 
     public TransactionID getTransactionID() {
         return transactionID;
+    }
+
+    public void lock() {
+        lock.lock();
     }
 
     public boolean tryLock(int transactionTimeout) throws InterruptedException {
