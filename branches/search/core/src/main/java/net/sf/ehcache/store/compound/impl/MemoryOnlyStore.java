@@ -18,6 +18,7 @@ package net.sf.ehcache.store.compound.impl;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -507,6 +508,12 @@ public final class MemoryOnlyStore extends CompoundStore implements CacheConfigu
                 throw new SearchException("Attribute [" + name + "] not included in query");
             }
             return (T) value;
+        }
+
+        @Override
+        public String toString() {
+            return "ResultImpl [attributes=" + attributes + ", key=" + key + ", query=" + query + ", sortAttributes="
+                    + Arrays.toString(sortAttributes) + "]";
         }
 
     }

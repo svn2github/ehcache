@@ -17,6 +17,7 @@
 package net.sf.ehcache.search.expression;
 
 import java.util.Collection;
+import java.util.Collections;
 
 import net.sf.ehcache.search.SearchException;
 import net.sf.ehcache.search.attribute.AttributeType;
@@ -24,7 +25,7 @@ import net.sf.ehcache.store.ElementAttributeValues;
 
 /**
  * Criteria for inclusion in a given Collection (presumably a Set) of values
- *
+ * 
  * @author teck
  */
 public class InCollectionCriteria implements Criteria {
@@ -36,7 +37,7 @@ public class InCollectionCriteria implements Criteria {
 
     /**
      * Constructor
-     *
+     * 
      * @param attributeName attribute name
      * @param values
      */
@@ -53,6 +54,24 @@ public class InCollectionCriteria implements Criteria {
         } else {
             this.type = null;
         }
+    }
+
+    /**
+     * Return attributeName
+     * 
+     * @return String attribute name
+     */
+    public String getAttributeName() {
+        return this.attributeName;
+    }
+
+    /**
+     * Return values.
+     * 
+     * @return Collection<?> values
+     */
+    public Collection<?> values() {
+        return Collections.unmodifiableCollection(this.values);
     }
 
     private AttributeType verifyCommonType() {
