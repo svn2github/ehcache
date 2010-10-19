@@ -207,7 +207,12 @@ public class JtaNonXaTransactionalStore extends AbstractStore {
     }
 
     @Override
-    public void setNodeCoherent(boolean coherent) throws UnsupportedOperationException {
+    public void setNodeCoherent(boolean coherent) {
         transactionalStore.setNodeCoherent(coherent);
+    }
+
+    @Override
+    public void waitUntilClusterCoherent() {
+        transactionalStore.waitUntilClusterCoherent();
     }
 }

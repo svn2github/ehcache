@@ -457,7 +457,12 @@ public class ReadCommittedNonXaTransactionalStore extends AbstractNonXaTransacti
     }
 
     @Override
-    public void setNodeCoherent(boolean coherent) throws UnsupportedOperationException {
+    public void setNodeCoherent(boolean coherent) {
         underlyingStore.setNodeCoherent(coherent);
+    }
+
+    @Override
+    public void waitUntilClusterCoherent() {
+        underlyingStore.waitUntilClusterCoherent();
     }
 }
