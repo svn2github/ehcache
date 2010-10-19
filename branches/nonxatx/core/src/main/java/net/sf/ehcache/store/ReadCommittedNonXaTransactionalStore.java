@@ -92,12 +92,15 @@ public class ReadCommittedNonXaTransactionalStore extends AbstractNonXaTransacti
         try {
             SoftLock softLock = softLockMap.get(key);
             if (softLock == null) {
+                LOG.debug("get: cache [{}] key [{}] not locked, returning value", cacheName, key);
                 return underlyingStore.get(key);
             }
 
             if (softLock.getTransactionID().equals(getCurrentTransactionContext().getTransactionId())) {
+                LOG.debug("get: cache [{}] key [{}] locked in current transaction, returning new value", cacheName, key);
                 return softLock.getNewElement();
             } else {
+                LOG.debug("get: cache [{}] key [{}] locked in transaction [{}], returning old value", new Object[] {cacheName, key, softLock.getTransactionID()});
                 return underlyingStore.get(key);
             }
         } finally {
@@ -110,12 +113,15 @@ public class ReadCommittedNonXaTransactionalStore extends AbstractNonXaTransacti
         try {
             SoftLock softLock = softLockMap.get(key);
             if (softLock == null) {
+                LOG.debug("getQuiet: cache [{}] key [{}] not locked, returning value", cacheName, key);
                 return underlyingStore.getQuiet(key);
             }
 
             if (softLock.getTransactionID().equals(getCurrentTransactionContext().getTransactionId())) {
+                LOG.debug("getQuiet: cache [{}] key [{}] locked in current transaction, returning new value", cacheName, key);
                 return softLock.getNewElement();
             } else {
+                LOG.debug("getQuiet: cache [{}] key [{}] locked in transaction [{}], returning old value", new Object[] {cacheName, key, softLock.getTransactionID()});
                 return underlyingStore.getQuiet(key);
             }
         } finally {
