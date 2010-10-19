@@ -82,7 +82,7 @@ public interface ClusteredInstanceFactory {
      */
     void shutdown();
 
-    TransactionIDFactory createTransactionIDFactory();
+    TransactionIDFactory createTransactionIDFactory(String clusterUUID);
 
     SoftLockFactory createSoftLockFactory();
 

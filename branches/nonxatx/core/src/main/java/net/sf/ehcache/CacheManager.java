@@ -1552,7 +1552,7 @@ public class CacheManager {
     private TransactionIDFactory createTransactionIDFactory() {
         TransactionIDFactory transactionIDFactory;
         if (terracottaClusteredInstanceFactory != null) {
-            transactionIDFactory = terracottaClusteredInstanceFactory.createTransactionIDFactory();
+            transactionIDFactory = terracottaClusteredInstanceFactory.createTransactionIDFactory(getClusterUUID());
         } else {
             transactionIDFactory = new TransactionIDFactoryImpl();
         }
