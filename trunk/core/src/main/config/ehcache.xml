@@ -876,11 +876,11 @@ used with JMX monitors.
 
 
     <!--
-    Sample distributed cache named sampleDistributedCache1.
+    Sample distributed cache named sampleReplicatedCache1.
     This cache replicates using defaults.
     It also bootstraps from the cluster, using default properties.
     -->
-    <cache name="sampleDistributedCache1"
+    <cache name="sampleReplicatedCache1"
            maxElementsInMemory="10"
            eternal="false"
            timeToIdleSeconds="100"
@@ -895,11 +895,11 @@ used with JMX monitors.
 
 
     <!--
-    Sample distributed cache named sampleDistributedCache2.
+    Sample distributed cache named sampleReplicatedCache2.
     This cache replicates using specific properties.
     It only replicates updates and does so synchronously via copy
     -->
-    <cache name="sampleDistributedCache2"
+    <cache name="sampleRepicatedCache2"
            maxElementsInMemory="10"
            eternal="false"
            timeToIdleSeconds="100"
@@ -913,12 +913,12 @@ used with JMX monitors.
     </cache>
 
     <!--
-    Sample distributed cache named sampleDistributedCache3.
+    Sample distributed cache named sampleReplicatedCache3.
     This cache replicates using defaults except that the asynchronous replication
     interval is set to 200ms.
     This one includes / and # which were illegal in ehcache 1.5.
     -->
-    <cache name="sample/DistributedCache3"
+    <cache name="sampleReplicatedCache3"
            maxElementsInMemory="10"
            eternal="false"
            timeToIdleSeconds="100"
@@ -975,4 +975,17 @@ used with JMX monitors.
         <copyStrategy class="net.sf.ehcache.store.compound.SerializationCopyStrategy" />
 	</cache>
     -->
+    <!--
+      Sample, for Enterprise Ehcache only, demonstrating a tiered cache with in-memory, off-heap and disk stores. In this example the in-memory (on-heap) store is limited to 10,000 items ... which for example for 1k items would use 10MB of memory, the off-heap store is limited to 4GB and the disk store is unlimited in size.
+    <cache name="tieredCache"
+           maxElementsInMemory="10000"
+           eternal="false"
+           timeToLiveSeconds="600"
+           overflowToOffHeap="true"
+           maxMemoryOffHeap="4g"
+           overflowToDisk="true"
+           diskPersistent="false"
+           diskExpiryThreadIntervalSeconds="1"
+     </cache>
+--> 
 </ehcache>
