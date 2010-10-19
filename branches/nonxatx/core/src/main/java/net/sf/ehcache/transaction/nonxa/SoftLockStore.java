@@ -8,8 +8,8 @@ import java.util.concurrent.locks.ReadWriteLock;
  */
 public interface SoftLockStore {
 
-    ReadWriteLock getReadWriteLock();
+    ReadWriteLock getReadWriteLock(String cacheName);
 
-    ConcurrentMap<Object,SoftLock> getSoftLockMap();
+    ConcurrentMap<Object,SoftLock> getSoftLockMap(String cacheName);
 
 }

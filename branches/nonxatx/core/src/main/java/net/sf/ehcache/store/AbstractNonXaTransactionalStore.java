@@ -27,8 +27,8 @@ public abstract class AbstractNonXaTransactionalStore extends AbstractStore {
 
     protected AbstractNonXaTransactionalStore(TransactionController transactionController, SoftLockStore softLockStore, String cacheName, Store underlyingStore) {
         this.transactionController = transactionController;
-        this.lock = softLockStore.getReadWriteLock();
-        this.softLockMap = softLockStore.getSoftLockMap();
+        this.lock = softLockStore.getReadWriteLock(cacheName);
+        this.softLockMap = softLockStore.getSoftLockMap(cacheName);
         this.cacheName = cacheName;
         this.underlyingStore = underlyingStore;
     }
