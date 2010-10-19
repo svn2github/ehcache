@@ -206,4 +206,8 @@ public class JtaNonXaTransactionalStore extends AbstractStore {
         return transactionalStore.getMBean();
     }
 
+    @Override
+    public void setNodeCoherent(boolean coherent) throws UnsupportedOperationException {
+        transactionalStore.setNodeCoherent(coherent);
+    }
 }
