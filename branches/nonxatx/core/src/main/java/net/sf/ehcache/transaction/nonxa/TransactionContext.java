@@ -99,17 +99,8 @@ public class TransactionContext {
             String cacheName = stringListEntry.getKey();
             AbstractNonXaTransactionalStore store = storeMap.get(cacheName);
             List<SoftLock> softLocks = stringListEntry.getValue();
-            LOG.debug("cache [{}] has {} soft lock(s) to commit", cacheName, softLocks.size());
-            for (SoftLock softLock : softLocks) {
-                LOG.debug("committing {}", softLock);
-                if (softLock.getNewElement() != null) {
-                    store.underlyingPut(softLock.getNewElement());
-                } else {
-                    store.underlyingRemove(softLock.getKey());
-                }
-                store.release(softLock);
-                softLock.unlock();
-            }
+
+            store.commit(softLocks);
         }
         softLockMap.clear();
         storeMap.clear();
@@ -123,12 +114,8 @@ public class TransactionContext {
             String cacheName = stringListEntry.getKey();
             AbstractNonXaTransactionalStore store = storeMap.get(cacheName);
             List<SoftLock> softLocks = stringListEntry.getValue();
-            LOG.debug("cache [{}] has {} soft lock(s) to rollback", cacheName, softLocks.size());
-            for (SoftLock softLock : softLocks) {
-                LOG.debug("rolling back {}", softLock);
-                store.release(softLock);
-                softLock.unlock();
-            }
+
+            store.rollback(softLocks);
         }
         softLockMap.clear();
         storeMap.clear();

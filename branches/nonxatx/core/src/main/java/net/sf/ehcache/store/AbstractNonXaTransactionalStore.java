@@ -1,13 +1,14 @@
 package net.sf.ehcache.store;
 
-import net.sf.ehcache.CacheException;
-import net.sf.ehcache.Element;
 import net.sf.ehcache.TransactionController;
 import net.sf.ehcache.transaction.nonxa.SoftLock;
 import net.sf.ehcache.transaction.nonxa.SoftLockStore;
 import net.sf.ehcache.transaction.nonxa.TransactionContext;
 import net.sf.ehcache.transaction.nonxa.TransactionException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.util.Collection;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.locks.ReadWriteLock;
 
@@ -15,6 +16,8 @@ import java.util.concurrent.locks.ReadWriteLock;
  * @author Ludovic Orban
  */
 public abstract class AbstractNonXaTransactionalStore extends AbstractStore {
+
+    private static final Logger LOG = LoggerFactory.getLogger(AbstractNonXaTransactionalStore.class.getName());
 
     protected final TransactionController transactionController;
     protected final String cacheName;
@@ -38,18 +41,34 @@ public abstract class AbstractNonXaTransactionalStore extends AbstractStore {
         return currentTransactionContext;
     }
 
-    public boolean underlyingPut(Element element) throws CacheException {
-        return underlyingStore.put(element);
-    }
-
-    public Element underlyingRemove(Object key) throws CacheException {
-        return underlyingStore.remove(key);
-    }
-
-    public void release(SoftLock softLock) {
+    public void commit(Collection<SoftLock> softLocks) {
         lock.writeLock().lock();
         try {
-            softLockMap.remove(softLock.getKey());
+            LOG.debug("cache [{}] has {} soft lock(s) to commit", cacheName, softLocks.size());
+            for (SoftLock softLock : softLocks) {
+                LOG.debug("committing {}", softLock);
+                if (softLock.getNewElement() != null) {
+                    underlyingStore.put(softLock.getNewElement());
+                } else {
+                    underlyingStore.remove(softLock.getKey());
+                }
+                softLockMap.remove(softLock.getKey());
+                softLock.unlock();
+            }
+        } finally {
+            lock.writeLock().unlock();
+        }
+    }
+
+    public void rollback(Collection<SoftLock> softLocks) {
+        lock.writeLock().lock();
+        try {
+            LOG.debug("cache [{}] has {} soft lock(s) to rollback", cacheName, softLocks.size());
+            for (SoftLock softLock : softLocks) {
+                LOG.debug("rolling back {}", softLock);
+                softLockMap.remove(softLock.getKey());
+                softLock.unlock();
+            }
         } finally {
             lock.writeLock().unlock();
         }
