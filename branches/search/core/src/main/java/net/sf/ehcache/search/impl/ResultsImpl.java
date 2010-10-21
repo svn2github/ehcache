@@ -158,11 +158,11 @@ public class ResultsImpl implements Results {
 
         /**
          * 
-         * @param pos
+         * @param position
          * @return
          */
-        Object getSortAttribute(int pos) {
-            return sortAttributes[pos];
+        Object getSortAttribute(int position) {
+            return sortAttributes[position];
         }
 
         /**
@@ -226,15 +226,15 @@ public class ResultsImpl implements Results {
          */
         public OrderComparator(List<Ordering> orderings) {
             comparators = new ArrayList<Comparator<Result>>();
-            int pos = 0;
+            int position = 0;
             for (Ordering ordering : orderings) {
                 switch (ordering.getDirection()) {
                     case ASCENDING: {
-                        comparators.add(new AscendingComparator(pos));
+                        comparators.add(new AscendingComparator(position));
                         break;
                     }
                     case DESCENDING: {
-                        comparators.add(new DescendingComparator(pos));
+                        comparators.add(new DescendingComparator(position));
                         break;
                     }
                     default: {
@@ -242,7 +242,7 @@ public class ResultsImpl implements Results {
                     }
                 }
 
-                pos++;
+                position++;
             }
         }
 
@@ -264,22 +264,22 @@ public class ResultsImpl implements Results {
          */
         public static class AscendingComparator implements Comparator<Result> {
 
-            private final int pos;
+            private final int position;
 
             /**
              *
-             * @param pos
+             * @param position
              */
-            public AscendingComparator(int pos) {
-                this.pos = pos;
+            public AscendingComparator(int position) {
+                this.position = position;
             }
 
             /**
              * @inheritdoc
              */
             public int compare(Result o1, Result o2) {
-                Object attr1 = ((ResultImpl) o1).getSortAttribute(pos);
-                Object attr2 = ((ResultImpl) o2).getSortAttribute(pos);
+                Object attr1 = ((ResultImpl) o1).getSortAttribute(position);
+                Object attr2 = ((ResultImpl) o2).getSortAttribute(position);
 
                 if ((attr1 == null) && (attr2 == null)) {
                     return 0;
@@ -302,22 +302,22 @@ public class ResultsImpl implements Results {
          */
         public static class DescendingComparator implements Comparator<Result> {
 
-            private final int pos;
+            private final int position;
 
             /**
              * 
-             * @param pos
+             * @param position
              */
-            public DescendingComparator(int pos) {
-                this.pos = pos;
+            public DescendingComparator(int position) {
+                this.position = position;
             }
 
             /**
              * @inheritdoc
              */
             public int compare(Result o1, Result o2) {
-                Object attr1 = ((ResultImpl) o1).getSortAttribute(pos);
-                Object attr2 = ((ResultImpl) o2).getSortAttribute(pos);
+                Object attr1 = ((ResultImpl) o1).getSortAttribute(position);
+                Object attr2 = ((ResultImpl) o2).getSortAttribute(position);
 
                 if ((attr1 == null) && (attr2 == null)) {
                     return 0;
