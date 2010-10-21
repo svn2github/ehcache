@@ -9,8 +9,15 @@
 
     The Decorator pattern is one of the the well known Gang of Four patterns.
 
+    Decorated caches are accessed from the CacheManager using <<<CacheManager.getEhcache(String name)>>>.
+
+    Note that, for backward compatibility, <<<CacheManager.getCache(String name)>>> has been retained. However only
+    <<<CacheManager.getEhcache(String name)>>> returns the decorated cache.
 
 * Creating a Decorator
+
+
+** Programmatically
 
     Cache decorators are created as follows:
 
@@ -20,13 +27,34 @@ BlockingCache newBlockingCache = new BlockingCache(cache);
 
     The class must implement Ehcache.
 
+** By Configuration
 
-* Accessing the decorated cache
+    Cache decorators can be configured directly in ehcache.xml. The decorators will be created and added to the CacheManager.
+    It accepts the name of a concrete class that extends net.sf.ehcache.constructs.CacheDecoratorFactory
+    The properties will be parsed according to the delimiter (default is comma ',') and passed to the concrete factory's
+    <<<createDecoratedEhcache(Ehcache cache, Properties properties)>>> method along with the reference to the owning cache.
 
-    Having created a decorator it is generally useful to put it in a place where multiple threads may access it. This
-    can be achieved in multiple ways.
+    It is configured as per the following example:
 
-** Using CacheManager to access decorated caches
+---
+        <cacheDecoratorFactory
+			class="net.sf.ehcache.constructs.nonstop.NonStopCacheDecoratorFactory"
+			properties="name=localReadsCacheDecorator, timeoutBehavior=localReads ..." />
+---
+
+	Note that from version 2.2, decorators can be configured against the <<<defaultCache>>>. This is very useful for frameworks
+	 like Hibernate that add caches based on the <<<defaultCache>>>.
+
+
+
+
+* Adding decorated caches to the CacheManager
+
+    Having created a decorator programmatically it is generally useful to put it in a place where multiple threads may access it.
+
+    Note that decorators created via configuration in ehcache.xml have already been added to the <<<CacheManager>>>.
+
+** Using <<<CacheManager.replaceCacheWithDecoratedCache()>>>
 
     A built-in way is to replace the Cache in CacheManager with the decorated one. This is achieved as in the following
     example:
@@ -84,6 +112,41 @@ Ehcache blockingCache = singletonManager.getEhcache("sampleCache1");
 -----
 
     The returned cache will exhibit the decorations.
+
+** Using <<<CacheManager.addDecoratedCache()>>>
+
+    Sometimes you want to add a decorated cache but retain access to the underlying cache.
+
+    The way to do this is to create a decorated cache and then call <<<cache.setName(new_name)>>> and then add it to <<<CacheManager>>>
+    with <<<CacheManager.addDecoratedCache()>>>.
+
+---
+    /**
+     * Adds a decorated {@link Ehcache} to the CacheManager. This method neither creates the memory/disk store
+     * nor initializes the cache. It only adds the cache reference to the map of caches held by this
+     * cacheManager.
+     * <p/>
+     * It is generally required that a decorated cache, once constructed, is made available to other execution
+     * threads. The simplest way of doing this is to either add it to the cacheManager with a different name or
+     * substitute the original cache with the decorated one.
+     * <p/>
+     * This method adds the decorated cache assuming it has a different name. If another cache (decorated or not)
+     * with the same name already exists, it will throw {@link ObjectExistsException}. For replacing existing
+     * cache with another decorated cache having same name, please use
+     * {@link #replaceCacheWithDecoratedCache(Ehcache, Ehcache)}
+     * <p/>
+     * Note that any overridden Ehcache methods by the decorator will take on new behaviours without casting.
+     * Casting is only required for new methods that the decorator introduces. For more information see the well
+     * known Gang of Four Decorator pattern.
+     *
+     * @param decoratedCache
+     * @throws ObjectExistsException
+     *             if another cache with the same name already exists.
+     */
+    public void addDecoratedCache(Ehcache decoratedCache) throws ObjectExistsException {
+---
+
+
 
 
 * Built-in Decorators
