@@ -939,17 +939,22 @@ public class CacheManager {
     }
 
     /**
-     * Adds a decorated {@link Ehcache} to the CacheManager. This method neither creates the memory/disk store nor initializes the cache.
-     * It only adds the cache reference to the map of caches held by this cacheManager.
+     * Adds a decorated {@link Ehcache} to the CacheManager. This method neither creates the memory/disk store
+     * nor initializes the cache. It only adds the cache reference to the map of caches held by this
+     * cacheManager.
      * <p/>
-     * It is generally required that a decorated cache, once constructed, is made available to other execution threads. The simplest way of
-     * doing this is to either add it to the cacheManager with a different name or substitute the original cache with the decorated one.
-     * This method adds the decorated cache assuming it has a different name. If another cache (decorated or not) with the same name already
-     * exists, it will throw {@link ObjectExistsException}. For replacing existing cache with another decorated cache having same name,
-     * please use {@link #replaceCacheWithDecoratedCache(Ehcache, Ehcache)}
+     * It is generally required that a decorated cache, once constructed, is made available to other execution
+     * threads. The simplest way of doing this is to either add it to the cacheManager with a different name or
+     * substitute the original cache with the decorated one.
      * <p/>
-     * Note that any overridden Ehcache methods by the decorator will take on new behaviours without casting. Casting is only required for
-     * new methods that the decorator introduces. For more information see the well known Gang of Four Decorator pattern.
+     * This method adds the decorated cache assuming it has a different name. If another cache (decorated or not)
+     * with the same name already exists, it will throw {@link ObjectExistsException}. For replacing existing
+     * cache with another decorated cache having same name, please use
+     * {@link #replaceCacheWithDecoratedCache(Ehcache, Ehcache)}
+     * <p/>
+     * Note that any overridden Ehcache methods by the decorator will take on new behaviours without casting.
+     * Casting is only required for new methods that the decorator introduces. For more information see the well
+     * known Gang of Four Decorator pattern.
      * 
      * @param decoratedCache
      * @throws ObjectExistsException

@@ -719,7 +719,7 @@ used with JMX monitors.
     Cache decorators can be configured directly in ehcache.xml. The decorators will be created and added to the CacheManager.
     It accepts the name of a concrete class that extends net.sf.ehcache.constructs.CacheDecoratorFactory
     The properties will be parsed according to the delimiter (default is comma ',') and passed to the concrete factory's
-    <code>createDecoratedEhcache(Ehcache cache, Properties properties)</code> method alongwith the reference to the owning cache.
+    <code>createDecoratedEhcache(Ehcache cache, Properties properties)</code> method along with the reference to the owning cache.
 
     It is configured as per the following example:
 
@@ -799,7 +799,7 @@ used with JMX monitors.
 
     <!--
     Mandatory Default Cache configuration. These settings will be applied to caches
-    created programmtically using CacheManager.add(String cacheName).
+    created programmatically using CacheManager.add(String cacheName).
 
     The defaultCache has an implicit name "default" which is a reserved cache name.
     -->
@@ -876,11 +876,11 @@ used with JMX monitors.
 
 
     <!--
-    Sample distributed cache named sampleDistributedCache1.
+    Sample distributed cache named sampleReplicatedCache1.
     This cache replicates using defaults.
     It also bootstraps from the cluster, using default properties.
     -->
-    <cache name="sampleDistributedCache1"
+    <cache name="sampleReplicatedCache1"
            maxElementsInMemory="10"
            eternal="false"
            timeToIdleSeconds="100"
@@ -895,11 +895,11 @@ used with JMX monitors.
 
 
     <!--
-    Sample distributed cache named sampleDistributedCache2.
+    Sample distributed cache named sampleReplicatedCache2.
     This cache replicates using specific properties.
     It only replicates updates and does so synchronously via copy
     -->
-    <cache name="sampleDistributedCache2"
+    <cache name="sampleRepicatedCache2"
            maxElementsInMemory="10"
            eternal="false"
            timeToIdleSeconds="100"
@@ -913,12 +913,12 @@ used with JMX monitors.
     </cache>
 
     <!--
-    Sample distributed cache named sampleDistributedCache3.
+    Sample distributed cache named sampleReplicatedCache3.
     This cache replicates using defaults except that the asynchronous replication
     interval is set to 200ms.
     This one includes / and # which were illegal in ehcache 1.5.
     -->
-    <cache name="sample/DistributedCache3"
+    <cache name="sampleReplicatedCache3"
            maxElementsInMemory="10"
            eternal="false"
            timeToIdleSeconds="100"
@@ -975,4 +975,17 @@ used with JMX monitors.
         <copyStrategy class="net.sf.ehcache.store.compound.SerializationCopyStrategy" />
 	</cache>
     -->
+    <!--
+      Sample, for Enterprise Ehcache only, demonstrating a tiered cache with in-memory, off-heap and disk stores. In this example the in-memory (on-heap) store is limited to 10,000 items ... which for example for 1k items would use 10MB of memory, the off-heap store is limited to 4GB and the disk store is unlimited in size.
+    <cache name="tieredCache"
+           maxElementsInMemory="10000"
+           eternal="false"
+           timeToLiveSeconds="600"
+           overflowToOffHeap="true"
+           maxMemoryOffHeap="4g"
+           overflowToDisk="true"
+           diskPersistent="false"
+           diskExpiryThreadIntervalSeconds="1"
+     </cache>
+--> 
 </ehcache>
