@@ -42,12 +42,12 @@ import net.sf.ehcache.writer.CacheWriterManager;
 
 /**
  * The store used by default in Ehcache version 2.
- *
+ * 
  * It is compound in the sense that whether the element is in memory or on disk, the key
  * is held in memory. This store does not suffer from races which could occur in the
  * older MemoryStore and DiskStore which could theoretically cause a cache miss if
  * an element was moving between the stores due to overflow or retrieval.
- *
+ * 
  * Subclasses allow for memory only, overflow to disk and persist to disk.
  * 
  * @author Chris Dennis
@@ -61,13 +61,13 @@ public abstract class CompoundStore extends AbstractStore {
     private static final int SIX = 6;
     private static final int FOURTEEN = 14;
     private static final int SIXTEEN = 16;
-    
-    private static final int MAXIMUM_CAPACITY = Integer.highestOneBit(Integer.MAX_VALUE); 
+
+    private static final int MAXIMUM_CAPACITY = Integer.highestOneBit(Integer.MAX_VALUE);
     private static final int RETRIES_BEFORE_LOCK = 2;
     private static final int DEFAULT_INITIAL_CAPACITY = 16;
     private static final int DEFAULT_SEGMENT_COUNT = 64;
     private static final float DEFAULT_LOAD_FACTOR = 0.75f;
-    
+
     private final InternalElementSubstituteFactory<?> primary;
     private final Random rndm = new Random();
     private final Segment[] segments;
@@ -77,7 +77,9 @@ public abstract class CompoundStore extends AbstractStore {
     private volatile CacheLockProvider lockProvider;
 
     private volatile Set<Object> keySet;
-    
+
+    private volatile Set<Element> elementSet;
+
     /**
      * Create a CompoundStore using the supplied factory as the primary factory.
      * 
@@ -88,7 +90,7 @@ public abstract class CompoundStore extends AbstractStore {
      */
     public CompoundStore(InternalElementSubstituteFactory<?> primary, boolean copyOnRead, boolean copyOnWrite, CopyStrategy copyStrategy) {
         this(primary, (primary instanceof IdentityElementSubstituteFactory) ? (IdentityElementSubstituteFactory) primary : null,
-            copyOnRead, copyOnWrite, copyStrategy);
+                copyOnRead, copyOnWrite, copyStrategy);
     }
 
     /**
@@ -100,9 +102,10 @@ public abstract class CompoundStore extends AbstractStore {
     public CompoundStore(InternalElementSubstituteFactory<?> primary, IdentityElementSubstituteFactory identity) {
         this(primary, identity, false, false, null);
     }
+
     /**
      * Create a CompoundStore using the supplied primary, and designated identity factory.
-     *
+     * 
      * @param primary factory which new elements are passed through
      * @param identity factory which performs identity substitution
      * @param copyOnRead true should we copy Elements on reads, otherwise false
@@ -118,7 +121,7 @@ public abstract class CompoundStore extends AbstractStore {
             this.segments[i] = new Segment(DEFAULT_INITIAL_CAPACITY, DEFAULT_LOAD_FACTOR, primary, identity,
                 copyOnRead, copyOnWrite, copyStrategy);
         }
-        
+
         this.primary = primary;
         primary.bind(this);
         status.set(Status.STATUS_ALIVE);
@@ -155,7 +158,7 @@ public abstract class CompoundStore extends AbstractStore {
         if (key == null) {
             return null;
         }
-        
+
         int hash = hash(key.hashCode());
         return segmentFor(hash).get(key, hash);
     }
@@ -177,11 +180,11 @@ public abstract class CompoundStore extends AbstractStore {
         if (key == null) {
             return null;
         }
-        
+
         int hash = hash(key.hashCode());
         return segmentFor(hash).unretrievedGet(key, hash);
     }
-    
+
     /**
      * Put the given encoded element directly into the store
      */
@@ -189,7 +192,7 @@ public abstract class CompoundStore extends AbstractStore {
         int hash = hash(key.hashCode());
         return segmentFor(hash).putRawIfAbsent(key, hash, encoded);
     }
-    
+
     /**
      * {@inheritDoc}
      */
@@ -208,7 +211,21 @@ public abstract class CompoundStore extends AbstractStore {
             return keySet;
         }
     }
-    
+
+    /**
+     * Get a set view of the elements in this store
+     * 
+     * @return element set
+     */
+    public Set<Element> elementSet() {
+        if (elementSet != null) {
+            return elementSet;
+        } else {
+            elementSet = new ElementSet();
+            return elementSet;
+        }
+    }
+
     /**
      * {@inheritDoc}
      */
@@ -216,7 +233,7 @@ public abstract class CompoundStore extends AbstractStore {
         if (key == null) {
             return null;
         }
-        
+
         int hash = hash(key.hashCode());
         return segmentFor(hash).remove(key, hash, null);
     }
@@ -240,7 +257,7 @@ public abstract class CompoundStore extends AbstractStore {
             s.clear();
         }
     }
-    
+
     /**
      * {@inheritDoc}
      */
@@ -249,7 +266,7 @@ public abstract class CompoundStore extends AbstractStore {
             primary.unbind(this);
         }
     }
-    
+
     /**
      * {@inheritDoc}
      */
@@ -271,7 +288,7 @@ public abstract class CompoundStore extends AbstractStore {
         if (size > Integer.MAX_VALUE) {
             return Integer.MAX_VALUE;
         } else {
-            return (int)size;
+            return (int) size;
         }
     }
 
@@ -299,29 +316,29 @@ public abstract class CompoundStore extends AbstractStore {
             return -1;
         }
     }
-    
+
     private static long lockedSize(Segment[] segs) {
         long size = 0;
-        for (int i = 0; i < segs.length; ++i) { 
+        for (int i = 0; i < segs.length; ++i) {
             segs[i].readLock().lock();
         }
-        for (int i = 0; i < segs.length; ++i) { 
+        for (int i = 0; i < segs.length; ++i) {
             size += segs[i].count;
         }
         for (int i = 0; i < segs.length; ++i) {
             segs[i].readLock().unlock();
         }
-        
+
         return size;
     }
-    
+
     /**
      * {@inheritDoc}
      */
     public Status getStatus() {
         return status.get();
     }
-    
+
     /**
      * {@inheritDoc}
      */
@@ -341,7 +358,7 @@ public abstract class CompoundStore extends AbstractStore {
             return lockProvider;
         }
     }
-    
+
     /**
      * {@inheritDoc}
      */
@@ -377,7 +394,7 @@ public abstract class CompoundStore extends AbstractStore {
         int hash = hash(key.hashCode());
         return segmentFor(hash).replace(key, hash, element);
     }
-    
+
     /**
      * Atomically switch (CAS) the <code>expect</code> representation of this element for the
      * <code>fault</code> representation.
@@ -395,9 +412,9 @@ public abstract class CompoundStore extends AbstractStore {
         int hash = hash(key.hashCode());
         return segmentFor(hash).fault(key, hash, expect, fault);
     }
-    
+
     /**
-     * Remove the matching mapping.  The evict method does referential comparison
+     * Remove the matching mapping. The evict method does referential comparison
      * of the unretrieved substitute against the argument value.
      * 
      * @param key key to match against
@@ -408,7 +425,7 @@ public abstract class CompoundStore extends AbstractStore {
         int hash = hash(key.hashCode());
         return segmentFor(hash).evict(key, hash, substitute);
     }
-    
+
     /**
      * Select a random sample of elements generated by the supplied factory.
      * 
@@ -420,31 +437,30 @@ public abstract class CompoundStore extends AbstractStore {
      */
     public <T> List<T> getRandomSample(ElementSubstituteFilter<T> factory, int sampleSize, Object keyHint) {
         ArrayList<T> sampled = new ArrayList<T>(sampleSize);
-        
+
         // pick a random starting point in the map
         int randomHash = rndm.nextInt();
 
-        
         final int segmentStart;
         if (keyHint == null) {
             segmentStart = (randomHash >>> segmentShift);
         } else {
             segmentStart = (hash(keyHint.hashCode()) >>> segmentShift);
         }
-        
+
         int segmentIndex = segmentStart;
         do {
             segments[segmentIndex].addRandomSample(factory, sampleSize, sampled, randomHash);
             if (sampled.size() >= sampleSize) {
                 break;
             }
-            //move to next segment
+            // move to next segment
             segmentIndex = (segmentIndex + 1) & (segments.length - 1);
         } while (segmentIndex != segmentStart);
 
         return sampled;
     }
-    
+
     private static int hash(int hash) {
         int spread = hash;
         spread += (spread << FIFTEEN ^ FFFFCD7D);
@@ -454,9 +470,108 @@ public abstract class CompoundStore extends AbstractStore {
         spread += (spread << 2) + (spread << FOURTEEN);
         return (spread ^ spread >>> SIXTEEN);
     }
-    
+
     private Segment segmentFor(int hash) {
         return segments[hash >>> segmentShift];
+    }
+
+    /**
+     * Element set implementation for the CompoundStore. This set is really only useful for iteration
+     */
+    final class ElementSet extends AbstractSet<Element> {
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public Iterator<Element> iterator() {
+            return new ElementIterator();
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public int size() {
+            return CompoundStore.this.getSize();
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public boolean add(Element o) {
+            throw new UnsupportedOperationException();
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public boolean addAll(Collection<? extends Element> c) {
+            throw new UnsupportedOperationException();
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public void clear() {
+            CompoundStore.this.removeAll();
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public boolean contains(Object o) {
+            throw new UnsupportedOperationException();
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public boolean containsAll(Collection<?> c) {
+            throw new UnsupportedOperationException();
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public boolean remove(Object o) {
+            throw new UnsupportedOperationException();
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public boolean retainAll(Collection<?> c) {
+            throw new UnsupportedOperationException();
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public boolean removeAll(Collection<?> c) {
+            throw new UnsupportedOperationException();
+        }
+    }
+
+    /**
+     * Iterator over the store element set.
+     */
+    private final class ElementIterator extends HashIterator implements Iterator<Element> {
+        /**
+         * {@inheritDoc}
+         */
+        public Element next() {
+            HashEntry entry = super.nextEntry();
+            return segments[getCurrentSegmentIndex()].decode(entry.key, entry.getElement());
+        }
     }
 
     /**
@@ -479,7 +594,7 @@ public abstract class CompoundStore extends AbstractStore {
         public int size() {
             return CompoundStore.this.getSize();
         }
-        
+
         /**
          * {@inheritDoc}
          */
@@ -487,7 +602,7 @@ public abstract class CompoundStore extends AbstractStore {
         public boolean contains(Object o) {
             return CompoundStore.this.containsKey(o);
         }
-        
+
         /**
          * {@inheritDoc}
          */
@@ -495,7 +610,7 @@ public abstract class CompoundStore extends AbstractStore {
         public boolean remove(Object o) {
             return CompoundStore.this.remove(o) != null;
         }
-        
+
         /**
          * {@inheritDoc}
          */
@@ -503,7 +618,7 @@ public abstract class CompoundStore extends AbstractStore {
         public void clear() {
             CompoundStore.this.removeAll();
         }
-        
+
         /**
          * {@inheritDoc}
          */
@@ -515,7 +630,7 @@ public abstract class CompoundStore extends AbstractStore {
             }
             return c.toArray();
         }
-        
+
         /**
          * {@inheritDoc}
          */
@@ -530,7 +645,7 @@ public abstract class CompoundStore extends AbstractStore {
     }
 
     /**
-     * LockProvider implementation that uses the segment locks. 
+     * LockProvider implementation that uses the segment locks.
      */
     private class LockProvider implements CacheLockProvider {
 
@@ -614,10 +729,10 @@ public abstract class CompoundStore extends AbstractStore {
                 }
             }
         }
-        
+
         private Map<Segment, AtomicInteger> getSegmentsFor(Object... keys) {
             Map<Segment, AtomicInteger> segs = new HashMap<Segment, AtomicInteger>();
-            
+
             for (Object k : keys) {
                 Segment key = segmentFor(hash(k.hashCode()));
                 if (segs.containsKey(key)) {
@@ -626,7 +741,7 @@ public abstract class CompoundStore extends AbstractStore {
                     segs.put(key, new AtomicInteger(1));
                 }
             }
-            
+
             return segs;
         }
     }
@@ -635,18 +750,18 @@ public abstract class CompoundStore extends AbstractStore {
      * Superclass for all store iterators.
      */
     abstract class HashIterator {
-        private int nextSegmentIndex;
+        private int segmentIndex;
         private Iterator<HashEntry> currentIterator;
 
         /**
          * Constructs a new HashIterator
          */
         HashIterator() {
-            nextSegmentIndex = segments.length;
-            
-            while (nextSegmentIndex > 0) {
-                nextSegmentIndex--;
-                currentIterator = segments[nextSegmentIndex].hashIterator();
+            segmentIndex = segments.length;
+
+            while (segmentIndex > 0) {
+                segmentIndex--;
+                currentIterator = segments[segmentIndex].hashIterator();
                 if (currentIterator.hasNext()) {
                     return;
                 }
@@ -664,9 +779,9 @@ public abstract class CompoundStore extends AbstractStore {
             if (this.currentIterator.hasNext()) {
                 return true;
             } else {
-                while (nextSegmentIndex > 0) {
-                    nextSegmentIndex--;
-                    currentIterator = segments[nextSegmentIndex].hashIterator();
+                while (segmentIndex > 0) {
+                    segmentIndex--;
+                    currentIterator = segments[segmentIndex].hashIterator();
                     if (currentIterator.hasNext()) {
                         return true;
                     }
@@ -690,9 +805,9 @@ public abstract class CompoundStore extends AbstractStore {
             if (currentIterator.hasNext()) {
                 return currentIterator.next();
             } else {
-                while (nextSegmentIndex > 0) {
-                    nextSegmentIndex--;
-                    currentIterator = segments[nextSegmentIndex].hashIterator();
+                while (segmentIndex > 0) {
+                    segmentIndex--;
+                    currentIterator = segments[segmentIndex].hashIterator();
                     if (currentIterator.hasNext()) {
                         return currentIterator.next();
                     }
@@ -706,6 +821,15 @@ public abstract class CompoundStore extends AbstractStore {
          */
         public void remove() {
             currentIterator.remove();
+        }
+
+        /**
+         * Get the current segment index of this iterator
+         * 
+         * @return the current segment index
+         */
+        int getCurrentSegmentIndex() {
+            return segmentIndex;
         }
     }
 
@@ -727,24 +851,24 @@ public abstract class CompoundStore extends AbstractStore {
     private final static class ReadWriteLockSync implements Sync {
 
         private final ReentrantReadWriteLock lock;
-        
+
         private ReadWriteLockSync(ReentrantReadWriteLock lock) {
             this.lock = lock;
         }
-        
+
         /**
          * {@inheritDoc}
          */
         public void lock(LockType type) {
             switch (type) {
-                case READ:
-                    lock.readLock().lock();
-                    break;
-                case WRITE:
-                    lock.writeLock().lock();
-                    break;
-                default:
-                    throw new IllegalArgumentException("We don't support any other lock type than READ or WRITE!");
+            case READ:
+                lock.readLock().lock();
+                break;
+            case WRITE:
+                lock.writeLock().lock();
+                break;
+            default:
+                throw new IllegalArgumentException("We don't support any other lock type than READ or WRITE!");
             }
         }
 
@@ -753,12 +877,12 @@ public abstract class CompoundStore extends AbstractStore {
          */
         public boolean tryLock(LockType type, long msec) throws InterruptedException {
             switch (type) {
-                case READ:
-                    return lock.readLock().tryLock(msec, TimeUnit.MILLISECONDS);
-                case WRITE:
-                    return lock.writeLock().tryLock(msec, TimeUnit.MILLISECONDS);
-                default:
-                    throw new IllegalArgumentException("We don't support any other lock type than READ or WRITE!");
+            case READ:
+                return lock.readLock().tryLock(msec, TimeUnit.MILLISECONDS);
+            case WRITE:
+                return lock.writeLock().tryLock(msec, TimeUnit.MILLISECONDS);
+            default:
+                throw new IllegalArgumentException("We don't support any other lock type than READ or WRITE!");
             }
         }
 
@@ -767,27 +891,27 @@ public abstract class CompoundStore extends AbstractStore {
          */
         public void unlock(LockType type) {
             switch (type) {
-                case READ:
-                    lock.readLock().unlock();
-                    break;
-                case WRITE:
-                    lock.writeLock().unlock();
-                    break;
-                default:
-                    throw new IllegalArgumentException("We don't support any other lock type than READ or WRITE!");
+            case READ:
+                lock.readLock().unlock();
+                break;
+            case WRITE:
+                lock.writeLock().unlock();
+                break;
+            default:
+                throw new IllegalArgumentException("We don't support any other lock type than READ or WRITE!");
             }
         }
 
         public boolean isHeldByCurrentThread(LockType type) {
             switch (type) {
-                case READ:
-                    throw new UnsupportedOperationException("Querying of read lock is not supported.");
-                case WRITE:
-                    return lock.isWriteLockedByCurrentThread();
-                default:
-                    throw new IllegalArgumentException("We don't support any other lock type than READ or WRITE!");
+            case READ:
+                throw new UnsupportedOperationException("Querying of read lock is not supported.");
+            case WRITE:
+                return lock.isWriteLockedByCurrentThread();
+            default:
+                throw new IllegalArgumentException("We don't support any other lock type than READ or WRITE!");
             }
         }
-        
+
     }
 }

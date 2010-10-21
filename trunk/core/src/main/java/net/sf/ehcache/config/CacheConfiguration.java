@@ -18,14 +18,19 @@ package net.sf.ehcache.config;
 
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.event.NotificationScope;
+import net.sf.ehcache.search.attribute.AttributeExtractor;
 import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
 import net.sf.ehcache.store.compound.CopyStrategy;
 import net.sf.ehcache.util.MemorySizeParser;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 
@@ -106,7 +111,6 @@ public class CacheConfiguration implements Cloneable {
      * The default memory store eviction policy is LRU.
      */
     public static final MemoryStoreEvictionPolicy DEFAULT_MEMORY_STORE_EVICTION_POLICY = MemoryStoreEvictionPolicy.LRU;
-
 
     /**
      * The default cacheWriterConfiguration
@@ -204,9 +208,8 @@ public class CacheConfiguration implements Cloneable {
      */
     protected volatile boolean clearOnFlush = DEFAULT_CLEAR_ON_FLUSH;
 
-
     /**
-     * Sets whether elements are eternal. If eternal,  timeouts are ignored and the element
+     * Sets whether elements are eternal. If eternal, timeouts are ignored and the element
      * is never expired.
      */
     protected volatile boolean eternal;
@@ -276,7 +279,6 @@ public class CacheConfiguration implements Cloneable {
      */
     protected volatile String maxMemoryOffHeap;
 
-
     /**
      * The event listener factories added by BeanUtils.
      */
@@ -325,6 +327,11 @@ public class CacheConfiguration implements Cloneable {
      */
     protected volatile Set<CacheConfigurationListener> listeners = new CopyOnWriteArraySet<CacheConfigurationListener>();
 
+    /**
+     * The defined search attribute extractors for this cache (if any) indexed by name
+     */
+    protected final Map<String, AttributeExtractor> searchAttributeExtractors = new HashMap<String, AttributeExtractor>();
+
     private volatile boolean frozen;
     private TransactionalMode transactionalMode = DEFAULT_TRANSACTIONAL_MODE;
     private volatile boolean statistics = DEFAULT_STATISTICS;
@@ -343,7 +350,7 @@ public class CacheConfiguration implements Cloneable {
      * @see #validateCompleteConfiguration
      */
     public CacheConfiguration() {
-        //empty constructor
+        // empty constructor
     }
 
     /**
@@ -518,7 +525,7 @@ public class CacheConfiguration implements Cloneable {
 
     /**
      * Builder to set the max off heap memory size allocated for this cache.
-     * 
+     *
      * @param maxMemoryOffHeap the max off heap memory size allocated for this cache.
      * @return this configuration instance
      * @see #setMaxMemoryOffHeap(String)
@@ -952,7 +959,7 @@ public class CacheConfiguration implements Cloneable {
     }
 
     /**
-     * Freeze this configuration.  Any subsequent changes will throw a CacheException
+     * Freeze this configuration. Any subsequent changes will throw a CacheException
      */
     public void freezeConfiguration() {
         frozen = true;
@@ -963,6 +970,15 @@ public class CacheConfiguration implements Cloneable {
      */
     public boolean isFrozen() {
         return frozen;
+    }
+
+    /**
+     * Get the search attribute extractors defined for this cache (if any) indexed by attribute name
+     *
+     * @return map of the search attribute extractors
+     */
+    public Map<String, AttributeExtractor> getSearchAttributeExtractors() {
+        return Collections.unmodifiableMap(this.searchAttributeExtractors);
     }
 
     /**
@@ -1044,6 +1060,39 @@ public class CacheConfiguration implements Cloneable {
     }
 
     /**
+     * Add the given search attribute
+     *
+     * @throws InvalidConfigurationException if an attribute already exists for the same name
+     * @param searchAttribute to add
+     */
+    public final void addSearchAttribute(SearchAttribute searchAttribute) throws InvalidConfigurationException {
+        checkDynamicChange();
+        
+        String attributeName = searchAttribute.getName();
+
+        if (attributeName == null) {
+            throw new InvalidConfigurationException("Search attribute has null name");
+        }
+
+        if (searchAttributeExtractors.containsKey(attributeName)) {
+            throw new InvalidConfigurationException("Repeated searchAttribute name: " + attributeName);
+        }
+
+        searchAttributeExtractors.put(attributeName, searchAttribute.constructExtractor());
+    }
+    
+    /**
+     * Add a search attribute
+     * 
+     * @param searchAttribute attribute to add
+     * @return this
+     */
+    public CacheConfiguration searchAttribute(SearchAttribute searchAttribute) {
+        addSearchAttribute(searchAttribute);
+        return this;
+    }
+
+    /**
      * Returns the copyStrategyConfiguration
      *
      * @return the copyStrategyConfiguration
@@ -1077,7 +1126,7 @@ public class CacheConfiguration implements Cloneable {
         private NotificationScope notificationScope = NotificationScope.ALL;
 
         /**
-         * Used by BeanHandler to set the mode during parsing.  Convert listenFor string to uppercase and
+         * Used by BeanHandler to set the mode during parsing. Convert listenFor string to uppercase and
          * look up enum constant in NotificationScope.
          */
         public void setListenFor(String listenFor) {
@@ -1335,7 +1384,6 @@ public class CacheConfiguration implements Cloneable {
         return this;
     }
 
-
     /**
      * Gets whether the cache's statistics will be enabled at startup
      */
@@ -1350,13 +1398,12 @@ public class CacheConfiguration implements Cloneable {
 
         validateConfiguration();
 
-        //Extra checks that a completed cache config should have
+        // Extra checks that a completed cache config should have
 
         if (name == null) {
             throw new InvalidConfigurationException("Caches must be named.");
         }
     }
-
 
     /**
      * Used to validate a Cache Configuration.
@@ -1562,7 +1609,6 @@ public class CacheConfiguration implements Cloneable {
     public List getCacheExtensionConfigurations() {
         return cacheExtensionConfigurations;
     }
-
 
     /**
      * Accessor

@@ -18,6 +18,11 @@ package net.sf.ehcache.store;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+
+import net.sf.ehcache.config.InvalidConfigurationException;
+import net.sf.ehcache.search.Results;
+import net.sf.ehcache.search.attribute.AttributeExtractor;
 
 /**
  * @author gkeim
@@ -124,4 +129,21 @@ public abstract class AbstractStore implements Store {
             listener.clusterCoherent(clusterCoherent);
         }
     }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void setAttributeExtractors(Map<String, AttributeExtractor> extractors) {
+        if (!extractors.isEmpty()) {
+            throw new InvalidConfigurationException("Search attributes not supported by this store type: " + getClass().getName());
+        }
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    public Results executeQuery(StoreQuery query) {
+        throw new UnsupportedOperationException("Query execution not supported by this store type: " + getClass().getName());
+    }
+    
 }

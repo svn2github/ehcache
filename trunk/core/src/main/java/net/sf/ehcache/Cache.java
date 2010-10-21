@@ -66,6 +66,9 @@ import net.sf.ehcache.extension.CacheExtensionFactory;
 import net.sf.ehcache.hibernate.tm.SyncTransactionManager;
 import net.sf.ehcache.loader.CacheLoader;
 import net.sf.ehcache.loader.CacheLoaderFactory;
+import net.sf.ehcache.search.Attribute;
+import net.sf.ehcache.search.Query;
+import net.sf.ehcache.search.Results;
 import net.sf.ehcache.statistics.CacheUsageListener;
 import net.sf.ehcache.statistics.LiveCacheStatistics;
 import net.sf.ehcache.statistics.LiveCacheStatisticsWrapper;
@@ -78,6 +81,7 @@ import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
 import net.sf.ehcache.store.Policy;
 import net.sf.ehcache.store.Store;
 import net.sf.ehcache.store.StoreListener;
+import net.sf.ehcache.store.StoreQuery;
 import net.sf.ehcache.store.XATransactionalStore;
 import net.sf.ehcache.store.compound.impl.DiskPersistentStore;
 import net.sf.ehcache.store.compound.impl.MemoryOnlyStore;
@@ -154,7 +158,7 @@ public class Cache implements Ehcache, StoreListener {
     public static final long DEFAULT_EXPIRY_THREAD_INTERVAL_SECONDS = CacheConfiguration.DEFAULT_EXPIRY_THREAD_INTERVAL_SECONDS;
 
     private static final String OFF_HEAP_STORE_CLASSNAME = "net.sf.ehcache.store.offheap.OffHeapStore";
-    
+
     private static final Logger LOG = LoggerFactory.getLogger(Cache.class.getName());
 
     private static InetAddress localhost;
@@ -194,7 +198,7 @@ public class Cache implements Ehcache, StoreListener {
      */
     private volatile Store compoundStore;
     private volatile CacheLockProvider lockProvider;
-    
+
     private volatile RegisteredEventListeners registeredEventListeners;
 
     private volatile List<CacheExtension> registeredCacheExtensions;
@@ -1046,6 +1050,10 @@ public class Cache implements Ehcache, StoreListener {
             } else {
                 this.compoundStore = store;
             }
+
+            store.setAttributeExtractors(configuration.getSearchAttributeExtractors());
+
+
             this.cacheWriterManager = configuration.getCacheWriterConfiguration().getWriteMode().createWriterManager(this);
             initialiseCacheWriterManager(false);
 
@@ -1070,15 +1078,15 @@ public class Cache implements Ehcache, StoreListener {
                 // even if this node is not sending out its events
                 cacheManager.createTerracottaEventReplicator(this);
             }
-            
+
             Object context = compoundStore.getInternalContext();
             if (context instanceof CacheLockProvider) {
-                lockProvider = (CacheLockProvider) context; 
+                lockProvider = (CacheLockProvider) context;
             }
         }
 
         compoundStore.addStoreListener(this);
-        
+
         if (LOG.isDebugEnabled()) {
             LOG.debug("Initialised cache: " + configuration.getName());
         }
@@ -1266,7 +1274,7 @@ public class Cache implements Ehcache, StoreListener {
         }
 
         element.resetAccessStatistics();
-        
+
         applyDefaultsToElementWithoutLifespanSet(element);
 
         backOffIfDiskSpoolFull();
@@ -1738,7 +1746,7 @@ public class Cache implements Ehcache, StoreListener {
         boolean isTCClustered = getCacheConfiguration().isTerracottaClustered();
         boolean hasOnDisk = isTCClustered || getCacheConfiguration().isOverflowToDisk();
         Element element;
-        
+
         if (!compoundStore.containsKeyInMemory(key)) {
             liveCacheStatisticsData.cacheMissInMemory();
             if (hasOffHeap) {
@@ -1769,7 +1777,7 @@ public class Cache implements Ehcache, StoreListener {
                 if (LOG.isDebugEnabled()) {
                     LOG.debug(getName() + "Cache: " + getName() + " store hit for " + key);
                 }
-                
+
                 if (wasOffHeap) {
                     liveCacheStatisticsData.cacheHitOffHeap();
                 } else if (wasOnDisk) {
@@ -2095,7 +2103,7 @@ public class Cache implements Ehcache, StoreListener {
             compoundStore.removeStoreListener(this);
             compoundStore.dispose();
         }
-        
+
         changeStatus(Status.STATUS_SHUTDOWN);
     }
 
@@ -2291,7 +2299,7 @@ public class Cache implements Ehcache, StoreListener {
             throw new IllegalStateException("The " + configuration.getName() + " Cache is not alive.");
         }
     }
-    
+
     private boolean checkStatusAlreadyDisposed() throws IllegalStateException {
         return status.equals(Status.STATUS_SHUTDOWN);
     }
@@ -2432,7 +2440,7 @@ public class Cache implements Ehcache, StoreListener {
 
     /**
      * Gets the internal Store.
-     * 
+     *
      * @return the Store referenced by this cache
      * @throws IllegalStateException if the cache is not {@link Status#STATUS_ALIVE}
      */
@@ -3263,7 +3271,7 @@ public class Cache implements Ehcache, StoreListener {
     public void waitUntilClusterCoherent() {
         compoundStore.waitUntilClusterCoherent();
     }
-    
+
     // PropertyChangeSupport
 
     /**
@@ -3305,11 +3313,11 @@ public class Cache implements Ehcache, StoreListener {
      */
     public Element putIfAbsent(Element element) throws NullPointerException {
         checkStatus();
-        
+
         if (element.getObjectKey() == null) {
             throw new NullPointerException();
         }
-        
+
         if (disabled) {
             return null;
         }
@@ -3333,11 +3341,11 @@ public class Cache implements Ehcache, StoreListener {
      */
     public boolean removeElement(Element element) throws NullPointerException {
         checkStatus();
-        
+
         if (element.getObjectKey() == null) {
             throw new NullPointerException();
         }
-        
+
         if (disabled) {
             return false;
         }
@@ -3355,14 +3363,14 @@ public class Cache implements Ehcache, StoreListener {
      */
     public boolean replace(Element old, Element element) throws NullPointerException, IllegalArgumentException {
         checkStatus();
-        
+
         if (old.getObjectKey() == null || element.getObjectKey() == null) {
             throw new NullPointerException();
         }
         if (!old.getObjectKey().equals(element.getObjectKey())) {
             throw new IllegalArgumentException("The keys for the element arguments to replace must be equal");
         }
-        
+
         if (disabled) {
             return false;
         }
@@ -3374,7 +3382,7 @@ public class Cache implements Ehcache, StoreListener {
         backOffIfDiskSpoolFull();
 
         boolean result = compoundStore.replace(old, element);
-        
+
         if (result) {
             element.updateUpdateStatistics();
             notifyPutInternalListeners(element, false, true);
@@ -3387,11 +3395,11 @@ public class Cache implements Ehcache, StoreListener {
      */
     public Element replace(Element element) throws NullPointerException {
         checkStatus();
-        
+
         if (element.getObjectKey() == null) {
             throw new NullPointerException();
         }
-        
+
         if (disabled) {
             return null;
         }
@@ -3412,7 +3420,7 @@ public class Cache implements Ehcache, StoreListener {
 
     /**
      * {@inheritDoc}
-     * 
+     *
      * @see net.sf.ehcache.store.StoreListener#clusterCoherent(boolean)
      */
     public void clusterCoherent(boolean clusterCoherent) {
@@ -3421,10 +3429,51 @@ public class Cache implements Ehcache, StoreListener {
 
     /**
      * {@inheritDoc}
-     * 
+     *
      * @see net.sf.ehcache.store.StoreListener#nodeCoherent(boolean)
      */
     public void nodeCoherent(boolean nodeCoherent) {
         firePropertyChange("NodeCoherent", !nodeCoherent, nodeCoherent);
+    }
+    
+
+    /**
+     * Retrieve the given named search attribute
+     * 
+     * @param <T>
+     *            type of the attribute
+     * @param attributeName
+     *            the name of the attribute to retrieve
+     * @throws CacheException
+     *             if no such attribute is defined for the given name
+     * @return the search attribute
+     */
+    public <T> Attribute<T> getSearchAttribute(String attributeName) throws CacheException {
+        // ??? Should we cache these instances?
+        
+        if (configuration.getSearchAttributeExtractors().containsKey(attributeName)) {
+            return new Attribute<T>(attributeName);
+        }
+
+        throw new CacheException("No such search attribute [" + attributeName + "] defined for this cache [" + getName() + "]");
+    }
+
+    /**
+     * Create a new query builder for this cache
+     * 
+     * @return a new query builder
+     */
+    public Query createQuery() {
+        return new CacheQuery(this);
+    }
+
+    /**
+     * Execute the given query
+     * 
+     * @param query query to execute
+     * @return query results
+     */
+    Results executeQuery(StoreQuery query) {
+        return this.compoundStore.executeQuery(query); 
     }
 }

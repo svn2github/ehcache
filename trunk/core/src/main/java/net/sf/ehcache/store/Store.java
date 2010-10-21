@@ -19,10 +19,13 @@ package net.sf.ehcache.store;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.Status;
+import net.sf.ehcache.search.Results;
+import net.sf.ehcache.search.attribute.AttributeExtractor;
 import net.sf.ehcache.writer.CacheWriterManager;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 
 /**
  * This is the interface for all stores. A store is a physical counterpart to a cache, which
@@ -37,25 +40,25 @@ public interface Store {
      * clusterCoherent property
      */
     static final String CLUSTER_COHERENT = "ClusterCoherent";
-    
-    
+
+
     /**
      * nodeCoherent property
      */
     static final String NODE_COHERENT = "NodeCoherent";
-    
+
     /**
      * Add a listener to the store.
      * @param listener
      */
     void addStoreListener(StoreListener listener);
-    
+
     /**
      * Remove listener from store.
      * @param listener
      */
     void removeStoreListener(StoreListener listener);
-    
+
     /**
      * Puts an item into the store.
      * @return true if this is a new put for the key or element is null. Returns false if it was an update.
@@ -109,21 +112,21 @@ public interface Store {
 
     /**
      * Put an element in the store if no element is currently mapped to the elements key.
-     * 
+     *
      * @param element element to be added
      * @return the element previously cached for this key, or null if none.
-     * 
+     *
      * @throws NullPointerException if the element is null, or has a null key
      */
     Element putIfAbsent(Element element) throws NullPointerException;
-    
+
     /**
      * Remove the Element mapped to the key for the supplied element if the value of the supplied Element
      * is equal to the value of the cached Element.
-     * 
+     *
      * @param element Element to be removed
      * @return the Element removed or null if no Element was removed
-     * 
+     *
      * @throws NullPointerException if the element is null, or has a null key
      */
     Element removeElement(Element element) throws NullPointerException;
@@ -131,7 +134,7 @@ public interface Store {
     /**
      * Replace the cached element only if the value of the current Element is equal to the value of the
      * supplied old Element.
-     * 
+     *
      * @param old Element to be test against
      * @param element Element to be cached
      * @return true is the Element was replaced
@@ -147,7 +150,7 @@ public interface Store {
      * @throws NullPointerException if the Element is null or has a null key
      */
     Element replace(Element element) throws NullPointerException;
-    
+
     /**
      * Prepares for shutdown.
      */
@@ -176,7 +179,7 @@ public interface Store {
      * @return the count of the Elements in the Store and on-disk on the local machine
      */
     int getOnDiskSize();
-    
+
     /**
      * Returns the current Terracotta clustered store size
      * @return the count of the Elements in the Store across the cluster
@@ -206,7 +209,7 @@ public interface Store {
      * @return the on-disk size of the store in bytes
      */
     long getOnDiskSizeInBytes();
-    
+
     /**
      * Returns the cache status.
      */
@@ -221,7 +224,7 @@ public interface Store {
      *  1.2
      */
     boolean containsKey(Object key);
-    
+
     /**
      * A check to see if a key is in the Store and is currently held on disk.
      *
@@ -245,12 +248,12 @@ public interface Store {
      * @return true if found. No check is made to see if the Element is expired.
      */
     boolean containsKeyInMemory(Object key);
-    
+
     /**
      * Expire all elements.
      */
     public void expireElements();
-    
+
     /**
      * Flush elements to persistent store.
      * @throws IOException if any IO error occurs
@@ -285,48 +288,48 @@ public interface Store {
      * @return some internal context (probably null)
      */
     Object getInternalContext();
-    
+
     /**
      * Indicates whether this store provides a coherent view of all the elements
-     * in a cache. 
-     * 
+     * in a cache.
+     *
      * Note that this is same as calling {@link #isClusterCoherent()} (introduced since 2.0)
      * Use {@link #isNodeCoherent()} to find out if the cache is coherent in the current node in the cluster
-     * 
+     *
      * @return {@code true} if the store is coherent; or {@code false} if the
      *         store potentially splits the cache storage with another store or
      *         isn't internally coherent
      * @since 1.7
      */
     boolean isCacheCoherent();
-    
+
     /**
      * Returns true if the cache is in coherent mode cluster-wide. Returns false otherwise.
      * <p />
      * It applies to coherent clustering mechanisms only e.g. Terracotta
-     * 
+     *
      * @return true if the cache is in coherent mode cluster-wide, false otherwise
      * @since 2.0
      */
     public boolean isClusterCoherent();
-    
+
     /**
      * Returns true if the cache is in coherent mode for the current node. Returns false otherwise.
      * <p />
      * It applies to coherent clustering mechanisms only e.g. Terracotta
-     * 
+     *
      * @return true if the cache is in coherent mode cluster-wide, false otherwise
      * @since 2.0
      */
     public boolean isNodeCoherent();
-    
+
     /**
      * Sets the cache in coherent or incoherent mode for the current node depending on the parameter.
      * Calling {@code setNodeCoherent(true)} when the cache is already in coherent mode or
      * calling {@code setNodeCoherent(false)} when already in incoherent mode will be a no-op.
      * <p />
      * It applies to coherent clustering mechanisms only e.g. Terracotta
-     * 
+     *
      * @param coherent
      *            true transitions to coherent mode, false to incoherent mode
      * @throws UnsupportedOperationException if this store does not support cache coherence, like RMI replication
@@ -350,4 +353,19 @@ public interface Store {
      * @return implementation specific management bean
      */
     public Object getMBean();
+
+    /**
+     * Inform this store of the configured attribute extfractors. Stores that will not invoke extractors are free to ignore this call
+     *
+     * @param extractors
+     */
+    public void setAttributeExtractors(Map<String, AttributeExtractor> extractors);
+
+    /**
+     * Execute the given query on this store
+     * 
+     * @param query query to execute
+     * @return query results
+     */
+    public Results executeQuery(StoreQuery query);
 }
