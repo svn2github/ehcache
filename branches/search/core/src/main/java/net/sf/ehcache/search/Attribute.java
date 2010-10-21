@@ -20,14 +20,14 @@ import java.util.Collection;
 
 import net.sf.ehcache.search.expression.Between;
 import net.sf.ehcache.search.expression.Criteria;
-import net.sf.ehcache.search.expression.EqualCriteria;
+import net.sf.ehcache.search.expression.EqualTo;
 import net.sf.ehcache.search.expression.GreaterThan;
 import net.sf.ehcache.search.expression.GreaterThanOrEqual;
-import net.sf.ehcache.search.expression.InCollectionCriteria;
+import net.sf.ehcache.search.expression.InCollection;
 import net.sf.ehcache.search.expression.LessThan;
 import net.sf.ehcache.search.expression.LessThanOrEqual;
 import net.sf.ehcache.search.expression.Like;
-import net.sf.ehcache.search.expression.NotEqualCriteria;
+import net.sf.ehcache.search.expression.NotEqualTo;
 
 /**
  * A search attribute. The main purpose of this class is to construct search {@link Criteria} referencing this attribute
@@ -93,7 +93,7 @@ public class Attribute<T> {
      * @return criteria instance
      */
     public Criteria in(Collection<? extends T> values) {
-        return new InCollectionCriteria(attributeName, values);
+        return new InCollection(attributeName, values);
     }
 
     /**
@@ -103,7 +103,7 @@ public class Attribute<T> {
      * @return criteria instance
      */
     public Criteria ne(T value) {
-        return new NotEqualCriteria(attributeName, value);
+        return new NotEqualTo(attributeName, value);
     }
 
     /**
@@ -153,7 +153,7 @@ public class Attribute<T> {
      * @return criteria instance
      */
     public Criteria eq(T value) {
-        return new EqualCriteria(attributeName, value);
+        return new EqualTo(attributeName, value);
     }
 
     /**

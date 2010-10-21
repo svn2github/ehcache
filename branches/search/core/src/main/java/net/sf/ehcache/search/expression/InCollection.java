@@ -28,7 +28,7 @@ import net.sf.ehcache.store.ElementAttributeValues;
  * 
  * @author teck
  */
-public class InCollectionCriteria implements Criteria {
+public class InCollection implements Criteria {
 
     private final String attributeName;
     private final Collection<?> values;
@@ -41,7 +41,7 @@ public class InCollectionCriteria implements Criteria {
      * @param attributeName attribute name
      * @param values
      */
-    public InCollectionCriteria(String attributeName, Collection<?> values) {
+    public InCollection(String attributeName, Collection<?> values) {
         if (attributeName == null || values == null) {
             throw new NullPointerException();
         }

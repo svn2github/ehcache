@@ -23,7 +23,7 @@ import net.sf.ehcache.store.ElementAttributeValues;
  *
  * @author teck
  */
-public class NotEqualCriteria extends EqualCriteria {
+public class NotEqualTo extends EqualTo {
 
     /**
      * Constructor
@@ -31,7 +31,7 @@ public class NotEqualCriteria extends EqualCriteria {
      * @param attributeName attribute name
      * @param value
      */
-    public NotEqualCriteria(String attributeName, Object value) {
+    public NotEqualTo(String attributeName, Object value) {
         super(attributeName, value);
     }
 

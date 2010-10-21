@@ -24,7 +24,7 @@ import net.sf.ehcache.store.ElementAttributeValues;
  *
  * @author teck
  */
-public class EqualCriteria implements Criteria {
+public class EqualTo implements Criteria {
 
     private final Object value;
     private final String attributeName;
@@ -36,7 +36,7 @@ public class EqualCriteria implements Criteria {
      * @param attributeName attribute name
      * @param value
      */
-    public EqualCriteria(String attributeName, Object value) {
+    public EqualTo(String attributeName, Object value) {
         if (value == null || attributeName == null) {
             throw new NullPointerException();
         }
