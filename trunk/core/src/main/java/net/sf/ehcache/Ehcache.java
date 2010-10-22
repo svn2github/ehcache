@@ -28,6 +28,8 @@ import net.sf.ehcache.event.RegisteredEventListeners;
 import net.sf.ehcache.exceptionhandler.CacheExceptionHandler;
 import net.sf.ehcache.extension.CacheExtension;
 import net.sf.ehcache.loader.CacheLoader;
+import net.sf.ehcache.search.Attribute;
+import net.sf.ehcache.search.Query;
 import net.sf.ehcache.statistics.CacheUsageListener;
 import net.sf.ehcache.statistics.LiveCacheStatistics;
 import net.sf.ehcache.statistics.sampled.SampledCacheStatistics;
@@ -131,28 +133,28 @@ public interface Ehcache extends Cloneable {
 
     /**
      * Put an element in the cache if no element is currently mapped to the elements key.
-     * 
+     *
      * @param element element to be added
      * @return the element previously cached for this key, or null if none.
-     * 
+     *
      * @throws NullPointerException if the element is null, or has a null key
      */
     Element putIfAbsent(Element element) throws NullPointerException;
-    
+
     /**
      * Remove the Element mapped to the key for the supplied element if the value of the supplied Element
      * is equal to the value of the cached Element.
-     * 
+     *
      * @param element Element to be removed
      * @return true if the value was removed
-     * 
+     *
      * @throws NullPointerException if the element is null, or has a null key
      */
     boolean removeElement(Element element) throws NullPointerException;
 
     /**
      * Replace the cached element only if the current Element is equal to the supplied old Element.
-     * 
+     *
      * @param old Element to be test against
      * @param element Element to be cached
      * @return true is the Element was replaced
@@ -168,7 +170,7 @@ public interface Ehcache extends Cloneable {
      * @throws NullPointerException if the Element is null or has a null key
      */
     Element replace(Element element) throws NullPointerException;
-    
+
     /**
      * Gets an element from the cache. Updates Element Statistics
      * <p/>
@@ -421,11 +423,11 @@ public interface Ehcache extends Cloneable {
      * @throws IllegalStateException if the cache is not {@link net.sf.ehcache.Status#STATUS_ALIVE}
      */
     int getSize() throws IllegalStateException, CacheException;
-    
+
     /**
      * Accurately measuring statistics can be expensive. Returns the size of the
      * cache based on the accuracy setting
-     * 
+     *
      * @param statisticsAccuracy
      *            one of {@link Statistics#STATISTICS_ACCURACY_BEST_EFFORT},
      *            {@link Statistics#STATISTICS_ACCURACY_GUARANTEED},
@@ -672,13 +674,13 @@ public interface Ehcache extends Cloneable {
      * @throws IllegalStateException if the cache is not {@link Status#STATUS_ALIVE}
      */
     Statistics getStatistics() throws IllegalStateException;
-    
+
     /**
      * This is different from {@link #getStatistics()} in the way that values
      * returned from {@link LiveCacheStatistics} will reflect the current state
      * of the cache (and not a snapshot of the cache when the api's were called
      * like {@link #getStatistics()})
-     * 
+     *
      * @return The {@link LiveCacheStatistics} associated with this cache
      * @throws IllegalStateException
      * @since 1.7
@@ -692,7 +694,7 @@ public interface Ehcache extends Cloneable {
      * Implementations of {@link CacheUsageListener} should override the
      * {@link Object#equals(Object)} and {@link Object#hashCode()} methods as it is used for
      * equality check
-     * 
+     *
      * @throws IllegalStateException
      * @since 1.7
      */
@@ -702,7 +704,7 @@ public interface Ehcache extends Cloneable {
     /**
      * Remove an already registered {@link CacheUsageListener}, if any.
      * Depends on the {@link Object#equals(Object)} method.
-     * 
+     *
      * @throws IllegalStateException
      * @since 1.7
      */
@@ -956,10 +958,10 @@ public interface Ehcache extends Cloneable {
      * @see #isDisabled()
      */
     public void setDisabled(boolean disabled);
-    
+
     /**
      * Returns true if statistics collection is enabled
-     * 
+     *
      * @return true if statistics is enabled, false otherwise
      */
     public boolean isStatisticsEnabled();
@@ -972,30 +974,30 @@ public interface Ehcache extends Cloneable {
      * parameter <tt>true</tt>.
      * Disabling statistics also disables the sampled statistics collection if
      * it is enabled
-     * 
+     *
      * @param enableStatistics
      */
     public void setStatisticsEnabled(boolean enableStatistics);
 
     /**
      * Returns sampled statistics for this cache.
-     * 
+     *
      * @return The sampled cache statistics
      */
     public SampledCacheStatistics getSampledCacheStatistics();
-    
+
     /**
      * Enable/disable sampled statistics collection.
      * Enabling sampled statistics also enables the normal statistics collection if its not already enabled.
      * Disabling sampled statistics does not have any effect on normal statistics.
-     * 
+     *
      * @param enableStatistics
      */
     public void setSampledStatisticsEnabled(boolean enableStatistics);
 
     /**
      * Returns if sampled statistics collection is enabled or disabled
-     * 
+     *
      * @return true if sampled statistics is enabled, false otherwise
      */
     public boolean isSampledStatisticsEnabled();
@@ -1020,21 +1022,21 @@ public interface Ehcache extends Cloneable {
      * @return the writer manager that's set up for this cache
      */
     public CacheWriterManager getWriterManager();
-    
+
     /**
      * Returns true if the cache is in coherent mode cluster-wide. Returns false otherwise.
      * <p />
      * It applies to coherent clustering mechanisms only e.g. Terracotta
-     * 
+     *
      * @return true if the cache is in coherent mode cluster-wide, false otherwise
      */
     public boolean isClusterCoherent();
-    
+
     /**
      * Returns true if the cache is in coherent mode for the current node. Returns false otherwise.
      * <p />
      * It applies to coherent clustering mechanisms only e.g. Terracotta
-     * 
+     *
      * @return true if the cache is in coherent mode cluster-wide, false otherwise
      */
     public boolean isNodeCoherent();
@@ -1045,7 +1047,7 @@ public interface Ehcache extends Cloneable {
      * calling {@code setNodeCoherent(false)} when already in incoherent mode will be a no-op.
      * <p />
      * It applies to coherent clustering mechanisms only e.g. Terracotta
-     * 
+     *
      * @param coherent
      *            true transitions to coherent mode, false to incoherent mode
      * @throws UnsupportedOperationException if this cache does not support coherence, like RMI replication
@@ -1066,18 +1068,38 @@ public interface Ehcache extends Cloneable {
      * @param transactionManagerLookup
      */
     public void setTransactionManagerLookup(TransactionManagerLookup transactionManagerLookup);
-    
+
     /**
      * Add a PropertyChangeListener.
-     * 
+     *
      * @param listener
      */
     public void addPropertyChangeListener(PropertyChangeListener listener);
-    
+
     /**
      * Remove a PropertyChangeListener.
-     * 
+     *
      * @param listener
      */
     public void removePropertyChangeListener(PropertyChangeListener listener);
+
+    /**
+     * Retrieve the given named search attribute
+     *
+     * @param <T>
+     *            type of the attribute
+     * @param attributeName
+     *            the name of the attribute to retrieve
+     * @throws CacheException
+     *             if no such attribute is defined for the given name
+     * @return the search attribute
+     */
+    public <T> Attribute<T> getSearchAttribute(String attributeName) throws CacheException;
+
+    /**
+     * Create a new query builder for this cache
+     *
+     * @return a new query builder
+     */
+    public Query createQuery();
 }

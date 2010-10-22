@@ -1,21 +1,22 @@
 package net.sf.ehcache.search;
 
-import net.sf.ehcache.Cache;
+import static net.sf.ehcache.search.expression.Logic.and;
+import static net.sf.ehcache.search.expression.Logic.or;
+
+import java.util.List;
+
 import net.sf.ehcache.CacheManager;
+import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.search.aggregator.Aggregator;
 import net.sf.ehcache.search.aggregator.Count;
 import net.sf.ehcache.search.aggregator.Sum;
 import net.sf.ehcache.search.expression.And;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.List;
-
-import static net.sf.ehcache.search.expression.Logic.and;
-import static net.sf.ehcache.search.expression.Logic.or;
 
 /**
  * This class was used to develop the API and now that the code has been written it has been made an
@@ -28,9 +29,8 @@ public class QueryExamplesTest {
 
     private static final Logger LOG = LoggerFactory.getLogger(QueryExamplesTest.class);
 
-
     private CacheManager cacheManager;
-    private Cache cache;
+    private Ehcache cache;
 
     @Before
     public void before() {
@@ -44,12 +44,10 @@ public class QueryExamplesTest {
         cacheManager.shutdown();
     }
 
-
     @Test
     public void testExamples() {
         examples();
     }
-
 
     void examples() throws SearchException {
 
@@ -70,7 +68,6 @@ public class QueryExamplesTest {
         }
         results.discard(); // not required but will speed resource freeing
 
-        
         // access results in a "paged" manner
         query = cache.createQuery().includeKeys().end();
         results = query.execute();
@@ -100,7 +97,7 @@ public class QueryExamplesTest {
         results = query.execute();
         for (Result result : results.all()) {
             LOG.info("" + result.getAttribute(age));
-            //slf4j weirdness
+            // slf4j weirdness
             Object object = result.getAttribute(gender);
             LOG.info("" + object);
         }

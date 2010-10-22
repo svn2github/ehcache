@@ -3435,22 +3435,14 @@ public class Cache implements Ehcache, StoreListener {
     public void nodeCoherent(boolean nodeCoherent) {
         firePropertyChange("NodeCoherent", !nodeCoherent, nodeCoherent);
     }
-    
+
 
     /**
-     * Retrieve the given named search attribute
-     * 
-     * @param <T>
-     *            type of the attribute
-     * @param attributeName
-     *            the name of the attribute to retrieve
-     * @throws CacheException
-     *             if no such attribute is defined for the given name
-     * @return the search attribute
+     * {@inheritDoc}
      */
     public <T> Attribute<T> getSearchAttribute(String attributeName) throws CacheException {
         // ??? Should we cache these instances?
-        
+
         if (configuration.getSearchAttributeExtractors().containsKey(attributeName)) {
             return new Attribute<T>(attributeName);
         }
@@ -3459,9 +3451,7 @@ public class Cache implements Ehcache, StoreListener {
     }
 
     /**
-     * Create a new query builder for this cache
-     * 
-     * @return a new query builder
+     * {@inheritDoc}
      */
     public Query createQuery() {
         return new CacheQuery(this);
@@ -3469,11 +3459,11 @@ public class Cache implements Ehcache, StoreListener {
 
     /**
      * Execute the given query
-     * 
+     *
      * @param query query to execute
      * @return query results
      */
     Results executeQuery(StoreQuery query) {
-        return this.compoundStore.executeQuery(query); 
+        return this.compoundStore.executeQuery(query);
     }
 }
