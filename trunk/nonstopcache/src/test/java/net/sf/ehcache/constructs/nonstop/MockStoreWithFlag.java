@@ -19,13 +19,17 @@ package net.sf.ehcache.constructs.nonstop;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.Status;
+import net.sf.ehcache.search.Results;
+import net.sf.ehcache.search.attribute.AttributeExtractor;
 import net.sf.ehcache.store.Policy;
 import net.sf.ehcache.store.Store;
 import net.sf.ehcache.store.StoreListener;
+import net.sf.ehcache.store.StoreQuery;
 import net.sf.ehcache.writer.CacheWriterManager;
 
 public class MockStoreWithFlag implements Store {
@@ -249,6 +253,15 @@ public class MockStoreWithFlag implements Store {
     
     public Object getMBean() {
         return null;
+    }
+
+    public void setAttributeExtractors(Map<String, AttributeExtractor> extractors) {
+        // no-op
+        
+    }
+
+    public Results executeQuery(StoreQuery query) {
+        throw new UnsupportedOperationException();
     }
 
 }

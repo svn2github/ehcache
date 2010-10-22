@@ -137,6 +137,8 @@ public class EhcacheMethodsClosureTest extends TestCase {
         // off-heap methods don't reach terracotta layer.. yet
         skipMethods.add("calculateOffHeapSize");
         skipMethods.add("getOffHeapStoreSize");
+        // search methods 
+        skipMethods.add("getSearchAttribute");
         new EhcacheMethodsInvoker() {
 
             @Override
