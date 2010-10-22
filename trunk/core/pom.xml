@@ -655,16 +655,16 @@
 
     <!-- The JBoss repository is only here to satisfy the 'provided' dependency on hibernate-core -->
     <repositories>
-        <repository>
-            <id>jboss-releases</id>
-            <url>http://repository.jboss.org/nexus/content/groups/public</url>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-        </repository>
+        <!--<repository>-->
+            <!--<id>jboss-releases</id>-->
+            <!--<url>http://repository.jboss.org/nexus/content/groups/public</url>-->
+            <!--<releases>-->
+                <!--<enabled>true</enabled>-->
+            <!--</releases>-->
+            <!--<snapshots>-->
+                <!--<enabled>false</enabled>-->
+            <!--</snapshots>-->
+        <!--</repository>-->
     </repositories>
 
     <pluginRepositories>

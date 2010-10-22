@@ -64,6 +64,8 @@ Documentation - Table of Contents
 
     * {{{./jta.html}JTA}}
 
+    * {{{./search.html}Search}}
+
     * {{{./monitor.html}Ehcache Monitor}} 
 
     * {{{./bulk_loading.html}Bulk Loading}}

@@ -13,33 +13,50 @@ Using {JRuby} and Ehcache
 
 * Installation
 
-    sudo jruby -S gem install jruby-ehcache
+    Ehcache JRuby integration is provided by the jruby-ehcache gem.  To install it simply execute:
+
+---
+jgem install jruby-ehcache
+---
 
   If you also want Rails caching support, also install the correct gem for your Rails version:
 
-    sudo jruby -S gem install ehcache-rails3
-  OR
-    sudo jruby -S gem install ehcache-rails2
+---
+    jgem install jruby-ehcache-rails2 # for Rails 2
+    jgem install jruby-ehcache-rails3 # for Rails 3
+---   
+
 
 * Configuring Ehcache
 
-  jruby-ehcache.gem is configured using an ehcache.yml file which is placed in your ~/lib/config
+  The jruby-ehcache gem is configured using an ehcache.yml file which is placed in your ~/lib/config.
+
+
 
 *   Dependencies
 
     *   JRuby 1.5 and higher
 
-    *   Rails 3 and higher, for the ehcache-rails3.gem
+    *   Rails 2 for the jruby-ehcache-rails2
 
-    *   Ehcache 2.2 is the declared dependency, although any version of Ehcache will work 
+    *   Rails 3 for the jruby-ehcache-rails3
+
+    *   Ehcache 2.2 is the declared dependency, although any version of Ehcache will work
+
+    As usual these should all be installed with jgem
+
+    Note that ehcache will be sucked in from Maven using the new RubyGems - Maven integration that came in with
+      JRuby 1.5.
 
 
-* Using the ehcache.gem API directly
+* Using the jruby-ehcache API directly
 
 
 **    To make Ehcache available to JRuby
 
 ---
+    require 'rubygems'
+    gem 'jruby-ehcache',:lib => 'ehcache'
     require 'ehcache'
 ---
 
@@ -91,37 +108,144 @@ manager = Ehcache::CacheManager.new
     manager.shutdown
 ---
 
-* Using ehcache.gem from within Rails
 
-
-**   Configuring the <<<Rails.cache>>> provider
-
-    Change the following property in your environment file (e.g. developement.rb or production.rb)
+* Complete Example
 
 ---
-config.cache_store = :ehcache_store
+class SimpleEhcache
+  #Code here
+  require 'rubygems'
+  gem 'jruby-ehcache',:lib => 'ehcache'
+  require 'ehcache'
+
+  manager = Ehcache::CacheManager.new
+  cache = manager.cache
+
+  cache.put("answer", "42", {:ttl => 120})
+  answer = cache.get("answer")
+  puts "Answer: #{answer}"
+  question = cache.get("question") || 'unknown'
+  puts "Question: #{question}"
+
+  manager.shutdown
+end
 ---
+
+    As you can see from the example, you create a cache using CacheManager.new, and you can control the "time to live" value of a
+    cache entry using the :ttl option in cache.put.  Note that not all of the Ehcache API is currently exposed in the JRuby API,
+    but most of what you need is available and we plan to add a more complete API wrapper in the future.
+
+
+* Using ehcache from within Rails
+
+**  The ehcache.yaml file
+
+    Configuration of Ehcache is still done with the ehcache.yml file, but for Rails applications you must place this file in the
+    config directory of your Rails app.
+
+    Also note that you must use JRuby to execute your Rails application, as these gems utilize JRuby's Java integration
+    to call the Ehcache API.
+
+    With this configuration out of the way, you can now use the Ehcache API directly from your Rails controllers and/or models.
+    You could of course create a new Cache object everywhere you want to use it, but it is better to create a single instance
+    and make it globally accessible by creating the Cache object in your Rails environment.rb file.
+
+    For example, you could add the following lines to config/environment.rb:
+
+---
+require 'ehcache'
+EHCACHE = Ehcache::CacheManager.new.cache
+---
+
+    By doing so, you make the EHCACHE constant available to all Rails-managed objects in your application.  Using the Ehcache API is
+    now just like the above JRuby example.
+
+    If you are using Rails 3 then you have a better option at your disposal: the built-in Rails 3 caching API.
+    This API provides an abstraction layer for caching underneath which you can plug in any one of a number of caching providers.  ?
+    The most common provider to date has been the memcached provider, but now you can also use the Ehcache provider.
+
+    Switching to the Ehcache provider requires only one line of code in your Rails environment file
+    (e.g. development.rb or production.rb):
+
+---
+    config.cache_store = :ehcache_store
+---
+
+    A very simple example of the Rails caching API is as follows:
+
+---
+    Rails.cache.write("answer", "42")
+    Rails.cache.read("answer")  # => '42'
+---
+
+    Using this API, your code can be agnostic about the underlying provider, or even switch providers based on the current environment
+    (e.g. memcached in development mode, Ehcache in production)
+
 
 **  Turn on caching in your controllers
 
-    Set them up to support caching, eg: config.action_controller.perform_caching = true
-
-
-**  Use the Rails caching API directly
+    Set them up to support caching, eg:
 
 ---
-Rails.cache.read("city")   # => nil
-Rails.cache.write("city", "Brisbane")
-Rails.cache.read("city")   # => "Brisbane"
+    config.action_controller.perform_caching = true
 ---
 
-*   Sample application
+
+*   Sample Rails application
 
     The easiest way to get started is to play with a simple sample app. We provide a simple Rails application
     which stores an integer value in a cache along with increment and decrement operations.
 
     The sample app shows you how to use ehcache as a caching plugin and how to use it directly from the Rails
-    caching API.
+    caching API. It is a simple demo application demonstrating the use of Ehcache in a Rails 3
+    environment.  This demo requires JRuby 1.5.0 or later.
 
-    svn checkout {{http://svn.terracotta.org/svn/forge/projects/ehcache-rails-demo/trunk}} ehcache-rails-demo
+**  Checking it out
+
+---
+    svn checkout http://svn.terracotta.org/svn/forge/projects/ehcache-rails-demo/trunk ehcache-rails-demo
+---
+
+**  Dependencies
+
+    To start the demo, make sure you are using JRuby 1.5.0 or later.
+
+    The demo uses sqlite3 which needs to be installed on your OS (it is by default on Mac OS X).
+
+    There is a Gemfile which will pull down all of the required Ruby dependencies using Bundler.
+
+    From the ehcache-rails-demo directory:
+
+---
+   jgem install bundler
+   jruby -S bundle install
+---
+
+
+**  Starting the demo
+
+    You can start the demo application with the following command:
+
+---
+jruby -S rails server -e production
+---
+
+**  Exploring the demo
+
+    To use the demo application, open a web browser to the following URL:
+
+    {{http://localhost:3000/cache/index}}
+
+    This will display a simple screen allowing you to manipulate cached values
+    either through the Ehcache API directly, or through the Rails.cache API backed
+    by Ehcache.
+
+
+
+
+
+
+
+
+
 

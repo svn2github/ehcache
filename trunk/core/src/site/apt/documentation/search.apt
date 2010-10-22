@@ -1,0 +1,14 @@
+ ---
+ {Ehcache Search}
+ ---
+
+Search
+
+%{toc|fromDepth=2|toDepth=2}
+
+* Ehcache Search API
+
+    (This feature is pre-release. It is in ehcache-core trunk. Maven builds for version 2.3.1-SNAPSHOT are published to
+    oss.sonatype.org.
+
+    - To be completed -
