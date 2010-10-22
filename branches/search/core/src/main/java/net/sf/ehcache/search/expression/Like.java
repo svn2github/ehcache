@@ -136,7 +136,7 @@ public class Like implements Criteria {
 
     private static String lowerCase(char ch) {
         // heeding the advice in Character.toLowerCase() and using String.toLowerCase() instead here
-        return new String(new char[] { ch }).toLowerCase();
+        return new String(new char[] {ch}).toLowerCase();
     }
 
     /**
