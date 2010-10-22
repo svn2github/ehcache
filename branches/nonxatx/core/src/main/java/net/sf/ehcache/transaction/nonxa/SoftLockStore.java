@@ -1,5 +1,8 @@
 package net.sf.ehcache.transaction.nonxa;
 
+import net.sf.ehcache.Element;
+import net.sf.ehcache.transaction.TransactionID;
+
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.locks.ReadWriteLock;
 
@@ -12,6 +15,6 @@ public interface SoftLockStore {
 
     ConcurrentMap<Object,SoftLock> getSoftLockMap(String cacheName);
 
-    SoftLockFactory getSoftLockFactory();
+    SoftLock createSoftLock(TransactionID transactionID, Object key, Element newElement);
 
 }

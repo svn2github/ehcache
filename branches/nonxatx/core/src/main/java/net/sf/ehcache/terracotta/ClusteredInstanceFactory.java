@@ -19,7 +19,6 @@ import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.cluster.CacheCluster;
 import net.sf.ehcache.event.CacheEventListener;
 import net.sf.ehcache.store.Store;
-import net.sf.ehcache.transaction.nonxa.SoftLockFactory;
 import net.sf.ehcache.transaction.nonxa.SoftLockStore;
 import net.sf.ehcache.transaction.nonxa.TransactionIDFactory;
 import net.sf.ehcache.transaction.xa.EhcacheXAStore;

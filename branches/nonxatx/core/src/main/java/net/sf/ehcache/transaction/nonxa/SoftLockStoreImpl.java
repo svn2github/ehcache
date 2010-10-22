@@ -1,5 +1,8 @@
 package net.sf.ehcache.transaction.nonxa;
 
+import net.sf.ehcache.Element;
+import net.sf.ehcache.transaction.TransactionID;
+
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.locks.ReadWriteLock;
@@ -12,7 +15,6 @@ public class SoftLockStoreImpl implements SoftLockStore {
 
     private final ConcurrentMap<String,ReadWriteLock> locks = new ConcurrentHashMap<String, ReadWriteLock>();
     private final ConcurrentMap<String,ConcurrentMap<Object,SoftLock>> softLockMaps = new ConcurrentHashMap<String, ConcurrentMap<Object, SoftLock>>();
-    private final SoftLockFactory softLockFactory = new SoftLockFactoryImpl();
 
     public SoftLockStoreImpl() {
         //
@@ -36,7 +38,8 @@ public class SoftLockStoreImpl implements SoftLockStore {
         return softLockMap;
     }
 
-    public SoftLockFactory getSoftLockFactory() {
-        return softLockFactory;
+    public SoftLock createSoftLock(TransactionID transactionID, Object key, Element newElement) {
+        return new SoftLockImpl(transactionID, key, newElement);
     }
+
 }

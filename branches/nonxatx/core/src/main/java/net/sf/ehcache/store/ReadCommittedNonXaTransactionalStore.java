@@ -22,7 +22,6 @@ import net.sf.ehcache.Element;
 import net.sf.ehcache.Status;
 import net.sf.ehcache.TransactionController;
 import net.sf.ehcache.transaction.nonxa.SoftLock;
-import net.sf.ehcache.transaction.nonxa.SoftLockFactory;
 import net.sf.ehcache.transaction.nonxa.SoftLockStore;
 import net.sf.ehcache.transaction.nonxa.TransactionListener;
 import net.sf.ehcache.util.LargeSet;
@@ -57,7 +56,7 @@ public class ReadCommittedNonXaTransactionalStore extends AbstractNonXaTransacti
             SoftLock softLock = softLockMap.get(key);
             if (softLock == null) {
                 LOG.debug("put: cache [{}] key [{}] not locked, locking it now", cacheName, element.getObjectKey());
-                softLock = softLockFactory.createSoftLock(getCurrentTransactionContext().getTransactionId(), element.getObjectKey(), element);
+                softLock = softLockStore.createSoftLock(getCurrentTransactionContext().getTransactionId(), element.getObjectKey(), element);
                 softLockMap.put(key, softLock);
                 softLock.lock(); // lock must be stored in a TC managed object before it can be locked
                 getCurrentTransactionContext().registerSoftLock(cacheName, this, softLock);
@@ -71,7 +70,7 @@ public class ReadCommittedNonXaTransactionalStore extends AbstractNonXaTransacti
                     LOG.debug("put: cache [{}] key [{}] locked in transaction [{}], waiting until lock gets removed", new Object[] {cacheName, element.getObjectKey(), softLock.getTransactionID()});
                     tryLockSoftLock(softLock);
                     LOG.debug("put: cache [{}] key [{}] unlocked, locking it again", cacheName, element.getObjectKey());
-                    softLock = softLockFactory.createSoftLock(getCurrentTransactionContext().getTransactionId(), element.getObjectKey(), element);
+                    softLock = softLockStore.createSoftLock(getCurrentTransactionContext().getTransactionId(), element.getObjectKey(), element);
                     softLockMap.put(key, softLock);
                     softLock.lock(); // lock must be stored in a TC managed object before it can be locked
                     getCurrentTransactionContext().registerSoftLock(cacheName, this, softLock);
@@ -159,7 +158,7 @@ public class ReadCommittedNonXaTransactionalStore extends AbstractNonXaTransacti
                 return null;
             } else if (softLock == null && underlyingStore.getQuiet(key) != null) {
                 LOG.debug("remove: cache [{}] key [{}] not locked and in cache, locking it now", cacheName, key);
-                softLock = softLockFactory.createSoftLock(getCurrentTransactionContext().getTransactionId(), key, null);
+                softLock = softLockStore.createSoftLock(getCurrentTransactionContext().getTransactionId(), key, null);
                 softLockMap.put(key, softLock);
                 softLock.lock(); // lock must be stored in a TC managed object before it can be locked
                 getCurrentTransactionContext().registerSoftLock(cacheName, this, softLock);
@@ -183,7 +182,7 @@ public class ReadCommittedNonXaTransactionalStore extends AbstractNonXaTransacti
                     LOG.debug("remove: cache [{}] key [{}] locked in transaction [{}], waiting until lock gets removed", new Object[] {cacheName, key, softLock.getTransactionID()});
                     tryLockSoftLock(softLock);
                     LOG.debug("remove: cache [{}] key [{}] unlocked, locking it again", cacheName, key);
-                    softLock = softLockFactory.createSoftLock(getCurrentTransactionContext().getTransactionId(), key, null);
+                    softLock = softLockStore.createSoftLock(getCurrentTransactionContext().getTransactionId(), key, null);
                     softLockMap.put(key, softLock);
                     softLock.lock(); // lock must be stored in a TC managed object before it can be locked
                     getCurrentTransactionContext().registerSoftLock(cacheName, this, softLock);

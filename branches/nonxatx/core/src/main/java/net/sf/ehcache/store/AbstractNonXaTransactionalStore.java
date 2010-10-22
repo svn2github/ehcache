@@ -3,7 +3,6 @@ package net.sf.ehcache.store;
 import net.sf.ehcache.TransactionController;
 import net.sf.ehcache.transaction.nonxa.SoftLock;
 import net.sf.ehcache.transaction.nonxa.SoftLockStore;
-import net.sf.ehcache.transaction.nonxa.SoftLockFactory;
 import net.sf.ehcache.transaction.nonxa.TransactionContext;
 import net.sf.ehcache.transaction.nonxa.TransactionException;
 import org.slf4j.Logger;
@@ -26,15 +25,15 @@ public abstract class AbstractNonXaTransactionalStore extends AbstractStore {
 
     protected final ReadWriteLock lock;
     protected final ConcurrentMap<Object, SoftLock> softLockMap;
-    protected final SoftLockFactory softLockFactory;
+    protected final SoftLockStore softLockStore;
 
     protected AbstractNonXaTransactionalStore(TransactionController transactionController, SoftLockStore softLockStore, String cacheName, Store underlyingStore) {
         this.transactionController = transactionController;
+        this.softLockStore = softLockStore;
         this.lock = softLockStore.getReadWriteLock(cacheName);
         this.softLockMap = softLockStore.getSoftLockMap(cacheName);
         this.cacheName = cacheName;
         this.underlyingStore = underlyingStore;
-        this.softLockFactory = softLockStore.getSoftLockFactory();
     }
 
     protected TransactionContext getCurrentTransactionContext() {
