@@ -92,7 +92,11 @@ public interface Query {
      * Ehcache standalone supports user-defined aggregators. Terracotta clustered, which executes on the
      * Terracotta server only supports predefined aggregators in the {@link net.sf.ehcache.search.aggregator} package.
      *
+     * @param aggregator
+     * @param attribute
      * @return this
+     * @throws SearchException
+     * @throws net.sf.ehcache.search.aggregator.AggregatorException
      */
     public Query includeAggregator(Aggregator aggregator, Attribute<?> attribute) throws SearchException, AggregatorException;
 
@@ -109,6 +113,8 @@ public interface Query {
 
     /**
      * Restrict the number of results returned from the search.
+     * <p/>
+     * By default a maximum of 10,000 results are returned
      *
      * @param maxResults the maximum number of results to return
      * @return this

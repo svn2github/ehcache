@@ -291,6 +291,8 @@
 
    This is not controlled by a Transaction Manager.
 
+   What about soft locks? The next reader detects the timed out soft lock and cleans it up. The old value gets used. 
+
 *** Configuration
 
     This is configured as follows:
