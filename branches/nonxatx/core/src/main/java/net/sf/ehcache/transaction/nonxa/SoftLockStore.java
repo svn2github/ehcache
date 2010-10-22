@@ -11,9 +11,9 @@ import java.util.concurrent.locks.ReadWriteLock;
  */
 public interface SoftLockStore {
 
-    ReadWriteLock getReadWriteLock(String cacheName);
+    ReadWriteLock getReadWriteLock();
 
-    ConcurrentMap<Object,SoftLock> getSoftLockMap(String cacheName);
+    ConcurrentMap<Object,SoftLock> getSoftLockMap();
 
     SoftLock createSoftLock(TransactionID transactionID, Object key, Element newElement);
 

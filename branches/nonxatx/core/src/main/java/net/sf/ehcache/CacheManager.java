@@ -192,6 +192,8 @@ public class CacheManager {
 
     private TransactionController transactionController;
 
+    private final ConcurrentMap<String, SoftLockStore> softLockStores = new ConcurrentHashMap<String, SoftLockStore>();
+
     /**
      * An constructor for CacheManager, which takes a configuration object, rather than one created by parsing
      * an ehcache.xml file. This constructor gives complete control over the creation of the CacheManager.
@@ -1552,9 +1554,13 @@ public class CacheManager {
     SoftLockStore createSoftLockStore(Ehcache cache) {
         SoftLockStore softLockStore;
         if (cache.getCacheConfiguration().isTerracottaClustered()) {
-            softLockStore = getClusteredInstanceFactory(cache).createSoftLockStore();
+            softLockStore = getClusteredInstanceFactory(cache).getOrCreateSoftLockStore(cache.getName());
         } else {
             softLockStore = new SoftLockStoreImpl();
+            SoftLockStore old = softLockStores.putIfAbsent(cache.getName(), softLockStore);
+            if (old != null) {
+                softLockStore = old;
+            }
         }
         return softLockStore;
     }

@@ -13,28 +13,18 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
  */
 public class SoftLockStoreImpl implements SoftLockStore {
 
-    private final ConcurrentMap<String,ReadWriteLock> locks = new ConcurrentHashMap<String, ReadWriteLock>();
-    private final ConcurrentMap<String,ConcurrentMap<Object,SoftLock>> softLockMaps = new ConcurrentHashMap<String, ConcurrentMap<Object, SoftLock>>();
+    private final ReadWriteLock lock = new ReentrantReadWriteLock();
+    private final ConcurrentMap<Object,SoftLock> softLockMap = new ConcurrentHashMap<Object, SoftLock>();
 
     public SoftLockStoreImpl() {
         //
     }
 
-    public ReadWriteLock getReadWriteLock(String cacheName) {
-        ReadWriteLock lock = locks.get(cacheName);
-        if (lock == null) {
-            lock = new ReentrantReadWriteLock();
-            locks.put(cacheName, lock);
-        }
+    public ReadWriteLock getReadWriteLock() {
         return lock;
     }
 
-    public ConcurrentMap<Object, SoftLock> getSoftLockMap(String cacheName) {
-        ConcurrentMap<Object,SoftLock> softLockMap = softLockMaps.get(cacheName);
-        if (softLockMap == null) {
-            softLockMap = new ConcurrentHashMap<Object, SoftLock>();
-            softLockMaps.put(cacheName, softLockMap);
-        }
+    public ConcurrentMap<Object, SoftLock> getSoftLockMap() {
         return softLockMap;
     }
 
