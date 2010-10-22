@@ -5,6 +5,7 @@ import net.sf.ehcache.transaction.nonxa.SoftLock;
 import net.sf.ehcache.transaction.nonxa.SoftLockStore;
 import net.sf.ehcache.transaction.nonxa.TransactionContext;
 import net.sf.ehcache.transaction.nonxa.TransactionException;
+import net.sf.ehcache.transaction.nonxa.DeadLockException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -77,14 +78,20 @@ public abstract class AbstractNonXaTransactionalStore extends AbstractStore {
         }
     }
 
-    protected void tryLockSoftLock(SoftLock softLock) throws TransactionException {
+    /**
+     * The softlock is 'dead' after this method returns, ie: it doesn't protect anything anymore,
+     * unless a DeadLockException is thrown.
+     */
+    protected void tryLockSoftLock(SoftLock softLock) throws DeadLockException {
         lock.writeLock().unlock();
         while (true) {
             try {
                 boolean locked = softLock.tryLock(getCurrentTransactionContext().getTransactionTimeout());
                 lock.writeLock().lock();
-                if (!locked) {
-                    throw new TransactionException("deadlock detected in cache [" + cacheName +
+                if (locked) {
+                    softLock.unlock();
+                } else {
+                    throw new DeadLockException("deadlock detected in cache [" + cacheName +
                             "] during transaction [" + getCurrentTransactionContext().getTransactionId() +
                             "], conflict: " + softLock);
                 }
