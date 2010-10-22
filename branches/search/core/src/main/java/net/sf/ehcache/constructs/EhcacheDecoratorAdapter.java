@@ -34,6 +34,8 @@ import net.sf.ehcache.event.RegisteredEventListeners;
 import net.sf.ehcache.exceptionhandler.CacheExceptionHandler;
 import net.sf.ehcache.extension.CacheExtension;
 import net.sf.ehcache.loader.CacheLoader;
+import net.sf.ehcache.search.Attribute;
+import net.sf.ehcache.search.Query;
 import net.sf.ehcache.statistics.CacheUsageListener;
 import net.sf.ehcache.statistics.LiveCacheStatistics;
 import net.sf.ehcache.statistics.sampled.SampledCacheStatistics;
@@ -717,7 +719,7 @@ public class EhcacheDecoratorAdapter implements Ehcache {
     public Element replace(Element element) throws NullPointerException {
         return underlyingCache.replace(element);
     }
-    
+
     /**
      * {@inheritDoc}
      * 
@@ -742,6 +744,20 @@ public class EhcacheDecoratorAdapter implements Ehcache {
     @Override
     public String toString() {
         return underlyingCache.toString();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public Query createQuery() {
+        return underlyingCache.createQuery();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public <T> Attribute<T> getSearchAttribute(String attributeName) throws CacheException {
+        return underlyingCache.getSearchAttribute(attributeName);
     }
 
 }
