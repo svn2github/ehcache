@@ -13,7 +13,8 @@ Using {JRuby} and Ehcache
 
 * Installation
 
-    Ehcache JRuby integration is provided by the jruby-ehcache gem.  To install it simply execute:
+    Ehcache JRuby integration is provided by the jruby-ehcache gem.  To install it simply execute
+(note: you may need to use "sudo" to install gems on your system):
 
 ---
 jgem install jruby-ehcache
@@ -45,9 +46,6 @@ jgem install jruby-ehcache
 
     As usual these should all be installed with jgem
 
-    Note that ehcache will be sucked in from Maven using the new RubyGems - Maven integration that came in with
-      JRuby 1.5.
-
 
 * Using the jruby-ehcache API directly
 
@@ -58,6 +56,13 @@ jgem install jruby-ehcache
     require 'rubygems'
     gem 'jruby-ehcache',:lib => 'ehcache'
     require 'ehcache'
+---
+
+If you prefer, you can make rubygems available to JRuby globally by setting
+the RUBYOPT environment variable as follows:
+
+---
+  export RUBYOPT=rubygems
 ---
 
 **  Creating a CacheManager
