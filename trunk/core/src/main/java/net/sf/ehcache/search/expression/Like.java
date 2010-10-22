@@ -36,19 +36,20 @@ import net.sf.ehcache.store.ElementAttributeValues;
  * <br>
  * Expressions may not start with a wildcard character.
  * <p/>
- *
+ * 
  * @author teck
  */
 public class Like implements Criteria {
 
     private final String attributeName;
+    private final String regex;
     private final Pattern pattern;
 
     /**
      * Construct a "like" criteria for the given expression
-     *
+     * 
      * @param attributeName attribute name
-     * @param regex         expression
+     * @param regex expression
      */
     public Like(String attributeName, String regex) {
         if ((attributeName == null) || (regex == null)) {
@@ -56,8 +57,27 @@ public class Like implements Criteria {
         }
 
         this.attributeName = attributeName;
+        this.regex = regex;
         this.pattern = convertRegex(regex.trim());
 
+    }
+
+    /**
+     * Return attribute name.
+     * 
+     * @return String attribute name
+     */
+    public String getAttributeName() {
+        return attributeName;
+    }
+
+    /**
+     * Return regex string.
+     * 
+     * @return String regex.
+     */
+    public String getRegex() {
+        return regex;
     }
 
     private Pattern convertRegex(final String expr) {
@@ -116,7 +136,7 @@ public class Like implements Criteria {
 
     private static String lowerCase(char ch) {
         // heeding the advice in Character.toLowerCase() and using String.toLowerCase() instead here
-        return new String(new char[]{ch}).toLowerCase();
+        return new String(new char[] {ch}).toLowerCase();
     }
 
     /**
