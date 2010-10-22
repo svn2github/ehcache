@@ -35,6 +35,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Results implementation
+ *
  * @author nelrahma
  */
 public class ResultsImpl implements Results {
@@ -46,6 +47,7 @@ public class ResultsImpl implements Results {
 
     /**
      * Constructs a list of results
+     *
      * @param results
      * @param hasKeys
      */
@@ -55,21 +57,21 @@ public class ResultsImpl implements Results {
     }
 
     /**
-     * @inheritdoc
+     * {@inheritDoc}
      */
     public void discard() {
         // no-op
     }
 
     /**
-     * @inheritdoc
+     * {@inheritDoc}
      */
     public List<Result> all() throws SearchException {
         return results;
     }
 
     /**
-     * @inheritdoc
+     * {@inheritDoc}
      */
     public List<Result> range(int start, int length) throws SearchException, IndexOutOfBoundsException {
         if (start < 0) {
@@ -96,28 +98,28 @@ public class ResultsImpl implements Results {
     }
 
     /**
-     * @inheritdoc
+     * {@inheritDoc}
      */
     public Object aggregateResult() throws SearchException {
         throw new UnsupportedOperationException("Did not implemented yet.");
     }
 
     /**
-     * @inheritdoc
+     * {@inheritDoc}
      */
     public int size() {
         return results.size();
     }
 
     /**
-     * @inheritdoc
+     * {@inheritDoc}
      */
     public boolean hasKeys() {
         return hasKeys;
     }
 
     /**
-     * @inheritdoc
+     * {@inheritDoc}
      */
     public boolean isAggregate() {
         return false;
@@ -135,6 +137,7 @@ public class ResultsImpl implements Results {
 
         /**
          * Result implementation
+         *
          * @param key
          * @param query
          * @param attributes
@@ -157,7 +160,7 @@ public class ResultsImpl implements Results {
         }
 
         /**
-         * 
+         *
          * @param position
          * @return
          */
@@ -166,7 +169,7 @@ public class ResultsImpl implements Results {
         }
 
         /**
-         * @inheritdoc
+         * {@inheritDoc}
          */
         public Object getKey() {
             if (query.requestsKeys()) {
@@ -177,7 +180,7 @@ public class ResultsImpl implements Results {
         }
 
         /**
-         * @inheritdoc
+         * {@inheritDoc}
          */
         public Object getValue() {
             Object localKey = getKey();
@@ -192,7 +195,7 @@ public class ResultsImpl implements Results {
         }
 
         /**
-         * @inheritdoc
+         * {@inheritDoc}
          */
         public <T> T getAttribute(Attribute<T> attribute) {
             String name = attribute.getAttributeName();
@@ -204,7 +207,7 @@ public class ResultsImpl implements Results {
         }
 
         /**
-         * @inheritdoc
+         * {@inheritDoc}
          */
         @Override
         public String toString() {
@@ -221,7 +224,7 @@ public class ResultsImpl implements Results {
         private final List<Comparator<Result>> comparators;
 
         /**
-         * 
+         *
          * @param orderings
          */
         public OrderComparator(List<Ordering> orderings) {
@@ -247,7 +250,7 @@ public class ResultsImpl implements Results {
         }
 
         /**
-         * @inheritdoc
+         * {@inheritDoc}
          */
         public int compare(Result o1, Result o2) {
             for (Comparator<Result> c : comparators) {
@@ -275,7 +278,7 @@ public class ResultsImpl implements Results {
             }
 
             /**
-             * @inheritdoc
+             * {@inheritDoc}
              */
             public int compare(Result o1, Result o2) {
                 Object attr1 = ((ResultImpl) o1).getSortAttribute(position);
@@ -305,7 +308,7 @@ public class ResultsImpl implements Results {
             private final int position;
 
             /**
-             * 
+             *
              * @param position
              */
             public DescendingComparator(int position) {
@@ -313,7 +316,7 @@ public class ResultsImpl implements Results {
             }
 
             /**
-             * @inheritdoc
+             * {@inheritDoc}
              */
             public int compare(Result o1, Result o2) {
                 Object attr1 = ((ResultImpl) o1).getSortAttribute(position);
