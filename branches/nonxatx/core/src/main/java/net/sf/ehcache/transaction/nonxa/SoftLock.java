@@ -10,6 +10,8 @@ public interface SoftLock {
 
     Object getKey();
 
+    Element getOldElement();
+
     Element getNewElement();
 
     void setNewElement(Element newElement);
@@ -21,5 +23,7 @@ public interface SoftLock {
     boolean tryLock(int transactionTimeout) throws InterruptedException;
 
     void unlock();
+
+    SoftLock copy();
 
 }

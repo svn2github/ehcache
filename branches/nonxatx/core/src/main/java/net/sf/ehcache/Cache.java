@@ -77,14 +77,17 @@ import net.sf.ehcache.store.LruMemoryStore;
 import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
 import net.sf.ehcache.store.ReadCommittedNonXaTransactionalStore;
 import net.sf.ehcache.store.Policy;
+import net.sf.ehcache.store.ReadUncommittedNonXaTransactionalStore;
 import net.sf.ehcache.store.Store;
 import net.sf.ehcache.store.StoreListener;
 import net.sf.ehcache.store.XATransactionalStore;
+import net.sf.ehcache.store.compound.SerializationCopyStrategy;
 import net.sf.ehcache.store.compound.impl.DiskPersistentStore;
 import net.sf.ehcache.store.compound.impl.MemoryOnlyStore;
 import net.sf.ehcache.store.compound.impl.OverflowToDiskStore;
 import net.sf.ehcache.transaction.manager.TransactionManagerLookup;
 import net.sf.ehcache.transaction.nonxa.JtaNonXaTransactionalStore;
+import net.sf.ehcache.transaction.nonxa.SoftLockAwareSerializationCopyStrategy;
 import net.sf.ehcache.transaction.nonxa.SoftLockStore;
 import net.sf.ehcache.transaction.xa.EhcacheXAResourceImpl;
 import net.sf.ehcache.transaction.xa.EhcacheXAStore;
@@ -967,6 +970,20 @@ public class Cache implements Ehcache, StoreListener {
                         " no elements cached in memory");
             }
 
+            if (configuration.getCopyStrategyConfiguration().getClassName() == null) {
+                if (configuration.getTransactionalMode().isTransactional() && !configuration.isXaTransactional()) {
+                    configuration.getCopyStrategyConfiguration().setClass(SoftLockAwareSerializationCopyStrategy.class.getName());
+                } else {
+                    configuration.getCopyStrategyConfiguration().setClass(SerializationCopyStrategy.class.getName());
+                }
+            }
+
+            if (configuration.getTransactionalMode().isTransactional()
+                && configuration.isTerracottaClustered()
+                && configuration.getTerracottaConfiguration().getValueMode() != TerracottaConfiguration.ValueMode.SERIALIZATION) {
+                throw new CacheException("To be transactional, a Terracotta clustered cache needs to be in Serialization value mode");
+            }
+
             final Store store;
             if (configuration.isOverflowToOffHeap()) {
                 try {
@@ -1020,11 +1037,6 @@ public class Cache implements Ehcache, StoreListener {
             }
 
             if (configuration.isXaTransactional()) {
-                if (configuration.isTerracottaClustered()
-                    && configuration.getTerracottaConfiguration().getValueMode() != TerracottaConfiguration.ValueMode.SERIALIZATION) {
-                    throw new CacheException("To be transactional, a Terracotta clustered cache needs to be in Serialization value mode");
-                }
-
                 TransactionManager txnManager = (TransactionManager) configuration.getDefaultTransactionManager();
                 if (txnManager == null) {
                     txnManager = transactionManagerLookup.getTransactionManager();
@@ -1046,13 +1058,18 @@ public class Cache implements Ehcache, StoreListener {
                 transactionManagerLookup.register(xaResource);
 
                 this.compoundStore = new XATransactionalStore(this, ehcacheXAStore, transactionManagerLookup, txnManager);
-            } else if (configuration.isJtaNonXaTransactional()) {
-                configuration.copyOnRead(true).copyOnWrite(true);
+            } else if (configuration.isJtaLocalRuTransactional()) {
+                SoftLockStore softLockStore = cacheManager.createSoftLockStore(this);
+                ReadUncommittedNonXaTransactionalStore nonXaStore = new ReadUncommittedNonXaTransactionalStore(getCacheManager().getTransactionController(), softLockStore, configuration.getName(), store);
+                this.compoundStore = new JtaNonXaTransactionalStore(nonXaStore, transactionManagerLookup, cacheManager.getTransactionController());
+            } else if (configuration.isLocalRuTransactional()) {
+                SoftLockStore softLockStore = cacheManager.createSoftLockStore(this);
+                this.compoundStore = new ReadUncommittedNonXaTransactionalStore(getCacheManager().getTransactionController(), softLockStore, configuration.getName(), store);
+            } else if (configuration.isJtaLocalRcTransactional()) {
                 SoftLockStore softLockStore = cacheManager.createSoftLockStore(this);
                 ReadCommittedNonXaTransactionalStore nonXaStore = new ReadCommittedNonXaTransactionalStore(getCacheManager().getTransactionController(), softLockStore, configuration.getName(), store);
                 this.compoundStore = new JtaNonXaTransactionalStore(nonXaStore, transactionManagerLookup, cacheManager.getTransactionController());
-            } else if (configuration.isNonXaTransactional()) {
-                configuration.copyOnRead(true).copyOnWrite(true);
+            } else if (configuration.isLocalRcTransactional()) {
                 SoftLockStore softLockStore = cacheManager.createSoftLockStore(this);
                 this.compoundStore = new ReadCommittedNonXaTransactionalStore(getCacheManager().getTransactionController(), softLockStore, configuration.getName(), store);
             } else {

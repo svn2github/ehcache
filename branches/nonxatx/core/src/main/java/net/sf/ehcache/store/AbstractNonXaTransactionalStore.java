@@ -1,5 +1,6 @@
 package net.sf.ehcache.store;
 
+import net.sf.ehcache.Element;
 import net.sf.ehcache.TransactionController;
 import net.sf.ehcache.transaction.nonxa.SoftLock;
 import net.sf.ehcache.transaction.nonxa.SoftLockStore;
@@ -51,8 +52,9 @@ public abstract class AbstractNonXaTransactionalStore extends AbstractStore {
             LOG.debug("cache [{}] has {} soft lock(s) to commit", cacheName, softLocks.size());
             for (SoftLock softLock : softLocks) {
                 LOG.debug("committing {}", softLock);
-                if (softLock.getNewElement() != null) {
-                    underlyingStore.put(softLock.getNewElement());
+                Element newElement = softLock.getNewElement();
+                if (newElement != null) {
+                    underlyingStore.put(newElement);
                 } else {
                     underlyingStore.remove(softLock.getKey());
                 }
@@ -70,6 +72,12 @@ public abstract class AbstractNonXaTransactionalStore extends AbstractStore {
             LOG.debug("cache [{}] has {} soft lock(s) to rollback", cacheName, softLocks.size());
             for (SoftLock softLock : softLocks) {
                 LOG.debug("rolling back {}", softLock);
+                Element oldElement = softLock.getOldElement();
+                if (oldElement != null) {
+                    underlyingStore.put(oldElement);
+                } else {
+                    underlyingStore.remove(softLock.getKey());
+                }
                 softLockMap.remove(softLock.getKey());
                 softLock.unlock();
             }

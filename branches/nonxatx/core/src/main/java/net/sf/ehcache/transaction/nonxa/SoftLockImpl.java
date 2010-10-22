@@ -14,16 +14,31 @@ public class SoftLockImpl implements SoftLock {
     private final TransactionID transactionID;
     private final Object key;
     private Element newElement;
-    private final Lock lock = new ReentrantLock();
+    private final Element oldElement;
+    private final Lock lock;
 
-    SoftLockImpl(TransactionID transactionID, Object key, Element newElement) {
+    SoftLockImpl(TransactionID transactionID, Object key, Element newElement, Element oldElement) {
         this.transactionID = transactionID;
         this.key = key;
         this.newElement = newElement;
+        this.oldElement = oldElement;
+        this.lock = new ReentrantLock();
+    }
+
+    private SoftLockImpl(TransactionID transactionID, Object key, Element newElement, Element oldElement, Lock lock) {
+        this.transactionID = transactionID;
+        this.key = key;
+        this.newElement = newElement;
+        this.oldElement = oldElement;
+        this.lock = lock;
     }
 
     public Object getKey() {
         return key;
+    }
+
+    public Element getOldElement() {
+        return oldElement;
     }
 
     public Element getNewElement() {
@@ -48,6 +63,10 @@ public class SoftLockImpl implements SoftLock {
 
     public void unlock() {
         lock.unlock();
+    }
+
+    public SoftLock copy() {
+        return new SoftLockImpl(transactionID, key, newElement, oldElement, lock);
     }
 
     @Override
@@ -80,6 +99,6 @@ public class SoftLockImpl implements SoftLock {
 
     @Override
     public String toString() {
-        return "[transactionID: " + transactionID + ", key: " + key + ", newElement: " + newElement + "]";
+        return "[transactionID: " + transactionID + ", key: " + key + ", newElement: " + newElement + ", oldElement: " + oldElement + "]";
     }
 }

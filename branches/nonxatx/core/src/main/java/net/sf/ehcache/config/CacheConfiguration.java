@@ -1646,14 +1646,24 @@ public class CacheConfiguration implements Cloneable {
         return transactionalMode.equals(TransactionalMode.XA);
     }
 
-    public boolean isNonXaTransactional() {
+    public boolean isLocalRcTransactional() {
         validateTransactionalSettings();
-        return transactionalMode.equals(TransactionalMode.NON_XA);
+        return transactionalMode.equals(TransactionalMode.LOCAL_RC);
     }
 
-    public boolean isJtaNonXaTransactional() {
+    public boolean isJtaLocalRcTransactional() {
         validateTransactionalSettings();
-        return transactionalMode.equals(TransactionalMode.JTA_NON_XA);
+        return transactionalMode.equals(TransactionalMode.JTA_LOCAL_RC);
+    }
+
+    public boolean isLocalRuTransactional() {
+        validateTransactionalSettings();
+        return transactionalMode.equals(TransactionalMode.LOCAL_RU);
+    }
+
+    public boolean isJtaLocalRuTransactional() {
+        validateTransactionalSettings();
+        return transactionalMode.equals(TransactionalMode.JTA_LOCAL_RU);
     }
 
     /**
@@ -1669,17 +1679,27 @@ public class CacheConfiguration implements Cloneable {
         OFF(false),
 
         /**
-         * Non-XA Transactions
+         * Local Transactions, read committed
          */
-        NON_XA(true),
+        LOCAL_RC(true),
 
         /**
-         * Non-XA Transactions bound to JTA transactions
+         * Local Transactions, read uncommitted
          */
-        JTA_NON_XA(true),
+        LOCAL_RU(true),
 
         /**
-         * True XA Transactions
+         * Local Transactions, read committed, bound to JTA transactions
+         */
+        JTA_LOCAL_RC(true),
+
+        /**
+         * Local Transactions, read uncommitted, bound to JTA transactions
+         */
+        JTA_LOCAL_RU(true),
+
+        /**
+         * XA Transactions
          */
         XA(true);
 

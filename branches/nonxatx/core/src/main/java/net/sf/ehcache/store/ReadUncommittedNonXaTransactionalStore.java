@@ -39,11 +39,11 @@ import java.util.Set;
  *
  * @author Ludovic Orban
  */
-public class ReadCommittedNonXaTransactionalStore extends AbstractNonXaTransactionalStore {
+public class ReadUncommittedNonXaTransactionalStore extends AbstractNonXaTransactionalStore {
 
-    private static final Logger LOG = LoggerFactory.getLogger(ReadCommittedNonXaTransactionalStore.class.getName());
+    private static final Logger LOG = LoggerFactory.getLogger(ReadUncommittedNonXaTransactionalStore.class.getName());
 
-    public ReadCommittedNonXaTransactionalStore(TransactionController transactionController, SoftLockStore softLockStore, String cacheName, Store underlyingStore) {
+    public ReadUncommittedNonXaTransactionalStore(TransactionController transactionController, SoftLockStore softLockStore, String cacheName, Store underlyingStore) {
         super(transactionController, softLockStore, cacheName, underlyingStore);
     }
 
@@ -53,29 +53,42 @@ public class ReadCommittedNonXaTransactionalStore extends AbstractNonXaTransacti
         lock.writeLock().lock();
         try {
             Object key = element.getObjectKey();
-            SoftLock softLock = softLockMap.get(key);
-            if (softLock == null) {
-                LOG.debug("put: cache [{}] key [{}] not locked, locking it now", cacheName, element.getObjectKey());
-                softLock = softLockStore.createSoftLock(getCurrentTransactionContext().getTransactionId(), element.getObjectKey(), element, underlyingStore.getQuiet(key));
-                softLockMap.put(key, softLock);
-                softLock.lock(); // lock must be stored in a TC managed object before it can be locked
-                getCurrentTransactionContext().registerSoftLock(cacheName, this, softLock);
-                return !underlyingStore.containsKey(key);
-            } else {
-                if (softLock.getTransactionID().equals(getCurrentTransactionContext().getTransactionId())) {
-                    LOG.debug("put: cache [{}] key [{}] locked in current transaction, updating new value", cacheName, element.getObjectKey());
-                    softLock.setNewElement(element);
-                    return false;
+            Element oldElement = underlyingStore.getQuiet(key);
+
+            if (oldElement != null && oldElement.getObjectValue() instanceof SoftLock) {
+                SoftLock oldSoftLock = (SoftLock) oldElement.getObjectValue();
+                if (!oldSoftLock.getTransactionID().equals(getCurrentTransactionContext().getTransactionId())) {
+                    LOG.debug("put: cache [{}] key [{}] soft locked in different transaction", cacheName, key);
+
+                    tryLockSoftLock(oldSoftLock);
+                    // after tryLockSoftLock the key may still be soft locked or not so loop until it isn't anymore
+                    while (true) {
+                        oldElement = underlyingStore.getQuiet(key);
+                        if (oldElement != null && oldElement.getObjectValue() instanceof SoftLock) {
+                            tryLockSoftLock(oldSoftLock);
+                        } else {
+                            break;
+                        }
+                    }
+
+                    LOG.debug("put: cache [{}] key [{}] available, re-soft locking it", cacheName, key);
+                    SoftLock newSoftLock = softLockStore.createSoftLock(getCurrentTransactionContext().getTransactionId(), key, element, oldElement);
+                    newSoftLock.lock();
+                    getCurrentTransactionContext().registerSoftLock(cacheName, this, newSoftLock);
+                    underlyingStore.put(new Element(key, newSoftLock));
+                    return oldElement == null;
                 } else {
-                    LOG.debug("put: cache [{}] key [{}] locked in transaction [{}], waiting until lock gets removed", new Object[] {cacheName, element.getObjectKey(), softLock.getTransactionID()});
-                    tryLockSoftLock(softLock);
-                    LOG.debug("put: cache [{}] key [{}] unlocked, locking it again", cacheName, element.getObjectKey());
-                    softLock = softLockStore.createSoftLock(getCurrentTransactionContext().getTransactionId(), element.getObjectKey(), element, underlyingStore.getQuiet(key));
-                    softLockMap.put(key, softLock);
-                    softLock.lock(); // lock must be stored in a TC managed object before it can be locked
-                    getCurrentTransactionContext().registerSoftLock(cacheName, this, softLock);
-                    return !underlyingStore.containsKey(key);
+                    LOG.debug("put: cache [{}] key [{}] soft locked in the current transaction", cacheName, key);
+                    Element previousElement = oldSoftLock.getNewElement();
+                    oldSoftLock.setNewElement(element);
+                    return previousElement == null;
                 }
+            } else {
+                LOG.debug("put: cache [{}] key [{}] not soft locked, locking it now", cacheName, key);
+                SoftLock newSoftLock = softLockStore.createSoftLock(getCurrentTransactionContext().getTransactionId(), key, element, oldElement);
+                newSoftLock.lock();
+                getCurrentTransactionContext().registerSoftLock(cacheName, this, newSoftLock);
+                return underlyingStore.put(new Element(key, newSoftLock));
             }
         } finally {
             lock.writeLock().unlock();
@@ -85,18 +98,19 @@ public class ReadCommittedNonXaTransactionalStore extends AbstractNonXaTransacti
     public Element get(Object key) {
         lock.readLock().lock();
         try {
-            SoftLock softLock = softLockMap.get(key);
-            if (softLock == null) {
-                LOG.debug("get: cache [{}] key [{}] not locked, returning value", cacheName, key);
-                return underlyingStore.get(key);
+            Element element = underlyingStore.get(key);
+            if (element == null) {
+                LOG.debug("get: cache [{}] key [{}] not present", cacheName, key);
+                return null;
             }
 
-            if (softLock.getTransactionID().equals(getCurrentTransactionContext().getTransactionId())) {
-                LOG.debug("get: cache [{}] key [{}] locked in current transaction, returning new value", cacheName, key);
+            if (element.getObjectValue() instanceof SoftLock) {
+                SoftLock softLock = (SoftLock) element.getObjectValue();
+                LOG.debug("get: cache [{}] key [{}] soft locked", cacheName, key);
                 return softLock.getNewElement();
             } else {
-                LOG.debug("get: cache [{}] key [{}] locked in transaction [{}], returning old value", new Object[] {cacheName, key, softLock.getTransactionID()});
-                return underlyingStore.get(key);
+                LOG.debug("get: cache [{}] key [{}] not soft locked", cacheName, key);
+                return element;
             }
         } finally {
             lock.readLock().unlock();
@@ -106,23 +120,76 @@ public class ReadCommittedNonXaTransactionalStore extends AbstractNonXaTransacti
     public Element getQuiet(Object key) {
         lock.readLock().lock();
         try {
-            SoftLock softLock = softLockMap.get(key);
-            if (softLock == null) {
-                LOG.debug("getQuiet: cache [{}] key [{}] not locked, returning value", cacheName, key);
-                return underlyingStore.getQuiet(key);
+            Element element = underlyingStore.getQuiet(key);
+            if (element == null) {
+                LOG.debug("getQuiet: cache [{}] key [{}] not present", cacheName, key);
+                return null;
             }
 
-            if (softLock.getTransactionID().equals(getCurrentTransactionContext().getTransactionId())) {
-                LOG.debug("getQuiet: cache [{}] key [{}] locked in current transaction, returning new value", cacheName, key);
+            if (element.getObjectValue() instanceof SoftLock) {
+                SoftLock softLock = (SoftLock) element.getObjectValue();
+                LOG.debug("getQuiet: cache [{}] key [{}] soft locked", cacheName, key);
                 return softLock.getNewElement();
             } else {
-                LOG.debug("getQuiet: cache [{}] key [{}] locked in transaction [{}], returning old value", new Object[] {cacheName, key, softLock.getTransactionID()});
-                return underlyingStore.getQuiet(key);
+                LOG.debug("getQuiet: cache [{}] key [{}] not soft locked", cacheName, key);
+                return element;
             }
         } finally {
             lock.readLock().unlock();
         }
     }
+
+    public Element remove(Object key) {
+        lock.writeLock().lock();
+        try {
+            Element oldElement = underlyingStore.getQuiet(key);
+            if (oldElement == null) {
+                LOG.debug("remove: cache [{}] key [{}] not present", cacheName, key);
+                return null;
+            }
+
+            if (oldElement.getObjectValue() instanceof SoftLock) {
+                SoftLock oldSoftLock = (SoftLock) oldElement.getObjectValue();
+                if (!oldSoftLock.getTransactionID().equals(getCurrentTransactionContext().getTransactionId())) {
+                    LOG.debug("remove: cache [{}] key [{}] soft locked in different transaction", cacheName, key);
+
+                    tryLockSoftLock(oldSoftLock);
+                    // after tryLockSoftLock the key may still be soft locked or not so loop until it isn't anymore
+                    while (true) {
+                        oldElement = underlyingStore.getQuiet(key);
+                        if (oldElement != null && oldElement.getObjectValue() instanceof SoftLock) {
+                            tryLockSoftLock(oldSoftLock);
+                        } else {
+                            break;
+                        }
+                    }
+
+                    LOG.debug("remove: cache [{}] key [{}] available, re-soft locking it", cacheName, key);
+                    SoftLock newSoftLock = softLockStore.createSoftLock(getCurrentTransactionContext().getTransactionId(), key, null, oldElement);
+                    newSoftLock.lock();
+                    getCurrentTransactionContext().registerSoftLock(cacheName, this, newSoftLock);
+                    underlyingStore.put(new Element(key, newSoftLock));
+                    return oldElement;
+                } else {
+                    LOG.debug("remove: cache [{}] key [{}] soft locked in the current transaction", cacheName, key);
+                    Element previousElement = oldSoftLock.getNewElement();
+                    oldSoftLock.setNewElement(null);
+                    return previousElement;
+                }
+            } else {
+                LOG.debug("remove: cache [{}] key [{}] not soft locked, locking it now", cacheName, key);
+                SoftLock newSoftLock = softLockStore.createSoftLock(getCurrentTransactionContext().getTransactionId(), key, null, oldElement);
+                newSoftLock.lock();
+                getCurrentTransactionContext().registerSoftLock(cacheName, this, newSoftLock);
+                underlyingStore.put(new Element(key, newSoftLock));
+                return oldElement;
+            }
+        } finally {
+            lock.writeLock().unlock();
+        }
+    }
+
+    //todo all the following transactional methods must be reworked
 
     public List getKeys() {
         lock.readLock().lock();
@@ -140,7 +207,6 @@ public class ReadCommittedNonXaTransactionalStore extends AbstractNonXaTransacti
                     return iterator;
                 }
             };
-            keys.addAll(getCurrentTransactionContext().getPutKeys(cacheName));
             keys.removeAll(getCurrentTransactionContext().getRemovedKeys(cacheName));
             return new SetWrapperList(keys);
         } finally {
@@ -148,49 +214,36 @@ public class ReadCommittedNonXaTransactionalStore extends AbstractNonXaTransacti
         }
     }
 
-    public Element remove(Object key) {
-        lock.writeLock().lock();
+    public int getSize() {
+        lock.readLock().lock();
         try {
-            SoftLock softLock = softLockMap.get(key);
-
-            if (softLock == null && underlyingStore.getQuiet(key) == null) {
-                LOG.debug("remove: cache [{}] key [{}] is not locked and is not in cache, nothing to do", cacheName, key);
-                return null;
-            } else if (softLock == null && underlyingStore.getQuiet(key) != null) {
-                LOG.debug("remove: cache [{}] key [{}] not locked and in cache, locking it now", cacheName, key);
-                softLock = softLockStore.createSoftLock(getCurrentTransactionContext().getTransactionId(), key, null, underlyingStore.getQuiet(key));
-                softLockMap.put(key, softLock);
-                softLock.lock(); // lock must be stored in a TC managed object before it can be locked
-                getCurrentTransactionContext().registerSoftLock(cacheName, this, softLock);
-                return underlyingStore.getQuiet(key);
-            } else {
-                // softLock cannot be null here
-                if (softLock.getTransactionID().equals(getCurrentTransactionContext().getTransactionId())) {
-                    if (underlyingStore.getQuiet(key) == null) {
-                        LOG.debug("remove: cache [{}] key [{}] locked and put in current transaction, removing and unlocking it", cacheName, key);
-                        softLockMap.remove(softLock);
-                        getCurrentTransactionContext().unregisterSoftLock(cacheName, this, softLock);
-                        softLock.unlock();
-                        return softLock.getNewElement();
-                    } else {
-                        LOG.debug("remove: cache [{}] key [{}] locked in another transaction, removing it", cacheName, key);
-                        Element currentElement = softLock.getNewElement();
-                        softLock.setNewElement(null);
-                        return currentElement;
-                    }
-                } else {
-                    LOG.debug("remove: cache [{}] key [{}] locked in transaction [{}], waiting until lock gets removed", new Object[] {cacheName, key, softLock.getTransactionID()});
-                    tryLockSoftLock(softLock);
-                    LOG.debug("remove: cache [{}] key [{}] unlocked, locking it again", cacheName, key);
-                    softLock = softLockStore.createSoftLock(getCurrentTransactionContext().getTransactionId(), key, null, underlyingStore.getQuiet(key));
-                    softLockMap.put(key, softLock);
-                    softLock.lock(); // lock must be stored in a TC managed object before it can be locked
-                    getCurrentTransactionContext().registerSoftLock(cacheName, this, softLock);
-                    return underlyingStore.getQuiet(key);
-                }
-            }
+            int sizeModifier = 0;
+            sizeModifier -= getCurrentTransactionContext().getRemovedKeys(cacheName).size();
+            return underlyingStore.getSize() + sizeModifier;
         } finally {
-            lock.writeLock().unlock();
+            lock.readLock().unlock();
+        }
+    }
+
+    public int getTerracottaClusteredSize() {
+        lock.readLock().lock();
+        try {
+            int sizeModifier = 0;
+            sizeModifier -= getCurrentTransactionContext().getRemovedKeys(cacheName).size();
+            return underlyingStore.getTerracottaClusteredSize() + sizeModifier;
+        } finally {
+            lock.readLock().unlock();
+        }
+    }
+
+    public boolean containsKey(Object key) {
+        lock.readLock().lock();
+        try {
+            getCurrentTransactionContext().getPutKeys(cacheName);
+            return !getCurrentTransactionContext().getRemovedKeys(cacheName).contains(key) &&
+                   underlyingStore.containsKey(key);
+        } finally {
+            lock.readLock().unlock();
         }
     }
 
@@ -344,42 +397,6 @@ public class ReadCommittedNonXaTransactionalStore extends AbstractNonXaTransacti
             }
         } finally {
             lock.writeLock().unlock();
-        }
-    }
-
-    public int getSize() {
-        lock.readLock().lock();
-        try {
-            int sizeModifier = 0;
-            sizeModifier += getCurrentTransactionContext().getPutKeys(cacheName).size();
-            sizeModifier -= getCurrentTransactionContext().getRemovedKeys(cacheName).size();
-            return underlyingStore.getSize() + sizeModifier;
-        } finally {
-            lock.readLock().unlock();
-        }
-    }
-
-    public int getTerracottaClusteredSize() {
-        lock.readLock().lock();
-        try {
-            int sizeModifier = 0;
-            sizeModifier += getCurrentTransactionContext().getPutKeys(cacheName).size();
-            sizeModifier -= getCurrentTransactionContext().getRemovedKeys(cacheName).size();
-            return underlyingStore.getTerracottaClusteredSize() + sizeModifier;
-        } finally {
-            lock.readLock().unlock();
-        }
-    }
-
-    public boolean containsKey(Object key) {
-        lock.readLock().lock();
-        try {
-            getCurrentTransactionContext().getPutKeys(cacheName);
-            return !getCurrentTransactionContext().getRemovedKeys(cacheName).contains(key) &&
-                   getCurrentTransactionContext().getPutKeys(cacheName).contains(key) ||
-                   underlyingStore.containsKey(key);
-        } finally {
-            lock.readLock().unlock();
         }
     }
 

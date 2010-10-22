@@ -28,8 +28,8 @@ public class SoftLockStoreImpl implements SoftLockStore {
         return softLockMap;
     }
 
-    public SoftLock createSoftLock(TransactionID transactionID, Object key, Element newElement) {
-        return new SoftLockImpl(transactionID, key, newElement);
+    public SoftLock createSoftLock(TransactionID transactionID, Object key, Element newElement, Element oldElement) {
+        return new SoftLockImpl(transactionID, key, newElement, oldElement);
     }
 
 }

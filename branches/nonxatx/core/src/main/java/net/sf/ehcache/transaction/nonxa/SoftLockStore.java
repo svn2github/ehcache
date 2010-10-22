@@ -15,6 +15,6 @@ public interface SoftLockStore {
 
     ConcurrentMap<Object,SoftLock> getSoftLockMap();
 
-    SoftLock createSoftLock(TransactionID transactionID, Object key, Element newElement);
+    SoftLock createSoftLock(TransactionID transactionID, Object key, Element newElement, Element oldElement);
 
 }

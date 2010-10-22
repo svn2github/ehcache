@@ -22,7 +22,7 @@ import net.sf.ehcache.store.compound.CopyStrategy;
  */
 public class CopyStrategyConfiguration {
 
-    private volatile String className = "net.sf.ehcache.store.compound.SerializationCopyStrategy";
+    private volatile String className;
     private CopyStrategy strategy;
 
     /**
