@@ -220,8 +220,10 @@
         <xs:restriction base="xs:string">
             <xs:enumeration value="off"/>
             <xs:enumeration value="xa"/>
-            <xs:enumeration value="non_xa"/>
-            <xs:enumeration value="jta_non_xa"/>
+            <xs:enumeration value="local_rc"/>
+            <xs:enumeration value="local_ru"/>
+            <xs:enumeration value="jta_local_rc"/>
+            <xs:enumeration value="jta_local_ru"/>
         </xs:restriction>
     </xs:simpleType>
 

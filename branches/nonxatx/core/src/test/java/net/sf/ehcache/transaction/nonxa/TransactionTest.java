@@ -238,7 +238,7 @@ public class TransactionTest extends TestCase {
                     cache1.put(new Element("tx2", ""));
 
                     transactionController.commit();
-                } catch (TransactionException e) {
+                } catch (DeadLockException e) {
                     losingTx[0] = "tx2";
                     transactionController.rollback();
                 }
@@ -253,7 +253,7 @@ public class TransactionTest extends TestCase {
             cache1.put(new Element("tx1", ""));
 
             transactionController.commit();
-        } catch (TransactionException e) {
+        } catch (DeadLockException e) {
             losingTx[0] = "tx1";
             transactionController.rollback();
         }

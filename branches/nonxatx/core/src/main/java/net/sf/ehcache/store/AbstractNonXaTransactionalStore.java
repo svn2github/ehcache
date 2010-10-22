@@ -11,7 +11,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Collection;
-import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.locks.ReadWriteLock;
 
 /**
@@ -26,14 +25,12 @@ public abstract class AbstractNonXaTransactionalStore extends AbstractStore {
     protected final Store underlyingStore;
 
     protected final ReadWriteLock lock;
-    protected final ConcurrentMap<Object, SoftLock> softLockMap;
     protected final SoftLockStore softLockStore;
 
     protected AbstractNonXaTransactionalStore(TransactionController transactionController, SoftLockStore softLockStore, String cacheName, Store underlyingStore) {
         this.transactionController = transactionController;
         this.softLockStore = softLockStore;
         this.lock = softLockStore.getReadWriteLock();
-        this.softLockMap = softLockStore.getSoftLockMap();
         this.cacheName = cacheName;
         this.underlyingStore = underlyingStore;
     }
@@ -58,7 +55,6 @@ public abstract class AbstractNonXaTransactionalStore extends AbstractStore {
                 } else {
                     underlyingStore.remove(softLock.getKey());
                 }
-                softLockMap.remove(softLock.getKey());
                 softLock.unlock();
             }
         } finally {
@@ -78,7 +74,6 @@ public abstract class AbstractNonXaTransactionalStore extends AbstractStore {
                 } else {
                     underlyingStore.remove(softLock.getKey());
                 }
-                softLockMap.remove(softLock.getKey());
                 softLock.unlock();
             }
         } finally {

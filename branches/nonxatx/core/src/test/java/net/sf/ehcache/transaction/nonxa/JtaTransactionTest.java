@@ -253,7 +253,7 @@ public class JtaTransactionTest extends TestCase {
                     cache1.put(new Element("tx2", ""));
 
                     transactionManager.commit();
-                } catch (TransactionException e) {
+                } catch (DeadLockException e) {
                     losingTx[0] = "tx2";
                     transactionManager.rollback();
                 }
@@ -268,7 +268,7 @@ public class JtaTransactionTest extends TestCase {
             cache1.put(new Element("tx1", ""));
 
             transactionManager.commit();
-        } catch (TransactionException e) {
+        } catch (DeadLockException e) {
             losingTx[0] = "tx1";
             transactionManager.rollback();
         }

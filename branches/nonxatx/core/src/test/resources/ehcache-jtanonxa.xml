@@ -16,7 +16,7 @@
            timeToIdleSeconds="5"
            timeToLiveSeconds="10"
            overflowToDisk="false"
-           transactionalMode="jta_non_xa"
+           transactionalMode="jta_local_rc"
            />
 
     <cache name="txCache2"
@@ -25,6 +25,6 @@
            timeToIdleSeconds="5"
            timeToLiveSeconds="10"
            overflowToDisk="false"
-           transactionalMode="jta_non_xa"
+           transactionalMode="jta_local_rc"
            />
 </ehcache>
