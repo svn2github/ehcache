@@ -272,3 +272,85 @@
   </jta>
 ---
 
+*   Local Transactions
+
+    Local Transactions allow single phase commit across multiple cache operations across one or more Caches
+    in the same CacheManager, whether distributed with Terracotta or standalone.
+
+    1 second is the transaction timeout.
+
+    Locking is on the key level rather than the page level.
+
+    There are two modes for running local transactions:
+
+    * local
+
+    * jta-local
+
+**  <<<local>>> Transactions
+
+   This is not controlled by a Transaction Manager.
+
+*** Configuration
+
+    This is configured as follows:
+
+
+---
+    <cache name="sampleCache"
+        ...
+        transactionalMode="local">
+  </cache>
+---
+
+
+*** Sample Code
+
+
+---
+    try {
+    CacheManager.getInstance().getTransactionController.getInstance().begin();
+
+    cache1.put(new Element(1, "one"));
+    cache2.put(new Element(1, "one"));
+
+    CacheManager.getInstance().getTransactionController.getInstance().commit();
+    } catch (CacheException e) {
+
+    }
+---
+
+
+
+**  <<<jta-local>>> Transactions
+
+    This requires a TransactionManager. The transaction is controlled by the TM.
+
+    The differences to the XA are:
+
+    * in case of a crash there is no guarantee about what is in the cache. ie. there is no recovery
+      support.
+
+    * at commit time if we throw an exception then the other Resources will not roll back.
+
+    In either case, the Element will be we will invalidate the cache. There will be a dead softlock
+      which will cause it to be restored the old value.
+
+    This is useful because it is atomic but in a crash scenario they will deal with it
+
+
+*** Configuration
+
+    This is configured as follows:
+
+
+---
+    <cache name="sampleCache"
+        ...
+        transactionalMode="local-jta">
+  </cache>
+---
+
+*** Sample Code
+
+    Same as XA.
