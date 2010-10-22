@@ -12,4 +12,6 @@ public interface SoftLockStore {
 
     ConcurrentMap<Object,SoftLock> getSoftLockMap(String cacheName);
 
+    SoftLockFactory getSoftLockFactory();
+
 }

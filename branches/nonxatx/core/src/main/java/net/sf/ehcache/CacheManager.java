@@ -1539,16 +1539,6 @@ public class CacheManager {
         return transactionController;
     }
 
-    SoftLockFactory createSoftLockFactory(Ehcache cache) {
-        SoftLockFactory softLockFactory;
-        if (cache.getCacheConfiguration().isTerracottaClustered()) {
-            softLockFactory = getClusteredInstanceFactory(cache).createSoftLockFactory();
-        } else {
-            softLockFactory = new SoftLockFactoryImpl();
-        }
-        return softLockFactory;
-    }
-
     private TransactionIDFactory createTransactionIDFactory() {
         TransactionIDFactory transactionIDFactory;
         if (terracottaClusteredInstanceFactory != null) {

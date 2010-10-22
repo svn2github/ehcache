@@ -84,7 +84,5 @@ public interface ClusteredInstanceFactory {
 
     TransactionIDFactory createTransactionIDFactory(String clusterUUID);
 
-    SoftLockFactory createSoftLockFactory();
-
     SoftLockStore createSoftLockStore();
 }

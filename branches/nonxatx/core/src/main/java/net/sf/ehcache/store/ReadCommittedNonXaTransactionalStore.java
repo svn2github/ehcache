@@ -44,12 +44,8 @@ public class ReadCommittedNonXaTransactionalStore extends AbstractNonXaTransacti
 
     private static final Logger LOG = LoggerFactory.getLogger(ReadCommittedNonXaTransactionalStore.class.getName());
 
-    private final SoftLockFactory softLockFactory;
-
-
-    public ReadCommittedNonXaTransactionalStore(TransactionController transactionController, SoftLockStore softLockStore, SoftLockFactory softLockFactory, String cacheName, Store underlyingStore) {
+    public ReadCommittedNonXaTransactionalStore(TransactionController transactionController, SoftLockStore softLockStore, String cacheName, Store underlyingStore) {
         super(transactionController, softLockStore, cacheName, underlyingStore);
-        this.softLockFactory = softLockFactory;
     }
 
     /* transactional methods */

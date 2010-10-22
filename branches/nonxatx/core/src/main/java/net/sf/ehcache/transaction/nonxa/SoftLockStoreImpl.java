@@ -12,6 +12,7 @@ public class SoftLockStoreImpl implements SoftLockStore {
 
     private final ConcurrentMap<String,ReadWriteLock> locks = new ConcurrentHashMap<String, ReadWriteLock>();
     private final ConcurrentMap<String,ConcurrentMap<Object,SoftLock>> softLockMaps = new ConcurrentHashMap<String, ConcurrentMap<Object, SoftLock>>();
+    private final SoftLockFactory softLockFactory = new SoftLockFactoryImpl();
 
     public SoftLockStoreImpl() {
         //
@@ -33,5 +34,9 @@ public class SoftLockStoreImpl implements SoftLockStore {
             softLockMaps.put(cacheName, softLockMap);
         }
         return softLockMap;
+    }
+
+    public SoftLockFactory getSoftLockFactory() {
+        return softLockFactory;
     }
 }
