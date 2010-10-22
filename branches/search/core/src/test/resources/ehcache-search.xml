@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<ehcache xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="../../main/config/ehcache.xsd">
+
+    <defaultCache maxElementsInMemory="10" eternal="false"
+                  timeToIdleSeconds="5" timeToLiveSeconds="10" overflowToDisk="true"/>
+
+    <cache name="cache1" maxElementsInMemory="0" eternal="true"
+           overflowToDisk="false">
+        <searchAttribute name="age" expression="value.getAge()"/>
+        <searchAttribute name="gender" expression="value.getGender()"/>
+        <searchAttribute name="name" expression="value.getName()"/>
+    </cache>
+
+    <cache name="cache2" maxElementsInMemory="0" eternal="true"
+           overflowToDisk="false">
+        <searchAttribute name="age"
+                         class="net.sf.ehcache.search.TestAttributeExtractor"/>
+        <searchAttribute name="gender" expression="value.getGender()"/>
+    </cache>
+
+
+</ehcache>
