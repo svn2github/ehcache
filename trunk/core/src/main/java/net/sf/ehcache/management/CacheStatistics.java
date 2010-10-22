@@ -48,8 +48,6 @@ import java.io.Serializable;
  */
 public class CacheStatistics implements CacheStatisticsMBean, Serializable {
 
-    private static final int ONE_HUNDRED = 100;
-
     private static final long serialVersionUID = 8085302752781762030L;
 
     private transient Ehcache ehcache;
@@ -181,7 +179,24 @@ public class CacheStatistics implements CacheStatisticsMBean, Serializable {
     public long getCacheMisses() {
         updateIfNeeded();
         return statistics.getCacheMisses();
+    }
 
+    /** {@inheritDoc} */
+    public long getInMemoryMisses() {
+        updateIfNeeded();
+        return statistics.getInMemoryMisses();
+    }
+
+    /** {@inheritDoc} */
+    public long getOffHeapMisses() {
+        updateIfNeeded();
+        return statistics.getOffHeapMisses();
+    }
+
+    /** {@inheritDoc} */
+    public long getOnDiskMisses() {
+        updateIfNeeded();
+        return statistics.getOnDiskMisses();
     }
 
     /**
@@ -232,6 +247,14 @@ public class CacheStatistics implements CacheStatisticsMBean, Serializable {
     }
 
     /**
+     * {@inheritDoc}
+     */
+    public long getOffHeapStoreObjectCount() {
+        updateIfNeeded();
+        return statistics.getOffHeapStoreObjectCount();
+    }
+
+    /**
      * Gets the number of objects in the DiskStore
      * @return the DiskStore size which is always a count unadjusted for duplicates or expiries
      */
@@ -257,71 +280,71 @@ public class CacheStatistics implements CacheStatisticsMBean, Serializable {
         return ehcache;
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public long getCacheHitPercentage() {
-        updateIfNeeded();
-        long hits = statistics.getCacheHits();
-        long misses = statistics.getCacheMisses();
-
-        long denominator = hits + misses;
-        if (denominator == 0) {
-            return 0;
+    private static double getPercentage(long number, long total) {
+        if (total == 0) {
+            return 0.0;
         } else {
-            return hits * ONE_HUNDRED / (hits + misses);
+            return number / (double)total;
         }
     }
 
     /**
      * {@inheritDoc}
      */
-    public long getCacheMissPercentage() {
+    public double getCacheHitPercentage() {
         updateIfNeeded();
         long hits = statistics.getCacheHits();
         long misses = statistics.getCacheMisses();
 
-        long denominator = hits + misses;
-        if (denominator == 0) {
-            return 0;
-        } else {
-            return misses * ONE_HUNDRED / (denominator);
-        }
-
+        long total = hits + misses;
+        return getPercentage(hits, total);
     }
 
     /**
      * {@inheritDoc}
      */
-    public long getInMemoryHitPercentage() {
+    public double getCacheMissPercentage() {
         updateIfNeeded();
-        long memoryHits = statistics.getInMemoryHits();
         long hits = statistics.getCacheHits();
         long misses = statistics.getCacheMisses();
 
-        long denominator = hits + misses;
-        if (denominator == 0) {
-            return 0;
-        } else {
-            return memoryHits * ONE_HUNDRED / (denominator);
-        }
-
+        long total = hits + misses;
+        return getPercentage(misses, total);
     }
 
     /**
      * {@inheritDoc}
      */
-    public long getOnDiskHitPercentage() {
+    public double getInMemoryHitPercentage() {
         updateIfNeeded();
-        long diskHits = statistics.getOnDiskHits();
-        long hits = statistics.getCacheHits();
-        long misses = statistics.getCacheMisses();
+        long hits = statistics.getInMemoryHits();
+        long misses = statistics.getInMemoryMisses();
 
-        long denominator = hits + misses;
-        if (denominator == 0) {
-            return 0;
-        } else {
-            return diskHits * ONE_HUNDRED / (denominator);
-        }
+        long total = hits + misses;
+        return getPercentage(hits, total);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public double getOffHeapHitPercentage() {
+        updateIfNeeded();
+        long hits = statistics.getOffHeapHits();
+        long misses = statistics.getOffHeapMisses();
+
+        long total = hits + misses;
+        return getPercentage(hits, total);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public double getOnDiskHitPercentage() {
+        updateIfNeeded();
+        long hits = statistics.getOnDiskHits();
+        long misses = statistics.getOnDiskMisses();
+
+        long total = hits + misses;
+        return getPercentage(hits, total);
     }
 }

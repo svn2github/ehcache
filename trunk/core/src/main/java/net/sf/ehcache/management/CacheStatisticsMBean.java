@@ -43,6 +43,13 @@ public interface CacheStatisticsMBean {
     public long getInMemoryHits();
 
     /**
+     * Number of times a requested item was found in the off-heap store.
+     *
+     * @return the number of times a requested item was found off-heap, or 0 if there is no BigMemory storage configured.
+     */
+    public long getOffHeapHits();
+
+    /**
      * Number of times a requested item was found in the Disk Store.
      *
      * @return the number of times a requested item was found on Disk, or 0 if there is no disk storage configured.
@@ -53,6 +60,21 @@ public interface CacheStatisticsMBean {
      * @return the number of times a requested element was not found in the cache
      */
     public long getCacheMisses();
+
+    /**
+     * @return the number of times a requested element was not found in the memory cache
+     */
+    public long getInMemoryMisses();
+
+    /**
+     * @return the number of times a requested element was not found in the off-heap cache
+     */
+    public long getOffHeapMisses();
+
+    /**
+     * @return the number of times a requested element was not found in the disk cache
+     */
+    public long getOnDiskMisses();
 
     /**
      * Gets the number of elements stored in the cache. Caclulating this can be expensive. Accordingly,
@@ -97,6 +119,12 @@ public interface CacheStatisticsMBean {
     public long getMemoryStoreObjectCount();
 
     /**
+     * Gets the number of objects in the OffHeapStore
+     * @return the OffHeapStore size which is always a count unadjusted for duplicates or expiries
+     */
+    public long getOffHeapStoreObjectCount();
+
+    /**
      * Gets the number of objects in the DiskStore
      * @return the DiskStore size which is always a count unadjusted for duplicates or expiries
      */
@@ -128,27 +156,34 @@ public interface CacheStatisticsMBean {
      *
      * @return the percentage of successful hits
      */
-    public long getCacheHitPercentage();
+    public double getCacheHitPercentage();
 
     /**
      * Returns the percentage of cache accesses that did not find a requested element in the cache.
      *
      * @return the percentage of accesses that failed to find anything
      */
-    public long getCacheMissPercentage();
+    public double getCacheMissPercentage();
 
     /**
      * Returns the percentage of cache accesses that found a requested item cached in-memory.
      *
      * @return the percentage of successful hits from the MemoryStore
      */
-    public long getInMemoryHitPercentage();
+    public double getInMemoryHitPercentage();
+
+    /**
+     * Returns the percentage of cache accesses that found a requested item cached off-heap.
+     *
+     * @return the percentage of successful hits from the OffHeapStore
+     */
+    public double getOffHeapHitPercentage();
 
     /**
      * Returns the percentage of cache accesses that found a requested item cached on disk.
      *
      * @return the percentage of successful hits from the DiskStore.
      */
-    public long getOnDiskHitPercentage();
+    public double getOnDiskHitPercentage();
 
 }
