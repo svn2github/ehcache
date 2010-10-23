@@ -24,6 +24,7 @@ import java.util.Set;
 
 import junit.framework.TestCase;
 import net.sf.ehcache.Cache;
+import net.sf.ehcache.CacheException;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
@@ -492,6 +493,13 @@ public class BasicSearchTest extends TestCase {
         query.add(new Or(cache.getSearchAttribute("age").eq(35), cache.getSearchAttribute("gender").eq(Gender.FEMALE)));
         query.end();
         verify(cache, query, 1, 2, 3);
+
+        try {
+            cache.getSearchAttribute("DOES_NOT_EXIST_PLEASE_DO_NOT_CREATE_ME");
+            fail();
+        } catch (CacheException ce) {
+            // expected
+        }
     }
 
     public void testOrdering() {
