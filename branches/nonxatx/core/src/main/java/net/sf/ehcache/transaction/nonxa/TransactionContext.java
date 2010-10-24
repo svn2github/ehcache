@@ -47,12 +47,15 @@ public class TransactionContext {
         softLocks.add(softLock);
     }
 
-    public void unregisterSoftLock(String cacheName, AbstractNonXaTransactionalStore store, SoftLock softLock) {
+    public void updateSoftLock(String cacheName, SoftLock softLock) {
         List<SoftLock> softLocks = softLockMap.get(cacheName);
-        softLocks.remove(softLock);
+        if (softLocks != null) {
+            softLocks.remove(softLock);
+            softLocks.add(softLock);
+        }
     }
 
-    public List<Object> getPutKeys(String cacheName) {
+    public List<Object> getNewKeys(String cacheName) {
         List<Object> result = new ArrayList<Object>();
 
         List<SoftLock> softLocks = softLockMap.get(cacheName);
@@ -61,7 +64,24 @@ public class TransactionContext {
         }
 
         for (SoftLock softLock : softLocks) {
-            if (softLock.getNewElement() != null) {
+            if (softLock.getNewElement() != null && softLock.getOldElement() == null) {
+                result.add(softLock.getKey());
+            }
+        }
+
+        return result;
+    }
+
+    public List<Object> getUpdatedKeys(String cacheName) {
+        List<Object> result = new ArrayList<Object>();
+
+        List<SoftLock> softLocks = softLockMap.get(cacheName);
+        if (softLocks == null) {
+            return result;
+        }
+
+        for (SoftLock softLock : softLocks) {
+            if (softLock.getNewElement() != null && softLock.getOldElement() != null) {
                 result.add(softLock.getKey());
             }
         }

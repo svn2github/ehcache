@@ -81,6 +81,8 @@ public class ReadCommittedNonXaTransactionalStore extends AbstractNonXaTransacti
                     LOG.debug("put: cache [{}] key [{}] soft locked in current transaction", cacheName, key);
                     Element previousElement = oldSoftLock.getNewElement();
                     oldSoftLock.setNewElement(element);
+                    getCurrentTransactionContext().updateSoftLock(cacheName, oldSoftLock);
+                    underlyingStore.put(new Element(key, oldSoftLock));
                     return previousElement == null;
                 }
             } else {
@@ -184,6 +186,8 @@ public class ReadCommittedNonXaTransactionalStore extends AbstractNonXaTransacti
                     LOG.debug("remove: cache [{}] key [{}] soft locked in current transaction", cacheName, key);
                     Element previousElement = oldSoftLock.getNewElement();
                     oldSoftLock.setNewElement(null);
+                    getCurrentTransactionContext().updateSoftLock(cacheName, oldSoftLock);
+                    underlyingStore.put(new Element(key, oldSoftLock));
                     return previousElement;
                 }
             } else {
@@ -217,6 +221,7 @@ public class ReadCommittedNonXaTransactionalStore extends AbstractNonXaTransacti
                     return iterator;
                 }
             };
+            //todo we have to account for the new elements' softlocks added by different transactions
             keys.removeAll(getCurrentTransactionContext().getRemovedKeys(cacheName));
             return new SetWrapperList(keys);
         } finally {
@@ -228,6 +233,7 @@ public class ReadCommittedNonXaTransactionalStore extends AbstractNonXaTransacti
         lock.readLock().lock();
         try {
             int sizeModifier = 0;
+            //todo we have to account for the new elements' softlocks added by different transactions
             sizeModifier -= getCurrentTransactionContext().getRemovedKeys(cacheName).size();
             return underlyingStore.getSize() + sizeModifier;
         } finally {
@@ -239,6 +245,7 @@ public class ReadCommittedNonXaTransactionalStore extends AbstractNonXaTransacti
         lock.readLock().lock();
         try {
             int sizeModifier = 0;
+            //todo we have to account for the new elements' softlocks added by different transactions
             sizeModifier -= getCurrentTransactionContext().getRemovedKeys(cacheName).size();
             return underlyingStore.getTerracottaClusteredSize() + sizeModifier;
         } finally {
@@ -249,7 +256,7 @@ public class ReadCommittedNonXaTransactionalStore extends AbstractNonXaTransacti
     public boolean containsKey(Object key) {
         lock.readLock().lock();
         try {
-            getCurrentTransactionContext().getPutKeys(cacheName);
+            //todo we have to account for the new elements' softlocks added by different transactions
             return !getCurrentTransactionContext().getRemovedKeys(cacheName).contains(key) &&
                    underlyingStore.containsKey(key);
         } finally {

@@ -6,6 +6,9 @@ import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.TransactionController;
 
+import java.util.Arrays;
+import java.util.concurrent.atomic.AtomicBoolean;
+
 /**
  * @author lorban
  */
@@ -109,10 +112,10 @@ public class TransactionTest extends TestCase {
         transactionController.begin();
 
         assertEquals(new Element(1, "one"), cache1.get(1));
-
+        cache1.put(new Element(2, "two"));
         assertTrue(cache1.remove(1));
-
         assertNull(cache1.get(1));
+        assertEquals(new Element(2, "two"), cache1.get(2));
 
 
         Thread tx2 = new Thread() {
@@ -140,6 +143,7 @@ public class TransactionTest extends TestCase {
 
         transactionController.begin();
         assertNull(cache1.get(1));
+        assertEquals(new Element(2, "two"), cache1.get(2));
         transactionController.commit();
     }
 
@@ -288,12 +292,15 @@ public class TransactionTest extends TestCase {
 
         cache1.put(new Element(1, "one"));
         assertEquals(1, cache1.getKeys().size());
+        assertTrue(cache1.getKeys().containsAll(Arrays.asList(1)));
 
         cache1.put(new Element(2, "two"));
         assertEquals(2, cache1.getKeys().size());
+        assertTrue(cache1.getKeys().containsAll(Arrays.asList(1, 2)));
 
         cache1.remove(1);
         assertEquals(1, cache1.getKeys().size());
+        assertTrue(cache1.getKeys().containsAll(Arrays.asList(2)));
 
         transactionController.commit();
 
@@ -302,20 +309,24 @@ public class TransactionTest extends TestCase {
 
         cache1.put(new Element(1, "one"));
 
+        final AtomicBoolean tx2Success = new AtomicBoolean(false);
         Thread tx2 = new Thread() {
             @Override
             public void run() {
                 transactionController.begin();
 
                 assertEquals(1, cache1.getKeys().size());
+                assertTrue(cache1.getKeys().containsAll(Arrays.asList(2)));
 
                 transactionController.commit();
+                tx2Success.set(true);
             }
         };
         tx2.start();
         tx2.join();
 
         transactionController.commit();
+        assertTrue(tx2Success.get());
     }
 
     public void testRemoveAll() throws Exception {
