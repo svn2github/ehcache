@@ -311,12 +311,12 @@
 
 ---
     try {
-    CacheManager.getInstance().getTransactionController.getInstance().begin();
+        CacheManager.getInstance().getTransactionController().begin();
 
-    cache1.put(new Element(1, "one"));
-    cache2.put(new Element(1, "one"));
+        cache1.put(new Element(1, "one"));
+        cache2.put(new Element(1, "one"));
 
-    CacheManager.getInstance().getTransactionController.getInstance().commit();
+        CacheManager.getInstance().getTransactionController().commit();
     } catch (CacheException e) {
 
     }
