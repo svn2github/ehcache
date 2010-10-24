@@ -21,6 +21,10 @@ import net.sf.ehcache.store.compound.CopyStrategy;
 import net.sf.ehcache.store.compound.SerializationCopyStrategy;
 
 /**
+ * todo this could be merged in the SerializationCopyStrategy
+ *  benefit:  only one copy strategy which can act as default and works everywhere
+ *  drawback: less readable
+ *
  * @author Ludovic Orban
  */
 public class SoftLockAwareSerializationCopyStrategy implements CopyStrategy {
