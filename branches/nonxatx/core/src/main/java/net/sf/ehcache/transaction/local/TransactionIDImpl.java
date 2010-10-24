@@ -1,8 +1,7 @@
-package net.sf.ehcache.transaction.nonxa;
+package net.sf.ehcache.transaction.local;
 
 import net.sf.ehcache.transaction.TransactionID;
 
-import java.io.Serializable;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**

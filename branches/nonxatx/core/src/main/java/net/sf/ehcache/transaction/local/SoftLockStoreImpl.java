@@ -1,4 +1,4 @@
-package net.sf.ehcache.transaction.nonxa;
+package net.sf.ehcache.transaction.local;
 
 import net.sf.ehcache.Element;
 import net.sf.ehcache.transaction.TransactionID;

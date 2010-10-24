@@ -2,11 +2,11 @@ package net.sf.ehcache.store;
 
 import net.sf.ehcache.Element;
 import net.sf.ehcache.TransactionController;
-import net.sf.ehcache.transaction.nonxa.SoftLock;
-import net.sf.ehcache.transaction.nonxa.SoftLockStore;
-import net.sf.ehcache.transaction.nonxa.TransactionContext;
-import net.sf.ehcache.transaction.nonxa.TransactionException;
-import net.sf.ehcache.transaction.nonxa.DeadLockException;
+import net.sf.ehcache.transaction.local.SoftLock;
+import net.sf.ehcache.transaction.local.SoftLockStore;
+import net.sf.ehcache.transaction.local.TransactionContext;
+import net.sf.ehcache.transaction.local.TransactionException;
+import net.sf.ehcache.transaction.local.DeadLockException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

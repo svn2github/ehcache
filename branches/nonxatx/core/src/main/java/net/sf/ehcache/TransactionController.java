@@ -1,9 +1,9 @@
 package net.sf.ehcache;
 
 import net.sf.ehcache.transaction.TransactionID;
-import net.sf.ehcache.transaction.nonxa.TransactionContext;
-import net.sf.ehcache.transaction.nonxa.TransactionException;
-import net.sf.ehcache.transaction.nonxa.TransactionIDFactory;
+import net.sf.ehcache.transaction.local.TransactionContext;
+import net.sf.ehcache.transaction.local.TransactionException;
+import net.sf.ehcache.transaction.local.TransactionIDFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;

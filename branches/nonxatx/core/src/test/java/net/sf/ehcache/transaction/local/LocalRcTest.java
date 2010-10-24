@@ -1,4 +1,4 @@
-package net.sf.ehcache.transaction.nonxa;
+package net.sf.ehcache.transaction.local;
 
 import junit.framework.TestCase;
 import net.sf.ehcache.CacheManager;
@@ -12,7 +12,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 /**
  * @author lorban
  */
-public class TransactionTest extends TestCase {
+public class LocalRcTest extends TestCase {
 
     private CacheManager cacheManager;
     private Ehcache cache1;
@@ -21,7 +21,7 @@ public class TransactionTest extends TestCase {
 
     @Override
     protected void setUp() throws Exception {
-        cacheManager = new CacheManager(TransactionTest.class.getResourceAsStream("/ehcache-nonxa.xml"));
+        cacheManager = new CacheManager(LocalRcTest.class.getResourceAsStream("/ehcache-tx-local_rc.xml"));
         transactionController = cacheManager.getTransactionController();
         transactionController.begin();
         cache1 = cacheManager.getEhcache("txCache1");

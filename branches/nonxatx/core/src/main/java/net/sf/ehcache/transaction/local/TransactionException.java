@@ -1,8 +1,6 @@
-package net.sf.ehcache.transaction.nonxa;
+package net.sf.ehcache.transaction.local;
 
 import net.sf.ehcache.CacheException;
-
-import javax.transaction.SystemException;
 
 /**
  * @author lorban

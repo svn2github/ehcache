@@ -1,4 +1,4 @@
-package net.sf.ehcache.transaction.nonxa;
+package net.sf.ehcache.transaction.local;
 
 import bitronix.tm.TransactionManagerServices;
 import junit.framework.TestCase;
@@ -12,7 +12,7 @@ import javax.transaction.TransactionManager;
 /**
  * @author lorban
  */
-public class JtaTransactionTest extends TestCase {
+public class JtaLocalRcTest extends TestCase {
 
     private CacheManager cacheManager;
     private Ehcache cache1;
@@ -24,9 +24,9 @@ public class JtaTransactionTest extends TestCase {
         TransactionManagerServices.getConfiguration().setGracefulShutdownInterval(0);
         TransactionManagerServices.getConfiguration().setJournal("null");
         TransactionManagerServices.getConfiguration().setWarnAboutZeroResourceTransaction(false);
-        TransactionManagerServices.getConfiguration().setServerId(JtaTransactionTest.class.getName());
+        TransactionManagerServices.getConfiguration().setServerId(JtaLocalRcTest.class.getName());
         transactionManager = TransactionManagerServices.getTransactionManager();
-        cacheManager = new CacheManager(JtaTransactionTest.class.getResourceAsStream("/ehcache-jtanonxa.xml"));
+        cacheManager = new CacheManager(JtaLocalRcTest.class.getResourceAsStream("/ehcache-jta_local_rc.xml"));
 
         transactionManager.begin();
         cache1 = cacheManager.getEhcache("txCache1");
