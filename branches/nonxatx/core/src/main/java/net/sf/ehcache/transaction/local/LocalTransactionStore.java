@@ -7,12 +7,17 @@ import net.sf.ehcache.TransactionController;
 import net.sf.ehcache.store.AbstractStore;
 import net.sf.ehcache.store.Policy;
 import net.sf.ehcache.store.Store;
+import net.sf.ehcache.util.LargeSet;
+import net.sf.ehcache.util.SetWrapperList;
 import net.sf.ehcache.writer.CacheWriterManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 /**
  * @author Ludovic Orban
@@ -90,6 +95,7 @@ public class LocalTransactionStore extends AbstractStore {
                     if (softLock.getTransactionID().equals(getCurrentTransactionContext().getTransactionId())) {
                         softLock.setNewElement(element);
                         underlyingStore.put(oldElement);
+                        getCurrentTransactionContext().updateSoftLock(cacheName, softLock);
 
                         LOG.debug("put: cache [{}] key [{}] soft locked in current transaction, replaced old value with new one under soft lock", cacheName, key);
                         // replaced old value with new one under soft lock, job done.
@@ -201,12 +207,14 @@ public class LocalTransactionStore extends AbstractStore {
                     }
 
                     if (softLock.getTransactionID().equals(getCurrentTransactionContext().getTransactionId())) {
+                        Element removed = softLock.getNewElement();
                         softLock.setNewElement(null);
                         underlyingStore.put(oldElement);
+                        getCurrentTransactionContext().updateSoftLock(cacheName, softLock);
 
                         // replaced old value with new one under soft lock, job done.
                         LOG.debug("remove: cache [{}] key [{}] soft locked in current transaction, replaced old value with new one under soft lock", cacheName, key);
-                        return softLock.getOldElement();
+                        return removed;
                     } else {
                         try {
                             LOG.debug("remove: cache [{}] key [{}] soft locked in foreign transaction, waiting {}ms for soft lock to die...", new Object[] {cacheName, key, timeBeforeTimeout()});
@@ -245,14 +253,54 @@ public class LocalTransactionStore extends AbstractStore {
         } // while
     }
 
+    public List getKeys() {
+        Set<Object> keys = new LargeSet<Object>() {
+            @Override
+            public int sourceSize() {
+                return underlyingStore.getSize();
+            }
+
+            @Override
+            public Iterator<Object> sourceIterator() {
+                @SuppressWarnings("unchecked")
+                Iterator<Object> iterator = underlyingStore.getKeys().iterator();
+                return iterator;
+            }
+        };
+
+        //todo the following is specific to read-committed isolation
+        Set<Object> foreignTransactionNewKeys = new HashSet<Object>();
+        foreignTransactionNewKeys.addAll(softLockFactory.getNewKeys());
+        foreignTransactionNewKeys.removeAll(getCurrentTransactionContext().getNewKeys(cacheName));
+
+        keys.removeAll(getCurrentTransactionContext().getRemovedKeys(cacheName));
+        keys.removeAll(foreignTransactionNewKeys);
+
+        return new SetWrapperList(keys);
+    }
+
+    public int getSize() {
+        //todo the following is specific to read-committed isolation
+        int sizeModifier = 0;
+        sizeModifier -= softLockFactory.getNewKeys().size();
+        sizeModifier += getCurrentTransactionContext().getNewKeys(cacheName).size();
+        sizeModifier -= getCurrentTransactionContext().getRemovedKeys(cacheName).size();
+        return underlyingStore.getSize() + sizeModifier;
+    }
+
+    public int getTerracottaClusteredSize() {
+        return getSize();
+    }
+
+    public boolean containsKey(Object key) {
+        return getKeys().contains(key);
+    }
+
+
     // todo rework all these transactional methods
 
     public boolean putWithWriter(Element element, CacheWriterManager writerManager) throws CacheException {
         return underlyingStore.putWithWriter(element, writerManager);
-    }
-
-    public List getKeys() {
-        return underlyingStore.getKeys();
     }
 
     public Element removeWithWriter(Object key, CacheWriterManager writerManager) throws CacheException {
@@ -277,18 +325,6 @@ public class LocalTransactionStore extends AbstractStore {
 
     public Element replace(Element element) throws NullPointerException {
         return underlyingStore.replace(element);
-    }
-
-    public int getSize() {
-        return underlyingStore.getSize();
-    }
-
-    public int getTerracottaClusteredSize() {
-        return underlyingStore.getTerracottaClusteredSize();
-    }
-
-    public boolean containsKey(Object key) {
-        return underlyingStore.containsKey(key);
     }
 
     /* non-transactional methods */
@@ -383,6 +419,10 @@ public class LocalTransactionStore extends AbstractStore {
             } else {
                 underlyingStore.remove(softLock.getKey());
             }
+
+            if (softLock.getOldElement() == null) {
+                softLockFactory.clearNewKey(softLock.getKey());
+            }
         }
     }
 
@@ -394,6 +434,11 @@ public class LocalTransactionStore extends AbstractStore {
             } else {
                 underlyingStore.remove(softLock.getKey());
             }
+
+            if (softLock.getOldElement() == null) {
+                softLockFactory.clearNewKey(softLock.getKey());
+            }
         }
     }
+    
 }

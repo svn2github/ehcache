@@ -50,6 +50,12 @@ public class TransactionContext {
         softLocks.add(softLock);
     }
 
+    public void updateSoftLock(String cacheName, SoftLock softLock) {
+        List<SoftLock> softLocks = softLockMap.get(cacheName);
+        softLocks.remove(softLock);
+        softLocks.add(softLock);
+    }
+
     public List<Object> getNewKeys(String cacheName) {
         List<Object> result = new ArrayList<Object>();
 
