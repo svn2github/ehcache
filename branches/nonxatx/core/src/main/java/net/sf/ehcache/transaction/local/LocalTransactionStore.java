@@ -46,6 +46,11 @@ public class LocalTransactionStore extends AbstractStore {
         return Math.max(0, getCurrentTransactionContext().getExpirationTimestamp() - System.currentTimeMillis());
     }
 
+    private Element createElement(Object key, SoftLock softLock) {
+        Element element = new Element(key, softLock);
+        element.setEternal(true);
+        return element;
+    }
 
     /* transactional methods */
 
@@ -56,7 +61,7 @@ public class LocalTransactionStore extends AbstractStore {
             if (oldElement == null) {
                 SoftLock softLock = softLockFactory.createSoftLock(getCurrentTransactionContext().getTransactionId(), element.getObjectKey(), element, oldElement);
                 softLock.lock();
-                Element newElement = new Element(element.getObjectKey(), softLock); //todo other Element fields must be copied too
+                Element newElement = createElement(element.getObjectKey(), softLock);
                 oldElement = underlyingStore.putIfAbsent(newElement);
                 if (oldElement == null) {
                     // CAS succeeded, soft lock is in store, job done.
@@ -91,7 +96,6 @@ public class LocalTransactionStore extends AbstractStore {
                             }
                         } catch (InterruptedException e) {
                             Thread.currentThread().interrupt();
-                            //todo fixme
                         }
 
                         LOG.debug("put: cache [{}] key [{}] soft locked in foreign transaction, soft lock died, retrying...", cacheName, element.getKey());
@@ -101,7 +105,7 @@ public class LocalTransactionStore extends AbstractStore {
                 } else {
                     SoftLock softLock = softLockFactory.createSoftLock(getCurrentTransactionContext().getTransactionId(), element.getObjectKey(), element, oldElement);
                     softLock.lock();
-                    Element newElement = new Element(element.getObjectKey(), softLock); //todo other Element fields must be copied too
+                    Element newElement = createElement(element.getObjectKey(), softLock);
                     boolean replaced = underlyingStore.replace(oldElement, newElement);
                     if (replaced) {
                         // CAS succeeded, value replaced with soft lock, job done.
@@ -157,7 +161,7 @@ public class LocalTransactionStore extends AbstractStore {
             if (oldElement == null) {
                 SoftLock softLock = softLockFactory.createSoftLock(getCurrentTransactionContext().getTransactionId(), key, null, oldElement);
                 softLock.lock();
-                Element newElement = new Element(key, softLock); //todo other Element fields must be copied too
+                Element newElement = createElement(key, softLock);
                 oldElement = underlyingStore.putIfAbsent(newElement);
                 if (oldElement == null) {
                     // CAS succeeded, value is in store, job done.
@@ -187,7 +191,6 @@ public class LocalTransactionStore extends AbstractStore {
                             }
                         } catch (InterruptedException e) {
                             Thread.currentThread().interrupt();
-                            //todo fixme
                         }
 
                         // once the soft lock got unlocked we don't know what's in the store anymore, restart.
@@ -196,7 +199,7 @@ public class LocalTransactionStore extends AbstractStore {
                 } else {
                     SoftLock softLock = softLockFactory.createSoftLock(getCurrentTransactionContext().getTransactionId(), key, null, oldElement);
                     softLock.lock();
-                    Element newElement = new Element(key, softLock); //todo other Element fields must be copied too
+                    Element newElement = createElement(key, softLock);
                     boolean replaced = underlyingStore.replace(oldElement, newElement);
                     if (replaced) {
                         // CAS succeeded, value replaced with soft lock, job done.
@@ -214,7 +217,6 @@ public class LocalTransactionStore extends AbstractStore {
     }
 
     // todo rework all these transactional methods
-
 
     public boolean putWithWriter(Element element, CacheWriterManager writerManager) throws CacheException {
         return underlyingStore.putWithWriter(element, writerManager);
