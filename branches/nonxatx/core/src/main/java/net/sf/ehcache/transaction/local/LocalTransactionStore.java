@@ -127,14 +127,17 @@ public class LocalTransactionStore extends AbstractStore {
     public Element getQuiet(Object key) {
         Element oldElement = underlyingStore.getQuiet(key);
         if (oldElement == null) {
+            LOG.debug("getQuiet: cache [{}] key [{}] is not present", cacheName, key);
             return null;
         }
 
         Object value = oldElement.getObjectValue();
         if (value instanceof SoftLock) {
             SoftLock softLock = (SoftLock) value;
+            LOG.debug("getQuiet: cache [{}] key [{}] soft locked, returning soft locked element", cacheName, key);
             return softLock.getElement();
         } else {
+            LOG.debug("getQuiet: cache [{}] key [{}] not soft locked, returning underlying element", cacheName, key);
             return oldElement;
         }
     }
@@ -142,14 +145,17 @@ public class LocalTransactionStore extends AbstractStore {
     public Element get(Object key) {
         Element oldElement = underlyingStore.get(key);
         if (oldElement == null) {
+            LOG.debug("get: cache [{}] key [{}] is not present", cacheName, key);
             return null;
         }
 
         Object value = oldElement.getObjectValue();
         if (value instanceof SoftLock) {
             SoftLock softLock = (SoftLock) value;
+            LOG.debug("get: cache [{}] key [{}] soft locked, returning soft locked element", cacheName, key);
             return softLock.getElement();
         } else {
+            LOG.debug("get: cache [{}] key [{}] not soft locked, returning underlying element", cacheName, key);
             return oldElement;
         }
     }
@@ -166,10 +172,12 @@ public class LocalTransactionStore extends AbstractStore {
                 if (oldElement == null) {
                     // CAS succeeded, value is in store, job done.
                     getCurrentTransactionContext().registerSoftLock(cacheName, this, softLock);
+                    LOG.debug("remove: cache [{}] key [{}] was not in, soft lock inserted", cacheName, key);
                     return null;
                 } else {
                     // CAS failed, something with that key may now be in store, restart.
                     softLock.unlock();
+                    LOG.debug("remove: cache [{}] key [{}] was not in, soft lock insertion failed, retrying...", cacheName, key);
                     continue;
                 }
             } else {
@@ -182,11 +190,14 @@ public class LocalTransactionStore extends AbstractStore {
                         underlyingStore.put(oldElement);
 
                         // replaced old value with new one under soft lock, job done.
+                        LOG.debug("remove: cache [{}] key [{}] soft locked in current transaction, replaced old value with new one under soft lock", cacheName, key);
                         return softLock.getOldElement();
                     } else {
                         try {
+                            LOG.debug("remove: cache [{}] key [{}] soft locked in foreign transaction, waiting {}ms for soft lock to die...", new Object[] {cacheName, key, timeBeforeTimeout()});
                             boolean locked = softLock.tryLock(timeBeforeTimeout());
                             if (!locked) {
+                                LOG.debug("remove: cache [{}] key [{}] soft locked in foreign transaction and not released before current transaction timeout", cacheName, key);
                                 throw new DeadLockException("deadlock detected");
                             }
                         } catch (InterruptedException e) {
@@ -194,6 +205,7 @@ public class LocalTransactionStore extends AbstractStore {
                         }
 
                         // once the soft lock got unlocked we don't know what's in the store anymore, restart.
+                        LOG.debug("remove: cache [{}] key [{}] soft locked in foreign transaction, soft lock died, retrying...", cacheName, key);
                         continue;
                     }
                 } else {
@@ -204,10 +216,12 @@ public class LocalTransactionStore extends AbstractStore {
                     if (replaced) {
                         // CAS succeeded, value replaced with soft lock, job done.
                         getCurrentTransactionContext().registerSoftLock(cacheName, this, softLock);
+                        LOG.debug("remove: cache [{}] key [{}] was in, replaced with soft lock", cacheName, key);
                         return oldElement;
                     } else {
                         // CAS failed, something else with that key is now in store or the key disappeared, restart.
                         softLock.unlock();
+                        LOG.debug("remove: cache [{}] key [{}] was in, soft lock insertion failed, retrying...", cacheName, key);
                         continue;
                     }
                 }
