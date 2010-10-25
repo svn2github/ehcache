@@ -79,14 +79,14 @@ import net.sf.ehcache.store.Policy;
 import net.sf.ehcache.store.Store;
 import net.sf.ehcache.store.StoreListener;
 import net.sf.ehcache.store.XATransactionalStore;
-import net.sf.ehcache.store.compound.SerializationCopyStrategy;
+import net.sf.ehcache.store.compound.CopyStrategy;
 import net.sf.ehcache.store.compound.impl.DiskPersistentStore;
 import net.sf.ehcache.store.compound.impl.MemoryOnlyStore;
 import net.sf.ehcache.store.compound.impl.OverflowToDiskStore;
 import net.sf.ehcache.transaction.local.JtaLocalTransactionStore;
 import net.sf.ehcache.transaction.local.LocalTransactionStore;
 import net.sf.ehcache.transaction.manager.TransactionManagerLookup;
-import net.sf.ehcache.transaction.local.SoftLockAwareSerializationCopyStrategy;
+import net.sf.ehcache.transaction.local.SoftLockAwareCopyStrategy;
 import net.sf.ehcache.transaction.local.SoftLockFactory;
 import net.sf.ehcache.transaction.xa.EhcacheXAResourceImpl;
 import net.sf.ehcache.transaction.xa.EhcacheXAStore;
@@ -969,12 +969,9 @@ public class Cache implements Ehcache, StoreListener {
                         " no elements cached in memory");
             }
 
-            if (configuration.getCopyStrategyConfiguration().getClassName() == null) {
-                if (configuration.getTransactionalMode().isTransactional() && !configuration.isXaTransactional()) {
-                    configuration.getCopyStrategyConfiguration().setClass(SoftLockAwareSerializationCopyStrategy.class.getName());
-                } else {
-                    configuration.getCopyStrategyConfiguration().setClass(SerializationCopyStrategy.class.getName());
-                }
+            if (configuration.getTransactionalMode().isTransactional() && !configuration.isXaTransactional()) {
+                CopyStrategy strategy = configuration.getCopyStrategyConfiguration().getCopyStrategyInstance();
+                configuration.getCopyStrategyConfiguration().setCopyStrategyInstance(new SoftLockAwareCopyStrategy(strategy));
             }
 
             if (configuration.getTransactionalMode().isTransactional()

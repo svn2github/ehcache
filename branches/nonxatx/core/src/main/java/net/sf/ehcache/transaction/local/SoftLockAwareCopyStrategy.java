@@ -18,18 +18,17 @@ package net.sf.ehcache.transaction.local;
 
 import net.sf.ehcache.Element;
 import net.sf.ehcache.store.compound.CopyStrategy;
-import net.sf.ehcache.store.compound.SerializationCopyStrategy;
 
 /**
- * todo this could be merged in the SerializationCopyStrategy
- *  benefit:  only one copy strategy which can act as default and works everywhere
- *  drawback: less readable
- *
  * @author Ludovic Orban
  */
-public class SoftLockAwareSerializationCopyStrategy implements CopyStrategy {
+public class SoftLockAwareCopyStrategy implements CopyStrategy {
 
-    private CopyStrategy defaultCopyStrategy = new SerializationCopyStrategy();
+    private final CopyStrategy defaultCopyStrategy;
+
+    public SoftLockAwareCopyStrategy(CopyStrategy defaultCopyStrategy) {
+        this.defaultCopyStrategy = defaultCopyStrategy;
+    }
 
     /**
      * @inheritDoc
