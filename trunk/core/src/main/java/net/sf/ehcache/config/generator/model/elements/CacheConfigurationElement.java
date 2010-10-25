@@ -19,6 +19,7 @@ package net.sf.ehcache.config.generator.model.elements;
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.CacheWriterConfiguration;
 import net.sf.ehcache.config.CopyStrategyConfiguration;
+import net.sf.ehcache.config.SearchAttribute;
 import net.sf.ehcache.config.TerracottaConfiguration;
 import net.sf.ehcache.config.CacheConfiguration.BootstrapCacheLoaderFactoryConfiguration;
 import net.sf.ehcache.config.CacheConfiguration.CacheEventListenerFactoryConfiguration;
@@ -30,9 +31,9 @@ import net.sf.ehcache.store.MemoryStoreEvictionPolicy.MemoryStoreEvictionPolicyE
 
 /**
  * Element representing the {@link CacheConfiguration}
- * 
+ *
  * @author Abhishek Sanoujam
- * 
+ *
  */
 public class CacheConfigurationElement extends SimpleNodeElement {
 
@@ -40,7 +41,7 @@ public class CacheConfigurationElement extends SimpleNodeElement {
 
     /**
      * Constructor accepting the parent and the {@link CacheConfiguration}
-     * 
+     *
      * @param parent
      * @param cacheConfiguration
      */
@@ -64,7 +65,7 @@ public class CacheConfigurationElement extends SimpleNodeElement {
 
     /**
      * Adds all attributes which are common with the "defaultCache" element in ehcache.xsd
-     * 
+     *
      * @param element
      * @param cacheConfiguration
      */
@@ -111,7 +112,7 @@ public class CacheConfigurationElement extends SimpleNodeElement {
 
     /**
      * Adds all common child elements with the "defaultCache" element in ehcache.xsd
-     * 
+     *
      * @param element
      * @param cacheConfiguration
      */
@@ -139,7 +140,7 @@ public class CacheConfigurationElement extends SimpleNodeElement {
                     cacheExceptionHandlerFactoryConfiguration));
         }
         CopyStrategyConfiguration copyStrategyConfiguration = cacheConfiguration.getCopyStrategyConfiguration();
-        if (copyStrategyConfiguration != null && 
+        if (copyStrategyConfiguration != null &&
                 !copyStrategyConfiguration.equals(CacheConfiguration.DEFAULT_COPY_STRATEGY_CONFIGURATION)) {
             element.addChildElement(new CopyStrategyConfigurationElement(element, copyStrategyConfiguration));
         }
@@ -151,6 +152,10 @@ public class CacheConfigurationElement extends SimpleNodeElement {
         TerracottaConfiguration terracottaConfiguration = cacheConfiguration.getTerracottaConfiguration();
         if (terracottaConfiguration != null) {
             element.addChildElement(new TerracottaConfigurationElement(element, terracottaConfiguration));
+        }
+
+        for (SearchAttribute sa : cacheConfiguration.getSearchAttributes().values()) {
+            element.addChildElement(sa.asConfigElement(element));
         }
     }
 

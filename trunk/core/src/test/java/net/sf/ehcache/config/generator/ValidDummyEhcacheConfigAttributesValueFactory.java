@@ -38,6 +38,16 @@ public class ValidDummyEhcacheConfigAttributesValueFactory implements XSDAttribu
         if ("maxMemoryOffHeap".equals(attribute.getName())) {
             return "1G";
         }
+        if ("searchAttribute".equals(element.getName())) {
+            if ("expression".equals(attribute.getName())) {
+                return "value.toString()";
+            } else if ("name".equals(attribute.getName())) {
+                    return "name";
+            } else {
+                return null;
+            }
+        }
+
         return xsdAttributeValueType.getRandomAllowedValue();
     }
 }

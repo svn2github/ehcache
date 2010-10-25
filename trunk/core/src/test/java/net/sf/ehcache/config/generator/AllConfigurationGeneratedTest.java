@@ -37,21 +37,21 @@ public class AllConfigurationGeneratedTest extends TestCase {
 
     private static final String SRC_CONFIG_DIR = "src/main/config/";
     private static final String TEST_RESOURCES_DIR = "src/test/resources/";
-    private int spacer = 0;
+    private final int spacer = 0;
     private static int counter = 0;
 
     public static void main(String[] args) throws Exception {
         new AllConfigurationGeneratedTest().testConfigurationGenerated();
     }
-    
+
     public void testConfigurationGenerated() throws Exception {
-        NodeElement ehcacheCompleteXsdElement = generateEhcacheCompleXsdElement();
+        NodeElement ehcacheCompleteXsdElement = generateEhcacheCompileXsdElement();
         // for (int i = 0; i < 100; i++) {
         doTest(ehcacheCompleteXsdElement);
         // }
     }
 
-    private NodeElement generateEhcacheCompleXsdElement() throws Exception {
+    private NodeElement generateEhcacheCompileXsdElement() throws Exception {
         File ehcacheXsd = new File(SRC_CONFIG_DIR + "ehcache.xsd");
         NodeElement ehcacheCompleteXsdElement = new XSOMHelper(new ValidDummyEhcacheConfigAttributesValueFactory()).createRootElement(
                 new FileInputStream(ehcacheXsd), "ehcache");

@@ -16,13 +16,16 @@
 
 package net.sf.ehcache.config;
 
+import net.sf.ehcache.config.generator.model.NodeElement;
+import net.sf.ehcache.config.generator.model.SimpleNodeAttribute;
+import net.sf.ehcache.config.generator.model.SimpleNodeElement;
 import net.sf.ehcache.search.attribute.AttributeExtractor;
 import net.sf.ehcache.search.attribute.ReflectionAttributeExtractor;
 import net.sf.ehcache.util.ClassLoaderUtil;
 
 /**
  * A cache search attribute. Search attributes must have a name and either an expression or class set
- * 
+ *
  * @author teck
  */
 public class SearchAttribute {
@@ -33,7 +36,7 @@ public class SearchAttribute {
 
     /**
      * Set the attribute name
-     * 
+     *
      * @param name
      */
     public void setName(String name) {
@@ -42,7 +45,7 @@ public class SearchAttribute {
 
     /**
      * Set the extractor class for this attribute. This class must be available at runtime and must implement {@link AttributeExtractor}
-     * 
+     *
      * @param className
      */
     public void setClass(String className) {
@@ -54,7 +57,7 @@ public class SearchAttribute {
 
     /**
      * Set the attribute expression. See {@link ReflectionAttributeExtractor} for more information
-     * 
+     *
      * @param expression
      */
     public void setExpression(String expression) {
@@ -104,7 +107,7 @@ public class SearchAttribute {
 
     /**
      * Set the atttribute name
-     * 
+     *
      * @param name
      * @return this
      */
@@ -115,7 +118,7 @@ public class SearchAttribute {
 
     /**
      * Set the attribute extractor class name
-     * 
+     *
      * @param className
      *            attribute extractor class
      * @return this
@@ -127,7 +130,7 @@ public class SearchAttribute {
 
     /**
      * Set the attribute expression
-     * 
+     *
      * @param expression
      *            attribute expression
      * @return this
@@ -135,6 +138,28 @@ public class SearchAttribute {
     public SearchAttribute expression(String expression) {
         setExpression(expression);
         return this;
+    }
+
+    /**
+     * Create a generated config element node for this search attribute definition
+     *
+     * @param parent the enclosing parent config element
+     * @return generated config element for this search attribute
+     */
+    public NodeElement asConfigElement(NodeElement parent) {
+        SimpleNodeElement rv = new SimpleNodeElement(parent, "searchAttribute");
+
+        rv.addAttribute(new SimpleNodeAttribute("name", name));
+
+        if (expression != null) {
+            rv.addAttribute(new SimpleNodeAttribute("expression", expression));
+        } else if (className != null) {
+            rv.addAttribute(new SimpleNodeAttribute("class", className));
+        } else {
+            throw new InvalidConfigurationException("neither expression or className set");
+        }
+
+        return rv;
     }
 
 }

@@ -16,16 +16,6 @@
 
 package net.sf.ehcache.config;
 
-import net.sf.ehcache.CacheException;
-import net.sf.ehcache.event.NotificationScope;
-import net.sf.ehcache.search.attribute.AttributeExtractor;
-import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
-import net.sf.ehcache.store.compound.CopyStrategy;
-import net.sf.ehcache.util.MemorySizeParser;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -33,6 +23,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
+
+import net.sf.ehcache.CacheException;
+import net.sf.ehcache.event.NotificationScope;
+import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
+import net.sf.ehcache.store.compound.CopyStrategy;
+import net.sf.ehcache.util.MemorySizeParser;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A value object used to represent cache configuration.
@@ -328,9 +327,9 @@ public class CacheConfiguration implements Cloneable {
     protected volatile Set<CacheConfigurationListener> listeners = new CopyOnWriteArraySet<CacheConfigurationListener>();
 
     /**
-     * The defined search attribute extractors for this cache (if any) indexed by name
+     * The defined search attributes for this cache (if any) indexed by name
      */
-    protected final Map<String, AttributeExtractor> searchAttributeExtractors = new HashMap<String, AttributeExtractor>();
+    protected final Map<String, SearchAttribute> searchAttributes = new HashMap<String, SearchAttribute>();
 
     private volatile boolean frozen;
     private TransactionalMode transactionalMode = DEFAULT_TRANSACTIONAL_MODE;
@@ -973,15 +972,6 @@ public class CacheConfiguration implements Cloneable {
     }
 
     /**
-     * Get the search attribute extractors defined for this cache (if any) indexed by attribute name
-     *
-     * @return map of the search attribute extractors
-     */
-    public Map<String, AttributeExtractor> getSearchAttributeExtractors() {
-        return Collections.unmodifiableMap(this.searchAttributeExtractors);
-    }
-
-    /**
      * Getter to the CopyStrategy set in the config (really? how?).
      * This will always return the same unique instance per cache
      *
@@ -1067,23 +1057,23 @@ public class CacheConfiguration implements Cloneable {
      */
     public final void addSearchAttribute(SearchAttribute searchAttribute) throws InvalidConfigurationException {
         checkDynamicChange();
-        
+
         String attributeName = searchAttribute.getName();
 
         if (attributeName == null) {
             throw new InvalidConfigurationException("Search attribute has null name");
         }
 
-        if (searchAttributeExtractors.containsKey(attributeName)) {
+        if (searchAttributes.containsKey(attributeName)) {
             throw new InvalidConfigurationException("Repeated searchAttribute name: " + attributeName);
         }
 
-        searchAttributeExtractors.put(attributeName, searchAttribute.constructExtractor());
+        searchAttributes.put(attributeName, searchAttribute);
     }
-    
+
     /**
      * Add a search attribute
-     * 
+     *
      * @param searchAttribute attribute to add
      * @return this
      */
@@ -1847,5 +1837,14 @@ public class CacheConfiguration implements Cloneable {
         if (isTerracottaClustered()) {
             this.getTerracottaConfiguration().setCoherent(coherent);
         }
+    }
+
+    /**
+     * Get the defined search attributes indexed by attribute name
+     *
+     * @return search attributes
+     */
+    public Map<String, SearchAttribute> getSearchAttributes() {
+        return Collections.unmodifiableMap(searchAttributes);
     }
 }

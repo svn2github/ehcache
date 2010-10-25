@@ -82,7 +82,9 @@ public class XSOMHelper {
         List<XSAttributeUse> attrs = getXSAttributeUses(elementDecl);
         for (XSAttributeUse attrUse : attrs) {
             XSDAttribute attribute = createXSDAttribute(element, attrUse);
-            element.addAttribute(attribute);
+            if (attribute != null) {
+                element.addAttribute(attribute);
+            }
         }
         for (XSElementDeclWrapper childXSElementDeclWrapper : getChildElements(elementDecl)) {
             XSDElement childElement = createElement(element, childXSElementDeclWrapper.getXsElementDecl());
@@ -105,7 +107,13 @@ public class XSOMHelper {
         XSDAttribute attribute = new XSDAttribute(attributeDecl.getName());
         XSDAttributeValueType attributeValueType = XSDAttributeValueTypeFactory.createType(attributeDecl);
         attribute.setAttributeValueType(attributeValueType);
-        attribute.setValue(attributeValueFactory.createValueForAttribute(element, attribute, attributeValueType));
+
+        String attributeValue = attributeValueFactory.createValueForAttribute(element, attribute, attributeValueType);
+        if (attributeValue == null) {
+            return null;
+        }
+        attribute.setValue(attributeValue);
+
         attribute.setOptional(!attributeUse.isRequired());
         XmlString defaultValue = attributeUse.getDefaultValue();
         if (defaultValue != null) {
