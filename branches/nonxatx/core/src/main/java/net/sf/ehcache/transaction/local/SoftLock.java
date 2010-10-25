@@ -18,9 +18,11 @@ public interface SoftLock {
 
     TransactionID getTransactionID();
 
+    long getExpirationTimestamp();
+
     void lock();
 
-    boolean tryLock(int transactionTimeout) throws InterruptedException;
+    boolean tryLock() throws InterruptedException;
 
     void unlock();
 

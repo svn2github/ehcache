@@ -7,6 +7,7 @@ import net.sf.ehcache.transaction.local.SoftLockStore;
 import net.sf.ehcache.transaction.local.TransactionContext;
 import net.sf.ehcache.transaction.local.TransactionException;
 import net.sf.ehcache.transaction.local.DeadLockException;
+import net.sf.ehcache.transaction.local.TransactionTimeoutException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,6 +42,16 @@ public abstract class AbstractNonXaTransactionalStore extends AbstractStore {
             throw new TransactionException("no transaction started");
         }
         return currentTransactionContext;
+    }
+
+    protected boolean isTimedOut() {
+        return System.currentTimeMillis() >= getCurrentTransactionContext().getExpirationTimestamp();
+    }
+
+    protected void assertNotTimedOut() {
+        if (isTimedOut()) {
+            throw new TransactionTimeoutException("transaction [" + getCurrentTransactionContext().getTransactionId() + "] timed out");
+        }
     }
 
     public void commit(Collection<SoftLock> softLocks) {
@@ -89,7 +100,7 @@ public abstract class AbstractNonXaTransactionalStore extends AbstractStore {
         lock.writeLock().unlock();
         while (true) {
             try {
-                boolean locked = softLock.tryLock(getCurrentTransactionContext().getTransactionTimeout());
+                boolean locked = softLock.tryLock();
                 lock.writeLock().lock();
                 if (locked) {
                     softLock.unlock();

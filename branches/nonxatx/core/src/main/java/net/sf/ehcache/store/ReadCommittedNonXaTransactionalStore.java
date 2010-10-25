@@ -50,6 +50,7 @@ public class ReadCommittedNonXaTransactionalStore extends AbstractNonXaTransacti
     /* transactional methods */
 
     public boolean put(Element element) throws CacheException {
+        assertNotTimedOut();
         lock.writeLock().lock();
         try {
             Object key = element.getObjectKey();
@@ -72,7 +73,7 @@ public class ReadCommittedNonXaTransactionalStore extends AbstractNonXaTransacti
                     }
 
                     LOG.debug("put: cache [{}] key [{}] available, re-soft locking it", cacheName, key);
-                    SoftLock newSoftLock = softLockStore.createSoftLock(getCurrentTransactionContext().getTransactionId(), key, element, oldElement);
+                    SoftLock newSoftLock = softLockStore.createSoftLock(getCurrentTransactionContext().getTransactionId(), getCurrentTransactionContext().getExpirationTimestamp(), key, element, oldElement);
                     newSoftLock.lock();
                     getCurrentTransactionContext().registerSoftLock(cacheName, this, newSoftLock);
                     underlyingStore.put(new Element(key, newSoftLock));
@@ -87,7 +88,7 @@ public class ReadCommittedNonXaTransactionalStore extends AbstractNonXaTransacti
                 }
             } else {
                 LOG.debug("put: cache [{}] key [{}] not soft locked, locking it now", cacheName, key);
-                SoftLock newSoftLock = softLockStore.createSoftLock(getCurrentTransactionContext().getTransactionId(), key, element, oldElement);
+                SoftLock newSoftLock = softLockStore.createSoftLock(getCurrentTransactionContext().getTransactionId(), getCurrentTransactionContext().getExpirationTimestamp(), key, element, oldElement);
                 newSoftLock.lock();
                 getCurrentTransactionContext().registerSoftLock(cacheName, this, newSoftLock);
                 return underlyingStore.put(new Element(key, newSoftLock));
@@ -98,6 +99,7 @@ public class ReadCommittedNonXaTransactionalStore extends AbstractNonXaTransacti
     }
 
     public Element get(Object key) {
+        assertNotTimedOut();
         lock.readLock().lock();
         try {
             Element element = underlyingStore.get(key);
@@ -125,6 +127,7 @@ public class ReadCommittedNonXaTransactionalStore extends AbstractNonXaTransacti
     }
 
     public Element getQuiet(Object key) {
+        assertNotTimedOut();
         lock.readLock().lock();
         try {
             Element element = underlyingStore.getQuiet(key);
@@ -152,6 +155,7 @@ public class ReadCommittedNonXaTransactionalStore extends AbstractNonXaTransacti
     }
 
     public Element remove(Object key) {
+        assertNotTimedOut();
         lock.writeLock().lock();
         try {
             Element oldElement = underlyingStore.getQuiet(key);
@@ -177,7 +181,7 @@ public class ReadCommittedNonXaTransactionalStore extends AbstractNonXaTransacti
                     }
 
                     LOG.debug("remove: cache [{}] key [{}] available, re-soft locking it", cacheName, key);
-                    SoftLock newSoftLock = softLockStore.createSoftLock(getCurrentTransactionContext().getTransactionId(), key, null, oldElement);
+                    SoftLock newSoftLock = softLockStore.createSoftLock(getCurrentTransactionContext().getTransactionId(), getCurrentTransactionContext().getExpirationTimestamp(), key, null, oldElement);
                     newSoftLock.lock();
                     getCurrentTransactionContext().registerSoftLock(cacheName, this, newSoftLock);
                     underlyingStore.put(new Element(key, newSoftLock));
@@ -192,7 +196,7 @@ public class ReadCommittedNonXaTransactionalStore extends AbstractNonXaTransacti
                 }
             } else {
                 LOG.debug("remove: cache [{}] key [{}] not soft locked, locking it now", cacheName, key);
-                SoftLock newSoftLock = softLockStore.createSoftLock(getCurrentTransactionContext().getTransactionId(), key, null, oldElement);
+                SoftLock newSoftLock = softLockStore.createSoftLock(getCurrentTransactionContext().getTransactionId(), getCurrentTransactionContext().getExpirationTimestamp(), key, null, oldElement);
                 newSoftLock.lock();
                 getCurrentTransactionContext().registerSoftLock(cacheName, this, newSoftLock);
                 underlyingStore.put(new Element(key, newSoftLock));
@@ -206,6 +210,7 @@ public class ReadCommittedNonXaTransactionalStore extends AbstractNonXaTransacti
     //todo all the following transactional methods must be reworked
 
     public List getKeys() {
+        assertNotTimedOut();
         lock.readLock().lock();
         try {
             Set<Object> keys = new LargeSet<Object>() {
@@ -230,6 +235,7 @@ public class ReadCommittedNonXaTransactionalStore extends AbstractNonXaTransacti
     }
 
     public int getSize() {
+        assertNotTimedOut();
         lock.readLock().lock();
         try {
             int sizeModifier = 0;
@@ -242,6 +248,7 @@ public class ReadCommittedNonXaTransactionalStore extends AbstractNonXaTransacti
     }
 
     public int getTerracottaClusteredSize() {
+        assertNotTimedOut();
         lock.readLock().lock();
         try {
             int sizeModifier = 0;
@@ -254,6 +261,7 @@ public class ReadCommittedNonXaTransactionalStore extends AbstractNonXaTransacti
     }
 
     public boolean containsKey(Object key) {
+        assertNotTimedOut();
         lock.readLock().lock();
         try {
             //todo we have to account for the new elements' softlocks added by different transactions
@@ -265,6 +273,7 @@ public class ReadCommittedNonXaTransactionalStore extends AbstractNonXaTransacti
     }
 
     public void removeAll() throws CacheException {
+        assertNotTimedOut();
         lock.writeLock().lock();
         try {
             List keys = getKeys();
@@ -277,6 +286,7 @@ public class ReadCommittedNonXaTransactionalStore extends AbstractNonXaTransacti
     }
 
     public boolean putWithWriter(final Element element, final CacheWriterManager writerManager) throws CacheException {
+        assertNotTimedOut();
         lock.writeLock().lock();
         try {
             boolean rc = put(element);
@@ -300,6 +310,7 @@ public class ReadCommittedNonXaTransactionalStore extends AbstractNonXaTransacti
     }
 
     public Element removeWithWriter(final Object key, final CacheWriterManager writerManager) throws CacheException {
+        assertNotTimedOut();
         lock.writeLock().lock();
         try {
             Element rc = remove(key);
@@ -323,6 +334,7 @@ public class ReadCommittedNonXaTransactionalStore extends AbstractNonXaTransacti
     }
 
     public Element putIfAbsent(Element element) throws NullPointerException {
+        assertNotTimedOut();
         if (element == null || element.getObjectKey() == null) {
             throw new NullPointerException("element and element key cannot be null");
         }
@@ -342,6 +354,7 @@ public class ReadCommittedNonXaTransactionalStore extends AbstractNonXaTransacti
     }
 
     public Element removeElement(Element element) throws NullPointerException {
+        assertNotTimedOut();
         if (element == null || element.getObjectKey() == null) {
             throw new NullPointerException("element and element key cannot be null");
         }
@@ -364,6 +377,7 @@ public class ReadCommittedNonXaTransactionalStore extends AbstractNonXaTransacti
     }
 
     public boolean replace(Element old, Element element) throws NullPointerException, IllegalArgumentException {
+        assertNotTimedOut();
         if (old == null || old.getObjectKey() == null) {
             throw new NullPointerException("old element and element key cannot be null");
         }
@@ -394,6 +408,7 @@ public class ReadCommittedNonXaTransactionalStore extends AbstractNonXaTransacti
     }
 
     public Element replace(Element element) throws NullPointerException {
+        assertNotTimedOut();
         if (element == null || element.getObjectKey() == null) {
             throw new NullPointerException("element and element key cannot be null");
         }

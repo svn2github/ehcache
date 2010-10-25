@@ -18,19 +18,19 @@ public class TransactionContext {
     private static final Logger LOG = LoggerFactory.getLogger(TransactionContext.class.getName());
 
     private boolean rollbackOnly;
-    private final int transactionTimeout;
+    private final long expirationTimestamp;
     private final TransactionID transactionId;
     private final Map<String, List<SoftLock>> softLockMap = new HashMap<String, List<SoftLock>>();
     private final Map<String, AbstractNonXaTransactionalStore> storeMap = new HashMap<String, AbstractNonXaTransactionalStore>();
     private final List<TransactionListener> listeners = new ArrayList<TransactionListener>();
 
     public TransactionContext(int transactionTimeout, TransactionID transactionId) {
-        this.transactionTimeout = transactionTimeout;
+        this.expirationTimestamp = System.currentTimeMillis() + transactionTimeout * 1000;
         this.transactionId = transactionId;
     }
 
-    public int getTransactionTimeout() {
-        return transactionTimeout;
+    public long getExpirationTimestamp() {
+        return expirationTimestamp;
     }
 
     public void setRollbackOnly(boolean rollbackOnly) {

@@ -12,6 +12,6 @@ public interface SoftLockStore {
 
     ReadWriteLock getReadWriteLock();
 
-    SoftLock createSoftLock(TransactionID transactionID, Object key, Element newElement, Element oldElement);
+    SoftLock createSoftLock(TransactionID transactionID, long expirationTimeout, Object key, Element newElement, Element oldElement);
 
 }

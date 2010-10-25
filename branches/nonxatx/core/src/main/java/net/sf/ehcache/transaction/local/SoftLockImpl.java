@@ -12,20 +12,23 @@ import java.util.concurrent.locks.ReentrantLock;
  */
 public class SoftLockImpl implements SoftLock {
     private final TransactionID transactionID;
+    private final long expirationTimestamp;
     private final Object key;
     private Element newElement;
     private final Element oldElement;
     private final Lock lock;
 
-    SoftLockImpl(TransactionID transactionID, Object key, Element newElement, Element oldElement) {
+    SoftLockImpl(TransactionID transactionID, long expirationTimestamp, Object key, Element newElement, Element oldElement) {
         this.transactionID = transactionID;
+        this.expirationTimestamp = expirationTimestamp;
         this.key = key;
         this.newElement = newElement;
         this.oldElement = oldElement;
         this.lock = new ReentrantLock();
     }
 
-    private SoftLockImpl(TransactionID transactionID, Object key, Element newElement, Element oldElement, Lock lock) {
+    private SoftLockImpl(TransactionID transactionID, long expirationTimestamp, Object key, Element newElement, Element oldElement, Lock lock) {
+        this.expirationTimestamp = expirationTimestamp;
         this.transactionID = transactionID;
         this.key = key;
         this.newElement = newElement;
@@ -53,12 +56,20 @@ public class SoftLockImpl implements SoftLock {
         return transactionID;
     }
 
+    public long getExpirationTimestamp() {
+        return expirationTimestamp;
+    }
+
     public void lock() {
         lock.lock();
     }
 
-    public boolean tryLock(int transactionTimeout) throws InterruptedException {
-        return lock.tryLock(transactionTimeout, TimeUnit.SECONDS);
+    public boolean tryLock() throws InterruptedException {
+        long msBeforeTimeout = expirationTimestamp - System.currentTimeMillis();
+        if (msBeforeTimeout <= 0) {
+            return false;
+        }
+        return lock.tryLock(expirationTimestamp, TimeUnit.MILLISECONDS);
     }
 
     public void unlock() {
@@ -66,7 +77,7 @@ public class SoftLockImpl implements SoftLock {
     }
 
     public SoftLock copy() {
-        return new SoftLockImpl(transactionID, key, newElement, oldElement, lock);
+        return new SoftLockImpl(transactionID, expirationTimestamp, key, newElement, oldElement, lock);
     }
 
     @Override

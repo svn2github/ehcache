@@ -21,8 +21,8 @@ public class SoftLockStoreImpl implements SoftLockStore {
         return lock;
     }
 
-    public SoftLock createSoftLock(TransactionID transactionID, Object key, Element newElement, Element oldElement) {
-        return new SoftLockImpl(transactionID, key, newElement, oldElement);
+    public SoftLock createSoftLock(TransactionID transactionID, long expirationTimestamp, Object key, Element newElement, Element oldElement) {
+        return new SoftLockImpl(transactionID, expirationTimestamp, key, newElement, oldElement);
     }
 
 }
