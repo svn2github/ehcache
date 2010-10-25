@@ -75,9 +75,7 @@ import net.sf.ehcache.store.DiskStore;
 import net.sf.ehcache.store.LegacyStoreWrapper;
 import net.sf.ehcache.store.LruMemoryStore;
 import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
-import net.sf.ehcache.store.ReadCommittedNonXaTransactionalStore;
 import net.sf.ehcache.store.Policy;
-import net.sf.ehcache.store.ReadUncommittedNonXaTransactionalStore;
 import net.sf.ehcache.store.Store;
 import net.sf.ehcache.store.StoreListener;
 import net.sf.ehcache.store.XATransactionalStore;
@@ -85,10 +83,11 @@ import net.sf.ehcache.store.compound.SerializationCopyStrategy;
 import net.sf.ehcache.store.compound.impl.DiskPersistentStore;
 import net.sf.ehcache.store.compound.impl.MemoryOnlyStore;
 import net.sf.ehcache.store.compound.impl.OverflowToDiskStore;
+import net.sf.ehcache.transaction.local.JtaLocalTransactionStore;
+import net.sf.ehcache.transaction.local.LocalTransactionStore;
 import net.sf.ehcache.transaction.manager.TransactionManagerLookup;
-import net.sf.ehcache.transaction.local.JtaNonXaTransactionalStore;
 import net.sf.ehcache.transaction.local.SoftLockAwareSerializationCopyStrategy;
-import net.sf.ehcache.transaction.local.SoftLockStore;
+import net.sf.ehcache.transaction.local.SoftLockFactory;
 import net.sf.ehcache.transaction.xa.EhcacheXAResourceImpl;
 import net.sf.ehcache.transaction.xa.EhcacheXAStore;
 import net.sf.ehcache.util.ClassLoaderUtil;
@@ -1058,20 +1057,13 @@ public class Cache implements Ehcache, StoreListener {
                 transactionManagerLookup.register(xaResource);
 
                 this.compoundStore = new XATransactionalStore(this, ehcacheXAStore, transactionManagerLookup, txnManager);
-            } else if (configuration.isJtaLocalRuTransactional()) {
-                SoftLockStore softLockStore = cacheManager.createSoftLockStore(this);
-                ReadUncommittedNonXaTransactionalStore nonXaStore = new ReadUncommittedNonXaTransactionalStore(getCacheManager().getTransactionController(), softLockStore, configuration.getName(), store);
-                this.compoundStore = new JtaNonXaTransactionalStore(nonXaStore, transactionManagerLookup, cacheManager.getTransactionController());
-            } else if (configuration.isLocalRuTransactional()) {
-                SoftLockStore softLockStore = cacheManager.createSoftLockStore(this);
-                this.compoundStore = new ReadUncommittedNonXaTransactionalStore(getCacheManager().getTransactionController(), softLockStore, configuration.getName(), store);
-            } else if (configuration.isJtaLocalRcTransactional()) {
-                SoftLockStore softLockStore = cacheManager.createSoftLockStore(this);
-                ReadCommittedNonXaTransactionalStore nonXaStore = new ReadCommittedNonXaTransactionalStore(getCacheManager().getTransactionController(), softLockStore, configuration.getName(), store);
-                this.compoundStore = new JtaNonXaTransactionalStore(nonXaStore, transactionManagerLookup, cacheManager.getTransactionController());
-            } else if (configuration.isLocalRcTransactional()) {
-                SoftLockStore softLockStore = cacheManager.createSoftLockStore(this);
-                this.compoundStore = new ReadCommittedNonXaTransactionalStore(getCacheManager().getTransactionController(), softLockStore, configuration.getName(), store);
+            } else if (configuration.isLocalJtaTransactional()) {
+                SoftLockFactory softLockFactory = cacheManager.createSoftLockFactory(this);
+                LocalTransactionStore localTransactionStore = new LocalTransactionStore(getCacheManager().getTransactionController(), softLockFactory, configuration.getName(), store);
+                this.compoundStore = new JtaLocalTransactionStore(localTransactionStore, transactionManagerLookup, cacheManager.getTransactionController());
+            } else if (configuration.isLocalTransactional()) {
+                SoftLockFactory softLockFactory = cacheManager.createSoftLockFactory(this);
+                this.compoundStore = new LocalTransactionStore(getCacheManager().getTransactionController(), softLockFactory, configuration.getName(), store);
             } else {
                 this.compoundStore = store;
             }

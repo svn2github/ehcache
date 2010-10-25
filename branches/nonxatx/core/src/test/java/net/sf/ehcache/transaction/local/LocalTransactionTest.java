@@ -12,7 +12,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 /**
  * @author lorban
  */
-public class LocalRcTest extends TestCase {
+public class LocalTransactionTest extends TestCase {
 
     private CacheManager cacheManager;
     private Ehcache cache1;
@@ -21,7 +21,7 @@ public class LocalRcTest extends TestCase {
 
     @Override
     protected void setUp() throws Exception {
-        cacheManager = new CacheManager(LocalRcTest.class.getResourceAsStream("/ehcache-tx-local_rc.xml"));
+        cacheManager = new CacheManager(LocalTransactionTest.class.getResourceAsStream("/ehcache-tx-local.xml"));
         transactionController = cacheManager.getTransactionController();
         transactionController.begin();
         cache1 = cacheManager.getEhcache("txCache1");
@@ -188,7 +188,7 @@ public class LocalRcTest extends TestCase {
         Thread tx2 = new Thread() {
             @Override
             public void run() {
-                transactionController.begin(); //TX 1
+                transactionController.begin(2); //TX 1
 
                 times[0] = System.currentTimeMillis();
                 cache1.put(new Element(1, "tx2-one"));
@@ -219,14 +219,14 @@ public class LocalRcTest extends TestCase {
     public void testDeadlock() throws Exception {
         final String[] losingTx = new String[1];
 
-        transactionController.begin(1);
+        transactionController.begin(2);
 
         cache1.put(new Element(1, "tx1-one"));
 
         Thread tx2 = new Thread() {
             @Override
             public void run() {
-                transactionController.begin(1);
+                transactionController.begin();
 
                 cache1.put(new Element(2, "tx2-two"));
 

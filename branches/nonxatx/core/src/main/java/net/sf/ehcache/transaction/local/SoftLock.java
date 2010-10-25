@@ -10,6 +10,8 @@ public interface SoftLock {
 
     Object getKey();
 
+    Element getElement();
+
     Element getOldElement();
 
     Element getNewElement();
@@ -18,14 +20,17 @@ public interface SoftLock {
 
     TransactionID getTransactionID();
 
-    long getExpirationTimestamp();
-
     void lock();
 
-    boolean waitForRelease() throws InterruptedException;
+    boolean tryLock(long ms) throws InterruptedException;
 
     void unlock();
 
-    SoftLock copy();
+    boolean isLocked();
 
+    SoftLock copy(Element oldElement, Element newElement);
+
+    void freeze();
+
+    void unfreeze();
 }

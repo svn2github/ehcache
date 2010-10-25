@@ -8,10 +8,8 @@ import java.util.concurrent.locks.ReadWriteLock;
 /**
  * @author Ludovic Orban
  */
-public interface SoftLockStore {
+public interface SoftLockFactory {
 
-    ReadWriteLock getReadWriteLock();
-
-    SoftLock createSoftLock(TransactionID transactionID, long expirationTimeout, Object key, Element newElement, Element oldElement);
+    SoftLock createSoftLock(TransactionID transactionID, Object key, Element newElement, Element oldElement);
 
 }

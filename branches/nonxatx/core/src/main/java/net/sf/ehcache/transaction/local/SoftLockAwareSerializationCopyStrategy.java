@@ -41,10 +41,9 @@ public class SoftLockAwareSerializationCopyStrategy implements CopyStrategy {
             Object elementValue = element.getObjectValue();
             if (elementValue instanceof SoftLock) {
                 SoftLock softLock = (SoftLock) elementValue;
-                Element newElement = softLock.getNewElement();
 
-                SoftLock copy = softLock.copy();
-                copy.setNewElement(defaultCopyStrategy.copy(newElement));
+                SoftLock copy = softLock.copy(defaultCopyStrategy.copy(softLock.getOldElement()),
+                        defaultCopyStrategy.copy(softLock.getNewElement()));
 
                 return (T) new Element(element.getObjectKey(), copy);
             }

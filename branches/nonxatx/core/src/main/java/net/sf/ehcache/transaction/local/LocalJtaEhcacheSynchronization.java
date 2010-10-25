@@ -8,11 +8,11 @@ import javax.transaction.*;
 /**
  * @author Ludovic Orban
  */
-public class NonXaEhcacheSynchronization implements Synchronization {
+public class LocalJtaEhcacheSynchronization implements Synchronization {
 
     private TransactionController transactionController;
 
-    public NonXaEhcacheSynchronization(TransactionController transactionController) {
+    public LocalJtaEhcacheSynchronization(TransactionController transactionController) {
         this.transactionController = transactionController;
     }
 

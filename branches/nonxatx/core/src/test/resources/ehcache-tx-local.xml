@@ -16,7 +16,7 @@
            timeToIdleSeconds="5"
            timeToLiveSeconds="10"
            overflowToDisk="false"
-           transactionalMode="local_rc"
+           transactionalMode="local"
            />
 
     <cache name="txCache2"
@@ -25,6 +25,6 @@
            timeToIdleSeconds="5"
            timeToLiveSeconds="10"
            overflowToDisk="false"
-           transactionalMode="local_rc"
+           transactionalMode="local"
            />
 </ehcache>

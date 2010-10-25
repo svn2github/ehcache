@@ -19,7 +19,7 @@ import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.cluster.CacheCluster;
 import net.sf.ehcache.event.CacheEventListener;
 import net.sf.ehcache.store.Store;
-import net.sf.ehcache.transaction.local.SoftLockStore;
+import net.sf.ehcache.transaction.local.SoftLockFactory;
 import net.sf.ehcache.transaction.local.TransactionIDFactory;
 import net.sf.ehcache.transaction.xa.EhcacheXAStore;
 import net.sf.ehcache.writer.writebehind.WriteBehind;
@@ -83,5 +83,5 @@ public interface ClusteredInstanceFactory {
 
     TransactionIDFactory createTransactionIDFactory(String clusterUUID);
 
-    SoftLockStore getOrCreateSoftLockStore(String cacheName);
+    SoftLockFactory getOrCreateSoftLockFactory(String cacheName);
 }

@@ -10,34 +10,43 @@ import java.util.concurrent.locks.ReentrantLock;
 /**
  * @author lorban
  */
-public class SoftLockImpl implements SoftLock {
+public class ReadCommittedSoftLockImpl implements SoftLock {
     private final TransactionID transactionID;
-    private final long expirationTimestamp;
     private final Object key;
     private Element newElement;
     private final Element oldElement;
     private final Lock lock;
+    private final Lock freezeLock;
 
-    SoftLockImpl(TransactionID transactionID, long expirationTimestamp, Object key, Element newElement, Element oldElement) {
+    ReadCommittedSoftLockImpl(TransactionID transactionID, Object key, Element newElement, Element oldElement) {
         this.transactionID = transactionID;
-        this.expirationTimestamp = expirationTimestamp;
         this.key = key;
         this.newElement = newElement;
         this.oldElement = oldElement;
         this.lock = new ReentrantLock();
+        this.freezeLock = new ReentrantLock();
     }
 
-    private SoftLockImpl(TransactionID transactionID, long expirationTimestamp, Object key, Element newElement, Element oldElement, Lock lock) {
-        this.expirationTimestamp = expirationTimestamp;
+    private ReadCommittedSoftLockImpl(TransactionID transactionID, Object key, Element newElement, Element oldElement, Lock lock, Lock freezeLock) {
         this.transactionID = transactionID;
         this.key = key;
         this.newElement = newElement;
         this.oldElement = oldElement;
         this.lock = lock;
+        this.freezeLock = freezeLock;
     }
 
     public Object getKey() {
         return key;
+    }
+
+    public Element getElement() {
+        freezeLock.lock();
+        try {
+            return newElement;
+        } finally {
+            freezeLock.unlock();
+        }
     }
 
     public Element getOldElement() {
@@ -56,38 +65,42 @@ public class SoftLockImpl implements SoftLock {
         return transactionID;
     }
 
-    public long getExpirationTimestamp() {
-        return expirationTimestamp;
-    }
-
     public void lock() {
         lock.lock();
     }
 
-    public boolean waitForRelease() throws InterruptedException {
-        long msBeforeTimeout = expirationTimestamp - System.currentTimeMillis();
-        if (msBeforeTimeout <= 0) {
-            return true;
-        }
-        boolean locked = lock.tryLock(expirationTimestamp, TimeUnit.MILLISECONDS);
-        if (locked) {
-            lock.unlock();
-        }
-        return locked;
+    public boolean tryLock(long ms) throws InterruptedException {
+        return lock.tryLock(ms, TimeUnit.MILLISECONDS);
     }
 
     public void unlock() {
         lock.unlock();
     }
 
-    public SoftLock copy() {
-        return new SoftLockImpl(transactionID, expirationTimestamp, key, newElement, oldElement, lock);
+    public boolean isLocked() {
+        boolean locked = lock.tryLock();
+        if (locked) {
+            lock.unlock();
+        }
+        return !locked;
+    }
+
+    public SoftLock copy(Element oldElement, Element newElement) {
+        return new ReadCommittedSoftLockImpl(transactionID, key, newElement, oldElement, lock, freezeLock);
+    }
+
+    public void freeze() {
+        freezeLock.lock();
+    }
+
+    public void unfreeze() {
+        freezeLock.unlock();
     }
 
     @Override
     public boolean equals(Object object) {
-        if (object instanceof SoftLockImpl) {
-            SoftLockImpl other = (SoftLockImpl) object;
+        if (object instanceof ReadCommittedSoftLockImpl) {
+            ReadCommittedSoftLockImpl other = (ReadCommittedSoftLockImpl) object;
 
             if (!transactionID.equals(other.transactionID)) {
                 return false;
@@ -114,6 +127,6 @@ public class SoftLockImpl implements SoftLock {
 
     @Override
     public String toString() {
-        return "[transactionID: " + transactionID + ", key: " + key + ", newElement: " + newElement + ", oldElement: " + oldElement + "]";
+        return "[isolation: rc, transactionID: " + transactionID + ", key: " + key + ", newElement: " + newElement + ", oldElement: " + oldElement + "]";
     }
 }

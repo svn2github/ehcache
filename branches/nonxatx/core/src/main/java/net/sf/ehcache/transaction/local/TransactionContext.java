@@ -1,6 +1,5 @@
 package net.sf.ehcache.transaction.local;
 
-import net.sf.ehcache.store.AbstractNonXaTransactionalStore;
 import net.sf.ehcache.transaction.TransactionID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,7 +20,7 @@ public class TransactionContext {
     private final long expirationTimestamp;
     private final TransactionID transactionId;
     private final Map<String, List<SoftLock>> softLockMap = new HashMap<String, List<SoftLock>>();
-    private final Map<String, AbstractNonXaTransactionalStore> storeMap = new HashMap<String, AbstractNonXaTransactionalStore>();
+    private final Map<String, LocalTransactionStore> storeMap = new HashMap<String, LocalTransactionStore>();
     private final List<TransactionListener> listeners = new ArrayList<TransactionListener>();
 
     public TransactionContext(int transactionTimeout, TransactionID transactionId) {
@@ -33,11 +32,15 @@ public class TransactionContext {
         return expirationTimestamp;
     }
 
+    public boolean timedOut() {
+        return expirationTimestamp <= System.currentTimeMillis();
+    }
+
     public void setRollbackOnly(boolean rollbackOnly) {
         this.rollbackOnly = rollbackOnly;
     }
 
-    public void registerSoftLock(String cacheName, AbstractNonXaTransactionalStore store, SoftLock softLock) {
+    public void registerSoftLock(String cacheName, LocalTransactionStore store, SoftLock softLock) {
         List<SoftLock> softLocks = softLockMap.get(cacheName);
         if (softLocks == null) {
             softLocks = new ArrayList<SoftLock>();
@@ -45,14 +48,6 @@ public class TransactionContext {
             storeMap.put(cacheName, store);
         }
         softLocks.add(softLock);
-    }
-
-    public void updateSoftLock(String cacheName, SoftLock softLock) {
-        List<SoftLock> softLocks = softLockMap.get(cacheName);
-        if (softLocks != null) {
-            softLocks.remove(softLock);
-            softLocks.add(softLock);
-        }
     }
 
     public List<Object> getNewKeys(String cacheName) {
@@ -112,7 +107,7 @@ public class TransactionContext {
             throw new TransactionException("transaction was marked as rollback only, rolled back on commit");
         }
         // todo failing on timeout may interfere with the JTA mode synchronization
-        if (expirationTimestamp <= System.currentTimeMillis()) {
+        if (timedOut()) {
             rollback();
             throw new TransactionTimeoutException("transaction timed out, rolled back on commit");
         }
@@ -122,11 +117,28 @@ public class TransactionContext {
 
             LOG.debug("{} cache(s) participated in transaction", softLockMap.keySet().size());
             for (Map.Entry<String, List<SoftLock>> stringListEntry : softLockMap.entrySet()) {
+                List<SoftLock> softLocks = stringListEntry.getValue();
+
+                for (SoftLock softLock : softLocks) {
+                    softLock.freeze();
+                }
+            }
+
+            for (Map.Entry<String, List<SoftLock>> stringListEntry : softLockMap.entrySet()) {
                 String cacheName = stringListEntry.getKey();
-                AbstractNonXaTransactionalStore store = storeMap.get(cacheName);
+                LocalTransactionStore store = storeMap.get(cacheName);
                 List<SoftLock> softLocks = stringListEntry.getValue();
 
                 store.commit(softLocks);
+            }
+
+            for (Map.Entry<String, List<SoftLock>> stringListEntry : softLockMap.entrySet()) {
+                List<SoftLock> softLocks = stringListEntry.getValue();
+
+                for (SoftLock softLock : softLocks) {
+                    softLock.unfreeze();
+                    softLock.unlock();
+                }
             }
         } finally {
             softLockMap.clear();
@@ -139,11 +151,28 @@ public class TransactionContext {
         try {
             LOG.debug("{} cache(s) participated in transaction", softLockMap.keySet().size());
             for (Map.Entry<String, List<SoftLock>> stringListEntry : softLockMap.entrySet()) {
+                List<SoftLock> softLocks = stringListEntry.getValue();
+
+                for (SoftLock softLock : softLocks) {
+                    softLock.freeze();
+                }
+            }
+
+            for (Map.Entry<String, List<SoftLock>> stringListEntry : softLockMap.entrySet()) {
                 String cacheName = stringListEntry.getKey();
-                AbstractNonXaTransactionalStore store = storeMap.get(cacheName);
+                LocalTransactionStore store = storeMap.get(cacheName);
                 List<SoftLock> softLocks = stringListEntry.getValue();
 
                 store.rollback(softLocks);
+            }
+
+            for (Map.Entry<String, List<SoftLock>> stringListEntry : softLockMap.entrySet()) {
+                List<SoftLock> softLocks = stringListEntry.getValue();
+
+                for (SoftLock softLock : softLocks) {
+                    softLock.unfreeze();
+                    softLock.unlock();
+                }
             }
         } finally {
             softLockMap.clear();

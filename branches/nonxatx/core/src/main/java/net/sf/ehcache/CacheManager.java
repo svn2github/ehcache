@@ -192,7 +192,7 @@ public class CacheManager {
 
     private TransactionController transactionController;
 
-    private final ConcurrentMap<String, SoftLockStore> softLockStores = new ConcurrentHashMap<String, SoftLockStore>();
+    private final ConcurrentMap<String, SoftLockFactory> softLockFactories = new ConcurrentHashMap<String, SoftLockFactory>();
 
     /**
      * An constructor for CacheManager, which takes a configuration object, rather than one created by parsing
@@ -1551,17 +1551,20 @@ public class CacheManager {
         return transactionIDFactory;
     }
 
-    SoftLockStore createSoftLockStore(Ehcache cache) {
-        SoftLockStore softLockStore;
+    SoftLockFactory createSoftLockFactory(Ehcache cache) {
+        SoftLockFactory softLockFactory;
         if (cache.getCacheConfiguration().isTerracottaClustered()) {
-            softLockStore = getClusteredInstanceFactory(cache).getOrCreateSoftLockStore(cache.getName());
+            softLockFactory = getClusteredInstanceFactory(cache).getOrCreateSoftLockFactory(cache.getName());
         } else {
-            softLockStore = new SoftLockStoreImpl();
-            SoftLockStore old = softLockStores.putIfAbsent(cache.getName(), softLockStore);
-            if (old != null) {
-                softLockStore = old;
+            softLockFactory = softLockFactories.get(cache.getName());
+            if (softLockFactory == null) {
+                softLockFactory = new SoftLockFactoryImpl();
+                SoftLockFactory old = softLockFactories.putIfAbsent(cache.getName(), softLockFactory);
+                if (old != null) {
+                    softLockFactory = old;
+                }
             }
         }
-        return softLockStore;
+        return softLockFactory;
     }
 }

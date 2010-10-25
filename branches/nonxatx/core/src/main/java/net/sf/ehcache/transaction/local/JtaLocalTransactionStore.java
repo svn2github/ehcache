@@ -4,7 +4,6 @@ import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.Status;
 import net.sf.ehcache.TransactionController;
-import net.sf.ehcache.store.AbstractNonXaTransactionalStore;
 import net.sf.ehcache.store.AbstractStore;
 import net.sf.ehcache.store.Policy;
 import net.sf.ehcache.transaction.manager.TransactionManagerLookup;
@@ -20,13 +19,13 @@ import java.util.List;
 /**
  * @author Ludovic Orban
  */
-public class JtaNonXaTransactionalStore extends AbstractStore {
+public class JtaLocalTransactionStore extends AbstractStore {
 
-    private final AbstractNonXaTransactionalStore transactionalStore;
+    private final LocalTransactionStore transactionalStore;
     private final TransactionController transactionController;
     private final TransactionManager transactionManager;
 
-    public JtaNonXaTransactionalStore(AbstractNonXaTransactionalStore transactionalStore, TransactionManagerLookup transactionManagerLookup, TransactionController transactionController) {
+    public JtaLocalTransactionStore(LocalTransactionStore transactionalStore, TransactionManagerLookup transactionManagerLookup, TransactionController transactionController) {
         this.transactionalStore = transactionalStore;
         this.transactionController = transactionController;
         this.transactionManager = transactionManagerLookup.getTransactionManager();
@@ -47,7 +46,7 @@ public class JtaNonXaTransactionalStore extends AbstractStore {
                 throw new TransactionException("no JTA transaction context");
             }
             transactionController.begin(1);
-            tx.registerSynchronization(new NonXaEhcacheSynchronization(transactionController));
+            tx.registerSynchronization(new LocalJtaEhcacheSynchronization(transactionController));
         } catch (SystemException e) {
             throw new TransactionException("internal JTA exception", e);
         } catch (RollbackException e) {
