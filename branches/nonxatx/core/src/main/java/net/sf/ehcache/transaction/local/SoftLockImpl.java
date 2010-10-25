@@ -64,12 +64,16 @@ public class SoftLockImpl implements SoftLock {
         lock.lock();
     }
 
-    public boolean tryLock() throws InterruptedException {
+    public boolean waitForRelease() throws InterruptedException {
         long msBeforeTimeout = expirationTimestamp - System.currentTimeMillis();
         if (msBeforeTimeout <= 0) {
-            return false;
+            return true;
         }
-        return lock.tryLock(expirationTimestamp, TimeUnit.MILLISECONDS);
+        boolean locked = lock.tryLock(expirationTimestamp, TimeUnit.MILLISECONDS);
+        if (locked) {
+            lock.unlock();
+        }
+        return locked;
     }
 
     public void unlock() {

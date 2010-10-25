@@ -54,6 +54,44 @@ public abstract class AbstractNonXaTransactionalStore extends AbstractStore {
         }
     }
 
+    // this method may clear soft locks of still alive but timed out transactions
+    protected Element getClearExpiredSoftLock(Object key) {
+        Element element = underlyingStore.get(key);
+        if (element == null) {
+            return null;
+        }
+
+        Object objectValue = element.getObjectValue();
+        if (objectValue instanceof SoftLock) {
+            SoftLock softLock = (SoftLock) objectValue;
+            if (softLock.getExpirationTimestamp() <= System.currentTimeMillis()) {
+                element = softLock.getOldElement();
+                underlyingStore.put(element);
+            }
+        }
+
+        return element;
+    }
+
+    // this method may clear soft locks of still alive but timed out transactions
+    protected Element getQuietClearExpiredSoftLock(Object key) {
+        Element element = underlyingStore.getQuiet(key);
+        if (element == null) {
+            return null;
+        }
+
+        Object objectValue = element.getObjectValue();
+        if (objectValue instanceof SoftLock) {
+            SoftLock softLock = (SoftLock) objectValue;
+            if (softLock.getExpirationTimestamp() <= System.currentTimeMillis()) {
+                element = softLock.getOldElement();
+                underlyingStore.put(element);
+            }
+        }
+
+        return element;
+    }
+
     public void commit(Collection<SoftLock> softLocks) {
         lock.writeLock().lock();
         try {
@@ -96,15 +134,13 @@ public abstract class AbstractNonXaTransactionalStore extends AbstractStore {
      * The softlock is 'dead' after this method returns, ie: it doesn't protect anything anymore,
      * unless a DeadLockException is thrown.
      */
-    protected void tryLockSoftLock(SoftLock softLock) throws DeadLockException {
+    protected void waitForReleaseOf(SoftLock softLock) throws DeadLockException {
         lock.writeLock().unlock();
         while (true) {
             try {
-                boolean locked = softLock.tryLock();
+                boolean locked = softLock.waitForRelease();
                 lock.writeLock().lock();
-                if (locked) {
-                    softLock.unlock();
-                } else {
+                if (!locked) {
                     throw new DeadLockException("deadlock detected in cache [" + cacheName +
                             "] during transaction [" + getCurrentTransactionContext().getTransactionId() +
                             "], conflict: " + softLock);

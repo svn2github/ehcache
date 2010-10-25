@@ -22,7 +22,7 @@ public interface SoftLock {
 
     void lock();
 
-    boolean tryLock() throws InterruptedException;
+    boolean waitForRelease() throws InterruptedException;
 
     void unlock();
 

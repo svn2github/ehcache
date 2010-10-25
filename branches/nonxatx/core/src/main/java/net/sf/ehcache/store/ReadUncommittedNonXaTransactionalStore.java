@@ -54,19 +54,19 @@ public class ReadUncommittedNonXaTransactionalStore extends AbstractNonXaTransac
         lock.writeLock().lock();
         try {
             Object key = element.getObjectKey();
-            Element oldElement = underlyingStore.getQuiet(key);
+            Element oldElement = getQuietClearExpiredSoftLock(key);
 
             if (oldElement != null && oldElement.getObjectValue() instanceof SoftLock) {
                 SoftLock oldSoftLock = (SoftLock) oldElement.getObjectValue();
                 if (!oldSoftLock.getTransactionID().equals(getCurrentTransactionContext().getTransactionId())) {
                     LOG.debug("put: cache [{}] key [{}] soft locked in different transaction", cacheName, key);
 
-                    tryLockSoftLock(oldSoftLock);
+                    waitForReleaseOf(oldSoftLock);
                     // after tryLockSoftLock the key may still be soft locked or not so loop until it isn't anymore
                     while (true) {
-                        oldElement = underlyingStore.getQuiet(key);
+                        oldElement = getQuietClearExpiredSoftLock(key);
                         if (oldElement != null && oldElement.getObjectValue() instanceof SoftLock) {
-                            tryLockSoftLock(oldSoftLock);
+                            waitForReleaseOf(oldSoftLock);
                         } else {
                             break;
                         }
@@ -102,7 +102,7 @@ public class ReadUncommittedNonXaTransactionalStore extends AbstractNonXaTransac
         assertNotTimedOut();
         lock.readLock().lock();
         try {
-            Element element = underlyingStore.get(key);
+            Element element = getClearExpiredSoftLock(key);
             if (element == null) {
                 LOG.debug("get: cache [{}] key [{}] not present", cacheName, key);
                 return null;
@@ -125,7 +125,7 @@ public class ReadUncommittedNonXaTransactionalStore extends AbstractNonXaTransac
         assertNotTimedOut();
         lock.readLock().lock();
         try {
-            Element element = underlyingStore.getQuiet(key);
+            Element element = getQuietClearExpiredSoftLock(key);
             if (element == null) {
                 LOG.debug("getQuiet: cache [{}] key [{}] not present", cacheName, key);
                 return null;
@@ -148,7 +148,7 @@ public class ReadUncommittedNonXaTransactionalStore extends AbstractNonXaTransac
         assertNotTimedOut();
         lock.writeLock().lock();
         try {
-            Element oldElement = underlyingStore.getQuiet(key);
+            Element oldElement = getQuietClearExpiredSoftLock(key);
             if (oldElement == null) {
                 LOG.debug("remove: cache [{}] key [{}] not present", cacheName, key);
                 return null;
@@ -159,12 +159,12 @@ public class ReadUncommittedNonXaTransactionalStore extends AbstractNonXaTransac
                 if (!oldSoftLock.getTransactionID().equals(getCurrentTransactionContext().getTransactionId())) {
                     LOG.debug("remove: cache [{}] key [{}] soft locked in different transaction", cacheName, key);
 
-                    tryLockSoftLock(oldSoftLock);
+                    waitForReleaseOf(oldSoftLock);
                     // after tryLockSoftLock the key may still be soft locked or not so loop until it isn't anymore
                     while (true) {
-                        oldElement = underlyingStore.getQuiet(key);
+                        oldElement = getQuietClearExpiredSoftLock(key);
                         if (oldElement != null && oldElement.getObjectValue() instanceof SoftLock) {
-                            tryLockSoftLock(oldSoftLock);
+                            waitForReleaseOf(oldSoftLock);
                         } else {
                             break;
                         }
