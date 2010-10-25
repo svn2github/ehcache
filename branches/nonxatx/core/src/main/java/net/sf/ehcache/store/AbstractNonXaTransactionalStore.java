@@ -133,6 +133,8 @@ public abstract class AbstractNonXaTransactionalStore extends AbstractStore {
     /**
      * The softlock is 'dead' after this method returns, ie: it doesn't protect anything anymore,
      * unless a DeadLockException is thrown.
+     * It could also be that another transaction managed to insert another soft lock for the same key
+     * during the execution of this method.
      */
     protected void waitForReleaseOf(SoftLock softLock) throws DeadLockException {
         lock.writeLock().unlock();

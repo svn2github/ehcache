@@ -62,7 +62,7 @@ public class ReadCommittedNonXaTransactionalStore extends AbstractNonXaTransacti
                     LOG.debug("put: cache [{}] key [{}] soft locked in different transaction", cacheName, key);
 
                     waitForReleaseOf(oldSoftLock);
-                    // after tryLockSoftLock the key may still be soft locked or not so loop until it isn't anymore
+                    // after waitForReleaseOf the key may still be soft locked or not so loop until it isn't anymore
                     while (true) {
                         oldElement = getQuietClearExpiredSoftLock(key);
                         if (oldElement != null && oldElement.getObjectValue() instanceof SoftLock) {
@@ -170,7 +170,7 @@ public class ReadCommittedNonXaTransactionalStore extends AbstractNonXaTransacti
                     LOG.debug("remove: cache [{}] key [{}] soft locked in different transaction", cacheName, key);
 
                     waitForReleaseOf(oldSoftLock);
-                    // after tryLockSoftLock the key may still be soft locked or not so loop until it isn't anymore
+                    // after waitForReleaseOf the key may still be soft locked or not so loop until it isn't anymore
                     while (true) {
                         oldElement = getQuietClearExpiredSoftLock(key);
                         if (oldElement != null && oldElement.getObjectValue() instanceof SoftLock) {
