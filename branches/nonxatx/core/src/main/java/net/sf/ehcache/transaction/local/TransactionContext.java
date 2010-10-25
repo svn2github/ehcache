@@ -136,8 +136,8 @@ public class TransactionContext {
                 List<SoftLock> softLocks = stringListEntry.getValue();
 
                 for (SoftLock softLock : softLocks) {
-                    softLock.unfreeze();
                     softLock.unlock();
+                    softLock.unfreeze();
                 }
             }
         } finally {
@@ -170,8 +170,8 @@ public class TransactionContext {
                 List<SoftLock> softLocks = stringListEntry.getValue();
 
                 for (SoftLock softLock : softLocks) {
-                    softLock.unfreeze();
                     softLock.unlock();
+                    softLock.unfreeze();
                 }
             }
         } finally {

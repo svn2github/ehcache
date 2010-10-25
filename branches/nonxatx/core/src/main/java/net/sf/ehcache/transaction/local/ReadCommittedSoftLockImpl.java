@@ -4,7 +4,6 @@ import net.sf.ehcache.Element;
 import net.sf.ehcache.transaction.TransactionID;
 
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 /**
@@ -15,8 +14,8 @@ public class ReadCommittedSoftLockImpl implements SoftLock {
     private final Object key;
     private Element newElement;
     private final Element oldElement;
-    private final Lock lock;
-    private final Lock freezeLock;
+    private final ReentrantLock lock;
+    private final ReentrantLock freezeLock;
 
     ReadCommittedSoftLockImpl(TransactionID transactionID, Object key, Element newElement, Element oldElement) {
         this.transactionID = transactionID;
@@ -27,7 +26,7 @@ public class ReadCommittedSoftLockImpl implements SoftLock {
         this.freezeLock = new ReentrantLock();
     }
 
-    private ReadCommittedSoftLockImpl(TransactionID transactionID, Object key, Element newElement, Element oldElement, Lock lock, Lock freezeLock) {
+    private ReadCommittedSoftLockImpl(TransactionID transactionID, Object key, Element newElement, Element oldElement, ReentrantLock lock, ReentrantLock freezeLock) {
         this.transactionID = transactionID;
         this.key = key;
         this.newElement = newElement;
@@ -78,11 +77,7 @@ public class ReadCommittedSoftLockImpl implements SoftLock {
     }
 
     public boolean isLocked() {
-        boolean locked = lock.tryLock();
-        if (locked) {
-            lock.unlock();
-        }
-        return !locked;
+        return lock.isLocked();
     }
 
     public SoftLock copy(Element oldElement, Element newElement) {
@@ -90,11 +85,22 @@ public class ReadCommittedSoftLockImpl implements SoftLock {
     }
 
     public void freeze() {
+        if (!isLocked()) {
+            throw new IllegalStateException("cannot freeze an unlocked soft lock");
+        }
         freezeLock.lock();
     }
 
     public void unfreeze() {
         freezeLock.unlock();
+    }
+
+    private boolean isFrozen() {
+        return freezeLock.isLocked();
+    }
+
+    public boolean isExpired() {
+        return !isFrozen() && !isLocked();
     }
 
     @Override

@@ -33,4 +33,6 @@ public interface SoftLock {
     void freeze();
 
     void unfreeze();
+
+    boolean isExpired();
 }
