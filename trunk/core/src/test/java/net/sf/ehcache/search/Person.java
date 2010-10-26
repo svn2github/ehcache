@@ -23,7 +23,7 @@ public class Person {
         return name;
     }
 
-    public Serializable getAge() {
+    public int getAge() {
         return age;
     }
 
