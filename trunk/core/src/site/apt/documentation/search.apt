@@ -9,6 +9,122 @@ Search
 * Ehcache Search API
 
     (This feature is pre-release. It is in ehcache-core trunk. Maven builds for version 2.3.1-SNAPSHOT are published to
-    oss.sonatype.org.
+    oss.sonatype.org.)
 
-    - To be completed -
+    The Ehcache Search API allows you to execute arbitrarily complex queries against either a standalone cache or a Terracotta
+    clustered cache with pre-built indexes.
+
+
+*   API
+
+**  DSL Conventions
+
+  Queries are created using our search Domain Specific Language ("DSL"). We follow the conventions for implementing a DSL in Java
+  such as fluent builders and static factory methods for a compact and easy-to-read representation.
+
+  See {{http://www.infoq.com/articles/internal-dsls-java}} for a description of these conventions.
+
+**  Queries
+
+  A query can be executed and then modified and re-executed. If <<<end>>> is called
+  the query is made immutable.
+
+  Both Element keys and attributes of Element can be queried. Attributes must be pre-defined
+  for a cache.
+
+  They are populated by extraction from an Element's value using <<<net.sf.ehcache.search.attribute.AttributeExtractor>>>.
+
+
+** Search Results
+
+  Queries return a <<<Results>>> object which contain objects of class <<<Result>>>.
+
+  Either all results can be returned using
+   <<<results.all()>>> or a range of results using <<<results.range(int start, int count)>>> to achieve paging.
+
+   A Result object can contain either:
+
+   *    the Element key
+
+   *    the Element value
+
+   *    a predefined attribute extracted from an Element value
+
+   *    an Aggregate function
+
+
+**   Limiting the size of Results
+
+    By default a query will return an unlimited number of results. For example the following
+    query will return all keys in the cache.
+    
+---
+    Query query = cache.createQuery();
+    query.includeKeys();
+    query.execute();
+---
+
+    If too many results are returned it could cause an OutOfMemoryError 
+    
+    The <<<maxResults>>> clause is used to limit the size of the results.
+    
+    e.g. to limit the above query to the first 100 elements found:
+
+---
+    Query query = cache.createQuery();
+    query.includeKeys();
+    query.maxResults(100);
+    query.execute();
+---
+
+
+*   Implementations
+
+**  Standalone Ehcache
+
+    The standalone Ehcache implementation does not use indexes. It uses fast iteration of the cache
+    instead, relying on the very fast access to essentially do the equivalent of a table scan for each
+    query.
+
+
+*** Performance
+
+    Search operations perform in O(n) time.
+
+    Accordingly, this implementation is suitable for development and testing. For production it is recommended to only
+    search against caches that are less than 100,000 element in size.
+
+    An indexed implementation may be done in future.
+
+**  Ehcache backed by the Terracotta Server Array
+
+    This implementation uses Lucene indexes which are maintained on each Terracotta server. In Ehcache EX the index is
+    on a single active server. In Ehcache FX the cache is sharded across the number of active nodes in the cluster. The index
+    for each shard is maintained on that shard's server.
+
+    Searches are performed using the Scatter-Gather pattern. The query executes on each node and the results are then aggregated
+    back in the Ehcache that initiated the search.
+
+*** Performance
+
+    Search operations perform in O(log n / number of shards) time.
+
+    Performance is excellent and can be improved simply by adding more servers to the FX array.
+
+*** Network Effects
+
+    Search results are returned over the network. The data returned could potentially be very large, so
+    techniques to limit return size are recommended such as:
+
+    * limiting the results with <<<maxResults>>> or using the paging API <<<Results.range(int start, int length)>>>
+
+    * Returning keys instead of values using <<<includeKeys()>>> in the query
+
+    * Returning attributes instead of values
+
+    * using a built-in <<<Aggregator>>> function when you only need a summary statistic
+
+
+
+
+

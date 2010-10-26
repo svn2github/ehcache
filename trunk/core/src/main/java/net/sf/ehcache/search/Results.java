@@ -51,13 +51,13 @@ public interface Results {
      * showing "paged" results in a user interface or simply to keep memory overhead fixed
      *
      * @param start  starting index to access
-     * @param length length of the chunk to access
+     * @param count the number of results to return
      * @return a List of the given size. This list will be smaller than the requested
      *         size if no more results are available. If there are no more results an empty
      *         list will be returned.
      * @throws SearchException
      */
-    List<Result> range(int start, int length) throws SearchException, IndexOutOfBoundsException;
+    List<Result> range(int start, int count) throws SearchException, IndexOutOfBoundsException;
 
     /**
      * Retrieves the result of an aggregate function. If multiple aggregate functions were requested in this query, the a {@link List} of

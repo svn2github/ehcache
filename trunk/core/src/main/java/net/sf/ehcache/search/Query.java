@@ -114,8 +114,9 @@ public interface Query {
     /**
      * Restrict the number of results returned from the search.
      * <p/>
-     * By default a maximum of 10,000 results are returned
-     *
+     * By default an unlimited number of results can be returned. This could cause
+     * an OutOfMemoryError to be thrown. It is therefore recommended to add an <code>maxResults</code>
+     * clause to your query to limit the size.
      * @param maxResults the maximum number of results to return
      * @return this
      */
