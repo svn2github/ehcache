@@ -60,42 +60,42 @@ public class ReflectionAttributeExtractorTest extends TestCase {
 
             private Element element() {
                 switch (type) {
-                case 0: {
-                    return new Element("k", new Person1(count++));
-                }
-                case 1: {
-                    return new Element("k", new Person2(count++));
-                }
-                case 2: {
-                    return new Element("k", new Person3(count++));
-                }
-                case 3: {
-                    return new Element("k", new Person4(count++));
-                }
-                case 4: {
-                    return new Element("k", new Person5(count++));
-                }
-                default: {
-                    throw new AssertionError(type);
-                }
+                    case 0: {
+                        return new Element("k", new Person1(count++));
+                    }
+                    case 1: {
+                        return new Element("k", new Person2(count++));
+                    }
+                    case 2: {
+                        return new Element("k", new Person3(count++));
+                    }
+                    case 3: {
+                        return new Element("k", new Person4(count++));
+                    }
+                    case 4: {
+                        return new Element("k", new Person5(count++));
+                    }
+                    default: {
+                        throw new AssertionError(type);
+                    }
                 }
             }
         }
-        
+
         Thread threads[] = new Thread[5];
         for (int i = 0; i < threads.length; i++) {
             threads[i] = new Thread(new Task(i));
         }
-        
+
         for (Thread t : threads) {
             t.start();
         }
-        
+
         for (Thread t : threads) {
             t.join();
         }
-            
-        assertEquals(0, errors.size());        
+
+        assertEquals(0, errors.size());
     }
 
     public void testBasic() {
@@ -143,11 +143,67 @@ public class ReflectionAttributeExtractorTest extends TestCase {
         assertEquals(value.toString(), rae.attributeFor(element));
     }
 
+    public void testNullInChain() {
+
+        try {
+            Element e = new Element("k", new Ref(null));
+            ReflectionAttributeExtractor rae = new ReflectionAttributeExtractor("value.reference.toString()");
+            rae.attributeFor(e);
+            fail();
+        } catch (AttributeExtractorException aee) {
+            // expected
+        }
+
+        try {
+            Element e = new Element("k", new Ref(null));
+            ReflectionAttributeExtractor rae = new ReflectionAttributeExtractor("value.reference.reference");
+            rae.attributeFor(e);
+            fail();
+        } catch (AttributeExtractorException aee) {
+            // expected
+        }
+    }
+
+    public void testMethodThrowsException() {
+        RuntimeException re = new RuntimeException();
+        try {
+            Ref ref = new Ref(re);
+            ref.re = re;
+            Element e = new Element("k", ref);
+
+            ReflectionAttributeExtractor rae = new ReflectionAttributeExtractor("value.exception()");
+            rae.attributeFor(e);
+            fail();
+        } catch (AttributeExtractorException aee) {
+            assertEquals(re, aee.getCause());
+        }
+    }
+
     public void testInheritedField() {
         Element element = new Element("k", new Sub());
 
         ReflectionAttributeExtractor rae = new ReflectionAttributeExtractor("value.field");
         assertEquals("base", rae.attributeFor(element));
+    }
+
+    public void testExceptions() {
+        Element element = new Element("k", "v");
+
+        try {
+            ReflectionAttributeExtractor rae = new ReflectionAttributeExtractor("value.FIELD_DOES_NOT_EXIST");
+            rae.attributeFor(element);
+            fail();
+        } catch (AttributeExtractorException aee) {
+            // expected
+        }
+
+        try {
+            ReflectionAttributeExtractor rae = new ReflectionAttributeExtractor("value.METHOD_DOES_NOT_EXIST()");
+            rae.attributeFor(element);
+            fail();
+        } catch (AttributeExtractorException aee) {
+            // expected
+        }
     }
 
     public void testWhitespaceIgnored() {
@@ -190,7 +246,7 @@ public class ReflectionAttributeExtractorTest extends TestCase {
     }
 
     private static class Base {
-        private Object field = "base";
+        private final Object field = "base";
     }
 
     private static class Sub extends Base {
@@ -198,8 +254,16 @@ public class ReflectionAttributeExtractorTest extends TestCase {
     }
 
     private static class Ref {
+        public RuntimeException re;
+
         public Ref(Object ref) {
             this.reference = ref;
+        }
+
+        public void exception() {
+            if (re != null) {
+                throw re;
+            }
         }
 
         public Object reference;

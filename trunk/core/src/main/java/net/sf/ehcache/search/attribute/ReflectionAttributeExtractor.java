@@ -21,7 +21,6 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
-import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.config.InvalidConfigurationException;
 
@@ -87,9 +86,9 @@ public class ReflectionAttributeExtractor implements AttributeExtractor {
      * Evaluate the expression for the given element
      *
      * @return the attribute value
-     * @throws CacheException if there is an error in evaluating the expression
+     * @throws AttributeExtractorException if there is an error in evaluating the expression
      */
-    public Object attributeFor(Element e) throws CacheException {
+    public Object attributeFor(Element e) throws AttributeExtractorException {
         // NOTE: We can play all kinds of tricks of generating java classes and
         // using Unsafe if needed
 
@@ -190,6 +189,10 @@ public class ReflectionAttributeExtractor implements AttributeExtractor {
         }
 
         public Object eval(Object target) {
+            if (target == null) {
+                throw new AttributeExtractorException("null reference encountered trying to read field " + fieldName);
+            }
+
             Class c = target.getClass();
             FieldRef ref = cache;
 
@@ -201,26 +204,22 @@ public class ReflectionAttributeExtractor implements AttributeExtractor {
                         ref = new FieldRef(target.getClass(), field);
                         cache = ref;
                         break;
-                    } catch (SecurityException e) {
-                        throw new CacheException(e);
                     } catch (NoSuchFieldException e) {
                         c = c.getSuperclass();
                         if (c == null) {
-                            throw new CacheException("No such field named \"" + fieldName + "\" present in instance of "
+                            throw new AttributeExtractorException("No such field named \"" + fieldName + "\" present in instance of "
                                     + target.getClass());
                         }
-                    } catch (IllegalArgumentException e) {
-                        throw new CacheException(e);
+                    } catch (Exception e) {
+                        throw new AttributeExtractorException(e);
                     }
                 }
             }
 
             try {
                 return ref.field.get(target);
-            } catch (IllegalArgumentException e) {
-                throw new CacheException(e);
-            } catch (IllegalAccessException e) {
-                throw new CacheException(e);
+            } catch (Exception e) {
+                throw new AttributeExtractorException(e);
             }
         }
 
@@ -265,6 +264,10 @@ public class ReflectionAttributeExtractor implements AttributeExtractor {
         }
 
         public Object eval(Object target) {
+            if (target == null) {
+                throw new AttributeExtractorException("null reference encountered trying to call " + methodName + "()");
+            }
+
             Class c = target.getClass();
 
             MethodRef ref = cache;
@@ -277,26 +280,24 @@ public class ReflectionAttributeExtractor implements AttributeExtractor {
                         ref = new MethodRef(target.getClass(), method);
                         cache = ref;
                         break;
-                    } catch (SecurityException e) {
-                        throw new CacheException(e);
                     } catch (NoSuchMethodException e) {
                         c = c.getSuperclass();
                         if (c == null) {
                             throw new AttributeExtractorException("No such method named \"" + methodName + "\" present on instance of "
                                     + target.getClass());
                         }
-                    } catch (IllegalArgumentException e) {
-                        throw new CacheException(e);
+                    } catch (Exception e) {
+                        throw new AttributeExtractorException(e);
                     }
                 }
             }
 
             try {
                 return ref.method.invoke(target);
-            } catch (IllegalAccessException e) {
-                throw new CacheException(e);
             } catch (InvocationTargetException e) {
-                throw new CacheException(e.getTargetException());
+                throw new AttributeExtractorException(e.getTargetException());
+            } catch (Exception e) {
+                throw new AttributeExtractorException(e);
             }
         }
     }

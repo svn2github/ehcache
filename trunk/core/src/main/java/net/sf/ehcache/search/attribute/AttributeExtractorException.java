@@ -44,12 +44,21 @@ public class AttributeExtractorException extends SearchException implements Seri
     }
 
     /**
-     * Construct a AttributeExtractorException with an underlying cause
+     * Construct a AttributeExtractorException with an underlying cause and message
      *
      * @param message
      * @param cause
      */
     public AttributeExtractorException(String message, Throwable cause) {
         super(message, cause);
+    }
+
+    /**
+     * Construct a AttributeExtractorException with an underlying cause
+     *
+     * @param cause
+     */
+    public AttributeExtractorException(Throwable cause) {
+        super(cause);
     }
 }

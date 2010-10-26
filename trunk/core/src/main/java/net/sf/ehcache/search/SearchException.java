@@ -44,13 +44,23 @@ public class SearchException extends CacheException {
     }
 
     /**
-     * Construct a search exception with an underlying cause
+     * Construct a search exception with an underlying cause and message
      *
      * @param message
      * @param cause
      */
     public SearchException(String message, Throwable cause) {
         super(message, cause);
+    }
+
+    /**
+     * Construct a search exception with an underlying cause
+     *
+     * @param message
+     * @param cause
+     */
+    public SearchException(Throwable cause) {
+        super(cause);
     }
 
 }
