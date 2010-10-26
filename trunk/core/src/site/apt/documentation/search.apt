@@ -42,10 +42,9 @@ Search
     
 **  Attribute Extractors  
   
-    Attributes must be extracted from values. This is done on <<<put()>>> or <<<update()>>> into the cache
-    using attribute extractors.
-    
-    
+    Attributes are extracted from keys or values. This is done on <<<put()>>> or <<<update()>>> into the cache
+    using <<<AttributeExtractor>>>s.
+
     Extracted attributes must be one of the following types:
     
         *   Boolean
@@ -68,7 +67,8 @@ Search
         
         *   Date
         
-
+    If an attribute cannot be extracted due to not being found or of being the wrong type an AttributeExtractorException is thrown
+    after the 
 
 *** ReflectionAttributeExtractor
 
@@ -195,6 +195,8 @@ Search
     The standalone Ehcache implementation does not use indexes. It uses fast iteration of the cache
     instead, relying on the very fast access to essentially do the equivalent of a table scan for each
     query.
+
+    Attributes are not extracted ahead of time. They are done during query execution.
 
 
 *** Performance

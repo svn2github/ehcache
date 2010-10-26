@@ -282,7 +282,7 @@ public class ReflectionAttributeExtractor implements AttributeExtractor {
                     } catch (NoSuchMethodException e) {
                         c = c.getSuperclass();
                         if (c == null) {
-                            throw new CacheException("No such method named \"" + methodName + "\" present on instance of "
+                            throw new AttributeExtractorException("No such method named \"" + methodName + "\" present on instance of "
                                     + target.getClass());
                         }
                     } catch (IllegalArgumentException e) {

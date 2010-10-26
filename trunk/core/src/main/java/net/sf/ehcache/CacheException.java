@@ -33,6 +33,9 @@ package net.sf.ehcache;
  */
 public class CacheException extends RuntimeException {
 
+    
+    private static final long serialVersionUID = 142468800110101833L;
+
 
     /**
      * Constructor for the CacheException object.

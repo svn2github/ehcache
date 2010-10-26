@@ -1,5 +1,7 @@
 package net.sf.ehcache.search;
 
+import java.io.Serializable;
+
 /**
  * A domain object used for testing
  *
@@ -21,7 +23,7 @@ public class Person {
         return name;
     }
 
-    public int getAge() {
+    public Serializable getAge() {
         return age;
     }
 
