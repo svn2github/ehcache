@@ -13,7 +13,8 @@ Using {JRuby} and Ehcache
 
 * Installation
 
-    Ehcache JRuby integration is provided by the jruby-ehcache gem.  To install it simply execute:
+    Ehcache JRuby integration is provided by the jruby-ehcache gem.  To install it simply execute
+    (note: you may need to use "sudo" to install gems on your system):
 
 ---
 jgem install jruby-ehcache
@@ -30,6 +31,34 @@ jgem install jruby-ehcache
 * Configuring Ehcache
 
   The jruby-ehcache gem is configured using an ehcache.yml file which is placed in your ~/lib/config.
+
+  Example ehcache.yml file:
+
+---
+  disk:
+    path: java.io.tmpdir
+
+  peer_provider:
+    class: net.sf.ehcache.distribution.RMICacheManagerPeerProviderFactory
+    properties: peerDiscovery=automatic,multicastGroupAddress=230.0.0.1,multicastGroupPort=4446,timeToLive=1
+    property_separator: "\,"
+
+  peer_listener:
+    class: net.sf.ehcache.distribution.RMICacheManagerPeerListenerFactory
+
+  default:
+    name: cache
+    max_elements_in_memory:  10000
+    time_to_live_seconds:  0
+    time_to_idle_seconds:  0
+    overflow_to_disk: true
+    eternal: false
+    disk_spool_buffer_size_mb: 30
+    disk_persistent: false
+    disk_expiry_thread_interval_seconds: 120
+    memory_store_eviction_policy: LRU
+---
+
 
 
 
@@ -58,6 +87,13 @@ jgem install jruby-ehcache
     require 'rubygems'
     gem 'jruby-ehcache',:lib => 'ehcache'
     require 'ehcache'
+---
+
+If you prefer, you can make Ruby Gems available to JRuby globally by setting
+the RUBYOPT environment variable as follows:
+
+---
+  export RUBYOPT=rubygems
 ---
 
 **  Creating a CacheManager
@@ -241,7 +277,11 @@ jruby -S rails server -e production
     by Ehcache.
 
 
+*   Utilising the rest of the Ehcache infrastructure
 
+    Ehcache has a layered architecture. jruby-ehcache contains the ehcache-core module.
+    Extra features can be added by simply adding the extra jars for each module to the classpath.
+    In this way the full power of Ehcache can be leveraged.
 
 
 
