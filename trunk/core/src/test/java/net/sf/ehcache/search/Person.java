@@ -1,7 +1,5 @@
 package net.sf.ehcache.search;
 
-import java.io.Serializable;
-
 /**
  * A domain object used for testing
  *
@@ -36,10 +34,8 @@ public class Person {
         return getClass().getSimpleName() + "(name:" + name + ", age:" + age + ", sex:" + gender.name().toLowerCase() + ")";
     }
 
-
     enum Gender {
         MALE, FEMALE;
     }
-
 
 }
