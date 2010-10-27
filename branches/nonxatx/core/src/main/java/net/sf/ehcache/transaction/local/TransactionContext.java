@@ -131,7 +131,7 @@ public class TransactionContext {
                 store.commit(softLocks);
             }
         } finally {
-            unfreeze();
+            unfreezeAndUnlock();
             softLockMap.clear();
             storeMap.clear();
             fireAfterCommitEvent();
@@ -151,7 +151,7 @@ public class TransactionContext {
                 store.rollback(softLocks);
             }
         } finally {
-            unfreeze();
+            unfreezeAndUnlock();
             softLockMap.clear();
             storeMap.clear();
             fireAfterRollbackEvent();
@@ -184,13 +184,13 @@ public class TransactionContext {
         }
     }
 
-    private void unfreeze() {
+    private void unfreezeAndUnlock() {
         for (Map.Entry<String, List<SoftLock>> stringListEntry : softLockMap.entrySet()) {
             List<SoftLock> softLocks = stringListEntry.getValue();
 
             for (SoftLock softLock : softLocks) {
-                softLock.unlock();
                 softLock.unfreeze();
+                softLock.unlock();
             }
         }
     }
