@@ -44,7 +44,11 @@ public class SoftLockAwareCopyStrategy implements CopyStrategy {
                 SoftLock copy = softLock.copy(defaultCopyStrategy.copy(softLock.getOldElement()),
                         defaultCopyStrategy.copy(softLock.getNewElement()));
 
-                return (T) new Element(element.getObjectKey(), copy);
+                Element newElement = new Element(element.getObjectKey(), copy, element.getVersion(),
+                    element.getCreationTime(), element.getLastAccessTime(), element.getHitCount(), element.usesCacheDefaultLifespan(),
+                    element.getTimeToLive(), element.getTimeToIdle(), element.getLastUpdateTime());
+
+                return (T) newElement;
             }
 
         }
