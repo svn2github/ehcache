@@ -24,7 +24,7 @@ public class TransactionContext {
     private final List<TransactionListener> listeners = new ArrayList<TransactionListener>();
 
     public TransactionContext(int transactionTimeout, TransactionID transactionId) {
-        this.expirationTimestamp = System.currentTimeMillis() + transactionTimeout * 1000;
+        this.expirationTimestamp = System.currentTimeMillis() + transactionTimeout * 1000L;
         this.transactionId = transactionId;
     }
 

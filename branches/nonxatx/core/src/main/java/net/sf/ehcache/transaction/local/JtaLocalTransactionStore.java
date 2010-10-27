@@ -45,7 +45,8 @@ public class JtaLocalTransactionStore extends AbstractStore {
             if (tx == null) {
                 throw new TransactionException("no JTA transaction context");
             }
-            transactionController.begin(1);
+            // local transaction must not timeout
+            transactionController.begin(Integer.MAX_VALUE);
             tx.registerSynchronization(new LocalJtaEhcacheSynchronization(transactionController));
         } catch (SystemException e) {
             throw new TransactionException("internal JTA exception", e);
