@@ -36,6 +36,42 @@ public class LocalTransactionTest extends TestCase {
         cacheManager.shutdown();
     }
 
+    public void testCopyOnRead() throws Exception {
+        transactionController.begin();
+        Object putValue = new Object[] {"one#1"};
+        cache1.put(new Element(1, putValue));
+
+        Element one = cache1.get(1);
+        Object getValue = one.getObjectValue();
+
+        assertFalse(putValue.hashCode() == getValue.hashCode());
+        assertFalse(putValue.equals(getValue));
+        transactionController.commit();
+    }
+
+    public void testCopyOnWrite() throws Exception {
+        transactionController.begin();
+        Object[] putValue = new Object[] {"one#1"};
+        cache1.put(new Element(1, putValue));
+        putValue[0] = "one#2";
+
+        Element one = cache1.get(1);
+        Object[] getValue = (Object[]) one.getObjectValue();
+
+        assertEquals(putValue[0], getValue[0]);
+        transactionController.commit();
+    }
+
+    public void testTwoPuts() throws Exception {
+        transactionController.begin();
+        cache1.put(new Element(1, new Object[]{"one#1"}));
+        transactionController.commit();
+
+        transactionController.begin();
+        cache1.put(new Element(1, new Object[] {"one#2"}));
+        transactionController.commit();
+    }
+
     public void testTwoCaches() throws Exception {
         transactionController.begin();
 

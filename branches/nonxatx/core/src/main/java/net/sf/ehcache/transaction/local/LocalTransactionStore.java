@@ -7,6 +7,7 @@ import net.sf.ehcache.TransactionController;
 import net.sf.ehcache.store.AbstractStore;
 import net.sf.ehcache.store.Policy;
 import net.sf.ehcache.store.Store;
+import net.sf.ehcache.store.compound.CopyStrategy;
 import net.sf.ehcache.util.LargeSet;
 import net.sf.ehcache.util.SetWrapperList;
 import net.sf.ehcache.writer.CacheWriterManager;
@@ -30,12 +31,14 @@ public class LocalTransactionStore extends AbstractStore {
     private final SoftLockFactory softLockFactory;
     private final String cacheName;
     private final Store underlyingStore;
+    private final CopyStrategy copyStrategy;
 
-    public LocalTransactionStore(TransactionController transactionController, SoftLockFactory softLockFactory, String cacheName, Store store) {
+    public LocalTransactionStore(TransactionController transactionController, SoftLockFactory softLockFactory, String cacheName, Store store, CopyStrategy copyStrategy) {
         this.transactionController = transactionController;
         this.softLockFactory = softLockFactory;
         this.cacheName = cacheName;
         this.underlyingStore = store;
+        this.copyStrategy = copyStrategy;
     }
 
 
@@ -57,9 +60,14 @@ public class LocalTransactionStore extends AbstractStore {
         return element;
     }
 
+    private Element copyElement(Element element) {
+        return copyStrategy.copy(element);
+    }
+
     /* transactional methods */
 
     public boolean put(Element element) throws CacheException {
+        element = copyElement(element);
         while (true) {
             Object key = element.getObjectKey();
             Element oldElement = underlyingStore.getQuiet(key);
@@ -106,7 +114,8 @@ public class LocalTransactionStore extends AbstractStore {
                             boolean locked = softLock.tryLock(timeBeforeTimeout());
                             if (!locked) {
                                 LOG.debug("put: cache [{}] key [{}] soft locked in foreign transaction and not released before current transaction timeout", cacheName, key);
-                                throw new DeadLockException("deadlock detected");
+                                throw new DeadLockException("deadlock detected in cache [" + cacheName + "] on key [" + key + "] between current transaction [" +
+                                        getCurrentTransactionContext().getTransactionId() + "] and foreign transaction [" + softLock.getTransactionID() + "]");
                             }
                         } catch (InterruptedException e) {
                             Thread.currentThread().interrupt();
@@ -149,10 +158,10 @@ public class LocalTransactionStore extends AbstractStore {
         if (value instanceof SoftLock) {
             SoftLock softLock = (SoftLock) value;
             LOG.debug("getQuiet: cache [{}] key [{}] soft locked, returning soft locked element", cacheName, key);
-            return softLock.getElement();
+            return copyElement(softLock.getElement());
         } else {
             LOG.debug("getQuiet: cache [{}] key [{}] not soft locked, returning underlying element", cacheName, key);
-            return oldElement;
+            return copyElement(oldElement);
         }
     }
 
@@ -167,10 +176,10 @@ public class LocalTransactionStore extends AbstractStore {
         if (value instanceof SoftLock) {
             SoftLock softLock = (SoftLock) value;
             LOG.debug("get: cache [{}] key [{}] soft locked, returning soft locked element", cacheName, key);
-            return softLock.getElement();
+            return copyElement(softLock.getElement());
         } else {
             LOG.debug("get: cache [{}] key [{}] not soft locked, returning underlying element", cacheName, key);
-            return oldElement;
+            return copyElement(oldElement);
         }
     }
 
@@ -221,7 +230,8 @@ public class LocalTransactionStore extends AbstractStore {
                             boolean locked = softLock.tryLock(timeBeforeTimeout());
                             if (!locked) {
                                 LOG.debug("remove: cache [{}] key [{}] soft locked in foreign transaction and not released before current transaction timeout", cacheName, key);
-                                throw new DeadLockException("deadlock detected");
+                                throw new DeadLockException("deadlock detected in cache [" + cacheName + "] on key [" + key + "] between current transaction [" +
+                                        getCurrentTransactionContext().getTransactionId() + "] and foreign transaction [" + softLock.getTransactionID() + "]");
                             }
                         } catch (InterruptedException e) {
                             Thread.currentThread().interrupt();
