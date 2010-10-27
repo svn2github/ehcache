@@ -107,13 +107,12 @@ public class TransactionContext {
         return result;
     }
 
-    public void commit() {
+    public void commit(boolean ignoreTimeout) {
         if (rollbackOnly) {
             rollback();
             throw new TransactionException("transaction was marked as rollback only, rolled back on commit");
         }
-        // todo failing on timeout may interfere with the JTA mode synchronization
-        if (timedOut()) {
+        if (!ignoreTimeout && timedOut()) {
             rollback();
             throw new TransactionTimeoutException("transaction timed out, rolled back on commit");
         }

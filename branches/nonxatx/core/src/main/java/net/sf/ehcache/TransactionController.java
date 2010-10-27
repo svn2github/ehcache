@@ -48,6 +48,10 @@ public final class TransactionController {
     }
 
     public void commit() {
+        commit(false);
+    }
+
+    public void commit(boolean ignoreTimeout) {
         TransactionID txId = currentTransactionIdThreadLocal.get();
         if (txId == null) {
             throw new TransactionException("no transaction started");
@@ -56,7 +60,7 @@ public final class TransactionController {
         TransactionContext currentTx = contextMap.get(txId);
 
         try {
-            currentTx.commit();
+            currentTx.commit(ignoreTimeout);
         } finally {
             contextMap.remove(txId);
             currentTransactionIdThreadLocal.remove();
@@ -101,4 +105,5 @@ public final class TransactionController {
         }
         return contextMap.get(txId);
     }
+
 }
