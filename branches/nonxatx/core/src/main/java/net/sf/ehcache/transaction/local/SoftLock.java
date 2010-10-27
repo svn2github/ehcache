@@ -28,8 +28,6 @@ public interface SoftLock {
 
     boolean isLocked();
 
-    SoftLock copy(Element oldElement, Element newElement);
-
     void freeze();
 
     void unfreeze();

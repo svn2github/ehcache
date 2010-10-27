@@ -26,15 +26,6 @@ public class ReadCommittedSoftLockImpl implements SoftLock {
         this.freezeLock = new ReentrantLock();
     }
 
-    private ReadCommittedSoftLockImpl(TransactionID transactionID, Object key, Element newElement, Element oldElement, ReentrantLock lock, ReentrantLock freezeLock) {
-        this.transactionID = transactionID;
-        this.key = key;
-        this.newElement = newElement;
-        this.oldElement = oldElement;
-        this.lock = lock;
-        this.freezeLock = freezeLock;
-    }
-
     public Object getKey() {
         return key;
     }
@@ -78,10 +69,6 @@ public class ReadCommittedSoftLockImpl implements SoftLock {
 
     public boolean isLocked() {
         return lock.isLocked();
-    }
-
-    public SoftLock copy(Element oldElement, Element newElement) {
-        return new ReadCommittedSoftLockImpl(transactionID, key, newElement, oldElement, lock, freezeLock);
     }
 
     public void freeze() {
