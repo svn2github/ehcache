@@ -38,6 +38,7 @@ import net.sf.ehcache.concurrent.CacheLockProvider;
 import net.sf.ehcache.concurrent.LockType;
 import net.sf.ehcache.concurrent.Sync;
 import net.sf.ehcache.store.AbstractStore;
+import net.sf.ehcache.store.ElementComparer;
 import net.sf.ehcache.writer.CacheWriterManager;
 
 /**
@@ -367,6 +368,12 @@ public abstract class CompoundStore extends AbstractStore {
         Object key = element.getObjectKey();
         int hash = hash(key.hashCode());
         return segmentFor(hash).replace(key, hash, old, element);
+    }
+
+    public boolean replace(Element old, Element element, ElementComparer comparer) throws NullPointerException, IllegalArgumentException {
+        Object key = element.getObjectKey();
+        int hash = hash(key.hashCode());
+        return segmentFor(hash).replace(key, hash, old, element, comparer);
     }
 
     /**

@@ -5,6 +5,7 @@ import net.sf.ehcache.Element;
 import net.sf.ehcache.Status;
 import net.sf.ehcache.TransactionController;
 import net.sf.ehcache.store.AbstractStore;
+import net.sf.ehcache.store.ElementComparer;
 import net.sf.ehcache.store.Policy;
 import net.sf.ehcache.store.Store;
 import net.sf.ehcache.store.compound.CopyStrategy;
@@ -32,6 +33,10 @@ public class LocalTransactionStore extends AbstractStore {
     private final String cacheName;
     private final Store underlyingStore;
     private final CopyStrategy copyStrategy;
+
+    //todo this should be configurable
+    private volatile ElementComparer elementComparer = new ArraysAwareElementComparer();
+
 
     public LocalTransactionStore(TransactionController transactionController, SoftLockFactory softLockFactory, String cacheName, Store store, CopyStrategy copyStrategy) {
         this.transactionController = transactionController;
@@ -94,7 +99,7 @@ public class LocalTransactionStore extends AbstractStore {
                     SoftLock softLock = (SoftLock) value;
 
                     if (softLock.isExpired()) {
-                        underlyingStore.replace(oldElement, softLock.getOldElement());
+                        underlyingStore.replace(oldElement, softLock.getOldElement(), elementComparer);
                         // expired soft lock cleaned up or not, restart.
                         LOG.debug("put: cache [{}] key [{}] guarded by expired soft lock, cleaned up soft lock", cacheName, key);
                         continue;
@@ -129,7 +134,7 @@ public class LocalTransactionStore extends AbstractStore {
                     SoftLock softLock = softLockFactory.createSoftLock(getCurrentTransactionContext().getTransactionId(), key, element, oldElement);
                     softLock.lock();
                     Element newElement = createElement(key, softLock);
-                    boolean replaced = underlyingStore.replace(oldElement, newElement);
+                    boolean replaced = underlyingStore.replace(oldElement, newElement, elementComparer);
                     if (replaced) {
                         // CAS succeeded, value replaced with soft lock, job done.
                         getCurrentTransactionContext().registerSoftLock(cacheName, this, softLock);
@@ -209,7 +214,7 @@ public class LocalTransactionStore extends AbstractStore {
                     SoftLock softLock = (SoftLock) value;
 
                     if (softLock.isExpired()) {
-                        underlyingStore.replace(oldElement, softLock.getOldElement());
+                        underlyingStore.replace(oldElement, softLock.getOldElement(), elementComparer);
                         // expired soft lock cleaned up or not, restart.
                         LOG.debug("remove: cache [{}] key [{}] guarded by expired soft lock, cleaned up soft lock", cacheName, key);
                         continue;
@@ -245,7 +250,7 @@ public class LocalTransactionStore extends AbstractStore {
                     SoftLock softLock = softLockFactory.createSoftLock(getCurrentTransactionContext().getTransactionId(), key, null, oldElement);
                     softLock.lock();
                     Element newElement = createElement(key, softLock);
-                    boolean replaced = underlyingStore.replace(oldElement, newElement);
+                    boolean replaced = underlyingStore.replace(oldElement, newElement, elementComparer);
                     if (replaced) {
                         // CAS succeeded, value replaced with soft lock, job done.
                         getCurrentTransactionContext().registerSoftLock(cacheName, this, softLock);
@@ -331,6 +336,10 @@ public class LocalTransactionStore extends AbstractStore {
 
     public boolean replace(Element old, Element element) throws NullPointerException, IllegalArgumentException {
         return underlyingStore.replace(old, element);
+    }
+
+    public boolean replace(Element old, Element element, ElementComparer comparer) throws NullPointerException, IllegalArgumentException {
+        return underlyingStore.replace(old, element, comparer);
     }
 
     public Element replace(Element element) throws NullPointerException {

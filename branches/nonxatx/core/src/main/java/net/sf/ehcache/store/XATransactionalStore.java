@@ -465,6 +465,21 @@ public class XATransactionalStore extends AbstractStore {
     /**
      * {@inheritDoc}
      */
+    public boolean replace(Element old, Element element, ElementComparer comparer) throws NullPointerException, IllegalArgumentException {
+        TransactionContext context = getOrCreateTransactionContext();
+        Element previous = getCurrentElement(element.getKey(), context);
+
+        boolean replaced = false;
+        if (previous != null && previous.getValue().equals(old.getValue())) {
+            context.addCommand(new StoreReplaceElementCommand(old, element, comparer), element);
+            replaced = true;
+        }
+        return replaced;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     public Element replace(Element element) throws NullPointerException {
         TransactionContext context = getOrCreateTransactionContext();
         Element previous = getCurrentElement(element.getKey(), context);

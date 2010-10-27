@@ -5,6 +5,7 @@ import net.sf.ehcache.Element;
 import net.sf.ehcache.Status;
 import net.sf.ehcache.TransactionController;
 import net.sf.ehcache.store.AbstractStore;
+import net.sf.ehcache.store.ElementComparer;
 import net.sf.ehcache.store.Policy;
 import net.sf.ehcache.transaction.manager.TransactionManagerLookup;
 import net.sf.ehcache.writer.CacheWriterManager;
@@ -110,6 +111,11 @@ public class JtaLocalTransactionStore extends AbstractStore {
     public boolean replace(Element old, Element element) throws NullPointerException, IllegalArgumentException {
         registerInJtaContext();
         return transactionalStore.replace(old, element);
+    }
+
+    public boolean replace(Element old, Element element, ElementComparer comparer) throws NullPointerException, IllegalArgumentException {
+        registerInJtaContext();
+        return transactionalStore.replace(old, element, comparer);
     }
 
     public Element replace(Element element) throws NullPointerException {

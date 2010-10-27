@@ -50,6 +50,7 @@ public class TransactionContext {
         softLocks.add(softLock);
     }
 
+    //todo this method isn't needed if there is no copy on read/write in the underlying store
     public void updateSoftLock(String cacheName, SoftLock softLock) {
         List<SoftLock> softLocks = softLockMap.get(cacheName);
         softLocks.remove(softLock);

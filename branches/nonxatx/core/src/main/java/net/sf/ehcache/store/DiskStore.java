@@ -1545,6 +1545,13 @@ public class DiskStore extends AbstractStore implements CacheConfigurationListen
     /**
      * Unsupported in DiskStore
      */
+    public boolean replace(Element old, Element element, ElementComparer comparer) throws NullPointerException, IllegalArgumentException {
+        throw new UnsupportedOperationException();
+    }
+
+    /**
+     * Unsupported in DiskStore
+     */
     public Element replace(Element element) throws NullPointerException {
         throw new UnsupportedOperationException();
     }

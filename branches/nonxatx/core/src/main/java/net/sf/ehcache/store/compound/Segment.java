@@ -25,6 +25,7 @@ import java.util.NoSuchElementException;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import net.sf.ehcache.Element;
+import net.sf.ehcache.store.ElementComparer;
 import net.sf.ehcache.util.VmUtils;
 
 /**
@@ -338,6 +339,44 @@ class Segment extends ReentrantReadWriteLock {
             }
         }
     }
+
+    public boolean replace(Object key, int hash, Element oldElement, Element newElement, ElementComparer comparer) {
+                boolean installed = false;
+        Object encoded = create(key, newElement);
+
+        writeLock().lock();
+        try {
+            HashEntry e = getFirst(hash);
+            while (e != null && (e.hash != hash || !key.equals(e.key))) {
+                e = e.next;
+            }
+
+            boolean replaced = false;
+            if (e != null && comparer.fullElementEquals(oldElement, decode(e.key, e.getElement()))) {
+                replaced = true;
+                /*
+                 * make sure we re-get from the HashEntry - since the decode in the conditional
+                 * may have faulted in a different type - we must make sure we know what type
+                 * to do the increment/decrement on.
+                 */
+                Object old = e.getElement();
+                e.setElement(encoded);
+                installed = true;
+                free(old);
+            } else {
+                free(encoded);
+            }
+            return replaced;
+        } finally {
+            writeLock().unlock();
+
+            if ((installed && encoded instanceof ElementSubstitute)) {
+                ((ElementSubstitute) encoded).installed();
+            }
+        }
+    }
+
+
 
     private Object create(final Object key, final Element newElement) {
         return primaryFactory.create(key, potentiallyCopy(newElement, copyOnWrite));

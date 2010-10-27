@@ -501,6 +501,26 @@ public class LegacyStoreWrapper extends AbstractStore {
     /**
      * {@inheritDoc}
      */
+    public boolean replace(Element old, Element element, ElementComparer comparer) throws NullPointerException, IllegalArgumentException {
+        Sync lock = sync.getSyncForKey(old.getObjectKey());
+
+        lock.lock(LockType.WRITE);
+        try {
+            Element current = getQuiet(old.getObjectKey());
+            if (comparer.fullElementEquals(old, current)) {
+                put(element);
+                return true;
+            } else {
+                return false;
+            }
+        } finally {
+            lock.unlock(LockType.WRITE);
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     public Element replace(Element element) throws NullPointerException {
         Sync lock = sync.getSyncForKey(element.getObjectKey());
         

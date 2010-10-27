@@ -617,6 +617,13 @@ public class LruMemoryStore extends AbstractStore {
     /**
      * Unsupported in LruMemoryStore
      */
+    public boolean replace(Element old, Element element, ElementComparer comparer) throws NullPointerException, IllegalArgumentException {
+        throw new UnsupportedOperationException();
+    }
+
+    /**
+     * Unsupported in LruMemoryStore
+     */
     public Element replace(Element element) throws NullPointerException {
         throw new UnsupportedOperationException();
     }

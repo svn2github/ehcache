@@ -767,6 +767,13 @@ public class MemoryStore extends AbstractStore implements CacheConfigurationList
     /**
      * Unsupported in MemoryStore
      */
+    public boolean replace(Element old, Element element, ElementComparer comparer) throws NullPointerException, IllegalArgumentException {
+        throw new UnsupportedOperationException();
+    }
+
+    /**
+     * Unsupported in MemoryStore
+     */
     public Element replace(Element element) throws NullPointerException {
         throw new UnsupportedOperationException();
     }

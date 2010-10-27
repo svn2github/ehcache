@@ -140,6 +140,8 @@ public interface Store {
      */
     boolean replace(Element old, Element element) throws NullPointerException, IllegalArgumentException;
 
+    boolean replace(Element old, Element element, ElementComparer comparer) throws NullPointerException, IllegalArgumentException;
+
     /**
      * Replace the cached element only if an Element is currently cached for this key
      * @param element Element to be cached
