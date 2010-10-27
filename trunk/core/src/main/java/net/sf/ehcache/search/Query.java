@@ -88,9 +88,6 @@ public interface Query {
      * <p/>
      * If an aggregator is specified, then neither {@link #includeKeys()} or {@link #includeValues()} can
      * be used.
-     * <p/>
-     * Ehcache standalone supports user-defined aggregators. Terracotta clustered, which executes on the
-     * Terracotta server only supports predefined aggregators in the {@link net.sf.ehcache.search.aggregator} package.
      *
      * @param aggregator
      * @param attribute

@@ -42,7 +42,7 @@ Search
     
 **  Attribute Extractors  
   
-    Attributes are extracted from keys or values. This is done on <<<put()>>> or <<<update()>>> into the cache
+    Attributes are extracted from keys or values. This is done on <<<put()>>> into the cache
     using <<<AttributeExtractor>>>s.
 
     Extracted attributes must be one of the following types:
@@ -145,6 +145,10 @@ Search
   They are populated by extraction from an Element's value using <<<net.sf.ehcache.search.attribute.AttributeExtractor>>>.
 
 
+
+
+
+
 ** Search Results
 
   Queries return a <<<Results>>> object which contain objects of class <<<Result>>>.
@@ -162,6 +166,15 @@ Search
 
    *    an Aggregate function
 
+
+**  Aggregators
+
+    One or more <<<Aggregator>>>s can be computed on a query result.
+
+    Aggregators are added with <<<query.includeAggregator(Aggregator aggregator, Attribute<?> attribute)>>>.
+
+    Because the state of the cache can change between search executions it is recommended to add all of the Aggregators you want
+    for a query at once. Execution is also more efficient.
 
 **   Limiting the size of Results
 
