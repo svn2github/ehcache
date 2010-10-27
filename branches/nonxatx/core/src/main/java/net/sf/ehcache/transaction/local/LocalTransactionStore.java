@@ -88,7 +88,7 @@ public class LocalTransactionStore extends AbstractStore {
                     if (softLock.isExpired()) {
                         underlyingStore.replace(oldElement, softLock.getOldElement());
                         // expired soft lock cleaned up or not, restart.
-                        LOG.debug("remove: cache [{}] key [{}] guarded by expired soft lock, cleaned up soft lock", cacheName, key);
+                        LOG.debug("put: cache [{}] key [{}] guarded by expired soft lock, cleaned up soft lock", cacheName, key);
                         continue;
                     }
 
@@ -129,7 +129,7 @@ public class LocalTransactionStore extends AbstractStore {
                     } else {
                         // CAS failed, something else with that key is now in store or the key disappeared, restart.
                         softLock.unlock();
-                        LOG.debug("put: cache [{}] key [{}] was in, soft lock insertion failed, retrying...", cacheName, key);
+                        LOG.debug("put: cache [{}] key [{}] was in, replacement by soft lock failed, retrying... ", cacheName, key);
                         continue;
                     }
                 }
@@ -244,7 +244,7 @@ public class LocalTransactionStore extends AbstractStore {
                     } else {
                         // CAS failed, something else with that key is now in store or the key disappeared, restart.
                         softLock.unlock();
-                        LOG.debug("remove: cache [{}] key [{}] was in, soft lock insertion failed, retrying...", cacheName, key);
+                        LOG.debug("remove: cache [{}] key [{}] was in, replacement by soft lock failed, retrying...", cacheName, key);
                         continue;
                     }
                 }
