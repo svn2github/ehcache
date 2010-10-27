@@ -120,15 +120,8 @@ public class TransactionContext {
 
         try {
             fireBeforeCommitEvent();
-
             LOG.debug("{} cache(s) participated in transaction", softLockMap.keySet().size());
-            for (Map.Entry<String, List<SoftLock>> stringListEntry : softLockMap.entrySet()) {
-                List<SoftLock> softLocks = stringListEntry.getValue();
-
-                for (SoftLock softLock : softLocks) {
-                    softLock.freeze();
-                }
-            }
+            freeze();
 
             for (Map.Entry<String, List<SoftLock>> stringListEntry : softLockMap.entrySet()) {
                 String cacheName = stringListEntry.getKey();
@@ -137,16 +130,8 @@ public class TransactionContext {
 
                 store.commit(softLocks);
             }
-
-            for (Map.Entry<String, List<SoftLock>> stringListEntry : softLockMap.entrySet()) {
-                List<SoftLock> softLocks = stringListEntry.getValue();
-
-                for (SoftLock softLock : softLocks) {
-                    softLock.unlock();
-                    softLock.unfreeze();
-                }
-            }
         } finally {
+            unfreeze();
             softLockMap.clear();
             storeMap.clear();
             fireAfterCommitEvent();
@@ -156,13 +141,7 @@ public class TransactionContext {
     public void rollback() {
         try {
             LOG.debug("{} cache(s) participated in transaction", softLockMap.keySet().size());
-            for (Map.Entry<String, List<SoftLock>> stringListEntry : softLockMap.entrySet()) {
-                List<SoftLock> softLocks = stringListEntry.getValue();
-
-                for (SoftLock softLock : softLocks) {
-                    softLock.freeze();
-                }
-            }
+            freeze();
 
             for (Map.Entry<String, List<SoftLock>> stringListEntry : softLockMap.entrySet()) {
                 String cacheName = stringListEntry.getKey();
@@ -171,16 +150,8 @@ public class TransactionContext {
 
                 store.rollback(softLocks);
             }
-
-            for (Map.Entry<String, List<SoftLock>> stringListEntry : softLockMap.entrySet()) {
-                List<SoftLock> softLocks = stringListEntry.getValue();
-
-                for (SoftLock softLock : softLocks) {
-                    softLock.unlock();
-                    softLock.unfreeze();
-                }
-            }
         } finally {
+            unfreeze();
             softLockMap.clear();
             storeMap.clear();
             fireAfterRollbackEvent();
@@ -211,7 +182,28 @@ public class TransactionContext {
         for (TransactionListener listener : listeners) {
             listener.afterRollback();
         }
-    }    
+    }
+
+    private void unfreeze() {
+        for (Map.Entry<String, List<SoftLock>> stringListEntry : softLockMap.entrySet()) {
+            List<SoftLock> softLocks = stringListEntry.getValue();
+
+            for (SoftLock softLock : softLocks) {
+                softLock.unlock();
+                softLock.unfreeze();
+            }
+        }
+    }
+
+    private void freeze() {
+        for (Map.Entry<String, List<SoftLock>> stringListEntry : softLockMap.entrySet()) {
+            List<SoftLock> softLocks = stringListEntry.getValue();
+
+            for (SoftLock softLock : softLocks) {
+                softLock.freeze();
+            }
+        }
+    }
 
     @Override
     public int hashCode() {
