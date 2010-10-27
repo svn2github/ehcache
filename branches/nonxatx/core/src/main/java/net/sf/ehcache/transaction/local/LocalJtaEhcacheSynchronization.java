@@ -34,6 +34,6 @@ public class LocalJtaEhcacheSynchronization implements Synchronization {
     public String toString() {
         TransactionContext currentTransactionContext = transactionController.getCurrentTransactionContext();
         TransactionID transactionId = currentTransactionContext == null ? null : currentTransactionContext.getTransactionId();
-        return "NonXaEhcacheSynchronization of transaction [" + transactionId + "]";
+        return "LocalJtaEhcacheSynchronization of transaction [" + transactionId + "]";
     }
 }
