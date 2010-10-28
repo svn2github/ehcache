@@ -55,6 +55,12 @@ public class LocalTransactionStore extends AbstractStore {
         return currentTransactionContext;
     }
 
+    private void assertNotTimedOut() {
+        if (getCurrentTransactionContext().timedOut()) {
+            throw new TransactionTimeoutException("transaction [" + getCurrentTransactionContext().getTransactionId() + "] timed out");
+        }
+    }
+
     private long timeBeforeTimeout() {
         return Math.max(0, getCurrentTransactionContext().getExpirationTimestamp() - System.currentTimeMillis());
     }
@@ -74,6 +80,8 @@ public class LocalTransactionStore extends AbstractStore {
     public boolean put(Element element) throws CacheException {
         element = copyElement(element);
         while (true) {
+            assertNotTimedOut();
+
             Object key = element.getObjectKey();
             Element oldElement = underlyingStore.getQuiet(key);
 
@@ -153,6 +161,8 @@ public class LocalTransactionStore extends AbstractStore {
     }
 
     public Element getQuiet(Object key) {
+        assertNotTimedOut();
+
         Element oldElement = underlyingStore.getQuiet(key);
         if (oldElement == null) {
             LOG.debug("getQuiet: cache [{}] key [{}] is not present", cacheName, key);
@@ -171,6 +181,8 @@ public class LocalTransactionStore extends AbstractStore {
     }
 
     public Element get(Object key) {
+        assertNotTimedOut();
+
         Element oldElement = underlyingStore.get(key);
         if (oldElement == null) {
             LOG.debug("get: cache [{}] key [{}] is not present", cacheName, key);
@@ -190,6 +202,8 @@ public class LocalTransactionStore extends AbstractStore {
 
     public Element remove(Object key) {
         while (true) {
+            assertNotTimedOut();
+
             Element oldElement = underlyingStore.getQuiet(key);
 
             if (oldElement == null) {
@@ -269,6 +283,8 @@ public class LocalTransactionStore extends AbstractStore {
     }
 
     public List getKeys() {
+        assertNotTimedOut();
+
         Set<Object> keys = new LargeSet<Object>() {
             @Override
             public int sourceSize() {
@@ -295,6 +311,8 @@ public class LocalTransactionStore extends AbstractStore {
     }
 
     public int getSize() {
+        assertNotTimedOut();
+
         //todo the following is specific to read-committed isolation
         int sizeModifier = 0;
         sizeModifier -= softLockFactory.getNewKeys().size();
@@ -304,14 +322,20 @@ public class LocalTransactionStore extends AbstractStore {
     }
 
     public int getTerracottaClusteredSize() {
+        assertNotTimedOut();
+
         return getSize();
     }
 
     public boolean containsKey(Object key) {
+        assertNotTimedOut();
+
         return getKeys().contains(key);
     }
 
     public void removeAll() throws CacheException {
+        assertNotTimedOut();
+
         List keys = getKeys();
         for (Object key : keys) {
             remove(key);

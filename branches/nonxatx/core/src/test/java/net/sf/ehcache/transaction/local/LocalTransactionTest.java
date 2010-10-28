@@ -1,6 +1,7 @@
 package net.sf.ehcache.transaction.local;
 
 import junit.framework.TestCase;
+import net.sf.ehcache.CacheException;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
@@ -23,6 +24,7 @@ public class LocalTransactionTest extends TestCase {
     protected void setUp() throws Exception {
         cacheManager = new CacheManager(LocalTransactionTest.class.getResourceAsStream("/ehcache-tx-local.xml"));
         transactionController = cacheManager.getTransactionController();
+        transactionController.setDefaultTransactionTimeout(15);
         transactionController.begin();
         cache1 = cacheManager.getEhcache("txCache1");
         cache1.removeAll();
@@ -34,6 +36,80 @@ public class LocalTransactionTest extends TestCase {
     @Override
     protected void tearDown() throws Exception {
         cacheManager.shutdown();
+    }
+
+    public void testTimeout() throws Exception {
+        transactionController.setDefaultTransactionTimeout(1);
+        transactionController.begin();
+        
+        cache1.put(new Element(1, "one"));
+
+        Thread.sleep(1500);
+
+        try {
+            cache1.get(1);
+            fail("expected TransactionTimeoutException");
+        } catch (TransactionTimeoutException e) {
+            // expected
+        }
+
+        try {
+            cache1.getQuiet(1);
+            fail("expected TransactionTimeoutException");
+        } catch (TransactionTimeoutException e) {
+            // expected
+        }
+
+        try {
+            cache1.getKeys();
+            fail("expected TransactionTimeoutException");
+        } catch (TransactionTimeoutException e) {
+            // expected
+        }
+
+        try {
+            cache1.getSize();
+            fail("expected TransactionTimeoutException");
+        } catch (TransactionTimeoutException e) {
+            // expected
+        }
+
+        try {
+            cache1.removeAll();
+            fail("expected TransactionTimeoutException");
+        } catch (TransactionTimeoutException e) {
+            // expected
+        }
+
+        try {
+            cache1.put(new Element(2, "two"));
+            fail("expected TransactionTimeoutException");
+        } catch (TransactionTimeoutException e) {
+            // expected
+        }
+
+        try {
+            cache1.remove(1);
+            fail("expected TransactionTimeoutException");
+        } catch (TransactionTimeoutException e) {
+            // expected
+        }
+
+        transactionController.rollback();
+    }
+
+    public void testDefaultTimeout() throws Exception {
+        transactionController.setDefaultTransactionTimeout(1);
+        transactionController.begin();
+        
+        Thread.sleep(1500);
+
+        try {
+            transactionController.commit();
+            fail("expected TransactionTimeoutException");
+        } catch (TransactionTimeoutException e) {
+            // expected
+        }
     }
 
     public void testCopyOnRead() throws Exception {
