@@ -163,7 +163,7 @@ public class LocalTransactionStore extends AbstractStore {
         if (value instanceof SoftLock) {
             SoftLock softLock = (SoftLock) value;
             LOG.debug("getQuiet: cache [{}] key [{}] soft locked, returning soft locked element", cacheName, key);
-            return copyElement(softLock.getElement());
+            return copyElement(softLock.getElement(getCurrentTransactionContext().getTransactionId()));
         } else {
             LOG.debug("getQuiet: cache [{}] key [{}] not soft locked, returning underlying element", cacheName, key);
             return copyElement(oldElement);
@@ -181,7 +181,7 @@ public class LocalTransactionStore extends AbstractStore {
         if (value instanceof SoftLock) {
             SoftLock softLock = (SoftLock) value;
             LOG.debug("get: cache [{}] key [{}] soft locked, returning soft locked element", cacheName, key);
-            return copyElement(softLock.getElement());
+            return copyElement(softLock.getElement(getCurrentTransactionContext().getTransactionId()));
         } else {
             LOG.debug("get: cache [{}] key [{}] not soft locked, returning underlying element", cacheName, key);
             return copyElement(oldElement);

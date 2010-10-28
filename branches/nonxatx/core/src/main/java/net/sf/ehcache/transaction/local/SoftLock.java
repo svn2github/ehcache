@@ -10,7 +10,7 @@ public interface SoftLock {
 
     Object getKey();
 
-    Element getElement();
+    Element getElement(TransactionID currentTransactionId);
 
     Element getOldElement();
 

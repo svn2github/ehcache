@@ -30,10 +30,14 @@ public class ReadCommittedSoftLockImpl implements SoftLock {
         return key;
     }
 
-    public Element getElement() {
+    public Element getElement(TransactionID currentTransactionId) {
         freezeLock.lock();
         try {
-            return newElement;
+            if (transactionID.equals(currentTransactionId)) {
+                return newElement;
+            } else {
+                return oldElement;
+            }
         } finally {
             freezeLock.unlock();
         }
