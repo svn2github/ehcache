@@ -25,12 +25,22 @@ public final class TransactionController {
     private final ConcurrentMap<TransactionID, TransactionContext> contextMap = new ConcurrentHashMap<TransactionID, TransactionContext>();
     private final TransactionIDFactory transactionIDFactory;
 
-    protected TransactionController(TransactionIDFactory transactionIDFactory) {
+    private volatile int defaultTransactionTimeout = DEFAULT_TRANSACTION_TIMEOUT;
+
+    TransactionController(TransactionIDFactory transactionIDFactory) {
         this.transactionIDFactory = transactionIDFactory;
     }
 
+    public int getDefaultTransactionTimeout() {
+        return defaultTransactionTimeout;
+    }
+
+    public void setDefaultTransactionTimeout(int defaultTransactionTimeout) {
+        this.defaultTransactionTimeout = defaultTransactionTimeout;
+    }
+
     public void begin() {
-        begin(DEFAULT_TRANSACTION_TIMEOUT);
+        begin(defaultTransactionTimeout);
     }
 
     public void begin(int transactionTimeout) {
