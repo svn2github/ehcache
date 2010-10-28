@@ -16,6 +16,7 @@ public class ReadCommittedSoftLockImpl implements SoftLock {
     private final Element oldElement;
     private final ReentrantLock lock;
     private final ReentrantLock freezeLock;
+    private volatile boolean commit;
 
     ReadCommittedSoftLockImpl(TransactionID transactionID, Object key, Element newElement, Element oldElement) {
         this.transactionID = transactionID;
@@ -75,11 +76,20 @@ public class ReadCommittedSoftLockImpl implements SoftLock {
         return lock.isLocked();
     }
 
-    public void freeze() {
+    public void freeze(boolean commit) {
         if (!isLocked()) {
             throw new IllegalStateException("cannot freeze an unlocked soft lock");
         }
+        this.commit = commit;
         freezeLock.lock();
+    }
+
+    public Element getFrozenElement() {
+        if (commit) {
+            return getNewElement();
+        } else {
+            return getOldElement();
+        }
     }
 
     public void unfreeze() {

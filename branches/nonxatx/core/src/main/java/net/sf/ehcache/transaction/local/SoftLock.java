@@ -28,7 +28,9 @@ public interface SoftLock {
 
     boolean isLocked();
 
-    void freeze();
+    void freeze(boolean commit);
+
+    Element getFrozenElement();
 
     void unfreeze();
 

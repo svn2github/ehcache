@@ -121,7 +121,7 @@ public class TransactionContext {
         try {
             fireBeforeCommitEvent();
             LOG.debug("{} cache(s) participated in transaction", softLockMap.keySet().size());
-            freeze();
+            freeze(true);
 
             for (Map.Entry<String, List<SoftLock>> stringListEntry : softLockMap.entrySet()) {
                 String cacheName = stringListEntry.getKey();
@@ -141,7 +141,7 @@ public class TransactionContext {
     public void rollback() {
         try {
             LOG.debug("{} cache(s) participated in transaction", softLockMap.keySet().size());
-            freeze();
+            freeze(false);
 
             for (Map.Entry<String, List<SoftLock>> stringListEntry : softLockMap.entrySet()) {
                 String cacheName = stringListEntry.getKey();
@@ -195,12 +195,12 @@ public class TransactionContext {
         }
     }
 
-    private void freeze() {
+    private void freeze(boolean commit) {
         for (Map.Entry<String, List<SoftLock>> stringListEntry : softLockMap.entrySet()) {
             List<SoftLock> softLocks = stringListEntry.getValue();
 
             for (SoftLock softLock : softLocks) {
-                softLock.freeze();
+                softLock.freeze(commit);
             }
         }
     }

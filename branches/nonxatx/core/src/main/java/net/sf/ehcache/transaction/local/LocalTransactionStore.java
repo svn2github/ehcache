@@ -107,7 +107,7 @@ public class LocalTransactionStore extends AbstractStore {
                     SoftLock softLock = (SoftLock) value;
 
                     if (softLock.isExpired()) {
-                        underlyingStore.replace(oldElement, softLock.getOldElement(), elementComparer);
+                        underlyingStore.replace(oldElement, softLock.getFrozenElement(), elementComparer);
                         // expired soft lock cleaned up or not, restart.
                         LOG.debug("put: cache [{}] key [{}] guarded by expired soft lock, cleaned up soft lock", cacheName, key);
                         continue;
@@ -228,7 +228,7 @@ public class LocalTransactionStore extends AbstractStore {
                     SoftLock softLock = (SoftLock) value;
 
                     if (softLock.isExpired()) {
-                        underlyingStore.replace(oldElement, softLock.getOldElement(), elementComparer);
+                        underlyingStore.replace(oldElement, softLock.getFrozenElement(), elementComparer);
                         // expired soft lock cleaned up or not, restart.
                         LOG.debug("remove: cache [{}] key [{}] guarded by expired soft lock, cleaned up soft lock", cacheName, key);
                         continue;
