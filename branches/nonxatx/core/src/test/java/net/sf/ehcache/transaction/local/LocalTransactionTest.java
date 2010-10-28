@@ -44,8 +44,7 @@ public class LocalTransactionTest extends TestCase {
         Element one = cache1.get(1);
         Object getValue = one.getObjectValue();
 
-        assertFalse(putValue.hashCode() == getValue.hashCode());
-        assertFalse(putValue.equals(getValue));
+        assertFalse(putValue == getValue);
         transactionController.commit();
     }
 
@@ -58,7 +57,7 @@ public class LocalTransactionTest extends TestCase {
         Element one = cache1.get(1);
         Object[] getValue = (Object[]) one.getObjectValue();
 
-        assertEquals(putValue[0], getValue[0]);
+        assertEquals("one#1", getValue[0]);
         transactionController.commit();
     }
 
@@ -163,12 +162,12 @@ public class LocalTransactionTest extends TestCase {
 
                 try {
                     cache1.remove(1);
-                    fail("expected TransactionException");
-                } catch (TransactionException e) {
+                    fail("expected DeadLockException");
+                } catch (DeadLockException e) {
                     // expected
                 }
 
-                transactionController.commit();
+                transactionController.rollback();
             }
         };
         tx2.start();

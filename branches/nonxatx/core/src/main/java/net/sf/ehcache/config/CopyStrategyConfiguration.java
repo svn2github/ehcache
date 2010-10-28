@@ -44,7 +44,7 @@ public class CopyStrategyConfiguration {
         this.className = className;
     }
 
-    public void setCopyStrategyInstance(CopyStrategy copyStrategy) {
+    public synchronized void setCopyStrategyInstance(CopyStrategy copyStrategy) {
         this.strategy = copyStrategy;
     }
 
@@ -71,6 +71,12 @@ public class CopyStrategyConfiguration {
             }
         }
         return strategy;
+    }
+
+    protected CopyStrategyConfiguration copy() {
+        CopyStrategyConfiguration clone = new CopyStrategyConfiguration();
+        clone.setClass(getClassName());
+        return clone;
     }
 
     /**

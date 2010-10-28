@@ -328,7 +328,7 @@ public class CacheConfiguration implements Cloneable {
     private volatile boolean frozen;
     private TransactionalMode transactionalMode = DEFAULT_TRANSACTIONAL_MODE;
     private volatile boolean statistics = DEFAULT_STATISTICS;
-    private volatile CopyStrategyConfiguration copyStrategyConfiguration = DEFAULT_COPY_STRATEGY_CONFIGURATION;
+    private volatile CopyStrategyConfiguration copyStrategyConfiguration = DEFAULT_COPY_STRATEGY_CONFIGURATION.copy();
     private volatile Boolean copyOnRead;
     private volatile Boolean copyOnWrite;
     private Object defaultTransactionManager;
