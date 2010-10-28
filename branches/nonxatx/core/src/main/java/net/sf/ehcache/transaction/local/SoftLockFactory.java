@@ -12,8 +12,10 @@ public interface SoftLockFactory {
 
     SoftLock createSoftLock(TransactionID transactionID, Object key, Element newElement, Element oldElement);
 
-    Set<Object> getNewKeys();
+    void clearKey(Object key);
 
-    void clearNewKey(Object key);
+    Set<Object> getKeysToRemove(TransactionContext transactionContext, String cacheName);
+
+    Set<Object> getKeysToAdd(TransactionContext transactionContext, String cacheName);
 
 }

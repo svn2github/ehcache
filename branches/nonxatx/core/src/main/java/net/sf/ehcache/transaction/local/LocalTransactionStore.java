@@ -16,7 +16,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
@@ -299,13 +298,8 @@ public class LocalTransactionStore extends AbstractStore {
             }
         };
 
-        //todo the following is specific to read-committed isolation
-        Set<Object> foreignTransactionNewKeys = new HashSet<Object>();
-        foreignTransactionNewKeys.addAll(softLockFactory.getNewKeys());
-        foreignTransactionNewKeys.removeAll(getCurrentTransactionContext().getNewKeys(cacheName));
-
-        keys.removeAll(getCurrentTransactionContext().getRemovedKeys(cacheName));
-        keys.removeAll(foreignTransactionNewKeys);
+        keys.removeAll(softLockFactory.getKeysToRemove(getCurrentTransactionContext(), cacheName));
+        keys.addAll(softLockFactory.getKeysToAdd(getCurrentTransactionContext(), cacheName));
 
         return new SetWrapperList(keys);
     }
@@ -313,11 +307,9 @@ public class LocalTransactionStore extends AbstractStore {
     public int getSize() {
         assertNotTimedOut();
 
-        //todo the following is specific to read-committed isolation
         int sizeModifier = 0;
-        sizeModifier -= softLockFactory.getNewKeys().size();
-        sizeModifier += getCurrentTransactionContext().getNewKeys(cacheName).size();
-        sizeModifier -= getCurrentTransactionContext().getRemovedKeys(cacheName).size();
+        sizeModifier -= softLockFactory.getKeysToRemove(getCurrentTransactionContext(), cacheName).size();
+        sizeModifier += softLockFactory.getKeysToAdd(getCurrentTransactionContext(), cacheName).size();
         return underlyingStore.getSize() + sizeModifier;
     }
 
@@ -465,9 +457,7 @@ public class LocalTransactionStore extends AbstractStore {
                 underlyingStore.remove(softLock.getKey());
             }
 
-            if (softLock.getOldElement() == null) {
-                softLockFactory.clearNewKey(softLock.getKey());
-            }
+            softLockFactory.clearKey(softLock.getKey());
         }
     }
 
@@ -480,9 +470,7 @@ public class LocalTransactionStore extends AbstractStore {
                 underlyingStore.remove(softLock.getKey());
             }
 
-            if (softLock.getOldElement() == null) {
-                softLockFactory.clearNewKey(softLock.getKey());
-            }
+            softLockFactory.clearKey(softLock.getKey());
         }
     }
     

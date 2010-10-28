@@ -1558,7 +1558,7 @@ public class CacheManager {
         } else {
             softLockFactory = softLockFactories.get(cache.getName());
             if (softLockFactory == null) {
-                softLockFactory = new SoftLockFactoryImpl();
+                softLockFactory = new ReadCommittedSoftLockFactoryImpl();
                 SoftLockFactory old = softLockFactories.putIfAbsent(cache.getName(), softLockFactory);
                 if (old != null) {
                     softLockFactory = old;
