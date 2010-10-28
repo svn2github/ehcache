@@ -311,6 +311,12 @@ public class LocalTransactionStore extends AbstractStore {
         return getKeys().contains(key);
     }
 
+    public void removeAll() throws CacheException {
+        List keys = getKeys();
+        for (Object key : keys) {
+            remove(key);
+        }
+    }
 
     // todo rework all these transactional methods
 
@@ -320,10 +326,6 @@ public class LocalTransactionStore extends AbstractStore {
 
     public Element removeWithWriter(Object key, CacheWriterManager writerManager) throws CacheException {
         return underlyingStore.removeWithWriter(key, writerManager);
-    }
-
-    public void removeAll() throws CacheException {
-        underlyingStore.removeAll();
     }
 
     public Element putIfAbsent(Element element) throws NullPointerException {
