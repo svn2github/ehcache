@@ -16,8 +16,6 @@
 
      * GenericJNDI (e.g. Glassfish, JBoss, Weblogic, JTOM and any others that register themselves in JNDI at the standard location of java:/TransactionManager
 
-     * Websphere
-
      * Bitronix
 
      * Atomikos
@@ -356,3 +354,10 @@
 *** Sample Code
 
     Same as XA.
+
+
+*   FAQ
+
+**  Is IBM Websphere Transaction Manager supported
+
+    Not at this time.
