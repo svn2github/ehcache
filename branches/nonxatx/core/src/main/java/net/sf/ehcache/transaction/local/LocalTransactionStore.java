@@ -318,34 +318,34 @@ public class LocalTransactionStore extends AbstractStore {
         }
     }
 
-    // todo rework all these transactional methods
+    // todo implement all these transactional methods
 
     public boolean putWithWriter(Element element, CacheWriterManager writerManager) throws CacheException {
-        return underlyingStore.putWithWriter(element, writerManager);
+        throw new UnsupportedOperationException("not yet implemented");
     }
 
     public Element removeWithWriter(Object key, CacheWriterManager writerManager) throws CacheException {
-        return underlyingStore.removeWithWriter(key, writerManager);
+        throw new UnsupportedOperationException("not yet implemented");
     }
 
     public Element putIfAbsent(Element element) throws NullPointerException {
-        return underlyingStore.putIfAbsent(element);
+        throw new UnsupportedOperationException("not yet implemented");
     }
 
     public Element removeElement(Element element) throws NullPointerException {
-        return underlyingStore.removeElement(element);
+        throw new UnsupportedOperationException("not yet implemented");
     }
 
     public boolean replace(Element old, Element element) throws NullPointerException, IllegalArgumentException {
-        return underlyingStore.replace(old, element);
+        throw new UnsupportedOperationException("not yet implemented");
     }
 
     public boolean replace(Element old, Element element, ElementComparer comparer) throws NullPointerException, IllegalArgumentException {
-        return underlyingStore.replace(old, element, comparer);
+        throw new UnsupportedOperationException("not yet implemented");
     }
 
     public Element replace(Element element) throws NullPointerException {
-        return underlyingStore.replace(element);
+        throw new UnsupportedOperationException("not yet implemented");
     }
 
     /* non-transactional methods */
