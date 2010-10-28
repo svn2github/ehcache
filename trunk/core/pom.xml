@@ -139,6 +139,7 @@
             <groupId>org.beanshell</groupId>
             <artifactId>bsh</artifactId>
             <version>1.3.0</version>
+            <scope>test</scope>
         </dependency>
         <!--Required for site generation-->
         <!--<dependency>-->
