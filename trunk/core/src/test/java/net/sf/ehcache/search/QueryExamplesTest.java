@@ -1,27 +1,32 @@
 package net.sf.ehcache.search;
 
-import static net.sf.ehcache.search.expression.Logic.and;
-import static net.sf.ehcache.search.expression.Logic.or;
-
-import java.util.List;
-
+import bsh.EvalError;
+import bsh.Interpreter;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;
+import net.sf.ehcache.config.SearchAttribute;
 import net.sf.ehcache.search.aggregator.Aggregator;
 import net.sf.ehcache.search.aggregator.Count;
 import net.sf.ehcache.search.aggregator.Sum;
 import net.sf.ehcache.search.expression.And;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.List;
+import java.util.Map;
+
+import static net.sf.ehcache.search.expression.Logic.and;
+import static net.sf.ehcache.search.expression.Logic.or;
+import static org.junit.Assert.assertTrue;
+
+
 /**
  * This class was used to develop the API and now that the code has been written it has been made an
  * executable test.
- * 
+ *
  * @author teck
  * @author Greg Luck
  */
@@ -53,7 +58,7 @@ public class QueryExamplesTest {
 
         Attribute<Integer> age = cache.getSearchAttribute("age");
         Attribute<String> gender = cache.getSearchAttribute("gender");
-        Attribute<String> attr3 = cache.getSearchAttribute("name");
+        Attribute<String> name = cache.getSearchAttribute("name");
 
         Query query;
         Results results;
@@ -123,4 +128,95 @@ public class QueryExamplesTest {
         query = cache.createQuery().includeKeys().add(or(age.eq(13), and(age.eq(12), gender.eq("timmy"))))
                 .addOrder(age, Direction.ASCENDING).addOrder(gender, Direction.DESCENDING).maxResults(10).end();
     }
+
+
+    /**
+     * Show how to execute a query in beanshell
+     */
+    @Test
+    public void testBasicBeanShellQuery() throws EvalError {
+
+        Interpreter i = new Interpreter();
+        Query query = cache.createQuery().includeKeys();
+
+        Attribute<Integer> age = cache.getSearchAttribute("age");
+
+        i.set("query", query);
+        Results results = null;
+        i.set("results", results);
+        i.set("age", age);
+
+        i.eval("results = query.add(age.eq(35)).execute()");
+        results = (Results) i.get("results");
+        assertTrue(2 == results.size());
+        for (Result result : results.all()) {
+            LOG.info("" + result.getKey());
+        }
+    }
+
+    /**
+     * Show how to execute a query in beanshell
+     */
+    @Test
+    public void testInjectedStringBeanShellQuery() throws EvalError {
+
+        Interpreter i = new Interpreter();
+        Query query = cache.createQuery().includeKeys();
+
+        Attribute<Integer> age = cache.getSearchAttribute("age");
+
+        i.set("query", query);
+        Results results = null;
+        i.set("results", results);
+        i.set("age", age);
+
+        String userDefinedQuery = "age.eq(35)";
+        String fullQueryString = "results = query.add(" + userDefinedQuery + ").execute()";
+
+        i.eval(fullQueryString);
+        results = (Results) i.get("results");
+        assertTrue(2 == results.size());
+        for (Result result : results.all()) {
+            LOG.info("" + result.getKey());
+        }
+    }
+
+
+    /**
+     * Show how to execute a query in beanshell using autodiscovered attributes
+     */
+    @Test
+    public void testAutoDiscoveredAttributesBeanShellQuery() throws EvalError {
+
+        Interpreter i = new Interpreter();
+
+        //Auto discover the search attributes and add them to the interpreter's context
+        Map<String, SearchAttribute> attributes = cache.getCacheConfiguration().getSearchAttributes();
+        for (Map.Entry<String, SearchAttribute> entry : attributes.entrySet()) {
+            i.set(entry.getKey(), cache.getSearchAttribute(entry.getKey()));
+            LOG.info("Setting attribute " + entry.getKey());
+        }
+
+        //Define the query and results. Add things which would be set in the GUI i.e. includeKeys and add to context
+        Query query = cache.createQuery().includeKeys();
+        Results results = null;
+        i.set("query", query);
+        i.set("results", results);
+
+        //This comes from the freeform text field
+        String userDefinedQuery = "age.eq(35)";
+
+        //Add the stuff on that we need
+        String fullQueryString = "results = query.add(" + userDefinedQuery + ").execute()";
+
+        i.eval(fullQueryString);
+        results = (Results) i.get("results");
+        assertTrue(2 == results.size());
+        for (Result result : results.all()) {
+            LOG.info("" + result.getKey());
+        }
+
+
+    }
+
 }

@@ -491,7 +491,7 @@ public class RMICacheReplicatorPerfTest extends AbstractCachePerfTest {
     public void manualStabilityTest() throws InterruptedException {
         forceVMGrowth();
 
-        ManagementService.registerMBeans(manager3, createMBeanServer(), true, true, true, true);
+        ManagementService.registerMBeans(manager3, createMBeanServer(), true, true, true, true, true);
         while (true) {
             testBigPutsProgagatesAsynchronous();
         }

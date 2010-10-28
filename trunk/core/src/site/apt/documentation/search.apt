@@ -15,6 +15,15 @@ Search
     clustered cache with pre-built indexes.
 
 
+*   Sample
+
+    {{{http://github.com/downloads/sharrissf/Ehcache-Search-Sample/ehcache-search-sample-0.0.1-SNAPSHOT-distribution.tar.gz}Download}} a self-contained sample
+    or check out the source:
+
+---
+git clone git://github.com/sharrissf/Ehcache-Search-Sample.git
+---
+   
 *   API
 
 **  DSL Conventions
