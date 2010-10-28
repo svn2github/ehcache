@@ -43,6 +43,7 @@ public class ResultsImpl implements Results {
     private static final Logger LOG = LoggerFactory.getLogger(ResultsImpl.class);
 
     private final List<Result> results;
+    private final List<Integer> aggregatorResults;
     private final boolean hasKeys;
 
     /**
@@ -51,8 +52,9 @@ public class ResultsImpl implements Results {
      * @param results
      * @param hasKeys
      */
-    public ResultsImpl(List<Result> results, boolean hasKeys) {
+    public ResultsImpl(List<Result> results, boolean hasKeys, List<Integer> aggregatorResults) {
         this.hasKeys = hasKeys;
+        this.aggregatorResults = Collections.unmodifiableList(aggregatorResults);
         this.results = Collections.unmodifiableList(results);
     }
 
@@ -101,6 +103,9 @@ public class ResultsImpl implements Results {
      * {@inheritDoc}
      */
     public Object aggregateResult() throws SearchException {
+        if(aggregatorResults != null && aggregatorResults.size() > 0) {
+            return aggregatorResults;
+        }
         throw new UnsupportedOperationException("Did not implemented yet.");
     }
 
@@ -122,7 +127,7 @@ public class ResultsImpl implements Results {
      * {@inheritDoc}
      */
     public boolean isAggregate() {
-        return false;
+        return aggregatorResults != null && aggregatorResults.size() > 0;
     }
 
     /**
