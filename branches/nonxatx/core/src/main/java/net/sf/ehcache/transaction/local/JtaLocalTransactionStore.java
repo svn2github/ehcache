@@ -55,86 +55,175 @@ public class JtaLocalTransactionStore extends AbstractStore {
         }
     }
 
+    private void setRollbackOnly() {
+        try {
+            transactionManager.getTransaction().setRollbackOnly();
+            transactionController.setRollbackOnly();
+        } catch (SystemException e) {
+            // ignore
+        }
+    }
+
     /* transactional methods */
 
     public boolean put(Element element) throws CacheException {
         registerInJtaContext();
-        return transactionalStore.put(element);
+        try {
+            return transactionalStore.put(element);
+        } catch (CacheException e) {
+            setRollbackOnly();
+            throw e;
+        }
     }
 
     public boolean putWithWriter(Element element, CacheWriterManager writerManager) throws CacheException {
         registerInJtaContext();
-        return transactionalStore.putWithWriter(element, writerManager);
+        try {
+            return transactionalStore.putWithWriter(element, writerManager);
+        } catch (CacheException e) {
+            setRollbackOnly();
+            throw e;
+        }
     }
 
     public Element get(Object key) {
         registerInJtaContext();
-        return transactionalStore.get(key);
+        try {
+            return transactionalStore.get(key);
+        } catch (CacheException e) {
+            setRollbackOnly();
+            throw e;
+        }
     }
 
     public Element getQuiet(Object key) {
         registerInJtaContext();
-        return transactionalStore.getQuiet(key);
+        try {
+            return transactionalStore.getQuiet(key);
+        } catch (CacheException e) {
+            setRollbackOnly();
+            throw e;
+        }
     }
 
     public List getKeys() {
         registerInJtaContext();
-        return transactionalStore.getKeys();
+        try {
+            return transactionalStore.getKeys();
+        } catch (CacheException e) {
+            setRollbackOnly();
+            throw e;
+        }
     }
 
     public Element remove(Object key) {
         registerInJtaContext();
-        return transactionalStore.remove(key);
+        try {
+            return transactionalStore.remove(key);
+        } catch (CacheException e) {
+            setRollbackOnly();
+            throw e;
+        }
     }
 
     public Element removeWithWriter(Object key, CacheWriterManager writerManager) throws CacheException {
         registerInJtaContext();
-        return transactionalStore.removeWithWriter(key, writerManager);
+        try {
+            return transactionalStore.removeWithWriter(key, writerManager);
+        } catch (CacheException e) {
+            setRollbackOnly();
+            throw e;
+        }
     }
 
     public void removeAll() throws CacheException {
         registerInJtaContext();
-        transactionalStore.removeAll();
+        try {
+            transactionalStore.removeAll();
+        } catch (CacheException e) {
+            setRollbackOnly();
+            throw e;
+        }
     }
 
     public Element putIfAbsent(Element element) throws NullPointerException {
         registerInJtaContext();
-        return transactionalStore.putIfAbsent(element);
+        try {
+            return transactionalStore.putIfAbsent(element);
+        } catch (CacheException e) {
+            setRollbackOnly();
+            throw e;
+        }
     }
 
     public Element removeElement(Element element) throws NullPointerException {
         registerInJtaContext();
-        return transactionalStore.removeElement(element);
+        try {
+            return transactionalStore.removeElement(element);
+        } catch (CacheException e) {
+            setRollbackOnly();
+            throw e;
+        }
     }
 
     public boolean replace(Element old, Element element) throws NullPointerException, IllegalArgumentException {
         registerInJtaContext();
-        return transactionalStore.replace(old, element);
+        try {
+            return transactionalStore.replace(old, element);
+        } catch (CacheException e) {
+            setRollbackOnly();
+            throw e;
+        }
     }
 
     public boolean replace(Element old, Element element, ElementComparer comparer) throws NullPointerException, IllegalArgumentException {
         registerInJtaContext();
-        return transactionalStore.replace(old, element, comparer);
+        try {
+            return transactionalStore.replace(old, element, comparer);
+        } catch (CacheException e) {
+            setRollbackOnly();
+            throw e;
+        }
     }
 
     public Element replace(Element element) throws NullPointerException {
         registerInJtaContext();
-        return transactionalStore.replace(element);
+        try {
+            return transactionalStore.replace(element);
+        } catch (CacheException e) {
+            setRollbackOnly();
+            throw e;
+        }
     }
 
     public int getSize() {
         registerInJtaContext();
-        return transactionalStore.getSize();
+        try {
+            return transactionalStore.getSize();
+        } catch (CacheException e) {
+            setRollbackOnly();
+            throw e;
+        }
     }
 
     public int getTerracottaClusteredSize() {
         registerInJtaContext();
-        return transactionalStore.getTerracottaClusteredSize();
+        try {
+            return transactionalStore.getTerracottaClusteredSize();
+        } catch (CacheException e) {
+            setRollbackOnly();
+            throw e;
+        }
     }
 
     public boolean containsKey(Object key) {
         registerInJtaContext();
-        return transactionalStore.containsKey(key);
+        try {
+            return transactionalStore.containsKey(key);
+        } catch (CacheException e) {
+            setRollbackOnly();
+            throw e;
+        }
     }
 
     /* non-transactional methods */
