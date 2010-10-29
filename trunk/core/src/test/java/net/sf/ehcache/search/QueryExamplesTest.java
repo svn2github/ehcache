@@ -147,6 +147,31 @@ public class QueryExamplesTest {
         }
     }
 
+    @Test
+    public void testIncludeKeysSpecified() {
+
+        Attribute<Integer> age = cache.getSearchAttribute("age");
+        Results results = cache.createQuery().add(age.eq(35)).includeKeys().execute();
+        assertTrue(2 == results.size());
+        for (Result result : results.all()) {
+                LOG.info("" + result.getValue());
+        }
+    }
+
+
+    @Ignore //EHC-801 key should be auto added if it has the right type
+    @Test
+    public void testSearchKeys() {
+
+        Attribute<Integer> key = cache.getSearchAttribute("key");
+        Results results = cache.createQuery().add(key.eq(35)).includeKeys().execute();
+        assertTrue(2 == results.size());
+        for (Result result : results.all()) {
+                LOG.info("" + result.getValue());
+        }
+    }
+
+
     @Ignore //Bug EHC-799
     @Test
     public void testIncludeValuesSpecified() {
@@ -156,18 +181,6 @@ public class QueryExamplesTest {
         assertTrue(2 == results.size());
         for (Result result : results.all()) {
                 LOG.info("" + result.getValue());
-        }
-    }
-
-
-    @Test
-    public void testNoIncludeSpecified2() {
-
-        Attribute<Integer> age = cache.getSearchAttribute("age");
-        Results results = cache.createQuery().add(age.eq(35)).execute();
-        assertTrue(2 == results.size());
-        for (Result result : results.all()) {
-            LOG.info("" + result.getKey());
         }
     }
 

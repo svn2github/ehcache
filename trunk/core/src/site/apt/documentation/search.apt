@@ -24,22 +24,13 @@ Search
 git clone git://github.com/sharrissf/Ehcache-Search-Sample.git
 ---
    
-*   API
-
-**  DSL Conventions
-
-  Queries are created using our search Domain Specific Language ("DSL"). We follow the conventions for implementing a DSL in Java
-  such as fluent builders and static factory methods for a compact and easy-to-read representation.
-
-  See {{http://www.infoq.com/articles/internal-dsls-java}} for a description of these conventions.
-
-
-**  What is searchable?
+*  What is searchable?
 
     Searches can be performed against both Element keys and values.
      
-    Element values are made searchable by extracting attributes out of the values. It is the attributes
-    which are searchable.
+    Element keys and values are made searchable by extracting attributes out of the values.
+    It is the attributes which are searchable.
+
     
     Here is simple example of a value search which queries two attributes, gender and age to
     return cache keys for 32 year old males. 
@@ -47,7 +38,8 @@ git clone git://github.com/sharrissf/Ehcache-Search-Sample.git
 ---
     Query query = cache.createQuery().includeKeys().add(and(age.eq(32), gender.eq("male")));
 ---    
-    
+
+
     
 **  Attribute Extractors  
   
@@ -83,26 +75,27 @@ git clone git://github.com/sharrissf/Ehcache-Search-Sample.git
 
     The ReflectionAttributeExtractor is a built-in search attribute extractor.
 
-    Attributes are defined in ehcache.xml using method/value dotted expression chains.
+    In the simple case, where keys and/or values are already a supported type, they can be declared searchable with:
 
-    e.g. to define a searchable attribute <age> which is a simple field on
+---
+    <searchAttribute name="key"/> for they key, and
+    <searchAttribute name="value"/> for the value
+---
+
+    Where a JavaBean property is available and it is of a searchable type, it can be simply declared using:
 
 ---
 <cache>
-    <searchAttribute name="age" expression="value.getAge()"/>
+    <searchAttribute name="age"/>
 </cache>
 ---
+
+  Finally, when things get more complicated, we have an expression language using method/value dotted expression chains.
 
   The expression chain must start with one of either "key", "value", or "element". From the starting object
   a chain of either method calls or field names follows. Method calls and field names can be freely mixed in the chain.
 
   Some more examples:
-
----
-<cache>
-    <searchAttribute name="name" expression="key.getName()"/>
-</cache>
----
 
 ---
 <cache>
@@ -142,6 +135,18 @@ git clone git://github.com/sharrissf/Ehcache-Search-Sample.git
 
 **  Queries
 
+***  DSL Conventions
+
+Queries are created using our search Domain Specific Language ("DSL"). We follow the conventions for implementing a DSL in Java
+such as fluent builders and static factory methods for a compact and easy-to-read representation.
+
+See {{http://www.infoq.com/articles/internal-dsls-java}} for a description of these conventions.
+
+
+---
+    Results results = cache.createQuery().add(age.eq(35)).includeKeys().execute();
+---
+
 
   A query can be executed and then modified and re-executed. If <<<end>>> is called
   the query is made immutable.
@@ -151,10 +156,6 @@ git clone git://github.com/sharrissf/Ehcache-Search-Sample.git
 
   They are populated by extraction from an Element's value using <<<net.sf.ehcache.search.attribute.AttributeExtractor>>>. See
   extractors below.
-
-
-
-
 
 ** Search Results
 
@@ -258,5 +259,19 @@ git clone git://github.com/sharrissf/Ehcache-Search-Sample.git
 
 
 
+*   Limitations in the alpha release
 
+    The above documentation is written for how we see search working when it is released.
+
+    In the interests of getting this out into alpha testers hands there are a few things we plan to do which are not yet done:
+
+    * performance optimisations for standalone have not been done
+
+    * Added a test which shows that getValue() does not work unless includeKeys() is on.  Bug EHC-799"
+
+    * Added EHC-800 comment to ehcache-search.xml. Not honouring JavaBeans convention
+
+    * EHC-801: Keys and values which are already of a supported attribute type should be able to be added to queries using the attribute name "key"
+
+    *
 
