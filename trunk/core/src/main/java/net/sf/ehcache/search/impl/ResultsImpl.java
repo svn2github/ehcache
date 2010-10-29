@@ -103,7 +103,7 @@ public class ResultsImpl implements Results {
      * {@inheritDoc}
      */
     public Object aggregateResult() throws SearchException {
-        if(aggregatorResults != null && aggregatorResults.size() > 0) {
+        if (aggregatorResults != null && aggregatorResults.size() > 0) {
             return aggregatorResults;
         }
         throw new UnsupportedOperationException("Did not implemented yet.");
