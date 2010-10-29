@@ -11,6 +11,7 @@ import net.sf.ehcache.search.aggregator.Sum;
 import net.sf.ehcache.search.expression.And;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -127,6 +128,47 @@ public class QueryExamplesTest {
         // age = 13 OR (age == 12 AND gender = "timmy") order by age asc, gender desc limit 10
         query = cache.createQuery().includeKeys().add(or(age.eq(13), and(age.eq(12), gender.eq("timmy"))))
                 .addOrder(age, Direction.ASCENDING).addOrder(gender, Direction.DESCENDING).maxResults(10).end();
+    }
+
+
+    @Test
+    public void testNoIncludeSpecified() {
+
+        Attribute<Integer> age = cache.getSearchAttribute("age");
+        Results results = cache.createQuery().add(age.eq(35)).execute();
+        assertTrue(2 == results.size());
+        for (Result result : results.all()) {
+            try {
+                LOG.info("" + result.getKey());
+            } catch (SearchException e) {
+                //expected
+                break;
+            }
+        }
+    }
+
+    @Ignore //Bug EHC-799
+    @Test
+    public void testIncludeValuesSpecified() {
+
+        Attribute<Integer> age = cache.getSearchAttribute("age");
+        Results results = cache.createQuery().add(age.eq(35)).execute();
+        assertTrue(2 == results.size());
+        for (Result result : results.all()) {
+                LOG.info("" + result.getValue());
+        }
+    }
+
+
+    @Test
+    public void testNoIncludeSpecified2() {
+
+        Attribute<Integer> age = cache.getSearchAttribute("age");
+        Results results = cache.createQuery().add(age.eq(35)).execute();
+        assertTrue(2 == results.size());
+        for (Result result : results.all()) {
+            LOG.info("" + result.getKey());
+        }
     }
 
 

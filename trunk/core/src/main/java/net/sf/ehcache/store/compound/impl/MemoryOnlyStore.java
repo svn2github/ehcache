@@ -484,7 +484,7 @@ public final class MemoryOnlyStore extends CompoundStore implements CacheConfigu
                 return key;
             }
 
-            throw new SearchException("keys not included in query");
+            throw new SearchException("keys not included in query. Use includeKeys() to add keys to results.");
         }
 
         /**
