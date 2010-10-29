@@ -143,16 +143,14 @@ git clone git://github.com/sharrissf/Ehcache-Search-Sample.git
 **  Queries
 
 
-
-
   A query can be executed and then modified and re-executed. If <<<end>>> is called
   the query is made immutable.
 
   Both Element keys and attributes of Element can be queried. Attributes must be pre-defined
   for a cache.
 
-  They are populated by extraction from an Element's value using <<<net.sf.ehcache.search.attribute.AttributeExtractor>>>.
-
+  They are populated by extraction from an Element's value using <<<net.sf.ehcache.search.attribute.AttributeExtractor>>>. See
+  extractors below.
 
 
 
@@ -167,13 +165,13 @@ git clone git://github.com/sharrissf/Ehcache-Search-Sample.git
 
    A Result object can contain either:
 
-   *    the Element key
+   *    the Element key - use <<<includeKeys()>>> in the query
 
-   *    the Element value
+   *    the Element value - use <<<includeValues()>>> in the query
 
-   *    a predefined attribute extracted from an Element value
+   *    a predefined attribute extracted from an Element value - use <<<includeAttribute(...)>>> in the query
 
-   *    an Aggregate function
+   *    an Aggregate function - use <<<includeAggregate()>>> in the query
 
 
 **  Aggregators

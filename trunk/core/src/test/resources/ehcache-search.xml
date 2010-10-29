@@ -11,6 +11,7 @@
         <searchAttribute name="age" expression="value.getAge()"/>
         <searchAttribute name="gender" expression="value.getGender()"/>
         <searchAttribute name="name" expression="value.getName()"/>
+        <!-- EHC-800 should be able to use JavaBeans conventions <searchAttribute name="name"/>-->
     </cache>
 
     <cache name="cache2" maxElementsInMemory="0" eternal="true"
