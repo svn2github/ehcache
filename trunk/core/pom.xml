@@ -516,7 +516,6 @@
                 </execution>
               </executions>
               <configuration>
-                <forceCreation>true</forceCreation>
                 <transformationSets>
                   <transformationSet>
                     <dir>${basedir}/src/changes</dir>
