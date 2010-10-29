@@ -21,6 +21,7 @@ import java.util.Map;
 
 import static net.sf.ehcache.search.expression.Logic.and;
 import static net.sf.ehcache.search.expression.Logic.or;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 
@@ -154,12 +155,27 @@ public class QueryExamplesTest {
         Results results = cache.createQuery().add(age.eq(35)).includeKeys().execute();
         assertTrue(2 == results.size());
         for (Result result : results.all()) {
-                LOG.info("" + result.getValue());
+            LOG.info("" + result.getValue());
         }
     }
 
 
-    @Ignore //EHC-801 key should be auto added if it has the right type
+    @Ignore //EHC-802
+    @Test
+    public void testIncludeValuesNotSpecified() {
+
+        Attribute<Integer> age = cache.getSearchAttribute("age");
+        Results results = cache.createQuery().add(age.eq(35)).includeKeys().execute();
+        assertTrue(2 == results.size());
+        for (Result result : results.all()) {
+            //should be null
+            assertNull(result.getValue());
+        }
+    }
+
+
+    @Ignore
+    //EHC-801 key should be auto added if it has the right type
     @Test
     public void testSearchKeys() {
 
@@ -167,12 +183,13 @@ public class QueryExamplesTest {
         Results results = cache.createQuery().add(key.eq(35)).includeKeys().execute();
         assertTrue(2 == results.size());
         for (Result result : results.all()) {
-                LOG.info("" + result.getValue());
+            LOG.info("" + result.getValue());
         }
     }
 
 
-    @Ignore //Bug EHC-799
+    @Ignore
+    //Bug EHC-799
     @Test
     public void testIncludeValuesSpecified() {
 
@@ -180,7 +197,7 @@ public class QueryExamplesTest {
         Results results = cache.createQuery().add(age.eq(35)).execute();
         assertTrue(2 == results.size());
         for (Result result : results.all()) {
-                LOG.info("" + result.getValue());
+            LOG.info("" + result.getValue());
         }
     }
 

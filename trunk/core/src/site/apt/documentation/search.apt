@@ -273,5 +273,5 @@ See {{http://www.infoq.com/articles/internal-dsls-java}} for a description of th
 
     * EHC-801: Keys and values which are already of a supported attribute type should be able to be added to queries using the attribute name "key"
 
-    *
+    * EHC-802: result.getValue() should not work unless includeValues() was specified.
 
