@@ -42,6 +42,13 @@
             <outputDirectory>/</outputDirectory>
         </fileSet>
     </fileSets>
+    <files>
+      <file>
+        <source>${project.build.directory}/changes.txt</source>
+        <outputDirectory>/</outputDirectory>
+        <destName>CHANGELOG.txt</destName>
+      </file>
+    </files>
     <dependencySets>
         <dependencySet>
             <outputDirectory>lib</outputDirectory>
