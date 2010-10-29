@@ -2197,6 +2197,8 @@ public class Cache implements Ehcache, StoreListener {
      * <p/>
      * To get a very fast result, use {@link #getKeysNoDuplicateCheck()}.size().
      * If the disk store is being used, there will be some duplicates.
+     * <p/>
+     * Note:getSize() is a very expensive operation in off-heap, disk and Terracotta implementations.
      *
      * @return The size value
      * @throws IllegalStateException if the cache is not {@link Status#STATUS_ALIVE}
