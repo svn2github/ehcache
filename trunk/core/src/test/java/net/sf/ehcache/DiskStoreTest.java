@@ -46,6 +46,7 @@ import net.sf.ehcache.store.compound.CompoundStore;
 import net.sf.ehcache.store.compound.impl.DiskPersistentStore;
 import net.sf.ehcache.store.compound.impl.OverflowToDiskStore;
 import net.sf.ehcache.util.PropertyUtil;
+import net.sf.ehcache.util.RetryAssert;
 
 import org.junit.After;
 import org.junit.Test;
@@ -134,7 +135,7 @@ public class DiskStoreTest extends AbstractCacheTest {
         manager.addCache(cache);
         return cache.getStore();
     }
-    
+
     /**
      * Test to help debug DiskStore test
      */
@@ -277,7 +278,8 @@ public class DiskStoreTest extends AbstractCacheTest {
         cache = manager.getCache("persistentLongExpiryIntervalNonOverflowCache");
 
         //Now check that the DiskStore is involved in Cache methods it needs to be involved in.
-        assertEquals(100, cache.getSize());
+        RetryAssert.assertEquals(100, cache.getSize(), 5);
+
         assertEquals(100, cache.getDiskStoreSize());
         assertEquals(100, cache.getKeysNoDuplicateCheck().size());
         assertEquals(100, cache.getKeys().size());
@@ -406,7 +408,7 @@ public class DiskStoreTest extends AbstractCacheTest {
 
         diskStore.put(new Element("key100", new byte[1024]));
         diskStore.flush();
-        waitShorter();        
+        waitShorter();
         assertEquals(100 * ELEMENT_ON_DISK_SIZE, dataFile.length());
         assertEquals(100, diskStore.getSize());
     }
@@ -543,7 +545,7 @@ public class DiskStoreTest extends AbstractCacheTest {
         // Get the element
         assertEquals(2, diskStore.getSize());
         assertEquals(1, diskStore.getOnDiskSize());
-        
+
         Element element1 = diskStore.get("key1");
         Element element2 = diskStore.get("key2");
         assertNotNull(element1);
@@ -599,7 +601,7 @@ public class DiskStoreTest extends AbstractCacheTest {
         //wait for spool to empty
         waitLonger();
 
-        assertEquals(10, store.getOnDiskSize());
+        RetryAssert.assertEquals(10, store.getOnDiskSize(), 5);
     }
 
     /**
@@ -665,7 +667,7 @@ public class DiskStoreTest extends AbstractCacheTest {
         // Get the element
         assertEquals(1, diskStore.getOnDiskSize());
         assertEquals(2, diskStore.getSize());
-        
+
         Object o1 = diskStore.unretrievedGet("key1");
         Object o2 = diskStore.unretrievedGet("key2");
         if (o1 instanceof Element) {
@@ -675,7 +677,7 @@ public class DiskStoreTest extends AbstractCacheTest {
         } else {
             fail("One of the elements should be in memory");
         }
-        
+
         Element element1 = diskStore.get("key1");
         Element element2 = diskStore.get("key2");
         assertNotNull(element1);
@@ -699,7 +701,7 @@ public class DiskStoreTest extends AbstractCacheTest {
         // Check the entry is there
         assertEquals(1, diskStore.getOnDiskSize());
         assertEquals(2, diskStore.getSize());
-        
+
         assertNotNull(diskStore.get("key1"));
         assertNotNull(diskStore.get("key2"));
 
@@ -741,7 +743,7 @@ public class DiskStoreTest extends AbstractCacheTest {
         } else {
             fail("One of the elements should be in memory");
         }
-        
+
         // Remove it
         diskStore.remove("key1");
         diskStore.remove("key2");
@@ -1018,9 +1020,9 @@ public class DiskStoreTest extends AbstractCacheTest {
         for (int stripes = 0; stripes < 10; stripes++) {
             final Random random = new Random();
             final Store diskStore = createStripedDiskStore(stripes);
-    
+
             diskStore.put(new Element("key", "value"));
-    
+
             // Run a set of threads that get, put and remove an entry
             final List executables = new ArrayList();
             for (int i = 0; i < 5; i++) {
@@ -1043,11 +1045,11 @@ public class DiskStoreTest extends AbstractCacheTest {
                 };
                 executables.add(executable);
             }
-    
+
             runThreads(executables);
         }
     }
-    
+
     /**
      * Tests how data is written to a random access file.
      * <p/>
@@ -1139,7 +1141,7 @@ public class DiskStoreTest extends AbstractCacheTest {
 
         LOG.info("Wait For Spool Thread To Finish");
         SECONDS.sleep(2);
-        
+
         final int initialSize = store.getOnDiskSize();
         final int shrinkSize = initialSize / 2;
         store.diskCapacityChanged(initialSize, shrinkSize);
@@ -1162,17 +1164,17 @@ public class DiskStoreTest extends AbstractCacheTest {
 
         LOG.info("Wait For Spool Thread To Finish");
         SECONDS.sleep(2);
-        
+
         {
             int size = store.getOnDiskSize();
             assertTrue(size < (shrinkSize * 1.1));
             assertTrue(size > (shrinkSize * 0.9));
         }
-        
+
         final int growSize = initialSize * 2;
         store.diskCapacityChanged(shrinkSize, growSize);
         LOG.info("Resized : " + shrinkSize + " ==> " + growSize);
-        
+
         LOG.info("Wait For Spool Thread To Finish");
         SECONDS.sleep(2);
 
