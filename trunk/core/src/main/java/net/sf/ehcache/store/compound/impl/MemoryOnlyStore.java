@@ -34,6 +34,7 @@ import net.sf.ehcache.search.Attribute;
 import net.sf.ehcache.search.Result;
 import net.sf.ehcache.search.Results;
 import net.sf.ehcache.search.SearchException;
+import net.sf.ehcache.search.aggregator.Aggregator;
 import net.sf.ehcache.search.attribute.AttributeExtractor;
 import net.sf.ehcache.search.attribute.AttributeType;
 import net.sf.ehcache.search.expression.Criteria;
@@ -510,6 +511,14 @@ public final class MemoryOnlyStore extends CompoundStore implements CacheConfigu
             return (T) value;
         }
 
+        /**
+         * @inheritdoc
+         * todo
+         */
+        public <T> T getAggregator(Aggregator<T> aggregator) throws SearchException {
+            return null;
+        }
+
         @Override
         public String toString() {
             return "ResultImpl [attributes=" + attributes + ", key=" + key + ", query=" + query + ", sortAttributes="
@@ -591,17 +600,6 @@ public final class MemoryOnlyStore extends CompoundStore implements CacheConfigu
         /**
          * @inheritdoc
          */
-        public Object aggregateResult() throws SearchException {
-            if (isAggregate()) {
-                return aggregateResult;
-            }
-
-            throw new SearchException("No aggregate present");
-        }
-
-        /**
-         * @inheritdoc
-         */
         public int size() {
             return results.size();
         }
@@ -615,10 +613,28 @@ public final class MemoryOnlyStore extends CompoundStore implements CacheConfigu
 
         /**
          * @inheritdoc
+         * todo
          */
-        public boolean isAggregate() {
-            return aggregateResult != null;
+        public boolean hasValues() {
+            return false;
         }
+
+        /**
+         * @inheritdoc
+         * todo
+         */
+        public boolean hasAttributes() {
+            return false;
+        }
+
+        /**
+         * @inheritdoc
+         * todo
+         */
+        public boolean hasAggregators() {
+            return false;
+        }
+
     }
 
     /**

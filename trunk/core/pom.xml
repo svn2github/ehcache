@@ -686,9 +686,22 @@
 
     <!-- The JBoss repository is only here to satisfy the 'provided' dependency on hibernate-core -->
     <repositories>
+        <!--For Hibernate. Test only-->
         <repository>
             <id>jboss-releases</id>
             <url>http://repository.jboss.org/nexus/content/groups/public-jboss</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </repository>
+
+        <!--For xsom. Test only-->
+        <repository>
+            <id>Java.net Maven 2</id>
+            <url>http://download.java.net/maven/2</url>
             <releases>
                 <enabled>true</enabled>
             </releases>

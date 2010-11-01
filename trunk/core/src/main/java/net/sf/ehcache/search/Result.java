@@ -16,6 +16,8 @@
 
 package net.sf.ehcache.search;
 
+import net.sf.ehcache.search.aggregator.Aggregator;
+
 /**
  * Represents a single cache entry that has been selected by a cache query
  *
@@ -33,8 +35,8 @@ public interface Result {
     Object getKey() throws SearchException;
 
     /**
-     * Return the value object for this cache entry. Upon every call, this
-     * method performs a get() on the underlying Cache for this entry's key.
+     * Return the value object for this cache entry. These are returned without further
+     * need to access the cache.
      *
      * @return value object (which might be null if this entry no longer exists
      *         in the cache)
@@ -51,4 +53,16 @@ public interface Result {
      *                         originating query
      */
     <T> T getAttribute(Attribute<T> attribute) throws SearchException;
+
+
+     /**
+     * Retrieve the given aggregator value for this cache entry
+     *
+     * @param aggregator the aggregator to retrieve
+     * @return the aggregator value, or null if there is none
+     * @throws SearchException if the given attribute was not explicitly selected by the
+     *                         originating query
+     */
+    <T> T getAggregator(Aggregator<T> aggregator) throws SearchException;
+
 }

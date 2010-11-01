@@ -28,12 +28,12 @@ import java.util.List;
 public interface Results {
 
     /**
-     * Discard this query result. This call is not mandatory but can allow the
-     * cache to immediately free any resources associated with this result.
+     * Discard this query result. This call is not mandatory but is recommended after
+     * the caller is done with results. It can allow the cache, which may be distributed,
+     * to immediately free any resources associated with this result.
+     * <p/>
      * Multiple calls are ignored. Attempting to read results from this instance
      * after this method has been called will produce {@link SearchException}
-     * <p/>
-     * NOTE: Not that it is defined yet, but it seems like we should implement whatever java7 ARM comes up here as well
      */
     void discard();
 
@@ -59,13 +59,6 @@ public interface Results {
      */
     List<Result> range(int start, int count) throws SearchException, IndexOutOfBoundsException;
 
-    /**
-     * Retrieves the result of an aggregate function. If multiple aggregate functions were requested in this query, the a {@link List} of
-     * the results will be returned (in the same order they were added to the original query)
-     *
-     * @throws SearchException
-     */
-    Object aggregateResult() throws SearchException;
 
     /**
      * Results size
@@ -75,18 +68,36 @@ public interface Results {
     int size();
 
     /**
-     * Whether the Results have cache keys included
+     * Whether the Results have cache keys included.
+     * If so these can be extracted from the Result object.
      *
-     * @return true if keys included
+     * @return true if keys are included
      */
     boolean hasKeys();
 
     /**
-     * Whether the results are an aggregate, in which case there is no list returned,
-     * just a single value
+     * Whether the Results have cache values included.
+     * If so these can be extracted from the Result object.
+     *
+     * @return true if values are included
+     */
+    boolean hasValues();
+
+
+    /**
+     * Whether the Results have cache attributes included.
+     * If so these can be extracted from the Result object.
+     *
+     * @return true if attributes are included
+     */
+    boolean hasAttributes();
+
+    /**
+     * todo write test
+     * Whether the results are aggregates
      *
      * @return true if this is an aggregate
      */
-    boolean isAggregate();
+    boolean hasAggregators();
 
 }

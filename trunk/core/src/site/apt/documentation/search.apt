@@ -157,12 +157,35 @@ See {{http://www.infoq.com/articles/internal-dsls-java}} for a description of th
   They are populated by extraction from an Element's value using <<<net.sf.ehcache.search.attribute.AttributeExtractor>>>. See
   extractors below.
 
+
+**  Aggregators
+
+    Aggregators are added with <<<query.includeAggregator(Aggregator aggregator, Attribute<?> attribute)>>>.
+
+    Because the state of the cache can change between search executions it is recommended to add all of the Aggregators you want
+    for a query at once. Execution is also more efficient.
+
+
+
 ** Search Results
 
   Queries return a <<<Results>>> object which contain objects of class <<<Result>>>.
 
-  Either all results can be returned using
-   <<<results.all()>>> or a range of results using <<<results.range(int start, int count)>>> to achieve paging.
+*** How much to return
+
+  Query results can potentially be very large and could be too large to safely return to the caller.
+
+  Either all results can be returned using <<<results.all()>>> to get the all in one chunk, or a range of results
+  using <<<results.range(int start, int count)>>> to achieve paging.
+
+  When you are done with the results, it is recommended to call <<<discard()>>>. This allows resources to be freed.
+  In the distributed implementation with Terracotta, resources may be used to hold results for paging or return.
+
+  A list of type <<<Result>>> is the return type of each call. This type holds all types of results. To determine
+  what was returned by the query if you are unsure, <<<Results>>> has boolean methods which will tell you whether
+  that type of reuslt was returned.
+
+*** Result
 
    A Result object can contain either:
 
@@ -170,19 +193,11 @@ See {{http://www.infoq.com/articles/internal-dsls-java}} for a description of th
 
    *    the Element value - use <<<includeValues()>>> in the query
 
-   *    a predefined attribute extracted from an Element value - use <<<includeAttribute(...)>>> in the query
+   *    predefined attribute(s) extracted from an Element value - use <<<includeAttribute(...)>>> in the query.
 
-   *    an Aggregate function - use <<<includeAggregate()>>> in the query
+   *    Aggregator functions - use <<<includeAggregate()>>> in the query
 
-
-**  Aggregators
-
-    One or more <<<Aggregator>>>s can be computed on a query result.
-
-    Aggregators are added with <<<query.includeAggregator(Aggregator aggregator, Attribute<?> attribute)>>>.
-
-    Because the state of the cache can change between search executions it is recommended to add all of the Aggregators you want
-    for a query at once. Execution is also more efficient.
+   For attributes and functions, Result must be called with the templated type.
 
 **   Limiting the size of Results
 
@@ -274,4 +289,7 @@ See {{http://www.infoq.com/articles/internal-dsls-java}} for a description of th
     * EHC-801: Keys and values which are already of a supported attribute type should be able to be added to queries using the attribute name "key"
 
     * EHC-802: result.getValue() should not work unless includeValues() was specified.
+
+    * EHC-803: Missing implemenations in Results and Result
+
 

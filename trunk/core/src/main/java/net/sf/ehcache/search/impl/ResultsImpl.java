@@ -28,6 +28,7 @@ import net.sf.ehcache.search.Attribute;
 import net.sf.ehcache.search.Result;
 import net.sf.ehcache.search.Results;
 import net.sf.ehcache.search.SearchException;
+import net.sf.ehcache.search.aggregator.Aggregator;
 import net.sf.ehcache.store.StoreQuery;
 import net.sf.ehcache.store.StoreQuery.Ordering;
 import org.slf4j.Logger;
@@ -102,16 +103,6 @@ public class ResultsImpl implements Results {
     /**
      * {@inheritDoc}
      */
-    public Object aggregateResult() throws SearchException {
-        if (aggregatorResults != null && aggregatorResults.size() > 0) {
-            return aggregatorResults;
-        }
-        throw new UnsupportedOperationException("Did not implemented yet.");
-    }
-
-    /**
-     * {@inheritDoc}
-     */
     public int size() {
         return results.size();
     }
@@ -124,9 +115,33 @@ public class ResultsImpl implements Results {
     }
 
     /**
+     * todo
+     * @inheritdoc
+     */
+    public boolean hasValues() {
+        return false;
+    }
+
+    /**
+     * todo
+     * @inheritdoc
+     */
+    public boolean hasAttributes() {
+        return false;
+    }
+
+    /**
+     * todo
+     * @inheritdoc
+     */
+    public boolean hasAggregators() {
+        return false;  
+    }
+
+    /**
      * {@inheritDoc}
      */
-    public boolean isAggregate() {
+    public boolean hasAggregates() {
         return aggregatorResults != null && aggregatorResults.size() > 0;
     }
 
@@ -165,7 +180,6 @@ public class ResultsImpl implements Results {
         }
 
         /**
-         *
          * @param position
          * @return
          */
@@ -212,6 +226,14 @@ public class ResultsImpl implements Results {
         }
 
         /**
+         * todo
+         * @inheritdoc
+         */
+        public <T> T getAggregator(Aggregator<T> aggregator) throws SearchException {
+            return null;  
+        }
+
+        /**
          * {@inheritDoc}
          */
         @Override
@@ -229,7 +251,6 @@ public class ResultsImpl implements Results {
         private final List<Comparator<Result>> comparators;
 
         /**
-         *
          * @param orderings
          */
         public OrderComparator(List<Ordering> orderings) {
@@ -275,7 +296,6 @@ public class ResultsImpl implements Results {
             private final int position;
 
             /**
-             *
              * @param position
              */
             public AscendingComparator(int position) {
@@ -313,7 +333,6 @@ public class ResultsImpl implements Results {
             private final int position;
 
             /**
-             *
              * @param position
              */
             public DescendingComparator(int position) {
