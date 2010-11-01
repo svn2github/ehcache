@@ -12,10 +12,20 @@ public final class TransactionIDImpl implements TransactionID {
     private static final AtomicInteger idGenerator = new AtomicInteger();
 
     private final int id;
+    private volatile boolean commit;
 
     TransactionIDImpl() {
         this.id = idGenerator.getAndIncrement();
     }
+
+    public boolean isDecisionCommit() {
+        return commit;
+    }
+
+    public void markAsCommit(boolean commit) {
+        this.commit = commit;
+    }
+
 
     @Override
     public final boolean equals(Object obj) {

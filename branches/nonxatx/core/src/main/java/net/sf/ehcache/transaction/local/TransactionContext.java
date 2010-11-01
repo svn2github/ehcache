@@ -109,19 +109,20 @@ public class TransactionContext {
     }
 
     public void commit(boolean ignoreTimeout) {
-        if (rollbackOnly) {
-            rollback();
-            throw new TransactionException("transaction was marked as rollback only, rolled back on commit");
-        }
         if (!ignoreTimeout && timedOut()) {
             rollback();
             throw new TransactionTimeoutException("transaction timed out, rolled back on commit");
         }
+        if (rollbackOnly) {
+            rollback();
+            throw new TransactionException("transaction was marked as rollback only, rolled back on commit");
+        }
 
         try {
             fireBeforeCommitEvent();
-            LOG.debug("{} cache(s) participated in transaction", softLockMap.keySet().size());
-            freeze(true);
+            LOG.debug("{} cache(s) participated in transaction, committing", softLockMap.keySet().size());
+            freeze();
+            transactionId.markAsCommit(true);
 
             for (Map.Entry<String, List<SoftLock>> stringListEntry : softLockMap.entrySet()) {
                 String cacheName = stringListEntry.getKey();
@@ -140,8 +141,8 @@ public class TransactionContext {
 
     public void rollback() {
         try {
-            LOG.debug("{} cache(s) participated in transaction", softLockMap.keySet().size());
-            freeze(false);
+            LOG.debug("{} cache(s) participated in transaction, rolling back", softLockMap.keySet().size());
+            freeze();
 
             for (Map.Entry<String, List<SoftLock>> stringListEntry : softLockMap.entrySet()) {
                 String cacheName = stringListEntry.getKey();
@@ -189,18 +190,26 @@ public class TransactionContext {
             List<SoftLock> softLocks = stringListEntry.getValue();
 
             for (SoftLock softLock : softLocks) {
-                softLock.unfreeze();
-                softLock.unlock();
+                try {
+                    softLock.unfreeze();
+                } catch (Exception e) {
+                    LOG.error("error unfreezing " + softLock, e);
+                }
+                try {
+                    softLock.unlock();
+                } catch (Exception e) {
+                    LOG.error("error unlocking " + softLock, e);
+                }
             }
         }
     }
 
-    private void freeze(boolean commit) {
+    private void freeze() {
         for (Map.Entry<String, List<SoftLock>> stringListEntry : softLockMap.entrySet()) {
             List<SoftLock> softLocks = stringListEntry.getValue();
 
             for (SoftLock softLock : softLocks) {
-                softLock.freeze(commit);
+                softLock.freeze();
             }
         }
     }
