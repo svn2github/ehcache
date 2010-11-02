@@ -44,7 +44,7 @@ public interface AttributeExtractor extends Serializable {
      * <li>java.lang.Short
      * <li>java.lang.String
      * <li>java.util.Date
-     * <li>a java enum
+     * <li>java.lang.Enum
      * </ul>
      * <p/>
      * NOTE: null is a legal return here as well indicating that this attribute will not be available for the given element

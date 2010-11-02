@@ -19,6 +19,7 @@ import org.slf4j.LoggerFactory;
 import java.util.List;
 import java.util.Map;
 
+import static net.sf.ehcache.search.Query.KEY;
 import static net.sf.ehcache.search.expression.Logic.and;
 import static net.sf.ehcache.search.expression.Logic.or;
 import static org.junit.Assert.assertNull;
@@ -147,6 +148,19 @@ public class QueryExamplesTest {
             }
         }
     }
+
+
+    /**
+     * todo shows how to use the key constant. There is another one for value.
+     */
+    @Ignore
+    @Test
+    public void testUseShorthandKeyAttribute() {
+
+        Attribute key = cache.getSearchAttribute(KEY);
+        Results results = cache.createQuery().add(key.eq(35)).execute();
+    }
+
 
     @Test
     public void testIncludeKeysSpecified() {

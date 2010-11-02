@@ -12,41 +12,97 @@ Search
     oss.sonatype.org.)
 
     The Ehcache Search API allows you to execute arbitrarily complex queries against either a standalone cache or a Terracotta
-    clustered cache with pre-built indexes.
+    clustered cache with pre-built indexes. Searchable attributes may be extracted from both keys and values. Keys, values,
+     or summary values (Aggregators) can all be returned.
 
 
-*   Sample
-
-    {{{http://github.com/downloads/sharrissf/Ehcache-Search-Sample/ehcache-search-sample-0.0.1-SNAPSHOT-distribution.tar.gz}Download}} a self-contained sample
-    or check out the source:
+    Here is a simple example: Search for 32 year old males and return the cache values.
 
 ---
-git clone git://github.com/sharrissf/Ehcache-Search-Sample.git
+    Results results = cache.createQuery().includeValues().add(and(age.eq(32), gender.eq("male"))).execute();
 ---
-   
+
 *  What is searchable?
 
     Searches can be performed against both Element keys and values.
      
-    Element keys and values are made searchable by extracting attributes out of the values.
-    It is the attributes which are searchable.
+    Element keys and values are made searchable by extracting attributes with supported search types out of the values.
 
-    
-    Here is simple example of a value search which queries two attributes, gender and age to
-    return cache keys for 32 year old males. 
-    
+    It is the attributes themelves which are searchable.
+
+*   How to make a cache searchable
+
+**  By Configuration
+
+    Caches are made searchable by adding a \<searchable/\> tag to the ehcachel.xml.
+
 ---
-    Query query = cache.createQuery().includeKeys().add(and(age.eq(32), gender.eq("male")));
----    
+    <cache name="cache2" maxElementsInMemory="10000" eternal="true" overflowToDisk="false">
+        <searchable/>
+    </cache>
+---
+
+    This configuration will scan keys and vales and if they are of supported search types, add them as
+    attributes called "key" and "value" respectively.
+
+    Lots of times these will not be direclty searchable and instead you will need to extract searchable attributes out of them.
+    The following example shows this more typical case.  Attribute Extractors are explained in more detail in the following section.
+
+---
+    <cache name="cache3" maxElementsInMemory="10000" eternal="true" overflowToDisk="false">
+        <searchable>
+            <searchAttribute name="age" class="net.sf.ehcache.search.TestAttributeExtractor"/>
+            <searchAttribute name="gender" expression="value.getGender()"/>
+        </searchable>
+    </cache>
+
+---
+
+**  Programmatically
+
+    You can create new <<<SearchAttribute>>>s and add them to your cache configuration, and then create your cache.
+
+    This example shows how:
+
+---
+        CacheConfiguration cacheConfig = new CacheConfiguration("test", -1).eternal(true);
+
+        // Create attributes on the stuff we want to be able to search on.
+        // You can use an expression for getting at the value to be indexed on a cache or you can code your own
+
+        // Expression
+        SearchAttribute sa = new SearchAttribute();
+        sa.setExpression("value.getAge()");
+        sa.setName("age");
+        cacheConfig.addSearchAttribute(sa);
+
+        // Coding your own
+        sa = new SearchAttribute();
+        sa.className("org.sharrissf.sample.EhcacheSearchPlaying$NameAttributeExtractor");
+        sa.setName("name");
+        cacheConfig.addSearchAttribute(sa);
+
+        sa = new SearchAttribute();
+        sa.setExpression("value.getGender()");
+        sa.setName("gender");
+        cacheConfig.addSearchAttribute(sa);
+
+        sa = new SearchAttribute();
+        sa.setExpression("value.getAddress().getState()");
+        sa.setName("state");
+        cacheConfig.addSearchAttribute(sa);
+
+        Cache test = new Cache(cacheConfig);
+        cacheManager.add(test);
+---
 
 
-    
-**  Attribute Extractors  
+*  Attribute Extractors
   
     Attributes are extracted from keys or values. This is done on <<<put()>>> into the cache
     using <<<AttributeExtractor>>>s.
 
-    Extracted attributes must be one of the following types:
+    Extracted attributes must be one of the following supported types:
     
         *   Boolean
         
@@ -67,6 +123,8 @@ git clone git://github.com/sharrissf/Ehcache-Search-Sample.git
         *   String
         
         *   Date
+
+        *   Enum
         
     If an attribute cannot be extracted due to not being found or of being the wrong type an AttributeExtractorException is thrown
     after the 
@@ -75,18 +133,15 @@ git clone git://github.com/sharrissf/Ehcache-Search-Sample.git
 
     The ReflectionAttributeExtractor is a built-in search attribute extractor.
 
-    In the simple case, where keys and/or values are already a supported type, they can be declared searchable with:
-
----
-    <searchAttribute name="key"/> for they key, and
-    <searchAttribute name="value"/> for the value
----
+    In the simple case, where keys and/or values are already a supported type, they are added automatically as "key" amd "value",
 
     Where a JavaBean property is available and it is of a searchable type, it can be simply declared using:
 
 ---
 <cache>
-    <searchAttribute name="age"/>
+    <searchable>
+        <searchAttribute name="age"/>
+    </searchable>
 </cache>
 ---
 
@@ -99,13 +154,17 @@ git clone git://github.com/sharrissf/Ehcache-Search-Sample.git
 
 ---
 <cache>
-    <searchAttribute name="age" expression="value.person.getAge()"/>
+    <searchable>
+        <searchAttribute name="age" expression="value.person.getAge()"/>
+    </searchable>
 </cache>
 ---
 
 ---
 <cache>
-    <searchAttribute name="name" expression="element.toString()"/>
+    <searchable>
+        <searchAttribute name="name" expression="element.toString()"/>
+    </searchable>
 </cache>
 ---
 
@@ -117,61 +176,101 @@ git clone git://github.com/sharrissf/Ehcache-Search-Sample.git
     
 ---
 <cache name="cache1" maxElementsInMemory="0" eternal="true" overflowToDisk="false">
-    <searchAttribute name="age" expression="value.getAge()"/>
-    <searchAttribute name="gender" expression="value.getGender()"/>
-    <searchAttribute name="name" expression="value.getName()"/>
+    <searchable>
+        <searchAttribute name="age" expression="value.getAge()"/>
+        <searchAttribute name="gender" expression="value.getGender()"/>
+        <searchAttribute name="name" expression="value.getName()"/>
+    </searchable>
 </cache>
 ---  
   
 
 ---  
 <cache name="cache2" maxElementsInMemory="0" eternal="true" overflowToDisk="false">
-    <searchAttribute name="age" class="net.sf.ehcache.search.TestAttributeExtractor"/>
-    <searchAttribute name="gender" expression="value.getGender()"/>
+    <searchable>
+        <searchAttribute name="age" class="net.sf.ehcache.search.TestAttributeExtractor"/>
+        <searchAttribute name="gender" expression="value.getGender()"/>
+    </searchable>
 </cache>
 ---  
   
-  
+*  Search Query Language
 
-**  Queries
+    Ehcache Search introduces an Object Oriented query language, following DSL principles, which should feel familiar and natural to Java programmers.
 
-***  DSL Conventions
-
-Queries are created using our search Domain Specific Language ("DSL"). We follow the conventions for implementing a DSL in Java
-such as fluent builders and static factory methods for a compact and easy-to-read representation.
-
-See {{http://www.infoq.com/articles/internal-dsls-java}} for a description of these conventions.
-
+    Here is a simple example:
 
 ---
-    Results results = cache.createQuery().add(age.eq(35)).includeKeys().execute();
+    Query query = cache.createQuery().add(age.eq(35)).includeKeys().end();
+    Results results = query.execute();
 ---
 
+** Making queries immutable
 
-  A query can be executed and then modified and re-executed. If <<<end>>> is called
+  By defualt a query can be executed and then modified and re-executed. If <<<end>>> is called
   the query is made immutable.
 
-  Both Element keys and attributes of Element can be queried. Attributes must be pre-defined
-  for a cache.
+**  Using attributes in queries
 
-  They are populated by extraction from an Element's value using <<<net.sf.ehcache.search.attribute.AttributeExtractor>>>. See
-  extractors below.
+  If available the built-in key and value attributes are referenced as follows:
+
+---
+    Attribute key = cache.getSearchAttribute(Query.KEY);
+    Attribute value = cache.getSearchAttribute(Query.VALUE);
+    Results results = cache.createQuery().add(key.eq(35)).execute();
+---
+
+    Other attributes are referenced by the names given them in the configuraition. E.g.
+
+---
+   Attribute<Integer> age = cache.getSearchAttribute("age");
+   Attribute<String> gender = cache.getSearchAttribute("gender");
+   Attribute<String> name = cache.getSearchAttribute("name");
+---
+
+** Expressions
+
+    The Query to be searched for is built using Expressions.
+
+    Expressions include common operators such as:
+
+---
+    query = cache.createQuery().includeKeys().add(age.eq(12)).add(gender.eq("timmy")).end();
+---
+
+   See the {{{http://ehcache.org/xref/net/sf/ehcache/search/expression/package-frame.html}Expression JavaDoc}} for a complete list.
 
 
-**  Aggregators
+**   Limiting the size of Results
 
-    Aggregators are added with <<<query.includeAggregator(Aggregator aggregator, Attribute<?> attribute)>>>.
+    By default a query will return an unlimited number of results. For example the following
+    query will return all keys in the cache.
 
-    Because the state of the cache can change between search executions it is recommended to add all of the Aggregators you want
-    for a query at once. Execution is also more efficient.
+---
+    Query query = cache.createQuery();
+    query.includeKeys();
+    query.execute();
+---
+
+    If too many results are returned it could cause an OutOfMemoryError
+
+    The <<<maxResults>>> clause is used to limit the size of the results.
+
+    e.g. to limit the above query to the first 100 elements found:
+
+---
+    Query query = cache.createQuery();
+    query.includeKeys();
+    query.maxResults(100);
+    query.execute();
+---
 
 
-
-** Search Results
+* Search Results
 
   Queries return a <<<Results>>> object which contain objects of class <<<Result>>>.
 
-*** How much to return
+** How much to return
 
   Query results can potentially be very large and could be too large to safely return to the caller.
 
@@ -185,7 +284,7 @@ See {{http://www.infoq.com/articles/internal-dsls-java}} for a description of th
   what was returned by the query if you are unsure, <<<Results>>> has boolean methods which will tell you whether
   that type of reuslt was returned.
 
-*** Result
+** Result
 
    A Result object can contain either:
 
@@ -199,30 +298,64 @@ See {{http://www.infoq.com/articles/internal-dsls-java}} for a description of th
 
    For attributes and functions, Result must be called with the templated type.
 
-**   Limiting the size of Results
 
-    By default a query will return an unlimited number of results. For example the following
-    query will return all keys in the cache.
-    
----
-    Query query = cache.createQuery();
-    query.includeKeys();
-    query.execute();
----
+**  Aggregators
 
-    If too many results are returned it could cause an OutOfMemoryError 
-    
-    The <<<maxResults>>> clause is used to limit the size of the results.
-    
-    e.g. to limit the above query to the first 100 elements found:
+    Aggregators are added with <<<query.includeAggregator(Aggregator aggregator, Attribute<?> attribute)>>>.
+
+    Because the state of the cache can change between search executions it is recommended to add all of the Aggregators you want
+    for a query at once. Execution is also more efficient.
+
+    See the {{{http://ehcache.org/xref/net/sf/ehcache/search/aggregator/package-frame.html}Aggregators JavaDoc}} for a complete list.
+
+
+*   Sample Application
+
+    We have created a simple standalone sample application with few dependencies for you to easily get started with Ehcache Search.
+
+    {{{http://github.com/downloads/sharrissf/Ehcache-Search-Sample/ehcache-search-sample-0.0.1-SNAPSHOT-distribution.tar.gz}Download}} it
+    or check out the source:
 
 ---
-    Query query = cache.createQuery();
-    query.includeKeys();
-    query.maxResults(100);
-    query.execute();
+git clone git://github.com/sharrissf/Ehcache-Search-Sample.git
 ---
 
+    The {{{http://ehcache.org/xref-test/net/sf/ehcache/search/package-summary.html}Ehcache Test Sources}} show lots of further examples
+    on how to use each Ehcache Search feature.
+
+*   Scripting Environments
+
+    Ehcache Search is readily amenable to scripting. The following example shows how to use it with BeanShell:
+
+---
+   Interpreter i = new Interpreter();
+
+    //Auto discover the search attributes and add them to the interpreter's context
+    Map<String, SearchAttribute> attributes = cache.getCacheConfiguration().getSearchAttributes();
+    for (Map.Entry<String, SearchAttribute> entry : attributes.entrySet()) {
+        i.set(entry.getKey(), cache.getSearchAttribute(entry.getKey()));
+        LOG.info("Setting attribute " + entry.getKey());
+    }
+
+    //Define the query and results. Add things which would be set in the GUI i.e. includeKeys and add to context
+    Query query = cache.createQuery().includeKeys();
+    Results results = null;
+    i.set("query", query);
+    i.set("results", results);
+
+    //This comes from the freeform text field
+    String userDefinedQuery = "age.eq(35)";
+
+    //Add the stuff on that we need
+    String fullQueryString = "results = query.add(" + userDefinedQuery + ").execute()";
+
+    i.eval(fullQueryString);
+    results = (Results) i.get("results");
+    assertTrue(2 == results.size());
+    for (Result result : results.all()) {
+        LOG.info("" + result.getKey());
+    }
+---
 
 *   Implementations
 
@@ -286,10 +419,12 @@ See {{http://www.infoq.com/articles/internal-dsls-java}} for a description of th
 
     * Added EHC-800 comment to ehcache-search.xml. Not honouring JavaBeans convention
 
-    * EHC-801: Keys and values which are already of a supported attribute type should be able to be added to queries using the attribute name "key"
+    * EHC-801: Keys and values which are already of a supported attribute type should be able to be added to queries using the attribute name "key" and "value"
 
     * EHC-802: result.getValue() should not work unless includeValues() was specified.
 
     * EHC-803: Missing implemenations in Results and Result
+
+    * EHC-804:  Add <searchable> sub-element to ehcache.xml to enclose search configuration
 
 

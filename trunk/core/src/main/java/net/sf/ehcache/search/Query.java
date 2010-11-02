@@ -51,6 +51,22 @@ import net.sf.ehcache.search.expression.Criteria;
  */
 public interface Query {
 
+
+    /**
+     * The search attribute name for a cache key.
+     *
+     * This will exist as a search attribute if the key is of a supported {@link net.sf.ehcache.search.attribute.AttributeType}
+     */
+    public static final String KEY = "key";
+
+    /**
+     * The search attribute name for a cache value.
+     *
+     * This will exist as a search attribute if the value is of a supported {@link net.sf.ehcache.search.attribute.AttributeType}
+     */
+    public static final String VALUE = "value";
+
+
     /**
      * Request that the key object be present in the results.
      *
