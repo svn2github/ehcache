@@ -74,7 +74,6 @@ public final class TransactionController {
         } finally {
             contextMap.remove(txId);
             currentTransactionIdThreadLocal.remove();
-            LOG.debug("committed transaction {}", currentTx.getTransactionId());
             MDC.remove(MDC_KEY);
         }
     }
@@ -92,7 +91,6 @@ public final class TransactionController {
         } finally {
             contextMap.remove(txId);
             currentTransactionIdThreadLocal.remove();
-            LOG.debug("rolled back transaction {}", currentTx.getTransactionId());
             MDC.remove(MDC_KEY);
         }
     }

@@ -120,7 +120,7 @@ public class TransactionContext {
 
         try {
             fireBeforeCommitEvent();
-            LOG.debug("{} cache(s) participated in transaction, committing", softLockMap.keySet().size());
+            LOG.debug("{} cache(s) participated in transaction, committing {}", softLockMap.keySet().size(), transactionId);
             freeze();
             transactionId.markAsCommit(true);
 
@@ -129,8 +129,10 @@ public class TransactionContext {
                 LocalTransactionStore store = storeMap.get(cacheName);
                 List<SoftLock> softLocks = stringListEntry.getValue();
 
+                LOG.debug("committing soft locked values of cache {}", cacheName);
                 store.commit(softLocks);
             }
+            LOG.debug("committed transaction {}", transactionId);
         } finally {
             unfreezeAndUnlock();
             softLockMap.clear();
@@ -141,7 +143,7 @@ public class TransactionContext {
 
     public void rollback() {
         try {
-            LOG.debug("{} cache(s) participated in transaction, rolling back", softLockMap.keySet().size());
+            LOG.debug("{} cache(s) participated in transaction, rolling back {}", softLockMap.keySet().size(), transactionId);
             freeze();
 
             for (Map.Entry<String, List<SoftLock>> stringListEntry : softLockMap.entrySet()) {
@@ -149,8 +151,10 @@ public class TransactionContext {
                 LocalTransactionStore store = storeMap.get(cacheName);
                 List<SoftLock> softLocks = stringListEntry.getValue();
 
+                LOG.debug("rolling back soft locked values of cache {}", cacheName);
                 store.rollback(softLocks);
             }
+            LOG.debug("rolled back transaction {}", transactionId);
         } finally {
             unfreezeAndUnlock();
             softLockMap.clear();
