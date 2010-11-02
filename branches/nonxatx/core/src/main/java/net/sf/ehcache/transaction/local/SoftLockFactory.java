@@ -14,8 +14,8 @@ public interface SoftLockFactory {
 
     void clearKey(Object key);
 
-    Set<Object> getKeysToRemove(TransactionContext transactionContext, String cacheName);
+    Set<Object> getKeysToRemove(TransactionContext transactionContext);
 
-    Set<Object> getKeysToAdd(TransactionContext transactionContext, String cacheName);
+    Set<Object> getKeysToAdd(TransactionContext transactionContext);
 
 }

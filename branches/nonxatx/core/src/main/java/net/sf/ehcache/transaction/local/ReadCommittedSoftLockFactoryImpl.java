@@ -16,11 +16,13 @@ public class ReadCommittedSoftLockFactoryImpl implements SoftLockFactory {
 
     private final static Object MARKER = new Object();
 
+    private final String cacheName;
+
     // actually all we need would be a ConcurrentSet...
     private final ConcurrentMap<Object,Object> newKeys = new ConcurrentHashMap<Object, Object>();
 
-    public ReadCommittedSoftLockFactoryImpl() {
-        //
+    public ReadCommittedSoftLockFactoryImpl(String cacheName) {
+        this.cacheName = cacheName;
     }
 
     public SoftLock createSoftLock(TransactionID transactionID, Object key, Element newElement, Element oldElement) {
@@ -39,7 +41,7 @@ public class ReadCommittedSoftLockFactoryImpl implements SoftLockFactory {
         newKeys.remove(key);
     }
 
-    public Set<Object> getKeysToRemove(TransactionContext transactionContext, String cacheName) {
+    public Set<Object> getKeysToRemove(TransactionContext transactionContext) {
         Set<Object> keysToRemove = new HashSet<Object>();
         keysToRemove.addAll(getNewKeys());
         keysToRemove.removeAll(transactionContext.getNewKeys(cacheName));
@@ -47,7 +49,7 @@ public class ReadCommittedSoftLockFactoryImpl implements SoftLockFactory {
         return keysToRemove;
     }
 
-    public Set<Object> getKeysToAdd(TransactionContext transactionContext, String cacheName) {
+    public Set<Object> getKeysToAdd(TransactionContext transactionContext) {
         return Collections.emptySet();
     }
 

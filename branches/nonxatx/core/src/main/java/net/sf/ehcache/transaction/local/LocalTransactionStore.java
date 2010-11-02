@@ -302,8 +302,8 @@ public class LocalTransactionStore extends AbstractStore {
             }
         };
 
-        keys.removeAll(softLockFactory.getKeysToRemove(getCurrentTransactionContext(), cacheName));
-        keys.addAll(softLockFactory.getKeysToAdd(getCurrentTransactionContext(), cacheName));
+        keys.removeAll(softLockFactory.getKeysToRemove(getCurrentTransactionContext()));
+        keys.addAll(softLockFactory.getKeysToAdd(getCurrentTransactionContext()));
 
         return new SetWrapperList(keys);
     }
@@ -312,8 +312,8 @@ public class LocalTransactionStore extends AbstractStore {
         assertNotTimedOut();
 
         int sizeModifier = 0;
-        sizeModifier -= softLockFactory.getKeysToRemove(getCurrentTransactionContext(), cacheName).size();
-        sizeModifier += softLockFactory.getKeysToAdd(getCurrentTransactionContext(), cacheName).size();
+        sizeModifier -= softLockFactory.getKeysToRemove(getCurrentTransactionContext()).size();
+        sizeModifier += softLockFactory.getKeysToAdd(getCurrentTransactionContext()).size();
         return underlyingStore.getSize() + sizeModifier;
     }
 
