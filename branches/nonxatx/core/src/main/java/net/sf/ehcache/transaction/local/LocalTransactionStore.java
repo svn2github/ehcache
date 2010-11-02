@@ -1,6 +1,8 @@
 package net.sf.ehcache.transaction.local;
 
+import net.sf.ehcache.CacheEntry;
 import net.sf.ehcache.CacheException;
+import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.Status;
 import net.sf.ehcache.TransactionController;
@@ -29,6 +31,7 @@ public class LocalTransactionStore extends AbstractStore {
 
     private final TransactionController transactionController;
     private final SoftLockFactory softLockFactory;
+    private final Ehcache cache;
     private final String cacheName;
     private final Store underlyingStore;
     private final CopyStrategy copyStrategy;
@@ -37,10 +40,11 @@ public class LocalTransactionStore extends AbstractStore {
     private volatile ElementComparer elementComparer = new ArraysAwareElementComparer();
 
 
-    public LocalTransactionStore(TransactionController transactionController, SoftLockFactory softLockFactory, String cacheName, Store store, CopyStrategy copyStrategy) {
+    public LocalTransactionStore(TransactionController transactionController, SoftLockFactory softLockFactory, Ehcache cache, Store store, CopyStrategy copyStrategy) {
         this.transactionController = transactionController;
         this.softLockFactory = softLockFactory;
-        this.cacheName = cacheName;
+        this.cache = cache;
+        this.cacheName = cache.getName();
         this.underlyingStore = store;
         this.copyStrategy = copyStrategy;
     }
@@ -338,15 +342,44 @@ public class LocalTransactionStore extends AbstractStore {
         }
     }
 
+    public boolean putWithWriter(final Element element, final CacheWriterManager writerManager) throws CacheException {
+        boolean put = put(element);
+        getCurrentTransactionContext().addListener(new TransactionListener() {
+            public void beforeCommit() {
+                if (writerManager != null) {
+                    writerManager.put(element);
+                } else {
+                    cache.getWriterManager().put(element);
+                }
+            }
+            public void afterCommit() {
+            }
+            public void afterRollback() {
+            }
+        });
+        return put;
+    }
+
+    public Element removeWithWriter(final Object key, final CacheWriterManager writerManager) throws CacheException {
+        Element removed = remove(key);
+        final CacheEntry cacheEntry = new CacheEntry(key, getQuiet(key));
+        getCurrentTransactionContext().addListener(new TransactionListener() {
+            public void beforeCommit() {
+                if (writerManager != null) {
+                    writerManager.remove(cacheEntry);
+                } else {
+                    cache.getWriterManager().remove(cacheEntry);
+                }
+            }
+            public void afterCommit() {
+            }
+            public void afterRollback() {
+            }
+        });
+        return removed;
+    }
+
     // todo implement all these transactional methods
-
-    public boolean putWithWriter(Element element, CacheWriterManager writerManager) throws CacheException {
-        throw new UnsupportedOperationException("not yet implemented");
-    }
-
-    public Element removeWithWriter(Object key, CacheWriterManager writerManager) throws CacheException {
-        throw new UnsupportedOperationException("not yet implemented");
-    }
 
     public Element putIfAbsent(Element element) throws NullPointerException {
         throw new UnsupportedOperationException("not yet implemented");
