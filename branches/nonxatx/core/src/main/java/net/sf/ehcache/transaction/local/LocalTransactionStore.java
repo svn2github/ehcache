@@ -97,6 +97,7 @@ public class LocalTransactionStore extends AbstractStore {
                 } else {
                     // CAS failed, something with that key may now be in store, restart.
                     softLock.unlock();
+                    softLockFactory.clearKey(key);
                     LOG.debug("put: cache [{}] key [{}] was not in, soft lock insertion failed, retrying...", cacheName, key);
                     continue;
                 }
@@ -150,6 +151,7 @@ public class LocalTransactionStore extends AbstractStore {
                     } else {
                         // CAS failed, something else with that key is now in store or the key disappeared, restart.
                         softLock.unlock();
+                        softLockFactory.clearKey(key);
                         LOG.debug("put: cache [{}] key [{}] was in, replacement by soft lock failed, retrying... ", cacheName, key);
                         continue;
                     }
@@ -218,6 +220,7 @@ public class LocalTransactionStore extends AbstractStore {
                 } else {
                     // CAS failed, something with that key may now be in store, restart.
                     softLock.unlock();
+                    softLockFactory.clearKey(key);
                     LOG.debug("remove: cache [{}] key [{}] was not in, soft lock insertion failed, retrying...", cacheName, key);
                     continue;
                 }
@@ -272,6 +275,7 @@ public class LocalTransactionStore extends AbstractStore {
                     } else {
                         // CAS failed, something else with that key is now in store or the key disappeared, restart.
                         softLock.unlock();
+                        softLockFactory.clearKey(key);
                         LOG.debug("remove: cache [{}] key [{}] was in, replacement by soft lock failed, retrying...", cacheName, key);
                         continue;
                     }
