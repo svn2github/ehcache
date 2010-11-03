@@ -22,8 +22,8 @@ public final class TransactionIDImpl implements TransactionID {
         return commit;
     }
 
-    public void markAsCommit(boolean commit) {
-        this.commit = commit;
+    public void markForCommit() {
+        this.commit = true;
     }
 
 

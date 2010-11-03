@@ -4,7 +4,7 @@ import net.sf.ehcache.Element;
 import net.sf.ehcache.transaction.TransactionID;
 
 /**
- * A Soft locks is an element value's replacement for transactional stores
+ * A soft lock is used to lock elements in transactional stores
  * @author Ludovic Orban
  */
 public interface SoftLock {
@@ -50,7 +50,7 @@ public interface SoftLock {
 
     /**
      * Unlock the soft lock. Once a soft lock got unlocked, it is considered 'dead': it cannot be
-     * locked again and must be cleaned up.
+     * locked again and must be cleaned up
      */
     void unlock();
 
@@ -62,7 +62,7 @@ public interface SoftLock {
     void freeze();
 
     /**
-     * Unfreeze the soft lock.
+     * Unfreeze the soft lock
      */
     void unfreeze();
 

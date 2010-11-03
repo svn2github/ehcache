@@ -82,7 +82,7 @@ public class TransactionContext {
             fireBeforeCommitEvent();
             LOG.debug("{} cache(s) participated in transaction, committing {}", softLockMap.keySet().size(), transactionId);
             freeze();
-            transactionId.markAsCommit(true);
+            transactionId.markForCommit();
 
             for (Map.Entry<String, List<SoftLock>> stringListEntry : softLockMap.entrySet()) {
                 String cacheName = stringListEntry.getKey();
