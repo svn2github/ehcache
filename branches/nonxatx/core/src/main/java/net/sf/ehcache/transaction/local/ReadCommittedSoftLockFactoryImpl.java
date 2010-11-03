@@ -33,10 +33,6 @@ public class ReadCommittedSoftLockFactoryImpl implements SoftLockFactory {
         return softLock;
     }
 
-    private Set<Object> getNewKeys() {
-        return newKeys.keySet();
-    }
-
     public void clearKey(Object key) {
         newKeys.remove(key);
     }
@@ -45,7 +41,7 @@ public class ReadCommittedSoftLockFactoryImpl implements SoftLockFactory {
         Set<Object> invisibleKeys = new HashSet<Object>();
 
         // all new keys added into the store are invisible
-        invisibleKeys.addAll(getNewKeys());
+        invisibleKeys.addAll(newKeys.keySet());
 
         List<SoftLock> currentTransactionContextSoftLocks = currentTransactionContext.getSoftLocks(cacheName);
         for (SoftLock softLock : currentTransactionContextSoftLocks) {
