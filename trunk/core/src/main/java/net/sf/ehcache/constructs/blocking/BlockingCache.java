@@ -129,8 +129,12 @@ public class BlockingCache extends EhcacheDecoratorAdapter {
 
         Sync lock = getLockForKey(key);
         acquiredLockForKey(key, lock, LockType.READ);
-        Element element = underlyingCache.get(key);
-        lock.unlock(LockType.READ);
+        Element element;
+        try {
+            element = underlyingCache.get(key);
+        } finally {
+            lock.unlock(LockType.READ);
+        }
         if (element == null) {
             acquiredLockForKey(key, lock, LockType.WRITE);
             element = underlyingCache.getQuiet(key);
