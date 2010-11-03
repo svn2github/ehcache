@@ -25,27 +25,37 @@ public class JtaLocalTransactionStore extends AbstractStore {
     private final LocalTransactionStore transactionalStore;
     private final TransactionController transactionController;
     private final TransactionManager transactionManager;
+    private Transaction boundTransaction;
 
     public JtaLocalTransactionStore(LocalTransactionStore transactionalStore, TransactionManagerLookup transactionManagerLookup, TransactionController transactionController) {
         this.transactionalStore = transactionalStore;
         this.transactionController = transactionController;
         this.transactionManager = transactionManagerLookup.getTransactionManager();
         if (this.transactionManager == null) {
-            throw new TransactionException("no JTA transaction manager could be located, cannot bind local_jta cache with JTA transactions");
+            throw new TransactionException("no JTA transaction manager could be located, cannot bind local_jta cache with JTA");
         }
     }
 
     private void registerInJtaContext() {
-        if (transactionController.getCurrentTransactionContext() != null) {
-            // already started local TX and registered in JTA
-            return;
-        }
-
         try {
+            if (transactionController.getCurrentTransactionContext() != null) {
+                // already started local TX and registered in JTA
+
+                // make sure the JTA transaction hasn't changed (happens when TM.suspend() is called)
+                Transaction tx = transactionManager.getTransaction();
+                if (!boundTransaction.equals(tx)) {
+                    throw new TransactionException("Invalid JTA transaction context, cache was first used in transaction [" + boundTransaction + "]" +
+                            " but is now used in transaction [" + tx + "].");
+                }
+                return;
+            }
+
             Transaction tx = transactionManager.getTransaction();
             if (tx == null) {
-                throw new TransactionException("no JTA transaction context");
+                throw new TransactionException("no JTA transaction context started, local_jta caches cannot be used outside of JTA transactions");
             }
+            boundTransaction = tx;
+
             transactionController.begin();
             tx.registerSynchronization(new JtaLocalEhcacheSynchronization(transactionController));
         } catch (SystemException e) {
