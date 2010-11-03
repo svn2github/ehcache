@@ -34,11 +34,7 @@ import net.sf.ehcache.config.SearchAttribute;
 import net.sf.ehcache.search.Person.Gender;
 import net.sf.ehcache.search.aggregator.Aggregator;
 import net.sf.ehcache.search.aggregator.AggregatorException;
-import net.sf.ehcache.search.aggregator.Average;
-import net.sf.ehcache.search.aggregator.Count;
-import net.sf.ehcache.search.aggregator.Max;
-import net.sf.ehcache.search.aggregator.Min;
-import net.sf.ehcache.search.aggregator.Sum;
+import net.sf.ehcache.search.aggregator.AggregatorInstance;
 import net.sf.ehcache.search.expression.Or;
 
 public class BasicSearchTest extends TestCase {
@@ -73,13 +69,7 @@ public class BasicSearchTest extends TestCase {
             // expected
         }
         try {
-            query1.includeAggregator(null, new Attribute("foo"));
-            fail();
-        } catch (NullPointerException npe) {
-            // expected
-        }
-        try {
-            query1.includeAggregator(new Count(), null);
+            query1.includeAggregator((Aggregator[]) null);
             fail();
         } catch (NullPointerException npe) {
             // expected
@@ -113,7 +103,7 @@ public class BasicSearchTest extends TestCase {
             // expected
         }
         try {
-            query1.includeAggregator(new Count(), new Attribute("foo"));
+            query1.includeAggregator(new Attribute("foo").max());
             fail();
         } catch (SearchException se) {
             // expected
@@ -203,28 +193,34 @@ public class BasicSearchTest extends TestCase {
         Attribute<Integer> age = cache.getSearchAttribute("age");
 
         Query query = cache.createQuery();
-        query.includeAggregator(new Aggregator<Integer>() {
-            private int doubledSum;
+        query.includeAggregator(new Aggregator() {
+            public AggregatorInstance<Integer> createInstance() {
+                return new AggregatorInstance<Integer>() {
 
-            public void accept(Object input) throws AggregatorException {
-                if (doubledSum == 0) {
-                    doubledSum = (2 * (Integer) input);
-                } else {
-                    doubledSum += (2 * (Integer) input);
-                }
+                    private int doubledSum;
+
+                    public void accept(Object input) throws AggregatorException {
+                        if (doubledSum == 0) {
+                            doubledSum = (2 * (Integer) input);
+                        } else {
+                            doubledSum += (2 * (Integer) input);
+                        }
+                    }
+
+                    public Integer aggregateResult() {
+                        return doubledSum;
+                    }
+
+                    public Attribute<?> getAttribute() {
+                        return new Attribute("age");
+                    }
+                };
             }
-
-            public Integer aggregateResult() {
-                return doubledSum;
-            }
-
-        }, age);
+        });
         query.end();
 
         Results results = query.execute();
-
-//        todo int count = (Integer) results.aggregateResult();
-//        assertEquals(246, count);
+        assertEquals(246, results.getAggregatorResults().get(0));
     }
 
     public void testBuiltinFunctions() {
@@ -236,70 +232,64 @@ public class BasicSearchTest extends TestCase {
 
         {
             Query query = cache.createQuery();
-            query.includeAggregator(new Count(), age);
+            query.includeAggregator(age.count());
             query.end();
 
             Results results = query.execute();
-
-//            todo int count = (Integer) results.aggregateResult();
-//            assertEquals(4, count);
+            assertTrue(results.hasAggregators());
+            assertEquals(4, results.getAggregatorResults().get(0));
         }
 
         {
             Query query = cache.createQuery();
-            query.includeAggregator(new Max(), age);
+            query.includeAggregator(age.max());
             query.end();
 
             Results results = query.execute();
-
-//            todo int max = (Integer) results.aggregateResult();
-//            assertEquals(35, max);
+            assertTrue(results.hasAggregators());
+            assertEquals(35, results.getAggregatorResults().get(0));
         }
 
         {
             Query query = cache.createQuery();
-            query.includeAggregator(new Min(), age);
+            query.includeAggregator(age.min());
             query.end();
 
             Results results = query.execute();
-
-//            todo int min = (Integer) results.aggregateResult();
-//            assertEquals(23, min);
+            assertTrue(results.hasAggregators());
+            assertEquals(23, results.getAggregatorResults().get(0));
         }
 
         {
             Query query = cache.createQuery();
-            query.includeAggregator(new Sum(), age);
+            query.includeAggregator(age.sum());
             query.end();
 
             Results results = query.execute();
-
-//           todo  long sum = (Long) results.aggregateResult();
-//            assertEquals(123, sum);
+            assertTrue(results.hasAggregators());
+            assertEquals(123L, results.getAggregatorResults().get(0));
         }
 
         {
             Query query = cache.createQuery();
-            query.includeAggregator(new Average(), age);
+            query.includeAggregator(age.average());
             query.end();
 
             Results results = query.execute();
-
-//           todo double avg = (Double) results.aggregateResult();
-//            assertEquals(30.75D, avg);
+            assertTrue(results.hasAggregators());
+            assertEquals(30.75D, results.getAggregatorResults().get(0));
         }
 
         {
             Query query = cache.createQuery();
-            query.includeAggregator(new Min(), age);
-            query.includeAggregator(new Max(), age);
+            query.includeAggregator(age.min());
+            query.includeAggregator(age.max());
             query.end();
 
             Results results = query.execute();
-
-//            todo List aggregateResults = (List) results.aggregateResult();
-//            assertEquals(23, aggregateResults.get(0));
-//            assertEquals(35, aggregateResults.get(1));
+            assertTrue(results.hasAggregators());
+            assertEquals(23, results.getAggregatorResults().get(0));
+            assertEquals(35, results.getAggregatorResults().get(1));
         }
 
     }

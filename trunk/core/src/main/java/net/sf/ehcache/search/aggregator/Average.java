@@ -16,15 +16,25 @@
 
 package net.sf.ehcache.search.aggregator;
 
+import net.sf.ehcache.search.Attribute;
+
 /**
  * Compute the average (arithmetic mean) as a double
  *
  * @author teck
  */
-public class Average implements Aggregator<Double> {
+public class Average implements AggregatorInstance<Double> {
 
     private long count;
     private double sum;
+    private final Attribute<?> attribute;
+
+    /**
+     * @param attribute
+     */
+    public Average(Attribute<?> attribute) {
+        this.attribute = attribute;
+    }
 
     /**
      * {@inheritDoc}
@@ -55,6 +65,13 @@ public class Average implements Aggregator<Double> {
         }
 
         return sum / count;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public Attribute getAttribute() {
+        return attribute;
     }
 
 }

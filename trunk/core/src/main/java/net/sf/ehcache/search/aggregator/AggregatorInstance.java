@@ -18,35 +18,34 @@ package net.sf.ehcache.search.aggregator;
 
 import net.sf.ehcache.search.Attribute;
 
-
 /**
- * Counts the number of results
+ * An AggregatorInstance takes input objects and computes an aggregate function from them.
  *
  * @author Greg Luck
+ * @param <T>
+ *            the runtime type of aggregation result
  */
-public class Count implements AggregatorInstance<Integer> {
-
-    private int count;
+public interface AggregatorInstance<T> {
 
     /**
-     * {@inheritDoc}
+     * Add the given value to the aggregator function
+     *
+     * @param input a single input value
+     * @throws AggregatorException if the function cannot be computed, possibly due to unsupported types
      */
-    public void accept(Object input) throws AggregatorException {
-        count++;
-    }
+    void accept(Object input) throws AggregatorException;
 
     /**
-     * {@inheritDoc}
+     * Retrieve the final result
+     *
+     * @return aggregate result
      */
-    public Integer aggregateResult() {
-        return count;
-    }
+    T aggregateResult();
 
     /**
-     * {@inheritDoc}
+     * Get the attribute to pass to aggregator
+     *
+     * @return attribute to aggregate (null if no attribute is applicable to function)
      */
-    public Attribute<?> getAttribute() {
-        return null;
-    }
-
+    Attribute<?> getAttribute();
 }

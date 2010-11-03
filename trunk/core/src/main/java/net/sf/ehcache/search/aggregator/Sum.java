@@ -16,6 +16,8 @@
 
 package net.sf.ehcache.search.aggregator;
 
+import net.sf.ehcache.search.Attribute;
+
 /**
  * Sums the results
  * <p/>
@@ -23,9 +25,17 @@ package net.sf.ehcache.search.aggregator;
  *
  * @author Greg Luck
  */
-public class Sum implements Aggregator<Long> {
+public class Sum implements AggregatorInstance<Long> {
 
     private long sum;
+    private final Attribute<?> attribute;
+
+    /**
+     * @param attribute
+     */
+    public Sum(Attribute<?> attribute) {
+        this.attribute = attribute;
+    }
 
     /**
      * {@inheritDoc}
@@ -51,6 +61,13 @@ public class Sum implements Aggregator<Long> {
      */
     public Long aggregateResult() {
         return sum;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public Attribute getAttribute() {
+        return attribute;
     }
 
 }

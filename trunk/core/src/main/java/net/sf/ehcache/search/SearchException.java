@@ -56,7 +56,6 @@ public class SearchException extends CacheException {
     /**
      * Construct a search exception with an underlying cause
      *
-     * @param message
      * @param cause
      */
     public SearchException(Throwable cause) {

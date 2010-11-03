@@ -16,15 +16,25 @@
 
 package net.sf.ehcache.search.aggregator;
 
+import net.sf.ehcache.search.Attribute;
+
 /**
  * Determine the minimum value
  *
  * @author teck
  * @param <T>
  */
-public class Min<T> implements Aggregator<T> {
+public class Min<T> implements AggregatorInstance<T> {
 
     private Comparable min;
+    private final Attribute<?> attribute;
+
+    /**
+     * @param attribute
+     */
+    public Min(Attribute<?> attribute) {
+        this.attribute = attribute;
+    }
 
     /**
      * {@inheritDoc}
@@ -63,4 +73,10 @@ public class Min<T> implements Aggregator<T> {
         throw new AggregatorException("Value is not Comparable: " + o.getClass());
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    public Attribute getAttribute() {
+        return attribute;
+    }
 }

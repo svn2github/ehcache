@@ -1,14 +1,19 @@
 package net.sf.ehcache.search;
 
-import bsh.EvalError;
-import bsh.Interpreter;
+import static net.sf.ehcache.search.Query.KEY;
+import static net.sf.ehcache.search.expression.Logic.and;
+import static net.sf.ehcache.search.expression.Logic.or;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+
+import java.util.List;
+import java.util.Map;
+
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.config.SearchAttribute;
-import net.sf.ehcache.search.aggregator.Aggregator;
-import net.sf.ehcache.search.aggregator.Count;
-import net.sf.ehcache.search.aggregator.Sum;
 import net.sf.ehcache.search.expression.And;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -16,14 +21,8 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.List;
-import java.util.Map;
-
-import static net.sf.ehcache.search.Query.KEY;
-import static net.sf.ehcache.search.expression.Logic.and;
-import static net.sf.ehcache.search.expression.Logic.or;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import bsh.EvalError;
+import bsh.Interpreter;
 
 
 /**
@@ -65,8 +64,6 @@ public class QueryExamplesTest {
 
         Query query;
         Results results;
-        Aggregator sum = new Sum();
-        Aggregator count = new Count();
 
         // include all keys in the cache
         query = cache.createQuery().includeKeys().end();
@@ -111,10 +108,10 @@ public class QueryExamplesTest {
         }
 
         // select max(age) -- named indexed attribute "age"
-        Query sumQuery = cache.createQuery().includeAggregator(sum, age).end();
+        Query sumQuery = cache.createQuery().includeAggregator(age.sum()).end();
         results = sumQuery.execute();
-//      todo  Long sumResult = (Long) results.aggregateResult();
-//      todo  LOG.info("Sum is: " + sumResult);
+        Long sumResult = (Long) results.getAggregatorResults().get(0);
+        LOG.info("Sum is: " + sumResult);
 
         // select keys with criteria age == 12 AND gender = "timmy"
         query = cache.createQuery().includeKeys().add(and(age.eq(12), gender.eq("timmy"))).end();

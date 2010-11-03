@@ -18,6 +18,8 @@ package net.sf.ehcache.search;
 
 import java.util.Collection;
 
+import net.sf.ehcache.search.aggregator.Aggregator;
+import net.sf.ehcache.search.aggregator.Aggregators;
 import net.sf.ehcache.search.expression.Between;
 import net.sf.ehcache.search.expression.Criteria;
 import net.sf.ehcache.search.expression.EqualTo;
@@ -34,7 +36,7 @@ import net.sf.ehcache.search.expression.NotEqualTo;
  *
  * @author teck
  * @param <T>
- * the parameterize type of this attribute
+ *            the parameterize type of this attribute
  */
 public class Attribute<T> {
 
@@ -75,8 +77,8 @@ public class Attribute<T> {
     /**
      * Create a range criteria between the given min/max with specified inclusiveness
      *
-     * @param min          the minimum value in the range
-     * @param max          the maximum value in the range
+     * @param min the minimum value in the range
+     * @param max the maximum value in the range
      * @param minInclusive is the minimum inclusive in the range
      * @param maxInclusive is the maximum inclusive in the range
      * @return criteria instance
@@ -165,6 +167,51 @@ public class Attribute<T> {
      */
     public Criteria like(String regex) {
         return new Like(attributeName, regex);
+    }
+
+    /**
+     * Request a count aggregation of this attribute
+     *
+     * @return count aggregator
+     */
+    public Aggregator count() {
+        return Aggregators.count();
+    }
+
+    /**
+     * Request a maximum value aggregation of this attribute
+     *
+     * @return max aggregator
+     */
+    public Aggregator max() {
+        return Aggregators.max(this);
+    }
+
+    /**
+     * Request a minimum value aggregation of this attribute
+     *
+     * @return min aggregator
+     */
+    public Aggregator min() {
+        return Aggregators.min(this);
+    }
+
+    /**
+     * Request a sum aggregation of this attribute
+     *
+     * @return sum aggregator
+     */
+    public Aggregator sum() {
+        return Aggregators.sum(this);
+    }
+
+    /**
+     * Request an average value aggregation of this attribute
+     *
+     * @return average aggregator
+     */
+    public Aggregator average() {
+        return Aggregators.average(this);
     }
 
 }

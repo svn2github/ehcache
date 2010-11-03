@@ -27,6 +27,7 @@ import net.sf.ehcache.search.Results;
 import net.sf.ehcache.search.SearchException;
 import net.sf.ehcache.search.aggregator.Aggregator;
 import net.sf.ehcache.search.aggregator.AggregatorException;
+import net.sf.ehcache.search.aggregator.AggregatorInstance;
 import net.sf.ehcache.search.expression.AlwaysMatch;
 import net.sf.ehcache.search.expression.And;
 import net.sf.ehcache.search.expression.Criteria;
@@ -34,7 +35,7 @@ import net.sf.ehcache.store.StoreQuery;
 
 /**
  * Query builder implementation. Instances are bound to a specific cache
- * 
+ *
  * @author teck
  */
 class CacheQuery implements Query, StoreQuery {
@@ -47,12 +48,12 @@ class CacheQuery implements Query, StoreQuery {
     private final List<Ordering> orderings = Collections.synchronizedList(new ArrayList<Ordering>());
     private final List<Attribute<?>> includedAttributes = Collections.synchronizedList(new ArrayList<Attribute<?>>());
     private final List<Criteria> criteria = Collections.synchronizedList(new ArrayList<Criteria>());
-    private final List<AttributeAggregator> aggregators = Collections.synchronizedList(new ArrayList<AttributeAggregator>());
+    private final List<Aggregator> aggregators = Collections.synchronizedList(new ArrayList<Aggregator>());
     private final Cache cache;
 
     /**
      * Create a new builder instance
-     * 
+     *
      * @param cache
      */
     public CacheQuery(Cache cache) {
@@ -83,6 +84,10 @@ class CacheQuery implements Query, StoreQuery {
     public Query includeAttribute(Attribute<?>... attributes) {
         checkFrozen();
 
+        if (attributes == null) {
+            throw new NullPointerException();
+        }
+
         for (Attribute<?> attribute : attributes) {
             if (attribute == null) {
                 throw new NullPointerException("null attribute");
@@ -97,9 +102,21 @@ class CacheQuery implements Query, StoreQuery {
     /**
      * {@inheritDoc}
      */
-    public Query includeAggregator(Aggregator aggregator, Attribute<?> attribute) throws SearchException, AggregatorException {
+    public Query includeAggregator(Aggregator... aggregators) throws SearchException, AggregatorException {
         checkFrozen();
-        aggregators.add(new AttributeAggegatorImpl(attribute, aggregator));
+
+        if (aggregators == null) {
+            throw new NullPointerException();
+        }
+
+        for (Aggregator aggregator : aggregators) {
+            if (aggregator == null) {
+                throw new NullPointerException("null aggregator");
+            }
+
+            this.aggregators.add(aggregator);
+        }
+
         return this;
     }
 
@@ -205,15 +222,23 @@ class CacheQuery implements Query, StoreQuery {
         assertFrozen();
         return maxResults;
     }
-    
+
     /**
      * {@inheritDoc}
      */
-    public List<AttributeAggregator> getAggregators() {
+    public List<AggregatorInstance<?>> getAggregatorInstances() {
         assertFrozen();
-        return Collections.unmodifiableList(aggregators);
+        return Collections.unmodifiableList(createAggregatorInstances(aggregators));
     }
-    
+
+    private static List<AggregatorInstance<?>> createAggregatorInstances(List<Aggregator> aggregators) {
+        List<AggregatorInstance<?>> rv = new ArrayList<AggregatorInstance<?>>(aggregators.size());
+        for (Aggregator aggregator : aggregators) {
+            rv.add(aggregator.createInstance());
+        }
+
+        return rv;
+    }
 
     private Criteria getEffectiveCriteriaCopy() {
         int count = criteria.size();
@@ -258,8 +283,7 @@ class CacheQuery implements Query, StoreQuery {
         private final List<Attribute<?>> copiedAttributes = Collections.unmodifiableList(new ArrayList<Attribute<?>>(includedAttributes));
         private final int copiedMaxResults = maxResults;
         private final List<Ordering> copiedOrdering = Collections.unmodifiableList(new ArrayList<Ordering>(orderings));
-        private final List<AttributeAggregator> copiedAggregators = Collections.unmodifiableList(new ArrayList<AttributeAggregator>(
-                aggregators));
+        private final List<AggregatorInstance<?>> copiedAggregators = Collections.unmodifiableList(createAggregatorInstances(aggregators));
 
         public Criteria getCriteria() {
             return copiedCriteria;
@@ -289,7 +313,7 @@ class CacheQuery implements Query, StoreQuery {
             return copiedOrdering;
         }
 
-        public List<AttributeAggregator> getAggregators() {
+        public List<AggregatorInstance<?>> getAggregatorInstances() {
             return copiedAggregators;
         }
     }
@@ -318,33 +342,6 @@ class CacheQuery implements Query, StoreQuery {
         public Direction getDirection() {
             return direction;
         }
-    }
-
-    /**
-     * An attribute / aggregator pair
-     */
-    private static class AttributeAggegatorImpl implements AttributeAggregator {
-
-        private final Attribute<?> attribute;
-        private final Aggregator<?> aggregator;
-
-        public AttributeAggegatorImpl(Attribute<?> attribute, Aggregator<?> aggregator) {
-            if ((attribute == null) || (aggregator == null)) {
-                throw new NullPointerException();
-            }
-
-            this.attribute = attribute;
-            this.aggregator = aggregator;
-        }
-
-        public Attribute<?> getAttribute() {
-            return attribute;
-        }
-
-        public Aggregator<?> getAggregator() {
-            return aggregator;
-        }
-
     }
 
 }

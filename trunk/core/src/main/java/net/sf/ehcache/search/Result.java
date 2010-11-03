@@ -16,8 +16,6 @@
 
 package net.sf.ehcache.search;
 
-import net.sf.ehcache.search.aggregator.Aggregator;
-
 /**
  * Represents a single cache entry that has been selected by a cache query
  *
@@ -40,19 +38,8 @@ public interface Result {
      * @param attribute the attribute to retrieve
      * @return the attribute value, or null if there is none
      * @throws SearchException if the given attribute was not explicitly selected by the
-     *                         originating query
+     *             originating query
      */
     <T> T getAttribute(Attribute<T> attribute) throws SearchException;
-
-
-     /**
-     * Retrieve the given aggregator value for this cache entry
-     *
-     * @param aggregator the aggregator to retrieve
-     * @return the aggregator value, or null if there is none
-     * @throws SearchException if the given attribute was not explicitly selected by the
-     *                         originating query
-     */
-    <T> T getAggregator(Aggregator<T> aggregator) throws SearchException;
 
 }

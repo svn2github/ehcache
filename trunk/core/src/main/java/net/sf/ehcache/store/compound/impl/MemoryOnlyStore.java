@@ -34,7 +34,7 @@ import net.sf.ehcache.search.Attribute;
 import net.sf.ehcache.search.Result;
 import net.sf.ehcache.search.Results;
 import net.sf.ehcache.search.SearchException;
-import net.sf.ehcache.search.aggregator.Aggregator;
+import net.sf.ehcache.search.aggregator.AggregatorInstance;
 import net.sf.ehcache.search.attribute.AttributeExtractor;
 import net.sf.ehcache.search.attribute.AttributeType;
 import net.sf.ehcache.search.expression.Criteria;
@@ -45,14 +45,13 @@ import net.sf.ehcache.store.LruPolicy;
 import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
 import net.sf.ehcache.store.Policy;
 import net.sf.ehcache.store.StoreQuery;
-import net.sf.ehcache.store.StoreQuery.AttributeAggregator;
 import net.sf.ehcache.store.StoreQuery.Ordering;
 import net.sf.ehcache.store.compound.CompoundStore;
 import net.sf.ehcache.store.compound.factories.CapacityLimitedInMemoryFactory;
 
 /**
  * Implements a memory only store.
- * 
+ *
  * @author Chris Dennis
  */
 public final class MemoryOnlyStore extends CompoundStore implements CacheConfigurationListener {
@@ -71,7 +70,7 @@ public final class MemoryOnlyStore extends CompoundStore implements CacheConfigu
 
     /**
      * Constructs an in-memory store for the given cache, using the given disk path.
-     * 
+     *
      * @param cache cache that fronts this store
      * @param diskStorePath disk path to store data in
      * @return a fully initialized store
@@ -294,7 +293,7 @@ public final class MemoryOnlyStore extends CompoundStore implements CacheConfigu
     public Results executeQuery(StoreQuery query) {
         Criteria c = query.getCriteria();
 
-        List<AttributeAggregator> aggregators = query.getAggregators();
+        List<AggregatorInstance<?>> aggregators = query.getAggregatorInstances();
 
         ArrayList<Result> results = new ArrayList<Result>();
 
@@ -312,9 +311,14 @@ public final class MemoryOnlyStore extends CompoundStore implements CacheConfigu
             if (match) {
                 results.add(new ResultImpl(element, query, elementAttributeValues));
 
-                for (AttributeAggregator aggregator : aggregators) {
-                    Object val = elementAttributeValues.getAttributeValue(aggregator.getAttribute().getAttributeName());
-                    aggregator.getAggregator().accept(val);
+                for (AggregatorInstance<?> aggregator : aggregators) {
+                    Attribute<?> attribute = aggregator.getAttribute();
+                    if (attribute == null) {
+                        aggregator.accept(null);
+                    } else {
+                        Object val = elementAttributeValues.getAttributeValue(attribute.getAttributeName());
+                        aggregator.accept(val);
+                    }
                 }
             }
         }
@@ -478,7 +482,7 @@ public final class MemoryOnlyStore extends CompoundStore implements CacheConfigu
         }
 
         /**
-         * @inheritdoc
+         * @{inheritDoc
          */
         public Object getKey() {
             if (query.requestsKeys()) {
@@ -489,18 +493,7 @@ public final class MemoryOnlyStore extends CompoundStore implements CacheConfigu
         }
 
         /**
-         * @inheritdoc
-         */
-        public Object getValue() {
-            Element e = query.getCache().get(getKey());
-            if (e == null) {
-                return null;
-            }
-            return e.getObjectValue();
-        }
-
-        /**
-         * @inheritdoc
+         * @{inheritDoc
          */
         public <T> T getAttribute(Attribute<T> attribute) {
             String name = attribute.getAttributeName();
@@ -509,14 +502,6 @@ public final class MemoryOnlyStore extends CompoundStore implements CacheConfigu
                 throw new SearchException("Attribute [" + name + "] not included in query");
             }
             return (T) value;
-        }
-
-        /**
-         * @inheritdoc
-         * todo
-         */
-        public <T> T getAggregator(Aggregator<T> aggregator) throws SearchException {
-            return null;
         }
 
         @Override
@@ -533,45 +518,42 @@ public final class MemoryOnlyStore extends CompoundStore implements CacheConfigu
     private static class ResultsImpl implements Results {
 
         private final List<Result> results;
-        private final Object aggregateResult;
+        private final List<Object> aggregateResults;
         private final boolean hasKeys;
 
-        ResultsImpl(List<Result> results, boolean hasKeys, List<AttributeAggregator> aggregators) {
+        ResultsImpl(List<Result> results, boolean hasKeys, List<AggregatorInstance<?>> aggregators) {
             if (aggregators.isEmpty()) {
                 this.hasKeys = hasKeys;
                 this.results = Collections.unmodifiableList(results);
-                this.aggregateResult = null;
+                this.aggregateResults = null;
             } else {
                 this.hasKeys = false;
                 this.results = Collections.EMPTY_LIST;
-                if (aggregators.size() == 1) {
-                    this.aggregateResult = aggregators.iterator().next().getAggregator().aggregateResult();
-                } else {
-                    List<Object> tmp = new ArrayList<Object>();
-                    for (AttributeAggregator aggregator : aggregators) {
-                        tmp.add(aggregator.getAggregator().aggregateResult());
-                    }
-                    this.aggregateResult = Collections.unmodifiableList(tmp);
+
+                List<Object> tmp = new ArrayList<Object>();
+                for (AggregatorInstance<?> aggregator : aggregators) {
+                    tmp.add(aggregator.aggregateResult());
                 }
+                this.aggregateResults = Collections.unmodifiableList(tmp);
             }
         }
 
         /**
-         * @inheritdoc
+         * @{inheritDoc
          */
         public void discard() {
             // no-op
         }
 
         /**
-         * @inheritdoc
+         * @{inheritDoc
          */
         public List<Result> all() throws SearchException {
             return results;
         }
 
         /**
-         * @inheritdoc
+         * @{inheritDoc
          */
         public List<Result> range(int start, int length) throws SearchException {
             if (start < 0) {
@@ -598,41 +580,40 @@ public final class MemoryOnlyStore extends CompoundStore implements CacheConfigu
         }
 
         /**
-         * @inheritdoc
+         * @{inheritDoc
          */
         public int size() {
             return results.size();
         }
 
         /**
-         * @inheritdoc
+         * @{inheritDoc
          */
         public boolean hasKeys() {
             return hasKeys;
         }
 
         /**
-         * @inheritdoc
-         * todo
-         */
-        public boolean hasValues() {
-            return false;
-        }
-
-        /**
-         * @inheritdoc
-         * todo
+         * @{inheritDoc
+         *              todo
+         *              TODO
          */
         public boolean hasAttributes() {
             return false;
         }
 
         /**
-         * @inheritdoc
-         * todo
+         * @{inheritDoc
          */
         public boolean hasAggregators() {
-            return false;
+            return aggregateResults != null;
+        }
+
+        public List<Object> getAggregatorResults() throws SearchException {
+            if (!hasAggregators()) {
+                throw new SearchException("No aggregators present in query");
+            }
+            return this.aggregateResults;
         }
 
     }

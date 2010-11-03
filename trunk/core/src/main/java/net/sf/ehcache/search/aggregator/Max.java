@@ -16,15 +16,25 @@
 
 package net.sf.ehcache.search.aggregator;
 
+import net.sf.ehcache.search.Attribute;
+
 /**
  * Determine the maximum value
  *
  * @author teck
  * @param <T>
  */
-public class Max<T> implements Aggregator<T> {
+public class Max<T> implements AggregatorInstance<T> {
 
     private Comparable max;
+    private final Attribute<?> attribute;
+
+    /**
+     * @param attribute
+     */
+    public Max(Attribute<?> attribute) {
+        this.attribute = attribute;
+    }
 
     /**
      * {@inheritDoc}
@@ -61,6 +71,13 @@ public class Max<T> implements Aggregator<T> {
         }
 
         throw new AggregatorException("Value is not Comparable: " + o.getClass());
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public Attribute getAttribute() {
+        return attribute;
     }
 
 }

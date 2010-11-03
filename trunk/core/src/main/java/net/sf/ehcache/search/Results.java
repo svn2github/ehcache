@@ -32,8 +32,8 @@ public interface Results {
      * the caller is done with results. It can allow the cache, which may be distributed,
      * to immediately free any resources associated with this result.
      * <p/>
-     * Multiple calls are ignored. Attempting to read results from this instance
-     * after this method has been called will produce {@link SearchException}
+     * Multiple calls are ignored. Attempting to read results from this instance after this method has been called will produce
+     * {@link SearchException}
      */
     void discard();
 
@@ -50,7 +50,7 @@ public interface Results {
      * Retrieve a subset of the cache results. This method is useful when
      * showing "paged" results in a user interface or simply to keep memory overhead fixed
      *
-     * @param start  starting index to access
+     * @param start starting index to access
      * @param count the number of results to return
      * @return a List of the given size. This list will be smaller than the requested
      *         size if no more results are available. If there are no more results an empty
@@ -58,7 +58,6 @@ public interface Results {
      * @throws SearchException
      */
     List<Result> range(int start, int count) throws SearchException, IndexOutOfBoundsException;
-
 
     /**
      * Results size
@@ -76,15 +75,6 @@ public interface Results {
     boolean hasKeys();
 
     /**
-     * Whether the Results have cache values included.
-     * If so these can be extracted from the Result object.
-     *
-     * @return true if values are included
-     */
-    boolean hasValues();
-
-
-    /**
      * Whether the Results have cache attributes included.
      * If so these can be extracted from the Result object.
      *
@@ -93,11 +83,17 @@ public interface Results {
     boolean hasAttributes();
 
     /**
-     * todo write test
-     * Whether the results are aggregates
+     * Whether the results contains aggregates
      *
      * @return true if this is an aggregate
      */
     boolean hasAggregators();
 
+    /**
+     * Retrieve the aggregator value(s) for this query
+     *
+     * @return the aggregators value as a {@link List}. The aggregator results will be in the same order they were added to the query
+     * @throws SearchException if no aggregators were requested in the query
+     */
+    List<Object> getAggregatorResults() throws SearchException;
 }

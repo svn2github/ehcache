@@ -84,19 +84,16 @@ public interface Query {
     public Query includeAttribute(Attribute<?>... attributes);
 
     /**
-     * Request this query to aggregate the results by the given Aggregator
+     * Request this query to aggregate the results by the given Aggregator(s)
      * <p/>
      * This method may be called multiple times to request multiple aggregations
-     * <p/>
-     * If an aggregator is specified, then neither {@link #includeKeys()} or {@link #includeValues()} can be used.
      *
-     * @param aggregator
-     * @param attribute
+     * @param aggregators
      * @return this
      * @throws SearchException
      * @throws net.sf.ehcache.search.aggregator.AggregatorException
      */
-    public Query includeAggregator(Aggregator aggregator, Attribute<?> attribute) throws SearchException, AggregatorException;
+    public Query includeAggregator(Aggregator... aggregators) throws SearchException, AggregatorException;
 
     /**
      * Request result set ordering by the given attribute and direction. This

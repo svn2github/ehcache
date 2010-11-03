@@ -59,15 +59,4 @@ public final class Logic {
         return new Not(c);
     }
 
-    /**
-     * Create a criteria for the logical "not" of the given criteria
-     *
-     * @param c the criteria to "not" (ie. negate)
-     * @return a "not" criteria instance
-     */
-//    public static Criteria between(Criteria c) {
-//        return new Between(c);
-//    }
-
-
 }

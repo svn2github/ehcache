@@ -23,14 +23,13 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 
-import net.sf.ehcache.Element;
 import net.sf.ehcache.search.Attribute;
 import net.sf.ehcache.search.Result;
 import net.sf.ehcache.search.Results;
 import net.sf.ehcache.search.SearchException;
-import net.sf.ehcache.search.aggregator.Aggregator;
 import net.sf.ehcache.store.StoreQuery;
 import net.sf.ehcache.store.StoreQuery.Ordering;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -116,33 +115,25 @@ public class ResultsImpl implements Results {
 
     /**
      * todo
-     * @inheritdoc
-     */
-    public boolean hasValues() {
-        return false;
-    }
-
-    /**
-     * todo
-     * @inheritdoc
+     * {@inheritDoc}
      */
     public boolean hasAttributes() {
-        return false;
+        throw new AssertionError();
     }
 
     /**
      * todo
-     * @inheritdoc
+     * {@inheritDoc}
      */
     public boolean hasAggregators() {
-        return false;  
+        throw new AssertionError();
     }
 
     /**
      * {@inheritDoc}
      */
-    public boolean hasAggregates() {
-        return aggregatorResults != null && aggregatorResults.size() > 0;
+    public List<Object> getAggregatorResults() throws SearchException {
+        throw new AssertionError();
     }
 
     /**
@@ -201,21 +192,6 @@ public class ResultsImpl implements Results {
         /**
          * {@inheritDoc}
          */
-        public Object getValue() {
-            Object localKey = getKey();
-            if (LOG.isTraceEnabled()) {
-                LOG.trace("[ResultImpl] getValue for key : {}", localKey);
-            }
-            Element e = query.getCache().get(localKey);
-            if (e == null) {
-                return null;
-            }
-            return e.getObjectValue();
-        }
-
-        /**
-         * {@inheritDoc}
-         */
         public <T> T getAttribute(Attribute<T> attribute) {
             String name = attribute.getAttributeName();
             Object value = attributes.get(name);
@@ -223,14 +199,6 @@ public class ResultsImpl implements Results {
                 throw new SearchException("Attribute [" + name + "] not included in query");
             }
             return (T) value;
-        }
-
-        /**
-         * todo
-         * @inheritdoc
-         */
-        public <T> T getAggregator(Aggregator<T> aggregator) throws SearchException {
-            return null;  
         }
 
         /**

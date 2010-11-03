@@ -21,71 +21,64 @@ import java.util.List;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.search.Attribute;
 import net.sf.ehcache.search.Direction;
-import net.sf.ehcache.search.aggregator.Aggregator;
+import net.sf.ehcache.search.aggregator.AggregatorInstance;
 import net.sf.ehcache.search.expression.Criteria;
 
 /**
  * An immutable query that a {@link Store} can execute
- * 
+ *
  * @author teck
  */
 public interface StoreQuery {
 
     /**
      * Get the search criteria
-     * 
+     *
      * @return the search criteria
      */
     Criteria getCriteria();
 
     /**
      * Are keys requested?
-     * 
+     *
      * @return true if keys requested
      */
     boolean requestsKeys();
 
     /**
-     * Are values requested?
-     * 
-     * @return true if values requested
-     */
-    boolean requestsValues();
-
-    /**
      * Get the cache this query originated from
-     * 
+     *
      * @return cache
      */
     Cache getCache();
 
     /**
      * Get the list of attributes requested by this query
-     * 
+     *
      * @return the requested attributes (if any)
      */
     List<Attribute<?>> requestedAttributes();
 
     /**
      * Get the requested search orderings
-     * 
+     *
      * @return the request sort orders (if any)
      */
     List<Ordering> getOrdering();
 
     /**
      * Get the maximum number of results to return
-     * 
+     *
      * @return max results. A negative number means unlimited results
      */
     int maxResults();
-    
+
     /**
-     * Get the requested attribute aggregators
-     * 
+     * Get the requested aggregators
+     *
      * @return the include aggregators (if any)
      */
-    List<AttributeAggregator> getAggregators();
+    List<AggregatorInstance<?>> getAggregatorInstances();
 
     /**
      * An attribute / direction ordering pair
@@ -93,38 +86,17 @@ public interface StoreQuery {
     public interface Ordering {
         /**
          * Attribute to order by
-         * 
+         *
          * @return attribute
          */
         Attribute<?> getAttribute();
 
         /**
          * Ordering direction
-         * 
+         *
          * @return direction
          */
         Direction getDirection();
     }
-
-    /**
-     * An attribute / aggregator pair
-     */
-    public interface AttributeAggregator {
-        /**
-         * Attribute to aggregate
-         * 
-         * @return attribute
-         */
-        Attribute<?> getAttribute();
-
-        /**
-         * Aggregator instance
-         * 
-         * @return aggregator
-         */
-        Aggregator<?> getAggregator();
-    }
-
-   
 
 }
