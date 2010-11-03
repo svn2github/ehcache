@@ -214,4 +214,11 @@ public class Attribute<T> {
         return Aggregators.average(this);
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String toString() {
+        return attributeName;
+    }
 }
