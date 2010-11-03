@@ -29,22 +29,11 @@ public interface SoftLock {
     Element getElement(TransactionID currentTransactionId);
 
     /**
-     * Get the old Element at the key this soft lock is guarding
-     * @return the Element as it was before the key was soft locked
+     * Change the Element at the key this soft lock is guarding
+     * @param element the new Element
+     * @return the previous Element
      */
-    Element getOldElement();
-
-    /**
-     * Get the new Element at the key this soft lock is guarding
-     * @return the Element as it will be if the transaction under which this soft lock is operating commits
-     */
-    Element getNewElement();
-
-    /**
-     * Change the new Element at the key this soft lock is guarding
-     * @param newElement the new Element
-     */
-    void setNewElement(Element newElement);
+    Element updateElement(Element element);
 
     /**
      * Lock the soft lock

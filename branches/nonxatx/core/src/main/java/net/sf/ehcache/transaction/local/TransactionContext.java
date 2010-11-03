@@ -5,6 +5,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -57,55 +58,14 @@ public class TransactionContext {
         softLocks.add(softLock);
     }
 
-    public List<Object> getNewKeys(String cacheName) {
-        List<Object> result = new ArrayList<Object>();
 
+    public List<SoftLock> getSoftLocks(String cacheName) {
         List<SoftLock> softLocks = softLockMap.get(cacheName);
         if (softLocks == null) {
-            return result;
+            return Collections.emptyList();
         }
 
-        for (SoftLock softLock : softLocks) {
-            if (softLock.getNewElement() != null && softLock.getOldElement() == null) {
-                result.add(softLock.getKey());
-            }
-        }
-
-        return result;
-    }
-
-    public List<Object> getUpdatedKeys(String cacheName) {
-        List<Object> result = new ArrayList<Object>();
-
-        List<SoftLock> softLocks = softLockMap.get(cacheName);
-        if (softLocks == null) {
-            return result;
-        }
-
-        for (SoftLock softLock : softLocks) {
-            if (softLock.getNewElement() != null && softLock.getOldElement() != null) {
-                result.add(softLock.getKey());
-            }
-        }
-
-        return result;
-    }
-
-    public List<Object> getRemovedKeys(String cacheName) {
-        List<Object> result = new ArrayList<Object>();
-
-        List<SoftLock> softLocks = softLockMap.get(cacheName);
-        if (softLocks == null) {
-            return result;
-        }
-
-        for (SoftLock softLock : softLocks) {
-            if (softLock.getNewElement() == null) {
-                result.add(softLock.getKey());
-            }
-        }
-
-        return result;
+        return Collections.unmodifiableList(softLocks);
     }
 
     public void commit(boolean ignoreTimeout) {

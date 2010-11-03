@@ -4,8 +4,8 @@ import net.sf.ehcache.Element;
 import net.sf.ehcache.store.chm.ConcurrentHashMap;
 import net.sf.ehcache.transaction.TransactionID;
 
-import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentMap;
 
@@ -41,16 +41,24 @@ public class ReadCommittedSoftLockFactoryImpl implements SoftLockFactory {
         newKeys.remove(key);
     }
 
-    public Set<Object> getKeysToRemove(TransactionContext transactionContext) {
-        Set<Object> keysToRemove = new HashSet<Object>();
-        keysToRemove.addAll(getNewKeys());
-        keysToRemove.removeAll(transactionContext.getNewKeys(cacheName));
-        keysToRemove.addAll(transactionContext.getRemovedKeys(cacheName));
-        return keysToRemove;
-    }
+    public Set<Object> getKeysInvisibleInContext(TransactionContext currentTransactionContext) {
+        Set<Object> invisibleKeys = new HashSet<Object>();
 
-    public Set<Object> getKeysToAdd(TransactionContext transactionContext) {
-        return Collections.emptySet();
+        // all new keys added into the store are invisible
+        invisibleKeys.addAll(getNewKeys());
+
+        List<SoftLock> currentTransactionContextSoftLocks = currentTransactionContext.getSoftLocks(cacheName);
+        for (SoftLock softLock : currentTransactionContextSoftLocks) {
+            if (softLock.getElement(currentTransactionContext.getTransactionId()) == null) {
+                // if the soft lock's element is null in the current transaction then the key is invisible
+                invisibleKeys.add(softLock.getKey());
+            } else {
+                // if the soft lock's element is not null in the current transaction then the key is visible
+                invisibleKeys.remove(softLock.getKey());
+            }
+        }
+
+        return invisibleKeys;
     }
 
 }

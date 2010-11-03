@@ -43,16 +43,10 @@ public class ReadCommittedSoftLockImpl implements SoftLock {
         }
     }
 
-    public Element getOldElement() {
-        return oldElement;
-    }
-
-    public Element getNewElement() {
-        return newElement;
-    }
-
-    public void setNewElement(Element newElement) {
+    public Element updateElement(Element newElement) {
+        Element e = this.newElement;
         this.newElement = newElement;
+        return e;
     }
 
     public TransactionID getTransactionID() {
@@ -83,13 +77,13 @@ public class ReadCommittedSoftLockImpl implements SoftLock {
     }
 
     public Element getFrozenElement() {
-        if (!isFrozen() || !isExpired()) {
+        if (!isFrozen() && !isExpired()) {
             throw new IllegalStateException("cannot get frozen element of a soft lock which hasn't been frozen or hasn't expired");
         }
         if (transactionID.isDecisionCommit()) {
-            return getNewElement();
+            return newElement;
         } else {
-            return getOldElement();
+            return oldElement;
         }
     }
 

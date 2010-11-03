@@ -14,8 +14,6 @@ public interface SoftLockFactory {
 
     void clearKey(Object key);
 
-    Set<Object> getKeysToRemove(TransactionContext transactionContext);
-
-    Set<Object> getKeysToAdd(TransactionContext transactionContext);
+    Set<Object> getKeysInvisibleInContext(TransactionContext transactionContext);
 
 }

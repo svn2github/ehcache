@@ -118,7 +118,7 @@ public class LocalTransactionStore extends AbstractStore {
                     }
 
                     if (softLock.getTransactionID().equals(getCurrentTransactionContext().getTransactionId())) {
-                        softLock.setNewElement(element);
+                        softLock.updateElement(element);
                         underlyingStore.put(oldElement);
                         getCurrentTransactionContext().updateSoftLock(cacheName, softLock);
 
@@ -241,8 +241,7 @@ public class LocalTransactionStore extends AbstractStore {
                     }
 
                     if (softLock.getTransactionID().equals(getCurrentTransactionContext().getTransactionId())) {
-                        Element removed = softLock.getNewElement();
-                        softLock.setNewElement(null);
+                        Element removed = softLock.updateElement(null);
                         underlyingStore.put(oldElement);
                         getCurrentTransactionContext().updateSoftLock(cacheName, softLock);
 
@@ -306,8 +305,7 @@ public class LocalTransactionStore extends AbstractStore {
             }
         };
 
-        keys.removeAll(softLockFactory.getKeysToRemove(getCurrentTransactionContext()));
-        keys.addAll(softLockFactory.getKeysToAdd(getCurrentTransactionContext()));
+        keys.removeAll(softLockFactory.getKeysInvisibleInContext(getCurrentTransactionContext()));
 
         return new SetWrapperList(keys);
     }
@@ -316,8 +314,7 @@ public class LocalTransactionStore extends AbstractStore {
         assertNotTimedOut();
 
         int sizeModifier = 0;
-        sizeModifier -= softLockFactory.getKeysToRemove(getCurrentTransactionContext()).size();
-        sizeModifier += softLockFactory.getKeysToAdd(getCurrentTransactionContext()).size();
+        sizeModifier -= softLockFactory.getKeysInvisibleInContext(getCurrentTransactionContext()).size();
         return underlyingStore.getSize() + sizeModifier;
     }
 
@@ -487,9 +484,9 @@ public class LocalTransactionStore extends AbstractStore {
 
     public void commit(List<SoftLock> softLocks) {
         for (SoftLock softLock : softLocks) {
-            Element newElement = softLock.getNewElement();
-            if (newElement != null) {
-                underlyingStore.put(newElement);
+            Element element = softLock.getFrozenElement();
+            if (element != null) {
+                underlyingStore.put(element);
             } else {
                 underlyingStore.remove(softLock.getKey());
             }
@@ -500,9 +497,9 @@ public class LocalTransactionStore extends AbstractStore {
 
     public void rollback(List<SoftLock> softLocks) {
         for (SoftLock softLock : softLocks) {
-            Element oldElement = softLock.getOldElement();
-            if (oldElement != null) {
-                underlyingStore.put(oldElement);
+            Element element = softLock.getFrozenElement();
+            if (element != null) {
+                underlyingStore.put(element);
             } else {
                 underlyingStore.remove(softLock.getKey());
             }

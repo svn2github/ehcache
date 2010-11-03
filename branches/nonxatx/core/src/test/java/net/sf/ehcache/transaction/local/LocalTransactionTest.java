@@ -1,13 +1,13 @@
 package net.sf.ehcache.transaction.local;
 
 import junit.framework.TestCase;
-import net.sf.ehcache.CacheException;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.TransactionController;
 
 import java.util.Arrays;
+import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -456,18 +456,31 @@ public class LocalTransactionTest extends TestCase {
         cache1.removeAll();
         assertEquals(0, cache1.getSize());
 
-        Thread tx2 = new Thread() {
+        final CyclicBarrier barrier = new CyclicBarrier(2);
+
+        TxThread tx2 = new TxThread() {
             @Override
-            public void run() {
+            public void exec() throws Exception {
                 transactionController.begin();
 
                 assertEquals(2, cache1.getSize());
+
+                cache1.put(new Element(3, "three"));
+
+                barrier.await(); //wake up tx1
+                barrier.await();
 
                 transactionController.commit();
             }
         };
         tx2.start();
+        barrier.await();
+        assertEquals(0, cache1.getSize());
+
+        barrier.await(); // wake up tx2
+
         tx2.join();
+        tx2.assertNotFailed();
 
         transactionController.commit();
     }
@@ -497,6 +510,30 @@ public class LocalTransactionTest extends TestCase {
         assertEquals(3, cache1.getSize());
 
         transactionController.commit();
+    }
+
+    private static class TxThread extends Thread {
+        private volatile boolean failed;
+
+        @Override
+        public final void run() {
+            try {
+                exec();
+            } catch (Exception e) {
+                e.printStackTrace();
+                failed = true;
+            }
+        }
+
+        public void exec() throws Exception {
+
+        }
+
+        public void assertNotFailed() {
+            if (failed) {
+                throw new AssertionError("TxThread failed");
+            }
+        }
     }
 
 }
