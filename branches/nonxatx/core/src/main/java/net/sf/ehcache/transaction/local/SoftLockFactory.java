@@ -12,8 +12,6 @@ public interface SoftLockFactory {
 
     SoftLock createSoftLock(TransactionID transactionID, Object key, Element newElement, Element oldElement);
 
-    void clearKey(Object key);
-
     Set<Object> getKeysInvisibleInContext(TransactionContext transactionContext);
 
 }

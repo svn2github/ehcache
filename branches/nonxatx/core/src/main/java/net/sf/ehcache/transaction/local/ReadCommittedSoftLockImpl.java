@@ -10,6 +10,7 @@ import java.util.concurrent.locks.ReentrantLock;
  * @author lorban
  */
 public class ReadCommittedSoftLockImpl implements SoftLock {
+    private final ReadCommittedSoftLockFactoryImpl factory;
     private final TransactionID transactionID;
     private final Object key;
     private Element newElement;
@@ -17,7 +18,8 @@ public class ReadCommittedSoftLockImpl implements SoftLock {
     private final ReentrantLock lock;
     private final ReentrantLock freezeLock;
 
-    ReadCommittedSoftLockImpl(TransactionID transactionID, Object key, Element newElement, Element oldElement) {
+    ReadCommittedSoftLockImpl(ReadCommittedSoftLockFactoryImpl factory, TransactionID transactionID, Object key, Element newElement, Element oldElement) {
+        this.factory = factory;
         this.transactionID = transactionID;
         this.key = key;
         this.newElement = newElement;
@@ -63,6 +65,7 @@ public class ReadCommittedSoftLockImpl implements SoftLock {
 
     public void unlock() {
         lock.unlock();
+        factory.clearSoftLock(this);
     }
 
     public boolean isLocked() {

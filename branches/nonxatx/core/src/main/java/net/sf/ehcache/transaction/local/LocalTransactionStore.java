@@ -486,8 +486,6 @@ public class LocalTransactionStore extends AbstractStore {
             } else {
                 underlyingStore.remove(softLock.getKey());
             }
-
-            softLockFactory.clearKey(softLock.getKey());
         }
     }
 
@@ -499,8 +497,6 @@ public class LocalTransactionStore extends AbstractStore {
             } else {
                 underlyingStore.remove(softLock.getKey());
             }
-
-            softLockFactory.clearKey(softLock.getKey());
         }
     }
     

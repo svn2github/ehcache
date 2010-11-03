@@ -19,29 +19,29 @@ public class ReadCommittedSoftLockFactoryImpl implements SoftLockFactory {
     private final String cacheName;
 
     // actually all we need would be a ConcurrentSet...
-    private final ConcurrentMap<Object,Object> newKeys = new ConcurrentHashMap<Object, Object>();
+    private final ConcurrentMap<ReadCommittedSoftLockImpl,Object> newKeyLocks = new ConcurrentHashMap<ReadCommittedSoftLockImpl, Object>();
 
     public ReadCommittedSoftLockFactoryImpl(String cacheName) {
         this.cacheName = cacheName;
     }
 
     public SoftLock createSoftLock(TransactionID transactionID, Object key, Element newElement, Element oldElement) {
-        ReadCommittedSoftLockImpl softLock = new ReadCommittedSoftLockImpl(transactionID, key, newElement, oldElement);
+        ReadCommittedSoftLockImpl softLock = new ReadCommittedSoftLockImpl(this, transactionID, key, newElement, oldElement);
         if (oldElement == null) {
-            newKeys.put(key, MARKER);
+            newKeyLocks.put(softLock, MARKER);
         }
         return softLock;
     }
 
-    public void clearKey(Object key) {
-        newKeys.remove(key);
+    public void clear(SoftLock softLock) {
+        newKeyLocks.remove(softLock);
     }
 
     public Set<Object> getKeysInvisibleInContext(TransactionContext currentTransactionContext) {
         Set<Object> invisibleKeys = new HashSet<Object>();
 
         // all new keys added into the store are invisible
-        invisibleKeys.addAll(newKeys.keySet());
+        invisibleKeys.addAll(getNewKeys());
 
         List<SoftLock> currentTransactionContextSoftLocks = currentTransactionContext.getSoftLocks(cacheName);
         for (SoftLock softLock : currentTransactionContextSoftLocks) {
@@ -55,6 +55,22 @@ public class ReadCommittedSoftLockFactoryImpl implements SoftLockFactory {
         }
 
         return invisibleKeys;
+    }
+
+    void clearSoftLock(ReadCommittedSoftLockImpl softLock) {
+        newKeyLocks.remove(softLock);
+    }
+
+    private Set<Object> getNewKeys() {
+        Set<Object> result = new HashSet<Object>();
+
+        for (ReadCommittedSoftLockImpl softLock : newKeyLocks.keySet()) {
+            if (!softLock.isExpired()) {
+                result.add(softLock.getKey());
+            }
+        }
+
+        return result;
     }
 
 }
