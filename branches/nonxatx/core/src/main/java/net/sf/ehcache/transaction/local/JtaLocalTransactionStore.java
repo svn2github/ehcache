@@ -31,7 +31,7 @@ public class JtaLocalTransactionStore extends AbstractStore {
         this.transactionController = transactionController;
         this.transactionManager = transactionManagerLookup.getTransactionManager();
         if (this.transactionManager == null) {
-            throw new TransactionException("no JTA transaction manager could be located, cannot bind non-xa cache with JTA transactions");
+            throw new TransactionException("no JTA transaction manager could be located, cannot bind local_jta cache with JTA transactions");
         }
     }
 
