@@ -45,7 +45,7 @@ Search
     This configuration will scan keys and vales and if they are of supported search types, add them as
     attributes called "key" and "value" respectively.
 
-    Lots of times these will not be direclty searchable and instead you will need to extract searchable attributes out of them.
+    Lots of times these will not be directly searchable and instead you will need to extract searchable attributes out of them.
     The following example shows this more typical case.  Attribute Extractors are explained in more detail in the following section.
 
 ---
@@ -100,7 +100,7 @@ Search
 *  Attribute Extractors
   
     Attributes are extracted from keys or values. This is done on <<<put()>>> into the cache
-    using <<<AttributeExtractor>>>s.
+    using <<<AttributeExtractor>>>s in the clustered implementation and during search in the standalone implementation 
 
     Extracted attributes must be one of the following supported types:
     
@@ -127,13 +127,13 @@ Search
         *   Enum
         
     If an attribute cannot be extracted due to not being found or of being the wrong type an AttributeExtractorException is thrown
-    after the 
+    during the <<<put()>>> in the clustered implementation and on search execution in the standalone implementation
 
 *** ReflectionAttributeExtractor
 
     The ReflectionAttributeExtractor is a built-in search attribute extractor.
 
-    In the simple case, where keys and/or values are already a supported type, they are added automatically as "key" amd "value",
+    In the simple case, where keys and/or values are already a supported type, they are added automatically as attributes with the names "key" amd "value".
 
     Where a JavaBean property is available and it is of a searchable type, it can be simply declared using:
 
@@ -173,23 +173,14 @@ Search
     
     
 *** Custom AttributeExtractor
-    
----
-<cache name="cache1" maxElementsInMemory="0" eternal="true" overflowToDisk="false">
-    <searchable>
-        <searchAttribute name="age" expression="value.getAge()"/>
-        <searchAttribute name="gender" expression="value.getGender()"/>
-        <searchAttribute name="name" expression="value.getName()"/>
-    </searchable>
-</cache>
----  
-  
 
+  In more complex situations you can create your own attribute extractor by implementing the AttributeExtractor interface. Providing your 
+  extractor class is shown in the following example:
+    
 ---  
 <cache name="cache2" maxElementsInMemory="0" eternal="true" overflowToDisk="false">
     <searchable>
         <searchAttribute name="age" class="net.sf.ehcache.search.TestAttributeExtractor"/>
-        <searchAttribute name="gender" expression="value.getGender()"/>
     </searchable>
 </cache>
 ---  
@@ -220,7 +211,7 @@ Search
     Results results = cache.createQuery().add(key.eq(35)).execute();
 ---
 
-    Other attributes are referenced by the names given them in the configuraition. E.g.
+    Other attributes are referenced by the names given them in the configuration. E.g.
 
 ---
    Attribute<Integer> age = cache.getSearchAttribute("age");
@@ -230,12 +221,14 @@ Search
 
 ** Expressions
 
-    The Query to be searched for is built using Expressions.
+    The Query to be searched for is built up using Expressions.
 
-    Expressions include common operators such as:
+    Expressions include logical operators such as <and> and <or>. It also includes comparsion operators such as <ge>, <between> and <like>
+
+    <<<add(...)>>> is used to add a clause to a query. Adding a further clause automatically <and>s the clauses
 
 ---
-    query = cache.createQuery().includeKeys().add(age.eq(12)).add(gender.eq("timmy")).end();
+    query = cache.createQuery().includeKeys().add(age.le(65)).add(gender.eq("male")).end();
 ---
 
    See the {{{http://ehcache.org/xref/net/sf/ehcache/search/expression/package-frame.html}Expression JavaDoc}} for a complete list.
@@ -294,9 +287,9 @@ Search
 
    *    predefined attribute(s) extracted from an Element value - use <<<includeAttribute(...)>>> in the query.
 
-   *    Aggregator functions - use <<<includeAggregate()>>> in the query
+   Aggregator functions - use <<<includeAggregate()>>> in the query. The aggregator result is avaia
 
-   For attributes and functions, Result must be called with the templated type.
+   For attributes, Result must be called with the templated type.
 
 
 **  Aggregators
@@ -428,3 +421,14 @@ git clone git://github.com/sharrissf/Ehcache-Search-Sample.git
     * EHC-804:  Add <searchable> sub-element to ehcache.xml to enclose search configuration
 
 
+
+
+TODO:
+
+- Use fluent interface methods in programatic example for search attributes
+
+- create a V2 section
+  - add back includeValues() that is orthogonal to includeKeys() and can
+    be more effecient network wise for round trips
+
+- update aggregator section for new style of things
