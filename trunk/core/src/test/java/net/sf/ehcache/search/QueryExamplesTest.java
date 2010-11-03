@@ -156,9 +156,7 @@ public class QueryExamplesTest {
     @Ignore
     @Test
     public void testUseShorthandKeyAttribute() {
-
-        Attribute key = cache.getSearchAttribute(KEY);
-        Results results = cache.createQuery().add(key.eq(35)).execute();
+        Results results = cache.createQuery().add(KEY.eq(35)).execute();
     }
 
 

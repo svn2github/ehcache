@@ -23,7 +23,7 @@ import net.sf.ehcache.search.expression.Criteria;
 /**
  * Creates queries for performing cache searches.
  * <p/>
- * Queries are created using our  search DSL implemented using Java.
+ * Queries are created using our search DSL implemented using Java.
  * <p/>
  * A fluent interface provides a compact and yet easy-to-read representation. Fluent interfaces are implemented using method chaining.
  * Static factory methods and imports are a great aid in creating a compact, yet readable DSL.
@@ -35,12 +35,10 @@ import net.sf.ehcache.search.expression.Criteria;
  * <p/>
  * See http://www.infoq.com/articles/internal-dsls-java for a description of these conventions.
  * <p/>
- * A query can be executed and then modified and re-executed. If {@link #end} is called
- * the query is made immutable.
+ * A query can be executed and then modified and re-executed. If {@link #end} is called the query is made immutable.
  * <p/>
- * Both Element keys and attributes of Element can be queried. Attributes must be pre-defined
- * for a cache. They are populated by extraction from an Element's value using an {@link net.sf.ehcache.search.attribute.AttributeExtractor}
- * .
+ * Both Element keys and attributes of Element can be queried. Attributes must be pre-defined for a cache. They are populated by extraction
+ * from an Element's value using an {@link net.sf.ehcache.search.attribute.AttributeExtractor} .
  * <p/>
  * Search results can either be Element keys (the default), values, or the result of an {@link Aggregator} function.
  * <p/>
@@ -51,21 +49,19 @@ import net.sf.ehcache.search.expression.Criteria;
  */
 public interface Query {
 
-
     /**
-     * The search attribute name for a cache key.
+     * The search attribute for a cache key.
      *
      * This will exist as a search attribute if the key is of a supported {@link net.sf.ehcache.search.attribute.AttributeType}
      */
-    public static final String KEY = "key";
+    public static final Attribute KEY = new Attribute("key");
 
     /**
-     * The search attribute name for a cache value.
+     * The search attribute for a cache value.
      *
      * This will exist as a search attribute if the value is of a supported {@link net.sf.ehcache.search.attribute.AttributeType}
      */
-    public static final String VALUE = "value";
-
+    public static final Attribute VALUE = new Attribute("value");
 
     /**
      * Request that the key object be present in the results.
@@ -102,8 +98,7 @@ public interface Query {
      * <p/>
      * This method may be called multiple times to request multiple aggregations
      * <p/>
-     * If an aggregator is specified, then neither {@link #includeKeys()} or {@link #includeValues()} can
-     * be used.
+     * If an aggregator is specified, then neither {@link #includeKeys()} or {@link #includeValues()} can be used.
      *
      * @param aggregator
      * @param attribute
@@ -127,9 +122,9 @@ public interface Query {
     /**
      * Restrict the number of results returned from the search.
      * <p/>
-     * By default an unlimited number of results can be returned. This could cause
-     * an OutOfMemoryError to be thrown. It is therefore recommended to add an <code>maxResults</code>
-     * clause to your query to limit the size.
+     * By default an unlimited number of results can be returned. This could cause an OutOfMemoryError to be thrown. It is therefore
+     * recommended to add an <code>maxResults</code> clause to your query to limit the size.
+     *
      * @param maxResults the maximum number of results to return
      * @return this
      */
