@@ -83,6 +83,9 @@ public class ReadCommittedSoftLockImpl implements SoftLock {
     }
 
     public Element getFrozenElement() {
+        if (!isFrozen() || !isExpired()) {
+            throw new IllegalStateException("cannot get frozen element of a soft lock which hasn't been frozen or hasn't expired");
+        }
         if (transactionID.isDecisionCommit()) {
             return getNewElement();
         } else {
@@ -132,6 +135,6 @@ public class ReadCommittedSoftLockImpl implements SoftLock {
 
     @Override
     public String toString() {
-        return "[isolation: rc, transactionID: " + transactionID + ", key: " + key + ", newElement: " + newElement + ", oldElement: " + oldElement + "]";
+        return "Soft Lock [clustered: false, isolation: rc, transactionID: " + transactionID + ", key: " + key + ", newElement: " + newElement + ", oldElement: " + oldElement + "]";
     }
 }
