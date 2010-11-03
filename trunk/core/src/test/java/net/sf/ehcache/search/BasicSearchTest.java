@@ -131,12 +131,6 @@ public class BasicSearchTest extends TestCase {
             // expected
         }
         try {
-            query1.includeValues();
-            fail();
-        } catch (SearchException se) {
-            // expected
-        }
-        try {
             query1.maxResults(3);
             fail();
         } catch (SearchException se) {
@@ -402,13 +396,6 @@ public class BasicSearchTest extends TestCase {
             }
 
             try {
-                result.getValue();
-                fail();
-            } catch (SearchException se) {
-                // expected
-            }
-
-            try {
                 result.getKey();
                 fail();
             } catch (SearchException se) {
@@ -666,7 +653,6 @@ public class BasicSearchTest extends TestCase {
             if (!keys.remove(key)) {
                 throw new AssertionError("unexpected key: " + key);
             }
-            assertEquals(cache.get(key).getObjectValue(), result.getValue());
         }
     }
 
@@ -678,7 +664,6 @@ public class BasicSearchTest extends TestCase {
         for (Result result : results.all()) {
             Object expectedKey = expectedKeys[pos++];
             assertEquals(expectedKey, result.getKey());
-            assertEquals(cache.get(expectedKey).getObjectValue(), result.getValue());
         }
     }
 

@@ -35,16 +35,6 @@ public interface Result {
     Object getKey() throws SearchException;
 
     /**
-     * Return the value object for this cache entry. These are returned without further
-     * need to access the cache.
-     *
-     * @return value object (which might be null if this entry no longer exists
-     *         in the cache)
-     * @throws SearchException if keys were not selected by the originating query
-     */
-    Object getValue() throws SearchException;
-
-    /**
      * Retrieve the given attribute value for this cache entry
      *
      * @param attribute the attribute to retrieve

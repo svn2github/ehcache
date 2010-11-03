@@ -167,7 +167,7 @@ public class QueryExamplesTest {
         Results results = cache.createQuery().add(age.eq(35)).includeKeys().execute();
         assertTrue(2 == results.size());
         for (Result result : results.all()) {
-            LOG.info("" + result.getValue());
+            LOG.info("" + cache.get(result.getKey()));
         }
     }
 
@@ -181,7 +181,7 @@ public class QueryExamplesTest {
         assertTrue(2 == results.size());
         for (Result result : results.all()) {
             //should be null
-            assertNull(result.getValue());
+            assertNull(cache.get(result.getKey()));
         }
     }
 
@@ -195,7 +195,7 @@ public class QueryExamplesTest {
         Results results = cache.createQuery().add(key.eq(35)).includeKeys().execute();
         assertTrue(2 == results.size());
         for (Result result : results.all()) {
-            LOG.info("" + result.getValue());
+            LOG.info("" + cache.get(result.getKey()));
         }
     }
 
@@ -209,7 +209,7 @@ public class QueryExamplesTest {
         Results results = cache.createQuery().add(age.eq(35)).execute();
         assertTrue(2 == results.size());
         for (Result result : results.all()) {
-            LOG.info("" + result.getValue());
+            LOG.info("" + cache.get(result.getKey()));
         }
     }
 

@@ -71,16 +71,6 @@ public interface Query {
     public Query includeKeys();
 
     /**
-     * Request that the Element values be present in the results.
-     * <p/>
-     * Note that in a distributed cache values may need to come over the network. To prevent very large network transfers, consider limiting
-     * the results size with {@link #maxResults(int)} or by using {@link Results#range} rathern than {@link Results#all()}
-     *
-     * @return this
-     */
-    public Query includeValues();
-
-    /**
      * Request that the given attribute(s) should be present in the result for
      * this query. This call can be made multiple times to add to the set of
      * selected attributes.
