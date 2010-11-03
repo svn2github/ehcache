@@ -25,7 +25,7 @@ public class JtaLocalTransactionStore extends AbstractStore {
     private final LocalTransactionStore transactionalStore;
     private final TransactionController transactionController;
     private final TransactionManager transactionManager;
-    private Transaction boundTransaction;
+    private volatile Transaction boundTransaction;
 
     public JtaLocalTransactionStore(LocalTransactionStore transactionalStore, TransactionManagerLookup transactionManagerLookup, TransactionController transactionController) {
         this.transactionalStore = transactionalStore;
