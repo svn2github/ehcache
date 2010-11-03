@@ -522,14 +522,12 @@ public final class MemoryOnlyStore extends CompoundStore implements CacheConfigu
         private final boolean hasKeys;
 
         ResultsImpl(List<Result> results, boolean hasKeys, List<AggregatorInstance<?>> aggregators) {
+            this.hasKeys = hasKeys;
+            this.results = Collections.unmodifiableList(results);
+
             if (aggregators.isEmpty()) {
-                this.hasKeys = hasKeys;
-                this.results = Collections.unmodifiableList(results);
                 this.aggregateResults = null;
             } else {
-                this.hasKeys = false;
-                this.results = Collections.EMPTY_LIST;
-
                 List<Object> tmp = new ArrayList<Object>();
                 for (AggregatorInstance<?> aggregator : aggregators) {
                     tmp.add(aggregator.aggregateResult());

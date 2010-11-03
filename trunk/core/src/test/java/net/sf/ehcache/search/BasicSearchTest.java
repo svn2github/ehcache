@@ -281,6 +281,7 @@ public class BasicSearchTest extends TestCase {
         }
 
         {
+            // multiple aggregators
             Query query = cache.createQuery();
             query.includeAggregator(age.min());
             query.includeAggregator(age.max());
@@ -292,6 +293,50 @@ public class BasicSearchTest extends TestCase {
             assertEquals(35, results.getAggregatorResults().get(1));
         }
 
+        {
+            // use criteria with an aggregator
+            Query query = cache.createQuery();
+            query.includeAggregator(age.average());
+            query.add(age.between(0, 32));
+            query.end();
+
+            Results results = query.execute();
+            assertTrue(results.hasAggregators());
+            assertEquals(26.5D, results.getAggregatorResults().get(0));
+        }
+
+        {
+            // includeKeys in addition to an aggregator
+            Query query = cache.createQuery();
+            query.includeKeys();
+            query.includeAggregator(age.average());
+            query.add(age.between(0, 32));
+            query.end();
+
+            Results results = query.execute();
+            assertTrue(results.hasAggregators());
+            assertTrue(results.hasKeys());
+            assertEquals(26.5D, results.getAggregatorResults().get(0));
+
+            verify(cache, query, 2, 4);
+        }
+
+        {
+            // execute query twice
+            Query query = cache.createQuery();
+            query.includeAggregator(age.count());
+            query.end();
+
+            Results results = query.execute();
+            assertTrue(results.hasAggregators());
+            assertFalse(results.hasKeys());
+            assertEquals(4, results.getAggregatorResults().get(0));
+
+            results = query.execute();
+            assertTrue(results.hasAggregators());
+            assertFalse(results.hasKeys());
+            assertEquals(4, results.getAggregatorResults().get(0));
+        }
     }
 
     public void testMaxResults() {
@@ -633,7 +678,7 @@ public class BasicSearchTest extends TestCase {
 
     private void verify(Ehcache cache, Query query, Integer... expectedKeys) {
         Results results = query.execute();
-        assertEquals(results.size(), expectedKeys.length);
+        assertEquals(expectedKeys.length, results.size());
         assertTrue(results.hasKeys());
 
         Set<Integer> keys = new HashSet<Integer>(Arrays.asList(expectedKeys));
