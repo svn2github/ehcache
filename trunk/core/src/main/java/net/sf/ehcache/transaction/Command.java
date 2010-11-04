@@ -21,7 +21,7 @@ import net.sf.ehcache.writer.CacheWriterManager;
 
 /**
  * A Command represents an operation to be executed on a {@link Store}.
- * 
+ *
  * @author Nabib El-Rahman
  * @author Alex Snaps
  *
@@ -69,12 +69,12 @@ public interface Command {
     public static final String PUT_IF_ABSENT = "PUT_IF_ABSENT";
 
     /**
-     * {@link net.sf.ehcache.store.Store#removeElement(net.sf.ehcache.Element)}
+     * {@link net.sf.ehcache.store.Store#removeElement(net.sf.ehcache.Element, net.sf.ehcache.store.ElementValueComparator)}
      */
     public static final String REMOVE_ELEMENT = "REMOVE_ELEMENT";
 
     /**
-     * {@link net.sf.ehcache.store.Store#replace(net.sf.ehcache.Element, net.sf.ehcache.Element)}
+     * {@link net.sf.ehcache.store.Store#replace(net.sf.ehcache.Element, net.sf.ehcache.Element, net.sf.ehcache.store.ElementValueComparator)}
      */
     public static final String REPLACE_ELEMENT = "REPLACE_ELEMENT";
 
@@ -97,7 +97,7 @@ public interface Command {
     boolean execute(Store store);
 
     /**
-     * Executes the command on some cacheWriterManager 
+     * Executes the command on some cacheWriterManager
      * @param cacheWriterManager the CacheWriterManager on which to execute the command
      * @return true if the CacheWriterManager was called
      */
