@@ -71,6 +71,7 @@ public class XaIsolationTransactionalStoreTest {
         CacheConfiguration cacheConfiguration = mock(CacheConfiguration.class);
         when(cacheConfiguration.clone()).thenReturn(cacheConfiguration);
         when(cacheConfiguration.getCacheEventListenerConfigurations()).thenReturn(new ArrayList());
+        when(cacheConfiguration.getElementValueComparatorConfiguration()).thenReturn(CacheConfiguration.DEFAULT_ELEMENT_VALUE_COMPARATOR_CONFIGURATION);
         Cache cache = new Cache(cacheConfiguration);
 
         EhcacheXAStoreImpl xaStore = new EhcacheXAStoreImpl(underlyingStore, oldVersionStore, false);
