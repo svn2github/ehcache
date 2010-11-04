@@ -55,7 +55,7 @@
             <unpack>false</unpack>
             <scope>runtime</scope>
             <excludes>
-                <exclude>net.sf.ehcache:ehcache</exclude>
+                <exclude>net.sf.ehcache:*</exclude>
             </excludes>
         </dependencySet>
         <dependencySet>
