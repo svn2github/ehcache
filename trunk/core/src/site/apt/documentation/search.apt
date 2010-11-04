@@ -1,5 +1,5 @@
  ---
- {Ehcache Search}
+ {Search}
  ---
 
 Search
@@ -8,10 +8,7 @@ Search
 
 * Ehcache Search API
 
-    (This feature is pre-release. It is in ehcache-core trunk. Maven builds for version 2.4.0-SNAPSHOT are published to
-    oss.sonatype.org.)
-
-    The Ehcache Search API allows you to execute arbitrarily complex queries against either a standalone cache or a Terracotta
+    _new_ The Ehcache Search API allows you to execute arbitrarily complex queries against either a standalone cache or a Terracotta
     clustered cache with pre-built indexes. Searchable attributes may be extracted from both keys and values. Keys, values,
      or summary values (Aggregators) can all be returned.
 
@@ -19,8 +16,13 @@ Search
     Here is a simple example: Search for 32 year old males and return the cache values.
 
 ---
-    Results results = cache.createQuery().includeValues().add(and(age.eq(32), gender.eq("male"))).execute();
+Results results = cache.createQuery().includeValues().add(and(age.eq(32),
+    gender.eq("male"))).execute();
 ---
+
+    Note: This feature is in pre-release and will be released with ehcache-core 2.4.0. Maven builds for version 2.4.0-SNAPSHOT are published to
+    {{{http://oss.sonatype.org/content/repositories/sourceforge-snapshots/net/sf/ehcache/}oss.sonatype.org}} and are available there if you
+    would like to try out the standalone implementation.
 
 *  What is searchable?
 
@@ -37,9 +39,9 @@ Search
     Caches are made searchable by adding a \<searchable/\> tag to the ehcachel.xml.
 
 ---
-    <cache name="cache2" maxElementsInMemory="10000" eternal="true" overflowToDisk="false">
-        <searchable/>
-    </cache>
+<cache name="cache2" maxElementsInMemory="10000" eternal="true" overflowToDisk="false">
+    <searchable/>
+</cache>
 ---
 
     This configuration will scan keys and vales and if they are of supported search types, add them as
@@ -49,13 +51,12 @@ Search
     The following example shows this more typical case.  Attribute Extractors are explained in more detail in the following section.
 
 ---
-    <cache name="cache3" maxElementsInMemory="10000" eternal="true" overflowToDisk="false">
-        <searchable>
-            <searchAttribute name="age" class="net.sf.ehcache.search.TestAttributeExtractor"/>
-            <searchAttribute name="gender" expression="value.getGender()"/>
-        </searchable>
-    </cache>
-
+<cache name="cache3" maxElementsInMemory="10000" eternal="true" overflowToDisk="false">
+    <searchable>
+        <searchAttribute name="age" class="net.sf.ehcache.search.TestAttributeExtractor"/>
+        <searchAttribute name="gender" expression="value.getGender()"/>
+    </searchable>
+</cache>
 ---
 
 **  Programmatically
@@ -65,35 +66,36 @@ Search
     This example shows how:
 
 ---
-        CacheConfiguration cacheConfig = new CacheConfiguration("test", -1).eternal(true);
+CacheConfiguration cacheConfig = new CacheConfiguration("test", -1).eternal(true);
 
-        // Create attributes on the stuff we want to be able to search on.
-        // You can use an expression for getting at the value to be indexed on a cache or you can code your own
+// Create attributes on the stuff we want to be able to search on.
+// You can use an expression for getting at the value to be indexed on a cache or you can
+// code your own.
 
-        // Expression
-        SearchAttribute sa = new SearchAttribute();
-        sa.setExpression("value.getAge()");
-        sa.setName("age");
-        cacheConfig.addSearchAttribute(sa);
+// Expression
+SearchAttribute sa = new SearchAttribute();
+sa.setExpression("value.getAge()");
+sa.setName("age");
+cacheConfig.addSearchAttribute(sa);
 
-        // Coding your own
-        sa = new SearchAttribute();
-        sa.className("org.sharrissf.sample.EhcacheSearchPlaying$NameAttributeExtractor");
-        sa.setName("name");
-        cacheConfig.addSearchAttribute(sa);
+// Coding your own
+sa = new SearchAttribute();
+sa.className("org.sharrissf.sample.EhcacheSearchPlaying$NameAttributeExtractor");
+sa.setName("name");
+cacheConfig.addSearchAttribute(sa);
 
-        sa = new SearchAttribute();
-        sa.setExpression("value.getGender()");
-        sa.setName("gender");
-        cacheConfig.addSearchAttribute(sa);
+sa = new SearchAttribute();
+sa.setExpression("value.getGender()");
+sa.setName("gender");
+cacheConfig.addSearchAttribute(sa);
 
-        sa = new SearchAttribute();
-        sa.setExpression("value.getAddress().getState()");
-        sa.setName("state");
-        cacheConfig.addSearchAttribute(sa);
+sa = new SearchAttribute();
+sa.setExpression("value.getAddress().getState()");
+sa.setName("state");
+cacheConfig.addSearchAttribute(sa);
 
-        Cache test = new Cache(cacheConfig);
-        cacheManager.add(test);
+Cache test = new Cache(cacheConfig);
+cacheManager.add(test);
 ---
 
 
@@ -129,7 +131,7 @@ Search
     If an attribute cannot be extracted due to not being found or of being the wrong type an AttributeExtractorException is thrown
     during the <<<put()>>> in the clustered implementation and on search execution in the standalone implementation
 
-*** ReflectionAttributeExtractor
+** ReflectionAttributeExtractor
 
     The ReflectionAttributeExtractor is a built-in search attribute extractor.
 
@@ -168,11 +170,9 @@ Search
 </cache>
 ---
 
-  The method and field name portions of the expression are case sensitive
-        
-    
-    
-*** Custom AttributeExtractor
+  The method and field name portions of the expression are case sensitive.
+
+** Custom AttributeExtractor
 
   In more complex situations you can create your own attribute extractor by implementing the AttributeExtractor interface. Providing your 
   extractor class is shown in the following example:
@@ -192,46 +192,71 @@ Search
     Here is a simple example:
 
 ---
-    Query query = cache.createQuery().add(age.eq(35)).includeKeys().end();
-    Results results = query.execute();
+Query query = cache.createQuery().add(age.eq(35)).includeKeys().end();
+Results results = query.execute();
 ---
-
-** Making queries immutable
-
-  By defualt a query can be executed and then modified and re-executed. If <<<end>>> is called
-  the query is made immutable.
 
 **  Using attributes in queries
 
   If available the built-in key and value attributes are referenced as follows:
 
 ---
-    Attribute key = cache.getSearchAttribute(Query.KEY);
-    Attribute value = cache.getSearchAttribute(Query.VALUE);
-    Results results = cache.createQuery().add(key.eq(35)).execute();
+Attribute key = cache.getSearchAttribute(Query.KEY);
+Attribute value = cache.getSearchAttribute(Query.VALUE);
+Results results = cache.createQuery().add(key.eq(35)).execute();
 ---
 
     Other attributes are referenced by the names given them in the configuration. E.g.
 
 ---
-   Attribute<Integer> age = cache.getSearchAttribute("age");
-   Attribute<String> gender = cache.getSearchAttribute("gender");
-   Attribute<String> name = cache.getSearchAttribute("name");
+Attribute<Integer> age = cache.getSearchAttribute("age");
+Attribute<String> gender = cache.getSearchAttribute("gender");
+Attribute<String> name = cache.getSearchAttribute("name");
 ---
 
 ** Expressions
 
     The Query to be searched for is built up using Expressions.
 
-    Expressions include logical operators such as <and> and <or>. It also includes comparsion operators such as <ge>, <between> and <like>
+    Expressions include logical operators such as <and> and <or>. It also includes comparison operators such as <ge> (>=), <between> and <like>
 
     <<<add(...)>>> is used to add a clause to a query. Adding a further clause automatically <and>s the clauses
 
 ---
-    query = cache.createQuery().includeKeys().add(age.le(65)).add(gender.eq("male")).end();
+query = cache.createQuery().includeKeys().add(age.le(65)).add(gender.eq("male")).end();
 ---
 
-   See the {{{http://ehcache.org/xref/net/sf/ehcache/search/expression/package-frame.html}Expression JavaDoc}} for a complete list.
+    Both logical and comparison operators implement the <<<Criteria>>> interface.
+
+    To add a criteria with a different logical operator, you need to explicitly nest it within a new logical operator Criteria Object.
+
+    e.g. to check for age = 35 or gender = female, do the following:
+
+---
+query.add(new Or(age.eq(35),
+                 gender.eq(Gender.FEMALE))
+         );
+---
+
+    More complex compound expressions can be further created with extra nesting.
+
+    See the {{{http://ehcache.org/xref/net/sf/ehcache/search/expression/package-frame.html}Expression JavaDoc}} for a complete list.
+
+** Making queries immutable
+
+  By defualt a query can be executed and then modified and re-executed. If <<<end>>> is called
+  the query is made immutable.
+
+
+**  Ordering Results
+
+    Query results may be ordered in ascending or descending order by adding an <<<addOrder>>> clause to the query, which takes
+    as parameters the attribute to order by and the ordering direction.
+
+    e.g. to order the results by ages in ascending order
+---
+query.addOrder(age, Direction.ASCENDING);
+---
 
 
 **   Limiting the size of Results
@@ -240,9 +265,9 @@ Search
     query will return all keys in the cache.
 
 ---
-    Query query = cache.createQuery();
-    query.includeKeys();
-    query.execute();
+Query query = cache.createQuery();
+query.includeKeys();
+query.execute();
 ---
 
     If too many results are returned it could cause an OutOfMemoryError
@@ -252,20 +277,20 @@ Search
     e.g. to limit the above query to the first 100 elements found:
 
 ---
-    Query query = cache.createQuery();
-    query.includeKeys();
-    query.maxResults(100);
-    query.execute();
+Query query = cache.createQuery();
+query.includeKeys();
+query.maxResults(100);
+query.execute();
 ---
 
+    If a returns a very large result, you can get it in chunks with <<<Results.range()>>>.
 
 * Search Results
 
-  Queries return a <<<Results>>> object which contain objects of class <<<Result>>>.
+  Queries return a <<<Results>>> object which contains a list of objects of class <<<Result>>> plus
+   any <<<Aggregator>>> results.
 
-** How much to return
-
-  Query results can potentially be very large and could be too large to safely return to the caller.
+**  Results
 
   Either all results can be returned using <<<results.all()>>> to get the all in one chunk, or a range of results
   using <<<results.range(int start, int count)>>> to achieve paging.
@@ -273,31 +298,38 @@ Search
   When you are done with the results, it is recommended to call <<<discard()>>>. This allows resources to be freed.
   In the distributed implementation with Terracotta, resources may be used to hold results for paging or return.
 
-  A list of type <<<Result>>> is the return type of each call. This type holds all types of results. To determine
-  what was returned by the query if you are unsure, <<<Results>>> has boolean methods which will tell you whether
-  that type of reuslt was returned.
+  To determine what was returned by the query use one of the interrogation methods on <<<Results>>>:
+
+  * <<<hasKeys()>>>
+
+  * <<<hasAttributes()>>>
+
+  * <<<hasAggregators()>>>
+
+  Aggregator results are summaries computed for the search. They are available <<<Results.getAggregatorResults>>> which returns
+   a list of <<<Aggregator>>>s in the same order in which they were used in the <<<Query>>>.
 
 ** Result
 
+   Each <<<Element>>> in the cache found with a query will be represented as a <<<Result>>> object. So if a query finds
+   350 elements there will be 350 <<<Result>>> objects.
+
    A Result object can contain either:
 
-   *    the Element key - use <<<includeKeys()>>> in the query
+   *    the Element key - when <<<includeKeys()>>> was added to the query
 
-   *    the Element value - use <<<includeValues()>>> in the query
-
-   *    predefined attribute(s) extracted from an Element value - use <<<includeAttribute(...)>>> in the query.
-
-   Aggregator functions - use <<<includeAggregate()>>> in the query. The aggregator result is avaia
-
-   For attributes, Result must be called with the templated type.
-
+   *    predefined attribute(s) extracted from an Element value - when <<<includeAttribute(...)>>> was added to the query. To access
+        an attribute from Result, use <<<getAttribute(Attribute<T> attribute>>>.
 
 **  Aggregators
 
-    Aggregators are added with <<<query.includeAggregator(Aggregator aggregator, Attribute<?> attribute)>>>.
+    Aggregators are added with <<<query.includeAggregator(\<attribute\>.\<aggregator\>)>>>.
 
-    Because the state of the cache can change between search executions it is recommended to add all of the Aggregators you want
-    for a query at once. Execution is also more efficient.
+    E.g. to find the sum of the age attribute:
+
+---
+query.includeAggregator(age.sum());
+---
 
     See the {{{http://ehcache.org/xref/net/sf/ehcache/search/aggregator/package-frame.html}Aggregators JavaDoc}} for a complete list.
 
@@ -321,34 +353,71 @@ git clone git://github.com/sharrissf/Ehcache-Search-Sample.git
     Ehcache Search is readily amenable to scripting. The following example shows how to use it with BeanShell:
 
 ---
-   Interpreter i = new Interpreter();
+Interpreter i = new Interpreter();
 
-    //Auto discover the search attributes and add them to the interpreter's context
-    Map<String, SearchAttribute> attributes = cache.getCacheConfiguration().getSearchAttributes();
-    for (Map.Entry<String, SearchAttribute> entry : attributes.entrySet()) {
-        i.set(entry.getKey(), cache.getSearchAttribute(entry.getKey()));
-        LOG.info("Setting attribute " + entry.getKey());
-    }
+//Auto discover the search attributes and add them to the interpreter's context
+Map<String, SearchAttribute> attributes = cache.getCacheConfiguration().getSearchAttributes();
+for (Map.Entry<String, SearchAttribute> entry : attributes.entrySet()) {
+    i.set(entry.getKey(), cache.getSearchAttribute(entry.getKey()));
+    LOG.info("Setting attribute " + entry.getKey());
+}
 
-    //Define the query and results. Add things which would be set in the GUI i.e. includeKeys and add to context
-    Query query = cache.createQuery().includeKeys();
-    Results results = null;
-    i.set("query", query);
-    i.set("results", results);
+//Define the query and results. Add things which would be set in the GUI i.e.
+//includeKeys and add to context
+Query query = cache.createQuery().includeKeys();
+Results results = null;
+i.set("query", query);
+i.set("results", results);
 
-    //This comes from the freeform text field
-    String userDefinedQuery = "age.eq(35)";
+//This comes from the freeform text field
+String userDefinedQuery = "age.eq(35)";
 
-    //Add the stuff on that we need
-    String fullQueryString = "results = query.add(" + userDefinedQuery + ").execute()";
+//Add the stuff on that we need
+String fullQueryString = "results = query.add(" + userDefinedQuery + ").execute()";
 
-    i.eval(fullQueryString);
-    results = (Results) i.get("results");
-    assertTrue(2 == results.size());
-    for (Result result : results.all()) {
-        LOG.info("" + result.getKey());
-    }
+i.eval(fullQueryString);
+results = (Results) i.get("results");
+assertTrue(2 == results.size());
+for (Result result : results.all()) {
+    LOG.info("" + result.getKey());
+}
 ---
+
+*   Concurrency Considerations
+
+    Unlike cache operations which has selectable concurrency control and/or transactions, the Search API does not. This may change
+    in a future release, however our survey of prospective users showed that concurrency control in search indexes was not sought after.
+
+    The indexes are eventually consistent with the caches.
+
+**  Index updating
+
+    Indexes will be updated asynchronously, so there state will lag slightly behind the state of the cache. The only exception is when
+    the updating thread then performs a search.
+
+    For caches with concurrency control, an index will not reflect the new state of the cache until:
+
+    * The change has been applied to the cluster.
+
+    * For a cache with transactions, when <<<commit>>> has been called.
+
+**  Query Results
+
+    There are several ways unexpected results could present:
+
+    *   A search returns an Element reference which no longer exists.
+
+    *   Search criteria select an Element, but the Element has been updated and a new Search would no longer match the Element.
+
+    *   Aggregators, such as sum(), might disagree with the same calculation done by redoing the calculation yourself by re-accessing the
+        cache for each key and repeating the calculation.
+
+**  Recommendations
+
+    Because the state of the cache can change between search executions it is recommended to add all of the Aggregators you want
+    for a query at once so that the returned aggregators are consistent.
+
+    Use null guards when accessing a cache with a key returned from a search.
 
 *   Implementations
 
@@ -359,7 +428,6 @@ git clone git://github.com/sharrissf/Ehcache-Search-Sample.git
     query.
 
     Attributes are not extracted ahead of time. They are done during query execution.
-
 
 *** Performance
 
@@ -399,16 +467,15 @@ git clone git://github.com/sharrissf/Ehcache-Search-Sample.git
     * using a built-in <<<Aggregator>>> function when you only need a summary statistic
 
 
-
 *   Limitations in the alpha release
 
     The above documentation is written for how we see search working when it is released.
 
-    In the interests of getting this out into alpha testers hands there are a few things we plan to do which are not yet done:
+    * The alpha API may be changed before final release
 
-    * performance optimisations for standalone have not been done
+    * Performance optimisations for standalone have not been done
 
-    * Added a test which shows that getValue() does not work unless includeKeys() is on.  Bug EHC-799"
+     These should get done before release:
 
     * Added EHC-800 comment to ehcache-search.xml. Not honouring JavaBeans convention
 
@@ -416,19 +483,16 @@ git clone git://github.com/sharrissf/Ehcache-Search-Sample.git
 
     * EHC-802: result.getValue() should not work unless includeValues() was specified.
 
-    * EHC-803: Missing implemenations in Results and Result
-
     * EHC-804:  Add <searchable> sub-element to ehcache.xml to enclose search configuration
 
+    * Use fluent interface methods in programatic example for search attributes
 
 
+*   Not planned for First Release
 
-TODO:
+    * Add Query.includeValues() that is orthogonal to includeKeys() and can be more efficient network wise for round trips where values are required
 
-- Use fluent interface methods in programatic example for search attributes
+    * indexed standalone implementation
 
-- create a V2 section
-  - add back includeValues() that is orthogonal to includeKeys() and can
-    be more effecient network wise for round trips
+    * User Defined Aggregators
 
-- update aggregator section for new style of things

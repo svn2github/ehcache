@@ -59,6 +59,7 @@
             <item name="Getting Started" href="documentation/getting_started.html"/>
             <item name="Code Samples and Recipes" href="documentation/samples.html"/>
             <item name="BigMemory" href="documentation/offheap_store.html"/>
+            <item name="Search" href="documentation/search.html"/>
             <item name="Hibernate Caching" href="documentation/hibernate.html"/>
 	        <item name="Distributed Caching" href="documentation/distributed_caching.html"/>
             <item name="JDBC Caching" href="documentation/jdbc.html"/>

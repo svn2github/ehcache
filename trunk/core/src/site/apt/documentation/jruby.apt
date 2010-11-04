@@ -89,8 +89,8 @@ jgem install jruby-ehcache
     require 'ehcache'
 ---
 
-If you prefer, you can make Ruby Gems available to JRuby globally by setting
-the RUBYOPT environment variable as follows:
+    If you prefer, you can make Ruby Gems available to JRuby globally by setting
+    the RUBYOPT environment variable as follows:
 
 ---
   export RUBYOPT=rubygems

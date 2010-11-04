@@ -172,7 +172,7 @@ public class ResultsImpl implements Results {
 
         /**
          * @param position
-         * @return
+         * @return the sort attributes
          */
         Object getSortAttribute(int position) {
             return sortAttributes[position];
