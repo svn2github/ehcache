@@ -197,12 +197,12 @@ public Cache createOffHeapCache() {
     Note: You will need to get a demo {{{http://www.terracotta.org/bigmemory?src=ehcache.org}license key}} and install it as discussed
     above to run the test.
 
-    Here are some charts from tests we have run on a pre-release alpha version of BigMemory.
-    The test machine was an AMD Opteron with 2.8Mhz 4 cpu/8 cores and 64GB memory running RHEL5.1
-    with Sun JDK 1.6.0_21 in 64 bit mode.
+    Here are some charts from tests we have run on the release candidate of BigMemory.
 
-    We used 50 threads doing an even mix of reads and writes with 1KB elements. We used the default
-    garbage collection settings.
+    The test machine was a Cisco UCS box running with Intel(R) Xeon(R) Processors. It had 6 2.93Ghz Xeon(R) cpus for a total of 24 cores,
+    with 128GB of RAM, running RHEL5.1 with Sun JDK 1.6.0_21 in 64 bit mode.
+
+    We used 50 threads doing an even mix of reads and writes with 1KB elements. We used the default garbage collection settings.
 
     The tests all go through a load/warmup phase then start a performance run. You can use the tests in your own environments and extend
     them to cover different read/write ratios, data sizes, -Xmx settings and hot sets. The full suite, which is done with
@@ -294,7 +294,7 @@ public Cache createOffHeapCache() {
 **  Memory Use in each Store
 
     As a performance optimisation, and because storage gets much cheaper as you drop down through the hierarchy, we write
-    each put to as many stores as are configured. So, if all three are configured, the Element gets written to MemoryStore,
+    each put to as many stores as are configured. So, if all three are configured, the Element may be present in MemoryStore,
     OffHeapStore and DiskStore.
 
     The result is that each store consumes storage for itself and the other stores higher up the hierarchy. So, if the MemoryStore
@@ -306,6 +306,11 @@ public Cache createOffHeapCache() {
 
     It has the great benefit, which pays for the duplication, of not requiring copy on eviction. On eviction from a store,
     an Element can simply be removed. It is already in the next store down.
+
+    One further twist: the MemoryStore is only populated on a read. Puts go to the OffHeapStore and then when read, are
+    held in the MemoryStore. The MemoryStore thus holds hot items of the OffHeapStore. This will result in a difference in what
+    can be expected to be in the MemoryStore between this implementation and the open source one. A "usage" for the purposes of the
+    eviction algorithms is either a put or a get. As only gets are counted in this implementation, some differences will be observed.
 
 *   Handling JVM startup and shutdown
 
