@@ -212,6 +212,15 @@ public enum AttributeType {
             throw new NullPointerException("null value");
         }
 
+        AttributeType type = typeForOrNull(value);
+        if (type != null) {
+            return type;
+        }
+
+        throw new SearchException("Unsupported type for search attribute [" + name + "]: " + value.getClass().getName());
+    }
+
+    private static AttributeType typeForOrNull(Object value) {
         AttributeType type = MAPPINGS.get(value.getClass());
         if (type != null) {
             return type;
@@ -222,7 +231,21 @@ public enum AttributeType {
             return ENUM;
         }
 
-        throw new SearchException("Unsupported type for search attribute [" + name + "]: " + value.getClass().getName());
+        return null;
+    }
+
+    /**
+     * Test the given value to see if it is a legal type
+     *
+     * @param value
+     * @return true if the given value is valid as a search attribute
+     */
+    public static boolean isSupportedType(Object value) {
+        if (value == null) {
+            return true;
+        }
+
+        return typeForOrNull(value) != null;
     }
 
     /**

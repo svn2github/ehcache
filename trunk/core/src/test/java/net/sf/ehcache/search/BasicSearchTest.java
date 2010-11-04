@@ -40,6 +40,65 @@ import net.sf.ehcache.search.expression.Or;
 
 public class BasicSearchTest extends TestCase {
 
+    public void testInvalidConfiguration() {
+        try {
+            new CacheManager(getClass().getResource("/ehcache-search-invalid-key.xml"));
+            fail();
+        } catch (CacheException ce) {
+           // expected
+        }
+
+        try {
+            new CacheManager(getClass().getResource("/ehcache-search-invalid-value.xml"));
+            fail();
+        } catch (CacheException ce) {
+           // expected
+        }
+    }
+
+
+    public void testNonSearchableCache() {
+        CacheManager cacheManager = new CacheManager(getClass().getResource("/ehcache-search.xml"));
+        Ehcache cache = cacheManager.getEhcache("not-searchable");
+        assertFalse(cache.isSearchable());
+
+        try {
+            cache.createQuery();
+            fail();
+        } catch (CacheException e) {
+            // expected
+        }
+    }
+
+    public void testDefaultSearchableCache() {
+        CacheManager cacheManager = new CacheManager(getClass().getResource("/ehcache-search.xml"));
+        Ehcache cache = cacheManager.getEhcache("default-searchable");
+        assertTrue(cache.isSearchable());
+
+        cache.put(new Element("key", new Object()));
+        cache.put(new Element(new Object(), "value"));
+        cache.put(new Element(new Object(), new Object()));
+        cache.put(new Element(null, null));
+
+        Query query;
+        Results results;
+
+        query = cache.createQuery();
+        query.includeKeys();
+        query.add(Query.KEY.eq("key")).end();
+        results = query.execute();
+        assertEquals(1, results.size());
+        assertEquals("key", results.all().iterator().next().getKey());
+
+        query = cache.createQuery();
+        query.includeKeys();
+        query.add(Query.VALUE.eq("value")).end();
+        results = query.execute();
+        assertEquals(1, results.size());
+        Object key = results.all().iterator().next().getKey();
+        assertEquals("value", cache.get(key).getObjectValue());
+    }
+
     public void testQueryBuilder() {
         CacheManager cacheManager = new CacheManager(getClass().getResource("/ehcache-search.xml"));
         Ehcache cache = cacheManager.getEhcache("cache1");

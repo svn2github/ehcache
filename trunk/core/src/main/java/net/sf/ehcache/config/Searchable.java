@@ -21,6 +21,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 import net.sf.ehcache.CacheException;
+import net.sf.ehcache.search.Query;
+import net.sf.ehcache.search.attribute.KeyObjectAttributeExtractor;
+import net.sf.ehcache.search.attribute.ValueObjectAttributeExtractor;
 
 /**
  * Search configuration for a Cache
@@ -34,6 +37,21 @@ public class Searchable {
      */
     private final Map<String, SearchAttribute> searchAttributes = new HashMap<String, SearchAttribute>();
     private boolean frozen;
+
+    /**
+     * Constructor
+     */
+    public Searchable() {
+        addDefaultKeyValueAttributes();
+    }
+
+    private void addDefaultKeyValueAttributes() {
+        String keyAttr = Query.KEY.getAttributeName();
+        searchAttributes.put(keyAttr, new SearchAttribute().name(keyAttr).className(KeyObjectAttributeExtractor.class.getName()));
+
+        String valueAttr = Query.VALUE.getAttributeName();
+        searchAttributes.put(valueAttr, new SearchAttribute().name(valueAttr).className(ValueObjectAttributeExtractor.class.getName()));
+    }
 
     /**
      * Add the given search attribute
@@ -50,11 +68,19 @@ public class Searchable {
             throw new InvalidConfigurationException("Search attribute has null name");
         }
 
+        disallowBuiltins(attributeName);
+
         if (searchAttributes.containsKey(attributeName)) {
             throw new InvalidConfigurationException("Repeated searchAttribute name: " + attributeName);
         }
 
         searchAttributes.put(attributeName, searchAttribute);
+    }
+
+    private void disallowBuiltins(String attributeName) {
+        if (Query.KEY.getAttributeName().equals(attributeName) || Query.VALUE.getAttributeName().equals(attributeName)) {
+            throw new InvalidConfigurationException("\"" + attributeName + "\" is a reserved attribute name");
+        }
     }
 
     private void checkDynamicChange() {
@@ -97,8 +123,9 @@ public class Searchable {
      * @return search attributes
      */
     public Map<String, SearchAttribute> getUserDefinedSearchAttributes() {
-        // XXX: implement this method correctly!
-
-        return getSearchAttributes();
+        Map<String, SearchAttribute> copy = new HashMap<String, SearchAttribute>(searchAttributes);
+        copy.remove(Query.KEY.getAttributeName());
+        copy.remove(Query.VALUE.getAttributeName());
+        return copy;
     }
 }

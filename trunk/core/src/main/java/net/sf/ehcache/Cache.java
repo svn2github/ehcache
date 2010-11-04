@@ -3468,6 +3468,9 @@ public class Cache implements Ehcache, StoreListener {
      * {@inheritDoc}
      */
     public Query createQuery() {
+        if (!isSearchable()) {
+            throw new CacheException("This cache is not configured for search");
+        }
         return new CacheQuery(this);
     }
 
@@ -3479,5 +3482,12 @@ public class Cache implements Ehcache, StoreListener {
      */
     Results executeQuery(StoreQuery query) {
         return this.compoundStore.executeQuery(query);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public boolean isSearchable() {
+        return configuration.isSearchable();
     }
 }

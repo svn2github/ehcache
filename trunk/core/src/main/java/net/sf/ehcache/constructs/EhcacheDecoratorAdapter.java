@@ -47,9 +47,9 @@ import net.sf.ehcache.writer.CacheWriterManager;
  * Adapter class for Ehcache interface decorators. Implements all method in {@link Ehcache} by delegating all calls to the decorated
  * {@link Ehcache}. This class is provided as a convenience for easily creating {@link Ehcache} decorators by extending this class and
  * overriding only the methods of interest.
- * 
+ *
  * @author Abhishek Sanoujam
- * 
+ *
  */
 public class EhcacheDecoratorAdapter implements Ehcache {
 
@@ -60,7 +60,7 @@ public class EhcacheDecoratorAdapter implements Ehcache {
 
     /**
      * Constructor accepting the cache to be decorated
-     * 
+     *
      * @param underlyingCache
      */
     public EhcacheDecoratorAdapter(Ehcache underlyingCache) {
@@ -722,7 +722,7 @@ public class EhcacheDecoratorAdapter implements Ehcache {
 
     /**
      * {@inheritDoc}
-     * 
+     *
      * @see net.sf.ehcache.Ehcache#addPropertyChangeListener(java.beans.PropertyChangeListener)
      */
     public void addPropertyChangeListener(PropertyChangeListener listener) {
@@ -731,7 +731,7 @@ public class EhcacheDecoratorAdapter implements Ehcache {
 
     /**
      * {@inheritDoc}
-     * 
+     *
      * @see net.sf.ehcache.Ehcache#removePropertyChangeListener(java.beans.PropertyChangeListener)
      */
     public void removePropertyChangeListener(PropertyChangeListener listener) {
@@ -758,6 +758,13 @@ public class EhcacheDecoratorAdapter implements Ehcache {
      */
     public <T> Attribute<T> getSearchAttribute(String attributeName) throws CacheException {
         return underlyingCache.getSearchAttribute(attributeName);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public boolean isSearchable() {
+        return underlyingCache.isSearchable();
     }
 
 }

@@ -150,16 +150,15 @@ public class QueryExamplesTest {
     /**
      * todo shows how to use the key constant. There is another one for value.
      */
-    @Ignore
     @Test
     public void testUseShorthandKeyAttribute() {
-        Results results = cache.createQuery().add(KEY.eq(35)).execute();
+        Results results = cache.createQuery().add(KEY.eq(1)).execute();
+        assertTrue(1 == results.size());
     }
 
 
     @Test
     public void testIncludeKeysSpecified() {
-
         Attribute<Integer> age = cache.getSearchAttribute("age");
         Results results = cache.createQuery().add(age.eq(35)).includeKeys().execute();
         assertTrue(2 == results.size());

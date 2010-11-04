@@ -23,6 +23,14 @@
             <searchAttribute name="gender" expression="value.getGender()"/>
         </searchable>
     </cache>
-
+    
+    
+    <cache name="not-searchable" maxElementsInMemory="0" eternal="true" overflowToDisk="false">
+       <!--  contains no searchable element! -->
+    </cache>
+    
+    <cache name="default-searchable" maxElementsInMemory="0" eternal="true" overflowToDisk="false">
+       <searchable/>
+    </cache>
 
 </ehcache>

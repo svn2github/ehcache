@@ -1104,4 +1104,12 @@ public interface Ehcache extends Cloneable {
      * @return a new query builder
      */
     public Query createQuery();
+
+    /**
+     * Is this cache searchable?
+     *
+     * @return true if this cache is searchable
+     */
+    public boolean isSearchable();
+
 }
