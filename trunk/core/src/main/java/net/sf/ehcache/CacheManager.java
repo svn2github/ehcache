@@ -83,7 +83,7 @@ public class CacheManager {
      * Default name if not specified in the configuration/
      */
     public static final String DEFAULT_NAME = "__DEFAULT__";
-    
+
     /**
      * Keeps track of all known CacheManagers. Used to check on conflicts.
      * CacheManagers should remove themselves from this list during shut down.
@@ -115,7 +115,7 @@ public class CacheManager {
     /**
      * The factory to use for creating MBeanRegistrationProvider's
      */
-    private static final MBeanRegistrationProviderFactory mBeanRegistrationProviderFactory = new MBeanRegistrationProviderFactoryImpl();
+    private static final MBeanRegistrationProviderFactory MBEAN_REGISTRATION_PROVIDER_FACTORY = new MBeanRegistrationProviderFactoryImpl();
 
     /**
      * A name for this CacheManager to distinguish it from others.
@@ -130,12 +130,14 @@ public class CacheManager {
     /**
      * The map of providers
      */
-    protected final Map<String, CacheManagerPeerProvider> cacheManagerPeerProviders = new ConcurrentHashMap<String, CacheManagerPeerProvider>();
+    protected final Map<String, CacheManagerPeerProvider> cacheManagerPeerProviders =
+        new ConcurrentHashMap<String, CacheManagerPeerProvider>();
 
     /**
      * The map of listeners
      */
-    protected final Map<String, CacheManagerPeerListener> cacheManagerPeerListeners = new ConcurrentHashMap<String, CacheManagerPeerListener>();
+    protected final Map<String, CacheManagerPeerListener> cacheManagerPeerListeners =
+        new ConcurrentHashMap<String, CacheManagerPeerListener>();
 
     /**
      * The listener registry
@@ -300,7 +302,7 @@ public class CacheManager {
 
         this.allowsDynamicCacheConfig = localConfiguration.getDynamicConfig();
         this.terracottaClientConfiguration = localConfiguration.getTerracottaConfiguration();
-        
+
         Map<String, CacheConfiguration> cacheConfigs = localConfiguration.getCacheConfigurations();
         if (localConfiguration.getDefaultCacheConfiguration() != null
             && localConfiguration.getDefaultCacheConfiguration().isTerracottaClustered()) {
@@ -315,11 +317,11 @@ public class CacheManager {
                 }
             }
         }
-        
+
         if (terracottaClusteredInstanceFactory != null && this.name == null) {
             this.name = CacheManager.DEFAULT_NAME;
         }
-        
+
         ConfigurationHelper configurationHelper = new ConfigurationHelper(this, localConfiguration);
         configure(configurationHelper);
         status = Status.STATUS_ALIVE;
@@ -376,7 +378,7 @@ public class CacheManager {
      * @param localConfiguration
      */
     private void initializeMBeanRegistrationProvider(Configuration localConfiguration) {
-        mbeanRegistrationProvider = mBeanRegistrationProviderFactory.createMBeanRegistrationProvider(localConfiguration);
+        mbeanRegistrationProvider = MBEAN_REGISTRATION_PROVIDER_FACTORY.createMBeanRegistrationProvider(localConfiguration);
         try {
             mbeanRegistrationProvider.initialize(this, terracottaClusteredInstanceFactory);
         } catch (MBeanRegistrationProviderException e) {
@@ -607,7 +609,7 @@ public class CacheManager {
         for (Iterator iterator = unitialisedCaches.iterator(); iterator.hasNext();) {
             Ehcache unitialisedCache = (Ehcache) iterator.next();
             addCacheNoCheck(unitialisedCache, true);
-            
+
             // add the cache decorators for the cache, if any
             List<Ehcache> cacheDecorators = configurationHelper.createCacheDecorators(unitialisedCache);
             for (Ehcache decoratedCache : cacheDecorators) {
@@ -619,7 +621,7 @@ public class CacheManager {
     private void addOrReplaceDecoratedCache(final Ehcache underlyingCache, final Ehcache decoratedCache) {
         if (decoratedCache.getName().equals(underlyingCache.getName())) {
             this.replaceCacheWithDecoratedCache(underlyingCache, decoratedCache);
-        } else {                    
+        } else {
             addDecoratedCache(decoratedCache);
         }
     }
@@ -780,11 +782,11 @@ public class CacheManager {
      * Consider using getEhcache(String name) instead, which will return decorated caches that are registered.
      * <p/>
      * If a decorated ehcache is registered in CacheManager, an undecorated Cache with the same name may also exist.
-     * 
+     *
      * Since version ehcache-core-2.1.0, when an {@link Ehcache} decorator is present in the CacheManager, its not necessary that a
      * {@link Cache} instance is also present for the same name. Decorators can have different names other than the name of the cache its
      * decorating.
-     * 
+     *
      * @return a Cache, if an object of that type exists by that name, else null
      * @throws IllegalStateException
      *             if the cache is not {@link Status#STATUS_ALIVE}
@@ -889,7 +891,7 @@ public class CacheManager {
         }
         Ehcache clonedDefaultCache = cloneDefaultCache(cacheName);
         addCache(clonedDefaultCache);
-        for (Ehcache ehcache : createDefaultCacheDecorators(clonedDefaultCache)) {            
+        for (Ehcache ehcache : createDefaultCacheDecorators(clonedDefaultCache)) {
             addOrReplaceDecoratedCache(clonedDefaultCache, ehcache);
         }
     }
@@ -955,7 +957,7 @@ public class CacheManager {
      * Note that any overridden Ehcache methods by the decorator will take on new behaviours without casting.
      * Casting is only required for new methods that the decorator introduces. For more information see the well
      * known Gang of Four Decorator pattern.
-     * 
+     *
      * @param decoratedCache
      * @throws ObjectExistsException
      *             if another cache with the same name already exists.
@@ -963,10 +965,10 @@ public class CacheManager {
     public void addDecoratedCache(Ehcache decoratedCache) throws ObjectExistsException {
         internalAddDecoratedCache(decoratedCache, true);
     }
-    
+
     /**
      * Same as {@link #addDecoratedCache(Ehcache)} but does not throw exception if another cache with same name already exists.
-     * 
+     *
      * @param decoratedCache
      * @throws ObjectExistsException
      */
@@ -983,7 +985,7 @@ public class CacheManager {
 
     private Ehcache addCacheNoCheck(Ehcache cache, final boolean strict)
         throws IllegalStateException, ObjectExistsException, CacheException {
-        
+
         if (cache.getStatus() != Status.STATUS_UNINITIALISED) {
             throw new CacheException(
                     "Trying to add an already initialized cache." +
@@ -991,7 +993,7 @@ public class CacheManager {
                     "use CacheManager.addDecoratedCache" +
                     "(Ehcache decoratedCache) instead.");
         }
-        
+
         Ehcache ehcache = ehcaches.get(cache.getName());
         if (ehcache != null) {
             if (strict) {
@@ -1011,7 +1013,7 @@ public class CacheManager {
                 configuration.addCache(cacheConfig);
             }
         }
-        
+
         cache.initialise();
         if (!allowsDynamicCacheConfig) {
             cache.disableDynamicFeatures();
@@ -1232,7 +1234,7 @@ public class CacheManager {
     public CacheManagerPeerProvider getCacheManagerPeerProvider(String scheme) {
         return cacheManagerPeerProviders.get(scheme);
     }
-    
+
     /**
      * @return Read-only map of the registered {@link CacheManagerPeerProvider}s keyed by scheme.
      */
@@ -1529,7 +1531,7 @@ public class CacheManager {
         }
         return cache;
     }
-    
+
     private List<Ehcache> createDefaultCacheDecorators(Ehcache underlyingCache) {
         return ConfigurationHelper.createDefaultCacheDecorators(underlyingCache, configuration.getDefaultCacheConfiguration());
     }
