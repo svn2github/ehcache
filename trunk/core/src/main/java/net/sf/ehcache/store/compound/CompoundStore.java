@@ -38,6 +38,7 @@ import net.sf.ehcache.concurrent.CacheLockProvider;
 import net.sf.ehcache.concurrent.LockType;
 import net.sf.ehcache.concurrent.Sync;
 import net.sf.ehcache.store.AbstractStore;
+import net.sf.ehcache.store.ElementValueComparator;
 import net.sf.ehcache.writer.CacheWriterManager;
 
 /**
@@ -235,7 +236,7 @@ public abstract class CompoundStore extends AbstractStore {
         }
 
         int hash = hash(key.hashCode());
-        return segmentFor(hash).remove(key, hash, null);
+        return segmentFor(hash).remove(key, hash, null, null);
     }
 
     /**
@@ -371,19 +372,20 @@ public abstract class CompoundStore extends AbstractStore {
     /**
      * {@inheritDoc}
      */
-    public Element removeElement(Element element) throws NullPointerException {
+    public Element removeElement(Element element, ElementValueComparator comparator) throws NullPointerException {
         Object key = element.getObjectKey();
         int hash = hash(key.hashCode());
-        return segmentFor(hash).remove(key, hash, element);
+        return segmentFor(hash).remove(key, hash, element, comparator);
     }
 
     /**
      * {@inheritDoc}
      */
-    public boolean replace(Element old, Element element) throws NullPointerException, IllegalArgumentException {
+    public boolean replace(Element old, Element element, ElementValueComparator comparator)
+            throws NullPointerException, IllegalArgumentException {
         Object key = element.getObjectKey();
         int hash = hash(key.hashCode());
-        return segmentFor(hash).replace(key, hash, old, element);
+        return segmentFor(hash).replace(key, hash, old, element, comparator);
     }
 
     /**

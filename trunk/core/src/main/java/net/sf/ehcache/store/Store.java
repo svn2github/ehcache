@@ -125,11 +125,12 @@ public interface Store {
      * is equal to the value of the cached Element.
      *
      * @param element Element to be removed
+     * @param comparator ElementValueComparator to use to compare elements
      * @return the Element removed or null if no Element was removed
      *
      * @throws NullPointerException if the element is null, or has a null key
      */
-    Element removeElement(Element element) throws NullPointerException;
+    Element removeElement(Element element, ElementValueComparator comparator) throws NullPointerException;
 
     /**
      * Replace the cached element only if the value of the current Element is equal to the value of the
@@ -137,11 +138,12 @@ public interface Store {
      *
      * @param old Element to be test against
      * @param element Element to be cached
+     * @param comparator ElementValueComparator to use to compare elements
      * @return true is the Element was replaced
      * @throws NullPointerException if the either Element is null or has a null key
      * @throws IllegalArgumentException if the two Element keys are non-null but not equal
      */
-    boolean replace(Element old, Element element) throws NullPointerException, IllegalArgumentException;
+    boolean replace(Element old, Element element, ElementValueComparator comparator) throws NullPointerException, IllegalArgumentException;
 
     /**
      * Replace the cached element only if an Element is currently cached for this key

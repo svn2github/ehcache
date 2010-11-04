@@ -77,6 +77,7 @@ import net.sf.ehcache.statistics.LiveCacheStatisticsWrapper;
 import net.sf.ehcache.statistics.sampled.SampledCacheStatistics;
 import net.sf.ehcache.statistics.sampled.SampledCacheStatisticsWrapper;
 import net.sf.ehcache.store.DiskStore;
+import net.sf.ehcache.store.ElementValueComparator;
 import net.sf.ehcache.store.LegacyStoreWrapper;
 import net.sf.ehcache.store.LruMemoryStore;
 import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
@@ -247,6 +248,8 @@ public class Cache implements Ehcache, StoreListener {
 
     private final PropertyChangeSupport propertyChangeSupport = new PropertyChangeSupport(this);
 
+    private volatile ElementValueComparator elementValueComparator;
+
     /**
      * 2.0 and higher Constructor
      * <p/>
@@ -287,6 +290,7 @@ public class Cache implements Ehcache, StoreListener {
 
         this.configuration = cacheConfiguration.clone();
         configuration.validateCompleteConfiguration();
+        elementValueComparator = cacheConfiguration.getElementValueComparatorConfiguration().getElementComparatorInstance();
 
         guid = createGuid();
 
@@ -3363,7 +3367,7 @@ public class Cache implements Ehcache, StoreListener {
         //this guard currently ensures reasonable behavior on expiring elements
         getQuiet(element.getObjectKey());
 
-        Element result = compoundStore.removeElement(element);
+        Element result = compoundStore.removeElement(element, elementValueComparator);
         notifyRemoveInternalListeners(element.getObjectKey(), false, true, false, result);
         return result != null;
     }
@@ -3391,7 +3395,7 @@ public class Cache implements Ehcache, StoreListener {
         applyDefaultsToElementWithoutLifespanSet(element);
         backOffIfDiskSpoolFull();
 
-        boolean result = compoundStore.replace(old, element);
+        boolean result = compoundStore.replace(old, element, elementValueComparator);
 
         if (result) {
             element.updateUpdateStatistics();

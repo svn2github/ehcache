@@ -161,6 +161,12 @@ public class CacheConfiguration implements Cloneable {
      */
     public static final CopyStrategyConfiguration DEFAULT_COPY_STRATEGY_CONFIGURATION = new CopyStrategyConfiguration();
 
+    /**
+     * Default elementComparatorConfiguration
+     */
+    public static final ElementValueComparatorConfiguration DEFAULT_ELEMENT_VALUE_COMPARATOR_CONFIGURATION =
+           new ElementValueComparatorConfiguration();
+
     private static final Logger LOG = LoggerFactory.getLogger(CacheConfiguration.class.getName());
 
     /**
@@ -335,6 +341,8 @@ public class CacheConfiguration implements Cloneable {
     private TransactionalMode transactionalMode = DEFAULT_TRANSACTIONAL_MODE;
     private volatile boolean statistics = DEFAULT_STATISTICS;
     private volatile CopyStrategyConfiguration copyStrategyConfiguration = DEFAULT_COPY_STRATEGY_CONFIGURATION;
+    private volatile ElementValueComparatorConfiguration elementValueComparatorConfiguration =
+            DEFAULT_ELEMENT_VALUE_COMPARATOR_CONFIGURATION;
     private volatile Boolean copyOnRead;
     private volatile Boolean copyOnWrite;
     private Object defaultTransactionManager;
@@ -1050,6 +1058,15 @@ public class CacheConfiguration implements Cloneable {
     }
 
     /**
+     * Sets the ElementValueComparatorConfiguration for this cache
+     *
+     * @param elementValueComparatorConfiguration the ElementComparator Configuration
+     */
+    public void addElementValueComparator(ElementValueComparatorConfiguration elementValueComparatorConfiguration) {
+        this.elementValueComparatorConfiguration = elementValueComparatorConfiguration;
+    }
+
+    /**
      * Add the given search attribute
      *
      * @throws InvalidConfigurationException if an attribute already exists for the same name
@@ -1089,6 +1106,15 @@ public class CacheConfiguration implements Cloneable {
      */
     public CopyStrategyConfiguration getCopyStrategyConfiguration() {
         return this.copyStrategyConfiguration;
+    }
+
+    /**
+     * Returns the elementComparatorConfiguration
+     *
+     * @return the elementComparatorConfiguration
+     */
+    public ElementValueComparatorConfiguration getElementValueComparatorConfiguration() {
+        return elementValueComparatorConfiguration;
     }
 
     /**

@@ -462,13 +462,13 @@ public class LegacyStoreWrapper extends AbstractStore {
     /**
      * {@inheritDoc}
      */
-    public Element removeElement(Element element) throws NullPointerException {
+    public Element removeElement(Element element, ElementValueComparator comparator) throws NullPointerException {
         Sync lock = sync.getSyncForKey(element.getObjectKey());
         
         lock.lock(LockType.WRITE);
         try {
             Element current = getQuiet(element.getObjectKey());
-            if (fullElementEquals(element, current)) {
+            if (comparator.equals(element, current)) {
                 return remove(current.getObjectKey());
             } else {
                 return null;
@@ -481,13 +481,14 @@ public class LegacyStoreWrapper extends AbstractStore {
     /**
      * {@inheritDoc}
      */
-    public boolean replace(Element old, Element element) throws NullPointerException, IllegalArgumentException {
+    public boolean replace(Element old, Element element, ElementValueComparator comparator)
+            throws NullPointerException, IllegalArgumentException {
         Sync lock = sync.getSyncForKey(old.getObjectKey());
         
         lock.lock(LockType.WRITE);
         try {
             Element current = getQuiet(old.getObjectKey());
-            if (fullElementEquals(old, current)) {
+            if (comparator.equals(old, current)) {
                 put(element);
                 return true;
             } else {
@@ -513,18 +514,6 @@ public class LegacyStoreWrapper extends AbstractStore {
             return current;
         } finally {
             lock.unlock(LockType.WRITE);
-        }
-    }
-    
-    private static boolean fullElementEquals(Element e1, Element e2) {
-        if (e1.equals(e2)) {
-            if (e1.getObjectValue() == null) {
-                return e2.getObjectValue() == null;
-            } else {
-                return e1.getObjectValue().equals(e2.getObjectValue());
-            }
-        } else {
-            return false;
         }
     }
 

@@ -79,6 +79,7 @@
                 <xs:element minOccurs="0" maxOccurs="1" ref="terracotta"/>
                 <xs:element minOccurs="0" maxOccurs="1" ref="cacheWriter"/>
                 <xs:element minOccurs="0" maxOccurs="1" ref="copyStrategy"/>
+                <xs:element minOccurs="0" maxOccurs="1" ref="elementValueComparator"/>
             </xs:sequence>
             <xs:attribute name="diskExpiryThreadIntervalSeconds" type="xs:integer" use="optional"/>
             <xs:attribute name="diskSpoolBufferSizeMB" type="xs:integer" use="optional"/>
@@ -113,6 +114,7 @@
                 <xs:element minOccurs="0" maxOccurs="1" ref="terracotta"/>
                 <xs:element minOccurs="0" maxOccurs="1" ref="cacheWriter"/>
                 <xs:element minOccurs="0" maxOccurs="1" ref="copyStrategy"/>
+                <xs:element minOccurs="0" maxOccurs="1" ref="elementValueComparator"/>
                 <xs:element minOccurs="0" maxOccurs="unbounded" ref="searchAttribute"/>
             </xs:sequence>
             <xs:attribute name="diskExpiryThreadIntervalSeconds" type="xs:integer" use="optional"/>
@@ -263,6 +265,12 @@
     </xs:element>
 
     <xs:element name="copyStrategy">
+        <xs:complexType>
+            <xs:attribute name="class" use="required" type="xs:string" />
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="elementValueComparator">
         <xs:complexType>
             <xs:attribute name="class" use="required" type="xs:string" />
         </xs:complexType>

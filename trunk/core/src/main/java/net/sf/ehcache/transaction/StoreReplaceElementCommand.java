@@ -16,6 +16,7 @@
 package net.sf.ehcache.transaction;
 
 import net.sf.ehcache.Element;
+import net.sf.ehcache.store.ElementValueComparator;
 import net.sf.ehcache.store.Store;
 import net.sf.ehcache.writer.CacheWriterManager;
 
@@ -26,15 +27,18 @@ public class StoreReplaceElementCommand implements StoreWriteCommand {
 
     private final Element oldElement;
     private final Element newElement;
+    private final ElementValueComparator comparator;
 
     /**
      * Constructor
      * @param oldElement the element has supposed to be there
      * @param newElement the element to replace
+     * @param comparator the comparator to be used for element comparison
      */
-    public StoreReplaceElementCommand(final Element oldElement, final Element newElement) {
+    public StoreReplaceElementCommand(Element oldElement, Element newElement, ElementValueComparator comparator) {
         this.oldElement = oldElement;
         this.newElement = newElement;
+        this.comparator = comparator;
     }
 
     /**
@@ -48,7 +52,7 @@ public class StoreReplaceElementCommand implements StoreWriteCommand {
      * {@inheritDoc}
      */
     public boolean execute(final Store store) {
-        if (!store.replace(oldElement, newElement)) {
+        if (!store.replace(oldElement, newElement, comparator)) {
             throw new IllegalStateException();
         }
         return true;

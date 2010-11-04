@@ -25,6 +25,7 @@ import java.util.NoSuchElementException;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import net.sf.ehcache.Element;
+import net.sf.ehcache.store.ElementValueComparator;
 import net.sf.ehcache.util.VmUtils;
 
 /**
@@ -279,7 +280,7 @@ class Segment extends ReentrantReadWriteLock {
      * @param value element to check for
      * @return <code>true</code> if a key is mapped to this element
      */
-    boolean containsValue(Object value) {
+    boolean containsValue(Element value, ElementValueComparator comparator) {
         readLock().lock();
         try {
             // read-volatile
@@ -289,7 +290,7 @@ class Segment extends ReentrantReadWriteLock {
                 for (int i = 0; i < len; i++) {
                     for (HashEntry e = tab[i]; e != null; e = e.next) {
                         Element element = decode(e.key, e.getElement());
-                        if (fullElementEquals(value, element)) {
+                        if (comparator.equals(value, element)) {
                             return true;
                         }
                     }
@@ -304,13 +305,15 @@ class Segment extends ReentrantReadWriteLock {
     /**
      * Replace the element mapped to this key only if currently mapped to the given element.
      * 
+     *
      * @param key key to map the element to
      * @param hash spread-hash for the key
      * @param oldElement expected element
      * @param newElement element to add
+     * @param comparator the comparator to use to compare values
      * @return <code>true</code> on a successful replace
      */
-    boolean replace(Object key, int hash, Element oldElement, Element newElement) {
+    boolean replace(Object key, int hash, Element oldElement, Element newElement, ElementValueComparator comparator) {
         boolean installed = false;
         Object encoded = create(key, newElement);
         
@@ -322,7 +325,7 @@ class Segment extends ReentrantReadWriteLock {
             }
 
             boolean replaced = false;
-            if (e != null && fullElementEquals(oldElement, decode(e.key, e.getElement()))) {
+            if (e != null && comparator.equals(oldElement, decode(e.key, e.getElement()))) {
                 replaced = true;
                 /*
                  * make sure we re-get from the HashEntry - since the decode in the conditional
@@ -563,12 +566,14 @@ class Segment extends ReentrantReadWriteLock {
      * If <code>value</code> is <code>null</code> then match on the key only, 
      * else match on both the key and the value.
      * 
+     *
      * @param key key to match against
      * @param hash spread-hash for the key
      * @param value optional value to match against
+     * @param comparator the comparator to use to compare values
      * @return removed element
      */
-    Element remove(Object key, int hash, Object value) {
+    Element remove(Object key, int hash, Element value, ElementValueComparator comparator) {
         writeLock().lock();
         try {
             HashEntry[] tab = table;
@@ -581,7 +586,7 @@ class Segment extends ReentrantReadWriteLock {
 
             Element oldValue = null;
             if (e != null) {
-                if (value == null || fullElementEquals(value, decode(e.key, e.getElement()))) {
+                if (value == null || comparator.equals(value, decode(e.key, e.getElement()))) {
                     // All entries following removed node can stay
                     // in list, but all preceding ones need to be
                     // cloned.
@@ -683,7 +688,7 @@ class Segment extends ReentrantReadWriteLock {
     }
 
     /**
-     * Remove the matching mapping.  Unlike the {@link Segment#remove(Object, int, Object)} method 
+     * Remove the matching mapping.  Unlike the {@link Segment#remove(Object, int, Element, net.sf.ehcache.store.ElementValueComparator)} method
      * evict does referential comparison of the unretrieved substitute against the argument value.
      * 
      * @param key key to match against
@@ -840,29 +845,11 @@ class Segment extends ReentrantReadWriteLock {
             if (lastReturned == null) {
                 throw new IllegalStateException();
             }
-            Segment.this.remove(lastReturned.key, lastReturned.hash, null);
+            Segment.this.remove(lastReturned.key, lastReturned.hash, null, null);
             lastReturned = null;
         }
     }
     
-    private static boolean fullElementEquals(Object o1, Object o2) {
-        if (o1 instanceof Element && o2 instanceof Element) {
-            Element e1 = (Element) o1;
-            Element e2 = (Element) o2;
-            if (e1.equals(e2)) {
-                if (e1.getObjectValue() == null) {
-                    return e2.getObjectValue() == null;
-                } else {
-                    return e1.getObjectValue().equals(e2.getObjectValue());
-                }
-            } else {
-                return false;
-            }
-        } else {
-            return o1.equals(o2);
-        }
-    }
-
     private HashEntry newHashEntry(Object key, int hash, HashEntry newFirst, Object element) {
         if (VmUtils.isInGoogleAppEngine()) {
             return new SynchronizedHashEntry(key, hash, newFirst, element);

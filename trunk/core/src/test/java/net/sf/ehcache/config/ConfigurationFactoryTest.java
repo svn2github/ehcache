@@ -37,6 +37,7 @@ import net.sf.ehcache.event.CountingCacheManagerEventListener;
 import net.sf.ehcache.event.NotificationScope;
 import net.sf.ehcache.exceptionhandler.CacheExceptionHandler;
 import net.sf.ehcache.exceptionhandler.CountingExceptionHandler;
+import net.sf.ehcache.store.DefaultElementValueComparator;
 import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
 import net.sf.ehcache.store.compound.SerializationCopyStrategy;
 import net.sf.ehcache.writer.TestCacheWriter;
@@ -1128,6 +1129,19 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
         Ehcache copyOnReadCacheTc = configurationHelper.createCacheFromName("copyOnReadCacheTc");
         assertTrue(copyOnReadCacheTc.getCacheConfiguration().isCopyOnRead());
         assertTrue(copyOnReadCacheTc.getCacheConfiguration().getTerracottaConfiguration().isCopyOnRead());
+    }
+
+    @Test
+    public void testElementValueComparatorConfiguration() {
+        File file = new File(TEST_CONFIG_DIR + "ehcache-comparator.xml");
+        Configuration configuration = ConfigurationFactory.parseConfiguration(file);
+        ConfigurationHelper configurationHelper = new ConfigurationHelper(manager, configuration);
+
+        Ehcache cache = configurationHelper.createCacheFromName("cache");
+        assertTrue(cache.getCacheConfiguration().getElementValueComparatorConfiguration().getElementComparatorInstance() instanceof DefaultElementValueComparator);
+
+        Ehcache cache2 = configurationHelper.createCacheFromName("cache2");
+        assertTrue(cache2.getCacheConfiguration().getElementValueComparatorConfiguration().getElementComparatorInstance().getClass().equals(FakeElementValueComparator.class));
     }
 
     /**

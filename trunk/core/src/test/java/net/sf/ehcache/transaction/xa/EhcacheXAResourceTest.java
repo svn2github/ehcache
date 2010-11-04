@@ -49,6 +49,7 @@ import net.sf.ehcache.Element;
 import net.sf.ehcache.Status;
 import net.sf.ehcache.concurrent.StripedReadWriteLockSync;
 import net.sf.ehcache.store.AbstractStore;
+import net.sf.ehcache.store.ElementValueComparator;
 import net.sf.ehcache.store.LruPolicy;
 import net.sf.ehcache.store.Policy;
 import net.sf.ehcache.transaction.StorePutCommand;
@@ -391,11 +392,11 @@ public class EhcacheXAResourceTest extends TestCase {
             throw new UnsupportedOperationException();
         }
 
-        public Element removeElement(Element element) throws NullPointerException {
+        public Element removeElement(Element element, ElementValueComparator comparator) throws NullPointerException {
             throw new UnsupportedOperationException();
         }
 
-        public boolean replace(Element old, Element element) throws NullPointerException, IllegalArgumentException {
+        public boolean replace(Element old, Element element, ElementValueComparator comparator) throws NullPointerException, IllegalArgumentException {
             throw new UnsupportedOperationException();
         }
 
