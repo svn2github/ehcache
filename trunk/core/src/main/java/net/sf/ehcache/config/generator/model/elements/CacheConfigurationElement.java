@@ -19,6 +19,7 @@ package net.sf.ehcache.config.generator.model.elements;
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.CacheWriterConfiguration;
 import net.sf.ehcache.config.CopyStrategyConfiguration;
+import net.sf.ehcache.config.ElementValueComparatorConfiguration;
 import net.sf.ehcache.config.SearchAttribute;
 import net.sf.ehcache.config.TerracottaConfiguration;
 import net.sf.ehcache.config.CacheConfiguration.BootstrapCacheLoaderFactoryConfiguration;
@@ -143,6 +144,10 @@ public class CacheConfigurationElement extends SimpleNodeElement {
         if (copyStrategyConfiguration != null &&
                 !copyStrategyConfiguration.equals(CacheConfiguration.DEFAULT_COPY_STRATEGY_CONFIGURATION)) {
             element.addChildElement(new CopyStrategyConfigurationElement(element, copyStrategyConfiguration));
+        }
+        ElementValueComparatorConfiguration elementValueComparatorConfiguration = cacheConfiguration.getElementValueComparatorConfiguration();
+        if (elementValueComparatorConfiguration != null && !elementValueComparatorConfiguration.equals(CacheConfiguration.DEFAULT_ELEMENT_VALUE_COMPARATOR_CONFIGURATION)) {
+            element.addChildElement(new ElementValueComparatorConfigurationElement(element, elementValueComparatorConfiguration));
         }
         CacheWriterConfiguration cacheWriterConfiguration = cacheConfiguration.getCacheWriterConfiguration();
         if (cacheWriterConfiguration != null && !CacheConfiguration.DEFAULT_CACHE_WRITER_CONFIGURATION.equals(cacheWriterConfiguration)) {
