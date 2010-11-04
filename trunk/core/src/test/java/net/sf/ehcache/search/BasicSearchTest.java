@@ -31,6 +31,7 @@ import net.sf.ehcache.Element;
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.Configuration;
 import net.sf.ehcache.config.SearchAttribute;
+import net.sf.ehcache.config.Searchable;
 import net.sf.ehcache.search.Person.Gender;
 import net.sf.ehcache.search.aggregator.Aggregator;
 import net.sf.ehcache.search.aggregator.AggregatorException;
@@ -641,7 +642,9 @@ public class BasicSearchTest extends TestCase {
         config.setOverflowToDisk(false);
         config.diskPersistent(false);
         config.setEternal(true);
-        config.addSearchAttribute(new SearchAttribute().name("attr").expression("value.getAttr()"));
+        Searchable searchable = new Searchable().searchAttribute(new SearchAttribute().name("attr").expression("value.getAttr()"));
+        config.addSearchable(searchable);
+
         cm.addCache(new Cache(config));
 
         class Value {

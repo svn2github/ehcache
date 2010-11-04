@@ -18,7 +18,6 @@ package net.sf.ehcache.config;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -332,11 +331,6 @@ public class CacheConfiguration implements Cloneable {
      */
     protected volatile Set<CacheConfigurationListener> listeners = new CopyOnWriteArraySet<CacheConfigurationListener>();
 
-    /**
-     * The defined search attributes for this cache (if any) indexed by name
-     */
-    protected final Map<String, SearchAttribute> searchAttributes = new HashMap<String, SearchAttribute>();
-
     private volatile boolean frozen;
     private TransactionalMode transactionalMode = DEFAULT_TRANSACTIONAL_MODE;
     private volatile boolean statistics = DEFAULT_STATISTICS;
@@ -347,6 +341,7 @@ public class CacheConfiguration implements Cloneable {
     private volatile Boolean copyOnWrite;
     private Object defaultTransactionManager;
     private boolean conflictingValuesWarningLogged;
+    private volatile Searchable searchable;
 
     /**
      * Default constructor.
@@ -970,6 +965,9 @@ public class CacheConfiguration implements Cloneable {
      */
     public void freezeConfiguration() {
         frozen = true;
+        if (searchable != null) {
+            searchable.freezeConfiguration();
+        }
     }
 
     /**
@@ -1067,36 +1065,13 @@ public class CacheConfiguration implements Cloneable {
     }
 
     /**
-     * Add the given search attribute
+     * Add configuration to make this cache searchable
      *
-     * @throws InvalidConfigurationException if an attribute already exists for the same name
-     * @param searchAttribute to add
+     * @param searchable search config to add
      */
-    public final void addSearchAttribute(SearchAttribute searchAttribute) throws InvalidConfigurationException {
+    public final void addSearchable(Searchable searchable) {
         checkDynamicChange();
-
-        String attributeName = searchAttribute.getName();
-
-        if (attributeName == null) {
-            throw new InvalidConfigurationException("Search attribute has null name");
-        }
-
-        if (searchAttributes.containsKey(attributeName)) {
-            throw new InvalidConfigurationException("Repeated searchAttribute name: " + attributeName);
-        }
-
-        searchAttributes.put(attributeName, searchAttribute);
-    }
-
-    /**
-     * Add a search attribute
-     *
-     * @param searchAttribute attribute to add
-     * @return this
-     */
-    public CacheConfiguration searchAttribute(SearchAttribute searchAttribute) {
-        addSearchAttribute(searchAttribute);
-        return this;
+        this.searchable = searchable;
     }
 
     /**
@@ -1324,6 +1299,16 @@ public class CacheConfiguration implements Cloneable {
     }
 
     /**
+     * @see #addSearchable(Searchable)
+     * @param searchable
+     * @return this
+     */
+    public final CacheConfiguration searchable(Searchable searchable) {
+        addSearchable(searchable);
+        return this;
+    }
+
+    /**
      * Allows BeanHandler to add the CacheWriterConfiguration to the configuration.
      */
     public final void addCacheWriter(CacheWriterConfiguration cacheWriterConfiguration) {
@@ -1543,6 +1528,13 @@ public class CacheConfiguration implements Cloneable {
      */
     public boolean isDiskPersistent() {
         return diskPersistent;
+    }
+
+    /**
+     * Accessor
+     */
+    public boolean isSearchable() {
+        return searchable != null;
     }
 
     /**
@@ -1871,6 +1863,18 @@ public class CacheConfiguration implements Cloneable {
      * @return search attributes
      */
     public Map<String, SearchAttribute> getSearchAttributes() {
-        return Collections.unmodifiableMap(searchAttributes);
+        if (searchable == null) {
+            return Collections.EMPTY_MAP;
+        }
+        return searchable.getSearchAttributes();
+    }
+
+    /**
+     * Get the search configuration for this cache (if any)
+     *
+     * @return search config (may be null)
+     */
+    public Searchable getSearchable() {
+        return searchable;
     }
 }

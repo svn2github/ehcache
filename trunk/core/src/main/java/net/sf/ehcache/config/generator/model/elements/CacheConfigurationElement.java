@@ -17,14 +17,13 @@
 package net.sf.ehcache.config.generator.model.elements;
 
 import net.sf.ehcache.config.CacheConfiguration;
-import net.sf.ehcache.config.CacheWriterConfiguration;
-import net.sf.ehcache.config.CopyStrategyConfiguration;
-import net.sf.ehcache.config.ElementValueComparatorConfiguration;
-import net.sf.ehcache.config.SearchAttribute;
-import net.sf.ehcache.config.TerracottaConfiguration;
 import net.sf.ehcache.config.CacheConfiguration.BootstrapCacheLoaderFactoryConfiguration;
 import net.sf.ehcache.config.CacheConfiguration.CacheEventListenerFactoryConfiguration;
 import net.sf.ehcache.config.CacheConfiguration.CacheExceptionHandlerFactoryConfiguration;
+import net.sf.ehcache.config.CacheWriterConfiguration;
+import net.sf.ehcache.config.CopyStrategyConfiguration;
+import net.sf.ehcache.config.ElementValueComparatorConfiguration;
+import net.sf.ehcache.config.TerracottaConfiguration;
 import net.sf.ehcache.config.generator.model.NodeElement;
 import net.sf.ehcache.config.generator.model.SimpleNodeAttribute;
 import net.sf.ehcache.config.generator.model.SimpleNodeElement;
@@ -159,8 +158,8 @@ public class CacheConfigurationElement extends SimpleNodeElement {
             element.addChildElement(new TerracottaConfigurationElement(element, terracottaConfiguration));
         }
 
-        for (SearchAttribute sa : cacheConfiguration.getSearchAttributes().values()) {
-            element.addChildElement(sa.asConfigElement(element));
+        if (cacheConfiguration.isSearchable()) {
+            element.addChildElement(new SearchableConfigurationElement(element, cacheConfiguration.getSearchable()));
         }
     }
 
