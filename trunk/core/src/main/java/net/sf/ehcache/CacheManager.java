@@ -115,32 +115,32 @@ public class CacheManager {
     /**
      * The factory to use for creating MBeanRegistrationProvider's
      */
-    private static MBeanRegistrationProviderFactory mBeanRegistrationProviderFactory = new MBeanRegistrationProviderFactoryImpl();
+    private static final MBeanRegistrationProviderFactory mBeanRegistrationProviderFactory = new MBeanRegistrationProviderFactoryImpl();
 
     /**
      * A name for this CacheManager to distinguish it from others.
      */
-    protected String name;
+    protected volatile String name;
 
     /**
      * Status of the Cache Manager
      */
-    protected Status status;
+    protected volatile Status status;
 
     /**
      * The map of providers
      */
-    protected Map<String, CacheManagerPeerProvider> cacheManagerPeerProviders = new ConcurrentHashMap<String, CacheManagerPeerProvider>();
+    protected final Map<String, CacheManagerPeerProvider> cacheManagerPeerProviders = new ConcurrentHashMap<String, CacheManagerPeerProvider>();
 
     /**
      * The map of listeners
      */
-    protected Map<String, CacheManagerPeerListener> cacheManagerPeerListeners = new ConcurrentHashMap<String, CacheManagerPeerListener>();
+    protected final Map<String, CacheManagerPeerListener> cacheManagerPeerListeners = new ConcurrentHashMap<String, CacheManagerPeerListener>();
 
     /**
      * The listener registry
      */
-    protected CacheManagerEventListenerRegistry cacheManagerEventListenerRegistry = new CacheManagerEventListenerRegistry();
+    protected final CacheManagerEventListenerRegistry cacheManagerEventListenerRegistry = new CacheManagerEventListenerRegistry();
 
     /**
      * The shutdown hook thread for CacheManager. This ensures that the CacheManager and Caches are left in a
@@ -181,7 +181,7 @@ public class CacheManager {
      */
     private TerracottaClientConfiguration terracottaClientConfiguration;
 
-    private AtomicBoolean terracottaClusteredInstanceFactoryCreated = new AtomicBoolean(false);
+    private final AtomicBoolean terracottaClusteredInstanceFactoryCreated = new AtomicBoolean(false);
 
     private Configuration configuration;
 
@@ -539,7 +539,7 @@ public class CacheManager {
 
         cacheManagerEventListenerRegistry.registerListener(configurationHelper.createCacheManagerEventListener());
 
-        cacheManagerPeerListeners = configurationHelper.createCachePeerListeners();
+        cacheManagerPeerListeners.putAll(configurationHelper.createCachePeerListeners());
         for (CacheManagerPeerListener cacheManagerPeerListener : cacheManagerPeerListeners.values()) {
             cacheManagerEventListenerRegistry.registerListener(cacheManagerPeerListener);
         }
@@ -548,7 +548,7 @@ public class CacheManager {
 
         ALL_CACHE_MANAGERS.add(this);
 
-        cacheManagerPeerProviders = configurationHelper.createCachePeerProviders();
+        cacheManagerPeerProviders.putAll(configurationHelper.createCachePeerProviders());
         defaultCache = configurationHelper.createDefaultCache();
     }
 
