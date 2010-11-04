@@ -22,7 +22,8 @@ import net.sf.ehcache.config.generator.model.SimpleNodeAttribute;
 import net.sf.ehcache.config.generator.model.SimpleNodeElement;
 
 /**
- * {@link net.sf.ehcache.config.generator.model.NodeElement} representing the {@link net.sf.ehcache.config.ElementValueComparatorConfiguration}
+ * {@link net.sf.ehcache.config.generator.model.NodeElement} representing the
+ * {@link net.sf.ehcache.config.ElementValueComparatorConfiguration}
  *
  * @author Ludovic Orban
  *
@@ -37,7 +38,8 @@ public class ElementValueComparatorConfigurationElement extends SimpleNodeElemen
      * @param parent
      * @param elementValueComparatorConfiguration
      */
-    public ElementValueComparatorConfigurationElement(NodeElement parent, ElementValueComparatorConfiguration elementValueComparatorConfiguration) {
+    public ElementValueComparatorConfigurationElement(NodeElement parent,
+            ElementValueComparatorConfiguration elementValueComparatorConfiguration) {
         super(parent, "elementValueComparator");
         this.elementValueComparatorConfiguration = elementValueComparatorConfiguration;
         init();
