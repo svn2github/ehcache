@@ -144,8 +144,10 @@ public class CacheConfigurationElement extends SimpleNodeElement {
                 !copyStrategyConfiguration.equals(CacheConfiguration.DEFAULT_COPY_STRATEGY_CONFIGURATION)) {
             element.addChildElement(new CopyStrategyConfigurationElement(element, copyStrategyConfiguration));
         }
-        ElementValueComparatorConfiguration elementValueComparatorConfiguration = cacheConfiguration.getElementValueComparatorConfiguration();
-        if (elementValueComparatorConfiguration != null && !elementValueComparatorConfiguration.equals(CacheConfiguration.DEFAULT_ELEMENT_VALUE_COMPARATOR_CONFIGURATION)) {
+        ElementValueComparatorConfiguration elementValueComparatorConfiguration = cacheConfiguration
+                .getElementValueComparatorConfiguration();
+        if (elementValueComparatorConfiguration != null
+                && !elementValueComparatorConfiguration.equals(CacheConfiguration.DEFAULT_ELEMENT_VALUE_COMPARATOR_CONFIGURATION)) {
             element.addChildElement(new ElementValueComparatorConfigurationElement(element, elementValueComparatorConfiguration));
         }
         CacheWriterConfiguration cacheWriterConfiguration = cacheConfiguration.getCacheWriterConfiguration();
