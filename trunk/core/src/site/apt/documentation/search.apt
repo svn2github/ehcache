@@ -13,10 +13,10 @@ Search
      or summary values (Aggregators) can all be returned.
 
 
-    Here is a simple example: Search for 32 year old males and return the cache values.
+    Here is a simple example: Search for 32 year old males and return the cache keys.
 
 ---
-Results results = cache.createQuery().includeValues().add(and(age.eq(32),
+Results results = cache.createQuery().includeKeys().add(and(age.eq(32),
     gender.eq("male"))).execute();
 ---
 
@@ -480,10 +480,6 @@ for (Result result : results.all()) {
     * Added EHC-800 comment to ehcache-search.xml. Not honouring JavaBeans convention
 
     * EHC-801: Keys and values which are already of a supported attribute type should be able to be added to queries using the attribute name "key" and "value"
-
-    * EHC-802: result.getValue() should not work unless includeValues() was specified.
-
-    * EHC-804:  Add <searchable> sub-element to ehcache.xml to enclose search configuration
 
     * Use fluent interface methods in programatic example for search attributes
 
