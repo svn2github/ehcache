@@ -1,0 +1,426 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<ehcache name="theCache">
+
+  <cacheManagerPeerProviderFactory
+    class="net.sf.ehcache.distribution.RMICacheManagerPeerProviderFactory"
+    properties="peerDiscovery=automatic, multicastGroupAddress=230.0.0.1, multicastGroupPort=4446, timeToLive=0"/>
+
+  <cacheManagerPeerListenerFactory
+    class="net.sf.ehcache.distribution.RMICacheManagerPeerListenerFactory"
+    properties="port=40004, socketTimeoutMillis=2000"/>
+
+  <defaultCache maxElementsInMemory="10000" eternal="false"
+    timeToIdleSeconds="120" timeToLiveSeconds="120" overflowToDisk="false"
+    diskSpoolBufferSizeMB="30" maxElementsOnDisk="10000000"
+    diskPersistent="false" diskExpiryThreadIntervalSeconds="120"
+    memoryStoreEvictionPolicy="LRU">
+    <cacheEventListenerFactory
+            class="net.sf.ehcache.distribution.RMICacheReplicatorFactory"
+            properties="replicateAsynchronously=true, replicatePuts=true, replicateUpdates=true,
+            replicateUpdatesViaCopy=false, replicateRemovals=true "/>
+  </defaultCache>
+
+  <cache name="QGfMIUgUraSgqLuqSfjKHzncdIyWadsvsOiDihOvlPbupWrMBD" maxElementsInMemory="100000"
+           eternal="false"
+           timeToIdleSeconds="100"
+           timeToLiveSeconds="100"
+           overflowToDisk="false">
+        <cacheEventListenerFactory
+            class="net.sf.ehcache.distribution.RMICacheReplicatorFactory"
+            properties="replicateAsynchronously=true, replicatePuts=true, replicateUpdates=true,
+            replicateUpdatesViaCopy=false, replicateRemovals=true "/>
+  </cache>
+  <cache name="gMYxeXAFpBHQxuSsD.tEDLTGx.OmEhuxexDqyfMZdHxWCQeFZU" maxElementsInMemory="100000"
+           eternal="false"
+           timeToIdleSeconds="100"
+           timeToLiveSeconds="100"
+           overflowToDisk="false">
+        <cacheEventListenerFactory
+            class="net.sf.ehcache.distribution.RMICacheReplicatorFactory"
+            properties="replicateAsynchronously=true, replicatePuts=true, replicateUpdates=true,
+            replicateUpdatesViaCopy=false, replicateRemovals=true "/>
+  </cache>
+  <cache name="dFyAImiQFYMMznjo.dMzsDNzgpgV.jDWllQamgkoJ.LKUAGPRn" maxElementsInMemory="100000"
+           eternal="false"
+           timeToIdleSeconds="100"
+           timeToLiveSeconds="100"
+           overflowToDisk="false">
+        <cacheEventListenerFactory
+            class="net.sf.ehcache.distribution.RMICacheReplicatorFactory"
+            properties="replicateAsynchronously=true, replicatePuts=true, replicateUpdates=true,
+            replicateUpdatesViaCopy=false, replicateRemovals=true "/>
+  </cache>
+  <cache name="QCQCnEwhOxDxmKtybPyWBribaesoPBtVDohEfiJTFndj.ZuzSI" maxElementsInMemory="100000"
+           eternal="false"
+           timeToIdleSeconds="100"
+           timeToLiveSeconds="100"
+           overflowToDisk="false">
+        <cacheEventListenerFactory
+            class="net.sf.ehcache.distribution.RMICacheReplicatorFactory"
+            properties="replicateAsynchronously=true, replicatePuts=true, replicateUpdates=true,
+            replicateUpdatesViaCopy=false, replicateRemovals=true "/>
+  </cache>
+  <cache name="dTqWLtRBGCawTHrRbabYuWUwrOQEdFNEJXidmPegOSeAKphxrh" maxElementsInMemory="100000"
+           eternal="false"
+           timeToIdleSeconds="100"
+           timeToLiveSeconds="100"
+           overflowToDisk="false">
+        <cacheEventListenerFactory
+            class="net.sf.ehcache.distribution.RMICacheReplicatorFactory"
+            properties="replicateAsynchronously=true, replicatePuts=true, replicateUpdates=true,
+            replicateUpdatesViaCopy=false, replicateRemovals=true "/>
+  </cache>
+  <cache name="RNgyLYiQBpVxtjEsRPeQAtriePFgrLARwioyoUqvjaETUIbx.y" maxElementsInMemory="100000"
+           eternal="false"
+           timeToIdleSeconds="100"
+           timeToLiveSeconds="100"
+           overflowToDisk="false">
+        <cacheEventListenerFactory
+            class="net.sf.ehcache.distribution.RMICacheReplicatorFactory"
+            properties="replicateAsynchronously=true, replicatePuts=true, replicateUpdates=true,
+            replicateUpdatesViaCopy=false, replicateRemovals=true "/>
+  </cache>
+  <cache name="wYNqHemsgUzlQrwAaAiRoOSeqenJebHZeVgkMwicezHHLwIDuc" maxElementsInMemory="100000"
+           eternal="false"
+           timeToIdleSeconds="100"
+           timeToLiveSeconds="100"
+           overflowToDisk="false">
+        <cacheEventListenerFactory
+            class="net.sf.ehcache.distribution.RMICacheReplicatorFactory"
+            properties="replicateAsynchronously=true, replicatePuts=true, replicateUpdates=true,
+            replicateUpdatesViaCopy=false, replicateRemovals=true "/>
+  </cache>
+  <cache name="xxuwjLLvygNBljWzvyBGXBssXLrAH.GnAsyTlMRXNycpLomVOJ" maxElementsInMemory="100000"
+           eternal="false"
+           timeToIdleSeconds="100"
+           timeToLiveSeconds="100"
+           overflowToDisk="false">
+        <cacheEventListenerFactory
+            class="net.sf.ehcache.distribution.RMICacheReplicatorFactory"
+            properties="replicateAsynchronously=true, replicatePuts=true, replicateUpdates=true,
+            replicateUpdatesViaCopy=false, replicateRemovals=true "/>
+  </cache>
+  <cache name="hDVkrAAvHiBfrU.bqSuFvACIkLAppvWMomAezDdNUj.Agafqwg" maxElementsInMemory="100000"
+           eternal="false"
+           timeToIdleSeconds="100"
+           timeToLiveSeconds="100"
+           overflowToDisk="false">
+        <cacheEventListenerFactory
+            class="net.sf.ehcache.distribution.RMICacheReplicatorFactory"
+            properties="replicateAsynchronously=true, replicatePuts=true, replicateUpdates=true,
+            replicateUpdatesViaCopy=false, replicateRemovals=true "/>
+  </cache>
+  <cache name="JdyGWdLnDPpVqdGCnKxxanFayoIkuTXksbiHHqAIX.NkEgeJSd" maxElementsInMemory="100000"
+           eternal="false"
+           timeToIdleSeconds="100"
+           timeToLiveSeconds="100"
+           overflowToDisk="false">
+        <cacheEventListenerFactory
+            class="net.sf.ehcache.distribution.RMICacheReplicatorFactory"
+            properties="replicateAsynchronously=true, replicatePuts=true, replicateUpdates=true,
+            replicateUpdatesViaCopy=false, replicateRemovals=true "/>
+  </cache>
+  <cache name="xhHKLfGpceKMefxBQTgbnlapaSxsQqesAoFmsYqBdGPGrGlqt." maxElementsInMemory="100000"
+           eternal="false"
+           timeToIdleSeconds="100"
+           timeToLiveSeconds="100"
+           overflowToDisk="false">
+        <cacheEventListenerFactory
+            class="net.sf.ehcache.distribution.RMICacheReplicatorFactory"
+            properties="replicateAsynchronously=true, replicatePuts=true, replicateUpdates=true,
+            replicateUpdatesViaCopy=false, replicateRemovals=true "/>
+  </cache>
+  <cache name="az.aXyhjGbNisxi.bleFQtrLtqoBdShsBwNKmZZvexSlwPEsMU" maxElementsInMemory="100000"
+           eternal="false"
+           timeToIdleSeconds="100"
+           timeToLiveSeconds="100"
+           overflowToDisk="false">
+        <cacheEventListenerFactory
+            class="net.sf.ehcache.distribution.RMICacheReplicatorFactory"
+            properties="replicateAsynchronously=true, replicatePuts=true, replicateUpdates=true,
+            replicateUpdatesViaCopy=false, replicateRemovals=true "/>
+  </cache>
+  <cache name="QNnpSXiPEDZbJQvAoKbxURYiatEbbivTpOK.OfJHrxxTMNAftR" maxElementsInMemory="100000"
+           eternal="false"
+           timeToIdleSeconds="100"
+           timeToLiveSeconds="100"
+           overflowToDisk="false">
+        <cacheEventListenerFactory
+            class="net.sf.ehcache.distribution.RMICacheReplicatorFactory"
+            properties="replicateAsynchronously=true, replicatePuts=true, replicateUpdates=true,
+            replicateUpdatesViaCopy=false, replicateRemovals=true "/>
+  </cache>
+  <cache name="SYFQnCMxKHjGCAgVefCEoCRZhnSdCYLQIjiwcfNApAyMsytxhZ" maxElementsInMemory="100000"
+           eternal="false"
+           timeToIdleSeconds="100"
+           timeToLiveSeconds="100"
+           overflowToDisk="false">
+        <cacheEventListenerFactory
+            class="net.sf.ehcache.distribution.RMICacheReplicatorFactory"
+            properties="replicateAsynchronously=true, replicatePuts=true, replicateUpdates=true,
+            replicateUpdatesViaCopy=false, replicateRemovals=true "/>
+  </cache>
+  <cache name="KcevdXiZmYqZr.bzMDTZgtFHsuYowMBdvDKkzEJzCJtvSZUDbJ" maxElementsInMemory="100000"
+           eternal="false"
+           timeToIdleSeconds="100"
+           timeToLiveSeconds="100"
+           overflowToDisk="false">
+        <cacheEventListenerFactory
+            class="net.sf.ehcache.distribution.RMICacheReplicatorFactory"
+            properties="replicateAsynchronously=true, replicatePuts=true, replicateUpdates=true,
+            replicateUpdatesViaCopy=false, replicateRemovals=true "/>
+  </cache>
+  <cache name="ChcsNqyfDDaaFUOLjqGHGDszwYJDUeqEV..HeTQt.FFEPOyESC" maxElementsInMemory="100000"
+           eternal="false"
+           timeToIdleSeconds="100"
+           timeToLiveSeconds="100"
+           overflowToDisk="false">
+        <cacheEventListenerFactory
+            class="net.sf.ehcache.distribution.RMICacheReplicatorFactory"
+            properties="replicateAsynchronously=true, replicatePuts=true, replicateUpdates=true,
+            replicateUpdatesViaCopy=false, replicateRemovals=true "/>
+  </cache>
+  <cache name="kNIqFfpxYOuFfTsKsfCVrCwZMdRyqgxMafLSwGPczgVeIpRzYO" maxElementsInMemory="100000"
+           eternal="false"
+           timeToIdleSeconds="100"
+           timeToLiveSeconds="100"
+           overflowToDisk="false">
+        <cacheEventListenerFactory
+            class="net.sf.ehcache.distribution.RMICacheReplicatorFactory"
+            properties="replicateAsynchronously=true, replicatePuts=true, replicateUpdates=true,
+            replicateUpdatesViaCopy=false, replicateRemovals=true "/>
+  </cache>
+  <cache name="PIIclVGfbEOaGEDlFuqfvFmUffdmEYTgKFklQY.uNkfCAXGBnp" maxElementsInMemory="100000"
+           eternal="false"
+           timeToIdleSeconds="100"
+           timeToLiveSeconds="100"
+           overflowToDisk="false">
+        <cacheEventListenerFactory
+            class="net.sf.ehcache.distribution.RMICacheReplicatorFactory"
+            properties="replicateAsynchronously=true, replicatePuts=true, replicateUpdates=true,
+            replicateUpdatesViaCopy=false, replicateRemovals=true "/>
+  </cache>
+  <cache name="WnKknoakboVlelBExcRYFmVszwLIsUjlkUcNvBRcZvxaSiBxfe" maxElementsInMemory="100000"
+           eternal="false"
+           timeToIdleSeconds="100"
+           timeToLiveSeconds="100"
+           overflowToDisk="false">
+        <cacheEventListenerFactory
+            class="net.sf.ehcache.distribution.RMICacheReplicatorFactory"
+            properties="replicateAsynchronously=true, replicatePuts=true, replicateUpdates=true,
+            replicateUpdatesViaCopy=false, replicateRemovals=true "/>
+  </cache>
+  <cache name="zJfSKGrMfkDPznbdGNjHZvyrkuqW.cbhuRVvWCjdGbwDEzrKdC" maxElementsInMemory="100000"
+           eternal="false"
+           timeToIdleSeconds="100"
+           timeToLiveSeconds="100"
+           overflowToDisk="false">
+        <cacheEventListenerFactory
+            class="net.sf.ehcache.distribution.RMICacheReplicatorFactory"
+            properties="replicateAsynchronously=true, replicatePuts=true, replicateUpdates=true,
+            replicateUpdatesViaCopy=false, replicateRemovals=true "/>
+  </cache>
+  <cache name="ecsgGGCfyDSfRAmsVuGwazCROTJOodsyhZjVLFfHokzimrEwsu" maxElementsInMemory="100000"
+           eternal="false"
+           timeToIdleSeconds="100"
+           timeToLiveSeconds="100"
+           overflowToDisk="false">
+        <cacheEventListenerFactory
+            class="net.sf.ehcache.distribution.RMICacheReplicatorFactory"
+            properties="replicateAsynchronously=true, replicatePuts=true, replicateUpdates=true,
+            replicateUpdatesViaCopy=false, replicateRemovals=true "/>
+  </cache>
+  <cache name="gbLsCEnikzlUvlSFXqzTMrOrZTFALmMsFs.bqINerRYBbXNSiJ" maxElementsInMemory="100000"
+           eternal="false"
+           timeToIdleSeconds="100"
+           timeToLiveSeconds="100"
+           overflowToDisk="false">
+        <cacheEventListenerFactory
+            class="net.sf.ehcache.distribution.RMICacheReplicatorFactory"
+            properties="replicateAsynchronously=true, replicatePuts=true, replicateUpdates=true,
+            replicateUpdatesViaCopy=false, replicateRemovals=true "/>
+  </cache>
+  <cache name="gPyyNQUXuYEjwNkcJUHCcjUZxNiAikiCKysqTsZAjNZQhLbj.W" maxElementsInMemory="100000"
+           eternal="false"
+           timeToIdleSeconds="100"
+           timeToLiveSeconds="100"
+           overflowToDisk="false">
+        <cacheEventListenerFactory
+            class="net.sf.ehcache.distribution.RMICacheReplicatorFactory"
+            properties="replicateAsynchronously=true, replicatePuts=true, replicateUpdates=true,
+            replicateUpdatesViaCopy=false, replicateRemovals=true "/>
+  </cache>
+  <cache name="UnNUDVvwbTPculswNwUMPbBdeyuTxWRbqLyCGfSaQaumUBymOj" maxElementsInMemory="100000"
+           eternal="false"
+           timeToIdleSeconds="100"
+           timeToLiveSeconds="100"
+           overflowToDisk="false">
+        <cacheEventListenerFactory
+            class="net.sf.ehcache.distribution.RMICacheReplicatorFactory"
+            properties="replicateAsynchronously=true, replicatePuts=true, replicateUpdates=true,
+            replicateUpdatesViaCopy=false, replicateRemovals=true "/>
+  </cache>
+  <cache name="HxEUWY.vUqIIpOmQZFAYPEvNuACpjfqjzgNAALgGgPETmkVFmD" maxElementsInMemory="100000"
+           eternal="false"
+           timeToIdleSeconds="100"
+           timeToLiveSeconds="100"
+           overflowToDisk="false">
+        <cacheEventListenerFactory
+            class="net.sf.ehcache.distribution.RMICacheReplicatorFactory"
+            properties="replicateAsynchronously=true, replicatePuts=true, replicateUpdates=true,
+            replicateUpdatesViaCopy=false, replicateRemovals=true "/>
+  </cache>
+  <cache name="WokkVJbBlUfVgakEhhzGUxZJgspLKTltnbzVLDXOCfCnmHSwBL" maxElementsInMemory="100000"
+           eternal="false"
+           timeToIdleSeconds="100"
+           timeToLiveSeconds="100"
+           overflowToDisk="false">
+        <cacheEventListenerFactory
+            class="net.sf.ehcache.distribution.RMICacheReplicatorFactory"
+            properties="replicateAsynchronously=true, replicatePuts=true, replicateUpdates=true,
+            replicateUpdatesViaCopy=false, replicateRemovals=true "/>
+  </cache>
+  <cache name="NvPg.LwiCVQSFgdFjGvGMyIDwRyIsBnSZkEj.xBMOBa.tDFaih" maxElementsInMemory="100000"
+           eternal="false"
+           timeToIdleSeconds="100"
+           timeToLiveSeconds="100"
+           overflowToDisk="false">
+        <cacheEventListenerFactory
+            class="net.sf.ehcache.distribution.RMICacheReplicatorFactory"
+            properties="replicateAsynchronously=true, replicatePuts=true, replicateUpdates=true,
+            replicateUpdatesViaCopy=false, replicateRemovals=true "/>
+  </cache>
+  <cache name="jRtsgzmyslrEOjZrgawhsUrYT.HzgriBTPdGMwibmhD.hXMfqX" maxElementsInMemory="100000"
+           eternal="false"
+           timeToIdleSeconds="100"
+           timeToLiveSeconds="100"
+           overflowToDisk="false">
+        <cacheEventListenerFactory
+            class="net.sf.ehcache.distribution.RMICacheReplicatorFactory"
+            properties="replicateAsynchronously=true, replicatePuts=true, replicateUpdates=true,
+            replicateUpdatesViaCopy=false, replicateRemovals=true "/>
+  </cache>
+  <cache name="qOxOkWnFSpuPbbwcDkiWmErwRHwJSrFmSRkIXvKuLxsAeerisC" maxElementsInMemory="100000"
+           eternal="false"
+           timeToIdleSeconds="100"
+           timeToLiveSeconds="100"
+           overflowToDisk="false">
+        <cacheEventListenerFactory
+            class="net.sf.ehcache.distribution.RMICacheReplicatorFactory"
+            properties="replicateAsynchronously=true, replicatePuts=true, replicateUpdates=true,
+            replicateUpdatesViaCopy=false, replicateRemovals=true "/>
+  </cache>
+  <cache name="JHOHrWPQJxnFiJrNmhhATyIXIvsUUWFjWQIXNvzrLunVGbHtGa" maxElementsInMemory="100000"
+           eternal="false"
+           timeToIdleSeconds="100"
+           timeToLiveSeconds="100"
+           overflowToDisk="false">
+        <cacheEventListenerFactory
+            class="net.sf.ehcache.distribution.RMICacheReplicatorFactory"
+            properties="replicateAsynchronously=true, replicatePuts=true, replicateUpdates=true,
+            replicateUpdatesViaCopy=false, replicateRemovals=true "/>
+  </cache>
+  <cache name="XohUwadxswqooQpLIJdlQrRNmYfovVdwoyLBaTevHwARVPGJhT" maxElementsInMemory="100000"
+           eternal="false"
+           timeToIdleSeconds="100"
+           timeToLiveSeconds="100"
+           overflowToDisk="false">
+        <cacheEventListenerFactory
+            class="net.sf.ehcache.distribution.RMICacheReplicatorFactory"
+            properties="replicateAsynchronously=true, replicatePuts=true, replicateUpdates=true,
+            replicateUpdatesViaCopy=false, replicateRemovals=true "/>
+  </cache>
+  <cache name="zSq.ZAgFD.yAoSbfUmLpcLoeSCKtaMDxjDVBKQIYeNv.cFRKLU" maxElementsInMemory="100000"
+           eternal="false"
+           timeToIdleSeconds="100"
+           timeToLiveSeconds="100"
+           overflowToDisk="false">
+        <cacheEventListenerFactory
+            class="net.sf.ehcache.distribution.RMICacheReplicatorFactory"
+            properties="replicateAsynchronously=true, replicatePuts=true, replicateUpdates=true,
+            replicateUpdatesViaCopy=false, replicateRemovals=true "/>
+  </cache>
+  <cache name="oxLkGDOcKtCCHcBxJqWbzaaSKwFydtiiwMvIVlWRpeooufTpLL" maxElementsInMemory="100000"
+           eternal="false"
+           timeToIdleSeconds="100"
+           timeToLiveSeconds="100"
+           overflowToDisk="false">
+        <cacheEventListenerFactory
+            class="net.sf.ehcache.distribution.RMICacheReplicatorFactory"
+            properties="replicateAsynchronously=true, replicatePuts=true, replicateUpdates=true,
+            replicateUpdatesViaCopy=false, replicateRemovals=true "/>
+  </cache>
+  <cache name="XxoTDNeYwxZkvUnUFenrxwgKtBrqkazTndmIasPcbWFNRuzCLw" maxElementsInMemory="100000"
+           eternal="false"
+           timeToIdleSeconds="100"
+           timeToLiveSeconds="100"
+           overflowToDisk="false">
+        <cacheEventListenerFactory
+            class="net.sf.ehcache.distribution.RMICacheReplicatorFactory"
+            properties="replicateAsynchronously=true, replicatePuts=true, replicateUpdates=true,
+            replicateUpdatesViaCopy=false, replicateRemovals=true "/>
+  </cache>
+  <cache name="ymRQsLvPZgwfVmnGXbdyuydKweykaLwnoQjdPuCoQtwoIbSReC" maxElementsInMemory="100000"
+           eternal="false"
+           timeToIdleSeconds="100"
+           timeToLiveSeconds="100"
+           overflowToDisk="false">
+        <cacheEventListenerFactory
+            class="net.sf.ehcache.distribution.RMICacheReplicatorFactory"
+            properties="replicateAsynchronously=true, replicatePuts=true, replicateUpdates=true,
+            replicateUpdatesViaCopy=false, replicateRemovals=true "/>
+  </cache>
+  <cache name="yhLfAVTDyOWzTOyMcdMDRxsMMtZgZSxaDxvkNdSH.WefcRfNqP" maxElementsInMemory="100000"
+           eternal="false"
+           timeToIdleSeconds="100"
+           timeToLiveSeconds="100"
+           overflowToDisk="false">
+        <cacheEventListenerFactory
+            class="net.sf.ehcache.distribution.RMICacheReplicatorFactory"
+            properties="replicateAsynchronously=true, replicatePuts=true, replicateUpdates=true,
+            replicateUpdatesViaCopy=false, replicateRemovals=true "/>
+  </cache>
+  <cache name="SAPTxNhc.MIzddrhDIuLQTeFfqqUDhofvAbHomczDJJSamOHvN" maxElementsInMemory="100000"
+           eternal="false"
+           timeToIdleSeconds="100"
+           timeToLiveSeconds="100"
+           overflowToDisk="false">
+        <cacheEventListenerFactory
+            class="net.sf.ehcache.distribution.RMICacheReplicatorFactory"
+            properties="replicateAsynchronously=true, replicatePuts=true, replicateUpdates=true,
+            replicateUpdatesViaCopy=false, replicateRemovals=true "/>
+  </cache>
+  <cache name="cPYds.vWzDqcIRFCoAHvMaWnUdbMEMdDgBVdsZFPPMyaqTsNnM" maxElementsInMemory="100000"
+           eternal="false"
+           timeToIdleSeconds="100"
+           timeToLiveSeconds="100"
+           overflowToDisk="false">
+        <cacheEventListenerFactory
+            class="net.sf.ehcache.distribution.RMICacheReplicatorFactory"
+            properties="replicateAsynchronously=true, replicatePuts=true, replicateUpdates=true,
+            replicateUpdatesViaCopy=false, replicateRemovals=true "/>
+  </cache>
+  <cache name="d.mfTdvVUUJAnpiVoaMTYuueMYBMHnfezhczHKgltwlAij.RmF" maxElementsInMemory="100000"
+           eternal="false"
+           timeToIdleSeconds="100"
+           timeToLiveSeconds="100"
+           overflowToDisk="false">
+        <cacheEventListenerFactory
+            class="net.sf.ehcache.distribution.RMICacheReplicatorFactory"
+            properties="replicateAsynchronously=true, replicatePuts=true, replicateUpdates=true,
+            replicateUpdatesViaCopy=false, replicateRemovals=true "/>
+  </cache>
+  <cache name="SKVrCFPbMwqgmATheHcUizpwoCfAqNMPhhnEfXyGHLEKeXolrX" maxElementsInMemory="100000"
+           eternal="false"
+           timeToIdleSeconds="100"
+           timeToLiveSeconds="100"
+           overflowToDisk="false">
+        <cacheEventListenerFactory
+            class="net.sf.ehcache.distribution.RMICacheReplicatorFactory"
+            properties="replicateAsynchronously=true, replicatePuts=true, replicateUpdates=true,
+            replicateUpdatesViaCopy=false, replicateRemovals=true "/>
+  </cache>
+
+
+</ehcache>
