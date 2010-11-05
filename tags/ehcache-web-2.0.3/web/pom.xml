@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>net.sf.ehcache</groupId>
+    <artifactId>ehcache-web-parent</artifactId>
+    <version>2.0.3</version>
+  </parent>
+  <name>Ehcache Web Filters</name>
+  <artifactId>ehcache-web</artifactId>
+  <packaging>jar</packaging>
+  <description><![CDATA[Web caching filters.]]> </description>
+
+  <licenses>
+    <license>
+      <name>The Apache Software License, Version 2.0</name>
+      <url>http://ehcache.org/license.html</url>
+    </license>
+  </licenses>
+
+
+  <dependencies>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>ehcache-core</artifactId>
+      <version>2.2.0</version>
+    </dependency>
+
+    <dependency>
+      <groupId>javax.servlet</groupId>
+      <artifactId>servlet-api</artifactId>
+      <scope>provided</scope>
+    </dependency>
+  </dependencies>
+
+  <properties>
+    <maven.test.skip>true</maven.test.skip>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+  </properties>
+  <build>
+    <plugins>
+
+      <plugin>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <configuration>
+          <source>1.5</source>
+          <target>1.5</target>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-checkstyle-plugin</artifactId>
+        <version>2.3</version>
+        <executions>
+          <execution>
+            <phase>verify</phase>
+            <goals>
+              <goal>checkstyle</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <configLocation>${basedir}/checkstyle/checkstyle.xml</configLocation>
+          <suppressionsLocation>${basedir}/checkstyle/suppressions.xml</suppressionsLocation>
+          <headerLocation>${basedir}/checkstyle/ClassHeader.txt</headerLocation>
+          <enableRSS>false</enableRSS>
+          <linkXRef>true</linkXRef>
+          <enableRulesSummary>false</enableRulesSummary>
+          <consoleOutput>true</consoleOutput>
+          <failsOnError>true</failsOnError>
+          <failOnViolation>true</failOnViolation>
+          <includeTestSourceDirectory>true</includeTestSourceDirectory>
+          <enableRulesSummary>true</enableRulesSummary>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-source-plugin</artifactId>
+        <version>2.0.3</version>
+        <executions>
+          <execution>
+            <id>attach-sources</id>
+            <phase>package</phase>
+            <goals>
+              <goal>jar</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+
+      <plugin>
+        <artifactId>maven-assembly-plugin</artifactId>
+        <configuration>
+          <filters>
+            <filter>src/assemble/filter.properties</filter>
+          </filters>
+          <descriptors>
+            <descriptor>src/assemble/distribution.xml</descriptor>
+          </descriptors>
+        </configuration>
+      </plugin>
+
+    </plugins>
+  </build>
+
+  <contributors>
+    <contributor>
+      <name>Craig Andrews</name>
+      <email />
+      <url />
+      <organization />
+      <organizationUrl />
+      <roles>
+        <role>Developer</role>
+      </roles>
+      <timezone>+10</timezone>
+      <properties>
+        <contribution>Contributed to the CachingHeaders implementation.
+                </contribution>
+      </properties>
+    </contributor>
+  </contributors>
+
+  <!-- Note: site URL repeated here to ensure correct deployment path -->
+  <distributionManagement>
+    <!-- The server id here defined must also appear in ~/.m2/settings.xml with username -->
+    <repository>
+      <id>sourceforge-releases</id>
+      <name>Sourceforge Release Repository</name>
+      <url>http://oss.sonatype.org/service/local/staging/deploy/maven2</url>
+    </repository>
+    <snapshotRepository>
+      <id>sourceforge-snapshots</id>
+      <name>Sourceforge Snapshot Repository</name>
+      <url>http://oss.sonatype.org/content/repositories/sourceforge-snapshots</url>
+    </snapshotRepository>
+  </distributionManagement>
+  <repositories>
+    <repository>
+      <id>sourceforge-snapshots</id>
+      <name>Sourceforge Snapshot Repository</name>
+      <url>http://oss.sonatype.org/content/repositories/sourceforge-snapshots</url>
+    </repository>
+  </repositories>
+</project>
