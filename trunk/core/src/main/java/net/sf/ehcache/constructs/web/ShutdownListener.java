@@ -38,7 +38,7 @@ import java.util.List;
  * To do so, add the following to web.xml in your web application:
  * <pre>
  * &lt;listener&gt;
- *      &lt;listener-class&gt;net.sf.ehcache.constructs.web.ShutdownListener&lt;/listener-class&gt;
+ *      <listener-class>net.sf.ehcache.constructs.web.ShutdownListener</listener-class>
  * &lt;/listener&gt;
  * <p/>
  * </pre>
