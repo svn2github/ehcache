@@ -73,4 +73,8 @@ public class WriteBehindManager implements CacheWriterManager {
     public void dispose() {
         writeBehind.stop();
     }
+
+    public long getQueueSize() {
+        return writeBehind.getQueueSize();
+    }
 }

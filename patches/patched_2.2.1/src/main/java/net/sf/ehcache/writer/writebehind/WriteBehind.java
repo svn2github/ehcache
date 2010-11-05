@@ -66,4 +66,6 @@ public interface WriteBehind {
      * @see #start
      */
     void stop() throws CacheException;
+
+    long getQueueSize();
 }

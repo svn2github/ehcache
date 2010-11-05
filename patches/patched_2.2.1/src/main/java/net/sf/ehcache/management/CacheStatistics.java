@@ -209,6 +209,11 @@ public class CacheStatistics implements CacheStatisticsMBean, Serializable {
         return statistics.getObjectCount();
     }
 
+    public long getWriterQueueLength() {
+        updateIfNeeded();
+        return statistics.getWriterQueueSize();
+    }
+
     /**
      * Gets the number of objects in the MemoryStore
      * @return the MemoryStore size which is always a count unadjusted for duplicates or expiries

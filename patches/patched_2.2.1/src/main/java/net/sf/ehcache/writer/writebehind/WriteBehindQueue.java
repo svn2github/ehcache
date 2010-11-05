@@ -479,6 +479,10 @@ public class WriteBehindQueue implements WriteBehind {
         }
     }
 
+    public long getQueueSize() {
+        return waiting.size();
+    }
+
     private boolean isStopped() {
         queueReadLock.lock();
         try {

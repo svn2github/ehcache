@@ -16,6 +16,9 @@
 
 package net.sf.ehcache;
 
+import net.sf.ehcache.writer.CacheWriterManager;
+import net.sf.ehcache.writer.writebehind.WriteBehindManager;
+
 import java.io.Serializable;
 
 /**
@@ -79,6 +82,8 @@ public class Statistics implements Serializable {
 
     private long evictionCount;
 
+    private long writerQueueLength;
+
 
     /**
      * Creates a new statistics object, associated with a Cache
@@ -93,7 +98,8 @@ public class Statistics implements Serializable {
      */
     public Statistics(Ehcache cache, int statisticsAccuracy, long cacheHits, long onDiskHits, long inMemoryHits,
                       long misses, long size, float averageGetTime, long evictionCount, long memoryStoreSize,
-                      long diskStoreSize) {
+                      long diskStoreSize, long writerQueueLength) {
+        this.writerQueueLength = writerQueueLength;
         this.cacheName = cache.getName();
         this.statisticsAccuracy = statisticsAccuracy;
         this.cacheHits = cacheHits;
@@ -306,4 +312,7 @@ public class Statistics implements Serializable {
                 || statisticsAccuracy == STATISTICS_ACCURACY_GUARANTEED;
     }
 
+    public long getWriterQueueSize() {
+        return writerQueueLength;
+    }
 }

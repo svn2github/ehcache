@@ -279,6 +279,10 @@ public class LiveCacheStatisticsWrapper implements LiveCacheStatistics, LiveCach
         return delegate.getMaxGetTimeMillis();
     }
 
+    public long getWriterQueueLength() {
+        return delegate.getWriterQueueLength();
+    }
+
     /**
      * {@inheritDoc}
      * 
