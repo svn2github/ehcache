@@ -376,6 +376,7 @@
                         <exclude>**/RMICacheReplicatorWithLargePayloadTest.java</exclude>
                     </excludes>
                     <forkMode>pertest</forkMode>
+                    <argLine>${tests.argLine}</argLine>
                     <childDelegation>false</childDelegation>
                     <disableXmlReport>false</disableXmlReport>
                     <printSummary>true</printSummary>
@@ -417,7 +418,7 @@
                                 </include>
                                 <include>**/TerracottaIntegrationTest.java</include>
                             </includes>
-                            <argLine>-Xms512m -Xmx512m</argLine>
+                            <argLine>${tests.argLine} -Xms512m -Xmx512m</argLine>
                         </configuration>
                     </execution>
                 </executions>
@@ -623,6 +624,19 @@
                     </plugin>
                 </plugins>
             </build>
+        </profile>
+
+        <!-- Prevent interruptible IO from being used on Solaris - MNK-1947 -->
+        <profile>
+          <activation>
+            <property>
+              <name>java.vendor</name>
+              <value>Sun Microsystems Inc.</value>
+            </property>
+          </activation>
+          <properties>
+            <tests.argLine>-XX:-UseVMInterruptibleIO</tests.argLine>
+          </properties>
         </profile>
     </profiles>
 
