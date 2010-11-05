@@ -17,7 +17,7 @@
     <suppress checks="ClassDataAbstractionCoupling" files="Test.java"/>
     <suppress checks="ClassFanOutComplexity" files="Test.java"/>
     <suppress checks="FileLengthCheck" files="Test.java"/>
-    <suppress checks="PackageHtml" files="test[/\\]"/>
+    <suppress checks="JavadocPackage" files="test[/\\]"/>
     <suppress checks="" files="Primitive.java"/>
     <suppress checks="IllegalTypeCheck" files="test[/\\]"/>
     <suppress checks="HeaderCheck" files="Test.java"/>
@@ -32,19 +32,6 @@
     <suppress checks="CyclomaticComplexity" files="JGroupsBootstrapCacheLoader.java"/>
     <suppress checks="NPathComplexity" files="JGroupsBootstrapCacheLoader.java"/>
     <suppress checks="SuperClone" files="JGroupsBootstrapCacheLoader.java"/>
-    <!--<suppress checks="ClassDataAbstractionCoupling" files="Test.java"/>-->
-    <!--<suppress checks="ClassFanOutComplexity" files="Test.java"/>-->
-    <!--<suppress checks="FileLengthCheck" files="Test.java"/>    -->
-    <!--<suppress checks="PackageHtml" files="test[/\\]"/>-->
-    <!--<suppress checks="IllegalTypeCheck" files="test[/\\]"/>-->
-
-    <suppress checks="GenericIllegalRegexpCheck" files="Server.java"/>
-    <suppress checks="GenericIllegalRegexpCheck" files="SecurityHandler.java"/>
-    <suppress checks="GenericIllegalRegexpCheck" files="SecurityEnvironmentHandler.java"/>
-    <!--Required by JAXB-->
-    <suppress checks="IllegalTypeCheck" files="EhcacheWebServiceEndpoint"/>
-
-
 
     <!-- Suppress duplicate checking of copyright notice -->
     <suppress checks="StrictDuplicateCode" files=".java" lines="1-53"/>

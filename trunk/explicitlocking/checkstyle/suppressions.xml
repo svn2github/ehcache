@@ -17,16 +17,6 @@
     <!--<suppress checks="FileLengthCheck" files="Test.java"/>    -->
     <!--<suppress checks="PackageHtml" files="test[/\\]"/>-->
 
-    <suppress checks="IllegalTypeCheck" files="JMSCachePeer.java"/>
-    <suppress checks="NPathComplexity" files="JMSCacheReplicator.java"/>
-    <suppress checks="GenericIllegalRegexpCheck" files="Server.java"/>
-    <suppress checks="GenericIllegalRegexpCheck" files="SecurityHandler.java"/>
-    <suppress checks="GenericIllegalRegexpCheck" files="SecurityEnvironmentHandler.java"/>
-    <!--Required by JAXB-->
-    <suppress checks="IllegalTypeCheck" files="EhcacheWebServiceEndpoint"/>
-
-
-
     <!-- Suppress duplicate checking of copyright notice -->
     <suppress checks="StrictDuplicateCode" files=".java" lines="1-53"/>
 

@@ -8,15 +8,14 @@
     <!-- Turn off some checks for tests -->
     <!--auto generated-->
     <suppress checks="" files="jaxws[/\\]."/>
-    <!--Bug in checkstyle with NoSuchMethodException. Need to filter this out. See SF 2777291 -->
-    <suppress checks="" files="EhcacheWebServiceEndpoint.java"/>
+
     <suppress checks="MagicNumberCheck" files="test[/\\]"/>
     <suppress checks="JavadocMethodCheck" files="test[/\\]"/>
-    <suppress checks="PackageHtmlCheck" files="test[/\\]"/>
+    <suppress checks="JavadocPackageCheck" files="test[/\\]"/>
 
-    <suppress checks="GenericIllegalRegexpCheck" files="Server.java"/>
-    <suppress checks="GenericIllegalRegexpCheck" files="SecurityHandler.java"/>
-    <suppress checks="GenericIllegalRegexpCheck" files="SecurityEnvironmentHandler.java"/>
+    <suppress checks="RegexpCheck" files="Server.java"/>
+    <suppress checks="RegexpCheck" files="SecurityHandler.java"/>
+    <suppress checks="RegexpCheck" files="SecurityEnvironmentHandler.java"/>
     <!--Required by JAXB-->
     <suppress checks="IllegalTypeCheck" files="EhcacheWebServiceEndpoint"/>
 

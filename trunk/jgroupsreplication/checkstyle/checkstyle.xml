@@ -11,13 +11,26 @@
     <module name="Translation">
         <property name="severity" value="error"/>
     </module>
-    <module name="PackageHtml"/>
+    <module name="JavadocPackage">
+        <property name="allowLegacy" value="true"/>
+    </module>
     <!-- Duplicate Code -->
     <module name="StrictDuplicateCode">
         <property name="min" value="30"/>
     </module>
     <!--<module name="NewlineAtEndOfFile"/>-->
 
+    <!-- Header -->
+    <module name="Header">
+        <property name="headerFile" value="${checkstyle.header.file}"/>
+    </module>
+    
+    <!-- Size Violations -->
+    <module name="FileLength">
+        <property name="max" value="1400"/>
+    </module>
+    
+    <module name="FileTabCharacter"/>
 
     <module name="TreeWalker">
         <!--<property name="cacheFile" value="checkstyle.cache}"/>-->
@@ -54,11 +67,6 @@
         <module name="ParameterName"/>
         <module name="TypeName"/>
 
-        <!-- Header -->
-        <module name="Header">
-            <property name="headerFile" value="${checkstyle.header.file}"/>
-        </module>
-
         <!-- Imports -->
         <module name="AvoidStarImport"/>
         <module name="IllegalImport"/>
@@ -66,9 +74,6 @@
         <module name="UnusedImports"/>
 
         <!-- Size Violations -->
-        <module name="FileLength">
-            <property name="max" value="1400"/>
-        </module>
         <module name="LineLength">
             <property name="max" value="140"/>
             <property name="ignorePattern" value="^ *\* *"/>
@@ -121,7 +126,6 @@
             <property name="tokens" value="ASSIGN, DIV_ASSIGN, PLUS_ASSIGN, MINUS_ASSIGN, STAR_ASSIGN, MOD_ASSIGN, SR_ASSIGN, BSR_ASSIGN, SL_ASSIGN, BXOR_ASSIGN, BOR_ASSIGN, BAND_ASSIGN"/>
             <property name="option" value="eol"/>
         </module>
-        <module name="TabCharacter"/>
 
         <!-- Modifiers -->
         <!--<module name="ModifierOrder"/> Bug reported. Want this to work -->
@@ -230,21 +234,24 @@
         </module>
 
         <!-- Miscellaneous -->
-        <module name="GenericIllegalRegexp">
+        <module name="Regexp">
             <!-- . matches any character, so we need to
                  escape it and use \. to match dots. -->
             <property name="format" value="System\.out\.println"/>
+            <property name="illegalPattern" value="true"/>
         </module>
         <!-- Make sure we are using safe element.get methods everywhere -->
-        <module name="GenericIllegalRegexp">
+        <module name="Regexp">
             <!-- . matches any character, so we need to
                  escape it and use \. to match dots. -->
             <property name="format" value="[^entry]\\.getKey\\(\\)"/>
+            <property name="illegalPattern" value="true"/>
         </module>
-        <module name="GenericIllegalRegexp">
+        <module name="Regexp">
             <!-- . matches any character, so we need to
                  escape it and use \. to match dots. -->
             <property name="format" value="[^entry]\\.getValue\\(\\)"/>
+            <property name="illegalPattern" value="true"/>
         </module>
         <module name="ArrayTypeStyle"/>
         <module name="TodoComment"/>
