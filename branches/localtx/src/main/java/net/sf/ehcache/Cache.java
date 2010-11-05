@@ -86,9 +86,14 @@ import net.sf.ehcache.store.Store;
 import net.sf.ehcache.store.StoreListener;
 import net.sf.ehcache.store.StoreQuery;
 import net.sf.ehcache.store.XATransactionalStore;
+import net.sf.ehcache.store.compound.CopyStrategy;
+import net.sf.ehcache.store.compound.ImmutableValueElementCopyStrategy;
 import net.sf.ehcache.store.compound.impl.DiskPersistentStore;
 import net.sf.ehcache.store.compound.impl.MemoryOnlyStore;
 import net.sf.ehcache.store.compound.impl.OverflowToDiskStore;
+import net.sf.ehcache.transaction.local.JtaLocalTransactionStore;
+import net.sf.ehcache.transaction.local.LocalTransactionStore;
+import net.sf.ehcache.transaction.local.SoftLockFactory;
 import net.sf.ehcache.transaction.manager.TransactionManagerLookup;
 import net.sf.ehcache.transaction.xa.EhcacheXAResourceImpl;
 import net.sf.ehcache.transaction.xa.EhcacheXAStore;
@@ -974,6 +979,18 @@ public class Cache implements Ehcache, StoreListener {
                         " no elements cached in memory");
             }
 
+            CopyStrategy copyStrategy = null;
+            if (configuration.getTransactionalMode().isTransactional() && !configuration.isXaTransactional()) {
+                copyStrategy = configuration.getCopyStrategyConfiguration().getCopyStrategyInstance();
+                configuration.getCopyStrategyConfiguration().setCopyStrategyInstance(new ImmutableValueElementCopyStrategy());
+            }
+
+            if (configuration.getTransactionalMode().isTransactional()
+                && configuration.isTerracottaClustered()
+                && configuration.getTerracottaConfiguration().getValueMode() != TerracottaConfiguration.ValueMode.SERIALIZATION) {
+                throw new CacheException("To be transactional, a Terracotta clustered cache needs to be in Serialization value mode");
+            }
+
             final Store store;
             if (configuration.isOverflowToOffHeap()) {
                 try {
@@ -1026,12 +1043,7 @@ public class Cache implements Ehcache, StoreListener {
                 }
             }
 
-            if (configuration.isTransactional()) {
-                if (configuration.isTerracottaClustered()
-                    && configuration.getTerracottaConfiguration().getValueMode() != TerracottaConfiguration.ValueMode.SERIALIZATION) {
-                    throw new CacheException("To be transactional, a Terracotta clustered cache needs to be in Serialization value mode");
-                }
-
+            if (configuration.isXaTransactional()) {
                 TransactionManager txnManager = (TransactionManager) configuration.getDefaultTransactionManager();
                 if (txnManager == null) {
                     txnManager = transactionManagerLookup.getTransactionManager();
@@ -1053,6 +1065,13 @@ public class Cache implements Ehcache, StoreListener {
                 transactionManagerLookup.register(xaResource);
 
                 this.compoundStore = new XATransactionalStore(this, ehcacheXAStore, transactionManagerLookup, txnManager);
+            } else if (configuration.isLocalJtaTransactional()) {
+                SoftLockFactory softLockFactory = cacheManager.createSoftLockFactory(this);
+                LocalTransactionStore localTransactionStore = new LocalTransactionStore(getCacheManager().getTransactionController(), softLockFactory, this, store, copyStrategy);
+                this.compoundStore = new JtaLocalTransactionStore(localTransactionStore, transactionManagerLookup, cacheManager.getTransactionController());
+            } else if (configuration.isLocalTransactional()) {
+                SoftLockFactory softLockFactory = cacheManager.createSoftLockFactory(this);
+                this.compoundStore = new LocalTransactionStore(getCacheManager().getTransactionController(), softLockFactory, this, store, copyStrategy);
             } else {
                 this.compoundStore = store;
             }
