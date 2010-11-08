@@ -43,7 +43,7 @@ public class ResultsImpl implements Results {
     private static final Logger LOG = LoggerFactory.getLogger(ResultsImpl.class);
 
     private final List<Result> results;
-    private final List<Integer> aggregatorResults;
+    private final List aggregatorResults;
     private final boolean hasKeys;
 
     /**
@@ -52,7 +52,7 @@ public class ResultsImpl implements Results {
      * @param results
      * @param hasKeys
      */
-    public ResultsImpl(List<Result> results, boolean hasKeys, List<Integer> aggregatorResults) {
+    public ResultsImpl(List<Result> results, boolean hasKeys, List aggregatorResults) {
         this.hasKeys = hasKeys;
         this.aggregatorResults = Collections.unmodifiableList(aggregatorResults);
         this.results = Collections.unmodifiableList(results);
@@ -133,7 +133,7 @@ public class ResultsImpl implements Results {
      * {@inheritDoc}
      */
     public List<Object> getAggregatorResults() throws SearchException {
-        throw new AssertionError();
+        return this.aggregatorResults;
     }
 
     /**
@@ -143,8 +143,19 @@ public class ResultsImpl implements Results {
 
         private final Object key;
         private final StoreQuery query;
-        private final Map<String, String> attributes;
+        private final Map<String, Object> attributes;
         private final Object[] sortAttributes;
+
+
+        /**
+         * Result implementation
+         *
+         * @param query
+         * @param attributes
+         */
+        public ResultImpl(StoreQuery query, Map<String, Object> attributes) {
+            this(null, query, attributes);
+        }
 
         /**
          * Result implementation
@@ -153,7 +164,7 @@ public class ResultsImpl implements Results {
          * @param query
          * @param attributes
          */
-        public ResultImpl(Object key, StoreQuery query, Map<String, String> attributes) {
+        public ResultImpl(Object key, StoreQuery query, Map<String, Object> attributes) {
             this.query = query;
             this.key = key;
             this.attributes = attributes;
