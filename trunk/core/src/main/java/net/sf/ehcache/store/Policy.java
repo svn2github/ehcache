@@ -36,7 +36,7 @@ public interface Policy {
     String getName();
 
     /**
-     * Finds the best eviction candidate based on the sampled elements. What distuingishes
+     * Finds the best eviction candidate based on the sampled elements. What distinguishes
      * this approach from the classic data structures approach is that an Element contains
      * metadata (e.g. usage statistics) which can be used for making policy decisions,
      * while generic data structures do not. It is expected that implementations will take
