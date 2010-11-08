@@ -380,7 +380,7 @@
                         <exclude>**/RMICacheReplicatorWithLargePayloadTest.java</exclude>
                     </excludes>
                     <forkMode>pertest</forkMode>
-                    <debugForkedProcess>true</debugForkedProcess>
+                    <debugForkedProcess>false</debugForkedProcess>
                     <childDelegation>false</childDelegation>
                     <disableXmlReport>false</disableXmlReport>
                     <printSummary>true</printSummary>

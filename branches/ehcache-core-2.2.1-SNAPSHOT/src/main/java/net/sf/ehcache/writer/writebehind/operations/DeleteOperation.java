@@ -108,4 +108,20 @@ public class DeleteOperation implements SingleOperation {
     public SingleOperationType getType() {
         return SingleOperationType.DELETE;
     }
+
+    @Override
+    public boolean equals(final Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        final WriteOperation that = (WriteOperation) o;
+
+        return entry.getKey().equals(that.getKey());
+    }
+
+    @Override
+    public int hashCode() {
+        return entry.getKey().hashCode();
+    }
+
 }
