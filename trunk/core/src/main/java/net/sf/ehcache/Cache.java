@@ -46,8 +46,6 @@ import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.ReentrantLock;
 
-import javax.transaction.TransactionManager;
-
 import net.sf.ehcache.bootstrap.BootstrapCacheLoader;
 import net.sf.ehcache.bootstrap.BootstrapCacheLoaderFactory;
 import net.sf.ehcache.concurrent.CacheLockProvider;
@@ -1044,7 +1042,7 @@ public class Cache implements Ehcache, StoreListener {
             }
 
             if (configuration.isXaTransactional()) {
-                TransactionManager txnManager = (TransactionManager) configuration.getDefaultTransactionManager();
+                Object txnManager = configuration.getDefaultTransactionManager();
                 if (txnManager == null) {
                     txnManager = transactionManagerLookup.getTransactionManager();
                 }
