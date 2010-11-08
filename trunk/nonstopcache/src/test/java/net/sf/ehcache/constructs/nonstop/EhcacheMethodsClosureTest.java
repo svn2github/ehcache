@@ -139,6 +139,7 @@ public class EhcacheMethodsClosureTest extends TestCase {
         skipMethods.add("getOffHeapStoreSize");
         // search methods 
         skipMethods.add("getSearchAttribute");
+        skipMethods.add("createQuery");
         new EhcacheMethodsInvoker() {
 
             @Override
