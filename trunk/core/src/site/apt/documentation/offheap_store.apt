@@ -121,7 +121,7 @@ public Cache createOffHeapCache() {
 **  Allocating Direct Memory in the JVM
 
     In order to use these configurations you must then use the ehcache-core-ee jar on your classpath, and modify your JVM command-line
-    to increase the amount of direct memory allowed by the JVM.
+    to increase the amount of direct memory allowed by the JVM. You must allocate at least 32GB more to direct memory than the total off-heap memory allocated to caches. 
 
     e.g. to allocate 2GB of memory in the JVM.
 
