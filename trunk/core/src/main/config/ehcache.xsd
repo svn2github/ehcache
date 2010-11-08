@@ -239,6 +239,8 @@
         <xs:restriction base="xs:string">
             <xs:enumeration value="off"/>
             <xs:enumeration value="xa"/>
+            <xs:enumeration value="local"/>
+            <xs:enumeration value="local_jta"/>
         </xs:restriction>
     </xs:simpleType>
 

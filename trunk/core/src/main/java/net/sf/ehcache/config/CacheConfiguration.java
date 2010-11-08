@@ -334,7 +334,7 @@ public class CacheConfiguration implements Cloneable {
     private volatile boolean frozen;
     private TransactionalMode transactionalMode = DEFAULT_TRANSACTIONAL_MODE;
     private volatile boolean statistics = DEFAULT_STATISTICS;
-    private volatile CopyStrategyConfiguration copyStrategyConfiguration = DEFAULT_COPY_STRATEGY_CONFIGURATION;
+    private volatile CopyStrategyConfiguration copyStrategyConfiguration = DEFAULT_COPY_STRATEGY_CONFIGURATION.copy();
     private volatile ElementValueComparatorConfiguration elementValueComparatorConfiguration =
             DEFAULT_ELEMENT_VALUE_COMPARATOR_CONFIGURATION;
     private volatile Boolean copyOnRead;
@@ -1695,9 +1695,19 @@ public class CacheConfiguration implements Cloneable {
      *
      * @return true if transactionalMode="XA"
      */
-    public boolean isTransactional() {
+    public boolean isXaTransactional() {
         validateTransactionalSettings();
-        return transactionalMode.isTransactional();
+        return transactionalMode.equals(TransactionalMode.XA);
+    }
+
+    public boolean isLocalTransactional() {
+        validateTransactionalSettings();
+        return transactionalMode.equals(TransactionalMode.LOCAL);
+    }
+
+    public boolean isLocalJtaTransactional() {
+        validateTransactionalSettings();
+        return transactionalMode.equals(TransactionalMode.LOCAL_JTA);
     }
 
     /**
@@ -1711,6 +1721,16 @@ public class CacheConfiguration implements Cloneable {
          * No Transactions
          */
         OFF(false),
+
+        /**
+         * Local Transactions
+         */
+        LOCAL(true),
+
+        /**
+         * Local Transactions, bound to JTA transactions
+         */
+        LOCAL_JTA(true),
 
         /**
          * XA Transactions

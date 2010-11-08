@@ -40,6 +40,10 @@ import net.sf.ehcache.store.DiskStore;
 import net.sf.ehcache.store.Store;
 import net.sf.ehcache.store.compound.impl.MemoryOnlyStore;
 import net.sf.ehcache.terracotta.ClusteredInstanceFactory;
+import net.sf.ehcache.transaction.local.ReadCommittedSoftLockFactoryImpl;
+import net.sf.ehcache.transaction.local.SoftLockFactory;
+import net.sf.ehcache.transaction.local.TransactionIDFactory;
+import net.sf.ehcache.transaction.local.TransactionIDFactoryImpl;
 import net.sf.ehcache.transaction.manager.TransactionManagerLookup;
 import net.sf.ehcache.transaction.xa.EhcacheXAStore;
 import net.sf.ehcache.transaction.xa.EhcacheXAStoreImpl;
@@ -191,6 +195,10 @@ public class CacheManager {
 
     private volatile TransactionManagerLookup transactionManagerLookup;
 
+    private TransactionController transactionController;
+
+    private final ConcurrentMap<String, SoftLockFactory> softLockFactories = new ConcurrentHashMap<String, SoftLockFactory>();
+
     /**
      * An constructor for CacheManager, which takes a configuration object, rather than one created by parsing
      * an ehcache.xml file. This constructor gives complete control over the creation of the CacheManager.
@@ -321,6 +329,9 @@ public class CacheManager {
         if (terracottaClusteredInstanceFactory != null && this.name == null) {
             this.name = CacheManager.DEFAULT_NAME;
         }
+
+        TransactionIDFactory transactionIDFactory = createTransactionIDFactory();
+        this.transactionController = new TransactionController(transactionIDFactory);
 
         ConfigurationHelper configurationHelper = new ConfigurationHelper(this, localConfiguration);
         configure(configurationHelper);
@@ -1534,5 +1545,36 @@ public class CacheManager {
 
     private List<Ehcache> createDefaultCacheDecorators(Ehcache underlyingCache) {
         return ConfigurationHelper.createDefaultCacheDecorators(underlyingCache, configuration.getDefaultCacheConfiguration());
+    }
+
+    public TransactionController getTransactionController() {
+        return transactionController;
+    }
+
+    private TransactionIDFactory createTransactionIDFactory() {
+        TransactionIDFactory transactionIDFactory;
+        if (terracottaClusteredInstanceFactory != null) {
+            transactionIDFactory = terracottaClusteredInstanceFactory.createTransactionIDFactory(getClusterUUID());
+        } else {
+            transactionIDFactory = new TransactionIDFactoryImpl();
+        }
+        return transactionIDFactory;
+    }
+
+    SoftLockFactory createSoftLockFactory(Ehcache cache) {
+        SoftLockFactory softLockFactory;
+        if (cache.getCacheConfiguration().isTerracottaClustered()) {
+            softLockFactory = getClusteredInstanceFactory(cache).getOrCreateSoftLockFactory(cache.getName());
+        } else {
+            softLockFactory = softLockFactories.get(cache.getName());
+            if (softLockFactory == null) {
+                softLockFactory = new ReadCommittedSoftLockFactoryImpl(cache.getName());
+                SoftLockFactory old = softLockFactories.putIfAbsent(cache.getName(), softLockFactory);
+                if (old != null) {
+                    softLockFactory = old;
+                }
+            }
+        }
+        return softLockFactory;
     }
 }
