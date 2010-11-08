@@ -356,6 +356,10 @@ public class SampledCache extends BaseEmitterBean implements SampledCacheMBean, 
         return cache.getLiveCacheStatistics().getMaxGetTimeMillis();
     }
 
+    public long getWriterQueueLength() {
+        return cache.getLiveCacheStatistics().getWriterQueueLength();
+    }
+
     /**
      * {@inheritDoc}
      * 

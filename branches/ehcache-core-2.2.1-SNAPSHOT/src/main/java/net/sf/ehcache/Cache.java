@@ -2523,7 +2523,7 @@ public class Cache implements Ehcache, StoreListener {
                 .getInMemoryHitCount(), getLiveCacheStatistics()
                 .getCacheMissCount(), size, getAverageGetTime(),
                 getLiveCacheStatistics().getEvictedCount(),
-                getMemoryStoreSize(), getDiskStoreSize());
+                getMemoryStoreSize(), getDiskStoreSize(), getLiveCacheStatistics().getWriterQueueLength());
     }
 
     /**

@@ -123,4 +123,6 @@ public interface CacheStatisticsMBean {
      */
     public String getAssociatedCacheName();
 
+    long getWriterQueueLength();
+
 }

@@ -294,6 +294,10 @@ public class NullLiveCacheStatisticsData implements LiveCacheStatistics, LiveCac
         return 0;
     }
 
+    public long getWriterQueueLength() {
+        return 0;
+    }
+
     /**
      * {@inheritDoc}
      * 

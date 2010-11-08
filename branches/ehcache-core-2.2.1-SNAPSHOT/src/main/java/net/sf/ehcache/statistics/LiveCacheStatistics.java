@@ -176,4 +176,5 @@ public interface LiveCacheStatistics {
      */
     public long getMaxGetTimeMillis();
 
+    long getWriterQueueLength();
 }
