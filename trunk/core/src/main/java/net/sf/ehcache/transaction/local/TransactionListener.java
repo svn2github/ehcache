@@ -16,14 +16,25 @@
 package net.sf.ehcache.transaction.local;
 
 /**
+ * A listener interface to get called back when a transaction is being terminated
+ *
  * @author Ludovic Orban
  */
 public interface TransactionListener {
 
+    /**
+     * This method gets called right before the transaction is committed
+     */
     void beforeCommit();
 
+    /**
+     * This method gets called right after the transaction is committed
+     */
     void afterCommit();
 
+    /**
+     * This method gets called right after the transaction is rolled back
+     */
     void afterRollback();
 
 }

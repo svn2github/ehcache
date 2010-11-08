@@ -1,3 +1,18 @@
+/**
+ *  Copyright 2003-2010 Terracotta, Inc.
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
 package net.sf.ehcache;
 
 import net.sf.ehcache.transaction.local.TransactionContext;
@@ -12,13 +27,14 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 /**
- * @author lorban
+ * TransactionController is used to begin, commit and rollback local transactions
+ *
+ * @author Ludovic Orban
  */
 public final class TransactionController {
 
     private static final Logger LOG = LoggerFactory.getLogger(TransactionController.class.getName());
-
-    private static final String MDC_KEY = "__ehcache_txId";
+    private static final String MDC_KEY = "ehcache-txid";
     private static final int DEFAULT_TRANSACTION_TIMEOUT = 15;
 
     private final ThreadLocal<TransactionID> currentTransactionIdThreadLocal = new ThreadLocal<TransactionID>();
@@ -27,14 +43,26 @@ public final class TransactionController {
 
     private volatile int defaultTransactionTimeout = DEFAULT_TRANSACTION_TIMEOUT;
 
+    /**
+     * Create a TransactionController instance
+     * @param transactionIDFactory the TransactionIDFactory
+     */
     TransactionController(TransactionIDFactory transactionIDFactory) {
         this.transactionIDFactory = transactionIDFactory;
     }
 
+    /**
+     * Get the default transaction timeout in seconds
+     * @return the default transaction timeout
+     */
     public int getDefaultTransactionTimeout() {
         return defaultTransactionTimeout;
     }
 
+    /**
+     * Set the default transaction timeout in seconds, it must be > 0
+     * @param defaultTransactionTimeout the default transaction timeout
+     */
     public void setDefaultTransactionTimeout(int defaultTransactionTimeout) {
         if (defaultTransactionTimeout < 0) {
             throw new IllegalArgumentException("timeout cannot be < 0");
@@ -42,10 +70,17 @@ public final class TransactionController {
         this.defaultTransactionTimeout = defaultTransactionTimeout;
     }
 
+    /**
+     * Begin a new transaction and bind its context to the current thread
+     */
     public void begin() {
         begin(defaultTransactionTimeout);
     }
 
+    /**
+     * Begin a new transaction with the specified timeout and bind its context to the current thread
+     * @param transactionTimeout the timeout foe this transaction in seconds
+     */
     public void begin(int transactionTimeout) {
         TransactionID txId = currentTransactionIdThreadLocal.get();
         if (txId != null) {
@@ -60,10 +95,18 @@ public final class TransactionController {
         LOG.debug("begun transaction {}", newTx.getTransactionId());
     }
 
+    /**
+     * Commit the transaction bound to the current thread
+     */
     public void commit() {
         commit(false);
     }
 
+    /**
+     * Commit the transaction bound to the current thread, ignoring if the transaction
+     * timed out
+     * @param ignoreTimeout true if the transaction should be committed no matter if it timed out or not
+     */
     public void commit(boolean ignoreTimeout) {
         TransactionID txId = currentTransactionIdThreadLocal.get();
         if (txId == null) {
@@ -81,6 +124,9 @@ public final class TransactionController {
         }
     }
 
+    /**
+     * Rollback the transaction bound to the current thread
+     */
     public void rollback() {
         TransactionID txId = currentTransactionIdThreadLocal.get();
         if (txId == null) {
@@ -98,6 +144,9 @@ public final class TransactionController {
         }
     }
 
+    /**
+     * Mark the transaction bound to the current thread for rollback only
+     */
     public void setRollbackOnly() {
         TransactionID txId = currentTransactionIdThreadLocal.get();
         if (txId == null) {
@@ -106,9 +155,14 @@ public final class TransactionController {
 
         TransactionContext currentTx = contextMap.get(txId);
 
-        currentTx.setRollbackOnly(true);
+        currentTx.setRollbackOnly();
     }
 
+    /**
+     * Get the transaction context bond to the current thread
+     * @return the transaction context bond to the current thread or null if no transaction
+     *      started on the current thread          
+     */
     public TransactionContext getCurrentTransactionContext() {
         TransactionID txId = currentTransactionIdThreadLocal.get();
         if (txId == null) {

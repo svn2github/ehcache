@@ -110,6 +110,9 @@
     <suppress checks="NPathComplexity" files="TerracottaClusteredInstanceHelper.java"/>
     <suppress checks="NPathComplexity" files="MemorySizeParser.java"/>
     <suppress checks="NestedIfDepth" files="Segment.java"/>
+    <suppress checks="CyclomaticComplexity" files="LocalTransactionStore.java"/>
+    <suppress checks="NPathComplexity" files="LocalTransactionStore.java"/>
+    <suppress checks="NestedIfDepth" files="LocalTransactionStore.java"/>
 
     <!-- Contributed code -->
     <suppress checks="CyclomaticComplexity" files="Mutex.java"/>

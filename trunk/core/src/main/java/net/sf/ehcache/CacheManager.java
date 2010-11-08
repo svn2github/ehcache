@@ -1547,6 +1547,10 @@ public class CacheManager {
         return ConfigurationHelper.createDefaultCacheDecorators(underlyingCache, configuration.getDefaultCacheConfiguration());
     }
 
+    /**
+     * Get the TransactionController
+     * @return the TransactionController
+     */
     public TransactionController getTransactionController() {
         return transactionController;
     }
@@ -1561,6 +1565,11 @@ public class CacheManager {
         return transactionIDFactory;
     }
 
+    /**
+     * Create a soft lock factory for a specific cache
+     * @param cache the cache to create the soft lock factory for
+     * @return a SoftLockFactory
+     */
     SoftLockFactory createSoftLockFactory(Ehcache cache) {
         SoftLockFactory softLockFactory;
         if (cache.getCacheConfiguration().isTerracottaClustered()) {

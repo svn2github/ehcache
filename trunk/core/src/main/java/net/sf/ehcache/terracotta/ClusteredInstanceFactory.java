@@ -81,7 +81,17 @@ public interface ClusteredInstanceFactory {
      */
     void shutdown();
 
+    /**
+     * Create a TransactionIDFactory
+     * @param clusterUUID a UUID unique to the cluster
+     * @return a TransactionIDFactory
+     */
     TransactionIDFactory createTransactionIDFactory(String clusterUUID);
 
+    /**
+     * Create a SoftLockFactory for a cache
+     * @param cacheName the cache name for which to create a SoftLockFactory
+     * @return a SoftLockFactory
+     */
     SoftLockFactory getOrCreateSoftLockFactory(String cacheName);
 }

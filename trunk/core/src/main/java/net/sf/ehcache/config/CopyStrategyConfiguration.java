@@ -44,6 +44,11 @@ public class CopyStrategyConfiguration {
         this.className = className;
     }
 
+    /**
+     * Sets the CopyStrategy instance to use
+     *
+     * @param copyStrategy the copy strategy
+     */
     public synchronized void setCopyStrategyInstance(CopyStrategy copyStrategy) {
         this.strategy = copyStrategy;
     }
@@ -73,6 +78,10 @@ public class CopyStrategyConfiguration {
         return strategy;
     }
 
+    /**
+     * Make copy of this configuration
+     * @return a copy of this configuration
+     */
     protected CopyStrategyConfiguration copy() {
         CopyStrategyConfiguration clone = new CopyStrategyConfiguration();
         clone.setClass(getClassName());

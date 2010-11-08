@@ -1,3 +1,18 @@
+/**
+ *  Copyright 2003-2010 Terracotta, Inc.
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
 package net.sf.ehcache.transaction.local;
 
 import org.slf4j.Logger;
@@ -10,11 +25,14 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * @author lorban
+ * A transaction's thread context
+ *
+ * @author Ludovic Orban
  */
 public class TransactionContext {
 
     private static final Logger LOG = LoggerFactory.getLogger(TransactionContext.class.getName());
+    private static final long MILLISECONDS_PER_SECOND = 1000L;
 
     private boolean rollbackOnly;
     private final long expirationTimestamp;
@@ -23,23 +41,45 @@ public class TransactionContext {
     private final Map<String, LocalTransactionStore> storeMap = new HashMap<String, LocalTransactionStore>();
     private final List<TransactionListener> listeners = new ArrayList<TransactionListener>();
 
+    /**
+     * Create a new TransactionContext
+     * @param transactionTimeout the timeout before the context expires
+     * @param transactionId the unique transaction ID of the context
+     */
     public TransactionContext(int transactionTimeout, TransactionID transactionId) {
-        this.expirationTimestamp = System.currentTimeMillis() + transactionTimeout * 1000L;
+        this.expirationTimestamp = System.currentTimeMillis() + transactionTimeout * MILLISECONDS_PER_SECOND;
         this.transactionId = transactionId;
     }
 
+    /**
+     * Get the timestamp at which this context will expire
+     * @return a timestamp in milliseconds at which this context will expire
+     */
     public long getExpirationTimestamp() {
         return expirationTimestamp;
     }
 
+    /**
+     * Check if the context timed out
+     * @return true if the context timed out, false otherwise
+     */
     public boolean timedOut() {
         return expirationTimestamp <= System.currentTimeMillis();
     }
 
-    public void setRollbackOnly(boolean rollbackOnly) {
-        this.rollbackOnly = rollbackOnly;
+    /**
+     * Mark the context for rollback
+     */
+    public void setRollbackOnly() {
+        this.rollbackOnly = true;
     }
 
+    /**
+     * Register a soft lock in the context
+     * @param cacheName the name of the cache this soft lock is in
+     * @param store the LocalTransactionStore this soft lock is in
+     * @param softLock the soft lock
+     */
     public void registerSoftLock(String cacheName, LocalTransactionStore store, SoftLock softLock) {
         List<SoftLock> softLocks = softLockMap.get(cacheName);
         if (softLocks == null) {
@@ -51,14 +91,23 @@ public class TransactionContext {
     }
 
     //todo this method isn't needed if there is no copy on read/write in the underlying store
+    /**
+     * Update a soft lock already registered in the context
+     * @param cacheName the name of the cache this soft lock is in
+     * @param softLock the soft lock
+     */
     public void updateSoftLock(String cacheName, SoftLock softLock) {
         List<SoftLock> softLocks = softLockMap.get(cacheName);
         softLocks.remove(softLock);
         softLocks.add(softLock);
     }
 
-
-    public List<SoftLock> getSoftLocks(String cacheName) {
+    /**
+     * Get all soft locks registered in this context for a specific cache
+     * @param cacheName the name of the cache
+     * @return a List of registered soft locks for this cache
+     */
+    public List<SoftLock> getSoftLocksForCache(String cacheName) {
         List<SoftLock> softLocks = softLockMap.get(cacheName);
         if (softLocks == null) {
             return Collections.emptyList();
@@ -67,6 +116,10 @@ public class TransactionContext {
         return Collections.unmodifiableList(softLocks);
     }
 
+    /**
+     * Commit all work done in the context and release all registered soft locks
+     * @param ignoreTimeout true if commit should proceed no matter the timeout
+     */
     public void commit(boolean ignoreTimeout) {
         if (!ignoreTimeout && timedOut()) {
             rollback();
@@ -102,6 +155,9 @@ public class TransactionContext {
         }
     }
 
+    /**
+     * Rollback all work done in the context and release all registered soft locks
+     */
     public void rollback() {
         try {
             if (LOG.isDebugEnabled()) {
@@ -126,10 +182,18 @@ public class TransactionContext {
         }
     }
 
+    /**
+     * Get the transaction ID of the context
+     * @return the transaction ID
+     */
     public TransactionID getTransactionId() {
         return transactionId;
     }
 
+    /**
+     * Add a TransactionListener to this context
+     * @param listener the listener
+     */
     public void addListener(TransactionListener listener) {
         this.listeners.add(listener);
     }
@@ -181,11 +245,17 @@ public class TransactionContext {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public int hashCode() {
         return transactionId.hashCode();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public boolean equals(Object obj) {
         if (obj instanceof TransactionContext) {
