@@ -26,6 +26,7 @@ import net.sf.ehcache.Element;
 import net.sf.ehcache.Status;
 import net.sf.ehcache.search.Results;
 import net.sf.ehcache.search.attribute.AttributeExtractor;
+import net.sf.ehcache.store.ElementValueComparator;
 import net.sf.ehcache.store.Policy;
 import net.sf.ehcache.store.Store;
 import net.sf.ehcache.store.StoreListener;
@@ -194,7 +195,7 @@ public class MockStoreWithFlag implements Store {
 
     }
 
-    public Element removeElement(Element element) throws NullPointerException {
+    public Element removeElement(Element element, ElementValueComparator comparator) throws NullPointerException {
         markAccessFlag();
         return null;
     }
@@ -204,7 +205,7 @@ public class MockStoreWithFlag implements Store {
         return null;
     }
 
-    public boolean replace(Element old, Element element) throws NullPointerException, IllegalArgumentException {
+    public boolean replace(Element old, Element element, ElementValueComparator comparator) throws NullPointerException, IllegalArgumentException {
         markAccessFlag();
         return false;
     }
