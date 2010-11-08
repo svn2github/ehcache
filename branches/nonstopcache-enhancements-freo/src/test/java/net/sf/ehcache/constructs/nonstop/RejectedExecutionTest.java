@@ -35,7 +35,7 @@ public class RejectedExecutionTest extends TestCase {
     @Test
     public void testRejectedExecution() throws Exception {
         Constructor<NonStopCacheExecutorService> constructor = NonStopCacheExecutorService.class
-                .getDeclaredConstructor(ExecutorService.class);
+                .getDeclaredConstructor(ThreadPoolExecutor.class);
         constructor.setAccessible(true);
 
         ArrayBlockingQueue<Runnable> workQueue = new ArrayBlockingQueue<Runnable>(1);
@@ -48,6 +48,7 @@ public class RejectedExecutionTest extends TestCase {
             fail("should have thrown timeout exception");
         } catch (Exception e) {
             if (!(e instanceof TimeoutException)) {
+                e.printStackTrace();
                 throw new AssertionError("Expected to catch TimeoutException but caught: " + e);
             }
             System.out.println("Caught expected exception - " + e);
@@ -84,16 +85,6 @@ public class RejectedExecutionTest extends TestCase {
             int attemptCount = ((TaskNotSubmittedTimeoutException) e).getSubmitAttemptCount();
             System.out.println("Number of attempts made to submit task: " + attemptCount);
             assertTrue(attemptCount >= 2);
-        }
-
-    }
-
-    private static class BlockingCallable implements Callable<Void> {
-
-        public Void call() throws Exception {
-            System.out.println("inside blocking callable");
-            Thread.currentThread().join();
-            return null;
         }
 
     }

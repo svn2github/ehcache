@@ -16,6 +16,7 @@
 
 package net.sf.ehcache.constructs.nonstop;
 
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -30,6 +31,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
+import net.sf.ehcache.constructs.nonstop.util.CountingThreadFactory;
 import net.sf.ehcache.event.CacheEventListener;
 
 /**
@@ -50,12 +52,32 @@ public class NonStopCacheExecutorService {
      */
     protected static final AtomicInteger DEFAULT_FACTORY_COUNT = new AtomicInteger();
 
-    private final ExecutorService executorService;
+    /**
+     * A string that is a part of the thread name created by the default thread factory.
+     * Package protected as used by tests.
+     */
+    static final String EXECUTOR_THREAD_NAME_PREFIX = "Executor Thread";
+
+    /**
+     * Default number of maximum threads that can be in the pool.
+     * Package protected as used by tests.
+     */
+    static final int DEFAULT_MAX_THREAD_POOL_SIZE = 500;
+
+    private static final int INCREMENT_POOL_THREADS_STEP = 10;
+
+    private final ThreadPoolExecutor executorService;
     private final AtomicInteger attachedCachesCount = new AtomicInteger();
     private final DisposeListener disposeListener;
 
     // shutdown executor service when all attached caches are dispose'd -- by default true
     private volatile boolean shutdownWhenNoCachesAttached = true;
+
+    private CountingThreadFactory countingThreadFactory;
+
+    private BlockingQueue<Runnable> taskQueue;
+
+    private int maxPoolSize;
 
     /**
      * Default constructor, uses {@link NonStopCacheExecutorService#DEFAULT_THREAD_POOL_SIZE} number of threads in the pool
@@ -76,7 +98,7 @@ public class NonStopCacheExecutorService {
 
             public Thread newThread(final Runnable runnable) {
                 Thread thread = new Thread(runnable, "Default " + NonStopCacheExecutorService.class.getName() + "-"
-                        + DEFAULT_FACTORY_COUNT.incrementAndGet() + " Executor Thread-" + counter.incrementAndGet());
+                        + DEFAULT_FACTORY_COUNT.incrementAndGet() + " " + EXECUTOR_THREAD_NAME_PREFIX + "-" + counter.incrementAndGet());
                 thread.setDaemon(true);
                 return thread;
             }
@@ -99,9 +121,15 @@ public class NonStopCacheExecutorService {
      * @param threadFactory
      */
     public NonStopCacheExecutorService(final int threadPoolSize, final ThreadFactory threadFactory) {
-        // keepAlive time and maxPoolSize is ignored (does not have any effect) as we are using an unbounded work queue
-        this(new ThreadPoolExecutor(threadPoolSize, threadPoolSize, Integer.MAX_VALUE, TimeUnit.MILLISECONDS,
-                new LinkedBlockingQueue<Runnable>(), threadFactory));
+        this(threadPoolSize, DEFAULT_MAX_THREAD_POOL_SIZE, new LinkedBlockingQueue<Runnable>(), new CountingThreadFactory(threadFactory));
+    }
+
+    private NonStopCacheExecutorService(final int corePoolSize, final int maxPoolSize, BlockingQueue<Runnable> taskQueue,
+            CountingThreadFactory countingThreadFactory) {
+        this(new ThreadPoolExecutor(corePoolSize, maxPoolSize, Integer.MAX_VALUE, TimeUnit.MILLISECONDS, taskQueue, countingThreadFactory));
+        this.maxPoolSize = maxPoolSize;
+        this.taskQueue = taskQueue;
+        this.countingThreadFactory = countingThreadFactory;
     }
 
     /**
@@ -110,12 +138,21 @@ public class NonStopCacheExecutorService {
      * 
      * @param executorService
      */
-    private NonStopCacheExecutorService(final ExecutorService executorService) {
+    private NonStopCacheExecutorService(final ThreadPoolExecutor executorService) {
         if (executorService == null) {
             throw new IllegalArgumentException("ExecutorService cannot be null");
         }
         this.executorService = executorService;
         this.disposeListener = new DisposeListener();
+    }
+
+    /**
+     * Used in tests only.
+     * 
+     * @return the task queue of the executor
+     */
+    BlockingQueue<Runnable> getTaskQueue() {
+        return taskQueue;
     }
 
     /**
@@ -138,6 +175,9 @@ public class NonStopCacheExecutorService {
         while (true) {
             try {
                 attempt++;
+                if (countingThreadFactory != null && countingThreadFactory.getNumberOfThreads() < maxPoolSize) {
+                    executorService.setCorePoolSize(incrementCorePoolSize(executorService.getCorePoolSize()));
+                }
                 result = executorService.submit(callable).get(timeoutValueInMillis, TimeUnit.MILLISECONDS);
                 break;
             } catch (InterruptedException e) {
@@ -159,6 +199,11 @@ public class NonStopCacheExecutorService {
             }
         }
         return result;
+    }
+
+    private int incrementCorePoolSize(int corePoolSize) {
+        int rv = corePoolSize + INCREMENT_POOL_THREADS_STEP;
+        return rv > maxPoolSize ? maxPoolSize : rv;
     }
 
     /**
