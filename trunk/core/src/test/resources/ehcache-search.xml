@@ -32,5 +32,14 @@
     <cache name="default-searchable" maxElementsInMemory="0" eternal="true" overflowToDisk="false">
        <searchable/>
     </cache>
+    
+    <cache name="bean-attributes" maxElementsInMemory="0" eternal="true" overflowToDisk="false">
+       <searchable>
+         <searchAttribute name="age"/>
+         <searchAttribute name="gender"/>
+         <searchAttribute name="name"/>
+       </searchable>
+       
+    </cache>
 
 </ehcache>

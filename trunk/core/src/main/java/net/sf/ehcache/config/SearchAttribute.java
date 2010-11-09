@@ -20,11 +20,13 @@ import net.sf.ehcache.config.generator.model.NodeElement;
 import net.sf.ehcache.config.generator.model.SimpleNodeAttribute;
 import net.sf.ehcache.config.generator.model.SimpleNodeElement;
 import net.sf.ehcache.search.attribute.AttributeExtractor;
+import net.sf.ehcache.search.attribute.JavaBeanAttributeExtractor;
 import net.sf.ehcache.search.attribute.ReflectionAttributeExtractor;
 import net.sf.ehcache.util.ClassLoaderUtil;
 
 /**
- * A cache search attribute. Search attributes must have a name and either an expression or class set
+ * A cache search attribute. Search attributes must have a name and optionally an expression or class set (if neither is set then this
+ * implies java bean style)
  *
  * @author teck
  */
@@ -100,9 +102,9 @@ public class SearchAttribute {
             return new ReflectionAttributeExtractor(expression);
         } else if (className != null) {
             return (AttributeExtractor) ClassLoaderUtil.createNewInstance(className);
+        } else {
+            return new JavaBeanAttributeExtractor(name);
         }
-
-        throw new InvalidConfigurationException("Neither expression or class set for search attribute");
     }
 
     /**
@@ -155,8 +157,6 @@ public class SearchAttribute {
             rv.addAttribute(new SimpleNodeAttribute("expression", expression));
         } else if (className != null) {
             rv.addAttribute(new SimpleNodeAttribute("class", className));
-        } else {
-            throw new InvalidConfigurationException("neither expression or className set");
         }
 
         return rv;

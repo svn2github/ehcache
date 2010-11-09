@@ -243,6 +243,9 @@ public class BasicSearchTest extends TestCase {
 
         // uses a "custom" attribute extractor too
         basicQueries(cacheManager.getEhcache("cache2"));
+
+        // uses bean attributes
+        basicQueries(cacheManager.getEhcache("bean-attributes"));
     }
 
     public void testCustomAggregator() {
