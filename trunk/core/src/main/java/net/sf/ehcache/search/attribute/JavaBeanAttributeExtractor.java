@@ -141,12 +141,12 @@ public class JavaBeanAttributeExtractor implements AttributeExtractor {
         try {
             return method.invoke(key);
         } catch (Throwable t) {
-            if (t instanceof Error) {
-                throw ((Error) t);
-            }
-
             if (t instanceof InvocationTargetException) {
                 t = t.getCause();
+            }
+
+            if (t instanceof Error) {
+                throw ((Error) t);
             }
 
             throw new AttributeExtractorException("Error getting bean property [" + beanProperty + "] on instance of "

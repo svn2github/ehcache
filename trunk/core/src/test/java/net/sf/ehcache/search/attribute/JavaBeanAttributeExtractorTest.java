@@ -18,8 +18,8 @@ package net.sf.ehcache.search.attribute;
 
 import java.util.Vector;
 
-import net.sf.ehcache.Element;
 import junit.framework.TestCase;
+import net.sf.ehcache.Element;
 
 public class JavaBeanAttributeExtractorTest extends TestCase {
 
@@ -36,6 +36,26 @@ public class JavaBeanAttributeExtractorTest extends TestCase {
 
         assertEquals(true, jbae.attributeFor(new Element(new Type3(), "")));
         assertEquals(true, jbae.attributeFor(new Element("", new Type3())));
+    }
+
+    public void testException() {
+        JavaBeanAttributeExtractor jbae = new JavaBeanAttributeExtractor("foo");
+
+        RuntimeException re = new RuntimeException();
+        try {
+            jbae.attributeFor(new Element(new ExceptionThrowing(re), ""));
+            fail();
+        } catch (AttributeExtractorException aee) {
+            assertEquals(re, aee.getCause());
+        }
+
+        Error error = new Error();
+        try {
+            jbae.attributeFor(new Element(new ExceptionThrowing(error), ""));
+            fail();
+        } catch (Error e) {
+            assertEquals(error, e);
+        }
     }
 
     public void testNonAccessibleMethod() {
@@ -123,7 +143,6 @@ public class JavaBeanAttributeExtractorTest extends TestCase {
         }
     }
 
-
     public void testNoMethods() {
         JavaBeanAttributeExtractor jbae = new JavaBeanAttributeExtractor("foo");
 
@@ -204,6 +223,35 @@ public class JavaBeanAttributeExtractorTest extends TestCase {
     private static class NonAccessible {
         Object getFoo() {
             return "foo";
+        }
+    }
+
+    private static class ExceptionThrowing {
+        private final Throwable t;
+
+        public ExceptionThrowing(Throwable t) {
+            this.t = t;
+        }
+
+        public Object getFoo() {
+            HackExceptionThrower.t.set(t);
+
+            try {
+                HackExceptionThrower.class.newInstance();
+                throw new AssertionError();
+            } catch (InstantiationException e) {
+                throw new AssertionError();
+            } catch (IllegalAccessException e) {
+                throw new AssertionError();
+            }
+        }
+    }
+
+    private static class HackExceptionThrower {
+        public static final ThreadLocal<Throwable> t = new ThreadLocal<Throwable>();
+
+        public HackExceptionThrower() throws Throwable {
+            throw t.get();
         }
     }
 
