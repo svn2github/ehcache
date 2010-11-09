@@ -19,6 +19,7 @@ import net.sf.ehcache.Element;
 
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
  * A SoftLock implementation with Read-Committed isolation level
@@ -34,7 +35,7 @@ public class ReadCommittedSoftLockImpl implements SoftLock {
     private Element newElement;
     private final Element oldElement;
     private final ReentrantLock lock;
-    private final ReentrantLock freezeLock;
+    private final ReentrantReadWriteLock freezeLock;
 
     /**
      * Create a new ReadCommittedSoftLockImpl instance
@@ -52,7 +53,7 @@ public class ReadCommittedSoftLockImpl implements SoftLock {
         this.newElement = newElement;
         this.oldElement = oldElement;
         this.lock = new ReentrantLock();
-        this.freezeLock = new ReentrantLock();
+        this.freezeLock = new ReentrantReadWriteLock();
     }
 
     /**
@@ -66,7 +67,7 @@ public class ReadCommittedSoftLockImpl implements SoftLock {
      * {@inheritDoc}
      */
     public Element getElement(TransactionID currentTransactionId) {
-        freezeLock.lock();
+        freezeLock.readLock().lock();
         try {
             if (transactionID.equals(currentTransactionId)) {
                 return newElement;
@@ -74,7 +75,7 @@ public class ReadCommittedSoftLockImpl implements SoftLock {
                 return oldElement;
             }
         } finally {
-            freezeLock.unlock();
+            freezeLock.readLock().unlock();
         }
     }
 
@@ -127,7 +128,7 @@ public class ReadCommittedSoftLockImpl implements SoftLock {
         if (!isLocked()) {
             throw new IllegalStateException("cannot freeze an unlocked soft lock");
         }
-        freezeLock.lock();
+        freezeLock.writeLock().lock();
     }
 
     /**
@@ -148,11 +149,11 @@ public class ReadCommittedSoftLockImpl implements SoftLock {
      * {@inheritDoc}
      */
     public void unfreeze() {
-        freezeLock.unlock();
+        freezeLock.writeLock().unlock();
     }
 
     private boolean isFrozen() {
-        return freezeLock.isLocked();
+        return freezeLock.isWriteLocked();
     }
 
     /**
