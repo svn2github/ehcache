@@ -69,8 +69,7 @@ public class BlockingCache extends EhcacheDecoratorAdapter {
      */
     protected volatile int timeoutMillis;
 
-    private volatile CacheLockProvider cacheLockProvider;
-    private final int stripes;
+    private final CacheLockProvider cacheLockProvider;
     
     /**
      * Creates a BlockingCache which decorates the supplied cache.
@@ -83,7 +82,13 @@ public class BlockingCache extends EhcacheDecoratorAdapter {
      */
     public BlockingCache(final Ehcache cache, int numberOfStripes) throws CacheException {
         super(cache);
-        this.stripes = numberOfStripes;
+
+        Object context = underlyingCache.getInternalContext();
+        if (underlyingCache.getCacheConfiguration().isTerracottaClustered() && context != null) {
+            this.cacheLockProvider = ((CacheLockProvider) context);
+        } else {
+            this.cacheLockProvider = new StripedReadWriteLockSync(numberOfStripes);
+        }
     }
 
     /**
@@ -175,19 +180,7 @@ public class BlockingCache extends EhcacheDecoratorAdapter {
      * @return one of a limited number of Sync's.
      */
     protected Sync getLockForKey(final Object key) {
-        return getCacheLockProvider().getSyncForKey(key);
-    }
-
-    private CacheLockProvider getCacheLockProvider() {
-        if (cacheLockProvider == null) {
-            Object context = underlyingCache.getInternalContext();
-            if (underlyingCache.getCacheConfiguration().isTerracottaClustered() && context != null) {
-                this.cacheLockProvider = ((CacheLockProvider) context);
-            } else {
-                this.cacheLockProvider = new StripedReadWriteLockSync(stripes);
-            }
-        }
-        return cacheLockProvider;
+        return cacheLockProvider.getSyncForKey(key);
     }
 
     /**
