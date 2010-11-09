@@ -17,6 +17,8 @@ package net.sf.ehcache.store;
 
 import net.sf.ehcache.Element;
 
+import java.util.Arrays;
+
 /**
  * @author Ludovic Orban
  */
@@ -38,23 +40,8 @@ public class DefaultElementValueComparator implements ElementValueComparator {
     }
 
     private static boolean compareValues(Object objectValue1, Object objectValue2) {
-        if (objectValue1 instanceof Object[] && objectValue2 instanceof Object[]) {
-            Object[] objectValue1Array = (Object[]) objectValue1;
-            Object[] objectValue2Array = (Object[]) objectValue2;
-            if (objectValue1Array.length != objectValue2Array.length) {
-                return false;
-            }
-
-            for (int i = 0; i < objectValue1Array.length; i++) {
-                Object o1 = objectValue1Array[i];
-                Object o2 = objectValue2Array[i];
-
-                boolean equals = compareValues(o1, o2);
-                if (!equals) {
-                    return false;
-                }
-            }
-            return true;
+        if (objectValue1 != null && objectValue2 != null && objectValue1.getClass().isArray() && objectValue2.getClass().isArray()) {
+            return Arrays.deepEquals(new Object[] {objectValue1}, new Object[] {objectValue2});
         } else {
             if (objectValue1 == null) {
                 return objectValue2 == null;
