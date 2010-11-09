@@ -484,6 +484,7 @@ public class BasicSearchTest extends TestCase {
         Results results = query.execute();
         assertFalse(results.hasKeys());
         assertFalse(results.hasAggregators());
+        assertTrue(results.hasAttributes());
 
         for (Result result : results.all()) {
             try {
@@ -745,6 +746,7 @@ public class BasicSearchTest extends TestCase {
         Results results = query.execute();
         assertEquals(expectedKeys.length, results.size());
         assertTrue(results.hasKeys());
+        assertFalse(results.hasAttributes());
 
         Set<Integer> keys = new HashSet<Integer>(Arrays.asList(expectedKeys));
 

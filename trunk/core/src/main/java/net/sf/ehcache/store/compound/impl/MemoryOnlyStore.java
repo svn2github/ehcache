@@ -337,7 +337,7 @@ public final class MemoryOnlyStore extends CompoundStore implements CacheConfigu
             }
         }
 
-        return new ResultsImpl(results, query.requestsKeys(), aggregators);
+        return new ResultsImpl(results, query.requestsKeys(), aggregators, !query.requestedAttributes().isEmpty());
     }
 
     /**
@@ -520,9 +520,11 @@ public final class MemoryOnlyStore extends CompoundStore implements CacheConfigu
         private final List<Result> results;
         private final List<Object> aggregateResults;
         private final boolean hasKeys;
+        private final boolean hasAttributes;
 
-        ResultsImpl(List<Result> results, boolean hasKeys, List<AggregatorInstance<?>> aggregators) {
+        ResultsImpl(List<Result> results, boolean hasKeys, List<AggregatorInstance<?>> aggregators, boolean hasAttributes) {
             this.hasKeys = hasKeys;
+            this.hasAttributes = hasAttributes;
             this.results = Collections.unmodifiableList(results);
 
             if (aggregators.isEmpty()) {
@@ -593,11 +595,9 @@ public final class MemoryOnlyStore extends CompoundStore implements CacheConfigu
 
         /**
          * @{inheritDoc
-         *              todo
-         *              TODO
          */
         public boolean hasAttributes() {
-            return false;
+            return hasAttributes;
         }
 
         /**

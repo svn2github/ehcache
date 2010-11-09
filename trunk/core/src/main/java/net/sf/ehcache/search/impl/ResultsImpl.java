@@ -114,7 +114,6 @@ public class ResultsImpl implements Results {
     }
 
     /**
-     * todo
      * {@inheritDoc}
      */
     public boolean hasAttributes() {
@@ -122,7 +121,6 @@ public class ResultsImpl implements Results {
     }
 
     /**
-     * todo
      * {@inheritDoc}
      */
     public boolean hasAggregators() {
