@@ -43,11 +43,6 @@ import net.sf.ehcache.event.CacheEventListener;
 public class NonStopCacheExecutorService {
 
     /**
-     * Default number of threads in the thread pool
-     */
-    public static final int DEFAULT_THREAD_POOL_SIZE = 10;
-
-    /**
      * Counter used for maintaining number of threads created by default ThreadFactory
      */
     protected static final AtomicInteger DEFAULT_FACTORY_COUNT = new AtomicInteger();
@@ -59,10 +54,25 @@ public class NonStopCacheExecutorService {
     static final String EXECUTOR_THREAD_NAME_PREFIX = "Executor Thread";
 
     /**
+     * Property name for default value for max threads pool size
+     */
+    static final String DEFAULT_MAX_THREADS_POOL_SIZE = "net.sf.ehcache.constructs.nonstop.defaultMaxThreadsPoolSize";
+
+    /**
+     * Property name for default value for core threads pool size
+     */
+    static final String DEFAULT_CORE_THREADS_POOL_SIZE = "net.sf.ehcache.constructs.nonstop.defaultCoreThreadsPoolSize";
+
+    /**
+     * Default number of threads in the thread pool
+     */
+    static final int DEFAULT_THREAD_POOL_SIZE = getProperty(DEFAULT_CORE_THREADS_POOL_SIZE, 10);
+
+    /**
      * Default number of maximum threads that can be in the pool.
      * Package protected as used by tests.
      */
-    static final int DEFAULT_MAX_THREAD_POOL_SIZE = 500;
+    static final int DEFAULT_MAX_THREAD_POOL_SIZE = getProperty(DEFAULT_MAX_THREADS_POOL_SIZE, 500);
 
     private static final int INCREMENT_POOL_THREADS_STEP = 10;
 
@@ -83,16 +93,16 @@ public class NonStopCacheExecutorService {
      * Default constructor, uses {@link NonStopCacheExecutorService#DEFAULT_THREAD_POOL_SIZE} number of threads in the pool
      */
     public NonStopCacheExecutorService() {
-        this(DEFAULT_THREAD_POOL_SIZE);
+        this(DEFAULT_THREAD_POOL_SIZE, DEFAULT_MAX_THREAD_POOL_SIZE);
     }
 
     /**
      * Constructor accepting the maximum number of threads that can be present in the thread pool
      * 
-     * @param threadPoolSize
+     * @param coreThreadPoolSize
      */
-    public NonStopCacheExecutorService(final int threadPoolSize) {
-        this(threadPoolSize, new ThreadFactory() {
+    public NonStopCacheExecutorService(final int coreThreadPoolSize, final int maxThreadPoolSize) {
+        this(coreThreadPoolSize, maxThreadPoolSize, new ThreadFactory() {
 
             private final AtomicInteger counter = new AtomicInteger();
 
@@ -111,17 +121,17 @@ public class NonStopCacheExecutorService {
      * @param threadFactory
      */
     public NonStopCacheExecutorService(final ThreadFactory threadFactory) {
-        this(DEFAULT_THREAD_POOL_SIZE, threadFactory);
+        this(DEFAULT_THREAD_POOL_SIZE, DEFAULT_MAX_THREAD_POOL_SIZE, threadFactory);
     }
 
     /**
      * Constructor accepting both number of threads and the thread factory to be used
      * 
-     * @param threadPoolSize
+     * @param coreThreadPoolSize
      * @param threadFactory
      */
-    public NonStopCacheExecutorService(final int threadPoolSize, final ThreadFactory threadFactory) {
-        this(threadPoolSize, DEFAULT_MAX_THREAD_POOL_SIZE, new LinkedBlockingQueue<Runnable>(), new CountingThreadFactory(threadFactory));
+    public NonStopCacheExecutorService(final int coreThreadPoolSize, final int maxThreadPoolSize, final ThreadFactory threadFactory) {
+        this(coreThreadPoolSize, maxThreadPoolSize, new LinkedBlockingQueue<Runnable>(), new CountingThreadFactory(threadFactory));
     }
 
     private NonStopCacheExecutorService(final int corePoolSize, final int maxPoolSize, BlockingQueue<Runnable> taskQueue,
@@ -144,6 +154,17 @@ public class NonStopCacheExecutorService {
         }
         this.executorService = executorService;
         this.disposeListener = new DisposeListener();
+    }
+
+    private static int getProperty(String propertyName, int defaultValue) {
+        String propertyValue = System.getProperty(propertyName);
+        int value = 0;
+        try {
+            value = Integer.parseInt(propertyValue);
+        } catch (NumberFormatException e) {
+            value = defaultValue;
+        }
+        return value;
     }
 
     /**

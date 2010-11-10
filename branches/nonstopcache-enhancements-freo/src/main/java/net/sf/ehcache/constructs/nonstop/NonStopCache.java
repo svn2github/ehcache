@@ -21,8 +21,6 @@ import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.ThreadFactory;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Ehcache;
@@ -130,16 +128,8 @@ public class NonStopCache extends EhcacheDecoratorAdapter
      *            NonStopCache configuration
      */
     public NonStopCache(final Ehcache underlyingCache, final String name, final NonStopCacheConfig nonStopCacheConfig) {
-        this(underlyingCache, name, nonStopCacheConfig, new NonStopCacheExecutorService(new ThreadFactory() {
-
-            private final AtomicInteger count = new AtomicInteger();
-
-            public Thread newThread(final Runnable runnable) {
-                Thread thread = new Thread(runnable, "NonStopCache [" + name + "] Executor Thread-" + count.incrementAndGet());
-                thread.setDaemon(true);
-                return thread;
-            }
-        }));
+        this(underlyingCache, name, nonStopCacheConfig, CacheManagerExecutorServiceFactory.getInstance()
+                .getOrCreateNonStopCacheExecutorService(underlyingCache));
     }
 
     /**
