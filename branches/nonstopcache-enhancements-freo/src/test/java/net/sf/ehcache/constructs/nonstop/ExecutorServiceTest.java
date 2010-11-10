@@ -16,9 +16,6 @@
 
 package net.sf.ehcache.constructs.nonstop;
 
-import java.lang.management.ManagementFactory;
-import java.lang.management.ThreadInfo;
-import java.lang.management.ThreadMXBean;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
@@ -27,12 +24,13 @@ import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import junit.framework.TestCase;
+import net.sf.ehcache.constructs.nonstop.ThreadDump.ThreadInformation;
 
 public class ExecutorServiceTest extends TestCase {
 
     public void testExecutorThreadsCreated() throws Exception {
         final NonStopCacheExecutorService service = new NonStopCacheExecutorService();
-        int corePoolSize = NonStopCacheExecutorService.DEFAULT_THREAD_POOL_SIZE;
+        int corePoolSize = NonStopCacheExecutorService.DEFAULT_CORE_THREAD_POOL_SIZE;
         int maxPoolSize = NonStopCacheExecutorService.DEFAULT_MAX_THREAD_POOL_SIZE;
         for (int i = 0; i < corePoolSize; i++) {
             service.execute(new NoopCallable(), 1000);
@@ -98,7 +96,7 @@ public class ExecutorServiceTest extends TestCase {
     }
 
     private int countExecutorThreads() {
-        List<ThreadInformation> threadDump = getThreadDump();
+        List<ThreadInformation> threadDump = ThreadDump.getThreadDump();
         int rv = 0;
         for (ThreadInformation info : threadDump) {
             if (info.getThreadName().contains(NonStopCacheExecutorService.EXECUTOR_THREAD_NAME_PREFIX)) {
@@ -109,58 +107,6 @@ public class ExecutorServiceTest extends TestCase {
         }
         System.out.println("Number of executor threads created till now: " + rv);
         return rv;
-    }
-
-    private static List<ThreadInformation> getThreadDump() {
-        List<ThreadInformation> rv = new ArrayList<ThreadInformation>();
-        ThreadMXBean tbean = ManagementFactory.getThreadMXBean();
-        for (long id : tbean.getAllThreadIds()) {
-            ThreadInfo tinfo = tbean.getThreadInfo(id, Integer.MAX_VALUE);
-            rv.add(new ThreadInformation(tinfo.getThreadId(), tinfo.getThreadName()));
-        }
-        return rv;
-    }
-
-    private static class ThreadInformation {
-        private final long threadId;
-        private final String threadName;
-
-        public ThreadInformation(long threadId, String name) {
-            super();
-            this.threadId = threadId;
-            this.threadName = name;
-        }
-
-        public long getThreadId() {
-            return threadId;
-        }
-
-        public String getThreadName() {
-            return threadName;
-        }
-
-        @Override
-        public int hashCode() {
-            final int prime = 31;
-            int result = 1;
-            result = prime * result + (int) (threadId ^ (threadId >>> 32));
-            return result;
-        }
-
-        @Override
-        public boolean equals(Object obj) {
-            if (this == obj)
-                return true;
-            if (obj == null)
-                return false;
-            if (getClass() != obj.getClass())
-                return false;
-            ThreadInformation other = (ThreadInformation) obj;
-            if (threadId != other.threadId)
-                return false;
-            return true;
-        }
-
     }
 
     private static class NoopCallable implements Callable<Void> {

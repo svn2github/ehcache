@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <ehcache xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:noNamespaceSchemaLocation="../../main/config/ehcache.xsd">
+	xsi:noNamespaceSchemaLocation="../../main/config/ehcache.xsd" name="someCacheManagerName">
 
 	<!-- Disable for test ehcache.xml. Should go to the same place. -->
 	<diskStore path="java.io.tmpdir" />

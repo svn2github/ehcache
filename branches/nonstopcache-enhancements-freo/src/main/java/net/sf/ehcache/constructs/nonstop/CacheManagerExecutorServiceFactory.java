@@ -32,8 +32,8 @@ import net.sf.ehcache.Ehcache;
  */
 public final class CacheManagerExecutorServiceFactory implements NonStopCacheExecutorServiceFactory {
 
-    private static final String MAX_THREADS_POOL_SIZE_PROPERTY_PREFIX = "net.sf.ehcache.constructs.nonstop.maxThreadsPoolSize.";
-    private static final String CORE_THREADS_POOL_SIZE_PROPERTY_PREFIX = "net.sf.ehcache.constructs.nonstop.coreThreadsPoolSize.";
+    private static final String MAX_THREAD_POOL_SIZE_PROPERTY_PREFIX = "net.sf.ehcache.constructs.nonstop.maxThreadPoolSize.";
+    private static final String CORE_THREAD_POOL_SIZE_PROPERTY_PREFIX = "net.sf.ehcache.constructs.nonstop.coreThreadPoolSize.";
 
     private static final CacheManagerExecutorServiceFactory SINGLETON = new CacheManagerExecutorServiceFactory();
 
@@ -68,8 +68,8 @@ public final class CacheManagerExecutorServiceFactory implements NonStopCacheExe
                     private final AtomicInteger count = new AtomicInteger();
 
                     public Thread newThread(Runnable runnable) {
-                        Thread thread = new Thread(runnable, "NonStopCache [" + cacheManagerName + "] Executor Thread-"
-                                + count.incrementAndGet());
+                        Thread thread = new Thread(runnable, "NonStopCache [" + cacheManagerName + "] "
+                                + NonStopCacheExecutorService.EXECUTOR_THREAD_NAME_PREFIX + "-" + count.incrementAndGet());
                         thread.setDaemon(true);
                         return thread;
                     }
@@ -81,12 +81,12 @@ public final class CacheManagerExecutorServiceFactory implements NonStopCacheExe
     }
 
     private int getCoreThreadPoolSize(CacheManager cacheManager) {
-        return getProperty(CORE_THREADS_POOL_SIZE_PROPERTY_PREFIX + cacheManager.getName(),
-                NonStopCacheExecutorService.DEFAULT_THREAD_POOL_SIZE);
+        return getProperty(CORE_THREAD_POOL_SIZE_PROPERTY_PREFIX + cacheManager.getName(),
+                NonStopCacheExecutorService.DEFAULT_CORE_THREAD_POOL_SIZE);
     }
 
     private int getMaxThreadPoolSize(CacheManager cacheManager) {
-        return getProperty(MAX_THREADS_POOL_SIZE_PROPERTY_PREFIX + cacheManager.getName(),
+        return getProperty(MAX_THREAD_POOL_SIZE_PROPERTY_PREFIX + cacheManager.getName(),
                 NonStopCacheExecutorService.DEFAULT_MAX_THREAD_POOL_SIZE);
     }
 

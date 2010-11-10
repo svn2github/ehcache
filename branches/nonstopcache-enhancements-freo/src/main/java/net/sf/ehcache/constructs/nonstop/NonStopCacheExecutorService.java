@@ -56,23 +56,23 @@ public class NonStopCacheExecutorService {
     /**
      * Property name for default value for max threads pool size
      */
-    static final String DEFAULT_MAX_THREADS_POOL_SIZE = "net.sf.ehcache.constructs.nonstop.defaultMaxThreadsPoolSize";
+    static final String DEFAULT_MAX_THREAD_POOL_SIZE_PROPERTY = "net.sf.ehcache.constructs.nonstop.defaultMaxThreadPoolSize";
 
     /**
      * Property name for default value for core threads pool size
      */
-    static final String DEFAULT_CORE_THREADS_POOL_SIZE = "net.sf.ehcache.constructs.nonstop.defaultCoreThreadsPoolSize";
+    static final String DEFAULT_CORE_THREAD_POOL_SIZE_PROPERTY = "net.sf.ehcache.constructs.nonstop.defaultCoreThreadPoolSize";
 
     /**
      * Default number of threads in the thread pool
      */
-    static final int DEFAULT_THREAD_POOL_SIZE = getProperty(DEFAULT_CORE_THREADS_POOL_SIZE, 10);
+    static final int DEFAULT_CORE_THREAD_POOL_SIZE = getProperty(DEFAULT_CORE_THREAD_POOL_SIZE_PROPERTY, 10);
 
     /**
      * Default number of maximum threads that can be in the pool.
      * Package protected as used by tests.
      */
-    static final int DEFAULT_MAX_THREAD_POOL_SIZE = getProperty(DEFAULT_MAX_THREADS_POOL_SIZE, 500);
+    static final int DEFAULT_MAX_THREAD_POOL_SIZE = getProperty(DEFAULT_MAX_THREAD_POOL_SIZE_PROPERTY, 500);
 
     private static final int INCREMENT_POOL_THREADS_STEP = 10;
 
@@ -90,10 +90,10 @@ public class NonStopCacheExecutorService {
     private int maxPoolSize;
 
     /**
-     * Default constructor, uses {@link NonStopCacheExecutorService#DEFAULT_THREAD_POOL_SIZE} number of threads in the pool
+     * Default constructor, uses {@link NonStopCacheExecutorService#DEFAULT_CORE_THREAD_POOL_SIZE} number of threads in the pool
      */
     public NonStopCacheExecutorService() {
-        this(DEFAULT_THREAD_POOL_SIZE, DEFAULT_MAX_THREAD_POOL_SIZE);
+        this(DEFAULT_CORE_THREAD_POOL_SIZE, DEFAULT_MAX_THREAD_POOL_SIZE);
     }
 
     /**
@@ -107,7 +107,7 @@ public class NonStopCacheExecutorService {
             private final AtomicInteger counter = new AtomicInteger();
 
             public Thread newThread(final Runnable runnable) {
-                Thread thread = new Thread(runnable, "Default " + NonStopCacheExecutorService.class.getName() + "-"
+                Thread thread = new Thread(runnable, "Default " + NonStopCacheExecutorService.class.getSimpleName() + " Thread Factory-"
                         + DEFAULT_FACTORY_COUNT.incrementAndGet() + " " + EXECUTOR_THREAD_NAME_PREFIX + "-" + counter.incrementAndGet());
                 thread.setDaemon(true);
                 return thread;
@@ -121,7 +121,7 @@ public class NonStopCacheExecutorService {
      * @param threadFactory
      */
     public NonStopCacheExecutorService(final ThreadFactory threadFactory) {
-        this(DEFAULT_THREAD_POOL_SIZE, DEFAULT_MAX_THREAD_POOL_SIZE, threadFactory);
+        this(DEFAULT_CORE_THREAD_POOL_SIZE, DEFAULT_MAX_THREAD_POOL_SIZE, threadFactory);
     }
 
     /**
