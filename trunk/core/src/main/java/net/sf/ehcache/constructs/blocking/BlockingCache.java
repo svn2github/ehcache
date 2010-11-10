@@ -19,6 +19,7 @@ package net.sf.ehcache.constructs.blocking;
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicReference;
 
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Ehcache;
@@ -69,7 +70,8 @@ public class BlockingCache extends EhcacheDecoratorAdapter {
      */
     protected volatile int timeoutMillis;
 
-    private final CacheLockProvider cacheLockProvider;
+    private final int stripes;
+    private final AtomicReference<CacheLockProvider> cacheLockProviderReference;
     
     /**
      * Creates a BlockingCache which decorates the supplied cache.
@@ -82,13 +84,8 @@ public class BlockingCache extends EhcacheDecoratorAdapter {
      */
     public BlockingCache(final Ehcache cache, int numberOfStripes) throws CacheException {
         super(cache);
-
-        Object context = underlyingCache.getInternalContext();
-        if (underlyingCache.getCacheConfiguration().isTerracottaClustered() && context != null) {
-            this.cacheLockProvider = ((CacheLockProvider) context);
-        } else {
-            this.cacheLockProvider = new StripedReadWriteLockSync(numberOfStripes);
-        }
+        this.stripes = numberOfStripes;
+        this.cacheLockProviderReference = new AtomicReference<CacheLockProvider>();
     }
 
     /**
@@ -100,6 +97,24 @@ public class BlockingCache extends EhcacheDecoratorAdapter {
      */
     public BlockingCache(final Ehcache cache) throws CacheException {
         this(cache, StripedReadWriteLockSync.DEFAULT_NUMBER_OF_MUTEXES);
+    }
+
+    private CacheLockProvider getCacheLockProvider() {
+        CacheLockProvider provider = cacheLockProviderReference.get();
+        while (provider == null) {
+            cacheLockProviderReference.compareAndSet(null, createCacheLockProvider());
+            provider = cacheLockProviderReference.get();
+        }
+        return provider;
+    }
+
+    private CacheLockProvider createCacheLockProvider() {
+        Object context = underlyingCache.getInternalContext();
+        if (underlyingCache.getCacheConfiguration().isTerracottaClustered() && context != null) {
+            return (CacheLockProvider) context;
+        } else {
+            return new StripedReadWriteLockSync(stripes);
+        }
     }
 
     /**
@@ -180,7 +195,7 @@ public class BlockingCache extends EhcacheDecoratorAdapter {
      * @return one of a limited number of Sync's.
      */
     protected Sync getLockForKey(final Object key) {
-        return cacheLockProvider.getSyncForKey(key);
+        return getCacheLockProvider().getSyncForKey(key);
     }
 
     /**
