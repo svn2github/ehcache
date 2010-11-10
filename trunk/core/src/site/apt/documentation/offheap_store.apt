@@ -311,7 +311,6 @@ public Cache createOffHeapCache() {
     held in the MemoryStore. The MemoryStore thus holds hot items of the OffHeapStore. This will result in a difference in what
     can be expected to be in the MemoryStore between this implementation and the open source one. A "usage" for the purposes of the
     eviction algorithms is either a put or a get. As only gets are counted in this implementation, some differences will be observed.
-    One exception: If a put is an update and the key was in memory, then it is updated there.
 
 *   Handling JVM startup and shutdown
 
