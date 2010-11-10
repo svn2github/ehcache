@@ -298,7 +298,7 @@ public Cache createOffHeapCache() {
     OffHeapStore and DiskStore.
 
     The result is that each store consumes storage for itself and the other stores higher up the hierarchy. So, if the MemoryStore
-    has 1000,000 Elements which consume 2Gb, and the OffHeapStore is configured for 8GB, then 2GB of that will be duplicate
+    has 1,000,000 Elements which consume 2Gb, and the OffHeapStore is configured for 8GB, then 2GB of that will be duplicate
     of what is in the MemoryStore. And the 8GB will also be duplicated on the DiskStore plus the DiskStore will have what
     cannot fit in any of the other stores.
 
@@ -311,6 +311,7 @@ public Cache createOffHeapCache() {
     held in the MemoryStore. The MemoryStore thus holds hot items of the OffHeapStore. This will result in a difference in what
     can be expected to be in the MemoryStore between this implementation and the open source one. A "usage" for the purposes of the
     eviction algorithms is either a put or a get. As only gets are counted in this implementation, some differences will be observed.
+    One exception: If a put is an update and the key was in memory, then it is updated there.
 
 *   Handling JVM startup and shutdown
 
