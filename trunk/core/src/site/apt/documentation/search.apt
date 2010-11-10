@@ -26,7 +26,7 @@ Results results = cache.createQuery().includeKeys().add(and(age.eq(32),
 
 *  What is searchable?
 
-    Searches can be performed against both Element keys and values.
+    Searches can be performed against Element keys, values and metadata, such as creation time.
      
     Element keys and values are made searchable by extracting attributes with supported search types out of the values.
 
@@ -47,7 +47,15 @@ Results results = cache.createQuery().includeKeys().add(and(age.eq(32),
     This configuration will scan keys and vales and if they are of supported search types, add them as
     attributes called "key" and "value" respectively.
 
-    Lots of times these will not be directly searchable and instead you will need to extract searchable attributes out of them.
+    Ehcache element metadata can be also searched if it is declared searchable. This is done as follows:
+
+---
+<cache name="metadata-searchable" maxElementsInMemory="0" eternal="true" overflowToDisk="false">
+   <searchable metadata="true"/>
+</cache>
+---
+
+    Lots of times keys or values will not be directly searchable and instead you will need to extract searchable attributes out of them.
     The following example shows this more typical case.  Attribute Extractors are explained in more detail in the following section.
 
 ---
@@ -131,11 +139,53 @@ cacheManager.add(test);
     If an attribute cannot be extracted due to not being found or of being the wrong type an AttributeExtractorException is thrown
     during the <<<put()>>> in the clustered implementation and on search execution in the standalone implementation
 
+
+**  Well-known Attributes
+
+    The parts of an Element are well-known attributes that can be referenced by some predefined, well-known names.
+
+    If a keys and/or value is of a supported search type, they are added automatically as attributes with the names
+    "key" amd "value".
+
+    When the metadata attribute is set (<<<metadata=true>>>), the following metadata attibutes are also indexed and made available:
+
+     * creationTime
+
+     * expirationTime
+
+     * lastAccessTime
+
+     * lastUpdateTime
+
+     * version
+
+    All of these well-known attributes have convenience constant attributes made available on the <<<Query>>> class.
+    So, for example, the attribute for "key" may be referenced in a query by <<<Query.KEY>>>. For even greater readability it is
+     recommended to statically import so that in this example you would just use <<<KEY>>>.
+
+*----------+--------------+
+Well-known Attribute Name | Attribute Constant
+*----------+--------------+
+ key               |     Query.KEY
+*----------+--------------+
+ value             |     Query.VALUE
+*----------+--------------+
+ creationTime      |     Query.CREATION_TIME
+*----------+--------------+
+ expirationTime    |    Query.EXPIRATION_TIME
+*----------+--------------+
+ lastAccessTime    |   Query.LAST_ACCESS_TIME
+*----------+--------------+
+ lastUpdateTime    |   Query.LAST_UPDATE_TIME
+*----------+--------------+
+ version           |   Query.VERSION
+*----------+--------------+
+
+
 ** ReflectionAttributeExtractor
 
-    The ReflectionAttributeExtractor is a built-in search attribute extractor.
-
-    In the simple case, where keys and/or values are already a supported type, they are added automatically as attributes with the names "key" amd "value".
+    The ReflectionAttributeExtractor is a built-in search attribute extractor which uses JavaBean conventions and also understands
+    a simple form of expression.
 
     Where a JavaBean property is available and it is of a searchable type, it can be simply declared using:
 
@@ -198,12 +248,13 @@ Results results = query.execute();
 
 **  Using attributes in queries
 
-  If available the built-in key and value attributes are referenced as follows:
+  If declared and available, the well-known attributes are referenced by their name or the convenience attributes are used
+   directly as shown in this example:
 
 ---
-Attribute key = cache.getSearchAttribute(Query.KEY);
-Attribute value = cache.getSearchAttribute(Query.VALUE);
-Results results = cache.createQuery().add(key.eq(35)).execute();
+Results results = cache.createQuery().add(Query.KEY.eq(35)).execute();
+Results results = cache.createQuery().add(Query.VALUE.lt(10)).execute();
+Results results = cache.createQuery().add(Query.VERSION.ge(2)).execute();
 ---
 
     Other attributes are referenced by the names given them in the configuration. E.g.
@@ -249,7 +300,7 @@ query.add(new Or(age.eq(35),
 
 ** Automatically Deleting Elements which match a Query
 
-    <<<excecuteRemove>>> may be used in place of excecute to automatically remove Elements which match the Query. The return type
+    <<<executeRemove>>> may be used in place of excecute to automatically remove Elements which match the Query. The return type
     and syntax is identical. The <<<Results>>> object returned then contains what was removed from the Cache. If all you want
     to know is the count of Elements removed, you would use the count aggregator as per the following example:
 
@@ -257,8 +308,8 @@ query.add(new Or(age.eq(35),
 Results results = query.includeAggregator(KEY.count()).executeRemove();
 ---
 
-
-
+    While it is possible to simply return the keys from a Query and then iterate over them yourself, executeRemove has been
+    optimised for more efficient operation in each implementation.
 
 **  Ordering Results
 

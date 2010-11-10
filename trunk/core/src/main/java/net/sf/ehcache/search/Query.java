@@ -50,18 +50,56 @@ import net.sf.ehcache.search.expression.Criteria;
 public interface Query {
 
     /**
-     * The search attribute for a cache key.
+     * The search attribute for a cache element's key.
      *
-     * This will exist as a search attribute if the key is of a supported {@link net.sf.ehcache.search.attribute.AttributeType}
+     * This will exist as a search attribute at runtime if the key is of a supported {@link net.sf.ehcache.search.attribute.AttributeType}
      */
     public static final Attribute KEY = new Attribute("key");
 
     /**
-     * The search attribute for a cache value.
+     * The search attribute for a cache element's value.
      *
-     * This will exist as a search attribute if the value is of a supported {@link net.sf.ehcache.search.attribute.AttributeType}
+     * This will exist as a search attribute at runtime if the value is of a supported {@link net.sf.ehcache.search.attribute.AttributeType}
      */
     public static final Attribute VALUE = new Attribute("value");
+
+
+
+    /**
+     * The search attribute for the CreationTime Element metadata.
+     *
+     * This will exist as a search attribute at runtime if metadata searching has been enabled.
+     */
+    public static final Attribute CREATION_TIME = new Attribute("creationTime");
+
+    /**
+     * The search attribute for the ExpirationTime Element metadata.
+     *
+     * This will exist as a search attribute at runtime if metadata searching has been enabled.
+     */
+    public static final Attribute EXPIRATION_TIME = new Attribute("expirationTime");
+
+    /**
+     * The search attribute for the LastAccessTime Element metadata.
+     *
+     * This will exist as a search attribute at runtime if metadata searching has been enabled.
+     */
+    public static final Attribute LAST_ACCESS_TIME = new Attribute("lastAccessTime");
+
+    /**
+     * The search attribute for the LastUpdateTime Element metadata.
+     *
+     * This will exist as a search attribute at runtime if metadata searching has been enabled.
+     */
+    public static final Attribute LAST_UPDATE_TIME = new Attribute("lastUpdateTime");
+
+    /**
+     * The search attribute for the Version Element metadata.
+     *
+     * This will exist as a search attribute at runtime if metadata searching has been enabled.
+     */
+    public static final Attribute VERSION = new Attribute("version");
+
 
     /**
      * Request that the key object be present in the results.

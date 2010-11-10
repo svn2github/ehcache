@@ -1908,7 +1908,7 @@ public class Cache implements Ehcache, StoreListener {
      */
     public final boolean remove(Object key) throws IllegalStateException {
         return remove(key, false);
-    }
+    }                               
 
 
     /**
@@ -3287,7 +3287,7 @@ public class Cache implements Ehcache, StoreListener {
      */
     public boolean isNodeCoherent() {
         return compoundStore.isNodeCoherent();
-    }
+    }                     
 
     /**
      * {@inheritDoc}

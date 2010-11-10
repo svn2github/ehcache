@@ -210,12 +210,12 @@ padding: 8px 0 0 8px;
 border-top: 1px solid white;
 }
 
-#navColumn h5 a {
+#navColumn a h5 {
 color: #333333;
 text-decoration: none;
 }
 
-#navColumn h5 a:hover {
+#navColumn a:hover h5 {
 color: #666666;
 }
 
@@ -258,7 +258,7 @@ margin: 0;
 white-space: nowrap;
 }
 
-#navColumn li a:link:hover {
+#navColumn li a:hover {
 color: #ffffff;
 background-color: #a9a59d;
 }
@@ -423,7 +423,7 @@ margin: 0 0 0 1px;
 white-space: nowrap;
 }
 
-#rightColumn li a:link:hover {
+#rightColumn li a:hover {
 background-color: #f6f7f8;
 }
 
@@ -501,3 +501,16 @@ span.content {
    color: #843825;
     background: none;
 }
+
+
+
+
+#ehcache-survey {
+}
+    #ehcache-survey p.the-title {
+        color:#803a21;
+        font-size:14px;
+    }
+    #ehcache-survey p {
+        margin:.5em 0;
+    }
