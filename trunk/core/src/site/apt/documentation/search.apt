@@ -247,6 +247,18 @@ query.add(new Or(age.eq(35),
   By defualt a query can be executed and then modified and re-executed. If <<<end>>> is called
   the query is made immutable.
 
+** Automatically Deleting Elements which match a Query
+
+    <<<excecuteRemove>>> may be used in place of excecute to automatically remove Elements which match the Query. The return type
+    and syntax is identical. The <<<Results>>> object returned then contains what was removed from the Cache. If all you want
+    to know is the count of Elements removed, you would use the count aggregator as per the following example:
+
+---
+Results results = query.includeAggregator(KEY.count()).executeRemove();
+---
+
+
+
 
 **  Ordering Results
 
@@ -475,13 +487,9 @@ for (Result result : results.all()) {
 
     * Performance optimisations for standalone have not been done
 
-     These should get done before release:
+    * executeRemove() is not yet implemented
 
-    * Added EHC-800 comment to ehcache-search.xml. Not honouring JavaBeans convention
-
-    * EHC-801: Keys and values which are already of a supported attribute type should be able to be added to queries using the attribute name "key" and "value"
-
-    * Use fluent interface methods in programatic example for search attributes
+    * Metadata attributes are not yet implemented 
 
 
 *   Not planned for First Release
