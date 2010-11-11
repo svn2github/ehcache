@@ -16,8 +16,8 @@ Search
     Here is a simple example: Search for 32 year old males and return the cache keys.
 
 ---
-Results results = cache.createQuery().includeKeys().add(and(age.eq(32),
-    gender.eq("male"))).execute();
+Results results = cache.createQuery().includeKeys()
+                  .add(age.eq(32).and(gender.eq("male"))).execute();
 ---
 
     Note: This feature is in pre-release and will be released with ehcache-core 2.4.0. Maven builds for version 2.4.0-SNAPSHOT are published to
