@@ -27,8 +27,8 @@ import net.sf.ehcache.Statistics;
  * Interface that defines behaviors for different get/put/remove operations on a cache.
  * Different implementations can have different behaviors for each operation
  * 
- * Methods in this interface contains those methods in Ehcache that can reach the Terracotta layer (and potentially block eg. when cluster
- * goes offline)
+ * Methods in this interface contains those methods in Ehcache that can reach the Terracotta layer
+ *  (and potentially block when the cluster goes offline)
  * 
  * @author Abhishek Sanoujam
  * 

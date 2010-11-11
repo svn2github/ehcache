@@ -2785,7 +2785,7 @@ public class Cache implements Ehcache, StoreListener {
      * objects. (This is typically implemented by converting the internal
      * address of the object into an integer, but this implementation
      * technique is not required by the
-     * Java<font size="-2"><sup>TM</sup></font> programming language.)
+     * Java(TM) programming language.)
      * <p/>
      * This implementation use the GUID of the cache.
      *

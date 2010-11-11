@@ -22,6 +22,7 @@ package net.sf.ehcache.store.compound;
  * @author Ludovic Orban
  */
 public interface ReadWriteCopyStrategy<T> {
+
     /**
      * Deep copies some object and returns an internal storage-ready copy
      *
@@ -31,7 +32,7 @@ public interface ReadWriteCopyStrategy<T> {
     T copyForWrite(final T value);
 
     /**
-     * Reconstruct an object from its storage-ready copy
+     * Reconstruct an object from its storage-ready copy.
      *
      * @param storedValue the storage-ready copy
      * @return the original object
