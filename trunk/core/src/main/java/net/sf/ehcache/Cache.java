@@ -84,8 +84,8 @@ import net.sf.ehcache.store.Store;
 import net.sf.ehcache.store.StoreListener;
 import net.sf.ehcache.store.StoreQuery;
 import net.sf.ehcache.store.XATransactionalStore;
-import net.sf.ehcache.store.compound.CopyStrategy;
 import net.sf.ehcache.store.compound.ImmutableValueElementCopyStrategy;
+import net.sf.ehcache.store.compound.ReadWriteCopyStrategy;
 import net.sf.ehcache.store.compound.impl.DiskPersistentStore;
 import net.sf.ehcache.store.compound.impl.MemoryOnlyStore;
 import net.sf.ehcache.store.compound.impl.OverflowToDiskStore;
@@ -977,7 +977,7 @@ public class Cache implements Ehcache, StoreListener {
                         " no elements cached in memory");
             }
 
-            CopyStrategy copyStrategy = null;
+            ReadWriteCopyStrategy<Element> copyStrategy = null;
             if (configuration.getTransactionalMode().isTransactional() && !configuration.isXaTransactional()) {
                 copyStrategy = configuration.getCopyStrategyConfiguration().getCopyStrategyInstance();
                 configuration.getCopyStrategyConfiguration().setCopyStrategyInstance(new ImmutableValueElementCopyStrategy());

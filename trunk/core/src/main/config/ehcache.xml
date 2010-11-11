@@ -960,7 +960,7 @@ used with JMX monitors.
 
     <!--
       Sample copy on both read and write cache named copyCache
-      using the default (explicitly configured here as an example) SerializationCopyStrategy
+      using the default (explicitly configured here as an example) ReadWriteSerializationCopyStrategy
       class could be any implementation of net.sf.ehcache.store.compound.CopyStrategy
     <cache name="copyCache"
            maxElementsInMemory="500"
@@ -972,7 +972,7 @@ used with JMX monitors.
            diskExpiryThreadIntervalSeconds="1"
            copyOnRead="true"
            copyOnWrite="true">
-        <copyStrategy class="net.sf.ehcache.store.compound.SerializationCopyStrategy" />
+        <copyStrategy class="net.sf.ehcache.store.compound.ReadWriteSerializationCopyStrategy" />
 	</cache>
     -->
     <!--

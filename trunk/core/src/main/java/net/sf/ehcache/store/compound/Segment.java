@@ -89,7 +89,7 @@ class Segment extends ReentrantReadWriteLock {
     private final boolean copyOnRead;
     private final boolean copyOnWrite;
 
-    private final CopyStrategy copyStrategy;
+    private final ReadWriteCopyStrategy<Element> copyStrategy;
 
     /**
      * Create a Segment with the given initial capacity, load factor, and primary element substitute factory.  If the primary factory is not an
@@ -142,7 +142,7 @@ class Segment extends ReentrantReadWriteLock {
      * @param copyStrategy the strategy to use to copy (can't be null if copyOnRead or copyOnWrite is true)
      */
     Segment(int initialCapacity, float loadFactor, InternalElementSubstituteFactory primary, IdentityElementSubstituteFactory identity, 
-            boolean copyOnRead, boolean copyOnWrite, final CopyStrategy copyStrategy) {
+            boolean copyOnRead, boolean copyOnWrite, final ReadWriteCopyStrategy<Element> copyStrategy) {
         this.table = new HashEntry[initialCapacity];
         this.threshold = (int) (table.length * loadFactor);
         this.modCount = 0;
@@ -176,13 +176,27 @@ class Segment extends ReentrantReadWriteLock {
             InternalElementSubstituteFactory factory = ((ElementSubstitute) object).getFactory();
             element = factory.retrieve(key, object);
         }
-        return potentiallyCopy(element, copyOnRead);
+        return potentiallyCopyForRead(element, copyOnRead);
     }
 
-    private Element potentiallyCopy(final Element value, final boolean copy) {
-        Element newValue = null;
-        if (copy) {
-            newValue = copyStrategy.copy(value);
+    private Element potentiallyCopyForRead(final Element value, final boolean copy) {
+        Element newValue;
+        if (copy && copyOnRead && copyOnWrite) {
+            newValue = copyStrategy.copyForRead(value);
+        } else if (copy) {
+            newValue = copyStrategy.copyForRead(copyStrategy.copyForWrite(value));
+        } else {
+            newValue = value;
+        }
+        return newValue;
+    }
+
+    private Element potentiallyCopyForWrite(final Element value, final boolean copy) {
+        Element newValue;
+        if (copy && copyOnRead && copyOnWrite) {
+            newValue = copyStrategy.copyForWrite(value);
+        } else if (copy) {
+            newValue = copyStrategy.copyForRead(copyStrategy.copyForWrite(value));
         } else {
             newValue = value;
         }
@@ -350,7 +364,7 @@ class Segment extends ReentrantReadWriteLock {
     }
 
     private Object create(final Object key, final Element newElement) {
-        return primaryFactory.create(key, potentiallyCopy(newElement, copyOnWrite));
+        return primaryFactory.create(key, potentiallyCopyForWrite(newElement, copyOnWrite));
     }
 
     /**

@@ -25,7 +25,7 @@ import net.sf.ehcache.store.AbstractStore;
 import net.sf.ehcache.store.ElementValueComparator;
 import net.sf.ehcache.store.Policy;
 import net.sf.ehcache.store.Store;
-import net.sf.ehcache.store.compound.CopyStrategy;
+import net.sf.ehcache.store.compound.ReadWriteCopyStrategy;
 import net.sf.ehcache.util.LargeSet;
 import net.sf.ehcache.util.SetWrapperList;
 import net.sf.ehcache.writer.CacheWriterManager;
@@ -51,7 +51,7 @@ public class LocalTransactionStore extends AbstractStore {
     private final Ehcache cache;
     private final String cacheName;
     private final Store underlyingStore;
-    private final CopyStrategy copyStrategy;
+    private final ReadWriteCopyStrategy<Element> copyStrategy;
     private final ElementValueComparator comparator;
 
 
@@ -64,7 +64,7 @@ public class LocalTransactionStore extends AbstractStore {
      * @param copyStrategy the configured CopyStrategy
      */
     public LocalTransactionStore(TransactionController transactionController, SoftLockFactory softLockFactory, Ehcache cache,
-                                 Store store, CopyStrategy copyStrategy) {
+                                 Store store, ReadWriteCopyStrategy<Element> copyStrategy) {
         this.transactionController = transactionController;
         this.softLockFactory = softLockFactory;
         this.cache = cache;
@@ -103,8 +103,12 @@ public class LocalTransactionStore extends AbstractStore {
         return element;
     }
 
-    private Element copyElement(Element element) {
-        return copyStrategy.copy(element);
+    private Element copyElementForWrite(Element element) {
+        return copyStrategy.copyForWrite(element);
+    }
+
+    private Element copyElementForRead(Element element) {
+        return copyStrategy.copyForRead(element);
     }
 
     private boolean cleanupExpiredSoftLock(Element oldElement, SoftLock softLock) {
@@ -130,13 +134,12 @@ public class LocalTransactionStore extends AbstractStore {
             return true;
         }
 
-        Element element = copyElement(e);
+        final Element element = copyElementForWrite(e);
+        final Object key = element.getObjectKey();
         while (true) {
             assertNotTimedOut();
 
-            Object key = element.getObjectKey();
             Element oldElement = underlyingStore.getQuiet(key);
-
             if (oldElement == null) {
                 SoftLock softLock = softLockFactory.createSoftLock(getCurrentTransactionContext().getTransactionId(), key,
                         element, oldElement);
@@ -186,7 +189,7 @@ public class LocalTransactionStore extends AbstractStore {
                                         " between current transaction [" + getCurrentTransactionContext().getTransactionId() + "]" +
                                         " and foreign transaction [" + softLock.getTransactionID() + "]");
                             }
-                        } catch (InterruptedException ex) {
+                        } catch (InterruptedException ie) {
                             Thread.currentThread().interrupt();
                         }
 
@@ -245,10 +248,10 @@ public class LocalTransactionStore extends AbstractStore {
                 }
 
                 LOG.debug("getQuiet: cache [{}] key [{}] soft locked, returning soft locked element", cacheName, key);
-                return copyElement(softLock.getElement(getCurrentTransactionContext().getTransactionId()));
+                return copyElementForRead(softLock.getElement(getCurrentTransactionContext().getTransactionId()));
             } else {
                 LOG.debug("getQuiet: cache [{}] key [{}] not soft locked, returning underlying element", cacheName, key);
-                return copyElement(oldElement);
+                return copyElementForRead(oldElement);
             }
         }
     }
@@ -280,10 +283,10 @@ public class LocalTransactionStore extends AbstractStore {
                 }
 
                 LOG.debug("get: cache [{}] key [{}] soft locked, returning soft locked element", cacheName, key);
-                return copyElement(softLock.getElement(getCurrentTransactionContext().getTransactionId()));
+                return copyElementForRead(softLock.getElement(getCurrentTransactionContext().getTransactionId()));
             } else {
                 LOG.debug("get: cache [{}] key [{}] not soft locked, returning underlying element", cacheName, key);
-                return copyElement(oldElement);
+                return copyElementForRead(oldElement);
             }
         }
     }
@@ -300,7 +303,6 @@ public class LocalTransactionStore extends AbstractStore {
             assertNotTimedOut();
 
             Element oldElement = underlyingStore.getQuiet(key);
-
             if (oldElement == null) {
                 SoftLock softLock = softLockFactory.createSoftLock(getCurrentTransactionContext().getTransactionId(), key,
                         null, oldElement);
@@ -337,7 +339,7 @@ public class LocalTransactionStore extends AbstractStore {
                         // replaced old value with new one under soft lock, job done.
                         LOG.debug("remove: cache [{}] key [{}] soft locked in current transaction, replaced old value with new one under" +
                                 " soft lock", cacheName, key);
-                        return copyElement(removed);
+                        return copyElementForRead(removed);
                     } else {
                         try {
                             LOG.debug("remove: cache [{}] key [{}] soft locked in foreign transaction, waiting {}ms for soft lock to" +
@@ -350,7 +352,7 @@ public class LocalTransactionStore extends AbstractStore {
                                         " current transaction [" + getCurrentTransactionContext().getTransactionId() + "] and foreign" +
                                         " transaction [" + softLock.getTransactionID() + "]");
                             }
-                        } catch (InterruptedException e) {
+                        } catch (InterruptedException ie) {
                             Thread.currentThread().interrupt();
                         }
 
@@ -369,7 +371,7 @@ public class LocalTransactionStore extends AbstractStore {
                         // CAS succeeded, value replaced with soft lock, job done.
                         getCurrentTransactionContext().registerSoftLock(cacheName, this, softLock);
                         LOG.debug("remove: cache [{}] key [{}] was in, replaced with soft lock", cacheName, key);
-                        return copyElement(oldElement);
+                        return copyElementForRead(oldElement);
                     } else {
                         // CAS failed, something else with that key is now in store or the key disappeared, restart.
                         softLock.unlock();
@@ -512,13 +514,12 @@ public class LocalTransactionStore extends AbstractStore {
             throw new NullPointerException("element key cannot be null");
         }
 
-        Element element = copyElement(e);
+        final Element element = copyElementForWrite(e);
+        final Object key = element.getObjectKey();
         while (true) {
             assertNotTimedOut();
 
-            Object key = element.getObjectKey();
             Element oldElement = underlyingStore.getQuiet(key);
-
             if (oldElement == null || !(oldElement.getObjectValue() instanceof SoftLock)) {
                 SoftLock softLock = softLockFactory.createSoftLock(getCurrentTransactionContext().getTransactionId(), key,
                         element, oldElement);
@@ -539,9 +540,9 @@ public class LocalTransactionStore extends AbstractStore {
                     Object oldElementObjectValue = oldElement.getObjectValue();
                     if (oldElementObjectValue instanceof SoftLock) {
                         SoftLock oldElementSoftLock = (SoftLock) oldElementObjectValue;
-                        return copyElement(oldElementSoftLock.getElement(getCurrentTransactionContext().getTransactionId()));
+                        return copyElementForRead(oldElementSoftLock.getElement(getCurrentTransactionContext().getTransactionId()));
                     } else {
-                        return copyElement(oldElement);
+                        return copyElementForRead(oldElement);
                     }
                 }
             } else {
@@ -568,7 +569,7 @@ public class LocalTransactionStore extends AbstractStore {
                         LOG.debug("putIfAbsent: cache [{}] key [{}] soft locked in current transaction, old element is not null",
                                 cacheName, key);
                         // not replaced old value with new one, job done.
-                        return copyElement(currentElement);
+                        return copyElementForRead(currentElement);
                     }
                 } else {
                     LOG.debug("putIfAbsent: cache [{}] key [{}] soft locked in foreign transaction, waiting {}ms for soft lock to die...",
@@ -582,7 +583,7 @@ public class LocalTransactionStore extends AbstractStore {
                                     " current transaction [" + getCurrentTransactionContext().getTransactionId() + "] and foreign" +
                                     " transaction [" + softLock.getTransactionID() + "]");
                         }
-                    } catch (InterruptedException ex) {
+                    } catch (InterruptedException ie) {
                         Thread.currentThread().interrupt();
                     }
 
@@ -599,18 +600,19 @@ public class LocalTransactionStore extends AbstractStore {
     /**
      * {@inheritDoc}
      */
-    public Element removeElement(Element element, ElementValueComparator comparator) throws NullPointerException {
-        if (element == null) {
+    public Element removeElement(Element e, ElementValueComparator comparator) throws NullPointerException {
+        if (e == null) {
             throw new NullPointerException("element cannot be null");
         }
-        if (element.getObjectKey() == null) {
+        if (e.getObjectKey() == null) {
             throw new NullPointerException("element key cannot be null");
         }
         if (comparator == null) {
             throw new NullPointerException("comparator cannot be null");
         }
 
-        Object key = element.getObjectKey();
+        final Element element = copyElementForWrite(e);
+        final Object key = element.getObjectKey();
         while (true) {
             assertNotTimedOut();
 
@@ -639,7 +641,7 @@ public class LocalTransactionStore extends AbstractStore {
                             // replaced old element with null under soft lock, job done.
                             LOG.debug("removeElement: cache [{}] key [{}] soft locked in current transaction, replaced old element" +
                                     " with null under soft lock", cacheName, key);
-                            return copyElement(removed);
+                            return copyElementForRead(removed);
                         } else {
                             // old element is not equals to element to remove, job done.
                             LOG.debug("removeElement: cache [{}] key [{}] soft locked in current transaction, old element did not" +
@@ -658,7 +660,7 @@ public class LocalTransactionStore extends AbstractStore {
                                         " current transaction [" + getCurrentTransactionContext().getTransactionId() + "] and foreign" +
                                         " transaction [" + softLock.getTransactionID() + "]");
                             }
-                        } catch (InterruptedException e) {
+                        } catch (InterruptedException ie) {
                             Thread.currentThread().interrupt();
                         }
 
@@ -678,7 +680,7 @@ public class LocalTransactionStore extends AbstractStore {
                         // CAS succeeded, value replaced with soft lock, job done.
                         getCurrentTransactionContext().registerSoftLock(cacheName, this, softLock);
                         LOG.debug("removeElement: cache [{}] key [{}] was in, replaced with soft lock", cacheName, key);
-                        return copyElement(oldElement);
+                        return copyElementForRead(oldElement);
                     } else {
                         // CAS failed, something else with that key is now in store or the key disappeared, job done.
                         softLock.unlock();
@@ -694,28 +696,30 @@ public class LocalTransactionStore extends AbstractStore {
     /**
      * {@inheritDoc}
      */
-    public boolean replace(Element old, Element element, ElementValueComparator comparator)
+    public boolean replace(Element oe, Element ne, ElementValueComparator comparator)
             throws NullPointerException, IllegalArgumentException {
-        if (old == null) {
+        if (oe == null) {
             throw new NullPointerException("old cannot be null");
         }
-        if (old.getObjectKey() == null) {
+        if (oe.getObjectKey() == null) {
             throw new NullPointerException("old key cannot be null");
         }
-        if (element == null) {
+        if (ne == null) {
             throw new NullPointerException("element cannot be null");
         }
-        if (element.getObjectKey() == null) {
+        if (ne.getObjectKey() == null) {
             throw new NullPointerException("element key cannot be null");
         }
         if (comparator == null) {
             throw new NullPointerException("comparator cannot be null");
         }
-        if (!old.getKey().equals(element.getKey())) {
+        if (!oe.getKey().equals(ne.getKey())) {
             throw new IllegalArgumentException("old and element keys are not equal");
         }
 
-        Object key = element.getObjectKey();
+        final Element old = copyElementForWrite(oe);
+        final Element element = copyElementForWrite(ne);
+        final Object key = element.getObjectKey();
         while (true) {
             assertNotTimedOut();
 
@@ -763,7 +767,7 @@ public class LocalTransactionStore extends AbstractStore {
                                         " between current transaction [" + getCurrentTransactionContext().getTransactionId() + "]" +
                                         " and foreign transaction [" + softLock.getTransactionID() + "]");
                             }
-                        } catch (InterruptedException e) {
+                        } catch (InterruptedException ie) {
                             Thread.currentThread().interrupt();
                         }
 
@@ -799,12 +803,13 @@ public class LocalTransactionStore extends AbstractStore {
     /**
      * {@inheritDoc}
      */
-    public Element replace(Element element) throws NullPointerException {
-        if (element == null) {
+    public Element replace(Element e) throws NullPointerException {
+        if (e == null) {
             throw new NullPointerException("element cannot be null");
         }
 
-        Object key = element.getObjectKey();
+        final Element element = copyElementForWrite(e);
+        final Object key = element.getObjectKey();
         if (key == null) {
             throw new NullPointerException("element key cannot be null");
         }
@@ -836,7 +841,7 @@ public class LocalTransactionStore extends AbstractStore {
                             // replaced old element with new one under soft lock, job done.
                             LOG.debug("replace: cache [{}] key [{}] soft locked in current transaction, replaced old element with" +
                                     " new one under soft lock", cacheName, key);
-                            return copyElement(replaced);
+                            return copyElementForRead(replaced);
                         } else {
                             // old element is not equals to element to remove, job done.
                             LOG.debug("replace: cache [{}] key [{}] soft locked in current transaction, old element was null," +
@@ -855,7 +860,7 @@ public class LocalTransactionStore extends AbstractStore {
                                         " between current transaction [" + getCurrentTransactionContext().getTransactionId() + "]" +
                                         " and foreign transaction [" + softLock.getTransactionID() + "]");
                             }
-                        } catch (InterruptedException e) {
+                        } catch (InterruptedException ie) {
                             Thread.currentThread().interrupt();
                         }
 
@@ -875,7 +880,7 @@ public class LocalTransactionStore extends AbstractStore {
                         // CAS succeeded, value replaced with soft lock, job done.
                         getCurrentTransactionContext().registerSoftLock(cacheName, this, softLock);
                         LOG.debug("replace: cache [{}] key [{}] was in, replaced with soft lock", cacheName, key);
-                        return copyElement(replaced);
+                        return copyElementForRead(replaced);
                     } else {
                         // CAS failed, something else with that key is now in store or the key disappeared, job done.
                         softLock.unlock();

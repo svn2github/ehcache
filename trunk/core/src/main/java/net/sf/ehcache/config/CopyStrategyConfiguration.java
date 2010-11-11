@@ -15,15 +15,19 @@
  */
 package net.sf.ehcache.config;
 
+import net.sf.ehcache.Element;
 import net.sf.ehcache.store.compound.CopyStrategy;
+import net.sf.ehcache.store.compound.LegacyCopyStrategyAdapter;
+import net.sf.ehcache.store.compound.ReadWriteCopyStrategy;
+import net.sf.ehcache.util.ClassLoaderUtil;
 
 /**
  * @author Alex Snaps
  */
 public class CopyStrategyConfiguration {
 
-    private volatile String className = "net.sf.ehcache.store.compound.SerializationCopyStrategy";
-    private CopyStrategy strategy;
+    private volatile String className = "net.sf.ehcache.store.compound.ReadWriteSerializationCopyStrategy";
+    private ReadWriteCopyStrategy<Element> strategy;
 
     /**
      * Returns the fully qualified class name for the CopyStrategy to use
@@ -49,7 +53,7 @@ public class CopyStrategyConfiguration {
      *
      * @param copyStrategy the copy strategy
      */
-    public synchronized void setCopyStrategyInstance(CopyStrategy copyStrategy) {
+    public synchronized void setCopyStrategyInstance(ReadWriteCopyStrategy<Element> copyStrategy) {
         this.strategy = copyStrategy;
     }
 
@@ -58,12 +62,17 @@ public class CopyStrategyConfiguration {
      * 
      * @return the instance
      */
-    public synchronized CopyStrategy getCopyStrategyInstance() {
+    public synchronized ReadWriteCopyStrategy<Element> getCopyStrategyInstance() {
         if (strategy == null) {
             Class copyStrategy = null;
             try {
-                copyStrategy = Class.forName(className);
-                strategy = (CopyStrategy) copyStrategy.newInstance();
+                copyStrategy = ClassLoaderUtil.loadClass(className);
+                Object strategyObject = copyStrategy.newInstance();
+                if (strategyObject instanceof CopyStrategy) {
+                    strategy = new LegacyCopyStrategyAdapter((CopyStrategy) strategyObject);
+                } else {
+                    strategy = (ReadWriteCopyStrategy<Element>) strategyObject;
+                }
             } catch (ClassNotFoundException e) {
                 throw new RuntimeException("Couldn't find the CopyStrategy class!", e);
             } catch (InstantiationException e) {

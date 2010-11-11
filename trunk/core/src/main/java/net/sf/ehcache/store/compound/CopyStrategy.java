@@ -17,8 +17,10 @@
 package net.sf.ehcache.store.compound;
 
 /**
+ * @deprecated replaced by {@link net.sf.ehcache.store.compound.ReadWriteCopyStrategy}
  * @author Alex Snaps
  */
+@Deprecated
 public interface CopyStrategy {
     /**
      * Deep copies some object and returns the copy

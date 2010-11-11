@@ -39,7 +39,7 @@ import net.sf.ehcache.exceptionhandler.CacheExceptionHandler;
 import net.sf.ehcache.exceptionhandler.CountingExceptionHandler;
 import net.sf.ehcache.store.DefaultElementValueComparator;
 import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
-import net.sf.ehcache.store.compound.SerializationCopyStrategy;
+import net.sf.ehcache.store.compound.ReadWriteSerializationCopyStrategy;
 import net.sf.ehcache.writer.TestCacheWriter;
 import org.junit.Before;
 import org.junit.Test;
@@ -1090,13 +1090,13 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
         assertTrue(copyOnReadCache.getCacheConfiguration().isCopyOnRead());
         assertFalse(copyOnReadCache.getCacheConfiguration().isCopyOnWrite());
         assertNotNull(copyOnReadCache.getCacheConfiguration().getCopyStrategy());
-        assertTrue(copyOnReadCache.getCacheConfiguration().getCopyStrategy() instanceof SerializationCopyStrategy);
+        assertTrue(copyOnReadCache.getCacheConfiguration().getCopyStrategy() instanceof ReadWriteSerializationCopyStrategy);
 
         Ehcache copyOnWriteCache = configurationHelper.createCacheFromName("copyOnWriteCache");
         assertFalse(copyOnWriteCache.getCacheConfiguration().isCopyOnRead());
         assertTrue(copyOnWriteCache.getCacheConfiguration().isCopyOnWrite());
         assertNotNull(copyOnWriteCache.getCacheConfiguration().getCopyStrategy());
-        assertTrue(copyOnWriteCache.getCacheConfiguration().getCopyStrategy() instanceof SerializationCopyStrategy);
+        assertTrue(copyOnWriteCache.getCacheConfiguration().getCopyStrategy() instanceof ReadWriteSerializationCopyStrategy);
 
         Ehcache copyCache = configurationHelper.createCacheFromName("copyCache");
         assertTrue(copyCache.getCacheConfiguration().isCopyOnRead());

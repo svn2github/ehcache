@@ -19,27 +19,23 @@ import net.sf.ehcache.Element;
 
 /**
  * @author Alex Snaps
+ * @author Ludovic Orban
  */
-public class ImmutableValueElementCopyStrategy implements CopyStrategy {
+public class ImmutableValueElementCopyStrategy implements ReadWriteCopyStrategy<Element> {
 
-    private CopyStrategy defaultCopyStrategy = new SerializationCopyStrategy();
+    private final ReadWriteSerializationCopyStrategy copyStrategy = new ReadWriteSerializationCopyStrategy();
 
     /**
      * @inheritDoc
      */
-    public <T> T copy(final T value) {
+    public Element copyForWrite(Element value) {
+        return copyStrategy.duplicateElementWithNewValue(value, value.getObjectValue());
+    }
 
-        final T newValue;
-        if (value instanceof Element) {
-            Element element = (Element) value;
-            Element newElement = new Element(element.getObjectKey(), element.getObjectValue(), element.getVersion(),
-                element.getCreationTime(), element.getLastAccessTime(), element.getHitCount(), element.usesCacheDefaultLifespan(),
-                element.getTimeToLive(), element.getTimeToIdle(), element.getLastUpdateTime());
-            newValue = (T) newElement;
-        } else {
-            newValue = defaultCopyStrategy.copy(value);
-        }
-
-        return newValue;
+    /**
+     * @inheritDoc
+     */
+    public Element copyForRead(Element storedValue) {
+        return copyStrategy.duplicateElementWithNewValue(storedValue, storedValue.getObjectValue());
     }
 }

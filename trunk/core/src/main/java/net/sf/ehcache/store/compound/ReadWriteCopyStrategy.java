@@ -16,29 +16,22 @@
 
 package net.sf.ehcache.store.compound;
 
-import net.sf.ehcache.Element;
-
 /**
- * A copy strategy that uses full Serialization to copy the object graph
- *
- * @author Alex Snaps
+ * @since 2.4.0
  * @author Ludovic Orban
  */
-public class SerializationCopyStrategy implements ReadWriteCopyStrategy<Element> {
-
-    private final ReadWriteSerializationCopyStrategy copyStrategy = new ReadWriteSerializationCopyStrategy();
+public interface ReadWriteCopyStrategy<T> {
+    /**
+     * Deep copies some object and returns an internal storage-ready copy
+     * @param value the value to copy
+     * @return the storage-ready copy
+     */
+    T copyForWrite(final T value);
 
     /**
-     * @inheritDoc
+     * Reconstruct an object from its storage-ready copy
+     * @param storedValue the storage-ready copy
+     * @return the original object
      */
-    public Element copyForWrite(Element value) {
-        return copyStrategy.copyForRead(copyStrategy.copyForWrite(value));
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public Element copyForRead(Element storedValue) {
-        return copyStrategy.copyForRead(copyStrategy.copyForWrite(storedValue));
-    }
+    T copyForRead(final T storedValue);
 }

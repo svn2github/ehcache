@@ -89,7 +89,7 @@ public abstract class CompoundStore extends AbstractStore {
      * @param copyOnWrite true should we copy Elements on writes, otherwise false
      * @param copyStrategy the strategy to copy elements (needs to be non null if copyOnRead or copyOnWrite is true)
      */
-    public CompoundStore(InternalElementSubstituteFactory<?> primary, boolean copyOnRead, boolean copyOnWrite, CopyStrategy copyStrategy) {
+    public CompoundStore(InternalElementSubstituteFactory<?> primary, boolean copyOnRead, boolean copyOnWrite, ReadWriteCopyStrategy<Element> copyStrategy) {
         this(primary, (primary instanceof IdentityElementSubstituteFactory) ? (IdentityElementSubstituteFactory) primary : null,
                 copyOnRead, copyOnWrite, copyStrategy);
     }
@@ -114,7 +114,7 @@ public abstract class CompoundStore extends AbstractStore {
      * @param copyStrategy the strategy to copy elements (needs to be non null if copyOnRead or copyOnWrite is true)
      */
     public CompoundStore(InternalElementSubstituteFactory<?> primary, IdentityElementSubstituteFactory identity,
-                         boolean copyOnRead, boolean copyOnWrite, CopyStrategy copyStrategy) {
+                         boolean copyOnRead, boolean copyOnWrite, ReadWriteCopyStrategy<Element> copyStrategy) {
         this.segments = new Segment[DEFAULT_SEGMENT_COUNT];
         this.segmentShift = Integer.numberOfLeadingZeros(segments.length - 1);
 

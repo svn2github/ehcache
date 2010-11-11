@@ -24,9 +24,10 @@ import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 
 import net.sf.ehcache.CacheException;
+import net.sf.ehcache.Element;
 import net.sf.ehcache.event.NotificationScope;
 import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
-import net.sf.ehcache.store.compound.CopyStrategy;
+import net.sf.ehcache.store.compound.ReadWriteCopyStrategy;
 import net.sf.ehcache.util.MemorySizeParser;
 
 import org.slf4j.Logger;
@@ -981,9 +982,9 @@ public class CacheConfiguration implements Cloneable {
      * Getter to the CopyStrategy set in the config (really? how?).
      * This will always return the same unique instance per cache
      *
-     * @return the {@link CopyStrategy} for instance for this cache
+     * @return the {@link ReadWriteCopyStrategy} for instance for this cache
      */
-    public CopyStrategy getCopyStrategy() {
+    public ReadWriteCopyStrategy<Element> getCopyStrategy() {
         // todo really make this pluggable through config!
         return copyStrategyConfiguration.getCopyStrategyInstance();
     }
