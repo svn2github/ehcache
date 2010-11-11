@@ -29,6 +29,12 @@ public interface CacheWrapper<K, V>
 
   V get(K key);
 }
+----------------------------
+
+----------------------------
+import net.sf.ehcache.CacheManager;
+import net.sf.ehcache.Ehcache;
+import net.sf.ehcache.Element;
 
 public class EhcacheWrapper<K, V> implements CacheWrapper<K, V> 
 {
@@ -46,7 +52,7 @@ public class EhcacheWrapper<K, V> implements CacheWrapper<K, V>
         getCache().put(new Element(key, value));
     }
 
-    public V get(final K key, CacheEntryAdapter<V> adapter) 
+    public V get(final K key) 
     {
         Element element = getCache().get(key);
         if (element != null) {
