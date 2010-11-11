@@ -96,7 +96,7 @@
     <suppress checks="NPathComplexity" files="FactoryConfiguration.java"/>
     <suppress checks="NPathComplexity" files="CacheConfigurationElement.java"/>
     <suppress checks="NPathComplexity" files="ConfigurationElement.java"/>
-
+    <suppress checks="DeclarationOrder" files="NonStopCacheBehaviorType.java"/>
 
 
     <!-- We need to return LinkedList -->
