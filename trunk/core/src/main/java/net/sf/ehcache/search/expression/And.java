@@ -16,6 +16,7 @@
 
 package net.sf.ehcache.search.expression;
 
+import net.sf.ehcache.Element;
 import net.sf.ehcache.store.ElementAttributeValues;
 
 /**
@@ -23,7 +24,7 @@ import net.sf.ehcache.store.ElementAttributeValues;
  *
  * @author teck
  */
-public class And implements Criteria {
+public class And extends BaseCriteria {
 
     private final Criteria[] criterion;
 
@@ -58,9 +59,9 @@ public class And implements Criteria {
     /**
      * {@inheritDoc}
      */
-    public boolean execute(ElementAttributeValues attributeValues) {
+    public boolean execute(Element e, ElementAttributeValues attributeValues) {
         for (Criteria c : criterion) {
-            if (!c.execute(attributeValues)) {
+            if (!c.execute(e, attributeValues)) {
                 return false;
             }
         }

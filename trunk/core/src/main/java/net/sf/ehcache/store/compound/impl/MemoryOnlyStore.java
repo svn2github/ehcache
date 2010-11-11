@@ -306,7 +306,7 @@ public final class MemoryOnlyStore extends CompoundStore implements CacheConfigu
 
             ElementAttributeValues elementAttributeValues = new ElementAttributeValuesImpl(element, attributeExtractors);
 
-            boolean match = c.execute(elementAttributeValues);
+            boolean match = c.execute(element, elementAttributeValues);
 
             if (match) {
                 results.add(new ResultImpl(element, query, elementAttributeValues));

@@ -16,6 +16,7 @@
 
 package net.sf.ehcache.search.expression;
 
+import net.sf.ehcache.Element;
 import net.sf.ehcache.store.ElementAttributeValues;
 
 /**
@@ -23,12 +24,12 @@ import net.sf.ehcache.store.ElementAttributeValues;
  *
  * @author teck
  */
-public class AlwaysMatch implements Criteria {
+public class AlwaysMatch extends BaseCriteria {
 
     /**
      * {@inheritDoc}
      */
-    public boolean execute(ElementAttributeValues attributeValues) {
+    public boolean execute(Element e, ElementAttributeValues attributeValues) {
         return true;
     }
 

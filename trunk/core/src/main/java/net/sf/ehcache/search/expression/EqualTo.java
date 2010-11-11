@@ -16,6 +16,7 @@
 
 package net.sf.ehcache.search.expression;
 
+import net.sf.ehcache.Element;
 import net.sf.ehcache.search.attribute.AttributeType;
 import net.sf.ehcache.store.ElementAttributeValues;
 
@@ -24,7 +25,7 @@ import net.sf.ehcache.store.ElementAttributeValues;
  *
  * @author teck
  */
-public class EqualTo implements Criteria {
+public class EqualTo extends BaseCriteria {
 
     private final Object value;
     private final String attributeName;
@@ -77,7 +78,7 @@ public class EqualTo implements Criteria {
     /**
      * {@inheritDoc}
      */
-    public boolean execute(ElementAttributeValues attributeValues) {
+    public boolean execute(Element e, ElementAttributeValues attributeValues) {
         Object attributeValue = attributeValues.getAttributeValue(attributeName, type);
         if (attributeValue == null) {
             return false;

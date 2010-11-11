@@ -16,6 +16,7 @@
 
 package net.sf.ehcache.search.expression;
 
+import net.sf.ehcache.Element;
 import net.sf.ehcache.search.SearchException;
 import net.sf.ehcache.search.attribute.AttributeType;
 import net.sf.ehcache.store.ElementAttributeValues;
@@ -25,7 +26,7 @@ import net.sf.ehcache.store.ElementAttributeValues;
  *
  * @author teck
  */
-public abstract class ComparableValue implements Criteria {
+public abstract class ComparableValue extends BaseCriteria {
 
     private final String attributeName;
     private final AttributeType type;
@@ -76,7 +77,7 @@ public abstract class ComparableValue implements Criteria {
     /**
      * {@inheritDoc}
      */
-    public boolean execute(ElementAttributeValues attributeValues) {
+    public boolean execute(Element e, ElementAttributeValues attributeValues) {
         Object attrValue = attributeValues.getAttributeValue(attributeName, type);
         if (attrValue == null) {
             return false;

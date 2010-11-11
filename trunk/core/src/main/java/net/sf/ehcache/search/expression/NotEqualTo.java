@@ -16,6 +16,7 @@
 
 package net.sf.ehcache.search.expression;
 
+import net.sf.ehcache.Element;
 import net.sf.ehcache.store.ElementAttributeValues;
 
 /**
@@ -39,8 +40,8 @@ public class NotEqualTo extends EqualTo {
      * {@inheritDoc}
      */
     @Override
-    public boolean execute(ElementAttributeValues attributeValues) {
-        return !super.execute(attributeValues);
+    public boolean execute(Element e, ElementAttributeValues attributeValues) {
+        return !super.execute(e, attributeValues);
     }
 
 }

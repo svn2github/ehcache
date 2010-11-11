@@ -45,17 +45,16 @@ public class BasicSearchTest extends TestCase {
             new CacheManager(getClass().getResource("/ehcache-search-invalid-key.xml"));
             fail();
         } catch (CacheException ce) {
-           // expected
+            // expected
         }
 
         try {
             new CacheManager(getClass().getResource("/ehcache-search-invalid-value.xml"));
             fail();
         } catch (CacheException ce) {
-           // expected
+            // expected
         }
     }
-
 
     public void testNonSearchableCache() {
         CacheManager cacheManager = new CacheManager(getClass().getResource("/ehcache-search.xml"));
@@ -576,9 +575,27 @@ public class BasicSearchTest extends TestCase {
 
         query = cache.createQuery();
         query.includeKeys();
-        query.add(new Or(cache.getSearchAttribute("age").eq(35), cache.getSearchAttribute("gender").eq(Gender.FEMALE)));
+        query.add(cache.getSearchAttribute("age").eq(35).or(cache.getSearchAttribute("gender").eq(Gender.FEMALE)));
         query.end();
         verify(cache, query, 1, 2, 3);
+
+        query = cache.createQuery();
+        query.includeKeys();
+        query.add(cache.getSearchAttribute("age").eq(35).and(cache.getSearchAttribute("gender").eq(Gender.MALE)));
+        query.end();
+        verify(cache, query, 1, 3);
+
+        query = cache.createQuery();
+        query.includeKeys();
+        query.add(cache.getSearchAttribute("age").eq(35).and(cache.getSearchAttribute("gender").eq(Gender.FEMALE)));
+        query.end();
+        verify(cache, query);
+
+        query = cache.createQuery();
+        query.includeKeys();
+        query.add(cache.getSearchAttribute("gender").eq(Gender.MALE).not());
+        query.end();
+        verify(cache, query, 2);
 
         try {
             cache.getSearchAttribute("DOES_NOT_EXIST_PLEASE_DO_NOT_CREATE_ME");

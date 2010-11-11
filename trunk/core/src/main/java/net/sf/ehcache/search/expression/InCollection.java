@@ -19,16 +19,17 @@ package net.sf.ehcache.search.expression;
 import java.util.Collection;
 import java.util.Collections;
 
+import net.sf.ehcache.Element;
 import net.sf.ehcache.search.SearchException;
 import net.sf.ehcache.search.attribute.AttributeType;
 import net.sf.ehcache.store.ElementAttributeValues;
 
 /**
  * Criteria for inclusion in a given Collection (presumably a Set) of values
- * 
+ *
  * @author teck
  */
-public class InCollection implements Criteria {
+public class InCollection extends BaseCriteria {
 
     private final String attributeName;
     private final Collection<?> values;
@@ -37,7 +38,7 @@ public class InCollection implements Criteria {
 
     /**
      * Constructor
-     * 
+     *
      * @param attributeName attribute name
      * @param values
      */
@@ -58,7 +59,7 @@ public class InCollection implements Criteria {
 
     /**
      * Return attributeName
-     * 
+     *
      * @return String attribute name
      */
     public String getAttributeName() {
@@ -67,7 +68,7 @@ public class InCollection implements Criteria {
 
     /**
      * Return values.
-     * 
+     *
      * @return Collection<?> values
      */
     public Collection<?> values() {
@@ -98,7 +99,7 @@ public class InCollection implements Criteria {
     /**
      * {@inheritDoc}
      */
-    public boolean execute(ElementAttributeValues attributeValues) {
+    public boolean execute(Element e, ElementAttributeValues attributeValues) {
         if (empty) {
             return false;
         }

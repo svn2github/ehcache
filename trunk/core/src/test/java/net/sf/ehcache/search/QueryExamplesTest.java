@@ -1,8 +1,6 @@
 package net.sf.ehcache.search;
 
 import static net.sf.ehcache.search.Query.KEY;
-import static net.sf.ehcache.search.expression.Logic.and;
-import static net.sf.ehcache.search.expression.Logic.or;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
@@ -12,7 +10,6 @@ import java.util.Map;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.config.SearchAttribute;
-import net.sf.ehcache.search.expression.And;
 
 import org.junit.After;
 import org.junit.Before;
@@ -23,7 +20,6 @@ import org.slf4j.LoggerFactory;
 
 import bsh.EvalError;
 import bsh.Interpreter;
-
 
 /**
  * This class was used to develop the API and now that the code has been written it has been made an
@@ -114,10 +110,7 @@ public class QueryExamplesTest {
         LOG.info("Sum is: " + sumResult);
 
         // select keys with criteria age == 12 AND gender = "timmy"
-        query = cache.createQuery().includeKeys().add(and(age.eq(12), gender.eq("timmy"))).end();
-
-        // same as above without static import
-        query = cache.createQuery().includeKeys().add(new And(age.eq(12), gender.eq("timmy"))).end();
+        query = cache.createQuery().includeKeys().add(age.eq(12).and(gender.eq("timmy"))).end();
 
         // same as above (but without AND, uses two add() -- multiple
         // criteria implies AND)
@@ -125,10 +118,9 @@ public class QueryExamplesTest {
 
         // slightly more complicated expression and multiple ordering
         // age = 13 OR (age == 12 AND gender = "timmy") order by age asc, gender desc limit 10
-        query = cache.createQuery().includeKeys().add(or(age.eq(13), and(age.eq(12), gender.eq("timmy"))))
-                .addOrder(age, Direction.ASCENDING).addOrder(gender, Direction.DESCENDING).maxResults(10).end();
+        query = cache.createQuery().includeKeys().add(age.eq(13).or(age.eq(12).and(gender.eq("timmy")))).addOrder(age, Direction.ASCENDING)
+                .addOrder(gender, Direction.DESCENDING).maxResults(10).end();
     }
-
 
     @Test
     public void testNoIncludeSpecified() {
@@ -140,12 +132,11 @@ public class QueryExamplesTest {
             try {
                 LOG.info("" + result.getKey());
             } catch (SearchException e) {
-                //expected
+                // expected
                 break;
             }
         }
     }
-
 
     /**
      * todo shows how to use the key constant. There is another one for value.
@@ -155,7 +146,6 @@ public class QueryExamplesTest {
         Results results = cache.createQuery().add(KEY.eq(1)).execute();
         assertTrue(1 == results.size());
     }
-
 
     @Test
     public void testIncludeKeysSpecified() {
@@ -167,8 +157,8 @@ public class QueryExamplesTest {
         }
     }
 
-
-    @Ignore //EHC-802
+    @Ignore
+    // EHC-802
     @Test
     public void testIncludeValuesNotSpecified() {
 
@@ -176,14 +166,13 @@ public class QueryExamplesTest {
         Results results = cache.createQuery().add(age.eq(35)).includeKeys().execute();
         assertTrue(2 == results.size());
         for (Result result : results.all()) {
-            //should be null
+            // should be null
             assertNull(cache.get(result.getKey()));
         }
     }
 
-
     @Ignore
-    //EHC-801 key should be auto added if it has the right type
+    // EHC-801 key should be auto added if it has the right type
     @Test
     public void testSearchKeys() {
 
@@ -195,9 +184,8 @@ public class QueryExamplesTest {
         }
     }
 
-
     @Ignore
-    //Bug EHC-799
+    // Bug EHC-799
     @Test
     public void testIncludeValuesSpecified() {
 
@@ -208,7 +196,6 @@ public class QueryExamplesTest {
             LOG.info("" + cache.get(result.getKey()));
         }
     }
-
 
     /**
      * Show how to execute a query in beanshell
@@ -261,7 +248,6 @@ public class QueryExamplesTest {
         }
     }
 
-
     /**
      * Show how to execute a query in beanshell using autodiscovered attributes
      */
@@ -270,23 +256,23 @@ public class QueryExamplesTest {
 
         Interpreter i = new Interpreter();
 
-        //Auto discover the search attributes and add them to the interpreter's context
+        // Auto discover the search attributes and add them to the interpreter's context
         Map<String, SearchAttribute> attributes = cache.getCacheConfiguration().getSearchAttributes();
         for (Map.Entry<String, SearchAttribute> entry : attributes.entrySet()) {
             i.set(entry.getKey(), cache.getSearchAttribute(entry.getKey()));
             LOG.info("Setting attribute " + entry.getKey());
         }
 
-        //Define the query and results. Add things which would be set in the GUI i.e. includeKeys and add to context
+        // Define the query and results. Add things which would be set in the GUI i.e. includeKeys and add to context
         Query query = cache.createQuery().includeKeys();
         Results results = null;
         i.set("query", query);
         i.set("results", results);
 
-        //This comes from the freeform text field
+        // This comes from the freeform text field
         String userDefinedQuery = "age.eq(35)";
 
-        //Add the stuff on that we need
+        // Add the stuff on that we need
         String fullQueryString = "results = query.add(" + userDefinedQuery + ").execute()";
 
         i.eval(fullQueryString);
@@ -295,7 +281,6 @@ public class QueryExamplesTest {
         for (Result result : results.all()) {
             LOG.info("" + result.getKey());
         }
-
 
     }
 

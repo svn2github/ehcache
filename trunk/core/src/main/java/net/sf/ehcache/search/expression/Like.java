@@ -18,6 +18,7 @@ package net.sf.ehcache.search.expression;
 
 import java.util.regex.Pattern;
 
+import net.sf.ehcache.Element;
 import net.sf.ehcache.search.SearchException;
 import net.sf.ehcache.store.ElementAttributeValues;
 
@@ -36,10 +37,10 @@ import net.sf.ehcache.store.ElementAttributeValues;
  * <br>
  * Expressions may not start with a wildcard character.
  * <p/>
- * 
+ *
  * @author teck
  */
-public class Like implements Criteria {
+public class Like extends BaseCriteria {
 
     private final String attributeName;
     private final String regex;
@@ -47,7 +48,7 @@ public class Like implements Criteria {
 
     /**
      * Construct a "like" criteria for the given expression
-     * 
+     *
      * @param attributeName attribute name
      * @param regex expression
      */
@@ -64,7 +65,7 @@ public class Like implements Criteria {
 
     /**
      * Return attribute name.
-     * 
+     *
      * @return String attribute name
      */
     public String getAttributeName() {
@@ -73,7 +74,7 @@ public class Like implements Criteria {
 
     /**
      * Return regex string.
-     * 
+     *
      * @return String regex.
      */
     public String getRegex() {
@@ -142,7 +143,7 @@ public class Like implements Criteria {
     /**
      * {@inheritDoc}
      */
-    public boolean execute(ElementAttributeValues attributeValues) {
+    public boolean execute(Element e, ElementAttributeValues attributeValues) {
         Object value = attributeValues.getAttributeValue(attributeName);
         if (value == null) {
             return false;

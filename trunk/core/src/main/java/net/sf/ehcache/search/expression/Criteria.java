@@ -16,6 +16,7 @@
 
 package net.sf.ehcache.search.expression;
 
+import net.sf.ehcache.Element;
 import net.sf.ehcache.store.ElementAttributeValues;
 
 /**
@@ -28,9 +29,32 @@ public interface Criteria {
     /**
      * Test this criteria against a cache element
      *
+     * @param element cache element
      * @param attributeValues accessor for attributes values on the current element this critetia executed against
      * @return true if the criteria matches this element
      */
-    boolean execute(ElementAttributeValues attributeValues);
+    boolean execute(Element element, ElementAttributeValues attributeValues);
 
+    /**
+     * Produce a criteria that is the boolean "and" of this and the given other criteria
+     *
+     * @param other
+     * @return and criteria
+     */
+    Criteria and(Criteria other);
+
+    /**
+     * Produce a criteria that is the boolean "or" of this and the given other criteria
+     *
+     * @param other
+     * @return or criteria
+     */
+    Criteria or(Criteria other);
+
+    /**
+     * Produce a criteria that is the boolean "not" of this
+     *
+     * @return not criteria
+     */
+    Criteria not();
 }
