@@ -293,6 +293,43 @@ query.add(new Or(age.eq(35),
 
     See the {{{http://ehcache.org/xref/net/sf/ehcache/search/expression/package-frame.html}Expression JavaDoc}} for a complete list.
 
+**  List of Operators
+
+    Operators are available as methods on attributes, so they are used by adding a ".". So, "lt" means
+    less than and is used as <<<age.lt(10)>>>, which is a shorthand way of saying <<<new LessThan(10)>>>.
+
+    The full listing of operator shorthand is shown below.
+
+*----------+--------------+--------------+
+Shorthand | Criteria Class | Description
+*----------+--------------+--------------+
+ and    |  And          | The Boolean AND logical operator
+*----------+--------------+--------------+
+ between | Between      | A comparison operator meaning between two values
+*----------+--------------+--------------+
+ eq     | EqualTo       | A comparison operator meaning Java "equals to" condition
+*----------+--------------+--------------+
+ gt     | GreaterThan   | A comparison operator meaning greater than.
+*----------+--------------+--------------+
+ ge     | GreaterThanOrEqual | A comparison operator meaning greater than or equal to.
+*----------+--------------+--------------+
+ in     | InCollection  | A comparison operator meaning in the collection given as an argument
+*----------+--------------+--------------+
+ lt     | LessThan      | A comparison operator meaning less than.
+*----------+--------------+--------------+
+ le     | LessThanOrEqual | A comparison operator meaning less than or equal to
+*----------+--------------+--------------+
+ like   | Like          | A regular expression matcher. '?' and "*" may be used.
+*----------+--------------+--------------+
+ not    | Not           | The Boolean NOT logical operator
+*----------+--------------+--------------+
+ ne     | NotEqualTo    | A comparison operator meaning not the Java "equals to" condition
+*----------+--------------+--------------+
+ or     | Or            | The Boolean OR logical operator
+*----------+--------------+--------------+
+
+
+
 ** Making queries immutable
 
   By defualt a query can be executed and then modified and re-executed. If <<<end>>> is called

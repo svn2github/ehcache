@@ -21,7 +21,7 @@ import net.sf.ehcache.search.attribute.AttributeType;
 import net.sf.ehcache.store.ElementAttributeValues;
 
 /**
- * Criteria for plain "equals to" condition
+ * A comparison operator meaning Java "equals to" condition
  *
  * @author teck
  */
