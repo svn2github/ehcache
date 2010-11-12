@@ -106,7 +106,8 @@ public class WriteOperation implements SingleOperation {
 
         final WriteOperation that = (WriteOperation) o;
 
-        return element.equals(that.element);
+        return element.getKey().equals(that.element.getKey())
+               && element.getValue().equals(that.element.getValue());
     }
 
     @Override

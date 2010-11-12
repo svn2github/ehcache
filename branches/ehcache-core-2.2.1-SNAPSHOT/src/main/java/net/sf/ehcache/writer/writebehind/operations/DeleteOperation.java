@@ -114,7 +114,7 @@ public class DeleteOperation implements SingleOperation {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        final WriteOperation that = (WriteOperation) o;
+        final DeleteOperation that = (DeleteOperation) o;
 
         return entry.getKey().equals(that.getKey());
     }
