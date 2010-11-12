@@ -24,13 +24,18 @@ import java.util.concurrent.atomic.AtomicInteger;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * {@link NonStopCacheExecutorServiceFactory} that creates and maintains one per CacheManager
- * 
+ *
  * @author Abhishek Sanoujam
- * 
+ *
  */
 public final class CacheManagerExecutorServiceFactory implements NonStopCacheExecutorServiceFactory {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(CacheManagerExecutorServiceFactory.class);
 
     private static final String MAX_THREAD_POOL_SIZE_PROPERTY_PREFIX = "net.sf.ehcache.constructs.nonstop.maxThreadPoolSize.";
     private static final String CORE_THREAD_POOL_SIZE_PROPERTY_PREFIX = "net.sf.ehcache.constructs.nonstop.coreThreadPoolSize.";
@@ -48,7 +53,7 @@ public final class CacheManagerExecutorServiceFactory implements NonStopCacheExe
 
     /**
      * Returns the singleton instance
-     * 
+     *
      * @return the singleton instance
      */
     public static CacheManagerExecutorServiceFactory getInstance() {
@@ -76,7 +81,7 @@ public final class CacheManagerExecutorServiceFactory implements NonStopCacheExe
                 });
                 executorServiceMap.put(cacheManagerName, rv);
             }
-            return executorServiceMap.get(cacheManagerName);
+            return rv;
         }
     }
 
@@ -90,13 +95,18 @@ public final class CacheManagerExecutorServiceFactory implements NonStopCacheExe
                 NonStopCacheExecutorService.DEFAULT_MAX_THREAD_POOL_SIZE);
     }
 
-    private int getProperty(String propertyName, int defaultValue) {
+    private static int getProperty(String propertyName, int defaultValue) {
         String propertyValue = System.getProperty(propertyName);
+        if (propertyValue == null || "".equals(propertyValue.trim())) {
+            return defaultValue;
+        }
         int value = 0;
         try {
             value = Integer.parseInt(propertyValue);
         } catch (NumberFormatException e) {
             value = defaultValue;
+            LOGGER.warn("Invalid value specified for property \"" + propertyName + "\"=" + propertyValue + ", using default value: "
+                    + defaultValue);
         }
         return value;
     }

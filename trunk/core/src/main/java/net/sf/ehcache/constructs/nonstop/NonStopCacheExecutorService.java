@@ -34,11 +34,14 @@ import net.sf.ehcache.Element;
 import net.sf.ehcache.constructs.nonstop.util.CountingThreadFactory;
 import net.sf.ehcache.event.CacheEventListener;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * Class used by NonStopCache for executing tasks within a timeout limit.
- * 
+ *
  * @author Abhishek Sanoujam
- * 
+ *
  */
 public class NonStopCacheExecutorService {
 
@@ -76,6 +79,8 @@ public class NonStopCacheExecutorService {
 
     private static final int INCREMENT_POOL_THREADS_STEP = 10;
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(NonStopCacheExecutorService.class);
+
     private final ThreadPoolExecutor executorService;
     private final AtomicInteger attachedCachesCount = new AtomicInteger();
     private final DisposeListener disposeListener;
@@ -98,7 +103,7 @@ public class NonStopCacheExecutorService {
 
     /**
      * Constructor accepting the maximum number of threads that can be present in the thread pool
-     * 
+     *
      * @param coreThreadPoolSize
      */
     public NonStopCacheExecutorService(final int coreThreadPoolSize, final int maxThreadPoolSize) {
@@ -117,7 +122,7 @@ public class NonStopCacheExecutorService {
 
     /**
      * Constructor accepting a {@link ThreadFactory} that will be used to create threads for the pool
-     * 
+     *
      * @param threadFactory
      */
     public NonStopCacheExecutorService(final ThreadFactory threadFactory) {
@@ -126,7 +131,7 @@ public class NonStopCacheExecutorService {
 
     /**
      * Constructor accepting both number of threads and the thread factory to be used
-     * 
+     *
      * @param coreThreadPoolSize
      * @param threadFactory
      */
@@ -145,7 +150,7 @@ public class NonStopCacheExecutorService {
     /**
      * This constructor is private as executorService's are shut down when all associated caches are disposed. Accepting executorServices
      * from outside and shutting it down may hamper other app tasks scheduled using same executor service.
-     * 
+     *
      * @param executorService
      */
     private NonStopCacheExecutorService(final ThreadPoolExecutor executorService) {
@@ -158,18 +163,23 @@ public class NonStopCacheExecutorService {
 
     private static int getProperty(String propertyName, int defaultValue) {
         String propertyValue = System.getProperty(propertyName);
+        if (propertyValue == null || "".equals(propertyValue.trim())) {
+            return defaultValue;
+        }
         int value = 0;
         try {
             value = Integer.parseInt(propertyValue);
         } catch (NumberFormatException e) {
             value = defaultValue;
+            LOGGER.warn("Invalid value specified for property \"" + propertyName + "\"=" + propertyValue + ", using default value: "
+                    + defaultValue);
         }
         return value;
     }
 
     /**
      * Used in tests only.
-     * 
+     *
      * @return the task queue of the executor
      */
     BlockingQueue<Runnable> getTaskQueue() {
@@ -179,7 +189,7 @@ public class NonStopCacheExecutorService {
     /**
      * Execute a {@link Callable} task with timeout. If the task does not complete within the timeout specified, throws a
      * {@link TimeoutException}
-     * 
+     *
      * @param <V>
      * @param callable
      * @param timeoutValueInMillis
@@ -192,7 +202,7 @@ public class NonStopCacheExecutorService {
             InterruptedException {
         int attempt = 0;
         V result = null;
-        long startTime = System.currentTimeMillis();
+        long startTime = System.nanoTime();
         while (true) {
             try {
                 attempt++;
@@ -206,8 +216,8 @@ public class NonStopCacheExecutorService {
                 throw e;
             } catch (RejectedExecutionException e) {
                 // if the executor rejects (too many tasks executing), try until timed out
-                long now = System.currentTimeMillis();
-                if (now - startTime > timeoutValueInMillis) {
+                long now = System.nanoTime();
+                if (now - startTime > TimeUnit.NANOSECONDS.convert(timeoutValueInMillis, TimeUnit.MILLISECONDS)) {
                     throw new TaskNotSubmittedTimeoutException(attempt);
                 } else {
                     continue;
@@ -230,7 +240,7 @@ public class NonStopCacheExecutorService {
     /**
      * Associates a cache with this {@link NonStopCacheExecutorService}. The thread pool in {@link NonStopCacheExecutorService} shuts down
      * once all the {@link Ehcache}'s associated with this {@link NonStopCacheExecutorService} are disposed
-     * 
+     *
      * @param cache
      */
     public void attachCache(Ehcache cache) {
@@ -246,7 +256,7 @@ public class NonStopCacheExecutorService {
 
     /**
      * Set whether to shutdown or not the thread pool when all associated {@link Ehcache}'s are disposed. By default its true
-     * 
+     *
      * @param shutdownWhenNoCachesAttached
      *            if true, shuts down the thread pool when no cache is associated with this {@link NonStopCacheExecutorService}
      */
@@ -256,7 +266,7 @@ public class NonStopCacheExecutorService {
 
     /**
      * package protected method -- used for testing only
-     * 
+     *
      * @return
      */
     ExecutorService getExecutorService() {
@@ -265,9 +275,9 @@ public class NonStopCacheExecutorService {
 
     /**
      * Private listener class for Cache.dispose()
-     * 
+     *
      * @author Abhishek Sanoujam
-     * 
+     *
      */
     private class DisposeListener implements CacheEventListener {
 
