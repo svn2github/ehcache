@@ -77,8 +77,6 @@ public class NonStopCacheExecutorService {
      */
     static final int DEFAULT_MAX_THREAD_POOL_SIZE = getProperty(DEFAULT_MAX_THREAD_POOL_SIZE_PROPERTY, 500);
 
-    private static final int INCREMENT_POOL_THREADS_STEP = 10;
-
     private static final Logger LOGGER = LoggerFactory.getLogger(NonStopCacheExecutorService.class);
 
     private final ThreadPoolExecutor executorService;
@@ -92,7 +90,7 @@ public class NonStopCacheExecutorService {
 
     private BlockingQueue<Runnable> taskQueue;
 
-    private int maxPoolSize;
+    private volatile int maxPoolSize;
 
     /**
      * Default constructor, uses {@link NonStopCacheExecutorService#DEFAULT_CORE_THREAD_POOL_SIZE} number of threads in the pool
@@ -207,7 +205,11 @@ public class NonStopCacheExecutorService {
             try {
                 attempt++;
                 if (countingThreadFactory != null && countingThreadFactory.getNumberOfThreads() < maxPoolSize) {
-                    executorService.setCorePoolSize(incrementCorePoolSize(executorService.getCorePoolSize()));
+                    synchronized (executorService) {
+                        if (countingThreadFactory.getNumberOfThreads() < maxPoolSize) {
+                            executorService.setCorePoolSize(incrementCorePoolSize(executorService.getCorePoolSize()));
+                        }
+                    }
                 }
                 result = executorService.submit(callable).get(timeoutValueInMillis, TimeUnit.MILLISECONDS);
                 break;
@@ -232,8 +234,8 @@ public class NonStopCacheExecutorService {
         return result;
     }
 
-    private int incrementCorePoolSize(int corePoolSize) {
-        int rv = corePoolSize + INCREMENT_POOL_THREADS_STEP;
+    private int incrementCorePoolSize(int currentCorePoolSize) {
+        int rv = 2 * currentCorePoolSize;
         return rv > maxPoolSize ? maxPoolSize : rv;
     }
 
