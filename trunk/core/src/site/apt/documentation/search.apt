@@ -17,7 +17,7 @@ Search
 
 ---
 Results results = cache.createQuery().includeKeys()
-                  .add(age.eq(32).and(gender.eq("male"))).execute();
+                  .addCriteria(age.eq(32).and(gender.eq("male"))).execute();
 ---
 
     Note: This feature is in pre-release and will be released with ehcache-core 2.4.0. Maven builds for version 2.4.0-SNAPSHOT are published to
@@ -242,7 +242,7 @@ Well-known Attribute Name | Attribute Constant
     Here is a simple example:
 
 ---
-Query query = cache.createQuery().add(age.eq(35)).includeKeys().end();
+Query query = cache.createQuery().addCriteria(age.eq(35)).includeKeys().end();
 Results results = query.execute();
 ---
 
@@ -252,9 +252,9 @@ Results results = query.execute();
    directly as shown in this example:
 
 ---
-Results results = cache.createQuery().add(Query.KEY.eq(35)).execute();
-Results results = cache.createQuery().add(Query.VALUE.lt(10)).execute();
-Results results = cache.createQuery().add(Query.VERSION.ge(2)).execute();
+Results results = cache.createQuery().addCriteria(Query.KEY.eq(35)).execute();
+Results results = cache.createQuery().addCriteria(Query.VALUE.lt(10)).execute();
+Results results = cache.createQuery().addCriteria(Query.VERSION.ge(2)).execute();
 ---
 
     Other attributes are referenced by the names given them in the configuration. E.g.
@@ -271,10 +271,10 @@ Attribute<String> name = cache.getSearchAttribute("name");
 
     Expressions include logical operators such as <and> and <or>. It also includes comparison operators such as <ge> (>=), <between> and <like>
 
-    <<<add(...)>>> is used to add a clause to a query. Adding a further clause automatically <and>s the clauses
+    <<<addCriteria(...)>>> is used to add a clause to a query. Adding a further clause automatically <and>s the clauses
 
 ---
-query = cache.createQuery().includeKeys().add(age.le(65)).add(gender.eq("male")).end();
+query = cache.createQuery().includeKeys().addCriteria(age.le(65)).add(gender.eq("male")).end();
 ---
 
     Both logical and comparison operators implement the <<<Criteria>>> interface.
@@ -284,9 +284,9 @@ query = cache.createQuery().includeKeys().add(age.le(65)).add(gender.eq("male"))
     e.g. to check for age = 35 or gender = female, do the following:
 
 ---
-query.add(new Or(age.eq(35),
-                 gender.eq(Gender.FEMALE))
-         );
+query.addCriteria(new Or(age.eq(35),
+                  gender.eq(Gender.FEMALE))
+                 );
 ---
 
     More complex compound expressions can be further created with extra nesting.
@@ -473,7 +473,7 @@ i.set("results", results);
 String userDefinedQuery = "age.eq(35)";
 
 //Add the stuff on that we need
-String fullQueryString = "results = query.add(" + userDefinedQuery + ").execute()";
+String fullQueryString = "results = query.addCriteria(" + userDefinedQuery + ").execute()";
 
 i.eval(fullQueryString);
 results = (Results) i.get("results");

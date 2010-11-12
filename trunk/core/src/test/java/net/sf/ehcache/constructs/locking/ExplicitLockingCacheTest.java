@@ -2,12 +2,10 @@ package net.sf.ehcache.constructs.locking;
 
 import junit.framework.TestCase;
 import net.sf.ehcache.CacheManager;
-import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.Configuration;
 
-import net.sf.ehcache.exceptionhandler.ExceptionHandlingDynamicCacheProxy;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -21,6 +19,7 @@ public class ExplicitLockingCacheTest extends TestCase {
     private ExplicitLockingCache testCache;
     private CacheManager manager;
 
+    @Override
     @Before
     public void setUp() throws Exception {
         Configuration configuration = new Configuration();

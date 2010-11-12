@@ -141,7 +141,7 @@ class CacheQuery implements Query, StoreQuery {
     /**
      * {@inheritDoc}
      */
-    public Query add(Criteria criteria) {
+    public Query addCriteria(Criteria criteria) {
         checkFrozen();
 
         if (criteria == null) {
