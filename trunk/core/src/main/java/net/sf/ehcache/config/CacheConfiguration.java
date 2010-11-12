@@ -75,8 +75,8 @@ import org.slf4j.LoggerFactory;
  * the cache configuration will be reloaded from its original source, erasing any
  * changes made previously at runtime.
  *
- * @author <a href="mailto:gluck@thoughtworks.com">Greg Luck</a>
- * @author <a href="mailto:cdennis@terracottatech.com>Chris Dennis</a>
+ * @author Greg Luck
+ * @author Chris Dennis
  * @version $Id$
  */
 public class CacheConfiguration implements Cloneable {
