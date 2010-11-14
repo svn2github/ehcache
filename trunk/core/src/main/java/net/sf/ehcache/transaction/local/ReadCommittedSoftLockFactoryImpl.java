@@ -91,9 +91,7 @@ public class ReadCommittedSoftLockFactoryImpl implements SoftLockFactory {
         Set<Object> result = new HashSet<Object>();
 
         for (ReadCommittedSoftLockImpl softLock : newKeyLocks.keySet()) {
-            if (!softLock.isExpired()) {
-                result.add(softLock.getKey());
-            }
+            result.add(softLock.getKey());
         }
 
         return result;
