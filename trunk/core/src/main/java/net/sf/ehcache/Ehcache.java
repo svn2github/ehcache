@@ -21,7 +21,6 @@ import java.io.Serializable;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import net.sf.ehcache.bootstrap.BootstrapCacheLoader;
 import net.sf.ehcache.config.CacheConfiguration;
@@ -1085,40 +1084,6 @@ public interface Ehcache extends Cloneable {
      * @param listener
      */
     public void removePropertyChangeListener(PropertyChangeListener listener);
-
-    /**
-     * Returns a list of all element keys in the cache, whether or not they are expired,
-     * whose elements are members are members of the specificed group
-     * <p/>
-     * The Set returned is not live. It is a copy, and may be out of date since
-     * an Element expiry does not necessarily cause a cleanup of the group membership
-     *
-     * @param groupKey the group identifier
-     * @return a set of {@link Object} keys, or {@code null} if the group is not present in the cache
-     * @throws IllegalStateException if the cache is not {@link Status#STATUS_ALIVE}
-     * @throws CacheException
-     * @since 2.4
-     */
-    public Set<Object> getElementKeysForGroup(String groupKey) throws IllegalStateException, CacheException;
-
-    /**
-     * Removes all elements which participate in the given group.
-     * <p/>
-     * The Set returned is the set of Elements that were removed, this may be a
-     * subset of the set returned by {@link #getElementKeysForGroup(String)}; since this
-     * method only includes in the set the keys that were actually removed.
-     *
-     * @param groupKey the group identifier
-     * @param doNotNotifyCacheReplicators whether the put is coming from a doNotNotifyCacheReplicators cache peer, in which case this put should not initiate a
-     *                                    further notification to doNotNotifyCacheReplicators cache peers
-     * @return a set of {@link Object} keys removed, or {@code null} if the group is not present in the cache
-     * @throws IllegalStateException if the cache is not {@link Status#STATUS_ALIVE}
-     * @throws CacheException
-     * @since 2.4
-     */
-    //TODO: do we need an overload for this which takes only groupKey and defaults the boolean?
-    //TODO: do we need a removeQuiet and removeWithWriter too?
-    public Set<Object> removeByGroup(String groupKey, boolean doNotNotifyCacheReplicators) throws IllegalStateException, CacheException;
 
     /**
      * Retrieve the given named search attribute
