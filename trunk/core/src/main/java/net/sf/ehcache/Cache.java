@@ -3384,11 +3384,13 @@ public class Cache implements Ehcache, StoreListener {
             return false;
         }
 
-        //this guard currently ensures reasonable behavior on expiring elements
+        // this guard currently ensures reasonable behavior on expiring elements
         getQuiet(element.getObjectKey());
 
         Element result = compoundStore.removeElement(element, elementValueComparator);
-        notifyRemoveInternalListeners(element.getObjectKey(), false, true, false, result);//FIXME shouldn't this be done only if result != null
+
+        // FIXME shouldn't this be done only if result != null
+        notifyRemoveInternalListeners(element.getObjectKey(), false, true, false, result);
         return result != null;
     }
 
