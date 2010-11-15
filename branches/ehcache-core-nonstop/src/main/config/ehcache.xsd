@@ -201,6 +201,9 @@
     
     <xs:element name="terracotta">
         <xs:complexType>
+            <xs:sequence>
+                <xs:element minOccurs="0" maxOccurs="1" ref="nonstop"/>
+            </xs:sequence>
             <xs:attribute name="clustered" use="optional" type="xs:boolean" default="true"/>
             <xs:attribute name="valueMode" use="optional" type="terracottaCacheValueType" default="serialization"/>
             <xs:attribute name="coherentReads" use="optional" type="xs:boolean" default="true"/>
@@ -215,6 +218,21 @@
             <xs:attribute name="concurrency" use="optional" type="xs:nonNegativeInteger" default="0"/>
         </xs:complexType>
     </xs:element>
+    <xs:element name="nonstop">
+        <xs:complexType>
+            <xs:attribute name="nonstop" use="optional" type="xs:boolean" default="true"/>
+            <xs:attribute name="immediateTimeout" use="optional" type="xs:boolean" default="true"/>
+            <xs:attribute name="timeoutMillis" use="optional" type="xs:positiveInteger" default="5000"/>
+            <xs:attribute name="timeoutBehavior" use="optional" type="timeoutBehaviorType" default="exception"/>
+        </xs:complexType>
+    </xs:element>
+    <xs:simpleType name="timeoutBehaviorType">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="noop" />
+            <xs:enumeration value="exception" />
+            <xs:enumeration value="localReads" />
+        </xs:restriction>
+    </xs:simpleType>
     <xs:simpleType name="monitoringType">
         <xs:restriction base="xs:string">
             <xs:enumeration value="autodetect"/>

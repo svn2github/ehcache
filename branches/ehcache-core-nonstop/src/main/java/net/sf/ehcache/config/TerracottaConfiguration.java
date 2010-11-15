@@ -22,9 +22,10 @@ import org.slf4j.LoggerFactory;
 /**
  * Class to hold the Terracotta configuration - either a pointer to the real config or a
  * container for embedded config.
- * 
+ *
  * @author Alex Miller
  * @author Geert Bevin
+ * @author Abhishek Sanoujam
  */
 public class TerracottaConfiguration implements Cloneable {
 
@@ -88,7 +89,7 @@ public class TerracottaConfiguration implements Cloneable {
     /**
      * Represents whether values are stored with serialization in the clustered store
      * or through Terracotta clustered identity.
-     * 
+     *
      * @author amiller
      */
     public static enum ValueMode {
@@ -105,7 +106,7 @@ public class TerracottaConfiguration implements Cloneable {
 
     /**
      * Represents whether keys/values are to be stored in the local vm or the Terracotta server
-     * 
+     *
      * @author Abhishek Sanoujam
      */
     public static enum StorageStrategy {
@@ -138,16 +139,21 @@ public class TerracottaConfiguration implements Cloneable {
 
     private boolean copyOnReadSet;
     private volatile boolean storageStrategySet;
+    private NonstopConfiguration nonStopConfiguration;
 
     /**
      * Clones this object, following the usual contract.
-     * 
+     *
      * @return a copy, which independent other than configurations than cannot change.
      */
     @Override
     public TerracottaConfiguration clone() {
         try {
-            return (TerracottaConfiguration) super.clone();
+            TerracottaConfiguration clone = (TerracottaConfiguration) super.clone();
+            if (nonStopConfiguration != null) {
+                clone.nonstop(this.nonStopConfiguration.clone());
+            }
+            return clone;
         } catch (CloneNotSupportedException e) {
             throw new RuntimeException(e);
         }
@@ -157,7 +163,7 @@ public class TerracottaConfiguration implements Cloneable {
      * Indicates whether to cluster this cache with Terracotta.
      * <p/>
      * Defaults to {@value #DEFAULT_CLUSTERED}.
-     * 
+     *
      * @param clustered
      *            {@code true} if the cache should be clustered with Terracotta; {@code false} otherwise
      */
@@ -193,7 +199,7 @@ public class TerracottaConfiguration implements Cloneable {
 
     /**
      * Whether the copyOnRead was explicitly set
-     * 
+     *
      * @return true if set by config
      */
     boolean isCopyOnReadSet() {
@@ -244,7 +250,7 @@ public class TerracottaConfiguration implements Cloneable {
      * read-only).
      * <p/>
      * Defaults to {@value #DEFAULT_COHERENT_READS}.
-     * 
+     *
      * @param coherentReads
      *            {@code true} if coherent reads should be used; {@code false} otherwise
      */
@@ -315,7 +321,7 @@ public class TerracottaConfiguration implements Cloneable {
      * they're not locally available anywhere.
      * <p/>
      * Defaults to {@value #DEFAULT_ORPHAN_EVICTION}.
-     * 
+     *
      * @param orphanEviction
      *            {@code true} if orphan eviction should be used; {@code false} otherwise
      */
@@ -343,7 +349,7 @@ public class TerracottaConfiguration implements Cloneable {
      * Set how often this cache should perform orphan eviction (measured in regular eviction periods).
      * <p/>
      * Defaults to {@value #DEFAULT_ORPHAN_EVICTION_PERIOD}).
-     * 
+     *
      * @param orphanEvictionPeriod
      *            every how many regular evictions an orphan eviction should occur
      */
@@ -372,7 +378,7 @@ public class TerracottaConfiguration implements Cloneable {
      * optimizing for a small read-only cache)
      * <p/>
      * Defaults to {@value #DEFAULT_LOCAL_KEY_CACHE}.
-     * 
+     *
      * @param localKeyCache
      *            {@code true} if a local key cache should be used; {@code false} otherwise
      */
@@ -400,7 +406,7 @@ public class TerracottaConfiguration implements Cloneable {
      * Sets maximum size of the local key cache (usually the size of the key set of the cache or cache partition).
      * <p/>
      * Defaults to {@value #DEFAULT_LOCAL_KEY_CACHE_SIZE}.
-     * 
+     *
      * @param localKeyCacheSize
      *            the size of the local key cache in number of keys
      */
@@ -442,7 +448,7 @@ public class TerracottaConfiguration implements Cloneable {
 
     /**
      * Is the cache configured for coherent or incoherent mode.
-     * 
+     *
      * @return true if configured in coherent mode.
      */
     public boolean isCoherent() {
@@ -451,7 +457,7 @@ public class TerracottaConfiguration implements Cloneable {
 
     /**
      * Is the cache configured for synchronous-write?
-     * 
+     *
      * @return true if configured for synchronouse-write, otherwise false. Default is false
      */
     public boolean isSynchronousWrites() {
@@ -460,7 +466,7 @@ public class TerracottaConfiguration implements Cloneable {
 
     /**
      * Set the value for synchronous-write
-     * 
+     *
      * @param synchronousWrites
      *            true for using synchronous-write
      */
@@ -511,6 +517,7 @@ public class TerracottaConfiguration implements Cloneable {
 
     /**
      * Returns true is storageStrategy is set explicitly
+     *
      * @return true is storageStrategy is set explicitly
      */
     public boolean isStorageStrategySet() {
@@ -550,5 +557,34 @@ public class TerracottaConfiguration implements Cloneable {
      */
     public int getConcurrency() {
         return this.concurrency;
+    }
+
+    /**
+     * Add the {@link NonstopConfiguration}
+     *
+     * @param nonstopConfiguration
+     */
+    public void addNonstop(NonstopConfiguration nonstopConfiguration) {
+        this.nonStopConfiguration = nonstopConfiguration;
+    }
+
+    /**
+     * Set the {@link NonstopConfiguration}
+     *
+     * @param nonstopConfiguration
+     * @return this configuration instance
+     */
+    public TerracottaConfiguration nonstop(NonstopConfiguration nonstopConfiguration) {
+        this.addNonstop(nonstopConfiguration);
+        return this;
+    }
+
+    /**
+     * Get the {@link NonstopConfiguration}, may be null
+     *
+     * @return the {@link NonstopConfiguration}, may be null
+     */
+    public NonstopConfiguration getNonstopConfiguration() {
+        return nonStopConfiguration;
     }
 }

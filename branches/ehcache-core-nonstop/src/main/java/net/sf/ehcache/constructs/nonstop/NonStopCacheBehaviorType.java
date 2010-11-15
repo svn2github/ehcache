@@ -18,6 +18,7 @@ package net.sf.ehcache.constructs.nonstop;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.Ehcache;
@@ -27,9 +28,9 @@ import net.sf.ehcache.constructs.nonstop.behavior.NoOpOnTimeoutBehavior;
 
 /**
  * Enum encapsulating different {@link NonStopCacheBehavior} types used by {@link NonStopCache}
- * 
+ *
  * @author Abhishek Sanoujam
- * 
+ *
  */
 public enum NonStopCacheBehaviorType {
 
@@ -115,7 +116,7 @@ public enum NonStopCacheBehaviorType {
 
     /**
      * Creates and returns new instance of {@link NonStopCacheBehavior} for this type
-     * 
+     *
      * @param ehcache
      * @return new instance of {@link NonStopCacheBehavior} for this type
      */
@@ -124,7 +125,7 @@ public enum NonStopCacheBehaviorType {
     /**
      * Name to be used for this type. This value is used for "timeoutBehavior" key when configuring {@link NonStopCache} with
      * java.util.Properties
-     * 
+     *
      * @return new instance of {@link NonStopCacheBehavior} for this type
      */
     public abstract String getConfigPropertyName();
@@ -155,7 +156,7 @@ public enum NonStopCacheBehaviorType {
 
     /**
      * Return a {@link NonStopCacheBehaviorType} for the string property name.
-     * 
+     *
      * @param configName
      * @return {@link NonStopCacheBehaviorType} for the string property name.
      * @throws IllegalArgumentException
@@ -172,5 +173,25 @@ public enum NonStopCacheBehaviorType {
             throw new IllegalArgumentException("Unrecognized NonStopCacheBehaviorType config property value -- " + configName);
         }
         return type;
+    }
+
+    /**
+     * Check if a given value is a valid timeoutBehavior or not
+     *
+     * @param value the value to check
+     * @return true is the value is valid, false otherwise
+     */
+    public static boolean isValidTimeoutValue(String value) {
+        NonStopCacheBehaviorType type = configNameToTypeMapping.get(value);
+        return type != null;
+    }
+
+    /**
+     * Returns set of all valid timeoutBehavior values
+     *
+     * @return set of all valid timeoutBehavior values
+     */
+    public static Set<String> getValidTimeoutBehaviors() {
+        return configNameToTypeMapping.keySet();
     }
 }

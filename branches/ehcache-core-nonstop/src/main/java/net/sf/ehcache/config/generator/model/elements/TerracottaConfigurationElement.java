@@ -23,9 +23,9 @@ import net.sf.ehcache.config.generator.model.SimpleNodeElement;
 
 /**
  * {@link NodeElement} representing the {@link TerracottaConfiguration}
- * 
+ *
  * @author Abhishek Sanoujam
- * 
+ *
  */
 public class TerracottaConfigurationElement extends SimpleNodeElement {
 
@@ -33,7 +33,7 @@ public class TerracottaConfigurationElement extends SimpleNodeElement {
 
     /**
      * Constructor accepting the parent and the {@link TerracottaConfiguration}
-     * 
+     *
      * @param parent
      * @param tcConfiguration
      */
@@ -46,6 +46,9 @@ public class TerracottaConfigurationElement extends SimpleNodeElement {
     private void init() {
         if (tcConfiguration == null) {
             return;
+        }
+        if (tcConfiguration.getNonstopConfiguration() != null) {
+            this.addChildElement(new NonstopConfigurationElement(this, tcConfiguration.getNonstopConfiguration()));
         }
         addAttribute(new SimpleNodeAttribute("clustered", tcConfiguration.isClustered()).optional(true).defaultValue(
                 TerracottaConfiguration.DEFAULT_CLUSTERED));
