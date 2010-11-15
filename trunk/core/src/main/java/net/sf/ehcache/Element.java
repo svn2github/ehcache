@@ -28,6 +28,8 @@ import java.io.NotSerializableException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
+import java.util.Set;
+import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.atomic.AtomicLongFieldUpdater;
 
 import org.slf4j.Logger;
@@ -48,14 +50,14 @@ public class Element implements Serializable, Cloneable {
 
     /**
      * serial version
-     * Updated for version 1.2, 1.2.1 and 1.7
+     * Updated for version 1.2, 1.2.1, 1.7 and 2.4
      */
-    private static final long serialVersionUID = 1098572221246444544L;
+    private static final long serialVersionUID = 318529397738968753L;
 
     private static final Logger LOG = LoggerFactory.getLogger(Element.class.getName());
 
     private static final AtomicLongFieldUpdater<Element> HIT_COUNT_UPDATER = AtomicLongFieldUpdater.newUpdater(Element.class, "hitCount");
-    
+
     /**
      * the cache key.
      */
@@ -86,7 +88,7 @@ public class Element implements Serializable, Cloneable {
      * The amount of time for the element to idle, in seconds. 0 indicates unlimited.
      */
     private volatile int timeToIdle = Integer.MIN_VALUE;
-    
+
     /**
      * Pluggable element eviction data instance
      */
@@ -100,6 +102,18 @@ public class Element implements Serializable, Cloneable {
     private volatile long lastUpdateTime;
 
     private volatile boolean cacheDefaultLifespan = true;
+
+    /**
+     * The set of cache groups that this cache entry belongs to, if any.
+     * @since 2.4
+     */
+    private volatile Set<String> groupKeys;
+    /**
+     * The set of cache groups that this cache entry was removed from, if any.
+     * This is a cache processed (and emptied) by the {@link Ehcache}.
+     * @since 2.4
+     */
+    volatile Set<String> removedGroupKeys;
 
     /**
      * A full constructor.
@@ -131,7 +145,7 @@ public class Element implements Serializable, Cloneable {
 
     /**
      * Constructor.
-     * 
+     *
      * @deprecated The {@code nextToLastAccessTime} field is unused since
      *             version 1.7, setting it will have no effect. Use
      *             #Element(Object, Object, long, long, long, long, long)
@@ -161,7 +175,7 @@ public class Element implements Serializable, Cloneable {
         HIT_COUNT_UPDATER.set(this, hitCount);
         this.elementEvictionData = new DefaultElementEvictionData(creationTime, lastAccessTime);
     }
-    
+
     /**
      * Constructor used by ElementData. Needs to be public since ElementData might be in another classloader
      *
@@ -354,7 +368,7 @@ public class Element implements Serializable, Cloneable {
      * <p>
      * Note that in a Terracotta clustered environment, resetting the creation
      * time will not have any effect.
-     * 
+     *
      * @deprecated Resetting the creation time is not recommended as of version
      *             1.7
      */
@@ -404,7 +418,7 @@ public class Element implements Serializable, Cloneable {
 
     /**
      * Gets the next to last access time.
-     * 
+     *
      * @deprecated The {@code nextToLastAccessTime} field is unused since
      *             version 1.7, retrieving it will return the {@code
      *             lastAccessTime}. Use #getLastAccessTime() instead.
@@ -421,10 +435,10 @@ public class Element implements Serializable, Cloneable {
     public final long getHitCount() {
         return hitCount;
     }
-    
-    /** 
+
+    /**
      * Retrieves this element's eviction data instance.
-     * 
+     *
      * @return this element's eviction data instance
      */
     public ElementEvictionData getElementEvictionData() {
@@ -433,7 +447,7 @@ public class Element implements Serializable, Cloneable {
 
     /**
      * Sets this element's eviction data instance.
-     * 
+     *
      * @param elementEvictionData this element's eviction data
      */
     public void setElementEvictionData(ElementEvictionData elementEvictionData) {
@@ -477,8 +491,12 @@ public class Element implements Serializable, Cloneable {
                 .append(", version=").append(version)
                 .append(", hitCount=").append(hitCount)
                 .append(", CreationTime = ").append(this.getCreationTime())
-                .append(", LastAccessTime = ").append(this.getLastAccessTime())
-                .append(" ]");
+                .append(", LastAccessTime = ").append(this.getLastAccessTime());
+        if (this.hasGroupKeys())
+            sb.append(", groupKeys = ").append(this.getGroupKeys());
+        else
+            sb.append(", groupKeys = null");
+        sb.append(" ]");
 
         return sb.toString();
     }
@@ -503,6 +521,12 @@ public class Element implements Serializable, Cloneable {
         try {
             Element element = new Element(deepCopy(key), deepCopy(value), version);
             element.elementEvictionData = elementEvictionData.clone();
+            if (hasGroupKeys()) {
+                element.groupKeys = new CopyOnWriteArraySet(groupKeys);//TODO Java 6: Collections.newSetFromMap(new ConcurrentHashMap<Object,Boolean>())
+            }
+            if (removedGroupKeys != null && ! removedGroupKeys.isEmpty()) {
+                element.removedGroupKeys = new CopyOnWriteArraySet(removedGroupKeys);//TODO Java 6: Collections.newSetFromMap(new ConcurrentHashMap<Object,Boolean>())
+            }
             HIT_COUNT_UPDATER.set(element, hitCount);
             return element;
         } catch (IOException e) {
@@ -596,7 +620,7 @@ public class Element implements Serializable, Cloneable {
      * @since 1.2
      */
     public final boolean isSerializable() {
-        return isKeySerializable() 
+        return isKeySerializable()
             && (value instanceof Serializable || value == null)
             && elementEvictionData.canParticipateInSerialization();
     }
@@ -776,7 +800,69 @@ public class Element implements Serializable, Cloneable {
             timeToLive = ttl;
         }
     }
-    
+
+    /**
+     * @since 2.4
+     */
+    public Set<String> getGroupKeys() {
+        if (groupKeys == null) {
+            groupKeys = new CopyOnWriteArraySet();//TODO Java 6: Collections.newSetFromMap(new ConcurrentHashMap<Object,Boolean>())
+        }
+        return groupKeys;
+    }
+    Set<String> getRemovedGroupKeys() {
+        if (removedGroupKeys == null) {
+            removedGroupKeys = new CopyOnWriteArraySet();//TODO Java 6: Collections.newSetFromMap(new ConcurrentHashMap<Object,Boolean>())
+        }
+        return removedGroupKeys;
+    }
+
+    /**
+     * @since 2.4
+     */
+    public void setGroupKeys(Set<String> groupKeys) {
+        this.groupKeys = new CopyOnWriteArraySet(groupKeys);
+    }
+
+    /**
+     * @return {@code true} if this element belongs to at least 1 group
+     * @since 2.4
+     */
+    public boolean hasGroupKeys() {
+        return (groupKeys != null) && (! groupKeys.isEmpty());
+    }
+
+    /**
+     * @param groupKey groupKey to be added to the Elements group keys set
+     * @return <tt>true</tt> if this set did not already contain the specified
+     *         element
+     * @since 2.4
+     */
+    public boolean addGroupKey(String groupKey) {
+        Set<String> groupKeys = getGroupKeys();
+        boolean added = groupKeys.add(groupKey);
+        return added;
+    }
+
+    /**
+     * @param groupKey groupKey to be removed from the Elements group keys set, if present
+     * @return <tt>true</tt> if this set contained the specified element
+     * @since 2.4
+     */
+    public boolean removeGroupKey(String groupKey) {
+        if (groupKeys == null) {
+            return false;
+        }
+        boolean removed = groupKeys.remove(groupKey);
+        if (groupKeys.isEmpty()) {
+            groupKeys = null;
+        }
+        if (removed) {
+            getRemovedGroupKeys().add(groupKey);
+        }
+        return removed;
+    }
+
     /**
      * Custom serialization write logic
      */
@@ -788,7 +874,7 @@ public class Element implements Serializable, Cloneable {
         out.writeInt(TimeUtil.toSecs(elementEvictionData.getCreationTime()));
         out.writeInt(TimeUtil.toSecs(elementEvictionData.getLastAccessTime()));
     }
-    
+
     /**
      * Custom serialization read logic
      */

@@ -251,6 +251,8 @@ public class Cache implements Ehcache, StoreListener {
 
     private final PropertyChangeSupport propertyChangeSupport = new PropertyChangeSupport(this);
 
+    private final String masterGroupKey = GroupElement.MASTER_GROUP_KEY;
+
     private volatile ElementValueComparator elementValueComparator;
 
     /**
@@ -1119,6 +1121,8 @@ public class Cache implements Ehcache, StoreListener {
 
         compoundStore.addStoreListener(this);
 
+        registerGroupElement();
+
         if (LOG.isDebugEnabled()) {
             LOG.debug("Initialised cache: " + configuration.getName());
         }
@@ -1315,10 +1319,11 @@ public class Cache implements Ehcache, StoreListener {
             boolean elementExists = false;
             try {
                 elementExists = compoundStore.containsKey(element.getObjectKey());
-                elementExists = !compoundStore.putWithWriter(element, cacheWriterManager) || elementExists;
+                elementExists |= !compoundStore.putWithWriter(element, cacheWriterManager);
                 if (elementExists) {
                     element.updateUpdateStatistics();
                 }
+                addToGroups(element, elementExists, false, doNotNotifyCacheReplicators);
                 notifyPutInternalListeners(element, doNotNotifyCacheReplicators, elementExists);
             } catch (CacheWriterManagerException e) {
                 if (configuration.getCacheWriterConfiguration().getNotifyListenersOnException()) {
@@ -1331,6 +1336,7 @@ public class Cache implements Ehcache, StoreListener {
             if (elementExists) {
                 element.updateUpdateStatistics();
             }
+            addToGroups(element, elementExists, false, doNotNotifyCacheReplicators);
             notifyPutInternalListeners(element, doNotNotifyCacheReplicators, elementExists);
         }
     }
@@ -1398,7 +1404,9 @@ public class Cache implements Ehcache, StoreListener {
 
         applyDefaultsToElementWithoutLifespanSet(element);
 
-        compoundStore.put(element);
+        boolean elementExists = !compoundStore.put(element);
+
+        addToGroups(element, elementExists, true, false);
     }
 
     /**
@@ -1908,7 +1916,7 @@ public class Cache implements Ehcache, StoreListener {
      */
     public final boolean remove(Object key) throws IllegalStateException {
         return remove(key, false);
-    }                               
+    }
 
 
     /**
@@ -2040,6 +2048,8 @@ public class Cache implements Ehcache, StoreListener {
             elementFromStore = compoundStore.remove(key);
         }
 
+        removeFromGroups(elementFromStore, notifyListeners, doNotNotifyCacheReplicators);
+
         return notifyRemoveInternalListeners(key, expiry, notifyListeners, doNotNotifyCacheReplicators,
                 elementFromStore);
     }
@@ -2095,8 +2105,11 @@ public class Cache implements Ehcache, StoreListener {
      */
     public void removeAll(boolean doNotNotifyCacheReplicators) throws IllegalStateException, CacheException {
         checkStatus();
+        getGroupElement().getGroups().clear();
         compoundStore.removeAll();
         registeredEventListeners.notifyRemoveAll(doNotNotifyCacheReplicators);
+        // re-create groups, since it is not supposed to be null
+        registerGroupElement();
     }
 
     /**
@@ -3287,7 +3300,7 @@ public class Cache implements Ehcache, StoreListener {
      */
     public boolean isNodeCoherent() {
         return compoundStore.isNodeCoherent();
-    }                     
+    }
 
     /**
      * {@inheritDoc}
@@ -3365,6 +3378,7 @@ public class Cache implements Ehcache, StoreListener {
 
         Element result = compoundStore.putIfAbsent(element);
         if (result == null) {
+            addToGroups(element, false, true, false);
             notifyPutInternalListeners(element, false, false);
         }
         return result;
@@ -3388,7 +3402,10 @@ public class Cache implements Ehcache, StoreListener {
         getQuiet(element.getObjectKey());
 
         Element result = compoundStore.removeElement(element, elementValueComparator);
-        notifyRemoveInternalListeners(element.getObjectKey(), false, true, false, result);
+        if (result != null) {
+            removeFromGroups(result, false, false);
+            notifyRemoveInternalListeners(element.getObjectKey(), false, true, false, result);
+        }
         return result != null;
     }
 
@@ -3419,6 +3436,8 @@ public class Cache implements Ehcache, StoreListener {
 
         if (result) {
             element.updateUpdateStatistics();
+            removeFromGroups(old, false, false);
+            addToGroups(element, false, false, false);
             notifyPutInternalListeners(element, false, true);
         }
         return result;
@@ -3447,6 +3466,8 @@ public class Cache implements Ehcache, StoreListener {
         Element result = compoundStore.replace(element);
         if (result != null) {
             element.updateUpdateStatistics();
+            removeFromGroups(result, false, false);
+            addToGroups(element, false, false, false);
             notifyPutInternalListeners(element, false, true);
         }
         return result;
@@ -3470,6 +3491,112 @@ public class Cache implements Ehcache, StoreListener {
         firePropertyChange("NodeCoherent", !nodeCoherent, nodeCoherent);
     }
 
+
+    // Groups
+
+    private void registerGroupElement() {
+        GroupElement group = (GroupElement) getQuiet(masterGroupKey);
+        if (group == null) {
+            group = new GroupElement(masterGroupKey);
+            putQuiet(group);
+        }
+    }
+
+    private GroupElement getGroupElement() {
+        return (GroupElement) getQuiet(masterGroupKey);
+    }
+
+    private void fireGroupElementChanged(GroupElement groupElement) {
+        putQuiet(groupElement);
+    }
+
+    private void addToGroups(Element element, boolean elementExists, boolean quiet,
+            boolean doNotNotifyCacheReplicators) throws CacheException {
+
+        removeRemovedGroups(element);
+
+        //does this element have group membership?
+        if(!element.hasGroupKeys()) {
+            return;
+        }
+
+        //loop through group keys, look for them in the cache and create/update them
+        GroupElement groupElement = getGroupElement();
+        boolean added = false;
+        for(String groupKey : element.getGroupKeys()) {
+            added &= groupElement.addMemberToGroup(groupKey, element.getObjectKey());
+        }
+        if (added) {
+            fireGroupElementChanged(groupElement);
+        }
+    }
+
+    private void removeFromGroups(Element element, boolean quiet,
+            boolean doNotNotifyCacheReplicators) throws CacheException {
+
+        removeRemovedGroups(element);
+
+        //does this element have group membership?
+        if(!element.hasGroupKeys()) {
+            return;
+        }
+
+        //loop through group keys, look for them in the cache and modify/remove them
+        GroupElement groupElement = getGroupElement();
+        boolean removed = false;
+        for(String groupKey : element.getGroupKeys()) {
+            groupElement.removeMemberFromGroup(groupKey, element.getObjectKey());
+        }
+        if (removed) {
+            fireGroupElementChanged(groupElement);
+        }
+    }
+
+    private boolean removeRemovedGroups(Element element) {
+        boolean removed = false;
+        if (element.removedGroupKeys != null) {
+            GroupElement groupElement = getGroupElement();
+            for(String groupKey : element.removedGroupKeys) {
+                groupElement.removeMemberFromGroup(groupKey, element.getObjectKey());
+            }
+            element.removedGroupKeys = null;
+            if (removed) {
+                fireGroupElementChanged(groupElement);
+            }
+        }
+        return removed;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public final Set<Object> getElementKeysForGroup(String groupKey) throws IllegalStateException, CacheException {
+        return getGroupElement().getGroupMembers(groupKey);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public final Set<Object> removeByGroup(String groupKey, boolean doNotNotifyCacheReplicators) throws IllegalStateException, CacheException {
+        //for the given groupKey, get its Set of members
+        Set proposedRemovals = getElementKeysForGroup(groupKey);
+        if (proposedRemovals == null || proposedRemovals.isEmpty()) {
+            return null;
+        }
+        //make a copy as we will be modifying the underlying set as we iterate through it
+        proposedRemovals = new HashSet(proposedRemovals);
+        Set actualRemovals = new HashSet();
+        for(Object key : proposedRemovals) {
+            boolean removed = remove(key, doNotNotifyCacheReplicators);
+            if(removed) {
+                actualRemovals.add(key);
+            }
+        }
+        return actualRemovals;
+    }
+
+
+    // Search
 
     /**
      * {@inheritDoc}

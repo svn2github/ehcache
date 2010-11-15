@@ -21,6 +21,7 @@ import java.io.Serializable;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.CacheManager;
@@ -736,6 +737,20 @@ public class EhcacheDecoratorAdapter implements Ehcache {
      */
     public void removePropertyChangeListener(PropertyChangeListener listener) {
         underlyingCache.addPropertyChangeListener(listener);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public Set<Object> getElementKeysForGroup(String groupKey) throws IllegalStateException, CacheException {
+        return underlyingCache.getElementKeysForGroup(groupKey);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public Set<Object> removeByGroup(String groupKey, boolean doNotNotifyCacheReplicators) throws IllegalStateException, CacheException {
+        return underlyingCache.removeByGroup(groupKey, doNotNotifyCacheReplicators);
     }
 
     /**
