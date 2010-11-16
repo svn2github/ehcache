@@ -38,16 +38,17 @@ public class NonStopConfigTest extends TestCase {
 
     public void testNonStopCacheConfig() {
         CacheManager cacheManager = new CacheManager(getClass().getResourceAsStream("/nonstop/nonstop-config-test.xml"));
-        assertNonstopConfig(cacheManager.getCache("defaultConfig"), NonstopConfiguration.DEFAULT_NONSTOP,
+        assertNonstopConfig(cacheManager.getCache("defaultConfig"), NonstopConfiguration.DEFAULT_ENABLED,
                 NonstopConfiguration.DEFAULT_IMMEDIATE_TIMEOUT, NonstopConfiguration.DEFAULT_TIMEOUT_MILLIS,
-                NonstopConfiguration.DEFAULT_NONSTOP_TIMEOUT_BEHAVIOR);
+                NonstopConfiguration.DEFAULT_TIMEOUT_BEHAVIOR.getType());
 
         assertNonstopConfig(cacheManager.getCache("one"), false, NonstopConfiguration.DEFAULT_IMMEDIATE_TIMEOUT,
-                NonstopConfiguration.DEFAULT_TIMEOUT_MILLIS, NonstopConfiguration.DEFAULT_NONSTOP_TIMEOUT_BEHAVIOR);
+                NonstopConfiguration.DEFAULT_TIMEOUT_MILLIS, NonstopConfiguration.DEFAULT_TIMEOUT_BEHAVIOR.getType());
 
         assertNonstopConfig(cacheManager.getCache("two"), false, false, NonstopConfiguration.DEFAULT_TIMEOUT_MILLIS,
-                NonstopConfiguration.DEFAULT_NONSTOP_TIMEOUT_BEHAVIOR);
-        assertNonstopConfig(cacheManager.getCache("three"), false, false, 12345, NonstopConfiguration.DEFAULT_NONSTOP_TIMEOUT_BEHAVIOR);
+                NonstopConfiguration.DEFAULT_TIMEOUT_BEHAVIOR.getType());
+        assertNonstopConfig(cacheManager.getCache("three"), false, false, 12345, NonstopConfiguration.DEFAULT_TIMEOUT_BEHAVIOR
+                .getType());
         assertNonstopConfig(cacheManager.getCache("four"), false, false, 12345, "localReads");
         cacheManager.shutdown();
     }
@@ -61,10 +62,10 @@ public class NonStopConfigTest extends TestCase {
         NonstopConfiguration nonstopConfiguration = terracottaConfiguration.getNonstopConfiguration();
         assertNotNull(nonstopConfiguration);
 
-        assertEquals(nonstop, nonstopConfiguration.isNonstop());
+        assertEquals(nonstop, nonstopConfiguration.isEnabled());
         assertEquals(immediateTimeout, nonstopConfiguration.isImmediateTimeout());
         assertEquals(timeoutMillis, nonstopConfiguration.getTimeoutMillis());
-        assertEquals(timeoutBehavior, nonstopConfiguration.getTimeoutBehavior());
+        assertEquals(timeoutBehavior, nonstopConfiguration.getTimeoutBehavior().getType());
     }
 
 }

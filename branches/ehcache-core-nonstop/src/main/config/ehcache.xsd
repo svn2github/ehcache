@@ -220,10 +220,19 @@
     </xs:element>
     <xs:element name="nonstop">
         <xs:complexType>
-            <xs:attribute name="nonstop" use="optional" type="xs:boolean" default="true"/>
+            <xs:sequence>
+                <xs:element minOccurs="0" maxOccurs="1" ref="timeoutBehavior"/>
+            </xs:sequence>
+            <xs:attribute name="enabled" use="optional" type="xs:boolean" default="true"/>
             <xs:attribute name="immediateTimeout" use="optional" type="xs:boolean" default="true"/>
             <xs:attribute name="timeoutMillis" use="optional" type="xs:positiveInteger" default="5000"/>
-            <xs:attribute name="timeoutBehavior" use="optional" type="timeoutBehaviorType" default="exception"/>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="timeoutBehavior">
+        <xs:complexType>
+            <xs:attribute name="type" use="optional" type="timeoutBehaviorType" default="exception"/>
+            <xs:attribute name="properties" use="optional" default=""/>
+            <xs:attribute name="propertySeparator" use="optional" default=","/>
         </xs:complexType>
     </xs:element>
     <xs:simpleType name="timeoutBehaviorType">

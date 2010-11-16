@@ -17,6 +17,7 @@
 package net.sf.ehcache.config.generator.model.elements;
 
 import net.sf.ehcache.config.NonstopConfiguration;
+import net.sf.ehcache.config.TimeoutBehaviorConfiguration;
 import net.sf.ehcache.config.generator.model.NodeElement;
 import net.sf.ehcache.config.generator.model.SimpleNodeAttribute;
 import net.sf.ehcache.config.generator.model.SimpleNodeElement;
@@ -47,13 +48,28 @@ public class NonstopConfigurationElement extends SimpleNodeElement {
         if (nonstopConfiguration == null) {
             return;
         }
-        addAttribute(new SimpleNodeAttribute("nonstop", nonstopConfiguration.isNonstop()).optional(true).defaultValue(
-                NonstopConfiguration.DEFAULT_NONSTOP));
+        if (nonstopConfiguration.getTimeoutBehavior() != null && !isDefault(nonstopConfiguration.getTimeoutBehavior())) {
+            addChildElement(new TimeoutBehaviorConfigurationElement(this, nonstopConfiguration.getTimeoutBehavior()));
+        }
+        addAttribute(new SimpleNodeAttribute("enabled", nonstopConfiguration.isEnabled()).optional(true).defaultValue(
+                NonstopConfiguration.DEFAULT_ENABLED));
         addAttribute(new SimpleNodeAttribute("immediateTimeout", nonstopConfiguration.isImmediateTimeout()).optional(true).defaultValue(
                 NonstopConfiguration.DEFAULT_IMMEDIATE_TIMEOUT));
         addAttribute(new SimpleNodeAttribute("timeoutMillis", nonstopConfiguration.getTimeoutMillis()).optional(true).defaultValue(
                 NonstopConfiguration.DEFAULT_TIMEOUT_MILLIS));
-        addAttribute(new SimpleNodeAttribute("timeoutBehavior", nonstopConfiguration.getTimeoutBehavior()).optional(true).defaultValue(
-                NonstopConfiguration.DEFAULT_NONSTOP_TIMEOUT_BEHAVIOR));
+    }
+
+    private boolean isDefault(TimeoutBehaviorConfiguration timeoutBehavior) {
+        boolean rv = true;
+        if (!NonstopConfiguration.DEFAULT_TIMEOUT_BEHAVIOR.getType().equals(timeoutBehavior.getType())) {
+            rv = false;
+        }
+        if (!NonstopConfiguration.DEFAULT_TIMEOUT_BEHAVIOR.getProperties().equals(timeoutBehavior.getProperties())) {
+            rv = false;
+        }
+        if (!NonstopConfiguration.DEFAULT_TIMEOUT_BEHAVIOR.getPropertySeparator().equals(timeoutBehavior.getPropertySeparator())) {
+            rv = false;
+        }
+        return rv;
     }
 }

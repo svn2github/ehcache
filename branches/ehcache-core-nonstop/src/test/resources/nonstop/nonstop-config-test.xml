@@ -12,32 +12,36 @@
 			<nonstop />
 		</terracotta>
 	</cache>
-	
+
 	<cache name="one" maxElementsInMemory="10000" eternal="true"
 		overflowToDisk="false">
 		<terracotta clustered="false">
-			<nonstop nonstop="false" />
+			<nonstop enabled="false" />
 		</terracotta>
 	</cache>
-	
+
 	<cache name="two" maxElementsInMemory="10000" eternal="true"
 		overflowToDisk="false">
 		<terracotta clustered="false">
-			<nonstop nonstop="false" immediateTimeout="false" />
+			<nonstop enabled="false" immediateTimeout="false" />
 		</terracotta>
 	</cache>
-	
+
 	<cache name="three" maxElementsInMemory="10000" eternal="true"
 		overflowToDisk="false">
 		<terracotta clustered="false">
-			<nonstop nonstop="false" immediateTimeout="false" timeoutMillis="12345"/>
+			<nonstop enabled="false" immediateTimeout="false"
+				timeoutMillis="12345" />
 		</terracotta>
 	</cache>
-	
+
 	<cache name="four" maxElementsInMemory="10000" eternal="true"
 		overflowToDisk="false">
 		<terracotta clustered="false">
-			<nonstop nonstop="false" immediateTimeout="false" timeoutMillis="12345" timeoutBehavior="localReads"/>
+			<nonstop enabled="false" immediateTimeout="false"
+				timeoutMillis="12345">
+				<timeoutBehavior value="localReads" />
+			</nonstop>
 		</terracotta>
 	</cache>
 

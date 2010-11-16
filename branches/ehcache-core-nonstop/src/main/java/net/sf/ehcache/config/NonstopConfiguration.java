@@ -17,7 +17,6 @@
 package net.sf.ehcache.config;
 
 import net.sf.ehcache.CacheException;
-import net.sf.ehcache.constructs.nonstop.NonStopCacheBehaviorType;
 
 /**
  * Configuration class of nonstop caches
@@ -30,7 +29,7 @@ public class NonstopConfiguration implements Cloneable {
     /**
      * Default value of nonstop attribute
      */
-    public static final boolean DEFAULT_NONSTOP = true;
+    public static final boolean DEFAULT_ENABLED = true;
 
     /**
      * Default value of immediateTimeout attribute
@@ -45,29 +44,29 @@ public class NonstopConfiguration implements Cloneable {
     /**
      * Default value of timeoutBehavior attribute
      */
-    public static final String DEFAULT_NONSTOP_TIMEOUT_BEHAVIOR = "exception";
+    public static final TimeoutBehaviorConfiguration DEFAULT_TIMEOUT_BEHAVIOR = new TimeoutBehaviorConfiguration();
 
-    private boolean nonstop = DEFAULT_NONSTOP;
+    private boolean enabled = DEFAULT_ENABLED;
     private boolean immediateTimeout = DEFAULT_IMMEDIATE_TIMEOUT;
     private int timeoutMillis = DEFAULT_TIMEOUT_MILLIS;
-    private String timeoutBehavior = DEFAULT_NONSTOP_TIMEOUT_BEHAVIOR;
+    private TimeoutBehaviorConfiguration timeoutBehavior = DEFAULT_TIMEOUT_BEHAVIOR;
 
     /**
      * Returns true if nonstop is enabled in config
      *
      * @return true if nonstop is enabled in config
      */
-    public boolean isNonstop() {
-        return nonstop;
+    public boolean isEnabled() {
+        return enabled;
     }
 
     /**
      * Set the value of nonstop is enabled or not
      *
-     * @param nonstop the new value
+     * @param enabled the new value
      */
-    public void setNonstop(boolean nonstop) {
-        this.nonstop = nonstop;
+    public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
     }
 
     /**
@@ -76,8 +75,8 @@ public class NonstopConfiguration implements Cloneable {
      * @param nonstop
      * @return this configuration instance
      */
-    public NonstopConfiguration nonstop(boolean nonstop) {
-        this.setNonstop(nonstop);
+    public NonstopConfiguration enabled(boolean nonstop) {
+        this.setEnabled(nonstop);
         return this;
     }
 
@@ -144,7 +143,7 @@ public class NonstopConfiguration implements Cloneable {
      *
      * @return value of timeoutBehavior configured
      */
-    public String getTimeoutBehavior() {
+    public TimeoutBehaviorConfiguration getTimeoutBehavior() {
         return timeoutBehavior;
     }
 
@@ -153,11 +152,7 @@ public class NonstopConfiguration implements Cloneable {
      *
      * @param timeoutBehavior
      */
-    public void setTimeoutBehavior(String timeoutBehavior) {
-        if (!NonStopCacheBehaviorType.isValidTimeoutValue(timeoutBehavior)) {
-            throw new CacheException("Invalid value for timeoutBehavior - '" + timeoutBehavior + "'. Valid values are: "
-                    + NonStopCacheBehaviorType.getValidTimeoutBehaviors());
-        }
+    public void addTimeoutBehavior(TimeoutBehaviorConfiguration timeoutBehavior) {
         this.timeoutBehavior = timeoutBehavior;
     }
 
@@ -167,8 +162,8 @@ public class NonstopConfiguration implements Cloneable {
      * @param timeoutBehavior
      * @return this configuration instance
      */
-    public NonstopConfiguration timeoutBehavior(String timeoutBehavior) {
-        this.setTimeoutBehavior(timeoutBehavior);
+    public NonstopConfiguration timeoutBehavior(TimeoutBehaviorConfiguration timeoutBehavior) {
+        this.addTimeoutBehavior(timeoutBehavior);
         return this;
     }
 
@@ -178,7 +173,9 @@ public class NonstopConfiguration implements Cloneable {
     @Override
     public NonstopConfiguration clone() throws CloneNotSupportedException {
         try {
-            return (NonstopConfiguration) super.clone();
+            NonstopConfiguration clone = (NonstopConfiguration) super.clone();
+            clone.addTimeoutBehavior((TimeoutBehaviorConfiguration) timeoutBehavior.clone());
+            return clone;
         } catch (CloneNotSupportedException e) {
             throw new CacheException(e);
         }
