@@ -35,7 +35,7 @@ public class TimeoutBehaviorConfigurationElement extends SimpleNodeElement {
      * Constructor accepting the parent and the {@link TimeoutBehaviorConfiguration}
      *
      * @param parent
-     * @param tcConfiguration
+     * @param timeoutBehaviorConfiguration
      */
     public TimeoutBehaviorConfigurationElement(NodeElement parent, TimeoutBehaviorConfiguration timeoutBehaviorConfiguration) {
         super(parent, "timeoutBehavior");

@@ -48,14 +48,20 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import net.sf.ehcache.bootstrap.BootstrapCacheLoader;
 import net.sf.ehcache.bootstrap.BootstrapCacheLoaderFactory;
+import net.sf.ehcache.cluster.CacheCluster;
+import net.sf.ehcache.cluster.ClusterScheme;
+import net.sf.ehcache.cluster.ClusterSchemeNotAvailableException;
 import net.sf.ehcache.concurrent.CacheLockProvider;
 import net.sf.ehcache.concurrent.LockType;
 import net.sf.ehcache.concurrent.Sync;
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.CacheWriterConfiguration;
 import net.sf.ehcache.config.DiskStoreConfiguration;
+import net.sf.ehcache.config.NonstopConfiguration;
 import net.sf.ehcache.config.SearchAttribute;
 import net.sf.ehcache.config.TerracottaConfiguration;
+import net.sf.ehcache.constructs.nonstop.CacheManagerExecutorServiceFactory;
+import net.sf.ehcache.constructs.nonstop.store.NonstopStore;
 import net.sf.ehcache.event.CacheEventListener;
 import net.sf.ehcache.event.CacheEventListenerFactory;
 import net.sf.ehcache.event.RegisteredEventListeners;
@@ -1021,7 +1027,17 @@ public class Cache implements Ehcache, StoreListener {
                     getCacheConfiguration().getTerracottaConfiguration().storageStrategy(
                             TerracottaClusteredInstanceHelper.getDefaultStorageStrategyForCurrentRuntime());
                 }
-                store = cacheManager.createTerracottaStore(this);
+
+                Store terracottaStore = cacheManager.createTerracottaStore(this);
+                NonstopConfiguration nonstopConfig = getCacheConfiguration().getTerracottaConfiguration().getNonstopConfiguration();
+                if (nonstopConfig.isEnabled()) {
+                    nonstopConfig.freezeConfig();
+                    store = new NonstopStore(terracottaStore, getCacheCluster(), nonstopConfig, CacheManagerExecutorServiceFactory
+                            .getInstance().getOrCreateNonStopCacheExecutorService(this));
+                } else {
+                    store = terracottaStore;
+                }
+
                 boolean unlockedReads = !this.configuration.getTerracottaConfiguration().getCoherentReads();
                 // if coherentReads=false, make coherent=false
                 boolean coherent = unlockedReads ? false : this.configuration.getTerracottaConfiguration().isCoherent();
@@ -1127,6 +1143,17 @@ public class Cache implements Ehcache, StoreListener {
             LOG.warn("Cache: " + configuration.getName() + " is disabled because the " + NET_SF_EHCACHE_DISABLED
                     + " property was set to true. No elements will be added to the cache.");
         }
+    }
+
+    private CacheCluster getCacheCluster() {
+        CacheCluster cacheCluster;
+        try {
+            cacheCluster = getCacheManager().getCluster(ClusterScheme.TERRACOTTA);
+        } catch (ClusterSchemeNotAvailableException e) {
+            LOG.info("Terracotta ClusterScheme is not available, using ClusterScheme.NONE");
+            cacheCluster = getCacheManager().getCluster(ClusterScheme.NONE);
+        }
+        return cacheCluster;
     }
 
     /**
@@ -1908,7 +1935,7 @@ public class Cache implements Ehcache, StoreListener {
      */
     public final boolean remove(Object key) throws IllegalStateException {
         return remove(key, false);
-    }                               
+    }
 
 
     /**
@@ -3287,7 +3314,7 @@ public class Cache implements Ehcache, StoreListener {
      */
     public boolean isNodeCoherent() {
         return compoundStore.isNodeCoherent();
-    }                     
+    }
 
     /**
      * {@inheritDoc}

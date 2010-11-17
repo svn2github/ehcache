@@ -17,7 +17,7 @@
 package net.sf.ehcache.config;
 
 import net.sf.ehcache.CacheException;
-import net.sf.ehcache.constructs.nonstop.NonStopCacheBehaviorType;
+import net.sf.ehcache.constructs.nonstop.store.NonstopTimeoutBehaviorStoreType;
 
 /**
  * Configuration element for configuring timeoutBehavior for nonstop
@@ -61,9 +61,9 @@ public class TimeoutBehaviorConfiguration implements Cloneable {
      * @param type
      */
     public void setType(String type) {
-        if (!NonStopCacheBehaviorType.isValidTimeoutValue(type)) {
+        if (!NonstopTimeoutBehaviorStoreType.isValidTimeoutBehaviorType(type)) {
             throw new CacheException("Invalid value for timeoutBehavior - '" + type + "'. Valid values are: "
-                    + NonStopCacheBehaviorType.getValidTimeoutBehaviors());
+                    + NonstopTimeoutBehaviorStoreType.getValidTimeoutBehaviors());
         }
         this.type = type;
     }
@@ -72,7 +72,7 @@ public class TimeoutBehaviorConfiguration implements Cloneable {
      * Set the type of timeout behavior
      *
      * @param type
-     * @return
+     * @return this instance
      */
     public TimeoutBehaviorConfiguration type(String type) {
         this.setType(type);
@@ -82,7 +82,7 @@ public class TimeoutBehaviorConfiguration implements Cloneable {
     /**
      * Get the properties
      *
-     * @return
+     * @return properties
      */
     public String getProperties() {
         return properties;
@@ -101,7 +101,7 @@ public class TimeoutBehaviorConfiguration implements Cloneable {
      * Set the properties
      *
      * @param value
-     * @return
+     * @return this instance
      */
     public TimeoutBehaviorConfiguration properties(String value) {
         this.setProperties(value);
@@ -111,7 +111,7 @@ public class TimeoutBehaviorConfiguration implements Cloneable {
     /**
      * Get the property separator
      *
-     * @return
+     * @return the propery separator
      */
     public String getPropertySeparator() {
         return propertySeparator;
@@ -130,7 +130,7 @@ public class TimeoutBehaviorConfiguration implements Cloneable {
      * Set the property separator
      *
      * @param value
-     * @return
+     * @return this instance
      */
     public TimeoutBehaviorConfiguration propertySeparator(String value) {
         this.setPropertySeparator(value);

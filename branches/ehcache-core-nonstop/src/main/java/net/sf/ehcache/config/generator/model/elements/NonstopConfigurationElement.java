@@ -36,7 +36,7 @@ public class NonstopConfigurationElement extends SimpleNodeElement {
      * Constructor accepting the parent and the {@link NonstopConfiguration}
      *
      * @param parent
-     * @param tcConfiguration
+     * @param nonstopConfiguration
      */
     public NonstopConfigurationElement(NodeElement parent, NonstopConfiguration nonstopConfiguration) {
         super(parent, "nonstop");

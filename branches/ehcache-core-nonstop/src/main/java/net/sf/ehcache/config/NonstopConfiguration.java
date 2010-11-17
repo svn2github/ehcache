@@ -50,6 +50,14 @@ public class NonstopConfiguration implements Cloneable {
     private boolean immediateTimeout = DEFAULT_IMMEDIATE_TIMEOUT;
     private int timeoutMillis = DEFAULT_TIMEOUT_MILLIS;
     private TimeoutBehaviorConfiguration timeoutBehavior = DEFAULT_TIMEOUT_BEHAVIOR;
+    private volatile boolean configFrozen;
+
+    /**
+     * Freeze the config. Once frozen, 'enabled' can't be changed
+     */
+    public void freezeConfig() {
+        configFrozen = true;
+    }
 
     /**
      * Returns true if nonstop is enabled in config
@@ -66,6 +74,9 @@ public class NonstopConfiguration implements Cloneable {
      * @param enabled the new value
      */
     public void setEnabled(boolean enabled) {
+        if (configFrozen) {
+            throw new CacheException("NonstopConfiguration cannot be enabled or disabled after Cache has been initialized.");
+        }
         this.enabled = enabled;
     }
 
