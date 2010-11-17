@@ -1030,7 +1030,7 @@ public class Cache implements Ehcache, StoreListener {
 
                 Store terracottaStore = cacheManager.createTerracottaStore(this);
                 NonstopConfiguration nonstopConfig = getCacheConfiguration().getTerracottaConfiguration().getNonstopConfiguration();
-                if (nonstopConfig.isEnabled()) {
+                if (nonstopConfig != null && nonstopConfig.isEnabled()) {
                     nonstopConfig.freezeConfig();
                     store = new NonstopStore(terracottaStore, getCacheCluster(), nonstopConfig, CacheManagerExecutorServiceFactory
                             .getInstance().getOrCreateNonStopCacheExecutorService(this));
