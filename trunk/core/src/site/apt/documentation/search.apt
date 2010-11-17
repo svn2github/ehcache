@@ -560,9 +560,8 @@ for (Result result : results.all()) {
 
     * limiting the results with <<<maxResults>>> or using the paging API <<<Results.range(int start, int length)>>>
 
-    * Returning keys instead of values using <<<includeKeys()>>> in the query
-
-    * Returning attributes instead of values
+    * Only including the data you need. Specifically only use <<<includeKeys()>>> and/or <<<includeAttribute()>>>
+      if those values are actually required for your application logic
 
     * using a built-in <<<Aggregator>>> function when you only need a summary statistic
 
