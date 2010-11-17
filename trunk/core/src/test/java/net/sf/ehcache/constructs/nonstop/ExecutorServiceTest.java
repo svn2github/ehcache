@@ -29,6 +29,7 @@ import net.sf.ehcache.constructs.nonstop.ThreadDump.ThreadInformation;
 public class ExecutorServiceTest extends TestCase {
 
     public void testExecutorThreadsCreated() throws Exception {
+        int initialThreads = countExecutorThreads();
         final NonStopCacheExecutorService service = new NonStopCacheExecutorService();
         int corePoolSize = NonStopCacheExecutorService.DEFAULT_CORE_THREAD_POOL_SIZE;
         int maxPoolSize = NonStopCacheExecutorService.DEFAULT_MAX_THREAD_POOL_SIZE;
@@ -36,7 +37,7 @@ public class ExecutorServiceTest extends TestCase {
             service.execute(new NoopCallable(), 1000);
         }
         // assert at least core pool size threads has been created
-        assertTrue(countExecutorThreads() >= corePoolSize);
+        assertTrue(countExecutorThreads() - initialThreads >= corePoolSize);
 
         // submit another maxPoolSize jobs
         for (int i = 0; i < maxPoolSize; i++) {
@@ -46,8 +47,9 @@ public class ExecutorServiceTest extends TestCase {
                 // ignore
             }
         }
+        Thread.sleep(1000);
         // assert maxPoolSize threads has been created
-        assertTrue(countExecutorThreads() == maxPoolSize);
+        assertEquals("", maxPoolSize, countExecutorThreads() - initialThreads);
 
         int extraThreads = 10;
         int numAppThreads = maxPoolSize + extraThreads;
@@ -91,7 +93,7 @@ public class ExecutorServiceTest extends TestCase {
         assertEquals(0, exceptionList.size());
 
         // assert no more than maxPoolSize threads created
-        assertTrue(countExecutorThreads() == maxPoolSize);
+        assertEquals(maxPoolSize, countExecutorThreads() - initialThreads);
         System.out.println("Test complete successfully");
     }
 
