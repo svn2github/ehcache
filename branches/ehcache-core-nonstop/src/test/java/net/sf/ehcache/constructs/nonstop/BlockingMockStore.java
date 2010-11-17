@@ -17,6 +17,7 @@
 package net.sf.ehcache.constructs.nonstop;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -34,23 +35,50 @@ import net.sf.ehcache.writer.CacheWriterManager;
 
 /**
  * All operations in this Store never returns
- * 
+ *
  * @author Abhishek Sanoujam
- * 
+ *
  */
 public class BlockingMockStore implements Store {
+
+    private static final List<String> skipMethods;
+    static {
+        // list of methods (in Store) which are:
+        // - indirectly used from other methods in Ehcache before reaching the Store layer
+        // - nonstopStore does not delegate these methods to the executorService
+        List<String> skip = new ArrayList<String>();
+        skip.add("bufferFull");
+        skip.add("containsKeyOnDisk");
+        skip.add("containsKeyOffHeap");
+        skip.add("getOffHeapSize");
+        skipMethods = skip;
+    }
+
+    private volatile boolean blocking = true;
+
+    public void setBlocking(boolean enabled) {
+        this.blocking = enabled;
+    }
+
+    private String getPreviousMethodName() {
+        StackTraceElement[] stackTrace = new Exception().fillInStackTrace().getStackTrace();
+        StackTraceElement element = stackTrace[2];
+        return element.getMethodName();
+    }
+
+    private void neverReturn() {
+        if (blocking && !skipMethods.contains(getPreviousMethodName())) {
+            try {
+                Thread.currentThread().join();
+            } catch (Exception e) {
+                throw new CacheException(e);
+            }
+        }
+    }
 
     public boolean bufferFull() {
         neverReturn();
         return false;
-    }
-
-    private void neverReturn() {
-        try {
-            Thread.currentThread().join();
-        } catch (Exception e) {
-            throw new CacheException(e);
-        }
     }
 
     public boolean containsKey(Object key) {
@@ -189,7 +217,8 @@ public class BlockingMockStore implements Store {
         return null;
     }
 
-    public boolean replace(Element old, Element element, ElementValueComparator comparator) throws NullPointerException, IllegalArgumentException {
+    public boolean replace(Element old, Element element, ElementValueComparator comparator) throws NullPointerException,
+            IllegalArgumentException {
         neverReturn();
         return false;
     }
@@ -239,7 +268,7 @@ public class BlockingMockStore implements Store {
     }
 
     public void setAttributeExtractors(Map<String, AttributeExtractor> extractors) {
-        // no-op        
+        // no-op
     }
 
     public Results executeQuery(StoreQuery query) {

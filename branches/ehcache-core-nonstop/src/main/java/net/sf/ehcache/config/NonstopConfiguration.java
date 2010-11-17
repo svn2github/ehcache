@@ -48,7 +48,7 @@ public class NonstopConfiguration implements Cloneable {
 
     private boolean enabled = DEFAULT_ENABLED;
     private boolean immediateTimeout = DEFAULT_IMMEDIATE_TIMEOUT;
-    private int timeoutMillis = DEFAULT_TIMEOUT_MILLIS;
+    private long timeoutMillis = DEFAULT_TIMEOUT_MILLIS;
     private TimeoutBehaviorConfiguration timeoutBehavior = DEFAULT_TIMEOUT_BEHAVIOR;
     private volatile boolean configFrozen;
 
@@ -125,7 +125,7 @@ public class NonstopConfiguration implements Cloneable {
      *
      * @return the value of timeout in milliseconds
      */
-    public int getTimeoutMillis() {
+    public long getTimeoutMillis() {
         return timeoutMillis;
     }
 
@@ -134,7 +134,7 @@ public class NonstopConfiguration implements Cloneable {
      *
      * @param timeoutMillis the new value
      */
-    public void setTimeoutMillis(int timeoutMillis) {
+    public void setTimeoutMillis(long timeoutMillis) {
         this.timeoutMillis = timeoutMillis;
     }
 
@@ -144,7 +144,7 @@ public class NonstopConfiguration implements Cloneable {
      * @param timeoutMillis the new value
      * @return this configuration instance
      */
-    public NonstopConfiguration timeoutMillis(int timeoutMillis) {
+    public NonstopConfiguration timeoutMillis(long timeoutMillis) {
         this.setTimeoutMillis(timeoutMillis);
         return this;
     }

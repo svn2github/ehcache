@@ -17,6 +17,7 @@
 package net.sf.ehcache.constructs.nonstop.store;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -167,7 +168,7 @@ public final class NoOpOnTimeoutStore implements Store {
      * {@inheritDoc}
      */
     public List getKeys() {
-        return null;
+        return Collections.EMPTY_LIST;
     }
 
     /**
@@ -264,7 +265,7 @@ public final class NoOpOnTimeoutStore implements Store {
     /**
      * {@inheritDoc}
      */
-    public Element putIfAbsent(Element element) throws NullPointerException {
+    public Element putIfAbsent(Element element) {
         return null;
     }
 
@@ -291,7 +292,7 @@ public final class NoOpOnTimeoutStore implements Store {
     /**
      * {@inheritDoc}
      */
-    public Element removeElement(Element element, ElementValueComparator comparator) throws NullPointerException {
+    public Element removeElement(Element element, ElementValueComparator comparator) {
         return null;
     }
 
@@ -311,15 +312,14 @@ public final class NoOpOnTimeoutStore implements Store {
     /**
      * {@inheritDoc}
      */
-    public boolean replace(Element old, Element element, ElementValueComparator comparator) throws NullPointerException,
-            IllegalArgumentException {
+    public boolean replace(Element old, Element element, ElementValueComparator comparator) {
         return false;
     }
 
     /**
      * {@inheritDoc}
      */
-    public Element replace(Element element) throws NullPointerException {
+    public Element replace(Element element) {
         return null;
     }
 
