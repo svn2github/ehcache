@@ -160,7 +160,11 @@ public class ReadCommittedSoftLockImpl implements SoftLock {
      * {@inheritDoc}
      */
     public boolean isExpired() {
-        return !isFrozen() && !isLocked();
+        boolean expired = !isFrozen() && !isLocked();
+        if (expired) {
+            factory.clearSoftLock(this);
+        }
+        return expired;
     }
 
     /**

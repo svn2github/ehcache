@@ -110,15 +110,15 @@ public class QueryExamplesTest {
         LOG.info("Sum is: " + sumResult);
 
         // select keys with criteria age == 12 AND gender = "timmy"
-        query = cache.createQuery().includeKeys().add(age.eq(12).and(gender.eq("timmy"))).end();
+        query = cache.createQuery().includeKeys().addCriteria(age.eq(12).and(gender.eq("timmy"))).end();
 
         // same as above (but without AND, uses two add() -- multiple
         // criteria implies AND)
-        query = cache.createQuery().includeKeys().add(age.eq(12)).add(gender.eq("timmy")).end();
+        query = cache.createQuery().includeKeys().addCriteria(age.eq(12)).addCriteria(gender.eq("timmy")).end();
 
         // slightly more complicated expression and multiple ordering
         // age = 13 OR (age == 12 AND gender = "timmy") order by age asc, gender desc limit 10
-        query = cache.createQuery().includeKeys().add(age.eq(13).or(age.eq(12).and(gender.eq("timmy")))).addOrder(age, Direction.ASCENDING)
+        query = cache.createQuery().includeKeys().addCriteria(age.eq(13).or(age.eq(12).and(gender.eq("timmy")))).addOrder(age, Direction.ASCENDING)
                 .addOrder(gender, Direction.DESCENDING).maxResults(10).end();
     }
 
@@ -126,7 +126,7 @@ public class QueryExamplesTest {
     public void testNoIncludeSpecified() {
 
         Attribute<Integer> age = cache.getSearchAttribute("age");
-        Results results = cache.createQuery().add(age.eq(35)).execute();
+        Results results = cache.createQuery().addCriteria(age.eq(35)).execute();
         assertTrue(2 == results.size());
         for (Result result : results.all()) {
             try {
@@ -143,14 +143,14 @@ public class QueryExamplesTest {
      */
     @Test
     public void testUseShorthandKeyAttribute() {
-        Results results = cache.createQuery().add(KEY.eq(1)).execute();
+        Results results = cache.createQuery().addCriteria(KEY.eq(1)).execute();
         assertTrue(1 == results.size());
     }
 
     @Test
     public void testIncludeKeysSpecified() {
         Attribute<Integer> age = cache.getSearchAttribute("age");
-        Results results = cache.createQuery().add(age.eq(35)).includeKeys().execute();
+        Results results = cache.createQuery().addCriteria(age.eq(35)).includeKeys().execute();
         assertTrue(2 == results.size());
         for (Result result : results.all()) {
             LOG.info("" + cache.get(result.getKey()));
@@ -163,7 +163,7 @@ public class QueryExamplesTest {
     public void testIncludeValuesNotSpecified() {
 
         Attribute<Integer> age = cache.getSearchAttribute("age");
-        Results results = cache.createQuery().add(age.eq(35)).includeKeys().execute();
+        Results results = cache.createQuery().addCriteria(age.eq(35)).includeKeys().execute();
         assertTrue(2 == results.size());
         for (Result result : results.all()) {
             // should be null
@@ -177,7 +177,7 @@ public class QueryExamplesTest {
     public void testSearchKeys() {
 
         Attribute<Integer> key = cache.getSearchAttribute("key");
-        Results results = cache.createQuery().add(key.eq(35)).includeKeys().execute();
+        Results results = cache.createQuery().addCriteria(key.eq(35)).includeKeys().execute();
         assertTrue(2 == results.size());
         for (Result result : results.all()) {
             LOG.info("" + cache.get(result.getKey()));
@@ -190,7 +190,7 @@ public class QueryExamplesTest {
     public void testIncludeValuesSpecified() {
 
         Attribute<Integer> age = cache.getSearchAttribute("age");
-        Results results = cache.createQuery().add(age.eq(35)).execute();
+        Results results = cache.createQuery().addCriteria(age.eq(35)).execute();
         assertTrue(2 == results.size());
         for (Result result : results.all()) {
             LOG.info("" + cache.get(result.getKey()));
@@ -213,7 +213,7 @@ public class QueryExamplesTest {
         i.set("results", results);
         i.set("age", age);
 
-        i.eval("results = query.add(age.eq(35)).execute()");
+        i.eval("results = query.addCriteria(age.eq(35)).execute()");
         results = (Results) i.get("results");
         assertTrue(2 == results.size());
         for (Result result : results.all()) {
@@ -238,7 +238,7 @@ public class QueryExamplesTest {
         i.set("age", age);
 
         String userDefinedQuery = "age.eq(35)";
-        String fullQueryString = "results = query.add(" + userDefinedQuery + ").execute()";
+        String fullQueryString = "results = query.addCriteria(" + userDefinedQuery + ").execute()";
 
         i.eval(fullQueryString);
         results = (Results) i.get("results");
@@ -273,7 +273,7 @@ public class QueryExamplesTest {
         String userDefinedQuery = "age.eq(35)";
 
         // Add the stuff on that we need
-        String fullQueryString = "results = query.add(" + userDefinedQuery + ").execute()";
+        String fullQueryString = "results = query.addCriteria(" + userDefinedQuery + ").execute()";
 
         i.eval(fullQueryString);
         results = (Results) i.get("results");

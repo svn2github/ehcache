@@ -30,36 +30,11 @@ jgem install jruby-ehcache
 
 * Configuring Ehcache
 
-  The jruby-ehcache gem is configured using an ehcache.yml file which is placed in your ~/lib/config.
-
-  Example ehcache.yml file:
-
----
-  disk:
-    path: java.io.tmpdir
-
-  peer_provider:
-    class: net.sf.ehcache.distribution.RMICacheManagerPeerProviderFactory
-    properties: peerDiscovery=automatic,multicastGroupAddress=230.0.0.1,multicastGroupPort=4446,timeToLive=1
-    property_separator: "\,"
-
-  peer_listener:
-    class: net.sf.ehcache.distribution.RMICacheManagerPeerListenerFactory
-
-  default:
-    name: cache
-    max_elements_in_memory:  10000
-    time_to_live_seconds:  0
-    time_to_idle_seconds:  0
-    overflow_to_disk: true
-    eternal: false
-    disk_spool_buffer_size_mb: 30
-    disk_persistent: false
-    disk_expiry_thread_interval_seconds: 120
-    memory_store_eviction_policy: LRU
----
-
-
+  Configuring Ehcache for JRuby is done using the same ehcache.xml file as
+  used for native Java Ehcache.  The ehcache.xml file can be placed either
+  in your CLASSPATH or, alternatively, can be placed in the same directory as
+  the Ruby file in which you create the CacheManager object from your Ruby
+  code.
 
 
 *   Dependencies
@@ -70,12 +45,9 @@ jgem install jruby-ehcache
 
     *   Rails 3 for the jruby-ehcache-rails3
 
-    *   Ehcache 2.2 is the declared dependency, although any version of Ehcache will work
+    *   Ehcache 2.3 is the declared dependency, although any version of Ehcache will work
 
     As usual these should all be installed with jgem
-
-    Note that ehcache will be sucked in from Maven using the new RubyGems - Maven integration that came in with
-      JRuby 1.5.
 
 
 * Using the jruby-ehcache API directly
@@ -84,12 +56,13 @@ jgem install jruby-ehcache
 **    To make Ehcache available to JRuby
 
 ---
-    require 'rubygems'
-    gem 'jruby-ehcache',:lib => 'ehcache'
     require 'ehcache'
 ---
 
-    If you prefer, you can make Ruby Gems available to JRuby globally by setting
+    Note that, because jruby-ehcache is provided as a Ruby Gem, you must
+    make your Ruby interpreter aware of Ruby Gems in order to load it.  You
+    can do this by either including -rubygems on your jruby command line, or
+    you can make Ruby Gems available to JRuby globally by setting
     the RUBYOPT environment variable as follows:
 
 ---
@@ -130,7 +103,8 @@ manager = Ehcache::CacheManager.new
 **  Getting from a cache
 
 ---
-   cache.get("key")
+   cache.get("key")  # Returns the Ehcache Element object
+   cache["key"]      # Returns the value of the element directly
 ---
 
 ** Shutting down the CacheManager
@@ -150,8 +124,6 @@ manager = Ehcache::CacheManager.new
 ---
 class SimpleEhcache
   #Code here
-  require 'rubygems'
-  gem 'jruby-ehcache',:lib => 'ehcache'
   require 'ehcache'
 
   manager = Ehcache::CacheManager.new
@@ -159,8 +131,8 @@ class SimpleEhcache
 
   cache.put("answer", "42", {:ttl => 120})
   answer = cache.get("answer")
-  puts "Answer: #{answer}"
-  question = cache.get("question") || 'unknown'
+  puts "Answer: #{answer.value}"
+  question = cache["question"] || 'unknown'
   puts "Question: #{question}"
 
   manager.shutdown
@@ -174,9 +146,9 @@ end
 
 * Using ehcache from within Rails
 
-**  The ehcache.yaml file
+**  The ehcache.xml file
 
-    Configuration of Ehcache is still done with the ehcache.yml file, but for Rails applications you must place this file in the
+    Configuration of Ehcache is still done with the ehcache.xml file, but for Rails applications you must place this file in the
     config directory of your Rails app.
 
     Also note that you must use JRuby to execute your Rails application, as these gems utilize JRuby's Java integration

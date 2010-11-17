@@ -55,7 +55,7 @@ public class Element implements Serializable, Cloneable {
     private static final Logger LOG = LoggerFactory.getLogger(Element.class.getName());
 
     private static final AtomicLongFieldUpdater<Element> HIT_COUNT_UPDATER = AtomicLongFieldUpdater.newUpdater(Element.class, "hitCount");
-    
+
     /**
      * the cache key.
      */
@@ -86,7 +86,7 @@ public class Element implements Serializable, Cloneable {
      * The amount of time for the element to idle, in seconds. 0 indicates unlimited.
      */
     private volatile int timeToIdle = Integer.MIN_VALUE;
-    
+
     /**
      * Pluggable element eviction data instance
      */
@@ -131,7 +131,7 @@ public class Element implements Serializable, Cloneable {
 
     /**
      * Constructor.
-     * 
+     *
      * @deprecated The {@code nextToLastAccessTime} field is unused since
      *             version 1.7, setting it will have no effect. Use
      *             #Element(Object, Object, long, long, long, long, long)
@@ -161,7 +161,7 @@ public class Element implements Serializable, Cloneable {
         HIT_COUNT_UPDATER.set(this, hitCount);
         this.elementEvictionData = new DefaultElementEvictionData(creationTime, lastAccessTime);
     }
-    
+
     /**
      * Constructor used by ElementData. Needs to be public since ElementData might be in another classloader
      *
@@ -354,7 +354,7 @@ public class Element implements Serializable, Cloneable {
      * <p>
      * Note that in a Terracotta clustered environment, resetting the creation
      * time will not have any effect.
-     * 
+     *
      * @deprecated Resetting the creation time is not recommended as of version
      *             1.7
      */
@@ -404,7 +404,7 @@ public class Element implements Serializable, Cloneable {
 
     /**
      * Gets the next to last access time.
-     * 
+     *
      * @deprecated The {@code nextToLastAccessTime} field is unused since
      *             version 1.7, retrieving it will return the {@code
      *             lastAccessTime}. Use #getLastAccessTime() instead.
@@ -421,10 +421,10 @@ public class Element implements Serializable, Cloneable {
     public final long getHitCount() {
         return hitCount;
     }
-    
-    /** 
+
+    /**
      * Retrieves this element's eviction data instance.
-     * 
+     *
      * @return this element's eviction data instance
      */
     public ElementEvictionData getElementEvictionData() {
@@ -433,7 +433,7 @@ public class Element implements Serializable, Cloneable {
 
     /**
      * Sets this element's eviction data instance.
-     * 
+     *
      * @param elementEvictionData this element's eviction data
      */
     public void setElementEvictionData(ElementEvictionData elementEvictionData) {
@@ -596,7 +596,7 @@ public class Element implements Serializable, Cloneable {
      * @since 1.2
      */
     public final boolean isSerializable() {
-        return isKeySerializable() 
+        return isKeySerializable()
             && (value instanceof Serializable || value == null)
             && elementEvictionData.canParticipateInSerialization();
     }
@@ -776,7 +776,7 @@ public class Element implements Serializable, Cloneable {
             timeToLive = ttl;
         }
     }
-    
+
     /**
      * Custom serialization write logic
      */
@@ -788,7 +788,7 @@ public class Element implements Serializable, Cloneable {
         out.writeInt(TimeUtil.toSecs(elementEvictionData.getCreationTime()));
         out.writeInt(TimeUtil.toSecs(elementEvictionData.getLastAccessTime()));
     }
-    
+
     /**
      * Custom serialization read logic
      */

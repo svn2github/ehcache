@@ -84,14 +84,14 @@ public class BasicSearchTest extends TestCase {
 
         query = cache.createQuery();
         query.includeKeys();
-        query.add(Query.KEY.eq("key")).end();
+        query.addCriteria(Query.KEY.eq("key")).end();
         results = query.execute();
         assertEquals(1, results.size());
         assertEquals("key", results.all().iterator().next().getKey());
 
         query = cache.createQuery();
         query.includeKeys();
-        query.add(Query.VALUE.eq("value")).end();
+        query.addCriteria(Query.VALUE.eq("value")).end();
         results = query.execute();
         assertEquals(1, results.size());
         Object key = results.all().iterator().next().getKey();
@@ -110,7 +110,7 @@ public class BasicSearchTest extends TestCase {
 
         // null checks
         try {
-            query1.add(null);
+            query1.addCriteria(null);
             fail();
         } catch (NullPointerException npe) {
             // expected
@@ -150,7 +150,7 @@ public class BasicSearchTest extends TestCase {
         query1.end();
 
         try {
-            query1.add(new Attribute("foo").le(35));
+            query1.addCriteria(new Attribute("foo").le(35));
             fail();
         } catch (SearchException se) {
             // expected
@@ -359,7 +359,7 @@ public class BasicSearchTest extends TestCase {
             // use criteria with an aggregator
             Query query = cache.createQuery();
             query.includeAggregator(age.average());
-            query.add(age.between(0, 32));
+            query.addCriteria(age.between(0, 32));
             query.end();
 
             Results results = query.execute();
@@ -372,7 +372,7 @@ public class BasicSearchTest extends TestCase {
             Query query = cache.createQuery();
             query.includeKeys();
             query.includeAggregator(age.average());
-            query.add(age.between(0, 32));
+            query.addCriteria(age.between(0, 32));
             query.end();
 
             Results results = query.execute();
@@ -411,7 +411,7 @@ public class BasicSearchTest extends TestCase {
 
         Query query = cache.createQuery();
         query.includeKeys();
-        query.add(age.ne(35));
+        query.addCriteria(age.ne(35));
         query.maxResults(1);
         query.end();
 
@@ -431,7 +431,7 @@ public class BasicSearchTest extends TestCase {
 
         query = cache.createQuery();
         query.includeKeys();
-        query.add(age.ne(35));
+        query.addCriteria(age.ne(35));
         query.maxResults(0);
         query.end();
 
@@ -440,7 +440,7 @@ public class BasicSearchTest extends TestCase {
 
         query = cache.createQuery();
         query.includeKeys();
-        query.add(age.ne(35));
+        query.addCriteria(age.ne(35));
         query.maxResults(2);
         query.end();
 
@@ -449,7 +449,7 @@ public class BasicSearchTest extends TestCase {
 
         query = cache.createQuery();
         query.includeKeys();
-        query.add(age.ne(35));
+        query.addCriteria(age.ne(35));
         query.maxResults(2);
         query.end();
 
@@ -458,7 +458,7 @@ public class BasicSearchTest extends TestCase {
 
         query = cache.createQuery();
         query.includeKeys();
-        query.add(age.ne(35));
+        query.addCriteria(age.ne(35));
         query.maxResults(-1);
         query.end();
 
@@ -476,7 +476,7 @@ public class BasicSearchTest extends TestCase {
 
         Query query = cache.createQuery();
         // not including keys
-        query.add(age.ne(35));
+        query.addCriteria(age.ne(35));
         query.includeAttribute(age, gender);
         query.end();
 
@@ -527,73 +527,73 @@ public class BasicSearchTest extends TestCase {
 
         query = cache.createQuery();
         query.includeKeys();
-        query.add(age.ne(35));
+        query.addCriteria(age.ne(35));
         query.end();
         verify(cache, query, 2, 4);
 
         query = cache.createQuery();
         query.includeKeys();
-        query.add(cache.getSearchAttribute("age").lt(30));
+        query.addCriteria(cache.getSearchAttribute("age").lt(30));
         query.end();
         query.execute();
         verify(cache, query, 2);
 
         query = cache.createQuery();
         query.includeKeys();
-        query.add(cache.getSearchAttribute("age").le(30));
+        query.addCriteria(cache.getSearchAttribute("age").le(30));
         query.end();
         query.execute();
         verify(cache, query, 2, 4);
 
         query = cache.createQuery();
         query.includeKeys();
-        query.add(cache.getSearchAttribute("age").in(new HashSet(Arrays.asList(23, 35))));
+        query.addCriteria(cache.getSearchAttribute("age").in(new HashSet(Arrays.asList(23, 35))));
         query.end();
         query.execute();
         verify(cache, query, 1, 2, 3);
 
         query = cache.createQuery();
         query.includeKeys();
-        query.add(cache.getSearchAttribute("age").gt(30));
+        query.addCriteria(cache.getSearchAttribute("age").gt(30));
         query.end();
         query.execute();
         verify(cache, query, 1, 3);
 
         query = cache.createQuery();
         query.includeKeys();
-        query.add(cache.getSearchAttribute("age").between(23, 35, true, false));
+        query.addCriteria(cache.getSearchAttribute("age").between(23, 35, true, false));
         query.end();
         query.execute();
         verify(cache, query, 2, 4);
 
         query = cache.createQuery();
         query.includeKeys();
-        query.add(cache.getSearchAttribute("age").ge(30));
+        query.addCriteria(cache.getSearchAttribute("age").ge(30));
         query.end();
         query.execute();
         verify(cache, query, 1, 3, 4);
 
         query = cache.createQuery();
         query.includeKeys();
-        query.add(cache.getSearchAttribute("age").eq(35).or(cache.getSearchAttribute("gender").eq(Gender.FEMALE)));
+        query.addCriteria(cache.getSearchAttribute("age").eq(35).or(cache.getSearchAttribute("gender").eq(Gender.FEMALE)));
         query.end();
         verify(cache, query, 1, 2, 3);
 
         query = cache.createQuery();
         query.includeKeys();
-        query.add(cache.getSearchAttribute("age").eq(35).and(cache.getSearchAttribute("gender").eq(Gender.MALE)));
+        query.addCriteria(cache.getSearchAttribute("age").eq(35).and(cache.getSearchAttribute("gender").eq(Gender.MALE)));
         query.end();
         verify(cache, query, 1, 3);
 
         query = cache.createQuery();
         query.includeKeys();
-        query.add(cache.getSearchAttribute("age").eq(35).and(cache.getSearchAttribute("gender").eq(Gender.FEMALE)));
+        query.addCriteria(cache.getSearchAttribute("age").eq(35).and(cache.getSearchAttribute("gender").eq(Gender.FEMALE)));
         query.end();
         verify(cache, query);
 
         query = cache.createQuery();
         query.includeKeys();
-        query.add(cache.getSearchAttribute("gender").eq(Gender.MALE).not());
+        query.addCriteria(cache.getSearchAttribute("gender").eq(Gender.MALE).not());
         query.end();
         verify(cache, query, 2);
 
@@ -646,7 +646,7 @@ public class BasicSearchTest extends TestCase {
 
         query = cache.createQuery();
         query.includeKeys();
-        query.add(new Or(name.like("tim*"), name.like("ari*")));
+        query.addCriteria(new Or(name.like("tim*"), name.like("ari*")));
         query.end();
 
         verify(cache, query, 3, 1);
@@ -660,56 +660,56 @@ public class BasicSearchTest extends TestCase {
 
         query = cache.createQuery();
         query.includeKeys();
-        query.add(name.like("Test \\\\ Bob \\* \\?"));
+        query.addCriteria(name.like("Test \\\\ Bob \\* \\?"));
         query.end();
 
         verify(cache, query, 1);
 
         query = cache.createQuery();
         query.includeKeys();
-        query.add(name.like("Test*"));
+        query.addCriteria(name.like("Test*"));
         query.end();
 
         verify(cache, query, 1);
 
         query = cache.createQuery();
         query.includeKeys();
-        query.add(name.like("Test*\\?"));
+        query.addCriteria(name.like("Test*\\?"));
         query.end();
 
         verify(cache, query, 1);
 
         query = cache.createQuery();
         query.includeKeys();
-        query.add(name.like("(..*"));
+        query.addCriteria(name.like("(..*"));
         query.end();
 
         verify(cache, query, 2);
 
         query = cache.createQuery();
         query.includeKeys();
-        query.add(name.like("Lowercase"));
+        query.addCriteria(name.like("Lowercase"));
         query.end();
 
         verify(cache, query, 3);
 
         query = cache.createQuery();
         query.includeKeys();
-        query.add(name.like("LOWER*"));
+        query.addCriteria(name.like("LOWER*"));
         query.end();
 
         verify(cache, query, 3);
 
         query = cache.createQuery();
         query.includeKeys();
-        query.add(name.like("uppercase"));
+        query.addCriteria(name.like("uppercase"));
         query.end();
 
         verify(cache, query, 4);
 
         query = cache.createQuery();
         query.includeKeys();
-        query.add(name.like("mixed"));
+        query.addCriteria(name.like("mixed"));
         query.end();
 
         verify(cache, query, 5);
@@ -744,7 +744,7 @@ public class BasicSearchTest extends TestCase {
 
         Query query = cache.createQuery();
         query.includeKeys();
-        query.add(cache.getSearchAttribute("attr").le(4));
+        query.addCriteria(cache.getSearchAttribute("attr").le(4));
         query.end();
 
         try {

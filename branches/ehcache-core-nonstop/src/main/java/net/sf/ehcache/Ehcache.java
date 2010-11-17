@@ -363,7 +363,7 @@ public interface Ehcache extends Cloneable {
      * Removes an {@link net.sf.ehcache.Element} from the Cache and any stores it might be in. This also removes through
      * to a CacheWriter. If no CacheWriter has been registered for the cache, then this method throws an exception.
      * <p/>
-     * Also notifies the CacheEventListener after the element was removed, but only if an El ement
+     * Also notifies the CacheEventListener after the element was removed, but only if an Element
      * with the key actually existed.
      *
      * @param key

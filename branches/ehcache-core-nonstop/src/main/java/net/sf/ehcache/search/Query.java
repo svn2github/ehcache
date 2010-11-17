@@ -158,7 +158,7 @@ public interface Query {
     /**
      * Adds a criteria to the query
      */
-    public Query add(Criteria criteria);
+    public Query addCriteria(Criteria criteria);
 
     /**
      * Execute this query. Every call to this method will re-execute the query
