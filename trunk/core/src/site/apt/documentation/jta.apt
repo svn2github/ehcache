@@ -4,7 +4,7 @@
 
 {JTA}
 
-    new_in_2 JTA is supported in versions of Ehcache 2.0 and higher.
+    JTA is supported in versions of Ehcache 2.0 and higher.
 
     Ehcache acts as an {XAResouce} and participates in JTA ("Java Transaction API") transactions.
 
@@ -51,7 +51,7 @@
 
 *   Configuring a Cache for JTA
 
-    JTA is enabled on a cache by cache basis with the <<<transactionalMode>>> cache attribute
+    JTA is enabled on a cache by cache basis with the <<<transactionalMode>>> cache attribute.
 
     The allowed values are <<<xa>>> and <<<off>>>. By default it is off.
 
@@ -70,11 +70,13 @@
   </cache>
 ---
 
-    Note that in Ehcache 2.0 JTA requires Terracotta <<<serialization>>> value mode otherwise a
-    a <<<CacheException>>> will be thrown on start up.
-    Standalone Ehcache is supported as of Ehcache 2.1.0
+    For Terracotta clustered caches, <<<transactionalMode>>> can only be used where <<<terracotta coherent="true">>>. Because
+    caches can be dynamically changed into coherent=false mode for bulk loading, any attempt to perform a transaction when this
+    is the case will throw a <<<CacheException>>>.
 
-
+    Also, JTA does not work with Terracotta <<<identity>>> mode otherwise a
+    a <<<CacheException>>> will be thrown on start up. The default mode is <<<serialization>>> mode.
+    
 *   Using a JTA Cache
 
 **  All or nothing
@@ -269,6 +271,192 @@
     ...
   </jta>
 ---
+
+*   Local Transactions
+
+    Local Transactions allow single phase commit across multiple cache operations, across one or more caches,
+    in the same CacheManager, whether distributed with Terracotta or standalone.
+
+    Local transactions are not controlled by a Transaction Manager. Instead it an explicit API where a reference is obtained
+    to a <<<TransactionController>>> for the CacheManager using <<<cacheManager.getTransactionController()>>> and the steps in the
+    transaction are called explicitly.
+
+    The steps in a local transaction are:
+
+    * <<<transactionController.begin()>>> - This marks the beginning of the local transaction on the current thread. The changes are not visible to other threads or to
+      other transactions.
+
+    * <<<transactionController.commit()>>> - Commits work done in the current transaction on the calling thread.
+
+    * <<<transactionController.rollback()>>> - Rolls back work done in the current transaction on the calling thread. The changes done since begin are not applied to
+      the cache.
+
+    These steps should be placed in try-catch block which catches <<<CacheException>>>. If any exceptions are thrown, rollback() should be
+    called.
+
+    Local Transactions has it's own exceptions that can be thrown, which are all subclasses of <<<CacheException>>>. They are:
+
+    * <<<TransactionException>>> - a general exception
+
+    * <<<TransactionTimeoutException>>> - if a cache operation or commit is called after the transationTimeout has elapsed.
+
+
+
+** Configuration
+
+    Local transactions are configured as follows:
+
+---
+    <cache name="sampleCache"
+        ...
+        transactionalMode="local"
+  </cache>
+---
+
+**  Isolation Level
+
+    As with the other transaction modes, the isolation level is READ_COMMITTED.
+
+**  Transaction Timeouts
+
+    If a transaction cannot completed with the timeout, then a <<<TransactionTimeoutException>>> will be thrown. To return the
+    cache to a consistent state you need to call <<<transactionController.rollback()>>>.
+
+    Because <<<TransactionController>>> is at the level of the CacheManager, a default timeout can be set which applies to all transactions
+    across all caches in a CacheManager. If not set, it is 15 seconds.
+
+    To change the defaultTimeout:
+
+---
+    transactionController.setDefaultTransactionTimeout(int defaultTransactionTimeoutSeconds)
+---
+
+    The countdown starts straight after <<<begin()>>> is called. You might have another local transaction on a JDBC connection and you may
+    be making multiple changes. If you think it could take longer than 15 seconds for an individual transaction, you can override the
+    default when you begin the transaction with:
+
+---
+    transactionController.begin(int transactionTimeoutSeconds) {
+---
+
+** Sample Code
+
+    This example shows a transaction wich does multiple operations across two caches.
+
+---
+    CacheManager cacheManager = CacheManager.getInstance();
+
+    try {
+        cacheManager.getTransactionController().begin();
+
+        cache1.put(new Element(1, "one"));
+        cache2.put(new Element(2, "two"));
+        cache1.remove(4);
+
+        cacheManager.getTransactionController().commit();
+    } catch (CacheException e) {
+        cacheManager.getTransactionController().rollback()
+    }
+---
+
+
+**  When to Use
+
+    The key advantage in using this mode is performance. It is 5 times faster on average than the XA store.
+
+    This lets you apply multiple changes to a CacheManager all in your own transaction. If you also want to apply changes
+    to other resources such as a database then you need to open a transaction to them and manually handle commit and rollback
+    to ensure consistency.
+
+**  What can go wrong
+
+*** JVM crash between begin and commit
+
+    On restart none of the changes applied after begin are there.
+
+    On restart, nothing needs to be done. Under the covers the in the case of a Terracotta cluster, the Element's new value
+    is there but not applied. It will be lazily removed on next access.
+
+
+*** Contention for the same keys
+
+    If two transactions, either standalone or across the cluster, attempt to perform a cache operation on the same element then the
+    following rules apply:
+
+    * The first transaction gets access
+
+    * The following transactions will block on the cache operation until either the first transaction completes or the transaction timeout
+      occurs.
+
+    Under the covers, when an element is involved in a transaction, it is replaced with a new element with a marker that is locked, along
+      with the transaction id. The normal cluster semantics are used.
+
+    The first transaction is defined as :
+
+    * in a standalone cache,
+
+    * in a Terracotta clustered cache,
+
+
+
+
+
+
+    15 second is the transaction timeout.
+
+    Locking is on the key level rather than the page level.
+
+    There are two modes for running local transactions:
+
+    * local
+
+    * jta-local
+
+**  <<<local>>> Transactions
+
+
+   What about soft locks? The next reader detects the timed out soft lock and cleans it up. The old value gets used.
+
+
+
+
+
+
+**  <<<jta-local>>> Transactions
+
+    This requires a TransactionManager. The transaction is controlled by the TM.
+
+    The differences to the XA are:
+
+    * in case of a crash there is no guarantee about what is in the cache. ie. there is no recovery
+      support.
+
+    * at commit time if we throw an exception then the other Resources will not roll back.
+
+    In either case, the Element will be we will invalidate the cache. There will be a dead softlock
+      which will cause it to be restored the old value.
+
+    This is useful because it is atomic but in a crash scenario they will deal with it
+
+
+*** Configuration
+
+    This is configured as follows:
+
+
+---
+    <cache name="sampleCache"
+        ...
+        transactionalMode="local-jta">
+  </cache>
+---
+
+*** Sample Code
+
+    Same as XA.
+
+
+*   FAQ
 
 **  Is IBM Websphere Transaction Manager supported
 
