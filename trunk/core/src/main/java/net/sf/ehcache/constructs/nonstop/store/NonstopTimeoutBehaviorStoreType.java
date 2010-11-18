@@ -14,28 +14,24 @@
  *  limitations under the License.
  */
 
-package net.sf.ehcache.constructs.nonstop;
+package net.sf.ehcache.constructs.nonstop.store;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-import net.sf.ehcache.Cache;
-import net.sf.ehcache.Ehcache;
-import net.sf.ehcache.constructs.nonstop.behavior.ExceptionOnTimeoutBehavior;
-import net.sf.ehcache.constructs.nonstop.behavior.LocalReadsBehavior;
-import net.sf.ehcache.constructs.nonstop.behavior.NoOpOnTimeoutBehavior;
+import net.sf.ehcache.store.Store;
 
 /**
- * Enum encapsulating different {@link NonStopCacheBehavior} types used by {@link NonStopCache}
+ * Enum encapsulating different {@link Store} types for use as timeoutBehavior by NonstopStore
  *
  * @author Abhishek Sanoujam
  *
  */
-public enum NonStopCacheBehaviorType {
+public enum NonstopTimeoutBehaviorStoreType {
 
     /**
-     * {@link NonStopCacheBehaviorType} encapsulating {@link NonStopCacheBehavior} which throws exception for all timed out operations
+     * Type encapsulating {@link Store} which throws exception for all timed out operations
      */
     EXCEPTION_ON_TIMEOUT() {
 
@@ -43,14 +39,14 @@ public enum NonStopCacheBehaviorType {
          * {@inheritDoc}
          */
         @Override
-        public NonStopCacheBehavior newCacheBehavior(final Ehcache ehcache) {
-            return ExceptionOnTimeoutBehavior.getInstance();
+        public Store newTimeoutStore(final Store store) {
+            return ExceptionOnTimeoutStore.getInstance();
         }
 
         /**
          * {@inheritDoc}
          * <p>
-         * Returns {@link NonStopCacheBehaviorType#EXCEPTION_CONFIG_PROPERTY_NAME}
+         * Returns {@link NonstopTimeoutBehaviorStoreType#EXCEPTION_CONFIG_PROPERTY_NAME}
          */
         @Override
         public String getConfigPropertyName() {
@@ -59,7 +55,7 @@ public enum NonStopCacheBehaviorType {
 
     },
     /**
-     * {@link NonStopCacheBehaviorType} encapsulating {@link NonStopCacheBehavior} which returns null for get operations and does nothing
+     * Type encapsulating {@link Store} which returns null for get operations and does nothing
      * for put's and remove's
      */
     NO_OP_ON_TIMEOUT() {
@@ -68,14 +64,14 @@ public enum NonStopCacheBehaviorType {
          * {@inheritDoc}
          */
         @Override
-        public NonStopCacheBehavior newCacheBehavior(final Ehcache ehcache) {
-            return NoOpOnTimeoutBehavior.getInstance();
+        public Store newTimeoutStore(final Store store) {
+            return NoOpOnTimeoutStore.getInstance();
         }
 
         /**
          * {@inheritDoc}
          * <p>
-         * Returns {@link NonStopCacheBehaviorType#NO_OP_CONFIG_PROPERTY_NAME}
+         * Returns {@link NonstopTimeoutBehaviorStoreType#NO_OP_CONFIG_PROPERTY_NAME}
          */
         @Override
         public String getConfigPropertyName() {
@@ -84,9 +80,8 @@ public enum NonStopCacheBehaviorType {
 
     },
     /**
-     * {@link NonStopCacheBehaviorType} encapsulating {@link NonStopCacheBehavior} which returns whatever local value is associated with the
-     * key for get operations and does nothing for put's and remove's. Works only when decorating {@link Cache} instances clustered with
-     * Terracotta.
+     * Type encapsulating {@link Store} which returns whatever local value is associated with the
+     * key for get operations and does nothing for put's and remove's. Works only Terracotta clustered caches
      */
     LOCAL_READS_ON_TIMEOUT() {
 
@@ -94,18 +89,14 @@ public enum NonStopCacheBehaviorType {
          * {@inheritDoc}
          */
         @Override
-        public NonStopCacheBehavior newCacheBehavior(final Ehcache ehcache) {
-            if (!(ehcache instanceof Cache)) {
-                throw new UnsupportedOperationException(LOCAL_READS_ON_TIMEOUT.name() + " behavior is only supported for "
-                        + Cache.class.getName() + " instances.");
-            }
-            return new LocalReadsBehavior((Cache) ehcache);
+        public Store newTimeoutStore(final Store store) {
+            return new LocalReadsOnTimeoutStore(store);
         }
 
         /**
          * {@inheritDoc}
          * <p>
-         * Returns {@link NonStopCacheBehaviorType#LOCAL_READS_CONFIG_PROPERTY_NAME}
+         * Returns {@link NonstopTimeoutBehaviorStoreType#LOCAL_READS_CONFIG_PROPERTY_NAME}
          */
         @Override
         public String getConfigPropertyName() {
@@ -115,18 +106,17 @@ public enum NonStopCacheBehaviorType {
     };
 
     /**
-     * Creates and returns new instance of {@link NonStopCacheBehavior} for this type
+     * Creates and returns new instance of {@link Store} for this type
      *
-     * @param ehcache
-     * @return new instance of {@link NonStopCacheBehavior} for this type
+     * @param store
+     * @return new instance of {@link Store} for this type
      */
-    public abstract NonStopCacheBehavior newCacheBehavior(Ehcache ehcache);
+    public abstract Store newTimeoutStore(final Store store);
 
     /**
-     * Name to be used for this type. This value is used for "timeoutBehavior" key when configuring {@link NonStopCache} with
-     * java.util.Properties
+     * Name to be used for this type. This value is used for "timeoutBehavior" key when configuring NonstopStore
      *
-     * @return new instance of {@link NonStopCacheBehavior} for this type
+     * @return new instance of {@link Store} for this type
      */
     public abstract String getConfigPropertyName();
 
@@ -146,19 +136,20 @@ public enum NonStopCacheBehaviorType {
      */
     public static final String LOCAL_READS_CONFIG_PROPERTY_NAME = "localReads";
 
-    private static Map<String, NonStopCacheBehaviorType> configNameToTypeMapping = new HashMap<String, NonStopCacheBehaviorType>();
+    private static final Map<String, NonstopTimeoutBehaviorStoreType> NAME_TYPE_MAP =
+        new HashMap<String, NonstopTimeoutBehaviorStoreType>();
 
     static {
-        for (NonStopCacheBehaviorType type : NonStopCacheBehaviorType.values()) {
-            configNameToTypeMapping.put(type.getConfigPropertyName(), type);
+        for (NonstopTimeoutBehaviorStoreType type : NonstopTimeoutBehaviorStoreType.values()) {
+            NAME_TYPE_MAP.put(type.getConfigPropertyName(), type);
         }
     }
 
     /**
-     * Return a {@link NonStopCacheBehaviorType} for the string property name.
+     * Return a {@link NonstopTimeoutBehaviorStoreType} for the string property name.
      *
      * @param configName
-     * @return {@link NonStopCacheBehaviorType} for the string property name.
+     * @return {@link NonstopTimeoutBehaviorStoreType} for the string property name.
      * @throws IllegalArgumentException
      *             if the passed in configName is <b>NOT</b> one of:
      *             <ul>
@@ -167,10 +158,10 @@ public enum NonStopCacheBehaviorType {
      *             <li>{@link #LOCAL_READS_CONFIG_PROPERTY_NAME}</li>
      *             </ul>
      */
-    public static NonStopCacheBehaviorType getTypeFromConfigPropertyName(String configName) throws IllegalArgumentException {
-        NonStopCacheBehaviorType type = configNameToTypeMapping.get(configName);
+    public static NonstopTimeoutBehaviorStoreType getTypeFromConfigPropertyName(String configName) throws IllegalArgumentException {
+        NonstopTimeoutBehaviorStoreType type = NAME_TYPE_MAP.get(configName);
         if (type == null) {
-            throw new IllegalArgumentException("Unrecognized NonStopCacheBehaviorType config property value -- " + configName);
+            throw new IllegalArgumentException("Unrecognized timeoutBehavior config property value - " + configName);
         }
         return type;
     }
@@ -181,8 +172,8 @@ public enum NonStopCacheBehaviorType {
      * @param value the value to check
      * @return true is the value is valid, false otherwise
      */
-    public static boolean isValidTimeoutValue(String value) {
-        NonStopCacheBehaviorType type = configNameToTypeMapping.get(value);
+    public static boolean isValidTimeoutBehaviorType(String value) {
+        NonstopTimeoutBehaviorStoreType type = NAME_TYPE_MAP.get(value);
         return type != null;
     }
 
@@ -192,6 +183,6 @@ public enum NonStopCacheBehaviorType {
      * @return set of all valid timeoutBehavior values
      */
     public static Set<String> getValidTimeoutBehaviors() {
-        return configNameToTypeMapping.keySet();
+        return NAME_TYPE_MAP.keySet();
     }
 }

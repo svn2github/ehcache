@@ -98,6 +98,7 @@
     <suppress checks="NPathComplexity" files="ConfigurationElement.java"/>
     <!--Bug in checkstyle. This class is ok.-->
     <suppress checks="DeclarationOrder" files="NonStopCacheBehaviorType.java"/>
+    <suppress checks="DeclarationOrder" files="NonstopTimeoutBehaviorStoreType.java"/>
     <!--JavaDoc bug-->
     <suppress checks="JavadocType" files="ReadWriteCopyStrategy.java"/>
 
