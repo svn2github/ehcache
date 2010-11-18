@@ -61,13 +61,13 @@ public final class TransactionController {
 
     /**
      * Set the default transaction timeout in seconds, it must be > 0
-     * @param defaultTransactionTimeout the default transaction timeout
+     * @param defaultTransactionTimeoutSeconds the default transaction timeout
      */
-    public void setDefaultTransactionTimeout(int defaultTransactionTimeout) {
-        if (defaultTransactionTimeout < 0) {
+    public void setDefaultTransactionTimeout(int defaultTransactionTimeoutSeconds) {
+        if (defaultTransactionTimeoutSeconds < 0) {
             throw new IllegalArgumentException("timeout cannot be < 0");
         }
-        this.defaultTransactionTimeout = defaultTransactionTimeout;
+        this.defaultTransactionTimeout = defaultTransactionTimeoutSeconds;
     }
 
     /**
@@ -79,15 +79,15 @@ public final class TransactionController {
 
     /**
      * Begin a new transaction with the specified timeout and bind its context to the current thread
-     * @param transactionTimeout the timeout foe this transaction in seconds
+     * @param transactionTimeoutSeconds the timeout foe this transaction in seconds
      */
-    public void begin(int transactionTimeout) {
+    public void begin(int transactionTimeoutSeconds) {
         TransactionID txId = currentTransactionIdThreadLocal.get();
         if (txId != null) {
             throw new TransactionException("transaction already started");
         }
 
-        TransactionContext newTx = new TransactionContext(transactionTimeout, transactionIDFactory.createTransactionID());
+        TransactionContext newTx = new TransactionContext(transactionTimeoutSeconds, transactionIDFactory.createTransactionID());
         contextMap.put(newTx.getTransactionId(), newTx);
         currentTransactionIdThreadLocal.set(newTx.getTransactionId());
 

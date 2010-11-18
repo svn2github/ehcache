@@ -45,6 +45,8 @@ public class ResultsImpl implements Results {
     private final List<Result> results;
     private final List aggregatorResults;
     private final boolean hasKeys;
+    private final boolean hasAggregates;
+    private final boolean hasAttributes;
 
     /**
      * Constructs a list of results
@@ -52,8 +54,10 @@ public class ResultsImpl implements Results {
      * @param results
      * @param hasKeys
      */
-    public ResultsImpl(List<Result> results, boolean hasKeys, List aggregatorResults) {
+    public ResultsImpl(List<Result> results, boolean hasKeys, boolean hasAggregates, boolean hasAttributes, List aggregatorResults) {
         this.hasKeys = hasKeys;
+        this.hasAggregates = hasAggregates;
+        this.hasAttributes = hasAttributes;
         this.aggregatorResults = Collections.unmodifiableList(aggregatorResults);
         this.results = Collections.unmodifiableList(results);
     }
@@ -117,14 +121,14 @@ public class ResultsImpl implements Results {
      * {@inheritDoc}
      */
     public boolean hasAttributes() {
-        throw new AssertionError();
+        return hasAttributes;
     }
 
     /**
      * {@inheritDoc}
      */
     public boolean hasAggregators() {
-        throw new AssertionError();
+        return hasAggregates;
     }
 
     /**
@@ -143,7 +147,6 @@ public class ResultsImpl implements Results {
         private final StoreQuery query;
         private final Map<String, Object> attributes;
         private final Object[] sortAttributes;
-
 
         /**
          * Result implementation
