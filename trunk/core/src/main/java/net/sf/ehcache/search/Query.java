@@ -142,7 +142,7 @@ public interface Query {
      * @param direction Ascending or descending
      * @return this
      */
-    public Query addOrder(Attribute<?> attribute, Direction direction);
+    public Query addOrderBy(Attribute<?> attribute, Direction direction);
 
     /**
      * Restrict the number of results returned from the search.

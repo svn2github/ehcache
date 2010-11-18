@@ -123,7 +123,7 @@ class CacheQuery implements Query, StoreQuery {
     /**
      * {@inheritDoc}
      */
-    public Query addOrder(Attribute<?> attribute, Direction direction) {
+    public Query addOrderBy(Attribute<?> attribute, Direction direction) {
         checkFrozen();
         this.orderings.add(new OrderingImpl(attribute, direction));
         return this;
