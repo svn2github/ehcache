@@ -126,10 +126,20 @@ public class GzipFilterTest extends AbstractWebTest {
         httpMethod.addRequestHeader("If-modified-Since", "Fri, 13 May 3006 23:54:18 GMT");
         httpMethod.addRequestHeader("Accept-Encoding", "gzip");
         int responseCode = httpClient.executeMethod(httpMethod);
-        assertEquals(HttpURLConnection.HTTP_NOT_MODIFIED, responseCode);
         byte[] responseBody = httpMethod.getResponseBody();
-        assertEquals(null, responseBody);
-        assertNull(httpMethod.getResponseHeader("Content-Encoding"));
+
+        if (responseBody != null && responseBody.length == 0){
+			System.err.println("ResponseBody is not null but an empty byte array. "
+							+ "This could be due to using Weblogic "
+							+ "[DEV-3991|https://jira.terracotta.org/jira/browse/DEV-3991].");
+            assertEquals(HttpURLConnection.HTTP_OK, responseCode);
+            assertEquals("gzip", httpMethod.getResponseHeader("Content-Encoding").getValue());
+        }
+        else {
+            assertEquals(null, responseBody);
+            assertEquals(HttpURLConnection.HTTP_NOT_MODIFIED, responseCode);
+            assertNull(httpMethod.getResponseHeader("Content-Encoding"));
+        }
         checkNullOrZeroContentLength(httpMethod);
     }
 
