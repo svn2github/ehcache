@@ -20,6 +20,8 @@ import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.List;
 
 import junit.framework.TestCase;
 import net.sf.ehcache.Cache;
@@ -147,7 +149,7 @@ public abstract class AbstractBasicNonStopCacheTest extends TestCase {
                     IllegalAccessException, InvocationTargetException {
                 try {
                     super.invokeOne(behavior, method, args);
-                    fail("NonStopCache's configured with timeout behavior should throw NonStopCacheException");
+                    fail("NonStopCache's configured with timeout behavior should throw NonStopCacheException - " + method.getName());
                 } catch (InvocationTargetException e) {
                     if (e.getCause() instanceof NonStopCacheException) {
                         System.out.println("   ... caught expected exception -- " + e.getCause());
@@ -169,15 +171,21 @@ public abstract class AbstractBasicNonStopCacheTest extends TestCase {
     private static class NonStopCacheBehaviorInvoker {
 
         private final long underlyingCacheTimeout;
+        private final List<String> skipMethods = new ArrayList<String>();
 
         public NonStopCacheBehaviorInvoker(long underlyingCacheTimeout) {
             this.underlyingCacheTimeout = underlyingCacheTimeout;
+            skipMethods.add("isElementOnDisk");
         }
 
         public void invokeAll(NonStopCacheBehavior behavior) throws Exception {
             // make sure all methods returns and does not block
             Method[] methods = NonStopCacheBehavior.class.getMethods();
             for (Method m : methods) {
+                if (skipMethods.contains(m.getName())) {
+                    System.out.println("Skipped: " + m.getName());
+                    return;
+                }
                 long start = System.currentTimeMillis();
                 System.out.println("Invoking method: " + getMethodSignature(m) + "... ");
                 invokeOne(behavior, m, getMethodArguments(m));

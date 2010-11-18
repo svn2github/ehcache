@@ -40,7 +40,7 @@
 		<terracotta clustered="false">
 			<nonstop enabled="false" immediateTimeout="false"
 				timeoutMillis="12345">
-				<timeoutBehavior value="localReads" />
+				<timeoutBehavior type="localReads" />
 			</nonstop>
 		</terracotta>
 	</cache>
