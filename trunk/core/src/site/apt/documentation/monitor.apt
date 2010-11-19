@@ -20,7 +20,7 @@ Ehcache Monitor
     (such as Hyperic, Nagios etc). The probe is designed to be compatible with all versions of Ehcache from 1.5 and
     requires JDK 1.5 or 1.6.
 
-    Get the {{{/modules/monitor.html}Ehcache Monitor}} now.
+    Get the {{{http://www.terracotta.org/ehcache.org/download-monitor}Ehcache Monitor}} now.
 
 *   {Demonstration Video}    
 
