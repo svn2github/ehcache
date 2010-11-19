@@ -16,7 +16,6 @@
 
 package net.sf.ehcache.search.attribute;
 
-import java.sql.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -158,7 +157,7 @@ public enum AttributeType {
          */
         @Override
         public void validateValue(String name, Object value) {
-            if (value == null || value.getClass() != Date.class) {
+            if (value == null || value.getClass() != java.util.Date.class) {
                 throw new SearchException("Expecting a Date value for attribute [" + name + "] but was " + type(value));
             }
         }
