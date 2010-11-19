@@ -41,12 +41,11 @@ import net.sf.ehcache.writer.CacheWriterManager;
  * @author Abhishek Sanoujam
  *
  */
-public class ClusterAwareStore implements Store, ClusterTopologyListener {
+public class ClusterAwareStore implements Store {
 
-    private final CacheCluster cacheCluster;
-    private volatile Store delegate;
     private final ClusterOfflineStore clusterOfflineStore;
     private final ExecutorServiceStore clusterOnlineStore;
+    private volatile Store delegate;
 
     /**
      * Constructor accepting the {@link CacheCluster}, {@link ClusterOfflineStore} (used when cluster is offline) and
@@ -57,7 +56,6 @@ public class ClusterAwareStore implements Store, ClusterTopologyListener {
      * @param clusterOnlineStore
      */
     public ClusterAwareStore(CacheCluster cacheCluster, ClusterOfflineStore clusterOfflineStore, ExecutorServiceStore clusterOnlineStore) {
-        this.cacheCluster = cacheCluster;
         this.clusterOfflineStore = clusterOfflineStore;
         this.clusterOnlineStore = clusterOnlineStore;
         if (cacheCluster.isClusterOnline()) {
@@ -65,35 +63,15 @@ public class ClusterAwareStore implements Store, ClusterTopologyListener {
         } else {
             delegate = clusterOfflineStore;
         }
-        cacheCluster.addTopologyListener(this);
+        cacheCluster.addTopologyListener(new ClusterStatusListener(this, cacheCluster));
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public void clusterOffline(ClusterNode node) {
+    private void clusterOffline() {
         delegate = clusterOfflineStore;
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public void clusterOnline(ClusterNode node) {
+    private void clusterOnline() {
         delegate = clusterOnlineStore;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public void nodeJoined(ClusterNode node) {
-        // no-op
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public void nodeLeft(ClusterNode node) {
-        // no-op
     }
 
     /**
@@ -389,5 +367,62 @@ public class ClusterAwareStore implements Store, ClusterTopologyListener {
      */
     public void waitUntilClusterCoherent() throws UnsupportedOperationException {
         delegate.waitUntilClusterCoherent();
+    }
+
+    /**
+     * A {@link ClusterTopologyListener} implementation that listens for cluster online/offline events
+     *
+     * @author Abhishek Sanoujam
+     *
+     */
+    private static class ClusterStatusListener implements ClusterTopologyListener {
+
+        private final ClusterAwareStore clusterAwareStore;
+        private final CacheCluster cacheCluster;
+
+        public ClusterStatusListener(ClusterAwareStore clusterAwareStore, CacheCluster cacheCluster) {
+            this.clusterAwareStore = clusterAwareStore;
+            this.cacheCluster = cacheCluster;
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        public void clusterOffline(ClusterNode node) {
+            if (cacheCluster.getCurrentNode().equals(node)) {
+                clusterAwareStore.clusterOffline();
+            }
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        public void clusterOnline(ClusterNode node) {
+            if (cacheCluster.getCurrentNode().equals(node)) {
+                clusterAwareStore.clusterOnline();
+            }
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        public void nodeJoined(ClusterNode node) {
+            // no-op
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        public void nodeLeft(ClusterNode node) {
+            // no-op
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        public void clusterRejoined() {
+            // no-op
+        }
+
     }
 }

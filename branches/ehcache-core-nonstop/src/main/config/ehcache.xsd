@@ -64,6 +64,7 @@
                 </xs:element>
             </xs:sequence>
             <xs:attribute default="localhost:9510" name="url" use="optional"/>
+            <xs:attribute name="rejoin" use="optional" default="true"/>
         </xs:complexType>
     </xs:element>
     <!-- add clone support for addition of cacheExceptionHandler. Important! -->

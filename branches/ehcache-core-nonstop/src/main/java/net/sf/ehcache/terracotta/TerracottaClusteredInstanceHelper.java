@@ -14,39 +14,95 @@
  *  limitations under the License.
  */
 
-package net.sf.ehcache;
+package net.sf.ehcache.terracotta;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import net.sf.ehcache.CacheException;
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.TerracottaClientConfiguration;
 import net.sf.ehcache.config.TerracottaConfiguration;
 import net.sf.ehcache.config.TerracottaConfiguration.StorageStrategy;
-import net.sf.ehcache.terracotta.ClusteredInstanceFactory;
 import net.sf.ehcache.util.ClassLoaderUtil;
 
 /**
  * A small helper class that knows how to create terracotta store factories
- * 
+ *
  * @author teck
+ * @author Abhishek Sanoujam
  */
 class TerracottaClusteredInstanceHelper {
 
     /**
+     * Singleton instance
+     */
+    private static TerracottaClusteredInstanceHelper instance = new TerracottaClusteredInstanceHelper();
+
+    /**
+     * Private constructor
+     */
+    private TerracottaClusteredInstanceHelper() {
+        // private
+    }
+
+    /**
+     * Returns the singletone instance
+     *
+     * @return
+     */
+    public static TerracottaClusteredInstanceHelper getInstance() {
+        return instance;
+    }
+
+    /*
+     * THIS METHOD IS NOT FOR PUBLIC USE
+     * Used in tests only via reflection
+     *
+     * @param testHelper
+     */
+    private static void setTestMode(TerracottaClusteredInstanceHelper testHelper) {
+        instance = testHelper;
+    }
+
+    /**
      * Enum for type of Terracotta runtime
      */
-    private static enum TerracottaRuntimeType {
-        EnterpriseExpress(ENTERPRISE_EXPRESS_FACTORY), Express(EXPRESS_FACTORY), EnterpriseCustom(ENTERPRISE_CUSTOM_FACTORY), Custom(
-                CUSTOM_FACTORY);
+    static enum TerracottaRuntimeType {
+        /**
+         * Enum representing Enterprise Express mode
+         */
+        EnterpriseExpress(ENTERPRISE_EXPRESS_FACTORY),
+        /**
+         * Enum representing Express mode
+         */
+        Express(EXPRESS_FACTORY),
+        /**
+         * Enum representing Enterprise Custom mode
+         */
+        EnterpriseCustom(ENTERPRISE_CUSTOM_FACTORY),
+        /**
+         * Enum representing Custom mode
+         */
+        Custom(CUSTOM_FACTORY);
 
         private final String factoryClassName;
 
+        /**
+         * Private constructor
+         *
+         * @param factoryClassName
+         */
         private TerracottaRuntimeType(String factoryClassName) {
             this.factoryClassName = factoryClassName;
         }
 
+        /**
+         * Returns the factory class for this mode or null if class is not present in classpath
+         *
+         * @return the factory class for this mode or null if class is not present in classpath
+         */
         public Class getFactoryClassOrNull() {
             try {
                 return ClassLoaderUtil.loadClass(factoryClassName);
@@ -62,21 +118,24 @@ class TerracottaClusteredInstanceHelper {
      */
     private static final boolean TC_DSO_MODE = Boolean.getBoolean("tc.active");
 
-    private static final String ENTERPRISE_EXPRESS_FACTORY = 
+    private static final String ENTERPRISE_EXPRESS_FACTORY =
         "net.sf.ehcache.terracotta.ExpressEnterpriseTerracottaClusteredInstanceFactory";
-    private static final String ENTERPRISE_CUSTOM_FACTORY = 
+    private static final String ENTERPRISE_CUSTOM_FACTORY =
         "org.terracotta.modules.ehcache.store.EnterpriseTerracottaClusteredInstanceFactory";
     private static final String EXPRESS_FACTORY = "net.sf.ehcache.terracotta.StandaloneTerracottaClusteredInstanceFactory";
     private static final String CUSTOM_FACTORY = "org.terracotta.modules.ehcache.store.TerracottaClusteredInstanceFactory";
-    private static volatile TerracottaRuntimeType terracottaRuntimeType;
 
-    private static void lookupTerracottaRuntime() {
+    private volatile TerracottaRuntimeType terracottaRuntimeType;
+
+    /**
+     * Lookup the current terracotta runtime
+     *
+     * @return the current terracotta runtime
+     */
+    private TerracottaRuntimeType lookupTerracottaRuntime() {
         if (terracottaRuntimeType == null) {
             final TerracottaRuntimeType[] lookupSequence = {TerracottaRuntimeType.EnterpriseExpress,
-                    TerracottaRuntimeType.EnterpriseCustom, 
-                    TerracottaRuntimeType.Express, 
-                    TerracottaRuntimeType.Custom, 
-            };
+                    TerracottaRuntimeType.EnterpriseCustom, TerracottaRuntimeType.Express, TerracottaRuntimeType.Custom, };
             for (TerracottaRuntimeType type : lookupSequence) {
                 if (type.getFactoryClassOrNull() != null) {
                     terracottaRuntimeType = type;
@@ -84,16 +143,17 @@ class TerracottaClusteredInstanceHelper {
                 }
             }
         }
+        return terracottaRuntimeType;
     }
 
     /**
      * Locate and decide which terracotta ClusteredInstanceFactory should be used. If the standalone factory class is available
      * it is preferred (ie. if ehcache-terracotta-xxx.jar is present)
-     * 
+     *
      * @param cacheConfigs
      * @return the selected terracotta store factory
      */
-    static ClusteredInstanceFactory newClusteredInstanceFactory(Map<String, CacheConfiguration> cacheConfigs,
+    ClusteredInstanceFactory newClusteredInstanceFactory(Map<String, CacheConfiguration> cacheConfigs,
             TerracottaClientConfiguration terracottaConfig) {
         lookupTerracottaRuntime();
         if (terracottaRuntimeType == null) {
@@ -102,8 +162,8 @@ class TerracottaClusteredInstanceHelper {
 
         if (terracottaRuntimeType == TerracottaRuntimeType.EnterpriseExpress || terracottaRuntimeType == TerracottaRuntimeType.Express) {
             assertExpress(cacheConfigs, terracottaConfig);
-        } else if (terracottaRuntimeType == TerracottaRuntimeType.EnterpriseCustom || 
-                terracottaRuntimeType == TerracottaRuntimeType.Custom) {
+        } else if (terracottaRuntimeType == TerracottaRuntimeType.EnterpriseCustom
+                || terracottaRuntimeType == TerracottaRuntimeType.Custom) {
             assertCustom(terracottaConfig);
         } else {
             throw new CacheException("Unknown Terracotta runtime type - " + terracottaRuntimeType);
@@ -155,21 +215,33 @@ class TerracottaClusteredInstanceHelper {
 
     /**
      * Returns the default {@link StorageStrategy} type for the current Terracotta runtime.
-     * 
+     *
      * @return the default {@link StorageStrategy} type for the current Terracotta runtime.
      */
-    static StorageStrategy getDefaultStorageStrategyForCurrentRuntime() {
+    StorageStrategy getDefaultStorageStrategyForCurrentRuntime() {
         lookupTerracottaRuntime();
         if (terracottaRuntimeType == null) {
             throw new CacheException("Terracotta cache classes are not available, you are missing jar(s) most likely");
         }
         switch (terracottaRuntimeType) {
             case Express:
-            case Custom: return StorageStrategy.CLASSIC;
+            case Custom:
+                return StorageStrategy.CLASSIC;
             case EnterpriseCustom:
-            case EnterpriseExpress: return StorageStrategy.DCV2;
-            default: throw new CacheException("Unknown Terracotta runtime type - " + terracottaRuntimeType);
+            case EnterpriseExpress:
+                return StorageStrategy.DCV2;
+            default:
+                throw new CacheException("Unknown Terracotta runtime type - " + terracottaRuntimeType);
         }
+    }
+
+    /**
+     * Returns the terracotta runtime type or null if no runtime could be found
+     *
+     * @return the terracotta runtime type or null if no runtime could be found
+     */
+    TerracottaRuntimeType getTerracottaRuntimeTypeOrNull() {
+        return terracottaRuntimeType;
     }
 
 }

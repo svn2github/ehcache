@@ -18,9 +18,9 @@ package net.sf.ehcache.config.generator.model;
 
 /**
  * Implementation of the {@link NodeAttribute} interface
- * 
+ *
  * @author Abhishek Sanoujam
- * 
+ *
  */
 public class SimpleNodeAttribute implements NodeAttribute {
 
@@ -31,7 +31,7 @@ public class SimpleNodeAttribute implements NodeAttribute {
 
     /**
      * Constructor accepting the name of the attribute
-     * 
+     *
      * @param name
      *            the name of the attribute
      */
@@ -41,7 +41,7 @@ public class SimpleNodeAttribute implements NodeAttribute {
 
     /**
      * Constructor accepting name and Enum value of the attribute
-     * 
+     *
      * @param name
      *            the name of the attribute
      * @param value
@@ -53,7 +53,7 @@ public class SimpleNodeAttribute implements NodeAttribute {
 
     /**
      * Constructor accepting name and int value of the attribute
-     * 
+     *
      * @param name
      *            the name of the attribute
      * @param value
@@ -65,7 +65,7 @@ public class SimpleNodeAttribute implements NodeAttribute {
 
     /**
      * Constructor accepting name and long value of the attribute
-     * 
+     *
      * @param name
      *            the name of the attribute
      * @param value
@@ -77,7 +77,7 @@ public class SimpleNodeAttribute implements NodeAttribute {
 
     /**
      * Constructor accepting name and boolean value of the attribute
-     * 
+     *
      * @param name
      *            the name of the attribute
      * @param value
@@ -89,7 +89,7 @@ public class SimpleNodeAttribute implements NodeAttribute {
 
     /**
      * Constructor accepting name and String value of the attribute
-     * 
+     *
      * @param name
      *            the name of the attribute
      * @param value
@@ -211,7 +211,7 @@ public class SimpleNodeAttribute implements NodeAttribute {
 
     /**
      * Same as {@link #defaultValue(String)} using String.valueOf(defaultValue)
-     * 
+     *
      * @param defaultValue
      *            the default value
      * @return the same instance
@@ -222,7 +222,7 @@ public class SimpleNodeAttribute implements NodeAttribute {
 
     /**
      * Same as {@link #defaultValue(String)} using String.valueOf(defaultValue)
-     * 
+     *
      * @param defaultValue
      *            the default value
      * @return the same instance
@@ -233,7 +233,7 @@ public class SimpleNodeAttribute implements NodeAttribute {
 
     /**
      * Same as {@link #defaultValue(String)} using String.valueOf(defaultValue)
-     * 
+     *
      * @param defaultValue
      *            the default value
      * @return the same instance
@@ -244,7 +244,7 @@ public class SimpleNodeAttribute implements NodeAttribute {
 
     /**
      * Same as {@link #defaultValue(String)} using String.valueOf(defaultValue)
-     * 
+     *
      * @param defaultValue
      *            the default value
      * @return the same instance

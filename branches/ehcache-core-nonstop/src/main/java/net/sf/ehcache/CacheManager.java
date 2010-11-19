@@ -15,6 +15,22 @@
  */
 package net.sf.ehcache;
 
+import java.io.File;
+import java.io.InputStream;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.CopyOnWriteArrayList;
+
 import net.sf.ehcache.cluster.CacheCluster;
 import net.sf.ehcache.cluster.ClusterScheme;
 import net.sf.ehcache.cluster.ClusterSchemeNotAvailableException;
@@ -25,6 +41,7 @@ import net.sf.ehcache.config.ConfigurationFactory;
 import net.sf.ehcache.config.ConfigurationHelper;
 import net.sf.ehcache.config.DiskStoreConfiguration;
 import net.sf.ehcache.config.FactoryConfiguration;
+import net.sf.ehcache.config.InvalidConfigurationException;
 import net.sf.ehcache.config.TerracottaClientConfiguration;
 import net.sf.ehcache.config.generator.ConfigurationUtil;
 import net.sf.ehcache.distribution.CacheManagerPeerListener;
@@ -40,6 +57,7 @@ import net.sf.ehcache.store.DiskStore;
 import net.sf.ehcache.store.Store;
 import net.sf.ehcache.store.compound.impl.MemoryOnlyStore;
 import net.sf.ehcache.terracotta.ClusteredInstanceFactory;
+import net.sf.ehcache.terracotta.TerracottaClient;
 import net.sf.ehcache.transaction.local.ReadCommittedSoftLockFactoryImpl;
 import net.sf.ehcache.transaction.local.SoftLockFactory;
 import net.sf.ehcache.transaction.local.TransactionIDFactory;
@@ -51,24 +69,9 @@ import net.sf.ehcache.util.FailSafeTimer;
 import net.sf.ehcache.util.PropertyUtil;
 import net.sf.ehcache.util.UpdateChecker;
 import net.sf.ehcache.writer.writebehind.WriteBehind;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.File;
-import java.io.InputStream;
-import java.lang.reflect.Method;
-import java.net.URL;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * A container for {@link Ehcache}s that maintain all aspects of their lifecycle.
@@ -177,17 +180,12 @@ public class CacheManager {
 
     private FailSafeTimer cacheManagerTimer;
 
-    /**
-     * Factory for creating terracotta clustered memory store (may be null if this manager has no terracotta caches)
-     */
-    private volatile ClusteredInstanceFactory terracottaClusteredInstanceFactory;
+    private volatile TerracottaClient terracottaClient;
 
     /**
      * The {@link TerracottaClientConfiguration} used for this {@link CacheManager}
      */
     private TerracottaClientConfiguration terracottaClientConfiguration;
-
-    private final AtomicBoolean terracottaClusteredInstanceFactoryCreated = new AtomicBoolean(false);
 
     private Configuration configuration;
 
@@ -294,15 +292,20 @@ public class CacheManager {
     /**
      * initialises the CacheManager
      */
-    protected void init(Configuration configuration, String configurationFileName, URL configurationURL,
+    protected void init(Configuration initialConfiguration, String configurationFileName, URL configurationURL,
             InputStream configurationInputStream) {
-        Configuration localConfiguration = configuration;
-        if (configuration == null) {
+        Configuration localConfiguration = initialConfiguration;
+        if (initialConfiguration == null) {
             localConfiguration = parseConfiguration(configurationFileName, configurationURL, configurationInputStream);
             this.configuration = localConfiguration;
         } else {
-            this.configuration = configuration;
+            this.configuration = initialConfiguration;
         }
+
+        if (this.configuration.getTerracottaConfiguration() != null) {
+            this.configuration.getTerracottaConfiguration().freezeConfig();
+        }
+        validateConfiguration();
 
         if (localConfiguration.getName() != null) {
             this.name = localConfiguration.getName();
@@ -311,22 +314,22 @@ public class CacheManager {
         this.allowsDynamicCacheConfig = localConfiguration.getDynamicConfig();
         this.terracottaClientConfiguration = localConfiguration.getTerracottaConfiguration();
 
+        terracottaClient = new TerracottaClient(this, localConfiguration.getTerracottaConfiguration());
+
         Map<String, CacheConfiguration> cacheConfigs = localConfiguration.getCacheConfigurations();
         if (localConfiguration.getDefaultCacheConfiguration() != null
-            && localConfiguration.getDefaultCacheConfiguration().isTerracottaClustered()) {
-            terracottaClusteredInstanceFactory = TerracottaClusteredInstanceHelper.newClusteredInstanceFactory(cacheConfigs,
-                    localConfiguration.getTerracottaConfiguration());
+                && localConfiguration.getDefaultCacheConfiguration().isTerracottaClustered()) {
+            terracottaClient.createClusteredInstanceFactory(cacheConfigs);
         } else {
             for (CacheConfiguration config : cacheConfigs.values()) {
                 if (config.isTerracottaClustered()) {
-                    terracottaClusteredInstanceFactory = TerracottaClusteredInstanceHelper.newClusteredInstanceFactory(cacheConfigs,
-                            localConfiguration.getTerracottaConfiguration());
+                    terracottaClient.createClusteredInstanceFactory(cacheConfigs);
                     break;
                 }
             }
         }
 
-        if (terracottaClusteredInstanceFactory != null && this.name == null) {
+        if (terracottaClient.getClusteredInstanceFactory() != null && this.name == null) {
             this.name = CacheManager.DEFAULT_NAME;
         }
 
@@ -347,12 +350,41 @@ public class CacheManager {
         cacheManagerTimer = new FailSafeTimer(getName());
         checkForUpdateIfNeeded(localConfiguration.getUpdateCheck());
 
-        terracottaClusteredInstanceFactoryCreated.set(terracottaClusteredInstanceFactory != null);
-
         // do this last
         addConfiguredCaches(configurationHelper);
 
         initializeMBeanRegistrationProvider(localConfiguration);
+    }
+
+    private boolean isTerracottaRejoinEnabled() {
+        TerracottaClientConfiguration terracottaConfiguration = configuration.getTerracottaConfiguration();
+        return terracottaConfiguration != null && terracottaConfiguration.isRejoin();
+    }
+
+    private void validateConfiguration() {
+        if (isTerracottaRejoinEnabled()) {
+            validateCacheConfigs(configuration.getCacheConfigurations().values());
+        }
+    }
+
+    private void validateCacheConfigs(Collection<CacheConfiguration> cacheConfigs) {
+        boolean invalid = false;
+        final List<String> invalidCaches = new ArrayList<String>();
+        if (isTerracottaRejoinEnabled()) {
+            for (CacheConfiguration config : cacheConfigs) {
+                if (config.isTerracottaClustered()) {
+                    // if terracotta clustered cache without nonstop, throw invalid configuration
+                    if (!config.getTerracottaConfiguration().isNonstopEnabled()) {
+                        invalid = true;
+                        invalidCaches.add(config.getName());
+                    }
+                }
+            }
+        }
+        if (invalid) {
+            throw new InvalidConfigurationException("Terracotta clustered caches must be nonstop when rejoin is enabled. Invalid caches: "
+                    + invalidCaches);
+        }
     }
 
     /**
@@ -363,24 +395,15 @@ public class CacheManager {
      *         Otherwise returns blank string.
      */
     public String getClusterUUID() {
-        if (terracottaClusteredInstanceFactory != null) {
-            return getClientUUID(terracottaClusteredInstanceFactory);
+        if (terracottaClient.getClusteredInstanceFactory() != null) {
+            return getClientUUID(terracottaClient.getClusteredInstanceFactory());
         } else {
             return "";
         }
     }
 
     private static String getClientUUID(ClusteredInstanceFactory clusteredInstanceFactory) {
-        try {
-            Class c = clusteredInstanceFactory.getClass();
-            Method m = c.getMethod("getUUID");
-            if (m == null) {
-                return null;
-            }
-            return (String) m.invoke(clusteredInstanceFactory);
-        } catch (Exception e) {
-            return null;
-        }
+        return clusteredInstanceFactory.getUUID();
     }
 
     /**
@@ -391,7 +414,7 @@ public class CacheManager {
     private void initializeMBeanRegistrationProvider(Configuration localConfiguration) {
         mbeanRegistrationProvider = MBEAN_REGISTRATION_PROVIDER_FACTORY.createMBeanRegistrationProvider(localConfiguration);
         try {
-            mbeanRegistrationProvider.initialize(this, terracottaClusteredInstanceFactory);
+            mbeanRegistrationProvider.initialize(this, terracottaClient.getClusteredInstanceFactory());
         } catch (MBeanRegistrationProviderException e) {
             LOG.warn("Failed to initialize the MBeanRegistrationProvider - " + mbeanRegistrationProvider.getClass().getName(), e);
         }
@@ -429,13 +452,14 @@ public class CacheManager {
 
     /**
      * Create a EhcacheXAStore instance for a cache
+     *
      * @param cache The cache the XAResource should wrap
      * @param store The real memory store backing the cache
      * @param bypassValidation whether versioning for checked out elements should be traced
      * @return the configured EhcacheXAStore impl.
      */
     EhcacheXAStore createEhcacheXAStore(Ehcache cache, Store store, boolean bypassValidation) {
-       EhcacheXAStore ehcacheXAStore;
+        EhcacheXAStore ehcacheXAStore;
         if (cache.getCacheConfiguration().isTerracottaClustered()) {
             ehcacheXAStore = getClusteredInstanceFactory(cache).createXAStore(cache, store, bypassValidation);
         } else {
@@ -452,28 +476,24 @@ public class CacheManager {
      * @return the clustered instance factory
      */
     private ClusteredInstanceFactory getClusteredInstanceFactory(Ehcache cache) {
-        if (null == terracottaClusteredInstanceFactory) {
+        ClusteredInstanceFactory clusteredInstanceFactory = terracottaClient.getClusteredInstanceFactory();
+        if (null == clusteredInstanceFactory) {
             // adding a cache programmatically when there is no clustered store defined in the configuration
             // at the time this cacheManager was created
-            // synchronized so that multiple threads will wait till the store is created
-            synchronized (this) {
-                // only 1 thread will create the store
-                if (!terracottaClusteredInstanceFactoryCreated.getAndSet(true)) {
-                    // use the TerracottaClientConfiguration of this CacheManager to create a new ClusteredInstanceFactory
-                    Map<String, CacheConfiguration> map = new HashMap<String, CacheConfiguration>(1);
-                    map.put(cache.getName(), cache.getCacheConfiguration());
-                    terracottaClusteredInstanceFactory = TerracottaClusteredInstanceHelper.newClusteredInstanceFactory(map,
-                            terracottaClientConfiguration);
-                    try {
-                        mbeanRegistrationProvider.reinitialize(terracottaClusteredInstanceFactory);
-                    } catch (MBeanRegistrationProviderException e) {
-                        LOG.warn("Failed to initialize the MBeanRegistrationProvider - " + mbeanRegistrationProvider.getClass().getName(),
-                                e);
-                    }
+            Map<String, CacheConfiguration> map = new HashMap<String, CacheConfiguration>(1);
+            map.put(cache.getName(), cache.getCacheConfiguration());
+            final boolean created = terracottaClient.createClusteredInstanceFactory(map);
+            clusteredInstanceFactory = terracottaClient.getClusteredInstanceFactory();
+
+            if (created) {
+                try {
+                    mbeanRegistrationProvider.reinitialize(clusteredInstanceFactory);
+                } catch (MBeanRegistrationProviderException e) {
+                    LOG.warn("Failed to initialize the MBeanRegistrationProvider - " + mbeanRegistrationProvider.getClass().getName(), e);
                 }
             }
         }
-        return terracottaClusteredInstanceFactory;
+        return clusteredInstanceFactory;
     }
 
     private void checkForUpdateIfNeeded(boolean updateCheckNeeded) {
@@ -504,7 +524,7 @@ public class CacheManager {
      *             if the configuration cannot be parsed
      */
     private synchronized Configuration parseConfiguration(String configurationFileName, URL configurationURL,
-                                                          InputStream configurationInputStream) throws CacheException {
+            InputStream configurationInputStream) throws CacheException {
         reinitialisationCheck();
         Configuration parsedConfig;
         if (configurationFileName != null) {
@@ -538,10 +558,10 @@ public class CacheManager {
 
         FactoryConfiguration lookupConfiguration = configuration.getTransactionManagerLookupConfiguration();
         try {
-            Properties properties =
-                PropertyUtil.parseProperties(lookupConfiguration.getProperties(), lookupConfiguration.getPropertySeparator());
-            Class<TransactionManagerLookup> transactionManagerLookupClass =
-                (Class<TransactionManagerLookup>) Class.forName(lookupConfiguration.getFullyQualifiedClassPath());
+            Properties properties = PropertyUtil.parseProperties(lookupConfiguration.getProperties(), lookupConfiguration
+                    .getPropertySeparator());
+            Class<TransactionManagerLookup> transactionManagerLookupClass = (Class<TransactionManagerLookup>) Class
+                    .forName(lookupConfiguration.getFullyQualifiedClassPath());
             this.transactionManagerLookup = transactionManagerLookupClass.newInstance();
             this.transactionManagerLookup.setProperties(properties);
         } catch (Exception e) {
@@ -638,8 +658,7 @@ public class CacheManager {
     }
 
     private void reinitialisationCheck() throws IllegalStateException {
-        if (defaultCache != null || diskStorePath != null || ehcaches.size() != 0
-                || status.equals(Status.STATUS_SHUTDOWN)) {
+        if (defaultCache != null || diskStorePath != null || ehcaches.size() != 0 || status.equals(Status.STATUS_SHUTDOWN)) {
             throw new IllegalStateException("Attempt to reinitialise the CacheManager");
         }
     }
@@ -956,18 +975,15 @@ public class CacheManager {
      * nor initializes the cache. It only adds the cache reference to the map of caches held by this
      * cacheManager.
      * <p/>
-     * It is generally required that a decorated cache, once constructed, is made available to other execution
-     * threads. The simplest way of doing this is to either add it to the cacheManager with a different name or
-     * substitute the original cache with the decorated one.
+     * It is generally required that a decorated cache, once constructed, is made available to other execution threads. The simplest way of
+     * doing this is to either add it to the cacheManager with a different name or substitute the original cache with the decorated one.
      * <p/>
-     * This method adds the decorated cache assuming it has a different name. If another cache (decorated or not)
-     * with the same name already exists, it will throw {@link ObjectExistsException}. For replacing existing
-     * cache with another decorated cache having same name, please use
-     * {@link #replaceCacheWithDecoratedCache(Ehcache, Ehcache)}
+     * This method adds the decorated cache assuming it has a different name. If another cache (decorated or not) with the same name already
+     * exists, it will throw {@link ObjectExistsException}. For replacing existing cache with another decorated cache having same name,
+     * please use {@link #replaceCacheWithDecoratedCache(Ehcache, Ehcache)}
      * <p/>
-     * Note that any overridden Ehcache methods by the decorator will take on new behaviours without casting.
-     * Casting is only required for new methods that the decorator introduces. For more information see the well
-     * known Gang of Four Decorator pattern.
+     * Note that any overridden Ehcache methods by the decorator will take on new behaviours without casting. Casting is only required for
+     * new methods that the decorator introduces. For more information see the well known Gang of Four Decorator pattern.
      *
      * @param decoratedCache
      * @throws ObjectExistsException
@@ -994,15 +1010,16 @@ public class CacheManager {
         }
     }
 
-    private Ehcache addCacheNoCheck(Ehcache cache, final boolean strict)
-        throws IllegalStateException, ObjectExistsException, CacheException {
+    private Ehcache addCacheNoCheck(Ehcache cache, final boolean strict) throws IllegalStateException, ObjectExistsException,
+            CacheException {
+
+        if (isTerracottaRejoinEnabled()) {
+            validateCacheConfigs(Collections.singletonList(cache.getCacheConfiguration()));
+        }
 
         if (cache.getStatus() != Status.STATUS_UNINITIALISED) {
-            throw new CacheException(
-                    "Trying to add an already initialized cache." +
-                    " If you are adding a decorated cache, " +
-                    "use CacheManager.addDecoratedCache" +
-                    "(Ehcache decoratedCache) instead.");
+            throw new CacheException("Trying to add an already initialized cache." + " If you are adding a decorated cache, "
+                    + "use CacheManager.addDecoratedCache" + "(Ehcache decoratedCache) instead.");
         }
 
         Ehcache ehcache = ehcaches.get(cache.getName());
@@ -1144,9 +1161,7 @@ public class CacheManager {
                 if (this == singleton) {
                     singleton = null;
                 }
-                if (terracottaClusteredInstanceFactory != null) {
-                    terracottaClusteredInstanceFactory.shutdown();
-                }
+                terracottaClient.shutdown();
                 removeShutdownHook();
             }
         }
@@ -1368,7 +1383,7 @@ public class CacheManager {
     public void setName(String name) {
         this.name = name;
         try {
-            mbeanRegistrationProvider.reinitialize(terracottaClusteredInstanceFactory);
+            mbeanRegistrationProvider.reinitialize(terracottaClient.getClusteredInstanceFactory());
         } catch (MBeanRegistrationProviderException e) {
             throw new CacheException("Problem in reinitializing MBeanRegistrationProvider - "
                     + mbeanRegistrationProvider.getClass().getName(), e);
@@ -1415,14 +1430,13 @@ public class CacheManager {
      */
     public CacheCluster getCluster(ClusterScheme scheme) throws ClusterSchemeNotAvailableException {
         switch (scheme) {
-        case TERRACOTTA:
-            if (null == terracottaClusteredInstanceFactory) {
-                throw new ClusterSchemeNotAvailableException(ClusterScheme.TERRACOTTA,
-                        "Terracotta cluster scheme is not available");
-            }
-            return terracottaClusteredInstanceFactory.getTopology();
-        default:
-            return NoopCacheCluster.INSTANCE;
+            case TERRACOTTA:
+                if (null == terracottaClient.getClusteredInstanceFactory()) {
+                    throw new ClusterSchemeNotAvailableException(ClusterScheme.TERRACOTTA, "Terracotta cluster scheme is not available");
+                }
+                return terracottaClient.getCacheCluster();
+            default:
+                return NoopCacheCluster.INSTANCE;
         }
     }
 
@@ -1498,6 +1512,7 @@ public class CacheManager {
 
     /**
      * Only adds the cache to the CacheManager should not one with the same name already be present
+     *
      * @param cache The Ehcache to be added
      * @return the instance registered with the CacheManager, the cache instance passed in if it was added; or null if Ehcache is null
      */
@@ -1508,6 +1523,7 @@ public class CacheManager {
 
     /**
      * Only creates and adds the cache to the CacheManager should not one with the same name already be present
+     *
      * @param cacheName the name of the Cache to be created
      * @return the Ehcache instance created and registered; null if cacheName was null or of length 0
      */
@@ -1549,6 +1565,7 @@ public class CacheManager {
 
     /**
      * Get the TransactionController
+     *
      * @return the TransactionController
      */
     public TransactionController getTransactionController() {
@@ -1557,8 +1574,8 @@ public class CacheManager {
 
     private TransactionIDFactory createTransactionIDFactory() {
         TransactionIDFactory transactionIDFactory;
-        if (terracottaClusteredInstanceFactory != null) {
-            transactionIDFactory = terracottaClusteredInstanceFactory.createTransactionIDFactory(getClusterUUID());
+        if (terracottaClient.getClusteredInstanceFactory() != null) {
+            transactionIDFactory = terracottaClient.getClusteredInstanceFactory().createTransactionIDFactory(getClusterUUID());
         } else {
             transactionIDFactory = new TransactionIDFactoryImpl();
         }
@@ -1567,6 +1584,7 @@ public class CacheManager {
 
     /**
      * Create a soft lock factory for a specific cache
+     *
      * @param cache the cache to create the soft lock factory for
      * @return a SoftLockFactory
      */
@@ -1585,5 +1603,19 @@ public class CacheManager {
             }
         }
         return softLockFactory;
+    }
+
+    /**
+     * This method is called when the Terracotta Cluster is rejoined. Reinitializes all terracotta clustered caches in this cache manager
+     */
+    public void clusterRejoined() {
+        // reinitialize all caches
+        for (Ehcache cache : ehcaches.values()) {
+            if (cache instanceof Cache) {
+                if (cache.getCacheConfiguration().isTerracottaClustered()) {
+                    ((Cache) cache).reinitialize();
+                }
+            }
+        }
     }
 }

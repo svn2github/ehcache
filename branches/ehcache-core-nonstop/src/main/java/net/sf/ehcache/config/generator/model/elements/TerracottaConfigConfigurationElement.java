@@ -23,9 +23,9 @@ import net.sf.ehcache.config.generator.model.SimpleNodeElement;
 
 /**
  * {@link NodeElement} representing the {@link TerracottaClientConfiguration}
- * 
+ *
  * @author Abhishek Sanoujam
- * 
+ *
  */
 public class TerracottaConfigConfigurationElement extends SimpleNodeElement {
 
@@ -33,7 +33,7 @@ public class TerracottaConfigConfigurationElement extends SimpleNodeElement {
 
     /**
      * Constructor accepting the parent and the {@link TerracottaClientConfiguration}
-     * 
+     *
      * @param parent
      * @param tcConfigConfiguration
      */
@@ -50,6 +50,8 @@ public class TerracottaConfigConfigurationElement extends SimpleNodeElement {
         if (tcConfigConfiguration.getUrl() != null) {
             addAttribute(new SimpleNodeAttribute("url", tcConfigConfiguration.getUrl()).optional(true));
         }
+        addAttribute(new SimpleNodeAttribute("rejoin", tcConfigConfiguration.isRejoin()).optional(true).defaultValue(
+                TerracottaClientConfiguration.DEFAULT_REJOIN_VALUE));
 
         if (tcConfigConfiguration.getOriginalEmbeddedConfig() != null) {
             addChildElement(new TCConfigElement(this, tcConfigConfiguration.getOriginalEmbeddedConfig()));
@@ -58,15 +60,15 @@ public class TerracottaConfigConfigurationElement extends SimpleNodeElement {
 
     /**
      * Element representing the "tc-config" element inside "terracottaConfig"
-     * 
+     *
      * @author Abhishek Sanoujam
-     * 
+     *
      */
     private static class TCConfigElement extends SimpleNodeElement {
 
         /**
          * Constructor accepting the {@link TerracottaConfigConfigurationElement} parent and the inner string content
-         * 
+         *
          * @param parent
          * @param content
          */

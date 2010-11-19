@@ -587,4 +587,13 @@ public class TerracottaConfiguration implements Cloneable {
     public NonstopConfiguration getNonstopConfiguration() {
         return nonStopConfiguration;
     }
+
+    /**
+     * Returns true if nonstop is enabled
+     *
+     * @return true if nonstop is enabled
+     */
+    public boolean isNonstopEnabled() {
+        return nonStopConfiguration != null && nonStopConfiguration.isEnabled();
+    }
 }
