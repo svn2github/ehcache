@@ -221,4 +221,25 @@ public class Attribute<T> {
     public String toString() {
         return attributeName;
     }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int hashCode() {
+        return attributeName.hashCode();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof Attribute) {
+            Attribute other = (Attribute) obj;
+            return attributeName.equals(other.attributeName);
+        }
+        return false;
+    }
+
 }

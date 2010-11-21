@@ -18,7 +18,9 @@ package net.sf.ehcache;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import net.sf.ehcache.search.Attribute;
 import net.sf.ehcache.search.Direction;
@@ -46,7 +48,7 @@ class CacheQuery implements Query, StoreQuery {
     private volatile int maxResults = -1;
 
     private final List<Ordering> orderings = Collections.synchronizedList(new ArrayList<Ordering>());
-    private final List<Attribute<?>> includedAttributes = Collections.synchronizedList(new ArrayList<Attribute<?>>());
+    private final Set<Attribute<?>> includedAttributes = Collections.synchronizedSet(new HashSet<Attribute<?>>());
     private final List<Criteria> criteria = Collections.synchronizedList(new ArrayList<Criteria>());
     private final List<Aggregator> aggregators = Collections.synchronizedList(new ArrayList<Aggregator>());
     private final Cache cache;
@@ -210,9 +212,9 @@ class CacheQuery implements Query, StoreQuery {
     /**
      * {@inheritDoc}
      */
-    public List<Attribute<?>> requestedAttributes() {
+    public Set<Attribute<?>> requestedAttributes() {
         assertFrozen();
-        return Collections.unmodifiableList(this.includedAttributes);
+        return Collections.unmodifiableSet(this.includedAttributes);
     }
 
     /**
@@ -280,7 +282,7 @@ class CacheQuery implements Query, StoreQuery {
         private final Criteria copiedCriteria = CacheQuery.this.getEffectiveCriteriaCopy();
         private final boolean copiedIncludeKeys = includeKeys;
         private final boolean copiedIncludeValues = includeValues;
-        private final List<Attribute<?>> copiedAttributes = Collections.unmodifiableList(new ArrayList<Attribute<?>>(includedAttributes));
+        private final Set<Attribute<?>> copiedAttributes = Collections.unmodifiableSet(new HashSet<Attribute<?>>(includedAttributes));
         private final int copiedMaxResults = maxResults;
         private final List<Ordering> copiedOrdering = Collections.unmodifiableList(new ArrayList<Ordering>(orderings));
         private final List<AggregatorInstance<?>> copiedAggregators = Collections.unmodifiableList(createAggregatorInstances(aggregators));
@@ -301,7 +303,7 @@ class CacheQuery implements Query, StoreQuery {
             return cache;
         }
 
-        public List<Attribute<?>> requestedAttributes() {
+        public Set<Attribute<?>> requestedAttributes() {
             return copiedAttributes;
         }
 

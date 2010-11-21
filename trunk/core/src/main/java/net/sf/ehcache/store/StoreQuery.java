@@ -17,6 +17,7 @@
 package net.sf.ehcache.store;
 
 import java.util.List;
+import java.util.Set;
 
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.search.Attribute;
@@ -53,11 +54,11 @@ public interface StoreQuery {
     Cache getCache();
 
     /**
-     * Get the list of attributes requested by this query
+     * Get the set of attributes requested by this query
      *
      * @return the requested attributes (if any)
      */
-    List<Attribute<?>> requestedAttributes();
+    Set<Attribute<?>> requestedAttributes();
 
     /**
      * Get the requested search orderings

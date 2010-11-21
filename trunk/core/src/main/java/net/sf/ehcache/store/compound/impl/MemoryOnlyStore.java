@@ -503,7 +503,7 @@ public final class MemoryOnlyStore extends CompoundStore implements CacheConfigu
         public <T> T getAttribute(Attribute<T> attribute) {
             String name = attribute.getAttributeName();
             Object value = attributes.get(name);
-            if (value == null) {
+            if (value == null && !query.requestedAttributes().contains(attribute)) {
                 throw new SearchException("Attribute [" + name + "] not included in query");
             }
             return (T) value;
