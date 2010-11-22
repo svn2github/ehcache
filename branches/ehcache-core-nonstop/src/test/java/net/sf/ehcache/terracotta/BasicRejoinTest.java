@@ -57,6 +57,8 @@ public class BasicRejoinTest extends TestCase {
 
     private static final String ERROR_MSG_REJOIN_CUSTOM = "Rejoin can be enabled only in Terracotta Express mode";
     private static final String ERROR_MSG_REJOIN_NO_NONSTOP = "Terracotta clustered caches must be nonstop when rejoin is enabled";
+    private static final CharSequence ERROR_MSG_REJOIN_NO_TC =
+        "Terracotta Rejoin is enabled but can't determine Terracotta Runtime. You are probably missing Terracotta jar(s)";
 
     private void setupTestMode(ClusteredInstanceFactory mockFactory) throws Exception {
         setupTestMode(mock(TerracottaClusteredInstanceHelper.class), mockFactory);
@@ -111,6 +113,27 @@ public class BasicRejoinTest extends TestCase {
         } catch (InvalidConfigurationException e) {
             System.out.println("Caught Expected exception: " + e);
             assertTrue(e.getMessage().contains(ERROR_MSG_REJOIN_CUSTOM));
+        }
+    }
+
+    @Test
+    public void testInvalidRejoinWithoutTerracotta() throws Exception {
+        TerracottaClusteredInstanceHelper mockHelper = mock(TerracottaClusteredInstanceHelper.class);
+        ClusteredInstanceFactory mockFactory = mock(ClusteredInstanceFactory.class);
+        setupTestMode(mockHelper, mockFactory);
+
+        CacheCluster mockCacheCluster = new MockCacheCluster();
+        when(mockFactory.getTopology()).thenReturn(mockCacheCluster);
+
+        // run in classic mode
+        when(mockHelper.getTerracottaRuntimeTypeOrNull()).thenReturn(null);
+
+        try {
+            new CacheManager(CacheManager.class.getResourceAsStream("/rejoin/basic-rejoin-test.xml"));
+            fail("Running rejoin without Terracotta should fail");
+        } catch (InvalidConfigurationException e) {
+            System.out.println("Caught Expected exception: " + e);
+            assertTrue(e.getMessage().contains(ERROR_MSG_REJOIN_NO_TC));
         }
     }
 

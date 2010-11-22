@@ -44,7 +44,7 @@ class TerracottaClusteredInstanceHelper {
      * Private constructor
      */
     private TerracottaClusteredInstanceHelper() {
-        // private
+        lookupTerracottaRuntime();
     }
 
     /**
