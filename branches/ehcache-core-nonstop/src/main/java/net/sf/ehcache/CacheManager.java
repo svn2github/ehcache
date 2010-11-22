@@ -58,6 +58,7 @@ import net.sf.ehcache.store.Store;
 import net.sf.ehcache.store.compound.impl.MemoryOnlyStore;
 import net.sf.ehcache.terracotta.ClusteredInstanceFactory;
 import net.sf.ehcache.terracotta.TerracottaClient;
+import net.sf.ehcache.terracotta.TerracottaClientRejoinAction;
 import net.sf.ehcache.transaction.local.ReadCommittedSoftLockFactoryImpl;
 import net.sf.ehcache.transaction.local.SoftLockFactory;
 import net.sf.ehcache.transaction.local.TransactionIDFactory;
@@ -314,7 +315,12 @@ public class CacheManager {
         this.allowsDynamicCacheConfig = localConfiguration.getDynamicConfig();
         this.terracottaClientConfiguration = localConfiguration.getTerracottaConfiguration();
 
-        terracottaClient = new TerracottaClient(this, localConfiguration.getTerracottaConfiguration());
+        terracottaClient = new TerracottaClient(new TerracottaClientRejoinAction() {
+
+            public void clientRejoinedCluster() {
+                CacheManager.this.clusterRejoined();
+            }
+        }, localConfiguration.getTerracottaConfiguration());
 
         Map<String, CacheConfiguration> cacheConfigs = localConfiguration.getCacheConfigurations();
         if (localConfiguration.getDefaultCacheConfiguration() != null
@@ -1608,7 +1614,7 @@ public class CacheManager {
     /**
      * This method is called when the Terracotta Cluster is rejoined. Reinitializes all terracotta clustered caches in this cache manager
      */
-    public void clusterRejoined() {
+    private void clusterRejoined() {
         // reinitialize all caches
         for (Ehcache cache : ehcaches.values()) {
             if (cache instanceof Cache) {

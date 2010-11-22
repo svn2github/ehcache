@@ -283,7 +283,7 @@ public class BasicRejoinTest extends TestCase {
     private static class ClusterRejoinListener implements ClusterTopologyListener {
         private final AtomicInteger rejoinedCount = new AtomicInteger();
 
-        public void clusterRejoined() {
+        public void clusterRejoined(ClusterNode oldNode, ClusterNode newNode) {
             System.out.println("Got cluster rejoined event!");
             rejoinedCount.incrementAndGet();
         }

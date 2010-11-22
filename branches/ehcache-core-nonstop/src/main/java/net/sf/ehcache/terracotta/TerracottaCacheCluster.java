@@ -50,10 +50,12 @@ public class TerracottaCacheCluster implements CacheCluster {
     /**
      * Fire Rejoin event to all listeners.
      * Package protected method
+     * @param clusterNode
+     * @param oldNode
      */
-    void fireNodeRejoinedEvent() {
+    void fireNodeRejoinedEvent(ClusterNode oldNode, ClusterNode newNode) {
         for (ClusterTopologyListener listener : listeners) {
-            listener.clusterRejoined();
+            listener.clusterRejoined(oldNode, newNode);
         }
     }
 

@@ -22,7 +22,6 @@ import java.util.Map;
 import java.util.UUID;
 
 import net.sf.ehcache.CacheException;
-import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.cluster.CacheCluster;
 import net.sf.ehcache.cluster.ClusterNode;
 import net.sf.ehcache.cluster.ClusterTopologyListener;
@@ -32,6 +31,9 @@ import net.sf.ehcache.config.TerracottaClientConfiguration;
 import net.sf.ehcache.config.TerracottaConfiguration.StorageStrategy;
 import net.sf.ehcache.terracotta.TerracottaClusteredInstanceHelper.TerracottaRuntimeType;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * Class encapsulating the idea of a Terracotta client. Provides access to the {@link ClusteredInstanceFactory} for the cluster
  *
@@ -40,21 +42,23 @@ import net.sf.ehcache.terracotta.TerracottaClusteredInstanceHelper.TerracottaRun
  */
 public class TerracottaClient {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(TerracottaClient.class);
+
     private final UUID uuid = UUID.randomUUID();
     private final RejoinStatus rejoinStatus = new RejoinStatus();
     private final TerracottaClientConfiguration terracottaClientConfiguration;
     private volatile ClusteredInstanceFactory clusteredInstanceFactory;
     private final TerracottaCacheCluster cacheCluster = new TerracottaCacheCluster();
-    private final CacheManager cacheManager;
+    private final TerracottaClientRejoinAction rejoinAction;
 
     /**
-     * Constructor accepting the {@link CacheManager} and the {@link TerracottaClientConfiguration}
+     * Constructor accepting the {@link TerracottaClientRejoinAction} and the {@link TerracottaClientConfiguration}
      *
-     * @param cacheManager
+     * @param rejoinAction
      * @param terracottaClientConfiguration
      */
-    public TerracottaClient(CacheManager cacheManager, TerracottaClientConfiguration terracottaClientConfiguration) {
-        this.cacheManager = cacheManager;
+    public TerracottaClient(TerracottaClientRejoinAction rejoinAction, TerracottaClientConfiguration terracottaClientConfiguration) {
+        this.rejoinAction = rejoinAction;
         this.terracottaClientConfiguration = terracottaClientConfiguration;
         terracottaClientConfiguration.freezeConfig();
         if (terracottaClientConfiguration.isRejoin()) {
@@ -99,7 +103,7 @@ public class TerracottaClient {
     /**
      * Returns the {@link ClusteredInstanceFactory} associated with this client
      *
-     * @return
+     * @return The ClusteredInstanceFactory
      */
     public ClusteredInstanceFactory getClusteredInstanceFactory() {
         waitUntilRejoinComplete();
@@ -111,7 +115,7 @@ public class TerracottaClient {
      * Multiple threads calling this method block and only one of them creates the factory.
      *
      * @param cacheConfigs
-     * @return
+     * @return true if the clusteredInstanceFactory was created, otherwise returns false
      */
     public boolean createClusteredInstanceFactory(Map<String, CacheConfiguration> cacheConfigs) {
         waitUntilRejoinComplete();
@@ -184,7 +188,7 @@ public class TerracottaClient {
     /**
      * Rejoins the cluster
      */
-    private void rejoinCluster() {
+    private void rejoinCluster(ClusterNode oldNode) {
         if (!isRejoinEnabled()) {
             return;
         }
@@ -195,10 +199,10 @@ public class TerracottaClient {
         rejoinStatus.rejoinComplete();
 
         // now reinitialize all existing caches with the new instance factory, outside lock
-        cacheManager.clusterRejoined();
+        rejoinAction.clientRejoinedCluster();
 
         // now fire the clusterRejoined event
-        cacheCluster.fireNodeRejoinedEvent();
+        cacheCluster.fireNodeRejoinedEvent(oldNode, cacheCluster.getCurrentNode());
     }
 
     private boolean isRejoinEnabled() {
@@ -236,7 +240,8 @@ public class TerracottaClient {
          */
         public void nodeLeft(ClusterNode node) {
             if (node.equals(currentNode)) {
-                client.rejoinCluster();
+                LOGGER.info("Node left the cluster (" + node + "), rejoining cluster.");
+                client.rejoinCluster(node);
             }
         }
 
@@ -264,7 +269,7 @@ public class TerracottaClient {
         /**
          * {@inheritDoc}
          */
-        public void clusterRejoined() {
+        public void clusterRejoined(ClusterNode oldNode, ClusterNode newNode) {
             // no-op
         }
 

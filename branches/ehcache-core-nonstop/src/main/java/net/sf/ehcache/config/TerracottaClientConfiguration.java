@@ -155,7 +155,7 @@ public class TerracottaClientConfiguration implements Cloneable {
      * Builder method to set rejoin
      *
      * @param rejoin
-     * @return
+     * @return this instance
      */
     public TerracottaClientConfiguration rejoin(boolean rejoin) {
         this.setRejoin(rejoin);

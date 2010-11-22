@@ -420,7 +420,7 @@ public class ClusterAwareStore implements Store {
         /**
          * {@inheritDoc}
          */
-        public void clusterRejoined() {
+        public void clusterRejoined(ClusterNode oldNode, ClusterNode newNode) {
             // no-op
         }
 

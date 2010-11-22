@@ -3561,7 +3561,7 @@ public class Cache implements Ehcache, StoreListener {
      */
     private static class CacheStatus {
         private final AtomicBoolean reinitializeInProgress = new AtomicBoolean(false);
-        private final AtomicBoolean reinitialized = new AtomicBoolean(false);
+        private final AtomicBoolean initialized = new AtomicBoolean(false);
         private volatile Status state = Status.STATUS_UNINITIALISED;
         private volatile Thread reinitializingThread;
 
@@ -3572,7 +3572,7 @@ public class Cache implements Ehcache, StoreListener {
             synchronized (this) {
                 reinitializingThread = null;
                 reinitializeInProgress.set(false);
-                reinitialized.set(false);
+                initialized.set(false);
                 notifyAll();
             }
         }
@@ -3603,10 +3603,10 @@ public class Cache implements Ehcache, StoreListener {
         public void changeState(Status status) {
             synchronized (this) {
                 if (reinitializeInProgress.get() && status == Status.STATUS_ALIVE) {
-                    if (reinitialized.get()) {
+                    if (initialized.get()) {
                         throw new IllegalStateException("Can be initialized only once during reinitialization");
                     }
-                    reinitialized.set(true);
+                    initialized.set(true);
                 }
                 this.state = status;
             }
