@@ -225,6 +225,10 @@ public class NonStopCacheExecutorService {
                     continue;
                 }
             } catch (ExecutionException e) {
+                Throwable rootCause = getRootCause(e);
+                if (rootCause.getClass().getSimpleName().equals("TCNotRunningException")) {
+                    throw new TimeoutException(rootCause.getMessage());
+                }
                 throw new CacheException(e.getCause());
             } catch (TimeoutException e) {
                 // rethrow timeout exception
@@ -232,6 +236,14 @@ public class NonStopCacheExecutorService {
             }
         }
         return result;
+    }
+
+    private Throwable getRootCause(final Throwable exception) {
+        Throwable e = exception;
+        while (e.getCause() != null) {
+            e = e.getCause();
+        }
+        return e;
     }
 
     private int incrementCorePoolSize(int currentCorePoolSize) {

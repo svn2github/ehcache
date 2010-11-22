@@ -240,7 +240,8 @@ public class TerracottaClient {
          */
         public void nodeLeft(ClusterNode node) {
             if (node.equals(currentNode)) {
-                LOGGER.info("Node left the cluster (" + node + "), rejoining cluster.");
+                LOGGER.info("ClusterNode [id=" + node.getId() + ", ip=" + node.getIp() + ", hostname=" + node.getHostname()
+                        + "] left the cluster, rejoining cluster.");
                 client.rejoinCluster(node);
             }
         }
