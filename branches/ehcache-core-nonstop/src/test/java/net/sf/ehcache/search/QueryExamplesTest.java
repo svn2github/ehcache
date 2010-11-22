@@ -118,8 +118,8 @@ public class QueryExamplesTest {
 
         // slightly more complicated expression and multiple ordering
         // age = 13 OR (age == 12 AND gender = "timmy") order by age asc, gender desc limit 10
-        query = cache.createQuery().includeKeys().addCriteria(age.eq(13).or(age.eq(12).and(gender.eq("timmy")))).addOrder(age, Direction.ASCENDING)
-                .addOrder(gender, Direction.DESCENDING).maxResults(10).end();
+        query = cache.createQuery().includeKeys().addCriteria(age.eq(13).or(age.eq(12).and(gender.eq("timmy"))))
+                .addOrderBy(age, Direction.ASCENDING).addOrderBy(gender, Direction.DESCENDING).maxResults(10).end();
     }
 
     @Test

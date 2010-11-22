@@ -116,13 +116,13 @@ public class BasicSearchTest extends TestCase {
             // expected
         }
         try {
-            query1.addOrder(null, Direction.ASCENDING);
+            query1.addOrderBy(null, Direction.ASCENDING);
             fail();
         } catch (NullPointerException npe) {
             // expected
         }
         try {
-            query1.addOrder(new Attribute("foo"), null);
+            query1.addOrderBy(new Attribute("foo"), null);
             fail();
         } catch (NullPointerException npe) {
             // expected
@@ -156,7 +156,7 @@ public class BasicSearchTest extends TestCase {
             // expected
         }
         try {
-            query1.addOrder(new Attribute("foo"), Direction.ASCENDING);
+            query1.addOrderBy(new Attribute("foo"), Direction.ASCENDING);
             fail();
         } catch (SearchException se) {
             // expected
@@ -618,8 +618,8 @@ public class BasicSearchTest extends TestCase {
         query = cache.createQuery();
         query.includeKeys();
         // no critera -- select all elements
-        query.addOrder(age, Direction.DESCENDING);
-        query.addOrder(name, Direction.ASCENDING);
+        query.addOrderBy(age, Direction.DESCENDING);
+        query.addOrderBy(name, Direction.ASCENDING);
         query.end();
 
         verifyOrdered(cache, query, 3, 1, 4, 2);
@@ -627,8 +627,8 @@ public class BasicSearchTest extends TestCase {
         query = cache.createQuery();
         query.includeKeys();
         // no critera -- select all elements
-        query.addOrder(age, Direction.DESCENDING);
-        query.addOrder(name, Direction.ASCENDING);
+        query.addOrderBy(age, Direction.DESCENDING);
+        query.addOrderBy(name, Direction.ASCENDING);
         query.maxResults(2);
         query.end();
 

@@ -350,12 +350,12 @@ Results results = query.includeAggregator(KEY.count()).executeAndRemove();
 
 **  Ordering Results
 
-    Query results may be ordered in ascending or descending order by adding an <<<addOrder>>> clause to the query, which takes
+    Query results may be ordered in ascending or descending order by adding an <<<addOrderBy>>> clause to the query, which takes
     as parameters the attribute to order by and the ordering direction.
 
     e.g. to order the results by ages in ascending order
 ---
-query.addOrder(age, Direction.ASCENDING);
+query.addOrderBy(age, Direction.ASCENDING);
 ---
 
 

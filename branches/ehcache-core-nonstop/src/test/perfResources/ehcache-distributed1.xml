@@ -14,7 +14,7 @@
         e.g. java.io.tmpdir on Unix would be /tmp
              java.io.tmpdir/application_cache on Unix would be /tmp/application_cache
          -->
-    <diskStore path="java.io.tmpdir/one"/>
+    <diskStore path="user.dir/target/diskStore/one"/>
 
 
     <!--

@@ -120,6 +120,9 @@
     <suppress checks="NPathComplexity" files="LocalTransactionStore.java"/>
     <suppress checks="NestedIfDepth" files="LocalTransactionStore.java"/>
     <suppress checks="NPathComplexity" files="JavaBeanAttributeExtractor.java"/>
+    <suppress checks="NPathComplexity" files="MemoryOnlyStore.java"/>
+    <suppress checks="CyclomaticComplexity" files="MemoryOnlyStore.java"/>
+
 
     <!-- Contributed code -->
     <suppress checks="CyclomaticComplexity" files="Mutex.java"/>

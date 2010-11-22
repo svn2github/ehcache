@@ -295,6 +295,9 @@ public final class MemoryOnlyStore extends CompoundStore implements CacheConfigu
 
         List<AggregatorInstance<?>> aggregators = query.getAggregatorInstances();
 
+
+        boolean includeResults = query.requestsKeys() || !query.requestedAttributes().isEmpty();
+
         ArrayList<Result> results = new ArrayList<Result>();
 
         boolean hasOrder = !query.getOrdering().isEmpty();
@@ -309,7 +312,9 @@ public final class MemoryOnlyStore extends CompoundStore implements CacheConfigu
             boolean match = c.execute(element, elementAttributeValues);
 
             if (match) {
-                results.add(new ResultImpl(element, query, elementAttributeValues));
+                if (includeResults) {
+                    results.add(new ResultImpl(element, query, elementAttributeValues));
+                }
 
                 for (AggregatorInstance<?> aggregator : aggregators) {
                     Attribute<?> attribute = aggregator.getAttribute();
@@ -498,7 +503,7 @@ public final class MemoryOnlyStore extends CompoundStore implements CacheConfigu
         public <T> T getAttribute(Attribute<T> attribute) {
             String name = attribute.getAttributeName();
             Object value = attributes.get(name);
-            if (value == null) {
+            if (value == null && !query.requestedAttributes().contains(attribute)) {
                 throw new SearchException("Attribute [" + name + "] not included in query");
             }
             return (T) value;

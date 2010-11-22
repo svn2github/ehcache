@@ -205,7 +205,14 @@ public class CachePerfTest extends AbstractCachePerfTest {
      */
     @Test
     public void testMemoryEfficiencyOfFlushWhenOverflowToDisk() throws Exception {
-        Cache cache = new Cache("testGetMemoryStoreSize", 40000, true, false, 100, 200, false, 120);
+        CacheConfiguration config = new CacheConfiguration("testGetMemoryStoreSize", 40000);
+        config.setOverflowToDisk(true);
+        config.setEternal(false);
+        config.setTimeToLiveSeconds(100);
+        config.setTimeToIdleSeconds(200);
+        config.setDiskPersistent(false);
+        config.setDiskExpiryThreadIntervalSeconds(120);
+        Cache cache = new Cache(config);
 
         manager.addCache(cache);
         StopWatch stopWatch = new StopWatch();
