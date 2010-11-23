@@ -1095,6 +1095,7 @@ public class CacheManager {
         Ehcache cache = ehcaches.remove(cacheName);
         if (cache != null && cache.getStatus().equals(Status.STATUS_ALIVE)) {
             cache.dispose();
+            configuration.getCacheConfigurations().remove(cacheName);
             cacheManagerEventListenerRegistry.notifyCacheRemoved(cache.getName());
         }
     }
@@ -1482,6 +1483,10 @@ public class CacheManager {
             throw new CacheException("Cache with name '" + cacheName + "' does not exist");
         }
         return ConfigurationUtil.generateCacheConfigurationText(config);
+    }
+
+    Configuration getConfiguration() {
+        return configuration;
     }
 
     /**
