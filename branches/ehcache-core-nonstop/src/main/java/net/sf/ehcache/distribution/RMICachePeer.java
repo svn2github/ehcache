@@ -119,7 +119,11 @@ public class RMICachePeer extends UnicastRemoteObject implements CachePeer, Remo
      * @return a list of {@link Object} keys
      */
     public List getKeys() throws RemoteException {
-        return cache.getKeys();
+        List keys = cache.getKeys();
+        if (keys instanceof Serializable) {
+            return keys;
+        }
+        return new ArrayList(keys);
     }
 
     /**
