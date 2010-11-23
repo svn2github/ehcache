@@ -26,6 +26,9 @@ import net.sf.ehcache.cluster.ClusterNode;
 import net.sf.ehcache.cluster.ClusterScheme;
 import net.sf.ehcache.cluster.ClusterTopologyListener;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * {@link CacheCluster} implementation that delegates to an underlying cache cluster. The underlying {@link CacheCluster} can be changed
  * dynamically
@@ -35,6 +38,7 @@ import net.sf.ehcache.cluster.ClusterTopologyListener;
  */
 public class TerracottaCacheCluster implements CacheCluster {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(TerracottaCacheCluster.class);
     private final List<ClusterTopologyListener> listeners = new CopyOnWriteArrayList<ClusterTopologyListener>();
     private volatile CacheCluster realCacheCluster;
 
@@ -50,12 +54,17 @@ public class TerracottaCacheCluster implements CacheCluster {
     /**
      * Fire Rejoin event to all listeners.
      * Package protected method
+     *
      * @param clusterNode
      * @param oldNode
      */
     void fireNodeRejoinedEvent(ClusterNode oldNode, ClusterNode newNode) {
         for (ClusterTopologyListener listener : listeners) {
-            listener.clusterRejoined(oldNode, newNode);
+            try {
+                listener.clusterRejoined(oldNode, newNode);
+            } catch (Throwable e) {
+                LOGGER.error("Caught exception while firing rejoin event", e);
+            }
         }
     }
 

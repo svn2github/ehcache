@@ -425,4 +425,20 @@ public class ClusterAwareStore implements Store {
         }
 
     }
+
+    /**
+     * Make the cluster offline as cluster rejoin is beginning
+     */
+    public void clusterRejoinStarted() {
+        clusterOnlineStore.clusterRejoinStarted();
+        clusterOffline();
+    }
+
+    /**
+     * Make the cluster online
+     */
+    public void clusterRejoinComplete() {
+        clusterOnlineStore.clusterRejoinComplete();
+        clusterOnline();
+    }
 }

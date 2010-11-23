@@ -3545,9 +3545,27 @@ public class Cache implements Ehcache, StoreListener {
     }
 
     /**
+     * Start cluster rejoin
+     */
+    void clusterRejoinStarted() {
+        if (compoundStore instanceof NonstopStore) {
+            ((NonstopStore) compoundStore).clusterRejoinStarted();
+        }
+    }
+
+    /**
+     * Complete cluster rejoin
+     */
+    void clusterRejoinComplete() {
+        if (compoundStore instanceof NonstopStore) {
+            ((NonstopStore) compoundStore).clusterRejoinComplete();
+        }
+    }
+
+    /**
      * Reinitialize the cache
      */
-    public void reinitialize() {
+    void reinitialize() {
         status.setReinitializeInProgress();
         initialise();
         status.setReinitializeComplete();

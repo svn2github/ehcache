@@ -22,11 +22,16 @@ package net.sf.ehcache.terracotta;
  * @author Abhishek Sanoujam
  *
  */
-public interface TerracottaClientRejoinAction {
+public interface TerracottaClientRejoinListener {
 
     /**
      * The Terracotta Client has rejoined the cluster.
      */
-    public void clientRejoinedCluster();
+    public void clusterRejoinStarted();
+
+    /**
+     * The Terracotta Client has rejoined the cluster.
+     */
+    public void clusterRejoinComplete();
 
 }

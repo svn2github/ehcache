@@ -49,19 +49,23 @@ public class TerracottaClient {
     private final TerracottaClientConfiguration terracottaClientConfiguration;
     private volatile ClusteredInstanceFactory clusteredInstanceFactory;
     private final TerracottaCacheCluster cacheCluster = new TerracottaCacheCluster();
-    private final TerracottaClientRejoinAction rejoinAction;
+    private final TerracottaClientRejoinListener rejoinListener;
+
+    private volatile Thread rejoinThread;
 
     /**
-     * Constructor accepting the {@link TerracottaClientRejoinAction} and the {@link TerracottaClientConfiguration}
+     * Constructor accepting the {@link TerracottaClientRejoinListener} and the {@link TerracottaClientConfiguration}
      *
      * @param rejoinAction
      * @param terracottaClientConfiguration
      */
-    public TerracottaClient(TerracottaClientRejoinAction rejoinAction, TerracottaClientConfiguration terracottaClientConfiguration) {
-        this.rejoinAction = rejoinAction;
+    public TerracottaClient(TerracottaClientRejoinListener rejoinAction, TerracottaClientConfiguration terracottaClientConfiguration) {
+        this.rejoinListener = rejoinAction;
         this.terracottaClientConfiguration = terracottaClientConfiguration;
-        terracottaClientConfiguration.freezeConfig();
-        if (terracottaClientConfiguration.isRejoin()) {
+        if (terracottaClientConfiguration != null) {
+            terracottaClientConfiguration.freezeConfig();
+        }
+        if (isRejoinEnabled()) {
             TerracottaRuntimeType type = TerracottaClusteredInstanceHelper.getInstance().getTerracottaRuntimeTypeOrNull();
             if (type == null) {
                 throw new InvalidConfigurationException(
@@ -192,26 +196,49 @@ public class TerracottaClient {
         if (!isRejoinEnabled()) {
             return;
         }
-        rejoinStatus.rejoinStarted();
         synchronized (this) {
-            clusteredInstanceFactory = createNewClusteredInstanceFactory(Collections.EMPTY_MAP);
+            waitUntilRejoinComplete();
+            rejoinStatus.rejoinStarted();
+            rejoinThread = new Thread(new RejoinAction(oldNode), "Rejoin Thread");
+            rejoinThread.start();
         }
-        rejoinStatus.rejoinComplete();
-
-        // now reinitialize all existing caches with the new instance factory, outside lock
-        rejoinAction.clientRejoinedCluster();
-
-        // now fire the clusterRejoined event
-        cacheCluster.fireNodeRejoinedEvent(oldNode, cacheCluster.getCurrentNode());
     }
 
     private boolean isRejoinEnabled() {
-        return terracottaClientConfiguration.isRejoin();
+        return terracottaClientConfiguration != null && terracottaClientConfiguration.isRejoin();
     }
 
     private void waitUntilRejoinComplete() {
+        if (Thread.currentThread() == rejoinThread) {
+            // rejoin thread does not wait
+            return;
+        }
         if (isRejoinEnabled() && rejoinStatus.isRejoinInProgress()) {
             rejoinStatus.waitUntilRejoinComplete();
+        }
+    }
+
+    /**
+     * Rejoin Action runnable
+     */
+    private class RejoinAction implements Runnable {
+
+        private final ClusterNode oldNode;
+
+        public RejoinAction(ClusterNode oldNode) {
+            this.oldNode = oldNode;
+        }
+
+        public void run() {
+            rejoinListener.clusterRejoinStarted();
+            clusteredInstanceFactory = createNewClusteredInstanceFactory(Collections.EMPTY_MAP);
+            // now reinitialize all existing caches with the new instance factory, outside lock
+            rejoinListener.clusterRejoinComplete();
+            rejoinStatus.rejoinComplete();
+
+            // now fire the clusterRejoined event
+            cacheCluster.fireNodeRejoinedEvent(oldNode, cacheCluster.getCurrentNode());
+
         }
     }
 

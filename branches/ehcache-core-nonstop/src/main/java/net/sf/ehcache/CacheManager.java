@@ -58,7 +58,7 @@ import net.sf.ehcache.store.Store;
 import net.sf.ehcache.store.compound.impl.MemoryOnlyStore;
 import net.sf.ehcache.terracotta.ClusteredInstanceFactory;
 import net.sf.ehcache.terracotta.TerracottaClient;
-import net.sf.ehcache.terracotta.TerracottaClientRejoinAction;
+import net.sf.ehcache.terracotta.TerracottaClientRejoinListener;
 import net.sf.ehcache.transaction.local.ReadCommittedSoftLockFactoryImpl;
 import net.sf.ehcache.transaction.local.SoftLockFactory;
 import net.sf.ehcache.transaction.local.TransactionIDFactory;
@@ -315,10 +315,13 @@ public class CacheManager {
         this.allowsDynamicCacheConfig = localConfiguration.getDynamicConfig();
         this.terracottaClientConfiguration = localConfiguration.getTerracottaConfiguration();
 
-        terracottaClient = new TerracottaClient(new TerracottaClientRejoinAction() {
+        terracottaClient = new TerracottaClient(new TerracottaClientRejoinListener() {
+            public void clusterRejoinStarted() {
+                CacheManager.this.clusterRejoinStarted();
+            }
 
-            public void clientRejoinedCluster() {
-                CacheManager.this.clusterRejoined();
+            public void clusterRejoinComplete() {
+                CacheManager.this.clusterRejoinComplete();
             }
         }, localConfiguration.getTerracottaConfiguration());
 
@@ -1611,15 +1614,28 @@ public class CacheManager {
         return softLockFactory;
     }
 
+
+    private void clusterRejoinStarted() {
+        // reinitialize all caches
+        for (Ehcache cache : ehcaches.values()) {
+            if (cache instanceof Cache) {
+                if (cache.getCacheConfiguration().isTerracottaClustered()) {
+                    ((Cache) cache).clusterRejoinStarted();
+                }
+            }
+        }
+    }
+
     /**
      * This method is called when the Terracotta Cluster is rejoined. Reinitializes all terracotta clustered caches in this cache manager
      */
-    private void clusterRejoined() {
+    private void clusterRejoinComplete() {
         // reinitialize all caches
         for (Ehcache cache : ehcaches.values()) {
             if (cache instanceof Cache) {
                 if (cache.getCacheConfiguration().isTerracottaClustered()) {
                     ((Cache) cache).reinitialize();
+                    ((Cache) cache).clusterRejoinComplete();
                 }
             }
         }
