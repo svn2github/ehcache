@@ -394,7 +394,7 @@ public class LocalTransactionTest extends TestCase {
         tx2.join();
         tx2.assertNotFailed();
 
-        assertTrue(times[1] - times[0] >= WAIT_TIME);
+        assertTrue("expected TX1 to be on hold for more than " + WAIT_TIME + "ms, waited: " + (times[1] - times[0]), times[1] - times[0] >= WAIT_TIME);
 
         transactionController.begin(); // TX 3
         assertTrue(elementValueComparator.equals(new Element(1, "tx2-one"), cache1.get(1)));
