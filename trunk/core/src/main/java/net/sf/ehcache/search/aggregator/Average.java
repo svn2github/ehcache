@@ -25,7 +25,7 @@ import net.sf.ehcache.search.Attribute;
  */
 public class Average implements AggregatorInstance<Double> {
 
-    private long count;
+    private double count;
     private double sum;
     private final Attribute<?> attribute;
 
