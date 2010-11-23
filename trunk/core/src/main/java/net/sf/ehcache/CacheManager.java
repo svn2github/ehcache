@@ -1485,6 +1485,10 @@ public class CacheManager {
         return ConfigurationUtil.generateCacheConfigurationText(config);
     }
 
+    /**
+     * Get the CacheManager configuration
+     * @return the configuration
+     */
     Configuration getConfiguration() {
         return configuration;
     }
