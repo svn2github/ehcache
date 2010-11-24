@@ -1,19 +1,19 @@
 package net.sf.ehcache.search;
 
 import static net.sf.ehcache.search.Query.KEY;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertEquals;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;
+import net.sf.ehcache.Element;
 import net.sf.ehcache.config.SearchAttribute;
 
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -124,74 +124,47 @@ public class QueryExamplesTest {
 
     @Test
     public void testNoIncludeSpecified() {
-
         Attribute<Integer> age = cache.getSearchAttribute("age");
         Results results = cache.createQuery().addCriteria(age.eq(35)).execute();
-        assertTrue(2 == results.size());
-        for (Result result : results.all()) {
-            try {
-                LOG.info("" + result.getKey());
-            } catch (SearchException e) {
-                // expected
-                break;
-            }
-        }
+        assertEquals(0, results.size());
     }
 
-    /**
-     * todo shows how to use the key constant. There is another one for value.
-     */
     @Test
     public void testUseShorthandKeyAttribute() {
-        Results results = cache.createQuery().addCriteria(KEY.eq(1)).execute();
-        assertTrue(1 == results.size());
+        Results results = cache.createQuery().addCriteria(KEY.eq(1)).includeKeys().execute();
+        assertEquals(1, results.size());
+        assertEquals(1, results.all().iterator().next().getKey());
+    }
+
+    @Test
+    public void testUseShorthandValueAttribute() {
+        Object tmpKey = new Object();
+        Double value = Math.PI * System.nanoTime();
+        cache.put(new Element(tmpKey, value));
+
+        try {
+            Results results = cache.createQuery().addCriteria(Query.VALUE.eq(value)).includeKeys().execute();
+            assertEquals(1, results.size());
+            assertEquals(tmpKey, results.all().iterator().next().getKey());
+        } finally {
+            cache.remove(tmpKey);
+        }
     }
 
     @Test
     public void testIncludeKeysSpecified() {
         Attribute<Integer> age = cache.getSearchAttribute("age");
         Results results = cache.createQuery().addCriteria(age.eq(35)).includeKeys().execute();
-        assertTrue(2 == results.size());
+        assertEquals(2, results.size());
         for (Result result : results.all()) {
             LOG.info("" + cache.get(result.getKey()));
         }
     }
 
-    @Ignore
-    // EHC-802
-    @Test
-    public void testIncludeValuesNotSpecified() {
-
-        Attribute<Integer> age = cache.getSearchAttribute("age");
-        Results results = cache.createQuery().addCriteria(age.eq(35)).includeKeys().execute();
-        assertTrue(2 == results.size());
-        for (Result result : results.all()) {
-            // should be null
-            assertNull(cache.get(result.getKey()));
-        }
-    }
-
-    @Ignore
-    // EHC-801 key should be auto added if it has the right type
     @Test
     public void testSearchKeys() {
-
-        Attribute<Integer> key = cache.getSearchAttribute("key");
-        Results results = cache.createQuery().addCriteria(key.eq(35)).includeKeys().execute();
-        assertTrue(2 == results.size());
-        for (Result result : results.all()) {
-            LOG.info("" + cache.get(result.getKey()));
-        }
-    }
-
-    @Ignore
-    // Bug EHC-799
-    @Test
-    public void testIncludeValuesSpecified() {
-
-        Attribute<Integer> age = cache.getSearchAttribute("age");
-        Results results = cache.createQuery().addCriteria(age.eq(35)).execute();
-        assertTrue(2 == results.size());
+        Results results = cache.createQuery().addCriteria(Query.KEY.in(Arrays.asList(1, 3))).includeKeys().execute();
+        assertEquals(2, results.size());
         for (Result result : results.all()) {
             LOG.info("" + cache.get(result.getKey()));
         }
@@ -215,7 +188,7 @@ public class QueryExamplesTest {
 
         i.eval("results = query.addCriteria(age.eq(35)).execute()");
         results = (Results) i.get("results");
-        assertTrue(2 == results.size());
+        assertEquals(2, results.size());
         for (Result result : results.all()) {
             LOG.info("" + result.getKey());
         }
@@ -242,7 +215,7 @@ public class QueryExamplesTest {
 
         i.eval(fullQueryString);
         results = (Results) i.get("results");
-        assertTrue(2 == results.size());
+        assertEquals(2, results.size());
         for (Result result : results.all()) {
             LOG.info("" + result.getKey());
         }
@@ -277,7 +250,7 @@ public class QueryExamplesTest {
 
         i.eval(fullQueryString);
         results = (Results) i.get("results");
-        assertTrue(2 == results.size());
+        assertEquals(2, results.size());
         for (Result result : results.all()) {
             LOG.info("" + result.getKey());
         }

@@ -21,10 +21,10 @@ import net.sf.ehcache.config.generator.ConfigurationSource;
 import net.sf.ehcache.transaction.manager.DefaultTransactionManagerLookup;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * A bean, used by BeanUtils, to set configuration from an XML configuration file.
@@ -78,7 +78,7 @@ public final class Configuration {
     private FactoryConfiguration transactionManagerLookupConfiguration;
     private FactoryConfiguration cacheManagerEventListenerFactoryConfiguration;
     private TerracottaClientConfiguration terracottaConfigConfiguration;
-    private final Map<String, CacheConfiguration> cacheConfigurations = new HashMap();
+    private final Map<String, CacheConfiguration> cacheConfigurations = new ConcurrentHashMap<String, CacheConfiguration>();
     private ConfigurationSource configurationSource;
     private boolean dynamicConfig = DEFAULT_DYNAMIC_CONFIG;
     private Object defaultTransactionManager;
