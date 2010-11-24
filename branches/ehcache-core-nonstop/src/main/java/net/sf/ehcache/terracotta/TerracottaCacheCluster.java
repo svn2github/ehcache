@@ -48,7 +48,13 @@ public class TerracottaCacheCluster implements CacheCluster {
      * @param newCacheCluster
      */
     public void setUnderlyingCacheCluster(CacheCluster newCacheCluster) {
+        if (newCacheCluster == null) {
+            throw new IllegalArgumentException("CacheCluster can't be null");
+        }
         this.realCacheCluster = newCacheCluster;
+        for (ClusterTopologyListener listener : listeners) {
+            this.realCacheCluster.addTopologyListener(listener);
+        }
     }
 
     /**
@@ -61,6 +67,8 @@ public class TerracottaCacheCluster implements CacheCluster {
     void fireNodeRejoinedEvent(ClusterNode oldNode, ClusterNode newNode) {
         for (ClusterTopologyListener listener : listeners) {
             try {
+                listener.nodeJoined(newNode);
+                listener.clusterOnline(newNode);
                 listener.clusterRejoined(oldNode, newNode);
             } catch (Throwable e) {
                 LOGGER.error("Caught exception while firing rejoin event", e);

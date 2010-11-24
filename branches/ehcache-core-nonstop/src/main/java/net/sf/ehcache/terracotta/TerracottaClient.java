@@ -172,9 +172,11 @@ public class TerracottaClient {
 
     private synchronized ClusteredInstanceFactory createNewClusteredInstanceFactory(Map<String, CacheConfiguration> cacheConfigs) {
         if (clusteredInstanceFactory != null) {
+            LOGGER.info("Shutting down old ClusteredInstanceFactory...");
             // shut down the old factory
             clusteredInstanceFactory.shutdown();
         }
+        LOGGER.info("Creating new ClusteredInstanceFactory");
         ClusteredInstanceFactory factory = TerracottaClusteredInstanceHelper.getInstance().newClusteredInstanceFactory(cacheConfigs,
                 terracottaClientConfiguration);
         CacheCluster underlyingCacheCluster = factory.getTopology();
@@ -198,6 +200,7 @@ public class TerracottaClient {
         }
         synchronized (this) {
             waitUntilRejoinComplete();
+            LOGGER.info("Starting Terracotta Rejoin...");
             rejoinStatus.rejoinStarted();
             rejoinThread = new Thread(new RejoinAction(oldNode), "Rejoin Thread");
             rejoinThread.start();
@@ -235,10 +238,10 @@ public class TerracottaClient {
             // now reinitialize all existing caches with the new instance factory, outside lock
             rejoinListener.clusterRejoinComplete();
             rejoinStatus.rejoinComplete();
+            LOGGER.info("Rejoin Complete");
 
             // now fire the clusterRejoined event
             cacheCluster.fireNodeRejoinedEvent(oldNode, cacheCluster.getCurrentNode());
-
         }
     }
 
