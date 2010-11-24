@@ -68,8 +68,13 @@ public final class CacheManagerExecutorServiceFactory implements NonStopCacheExe
         synchronized (executorServiceMap) {
             NonStopCacheExecutorService rv = executorServiceMap.get(cacheManagerName);
             if (rv == null) {
-                rv = new NonStopCacheExecutorService(getCoreThreadPoolSize(cache.getCacheManager()), getMaxThreadPoolSize(cache
-                        .getCacheManager()), new ThreadFactory() {
+                int corePoolSize = getCoreThreadPoolSize(cache.getCacheManager());
+                int maximumPoolSize = getMaxThreadPoolSize(cache.getCacheManager());
+                if (corePoolSize < 0 || maximumPoolSize <= 0 || maximumPoolSize < corePoolSize) {
+                    throw new IllegalArgumentException("Invalid coreThreadPoolSize=" + corePoolSize + ", maxThreadPoolSize="
+                            + maximumPoolSize);
+                }
+                rv = new NonStopCacheExecutorService(corePoolSize, maximumPoolSize, new ThreadFactory() {
                     private final AtomicInteger count = new AtomicInteger();
 
                     public Thread newThread(Runnable runnable) {

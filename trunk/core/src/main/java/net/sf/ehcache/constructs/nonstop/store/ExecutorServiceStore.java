@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeoutException;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Element;
@@ -52,6 +53,7 @@ public class ExecutorServiceStore implements Store {
     private final NonStopCacheExecutorService executorService;
     private final NonstopTimeoutStoreResolver timeoutBehaviorResolver;
     private final NonstopConfiguration nonstopConfiguration;
+    private final AtomicBoolean clusterOffline = new AtomicBoolean();
 
     /**
      * Constructor accepting the direct delegate behavior, {@link NonstopConfiguration}, {@link NonStopCacheExecutorService} and
@@ -66,7 +68,25 @@ public class ExecutorServiceStore implements Store {
         this.timeoutBehaviorResolver = timeoutBehaviorResolver;
     }
 
+    /**
+     * Make the cluster offline as cluster rejoin is beginning
+     */
+    void clusterRejoinStarted() {
+        clusterOffline.set(true);
+    }
+
+    /**
+     * Make the cluster online
+     */
+    void clusterRejoinComplete() {
+        clusterOffline.set(false);
+    }
+
     private <V> V executeWithExecutor(final Callable<V> callable) throws CacheException, TimeoutException {
+        if (clusterOffline.get()) {
+            // don't even try to go to the cluster as rejoin is happening
+            throw new TimeoutException("Cluster is currently offline (probably rejoin in progress)");
+        }
         try {
             return executorService.execute(callable, nonstopConfiguration.getTimeoutMillis());
         } catch (InterruptedException e) {

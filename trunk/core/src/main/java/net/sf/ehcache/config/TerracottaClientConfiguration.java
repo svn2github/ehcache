@@ -16,21 +16,32 @@
 
 package net.sf.ehcache.config;
 
+import net.sf.ehcache.CacheException;
+
 /**
  * Holds the Terracotta configuration for a particular client
- * 
+ *
  * @author amiller@terracotta.org
+ * @author Abhishek Sanoujam
  */
 public class TerracottaClientConfiguration implements Cloneable {
+
+    /**
+     * Default value of rejoin attribute
+     */
+    public static final boolean DEFAULT_REJOIN_VALUE = false;
+
     private static final String TC_CONFIG_HEADER = "<tc:tc-config xmlns:tc=\"http://www.terracotta.org/config\">";
     private static final String TC_CONFIG_FOOTER = "</tc:tc-config>";
 
     private String url;
     private String embeddedConfig;
+    private boolean rejoin = DEFAULT_REJOIN_VALUE;
+    private volatile boolean configFrozen;
 
     /**
      * Clones this object, following the usual contract.
-     * 
+     *
      * @return a copy, which independent other than configurations than cannot change.
      * @throws CloneNotSupportedException
      */
@@ -41,7 +52,7 @@ public class TerracottaClientConfiguration implements Cloneable {
 
     /**
      * Builder method to set the URL.
-     * 
+     *
      * @param url
      *            the URL to set
      * @return this configuration instance
@@ -53,7 +64,7 @@ public class TerracottaClientConfiguration implements Cloneable {
 
     /**
      * Builder method to set the URL for a host and a port.
-     * 
+     *
      * @param host
      *            the host where to get the Terracotta configuration from
      * @param port
@@ -98,7 +109,7 @@ public class TerracottaClientConfiguration implements Cloneable {
 
     /**
      * Get the original embedded config
-     * 
+     *
      * @return original embedded config
      */
     final public String getOriginalEmbeddedConfig() {
@@ -117,6 +128,45 @@ public class TerracottaClientConfiguration implements Cloneable {
             throw new InvalidConfigurationException("It is invalid to specify both a config url and "
                     + "an embedded config in the <terracottaConfig> element.");
         }
+    }
+
+    /**
+     * Returns true if rejoin is enabled
+     *
+     * @return the rejoin
+     */
+    public boolean isRejoin() {
+        return rejoin;
+    }
+
+    /**
+     * Set rejoin value
+     *
+     * @param rejoin the rejoin to set
+     */
+    public void setRejoin(boolean rejoin) {
+        if (configFrozen) {
+            throw new CacheException("Cannot enable/disable rejoin once config has been frozen");
+        }
+        this.rejoin = rejoin;
+    }
+
+    /**
+     * Builder method to set rejoin
+     *
+     * @param rejoin
+     * @return this instance
+     */
+    public TerracottaClientConfiguration rejoin(boolean rejoin) {
+        this.setRejoin(rejoin);
+        return this;
+    }
+
+    /**
+     * Freezes the config
+     */
+    public void freezeConfig() {
+        configFrozen = true;
     }
 
 }

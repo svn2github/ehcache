@@ -388,4 +388,18 @@ public class NonstopStore implements Store, NonstopTimeoutStoreResolver {
         return clusterAwareStore.replace(element);
     }
 
+    /**
+     * Start cluster rejoin
+     */
+    public void clusterRejoinStarted() {
+        clusterAwareStore.clusterRejoinStarted();
+    }
+
+    /**
+     * Complete cluster rejoin
+     */
+    public void clusterRejoinComplete() {
+        clusterAwareStore.clusterRejoinComplete();
+    }
+
 }
