@@ -57,8 +57,7 @@ public class BasicRejoinTest extends TestCase {
 
     private static final String ERROR_MSG_REJOIN_CUSTOM = "Rejoin can be enabled only in Terracotta Express mode";
     private static final String ERROR_MSG_REJOIN_NO_NONSTOP = "Terracotta clustered caches must be nonstop when rejoin is enabled";
-    private static final CharSequence ERROR_MSG_REJOIN_NO_TC =
-        "Terracotta Rejoin is enabled but can't determine Terracotta Runtime. You are probably missing Terracotta jar(s)";
+    private static final CharSequence ERROR_MSG_REJOIN_NO_TC = "Terracotta Rejoin is enabled but can't determine Terracotta Runtime. You are probably missing Terracotta jar(s)";
 
     private void setupTestMode(ClusteredInstanceFactory mockFactory) throws Exception {
         setupTestMode(mock(TerracottaClusteredInstanceHelper.class), mockFactory);
@@ -307,8 +306,12 @@ public class BasicRejoinTest extends TestCase {
         private final AtomicInteger rejoinedCount = new AtomicInteger();
 
         public void clusterRejoined(ClusterNode oldNode, ClusterNode newNode) {
-            System.out.println("Got cluster rejoined event!");
+            System.out.println("Got cluster rejoined event: oldNode=" + printNode(oldNode) + " newNode:" + printNode(newNode));
             rejoinedCount.incrementAndGet();
+        }
+
+        private String printNode(ClusterNode node) {
+            return "[ClusterNode: id=" + node.getId() + ", hostname=" + node.getHostname() + ", ip=" + node.getIp() + "]";
         }
 
         public void clusterOffline(ClusterNode node) {
