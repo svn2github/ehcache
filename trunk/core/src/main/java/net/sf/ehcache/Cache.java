@@ -202,7 +202,7 @@ public class Cache implements Ehcache, StoreListener {
 
     private volatile String diskStorePath;
 
-    private final CacheStatus status = new CacheStatus();
+    private volatile CacheStatus status = new CacheStatus();
 
     private volatile CacheConfiguration configuration;
 
@@ -2466,6 +2466,8 @@ public class Cache implements Ehcache, StoreListener {
 
         copy.configuration = configuration.clone();
         copy.guid = createGuid();
+        copy.status = new CacheStatus();
+        copy.changeStatus(Status.STATUS_UNINITIALISED);
 
         RegisteredEventListeners registeredEventListenersFromCopy = copy.getCacheEventNotificationService();
         if (registeredEventListenersFromCopy == null || registeredEventListenersFromCopy.getCacheEventListeners().size() == 0) {
