@@ -154,8 +154,8 @@ public class ResultsImpl implements Results {
          * @param query
          * @param attributes
          */
-        public ResultImpl(StoreQuery query, Map<String, Object> attributes) {
-            this(null, query, attributes);
+        public ResultImpl(StoreQuery query, Map<String, Object> attributes, Map<String, Object> sortAttributesMap) {
+            this(null, query, attributes, sortAttributesMap);
         }
 
         /**
@@ -165,7 +165,7 @@ public class ResultsImpl implements Results {
          * @param query
          * @param attributes
          */
-        public ResultImpl(Object key, StoreQuery query, Map<String, Object> attributes) {
+        public ResultImpl(Object key, StoreQuery query, Map<String, Object> attributes, Map<String, Object> sortAttributesMap) {
             this.query = query;
             this.key = key;
             this.attributes = attributes;
@@ -177,7 +177,7 @@ public class ResultsImpl implements Results {
                 sortAttributes = new Object[orderings.size()];
                 for (int i = 0; i < sortAttributes.length; i++) {
                     String name = orderings.get(i).getAttribute().getAttributeName();
-                    sortAttributes[i] = attributes.get(name);
+                    sortAttributes[i] = sortAttributesMap.get(name);
                 }
             }
         }
