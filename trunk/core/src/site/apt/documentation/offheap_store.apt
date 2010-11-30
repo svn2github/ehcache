@@ -149,10 +149,10 @@ public Cache createOffHeapCache() {
     <<<java.lang.Number>>> subclasses such as Long, Integer etc and and <<<String>>> have
     high quality hashcodes.
 
-    You can increase the size by setting a system property cache_name.maxOffHeapValueSize to
+    You can increase the size by setting a system property net.sf.ehcache.offheap.cache_name.config.idealMaxSegmentSize to
     the size you require.
 
-    e.g. com.company.domain.State.maxOffHeapValueSize=30MB
+    e.g. net.sf.ehcache.offheap.com.company.domain.State.config.idealMaxSegmentSize=30M
 
 
 **  Avoiding OS Swapping
@@ -413,10 +413,10 @@ public Cache createOffHeapCache() {
     <<<java.lang.Number>>> subclasses such as Long, Integer etc and and <<<String>>> have
     high quality hashcodes.
 
-    You can increase the size by setting the system property cache_name.maxOffHeapValueSize to
+    You can increase the size by setting the system property net.sf.ehcache.offheap.cache_name.config.idealMaxSegmentSize to
     the size you require.
 
-    e.g. com.company.domain.State.maxOffHeapValueSize=30MB
+    e.g. net.sf.ehcache.offheap.com.company.domain.State.config.idealMaxSegmentSize=30M
 
 **  Why is my application startup slower?
 
