@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <document>
     <body>
+        <release version="2.4.0" date="2011-01-30" description="Major release">
+        </release>
         <release version="2.3.1" date="??" description="Bug fixes">
             <action dev="Cédrik LIME" type="add">
                 Add groups feature, based on an initial patch from Andrew Liles.
