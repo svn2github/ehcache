@@ -518,7 +518,7 @@
                 1.6.1 cannot read older versions' persistent stores. Thanks to Matt Passell
                 for the patch.
             </action>
-            <action dev="Greg Luck" type="fix" issue="2.3.1-SNAPSHOT89">
+            <action dev="Greg Luck" type="fix" issue="2831089">
                 Fix retry serialize not working. Thanks to Vitaliy Garnashevich for the
                 patch.
             </action>
@@ -532,7 +532,7 @@
                 or expiry if it happened after a flush. Thanks to both Kevin Conaway and
                 Jonathan Barbero.
             </action>
-            <action dev="Greg Luck" type="update" issue="2.3.1-SNAPSHOT89">
+            <action dev="Greg Luck" type="update" issue="2831089">
                 Always close open files. Thanks to Vitaliy Garnashevich for the patch.
             </action>
             <action dev="Greg Luck" type="fix" issue="2835670">
