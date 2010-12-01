@@ -60,7 +60,6 @@ public class Like extends BaseCriteria {
         this.attributeName = attributeName;
         this.regex = regex;
         this.pattern = convertRegex(regex.trim());
-
     }
 
     /**
@@ -90,7 +89,7 @@ public class Like extends BaseCriteria {
             throw new SearchException("regular expression may not start with a wildcard: " + expr);
         }
 
-        StringBuilder javaRegex = new StringBuilder();
+        StringBuilder javaRegex = new StringBuilder("^.*");
 
         boolean escape = false;
         for (int i = 0; i < expr.length(); i++) {
@@ -132,7 +131,9 @@ public class Like extends BaseCriteria {
             }
         }
 
-        return Pattern.compile(javaRegex.toString());
+        javaRegex.append(".*$");
+
+        return Pattern.compile(javaRegex.toString(), Pattern.DOTALL);
     }
 
     private static String lowerCase(char ch) {

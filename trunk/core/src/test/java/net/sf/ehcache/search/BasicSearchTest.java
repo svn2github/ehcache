@@ -657,6 +657,7 @@ public class BasicSearchTest extends TestCase {
         cache.put(new Element(3, new Person("lowercase", 35, Gender.MALE)));
         cache.put(new Element(4, new Person("UPPERCASE", 35, Gender.MALE)));
         cache.put(new Element(5, new Person("MiXeD", 35, Gender.MALE)));
+        cache.put(new Element(6, new Person("Hello there\nI am on a newline\nMe too\n", 999, Gender.MALE)));
 
         query = cache.createQuery();
         query.includeKeys();
@@ -670,7 +671,7 @@ public class BasicSearchTest extends TestCase {
         query.addCriteria(name.like("Test*"));
         query.end();
 
-        verify(cache, query, 1);
+        verify(cache, query, 1, 2);
 
         query = cache.createQuery();
         query.includeKeys();
@@ -713,6 +714,14 @@ public class BasicSearchTest extends TestCase {
         query.end();
 
         verify(cache, query, 5);
+
+        query = cache.createQuery();
+        query.includeKeys();
+        query.addCriteria(name.like("am on a"));
+        query.end();
+
+        verify(cache, query, 6);
+
     }
 
     public void testTypeChecking() {
