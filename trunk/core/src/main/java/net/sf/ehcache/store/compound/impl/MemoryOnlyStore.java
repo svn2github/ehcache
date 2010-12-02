@@ -18,9 +18,7 @@ package net.sf.ehcache.store.compound.impl;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -38,6 +36,9 @@ import net.sf.ehcache.search.aggregator.AggregatorInstance;
 import net.sf.ehcache.search.attribute.AttributeExtractor;
 import net.sf.ehcache.search.attribute.AttributeType;
 import net.sf.ehcache.search.expression.Criteria;
+import net.sf.ehcache.search.impl.OrderComparator;
+import net.sf.ehcache.search.impl.ResultImpl;
+import net.sf.ehcache.search.impl.ResultsImpl;
 import net.sf.ehcache.store.ElementAttributeValues;
 import net.sf.ehcache.store.FifoPolicy;
 import net.sf.ehcache.store.LfuPolicy;
@@ -55,6 +56,8 @@ import net.sf.ehcache.store.compound.factories.CapacityLimitedInMemoryFactory;
  * @author Chris Dennis
  */
 public final class MemoryOnlyStore extends CompoundStore implements CacheConfigurationListener {
+
+    private static final Object[] EMPTY_OBJECT_ARRAY = new Object[]{};
 
     private final Map<String, AttributeExtractor> attributeExtractors = new ConcurrentHashMap<String, AttributeExtractor>();
 
@@ -313,7 +316,31 @@ public final class MemoryOnlyStore extends CompoundStore implements CacheConfigu
 
             if (match) {
                 if (includeResults) {
-                    results.add(new ResultImpl(element, query, elementAttributeValues));
+                    final Map<String, Object> attributes;
+                    if (query.requestedAttributes().isEmpty()) {
+                        attributes = Collections.EMPTY_MAP;
+                    } else {
+                        attributes = new HashMap<String, Object>();
+                        for (Attribute attribute : query.requestedAttributes()) {
+                            String name = attribute.getAttributeName();
+                            attributes.put(name, elementAttributeValues.getAttributeValue(name));
+                        }
+                    }
+
+                    final Object[] sortAttributes;
+                    List<Ordering> orderings = query.getOrdering();
+                    if (orderings.isEmpty()) {
+                        sortAttributes = EMPTY_OBJECT_ARRAY;
+                    } else {
+                        sortAttributes = new Object[orderings.size()];
+                        for (int i = 0; i < sortAttributes.length; i++) {
+                            String name = orderings.get(i).getAttribute().getAttributeName();
+                            sortAttributes[i] = elementAttributeValues.getAttributeValue(name);
+                        }
+                    }
+
+
+                    results.add(new ResultImpl(element.getObjectKey(), query, attributes, sortAttributes));
                 }
 
                 for (AggregatorInstance<?> aggregator : aggregators) {
@@ -342,7 +369,13 @@ public final class MemoryOnlyStore extends CompoundStore implements CacheConfigu
             }
         }
 
-        return new ResultsImpl(results, query.requestsKeys(), aggregators, !query.requestedAttributes().isEmpty());
+
+        List<Object> aggregateResults = aggregators.isEmpty() ? Collections.EMPTY_LIST : new ArrayList<Object>();
+        for (AggregatorInstance<?> aggregator : aggregators) {
+            aggregateResults.add(aggregator.aggregateResult());
+        }
+
+        return new ResultsImpl(results, query.requestsKeys(), aggregateResults, !query.requestedAttributes().isEmpty());
     }
 
     /**
@@ -444,283 +477,6 @@ public final class MemoryOnlyStore extends CompoundStore implements CacheConfigu
             }
         }
 
-    }
-
-    /**
-     * Result implementation
-     */
-    private static class ResultImpl implements Result {
-
-        private final Object key;
-        private final StoreQuery query;
-        private final Map<String, Object> attributes;
-        private final Object[] sortAttributes;
-
-        ResultImpl(Element element, StoreQuery query, ElementAttributeValues elementAttributeValues) {
-            this.query = query;
-            this.key = element.getObjectKey();
-
-            if (query.requestedAttributes().isEmpty()) {
-                attributes = Collections.EMPTY_MAP;
-            } else {
-                attributes = new HashMap<String, Object>();
-                for (Attribute attribute : query.requestedAttributes()) {
-                    String name = attribute.getAttributeName();
-                    attributes.put(name, elementAttributeValues.getAttributeValue(name));
-                }
-            }
-
-            List<Ordering> orderings = query.getOrdering();
-            if (orderings.isEmpty()) {
-                sortAttributes = null;
-            } else {
-                sortAttributes = new Object[orderings.size()];
-                for (int i = 0; i < sortAttributes.length; i++) {
-                    String name = orderings.get(i).getAttribute().getAttributeName();
-                    sortAttributes[i] = elementAttributeValues.getAttributeValue(name);
-                }
-            }
-        }
-
-        Object getSortAttribute(int pos) {
-            return sortAttributes[pos];
-        }
-
-        /**
-         * @{inheritDoc
-         */
-        public Object getKey() {
-            if (query.requestsKeys()) {
-                return key;
-            }
-
-            throw new SearchException("keys not included in query. Use includeKeys() to add keys to results.");
-        }
-
-        /**
-         * @{inheritDoc
-         */
-        public <T> T getAttribute(Attribute<T> attribute) {
-            String name = attribute.getAttributeName();
-            Object value = attributes.get(name);
-            if (value == null && !query.requestedAttributes().contains(attribute)) {
-                throw new SearchException("Attribute [" + name + "] not included in query");
-            }
-            return (T) value;
-        }
-
-        @Override
-        public String toString() {
-            return "ResultImpl [attributes=" + attributes + ", key=" + key + ", query=" + query + ", sortAttributes="
-                    + Arrays.toString(sortAttributes) + "]";
-        }
-
-    }
-
-    /**
-     * Results implementation
-     */
-    private static class ResultsImpl implements Results {
-
-        private final List<Result> results;
-        private final List<Object> aggregateResults;
-        private final boolean hasKeys;
-        private final boolean hasAttributes;
-
-        ResultsImpl(List<Result> results, boolean hasKeys, List<AggregatorInstance<?>> aggregators, boolean hasAttributes) {
-            this.hasKeys = hasKeys;
-            this.hasAttributes = hasAttributes;
-            this.results = Collections.unmodifiableList(results);
-
-            if (aggregators.isEmpty()) {
-                this.aggregateResults = null;
-            } else {
-                List<Object> tmp = new ArrayList<Object>();
-                for (AggregatorInstance<?> aggregator : aggregators) {
-                    tmp.add(aggregator.aggregateResult());
-                }
-                this.aggregateResults = Collections.unmodifiableList(tmp);
-            }
-        }
-
-        /**
-         * @{inheritDoc
-         */
-        public void discard() {
-            // no-op
-        }
-
-        /**
-         * @{inheritDoc
-         */
-        public List<Result> all() throws SearchException {
-            return results;
-        }
-
-        /**
-         * @{inheritDoc
-         */
-        public List<Result> range(int start, int length) throws SearchException {
-            if (start < 0) {
-                throw new IllegalArgumentException("start: " + start);
-            }
-
-            if (length < 0) {
-                throw new IllegalArgumentException("length: " + length);
-            }
-
-            int size = results.size();
-
-            if (start > size - 1 || length == 0) {
-                return Collections.EMPTY_LIST;
-            }
-
-            int end = start + length;
-
-            if (end > size) {
-                end = size;
-            }
-
-            return results.subList(start, end);
-        }
-
-        /**
-         * @{inheritDoc
-         */
-        public int size() {
-            return results.size();
-        }
-
-        /**
-         * @{inheritDoc
-         */
-        public boolean hasKeys() {
-            return hasKeys;
-        }
-
-        /**
-         * @{inheritDoc
-         */
-        public boolean hasAttributes() {
-            return hasAttributes;
-        }
-
-        /**
-         * @{inheritDoc
-         */
-        public boolean hasAggregators() {
-            return aggregateResults != null;
-        }
-
-        public List<Object> getAggregatorResults() throws SearchException {
-            if (!hasAggregators()) {
-                throw new SearchException("No aggregators present in query");
-            }
-            return this.aggregateResults;
-        }
-
-    }
-
-    /**
-     * A compound comparator to implements query ordering
-     */
-    private static class OrderComparator implements Comparator<Result> {
-
-        private final List<Comparator<Result>> comparators;
-
-        OrderComparator(List<Ordering> orderings) {
-            comparators = new ArrayList<Comparator<Result>>();
-            int pos = 0;
-            for (Ordering ordering : orderings) {
-                switch (ordering.getDirection()) {
-                    case ASCENDING: {
-                        comparators.add(new AscendingComparator(pos));
-                        break;
-                    }
-                    case DESCENDING: {
-                        comparators.add(new DescendingComparator(pos));
-                        break;
-                    }
-                    default: {
-                        throw new AssertionError(ordering.getDirection());
-                    }
-                }
-
-                pos++;
-            }
-        }
-
-        public int compare(Result o1, Result o2) {
-            for (Comparator<Result> c : comparators) {
-                int cmp = c.compare(o1, o2);
-                if (cmp != 0) {
-                    return cmp;
-                }
-            }
-            return 0;
-        }
-
-        /**
-         * Simple ascending comparator
-         */
-        private static class AscendingComparator implements Comparator<Result> {
-
-            private final int pos;
-
-            AscendingComparator(int pos) {
-                this.pos = pos;
-            }
-
-            public int compare(Result o1, Result o2) {
-                Object attr1 = ((ResultImpl) o1).getSortAttribute(pos);
-                Object attr2 = ((ResultImpl) o2).getSortAttribute(pos);
-
-                if ((attr1 == null) && (attr2 == null)) {
-                    return 0;
-                }
-
-                if (attr1 == null) {
-                    return -1;
-                }
-
-                if (attr2 == null) {
-                    return 1;
-                }
-
-                return ((Comparable) attr1).compareTo(attr2);
-            }
-        }
-
-        /**
-         * Simple descending comparator
-         */
-        private static class DescendingComparator implements Comparator<Result> {
-
-            private final int pos;
-
-            DescendingComparator(int pos) {
-                this.pos = pos;
-            }
-
-            public int compare(Result o1, Result o2) {
-                Object attr1 = ((ResultImpl) o1).getSortAttribute(pos);
-                Object attr2 = ((ResultImpl) o2).getSortAttribute(pos);
-
-                if ((attr1 == null) && (attr2 == null)) {
-                    return 0;
-                }
-
-                if (attr1 == null) {
-                    return 1;
-                }
-
-                if (attr2 == null) {
-                    return -1;
-                }
-
-                return ((Comparable) attr2).compareTo(attr1);
-            }
-        }
     }
 
 }
