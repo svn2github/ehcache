@@ -477,8 +477,8 @@ public class MemoryStore extends AbstractStore implements CacheConfigurationList
     /**
      * An algorithm to tell if the MemoryStore is at or beyond its carrying capacity.
      */
-    protected final boolean isFull() {
-        return maximumSize > 0 && map.size() > maximumSize;
+    public final boolean isFull() {
+        return maximumSize > 0 && map.quickSize() >= maximumSize;
     }
 
     /**
