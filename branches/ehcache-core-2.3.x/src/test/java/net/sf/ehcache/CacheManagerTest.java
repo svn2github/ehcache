@@ -23,6 +23,7 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
@@ -509,15 +510,30 @@ public class CacheManagerTest {
     @Test
     public void testRemoveCache() throws CacheException {
         singletonManager = CacheManager.create();
+        assertEquals(15, singletonManager.getConfiguration().getCacheConfigurations().size());
         Ehcache cache = singletonManager.getCache("sampleCache1");
         assertNotNull(cache);
         singletonManager.removeCache("sampleCache1");
         cache = singletonManager.getCache("sampleCache1");
         assertNull(cache);
 
+        assertEquals(14, singletonManager.getConfiguration().getCacheConfigurations().size());
+
         // NPE tests
         singletonManager.removeCache(null);
         singletonManager.removeCache("");
+        assertEquals(14, singletonManager.getConfiguration().getCacheConfigurations().size());
+    }
+
+    @Test
+    public void testAddRemoveCache() throws CacheException {
+        String config = "<ehcache><defaultCache/></ehcache>";
+        CacheManager manager = new CacheManager(new ByteArrayInputStream(config.getBytes()));
+        assertEquals(0, manager.getConfiguration().getCacheConfigurations().size());
+        manager.addCache("test1");
+        assertEquals(1, manager.getConfiguration().getCacheConfigurations().size());
+        manager.removalAll();
+        assertEquals(0, manager.getConfiguration().getCacheConfigurations().size());
     }
 
     /**
@@ -526,8 +542,10 @@ public class CacheManagerTest {
     @Test
     public void testAddCache() throws CacheException {
         singletonManager = CacheManager.create();
+        assertEquals(15, singletonManager.getConfiguration().getCacheConfigurations().size());
         singletonManager.addCache("test");
         singletonManager.addCache("test2");
+        assertEquals(17, singletonManager.getConfiguration().getCacheConfigurations().size());
         Ehcache cache = singletonManager.getCache("test");
         assertNotNull(cache);
         assertEquals("test", cache.getName());
@@ -542,6 +560,7 @@ public class CacheManagerTest {
 
         // NPE tests
         singletonManager.addCache("");
+        assertEquals(17, singletonManager.getConfiguration().getCacheConfigurations().size());
     }
 
     @Test

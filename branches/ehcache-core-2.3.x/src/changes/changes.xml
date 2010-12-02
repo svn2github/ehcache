@@ -1,6 +1,11 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <document>
     <body>
+        <release version="2.3.1" date="???" description="Bug fixes">
+            <action dev="Ludovic Orban" type="fix" issue="EHC-808">
+            	Fixed memory leak in CacheManager & Configuration.
+            </action>
+        </release>
         <release version="2.3.0" date="2010-10-15" description="Major release with new features">
             <action dev="Gary Keim" type="add">
                 Additional statistics that break out missNotFound into missInMemory, missOffHeap, and
