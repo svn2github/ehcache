@@ -2,6 +2,10 @@
 <document>
     <body>
         <release version="2.3.1" date="???" description="Bug fixes">
+            <action dev="Ludovic Orban" type="fix" issue="DEV-5042">
+            	Fixed big memory RMI replication by storing non-serializable key list into a
+            	serializable one.
+            </action>
             <action dev="Ludovic Orban" type="fix" issue="EHC-808">
             	Fixed memory leak in CacheManager & Configuration.
             </action>
