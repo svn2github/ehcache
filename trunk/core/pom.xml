@@ -31,6 +31,7 @@
         <testResources>src/test/resources</testResources>
         <name>ehcache</name>
         <skipCheckstyle>false</skipCheckstyle>
+        <test.tmp.dir>${project.build.directory}/tmp</test.tmp.dir>
     </properties>
 
     <dependencies>
@@ -343,6 +344,16 @@
                         </goals>
                     </execution>
 
+                    <execution>
+                       <id>create-test-tmp-dir</id>
+                       <phase>process-test-resources</phase>
+                       <configuration>
+                           <tasks>
+                              <mkdir dir="${test.tmp.dir}"/>
+                           </tasks>
+                       </configuration>
+                    </execution>
+
                 </executions>
             </plugin>
 
@@ -382,24 +393,12 @@
                     <printSummary>true</printSummary>
                     <reportFormat>plain</reportFormat>
                     <redirectTestOutputToFile>false</redirectTestOutputToFile>
-                    <systemProperties>
-                        <property>
-                            <name>net.sf.ehcache.skipUpdateCheck</name>
-                            <value>true</value>
-                        </property>
-                        <property>
-                            <name>java.awt.headless</name>
-                            <value>true</value>
-                        </property>
-                        <property>
-                            <name>
-                                net.sf.ehcache.speedAdjustmentFactor
-                            </name>
-                            <value>
-                                ${net.sf.ehcache.speedAdjustmentFactor}
-                            </value>
-                        </property>
-                    </systemProperties>
+                    <systemPropertyVariables>
+                      <net.sf.ehcache.skipUpdateCheck>true</net.sf.ehcache.skipUpdateCheck>
+                      <java.awt.headless>true</java.awt.headless>
+                      <net.sf.ehcache.speedAdjustmentFactor>${net.sf.ehcache.speedAdjustmentFactor}</net.sf.ehcache.speedAdjustmentFactor>
+                      <java.io.tmpdir>${test.tmp.dir}</java.io.tmpdir>
+                    </systemPropertyVariables>
                 </configuration>
                 <executions>
                     <execution>
