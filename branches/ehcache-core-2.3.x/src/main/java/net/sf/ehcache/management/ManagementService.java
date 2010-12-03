@@ -72,11 +72,13 @@ public class ManagementService implements CacheManagerEventListener {
     private Status status;
 
 
+
+
     /**
      * A constructor for a management service for a range of possible MBeans.
      * <p/>
      * The {@link #init()} method needs to be called after construction which causes
-     *  the selected monitoring options to be be registered
+     * the selected monitoring options to be be registered
      * with the provided MBeanServer for caches in the given CacheManager.
      * <p/>
      * While registering the CacheManager enables traversal to all of the other
@@ -98,6 +100,7 @@ public class ManagementService implements CacheManagerEventListener {
      * @param registerCacheConfigurations Whether to register the CacheConfiguration MBeans
      * @param registerCacheStatistics     Whether to register the CacheStatistics MBeans
      * @throws net.sf.ehcache.CacheException if something goes wrong with init()
+     * @since 2.2
      */
     public ManagementService(net.sf.ehcache.CacheManager cacheManager,
                              MBeanServer mBeanServer,
@@ -117,6 +120,44 @@ public class ManagementService implements CacheManagerEventListener {
         this.registerCacheStores = registerCacheStores;
     }
 
+    /**
+         * A constructor for a management service for a range of possible MBeans.
+         * <p/>
+         * The {@link #init()} method needs to be called after construction which causes
+         * the selected monitoring options to be be registered
+         * with the provided MBeanServer for caches in the given CacheManager.
+         * <p/>
+         * While registering the CacheManager enables traversal to all of the other
+         * items,
+         * this requires programmatic traversal. The other options allow entry points closer
+         * to an item of interest and are more accessible from JMX management tools like JConsole.
+         * Moreover CacheManager and Cache are not serializable, so remote monitoring is not possible
+         * for CacheManager or Cache, while CacheStatistics and CacheConfiguration are. Finally
+         * CacheManager and Cache enable management operations to be performed.
+         * <p/>
+         * Once monitoring is enabled caches will automatically added and removed from the MBeanServer
+         * as they are added and disposed of from the CacheManager. When the CacheManager itself
+         * shutsdown all registered MBeans will be unregistered.
+         *
+         * @param cacheManager                the CacheManager to listen to
+         * @param mBeanServer                 the MBeanServer to register MBeans to
+         * @param registerCacheManager        Whether to register the CacheManager MBean
+         * @param registerCaches              Whether to register the Cache MBeans
+         * @param registerCacheConfigurations Whether to register the CacheConfiguration MBeans
+         * @param registerCacheStatistics     Whether to register the CacheStatistics MBeans
+         * @throws net.sf.ehcache.CacheException if something goes wrong with init()
+         */
+        public ManagementService(net.sf.ehcache.CacheManager cacheManager,
+                                 MBeanServer mBeanServer,
+                                 boolean registerCacheManager,
+                                 boolean registerCaches,
+                                 boolean registerCacheConfigurations,
+                                 boolean registerCacheStatistics) throws CacheException {
+
+            this(cacheManager, mBeanServer, registerCacheManager, registerCaches,
+                    registerCacheConfigurations, registerCacheStatistics, false);
+        }
+
 
     /**
      * A convenience static method which creates a ManagementService and initialises it with the
@@ -129,6 +170,7 @@ public class ManagementService implements CacheManagerEventListener {
      * @param registerCacheConfigurations Whether to register the CacheConfiguration MBeans
      * @param registerCacheStatistics     Whether to register the CacheStatistics MBeans
      * @see ManagementService#ManagementService(net.sf.ehcache.CacheManager, javax.management.MBeanServer, boolean, boolean, boolean, boolean, boolean)
+     * @since 2.2
      */
     public static void registerMBeans(
             net.sf.ehcache.CacheManager cacheManager,
@@ -148,6 +190,32 @@ public class ManagementService implements CacheManagerEventListener {
                 registerCacheStores);
 
         registry.init();
+    }
+
+    /**
+     * A convenience static method which creates a ManagementService and initialises it with the
+     * supplied parameters.
+     * <p/>
+     * This one is provided for backward compatibility
+     *
+     * @param cacheManager                the CacheManager to listen to
+     * @param mBeanServer                 the MBeanServer to register MBeans to
+     * @param registerCacheManager        Whether to register the CacheManager MBean
+     * @param registerCaches              Whether to register the Cache MBeans
+     * @param registerCacheConfigurations Whether to register the CacheConfiguration MBeans
+     * @param registerCacheStatistics     Whether to register the CacheStatistics MBeans
+     * @see ManagementService#ManagementService(net.sf.ehcache.CacheManager, javax.management.MBeanServer, boolean, boolean, boolean, boolean)
+     */
+    public static void registerMBeans(
+            net.sf.ehcache.CacheManager cacheManager,
+            MBeanServer mBeanServer,
+            boolean registerCacheManager,
+            boolean registerCaches,
+            boolean registerCacheConfigurations,
+            boolean registerCacheStatistics) throws CacheException {
+
+        registerMBeans(cacheManager, mBeanServer, registerCacheManager, registerCaches, registerCacheConfigurations,
+                registerCacheStatistics, false);
     }
 
 
@@ -185,7 +253,7 @@ public class ManagementService implements CacheManagerEventListener {
         final Map<String, CacheManagerPeerProvider> cacheManagerPeerProviders = this.backingCacheManager.getCacheManagerPeerProviders();
         for (final CacheManagerPeerProvider cacheManagerPeerProvider : cacheManagerPeerProviders.values()) {
             if (cacheManagerPeerProvider instanceof ManagedCacheManagerPeerProvider) {
-                ((ManagedCacheManagerPeerProvider)cacheManagerPeerProvider).register(this.mBeanServer);
+                ((ManagedCacheManagerPeerProvider) cacheManagerPeerProvider).register(this.mBeanServer);
             }
         }
     }
@@ -229,6 +297,7 @@ public class ManagementService implements CacheManagerEventListener {
             }
         }
     }
+
     /**
      * Returns the listener status.
      *
@@ -241,9 +310,8 @@ public class ManagementService implements CacheManagerEventListener {
     /**
      * Stop the listener and free any resources.
      * Removes registered ObjectNames
-     * 
-     * @throws net.sf.ehcache.CacheException
-     *             - all exceptions are wrapped in CacheException
+     *
+     * @throws net.sf.ehcache.CacheException - all exceptions are wrapped in CacheException
      */
     public void dispose() throws CacheException {
         Set registeredObjectNames = null;
