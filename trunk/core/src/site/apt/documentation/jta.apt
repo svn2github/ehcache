@@ -1,12 +1,19 @@
  ---
- JTA
+ Transactions in Ehcache
  ---
 
-{JTA}
+Transactions in Ehcache
+
+%{toc|fromDepth=2|toDepth=2}
+
+*   Introduction 
 
     JTA is supported in versions of Ehcache 2.0 and higher.
 
-    We support both Global Transactions with our <<<xa>>> and <<<xa-nr>>> modes, and Local Transactions with our <<<local>>> mode.
+    The GA releases only support XA. However we have ehcache 2.4 in beta which supports both Global Transactions
+    with our <<<xa>>> and <<<xa-nr>>> modes, and Local Transactions with our <<<local>>> mode. This document
+    has been updated to cover the new features in the beta.
+
 
 **  All or nothing
 
@@ -97,27 +104,40 @@
 
 *   Failure
 
-    As specified by the JTA specification, only prepared transaction data is recoverable. Which means that any transaction still
-    alive at VM failure will be lost. Since all these operations are non locking, the cluster isn't suffering from these.
+    As specified by the JTA specification, only <prepared> transaction data is recoverable.
 
-    Prepared data on the other hand, is persisted to the L2 and locks on the memory are being held. Should the L1 come back up
-    before the locks timed out, like network failure, the VM will be able to keep doing its work.
+    Which means that any transaction still alive at VM failure will be lost. Since all these operations are non locking, the cluster isn't suffering from these.
+
+    Prepared data is persisted to the cluster and locks on the memory are held. Should the L1 come back up
+    before the locks have timed out, like network failure, the VM will be able to keep doing its work.
 
 **  Recovery
 
-    When something goes wrong, a ResourceManager will be asked to recover. Data has been prepared may either be committed or rolled back
-    during recovery.
+    When something goes wrong, a <<<ResourceManager>>> will be asked to recover. Data that has been prepared may either be committed or rolled back
+    during recovery. In accordance with XA, data that has not yet been <<<prepared>>> is discarded.
 
     The recovery guarantee differs depending on the xa mode. If <<<xa>>> is used the cache will always respond to the TransactionManager's
-    recover calls with a list of transactions ids.
-
-    There is also an <<<xa-nr>>> mode, which means XA No Recovery. In this mode the TransactionManager's recover calls are ignored.
-    With xa-nr, the cache can end up inconsistent with the other resources only when it is the JVM that contains the cache crashes.
-    If you are using a non-persistent standalone cache this is not a problem, because the cache will be empty when you start up.
-
-    By contrast in the <<<xa>>> mode, should the XA recovery scan be required by the transaction manager, Ehcache will provide all
+    recover calls with a list of transactions ids. Should the XA recovery scan be required by the transaction manager, Ehcache will provide all
     Xids prepared, but these will only be able to be rolled back. Indeed when locks time out, no guarantee can be made about the locked keys
     and their value. If the transaction manager still asks Ehcache to commit these, a <<<HeuristicException>>> will be thrown.
+
+
+    There is also an <<<xa-nr>>> mode, which is configured and works the same way as XA, but does not support recovery. In this mode the
+    TransactionManager's recover calls are ignored. However this mode is 3 times faster than <<<xa>>>.
+    With <<<xa-nr>>>, the cache can end up inconsistent with the other resources if there is a JVM crash in the mutating node.
+
+    Some scenarios where <<<xa-nr>>> is valuable are:
+
+    * Non-clustered use. If you are using a non-persistent standalone cache and you suffer a JVM crash, the cache will be empty
+      on restart so there is no danger of an inconsistency
+
+    * Compensating actions on crash. Here you put in place an operational recovery step, where you check the Transaction Manager for
+      uncommitted transactions and correct the cache. One simple way is to just do a removeAll() either programmatically or via the
+      console.
+
+    * Finally not all transaction managers correctly implement recovery anyway. If you are using one of these then your XA implementation
+      will not be doing recovery so <<<xa-nr>>> does not leave you any worse off.
+
 
 
 *   {Sample Apps}
@@ -188,8 +208,6 @@
 
     <<<mvn clean jetty:run -Dxa=no>>>
 
----
-
     The source code for the demo can be checked out from
     {{http://svn.terracotta.org/svn/forge/projects/ehcache-jta-banking/trunk}}
 
@@ -246,36 +264,6 @@
 ---
 
 
-
-
-
-**  Hibernate Transactions
-
-    Ehcache is a "transactional" cache for Hibernate purposes. The <<<net.sf.ehcache.hibernate.EhCacheRegionFactory>>>
-    has support for Hibernate entities configured with <cache usage="transactional"/>.
-
-
-*   Limitations
-
-    There is one limitation left in this second release of JTA for Ehcache.
-
-*   FAQ
-
-**  How do I make WebLogic 10 work with Ehcache JTA?
-
-    WebLogic uses an optimization that is not supported by our implementation. By default WebLogic 10 will spawn threads to
-    start the Transaction on each XAResource in parallel. As we need transaction work to be performed on the same Thread, you will have
-    to turn this optimization off by setting <<<parallel-xa-enabled>>> option to <<<false>>> in your domain configuration :
-
----
-  <jta>
-    ...
-    <checkpoint-interval-seconds>300</checkpoint-interval-seconds>
-    <parallel-xa-enabled>false</parallel-xa-enabled>
-    <unregister-resource-grace-period>30</unregister-resource-grace-period>
-    ...
-  </jta>
----
 
 *   Local Transactions
 
@@ -379,45 +367,6 @@
     is there but not applied. It will be lazily removed on next access.
 
 
-**  <<<local>>> Transactions
-
-
-   What about soft locks? The next reader detects the timed out soft lock and cleans it up. The old value gets used.
-
-
-**  <<<jta-local>>> Transactions
-
-    This requires a TransactionManager. The transaction is controlled by the TM.
-
-    The differences to the XA are:
-
-    * in case of a crash there is no guarantee about what is in the cache. ie. there is no recovery
-      support.
-
-    * at commit time if we throw an exception then the other Resources will not roll back.
-
-    In either case, the Element will be we will invalidate the cache. There will be a dead softlock
-      which will cause it to be restored the old value.
-
-    This is useful because it is atomic but in a crash scenario they will deal with it
-
-
-*** Configuration
-
-    This is configured as follows:
-
-
----
-    <cache name="sampleCache"
-        ...
-        transactionalMode="local-jta">
-  </cache>
----
-
-*** Sample Code
-
-    Same as XA.
-
 *   Performance
 
 **   Managing Contention
@@ -450,17 +399,23 @@
 
     Within the modes the relative time take to perform writes, where off = 1, is:
 
-    off   - no overhead
-    xa    - ten times slower
-    xa-nr - 3 times slower
-    local - 3 times slower
+    * off   - no overhead
+
+    * xa    - ten times slower
+
+    * xa-nr - 3 times slower
+
+    * local - 3 times slower
 
     The relative read performance is:
 
-    off   - no overhead
-    xa    - 10 times slower
-    xa-nr - 10% slower
-    local - 10% slower
+    * off   - no overhead
+
+    * xa    - 10 times slower
+
+    * xa-nr - 10% slower
+
+    * local - 10% slower
 
     Accordingly, xa should only be used where it's full guarantees are required, othewise one of the other modes should be used.
 
@@ -469,7 +424,8 @@
 
 **  Is IBM Websphere Transaction Manager supported
 
-    Not at this time.
+    XA is not supported due to each version of Websphere essentially being a custom implementation i.e. no stable interface to
+     implement against. However, <<<xa-nr>>>, which uses TransactionManager callbacks and <<<local>>> are supported.
 
 **  How do transactions interact with Write-behind and Write-through caches?
 
@@ -481,3 +437,30 @@
     Using Write-through with a non XA resource would also work, but there is no guarantee the transaction will succeed after the write
     operation have been executed successfully. On the other hand, any thrown exception during these write operations would cause the
     transaction to be rolled back by having UserTransaction.commit() throw a RollbackException.
+
+**  Are Hibernate Transactions supported?
+
+    Ehcache is a "transactional" cache for Hibernate purposes. The <<<net.sf.ehcache.hibernate.EhCacheRegionFactory>>>
+    has support for Hibernate entities configured with <cache usage="transactional"/>.
+
+**  How do I make WebLogic 10 work with Ehcache JTA?
+
+    WebLogic uses an optimization that is not supported by our implementation. By default WebLogic 10 will spawn threads to
+    start the Transaction on each XAResource in parallel. As we need transaction work to be performed on the same Thread, you will have
+    to turn this optimization off by setting <<<parallel-xa-enabled>>> option to <<<false>>> in your domain configuration :
+
+---
+  <jta>
+    ...
+    <checkpoint-interval-seconds>300</checkpoint-interval-seconds>
+    <parallel-xa-enabled>false</parallel-xa-enabled>
+    <unregister-resource-grace-period>30</unregister-resource-grace-period>
+    ...
+  </jta>
+---
+
+*   Limitations in the 2.4 beta release
+
+    The above documentation is written for how we see search working when it is released.
+
+    * The 2.4 beta1 has not implemented xa-nr. Beta 2 due in December will implement.
