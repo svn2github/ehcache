@@ -20,6 +20,7 @@ import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.Status;
 import net.sf.ehcache.search.Results;
+import net.sf.ehcache.search.SearchException;
 import net.sf.ehcache.search.attribute.AttributeExtractor;
 import net.sf.ehcache.writer.CacheWriterManager;
 
@@ -357,7 +358,7 @@ public interface Store {
     public Object getMBean();
 
     /**
-     * Inform this store of the configured attribute extfractors. Stores that will not invoke extractors are free to ignore this call
+     * Inform this store of the configured attribute extractors. Stores that will not invoke extractors are free to ignore this call
      *
      * @param extractors
      */
@@ -365,9 +366,9 @@ public interface Store {
 
     /**
      * Execute the given query on this store
-     * 
+     *
      * @param query query to execute
      * @return query results
      */
-    public Results executeQuery(StoreQuery query);
+    public Results executeQuery(StoreQuery query) throws SearchException;
 }

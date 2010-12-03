@@ -74,6 +74,7 @@ import net.sf.ehcache.loader.CacheLoaderFactory;
 import net.sf.ehcache.search.Attribute;
 import net.sf.ehcache.search.Query;
 import net.sf.ehcache.search.Results;
+import net.sf.ehcache.search.SearchException;
 import net.sf.ehcache.search.attribute.AttributeExtractor;
 import net.sf.ehcache.statistics.CacheUsageListener;
 import net.sf.ehcache.statistics.LiveCacheStatistics;
@@ -3535,7 +3536,7 @@ public class Cache implements Ehcache, StoreListener {
      * @param query query to execute
      * @return query results
      */
-    Results executeQuery(StoreQuery query) {
+    Results executeQuery(StoreQuery query) throws SearchException {
         return this.compoundStore.executeQuery(query);
     }
 
