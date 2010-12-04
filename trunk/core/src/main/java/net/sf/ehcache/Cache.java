@@ -3511,8 +3511,6 @@ public class Cache implements Ehcache, StoreListener {
      * {@inheritDoc}
      */
     public <T> Attribute<T> getSearchAttribute(String attributeName) throws CacheException {
-        // XXX: Should we cache these instances?
-
         // We don't trust config here since the store is the real authority
         Attribute<T> searchAttribute = compoundStore.getSearchAttribute(attributeName);
 
