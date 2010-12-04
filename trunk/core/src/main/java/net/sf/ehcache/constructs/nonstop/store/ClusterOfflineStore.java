@@ -25,6 +25,7 @@ import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.Status;
 import net.sf.ehcache.config.NonstopConfiguration;
+import net.sf.ehcache.search.Attribute;
 import net.sf.ehcache.search.Results;
 import net.sf.ehcache.search.attribute.AttributeExtractor;
 import net.sf.ehcache.store.ElementValueComparator;
@@ -530,6 +531,17 @@ public class ClusterOfflineStore implements Store {
             nonstopStoreResolver.resolveTimeoutStore().waitUntilClusterCoherent();
         } else {
             executorBehavior.waitUntilClusterCoherent();
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public <T> Attribute<T> getSearchAttribute(String attributeName) {
+        if (shouldTimeoutImmediately()) {
+            return nonstopStoreResolver.resolveTimeoutStore().getSearchAttribute(attributeName);
+        } else {
+            return executorBehavior.getSearchAttribute(attributeName);
         }
     }
 }

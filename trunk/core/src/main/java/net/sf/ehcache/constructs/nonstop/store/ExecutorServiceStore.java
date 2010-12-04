@@ -28,6 +28,7 @@ import net.sf.ehcache.Element;
 import net.sf.ehcache.Status;
 import net.sf.ehcache.config.NonstopConfiguration;
 import net.sf.ehcache.constructs.nonstop.NonStopCacheExecutorService;
+import net.sf.ehcache.search.Attribute;
 import net.sf.ehcache.search.Results;
 import net.sf.ehcache.search.attribute.AttributeExtractor;
 import net.sf.ehcache.store.ElementValueComparator;
@@ -799,4 +800,20 @@ public class ExecutorServiceStore implements Store {
         }
         return rv;
     }
+
+    /**
+     * {@inheritDoc}.
+     */
+    public <T> Attribute<T> getSearchAttribute(final String attributeName) {
+        try {
+            return executeWithExecutor(new Callable<Attribute<T>>() {
+                public Attribute<T> call() throws Exception {
+                    return executeBehavior.getSearchAttribute(attributeName);
+                }
+            });
+        } catch (TimeoutException e) {
+            return timeoutBehaviorResolver.resolveTimeoutStore().getSearchAttribute(attributeName);
+        }
+    }
+
 }

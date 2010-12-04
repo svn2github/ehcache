@@ -26,6 +26,7 @@ import net.sf.ehcache.Status;
 import net.sf.ehcache.cluster.CacheCluster;
 import net.sf.ehcache.cluster.ClusterNode;
 import net.sf.ehcache.cluster.ClusterTopologyListener;
+import net.sf.ehcache.search.Attribute;
 import net.sf.ehcache.search.Results;
 import net.sf.ehcache.search.attribute.AttributeExtractor;
 import net.sf.ehcache.store.ElementValueComparator;
@@ -367,6 +368,13 @@ public class ClusterAwareStore implements Store {
      */
     public void waitUntilClusterCoherent() throws UnsupportedOperationException {
         delegate.waitUntilClusterCoherent();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public <T> Attribute<T> getSearchAttribute(String attributeName) {
+        return delegate.getSearchAttribute(attributeName);
     }
 
     /**

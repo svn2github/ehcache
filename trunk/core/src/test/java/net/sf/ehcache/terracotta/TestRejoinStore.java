@@ -25,6 +25,7 @@ import java.util.Map;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.Status;
+import net.sf.ehcache.search.Attribute;
 import net.sf.ehcache.search.Results;
 import net.sf.ehcache.search.attribute.AttributeExtractor;
 import net.sf.ehcache.store.ElementValueComparator;
@@ -88,6 +89,11 @@ public class TestRejoinStore implements Store {
     }
 
     public Results executeQuery(StoreQuery query) {
+        checkBlocking();
+        return null;
+    }
+
+    public <T> Attribute<T> getSearchAttribute(String attributeName) {
         checkBlocking();
         return null;
     }

@@ -20,7 +20,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import net.sf.ehcache.CacheException;
 import net.sf.ehcache.config.InvalidConfigurationException;
+import net.sf.ehcache.search.Attribute;
 import net.sf.ehcache.search.Results;
 import net.sf.ehcache.search.attribute.AttributeExtractor;
 
@@ -138,12 +140,20 @@ public abstract class AbstractStore implements Store {
             throw new InvalidConfigurationException("Search attributes not supported by this store type: " + getClass().getName());
         }
     }
-    
+
     /**
      * {@inheritDoc}
      */
     public Results executeQuery(StoreQuery query) {
         throw new UnsupportedOperationException("Query execution not supported by this store type: " + getClass().getName());
     }
-    
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public <T> Attribute<T> getSearchAttribute(String attributeName) throws CacheException {
+        return null;
+    }
+
 }

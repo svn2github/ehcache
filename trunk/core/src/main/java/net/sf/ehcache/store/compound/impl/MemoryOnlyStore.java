@@ -25,6 +25,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import net.sf.ehcache.Cache;
+import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.CacheConfigurationListener;
@@ -64,6 +65,8 @@ public final class MemoryOnlyStore extends CompoundStore implements CacheConfigu
     private final CapacityLimitedInMemoryFactory memoryFactory;
 
     private final CacheConfiguration config;
+
+    private final Map<String, Attribute> searchAttributes = new ConcurrentHashMap<String, Attribute>();
 
     private MemoryOnlyStore(CapacityLimitedInMemoryFactory memory, CacheConfiguration config) {
         super(memory, config.isCopyOnRead(), config.isCopyOnWrite(), config.getCopyStrategy());
@@ -287,6 +290,10 @@ public final class MemoryOnlyStore extends CompoundStore implements CacheConfigu
     @Override
     public void setAttributeExtractors(Map<String, AttributeExtractor> extractors) {
         this.attributeExtractors.putAll(extractors);
+
+        for (String name : extractors.keySet()) {
+            searchAttributes.put(name, new Attribute(name));
+        }
     }
 
     /**
@@ -376,6 +383,14 @@ public final class MemoryOnlyStore extends CompoundStore implements CacheConfigu
         }
 
         return new ResultsImpl(results, query.requestsKeys(), aggregateResults, !query.requestedAttributes().isEmpty());
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public <T> Attribute<T> getSearchAttribute(String attributeName) throws CacheException {
+        return searchAttributes.get(attributeName);
     }
 
     /**

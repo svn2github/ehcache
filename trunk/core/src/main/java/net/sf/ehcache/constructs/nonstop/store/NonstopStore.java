@@ -28,6 +28,7 @@ import net.sf.ehcache.Status;
 import net.sf.ehcache.cluster.CacheCluster;
 import net.sf.ehcache.config.NonstopConfiguration;
 import net.sf.ehcache.constructs.nonstop.NonStopCacheExecutorService;
+import net.sf.ehcache.search.Attribute;
 import net.sf.ehcache.search.Results;
 import net.sf.ehcache.search.attribute.AttributeExtractor;
 import net.sf.ehcache.store.ElementValueComparator;
@@ -259,6 +260,13 @@ public class NonstopStore implements Store, NonstopTimeoutStoreResolver {
      */
     public Results executeQuery(StoreQuery query) {
         return clusterAwareStore.executeQuery(query);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public <T> Attribute<T> getSearchAttribute(String attributeName) {
+        return clusterAwareStore.getSearchAttribute(attributeName);
     }
 
     /**

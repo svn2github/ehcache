@@ -19,6 +19,7 @@ package net.sf.ehcache.store;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.Status;
+import net.sf.ehcache.search.Attribute;
 import net.sf.ehcache.search.Results;
 import net.sf.ehcache.search.SearchException;
 import net.sf.ehcache.search.attribute.AttributeExtractor;
@@ -371,4 +372,13 @@ public interface Store {
      * @return query results
      */
     public Results executeQuery(StoreQuery query) throws SearchException;
+
+    /**
+     * Retrieve the given named search attribute
+     * 
+     * @param <T> type of the attribute
+     * @param attributeName the name of the attribute to retrieve
+     * @return the search attribute or null if non-existent
+     */
+    public <T> Attribute<T> getSearchAttribute(String attributeName);
 }

@@ -24,6 +24,7 @@ import java.util.Map;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.Status;
+import net.sf.ehcache.search.Attribute;
 import net.sf.ehcache.search.Results;
 import net.sf.ehcache.search.attribute.AttributeExtractor;
 import net.sf.ehcache.store.ElementValueComparator;
@@ -468,6 +469,16 @@ public class LocalReadsOnTimeoutStore implements Store {
     public void waitUntilClusterCoherent() throws UnsupportedOperationException {
         // no-op
 
+    }
+
+    /**
+     * {@inheritDoc}.
+     * <p>
+     * This is a no-op
+     */
+    public <T> Attribute<T> getSearchAttribute(String attributeName) {
+        // no-op
+        return null;
     }
 
 }

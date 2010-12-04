@@ -3511,13 +3511,16 @@ public class Cache implements Ehcache, StoreListener {
      * {@inheritDoc}
      */
     public <T> Attribute<T> getSearchAttribute(String attributeName) throws CacheException {
-        // ??? Should we cache these instances?
+        // XXX: Should we cache these instances?
 
-        if (configuration.getSearchAttributes().containsKey(attributeName)) {
-            return new Attribute<T>(attributeName);
+        // We don't trust config here since the store is the real authority
+        Attribute<T> searchAttribute = compoundStore.getSearchAttribute(attributeName);
+
+        if (searchAttribute == null) {
+            throw new CacheException("No such search attribute [" + attributeName + "] defined for this cache [" + getName() + "]");
         }
 
-        throw new CacheException("No such search attribute [" + attributeName + "] defined for this cache [" + getName() + "]");
+        return searchAttribute;
     }
 
     /**
