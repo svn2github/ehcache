@@ -24,6 +24,7 @@ import java.util.Map;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.Status;
+import net.sf.ehcache.search.Attribute;
 import net.sf.ehcache.search.Results;
 import net.sf.ehcache.search.attribute.AttributeExtractor;
 import net.sf.ehcache.store.ElementValueComparator;
@@ -263,6 +264,10 @@ public class MockStoreWithFlag implements Store {
 
     public Results executeQuery(StoreQuery query) {
         throw new UnsupportedOperationException();
+    }
+    
+    public <T> Attribute<T> getSearchAttribute(String attributeName) {
+        return new Attribute<T>(attributeName);
     }
 
 }
