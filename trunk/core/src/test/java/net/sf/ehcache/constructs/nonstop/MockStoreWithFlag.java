@@ -267,7 +267,7 @@ public class MockStoreWithFlag implements Store {
     }
 
     public <T> Attribute<T> getSearchAttribute(String attributeName) {
-        throw new UnsupportedOperationException();
+        return new Attribute(attributeName);
     }
 
 }
