@@ -15,10 +15,10 @@
  */
 package net.sf.ehcache;
 
-import net.sf.ehcache.transaction.local.TransactionContext;
-import net.sf.ehcache.transaction.local.TransactionException;
-import net.sf.ehcache.transaction.local.TransactionID;
-import net.sf.ehcache.transaction.local.TransactionIDFactory;
+import net.sf.ehcache.transaction.TransactionIDFactory;
+import net.sf.ehcache.transaction.local.LocalTransactionContext;
+import net.sf.ehcache.transaction.TransactionException;
+import net.sf.ehcache.transaction.TransactionID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
@@ -38,7 +38,8 @@ public final class TransactionController {
     private static final int DEFAULT_TRANSACTION_TIMEOUT = 15;
 
     private final ThreadLocal<TransactionID> currentTransactionIdThreadLocal = new ThreadLocal<TransactionID>();
-    private final ConcurrentMap<TransactionID, TransactionContext> contextMap = new ConcurrentHashMap<TransactionID, TransactionContext>();
+    private final ConcurrentMap<TransactionID, LocalTransactionContext> contextMap =
+            new ConcurrentHashMap<TransactionID, LocalTransactionContext>();
     private final TransactionIDFactory transactionIDFactory;
 
     private volatile int defaultTransactionTimeout = DEFAULT_TRANSACTION_TIMEOUT;
@@ -87,7 +88,7 @@ public final class TransactionController {
             throw new TransactionException("transaction already started");
         }
 
-        TransactionContext newTx = new TransactionContext(transactionTimeoutSeconds, transactionIDFactory.createTransactionID());
+        LocalTransactionContext newTx = new LocalTransactionContext(transactionTimeoutSeconds, transactionIDFactory.createTransactionID());
         contextMap.put(newTx.getTransactionId(), newTx);
         currentTransactionIdThreadLocal.set(newTx.getTransactionId());
 
@@ -113,7 +114,7 @@ public final class TransactionController {
             throw new TransactionException("no transaction started");
         }
 
-        TransactionContext currentTx = contextMap.get(txId);
+        LocalTransactionContext currentTx = contextMap.get(txId);
 
         try {
             currentTx.commit(ignoreTimeout);
@@ -133,7 +134,7 @@ public final class TransactionController {
             throw new TransactionException("no transaction started");
         }
 
-        TransactionContext currentTx = contextMap.get(txId);
+        LocalTransactionContext currentTx = contextMap.get(txId);
 
         try {
             currentTx.rollback();
@@ -153,7 +154,7 @@ public final class TransactionController {
             throw new TransactionException("no transaction started");
         }
 
-        TransactionContext currentTx = contextMap.get(txId);
+        LocalTransactionContext currentTx = contextMap.get(txId);
 
         currentTx.setRollbackOnly();
     }
@@ -163,7 +164,7 @@ public final class TransactionController {
      * @return the transaction context bond to the current thread or null if no transaction
      *      started on the current thread          
      */
-    public TransactionContext getCurrentTransactionContext() {
+    public LocalTransactionContext getCurrentTransactionContext() {
         TransactionID txId = currentTransactionIdThreadLocal.get();
         if (txId == null) {
             return null;

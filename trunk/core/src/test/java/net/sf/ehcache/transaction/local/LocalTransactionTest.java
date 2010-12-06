@@ -8,6 +8,10 @@ import net.sf.ehcache.Element;
 import net.sf.ehcache.TransactionController;
 import net.sf.ehcache.store.DefaultElementValueComparator;
 import net.sf.ehcache.store.ElementValueComparator;
+import net.sf.ehcache.transaction.DeadLockException;
+import net.sf.ehcache.transaction.TransactionException;
+import net.sf.ehcache.transaction.TransactionInterruptedException;
+import net.sf.ehcache.transaction.TransactionTimeoutException;
 
 import java.util.Arrays;
 import java.util.concurrent.CyclicBarrier;

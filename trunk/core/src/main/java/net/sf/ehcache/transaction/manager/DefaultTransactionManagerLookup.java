@@ -35,9 +35,8 @@ import org.slf4j.LoggerFactory;
  * This implementation will:
  * <ol>
  * <li>try lookup an {@link javax.naming.InitialContext};
- * <li>if successful, lookup a TransactionManager under java:/TransactionManager, this location can be overriden;
- * <li>if it failed, or couldn't find {@link javax.transaction.TransactionManager} instance, look for a WebSphere TransactionManager;
- * <li>then, a Bitronix;
+ * <li>if successful, lookup a TransactionManager under java:/TransactionManager, this location can be overridden;
+ * <li>if it failed, or couldn't find {@link javax.transaction.TransactionManager} instance, look for a Bitronix TransactionManager;
  * <li>and finally an Atomikos one.
  * </ol>
  *
@@ -60,9 +59,10 @@ public class DefaultTransactionManagerLookup implements TransactionManagerLookup
     private final JndiSelector defaultJndiSelector = new JndiSelector("genericJNDI", "java:/TransactionManager");
 
     private final Selector[] transactionManagerSelectors = new Selector[] {defaultJndiSelector,
-            new FactorySelector("WebSphere 5.1", "com.ibm.ws.Transaction.TransactionManagerFactory"),
+            new JndiSelector("Weblogic", "javax.transaction.TransactionManager"),
             new FactorySelector("Bitronix", "bitronix.tm.TransactionManagerServices"),
-            new ClassSelector("Atomikos", "com.atomikos.icatch.jta.UserTransactionManager"), };
+            new ClassSelector("Atomikos", "com.atomikos.icatch.jta.UserTransactionManager"),
+    };
 
     /**
      * Lookup available txnManagers

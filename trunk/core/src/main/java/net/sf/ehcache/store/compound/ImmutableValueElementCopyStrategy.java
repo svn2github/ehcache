@@ -29,6 +29,9 @@ public class ImmutableValueElementCopyStrategy implements ReadWriteCopyStrategy<
      * @inheritDoc
      */
     public Element copyForWrite(Element value) {
+        if (value == null) {
+            return null;
+        }
         return copyStrategy.duplicateElementWithNewValue(value, value.getObjectValue());
     }
 
@@ -36,6 +39,9 @@ public class ImmutableValueElementCopyStrategy implements ReadWriteCopyStrategy<
      * @inheritDoc
      */
     public Element copyForRead(Element storedValue) {
+        if (storedValue == null) {
+            return null;
+        }
         return copyStrategy.duplicateElementWithNewValue(storedValue, storedValue.getObjectValue());
     }
 }

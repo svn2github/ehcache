@@ -81,7 +81,6 @@ public final class Configuration {
     private final Map<String, CacheConfiguration> cacheConfigurations = new ConcurrentHashMap<String, CacheConfiguration>();
     private ConfigurationSource configurationSource;
     private boolean dynamicConfig = DEFAULT_DYNAMIC_CONFIG;
-    private Object defaultTransactionManager;
 
     /**
      * Empty constructor, which is used by {@link ConfigurationFactory}, and can be also used programmatically.
@@ -482,32 +481,4 @@ public final class Configuration {
         return configurationSource;
     }
 
-    /**
-     * Builder to set the default transaction manager to inject in XA caches.
-     * 
-     * @return this configuration instance
-     */
-    public final Configuration defaultTransactionManager(final Object defaultTransactionManager) {
-        setDefaultTransactionManager(defaultTransactionManager);
-        return this;
-    }
-
-    /**
-     * Should the CacheManager inject a specific TransactionManager in the XA Caches
-     * 
-     * @param defaultTransactionManager
-     *            TransactionManager to inject
-     */
-    public void setDefaultTransactionManager(final Object defaultTransactionManager) {
-        this.defaultTransactionManager = defaultTransactionManager;
-    }
-
-    /**
-     * The default CacheManager XA Caches should use
-     * 
-     * @return the default one, or null
-     */
-    public Object getDefaultTransactionManager() {
-        return defaultTransactionManager;
-    }
 }

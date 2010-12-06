@@ -1,6 +1,7 @@
 package net.sf.ehcache.transaction.xa;
 
 import junit.framework.TestCase;
+import net.sf.ehcache.transaction.xa.processor.XAThreadPool;
 
 import java.util.Map;
 import java.util.concurrent.Callable;

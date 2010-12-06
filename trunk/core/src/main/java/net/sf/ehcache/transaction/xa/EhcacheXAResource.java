@@ -20,13 +20,8 @@ import javax.transaction.RollbackException;
 import javax.transaction.SystemException;
 import javax.transaction.xa.XAResource;
 
-import net.sf.ehcache.transaction.TransactionContext;
-
 /**
- *
  * EhcacheXAResource represents an {@link net.sf.ehcache.Ehcache Ehcache} instance.
- * It will provide the interface between the {@link javax.transaction.TransactionManager TransactionManager}
- * and the {@link net.sf.ehcache.store.XATransactionalStore XATransactionalStore} instance backing the transactional cache.
  *
  * @author Nabib El-Rahman
  * @author Alex Snaps
@@ -34,10 +29,15 @@ import net.sf.ehcache.transaction.TransactionContext;
 public interface EhcacheXAResource extends XAResource {
 
     /**
-     * Add a listener which will be called back according to the 2PC lifecycle
-     * @param listener the TwoPcExecutionListener
+     * The default transaction timeout in seconds for XA branches
      */
-    void addTwoPcExecutionListener(TwoPcExecutionListener listener);
+    static final int DEFAULT_TRANSACTION_TIMEOUT = 30;
+
+    /**
+     * Add a listener which will be called back according to the 2PC lifecycle
+     * @param listener the XAExecutionListener
+     */
+    void addTwoPcExecutionListener(XAExecutionListener listener);
 
     /**
      * Getter to the name of the cache wrapped by this XAResource
@@ -46,17 +46,17 @@ public interface EhcacheXAResource extends XAResource {
     String getCacheName();
 
     /**
-     * Obtain the already associated {@link net.sf.ehcache.transaction.TransactionContext} with the current Transaction,
+     * Obtain the already associated {@link XATransactionContext} with the current Transaction,
      * or create a new one should none be there yet.
-     * @return The associated Transaction associated {@link net.sf.ehcache.transaction.TransactionContext} 
+     * @return The associated Transaction associated {@link XATransactionContext}
      * @throws SystemException Thrown if the associated transaction manager encounters an unexpected error condition.
      * @throws RollbackException Thrown if the resource has to be enlisted with the transaction, while it is marked for rollback only.
      */
-    TransactionContext createTransactionContext() throws SystemException, RollbackException;
+    XATransactionContext createTransactionContext() throws SystemException, RollbackException;
 
     /**
-     * Gets the current TransactionContext associated with this resource
-     * @return the current TransactionContext, or null if none
+     * Gets the current {@link XATransactionContext} associated with this resource
+     * @return the current {@link XATransactionContext}, or null if none
      */
-    TransactionContext getCurrentTransactionContext();
+    XATransactionContext getCurrentTransactionContext();
 }

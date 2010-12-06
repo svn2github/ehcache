@@ -16,6 +16,75 @@
 
 package net.sf.ehcache;
 
+import net.sf.ehcache.bootstrap.BootstrapCacheLoader;
+import net.sf.ehcache.bootstrap.BootstrapCacheLoaderFactory;
+import net.sf.ehcache.cluster.CacheCluster;
+import net.sf.ehcache.cluster.ClusterScheme;
+import net.sf.ehcache.cluster.ClusterSchemeNotAvailableException;
+import net.sf.ehcache.concurrent.CacheLockProvider;
+import net.sf.ehcache.concurrent.LockType;
+import net.sf.ehcache.concurrent.Sync;
+import net.sf.ehcache.config.CacheConfiguration;
+import net.sf.ehcache.config.CacheWriterConfiguration;
+import net.sf.ehcache.config.DiskStoreConfiguration;
+import net.sf.ehcache.config.NonstopConfiguration;
+import net.sf.ehcache.config.SearchAttribute;
+import net.sf.ehcache.config.TerracottaConfiguration;
+import net.sf.ehcache.constructs.nonstop.CacheManagerExecutorServiceFactory;
+import net.sf.ehcache.constructs.nonstop.store.NonstopStore;
+import net.sf.ehcache.event.CacheEventListener;
+import net.sf.ehcache.event.CacheEventListenerFactory;
+import net.sf.ehcache.event.RegisteredEventListeners;
+import net.sf.ehcache.exceptionhandler.CacheExceptionHandler;
+import net.sf.ehcache.extension.CacheExtension;
+import net.sf.ehcache.extension.CacheExtensionFactory;
+import net.sf.ehcache.loader.CacheLoader;
+import net.sf.ehcache.loader.CacheLoaderFactory;
+import net.sf.ehcache.search.Attribute;
+import net.sf.ehcache.search.Query;
+import net.sf.ehcache.search.Results;
+import net.sf.ehcache.search.SearchException;
+import net.sf.ehcache.search.attribute.AttributeExtractor;
+import net.sf.ehcache.statistics.CacheUsageListener;
+import net.sf.ehcache.statistics.LiveCacheStatistics;
+import net.sf.ehcache.statistics.LiveCacheStatisticsWrapper;
+import net.sf.ehcache.statistics.sampled.SampledCacheStatistics;
+import net.sf.ehcache.statistics.sampled.SampledCacheStatisticsWrapper;
+import net.sf.ehcache.store.DiskStore;
+import net.sf.ehcache.store.ElementValueComparator;
+import net.sf.ehcache.store.LegacyStoreWrapper;
+import net.sf.ehcache.store.LruMemoryStore;
+import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
+import net.sf.ehcache.store.Policy;
+import net.sf.ehcache.store.Store;
+import net.sf.ehcache.store.StoreListener;
+import net.sf.ehcache.store.StoreQuery;
+import net.sf.ehcache.store.compound.ImmutableValueElementCopyStrategy;
+import net.sf.ehcache.store.compound.ReadWriteCopyStrategy;
+import net.sf.ehcache.store.compound.impl.DiskPersistentStore;
+import net.sf.ehcache.store.compound.impl.MemoryOnlyStore;
+import net.sf.ehcache.store.compound.impl.OverflowToDiskStore;
+import net.sf.ehcache.terracotta.TerracottaClient;
+import net.sf.ehcache.transaction.SoftLockFactory;
+import net.sf.ehcache.transaction.local.JtaLocalTransactionStore;
+import net.sf.ehcache.transaction.local.LocalTransactionStore;
+import net.sf.ehcache.transaction.TransactionIDFactory;
+import net.sf.ehcache.transaction.manager.TransactionManagerLookup;
+import net.sf.ehcache.transaction.xa.EhcacheXAResource;
+import net.sf.ehcache.transaction.xa.XATransactionStore;
+import net.sf.ehcache.transaction.xa.EhcacheXAResourceImpl;
+import net.sf.ehcache.util.ClassLoaderUtil;
+import net.sf.ehcache.util.NamedThreadFactory;
+import net.sf.ehcache.util.PropertyUtil;
+import net.sf.ehcache.util.TimeUtil;
+import net.sf.ehcache.util.VmUtils;
+import net.sf.ehcache.writer.CacheWriter;
+import net.sf.ehcache.writer.CacheWriterFactory;
+import net.sf.ehcache.writer.CacheWriterManager;
+import net.sf.ehcache.writer.CacheWriterManagerException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.io.IOException;
@@ -45,76 +114,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.ReentrantLock;
-
-import net.sf.ehcache.bootstrap.BootstrapCacheLoader;
-import net.sf.ehcache.bootstrap.BootstrapCacheLoaderFactory;
-import net.sf.ehcache.cluster.CacheCluster;
-import net.sf.ehcache.cluster.ClusterScheme;
-import net.sf.ehcache.cluster.ClusterSchemeNotAvailableException;
-import net.sf.ehcache.concurrent.CacheLockProvider;
-import net.sf.ehcache.concurrent.LockType;
-import net.sf.ehcache.concurrent.Sync;
-import net.sf.ehcache.config.CacheConfiguration;
-import net.sf.ehcache.config.CacheWriterConfiguration;
-import net.sf.ehcache.config.DiskStoreConfiguration;
-import net.sf.ehcache.config.NonstopConfiguration;
-import net.sf.ehcache.config.SearchAttribute;
-import net.sf.ehcache.config.TerracottaConfiguration;
-import net.sf.ehcache.constructs.nonstop.CacheManagerExecutorServiceFactory;
-import net.sf.ehcache.constructs.nonstop.store.NonstopStore;
-import net.sf.ehcache.event.CacheEventListener;
-import net.sf.ehcache.event.CacheEventListenerFactory;
-import net.sf.ehcache.event.RegisteredEventListeners;
-import net.sf.ehcache.exceptionhandler.CacheExceptionHandler;
-import net.sf.ehcache.extension.CacheExtension;
-import net.sf.ehcache.extension.CacheExtensionFactory;
-import net.sf.ehcache.hibernate.tm.SyncTransactionManager;
-import net.sf.ehcache.loader.CacheLoader;
-import net.sf.ehcache.loader.CacheLoaderFactory;
-import net.sf.ehcache.search.Attribute;
-import net.sf.ehcache.search.Query;
-import net.sf.ehcache.search.Results;
-import net.sf.ehcache.search.SearchException;
-import net.sf.ehcache.search.attribute.AttributeExtractor;
-import net.sf.ehcache.statistics.CacheUsageListener;
-import net.sf.ehcache.statistics.LiveCacheStatistics;
-import net.sf.ehcache.statistics.LiveCacheStatisticsWrapper;
-import net.sf.ehcache.statistics.sampled.SampledCacheStatistics;
-import net.sf.ehcache.statistics.sampled.SampledCacheStatisticsWrapper;
-import net.sf.ehcache.store.DiskStore;
-import net.sf.ehcache.store.ElementValueComparator;
-import net.sf.ehcache.store.LegacyStoreWrapper;
-import net.sf.ehcache.store.LruMemoryStore;
-import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
-import net.sf.ehcache.store.Policy;
-import net.sf.ehcache.store.Store;
-import net.sf.ehcache.store.StoreListener;
-import net.sf.ehcache.store.StoreQuery;
-import net.sf.ehcache.store.XATransactionalStore;
-import net.sf.ehcache.store.compound.ImmutableValueElementCopyStrategy;
-import net.sf.ehcache.store.compound.ReadWriteCopyStrategy;
-import net.sf.ehcache.store.compound.impl.DiskPersistentStore;
-import net.sf.ehcache.store.compound.impl.MemoryOnlyStore;
-import net.sf.ehcache.store.compound.impl.OverflowToDiskStore;
-import net.sf.ehcache.terracotta.TerracottaClient;
-import net.sf.ehcache.transaction.local.JtaLocalTransactionStore;
-import net.sf.ehcache.transaction.local.LocalTransactionStore;
-import net.sf.ehcache.transaction.local.SoftLockFactory;
-import net.sf.ehcache.transaction.manager.TransactionManagerLookup;
-import net.sf.ehcache.transaction.xa.EhcacheXAResourceImpl;
-import net.sf.ehcache.transaction.xa.EhcacheXAStore;
-import net.sf.ehcache.util.ClassLoaderUtil;
-import net.sf.ehcache.util.NamedThreadFactory;
-import net.sf.ehcache.util.PropertyUtil;
-import net.sf.ehcache.util.TimeUtil;
-import net.sf.ehcache.util.VmUtils;
-import net.sf.ehcache.writer.CacheWriter;
-import net.sf.ehcache.writer.CacheWriterFactory;
-import net.sf.ehcache.writer.CacheWriterManager;
-import net.sf.ehcache.writer.CacheWriterManagerException;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Cache is the central class in ehcache. Caches have {@link Element}s and are managed
@@ -986,7 +985,7 @@ public class Cache implements Ehcache, StoreListener {
             }
 
             ReadWriteCopyStrategy<Element> copyStrategy = null;
-            if (configuration.getTransactionalMode().isTransactional() && !configuration.isXaTransactional()) {
+            if (configuration.getTransactionalMode().isTransactional()) {
                 copyStrategy = configuration.getCopyStrategyConfiguration().getCopyStrategyInstance();
                 configuration.getCopyStrategyConfiguration().setCopyStrategyInstance(new ImmutableValueElementCopyStrategy());
             }
@@ -1063,10 +1062,7 @@ public class Cache implements Ehcache, StoreListener {
             }
 
             if (configuration.isXaTransactional()) {
-                Object txnManager = configuration.getDefaultTransactionManager();
-                if (txnManager == null) {
-                    txnManager = transactionManagerLookup.getTransactionManager();
-                }
+                Object txnManager = transactionManagerLookup.getTransactionManager();
                 if (txnManager == null) {
                     throw new CacheException("You've configured cache " + cacheManager.getName() + "."
                                              + configuration.getName() + " to be transactional, but no TransactionManager could be found!");
@@ -1075,15 +1071,15 @@ public class Cache implements Ehcache, StoreListener {
                 if (configuration.isTerracottaClustered()) {
                     configuration.getTerracottaConfiguration().setCacheXA(true);
                 }
-
-                EhcacheXAStore ehcacheXAStore =
-                    cacheManager.createEhcacheXAStore(this, store, txnManager instanceof SyncTransactionManager);
+                SoftLockFactory softLockFactory = cacheManager.createSoftLockFactory(this);
+                TransactionIDFactory transactionIDFactory = cacheManager.createTransactionIDFactory();
 
                 // this xaresource is for initial registration and recovery
-                EhcacheXAResourceImpl xaResource = new EhcacheXAResourceImpl(this, txnManager, ehcacheXAStore);
+                EhcacheXAResource xaResource = new EhcacheXAResourceImpl(this, store, txnManager, softLockFactory, transactionIDFactory);
                 transactionManagerLookup.register(xaResource);
 
-                this.compoundStore = new XATransactionalStore(this, ehcacheXAStore, transactionManagerLookup, txnManager);
+                this.compoundStore = new XATransactionStore(transactionManagerLookup, softLockFactory, transactionIDFactory, this, store,
+                        copyStrategy);
             } else if (configuration.isLocalJtaTransactional()) {
                 SoftLockFactory softLockFactory = cacheManager.createSoftLockFactory(this);
                 LocalTransactionStore localTransactionStore = new LocalTransactionStore(getCacheManager().getTransactionController(),

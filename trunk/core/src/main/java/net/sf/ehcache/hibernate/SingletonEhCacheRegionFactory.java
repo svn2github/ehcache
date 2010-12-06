@@ -53,9 +53,6 @@ public class SingletonEhCacheRegionFactory extends AbstractEhcacheRegionFactory 
      * {@inheritDoc}
      */
     public void start(Settings settings, Properties properties) throws CacheException {
-
-        Object transactionManager = getOnePhaseCommitSyncTransactionManager(settings, properties);
-
         try {
             String configurationResourceName = null;
             if (properties != null) {
@@ -77,7 +74,6 @@ public class SingletonEhCacheRegionFactory extends AbstractEhcacheRegionFactory 
                     url = loadResource(configurationResourceName);
                 }
                 Configuration configuration = HibernateUtil.loadAndCorrectConfiguration(url);
-                configuration.setDefaultTransactionManager(transactionManager);
                 manager = CacheManager.create(configuration);
                 REFERENCE_COUNT.incrementAndGet();
             }

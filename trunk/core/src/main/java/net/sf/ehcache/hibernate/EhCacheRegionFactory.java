@@ -58,8 +58,6 @@ public class EhCacheRegionFactory extends AbstractEhcacheRegionFactory {
             return;
         }
 
-        Object transactionManager = getOnePhaseCommitSyncTransactionManager(settings, properties);
-
         try {
             String configurationResourceName = null;
             if (properties != null) {
@@ -67,7 +65,6 @@ public class EhCacheRegionFactory extends AbstractEhcacheRegionFactory {
             }
             if (configurationResourceName == null || configurationResourceName.length() == 0) {
                 Configuration configuration = ConfigurationFactory.parseConfiguration();
-                configuration.setDefaultTransactionManager(transactionManager);
                 manager = new CacheManager(configuration);
             } else {
                 URL url;
@@ -77,7 +74,6 @@ public class EhCacheRegionFactory extends AbstractEhcacheRegionFactory {
                     url = loadResource(configurationResourceName);
                 }
                 Configuration configuration = HibernateUtil.loadAndCorrectConfiguration(url);
-                configuration.setDefaultTransactionManager(transactionManager);
                 manager = new CacheManager(configuration);
             }
             mbeanRegistrationHelper.registerMBean(manager, properties);

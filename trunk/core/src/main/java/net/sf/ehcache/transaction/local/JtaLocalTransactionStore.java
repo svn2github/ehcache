@@ -22,6 +22,8 @@ import net.sf.ehcache.TransactionController;
 import net.sf.ehcache.store.AbstractStore;
 import net.sf.ehcache.store.ElementValueComparator;
 import net.sf.ehcache.store.Policy;
+import net.sf.ehcache.transaction.TransactionException;
+import net.sf.ehcache.transaction.TransactionID;
 import net.sf.ehcache.transaction.manager.TransactionManagerLookup;
 import net.sf.ehcache.writer.CacheWriterManager;
 import org.slf4j.Logger;

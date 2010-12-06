@@ -55,17 +55,15 @@ import net.sf.ehcache.management.provider.MBeanRegistrationProviderFactory;
 import net.sf.ehcache.management.provider.MBeanRegistrationProviderFactoryImpl;
 import net.sf.ehcache.store.DiskStore;
 import net.sf.ehcache.store.Store;
-import net.sf.ehcache.store.compound.impl.MemoryOnlyStore;
 import net.sf.ehcache.terracotta.ClusteredInstanceFactory;
 import net.sf.ehcache.terracotta.TerracottaClient;
 import net.sf.ehcache.terracotta.TerracottaClientRejoinListener;
-import net.sf.ehcache.transaction.local.ReadCommittedSoftLockFactoryImpl;
-import net.sf.ehcache.transaction.local.SoftLockFactory;
-import net.sf.ehcache.transaction.local.TransactionIDFactory;
-import net.sf.ehcache.transaction.local.TransactionIDFactoryImpl;
+import net.sf.ehcache.transaction.ReadCommittedSoftLockFactoryImpl;
+import net.sf.ehcache.transaction.SoftLockFactory;
+import net.sf.ehcache.transaction.TransactionIDFactory;
+import net.sf.ehcache.transaction.TransactionIDFactoryImpl;
 import net.sf.ehcache.transaction.manager.TransactionManagerLookup;
-import net.sf.ehcache.transaction.xa.EhcacheXAStore;
-import net.sf.ehcache.transaction.xa.EhcacheXAStoreImpl;
+import net.sf.ehcache.transaction.xa.processor.XARequestProcessor;
 import net.sf.ehcache.util.FailSafeTimer;
 import net.sf.ehcache.util.PropertyUtil;
 import net.sf.ehcache.util.UpdateChecker;
@@ -457,25 +455,6 @@ public class CacheManager {
      */
     public CacheEventListener createTerracottaEventReplicator(Ehcache cache) {
         return getClusteredInstanceFactory(cache).createEventReplicator(cache);
-    }
-
-    /**
-     * Create a EhcacheXAStore instance for a cache
-     *
-     * @param cache The cache the XAResource should wrap
-     * @param store The real memory store backing the cache
-     * @param bypassValidation whether versioning for checked out elements should be traced
-     * @return the configured EhcacheXAStore impl.
-     */
-    EhcacheXAStore createEhcacheXAStore(Ehcache cache, Store store, boolean bypassValidation) {
-        EhcacheXAStore ehcacheXAStore;
-        if (cache.getCacheConfiguration().isTerracottaClustered()) {
-            ehcacheXAStore = getClusteredInstanceFactory(cache).createXAStore(cache, store, bypassValidation);
-        } else {
-            // todo check oldVersionStore's config... what about listeners?!?
-            ehcacheXAStore = new EhcacheXAStoreImpl(store, MemoryOnlyStore.create((Cache) cache, null), bypassValidation);
-        }
-        return ehcacheXAStore;
     }
 
     /**
@@ -1166,6 +1145,7 @@ public class CacheManager {
                 }
                 defaultCache.dispose();
                 status = Status.STATUS_SHUTDOWN;
+                XARequestProcessor.shutdown();
 
                 // only delete singleton if the singleton is shutting down.
                 if (this == singleton) {
@@ -1590,7 +1570,11 @@ public class CacheManager {
         return transactionController;
     }
 
-    private TransactionIDFactory createTransactionIDFactory() {
+    /**
+     * Create a TransactionIDFactory
+     * @return a TransactionIDFactory
+     */
+    TransactionIDFactory createTransactionIDFactory() {
         TransactionIDFactory transactionIDFactory;
         if (terracottaClient.getClusteredInstanceFactory() != null) {
             transactionIDFactory = terracottaClient.getClusteredInstanceFactory().createTransactionIDFactory(getClusterUUID());

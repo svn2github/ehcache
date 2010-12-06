@@ -19,9 +19,8 @@ import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.cluster.CacheCluster;
 import net.sf.ehcache.event.CacheEventListener;
 import net.sf.ehcache.store.Store;
-import net.sf.ehcache.transaction.local.SoftLockFactory;
-import net.sf.ehcache.transaction.local.TransactionIDFactory;
-import net.sf.ehcache.transaction.xa.EhcacheXAStore;
+import net.sf.ehcache.transaction.SoftLockFactory;
+import net.sf.ehcache.transaction.TransactionIDFactory;
 import net.sf.ehcache.writer.writebehind.WriteBehind;
 
 /**
@@ -53,13 +52,6 @@ public interface ClusteredInstanceFactory {
      * @return write behind instance
      */
     WriteBehind createWriteBehind(Ehcache cache);
-
-    /**
-     * @param cache
-     * @param store
-     * @return return clustered instance of EhcacheXAStore
-     */
-    EhcacheXAStore createXAStore(Ehcache cache, Store store, boolean bypassValidation);
 
     /**
      * Create a replicator for the cache events of a given cache

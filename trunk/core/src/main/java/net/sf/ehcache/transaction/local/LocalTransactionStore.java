@@ -19,20 +19,23 @@ import net.sf.ehcache.CacheEntry;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
-import net.sf.ehcache.Status;
 import net.sf.ehcache.TransactionController;
-import net.sf.ehcache.store.AbstractStore;
 import net.sf.ehcache.store.ElementValueComparator;
-import net.sf.ehcache.store.Policy;
 import net.sf.ehcache.store.Store;
 import net.sf.ehcache.store.compound.ReadWriteCopyStrategy;
+import net.sf.ehcache.transaction.AbstractTransactionStore;
+import net.sf.ehcache.transaction.DeadLockException;
+import net.sf.ehcache.transaction.SoftLock;
+import net.sf.ehcache.transaction.SoftLockFactory;
+import net.sf.ehcache.transaction.TransactionException;
+import net.sf.ehcache.transaction.TransactionInterruptedException;
+import net.sf.ehcache.transaction.TransactionTimeoutException;
 import net.sf.ehcache.util.LargeSet;
 import net.sf.ehcache.util.SetWrapperList;
 import net.sf.ehcache.writer.CacheWriterManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
@@ -42,7 +45,7 @@ import java.util.Set;
  *
  * @author Ludovic Orban
  */
-public class LocalTransactionStore extends AbstractStore {
+public class LocalTransactionStore extends AbstractTransactionStore {
 
     private static final Logger LOG = LoggerFactory.getLogger(LocalTransactionStore.class.getName());
 
@@ -50,7 +53,6 @@ public class LocalTransactionStore extends AbstractStore {
     private final SoftLockFactory softLockFactory;
     private final Ehcache cache;
     private final String cacheName;
-    private final Store underlyingStore;
     private final ReadWriteCopyStrategy<Element> copyStrategy;
     private final ElementValueComparator comparator;
 
@@ -65,18 +67,18 @@ public class LocalTransactionStore extends AbstractStore {
      */
     public LocalTransactionStore(TransactionController transactionController, SoftLockFactory softLockFactory, Ehcache cache,
                                  Store store, ReadWriteCopyStrategy<Element> copyStrategy) {
+        super(store);
         this.transactionController = transactionController;
         this.softLockFactory = softLockFactory;
         this.cache = cache;
         this.comparator = cache.getCacheConfiguration().getElementValueComparatorConfiguration().getElementComparatorInstance();
         this.cacheName = cache.getName();
-        this.underlyingStore = store;
         this.copyStrategy = copyStrategy;
     }
 
 
-    private TransactionContext getCurrentTransactionContext() {
-        TransactionContext currentTransactionContext = transactionController.getCurrentTransactionContext();
+    private LocalTransactionContext getCurrentTransactionContext() {
+        LocalTransactionContext currentTransactionContext = transactionController.getCurrentTransactionContext();
         if (currentTransactionContext == null) {
             throw new TransactionException("transaction not started");
         }
@@ -113,11 +115,18 @@ public class LocalTransactionStore extends AbstractStore {
 
     private boolean cleanupExpiredSoftLock(Element oldElement, SoftLock softLock) {
         if (softLock.isExpired()) {
-            Element frozenElement = softLock.getFrozenElement();
-            if (frozenElement != null) {
-                underlyingStore.replace(oldElement, frozenElement, comparator);
-            } else {
-                underlyingStore.removeElement(oldElement, comparator);
+            softLock.lock();
+            softLock.freeze();
+            try {
+                Element frozenElement = softLock.getFrozenElement();
+                if (frozenElement != null) {
+                    underlyingStore.replace(oldElement, frozenElement, comparator);
+                } else {
+                    underlyingStore.removeElement(oldElement, comparator);
+                }
+            } finally {
+                softLock.unfreeze();
+                softLock.unlock();
             }
             return true;
         }
@@ -189,6 +198,7 @@ public class LocalTransactionStore extends AbstractStore {
                                         " between current transaction [" + getCurrentTransactionContext().getTransactionId() + "]" +
                                         " and foreign transaction [" + softLock.getTransactionID() + "]");
                             }
+                            softLock.clearTryLock();
                         } catch (InterruptedException ie) {
                             Thread.currentThread().interrupt();
                         }
@@ -352,6 +362,7 @@ public class LocalTransactionStore extends AbstractStore {
                                         " current transaction [" + getCurrentTransactionContext().getTransactionId() + "] and foreign" +
                                         " transaction [" + softLock.getTransactionID() + "]");
                             }
+                            softLock.clearTryLock();
                         } catch (InterruptedException ie) {
                             Thread.currentThread().interrupt();
                         }
@@ -583,6 +594,7 @@ public class LocalTransactionStore extends AbstractStore {
                                     " current transaction [" + getCurrentTransactionContext().getTransactionId() + "] and foreign" +
                                     " transaction [" + softLock.getTransactionID() + "]");
                         }
+                        softLock.clearTryLock();
                     } catch (InterruptedException ie) {
                         Thread.currentThread().interrupt();
                     }
@@ -660,6 +672,7 @@ public class LocalTransactionStore extends AbstractStore {
                                         " current transaction [" + getCurrentTransactionContext().getTransactionId() + "] and foreign" +
                                         " transaction [" + softLock.getTransactionID() + "]");
                             }
+                            softLock.clearTryLock();
                         } catch (InterruptedException ie) {
                             Thread.currentThread().interrupt();
                         }
@@ -767,6 +780,7 @@ public class LocalTransactionStore extends AbstractStore {
                                         " between current transaction [" + getCurrentTransactionContext().getTransactionId() + "]" +
                                         " and foreign transaction [" + softLock.getTransactionID() + "]");
                             }
+                            softLock.clearTryLock();
                         } catch (InterruptedException ie) {
                             Thread.currentThread().interrupt();
                         }
@@ -860,6 +874,7 @@ public class LocalTransactionStore extends AbstractStore {
                                         " between current transaction [" + getCurrentTransactionContext().getTransactionId() + "]" +
                                         " and foreign transaction [" + softLock.getTransactionID() + "]");
                             }
+                            softLock.clearTryLock();
                         } catch (InterruptedException ie) {
                             Thread.currentThread().interrupt();
                         }
@@ -891,150 +906,6 @@ public class LocalTransactionStore extends AbstractStore {
             }
 
         } // while
-    }
-
-    /* non-transactional methods */
-
-    /**
-     * {@inheritDoc}
-     */
-    public int getInMemorySize() {
-        return underlyingStore.getInMemorySize();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public int getOffHeapSize() {
-        return underlyingStore.getOffHeapSize();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public int getOnDiskSize() {
-        return underlyingStore.getOnDiskSize();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public long getInMemorySizeInBytes() {
-        return underlyingStore.getInMemorySizeInBytes();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public long getOffHeapSizeInBytes() {
-        return underlyingStore.getOffHeapSizeInBytes();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public long getOnDiskSizeInBytes() {
-        return underlyingStore.getOnDiskSizeInBytes();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public boolean containsKeyOnDisk(Object key) {
-        return underlyingStore.containsKeyOnDisk(key);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public boolean containsKeyOffHeap(Object key) {
-        return underlyingStore.containsKeyOffHeap(key);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public boolean containsKeyInMemory(Object key) {
-        return underlyingStore.containsKeyInMemory(key);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public void dispose() {
-        underlyingStore.dispose();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public Status getStatus() {
-        return underlyingStore.getStatus();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public void expireElements() {
-        underlyingStore.expireElements();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public void flush() throws IOException {
-        underlyingStore.flush();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public boolean bufferFull() {
-        return underlyingStore.bufferFull();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public Policy getInMemoryEvictionPolicy() {
-        return underlyingStore.getInMemoryEvictionPolicy();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public void setInMemoryEvictionPolicy(Policy policy) {
-        underlyingStore.setInMemoryEvictionPolicy(policy);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public Object getInternalContext() {
-        return underlyingStore.getInternalContext();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public Object getMBean() {
-        return underlyingStore.getMBean();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void setNodeCoherent(boolean coherent) {
-        underlyingStore.setNodeCoherent(coherent);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void waitUntilClusterCoherent() {
-        underlyingStore.waitUntilClusterCoherent();
     }
 
     /**

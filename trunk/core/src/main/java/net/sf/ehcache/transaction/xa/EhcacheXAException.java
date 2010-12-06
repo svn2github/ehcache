@@ -20,7 +20,7 @@ import javax.transaction.xa.XAException;
 
 /**
  * Small extension to the XAException defined in the JTA specification, to that the errorCode is provided when
- * instanciating the Exception thrown 
+ * instantiating the Exception thrown
  *
  * @author Alex Snaps
  */
@@ -37,7 +37,6 @@ public class EhcacheXAException extends XAException {
     }
 
     /**
-     * Constru
      * Constructor
      * @param message The message
      * @param errorCode the XA error code

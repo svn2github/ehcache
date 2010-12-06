@@ -13,139 +13,134 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-
 package net.sf.ehcache.transaction.xa;
+
+import net.sf.ehcache.Element;
+import net.sf.ehcache.store.Store;
+import net.sf.ehcache.transaction.xa.commands.Command;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-import javax.transaction.xa.Xid;
-
-import net.sf.ehcache.Element;
-import net.sf.ehcache.transaction.Command;
-import net.sf.ehcache.transaction.TransactionContext;
-
 /**
- * XATransactionContext provides a READ_COMMITED transaction isolation to an {@link EhcacheXAResource}.<p>
- * It uses an {@link EhcacheXAStore} to persist data as needed
+ * An XATransactionContext represents the data local to a Transaction that involves a transactional Cache.<p>
+ * It will queue operations ({@link Command Commands}), filter read operations on the cache (as for
+ * returning null on a get on a "to be removed" key).<p>
  *
- * @author Alex Snaps
+ * @author Ludovic Orban
  */
-public class XATransactionContext implements TransactionContext {
+public class XATransactionContext {
 
+    private final ConcurrentMap<Object, Element> commandElements = new ConcurrentHashMap<Object, Element>();
     private final Set<Object> removedKeys = new HashSet<Object>();
     private final Set<Object> addedKeys = new HashSet<Object>();
-    private final List<VersionAwareCommand> commands = new ArrayList<VersionAwareCommand>();
-    private final ConcurrentMap<Object, Element> commandElements = new ConcurrentHashMap<Object, Element>();
-    private final EhcacheXAStore store;
-    private final Xid xid;
-    private final boolean bypassValidation;
     private int sizeModifier;
 
+
+    private final Map<Object, Command> commands = new LinkedHashMap<Object, Command>();
+    private final Store underlyingStore;
+
     /**
+     * Constructor
      *
-     * @param xid The Xid of the Transaction
-     * @param store The store associated with the this XATransactionContext
+     * @param underlyingStore the underlying store
      */
-    public XATransactionContext(Xid xid, EhcacheXAStore store) {
-        this.store = store;
-        this.xid = xid;
-        this.bypassValidation = store.isBypassingValidation();
+    public XATransactionContext(Store underlyingStore) {
+        this.underlyingStore = underlyingStore;
     }
 
     /**
-     * {@inheritDoc}
+     * Add a command to the current LocalTransactionContext
+     *
+     * @param command Command to be deferred
+     * @param element Element the command impacts, may be null
+     */
+    public void addCommand(final Command command, final Element element) {
+        Object key = command.getObjectKey();
+
+        if (element != null) {
+            commandElements.put(key, element);
+        } else {
+            commandElements.remove(key);
+        }
+
+        if (command.isPut(key)) {
+            boolean removed = removedKeys.remove(key);
+            boolean added = addedKeys.add(key);
+            if (removed || added && !underlyingStore.containsKey(key)) {
+                sizeModifier++;
+            }
+        } else if (command.isRemove(key)) {
+            removedKeys.add(key);
+            if (addedKeys.remove(key) || underlyingStore.containsKey(key)) {
+                sizeModifier--;
+            }
+        }
+
+        commands.put(key, command);
+    }
+
+    /**
+     * All ordered pending commands
+     *
+     * @return List of all pending commands
+     */
+    public List<Command> getCommands() {
+        return new ArrayList<Command>(commands.values());
+    }
+
+    /**
+     * Filter to get operations on underlying Store.<p>
+     * Should the key still be transaction local, or locally pending deletion
+     *
+     * @param key the key
+     * @return the potential Element instance for that key
      */
     public Element get(Object key) {
         return removedKeys.contains(key) ? null : commandElements.get(key);
     }
 
     /**
-     * {@inheritDoc}
+     * Queries the local tx context, whether the key is pending removal
+     *
+     * @param key the key pending removal
+     * @return true if key is pending removal
      */
     public boolean isRemoved(Object key) {
         return removedKeys.contains(key);
     }
 
     /**
-     * {@inheritDoc}
+     * Queries the local tx context, whether the key is pending removal
+     *
+     * @return true if key is pending removal
      */
     public Collection getAddedKeys() {
         return Collections.unmodifiableSet(addedKeys);
     }
 
     /**
-     * {@inheritDoc}
+     * getter to all keys pending deletion from the store
+     *
+     * @return list of all keys
      */
     public Collection getRemovedKeys() {
         return Collections.unmodifiableSet(removedKeys);
     }
 
     /**
-     * {@inheritDoc}
-     */
-    public void addCommand(final Command command, final Element element) {
-        Object key = null;
-        if (element != null) {
-            key = element.getObjectKey();
-        }
-        VersionAwareWrapper wrapper;
-        if (key != null) {
-            long version = bypassValidation ? 0 : store.checkout(key, xid);
-            wrapper = new VersionAwareWrapper(command, version, key);
-            commandElements.put(element.getObjectKey(), element);
-        } else {
-            wrapper = new VersionAwareWrapper(command);
-        }
-
-        if (key != null) {
-            if (command.isPut(key)) {
-                boolean removed = removedKeys.remove(key);
-                boolean added = addedKeys.add(key);
-                if (removed || added && !store.getUnderlyingStore().containsKey(key)) {
-                    sizeModifier++;
-                }
-            } else if (command.isRemove(key)) {
-                removedKeys.add(key);
-                if (addedKeys.remove(key) || store.getUnderlyingStore().containsKey(key)) {
-                    sizeModifier--;
-                }
-            }
-        }
-        commands.add(wrapper);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public List<VersionAwareCommand> getCommands() {
-        return Collections.unmodifiableList(commands);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public Object[] getUpdatedKeys() {
-        
-        List<Object> keys = new ArrayList<Object>(getCommands().size());
-        for (VersionAwareCommand command : getCommands()) {
-            Object key = command.getKey();
-            if (key != null) {
-                keys.add(key);
-            }
-        }
-
-        return keys.toArray(new Object[keys.size()]);
-    }
-
-    /**
-     * {@inheritDoc}
+     * The underlying store's size modifier.<p>
+     * Plus all pending put commands, and minus all pending removals (dependent on whether their in the underlying store)
+     *
+     * @return the modifier to be applied on the {@link net.sf.ehcache.store.Store#getSize()}
      */
     public int getSizeModifier() {
         return sizeModifier;

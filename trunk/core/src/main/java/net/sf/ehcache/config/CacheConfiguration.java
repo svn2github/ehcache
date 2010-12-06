@@ -340,7 +340,6 @@ public class CacheConfiguration implements Cloneable {
             DEFAULT_ELEMENT_VALUE_COMPARATOR_CONFIGURATION;
     private volatile Boolean copyOnRead;
     private volatile Boolean copyOnWrite;
-    private Object defaultTransactionManager;
     private boolean conflictingValuesWarningLogged;
     private volatile Searchable searchable;
 
@@ -1091,24 +1090,6 @@ public class CacheConfiguration implements Cloneable {
      */
     public ElementValueComparatorConfiguration getElementValueComparatorConfiguration() {
         return elementValueComparatorConfiguration;
-    }
-
-    /**
-     * Getter to the default TM to use
-     *
-     * @return the default one if set, or null
-     */
-    public Object getDefaultTransactionManager() {
-        return defaultTransactionManager;
-    }
-
-    /**
-     * Setter to the default TM
-     *
-     * @param defaultTransactionManager the default TM, can be null to fall back to TMLookup
-     */
-    public void setDefaultTransactionManager(final Object defaultTransactionManager) {
-        this.defaultTransactionManager = defaultTransactionManager;
     }
 
     /**

@@ -25,7 +25,6 @@ import net.sf.ehcache.hibernate.regions.EhcacheQueryResultsRegion;
 import net.sf.ehcache.hibernate.regions.EhcacheTimestampsRegion;
 import net.sf.ehcache.hibernate.regions.EhcacheEntityRegion;
 import net.sf.ehcache.hibernate.regions.EhcacheCollectionRegion;
-import net.sf.ehcache.hibernate.tm.SyncTransactionManager;
 import net.sf.ehcache.util.ClassLoaderUtil;
 
 import org.hibernate.cache.CacheDataDescription;
@@ -39,7 +38,6 @@ import org.hibernate.cache.TimestampsRegion;
 import org.hibernate.cache.access.AccessType;
 import org.hibernate.cfg.Settings;
 
-import org.hibernate.transaction.TransactionManagerLookup;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -60,11 +58,6 @@ abstract class AbstractEhcacheRegionFactory implements RegionFactory {
      * If set to say ehcache-1.xml, ehcache-1.xml will be looked for in the root of the classpath.
      */
     public static final String NET_SF_EHCACHE_CONFIGURATION_RESOURCE_NAME = "net.sf.ehcache.configurationResourceName";
-
-    /**
-     * Simply register with the XA Transaction, do not really participate in it
-     */
-    public static final String NET_SF_EHCACHE_ONE_PHASE_SYNC = "net.sf.ehcache.xa.useOnePhaseSynchronization";
 
     private static final Logger LOG = LoggerFactory.getLogger(AbstractEhcacheRegionFactory.class);
 
@@ -187,25 +180,4 @@ abstract class AbstractEhcacheRegionFactory implements RegionFactory {
         return AccessType.READ_WRITE;
     }
 
-    /**
-     * Based on the configuration, this might return a decorated SyncTransactionManager
-     * @param settings the Hibernate settings net.sf.ehcache.hibernate.AbstractEhcacheRegionFactory.NET_SF_EHCACHE_ONE_PHASE_SYNC
-     * @param properties the Hibernate config props
-     * @return null or the decorated TM 
-     */
-    protected Object getOnePhaseCommitSyncTransactionManager(final Settings settings, final Properties properties) {
-        Object transactionManager = null;
-        if (Boolean.valueOf(properties.getProperty(NET_SF_EHCACHE_ONE_PHASE_SYNC, "true"))) {
-            TransactionManagerLookup transactionManagerLookup = settings.getTransactionManagerLookup();
-            if (transactionManagerLookup == null) {
-                LOG.warn("No TransactionManagerLookup found in Hibernate config, XA Caches will be participating in the two-phase commit!");
-            } else {
-                LOG.info("Enabling single phase commit using a JTA Transaction Synchronization");
-                transactionManager = new SyncTransactionManager(transactionManagerLookup.getTransactionManager(properties));
-            }
-        } else {
-            LOG.warn("Doing full blown XA 2 phase commit on all caches involved!");
-        }
-        return transactionManager;
-    }
 }

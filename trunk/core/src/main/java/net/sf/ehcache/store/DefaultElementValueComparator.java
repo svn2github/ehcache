@@ -28,7 +28,9 @@ public class DefaultElementValueComparator implements ElementValueComparator {
      * {@inheritDoc}
      */
     public boolean equals(Element e1, Element e2) {
-        if (e1.equals(e2)) {
+        if (e1 == null && e2 == null) {
+            return true;
+        } else if (e1 != null && e1.equals(e2)) {
             if (e1.getObjectValue() == null) {
                 return e2.getObjectValue() == null;
             } else {
