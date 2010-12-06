@@ -87,9 +87,6 @@
     <suppress checks="NPathComplexity" files="ConfigurationGenerator.java"/>
     <suppress checks="CyclomaticComplexity" files="WriteBehindQueue.java"/>
     <suppress checks="NPathComplexity" files="WriteBehindQueue.java"/>
-    <suppress checks="MagicNumberCheck" files="SyncXid.java"/>
-    <suppress checks="ThrowsCount" files="SyncTransactionManager.java"/>
-    <suppress checks="ThrowsCount" files="SyncTransaction.java"/>
     <suppress checks="CyclomaticComplexity" files="CacheWriterConfiguration.java"/>
     <suppress checks="NPathComplexity" files="CacheWriterConfiguration.java"/>
     <suppress checks="CyclomaticComplexity" files="FactoryConfiguration.java"/>
