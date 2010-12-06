@@ -2531,6 +2531,9 @@ public class Cache implements Ehcache, StoreListener {
 
     /**
      * Whether an Element is stored in the cache in Memory, indicating a very low cost of retrieval.
+     * <p>
+     * Since no assertions are made about the state of the Element it is possible that the
+     * Element is expired, but this method still returns true.
      *
      * @return true if an element matching the key is found in memory
      */
@@ -2540,6 +2543,9 @@ public class Cache implements Ehcache, StoreListener {
 
     /**
      * Whether an Element is stored in the cache in Memory, indicating a very low cost of retrieval.
+     * <p>
+     * Since no assertions are made about the state of the Element it is possible that the
+     * Element is expired, but this method still returns true.
      *
      * @return true if an element matching the key is found in memory
      * @since 1.2
@@ -2550,6 +2556,9 @@ public class Cache implements Ehcache, StoreListener {
 
     /**
      * Whether an Element is stored in the cache in off-heap memory, indicating an intermediate cost of retrieval.
+     * <p>
+     * Since no assertions are made about the state of the Element it is possible that the
+     * Element is expired, but this method still returns true.
      *
      * @return true if an element matching the key is found in off-heap
      * @since 2.3
@@ -2560,6 +2569,9 @@ public class Cache implements Ehcache, StoreListener {
 
     /**
      * Whether an Element is stored in the cache on Disk, indicating a higher cost of retrieval.
+     * <p>
+     * Since no assertions are made about the state of the Element it is possible that the
+     * Element is expired, but this method still returns true.
      *
      * @return true if an element matching the key is found in the diskStore
      */
@@ -2569,6 +2581,9 @@ public class Cache implements Ehcache, StoreListener {
 
     /**
      * Whether an Element is stored in the cache on Disk, indicating a higher cost of retrieval.
+     * <p>
+     * Since no assertions are made about the state of the Element it is possible that the
+     * Element is expired, but this method still returns true.
      *
      * @return true if an element matching the key is found in the diskStore
      * @since 1.2
@@ -2644,7 +2659,9 @@ public class Cache implements Ehcache, StoreListener {
      * An inexpensive check to see if the key exists in the cache.
      * <p/>
      * This method is not synchronized. It is possible that an element may exist in the cache and be removed
-     * before the check gets to it, or vice versa.
+     * before the check gets to it, or vice versa.  Since no assertions are made about the state of the Element
+     * it is possible that the Element is expired, but this method still returns true.
+
      *
      * @param key the key to check.
      * @return true if an Element matching the key is found in the cache. No assertions are made about the state of the Element.
