@@ -20,9 +20,8 @@ import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.cluster.CacheCluster;
 import net.sf.ehcache.event.CacheEventListener;
 import net.sf.ehcache.store.Store;
-import net.sf.ehcache.transaction.local.SoftLockFactory;
-import net.sf.ehcache.transaction.local.TransactionIDFactory;
-import net.sf.ehcache.transaction.xa.EhcacheXAStore;
+import net.sf.ehcache.transaction.SoftLockFactory;
+import net.sf.ehcache.transaction.TransactionIDFactory;
 import net.sf.ehcache.writer.writebehind.WriteBehind;
 
 /**
@@ -95,13 +94,6 @@ public class ClusteredInstanceFactoryWrapper implements ClusteredInstanceFactory
      */
     public WriteBehind createWriteBehind(Ehcache cache) {
         return delegate.createWriteBehind(cache);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public EhcacheXAStore createXAStore(Ehcache cache, Store store, boolean bypassValidation) {
-        return delegate.createXAStore(cache, store, bypassValidation);
     }
 
     /**
