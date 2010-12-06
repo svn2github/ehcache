@@ -19,7 +19,6 @@ package net.sf.ehcache.terracotta;
 import java.lang.reflect.Method;
 import java.util.Collections;
 import java.util.Map;
-import java.util.UUID;
 
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.cluster.CacheCluster;
@@ -44,7 +43,6 @@ public class TerracottaClient {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TerracottaClient.class);
 
-    private final UUID uuid = UUID.randomUUID();
     private final RejoinStatus rejoinStatus = new RejoinStatus();
     private final TerracottaClientConfiguration terracottaClientConfiguration;
     private volatile ClusteredInstanceFactory clusteredInstanceFactory;
@@ -149,15 +147,6 @@ public class TerracottaClient {
             throw new CacheException("Cannot get CacheCluster as ClusteredInstanceFactory has not been initialized yet.");
         }
         return cacheCluster;
-    }
-
-    /**
-     * Returns the unique id associated with this client
-     *
-     * @return the unique id associated with this client
-     */
-    public String getUUID() {
-        return uuid.toString();
     }
 
     /**

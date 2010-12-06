@@ -29,7 +29,6 @@ import net.sf.ehcache.writer.writebehind.WriteBehind;
  * operations:
  *<ul>
  *<li>{@link #getTopology()} : Delegates to the {@link TerracottaClient#getCacheCluster()}</li>
- *<li>{@link #getUUID()} : Delegates to the {@link TerracottaClient#getUUID()}</li>
  *</ul>
  *
  * @author Abhishek Sanoujam
@@ -59,14 +58,14 @@ public class ClusteredInstanceFactoryWrapper implements ClusteredInstanceFactory
         return client.getCacheCluster();
     }
 
+    // all methods below delegate to the real factory
+
     /**
      * {@inheritDoc}
      */
     public String getUUID() {
-        return client.getUUID();
+        return delegate.getUUID();
     }
-
-    // all methods below delegate to the real factory
 
     /**
      * {@inheritDoc}
