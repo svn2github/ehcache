@@ -28,6 +28,8 @@ import net.sf.ehcache.transaction.TransactionIDFactory;
 import net.sf.ehcache.transaction.xa.commands.Command;
 import net.sf.ehcache.transaction.xa.processor.XARequestProcessor;
 import net.sf.ehcache.transaction.xa.processor.XARequest;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.transaction.RollbackException;
 import javax.transaction.SystemException;
@@ -50,6 +52,8 @@ import java.util.concurrent.ConcurrentMap;
  * @author Ludovic Orban
  */
 public class EhcacheXAResourceImpl implements EhcacheXAResource {
+
+    private static final Logger LOG = LoggerFactory.getLogger(EhcacheXAResourceImpl.class.getName());
 
     private final Ehcache cache;
     private final Store underlyingStore;
@@ -86,6 +90,8 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
      * {@inheritDoc}
      */
     public void start(Xid xid, int flag) throws XAException {
+        LOG.debug("start [{}] [{}]", xid, prettyPrintXAResourceFlags(flag));
+
         if (currentXid != null) {
             throw new EhcacheXAException("resource already started on " + currentXid, XAException.XAER_PROTO);
         }
@@ -109,6 +115,8 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
      * {@inheritDoc}
      */
     public void end(Xid xid, int flag) throws XAException {
+        LOG.debug("end [{}] [{}]", xid, prettyPrintXAResourceFlags(flag));
+
         if (currentXid == null) {
             throw new EhcacheXAException("resource not started on " + xid, XAException.XAER_PROTO);
         }
@@ -134,6 +142,8 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
      * {@inheritDoc}
      */
     public void forget(Xid xid) throws XAException {
+        LOG.debug("forget [{}]", xid);
+
         processor.process(new XARequest(XARequest.RequestType.FORGET, xid));
     }
 
@@ -167,6 +177,8 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
      * {@inheritDoc}
      */
     public int prepare(Xid xid) throws XAException {
+        LOG.debug("prepare [{}]", xid);
+
         if (currentXid != null) {
             throw new EhcacheXAException("prepare called on non-ended XID: " + xid, XAException.XAER_PROTO);
         }
@@ -194,6 +206,7 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
         List<Command> preparedCommands = new LinkedList<Command>();
 
         boolean prepareUpdated = false;
+        LOG.debug("preparing {} command(s) for [{}]", commands.size(), xid);
         for (Command command : commands) {
             try {
                 prepareUpdated |= command.prepare(underlyingStore, softLockFactory, xidTransactionID, comparator);
@@ -214,6 +227,7 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
             rollbackInternal(xid);
         }
 
+        LOG.debug("prepared xid [{}] read only? {}", xid, !prepareUpdated);
         return prepareUpdated ? XA_OK : XA_RDONLY;
     }
 
@@ -221,6 +235,8 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
      * {@inheritDoc}
      */
     public void commit(Xid xid, boolean onePhase) throws XAException {
+        LOG.debug("commit [{}] [{}]", xid, onePhase);
+
         if (currentXid != null) {
             throw new EhcacheXAException("commit called on non-ended XID: " + xid, XAException.XAER_PROTO);
         }
@@ -248,6 +264,7 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
 
         XidTransactionID xidTransactionID = transactionIDFactory.createXidTransactionID(xid);
         Set<SoftLock> softLocks = softLockFactory.collectAllSoftLocksForTransactionID(xidTransactionID);
+        LOG.debug("committing {} soft lock(s) for [{}]", softLocks.size(), xid);
         for (SoftLock softLock : softLocks) {
             if (softLock.isExpired()) {
                 softLock.lock();
@@ -284,6 +301,8 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
      * {@inheritDoc}
      */
     public Xid[] recover(int flags) throws XAException {
+        LOG.debug("recover [{}]", prettyPrintXAResourceFlags(flags));
+
         if ((flags & TMSTARTRSCAN) != TMSTARTRSCAN) {
             return new Xid[0];
         }
@@ -303,6 +322,8 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
      * {@inheritDoc}
      */
     public void rollback(Xid xid) throws XAException {
+        LOG.debug("rollback [{}]", xid);
+
         this.processor.process(new XARequest(XARequest.RequestType.ROLLBACK, xid));
     }
 
@@ -399,6 +420,7 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
         }
 
         Transaction transaction = txnManager.getTransaction();
+        LOG.debug("enlisting XAResource in {}", transaction);
         transaction.enlistResource(this);
 
         // currentXid is set by a call to start() which itself is called by transaction.enlistResource(this)
@@ -407,9 +429,14 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
                     "' did not end up calling XAResource.start()");
         }
 
-        XATransactionContext twopcTransactionContext = new XATransactionContext(underlyingStore);
-        xidToContextMap.put(currentXid, twopcTransactionContext);
-        return twopcTransactionContext;
+        ctx = getCurrentTransactionContext();
+        if (ctx == null) {
+            LOG.debug("creating new context for XID [{}]", currentXid);
+            ctx = new XATransactionContext(underlyingStore);
+            xidToContextMap.put(currentXid, ctx);
+        }
+
+        return ctx;
     }
 
     /**
@@ -417,9 +444,75 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
      */
     public XATransactionContext getCurrentTransactionContext() {
         if (currentXid == null) {
+            LOG.debug("getting current TX context of XAResource with current XID [{}]: null", currentXid);
             return null;
         }
-        return xidToContextMap.get(currentXid);
+        XATransactionContext xaTransactionContext = xidToContextMap.get(currentXid);
+        LOG.debug("getting current TX context of XAResource with current XID [{}]: {}", currentXid, xaTransactionContext);
+        return xaTransactionContext;
+    }
+
+
+    private static String prettyPrintXAResourceFlags(int flags) {
+        StringBuilder sb = new StringBuilder();
+
+
+        if ((flags & XAResource.TMENDRSCAN) == XAResource.TMENDRSCAN) {
+            if (sb.length() > 0) {
+                sb.append('|');
+            }
+            sb.append("TMENDRSCAN");
+        }
+        if ((flags & XAResource.TMFAIL) == XAResource.TMFAIL) {
+            if (sb.length() > 0) {
+                sb.append('|');
+            }
+            sb.append("TMFAIL");
+        }
+        if ((flags & XAResource.TMJOIN) == XAResource.TMJOIN) {
+            if (sb.length() > 0) {
+                sb.append('|');
+            }
+            sb.append("TMJOIN");
+        }
+        if ((flags & XAResource.TMONEPHASE) == XAResource.TMONEPHASE) {
+            if (sb.length() > 0) {
+                sb.append('|');
+            }
+            sb.append("TMONEPHASE");
+        }
+        if ((flags & XAResource.TMRESUME) == XAResource.TMRESUME) {
+            if (sb.length() > 0) {
+                sb.append('|');
+            }
+            sb.append("TMRESUME");
+        }
+        if ((flags & XAResource.TMSTARTRSCAN) == XAResource.TMSTARTRSCAN) {
+            if (sb.length() > 0) {
+                sb.append('|');
+            }
+            sb.append("TMSTARTRSCAN");
+        }
+        if ((flags & XAResource.TMSUCCESS) == XAResource.TMSUCCESS) {
+            if (sb.length() > 0) {
+                sb.append('|');
+            }
+            sb.append("TMSUCCESS");
+        }
+        if ((flags & XAResource.TMSUSPEND) == XAResource.TMSUSPEND) {
+            if (sb.length() > 0) {
+                sb.append('|');
+            }
+            sb.append("TMSUSPEND");
+        }
+        if (sb.length() == 0 && flags == XAResource.TMNOFLAGS) {
+            sb.append("TMNOFLAGS");
+        }
+        if (sb.length() == 0) {
+            sb.append("unknown flag: ").append(flags);
+        }
+
+        return sb.toString();
     }
 
 }

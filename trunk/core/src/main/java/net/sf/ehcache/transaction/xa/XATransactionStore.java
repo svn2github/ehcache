@@ -105,6 +105,7 @@ public class XATransactionStore extends AbstractTransactionStore {
         Transaction transaction = getCurrentTransaction();
         EhcacheXAResourceImpl xaResource = (EhcacheXAResourceImpl) transactionToXAResourceMap.get(transaction);
         if (xaResource == null) {
+            LOG.debug("creating new XAResource");
             xaResource = new EhcacheXAResourceImpl(cache, underlyingStore, transactionManagerLookup.getTransactionManager(),
                     softLockFactory, transactionIdFactory);
             transactionToXAResourceMap.put(transaction, xaResource);
@@ -124,12 +125,14 @@ public class XATransactionStore extends AbstractTransactionStore {
 
             if (transactionContext == null) {
                 transactionManagerLookup.register(xaResource);
+                LOG.debug("creating new XA context");
                 transactionContext = xaResource.createTransactionContext();
                 xaResource.addTwoPcExecutionListener(new UnregisterXAResource());
             } else {
                 transactionContext = xaResource.getCurrentTransactionContext();
             }
 
+            LOG.debug("using XA context {}", transactionContext);
             return transactionContext;
         } catch (SystemException e) {
             throw new TransactionException("cannot get the current transaction", e);
@@ -145,12 +148,14 @@ public class XATransactionStore extends AbstractTransactionStore {
 
             if (transactionContext == null) {
                 transactionManagerLookup.register(xaResource);
+                LOG.debug("creating new XA context");
                 transactionContext = xaResource.createTransactionContext();
                 xaResource.addTwoPcExecutionListener(new UnregisterXAResource());
             } else {
                 transactionContext = xaResource.getCurrentTransactionContext();
             }
 
+            LOG.debug("using XA context {}", transactionContext);
             return transactionContext;
         } catch (SystemException e) {
             throw new TransactionException("cannot get the current transaction", e);
@@ -244,6 +249,7 @@ public class XATransactionStore extends AbstractTransactionStore {
      * {@inheritDoc}
      */
     public Element get(Object key) {
+        LOG.debug("cache {} get {}", cache.getName(), key);
         XATransactionContext context = getTransactionContext();
         Element element;
         if (context == null) {
@@ -262,6 +268,7 @@ public class XATransactionStore extends AbstractTransactionStore {
      * {@inheritDoc}
      */
     public Element getQuiet(Object key) {
+        LOG.debug("cache {} getQuiet {}", cache.getName(), key);
         XATransactionContext context = getTransactionContext();
         Element element;
         if (context == null) {
@@ -279,6 +286,7 @@ public class XATransactionStore extends AbstractTransactionStore {
      * {@inheritDoc}
      */
     public int getSize() {
+        LOG.debug("cache {} getSize", cache.getName());
         XATransactionContext context = getOrCreateTransactionContext();
         int size = underlyingStore.getSize();
         return size + context.getSizeModifier();
@@ -288,6 +296,7 @@ public class XATransactionStore extends AbstractTransactionStore {
      * {@inheritDoc}
      */
     public int getTerracottaClusteredSize() {
+        LOG.debug("cache {} getTerracottaClusteredSize", cache.getName());
         XATransactionContext context = getOrCreateTransactionContext();
         int size = underlyingStore.getSize();
         return size + context.getSizeModifier();
@@ -297,6 +306,7 @@ public class XATransactionStore extends AbstractTransactionStore {
      * {@inheritDoc}
      */
     public boolean containsKey(Object key) {
+        LOG.debug("cache {} containsKey", cache.getName(), key);
         XATransactionContext context = getOrCreateTransactionContext();
         return !context.isRemoved(key) && (context.getAddedKeys().contains(key) || underlyingStore.containsKey(key));
     }
@@ -305,6 +315,7 @@ public class XATransactionStore extends AbstractTransactionStore {
      * {@inheritDoc}
      */
     public List getKeys() {
+        LOG.debug("cache {} getKeys", cache.getName());
         XATransactionContext context = getOrCreateTransactionContext();
         Set<Object> keys = new LargeSet<Object>() {
 
@@ -327,7 +338,7 @@ public class XATransactionStore extends AbstractTransactionStore {
     private Element getFromUnderlyingStore(final Object key) {
         while (true) {
             long timeLeft = assertNotTimedOut();
-            LOG.debug("cache {} get key {} not timed out, time left: " + timeLeft, cache.getName(), key);
+            LOG.debug("cache {} underlying.get key {} not timed out, time left: " + timeLeft, cache.getName(), key);
 
             Element element = underlyingStore.get(key);
             if (element == null) {
@@ -354,7 +365,7 @@ public class XATransactionStore extends AbstractTransactionStore {
     private Element getQuietFromUnderlyingStore(final Object key) {
         while (true) {
             long timeLeft = assertNotTimedOut();
-            LOG.debug("cache {} getQuiet key {} not timed out, time left: " + timeLeft, cache.getName(), key);
+            LOG.debug("cache {} underlying.getQuiet key {} not timed out, time left: " + timeLeft, cache.getName(), key);
 
             Element element = underlyingStore.getQuiet(key);
             if (element == null) {
@@ -390,6 +401,7 @@ public class XATransactionStore extends AbstractTransactionStore {
      * {@inheritDoc}
      */
     public boolean put(Element element) throws CacheException {
+        LOG.debug("cache {} put {}", cache.getName(), element);
         Element oldElement = getQuietFromUnderlyingStore(element.getObjectKey());
         return internalPut(new StorePutCommand(oldElement, copyElementForWrite(element)));
     }
@@ -398,6 +410,7 @@ public class XATransactionStore extends AbstractTransactionStore {
      * {@inheritDoc}
      */
     public boolean putWithWriter(Element element, CacheWriterManager writerManager) throws CacheException {
+        LOG.debug("cache {} putWithWriter {}", cache.getName(), element);
         Element oldElement = getQuietFromUnderlyingStore(element.getObjectKey());
         if (writerManager != null) {
             writerManager.put(element);
@@ -428,6 +441,7 @@ public class XATransactionStore extends AbstractTransactionStore {
      * {@inheritDoc}
      */
     public Element remove(Object key) {
+        LOG.debug("cache {} remove {}", cache.getName(), key);
         Element oldElement = getQuietFromUnderlyingStore(key);
         return removeInternal(new StoreRemoveCommand(key, oldElement));
     }
@@ -442,6 +456,7 @@ public class XATransactionStore extends AbstractTransactionStore {
      * {@inheritDoc}
      */
     public Element removeWithWriter(Object key, CacheWriterManager writerManager) throws CacheException {
+        LOG.debug("cache {} removeWithWriter {}", cache.getName(), key);
         Element oldElement = getQuietFromUnderlyingStore(key);
         if (writerManager != null) {
             writerManager.remove(new CacheEntry(key, null));
@@ -455,6 +470,7 @@ public class XATransactionStore extends AbstractTransactionStore {
      * {@inheritDoc}
      */
     public void removeAll() throws CacheException {
+        LOG.debug("cache {} removeAll", cache.getName());
         List keys = getKeys();
         for (Object key : keys) {
             remove(key);
@@ -465,6 +481,7 @@ public class XATransactionStore extends AbstractTransactionStore {
      * {@inheritDoc}
      */
     public Element putIfAbsent(Element element) throws NullPointerException {
+        LOG.debug("cache {} putIfAbsent {}", cache.getName(), element);
         XATransactionContext context = getOrCreateTransactionContext();
         Element previous = getCurrentElement(element.getObjectKey(), context);
 
@@ -481,6 +498,7 @@ public class XATransactionStore extends AbstractTransactionStore {
      * {@inheritDoc}
      */
     public Element removeElement(Element element, ElementValueComparator comparator) throws NullPointerException {
+        LOG.debug("cache {} removeElement {}", cache.getName(), element);
         XATransactionContext context = getOrCreateTransactionContext();
         Element previous = getCurrentElement(element.getKey(), context);
 
@@ -498,6 +516,7 @@ public class XATransactionStore extends AbstractTransactionStore {
      */
     public boolean replace(Element old, Element element, ElementValueComparator comparator)
             throws NullPointerException, IllegalArgumentException {
+        LOG.debug("cache {} replace2 {}", cache.getName(), element);
         XATransactionContext context = getOrCreateTransactionContext();
         Element previous = getCurrentElement(element.getKey(), context);
 
@@ -515,6 +534,7 @@ public class XATransactionStore extends AbstractTransactionStore {
      * {@inheritDoc}
      */
     public Element replace(Element element) throws NullPointerException {
+        LOG.debug("cache {} replace1 {}", cache.getName(), element);
         XATransactionContext context = getOrCreateTransactionContext();
         Element previous = getCurrentElement(element.getKey(), context);
 

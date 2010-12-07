@@ -18,6 +18,8 @@ package net.sf.ehcache.transaction.xa;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.store.Store;
 import net.sf.ehcache.transaction.xa.commands.Command;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -38,6 +40,8 @@ import java.util.concurrent.ConcurrentMap;
  * @author Ludovic Orban
  */
 public class XATransactionContext {
+
+    private static final Logger LOG = LoggerFactory.getLogger(XATransactionContext.class.getName());
 
     private final ConcurrentMap<Object, Element> commandElements = new ConcurrentHashMap<Object, Element>();
     private final Set<Object> removedKeys = new HashSet<Object>();
@@ -86,6 +90,8 @@ public class XATransactionContext {
         }
 
         commands.put(key, command);
+
+        LOG.debug("XA context added new command [{}], it now contains {} command(s)", command, commands.size());
     }
 
     /**
@@ -146,4 +152,8 @@ public class XATransactionContext {
         return sizeModifier;
     }
 
+    @Override
+    public String toString() {
+        return "XATransactionContext with " + commands.size() + " command(s)";
+    }
 }
