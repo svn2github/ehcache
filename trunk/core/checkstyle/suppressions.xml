@@ -119,6 +119,8 @@
     <suppress checks="NPathComplexity" files="JavaBeanAttributeExtractor.java"/>
     <suppress checks="NPathComplexity" files="MemoryOnlyStore.java"/>
     <suppress checks="CyclomaticComplexity" files="MemoryOnlyStore.java"/>
+    <suppress checks="NPathComplexity" files="EhcacheXAResourceImpl.java"/>
+    <suppress checks="CyclomaticComplexity" files="EhcacheXAResourceImpl.java"/>
 
 
     <!-- Contributed code -->

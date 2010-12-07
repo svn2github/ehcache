@@ -1074,7 +1074,8 @@ public class Cache implements Ehcache, StoreListener {
                 TransactionIDFactory transactionIDFactory = cacheManager.createTransactionIDFactory();
 
                 // this xaresource is for initial registration and recovery
-                EhcacheXAResource xaResource = new EhcacheXAResourceImpl(this, store, transactionManagerLookup.getTransactionManager(), softLockFactory, transactionIDFactory);
+                EhcacheXAResource xaResource = new EhcacheXAResourceImpl(this, store, transactionManagerLookup.getTransactionManager(),
+                        softLockFactory, transactionIDFactory);
                 transactionManagerLookup.register(xaResource);
 
                 this.compoundStore = new XATransactionStore(transactionManagerLookup, softLockFactory, transactionIDFactory, this, store,
