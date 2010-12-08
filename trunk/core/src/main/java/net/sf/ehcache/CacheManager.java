@@ -1632,5 +1632,12 @@ public class CacheManager {
                 }
             }
         }
+        // re-register mbeans
+        try {
+            mbeanRegistrationProvider.reinitialize(terracottaClient.getClusteredInstanceFactory());
+        } catch (MBeanRegistrationProviderException e) {
+            throw new CacheException("Problem in reinitializing MBeanRegistrationProvider - "
+                    + mbeanRegistrationProvider.getClass().getName(), e);
+        }
     }
 }

@@ -22,9 +22,9 @@ import net.sf.ehcache.terracotta.ClusteredInstanceFactory;
  * Implementations of this interface will can initialize MBeanRegistration for
  * the passed CacheManager.
  * This is in addition to the ManagementService and has nothing to do
- * 
+ *
  * <p />
- * 
+ *
  * @author <a href="mailto:asanoujam@terracottatech.com">Abhishek Sanoujam</a>
  * @since 1.7
  */
@@ -32,7 +32,7 @@ public interface MBeanRegistrationProvider {
 
     /**
      * Initialize MBeanRegistration if necessary for the cacheManager
-     * 
+     *
      * @param cacheManager
      * @throws MBeanRegistrationProviderException
      */
@@ -41,7 +41,7 @@ public interface MBeanRegistrationProvider {
 
     /**
      * Reinitialize the mbeans. Uses the current name of the {@link CacheManager} to re-register the mbeans
-     * 
+     *
      * @throws MBeanRegistrationProviderException
      */
     public void reinitialize(ClusteredInstanceFactory clusteredInstanceFactory) throws MBeanRegistrationProviderException;

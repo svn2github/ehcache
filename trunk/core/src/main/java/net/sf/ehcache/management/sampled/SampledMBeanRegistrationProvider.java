@@ -43,9 +43,9 @@ import org.slf4j.LoggerFactory;
  * sampled MBeans for the CacheManager and its Caches.
  * This also implements {@link CacheManagerEventListener} to add/remove/cleanup
  * MBeans for new caches added or removed
- * 
+ *
  * <p />
- * 
+ *
  * @author <a href="mailto:asanoujam@terracottatech.com">Abhishek Sanoujam</a>
  * @since 1.7
  */
@@ -57,7 +57,7 @@ public class SampledMBeanRegistrationProvider implements MBeanRegistrationProvid
 
     private Status status = Status.STATUS_UNINITIALISED;
     private CacheManager cacheManager;
-    private ClusteredInstanceFactory clusteredInstanceFactory;
+    private String clientUUID;
     private final MBeanServer mBeanServer;
 
     // name of the cacheManager when the mbeans are registered.
@@ -84,7 +84,7 @@ public class SampledMBeanRegistrationProvider implements MBeanRegistrationProvid
         }
         status = Status.STATUS_ALIVE;
         this.cacheManager = cacheManagerParam;
-        this.clusteredInstanceFactory = clusteredInstanceFactory;
+        this.clientUUID = clusteredInstanceFactory.getUUID();
         try {
             registerCacheManagerMBean(new SampledCacheManager(cacheManager));
         } catch (Exception e) {
@@ -109,7 +109,7 @@ public class SampledMBeanRegistrationProvider implements MBeanRegistrationProvid
             try {
                 // register the CacheManager MBean
                 mBeanServer.registerMBean(cacheManagerMBean,
-                        SampledEhcacheMBeans.getCacheManagerObjectName(clusteredInstanceFactory, registeredCacheManagerName));
+                        SampledEhcacheMBeans.getCacheManagerObjectName(clientUUID, registeredCacheManagerName));
                 success = true;
                 cacheManagerMBean.setMBeanRegisteredName(registeredCacheManagerName);
                 break;
@@ -137,12 +137,8 @@ public class SampledMBeanRegistrationProvider implements MBeanRegistrationProvid
      * {@inheritDoc}
      */
     public synchronized void reinitialize(ClusteredInstanceFactory clusteredInstanceFactory) throws MBeanRegistrationProviderException {
-        if (this.clusteredInstanceFactory != null && this.clusteredInstanceFactory != clusteredInstanceFactory) {
-            throw new MBeanRegistrationProviderException("Can't reinitialize the MBean provider with another ClusteredInstanceFactory.");
-        }
         dispose();
-        this.clusteredInstanceFactory = clusteredInstanceFactory;
-        initialize(this.cacheManager, this.clusteredInstanceFactory);
+        initialize(this.cacheManager, clusteredInstanceFactory);
     }
 
     /**
@@ -165,7 +161,7 @@ public class SampledMBeanRegistrationProvider implements MBeanRegistrationProvid
         SampledCache terracottaCacheMBean = new SampledCache(cache);
         try {
             mBeanServer.registerMBean(terracottaCacheMBean,
-                    SampledEhcacheMBeans.getCacheObjectName(clusteredInstanceFactory, registeredCacheManagerName,
+                    SampledEhcacheMBeans.getCacheObjectName(clientUUID, registeredCacheManagerName,
                             terracottaCacheMBean.getImmutableCacheName()));
         } catch (MalformedObjectNameException e) {
             throw new MBeanRegistrationException(e);
@@ -181,7 +177,7 @@ public class SampledMBeanRegistrationProvider implements MBeanRegistrationProvid
           if (bean != null) {
              try {
                  mBeanServer.registerMBean(bean,
-                         SampledEhcacheMBeans.getStoreObjectName(clusteredInstanceFactory, registeredCacheManagerName,
+                         SampledEhcacheMBeans.getStoreObjectName(clientUUID, registeredCacheManagerName,
                                  cache.getName()));
              } catch (MalformedObjectNameException e) {
                  throw new MBeanRegistrationException(e);
@@ -189,10 +185,10 @@ public class SampledMBeanRegistrationProvider implements MBeanRegistrationProvid
           }
        }
     }
-    
+
     /**
      * Returns the listener status.
-     * 
+     *
      * @return the status at the point in time the method is called
      */
     public synchronized Status getStatus() {
@@ -201,7 +197,7 @@ public class SampledMBeanRegistrationProvider implements MBeanRegistrationProvid
 
     /**
      * Stop the listener and free any resources. Removes registered ObjectNames
-     * 
+     *
      * @throws net.sf.ehcache.CacheException
      *             - all exceptions are wrapped in CacheException
      */
@@ -214,10 +210,10 @@ public class SampledMBeanRegistrationProvider implements MBeanRegistrationProvid
         try {
             // CacheManager MBean
             registeredObjectNames = mBeanServer
-                    .queryNames(SampledEhcacheMBeans.getCacheManagerObjectName(clusteredInstanceFactory, registeredCacheManagerName), null);
+                    .queryNames(SampledEhcacheMBeans.getCacheManagerObjectName(clientUUID, registeredCacheManagerName), null);
             // Other MBeans for this CacheManager
             registeredObjectNames.addAll(mBeanServer.queryNames(SampledEhcacheMBeans
-                    .getQueryCacheManagerObjectName(clusteredInstanceFactory, registeredCacheManagerName), null));
+                    .getQueryCacheManagerObjectName(clientUUID, registeredCacheManagerName), null));
         } catch (MalformedObjectNameException e) {
             LOG.warn("Error querying MBeanServer. Error was " + e.getMessage(), e);
         }
@@ -233,7 +229,7 @@ public class SampledMBeanRegistrationProvider implements MBeanRegistrationProvid
 
     /**
      * Returns true if this {@link SampledMBeanRegistrationProvider} is alive
-     * 
+     *
      * @return true if alive otherwise false
      */
     public synchronized boolean isAlive() {
@@ -260,7 +256,7 @@ public class SampledMBeanRegistrationProvider implements MBeanRegistrationProvid
      * Called immediately after a cache has been disposed and removed. The
      * calling method will block until this method
      * returns.
-     * 
+     *
      * @param cacheName
      *            the name of the <code>Cache</code> the operation relates to
      */
@@ -270,7 +266,7 @@ public class SampledMBeanRegistrationProvider implements MBeanRegistrationProvid
         }
         ObjectName objectName = null;
         try {
-            objectName = SampledEhcacheMBeans.getCacheObjectName(clusteredInstanceFactory, registeredCacheManagerName, cacheName);
+            objectName = SampledEhcacheMBeans.getCacheObjectName(clientUUID, registeredCacheManagerName, cacheName);
             if (mBeanServer.isRegistered(objectName)) {
                 mBeanServer.unregisterMBean(objectName);
             }
