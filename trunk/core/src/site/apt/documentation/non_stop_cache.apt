@@ -6,94 +6,6 @@
 
 %{toc|fromDepth=2|toDepth=2}
 
-
-
-Changes:
-
-Part of core
-terracotta only
-
-
-
----
-Nonstop minimal config:
-
-<cache name="cacheName" maxElementsInMemory="10000" eternal="true" overflowToDisk="false">
-<terracotta>
-		<nonstop />
-	</terracotta>
-</cache>
-
-Nonstop default values:
-
-<cache name="four" maxElementsInMemory="10000" eternal="true"
-	overflowToDisk="false">
-	<terracotta clustered="false">
-		<nonstop enabled="true" immediateTimeout="true" timeoutMillis="5000">
-			<timeoutBehavior type="exception" />       null | localReads
-		</nonstop>
-	</terracotta>
-</cache>
-
-Rejoin Config:
-<ehcache name="basic-cache-test">
-	<defaultCache maxElementsInMemory="10000" eternal="true"
-		overflowToDisk="false" />
-	<cache name="test" maxElementsInMemory="10000" eternal="true"
-		overflowToDisk="false">
-		<terracotta>
-			<nonstop />
-		</terracotta>
-	</cache>
-	<terracottaConfig rejoin="true" url="localhost:9510" />
-</ehcache>
-
-Rejoin Event:
-net.sf.ehcache.cluster.ClusterTopologyListener {
-    void clusterRejoined(ClusterNode oldNode, ClusterNode newNode);
-}
----
-
-
-Rejoin happens when reconnect has failed. The L1 has been connected. It will rejoin as a new client.
-Your puts are blocked
-
-L2 kicks the L1 out li.l2reconnect.timeout.millis
-
-If the socket closes the L1 is kicked out.
-
-By default reconnect is turned off. If you set it to true     ????
-
-There is a pre-crash L1 membership.
-
-Until the reconnectWindow is exceeded when you will not be allowed back in. The timeout is 120s.
-
-When the L2 says an L1 cannot reconnect this will trigger an attempt to rejoin.
-
-Reconnect is in the product docs. 
-
-
-
-
-l2.l1reconnect.timeout.millis controls when
-
-The l2s talk to each other so the other l2
-
-Until reconnect fails you continue to hold locks (if running in strict mode).
-
-When reconnect fails, rejoin will attempt to join the L2. When it joins, it will join as a new L1. Any data
-held in the local cache is discarded. All locks are discarded. This is transparent to the end user.
-
-Prior to an L1
-
-Rejoin if set to true, will continously try to rejoin.     rejoin=true is the default.
-
-Prior to this an L1 could not reconnect without restarting the app server with the L1 in it.
-
-
-
-
-
     <<<NonStopCache>>> is a {{{./cache_decorators.html}decorated cache}} which provides SLA level control
     features for your cache. It is difficult to rely on your, disk, Database (For write-through), distribution
 	mechanism etc  all being tuned perfectly to provide you the timing characteristics/semantics your application needs. 
@@ -121,14 +33,6 @@ Prior to this an L1 could not reconnect without restarting the app server with t
 	* You have one cache that is accessed for multiple functions. For some of those functions you want operations to timeout after
 	  5 seconds and for others you want 20 seconds. You can have multiple decorators on the same cache with the different semantics
       defined.
-
-
-
-
-
-
-
-
 
 *   Creating a NonStopCache
 
@@ -178,14 +82,20 @@ Prior to this an L1 could not reconnect without restarting the app server with t
 	
        name             - any string name for the NonStopCache. This property is mandatory.
 	
-       timeoutMillis    - Any number for use as the timeout time in milliseconds before timing out for any operation. After the operation times out, behavior as
-                          specified by timeoutBehavior happens. This property is optional and uses a default value if not specified. This should be set to your desired
-                          SLA level. The default value is 10000ms.
+       timeoutMillis    - Any number for use as the timeout time in milliseconds before timing out for any operation. After operation times out, behavior as
+                      specified by timeoutBehavior happens. This property is optional and uses a default value if not specified.
 
-       timeoutBehavior  - {exception | noop | localReads}. This property is optional and uses a default value if not specified. The default is exception.
+       timeoutBehavior  - {exception | noop | localReads}. This property is optional and uses a default value if not specified.
 
-       immediateTimeout - {true | false}. Default is true.
+       immediateTimeout - {true | false}. This property is optional and uses a default value if not specified.
 
+	The default values for the optional properties are:
+	
+       timeoutMillis = 5000
+        
+       timeoutBehavior = exception
+        
+       immediateTimeout = true
 
 *   How it knows about Terracotta Cluster Events
 
@@ -238,8 +148,6 @@ Prior to this an L1 could not reconnect without restarting the app server with t
 
     In this version the only action which may be configured is <<<immediateTimeout>>>.
 
-    If immediateTimeout is true, then cache operations will immediately timeout after a clusterOffline event has been received.
-
 
 *** immediateTimeout
 
@@ -247,32 +155,6 @@ Prior to this an L1 could not reconnect without restarting the app server with t
     without waiting the <<<timeoutMillis>>> value.
 
     What then happens depends on how <<<timeoutBehavior>>> is configured.
-
-*** timeoutMillis
-
-    The timeoutMillis
-
-    Remember that if an L2 goes away you will get a clusterOffline event after the li.l2reconnect.timeout.millis. This is based on heartbeating
-    between the L1-L2. This is essentially a network ping test. So timeoutMillis is meant to cover
-    situations up to that timeout. Setting it higher than ?? has no effect, because a clusterOffline event will be received before the timemoutMillis
-    takes effect.
-
-    The general guide is SLA. If your SLA is a 5 second response, set this to 5 seconds. Then if a cache operation fails you will get an exception
-    which gives you the possiblity to then call the SLA. You can catch the
-
-    On the flip side what is the effect in your application on requests backing up. Before NIO application servers would allocate one thread per request.
-    The danger was that you could get an OutOfMemoryError if requests backed up.
-
-    In modern application servers there is a threadpool used to service requests. So the consequences of a back up are less dramatic.
-
-    Some causes of timeouts are:
-
-    * Full GC events.
-
-    * Contention in the persistency layer in the Terracotta server
-
-    *
-
 
 *   {Download}
 
