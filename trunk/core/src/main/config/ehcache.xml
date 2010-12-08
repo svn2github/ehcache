@@ -79,7 +79,6 @@ used with JMX monitors.
 
      *GenericJNDI (i.e. jboss, where the property jndiName controls the name of the
                     TransactionManager object to look up)
-     *Websphere
      *Bitronix
      *Atomikos
     
