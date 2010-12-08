@@ -101,10 +101,12 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
                 throw new EhcacheXAException("cannot start with duplicate XID: " + xid, XAException.XAER_DUPID);
             }
             currentXid = xid;
-        } else if (flag == TMJOIN || flag == TMRESUME) {
+        } else if (flag == TMRESUME) {
             if (!xidToContextMap.containsKey(xid)) {
                 throw new EhcacheXAException("cannot join/resume non-existent XID: " + xid, XAException.XAER_NOTA);
             }
+            currentXid = xid;
+        } else if (flag == TMJOIN) {
             currentXid = xid;
         } else {
             throw new EhcacheXAException("unsupported flag: " + flag, XAException.XAER_PROTO);
@@ -170,7 +172,9 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
      * {@inheritDoc}
      */
     public boolean isSameRM(XAResource xaResource) throws XAException {
-        return xaResource == this;
+        boolean b = xaResource == this;
+        LOG.debug("{} isSameRm {} -> " + b, this, xaResource);
+        return b;
     }
 
     /**
@@ -420,7 +424,7 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
         }
 
         Transaction transaction = txnManager.getTransaction();
-        LOG.debug("enlisting XAResource in {}", transaction);
+        LOG.debug("enlisting {} in {}", this, transaction);
         transaction.enlistResource(this);
 
         // currentXid is set by a call to start() which itself is called by transaction.enlistResource(this)
@@ -429,7 +433,7 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
                     "' did not end up calling XAResource.start()");
         }
 
-        ctx = getCurrentTransactionContext();
+        ctx = xidToContextMap.get(currentXid);
         if (ctx == null) {
             LOG.debug("creating new context for XID [{}]", currentXid);
             ctx = new XATransactionContext(underlyingStore);
@@ -444,7 +448,7 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
      */
     public XATransactionContext getCurrentTransactionContext() {
         if (currentXid == null) {
-            LOG.debug("getting current TX context of XAResource with current XID [{}]: null", currentXid);
+            LOG.debug("getting current TX context of XAResource with current XID [null]: null");
             return null;
         }
         XATransactionContext xaTransactionContext = xidToContextMap.get(currentXid);
@@ -515,4 +519,8 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
         return sb.toString();
     }
 
+    @Override
+    public String toString() {
+        return "EhcacheXAResourceImpl of cache " + cache.getName();
+    }
 }
