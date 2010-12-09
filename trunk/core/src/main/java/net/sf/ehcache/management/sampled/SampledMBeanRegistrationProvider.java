@@ -84,7 +84,7 @@ public class SampledMBeanRegistrationProvider implements MBeanRegistrationProvid
         }
         status = Status.STATUS_ALIVE;
         this.cacheManager = cacheManagerParam;
-        this.clientUUID = clusteredInstanceFactory.getUUID();
+        this.clientUUID = clusteredInstanceFactory == null ? "" : clusteredInstanceFactory.getUUID();
         try {
             registerCacheManagerMBean(new SampledCacheManager(cacheManager));
         } catch (Exception e) {

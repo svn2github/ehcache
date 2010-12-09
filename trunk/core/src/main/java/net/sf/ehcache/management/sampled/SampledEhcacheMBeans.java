@@ -66,7 +66,7 @@ public abstract class SampledEhcacheMBeans {
 
     private static String getBeanNameSuffix(String clientUUID) {
         String suffix = "";
-        if (clientUUID != null) {
+        if (clientUUID != null && !clientUUID.trim().equals("")) {
             suffix = ",node=" + clientUUID;
         }
         return suffix;
