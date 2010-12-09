@@ -202,7 +202,7 @@ public class Cache implements Ehcache, StoreListener {
 
     private volatile String diskStorePath;
 
-    private volatile CacheStatus status = new CacheStatus();
+    private volatile CacheStatus cacheStatus = new CacheStatus();
 
     private volatile CacheConfiguration configuration;
 
@@ -295,8 +295,7 @@ public class Cache implements Ehcache, StoreListener {
     public Cache(CacheConfiguration cacheConfiguration,
                  RegisteredEventListeners registeredEventListeners,
                  BootstrapCacheLoader bootstrapCacheLoader) {
-        changeStatus(Status.STATUS_UNINITIALISED);
-
+        cacheStatus.changeState(CacheState.UNINITIALIZED);
 
         this.configuration = cacheConfiguration.clone();
         configuration.validateCompleteConfiguration();
@@ -971,7 +970,7 @@ public class Cache implements Ehcache, StoreListener {
      */
     public void initialise() {
         synchronized (this) {
-            if (!status.canInitialize()) {
+            if (!cacheStatus.canInitialize()) {
                 throw new IllegalStateException("Cannot initialise the " + configuration.getName()
                         + " cache because its status is not STATUS_UNINITIALISED");
             }
@@ -1106,7 +1105,8 @@ public class Cache implements Ehcache, StoreListener {
             this.cacheWriterManager = configuration.getCacheWriterConfiguration().getWriteMode().createWriterManager(this);
             initialiseCacheWriterManager(false);
 
-            changeStatus(Status.STATUS_ALIVE);
+            cacheStatus.changeState(CacheState.ALIVE);
+
             initialiseRegisteredCacheExtensions();
             initialiseRegisteredCacheLoaders();
             initialiseRegisteredCacheWriter();
@@ -1237,11 +1237,6 @@ public class Cache implements Ehcache, StoreListener {
         }
 
     }
-
-    private void changeStatus(Status status) {
-        this.status.changeState(status);
-    }
-
 
     /**
      * Put an element in the cache.
@@ -2164,7 +2159,7 @@ public class Cache implements Ehcache, StoreListener {
             compoundStore.dispose();
         }
 
-        changeStatus(Status.STATUS_SHUTDOWN);
+        cacheStatus.changeState(CacheState.SHUTDOWN);
     }
 
     private void initialiseRegisteredCacheExtensions() {
@@ -2352,18 +2347,18 @@ public class Cache implements Ehcache, StoreListener {
      * @return The status value from the Status enum class
      */
     public final Status getStatus() {
-        return status.getState();
+        return cacheStatus.getStatus();
     }
 
 
     private void checkStatus() throws IllegalStateException {
-        if (!status.isAlive()) {
+        if (!cacheStatus.isAlive()) {
             throw new IllegalStateException("The " + configuration.getName() + " Cache is not alive.");
         }
     }
 
     private boolean checkStatusAlreadyDisposed() throws IllegalStateException {
-        return status.isShutdown();
+        return cacheStatus.isShutdown();
     }
 
 
@@ -2382,7 +2377,7 @@ public class Cache implements Ehcache, StoreListener {
      * @throws IllegalArgumentException if an illegal name is used.
      */
     public final void setName(String name) throws IllegalArgumentException {
-        if (!status.canInitialize()) {
+        if (!cacheStatus.canInitialize()) {
             throw new IllegalStateException("Only uninitialised caches can have their names set.");
         }
         configuration.setName(name);
@@ -2397,7 +2392,7 @@ public class Cache implements Ehcache, StoreListener {
 
         dump.append("[")
                 .append(" name = ").append(configuration.getName())
-                .append(" status = ").append(status.getState())
+                .append(" status = ").append(cacheStatus.getStatus())
                 .append(" eternal = ").append(configuration.isEternal())
                 .append(" overflowToDisk = ").append(configuration.isOverflowToDisk())
                 .append(" maxElementsInMemory = ").append(configuration.getMaxElementsInMemory())
@@ -2463,8 +2458,8 @@ public class Cache implements Ehcache, StoreListener {
 
         copy.configuration = configuration.clone();
         copy.guid = createGuid();
-        copy.status = new CacheStatus();
-        copy.changeStatus(Status.STATUS_UNINITIALISED);
+        copy.cacheStatus = new CacheStatus();
+        copy.cacheStatus.changeState(CacheState.UNINITIALIZED);
 
         RegisteredEventListeners registeredEventListenersFromCopy = copy.getCacheEventNotificationService();
         if (registeredEventListenersFromCopy == null || registeredEventListenersFromCopy.getCacheEventListeners().size() == 0) {
@@ -2753,7 +2748,7 @@ public class Cache implements Ehcache, StoreListener {
      * @throws CacheException if this method is called after the cache is initialized
      */
     public void setBootstrapCacheLoader(BootstrapCacheLoader bootstrapCacheLoader) throws CacheException {
-        if (!status.canInitialize()) {
+        if (!cacheStatus.canInitialize()) {
             throw new CacheException("A bootstrap cache loader can only be set before the cache is initialized. "
                     + configuration.getName());
         }
@@ -2769,7 +2764,7 @@ public class Cache implements Ehcache, StoreListener {
      * @throws CacheException if this method is called after the cache is initialized
      */
     public void setDiskStorePath(String diskStorePath) throws CacheException {
-        if (!status.canInitialize()) {
+        if (!cacheStatus.canInitialize()) {
             throw new CacheException("A DiskStore path can only be set before the cache is initialized. "
                     + configuration.getName());
         }
@@ -2947,7 +2942,7 @@ public class Cache implements Ehcache, StoreListener {
     public void registerCacheWriter(CacheWriter cacheWriter) {
         synchronized (this) {
             this.registeredCacheWriter = cacheWriter;
-            if (status.isAlive()) {
+            if (cacheStatus.isAlive()) {
                 initialiseRegisteredCacheWriter();
             }
         }
@@ -3583,41 +3578,149 @@ public class Cache implements Ehcache, StoreListener {
      * Reinitialize the cache
      */
     void reinitialize() {
-        status.setReinitializeInProgress();
+        cacheStatus.reinitializeInProgress();
         initialise();
-        status.setReinitializeComplete();
+        cacheStatus.reinitializeComplete();
     }
 
+    /**
+     * Cache status states
+     */
+    private static enum CacheState {
+
+        UNINITIALIZED() {
+            @Override
+            public Status getStatus() {
+                return Status.STATUS_UNINITIALISED;
+            }
+
+            @Override
+            public CacheState changeState(CacheState newState) {
+                switch (newState) {
+                    case UNINITIALIZED: {
+                        return this;
+                    }
+                    case ALIVE: {
+                        return ALIVE;
+                    }
+                    case SHUTDOWN: {
+                        return SHUTDOWN;
+                    }
+                    case REINITIALIZE_IN_PROGRESS: {
+                        throw new IllegalStateException("Cannot change state from " + this + " to " + REINITIALIZE_IN_PROGRESS);
+                    }
+                    default:
+                        throw new IllegalStateException(this + " does not know how to handle state: " + newState);
+                }
+            }
+        },
+        ALIVE() {
+            @Override
+            public Status getStatus() {
+                return Status.STATUS_ALIVE;
+            }
+
+            @Override
+            public CacheState changeState(CacheState newState) {
+                switch (newState) {
+                    case UNINITIALIZED: {
+                        throw new IllegalStateException("Cannot change state from " + this + " to " + UNINITIALIZED);
+                    }
+                    case ALIVE: {
+                        return ALIVE;
+                    }
+                    case SHUTDOWN: {
+                        return SHUTDOWN;
+                    }
+                    case REINITIALIZE_IN_PROGRESS: {
+                        return REINITIALIZE_IN_PROGRESS;
+                    }
+                    default:
+                        throw new IllegalStateException(this + " does not know how to handle state: " + newState);
+                }
+            }
+        },
+        SHUTDOWN() {
+            @Override
+            public Status getStatus() {
+                return Status.STATUS_SHUTDOWN;
+            }
+
+            @Override
+            public CacheState changeState(CacheState newState) {
+                switch (newState) {
+                    case UNINITIALIZED: {
+                        throw new IllegalStateException("Cannot change state from " + this + " to " + UNINITIALIZED);
+                    }
+                    case ALIVE: {
+                        throw new IllegalStateException("Cannot change state from " + this + " to " + ALIVE);
+                    }
+                    case SHUTDOWN: {
+                        return SHUTDOWN;
+                    }
+                    case REINITIALIZE_IN_PROGRESS: {
+                        throw new IllegalStateException("Cannot change state from " + this + " to " + REINITIALIZE_IN_PROGRESS);
+                    }
+                    default:
+                        throw new IllegalStateException(this + " does not know how to handle state: " + newState);
+                }
+            }
+        },
+        REINITIALIZE_IN_PROGRESS() {
+            @Override
+            public Status getStatus() {
+                return Status.STATUS_UNINITIALISED;
+            }
+
+            @Override
+            public CacheState changeState(CacheState newState) {
+                switch (newState) {
+                    case UNINITIALIZED: {
+                        throw new IllegalStateException("Cannot change state from " + this + " to " + UNINITIALIZED);
+                    }
+                    case ALIVE: {
+                        return ALIVE;
+                    }
+                    case SHUTDOWN: {
+                        return SHUTDOWN;
+                    }
+                    case REINITIALIZE_IN_PROGRESS: {
+                        return this;
+                    }
+                    default:
+                        throw new IllegalStateException(this + " does not know how to handle state: " + newState);
+                }
+            }
+        };
+
+        public abstract Status getStatus();
+
+        public abstract CacheState changeState(CacheState newState);
+    }
 
     /**
      * Private class maintaining status of the cache
+     *
      * @author Abhishek Sanoujam
      *
      */
     private static class CacheStatus {
-        private final AtomicBoolean reinitializeInProgress = new AtomicBoolean(false);
-        private final AtomicBoolean initialized = new AtomicBoolean(false);
-        private volatile Status state = Status.STATUS_UNINITIALISED;
-        private volatile Thread reinitializingThread;
-
-        /**
-         * Set reinitialize in progress
-         */
-        public void setReinitializeComplete() {
-            synchronized (this) {
-                reinitializingThread = null;
-                reinitializeInProgress.set(false);
-                initialized.set(false);
-                notifyAll();
-            }
-        }
+        private volatile CacheState cacheState = CacheState.UNINITIALIZED;
+        private Thread reinitializingThread;
 
         /**
          * Set reinitialize complete
          */
-        public void setReinitializeInProgress() {
+        public synchronized void reinitializeComplete() {
+            reinitializingThread = null;
+        }
+
+        /**
+         * Set reinitialize in progress
+         */
+        public synchronized void reinitializeInProgress() {
             reinitializingThread = Thread.currentThread();
-            reinitializeInProgress.set(true);
+            changeState(CacheState.REINITIALIZE_IN_PROGRESS);
         }
 
         /**
@@ -3626,8 +3729,8 @@ public class Cache implements Ehcache, StoreListener {
          *
          * @return true if cache can be initialized
          */
-        public boolean canInitialize() {
-            return reinitializeInProgress.get() || state == Status.STATUS_UNINITIALISED;
+        public synchronized boolean canInitialize() {
+            return cacheState == CacheState.UNINITIALIZED || cacheState == CacheState.REINITIALIZE_IN_PROGRESS;
         }
 
         /**
@@ -3635,39 +3738,30 @@ public class Cache implements Ehcache, StoreListener {
          *
          * @param status state
          */
-        public void changeState(Status status) {
-            synchronized (this) {
-                if (reinitializeInProgress.get() && status == Status.STATUS_ALIVE) {
-                    if (initialized.get()) {
-                        throw new IllegalStateException("Can be initialized only once during reinitialization");
-                    }
-                    initialized.set(true);
-                }
-                this.state = status;
-            }
+        public synchronized void changeState(CacheState newState) {
+            cacheState = cacheState.changeState(newState);
+            notifyAll();
         }
 
         private void waitUntilReinitializeCompleteIfInProgress() {
-            if (reinitializeInProgress.get()) {
+            if (cacheState == CacheState.REINITIALIZE_IN_PROGRESS) {
                 if (reinitializingThread == Thread.currentThread()) {
                     // do not block the reinitializing thread
                     return;
                 }
-            } else {
-                return;
-            }
-            boolean interrupted = false;
-            while (reinitializeInProgress.get()) {
                 synchronized (this) {
-                    try {
-                        this.wait();
-                    } catch (InterruptedException e) {
-                        interrupted = true;
+                    boolean interrupted = false;
+                    while (cacheState == CacheState.REINITIALIZE_IN_PROGRESS) {
+                        try {
+                            this.wait();
+                        } catch (InterruptedException e) {
+                            interrupted = true;
+                        }
+                    }
+                    if (interrupted) {
+                        Thread.currentThread().interrupt();
                     }
                 }
-            }
-            if (interrupted) {
-                Thread.currentThread().interrupt();
             }
         }
 
@@ -3676,9 +3770,9 @@ public class Cache implements Ehcache, StoreListener {
          *
          * @return current state
          */
-        public Status getState() {
+        public Status getStatus() {
             waitUntilReinitializeCompleteIfInProgress();
-            return state;
+            return cacheState.getStatus();
         }
 
         /**
@@ -3688,7 +3782,7 @@ public class Cache implements Ehcache, StoreListener {
          */
         public boolean isAlive() {
             waitUntilReinitializeCompleteIfInProgress();
-            return state == Status.STATUS_ALIVE;
+            return cacheState.getStatus() == Status.STATUS_ALIVE;
         }
 
         /**
@@ -3698,7 +3792,7 @@ public class Cache implements Ehcache, StoreListener {
          */
         public boolean isShutdown() {
             waitUntilReinitializeCompleteIfInProgress();
-            return state == Status.STATUS_SHUTDOWN;
+            return cacheState.getStatus() == Status.STATUS_SHUTDOWN;
         }
     }
 }
