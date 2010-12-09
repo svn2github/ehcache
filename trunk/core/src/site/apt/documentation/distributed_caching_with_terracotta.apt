@@ -11,7 +11,7 @@
     From version 1.7 Ehcache has been seamlessly integrated with Terracotta 3.1.1 and takes just a few lines
     of config in ehcache.xml to get up and running.
 
-    new_in_2 In Ehcache 2.0 additional configuration options have been added which provide finer grained control.
+    In Ehcache 2.0 additional configuration options have been added which provide finer grained control.
 
     Distribution with the Terracotta Server Array ("TSA") is the preferred distribution mechanism. It provides coherency, JTA,
     HA, scale and high performance. It is available as open source or with additional features in the Ehcache EX and FX product
@@ -650,6 +650,13 @@ public interface ClusterTopologyListener {
     which rounds up to the nearest second. Some APIs may be sensitive to this change.
 
     In Ehcache Elements can have overridden TTI and TTLs. Terracotta supports this functionality.
+
+**  I have TTL/TTI not configured or set to 0 (eternal) and have created Elements with a specific TTL which is being ignored. Why?
+    
+    There is a high cost in checking individual elements for eviction in the Terracotta server.
+    To incur that cost and have your Element TTL/TTIs recognised in this case set <<<ehcache.storageStrategy.dcv2.perElementTTITTL.enabled>>> = true"
+    in system properties.
+
 
 **  What Eviction strategies are supported?
 
