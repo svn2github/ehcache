@@ -414,7 +414,10 @@ public class DiskPersistentStorageFactory extends DiskStorageFactory<ElementSubs
                     continue;
                 } else if (target instanceof CachingDiskMarker) {
                     if (((CachingDiskMarker) target).flush()) {
-                        inMemory.decrementAndGet();
+                        int memSize = inMemory.decrementAndGet();
+                        if (memSize <= memoryCapacity) {
+                            break;
+                        }
                     }
                 }
             }
@@ -456,7 +459,9 @@ public class DiskPersistentStorageFactory extends DiskStorageFactory<ElementSubs
                 if (target == null) {
                     continue;
                 } else {
-                    store.evict(target.getKey(), target);
+                    if (store.evict(target.getKey(), target) && (onDisk.get() <= diskCapacity)) {
+                        break;
+                    }
                 }
             }
         }

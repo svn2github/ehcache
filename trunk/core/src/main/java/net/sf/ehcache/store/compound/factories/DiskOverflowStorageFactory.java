@@ -246,7 +246,13 @@ public class DiskOverflowStorageFactory extends DiskStorageFactory<ElementSubsti
         public DiskMarker call() {
             DiskMarker result = super.call();
             //don't want to increment on exception throw
-            count.incrementAndGet();
+            int size = count.incrementAndGet();
+            if (capacity > 0) {
+                int overflow = size - capacity;
+                if (overflow > 0) {
+                    evict(Math.min(MAX_EVICT, overflow), result.getKey(), size);
+                }
+            }
             return result;
         }
     }

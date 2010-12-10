@@ -461,7 +461,6 @@ public class Element implements Serializable, Cloneable {
      */
     public final void updateUpdateStatistics() {
         lastUpdateTime = System.currentTimeMillis();
-        version = lastUpdateTime;
     }
 
 
