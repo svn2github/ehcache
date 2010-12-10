@@ -412,12 +412,10 @@ public class DiskPersistentStorageFactory extends DiskStorageFactory<ElementSubs
                 DiskSubstitute target = getMemoryEvictionTarget(keyHint, size);
                 if (target == null) {
                     continue;
-                } else if (target instanceof CachingDiskMarker) {
-                    if (((CachingDiskMarker) target).flush()) {
-                        int memSize = inMemory.decrementAndGet();
-                        if (memSize <= memoryCapacity) {
-                            break;
-                        }
+                } else if (target instanceof CachingDiskMarker && ((CachingDiskMarker) target).flush()) {
+                    int memSize = inMemory.decrementAndGet();
+                    if (memSize <= memoryCapacity) {
+                        break;
                     }
                 }
             }
