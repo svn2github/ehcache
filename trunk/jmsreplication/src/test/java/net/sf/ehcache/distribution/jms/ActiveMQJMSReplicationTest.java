@@ -368,10 +368,10 @@ javax.jms.IllegalStateException: The Session is closed
 
         //Put
         cache1.put(element);
-        long version = element.getVersion();
+        long updateTime = element.getLastUpdateTime();
         Thread.sleep(100);
         //make sure we are not getting our own circular update back
-        assertEquals(version, cache1.get(key).getVersion());
+        assertEquals(updateTime, cache1.get(key).getLastUpdateTime());
 
         //Should have been replicated to cache2.
         Element element2 = cache2.get(key);
@@ -552,7 +552,6 @@ javax.jms.IllegalStateException: The Session is closed
 
         //Put
         cache1.put(element);
-        long version = element.getVersion();
         Thread.sleep(2050);
 
 
