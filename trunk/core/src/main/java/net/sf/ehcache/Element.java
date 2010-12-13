@@ -56,6 +56,8 @@ public class Element implements Serializable, Cloneable {
 
     private static final AtomicLongFieldUpdater<Element> HIT_COUNT_UPDATER = AtomicLongFieldUpdater.newUpdater(Element.class, "hitCount");
 
+    private static final boolean ELEMENT_VERSION_AUTO = Boolean.getBoolean("net.sf.ehcache.element.version.auto");
+
     /**
      * the cache key.
      */
@@ -461,6 +463,9 @@ public class Element implements Serializable, Cloneable {
      */
     public final void updateUpdateStatistics() {
         lastUpdateTime = System.currentTimeMillis();
+        if (ELEMENT_VERSION_AUTO) {
+          version = lastUpdateTime;
+        }
     }
 
 
