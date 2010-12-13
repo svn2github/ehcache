@@ -1336,15 +1336,18 @@ public class Cache implements Ehcache, StoreListener {
 
         if (useCacheWriter) {
             boolean elementExists = false;
+            boolean notifyListenersOnException = configuration.getCacheWriterConfiguration().getNotifyListenersOnException();
             try {
-                elementExists = compoundStore.containsKey(element.getObjectKey());
+                if (notifyListenersOnException) {
+                    elementExists = compoundStore.containsKey(element.getObjectKey());
+                }
                 elementExists = !compoundStore.putWithWriter(element, cacheWriterManager) || elementExists;
                 if (elementExists) {
                     element.updateUpdateStatistics();
                 }
                 notifyPutInternalListeners(element, doNotNotifyCacheReplicators, elementExists);
             } catch (CacheWriterManagerException e) {
-                if (configuration.getCacheWriterConfiguration().getNotifyListenersOnException()) {
+                if (notifyListenersOnException) {
                     notifyPutInternalListeners(element, doNotNotifyCacheReplicators, elementExists);
                 }
                 throw e.getCause();
