@@ -32,9 +32,9 @@ import net.sf.ehcache.hibernate.management.impl.BaseEmitterBean;
 
 /**
  * An implementation of {@link SampledCacheMBean}
- * 
+ *
  * <p />
- * 
+ *
  * @author <a href="mailto:asanoujam@terracottatech.com">Abhishek Sanoujam</a>
  * @since 1.7
  */
@@ -54,7 +54,7 @@ public class SampledCache extends BaseEmitterBean implements SampledCacheMBean, 
 
     /**
      * Constructor accepting the backing {@link Ehcache}
-     * 
+     *
      * @param cache
      */
     public SampledCache(Ehcache cache) throws NotCompliantMBeanException {
@@ -68,7 +68,7 @@ public class SampledCache extends BaseEmitterBean implements SampledCacheMBean, 
     /**
      * Method which returns the name of the cache at construction time.
      * Package protected method.
-     * 
+     *
      * @return The name of the cache
      */
     String getImmutableCacheName() {
@@ -249,7 +249,7 @@ public class SampledCache extends BaseEmitterBean implements SampledCacheMBean, 
     public long getCacheMissOnDiskMostRecentSample() {
         return cache.getSampledCacheStatistics().getCacheMissOnDiskMostRecentSample();
     }
-    
+
     /**
      * {@inheritDoc}
      */
@@ -302,7 +302,7 @@ public class SampledCache extends BaseEmitterBean implements SampledCacheMBean, 
 
     /**
      * {@inheritDoc}
-     * 
+     *
      * @see net.sf.ehcache.management.sampled.SampledCacheMBean#enableStatistics()
      */
     public void enableStatistics() {
@@ -315,7 +315,7 @@ public class SampledCache extends BaseEmitterBean implements SampledCacheMBean, 
 
     /**
      * {@inheritDoc}
-     * 
+     *
      * @see net.sf.ehcache.management.sampled.SampledCacheMBean#disableStatistics()
      */
     public void disableStatistics() {
@@ -328,7 +328,7 @@ public class SampledCache extends BaseEmitterBean implements SampledCacheMBean, 
 
     /**
      * {@inheritDoc}
-     * 
+     *
      * @see net.sf.ehcache.management.sampled.SampledCacheMBean#setStatisticsEnabled(boolean)
      */
     public void setStatisticsEnabled(boolean statsEnabled) {
@@ -344,7 +344,7 @@ public class SampledCache extends BaseEmitterBean implements SampledCacheMBean, 
 
     /**
      * {@inheritDoc}
-     * 
+     *
      * @see net.sf.ehcache.management.sampled.SampledCacheMBean#enableSampledStatistics()
      */
     public void enableSampledStatistics() {
@@ -356,7 +356,7 @@ public class SampledCache extends BaseEmitterBean implements SampledCacheMBean, 
 
     /**
      * {@inheritDoc}
-     * 
+     *
      * @see net.sf.ehcache.management.sampled.SampledCacheMBean#disableSampledStatistics ()
      */
     public void disableSampledStatistics() {
@@ -368,7 +368,7 @@ public class SampledCache extends BaseEmitterBean implements SampledCacheMBean, 
 
     /**
      * {@inheritDoc}
-     * 
+     *
      * @see net.sf.ehcache.management.sampled.SampledCacheMBean#getAverageGetTimeMillis()
      */
     public float getAverageGetTimeMillis() {
@@ -377,7 +377,7 @@ public class SampledCache extends BaseEmitterBean implements SampledCacheMBean, 
 
     /**
      * {@inheritDoc}
-     * 
+     *
      * @see net.sf.ehcache.statistics.LiveCacheStatistics#getMaxGetTimeMillis()
      */
     public long getMaxGetTimeMillis() {
@@ -386,7 +386,7 @@ public class SampledCache extends BaseEmitterBean implements SampledCacheMBean, 
 
     /**
      * {@inheritDoc}
-     * 
+     *
      * @see net.sf.ehcache.statistics.LiveCacheStatistics#getMinGetTimeMillis()
      */
     public long getMinGetTimeMillis() {
@@ -395,7 +395,7 @@ public class SampledCache extends BaseEmitterBean implements SampledCacheMBean, 
 
     /**
      * {@inheritDoc}
-     * 
+     *
      * @see net.sf.ehcache.management.sampled.SampledCacheMBean#getCacheHitCount()
      */
     public long getCacheHitCount() {
@@ -404,7 +404,7 @@ public class SampledCache extends BaseEmitterBean implements SampledCacheMBean, 
 
     /**
      * {@inheritDoc}
-     * 
+     *
      * @see net.sf.ehcache.management.sampled.SampledCacheMBean#getCacheMissCount()
      */
     public long getCacheMissCount() {
@@ -413,7 +413,7 @@ public class SampledCache extends BaseEmitterBean implements SampledCacheMBean, 
 
     /**
      * {@inheritDoc}
-     * 
+     *
      * @see net.sf.ehcache.management.sampled.SampledCacheMBean#getInMemoryMissCount()
      */
     public long getInMemoryMissCount() {
@@ -422,7 +422,7 @@ public class SampledCache extends BaseEmitterBean implements SampledCacheMBean, 
 
     /**
      * {@inheritDoc}
-     * 
+     *
      * @see net.sf.ehcache.management.sampled.SampledCacheMBean#getOffHeapMissCount()
      */
     public long getOffHeapMissCount() {
@@ -431,16 +431,16 @@ public class SampledCache extends BaseEmitterBean implements SampledCacheMBean, 
 
     /**
      * {@inheritDoc}
-     * 
+     *
      * @see net.sf.ehcache.management.sampled.SampledCacheMBean#getOnDiskMissCount()
      */
     public long getOnDiskMissCount() {
         return cache.getLiveCacheStatistics().getOnDiskMissCount();
     }
-    
+
     /**
      * {@inheritDoc}
-     * 
+     *
      * @see net.sf.ehcache.management.sampled.SampledCacheMBean#getCacheMissCountExpired()
      */
     public long getCacheMissCountExpired() {
@@ -449,7 +449,7 @@ public class SampledCache extends BaseEmitterBean implements SampledCacheMBean, 
 
     /**
      * {@inheritDoc}
-     * 
+     *
      * @see net.sf.ehcache.management.sampled.SampledCacheMBean#getConfigDiskExpiryThreadIntervalSeconds()
      */
     public long getConfigDiskExpiryThreadIntervalSeconds() {
@@ -458,7 +458,7 @@ public class SampledCache extends BaseEmitterBean implements SampledCacheMBean, 
 
     /**
      * {@inheritDoc}
-     * 
+     *
      * @see net.sf.ehcache.management.sampled.SampledCacheMBean#setConfigDiskExpiryThreadIntervalSeconds(long)
      */
     public void setConfigDiskExpiryThreadIntervalSeconds(long seconds) {
@@ -469,7 +469,7 @@ public class SampledCache extends BaseEmitterBean implements SampledCacheMBean, 
 
     /**
      * {@inheritDoc}
-     * 
+     *
      * @see net.sf.ehcache.management.sampled.SampledCacheMBean#getConfigMaxElementsInMemory()
      */
     public int getConfigMaxElementsInMemory() {
@@ -478,7 +478,7 @@ public class SampledCache extends BaseEmitterBean implements SampledCacheMBean, 
 
     /**
      * {@inheritDoc}
-     * 
+     *
      * @see net.sf.ehcache.management.sampled.SampledCacheMBean#setConfigMaxElementsInMemory(int)
      */
     public void setConfigMaxElementsInMemory(int maxElements) {
@@ -490,7 +490,7 @@ public class SampledCache extends BaseEmitterBean implements SampledCacheMBean, 
 
     /**
      * {@inheritDoc}
-     * 
+     *
      * @see net.sf.ehcache.management.sampled.SampledCacheMBean#getConfigMaxElementsOnDisk()
      */
     public int getConfigMaxElementsOnDisk() {
@@ -499,7 +499,7 @@ public class SampledCache extends BaseEmitterBean implements SampledCacheMBean, 
 
     /**
      * {@inheritDoc}
-     * 
+     *
      * @see net.sf.ehcache.management.sampled.SampledCacheMBean#setConfigMaxElementsOnDisk(int)
      */
     public void setConfigMaxElementsOnDisk(int maxElements) {
@@ -511,7 +511,7 @@ public class SampledCache extends BaseEmitterBean implements SampledCacheMBean, 
 
     /**
      * {@inheritDoc}
-     * 
+     *
      * @see net.sf.ehcache.management.sampled.SampledCacheMBean#getConfigMemoryStoreEvictionPolicy()
      */
     public String getConfigMemoryStoreEvictionPolicy() {
@@ -520,7 +520,7 @@ public class SampledCache extends BaseEmitterBean implements SampledCacheMBean, 
 
     /**
      * {@inheritDoc}
-     * 
+     *
      * @see net.sf.ehcache.management.sampled.SampledCacheMBean#setConfigMemoryStoreEvictionPolicy(String)
      */
     public void setConfigMemoryStoreEvictionPolicy(String evictionPolicy) {
@@ -532,7 +532,7 @@ public class SampledCache extends BaseEmitterBean implements SampledCacheMBean, 
 
     /**
      * {@inheritDoc}
-     * 
+     *
      * @see net.sf.ehcache.management.sampled.SampledCacheMBean#getConfigTimeToIdleSeconds()
      */
     public long getConfigTimeToIdleSeconds() {
@@ -541,7 +541,7 @@ public class SampledCache extends BaseEmitterBean implements SampledCacheMBean, 
 
     /**
      * {@inheritDoc}
-     * 
+     *
      * @see net.sf.ehcache.management.sampled.SampledCacheMBean#setConfigTimeToIdleSeconds(long)
      */
     public void setConfigTimeToIdleSeconds(long tti) {
@@ -553,7 +553,7 @@ public class SampledCache extends BaseEmitterBean implements SampledCacheMBean, 
 
     /**
      * {@inheritDoc}
-     * 
+     *
      * @see net.sf.ehcache.management.sampled.SampledCacheMBean#getConfigTimeToLiveSeconds()
      */
     public long getConfigTimeToLiveSeconds() {
@@ -562,7 +562,7 @@ public class SampledCache extends BaseEmitterBean implements SampledCacheMBean, 
 
     /**
      * {@inheritDoc}
-     * 
+     *
      * @see net.sf.ehcache.management.sampled.SampledCacheMBean#setConfigTimeToLiveSeconds(long)
      */
     public void setConfigTimeToLiveSeconds(long ttl) {
@@ -574,7 +574,7 @@ public class SampledCache extends BaseEmitterBean implements SampledCacheMBean, 
 
     /**
      * {@inheritDoc}
-     * 
+     *
      * @see net.sf.ehcache.management.sampled.SampledCacheMBean#isConfigDiskPersistent()
      */
     public boolean isConfigDiskPersistent() {
@@ -583,7 +583,7 @@ public class SampledCache extends BaseEmitterBean implements SampledCacheMBean, 
 
     /**
      * {@inheritDoc}
-     * 
+     *
      * @see net.sf.ehcache.management.sampled.SampledCacheMBean#setConfigDiskPersistent(boolean)
      */
     public void setConfigDiskPersistent(boolean diskPersistent) {
@@ -595,7 +595,7 @@ public class SampledCache extends BaseEmitterBean implements SampledCacheMBean, 
 
     /**
      * {@inheritDoc}
-     * 
+     *
      * @see net.sf.ehcache.management.sampled.SampledCacheMBean#isConfigEternal()
      */
     public boolean isConfigEternal() {
@@ -604,7 +604,7 @@ public class SampledCache extends BaseEmitterBean implements SampledCacheMBean, 
 
     /**
      * {@inheritDoc}
-     * 
+     *
      * @see net.sf.ehcache.management.sampled.SampledCacheMBean#setConfigEternal(boolean)
      */
     public void setConfigEternal(boolean eternal) {
@@ -616,7 +616,7 @@ public class SampledCache extends BaseEmitterBean implements SampledCacheMBean, 
 
     /**
      * {@inheritDoc}
-     * 
+     *
      * @see net.sf.ehcache.management.sampled.SampledCacheMBean#isConfigOverflowToDisk()
      */
     public boolean isConfigOverflowToDisk() {
@@ -625,7 +625,7 @@ public class SampledCache extends BaseEmitterBean implements SampledCacheMBean, 
 
     /**
      * {@inheritDoc}
-     * 
+     *
      * @see net.sf.ehcache.management.sampled.SampledCacheMBean#setConfigOverflowToDisk(boolean)
      */
     public void setConfigOverflowToDisk(boolean overflowToDisk) {
@@ -637,7 +637,7 @@ public class SampledCache extends BaseEmitterBean implements SampledCacheMBean, 
 
     /**
      * {@inheritDoc}
-     * 
+     *
      * @see net.sf.ehcache.management.sampled.SampledCacheMBean#isConfigLoggingEnabled()
      */
     public boolean isConfigLoggingEnabled() {
@@ -646,7 +646,7 @@ public class SampledCache extends BaseEmitterBean implements SampledCacheMBean, 
 
     /**
      * {@inheritDoc}
-     * 
+     *
      * @see net.sf.ehcache.management.sampled.SampledCacheMBean#setConfigLoggingEnabled(boolean)
      */
     public void setConfigLoggingEnabled(boolean enabled) {
@@ -658,7 +658,7 @@ public class SampledCache extends BaseEmitterBean implements SampledCacheMBean, 
 
     /**
      * {@inheritDoc}
-     * 
+     *
      * @see net.sf.ehcache.management.sampled.SampledCacheMBean#getEvictedCount()
      */
     public long getEvictedCount() {
@@ -667,7 +667,7 @@ public class SampledCache extends BaseEmitterBean implements SampledCacheMBean, 
 
     /**
      * {@inheritDoc}
-     * 
+     *
      * @see net.sf.ehcache.management.sampled.SampledCacheMBean#getExpiredCount()
      */
     public long getExpiredCount() {
@@ -676,7 +676,7 @@ public class SampledCache extends BaseEmitterBean implements SampledCacheMBean, 
 
     /**
      * {@inheritDoc}
-     * 
+     *
      * @see net.sf.ehcache.management.sampled.SampledCacheMBean#getInMemoryHitCount()
      */
     public long getInMemoryHitCount() {
@@ -685,7 +685,7 @@ public class SampledCache extends BaseEmitterBean implements SampledCacheMBean, 
 
     /**
      * {@inheritDoc}
-     * 
+     *
      * @see net.sf.ehcache.management.sampled.SampledCacheMBean#getInMemorySize()
      */
     public long getInMemorySize() {
@@ -712,7 +712,7 @@ public class SampledCache extends BaseEmitterBean implements SampledCacheMBean, 
 
     /**
      * {@inheritDoc}
-     * 
+     *
      * @see net.sf.ehcache.management.sampled.SampledCacheMBean#getOnDiskHitCount()
      */
     public long getOnDiskHitCount() {
@@ -721,7 +721,7 @@ public class SampledCache extends BaseEmitterBean implements SampledCacheMBean, 
 
     /**
      * {@inheritDoc}
-     * 
+     *
      * @see net.sf.ehcache.management.sampled.SampledCacheMBean#getOnDiskSize()
      */
     public long getOnDiskSize() {
@@ -730,7 +730,7 @@ public class SampledCache extends BaseEmitterBean implements SampledCacheMBean, 
 
     /**
      * {@inheritDoc}
-     * 
+     *
      * @see net.sf.ehcache.management.sampled.SampledCacheMBean#getPutCount()
      */
     public long getPutCount() {
@@ -739,7 +739,7 @@ public class SampledCache extends BaseEmitterBean implements SampledCacheMBean, 
 
     /**
      * {@inheritDoc}
-     * 
+     *
      * @see net.sf.ehcache.management.sampled.SampledCacheMBean#getRemovedCount()
      */
     public long getRemovedCount() {
@@ -748,7 +748,7 @@ public class SampledCache extends BaseEmitterBean implements SampledCacheMBean, 
 
     /**
      * {@inheritDoc}
-     * 
+     *
      * @see net.sf.ehcache.management.sampled.SampledCacheMBean#getSize()
      */
     public long getSize() {
@@ -757,7 +757,7 @@ public class SampledCache extends BaseEmitterBean implements SampledCacheMBean, 
 
     /**
      * {@inheritDoc}
-     * 
+     *
      * @see net.sf.ehcache.management.sampled.SampledCacheMBean#getUpdateCount()
      */
     public long getUpdateCount() {
@@ -766,7 +766,7 @@ public class SampledCache extends BaseEmitterBean implements SampledCacheMBean, 
 
     /**
      * getCacheAttributes
-     * 
+     *
      * @return map of attribute name -> value
      */
     public Map<String, Object> getCacheAttributes() {
@@ -881,10 +881,24 @@ public class SampledCache extends BaseEmitterBean implements SampledCacheMBean, 
 
     /**
      * {@inheritDoc}
-     * 
+     *
      * @see net.sf.ehcache.statistics.sampled.SampledCacheStatistics#dispose()
      */
     public void dispose() {
         // no-op
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public long getAverageSearchTime() {
+        return cache.getAverageSearchTime();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public long getSearchesPerSecond() {
+        return cache.getSearchesPerSecond();
     }
 }

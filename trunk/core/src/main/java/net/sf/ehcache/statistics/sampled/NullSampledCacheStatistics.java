@@ -22,7 +22,7 @@ import net.sf.ehcache.statistics.CacheUsageListener;
 /**
  * A no-op implementation of {@link SampledCacheStatistics}
  * <p />
- * 
+ *
  * @author <a href="mailto:asanoujam@terracottatech.com">Abhishek Sanoujam</a>
  * @since 1.7
  */
@@ -132,7 +132,7 @@ public class NullSampledCacheStatistics implements CacheUsageListener, SampledCa
     public long getCacheMissOnDiskMostRecentSample() {
         return 0;
     }
-    
+
     /**
      * {@inheritDoc}
      */
@@ -163,7 +163,7 @@ public class NullSampledCacheStatistics implements CacheUsageListener, SampledCa
 
     /**
      * {@inheritDoc}
-     * 
+     *
      * @see net.sf.ehcache.statistics.sampled.SampledCacheStatistics#dispose()
      */
     public void dispose() {
@@ -172,7 +172,7 @@ public class NullSampledCacheStatistics implements CacheUsageListener, SampledCa
 
     /**
      * {@inheritDoc}
-     * 
+     *
      * @see net.sf.ehcache.statistics.CacheUsageListener#notifyCacheElementEvicted()
      */
     public void notifyCacheElementEvicted() {
@@ -181,7 +181,7 @@ public class NullSampledCacheStatistics implements CacheUsageListener, SampledCa
 
     /**
      * {@inheritDoc}
-     * 
+     *
      * @see net.sf.ehcache.statistics.CacheUsageListener#notifyCacheElementExpired()
      */
     public void notifyCacheElementExpired() {
@@ -190,7 +190,7 @@ public class NullSampledCacheStatistics implements CacheUsageListener, SampledCa
 
     /**
      * {@inheritDoc}
-     * 
+     *
      * @see net.sf.ehcache.statistics.CacheUsageListener#notifyCacheElementPut()
      */
     public void notifyCacheElementPut() {
@@ -199,7 +199,7 @@ public class NullSampledCacheStatistics implements CacheUsageListener, SampledCa
 
     /**
      * {@inheritDoc}
-     * 
+     *
      * @see net.sf.ehcache.statistics.CacheUsageListener#notifyCacheElementRemoved()
      */
     public void notifyCacheElementRemoved() {
@@ -208,7 +208,7 @@ public class NullSampledCacheStatistics implements CacheUsageListener, SampledCa
 
     /**
      * {@inheritDoc}
-     * 
+     *
      * @see net.sf.ehcache.statistics.CacheUsageListener#notifyCacheElementUpdated()
      */
     public void notifyCacheElementUpdated() {
@@ -217,7 +217,7 @@ public class NullSampledCacheStatistics implements CacheUsageListener, SampledCa
 
     /**
      * {@inheritDoc}
-     * 
+     *
      * @see net.sf.ehcache.statistics.CacheUsageListener#notifyCacheHitInMemory()
      */
     public void notifyCacheHitInMemory() {
@@ -235,7 +235,7 @@ public class NullSampledCacheStatistics implements CacheUsageListener, SampledCa
 
     /**
      * {@inheritDoc}
-     * 
+     *
      * @see net.sf.ehcache.statistics.CacheUsageListener#notifyCacheHitOnDisk()
      */
     public void notifyCacheHitOnDisk() {
@@ -244,7 +244,7 @@ public class NullSampledCacheStatistics implements CacheUsageListener, SampledCa
 
     /**
      * {@inheritDoc}
-     * 
+     *
      * @see net.sf.ehcache.statistics.CacheUsageListener#notifyCacheMissedWithExpired()
      */
     public void notifyCacheMissedWithExpired() {
@@ -253,7 +253,7 @@ public class NullSampledCacheStatistics implements CacheUsageListener, SampledCa
 
     /**
      * {@inheritDoc}
-     * 
+     *
      * @see net.sf.ehcache.statistics.CacheUsageListener#notifyCacheMissedWithNotFound()
      */
     public void notifyCacheMissedWithNotFound() {
@@ -262,7 +262,7 @@ public class NullSampledCacheStatistics implements CacheUsageListener, SampledCa
 
     /**
      * {@inheritDoc}
-     * 
+     *
      * @see net.sf.ehcache.statistics.CacheUsageListener#notifyCacheMissInMemory()
      */
     public void notifyCacheMissInMemory() {
@@ -271,7 +271,7 @@ public class NullSampledCacheStatistics implements CacheUsageListener, SampledCa
 
     /**
      * {@inheritDoc}
-     * 
+     *
      * @see net.sf.ehcache.statistics.CacheUsageListener#notifyCacheMissOffHeap()
      */
     public void notifyCacheMissOffHeap() {
@@ -280,16 +280,16 @@ public class NullSampledCacheStatistics implements CacheUsageListener, SampledCa
 
     /**
      * {@inheritDoc}
-     * 
+     *
      * @see net.sf.ehcache.statistics.CacheUsageListener#notifyCacheMissOnDisk()
      */
     public void notifyCacheMissOnDisk() {
         // no-op
     }
-    
+
     /**
      * {@inheritDoc}
-     * 
+     *
      * @see net.sf.ehcache.statistics.CacheUsageListener#notifyRemoveAll()
      */
     public void notifyRemoveAll() {
@@ -298,7 +298,7 @@ public class NullSampledCacheStatistics implements CacheUsageListener, SampledCa
 
     /**
      * {@inheritDoc}
-     * 
+     *
      * @see net.sf.ehcache.statistics.CacheUsageListener#notifyStatisticsAccuracyChanged(int)
      */
     public void notifyStatisticsAccuracyChanged(int statisticsAccuracy) {
@@ -307,7 +307,7 @@ public class NullSampledCacheStatistics implements CacheUsageListener, SampledCa
 
     /**
      * {@inheritDoc}
-     * 
+     *
      * @see net.sf.ehcache.statistics.CacheUsageListener#notifyStatisticsCleared()
      */
     public void notifyStatisticsCleared() {
@@ -316,7 +316,7 @@ public class NullSampledCacheStatistics implements CacheUsageListener, SampledCa
 
     /**
      * {@inheritDoc}
-     * 
+     *
      * @see net.sf.ehcache.statistics.CacheUsageListener#notifyStatisticsEnabledChanged(boolean)
      */
     public void notifyStatisticsEnabledChanged(boolean enableStatistics) {
@@ -325,7 +325,7 @@ public class NullSampledCacheStatistics implements CacheUsageListener, SampledCa
 
     /**
      * {@inheritDoc}
-     * 
+     *
      * @see net.sf.ehcache.statistics.CacheUsageListener#notifyTimeTakenForGet(long)
      */
     public void notifyTimeTakenForGet(long millis) {
@@ -334,11 +334,32 @@ public class NullSampledCacheStatistics implements CacheUsageListener, SampledCa
 
     /**
      * {@inheritDoc}
-     * 
+     *
      * @see net.sf.ehcache.statistics.sampled.SampledCacheStatistics#clearStatistics()
      */
     public void clearStatistics() {
         // no-op
 
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public long getAverageSearchTime() {
+        return 0;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public long getSearchesPerSecond() {
+        return 0;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void notifyCacheSearch(long executeTime) {
+        // no-op
     }
 }

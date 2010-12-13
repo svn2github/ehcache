@@ -25,9 +25,9 @@ package net.sf.ehcache.statistics;
  * - getInMemorySize()
  * - getOnDiskSize()
  * - getSize()
- * 
+ *
  * @author Abhishek Sanoujam
- * 
+ *
  */
 public class AnotherStatistics extends LiveCacheStatisticsImpl implements
         CacheUsageListener {
@@ -41,7 +41,7 @@ public class AnotherStatistics extends LiveCacheStatisticsImpl implements
 
     /**
      * {@inheritDoc}
-     * 
+     *
      * @see net.sf.ehcache.statistics.CacheUsageListener#notifyCacheElementEvicted()
      */
     public void notifyCacheElementEvicted() {
@@ -50,7 +50,7 @@ public class AnotherStatistics extends LiveCacheStatisticsImpl implements
 
     /**
      * {@inheritDoc}
-     * 
+     *
      * @see net.sf.ehcache.statistics.CacheUsageListener#notifyCacheElementExpired()
      */
     public void notifyCacheElementExpired() {
@@ -59,7 +59,7 @@ public class AnotherStatistics extends LiveCacheStatisticsImpl implements
 
     /**
      * {@inheritDoc}
-     * 
+     *
      * @see net.sf.ehcache.statistics.CacheUsageListener#notifyCacheElementPut()
      */
     public void notifyCacheElementPut() {
@@ -68,7 +68,7 @@ public class AnotherStatistics extends LiveCacheStatisticsImpl implements
 
     /**
      * {@inheritDoc}
-     * 
+     *
      * @see net.sf.ehcache.statistics.CacheUsageListener#notifyCacheElementRemoved()
      */
     public void notifyCacheElementRemoved() {
@@ -77,7 +77,7 @@ public class AnotherStatistics extends LiveCacheStatisticsImpl implements
 
     /**
      * {@inheritDoc}
-     * 
+     *
      * @see net.sf.ehcache.statistics.CacheUsageListener#notifyCacheElementUpdated()
      */
     public void notifyCacheElementUpdated() {
@@ -86,7 +86,7 @@ public class AnotherStatistics extends LiveCacheStatisticsImpl implements
 
     /**
      * {@inheritDoc}
-     * 
+     *
      * @see net.sf.ehcache.statistics.CacheUsageListener#notifyCacheHitInMemory()
      */
     public void notifyCacheHitInMemory() {
@@ -104,7 +104,7 @@ public class AnotherStatistics extends LiveCacheStatisticsImpl implements
 
     /**
      * {@inheritDoc}
-     * 
+     *
      * @see net.sf.ehcache.statistics.CacheUsageListener#notifyCacheHitOnDisk()
      */
     public void notifyCacheHitOnDisk() {
@@ -113,7 +113,7 @@ public class AnotherStatistics extends LiveCacheStatisticsImpl implements
 
     /**
      * {@inheritDoc}
-     * 
+     *
      * @see net.sf.ehcache.statistics.CacheUsageListener#notifyCacheMissedWithExpired()
      */
     public void notifyCacheMissedWithExpired() {
@@ -122,7 +122,7 @@ public class AnotherStatistics extends LiveCacheStatisticsImpl implements
 
     /**
      * {@inheritDoc}
-     * 
+     *
      * @see net.sf.ehcache.statistics.CacheUsageListener#notifyCacheMissedWithNotFound()
      */
     public void notifyCacheMissedWithNotFound() {
@@ -131,7 +131,7 @@ public class AnotherStatistics extends LiveCacheStatisticsImpl implements
 
     /**
      * {@inheritDoc}
-     * 
+     *
      * @see net.sf.ehcache.statistics.CacheUsageListener#notifyCacheMissInMemory()
      */
     public void notifyCacheMissInMemory() {
@@ -140,7 +140,7 @@ public class AnotherStatistics extends LiveCacheStatisticsImpl implements
 
     /**
      * {@inheritDoc}
-     * 
+     *
      * @see net.sf.ehcache.statistics.CacheUsageListener#notifyCacheMissOffHeap()
      */
     public void notifyCacheMissOffHeap() {
@@ -149,7 +149,7 @@ public class AnotherStatistics extends LiveCacheStatisticsImpl implements
 
     /**
      * {@inheritDoc}
-     * 
+     *
      * @see net.sf.ehcache.statistics.CacheUsageListener#notifyCacheMissOnDisk()
      */
     public void notifyCacheMissOnDisk() {
@@ -158,7 +158,7 @@ public class AnotherStatistics extends LiveCacheStatisticsImpl implements
 
     /**
      * {@inheritDoc}
-     * 
+     *
      * @see net.sf.ehcache.statistics.CacheUsageListener#notifyRemoveAll()
      */
     public void notifyRemoveAll() {
@@ -167,7 +167,7 @@ public class AnotherStatistics extends LiveCacheStatisticsImpl implements
 
     /**
      * {@inheritDoc}
-     * 
+     *
      * @see net.sf.ehcache.statistics.CacheUsageListener#notifyStatisticsAccuracyChanged(int)
      */
     public void notifyStatisticsAccuracyChanged(int statisticsAccuracy) {
@@ -176,7 +176,7 @@ public class AnotherStatistics extends LiveCacheStatisticsImpl implements
 
     /**
      * {@inheritDoc}
-     * 
+     *
      * @see net.sf.ehcache.statistics.CacheUsageListener#notifyStatisticsCleared()
      */
     public void notifyStatisticsCleared() {
@@ -185,7 +185,7 @@ public class AnotherStatistics extends LiveCacheStatisticsImpl implements
 
     /**
      * {@inheritDoc}
-     * 
+     *
      * @see net.sf.ehcache.statistics.CacheUsageListener#notifyStatisticsEnabledChanged(boolean)
      */
     public void notifyStatisticsEnabledChanged(boolean enableStatistics) {
@@ -194,10 +194,17 @@ public class AnotherStatistics extends LiveCacheStatisticsImpl implements
 
     /**
      * {@inheritDoc}
-     * 
+     *
      * @see net.sf.ehcache.statistics.CacheUsageListener#notifyTimeTakenForGet(long)
      */
     public void notifyTimeTakenForGet(long millis) {
         super.addGetTimeMillis(millis);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void notifyCacheSearch(long executeTime) {
+        throw new AssertionError();
     }
 }

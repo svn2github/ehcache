@@ -2723,7 +2723,22 @@ public class Cache implements Ehcache, StoreListener {
                 .getOffHeapMissCount(), getLiveCacheStatistics()
                 .getInMemoryMissCount(), size, getAverageGetTime(),
                 getLiveCacheStatistics().getEvictedCount(),
-                getMemoryStoreSize(), getOffHeapStoreSize(), getDiskStoreSize());
+                getMemoryStoreSize(), getOffHeapStoreSize(), getDiskStoreSize(),
+                getSearchesPerSecond(), getAverageSearchTime());
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public long getAverageSearchTime() {
+        return sampledCacheStatistics.getAverageSearchTime();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public long getSearchesPerSecond() {
+        return sampledCacheStatistics.getSearchesPerSecond();
     }
 
     /**
@@ -3549,6 +3564,14 @@ public class Cache implements Ehcache, StoreListener {
      * @return query results
      */
     Results executeQuery(StoreQuery query) throws SearchException {
+
+        if (isStatisticsEnabled()) {
+            long start = System.currentTimeMillis();
+            Results results = this.compoundStore.executeQuery(query);
+            sampledCacheStatistics.notifyCacheSearch(System.currentTimeMillis() - start);
+            return results;
+        }
+
         return this.compoundStore.executeQuery(query);
     }
 

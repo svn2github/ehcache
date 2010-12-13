@@ -767,4 +767,17 @@ public class EhcacheDecoratorAdapter implements Ehcache {
         return underlyingCache.isSearchable();
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    public long getAverageSearchTime() {
+        return underlyingCache.getAverageSearchTime();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public long getSearchesPerSecond() {
+        return underlyingCache.getSearchesPerSecond();
+    }
 }

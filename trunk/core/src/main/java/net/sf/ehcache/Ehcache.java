@@ -1127,4 +1127,13 @@ public interface Ehcache extends Cloneable {
      */
     public boolean isSearchable();
 
+    /**
+     * Get the average search execution time (in millis) for searches that have completed in the last sample period
+     */
+    public long getAverageSearchTime();
+
+    /**
+     * Get the number of search executions that have completed in the last second
+     */
+    public long getSearchesPerSecond();
 }

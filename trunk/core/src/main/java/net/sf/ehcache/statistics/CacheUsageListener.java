@@ -18,12 +18,12 @@ package net.sf.ehcache.statistics;
 /**
  * Interface for listeners to any change in usage statistics of an
  * Ehcache.
- * 
+ *
  * <p />
  * Implementations of this interface should implement the {@link Object#equals(Object)} and the {@link Object#hashCode()} as registering and
  * removing listeners depends on these
  * <p />
- * 
+ *
  * @author <a href="mailto:asanoujam@terracottatech.com">Abhishek Sanoujam</a>
  * @since 1.7
  */
@@ -31,7 +31,7 @@ public interface CacheUsageListener {
 
     /**
      * Called when statistics is enabled/disabled
-     * 
+     *
      * @param enableStatistics
      */
     public void notifyStatisticsEnabledChanged(boolean enableStatistics);
@@ -86,7 +86,7 @@ public interface CacheUsageListener {
      * Called on a cache miss in the DiskStore
      */
     public void notifyCacheMissOnDisk();
-    
+
     /**
      * Called when an element is found in the cache but already expired
      */
@@ -94,7 +94,7 @@ public interface CacheUsageListener {
 
     /**
      * Notified with time taken for a get operation in the cache
-     * 
+     *
      * @param millis
      */
     public void notifyTimeTakenForGet(final long millis);
@@ -121,7 +121,7 @@ public interface CacheUsageListener {
 
     /**
      * Notified when the statistics accuracy is changed.
-     * 
+     *
      * @param statisticsAccuracy
      *            one of Statistics#STATISTICS_ACCURACY_BEST_EFFORT,
      *            Statistics#STATISTICS_ACCURACY_GUARANTEED,
@@ -133,4 +133,11 @@ public interface CacheUsageListener {
      * Called to dispose off the listener
      */
     public void dispose();
+
+    /**
+     * Called when a search finishes execution
+     *
+     * @param executeTime elapsed time in millis
+     */
+    public void notifyCacheSearch(long executeTime);
 }

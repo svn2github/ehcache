@@ -26,7 +26,7 @@ import net.sf.ehcache.util.FailSafeTimer;
  * sampled statistics is enabled or not.
  * <p />
  * To collect statistics data, instances of this class should be registered as a {@link CacheUsageListener} to a Cache
- * 
+ *
  * @author <a href="mailto:asanoujam@terracottatech.com">Abhishek Sanoujam</a>
  * @since 1.7
  */
@@ -45,7 +45,7 @@ public class SampledCacheStatisticsWrapper implements CacheUsageListener, Sample
 
     /**
      * Enable sampled statistics collection
-     * 
+     *
      * @param timer
      */
     public void enableSampledStatistics(FailSafeTimer timer) {
@@ -70,7 +70,7 @@ public class SampledCacheStatisticsWrapper implements CacheUsageListener, Sample
 
     /**
      * {@inheritDoc}
-     * 
+     *
      */
     public void dispose() {
         delegate.dispose();
@@ -78,7 +78,7 @@ public class SampledCacheStatisticsWrapper implements CacheUsageListener, Sample
 
     /**
      * {@inheritDoc}
-     * 
+     *
      */
     public long getAverageGetTimeMostRecentSample() {
         return delegate.getAverageGetTimeMostRecentSample();
@@ -86,7 +86,7 @@ public class SampledCacheStatisticsWrapper implements CacheUsageListener, Sample
 
     /**
      * {@inheritDoc}
-     * 
+     *
      */
     public long getCacheElementEvictedMostRecentSample() {
         return delegate.getCacheElementEvictedMostRecentSample();
@@ -94,7 +94,7 @@ public class SampledCacheStatisticsWrapper implements CacheUsageListener, Sample
 
     /**
      * {@inheritDoc}
-     * 
+     *
      */
     public long getCacheElementExpiredMostRecentSample() {
         return delegate.getCacheElementExpiredMostRecentSample();
@@ -102,7 +102,7 @@ public class SampledCacheStatisticsWrapper implements CacheUsageListener, Sample
 
     /**
      * {@inheritDoc}
-     * 
+     *
      */
     public long getCacheElementPutMostRecentSample() {
         return delegate.getCacheElementPutMostRecentSample();
@@ -110,7 +110,7 @@ public class SampledCacheStatisticsWrapper implements CacheUsageListener, Sample
 
     /**
      * {@inheritDoc}
-     * 
+     *
      */
     public long getCacheElementRemovedMostRecentSample() {
         return delegate.getCacheElementRemovedMostRecentSample();
@@ -118,7 +118,7 @@ public class SampledCacheStatisticsWrapper implements CacheUsageListener, Sample
 
     /**
      * {@inheritDoc}
-     * 
+     *
      */
     public long getCacheElementUpdatedMostRecentSample() {
         return delegate.getCacheElementUpdatedMostRecentSample();
@@ -126,7 +126,7 @@ public class SampledCacheStatisticsWrapper implements CacheUsageListener, Sample
 
     /**
      * {@inheritDoc}
-     * 
+     *
      */
     public long getCacheHitInMemoryMostRecentSample() {
         return delegate.getCacheHitInMemoryMostRecentSample();
@@ -142,7 +142,7 @@ public class SampledCacheStatisticsWrapper implements CacheUsageListener, Sample
 
     /**
      * {@inheritDoc}
-     * 
+     *
      */
     public long getCacheHitMostRecentSample() {
         return delegate.getCacheHitMostRecentSample();
@@ -150,7 +150,7 @@ public class SampledCacheStatisticsWrapper implements CacheUsageListener, Sample
 
     /**
      * {@inheritDoc}
-     * 
+     *
      */
     public long getCacheHitOnDiskMostRecentSample() {
         return delegate.getCacheHitOnDiskMostRecentSample();
@@ -158,7 +158,7 @@ public class SampledCacheStatisticsWrapper implements CacheUsageListener, Sample
 
     /**
      * {@inheritDoc}
-     * 
+     *
      */
     public long getCacheMissExpiredMostRecentSample() {
         return delegate.getCacheMissExpiredMostRecentSample();
@@ -166,7 +166,7 @@ public class SampledCacheStatisticsWrapper implements CacheUsageListener, Sample
 
     /**
      * {@inheritDoc}
-     * 
+     *
      */
     public long getCacheMissMostRecentSample() {
         return delegate.getCacheMissMostRecentSample();
@@ -174,7 +174,7 @@ public class SampledCacheStatisticsWrapper implements CacheUsageListener, Sample
 
     /**
      * {@inheritDoc}
-     * 
+     *
      */
     public long getCacheMissInMemoryMostRecentSample() {
         return delegate.getCacheMissInMemoryMostRecentSample();
@@ -182,7 +182,7 @@ public class SampledCacheStatisticsWrapper implements CacheUsageListener, Sample
 
     /**
      * {@inheritDoc}
-     * 
+     *
      */
     public long getCacheMissOffHeapMostRecentSample() {
         return delegate.getCacheMissOffHeapMostRecentSample();
@@ -190,7 +190,7 @@ public class SampledCacheStatisticsWrapper implements CacheUsageListener, Sample
 
     /**
      * {@inheritDoc}
-     * 
+     *
      */
     public long getCacheMissOnDiskMostRecentSample() {
         return delegate.getCacheMissOnDiskMostRecentSample();
@@ -198,7 +198,7 @@ public class SampledCacheStatisticsWrapper implements CacheUsageListener, Sample
 
     /**
      * {@inheritDoc}
-     * 
+     *
      */
     public long getCacheMissNotFoundMostRecentSample() {
         return delegate.getCacheMissNotFoundMostRecentSample();
@@ -206,7 +206,7 @@ public class SampledCacheStatisticsWrapper implements CacheUsageListener, Sample
 
     /**
      * {@inheritDoc}
-     * 
+     *
      */
     public int getStatisticsAccuracy() {
         return delegate.getStatisticsAccuracy();
@@ -214,7 +214,7 @@ public class SampledCacheStatisticsWrapper implements CacheUsageListener, Sample
 
     /**
      * {@inheritDoc}
-     * 
+     *
      * @see net.sf.ehcache.statistics.sampled.SampledCacheStatistics#clearStatistics()
      */
     public void clearStatistics() {
@@ -223,7 +223,7 @@ public class SampledCacheStatisticsWrapper implements CacheUsageListener, Sample
 
     /**
      * {@inheritDoc}
-     * 
+     *
      */
     public String getStatisticsAccuracyDescription() {
         return delegate.getStatisticsAccuracyDescription();
@@ -235,7 +235,7 @@ public class SampledCacheStatisticsWrapper implements CacheUsageListener, Sample
 
     /**
      * {@inheritDoc}
-     * 
+     *
      */
     public void notifyCacheElementEvicted() {
         getDelegateAsListener().notifyCacheElementEvicted();
@@ -243,7 +243,7 @@ public class SampledCacheStatisticsWrapper implements CacheUsageListener, Sample
 
     /**
      * {@inheritDoc}
-     * 
+     *
      */
     public void notifyCacheElementExpired() {
         getDelegateAsListener().notifyCacheElementExpired();
@@ -251,7 +251,7 @@ public class SampledCacheStatisticsWrapper implements CacheUsageListener, Sample
 
     /**
      * {@inheritDoc}
-     * 
+     *
      */
     public void notifyCacheElementPut() {
         getDelegateAsListener().notifyCacheElementPut();
@@ -259,7 +259,7 @@ public class SampledCacheStatisticsWrapper implements CacheUsageListener, Sample
 
     /**
      * {@inheritDoc}
-     * 
+     *
      */
     public void notifyCacheElementRemoved() {
         getDelegateAsListener().notifyCacheElementRemoved();
@@ -267,7 +267,7 @@ public class SampledCacheStatisticsWrapper implements CacheUsageListener, Sample
 
     /**
      * {@inheritDoc}
-     * 
+     *
      */
     public void notifyCacheElementUpdated() {
         getDelegateAsListener().notifyCacheElementUpdated();
@@ -275,7 +275,7 @@ public class SampledCacheStatisticsWrapper implements CacheUsageListener, Sample
 
     /**
      * {@inheritDoc}
-     * 
+     *
      */
     public void notifyCacheHitInMemory() {
         getDelegateAsListener().notifyCacheHitInMemory();
@@ -290,7 +290,7 @@ public class SampledCacheStatisticsWrapper implements CacheUsageListener, Sample
 
     /**
      * {@inheritDoc}
-     * 
+     *
      */
     public void notifyCacheHitOnDisk() {
         getDelegateAsListener().notifyCacheHitOnDisk();
@@ -298,7 +298,7 @@ public class SampledCacheStatisticsWrapper implements CacheUsageListener, Sample
 
     /**
      * {@inheritDoc}
-     * 
+     *
      */
     public void notifyCacheMissedWithExpired() {
         getDelegateAsListener().notifyCacheMissedWithExpired();
@@ -306,7 +306,7 @@ public class SampledCacheStatisticsWrapper implements CacheUsageListener, Sample
 
     /**
      * {@inheritDoc}
-     * 
+     *
      */
     public void notifyCacheMissedWithNotFound() {
         getDelegateAsListener().notifyCacheMissedWithNotFound();
@@ -314,7 +314,7 @@ public class SampledCacheStatisticsWrapper implements CacheUsageListener, Sample
 
     /**
      * {@inheritDoc}
-     * 
+     *
      */
     public void notifyCacheMissInMemory() {
         getDelegateAsListener().notifyCacheMissInMemory();
@@ -322,7 +322,7 @@ public class SampledCacheStatisticsWrapper implements CacheUsageListener, Sample
 
     /**
      * {@inheritDoc}
-     * 
+     *
      */
     public void notifyCacheMissOffHeap() {
         getDelegateAsListener().notifyCacheMissOffHeap();
@@ -330,15 +330,15 @@ public class SampledCacheStatisticsWrapper implements CacheUsageListener, Sample
 
     /**
      * {@inheritDoc}
-     * 
+     *
      */
     public void notifyCacheMissOnDisk() {
         getDelegateAsListener().notifyCacheMissOnDisk();
     }
-    
+
     /**
      * {@inheritDoc}
-     * 
+     *
      */
     public void notifyRemoveAll() {
         getDelegateAsListener().notifyRemoveAll();
@@ -346,7 +346,7 @@ public class SampledCacheStatisticsWrapper implements CacheUsageListener, Sample
 
     /**
      * {@inheritDoc}
-     * 
+     *
      */
     public void notifyStatisticsAccuracyChanged(int statisticsAccuracy) {
         getDelegateAsListener().notifyStatisticsAccuracyChanged(statisticsAccuracy);
@@ -354,7 +354,7 @@ public class SampledCacheStatisticsWrapper implements CacheUsageListener, Sample
 
     /**
      * {@inheritDoc}
-     * 
+     *
      */
     public void notifyStatisticsCleared() {
         getDelegateAsListener().notifyStatisticsCleared();
@@ -362,7 +362,7 @@ public class SampledCacheStatisticsWrapper implements CacheUsageListener, Sample
 
     /**
      * {@inheritDoc}
-     * 
+     *
      */
     public void notifyStatisticsEnabledChanged(boolean enableStatistics) {
         getDelegateAsListener().notifyStatisticsEnabledChanged(enableStatistics);
@@ -370,9 +370,30 @@ public class SampledCacheStatisticsWrapper implements CacheUsageListener, Sample
 
     /**
      * {@inheritDoc}
-     * 
+     *
      */
     public void notifyTimeTakenForGet(long millis) {
         getDelegateAsListener().notifyTimeTakenForGet(millis);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public long getAverageSearchTime() {
+        return delegate.getAverageSearchTime();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public long getSearchesPerSecond() {
+        return delegate.getSearchesPerSecond();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void notifyCacheSearch(long executeTime) {
+        getDelegateAsListener().notifyCacheSearch(executeTime);
     }
 }

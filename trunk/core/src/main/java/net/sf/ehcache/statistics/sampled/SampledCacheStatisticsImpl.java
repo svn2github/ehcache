@@ -35,12 +35,13 @@ import net.sf.ehcache.util.counter.sampled.SampledRateCounterConfig;
  * received from
  * these to update the stats
  * <p />
- * 
+ *
  * @author <a href="mailto:asanoujam@terracottatech.com">Abhishek Sanoujam</a>
  * @since 1.7
  */
 public class SampledCacheStatisticsImpl implements CacheUsageListener, SampledCacheStatistics {
 
+    private static final int AVERAGE_SEARCH_SAMPLE_INTERVAL = 10;
     private static final int DEFAULT_HISTORY_SIZE = 30;
     private static final int DEFAULT_INTERVAL_SECS = 1;
     private final static SampledCounterConfig DEFAULT_SAMPLED_COUNTER_CONFIG = new SampledCounterConfig(DEFAULT_INTERVAL_SECS,
@@ -64,7 +65,9 @@ public class SampledCacheStatisticsImpl implements CacheUsageListener, SampledCa
     private final SampledCounter cacheElementExpired;
     private final SampledCounter cacheElementPut;
     private final SampledCounter cacheElementUpdated;
+    private final SampledCounter cacheSearchCount;
     private final SampledRateCounter averageGetTime;
+    private final SampledRateCounter averageSearchTime;
 
     private final AtomicBoolean sampledStatisticsEnabled;
     private final AtomicInteger statisticsAccuracy;
@@ -90,8 +93,11 @@ public class SampledCacheStatisticsImpl implements CacheUsageListener, SampledCa
         cacheElementExpired = createSampledCounter(DEFAULT_SAMPLED_COUNTER_CONFIG);
         cacheElementPut = createSampledCounter(DEFAULT_SAMPLED_COUNTER_CONFIG);
         cacheElementUpdated = createSampledCounter(DEFAULT_SAMPLED_COUNTER_CONFIG);
+        cacheSearchCount = createSampledCounter(DEFAULT_SAMPLED_COUNTER_CONFIG);
 
         averageGetTime = (SampledRateCounter) createSampledCounter(DEFAULT_SAMPLED_RATE_COUNTER_CONFIG);
+        averageSearchTime = (SampledRateCounter) createSampledCounter(
+                new SampledRateCounterConfig(AVERAGE_SEARCH_SAMPLE_INTERVAL, DEFAULT_HISTORY_SIZE, true));
 
         this.sampledStatisticsEnabled = new AtomicBoolean(true);
         this.statisticsAccuracy = new AtomicInteger(Statistics.STATISTICS_ACCURACY_BEST_EFFORT);
@@ -129,7 +135,9 @@ public class SampledCacheStatisticsImpl implements CacheUsageListener, SampledCa
         cacheElementExpired.getAndReset();
         cacheElementPut.getAndReset();
         cacheElementUpdated.getAndReset();
-        averageGetTime.setValue(0, 1);
+        cacheSearchCount.getAndReset();
+        averageGetTime.getAndReset();
+        averageSearchTime.getAndReset();
     }
 
     /**
@@ -374,7 +382,7 @@ public class SampledCacheStatisticsImpl implements CacheUsageListener, SampledCa
     public long getCacheMissOnDiskMostRecentSample() {
         return cacheMissOnDiskCount.getMostRecentSample().getCounterValue();
     }
-    
+
     /**
      * {@inheritDoc}
      */
@@ -436,5 +444,27 @@ public class SampledCacheStatisticsImpl implements CacheUsageListener, SampledCa
      */
     public boolean isSampledStatisticsEnabled() {
         return sampledStatisticsEnabled.get();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public long getAverageSearchTime() {
+        return this.averageSearchTime.getMostRecentSample().getCounterValue();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public long getSearchesPerSecond() {
+        return cacheSearchCount.getMostRecentSample().getCounterValue();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void notifyCacheSearch(long executeTime) {
+        this.cacheSearchCount.increment();
+        this.averageSearchTime.increment(executeTime, 1);
     }
 }

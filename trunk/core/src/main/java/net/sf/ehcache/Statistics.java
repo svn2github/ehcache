@@ -58,7 +58,7 @@ public class Statistics implements Serializable {
     private transient Ehcache cache;
 
     private final String cacheName;
-    
+
     private final int statisticsAccuracy;
 
     private final long cacheHits;
@@ -76,7 +76,7 @@ public class Statistics implements Serializable {
     private final long offHeapMisses;
 
     private final long inMemoryMisses;
-    
+
     private final long size;
 
     private final long memoryStoreSize;
@@ -85,9 +85,13 @@ public class Statistics implements Serializable {
 
     private final long diskStoreSize;
 
-    private float averageGetTime;
+    private final float averageGetTime;
 
-    private long evictionCount;
+    private final long evictionCount;
+
+    private final long searchesPerSecond;
+
+    private final long averageSearchTime;
 
 
     /**
@@ -97,7 +101,7 @@ public class Statistics implements Serializable {
      * @param statisticsAccuracy
      * @param cacheHits
      * @param onDiskHits
-     * @param offHeapHits 
+     * @param offHeapHits
      * @param inMemoryHits
      * @param misses
      * @param size
@@ -105,7 +109,8 @@ public class Statistics implements Serializable {
     public Statistics(Ehcache cache, int statisticsAccuracy, long cacheHits, long onDiskHits, long offHeapHits,
                       long inMemoryHits, long misses, long onDiskMisses, long offHeapMisses,
                       long inMemoryMisses, long size, float averageGetTime, long evictionCount,
-                      long memoryStoreSize, long offHeapStoreSize, long diskStoreSize) {
+                      long memoryStoreSize, long offHeapStoreSize, long diskStoreSize, long searchesPerSecond,
+                      long averageSearchTime) {
         this.cacheName = cache.getName();
         this.statisticsAccuracy = statisticsAccuracy;
         this.cacheHits = cacheHits;
@@ -123,7 +128,10 @@ public class Statistics implements Serializable {
         this.memoryStoreSize = memoryStoreSize;
         this.offHeapStoreSize = offHeapStoreSize;
         this.diskStoreSize = diskStoreSize;
+        this.searchesPerSecond = searchesPerSecond;
+        this.averageSearchTime = averageSearchTime;
     }
+
 
     /**
      * Clears the statistic counters to 0 for the associated Cache.
@@ -354,11 +362,25 @@ public class Statistics implements Serializable {
     public long getEvictionCount() {
         return evictionCount;
     }
-    
+
+    /**
+     * Gets the average execution time (in milliseconds) within the last sample period
+     */
+    public long getAverageSearchTime() {
+        return averageSearchTime;
+    }
+
+    /**
+     * Get the number of search executions that have completed in the last second
+     */
+    public long getSearchesPerSecond() {
+        return searchesPerSecond;
+    }
+
     /**
      * Utility method to determine if a given value is a valid statistics
      * accuracy value or not
-     * 
+     *
      * @param statisticsAccuracy
      * @return true if the value is one of
      *         {@link Statistics#STATISTICS_ACCURACY_BEST_EFFORT},

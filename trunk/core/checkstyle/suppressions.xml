@@ -122,6 +122,7 @@
     <suppress checks="CyclomaticComplexity" files="MemoryOnlyStore.java"/>
     <suppress checks="NPathComplexity" files="EhcacheXAResourceImpl.java"/>
     <suppress checks="CyclomaticComplexity" files="EhcacheXAResourceImpl.java"/>
+    <suppress checks="ExecutableStatementCount" files="SampledCacheStatisticsImpl.java"/>
 
 
     <!-- Contributed code -->
