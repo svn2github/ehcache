@@ -5,6 +5,9 @@
             <action dev="Tim Eck" type="add">
                 Add search functionality
             </action>
+            <action dev="Alex Snaps" type="fix" issue="EHC-773">
+                SelfPopulatingCache will always release the lock on failure during the CacheEntryFactory.createEntry
+            </action>
         </release>
         <release version="2.3.1" date="??" description="Bug fixes">
             <action dev="Cédrik LIME" type="add">
