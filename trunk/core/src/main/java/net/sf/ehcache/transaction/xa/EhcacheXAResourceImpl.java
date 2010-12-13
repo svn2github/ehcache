@@ -66,7 +66,7 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
     private volatile Xid currentXid;
     private volatile int transactionTimeout = DEFAULT_TRANSACTION_TIMEOUT;
     private final List<XAExecutionListener> listeners = new ArrayList<XAExecutionListener>();
-    private ElementValueComparator comparator;
+    private final ElementValueComparator comparator;
 
     /**
      * Constructor
@@ -76,8 +76,8 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
      * @param softLockFactory the soft lock factory
      * @param transactionIDFactory the transaction ID factory
      */
-    public EhcacheXAResourceImpl(Ehcache cache, Store underlyingStore, TransactionManagerLookup txnManagerLookup, SoftLockFactory softLockFactory,
-                                 TransactionIDFactory transactionIDFactory) {
+    public EhcacheXAResourceImpl(Ehcache cache, Store underlyingStore, TransactionManagerLookup txnManagerLookup,
+                                 SoftLockFactory softLockFactory, TransactionIDFactory transactionIDFactory) {
         this.cache = cache;
         this.underlyingStore = underlyingStore;
         this.transactionIDFactory = transactionIDFactory;
