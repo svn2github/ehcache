@@ -46,7 +46,7 @@
            timeToIdleSeconds="5"
            timeToLiveSeconds="10"
            overflowToDisk="true"
-           transactionalMode="xa"
+           transactionalMode="xa_strict"
            copyOnRead="false"
            copyOnWrite="false"/>
 </ehcache>

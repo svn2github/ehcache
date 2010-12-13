@@ -644,7 +644,7 @@ used with JMX monitors.
 
     To enable an ehcache as a participant in the JTA Transaction, just have the following attribute
     
-    transactionalMode="xa", otherwise the default is transactionalMode="off"
+    transactionalMode="xa_strict", otherwise the default is transactionalMode="off"
 
     Cache Writer
     ++++++++++++
@@ -953,7 +953,7 @@ used with JMX monitors.
            overflowToDisk="false"
            diskPersistent="false"
            diskExpiryThreadIntervalSeconds="1"
-           transactionalMode="xa">
+           transactionalMode="xa_strict">
 	</cache>
     -->
 

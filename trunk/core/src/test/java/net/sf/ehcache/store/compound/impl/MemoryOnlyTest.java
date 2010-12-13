@@ -12,6 +12,6 @@ public class MemoryOnlyTest extends CompoundStoreTest {
     @Before
     public void init() {
         store = MemoryOnlyStore.create(new Cache(new CacheConfiguration("SomeCache", 1000)), null);
-        xaStore = MemoryOnlyStore.create(new Cache(new CacheConfiguration("SomeXaCache", 1000).transactionalMode("XA")), null);
+        xaStore = MemoryOnlyStore.create(new Cache(new CacheConfiguration("SomeXaCache", 1000).transactionalMode("xa_strict")), null);
     }
 }

@@ -25,6 +25,7 @@ import net.sf.ehcache.transaction.SoftLock;
 import net.sf.ehcache.transaction.SoftLockFactory;
 import net.sf.ehcache.transaction.TransactionID;
 import net.sf.ehcache.transaction.TransactionIDFactory;
+import net.sf.ehcache.transaction.manager.TransactionManagerLookup;
 import net.sf.ehcache.transaction.xa.commands.Command;
 import net.sf.ehcache.transaction.xa.processor.XARequestProcessor;
 import net.sf.ehcache.transaction.xa.processor.XARequest;
@@ -71,16 +72,16 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
      * Constructor
      * @param cache the cache
      * @param underlyingStore the underlying store
-     * @param txnManager the transaction manager, which will be cast to {@link javax.transaction.TransactionManager}
+     * @param txnManagerLookup the transaction manager lookup
      * @param softLockFactory the soft lock factory
      * @param transactionIDFactory the transaction ID factory
      */
-    public EhcacheXAResourceImpl(Ehcache cache, Store underlyingStore, Object txnManager, SoftLockFactory softLockFactory,
+    public EhcacheXAResourceImpl(Ehcache cache, Store underlyingStore, TransactionManagerLookup txnManagerLookup, SoftLockFactory softLockFactory,
                                  TransactionIDFactory transactionIDFactory) {
         this.cache = cache;
         this.underlyingStore = underlyingStore;
         this.transactionIDFactory = transactionIDFactory;
-        this.txnManager = (TransactionManager) txnManager;
+        this.txnManager = txnManagerLookup.getTransactionManager();
         this.softLockFactory = softLockFactory;
         this.processor = new XARequestProcessor(this);
         this.comparator = cache.getCacheConfiguration().getElementValueComparatorConfiguration().getElementComparatorInstance();

@@ -144,7 +144,7 @@ public class XACacheTest extends TestCase {
     @Override
     protected void setUp() throws Exception {
         final CacheManager manager = CacheManager.create();
-        cache = new Cache(new CacheConfiguration("sampleCache", 1000).transactionalMode(CacheConfiguration.TransactionalMode.XA));
+        cache = new Cache(new CacheConfiguration("sampleCache", 1000).transactionalMode(CacheConfiguration.TransactionalMode.XA_STRICT));
         cache.setTransactionManagerLookup(getTransactionManagerLookup());
         manager.addCache(cache);
     }

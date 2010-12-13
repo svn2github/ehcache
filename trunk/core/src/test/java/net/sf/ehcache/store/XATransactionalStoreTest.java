@@ -38,12 +38,12 @@ public class XATransactionalStoreTest {
         CacheManager cacheManager = CacheManager.getInstance();
         cache = cacheManager.getCache("xaCache");
         if (cache == null) {
-            cache = new Cache(new CacheConfiguration("xaCache", 1000).transactionalMode(CacheConfiguration.TransactionalMode.XA));
+            cache = new Cache(new CacheConfiguration("xaCache", 1000).transactionalMode(CacheConfiguration.TransactionalMode.XA_STRICT));
             cacheManager.addCache(cache);
         }
         cach1 = cacheManager.getCache("otherXaCache");
         if (cach1 == null) {
-            cach1 = new Cache(new CacheConfiguration("otherXaCache", 1000).transactionalMode(CacheConfiguration.TransactionalMode.XA));
+            cach1 = new Cache(new CacheConfiguration("otherXaCache", 1000).transactionalMode(CacheConfiguration.TransactionalMode.XA_STRICT));
             cacheManager.addCache(cach1);
         }
         transactionManager.begin();

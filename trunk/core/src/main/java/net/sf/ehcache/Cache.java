@@ -1060,7 +1060,7 @@ public class Cache implements Ehcache, StoreListener {
                 }
             }
 
-            if (configuration.isXaTransactional()) {
+            if (configuration.isXaStrictTransactional()) {
                 if (transactionManagerLookup.getTransactionManager() == null) {
                     throw new CacheException("You've configured cache " + cacheManager.getName() + "."
                                              + configuration.getName() + " to be transactional, but no TransactionManager could be found!");
@@ -1073,7 +1073,7 @@ public class Cache implements Ehcache, StoreListener {
                 TransactionIDFactory transactionIDFactory = cacheManager.createTransactionIDFactory();
 
                 // this xaresource is for initial registration and recovery
-                EhcacheXAResource xaResource = new EhcacheXAResourceImpl(this, store, transactionManagerLookup.getTransactionManager(),
+                EhcacheXAResource xaResource = new EhcacheXAResourceImpl(this, store, transactionManagerLookup,
                         softLockFactory, transactionIDFactory);
                 transactionManagerLookup.register(xaResource);
 

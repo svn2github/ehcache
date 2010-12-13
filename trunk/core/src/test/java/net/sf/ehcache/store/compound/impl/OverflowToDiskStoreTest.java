@@ -12,6 +12,6 @@ public class OverflowToDiskStoreTest extends CompoundStoreTest {
     @Before
     public void init() {
         store = OverflowToDiskStore.create(new Cache(new CacheConfiguration("SomeCache", 1000)), System.getProperty("java.io.tmpdir"));
-        xaStore = OverflowToDiskStore.create(new Cache(new CacheConfiguration("SomeXaCache", 1000).transactionalMode("XA")), System.getProperty("java.io.tmpdir"));
+        xaStore = OverflowToDiskStore.create(new Cache(new CacheConfiguration("SomeXaCache", 1000).transactionalMode("xa_strict")), System.getProperty("java.io.tmpdir"));
     }
 }

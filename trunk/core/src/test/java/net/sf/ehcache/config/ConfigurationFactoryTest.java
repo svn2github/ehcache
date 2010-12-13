@@ -563,10 +563,10 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
         assertEquals(600, sampleCache1.getCacheConfiguration().getTimeToLiveSeconds());
         assertEquals(true, sampleCache1.getCacheConfiguration().isOverflowToDisk());
         assertEquals(CacheConfiguration.TransactionalMode.OFF, sampleCache1.getCacheConfiguration().getTransactionalMode());
-        assertEquals(false, sampleCache1.getCacheConfiguration().isXaTransactional());
+        assertEquals(false, sampleCache1.getCacheConfiguration().isXaStrictTransactional());
         assertEquals("sampleCache4", sampleCache4.getName());
-        assertEquals(CacheConfiguration.TransactionalMode.XA, sampleCache4.getCacheConfiguration().getTransactionalMode());
-        assertEquals(true, sampleCache4.getCacheConfiguration().isXaTransactional());
+        assertEquals(CacheConfiguration.TransactionalMode.XA_STRICT, sampleCache4.getCacheConfiguration().getTransactionalMode());
+        assertEquals(true, sampleCache4.getCacheConfiguration().isXaStrictTransactional());
     }
 
     /**

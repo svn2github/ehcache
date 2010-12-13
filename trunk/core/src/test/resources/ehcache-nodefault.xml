@@ -130,7 +130,7 @@
         overflowToDisk="true"
         diskPersistent="true"
         diskExpiryThreadIntervalSeconds="1"
-        transactionalMode="xa"
+        transactionalMode="xa_strict"
         />
 
 

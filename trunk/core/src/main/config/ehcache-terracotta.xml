@@ -312,7 +312,7 @@ in-memory capacity changed at runtime through the cache's configuration object.
 
     To enable an ehcache as a participant in the JTA Transaction, just have the following attribute
    
-    transactionalMode="xa", otherwise the default is transactionalMode="off"
+    transactionalMode="xa_strict", otherwise the default is transactionalMode="off"
 
     Cache Writer
     ++++++++++++
@@ -530,7 +530,7 @@ in-memory capacity changed at runtime through the cache's configuration object.
         overflowToDisk="false"
         diskPersistent="false"
         diskExpiryThreadIntervalSeconds="1"
-        transactionalMode="xa">
+        transactionalMode="xa_strict">
       <terracotta clustered="true"/>
   </cache>
 

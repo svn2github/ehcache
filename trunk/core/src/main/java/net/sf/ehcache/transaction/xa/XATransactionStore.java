@@ -106,7 +106,7 @@ public class XATransactionStore extends AbstractTransactionStore {
         EhcacheXAResourceImpl xaResource = (EhcacheXAResourceImpl) transactionToXAResourceMap.get(transaction);
         if (xaResource == null) {
             LOG.debug("creating new XAResource");
-            xaResource = new EhcacheXAResourceImpl(cache, underlyingStore, transactionManagerLookup.getTransactionManager(),
+            xaResource = new EhcacheXAResourceImpl(cache, underlyingStore, transactionManagerLookup,
                     softLockFactory, transactionIdFactory);
             transactionToXAResourceMap.put(transaction, xaResource);
             xaResource.addTwoPcExecutionListener(new CleanupXAResource(getCurrentTransaction()));
