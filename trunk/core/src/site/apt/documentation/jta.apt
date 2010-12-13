@@ -11,7 +11,7 @@ Transactions in Ehcache
     JTA is supported in versions of Ehcache 2.0 and higher.
 
     The GA releases only support XA. However we have ehcache 2.4 in beta which supports both Global Transactions
-    with our <<<xa>>> and <<<xa-nr>>> modes, and Local Transactions with our <<<local>>> mode. This document
+    with <<<xa>>> and <<<xa-nr>>> modes, and Local Transactions with <<<local>>> mode. This document
     has been updated to cover the new features in the beta.
 
 
@@ -30,7 +30,7 @@ Transactions in Ehcache
     * All mutating changes to the cache are transactional including <<<put>>>, <<<remove>>>, <<<putWithWriter>>>,
       <<<removeWithWriter>>> and <<<removeAll>>>.
 
-    * Mutating changes are not visible in the local JVM to or across the cluster until <<<COMMIT>>> has been called.
+    * Mutating changes are not visible to other transactions in the local JVM or across the cluster until <<<COMMIT>>> has been called.
 
     * Until then, read such as by <<<cache.get(...)>>> by other transactions will return the old copy. Reads do not block.
 
@@ -38,9 +38,19 @@ Transactions in Ehcache
 
     Transactions are enabled on a cache by cache basis with the <<<transactionalMode>>> cache attribute.
 
-    The allowed values are <<<xa>>>, <<<xa-nr>>>, <<<local>>> and <<<off>>>. By default it is off.
+    The allowed values are:
 
-    Enabling a cache for transactions is shown in the following example:
+    * <<<xa>>>
+
+    * <<<xa-nr>>>
+
+    * <<<local>>> 
+
+    * <<<off>>>
+
+    The default value is off.  
+
+    Enabling a cache for <<<xa>>> transactions is shown in the following example:
 
 ---
     <cache name="xaCache"
@@ -55,6 +65,8 @@ Transactions in Ehcache
   </cache>
 ---
 
+** Considerations when using clustered caches with Terracotta
+
     For Terracotta clustered caches, <<<transactionalMode>>> can only be used where <<<terracotta coherent="true">>>. Because
     caches can be dynamically changed into coherent=false mode for bulk loading, any attempt to perform a transaction when this
     is the case will throw a <<<CacheException>>>.
@@ -67,32 +79,32 @@ Transactions in Ehcache
 
     Global Transactions are supported by Ehcache. Ehcache acts as an {XAResouce} and participates in
     JTA ("Java Transaction API") transactions under the control of a Transaction Manager. This is typically provided by your
-    application server, however you may also used a third party transaction manager such as Bitronix.
+    application server, however you may also use a third party transaction manager such as Bitronix.
 
     To use Global Transactions, select either <<<xa>>> or <<<xa-nr>>> mode. The differences are explained in the Recovery section below.
 
-**  Mechanism
+**  Implementation
 
     XA transactional support is implemented at the Store level, through XaTransactionalStore. The store actually decorates the underlying
     MemoryStore implementation, augmenting it with transaction isolation and two-phase commit support.
 
     During it's initialization, the Cache will lookup the TransactionManager using the provided TransactionManagerLookup implementation.
-    Using the <<<TransactionManagerLookup.register(XAResouce)>>>, the newly created XAResource will then be registered.
+    Then, using the <<<TransactionManagerLookup.register(XAResouce)>>>, the newly created XAResource will be registered.
 
-    The store is automatically configured to copy every Element read from the cache or written to it. Cache is copy-on-read and
-    copy-on-write.
+    The store is automatically configured to copy every Element read from the cache or written to it. Cache is copy-on-read and copy-on-write.
 
 **  A day in the life of a global transactional Cache
 
-    Every read from the Cache, or remove() without a previous get(), will have the transactional track versioning information for these
-    cache values. This version information will be checked against at commit time, to make sure we're still mutating the same information.
+    Every read() from the Cache, or remove() without a previous get(), records transactional versioning information for the cache values accessed.  This information is checked at commit time: if the versions are the same during commit the transaction is allowed to succeed, otherwise it is rolled back.
 
-    Write operation to the cache (puts and removes) are not effectively executed against the underlying memory store. Rather a local
+    This strategy is often referred to as an optimistic lock strategy and sometimes mvcc (multi-version-concurrency-control) and is the primary strategy most modern databases such as Oracle, MySQL, and PostgreSQL use to manage transactional changes.
+
+    Write operations to the cache such as put() and remove() are not executed against the underlying memory store. Rather a local
     transaction context is being altered. It queues all commands to be executed against the Store at commit time. This context
-    also alters the behavior of cache accesses: e.g. within the same transaction a put and then a getSize call will reflect that previous
-    put, while other transaction would not be impacted. This gives read_commited isolation.
+    also alters the behavior of cache accesses: within the same transaction a put() and then a getSize() call will reflect that previous
+    put(), while other in-flight transactions would not be impacted. This gives <<<READ_COMMITTED>>> isolation.
 
-    During the two phase commit, the context is first prepared: where all keys to be altered are checked for consistency against the
+    During the two phase commit, the context is first prepared: all keys to be altered are checked for consistency against the
     optimistic locking mechanism. If a key to be updated or removed has since been changed by a commited transaction, the transaction will
     be rolled back. For each key a write lock is acquired, version checked and the old value is copied to a temporary "guarding" store. That
     store is always queried before the real underlying memory store is. That way, while write locked, old values that are about to be
@@ -102,29 +114,34 @@ Transactions in Ehcache
     If all other XAResource eventually vote <<<OK>>>, the transaction is committed: the old value(s) are removed and write-locks are released.
     If not, the old values are copied back to the store and the lock released.
 
-*   Failure
+*   Failure Recovery
 
     As specified by the JTA specification, only <prepared> transaction data is recoverable.
 
-    Which means that any transaction still alive at VM failure will be lost. Since all these operations are non locking, the cluster isn't suffering from these.
+    This means that any transaction still alive at VM failure will be lost. Since all these operations are non locking, the cluster is not impacted by these lost transactions.
 
     Prepared data is persisted to the cluster and locks on the memory are held. Should the L1 come back up
-    before the locks have timed out, like network failure, the VM will be able to keep doing its work.
+    before the locks have timed out the VM will be able to keep doing its work.
 
 **  Recovery
 
     When something goes wrong, a <<<ResourceManager>>> will be asked to recover. Data that has been prepared may either be committed or rolled back
     during recovery. In accordance with XA, data that has not yet been <<<prepared>>> is discarded.
 
-    The recovery guarantee differs depending on the xa mode. If <<<xa>>> is used the cache will always respond to the TransactionManager's
+    The recovery guarantee differs depending on the xa mode. 
+
+*** XA Mode
+
+    If <<<xa>>> is used the cache will always respond to the TransactionManager's
     recover calls with a list of transactions ids. Should the XA recovery scan be required by the transaction manager, Ehcache will provide all
     Xids prepared, but these will only be able to be rolled back. Indeed when locks time out, no guarantee can be made about the locked keys
     and their value. If the transaction manager still asks Ehcache to commit these, a <<<HeuristicException>>> will be thrown.
 
+*** XA-NR Mode
 
     There is also an <<<xa-nr>>> mode, which is configured and works the same way as XA, but does not support recovery. In this mode the
-    TransactionManager's recover calls are ignored. However this mode is 3 times faster than <<<xa>>>.
-    With <<<xa-nr>>>, the cache can end up inconsistent with the other resources if there is a JVM crash in the mutating node.
+    TransactionManager's recover calls are ignored. 
+    With <<<xa-nr>>>, the cache can end up inconsistent with the other resources if there is a JVM crash in the mutating node, however this mode is 3 times faster than <<<xa>>>.
 
     Some scenarios where <<<xa-nr>>> is valuable are:
 
@@ -222,9 +239,9 @@ Transactions in Ehcache
     Check out from {{http://svn.terracotta.org/svn/forge/projects/exam/}}
 
 
-**   Transaction Managers
+*   Transaction Managers
 
-***  Automatically Detected Transaction Managers
+**  Automatically Detected Transaction Managers
 
     Ehcache automatically detects and uses the following transaction managers in the following order:
 
@@ -239,11 +256,11 @@ Transactions in Ehcache
     The first found is used.
 
 
-***  Configuring a Transaction Manager
+**  Configuring a Transaction Manager
 
     If your Transaction Manager is not in the above list or you wish to change the priority you need
     to configure your own lookup class and specify it in place of
-    the <<<DefaultTransactionManagerLookup>>> in the ehcache.xml config::
+    the <<<DefaultTransactionManagerLookup>>> in the ehcache.xml config:
 
 ---
 <transactionManagerLookup
@@ -264,17 +281,16 @@ Transactions in Ehcache
 ---
 
 
-
 *   Local Transactions
 
     Local Transactions allow single phase commit across multiple cache operations, across one or more caches,
-    in the same CacheManager, whether distributed with Terracotta or standalone.
+    and in the same CacheManager, whether distributed with Terracotta or standalone.
 
     This lets you apply multiple changes to a CacheManager all in your own transaction. If you also want to apply changes
     to other resources such as a database then you need to open a transaction to them and manually handle commit and rollback
     to ensure consistency.
 
-    Local transactions are not controlled by a Transaction Manager. Instead it an explicit API where a reference is obtained
+    Local transactions are not controlled by a Transaction Manager. Instead there is an explicit API where a reference is obtained
     to a <<<TransactionController>>> for the CacheManager using <<<cacheManager.getTransactionController()>>> and the steps in the
     transaction are called explicitly.
 
@@ -288,7 +304,9 @@ Transactions in Ehcache
     * <<<transactionController.rollback()>>> - Rolls back work done in the current transaction on the calling thread. The changes done since begin are not applied to
       the cache.
 
-    These steps should be placed in try-catch block which catches <<<CacheException>>>. If any exceptions are thrown, rollback() should be
+    []
+
+    These steps should be placed in a try-catch block which catches <<<CacheException>>>. If any exceptions are thrown, rollback() should be
     called.
 
     Local Transactions has it's own exceptions that can be thrown, which are all subclasses of <<<CacheException>>>. They are:
@@ -296,8 +314,6 @@ Transactions in Ehcache
     * <<<TransactionException>>> - a general exception
 
     * <<<TransactionTimeoutException>>> - if a cache operation or commit is called after the transationTimeout has elapsed.
-
-
 
 ** Configuration
 
@@ -316,7 +332,7 @@ Transactions in Ehcache
 
 **  Transaction Timeouts
 
-    If a transaction cannot completed with the timeout, then a <<<TransactionTimeoutException>>> will be thrown. To return the
+    If a transaction cannot complete within the timeout period, then a <<<TransactionTimeoutException>>> will be thrown. To return the
     cache to a consistent state you need to call <<<transactionController.rollback()>>>.
 
     Because <<<TransactionController>>> is at the level of the CacheManager, a default timeout can be set which applies to all transactions
@@ -338,7 +354,7 @@ Transactions in Ehcache
 
 ** Sample Code
 
-    This example shows a transaction wich does multiple operations across two caches.
+    This example shows a transaction which performs multiple operations across two caches.
 
 ---
     CacheManager cacheManager = CacheManager.getInstance();
@@ -363,8 +379,8 @@ Transactions in Ehcache
 
     On restart none of the changes applied after begin are there.
 
-    On restart, nothing needs to be done. Under the covers the in the case of a Terracotta cluster, the Element's new value
-    is there but not applied. It will be lazily removed on next access.
+    On restart, nothing needs to be done. Under the covers in the case of a Terracotta cluster, the Element's new value
+    is there but not applied. It's will be lazily removed on next access.
 
 
 *   Performance
@@ -378,6 +394,8 @@ Transactions in Ehcache
 
     * The following transactions will block on the cache operation until either the first transaction completes or the transaction timeout
       occurs.
+
+    []
 
     Under the covers, when an element is involved in a transaction, it is replaced with a new element with a marker that is locked, along
     with the transaction id. The normal cluster semantics are used.
@@ -417,6 +435,8 @@ Transactions in Ehcache
 
     * local - 10% slower
 
+    []
+
     Accordingly, xa should only be used where it's full guarantees are required, othewise one of the other modes should be used.
 
 
@@ -435,7 +455,7 @@ Transactions in Ehcache
     would also be responsible for obtaining a new transaction...
 
     Using Write-through with a non XA resource would also work, but there is no guarantee the transaction will succeed after the write
-    operation have been executed successfully. On the other hand, any thrown exception during these write operations would cause the
+    operations have been executed successfully. On the other hand, any thrown exception during these write operations would cause the
     transaction to be rolled back by having UserTransaction.commit() throw a RollbackException.
 
 **  Are Hibernate Transactions supported?
@@ -463,4 +483,4 @@ Transactions in Ehcache
 
     The above documentation is written for how we see search working when it is released.
 
-    * The 2.4 beta1 has not implemented xa-nr. Beta 2 due in December will implement.
+    * The 2.4 beta1 has not implemented xa-nr. Beta 2 due in December will implement xa-nr.
