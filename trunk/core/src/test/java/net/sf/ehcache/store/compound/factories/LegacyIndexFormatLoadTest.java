@@ -29,6 +29,8 @@ import net.sf.ehcache.config.DiskStoreConfiguration;
 import net.sf.ehcache.store.DiskStore;
 import net.sf.ehcache.store.Store;
 
+import static org.junit.Assert.fail;
+
 public class LegacyIndexFormatLoadTest {
 
     @Test
@@ -47,8 +49,20 @@ public class LegacyIndexFormatLoadTest {
         for (int i = 0; i < 100; i++) {
             legacy.put(new Element(Integer.toString(i), "test"));
         }
+        int millis = 500;
+        while(legacy.getOnDiskSize() != 100) {
+            try {
+                Thread.sleep(millis);
+                millis += millis;
+                if(millis > 1500) {
+                    fail("Looks like we don't get all entries on disk!");
+                }
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+        }
         legacy.dispose();
-        
+
         manager.addCache(persistent);
         
         Assert.assertEquals(100, persistent.getSize());
