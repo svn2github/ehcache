@@ -294,6 +294,15 @@
                 </configuration>
               </plugin>
             </plugins>
+            <plugin>
+              <groupId>org.apache.maven.plugins</groupId>
+              <artifactId>maven-pmd-plugin</artifactId>
+              <version>2.5</version>
+              <configuration>
+                <aggregate>true</aggregate>
+                <targetJdk>1.5</targetJdk>
+              </configuration>
+            </plugin>
         </pluginManagement>
 
         <plugins>
@@ -304,10 +313,6 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-source-plugin</artifactId>
-            </plugin>
-            <plugin>
-              <groupId>org.codehaus.mojo</groupId>
-              <artifactId>findbugs-maven-plugin</artifactId>
             </plugin>
         </plugins>
     </build>
