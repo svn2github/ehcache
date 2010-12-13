@@ -213,12 +213,19 @@
             <xs:attribute name="orphanEviction" use="optional" type="xs:boolean" default="true"/>
             <xs:attribute name="orphanEvictionPeriod" use="optional" type="xs:positiveInteger" default="4"/>
             <xs:attribute name="copyOnRead" use="optional" type="xs:boolean" default="false"/>
-            <xs:attribute name="coherent" use="optional" type="xs:boolean" default="true"/>
+            <xs:attribute name="coherent" use="optional" type="coherentType" default="non-strict"/>
             <xs:attribute name="synchronousWrites" use="optional" type="xs:boolean" default="false"/>
             <xs:attribute name="storageStrategy" use="optional" type="storageStrategyType" default="classic"/>
             <xs:attribute name="concurrency" use="optional" type="xs:nonNegativeInteger" default="0"/>
         </xs:complexType>
     </xs:element>
+    <xs:simpleType name="coherentType">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="strict" />
+            <xs:enumeration value="non-strict" />
+            <xs:enumeration value="off" />
+        </xs:restriction>
+    </xs:simpleType>
     <xs:element name="nonstop">
         <xs:complexType>
             <xs:sequence>

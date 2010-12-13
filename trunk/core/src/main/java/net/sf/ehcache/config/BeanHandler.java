@@ -16,19 +16,20 @@
 
 package net.sf.ehcache.config;
 
-import org.xml.sax.Attributes;
-import org.xml.sax.Locator;
-import org.xml.sax.SAXException;
-import org.xml.sax.helpers.DefaultHandler;
-
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.xml.sax.Attributes;
+import org.xml.sax.Locator;
+import org.xml.sax.SAXException;
+import org.xml.sax.helpers.DefaultHandler;
 
 /**
  * A SAX handler that configures a bean.
@@ -45,10 +46,10 @@ final class BeanHandler extends DefaultHandler {
     private Locator locator;
 
     // State for extracting a subtree
-    private String subtreeMatchingQname; 
-    private StringBuilder subtreeText; 
+    private String subtreeMatchingQname;
+    private StringBuilder subtreeText;
     private Method subtreeMethod;
-    
+
     /**
      * Constructor.
      */
@@ -68,7 +69,7 @@ final class BeanHandler extends DefaultHandler {
         String[] parts = qName.split(":");
         return parts[parts.length - 1];
     }
-    
+
     /**
      * Receive notification of the start of an element.
      */
@@ -78,13 +79,13 @@ final class BeanHandler extends DefaultHandler {
                              final String qName,
                              final Attributes attributes)
             throws SAXException {
-                
+
         boolean subtreeAppend = extractingSubtree();
-        if (extractingSubtree() || startExtractingSubtree(getTagPart(qName))) {  
+        if (extractingSubtree() || startExtractingSubtree(getTagPart(qName))) {
             if (subtreeAppend) {
-                appendToSubtree("<" + qName);                             
+                appendToSubtree("<" + qName);
             }
-            
+
             for (int i = 0; i < attributes.getLength(); i++) {
                 final String attrName = attributes.getQName(i);
                 final String attrValue = attributes.getValue(i);
@@ -92,7 +93,7 @@ final class BeanHandler extends DefaultHandler {
                     appendToSubtree(" " + attrName + "=\"" + attrValue + "\"");
                 }
             }
-            
+
             if (subtreeAppend) {
                 appendToSubtree(">");
             }
@@ -104,7 +105,7 @@ final class BeanHandler extends DefaultHandler {
                 final Object child = createChild(element, qName);
                 element = new ElementInfo(element, qName, child);
             }
-    
+
             // Set the attributes
             for (int i = 0; i < attributes.getLength(); i++) {
                 final String attrName = attributes.getQName(i);
@@ -122,7 +123,7 @@ final class BeanHandler extends DefaultHandler {
                            final String localName,
                            final String qName)
             throws SAXException {
-        
+
         if (element.parent != null) {
             if (extractingSubtree()) {
                 if (endsSubtree(getTagPart(qName))) {
@@ -130,7 +131,7 @@ final class BeanHandler extends DefaultHandler {
                 } else {
                     appendToSubtree("</" + qName + ">");
                 }
-            } else { 
+            } else {
                 addChild(element.parent.bean, element.bean, qName);
             }
         }
@@ -144,12 +145,12 @@ final class BeanHandler extends DefaultHandler {
     @Override
     public void characters(char[] ch, int start, int length)
             throws SAXException {
-        
+
         if (extractingSubtree()) {
             appendToSubtree(ch, start, length);
         }
     }
-    
+
     /**
      * Creates a child element of an object.
      */
@@ -244,7 +245,7 @@ final class BeanHandler extends DefaultHandler {
      */
     private static String makeMethodName(final String prefix, final String name) {
         String rawName = prefix + Character.toUpperCase(name.charAt(0)) + name.substring(1);
-        
+
         // Remove "-" in element name
         return rawName.replace("-", "");
     }
@@ -259,7 +260,7 @@ final class BeanHandler extends DefaultHandler {
         try {
             // Look for a set<name> method
             final Class objClass = element.bean.getClass();
-            final Method method = findSetMethod(objClass, "set", attrName);
+            final Method method = chooseSetMethod(objClass, "set", attrName, String.class);
             if (method != null) {
                 final Object realValue = convert(method.getParameterTypes()[0], attrValue);
                 method.invoke(element.bean, new Object[]{realValue});
@@ -275,7 +276,7 @@ final class BeanHandler extends DefaultHandler {
             throw new SAXException(getLocation() + ": Could not set attribute \"" + attrName + "\"."
                 + ". Message was: " + e.getTargetException());
         } catch (final Exception e) {
-            throw new SAXException(getLocation() + ": Could not set attribute \"" + attrName + "\".");
+            throw new SAXException(getLocation() + ": Could not set attribute \"" + attrName + "\" - " + e.getMessage());
         }
 
         throw new SAXException(getLocation()
@@ -307,6 +308,41 @@ final class BeanHandler extends DefaultHandler {
             return Boolean.valueOf(value);
         }
         throw new Exception("Cannot convert attribute value to class " + toClass.getName());
+    }
+
+    private Method chooseSetMethod(final Class objClass, final String prefix, final String name, final Class preferredParameterType)
+            throws Exception {
+        final String methodName = makeMethodName(prefix, name);
+        final Method[] methods = objClass.getMethods();
+        Set<Method> candidates = new HashSet<Method>();
+        for (final Method method : methods) {
+            if (!method.getName().equals(methodName)) {
+                continue;
+            }
+            if (Modifier.isStatic(method.getModifiers())) {
+                continue;
+            }
+            if (method.getParameterTypes().length != 1) {
+                continue;
+            }
+            if (!method.getReturnType().equals(Void.TYPE)) {
+                continue;
+            }
+            candidates.add(method);
+        }
+        if (candidates.size() == 0) {
+            return null;
+        } else if (candidates.size() == 1) {
+            return candidates.iterator().next();
+        } else {
+            for (Method m : candidates) {
+                if (m.getParameterTypes()[0].equals(preferredParameterType)) {
+                    return m;
+                }
+            }
+            throw new Exception("Multiple " + methodName + "() methods found in class " + objClass.getName()
+                    + ", but not one with preferred parameter type - " + preferredParameterType.getName());
+        }
     }
 
     /**
@@ -369,7 +405,7 @@ final class BeanHandler extends DefaultHandler {
     private String getLocation() {
         return locator.getSystemId() + ':' + locator.getLineNumber();
     }
-    
+
     /**
      * Determine whether we should start extracting a subtree, based on
      * whether there is an extract method for this tag in the parent bean.
@@ -379,7 +415,7 @@ final class BeanHandler extends DefaultHandler {
         if (element == null || element.bean == null) {
             return false;
         }
-        
+
         try {
             final Method method = findSetMethod(element.bean.getClass(), "extract", name);
             if (method != null) {
@@ -390,7 +426,7 @@ final class BeanHandler extends DefaultHandler {
             } else {
                 return false;
             }
-            
+
         } catch (Exception e) {
             throw new SAXException(getLocation() + ": Error checking for extract method on <" + name + ">.");
         }
@@ -399,16 +435,16 @@ final class BeanHandler extends DefaultHandler {
     private boolean extractingSubtree() {
         return this.subtreeMatchingQname != null;
     }
-    
+
     /**
-     * Append to the current extracted subtree text 
+     * Append to the current extracted subtree text
      */
     private void appendToSubtree(String text) {
         subtreeText.append(text);
     }
-    
+
     /**
-     * Append to the current extracted subtree text 
+     * Append to the current extracted subtree text
      */
     private void appendToSubtree(char[] text, int start, int length) {
         subtreeText.append(text, start, length);
@@ -420,7 +456,7 @@ final class BeanHandler extends DefaultHandler {
     private boolean endsSubtree(String endName) {
         return this.subtreeMatchingQname != null && this.subtreeMatchingQname.equals(endName);
     }
-    
+
     private void endSubtree() throws SAXException {
         try {
             subtreeMethod.invoke(element.parent.bean, new Object[]{subtreeText.toString()});
@@ -431,12 +467,12 @@ final class BeanHandler extends DefaultHandler {
             throw new SAXException(getLocation() + ": Could not set extracted subtree \"" + subtreeMatchingQname + "\"."
                 + " Message was: " + e.getMessage());
         }
-        
+
         subtreeMatchingQname = null;
         subtreeMethod = null;
         subtreeText = null;
     }
-    
+
     /**
      * Element info class
      */

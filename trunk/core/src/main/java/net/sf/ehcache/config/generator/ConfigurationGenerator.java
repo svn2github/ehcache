@@ -34,9 +34,9 @@ import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
 
 /**
  * Utility class for generating configuration texts.
- * 
+ *
  * <p />
- * 
+ *
  * @author <a href="mailto:asanoujam@terracottatech.com">Abhishek Sanoujam</a>
  * @deprecated Use {@link ConfigurationUtil#generateCacheManagerConfigurationText(Configuration)} or
  *             {@link ConfigurationUtil#generateCacheConfigurationText(CacheConfiguration)} instead
@@ -229,8 +229,9 @@ public class ConfigurationGenerator {
                 builder.append(EOL).append(spacer).append(" orphanEvictionPeriod=\"").append(
                         terracottaConfiguration.getOrphanEvictionPeriod()).append("\"");
             }
-            if (TerracottaConfiguration.DEFAULT_CACHE_COHERENT != terracottaConfiguration.isCoherent()) {
-                builder.append(EOL).append(spacer).append(" coherent=\"").append(terracottaConfiguration.isCoherent()).append("\"");
+            if (TerracottaConfiguration.DEFAULT_COHERENCE_MODE != terracottaConfiguration.getCoherenceMode()) {
+                builder.append(EOL).append(spacer).append(" coherent=\"").append(
+                        terracottaConfiguration.getCoherenceMode().getConfigString()).append("\"");
             }
             if (TerracottaConfiguration.DEFAULT_SYNCHRONOUS_WRITES != terracottaConfiguration.isSynchronousWrites()) {
                 builder.append(EOL).append(spacer).append(" synchronousWrites=\"").append(terracottaConfiguration.isSynchronousWrites())
@@ -264,7 +265,7 @@ public class ConfigurationGenerator {
     /**
      * Generates the configuration text for the provided {@link Configuration}, the default {@link CacheConfiguration} and the map of
      * {@link CacheConfiguration}'s
-     * 
+     *
      * @param configuration
      * @param defaultCacheConfiguration
      * @param cacheConfigs
@@ -283,7 +284,7 @@ public class ConfigurationGenerator {
 
     /**
      * Generates configuration text for a specific cache using the input {@link CacheConfiguration}
-     * 
+     *
      * @param cacheConfiguration
      * @return String containing configuration for the input {@link CacheConfiguration}
      */
