@@ -593,6 +593,20 @@
                 </plugins>
             </build>
         </profile>
+
+        <!-- Prevent interruptible IO from being used on Solaris - MNK-1947 -->
+        <profile>
+            <id>no-interruptible-io-solaris</id>
+            <activation>
+                <property>
+                    <name>java.vendor</name>
+                    <value>Sun Microsystems Inc.</value>
+                </property>
+            </activation>
+            <properties>
+                <tests.argLine>-XX:-UseVMInterruptibleIO</tests.argLine>
+            </properties>
+        </profile>
     </profiles>
 
 
