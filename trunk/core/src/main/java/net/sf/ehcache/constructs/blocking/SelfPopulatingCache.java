@@ -65,29 +65,23 @@ public class SelfPopulatingCache extends BlockingCache {
     @Override
     public Element get(final Object key) throws LockTimeoutException {
 
-        try {
-            //if null will lock here
-            Element element = super.get(key);
-            if (element == null) {
+        Element element = super.get(key);
+
+        if (element == null) {
+            try {
                 // Value not cached - fetch it
                 Object value = factory.createEntry(key);
                 element = makeAndCheckElement(key, value);
+            } catch (final Throwable throwable) {
+                // Could not fetch - Ditch the entry from the cache and rethrow
+                // release the lock you acquired
+                element = new Element(key, null);
+                throw new CacheException("Could not fetch object for cache entry with key \"" + key + "\".", throwable);
+            } finally {
                 put(element);
             }
-            return element;
-        } catch (LockTimeoutException e) {
-            //do not release the lock, because you never acquired it
-            String message = "Timeout after " + timeoutMillis + " waiting on another thread " +
-                    "to fetch object for cache entry \"" + key + "\".";
-            throw new LockTimeoutException(message, e);
-
-        } catch (final Throwable throwable) {
-            // Could not fetch - Ditch the entry from the cache and rethrow
-
-            //release the lock you acquired
-            put(new Element(key, null));
-            throw new CacheException("Could not fetch object for cache entry with key \"" + key + "\".", throwable);
         }
+        return element;
     }
 
     /**

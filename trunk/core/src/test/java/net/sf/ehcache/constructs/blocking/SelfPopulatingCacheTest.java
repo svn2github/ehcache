@@ -25,10 +25,14 @@ import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.event.CountingCacheEventListener;
 import org.junit.After;
+
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import org.junit.Before;
@@ -38,6 +42,8 @@ import org.junit.Test;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.concurrent.atomic.AtomicBoolean;
 
 
 /**
@@ -130,10 +136,16 @@ public class SelfPopulatingCacheTest extends CacheTest {
      */
     @Test
     public void testFetchFail() throws Exception {
+        final Object value = new Object();
         final Exception exception = new Exception("Failed.");
+        final AtomicBoolean throwException = new AtomicBoolean(true);
         final CacheEntryFactory factory = new CacheEntryFactory() {
             public Object createEntry(final Object key) throws Exception {
-                throw exception;
+                if (throwException.get()) {
+                    throw exception;
+                } else {
+                    return value;
+                }
             }
         };
         selfPopulatingCache = new SelfPopulatingCache(cache, factory);
@@ -147,6 +159,17 @@ public class SelfPopulatingCacheTest extends CacheTest {
             // Check the error
             assertEquals("Could not fetch object for cache entry with key \"key\".", e.getMessage());
         }
+
+        throwException.set(false);
+        selfPopulatingCache.setTimeoutMillis(1);
+        Element element = null;
+        try {
+            element = selfPopulatingCache.get("key");
+        } catch (LockTimeoutException e) {
+            fail("Key should not be locked anymore!");
+        }
+        assertThat(element, is(notNullValue()));
+        assertThat(element.getObjectValue(), is(value));
     }
 
     /**
