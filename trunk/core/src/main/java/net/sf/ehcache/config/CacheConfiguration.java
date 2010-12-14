@@ -1695,11 +1695,11 @@ public class CacheConfiguration implements Cloneable {
     /**
      * Helper method to compute whether the cache is local_jta transactional or not
      *
-     * @return true if transactionalMode="local_jta"
+     * @return true if transactionalMode="xa"
      */
-    public boolean isLocalJtaTransactional() {
+    public boolean isXaTransactional() {
         validateTransactionalSettings();
-        return transactionalMode.equals(TransactionalMode.LOCAL_JTA);
+        return transactionalMode.equals(TransactionalMode.XA);
     }
 
     /**
@@ -1722,7 +1722,7 @@ public class CacheConfiguration implements Cloneable {
         /**
          * XA Transactions
          */
-        LOCAL_JTA(true),
+        XA(true),
 
         /**
          * XA Strict (true 2PC) Transactions

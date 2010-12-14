@@ -1079,7 +1079,7 @@ public class Cache implements Ehcache, StoreListener {
 
                 this.compoundStore = new XATransactionStore(transactionManagerLookup, softLockFactory, transactionIDFactory, this, store,
                         copyStrategy);
-            } else if (configuration.isLocalJtaTransactional()) {
+            } else if (configuration.isXaTransactional()) {
                 SoftLockFactory softLockFactory = cacheManager.createSoftLockFactory(this);
                 LocalTransactionStore localTransactionStore = new LocalTransactionStore(getCacheManager().getTransactionController(),
                         softLockFactory, this, store, copyStrategy);
