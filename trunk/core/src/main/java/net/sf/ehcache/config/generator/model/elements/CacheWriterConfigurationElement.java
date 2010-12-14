@@ -68,6 +68,8 @@ public class CacheWriterConfigurationElement extends SimpleNodeElement {
                 .optional(true).defaultValue(CacheWriterConfiguration.DEFAULT_NOTIFY_LISTENERS_ON_EXCEPTION));
         addAttribute(new SimpleNodeAttribute("retryAttemptDelaySeconds", cacheWriterConfiguration.getRetryAttemptDelaySeconds()).optional(
                 true).defaultValue(CacheWriterConfiguration.DEFAULT_RETRY_ATTEMPT_DELAY_SECONDS));
+        addAttribute(new SimpleNodeAttribute("writeBehindConcurrency", cacheWriterConfiguration.getWriteBehindConcurrency()).optional(
+                true).defaultValue(CacheWriterConfiguration.DEFAULT_WRITE_BEHIND_CONCURRENCY));
 
         CacheWriterFactoryConfiguration cacheWriterFactoryConfiguration = cacheWriterConfiguration.getCacheWriterFactoryConfiguration();
         if (cacheWriterFactoryConfiguration != null) {

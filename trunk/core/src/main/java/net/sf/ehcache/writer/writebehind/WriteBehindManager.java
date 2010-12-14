@@ -38,7 +38,7 @@ public class WriteBehindManager implements CacheWriterManager {
         if (cache.isTerracottaClustered()) {
             writeBehind = cache.getCacheManager().createTerracottaWriteBehind(cache);
         } else {
-            writeBehind = new WriteBehindQueue(cache.getCacheConfiguration());
+            writeBehind = new WriteBehindQueueManager(cache.getCacheConfiguration());
         }
 
         CacheWriter cacheWriter = cache.getRegisteredCacheWriter();

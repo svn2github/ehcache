@@ -70,6 +70,11 @@ public class CacheWriterConfiguration implements Cloneable {
     public static final int DEFAULT_RETRY_ATTEMPT_DELAY_SECONDS = 1;
 
     /**
+     * Default concurrency level for write behind
+     */
+    public static final int DEFAULT_WRITE_BEHIND_CONCURRENCY = 1;
+
+    /**
      * Represents how elements are written to the {@link net.sf.ehcache.writer.CacheWriter}
      */
     public static enum WriteMode {
@@ -118,6 +123,7 @@ public class CacheWriterConfiguration implements Cloneable {
     private int writeBatchSize = DEFAULT_WRITE_BATCH_SIZE;
     private int retryAttempts = DEFAULT_RETRY_ATTEMPTS;
     private int retryAttemptDelaySeconds = DEFAULT_RETRY_ATTEMPT_DELAY_SECONDS;
+    private int writeBehindConcurrency = DEFAULT_WRITE_BEHIND_CONCURRENCY;
     private CacheWriterFactoryConfiguration cacheWriterFactoryConfiguration;
 
     /**
@@ -524,6 +530,23 @@ public class CacheWriterConfiguration implements Cloneable {
         return cacheWriterFactoryConfiguration;
     }
 
+    public void setWriteBehindConcurrency(int concurrency) {
+        if(concurrency < 1) {
+            this.writeBehindConcurrency = 1;
+        } else {
+            this.writeBehindConcurrency = concurrency;
+        }
+    }
+
+    public CacheWriterConfiguration writeBehindConcurrency(int concurrency) {
+        this.setWriteBehindConcurrency(concurrency);
+        return this;
+    }
+
+    public int getWriteBehindConcurrency() {
+        return writeBehindConcurrency;
+    }
+
     /**
      * Overrided hashCode()
      */
@@ -544,6 +567,7 @@ public class CacheWriterConfiguration implements Cloneable {
         result = prime * result + (writeBatching ? primeTwo : primeThree);
         result = prime * result + (writeCoalescing ? primeTwo : primeThree);
         result = prime * result + ((writeMode == null) ? 0 : writeMode.hashCode());
+        result = prime * result + writeBehindConcurrency;
         return result;
     }
 
@@ -594,6 +618,9 @@ public class CacheWriterConfiguration implements Cloneable {
             return false;
         }
         if (writeCoalescing != other.writeCoalescing) {
+            return false;
+        }
+        if(writeBehindConcurrency != other.writeBehindConcurrency) {
             return false;
         }
         if (writeMode == null) {

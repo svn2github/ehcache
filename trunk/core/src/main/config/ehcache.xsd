@@ -294,6 +294,7 @@
             <xs:attribute name="writeBatchSize" use="optional" type="xs:positiveInteger" default="1"/>
             <xs:attribute name="retryAttempts" use="optional" type="xs:nonNegativeInteger" default="0"/>
             <xs:attribute name="retryAttemptDelaySeconds" use="optional" type="xs:nonNegativeInteger" default="1"/>
+            <xs:attribute name="writeBehindConcurrency" use="optional" type="xs:nonNegativeInteger" default="1"/>
         </xs:complexType>
     </xs:element>
     <xs:simpleType name="writeModeType">

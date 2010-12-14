@@ -44,7 +44,7 @@ import java.util.logging.Logger;
  * @author Geert Bevin
  * @version $Id$
  */
-public class WriteBehindQueue implements WriteBehind {
+class WriteBehindQueue {
     private final static Logger LOGGER = Logger.getLogger(WriteBehindQueue.class.getName());
 
     private static final int MS_IN_SEC = 1000;
