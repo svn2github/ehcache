@@ -370,6 +370,7 @@
                         <exclude>**/RMICacheReplicatorWithLargePayloadTest.java</exclude>
                     </excludes>
                     <forkMode>pertest</forkMode>
+                    <argLine>${tests.argLine}</argLine>
                     <childDelegation>false</childDelegation>
                     <disableXmlReport>false</disableXmlReport>
                     <printSummary>true</printSummary>
