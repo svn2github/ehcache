@@ -104,7 +104,7 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
             currentXid = xid;
         } else if (flag == TMRESUME) {
             if (!xidToContextMap.containsKey(xid)) {
-                throw new EhcacheXAException("cannot join/resume non-existent XID: " + xid, XAException.XAER_NOTA);
+                throw new EhcacheXAException("cannot resume non-existent XID: " + xid, XAException.XAER_NOTA);
             }
             currentXid = xid;
         } else if (flag == TMJOIN) {
