@@ -367,6 +367,7 @@ public class LocalTransactionTest extends TestCase {
 
     public void testTwoConcurrentUpdates() throws Exception {
         final long WAIT_TIME = 1500;
+        final long ERROR_MARGIN = 200;
         final long[] times = new long[2];
 
         transactionController.begin(); //TX 0
@@ -398,7 +399,7 @@ public class LocalTransactionTest extends TestCase {
         tx2.join();
         tx2.assertNotFailed();
 
-        assertTrue("expected TX1 to be on hold for more than " + WAIT_TIME + "ms, waited: " + (times[1] - times[0]), times[1] - times[0] >= WAIT_TIME);
+        assertTrue("expected TX1 to be on hold for more than " + WAIT_TIME + "ms, waited: " + (times[1] - times[0]), times[1] - times[0] >= (WAIT_TIME - ERROR_MARGIN));
 
         transactionController.begin(); // TX 3
         assertTrue(elementValueComparator.equals(new Element(1, "tx2-one"), cache1.get(1)));
