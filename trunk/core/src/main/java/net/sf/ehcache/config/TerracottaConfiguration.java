@@ -76,7 +76,7 @@ public class TerracottaConfiguration implements Cloneable {
     /**
      * Default cache coherence setting
      */
-    public static final CoherenceMode DEFAULT_COHERENCE_MODE = CoherenceMode.NON_STRICT;
+    public static final CoherenceMode DEFAULT_COHERENCE_MODE = CoherenceMode.STRICT;
 
     /**
      * Default setting for synchronous-write
