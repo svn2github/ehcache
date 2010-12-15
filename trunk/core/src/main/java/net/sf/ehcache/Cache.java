@@ -2463,6 +2463,7 @@ public class Cache implements Ehcache, StoreListener {
         copy.guid = createGuid();
         copy.cacheStatus = new CacheStatus();
         copy.cacheStatus.changeState(CacheState.UNINITIALIZED);
+        copy.elementValueComparator = copy.configuration.getElementValueComparatorConfiguration().getElementComparatorInstance();
 
         RegisteredEventListeners registeredEventListenersFromCopy = copy.getCacheEventNotificationService();
         if (registeredEventListenersFromCopy == null || registeredEventListenersFromCopy.getCacheEventListeners().size() == 0) {
