@@ -16,6 +16,7 @@
 package net.sf.ehcache;
 
 import net.sf.ehcache.transaction.TransactionIDFactory;
+import net.sf.ehcache.transaction.TransactionTimeoutException;
 import net.sf.ehcache.transaction.local.LocalTransactionContext;
 import net.sf.ehcache.transaction.TransactionException;
 import net.sf.ehcache.transaction.TransactionID;
@@ -25,6 +26,7 @@ import org.slf4j.MDC;
 
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * TransactionController is used to begin, commit and rollback local transactions
@@ -43,6 +45,8 @@ public final class TransactionController {
     private final TransactionIDFactory transactionIDFactory;
 
     private volatile int defaultTransactionTimeout = DEFAULT_TRANSACTION_TIMEOUT;
+
+    private final TransactionControllerStatistics statistics = new TransactionControllerStatistics();
 
     /**
      * Create a TransactionController instance
@@ -118,6 +122,14 @@ public final class TransactionController {
 
         try {
             currentTx.commit(ignoreTimeout);
+            statistics.transactionCommitted();
+        } catch (TransactionTimeoutException tte) {
+            statistics.transactionTimedOut();
+            statistics.transactionRolledBack();
+            throw tte;
+        } catch (TransactionException te) {
+            statistics.transactionRolledBack();
+            throw te;
         } finally {
             contextMap.remove(txId);
             currentTransactionIdThreadLocal.remove();
@@ -138,6 +150,7 @@ public final class TransactionController {
 
         try {
             currentTx.rollback();
+            statistics.transactionRolledBack();
         } finally {
             contextMap.remove(txId);
             currentTransactionIdThreadLocal.remove();
@@ -170,6 +183,65 @@ public final class TransactionController {
             return null;
         }
         return contextMap.get(txId);
+    }
+
+    /**
+     * Get the committed transactions count
+     * @return the committed transactions count
+     */
+    public long getTransactionCommittedCount() {
+        return statistics.getTransactionCommittedCount();
+    }
+
+    /**
+     * Get the rolled back transactions count
+     * @return the rolled back transactions count
+     */
+    public long getTransactionRolledBackCount() {
+        return statistics.getTransactionRolledBackCount();
+    }
+
+    /**
+     * Get the timed out transactions count. Note that only transactions which failed to
+     * commit due to a timeout are taken into account
+     * @return the timed out transactions count
+     */
+    public long getTransactionTimedOutCount() {
+        return statistics.getTransactionTimedOutCount();
+    }
+
+
+    /**
+     * Holder for TransactionController statistics
+     */
+    private static class TransactionControllerStatistics {
+        private final AtomicLong committed = new AtomicLong();
+        private final AtomicLong rolledBack = new AtomicLong();
+        private final AtomicLong timedOut = new AtomicLong();
+
+        void transactionCommitted() {
+            committed.incrementAndGet();
+        }
+
+        void transactionRolledBack() {
+            rolledBack.incrementAndGet();
+        }
+
+        void transactionTimedOut() {
+            timedOut.incrementAndGet();
+        }
+
+        long getTransactionCommittedCount() {
+            return committed.get();
+        }
+
+        long getTransactionRolledBackCount() {
+            return rolledBack.get();
+        }
+
+        long getTransactionTimedOutCount() {
+            return timedOut.get();
+        }
     }
 
 }

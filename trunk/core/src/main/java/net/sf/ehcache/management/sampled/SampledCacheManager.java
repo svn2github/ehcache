@@ -351,6 +351,27 @@ public class SampledCacheManager extends BaseEmitterBean implements SampledCache
     }
 
     /**
+     * {@inheritDoc}
+     */
+    public long getTransactionCommittedCount() {
+        return this.cacheManager.getTransactionController().getTransactionCommittedCount();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public long getTransactionRolledBackCount() {
+        return this.cacheManager.getTransactionController().getTransactionRolledBackCount();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public long getTransactionTimedOutCount() {
+        return this.cacheManager.getTransactionController().getTransactionTimedOutCount();
+    }
+
+    /**
      * Returns if each contained cache is enabled.
      */
     public boolean isEnabled() throws CacheException {

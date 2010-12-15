@@ -129,6 +129,27 @@ public class CacheManager implements CacheManagerMBean {
         return cacheList;
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    public long getTransactionCommittedCount() {
+        return cacheManager.getTransactionController().getTransactionCommittedCount();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public long getTransactionRolledBackCount() {
+        return cacheManager.getTransactionController().getTransactionRolledBackCount();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public long getTransactionTimedOutCount() {
+        return cacheManager.getTransactionController().getTransactionTimedOutCount();
+    }
+
 
     /**
      * @return the object name for this MBean

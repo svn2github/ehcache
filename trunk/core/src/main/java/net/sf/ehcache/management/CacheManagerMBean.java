@@ -77,4 +77,24 @@ public interface CacheManagerMBean {
      * @return a list of JMX Cache objects
      */
     public List getCaches();
+
+    /**
+     * Get the committed transactions count
+     * @return the committed transactions count
+     */
+    public long getTransactionCommittedCount();
+
+    /**
+     * Get the rolled back transactions count
+     * @return the rolled back transactions count
+     */
+    public long getTransactionRolledBackCount();
+
+    /**
+     * Get the timed out transactions count. Note that only transactions which failed to
+     * commit due to a timeout are taken into account
+     * @return the timed out transactions count
+     */
+    public long getTransactionTimedOutCount();
+
 }

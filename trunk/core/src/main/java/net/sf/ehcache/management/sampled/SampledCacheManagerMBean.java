@@ -177,5 +177,25 @@ public interface SampledCacheManagerMBean {
      * @param cacheName
      * @return Cache configuration as String
      */
-    String generateActiveConfigDeclaration(String cacheName); 
+    String generateActiveConfigDeclaration(String cacheName);
+
+    /**
+     * Get the committed transactions count
+     * @return the committed transactions count
+     */
+    long getTransactionCommittedCount();
+
+    /**
+     * Get the rolled back transactions count
+     * @return the rolled back transactions count
+     */
+    long getTransactionRolledBackCount();
+
+    /**
+     * Get the timed out transactions count. Note that only transactions which failed to
+     * commit due to a timeout are taken into account
+     * @return the timed out transactions count
+     */
+    long getTransactionTimedOutCount();
+
 }
