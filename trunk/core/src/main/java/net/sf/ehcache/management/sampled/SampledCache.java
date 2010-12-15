@@ -387,6 +387,24 @@ public class SampledCache extends BaseEmitterBean implements SampledCacheMBean, 
     /**
      * {@inheritDoc}
      *
+     * @see net.sf.ehcache.statistics.LiveCacheStatistics#getXaCommitCount()
+     */
+    public long getXaCommitCount() {
+        return cache.getLiveCacheStatistics().getXaCommitCount();
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @see net.sf.ehcache.statistics.LiveCacheStatistics#getXaRollbackCount()
+     */
+    public long getXaRollbackCount() {
+        return cache.getLiveCacheStatistics().getXaRollbackCount();
+    }
+
+    /**
+     * {@inheritDoc}
+     *
      * @see net.sf.ehcache.statistics.LiveCacheStatistics#getWriterQueueLength()
      */
     public long getWriterQueueLength() {

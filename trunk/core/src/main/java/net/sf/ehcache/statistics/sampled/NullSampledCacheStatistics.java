@@ -362,4 +362,18 @@ public class NullSampledCacheStatistics implements CacheUsageListener, SampledCa
     public void notifyCacheSearch(long executeTime) {
         // no-op
     }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void notifyXaCommit() {
+        // no-op
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void notifyXaRollback() {
+        // no-op
+    }
 }

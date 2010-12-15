@@ -218,4 +218,17 @@ public interface LiveCacheStatistics {
      * @return Elements waiting to be processed by the write behind writer. -1 if no write-behind
      */
     long getWriterQueueLength();
+
+    /**
+     * Return the Cache's XAResource commit calls count
+     * @return the Cache's XAResource commit calls count
+     */
+    public long getXaCommitCount();
+
+    /**
+     * Return the Cache's XAResource rollback calls count
+     * @return the Cache's XAResource rollback calls count
+     */
+    public long getXaRollbackCount();
+    
 }

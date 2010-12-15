@@ -140,4 +140,15 @@ public interface CacheUsageListener {
      * @param executeTime elapsed time in millis
      */
     public void notifyCacheSearch(long executeTime);
+
+    /**
+     * Called when the Cache's XAResource has been asked to commit
+     */
+    void notifyXaCommit();
+
+    /**
+     * Called when the Cache's XAResource has been asked to rollback
+     */
+    void notifyXaRollback();
+
 }

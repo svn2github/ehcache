@@ -61,6 +61,8 @@ public class LiveCacheStatisticsImpl implements LiveCacheStatistics, LiveCacheSt
     private final AtomicInteger statisticsAccuracy = new AtomicInteger();
     private final AtomicLong minGetTimeMillis = new AtomicLong(MIN_MAX_DEFAULT_VALUE);
     private final AtomicLong maxGetTimeMillis = new AtomicLong(MIN_MAX_DEFAULT_VALUE);
+    private final AtomicLong xaCommitCount = new AtomicLong();
+    private final AtomicLong xaRollbackCount = new AtomicLong();
 
     private final List<CacheUsageListener> listeners = new CopyOnWriteArrayList<CacheUsageListener>();
 
@@ -95,8 +97,36 @@ public class LiveCacheStatisticsImpl implements LiveCacheStatistics, LiveCacheSt
         cacheElementUpdated.set(0);
         minGetTimeMillis.set(MIN_MAX_DEFAULT_VALUE);
         maxGetTimeMillis.set(MIN_MAX_DEFAULT_VALUE);
+        xaCommitCount.set(0);
+        xaRollbackCount.set(0);
         for (CacheUsageListener l : listeners) {
             l.notifyStatisticsCleared();
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void xaCommit() {
+        if (!statisticsEnabled.get()) {
+            return;
+        }
+        xaCommitCount.incrementAndGet();
+        for (CacheUsageListener l : listeners) {
+            l.notifyXaCommit();
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void xaRollback() {
+        if (!statisticsEnabled.get()) {
+            return;
+        }
+        xaRollbackCount.incrementAndGet();
+        for (CacheUsageListener l : listeners) {
+            l.notifyXaRollback();
         }
     }
 
@@ -555,6 +585,24 @@ public class LiveCacheStatisticsImpl implements LiveCacheStatistics, LiveCacheSt
      */
     public long getMaxGetTimeMillis() {
         return maxGetTimeMillis.get();
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @see net.sf.ehcache.statistics.LiveCacheStatistics#getXaCommitCount()
+     */
+    public long getXaCommitCount() {
+        return xaCommitCount.get();
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @see net.sf.ehcache.statistics.LiveCacheStatistics#getXaRollbackCount()
+     */
+    public long getXaRollbackCount() {
+        return xaRollbackCount.get();
     }
 
     /**

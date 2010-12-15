@@ -66,6 +66,8 @@ public class SampledCacheStatisticsImpl implements CacheUsageListener, SampledCa
     private final SampledCounter cacheElementPut;
     private final SampledCounter cacheElementUpdated;
     private final SampledCounter cacheSearchCount;
+    private final SampledCounter cacheXaCommitCount;
+    private final SampledCounter cacheXaRollbackCount;
     private final SampledRateCounter averageGetTime;
     private final SampledRateCounter averageSearchTime;
 
@@ -94,6 +96,8 @@ public class SampledCacheStatisticsImpl implements CacheUsageListener, SampledCa
         cacheElementPut = createSampledCounter(DEFAULT_SAMPLED_COUNTER_CONFIG);
         cacheElementUpdated = createSampledCounter(DEFAULT_SAMPLED_COUNTER_CONFIG);
         cacheSearchCount = createSampledCounter(DEFAULT_SAMPLED_COUNTER_CONFIG);
+        cacheXaCommitCount = createSampledCounter(DEFAULT_SAMPLED_COUNTER_CONFIG);
+        cacheXaRollbackCount = createSampledCounter(DEFAULT_SAMPLED_COUNTER_CONFIG);
 
         averageGetTime = (SampledRateCounter) createSampledCounter(DEFAULT_SAMPLED_RATE_COUNTER_CONFIG);
         averageSearchTime = (SampledRateCounter) createSampledCounter(
@@ -136,6 +140,8 @@ public class SampledCacheStatisticsImpl implements CacheUsageListener, SampledCa
         cacheElementPut.getAndReset();
         cacheElementUpdated.getAndReset();
         cacheSearchCount.getAndReset();
+        cacheXaCommitCount.getAndReset();
+        cacheXaRollbackCount.getAndReset();
         averageGetTime.getAndReset();
         averageSearchTime.getAndReset();
     }
@@ -303,6 +309,8 @@ public class SampledCacheStatisticsImpl implements CacheUsageListener, SampledCa
         cacheElementExpired.getAndReset();
         cacheElementPut.getAndReset();
         cacheElementUpdated.getAndReset();
+        cacheXaCommitCount.getAndReset();
+        cacheXaRollbackCount.getAndReset();
         averageGetTime.getAndReset();
     }
 
@@ -466,5 +474,19 @@ public class SampledCacheStatisticsImpl implements CacheUsageListener, SampledCa
     public void notifyCacheSearch(long executeTime) {
         this.cacheSearchCount.increment();
         this.averageSearchTime.increment(executeTime, 1);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void notifyXaCommit() {
+        incrementIfStatsEnabled(cacheXaCommitCount);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void notifyXaRollback() {
+        incrementIfStatsEnabled(cacheXaRollbackCount);
     }
 }

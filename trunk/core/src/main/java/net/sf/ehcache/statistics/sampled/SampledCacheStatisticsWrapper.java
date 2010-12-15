@@ -396,4 +396,18 @@ public class SampledCacheStatisticsWrapper implements CacheUsageListener, Sample
     public void notifyCacheSearch(long executeTime) {
         getDelegateAsListener().notifyCacheSearch(executeTime);
     }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void notifyXaCommit() {
+        getDelegateAsListener().notifyXaCommit();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void notifyXaRollback() {
+        getDelegateAsListener().notifyXaRollback();
+    }
 }

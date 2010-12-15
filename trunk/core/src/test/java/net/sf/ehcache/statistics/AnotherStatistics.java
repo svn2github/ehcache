@@ -207,4 +207,18 @@ public class AnotherStatistics extends LiveCacheStatisticsImpl implements
     public void notifyCacheSearch(long executeTime) {
         throw new AssertionError();
     }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void notifyXaCommit() {
+        super.xaCommit();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void notifyXaRollback() {
+        super.xaRollback();
+    }
 }

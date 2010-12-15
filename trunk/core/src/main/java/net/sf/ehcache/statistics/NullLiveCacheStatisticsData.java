@@ -228,6 +228,20 @@ public class NullLiveCacheStatisticsData implements LiveCacheStatistics, LiveCac
     /**
      * {@inheritDoc}
      */
+    public void xaCommit() {
+        // no-op
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void xaRollback() {
+        // no-op
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     public void cacheMissNotFound() {
         // no-op
     }
@@ -363,6 +377,20 @@ public class NullLiveCacheStatisticsData implements LiveCacheStatistics, LiveCac
      * but returns 0, always!
      */
     public long getWriterQueueLength() {
+        return 0;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public long getXaCommitCount() {
+        return 0;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public long getXaRollbackCount() {
         return 0;
     }
 

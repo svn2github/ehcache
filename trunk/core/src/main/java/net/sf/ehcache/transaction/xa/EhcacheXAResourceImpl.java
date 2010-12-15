@@ -18,6 +18,7 @@ package net.sf.ehcache.transaction.xa;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
+import net.sf.ehcache.statistics.LiveCacheStatisticsWrapper;
 import net.sf.ehcache.store.ElementValueComparator;
 import net.sf.ehcache.store.Store;
 import net.sf.ehcache.store.chm.ConcurrentHashMap;
@@ -255,6 +256,8 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
      * @throws XAException when an error occurs
      */
     public void commitInternal(Xid xid, boolean onePhase) throws XAException {
+        LiveCacheStatisticsWrapper liveCacheStatisticsWrapper = (LiveCacheStatisticsWrapper) cache.getLiveCacheStatistics();
+        liveCacheStatisticsWrapper.xaCommit();
         if (onePhase) {
             XATransactionContext twopcTransactionContext = xidToContextMap.get(xid);
             if (twopcTransactionContext == null) {
@@ -338,6 +341,8 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
      * @throws XAException when an error occurs
      */
     public void rollbackInternal(Xid xid) throws XAException {
+        LiveCacheStatisticsWrapper liveCacheStatisticsWrapper = (LiveCacheStatisticsWrapper) cache.getLiveCacheStatistics();
+        liveCacheStatisticsWrapper.xaRollback();
         XidTransactionID xidTransactionID = transactionIDFactory.createXidTransactionID(xid);
         Set<SoftLock> softLocks = softLockFactory.collectAllSoftLocksForTransactionID(xidTransactionID);
         for (SoftLock softLock : softLocks) {

@@ -78,6 +78,16 @@ public interface LiveCacheStatisticsData extends CacheEventListener {
     public void cacheMissExpired();
 
     /**
+     * Called when the Cache's XAResource has been asked to commit
+     */
+    public void xaCommit();
+
+    /**
+     * Called when the Cache's XAResource has been asked to rollback
+     */
+    public void xaRollback();
+
+    /**
      * Adds time taken for a get operation in the cache
      * 
      * @param millis

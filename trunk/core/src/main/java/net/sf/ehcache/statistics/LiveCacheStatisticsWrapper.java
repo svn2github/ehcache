@@ -326,6 +326,24 @@ public class LiveCacheStatisticsWrapper implements LiveCacheStatistics, LiveCach
 
     /**
      * {@inheritDoc}
+     *
+     * @see net.sf.ehcache.statistics.LiveCacheStatistics#getXaCommitCount()
+     */
+    public long getXaCommitCount() {
+        return delegate.getXaCommitCount();
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @see net.sf.ehcache.statistics.LiveCacheStatistics#getXaRollbackCount()
+     */
+    public long getXaRollbackCount() {
+        return delegate.getXaRollbackCount();
+    }
+
+    /**
+     * {@inheritDoc}
      */
     public long getWriterQueueLength() {
         return delegate.getWriterQueueLength();
@@ -374,6 +392,24 @@ public class LiveCacheStatisticsWrapper implements LiveCacheStatistics, LiveCach
      */
     public void cacheMissExpired() {
         getDelegateAsLiveStatisticsData().cacheMissExpired();
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @see net.sf.ehcache.statistics.LiveCacheStatisticsData#xaCommit()
+     */
+    public void xaCommit() {
+        getDelegateAsLiveStatisticsData().xaCommit();
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @see net.sf.ehcache.statistics.LiveCacheStatisticsData#xaRollback()
+     */
+    public void xaRollback() {
+        getDelegateAsLiveStatisticsData().xaRollback();
     }
 
     /**
