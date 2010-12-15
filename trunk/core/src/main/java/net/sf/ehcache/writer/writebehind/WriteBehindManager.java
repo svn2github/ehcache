@@ -73,4 +73,13 @@ public class WriteBehindManager implements CacheWriterManager {
     public void dispose() {
         writeBehind.stop();
     }
+
+    /**
+     * Gets the best estimate for items in the queue still awaiting processing.
+     * Not including elements currently processed
+     * @return the amount of elements still awaiting processing.
+     */
+    public long getQueueSize() {
+        return writeBehind.getQueueSize();
+    }
 }

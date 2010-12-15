@@ -326,6 +326,13 @@ public class LiveCacheStatisticsWrapper implements LiveCacheStatistics, LiveCach
 
     /**
      * {@inheritDoc}
+     */
+    public long getWriterQueueLength() {
+        return delegate.getWriterQueueLength();
+    }
+
+    /**
+     * {@inheritDoc}
      * 
      * @see net.sf.ehcache.statistics.LiveCacheStatistics#getMinGetTimeMillis()
      */

@@ -212,4 +212,10 @@ public interface LiveCacheStatistics {
      */
     public long getMaxGetTimeMillis();
 
+    /**
+     * Gets the size of the write-behind queue, if any.
+     * The value is for all local buckets
+     * @return Elements waiting to be processed by the write behind writer. -1 if no write-behind
+     */
+    long getWriterQueueLength();
 }

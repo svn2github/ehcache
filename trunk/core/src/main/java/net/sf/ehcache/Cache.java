@@ -2724,7 +2724,7 @@ public class Cache implements Ehcache, StoreListener {
                 .getInMemoryMissCount(), size, getAverageGetTime(),
                 getLiveCacheStatistics().getEvictedCount(),
                 getMemoryStoreSize(), getOffHeapStoreSize(), getDiskStoreSize(),
-                getSearchesPerSecond(), getAverageSearchTime());
+                getSearchesPerSecond(), getAverageSearchTime(), getLiveCacheStatistics().getWriterQueueLength());
     }
 
     /**

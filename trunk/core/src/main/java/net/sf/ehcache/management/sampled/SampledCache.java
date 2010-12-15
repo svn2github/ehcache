@@ -387,6 +387,15 @@ public class SampledCache extends BaseEmitterBean implements SampledCacheMBean, 
     /**
      * {@inheritDoc}
      *
+     * @see net.sf.ehcache.statistics.LiveCacheStatistics#getWriterQueueLength()
+     */
+    public long getWriterQueueLength() {
+        return cache.getLiveCacheStatistics().getWriterQueueLength();
+    }
+
+    /**
+     * {@inheritDoc}
+     *
      * @see net.sf.ehcache.statistics.LiveCacheStatistics#getMinGetTimeMillis()
      */
     public long getMinGetTimeMillis() {

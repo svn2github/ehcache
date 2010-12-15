@@ -479,6 +479,15 @@ class WriteBehindQueue {
         }
     }
 
+    /**
+     * Gets the best estimate for items in the queue still awaiting processing.
+     * Not including elements currently processed
+     * @return the amount of elements still awaiting processing.
+     */
+    public long getQueueSize() {
+        return waiting.size();
+    }
+
     private boolean isStopped() {
         queueReadLock.lock();
         try {

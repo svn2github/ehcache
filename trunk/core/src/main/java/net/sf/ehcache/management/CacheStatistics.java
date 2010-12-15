@@ -238,6 +238,16 @@ public class CacheStatistics implements CacheStatisticsMBean, Serializable {
     }
 
     /**
+     * Gets the size of the write-behind queue, if any.
+     * The value is for all local buckets
+     * @return Elements waiting to be processed by the write behind writer. -1 if no write-behind
+     */
+    public long getWriterQueueLength() {
+        updateIfNeeded();
+        return statistics.getWriterQueueSize();
+    }
+
+    /**
      * Gets the number of objects in the MemoryStore
      * @return the MemoryStore size which is always a count unadjusted for duplicates or expiries
      */

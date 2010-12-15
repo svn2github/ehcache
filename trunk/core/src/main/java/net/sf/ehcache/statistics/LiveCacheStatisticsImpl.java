@@ -28,6 +28,8 @@ import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.Statistics;
+import net.sf.ehcache.writer.CacheWriterManager;
+import net.sf.ehcache.writer.writebehind.WriteBehindManager;
 
 /**
  * Implementation which can be used both as a {@link LiveCacheStatistics} and {@link LiveCacheStatisticsData}
@@ -553,6 +555,18 @@ public class LiveCacheStatisticsImpl implements LiveCacheStatistics, LiveCacheSt
      */
     public long getMaxGetTimeMillis() {
         return maxGetTimeMillis.get();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public long getWriterQueueLength() {
+        long length = -1;
+        CacheWriterManager writerManager = cache.getWriterManager();
+        if (writerManager != null && writerManager instanceof WriteBehindManager) {
+            length = ((WriteBehindManager)writerManager).getQueueSize();
+        }
+        return length;
     }
 
     /**

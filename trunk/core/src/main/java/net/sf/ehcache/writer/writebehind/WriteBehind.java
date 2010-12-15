@@ -66,4 +66,11 @@ public interface WriteBehind {
      * @see #start
      */
     void stop() throws CacheException;
+
+    /**
+     * Gets the best estimate for items in the queue still awaiting processing.
+     * Not including elements currently processed
+     * @return the amount of elements still awaiting processing.
+     */
+    long getQueueSize();
 }

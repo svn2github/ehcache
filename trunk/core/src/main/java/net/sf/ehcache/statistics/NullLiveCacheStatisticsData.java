@@ -359,6 +359,15 @@ public class NullLiveCacheStatisticsData implements LiveCacheStatistics, LiveCac
 
     /**
      * {@inheritDoc}
+     *
+     * but returns 0, always!
+     */
+    public long getWriterQueueLength() {
+        return 0;
+    }
+
+    /**
+     * {@inheritDoc}
      * 
      * @see net.sf.ehcache.statistics.LiveCacheStatistics#getMinGetTimeMillis()
      */

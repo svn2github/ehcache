@@ -92,6 +92,8 @@ public class Statistics implements Serializable {
     private final long searchesPerSecond;
 
     private final long averageSearchTime;
+    
+    private long writerQueueLength;
 
 
     /**
@@ -110,7 +112,7 @@ public class Statistics implements Serializable {
                       long inMemoryHits, long misses, long onDiskMisses, long offHeapMisses,
                       long inMemoryMisses, long size, float averageGetTime, long evictionCount,
                       long memoryStoreSize, long offHeapStoreSize, long diskStoreSize, long searchesPerSecond,
-                      long averageSearchTime) {
+                      long averageSearchTime, long writerQueueLength) {
         this.cacheName = cache.getName();
         this.statisticsAccuracy = statisticsAccuracy;
         this.cacheHits = cacheHits;
@@ -130,6 +132,7 @@ public class Statistics implements Serializable {
         this.diskStoreSize = diskStoreSize;
         this.searchesPerSecond = searchesPerSecond;
         this.averageSearchTime = averageSearchTime;
+        this.writerQueueLength = writerQueueLength;
     }
 
 
@@ -393,4 +396,12 @@ public class Statistics implements Serializable {
                 || statisticsAccuracy == STATISTICS_ACCURACY_GUARANTEED;
     }
 
+    /**
+     * Gets the size of the write-behind queue, if any.
+     * The value is for all local buckets
+     * @return Elements waiting to be processed by the write behind writer. -1 if no write-behind
+     */
+    public long getWriterQueueSize() {
+        return writerQueueLength;
+    }
 }

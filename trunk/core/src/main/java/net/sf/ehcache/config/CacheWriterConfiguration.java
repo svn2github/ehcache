@@ -530,19 +530,33 @@ public class CacheWriterConfiguration implements Cloneable {
         return cacheWriterFactoryConfiguration;
     }
 
+    /**
+     * Configures the amount of thread/bucket pairs WriteBehind should use
+     * @param concurrency Amount of thread/bucket pairs, has to be at least 1
+     */
     public void setWriteBehindConcurrency(int concurrency) {
-        if(concurrency < 1) {
+        if (concurrency < 1) {
             this.writeBehindConcurrency = 1;
         } else {
             this.writeBehindConcurrency = concurrency;
         }
     }
 
+    /**
+     *
+     * @param concurrency Amount of thread/bucket pairs, has to be at least 1
+     * @return this configuration instance
+     * @see #setWriteBehindConcurrency(int)
+     */
     public CacheWriterConfiguration writeBehindConcurrency(int concurrency) {
         this.setWriteBehindConcurrency(concurrency);
         return this;
     }
 
+    /**
+     * Accessor
+     * @return the amount of bucket/thread pairs configured for this cache's write behind
+     */
     public int getWriteBehindConcurrency() {
         return writeBehindConcurrency;
     }
@@ -620,7 +634,7 @@ public class CacheWriterConfiguration implements Cloneable {
         if (writeCoalescing != other.writeCoalescing) {
             return false;
         }
-        if(writeBehindConcurrency != other.writeBehindConcurrency) {
+        if (writeBehindConcurrency != other.writeBehindConcurrency) {
             return false;
         }
         if (writeMode == null) {
