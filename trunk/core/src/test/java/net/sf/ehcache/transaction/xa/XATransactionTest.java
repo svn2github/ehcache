@@ -1,4 +1,4 @@
-package net.sf.ehcache.transaction.twopc;
+package net.sf.ehcache.transaction.xa;
 
 import bitronix.tm.BitronixTransaction;
 import bitronix.tm.TransactionManagerServices;
@@ -16,7 +16,7 @@ import javax.transaction.TransactionManager;
 /**
  * @author Ludovic Orban
  */
-public class TwopcTransactionTest extends TestCase {
+public class XATransactionTest extends TestCase {
 
     private TransactionManager tm;
     private CacheManager cacheManager;
@@ -28,7 +28,7 @@ public class TwopcTransactionTest extends TestCase {
         TransactionManagerServices.getConfiguration().setJournal("null").setGracefulShutdownInterval(0).setBackgroundRecoveryIntervalSeconds(1);
 
         tm = TransactionManagerServices.getTransactionManager();
-        cacheManager = new CacheManager(TwopcTransactionTest.class.getResourceAsStream("/ehcache-tx-twopc.xml"));
+        cacheManager = new CacheManager(XATransactionTest.class.getResourceAsStream("/ehcache-tx-twopc.xml"));
 
         cache1 = cacheManager.getEhcache("txCache1");
         cache2 = cacheManager.getEhcache("txCache2");
