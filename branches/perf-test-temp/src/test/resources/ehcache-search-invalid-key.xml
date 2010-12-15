@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<ehcache xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="../../main/config/ehcache.xsd">
+
+    <defaultCache maxElementsInMemory="10" eternal="false"
+                  timeToIdleSeconds="5" timeToLiveSeconds="10" overflowToDisk="true"/>
+
+    <cache name="cache1" maxElementsInMemory="0" eternal="true" overflowToDisk="false">
+        <searchable>
+            <searchAttribute name="key" expression="key"/>
+        </searchable>       
+    </cache>
+         
+</ehcache>
+
+
