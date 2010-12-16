@@ -29,6 +29,7 @@
     <!--Have some duplication until we get rid of Old Lru-->
     <suppress checks="StrictDuplicateCode" files="LruMemoryStore.java" />
     <suppress checks="StrictDuplicateCode" files="MemoryStore.java" />
+    <suppress checks="StrictDuplicateCode" files="NoOpOnTimeoutStore.java" />
 
     <!-- These classes are deprecated and may not live forever.
          I don't want to build a common superclass linking them to the cache access strategies -->
