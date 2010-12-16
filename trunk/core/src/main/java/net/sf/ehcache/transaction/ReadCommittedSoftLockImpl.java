@@ -174,7 +174,7 @@ public class ReadCommittedSoftLockImpl implements SoftLock {
         return expired;
     }
 
-    public void clear() {
+    private void clear() {
         factory.clearSoftLock(this);
     }
 
