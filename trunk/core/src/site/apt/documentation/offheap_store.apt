@@ -109,12 +109,12 @@ public Cache createOffHeapCache() {
 
 ***  Configuring the License as a Java system property
 
-    Add a <<<org.terracotta.license.path=/path/to/key>>> system property which points to the key location.
+    Add a <<<com.tc.productkey.path=/path/to/key>>> system property which points to the key location.
 
     e.g.
 
 ---
-     java -Dorg.terracotta.license.path=/path/to/key
+     java -Dcom.tc.productkey.path=/path/to/key
 ---
 
 
