@@ -23,6 +23,7 @@ import net.sf.ehcache.cluster.ClusterScheme;
 import net.sf.ehcache.cluster.ClusterSchemeNotAvailableException;
 import net.sf.ehcache.concurrent.CacheLockProvider;
 import net.sf.ehcache.concurrent.LockType;
+import net.sf.ehcache.concurrent.StripedReadWriteLockSync;
 import net.sf.ehcache.concurrent.Sync;
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.CacheWriterConfiguration;
@@ -1131,6 +1132,8 @@ public class Cache implements Ehcache, StoreListener {
             Object context = compoundStore.getInternalContext();
             if (context instanceof CacheLockProvider) {
                 lockProvider = (CacheLockProvider) context;
+            } else {
+                this.lockProvider = new StripedReadWriteLockSync(StripedReadWriteLockSync.DEFAULT_NUMBER_OF_MUTEXES);
             }
         }
 
@@ -3612,6 +3615,88 @@ public class Cache implements Ehcache, StoreListener {
         cacheStatus.reinitializeInProgress();
         initialise();
         cacheStatus.reinitializeComplete();
+    }
+
+    /**
+     * Gets the lock for a given key
+     *
+     * @param key
+     * @return the lock object for the passed in key
+     */
+    protected Sync getLockForKey(final Object key) {
+        return lockProvider.getSyncForKey(key);
+    }
+
+    private void acquireLockOnKey(Object key, LockType lockType) {
+        Sync s = getLockForKey(key);
+        s.lock(lockType);
+    }
+
+    private void releaseLockOnKey(Object key, LockType lockType) {
+        Sync s = getLockForKey(key);
+        s.unlock(lockType);
+    }
+
+    /**
+     * Acquires the proper read lock for a given cache key
+     *
+     * @param key - The key that retrieves a value that you want to protect via locking
+     */
+    public void acquireReadLockOnKey(Object key) {
+        this.acquireLockOnKey(key, LockType.READ);
+    }
+
+    /**
+     * Acquires the proper write lock for a given cache key
+     *
+     * @param key - The key that retrieves a value that you want to protect via locking
+     */
+    public void acquireWriteLockOnKey(Object key) {
+        this.acquireLockOnKey(key, LockType.WRITE);
+    }
+
+    /**
+     * Try to get a read lock on a given key. If can't get it in timeout millis then return a boolean telling that it didn't get the lock
+     *
+     * @param key - The key that retrieves a value that you want to protect via locking
+     * @param timeout - millis until giveup on getting the lock
+     * @return whether the lock was awarded
+     * @throws InterruptedException
+     */
+    public boolean tryReadLockOnKey(Object key, long timeout) throws InterruptedException {
+        Sync s = getLockForKey(key);
+        return s.tryLock(LockType.READ, timeout);
+    }
+
+    /**
+     * Try to get a write lock on a given key. If can't get it in timeout millis then return a boolean telling that it didn't get the lock
+     *
+     * @param key - The key that retrieves a value that you want to protect via locking
+     * @param timeout - millis until giveup on getting the lock
+     * @return whether the lock was awarded
+     * @throws InterruptedException
+     */
+    public boolean tryWriteLockOnKey(Object key, long timeout) throws InterruptedException {
+        Sync s = getLockForKey(key);
+        return s.tryLock(LockType.WRITE, timeout);
+    }
+
+    /**
+     * Release a held read lock for the passed in key
+     *
+     * @param key - The key that retrieves a value that you want to protect via locking
+     */
+    public void releaseReadLockOnKey(Object key) {
+        releaseLockOnKey(key, LockType.READ);
+    }
+
+    /**
+     * Release a held write lock for the passed in key
+     *
+     * @param key - The key that retrieves a value that you want to protect via locking
+     */
+    public void releaseWriteLockOnKey(Object key) {
+        releaseLockOnKey(key, LockType.WRITE);
     }
 
     /**
