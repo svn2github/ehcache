@@ -428,18 +428,19 @@ public class DiskStoreTest extends AbstractCacheTest {
             byte[] data = new byte[1024];
             diskStore.put(new Element("key" + (i + 100), data));
         }
-        waitShorter();
-        assertEquals(ELEMENT_ON_DISK_SIZE * 100, diskStore.getOnDiskSizeInBytes());
         assertEquals(100, diskStore.getSize());
         manager.removeCache(cacheName);
+
+        File dataFile = ((DiskPersistentStore) diskStore).getDataFile();
+        assertTrue(dataFile.length() >= 100 * ELEMENT_ON_DISK_SIZE);
 
         File indexFile = ((DiskPersistentStore) diskStore).getIndexFile();
         FileOutputStream fout = new FileOutputStream(indexFile);
         //corrupt the index file
         fout.write(new byte[]{'q', 'w', 'e', 'r', 't', 'y'});
         fout.close();
+
         diskStore = createPersistentDiskStore(cacheName);
-        File dataFile = ((DiskPersistentStore) diskStore).getDataFile();
         assertTrue("File exists", dataFile.exists());
 
         //Make sure the data file got recreated since the index was corrupt
