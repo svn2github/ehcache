@@ -17,15 +17,24 @@
 package net.sf.ehcache;
 
 import static junit.framework.Assert.assertSame;
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.not;
+import static org.hamcrest.CoreMatchers.sameInstance;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeSupport;
 import java.io.ByteArrayInputStream;
 import java.io.Serializable;
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -37,6 +46,9 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 
 import net.sf.ehcache.bootstrap.BootstrapCacheLoader;
 import net.sf.ehcache.event.CacheEventListener;
@@ -2061,8 +2073,18 @@ public class CacheTest extends AbstractCacheTest {
      */
     @Test
     public void testCloneCompleteness() throws Exception {
+        final AtomicBoolean lastValue = new AtomicBoolean();
         Cache cache = new Cache("testGetMemoryStore", 10, false, false, 100,
                 200);
+        PropertyChangeListener changeListener = new PropertyChangeListener() {
+            public void propertyChange(final PropertyChangeEvent evt) {
+                if (evt.getPropertyName().equals("Disabled")) {
+                    System.out.println(evt.getSource());
+                    lastValue.set((Boolean)evt.getNewValue());
+                }
+            }
+        };
+        cache.addPropertyChangeListener(changeListener);
         Cache clone = cache.clone();
         clone.setName("testGetMemoryStoreClone");
         manager.addCache(cache);
@@ -2070,7 +2092,7 @@ public class CacheTest extends AbstractCacheTest {
 
         cache.setStatisticsEnabled(true);
         clone.setStatisticsEnabled(true);
-        
+
         assertFalse(cache.getGuid().equals(clone.getGuid()));
 
         // validate updating the statistics of one cache does NOT affect a
@@ -2078,6 +2100,30 @@ public class CacheTest extends AbstractCacheTest {
         cache.get("notFoundKey");
         assertEquals(1, cache.getStatistics().getCacheMisses());
         assertEquals(0, clone.getStatistics().getCacheMisses());
+
+        cache.setDisabled(true);
+        clone.setDisabled(true);
+        clone.setDisabled(false);
+
+        assertFalse(cache.getGuid().equals(clone.getGuid()));
+        assertThat(getPropertyChangeSupport(cache), not(sameInstance(getPropertyChangeSupport(clone))));
+        assertThat(lastValue.get(), is(false));
+        clone.removePropertyChangeListener(changeListener);
+        cache.setDisabled(false);
+        cache.setDisabled(true);
+        assertThat(lastValue.get(), equalTo(true));
+        clone.setDisabled(true);
+        clone.setDisabled(false);
+        assertThat(lastValue.get(), equalTo(true));
+    }
+
+    private PropertyChangeSupport getPropertyChangeSupport(final Cache cache) throws Exception {
+        PropertyChangeSupport propertyChangeSupport = null;
+        Field field = Cache.class.getDeclaredField("propertyChangeSupport");
+        field.setAccessible(true);
+        propertyChangeSupport = (PropertyChangeSupport) field.get(cache);
+
+        return propertyChangeSupport;
     }
 
 

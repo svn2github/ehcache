@@ -256,7 +256,7 @@ public class Cache implements Ehcache, StoreListener {
 
     private volatile boolean allowDisable = true;
 
-    private final PropertyChangeSupport propertyChangeSupport = new PropertyChangeSupport(this);
+    private volatile PropertyChangeSupport propertyChangeSupport = new PropertyChangeSupport(this);
 
     private volatile ElementValueComparator elementValueComparator;
 
@@ -2464,6 +2464,10 @@ public class Cache implements Ehcache, StoreListener {
         copy.cacheStatus = new CacheStatus();
         copy.cacheStatus.changeState(CacheState.UNINITIALIZED);
         copy.elementValueComparator = copy.configuration.getElementValueComparatorConfiguration().getElementComparatorInstance();
+        copy.propertyChangeSupport = new PropertyChangeSupport(copy);
+        for (PropertyChangeListener propertyChangeListener : propertyChangeSupport.getPropertyChangeListeners()) {
+            copy.addPropertyChangeListener(propertyChangeListener);
+        }
 
         RegisteredEventListeners registeredEventListenersFromCopy = copy.getCacheEventNotificationService();
         if (registeredEventListenersFromCopy == null || registeredEventListenersFromCopy.getCacheEventListeners().size() == 0) {
