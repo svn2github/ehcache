@@ -172,7 +172,7 @@ public class LocalTransactionStore extends AbstractTransactionStore {
                     SoftLock softLock = (SoftLock) value;
 
                     if (cleanupExpiredSoftLock(oldElement, softLock)) {
-                        LOG.info("put: cache [{}] key [{}] guarded by expired soft lock, cleaned up {}",
+                        LOG.debug("put: cache [{}] key [{}] guarded by expired soft lock, cleaned up {}",
                                 new Object[] {cacheName, key, softLock});
                         continue;
                     }
@@ -252,7 +252,7 @@ public class LocalTransactionStore extends AbstractTransactionStore {
             if (value instanceof SoftLock) {
                 SoftLock softLock = (SoftLock) value;
                 if (cleanupExpiredSoftLock(oldElement, softLock)) {
-                    LOG.info("getQuiet: cache [{}] key [{}] guarded by expired soft lock, cleaned up {}",
+                    LOG.debug("getQuiet: cache [{}] key [{}] guarded by expired soft lock, cleaned up {}",
                             new Object[] {cacheName, key, softLock});
                     continue;
                 }
@@ -287,7 +287,7 @@ public class LocalTransactionStore extends AbstractTransactionStore {
             if (value instanceof SoftLock) {
                 SoftLock softLock = (SoftLock) value;
                 if (cleanupExpiredSoftLock(oldElement, softLock)) {
-                    LOG.info("get: cache [{}] key [{}] guarded by expired soft lock, cleaned up {}",
+                    LOG.debug("get: cache [{}] key [{}] guarded by expired soft lock, cleaned up {}",
                             new Object[] {cacheName, key, softLock});
                     continue;
                 }
@@ -336,7 +336,7 @@ public class LocalTransactionStore extends AbstractTransactionStore {
                     SoftLock softLock = (SoftLock) value;
 
                     if (cleanupExpiredSoftLock(oldElement, softLock)) {
-                        LOG.info("remove: cache [{}] key [{}] guarded by expired soft lock, cleaned up {}",
+                        LOG.debug("remove: cache [{}] key [{}] guarded by expired soft lock, cleaned up {}",
                                 new Object[] {cacheName, key, softLock});
                         continue;
                     }
@@ -560,7 +560,7 @@ public class LocalTransactionStore extends AbstractTransactionStore {
                 SoftLock softLock = (SoftLock) oldElement.getObjectValue();
 
                 if (cleanupExpiredSoftLock(oldElement, softLock)) {
-                    LOG.info("putIfAbsent: cache [{}] key [{}] guarded by expired soft lock, cleaned up {}",
+                    LOG.debug("putIfAbsent: cache [{}] key [{}] guarded by expired soft lock, cleaned up {}",
                             new Object[] {cacheName, key, softLock});
                     continue;
                 }
@@ -638,7 +638,7 @@ public class LocalTransactionStore extends AbstractTransactionStore {
                     SoftLock softLock = (SoftLock) value;
 
                     if (cleanupExpiredSoftLock(oldElement, softLock)) {
-                        LOG.info("removeElement: cache [{}] key [{}] guarded by expired soft lock, cleaned up {}",
+                        LOG.debug("removeElement: cache [{}] key [{}] guarded by expired soft lock, cleaned up {}",
                                 new Object[] {cacheName, key, softLock});
                         continue;
                     }
@@ -746,7 +746,7 @@ public class LocalTransactionStore extends AbstractTransactionStore {
                     SoftLock softLock = (SoftLock) value;
 
                     if (cleanupExpiredSoftLock(oldElement, softLock)) {
-                        LOG.info("replace: cache [{}] key [{}] guarded by expired soft lock, cleaned up {}",
+                        LOG.debug("replace: cache [{}] key [{}] guarded by expired soft lock, cleaned up {}",
                                 new Object[] {cacheName, key, softLock});
                         continue;
                     }
@@ -840,7 +840,7 @@ public class LocalTransactionStore extends AbstractTransactionStore {
                     SoftLock softLock = (SoftLock) value;
 
                     if (cleanupExpiredSoftLock(oldElement, softLock)) {
-                        LOG.info("replace: cache [{}] key [{}] guarded by expired soft lock, cleaned up {}",
+                        LOG.debug("replace: cache [{}] key [{}] guarded by expired soft lock, cleaned up {}",
                                 new Object[] {cacheName, key, softLock});
                         continue;
                     }
