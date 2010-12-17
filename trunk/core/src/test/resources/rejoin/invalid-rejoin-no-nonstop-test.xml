@@ -7,7 +7,9 @@
 
 	<cache name="test" maxElementsInMemory="10000" eternal="true"
 		overflowToDisk="false">
-		<terracotta />
+		<terracotta>
+			<nonstop enabled="false" />
+		</terracotta>
 	</cache>
 
 	<terracottaConfig rejoin="true" url="localhost:9510" />

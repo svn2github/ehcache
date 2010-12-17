@@ -85,6 +85,9 @@ public class BasicRejoinTest extends TestCase {
         ClusteredInstanceFactory mockFactory = mock(ClusteredInstanceFactory.class);
         setupTestMode(mockFactory);
 
+        CacheCluster mockCacheCluster = new MockCacheCluster();
+        when(mockFactory.getTopology()).thenReturn(mockCacheCluster);
+
         try {
             new CacheManager(CacheManager.class.getResourceAsStream("/rejoin/invalid-rejoin-no-nonstop-test.xml"));
             fail("Trying to run rejoin without nonstop terracotta caches should fail");
@@ -152,6 +155,11 @@ public class BasicRejoinTest extends TestCase {
             CacheConfiguration config = new CacheConfiguration(cacheName, 10);
             config.addTerracotta(new TerracottaConfiguration().clustered(true));
 
+            TerracottaConfiguration terracottaConfiguration = config.getTerracottaConfiguration();
+            if (terracottaConfiguration.getNonstopConfiguration() != null) {
+                terracottaConfiguration.getNonstopConfiguration().enabled(false);
+            }
+
             cacheManager.addCache(new Cache(config));
             fail("Adding Terracotta caches without nonstop should fail");
         } catch (InvalidConfigurationException e) {
@@ -217,8 +225,18 @@ public class BasicRejoinTest extends TestCase {
         // don't forget to unblock the test store
         testRejoinStore.setBlocking(false);
         mockCacheCluster.fireCurrentNodeLeft();
-        Thread.sleep(1000);
 
+        int count = 0;
+        while (true) {
+            if (rejoinListener.rejoinedCount.get() > 0) {
+                break;
+            }
+            System.out.println("Waiting for rejoin to complete.. sleeping 1 sec");
+            Thread.sleep(1000);
+            if (++count >= 60) {
+                fail("Rejoin did not happen even after 60 seconds. Something wrong.");
+            }
+        }
         // assert rejoin event fired
         assertEquals(1, rejoinListener.rejoinedCount.get());
         // assert new factory created

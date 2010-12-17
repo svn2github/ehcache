@@ -21,9 +21,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * A custom {@link ThreadFactory} that maintains a count of how many threads this factory has created
- * 
+ *
  * @author Abhishek Sanoujam
- * 
+ *
  */
 public class CountingThreadFactory implements ThreadFactory {
 
@@ -32,7 +32,7 @@ public class CountingThreadFactory implements ThreadFactory {
 
     /**
      * Constructor accepting the actual thread factory that will create the threads
-     * 
+     *
      * @param actualFactory
      *            the actual factory
      */
@@ -53,7 +53,7 @@ public class CountingThreadFactory implements ThreadFactory {
 
     /**
      * Returns the number of threads this factory has created and currently alive
-     * 
+     *
      * @return Returns the number of threads this factory has created and currently alive
      */
     public int getNumberOfThreads() {
@@ -66,9 +66,9 @@ public class CountingThreadFactory implements ThreadFactory {
 
     /**
      * Runnable which also fires lifecycle events
-     * 
+     *
      * @author Abhishek Sanoujam
-     * 
+     *
      */
     private static class RunnableWithLifeCycle implements Runnable {
 
@@ -77,7 +77,7 @@ public class CountingThreadFactory implements ThreadFactory {
 
         /**
          * Constructor accepting a {@link CountingThreadFactory} and the actual runnable
-         * 
+         *
          * @param countingThreadFactory
          * @param actualRunnable
          */

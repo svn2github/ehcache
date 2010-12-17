@@ -147,6 +147,12 @@ public class NonstopTestUtil extends TestCase {
         skipMethods.add("bufferFull");
         skipMethods.add("getInternalContext");
         skipMethods.add("isElementOnDisk");
+        skipMethods.add("acquireReadLockOnKey");
+        skipMethods.add("acquireWriteLockOnKey");
+        skipMethods.add("releaseReadLockOnKey");
+        skipMethods.add("releaseWriteLockOnKey");
+        skipMethods.add("tryReadLockOnKey");
+        skipMethods.add("tryWriteLockOnKey");
 
         new EhcacheMethodsInvoker() {
 

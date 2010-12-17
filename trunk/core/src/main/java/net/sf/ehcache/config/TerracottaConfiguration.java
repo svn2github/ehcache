@@ -67,6 +67,11 @@ public class TerracottaConfiguration implements Cloneable {
     public static final boolean DEFAULT_COPY_ON_READ = false;
 
     /**
+     * Default value for {@link NonstopConfiguration}
+     */
+    public static final NonstopConfiguration DEFAULT_NON_STOP_CONFIGURATION = new NonstopConfiguration();
+
+    /**
      * Default cache coherence setting
      * @deprecated since 2.4 Use {@link #DEFAULT_COHERENCE_MODE} instead.
      */
@@ -142,10 +147,10 @@ public class TerracottaConfiguration implements Cloneable {
     private boolean synchronousWrites = DEFAULT_SYNCHRONOUS_WRITES;
     private StorageStrategy storageStrategy = DEFAULT_STORAGE_STRATEGY;
     private int concurrency = DEFAULT_CONCURRENCY;
+    private NonstopConfiguration nonStopConfiguration = DEFAULT_NON_STOP_CONFIGURATION;
 
     private boolean copyOnReadSet;
     private volatile boolean storageStrategySet;
-    private NonstopConfiguration nonStopConfiguration;
     private CoherenceMode coherenceMode = DEFAULT_COHERENCE_MODE;
 
     /**

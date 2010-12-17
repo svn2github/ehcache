@@ -94,7 +94,7 @@ public final class CacheManagerExecutorServiceFactory implements NonStopCacheExe
      */
     public void shutdown(final CacheManager cacheManager) {
         synchronized (executorServiceMap) {
-            NonStopCacheExecutorService executorService = executorServiceMap.get(cacheManager.getName());
+            NonStopCacheExecutorService executorService = executorServiceMap.remove(cacheManager.getName());
             if (executorService != null) {
                 executorService.shutdown();
             }
