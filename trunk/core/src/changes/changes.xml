@@ -11,6 +11,19 @@
             <action dev="Hung Huynh" type="add">
                 Update slf4j to 1.6.1
             </action>
+            <action dev="Abhishek Sanoujam" type="add">
+                Add new coherence modes - "strict", "non-strict" and "off". Deprecated old coherent settings ("true", "false")
+                for Terracotta clustered caches.
+            </action>
+            <action dev="Abhishek Sanoujam" type="add">
+                Add rejoin feature for Terracotta clustered caches.
+            </action>
+            <action dev="Abhishek Sanoujam" type="add">
+                Add nonstop feature to ehcache-core.
+            </action>
+            <action dev="Abhishek Sanoujam" type="add">
+                Add explicit-locking API to Ehcache.
+            </action>
         </release>
         <release version="2.3.1" date="??" description="Bug fixes">
             <action dev="Cédrik LIME" type="add">
