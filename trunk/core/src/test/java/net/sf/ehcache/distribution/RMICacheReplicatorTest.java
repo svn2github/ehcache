@@ -190,22 +190,31 @@ public class RMICacheReplicatorTest extends AbstractCacheTest {
         if (manager6 != null) {
             manager6.shutdown();
         }
-        Thread.sleep(2000);
 
-        List threads = JVMUtil.enumerateThreads();
-        for (int i = 0; i < threads.size(); i++) {
-            Thread thread = (Thread) threads.get(i);
-            if (thread.getName().equals("Replication Thread")) {
-                fail("There should not be any replication threads running after shutdown");
+        List<Thread> activeReplicationThreads = new ArrayList<Thread>();
+
+        for (int i = 0; i < 30; i++) {
+            activeReplicationThreads.clear();
+            for (Thread thread : JVMUtil.enumerateThreads()) {
+                if (thread.getName().equals("Replication Thread")) {
+                    activeReplicationThreads.add(thread);
+                }
+            }
+
+            if (activeReplicationThreads.isEmpty()) {
+                return;
+            } else {
+                Thread.sleep(1000);
             }
         }
 
+        fail("There should not be any replication threads running after shutdown [" + activeReplicationThreads.size() + " still running]");
     }
 
     /**
      * 5 cache managers should means that each cache has four remote peers
      */
-    
+
     @Test
     public void testRemoteCachePeersEqualsNumberOfCacheManagersInCluster() {
 
@@ -217,7 +226,7 @@ public class RMICacheReplicatorTest extends AbstractCacheTest {
     /**
      * Does a new cache manager in the cluster get detected?
      */
-    
+
     @Test
     public void testRemoteCachePeersDetectsNewCacheManager() throws InterruptedException {
 
@@ -238,7 +247,7 @@ public class RMICacheReplicatorTest extends AbstractCacheTest {
     /**
      * Does a down cache manager in the cluster get removed?
      */
-    
+
     @Test
     public void testRemoteCachePeersDetectsDownCacheManager() throws InterruptedException {
 
@@ -347,7 +356,7 @@ public class RMICacheReplicatorTest extends AbstractCacheTest {
      * Tests what happens when a CacheManager in the cluster comes and goes. In ehcache-1.2.4 this would cause the new RMI CachePeers in the CacheManager to
      * be permanently corrupt.
      */
-    
+
     @Test
     public void testPutProgagatesFromAndToEveryCacheManagerAndCacheDirty() throws CacheException, InterruptedException {
 
@@ -464,7 +473,7 @@ public class RMICacheReplicatorTest extends AbstractCacheTest {
     }
 
 
-    
+
     /**
      * Test various cache configurations for cache1 - explicit setting of:
      * properties="replicateAsynchronously=true, replicatePuts=true, replicateUpdates=true, replicateUpdatesViaCopy=true, replicateRemovals=true "/>
@@ -479,7 +488,7 @@ public class RMICacheReplicatorTest extends AbstractCacheTest {
      * CacheEventListeners that are not CacheReplicators should receive cache events originated from receipt
      * of a remote event by a CachePeer.
      */
-    
+
     @Test
     public void testRemotelyReceivedPutNotifiesCountingListener() throws InterruptedException {
 
@@ -1171,8 +1180,8 @@ public class RMICacheReplicatorTest extends AbstractCacheTest {
      */
     class ClusterExecutable implements Executable {
 
-        private CacheManager manager;
-        private String cacheName;
+        private final CacheManager manager;
+        private final String cacheName;
 
         /**
          * Construct with CacheManager

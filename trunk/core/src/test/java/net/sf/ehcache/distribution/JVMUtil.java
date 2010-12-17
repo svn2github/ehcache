@@ -42,14 +42,14 @@ public final class JVMUtil {
      *
      * @return a List of type Thread
      */
-    public static List enumerateThreads() {
+    public static List<Thread> enumerateThreads() {
 
         /**
          * A class for visiting threads
          */
         class ThreadVisitor {
 
-            private List threadList = new ArrayList();
+            private final List<Thread> threadList = new ArrayList<Thread>();
 
             // This method recursively visits all thread groups under `group'.
             private void visit(ThreadGroup group, int level) {
