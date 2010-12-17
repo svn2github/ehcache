@@ -780,4 +780,46 @@ public class EhcacheDecoratorAdapter implements Ehcache {
     public long getSearchesPerSecond() {
         return underlyingCache.getSearchesPerSecond();
     }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void acquireReadLockOnKey(Object key) {
+        underlyingCache.acquireReadLockOnKey(key);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void acquireWriteLockOnKey(Object key) {
+        underlyingCache.acquireWriteLockOnKey(key);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void releaseReadLockOnKey(Object key) {
+        underlyingCache.releaseReadLockOnKey(key);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void releaseWriteLockOnKey(Object key) {
+        underlyingCache.releaseWriteLockOnKey(key);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public boolean tryReadLockOnKey(Object key, long timeout) throws InterruptedException {
+        return underlyingCache.tryReadLockOnKey(key, timeout);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public boolean tryWriteLockOnKey(Object key, long timeout) throws InterruptedException {
+        return underlyingCache.tryWriteLockOnKey(key, timeout);
+    }
 }

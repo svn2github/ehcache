@@ -1136,4 +1136,52 @@ public interface Ehcache extends Cloneable {
      * Get the number of search executions that have completed in the last second
      */
     public long getSearchesPerSecond();
+
+    /**
+     * Acquires the proper read lock for a given cache key
+     *
+     * @param key - The key that retrieves a value that you want to protect via locking
+     */
+    public void acquireReadLockOnKey(Object key);
+
+    /**
+     * Acquires the proper write lock for a given cache key
+     *
+     * @param key - The key that retrieves a value that you want to protect via locking
+     */
+    public void acquireWriteLockOnKey(Object key);
+
+    /**
+     * Try to get a read lock on a given key. If can't get it in timeout millis then return a boolean telling that it didn't get the lock
+     *
+     * @param key - The key that retrieves a value that you want to protect via locking
+     * @param timeout - millis until giveup on getting the lock
+     * @return whether the lock was awarded
+     * @throws InterruptedException
+     */
+    public boolean tryReadLockOnKey(Object key, long timeout) throws InterruptedException;
+
+    /**
+     * Try to get a write lock on a given key. If can't get it in timeout millis then return a boolean telling that it didn't get the lock
+     *
+     * @param key - The key that retrieves a value that you want to protect via locking
+     * @param timeout - millis until giveup on getting the lock
+     * @return whether the lock was awarded
+     * @throws InterruptedException
+     */
+    public boolean tryWriteLockOnKey(Object key, long timeout) throws InterruptedException;
+
+    /**
+     * Release a held read lock for the passed in key
+     *
+     * @param key - The key that retrieves a value that you want to protect via locking
+     */
+    public void releaseReadLockOnKey(Object key);
+
+    /**
+     * Release a held write lock for the passed in key
+     *
+     * @param key - The key that retrieves a value that you want to protect via locking
+     */
+    public void releaseWriteLockOnKey(Object key);
 }
