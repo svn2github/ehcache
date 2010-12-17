@@ -86,7 +86,7 @@ public class HibernateAPIUsageTest extends AbstractCacheTest {
      * getTimeout appears to be broken. It returns 4096 minutes!
      */
     @Test
-    public void testAPIAsUsedByHibernate3() {
+    public void testAPIAsUsedByHibernate3() throws InterruptedException {
 
         /*Shutdown cache manager so that hibernate can start one using the same ehcache.xml disk path
           because it does not use the singleton CacheManager any more */
@@ -119,6 +119,7 @@ public class HibernateAPIUsageTest extends AbstractCacheTest {
         for (int i = 0; i < 10010; i++) {
             cache.put("" + i, value);
         }
+        Thread.sleep(100);
         //this is now fixed
         assertEquals(10000, cache.getElementCountInMemory());
         assertEquals(10, cache.getElementCountOnDisk());
