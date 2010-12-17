@@ -22,7 +22,6 @@ import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import net.sf.ehcache.CacheManager;
-import net.sf.ehcache.Ehcache;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -63,13 +62,13 @@ public final class CacheManagerExecutorServiceFactory implements NonStopCacheExe
     /**
      * {@inheritDoc}
      */
-    public NonStopCacheExecutorService getOrCreateNonStopCacheExecutorService(Ehcache cache) {
-        final String cacheManagerName = cache.getCacheManager().getName();
+    public NonStopCacheExecutorService getOrCreateNonStopCacheExecutorService(final CacheManager cacheManager) {
+        final String cacheManagerName = cacheManager.getName();
         synchronized (executorServiceMap) {
             NonStopCacheExecutorService rv = executorServiceMap.get(cacheManagerName);
             if (rv == null) {
-                int corePoolSize = getCoreThreadPoolSize(cache.getCacheManager());
-                int maximumPoolSize = getMaxThreadPoolSize(cache.getCacheManager());
+                int corePoolSize = getCoreThreadPoolSize(cacheManager);
+                int maximumPoolSize = getMaxThreadPoolSize(cacheManager);
                 if (corePoolSize < 0 || maximumPoolSize <= 0 || maximumPoolSize < corePoolSize) {
                     throw new IllegalArgumentException("Invalid coreThreadPoolSize=" + corePoolSize + ", maxThreadPoolSize="
                             + maximumPoolSize);
@@ -88,6 +87,19 @@ public final class CacheManagerExecutorServiceFactory implements NonStopCacheExe
             }
             return rv;
         }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void shutdown(final CacheManager cacheManager) {
+        synchronized (executorServiceMap) {
+            NonStopCacheExecutorService executorService = executorServiceMap.get(cacheManager.getName());
+            if (executorService != null) {
+                executorService.shutdown();
+            }
+        }
+
     }
 
     private int getCoreThreadPoolSize(CacheManager cacheManager) {

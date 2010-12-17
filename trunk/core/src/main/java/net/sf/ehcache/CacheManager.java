@@ -44,6 +44,7 @@ import net.sf.ehcache.config.FactoryConfiguration;
 import net.sf.ehcache.config.InvalidConfigurationException;
 import net.sf.ehcache.config.TerracottaClientConfiguration;
 import net.sf.ehcache.config.generator.ConfigurationUtil;
+import net.sf.ehcache.constructs.nonstop.CacheManagerExecutorServiceFactory;
 import net.sf.ehcache.distribution.CacheManagerPeerListener;
 import net.sf.ehcache.distribution.CacheManagerPeerProvider;
 import net.sf.ehcache.event.CacheEventListener;
@@ -1153,6 +1154,7 @@ public class CacheManager {
                 }
                 terracottaClient.shutdown();
                 removeShutdownHook();
+                CacheManagerExecutorServiceFactory.getInstance().shutdown(this);
             }
         }
     }
@@ -1609,6 +1611,7 @@ public class CacheManager {
 
 
     private void clusterRejoinStarted() {
+        CacheManagerExecutorServiceFactory.getInstance().shutdown(this);
         // reinitialize all caches
         for (Ehcache cache : ehcaches.values()) {
             if (cache instanceof Cache) {

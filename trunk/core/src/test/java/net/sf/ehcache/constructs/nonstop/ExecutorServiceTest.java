@@ -23,21 +23,40 @@ import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import junit.framework.Assert;
 import junit.framework.TestCase;
 import net.sf.ehcache.constructs.nonstop.ThreadDump.ThreadInformation;
 
 public class ExecutorServiceTest extends TestCase {
 
+    private NonStopCacheExecutorService service;
+    private int initialThreadsCount;
+
+    @Override
+    protected void setUp() throws Exception {
+        initialThreadsCount = countExecutorThreads();
+        System.out.println("Initial thread count: " + initialThreadsCount);
+        service = new NonStopCacheExecutorService();
+    }
+
+    @Override
+    protected void tearDown() throws Exception {
+        service.shutdown();
+        Thread.sleep(2000);
+        int threads = countExecutorThreads();
+        System.out.println("After shutting down service, thread count: " + threads);
+        Assert.assertEquals(initialThreadsCount, threads);
+        System.out.println("Test complete successfully");
+    }
+
     public void testExecutorThreadsCreated() throws Exception {
-        int initialThreads = countExecutorThreads();
-        final NonStopCacheExecutorService service = new NonStopCacheExecutorService();
         int corePoolSize = NonStopCacheExecutorService.DEFAULT_CORE_THREAD_POOL_SIZE;
         int maxPoolSize = NonStopCacheExecutorService.DEFAULT_MAX_THREAD_POOL_SIZE;
         for (int i = 0; i < corePoolSize; i++) {
             service.execute(new NoopCallable(), 1000);
         }
         // assert at least core pool size threads has been created
-        assertTrue(countExecutorThreads() - initialThreads >= corePoolSize);
+        assertTrue(countExecutorThreads() - initialThreadsCount >= corePoolSize);
 
         // submit another maxPoolSize jobs
         for (int i = 0; i < maxPoolSize; i++) {
@@ -49,20 +68,23 @@ public class ExecutorServiceTest extends TestCase {
         }
         Thread.sleep(1000);
         // assert maxPoolSize threads has been created
-        assertEquals("", maxPoolSize, countExecutorThreads() - initialThreads);
+        assertEquals("", maxPoolSize, countExecutorThreads() - initialThreadsCount);
 
         int extraThreads = 10;
         int numAppThreads = maxPoolSize + extraThreads;
         final List<Exception> exceptionList = new ArrayList<Exception>();
         final CyclicBarrier barrier = new CyclicBarrier(numAppThreads + 1);
         final AtomicInteger finishedThreadsCount = new AtomicInteger();
+        final List<BlockingCallable> blockingCallables = new ArrayList<BlockingCallable>();
         for (int i = 0; i < numAppThreads; i++) {
             Thread thread = new Thread(new Runnable() {
 
                 public void run() {
                     try {
                         barrier.await();
-                        service.execute(new BlockingCallable(false), 5000);
+                        BlockingCallable blockingCallable = new BlockingCallable(false);
+                        blockingCallables.add(blockingCallable);
+                        service.execute(blockingCallable, 5000);
                     } catch (TimeoutException e) {
                         // ignore
                     } catch (Exception e) {
@@ -93,8 +115,12 @@ public class ExecutorServiceTest extends TestCase {
         assertEquals(0, exceptionList.size());
 
         // assert no more than maxPoolSize threads created
-        assertEquals(maxPoolSize, countExecutorThreads() - initialThreads);
-        System.out.println("Test complete successfully");
+        assertEquals(maxPoolSize, countExecutorThreads() - initialThreadsCount);
+
+        // cleanup - unblock all executor threads
+        for (BlockingCallable blockingCallable : blockingCallables) {
+            blockingCallable.unblock();
+        }
     }
 
     private int countExecutorThreads() {
@@ -107,7 +133,7 @@ public class ExecutorServiceTest extends TestCase {
                 rv++;
             }
         }
-        System.out.println("Number of executor threads created till now: " + rv);
+        System.out.println("Counting number of executor threads created till now: " + rv);
         return rv;
     }
 

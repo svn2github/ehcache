@@ -16,23 +16,28 @@
 
 package net.sf.ehcache.constructs.nonstop;
 
-import net.sf.ehcache.Ehcache;
+import net.sf.ehcache.CacheManager;
 
 /**
  * Factory for {@link NonStopCacheExecutorService}
- * 
+ *
  * @author Abhishek Sanoujam
- * 
+ *
  */
 public interface NonStopCacheExecutorServiceFactory {
 
     /**
      * Creates a {@link NonStopCacheExecutorService} and returns it if not already created
-     * 
-     * @param cache
-     *            the cache
+     *
+     * @param cacheManager the {@link CacheManager}
      * @return A {@link NonStopCacheExecutorService}
      */
-    NonStopCacheExecutorService getOrCreateNonStopCacheExecutorService(Ehcache cache);
+    NonStopCacheExecutorService getOrCreateNonStopCacheExecutorService(CacheManager cacheManager);
+
+    /**
+     * Shuts down the {@link NonStopCacheExecutorService} associated with the {@link CacheManager}
+     * @param cacheManager
+     */
+    void shutdown(CacheManager cacheManager);
 
 }

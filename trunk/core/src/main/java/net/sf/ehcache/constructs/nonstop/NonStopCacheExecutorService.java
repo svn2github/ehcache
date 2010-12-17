@@ -264,8 +264,15 @@ public class NonStopCacheExecutorService {
 
     private void attachedCacheDisposed() {
         if (attachedCachesCount.decrementAndGet() == 0 && shutdownWhenNoCachesAttached) {
-            executorService.shutdown();
+            shutdown();
         }
+    }
+
+    /**
+     * Shut down this executor service
+     */
+    public void shutdown() {
+        executorService.shutdownNow();
     }
 
     /**

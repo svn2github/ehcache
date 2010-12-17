@@ -21,6 +21,8 @@ import java.util.concurrent.Callable;
 public class BlockingCallable implements Callable<Void> {
 
     private final boolean logExecution;
+    private final Object monitor = new Object();
+    private volatile boolean blocked = true;
 
     public BlockingCallable() {
         this(false);
@@ -34,8 +36,19 @@ public class BlockingCallable implements Callable<Void> {
         if (logExecution) {
             System.out.println("inside blocking callable");
         }
-        Thread.currentThread().join();
+        while (blocked) {
+            synchronized (monitor) {
+                monitor.wait();
+            }
+        }
         return null;
+    }
+
+    public void unblock() {
+        synchronized (monitor) {
+            blocked = false;
+            monitor.notifyAll();
+        }
     }
 
 }
