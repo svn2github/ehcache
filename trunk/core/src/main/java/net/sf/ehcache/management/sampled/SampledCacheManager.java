@@ -34,9 +34,9 @@ import net.sf.ehcache.statistics.sampled.SampledCacheStatistics;
 
 /**
  * An implementation of {@link SampledCacheManagerMBean}
- * 
+ *
  * <p />
- * 
+ *
  * @author <a href="mailto:asanoujam@terracottatech.com">Abhishek Sanoujam</a>
  * @since 1.7
  */
@@ -53,16 +53,16 @@ public class SampledCacheManager extends BaseEmitterBean implements SampledCache
         final String description = "Ehcache SampledCacheManager Event";
         NOTIFICATION_INFO = new MBeanNotificationInfo[] {new MBeanNotificationInfo(notifTypes, name, description), };
     }
-    
+
     /**
      * Constructor taking the backing {@link CacheManager}
-     * 
+     *
      * @param cacheManager
      */
     public SampledCacheManager(CacheManager cacheManager) throws NotCompliantMBeanException {
         super(SampledCacheManagerMBean.class);
         this.cacheManager = cacheManager;
-        cacheManager.setCacheManagerEventListener(new EventListener());   
+        cacheManager.setCacheManagerEventListener(new EventListener());
     }
 
     /**
@@ -70,7 +70,7 @@ public class SampledCacheManager extends BaseEmitterBean implements SampledCache
      */
     private class EventListener implements CacheManagerEventListener {
         private Status status = Status.STATUS_UNINITIALISED;
-        
+
         public void dispose() throws CacheException {
             status = Status.STATUS_SHUTDOWN;
         }
@@ -91,7 +91,7 @@ public class SampledCacheManager extends BaseEmitterBean implements SampledCache
             /**/
         }
     }
-    
+
     /**
      * Set the name used to register this mbean. Can be called only once.
      * Package protected method
@@ -233,8 +233,36 @@ public class SampledCacheManager extends BaseEmitterBean implements SampledCache
     }
 
     /**
+     * @return aggregate search rate
+     */
+    public long getCacheSearchRate() {
+        long result = 0;
+        String[] caches = getCacheNames();
+        for (String cacheName : caches) {
+            Ehcache cache = cacheManager.getEhcache(cacheName);
+            SampledCacheStatistics stats = cache.getSampledCacheStatistics();
+            result += stats.getSearchesPerSecond();
+        }
+        return result;
+    }
+
+    /**
+     * @return aggregate search time
+     */
+    public long getCacheAverageSearchTime() {
+        long result = 0;
+        String[] caches = getCacheNames();
+        for (String cacheName : caches) {
+            Ehcache cache = cacheManager.getEhcache(cacheName);
+            SampledCacheStatistics stats = cache.getSampledCacheStatistics();
+            result += stats.getAverageSearchTime();
+        }
+        return result;
+    }
+
+    /**
      * {@inheritDoc}
-     * 
+     *
      * @see net.sf.ehcache.management.sampled.SampledCacheManagerMBean#getName()
      */
     public String getName() {
@@ -243,7 +271,7 @@ public class SampledCacheManager extends BaseEmitterBean implements SampledCache
 
     /**
      * {@inheritDoc}
-     * 
+     *
      * @see net.sf.ehcache.management.sampled.SampledCacheManagerMBean#getName()
      */
     public String getMBeanRegisteredName() {
@@ -276,7 +304,7 @@ public class SampledCacheManager extends BaseEmitterBean implements SampledCache
         }
         sendNotification(STATISTICS_ENABLED, Boolean.TRUE);
     }
-    
+
     /**
      * {@inheritDoc}
      */
@@ -290,7 +318,7 @@ public class SampledCacheManager extends BaseEmitterBean implements SampledCache
         }
         sendNotification(STATISTICS_ENABLED, Boolean.FALSE);
     }
-    
+
     /**
      * {@inheritDoc}
      */
@@ -301,7 +329,7 @@ public class SampledCacheManager extends BaseEmitterBean implements SampledCache
             disableStatistics();
         }
     }
-    
+
     /**
      * {@inheritDoc}
      */
@@ -316,7 +344,7 @@ public class SampledCacheManager extends BaseEmitterBean implements SampledCache
         }
         return true;
     }
-    
+
     /**
      * @return is each cache's statistics enabled
      */
@@ -331,10 +359,10 @@ public class SampledCacheManager extends BaseEmitterBean implements SampledCache
         }
         return true;
     }
-    
+
     /**
      * generateActiveConfigDeclaration
-     * 
+     *
      * @return CacheManager configuration as String
      */
     public String generateActiveConfigDeclaration() {
@@ -343,7 +371,7 @@ public class SampledCacheManager extends BaseEmitterBean implements SampledCache
 
     /**
      * generateActiveConfigDeclaration
-     * 
+     *
      * @return Cache configuration as String
      */
     public String generateActiveConfigDeclaration(String cacheName) {
@@ -401,7 +429,7 @@ public class SampledCacheManager extends BaseEmitterBean implements SampledCache
         }
         sendNotification(CACHES_ENABLED, Boolean.valueOf(enabled));
     }
-    
+
     /**
      * @return is each cache enabled
      */
@@ -416,7 +444,7 @@ public class SampledCacheManager extends BaseEmitterBean implements SampledCache
         }
         return true;
     }
-    
+
     /**
      * @see BaseEmitterBean#getNotificationInfo()
      */

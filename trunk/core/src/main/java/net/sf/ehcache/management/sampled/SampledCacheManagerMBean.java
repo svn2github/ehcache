@@ -20,9 +20,9 @@ import java.util.Map;
 
 /**
  * An MBean for CacheManager exposing sampled cache usage statistics
- * 
+ *
  * <p />
- * 
+ *
  * @author <a href="mailto:asanoujam@terracottatech.com">Abhishek Sanoujam</a>
  * @since 1.7
  */
@@ -31,12 +31,12 @@ public interface SampledCacheManagerMBean {
      * CACHES_ENABLED
      */
     public static final String CACHES_ENABLED = "CachesEnabled";
-    
+
     /**
      * CACHES_CLEARED
      */
     public static final String CACHES_CLEARED = "CachesCleared";
-    
+
     /**
      * STATISTICS_RESET
      */
@@ -46,7 +46,7 @@ public interface SampledCacheManagerMBean {
      * STATISTICS_ENABLED
      */
     public static final String STATISTICS_ENABLED = "StatisticsEnabled";
-    
+
     /**
      * Gets the actual name of the cache manager. This may be different from the
      * name used to register this mbean as there can potentially be multiple
@@ -61,25 +61,25 @@ public interface SampledCacheManagerMBean {
 
     /**
      * Gets the status attribute of the Ehcache
-     * 
+     *
      * @return The status value, as a String from the Status enum class
      */
     public String getStatus();
 
     /**
      * Enables/disables each cache contained by this CacheManager
-     * 
+     *
      * @param enabled
      */
     public void setEnabled(boolean enabled);
-    
+
     /**
      * Returns if each cache is enabled.
-     * 
+     *
      * @return boolean indicating that each cache is enabled
      */
     public boolean isEnabled();
-    
+
     /**
      * Shuts down the CacheManager.
      * <p/>
@@ -104,7 +104,7 @@ public interface SampledCacheManagerMBean {
 
     /**
      * Get a map of cache name to performance metrics (hits, misses).
-     * 
+     *
      * @return a map of cache metrics
      */
     public Map<String, long[]> getCacheMetrics();
@@ -140,40 +140,50 @@ public interface SampledCacheManagerMBean {
     public long getCacheExpirationRate();
 
     /**
+     * @return aggregate search rate
+     */
+    public long getCacheSearchRate();
+
+    /**
+     * @return aggregate search time
+     */
+    public long getCacheAverageSearchTime();
+
+    /**
      * Clears statistics of all caches for the associated cacheManager
      */
     public void clearStatistics();
-    
+
     /**
      * Enable statistics for each cache contained by cacheManager
      */
     public void enableStatistics();
-    
+
     /**
      * Disable statistics for each cache contained by cacheManager
      */
     public void disableStatistics();
-    
+
     /**
      * Enables/disables each contained cache
      */
     public void setStatisticsEnabled(boolean enabled);
-    
+
     /**
      * Returns true iff each contained cache has statistics enabled
      */
     public boolean isStatisticsEnabled();
-    
+
     /**
      * generateActiveConfigDeclaration
-     * 
+     *
      * @return CacheManager configuration as String
      */
     String generateActiveConfigDeclaration();
-    
+
     /**
      * generateActiveConfigDeclaration
-     * 
+     *
      * @param cacheName
      * @return Cache configuration as String
      */
