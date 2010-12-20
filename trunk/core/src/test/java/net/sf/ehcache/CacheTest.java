@@ -47,8 +47,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicReference;
 
 import net.sf.ehcache.bootstrap.BootstrapCacheLoader;
 import net.sf.ehcache.event.CacheEventListener;
@@ -135,7 +133,7 @@ public class CacheTest extends AbstractCacheTest {
         }
 
     }
-    
+
     /**
      * Test multiple calls to dispose is not a problem
      */
@@ -721,9 +719,9 @@ public class CacheTest extends AbstractCacheTest {
         //Set size so the second element overflows to disk.
         Cache cache = new Cache("test", 1, true, false, 5, 2);
         manager.addCache(cache);
-        
+
         cache.setStatisticsEnabled(true);
-        
+
         cache.put(new Element("key1", "value1"));
         cache.put(new Element("key2", "value1"));
 
@@ -743,9 +741,9 @@ public class CacheTest extends AbstractCacheTest {
         //Set size so the second element overflows to disk.
         Cache cache = new Cache("test", 1, true, false, 5, 2);
         manager.addCache(cache);
-        
+
         cache.setStatisticsEnabled(true);
-        
+
         cache.put(new Element("key1", "value1"));
         cache.put(new Element("key2", "value1"));
 
@@ -778,9 +776,9 @@ public class CacheTest extends AbstractCacheTest {
         //Set size so the second element overflows to disk.
         Cache cache = new Cache("test", 1, true, false, 5, 2);
         manager.addCache(cache);
-        
+
         cache.setStatisticsEnabled(true);
-        
+
         cache.put(new Element("key1", "value1"));
         cache.put(new Element("key2", "value1"));
 
@@ -1037,7 +1035,7 @@ public class CacheTest extends AbstractCacheTest {
         cache.put(new Element(new Object(), Object.class));
 
         Thread.sleep(1000);
-        
+
         assertEquals(10011, cache.getSize());
         assertEquals(11, cache.getDiskStoreSize());
         assertEquals(10000, cache.getMemoryStoreSize());
@@ -1097,11 +1095,11 @@ public class CacheTest extends AbstractCacheTest {
         }
 
         Thread.sleep(200);
-        
+
         for (int i = 0; i < 100; i++) {
             cache.get("" + i);
         }
-        
+
         Thread.sleep(200);
 
         assertWithTolerance(50, 1, cache.getMemoryStoreSize());
@@ -1143,7 +1141,7 @@ public class CacheTest extends AbstractCacheTest {
 
         cache.flush();
         Thread.sleep(400);
-        
+
         assertEquals(0, cache.getMemoryStoreSize());
         //Non Serializable Elements get discarded
         assertEquals(104, cache.getDiskStoreSize());
@@ -1161,10 +1159,10 @@ public class CacheTest extends AbstractCacheTest {
         for (int i = 0; i < 100; i++) {
             cache.put(new Element("" + i, new Date()));
         }
-        
+
         Thread.sleep(200);
 
-        for (int i = 0; i < 100; i++) {            
+        for (int i = 0; i < 100; i++) {
             cache.get("" + i);
         }
 
@@ -1189,10 +1187,10 @@ public class CacheTest extends AbstractCacheTest {
         for (int i = 0; i < 100; i++) {
             cache.put(new Element("" + i, new Date()));
         }
-        
+
         Thread.sleep(200);
-        
-        for (int i = 0; i < 100; i++) {            
+
+        for (int i = 0; i < 100; i++) {
             cache.get("" + i);
         }
 
@@ -1466,9 +1464,9 @@ public class CacheTest extends AbstractCacheTest {
         cache.put(new Element(new Object(), new Object()));
         cache.put(new Element(new Object(), new Object()));
         cache.put(new Element(new Object(), new Object()));
-        
+
         Thread.sleep(200);
-        
+
         assertEquals(1, cache.getSize());
         assertEquals(0, cache.getDiskStoreSize());
         assertEquals(1, cache.getMemoryStoreSize());
@@ -2016,7 +2014,7 @@ public class CacheTest extends AbstractCacheTest {
         manager.addCache(cache);
 
         cache.setStatisticsEnabled(true);
-        
+
         ExecutorService executor = Executors.newFixedThreadPool(10);
 
         for (int i = 0; i < 5000; i++) {
@@ -2036,8 +2034,8 @@ public class CacheTest extends AbstractCacheTest {
     private static final class CacheTestRunnable implements Runnable {
         static final List FAILURES = new ArrayList();
 
-        private Ehcache cache;
-        private String key;
+        private final Ehcache cache;
+        private final String key;
 
         private CacheTestRunnable(Ehcache cache, String key) {
             this.cache = cache;
@@ -2214,7 +2212,7 @@ public class CacheTest extends AbstractCacheTest {
         Element e = new Element("key", "bla");
         cache.put(e);
 
-        // theoretically we should wait a long time here but the error from EHC-432 
+        // theoretically we should wait a long time here but the error from EHC-432
         // has already shown up in the put.  And we don't have time to wait forever
         // to verify this.
 
@@ -2238,7 +2236,7 @@ public class CacheTest extends AbstractCacheTest {
         Element e = new Element("key", "bla");
         cache.put(e);
 
-        // theoretically we should wait a long time here but the error from EHC-432 
+        // theoretically we should wait a long time here but the error from EHC-432
         // has already shown up in the put.  And we don't have time to wait forever
         // to verify this.
 
