@@ -74,7 +74,7 @@ public final class ExceptionOnTimeoutStore implements Store {
      * {@inheritDoc}
      */
     public Element getQuiet(final Object key) throws IllegalStateException, CacheException {
-        throw new NonStopCacheException("getQuite for key - '" + key + "'  timed out");
+        throw new NonStopCacheException("getQuiet for key - '" + key + "'  timed out");
     }
 
     /**
