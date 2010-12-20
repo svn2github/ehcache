@@ -329,6 +329,14 @@ used with JMX monitors.
 
     Simplest example for pointing to a Terracotta server on this machine:
     <terracottaConfig url="localhost:9510"/>
+    
+    This element has one attribute "rejoin" which can take values of either "true" or "false"
+    <terracottaConfig rejoin="true" url="localhost:9510" />
+    By default, this attribute is true.
+    If rejoin is true, all Terracotta Clustered caches have to be configured with nonstop.
+    Without rejoin, if the Terracotta Server is restarted the client cannot connect back to the
+    server. When enabled, this will enable the client to connect to the new cluster without the 
+    need to restart the node.
 
     Example using a path to Terracotta configuration file:
     <terracottaConfig url="/app/config/tc-config.xml"/>
@@ -730,6 +738,18 @@ used with JMX monitors.
     +++++++++++++++++++++
 
     Cache elements can also contain information about whether the cache can be clustered with Terracotta.
+    The <terracotta> sub-element has the following sub-elements:
+    
+    * Nonstop: Nonstop caches can be configured for Terracotta clustered caches. Sample:
+    	<cache name="terracottaClusteredCache">
+    		<terracotta>
+    			<nonstop enabled="true" immediateTimeout="true" timeoutMillis="15000">
+    				<timeoutBehavior type="exception" />
+    		</terracotta>
+    	</cache>
+    	All attributes and the sub-element "timeoutBehavior" are optional. Nonstop is enabled by default for 
+    	Terracotta Clustered Caches. Please refer to Nonstop documentation on how to use nonstop.
+    	
     The <terracotta> sub-element has the following attributes:
 
     * clustered=true|false - indicates whether this cache should be clustered with Terracotta. By
@@ -749,14 +769,16 @@ used with JMX monitors.
       are mutated locally w/o putting back to the cache. NOTE: This setting is only relevant for caches
       with valueMode=serialization
 
-    * coherent=true|false - indicates whether this cache should have coherent reads and writes with guaranteed 
-      consistency across the cluster.  By default, its value is true.  If this attribute is set to false 
-      (or "incoherent" mode), values from the cache are read without locking, possibly yielding stale data. 
-      Writes to a cache in incoherent mode are batched and applied without acquiring cluster-wide locks, 
-      possibly creating inconsistent values across cluster. Incoherent mode is a performance optimization 
-      with weaker concurrency guarantees and should generally be used for bulk-loading caches, for loading 
-      a read-only cache, or where the application that can tolerate reading stale data. This setting overrides 
-      coherentReads, which is deprecated.
+    * coherent=strict|non-strict|off - Indicates whether this cache should have coherent reads and writes 
+      with guaranteed consistency across the cluster. By default, its value is "non-strict".
+      The old values "true" and "false" are deprecated and should not be used. Config using the old values
+      will be translated to the new values with "true" translating to "strict" and "false" translating to 
+      "off".   If this attribute is set to false (or "incoherent" mode), values from the cache are read without
+      locking, possibly yielding stale data. Writes to a cache in incoherent mode are batched and applied 
+      without acquiring cluster-wide locks, possibly creating inconsistent values across cluster. 
+      Incoherent mode is a performance optimization with weaker concurrency guarantees and should generally be used
+      for bulk-loading caches, for loading a read-only cache, or where the application that can tolerate reading 
+      stale data. This setting overrides coherentReads, which is deprecated.
 
     * synchronousWrites=true|false - When set to true, clustered caches use
       Terracotta SYNCHRONOUS WRITE locks. Asynchronous writes (synchronousWrites="false") maximize performance by 
