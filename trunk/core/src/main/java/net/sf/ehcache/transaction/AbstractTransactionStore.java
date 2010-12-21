@@ -16,11 +16,15 @@
 package net.sf.ehcache.transaction;
 
 import net.sf.ehcache.Status;
+import net.sf.ehcache.search.Results;
+import net.sf.ehcache.search.attribute.AttributeExtractor;
 import net.sf.ehcache.store.AbstractStore;
 import net.sf.ehcache.store.Policy;
 import net.sf.ehcache.store.Store;
+import net.sf.ehcache.store.StoreQuery;
 
 import java.io.IOException;
+import java.util.Map;
 
 /**
  * Abstract transactional store which provides implementation of all non-transactional methods
@@ -186,5 +190,19 @@ public abstract class AbstractTransactionStore extends AbstractStore {
         underlyingStore.waitUntilClusterCoherent();
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void setAttributeExtractors(Map<String, AttributeExtractor> extractors) {
+        underlyingStore.setAttributeExtractors(extractors);
+    }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Results executeQuery(StoreQuery query) {
+        return underlyingStore.executeQuery(query);
+    }
 }
