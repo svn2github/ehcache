@@ -296,7 +296,7 @@ public class EhcacheDecoratorAdapter implements Ehcache {
      * {@inheritDoc}
      */
     public CacheExceptionHandler getCacheExceptionHandler() {
-        return this.getCacheExceptionHandler();
+        return underlyingCache.getCacheExceptionHandler();
     }
 
     /**
