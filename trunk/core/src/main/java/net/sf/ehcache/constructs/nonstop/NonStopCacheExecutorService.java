@@ -229,6 +229,11 @@ public class NonStopCacheExecutorService {
                 if (rootCause.getClass().getSimpleName().equals("TCNotRunningException")) {
                     throw new TimeoutException(rootCause.getMessage());
                 }
+
+                if (e.getCause() instanceof CacheException) {
+                    throw (CacheException) e.getCause();
+                }
+
                 throw new CacheException(e.getCause());
             } catch (TimeoutException e) {
                 // rethrow timeout exception
