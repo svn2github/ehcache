@@ -17,11 +17,9 @@ package net.sf.ehcache.transaction.local;
 
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Element;
-import net.sf.ehcache.Status;
 import net.sf.ehcache.TransactionController;
-import net.sf.ehcache.store.AbstractStore;
 import net.sf.ehcache.store.ElementValueComparator;
-import net.sf.ehcache.store.Policy;
+import net.sf.ehcache.transaction.AbstractTransactionStore;
 import net.sf.ehcache.transaction.TransactionException;
 import net.sf.ehcache.transaction.TransactionID;
 import net.sf.ehcache.transaction.manager.TransactionManagerLookup;
@@ -34,7 +32,6 @@ import javax.transaction.Synchronization;
 import javax.transaction.SystemException;
 import javax.transaction.Transaction;
 import javax.transaction.TransactionManager;
-import java.io.IOException;
 import java.util.List;
 
 /**
@@ -42,25 +39,24 @@ import java.util.List;
  *
  * @author Ludovic Orban
  */
-public class JtaLocalTransactionStore extends AbstractStore {
+public class JtaLocalTransactionStore extends AbstractTransactionStore {
 
     private static final Logger LOG = LoggerFactory.getLogger(JtaLocalTransactionStore.class.getName());
 
     private static final ThreadLocal<Transaction> BOUND_JTA_TRANSACTIONS = new ThreadLocal<Transaction>();
 
-    private final LocalTransactionStore transactionalStore;
     private final TransactionController transactionController;
     private final TransactionManager transactionManager;
 
     /**
      * Create a new JtaLocalTransactionStore instance
-     * @param transactionalStore the underlying LocalTransactionStore
+     * @param underlyingStore the underlying LocalTransactionStore
      * @param transactionManagerLookup the TransactionManagerLookup
      * @param transactionController the TransactionController
      */
-    public JtaLocalTransactionStore(LocalTransactionStore transactionalStore, TransactionManagerLookup transactionManagerLookup,
+    public JtaLocalTransactionStore(LocalTransactionStore underlyingStore, TransactionManagerLookup transactionManagerLookup,
                                     TransactionController transactionController) {
-        this.transactionalStore = transactionalStore;
+        super(underlyingStore);
         this.transactionController = transactionController;
         this.transactionManager = transactionManagerLookup.getTransactionManager();
         if (this.transactionManager == null) {
@@ -148,7 +144,7 @@ public class JtaLocalTransactionStore extends AbstractStore {
     public boolean put(Element element) throws CacheException {
         registerInJtaContext();
         try {
-            return transactionalStore.put(element);
+            return underlyingStore.put(element);
         } catch (CacheException e) {
             setRollbackOnly();
             throw e;
@@ -161,7 +157,7 @@ public class JtaLocalTransactionStore extends AbstractStore {
     public boolean putWithWriter(Element element, CacheWriterManager writerManager) throws CacheException {
         registerInJtaContext();
         try {
-            return transactionalStore.putWithWriter(element, writerManager);
+            return underlyingStore.putWithWriter(element, writerManager);
         } catch (CacheException e) {
             setRollbackOnly();
             throw e;
@@ -174,7 +170,7 @@ public class JtaLocalTransactionStore extends AbstractStore {
     public Element get(Object key) {
         registerInJtaContext();
         try {
-            return transactionalStore.get(key);
+            return underlyingStore.get(key);
         } catch (CacheException e) {
             setRollbackOnly();
             throw e;
@@ -187,7 +183,7 @@ public class JtaLocalTransactionStore extends AbstractStore {
     public Element getQuiet(Object key) {
         registerInJtaContext();
         try {
-            return transactionalStore.getQuiet(key);
+            return underlyingStore.getQuiet(key);
         } catch (CacheException e) {
             setRollbackOnly();
             throw e;
@@ -200,7 +196,7 @@ public class JtaLocalTransactionStore extends AbstractStore {
     public List getKeys() {
         registerInJtaContext();
         try {
-            return transactionalStore.getKeys();
+            return underlyingStore.getKeys();
         } catch (CacheException e) {
             setRollbackOnly();
             throw e;
@@ -213,7 +209,7 @@ public class JtaLocalTransactionStore extends AbstractStore {
     public Element remove(Object key) {
         registerInJtaContext();
         try {
-            return transactionalStore.remove(key);
+            return underlyingStore.remove(key);
         } catch (CacheException e) {
             setRollbackOnly();
             throw e;
@@ -226,7 +222,7 @@ public class JtaLocalTransactionStore extends AbstractStore {
     public Element removeWithWriter(Object key, CacheWriterManager writerManager) throws CacheException {
         registerInJtaContext();
         try {
-            return transactionalStore.removeWithWriter(key, writerManager);
+            return underlyingStore.removeWithWriter(key, writerManager);
         } catch (CacheException e) {
             setRollbackOnly();
             throw e;
@@ -239,7 +235,7 @@ public class JtaLocalTransactionStore extends AbstractStore {
     public void removeAll() throws CacheException {
         registerInJtaContext();
         try {
-            transactionalStore.removeAll();
+            underlyingStore.removeAll();
         } catch (CacheException e) {
             setRollbackOnly();
             throw e;
@@ -252,7 +248,7 @@ public class JtaLocalTransactionStore extends AbstractStore {
     public Element putIfAbsent(Element element) throws NullPointerException {
         registerInJtaContext();
         try {
-            return transactionalStore.putIfAbsent(element);
+            return underlyingStore.putIfAbsent(element);
         } catch (CacheException e) {
             setRollbackOnly();
             throw e;
@@ -265,7 +261,7 @@ public class JtaLocalTransactionStore extends AbstractStore {
     public Element removeElement(Element element, ElementValueComparator comparator) throws NullPointerException {
         registerInJtaContext();
         try {
-            return transactionalStore.removeElement(element, comparator);
+            return underlyingStore.removeElement(element, comparator);
         } catch (CacheException e) {
             setRollbackOnly();
             throw e;
@@ -279,7 +275,7 @@ public class JtaLocalTransactionStore extends AbstractStore {
             throws NullPointerException, IllegalArgumentException {
         registerInJtaContext();
         try {
-            return transactionalStore.replace(old, element, comparator);
+            return underlyingStore.replace(old, element, comparator);
         } catch (CacheException e) {
             setRollbackOnly();
             throw e;
@@ -292,7 +288,7 @@ public class JtaLocalTransactionStore extends AbstractStore {
     public Element replace(Element element) throws NullPointerException {
         registerInJtaContext();
         try {
-            return transactionalStore.replace(element);
+            return underlyingStore.replace(element);
         } catch (CacheException e) {
             setRollbackOnly();
             throw e;
@@ -305,7 +301,7 @@ public class JtaLocalTransactionStore extends AbstractStore {
     public int getSize() {
         registerInJtaContext();
         try {
-            return transactionalStore.getSize();
+            return underlyingStore.getSize();
         } catch (CacheException e) {
             setRollbackOnly();
             throw e;
@@ -318,7 +314,7 @@ public class JtaLocalTransactionStore extends AbstractStore {
     public int getTerracottaClusteredSize() {
         registerInJtaContext();
         try {
-            return transactionalStore.getTerracottaClusteredSize();
+            return underlyingStore.getTerracottaClusteredSize();
         } catch (CacheException e) {
             setRollbackOnly();
             throw e;
@@ -331,155 +327,12 @@ public class JtaLocalTransactionStore extends AbstractStore {
     public boolean containsKey(Object key) {
         registerInJtaContext();
         try {
-            return transactionalStore.containsKey(key);
+            return underlyingStore.containsKey(key);
         } catch (CacheException e) {
             setRollbackOnly();
             throw e;
         }
     }
 
-    /* non-transactional methods */
-
-    /**
-     * {@inheritDoc}
-     */
-    public int getInMemorySize() {
-        return transactionalStore.getInMemorySize();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public int getOffHeapSize() {
-        return transactionalStore.getOffHeapSize();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public int getOnDiskSize() {
-        return transactionalStore.getOnDiskSize();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public long getInMemorySizeInBytes() {
-        return transactionalStore.getInMemorySizeInBytes();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public long getOffHeapSizeInBytes() {
-        return transactionalStore.getOffHeapSizeInBytes();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public long getOnDiskSizeInBytes() {
-        return transactionalStore.getOnDiskSizeInBytes();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public boolean containsKeyOnDisk(Object key) {
-        return transactionalStore.containsKeyOnDisk(key);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public boolean containsKeyOffHeap(Object key) {
-        return transactionalStore.containsKeyOffHeap(key);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public boolean containsKeyInMemory(Object key) {
-        return transactionalStore.containsKeyInMemory(key);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public void dispose() {
-        transactionalStore.dispose();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public Status getStatus() {
-        return transactionalStore.getStatus();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public void expireElements() {
-        transactionalStore.expireElements();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public void flush() throws IOException {
-        transactionalStore.flush();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public boolean bufferFull() {
-        return transactionalStore.bufferFull();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public Policy getInMemoryEvictionPolicy() {
-        return transactionalStore.getInMemoryEvictionPolicy();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public void setInMemoryEvictionPolicy(Policy policy) {
-        transactionalStore.setInMemoryEvictionPolicy(policy);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public Object getInternalContext() {
-        return transactionalStore.getInternalContext();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public Object getMBean() {
-        return transactionalStore.getMBean();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void setNodeCoherent(boolean coherent) {
-        transactionalStore.setNodeCoherent(coherent);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void waitUntilClusterCoherent() {
-        transactionalStore.waitUntilClusterCoherent();
-    }
 }
 
