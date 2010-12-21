@@ -232,7 +232,7 @@
                 <xs:element minOccurs="0" maxOccurs="1" ref="timeoutBehavior"/>
             </xs:sequence>
             <xs:attribute name="enabled" use="optional" type="xs:boolean" default="true"/>
-            <xs:attribute name="immediateTimeout" use="optional" type="xs:boolean" default="true"/>
+            <xs:attribute name="immediateTimeout" use="optional" type="xs:boolean" default="false"/>
             <xs:attribute name="timeoutMillis" use="optional" type="xs:positiveInteger" default="15000"/>
         </xs:complexType>
     </xs:element>
