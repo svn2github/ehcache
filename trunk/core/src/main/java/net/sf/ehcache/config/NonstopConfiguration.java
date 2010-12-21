@@ -34,7 +34,7 @@ public class NonstopConfiguration implements Cloneable {
     /**
      * Default value of immediateTimeout attribute
      */
-    public static final boolean DEFAULT_IMMEDIATE_TIMEOUT = true;
+    public static final boolean DEFAULT_IMMEDIATE_TIMEOUT = false;
 
     /**
      * Default value of timeoutMillis attribute
