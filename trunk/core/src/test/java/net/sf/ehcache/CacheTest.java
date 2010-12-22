@@ -724,13 +724,15 @@ public class CacheTest extends AbstractCacheTest {
 
         cache.put(new Element("key1", "value1"));
         cache.put(new Element("key2", "value1"));
+        //allow disk write thread to catch up - MNK-2057
+        Thread.sleep(100);
 
         Element element1 = cache.get("key1");
-        assertEquals("Should be one", 1, element1.getHitCount());
+        assertEquals("Element hit count", 1, element1.getHitCount());
         element1 = cache.getQuiet("key1");
-        assertEquals("Should be one", 1, element1.getHitCount());
+        assertEquals("Element hit count", 1, element1.getHitCount());
         element1 = cache.get("key1");
-        assertEquals("Should be two", 2, element1.getHitCount());
+        assertEquals("Element hit count", 2, element1.getHitCount());
     }
 
     /**
