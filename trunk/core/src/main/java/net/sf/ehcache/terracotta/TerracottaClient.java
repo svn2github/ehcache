@@ -70,7 +70,7 @@ public class TerracottaClient {
                         "Terracotta Rejoin is enabled but can't determine Terracotta Runtime. You are probably missing Terracotta jar(s).");
             }
             if (type != TerracottaRuntimeType.EnterpriseExpress && type != TerracottaRuntimeType.Express) {
-                throw new InvalidConfigurationException("Rejoin can be enabled only in Terracotta Express mode.");
+                throw new InvalidConfigurationException("Rejoin cannot be used in Terracotta DSO mode.");
             }
         }
     }
