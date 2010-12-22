@@ -19,6 +19,7 @@ package net.sf.ehcache.constructs.nonstop.store;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import net.sf.ehcache.CacheException;
@@ -30,22 +31,22 @@ import net.sf.ehcache.search.Results;
 import net.sf.ehcache.search.attribute.AttributeExtractor;
 import net.sf.ehcache.store.ElementValueComparator;
 import net.sf.ehcache.store.Policy;
-import net.sf.ehcache.store.Store;
 import net.sf.ehcache.store.StoreListener;
 import net.sf.ehcache.store.StoreQuery;
+import net.sf.ehcache.store.TerracottaStore;
 import net.sf.ehcache.writer.CacheWriterManager;
 
 /**
- * Implementation of {@link Store} which should be used with nonstop and when cluster is offline.
+ * Implementation of {@link TerracottaStore} which should be used with nonstop and when cluster is offline.
  *
  * @author Abhishek Sanoujam
  *
  */
-public class ClusterOfflineStore implements Store {
+public class ClusterOfflineStore implements TerracottaStore {
 
     private final NonstopConfiguration nonstopConfig;
     private final NonstopTimeoutStoreResolver nonstopStoreResolver;
-    private final Store executorBehavior;
+    private final ExecutorServiceStore executorBehavior;
     private final AtomicInteger pendingMutateBufferSize = new AtomicInteger();
 
     /**
@@ -542,6 +543,61 @@ public class ClusterOfflineStore implements Store {
             return nonstopStoreResolver.resolveTimeoutStore().getSearchAttribute(attributeName);
         } else {
             return executorBehavior.getSearchAttribute(attributeName);
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public Set getLocalKeys() {
+        if (shouldTimeoutImmediately()) {
+            return nonstopStoreResolver.resolveTimeoutStore().getLocalKeys();
+        } else {
+            return executorBehavior.getLocalKeys();
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public Element unlockedGet(final Object key) {
+        if (shouldTimeoutImmediately()) {
+            return nonstopStoreResolver.resolveTimeoutStore().unlockedGet(key);
+        } else {
+            return executorBehavior.unlockedGet(key);
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public Element unlockedGetQuiet(Object key) {
+        if (shouldTimeoutImmediately()) {
+            return nonstopStoreResolver.resolveTimeoutStore().unlockedGetQuiet(key);
+        } else {
+            return executorBehavior.unlockedGetQuiet(key);
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public Element unsafeGet(Object key) {
+        if (shouldTimeoutImmediately()) {
+            return nonstopStoreResolver.resolveTimeoutStore().unsafeGet(key);
+        } else {
+            return executorBehavior.unsafeGet(key);
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public Element unsafeGetQuiet(Object key) {
+        if (shouldTimeoutImmediately()) {
+            return nonstopStoreResolver.resolveTimeoutStore().unsafeGetQuiet(key);
+        } else {
+            return executorBehavior.unsafeGetQuiet(key);
         }
     }
 }

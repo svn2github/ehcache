@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Element;
@@ -30,12 +31,12 @@ import net.sf.ehcache.search.Results;
 import net.sf.ehcache.search.attribute.AttributeExtractor;
 import net.sf.ehcache.store.ElementValueComparator;
 import net.sf.ehcache.store.Policy;
-import net.sf.ehcache.store.Store;
 import net.sf.ehcache.store.StoreListener;
 import net.sf.ehcache.store.StoreQuery;
+import net.sf.ehcache.store.TerracottaStore;
 import net.sf.ehcache.writer.CacheWriterManager;
 
-public class TestRejoinStore implements Store {
+public class TestRejoinStore implements TerracottaStore {
 
     private final Map<Object, Element> map = new HashMap<Object, Element>();
     private volatile boolean blocking = false;
@@ -267,6 +268,31 @@ public class TestRejoinStore implements Store {
     public void waitUntilClusterCoherent() throws UnsupportedOperationException {
         checkBlocking();
 
+    }
+
+    public Set getLocalKeys() {
+        checkBlocking();
+        return null;
+    }
+
+    public Element unlockedGet(Object key) {
+        checkBlocking();
+        return null;
+    }
+
+    public Element unlockedGetQuiet(Object key) {
+        checkBlocking();
+        return null;
+    }
+
+    public Element unsafeGet(Object key) {
+        checkBlocking();
+        return null;
+    }
+
+    public Element unsafeGetQuiet(Object key) {
+        checkBlocking();
+        return null;
     }
 
 }

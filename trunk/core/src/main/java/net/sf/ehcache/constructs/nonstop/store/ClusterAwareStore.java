@@ -19,6 +19,7 @@ package net.sf.ehcache.constructs.nonstop.store;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Element;
@@ -31,9 +32,9 @@ import net.sf.ehcache.search.Results;
 import net.sf.ehcache.search.attribute.AttributeExtractor;
 import net.sf.ehcache.store.ElementValueComparator;
 import net.sf.ehcache.store.Policy;
-import net.sf.ehcache.store.Store;
 import net.sf.ehcache.store.StoreListener;
 import net.sf.ehcache.store.StoreQuery;
+import net.sf.ehcache.store.TerracottaStore;
 import net.sf.ehcache.writer.CacheWriterManager;
 
 /**
@@ -42,11 +43,11 @@ import net.sf.ehcache.writer.CacheWriterManager;
  * @author Abhishek Sanoujam
  *
  */
-public class ClusterAwareStore implements Store {
+public class ClusterAwareStore implements TerracottaStore {
 
     private final ClusterOfflineStore clusterOfflineStore;
     private final ExecutorServiceStore clusterOnlineStore;
-    private volatile Store delegate;
+    private volatile TerracottaStore delegate;
 
     /**
      * Constructor accepting the {@link CacheCluster}, {@link ClusterOfflineStore} (used when cluster is offline) and
@@ -375,6 +376,41 @@ public class ClusterAwareStore implements Store {
      */
     public <T> Attribute<T> getSearchAttribute(String attributeName) {
         return delegate.getSearchAttribute(attributeName);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public Set getLocalKeys() {
+        return delegate.getLocalKeys();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public Element unlockedGet(Object key) {
+        return delegate.unlockedGet(key);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public Element unlockedGetQuiet(Object key) {
+        return delegate.unlockedGetQuiet(key);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public Element unsafeGet(Object key) {
+        return delegate.unsafeGet(key);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public Element unsafeGetQuiet(Object key) {
+        return delegate.unsafeGetQuiet(key);
     }
 
     /**

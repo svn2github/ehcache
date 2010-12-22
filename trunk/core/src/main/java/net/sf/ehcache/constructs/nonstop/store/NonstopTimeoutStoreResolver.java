@@ -16,10 +16,10 @@
 
 package net.sf.ehcache.constructs.nonstop.store;
 
-import net.sf.ehcache.store.Store;
+import net.sf.ehcache.store.TerracottaStore;
 
 /**
- * Interface for resolving a {@link Store}. Used to resolve the timeoutBehavior store when operation times out in NonstopStore
+ * Interface for resolving a {@link TerracottaStore}. Used to resolve the timeoutBehavior store when operation times out in NonstopStore
  *
  * @author Abhishek Sanoujam
  *
@@ -27,10 +27,10 @@ import net.sf.ehcache.store.Store;
 public interface NonstopTimeoutStoreResolver {
 
     /**
-     * Resolve the {@link Store} to be used
+     * Resolve the {@link TerracottaStore} to be used
      *
-     * @return the resolved {@link Store}
+     * @return the resolved {@link TerracottaStore}
      */
-    Store resolveTimeoutStore();
+    TerracottaStore resolveTimeoutStore();
 
 }

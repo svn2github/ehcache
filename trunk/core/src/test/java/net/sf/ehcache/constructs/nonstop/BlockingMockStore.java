@@ -18,8 +18,10 @@ package net.sf.ehcache.constructs.nonstop;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Element;
@@ -29,9 +31,9 @@ import net.sf.ehcache.search.Results;
 import net.sf.ehcache.search.attribute.AttributeExtractor;
 import net.sf.ehcache.store.ElementValueComparator;
 import net.sf.ehcache.store.Policy;
-import net.sf.ehcache.store.Store;
 import net.sf.ehcache.store.StoreListener;
 import net.sf.ehcache.store.StoreQuery;
+import net.sf.ehcache.store.TerracottaStore;
 import net.sf.ehcache.writer.CacheWriterManager;
 
 /**
@@ -40,7 +42,7 @@ import net.sf.ehcache.writer.CacheWriterManager;
  * @author Abhishek Sanoujam
  *
  */
-public class BlockingMockStore implements Store {
+public class BlockingMockStore implements TerracottaStore {
 
     private static final List<String> skipMethods;
     static {
@@ -278,6 +280,31 @@ public class BlockingMockStore implements Store {
 
     public <T> Attribute<T> getSearchAttribute(String attributeName) {
         throw new UnsupportedOperationException();
+    }
+
+    public Set getLocalKeys() {
+        // should never block
+        return Collections.EMPTY_SET;
+    }
+
+    public Element unlockedGet(Object key) {
+        neverReturn();
+        return null;
+    }
+
+    public Element unlockedGetQuiet(Object key) {
+        neverReturn();
+        return null;
+    }
+
+    public Element unsafeGet(Object key) {
+        // unsafe gets never block
+        return null;
+    }
+
+    public Element unsafeGetQuiet(Object key) {
+     // unsafe gets never block
+        return null;
     }
 
 }

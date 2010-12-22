@@ -20,11 +20,9 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import java.lang.reflect.Method;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -39,18 +37,14 @@ import net.sf.ehcache.cluster.ClusterScheme;
 import net.sf.ehcache.cluster.ClusterTopologyListener;
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.InvalidConfigurationException;
-import net.sf.ehcache.config.TerracottaClientConfiguration;
 import net.sf.ehcache.config.TerracottaConfiguration;
 import net.sf.ehcache.config.TerracottaConfiguration.StorageStrategy;
 import net.sf.ehcache.constructs.nonstop.NonStopCacheException;
-import net.sf.ehcache.store.Store;
 import net.sf.ehcache.terracotta.TerracottaClusteredInstanceHelper.TerracottaRuntimeType;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.mockito.stubbing.Answer;
 
 @RunWith(MockitoJUnitRunner.class)
 public class BasicRejoinTest extends TestCase {
@@ -59,31 +53,10 @@ public class BasicRejoinTest extends TestCase {
     private static final String ERROR_MSG_REJOIN_NO_NONSTOP = "Terracotta clustered caches must be nonstop when rejoin is enabled";
     private static final CharSequence ERROR_MSG_REJOIN_NO_TC = "Terracotta Rejoin is enabled but can't determine Terracotta Runtime. You are probably missing Terracotta jar(s)";
 
-    private void setupTestMode(ClusteredInstanceFactory mockFactory) throws Exception {
-        setupTestMode(mock(TerracottaClusteredInstanceHelper.class), mockFactory);
-    }
-
-    private void setupTestMode(TerracottaClusteredInstanceHelper mockHelper, ClusteredInstanceFactory mockFactory) throws Exception {
-        setupTestMode(mockHelper, mockFactory, new TestRejoinStore());
-    }
-
-    private void setupTestMode(TerracottaClusteredInstanceHelper mockHelper, ClusteredInstanceFactory mockFactory, Store mockStore)
-            throws Exception {
-        when(mockHelper.getTerracottaRuntimeTypeOrNull()).thenReturn(TerracottaRuntimeType.Express);
-        when(mockHelper.newClusteredInstanceFactory((Map<String, CacheConfiguration>) any(), (TerracottaClientConfiguration) any()))
-                .thenReturn(mockFactory);
-        when(mockFactory.createStore((Ehcache) any())).thenReturn(mockStore);
-        when(mockHelper.getDefaultStorageStrategyForCurrentRuntime()).thenReturn(StorageStrategy.CLASSIC);
-
-        Method method = TerracottaClient.class.getDeclaredMethod("setTestMode", TerracottaClusteredInstanceHelper.class);
-        method.setAccessible(true);
-        method.invoke(null, mockHelper);
-    }
-
     @Test
     public void testInvalidRejoinWithoutNonstop() throws Exception {
         ClusteredInstanceFactory mockFactory = mock(ClusteredInstanceFactory.class);
-        setupTestMode(mockFactory);
+        TerracottaUnitTesting.setupTerracottaTesting(mockFactory);
 
         CacheCluster mockCacheCluster = new MockCacheCluster();
         when(mockFactory.getTopology()).thenReturn(mockCacheCluster);
@@ -99,15 +72,11 @@ public class BasicRejoinTest extends TestCase {
 
     @Test
     public void testInvalidRejoinInCustom() throws Exception {
-        TerracottaClusteredInstanceHelper mockHelper = mock(TerracottaClusteredInstanceHelper.class);
         ClusteredInstanceFactory mockFactory = mock(ClusteredInstanceFactory.class);
-        setupTestMode(mockHelper, mockFactory);
+        TerracottaUnitTesting.setupTerracottaTesting(mockFactory, TerracottaRuntimeType.Custom, StorageStrategy.CLASSIC);
 
         CacheCluster mockCacheCluster = new MockCacheCluster();
         when(mockFactory.getTopology()).thenReturn(mockCacheCluster);
-
-        // run in classic mode
-        when(mockHelper.getTerracottaRuntimeTypeOrNull()).thenReturn(TerracottaRuntimeType.Custom);
 
         try {
             new CacheManager(CacheManager.class.getResourceAsStream("/rejoin/basic-rejoin-test.xml"));
@@ -120,15 +89,11 @@ public class BasicRejoinTest extends TestCase {
 
     @Test
     public void testInvalidRejoinWithoutTerracotta() throws Exception {
-        TerracottaClusteredInstanceHelper mockHelper = mock(TerracottaClusteredInstanceHelper.class);
         ClusteredInstanceFactory mockFactory = mock(ClusteredInstanceFactory.class);
-        setupTestMode(mockHelper, mockFactory);
+        TerracottaUnitTesting.setupTerracottaTesting(mockFactory, (TerracottaRuntimeType) null, StorageStrategy.CLASSIC);
 
         CacheCluster mockCacheCluster = new MockCacheCluster();
         when(mockFactory.getTopology()).thenReturn(mockCacheCluster);
-
-        // run in classic mode
-        when(mockHelper.getTerracottaRuntimeTypeOrNull()).thenReturn(null);
 
         try {
             new CacheManager(CacheManager.class.getResourceAsStream("/rejoin/basic-rejoin-test.xml"));
@@ -141,9 +106,8 @@ public class BasicRejoinTest extends TestCase {
 
     @Test
     public void testAddNoNonstopCache() throws Exception {
-        TerracottaClusteredInstanceHelper mockHelper = mock(TerracottaClusteredInstanceHelper.class);
         ClusteredInstanceFactory mockFactory = mock(ClusteredInstanceFactory.class);
-        setupTestMode(mockHelper, mockFactory);
+        TerracottaUnitTesting.setupTerracottaTesting(mockFactory);
 
         CacheCluster mockCacheCluster = new MockCacheCluster();
         when(mockFactory.getTopology()).thenReturn(mockCacheCluster);
@@ -171,24 +135,18 @@ public class BasicRejoinTest extends TestCase {
 
     @Test
     public void testBasicRejoin() throws Exception {
-        final TerracottaClusteredInstanceHelper mockHelper = mock(TerracottaClusteredInstanceHelper.class);
         final ClusteredInstanceFactory mockFactory = mock(ClusteredInstanceFactory.class);
+        final AtomicInteger factoryCreationCount = new AtomicInteger();
+        TerracottaUnitTesting.setupTerracottaTesting(mockFactory, new Runnable() {
+            public void run() {
+                factoryCreationCount.incrementAndGet();
+            }
+        });
         TestRejoinStore testRejoinStore = new TestRejoinStore();
-        setupTestMode(mockHelper, mockFactory, testRejoinStore);
+        when(mockFactory.createStore((Ehcache) any())).thenReturn(testRejoinStore);
 
         MockCacheCluster mockCacheCluster = new MockCacheCluster();
         when(mockFactory.getTopology()).thenReturn(mockCacheCluster);
-
-        final AtomicInteger factoryCreationCount = new AtomicInteger();
-        when(mockHelper.newClusteredInstanceFactory((Map<String, CacheConfiguration>) any(), (TerracottaClientConfiguration) any()))
-                .thenAnswer(new Answer<ClusteredInstanceFactory>() {
-
-                    public ClusteredInstanceFactory answer(InvocationOnMock invocation) throws Throwable {
-                        factoryCreationCount.incrementAndGet();
-                        return mockFactory;
-                    }
-
-                });
 
         CacheManager cacheManager = new CacheManager(CacheManager.class.getResourceAsStream("/rejoin/basic-rejoin-test.xml"));
         assertEquals(1, factoryCreationCount.get());

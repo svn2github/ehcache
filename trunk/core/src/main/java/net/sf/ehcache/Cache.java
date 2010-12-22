@@ -60,6 +60,7 @@ import net.sf.ehcache.store.Policy;
 import net.sf.ehcache.store.Store;
 import net.sf.ehcache.store.StoreListener;
 import net.sf.ehcache.store.StoreQuery;
+import net.sf.ehcache.store.TerracottaStore;
 import net.sf.ehcache.store.compound.ImmutableValueElementCopyStrategy;
 import net.sf.ehcache.store.compound.ReadWriteCopyStrategy;
 import net.sf.ehcache.store.compound.impl.DiskPersistentStore;
@@ -1029,7 +1030,14 @@ public class Cache implements Ehcache, StoreListener {
                             TerracottaClient.getTerracottaDefaultStrategyForCurrentRuntime());
                 }
 
-                Store terracottaStore = cacheManager.createTerracottaStore(this);
+                Store tempStore = cacheManager.createTerracottaStore(this);
+                if (!(tempStore instanceof TerracottaStore)) {
+                    throw new CacheException(
+                            "CacheManager should create instances of TerracottaStore for Terracotta Clustered caches instead of - "
+                                    + (tempStore == null ? "null" : tempStore.getClass().getName()));
+                }
+                TerracottaStore terracottaStore = (TerracottaStore) tempStore;
+
                 NonstopConfiguration nonstopConfig = getCacheConfiguration().getTerracottaConfiguration().getNonstopConfiguration();
                 // freeze the config whether nonstop is enabled or not
                 if (nonstopConfig != null) {

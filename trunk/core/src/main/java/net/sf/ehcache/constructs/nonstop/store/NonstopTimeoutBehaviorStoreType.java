@@ -21,6 +21,7 @@ import java.util.Map;
 import java.util.Set;
 
 import net.sf.ehcache.store.Store;
+import net.sf.ehcache.store.TerracottaStore;
 
 /**
  * Enum encapsulating different {@link Store} types for use as timeoutBehavior by NonstopStore
@@ -39,7 +40,7 @@ public enum NonstopTimeoutBehaviorStoreType {
          * {@inheritDoc}
          */
         @Override
-        public Store newTimeoutStore(final Store store) {
+        public TerracottaStore newTimeoutStore(final Store store) {
             return ExceptionOnTimeoutStore.getInstance();
         }
 
@@ -64,7 +65,7 @@ public enum NonstopTimeoutBehaviorStoreType {
          * {@inheritDoc}
          */
         @Override
-        public Store newTimeoutStore(final Store store) {
+        public TerracottaStore newTimeoutStore(final Store store) {
             return NoOpOnTimeoutStore.getInstance();
         }
 
@@ -89,7 +90,7 @@ public enum NonstopTimeoutBehaviorStoreType {
          * {@inheritDoc}
          */
         @Override
-        public Store newTimeoutStore(final Store store) {
+        public TerracottaStore newTimeoutStore(final Store store) {
             return new LocalReadsOnTimeoutStore(store);
         }
 
@@ -111,7 +112,7 @@ public enum NonstopTimeoutBehaviorStoreType {
      * @param store
      * @return new instance of {@link Store} for this type
      */
-    public abstract Store newTimeoutStore(final Store store);
+    public abstract TerracottaStore newTimeoutStore(final Store store);
 
     /**
      * Name to be used for this type. This value is used for "timeoutBehavior" key when configuring NonstopStore

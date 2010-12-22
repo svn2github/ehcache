@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Element;
@@ -42,7 +43,7 @@ import net.sf.ehcache.writer.CacheWriterManager;
  * @author Abhishek Sanoujam
  *
  */
-public class LocalReadsOnTimeoutStore implements Store {
+public class LocalReadsOnTimeoutStore implements TerracottaStore {
 
     private final TerracottaStore unsafeStore;
 
@@ -479,6 +480,41 @@ public class LocalReadsOnTimeoutStore implements Store {
     public <T> Attribute<T> getSearchAttribute(String attributeName) {
         // no-op
         return null;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public Set getLocalKeys() {
+        return unsafeStore.getLocalKeys();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public Element unlockedGet(Object key) {
+        return unsafeStore.unsafeGet(key);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public Element unlockedGetQuiet(Object key) {
+        return unsafeStore.unsafeGet(key);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public Element unsafeGet(Object key) {
+        return unsafeStore.unsafeGet(key);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public Element unsafeGetQuiet(Object key) {
+        return unsafeStore.unsafeGetQuiet(key);
     }
 
 }

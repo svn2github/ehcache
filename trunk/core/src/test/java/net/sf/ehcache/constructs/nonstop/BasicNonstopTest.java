@@ -119,16 +119,8 @@ public class BasicNonstopTest extends TestCase {
             protected void invokeOne(Ehcache ehcache, Method method) {
                 if (methods.contains(method)) {
                     System.out.print("Invoking method: " + NonstopTestUtil.getMethodSignature(method) + " ...");
-                    try {
-                        super.invokeOne(ehcache, method);
-                    } catch (Exception e) {
-                        Throwable rootCause = getRootCause(e);
-                        if (rootCause instanceof IllegalArgumentException
-                                && rootCause.getMessage().contains(
-                                        "LocalReadsOnTimeoutStore can be only be used with Terracotta clustered caches")) {
-                            System.out.println(" Caught expected exception: localReads supported only for terracotta clustered caches");
-                        }
-                    }
+                    super.invokeOne(ehcache, method);
+                    System.out.println(" ... succeeded with localReads");
                 }
             }
 

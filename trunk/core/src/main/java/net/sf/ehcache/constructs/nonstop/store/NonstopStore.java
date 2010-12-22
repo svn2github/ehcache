@@ -19,6 +19,7 @@ package net.sf.ehcache.constructs.nonstop.store;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -36,6 +37,7 @@ import net.sf.ehcache.store.Policy;
 import net.sf.ehcache.store.Store;
 import net.sf.ehcache.store.StoreListener;
 import net.sf.ehcache.store.StoreQuery;
+import net.sf.ehcache.store.TerracottaStore;
 import net.sf.ehcache.writer.CacheWriterManager;
 
 /**
@@ -44,11 +46,11 @@ import net.sf.ehcache.writer.CacheWriterManager;
  * @author Abhishek Sanoujam
  *
  */
-public class NonstopStore implements Store, NonstopTimeoutStoreResolver {
+public class NonstopStore implements TerracottaStore, NonstopTimeoutStoreResolver {
 
     private final Store underlyingStore;
     private final NonstopConfiguration nonstopConfig;
-    private final ConcurrentMap<NonstopTimeoutBehaviorStoreType, Store> timeoutBehaviors;
+    private final ConcurrentMap<NonstopTimeoutBehaviorStoreType, TerracottaStore> timeoutBehaviors;
     private final ClusterAwareStore clusterAwareStore;
 
     /**
@@ -56,11 +58,11 @@ public class NonstopStore implements Store, NonstopTimeoutStoreResolver {
      * {@link NonStopCacheExecutorService}
      *
      */
-    public NonstopStore(Store underlyingStore, CacheCluster cacheCluster, NonstopConfiguration nonstopConfig,
+    public NonstopStore(TerracottaStore underlyingStore, CacheCluster cacheCluster, NonstopConfiguration nonstopConfig,
             NonStopCacheExecutorService nonstopExecutorService) {
         this.underlyingStore = underlyingStore;
         this.nonstopConfig = nonstopConfig;
-        this.timeoutBehaviors = new ConcurrentHashMap<NonstopTimeoutBehaviorStoreType, Store>();
+        this.timeoutBehaviors = new ConcurrentHashMap<NonstopTimeoutBehaviorStoreType, TerracottaStore>();
 
         ExecutorServiceStore clusterOnlineStore = new ExecutorServiceStore(underlyingStore, nonstopConfig, nonstopExecutorService, this);
         ClusterOfflineStore clusterOfflineStore = new ClusterOfflineStore(nonstopConfig, this, clusterOnlineStore);
@@ -70,11 +72,11 @@ public class NonstopStore implements Store, NonstopTimeoutStoreResolver {
     /**
      * {@inheritDoc}
      */
-    public Store resolveTimeoutStore() {
-        Store timeoutStore = timeoutBehaviors.get(getTimeoutBehaviorStoreType());
+    public TerracottaStore resolveTimeoutStore() {
+        TerracottaStore timeoutStore = timeoutBehaviors.get(getTimeoutBehaviorStoreType());
         if (timeoutStore == null) {
             timeoutStore = getTimeoutBehaviorStoreType().newTimeoutStore(underlyingStore);
-            Store prev = timeoutBehaviors.putIfAbsent(getTimeoutBehaviorStoreType(), timeoutStore);
+            TerracottaStore prev = timeoutBehaviors.putIfAbsent(getTimeoutBehaviorStoreType(), timeoutStore);
             if (prev != null) {
                 timeoutStore = prev;
             }
@@ -84,6 +86,15 @@ public class NonstopStore implements Store, NonstopTimeoutStoreResolver {
 
     private NonstopTimeoutBehaviorStoreType getTimeoutBehaviorStoreType() {
         return NonstopTimeoutBehaviorStoreType.getTypeFromConfigPropertyName(nonstopConfig.getTimeoutBehavior().getType());
+    }
+
+    /**
+     * package-protected method. Use for tests only.
+     *
+     * @return The underlying store
+     */
+    Store getUnderlyingStore() {
+        return underlyingStore;
     }
 
     // -------------------------------------------------------
@@ -408,6 +419,41 @@ public class NonstopStore implements Store, NonstopTimeoutStoreResolver {
      */
     public void clusterRejoinComplete() {
         clusterAwareStore.clusterRejoinComplete();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public Set getLocalKeys() {
+        return clusterAwareStore.getLocalKeys();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public Element unlockedGet(Object key) {
+        return clusterAwareStore.unlockedGet(key);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public Element unlockedGetQuiet(Object key) {
+        return clusterAwareStore.unlockedGetQuiet(key);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public Element unsafeGet(Object key) {
+        return clusterAwareStore.unsafeGet(key);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public Element unsafeGetQuiet(Object key) {
+        return clusterAwareStore.unsafeGetQuiet(key);
     }
 
 }

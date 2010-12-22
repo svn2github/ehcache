@@ -19,6 +19,7 @@ package net.sf.ehcache.constructs.nonstop.store;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -33,24 +34,24 @@ import net.sf.ehcache.search.Results;
 import net.sf.ehcache.search.attribute.AttributeExtractor;
 import net.sf.ehcache.store.ElementValueComparator;
 import net.sf.ehcache.store.Policy;
-import net.sf.ehcache.store.Store;
 import net.sf.ehcache.store.StoreListener;
 import net.sf.ehcache.store.StoreQuery;
+import net.sf.ehcache.store.TerracottaStore;
 import net.sf.ehcache.writer.CacheWriterManager;
 
 /**
  * This implementation executes all operations using a {@link NonStopCacheExecutorService}. On Timeout, uses the
  * {@link NonstopTimeoutStoreResolver} to resolve the timeout behavior store and execute it.
  * <p/>
- * A {@link Store} that takes another {@link Store} as direct delegate, the {@link NonstopConfiguration},
+ * A {@link TerracottaStore} that takes another {@link TerracottaStore} as direct delegate, the {@link NonstopConfiguration},
  * {@link NonStopCacheExecutorService} and {@link NonstopTimeoutStoreResolver}
  *
  * @author Abhishek Sanoujam
  *
  */
-public class ExecutorServiceStore implements Store {
+public class ExecutorServiceStore implements TerracottaStore {
 
-    private final Store executeBehavior;
+    private final TerracottaStore executeBehavior;
     private final NonStopCacheExecutorService executorService;
     private final NonstopTimeoutStoreResolver timeoutBehaviorResolver;
     private final NonstopConfiguration nonstopConfiguration;
@@ -61,7 +62,7 @@ public class ExecutorServiceStore implements Store {
      * {@link NonstopTimeoutStoreResolver}
      *
      */
-    public ExecutorServiceStore(final Store delegateStore, final NonstopConfiguration nonstopConfiguration,
+    public ExecutorServiceStore(final TerracottaStore delegateStore, final NonstopConfiguration nonstopConfiguration,
             final NonStopCacheExecutorService executorService, final NonstopTimeoutStoreResolver timeoutBehaviorResolver) {
         this.executeBehavior = delegateStore;
         this.nonstopConfiguration = nonstopConfiguration;
@@ -813,6 +814,81 @@ public class ExecutorServiceStore implements Store {
             });
         } catch (TimeoutException e) {
             return timeoutBehaviorResolver.resolveTimeoutStore().getSearchAttribute(attributeName);
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public Set getLocalKeys() {
+        try {
+            return executeWithExecutor(new Callable<Set>() {
+                public Set call() throws Exception {
+                    return executeBehavior.getLocalKeys();
+                }
+            });
+        } catch (TimeoutException e) {
+            return timeoutBehaviorResolver.resolveTimeoutStore().getLocalKeys();
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public Element unlockedGet(final Object key) {
+        try {
+            return executeWithExecutor(new Callable<Element>() {
+                public Element call() throws Exception {
+                    return executeBehavior.unlockedGet(key);
+                }
+            });
+        } catch (TimeoutException e) {
+            return timeoutBehaviorResolver.resolveTimeoutStore().unlockedGet(key);
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public Element unlockedGetQuiet(final Object key) {
+        try {
+            return executeWithExecutor(new Callable<Element>() {
+                public Element call() throws Exception {
+                    return executeBehavior.unlockedGetQuiet(key);
+                }
+            });
+        } catch (TimeoutException e) {
+            return timeoutBehaviorResolver.resolveTimeoutStore().unlockedGetQuiet(key);
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public Element unsafeGet(final Object key) {
+        try {
+            return executeWithExecutor(new Callable<Element>() {
+                public Element call() throws Exception {
+                    return executeBehavior.unsafeGet(key);
+                }
+            });
+        } catch (TimeoutException e) {
+            return timeoutBehaviorResolver.resolveTimeoutStore().unsafeGet(key);
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public Element unsafeGetQuiet(final Object key) {
+        try {
+            return executeWithExecutor(new Callable<Element>() {
+                public Element call() throws Exception {
+                    return executeBehavior.unsafeGetQuiet(key);
+                }
+            });
+        } catch (TimeoutException e) {
+            return timeoutBehaviorResolver.resolveTimeoutStore().unsafeGetQuiet(key);
         }
     }
 

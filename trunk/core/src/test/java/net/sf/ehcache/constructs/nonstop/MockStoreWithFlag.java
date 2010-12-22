@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Element;
@@ -29,12 +30,12 @@ import net.sf.ehcache.search.Results;
 import net.sf.ehcache.search.attribute.AttributeExtractor;
 import net.sf.ehcache.store.ElementValueComparator;
 import net.sf.ehcache.store.Policy;
-import net.sf.ehcache.store.Store;
 import net.sf.ehcache.store.StoreListener;
 import net.sf.ehcache.store.StoreQuery;
+import net.sf.ehcache.store.TerracottaStore;
 import net.sf.ehcache.writer.CacheWriterManager;
 
-public class MockStoreWithFlag implements Store {
+public class MockStoreWithFlag implements TerracottaStore {
 
     private boolean accessFlag = false;
     private String lastMethodInvoked;
@@ -206,7 +207,8 @@ public class MockStoreWithFlag implements Store {
         return null;
     }
 
-    public boolean replace(Element old, Element element, ElementValueComparator comparator) throws NullPointerException, IllegalArgumentException {
+    public boolean replace(Element old, Element element, ElementValueComparator comparator) throws NullPointerException,
+            IllegalArgumentException {
         markAccessFlag();
         return false;
     }
@@ -268,6 +270,31 @@ public class MockStoreWithFlag implements Store {
 
     public <T> Attribute<T> getSearchAttribute(String attributeName) {
         return new Attribute(attributeName);
+    }
+
+    public Set getLocalKeys() {
+        markAccessFlag();
+        return null;
+    }
+
+    public Element unlockedGet(Object key) {
+        markAccessFlag();
+        return null;
+    }
+
+    public Element unlockedGetQuiet(Object key) {
+        markAccessFlag();
+        return null;
+    }
+
+    public Element unsafeGet(Object key) {
+        markAccessFlag();
+        return null;
+    }
+
+    public Element unsafeGetQuiet(Object key) {
+        markAccessFlag();
+        return null;
     }
 
 }

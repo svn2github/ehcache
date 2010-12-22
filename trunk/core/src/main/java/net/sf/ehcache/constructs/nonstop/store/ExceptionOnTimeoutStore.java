@@ -18,6 +18,7 @@ package net.sf.ehcache.constructs.nonstop.store;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Element;
@@ -28,18 +29,18 @@ import net.sf.ehcache.search.Results;
 import net.sf.ehcache.search.attribute.AttributeExtractor;
 import net.sf.ehcache.store.ElementValueComparator;
 import net.sf.ehcache.store.Policy;
-import net.sf.ehcache.store.Store;
 import net.sf.ehcache.store.StoreListener;
 import net.sf.ehcache.store.StoreQuery;
+import net.sf.ehcache.store.TerracottaStore;
 import net.sf.ehcache.writer.CacheWriterManager;
 
 /**
- * Implementation of {@link Store} that throws {@link NonStopCacheException} for all operations.
+ * Implementation of {@link TerracottaStore} that throws {@link NonStopCacheException} for all operations.
  *
  * @author Abhishek Sanoujam
  *
  */
-public final class ExceptionOnTimeoutStore implements Store {
+public final class ExceptionOnTimeoutStore implements TerracottaStore {
 
     /**
      * the singleton instance
@@ -446,4 +447,40 @@ public final class ExceptionOnTimeoutStore implements Store {
     public <T> Attribute<T> getSearchAttribute(String attributeName) {
         throw new NonStopCacheException();
     }
+
+    /**
+     * {@inheritDoc}
+     */
+    public Set getLocalKeys() {
+        throw new NonStopCacheException("getLocalKeys() timed out");
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public Element unlockedGet(Object key) {
+        throw new NonStopCacheException("unlockedGet() timed out");
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public Element unlockedGetQuiet(Object key) {
+        throw new NonStopCacheException("unlockedGetQuiet() timed out");
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public Element unsafeGet(Object key) {
+        throw new NonStopCacheException("unsafeGet() timed out");
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public Element unsafeGetQuiet(Object key) {
+        throw new NonStopCacheException("unsafeGetQuiet() timed out");
+    }
+
 }
