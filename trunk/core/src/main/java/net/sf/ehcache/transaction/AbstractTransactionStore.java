@@ -15,7 +15,9 @@
  */
 package net.sf.ehcache.transaction;
 
+import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Status;
+import net.sf.ehcache.search.Attribute;
 import net.sf.ehcache.search.Results;
 import net.sf.ehcache.search.attribute.AttributeExtractor;
 import net.sf.ehcache.store.AbstractStore;
@@ -204,5 +206,13 @@ public abstract class AbstractTransactionStore extends AbstractStore {
     @Override
     public Results executeQuery(StoreQuery query) {
         return underlyingStore.executeQuery(query);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public <T> Attribute<T> getSearchAttribute(String attributeName) throws CacheException {
+        return underlyingStore.getSearchAttribute(attributeName);
     }
 }
