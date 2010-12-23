@@ -186,6 +186,36 @@ public abstract class AbstractTransactionStore extends AbstractStore {
 
     /**
      * {@inheritDoc}
+     *
+     * @see net.sf.ehcache.store.Store#isNodeCoherent()
+     */
+    @Override
+    public boolean isNodeCoherent() {
+        return underlyingStore.isNodeCoherent();
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @see net.sf.ehcache.store.Store#isCacheCoherent()
+     */
+    @Override
+    public boolean isCacheCoherent() {
+        return underlyingStore.isCacheCoherent();
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @see net.sf.ehcache.store.Store#isClusterCoherent()
+     */
+    @Override
+    public boolean isClusterCoherent() {
+        return underlyingStore.isClusterCoherent();
+    }
+
+    /**
+     * {@inheritDoc}
      */
     @Override
     public void waitUntilClusterCoherent() {
