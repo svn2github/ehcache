@@ -82,9 +82,6 @@
 
     The Explicit Locking API is in the ehcache-explicitlocking module. Download {{{http://sourceforge.net/projects/ehcache/files/ehcache-explicitlocking}here}}.
 
-    This feature currently only works with Terracotta Server Array. It needs ehcache-core and ehcache-terracotta. which
-    can be downloaded {{{http://sourceforge.net/projects/ehcache/files/ehcache}here}}.
-
     The open source Terracotta Server Array kit (which includes ehcache-core and ehcache-terracotta) can be downloaded
     {{{http://www.terracotta.org/dl/oss-sign-up}here}}. terracotta_community_login
 
