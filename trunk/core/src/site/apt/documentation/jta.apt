@@ -8,10 +8,10 @@ Transactions in Ehcache
 
 *   Introduction 
 
-    JTA is supported in versions of Ehcache 2.0 and higher.
+    Transactions are supported in versions of Ehcache 2.0 and higher.
 
     The GA releases only support XA. However we have ehcache 2.4 in beta which supports both Global Transactions
-    with <<<xa>>> and <<<xa-nr>>> modes, and Local Transactions with <<<local>>> mode. This document
+    with <<<xa_strict>>> and <<<xa>>> modes, and Local Transactions with <<<local>>> mode. This document
     has been updated to cover the new features in the beta.
 
 
@@ -40,9 +40,9 @@ Transactions in Ehcache
 
     The allowed values are:
 
-    * <<<xa>>>
+    * <<<xa_strict>>>
 
-    * <<<xa-nr>>>
+    * <<<xa>>>
 
     * <<<local>>> 
 
@@ -50,7 +50,7 @@ Transactions in Ehcache
 
     The default value is off.  
 
-    Enabling a cache for <<<xa>>> transactions is shown in the following example:
+    Enabling a cache for <<<xa_strict>>> transactions is shown in the following example:
 
 ---
     <cache name="xaCache"
@@ -61,7 +61,7 @@ Transactions in Ehcache
         overflowToDisk="false"
         diskPersistent="false"
         diskExpiryThreadIntervalSeconds="1"
-        transactionalMode="xa">
+        transactionalMode="xa_strict">
   </cache>
 ---
 
@@ -81,7 +81,7 @@ Transactions in Ehcache
     JTA ("Java Transaction API") transactions under the control of a Transaction Manager. This is typically provided by your
     application server, however you may also use a third party transaction manager such as Bitronix.
 
-    To use Global Transactions, select either <<<xa>>> or <<<xa-nr>>> mode. The differences are explained in the Recovery section below.
+    To use Global Transactions, select either <<<xa_strict>>> or <<<xa>>> mode. The differences are explained in the Recovery section below.
 
 **  Implementation
 
@@ -132,18 +132,18 @@ Transactions in Ehcache
 
 *** XA Mode
 
-    If <<<xa>>> is used the cache will always respond to the TransactionManager's
+    If <<<xa_strict>>> is used the cache will always respond to the TransactionManager's
     recover calls with a list of transactions ids. Should the XA recovery scan be required by the transaction manager, Ehcache will provide all
     Xids prepared, but these will only be able to be rolled back. Indeed when locks time out, no guarantee can be made about the locked keys
     and their value. If the transaction manager still asks Ehcache to commit these, a <<<HeuristicException>>> will be thrown.
 
 *** XA-NR Mode
 
-    There is also an <<<xa-nr>>> mode, which is configured and works the same way as XA, but does not support recovery. In this mode the
+    There is also an <<<xa>>> mode, which is configured and works the same way as XA, but does not support recovery. In this mode the
     TransactionManager's recover calls are ignored. 
-    With <<<xa-nr>>>, the cache can end up inconsistent with the other resources if there is a JVM crash in the mutating node, however this mode is 3 times faster than <<<xa>>>.
+    With <<<xa>>>, the cache can end up inconsistent with the other resources if there is a JVM crash in the mutating node, however this mode is 3 times faster than <<<xa_strict>>>.
 
-    Some scenarios where <<<xa-nr>>> is valuable are:
+    Some scenarios where <<<xa>>> is valuable are:
 
     * Non-clustered use. If you are using a non-persistent standalone cache and you suffer a JVM crash, the cache will be empty
       on restart so there is no danger of an inconsistency
@@ -153,7 +153,7 @@ Transactions in Ehcache
       console.
 
     * Finally not all transaction managers correctly implement recovery anyway. If you are using one of these then your XA implementation
-      will not be doing recovery so <<<xa-nr>>> does not leave you any worse off.
+      will not be doing recovery so <<<xa>>> does not leave you any worse off.
 
 
 
@@ -419,9 +419,9 @@ Transactions in Ehcache
 
     * off   - no overhead
 
-    * xa    - ten times slower
+    * xa_strict    - ten times slower
 
-    * xa-nr - 3 times slower
+    * xa - 3 times slower
 
     * local - 3 times slower
 
@@ -429,23 +429,23 @@ Transactions in Ehcache
 
     * off   - no overhead
 
-    * xa    - 10 times slower
+    * xa_strict    - 10 times slower
 
-    * xa-nr - 10% slower
+    * xa - 10% slower
 
     * local - 10% slower
 
     []
 
-    Accordingly, xa should only be used where it's full guarantees are required, othewise one of the other modes should be used.
+    Accordingly, xa_strict should only be used where it's full guarantees are required, othewise one of the other modes should be used.
 
 
 *   FAQ
 
-**  Is IBM Websphere Transaction Manager supported
+**  Is IBM Websphere Transaction Manager supported?
 
-    XA is not supported due to each version of Websphere essentially being a custom implementation i.e. no stable interface to
-     implement against. However, <<<xa-nr>>>, which uses TransactionManager callbacks and <<<local>>> are supported.
+    Mostly. xa_strict is not supported due to each version of Websphere essentially being a custom implementation i.e. no stable interface to
+    implement against. However, <<<xa>>>, which uses TransactionManager callbacks and <<<local>>> are supported.
 
 **  How do transactions interact with Write-behind and Write-through caches?
 
@@ -478,9 +478,3 @@ Transactions in Ehcache
     ...
   </jta>
 ---
-
-*   Limitations in the 2.4 beta release
-
-    The above documentation is written for how we see search working when it is released.
-
-    * The 2.4 beta1 has not implemented xa-nr. Beta 2 due in December will implement xa-nr.

@@ -644,7 +644,7 @@ public interface ClusterTopologyListener {
 
     You have not configured a Terracotta server for Ehcache to connect to.
 
-**  Is Expiry the same in Terracotta?
+**  Is expiry the same in Terracotta?
 
     timeToIdle and timeToLive work as usual. Ehcache 1.7 introduced a less fine grained age recording in Element
     which rounds up to the nearest second. Some APIs may be sensitive to this change.
@@ -660,6 +660,11 @@ public interface ClusterTopologyListener {
 **  I have set maxElementsOnDisk to a fixed number, but my Terracotta L2 keeps growing.
 
     maxElementsOnDisk was inadvertenly ignored in the new DCV2 implementation. This has been logged as a bug: {{https://jira.terracotta.org/jira/browse/EHCTERR-1}}
+
+**  Changing configuration
+
+    Terracotta clusters remember the configuration settings. You need to delete the cluster to change cache settings of Terracotta distributed
+    caches. You can also use the Terracotta Dev Console to apply persistent changes to common cache settings.
 
 **  What Eviction strategies are supported?
 

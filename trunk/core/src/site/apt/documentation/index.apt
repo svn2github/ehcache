@@ -62,7 +62,7 @@ Documentation - Table of Contents
 
     * {{{./jmx.html}JMX Management & Monitoring}}
 
-    * {{{./jta.html}JTA}}
+    * {{{./jta.html}JTA & Transactions}}
 
     * {{{./search.html}Search}} _new_
 

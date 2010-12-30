@@ -647,12 +647,17 @@ used with JMX monitors.
         <cacheLoaderFactory class="com.example.ExampleCacheLoaderFactory"
                                       properties="type=int,startCounter=10"/>
 
-    XA Cache
-    ++++++++
+    Transactions
+    ++++++++++++
 
-    To enable an ehcache as a participant in the JTA Transaction, just have the following attribute
-    
-    transactionalMode="xa_strict", otherwise the default is transactionalMode="off"
+    To enable an ehcache as transactions, set the transactionalMode
+
+    transactionalMode="xa" - high performance JTA/XA implementation
+    transactionalMode="xa_strict" - canonically correct JTA/XA implementation
+    transactionMode="local" - high performance local transactions involving caches only
+    transactionalMode="off" - the default, no transactions
+
+    If set, all cache operations will need to be done through transactions.
 
     Cache Writer
     ++++++++++++

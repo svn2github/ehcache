@@ -566,11 +566,11 @@ for (Result result : results.all()) {
     * using a built-in <<<Aggregator>>> function when you only need a summary statistic
 
 
-*   Limitations in the alpha release
+*   Limitations in the beta release
 
     The above documentation is written for how we see search working when it is released.
 
-    * The alpha API may be changed before final release
+    * The beta API may be changed before final release
 
     * Performance optimisations for standalone have not been done
 
