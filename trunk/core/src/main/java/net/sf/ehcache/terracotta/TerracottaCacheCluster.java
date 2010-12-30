@@ -58,7 +58,7 @@ public class TerracottaCacheCluster implements CacheCluster {
             this.realCacheCluster.addTopologyListener(listener);
         }
 
-        for(ClusterTopologyListener listener : this.realCacheCluster.getTopologyListeners()){
+        for (ClusterTopologyListener listener : this.realCacheCluster.getTopologyListeners()) {
             this.listeners.add(listener);
         }
     }
@@ -206,6 +206,9 @@ public class TerracottaCacheCluster implements CacheCluster {
 
     }
 
+        /**
+         * {@inheritDoc}
+         */
     public List<ClusterTopologyListener> getTopologyListeners() {
         return this.listeners;
     }
