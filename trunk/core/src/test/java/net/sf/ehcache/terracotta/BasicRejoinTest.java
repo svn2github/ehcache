@@ -276,6 +276,10 @@ public class BasicRejoinTest extends TestCase {
             return currentNode;
         }
 
+        public List<ClusterTopologyListener> getTopologyListeners() {
+            return this.listeners;
+        }
+
     }
 
     private static class ClusterRejoinListener implements ClusterTopologyListener {

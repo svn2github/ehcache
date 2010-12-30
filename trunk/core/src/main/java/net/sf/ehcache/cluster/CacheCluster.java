@@ -17,6 +17,7 @@
 package net.sf.ehcache.cluster;
 
 import java.util.Collection;
+import java.util.List;
 
 /**
  * Allows you to explore the Terracotta cluster nodes and register for events about the cluster.
@@ -33,17 +34,17 @@ public interface CacheCluster {
      * Currently <code>TERRACOTTA</code> is the only scheme supported.
      */
     ClusterScheme getScheme();
-    
+
     /**
      * Retrieves the {@code ClusterNode} instance that corresponds to the current node.
-     * 
+     *
      * @return the {@code ClusterNode} instance that corresponds to the current node
      */
     ClusterNode getCurrentNode();
-    
+
     /**
      * Waits until the current node has successfully joined the cluster.
-     * 
+     *
      * @return the {@code ClusterNode} instance that corresponds to the current node
      */
     ClusterNode waitUntilNodeJoinsCluster();
@@ -54,10 +55,10 @@ public interface CacheCluster {
      * @return information on all the nodes in the cluster, including ID, hostname, and IP address.
      */
     Collection<ClusterNode> getNodes();
-    
+
     /**
      * Find out if the current node is connected to the cluster or not
-     * 
+     *
      * @return true if cluster is online otherwise false
      */
     boolean isClusterOnline();
@@ -77,4 +78,11 @@ public interface CacheCluster {
      * @return True if not listening
      */
     boolean removeTopologyListener(ClusterTopologyListener listener);
+
+    /**
+     * Get all the topology listeners
+     *
+     * @return a list of all the topology listeners
+     */
+    List<ClusterTopologyListener> getTopologyListeners();
 }

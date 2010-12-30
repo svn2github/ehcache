@@ -17,6 +17,7 @@ package net.sf.ehcache.cluster;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 
 /**
  * This is a dummy implementation of the CacheCluster (Null Object Pattern).  It ignores
@@ -81,5 +82,9 @@ public class NoopCacheCluster implements CacheCluster {
      */
     public ClusterNode waitUntilNodeJoinsCluster() {
         return null;
+    }
+
+    public List<ClusterTopologyListener> getTopologyListeners() {
+        return Collections.EMPTY_LIST;
     }
 }
