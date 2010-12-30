@@ -124,6 +124,9 @@ public class CacheManager {
      */
     private static final MBeanRegistrationProviderFactory MBEAN_REGISTRATION_PROVIDER_FACTORY = new MBeanRegistrationProviderFactoryImpl();
 
+    private static final String NO_DEFAULT_CACHE_ERROR_MSG = "Caches cannot be added by name when default cache config is not specified"
+            + " in the config. Please add a default cache config in the configuration.";
+
     /**
      * A name for this CacheManager to distinguish it from others.
      */
@@ -647,7 +650,7 @@ public class CacheManager {
     }
 
     private void reinitialisationCheck() throws IllegalStateException {
-        if (defaultCache != null || diskStorePath != null || ehcaches.size() != 0 || status.equals(Status.STATUS_SHUTDOWN)) {
+        if (diskStorePath != null || ehcaches.size() != 0 || status.equals(Status.STATUS_SHUTDOWN)) {
             throw new IllegalStateException("Attempt to reinitialise the CacheManager");
         }
     }
@@ -909,6 +912,9 @@ public class CacheManager {
             throw new ObjectExistsException("Cache " + cacheName + " already exists");
         }
         Ehcache clonedDefaultCache = cloneDefaultCache(cacheName);
+        if (clonedDefaultCache == null) {
+            throw new CacheException(NO_DEFAULT_CACHE_ERROR_MSG);
+        }
         addCache(clonedDefaultCache);
         for (Ehcache ehcache : createDefaultCacheDecorators(clonedDefaultCache)) {
             addOrReplaceDecoratedCache(clonedDefaultCache, ehcache);
@@ -1144,7 +1150,9 @@ public class CacheManager {
                         cache.dispose();
                     }
                 }
-                defaultCache.dispose();
+                if (defaultCache != null) {
+                    defaultCache.dispose();
+                }
                 status = Status.STATUS_SHUTDOWN;
                 XARequestProcessor.shutdown();
 
@@ -1538,6 +1546,9 @@ public class CacheManager {
         Ehcache ehcache = ehcaches.get(cacheName);
         if (ehcache == null) {
             Ehcache clonedDefaultCache = cloneDefaultCache(cacheName);
+            if (clonedDefaultCache == null) {
+                throw new CacheException(NO_DEFAULT_CACHE_ERROR_MSG);
+            }
             addCacheIfAbsent(clonedDefaultCache);
             for (Ehcache createdCache : createDefaultCacheDecorators(clonedDefaultCache)) {
                 addOrReplaceDecoratedCache(clonedDefaultCache, createdCache);
@@ -1547,6 +1558,9 @@ public class CacheManager {
     }
 
     private Ehcache cloneDefaultCache(final String cacheName) {
+        if (defaultCache == null) {
+            return null;
+        }
         Ehcache cache;
         try {
             cache = (Ehcache) defaultCache.clone();

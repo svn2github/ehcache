@@ -62,8 +62,8 @@ public final class ConfigurationHelper {
 
     private static final Logger LOG = LoggerFactory.getLogger(ConfigurationHelper.class.getName());
 
-    private Configuration configuration;
-    private CacheManager cacheManager;
+    private final Configuration configuration;
+    private final CacheManager cacheManager;
 
     /**
      * Only Constructor
@@ -212,7 +212,7 @@ public final class ConfigurationHelper {
     public final Ehcache createDefaultCache() throws CacheException {
         CacheConfiguration cacheConfiguration = configuration.getDefaultCacheConfiguration();
         if (cacheConfiguration == null) {
-            throw new CacheException("Illegal configuration. No default cache is configured.");
+            return null;
         } else {
             cacheConfiguration.name = Cache.DEFAULT_CACHE_NAME;
             return createCache(cacheConfiguration);
@@ -314,10 +314,10 @@ public final class ConfigurationHelper {
         }
         return cache;
     }
-    
+
     /**
      * Creates decorated ehcaches for the cache, if any configured in ehcache.xml
-     * 
+     *
      * @param cache the cache
      * @return List of the decorated ehcaches, if any configured in ehcache.xml otherwise returns empty list
      */
@@ -354,8 +354,8 @@ public final class ConfigurationHelper {
         if (cache == null) {
             throw new CacheException("Underlying cache cannot be null when creating decorated caches.");
         }
-        List<CacheDecoratorFactoryConfiguration> defaultCacheDecoratorConfigurations = defaultCacheConfiguration
-                .getCacheDecoratorConfigurations();
+        List<CacheDecoratorFactoryConfiguration> defaultCacheDecoratorConfigurations = defaultCacheConfiguration == null ?
+            null : defaultCacheConfiguration.getCacheDecoratorConfigurations();
         if (defaultCacheDecoratorConfigurations == null || defaultCacheDecoratorConfigurations.size() == 0) {
             LOG.debug("CacheDecoratorFactory not configured for defaultCache. Skipping for '" + cache.getName() + "'.");
             return Collections.emptyList();
