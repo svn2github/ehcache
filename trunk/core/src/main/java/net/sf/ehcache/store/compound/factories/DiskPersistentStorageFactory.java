@@ -276,18 +276,22 @@ public class DiskPersistentStorageFactory extends DiskStorageFactory<ElementSubs
      */
     private final static class CachingDiskMarker extends DiskMarker implements Serializable {
         
-        private static final long serialVersionUID = 42;
+        private static final long serialVersionUID = 43;
+
         private static final AtomicReferenceFieldUpdater<CachingDiskMarker, Element> CACHED_UPDATER =
             AtomicReferenceFieldUpdater.newUpdater(CachingDiskMarker.class, Element.class, "cached");
         
         private transient volatile Element cached;
+        private volatile long expiry;
         
         CachingDiskMarker(DiskPersistentStorageFactory factory, long position, int size, Element element) {
             super(factory, position, size, element);
+            this.expiry = element.getExpirationTime();
         }
 
-        public CachingDiskMarker(DiskPersistentStorageFactory factory, DiskElement element) {
-            super(factory, element.getPosition(), element.getSize(), element.getObjectKey(), element.getHitCount(), element.getExpiry());
+        CachingDiskMarker(DiskPersistentStorageFactory factory, DiskElement element) {
+            super(factory, element.getPosition(), element.getSize(), element.getObjectKey(), element.getHitCount());
+            this.expiry = element.getExpiry();
         }
 
         boolean cache(Element element) {
@@ -295,7 +299,13 @@ public class DiskPersistentStorageFactory extends DiskStorageFactory<ElementSubs
         }
 
         boolean flush() {
-            return CACHED_UPDATER.getAndSet(this, null) != null;
+          Element old = CACHED_UPDATER.getAndSet(this, null);
+          if (old != null) {
+            expiry = old.getExpirationTime();
+            return true;
+          } else {
+            return false;
+          }
         }
         
         Element getCached() {
@@ -304,6 +314,12 @@ public class DiskPersistentStorageFactory extends DiskStorageFactory<ElementSubs
         
         boolean isCaching() {
             return getCached() != null;
+        }
+
+        @Override
+        long getExpirationTime() {
+            Element e = getCached();
+            return e == null ? expiry : e.getExpirationTime();
         }
     }
     

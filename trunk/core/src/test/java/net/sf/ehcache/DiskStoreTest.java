@@ -672,9 +672,9 @@ public class DiskStoreTest extends AbstractCacheTest {
         Object o1 = diskStore.unretrievedGet("key1");
         Object o2 = diskStore.unretrievedGet("key2");
         if (o1 instanceof Element) {
-            assertEquals("DiskMarker", o2.getClass().getSimpleName());
+            assertEquals("OverflowDiskMarker", o2.getClass().getSimpleName());
         } else if (o2 instanceof Element) {
-            assertEquals("DiskMarker", o1.getClass().getSimpleName());
+            assertEquals("OverflowDiskMarker", o1.getClass().getSimpleName());
         } else {
             fail("One of the elements should be in memory");
         }
@@ -738,9 +738,9 @@ public class DiskStoreTest extends AbstractCacheTest {
         Object o1 = diskStore.unretrievedGet("key1");
         Object o2 = diskStore.unretrievedGet("key2");
         if (o1 instanceof Element) {
-            assertEquals("DiskMarker", o2.getClass().getSimpleName());
+            assertEquals("OverflowDiskMarker", o2.getClass().getSimpleName());
         } else if (o2 instanceof Element) {
-            assertEquals("DiskMarker", o1.getClass().getSimpleName());
+            assertEquals("OverflowDiskMarker", o1.getClass().getSimpleName());
         } else {
             fail("One of the elements should be in memory");
         }
@@ -801,9 +801,9 @@ public class DiskStoreTest extends AbstractCacheTest {
         Object o1 = diskStore.unretrievedGet("key1");
         Object o2 = diskStore.unretrievedGet("key2");
         if (o1 instanceof Element) {
-            assertEquals("DiskMarker", o2.getClass().getSimpleName());
+            assertEquals("OverflowDiskMarker", o2.getClass().getSimpleName());
         } else if (o2 instanceof Element) {
-            assertEquals("DiskMarker", o1.getClass().getSimpleName());
+            assertEquals("OverflowDiskMarker", o1.getClass().getSimpleName());
         } else {
             fail("One of the elements should be in memory");
         }
@@ -1198,6 +1198,41 @@ public class DiskStoreTest extends AbstractCacheTest {
             int size = store.getOnDiskSize();
             assertTrue(size < (growSize * 1.1));
             assertTrue(size > (growSize * 0.9));
+        }
+    }
+
+    @Test
+    public void testDiskPersistentExpiryThreadBehavior() {
+        CacheManager cacheManager = CacheManager.getInstance();
+        try {
+            CacheConfiguration configuration = new CacheConfiguration("testCache", 20);
+            configuration.setOverflowToDisk(true);
+            configuration.setTimeToIdleSeconds(10);
+            configuration.setDiskPersistent(true);
+            configuration.setDiskExpiryThreadIntervalSeconds(1);
+
+            Cache cache = new Cache(configuration);
+            try {
+                cacheManager.addCache(cache);
+
+                cache.put(new Element("1", "A value"));
+
+                for (int i = 0; i < 20; i++) {
+                    if (cache.get("1") == null) {
+                        throw new AssertionError();
+                    }
+
+                    try {
+                        Thread.sleep(1 * 1000);
+                    } catch (InterruptedException e) {
+                        //
+                    }
+                }
+            } finally {
+                cache.removeAll();
+            }
+        } finally {
+            cacheManager.shutdown();
         }
     }
 }
