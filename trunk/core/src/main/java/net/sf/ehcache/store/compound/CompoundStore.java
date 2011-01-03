@@ -416,6 +416,20 @@ public abstract class CompoundStore extends AbstractStore {
         return segmentFor(hash).fault(key, hash, expect, fault);
     }
 
+    /**
+     * Try to atomically switch (CAS) the <code>expect</code> representation of this element for the
+     * <code>fault</code> representation.
+     * <p>
+     * A successful switch will return <code>true</code>, and free the replaced element/element-proxy.
+     * A failed switch will return <code>false</code> and free the element/element-proxy which was not
+     * installed.  Unlike <code>fault</code> this method can return <code>false</code> if the object
+     * could not be installed due to lock contention.
+     *
+     * @param key key to which this element (proxy) is mapped
+     * @param expect element (proxy) expected
+     * @param fault element (proxy) to install
+     * @return <code>true</code> if <code>fault</code> was installed
+     */
     public boolean tryFault(Object key, Object expect, Object fault) {
         int hash = hash(key.hashCode());
         return segmentFor(hash).tryFault(key, hash, expect, fault);

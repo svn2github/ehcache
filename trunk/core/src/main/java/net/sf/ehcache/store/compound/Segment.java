@@ -687,6 +687,20 @@ class Segment extends ReentrantReadWriteLock {
         return false;
     }
 
+    /**
+     * Try to atomically switch (CAS) the <code>expect</code> representation of this element for the
+     * <code>fault</code> representation.
+     * <p>
+     * A successful switch will return <code>true</code>, and free the replaced element/element-proxy.
+     * A failed switch will return <code>false</code> and free the element/element-proxy which was not
+     * installed.  Unlike <code>fault</code> this method can return <code>false</code> if the object
+     * could not be installed due to lock contention.
+     *
+     * @param key key to which this element (proxy) is mapped
+     * @param expect element (proxy) expected
+     * @param fault element (proxy) to install
+     * @return <code>true</code> if <code>fault</code> was installed
+     */
     boolean fault(Object key, int hash, Object expect, Object fault) {
         boolean installed = false;
 
