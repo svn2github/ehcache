@@ -152,7 +152,7 @@ public final class OverflowToDiskStore extends CompoundStore implements CacheCon
      * {@inheritDoc}
      */
     public long getOnDiskSizeInBytes() {
-        return diskFactory.getSizeInBytes();
+        return diskFactory.getOnDiskSizeInBytes();
     }
 
     /**

@@ -118,8 +118,7 @@ public final class DiskPersistentStore extends CompoundStore implements CacheCon
      * {@inheritDoc}
      */
     public long getInMemorySizeInBytes() {
-        // TODO Auto-generated method stub
-        return 0;
+        return disk.getInMemorySizeInBytes();
     }
 
     /**
@@ -147,7 +146,7 @@ public final class DiskPersistentStore extends CompoundStore implements CacheCon
      * {@inheritDoc}
      */
     public long getOnDiskSizeInBytes() {
-        return disk.getSizeInBytes();
+        return disk.getOnDiskSizeInBytes();
     }
 
     /**

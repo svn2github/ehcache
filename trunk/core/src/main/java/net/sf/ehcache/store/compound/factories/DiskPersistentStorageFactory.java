@@ -371,6 +371,20 @@ public class DiskPersistentStorageFactory extends DiskStorageFactory<ElementSubs
     }
     
     /**
+     * Return the approximate serialized size of the in-memory elements
+     */
+    public long getInMemorySizeInBytes() {
+        long size = 0;
+        for (Object o : store.getKeys()) {
+            Object e = store.unretrievedGet(o);
+            if (inMemoryFilter.allows(e)) {
+                size += getElement((DiskSubstitute) e).getSerializedSize();
+            }
+        }
+        return size;
+    }
+
+    /**
      * Return the number of on-disk elements
      */
     public int getOnDiskSize() {

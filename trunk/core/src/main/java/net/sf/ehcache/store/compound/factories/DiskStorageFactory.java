@@ -141,7 +141,7 @@ abstract class DiskStorageFactory<T extends ElementSubstitute> implements Elemen
     /**
      * Return this size in bytes of this factory
      */
-    public long getSizeInBytes() {
+    public long getOnDiskSizeInBytes() {
         synchronized (dataAccess[0]) {
             try {
                 return dataAccess[0].length();
