@@ -665,16 +665,14 @@ class Segment extends ReentrantReadWriteLock {
      * @param fault element (proxy) to install
      * @return <code>true</code> if <code>fault</code> was installed
      */
-    boolean fault(Object key, int hash, Object expect, Object fault) {
+    boolean tryFault(Object key, int hash, Object expect, Object fault) {
         boolean installed = false;
         
         if (readLock().tryLock()) {
             try {
-                if (count != 0) {
-                    installed = install(key, hash, expect, fault);
-                    if (installed) {
-                        return true;
-                    }
+                installed = install(key, hash, expect, fault);
+                if (installed) {
+                    return true;
                 }
             } finally {
                 readLock().unlock();
@@ -689,12 +687,35 @@ class Segment extends ReentrantReadWriteLock {
         return false;
     }
 
+    boolean fault(Object key, int hash, Object expect, Object fault) {
+        boolean installed = false;
+
+        readLock().lock();
+        try {
+            installed = install(key, hash, expect, fault);
+            if (installed) {
+                return true;
+            }
+        } finally {
+            readLock().unlock();
+
+            if ((installed && fault instanceof ElementSubstitute)) {
+                ((ElementSubstitute) fault).installed();
+            }
+        }
+
+        free(fault);
+        return false;
+    }
+
     private boolean install(Object key, int hash, Object expect, Object fault) {
-        for (HashEntry e = getFirst(hash); e != null; e = e.next) {
-            if (e.hash == hash && key.equals(e.key)) {
-                if (e.casElement(expect, fault)) {
-                    free(expect);
-                    return true;
+        if (count != 0) {
+            for (HashEntry e = getFirst(hash); e != null; e = e.next) {
+                if (e.hash == hash && key.equals(e.key)) {
+                    if (e.casElement(expect, fault)) {
+                        free(expect);
+                        return true;
+                    }
                 }
             }
         }

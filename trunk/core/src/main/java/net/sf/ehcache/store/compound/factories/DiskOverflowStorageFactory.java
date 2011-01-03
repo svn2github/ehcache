@@ -146,7 +146,7 @@ public class DiskOverflowStorageFactory extends DiskStorageFactory<ElementSubsti
                 DiskMarker marker = (DiskMarker) proxy;
                 Element e = read((DiskMarker) proxy);
                 if (key != null) {
-                    store.fault(key, marker, memory.create(key, e));
+                    store.tryFault(key, marker, memory.create(key, e));
                 }
                 return e;
             } catch (IOException e) {

@@ -1187,25 +1187,28 @@ public class CacheTest extends AbstractCacheTest {
         Cache cache = cacheManager.getCache("SimplePageFragmentCachingFilter");
         cache.removeAll();
         for (int i = 0; i < 100; i++) {
-            cache.put(new Element("" + i, new Date()));
+            cache.put(new Element(Integer.toString(i), new Date()));
         }
 
-        Thread.sleep(200);
+        for (long start = System.nanoTime(); (cache.getDiskStoreSize() != 100) && (System.nanoTime() - start < TimeUnit.SECONDS.toNanos(30)); ) {
+            Thread.sleep(10);
+        }
 
         for (int i = 0; i < 100; i++) {
-            cache.get("" + i);
+            cache.get(Integer.toString(i));
         }
 
         assertEquals(10, cache.getMemoryStoreSize());
         assertEquals(100, cache.getDiskStoreSize());
 
         cache.flush();
-        Thread.sleep(200);
+        for (long start = System.nanoTime(); (cache.getMemoryStoreSize() > 0) && (System.nanoTime() - start < TimeUnit.SECONDS.toNanos(30)); ) {
+            Thread.sleep(10);
+        }
 
         assertEquals(0, cache.getMemoryStoreSize());
         assertEquals(100, cache.getDiskStoreSize());
         cacheManager.shutdown();
-
     }
 
 

@@ -416,6 +416,11 @@ public abstract class CompoundStore extends AbstractStore {
         return segmentFor(hash).fault(key, hash, expect, fault);
     }
 
+    public boolean tryFault(Object key, Object expect, Object fault) {
+        int hash = hash(key.hashCode());
+        return segmentFor(hash).tryFault(key, hash, expect, fault);
+    }
+
     /**
      * Remove the matching mapping. The evict method does referential comparison
      * of the unretrieved substitute against the argument value.

@@ -121,7 +121,7 @@ public class CapacityLimitedInMemoryFactory implements IdentityElementSubstitute
             } else {
                 try {
                     ElementSubstitute substitute = secondary.create(target.getObjectKey(), target);
-                    boundStore.fault(target.getObjectKey(), target, substitute);
+                    boundStore.tryFault(target.getObjectKey(), target, substitute);
                 } catch (IllegalArgumentException e) {
                     if (boundStore.evict(target.getObjectKey(), target)) {
                         eventService.notifyElementEvicted(target, false);

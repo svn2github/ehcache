@@ -50,6 +50,7 @@ import net.sf.ehcache.store.DiskStore.DiskElement;
 import net.sf.ehcache.store.compound.CompoundStore;
 import net.sf.ehcache.store.compound.ElementSubstitute;
 import net.sf.ehcache.store.compound.ElementSubstituteFilter;
+import net.sf.ehcache.store.compound.factories.DiskStorageFactory.DiskMarker;
 
 /**
  * This will be the disk-persistent element substitute factory
@@ -63,6 +64,7 @@ public class DiskPersistentStorageFactory extends DiskStorageFactory<ElementSubs
     private static final int SAMPLE_SIZE = 30;
     
     private final ElementSubstituteFilter<DiskSubstitute> inMemoryFilter = new InMemoryFilter();
+    private final ElementSubstituteFilter<CachingDiskMarker> flushableFilter = new FlushableFilter();
     private final ElementSubstituteFilter<CachingDiskMarker> onDiskFilter = new OnDiskFilter();
     
     private final AtomicInteger inMemory = new AtomicInteger();
@@ -329,6 +331,23 @@ public class DiskPersistentStorageFactory extends DiskStorageFactory<ElementSubs
     }
 
     /**
+     * Filters for in-memory elements created by this factory
+     */
+    private class FlushableFilter implements ElementSubstituteFilter<CachingDiskMarker> {
+
+        /**
+         * {@inheritDoc}
+         */
+        public boolean allows(Object object) {
+            if (!created(object)) {
+                return false;
+            }
+            
+            return (object instanceof CachingDiskMarker) && ((CachingDiskMarker) object).isCaching();
+        }
+    }
+
+    /**
      * Filters for on-disk elements created by this factory
      */
     private class OnDiskFilter implements ElementSubstituteFilter<CachingDiskMarker> {
@@ -423,12 +442,9 @@ public class DiskPersistentStorageFactory extends DiskStorageFactory<ElementSubs
         if (memoryCapacity > 0) {
             int overflow = size - memoryCapacity;
             for (int i = 0; i < Math.min(MAX_EVICT, overflow); i++) {
-                DiskSubstitute target = getMemoryEvictionTarget(keyHint, size);
-                if (target == null) {
-                    continue;
-                } else if (target instanceof CachingDiskMarker && ((CachingDiskMarker) target).flush()) {
-                    int memSize = inMemory.decrementAndGet();
-                    if (memSize <= memoryCapacity) {
+                CachingDiskMarker target = getMemoryEvictionTarget(keyHint, size);
+                if (target != null && target.flush()) {
+                    if (inMemory.decrementAndGet() <= memoryCapacity) {
                         break;
                     }
                 }
@@ -436,12 +452,12 @@ public class DiskPersistentStorageFactory extends DiskStorageFactory<ElementSubs
         }
     }
     
-    private DiskSubstitute getMemoryEvictionTarget(Object keyHint, int size) {
-        List<DiskSubstitute> sample = store.getRandomSample(inMemoryFilter, Math.min(SAMPLE_SIZE, size), keyHint);
+    private CachingDiskMarker getMemoryEvictionTarget(Object keyHint, int size) {
+        List<CachingDiskMarker> sample = store.getRandomSample(flushableFilter, Math.min(SAMPLE_SIZE, size), keyHint);
         
-        DiskSubstitute target = null;
+        CachingDiskMarker target = null;
         
-        for (DiskSubstitute substitute : sample) {
+        for (CachingDiskMarker substitute : sample) {
             if (target == null) {
                 target = substitute;
             } else {
