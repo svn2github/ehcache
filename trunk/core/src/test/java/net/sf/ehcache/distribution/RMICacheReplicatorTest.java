@@ -424,8 +424,6 @@ public class RMICacheReplicatorTest extends AbstractCacheTest {
     }
 
 
-
-
     /**
      * manager1 adds a replicating cache, then manager2 and so on. Then we remove one. Does everything work as expected?
      */
@@ -471,7 +469,6 @@ public class RMICacheReplicatorTest extends AbstractCacheTest {
 
         putTest(manager1.getCache("sampleCache1"), manager2.getCache("sampleCache1"), ASYNCHRONOUS);
     }
-
 
 
     /**
@@ -833,7 +830,6 @@ public class RMICacheReplicatorTest extends AbstractCacheTest {
         assertEquals(updatedElement1, receivedUpdatedElement2);
 
     }
-
 
 
     /**

@@ -16,7 +16,7 @@ public class StripedReadWriteLockSyncTest {
 
     @Before
     public void setUp() throws Exception {
-        keys = new Object[] { new StupidKey(0), new StupidKey(0) };
+        keys = new Object[]{new StupidKey(0), new StupidKey(0)};
         clp = new StripedReadWriteLockSync(2);
     }
 
@@ -31,7 +31,7 @@ public class StripedReadWriteLockSyncTest {
         for (Object key : keys) {
             assertTrue(syncForKey.isHeldByCurrentThread(LockType.WRITE));
             clp.getSyncForKey(key).unlock(LockType.WRITE);
-            if(key != keys[keys.length - 1]) {
+            if (key != keys[keys.length - 1]) {
                 assertTrue(syncForKey.isHeldByCurrentThread(LockType.WRITE));
             }
         }
@@ -47,11 +47,11 @@ public class StripedReadWriteLockSyncTest {
 
         clp.getAndWriteLockAllSyncForKeys(keys);
         clp.unlockWriteLockForAllKeys(keys);
-        
+
         assertFalse(syncForKey.isHeldByCurrentThread(LockType.WRITE));
     }
 
-    private static class StupidKey {
+    private static final class StupidKey {
         private final int hashCode;
 
         private StupidKey(final int hashCode) {

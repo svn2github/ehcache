@@ -24,11 +24,14 @@ import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.event.CountingCacheEventListener;
 import org.junit.After;
+
 import static org.junit.Assert.assertEquals;
+
 import org.junit.Before;
 import org.junit.Test;
 
 import java.util.Date;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

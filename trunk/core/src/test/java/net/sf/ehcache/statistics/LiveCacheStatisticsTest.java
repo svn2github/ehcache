@@ -114,10 +114,9 @@ public class LiveCacheStatisticsTest extends AbstractCacheTest {
      * - onDiskSize
      * - clearing statistics
      * - average get time
-     *
      */
     public void doTestCacheUsageStatistics(Cache cache,
-            boolean statisticsEnabled) throws InterruptedException {
+                                           boolean statisticsEnabled) throws InterruptedException {
 
         cache.put(new Element("key1", "value1"));
         cache.put(new Element("key2", "value1"));

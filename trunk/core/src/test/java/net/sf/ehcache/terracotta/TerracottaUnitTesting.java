@@ -35,9 +35,7 @@ import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
 /**
- *
  * @author Abhishek Sanoujam
- *
  */
 public class TerracottaUnitTesting {
 
@@ -51,12 +49,13 @@ public class TerracottaUnitTesting {
     }
 
     public static void setupTerracottaTesting(ClusteredInstanceFactory mockFactory, TerracottaRuntimeType terracottaRuntimeType,
-            StorageStrategy defaultStorageStrategyForCurrentRuntime) throws Exception {
+                                              StorageStrategy defaultStorageStrategyForCurrentRuntime) throws Exception {
         setupTerracottaTesting(mockFactory, null, terracottaRuntimeType, defaultStorageStrategyForCurrentRuntime);
     }
 
     public static void setupTerracottaTesting(final ClusteredInstanceFactory mockFactory, final Runnable onNewClusteredInstanceFactory,
-            TerracottaRuntimeType terracottaRuntimeType, StorageStrategy defaultStorageStrategyForCurrentRuntime) throws Exception {
+                                              TerracottaRuntimeType terracottaRuntimeType, StorageStrategy defaultStorageStrategyForCurrentRuntime)
+            throws Exception {
         TerracottaStore terracottaStore = Mockito.mock(TerracottaStore.class);
         CacheCluster mockCacheCluster = Mockito.mock(CacheCluster.class);
         when(mockFactory.createStore((Ehcache) any())).thenReturn(terracottaStore);

@@ -45,13 +45,18 @@ import net.sf.ehcache.terracotta.TerracottaClusteredInstanceHelper.TerracottaRun
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @RunWith(MockitoJUnitRunner.class)
 public class BasicRejoinTest extends TestCase {
 
+    private static final Logger LOG = LoggerFactory.getLogger(BasicRejoinTest.class);
+
     private static final String ERROR_MSG_REJOIN_CUSTOM = "Rejoin can be enabled only in Terracotta Express mode";
     private static final String ERROR_MSG_REJOIN_NO_NONSTOP = "Terracotta clustered caches must be nonstop when rejoin is enabled";
-    private static final CharSequence ERROR_MSG_REJOIN_NO_TC = "Terracotta Rejoin is enabled but can't determine Terracotta Runtime. You are probably missing Terracotta jar(s)";
+    private static final CharSequence ERROR_MSG_REJOIN_NO_TC = "Terracotta Rejoin is enabled but can't determine Terracotta Runtime. " +
+            "You are probably missing Terracotta jar(s)";
 
     @Test
     public void testInvalidRejoinWithoutNonstop() throws Exception {
@@ -65,7 +70,7 @@ public class BasicRejoinTest extends TestCase {
             new CacheManager(CacheManager.class.getResourceAsStream("/rejoin/invalid-rejoin-no-nonstop-test.xml"));
             fail("Trying to run rejoin without nonstop terracotta caches should fail");
         } catch (InvalidConfigurationException e) {
-            System.out.println("Caught expected exception: " + e);
+            LOG.info("Caught expected exception: " + e);
             assertTrue(e.getMessage().contains(ERROR_MSG_REJOIN_NO_NONSTOP));
         }
     }
@@ -82,7 +87,7 @@ public class BasicRejoinTest extends TestCase {
             new CacheManager(CacheManager.class.getResourceAsStream("/rejoin/basic-rejoin-test.xml"));
             fail("Running rejoin in custom mode should fail");
         } catch (InvalidConfigurationException e) {
-            System.out.println("Caught Expected exception: " + e);
+            LOG.info("Caught Expected exception: " + e);
             assertTrue(e.getMessage().contains(ERROR_MSG_REJOIN_CUSTOM));
         }
     }
@@ -99,7 +104,7 @@ public class BasicRejoinTest extends TestCase {
             new CacheManager(CacheManager.class.getResourceAsStream("/rejoin/basic-rejoin-test.xml"));
             fail("Running rejoin without Terracotta should fail");
         } catch (InvalidConfigurationException e) {
-            System.out.println("Caught Expected exception: " + e);
+            LOG.info("Caught Expected exception: " + e);
             assertTrue(e.getMessage().contains(ERROR_MSG_REJOIN_NO_TC));
         }
     }
@@ -127,7 +132,7 @@ public class BasicRejoinTest extends TestCase {
             cacheManager.addCache(new Cache(config));
             fail("Adding Terracotta caches without nonstop should fail");
         } catch (InvalidConfigurationException e) {
-            System.out.println("Caught Expected exception: " + e);
+            LOG.info("Caught Expected exception: " + e);
             assertTrue(e.getMessage().contains(ERROR_MSG_REJOIN_NO_NONSTOP));
             assertTrue(e.getMessage().contains(cacheName));
         }
@@ -170,13 +175,13 @@ public class BasicRejoinTest extends TestCase {
             cache.get("key");
             fail("Get should have thrown exception after cluster went offline");
         } catch (NonStopCacheException e) {
-            System.out.println("Caught expected exception on get: " + e);
+            LOG.info("Caught expected exception on get: " + e);
         }
         try {
             cache.put(new Element("newKey", "newValue"));
             fail("put should have thrown exception after cluster went offline");
         } catch (NonStopCacheException e) {
-            System.out.println("Caught expected exception on put: " + e);
+            LOG.info("Caught expected exception on put: " + e);
         }
 
         // lets make the cluster rejoin
@@ -189,7 +194,7 @@ public class BasicRejoinTest extends TestCase {
             if (rejoinListener.rejoinedCount.get() > 0) {
                 break;
             }
-            System.out.println("Waiting for rejoin to complete.. sleeping 1 sec");
+            LOG.info("Waiting for rejoin to complete.. sleeping 1 sec");
             Thread.sleep(1000);
             if (++count >= 60) {
                 fail("Rejoin did not happen even after 60 seconds. Something wrong.");
@@ -286,7 +291,7 @@ public class BasicRejoinTest extends TestCase {
         private final AtomicInteger rejoinedCount = new AtomicInteger();
 
         public void clusterRejoined(ClusterNode oldNode, ClusterNode newNode) {
-            System.out.println("Got cluster rejoined event: oldNode=" + printNode(oldNode) + " newNode:" + printNode(newNode));
+            LOG.info("Got cluster rejoined event: oldNode=" + printNode(oldNode) + " newNode:" + printNode(newNode));
             rejoinedCount.incrementAndGet();
         }
 

@@ -26,14 +26,16 @@ import org.junit.runners.Suite;
 /**
  * This test suite will run a bunch of tests that you specify
  * Good test to run if you want to do a quick smoke tests of ehcache
- * 
+ * <p/>
  * mvn test -Dtest=SmokeTests
- * 
+ *
  * @author hhuynh
- * 
  */
 @RunWith(Suite.class)
-@Suite.SuiteClasses({ CacheTest.class, ElementTest.class, BlockingCacheTest.class })
+@Suite.SuiteClasses({CacheTest.class, ElementTest.class, BlockingCacheTest.class})
 public class SmokeTests {
-    // place holder
+
+    public SmokeTests() {
+        int i = 0;
+    }
 }

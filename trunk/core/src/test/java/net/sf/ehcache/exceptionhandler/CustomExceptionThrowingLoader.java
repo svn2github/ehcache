@@ -70,7 +70,6 @@ public class CustomExceptionThrowingLoader implements CacheLoader {
      * @param key the key identifying the object being loaded
      * @return The object that is to be stored in the cache.
      * @throws UnsupportedOperationException
-     *
      */
     public Object load(Object key) {
         try {
@@ -90,7 +89,6 @@ public class CustomExceptionThrowingLoader implements CacheLoader {
      * @param keys a Collection of keys identifying the objects to be loaded
      * @return A Map of objects that are to be stored in the cache.
      * @throws UnsupportedOperationException
-     *
      */
 
     public Map loadAll(Collection keys) {
@@ -113,7 +111,6 @@ public class CustomExceptionThrowingLoader implements CacheLoader {
      * @param argument
      * @return
      * @throws UnsupportedOperationException
-     *
      */
     public Object load(Object key, Object argument) throws CacheException {
 
@@ -134,7 +131,6 @@ public class CustomExceptionThrowingLoader implements CacheLoader {
      * @param argument
      * @return
      * @throws UnsupportedOperationException
-     *
      */
     public Map loadAll(Collection keys, Object argument) throws CacheException {
         try {

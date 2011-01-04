@@ -24,19 +24,21 @@ import org.junit.Test;
 import junit.framework.TestCase;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.constructs.MockDecoratorFactory.MockDecoratorFactoryCache;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
- * 
  * @author Abhishek Sanoujam
- *
  */
 public class CacheDecoratorFactoryTest extends TestCase {
+
+    private static final Logger LOG = LoggerFactory.getLogger(CacheDecoratorFactoryTest.class);
 
     @Test
     public void testCacheDecoratorFactory() {
         CacheManager cacheManager = new CacheManager(getClass().getResourceAsStream("/ehcache-decorator-test.xml"));
         List<String> cacheNames = Arrays.asList(cacheManager.getCacheNames());
-        System.out.println(cacheNames);
+        LOG.info("" + cacheNames);
 
         assertEquals(12, cacheNames.size());
 

@@ -41,7 +41,7 @@ public abstract class CompoundStoreTest {
         assertEquals(copy.getValue(), xaStore.get(KEY).getValue());
         assertNotSame(copy.getValue(), xaStore.get(KEY).getValue());
     }
-    
+
     @Test
     public void testSupportsCopyOnWrite() {
 
@@ -54,14 +54,14 @@ public abstract class CompoundStoreTest {
         atomicLong.getAndIncrement();
         element.setVersion(2);
 
-        assertEquals(1, ((AtomicLong)xaStore.get(KEY).getValue()).get());
+        assertEquals(1, ((AtomicLong) xaStore.get(KEY).getValue()).get());
         assertEquals(1, xaStore.get(KEY).getVersion());
 
         xaStore.put(new Element(KEY, atomicLong, 1));
-        assertEquals(2, ((AtomicLong)xaStore.get(KEY).getValue()).get());
+        assertEquals(2, ((AtomicLong) xaStore.get(KEY).getValue()).get());
         atomicLong.getAndIncrement();
-        
-        assertEquals(2, ((AtomicLong)xaStore.get(KEY).getValue()).get());
+
+        assertEquals(2, ((AtomicLong) xaStore.get(KEY).getValue()).get());
         assertEquals(1, xaStore.get(KEY).getVersion());
     }
 

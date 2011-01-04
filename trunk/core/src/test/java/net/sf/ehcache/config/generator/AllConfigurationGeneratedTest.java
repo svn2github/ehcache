@@ -32,8 +32,12 @@ import net.sf.ehcache.config.generator.model.NodeAttribute;
 import net.sf.ehcache.config.generator.model.NodeElement;
 import net.sf.ehcache.config.generator.model.XMLGeneratorVisitor;
 import net.sf.ehcache.config.generator.xsom.XSOMHelper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class AllConfigurationGeneratedTest extends TestCase {
+
+    private static final Logger LOG = LoggerFactory.getLogger(AllConfigurationGeneratedTest.class);
 
     private static final String SRC_CONFIG_DIR = "src/main/config/";
     private static final String TEST_RESOURCES_DIR = "src/test/resources/";
@@ -114,7 +118,7 @@ public class AllConfigurationGeneratedTest extends TestCase {
             }
         }
         if (fail) {
-            System.out.println(msg);
+            LOG.info(msg);
             throw new AssertionError(msg);
         }
     }
@@ -148,7 +152,7 @@ public class AllConfigurationGeneratedTest extends TestCase {
 
     private String writeEhcacheXmlWithoutEmbeddedConfig(NodeElement ehcacheCompleteElement) throws IOException {
         File tmpFile = File.createTempFile("ehcache-dummy", ".xml");
-        System.out.println("ehcache-dummy file: " + tmpFile.getAbsolutePath());
+        LOG.info("ehcache-dummy file: " + tmpFile.getAbsolutePath());
         FileOutputStream out = new FileOutputStream(tmpFile);
         PrintWriter pw = new PrintWriter(out);
         XMLGeneratorVisitor visitor = new ElementIgnoringXMLGenerator(pw, "tc-config");
@@ -159,7 +163,7 @@ public class AllConfigurationGeneratedTest extends TestCase {
 
     private String writeEhcacheXmlWithoutTcURL(NodeElement ehcacheCompleteElement) throws IOException {
         File tmpFile = File.createTempFile("ehcache-dummy", ".xml");
-        System.out.println("ehcache-dummy file: " + tmpFile.getAbsolutePath());
+        LOG.info("ehcache-dummy file: " + tmpFile.getAbsolutePath());
         FileOutputStream out = new FileOutputStream(tmpFile);
         PrintWriter pw = new PrintWriter(out);
         XMLGeneratorVisitor visitor = new AttributeIgnoringXMLGenerator(pw, "url");

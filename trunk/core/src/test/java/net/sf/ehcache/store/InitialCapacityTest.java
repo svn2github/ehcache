@@ -24,9 +24,8 @@ import org.junit.Test;
 
 /**
  * Test logic for initialCapacity for MemoryStore
- * 
+ *
  * @author Abhishek Sanoujam
- * 
  */
 public class InitialCapacityTest extends TestCase {
 

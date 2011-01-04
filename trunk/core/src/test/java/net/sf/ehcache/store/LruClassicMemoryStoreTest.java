@@ -7,6 +7,7 @@ import org.junit.Test;
 
 /**
  * Tests the pre ehcache-1.6 LruMemoryStore, which can be switched in
+ *
  * @author Greg Luck
  */
 public class LruClassicMemoryStoreTest extends LruMemoryStoreTest {

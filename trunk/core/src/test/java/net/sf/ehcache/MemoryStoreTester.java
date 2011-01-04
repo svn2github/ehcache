@@ -571,7 +571,7 @@ public class MemoryStoreTester extends AbstractCacheTest {
         }
 
         int i = 0;
-        for (;;) {
+        for (; ;) {
             int size = store.getSize();
             store.put(new Element(Integer.valueOf(i++), new byte[100]));
             if (store.getSize() <= size) break;
@@ -581,7 +581,7 @@ public class MemoryStoreTester extends AbstractCacheTest {
         final int shrinkSize = initialSize / 2;
         ((MemoryStore) store).memoryCapacityChanged(initialSize, shrinkSize);
 
-        for (;;) {
+        for (; ;) {
             int size = store.getSize();
             store.put(new Element(Integer.valueOf(i++), new byte[100]));
             if (store.getSize() >= size) break;
@@ -596,7 +596,7 @@ public class MemoryStoreTester extends AbstractCacheTest {
         final int growSize = initialSize * 2;
         ((MemoryStore) store).memoryCapacityChanged(shrinkSize, growSize);
 
-        for (;;) {
+        for (; ;) {
             int size = store.getSize();
             store.put(new Element(Integer.valueOf(i++), new byte[100]));
             if (store.getSize() <= size) break;

@@ -54,21 +54,21 @@ public class CoalesceKeysFilterTest {
         operations.add(new WriteOperation(new Element("key5", "value10"), 50));
 
         new CoalesceKeysFilter().filter(operations, CastingOperationConverter.getInstance());
-        
+
         assertEquals(5, operations.size());
         assertEquals("key1", operations.get(0).getKey());
-        assertEquals("value3", ((WriteOperation)operations.get(0)).getElement().getValue());
+        assertEquals("value3", ((WriteOperation) operations.get(0)).getElement().getValue());
 
         assertTrue(operations.get(1) instanceof DeleteOperation);
         assertEquals("key3", operations.get(1).getKey());
 
         assertEquals("key4", operations.get(2).getKey());
-        assertEquals("value6", ((WriteOperation)operations.get(2)).getElement().getValue());
+        assertEquals("value6", ((WriteOperation) operations.get(2)).getElement().getValue());
 
         assertTrue(operations.get(3) instanceof DeleteOperation);
         assertEquals("key2", operations.get(3).getKey());
 
         assertEquals("key5", operations.get(4).getKey());
-        assertEquals("value10", ((WriteOperation)operations.get(4)).getElement().getValue());
+        assertEquals("value10", ((WriteOperation) operations.get(4)).getElement().getValue());
     }
 }

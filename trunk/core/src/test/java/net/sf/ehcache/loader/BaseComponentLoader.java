@@ -113,7 +113,7 @@ public class BaseComponentLoader extends CacheLoaderFactory implements CacheLoad
      * @throws CloneNotSupportedException if the extension could not be cloned.
      */
     public CacheLoader clone(Ehcache cache) throws CloneNotSupportedException {
-        return null;  
+        return null;
     }
 
     /**

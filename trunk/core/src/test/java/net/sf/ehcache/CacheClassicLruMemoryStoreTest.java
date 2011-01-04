@@ -16,6 +16,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Does the cache tests using the classic LRUMemoryStore implementation.
+ *
  * @author Greg Luck
  */
 public class CacheClassicLruMemoryStoreTest extends CacheTest {
@@ -35,7 +36,7 @@ public class CacheClassicLruMemoryStoreTest extends CacheTest {
 
     /**
      * Tests flushing the cache, with the default, which is to clear
-     *
+     * <p/>
      * Has different numbers because LRU works slightly differently
      *
      * @throws Exception
@@ -151,10 +152,11 @@ public class CacheClassicLruMemoryStoreTest extends CacheTest {
 
     /**
      * Tests disk store and memory store size
-     *
+     * <p/>
      * This is overridden because the classic LRU store uses different classes
      */
-    @Test @Override
+    @Test
+    @Override
     public void testGetDiskStoreSize() throws Exception {
         Cache cache = new Cache("testGetDiskStoreSize", 1, true, false, 100, 200);
         manager.addCache(cache);
@@ -176,7 +178,7 @@ public class CacheClassicLruMemoryStoreTest extends CacheTest {
         assertEquals(1, cache.getMemoryStoreSize());
 
         // remove last element inserted (is in memory store)
-        
+
         assertTrue(((LegacyStoreWrapper) cache.getStore()).getMemoryStore().containsKey("key4"));
         cache.remove("key4");
         assertEquals(3, cache.getSize());

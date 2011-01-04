@@ -3,6 +3,9 @@
  */
 package net.sf.ehcache.hibernate.domain;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -11,49 +14,52 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class HolidayCalendar {
-  private Long   id;
-  private Map holidays = new HashMap(); // Date -> String
-  
-  public HolidayCalendar init() {
-    DateFormat df = new SimpleDateFormat("yyyy.MM.dd");
-    try {
-      holidays.clear();
-      holidays.put(df.parse("2009.01.01"), "New Year's Day");
-      holidays.put(df.parse("2009.02.14"), "Valentine's Day");
-      holidays.put(df.parse("2009.11.11"), "Armistice Day");
-    } catch (ParseException e) {
-      System.out.println("Error parsing date string");
-      throw new RuntimeException(e);
+
+    private static final Logger LOG = LoggerFactory.getLogger(HolidayCalendar.class);
+
+    private Long id;
+    private Map holidays = new HashMap(); // Date -> String
+
+    public HolidayCalendar init() {
+        DateFormat df = new SimpleDateFormat("yyyy.MM.dd");
+        try {
+            holidays.clear();
+            holidays.put(df.parse("2009.01.01"), "New Year's Day");
+            holidays.put(df.parse("2009.02.14"), "Valentine's Day");
+            holidays.put(df.parse("2009.11.11"), "Armistice Day");
+        } catch (ParseException e) {
+            LOG.info("Error parsing date string");
+            throw new RuntimeException(e);
+        }
+        return this;
     }
-    return this;
-  }
-  
-  public Map getHolidays() {
-    return holidays;
-  }
 
-  protected void setHolidays(Map holidays) {
-    this.holidays = holidays;
-  }
+    public Map getHolidays() {
+        return holidays;
+    }
 
-  public void addHoliday(Date d, String name) {
-    holidays.put(d, name);
-  }
-  
-  public String getHoliday(Date d) {
-    return (String)holidays.get(d);
-  }
-  
-  public boolean isHoliday(Date d) {
-    return holidays.containsKey(d);
-  }
+    protected void setHolidays(Map holidays) {
+        this.holidays = holidays;
+    }
 
-  protected Long getId() {
-    return id;
-  }
-  
-  protected void setId(Long id) {
-    this.id = id;
-  }
+    public void addHoliday(Date d, String name) {
+        holidays.put(d, name);
+    }
+
+    public String getHoliday(Date d) {
+        return (String) holidays.get(d);
+    }
+
+    public boolean isHoliday(Date d) {
+        return holidays.containsKey(d);
+    }
+
+    protected Long getId() {
+        return id;
+    }
+
+    protected void setId(Long id) {
+        this.id = id;
+    }
 }
 

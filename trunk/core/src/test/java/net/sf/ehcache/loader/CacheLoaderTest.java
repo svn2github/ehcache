@@ -24,9 +24,11 @@ import net.sf.ehcache.Element;
 import net.sf.ehcache.Status;
 import net.sf.ehcache.extension.TestCacheExtension;
 import org.junit.After;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+
 import org.junit.Before;
 import org.junit.Test;
 

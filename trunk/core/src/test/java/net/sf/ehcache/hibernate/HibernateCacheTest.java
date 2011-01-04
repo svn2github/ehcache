@@ -8,6 +8,7 @@ import java.lang.reflect.Method;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+
 import net.sf.ehcache.hibernate.domain.Event;
 import net.sf.ehcache.hibernate.domain.EventManager;
 
@@ -35,7 +36,6 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 /**
- *
  * @author Chris Dennis
  */
 public class HibernateCacheTest {

@@ -172,7 +172,8 @@ public class CacheWriterTest extends AbstractCacheTest {
     @Test
     public void testWriteThroughNotifyListeners() {
         Cache cache = new Cache(new CacheConfiguration("writeThroughCacheOnly", 10)
-                .cacheEventListenerFactory(new CacheConfiguration.CacheEventListenerFactoryConfiguration().className("net.sf.ehcache.event.CountingCacheEventListenerFactory")));
+                .cacheEventListenerFactory(new CacheConfiguration.CacheEventListenerFactoryConfiguration()
+                        .className("net.sf.ehcache.event.CountingCacheEventListenerFactory")));
         assertNull(cache.getRegisteredCacheWriter());
 
         CacheManager.getInstance().addCache(cache);
@@ -256,11 +257,11 @@ public class CacheWriterTest extends AbstractCacheTest {
         Cache cache = new Cache(
                 new CacheConfiguration("writeBehindSolelyJava", 10)
                         .cacheWriter(new CacheWriterConfiguration()
-                        .writeMode(CacheWriterConfiguration.WriteMode.WRITE_BEHIND)
-                        .minWriteDelay(2)
-                        .maxWriteDelay(8)
-                        .cacheWriterFactory(new CacheWriterConfiguration.CacheWriterFactoryConfiguration()
-                        .className("net.sf.ehcache.writer.TestCacheWriterFactory"))));
+                                .writeMode(CacheWriterConfiguration.WriteMode.WRITE_BEHIND)
+                                .minWriteDelay(2)
+                                .maxWriteDelay(8)
+                                .cacheWriterFactory(new CacheWriterConfiguration.CacheWriterFactoryConfiguration()
+                                        .className("net.sf.ehcache.writer.TestCacheWriterFactory"))));
         assertNotNull(cache.getRegisteredCacheWriter());
 
         CacheManager.getInstance().addCache(cache);
@@ -302,9 +303,9 @@ public class CacheWriterTest extends AbstractCacheTest {
         Cache cache = new Cache(
                 new CacheConfiguration("writeBehindSolelyJavaStopWaitsForEmptyQueue", 10)
                         .cacheWriter(new CacheWriterConfiguration()
-                        .writeMode(CacheWriterConfiguration.WriteMode.WRITE_BEHIND)
-                        .minWriteDelay(2)
-                        .maxWriteDelay(8)));
+                                .writeMode(CacheWriterConfiguration.WriteMode.WRITE_BEHIND)
+                                .minWriteDelay(2)
+                                .maxWriteDelay(8)));
         TestCacheWriterSlow writer = new TestCacheWriterSlow();
         cache.registerCacheWriter(writer);
         assertNotNull(cache.getRegisteredCacheWriter());
@@ -340,15 +341,15 @@ public class CacheWriterTest extends AbstractCacheTest {
         Cache cache = new Cache(
                 new CacheConfiguration("writeBehindBatched", 10)
                         .cacheWriter(new CacheWriterConfiguration()
-                        .writeMode(CacheWriterConfiguration.WriteMode.WRITE_BEHIND)
-                        .minWriteDelay(1)
-                        .maxWriteDelay(4)
-                        .writeBatching(true)
-                        .writeBatchSize(10)
-                        .cacheWriterFactory(new CacheWriterConfiguration.CacheWriterFactoryConfiguration()
-                        .className("net.sf.ehcache.writer.TestCacheWriterFactory")
-                        .properties("key.prefix=pre2; key.suffix=suff2")
-                        .propertySeparator(";"))));
+                                .writeMode(CacheWriterConfiguration.WriteMode.WRITE_BEHIND)
+                                .minWriteDelay(1)
+                                .maxWriteDelay(4)
+                                .writeBatching(true)
+                                .writeBatchSize(10)
+                                .cacheWriterFactory(new CacheWriterConfiguration.CacheWriterFactoryConfiguration()
+                                        .className("net.sf.ehcache.writer.TestCacheWriterFactory")
+                                        .properties("key.prefix=pre2; key.suffix=suff2")
+                                        .propertySeparator(";"))));
         assertNotNull(cache.getRegisteredCacheWriter());
 
         CacheManager.getInstance().addCache(cache);
@@ -403,14 +404,14 @@ public class CacheWriterTest extends AbstractCacheTest {
         Cache cache = new Cache(
                 new CacheConfiguration("writeBehindBatchedCoalescing", 10)
                         .cacheWriter(new CacheWriterConfiguration()
-                        .writeMode(CacheWriterConfiguration.WriteMode.WRITE_BEHIND)
-                        .minWriteDelay(1)
-                        .maxWriteDelay(1)
-                        .writeBatching(true)
-                        .writeBatchSize(10)
-                        .writeCoalescing(true)
-                        .cacheWriterFactory(new CacheWriterConfiguration.CacheWriterFactoryConfiguration()
-                        .className("net.sf.ehcache.writer.TestCacheWriterFactory"))));
+                                .writeMode(CacheWriterConfiguration.WriteMode.WRITE_BEHIND)
+                                .minWriteDelay(1)
+                                .maxWriteDelay(1)
+                                .writeBatching(true)
+                                .writeBatchSize(10)
+                                .writeCoalescing(true)
+                                .cacheWriterFactory(new CacheWriterConfiguration.CacheWriterFactoryConfiguration()
+                                        .className("net.sf.ehcache.writer.TestCacheWriterFactory"))));
         assertNotNull(cache.getRegisteredCacheWriter());
 
         CacheManager.getInstance().addCache(cache);
@@ -448,11 +449,11 @@ public class CacheWriterTest extends AbstractCacheTest {
         Cache cache = new Cache(
                 new CacheConfiguration("writeBehindExceptionWithoutRetrying", 10)
                         .cacheWriter(new CacheWriterConfiguration()
-                        .writeMode(CacheWriterConfiguration.WriteMode.WRITE_BEHIND)
-                        .minWriteDelay(0)
-                        .maxWriteDelay(0)
-                        .retryAttempts(0)
-                        .retryAttemptDelaySeconds(0)));
+                                .writeMode(CacheWriterConfiguration.WriteMode.WRITE_BEHIND)
+                                .minWriteDelay(0)
+                                .maxWriteDelay(0)
+                                .retryAttempts(0)
+                                .retryAttemptDelaySeconds(0)));
         TestCacheWriterRetries writer = new TestCacheWriterRetries(3);
         cache.registerCacheWriter(writer);
 
@@ -475,11 +476,11 @@ public class CacheWriterTest extends AbstractCacheTest {
         Cache cache = new Cache(
                 new CacheConfiguration("writeBehindRetryWithoutExceptions", 10)
                         .cacheWriter(new CacheWriterConfiguration()
-                        .writeMode(CacheWriterConfiguration.WriteMode.WRITE_BEHIND)
-                        .minWriteDelay(0)
-                        .maxWriteDelay(0)
-                        .retryAttempts(3)
-                        .retryAttemptDelaySeconds(0)));
+                                .writeMode(CacheWriterConfiguration.WriteMode.WRITE_BEHIND)
+                                .minWriteDelay(0)
+                                .maxWriteDelay(0)
+                                .retryAttempts(3)
+                                .retryAttemptDelaySeconds(0)));
         TestCacheWriterRetries writer = new TestCacheWriterRetries(0);
         cache.registerCacheWriter(writer);
 
@@ -508,11 +509,11 @@ public class CacheWriterTest extends AbstractCacheTest {
         Cache cache = new Cache(
                 new CacheConfiguration("writeBehindRetryWithoutDelay", 10)
                         .cacheWriter(new CacheWriterConfiguration()
-                        .writeMode(CacheWriterConfiguration.WriteMode.WRITE_BEHIND)
-                        .minWriteDelay(0)
-                        .maxWriteDelay(0)
-                        .retryAttempts(3)
-                        .retryAttemptDelaySeconds(0)));
+                                .writeMode(CacheWriterConfiguration.WriteMode.WRITE_BEHIND)
+                                .minWriteDelay(0)
+                                .maxWriteDelay(0)
+                                .retryAttempts(3)
+                                .retryAttemptDelaySeconds(0)));
         TestCacheWriterRetries writer = new TestCacheWriterRetries(3);
         cache.registerCacheWriter(writer);
 
@@ -539,11 +540,11 @@ public class CacheWriterTest extends AbstractCacheTest {
         Cache cache = new Cache(
                 new CacheConfiguration("writeBehindRetryWithDelay", 10)
                         .cacheWriter(new CacheWriterConfiguration()
-                        .writeMode(CacheWriterConfiguration.WriteMode.WRITE_BEHIND)
-                        .minWriteDelay(0)
-                        .maxWriteDelay(0)
-                        .retryAttempts(3)
-                        .retryAttemptDelaySeconds(1)));
+                                .writeMode(CacheWriterConfiguration.WriteMode.WRITE_BEHIND)
+                                .minWriteDelay(0)
+                                .maxWriteDelay(0)
+                                .retryAttempts(3)
+                                .retryAttemptDelaySeconds(1)));
         TestCacheWriterRetries writer = new TestCacheWriterRetries(3);
         cache.registerCacheWriter(writer);
 
@@ -614,13 +615,13 @@ public class CacheWriterTest extends AbstractCacheTest {
         Cache cache = new Cache(
                 new CacheConfiguration("writeBehindExceptionWithoutRetryingBatched", 10)
                         .cacheWriter(new CacheWriterConfiguration()
-                        .writeMode(CacheWriterConfiguration.WriteMode.WRITE_BEHIND)
-                        .minWriteDelay(1)
-                        .maxWriteDelay(1)
-                        .writeBatching(true)
-                        .writeBatchSize(10)
-                        .retryAttempts(0)
-                        .retryAttemptDelaySeconds(0)));
+                                .writeMode(CacheWriterConfiguration.WriteMode.WRITE_BEHIND)
+                                .minWriteDelay(1)
+                                .maxWriteDelay(1)
+                                .writeBatching(true)
+                                .writeBatchSize(10)
+                                .retryAttempts(0)
+                                .retryAttemptDelaySeconds(0)));
         TestCacheWriterRetries writer = new TestCacheWriterRetries(3);
         cache.registerCacheWriter(writer);
 
@@ -649,13 +650,13 @@ public class CacheWriterTest extends AbstractCacheTest {
         Cache cache = new Cache(
                 new CacheConfiguration("writeBehindRetryWithoutExceptionsBatched", 10)
                         .cacheWriter(new CacheWriterConfiguration()
-                        .writeMode(CacheWriterConfiguration.WriteMode.WRITE_BEHIND)
-                        .minWriteDelay(1)
-                        .maxWriteDelay(1)
-                        .writeBatching(true)
-                        .writeBatchSize(10)
-                        .retryAttempts(3)
-                        .retryAttemptDelaySeconds(0)));
+                                .writeMode(CacheWriterConfiguration.WriteMode.WRITE_BEHIND)
+                                .minWriteDelay(1)
+                                .maxWriteDelay(1)
+                                .writeBatching(true)
+                                .writeBatchSize(10)
+                                .retryAttempts(3)
+                                .retryAttemptDelaySeconds(0)));
         TestCacheWriterRetries writer = new TestCacheWriterRetries(0);
         cache.registerCacheWriter(writer);
 
@@ -684,13 +685,13 @@ public class CacheWriterTest extends AbstractCacheTest {
         Cache cache = new Cache(
                 new CacheConfiguration("writeBehindRetryWithoutDelayBatched", 10)
                         .cacheWriter(new CacheWriterConfiguration()
-                        .writeMode(CacheWriterConfiguration.WriteMode.WRITE_BEHIND)
-                        .minWriteDelay(1)
-                        .maxWriteDelay(1)
-                        .writeBatching(true)
-                        .writeBatchSize(10)
-                        .retryAttempts(3)
-                        .retryAttemptDelaySeconds(0)));
+                                .writeMode(CacheWriterConfiguration.WriteMode.WRITE_BEHIND)
+                                .minWriteDelay(1)
+                                .maxWriteDelay(1)
+                                .writeBatching(true)
+                                .writeBatchSize(10)
+                                .retryAttempts(3)
+                                .retryAttemptDelaySeconds(0)));
         TestCacheWriterRetries writer = new TestCacheWriterRetries(3);
         cache.registerCacheWriter(writer);
 
@@ -717,13 +718,13 @@ public class CacheWriterTest extends AbstractCacheTest {
         Cache cache = new Cache(
                 new CacheConfiguration("writeBehindRetryWithDelayBatched", 10)
                         .cacheWriter(new CacheWriterConfiguration()
-                        .writeMode(CacheWriterConfiguration.WriteMode.WRITE_BEHIND)
-                        .minWriteDelay(1)
-                        .maxWriteDelay(1)
-                        .writeBatching(true)
-                        .writeBatchSize(10)
-                        .retryAttempts(3)
-                        .retryAttemptDelaySeconds(1)));
+                                .writeMode(CacheWriterConfiguration.WriteMode.WRITE_BEHIND)
+                                .minWriteDelay(1)
+                                .maxWriteDelay(1)
+                                .writeBatching(true)
+                                .writeBatchSize(10)
+                                .retryAttempts(3)
+                                .retryAttemptDelaySeconds(1)));
         TestCacheWriterRetries writer = new TestCacheWriterRetries(3);
         cache.registerCacheWriter(writer);
 
@@ -772,11 +773,11 @@ public class CacheWriterTest extends AbstractCacheTest {
         Cache cache = new Cache(
                 new CacheConfiguration("writeBehindRetryWithDelayBatched", 100)
                         .cacheWriter(new CacheWriterConfiguration()
-                        .writeMode(CacheWriterConfiguration.WriteMode.WRITE_BEHIND)
-                        .minWriteDelay(1)
-                        .writeBatching(true)
-                        .writeBatchSize(10)
-                        .rateLimitPerSecond(5)));
+                                .writeMode(CacheWriterConfiguration.WriteMode.WRITE_BEHIND)
+                                .minWriteDelay(1)
+                                .writeBatching(true)
+                                .writeBatchSize(10)
+                                .rateLimitPerSecond(5)));
         TestCacheWriter writer = new TestCacheWriter(new Properties());
         cache.registerCacheWriter(writer);
 

@@ -42,7 +42,7 @@ import org.junit.Test;
  * <p/>
  * Note these tests need a live network interface running in multicast mode to work
  * <p/>
- * 
+ *
  * @author Abhishek Sanoujam
  */
 public class RMICacheReplicatorWithLargePayloadTest extends AbstractCacheTest {
@@ -70,7 +70,7 @@ public class RMICacheReplicatorWithLargePayloadTest extends AbstractCacheTest {
 
     /**
      * {@inheritDoc} Sets up two caches: cache1 is local. cache2 is to be receive updates
-     * 
+     *
      * @throws Exception
      */
     @Override
@@ -107,7 +107,7 @@ public class RMICacheReplicatorWithLargePayloadTest extends AbstractCacheTest {
 
     /**
      * {@inheritDoc}
-     * 
+     *
      * @throws Exception
      */
     @Override
@@ -251,7 +251,7 @@ public class RMICacheReplicatorWithLargePayloadTest extends AbstractCacheTest {
         }
 
         waitForPropagate();
-        
+
         for (int i = 0; i < cacheNames.length; i++) {
             String name = cacheNames[i];
             Element element = manager2.getCache(name).get("" + i);
@@ -275,7 +275,7 @@ public class RMICacheReplicatorWithLargePayloadTest extends AbstractCacheTest {
 
     /**
      * Need to wait for async
-     * 
+     *
      * @throws InterruptedException
      */
     protected void waitForPropagate() throws InterruptedException {

@@ -24,13 +24,15 @@ import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.constructs.MockDecoratorFactory.MockDecoratorFactoryCache;
 
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
- * 
  * @author Abhishek Sanoujam
- * 
  */
 public class DefaultCacheDecoratorFactoryTest extends TestCase {
+
+    private static final Logger LOG = LoggerFactory.getLogger(DefaultCacheDecoratorFactoryTest.class);
 
     private static final String EHCACHE_DEFAULT_DECORATOR_TEST_XML = "/ehcache-default-decorator-test.xml";
 
@@ -38,7 +40,7 @@ public class DefaultCacheDecoratorFactoryTest extends TestCase {
     public void testCacheDecoratorFactory() {
         CacheManager cacheManager = new CacheManager(getClass().getResourceAsStream(EHCACHE_DEFAULT_DECORATOR_TEST_XML));
         List<String> cacheNames = Arrays.asList(cacheManager.getCacheNames());
-        System.out.println(cacheNames);
+        LOG.info("" + cacheNames);
 
         assertEquals(7, cacheNames.size());
 

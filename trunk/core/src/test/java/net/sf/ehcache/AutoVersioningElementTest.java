@@ -28,7 +28,8 @@ public class AutoVersioningElementTest {
         System.setProperty("net.sf.ehcache.element.version.auto", "true");
         try {
             CacheManager cacheManager = CacheManager.getInstance();
-            cacheManager.addCache(new Cache("mltest", 50, MemoryStoreEvictionPolicy.LRU, true, null, true, 0, 0, false, 120, null, null, 0, 2, false));
+            cacheManager.addCache(new Cache("mltest", 50,
+                    MemoryStoreEvictionPolicy.LRU, true, null, true, 0, 0, false, 120, null, null, 0, 2, false));
             Cache cache = cacheManager.getCache("mltest");
 
             Element a = new Element("a key", "a value", 1L);

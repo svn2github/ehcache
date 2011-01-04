@@ -13,7 +13,6 @@ import org.junit.Assert;
 import org.junit.Test;
 
 /**
- *
  * @author cdennis
  */
 public class CacheConfigurationListenerTest extends AbstractCacheTest {
@@ -37,10 +36,10 @@ public class CacheConfigurationListenerTest extends AbstractCacheTest {
 
         for (int i = 0; i < events.size(); i++) {
             Event e = events.get(i);
-            
+
             Assert.assertEquals("tti", e.type);
             Assert.assertEquals(Long.valueOf(i), e.oldValue);
-            Assert.assertEquals(Long.valueOf(i+1), e.newValue);
+            Assert.assertEquals(Long.valueOf(i + 1), e.newValue);
         }
     }
 
@@ -66,7 +65,7 @@ public class CacheConfigurationListenerTest extends AbstractCacheTest {
 
             Assert.assertEquals("ttl", e.type);
             Assert.assertEquals(Long.valueOf(i), e.oldValue);
-            Assert.assertEquals(Long.valueOf(i+1), e.newValue);
+            Assert.assertEquals(Long.valueOf(i + 1), e.newValue);
         }
     }
 
@@ -92,7 +91,7 @@ public class CacheConfigurationListenerTest extends AbstractCacheTest {
 
             Assert.assertEquals("disk", e.type);
             Assert.assertEquals(Integer.valueOf(i), e.oldValue);
-            Assert.assertEquals(Integer.valueOf(i+1), e.newValue);
+            Assert.assertEquals(Integer.valueOf(i + 1), e.newValue);
         }
     }
 
@@ -118,10 +117,10 @@ public class CacheConfigurationListenerTest extends AbstractCacheTest {
 
             Assert.assertEquals("mem", e.type);
             Assert.assertEquals(Integer.valueOf(i), e.oldValue);
-            Assert.assertEquals(Integer.valueOf(i+1), e.newValue);
+            Assert.assertEquals(Integer.valueOf(i + 1), e.newValue);
         }
     }
-    
+
     @Test
     public void testLoggingEnableDisable() {
         CacheConfiguration config = new CacheConfiguration();
@@ -134,7 +133,7 @@ public class CacheConfigurationListenerTest extends AbstractCacheTest {
         config.setLogging(true);
         List<Event> events = listener.getFiredEvents();
         Assert.assertEquals(1, events.size());
-        
+
         config.setLogging(false);
         events = listener.getFiredEvents();
         Assert.assertEquals(2, events.size());
@@ -210,7 +209,7 @@ public class CacheConfigurationListenerTest extends AbstractCacheTest {
 
         List<Event> events1 = listener1.getFiredEvents();
         List<Event> events2 = listener2.getFiredEvents();
-        
+
         //17 not 21 since the first four events don't change anything...
         Assert.assertEquals(17, events1.size());
         //37 not 41 since the first four events don't change anything...
@@ -230,11 +229,11 @@ public class CacheConfigurationListenerTest extends AbstractCacheTest {
         List<Event> events = listener.getFiredEvents();
         Assert.assertTrue(events.contains(new Event("deregistered", config, null)));
     }
-    
+
     static class RecordingListener implements CacheConfigurationListener {
 
         private final List<Event> firedEvents = new ArrayList<Event>();
-        
+
         public void timeToIdleChanged(long oldTti, long newTti) {
             firedEvents.add(new Event("tti", Long.valueOf(oldTti), Long.valueOf(newTti)));
         }
@@ -246,7 +245,7 @@ public class CacheConfigurationListenerTest extends AbstractCacheTest {
         public void diskCapacityChanged(int oldCapacity, int newCapacity) {
             firedEvents.add(new Event("disk", Integer.valueOf(oldCapacity), Integer.valueOf(newCapacity)));
         }
-        
+
         public void loggingChanged(boolean oldValue, boolean newValue) {
             firedEvents.add(new Event("logging", Boolean.valueOf(oldValue), Boolean.valueOf(newValue)));
         }
@@ -262,7 +261,7 @@ public class CacheConfigurationListenerTest extends AbstractCacheTest {
         public void deregistered(CacheConfiguration config) {
             firedEvents.add(new Event("deregistered", config, null));
         }
-        
+
         public List<Event> getFiredEvents() {
             return new ArrayList<Event>(firedEvents);
         }

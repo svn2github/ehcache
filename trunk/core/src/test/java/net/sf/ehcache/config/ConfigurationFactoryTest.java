@@ -556,7 +556,8 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
         //  />
         Ehcache sampleCache1 = configurationHelper.createCacheFromName("sampleCache1");
         Ehcache sampleCache4 = configurationHelper.createCacheFromName("sampleCache4");
-        assertEquals("net.sf.ehcache.transaction.manager.DefaultTransactionManagerLookup", configuration.getTransactionManagerLookupConfiguration().getFullyQualifiedClassPath());
+        assertEquals("net.sf.ehcache.transaction.manager.DefaultTransactionManagerLookup",
+                configuration.getTransactionManagerLookupConfiguration().getFullyQualifiedClassPath());
         assertEquals("sampleCache1", sampleCache1.getName());
         assertEquals(false, sampleCache1.getCacheConfiguration().isEternal());
         assertEquals(300, sampleCache1.getCacheConfiguration().getTimeToIdleSeconds());
@@ -1030,7 +1031,7 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
      */
     @Test
     public void testMatchPropertyTokensProperlyFormedUrl() {
-        String example="<terracottaConfig url=\"${serverAndPort}\"/>";
+        String example = "<terracottaConfig url=\"${serverAndPort}\"/>";
         Set propertyTokens = ConfigurationFactory.extractPropertyTokens(example);
         assertEquals(1, propertyTokens.size());
         String firstPropertyToken = (String) (propertyTokens.toArray())[0];
@@ -1108,12 +1109,12 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
             new CacheManager(TEST_CONFIG_DIR + "ehcache-copy.xml");
             fail("This should have thrown an Exception");
         } catch (Exception e) {
-            if(!(e instanceof InvalidConfigurationException)) {
+            if (!(e instanceof InvalidConfigurationException)) {
                 e.printStackTrace();
-                fail("Expected InvalidConfigurationException, but got "+ e.getClass().getSimpleName());
+                fail("Expected InvalidConfigurationException, but got " + e.getClass().getSimpleName());
             }
         }
-        
+
         file = new File(TEST_CONFIG_DIR + "ehcache-copy-tc.xml");
         configuration = ConfigurationFactory.parseConfiguration(file);
         configurationHelper = new ConfigurationHelper(manager, configuration);
@@ -1138,10 +1139,12 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
         ConfigurationHelper configurationHelper = new ConfigurationHelper(manager, configuration);
 
         Ehcache cache = configurationHelper.createCacheFromName("cache");
-        assertTrue(cache.getCacheConfiguration().getElementValueComparatorConfiguration().getElementComparatorInstance() instanceof DefaultElementValueComparator);
+        assertTrue(cache.getCacheConfiguration().getElementValueComparatorConfiguration().getElementComparatorInstance()
+                instanceof DefaultElementValueComparator);
 
         Ehcache cache2 = configurationHelper.createCacheFromName("cache2");
-        assertTrue(cache2.getCacheConfiguration().getElementValueComparatorConfiguration().getElementComparatorInstance().getClass().equals(FakeElementValueComparator.class));
+        assertTrue(cache2.getCacheConfiguration().getElementValueComparatorConfiguration().getElementComparatorInstance()
+                .getClass().equals(FakeElementValueComparator.class));
     }
 
     /**
@@ -1270,48 +1273,48 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
         assertEquals(true, sampleCache9.getCacheConfiguration().isTerracottaClustered());
         assertEquals(42,
                 sampleCache9.getCacheConfiguration().getTerracottaConfiguration().getLocalKeyCacheSize());
-      
-      // assert default value is true always
-      assertEquals(true, TerracottaConfiguration.DEFAULT_CACHE_COHERENT);
-      
-      Ehcache sampleCache10 = configurationHelper.createCacheFromName("clustered-10");
-      assertEquals("clustered-10", sampleCache10.getName());
-      assertEquals(true, sampleCache10.getCacheConfiguration().isTerracottaClustered());
-      assertEquals(true,
-              sampleCache10.getCacheConfiguration().getTerracottaConfiguration().isCoherent());
-      
-      Ehcache sampleCache11 = configurationHelper.createCacheFromName("clustered-11");
-      assertEquals("clustered-11", sampleCache11.getName());
-      assertEquals(true, sampleCache11.getCacheConfiguration().isTerracottaClustered());
-      assertEquals(false,
-              sampleCache11.getCacheConfiguration().getTerracottaConfiguration().isCoherent());
-      
-      Ehcache sampleCache12 = configurationHelper.createCacheFromName("clustered-12");
-      assertEquals("clustered-12", sampleCache12.getName());
-      assertEquals(true, sampleCache12.getCacheConfiguration().isTerracottaClustered());
-      assertEquals(true,
-              sampleCache12.getCacheConfiguration().getTerracottaConfiguration().isCoherent());
-      
-   // assert default value is false always
-      assertEquals(false, TerracottaConfiguration.DEFAULT_SYNCHRONOUS_WRITES);
-      
-      Ehcache sampleCache13 = configurationHelper.createCacheFromName("clustered-13");
-      assertEquals("clustered-13", sampleCache13.getName());
-      assertEquals(true, sampleCache13.getCacheConfiguration().isTerracottaClustered());
-      assertEquals(false,
-              sampleCache13.getCacheConfiguration().getTerracottaConfiguration().isSynchronousWrites());
-      
-      Ehcache sampleCache14 = configurationHelper.createCacheFromName("clustered-14");
-      assertEquals("clustered-14", sampleCache14.getName());
-      assertEquals(true, sampleCache14.getCacheConfiguration().isTerracottaClustered());
-      assertEquals(false,
-              sampleCache14.getCacheConfiguration().getTerracottaConfiguration().isSynchronousWrites());
-      
-      Ehcache sampleCache15 = configurationHelper.createCacheFromName("clustered-15");
-      assertEquals("clustered-15", sampleCache15.getName());
-      assertEquals(true, sampleCache15.getCacheConfiguration().isTerracottaClustered());
-      assertEquals(true,
-              sampleCache15.getCacheConfiguration().getTerracottaConfiguration().isSynchronousWrites());
+
+        // assert default value is true always
+        assertEquals(true, TerracottaConfiguration.DEFAULT_CACHE_COHERENT);
+
+        Ehcache sampleCache10 = configurationHelper.createCacheFromName("clustered-10");
+        assertEquals("clustered-10", sampleCache10.getName());
+        assertEquals(true, sampleCache10.getCacheConfiguration().isTerracottaClustered());
+        assertEquals(true,
+                sampleCache10.getCacheConfiguration().getTerracottaConfiguration().isCoherent());
+
+        Ehcache sampleCache11 = configurationHelper.createCacheFromName("clustered-11");
+        assertEquals("clustered-11", sampleCache11.getName());
+        assertEquals(true, sampleCache11.getCacheConfiguration().isTerracottaClustered());
+        assertEquals(false,
+                sampleCache11.getCacheConfiguration().getTerracottaConfiguration().isCoherent());
+
+        Ehcache sampleCache12 = configurationHelper.createCacheFromName("clustered-12");
+        assertEquals("clustered-12", sampleCache12.getName());
+        assertEquals(true, sampleCache12.getCacheConfiguration().isTerracottaClustered());
+        assertEquals(true,
+                sampleCache12.getCacheConfiguration().getTerracottaConfiguration().isCoherent());
+
+        // assert default value is false always
+        assertEquals(false, TerracottaConfiguration.DEFAULT_SYNCHRONOUS_WRITES);
+
+        Ehcache sampleCache13 = configurationHelper.createCacheFromName("clustered-13");
+        assertEquals("clustered-13", sampleCache13.getName());
+        assertEquals(true, sampleCache13.getCacheConfiguration().isTerracottaClustered());
+        assertEquals(false,
+                sampleCache13.getCacheConfiguration().getTerracottaConfiguration().isSynchronousWrites());
+
+        Ehcache sampleCache14 = configurationHelper.createCacheFromName("clustered-14");
+        assertEquals("clustered-14", sampleCache14.getName());
+        assertEquals(true, sampleCache14.getCacheConfiguration().isTerracottaClustered());
+        assertEquals(false,
+                sampleCache14.getCacheConfiguration().getTerracottaConfiguration().isSynchronousWrites());
+
+        Ehcache sampleCache15 = configurationHelper.createCacheFromName("clustered-15");
+        assertEquals("clustered-15", sampleCache15.getName());
+        assertEquals(true, sampleCache15.getCacheConfiguration().isTerracottaClustered());
+        assertEquals(true,
+                sampleCache15.getCacheConfiguration().getTerracottaConfiguration().isSynchronousWrites());
 
         // <terracottaConfig>
         //  <url>localhost:9510</url>
@@ -1442,7 +1445,8 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
         Configuration configuration = ConfigurationFactory.parseConfiguration(file);
         List configs = configuration.getCacheConfigurations().get("clustered").getCacheEventListenerConfigurations();
         assertEquals(1, configs.size());
-        assertEquals(((CacheConfiguration.CacheEventListenerFactoryConfiguration)configs.get(0)).getFullyQualifiedClassPath(), RMICacheReplicatorFactory.class.getName());
+        assertEquals(((CacheConfiguration.CacheEventListenerFactoryConfiguration) configs.get(0)).getFullyQualifiedClassPath(),
+                RMICacheReplicatorFactory.class.getName());
     }
 
     /**
@@ -1454,7 +1458,8 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
         Configuration configuration = ConfigurationFactory.parseConfiguration(file);
         List configs = configuration.getCacheConfigurations().get("clustered").getCacheEventListenerConfigurations();
         assertEquals(1, configs.size());
-        assertEquals(((CacheConfiguration.CacheEventListenerFactoryConfiguration)configs.get(0)).getFullyQualifiedClassPath(), "net.sf.ehcache.distribution.JGroupsCacheReplicatorFactory");
+        assertEquals(((CacheConfiguration.CacheEventListenerFactoryConfiguration) configs.get(0)).getFullyQualifiedClassPath(),
+                "net.sf.ehcache.distribution.JGroupsCacheReplicatorFactory");
     }
 
     /**
@@ -1466,7 +1471,8 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
         Configuration configuration = ConfigurationFactory.parseConfiguration(file);
         List configs = configuration.getCacheConfigurations().get("clustered").getCacheEventListenerConfigurations();
         assertEquals(1, configs.size());
-        assertEquals(((CacheConfiguration.CacheEventListenerFactoryConfiguration)configs.get(0)).getFullyQualifiedClassPath(), "net.sf.ehcache.distribution.JMSCacheReplicatorFactory");
+        assertEquals(((CacheConfiguration.CacheEventListenerFactoryConfiguration) configs.get(0)).getFullyQualifiedClassPath(),
+                "net.sf.ehcache.distribution.JMSCacheReplicatorFactory");
     }
 
     private String removeLotsOfWhitespace(String str) {
@@ -1519,15 +1525,18 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
         assertEquals(10, configDefault.getMaxElementsInMemory());
         assertNotNull(configDefault.getCacheWriterConfiguration());
         assertEquals(defaultCacheWriterConfig.getWriteMode(), configDefault.getCacheWriterConfiguration().getWriteMode());
-        assertEquals(defaultCacheWriterConfig.getCacheWriterFactoryConfiguration(), configDefault.getCacheWriterConfiguration().getCacheWriterFactoryConfiguration());
-        assertEquals(defaultCacheWriterConfig.getNotifyListenersOnException(), configDefault.getCacheWriterConfiguration().getNotifyListenersOnException());
+        assertEquals(defaultCacheWriterConfig.getCacheWriterFactoryConfiguration(), configDefault.getCacheWriterConfiguration().
+                getCacheWriterFactoryConfiguration());
+        assertEquals(defaultCacheWriterConfig.getNotifyListenersOnException(), configDefault.getCacheWriterConfiguration().
+                getNotifyListenersOnException());
         assertEquals(defaultCacheWriterConfig.getMaxWriteDelay(), configDefault.getCacheWriterConfiguration().getMaxWriteDelay());
         assertEquals(defaultCacheWriterConfig.getRateLimitPerSecond(), configDefault.getCacheWriterConfiguration().getRateLimitPerSecond());
         assertEquals(defaultCacheWriterConfig.getWriteCoalescing(), configDefault.getCacheWriterConfiguration().getWriteCoalescing());
         assertEquals(defaultCacheWriterConfig.getWriteBatching(), configDefault.getCacheWriterConfiguration().getWriteBatching());
         assertEquals(defaultCacheWriterConfig.getWriteBatchSize(), configDefault.getCacheWriterConfiguration().getWriteBatchSize());
         assertEquals(defaultCacheWriterConfig.getRetryAttempts(), configDefault.getCacheWriterConfiguration().getRetryAttempts());
-        assertEquals(defaultCacheWriterConfig.getRetryAttemptDelaySeconds(), configDefault.getCacheWriterConfiguration().getRetryAttemptDelaySeconds());
+        assertEquals(defaultCacheWriterConfig.getRetryAttemptDelaySeconds(), configDefault.getCacheWriterConfiguration()
+                .getRetryAttemptDelaySeconds());
 
         Ehcache defaultCache = configurationHelper.createDefaultCache();
         assertEquals("default", defaultCache.getName());
@@ -1537,8 +1546,10 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
         CacheConfiguration config1 = configs.get("writeThroughCache1");
         assertNotNull(config1.getCacheWriterConfiguration());
         assertEquals(defaultCacheWriterConfig.getWriteMode(), config1.getCacheWriterConfiguration().getWriteMode());
-        assertEquals(defaultCacheWriterConfig.getCacheWriterFactoryConfiguration(), config1.getCacheWriterConfiguration().getCacheWriterFactoryConfiguration());
-        assertEquals(defaultCacheWriterConfig.getNotifyListenersOnException(), config1.getCacheWriterConfiguration().getNotifyListenersOnException());
+        assertEquals(defaultCacheWriterConfig.getCacheWriterFactoryConfiguration(), config1.getCacheWriterConfiguration()
+                .getCacheWriterFactoryConfiguration());
+        assertEquals(defaultCacheWriterConfig.getNotifyListenersOnException(), config1.getCacheWriterConfiguration()
+                .getNotifyListenersOnException());
         assertEquals(defaultCacheWriterConfig.getMaxWriteDelay(), config1.getCacheWriterConfiguration().getMaxWriteDelay());
         assertEquals(defaultCacheWriterConfig.getRateLimitPerSecond(), config1.getCacheWriterConfiguration().getRateLimitPerSecond());
         assertEquals(defaultCacheWriterConfig.getWriteCoalescing(), config1.getCacheWriterConfiguration().getWriteCoalescing());
@@ -1550,8 +1561,10 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
         CacheConfiguration config2 = configs.get("writeThroughCache2");
         assertNotNull(config2.getCacheWriterConfiguration());
         assertEquals(defaultCacheWriterConfig.getWriteMode(), config2.getCacheWriterConfiguration().getWriteMode());
-        assertEquals(defaultCacheWriterConfig.getCacheWriterFactoryConfiguration(), config2.getCacheWriterConfiguration().getCacheWriterFactoryConfiguration());
-        assertEquals(defaultCacheWriterConfig.getNotifyListenersOnException(), config2.getCacheWriterConfiguration().getNotifyListenersOnException());
+        assertEquals(defaultCacheWriterConfig.getCacheWriterFactoryConfiguration(), config2.getCacheWriterConfiguration()
+                .getCacheWriterFactoryConfiguration());
+        assertEquals(defaultCacheWriterConfig.getNotifyListenersOnException(), config2.getCacheWriterConfiguration()
+                .getNotifyListenersOnException());
         assertEquals(defaultCacheWriterConfig.getMaxWriteDelay(), config2.getCacheWriterConfiguration().getMaxWriteDelay());
         assertEquals(defaultCacheWriterConfig.getRateLimitPerSecond(), config2.getCacheWriterConfiguration().getRateLimitPerSecond());
         assertEquals(defaultCacheWriterConfig.getWriteCoalescing(), config2.getCacheWriterConfiguration().getWriteCoalescing());
@@ -1563,7 +1576,8 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
         CacheConfiguration config3 = configs.get("writeThroughCache3");
         assertNotNull(config3.getCacheWriterConfiguration());
         assertEquals(CacheWriterConfiguration.WriteMode.WRITE_THROUGH, config3.getCacheWriterConfiguration().getWriteMode());
-        assertEquals(defaultCacheWriterConfig.getCacheWriterFactoryConfiguration(), config3.getCacheWriterConfiguration().getCacheWriterFactoryConfiguration());
+        assertEquals(defaultCacheWriterConfig.getCacheWriterFactoryConfiguration(), config3.getCacheWriterConfiguration()
+                .getCacheWriterFactoryConfiguration());
         assertEquals(true, config3.getCacheWriterConfiguration().getNotifyListenersOnException());
         assertEquals(30, config3.getCacheWriterConfiguration().getMaxWriteDelay());
         assertEquals(10, config3.getCacheWriterConfiguration().getRateLimitPerSecond());
@@ -1576,7 +1590,8 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
         CacheConfiguration config4 = configs.get("writeThroughCache4");
         assertNotNull(config4.getCacheWriterConfiguration());
         assertEquals(CacheWriterConfiguration.WriteMode.WRITE_THROUGH, config4.getCacheWriterConfiguration().getWriteMode());
-        assertEquals("net.sf.ehcache.writer.TestCacheWriterFactory", config4.getCacheWriterConfiguration().getCacheWriterFactoryConfiguration().getFullyQualifiedClassPath());
+        assertEquals("net.sf.ehcache.writer.TestCacheWriterFactory", config4.getCacheWriterConfiguration().getCacheWriterFactoryConfiguration()
+                .getFullyQualifiedClassPath());
         assertEquals(null, config4.getCacheWriterConfiguration().getCacheWriterFactoryConfiguration().getProperties());
         assertEquals(null, config4.getCacheWriterConfiguration().getCacheWriterFactoryConfiguration().getPropertySeparator());
         assertEquals(false, config4.getCacheWriterConfiguration().getNotifyListenersOnException());
@@ -1591,8 +1606,10 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
         CacheConfiguration config5 = configs.get("writeBehindCache5");
         assertNotNull(config5.getCacheWriterConfiguration());
         assertEquals(CacheWriterConfiguration.WriteMode.WRITE_BEHIND, config5.getCacheWriterConfiguration().getWriteMode());
-        assertEquals("net.sf.ehcache.writer.TestCacheWriterFactory", config5.getCacheWriterConfiguration().getCacheWriterFactoryConfiguration().getFullyQualifiedClassPath());
-        assertEquals("just.some.property=test; another.property=test2", config5.getCacheWriterConfiguration().getCacheWriterFactoryConfiguration().getProperties());
+        assertEquals("net.sf.ehcache.writer.TestCacheWriterFactory", config5.getCacheWriterConfiguration().getCacheWriterFactoryConfiguration()
+                .getFullyQualifiedClassPath());
+        assertEquals("just.some.property=test; another.property=test2", config5.getCacheWriterConfiguration().getCacheWriterFactoryConfiguration()
+                .getProperties());
         assertEquals(";", config5.getCacheWriterConfiguration().getCacheWriterFactoryConfiguration().getPropertySeparator());
         assertEquals(true, config5.getCacheWriterConfiguration().getNotifyListenersOnException());
         assertEquals(8, config5.getCacheWriterConfiguration().getMaxWriteDelay());
@@ -1603,7 +1620,7 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
         assertEquals(2, config5.getCacheWriterConfiguration().getRetryAttempts());
         assertEquals(2, config5.getCacheWriterConfiguration().getRetryAttemptDelaySeconds());
         Ehcache cache5 = configurationHelper.createCacheFromName("writeBehindCache5");
-        Properties properties5 = ((TestCacheWriter)cache5.getRegisteredCacheWriter()).getProperties();
+        Properties properties5 = ((TestCacheWriter) cache5.getRegisteredCacheWriter()).getProperties();
         assertEquals(2, properties5.size());
         assertEquals("test", properties5.getProperty("just.some.property"));
         assertEquals("test2", properties5.getProperty("another.property"));
@@ -1630,7 +1647,7 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
         helpTestListenFor(configuration, "listenRemote", NotificationScope.REMOTE);
     }
 
-    
+
     @Test
     public void testCacheConfigurationWithNoName() {
 

@@ -45,8 +45,6 @@ public class ElementTest extends AbstractCacheTest {
     private static final Logger LOG = LoggerFactory.getLogger(ElementTest.class.getName());
 
 
-
-
     /**
      * ehcache-1.2 adds support to Objects in addition to Serializable. Check that this works
      */
@@ -145,6 +143,7 @@ public class ElementTest extends AbstractCacheTest {
 
     /**
      * Shows that null, regardless of class can be serialized.
+     *
      * @throws IOException
      * @throws ClassNotFoundException
      */

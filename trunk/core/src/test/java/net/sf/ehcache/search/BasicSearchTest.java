@@ -140,7 +140,7 @@ public class BasicSearchTest extends TestCase {
             // expected
         }
         try {
-            query1.includeAttribute(new Attribute[] { new Attribute("foo"), null });
+            query1.includeAttribute(new Attribute[]{new Attribute("foo"), null});
             fail();
         } catch (NullPointerException npe) {
             // expected

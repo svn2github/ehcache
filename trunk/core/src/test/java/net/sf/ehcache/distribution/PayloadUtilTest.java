@@ -39,7 +39,7 @@ import org.junit.Test;
 
 /**
  * Note these tests need a live network interface running in multicast mode to work
- * 
+ *
  * @author <a href="mailto:gluck@thoughtworks.com">Greg Luck</a>
  * @version $Id$
  */
@@ -52,7 +52,7 @@ public class PayloadUtilTest {
 
     /**
      * setup test
-     * 
+     *
      * @throws Exception
      */
     @Before
@@ -63,7 +63,7 @@ public class PayloadUtilTest {
 
     /**
      * Shuts down the cachemanager
-     * 
+     *
      * @throws Exception
      */
     @After
@@ -174,9 +174,8 @@ public class PayloadUtilTest {
 
     /**
      * A test class which implements only {@link #getUrl()} to test PayloadUtil.createCompressedPayloadList()
-     * 
+     *
      * @author Abhishek Sanoujam
-     * 
      */
     private static class PayloadUtilTestCachePeer implements CachePeer {
 
@@ -189,7 +188,7 @@ public class PayloadUtilTest {
 
         /**
          * {@inheritDoc}
-         * 
+         *
          * @see net.sf.ehcache.distribution.CachePeer#getUrl()
          */
         public String getUrl() throws RemoteException {
@@ -198,7 +197,7 @@ public class PayloadUtilTest {
 
         /**
          * {@inheritDoc}
-         * 
+         *
          * @see net.sf.ehcache.distribution.CachePeer#getElements(java.util.List)
          */
         public List getElements(List keys) throws RemoteException {
@@ -208,7 +207,7 @@ public class PayloadUtilTest {
 
         /**
          * {@inheritDoc}
-         * 
+         *
          * @see net.sf.ehcache.distribution.CachePeer#getGuid()
          */
         public String getGuid() throws RemoteException {
@@ -218,7 +217,7 @@ public class PayloadUtilTest {
 
         /**
          * {@inheritDoc}
-         * 
+         *
          * @see net.sf.ehcache.distribution.CachePeer#getKeys()
          */
         public List getKeys() throws RemoteException {
@@ -228,7 +227,7 @@ public class PayloadUtilTest {
 
         /**
          * {@inheritDoc}
-         * 
+         *
          * @see net.sf.ehcache.distribution.CachePeer#getName()
          */
         public String getName() throws RemoteException {
@@ -238,7 +237,7 @@ public class PayloadUtilTest {
 
         /**
          * {@inheritDoc}
-         * 
+         *
          * @see net.sf.ehcache.distribution.CachePeer#getQuiet(java.io.Serializable)
          */
         public Element getQuiet(Serializable key) throws RemoteException {
@@ -248,7 +247,7 @@ public class PayloadUtilTest {
 
         /**
          * {@inheritDoc}
-         * 
+         *
          * @see net.sf.ehcache.distribution.CachePeer#getUrlBase()
          */
         public String getUrlBase() throws RemoteException {
@@ -258,7 +257,7 @@ public class PayloadUtilTest {
 
         /**
          * {@inheritDoc}
-         * 
+         *
          * @see net.sf.ehcache.distribution.CachePeer#put(net.sf.ehcache.Element)
          */
         public void put(Element element) throws IllegalArgumentException, IllegalStateException, RemoteException {
@@ -268,7 +267,7 @@ public class PayloadUtilTest {
 
         /**
          * {@inheritDoc}
-         * 
+         *
          * @see net.sf.ehcache.distribution.CachePeer#remove(java.io.Serializable)
          */
         public boolean remove(Serializable key) throws IllegalStateException, RemoteException {
@@ -278,7 +277,7 @@ public class PayloadUtilTest {
 
         /**
          * {@inheritDoc}
-         * 
+         *
          * @see net.sf.ehcache.distribution.CachePeer#removeAll()
          */
         public void removeAll() throws RemoteException, IllegalStateException {
@@ -287,7 +286,7 @@ public class PayloadUtilTest {
 
         /**
          * {@inheritDoc}
-         * 
+         *
          * @see net.sf.ehcache.distribution.CachePeer#send(java.util.List)
          */
         public void send(List eventMessages) throws RemoteException {

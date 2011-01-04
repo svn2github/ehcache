@@ -18,9 +18,11 @@ package net.sf.ehcache.config;
 
 import net.sf.ehcache.AbstractCacheTest;
 import net.sf.ehcache.CacheManager;
+
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+
 import org.junit.Test;
 
 import java.io.File;
@@ -47,7 +49,7 @@ public class ConfigurationHelperTest extends AbstractCacheTest {
     public void testValidParameters() {
         Configuration configuration = new Configuration();
         CacheConfiguration defaultCache = new CacheConfiguration()
-            .eternal(false);
+                .eternal(false);
 
         ConfigurationHelper configurationHelper =
                 new ConfigurationHelper(manager, configuration);

@@ -39,7 +39,7 @@ import org.w3c.dom.Document;
  * @author Alex Miller
  */
 public class SchemaValidationTest {
-    
+
     private static final String SRC_CONFIG_DIR = "src/main/config/";
 
     /**
@@ -56,17 +56,17 @@ public class SchemaValidationTest {
             docFactory.setNamespaceAware(true);
             DocumentBuilder parser = docFactory.newDocumentBuilder();
             Document document = parser.parse(docStream);
-    
+
             // create a SchemaFactory capable of understanding the schemas
             SchemaFactory factory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
-    
+
             // load the schema, represented by a Schema instance
             Source schemaFile = new StreamSource(xsdStream);
             Schema schema = factory.newSchema(schemaFile);
-    
+
             // create a Validator instance, which can be used to validate an instance document
             Validator validator = schema.newValidator();
-    
+
             // validate the DOM tree
             validator.validate(new DOMSource(document));
 

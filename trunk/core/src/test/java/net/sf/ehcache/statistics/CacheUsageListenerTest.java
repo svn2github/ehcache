@@ -22,6 +22,7 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.util.Random;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,7 +36,7 @@ import org.junit.Test;
 
 /**
  * Tests for the CacheUsageListener
- * 
+ *
  * @author Abhishek Sanoujam
  * @version $Id$
  */
@@ -45,7 +46,7 @@ public class CacheUsageListenerTest extends AbstractCacheTest {
 
     /**
      * Test statistics enabling/disabling/clearing
-     * 
+     *
      * @throws InterruptedException
      */
     @Test
@@ -88,10 +89,9 @@ public class CacheUsageListenerTest extends AbstractCacheTest {
      * - onDiskSize
      * - clearing statistics
      * - average get time
-     * 
      */
     public void doTestCacheUsageStatistics(Cache cache, boolean checkStats,
-            AnotherStatistics anotherStats) throws InterruptedException {
+                                           AnotherStatistics anotherStats) throws InterruptedException {
 
         cache.put(new Element("key1", "value1"));
         cache.put(new Element("key2", "value1"));
@@ -174,7 +174,7 @@ public class CacheUsageListenerTest extends AbstractCacheTest {
 
     /**
      * Test average get time
-     * 
+     *
      * @throws InterruptedException
      */
     @Test
@@ -205,7 +205,7 @@ public class CacheUsageListenerTest extends AbstractCacheTest {
      * Tests average get time
      */
     public void doTestAverageGetTime(Cache cache, boolean checkStats,
-            AnotherStatistics anotherStats) {
+                                     AnotherStatistics anotherStats) {
         float averageGetTime = anotherStats.getAverageGetTimeMillis();
         assertTrue(0 == anotherStats.getAverageGetTimeMillis());
 
@@ -230,7 +230,7 @@ public class CacheUsageListenerTest extends AbstractCacheTest {
 
     /**
      * Test cache eviction/expiry stats
-     * 
+     *
      * @throws InterruptedException
      */
     @Test
@@ -255,7 +255,7 @@ public class CacheUsageListenerTest extends AbstractCacheTest {
      * - size
      */
     public void doTestEvictionStatistics(boolean statsEnabled,
-            boolean nonZeroStatsExpected, boolean asListener)
+                                         boolean nonZeroStatsExpected, boolean asListener)
             throws InterruptedException {
         // run 5 times with random total and capacity values
         Random rand = new Random();
@@ -333,7 +333,7 @@ public class CacheUsageListenerTest extends AbstractCacheTest {
             assertEquals(0, anotherStats.getExpiredCount());
             assertEquals(0, anotherStats.getCacheMissCount());
             // assertEquals(0, anotherStats.getSize());
-            
+
             manager.removeCache(ehcache.getName());
         }
 
@@ -359,7 +359,7 @@ public class CacheUsageListenerTest extends AbstractCacheTest {
     }
 
     public void doTestElementUpdateRemove(boolean statsEnabled,
-            boolean nonZeroStatsExpected, boolean asListener)
+                                          boolean nonZeroStatsExpected, boolean asListener)
             throws InterruptedException {
         Random rand = new Random();
         int min = 100;
@@ -451,7 +451,7 @@ public class CacheUsageListenerTest extends AbstractCacheTest {
             assertEquals(0, anotherStats.getRemovedCount());
             assertEquals(0, anotherStats.getEvictedCount());
             assertEquals(0, anotherStats.getUpdateCount());
-            
+
             manager.removeCache(ehcache.getName());
         }
 

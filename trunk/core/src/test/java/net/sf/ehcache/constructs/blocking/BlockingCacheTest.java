@@ -139,11 +139,11 @@ public class BlockingCacheTest extends CacheTest {
         assertEquals(100, elements.size());
         Map map = new HashMap();
         for (int i = 0; i < elements.size(); i++) {
-            Element element = (Element)elements.get(i);
+            Element element = (Element) elements.get(i);
             map.put(element.getObjectKey(), element.getObjectValue());
         }
         for (int i = 0; i < 100; i++) {
-            Serializable value = (Serializable)map.get(Integer.valueOf(i));
+            Serializable value = (Serializable) map.get(Integer.valueOf(i));
             assertEquals("value" + i, value);
         }
     }

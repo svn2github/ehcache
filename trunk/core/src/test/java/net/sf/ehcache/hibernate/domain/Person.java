@@ -11,98 +11,98 @@ import java.util.Set;
 
 public class Person {
 
-  private Long   id;
-  private int    age;
-  private String firstname;
-  private String lastname;
-  private List   events         = new ArrayList(); // list semantics, e.g., indexed
-  private Set    emailAddresses = new HashSet();
-  private Set    phoneNumbers   = new HashSet();
-  private List   talismans      = new ArrayList(); // a Bag of good-luck charms. 
+    private Long id;
+    private int age;
+    private String firstname;
+    private String lastname;
+    private List events = new ArrayList(); // list semantics, e.g., indexed
+    private Set emailAddresses = new HashSet();
+    private Set phoneNumbers = new HashSet();
+    private List talismans = new ArrayList(); // a Bag of good-luck charms.
 
-  public Person() {
-    // 
-  }
-  
-  public List getEvents() {
-    return events;
-  }
+    public Person() {
+        //
+    }
 
-  protected void setEvents(List events) {
-    this.events = events;
-  }
+    public List getEvents() {
+        return events;
+    }
 
-  public void addToEvent(Event event) {
-    this.getEvents().add(event);
-    event.getParticipants().add(this);
-  }
+    protected void setEvents(List events) {
+        this.events = events;
+    }
 
-  public void removeFromEvent(Event event) {
-    this.getEvents().remove(event);
-    event.getParticipants().remove(this);
-  }
+    public void addToEvent(Event event) {
+        this.getEvents().add(event);
+        event.getParticipants().add(this);
+    }
 
-  public int getAge() {
-    return age;
-  }
+    public void removeFromEvent(Event event) {
+        this.getEvents().remove(event);
+        event.getParticipants().remove(this);
+    }
 
-  public void setAge(int age) {
-    this.age = age;
-  }
+    public int getAge() {
+        return age;
+    }
 
-  public String getFirstname() {
-    return firstname;
-  }
+    public void setAge(int age) {
+        this.age = age;
+    }
 
-  public void setFirstname(String firstname) {
-    this.firstname = firstname;
-  }
+    public String getFirstname() {
+        return firstname;
+    }
 
-  public Long getId() {
-    return id;
-  }
+    public void setFirstname(String firstname) {
+        this.firstname = firstname;
+    }
 
-  public void setId(Long id) {
-    this.id = id;
-  }
+    public Long getId() {
+        return id;
+    }
 
-  public String getLastname() {
-    return lastname;
-  }
+    public void setId(Long id) {
+        this.id = id;
+    }
 
-  public void setLastname(String lastname) {
-    this.lastname = lastname;
-  }
+    public String getLastname() {
+        return lastname;
+    }
 
-  public Set getEmailAddresses() {
-    return emailAddresses;
-  }
+    public void setLastname(String lastname) {
+        this.lastname = lastname;
+    }
 
-  public void setEmailAddresses(Set emailAddresses) {
-    this.emailAddresses = emailAddresses;
-  }
+    public Set getEmailAddresses() {
+        return emailAddresses;
+    }
 
-  public Set getPhoneNumbers() {
-    return phoneNumbers;
-  }
-  
-  public void setPhoneNumbers(Set phoneNumbers) {
-    this.phoneNumbers = phoneNumbers;
-  }
-  
-  public void addTalisman(String name) {
-    talismans.add(name);
-  }
-  
-  public List getTalismans() {
-    return talismans;
-  }
+    public void setEmailAddresses(Set emailAddresses) {
+        this.emailAddresses = emailAddresses;
+    }
 
-  public void setTalismans(List talismans) {
-    this.talismans = talismans;
-  }
+    public Set getPhoneNumbers() {
+        return phoneNumbers;
+    }
 
-  public String toString() {
-    return getFirstname() + " " + getLastname();
-  }
+    public void setPhoneNumbers(Set phoneNumbers) {
+        this.phoneNumbers = phoneNumbers;
+    }
+
+    public void addTalisman(String name) {
+        talismans.add(name);
+    }
+
+    public List getTalismans() {
+        return talismans;
+    }
+
+    public void setTalismans(List talismans) {
+        this.talismans = talismans;
+    }
+
+    public String toString() {
+        return getFirstname() + " " + getLastname();
+    }
 }

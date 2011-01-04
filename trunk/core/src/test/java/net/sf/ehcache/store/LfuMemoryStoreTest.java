@@ -59,8 +59,9 @@ public class LfuMemoryStoreTest extends MemoryStoreTester {
 
     private static final Logger LOG = LoggerFactory.getLogger(LfuMemoryStoreTest.class.getName());
 
-    private static final Field  PRIMARY_FACTORY;
+    private static final Field PRIMARY_FACTORY;
     private static final Method GET_EVICTION_TARGET;
+
     static {
         try {
             PRIMARY_FACTORY = CompoundStore.class.getDeclaredField("primary");
@@ -75,6 +76,7 @@ public class LfuMemoryStoreTest extends MemoryStoreTester {
             throw new RuntimeException(e);
         }
     }
+
     /**
      * setup test
      */
@@ -178,7 +180,7 @@ public class LfuMemoryStoreTest extends MemoryStoreTester {
         cache.put(element);
 
         Thread.sleep(200);
-        
+
         assertEquals(4, store.getInMemorySize());
         //The element with key "key2" is the LFU element so should be removed
         // directly access the memory store here since the LFU evicted elements have been flushed to the disk store
@@ -191,9 +193,9 @@ public class LfuMemoryStoreTest extends MemoryStoreTester {
         // Insert another element to force the policy
         element = new Element("key6", "value6");
         cache.put(element);
-        
+
         Thread.sleep(200);
-        
+
         assertEquals(4, store.getInMemorySize());
         assertFalse(((CompoundStore) store).unretrievedGet("key2") instanceof Element);
     }
@@ -263,7 +265,7 @@ public class LfuMemoryStoreTest extends MemoryStoreTester {
             return object instanceof Element;
         }
     };
-    
+
     /**
      * Check nothing breaks and that we get the right number of samples
      *

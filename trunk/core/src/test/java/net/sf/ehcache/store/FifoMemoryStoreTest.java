@@ -19,9 +19,11 @@ package net.sf.ehcache.store;
 import net.sf.ehcache.AbstractCacheTest;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.MemoryStoreTester;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+
 import org.junit.Before;
 import org.junit.Test;
 

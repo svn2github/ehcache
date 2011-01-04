@@ -123,7 +123,7 @@ public class DiskStoreTest extends AbstractCacheTest {
 
     private Store createCapacityLimitedDiskStore() {
         Cache cache = new Cache("test/CapacityLimited", 1, MemoryStoreEvictionPolicy.LRU, true, null, true,
-                 0, 0, false, 600, null, null, 50);
+                0, 0, false, 600, null, null, 50);
         manager.addCache(cache);
         return cache.getStore();
     }
@@ -932,7 +932,7 @@ public class DiskStoreTest extends AbstractCacheTest {
 
     private static float getSpeedAdjustmentFactor() {
         final String speedAdjustmentFactorString = PropertyUtil.extractAndLogProperty("net.sf.ehcache.speedAdjustmentFactor", System.getProperties());
-        if(speedAdjustmentFactorString != null) {
+        if (speedAdjustmentFactorString != null) {
             return Float.parseFloat(speedAdjustmentFactorString);
         } else {
             return 1;
@@ -1080,7 +1080,6 @@ public class DiskStoreTest extends AbstractCacheTest {
     }
 
 
-
     /**
      * This test is designed to be used with a profiler to explore the ways in which DiskStore
      * uses memory. It does not do much on its own.
@@ -1151,7 +1150,7 @@ public class DiskStoreTest extends AbstractCacheTest {
         LOG.info("Wait For Spool Thread To Finish");
         SECONDS.sleep(2);
 
-        for (;; i++) {
+        for (; ; i++) {
             int beforeSize = store.getOnDiskSize();
             store.put(new Element(Integer.valueOf(i), new byte[100]));
             MILLISECONDS.sleep(500);
@@ -1179,7 +1178,7 @@ public class DiskStoreTest extends AbstractCacheTest {
         LOG.info("Wait For Spool Thread To Finish");
         SECONDS.sleep(2);
 
-        for (;; i++) {
+        for (; ; i++) {
             int beforeSize = store.getOnDiskSize();
             store.put(new Element(Integer.valueOf(i), new byte[100]));
             MILLISECONDS.sleep(500);

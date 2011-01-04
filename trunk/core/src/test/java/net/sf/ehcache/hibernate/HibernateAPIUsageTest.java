@@ -23,16 +23,19 @@ import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import org.hibernate.cfg.Environment;
 import org.junit.After;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+
 import org.junit.Test;
 
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.Map;
 import java.util.Properties;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

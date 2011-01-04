@@ -32,7 +32,7 @@ public class FileAllocationTreeTest {
     @Test
     public void testUniformSizedAllocations() {
         FileAllocationTree test = new FileAllocationTree(100, null);
-        
+
         for (int i = 0; i < 100; i++) {
             Assert.assertEquals(i, test.alloc(1).start());
         }
@@ -44,7 +44,7 @@ public class FileAllocationTreeTest {
         FileAllocationTree test = new FileAllocationTree(100, null);
         test.alloc(100);
         Assert.assertEquals(100, test.getFileSize());
-        
+
         for (int i = 0; i < 100; i++) {
             Assert.assertEquals(100, test.getFileSize());
             test.free(new Region(i));
@@ -73,14 +73,14 @@ public class FileAllocationTreeTest {
             }
         }
     }
-    
+
     @Test
     public void testRandomAllocFree() {
         for (int n = 0; n < 100; n++) {
             FileAllocationTree test = new FileAllocationTree(10000, null);
             BitSet reference = new BitSet();
             Random rndm = new Random();
-            
+
             for (int i = 0; i < 100; i++) {
                 if (rndm.nextBoolean()) {
                     Region r = test.alloc(rndm.nextInt(100));

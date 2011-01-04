@@ -56,14 +56,14 @@ public class DummyTransactionManagerLookup implements TransactionManagerLookup {
     public static byte[] longToBytes(long aLong) {
         byte[] array = new byte[8];
 
-        array[7] = (byte)(aLong & 0xff);
-        array[6] = (byte)((aLong >> 8) & 0xff);
-        array[5] = (byte)((aLong >> 16) & 0xff);
-        array[4] = (byte)((aLong >> 24) & 0xff);
-        array[3] = (byte)((aLong >> 32) & 0xff);
-        array[2] = (byte)((aLong >> 40) & 0xff);
-        array[1] = (byte)((aLong >> 48) & 0xff);
-        array[0] = (byte)((aLong >> 56) & 0xff);
+        array[7] = (byte) (aLong & 0xff);
+        array[6] = (byte) ((aLong >> 8) & 0xff);
+        array[5] = (byte) ((aLong >> 16) & 0xff);
+        array[4] = (byte) ((aLong >> 24) & 0xff);
+        array[3] = (byte) ((aLong >> 32) & 0xff);
+        array[2] = (byte) ((aLong >> 40) & 0xff);
+        array[1] = (byte) ((aLong >> 48) & 0xff);
+        array[0] = (byte) ((aLong >> 56) & 0xff);
 
         return array;
     }
@@ -93,7 +93,7 @@ public class DummyTransactionManagerLookup implements TransactionManagerLookup {
         }
 
         public void resume(Transaction transaction) throws IllegalStateException, InvalidTransactionException, SystemException {
-            testTransaction = (DummyTransaction)transaction;
+            testTransaction = (DummyTransaction) transaction;
         }
 
         public void rollback() throws IllegalStateException, SecurityException, SystemException {
@@ -123,7 +123,7 @@ public class DummyTransactionManagerLookup implements TransactionManagerLookup {
         @Override
         public boolean equals(Object o) {
             if (o instanceof DummyTransaction) {
-                DummyTransaction otherTx = (DummyTransaction)o;
+                DummyTransaction otherTx = (DummyTransaction) o;
                 return otherTx.id == id;
             }
             return false;
@@ -131,7 +131,7 @@ public class DummyTransactionManagerLookup implements TransactionManagerLookup {
 
         @Override
         public int hashCode() {
-            return (int)id;
+            return (int) id;
         }
 
         public void commit() throws HeuristicMixedException, HeuristicRollbackException, RollbackException, SecurityException, SystemException {
@@ -196,10 +196,10 @@ public class DummyTransactionManagerLookup implements TransactionManagerLookup {
         @Override
         public boolean equals(Object o) {
             if (o instanceof DummyXid) {
-                DummyXid otherXid = (DummyXid)o;
+                DummyXid otherXid = (DummyXid) o;
                 return formatId == otherXid.formatId &&
-                       Arrays.equals(gtrid, otherXid.gtrid) &&
-                       Arrays.equals(bqual, otherXid.bqual);
+                        Arrays.equals(gtrid, otherXid.gtrid) &&
+                        Arrays.equals(bqual, otherXid.bqual);
             }
             return false;
         }

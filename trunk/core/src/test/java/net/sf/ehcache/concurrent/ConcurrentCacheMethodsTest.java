@@ -44,33 +44,33 @@ public class ConcurrentCacheMethodsTest {
 
     private volatile CacheManager manager;
     private volatile Ehcache cache;
-    
+
     @Before
-    public void setup() {
+    public void setUp() {
         manager = CacheManager.create();
         cache = new Cache(new CacheConfiguration("testCache", 0));
         manager.addCache(cache);
     }
-    
+
     @After
     public void clearup() {
         manager.removalAll();
         manager.shutdown();
     }
-    
+
     @Test
     public void testPutIfAbsent() {
         Element e = new Element("key", "value");
         Assert.assertNull(cache.putIfAbsent(e));
         Assert.assertEquals(e, cache.putIfAbsent(new Element("key", "value2")));
-        
+
         try {
             cache.putIfAbsent(null);
             Assert.fail("putIfAbsent with null Element should throw NPE");
         } catch (NullPointerException npe) {
             // expected
         }
-        
+
         try {
             cache.putIfAbsent(new Element(null, "value"));
             Assert.fail("putIfAbsent with null key should throw NPE");
@@ -78,23 +78,23 @@ public class ConcurrentCacheMethodsTest {
             // expected
         }
     }
-    
+
     @Test
     public void testRemoveElement() {
         Element e = new Element("key", "value");
         cache.put(e);
-        
+
         Assert.assertFalse(cache.removeElement(new Element("key", "value2")));
         Assert.assertFalse(cache.removeElement(new Element("key2", "value")));
         Assert.assertTrue(cache.removeElement(new Element("key", "value")));
-        
+
         try {
             cache.removeElement(null);
             Assert.fail("removeElement with null Element should throw NPE");
         } catch (NullPointerException npe) {
             //expected
         }
-        
+
         try {
             cache.removeElement(new Element(null, "value"));
             Assert.fail("removeElement with null key should throw NPE");
@@ -102,7 +102,7 @@ public class ConcurrentCacheMethodsTest {
             //expected
         }
     }
-    
+
     @Test
     public void testTwoArgReplace() {
         Assert.assertFalse(cache.replace(new Element("key", "value1"), new Element("key", "value2")));
@@ -123,7 +123,7 @@ public class ConcurrentCacheMethodsTest {
         } catch (NullPointerException npe) {
             //expected
         }
-        
+
         try {
             cache.replace(null, null);
             Assert.fail("replace with null key should throw NPE");
@@ -144,14 +144,14 @@ public class ConcurrentCacheMethodsTest {
         } catch (NullPointerException npe) {
             //expected
         }
-        
+
         try {
             cache.replace(new Element(null, "value1"), new Element(null, "value2"));
             Assert.fail("replace with null keys should throw NPE");
         } catch (NullPointerException npe) {
             //expected
         }
-        
+
         try {
             cache.replace(new Element("key", "value1"), new Element("different", "value2"));
             Assert.fail("replace with non-matching keys should throw IllegalArgumentException");
@@ -162,25 +162,25 @@ public class ConcurrentCacheMethodsTest {
 
     @Test
     public void testOneArgReplace() {
-        
+
         Assert.assertNull(cache.replace(new Element("key", "value")));
         Assert.assertNull(cache.replace(new Element("key", "value2")));
 
         Element e = new Element("key", "value");
         cache.put(e);
-        
+
         Element e2 = new Element("key", "value2");
         Assert.assertEquals(e, cache.replace(e2));
 
         Assert.assertEquals(cache.get("key").getObjectValue(), e2.getObjectValue());
-        
+
         try {
             cache.replace(null);
             Assert.fail("replace with null Element should throw NPE");
         } catch (NullPointerException npe) {
             //expected
         }
-        
+
         try {
             cache.replace(new Element(null, "value1"));
             Assert.fail("replace with null keys should throw NPE");
@@ -188,21 +188,20 @@ public class ConcurrentCacheMethodsTest {
             //expected
         }
     }
-    
+
     @Test
     public void testMultiThreadedPutIfAbsent() throws InterruptedException, ExecutionException {
-        final Ehcache cache = this.cache;
-        
+
         Callable<Element> putIfAbsent = new Callable<Element>() {
             public Element call() throws Exception {
                 return cache.putIfAbsent(new Element("key", Long.valueOf(Thread.currentThread().getId())));
             }
         };
-        
+
         ExecutorService executor = Executors.newFixedThreadPool(4 * Runtime.getRuntime().availableProcessors());
         try {
             List<Future<Element>> futures = executor.invokeAll(Collections.nCopies(100, putIfAbsent));
-            
+
             boolean seenNull = false;
             Long threadId = null;
             for (Future<Element> f : futures) {
@@ -225,8 +224,7 @@ public class ConcurrentCacheMethodsTest {
 
     @Test
     public void testMultiThreadedRemoveElement() throws InterruptedException, ExecutionException, TimeoutException {
-        final Ehcache cache = this.cache;
-        
+
         Callable<Void> removeElement = new Callable<Void>() {
             public Void call() throws Exception {
                 while (!cache.removeElement(new Element("key", "value"))) {
@@ -235,7 +233,7 @@ public class ConcurrentCacheMethodsTest {
                 return null;
             }
         };
-        
+
         ExecutorService executor = Executors.newFixedThreadPool(4 * Runtime.getRuntime().availableProcessors());
         try {
             executor.submit(new Callable<Void>() {
@@ -249,10 +247,9 @@ public class ConcurrentCacheMethodsTest {
                     return null;
                 }
             });
-            
+
             List<Future<Void>> futures = executor.invokeAll(Collections.nCopies(100, removeElement));
-            
-            Set<Integer> values = new HashSet<Integer>();
+
             for (Future<Void> f : futures) {
                 f.get();
             }
@@ -262,16 +259,15 @@ public class ConcurrentCacheMethodsTest {
             executor.awaitTermination(60, TimeUnit.SECONDS);
         }
     }
-    
-    @Test 
+
+    @Test
     public void testMultiThreadedTwoArgReplace() throws InterruptedException, ExecutionException {
-        final Ehcache cache = this.cache;
-        
+
         cache.put(new Element("key", Integer.valueOf(0)));
-        
+
         Callable<Integer> twoArgReplace = new Callable<Integer>() {
             private final AtomicInteger index = new AtomicInteger();
-            
+
             public Integer call() throws Exception {
                 while (true) {
                     Element old = cache.get("key");
@@ -282,11 +278,11 @@ public class ConcurrentCacheMethodsTest {
                 }
             }
         };
-        
+
         ExecutorService executor = Executors.newFixedThreadPool(4 * Runtime.getRuntime().availableProcessors());
         try {
             List<Future<Integer>> futures = executor.invokeAll(Collections.nCopies(100, twoArgReplace));
-            
+
             Set<Integer> values = new HashSet<Integer>();
             for (Future<Integer> f : futures) {
                 values.add(f.get());
@@ -298,25 +294,24 @@ public class ConcurrentCacheMethodsTest {
             executor.awaitTermination(60, TimeUnit.SECONDS);
         }
     }
-    
+
     @Test
     public void testMultiThreadedOneArgReplace() throws InterruptedException, ExecutionException {
-        final Ehcache cache = this.cache;
-        
+
         cache.put(new Element("key", null));
-        
+
         Callable<Element> oneArgReplace = new Callable<Element>() {
             private final AtomicInteger index = new AtomicInteger();
-            
+
             public Element call() throws Exception {
                 return cache.replace(new Element("key", Integer.valueOf(index.getAndIncrement())));
             }
         };
-        
+
         ExecutorService executor = Executors.newFixedThreadPool(4 * Runtime.getRuntime().availableProcessors());
         try {
             List<Future<Element>> futures = executor.invokeAll(Collections.nCopies(100, oneArgReplace));
-            
+
             boolean seenNull = false;
             Long threadId = null;
             Set<Integer> indices = new HashSet<Integer>();
@@ -337,6 +332,6 @@ public class ConcurrentCacheMethodsTest {
             executor.awaitTermination(60, TimeUnit.SECONDS);
         }
     }
-    
-    
+
+
 }

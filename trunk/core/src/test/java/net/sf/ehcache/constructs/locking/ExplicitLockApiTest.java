@@ -23,13 +23,15 @@ import junit.framework.TestCase;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Element;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
- *
  * @author Abhishek Sanoujam
- *
  */
 public class ExplicitLockApiTest extends TestCase {
+
+    private static final Logger LOG = LoggerFactory.getLogger(ExplicitLockApiTest.class);
 
     public void testExplicitLockApi() throws Exception {
         CacheManager cm = CacheManager.create(ExplicitLockApiTest.class.getResourceAsStream("/nonstop/nonstop-config-test.xml"));
@@ -150,7 +152,7 @@ public class ExplicitLockApiTest extends TestCase {
     }
 
     private static void debug(String string) {
-        System.out.println("[" + Thread.currentThread().getName() + "] [" + new Date().toString() + "] " + string);
+        LOG.info("[" + Thread.currentThread().getName() + "] [" + new Date().toString() + "] " + string);
     }
 
     private abstract static class SignalRunnable implements Runnable {

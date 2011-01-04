@@ -102,7 +102,9 @@ public class JavaBeanAttributeExtractorTest extends TestCase {
                         t.printStackTrace();
                         errors.add(t);
                     }
-                };
+                }
+
+                ;
             };
         }
 

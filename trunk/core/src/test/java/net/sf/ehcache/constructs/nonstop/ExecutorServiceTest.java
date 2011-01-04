@@ -26,8 +26,12 @@ import java.util.concurrent.atomic.AtomicInteger;
 import junit.framework.Assert;
 import junit.framework.TestCase;
 import net.sf.ehcache.constructs.nonstop.ThreadDump.ThreadInformation;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ExecutorServiceTest extends TestCase {
+
+    private static final Logger LOG = LoggerFactory.getLogger(ExecutorServiceTest.class);
 
     private NonStopCacheExecutorService service;
     private int initialThreadsCount;
@@ -35,7 +39,7 @@ public class ExecutorServiceTest extends TestCase {
     @Override
     protected void setUp() throws Exception {
         initialThreadsCount = countExecutorThreads();
-        System.out.println("Initial thread count: " + initialThreadsCount);
+        LOG.info("Initial thread count: " + initialThreadsCount);
         service = new NonStopCacheExecutorService();
     }
 
@@ -44,9 +48,9 @@ public class ExecutorServiceTest extends TestCase {
         service.shutdown();
         Thread.sleep(2000);
         int threads = countExecutorThreads();
-        System.out.println("After shutting down service, thread count: " + threads);
+        LOG.info("After shutting down service, thread count: " + threads);
         Assert.assertEquals(initialThreadsCount, threads);
-        System.out.println("Test complete successfully");
+        LOG.info("Test complete successfully");
     }
 
     public void testExecutorThreadsCreated() throws Exception {
@@ -97,19 +101,19 @@ public class ExecutorServiceTest extends TestCase {
         }
 
         // start the app threads
-        System.out.println("Letting all app threads go ahead");
+        LOG.info("Letting all app threads go ahead");
         barrier.await();
         // wait for one second so that all threads go inside executor
         Thread.sleep(1000);
 
         // now assert extraThread tasks are in the queue as maxPoolSize tasks should be picked up by the executor threads
         assertEquals(extraThreads, service.getTaskQueue().size());
-        System.out.println("Asserted task queue size");
+        LOG.info("Asserted task queue size");
 
-        System.out.println("Waiting for all app threads to complete");
+        LOG.info("Waiting for all app threads to complete");
         while (finishedThreadsCount.get() != numAppThreads) {
             Thread.sleep(1000);
-            System.out.println("Finished: " + finishedThreadsCount.get() + "/" + numAppThreads);
+            LOG.info("Finished: " + finishedThreadsCount.get() + "/" + numAppThreads);
         }
         // assert no other exception other than timeoutException happened
         assertEquals(0, exceptionList.size());
@@ -128,12 +132,12 @@ public class ExecutorServiceTest extends TestCase {
         int rv = 0;
         for (ThreadInformation info : threadDump) {
             if (info.getThreadName().contains(NonStopCacheExecutorService.EXECUTOR_THREAD_NAME_PREFIX)) {
-                // System.out.println("Thread: id=" + info.getThreadId() + ", name=\"" + info.getThreadName() +
+                // LOG.info("Thread: id=" + info.getThreadId() + ", name=\"" + info.getThreadName() +
                 // "\": is an executor thread");
                 rv++;
             }
         }
-        System.out.println("Counting number of executor threads created till now: " + rv);
+        LOG.info("Counting number of executor threads created till now: " + rv);
         return rv;
     }
 

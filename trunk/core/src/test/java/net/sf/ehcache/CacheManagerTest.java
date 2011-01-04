@@ -63,8 +63,8 @@ import org.slf4j.LoggerFactory;
  */
 public class CacheManagerTest {
 
-  private static final Logger LOG                   = LoggerFactory.getLogger(CacheManagerTest.class.getName());
-  private static final int    CACHES_IN_EHCACHE_XML = 15;
+    private static final Logger LOG = LoggerFactory.getLogger(CacheManagerTest.class.getName());
+    private static final int CACHES_IN_EHCACHE_XML = 15;
 
     /**
      * the CacheManager Singleton instance
@@ -338,7 +338,7 @@ public class CacheManagerTest {
      * <p/>
      * ehcache-1.2.3 had 126 threads for this test. ehcache-1.2.4 has 71. 70 for
      * the DiskStore thread and one shutdown hook
-     * <p />
+     * <p/>
      * ehcache-1.7 has 1 additional thread per cache for
      * SampledCacheUsageStatistics. 70 Caches means 140 threads plus 1 for
      * shutdown totalling to 141. Plus Junit thread totals 142.
@@ -392,8 +392,8 @@ public class CacheManagerTest {
     public void testCreateCacheManagersProgrammatically() throws CacheException {
 
         Configuration configuration = new Configuration()
-            .defaultCache(new CacheConfiguration("defaultCache", 10))
-            .diskStore(new DiskStoreConfiguration().path("java.io.tmpdir"));
+                .defaultCache(new CacheConfiguration("defaultCache", 10))
+                .diskStore(new DiskStoreConfiguration().path("java.io.tmpdir"));
         assertNotNull(configuration);
 
         instanceManager = new CacheManager(configuration);
@@ -568,7 +568,7 @@ public class CacheManagerTest {
         singletonManager = CacheManager.create();
         singletonManager.addCache("present");
         assertTrue(singletonManager.getCache("present")
-                   == singletonManager.addCacheIfAbsent(new Cache(new CacheConfiguration("present", 1000))));
+                == singletonManager.addCacheIfAbsent(new Cache(new CacheConfiguration("present", 1000))));
 
         Cache theCache = new Cache(new CacheConfiguration("absent", 1000));
         Ehcache cache = singletonManager.addCacheIfAbsent(theCache);
@@ -590,7 +590,7 @@ public class CacheManagerTest {
         assertTrue(newCache == actualCacheRegisteredWithManager);
 
         assertTrue(singletonManager.addCacheIfAbsent(new Cache(new CacheConfiguration(actualCacheRegisteredWithManager.getName(), 1000)))
-                   == actualCacheRegisteredWithManager);
+                == actualCacheRegisteredWithManager);
 
         assertNull(singletonManager.addCacheIfAbsent((Ehcache) null));
     }
@@ -613,7 +613,7 @@ public class CacheManagerTest {
         assertTrue(singletonManager.addCacheIfAbsent(actualCacheRegisteredWithManager.getName()) == actualCacheRegisteredWithManager);
 
         assertTrue(singletonManager.addCacheIfAbsent(new Cache(new CacheConfiguration(actualCacheRegisteredWithManager.getName(), 1000)))
-                   == actualCacheRegisteredWithManager);
+                == actualCacheRegisteredWithManager);
         assertNull(singletonManager.addCacheIfAbsent((String) null));
         assertNull(singletonManager.addCacheIfAbsent(""));
     }
@@ -867,7 +867,7 @@ public class CacheManagerTest {
     private static Configuration makeCacheManagerConfig() {
         Configuration config = new Configuration();
         CacheConfiguration defaults = new CacheConfiguration("cacheName", 10)
-            .eternal(true);
+                .eternal(true);
         config.setDefaultCacheConfiguration(defaults);
         return config;
     }
@@ -900,17 +900,18 @@ public class CacheManagerTest {
         singletonManager.addCache(cacheB);
         Cache cacheC = new Cache("2", 10, false, false, 2, 2, false, 100);
         singletonManager.addCache(cacheC);
-        for(int i = 0; i < 100; i++) {
+        for (int i = 0; i < 100; i++) {
             cacheA.put(new Element(i + "", "dog"));
             cacheB.put(new Element(i + "", "dog"));
             cacheC.put(new Element(i + "", "dog"));
         }
         Cache diskCache = new Cache("disk", 10, true, false, 2, 2);
         try {
-          singletonManager.addCache(diskCache);
-          throw new AssertionError("Expected that adding a disk cache to a cache manager with no configured disk store path would throw CacheException");
+            singletonManager.addCache(diskCache);
+            throw new AssertionError("Expected that adding a disk cache to a cache manager" +
+                    " with no configured disk store path would throw CacheException");
         } catch (CacheException e) {
-          LOG.info("Caught expected exception", e);
+            LOG.info("Caught expected exception", e);
         }
         singletonManager.shutdown();
         assertEquals(null, singletonManager.getDiskStorePath());

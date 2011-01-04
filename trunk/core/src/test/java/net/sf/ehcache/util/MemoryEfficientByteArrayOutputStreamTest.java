@@ -24,11 +24,11 @@ import junit.framework.Assert;
 import org.junit.Test;
 
 public class MemoryEfficientByteArrayOutputStreamTest {
-    
+
     @Test
     public void testOutputIsCorrectlySized() throws IOException {
         Random rndm = new Random();
-        
+
         for (int i = 0; i < 100; i++) {
             int size = rndm.nextInt(1024);
             int initial = rndm.nextInt(1024);
@@ -36,5 +36,5 @@ public class MemoryEfficientByteArrayOutputStreamTest {
             out.write(new byte[size]);
             Assert.assertEquals(size, out.getBytes().length);
         }
-    }    
+    }
 }

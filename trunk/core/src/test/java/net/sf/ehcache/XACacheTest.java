@@ -111,7 +111,7 @@ public class XACacheTest extends TestCase {
     private static abstract class AbstractTxnThread extends Thread {
 
         protected volatile Exception exception;
-        
+
         final Element element1;
         final Element element2;
         final TransactionManager txnManager;
@@ -135,7 +135,7 @@ public class XACacheTest extends TestCase {
         }
 
         public void check() throws Exception {
-            if(exception != null) {
+            if (exception != null) {
                 throw exception;
             }
         }

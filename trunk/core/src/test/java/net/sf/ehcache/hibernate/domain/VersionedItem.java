@@ -5,13 +5,13 @@
 package net.sf.ehcache.hibernate.domain;
 
 public class VersionedItem extends Item {
-  private Long version;
+    private Long version;
 
-  public Long getVersion() {
-    return version;
-  }
+    public Long getVersion() {
+        return version;
+    }
 
-  public void setVersion(Long version) {
-    this.version = version;
-  }
+    public void setVersion(Long version) {
+        this.version = version;
+    }
 }

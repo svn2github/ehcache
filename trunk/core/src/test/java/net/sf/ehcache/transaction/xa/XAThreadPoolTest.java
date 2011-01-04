@@ -20,7 +20,7 @@ public class XAThreadPoolTest extends TestCase {
         XAThreadPool xaThreadPool = new XAThreadPool();
 
         XAThreadPool.MultiRunner[] runners = new XAThreadPool.MultiRunner[CONCURRENCY];
-        for (int i=0; i<CONCURRENCY ;i++) {
+        for (int i = 0; i < CONCURRENCY; i++) {
             runners[i] = xaThreadPool.getMultiRunner();
         }
 
@@ -43,14 +43,14 @@ public class XAThreadPoolTest extends TestCase {
         };
 
         // execution
-        for (int i=0; i<COUNTER ;i++) {
-            for (int j=0 ;j<CONCURRENCY ;j++) {
+        for (int i = 0; i < COUNTER; i++) {
+            for (int j = 0; j < CONCURRENCY; j++) {
                 runners[j].execute(myCallable);
             }
         }
 
         // release
-        for (int j=0 ;j<CONCURRENCY ;j++) {
+        for (int j = 0; j < CONCURRENCY; j++) {
             runners[j].release();
 
             try {

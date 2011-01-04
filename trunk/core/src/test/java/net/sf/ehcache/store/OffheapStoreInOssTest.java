@@ -25,9 +25,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 /**
- * 
  * @author hhuynh
- *
  */
 public class OffheapStoreInOssTest {
 

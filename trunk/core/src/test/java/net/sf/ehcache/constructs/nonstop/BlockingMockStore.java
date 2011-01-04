@@ -40,11 +40,11 @@ import net.sf.ehcache.writer.CacheWriterManager;
  * All operations in this Store never returns
  *
  * @author Abhishek Sanoujam
- *
  */
 public class BlockingMockStore implements TerracottaStore {
 
     private static final List<String> skipMethods;
+
     static {
         // list of methods (in Store) which are:
         // - indirectly used from other methods in Ehcache before reaching the Store layer
@@ -303,7 +303,7 @@ public class BlockingMockStore implements TerracottaStore {
     }
 
     public Element unsafeGetQuiet(Object key) {
-     // unsafe gets never block
+        // unsafe gets never block
         return null;
     }
 

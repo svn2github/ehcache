@@ -17,10 +17,13 @@
 package net.sf.ehcache.store;
 
 import static junit.framework.Assert.assertTrue;
+
 import net.sf.ehcache.Element;
 import net.sf.ehcache.MemoryStoreTester;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
+
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;

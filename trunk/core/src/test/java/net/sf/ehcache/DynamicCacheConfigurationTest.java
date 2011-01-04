@@ -6,6 +6,7 @@ package net.sf.ehcache;
 
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.concurrent.TimeUnit.SECONDS;
+
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.Configuration;
 
@@ -15,7 +16,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * 
  * @author cdennis
  */
 public class DynamicCacheConfigurationTest extends AbstractCacheTest {
@@ -302,9 +302,9 @@ public class DynamicCacheConfigurationTest extends AbstractCacheTest {
     @Test
     public void testCacheWithFrozenConfig() {
         Configuration managerConfig = new Configuration()
-            .dynamicConfig(false)
-            .defaultCache(new CacheConfiguration("definedCache1", 20))
-            .cache(new CacheConfiguration("definedCache", 10).eternal(true));
+                .dynamicConfig(false)
+                .defaultCache(new CacheConfiguration("definedCache1", 20))
+                .cache(new CacheConfiguration("definedCache", 10).eternal(true));
 
         CacheManager manager = new CacheManager(managerConfig);
 

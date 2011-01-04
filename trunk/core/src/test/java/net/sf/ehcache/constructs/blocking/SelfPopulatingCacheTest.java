@@ -17,6 +17,7 @@
 package net.sf.ehcache.constructs.blocking;
 
 import static junit.framework.Assert.assertSame;
+
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.CacheManager;
@@ -35,6 +36,7 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -48,8 +50,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Test cases for the {@link SelfPopulatingCache}.
- *
- *
  *
  * @author Adam Murdoch
  * @author Greg Luck

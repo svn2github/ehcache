@@ -18,7 +18,9 @@ package net.sf.ehcache.concurrent;
 
 
 import net.sf.ehcache.CacheException;
+
 import static org.junit.Assert.assertTrue;
+
 import org.junit.Test;
 
 

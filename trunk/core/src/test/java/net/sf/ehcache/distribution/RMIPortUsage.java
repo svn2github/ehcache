@@ -25,6 +25,7 @@ import java.rmi.server.UnicastRemoteObject;
 
 /**
  * Enables manual playing around with RMI ports.
+ *
  * @author Greg Luck
  */
 public class RMIPortUsage extends UnicastRemoteObject {
@@ -32,7 +33,6 @@ public class RMIPortUsage extends UnicastRemoteObject {
     private static RMIPortUsage rmi;
 
     /**
-     * 
      * @param port
      * @throws RemoteException
      */
@@ -41,7 +41,6 @@ public class RMIPortUsage extends UnicastRemoteObject {
     }
 
     /**
-     *
      * @param args
      * @throws Exception
      */

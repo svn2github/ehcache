@@ -51,13 +51,13 @@ public class NullCacheEventListener implements CacheEventListener {
      */
     public void notifyElementPut(final Ehcache cache, final Element element) {
 
-            Object key = null;
-            if (element != null) {
-                key = element.getObjectKey();
-            }
-            if (LOG.isDebugEnabled()) {
+        Object key = null;
+        if (element != null) {
+            key = element.getObjectKey();
+        }
+        if (LOG.isDebugEnabled()) {
             LOG.debug("notifyElementPut called for cache " + cache.getName() + " for element with key " + key);
-            }
+        }
     }
 
     /**
@@ -75,10 +75,10 @@ public class NullCacheEventListener implements CacheEventListener {
      */
     public void notifyElementUpdated(final Ehcache cache, final Element element) throws CacheException {
 
-            Object key = null;
-            if (element != null) {
-                key = element.getObjectKey();
-            }
+        Object key = null;
+        if (element != null) {
+            key = element.getObjectKey();
+        }
         if (LOG.isDebugEnabled()) {
             LOG.debug("notifyElementUpdated called for cache " + cache.getName() + " for element with key " + key);
         }

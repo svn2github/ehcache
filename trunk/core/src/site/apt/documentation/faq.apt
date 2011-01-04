@@ -448,4 +448,6 @@ java.net.ConnectException: Connection refused
      And with other memory optimisations made to Element in 1.7, memory use will actually be considerably lower than pre
      1.6 levels.
 
-     
+*   What does this mean? "Caches cannot be added by name when default cache config is not specified in the config. Please add a default cache config in the configuration."
+
+    From Ehcache 2.4, we have made the <<<defaultCache>>> optional. When you try to add a cache by name, <<<CacheManager.add(String name)>>>,

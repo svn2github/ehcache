@@ -95,7 +95,8 @@ public class LocalTransactionTest extends TestCase {
             public void exec() throws Exception {
                 transactionController.begin();
 
-                barrier.await(); // awake tx1
+                // awake tx1
+                barrier.await();
                 try {
                     cache1.put(new Element(1, "one#tx2"));
                 } catch (TransactionInterruptedException e) {
@@ -119,7 +120,7 @@ public class LocalTransactionTest extends TestCase {
     public void testTimeout() throws Exception {
         transactionController.setDefaultTransactionTimeout(1);
         transactionController.begin();
-        
+
         cache1.put(new Element(1, "one"));
 
         Thread.sleep(1500);
@@ -179,7 +180,7 @@ public class LocalTransactionTest extends TestCase {
     public void testDefaultTimeout() throws Exception {
         transactionController.setDefaultTransactionTimeout(1);
         transactionController.begin();
-        
+
         Thread.sleep(1500);
 
         try {
@@ -192,7 +193,7 @@ public class LocalTransactionTest extends TestCase {
 
     public void testCopyOnRead() throws Exception {
         transactionController.begin();
-        Object putValue = new Object[] {"one#1"};
+        Object putValue = new Object[]{"one#1"};
         cache1.put(new Element(1, putValue));
 
         Element one = cache1.get(1);
@@ -204,7 +205,7 @@ public class LocalTransactionTest extends TestCase {
 
     public void testCopyOnWrite() throws Exception {
         transactionController.begin();
-        Object[] putValue = new Object[] {"one#1"};
+        Object[] putValue = new Object[]{"one#1"};
         cache1.put(new Element(1, putValue));
         putValue[0] = "one#2";
 
@@ -221,7 +222,7 @@ public class LocalTransactionTest extends TestCase {
         transactionController.commit();
 
         transactionController.begin();
-        cache1.put(new Element(1, new Object[] {"one#2"}));
+        cache1.put(new Element(1, new Object[]{"one#2"}));
         transactionController.commit();
     }
 
@@ -370,40 +371,48 @@ public class LocalTransactionTest extends TestCase {
         final long ERROR_MARGIN = 200;
         final long[] times = new long[2];
 
-        transactionController.begin(); //TX 0
+        //TX 0
+        transactionController.begin();
 
         cache1.put(new Element(1, "tx1-one"));
 
         TxThread tx2 = new TxThread() {
             @Override
             public void exec() {
-                transactionController.begin(2); //TX 1
+                //TX 1
+                transactionController.begin(2);
 
                 times[0] = System.currentTimeMillis();
                 cache1.put(new Element(1, "tx2-one"));
                 times[1] = System.currentTimeMillis();
 
-                transactionController.commit(); //TX 1
+                //TX 1
+                transactionController.commit();
             }
         };
         tx2.start();
         tx2.join(WAIT_TIME);
 
-        transactionController.commit(); //TX 0
+        //TX 0
+        transactionController.commit();
 
-
-        transactionController.begin(); //TX 2
+        //TX 2
+        transactionController.begin();
         assertTrue(elementValueComparator.equals(new Element(1, "tx1-one"), cache1.get(1)));
-        transactionController.commit(); //TX 2
+        //TX 2
+        transactionController.commit();
 
         tx2.join();
         tx2.assertNotFailed();
 
-        assertTrue("expected TX1 to be on hold for more than " + WAIT_TIME + "ms, waited: " + (times[1] - times[0]), times[1] - times[0] >= (WAIT_TIME - ERROR_MARGIN));
+        assertTrue("expected TX1 to be on hold for more than " + WAIT_TIME + "ms, waited: " + (times[1] - times[0]), times[1] - times[0]
+                >= (WAIT_TIME - ERROR_MARGIN));
 
-        transactionController.begin(); // TX 3
+        // TX 3
+        transactionController.begin();
         assertTrue(elementValueComparator.equals(new Element(1, "tx2-one"), cache1.get(1)));
-        transactionController.commit(); // TX 3
+        // TX 3
+        transactionController.commit();
     }
 
     public void testDeadlock() throws Exception {
@@ -422,7 +431,8 @@ public class LocalTransactionTest extends TestCase {
 
                 cache1.put(new Element(2, "tx2-two"));
 
-                barrier1.await(); // awake tx1
+                // awake tx1
+                barrier1.await();
                 barrier2.await();
 
                 try {
@@ -451,7 +461,8 @@ public class LocalTransactionTest extends TestCase {
             transactionController.rollback();
         }
 
-        barrier2.await(); // awake tx2
+        // awake tx2
+        barrier2.await();
         tx2.join();
         tx2.assertNotFailed();
 
@@ -547,7 +558,8 @@ public class LocalTransactionTest extends TestCase {
 
                 cache1.put(new Element(3, "three"));
 
-                barrier.await(); //wake up tx1
+                //wake up tx1
+                barrier.await();
                 barrier.await();
 
                 transactionController.commit();
@@ -557,7 +569,8 @@ public class LocalTransactionTest extends TestCase {
         barrier.await();
         assertEquals(0, cache1.getSize());
 
-        barrier.await(); // wake up tx2
+        // wake up tx2
+        barrier.await();
 
         tx2.join();
         tx2.assertNotFailed();
@@ -616,7 +629,8 @@ public class LocalTransactionTest extends TestCase {
                 cache1.put(new Element(2, "two"));
                 assertEquals(2, cache1.getSize());
 
-                barrier.await(); // awake tx1
+                // awake tx1
+                barrier.await();
                 assertTrue(elementValueComparator.equals(new Element(1, "one"), cache1.putIfAbsent(new Element(1, "one#tx2"))));
 
                 transactionController.commit();
@@ -656,7 +670,8 @@ public class LocalTransactionTest extends TestCase {
             public void exec() throws Exception {
                 transactionController.begin();
 
-                barrier.await(); // awake tx1
+                // awake tx1
+                barrier.await();
                 assertTrue(cache1.removeElement(new Element(1, "one")));
 
                 barrier.await();

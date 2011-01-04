@@ -27,13 +27,15 @@ import net.sf.ehcache.ObjectExistsException;
 import net.sf.ehcache.constructs.MockDecoratorFactory.MockDecoratorFactoryCache;
 
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
- * 
  * @author Abhishek Sanoujam
- * 
  */
 public class DecoratorNoNameTest extends TestCase {
+
+    private static final Logger LOG = LoggerFactory.getLogger(DecoratorNoNameTest.class);
 
     private static final String EHCACHE_DECORATOR_NONAME_TEST_XML = "/ehcache-decorator-noname-test.xml";
     private static final String EHCACHE_DECORATOR_NONAME_FAIL_TEST_XML = "/ehcache-decorator-noname-fail-test.xml";
@@ -42,7 +44,7 @@ public class DecoratorNoNameTest extends TestCase {
     public void testCacheDecoratorFactory() {
         CacheManager cacheManager = new CacheManager(getClass().getResourceAsStream(EHCACHE_DECORATOR_NONAME_TEST_XML));
         List<String> cacheNames = Arrays.asList(cacheManager.getCacheNames());
-        System.out.println(cacheNames);
+        LOG.info("" + cacheNames);
 
         assertEquals(6, cacheNames.size());
 
@@ -61,7 +63,7 @@ public class DecoratorNoNameTest extends TestCase {
 
     @Test
     public void testCacheDecoratorFactoryProperties() {
-        System.out.println("Testing default cache decorator properties");
+        LOG.info("Testing default cache decorator properties");
         CacheManager cacheManager = new CacheManager(getClass().getResourceAsStream(EHCACHE_DECORATOR_NONAME_TEST_XML));
         List<String> cacheNames = Arrays.asList(cacheManager.getCacheNames());
         assertEquals(6, cacheNames.size());
@@ -74,7 +76,7 @@ public class DecoratorNoNameTest extends TestCase {
 
         checkDeclaredCachesProperties(cacheManager);
 
-        System.out.println("Testing default cache decorator properties Complete");
+        LOG.info("Testing default cache decorator properties Complete");
     }
 
     private void checkDeclaredCachesProperties(CacheManager cacheManager) {
@@ -89,7 +91,7 @@ public class DecoratorNoNameTest extends TestCase {
 
     @Test
     public void testAddDynamicCache() {
-        System.out.println("Testing dynamic cache addition");
+        LOG.info("Testing dynamic cache addition");
         CacheManager cacheManager = new CacheManager(getClass().getResourceAsStream(EHCACHE_DECORATOR_NONAME_TEST_XML));
         List<String> cacheNames = Arrays.asList(cacheManager.getCacheNames());
         assertEquals(6, cacheNames.size());
@@ -104,12 +106,12 @@ public class DecoratorNoNameTest extends TestCase {
         checkDeclaredCachesProperties(cacheManager);
         checkMockDecoratorCache(cacheManager, "newDynamicCache", "defaultDecoratorKeyValue");
 
-        System.out.println("Testing dynamic cache addition Complete");
+        LOG.info("Testing dynamic cache addition Complete");
     }
 
     @Test
     public void testAddDynamicCacheIfAbsent() {
-        System.out.println("Testing dynamic addCacheIfAbsent");
+        LOG.info("Testing dynamic addCacheIfAbsent");
         CacheManager cacheManager = new CacheManager(getClass().getResourceAsStream(EHCACHE_DECORATOR_NONAME_TEST_XML));
         List<String> cacheNames = Arrays.asList(cacheManager.getCacheNames());
         assertEquals(6, cacheNames.size());
@@ -151,7 +153,7 @@ public class DecoratorNoNameTest extends TestCase {
             // expected
         }
 
-        System.out.println("Testing dynamic addCacheIfAbsent Complete");
+        LOG.info("Testing dynamic addCacheIfAbsent Complete");
     }
 
     private void checkMockDecoratorCache(CacheManager cacheManager, String name, String expectedKeyValue) {
@@ -164,13 +166,13 @@ public class DecoratorNoNameTest extends TestCase {
 
     @Test
     public void testFailingConfig() {
-        System.out.println("Testing failing config");
+        LOG.info("Testing failing config");
         try {
             CacheManager cacheManager = new CacheManager(getClass().getResourceAsStream(EHCACHE_DECORATOR_NONAME_FAIL_TEST_XML));
             fail("Config having multiple ambiguous decorators should fail to initialize");
         } catch (CacheException e) {
             // expected
         }
-        System.out.println("Testing failing config Complete");
+        LOG.info("Testing failing config Complete");
     }
 }

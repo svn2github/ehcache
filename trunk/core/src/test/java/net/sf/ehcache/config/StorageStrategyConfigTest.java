@@ -22,30 +22,32 @@ import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.config.TerracottaConfiguration.StorageStrategy;
 
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
- * 
  * @author Abhishek Sanoujam
- * 
  */
 public class StorageStrategyConfigTest extends TestCase {
+
+    private static final Logger LOG = LoggerFactory.getLogger(StorageStrategyConfigTest.class);
 
     @Test
     public void testStorageStrategyConfig() {
         CacheManager cacheManager = new CacheManager(this.getClass().getResourceAsStream("/ehcache-storage-strategy.xml"));
         Cache cache = cacheManager.getCache("defaultStorageStrategy");
         StorageStrategy storageStrategy = cache.getCacheConfiguration().getTerracottaConfiguration().getStorageStrategy();
-        System.out.println("default storageStrategy: " + storageStrategy);
+        LOG.info("default storageStrategy: " + storageStrategy);
         assertEquals(StorageStrategy.CLASSIC, storageStrategy);
 
         cache = cacheManager.getCache("classicStorageStrategy");
         storageStrategy = cache.getCacheConfiguration().getTerracottaConfiguration().getStorageStrategy();
-        System.out.println("classic storageStrategy: " + storageStrategy);
+        LOG.info("classic storageStrategy: " + storageStrategy);
         assertEquals(StorageStrategy.CLASSIC, storageStrategy);
 
         cache = cacheManager.getCache("DCV2StorageStrategy");
         storageStrategy = cache.getCacheConfiguration().getTerracottaConfiguration().getStorageStrategy();
-        System.out.println("DCV2 storageStrategy: " + storageStrategy);
+        LOG.info("DCV2 storageStrategy: " + storageStrategy);
         assertEquals(StorageStrategy.DCV2, storageStrategy);
 
         TerracottaConfiguration config = cache.getCacheConfiguration().getTerracottaConfiguration();

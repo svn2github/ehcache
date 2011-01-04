@@ -147,8 +147,8 @@ public abstract class XSDAttributeValueType {
 
     public static class XSDAttributeValueStringType extends XSDAttributeValueType {
 
-        private final String[] RANDOM_VALUES = { "random_string_one", "random_string_two", "random_string_three", "random_string_four",
-                "random_string_five" };
+        private final String[] RANDOM_VALUES = {"random_string_one", "random_string_two", "random_string_three", "random_string_four",
+                "random_string_five"};
 
         public XSDAttributeValueStringType() {
             super(XsdType.STRING);
@@ -163,8 +163,8 @@ public abstract class XSDAttributeValueType {
 
     public static class XSDAttributeValueAnySimpleType extends XSDAttributeValueType {
 
-        private final String[] RANDOM_VALUES = { "any_simple_type_random_one", "any_simple_type_random_two",
-                "any_simple_type_random_three", "any_simple_type_random_four", "any_simple_type_random_five" };
+        private final String[] RANDOM_VALUES = {"any_simple_type_random_one", "any_simple_type_random_two",
+                "any_simple_type_random_three", "any_simple_type_random_four", "any_simple_type_random_five"};
 
         public XSDAttributeValueAnySimpleType() {
             super(XsdType.ANY_SIMPLE_TYPE);

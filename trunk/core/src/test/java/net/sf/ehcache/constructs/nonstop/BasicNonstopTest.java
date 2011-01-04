@@ -28,19 +28,23 @@ import net.sf.ehcache.constructs.nonstop.NonstopTestUtil.EhcacheMethodsInvoker;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @RunWith(value = MockitoJUnitRunner.class)
 public class BasicNonstopTest extends TestCase {
+
+    private static final Logger LOG = LoggerFactory.getLogger(BasicNonstopTest.class);
 
     private final List<Method> methods = NonstopTestUtil.getEhcacheMethodsTouchingStore();
 
     @Test
     public void testTimeout() throws Exception {
-        System.out.println("Testing timeout with all timeoutBehaviors");
+        LOG.info("Testing timeout with all timeoutBehaviors");
         doTestExceptionOnTimeout();
         doTestNoopOnTimeout();
         doTestLocalReadsOnTimeout();
-        System.out.println("Test finished successfully!");
+        LOG.info("Test finished successfully!");
     }
 
     private void doGenericTest(EhcacheMethodsInvoker invoker, NonstopConfiguration nonstopConfig) throws Exception {
@@ -53,7 +57,7 @@ public class BasicNonstopTest extends TestCase {
     }
 
     private void doTestExceptionOnTimeout() throws Exception {
-        System.out.println("Running EXCEPTION on timeout test");
+        LOG.info("Running EXCEPTION on timeout test");
         EhcacheMethodsInvoker invoker = new EhcacheMethodsInvoker() {
             @Override
             protected void invokeOne(Ehcache ehcache, Method method) {
@@ -65,7 +69,7 @@ public class BasicNonstopTest extends TestCase {
                     } catch (Exception e) {
                         Throwable cause = getRootCause(e);
                         if (cause instanceof NonStopCacheException) {
-                            System.out.println(" Caught expected exception: " + cause);
+                            LOG.info(" Caught expected exception: " + cause);
                         } else {
                             throw new RuntimeException(e);
                         }
@@ -91,14 +95,14 @@ public class BasicNonstopTest extends TestCase {
     }
 
     private void doTestNoopOnTimeout() throws Exception {
-        System.out.println("Running NOOP on timeout test");
+        LOG.info("Running NOOP on timeout test");
         EhcacheMethodsInvoker invoker = new EhcacheMethodsInvoker() {
             @Override
             protected void invokeOne(Ehcache ehcache, Method method) {
                 if (methods.contains(method)) {
                     System.out.print("Invoking method: " + NonstopTestUtil.getMethodSignature(method) + " ...");
                     super.invokeOne(ehcache, method);
-                    System.out.println(" succeeded with no-op.");
+                    LOG.info(" succeeded with no-op.");
                 }
             }
 
@@ -113,14 +117,14 @@ public class BasicNonstopTest extends TestCase {
     }
 
     private void doTestLocalReadsOnTimeout() throws Exception {
-        System.out.println("Running LocalReads on timeout test");
+        LOG.info("Running LocalReads on timeout test");
         EhcacheMethodsInvoker invoker = new EhcacheMethodsInvoker() {
             @Override
             protected void invokeOne(Ehcache ehcache, Method method) {
                 if (methods.contains(method)) {
                     System.out.print("Invoking method: " + NonstopTestUtil.getMethodSignature(method) + " ...");
                     super.invokeOne(ehcache, method);
-                    System.out.println(" ... succeeded with localReads");
+                    LOG.info(" ... succeeded with localReads");
                 }
             }
 

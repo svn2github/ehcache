@@ -23,7 +23,9 @@ import junit.framework.Assert;
 import net.sf.ehcache.AbstractCacheTest;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.statistics.LiveCacheStatisticsData;
+
 import static org.junit.Assert.assertEquals;
+
 import org.junit.Before;
 import org.junit.Test;
 
@@ -55,7 +57,7 @@ public class ProgrammaticallyCreatedCacheEventListenerTest extends CacheEventLis
 
     /**
      * An instance that <code>equals</code> one already registered is ignored
-     * <p />
+     * <p/>
      * Since ehcache-1.7, there is a defaut CacheUsageStatisticsData listener
      */
     @Test
@@ -76,7 +78,7 @@ public class ProgrammaticallyCreatedCacheEventListenerTest extends CacheEventLis
 
     /**
      * An new instance of the same class will be registered
-     * <p />
+     * <p/>
      * Since ehcache-1.7, there is a defaut CacheUsageStatisticsData listener
      */
     @Test

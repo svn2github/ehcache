@@ -9,6 +9,8 @@ import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.transaction.TransactionTimeoutException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.transaction.Status;
 import javax.transaction.TransactionManager;
@@ -17,6 +19,8 @@ import javax.transaction.TransactionManager;
  * @author Ludovic Orban
  */
 public class XATransactionTest extends TestCase {
+
+    private static final Logger LOG = LoggerFactory.getLogger(XATransactionTest.class);
 
     private TransactionManager tm;
     private CacheManager cacheManager;
@@ -49,7 +53,7 @@ public class XATransactionTest extends TestCase {
     }
 
     public void testSimple() throws Exception {
-        System.out.println("******* START");
+        LOG.info("******* START");
 
         tm.begin();
         {
@@ -78,14 +82,15 @@ public class XATransactionTest extends TestCase {
         }
         tm.rollback();
 
-        System.out.println("******* END");
+        LOG.info("******* END");
     }
 
     public void testPutDuring2PC() throws Exception {
         tm.begin();
 
         cache1.put(new Element(1, "one"));
-        cache2.put(new Element(1, "one")); // 1PC bypasses 1st phase -> enlist a 2nd resource to prevent it
+        // 1PC bypasses 1st phase -> enlist a 2nd resource to prevent it
+        cache2.put(new Element(1, "one"));
 
         BitronixTransaction tx = (BitronixTransaction) tm.getTransaction();
 

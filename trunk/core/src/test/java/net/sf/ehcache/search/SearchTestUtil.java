@@ -6,14 +6,14 @@ import net.sf.ehcache.search.Person.Gender;
 
 /**
  * Test utilities used by multiple classes
- * 
+ *
  * @author Greg Luck
  */
 public class SearchTestUtil {
 
     /**
      * Used to populate the search with data
-     * 
+     *
      * @param cache
      */
     public static void populateData(Ehcache cache) {

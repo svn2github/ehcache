@@ -43,18 +43,18 @@ public class LegacyIndexFormatLoadTest {
 
         CacheManager manager = new CacheManager(config);
         Cache persistent = new Cache(new CacheConfiguration("test", 0).diskPersistent(true));
-        
+
         Store legacy = DiskStore.create(persistent, config.getDiskStoreConfiguration().getPath());
-        
+
         for (int i = 0; i < 100; i++) {
             legacy.put(new Element(Integer.toString(i), "test"));
         }
         int millis = 500;
-        while(legacy.getOnDiskSize() != 100) {
+        while (legacy.getOnDiskSize() != 100) {
             try {
                 Thread.sleep(millis);
                 millis += millis;
-                if(millis > 1500) {
+                if (millis > 1500) {
                     fail("Looks like we don't get all entries on disk!");
                 }
             } catch (InterruptedException e) {
@@ -64,9 +64,9 @@ public class LegacyIndexFormatLoadTest {
         legacy.dispose();
 
         manager.addCache(persistent);
-        
+
         Assert.assertEquals(100, persistent.getSize());
-        
+
         for (Object key : persistent.getKeys()) {
             Assert.assertEquals("test", persistent.get(key).getObjectValue());
         }

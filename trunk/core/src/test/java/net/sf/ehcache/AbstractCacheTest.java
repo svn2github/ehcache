@@ -19,7 +19,9 @@ package net.sf.ehcache;
 
 import org.junit.After;
 import org.junit.Assert;
+
 import static org.junit.Assert.assertTrue;
+
 import org.junit.Before;
 
 import javax.management.MBeanServer;
@@ -143,38 +145,39 @@ public abstract class AbstractCacheTest {
     }
 
 
-
     /**
      * Runs a set of threads, for a fixed amount of time.
-     *
+     * <p/>
      * Throws an exception if there are throwables during the run.
      */
     protected void runThreads(final List executables) throws Exception {
         int failures = runThreadsNoCheck(executables);
-            LOG.info(failures + " failures");
-            //CHM does have the occasional very slow time.
-            assertTrue("Failures = " + failures, failures <= 35);
+        LOG.info(failures + " failures");
+        //CHM does have the occasional very slow time.
+        assertTrue("Failures = " + failures, failures <= 35);
     }
 
 
     /**
      * Runs a set of threads, for a fixed amount of time.
-     *
+     * <p/>
      * Does not fail if throwables are thrown.
+     *
      * @return the number of Throwables thrown while running
      */
     protected int runThreadsNoCheck(final List executables) throws Exception {
-      return runThreadsNoCheck(executables, false);
+        return runThreadsNoCheck(executables, false);
     }
 
-  /**
-   * Runs a set of threads, for a fixed amount of time.
-   *
-   * Does not fail if throwables are thrown.
-   * @param executables the list of executables to execute
-   * @param explicitLog whether to log detailed AsserttionErrors or not
-   * @return the number of Throwables thrown while running
-   */
+    /**
+     * Runs a set of threads, for a fixed amount of time.
+     * <p/>
+     * Does not fail if throwables are thrown.
+     *
+     * @param executables the list of executables to execute
+     * @param explicitLog whether to log detailed AsserttionErrors or not
+     * @return the number of Throwables thrown while running
+     */
     protected int runThreadsNoCheck(final List executables, final boolean explicitLog) throws Exception {
 
         final long endTime = System.currentTimeMillis() + 10000;

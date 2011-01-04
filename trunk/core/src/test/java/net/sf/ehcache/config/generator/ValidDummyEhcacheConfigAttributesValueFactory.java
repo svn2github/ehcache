@@ -42,7 +42,7 @@ public class ValidDummyEhcacheConfigAttributesValueFactory implements XSDAttribu
             if ("expression".equals(attribute.getName())) {
                 return "value.toString()";
             } else if ("name".equals(attribute.getName())) {
-                    return "name";
+                return "name";
             } else {
                 return null;
             }

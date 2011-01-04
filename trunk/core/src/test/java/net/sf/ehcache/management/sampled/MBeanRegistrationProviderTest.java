@@ -37,7 +37,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Tests for testing the mbean registration provider
- * 
+ *
  * @author Abhishek Sanoujam
  * @version $Id: MBeanRegistrationProviderTest.java 1178 2009-09-23 23:50:15Z
  *          asingh
@@ -192,20 +192,20 @@ public class MBeanRegistrationProviderTest extends AbstractCacheTest {
     @Test
     public void testInvalidCacheNames() throws Exception {
         System.setProperty("tc.active", "true");
-        
+
         File file = new File(TEST_CONFIG_DIR + "ehcache-invalid-cache-names.xml");
         Configuration configuration = ConfigurationFactory.parseConfiguration(file);
         cacheManager = new CacheManager(configuration);
         assertSampledMBeansGroupRegistered(4);
         assertCacheManagerMBeansRegistered("invalidCacheNames", 1);
-        
+
         System.setProperty("tc.active", "false");
     }
-    
+
     @Test
     public void testInvalidCacheManagerName() throws Exception {
         System.setProperty("tc.active", "true");
-        
+
         File file = new File(TEST_CONFIG_DIR + "ehcache-invalid-cache-manager-name.xml");
         Configuration configuration = ConfigurationFactory.parseConfiguration(file);
         cacheManager = new CacheManager(configuration);

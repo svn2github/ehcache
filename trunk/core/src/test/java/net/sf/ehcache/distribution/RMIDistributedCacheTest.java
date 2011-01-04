@@ -22,8 +22,10 @@ import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import org.junit.After;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+
 import org.junit.Before;
 import org.junit.Test;
 

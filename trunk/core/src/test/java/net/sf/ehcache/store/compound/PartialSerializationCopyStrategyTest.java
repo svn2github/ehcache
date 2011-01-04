@@ -47,7 +47,7 @@ public class PartialSerializationCopyStrategyTest {
             Element storageValue = copyStrategy.copyForWrite(new Element(1, value));
             // element values are stored as byte[]
             Assert.assertTrue(storageValue.getObjectValue() instanceof byte[]);
-            Assert.assertTrue(Arrays.deepEquals(new Object[] {value}, new Object[] {copyStrategy.copyForRead(storageValue).getObjectValue()}));
+            Assert.assertTrue(Arrays.deepEquals(new Object[]{value}, new Object[]{copyStrategy.copyForRead(storageValue).getObjectValue()}));
         }
 
     }

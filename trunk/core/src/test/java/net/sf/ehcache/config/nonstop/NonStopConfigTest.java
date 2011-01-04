@@ -23,8 +23,12 @@ import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.NonstopConfiguration;
 import net.sf.ehcache.config.TerracottaConfiguration;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class NonStopConfigTest extends TestCase {
+
+    private static final Logger LOG = LoggerFactory.getLogger(NonStopConfigTest.class);
 
     public void testInvalidConfig() {
         try {
@@ -54,7 +58,7 @@ public class NonStopConfigTest extends TestCase {
     }
 
     private void assertNonstopConfig(Cache cache, boolean nonstop, boolean immediateTimeout, int timeoutMillis, String timeoutBehavior) {
-        System.out.println("Checking for cache: " + cache.getName());
+        LOG.info("Checking for cache: " + cache.getName());
         CacheConfiguration cacheConfiguration = cache.getCacheConfiguration();
         assertNotNull(cacheConfiguration);
         TerracottaConfiguration terracottaConfiguration = cacheConfiguration.getTerracottaConfiguration();

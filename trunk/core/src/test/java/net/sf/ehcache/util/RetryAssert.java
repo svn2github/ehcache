@@ -28,6 +28,7 @@ public class RetryAssert {
     /**
      * Acts like Assert.assertEquals(expected, actual) but allow for retries with
      * some wait time in between
+     *
      * @param expected
      * @param actual
      * @param retries

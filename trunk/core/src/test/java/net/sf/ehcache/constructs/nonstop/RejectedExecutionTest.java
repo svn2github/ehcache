@@ -25,8 +25,12 @@ import java.util.concurrent.TimeoutException;
 import junit.framework.TestCase;
 
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class RejectedExecutionTest extends TestCase {
+
+    private static final Logger LOG = LoggerFactory.getLogger(RejectedExecutionTest.class);
 
     private static final long SYSTEM_CLOCK_EPSILON_MILLIS = 20;
 
@@ -49,7 +53,7 @@ public class RejectedExecutionTest extends TestCase {
                 e.printStackTrace();
                 throw new AssertionError("Expected to catch TimeoutException but caught: " + e);
             }
-            System.out.println("Caught expected exception - " + e);
+            LOG.info("Caught expected exception - " + e);
         }
 
         // this job will be queued in the workQueue (has capacity 1)
@@ -61,7 +65,7 @@ public class RejectedExecutionTest extends TestCase {
             if (!(e instanceof TimeoutException)) {
                 throw new AssertionError("Expected to catch TimeoutException but caught: " + e);
             }
-            System.out.println("Caught expected exception - " + e);
+            LOG.info("Caught expected exception - " + e);
         }
         assertEquals(1, workQueue.size());
 
@@ -81,7 +85,7 @@ public class RejectedExecutionTest extends TestCase {
             assertTrue(timeTakenMillis + SYSTEM_CLOCK_EPSILON_MILLIS >= 1000);
             // at least more than one attempt was made to submit the task, although practically this number is way bigger than 2
             int attemptCount = ((TaskNotSubmittedTimeoutException) e).getSubmitAttemptCount();
-            System.out.println("Number of attempts made to submit task: " + attemptCount);
+            LOG.info("Number of attempts made to submit task: " + attemptCount);
             assertTrue(attemptCount >= 2);
         }
 

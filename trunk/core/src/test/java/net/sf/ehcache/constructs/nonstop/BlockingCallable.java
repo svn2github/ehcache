@@ -16,9 +16,14 @@
 
 package net.sf.ehcache.constructs.nonstop;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.concurrent.Callable;
 
 public class BlockingCallable implements Callable<Void> {
+
+    private static final Logger LOG = LoggerFactory.getLogger(BlockingCallable.class);
 
     private final boolean logExecution;
     private final Object monitor = new Object();
@@ -34,7 +39,7 @@ public class BlockingCallable implements Callable<Void> {
 
     public Void call() throws Exception {
         if (logExecution) {
-            System.out.println("inside blocking callable");
+            LOG.info("inside blocking callable");
         }
         while (blocked) {
             synchronized (monitor) {

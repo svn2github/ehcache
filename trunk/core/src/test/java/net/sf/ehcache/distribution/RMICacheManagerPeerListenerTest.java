@@ -25,8 +25,10 @@ import net.sf.ehcache.Status;
 import net.sf.ehcache.event.CacheEventListener;
 import net.sf.ehcache.event.CountingCacheEventListener;
 import org.junit.After;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+
 import org.junit.Before;
 import org.junit.Test;
 

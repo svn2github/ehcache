@@ -27,7 +27,6 @@ package net.sf.ehcache.statistics;
  * - getSize()
  *
  * @author Abhishek Sanoujam
- *
  */
 public class AnotherStatistics extends LiveCacheStatisticsImpl implements
         CacheUsageListener {

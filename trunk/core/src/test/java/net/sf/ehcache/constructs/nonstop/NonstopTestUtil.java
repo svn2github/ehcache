@@ -42,14 +42,17 @@ import net.sf.ehcache.config.Searchable;
 import net.sf.ehcache.config.TerracottaConfiguration;
 import net.sf.ehcache.config.TerracottaConfiguration.StorageStrategy;
 import net.sf.ehcache.store.Store;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Utility class
  *
  * @author Abhishek Sanoujam
- *
  */
 public class NonstopTestUtil extends TestCase {
+
+    private static final Logger LOG = LoggerFactory.getLogger(NonstopTestUtil.class);
 
     private CacheManager cacheManager;
 
@@ -105,7 +108,6 @@ public class NonstopTestUtil extends TestCase {
     }
 
     /**
-     *
      * @return all methods in Ehcache that potentially touches Terracotta layer
      * @throws Exception
      */
@@ -160,7 +162,7 @@ public class NonstopTestUtil extends TestCase {
             protected void invokeOne(Ehcache ehcache, Method m) {
                 mockStore.clearAccessFlag();
                 if (skipMethods.contains(m.getName())) {
-                    System.out.println(" Skipped: " + getMethodSignature(m));
+                    LOG.info(" Skipped: " + getMethodSignature(m));
                     return;
                 }
                 super.invokeOne(ehcache, m);

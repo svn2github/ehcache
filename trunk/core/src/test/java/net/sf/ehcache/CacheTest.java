@@ -765,7 +765,6 @@ public class CacheTest extends AbstractCacheTest {
         assertEquals("Should be 1", 1, cache.getStatistics().getCacheMisses());
 
 
-
     }
 
     /**
@@ -1190,7 +1189,7 @@ public class CacheTest extends AbstractCacheTest {
             cache.put(new Element(Integer.toString(i), new Date()));
         }
 
-        for (long start = System.nanoTime(); (cache.getDiskStoreSize() != 100) && (System.nanoTime() - start < TimeUnit.SECONDS.toNanos(30)); ) {
+        for (long start = System.nanoTime(); (cache.getDiskStoreSize() != 100) && (System.nanoTime() - start < TimeUnit.SECONDS.toNanos(30));) {
             Thread.sleep(10);
         }
 
@@ -1202,7 +1201,7 @@ public class CacheTest extends AbstractCacheTest {
         assertEquals(100, cache.getDiskStoreSize());
 
         cache.flush();
-        for (long start = System.nanoTime(); (cache.getMemoryStoreSize() > 0) && (System.nanoTime() - start < TimeUnit.SECONDS.toNanos(30)); ) {
+        for (long start = System.nanoTime(); (cache.getMemoryStoreSize() > 0) && (System.nanoTime() - start < TimeUnit.SECONDS.toNanos(30));) {
             Thread.sleep(10);
         }
 
@@ -1683,8 +1682,6 @@ public class CacheTest extends AbstractCacheTest {
     }
 
 
-
-
     /**
      * Tests added from 1606323 Elements not stored in memory or on disk. This was supposedly
      * a bug but works.
@@ -2082,8 +2079,8 @@ public class CacheTest extends AbstractCacheTest {
         PropertyChangeListener changeListener = new PropertyChangeListener() {
             public void propertyChange(final PropertyChangeEvent evt) {
                 if (evt.getPropertyName().equals("Disabled")) {
-                    System.out.println(evt.getSource());
-                    lastValue.set((Boolean)evt.getNewValue());
+                    LOG.info("" + evt.getSource());
+                    lastValue.set((Boolean) evt.getNewValue());
                 }
             }
         };
@@ -2252,7 +2249,7 @@ public class CacheTest extends AbstractCacheTest {
     /**
      * Versioning is broken when updates are done. If an Element constructor specifying a version is used, it should
      * be preserved.
-     *
+     * <p/>
      * See EHC-666
      */
     @Test
@@ -2287,7 +2284,7 @@ public class CacheTest extends AbstractCacheTest {
 
     static void assertWithTolerance(long expected, long tolerance, long actual) {
         if (actual < expected - tolerance || actual > expected + tolerance) {
-          throw new AssertionError("Expected " + expected + "+/-" + tolerance + " was " + actual);
+            throw new AssertionError("Expected " + expected + "+/-" + tolerance + " was " + actual);
         }
     }
 }

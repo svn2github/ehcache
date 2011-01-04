@@ -29,8 +29,8 @@ import bitronix.tm.TransactionManagerServices;
 public class XATransactionalStoreTest {
 
     private TransactionManager transactionManager;
-    private Cache              cach1;
-    private Cache              cache;
+    private Cache cach1;
+    private Cache cache;
 
     @Before
     public void setup() throws Exception {
@@ -71,7 +71,7 @@ public class XATransactionalStoreTest {
             // Expected
         }
 
-        CacheLockProvider clp = (CacheLockProvider)cache.getInternalContext();
+        CacheLockProvider clp = (CacheLockProvider) cache.getInternalContext();
         assertFalse(clp.getSyncForKey("key").isHeldByCurrentThread(LockType.WRITE));
 
         transactionManager.begin();

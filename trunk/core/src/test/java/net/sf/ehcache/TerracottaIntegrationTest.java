@@ -26,10 +26,10 @@ import java.io.File;
 
 /**
  * These tests require a Terracotta server running on localhost.
- *
+ * <p/>
  * If running this interactively, start terracotta with mvn tc:start.
  * To stop mvn tc:stop
- *
+ * <p/>
  * This test is set up in Maven as an integration test. Terracotta is set up to start and stop pre and post the
  * integration tests phase.
  *

@@ -22,9 +22,11 @@ import net.sf.ehcache.Element;
 import net.sf.ehcache.config.Configuration;
 import net.sf.ehcache.config.ConfigurationFactory;
 import org.junit.After;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+
 import org.junit.Before;
 import org.junit.Test;
 

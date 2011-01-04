@@ -19,8 +19,10 @@ package net.sf.ehcache.distribution;
 import net.sf.ehcache.AbstractCacheTest;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+
 import org.junit.Before;
 import org.junit.Test;
 

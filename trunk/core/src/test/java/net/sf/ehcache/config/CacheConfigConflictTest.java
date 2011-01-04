@@ -20,13 +20,17 @@ import java.util.Arrays;
 
 import junit.framework.TestCase;
 import net.sf.ehcache.CacheManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class CacheConfigConflictTest extends TestCase {
+
+    private static final Logger LOG = LoggerFactory.getLogger(CacheConfigConflictTest.class);
 
     public void testConflictingValuesFromConfig() {
         // try {
         CacheManager cacheManager = new CacheManager(this.getClass().getResourceAsStream("/ehcache-conflict-eternal.xml"));
-        System.out.println("Cache names: " + Arrays.asList(cacheManager.getCacheNames()));
+        LOG.info("Cache names: " + Arrays.asList(cacheManager.getCacheNames()));
         // fail("Config with conflicting values should have thrown exception.");
         // } catch (CacheException e) {
         // // expected

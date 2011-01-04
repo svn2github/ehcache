@@ -54,7 +54,6 @@ public class ExceptionThrowingLoader extends CountingCacheLoader {
      *
      * @param key the key identifying the object being loaded
      * @return The object that is to be stored in the cache.
-     *
      */
     public Object load(Object key) throws CacheException {
         try {
@@ -73,7 +72,6 @@ public class ExceptionThrowingLoader extends CountingCacheLoader {
      *
      * @param keys a Collection of keys identifying the objects to be loaded
      * @return A Map of objects that are to be stored in the cache.
-     *
      */
 
     public Map loadAll(Collection keys) throws CacheException {

@@ -19,8 +19,11 @@
     <suppress checks="" files="Primitive.java"/>
     <suppress checks="IllegalTypeCheck" files="test[/\\]"/>
     <suppress checks="HeaderCheck" files="Test.java"/>
-    <!--<suppress checks="JavadocTypeCheck" files="Test.java"/>-->
-    <suppress checks="JavadocMethodCheck" files="Test.java"/>
+    <suppress checks="JavadocMethodCheck" files="test[/\\]"/>
+    <suppress checks="JavadocTypeCheck" files="test[/\\]"/>
+    <suppress checks="JavadocPackageCheck" files="test[/\\]"/>
+    <suppress checks="JavadocVariableCheck" files="test[/\\]"/>
+    <suppress checks="VisibilityModifierCheck" files="test[/\\]"/>
 
 
 

@@ -23,13 +23,15 @@ import junit.framework.TestCase;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.CacheManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
- *
  * @author Abhishek Sanoujam
- *
  */
 public class DefaultCacheOptionalTest extends TestCase {
+
+    private static final Logger LOG = LoggerFactory.getLogger(DefaultCacheOptionalTest.class);
 
     private CacheManager cacheManager;
 
@@ -43,7 +45,7 @@ public class DefaultCacheOptionalTest extends TestCase {
     public void testDefaultCacheIsOptional() {
         cacheManager = new CacheManager(this.getClass().getResourceAsStream("/no-default-cache.xml"));
         String[] cacheNames = cacheManager.getCacheNames();
-        System.out.println("Cache names: " + Arrays.asList(cacheNames));
+        LOG.info("Cache names: " + Arrays.asList(cacheNames));
         Assert.assertEquals(1, cacheNames.length);
         Assert.assertEquals("sampleCache", cacheNames[0]);
 
@@ -52,21 +54,21 @@ public class DefaultCacheOptionalTest extends TestCase {
             cacheManager.addCache("someNewCache");
             fail("Adding cache by name with no default config should fail");
         } catch (CacheException e) {
-            System.out.println("Got expected exception - " + e.getMessage());
+            LOG.info("Got expected exception - " + e.getMessage());
         }
 
         try {
             cacheManager.addCacheIfAbsent("someNewCache");
             fail("Adding cache by name with no default config should fail");
         } catch (CacheException e) {
-            System.out.println("Got expected exception - " + e.getMessage());
+            LOG.info("Got expected exception - " + e.getMessage());
         }
 
         // adding actual caches should work
         CacheConfiguration config = new CacheConfiguration("some-name", 92843);
         Cache cache = new Cache(config);
         cacheManager.addCache(cache);
-        System.out.println("Added concrete cache successfully");
+        LOG.info("Added concrete cache successfully");
 
     }
 

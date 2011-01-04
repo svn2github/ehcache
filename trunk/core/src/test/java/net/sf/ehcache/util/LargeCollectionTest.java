@@ -17,7 +17,7 @@ public class LargeCollectionTest {
 
         AggregateIterator<String> iterator = newIterator();
         int i = 0;
-        while(iterator.hasNext()) {
+        while (iterator.hasNext()) {
             String s = iterator.next();
             Assert.assertNotSame("key1", s);
             Assert.assertNotSame("key2", s);
@@ -41,15 +41,15 @@ public class LargeCollectionTest {
 
         Assert.assertEquals(198, set.size());
 
-        HashSet additionalSet =  new HashSet();
+        HashSet additionalSet = new HashSet();
 
-        for(int j = 0 ; j < 100; j++) {
+        for (int j = 0; j < 100; j++) {
             additionalSet.add("keyb" + j);
         }
 
         HashSet removeSet = new HashSet();
 
-        for(int j = 0; j < 50; j++) {
+        for (int j = 0; j < 50; j++) {
             removeSet.add("keyb" + j);
         }
 
@@ -73,12 +73,12 @@ public class LargeCollectionTest {
         removeSet.add("key2");
 
         HashSet sourceSet1 = new HashSet();
-        for(int i = 0; i < 100; i++) {
+        for (int i = 0; i < 100; i++) {
             sourceSet1.add("key" + i);
         }
 
         HashSet sourceSet2 = new HashSet();
-        for(int i = 0; i < 100; i++) {
+        for (int i = 0; i < 100; i++) {
             sourceSet1.add("keya" + i);
         }
         List sources = new ArrayList(4);

@@ -8,7 +8,7 @@ import org.junit.Before;
  * @author Alex Snaps
  */
 public class MemoryOnlyTest extends CompoundStoreTest {
-    
+
     @Before
     public void init() {
         store = MemoryOnlyStore.create(new Cache(new CacheConfiguration("SomeCache", 1000)), null);
