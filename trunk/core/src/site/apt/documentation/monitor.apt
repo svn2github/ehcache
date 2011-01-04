@@ -95,6 +95,8 @@ Ehcache Monitor
 
     The monitor can be configured, including interface, port and simple security settings, in the etc/ehcache-monitor.conf.
 
+    The monitor connection timeout can also be configured. If the monitor is frequently timing out while attempting to connect to a node (due to long GC cycles, for example), then the default timeout value may not be suitable for your environment. You can set the monitor timeout using the system property <<<ehcachedx.connection.timeout.seconds>>>. For example, <<<-Dehcachedx.connection.timeout.seconds=60>>> sets the timeout to 60 seconds.
+
 *   {Securing the Monitor}
 
     The Monitor can be secured in a variety of ways. The simplest method involves simply editing ehcache-monitor.conf to specify
