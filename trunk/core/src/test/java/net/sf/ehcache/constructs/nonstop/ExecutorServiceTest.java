@@ -31,16 +31,16 @@ import org.slf4j.LoggerFactory;
 
 public class ExecutorServiceTest extends TestCase {
 
+    private NonstopExecutorServiceImpl service;
     private static final Logger LOG = LoggerFactory.getLogger(ExecutorServiceTest.class);
 
-    private NonStopCacheExecutorService service;
     private int initialThreadsCount;
 
     @Override
     protected void setUp() throws Exception {
         initialThreadsCount = countExecutorThreads();
         LOG.info("Initial thread count: " + initialThreadsCount);
-        service = new NonStopCacheExecutorService();
+        service = new NonstopExecutorServiceImpl();
     }
 
     @Override
@@ -54,8 +54,8 @@ public class ExecutorServiceTest extends TestCase {
     }
 
     public void testExecutorThreadsCreated() throws Exception {
-        int corePoolSize = NonStopCacheExecutorService.DEFAULT_CORE_THREAD_POOL_SIZE;
-        int maxPoolSize = NonStopCacheExecutorService.DEFAULT_MAX_THREAD_POOL_SIZE;
+        int corePoolSize = NonstopExecutorServiceImpl.DEFAULT_CORE_THREAD_POOL_SIZE;
+        int maxPoolSize = NonstopExecutorServiceImpl.DEFAULT_MAX_THREAD_POOL_SIZE;
         for (int i = 0; i < corePoolSize; i++) {
             service.execute(new NoopCallable(), 1000);
         }
@@ -131,7 +131,7 @@ public class ExecutorServiceTest extends TestCase {
         List<ThreadInformation> threadDump = ThreadDump.getThreadDump();
         int rv = 0;
         for (ThreadInformation info : threadDump) {
-            if (info.getThreadName().contains(NonStopCacheExecutorService.EXECUTOR_THREAD_NAME_PREFIX)) {
+            if (info.getThreadName().contains(NonstopExecutorServiceImpl.EXECUTOR_THREAD_NAME_PREFIX)) {
                 // LOG.info("Thread: id=" + info.getThreadId() + ", name=\"" + info.getThreadName() +
                 // "\": is an executor thread");
                 rv++;

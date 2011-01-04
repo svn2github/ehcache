@@ -28,7 +28,7 @@ import net.sf.ehcache.Element;
 import net.sf.ehcache.Status;
 import net.sf.ehcache.cluster.CacheCluster;
 import net.sf.ehcache.config.NonstopConfiguration;
-import net.sf.ehcache.constructs.nonstop.NonStopCacheExecutorService;
+import net.sf.ehcache.constructs.nonstop.NonstopExecutorService;
 import net.sf.ehcache.search.Attribute;
 import net.sf.ehcache.search.Results;
 import net.sf.ehcache.search.attribute.AttributeExtractor;
@@ -55,11 +55,11 @@ public class NonstopStore implements TerracottaStore, NonstopTimeoutStoreResolve
 
     /**
      * Constructor accepting the underlying {@link Store}, {@link CacheCluster}, {@link NonstopConfiguration} and
-     * {@link NonStopCacheExecutorService}
+     * {@link NonstopExecutorService}
      *
      */
     public NonstopStore(TerracottaStore underlyingStore, CacheCluster cacheCluster, NonstopConfiguration nonstopConfig,
-            NonStopCacheExecutorService nonstopExecutorService) {
+            NonstopExecutorService nonstopExecutorService) {
         this.underlyingStore = underlyingStore;
         this.nonstopConfig = nonstopConfig;
         this.timeoutBehaviors = new ConcurrentHashMap<NonstopTimeoutBehaviorStoreType, TerracottaStore>();

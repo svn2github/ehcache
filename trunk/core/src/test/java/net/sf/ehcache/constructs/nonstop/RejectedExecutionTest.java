@@ -36,12 +36,12 @@ public class RejectedExecutionTest extends TestCase {
 
     @Test
     public void testRejectedExecution() throws Exception {
-        Constructor<NonStopCacheExecutorService> constructor = NonStopCacheExecutorService.class
+        Constructor<NonstopExecutorServiceImpl> constructor = NonstopExecutorServiceImpl.class
                 .getDeclaredConstructor(ThreadPoolExecutor.class);
         constructor.setAccessible(true);
 
         ArrayBlockingQueue<Runnable> workQueue = new ArrayBlockingQueue<Runnable>(1);
-        NonStopCacheExecutorService nonStopCacheExecutorService = constructor.newInstance(new ThreadPoolExecutor(1, 1, 1, TimeUnit.SECONDS,
+        NonstopExecutorServiceImpl nonStopCacheExecutorService = constructor.newInstance(new ThreadPoolExecutor(1, 1, 1, TimeUnit.SECONDS,
                 workQueue));
 
         // this job will start the thread

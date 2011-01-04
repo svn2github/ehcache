@@ -28,7 +28,7 @@ import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.Status;
 import net.sf.ehcache.config.NonstopConfiguration;
-import net.sf.ehcache.constructs.nonstop.NonStopCacheExecutorService;
+import net.sf.ehcache.constructs.nonstop.NonstopExecutorService;
 import net.sf.ehcache.search.Attribute;
 import net.sf.ehcache.search.Results;
 import net.sf.ehcache.search.attribute.AttributeExtractor;
@@ -40,11 +40,11 @@ import net.sf.ehcache.store.TerracottaStore;
 import net.sf.ehcache.writer.CacheWriterManager;
 
 /**
- * This implementation executes all operations using a {@link NonStopCacheExecutorService}. On Timeout, uses the
+ * This implementation executes all operations using a {@link NonstopExecutorService}. On Timeout, uses the
  * {@link NonstopTimeoutStoreResolver} to resolve the timeout behavior store and execute it.
  * <p/>
  * A {@link TerracottaStore} that takes another {@link TerracottaStore} as direct delegate, the {@link NonstopConfiguration},
- * {@link NonStopCacheExecutorService} and {@link NonstopTimeoutStoreResolver}
+ * {@link NonstopExecutorService} and {@link NonstopTimeoutStoreResolver}
  *
  * @author Abhishek Sanoujam
  *
@@ -52,18 +52,18 @@ import net.sf.ehcache.writer.CacheWriterManager;
 public class ExecutorServiceStore implements TerracottaStore {
 
     private final TerracottaStore executeBehavior;
-    private final NonStopCacheExecutorService executorService;
+    private final NonstopExecutorService executorService;
     private final NonstopTimeoutStoreResolver timeoutBehaviorResolver;
     private final NonstopConfiguration nonstopConfiguration;
     private final AtomicBoolean clusterOffline = new AtomicBoolean();
 
     /**
-     * Constructor accepting the direct delegate behavior, {@link NonstopConfiguration}, {@link NonStopCacheExecutorService} and
+     * Constructor accepting the direct delegate behavior, {@link NonstopConfiguration}, {@link NonstopExecutorService} and
      * {@link NonstopTimeoutStoreResolver}
      *
      */
     public ExecutorServiceStore(final TerracottaStore delegateStore, final NonstopConfiguration nonstopConfiguration,
-            final NonStopCacheExecutorService executorService, final NonstopTimeoutStoreResolver timeoutBehaviorResolver) {
+            final NonstopExecutorService executorService, final NonstopTimeoutStoreResolver timeoutBehaviorResolver) {
         this.executeBehavior = delegateStore;
         this.nonstopConfiguration = nonstopConfiguration;
         this.executorService = executorService;

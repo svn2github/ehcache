@@ -29,10 +29,7 @@ import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import net.sf.ehcache.CacheException;
-import net.sf.ehcache.Ehcache;
-import net.sf.ehcache.Element;
 import net.sf.ehcache.constructs.nonstop.util.CountingThreadFactory;
-import net.sf.ehcache.event.CacheEventListener;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,7 +40,7 @@ import org.slf4j.LoggerFactory;
  * @author Abhishek Sanoujam
  *
  */
-public class NonStopCacheExecutorService {
+public class NonstopExecutorServiceImpl implements NonstopExecutorService {
 
     /**
      * Counter used for maintaining number of threads created by default ThreadFactory
@@ -77,11 +74,10 @@ public class NonStopCacheExecutorService {
      */
     static final int DEFAULT_MAX_THREAD_POOL_SIZE = getProperty(DEFAULT_MAX_THREAD_POOL_SIZE_PROPERTY, 500);
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(NonStopCacheExecutorService.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(NonstopExecutorServiceImpl.class);
 
     private final ThreadPoolExecutor executorService;
     private final AtomicInteger attachedCachesCount = new AtomicInteger();
-    private final DisposeListener disposeListener;
 
     // shutdown executor service when all attached caches are dispose'd -- by default true
     private volatile boolean shutdownWhenNoCachesAttached = true;
@@ -93,9 +89,9 @@ public class NonStopCacheExecutorService {
     private volatile int maxPoolSize;
 
     /**
-     * Default constructor, uses {@link NonStopCacheExecutorService#DEFAULT_CORE_THREAD_POOL_SIZE} number of threads in the pool
+     * Default constructor, uses {@link NonstopExecutorServiceImpl#DEFAULT_CORE_THREAD_POOL_SIZE} number of threads in the pool
      */
-    public NonStopCacheExecutorService() {
+    public NonstopExecutorServiceImpl() {
         this(DEFAULT_CORE_THREAD_POOL_SIZE, DEFAULT_MAX_THREAD_POOL_SIZE);
     }
 
@@ -104,13 +100,13 @@ public class NonStopCacheExecutorService {
      *
      * @param coreThreadPoolSize
      */
-    public NonStopCacheExecutorService(final int coreThreadPoolSize, final int maxThreadPoolSize) {
+    public NonstopExecutorServiceImpl(final int coreThreadPoolSize, final int maxThreadPoolSize) {
         this(coreThreadPoolSize, maxThreadPoolSize, new ThreadFactory() {
 
             private final AtomicInteger counter = new AtomicInteger();
 
             public Thread newThread(final Runnable runnable) {
-                Thread thread = new Thread(runnable, "Default " + NonStopCacheExecutorService.class.getSimpleName() + " Thread Factory-"
+                Thread thread = new Thread(runnable, "Default " + NonstopExecutorServiceImpl.class.getSimpleName() + " Thread Factory-"
                         + DEFAULT_FACTORY_COUNT.incrementAndGet() + " " + EXECUTOR_THREAD_NAME_PREFIX + "-" + counter.incrementAndGet());
                 thread.setDaemon(true);
                 return thread;
@@ -123,7 +119,7 @@ public class NonStopCacheExecutorService {
      *
      * @param threadFactory
      */
-    public NonStopCacheExecutorService(final ThreadFactory threadFactory) {
+    public NonstopExecutorServiceImpl(final ThreadFactory threadFactory) {
         this(DEFAULT_CORE_THREAD_POOL_SIZE, DEFAULT_MAX_THREAD_POOL_SIZE, threadFactory);
     }
 
@@ -133,11 +129,11 @@ public class NonStopCacheExecutorService {
      * @param coreThreadPoolSize
      * @param threadFactory
      */
-    public NonStopCacheExecutorService(final int coreThreadPoolSize, final int maxThreadPoolSize, final ThreadFactory threadFactory) {
+    public NonstopExecutorServiceImpl(final int coreThreadPoolSize, final int maxThreadPoolSize, final ThreadFactory threadFactory) {
         this(coreThreadPoolSize, maxThreadPoolSize, new LinkedBlockingQueue<Runnable>(), new CountingThreadFactory(threadFactory));
     }
 
-    private NonStopCacheExecutorService(final int corePoolSize, final int maxPoolSize, BlockingQueue<Runnable> taskQueue,
+    private NonstopExecutorServiceImpl(final int corePoolSize, final int maxPoolSize, BlockingQueue<Runnable> taskQueue,
             CountingThreadFactory countingThreadFactory) {
         this(new ThreadPoolExecutor(corePoolSize, maxPoolSize, Integer.MAX_VALUE, TimeUnit.MILLISECONDS, taskQueue, countingThreadFactory));
         this.maxPoolSize = maxPoolSize;
@@ -151,12 +147,11 @@ public class NonStopCacheExecutorService {
      *
      * @param executorService
      */
-    private NonStopCacheExecutorService(final ThreadPoolExecutor executorService) {
+    private NonstopExecutorServiceImpl(final ThreadPoolExecutor executorService) {
         if (executorService == null) {
             throw new IllegalArgumentException("ExecutorService cannot be null");
         }
         this.executorService = executorService;
-        this.disposeListener = new DisposeListener();
     }
 
     private static int getProperty(String propertyName, int defaultValue) {
@@ -185,16 +180,7 @@ public class NonStopCacheExecutorService {
     }
 
     /**
-     * Execute a {@link Callable} task with timeout. If the task does not complete within the timeout specified, throws a
-     * {@link TimeoutException}
-     *
-     * @param <V>
-     * @param callable
-     * @param timeoutValueInMillis
-     * @return the return value from the callable
-     * @throws TimeoutException
-     * @throws CacheException
-     * @throws InterruptedException
+     * {@inheritDoc}
      */
     public <V> V execute(final Callable<V> callable, final long timeoutValueInMillis) throws TimeoutException, CacheException,
             InterruptedException {
@@ -257,37 +243,10 @@ public class NonStopCacheExecutorService {
     }
 
     /**
-     * Associates a cache with this {@link NonStopCacheExecutorService}. The thread pool in {@link NonStopCacheExecutorService} shuts down
-     * once all the {@link Ehcache}'s associated with this {@link NonStopCacheExecutorService} are disposed
-     *
-     * @param cache
-     */
-    public void attachCache(Ehcache cache) {
-        cache.getCacheEventNotificationService().registerListener(disposeListener);
-        attachedCachesCount.incrementAndGet();
-    }
-
-    private void attachedCacheDisposed() {
-        if (attachedCachesCount.decrementAndGet() == 0 && shutdownWhenNoCachesAttached) {
-            shutdown();
-        }
-    }
-
-    /**
-     * Shut down this executor service
+     * {@inheritDoc}
      */
     public void shutdown() {
         executorService.shutdownNow();
-    }
-
-    /**
-     * Set whether to shutdown or not the thread pool when all associated {@link Ehcache}'s are disposed. By default its true
-     *
-     * @param shutdownWhenNoCachesAttached
-     *            if true, shuts down the thread pool when no cache is associated with this {@link NonStopCacheExecutorService}
-     */
-    public void setShutdownWhenNoCachesAttached(boolean shutdownWhenNoCachesAttached) {
-        this.shutdownWhenNoCachesAttached = shutdownWhenNoCachesAttached;
     }
 
     /**
@@ -297,73 +256,5 @@ public class NonStopCacheExecutorService {
      */
     ExecutorService getExecutorService() {
         return this.executorService;
-    }
-
-    /**
-     * Private listener class for Cache.dispose()
-     *
-     * @author Abhishek Sanoujam
-     *
-     */
-    private class DisposeListener implements CacheEventListener {
-
-        /**
-         * Call back to the {@link NonStopCacheExecutorService} that cache has disposed
-         */
-        public void dispose() {
-            attachedCacheDisposed();
-        }
-
-        @Override
-        /**
-         * {@inheritDoc}.
-         * Throws CloneNotSupportedException
-         */
-        public Object clone() throws CloneNotSupportedException {
-            super.clone();
-            throw new CloneNotSupportedException();
-        }
-
-        /**
-         * no-op
-         */
-        public void notifyElementEvicted(Ehcache cache, Element element) {
-            // no-op
-        }
-
-        /**
-         * no-op
-         */
-        public void notifyElementExpired(Ehcache cache, Element element) {
-            // no-op
-        }
-
-        /**
-         * no-op
-         */
-        public void notifyElementPut(Ehcache cache, Element element) throws CacheException {
-            // no-op
-        }
-
-        /**
-         * no-op
-         */
-        public void notifyElementRemoved(Ehcache cache, Element element) throws CacheException {
-            // no-op
-        }
-
-        /**
-         * no-op
-         */
-        public void notifyElementUpdated(Ehcache cache, Element element) throws CacheException {
-            // no-op
-        }
-
-        /**
-         * no-op
-         */
-        public void notifyRemoveAll(Ehcache cache) {
-            // no-op
-        }
     }
 }

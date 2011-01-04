@@ -1640,7 +1640,7 @@ public class CacheManager {
      * This method is called when the Terracotta Cluster is rejoined. Reinitializes all terracotta clustered caches in this cache manager
      */
     private void clusterRejoinComplete() {
-        CacheManagerExecutorServiceFactory.getInstance().getOrCreateNonStopCacheExecutorService(this);
+        CacheManagerExecutorServiceFactory.getInstance().getOrCreateNonstopExecutorService(this);
         // reinitialize all caches
         for (Ehcache cache : ehcaches.values()) {
             if (cache instanceof Cache) {

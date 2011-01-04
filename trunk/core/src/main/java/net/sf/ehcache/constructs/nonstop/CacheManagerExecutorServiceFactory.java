@@ -27,12 +27,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * {@link NonStopCacheExecutorServiceFactory} that creates and maintains one per CacheManager
+ * {@link NonstopExecutorServiceFactory} that creates and maintains one per CacheManager
  *
  * @author Abhishek Sanoujam
  *
  */
-public final class CacheManagerExecutorServiceFactory implements NonStopCacheExecutorServiceFactory {
+public final class CacheManagerExecutorServiceFactory implements NonstopExecutorServiceFactory {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CacheManagerExecutorServiceFactory.class);
 
@@ -41,7 +41,7 @@ public final class CacheManagerExecutorServiceFactory implements NonStopCacheExe
 
     private static final CacheManagerExecutorServiceFactory SINGLETON = new CacheManagerExecutorServiceFactory();
 
-    private final Map<String, NonStopCacheExecutorService> executorServiceMap = new HashMap<String, NonStopCacheExecutorService>();
+    private final Map<String, NonstopExecutorService> executorServiceMap = new HashMap<String, NonstopExecutorService>();
 
     /**
      * private constructor
@@ -62,10 +62,10 @@ public final class CacheManagerExecutorServiceFactory implements NonStopCacheExe
     /**
      * {@inheritDoc}
      */
-    public NonStopCacheExecutorService getOrCreateNonStopCacheExecutorService(final CacheManager cacheManager) {
+    public NonstopExecutorService getOrCreateNonstopExecutorService(final CacheManager cacheManager) {
         final String cacheManagerName = cacheManager.getName();
         synchronized (executorServiceMap) {
-            NonStopCacheExecutorService rv = executorServiceMap.get(cacheManagerName);
+            NonstopExecutorService rv = executorServiceMap.get(cacheManagerName);
             if (rv == null) {
                 int corePoolSize = getCoreThreadPoolSize(cacheManager);
                 int maximumPoolSize = getMaxThreadPoolSize(cacheManager);
@@ -73,12 +73,12 @@ public final class CacheManagerExecutorServiceFactory implements NonStopCacheExe
                     throw new IllegalArgumentException("Invalid coreThreadPoolSize=" + corePoolSize + ", maxThreadPoolSize="
                             + maximumPoolSize);
                 }
-                rv = new NonStopCacheExecutorService(corePoolSize, maximumPoolSize, new ThreadFactory() {
+                rv = new NonstopExecutorServiceImpl(corePoolSize, maximumPoolSize, new ThreadFactory() {
                     private final AtomicInteger count = new AtomicInteger();
 
                     public Thread newThread(Runnable runnable) {
                         Thread thread = new Thread(runnable, "NonStopCache [" + cacheManagerName + "] "
-                                + NonStopCacheExecutorService.EXECUTOR_THREAD_NAME_PREFIX + "-" + count.incrementAndGet());
+                                + NonstopExecutorServiceImpl.EXECUTOR_THREAD_NAME_PREFIX + "-" + count.incrementAndGet());
                         thread.setDaemon(true);
                         return thread;
                     }
@@ -94,7 +94,7 @@ public final class CacheManagerExecutorServiceFactory implements NonStopCacheExe
      */
     public void shutdown(final CacheManager cacheManager) {
         synchronized (executorServiceMap) {
-            NonStopCacheExecutorService executorService = executorServiceMap.remove(cacheManager.getName());
+            NonstopExecutorService executorService = executorServiceMap.remove(cacheManager.getName());
             if (executorService != null) {
                 executorService.shutdown();
             }
@@ -104,12 +104,12 @@ public final class CacheManagerExecutorServiceFactory implements NonStopCacheExe
 
     private int getCoreThreadPoolSize(CacheManager cacheManager) {
         return getProperty(CORE_THREAD_POOL_SIZE_PROPERTY_PREFIX + cacheManager.getName(),
-                NonStopCacheExecutorService.DEFAULT_CORE_THREAD_POOL_SIZE);
+                NonstopExecutorServiceImpl.DEFAULT_CORE_THREAD_POOL_SIZE);
     }
 
     private int getMaxThreadPoolSize(CacheManager cacheManager) {
         return getProperty(MAX_THREAD_POOL_SIZE_PROPERTY_PREFIX + cacheManager.getName(),
-                NonStopCacheExecutorService.DEFAULT_MAX_THREAD_POOL_SIZE);
+                NonstopExecutorServiceImpl.DEFAULT_MAX_THREAD_POOL_SIZE);
     }
 
     private static int getProperty(String propertyName, int defaultValue) {
