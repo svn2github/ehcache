@@ -19,7 +19,9 @@ package net.sf.ehcache.terracotta;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import net.sf.ehcache.CacheException;
@@ -57,10 +59,6 @@ public class TerracottaCacheCluster implements CacheCluster {
         for (ClusterTopologyListener listener : listeners) {
             this.realCacheCluster.addTopologyListener(listener);
         }
-
-        for (ClusterTopologyListener listener : this.realCacheCluster.getTopologyListeners()) {
-            this.listeners.add(listener);
-        }
     }
 
     /**
@@ -71,14 +69,26 @@ public class TerracottaCacheCluster implements CacheCluster {
      * @param oldNode
      */
     void fireNodeRejoinedEvent(ClusterNode oldNode, ClusterNode newNode) {
+        Set<ClusterTopologyListener> firedToListeners = new HashSet<ClusterTopologyListener>();
         for (ClusterTopologyListener listener : listeners) {
-            try {
-                listener.nodeJoined(newNode);
-                listener.clusterOnline(newNode);
-                listener.clusterRejoined(new DisconnectedClusterNode(oldNode), newNode);
-            } catch (Throwable e) {
-                LOGGER.error("Caught exception while firing rejoin event", e);
+            fireRejoinEvents(oldNode, newNode, listener);
+            firedToListeners.add(listener);
+        }
+        for (ClusterTopologyListener listener : realCacheCluster.getTopologyListeners()) {
+            if (firedToListeners.contains(listener)) {
+                continue;
             }
+            fireRejoinEvents(oldNode, newNode, listener);
+        }
+    }
+
+    private void fireRejoinEvents(ClusterNode oldNode, ClusterNode newNode, ClusterTopologyListener listener) {
+        try {
+            listener.nodeJoined(newNode);
+            listener.clusterOnline(newNode);
+            listener.clusterRejoined(new DisconnectedClusterNode(oldNode), newNode);
+        } catch (Throwable e) {
+            LOGGER.error("Caught exception while firing rejoin event", e);
         }
     }
 

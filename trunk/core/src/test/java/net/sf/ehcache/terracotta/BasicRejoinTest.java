@@ -53,7 +53,7 @@ public class BasicRejoinTest extends TestCase {
 
     private static final Logger LOG = LoggerFactory.getLogger(BasicRejoinTest.class);
 
-    private static final String ERROR_MSG_REJOIN_CUSTOM = "Rejoin can be enabled only in Terracotta Express mode";
+    private static final String ERROR_MSG_REJOIN_CUSTOM = "Rejoin cannot be used in Terracotta DSO mode";
     private static final String ERROR_MSG_REJOIN_NO_NONSTOP = "Terracotta clustered caches must be nonstop when rejoin is enabled";
     private static final CharSequence ERROR_MSG_REJOIN_NO_TC = "Terracotta Rejoin is enabled but can't determine Terracotta Runtime. " +
             "You are probably missing Terracotta jar(s)";
