@@ -19,28 +19,38 @@ package net.sf.ehcache.constructs.nonstop;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
-import java.util.concurrent.CyclicBarrier;
+import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import junit.framework.Assert;
 import junit.framework.TestCase;
 import net.sf.ehcache.constructs.nonstop.ThreadDump.ThreadInformation;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class ExecutorServiceTest extends TestCase {
 
+    private static final String TEST_EXECUTOR_THREAD_NAME_PREFIX = "Test Executor thread";
     private NonstopExecutorServiceImpl service;
     private static final Logger LOG = LoggerFactory.getLogger(ExecutorServiceTest.class);
 
-    private int initialThreadsCount;
-
     @Override
     protected void setUp() throws Exception {
-        initialThreadsCount = countExecutorThreads();
+        int initialThreadsCount = countExecutorThreads();
         LOG.info("Initial thread count: " + initialThreadsCount);
-        service = new NonstopExecutorServiceImpl();
+        Assert.assertEquals(0, initialThreadsCount);
+        service = new NonstopExecutorServiceImpl(new ThreadFactory() {
+            private final AtomicInteger count = new AtomicInteger();
+
+            public Thread newThread(Runnable r) {
+                Thread thread = new Thread(r, TEST_EXECUTOR_THREAD_NAME_PREFIX + "-" + count.incrementAndGet() + " [for '"
+                        + Thread.currentThread().getName() + "']");
+                thread.setDaemon(true);
+                return thread;
+            }
+        });
     }
 
     @Override
@@ -49,95 +59,81 @@ public class ExecutorServiceTest extends TestCase {
         Thread.sleep(2000);
         int threads = countExecutorThreads();
         LOG.info("After shutting down service, thread count: " + threads);
-        Assert.assertEquals(initialThreadsCount, threads);
+        Assert.assertEquals(0, threads);
         LOG.info("Test complete successfully");
     }
 
-    public void testExecutorThreadsCreated() throws Exception {
-        int corePoolSize = NonstopExecutorServiceImpl.DEFAULT_CORE_THREAD_POOL_SIZE;
-        int maxPoolSize = NonstopExecutorServiceImpl.DEFAULT_MAX_THREAD_POOL_SIZE;
-        for (int i = 0; i < corePoolSize; i++) {
-            service.execute(new NoopCallable(), 1000);
+    public void testOnlyOneExecutorThreadCreated() throws Exception {
+        int initialThreadsCount = countExecutorThreads();
+        int numOps = 100;
+        for (int i = 0; i < numOps; i++) {
+            service.execute(new NoopCallable(), 5000);
         }
-        // assert at least core pool size threads has been created
-        assertTrue(countExecutorThreads() - initialThreadsCount >= corePoolSize);
+        // assert almost 1 pool thread is created
+        int actualThreadCount = countExecutorThreads() - initialThreadsCount;
+        assertTrue("ActualThreadCount: " + actualThreadCount + " Expected to be less than 3", 3 >= actualThreadCount);
+    }
 
-        // submit another maxPoolSize jobs
-        for (int i = 0; i < maxPoolSize; i++) {
+    public void testOneExecutorThreadCreatedPerAppThread() throws Exception {
+        int initialThreadsCount = countExecutorThreads();
+        // each request thread should create one executor thread
+        List<Thread> requestThreads = new ArrayList<Thread>();
+        int extraRequests = 20;
+        for (int i = 0; i < extraRequests; i++) {
+            Thread thread = new Thread(new Runnable() {
+                public void run() {
+                    try {
+                        service.execute(new NoopCallable(), 5000);
+                    } catch (Exception e) {
+                        fail("Executing noopCallable should not fail");
+                    }
+                }
+            }, "RequestThread-" + i);
+            requestThreads.add(thread);
+            thread.start();
+        }
+        for (Thread t : requestThreads) {
+            t.join();
+        }
+        Assert.assertEquals(extraRequests, countExecutorThreads() - initialThreadsCount);
+    }
+
+    public void testMultipleExecutorThreadsCreatedPerAppThread() throws Exception {
+        int initialThreadsCount = countExecutorThreads();
+        int numRequests = 20;
+        // submitting multiple blocking jobs should create multiple threads
+        for (int i = 0; i < numRequests; i++) {
             try {
-                service.execute(new NoopCallable(), 1);
+                service.execute(new BlockingCallable(), 10);
+                fail("Executing blockingCallable should timeout");
             } catch (TimeoutException e) {
                 // ignore
             }
         }
         Thread.sleep(1000);
-        // assert maxPoolSize threads has been created
-        assertEquals("", maxPoolSize, countExecutorThreads() - initialThreadsCount);
+        assertEquals("", numRequests, countExecutorThreads() - initialThreadsCount);
 
-        int extraThreads = 10;
-        int numAppThreads = maxPoolSize + extraThreads;
-        final List<Exception> exceptionList = new ArrayList<Exception>();
-        final CyclicBarrier barrier = new CyclicBarrier(numAppThreads + 1);
-        final AtomicInteger finishedThreadsCount = new AtomicInteger();
-        final List<BlockingCallable> blockingCallables = new ArrayList<BlockingCallable>();
-        for (int i = 0; i < numAppThreads; i++) {
-            Thread thread = new Thread(new Runnable() {
-
-                public void run() {
-                    try {
-                        barrier.await();
-                        BlockingCallable blockingCallable = new BlockingCallable(false);
-                        blockingCallables.add(blockingCallable);
-                        service.execute(blockingCallable, 5000);
-                    } catch (TimeoutException e) {
-                        // ignore
-                    } catch (Exception e) {
-                        exceptionList.add(e);
-                    }
-                    finishedThreadsCount.incrementAndGet();
-                }
-            });
-            thread.start();
-        }
-
-        // start the app threads
-        LOG.info("Letting all app threads go ahead");
-        barrier.await();
-        // wait for one second so that all threads go inside executor
-        Thread.sleep(1000);
-
-        // now assert extraThread tasks are in the queue as maxPoolSize tasks should be picked up by the executor threads
-        assertEquals(extraThreads, service.getTaskQueue().size());
-        LOG.info("Asserted task queue size");
-
-        LOG.info("Waiting for all app threads to complete");
-        while (finishedThreadsCount.get() != numAppThreads) {
-            Thread.sleep(1000);
-            LOG.info("Finished: " + finishedThreadsCount.get() + "/" + numAppThreads);
-        }
-        // assert no other exception other than timeoutException happened
-        assertEquals(0, exceptionList.size());
-
-        // assert no more than maxPoolSize threads created
-        assertEquals(maxPoolSize, countExecutorThreads() - initialThreadsCount);
-
-        // cleanup - unblock all executor threads
-        for (BlockingCallable blockingCallable : blockingCallables) {
-            blockingCallable.unblock();
-        }
     }
 
     private int countExecutorThreads() {
         List<ThreadInformation> threadDump = ThreadDump.getThreadDump();
         int rv = 0;
+        List<ThreadInformation> threads = new ArrayList();
         for (ThreadInformation info : threadDump) {
-            if (info.getThreadName().contains(NonstopExecutorServiceImpl.EXECUTOR_THREAD_NAME_PREFIX)) {
+            if (info.getThreadName().contains(TEST_EXECUTOR_THREAD_NAME_PREFIX)) {
                 // LOG.info("Thread: id=" + info.getThreadId() + ", name=\"" + info.getThreadName() +
                 // "\": is an executor thread");
+                threads.add(info);
                 rv++;
             }
         }
         LOG.info("Counting number of executor threads created till now: " + rv);
+        String string = "{";
+        for (ThreadInformation info : threads) {
+            string += info.getThreadName() + " [id=" + info.getThreadId() + "], ";
+        }
+        string += "}";
+        LOG.info("Thread name/ids: " + string);
         return rv;
     }
 

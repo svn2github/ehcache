@@ -23,9 +23,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import net.sf.ehcache.CacheManager;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 /**
  * {@link NonstopExecutorServiceFactory} that creates and maintains one per CacheManager
  *
@@ -34,10 +31,10 @@ import org.slf4j.LoggerFactory;
  */
 public final class CacheManagerExecutorServiceFactory implements NonstopExecutorServiceFactory {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(CacheManagerExecutorServiceFactory.class);
-
-    private static final String MAX_THREAD_POOL_SIZE_PROPERTY_PREFIX = "net.sf.ehcache.constructs.nonstop.maxThreadPoolSize.";
-    private static final String CORE_THREAD_POOL_SIZE_PROPERTY_PREFIX = "net.sf.ehcache.constructs.nonstop.coreThreadPoolSize.";
+    /**
+     * A string that is a part of the thread name created by the default thread factory.
+     */
+    private static final String EXECUTOR_THREAD_NAME_PREFIX = "Executor Thread";
 
     private static final CacheManagerExecutorServiceFactory SINGLETON = new CacheManagerExecutorServiceFactory();
 
@@ -67,18 +64,12 @@ public final class CacheManagerExecutorServiceFactory implements NonstopExecutor
         synchronized (executorServiceMap) {
             NonstopExecutorService rv = executorServiceMap.get(cacheManagerName);
             if (rv == null) {
-                int corePoolSize = getCoreThreadPoolSize(cacheManager);
-                int maximumPoolSize = getMaxThreadPoolSize(cacheManager);
-                if (corePoolSize < 0 || maximumPoolSize <= 0 || maximumPoolSize < corePoolSize) {
-                    throw new IllegalArgumentException("Invalid coreThreadPoolSize=" + corePoolSize + ", maxThreadPoolSize="
-                            + maximumPoolSize);
-                }
-                rv = new NonstopExecutorServiceImpl(corePoolSize, maximumPoolSize, new ThreadFactory() {
+                rv = new NonstopExecutorServiceImpl(new ThreadFactory() {
                     private final AtomicInteger count = new AtomicInteger();
 
                     public Thread newThread(Runnable runnable) {
-                        Thread thread = new Thread(runnable, "NonStopCache [" + cacheManagerName + "] "
-                                + NonstopExecutorServiceImpl.EXECUTOR_THREAD_NAME_PREFIX + "-" + count.incrementAndGet());
+                        Thread thread = new Thread(runnable, "NonStopCache [" + cacheManagerName + "] " + EXECUTOR_THREAD_NAME_PREFIX + "-"
+                                + count.incrementAndGet());
                         thread.setDaemon(true);
                         return thread;
                     }
@@ -100,32 +91,6 @@ public final class CacheManagerExecutorServiceFactory implements NonstopExecutor
             }
         }
 
-    }
-
-    private int getCoreThreadPoolSize(CacheManager cacheManager) {
-        return getProperty(CORE_THREAD_POOL_SIZE_PROPERTY_PREFIX + cacheManager.getName(),
-                NonstopExecutorServiceImpl.DEFAULT_CORE_THREAD_POOL_SIZE);
-    }
-
-    private int getMaxThreadPoolSize(CacheManager cacheManager) {
-        return getProperty(MAX_THREAD_POOL_SIZE_PROPERTY_PREFIX + cacheManager.getName(),
-                NonstopExecutorServiceImpl.DEFAULT_MAX_THREAD_POOL_SIZE);
-    }
-
-    private static int getProperty(String propertyName, int defaultValue) {
-        String propertyValue = System.getProperty(propertyName);
-        if (propertyValue == null || "".equals(propertyValue.trim())) {
-            return defaultValue;
-        }
-        int value = 0;
-        try {
-            value = Integer.parseInt(propertyValue);
-        } catch (NumberFormatException e) {
-            value = defaultValue;
-            LOGGER.warn("Invalid value specified for property \"" + propertyName + "\"=" + propertyValue + ", using default value: "
-                    + defaultValue);
-        }
-        return value;
     }
 
 }
