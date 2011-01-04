@@ -377,10 +377,16 @@ public class NullSampledCacheStatistics implements CacheUsageListener, SampledCa
         // no-op
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public long getCacheXaCommitsMostRecentSample() {
         return 0;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public long getCacheXaRollbacksMostRecentSample() {
         return 0;
     }

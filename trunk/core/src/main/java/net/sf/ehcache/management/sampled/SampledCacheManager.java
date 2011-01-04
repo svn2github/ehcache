@@ -143,8 +143,7 @@ public class SampledCacheManager extends BaseEmitterBean implements SampledCache
             Ehcache cache = cacheManager.getEhcache(cacheName);
             if (cache != null) {
                 SampledCacheStatistics stats = cache.getSampledCacheStatistics();
-                result.put(cacheName, new long[] {
-                        stats.getCacheHitMostRecentSample(),
+                result.put(cacheName, new long[] {stats.getCacheHitMostRecentSample(),
                         stats.getCacheMissMostRecentSample(),
                         stats.getCacheElementPutMostRecentSample(), });
             }
