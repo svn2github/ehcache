@@ -33,6 +33,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+import junit.framework.Assert;
+
 import net.sf.ehcache.bootstrap.BootstrapCacheLoader;
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.Configuration;
@@ -125,9 +127,9 @@ public class CacheManagerTest {
         mgrConfig.setUpdateCheck(false);
         try {
             CacheManager cacheManager = new CacheManager(mgrConfig);
-            fail("This should have thrown an Exception, as no default cache is configured!");
+            Assert.assertNotNull(cacheManager);
         } catch (Exception e) {
-            assertEquals("Illegal configuration. No default cache is configured.", e.getMessage());
+            fail("Creating cache manager having no default cache config shouldn't fail!");
         }
     }
 

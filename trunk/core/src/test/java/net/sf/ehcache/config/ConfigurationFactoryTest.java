@@ -65,6 +65,8 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarOutputStream;
 import java.util.regex.Matcher;
 
+import junit.framework.Assert;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -538,10 +540,10 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
 
         //Check default cache
         try {
-            configurationHelper.createDefaultCache();
-            fail();
+            Ehcache defaultCache = configurationHelper.createDefaultCache();
+            Assert.assertNull(defaultCache);
         } catch (CacheException e) {
-            //noop
+            fail("Calling create default cache when no default cache config specified should return null and not fail");
         }
 
         //Check caches
