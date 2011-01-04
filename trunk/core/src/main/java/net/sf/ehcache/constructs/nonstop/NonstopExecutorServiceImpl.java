@@ -79,9 +79,6 @@ public class NonstopExecutorServiceImpl implements NonstopExecutorService {
     private final ThreadPoolExecutor executorService;
     private final AtomicInteger attachedCachesCount = new AtomicInteger();
 
-    // shutdown executor service when all attached caches are dispose'd -- by default true
-    private volatile boolean shutdownWhenNoCachesAttached = true;
-
     private CountingThreadFactory countingThreadFactory;
 
     private BlockingQueue<Runnable> taskQueue;
