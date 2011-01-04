@@ -928,4 +928,12 @@ public class SampledCache extends BaseEmitterBean implements SampledCacheMBean, 
     public long getSearchesPerSecond() {
         return cache.getSearchesPerSecond();
     }
+
+    public long getCacheXaCommitsMostRecentSample() {
+        return cache.getSampledCacheStatistics().getCacheXaCommitsMostRecentSample();
+    }
+
+    public long getCacheXaRollbacksMostRecentSample() {
+        return cache.getSampledCacheStatistics().getCacheXaRollbacksMostRecentSample();
+    }
 }

@@ -184,4 +184,13 @@ public interface SampledCacheStatistics {
      */
     public long getSearchesPerSecond();
 
+    /**
+     * Get most recent value of XA commits
+     */
+    public long getCacheXaCommitsMostRecentSample();
+
+    /**
+     * Get most recent value of XA rollbacks
+     */
+    public long getCacheXaRollbacksMostRecentSample();
 }

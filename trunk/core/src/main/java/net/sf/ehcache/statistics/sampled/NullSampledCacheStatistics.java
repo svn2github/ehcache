@@ -376,4 +376,12 @@ public class NullSampledCacheStatistics implements CacheUsageListener, SampledCa
     public void notifyXaRollback() {
         // no-op
     }
+
+    public long getCacheXaCommitsMostRecentSample() {
+        return 0;
+    }
+
+    public long getCacheXaRollbacksMostRecentSample() {
+        return 0;
+    }
 }

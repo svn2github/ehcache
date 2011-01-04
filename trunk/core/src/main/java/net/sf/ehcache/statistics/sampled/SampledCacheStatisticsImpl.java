@@ -479,8 +479,22 @@ public class SampledCacheStatisticsImpl implements CacheUsageListener, SampledCa
     /**
      * {@inheritDoc}
      */
+    public long getCacheXaCommitsMostRecentSample() {
+        return cacheXaCommitCount.getMostRecentSample().getCounterValue();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     public void notifyXaCommit() {
         incrementIfStatsEnabled(cacheXaCommitCount);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public long getCacheXaRollbacksMostRecentSample() {
+        return cacheXaRollbackCount.getMostRecentSample().getCounterValue();
     }
 
     /**

@@ -33,12 +33,12 @@ import net.sf.ehcache.writer.writebehind.WriteBehindManager;
 
 /**
  * Implementation which can be used both as a {@link LiveCacheStatistics} and {@link LiveCacheStatisticsData}
- * 
+ *
  * @author <a href="mailto:asanoujam@terracottatech.com">Abhishek Sanoujam</a>
  * @since 1.7
  */
 public class LiveCacheStatisticsImpl implements LiveCacheStatistics, LiveCacheStatisticsData {
-    
+
     private static final Logger LOG = LoggerFactory.getLogger(LiveCacheStatisticsImpl.class.getName());
 
     private static final int MIN_MAX_DEFAULT_VALUE = -1;
@@ -70,7 +70,7 @@ public class LiveCacheStatisticsImpl implements LiveCacheStatistics, LiveCacheSt
 
     /**
      * Constructor that accepts the backing {@link Ehcache}, needed for {@link #getSize()}
-     * 
+     *
      * @param cache
      */
     public LiveCacheStatisticsImpl(Ehcache cache) {
@@ -272,7 +272,7 @@ public class LiveCacheStatisticsImpl implements LiveCacheStatistics, LiveCacheSt
             l.notifyCacheMissOnDisk();
         }
     }
-    
+
     /**
      * {@inheritDoc}
      */
@@ -446,7 +446,7 @@ public class LiveCacheStatisticsImpl implements LiveCacheStatistics, LiveCacheSt
         return cacheMissOnDiskCount.get();
     }
 
-    
+
     /**
      * {@inheritDoc}
      */
@@ -511,7 +511,7 @@ public class LiveCacheStatisticsImpl implements LiveCacheStatistics, LiveCacheSt
         }
         return cache.getOffHeapStoreSize();
     }
-    
+
     /**
      * {@inheritDoc}
      */
@@ -580,7 +580,7 @@ public class LiveCacheStatisticsImpl implements LiveCacheStatistics, LiveCacheSt
 
     /**
      * {@inheritDoc}
-     * 
+     *
      * @see net.sf.ehcache.statistics.LiveCacheStatistics#getMaxGetTimeMillis()
      */
     public long getMaxGetTimeMillis() {
@@ -609,7 +609,7 @@ public class LiveCacheStatisticsImpl implements LiveCacheStatistics, LiveCacheSt
      * {@inheritDoc}
      */
     public long getWriterQueueLength() {
-        long length = -1;
+        long length = 0;
         CacheWriterManager writerManager = cache.getWriterManager();
         if (writerManager != null && writerManager instanceof WriteBehindManager) {
             length = ((WriteBehindManager)writerManager).getQueueSize();
@@ -619,7 +619,7 @@ public class LiveCacheStatisticsImpl implements LiveCacheStatistics, LiveCacheSt
 
     /**
      * {@inheritDoc}
-     * 
+     *
      * @see net.sf.ehcache.statistics.LiveCacheStatistics#getMinGetTimeMillis()
      */
     public long getMinGetTimeMillis() {

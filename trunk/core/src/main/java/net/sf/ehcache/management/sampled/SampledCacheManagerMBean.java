@@ -196,10 +196,20 @@ public interface SampledCacheManagerMBean {
     long getTransactionCommittedCount();
 
     /**
+     * @return aggregate Xa commit rate
+     */
+    public long getTransactionCommitRate();
+
+    /**
      * Get the rolled back transactions count
      * @return the rolled back transactions count
      */
     long getTransactionRolledBackCount();
+
+    /**
+     * @return aggregate Xa rollback rate
+     */
+    long getTransactionRollbackRate();
 
     /**
      * Get the timed out transactions count. Note that only transactions which failed to
@@ -208,4 +218,8 @@ public interface SampledCacheManagerMBean {
      */
     long getTransactionTimedOutCount();
 
+    /**
+     * @return aggregate Writer-behind queue length
+     */
+    long getWriterQueueLength();
 }

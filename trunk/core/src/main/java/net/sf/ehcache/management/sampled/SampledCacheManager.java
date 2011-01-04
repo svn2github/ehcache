@@ -30,6 +30,7 @@ import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Status;
 import net.sf.ehcache.event.CacheManagerEventListener;
 import net.sf.ehcache.hibernate.management.impl.BaseEmitterBean;
+import net.sf.ehcache.statistics.LiveCacheStatistics;
 import net.sf.ehcache.statistics.sampled.SampledCacheStatistics;
 
 /**
@@ -138,12 +139,15 @@ public class SampledCacheManager extends BaseEmitterBean implements SampledCache
      */
     public Map<String, long[]> getCacheMetrics() {
         Map<String, long[]> result = new HashMap<String, long[]>();
-        String[] caches = getCacheNames();
-        for (String cacheName : caches) {
+        for (String cacheName : getCacheNames()) {
             Ehcache cache = cacheManager.getEhcache(cacheName);
-            SampledCacheStatistics stats = cache.getSampledCacheStatistics();
-            result.put(cacheName, new long[] {stats.getCacheHitMostRecentSample(), stats.getCacheMissMostRecentSample(),
-                    stats.getCacheElementPutMostRecentSample(), });
+            if (cache != null) {
+                SampledCacheStatistics stats = cache.getSampledCacheStatistics();
+                result.put(cacheName, new long[] {
+                        stats.getCacheHitMostRecentSample(),
+                        stats.getCacheMissMostRecentSample(),
+                        stats.getCacheElementPutMostRecentSample(), });
+            }
         }
         return result;
     }
@@ -153,11 +157,12 @@ public class SampledCacheManager extends BaseEmitterBean implements SampledCache
      */
     public long getCacheHitRate() {
         long result = 0;
-        String[] caches = getCacheNames();
-        for (String cacheName : caches) {
+        for (String cacheName : getCacheNames()) {
             Ehcache cache = cacheManager.getEhcache(cacheName);
-            SampledCacheStatistics stats = cache.getSampledCacheStatistics();
-            result += stats.getCacheHitMostRecentSample();
+            if (cache != null) {
+                SampledCacheStatistics stats = cache.getSampledCacheStatistics();
+                result += stats.getCacheHitMostRecentSample();
+            }
         }
         return result;
     }
@@ -167,11 +172,12 @@ public class SampledCacheManager extends BaseEmitterBean implements SampledCache
      */
     public long getCacheMissRate() {
         long result = 0;
-        String[] caches = getCacheNames();
-        for (String cacheName : caches) {
+        for (String cacheName : getCacheNames()) {
             Ehcache cache = cacheManager.getEhcache(cacheName);
-            SampledCacheStatistics stats = cache.getSampledCacheStatistics();
-            result += stats.getCacheMissMostRecentSample();
+            if (cache != null) {
+                SampledCacheStatistics stats = cache.getSampledCacheStatistics();
+                result += stats.getCacheMissMostRecentSample();
+            }
         }
         return result;
     }
@@ -181,11 +187,12 @@ public class SampledCacheManager extends BaseEmitterBean implements SampledCache
      */
     public long getCachePutRate() {
         long result = 0;
-        String[] caches = getCacheNames();
-        for (String cacheName : caches) {
+        for (String cacheName : getCacheNames()) {
             Ehcache cache = cacheManager.getEhcache(cacheName);
-            SampledCacheStatistics stats = cache.getSampledCacheStatistics();
-            result += stats.getCacheElementPutMostRecentSample();
+            if (cache != null) {
+                SampledCacheStatistics stats = cache.getSampledCacheStatistics();
+                result += stats.getCacheElementPutMostRecentSample();
+            }
         }
         return result;
     }
@@ -195,11 +202,12 @@ public class SampledCacheManager extends BaseEmitterBean implements SampledCache
      */
     public long getCacheUpdateRate() {
         long result = 0;
-        String[] caches = getCacheNames();
-        for (String cacheName : caches) {
+        for (String cacheName : getCacheNames()) {
             Ehcache cache = cacheManager.getEhcache(cacheName);
-            SampledCacheStatistics stats = cache.getSampledCacheStatistics();
-            result += stats.getCacheElementUpdatedMostRecentSample();
+            if (cache != null) {
+                SampledCacheStatistics stats = cache.getSampledCacheStatistics();
+                result += stats.getCacheElementUpdatedMostRecentSample();
+            }
         }
         return result;
     }
@@ -209,11 +217,12 @@ public class SampledCacheManager extends BaseEmitterBean implements SampledCache
      */
     public long getCacheEvictionRate() {
         long result = 0;
-        String[] caches = getCacheNames();
-        for (String cacheName : caches) {
+        for (String cacheName : getCacheNames()) {
             Ehcache cache = cacheManager.getEhcache(cacheName);
-            SampledCacheStatistics stats = cache.getSampledCacheStatistics();
-            result += stats.getCacheElementEvictedMostRecentSample();
+            if (cache != null) {
+                SampledCacheStatistics stats = cache.getSampledCacheStatistics();
+                result += stats.getCacheElementEvictedMostRecentSample();
+            }
         }
         return result;
     }
@@ -223,11 +232,12 @@ public class SampledCacheManager extends BaseEmitterBean implements SampledCache
      */
     public long getCacheExpirationRate() {
         long result = 0;
-        String[] caches = getCacheNames();
-        for (String cacheName : caches) {
+        for (String cacheName : getCacheNames()) {
             Ehcache cache = cacheManager.getEhcache(cacheName);
-            SampledCacheStatistics stats = cache.getSampledCacheStatistics();
-            result += stats.getCacheElementExpiredMostRecentSample();
+            if (cache != null) {
+                SampledCacheStatistics stats = cache.getSampledCacheStatistics();
+                result += stats.getCacheElementExpiredMostRecentSample();
+            }
         }
         return result;
     }
@@ -237,11 +247,12 @@ public class SampledCacheManager extends BaseEmitterBean implements SampledCache
      */
     public long getCacheSearchRate() {
         long result = 0;
-        String[] caches = getCacheNames();
-        for (String cacheName : caches) {
+        for (String cacheName : getCacheNames()) {
             Ehcache cache = cacheManager.getEhcache(cacheName);
-            SampledCacheStatistics stats = cache.getSampledCacheStatistics();
-            result += stats.getSearchesPerSecond();
+            if (cache != null) {
+                SampledCacheStatistics stats = cache.getSampledCacheStatistics();
+                result += stats.getSearchesPerSecond();
+            }
         }
         return result;
     }
@@ -251,11 +262,27 @@ public class SampledCacheManager extends BaseEmitterBean implements SampledCache
      */
     public long getCacheAverageSearchTime() {
         long result = 0;
-        String[] caches = getCacheNames();
-        for (String cacheName : caches) {
+        for (String cacheName : getCacheNames()) {
             Ehcache cache = cacheManager.getEhcache(cacheName);
-            SampledCacheStatistics stats = cache.getSampledCacheStatistics();
-            result += stats.getAverageSearchTime();
+            if (cache != null) {
+                SampledCacheStatistics stats = cache.getSampledCacheStatistics();
+                result += stats.getAverageSearchTime();
+            }
+        }
+        return result;
+    }
+
+    /**
+     * @return aggregate writer queue length
+     */
+    public long getWriterQueueLength() {
+        long result = 0;
+        for (String cacheName : getCacheNames()) {
+            Ehcache cache = cacheManager.getEhcache(cacheName);
+            if (cache != null) {
+                LiveCacheStatistics stats = cache.getLiveCacheStatistics();
+                result += stats.getWriterQueueLength();
+            }
         }
         return result;
     }
@@ -282,7 +309,7 @@ public class SampledCacheManager extends BaseEmitterBean implements SampledCache
      * {@inheritDoc}
      */
     public void clearStatistics() {
-        for (String cacheName : cacheManager.getCacheNames()) {
+        for (String cacheName : getCacheNames()) {
             Cache cache = cacheManager.getCache(cacheName);
             if (cache != null) {
                 cache.clearStatistics();
@@ -295,7 +322,7 @@ public class SampledCacheManager extends BaseEmitterBean implements SampledCache
      * {@inheritDoc}
      */
     public void enableStatistics() {
-        for (String cacheName : cacheManager.getCacheNames()) {
+        for (String cacheName : getCacheNames()) {
             Cache cache = cacheManager.getCache(cacheName);
             if (cache != null) {
                 // enables regular statistics also
@@ -309,7 +336,7 @@ public class SampledCacheManager extends BaseEmitterBean implements SampledCache
      * {@inheritDoc}
      */
     public void disableStatistics() {
-        for (String cacheName : cacheManager.getCacheNames()) {
+        for (String cacheName : getCacheNames()) {
             Cache cache = cacheManager.getCache(cacheName);
             if (cache != null) {
                 // disables regular statistics also
@@ -334,7 +361,7 @@ public class SampledCacheManager extends BaseEmitterBean implements SampledCache
      * {@inheritDoc}
      */
     public boolean isStatisticsEnabled() {
-        for (String cacheName : cacheManager.getCacheNames()) {
+        for (String cacheName : getCacheNames()) {
             Cache cache = cacheManager.getCache(cacheName);
             if (cache != null) {
                 if (!cache.isSampledStatisticsEnabled()) {
@@ -349,7 +376,7 @@ public class SampledCacheManager extends BaseEmitterBean implements SampledCache
      * @return is each cache's statistics enabled
      */
     private boolean determineStatisticsEnabled() {
-        for (String cacheName : cacheManager.getCacheNames()) {
+        for (String cacheName : getCacheNames()) {
             Cache cache = cacheManager.getCache(cacheName);
             if (cache != null) {
                 if (!cache.isStatisticsEnabled()) {
@@ -388,8 +415,38 @@ public class SampledCacheManager extends BaseEmitterBean implements SampledCache
     /**
      * {@inheritDoc}
      */
+    public long getTransactionCommitRate() {
+        long result = 0;
+        for (String cacheName : getCacheNames()) {
+            Ehcache cache = cacheManager.getEhcache(cacheName);
+            if (cache != null) {
+                SampledCacheStatistics stats = cache.getSampledCacheStatistics();
+                result += stats.getCacheXaCommitsMostRecentSample();
+            }
+        }
+        return result;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     public long getTransactionRolledBackCount() {
         return this.cacheManager.getTransactionController().getTransactionRolledBackCount();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public long getTransactionRollbackRate() {
+        long result = 0;
+        for (String cacheName : getCacheNames()) {
+            Ehcache cache = cacheManager.getEhcache(cacheName);
+            if (cache != null) {
+                SampledCacheStatistics stats = cache.getSampledCacheStatistics();
+                result += stats.getCacheXaRollbacksMostRecentSample();
+            }
+        }
+        return result;
     }
 
     /**
@@ -403,15 +460,12 @@ public class SampledCacheManager extends BaseEmitterBean implements SampledCache
      * Returns if each contained cache is enabled.
      */
     public boolean isEnabled() throws CacheException {
-        String[] cacheNames = cacheManager.getCacheNames();
-
-        for (String cacheName : cacheNames) {
+        for (String cacheName : getCacheNames()) {
             Ehcache cache = cacheManager.getEhcache(cacheName);
             if (cache != null && cache.isDisabled()) {
                 return false;
             }
         }
-
         return true;
     }
 
@@ -419,9 +473,7 @@ public class SampledCacheManager extends BaseEmitterBean implements SampledCache
      * Enables/disables each of the contained caches.
      */
     public void setEnabled(boolean enabled) {
-        String[] cacheNames = cacheManager.getCacheNames();
-
-        for (String cacheName : cacheNames) {
+        for (String cacheName : getCacheNames()) {
             Ehcache cache = cacheManager.getEhcache(cacheName);
             if (cache != null) {
                 cache.setDisabled(!enabled);
@@ -434,7 +486,7 @@ public class SampledCacheManager extends BaseEmitterBean implements SampledCache
      * @return is each cache enabled
      */
     private boolean determineEnabled() {
-        for (String cacheName : cacheManager.getCacheNames()) {
+        for (String cacheName : getCacheNames()) {
             Cache cache = cacheManager.getCache(cacheName);
             if (cache != null) {
                 if (cache.isDisabled()) {

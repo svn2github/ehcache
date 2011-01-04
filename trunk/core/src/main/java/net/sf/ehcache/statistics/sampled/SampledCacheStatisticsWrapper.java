@@ -410,4 +410,18 @@ public class SampledCacheStatisticsWrapper implements CacheUsageListener, Sample
     public void notifyXaRollback() {
         getDelegateAsListener().notifyXaRollback();
     }
+
+    /**
+     * {@inheritDoc}
+     */
+    public long getCacheXaCommitsMostRecentSample() {
+        return delegate.getCacheXaCommitsMostRecentSample();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public long getCacheXaRollbacksMostRecentSample() {
+        return delegate.getCacheXaRollbacksMostRecentSample();
+    }
 }
