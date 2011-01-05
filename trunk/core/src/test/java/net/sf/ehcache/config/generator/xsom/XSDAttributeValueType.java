@@ -26,20 +26,20 @@ import com.sun.xml.xsom.XSSimpleType;
 
 public abstract class XSDAttributeValueType {
 
+    protected static final Random RANDOM = new Random(System.currentTimeMillis());
+    protected String pattern;
     public enum XsdType {
-        BOOLEAN, INTEGER, POSITIVE_INTEGER, NON_NEGATIVE_INTEGER, STRING, ANY_SIMPLE_TYPE, ENUMERATION
+        BOOLEAN, INTEGER, POSITIVE_INTEGER, NON_NEGATIVE_INTEGER, STRING, ANY_SIMPLE_TYPE, ENUMERATION;
     }
+    protected String maxValue;
+    protected String minValue;
+    protected String length;
+    protected String maxLength;
+    protected String minLength;
 
-    protected static final Random random = new Random(System.currentTimeMillis());
+    protected String totalDigits;
 
     private final XsdType type;
-    protected String maxValue = null;
-    protected String minValue = null;
-    protected String length = null;
-    protected String maxLength = null;
-    protected String minLength = null;
-    protected String pattern = null;
-    protected String totalDigits = null;
 
     public XSDAttributeValueType(XsdType type) {
         this.type = type;
@@ -48,8 +48,8 @@ public abstract class XSDAttributeValueType {
     public abstract String getRandomAllowedValue();
 
     protected void fillUpRestrictions(XSAttributeDecl attributeDecl) {
-        XSSimpleType type = attributeDecl.getType();
-        XSRestrictionSimpleType restriction = type.asRestriction();
+        XSSimpleType localType = attributeDecl.getType();
+        XSRestrictionSimpleType restriction = localType.asRestriction();
         if (restriction != null) {
             Iterator<? extends XSFacet> i = restriction.getDeclaredFacets().iterator();
             while (i.hasNext()) {
@@ -93,7 +93,7 @@ public abstract class XSDAttributeValueType {
 
         @Override
         public String getRandomAllowedValue() {
-            return random.nextInt() % 2 == 0 ? getTrue() : getFalse();
+            return RANDOM.nextInt() % 2 == 0 ? getTrue() : getFalse();
         }
 
         public String getTrue() {
@@ -114,7 +114,7 @@ public abstract class XSDAttributeValueType {
 
         @Override
         public String getRandomAllowedValue() {
-            return String.valueOf(random.nextInt());
+            return String.valueOf(RANDOM.nextInt());
         }
 
     }
@@ -127,7 +127,7 @@ public abstract class XSDAttributeValueType {
 
         @Override
         public String getRandomAllowedValue() {
-            return String.valueOf(Math.abs(random.nextInt() + 1));
+            return String.valueOf(Math.abs(RANDOM.nextInt() + 1));
         }
 
     }
@@ -140,15 +140,15 @@ public abstract class XSDAttributeValueType {
 
         @Override
         public String getRandomAllowedValue() {
-            return String.valueOf(Math.abs(random.nextInt()));
+            return String.valueOf(Math.abs(RANDOM.nextInt()));
         }
 
     }
 
     public static class XSDAttributeValueStringType extends XSDAttributeValueType {
 
-        private final String[] RANDOM_VALUES = {"random_string_one", "random_string_two", "random_string_three", "random_string_four",
-                "random_string_five"};
+        private static final String[] RANDOM_VALUES = {"random_string_one", "random_string_two", "random_string_three", "random_string_four",
+                "random_string_five", };
 
         public XSDAttributeValueStringType() {
             super(XsdType.STRING);
@@ -156,15 +156,15 @@ public abstract class XSDAttributeValueType {
 
         @Override
         public String getRandomAllowedValue() {
-            return RANDOM_VALUES[random.nextInt(RANDOM_VALUES.length)];
+            return RANDOM_VALUES[RANDOM.nextInt(RANDOM_VALUES.length)];
         }
 
     }
 
     public static class XSDAttributeValueAnySimpleType extends XSDAttributeValueType {
 
-        private final String[] RANDOM_VALUES = {"any_simple_type_random_one", "any_simple_type_random_two",
-                "any_simple_type_random_three", "any_simple_type_random_four", "any_simple_type_random_five"};
+        private static final String[] RANDOM_VALUES = {"any_simple_type_random_one", "any_simple_type_random_two",
+                "any_simple_type_random_three", "any_simple_type_random_four", "any_simple_type_random_five", };
 
         public XSDAttributeValueAnySimpleType() {
             super(XsdType.ANY_SIMPLE_TYPE);
@@ -172,7 +172,7 @@ public abstract class XSDAttributeValueType {
 
         @Override
         public String getRandomAllowedValue() {
-            return RANDOM_VALUES[random.nextInt(RANDOM_VALUES.length)];
+            return RANDOM_VALUES[RANDOM.nextInt(RANDOM_VALUES.length)];
         }
 
     }
@@ -188,7 +188,7 @@ public abstract class XSDAttributeValueType {
 
         @Override
         public String getRandomAllowedValue() {
-            return enumeration[random.nextInt(enumeration.length)];
+            return enumeration[RANDOM.nextInt(enumeration.length)];
         }
 
     }

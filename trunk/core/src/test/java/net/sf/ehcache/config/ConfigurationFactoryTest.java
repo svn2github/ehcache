@@ -1527,10 +1527,10 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
         assertEquals(10, configDefault.getMaxElementsInMemory());
         assertNotNull(configDefault.getCacheWriterConfiguration());
         assertEquals(defaultCacheWriterConfig.getWriteMode(), configDefault.getCacheWriterConfiguration().getWriteMode());
-        assertEquals(defaultCacheWriterConfig.getCacheWriterFactoryConfiguration(), configDefault.getCacheWriterConfiguration().
-                getCacheWriterFactoryConfiguration());
-        assertEquals(defaultCacheWriterConfig.getNotifyListenersOnException(), configDefault.getCacheWriterConfiguration().
-                getNotifyListenersOnException());
+        assertEquals(defaultCacheWriterConfig.getCacheWriterFactoryConfiguration(), configDefault.getCacheWriterConfiguration()
+                .getCacheWriterFactoryConfiguration());
+        assertEquals(defaultCacheWriterConfig.getNotifyListenersOnException(), configDefault.getCacheWriterConfiguration()
+                .getNotifyListenersOnException());
         assertEquals(defaultCacheWriterConfig.getMaxWriteDelay(), configDefault.getCacheWriterConfiguration().getMaxWriteDelay());
         assertEquals(defaultCacheWriterConfig.getRateLimitPerSecond(), configDefault.getCacheWriterConfiguration().getRateLimitPerSecond());
         assertEquals(defaultCacheWriterConfig.getWriteCoalescing(), configDefault.getCacheWriterConfiguration().getWriteCoalescing());

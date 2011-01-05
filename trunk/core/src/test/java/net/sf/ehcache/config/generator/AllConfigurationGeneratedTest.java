@@ -41,8 +41,8 @@ public class AllConfigurationGeneratedTest extends TestCase {
 
     private static final String SRC_CONFIG_DIR = "src/main/config/";
     private static final String TEST_RESOURCES_DIR = "src/test/resources/";
+    private static int counter;
     private final int spacer = 0;
-    private static int counter = 0;
 
     public static void main(String[] args) throws Exception {
         new AllConfigurationGeneratedTest().testConfigurationGenerated();

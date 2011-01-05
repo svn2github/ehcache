@@ -46,8 +46,9 @@ public class XATransactionTest extends TestCase {
 
     @Override
     protected void tearDown() throws Exception {
-        if (tm.getTransaction() != null)
+        if (tm.getTransaction() != null) {
             tm.rollback();
+        }
         cacheManager.shutdown();
         TransactionManagerServices.getTransactionManager().shutdown();
     }
@@ -56,30 +57,24 @@ public class XATransactionTest extends TestCase {
         LOG.info("******* START");
 
         tm.begin();
-        {
-            cache1.get(1);
-            cache1.put(new Element(1, "one"));
-        }
+        cache1.get(1);
+        cache1.put(new Element(1, "one"));
         tm.commit();
 
         tm.begin();
-        {
-            Element e = cache1.get(1);
-            assertEquals("one", e.getObjectValue());
-            cache1.remove(1);
-            e = cache1.get(1);
-            assertNull(e);
-            int size = cache1.getSize();
-            assertEquals(0, size);
-        }
+        Element e = cache1.get(1);
+        assertEquals("one", e.getObjectValue());
+        cache1.remove(1);
+        e = cache1.get(1);
+        assertNull(e);
+        int size = cache1.getSize();
+        assertEquals(0, size);
         tm.rollback();
 
         tm.begin();
-        {
-            Element e = cache1.get(1);
-            assertEquals("one", e.getObjectValue());
+        e = cache1.get(1);
+        assertEquals("one", e.getObjectValue());
 
-        }
         tm.rollback();
 
         LOG.info("******* END");
@@ -110,7 +105,6 @@ public class XATransactionTest extends TestCase {
                             } catch (TransactionTimeoutException e) {
                                 // expected
                             }
-
                             tm.rollback();
                         }
                     };

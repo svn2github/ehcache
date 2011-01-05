@@ -4,7 +4,8 @@
     "-//Puppy Crawl//DTD Suppressions 1.1//EN" "http://www.puppycrawl.com/dtds/suppressions_1_1.dtd">
 
 <suppressions>
-    <!-- Turn off some checks for tests -->
+
+    <!-- Tests -->
     <suppress checks="usage.OneMethodPrivateField" files="Test.java"/>
     <suppress checks="usage.UnusedParameter" files="Test.java"/>
     <suppress checks="usage.UnusedPrivateMethod" files="Test.java"/>
@@ -24,6 +25,10 @@
     <suppress checks="JavadocPackageCheck" files="test[/\\]"/>
     <suppress checks="JavadocVariableCheck" files="test[/\\]"/>
     <suppress checks="VisibilityModifierCheck" files="test[/\\]"/>
+    <!--Complex-->
+    <suppress checks="" files="ValidDummyEhcacheConfigAttributesValueFactory.java"/>
+    <suppress checks="NPathComplexity, CyclomaticComplexity" files="XSDAttributeValueType.java"/>
+
 
 
 

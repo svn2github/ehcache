@@ -31,8 +31,8 @@ import org.junit.runners.Suite;
  *
  * @author hhuynh
  */
-@RunWith(Suite.class)
-@Suite.SuiteClasses({CacheTest.class, ElementTest.class, BlockingCacheTest.class})
+@RunWith (Suite.class)
+@Suite.SuiteClasses({ CacheTest.class, ElementTest.class, BlockingCacheTest.class })
 public class SmokeTests {
 
     public SmokeTests() {
