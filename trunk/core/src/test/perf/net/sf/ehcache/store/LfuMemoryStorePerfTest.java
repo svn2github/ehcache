@@ -149,67 +149,69 @@ public class LfuMemoryStorePerfTest extends MemoryStorePerfTester {
      *                     With a sample size of 30: 628ms for 5000 runs = 125 ?s per run
      */
     @Test
-    public void testLowest() throws IOException {
+    public void testLowest() throws Exception {
         createMemoryOnlyStore(MemoryStoreEvictionPolicy.LFU, 5000);
-        //fully populate the otherwise we just find nulls
+
+        // Populate the cache with 5000 unaccessed Elements
         for (int i = 0; i < 5000; i++) {
-            Element newElement = new Element("" + i, new Date());
-            store.put(newElement);
+            store.put(new Element(Integer.valueOf(i), new Date()));
         }
 
-        Element element = null;
-
-        Element newElement = null;
         for (int i = 0; i < 10; i++) {
-            newElement = new Element("" + i, new Date());
+            // Add a new Element at the i'th position
+            Element newElement = new Element(Integer.valueOf(i), new Date());
             store.put(newElement);
-            int j;
-            for (j = 0; j <= i; j++) {
-                store.get("" + i);
+
+            // Hit that Element (i+1) times - this makes it the most hit Element
+            // in the cache
+            for (int h = 0; h < (i + 1); h++) {
+                store.get(Integer.valueOf(i)).updateAccessStatistics();
             }
-            if (i > 0) {
-                try {
-                    element = (Element) GET_EVICTION_TARGET.invoke(PRIMARY_FACTORY.get(store), new Object(), Integer.MAX_VALUE);
-                } catch (Exception e) {
-                    throw new RuntimeException(e);
-                }
-                assertTrue(!element.equals(newElement));
-                assertTrue(element.getHitCount() < 2);
+
+            // Select an Element for "eviction".
+            Element element = (Element) GET_EVICTION_TARGET.invoke(PRIMARY_FACTORY.get(store), new Object(), Integer.MAX_VALUE);
+            // This shouldn't be the newly added Element as it is the "most hit"
+            assertTrue(!element.equals(newElement));
+            // In fact since the sample size is > 10, the hit count should be 0
+            // as we must have selected some of the non hit Elements in our sample.
+            assertTrue(element.getHitCount() == 0);
+        }
+
+        // Repeat the hitting procedure above, but for the remaining elements
+        // This gives a flat distribution of hit counts from 1 to 5000 all with
+        // equal probability (1 element of each count).
+        for (int i = 10; i < 5000; i++) {
+            store.put(new Element(Integer.valueOf(i), new Date()));
+            for (int h = 0; h < (i + 1); h++) {
+                store.get(Integer.valueOf(i)).updateAccessStatistics();
             }
         }
 
-        int lowestQuarterNotIdentified = 0;
-
+        long lowestQuartile = 5000 / 4;
+        
         long findTime = 0;
         StopWatch stopWatch = new StopWatch();
-        for (int i = 10; i < 5000; i++) {
-            store.put(new Element("" + i, new Date()));
-            int j;
-            int maximumHitCount = 0;
-            for (j = 0; j <= i; j += 10) {
-                store.get("" + i);
-                maximumHitCount++;
-            }
-
+        int lowestQuartileNotIdentified = 0;
+        for (int i = 0; i < 5000; i++) {
             stopWatch.getElapsedTime();
-            try {
-                element = (Element) GET_EVICTION_TARGET.invoke(PRIMARY_FACTORY.get(store), new Object(), Integer.MAX_VALUE);
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
+            // Select an Element for "eviction"
+            Element e = (Element) GET_EVICTION_TARGET.invoke(PRIMARY_FACTORY.get(store), new Object(), Integer.MAX_VALUE);
             findTime += stopWatch.getElapsedTime();
-            long lowest = element.getHitCount();
-            long bottomQuarter = (Math.round(maximumHitCount / 4.0) + 1);
-            assertTrue(!element.equals(newElement));
-            if (lowest > bottomQuarter) {
-                LOG.info("" + element.getKey() + " hit count: " + element.getHitCount() + " bottomQuarter: " + bottomQuarter);
-                lowestQuarterNotIdentified++;
+            long lowest = e.getHitCount();
+            // See if it is outside the lowest quartile (i.e. it has an abnormaly
+            // high hit count).
+            if (lowest > lowestQuartile) {
+                LOG.info(e.getKey() + " hit count: " + e.getHitCount() + " lowestQuartile: " + lowestQuartile);
+                lowestQuartileNotIdentified++;
             }
         }
-        LOG.info("Find time: " + findTime);
-        assertTrue(findTime < 200);
-        LOG.info("Selections not in lowest quartile: " + lowestQuarterNotIdentified);
-        assertTrue(lowestQuarterNotIdentified <= 10);
 
+        LOG.info("Find time: " + findTime);
+        // Assert that we can do all this in a reasonable length of time
+        assertTrue(findTime < 200);
+        LOG.info("Selections not in lowest quartile: " + lowestQuartileNotIdentified);
+        // Assert that we didn't see too many eviction candidates from outside
+        // the lowest quartile.
+        assertTrue(lowestQuartileNotIdentified <= 10);
     }
 }
