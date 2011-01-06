@@ -53,6 +53,7 @@ class WriteBehindQueue {
     private final long minWriteDelayMs;
     private final long maxWriteDelayMs;
     private final int rateLimitPerSecond;
+    private final int maxQueueSize;
     private final boolean writeBatching;
     private final int writeBatchSize;
     private final int retryAttempts;
@@ -62,6 +63,7 @@ class WriteBehindQueue {
     private final ReentrantReadWriteLock queueLock = new ReentrantReadWriteLock();
     private final ReentrantReadWriteLock.ReadLock queueReadLock = queueLock.readLock();
     private final ReentrantReadWriteLock.WriteLock queueWriteLock = queueLock.writeLock();
+    private final Condition queueIsFull = queueWriteLock.newCondition();
     private final Condition queueIsEmpty = queueWriteLock.newCondition();
     private final Condition queueIsStopped = queueWriteLock.newCondition();
 
@@ -92,6 +94,7 @@ class WriteBehindQueue {
         this.minWriteDelayMs = cacheWriterConfig.getMinWriteDelay() * MS_IN_SEC;
         this.maxWriteDelayMs = cacheWriterConfig.getMaxWriteDelay() * MS_IN_SEC;
         this.rateLimitPerSecond = cacheWriterConfig.getRateLimitPerSecond();
+        this.maxQueueSize = cacheWriterConfig.getWriteBehindMaxQueueSize();
         this.writeBatching = cacheWriterConfig.getWriteBatching();
         this.writeBatchSize = cacheWriterConfig.getWriteBatchSize();
         this.retryAttempts = cacheWriterConfig.getRetryAttempts();
@@ -173,7 +176,8 @@ class WriteBehindQueue {
                         // If the queue is stopping and no more work is outstanding, perform the actual stop operation
                         if (stopping && waiting.isEmpty()) {
                             stopTheQueueThread();
-                        }                        
+                        }
+                        queueIsFull.signal();
                     } finally {
                         queueWriteLock.unlock();
                     }
@@ -427,15 +431,32 @@ class WriteBehindQueue {
      */
     public void write(Element element) {
         queueWriteLock.lock();
+        waitForQueueSizeToDrop();
         try {
             if (stopping || stopped) {
                 throw new CacheException("The element '" + element + "' couldn't be added through the write-behind queue for cache '"
                         + cacheName + "' since it's not started.");
             }
             waiting.add(new WriteOperation(element));
+            if (waiting.size() + 1 < maxQueueSize) {
+                queueIsFull.signal();
+            }
             queueIsEmpty.signal();
         } finally {
             queueWriteLock.unlock();
+        }
+    }
+
+    private void waitForQueueSizeToDrop() {
+        if (maxQueueSize > 0) {
+            while(getQueueSize() >= maxQueueSize) {
+                try {
+                    queueIsFull.await();
+                } catch (InterruptedException e) {
+                    stop();
+                    Thread.currentThread().interrupt();
+                }
+            }
         }
     }
 
@@ -444,12 +465,16 @@ class WriteBehindQueue {
      */
     public void delete(CacheEntry entry) {
         queueWriteLock.lock();
+        waitForQueueSizeToDrop();
         try {
             if (stopping || stopped) {
                 throw new CacheException("The entry for key '" + entry.getKey() + "' couldn't be deleted through the write-behind " 
                         + "queue for cache '" + cacheName + "' since it's not started.");
             }
             waiting.add(new DeleteOperation(entry));
+            if (waiting.size() + 1 < maxQueueSize) {
+                queueIsFull.signal();
+            }
             queueIsEmpty.signal();
         } finally {
             queueWriteLock.unlock();

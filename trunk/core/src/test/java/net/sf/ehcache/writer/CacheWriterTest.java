@@ -16,17 +16,25 @@
 
 package net.sf.ehcache.writer;
 
+import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.util.Properties;
+import java.util.concurrent.BrokenBarrierException;
+import java.util.concurrent.CyclicBarrier;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 import net.sf.ehcache.AbstractCacheTest;
 import net.sf.ehcache.Cache;
+import net.sf.ehcache.CacheEntry;
+import net.sf.ehcache.CacheException;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.Status;
@@ -325,6 +333,81 @@ public class CacheWriterTest extends AbstractCacheTest {
         cache.dispose();
 
         Thread.sleep(3000);
+
+        assertEquals(3, writer.getWrittenElements().size());
+        assertNotNull(writer.getWrittenElements().get("key1"));
+        assertNotNull(writer.getWrittenElements().get("key2"));
+        assertNotNull(writer.getWrittenElements().get("key3"));
+        assertEquals(3, writer.getWrittenElements().size());
+        assertEquals(2, writer.getDeletedElements().size());
+        assertTrue(writer.getDeletedElements().containsKey("key2"));
+        assertTrue(writer.getDeletedElements().containsKey("key3"));
+    }
+
+    @Test
+    public void testWriteBehindBlocksWhenFull() throws Exception {
+        final Cache cache = new Cache(
+                new CacheConfiguration("writeBehindBlocksWhenFull", 10)
+                        .cacheWriter(new CacheWriterConfiguration()
+                             .writeBehindMaxQueueSize(3)
+                            .writeMode(CacheWriterConfiguration.WriteMode.WRITE_BEHIND)));
+        final CyclicBarrier barrier = new CyclicBarrier(2);
+        TestCacheWriter writer = new TestCacheWriter(new Properties()) {
+
+            @Override
+            public void write(final Element element) throws CacheException {
+                if(super.getWrittenElements().size() == 0) {
+                    try {
+                        barrier.await();
+                        barrier.await(5, TimeUnit.SECONDS);
+                    } catch (TimeoutException e) {
+                        // expected
+                    } catch (Exception e) {
+                        throw new RuntimeException(e);
+                    }
+                }
+                super.write(element);
+            }
+
+            @Override
+            public void delete(final CacheEntry entry) throws CacheException {
+                super.delete(entry);
+            }
+        };
+        cache.registerCacheWriter(writer);
+        assertNotNull(cache.getRegisteredCacheWriter());
+
+        CacheManager.getInstance().addCache(cache);
+        assertTrue(writer.isInitialized());
+        assertEquals(0, writer.getWrittenElements().size());
+
+        Element el1 = new Element("key1", "value1");
+        Element el2 = new Element("key2", "value2");
+        Element el3 = new Element("key3", "value3");
+        cache.putWithWriter(el1);
+        barrier.await();
+        long before = System.nanoTime();
+        cache.putWithWriter(el2);
+        assertThat(TimeUnit.SECONDS.convert(System.nanoTime() - before, TimeUnit.NANOSECONDS), is(0L));
+        before = System.nanoTime();
+        cache.putWithWriter(el3);
+        assertThat(TimeUnit.SECONDS.convert(System.nanoTime() - before, TimeUnit.NANOSECONDS), is(0L));
+        before = System.nanoTime();
+        cache.removeWithWriter(el2.getKey());
+        assertThat(TimeUnit.SECONDS.convert(System.nanoTime() - before, TimeUnit.NANOSECONDS), is(0L));
+        before = System.nanoTime();
+        cache.removeWithWriter(el3.getKey());
+        assertThat(TimeUnit.SECONDS.convert(System.nanoTime() - before, TimeUnit.NANOSECONDS) > 5, is(true));
+        try {
+            barrier.await();
+            fail("this should have failed!");
+        } catch (BrokenBarrierException e) {
+            // expected!
+        }
+
+        cache.dispose();
+
+        Thread.sleep(500);
 
         assertEquals(3, writer.getWrittenElements().size());
         assertNotNull(writer.getWrittenElements().get("key1"));
