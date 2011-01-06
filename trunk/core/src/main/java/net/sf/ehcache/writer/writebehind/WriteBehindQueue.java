@@ -157,16 +157,22 @@ class WriteBehindQueue {
                         // the item processor is very fast, causing a large amount of data churn.
                         // However, if the write delay is expired, the processing should start immediately.
                         try {
-                            long delay = minWriteDelayMs;
-                            do {
-                                queueIsEmpty.await(delay, TimeUnit.MILLISECONDS);
-                                long actualDelay = System.currentTimeMillis() - getLastProcessing();
-                                if (actualDelay < minWriteDelayMs) {
-                                    delay = minWriteDelayMs - actualDelay;
-                                } else {
-                                    delay = 0;
-                                }
-                            } while (delay > 0);
+                            if (minWriteDelayMs != 0) {
+                                long delay = minWriteDelayMs;
+                                do {
+                                    queueIsEmpty.await(delay, TimeUnit.MILLISECONDS);
+                                    long actualDelay = System.currentTimeMillis() - getLastProcessing();
+                                    if (actualDelay < minWriteDelayMs) {
+                                        delay = minWriteDelayMs - actualDelay;
+                                    } else {
+                                        delay = 0;
+                                    }
+                                } while (delay > 0);
+                            } else {
+                                do {
+                                    queueIsEmpty.await();
+                                } while (waiting.size() == 0);
+                            }
                         } catch (final InterruptedException e) {
                             // if the wait for items is interrupted, act as if the bucket was cancelled
                             stop();
