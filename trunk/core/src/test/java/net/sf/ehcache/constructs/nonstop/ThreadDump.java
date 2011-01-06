@@ -34,6 +34,21 @@ public abstract class ThreadDump {
         return rv;
     }
 
+    public static String takeThreadDump() {
+        final String newline = System.getProperty("line.separator", "\n");
+        StringBuffer rv = new StringBuffer();
+        ThreadMXBean tbean = ManagementFactory.getThreadMXBean();
+        for (long id : tbean.getAllThreadIds()) {
+            ThreadInfo tinfo = tbean.getThreadInfo(id, Integer.MAX_VALUE);
+            rv.append("Thread name: " + tinfo.getThreadName()).append(" id:" + id).append(newline);
+            for (StackTraceElement e : tinfo.getStackTrace()) {
+                rv.append("    at " + e).append(newline);
+            }
+            rv.append(newline);
+        }
+        return rv.toString();
+    }
+
     public static class ThreadInformation {
         private final long threadId;
         private final String threadName;

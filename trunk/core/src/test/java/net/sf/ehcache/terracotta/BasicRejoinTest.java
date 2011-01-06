@@ -40,6 +40,7 @@ import net.sf.ehcache.config.InvalidConfigurationException;
 import net.sf.ehcache.config.TerracottaConfiguration;
 import net.sf.ehcache.config.TerracottaConfiguration.StorageStrategy;
 import net.sf.ehcache.constructs.nonstop.NonStopCacheException;
+import net.sf.ehcache.constructs.nonstop.ThreadDump;
 import net.sf.ehcache.terracotta.TerracottaClusteredInstanceHelper.TerracottaRuntimeType;
 
 import org.junit.Test;
@@ -55,8 +56,8 @@ public class BasicRejoinTest extends TestCase {
 
     private static final String ERROR_MSG_REJOIN_CUSTOM = "Rejoin cannot be used in Terracotta DSO mode";
     private static final String ERROR_MSG_REJOIN_NO_NONSTOP = "Terracotta clustered caches must be nonstop when rejoin is enabled";
-    private static final CharSequence ERROR_MSG_REJOIN_NO_TC = "Terracotta Rejoin is enabled but can't determine Terracotta Runtime. " +
-            "You are probably missing Terracotta jar(s)";
+    private static final CharSequence ERROR_MSG_REJOIN_NO_TC = "Terracotta Rejoin is enabled but can't determine Terracotta Runtime. "
+            + "You are probably missing Terracotta jar(s)";
 
     @Test
     public void testInvalidRejoinWithoutNonstop() throws Exception {
@@ -118,8 +119,9 @@ public class BasicRejoinTest extends TestCase {
         when(mockFactory.getTopology()).thenReturn(mockCacheCluster);
 
         final String cacheName = "someName";
+        CacheManager cacheManager = null;
         try {
-            CacheManager cacheManager = new CacheManager(CacheManager.class.getResourceAsStream("/rejoin/basic-rejoin-test.xml"));
+            cacheManager = new CacheManager(CacheManager.class.getResourceAsStream("/rejoin/basic-rejoin-test.xml"));
 
             CacheConfiguration config = new CacheConfiguration(cacheName, 10);
             config.addTerracotta(new TerracottaConfiguration().clustered(true));
@@ -135,6 +137,10 @@ public class BasicRejoinTest extends TestCase {
             LOG.info("Caught Expected exception: " + e);
             assertTrue(e.getMessage().contains(ERROR_MSG_REJOIN_NO_NONSTOP));
             assertTrue(e.getMessage().contains(cacheName));
+        } finally {
+            if (cacheManager != null) {
+                cacheManager.shutdown();
+            }
         }
     }
 
@@ -194,9 +200,10 @@ public class BasicRejoinTest extends TestCase {
             if (rejoinListener.rejoinedCount.get() > 0) {
                 break;
             }
-            LOG.info("Waiting for rejoin to complete.. sleeping 1 sec");
+            LOG.info("Waiting for rejoin to complete.. sleeping 1 sec, count=" + count);
             Thread.sleep(1000);
             if (++count >= 60) {
+                LOG.info(ThreadDump.takeThreadDump());
                 fail("Rejoin did not happen even after 60 seconds. Something wrong.");
             }
         }

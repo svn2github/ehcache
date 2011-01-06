@@ -317,7 +317,7 @@ public class CacheManager {
         this.allowsDynamicCacheConfig = localConfiguration.getDynamicConfig();
         this.terracottaClientConfiguration = localConfiguration.getTerracottaConfiguration();
 
-        terracottaClient = new TerracottaClient(new TerracottaClientRejoinListener() {
+        terracottaClient = new TerracottaClient(this, new TerracottaClientRejoinListener() {
             public void clusterRejoinStarted() {
                 CacheManager.this.clusterRejoinStarted();
             }

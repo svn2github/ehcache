@@ -19,8 +19,10 @@ package net.sf.ehcache.terracotta;
 import java.lang.reflect.Method;
 import java.util.Collections;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import net.sf.ehcache.CacheException;
+import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.cluster.CacheCluster;
 import net.sf.ehcache.cluster.ClusterNode;
 import net.sf.ehcache.cluster.ClusterTopologyListener;
@@ -43,21 +45,21 @@ public class TerracottaClient {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TerracottaClient.class);
 
-    private final RejoinStatus rejoinStatus = new RejoinStatus();
     private final TerracottaClientConfiguration terracottaClientConfiguration;
     private volatile ClusteredInstanceFactory clusteredInstanceFactory;
     private final TerracottaCacheCluster cacheCluster = new TerracottaCacheCluster();
+    private final RejoinWorker rejoinWorker = new RejoinWorker();
     private final TerracottaClientRejoinListener rejoinListener;
-
-    private volatile Thread rejoinThread;
 
     /**
      * Constructor accepting the {@link TerracottaClientRejoinListener} and the {@link TerracottaClientConfiguration}
      *
+     * @param cacheManager
      * @param rejoinAction
      * @param terracottaClientConfiguration
      */
-    public TerracottaClient(TerracottaClientRejoinListener rejoinAction, TerracottaClientConfiguration terracottaClientConfiguration) {
+    public TerracottaClient(CacheManager cacheManager, TerracottaClientRejoinListener rejoinAction,
+            TerracottaClientConfiguration terracottaClientConfiguration) {
         this.rejoinListener = rejoinAction;
         this.terracottaClientConfiguration = terracottaClientConfiguration;
         if (terracottaClientConfiguration != null) {
@@ -72,6 +74,9 @@ public class TerracottaClient {
             if (type != TerracottaRuntimeType.EnterpriseExpress && type != TerracottaRuntimeType.Express) {
                 throw new InvalidConfigurationException("Rejoin cannot be used in Terracotta DSO mode.");
             }
+            Thread rejoinThread = new Thread(rejoinWorker, "Rejoin Worker Thread [cacheManager: " + cacheManager.getName() + "]");
+            rejoinThread.setDaemon(true);
+            rejoinThread.start();
         }
     }
 
@@ -108,7 +113,7 @@ public class TerracottaClient {
      * @return The ClusteredInstanceFactory
      */
     public ClusteredInstanceFactory getClusteredInstanceFactory() {
-        waitUntilRejoinComplete();
+        rejoinWorker.waitUntilRejoinComplete();
         return clusteredInstanceFactory;
     }
 
@@ -120,7 +125,7 @@ public class TerracottaClient {
      * @return true if the clusteredInstanceFactory was created, otherwise returns false
      */
     public boolean createClusteredInstanceFactory(Map<String, CacheConfiguration> cacheConfigs) {
-        waitUntilRejoinComplete();
+        rejoinWorker.waitUntilRejoinComplete();
         if (clusteredInstanceFactory != null) {
             return false;
         }
@@ -142,7 +147,7 @@ public class TerracottaClient {
      * @return the {@link CacheCluster} associated with this client
      */
     public TerracottaCacheCluster getCacheCluster() {
-        waitUntilRejoinComplete();
+        rejoinWorker.waitUntilRejoinComplete();
         if (clusteredInstanceFactory == null) {
             throw new CacheException("Cannot get CacheCluster as ClusteredInstanceFactory has not been initialized yet.");
         }
@@ -153,10 +158,11 @@ public class TerracottaClient {
      * Shuts down the client
      */
     public synchronized void shutdown() {
-        waitUntilRejoinComplete();
+        rejoinWorker.waitUntilRejoinComplete();
         if (clusteredInstanceFactory != null) {
             clusteredInstanceFactory.shutdown();
         }
+        rejoinWorker.shutdown();
     }
 
     private synchronized ClusteredInstanceFactory createNewClusteredInstanceFactory(Map<String, CacheConfiguration> cacheConfigs) {
@@ -187,51 +193,151 @@ public class TerracottaClient {
         if (!isRejoinEnabled()) {
             return;
         }
-        synchronized (this) {
-            waitUntilRejoinComplete();
-            LOGGER.info("Starting Terracotta Rejoin...");
-            rejoinStatus.rejoinStarted();
-            rejoinThread = new Thread(new RejoinAction(oldNode), "Rejoin Thread");
-            rejoinThread.start();
-        }
+        rejoinWorker.startRejoin(oldNode);
     }
 
     private boolean isRejoinEnabled() {
         return terracottaClientConfiguration != null && terracottaClientConfiguration.isRejoin();
     }
 
-    private void waitUntilRejoinComplete() {
-        if (Thread.currentThread() == rejoinThread) {
-            // rejoin thread does not wait
-            return;
-        }
-        if (isRejoinEnabled() && rejoinStatus.isRejoinInProgress()) {
-            rejoinStatus.waitUntilRejoinComplete();
-        }
-    }
-
     /**
-     * Rejoin Action runnable
+     * Private class responsible for carrying out rejoin
+     *
+     * @author Abhishek Sanoujam
+     *
      */
-    private class RejoinAction implements Runnable {
+    private class RejoinWorker implements Runnable {
 
-        private final ClusterNode oldNode;
-
-        public RejoinAction(ClusterNode oldNode) {
-            this.oldNode = oldNode;
-        }
+        private final Object rejoinSync = new Object();
+        private final RejoinStatus rejoinStatus = new RejoinStatus();
+        private final AtomicInteger rejoinCount = new AtomicInteger();
+        private final RejoinRequestHolder rejoinRequestHolder = new RejoinRequestHolder();
+        private volatile boolean shutdown;
+        private volatile Thread rejoinThread;
 
         public void run() {
+            rejoinThread = Thread.currentThread();
+            while (!shutdown) {
+                try {
+                    waitUntilRejoinRequested();
+                    if (shutdown) {
+                        break;
+                    }
+                    doRejoin();
+                } catch (Throwable e) {
+                    LOGGER.warn("Ignoring exception in RejoinWorker", e);
+                }
+            }
+        }
+
+        public void shutdown() {
+            synchronized (rejoinSync) {
+                shutdown = true;
+                rejoinSync.notifyAll();
+            }
+        }
+
+        private void doRejoin() {
+            final RejoinRequest rejoinRequest = rejoinRequestHolder.consume();
+            if (rejoinRequest == null) {
+                return;
+            }
+            final ClusterNode oldNodeReference = rejoinRequest.getRejoinOldNode();
+            rejoinStatus.rejoinStarted();
+            int rejoinNumber = rejoinCount.incrementAndGet();
+            LOGGER.info("Starting Terracotta Rejoin (as client id: " + (oldNodeReference == null ? "null" : oldNodeReference.getId())
+                    + " left the cluster) [rejoin count = " + rejoinNumber + "] ... ");
             rejoinListener.clusterRejoinStarted();
             clusteredInstanceFactory = createNewClusteredInstanceFactory(Collections.EMPTY_MAP);
             // now reinitialize all existing caches with the new instance factory, outside lock
             rejoinListener.clusterRejoinComplete();
-            rejoinStatus.rejoinComplete();
-            LOGGER.info("Rejoin Complete");
-
             // now fire the clusterRejoined event
-            cacheCluster.fireNodeRejoinedEvent(oldNode, cacheCluster.getCurrentNode());
+            try {
+                cacheCluster.fireNodeRejoinedEvent(oldNodeReference, cacheCluster.getCurrentNode());
+            } catch (Throwable e) {
+                LOGGER.error("Caught exception while firing rejoin event", e);
+            }
+            LOGGER.info("Rejoin Complete [rejoin count = " + rejoinNumber + "]");
+            rejoinStatus.rejoinComplete();
         }
+
+        private void waitUntilRejoinRequested() {
+            synchronized (rejoinSync) {
+                while (!rejoinRequestHolder.isRejoinRequested()) {
+                    if (shutdown) {
+                        break;
+                    }
+                    try {
+                        rejoinSync.wait();
+                    } catch (InterruptedException e) {
+                        // ignore
+                    }
+                }
+            }
+        }
+
+        public void startRejoin(ClusterNode oldNode) {
+            synchronized (rejoinSync) {
+                rejoinRequestHolder.addRejoinRequest(oldNode);
+                rejoinSync.notifyAll();
+            }
+        }
+
+        private void waitUntilRejoinComplete() {
+            if (rejoinThread == Thread.currentThread()) {
+                return;
+            }
+            if (isRejoinEnabled()) {
+                rejoinStatus.waitUntilRejoinComplete();
+            }
+        }
+    }
+
+    /**
+     * Private class maintaining rejoin requests
+     *
+     * @author Abhishek Sanoujam
+     *
+     */
+    private static class RejoinRequestHolder {
+        private RejoinRequest outstandingRequest;
+
+        public synchronized void addRejoinRequest(ClusterNode oldNode) {
+            // will hold only one pending rejoin
+            outstandingRequest = new RejoinRequest(oldNode);
+        }
+
+        public synchronized RejoinRequest consume() {
+            if (outstandingRequest == null) {
+                return null;
+            }
+            RejoinRequest rv = outstandingRequest;
+            outstandingRequest = null;
+            return rv;
+        }
+
+        public synchronized boolean isRejoinRequested() {
+            return outstandingRequest != null;
+        }
+    }
+
+    /**
+     * Private class - Rejoin request bean
+     *
+     * @author Abhishek Sanoujam
+     *
+     */
+    private static class RejoinRequest {
+        private final ClusterNode oldNode;
+
+        public RejoinRequest(ClusterNode oldNode) {
+            this.oldNode = oldNode;
+        }
+
+        public ClusterNode getRejoinOldNode() {
+            return oldNode;
+        }
+
     }
 
     /**
