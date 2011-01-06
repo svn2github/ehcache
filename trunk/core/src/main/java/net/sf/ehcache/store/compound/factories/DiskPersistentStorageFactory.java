@@ -50,11 +50,10 @@ import net.sf.ehcache.store.DiskStore.DiskElement;
 import net.sf.ehcache.store.compound.CompoundStore;
 import net.sf.ehcache.store.compound.ElementSubstitute;
 import net.sf.ehcache.store.compound.ElementSubstituteFilter;
-import net.sf.ehcache.store.compound.factories.DiskStorageFactory.DiskMarker;
 
 /**
  * This will be the disk-persistent element substitute factory
- * 
+ *
  * @author Chris Dennis
  */
 public class DiskPersistentStorageFactory extends DiskStorageFactory<ElementSubstitute> {
@@ -62,26 +61,26 @@ public class DiskPersistentStorageFactory extends DiskStorageFactory<ElementSubs
     private static final Logger LOG = LoggerFactory.getLogger(DiskPersistentStorageFactory.class);
     private static final int MAX_EVICT = 5;
     private static final int SAMPLE_SIZE = 30;
-    
+
     private final ElementSubstituteFilter<DiskSubstitute> inMemoryFilter = new InMemoryFilter();
     private final ElementSubstituteFilter<CachingDiskMarker> flushableFilter = new FlushableFilter();
     private final ElementSubstituteFilter<CachingDiskMarker> onDiskFilter = new OnDiskFilter();
-    
+
     private final AtomicInteger inMemory = new AtomicInteger();
     private final AtomicInteger onDisk = new AtomicInteger();
 
     private final File indexFile;
-    
+
     private final IndexWriteTask flushTask;
-    
+
     private volatile int diskCapacity;
     private volatile int memoryCapacity;
-    
+
     private volatile Policy memoryPolicy;
-    
+
     /**
      * Constructs an disk persistent factory for the given cache and disk path.
-     * 
+     *
      * @param cache cache that fronts this factory
      * @param diskPath path to store data in
      */
@@ -89,7 +88,7 @@ public class DiskPersistentStorageFactory extends DiskStorageFactory<ElementSubs
         super(getDataFile(diskPath, cache), cache.getCacheConfiguration().getDiskExpiryThreadIntervalSeconds(),
                 cache.getCacheConfiguration().getDiskSpoolBufferSizeMB(), cache.getCacheEventNotificationService(),
                 false, cache.getCacheConfiguration().getDiskAccessStripes());
-        
+
         indexFile = new File(getDataFile().getParentFile(), getIndexFileName(cache));
         flushTask = new IndexWriteTask(indexFile, cache.getCacheConfiguration().isClearOnFlush());
 
@@ -98,7 +97,7 @@ public class DiskPersistentStorageFactory extends DiskStorageFactory<ElementSubs
             indexFile.delete();
         } else if (getDataFile().exists() && indexFile.exists()) {
             if (getDataFile().lastModified() > (indexFile.lastModified() + TimeUnit.SECONDS.toMillis(1))) {
-                LOG.warn("The index for data file {} is out of date, probably due to an unclean shutdown. " 
+                LOG.warn("The index for data file {} is out of date, probably due to an unclean shutdown. "
                         + "Deleting index file {}", getDataFile(), indexFile);
                 indexFile.delete();
             }
@@ -125,7 +124,7 @@ public class DiskPersistentStorageFactory extends DiskStorageFactory<ElementSubs
 
         throw new IllegalArgumentException(policySelection + " isn't a valid eviction policy");
     }
-    
+
     private static File getDataFile(String diskPath, Ehcache cache) {
         if (diskPath == null) {
             throw new CacheException(cache.getName() + " Cache: Could not create disk store. "
@@ -155,17 +154,17 @@ public class DiskPersistentStorageFactory extends DiskStorageFactory<ElementSubs
 
         return data;
     }
-    
+
     private static final String getDataFileName(Ehcache cache) {
         String safeName = cache.getName().replace('/', '_');
         return safeName + ".data";
     }
-    
+
     private static final String getIndexFileName(Ehcache cache) {
         String safeName = cache.getName().replace('/', '_');
         return safeName + ".index";
     }
-    
+
     /**
      * {@inheritDoc}
      */
@@ -239,7 +238,7 @@ public class DiskPersistentStorageFactory extends DiskStorageFactory<ElementSubs
         super.bind(store);
         loadIndex();
     }
-    
+
     /**
      * {@inheritDoc}
      */
@@ -262,7 +261,7 @@ public class DiskPersistentStorageFactory extends DiskStorageFactory<ElementSubs
     public Future<Void> flush() {
         return schedule(flushTask);
     }
-    
+
     /**
      * {@inheritDoc}
      */
@@ -275,15 +274,15 @@ public class DiskPersistentStorageFactory extends DiskStorageFactory<ElementSubs
      * Disk marker implementation that can hold a cached Element reference.
      */
     private final static class CachingDiskMarker extends DiskMarker implements Serializable {
-        
+
         private static final long serialVersionUID = 43;
 
         private static final AtomicReferenceFieldUpdater<CachingDiskMarker, Element> CACHED_UPDATER =
             AtomicReferenceFieldUpdater.newUpdater(CachingDiskMarker.class, Element.class, "cached");
-        
+
         private transient volatile Element cached;
         private volatile long expiry;
-        
+
         CachingDiskMarker(DiskPersistentStorageFactory factory, long position, int size, Element element) {
             super(factory, position, size, element);
             this.expiry = element.getExpirationTime();
@@ -307,11 +306,11 @@ public class DiskPersistentStorageFactory extends DiskStorageFactory<ElementSubs
             return false;
           }
         }
-        
+
         Element getCached() {
             return CACHED_UPDATER.get(this);
         }
-        
+
         boolean isCaching() {
             return getCached() != null;
         }
@@ -322,7 +321,7 @@ public class DiskPersistentStorageFactory extends DiskStorageFactory<ElementSubs
             return e == null ? expiry : e.getExpirationTime();
         }
     }
-    
+
     /**
      * Filters for in-memory elements created by this factory
      */
@@ -335,7 +334,7 @@ public class DiskPersistentStorageFactory extends DiskStorageFactory<ElementSubs
             if (!created(object)) {
                 return false;
             }
-            
+
             if (object instanceof PersistentPlaceholder) {
                 return true;
             } else if (object instanceof CachingDiskMarker) {
@@ -358,7 +357,7 @@ public class DiskPersistentStorageFactory extends DiskStorageFactory<ElementSubs
             if (!created(object)) {
                 return false;
             }
-            
+
             return (object instanceof CachingDiskMarker) && ((CachingDiskMarker) object).isCaching();
         }
     }
@@ -375,7 +374,7 @@ public class DiskPersistentStorageFactory extends DiskStorageFactory<ElementSubs
             if (!created(object)) {
                 return false;
             }
-            
+
             if (object instanceof CachingDiskMarker) {
                 return !((CachingDiskMarker) object).isCaching();
             } else {
@@ -390,7 +389,7 @@ public class DiskPersistentStorageFactory extends DiskStorageFactory<ElementSubs
     public boolean isInMemory(Object object) {
         return inMemoryFilter.allows(object);
     }
-    
+
     /**
      * Return {@code true} if the given element is on disk
      */
@@ -404,7 +403,7 @@ public class DiskPersistentStorageFactory extends DiskStorageFactory<ElementSubs
     public int getInMemorySize() {
         return inMemory.get();
     }
-    
+
     /**
      * Return the approximate serialized size of the in-memory elements
      */
@@ -432,7 +431,7 @@ public class DiskPersistentStorageFactory extends DiskStorageFactory<ElementSubs
     public void setInMemoryCapacity(int capacity) {
         memoryCapacity = capacity;
     }
-    
+
     /**
      * Set the maximum on-disk capacity for this factory.
      */
@@ -453,7 +452,7 @@ public class DiskPersistentStorageFactory extends DiskStorageFactory<ElementSubs
     public Policy getInMemoryEvictionPolicy() {
         return memoryPolicy;
     }
-    
+
     private void inMemoryEvict(int size, Object keyHint) {
         if (memoryCapacity > 0) {
             int overflow = size - memoryCapacity;
@@ -467,12 +466,12 @@ public class DiskPersistentStorageFactory extends DiskStorageFactory<ElementSubs
             }
         }
     }
-    
+
     private CachingDiskMarker getMemoryEvictionTarget(Object keyHint, int size) {
         List<CachingDiskMarker> sample = store.getRandomSample(flushableFilter, Math.min(SAMPLE_SIZE, size), keyHint);
-        
+
         CachingDiskMarker target = null;
-        
+
         for (CachingDiskMarker substitute : sample) {
             if (target == null) {
                 target = substitute;
@@ -494,7 +493,7 @@ public class DiskPersistentStorageFactory extends DiskStorageFactory<ElementSubs
             return ((PersistentPlaceholder) substitute).getElement();
         }
     }
-    
+
     private void onDiskEvict(int size, Object keyHint) {
         if (diskCapacity > 0) {
             int overflow = size - diskCapacity;
@@ -510,7 +509,7 @@ public class DiskPersistentStorageFactory extends DiskStorageFactory<ElementSubs
             }
         }
     }
-    
+
     private DiskSubstitute getDiskEvictionTarget(Object keyHint, int size) {
         List<CachingDiskMarker> sample = store.getRandomSample(onDiskFilter, Math.min(SAMPLE_SIZE, size), keyHint);
         CachingDiskMarker target = null;
@@ -567,7 +566,7 @@ public class DiskPersistentStorageFactory extends DiskStorageFactory<ElementSubs
             return result;
         }
     }
-    
+
     /**
      * Task that writes the index file for this factory.
      */
@@ -575,7 +574,7 @@ public class DiskPersistentStorageFactory extends DiskStorageFactory<ElementSubs
 
         private final File index;
         private final boolean clearOnFlush;
-        
+
         /**
          * Create a disk flush task that writes to the given file.
          */
@@ -615,20 +614,20 @@ public class DiskPersistentStorageFactory extends DiskStorageFactory<ElementSubs
             }
             return null;
         }
-        
+
     }
-    
+
     private void loadIndex() {
         if (!indexFile.exists()) {
             return;
         }
-        
+
         try {
             ObjectInputStream ois = new ObjectInputStream(new FileInputStream(indexFile));
             try {
                 Object key = ois.readObject();
                 Object value = ois.readObject();
-                
+
                 if (key instanceof Map && value instanceof List) {
                     LOG.info("Loading old format index file.");
                     loadOldIndex((Map) key);
@@ -665,7 +664,7 @@ public class DiskPersistentStorageFactory extends DiskStorageFactory<ElementSubs
         for (Entry<Object, DiskElement> entry : elements.entrySet()) {
             Object key = entry.getKey();
             CachingDiskMarker marker = new CachingDiskMarker(this, entry.getValue());
-            
+
             if (store.putRawIfAbsent(key, marker)) {
                 onDisk.incrementAndGet();
             } else {
