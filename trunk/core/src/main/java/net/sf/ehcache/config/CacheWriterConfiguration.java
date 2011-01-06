@@ -75,6 +75,11 @@ public class CacheWriterConfiguration implements Cloneable {
     public static final int DEFAULT_WRITE_BEHIND_CONCURRENCY = 1;
 
     /**
+     * Default max queue size for write behind
+     */
+    public static final int DEFAULT_WRITE_BEHIND_MAX_QUEUE_SIZE = 0;
+
+    /**
      * Represents how elements are written to the {@link net.sf.ehcache.writer.CacheWriter}
      */
     public static enum WriteMode {
@@ -124,6 +129,7 @@ public class CacheWriterConfiguration implements Cloneable {
     private int retryAttempts = DEFAULT_RETRY_ATTEMPTS;
     private int retryAttemptDelaySeconds = DEFAULT_RETRY_ATTEMPT_DELAY_SECONDS;
     private int writeBehindConcurrency = DEFAULT_WRITE_BEHIND_CONCURRENCY;
+    private int writeBehindMaxQueueSize = DEFAULT_WRITE_BEHIND_MAX_QUEUE_SIZE;
     private CacheWriterFactoryConfiguration cacheWriterFactoryConfiguration;
 
     /**
@@ -559,6 +565,36 @@ public class CacheWriterConfiguration implements Cloneable {
      */
     public int getWriteBehindConcurrency() {
         return writeBehindConcurrency;
+    }
+
+    /**
+     * Configures the maximum amount of operations to be on the waiting queue, before it blocks
+     * @param writeBehindMaxQueueSize maximum amount of operations allowed on the waiting queue
+     */
+    public void setWriteBehindMaxQueueSize(final int writeBehindMaxQueueSize) {
+        if (writeBehindMaxQueueSize < 0) {
+            this.writeBehindMaxQueueSize = DEFAULT_WRITE_BEHIND_MAX_QUEUE_SIZE;
+        } else {
+            this.writeBehindMaxQueueSize = writeBehindMaxQueueSize;
+        }
+    }
+
+    /**
+     * Accessor
+     * @return the maximum amount of operations allowed on the write behind queue
+     */
+    public int getWriteBehindMaxQueueSize() {
+        return writeBehindMaxQueueSize;
+    }
+
+    /**
+     * @param writeBehindMaxQueueSize maximum amount of operations allowed on the waiting queue
+     * @return this configuration instance
+     * @see #setWriteBehindMaxQueueSize(int)
+     */
+    public CacheWriterConfiguration writeBehindMaxQueueSize(int writeBehindMaxQueueSize) {
+        this.setWriteBehindMaxQueueSize(writeBehindMaxQueueSize);
+        return this;
     }
 
     /**

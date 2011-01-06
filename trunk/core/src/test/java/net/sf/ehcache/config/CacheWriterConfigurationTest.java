@@ -44,6 +44,7 @@ public class CacheWriterConfigurationTest {
         assertEquals(CacheWriterConfiguration.DEFAULT_RETRY_ATTEMPTS, config.getRetryAttempts());
         assertEquals(CacheWriterConfiguration.DEFAULT_RETRY_ATTEMPT_DELAY_SECONDS, config.getRetryAttemptDelaySeconds());
         assertEquals(CacheWriterConfiguration.DEFAULT_WRITE_BEHIND_CONCURRENCY, config.getWriteBehindConcurrency());
+        assertEquals(CacheWriterConfiguration.DEFAULT_WRITE_BEHIND_MAX_QUEUE_SIZE, config.getWriteBehindMaxQueueSize());
     }
 
     @Test
@@ -55,7 +56,8 @@ public class CacheWriterConfigurationTest {
                 .writeBatchSize(0)
                 .retryAttempts(0)
                 .retryAttemptDelaySeconds(0)
-                .writeBehindConcurrency(0);
+                .writeBehindConcurrency(0)
+                .writeBehindMaxQueueSize(0);
         assertEquals(CacheWriterConfiguration.DEFAULT_WRITE_MODE, config.getWriteMode());
         assertEquals(0, config.getMinWriteDelay());
         assertEquals(0, config.getMaxWriteDelay());
@@ -64,6 +66,7 @@ public class CacheWriterConfigurationTest {
         assertEquals(0, config.getRetryAttempts());
         assertEquals(0, config.getRetryAttemptDelaySeconds());
         assertEquals(1, config.getWriteBehindConcurrency());
+        assertEquals(0, config.getWriteBehindMaxQueueSize());
     }
 
     @Test
@@ -75,7 +78,8 @@ public class CacheWriterConfigurationTest {
                 .writeBatchSize(-40)
                 .retryAttempts(-50)
                 .retryAttemptDelaySeconds(-1)
-                .writeBehindConcurrency(-345);
+                .writeBehindConcurrency(-345)
+                .writeBehindMaxQueueSize(-1);
         assertEquals(CacheWriterConfiguration.DEFAULT_WRITE_MODE, config.getWriteMode());
         assertEquals(0, config.getMinWriteDelay());
         assertEquals(0, config.getMaxWriteDelay());
@@ -84,6 +88,7 @@ public class CacheWriterConfigurationTest {
         assertEquals(0, config.getRetryAttempts());
         assertEquals(0, config.getRetryAttemptDelaySeconds());
         assertEquals(1, config.getWriteBehindConcurrency());
+        assertEquals(0, config.getWriteBehindMaxQueueSize());
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -111,7 +116,8 @@ public class CacheWriterConfigurationTest {
                 .writeBatchSize(5)
                 .retryAttempts(6)
                 .retryAttemptDelaySeconds(7)
-                .writeBehindConcurrency(4);
+                .writeBehindConcurrency(4)
+                .writeBehindMaxQueueSize(125);
         assertEquals(CacheWriterConfiguration.WriteMode.WRITE_BEHIND, config.getWriteMode());
         assertEquals(true, config.getNotifyListenersOnException());
         assertEquals(2, config.getMinWriteDelay());
@@ -123,5 +129,6 @@ public class CacheWriterConfigurationTest {
         assertEquals(6, config.getRetryAttempts());
         assertEquals(7, config.getRetryAttemptDelaySeconds());
         assertEquals(4, config.getWriteBehindConcurrency());
+        assertEquals(125, config.getWriteBehindMaxQueueSize());
     }
 }
