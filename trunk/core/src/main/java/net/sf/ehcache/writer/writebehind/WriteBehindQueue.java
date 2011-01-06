@@ -449,7 +449,7 @@ class WriteBehindQueue {
 
     private void waitForQueueSizeToDrop() {
         if (maxQueueSize > 0) {
-            while(getQueueSize() >= maxQueueSize) {
+            while (getQueueSize() >= maxQueueSize) {
                 try {
                     queueIsFull.await();
                 } catch (InterruptedException e) {
