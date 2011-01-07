@@ -164,6 +164,8 @@ public class BasicRejoinTest extends TestCase {
         Cache cache = cacheManager.getCache("test");
         assertNotNull(cache);
 
+        cache.getCacheConfiguration().getTerracottaConfiguration().getNonstopConfiguration().timeoutMillis(2000);
+
         cache.put(new Element("key", "value"));
 
         Element element = cache.get("key");
