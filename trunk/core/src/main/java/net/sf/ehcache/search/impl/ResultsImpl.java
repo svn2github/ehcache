@@ -31,23 +31,23 @@ import net.sf.ehcache.search.SearchException;
 public class ResultsImpl implements Results {
 
     private final List<Result> results;
-    private final List<Object> aggregateResults;
     private final boolean hasKeys;
     private final boolean hasAttributes;
+    private final boolean hasAggregators;
 
     /**
      * Constructor
      *
      * @param results
      * @param hasKeys
-     * @param aggregateResults
      * @param hasAttributes
+     * @param hasAggregators
      */
-    public ResultsImpl(List<Result> results, boolean hasKeys, List<Object> aggregateResults, boolean hasAttributes) {
+    public ResultsImpl(List<Result> results, boolean hasKeys, boolean hasAttributes, boolean hasAggregators) {
         this.hasKeys = hasKeys;
         this.hasAttributes = hasAttributes;
+        this.hasAggregators = hasAggregators;
         this.results = Collections.unmodifiableList(results);
-        this.aggregateResults = Collections.unmodifiableList(aggregateResults);
     }
 
     /**
@@ -116,17 +116,7 @@ public class ResultsImpl implements Results {
      * {@inheritDoc}
      */
     public boolean hasAggregators() {
-        return aggregateResults.size() > 0;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public List<Object> getAggregatorResults() throws SearchException {
-        if (!hasAggregators()) {
-            throw new SearchException("No aggregators present in query");
-        }
-        return this.aggregateResults;
+        return hasAggregators;
     }
 
 }

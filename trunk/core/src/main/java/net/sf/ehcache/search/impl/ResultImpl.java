@@ -17,6 +17,8 @@
 package net.sf.ehcache.search.impl;
 
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 
 import net.sf.ehcache.search.Attribute;
@@ -35,6 +37,7 @@ public class ResultImpl implements Result {
     private final StoreQuery query;
     private final Map<String, Object> attributes;
     private final Object[] sortAttributes;
+    private volatile List<Object> aggregateResults = Collections.emptyList();
 
     /**
      * Constructor
@@ -49,6 +52,15 @@ public class ResultImpl implements Result {
         this.key = key;
         this.attributes = attributes;
         this.sortAttributes = sortAttributes;
+    }
+
+    /**
+     * Set the aggregate results for this row
+     *
+     * @param aggregateResults
+     */
+    public void setAggregateResults(List<Object> aggregateResults) {
+        this.aggregateResults = Collections.unmodifiableList(aggregateResults);
     }
 
     /**
@@ -88,6 +100,16 @@ public class ResultImpl implements Result {
     public String toString() {
         return "ResultImpl [attributes=" + attributes + ", key=" + key + ", query=" + query + ", sortAttributes="
                 + Arrays.toString(sortAttributes) + "]";
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public List<Object> getAggregatorResults() throws SearchException {
+        if (this.aggregateResults.isEmpty()) {
+            throw new SearchException("No aggregators present in query");
+        }
+        return this.aggregateResults;
     }
 
 }

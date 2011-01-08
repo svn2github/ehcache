@@ -16,6 +16,8 @@
 
 package net.sf.ehcache.search;
 
+import java.util.List;
+
 /**
  * Represents a single cache entry that has been selected by a cache query
  *
@@ -41,5 +43,14 @@ public interface Result {
      *             originating query
      */
     <T> T getAttribute(Attribute<T> attribute) throws SearchException;
+
+    /**
+     * Retrieve the aggregator value(s)
+     *
+     * @return the aggregators value as a {@link List}. The aggregator results will be in the same order they were added to the query
+     * @throws SearchException if no aggregators were requested in the query
+     */
+    List<Object> getAggregatorResults() throws SearchException;
+
 
 }

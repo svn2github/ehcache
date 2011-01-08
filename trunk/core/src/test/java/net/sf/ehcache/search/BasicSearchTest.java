@@ -282,7 +282,10 @@ public class BasicSearchTest extends TestCase {
         query.end();
 
         Results results = query.execute();
-        assertEquals(246, results.getAggregatorResults().get(0));
+        assertEquals(1, results.size());
+        for (Result result : results.all()) {
+            assertEquals(246, result.getAggregatorResults().get(0));
+        }
     }
 
     public void testBuiltinFunctions() {
@@ -299,7 +302,10 @@ public class BasicSearchTest extends TestCase {
 
             Results results = query.execute();
             assertTrue(results.hasAggregators());
-            assertEquals(4, results.getAggregatorResults().get(0));
+            assertEquals(1, results.size());
+            for (Result result : results.all()) {
+                assertEquals(4, result.getAggregatorResults().get(0));
+            }
         }
 
         {
@@ -309,7 +315,10 @@ public class BasicSearchTest extends TestCase {
 
             Results results = query.execute();
             assertTrue(results.hasAggregators());
-            assertEquals(35, results.getAggregatorResults().get(0));
+            assertEquals(1, results.size());
+            for (Result result : results.all()) {
+                assertEquals(35, result.getAggregatorResults().get(0));
+            }
         }
 
         {
@@ -319,7 +328,10 @@ public class BasicSearchTest extends TestCase {
 
             Results results = query.execute();
             assertTrue(results.hasAggregators());
-            assertEquals(23, results.getAggregatorResults().get(0));
+            assertEquals(1, results.size());
+            for (Result result : results.all()) {
+                assertEquals(23, result.getAggregatorResults().get(0));
+            }
         }
 
         {
@@ -329,7 +341,10 @@ public class BasicSearchTest extends TestCase {
 
             Results results = query.execute();
             assertTrue(results.hasAggregators());
-            assertEquals(123L, results.getAggregatorResults().get(0));
+            assertEquals(1, results.size());
+            for (Result result : results.all()) {
+                assertEquals(123L, result.getAggregatorResults().get(0));
+            }
         }
 
         {
@@ -339,7 +354,10 @@ public class BasicSearchTest extends TestCase {
 
             Results results = query.execute();
             assertTrue(results.hasAggregators());
-            assertEquals(30.75D, results.getAggregatorResults().get(0));
+            assertEquals(1, results.size());
+            for (Result result : results.all()) {
+                assertEquals(30.75D, result.getAggregatorResults().get(0));
+            }
         }
 
         {
@@ -351,8 +369,11 @@ public class BasicSearchTest extends TestCase {
 
             Results results = query.execute();
             assertTrue(results.hasAggregators());
-            assertEquals(23, results.getAggregatorResults().get(0));
-            assertEquals(35, results.getAggregatorResults().get(1));
+            assertEquals(1, results.size());
+            for (Result result : results.all()) {
+                assertEquals(23, result.getAggregatorResults().get(0));
+                assertEquals(35, result.getAggregatorResults().get(1));
+            }
         }
 
         {
@@ -364,7 +385,10 @@ public class BasicSearchTest extends TestCase {
 
             Results results = query.execute();
             assertTrue(results.hasAggregators());
-            assertEquals(26.5D, results.getAggregatorResults().get(0));
+            assertEquals(1, results.size());
+            for (Result result : results.all()) {
+                assertEquals(26.5D, result.getAggregatorResults().get(0));
+            }
         }
 
         {
@@ -378,7 +402,10 @@ public class BasicSearchTest extends TestCase {
             Results results = query.execute();
             assertTrue(results.hasAggregators());
             assertTrue(results.hasKeys());
-            assertEquals(26.5D, results.getAggregatorResults().get(0));
+            assertEquals(2, results.size());
+            for (Result result : results.all()) {
+                assertEquals(26.5D, result.getAggregatorResults().get(0));
+            }
 
             verify(cache, query, 2, 4);
         }
@@ -392,12 +419,16 @@ public class BasicSearchTest extends TestCase {
             Results results = query.execute();
             assertTrue(results.hasAggregators());
             assertFalse(results.hasKeys());
-            assertEquals(4, results.getAggregatorResults().get(0));
+            for (Result result : results.all()) {
+                assertEquals(4, result.getAggregatorResults().get(0));
+            }
 
             results = query.execute();
             assertTrue(results.hasAggregators());
             assertFalse(results.hasKeys());
-            assertEquals(4, results.getAggregatorResults().get(0));
+            for (Result result : results.all()) {
+                assertEquals(4, result.getAggregatorResults().get(0));
+            }
         }
     }
 

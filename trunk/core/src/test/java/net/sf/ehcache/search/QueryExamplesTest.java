@@ -106,8 +106,10 @@ public class QueryExamplesTest {
         // select max(age) -- named indexed attribute "age"
         Query sumQuery = cache.createQuery().includeAggregator(age.sum()).end();
         results = sumQuery.execute();
-        Long sumResult = (Long) results.getAggregatorResults().get(0);
-        LOG.info("Sum is: " + sumResult);
+        for (Result result : results.all()) {
+            Long sumResult = (Long) result.getAggregatorResults().get(0);
+            LOG.info("Sum is: " + sumResult);
+        }
 
         // select keys with criteria age == 12 AND gender = "timmy"
         query = cache.createQuery().includeKeys().addCriteria(age.eq(12).and(gender.eq("timmy"))).end();

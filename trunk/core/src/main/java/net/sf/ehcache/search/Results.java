@@ -89,11 +89,4 @@ public interface Results {
      */
     boolean hasAggregators();
 
-    /**
-     * Retrieve the aggregator value(s) for this query
-     *
-     * @return the aggregators value as a {@link List}. The aggregator results will be in the same order they were added to the query
-     * @throws SearchException if no aggregators were requested in the query
-     */
-    List<Object> getAggregatorResults() throws SearchException;
 }

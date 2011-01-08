@@ -387,8 +387,7 @@ query.execute();
 
 * Search Results
 
-  Queries return a <<<Results>>> object which contains a list of objects of class <<<Result>>> plus
-   any <<<Aggregator>>> results.
+  Queries return a <<<Results>>> object which contains a list of objects of class <<<Result>>>
 
 **  Results
 
@@ -406,20 +405,24 @@ query.execute();
 
   * <<<hasAggregators()>>>
 
-  Aggregator results are summaries computed for the search. They are available <<<Results.getAggregatorResults>>> which returns
-   a list of <<<Aggregator>>>s in the same order in which they were used in the <<<Query>>>.
-
 ** Result
 
    Each <<<Element>>> in the cache found with a query will be represented as a <<<Result>>> object. So if a query finds
-   350 elements there will be 350 <<<Result>>> objects.
+   350 elements there will be 350 <<<Result>>> objects. An exception to this if no keys or attributes are included but 
+   aggregators are -- In this case there will be exactly one <<<Result>>> present
 
-   A Result object can contain either:
+   A Result object can contain:
 
    *    the Element key - when <<<includeKeys()>>> was added to the query
 
    *    predefined attribute(s) extracted from an Element value - when <<<includeAttribute(...)>>> was added to the query. To access
         an attribute from Result, use <<<getAttribute(Attribute<T> attribute>>>.
+   
+   *    aggregator results 
+
+  Aggregator results are summaries computed for the search. They are available <<<Result.getAggregatorResults>>> which returns
+   a list of <<<Aggregator>>>s in the same order in which they were used in the <<<Query>>>.
+
 
 **  Aggregators
 

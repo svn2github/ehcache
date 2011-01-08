@@ -312,6 +312,8 @@ public final class MemoryOnlyStore extends CompoundStore implements CacheConfigu
 
         boolean hasOrder = !query.getOrdering().isEmpty();
 
+        boolean anyMatches = false;
+
         for (Element element : elementSet()) {
             if (!hasOrder && query.maxResults() >= 0 && results.size() == query.maxResults()) {
                 break;
@@ -322,6 +324,8 @@ public final class MemoryOnlyStore extends CompoundStore implements CacheConfigu
             boolean match = c.execute(element, elementAttributeValues);
 
             if (match) {
+                anyMatches = true;
+
                 if (includeResults) {
                     final Map<String, Object> attributes;
                     if (query.requestedAttributes().isEmpty()) {
@@ -382,7 +386,20 @@ public final class MemoryOnlyStore extends CompoundStore implements CacheConfigu
             aggregateResults.add(aggregator.aggregateResult());
         }
 
-        return new ResultsImpl(results, query.requestsKeys(), aggregateResults, !query.requestedAttributes().isEmpty());
+        if (anyMatches && !includeResults && !aggregateResults.isEmpty()) {
+            // add one row in the results if the only thing included was aggregators and anything matched
+            results.add(new ResultImpl(null, query, Collections.EMPTY_MAP, EMPTY_OBJECT_ARRAY));
+        }
+
+
+        if (!aggregateResults.isEmpty()) {
+            for (Result result : results) {
+                // XXX: yucky cast
+                ((ResultImpl)result).setAggregateResults(aggregateResults);
+            }
+        }
+
+        return new ResultsImpl(results, query.requestsKeys(), !query.requestedAttributes().isEmpty(), anyMatches && !aggregateResults.isEmpty());
     }
 
     /**
