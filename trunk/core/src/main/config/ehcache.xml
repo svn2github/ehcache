@@ -803,6 +803,19 @@ used with JMX monitors.
       underneath the Terracotta Store. Its optional and has default value of 0, which means will use default values based
       on the internal Map being used underneath the store. This value cannot be changed programmatically once cache is initialized.
 
+   The <terracotta> sub-element also has a nonstop sub-element to allow configuration of non stop or graceful degradation behaviour.
+   It has the following attributes:
+
+   enabled="true" - defaults to true.
+
+   timeoutMillis - An SLA setting, so that if the cache operation takes longer than the allowed ms, it will timeout.
+
+   immediateTimeout="true|false" - What to do on receipt of a ClusterOffline event indicating that communications with the active Terracotta
+    server are interrupted.
+
+   timeoutBehavior="noop|exception|localReads" - What to do when a timeout has occurred.
+
+
     Simplest example to indicate clustering:
         <terracotta/>
 
