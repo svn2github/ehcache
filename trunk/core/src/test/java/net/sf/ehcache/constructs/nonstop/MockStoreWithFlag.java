@@ -25,6 +25,7 @@ import java.util.Set;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.Status;
+import net.sf.ehcache.concurrent.CacheLockProvider;
 import net.sf.ehcache.search.Attribute;
 import net.sf.ehcache.search.Results;
 import net.sf.ehcache.search.attribute.AttributeExtractor;
@@ -39,6 +40,7 @@ public class MockStoreWithFlag implements TerracottaStore {
 
     private boolean accessFlag = false;
     private String lastMethodInvoked;
+    private final CacheLockProvider mockCacheLockProvider = new NullCacheLockProvider();
 
     public void markAccessFlag() {
         accessFlag = true;
@@ -119,7 +121,7 @@ public class MockStoreWithFlag implements TerracottaStore {
 
     public Object getInternalContext() {
         markAccessFlag();
-        return null;
+        return mockCacheLockProvider;
     }
 
     public List getKeys() {

@@ -21,10 +21,13 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.TimeoutException;
 
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.Status;
+import net.sf.ehcache.concurrent.Sync;
+import net.sf.ehcache.constructs.nonstop.ClusterOperation;
 import net.sf.ehcache.search.Attribute;
 import net.sf.ehcache.search.Results;
 import net.sf.ehcache.search.attribute.AttributeExtractor;
@@ -43,7 +46,7 @@ import net.sf.ehcache.writer.CacheWriterManager;
  * @author Abhishek Sanoujam
  *
  */
-public class LocalReadsOnTimeoutStore implements TerracottaStore {
+public class LocalReadsOnTimeoutStore implements NonstopStore {
 
     private final TerracottaStore unsafeStore;
 
@@ -515,6 +518,44 @@ public class LocalReadsOnTimeoutStore implements TerracottaStore {
      */
     public Element unsafeGetQuiet(Object key) {
         return unsafeStore.unsafeGetQuiet(key);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public Sync[] getAndWriteLockAllSyncForKeys(long timeout, Object... keys) throws TimeoutException {
+        // no-op
+        return null;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public Sync[] getAndWriteLockAllSyncForKeys(Object... keys) {
+        // no-op
+        return null;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public Sync getSyncForKey(Object key) {
+        // no-op
+        return null;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void unlockWriteLockForAllKeys(Object... keys) {
+        // no-op
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public <V> V executeClusterOperation(ClusterOperation<V> operation) {
+        return operation.performClusterOperationTimedOut(NonstopTimeoutBehaviorType.LOCAL_READS_ON_TIMEOUT);
     }
 
 }

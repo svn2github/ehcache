@@ -21,7 +21,6 @@ import java.util.Map;
 import java.util.Set;
 
 import net.sf.ehcache.store.Store;
-import net.sf.ehcache.store.TerracottaStore;
 
 /**
  * Enum encapsulating different {@link Store} types for use as timeoutBehavior by NonstopStore
@@ -29,7 +28,7 @@ import net.sf.ehcache.store.TerracottaStore;
  * @author Abhishek Sanoujam
  *
  */
-public enum NonstopTimeoutBehaviorStoreType {
+public enum NonstopTimeoutBehaviorType {
 
     /**
      * Type encapsulating {@link Store} which throws exception for all timed out operations
@@ -40,14 +39,14 @@ public enum NonstopTimeoutBehaviorStoreType {
          * {@inheritDoc}
          */
         @Override
-        public TerracottaStore newTimeoutStore(final Store store) {
+        public NonstopStore newTimeoutStore(final Store store) {
             return ExceptionOnTimeoutStore.getInstance();
         }
 
         /**
          * {@inheritDoc}
          * <p>
-         * Returns {@link NonstopTimeoutBehaviorStoreType#EXCEPTION_CONFIG_PROPERTY_NAME}
+         * Returns {@link NonstopTimeoutBehaviorType#EXCEPTION_CONFIG_PROPERTY_NAME}
          */
         @Override
         public String getConfigPropertyName() {
@@ -65,14 +64,14 @@ public enum NonstopTimeoutBehaviorStoreType {
          * {@inheritDoc}
          */
         @Override
-        public TerracottaStore newTimeoutStore(final Store store) {
+        public NonstopStore newTimeoutStore(final Store store) {
             return NoOpOnTimeoutStore.getInstance();
         }
 
         /**
          * {@inheritDoc}
          * <p>
-         * Returns {@link NonstopTimeoutBehaviorStoreType#NO_OP_CONFIG_PROPERTY_NAME}
+         * Returns {@link NonstopTimeoutBehaviorType#NO_OP_CONFIG_PROPERTY_NAME}
          */
         @Override
         public String getConfigPropertyName() {
@@ -90,14 +89,14 @@ public enum NonstopTimeoutBehaviorStoreType {
          * {@inheritDoc}
          */
         @Override
-        public TerracottaStore newTimeoutStore(final Store store) {
+        public NonstopStore newTimeoutStore(final Store store) {
             return new LocalReadsOnTimeoutStore(store);
         }
 
         /**
          * {@inheritDoc}
          * <p>
-         * Returns {@link NonstopTimeoutBehaviorStoreType#LOCAL_READS_CONFIG_PROPERTY_NAME}
+         * Returns {@link NonstopTimeoutBehaviorType#LOCAL_READS_CONFIG_PROPERTY_NAME}
          */
         @Override
         public String getConfigPropertyName() {
@@ -112,7 +111,7 @@ public enum NonstopTimeoutBehaviorStoreType {
      * @param store
      * @return new instance of {@link Store} for this type
      */
-    public abstract TerracottaStore newTimeoutStore(final Store store);
+    public abstract NonstopStore newTimeoutStore(final Store store);
 
     /**
      * Name to be used for this type. This value is used for "timeoutBehavior" key when configuring NonstopStore
@@ -137,20 +136,20 @@ public enum NonstopTimeoutBehaviorStoreType {
      */
     public static final String LOCAL_READS_CONFIG_PROPERTY_NAME = "localReads";
 
-    private static final Map<String, NonstopTimeoutBehaviorStoreType> NAME_TYPE_MAP =
-        new HashMap<String, NonstopTimeoutBehaviorStoreType>();
+    private static final Map<String, NonstopTimeoutBehaviorType> NAME_TYPE_MAP =
+        new HashMap<String, NonstopTimeoutBehaviorType>();
 
     static {
-        for (NonstopTimeoutBehaviorStoreType type : NonstopTimeoutBehaviorStoreType.values()) {
+        for (NonstopTimeoutBehaviorType type : NonstopTimeoutBehaviorType.values()) {
             NAME_TYPE_MAP.put(type.getConfigPropertyName(), type);
         }
     }
 
     /**
-     * Return a {@link NonstopTimeoutBehaviorStoreType} for the string property name.
+     * Return a {@link NonstopTimeoutBehaviorType} for the string property name.
      *
      * @param configName
-     * @return {@link NonstopTimeoutBehaviorStoreType} for the string property name.
+     * @return {@link NonstopTimeoutBehaviorType} for the string property name.
      * @throws IllegalArgumentException
      *             if the passed in configName is <b>NOT</b> one of:
      *             <ul>
@@ -159,8 +158,8 @@ public enum NonstopTimeoutBehaviorStoreType {
      *             <li>{@link #LOCAL_READS_CONFIG_PROPERTY_NAME}</li>
      *             </ul>
      */
-    public static NonstopTimeoutBehaviorStoreType getTypeFromConfigPropertyName(String configName) throws IllegalArgumentException {
-        NonstopTimeoutBehaviorStoreType type = NAME_TYPE_MAP.get(configName);
+    public static NonstopTimeoutBehaviorType getTypeFromConfigPropertyName(String configName) throws IllegalArgumentException {
+        NonstopTimeoutBehaviorType type = NAME_TYPE_MAP.get(configName);
         if (type == null) {
             throw new IllegalArgumentException("Unrecognized timeoutBehavior config property value - " + configName);
         }
@@ -174,7 +173,7 @@ public enum NonstopTimeoutBehaviorStoreType {
      * @return true is the value is valid, false otherwise
      */
     public static boolean isValidTimeoutBehaviorType(String value) {
-        NonstopTimeoutBehaviorStoreType type = NAME_TYPE_MAP.get(value);
+        NonstopTimeoutBehaviorType type = NAME_TYPE_MAP.get(value);
         return type != null;
     }
 

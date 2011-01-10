@@ -26,6 +26,7 @@ import java.util.Set;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.Status;
+import net.sf.ehcache.concurrent.CacheLockProvider;
 import net.sf.ehcache.search.Attribute;
 import net.sf.ehcache.search.Results;
 import net.sf.ehcache.search.attribute.AttributeExtractor;
@@ -44,6 +45,7 @@ import net.sf.ehcache.writer.CacheWriterManager;
 public class BlockingMockStore implements TerracottaStore {
 
     private static final List<String> skipMethods;
+    private final CacheLockProvider cacheLockProvider = new NullCacheLockProvider();
 
     static {
         // list of methods (in Store) which are:
@@ -133,7 +135,7 @@ public class BlockingMockStore implements TerracottaStore {
 
     public Object getInternalContext() {
         neverReturn();
-        return null;
+        return cacheLockProvider;
     }
 
     public List getKeys() {

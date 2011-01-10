@@ -17,7 +17,7 @@
 package net.sf.ehcache.config;
 
 import net.sf.ehcache.CacheException;
-import net.sf.ehcache.constructs.nonstop.store.NonstopTimeoutBehaviorStoreType;
+import net.sf.ehcache.constructs.nonstop.store.NonstopTimeoutBehaviorType;
 
 /**
  * Configuration element for configuring timeoutBehavior for nonstop
@@ -61,9 +61,9 @@ public class TimeoutBehaviorConfiguration implements Cloneable {
      * @param type
      */
     public void setType(String type) {
-        if (!NonstopTimeoutBehaviorStoreType.isValidTimeoutBehaviorType(type)) {
+        if (!NonstopTimeoutBehaviorType.isValidTimeoutBehaviorType(type)) {
             throw new CacheException("Invalid value for timeoutBehavior - '" + type + "'. Valid values are: "
-                    + NonstopTimeoutBehaviorStoreType.getValidTimeoutBehaviors());
+                    + NonstopTimeoutBehaviorType.getValidTimeoutBehaviors());
         }
         this.type = type;
     }

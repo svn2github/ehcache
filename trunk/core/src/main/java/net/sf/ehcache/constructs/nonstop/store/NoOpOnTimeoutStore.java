@@ -21,10 +21,13 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.TimeoutException;
 
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.Status;
+import net.sf.ehcache.concurrent.Sync;
+import net.sf.ehcache.constructs.nonstop.ClusterOperation;
 import net.sf.ehcache.search.Attribute;
 import net.sf.ehcache.search.Results;
 import net.sf.ehcache.search.attribute.AttributeExtractor;
@@ -32,17 +35,16 @@ import net.sf.ehcache.store.ElementValueComparator;
 import net.sf.ehcache.store.Policy;
 import net.sf.ehcache.store.StoreListener;
 import net.sf.ehcache.store.StoreQuery;
-import net.sf.ehcache.store.TerracottaStore;
 import net.sf.ehcache.writer.CacheWriterManager;
 
 /**
- * Implementation of {@link TerracottaStore} which returns null for all get
+ * Implementation of {@link NonstopStore} which returns null for all get
  * operations and does nothing for puts and removes.
  *
  * @author Abhishek Sanoujam
  *
  */
-public final class NoOpOnTimeoutStore implements TerracottaStore {
+public final class NoOpOnTimeoutStore implements NonstopStore {
 
     /**
      * the singleton instance
@@ -389,6 +391,44 @@ public final class NoOpOnTimeoutStore implements TerracottaStore {
      */
     public Element unsafeGetQuiet(Object key) {
         return null;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public Sync[] getAndWriteLockAllSyncForKeys(long timeout, Object... keys) throws TimeoutException {
+        // no-op
+        return null;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public Sync[] getAndWriteLockAllSyncForKeys(Object... keys) {
+        // no-op
+        return null;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public Sync getSyncForKey(Object key) {
+        // no-op
+        return null;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void unlockWriteLockForAllKeys(Object... keys) {
+        // no-op
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public <V> V executeClusterOperation(ClusterOperation<V> operation) {
+        return operation.performClusterOperationTimedOut(NonstopTimeoutBehaviorType.NO_OP_ON_TIMEOUT);
     }
 
 }

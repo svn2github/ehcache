@@ -32,7 +32,7 @@ import net.sf.ehcache.config.NonstopConfiguration;
 import net.sf.ehcache.config.SearchAttribute;
 import net.sf.ehcache.config.TerracottaConfiguration;
 import net.sf.ehcache.constructs.nonstop.CacheManagerExecutorServiceFactory;
-import net.sf.ehcache.constructs.nonstop.store.NonstopStore;
+import net.sf.ehcache.constructs.nonstop.store.NonstopStoreImpl;
 import net.sf.ehcache.event.CacheEventListener;
 import net.sf.ehcache.event.CacheEventListenerFactory;
 import net.sf.ehcache.event.RegisteredEventListeners;
@@ -1044,7 +1044,7 @@ public class Cache implements Ehcache, StoreListener {
                     nonstopConfig.freezeConfig();
                 }
                 if (getCacheConfiguration().getTerracottaConfiguration().isNonstopEnabled()) {
-                    store = new NonstopStore(terracottaStore, getCacheCluster(), nonstopConfig, CacheManagerExecutorServiceFactory
+                    store = new NonstopStoreImpl(terracottaStore, getCacheCluster(), nonstopConfig, CacheManagerExecutorServiceFactory
                             .getInstance().getOrCreateNonstopExecutorService(cacheManager));
                 } else {
                     store = terracottaStore;
@@ -3602,8 +3602,8 @@ public class Cache implements Ehcache, StoreListener {
      * Start cluster rejoin
      */
     void clusterRejoinStarted() {
-        if (compoundStore instanceof NonstopStore) {
-            ((NonstopStore) compoundStore).clusterRejoinStarted();
+        if (compoundStore instanceof NonstopStoreImpl) {
+            ((NonstopStoreImpl) compoundStore).clusterRejoinStarted();
         }
     }
 
@@ -3611,8 +3611,8 @@ public class Cache implements Ehcache, StoreListener {
      * Complete cluster rejoin
      */
     void clusterRejoinComplete() {
-        if (compoundStore instanceof NonstopStore) {
-            ((NonstopStore) compoundStore).clusterRejoinComplete();
+        if (compoundStore instanceof NonstopStoreImpl) {
+            ((NonstopStoreImpl) compoundStore).clusterRejoinComplete();
         }
     }
 

@@ -14,26 +14,29 @@
  *  limitations under the License.
  */
 
-package net.sf.ehcache.constructs.nonstop.store;
+package net.sf.ehcache.constructs.nonstop;
+
+import java.util.concurrent.TimeoutException;
 
 import net.sf.ehcache.concurrent.CacheLockProvider;
-import net.sf.ehcache.constructs.nonstop.ClusterOperation;
-import net.sf.ehcache.store.TerracottaStore;
+import net.sf.ehcache.concurrent.Sync;
 
-/**
- * Interface for nonstop feature
- *
- * @author Abhishek Sanoujam
- *
- */
-public interface NonstopStore extends TerracottaStore, CacheLockProvider {
+public class NullCacheLockProvider implements CacheLockProvider {
 
-    /**
-     * Execute the {@link ClusterOperation} within this {@link NonstopStore} context.
-     *
-     * @param <V> Return type depending on the {@link ClusterOperation}
-     * @param operation
-     * @return the return value depending on the {@link ClusterOperation}
-     */
-    public <V> V executeClusterOperation(ClusterOperation<V> operation);
+    public Sync[] getAndWriteLockAllSyncForKeys(long timeout, Object... keys) throws TimeoutException {
+        return null;
+    }
+
+    public Sync[] getAndWriteLockAllSyncForKeys(Object... keys) {
+        return null;
+    }
+
+    public Sync getSyncForKey(Object key) {
+        return null;
+    }
+
+    public void unlockWriteLockForAllKeys(Object... keys) {
+        //
+    }
+
 }

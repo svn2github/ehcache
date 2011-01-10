@@ -26,6 +26,8 @@ import java.util.Set;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.Status;
+import net.sf.ehcache.concurrent.CacheLockProvider;
+import net.sf.ehcache.constructs.nonstop.NullCacheLockProvider;
 import net.sf.ehcache.search.Attribute;
 import net.sf.ehcache.search.Results;
 import net.sf.ehcache.search.attribute.AttributeExtractor;
@@ -40,6 +42,7 @@ public class TestRejoinStore implements TerracottaStore {
 
     private final Map<Object, Element> map = new HashMap<Object, Element>();
     private volatile boolean blocking = false;
+    private final CacheLockProvider cacheLockProvider = new NullCacheLockProvider();
 
     public void setBlocking(boolean blocking) {
         this.blocking = blocking;
@@ -131,7 +134,7 @@ public class TestRejoinStore implements TerracottaStore {
 
     public Object getInternalContext() {
         checkBlocking();
-        return null;
+        return cacheLockProvider;
     }
 
     public List getKeys() {

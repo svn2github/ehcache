@@ -24,6 +24,7 @@ import java.util.Map;
 
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.cluster.CacheCluster;
+import net.sf.ehcache.concurrent.CacheLockProvider;
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.TerracottaClientConfiguration;
 import net.sf.ehcache.config.TerracottaConfiguration.StorageStrategy;
@@ -60,6 +61,8 @@ public class TerracottaUnitTesting {
         CacheCluster mockCacheCluster = Mockito.mock(CacheCluster.class);
         when(mockFactory.createStore((Ehcache) any())).thenReturn(terracottaStore);
         when(mockFactory.getTopology()).thenReturn(mockCacheCluster);
+        CacheLockProvider mockCacheLockProvider = Mockito.mock(CacheLockProvider.class);
+        when(terracottaStore.getInternalContext()).thenReturn(mockCacheLockProvider);
 
         TerracottaClusteredInstanceHelper mockHelper = Mockito.mock(TerracottaClusteredInstanceHelper.class);
         when(mockHelper.newClusteredInstanceFactory((Map<String, CacheConfiguration>) any(), (TerracottaClientConfiguration) any()))

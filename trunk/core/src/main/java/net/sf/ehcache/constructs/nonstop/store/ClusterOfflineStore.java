@@ -20,12 +20,15 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.Status;
+import net.sf.ehcache.concurrent.Sync;
 import net.sf.ehcache.config.NonstopConfiguration;
+import net.sf.ehcache.constructs.nonstop.ClusterOperation;
 import net.sf.ehcache.search.Attribute;
 import net.sf.ehcache.search.Results;
 import net.sf.ehcache.search.attribute.AttributeExtractor;
@@ -33,16 +36,15 @@ import net.sf.ehcache.store.ElementValueComparator;
 import net.sf.ehcache.store.Policy;
 import net.sf.ehcache.store.StoreListener;
 import net.sf.ehcache.store.StoreQuery;
-import net.sf.ehcache.store.TerracottaStore;
 import net.sf.ehcache.writer.CacheWriterManager;
 
 /**
- * Implementation of {@link TerracottaStore} which should be used with nonstop and when cluster is offline.
+ * Implementation of {@link NonstopStore} which should be used with nonstop and when cluster is offline.
  *
  * @author Abhishek Sanoujam
  *
  */
-public class ClusterOfflineStore implements TerracottaStore {
+public class ClusterOfflineStore implements NonstopStore {
 
     private final NonstopConfiguration nonstopConfig;
     private final NonstopTimeoutStoreResolver nonstopStoreResolver;
@@ -598,6 +600,61 @@ public class ClusterOfflineStore implements TerracottaStore {
             return nonstopStoreResolver.resolveTimeoutStore().unsafeGetQuiet(key);
         } else {
             return executorBehavior.unsafeGetQuiet(key);
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public Sync[] getAndWriteLockAllSyncForKeys(long timeout, Object... keys) throws TimeoutException {
+        if (shouldTimeoutImmediately()) {
+            return nonstopStoreResolver.resolveTimeoutStore().getAndWriteLockAllSyncForKeys(timeout, keys);
+        } else {
+            return executorBehavior.getAndWriteLockAllSyncForKeys(timeout, keys);
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public Sync[] getAndWriteLockAllSyncForKeys(Object... keys) {
+        if (shouldTimeoutImmediately()) {
+            return nonstopStoreResolver.resolveTimeoutStore().getAndWriteLockAllSyncForKeys(keys);
+        } else {
+            return executorBehavior.getAndWriteLockAllSyncForKeys(keys);
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public Sync getSyncForKey(Object key) {
+        if (shouldTimeoutImmediately()) {
+            return nonstopStoreResolver.resolveTimeoutStore().getSyncForKey(key);
+        } else {
+            return executorBehavior.getSyncForKey(key);
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void unlockWriteLockForAllKeys(Object... keys) {
+        if (shouldTimeoutImmediately()) {
+            nonstopStoreResolver.resolveTimeoutStore().unlockWriteLockForAllKeys(keys);
+        } else {
+            executorBehavior.unlockWriteLockForAllKeys(keys);
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public <V> V executeClusterOperation(ClusterOperation<V> operation) {
+        if (shouldTimeoutImmediately()) {
+            return nonstopStoreResolver.resolveTimeoutStore().executeClusterOperation(operation);
+        } else {
+            return executorBehavior.executeClusterOperation(operation);
         }
     }
 }

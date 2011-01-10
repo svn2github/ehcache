@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.TimeoutException;
 
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Element;
@@ -27,6 +28,8 @@ import net.sf.ehcache.Status;
 import net.sf.ehcache.cluster.CacheCluster;
 import net.sf.ehcache.cluster.ClusterNode;
 import net.sf.ehcache.cluster.ClusterTopologyListener;
+import net.sf.ehcache.concurrent.Sync;
+import net.sf.ehcache.constructs.nonstop.ClusterOperation;
 import net.sf.ehcache.search.Attribute;
 import net.sf.ehcache.search.Results;
 import net.sf.ehcache.search.attribute.AttributeExtractor;
@@ -34,7 +37,6 @@ import net.sf.ehcache.store.ElementValueComparator;
 import net.sf.ehcache.store.Policy;
 import net.sf.ehcache.store.StoreListener;
 import net.sf.ehcache.store.StoreQuery;
-import net.sf.ehcache.store.TerracottaStore;
 import net.sf.ehcache.writer.CacheWriterManager;
 
 /**
@@ -43,11 +45,11 @@ import net.sf.ehcache.writer.CacheWriterManager;
  * @author Abhishek Sanoujam
  *
  */
-public class ClusterAwareStore implements TerracottaStore {
+public class ClusterAwareStore implements NonstopStore {
 
     private final ClusterOfflineStore clusterOfflineStore;
     private final ExecutorServiceStore clusterOnlineStore;
-    private volatile TerracottaStore delegate;
+    private volatile NonstopStore delegate;
 
     /**
      * Constructor accepting the {@link CacheCluster}, {@link ClusterOfflineStore} (used when cluster is offline) and
@@ -485,4 +487,40 @@ public class ClusterAwareStore implements TerracottaStore {
         clusterOnlineStore.clusterRejoinComplete();
         clusterOnline();
     }
+
+    /**
+     * {@inheritDoc}
+     */
+    public Sync[] getAndWriteLockAllSyncForKeys(long timeout, Object... keys) throws TimeoutException {
+        return delegate.getAndWriteLockAllSyncForKeys(timeout, keys);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public Sync[] getAndWriteLockAllSyncForKeys(Object... keys) {
+        return delegate.getAndWriteLockAllSyncForKeys(keys);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public Sync getSyncForKey(Object key) {
+        return delegate.getSyncForKey(key);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void unlockWriteLockForAllKeys(Object... keys) {
+        delegate.unlockWriteLockForAllKeys(keys);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public <V> V executeClusterOperation(ClusterOperation<V> operation) {
+        return delegate.executeClusterOperation(operation);
+    }
+
 }

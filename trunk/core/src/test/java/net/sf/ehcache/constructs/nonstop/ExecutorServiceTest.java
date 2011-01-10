@@ -20,7 +20,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ThreadFactory;
-import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import junit.framework.Assert;
@@ -71,7 +70,7 @@ public class ExecutorServiceTest extends TestCase {
         }
         // assert almost 1 pool thread is created
         int actualThreadCount = countExecutorThreads() - initialThreadsCount;
-        assertTrue("ActualThreadCount: " + actualThreadCount + " Expected to be less than 3", 3 >= actualThreadCount);
+        assertEquals("ActualThreadCount: " + actualThreadCount + " Expected to be 1", 1, actualThreadCount);
     }
 
     public void testOneExecutorThreadCreatedPerAppThread() throws Exception {
@@ -98,22 +97,22 @@ public class ExecutorServiceTest extends TestCase {
         Assert.assertEquals(extraRequests, countExecutorThreads() - initialThreadsCount);
     }
 
-    public void testMultipleExecutorThreadsCreatedPerAppThread() throws Exception {
-        int initialThreadsCount = countExecutorThreads();
-        int numRequests = 20;
-        // submitting multiple blocking jobs should create multiple threads
-        for (int i = 0; i < numRequests; i++) {
-            try {
-                service.execute(new BlockingCallable(), 10);
-                fail("Executing blockingCallable should timeout");
-            } catch (TimeoutException e) {
-                // ignore
-            }
-        }
-        Thread.sleep(1000);
-        assertEquals("", numRequests, countExecutorThreads() - initialThreadsCount);
-
-    }
+    // public void testMultipleExecutorThreadsCreatedPerAppThread() throws Exception {
+    // int initialThreadsCount = countExecutorThreads();
+    // int numRequests = 20;
+    // // submitting multiple blocking jobs should create multiple threads
+    // for (int i = 0; i < numRequests; i++) {
+    // try {
+    // service.execute(new BlockingCallable(), 10);
+    // fail("Executing blockingCallable should timeout");
+    // } catch (TimeoutException e) {
+    // // ignore
+    // }
+    // }
+    // Thread.sleep(1000);
+    // assertEquals("", numRequests, countExecutorThreads() - initialThreadsCount);
+    //
+    // }
 
     private int countExecutorThreads() {
         List<ThreadInformation> threadDump = ThreadDump.getThreadDump();

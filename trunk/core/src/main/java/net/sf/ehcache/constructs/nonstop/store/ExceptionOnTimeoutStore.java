@@ -19,10 +19,13 @@ package net.sf.ehcache.constructs.nonstop.store;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.TimeoutException;
 
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.Status;
+import net.sf.ehcache.concurrent.Sync;
+import net.sf.ehcache.constructs.nonstop.ClusterOperation;
 import net.sf.ehcache.constructs.nonstop.NonStopCacheException;
 import net.sf.ehcache.search.Attribute;
 import net.sf.ehcache.search.Results;
@@ -31,16 +34,15 @@ import net.sf.ehcache.store.ElementValueComparator;
 import net.sf.ehcache.store.Policy;
 import net.sf.ehcache.store.StoreListener;
 import net.sf.ehcache.store.StoreQuery;
-import net.sf.ehcache.store.TerracottaStore;
 import net.sf.ehcache.writer.CacheWriterManager;
 
 /**
- * Implementation of {@link TerracottaStore} that throws {@link NonStopCacheException} for all operations.
+ * Implementation of {@link NonstopStore} that throws {@link NonStopCacheException} for all operations.
  *
  * @author Abhishek Sanoujam
  *
  */
-public final class ExceptionOnTimeoutStore implements TerracottaStore {
+public final class ExceptionOnTimeoutStore implements NonstopStore {
 
     /**
      * the singleton instance
@@ -165,7 +167,7 @@ public final class ExceptionOnTimeoutStore implements TerracottaStore {
      * Throws {@link NonStopCacheException}
      */
     public void addStoreListener(StoreListener listener) {
-        throw new NonStopCacheException();
+        throw new NonStopCacheException("addStoreListener timed out");
     }
 
     /**
@@ -174,7 +176,7 @@ public final class ExceptionOnTimeoutStore implements TerracottaStore {
      * Throws {@link NonStopCacheException}
      */
     public boolean bufferFull() {
-        throw new NonStopCacheException();
+        throw new NonStopCacheException("bufferFull timed out");
     }
 
     /**
@@ -183,7 +185,7 @@ public final class ExceptionOnTimeoutStore implements TerracottaStore {
      * Throws {@link NonStopCacheException}
      */
     public boolean containsKey(Object key) {
-        throw new NonStopCacheException();
+        throw new NonStopCacheException("containsKey timed out");
     }
 
     /**
@@ -192,7 +194,7 @@ public final class ExceptionOnTimeoutStore implements TerracottaStore {
      * Throws {@link NonStopCacheException}
      */
     public boolean containsKeyInMemory(Object key) {
-        throw new NonStopCacheException();
+        throw new NonStopCacheException("containsKeyInMemory timed out");
     }
 
     /**
@@ -201,7 +203,7 @@ public final class ExceptionOnTimeoutStore implements TerracottaStore {
      * Throws {@link NonStopCacheException}
      */
     public boolean containsKeyOffHeap(Object key) {
-        throw new NonStopCacheException();
+        throw new NonStopCacheException("containsKeyOffHeap timed out");
     }
 
     /**
@@ -210,7 +212,7 @@ public final class ExceptionOnTimeoutStore implements TerracottaStore {
      * Throws {@link NonStopCacheException}
      */
     public boolean containsKeyOnDisk(Object key) {
-        throw new NonStopCacheException();
+        throw new NonStopCacheException("containsKeyOnDisk timed out");
     }
 
     /**
@@ -219,7 +221,7 @@ public final class ExceptionOnTimeoutStore implements TerracottaStore {
      * Throws {@link NonStopCacheException}
      */
     public void dispose() {
-        throw new NonStopCacheException();
+        throw new NonStopCacheException("dispose timed out");
     }
 
     /**
@@ -228,7 +230,7 @@ public final class ExceptionOnTimeoutStore implements TerracottaStore {
      * Throws {@link NonStopCacheException}
      */
     public Results executeQuery(StoreQuery query) {
-        throw new NonStopCacheException();
+        throw new NonStopCacheException("executeQuery timed out");
     }
 
     /**
@@ -237,7 +239,7 @@ public final class ExceptionOnTimeoutStore implements TerracottaStore {
      * Throws {@link NonStopCacheException}
      */
     public void expireElements() {
-        throw new NonStopCacheException();
+        throw new NonStopCacheException("expireElements timed out");
     }
 
     /**
@@ -246,7 +248,7 @@ public final class ExceptionOnTimeoutStore implements TerracottaStore {
      * Throws {@link NonStopCacheException}
      */
     public Policy getInMemoryEvictionPolicy() {
-        throw new NonStopCacheException();
+        throw new NonStopCacheException("getInMemoryEvictionPolicy timed out");
     }
 
     /**
@@ -255,7 +257,7 @@ public final class ExceptionOnTimeoutStore implements TerracottaStore {
      * Throws {@link NonStopCacheException}
      */
     public int getInMemorySize() {
-        throw new NonStopCacheException();
+        throw new NonStopCacheException("getInMemorySize timed out");
     }
 
     /**
@@ -264,7 +266,7 @@ public final class ExceptionOnTimeoutStore implements TerracottaStore {
      * Throws {@link NonStopCacheException}
      */
     public long getInMemorySizeInBytes() {
-        throw new NonStopCacheException();
+        throw new NonStopCacheException("getInMemorySizeInBytes timed out");
     }
 
     /**
@@ -273,7 +275,7 @@ public final class ExceptionOnTimeoutStore implements TerracottaStore {
      * Throws {@link NonStopCacheException}
      */
     public Object getMBean() {
-        throw new NonStopCacheException();
+        throw new NonStopCacheException("getMBean timed out");
     }
 
     /**
@@ -282,7 +284,7 @@ public final class ExceptionOnTimeoutStore implements TerracottaStore {
      * Throws {@link NonStopCacheException}
      */
     public int getOffHeapSize() {
-        throw new NonStopCacheException();
+        throw new NonStopCacheException("getOffHeapSize timed out");
     }
 
     /**
@@ -291,7 +293,7 @@ public final class ExceptionOnTimeoutStore implements TerracottaStore {
      * Throws {@link NonStopCacheException}
      */
     public long getOffHeapSizeInBytes() {
-        throw new NonStopCacheException();
+        throw new NonStopCacheException("getOffHeapSizeInBytes timed out");
     }
 
     /**
@@ -300,7 +302,7 @@ public final class ExceptionOnTimeoutStore implements TerracottaStore {
      * Throws {@link NonStopCacheException}
      */
     public int getOnDiskSize() {
-        throw new NonStopCacheException();
+        throw new NonStopCacheException("getOnDiskSize timed out");
     }
 
     /**
@@ -309,7 +311,7 @@ public final class ExceptionOnTimeoutStore implements TerracottaStore {
      * Throws {@link NonStopCacheException}
      */
     public long getOnDiskSizeInBytes() {
-        throw new NonStopCacheException();
+        throw new NonStopCacheException("getOnDiskSizeInBytes timed out");
     }
 
     /**
@@ -318,7 +320,7 @@ public final class ExceptionOnTimeoutStore implements TerracottaStore {
      * Throws {@link NonStopCacheException}
      */
     public Status getStatus() {
-        throw new NonStopCacheException();
+        throw new NonStopCacheException("getStatus timed out");
     }
 
     /**
@@ -327,7 +329,7 @@ public final class ExceptionOnTimeoutStore implements TerracottaStore {
      * Throws {@link NonStopCacheException}
      */
     public int getTerracottaClusteredSize() {
-        throw new NonStopCacheException();
+        throw new NonStopCacheException("getTerracottaClusteredSize timed out");
     }
 
     /**
@@ -336,7 +338,7 @@ public final class ExceptionOnTimeoutStore implements TerracottaStore {
      * Throws {@link NonStopCacheException}
      */
     public boolean isCacheCoherent() {
-        throw new NonStopCacheException();
+        throw new NonStopCacheException("isCacheCoherent timed out");
     }
 
     /**
@@ -345,7 +347,7 @@ public final class ExceptionOnTimeoutStore implements TerracottaStore {
      * Throws {@link NonStopCacheException}
      */
     public boolean isClusterCoherent() {
-        throw new NonStopCacheException();
+        throw new NonStopCacheException("isClusterCoherent timed out");
     }
 
     /**
@@ -354,7 +356,7 @@ public final class ExceptionOnTimeoutStore implements TerracottaStore {
      * Throws {@link NonStopCacheException}
      */
     public boolean isNodeCoherent() {
-        throw new NonStopCacheException();
+        throw new NonStopCacheException("isNodeCoherent timed out");
     }
 
     /**
@@ -363,7 +365,7 @@ public final class ExceptionOnTimeoutStore implements TerracottaStore {
      * Throws {@link NonStopCacheException}
      */
     public boolean putWithWriter(Element element, CacheWriterManager writerManager) throws CacheException {
-        throw new NonStopCacheException();
+        throw new NonStopCacheException("putWithWriter timed out");
     }
 
     /**
@@ -372,7 +374,7 @@ public final class ExceptionOnTimeoutStore implements TerracottaStore {
      * Throws {@link NonStopCacheException}
      */
     public Element removeElement(Element element, ElementValueComparator comparator) throws NullPointerException {
-        throw new NonStopCacheException();
+        throw new NonStopCacheException("removeElement timed out");
     }
 
     /**
@@ -381,7 +383,7 @@ public final class ExceptionOnTimeoutStore implements TerracottaStore {
      * Throws {@link NonStopCacheException}
      */
     public void removeStoreListener(StoreListener listener) {
-        throw new NonStopCacheException();
+        throw new NonStopCacheException("removeStoreListener timed out");
     }
 
     /**
@@ -390,7 +392,7 @@ public final class ExceptionOnTimeoutStore implements TerracottaStore {
      * Throws {@link NonStopCacheException}
      */
     public Element removeWithWriter(Object key, CacheWriterManager writerManager) throws CacheException {
-        throw new NonStopCacheException();
+        throw new NonStopCacheException("removeWithWriter timed out");
     }
 
     /**
@@ -400,7 +402,7 @@ public final class ExceptionOnTimeoutStore implements TerracottaStore {
      */
     public boolean replace(Element old, Element element, ElementValueComparator comparator) throws NullPointerException,
             IllegalArgumentException {
-        throw new NonStopCacheException();
+        throw new NonStopCacheException("replace timed out");
     }
 
     /**
@@ -409,7 +411,7 @@ public final class ExceptionOnTimeoutStore implements TerracottaStore {
      * Throws {@link NonStopCacheException}
      */
     public void setAttributeExtractors(Map<String, AttributeExtractor> extractors) {
-        throw new NonStopCacheException();
+        throw new NonStopCacheException("setAttributeExtractors timed out");
     }
 
     /**
@@ -418,7 +420,7 @@ public final class ExceptionOnTimeoutStore implements TerracottaStore {
      * Throws {@link NonStopCacheException}
      */
     public void setInMemoryEvictionPolicy(Policy policy) {
-        throw new NonStopCacheException();
+        throw new NonStopCacheException("setInMemoryEvictionPolicy timed out");
     }
 
     /**
@@ -427,7 +429,7 @@ public final class ExceptionOnTimeoutStore implements TerracottaStore {
      * Throws {@link NonStopCacheException}
      */
     public void setNodeCoherent(boolean coherent) throws UnsupportedOperationException {
-        throw new NonStopCacheException();
+        throw new NonStopCacheException("setNodeCoherent timed out");
     }
 
     /**
@@ -436,7 +438,7 @@ public final class ExceptionOnTimeoutStore implements TerracottaStore {
      * Throws {@link NonStopCacheException}
      */
     public void waitUntilClusterCoherent() throws UnsupportedOperationException {
-        throw new NonStopCacheException();
+        throw new NonStopCacheException("waitUntilClusterCoherent timed out");
     }
 
     /**
@@ -445,7 +447,7 @@ public final class ExceptionOnTimeoutStore implements TerracottaStore {
      * Throws {@link NonStopCacheException}
      */
     public <T> Attribute<T> getSearchAttribute(String attributeName) {
-        throw new NonStopCacheException();
+        throw new NonStopCacheException("getSearchAttribute timed out");
     }
 
     /**
@@ -483,4 +485,38 @@ public final class ExceptionOnTimeoutStore implements TerracottaStore {
         throw new NonStopCacheException("unsafeGetQuiet() timed out");
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    public Sync[] getAndWriteLockAllSyncForKeys(long timeout, Object... keys) throws TimeoutException {
+        throw new NonStopCacheException("getAndWriteLockAllSyncForKeys timed out");
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public Sync[] getAndWriteLockAllSyncForKeys(Object... keys) {
+        throw new NonStopCacheException("getAndWriteLockAllSyncForKeys timed out");
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public Sync getSyncForKey(Object key) {
+        throw new NonStopCacheException("getSyncForKey timed out");
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void unlockWriteLockForAllKeys(Object... keys) {
+        throw new NonStopCacheException("unlockWriteLockForAllKeys timed out");
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public <V> V executeClusterOperation(ClusterOperation<V> operation) {
+        return operation.performClusterOperationTimedOut(NonstopTimeoutBehaviorType.EXCEPTION_ON_TIMEOUT);
+    }
 }

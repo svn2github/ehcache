@@ -27,7 +27,10 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.Status;
+import net.sf.ehcache.concurrent.CacheLockProvider;
+import net.sf.ehcache.concurrent.Sync;
 import net.sf.ehcache.config.NonstopConfiguration;
+import net.sf.ehcache.constructs.nonstop.ClusterOperation;
 import net.sf.ehcache.constructs.nonstop.NonstopExecutorService;
 import net.sf.ehcache.search.Attribute;
 import net.sf.ehcache.search.Results;
@@ -49,13 +52,14 @@ import net.sf.ehcache.writer.CacheWriterManager;
  * @author Abhishek Sanoujam
  *
  */
-public class ExecutorServiceStore implements TerracottaStore {
+public class ExecutorServiceStore implements NonstopStore {
 
     private final TerracottaStore executeBehavior;
     private final NonstopExecutorService executorService;
     private final NonstopTimeoutStoreResolver timeoutBehaviorResolver;
     private final NonstopConfiguration nonstopConfiguration;
     private final AtomicBoolean clusterOffline = new AtomicBoolean();
+    private final CacheLockProvider delegateCacheLockProvider;
 
     /**
      * Constructor accepting the direct delegate behavior, {@link NonstopConfiguration}, {@link NonstopExecutorService} and
@@ -63,11 +67,13 @@ public class ExecutorServiceStore implements TerracottaStore {
      *
      */
     public ExecutorServiceStore(final TerracottaStore delegateStore, final NonstopConfiguration nonstopConfiguration,
-            final NonstopExecutorService executorService, final NonstopTimeoutStoreResolver timeoutBehaviorResolver) {
+            final NonstopExecutorService executorService, final NonstopTimeoutStoreResolver timeoutBehaviorResolver,
+            CacheLockProvider delegateCacheLockProvider) {
         this.executeBehavior = delegateStore;
         this.nonstopConfiguration = nonstopConfiguration;
         this.executorService = executorService;
         this.timeoutBehaviorResolver = timeoutBehaviorResolver;
+        this.delegateCacheLockProvider = delegateCacheLockProvider;
     }
 
     /**
@@ -889,6 +895,82 @@ public class ExecutorServiceStore implements TerracottaStore {
             });
         } catch (TimeoutException e) {
             return timeoutBehaviorResolver.resolveTimeoutStore().unsafeGetQuiet(key);
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public Sync[] getAndWriteLockAllSyncForKeys(final long timeout, final Object... keys) throws TimeoutException {
+        try {
+            return executeWithExecutor(new Callable<Sync[]>() {
+                public Sync[] call() throws Exception {
+                    return delegateCacheLockProvider.getAndWriteLockAllSyncForKeys(timeout, keys);
+                }
+            });
+        } catch (TimeoutException e) {
+            return timeoutBehaviorResolver.resolveTimeoutStore().getAndWriteLockAllSyncForKeys(timeout, keys);
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public Sync[] getAndWriteLockAllSyncForKeys(final Object... keys) {
+        try {
+            return executeWithExecutor(new Callable<Sync[]>() {
+                public Sync[] call() throws Exception {
+                    return delegateCacheLockProvider.getAndWriteLockAllSyncForKeys(keys);
+                }
+            });
+        } catch (TimeoutException e) {
+            return timeoutBehaviorResolver.resolveTimeoutStore().getAndWriteLockAllSyncForKeys(keys);
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public Sync getSyncForKey(final Object key) {
+        try {
+            return executeWithExecutor(new Callable<Sync>() {
+                public Sync call() throws Exception {
+                    return delegateCacheLockProvider.getSyncForKey(key);
+                }
+            });
+        } catch (TimeoutException e) {
+            return timeoutBehaviorResolver.resolveTimeoutStore().getSyncForKey(key);
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void unlockWriteLockForAllKeys(final Object... keys) {
+        try {
+            executeWithExecutor(new Callable<Void>() {
+                public Void call() throws Exception {
+                    delegateCacheLockProvider.unlockWriteLockForAllKeys(keys);
+                    return null;
+                }
+            });
+        } catch (TimeoutException e) {
+            timeoutBehaviorResolver.resolveTimeoutStore().unlockWriteLockForAllKeys(keys);
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public <V> V executeClusterOperation(final ClusterOperation<V> operation) {
+        try {
+            return executeWithExecutor(new Callable<V>() {
+                public V call() throws Exception {
+                    return operation.performClusterOperation();
+                }
+            });
+        } catch (TimeoutException e) {
+            return timeoutBehaviorResolver.resolveTimeoutStore().executeClusterOperation(operation);
         }
     }
 

@@ -20,11 +20,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
+import java.util.concurrent.FutureTask;
 import java.util.concurrent.RejectedExecutionException;
-import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadFactory;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
@@ -88,7 +86,7 @@ public class NonstopThreadPool {
         state.set(State.SHUTDOWN);
         synchronized (workersLock) {
             for (WorkerThreadLocal worker : workers) {
-                worker.shutdown();
+                worker.shutdownNow();
             }
         }
     }
@@ -100,27 +98,124 @@ public class NonstopThreadPool {
      *
      */
     private static class WorkerThreadLocal {
-        private static final int CORE_POOL_SIZE_PER_APP_THREAD = 1;
-        private static final int MAXIMUM_POOL_SIZE_PER_APP_THREAD = 50;
-        private static final int POOL_THREAD_PER_APP_THREAD_KEEP_ALIVE_SECONDS = 300;
 
-        private final ThreadPoolExecutor threadPoolExecutor;
+        private final Worker worker;
 
         public WorkerThreadLocal(ThreadFactory threadFactory) {
-            // using a synchrounous queue here
-            // Maximum of MAXIMUM_POOL_SIZE_PER_APP_THREAD requests can be accomodated from one app thread
-            this.threadPoolExecutor = new ThreadPoolExecutor(CORE_POOL_SIZE_PER_APP_THREAD, MAXIMUM_POOL_SIZE_PER_APP_THREAD,
-                    POOL_THREAD_PER_APP_THREAD_KEEP_ALIVE_SECONDS, TimeUnit.SECONDS, new SynchronousQueue<Runnable>(), threadFactory);
+            this.worker = new Worker();
+            threadFactory.newThread(worker).start();
         }
 
-        public void shutdown() {
-            this.threadPoolExecutor.shutdownNow();
+        public void shutdownNow() {
+            worker.shutdownNow();
         }
 
         public <T> Future<T> submit(Callable<T> task) {
-            return threadPoolExecutor.submit(task);
+            FutureTask<T> ftask = new FutureTask<T>(task);
+            worker.addTask(ftask);
+            return ftask;
+        }
+    }
+
+    /**
+     * Worker class
+     *
+     * @author Abhishek Sanoujam
+     *
+     */
+    private static class Worker implements Runnable {
+        private final WorkerTaskHolder workerTaskHolder;
+        private volatile boolean shutdown;
+        private volatile Thread workerThread;
+        private volatile boolean runningTask;
+
+        public Worker() {
+            this.workerTaskHolder = new WorkerTaskHolder();
         }
 
+        public void run() {
+            workerThread = Thread.currentThread();
+            while (!shutdown) {
+                waitUntilTaskAvailable();
+                if (shutdown) {
+                    break;
+                }
+                Runnable task = workerTaskHolder.consumeTask();
+                if (task != null) {
+                    synchronized (this) {
+                        runningTask = true;
+                        if (shutdown) {
+                            break;
+                        }
+                    }
+                    task.run();
+                    synchronized (this) {
+                        runningTask = false;
+                    }
+                }
+            }
+        }
+
+        public void shutdownNow() {
+            shutdown = true;
+            synchronized (this) {
+                this.notifyAll();
+                if (runningTask) {
+                    // interrupt if running task already
+                    workerThread.interrupt();
+                }
+            }
+        }
+
+        public void addTask(Runnable runnable) {
+            synchronized (this) {
+                workerTaskHolder.addTask(runnable);
+                this.notifyAll();
+            }
+        }
+
+        private void waitUntilTaskAvailable() {
+            synchronized (this) {
+                while (!workerTaskHolder.isTaskAvailable()) {
+                    if (shutdown) {
+                        return;
+                    }
+                    try {
+                        this.wait();
+                    } catch (InterruptedException e) {
+                        // ignore
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * Private class maintaining single pending task
+     *
+     * @author Abhishek Sanoujam
+     *
+     */
+    private static class WorkerTaskHolder {
+        private Runnable task;
+
+        public synchronized void addTask(Runnable runnable) {
+            // keep only 1 pending task
+            this.task = runnable;
+        }
+
+        public synchronized Runnable consumeTask() {
+            if (task == null) {
+                return null;
+            }
+            Runnable rv = task;
+            task = null;
+            return rv;
+        }
+
+        public synchronized boolean isTaskAvailable() {
+            return task != null;
+        }
     }
 
     /**
