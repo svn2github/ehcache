@@ -523,7 +523,7 @@ public class LocalReadsOnTimeoutStore implements NonstopStore {
     /**
      * {@inheritDoc}
      */
-    public Sync[] getAndWriteLockAllSyncForKeys(long timeout, Object... keys) throws TimeoutException {
+    public Sync[] getAndWriteLockAllSyncForKeys(Object... keys) {
         // no-op
         return null;
     }
@@ -531,7 +531,7 @@ public class LocalReadsOnTimeoutStore implements NonstopStore {
     /**
      * {@inheritDoc}
      */
-    public Sync[] getAndWriteLockAllSyncForKeys(Object... keys) {
+    public Sync[] getAndWriteLockAllSyncForKeys(long timeout, Object... keys) throws TimeoutException {
         // no-op
         return null;
     }
@@ -547,15 +547,14 @@ public class LocalReadsOnTimeoutStore implements NonstopStore {
     /**
      * {@inheritDoc}
      */
-    public void unlockWriteLockForAllKeys(Object... keys) {
-        // no-op
+    public <V> V executeClusterOperation(ClusterOperation<V> operation) {
+        return operation.performClusterOperationTimedOut(NonstopTimeoutBehaviorType.LOCAL_READS_ON_TIMEOUT);
     }
 
     /**
      * {@inheritDoc}
      */
-    public <V> V executeClusterOperation(ClusterOperation<V> operation) {
-        return operation.performClusterOperationTimedOut(NonstopTimeoutBehaviorType.LOCAL_READS_ON_TIMEOUT);
+    public void unlockWriteLockForAllKeys(Object... keys) {
+        // no-op
     }
-
 }
