@@ -169,9 +169,9 @@ class WriteBehindQueue {
                                     }
                                 } while (delay > 0);
                             } else {
-                                do {
+                                while (!stopping && waiting.size() == 0) {
                                     queueIsEmpty.await();
-                                } while (waiting.size() == 0);
+                                }
                             }
                         } catch (final InterruptedException e) {
                             // if the wait for items is interrupted, act as if the bucket was cancelled
