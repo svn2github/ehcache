@@ -1,17 +1,18 @@
 package net.sf.ehcache.server.standalone;
 
-import org.glassfish.api.embedded.LifecycleException;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Test;
-
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
-import java.net.URL;
+import java.net.URI;
+import java.util.concurrent.TimeUnit;
 
-import static java.lang.Thread.sleep;
+import org.glassfish.api.embedded.LifecycleException;
+
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
+import org.junit.Test;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
@@ -31,17 +32,53 @@ public class ServerIntegrationTest {
     @BeforeClass
     public static void startup() throws Exception {
         Server.main(new String[]{"9090", "target/war/work/net.sf.ehcache/ehcache-server/"});
-        sleep(25000);
+        waitForServerAvailability(5, TimeUnit.MINUTES);
     }
 
+    private static void waitForServerAvailability(long time, TimeUnit unit) {
+      boolean interrupted = false;
+      try {
+        long start = System.nanoTime();
+        while (System.nanoTime() - start < unit.toNanos(time)) {
+          URI server = URI.create("http://localhost:9090/ehcache/rest/sampleCache1");
+          int response = -1;
+          try {
+            HttpURLConnection conn = (HttpURLConnection) server.toURL().openConnection();
+            try {
+              conn.setRequestMethod("HEAD");
+              response = conn.getResponseCode();
+            } finally {
+              conn.disconnect();
+            }
+          } catch (IOException e) {
+            System.err.println("Server Ping Failed : " + e.getMessage());
+          }
+          if (200 == response) {
+            System.err.println("Server Startup Took : " + TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - start) + "ms");
+            break;
+          } else {
+            try {
+              Thread.sleep(1000);
+            } catch (InterruptedException e) {
+              interrupted = true;
+            }
+          }
+        }
+      } finally {
+        if (interrupted) {
+          Thread.currentThread().interrupt();
+        }
+      }
+    }
+    
 //    @Ignore("MNK-1415")
     /**
      * Checks that the SOAP Web Service is actually running
      */
     @Test
     public void testEhcacheWebServiceEndPointExists() throws Exception {
-        URL u = new URL("http://localhost:9090/ehcache/soap/EhcacheWebServiceEndpoint");
-        HttpURLConnection httpURLConnection = (HttpURLConnection) u.openConnection();
+        URI u = URI.create("http://localhost:9090/ehcache/soap/EhcacheWebServiceEndpoint");
+        HttpURLConnection httpURLConnection = (HttpURLConnection) u.toURL().openConnection();
         httpURLConnection.setRequestMethod("GET");
 
         assertEquals(200, httpURLConnection.getResponseCode());
@@ -56,8 +93,8 @@ public class ServerIntegrationTest {
      */
     @Test
     public void testGetRESTfulCache() throws Exception {
-        URL u = new URL("http://localhost:9090/ehcache/rest/sampleCache1");
-        HttpURLConnection httpURLConnection = (HttpURLConnection) u.openConnection();
+        URI u = URI.create("http://localhost:9090/ehcache/rest/sampleCache1");
+        HttpURLConnection httpURLConnection = (HttpURLConnection) u.toURL().openConnection();
         httpURLConnection.setRequestMethod("GET");
 
         assertEquals(200, httpURLConnection.getResponseCode());
