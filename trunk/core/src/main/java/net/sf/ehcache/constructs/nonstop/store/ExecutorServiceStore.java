@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Callable;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -81,6 +82,9 @@ public class ExecutorServiceStore implements NonstopStore {
      */
     void clusterRejoinStarted() {
         clusterOffline.set(true);
+        synchronized (clusterOffline) {
+            clusterOffline.notifyAll();
+        }
     }
 
     /**
@@ -88,15 +92,39 @@ public class ExecutorServiceStore implements NonstopStore {
      */
     void clusterRejoinComplete() {
         clusterOffline.set(false);
+        synchronized (clusterOffline) {
+            clusterOffline.notifyAll();
+        }
     }
 
     private <V> V executeWithExecutor(final Callable<V> callable) throws CacheException, TimeoutException {
+        final long start = System.nanoTime();
+        while (clusterOffline.get()) {
+            if (nonstopConfiguration.isImmediateTimeout()) {
+                throw new TimeoutException("Cluster is currently offline (probably rejoin in progress)");
+            }
+            final long remaining = nonstopConfiguration.getTimeoutMillis()
+                    - TimeUnit.MILLISECONDS.convert(System.nanoTime() - start, TimeUnit.NANOSECONDS);
+            if (remaining <= 0) {
+                break;
+            }
+            synchronized (clusterOffline) {
+                try {
+                    clusterOffline.wait(remaining);
+                } catch (InterruptedException e) {
+                    // rethrow as CacheException
+                    throw new CacheException(e);
+                }
+            }
+        }
         if (clusterOffline.get()) {
-            // don't even try to go to the cluster as rejoin is happening
+            // still cluster offline
             throw new TimeoutException("Cluster is currently offline (probably rejoin in progress)");
         }
         try {
-            return executorService.execute(callable, nonstopConfiguration.getTimeoutMillis());
+            final long remaining = nonstopConfiguration.getTimeoutMillis()
+                    - TimeUnit.MILLISECONDS.convert(System.nanoTime() - start, TimeUnit.NANOSECONDS);
+            return executorService.execute(callable, remaining);
         } catch (InterruptedException e) {
             // rethrow as CacheException
             throw new CacheException(e);
