@@ -6,60 +6,108 @@
 
 %{toc|fromDepth=2|toDepth=2}
 
+    <<IMPORTANT NOTICES - PLEASE READ>>
+    
+    <Users of Ehcache and/or Terracotta Ehcache for Hibernate prior to 
+    Ehcache 2.0 should read:>
+
+    * {{{./hibernate-upgrade.html}Upgrade Notes for Ehcache versions prior to 2.0}}
+
+    []
+
+    <These instructions are for Hibernate 3.  For older instructions on how 
+    to use Hibernate 2.1, please refer to:>
+
+    * {{{http://ehcache.org/documentation/documentation-1_1.html}Guide for Version 1.1}} 
+
+    []
+
+    
+*   {Overview}
+
     Ehcache easily integrates with the {{{http://hibernate.org}Hibernate}}
     Object/Relational persistence and query service. Gavin King, the
     maintainer of Hibernate, is also a committer to the Ehcache project.
     This ensures Ehcache will remain a first class cache for Hibernate.
 
-    Note these instructions are for Hibernate 3. Go to {{{http://ehcache.org/documentation/documentation-1_1.html}Guide for Version 1.1}}
-    for older instructions on how to use Hibernate 2.1.
+    Configuring Ehcache for Hibernate is simple.  The basic steps are:
 
-    The net.sf.ehcache.hibernate package provides classes integrating Ehcache with Hibernate. 
+    * Download and install Ehcache into your project
 
-*   {Download}
+    * Configure Ehcache as a cache provider in your project's Hibernate 
+    configuration.
 
-    The Hibernate provider is in the ehcache-core module. Download {{{http://sourceforge.net/projects/ehcache/files/ehcache-core}here}}.
+    * Configure second level caching in your project's Hibernate configuration.
 
-    For a full distribution enabling connection to the Terracotta Server array download {{{http://sourceforge.net/projects/ehcache/files/ehcache}here}}.
+    * Configure Hibernate caching for each entity, collection, or query 
+    you wish to cache.
 
-
-*   Important Notice if Upgrading from Terracotta or Ehcache prior to 2.0
-
-    Users of Ehcache and/or Terracotta Ehcache for Hibernate prior to Ehcache 2.0 should read {{{./hibernate-upgrade.html}Upgrade Notes for Ehcache versions prior to 2.0}}.
-    Also, ensure that when upgrading you change all nodes to use the new SPI and that you clear any clustered caches.
-
-*   {Quick Start}
-
-    Follow these steps to get up and running quickly:
-
-      * Ensure Ehcache is enabled in the Hibernate configuration.
-
-      * Configure Hibernate caching for each entity object you wish to cache.
-
-      * Configure Hibernate caching for each entity collection you wish to cache.
-
-      * Configure Hibernate caching for for each Hibernate query you wish to cache.
-
-      * Create a cache element in ehcache.xml for each entity, collection, or query configured for caching  above.
+    * Configure ehcache.xml as necessary for each entity, collection, or 
+    query configured for caching. 
      
       []
 
-    For more about cache configuration in Hibernate see the {{{http://www.hibernate.org/hib_docs/reference/en/html_single/}Hibernate}}
-    documentation. Parts of this chapter are drawn from Hibernate documentation and source code comments.
+    For more information regarding cache configuration in Hibernate see the 
+    {{{http://www.hibernate.org/hib_docs/reference/en/html_single/}Hibernate}} 
+    documentation. 
 
-    They are reproduced here for convenience in using ehcache.
+* {Downloading and Installing Ehcache}
 
-* {Setting Ehcache as the Hibernate Second Level Cache}
+    The Hibernate provider is in the ehcache-core module. Download:
 
-    To configure Ehcache as a Hibernate second level cache, set the region factory property (for Hibernate 3.3 and above) or the factory class property (Hibernate 3.2 and below) to one of the following in the Hibernate configuration.
+    * {{{http://sourceforge.net/projects/ehcache/files/ehcache-core}the latest version of the Ehcache core module here}}
 
-    Hibernate configuration is configured either via hibernate.cfg.xml, hibernate.properties or Spring.  The format given is for hibernate.cfg.xml.
+    []
+
+    For Terracotta clustering, download:
+
+    * {{{http://sourceforge.net/projects/ehcache/files/ehcache}a full Ehcache distribution here}}
+
+    []
+
+* Maven 
+
+    If you are a maven user, use the following dependencies configuration in 
+    your pom.xml build file:
+
+--------------
+        <dependency>
+          <groupId>net.sf.ehcache</groupId>
+          <artifactId>ehcache-core</artifactId>
+          <version>2.3.1</version>
+        </dependency>
+--------------
+
+    If you are configuring Hibernate and Ehcache for Terracotta clustering, 
+    you will also need to add the following dependencies:
+
+--------------
+        <dependency>
+          <groupId>net.sf.ehcache</groupId>
+          <artifactId>ehcache-terracotta</artifactId>
+          <version>2.3.1</version>
+        </dependency>
+
+        <dependency>
+          <groupId>org.terracotta</groupId>
+          <artifactId>terracotta-toolkit-1.1-runtime</artifactId>
+          <version>2.0.0</version>
+        </dependency>
+--------------
+
+* {Configure Ehcache as the Second Level Cache Provider}
+
+    To configure Ehcache as a Hibernate second level cache, set the region 
+    factory property (for Hibernate 3.3 and above) or the factory class 
+    property (Hibernate 3.2 and below) to one of the following in the 
+    Hibernate configuration.
+
+    Hibernate configuration is configured either via hibernate.cfg.xml, 
+    hibernate.properties or Spring.  The format given is for hibernate.cfg.xml.
 
 ** Hibernate 3.3 and higher
 
-   <<ATTENTION HIBERNATE 3.2 USERS>>
-
-   <<Make sure to note the change to BOTH the property name and value.>>
+   <<ATTENTION HIBERNATE 3.2 USERS:>> <Make sure to note the change to BOTH the property name and value.>
 
    Use:
 
@@ -95,81 +143,86 @@
 
     to force Hibernate to use a singleton Ehcache CacheManager.
 
-** Enabling Hibernate Second Level Cache
+* Enable Second Level Cache and Query Cache Settings
 
-    You will also need to enable the Hibernate Second Level Cache.  This is done
-    by setting the following property in your hibernate config:
+    In addition to configuring the second level cache provider setting, 
+    you will need to turn on the second level cache (by default it is 
+    configured to off - 'false' - by Hibernate).  This is done by 
+    setting the following property in your hibernate config:
 
 ---
     <property name="hibernate.cache.use_second_level_cache">true</property>
 ---
 
-** Enabling Hibernate Query Cache
-
-    You may also want to enable the Hibernate Query Cache.  This is done
+    You may also want to turn on the Hibernate query cache.  This is done
     by setting the following property in your hibernate config:
 
 ---
     <property name="hibernate.cache.use_query_cache">true</property>
 ---
 
-** Putting it all together
+* Optional 
+
+    The following settings or actions are optional.
+
+** Ehcache Configuration Resource Name
+
+    The <<<configurationResourceName>>> property is used to specify the 
+    location of the ehcache configuration file to be used with the given 
+    Hibernate instance and cache provider/region-factory.
+
+    The resource is searched for in the root of the classpath. It is used  
+    to support multiple CacheManagers in the same VM. It tells Hibernate 
+    which configuration to use. An example might be "ehcache-2.xml".
+
+    When using multiple Hibernate instances it is therefore recommended 
+    to use multiple non-singleton providers or region factories, each
+    with a dedicated Ehcache configuration resource.
+
+--------------------------------------------
+
+net.sf.ehcache.configurationResourceName=/name_of_ehcache.xml
+
+--------------------------------------------
+
+** {Set the Hibernate cache provider programmatically}
+
+    The provider can also be set programmatically in Hibernate by adding 
+    necessary Hibernate property settings to the configuration before creating 
+    the SessionFactory:
+
+----
+Configuration.setProperty("hibernate.cache.region.factory_class", 
+                          "net.sf.ehcache.hibernate.EhCacheRegionFactory")
+----
+
+* Putting it all together
 
     If you are using Hibernate 3.3 and enabling both second level caching
     and query caching, then your hibernate config file should contain the 
     following:
 
 ---
-    <property name="hibernate.cache.use_second_level_cache">true</property>
-    <property name="hibernate.cache.use_query_cache">true</property>
-    <property name="hibernate.cache.region.factory_class">net.sf.ehcache.hibernate.EhCacheRegionFactory</property>
+<property name="hibernate.cache.use_second_level_cache">true</property>
+<property name="hibernate.cache.use_query_cache">true</property>
+<property name="hibernate.cache.region.factory_class">net.sf.ehcache.hibernate.EhCacheRegionFactory</property>
 ---
 
     An equivalent Spring configuration file would contain:
 
 ---
-    <prop key="hibernate.cache.use_second_level_cache">true</prop>
-    <prop key="hibernate.cache.use_query_cache">true</prop>
-    <prop key="hibernate.cache.region.factory_class">net.sf.ehcache.hibernate.EhCacheRegionFactory</prop>
+<prop key="hibernate.cache.use_second_level_cache">true</prop>
+<prop key="hibernate.cache.use_query_cache">true</prop>
+<prop key="hibernate.cache.region.factory_class">net.sf.ehcache.hibernate.EhCacheRegionFactory</prop>
 ---
 
-** Configuring the Ehcache Hibernate caches
-
-    The <<<configurationResourceName>>> property is used to specify the location of the ehcache configuration file to be used with the
-    given Hibernate instance and cache provider/region-factory.
-
---------------------------------------------
-
-hibernate.cache.region.factory_class=net.sf.ehcache.hibernate.EhCacheRegionFactory
-net.sf.ehcache.configurationResourceName=/name_of_ehcache.xml
-
---------------------------------------------
-
-    net.sf.ehcache.configurationResourceName - The name of a configuration resource to use.
-
-    The resource is searched for in the root of the classpath. It is needed to support multiple
-    CacheManagers in the same VM. It tells Hibernate which configuration to use. An example
-    might be "ehcache-2.xml".
-
-    When using multiple Hibernate instances it is therefore recommended to use multiple non-singleton providers or region factories, each
-    with a dedicated Ehcache configuration resource.
-
-** {Programmatic setting of the Hibernate Cache Provider}
-
-
-    The provider can also be set programmatically in Hibernate by adding necessary Hibernate property settings to the configuration before
-    creating the SessionFactory:
----
-    Configuration.setProperty("hibernate.cache.region.factory_class", "net.sf.ehcache.hibernate.EhCacheRegionFactory").
----
-
-* {Configuring Hibernate for Caching}
+* {Configure Hibernate Entities to use Second Level Caching}
 
     In addition to configuring the Hibernate second level cache provider, Hibernate must also be told to enable caching for entities, collections, and queries.
 
-    For example to enable cache entries for
-    the domain object com.somecompany.someproject.domain.Country there
-    would be a mapping file something like the following:
+    For example, to enable cache entries for the domain object 
+    com.somecompany.someproject.domain.Country there would be a mapping file 
+    something like the following:
 
 --------------------------------------------
 
@@ -187,8 +240,7 @@ net.sf.ehcache.configurationResourceName=/name_of_ehcache.xml
 
 --------------------------------------------
 
-    To enable
-    caching, add the following element.
+    To enable caching, add the following element.
 
 --------------------------------------------
 
@@ -219,7 +271,9 @@ net.sf.ehcache.configurationResourceName=/name_of_ehcache.xml
 --------------------------------------------
 @Entity
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
-public class Country { ... }
+public class Country { 
+    ... 
+}
 --------------------------------------------
 
 ** Definition of the different cache strategies
@@ -244,7 +298,7 @@ public class Country { ... }
     semantics. Repeatable read isolation is compromised in the case
     of concurrent writes.
 
-* Configuring {ehcache.xml}
+* Configure {ehcache.xml}
 
     Because ehcache.xml has a defaultCache, caches will always be created
     when required by Hibernate. However more control can be exerted by
