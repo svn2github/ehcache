@@ -74,7 +74,8 @@ public class NonstopStoreImpl implements NonstopTimeoutStoreResolver, NonstopSto
         if (context instanceof CacheLockProvider) {
             underlyingCacheLockProvider = (CacheLockProvider) context;
         } else {
-            throw new AssertionError("TerracottaStore.getInternalContext() is not correct.");
+            throw new AssertionError("TerracottaStore.getInternalContext() is not correct - "
+                    + (context == null ? "NULL" : context.getClass().getName()));
         }
 
         ExecutorServiceStore clusterOnlineStore = new ExecutorServiceStore(underlyingStore, nonstopConfig, nonstopExecutorService, this,
