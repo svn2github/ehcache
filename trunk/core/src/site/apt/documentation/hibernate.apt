@@ -67,32 +67,45 @@
 
 * Maven 
 
-    If you are a maven user, use the following dependencies configuration in 
-    your pom.xml build file:
+    If you are a maven user, you'll need to configure or add the following 
+    repository to your build (pom.xml):
 
 --------------
-        <dependency>
-          <groupId>net.sf.ehcache</groupId>
-          <artifactId>ehcache-core</artifactId>
-          <version>2.3.1</version>
-        </dependency>
+    <repository>
+        <id>terracotta-releases</id>
+        <url>http://www.terracotta.org/download/reflector/releases</url>
+        <releases><enabled>true</enabled></releases>
+        <snapshots><enabled>false</enabled></snapshots>
+    </repository>
+--------------
+
+    Then, you will need to configure or add the the ehcache core module defined 
+    by the following dependencies to your build (pom.xml):
+
+--------------
+    <dependency>
+        <groupId>net.sf.ehcache</groupId>
+        <artifactId>ehcache-core</artifactId>
+        <version>2.3.1</version>
+    </dependency>
 --------------
 
     If you are configuring Hibernate and Ehcache for Terracotta clustering, 
-    you will also need to add the following dependencies:
+    you will also need to add the following dependencies to your build 
+    (pom.xml):
 
 --------------
-        <dependency>
-          <groupId>net.sf.ehcache</groupId>
-          <artifactId>ehcache-terracotta</artifactId>
-          <version>2.3.1</version>
-        </dependency>
+    <dependency>
+        <groupId>net.sf.ehcache</groupId>
+        <artifactId>ehcache-terracotta</artifactId>
+        <version>2.3.1</version>
+    </dependency>
 
-        <dependency>
-          <groupId>org.terracotta</groupId>
-          <artifactId>terracotta-toolkit-1.1-runtime</artifactId>
-          <version>2.0.0</version>
-        </dependency>
+    <dependency>
+        <groupId>org.terracotta</groupId>
+        <artifactId>terracotta-toolkit-1.1-runtime</artifactId>
+        <version>2.0.0</version>
+    </dependency>
 --------------
 
 * {Configure Ehcache as the Second Level Cache Provider}
