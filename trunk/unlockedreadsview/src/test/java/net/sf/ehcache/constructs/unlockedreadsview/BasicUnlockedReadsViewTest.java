@@ -28,6 +28,7 @@ import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
+import net.sf.ehcache.concurrent.CacheLockProvider;
 import net.sf.ehcache.store.TerracottaStore;
 import net.sf.ehcache.terracotta.ClusteredInstanceFactory;
 import net.sf.ehcache.terracotta.TerracottaUnitTesting;
@@ -43,6 +44,8 @@ public class BasicUnlockedReadsViewTest extends TestCase {
         TerracottaUnitTesting.setupTerracottaTesting(mockFactory);
 
         TerracottaStore mockStore = mock(TerracottaStore.class);
+        CacheLockProvider mockCLP = mock(CacheLockProvider.class);
+        when(mockStore.getInternalContext()).thenReturn(mockCLP);
         when(mockFactory.createStore((Ehcache) any())).thenReturn(mockStore);
 
         final AtomicInteger unlockedGetCount = new AtomicInteger();
