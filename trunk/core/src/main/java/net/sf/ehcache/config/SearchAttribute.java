@@ -52,7 +52,7 @@ public class SearchAttribute {
      */
     public void setClass(String className) {
         if (expression != null) {
-            throw new InvalidConfigurationException("Cannot set both class and expression for a serach attribute");
+            throw new InvalidConfigurationException("Cannot set both class and expression for a search attribute");
         }
         this.className = className;
     }
@@ -64,7 +64,7 @@ public class SearchAttribute {
      */
     public void setExpression(String expression) {
         if (className != null) {
-            throw new InvalidConfigurationException("Cannot set both class and expression for a serach attribute");
+            throw new InvalidConfigurationException("Cannot set both class and expression for a search attribute");
         }
         this.expression = expression;
     }
