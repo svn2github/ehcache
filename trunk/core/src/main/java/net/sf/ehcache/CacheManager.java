@@ -1625,7 +1625,6 @@ public class CacheManager {
 
 
     private void clusterRejoinStarted() {
-        CacheManagerExecutorServiceFactory.getInstance().shutdown(this);
         // reinitialize all caches
         for (Ehcache cache : ehcaches.values()) {
             if (cache instanceof Cache) {
@@ -1634,6 +1633,7 @@ public class CacheManager {
                 }
             }
         }
+        CacheManagerExecutorServiceFactory.getInstance().shutdown(this);
     }
 
     /**
@@ -1650,7 +1650,6 @@ public class CacheManager {
                     // do not risk Nonstop timeouts during reinitialization
                     cache.getCacheConfiguration().getTerracottaConfiguration().getNonstopConfiguration().setTimeoutMillis(Long.MAX_VALUE);
                     try {
-                        ((Cache) cache).reinitialize();
                         ((Cache) cache).clusterRejoinComplete();
                     } finally {
                         // reset original timeout millis

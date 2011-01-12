@@ -3602,8 +3602,11 @@ public class Cache implements Ehcache, StoreListener {
      * Start cluster rejoin
      */
     void clusterRejoinStarted() {
+        cacheStatus.reinitializeInProgress();
         if (compoundStore instanceof NonstopStoreImpl) {
-            ((NonstopStoreImpl) compoundStore).clusterRejoinStarted();
+            NonstopStoreImpl nonstopStore = (NonstopStoreImpl) compoundStore;
+            nonstopStore.getUnderlyingStore().dispose();
+            nonstopStore.clusterRejoinStarted();
         }
     }
 
@@ -3611,17 +3614,11 @@ public class Cache implements Ehcache, StoreListener {
      * Complete cluster rejoin
      */
     void clusterRejoinComplete() {
+        // initialize again
+        initialise();
         if (compoundStore instanceof NonstopStoreImpl) {
             ((NonstopStoreImpl) compoundStore).clusterRejoinComplete();
         }
-    }
-
-    /**
-     * Reinitialize the cache
-     */
-    void reinitialize() {
-        cacheStatus.reinitializeInProgress();
-        initialise();
         cacheStatus.reinitializeComplete();
     }
 

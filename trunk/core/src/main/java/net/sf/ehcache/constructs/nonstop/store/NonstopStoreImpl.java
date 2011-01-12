@@ -104,11 +104,11 @@ public class NonstopStoreImpl implements NonstopTimeoutStoreResolver, NonstopSto
     }
 
     /**
-     * package-protected method. Use for tests only.
+     * Returns the actual underlying store.
      *
      * @return The underlying store
      */
-    Store getUnderlyingStore() {
+    public Store getUnderlyingStore() {
         return underlyingStore;
     }
 
