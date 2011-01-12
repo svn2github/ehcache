@@ -42,13 +42,19 @@ public class NonstopConfiguration implements Cloneable {
     public static final int DEFAULT_TIMEOUT_MILLIS = 15000;
 
     /**
+     * Default value of timeout multiplication factor for bulk operations like removeAll or size
+     */
+    public static final int DEFAULT_BULK_OP_TIMEOUT_FACTOR = 10;
+
+    /**
      * Default value of timeoutBehavior attribute
      */
     public static final TimeoutBehaviorConfiguration DEFAULT_TIMEOUT_BEHAVIOR = new TimeoutBehaviorConfiguration();
 
-    private boolean enabled = DEFAULT_ENABLED;
-    private boolean immediateTimeout = DEFAULT_IMMEDIATE_TIMEOUT;
-    private long timeoutMillis = DEFAULT_TIMEOUT_MILLIS;
+    private volatile boolean enabled = DEFAULT_ENABLED;
+    private volatile boolean immediateTimeout = DEFAULT_IMMEDIATE_TIMEOUT;
+    private volatile long timeoutMillis = DEFAULT_TIMEOUT_MILLIS;
+    private volatile int bulkOpsTimeoutMultiplyFactor = DEFAULT_BULK_OP_TIMEOUT_FACTOR;
     private TimeoutBehaviorConfiguration timeoutBehavior = DEFAULT_TIMEOUT_BEHAVIOR;
     private volatile boolean configFrozen;
 
@@ -136,6 +142,24 @@ public class NonstopConfiguration implements Cloneable {
      */
     public void setTimeoutMillis(long timeoutMillis) {
         this.timeoutMillis = timeoutMillis;
+    }
+
+    /**
+     * returns the time out multiplication factor for bulk cache operations
+     *
+     * @return the value of factor
+     */
+    public int getBulkOpsTimeoutMultiplyFactor() {
+        return bulkOpsTimeoutMultiplyFactor;
+    }
+
+    /**
+     * Sets the value of the multiplication factor for bulk cache operations
+     *
+     * @param bulkOpsTimeoutMultiplyFactor the new value
+     */
+    public void setBulkOpsTimeoutMultiplyFactor(int bulkOpsTimeoutMultiplyFactor) {
+        this.bulkOpsTimeoutMultiplyFactor = bulkOpsTimeoutMultiplyFactor;
     }
 
     /**

@@ -98,13 +98,16 @@ public class ExecutorServiceStore implements NonstopStore {
     }
 
     private <V> V executeWithExecutor(final Callable<V> callable) throws CacheException, TimeoutException {
+        return executeWithExecutor(callable, nonstopConfiguration.getTimeoutMillis());
+    }
+
+    private <V> V executeWithExecutor(final Callable<V> callable, long timeOutMills) throws CacheException, TimeoutException {
         final long start = System.nanoTime();
         while (clusterOffline.get()) {
             if (nonstopConfiguration.isImmediateTimeout()) {
                 throw new TimeoutException("Cluster is currently offline (probably rejoin in progress)");
             }
-            final long remaining = nonstopConfiguration.getTimeoutMillis()
-                    - TimeUnit.MILLISECONDS.convert(System.nanoTime() - start, TimeUnit.NANOSECONDS);
+            final long remaining = timeOutMills - TimeUnit.MILLISECONDS.convert(System.nanoTime() - start, TimeUnit.NANOSECONDS);
             if (remaining <= 0) {
                 break;
             }
@@ -122,8 +125,7 @@ public class ExecutorServiceStore implements NonstopStore {
             throw new TimeoutException("Cluster is currently offline (probably rejoin in progress)");
         }
         try {
-            final long remaining = nonstopConfiguration.getTimeoutMillis()
-                    - TimeUnit.MILLISECONDS.convert(System.nanoTime() - start, TimeUnit.NANOSECONDS);
+            final long remaining = timeOutMills - TimeUnit.MILLISECONDS.convert(System.nanoTime() - start, TimeUnit.NANOSECONDS);
             return executorService.execute(callable, remaining);
         } catch (InterruptedException e) {
             // rethrow as CacheException
@@ -292,7 +294,7 @@ public class ExecutorServiceStore implements NonstopStore {
                     executeBehavior.removeAll();
                     return null;
                 }
-            });
+            }, nonstopConfiguration.getTimeoutMillis() * nonstopConfiguration.getBulkOpsTimeoutMultiplyFactor());
         } catch (TimeoutException e) {
             timeoutBehaviorResolver.resolveTimeoutStore().removeAll();
         }
