@@ -448,7 +448,7 @@ public class TerracottaConfiguration implements Cloneable {
      */
     @Deprecated
     public void setCoherent(boolean coherent) {
-        CoherenceMode mode = coherent ? CoherenceMode.STRICT : CoherenceMode.OFF;
+        CoherenceMode mode = coherent ? CoherenceMode.STRICT : CoherenceMode.NON_STRICT;
         this.coherent(mode);
     }
 
@@ -459,7 +459,7 @@ public class TerracottaConfiguration implements Cloneable {
      */
     @Deprecated
     public TerracottaConfiguration coherent(boolean coherent) {
-        CoherenceMode mode = coherent ? CoherenceMode.STRICT : CoherenceMode.OFF;
+        CoherenceMode mode = coherent ? CoherenceMode.STRICT : CoherenceMode.NON_STRICT;
         return coherent(mode);
     }
 
@@ -467,11 +467,12 @@ public class TerracottaConfiguration implements Cloneable {
      * Is the cache configured for coherent or incoherent mode.
      *
      * @return true if configured in coherent mode.
-     * @deprecated since 2.4 Use {@link #getCoherenceMode()} instead
+     * @deprecated since 2.4 Use {@link #getCoherenceMode()} instead to query the {@link CoherenceMode} or Ehcache#isNodeCoherent()
+     *             to query if the node is coherent
      */
     @Deprecated
     public boolean isCoherent() {
-        return coherenceMode == CoherenceMode.STRICT || coherenceMode == CoherenceMode.NON_STRICT;
+        return coherenceMode == CoherenceMode.STRICT;
     }
 
     /**
@@ -625,7 +626,7 @@ public class TerracottaConfiguration implements Cloneable {
         if ("true".equalsIgnoreCase(coherent)) {
             coherentMode = CoherenceMode.STRICT;
         } else if ("false".equalsIgnoreCase(coherent)) {
-            coherentMode = CoherenceMode.OFF;
+            coherentMode = CoherenceMode.NON_STRICT;
         } else {
             coherentMode = CoherenceMode.getCoherenceModeFromString(coherent);
         }
@@ -690,20 +691,9 @@ public class TerracottaConfiguration implements Cloneable {
             public String getConfigString() {
                 return NON_STRICT_CONFIG_NAME;
             }
-        }
-        ,
-        /**
-         * Incoherent mode
-         */
-        OFF() {
-            @Override
-            public String getConfigString() {
-                return OFF_CONFIG_NAME;
-            }
         };
         private static final String NON_STRICT_CONFIG_NAME = "non-strict";
         private static final String STRICT_CONFIG_NAME = "strict";
-        private static final String OFF_CONFIG_NAME = "off";
 
         /**
          * Returns an instance of {@link CoherenceMode} for the input string
@@ -715,8 +705,6 @@ public class TerracottaConfiguration implements Cloneable {
                 return STRICT;
             } else if (NON_STRICT_CONFIG_NAME.equalsIgnoreCase(mode)) {
                 return NON_STRICT;
-            } else if (OFF_CONFIG_NAME.equalsIgnoreCase(mode)) {
-                return OFF;
             } else {
                 throw new IllegalArgumentException("Unknown coherent mode - " + mode);
             }

@@ -223,7 +223,6 @@
         <xs:restriction base="xs:string">
             <xs:enumeration value="strict" />
             <xs:enumeration value="non-strict" />
-            <xs:enumeration value="off" />
         </xs:restriction>
     </xs:simpleType>
     <xs:element name="nonstop">

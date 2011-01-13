@@ -774,16 +774,12 @@ used with JMX monitors.
       are mutated locally w/o putting back to the cache. NOTE: This setting is only relevant for caches
       with valueMode=serialization
 
-    * coherent=strict|non-strict|off - Indicates whether this cache should have coherent reads and writes 
-      with guaranteed consistency across the cluster. By default, its value is "non-strict".
+    * coherent=strict|non-strict - Indicates whether this cache should have coherent reads and writes 
+      with guaranteed consistency across the cluster. By default, its value is "strict".
       The old values "true" and "false" are deprecated and should not be used. Config using the old values
       will be translated to the new values with "true" translating to "strict" and "false" translating to 
-      "off".   If this attribute is set to false (or "incoherent" mode), values from the cache are read without
-      locking, possibly yielding stale data. Writes to a cache in incoherent mode are batched and applied 
-      without acquiring cluster-wide locks, possibly creating inconsistent values across cluster. 
-      Incoherent mode is a performance optimization with weaker concurrency guarantees and should generally be used
-      for bulk-loading caches, for loading a read-only cache, or where the application that can tolerate reading 
-      stale data. This setting overrides coherentReads, which is deprecated.
+      "non-strict".   If this attribute is set to "non-strict", values from the cache are read without
+      locking, possibly yielding stale data. This setting overrides coherentReads, which is deprecated.
 
     * synchronousWrites=true|false - When set to true, clustered caches use
       Terracotta SYNCHRONOUS WRITE locks. Asynchronous writes (synchronousWrites="false") maximize performance by 
@@ -825,8 +821,8 @@ used with JMX monitors.
     To indicate the cache should be clustered using identity mode:
         <terracotta clustered="true" valueMode="identity"/>
         
-    To indicate the cache should be clustered using incoherent mode for bulk load:
-        <terracotta clustered="true" coherent="false"/>
+    To indicate the cache should be clustered using non-strict mode for better performance :
+        <terracotta clustered="true" coherent="non-strict"/>
     
     To indicate the cache should be clustered using synchronous-write locking level:
         <terracotta clustered="true" synchronousWrites="true"/>
