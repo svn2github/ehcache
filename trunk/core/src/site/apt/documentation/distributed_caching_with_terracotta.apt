@@ -748,11 +748,8 @@ public interface ClusterTopologyListener {
 
 **  What versions of Ehcache and Terracotta work together?
 
-    For full compatibility Ehcache 2.0 should be used with Terracotta Server 3.2.1.
+    For the latest compatibility information, see {{http://www.terracotta.org/confluence/display/release/Home}}.
 
-    Ehcache 1.7 works with TC 3.1.1.
-
-    Ehcache Core 1.7.3 core works with TC 3.2.
 
 **  What happens when an L1 (i.e. an Ehcache node) disconnects from the L2 (i.e. the Terracotta Server Array)?
 
