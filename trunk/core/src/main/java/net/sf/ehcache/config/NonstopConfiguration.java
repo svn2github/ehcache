@@ -49,7 +49,7 @@ public class NonstopConfiguration implements Cloneable {
     /**
      * Default value of timeout multiplication factor for bulk operations like removeAll or size
      */
-    public static final int DEFAULT_BULK_OP_TIMEOUT_FACTOR = Integer.getInteger(System.getProperty(BULK_OPS_TIMEOUT_MULTIPLY_FACTOR), 10);
+    public static final int DEFAULT_BULK_OP_TIMEOUT_FACTOR = Integer.getInteger(BULK_OPS_TIMEOUT_MULTIPLY_FACTOR, 10);
 
     /**
      * Default value of timeoutBehavior attribute
