@@ -27,6 +27,11 @@ import net.sf.ehcache.CacheException;
 public class NonstopConfiguration implements Cloneable {
 
     /**
+     * System Property name for bulk operations multiply factor
+     */
+    public static final String BULK_OPS_TIMEOUT_MULTIPLY_FACTOR = "net.sf.ehcache.nonstop.bulkOpsTimeoutMultiplyFactor";
+
+    /**
      * Default value of nonstop attribute
      */
     public static final boolean DEFAULT_ENABLED = true;
@@ -44,7 +49,7 @@ public class NonstopConfiguration implements Cloneable {
     /**
      * Default value of timeout multiplication factor for bulk operations like removeAll or size
      */
-    public static final int DEFAULT_BULK_OP_TIMEOUT_FACTOR = 10;
+    public static final int DEFAULT_BULK_OP_TIMEOUT_FACTOR = Integer.getInteger(System.getProperty(BULK_OPS_TIMEOUT_MULTIPLY_FACTOR), 10);
 
     /**
      * Default value of timeoutBehavior attribute
