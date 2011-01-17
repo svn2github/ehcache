@@ -1666,5 +1666,7 @@ public class CacheManager {
             throw new CacheException("Problem in reinitializing MBeanRegistrationProvider - "
                     + mbeanRegistrationProvider.getClass().getName(), e);
         }
+        // recreate TransactionController with fresh TransactionIDFactory
+        transactionController = new TransactionController(createTransactionIDFactory());
     }
 }
