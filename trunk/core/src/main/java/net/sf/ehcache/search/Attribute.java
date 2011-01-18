@@ -28,7 +28,7 @@ import net.sf.ehcache.search.expression.GreaterThanOrEqual;
 import net.sf.ehcache.search.expression.InCollection;
 import net.sf.ehcache.search.expression.LessThan;
 import net.sf.ehcache.search.expression.LessThanOrEqual;
-import net.sf.ehcache.search.expression.Like;
+import net.sf.ehcache.search.expression.ILike;
 import net.sf.ehcache.search.expression.NotEqualTo;
 
 /**
@@ -160,13 +160,13 @@ public class Attribute<T> {
 
     /**
      * Create a criteria where this attribute's toString() matches the given expression
-     * See {@link net.sf.ehcache.search.expression.Like} for the expression syntax
+     * See {@link net.sf.ehcache.search.expression.ILike} for the expression syntax
      *
      * @param regex
      * @return criteria instance
      */
-    public Criteria like(String regex) {
-        return new Like(attributeName, regex);
+    public Criteria ilike(String regex) {
+        return new ILike(attributeName, regex);
     }
 
     /**

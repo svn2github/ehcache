@@ -19,8 +19,8 @@ package net.sf.ehcache.search;
 import java.util.List;
 
 /**
- * Represents a single cache entry that has been selected by a cache query
- *
+ * Represents a single cache entry that has been selected by a cache query.
+ * <p/>
  * @author teck
  * @author Greg Luck
  */

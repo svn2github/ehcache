@@ -677,7 +677,7 @@ public class BasicSearchTest extends TestCase {
 
         query = cache.createQuery();
         query.includeKeys();
-        query.addCriteria(new Or(name.like("tim*"), name.like("ari*")));
+        query.addCriteria(new Or(name.ilike("tim*"), name.ilike("ari*")));
         query.end();
 
         verify(cache, query, 3, 1);
@@ -692,63 +692,63 @@ public class BasicSearchTest extends TestCase {
 
         query = cache.createQuery();
         query.includeKeys();
-        query.addCriteria(name.like("Test \\\\ Bob \\* \\?"));
+        query.addCriteria(name.ilike("Test \\\\ Bob \\* \\?"));
         query.end();
 
         verify(cache, query, 1);
 
         query = cache.createQuery();
         query.includeKeys();
-        query.addCriteria(name.like("Test*"));
+        query.addCriteria(name.ilike("Test*"));
         query.end();
 
         verify(cache, query, 1, 2);
 
         query = cache.createQuery();
         query.includeKeys();
-        query.addCriteria(name.like("Test*\\?"));
+        query.addCriteria(name.ilike("Test*\\?"));
         query.end();
 
         verify(cache, query, 1);
 
         query = cache.createQuery();
         query.includeKeys();
-        query.addCriteria(name.like("(..*"));
+        query.addCriteria(name.ilike("(..*"));
         query.end();
 
         verify(cache, query, 2);
 
         query = cache.createQuery();
         query.includeKeys();
-        query.addCriteria(name.like("Lowercase"));
+        query.addCriteria(name.ilike("Lowercase"));
         query.end();
 
         verify(cache, query, 3);
 
         query = cache.createQuery();
         query.includeKeys();
-        query.addCriteria(name.like("LOWER*"));
+        query.addCriteria(name.ilike("LOWER*"));
         query.end();
 
         verify(cache, query, 3);
 
         query = cache.createQuery();
         query.includeKeys();
-        query.addCriteria(name.like("uppercase"));
+        query.addCriteria(name.ilike("uppercase"));
         query.end();
 
         verify(cache, query, 4);
 
         query = cache.createQuery();
         query.includeKeys();
-        query.addCriteria(name.like("mixed"));
+        query.addCriteria(name.ilike("mixed"));
         query.end();
 
         verify(cache, query, 5);
 
         query = cache.createQuery();
         query.includeKeys();
-        query.addCriteria(name.like("am on a"));
+        query.addCriteria(name.ilike("am on a"));
         query.end();
 
         verify(cache, query, 6);

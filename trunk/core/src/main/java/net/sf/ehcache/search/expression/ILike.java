@@ -40,7 +40,7 @@ import net.sf.ehcache.store.ElementAttributeValues;
  *
  * @author teck
  */
-public class Like extends BaseCriteria {
+public class ILike extends BaseCriteria {
 
     private final String attributeName;
     private final String regex;
@@ -52,7 +52,7 @@ public class Like extends BaseCriteria {
      * @param attributeName attribute name
      * @param regex expression
      */
-    public Like(String attributeName, String regex) {
+    public ILike(String attributeName, String regex) {
         if ((attributeName == null) || (regex == null)) {
             throw new SearchException("Both the attribute name and regex must be non null.");
         }

@@ -13,11 +13,11 @@ Search
      or summary values (Aggregators) can all be returned.
 
 
-    Here is a simple example: Search for 32 year old males and return the cache keys.
+    Here is a simple example: Search for 32 year old males and return the cache values.
 
 ---
-Results results = cache.createQuery().includeKeys()
-                  .addCriteria(age.eq(32).and(gender.eq("male"))).execute();
+Results results = cache.createQuery().includeValues().add(and(age.eq(32),
+    gender.eq("male"))).execute();
 ---
 
     Note: This feature is in pre-release and will be released with ehcache-core 2.4.0. Maven builds for version 2.4.0-SNAPSHOT are published to
@@ -317,9 +317,9 @@ Shorthand | Criteria Class | Description
 *----------+--------------+--------------+
  lt     | LessThan      | A comparison operator meaning less than.
 *----------+--------------+--------------+
- le     | LessThanOrEqual | A comparison operator meaning less than or equal to
+ le     | LessThanOrEqual| A comparison operator meaning less than or equal to
 *----------+--------------+--------------+
- like   | Like          | A regular expression matcher. '?' and "*" may be used.
+ ilike  | ILike          | A regular expression matcher. '?' and "*" may be used. Note that placing a wildcard in front of the expression will cause a table scan. ILike is always case insensitive.
 *----------+--------------+--------------+
  not    | Not           | The Boolean NOT logical operator
 *----------+--------------+--------------+
@@ -332,7 +332,7 @@ Shorthand | Criteria Class | Description
 
 ** Making queries immutable
 
-  By defualt a query can be executed and then modified and re-executed. If <<<end>>> is called
+  By default a query can be executed and then modified and re-executed. If <<<end>>> is called
   the query is made immutable.
 
 ** Automatically Deleting Elements which match a Query
@@ -401,6 +401,8 @@ query.execute();
 
   * <<<hasKeys()>>>
 
+  * <<<hasValues()>>>
+
   * <<<hasAttributes()>>>
 
   * <<<hasAggregators()>>>
@@ -415,10 +417,12 @@ query.execute();
 
    *    the Element key - when <<<includeKeys()>>> was added to the query
 
+   *    the Element value - when <<<includeValues()>>> was added to the query
+
    *    predefined attribute(s) extracted from an Element value - when <<<includeAttribute(...)>>> was added to the query. To access
         an attribute from Result, use <<<getAttribute(Attribute<T> attribute>>>.
    
-   *    aggregator results 
+   *    aggregator results
 
   Aggregator results are summaries computed for the search. They are available <<<Result.getAggregatorResults>>> which returns
    a list of <<<Aggregator>>>s in the same order in which they were used in the <<<Query>>>.
@@ -515,6 +519,13 @@ for (Result result : results.all()) {
     *   Aggregators, such as sum(), might disagree with the same calculation done by redoing the calculation yourself by re-accessing the
         cache for each key and repeating the calculation.
 
+    *   <<<includeValues>>> returns values. Under the covers the index contains a server value reference. The reference gets returned
+        with the search and Terracotta supplies the matching value. Because the cache is always updated before the search index it is
+        possible that a value reference may refer to a value that has been removed from the cache. If this happens the value will be null
+        but the key and attributes which were supplied by the now stale cache index will be non-null. Because values in Ehcache are also
+        allowed to be null, you cannot tell whether your value is null because it has been removed from the cache since the index was last
+        updated or because it is a null value.
+
 **  Recommendations
 
     Because the state of the cache can change between search executions it is recommended to add all of the Aggregators you want
@@ -563,10 +574,15 @@ for (Result result : results.all()) {
 
     * limiting the results with <<<maxResults>>> or using the paging API <<<Results.range(int start, int length)>>>
 
+
     * Only including the data you need. Specifically only use <<<includeKeys()>>> and/or <<<includeAttribute()>>>
       if those values are actually required for your application logic
 
     * using a built-in <<<Aggregator>>> function when you only need a summary statistic
+
+    <<<includeValues>>> rates a special mention. Once a query requiring values is executed we push the values from the server
+    to the Ehcache CacheManager which requested it in batches for network efficiency. This is done ahead as soon as possible
+    reducing the risk that <<<Result.getValue()>>> might have to wait for data over the network.
 
 
 *   Limitations in the beta release
@@ -577,16 +593,17 @@ for (Result result : results.all()) {
 
     * Performance optimisations for standalone have not been done
 
-    * executeAndRemove() is not yet implemented
-
-    * Metadata attributes are not yet implemented 
-
 
 *   Not planned for First Release
-
-    * Add Query.includeValues() that is orthogonal to includeKeys() and can be more efficient network wise for round trips where values are required
 
     * indexed standalone implementation
 
     * User Defined Aggregators
 
+    * executeAndRemove() is not yet implemented
+
+    * Metadata attributes are not yet implemented
+
+    * An isNull criteria is not yet implemented
+
+    * Non-Latin language behaviour has not been fully tested
