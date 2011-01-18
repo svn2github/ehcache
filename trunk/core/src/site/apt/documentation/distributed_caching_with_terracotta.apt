@@ -139,7 +139,7 @@ public class TerracottaExample {
 
 ---
 Configuration configuration = new Configuration()
-.terracotta(new GlobalTerracottaConfiguration().url("localhost:9510"))
+.terracotta(new TerracottaClientConfiguration().url("localhost:9510"))
 .defaultCache(new CacheConfiguration("defaultCache", 100))
 .cache(new CacheConfiguration("example", 100)
 .timeToIdleSeconds(5)
