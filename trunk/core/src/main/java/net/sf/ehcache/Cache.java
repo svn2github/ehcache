@@ -3586,7 +3586,9 @@ public class Cache implements Ehcache, StoreListener {
     Results executeQuery(StoreQuery query) throws SearchException {
 
         if (!query.requestsKeys() && !query.requestsValues() && query.requestedAttributes().isEmpty() && query.getAggregatorInstances().isEmpty()) {
-            throw new SearchException("No results specified. Please specify one or more of includeKeys(), includeValues(), includeAggregator() or includeAttribute()");
+            String msg = "No results specified. " +
+            "Please specify one or more of includeKeys(), includeValues(), includeAggregator() or includeAttribute()";
+            throw new SearchException(msg);
         }
 
         if (isStatisticsEnabled()) {
