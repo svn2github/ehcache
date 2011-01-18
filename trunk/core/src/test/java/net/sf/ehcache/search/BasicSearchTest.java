@@ -684,7 +684,7 @@ public class BasicSearchTest {
     }
 
     @Test
-    public void testLike() {
+    public void testILike() {
         CacheManager cacheManager = new CacheManager(getClass().getResource("/ehcache-search.xml"));
         Ehcache cache = cacheManager.getEhcache("cache1");
         SearchTestUtil.populateData(cache);
