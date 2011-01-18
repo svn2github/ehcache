@@ -3585,6 +3585,10 @@ public class Cache implements Ehcache, StoreListener {
      */
     Results executeQuery(StoreQuery query) throws SearchException {
 
+        if (!query.requestsKeys() && !query.requestsValues() && query.requestedAttributes().isEmpty() && query.getAggregatorInstances().isEmpty()) {
+            throw new SearchException("Executed search queries must return results (keys, values, attributes or aggregators)");
+        }
+
         if (isStatisticsEnabled()) {
             long start = System.currentTimeMillis();
             Results results = this.compoundStore.executeQuery(query);

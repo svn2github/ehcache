@@ -799,6 +799,36 @@ public class BasicSearchTest extends TestCase {
         assertEquals(1, query.execute().all().iterator().next().getKey());
     }
 
+    public void testEmptyQueries() {
+        CacheManager cacheManager = new CacheManager(getClass().getResource("/ehcache-search.xml"));
+        Ehcache cache = cacheManager.getEhcache("cache1");
+        SearchTestUtil.populateData(cache);
+
+        {
+            Query query = cache.createQuery();
+            query.end();
+            try {
+                query.execute();
+                fail();
+            } catch (SearchException e) {
+                System.err.println("Expected " + e);
+            }
+        }
+
+        {
+            Attribute<Integer> age = cache.getSearchAttribute("age");
+            Query query = cache.createQuery();
+            query.addCriteria(age.ne(35));
+            query.end();
+            try {
+                query.execute();
+                fail();
+            } catch (SearchException e) {
+                System.err.println("Expected " + e);
+            }
+        }
+    }
+
     private void verify(Ehcache cache, Query query, Integer... expectedKeys) {
         Results results = query.execute();
         assertEquals(expectedKeys.length, results.size());

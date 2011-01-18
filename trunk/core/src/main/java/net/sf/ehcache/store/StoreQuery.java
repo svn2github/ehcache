@@ -47,6 +47,13 @@ public interface StoreQuery {
     boolean requestsKeys();
 
     /**
+     * Are values requested?
+     *
+     * @return true if values requested
+     */
+    boolean requestsValues();
+
+    /**
      * Get the cache this query originated from
      *
      * @return cache
