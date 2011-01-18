@@ -13,6 +13,7 @@ import net.sf.ehcache.Element;
 import net.sf.ehcache.config.SearchAttribute;
 
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -127,8 +128,13 @@ public class QueryExamplesTest {
     @Test
     public void testNoIncludeSpecified() {
         Attribute<Integer> age = cache.getSearchAttribute("age");
-        Results results = cache.createQuery().addCriteria(age.eq(35)).execute();
-        assertEquals(0, results.size());
+        Query query = cache.createQuery().addCriteria(age.eq(35));
+        try {
+            query.execute();
+            Assert.fail();
+        } catch (SearchException e) {
+            System.err.println("Expected " + e.toString());
+        }
     }
 
     @Test
