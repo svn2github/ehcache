@@ -16,13 +16,19 @@
 
 package net.sf.ehcache.search;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import junit.framework.TestCase;
+import org.junit.Test;
+
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.CacheManager;
@@ -38,8 +44,9 @@ import net.sf.ehcache.search.aggregator.AggregatorException;
 import net.sf.ehcache.search.aggregator.AggregatorInstance;
 import net.sf.ehcache.search.expression.Or;
 
-public class BasicSearchTest extends TestCase {
+public class BasicSearchTest {
 
+    @Test
     public void testInvalidConfiguration() {
         try {
             new CacheManager(getClass().getResource("/ehcache-search-invalid-key.xml"));
@@ -56,6 +63,7 @@ public class BasicSearchTest extends TestCase {
         }
     }
 
+    @Test
     public void testNonSearchableCache() {
         CacheManager cacheManager = new CacheManager(getClass().getResource("/ehcache-search.xml"));
         Ehcache cache = cacheManager.getEhcache("not-searchable");
@@ -69,6 +77,7 @@ public class BasicSearchTest extends TestCase {
         }
     }
 
+    @Test
     public void testDefaultSearchableCache() {
         CacheManager cacheManager = new CacheManager(getClass().getResource("/ehcache-search.xml"));
         Ehcache cache = cacheManager.getEhcache("default-searchable");
@@ -98,6 +107,7 @@ public class BasicSearchTest extends TestCase {
         assertEquals("value", cache.get(key).getObjectValue());
     }
 
+    @Test
     public void testQueryBuilder() {
         CacheManager cacheManager = new CacheManager(getClass().getResource("/ehcache-search.xml"));
         Ehcache cache = cacheManager.getEhcache("cache1");
@@ -187,6 +197,7 @@ public class BasicSearchTest extends TestCase {
         }
     }
 
+    @Test
     public void testRange() {
         CacheManager cacheManager = new CacheManager(getClass().getResource("/ehcache-search.xml"));
         Ehcache cache = cacheManager.getEhcache("cache1");
@@ -234,6 +245,7 @@ public class BasicSearchTest extends TestCase {
         }
     }
 
+    @Test
     public void testBasic() {
         CacheManager cacheManager = new CacheManager(getClass().getResource("/ehcache-search.xml"));
 
@@ -247,6 +259,7 @@ public class BasicSearchTest extends TestCase {
         basicQueries(cacheManager.getEhcache("bean-attributes"));
     }
 
+    @Test
     public void testCustomAggregator() {
         CacheManager cacheManager = new CacheManager(getClass().getResource("/ehcache-search.xml"));
         Ehcache cache = cacheManager.getEhcache("cache1");
@@ -288,6 +301,7 @@ public class BasicSearchTest extends TestCase {
         }
     }
 
+    @Test
     public void testBuiltinFunctions() {
         CacheManager cacheManager = new CacheManager(getClass().getResource("/ehcache-search.xml"));
         Ehcache cache = cacheManager.getEhcache("cache1");
@@ -432,6 +446,7 @@ public class BasicSearchTest extends TestCase {
         }
     }
 
+    @Test
     public void testMaxResults() {
         CacheManager cacheManager = new CacheManager(getClass().getResource("/ehcache-search.xml"));
         Ehcache cache = cacheManager.getEhcache("cache1");
@@ -497,6 +512,7 @@ public class BasicSearchTest extends TestCase {
         assertEquals(2, results.size());
     }
 
+    @Test
     public void testAttributeQuery() {
         CacheManager cacheManager = new CacheManager(getClass().getResource("/ehcache-search.xml"));
         Ehcache cache = cacheManager.getEhcache("cache1");
@@ -636,6 +652,7 @@ public class BasicSearchTest extends TestCase {
         }
     }
 
+    @Test
     public void testOrdering() {
         CacheManager cacheManager = new CacheManager(getClass().getResource("/ehcache-search.xml"));
         Ehcache cache = cacheManager.getEhcache("cache1");
@@ -666,6 +683,7 @@ public class BasicSearchTest extends TestCase {
         verifyOrdered(cache, query, 3, 1);
     }
 
+    @Test
     public void testLike() {
         CacheManager cacheManager = new CacheManager(getClass().getResource("/ehcache-search.xml"));
         Ehcache cache = cacheManager.getEhcache("cache1");
@@ -755,6 +773,7 @@ public class BasicSearchTest extends TestCase {
 
     }
 
+    @Test
     public void testTypeChecking() {
         CacheManager cm = new CacheManager(new Configuration().defaultCache(new CacheConfiguration()));
 
@@ -799,6 +818,7 @@ public class BasicSearchTest extends TestCase {
         assertEquals(1, query.execute().all().iterator().next().getKey());
     }
 
+    @Test
     public void testEmptyQueries() {
         CacheManager cacheManager = new CacheManager(getClass().getResource("/ehcache-search.xml"));
         Ehcache cache = cacheManager.getEhcache("cache1");
