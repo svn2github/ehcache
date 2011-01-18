@@ -63,6 +63,7 @@ import net.sf.ehcache.store.StoreQuery;
 import net.sf.ehcache.store.TerracottaStore;
 import net.sf.ehcache.store.compound.ImmutableValueElementCopyStrategy;
 import net.sf.ehcache.store.compound.ReadWriteCopyStrategy;
+import net.sf.ehcache.store.compound.StoreUpdateException;
 import net.sf.ehcache.store.compound.impl.DiskPersistentStore;
 import net.sf.ehcache.store.compound.impl.MemoryOnlyStore;
 import net.sf.ehcache.store.compound.impl.OverflowToDiskStore;
@@ -1347,21 +1348,24 @@ public class Cache implements Ehcache, StoreListener {
 
         if (useCacheWriter) {
             boolean elementExists = false;
-            boolean notifyListenersOnException = configuration.getCacheWriterConfiguration().getNotifyListenersOnException();
+            boolean notifyListeners = true;
             try {
-                if (notifyListenersOnException) {
-                    elementExists = compoundStore.containsKey(element.getObjectKey());
+                elementExists = !compoundStore.putWithWriter(element, cacheWriterManager);
+            } catch (StoreUpdateException e) {
+                elementExists = e.isUpdate();
+                notifyListeners = configuration.getCacheWriterConfiguration().getNotifyListenersOnException();
+                RuntimeException cause = e.getCause();
+                if (cause instanceof CacheWriterManagerException) {
+                    throw ((CacheWriterManagerException)cause).getCause();
                 }
-                elementExists = !compoundStore.putWithWriter(element, cacheWriterManager) || elementExists;
+                throw cause;
+            } finally {
                 if (elementExists) {
                     element.updateUpdateStatistics();
                 }
-                notifyPutInternalListeners(element, doNotNotifyCacheReplicators, elementExists);
-            } catch (CacheWriterManagerException e) {
-                if (notifyListenersOnException) {
+                if (notifyListeners) {
                     notifyPutInternalListeners(element, doNotNotifyCacheReplicators, elementExists);
                 }
-                throw e.getCause();
             }
         } else {
             boolean elementExists = !compoundStore.put(element);
@@ -2078,7 +2082,7 @@ public class Cache implements Ehcache, StoreListener {
         }
 
         return notifyRemoveInternalListeners(key, expiry, notifyListeners, doNotNotifyCacheReplicators,
-                elementFromStore);
+            elementFromStore);
     }
 
     private boolean notifyRemoveInternalListeners(Object key, boolean expiry, boolean notifyListeners, boolean doNotNotifyCacheReplicators,
@@ -2591,7 +2595,7 @@ public class Cache implements Ehcache, StoreListener {
      * @return true if an element matching the key is found in the diskStore
      */
     public final boolean isElementOnDisk(Serializable key) {
-        return isElementOnDisk((Object) key);
+        return isElementOnDisk((Object)key);
     }
 
     /**
@@ -3857,7 +3861,7 @@ public class Cache implements Ehcache, StoreListener {
         /**
          * Change state to the new state
          *
-         * @param status state
+         * @param newState state
          */
         public synchronized void changeState(CacheState newState) {
             cacheState = cacheState.changeState(newState);

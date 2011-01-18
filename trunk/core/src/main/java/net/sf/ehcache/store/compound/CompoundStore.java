@@ -32,6 +32,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import net.sf.ehcache.CacheEntry;
+import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.Status;
 import net.sf.ehcache.concurrent.CacheLockProvider;
@@ -146,11 +147,15 @@ public abstract class CompoundStore extends AbstractStore {
      * {@inheritDoc}
      */
     public boolean putWithWriter(Element element, CacheWriterManager writerManager) {
-        boolean result = put(element);
+        boolean update = !put(element);
         if (writerManager != null) {
+          try {
             writerManager.put(element);
+          } catch (RuntimeException e) {
+            throw new StoreUpdateException(e, update);
+          }
         }
-        return result;
+        return update;
     }
 
     /**

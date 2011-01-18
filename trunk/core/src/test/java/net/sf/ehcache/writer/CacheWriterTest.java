@@ -201,6 +201,8 @@ public class CacheWriterTest extends AbstractCacheTest {
         } catch (UnsupportedOperationException e) {
             // expected
             assertEquals(0, CountingCacheEventListener.getCacheElementsPut(cache).size());
+        } catch(Throwable e) {
+            fail("Didn't expect a " + e.getClass().getName());
         }
 
         CountingCacheEventListener.resetCounters();
@@ -211,6 +213,8 @@ public class CacheWriterTest extends AbstractCacheTest {
         } catch (UnsupportedOperationException e) {
             // expected
             assertEquals(0, CountingCacheEventListener.getCacheElementsUpdated(cache).size());
+        } catch(Throwable e) {
+            fail("Didn't expect a " + e.getClass().getName());
         }
 
         CountingCacheEventListener.resetCounters();
@@ -221,6 +225,8 @@ public class CacheWriterTest extends AbstractCacheTest {
         } catch (UnsupportedOperationException e) {
             // expected
             assertEquals(0, CountingCacheEventListener.getCacheElementsRemoved(cache).size());
+        } catch(Throwable e) {
+            fail("Didn't expect a " + e.getClass().getName());
         }
 
         // with listeners notification
@@ -235,6 +241,8 @@ public class CacheWriterTest extends AbstractCacheTest {
             // expected
             assertEquals(0, CountingCacheEventListener.getCacheElementsUpdated(cache).size());
             assertEquals(1, CountingCacheEventListener.getCacheElementsPut(cache).size());
+        } catch(Throwable e) {
+            fail("Didn't expect a " + e.getClass().getName());
         }
 
         CountingCacheEventListener.resetCounters();
@@ -247,6 +255,8 @@ public class CacheWriterTest extends AbstractCacheTest {
             // expected
             assertEquals(0, CountingCacheEventListener.getCacheElementsPut(cache).size());
             assertEquals(1, CountingCacheEventListener.getCacheElementsUpdated(cache).size());
+        } catch(Throwable e) {
+            fail("Didn't expect a " + e.getClass().getName());
         }
 
         CountingCacheEventListener.resetCounters();
