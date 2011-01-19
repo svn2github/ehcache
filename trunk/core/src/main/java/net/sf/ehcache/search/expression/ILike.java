@@ -85,11 +85,7 @@ public class ILike extends BaseCriteria {
             throw new SearchException("Zero length regex");
         }
 
-        if (expr.startsWith("*") || expr.startsWith("?")) {
-            throw new SearchException("regular expression may not start with a wildcard: " + expr);
-        }
-
-        StringBuilder javaRegex = new StringBuilder("^.*");
+        StringBuilder javaRegex = new StringBuilder("^");
 
         boolean escape = false;
         for (int i = 0; i < expr.length(); i++) {
@@ -131,14 +127,14 @@ public class ILike extends BaseCriteria {
             }
         }
 
-        javaRegex.append(".*$");
+        javaRegex.append("$");
 
         return Pattern.compile(javaRegex.toString(), Pattern.DOTALL);
     }
 
     private static String lowerCase(char ch) {
         // heeding the advice in Character.toLowerCase() and using String.toLowerCase() instead here
-        return new String(new char[] {ch}).toLowerCase();
+        return Character.toString(ch).toLowerCase();
     }
 
     /**

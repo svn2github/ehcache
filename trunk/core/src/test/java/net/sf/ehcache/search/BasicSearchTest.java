@@ -717,7 +717,7 @@ public class BasicSearchTest {
 
         query = cache.createQuery();
         query.includeKeys();
-        query.addCriteria(name.ilike("Test*"));
+        query.addCriteria(name.ilike("*Test*"));
         query.end();
 
         verify(cache, query, 1, 2);
@@ -766,7 +766,7 @@ public class BasicSearchTest {
 
         query = cache.createQuery();
         query.includeKeys();
-        query.addCriteria(name.ilike("am on a"));
+        query.addCriteria(name.ilike("*am on a*"));
         query.end();
 
         verify(cache, query, 6);
