@@ -302,6 +302,14 @@ public class HibernateStatsImpl extends BaseEmitterBean implements HibernateStat
     }
 
     /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected void doDispose() {
+        // no-op
+    }
+
+    /**
      * @see BaseEmitterBean#getNotificationInfo()
      */
     @Override

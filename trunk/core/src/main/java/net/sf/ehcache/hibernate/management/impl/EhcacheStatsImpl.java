@@ -644,6 +644,14 @@ public class EhcacheStatsImpl extends BaseEmitterBean implements EhcacheStats {
     }
 
     /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected void doDispose() {
+        // no-op
+    }
+
+    /**
      * @see BaseEmitterBean#getNotificationInfo()
      */
     @Override

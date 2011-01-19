@@ -575,6 +575,14 @@ public class EhcacheHibernate extends BaseEmitterBean implements EhcacheHibernat
     }
 
     /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected void doDispose() {
+        // no-op
+    }
+
+    /**
      * @see BaseEmitterBean#getNotificationInfo()
      */
     @Override

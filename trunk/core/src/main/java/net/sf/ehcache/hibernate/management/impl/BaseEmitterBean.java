@@ -94,6 +94,19 @@ public abstract class BaseEmitterBean extends StandardMBean implements Notificat
     }
 
     /**
+     * Dispose of this SampledCacheManager and clean up held resources
+     */
+    public final void dispose() {
+        doDispose();
+        removeAllNotificationListeners();
+    }
+
+    /**
+     * Dispose callback of subclasses
+     */
+    protected abstract void doDispose();
+
+    /**
      * @author gkeim
      */
     private class Emitter extends NotificationBroadcasterSupport {
@@ -118,7 +131,7 @@ public abstract class BaseEmitterBean extends StandardMBean implements Notificat
     /**
      * remove all added notification listeners
      */
-    public void removeAllNotificationListeners() {
+    private void removeAllNotificationListeners() {
         for (NotificationListener listener : notificationListeners) {
             try {
                 emitter.removeNotificationListener(listener);

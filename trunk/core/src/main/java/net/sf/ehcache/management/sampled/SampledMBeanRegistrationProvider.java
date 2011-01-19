@@ -220,15 +220,14 @@ public class SampledMBeanRegistrationProvider implements MBeanRegistrationProvid
         for (ObjectName objectName : registeredObjectNames) {
             try {
                 mBeanServer.unregisterMBean(objectName);
-                BaseEmitterBean bean = mbeans.get(objectName);
-                bean.removeAllNotificationListeners();
+                BaseEmitterBean mbean = mbeans.get(objectName);
+                mbean.dispose();
             } catch (Exception e) {
                 LOG.warn("Error unregistering object instance " + objectName + " . Error was " + e.getMessage(), e);
             }
         }
         mbeans.clear();
 
-        cacheManagerMBean.dispose();
         cacheManager.getCacheManagerEventListenerRegistry().unregisterListener(this);
 
         status = Status.STATUS_SHUTDOWN;

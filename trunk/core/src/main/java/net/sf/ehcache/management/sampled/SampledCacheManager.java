@@ -69,9 +69,10 @@ public class SampledCacheManager extends BaseEmitterBean implements SampledCache
     }
 
     /**
-     * Dispose of this SampledCacheManager and clean up held resources
+     * {@inheritDoc}
      */
-    public void dispose() {
+    @Override
+    protected void doDispose() {
         cacheManager.getCacheManagerEventListenerRegistry().unregisterListener(cacheManagerEventListener);
     }
 

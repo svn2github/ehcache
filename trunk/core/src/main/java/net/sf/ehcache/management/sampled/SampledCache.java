@@ -908,11 +908,10 @@ public class SampledCache extends BaseEmitterBean implements SampledCacheMBean, 
 
     /**
      * {@inheritDoc}
-     *
-     * @see net.sf.ehcache.statistics.sampled.SampledCacheStatistics#dispose()
      */
-    public void dispose() {
-        // no-op
+    @Override
+    protected void doDispose() {
+        cache.getCacheConfiguration().removeConfigurationListener(this);
     }
 
     /**
