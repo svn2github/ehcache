@@ -156,6 +156,7 @@ public class NonstopTestUtil extends TestCase {
         skipMethods.add("releaseWriteLockOnKey");
         skipMethods.add("tryReadLockOnKey");
         skipMethods.add("tryWriteLockOnKey");
+        skipMethods.add("evictExpiredElements");
 
         new EhcacheMethodsInvoker() {
 

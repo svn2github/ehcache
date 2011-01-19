@@ -40,26 +40,58 @@ import net.sf.ehcache.writer.CacheWriterManager;
 
 public class TestRejoinStore implements TerracottaStore {
 
-    private final Map<Object, Element> map = new HashMap<Object, Element>();
-    private volatile boolean blocking = false;
-    private final CacheLockProvider cacheLockProvider = new NullCacheLockProvider();
-
-    public void setBlocking(boolean blocking) {
-        this.blocking = blocking;
+    public enum StoreAction {
+        NONE, BLOCKING, EXCEPTION;
     }
 
-    private void checkBlocking() {
+    private final Map<Object, Element> map = new HashMap<Object, Element>();
+    private volatile StoreAction storeAction = StoreAction.NONE;
+    private final CacheLockProvider cacheLockProvider = new NullCacheLockProvider();
+    private final List<String> calledMethods = new ArrayList<String>();
+
+    public void setBlocking(boolean blocking) {
         if (blocking) {
-            try {
-                Thread.currentThread().join();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+            this.setStoreAction(StoreAction.BLOCKING);
+        } else {
+            this.setStoreAction(StoreAction.NONE);
+        }
+    }
+
+    public void setStoreAction(StoreAction storeAction) {
+        this.storeAction = storeAction;
+    }
+
+    public synchronized List<String> getCalledMethods() {
+        return calledMethods;
+    }
+
+    public synchronized void clearCalledMethods() {
+        calledMethods.clear();
+    }
+
+    private void alwaysCalledMethod() {
+        StackTraceElement lastMethod = new Exception().getStackTrace()[1];
+        synchronized (this) {
+            calledMethods.add(lastMethod.getMethodName());
+        }
+
+        switch (storeAction) {
+            case BLOCKING: {
+                try {
+                    Thread.currentThread().join();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                break;
+            }
+            case EXCEPTION: {
+                throw new RuntimeException("You want exception, you get it");
             }
         }
     }
 
     public void addStoreListener(StoreListener listener) {
-        checkBlocking();
+        alwaysCalledMethod();
 
     }
 
@@ -68,233 +100,233 @@ public class TestRejoinStore implements TerracottaStore {
     }
 
     public boolean containsKey(Object key) {
-        checkBlocking();
+        alwaysCalledMethod();
         return map.containsKey(key);
     }
 
     public boolean containsKeyInMemory(Object key) {
-        checkBlocking();
+        alwaysCalledMethod();
         return map.containsKey(key);
     }
 
     public boolean containsKeyOffHeap(Object key) {
-        checkBlocking();
+        alwaysCalledMethod();
         return false;
     }
 
     public boolean containsKeyOnDisk(Object key) {
-        checkBlocking();
+        alwaysCalledMethod();
         return false;
     }
 
     public void dispose() {
-        checkBlocking();
+        alwaysCalledMethod();
 
     }
 
     public Results executeQuery(StoreQuery query) {
-        checkBlocking();
+        alwaysCalledMethod();
         return null;
     }
 
     public <T> Attribute<T> getSearchAttribute(String attributeName) {
-        checkBlocking();
+        alwaysCalledMethod();
         return null;
     }
 
     public void expireElements() {
-        checkBlocking();
+        alwaysCalledMethod();
 
     }
 
     public void flush() throws IOException {
-        checkBlocking();
+        alwaysCalledMethod();
 
     }
 
     public Element get(Object key) {
-        checkBlocking();
+        alwaysCalledMethod();
         return map.get(key);
     }
 
     public Policy getInMemoryEvictionPolicy() {
-        checkBlocking();
+        alwaysCalledMethod();
         return null;
     }
 
     public int getInMemorySize() {
-        checkBlocking();
+        alwaysCalledMethod();
         return 0;
     }
 
     public long getInMemorySizeInBytes() {
-        checkBlocking();
+        alwaysCalledMethod();
         return 0;
     }
 
     public Object getInternalContext() {
-        checkBlocking();
+        alwaysCalledMethod();
         return cacheLockProvider;
     }
 
     public List getKeys() {
-        checkBlocking();
+        alwaysCalledMethod();
         return new ArrayList(map.keySet());
     }
 
     public Object getMBean() {
-        checkBlocking();
+        alwaysCalledMethod();
         return null;
     }
 
     public int getOffHeapSize() {
-        checkBlocking();
+        alwaysCalledMethod();
         return 0;
     }
 
     public long getOffHeapSizeInBytes() {
-        checkBlocking();
+        alwaysCalledMethod();
         return 0;
     }
 
     public int getOnDiskSize() {
-        checkBlocking();
+        alwaysCalledMethod();
         return 0;
     }
 
     public long getOnDiskSizeInBytes() {
-        checkBlocking();
+        alwaysCalledMethod();
         return 0;
     }
 
     public Element getQuiet(Object key) {
-        checkBlocking();
+        alwaysCalledMethod();
         return map.get(key);
     }
 
     public int getSize() {
-        checkBlocking();
+        alwaysCalledMethod();
         return 0;
     }
 
     public Status getStatus() {
-        checkBlocking();
+        alwaysCalledMethod();
         return null;
     }
 
     public int getTerracottaClusteredSize() {
-        checkBlocking();
+        alwaysCalledMethod();
         return 0;
     }
 
     public boolean isCacheCoherent() {
-        checkBlocking();
+        alwaysCalledMethod();
         return false;
     }
 
     public boolean isClusterCoherent() {
-        checkBlocking();
+        alwaysCalledMethod();
         return true;
     }
 
     public boolean isNodeCoherent() {
-        checkBlocking();
+        alwaysCalledMethod();
         return true;
     }
 
     public boolean put(Element element) throws CacheException {
-        checkBlocking();
+        alwaysCalledMethod();
         return map.put(element.getKey(), element) == null;
     }
 
     public Element putIfAbsent(Element element) throws NullPointerException {
-        checkBlocking();
+        alwaysCalledMethod();
         return map.put(element.getKey(), element);
     }
 
     public boolean putWithWriter(Element element, CacheWriterManager writerManager) throws CacheException {
-        checkBlocking();
+        alwaysCalledMethod();
         return map.put(element.getKey(), element) == null;
     }
 
     public Element remove(Object key) {
-        checkBlocking();
+        alwaysCalledMethod();
         return map.remove(key);
     }
 
     public void removeAll() throws CacheException {
-        checkBlocking();
+        alwaysCalledMethod();
         map.clear();
     }
 
     public Element removeElement(Element element, ElementValueComparator comparator) throws NullPointerException {
-        checkBlocking();
+        alwaysCalledMethod();
         return null;
     }
 
     public void removeStoreListener(StoreListener listener) {
-        checkBlocking();
+        alwaysCalledMethod();
 
     }
 
     public Element removeWithWriter(Object key, CacheWriterManager writerManager) throws CacheException {
-        checkBlocking();
+        alwaysCalledMethod();
         return null;
     }
 
     public boolean replace(Element old, Element element, ElementValueComparator comparator) throws NullPointerException,
             IllegalArgumentException {
-        checkBlocking();
+        alwaysCalledMethod();
         return false;
     }
 
     public Element replace(Element element) throws NullPointerException {
-        checkBlocking();
+        alwaysCalledMethod();
         return null;
     }
 
     public void setAttributeExtractors(Map<String, AttributeExtractor> extractors) {
-        checkBlocking();
+        alwaysCalledMethod();
 
     }
 
     public void setInMemoryEvictionPolicy(Policy policy) {
-        checkBlocking();
+        alwaysCalledMethod();
 
     }
 
     public void setNodeCoherent(boolean coherent) throws UnsupportedOperationException {
-        checkBlocking();
+        alwaysCalledMethod();
 
     }
 
     public void waitUntilClusterCoherent() throws UnsupportedOperationException {
-        checkBlocking();
+        alwaysCalledMethod();
 
     }
 
     public Set getLocalKeys() {
-        checkBlocking();
+        alwaysCalledMethod();
         return null;
     }
 
     public Element unlockedGet(Object key) {
-        checkBlocking();
+        alwaysCalledMethod();
         return null;
     }
 
     public Element unlockedGetQuiet(Object key) {
-        checkBlocking();
+        alwaysCalledMethod();
         return null;
     }
 
     public Element unsafeGet(Object key) {
-        checkBlocking();
+        alwaysCalledMethod();
         return null;
     }
 
     public Element unsafeGetQuiet(Object key) {
-        checkBlocking();
+        alwaysCalledMethod();
         return null;
     }
 

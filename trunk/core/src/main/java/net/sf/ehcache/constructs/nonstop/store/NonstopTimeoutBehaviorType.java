@@ -20,10 +20,10 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-import net.sf.ehcache.store.Store;
+import net.sf.ehcache.constructs.nonstop.NonstopActiveDelegateHolder;
 
 /**
- * Enum encapsulating different {@link Store} types for use as timeoutBehavior by NonstopStore
+ * Enum encapsulating different {@link NonstopStore} types for use as timeoutBehavior by NonstopStore
  *
  * @author Abhishek Sanoujam
  *
@@ -31,7 +31,7 @@ import net.sf.ehcache.store.Store;
 public enum NonstopTimeoutBehaviorType {
 
     /**
-     * Type encapsulating {@link Store} which throws exception for all timed out operations
+     * Type encapsulating {@link NonstopStore} which throws exception for all timed out operations
      */
     EXCEPTION_ON_TIMEOUT() {
 
@@ -39,7 +39,7 @@ public enum NonstopTimeoutBehaviorType {
          * {@inheritDoc}
          */
         @Override
-        public NonstopStore newTimeoutStore(final Store store) {
+        public NonstopStore newTimeoutStore(final NonstopActiveDelegateHolder nonstopActiveDelegateHolder) {
             return ExceptionOnTimeoutStore.getInstance();
         }
 
@@ -55,7 +55,7 @@ public enum NonstopTimeoutBehaviorType {
 
     },
     /**
-     * Type encapsulating {@link Store} which returns null for get operations and does nothing
+     * Type encapsulating {@link NonstopStore} which returns null for get operations and does nothing
      * for put's and remove's
      */
     NO_OP_ON_TIMEOUT() {
@@ -64,7 +64,7 @@ public enum NonstopTimeoutBehaviorType {
          * {@inheritDoc}
          */
         @Override
-        public NonstopStore newTimeoutStore(final Store store) {
+        public NonstopStore newTimeoutStore(final NonstopActiveDelegateHolder nonstopActiveDelegateHolder) {
             return NoOpOnTimeoutStore.getInstance();
         }
 
@@ -80,7 +80,7 @@ public enum NonstopTimeoutBehaviorType {
 
     },
     /**
-     * Type encapsulating {@link Store} which returns whatever local value is associated with the
+     * Type encapsulating {@link NonstopStore} which returns whatever local value is associated with the
      * key for get operations and does nothing for put's and remove's. Works only Terracotta clustered caches
      */
     LOCAL_READS_ON_TIMEOUT() {
@@ -89,8 +89,8 @@ public enum NonstopTimeoutBehaviorType {
          * {@inheritDoc}
          */
         @Override
-        public NonstopStore newTimeoutStore(final Store store) {
-            return new LocalReadsOnTimeoutStore(store);
+        public NonstopStore newTimeoutStore(final NonstopActiveDelegateHolder nonstopActiveDelegateHolder) {
+            return new LocalReadsOnTimeoutStore(nonstopActiveDelegateHolder);
         }
 
         /**
@@ -106,17 +106,17 @@ public enum NonstopTimeoutBehaviorType {
     };
 
     /**
-     * Creates and returns new instance of {@link Store} for this type
+     * Creates and returns new instance of {@link NonstopStore} for this type
      *
-     * @param store
-     * @return new instance of {@link Store} for this type
+     * @param nonstopUnderlyingStoreResolver
+     * @return new instance of {@link NonstopStore} for this type
      */
-    public abstract NonstopStore newTimeoutStore(final Store store);
+    public abstract NonstopStore newTimeoutStore(final NonstopActiveDelegateHolder nonstopUnderlyingStoreResolver);
 
     /**
      * Name to be used for this type. This value is used for "timeoutBehavior" key when configuring NonstopStore
      *
-     * @return new instance of {@link Store} for this type
+     * @return name to be used for the timeout behavior
      */
     public abstract String getConfigPropertyName();
 
@@ -136,8 +136,7 @@ public enum NonstopTimeoutBehaviorType {
      */
     public static final String LOCAL_READS_CONFIG_PROPERTY_NAME = "localReads";
 
-    private static final Map<String, NonstopTimeoutBehaviorType> NAME_TYPE_MAP =
-        new HashMap<String, NonstopTimeoutBehaviorType>();
+    private static final Map<String, NonstopTimeoutBehaviorType> NAME_TYPE_MAP = new HashMap<String, NonstopTimeoutBehaviorType>();
 
     static {
         for (NonstopTimeoutBehaviorType type : NonstopTimeoutBehaviorType.values()) {

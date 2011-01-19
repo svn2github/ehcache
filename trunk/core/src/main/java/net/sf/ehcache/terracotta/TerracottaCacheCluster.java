@@ -55,9 +55,15 @@ public class TerracottaCacheCluster implements CacheCluster {
         if (newCacheCluster == null) {
             throw new IllegalArgumentException("CacheCluster can't be null");
         }
+        final CacheCluster oldRealCacheCluster = this.realCacheCluster;
         this.realCacheCluster = newCacheCluster;
         for (ClusterTopologyListener listener : listeners) {
             this.realCacheCluster.addTopologyListener(listener);
+        }
+        if (oldRealCacheCluster != null) {
+            for (ClusterTopologyListener listener : listeners) {
+                oldRealCacheCluster.removeTopologyListener(listener);
+            }
         }
     }
 
@@ -216,9 +222,9 @@ public class TerracottaCacheCluster implements CacheCluster {
 
     }
 
-        /**
-         * {@inheritDoc}
-         */
+    /**
+     * {@inheritDoc}
+     */
     public List<ClusterTopologyListener> getTopologyListeners() {
         return this.listeners;
     }

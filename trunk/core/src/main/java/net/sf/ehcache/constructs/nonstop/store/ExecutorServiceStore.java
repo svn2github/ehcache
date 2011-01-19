@@ -28,11 +28,13 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.Status;
-import net.sf.ehcache.concurrent.CacheLockProvider;
+import net.sf.ehcache.cluster.CacheCluster;
+import net.sf.ehcache.cluster.ClusterNode;
+import net.sf.ehcache.cluster.ClusterTopologyListener;
 import net.sf.ehcache.concurrent.Sync;
 import net.sf.ehcache.config.NonstopConfiguration;
 import net.sf.ehcache.constructs.nonstop.ClusterOperation;
-import net.sf.ehcache.constructs.nonstop.NonstopExecutorService;
+import net.sf.ehcache.constructs.nonstop.NonstopActiveDelegateHolder;
 import net.sf.ehcache.search.Attribute;
 import net.sf.ehcache.search.Results;
 import net.sf.ehcache.search.attribute.AttributeExtractor;
@@ -40,47 +42,40 @@ import net.sf.ehcache.store.ElementValueComparator;
 import net.sf.ehcache.store.Policy;
 import net.sf.ehcache.store.StoreListener;
 import net.sf.ehcache.store.StoreQuery;
-import net.sf.ehcache.store.TerracottaStore;
 import net.sf.ehcache.writer.CacheWriterManager;
 
 /**
- * This implementation executes all operations using a {@link NonstopExecutorService}. On Timeout, uses the
- * {@link NonstopTimeoutStoreResolver} to resolve the timeout behavior store and execute it.
+ * This implementation executes all operations using a NonstopExecutorService. On Timeout, uses the {@link NonstopTimeoutStoreResolver} to
+ * resolve the timeout behavior store and execute it.
  * <p/>
- * A {@link TerracottaStore} that takes another {@link TerracottaStore} as direct delegate, the {@link NonstopConfiguration},
- * {@link NonstopExecutorService} and {@link NonstopTimeoutStoreResolver}
  *
  * @author Abhishek Sanoujam
  *
  */
 public class ExecutorServiceStore implements NonstopStore {
 
-    private final TerracottaStore executeBehavior;
-    private final NonstopExecutorService executorService;
+    private final NonstopActiveDelegateHolder nonstopActiveDelegateHolder;
     private final NonstopTimeoutStoreResolver timeoutBehaviorResolver;
     private final NonstopConfiguration nonstopConfiguration;
     private final AtomicBoolean clusterOffline = new AtomicBoolean();
-    private final CacheLockProvider delegateCacheLockProvider;
 
     /**
-     * Constructor accepting the direct delegate behavior, {@link NonstopConfiguration}, {@link NonstopExecutorService} and
-     * {@link NonstopTimeoutStoreResolver}
+     * Constructor accepting the {@link NonstopActiveDelegateHolder}, {@link NonstopConfiguration} and {@link NonstopTimeoutStoreResolver}
      *
      */
-    public ExecutorServiceStore(final TerracottaStore delegateStore, final NonstopConfiguration nonstopConfiguration,
-            final NonstopExecutorService executorService, final NonstopTimeoutStoreResolver timeoutBehaviorResolver,
-            CacheLockProvider delegateCacheLockProvider) {
-        this.executeBehavior = delegateStore;
+    public ExecutorServiceStore(final NonstopActiveDelegateHolder nonstopActiveDelegateHolder,
+            final NonstopConfiguration nonstopConfiguration, final NonstopTimeoutStoreResolver timeoutBehaviorResolver,
+            CacheCluster cacheCluster) {
+        this.nonstopActiveDelegateHolder = nonstopActiveDelegateHolder;
         this.nonstopConfiguration = nonstopConfiguration;
-        this.executorService = executorService;
         this.timeoutBehaviorResolver = timeoutBehaviorResolver;
-        this.delegateCacheLockProvider = delegateCacheLockProvider;
+        cacheCluster.addTopologyListener(new ClusterStatusListener(this, cacheCluster));
     }
 
     /**
      * Make the cluster offline as cluster rejoin is beginning
      */
-    void clusterRejoinStarted() {
+    void clusterOffline() {
         clusterOffline.set(true);
         synchronized (clusterOffline) {
             clusterOffline.notifyAll();
@@ -90,24 +85,46 @@ public class ExecutorServiceStore implements NonstopStore {
     /**
      * Make the cluster online
      */
-    void clusterRejoinComplete() {
+    void clusterOnline() {
         clusterOffline.set(false);
         synchronized (clusterOffline) {
             clusterOffline.notifyAll();
         }
     }
 
-    private <V> V executeWithExecutor(final Callable<V> callable) throws CacheException, TimeoutException {
-        return executeWithExecutor(callable, nonstopConfiguration.getTimeoutMillis());
+    private <V> V forceExecuteWithExecutor(final Callable<V> callable) throws CacheException, TimeoutException {
+        return executeWithExecutor(callable, nonstopConfiguration.getTimeoutMillis(), true);
     }
 
-    private <V> V executeWithExecutor(final Callable<V> callable, long timeOutMills) throws CacheException, TimeoutException {
+    private <V> V executeWithExecutor(final Callable<V> callable) throws CacheException, TimeoutException {
+        return executeWithExecutor(callable, nonstopConfiguration.getTimeoutMillis(), false);
+    }
+
+    private <V> V executeWithExecutor(final Callable<V> callable, final long timeoutMillis) throws CacheException, TimeoutException {
+        return executeWithExecutor(callable, timeoutMillis, false);
+    }
+
+    private <V> V executeWithExecutor(final Callable<V> callable, final long timeOutMills, final boolean force) throws CacheException,
+            TimeoutException {
         final long start = System.nanoTime();
+        if (!force) {
+            checkForClusterOffline(start, timeOutMills);
+        }
+        try {
+            final long remaining = timeOutMills - TimeUnit.MILLISECONDS.convert(System.nanoTime() - start, TimeUnit.NANOSECONDS);
+            return nonstopActiveDelegateHolder.getNonstopExecutorService().execute(callable, remaining);
+        } catch (InterruptedException e) {
+            // rethrow as CacheException
+            throw new CacheException(e);
+        }
+    }
+
+    private void checkForClusterOffline(final long start, final long timeoutMills) throws TimeoutException {
         while (clusterOffline.get()) {
             if (nonstopConfiguration.isImmediateTimeout()) {
-                throw new TimeoutException("Cluster is currently offline (probably rejoin in progress)");
+                throw new TimeoutException("Cluster is currently offline");
             }
-            final long remaining = timeOutMills - TimeUnit.MILLISECONDS.convert(System.nanoTime() - start, TimeUnit.NANOSECONDS);
+            final long remaining = timeoutMills - TimeUnit.MILLISECONDS.convert(System.nanoTime() - start, TimeUnit.NANOSECONDS);
             if (remaining <= 0) {
                 break;
             }
@@ -122,14 +139,65 @@ public class ExecutorServiceStore implements NonstopStore {
         }
         if (clusterOffline.get()) {
             // still cluster offline
-            throw new TimeoutException("Cluster is currently offline (probably rejoin in progress)");
+            throw new TimeoutException("Cluster is currently offline");
         }
+    }
+
+    // /////////////////////////////////////////////////////////
+    // methods below use the 'force' executeWithExecutor version
+    // these are methods that are used during rejoin, as during rejoin
+    // the cluster is offline and unless force is used, the methods
+    // won't be executed at all
+    // /////////////////////////////////////////////////////////
+
+    /**
+     * {@inheritDoc}.
+     */
+    public void dispose() {
         try {
-            final long remaining = timeOutMills - TimeUnit.MILLISECONDS.convert(System.nanoTime() - start, TimeUnit.NANOSECONDS);
-            return executorService.execute(callable, remaining);
-        } catch (InterruptedException e) {
-            // rethrow as CacheException
-            throw new CacheException(e);
+            // always execute even when cluster offline
+            forceExecuteWithExecutor(new Callable<Void>() {
+                public Void call() throws Exception {
+                    nonstopActiveDelegateHolder.getUnderlyingTerracottaStore().dispose();
+                    return null;
+                }
+            });
+        } catch (TimeoutException e) {
+            timeoutBehaviorResolver.resolveTimeoutStore().dispose();
+        }
+    }
+
+    /**
+     * {@inheritDoc}.
+     */
+    public void setNodeCoherent(final boolean coherent) throws UnsupportedOperationException {
+        try {
+            // always execute even when cluster offline
+            forceExecuteWithExecutor(new Callable<Void>() {
+                public Void call() throws Exception {
+                    nonstopActiveDelegateHolder.getUnderlyingTerracottaStore().setNodeCoherent(coherent);
+                    return null;
+                }
+            });
+        } catch (TimeoutException e) {
+            timeoutBehaviorResolver.resolveTimeoutStore().setNodeCoherent(coherent);
+        }
+    }
+
+    /**
+     * {@inheritDoc}.
+     */
+    public void setAttributeExtractors(final Map<String, AttributeExtractor> extractors) {
+        try {
+            // always execute even when cluster offline
+            forceExecuteWithExecutor(new Callable<Void>() {
+                public Void call() throws Exception {
+                    nonstopActiveDelegateHolder.getUnderlyingTerracottaStore().setAttributeExtractors(extractors);
+                    return null;
+                }
+            });
+        } catch (TimeoutException e) {
+            timeoutBehaviorResolver.resolveTimeoutStore().setAttributeExtractors(extractors);
         }
     }
 
@@ -138,9 +206,10 @@ public class ExecutorServiceStore implements NonstopStore {
      */
     public void addStoreListener(final StoreListener listener) {
         try {
-            executeWithExecutor(new Callable<Void>() {
+            // always execute even when cluster offline
+            forceExecuteWithExecutor(new Callable<Void>() {
                 public Void call() throws Exception {
-                    executeBehavior.addStoreListener(listener);
+                    nonstopActiveDelegateHolder.getUnderlyingTerracottaStore().addStoreListener(listener);
                     return null;
                 }
             });
@@ -149,6 +218,10 @@ public class ExecutorServiceStore implements NonstopStore {
         }
     }
 
+    // /////////////////////////////////////////////////////////
+    // methods below use the normal executeWithExecutor version
+    // /////////////////////////////////////////////////////////
+
     /**
      * {@inheritDoc}.
      */
@@ -156,7 +229,7 @@ public class ExecutorServiceStore implements NonstopStore {
         try {
             executeWithExecutor(new Callable<Void>() {
                 public Void call() throws Exception {
-                    executeBehavior.removeStoreListener(listener);
+                    nonstopActiveDelegateHolder.getUnderlyingTerracottaStore().removeStoreListener(listener);
                     return null;
                 }
             });
@@ -173,7 +246,7 @@ public class ExecutorServiceStore implements NonstopStore {
         try {
             rv = executeWithExecutor(new Callable<Boolean>() {
                 public Boolean call() throws Exception {
-                    return executeBehavior.put(element);
+                    return nonstopActiveDelegateHolder.getUnderlyingTerracottaStore().put(element);
                 }
             });
         } catch (TimeoutException e) {
@@ -190,7 +263,7 @@ public class ExecutorServiceStore implements NonstopStore {
         try {
             rv = executeWithExecutor(new Callable<Boolean>() {
                 public Boolean call() throws Exception {
-                    return executeBehavior.putWithWriter(element, writerManager);
+                    return nonstopActiveDelegateHolder.getUnderlyingTerracottaStore().putWithWriter(element, writerManager);
                 }
             });
         } catch (TimeoutException e) {
@@ -207,7 +280,7 @@ public class ExecutorServiceStore implements NonstopStore {
         try {
             rv = executeWithExecutor(new Callable<Element>() {
                 public Element call() throws Exception {
-                    return executeBehavior.get(key);
+                    return nonstopActiveDelegateHolder.getUnderlyingTerracottaStore().get(key);
                 }
             });
         } catch (TimeoutException e) {
@@ -224,7 +297,7 @@ public class ExecutorServiceStore implements NonstopStore {
         try {
             rv = executeWithExecutor(new Callable<Element>() {
                 public Element call() throws Exception {
-                    return executeBehavior.getQuiet(key);
+                    return nonstopActiveDelegateHolder.getUnderlyingTerracottaStore().getQuiet(key);
                 }
             });
         } catch (TimeoutException e) {
@@ -241,7 +314,7 @@ public class ExecutorServiceStore implements NonstopStore {
         try {
             rv = executeWithExecutor(new Callable<List>() {
                 public List call() throws Exception {
-                    return executeBehavior.getKeys();
+                    return nonstopActiveDelegateHolder.getUnderlyingTerracottaStore().getKeys();
                 }
             });
         } catch (TimeoutException e) {
@@ -258,7 +331,7 @@ public class ExecutorServiceStore implements NonstopStore {
         try {
             rv = executeWithExecutor(new Callable<Element>() {
                 public Element call() throws Exception {
-                    return executeBehavior.remove(key);
+                    return nonstopActiveDelegateHolder.getUnderlyingTerracottaStore().remove(key);
                 }
             });
         } catch (TimeoutException e) {
@@ -275,7 +348,7 @@ public class ExecutorServiceStore implements NonstopStore {
         try {
             rv = executeWithExecutor(new Callable<Element>() {
                 public Element call() throws Exception {
-                    return executeBehavior.removeWithWriter(key, writerManager);
+                    return nonstopActiveDelegateHolder.getUnderlyingTerracottaStore().removeWithWriter(key, writerManager);
                 }
             });
         } catch (TimeoutException e) {
@@ -291,7 +364,7 @@ public class ExecutorServiceStore implements NonstopStore {
         try {
             executeWithExecutor(new Callable<Void>() {
                 public Void call() throws Exception {
-                    executeBehavior.removeAll();
+                    nonstopActiveDelegateHolder.getUnderlyingTerracottaStore().removeAll();
                     return null;
                 }
             }, nonstopConfiguration.getTimeoutMillis() * nonstopConfiguration.getBulkOpsTimeoutMultiplyFactor());
@@ -308,7 +381,7 @@ public class ExecutorServiceStore implements NonstopStore {
         try {
             rv = executeWithExecutor(new Callable<Element>() {
                 public Element call() throws Exception {
-                    return executeBehavior.putIfAbsent(element);
+                    return nonstopActiveDelegateHolder.getUnderlyingTerracottaStore().putIfAbsent(element);
                 }
             });
         } catch (TimeoutException e) {
@@ -325,7 +398,7 @@ public class ExecutorServiceStore implements NonstopStore {
         try {
             rv = executeWithExecutor(new Callable<Element>() {
                 public Element call() throws Exception {
-                    return executeBehavior.removeElement(element, comparator);
+                    return nonstopActiveDelegateHolder.getUnderlyingTerracottaStore().removeElement(element, comparator);
                 }
             });
         } catch (TimeoutException e) {
@@ -343,7 +416,7 @@ public class ExecutorServiceStore implements NonstopStore {
         try {
             rv = executeWithExecutor(new Callable<Boolean>() {
                 public Boolean call() throws Exception {
-                    return executeBehavior.replace(old, element, comparator);
+                    return nonstopActiveDelegateHolder.getUnderlyingTerracottaStore().replace(old, element, comparator);
                 }
             });
         } catch (TimeoutException e) {
@@ -360,7 +433,7 @@ public class ExecutorServiceStore implements NonstopStore {
         try {
             rv = executeWithExecutor(new Callable<Element>() {
                 public Element call() throws Exception {
-                    return executeBehavior.replace(element);
+                    return nonstopActiveDelegateHolder.getUnderlyingTerracottaStore().replace(element);
                 }
             });
         } catch (TimeoutException e) {
@@ -372,28 +445,12 @@ public class ExecutorServiceStore implements NonstopStore {
     /**
      * {@inheritDoc}.
      */
-    public void dispose() {
-        try {
-            executeWithExecutor(new Callable<Void>() {
-                public Void call() throws Exception {
-                    executeBehavior.dispose();
-                    return null;
-                }
-            });
-        } catch (TimeoutException e) {
-            timeoutBehaviorResolver.resolveTimeoutStore().dispose();
-        }
-    }
-
-    /**
-     * {@inheritDoc}.
-     */
     public int getSize() {
         int rv = 0;
         try {
             rv = executeWithExecutor(new Callable<Integer>() {
                 public Integer call() throws Exception {
-                    return executeBehavior.getSize();
+                    return nonstopActiveDelegateHolder.getUnderlyingTerracottaStore().getSize();
                 }
             });
         } catch (TimeoutException e) {
@@ -410,7 +467,7 @@ public class ExecutorServiceStore implements NonstopStore {
         try {
             rv = executeWithExecutor(new Callable<Integer>() {
                 public Integer call() throws Exception {
-                    return executeBehavior.getInMemorySize();
+                    return nonstopActiveDelegateHolder.getUnderlyingTerracottaStore().getInMemorySize();
                 }
             });
         } catch (TimeoutException e) {
@@ -427,7 +484,7 @@ public class ExecutorServiceStore implements NonstopStore {
         try {
             rv = executeWithExecutor(new Callable<Integer>() {
                 public Integer call() throws Exception {
-                    return executeBehavior.getOffHeapSize();
+                    return nonstopActiveDelegateHolder.getUnderlyingTerracottaStore().getOffHeapSize();
                 }
             });
         } catch (TimeoutException e) {
@@ -444,7 +501,7 @@ public class ExecutorServiceStore implements NonstopStore {
         try {
             rv = executeWithExecutor(new Callable<Integer>() {
                 public Integer call() throws Exception {
-                    return executeBehavior.getOnDiskSize();
+                    return nonstopActiveDelegateHolder.getUnderlyingTerracottaStore().getOnDiskSize();
                 }
             });
         } catch (TimeoutException e) {
@@ -461,7 +518,7 @@ public class ExecutorServiceStore implements NonstopStore {
         try {
             rv = executeWithExecutor(new Callable<Integer>() {
                 public Integer call() throws Exception {
-                    return executeBehavior.getTerracottaClusteredSize();
+                    return nonstopActiveDelegateHolder.getUnderlyingTerracottaStore().getTerracottaClusteredSize();
                 }
             });
         } catch (TimeoutException e) {
@@ -478,7 +535,7 @@ public class ExecutorServiceStore implements NonstopStore {
         try {
             rv = executeWithExecutor(new Callable<Long>() {
                 public Long call() throws Exception {
-                    return executeBehavior.getInMemorySizeInBytes();
+                    return nonstopActiveDelegateHolder.getUnderlyingTerracottaStore().getInMemorySizeInBytes();
                 }
             });
         } catch (TimeoutException e) {
@@ -495,7 +552,7 @@ public class ExecutorServiceStore implements NonstopStore {
         try {
             rv = executeWithExecutor(new Callable<Long>() {
                 public Long call() throws Exception {
-                    return executeBehavior.getOffHeapSizeInBytes();
+                    return nonstopActiveDelegateHolder.getUnderlyingTerracottaStore().getOffHeapSizeInBytes();
                 }
             });
         } catch (TimeoutException e) {
@@ -512,7 +569,7 @@ public class ExecutorServiceStore implements NonstopStore {
         try {
             rv = executeWithExecutor(new Callable<Long>() {
                 public Long call() throws Exception {
-                    return executeBehavior.getOnDiskSizeInBytes();
+                    return nonstopActiveDelegateHolder.getUnderlyingTerracottaStore().getOnDiskSizeInBytes();
                 }
             });
         } catch (TimeoutException e) {
@@ -529,7 +586,7 @@ public class ExecutorServiceStore implements NonstopStore {
         try {
             rv = executeWithExecutor(new Callable<Status>() {
                 public Status call() throws Exception {
-                    return executeBehavior.getStatus();
+                    return nonstopActiveDelegateHolder.getUnderlyingTerracottaStore().getStatus();
                 }
             });
         } catch (TimeoutException e) {
@@ -546,7 +603,7 @@ public class ExecutorServiceStore implements NonstopStore {
         try {
             rv = executeWithExecutor(new Callable<Boolean>() {
                 public Boolean call() throws Exception {
-                    return executeBehavior.containsKey(key);
+                    return nonstopActiveDelegateHolder.getUnderlyingTerracottaStore().containsKey(key);
                 }
             });
         } catch (TimeoutException e) {
@@ -563,7 +620,7 @@ public class ExecutorServiceStore implements NonstopStore {
         try {
             rv = executeWithExecutor(new Callable<Boolean>() {
                 public Boolean call() throws Exception {
-                    return executeBehavior.containsKeyOnDisk(key);
+                    return nonstopActiveDelegateHolder.getUnderlyingTerracottaStore().containsKeyOnDisk(key);
                 }
             });
         } catch (TimeoutException e) {
@@ -580,7 +637,7 @@ public class ExecutorServiceStore implements NonstopStore {
         try {
             rv = executeWithExecutor(new Callable<Boolean>() {
                 public Boolean call() throws Exception {
-                    return executeBehavior.containsKeyOffHeap(key);
+                    return nonstopActiveDelegateHolder.getUnderlyingTerracottaStore().containsKeyOffHeap(key);
                 }
             });
         } catch (TimeoutException e) {
@@ -597,7 +654,7 @@ public class ExecutorServiceStore implements NonstopStore {
         try {
             rv = executeWithExecutor(new Callable<Boolean>() {
                 public Boolean call() throws Exception {
-                    return executeBehavior.containsKeyInMemory(key);
+                    return nonstopActiveDelegateHolder.getUnderlyingTerracottaStore().containsKeyInMemory(key);
                 }
             });
         } catch (TimeoutException e) {
@@ -613,7 +670,7 @@ public class ExecutorServiceStore implements NonstopStore {
         try {
             executeWithExecutor(new Callable<Void>() {
                 public Void call() throws Exception {
-                    executeBehavior.expireElements();
+                    nonstopActiveDelegateHolder.getUnderlyingTerracottaStore().expireElements();
                     return null;
                 }
             });
@@ -629,7 +686,7 @@ public class ExecutorServiceStore implements NonstopStore {
         try {
             executeWithExecutor(new Callable<Void>() {
                 public Void call() throws Exception {
-                    executeBehavior.flush();
+                    nonstopActiveDelegateHolder.getUnderlyingTerracottaStore().flush();
                     return null;
                 }
             });
@@ -646,7 +703,7 @@ public class ExecutorServiceStore implements NonstopStore {
         try {
             rv = executeWithExecutor(new Callable<Boolean>() {
                 public Boolean call() throws Exception {
-                    return executeBehavior.bufferFull();
+                    return nonstopActiveDelegateHolder.getUnderlyingTerracottaStore().bufferFull();
                 }
             });
         } catch (TimeoutException e) {
@@ -663,7 +720,7 @@ public class ExecutorServiceStore implements NonstopStore {
         try {
             rv = executeWithExecutor(new Callable<Policy>() {
                 public Policy call() throws Exception {
-                    return executeBehavior.getInMemoryEvictionPolicy();
+                    return nonstopActiveDelegateHolder.getUnderlyingTerracottaStore().getInMemoryEvictionPolicy();
                 }
             });
         } catch (TimeoutException e) {
@@ -679,7 +736,7 @@ public class ExecutorServiceStore implements NonstopStore {
         try {
             executeWithExecutor(new Callable<Void>() {
                 public Void call() throws Exception {
-                    executeBehavior.setInMemoryEvictionPolicy(policy);
+                    nonstopActiveDelegateHolder.getUnderlyingTerracottaStore().setInMemoryEvictionPolicy(policy);
                     return null;
                 }
             });
@@ -696,7 +753,7 @@ public class ExecutorServiceStore implements NonstopStore {
         try {
             rv = executeWithExecutor(new Callable<Object>() {
                 public Object call() throws Exception {
-                    return executeBehavior.getInternalContext();
+                    return nonstopActiveDelegateHolder.getUnderlyingTerracottaStore().getInternalContext();
                 }
             });
         } catch (TimeoutException e) {
@@ -713,7 +770,7 @@ public class ExecutorServiceStore implements NonstopStore {
         try {
             rv = executeWithExecutor(new Callable<Boolean>() {
                 public Boolean call() throws Exception {
-                    return executeBehavior.isCacheCoherent();
+                    return nonstopActiveDelegateHolder.getUnderlyingTerracottaStore().isCacheCoherent();
                 }
             });
         } catch (TimeoutException e) {
@@ -730,7 +787,7 @@ public class ExecutorServiceStore implements NonstopStore {
         try {
             rv = executeWithExecutor(new Callable<Boolean>() {
                 public Boolean call() throws Exception {
-                    return executeBehavior.isClusterCoherent();
+                    return nonstopActiveDelegateHolder.getUnderlyingTerracottaStore().isClusterCoherent();
                 }
             });
         } catch (TimeoutException e) {
@@ -747,7 +804,7 @@ public class ExecutorServiceStore implements NonstopStore {
         try {
             rv = executeWithExecutor(new Callable<Boolean>() {
                 public Boolean call() throws Exception {
-                    return executeBehavior.isNodeCoherent();
+                    return nonstopActiveDelegateHolder.getUnderlyingTerracottaStore().isNodeCoherent();
                 }
             });
         } catch (TimeoutException e) {
@@ -759,27 +816,11 @@ public class ExecutorServiceStore implements NonstopStore {
     /**
      * {@inheritDoc}.
      */
-    public void setNodeCoherent(final boolean coherent) throws UnsupportedOperationException {
-        try {
-            executeWithExecutor(new Callable<Void>() {
-                public Void call() throws Exception {
-                    executeBehavior.setNodeCoherent(coherent);
-                    return null;
-                }
-            });
-        } catch (TimeoutException e) {
-            timeoutBehaviorResolver.resolveTimeoutStore().setNodeCoherent(coherent);
-        }
-    }
-
-    /**
-     * {@inheritDoc}.
-     */
     public void waitUntilClusterCoherent() throws UnsupportedOperationException {
         try {
             executeWithExecutor(new Callable<Void>() {
                 public Void call() throws Exception {
-                    executeBehavior.waitUntilClusterCoherent();
+                    nonstopActiveDelegateHolder.getUnderlyingTerracottaStore().waitUntilClusterCoherent();
                     return null;
                 }
             });
@@ -796,7 +837,7 @@ public class ExecutorServiceStore implements NonstopStore {
         try {
             rv = executeWithExecutor(new Callable<Object>() {
                 public Object call() throws Exception {
-                    return executeBehavior.getMBean();
+                    return nonstopActiveDelegateHolder.getUnderlyingTerracottaStore().getMBean();
                 }
             });
         } catch (TimeoutException e) {
@@ -808,28 +849,12 @@ public class ExecutorServiceStore implements NonstopStore {
     /**
      * {@inheritDoc}.
      */
-    public void setAttributeExtractors(final Map<String, AttributeExtractor> extractors) {
-        try {
-            executeWithExecutor(new Callable<Void>() {
-                public Void call() throws Exception {
-                    executeBehavior.setAttributeExtractors(extractors);
-                    return null;
-                }
-            });
-        } catch (TimeoutException e) {
-            timeoutBehaviorResolver.resolveTimeoutStore().setAttributeExtractors(extractors);
-        }
-    }
-
-    /**
-     * {@inheritDoc}.
-     */
     public Results executeQuery(final StoreQuery query) {
         Results rv = null;
         try {
             rv = executeWithExecutor(new Callable<Results>() {
                 public Results call() throws Exception {
-                    return executeBehavior.executeQuery(query);
+                    return nonstopActiveDelegateHolder.getUnderlyingTerracottaStore().executeQuery(query);
                 }
             });
         } catch (TimeoutException e) {
@@ -845,7 +870,7 @@ public class ExecutorServiceStore implements NonstopStore {
         try {
             return executeWithExecutor(new Callable<Attribute<T>>() {
                 public Attribute<T> call() throws Exception {
-                    return executeBehavior.getSearchAttribute(attributeName);
+                    return nonstopActiveDelegateHolder.getUnderlyingTerracottaStore().getSearchAttribute(attributeName);
                 }
             });
         } catch (TimeoutException e) {
@@ -860,7 +885,7 @@ public class ExecutorServiceStore implements NonstopStore {
         try {
             return executeWithExecutor(new Callable<Set>() {
                 public Set call() throws Exception {
-                    return executeBehavior.getLocalKeys();
+                    return nonstopActiveDelegateHolder.getUnderlyingTerracottaStore().getLocalKeys();
                 }
             });
         } catch (TimeoutException e) {
@@ -875,7 +900,7 @@ public class ExecutorServiceStore implements NonstopStore {
         try {
             return executeWithExecutor(new Callable<Element>() {
                 public Element call() throws Exception {
-                    return executeBehavior.unlockedGet(key);
+                    return nonstopActiveDelegateHolder.getUnderlyingTerracottaStore().unlockedGet(key);
                 }
             });
         } catch (TimeoutException e) {
@@ -890,7 +915,7 @@ public class ExecutorServiceStore implements NonstopStore {
         try {
             return executeWithExecutor(new Callable<Element>() {
                 public Element call() throws Exception {
-                    return executeBehavior.unlockedGetQuiet(key);
+                    return nonstopActiveDelegateHolder.getUnderlyingTerracottaStore().unlockedGetQuiet(key);
                 }
             });
         } catch (TimeoutException e) {
@@ -905,7 +930,7 @@ public class ExecutorServiceStore implements NonstopStore {
         try {
             return executeWithExecutor(new Callable<Element>() {
                 public Element call() throws Exception {
-                    return executeBehavior.unsafeGet(key);
+                    return nonstopActiveDelegateHolder.getUnderlyingTerracottaStore().unsafeGet(key);
                 }
             });
         } catch (TimeoutException e) {
@@ -920,7 +945,7 @@ public class ExecutorServiceStore implements NonstopStore {
         try {
             return executeWithExecutor(new Callable<Element>() {
                 public Element call() throws Exception {
-                    return executeBehavior.unsafeGetQuiet(key);
+                    return nonstopActiveDelegateHolder.getUnderlyingTerracottaStore().unsafeGetQuiet(key);
                 }
             });
         } catch (TimeoutException e) {
@@ -935,7 +960,7 @@ public class ExecutorServiceStore implements NonstopStore {
         try {
             return executeWithExecutor(new Callable<Sync[]>() {
                 public Sync[] call() throws Exception {
-                    return delegateCacheLockProvider.getAndWriteLockAllSyncForKeys(timeout, keys);
+                    return nonstopActiveDelegateHolder.getUnderlyingCacheLockProvider().getAndWriteLockAllSyncForKeys(timeout, keys);
                 }
             });
         } catch (TimeoutException e) {
@@ -950,7 +975,7 @@ public class ExecutorServiceStore implements NonstopStore {
         try {
             return executeWithExecutor(new Callable<Sync[]>() {
                 public Sync[] call() throws Exception {
-                    return delegateCacheLockProvider.getAndWriteLockAllSyncForKeys(keys);
+                    return nonstopActiveDelegateHolder.getUnderlyingCacheLockProvider().getAndWriteLockAllSyncForKeys(keys);
                 }
             });
         } catch (TimeoutException e) {
@@ -965,7 +990,7 @@ public class ExecutorServiceStore implements NonstopStore {
         try {
             return executeWithExecutor(new Callable<Sync>() {
                 public Sync call() throws Exception {
-                    return delegateCacheLockProvider.getSyncForKey(key);
+                    return nonstopActiveDelegateHolder.getUnderlyingCacheLockProvider().getSyncForKey(key);
                 }
             });
         } catch (TimeoutException e) {
@@ -980,7 +1005,7 @@ public class ExecutorServiceStore implements NonstopStore {
         try {
             executeWithExecutor(new Callable<Void>() {
                 public Void call() throws Exception {
-                    delegateCacheLockProvider.unlockWriteLockForAllKeys(keys);
+                    nonstopActiveDelegateHolder.getUnderlyingCacheLockProvider().unlockWriteLockForAllKeys(keys);
                     return null;
                 }
             });
@@ -1004,4 +1029,60 @@ public class ExecutorServiceStore implements NonstopStore {
         }
     }
 
+    /**
+     * A {@link ClusterTopologyListener} implementation that listens for cluster online/offline events
+     *
+     * @author Abhishek Sanoujam
+     *
+     */
+    private static class ClusterStatusListener implements ClusterTopologyListener {
+
+        private final ExecutorServiceStore executorServiceStore;
+        private final CacheCluster cacheCluster;
+
+        public ClusterStatusListener(ExecutorServiceStore executorServiceStore, CacheCluster cacheCluster) {
+            this.executorServiceStore = executorServiceStore;
+            this.cacheCluster = cacheCluster;
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        public void clusterOffline(ClusterNode node) {
+            if (cacheCluster.getCurrentNode().equals(node)) {
+                executorServiceStore.clusterOffline();
+            }
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        public void clusterOnline(ClusterNode node) {
+            if (cacheCluster.getCurrentNode().equals(node)) {
+                executorServiceStore.clusterOnline();
+            }
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        public void nodeJoined(ClusterNode node) {
+            // no-op
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        public void nodeLeft(ClusterNode node) {
+            // no-op
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        public void clusterRejoined(ClusterNode oldNode, ClusterNode newNode) {
+            // no-op
+        }
+
+    }
 }

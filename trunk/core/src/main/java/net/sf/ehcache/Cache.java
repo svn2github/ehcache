@@ -32,6 +32,9 @@ import net.sf.ehcache.config.NonstopConfiguration;
 import net.sf.ehcache.config.SearchAttribute;
 import net.sf.ehcache.config.TerracottaConfiguration;
 import net.sf.ehcache.constructs.nonstop.CacheManagerExecutorServiceFactory;
+import net.sf.ehcache.constructs.nonstop.NonstopActiveDelegateHolder;
+import net.sf.ehcache.constructs.nonstop.NonstopExecutorService;
+import net.sf.ehcache.constructs.nonstop.store.NonstopStore;
 import net.sf.ehcache.constructs.nonstop.store.NonstopStoreImpl;
 import net.sf.ehcache.event.CacheEventListener;
 import net.sf.ehcache.event.CacheEventListenerFactory;
@@ -263,6 +266,8 @@ public class Cache implements Ehcache, StoreListener {
 
     private volatile ElementValueComparator elementValueComparator;
 
+    private final NonstopActiveDelegateHolderImpl nonstopActiveDelegateHolder;
+
     /**
      * 2.0 and higher Constructor
      * <p/>
@@ -298,7 +303,7 @@ public class Cache implements Ehcache, StoreListener {
     public Cache(CacheConfiguration cacheConfiguration,
                  RegisteredEventListeners registeredEventListeners,
                  BootstrapCacheLoader bootstrapCacheLoader) {
-        cacheStatus.changeState(CacheState.UNINITIALIZED);
+        cacheStatus.changeState(Status.STATUS_UNINITIALISED);
 
         this.configuration = cacheConfiguration.clone();
         configuration.validateCompleteConfiguration();
@@ -332,6 +337,8 @@ public class Cache implements Ehcache, StoreListener {
         }
         registerCacheLoaders(configuration, this);
         registerCacheWriter(configuration, this);
+
+        this.nonstopActiveDelegateHolder = new NonstopActiveDelegateHolderImpl(this);
     }
 
 
@@ -1045,8 +1052,8 @@ public class Cache implements Ehcache, StoreListener {
                     nonstopConfig.freezeConfig();
                 }
                 if (getCacheConfiguration().getTerracottaConfiguration().isNonstopEnabled()) {
-                    store = new NonstopStoreImpl(terracottaStore, getCacheCluster(), nonstopConfig, CacheManagerExecutorServiceFactory
-                            .getInstance().getOrCreateNonstopExecutorService(cacheManager));
+                    nonstopActiveDelegateHolder.terracottaStoreInitialized(terracottaStore);
+                    store = nonstopActiveDelegateHolder.getNonstopStore();
                 } else {
                     store = terracottaStore;
                 }
@@ -1115,7 +1122,7 @@ public class Cache implements Ehcache, StoreListener {
             this.cacheWriterManager = configuration.getCacheWriterConfiguration().getWriteMode().createWriterManager(this);
             initialiseCacheWriterManager(false);
 
-            cacheStatus.changeState(CacheState.ALIVE);
+            cacheStatus.changeState(Status.STATUS_ALIVE);
 
             initialiseRegisteredCacheExtensions();
             initialiseRegisteredCacheLoaders();
@@ -2177,7 +2184,7 @@ public class Cache implements Ehcache, StoreListener {
             compoundStore.dispose();
         }
 
-        cacheStatus.changeState(CacheState.SHUTDOWN);
+        cacheStatus.changeState(Status.STATUS_SHUTDOWN);
     }
 
     private void initialiseRegisteredCacheExtensions() {
@@ -2395,7 +2402,7 @@ public class Cache implements Ehcache, StoreListener {
      * @throws IllegalArgumentException if an illegal name is used.
      */
     public final void setName(String name) throws IllegalArgumentException {
-        if (!cacheStatus.canInitialize()) {
+        if (!cacheStatus.isUninitialized()) {
             throw new IllegalStateException("Only uninitialised caches can have their names set.");
         }
         configuration.setName(name);
@@ -2477,7 +2484,7 @@ public class Cache implements Ehcache, StoreListener {
         copy.configuration = configuration.clone();
         copy.guid = createGuid();
         copy.cacheStatus = new CacheStatus();
-        copy.cacheStatus.changeState(CacheState.UNINITIALIZED);
+        copy.cacheStatus.changeState(Status.STATUS_UNINITIALISED);
         copy.elementValueComparator = copy.configuration.getElementValueComparatorConfiguration().getElementComparatorInstance();
         copy.propertyChangeSupport = new PropertyChangeSupport(copy);
         for (PropertyChangeListener propertyChangeListener : propertyChangeSupport.getPropertyChangeListeners()) {
@@ -2786,7 +2793,7 @@ public class Cache implements Ehcache, StoreListener {
      * @throws CacheException if this method is called after the cache is initialized
      */
     public void setBootstrapCacheLoader(BootstrapCacheLoader bootstrapCacheLoader) throws CacheException {
-        if (!cacheStatus.canInitialize()) {
+        if (!cacheStatus.isUninitialized()) {
             throw new CacheException("A bootstrap cache loader can only be set before the cache is initialized. "
                     + configuration.getName());
         }
@@ -2802,7 +2809,7 @@ public class Cache implements Ehcache, StoreListener {
      * @throws CacheException if this method is called after the cache is initialized
      */
     public void setDiskStorePath(String diskStorePath) throws CacheException {
-        if (!cacheStatus.canInitialize()) {
+        if (!cacheStatus.isUninitialized()) {
             throw new CacheException("A DiskStore path can only be set before the cache is initialized. "
                     + configuration.getName());
         }
@@ -3612,11 +3619,10 @@ public class Cache implements Ehcache, StoreListener {
      * Start cluster rejoin
      */
     void clusterRejoinStarted() {
-        cacheStatus.reinitializeInProgress();
-        if (compoundStore instanceof NonstopStoreImpl) {
-            NonstopStoreImpl nonstopStore = (NonstopStoreImpl) compoundStore;
-            nonstopStore.getUnderlyingStore().dispose();
-            nonstopStore.clusterRejoinStarted();
+        try {
+            nonstopActiveDelegateHolder.getUnderlyingTerracottaStore().dispose();
+        } catch (Exception e) {
+            LOG.info("Ignoring exception while disposing old store on rejoin - " + e.getMessage());
         }
     }
 
@@ -3626,10 +3632,6 @@ public class Cache implements Ehcache, StoreListener {
     void clusterRejoinComplete() {
         // initialize again
         initialise();
-        if (compoundStore instanceof NonstopStoreImpl) {
-            ((NonstopStoreImpl) compoundStore).clusterRejoinComplete();
-        }
-        cacheStatus.reinitializeComplete();
     }
 
     /**
@@ -3715,153 +3717,21 @@ public class Cache implements Ehcache, StoreListener {
     }
 
     /**
-     * Cache status states
-     */
-    private static enum CacheState {
-
-        UNINITIALIZED() {
-            @Override
-            public Status getStatus() {
-                return Status.STATUS_UNINITIALISED;
-            }
-
-            @Override
-            public CacheState changeState(CacheState newState) {
-                switch (newState) {
-                    case UNINITIALIZED: {
-                        return this;
-                    }
-                    case ALIVE: {
-                        return ALIVE;
-                    }
-                    case SHUTDOWN: {
-                        return SHUTDOWN;
-                    }
-                    case REINITIALIZE_IN_PROGRESS: {
-                        throw new IllegalStateException("Cannot change state from " + this + " to " + REINITIALIZE_IN_PROGRESS);
-                    }
-                    default:
-                        throw new IllegalStateException(this + " does not know how to handle state: " + newState);
-                }
-            }
-        },
-        ALIVE() {
-            @Override
-            public Status getStatus() {
-                return Status.STATUS_ALIVE;
-            }
-
-            @Override
-            public CacheState changeState(CacheState newState) {
-                switch (newState) {
-                    case UNINITIALIZED: {
-                        throw new IllegalStateException("Cannot change state from " + this + " to " + UNINITIALIZED);
-                    }
-                    case ALIVE: {
-                        return ALIVE;
-                    }
-                    case SHUTDOWN: {
-                        return SHUTDOWN;
-                    }
-                    case REINITIALIZE_IN_PROGRESS: {
-                        return REINITIALIZE_IN_PROGRESS;
-                    }
-                    default:
-                        throw new IllegalStateException(this + " does not know how to handle state: " + newState);
-                }
-            }
-        },
-        SHUTDOWN() {
-            @Override
-            public Status getStatus() {
-                return Status.STATUS_SHUTDOWN;
-            }
-
-            @Override
-            public CacheState changeState(CacheState newState) {
-                switch (newState) {
-                    case UNINITIALIZED: {
-                        throw new IllegalStateException("Cannot change state from " + this + " to " + UNINITIALIZED);
-                    }
-                    case ALIVE: {
-                        throw new IllegalStateException("Cannot change state from " + this + " to " + ALIVE);
-                    }
-                    case SHUTDOWN: {
-                        return SHUTDOWN;
-                    }
-                    case REINITIALIZE_IN_PROGRESS: {
-                        throw new IllegalStateException("Cannot change state from " + this + " to " + REINITIALIZE_IN_PROGRESS);
-                    }
-                    default:
-                        throw new IllegalStateException(this + " does not know how to handle state: " + newState);
-                }
-            }
-        },
-        REINITIALIZE_IN_PROGRESS() {
-            @Override
-            public Status getStatus() {
-                return Status.STATUS_UNINITIALISED;
-            }
-
-            @Override
-            public CacheState changeState(CacheState newState) {
-                switch (newState) {
-                    case UNINITIALIZED: {
-                        throw new IllegalStateException("Cannot change state from " + this + " to " + UNINITIALIZED);
-                    }
-                    case ALIVE: {
-                        return ALIVE;
-                    }
-                    case SHUTDOWN: {
-                        return SHUTDOWN;
-                    }
-                    case REINITIALIZE_IN_PROGRESS: {
-                        return this;
-                    }
-                    default:
-                        throw new IllegalStateException(this + " does not know how to handle state: " + newState);
-                }
-            }
-        };
-
-        public abstract Status getStatus();
-
-        public abstract CacheState changeState(CacheState newState);
-    }
-
-    /**
      * Private class maintaining status of the cache
      *
      * @author Abhishek Sanoujam
      *
      */
     private static class CacheStatus {
-        private volatile CacheState cacheState = CacheState.UNINITIALIZED;
-        private Thread reinitializingThread;
+        private volatile Status status = Status.STATUS_UNINITIALISED;
 
         /**
-         * Set reinitialize complete
-         */
-        public synchronized void reinitializeComplete() {
-            reinitializingThread = null;
-        }
-
-        /**
-         * Set reinitialize in progress
-         */
-        public synchronized void reinitializeInProgress() {
-            reinitializingThread = Thread.currentThread();
-            changeState(CacheState.REINITIALIZE_IN_PROGRESS);
-        }
-
-        /**
-         * Returns true if cache can be initialized. Cache can be initialized if reinitialize is in progress or has not been initialized at
-         * least once.
+         * Returns true if cache can be initialized. Cache can be initialized if cache has not been shutdown yet.
          *
          * @return true if cache can be initialized
          */
-        public synchronized boolean canInitialize() {
-            return cacheState == CacheState.UNINITIALIZED || cacheState == CacheState.REINITIALIZE_IN_PROGRESS;
+        public boolean canInitialize() {
+            return status == Status.STATUS_UNINITIALISED || status == Status.STATUS_ALIVE;
         }
 
         /**
@@ -3869,31 +3739,8 @@ public class Cache implements Ehcache, StoreListener {
          *
          * @param newState state
          */
-        public synchronized void changeState(CacheState newState) {
-            cacheState = cacheState.changeState(newState);
-            notifyAll();
-        }
-
-        private void waitUntilReinitializeCompleteIfInProgress() {
-            if (cacheState == CacheState.REINITIALIZE_IN_PROGRESS) {
-                if (reinitializingThread == Thread.currentThread()) {
-                    // do not block the reinitializing thread
-                    return;
-                }
-                synchronized (this) {
-                    boolean interrupted = false;
-                    while (cacheState == CacheState.REINITIALIZE_IN_PROGRESS) {
-                        try {
-                            this.wait();
-                        } catch (InterruptedException e) {
-                            interrupted = true;
-                        }
-                    }
-                    if (interrupted) {
-                        Thread.currentThread().interrupt();
-                    }
-                }
-            }
+        public void changeState(Status newState) {
+            this.status = newState;
         }
 
         /**
@@ -3902,8 +3749,7 @@ public class Cache implements Ehcache, StoreListener {
          * @return current state
          */
         public Status getStatus() {
-            waitUntilReinitializeCompleteIfInProgress();
-            return cacheState.getStatus();
+            return status;
         }
 
         /**
@@ -3912,8 +3758,7 @@ public class Cache implements Ehcache, StoreListener {
          * @return true if the cache is alive
          */
         public boolean isAlive() {
-            waitUntilReinitializeCompleteIfInProgress();
-            return cacheState.getStatus() == Status.STATUS_ALIVE;
+            return status == Status.STATUS_ALIVE;
         }
 
         /**
@@ -3922,8 +3767,84 @@ public class Cache implements Ehcache, StoreListener {
          * @return true if the cache has been disposed
          */
         public boolean isShutdown() {
-            waitUntilReinitializeCompleteIfInProgress();
-            return cacheState.getStatus() == Status.STATUS_SHUTDOWN;
+            return status == Status.STATUS_SHUTDOWN;
         }
+
+        /**
+         * Returns true if the cache is uninitialized
+         *
+         * @return true if the cache is uninitialized
+         */
+        public boolean isUninitialized() {
+            return status == Status.STATUS_UNINITIALISED;
+        }
+    }
+
+    /**
+     * Private Static class
+     *
+     * @author Abhishek Sanoujam
+     *
+     */
+    private static class NonstopActiveDelegateHolderImpl implements NonstopActiveDelegateHolder {
+
+        private final Cache cache;
+        private volatile NonstopStoreImpl nonstopStore;
+        private volatile TerracottaStore underlyingTerracottaStore;
+        private volatile NonstopExecutorService nonstopExecutorService;
+        private volatile CacheLockProvider underlyingCacheLockProvider;
+
+        public NonstopActiveDelegateHolderImpl(Cache cache) {
+            this.cache = cache;
+        }
+
+        public NonstopStore getNonstopStore() {
+            if (nonstopStore != null) {
+                return nonstopStore;
+            }
+            initializeNonstopStore();
+            return nonstopStore;
+        }
+
+        private synchronized void initializeNonstopStore() {
+            if (nonstopStore == null) {
+                if (!cache.getCacheConfiguration().isTerracottaClustered()) {
+                    throw new AssertionError("NonstopStore supported for Terracotta clustered caches only");
+                }
+                if (!cache.getCacheConfiguration().getTerracottaConfiguration().isNonstopEnabled()) {
+                    throw new AssertionError("Nonstop is not enabled");
+                }
+                nonstopStore = new NonstopStoreImpl(this, cache.getCacheCluster(), cache.getCacheConfiguration()
+                        .getTerracottaConfiguration().getNonstopConfiguration());
+            }
+        }
+
+        public synchronized void terracottaStoreInitialized(TerracottaStore newTerracottaStore) {
+            this.underlyingTerracottaStore = newTerracottaStore;
+
+            // reset all other holders associated with the new store
+            nonstopExecutorService = CacheManagerExecutorServiceFactory.getInstance().getOrCreateNonstopExecutorService(
+                    cache.getCacheManager());
+            Object context = underlyingTerracottaStore.getInternalContext();
+            if (context instanceof CacheLockProvider) {
+                underlyingCacheLockProvider = (CacheLockProvider) context;
+            } else {
+                throw new AssertionError("TerracottaStore.getInternalContext() is not correct - "
+                        + (context == null ? "NULL" : context.getClass().getName()));
+            }
+        }
+
+        public TerracottaStore getUnderlyingTerracottaStore() {
+            return underlyingTerracottaStore;
+        }
+
+        public NonstopExecutorService getNonstopExecutorService() {
+            return nonstopExecutorService;
+        }
+
+        public CacheLockProvider getUnderlyingCacheLockProvider() {
+            return underlyingCacheLockProvider;
+        }
+
     }
 }

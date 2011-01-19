@@ -100,7 +100,7 @@ public class BasicNonstopTest extends TestCase {
             @Override
             protected void invokeOne(Ehcache ehcache, Method method) {
                 if (methods.contains(method)) {
-                    System.out.print("Invoking method: " + NonstopTestUtil.getMethodSignature(method) + " ...");
+                    LOG.info("Invoking method: " + NonstopTestUtil.getMethodSignature(method) + " ...");
                     super.invokeOne(ehcache, method);
                     LOG.info(" succeeded with no-op.");
                 }

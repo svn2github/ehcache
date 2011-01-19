@@ -44,6 +44,7 @@ import org.slf4j.LoggerFactory;
 public class TerracottaClient {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TerracottaClient.class);
+    private static final int REJOIN_SLEEP_MILLIS_ON_EXCEPTION = Integer.getInteger("net.sf.ehcache.rejoin.sleepMillisOnException", 5000);
 
     private final TerracottaClientConfiguration terracottaClientConfiguration;
     private volatile ClusteredInstanceFactory clusteredInstanceFactory;
@@ -218,15 +219,30 @@ public class TerracottaClient {
         public void run() {
             rejoinThread = Thread.currentThread();
             while (!shutdown) {
-                try {
-                    waitUntilRejoinRequested();
-                    if (shutdown) {
-                        break;
-                    }
-                    doRejoin();
-                } catch (Throwable e) {
-                    LOGGER.warn("Ignoring exception in RejoinWorker", e);
+                waitUntilRejoinRequested();
+                if (shutdown) {
+                    break;
                 }
+                boolean rejoined = false;
+                final RejoinRequest rejoinRequest = rejoinRequestHolder.consume();
+                while (!rejoined) {
+                    try {
+                        doRejoin(rejoinRequest);
+                        rejoined = true;
+                    } catch (Exception e) {
+                        LOGGER.warn("Caught exception while trying to rejoin cluster", e);
+                        LOGGER.info("Trying to rejoin again in 5 secs...");
+                        sleep(REJOIN_SLEEP_MILLIS_ON_EXCEPTION);
+                    }
+                }
+            }
+        }
+
+        private void sleep(long sleepMillis) {
+            try {
+                Thread.sleep(sleepMillis);
+            } catch (InterruptedException e1) {
+                // ignore
             }
         }
 
@@ -237,8 +253,7 @@ public class TerracottaClient {
             }
         }
 
-        private void doRejoin() {
-            final RejoinRequest rejoinRequest = rejoinRequestHolder.consume();
+        private void doRejoin(RejoinRequest rejoinRequest) {
             if (rejoinRequest == null) {
                 return;
             }
@@ -252,13 +267,17 @@ public class TerracottaClient {
             // now reinitialize all existing caches with the new instance factory, outside lock
             rejoinListener.clusterRejoinComplete();
             // now fire the clusterRejoined event
+            fireClusterRejoinedEvent(oldNodeReference);
+            LOGGER.info("Rejoin Complete [rejoin count = " + rejoinNumber + "]");
+            rejoinStatus.rejoinComplete();
+        }
+
+        private void fireClusterRejoinedEvent(final ClusterNode oldNodeReference) {
             try {
                 cacheCluster.fireNodeRejoinedEvent(oldNodeReference, cacheCluster.getCurrentNode());
             } catch (Throwable e) {
                 LOGGER.error("Caught exception while firing rejoin event", e);
             }
-            LOGGER.info("Rejoin Complete [rejoin count = " + rejoinNumber + "]");
-            rejoinStatus.rejoinComplete();
         }
 
         private void waitUntilRejoinRequested() {

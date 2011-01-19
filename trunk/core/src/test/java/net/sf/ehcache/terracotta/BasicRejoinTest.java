@@ -20,12 +20,9 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import junit.framework.Assert;
 import junit.framework.TestCase;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
@@ -42,6 +39,7 @@ import net.sf.ehcache.config.TerracottaConfiguration.StorageStrategy;
 import net.sf.ehcache.constructs.nonstop.NonStopCacheException;
 import net.sf.ehcache.constructs.nonstop.ThreadDump;
 import net.sf.ehcache.terracotta.TerracottaClusteredInstanceHelper.TerracottaRuntimeType;
+import net.sf.ehcache.terracotta.TestRejoinStore.StoreAction;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -226,82 +224,152 @@ public class BasicRejoinTest extends TestCase {
         assertEquals("newValue", element.getValue());
     }
 
-    private static class MockCacheCluster implements CacheCluster {
-
-        private final List<ClusterTopologyListener> listeners = new CopyOnWriteArrayList<ClusterTopologyListener>();
-        private final ClusterNode currentNode = new ClusterNode() {
-
-            public String getIp() {
-                return "127.0.0.1";
+    @Test
+    public void testDisposeCalledOnRejoin() throws Exception {
+        final ClusteredInstanceFactory mockFactory = mock(ClusteredInstanceFactory.class);
+        final AtomicInteger factoryCreationCount = new AtomicInteger();
+        TerracottaUnitTesting.setupTerracottaTesting(mockFactory, new Runnable() {
+            public void run() {
+                factoryCreationCount.incrementAndGet();
             }
+        });
+        TestRejoinStore testRejoinStore = new TestRejoinStore();
+        when(mockFactory.createStore((Ehcache) any())).thenReturn(testRejoinStore);
 
-            public String getId() {
-                return "1";
+        MockCacheCluster mockCacheCluster = new MockCacheCluster();
+        when(mockFactory.getTopology()).thenReturn(mockCacheCluster);
+
+        CacheManager cacheManager = new CacheManager(CacheManager.class.getResourceAsStream("/rejoin/basic-rejoin-test.xml"));
+        assertEquals(1, factoryCreationCount.get());
+        Cache cache = cacheManager.getCache("test");
+        assertNotNull(cache);
+
+        cache.getCacheConfiguration().getTerracottaConfiguration().getNonstopConfiguration().timeoutMillis(2000);
+
+        cache.put(new Element("key", "value"));
+
+        Element element = cache.get("key");
+        assertNotNull(element);
+        assertEquals("value", element.getValue());
+
+        ClusterRejoinListener rejoinListener = new ClusterRejoinListener();
+        cacheManager.getCluster(ClusterScheme.TERRACOTTA).addTopologyListener(rejoinListener);
+
+        // clear all methods called prior to here
+        testRejoinStore.getCalledMethods().clear();
+
+        // lets make the cluster rejoin
+        mockCacheCluster.fireCurrentNodeLeft();
+
+        int count = 0;
+        while (true) {
+            if (rejoinListener.rejoinedCount.get() > 0) {
+                break;
             }
-
-            public String getHostname() {
-                return "dummyHostName";
-            }
-        };
-
-        public void fireCurrentNodeLeft() {
-            for (ClusterTopologyListener listener : listeners) {
-                listener.nodeLeft(currentNode);
+            LOG.info("Waiting for rejoin to complete.. sleeping 1 sec, count=" + count);
+            Thread.sleep(1000);
+            if (++count >= 60) {
+                LOG.info(ThreadDump.takeThreadDump());
+                fail("Rejoin did not happen even after 60 seconds. Something wrong.");
             }
         }
+        // assert rejoin event fired
+        assertEquals(1, rejoinListener.rejoinedCount.get());
+        // assert new factory created
+        assertEquals(2, factoryCreationCount.get());
 
-        public void fireClusterOffline() {
-            for (ClusterTopologyListener listener : listeners) {
-                listener.clusterOffline(currentNode);
-            }
-        }
-
-        public void fireClusterOnline() {
-            for (ClusterTopologyListener listener : listeners) {
-                listener.clusterOnline(currentNode);
-            }
-        }
-
-        public boolean addTopologyListener(ClusterTopologyListener listener) {
-            return listeners.add(listener);
-        }
-
-        public ClusterNode getCurrentNode() {
-            return currentNode;
-        }
-
-        public Collection<ClusterNode> getNodes() {
-            return Collections.singletonList(currentNode);
-        }
-
-        public ClusterScheme getScheme() {
-            return ClusterScheme.TERRACOTTA;
-        }
-
-        public boolean isClusterOnline() {
-            return true;
-        }
-
-        public boolean removeTopologyListener(ClusterTopologyListener listener) {
-            return listeners.remove(listener);
-        }
-
-        public ClusterNode waitUntilNodeJoinsCluster() {
-            return currentNode;
-        }
-
-        public List<ClusterTopologyListener> getTopologyListeners() {
-            return this.listeners;
-        }
+        LOG.info("Methods called during rejoin: " + testRejoinStore.getCalledMethods());
+        Assert.assertTrue("dispose should have been called on rejoin", testRejoinStore.getCalledMethods().contains("dispose"));
 
     }
 
-    private static class ClusterRejoinListener implements ClusterTopologyListener {
+    @Test
+    public void testRejoinKeepsTryingOnException() throws Exception {
+        final ClusteredInstanceFactory mockFactory = mock(ClusteredInstanceFactory.class);
+        final AtomicInteger factoryCreationCount = new AtomicInteger();
+        TerracottaUnitTesting.setupTerracottaTesting(mockFactory, new Runnable() {
+            public void run() {
+                factoryCreationCount.incrementAndGet();
+            }
+        });
+        TestRejoinStore testRejoinStore = new TestRejoinStore();
+        when(mockFactory.createStore((Ehcache) any())).thenReturn(testRejoinStore);
+
+        MockCacheCluster mockCacheCluster = new MockCacheCluster();
+        when(mockFactory.getTopology()).thenReturn(mockCacheCluster);
+
+        CacheManager cacheManager = new CacheManager(CacheManager.class.getResourceAsStream("/rejoin/basic-rejoin-test.xml"));
+        assertEquals(1, factoryCreationCount.get());
+        Cache cache = cacheManager.getCache("test");
+        assertNotNull(cache);
+
+        cache.getCacheConfiguration().getTerracottaConfiguration().getNonstopConfiguration().timeoutMillis(2000);
+
+        ClusterRejoinListener rejoinListener = new ClusterRejoinListener();
+        cacheManager.getCluster(ClusterScheme.TERRACOTTA).addTopologyListener(rejoinListener);
+
+        // make the store keep throwing exception to fail the rejoin
+        testRejoinStore.setStoreAction(StoreAction.EXCEPTION);
+
+        // lets make the cluster rejoin
+        mockCacheCluster.fireCurrentNodeLeft();
+
+        int initialCalledMethodsSize = testRejoinStore.getCalledMethods().size();
+        int calledMethodsSize = 0;
+        int count = 0;
+        while (true) {
+            calledMethodsSize += testRejoinStore.getCalledMethods().size();
+            testRejoinStore.clearCalledMethods();
+            if (calledMethodsSize - initialCalledMethodsSize > 15) {
+                // rejoin has been retrying, so number of called methods increasing
+                break;
+            }
+            if (rejoinListener.rejoinedCount.get() > 0) {
+                break;
+            }
+            LOG.info("Waiting for rejoin to complete.. sleeping 3 sec, count=" + count);
+            Thread.sleep(3000);
+            if (++count >= 20) {
+                LOG.info(ThreadDump.takeThreadDump());
+                fail("Shouldn't take 60 seconds for multiple rejoin tries");
+            }
+        }
+        LOG.info("calledMethodSize: " + calledMethodsSize + " initial:" + initialCalledMethodsSize);
+        assertTrue("Rejoin should have been retrying on getting exception ", calledMethodsSize > initialCalledMethodsSize);
+
+        // now lets make the rejoin happen
+        testRejoinStore.setStoreAction(StoreAction.NONE);
+        count = 0;
+        while (true) {
+            if (rejoinListener.rejoinedCount.get() > 0) {
+                break;
+            }
+            LOG.info("Waiting for rejoin to complete.. sleeping 1 sec, count=" + count);
+            Thread.sleep(1000);
+            if (++count >= 60) {
+                LOG.info(ThreadDump.takeThreadDump());
+                fail("Rejoin should have happened withing 60 seconds. Something wrong");
+            }
+        }
+
+        // assert rejoin event fired
+        assertEquals(1, rejoinListener.rejoinedCount.get());
+
+        LOG.info("Methods called during rejoin: " + testRejoinStore.getCalledMethods());
+        Assert.assertTrue("dispose should have been called on rejoin", testRejoinStore.getCalledMethods().contains("dispose"));
+
+    }
+
+    public static class ClusterRejoinListener implements ClusterTopologyListener {
         private final AtomicInteger rejoinedCount = new AtomicInteger();
 
         public void clusterRejoined(ClusterNode oldNode, ClusterNode newNode) {
-            LOG.info("Got cluster rejoined event: oldNode=" + printNode(oldNode) + " newNode:" + printNode(newNode));
+            LOG.info("========= Got cluster rejoined event: oldNode=" + printNode(oldNode) + " newNode:" + printNode(newNode));
             rejoinedCount.incrementAndGet();
+        }
+
+        public AtomicInteger getRejoinedCount() {
+            return rejoinedCount;
         }
 
         private String printNode(ClusterNode node) {
@@ -309,23 +377,19 @@ public class BasicRejoinTest extends TestCase {
         }
 
         public void clusterOffline(ClusterNode node) {
-            // TODO Auto-generated method stub
-
+            LOG.info("========= Got OFFLINE event: node=" + printNode(node));
         }
 
         public void clusterOnline(ClusterNode node) {
-            // TODO Auto-generated method stub
-
+            LOG.info("========= Got ONLINE event: node=" + printNode(node));
         }
 
         public void nodeJoined(ClusterNode node) {
-            // TODO Auto-generated method stub
-
+            LOG.info("========= Got NODE_JOINED event: node=" + printNode(node));
         }
 
         public void nodeLeft(ClusterNode node) {
-            // TODO Auto-generated method stub
-
+            LOG.info("========= Got NODE_LEFT event: node=" + printNode(node));
         }
 
     }

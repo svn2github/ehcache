@@ -1625,7 +1625,6 @@ public class CacheManager {
 
 
     private void clusterRejoinStarted() {
-        // reinitialize all caches
         for (Ehcache cache : ehcaches.values()) {
             if (cache instanceof Cache) {
                 if (cache.getCacheConfiguration().isTerracottaClustered()) {
@@ -1633,6 +1632,7 @@ public class CacheManager {
                 }
             }
         }
+        // shutdown the current nonstop executor service
         CacheManagerExecutorServiceFactory.getInstance().shutdown(this);
     }
 
@@ -1640,22 +1640,12 @@ public class CacheManager {
      * This method is called when the Terracotta Cluster is rejoined. Reinitializes all terracotta clustered caches in this cache manager
      */
     private void clusterRejoinComplete() {
+        // restart nonstop executor service
         CacheManagerExecutorServiceFactory.getInstance().getOrCreateNonstopExecutorService(this);
-        // reinitialize all caches
         for (Ehcache cache : ehcaches.values()) {
             if (cache instanceof Cache) {
                 if (cache.getCacheConfiguration().isTerracottaClustered()) {
-                    final long originalNonstopTimeout = cache.getCacheConfiguration().getTerracottaConfiguration().getNonstopConfiguration()
-                            .getTimeoutMillis();
-                    // do not risk Nonstop timeouts during reinitialization
-                    cache.getCacheConfiguration().getTerracottaConfiguration().getNonstopConfiguration().setTimeoutMillis(Long.MAX_VALUE);
-                    try {
-                        ((Cache) cache).clusterRejoinComplete();
-                    } finally {
-                        // reset original timeout millis
-                        cache.getCacheConfiguration().getTerracottaConfiguration().getNonstopConfiguration().setTimeoutMillis(
-                                originalNonstopTimeout);
-                    }
+                    ((Cache) cache).clusterRejoinComplete();
                 }
             }
         }

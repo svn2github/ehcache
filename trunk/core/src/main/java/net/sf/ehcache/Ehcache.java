@@ -33,6 +33,7 @@ import net.sf.ehcache.search.Query;
 import net.sf.ehcache.statistics.CacheUsageListener;
 import net.sf.ehcache.statistics.LiveCacheStatistics;
 import net.sf.ehcache.statistics.sampled.SampledCacheStatistics;
+import net.sf.ehcache.terracotta.TerracottaNotRunningException;
 import net.sf.ehcache.transaction.manager.TransactionManagerLookup;
 import net.sf.ehcache.writer.CacheWriter;
 import net.sf.ehcache.writer.CacheWriterManager;
@@ -1047,7 +1048,7 @@ public interface Ehcache extends Cloneable {
      *
      * @return true if the cache is in coherent mode cluster-wide, false otherwise
      */
-    public boolean isClusterCoherent();
+    public boolean isClusterCoherent() throws TerracottaNotRunningException;
 
     /**
      * Returns true if the cache is in coherent mode for the current node. Returns false otherwise.
@@ -1056,7 +1057,7 @@ public interface Ehcache extends Cloneable {
      *
      * @return true if the cache is in coherent mode cluster-wide, false otherwise
      */
-    public boolean isNodeCoherent();
+    public boolean isNodeCoherent() throws TerracottaNotRunningException;
 
     /**
      * Sets the cache in coherent or incoherent mode depending on the parameter on this node.
@@ -1069,7 +1070,7 @@ public interface Ehcache extends Cloneable {
      *            true transitions to coherent mode, false to incoherent mode
      * @throws UnsupportedOperationException if this cache does not support coherence, like RMI replication
      */
-    public void setNodeCoherent(boolean coherent) throws UnsupportedOperationException;
+    public void setNodeCoherent(boolean coherent) throws UnsupportedOperationException, TerracottaNotRunningException;
 
     /**
      * This method waits until the cache is in coherent mode in all the connected nodes. If the cache is already in coherent mode it returns
@@ -1078,7 +1079,7 @@ public interface Ehcache extends Cloneable {
      * It applies to coherent clustering mechanisms only e.g. Terracotta
      * @throws UnsupportedOperationException if this cache does not support coherence, like RMI replication
      */
-    public void waitUntilClusterCoherent() throws UnsupportedOperationException;
+    public void waitUntilClusterCoherent() throws UnsupportedOperationException, TerracottaNotRunningException;
 
     /**
      * This class is used to access the transaction manager used during XA.

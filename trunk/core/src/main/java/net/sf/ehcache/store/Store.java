@@ -23,6 +23,7 @@ import net.sf.ehcache.search.Attribute;
 import net.sf.ehcache.search.Results;
 import net.sf.ehcache.search.SearchException;
 import net.sf.ehcache.search.attribute.AttributeExtractor;
+import net.sf.ehcache.terracotta.TerracottaNotRunningException;
 import net.sf.ehcache.writer.CacheWriterManager;
 
 import java.io.IOException;
@@ -315,7 +316,7 @@ public interface Store {
      * @return true if the cache is in coherent mode cluster-wide, false otherwise
      * @since 2.0
      */
-    public boolean isClusterCoherent();
+    public boolean isClusterCoherent() throws TerracottaNotRunningException;
 
     /**
      * Returns true if the cache is in coherent mode for the current node. Returns false otherwise.
@@ -325,7 +326,7 @@ public interface Store {
      * @return true if the cache is in coherent mode cluster-wide, false otherwise
      * @since 2.0
      */
-    public boolean isNodeCoherent();
+    public boolean isNodeCoherent() throws TerracottaNotRunningException;
 
     /**
      * Sets the cache in coherent or incoherent mode for the current node depending on the parameter.
@@ -339,7 +340,7 @@ public interface Store {
      * @throws UnsupportedOperationException if this store does not support cache coherence, like RMI replication
      * @since 2.0
      */
-    public void setNodeCoherent(boolean coherent) throws UnsupportedOperationException;
+    public void setNodeCoherent(boolean coherent) throws UnsupportedOperationException, TerracottaNotRunningException;
 
     /**
      * This method waits until the cache is in coherent mode in all the connected nodes. If the cache is already in coherent mode it returns
@@ -349,7 +350,7 @@ public interface Store {
      * @throws UnsupportedOperationException if this store does not support cache coherence, like RMI replication
      * @since 2.0
      */
-    public void waitUntilClusterCoherent() throws UnsupportedOperationException;
+    public void waitUntilClusterCoherent() throws UnsupportedOperationException, TerracottaNotRunningException;
 
     /**
      * Optional implementation specific MBean exposed by the store.
@@ -375,7 +376,7 @@ public interface Store {
 
     /**
      * Retrieve the given named search attribute
-     * 
+     *
      * @param <T> type of the attribute
      * @param attributeName the name of the attribute to retrieve
      * @return the search attribute or null if non-existent

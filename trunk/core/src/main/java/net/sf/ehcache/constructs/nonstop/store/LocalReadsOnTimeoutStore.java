@@ -28,19 +28,18 @@ import net.sf.ehcache.Element;
 import net.sf.ehcache.Status;
 import net.sf.ehcache.concurrent.Sync;
 import net.sf.ehcache.constructs.nonstop.ClusterOperation;
+import net.sf.ehcache.constructs.nonstop.NonstopActiveDelegateHolder;
 import net.sf.ehcache.search.Attribute;
 import net.sf.ehcache.search.Results;
 import net.sf.ehcache.search.attribute.AttributeExtractor;
 import net.sf.ehcache.store.ElementValueComparator;
 import net.sf.ehcache.store.Policy;
-import net.sf.ehcache.store.Store;
 import net.sf.ehcache.store.StoreListener;
 import net.sf.ehcache.store.StoreQuery;
-import net.sf.ehcache.store.TerracottaStore;
 import net.sf.ehcache.writer.CacheWriterManager;
 
 /**
- * A {@link Store} implementation that returns the local value in the VM, if present, for get operations and no-op for put,
+ * A {@link NonstopStore} implementation that returns the local value in the VM, if present, for get operations and no-op for put,
  * remove and other operations
  *
  * @author Abhishek Sanoujam
@@ -48,19 +47,15 @@ import net.sf.ehcache.writer.CacheWriterManager;
  */
 public class LocalReadsOnTimeoutStore implements NonstopStore {
 
-    private final TerracottaStore unsafeStore;
+    private final NonstopActiveDelegateHolder nonstopActiveDelegateHolder;
 
     /**
-     * Constructor accepting the underlying {@link Store}
+     * Constructor accepting the {@link NonstopActiveDelegateHolder}
      *
      * @param store
      */
-    public LocalReadsOnTimeoutStore(Store store) {
-        if (!(store instanceof TerracottaStore)) {
-            throw new IllegalArgumentException(LocalReadsOnTimeoutStore.class.getName()
-                    + " can be only be used with Terracotta clustered caches.");
-        }
-        this.unsafeStore = (TerracottaStore) store;
+    public LocalReadsOnTimeoutStore(NonstopActiveDelegateHolder nonstopActiveDelegateHolder) {
+        this.nonstopActiveDelegateHolder = nonstopActiveDelegateHolder;
     }
 
     /**
@@ -69,7 +64,7 @@ public class LocalReadsOnTimeoutStore implements NonstopStore {
      * Uses the underlying store to get the local value present in the VM
      */
     public Element get(Object key) throws IllegalStateException, CacheException {
-        return unsafeStore.unsafeGet(key);
+        return nonstopActiveDelegateHolder.getUnderlyingTerracottaStore().unsafeGet(key);
     }
 
     /**
@@ -78,7 +73,7 @@ public class LocalReadsOnTimeoutStore implements NonstopStore {
      * Uses the underlying store to get the local value present in the VM
      */
     public List getKeys() throws IllegalStateException, CacheException {
-        return Collections.unmodifiableList(new ArrayList(unsafeStore.getLocalKeys()));
+        return Collections.unmodifiableList(new ArrayList(nonstopActiveDelegateHolder.getUnderlyingTerracottaStore().getLocalKeys()));
     }
 
     /**
@@ -87,7 +82,7 @@ public class LocalReadsOnTimeoutStore implements NonstopStore {
      * Uses the underlying store to get the local value present in the VM
      */
     public Element getQuiet(Object key) throws IllegalStateException, CacheException {
-        return unsafeStore.unsafeGetQuiet(key);
+        return nonstopActiveDelegateHolder.getUnderlyingTerracottaStore().unsafeGetQuiet(key);
     }
 
     /**
@@ -489,35 +484,35 @@ public class LocalReadsOnTimeoutStore implements NonstopStore {
      * {@inheritDoc}
      */
     public Set getLocalKeys() {
-        return unsafeStore.getLocalKeys();
+        return nonstopActiveDelegateHolder.getUnderlyingTerracottaStore().getLocalKeys();
     }
 
     /**
      * {@inheritDoc}
      */
     public Element unlockedGet(Object key) {
-        return unsafeStore.unsafeGet(key);
+        return nonstopActiveDelegateHolder.getUnderlyingTerracottaStore().unsafeGet(key);
     }
 
     /**
      * {@inheritDoc}
      */
     public Element unlockedGetQuiet(Object key) {
-        return unsafeStore.unsafeGet(key);
+        return nonstopActiveDelegateHolder.getUnderlyingTerracottaStore().unsafeGet(key);
     }
 
     /**
      * {@inheritDoc}
      */
     public Element unsafeGet(Object key) {
-        return unsafeStore.unsafeGet(key);
+        return nonstopActiveDelegateHolder.getUnderlyingTerracottaStore().unsafeGet(key);
     }
 
     /**
      * {@inheritDoc}
      */
     public Element unsafeGetQuiet(Object key) {
-        return unsafeStore.unsafeGetQuiet(key);
+        return nonstopActiveDelegateHolder.getUnderlyingTerracottaStore().unsafeGetQuiet(key);
     }
 
     /**
