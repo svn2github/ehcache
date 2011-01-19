@@ -28,46 +28,45 @@ public class CacheConfigConflictTest extends TestCase {
     private static final Logger LOG = LoggerFactory.getLogger(CacheConfigConflictTest.class);
 
     public void testConflictingValuesFromConfig() {
-        // try {
         CacheManager cacheManager = new CacheManager(this.getClass().getResourceAsStream("/ehcache-conflict-eternal.xml"));
         LOG.info("Cache names: " + Arrays.asList(cacheManager.getCacheNames()));
-        // fail("Config with conflicting values should have thrown exception.");
-        // } catch (CacheException e) {
-        // // expected
-        // Assert.assertTrue(e.getMessage().contains("Conflicting values"));
-        // }
     }
 
     public void testConflictingValuesProgrammatic() {
         CacheConfiguration cacheConfig = new CacheConfiguration("name", 10);
+
+        // case 1: eternal=true, followed by non conflicting TTI&TTL
         cacheConfig.setEternal(true);
         cacheConfig.timeToIdleSeconds(0);
         cacheConfig.timeToLiveSeconds(0);
-        // try {
-        cacheConfig.timeToIdleSeconds(10);
-        // fail("Config with conflicting values should have thrown exception.");
-        // } catch (Exception e) {
-        // // expected
-        // Assert.assertTrue(e.getMessage().contains("Conflicting values"));
-        // }
+        assertEquals(0, cacheConfig.getTimeToIdleSeconds());
+        assertEquals(0, cacheConfig.getTimeToIdleSeconds());
 
-        // try {
-        cacheConfig.timeToLiveSeconds(10);
-        // fail("Config with conflicting values should have thrown exception.");
-        // } catch (Exception e) {
-        // // expected
-        // Assert.assertTrue(e.getMessage().contains("Conflicting values"));
-        // }
-
-        cacheConfig.eternal(true);
+        // case 2: eternal=true, followed by conflicting TTI&TTL
+        // eternal=true takes more precedance than tti/ttl, order doesn't matter
+        cacheConfig.setEternal(true);
         cacheConfig.timeToIdleSeconds(10);
+        assertEquals(0, cacheConfig.getTimeToIdleSeconds());
+
         cacheConfig.timeToLiveSeconds(20);
-        // even if eternal=true, tti/ttl should have values as ordering matters
+        assertEquals(0, cacheConfig.getTimeToIdleSeconds());
+
+        // case 3: eternal=false, followed non-conflicting TTI&TTL
+        // reset eternal
+        cacheConfig.eternal(false);
+        cacheConfig.timeToIdleSeconds(10);
         assertEquals(10, cacheConfig.getTimeToIdleSeconds());
+
+        cacheConfig.timeToLiveSeconds(20);
         assertEquals(20, cacheConfig.getTimeToLiveSeconds());
 
-        // setting eternal again resets tti/ttl as ordering matters
+        // case 4: setting eternal again resets tti/ttl
         cacheConfig.eternal(true);
+        assertEquals(0, cacheConfig.getTimeToIdleSeconds());
+        assertEquals(0, cacheConfig.getTimeToLiveSeconds());
+
+        // case 5: after a reset, TTI&TTL are still 0
+        cacheConfig.eternal(false);
         assertEquals(0, cacheConfig.getTimeToIdleSeconds());
         assertEquals(0, cacheConfig.getTimeToLiveSeconds());
 

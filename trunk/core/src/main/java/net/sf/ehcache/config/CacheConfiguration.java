@@ -340,7 +340,7 @@ public class CacheConfiguration implements Cloneable {
             DEFAULT_ELEMENT_VALUE_COMPARATOR_CONFIGURATION;
     private volatile Boolean copyOnRead;
     private volatile Boolean copyOnWrite;
-    private boolean conflictingValuesWarningLogged;
+    private volatile boolean conflictingEternalValuesWarningLogged;
     private volatile Searchable searchable;
 
     /**
@@ -676,7 +676,7 @@ public class CacheConfiguration implements Cloneable {
      */
     public final void setEternal(boolean eternal) {
         checkDynamicChange();
-        checkConflictingEternalValues(eternal, getTimeToLiveSeconds(), getTimeToIdleSeconds());
+        isEternalValueConflictingWithTTIOrTTL(eternal, getTimeToLiveSeconds(), getTimeToIdleSeconds());
         this.eternal = eternal;
         if (eternal) {
             setTimeToIdleSeconds(0);
@@ -684,17 +684,21 @@ public class CacheConfiguration implements Cloneable {
         }
     }
 
-    private void checkConflictingEternalValues(boolean newEternalValue, long newTTLValue, long newTTIValue) {
-        if (!conflictingValuesWarningLogged && newEternalValue && (newTTLValue != 0 || newTTIValue != 0)) {
-            conflictingValuesWarningLogged = true;
-            LOG
-                    .warn("Cache '"
-                            + getName()
-                            + "' is set to eternal but also has TTI/TTL set." +
-                            " To avoid this warning, clean up the config " +
-                            "removing conflicting values of eternal," +
-                            " TTI and TTL.");
+    private boolean isEternalValueConflictingWithTTIOrTTL(boolean newEternalValue, long newTTLValue, long newTTIValue) {
+        boolean conflicting = false;
+
+        if (newEternalValue && (newTTLValue != 0 || newTTIValue != 0)) {
+            conflicting = true;
         }
+
+        if (conflicting && !conflictingEternalValuesWarningLogged) {
+            conflictingEternalValuesWarningLogged = true;
+            LOG.warn("Cache '" + getName() + "' is set to eternal but also has TTI/TTL set. "
+                    + " To avoid this warning, clean up the config " + "removing conflicting values of eternal,"
+                    + " TTI and TTL. Effective configuration for Cache '" + getName() + "' will be eternal='" + newEternalValue
+                    + "', timeToIdleSeconds='0', timeToLiveSeconds='0'.");
+        }
+        return conflicting;
     }
 
     /**
@@ -719,11 +723,12 @@ public class CacheConfiguration implements Cloneable {
      */
     public final void setTimeToIdleSeconds(long timeToIdleSeconds) {
         checkDynamicChange();
-        checkConflictingEternalValues(eternal, getTimeToLiveSeconds(), timeToIdleSeconds);
-        long oldTti = this.timeToIdleSeconds;
-        long newTti = timeToIdleSeconds;
-        this.timeToIdleSeconds = timeToIdleSeconds;
-        fireTtiChanged(oldTti, newTti);
+        if (!isEternalValueConflictingWithTTIOrTTL(eternal, 0, timeToIdleSeconds)) {
+            long oldTti = this.timeToIdleSeconds;
+            long newTti = timeToIdleSeconds;
+            this.timeToIdleSeconds = timeToIdleSeconds;
+            fireTtiChanged(oldTti, newTti);
+        }
     }
 
     /**
@@ -751,11 +756,12 @@ public class CacheConfiguration implements Cloneable {
      */
     public final void setTimeToLiveSeconds(long timeToLiveSeconds) {
         checkDynamicChange();
-        checkConflictingEternalValues(eternal, timeToLiveSeconds, getTimeToIdleSeconds());
-        long oldTtl = this.timeToLiveSeconds;
-        long newTtl = timeToLiveSeconds;
-        this.timeToLiveSeconds = timeToLiveSeconds;
-        fireTtlChanged(oldTtl, newTtl);
+        if (!isEternalValueConflictingWithTTIOrTTL(eternal, timeToLiveSeconds, 0)) {
+            long oldTtl = this.timeToLiveSeconds;
+            long newTtl = timeToLiveSeconds;
+            this.timeToLiveSeconds = timeToLiveSeconds;
+            fireTtlChanged(oldTtl, newTtl);
+        }
     }
 
     /**
