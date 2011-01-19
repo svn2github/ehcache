@@ -47,6 +47,7 @@ public class SampledCacheManager extends BaseEmitterBean implements SampledCache
     private final CacheManager cacheManager;
     private String mbeanRegisteredName;
     private volatile boolean mbeanRegisteredNameSet;
+    private final EventListener cacheManagerEventListener;
 
     static {
         final String[] notifTypes = new String[] {CACHES_ENABLED, CACHES_CLEARED, STATISTICS_ENABLED, STATISTICS_RESET, };
@@ -63,7 +64,15 @@ public class SampledCacheManager extends BaseEmitterBean implements SampledCache
     public SampledCacheManager(CacheManager cacheManager) throws NotCompliantMBeanException {
         super(SampledCacheManagerMBean.class);
         this.cacheManager = cacheManager;
-        cacheManager.setCacheManagerEventListener(new EventListener());
+        cacheManagerEventListener = new EventListener();
+        cacheManager.setCacheManagerEventListener(cacheManagerEventListener);
+    }
+
+    /**
+     * Dispose of this SampledCacheManager and clean up held resources
+     */
+    public void dispose() {
+        cacheManager.getCacheManagerEventListenerRegistry().unregisterListener(cacheManagerEventListener);
     }
 
     /**

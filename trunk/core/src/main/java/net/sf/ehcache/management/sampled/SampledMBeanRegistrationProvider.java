@@ -71,6 +71,7 @@ public class SampledMBeanRegistrationProvider implements MBeanRegistrationProvid
     // construction
     // by doing setName()
     private volatile String registeredCacheManagerName;
+    private SampledCacheManager cacheManagerMBean;
 
     /**
      * Default constructor
@@ -90,7 +91,8 @@ public class SampledMBeanRegistrationProvider implements MBeanRegistrationProvid
         this.cacheManager = cacheManagerParam;
         this.clientUUID = clusteredInstanceFactory == null ? "" : clusteredInstanceFactory.getUUID();
         try {
-            registerCacheManagerMBean(new SampledCacheManager(cacheManager));
+            cacheManagerMBean = new SampledCacheManager(cacheManager);
+            registerCacheManagerMBean(cacheManagerMBean);
         } catch (Exception e) {
             status = Status.STATUS_UNINITIALISED;
             throw new CacheException(e);
@@ -225,6 +227,9 @@ public class SampledMBeanRegistrationProvider implements MBeanRegistrationProvid
             }
         }
         mbeans.clear();
+
+        cacheManagerMBean.dispose();
+        cacheManager.getCacheManagerEventListenerRegistry().unregisterListener(this);
 
         status = Status.STATUS_SHUTDOWN;
     }
