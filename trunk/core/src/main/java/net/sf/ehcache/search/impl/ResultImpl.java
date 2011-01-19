@@ -34,6 +34,7 @@ import net.sf.ehcache.store.StoreQuery;
 public class ResultImpl implements Result {
 
     private final Object key;
+    private final Object value;
     private final StoreQuery query;
     private final Map<String, Object> attributes;
     private final Object[] sortAttributes;
@@ -43,13 +44,15 @@ public class ResultImpl implements Result {
      * Constructor
      *
      * @param key
+     * @param value
      * @param query
      * @param attributes
      * @param sortAttributes
      */
-    public ResultImpl(Object key, StoreQuery query, Map<String, Object> attributes, Object[] sortAttributes) {
+    public ResultImpl(Object key, Object value, StoreQuery query, Map<String, Object> attributes, Object[] sortAttributes) {
         this.query = query;
         this.key = key;
+        this.value = value;
         this.attributes = attributes;
         this.sortAttributes = sortAttributes;
     }
@@ -89,11 +92,11 @@ public class ResultImpl implements Result {
      */
     public <T> T getAttribute(Attribute<T> attribute) {
         String name = attribute.getAttributeName();
-        Object value = attributes.get(name);
-        if (value == null && !query.requestedAttributes().contains(attribute)) {
+        Object attrValue = attributes.get(name);
+        if (attrValue == null && !query.requestedAttributes().contains(attribute)) {
             throw new SearchException("Attribute [" + name + "] not included in query");
         }
-        return (T) value;
+        return (T) attrValue;
     }
 
     @Override
@@ -110,6 +113,17 @@ public class ResultImpl implements Result {
             throw new SearchException("No aggregators present in query");
         }
         return this.aggregateResults;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public Object getValue() throws SearchException {
+        if (query.requestsValues()) {
+            return value;
+        }
+
+        throw new SearchException("values not included in query. Use includeValues() to add values to results.");
     }
 
 }

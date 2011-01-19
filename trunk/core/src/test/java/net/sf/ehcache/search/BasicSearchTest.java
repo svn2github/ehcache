@@ -849,6 +849,51 @@ public class BasicSearchTest {
         }
     }
 
+    @Test
+    public void testIncludeValues() {
+        CacheManager cacheManager = new CacheManager(getClass().getResource("/ehcache-search.xml"));
+        Ehcache cache = cacheManager.getEhcache("cache1");
+        SearchTestUtil.populateData(cache);
+
+        {
+            Query query = cache.createQuery();
+            query.includeValues();
+            query.end();
+            Results results = query.execute();
+            assertEquals(4, results.size());
+            int ageSum = 0;
+            for (Result result : results.all()) {
+                Person p = (Person) result.getValue();
+                ageSum += p.getAge();
+                try {
+                    result.getKey();
+                    fail();
+                } catch (SearchException se) {
+                    // expected since keys not included
+                }
+            }
+
+            assertEquals(123, ageSum);
+        }
+
+        {
+            Query query = cache.createQuery();
+            query.includeKeys();
+            query.end();
+            Results results = query.execute();
+            assertEquals(4, results.size());
+            for (Result result : results.all()) {
+                try {
+                    result.getValue();
+                    fail();
+                } catch (SearchException se) {
+                    // expected since keys not included
+                }
+            }
+        }
+    }
+
+
     private void verify(Ehcache cache, Query query, Integer... expectedKeys) {
         Results results = query.execute();
         assertEquals(expectedKeys.length, results.size());

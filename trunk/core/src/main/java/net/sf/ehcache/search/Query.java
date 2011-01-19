@@ -109,6 +109,13 @@ public interface Query {
     public Query includeKeys();
 
     /**
+     * Request that the value object be present in the results.
+     *
+     * @return this
+     */
+    public Query includeValues();
+
+    /**
      * Request that the given attribute(s) should be present in the result for
      * this query. This call can be made multiple times to add to the set of
      * selected attributes.

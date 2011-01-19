@@ -306,7 +306,7 @@ public final class MemoryOnlyStore extends CompoundStore implements CacheConfigu
         List<AggregatorInstance<?>> aggregators = query.getAggregatorInstances();
 
 
-        boolean includeResults = query.requestsKeys() || !query.requestedAttributes().isEmpty();
+        boolean includeResults = query.requestsKeys() || query.requestsValues() || !query.requestedAttributes().isEmpty();
 
         ArrayList<Result> results = new ArrayList<Result>();
 
@@ -351,7 +351,7 @@ public final class MemoryOnlyStore extends CompoundStore implements CacheConfigu
                     }
 
 
-                    results.add(new ResultImpl(element.getObjectKey(), query, attributes, sortAttributes));
+                    results.add(new ResultImpl(element.getObjectKey(), element.getObjectValue(), query, attributes, sortAttributes));
                 }
 
                 for (AggregatorInstance<?> aggregator : aggregators) {
@@ -388,7 +388,7 @@ public final class MemoryOnlyStore extends CompoundStore implements CacheConfigu
 
         if (anyMatches && !includeResults && !aggregateResults.isEmpty()) {
             // add one row in the results if the only thing included was aggregators and anything matched
-            results.add(new ResultImpl(null, query, Collections.EMPTY_MAP, EMPTY_OBJECT_ARRAY));
+            results.add(new ResultImpl(null, null, query, Collections.EMPTY_MAP, EMPTY_OBJECT_ARRAY));
         }
 
 

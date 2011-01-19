@@ -21,6 +21,7 @@ import java.util.List;
 /**
  * Represents a single cache entry that has been selected by a cache query.
  * <p/>
+ *
  * @author teck
  * @author Greg Luck
  */
@@ -29,10 +30,19 @@ public interface Result {
     /**
      * Return the key for this cache entry.
      *
-     * @return key object (never null)
+     * @return key object
      * @throws SearchException if keys were not selected by the originating query
      */
     Object getKey() throws SearchException;
+
+    /**
+     * Return the value for this cache entry.
+     *
+     * @return value object. This value might be null if the value is no longer referenced
+     *         by the cache (ie. a concurrent update removed this entry).
+     * @throws SearchException if values were not selected by the originating query
+     */
+    Object getValue() throws SearchException;
 
     /**
      * Retrieve the given attribute value for this cache entry
@@ -51,6 +61,5 @@ public interface Result {
      * @throws SearchException if no aggregators were requested in the query
      */
     List<Object> getAggregatorResults() throws SearchException;
-
 
 }
