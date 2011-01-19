@@ -75,6 +75,14 @@ public interface Results {
     boolean hasKeys();
 
     /**
+     * Whether the Results have cache values included.
+     * If so these can be extracted from the Result object.
+     *
+     * @return true if values are included
+     */
+    boolean hasValues();
+
+    /**
      * Whether the Results have cache attributes included.
      * If so these can be extracted from the Result object.
      *

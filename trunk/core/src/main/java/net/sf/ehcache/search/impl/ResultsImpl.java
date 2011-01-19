@@ -34,6 +34,7 @@ public class ResultsImpl implements Results {
     private final boolean hasKeys;
     private final boolean hasAttributes;
     private final boolean hasAggregators;
+    private final boolean hasValues;
 
     /**
      * Constructor
@@ -43,8 +44,9 @@ public class ResultsImpl implements Results {
      * @param hasAttributes
      * @param hasAggregators
      */
-    public ResultsImpl(List<Result> results, boolean hasKeys, boolean hasAttributes, boolean hasAggregators) {
+    public ResultsImpl(List<Result> results, boolean hasKeys, boolean hasValues, boolean hasAttributes, boolean hasAggregators) {
         this.hasKeys = hasKeys;
+        this.hasValues = hasValues;
         this.hasAttributes = hasAttributes;
         this.hasAggregators = hasAggregators;
         this.results = Collections.unmodifiableList(results);
@@ -103,6 +105,13 @@ public class ResultsImpl implements Results {
      */
     public boolean hasKeys() {
         return hasKeys;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public boolean hasValues() {
+        return hasValues;
     }
 
     /**

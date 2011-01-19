@@ -399,7 +399,8 @@ public final class MemoryOnlyStore extends CompoundStore implements CacheConfigu
             }
         }
 
-        return new ResultsImpl(results, query.requestsKeys(), !query.requestedAttributes().isEmpty(), anyMatches && !aggregateResults.isEmpty());
+        return new ResultsImpl(results, query.requestsKeys(), query.requestsValues(),
+                !query.requestedAttributes().isEmpty(), anyMatches && !aggregateResults.isEmpty());
     }
 
     /**

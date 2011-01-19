@@ -860,6 +860,7 @@ public class BasicSearchTest {
             query.includeValues();
             query.end();
             Results results = query.execute();
+            assertTrue(results.hasValues());
             assertEquals(4, results.size());
             int ageSum = 0;
             for (Result result : results.all()) {
@@ -881,6 +882,7 @@ public class BasicSearchTest {
             query.includeKeys();
             query.end();
             Results results = query.execute();
+            assertFalse(results.hasValues());
             assertEquals(4, results.size());
             for (Result result : results.all()) {
                 try {
