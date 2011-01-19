@@ -51,8 +51,6 @@ public class LocalReadsOnTimeoutStore implements NonstopStore {
 
     /**
      * Constructor accepting the {@link NonstopActiveDelegateHolder}
-     *
-     * @param store
      */
     public LocalReadsOnTimeoutStore(NonstopActiveDelegateHolder nonstopActiveDelegateHolder) {
         this.nonstopActiveDelegateHolder = nonstopActiveDelegateHolder;
