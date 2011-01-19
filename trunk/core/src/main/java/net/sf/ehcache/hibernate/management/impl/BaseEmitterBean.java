@@ -16,6 +16,8 @@
 
 package net.sf.ehcache.hibernate.management.impl;
 
+import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicLong;
 
 import javax.management.ListenerNotFoundException;
@@ -42,6 +44,9 @@ public abstract class BaseEmitterBean extends StandardMBean implements Notificat
      * sequenceNumber
      */
     protected final AtomicLong sequenceNumber = new AtomicLong();
+
+
+    private final List<NotificationListener> notificationListeners = new CopyOnWriteArrayList<NotificationListener>();
 
     /**
      * BaseEmitterBean
@@ -107,6 +112,21 @@ public abstract class BaseEmitterBean extends StandardMBean implements Notificat
      */
     public void addNotificationListener(NotificationListener notif, NotificationFilter filter, Object callBack) {
         emitter.addNotificationListener(notif, filter, callBack);
+        notificationListeners.add(notif);
+    }
+
+    /**
+     * remove all added notification listeners
+     */
+    public void removeAllNotificationListeners() {
+        for (NotificationListener listener : notificationListeners) {
+            try {
+                emitter.removeNotificationListener(listener);
+            } catch (ListenerNotFoundException e) {
+                // ignore
+            }
+        }
+        notificationListeners.clear();
     }
 
     /**
@@ -120,6 +140,7 @@ public abstract class BaseEmitterBean extends StandardMBean implements Notificat
      */
     public void removeNotificationListener(NotificationListener listener) throws ListenerNotFoundException {
         emitter.removeNotificationListener(listener);
+        notificationListeners.remove(listener);
     }
 
     /**
@@ -129,5 +150,6 @@ public abstract class BaseEmitterBean extends StandardMBean implements Notificat
     public void removeNotificationListener(NotificationListener notif, NotificationFilter filter, Object callBack)
             throws ListenerNotFoundException {
         emitter.removeNotificationListener(notif, filter, callBack);
+        notificationListeners.remove(notif);
     }
 }

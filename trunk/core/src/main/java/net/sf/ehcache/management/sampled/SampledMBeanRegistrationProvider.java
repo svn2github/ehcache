@@ -17,6 +17,7 @@
 package net.sf.ehcache.management.sampled;
 
 import java.lang.management.ManagementFactory;
+import java.util.Map;
 import java.util.Set;
 
 import javax.management.InstanceAlreadyExistsException;
@@ -31,8 +32,10 @@ import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Status;
 import net.sf.ehcache.event.CacheManagerEventListener;
+import net.sf.ehcache.hibernate.management.impl.BaseEmitterBean;
 import net.sf.ehcache.management.provider.MBeanRegistrationProvider;
 import net.sf.ehcache.management.provider.MBeanRegistrationProviderException;
+import net.sf.ehcache.store.chm.ConcurrentHashMap;
 import net.sf.ehcache.terracotta.ClusteredInstanceFactory;
 
 import org.slf4j.Logger;
@@ -59,6 +62,7 @@ public class SampledMBeanRegistrationProvider implements MBeanRegistrationProvid
     private CacheManager cacheManager;
     private String clientUUID;
     private final MBeanServer mBeanServer;
+    private final Map<ObjectName, BaseEmitterBean> mbeans = new ConcurrentHashMap<ObjectName, BaseEmitterBean>();
 
     // name of the cacheManager when the mbeans are registered.
     // On cacheManager.dispose(), need to remove
@@ -108,8 +112,10 @@ public class SampledMBeanRegistrationProvider implements MBeanRegistrationProvid
             }
             try {
                 // register the CacheManager MBean
+                ObjectName cacheManagerObjectName = SampledEhcacheMBeans.getCacheManagerObjectName(clientUUID, registeredCacheManagerName);
                 mBeanServer.registerMBean(cacheManagerMBean,
-                        SampledEhcacheMBeans.getCacheManagerObjectName(clientUUID, registeredCacheManagerName));
+                        cacheManagerObjectName);
+                mbeans.put(cacheManagerObjectName, cacheManagerMBean);
                 success = true;
                 cacheManagerMBean.setMBeanRegisteredName(registeredCacheManagerName);
                 break;
@@ -160,9 +166,11 @@ public class SampledMBeanRegistrationProvider implements MBeanRegistrationProvid
         }
         SampledCache terracottaCacheMBean = new SampledCache(cache);
         try {
+            ObjectName cacheObjectName = SampledEhcacheMBeans.getCacheObjectName(clientUUID, registeredCacheManagerName,
+                    terracottaCacheMBean.getImmutableCacheName());
             mBeanServer.registerMBean(terracottaCacheMBean,
-                    SampledEhcacheMBeans.getCacheObjectName(clientUUID, registeredCacheManagerName,
-                            terracottaCacheMBean.getImmutableCacheName()));
+                    cacheObjectName);
+            mbeans.put(cacheObjectName, terracottaCacheMBean);
         } catch (MalformedObjectNameException e) {
             throw new MBeanRegistrationException(e);
         }
@@ -205,25 +213,19 @@ public class SampledMBeanRegistrationProvider implements MBeanRegistrationProvid
         if (!isAlive()) {
             return;
         }
-        Set<ObjectName> registeredObjectNames = null;
 
-        try {
-            // CacheManager MBean
-            registeredObjectNames = mBeanServer
-                    .queryNames(SampledEhcacheMBeans.getCacheManagerObjectName(clientUUID, registeredCacheManagerName), null);
-            // Other MBeans for this CacheManager
-            registeredObjectNames.addAll(mBeanServer.queryNames(SampledEhcacheMBeans
-                    .getQueryCacheManagerObjectName(clientUUID, registeredCacheManagerName), null));
-        } catch (MalformedObjectNameException e) {
-            LOG.warn("Error querying MBeanServer. Error was " + e.getMessage(), e);
-        }
+        Set<ObjectName> registeredObjectNames = mbeans.keySet();
         for (ObjectName objectName : registeredObjectNames) {
             try {
                 mBeanServer.unregisterMBean(objectName);
+                BaseEmitterBean bean = mbeans.get(objectName);
+                bean.removeAllNotificationListeners();
             } catch (Exception e) {
                 LOG.warn("Error unregistering object instance " + objectName + " . Error was " + e.getMessage(), e);
             }
         }
+        mbeans.clear();
+
         status = Status.STATUS_SHUTDOWN;
     }
 
