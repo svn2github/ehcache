@@ -47,9 +47,11 @@ import net.sf.ehcache.writer.CacheWriterManager;
  */
 public class ClusterAwareStore implements NonstopStore {
 
+    private final CacheCluster cacheCluster;
     private final ClusterOfflineStore clusterOfflineStore;
     private final ExecutorServiceStore clusterOnlineStore;
     private volatile NonstopStore delegate;
+    private volatile ClusterStatusListener listener;
 
     /**
      * Constructor accepting the {@link CacheCluster}, {@link ClusterOfflineStore} (used when cluster is offline) and
@@ -60,6 +62,7 @@ public class ClusterAwareStore implements NonstopStore {
      * @param clusterOnlineStore
      */
     public ClusterAwareStore(CacheCluster cacheCluster, ClusterOfflineStore clusterOfflineStore, ExecutorServiceStore clusterOnlineStore) {
+        this.cacheCluster = cacheCluster;
         this.clusterOfflineStore = clusterOfflineStore;
         this.clusterOnlineStore = clusterOnlineStore;
         if (cacheCluster.isClusterOnline()) {
@@ -67,7 +70,8 @@ public class ClusterAwareStore implements NonstopStore {
         } else {
             delegate = clusterOfflineStore;
         }
-        cacheCluster.addTopologyListener(new ClusterStatusListener(this, cacheCluster));
+        listener = new ClusterStatusListener(this, cacheCluster);
+        cacheCluster.addTopologyListener(listener);
     }
 
     private void clusterOffline() {
@@ -75,6 +79,7 @@ public class ClusterAwareStore implements NonstopStore {
     }
 
     private void clusterOnline() {
+        cacheCluster.removeTopologyListener(listener);
         delegate = clusterOnlineStore;
     }
 
