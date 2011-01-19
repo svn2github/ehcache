@@ -44,7 +44,7 @@ public class NonstopConfiguration implements Cloneable {
     /**
      * Default value of timeoutMillis attribute
      */
-    public static final int DEFAULT_TIMEOUT_MILLIS = 15000;
+    public static final int DEFAULT_TIMEOUT_MILLIS = 30000;
 
     /**
      * Default value of timeout multiplication factor for bulk operations like removeAll or size
