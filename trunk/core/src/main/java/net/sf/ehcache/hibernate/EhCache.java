@@ -19,10 +19,10 @@ package net.sf.ehcache.hibernate;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.concurrent.CacheLockProvider;
 import net.sf.ehcache.concurrent.LockType;
+import net.sf.ehcache.util.Timestamper;
 
 import org.hibernate.cache.Cache;
 import org.hibernate.cache.CacheException;
-import org.hibernate.cache.Timestamper;
 
 import java.util.HashMap;
 import java.util.Iterator;

@@ -59,6 +59,9 @@
     <!-- tree walking is neater with parameter assignment - imho -->
     <suppress checks="ParameterAssignment" files="RegionSet.java" />
 
+    <!-- I think the multiple assignments make perfect sense here - imho as well -->
+    <suppress checks="MultipleVariableDeclarations" files="Timestamper.java" />
+
     <!-- the DynamicMBean interface defines the exception set here -->
     <suppress checks="ThrowsCount" files="Store.java"/>
 

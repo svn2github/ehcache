@@ -20,10 +20,10 @@ import java.util.Map;
 import java.util.Properties;
 
 import net.sf.ehcache.Ehcache;
+import net.sf.ehcache.util.Timestamper;
 
 import org.hibernate.cache.CacheException;
 import org.hibernate.cache.Region;
-import org.hibernate.cache.Timestamper;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

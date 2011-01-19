@@ -20,11 +20,11 @@ import java.util.Properties;
 
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.util.ClassLoaderUtil;
+import net.sf.ehcache.util.Timestamper;
 
 import org.hibernate.cache.Cache;
 import org.hibernate.cache.CacheException;
 import org.hibernate.cache.CacheProvider;
-import org.hibernate.cache.Timestamper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
