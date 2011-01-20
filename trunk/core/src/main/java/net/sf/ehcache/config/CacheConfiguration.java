@@ -1864,18 +1864,6 @@ public class CacheConfiguration implements Cloneable {
     }
 
     /**
-     * Intended for internal use only, and subject to change.
-     * This is called from the store implementations to reflect the new coherent value
-     *
-     * @param coherent true for coherent
-     */
-    public void internalSetCoherent(boolean coherent) {
-        if (isTerracottaClustered()) {
-            this.getTerracottaConfiguration().setCoherent(coherent);
-        }
-    }
-
-    /**
      * Get the defined search attributes indexed by attribute name
      *
      * @return search attributes
