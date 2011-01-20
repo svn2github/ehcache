@@ -1057,11 +1057,6 @@ public class Cache implements Ehcache, StoreListener {
                 } else {
                     store = terracottaStore;
                 }
-
-                boolean unlockedReads = !this.configuration.getTerracottaConfiguration().getCoherentReads();
-                // if coherentReads=false, make coherent=false
-                boolean coherent = unlockedReads ? false : this.configuration.getTerracottaConfiguration().isCoherent();
-                store.setNodeCoherent(coherent);
             } else {
                 if (useClassicLru && configuration.getMemoryStoreEvictionPolicy().equals(MemoryStoreEvictionPolicy.LRU)) {
                     Store disk = createDiskStore();
