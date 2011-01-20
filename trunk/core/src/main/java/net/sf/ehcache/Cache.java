@@ -266,7 +266,7 @@ public class Cache implements Ehcache, StoreListener {
 
     private volatile ElementValueComparator elementValueComparator;
 
-    private final NonstopActiveDelegateHolderImpl nonstopActiveDelegateHolder;
+    private volatile NonstopActiveDelegateHolderImpl nonstopActiveDelegateHolder;
 
     /**
      * 2.0 and higher Constructor
@@ -2487,6 +2487,7 @@ public class Cache implements Ehcache, StoreListener {
         copy.cacheStatus.changeState(Status.STATUS_UNINITIALISED);
         copy.elementValueComparator = copy.configuration.getElementValueComparatorConfiguration().getElementComparatorInstance();
         copy.propertyChangeSupport = new PropertyChangeSupport(copy);
+        copy.nonstopActiveDelegateHolder = new NonstopActiveDelegateHolderImpl(copy);
         for (PropertyChangeListener propertyChangeListener : propertyChangeSupport.getPropertyChangeListeners()) {
             copy.addPropertyChangeListener(propertyChangeListener);
         }
