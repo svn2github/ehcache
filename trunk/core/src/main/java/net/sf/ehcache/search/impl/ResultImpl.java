@@ -120,10 +120,20 @@ public class ResultImpl implements Result {
      */
     public Object getValue() throws SearchException {
         if (query.requestsValues()) {
-            return value;
+            return basicGetValue();
         }
 
         throw new SearchException("values not included in query. Use includeValues() to add values to results.");
     }
+
+    /**
+     * Allows subclass to perform specialized value retrieval
+     *
+     * @return the value object
+     */
+    protected Object basicGetValue() {
+        return value;
+    }
+
 
 }
