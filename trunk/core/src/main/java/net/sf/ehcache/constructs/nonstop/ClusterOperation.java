@@ -16,7 +16,7 @@
 
 package net.sf.ehcache.constructs.nonstop;
 
-import net.sf.ehcache.constructs.nonstop.store.NonstopTimeoutBehaviorType;
+import net.sf.ehcache.config.TimeoutBehaviorConfiguration.TimeoutBehaviorType;
 
 /**
  * Interface for executing clustered operations (that can potentially get stuck)
@@ -38,11 +38,11 @@ public interface ClusterOperation<V> {
 
     /**
      * Perform action when the actual operation is not able to complete. Implementation should take care of what to do depending on the
-     * {@link NonstopTimeoutBehaviorType}
+     * {@link TimeoutBehaviorType}
      *
-     * @param configuredTimeoutBehavior The configured {@link NonstopTimeoutBehaviorType}
+     * @param configuredTimeoutBehavior The configured {@link TimeoutBehaviorType}
      * @return value depending on the implementation
      */
-    V performClusterOperationTimedOut(NonstopTimeoutBehaviorType configuredTimeoutBehavior);
+    V performClusterOperationTimedOut(TimeoutBehaviorType configuredTimeoutBehavior);
 
 }

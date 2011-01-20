@@ -18,10 +18,10 @@ package net.sf.ehcache.constructs.nonstop.concurrency;
 
 import net.sf.ehcache.concurrent.LockType;
 import net.sf.ehcache.concurrent.Sync;
+import net.sf.ehcache.config.TimeoutBehaviorConfiguration.TimeoutBehaviorType;
 import net.sf.ehcache.constructs.nonstop.ClusterOperation;
 import net.sf.ehcache.constructs.nonstop.NonStopCacheException;
 import net.sf.ehcache.constructs.nonstop.store.NonstopStore;
-import net.sf.ehcache.constructs.nonstop.store.NonstopTimeoutBehaviorType;
 
 /**
  * Class implementing {@link Sync} and that can be executed without getting stuck.
@@ -55,12 +55,12 @@ public class NonstopSync implements Sync {
                 return delegateSync.isHeldByCurrentThread(type);
             }
 
-            public Boolean performClusterOperationTimedOut(final NonstopTimeoutBehaviorType configuredTimeoutBehavior) {
+            public Boolean performClusterOperationTimedOut(final TimeoutBehaviorType configuredTimeoutBehavior) {
                 switch (configuredTimeoutBehavior) {
-                    case EXCEPTION_ON_TIMEOUT:
+                    case EXCEPTION:
                         throw new NonStopCacheException("isHeldByCurrentThread timed out");
-                    case LOCAL_READS_ON_TIMEOUT:
-                    case NO_OP_ON_TIMEOUT:
+                    case LOCAL_READS:
+                    case NOOP:
                         return false;
                     default:
                         throw new NonStopCacheException("unknown nonstop timeout behavior type: " + configuredTimeoutBehavior);
@@ -80,12 +80,12 @@ public class NonstopSync implements Sync {
                 return null;
             }
 
-            public Void performClusterOperationTimedOut(final NonstopTimeoutBehaviorType configuredTimeoutBehavior) {
+            public Void performClusterOperationTimedOut(final TimeoutBehaviorType configuredTimeoutBehavior) {
                 switch (configuredTimeoutBehavior) {
-                    case EXCEPTION_ON_TIMEOUT:
+                    case EXCEPTION:
                         throw new NonStopCacheException("lock timed out");
-                    case LOCAL_READS_ON_TIMEOUT:
-                    case NO_OP_ON_TIMEOUT:
+                    case LOCAL_READS:
+                    case NOOP:
                         // no-op
                         return null;
                     default:
@@ -105,12 +105,12 @@ public class NonstopSync implements Sync {
                 return delegateSync.tryLock(type, msec);
             }
 
-            public Boolean performClusterOperationTimedOut(final NonstopTimeoutBehaviorType configuredTimeoutBehavior) {
+            public Boolean performClusterOperationTimedOut(final TimeoutBehaviorType configuredTimeoutBehavior) {
                 switch (configuredTimeoutBehavior) {
-                    case EXCEPTION_ON_TIMEOUT:
+                    case EXCEPTION:
                         throw new NonStopCacheException("tryLock timed out");
-                    case LOCAL_READS_ON_TIMEOUT:
-                    case NO_OP_ON_TIMEOUT:
+                    case LOCAL_READS:
+                    case NOOP:
                         return false;
                     default:
                         throw new NonStopCacheException("unknown nonstop timeout behavior type: " + configuredTimeoutBehavior);
@@ -130,12 +130,12 @@ public class NonstopSync implements Sync {
                 return null;
             }
 
-            public Void performClusterOperationTimedOut(final NonstopTimeoutBehaviorType configuredTimeoutBehavior) {
+            public Void performClusterOperationTimedOut(final TimeoutBehaviorType configuredTimeoutBehavior) {
                 switch (configuredTimeoutBehavior) {
-                    case EXCEPTION_ON_TIMEOUT:
+                    case EXCEPTION:
                         throw new NonStopCacheException("unlock timed out");
-                    case LOCAL_READS_ON_TIMEOUT:
-                    case NO_OP_ON_TIMEOUT:
+                    case LOCAL_READS:
+                    case NOOP:
                         // no-op
                         return null;
                     default:

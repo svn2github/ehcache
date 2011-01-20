@@ -25,8 +25,11 @@ import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.Status;
 import net.sf.ehcache.concurrent.Sync;
+import net.sf.ehcache.config.TimeoutBehaviorConfiguration.TimeoutBehaviorType;
 import net.sf.ehcache.constructs.nonstop.ClusterOperation;
 import net.sf.ehcache.constructs.nonstop.NonStopCacheException;
+import net.sf.ehcache.constructs.nonstop.NonstopActiveDelegateHolder;
+import net.sf.ehcache.constructs.nonstop.NonstopTimeoutBehaviorFactory;
 import net.sf.ehcache.search.Attribute;
 import net.sf.ehcache.search.Results;
 import net.sf.ehcache.search.attribute.AttributeExtractor;
@@ -43,6 +46,15 @@ import net.sf.ehcache.writer.CacheWriterManager;
  *
  */
 public final class ExceptionOnTimeoutStore implements NonstopStore {
+
+    /**
+     * The {@link NonstopTimeoutBehaviorFactory} to create {@link ExceptionOnTimeoutStore} stores
+     */
+    public static final NonstopTimeoutBehaviorFactory FACTORY = new NonstopTimeoutBehaviorFactory() {
+        public NonstopStore createNonstopTimeoutBehaviorStore(NonstopActiveDelegateHolder nonstopActiveDelegateHolder) {
+            return ExceptionOnTimeoutStore.getInstance();
+        }
+    };
 
     /**
      * the singleton instance
@@ -517,6 +529,6 @@ public final class ExceptionOnTimeoutStore implements NonstopStore {
      * {@inheritDoc}
      */
     public <V> V executeClusterOperation(ClusterOperation<V> operation) {
-        return operation.performClusterOperationTimedOut(NonstopTimeoutBehaviorType.EXCEPTION_ON_TIMEOUT);
+        return operation.performClusterOperationTimedOut(TimeoutBehaviorType.EXCEPTION);
     }
 }

@@ -45,7 +45,7 @@ import net.sf.ehcache.store.StoreQuery;
 import net.sf.ehcache.writer.CacheWriterManager;
 
 /**
- * This implementation executes all operations using a NonstopExecutorService. On Timeout, uses the {@link NonstopTimeoutStoreResolver} to
+ * This implementation executes all operations using a NonstopExecutorService. On Timeout, uses the {@link NonstopTimeoutBehaviorStoreResolver} to
  * resolve the timeout behavior store and execute it.
  * <p/>
  *
@@ -55,16 +55,16 @@ import net.sf.ehcache.writer.CacheWriterManager;
 public class ExecutorServiceStore implements NonstopStore {
 
     private final NonstopActiveDelegateHolder nonstopActiveDelegateHolder;
-    private final NonstopTimeoutStoreResolver timeoutBehaviorResolver;
+    private final NonstopTimeoutBehaviorStoreResolver timeoutBehaviorResolver;
     private final NonstopConfiguration nonstopConfiguration;
     private final AtomicBoolean clusterOffline = new AtomicBoolean();
 
     /**
-     * Constructor accepting the {@link NonstopActiveDelegateHolder}, {@link NonstopConfiguration} and {@link NonstopTimeoutStoreResolver}
+     * Constructor accepting the {@link NonstopActiveDelegateHolder}, {@link NonstopConfiguration} and {@link NonstopTimeoutBehaviorStoreResolver}
      *
      */
     public ExecutorServiceStore(final NonstopActiveDelegateHolder nonstopActiveDelegateHolder,
-            final NonstopConfiguration nonstopConfiguration, final NonstopTimeoutStoreResolver timeoutBehaviorResolver,
+            final NonstopConfiguration nonstopConfiguration, final NonstopTimeoutBehaviorStoreResolver timeoutBehaviorResolver,
             CacheCluster cacheCluster) {
         this.nonstopActiveDelegateHolder = nonstopActiveDelegateHolder;
         this.nonstopConfiguration = nonstopConfiguration;
@@ -163,7 +163,7 @@ public class ExecutorServiceStore implements NonstopStore {
                 }
             });
         } catch (TimeoutException e) {
-            timeoutBehaviorResolver.resolveTimeoutStore().dispose();
+            timeoutBehaviorResolver.resolveTimeoutBehaviorStore().dispose();
         }
     }
 
@@ -180,7 +180,7 @@ public class ExecutorServiceStore implements NonstopStore {
                 }
             });
         } catch (TimeoutException e) {
-            timeoutBehaviorResolver.resolveTimeoutStore().setNodeCoherent(coherent);
+            timeoutBehaviorResolver.resolveTimeoutBehaviorStore().setNodeCoherent(coherent);
         }
     }
 
@@ -197,7 +197,7 @@ public class ExecutorServiceStore implements NonstopStore {
                 }
             });
         } catch (TimeoutException e) {
-            timeoutBehaviorResolver.resolveTimeoutStore().setAttributeExtractors(extractors);
+            timeoutBehaviorResolver.resolveTimeoutBehaviorStore().setAttributeExtractors(extractors);
         }
     }
 
@@ -214,7 +214,7 @@ public class ExecutorServiceStore implements NonstopStore {
                 }
             });
         } catch (TimeoutException e) {
-            timeoutBehaviorResolver.resolveTimeoutStore().addStoreListener(listener);
+            timeoutBehaviorResolver.resolveTimeoutBehaviorStore().addStoreListener(listener);
         }
     }
 
@@ -234,7 +234,7 @@ public class ExecutorServiceStore implements NonstopStore {
                 }
             });
         } catch (TimeoutException e) {
-            timeoutBehaviorResolver.resolveTimeoutStore().removeStoreListener(listener);
+            timeoutBehaviorResolver.resolveTimeoutBehaviorStore().removeStoreListener(listener);
         }
     }
 
@@ -250,7 +250,7 @@ public class ExecutorServiceStore implements NonstopStore {
                 }
             });
         } catch (TimeoutException e) {
-            return timeoutBehaviorResolver.resolveTimeoutStore().put(element);
+            return timeoutBehaviorResolver.resolveTimeoutBehaviorStore().put(element);
         }
         return rv;
     }
@@ -267,7 +267,7 @@ public class ExecutorServiceStore implements NonstopStore {
                 }
             });
         } catch (TimeoutException e) {
-            return timeoutBehaviorResolver.resolveTimeoutStore().putWithWriter(element, writerManager);
+            return timeoutBehaviorResolver.resolveTimeoutBehaviorStore().putWithWriter(element, writerManager);
         }
         return rv;
     }
@@ -284,7 +284,7 @@ public class ExecutorServiceStore implements NonstopStore {
                 }
             });
         } catch (TimeoutException e) {
-            return timeoutBehaviorResolver.resolveTimeoutStore().get(key);
+            return timeoutBehaviorResolver.resolveTimeoutBehaviorStore().get(key);
         }
         return rv;
     }
@@ -301,7 +301,7 @@ public class ExecutorServiceStore implements NonstopStore {
                 }
             });
         } catch (TimeoutException e) {
-            return timeoutBehaviorResolver.resolveTimeoutStore().getQuiet(key);
+            return timeoutBehaviorResolver.resolveTimeoutBehaviorStore().getQuiet(key);
         }
         return rv;
     }
@@ -318,7 +318,7 @@ public class ExecutorServiceStore implements NonstopStore {
                 }
             });
         } catch (TimeoutException e) {
-            return timeoutBehaviorResolver.resolveTimeoutStore().getKeys();
+            return timeoutBehaviorResolver.resolveTimeoutBehaviorStore().getKeys();
         }
         return rv;
     }
@@ -335,7 +335,7 @@ public class ExecutorServiceStore implements NonstopStore {
                 }
             });
         } catch (TimeoutException e) {
-            return timeoutBehaviorResolver.resolveTimeoutStore().remove(key);
+            return timeoutBehaviorResolver.resolveTimeoutBehaviorStore().remove(key);
         }
         return rv;
     }
@@ -352,7 +352,7 @@ public class ExecutorServiceStore implements NonstopStore {
                 }
             });
         } catch (TimeoutException e) {
-            return timeoutBehaviorResolver.resolveTimeoutStore().removeWithWriter(key, writerManager);
+            return timeoutBehaviorResolver.resolveTimeoutBehaviorStore().removeWithWriter(key, writerManager);
         }
         return rv;
     }
@@ -369,7 +369,7 @@ public class ExecutorServiceStore implements NonstopStore {
                 }
             }, nonstopConfiguration.getTimeoutMillis() * nonstopConfiguration.getBulkOpsTimeoutMultiplyFactor());
         } catch (TimeoutException e) {
-            timeoutBehaviorResolver.resolveTimeoutStore().removeAll();
+            timeoutBehaviorResolver.resolveTimeoutBehaviorStore().removeAll();
         }
     }
 
@@ -385,7 +385,7 @@ public class ExecutorServiceStore implements NonstopStore {
                 }
             });
         } catch (TimeoutException e) {
-            return timeoutBehaviorResolver.resolveTimeoutStore().putIfAbsent(element);
+            return timeoutBehaviorResolver.resolveTimeoutBehaviorStore().putIfAbsent(element);
         }
         return rv;
     }
@@ -402,7 +402,7 @@ public class ExecutorServiceStore implements NonstopStore {
                 }
             });
         } catch (TimeoutException e) {
-            return timeoutBehaviorResolver.resolveTimeoutStore().removeElement(element, comparator);
+            return timeoutBehaviorResolver.resolveTimeoutBehaviorStore().removeElement(element, comparator);
         }
         return rv;
     }
@@ -420,7 +420,7 @@ public class ExecutorServiceStore implements NonstopStore {
                 }
             });
         } catch (TimeoutException e) {
-            return timeoutBehaviorResolver.resolveTimeoutStore().replace(old, element, comparator);
+            return timeoutBehaviorResolver.resolveTimeoutBehaviorStore().replace(old, element, comparator);
         }
         return rv;
     }
@@ -437,7 +437,7 @@ public class ExecutorServiceStore implements NonstopStore {
                 }
             });
         } catch (TimeoutException e) {
-            return timeoutBehaviorResolver.resolveTimeoutStore().replace(element);
+            return timeoutBehaviorResolver.resolveTimeoutBehaviorStore().replace(element);
         }
         return rv;
     }
@@ -454,7 +454,7 @@ public class ExecutorServiceStore implements NonstopStore {
                 }
             });
         } catch (TimeoutException e) {
-            return timeoutBehaviorResolver.resolveTimeoutStore().getSize();
+            return timeoutBehaviorResolver.resolveTimeoutBehaviorStore().getSize();
         }
         return rv;
     }
@@ -471,7 +471,7 @@ public class ExecutorServiceStore implements NonstopStore {
                 }
             });
         } catch (TimeoutException e) {
-            return timeoutBehaviorResolver.resolveTimeoutStore().getInMemorySize();
+            return timeoutBehaviorResolver.resolveTimeoutBehaviorStore().getInMemorySize();
         }
         return rv;
     }
@@ -488,7 +488,7 @@ public class ExecutorServiceStore implements NonstopStore {
                 }
             });
         } catch (TimeoutException e) {
-            return timeoutBehaviorResolver.resolveTimeoutStore().getOffHeapSize();
+            return timeoutBehaviorResolver.resolveTimeoutBehaviorStore().getOffHeapSize();
         }
         return rv;
     }
@@ -505,7 +505,7 @@ public class ExecutorServiceStore implements NonstopStore {
                 }
             });
         } catch (TimeoutException e) {
-            return timeoutBehaviorResolver.resolveTimeoutStore().getOnDiskSize();
+            return timeoutBehaviorResolver.resolveTimeoutBehaviorStore().getOnDiskSize();
         }
         return rv;
     }
@@ -522,7 +522,7 @@ public class ExecutorServiceStore implements NonstopStore {
                 }
             });
         } catch (TimeoutException e) {
-            return timeoutBehaviorResolver.resolveTimeoutStore().getTerracottaClusteredSize();
+            return timeoutBehaviorResolver.resolveTimeoutBehaviorStore().getTerracottaClusteredSize();
         }
         return rv;
     }
@@ -539,7 +539,7 @@ public class ExecutorServiceStore implements NonstopStore {
                 }
             });
         } catch (TimeoutException e) {
-            return timeoutBehaviorResolver.resolveTimeoutStore().getInMemorySizeInBytes();
+            return timeoutBehaviorResolver.resolveTimeoutBehaviorStore().getInMemorySizeInBytes();
         }
         return rv;
     }
@@ -556,7 +556,7 @@ public class ExecutorServiceStore implements NonstopStore {
                 }
             });
         } catch (TimeoutException e) {
-            return timeoutBehaviorResolver.resolveTimeoutStore().getOffHeapSizeInBytes();
+            return timeoutBehaviorResolver.resolveTimeoutBehaviorStore().getOffHeapSizeInBytes();
         }
         return rv;
     }
@@ -573,7 +573,7 @@ public class ExecutorServiceStore implements NonstopStore {
                 }
             });
         } catch (TimeoutException e) {
-            return timeoutBehaviorResolver.resolveTimeoutStore().getOnDiskSizeInBytes();
+            return timeoutBehaviorResolver.resolveTimeoutBehaviorStore().getOnDiskSizeInBytes();
         }
         return rv;
     }
@@ -590,7 +590,7 @@ public class ExecutorServiceStore implements NonstopStore {
                 }
             });
         } catch (TimeoutException e) {
-            return timeoutBehaviorResolver.resolveTimeoutStore().getStatus();
+            return timeoutBehaviorResolver.resolveTimeoutBehaviorStore().getStatus();
         }
         return rv;
     }
@@ -607,7 +607,7 @@ public class ExecutorServiceStore implements NonstopStore {
                 }
             });
         } catch (TimeoutException e) {
-            return timeoutBehaviorResolver.resolveTimeoutStore().containsKey(key);
+            return timeoutBehaviorResolver.resolveTimeoutBehaviorStore().containsKey(key);
         }
         return rv;
     }
@@ -624,7 +624,7 @@ public class ExecutorServiceStore implements NonstopStore {
                 }
             });
         } catch (TimeoutException e) {
-            return timeoutBehaviorResolver.resolveTimeoutStore().containsKeyOnDisk(key);
+            return timeoutBehaviorResolver.resolveTimeoutBehaviorStore().containsKeyOnDisk(key);
         }
         return rv;
     }
@@ -641,7 +641,7 @@ public class ExecutorServiceStore implements NonstopStore {
                 }
             });
         } catch (TimeoutException e) {
-            return timeoutBehaviorResolver.resolveTimeoutStore().containsKeyOffHeap(key);
+            return timeoutBehaviorResolver.resolveTimeoutBehaviorStore().containsKeyOffHeap(key);
         }
         return rv;
     }
@@ -658,7 +658,7 @@ public class ExecutorServiceStore implements NonstopStore {
                 }
             });
         } catch (TimeoutException e) {
-            return timeoutBehaviorResolver.resolveTimeoutStore().containsKeyInMemory(key);
+            return timeoutBehaviorResolver.resolveTimeoutBehaviorStore().containsKeyInMemory(key);
         }
         return rv;
     }
@@ -675,7 +675,7 @@ public class ExecutorServiceStore implements NonstopStore {
                 }
             });
         } catch (TimeoutException e) {
-            timeoutBehaviorResolver.resolveTimeoutStore().expireElements();
+            timeoutBehaviorResolver.resolveTimeoutBehaviorStore().expireElements();
         }
     }
 
@@ -691,7 +691,7 @@ public class ExecutorServiceStore implements NonstopStore {
                 }
             });
         } catch (TimeoutException e) {
-            timeoutBehaviorResolver.resolveTimeoutStore().flush();
+            timeoutBehaviorResolver.resolveTimeoutBehaviorStore().flush();
         }
     }
 
@@ -707,7 +707,7 @@ public class ExecutorServiceStore implements NonstopStore {
                 }
             });
         } catch (TimeoutException e) {
-            return timeoutBehaviorResolver.resolveTimeoutStore().bufferFull();
+            return timeoutBehaviorResolver.resolveTimeoutBehaviorStore().bufferFull();
         }
         return rv;
     }
@@ -724,7 +724,7 @@ public class ExecutorServiceStore implements NonstopStore {
                 }
             });
         } catch (TimeoutException e) {
-            return timeoutBehaviorResolver.resolveTimeoutStore().getInMemoryEvictionPolicy();
+            return timeoutBehaviorResolver.resolveTimeoutBehaviorStore().getInMemoryEvictionPolicy();
         }
         return rv;
     }
@@ -741,7 +741,7 @@ public class ExecutorServiceStore implements NonstopStore {
                 }
             });
         } catch (TimeoutException e) {
-            timeoutBehaviorResolver.resolveTimeoutStore().setInMemoryEvictionPolicy(policy);
+            timeoutBehaviorResolver.resolveTimeoutBehaviorStore().setInMemoryEvictionPolicy(policy);
         }
     }
 
@@ -757,7 +757,7 @@ public class ExecutorServiceStore implements NonstopStore {
                 }
             });
         } catch (TimeoutException e) {
-            return timeoutBehaviorResolver.resolveTimeoutStore().getInternalContext();
+            return timeoutBehaviorResolver.resolveTimeoutBehaviorStore().getInternalContext();
         }
         return rv;
     }
@@ -774,7 +774,7 @@ public class ExecutorServiceStore implements NonstopStore {
                 }
             });
         } catch (TimeoutException e) {
-            return timeoutBehaviorResolver.resolveTimeoutStore().isCacheCoherent();
+            return timeoutBehaviorResolver.resolveTimeoutBehaviorStore().isCacheCoherent();
         }
         return rv;
     }
@@ -791,7 +791,7 @@ public class ExecutorServiceStore implements NonstopStore {
                 }
             });
         } catch (TimeoutException e) {
-            return timeoutBehaviorResolver.resolveTimeoutStore().isClusterCoherent();
+            return timeoutBehaviorResolver.resolveTimeoutBehaviorStore().isClusterCoherent();
         }
         return rv;
     }
@@ -808,7 +808,7 @@ public class ExecutorServiceStore implements NonstopStore {
                 }
             });
         } catch (TimeoutException e) {
-            return timeoutBehaviorResolver.resolveTimeoutStore().isNodeCoherent();
+            return timeoutBehaviorResolver.resolveTimeoutBehaviorStore().isNodeCoherent();
         }
         return rv;
     }
@@ -825,7 +825,7 @@ public class ExecutorServiceStore implements NonstopStore {
                 }
             });
         } catch (TimeoutException e) {
-            timeoutBehaviorResolver.resolveTimeoutStore().waitUntilClusterCoherent();
+            timeoutBehaviorResolver.resolveTimeoutBehaviorStore().waitUntilClusterCoherent();
         }
     }
 
@@ -841,7 +841,7 @@ public class ExecutorServiceStore implements NonstopStore {
                 }
             });
         } catch (TimeoutException e) {
-            return timeoutBehaviorResolver.resolveTimeoutStore().getMBean();
+            return timeoutBehaviorResolver.resolveTimeoutBehaviorStore().getMBean();
         }
         return rv;
     }
@@ -858,7 +858,7 @@ public class ExecutorServiceStore implements NonstopStore {
                 }
             });
         } catch (TimeoutException e) {
-            return timeoutBehaviorResolver.resolveTimeoutStore().executeQuery(query);
+            return timeoutBehaviorResolver.resolveTimeoutBehaviorStore().executeQuery(query);
         }
         return rv;
     }
@@ -874,7 +874,7 @@ public class ExecutorServiceStore implements NonstopStore {
                 }
             });
         } catch (TimeoutException e) {
-            return timeoutBehaviorResolver.resolveTimeoutStore().getSearchAttribute(attributeName);
+            return timeoutBehaviorResolver.resolveTimeoutBehaviorStore().getSearchAttribute(attributeName);
         }
     }
 
@@ -889,7 +889,7 @@ public class ExecutorServiceStore implements NonstopStore {
                 }
             });
         } catch (TimeoutException e) {
-            return timeoutBehaviorResolver.resolveTimeoutStore().getLocalKeys();
+            return timeoutBehaviorResolver.resolveTimeoutBehaviorStore().getLocalKeys();
         }
     }
 
@@ -904,7 +904,7 @@ public class ExecutorServiceStore implements NonstopStore {
                 }
             });
         } catch (TimeoutException e) {
-            return timeoutBehaviorResolver.resolveTimeoutStore().unlockedGet(key);
+            return timeoutBehaviorResolver.resolveTimeoutBehaviorStore().unlockedGet(key);
         }
     }
 
@@ -919,7 +919,7 @@ public class ExecutorServiceStore implements NonstopStore {
                 }
             });
         } catch (TimeoutException e) {
-            return timeoutBehaviorResolver.resolveTimeoutStore().unlockedGetQuiet(key);
+            return timeoutBehaviorResolver.resolveTimeoutBehaviorStore().unlockedGetQuiet(key);
         }
     }
 
@@ -934,7 +934,7 @@ public class ExecutorServiceStore implements NonstopStore {
                 }
             });
         } catch (TimeoutException e) {
-            return timeoutBehaviorResolver.resolveTimeoutStore().unsafeGet(key);
+            return timeoutBehaviorResolver.resolveTimeoutBehaviorStore().unsafeGet(key);
         }
     }
 
@@ -949,7 +949,7 @@ public class ExecutorServiceStore implements NonstopStore {
                 }
             });
         } catch (TimeoutException e) {
-            return timeoutBehaviorResolver.resolveTimeoutStore().unsafeGetQuiet(key);
+            return timeoutBehaviorResolver.resolveTimeoutBehaviorStore().unsafeGetQuiet(key);
         }
     }
 
@@ -964,7 +964,7 @@ public class ExecutorServiceStore implements NonstopStore {
                 }
             });
         } catch (TimeoutException e) {
-            return timeoutBehaviorResolver.resolveTimeoutStore().getAndWriteLockAllSyncForKeys(timeout, keys);
+            return timeoutBehaviorResolver.resolveTimeoutBehaviorStore().getAndWriteLockAllSyncForKeys(timeout, keys);
         }
     }
 
@@ -979,7 +979,7 @@ public class ExecutorServiceStore implements NonstopStore {
                 }
             });
         } catch (TimeoutException e) {
-            return timeoutBehaviorResolver.resolveTimeoutStore().getAndWriteLockAllSyncForKeys(keys);
+            return timeoutBehaviorResolver.resolveTimeoutBehaviorStore().getAndWriteLockAllSyncForKeys(keys);
         }
     }
 
@@ -994,7 +994,7 @@ public class ExecutorServiceStore implements NonstopStore {
                 }
             });
         } catch (TimeoutException e) {
-            return timeoutBehaviorResolver.resolveTimeoutStore().getSyncForKey(key);
+            return timeoutBehaviorResolver.resolveTimeoutBehaviorStore().getSyncForKey(key);
         }
     }
 
@@ -1010,7 +1010,7 @@ public class ExecutorServiceStore implements NonstopStore {
                 }
             });
         } catch (TimeoutException e) {
-            timeoutBehaviorResolver.resolveTimeoutStore().unlockWriteLockForAllKeys(keys);
+            timeoutBehaviorResolver.resolveTimeoutBehaviorStore().unlockWriteLockForAllKeys(keys);
         }
     }
 
@@ -1025,7 +1025,7 @@ public class ExecutorServiceStore implements NonstopStore {
                 }
             });
         } catch (TimeoutException e) {
-            return timeoutBehaviorResolver.resolveTimeoutStore().executeClusterOperation(operation);
+            return timeoutBehaviorResolver.resolveTimeoutBehaviorStore().executeClusterOperation(operation);
         }
     }
 

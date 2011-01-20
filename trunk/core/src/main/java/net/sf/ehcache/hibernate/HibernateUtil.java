@@ -16,6 +16,7 @@
 package net.sf.ehcache.hibernate;
 
 import java.net.URL;
+
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.Configuration;
@@ -24,7 +25,6 @@ import net.sf.ehcache.config.TerracottaConfiguration;
 import net.sf.ehcache.config.TerracottaConfiguration.ValueMode;
 
 import org.hibernate.cache.CacheException;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,7 +35,7 @@ import org.slf4j.LoggerFactory;
 public final class HibernateUtil {
 
     private static final Logger LOG = LoggerFactory.getLogger(HibernateUtil.class);
-    
+
     private HibernateUtil() { }
 
     /**
@@ -51,6 +51,7 @@ public final class HibernateUtil {
                         + "Hibernate caching - the value mode has therefore been switched to \"serialization\"");
                 config.getDefaultCacheConfiguration().getTerracottaConfiguration().setValueMode(ValueMode.SERIALIZATION.name());
             }
+            // setupHibernateTimeoutBehavior(config.getDefaultCacheConfiguration().getTerracottaConfiguration().getNonstopConfiguration());
         }
 
         for (CacheConfiguration cacheConfig : config.getCacheConfigurations().values()) {
@@ -60,10 +61,17 @@ public final class HibernateUtil {
                         + "the value mode has therefore been switched to \"serialization\"", cacheConfig.getName());
                     cacheConfig.getTerracottaConfiguration().setValueMode(ValueMode.SERIALIZATION.name());
                 }
+                // setupHibernateTimeoutBehavior(cacheConfig.getTerracottaConfiguration().getNonstopConfiguration());
             }
         }
         return config;
     }
+
+    // private static void setupHibernateTimeoutBehavior(NonstopConfiguration nonstopConfig) {
+    // nonstopConfig.getTimeoutBehavior().setType(TimeoutBehaviorType.CUSTOM.getTypeName());
+    // nonstopConfig.getTimeoutBehavior().setProperties(
+    // TimeoutBehaviorConfiguration.CUSTOM_TYPE_FACTORY_PROPERTY_NAME + "=" + HibernateTimeoutBehaviorFactory.class.getName());
+    // }
 
     /**
      * Validates that the supplied Ehcache instance is valid for use as a Hibernate cache.

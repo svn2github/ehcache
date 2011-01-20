@@ -22,13 +22,13 @@ package net.sf.ehcache.constructs.nonstop.store;
  * @author Abhishek Sanoujam
  *
  */
-public interface NonstopTimeoutStoreResolver {
+public interface NonstopTimeoutBehaviorStoreResolver {
 
     /**
      * Resolve the {@link NonstopStore} to be used
      *
      * @return the resolved {@link NonstopStore}
      */
-    NonstopStore resolveTimeoutStore();
+    NonstopStore resolveTimeoutBehaviorStore();
 
 }

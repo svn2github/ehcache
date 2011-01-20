@@ -30,6 +30,7 @@ import net.sf.ehcache.Status;
 import net.sf.ehcache.cluster.CacheCluster;
 import net.sf.ehcache.concurrent.Sync;
 import net.sf.ehcache.config.NonstopConfiguration;
+import net.sf.ehcache.config.TimeoutBehaviorConfiguration.TimeoutBehaviorType;
 import net.sf.ehcache.constructs.nonstop.ClusterOperation;
 import net.sf.ehcache.constructs.nonstop.NonstopActiveDelegateHolder;
 import net.sf.ehcache.constructs.nonstop.concurrency.NonstopSync;
@@ -49,11 +50,11 @@ import net.sf.ehcache.writer.CacheWriterManager;
  * @author Abhishek Sanoujam
  *
  */
-public class NonstopStoreImpl implements NonstopTimeoutStoreResolver, NonstopStore {
+public class NonstopStoreImpl implements NonstopTimeoutBehaviorStoreResolver, NonstopStore {
 
     private final NonstopActiveDelegateHolder nonstopActiveDelegateHolder;
     private final NonstopConfiguration nonstopConfig;
-    private final ConcurrentMap<NonstopTimeoutBehaviorType, NonstopStore> timeoutBehaviors;
+    private final ConcurrentMap<TimeoutBehaviorType, NonstopStore> timeoutBehaviors;
     private final ExecutorServiceStore executorServiceStore;
 
     /**
@@ -64,7 +65,7 @@ public class NonstopStoreImpl implements NonstopTimeoutStoreResolver, NonstopSto
             NonstopConfiguration nonstopConfig) {
         this.nonstopActiveDelegateHolder = nonstopActiveDelegateHolder;
         this.nonstopConfig = nonstopConfig;
-        this.timeoutBehaviors = new ConcurrentHashMap<NonstopTimeoutBehaviorType, NonstopStore>();
+        this.timeoutBehaviors = new ConcurrentHashMap<TimeoutBehaviorType, NonstopStore>();
 
         executorServiceStore = new ExecutorServiceStore(nonstopActiveDelegateHolder, nonstopConfig, this, cacheCluster);
     }
@@ -72,21 +73,18 @@ public class NonstopStoreImpl implements NonstopTimeoutStoreResolver, NonstopSto
     /**
      * {@inheritDoc}
      */
-    public NonstopStore resolveTimeoutStore() {
-        final NonstopTimeoutBehaviorType timeoutBehaviorStoreType = getTimeoutBehaviorStoreType();
-        NonstopStore timeoutStore = timeoutBehaviors.get(timeoutBehaviorStoreType);
+    public NonstopStore resolveTimeoutBehaviorStore() {
+        final TimeoutBehaviorType timeoutBehaviorType = nonstopConfig.getTimeoutBehavior().getTimeoutBehaviorType();
+        NonstopStore timeoutStore = timeoutBehaviors.get(timeoutBehaviorType);
         if (timeoutStore == null) {
-            timeoutStore = timeoutBehaviorStoreType.newTimeoutStore(nonstopActiveDelegateHolder);
-            NonstopStore prev = timeoutBehaviors.putIfAbsent(timeoutBehaviorStoreType, timeoutStore);
+            timeoutStore = nonstopConfig.getTimeoutBehavior().getNonstopTimeoutBehaviorFactory().createNonstopTimeoutBehaviorStore(
+                    nonstopActiveDelegateHolder);
+            NonstopStore prev = timeoutBehaviors.putIfAbsent(timeoutBehaviorType, timeoutStore);
             if (prev != null) {
                 timeoutStore = prev;
             }
         }
         return timeoutStore;
-    }
-
-    private NonstopTimeoutBehaviorType getTimeoutBehaviorStoreType() {
-        return NonstopTimeoutBehaviorType.getTypeFromConfigPropertyName(nonstopConfig.getTimeoutBehavior().getType());
     }
 
     /**
