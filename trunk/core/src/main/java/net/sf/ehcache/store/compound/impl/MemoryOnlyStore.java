@@ -50,6 +50,7 @@ import net.sf.ehcache.store.StoreQuery;
 import net.sf.ehcache.store.StoreQuery.Ordering;
 import net.sf.ehcache.store.compound.CompoundStore;
 import net.sf.ehcache.store.compound.factories.CapacityLimitedInMemoryFactory;
+import net.sf.ehcache.transaction.SoftLock;
 
 /**
  * Implements a memory only store.
@@ -317,6 +318,9 @@ public final class MemoryOnlyStore extends CompoundStore implements CacheConfigu
         for (Element element : elementSet()) {
             if (!hasOrder && query.maxResults() >= 0 && results.size() == query.maxResults()) {
                 break;
+            }
+            if (element.getObjectValue() instanceof SoftLock) {
+                continue;
             }
 
             ElementAttributeValues elementAttributeValues = new ElementAttributeValuesImpl(element, attributeExtractors);

@@ -16,12 +16,14 @@
 
 package net.sf.ehcache.store.compound;
 
+import java.io.Serializable;
+
 /**
  * @param <T> type
  * @since 2.4.0
  * @author Ludovic Orban
  */
-public interface ReadWriteCopyStrategy<T> {
+public interface ReadWriteCopyStrategy<T> extends Serializable {
 
     /**
      * Deep copies some object and returns an internal storage-ready copy

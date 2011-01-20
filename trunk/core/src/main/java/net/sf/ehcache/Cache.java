@@ -1111,7 +1111,7 @@ public class Cache implements Ehcache, StoreListener {
                 extractors.put(sa.getName(), sa.constructExtractor());
             }
 
-            store.setAttributeExtractors(extractors);
+            compoundStore.setAttributeExtractors(extractors);
 
 
             this.cacheWriterManager = configuration.getCacheWriterConfiguration().getWriteMode().createWriterManager(this);

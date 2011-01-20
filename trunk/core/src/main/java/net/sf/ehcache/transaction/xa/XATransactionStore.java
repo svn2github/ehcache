@@ -19,12 +19,14 @@ import net.sf.ehcache.CacheEntry;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
+import net.sf.ehcache.search.attribute.AttributeExtractor;
 import net.sf.ehcache.store.ElementValueComparator;
 import net.sf.ehcache.store.Store;
 import net.sf.ehcache.store.compound.ReadWriteCopyStrategy;
 import net.sf.ehcache.transaction.AbstractTransactionStore;
 import net.sf.ehcache.transaction.SoftLock;
 import net.sf.ehcache.transaction.SoftLockFactory;
+import net.sf.ehcache.transaction.TransactionAwareAttributeExtractor;
 import net.sf.ehcache.transaction.TransactionException;
 import net.sf.ehcache.transaction.TransactionIDFactory;
 import net.sf.ehcache.transaction.TransactionInterruptedException;
@@ -35,6 +37,8 @@ import net.sf.ehcache.transaction.xa.commands.StoreRemoveCommand;
 import net.sf.ehcache.util.LargeSet;
 import net.sf.ehcache.util.SetWrapperList;
 import net.sf.ehcache.writer.CacheWriterManager;
+
+import org.apache.commons.collections.map.HashedMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,7 +48,9 @@ import javax.transaction.Transaction;
 import javax.transaction.xa.XAException;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -169,7 +175,7 @@ public class XATransactionStore extends AbstractTransactionStore {
      * committed or rolled back.
      */
     private final class CleanupXAResource implements XAExecutionListener {
-        private Transaction transaction;
+        private final Transaction transaction;
 
         private CleanupXAResource(Transaction transaction) {
             this.transaction = transaction;
@@ -546,4 +552,15 @@ public class XATransactionStore extends AbstractTransactionStore {
         return copyElementForRead(previous);
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void setAttributeExtractors(Map<String, AttributeExtractor> extractors) {
+        Map<String, AttributeExtractor> wrappedExtractors = new HashedMap(extractors.size());
+        for (Entry<String, AttributeExtractor> e : extractors.entrySet()) {
+            wrappedExtractors.put(e.getKey(), new TransactionAwareAttributeExtractor(copyStrategy, e.getValue()));
+        }
+        underlyingStore.setAttributeExtractors(wrappedExtractors);
+    }
 }

@@ -20,6 +20,7 @@ import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.TransactionController;
+import net.sf.ehcache.search.attribute.AttributeExtractor;
 import net.sf.ehcache.store.ElementValueComparator;
 import net.sf.ehcache.store.Store;
 import net.sf.ehcache.store.compound.ReadWriteCopyStrategy;
@@ -27,17 +28,22 @@ import net.sf.ehcache.transaction.AbstractTransactionStore;
 import net.sf.ehcache.transaction.DeadLockException;
 import net.sf.ehcache.transaction.SoftLock;
 import net.sf.ehcache.transaction.SoftLockFactory;
+import net.sf.ehcache.transaction.TransactionAwareAttributeExtractor;
 import net.sf.ehcache.transaction.TransactionException;
 import net.sf.ehcache.transaction.TransactionInterruptedException;
 import net.sf.ehcache.transaction.TransactionTimeoutException;
 import net.sf.ehcache.util.LargeSet;
 import net.sf.ehcache.util.SetWrapperList;
 import net.sf.ehcache.writer.CacheWriterManager;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 /**
@@ -937,5 +943,16 @@ public class LocalTransactionStore extends AbstractTransactionStore {
             }
         }
     }
-    
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void setAttributeExtractors(Map<String, AttributeExtractor> extractors) {
+        Map<String, AttributeExtractor> wrappedExtractors = new HashMap(extractors.size());
+        for (Entry<String, AttributeExtractor> e : extractors.entrySet()) {
+            wrappedExtractors.put(e.getKey(), new TransactionAwareAttributeExtractor(copyStrategy, e.getValue()));
+        }
+        underlyingStore.setAttributeExtractors(wrappedExtractors);
+    }
 }
