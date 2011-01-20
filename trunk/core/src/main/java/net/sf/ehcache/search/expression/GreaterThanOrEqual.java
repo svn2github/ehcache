@@ -45,6 +45,14 @@ public class GreaterThanOrEqual extends ComparableValue {
     }
 
     /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected boolean executeComparableString(Comparable attributeValue) {
+        return attributeValue.toString().compareToIgnoreCase(comparableValue.toString()) >= 0;
+    }
+
+    /**
      * Comparable value.
      *
      * @return value

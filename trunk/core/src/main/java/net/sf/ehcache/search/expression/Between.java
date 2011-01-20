@@ -122,4 +122,30 @@ public class Between extends ComparableValue {
         return true;
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected boolean executeComparableString(Comparable attributeValue) {
+        int minCmp = attributeValue.toString().compareToIgnoreCase(min.toString());
+        if (minCmp < 0) {
+            return false;
+        }
+
+        int maxCmp = attributeValue.toString().compareToIgnoreCase(max.toString());
+        if (maxCmp > 0) {
+            return false;
+        }
+
+        if (minCmp == 0 && !minInclusive) {
+            return false;
+        }
+
+        if (maxCmp == 0 && !maxInclusive) {
+            return false;
+        }
+
+        return true;
+    }
+
 }

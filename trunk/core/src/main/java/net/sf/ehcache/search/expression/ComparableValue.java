@@ -83,7 +83,11 @@ public abstract class ComparableValue extends BaseCriteria {
             return false;
         }
 
-        return executeComparable((Comparable) attrValue);
+        if (getType().equals(AttributeType.STRING)) {
+            return executeComparableString((Comparable) attrValue);
+        } else {
+            return executeComparable((Comparable) attrValue);
+        }
     }
 
     /**
@@ -94,4 +98,11 @@ public abstract class ComparableValue extends BaseCriteria {
      */
     protected abstract boolean executeComparable(Comparable attributeValue);
 
+    /**
+     * Execute this criteria for the given {@link Comparable} strin type attribute value
+     *
+     * @param attributeValue Comparable attribute value
+     * @return true if criteria is met
+     */
+    protected abstract boolean executeComparableString(Comparable attributeValue);
 }

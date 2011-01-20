@@ -16,12 +16,14 @@
 
 package net.sf.ehcache.search;
 
+import java.io.Serializable;
+
 /**
  * A domain object used for testing
  *
  * @author Greg Luck
  */
-public class Person {
+public class Person implements Serializable {
 
     private final String name;
     private final int age;

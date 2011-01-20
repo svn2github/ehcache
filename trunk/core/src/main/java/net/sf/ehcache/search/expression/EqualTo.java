@@ -85,7 +85,7 @@ public class EqualTo extends BaseCriteria {
         }
 
         if (type.equals(AttributeType.STRING)) {
-            return this.value.toString().toLowerCase().equals(attributeValue);
+            return ((String) this.value).equalsIgnoreCase((String) attributeValue);
         } else {
             return this.value.equals(attributeValue);
         }

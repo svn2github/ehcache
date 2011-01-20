@@ -457,9 +457,6 @@ public final class MemoryOnlyStore extends CompoundStore implements CacheConfigu
             }
 
             Object value = extractor.attributeFor(element);
-            if (value instanceof String) {
-                value = ((String) value).toLowerCase();
-            }
 
             if (value == null) {
                 cache.put(attributeName, new TypedValue(attributeName, NULL, null));
