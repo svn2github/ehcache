@@ -31,6 +31,7 @@ import net.sf.ehcache.config.DiskStoreConfiguration;
 import net.sf.ehcache.config.NonstopConfiguration;
 import net.sf.ehcache.config.SearchAttribute;
 import net.sf.ehcache.config.TerracottaConfiguration;
+import net.sf.ehcache.config.TerracottaConfiguration.CoherenceMode;
 import net.sf.ehcache.constructs.nonstop.CacheManagerExecutorServiceFactory;
 import net.sf.ehcache.constructs.nonstop.NonstopActiveDelegateHolder;
 import net.sf.ehcache.constructs.nonstop.NonstopExecutorService;
@@ -1033,6 +1034,11 @@ public class Cache implements Ehcache, StoreListener {
                             "You must use an enterprise version of Ehcache to successfully enable overflowToOffHeap.");
                 }
             } else if (isTerracottaClustered()) {
+                if (getCacheConfiguration().getTerracottaConfiguration().isSynchronousWrites()
+                        && getCacheConfiguration().getTerracottaConfiguration().getCoherenceMode() == CoherenceMode.NON_STRICT) {
+                    LOG.warn("Terracotta clustered caches in 'non-strict' mode with synchronous writes are not supported yet."
+                            + " Ignoring synchronousWrites=true for Cache [name=" + getName() + "]");
+                }
                 if (!getCacheConfiguration().getTerracottaConfiguration().isStorageStrategySet()) {
                     getCacheConfiguration().getTerracottaConfiguration().storageStrategy(
                             TerracottaClient.getTerracottaDefaultStrategyForCurrentRuntime());
