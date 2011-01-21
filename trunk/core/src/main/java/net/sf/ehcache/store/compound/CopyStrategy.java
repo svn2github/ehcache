@@ -16,12 +16,14 @@
 
 package net.sf.ehcache.store.compound;
 
+import java.io.Serializable;
+
 /**
  * @deprecated replaced by {@link net.sf.ehcache.store.compound.ReadWriteCopyStrategy}
  * @author Alex Snaps
  */
 @Deprecated
-public interface CopyStrategy {
+public interface CopyStrategy extends Serializable {
     /**
      * Deep copies some object and returns the copy
      * @param value the value to copy
