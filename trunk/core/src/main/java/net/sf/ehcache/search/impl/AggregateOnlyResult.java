@@ -16,62 +16,38 @@
 
 package net.sf.ehcache.search.impl;
 
-import java.util.Map;
-
 import net.sf.ehcache.store.StoreQuery;
 
 /**
- * Result implementation
+ * A result implementation intended solely for holding aggregate results. This particular result is used when
+ * only aggregates are requested in a query
  *
  * @author teck
  */
-public class ResultImpl extends BaseResult {
-
-    private final Object key;
-    private final Object value;
-    private final Map<String, Object> attributes;
-    private final Object[] sortAttributes;
+public class AggregateOnlyResult extends BaseResult {
 
     /**
      * Constructor
      *
-     * @param key
-     * @param value
      * @param query
-     * @param attributes
-     * @param sortAttributes
      */
-    public ResultImpl(Object key, Object value, StoreQuery query, Map<String, Object> attributes, Object[] sortAttributes) {
+    public AggregateOnlyResult(StoreQuery query) {
         super(query);
-        this.key = key;
-        this.value = value;
-        this.attributes = attributes;
-        this.sortAttributes = sortAttributes;
-    }
-
-    /**
-     * Get attribute value for use in sorting
-     *
-     * @param pos
-     * @return
-     */
-    Object getSortAttribute(int pos) {
-        return sortAttributes[pos];
     }
 
     @Override
     protected Object basicGetKey() {
-        return key;
+        throw new AssertionError();
     }
 
     @Override
     protected Object basicGetValue() {
-        return value;
+        throw new AssertionError();
     }
 
     @Override
     protected Object basicGetAttribute(String name) {
-        return attributes.get(name);
+        throw new AssertionError();
     }
 
 }

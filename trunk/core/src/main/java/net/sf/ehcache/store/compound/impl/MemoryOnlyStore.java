@@ -37,6 +37,8 @@ import net.sf.ehcache.search.aggregator.AggregatorInstance;
 import net.sf.ehcache.search.attribute.AttributeExtractor;
 import net.sf.ehcache.search.attribute.AttributeType;
 import net.sf.ehcache.search.expression.Criteria;
+import net.sf.ehcache.search.impl.AggregateOnlyResult;
+import net.sf.ehcache.search.impl.BaseResult;
 import net.sf.ehcache.search.impl.OrderComparator;
 import net.sf.ehcache.search.impl.ResultImpl;
 import net.sf.ehcache.search.impl.ResultsImpl;
@@ -392,14 +394,14 @@ public final class MemoryOnlyStore extends CompoundStore implements CacheConfigu
 
         if (anyMatches && !includeResults && !aggregateResults.isEmpty()) {
             // add one row in the results if the only thing included was aggregators and anything matched
-            results.add(new ResultImpl(null, null, query, Collections.EMPTY_MAP, EMPTY_OBJECT_ARRAY));
+            results.add(new AggregateOnlyResult(query));
         }
 
 
         if (!aggregateResults.isEmpty()) {
             for (Result result : results) {
                 // XXX: yucky cast
-                ((ResultImpl)result).setAggregateResults(aggregateResults);
+                ((BaseResult)result).setAggregateResults(aggregateResults);
             }
         }
 
