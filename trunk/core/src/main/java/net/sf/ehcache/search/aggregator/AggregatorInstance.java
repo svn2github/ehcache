@@ -40,7 +40,7 @@ public interface AggregatorInstance<T> {
      *
      * @return aggregate result
      */
-    T aggregateResult();
+    Object aggregateResult();
 
     /**
      * Get the attribute to pass to aggregator

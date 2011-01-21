@@ -27,8 +27,9 @@ import net.sf.ehcache.search.Attribute;
  */
 public class Sum implements AggregatorInstance<Long> {
 
-    private long sum;
     private final Attribute<?> attribute;
+
+    private Engine engine;
 
     /**
      * @param attribute
@@ -48,7 +49,11 @@ public class Sum implements AggregatorInstance<Long> {
         }
 
         if (input instanceof Number) {
-            sum += ((Number) input).longValue();
+            if (engine == null) {
+                engine = Engine.create((Number) input);
+            } else {
+                engine.accept((Number) input);
+            }
         } else {
             throw new AggregatorException("Non-number type encounted: " + input.getClass());
         }
@@ -59,8 +64,12 @@ public class Sum implements AggregatorInstance<Long> {
      * <p/>
      * NOTE: May return null if no input supplied
      */
-    public Long aggregateResult() {
-        return sum;
+    public Number aggregateResult() {
+        if (engine == null) {
+            return null;
+        } else {
+            return engine.result();
+        }
     }
 
     /**
@@ -70,4 +79,120 @@ public class Sum implements AggregatorInstance<Long> {
         return attribute;
     }
 
+    /**
+     * Abstract super-class for all sum calculating engines.
+     */
+    static abstract class Engine {
+
+        /**
+         * Create a type specific engine using the given initial value.
+         *
+         * @param value initial value
+         * @return type specific engine
+         */
+        static Engine create(Number value) {
+            if (value instanceof Float) {
+                return new FloatEngine(value.floatValue());
+            } else if (value instanceof Double) {
+                return new DoubleEngine(value.doubleValue());
+            } else {
+                return new LongEngine(value.longValue());
+            }
+        }
+
+        /**
+         * Update the engine with the given value.
+         *
+         * @param input data value
+         */
+        abstract void accept(Number input) throws AggregatorException;
+
+        /**
+         * Get the (current) result of this engine.
+         *
+         * @return engine result
+         */
+        abstract Number result();
+
+        /**
+         * A long based summing engine.
+         */
+        static class LongEngine extends Engine {
+
+            private long sum;
+
+            /**
+             * Creates a new instance starting with an initial value
+             *
+             * @param value initial value
+             */
+            LongEngine(long value) {
+                this.sum = value;
+            }
+
+            @Override
+            void accept(Number input) throws AggregatorException {
+                sum += input.longValue();
+            }
+
+            @Override
+            Number result() {
+                return Long.valueOf(sum);
+            }
+        }
+
+        /**
+         * A float based summing engine.
+         */
+        static class FloatEngine extends Engine {
+
+            private float sum;
+
+            /**
+             * Creates a new instance starting with an initial value
+             *
+             * @param value initial value
+             */
+            FloatEngine(float value) {
+                this.sum = value;
+            }
+
+            @Override
+            void accept(Number input) throws AggregatorException {
+                sum += input.floatValue();
+            }
+
+            @Override
+            Number result() {
+                return Float.valueOf(sum);
+            }
+        }
+
+        /**
+         * A double based summing engine.
+         */
+        static class DoubleEngine extends Engine {
+
+            private double sum;
+
+            /**
+             * Creates a new instance starting with an initial value
+             *
+             * @param value initial value
+             */
+            DoubleEngine(double value) {
+                this.sum = value;
+            }
+
+            @Override
+            void accept(Number input) throws AggregatorException {
+                sum += input.doubleValue();
+            }
+
+            @Override
+            Number result() {
+                return Double.valueOf(sum);
+            }
+        }
+    }
 }

@@ -370,7 +370,7 @@ public class BasicSearchTest {
             assertTrue(results.hasAggregators());
             assertEquals(1, results.size());
             for (Result result : results.all()) {
-                assertEquals(30.75D, result.getAggregatorResults().get(0));
+                assertEquals(30.75F, result.getAggregatorResults().get(0));
             }
         }
 
@@ -401,7 +401,7 @@ public class BasicSearchTest {
             assertTrue(results.hasAggregators());
             assertEquals(1, results.size());
             for (Result result : results.all()) {
-                assertEquals(26.5D, result.getAggregatorResults().get(0));
+                assertEquals(26.5F, result.getAggregatorResults().get(0));
             }
         }
 
@@ -418,7 +418,7 @@ public class BasicSearchTest {
             assertTrue(results.hasKeys());
             assertEquals(2, results.size());
             for (Result result : results.all()) {
-                assertEquals(26.5D, result.getAggregatorResults().get(0));
+                assertEquals(26.5F, result.getAggregatorResults().get(0));
             }
 
             verify(cache, query, 2, 4);
