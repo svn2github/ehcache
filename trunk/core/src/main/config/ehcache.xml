@@ -833,8 +833,10 @@ used with JMX monitors.
     -->
 
     <!--
-    Mandatory Default Cache configuration. These settings will be applied to caches
+    Default Cache configuration. These settings will be applied to caches
     created programmatically using CacheManager.add(String cacheName).
+    This element is optional, and using CacheManager.add(String cacheName) when
+    its not present will throw CacheException
 
     The defaultCache has an implicit name "default" which is a reserved cache name.
     -->
