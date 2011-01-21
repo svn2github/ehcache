@@ -246,7 +246,7 @@ public class CacheConfiguration implements Cloneable {
     /**
      * The path where the disk store is located
      */
-    protected volatile String diskStorePath = DiskStoreConfiguration.getDefaultPath();
+    protected volatile String diskStorePath;
 
     /**
      * The size of the disk spool used to buffer writes

@@ -1026,7 +1026,9 @@ public class CacheManager {
             }
         }
         cache.setCacheManager(this);
-        cache.setDiskStorePath(diskStorePath);
+        if (cache.getCacheConfiguration().getDiskStorePath() == null) {
+            cache.setDiskStorePath(diskStorePath);
+        }
         cache.setTransactionManagerLookup(transactionManagerLookup);
 
         Map<String, CacheConfiguration> configMap = configuration.getCacheConfigurations();
