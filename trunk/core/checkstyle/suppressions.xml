@@ -112,6 +112,8 @@
     <suppress checks="DeclarationOrder" files="TerracottaClusteredInstanceHelper.java"/>
     <!--JavaDoc bug-->
     <suppress checks="JavadocType" files="ReadWriteCopyStrategy.java"/>
+    <suppress checks="StrictDuplicateCode" files="NonstopAwareEntityRegionAccessStrategy.java" />
+    <suppress checks="StrictDuplicateCode" files="NonstopAwareCollectionRegionAccessStrategy.java" />
 
 
     <!-- We need to return LinkedList -->

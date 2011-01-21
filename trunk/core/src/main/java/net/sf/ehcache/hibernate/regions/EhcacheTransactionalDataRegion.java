@@ -22,6 +22,9 @@ import net.sf.ehcache.Element;
 import net.sf.ehcache.concurrent.CacheLockProvider;
 import net.sf.ehcache.concurrent.LockType;
 import net.sf.ehcache.concurrent.StripedReadWriteLockSync;
+import net.sf.ehcache.constructs.nonstop.NonStopCacheException;
+import net.sf.ehcache.hibernate.nonstop.HibernateNonstopCacheExceptionHandler;
+import net.sf.ehcache.hibernate.strategy.EhcacheAccessStrategyFactory;
 
 import org.hibernate.cache.CacheDataDescription;
 import org.hibernate.cache.CacheException;
@@ -32,15 +35,16 @@ import org.hibernate.cfg.Settings;
  * An Ehcache specific TransactionalDataRegion.
  * <p>
  * This is the common superclass entity and collection regions.
- * 
+ *
  * @author Chris Dennis
  * @author Greg Luck
  * @author Emmanuel Bernard
+ * @author Abhishek Sanoujam
  */
 public class EhcacheTransactionalDataRegion extends EhcacheDataRegion implements TransactionalDataRegion {
 
     private static final int LOCAL_LOCK_PROVIDER_CONCURRENCY = 128;
-    
+
     /**
      * Hibernate settings associated with the persistence unit.
      */
@@ -52,12 +56,13 @@ public class EhcacheTransactionalDataRegion extends EhcacheDataRegion implements
     protected final CacheDataDescription metadata;
 
     private final CacheLockProvider lockProvider;
-    
+
     /**
      * Construct an transactional Hibernate cache region around the given Ehcache instance.
      */
-    EhcacheTransactionalDataRegion(Ehcache cache, Settings settings, CacheDataDescription metadata, Properties properties) {
-        super(cache, properties);
+    EhcacheTransactionalDataRegion(EhcacheAccessStrategyFactory accessStrategyFactory, Ehcache cache, Settings settings,
+            CacheDataDescription metadata, Properties properties) {
+        super(accessStrategyFactory, cache, properties);
         this.settings = settings;
         this.metadata = metadata;
 
@@ -67,6 +72,15 @@ public class EhcacheTransactionalDataRegion extends EhcacheDataRegion implements
         } else {
             this.lockProvider = new StripedReadWriteLockSync(LOCAL_LOCK_PROVIDER_CONCURRENCY);
         }
+    }
+
+    /**
+     * Return the hibernate settings
+     *
+     * @return settings
+     */
+    public Settings getSettings() {
+        return settings;
     }
 
     /**
@@ -95,7 +109,12 @@ public class EhcacheTransactionalDataRegion extends EhcacheDataRegion implements
                 return element.getObjectValue();
             }
         } catch (net.sf.ehcache.CacheException e) {
-            throw new CacheException(e);
+            if (e instanceof NonStopCacheException) {
+                HibernateNonstopCacheExceptionHandler.getInstance().handleNonstopCacheException((NonStopCacheException) e);
+                return null;
+            } else {
+                throw new CacheException(e);
+            }
         }
     }
 
@@ -111,7 +130,11 @@ public class EhcacheTransactionalDataRegion extends EhcacheDataRegion implements
         } catch (IllegalStateException e) {
             throw new CacheException(e);
         } catch (net.sf.ehcache.CacheException e) {
-            throw new CacheException(e);
+            if (e instanceof NonStopCacheException) {
+                HibernateNonstopCacheExceptionHandler.getInstance().handleNonstopCacheException((NonStopCacheException) e);
+            } else {
+                throw new CacheException(e);
+            }
         }
     }
 
@@ -125,6 +148,12 @@ public class EhcacheTransactionalDataRegion extends EhcacheDataRegion implements
             throw new CacheException(e);
         } catch (IllegalStateException e) {
             throw new CacheException(e);
+        } catch (net.sf.ehcache.CacheException e) {
+            if (e instanceof NonStopCacheException) {
+                HibernateNonstopCacheExceptionHandler.getInstance().handleNonstopCacheException((NonStopCacheException) e);
+            } else {
+                throw new CacheException(e);
+            }
         }
     }
 
@@ -137,7 +166,11 @@ public class EhcacheTransactionalDataRegion extends EhcacheDataRegion implements
         } catch (IllegalStateException e) {
             throw new CacheException(e);
         } catch (net.sf.ehcache.CacheException e) {
-            throw new CacheException(e);
+            if (e instanceof NonStopCacheException) {
+                HibernateNonstopCacheExceptionHandler.getInstance().handleNonstopCacheException((NonStopCacheException) e);
+            } else {
+                throw new CacheException(e);
+            }
         }
     }
 
@@ -145,28 +178,60 @@ public class EhcacheTransactionalDataRegion extends EhcacheDataRegion implements
      * Attempts to write lock the mapping for the given key.
      */
     public final void writeLock(Object key) {
-        lockProvider.getSyncForKey(key).lock(LockType.WRITE);
+        try {
+            lockProvider.getSyncForKey(key).lock(LockType.WRITE);
+        } catch (net.sf.ehcache.CacheException e) {
+            if (e instanceof NonStopCacheException) {
+                HibernateNonstopCacheExceptionHandler.getInstance().handleNonstopCacheException((NonStopCacheException) e);
+            } else {
+                throw new CacheException(e);
+            }
+        }
     }
 
     /**
      * Attempts to write unlock the mapping for the given key.
      */
     public final void writeUnlock(Object key) {
-        lockProvider.getSyncForKey(key).unlock(LockType.WRITE);
+        try {
+            lockProvider.getSyncForKey(key).unlock(LockType.WRITE);
+        } catch (net.sf.ehcache.CacheException e) {
+            if (e instanceof NonStopCacheException) {
+                HibernateNonstopCacheExceptionHandler.getInstance().handleNonstopCacheException((NonStopCacheException) e);
+            } else {
+                throw new CacheException(e);
+            }
+        }
     }
 
     /**
      * Attempts to read lock the mapping for the given key.
      */
     public final void readLock(Object key) {
-        lockProvider.getSyncForKey(key).lock(LockType.WRITE);
+        try {
+            lockProvider.getSyncForKey(key).lock(LockType.WRITE);
+        } catch (net.sf.ehcache.CacheException e) {
+            if (e instanceof NonStopCacheException) {
+                HibernateNonstopCacheExceptionHandler.getInstance().handleNonstopCacheException((NonStopCacheException) e);
+            } else {
+                throw new CacheException(e);
+            }
+        }
     }
 
     /**
      * Attempts to read unlock the mapping for the given key.
      */
     public final void readUnlock(Object key) {
-        lockProvider.getSyncForKey(key).unlock(LockType.WRITE);
+        try {
+            lockProvider.getSyncForKey(key).unlock(LockType.WRITE);
+        } catch (net.sf.ehcache.CacheException e) {
+            if (e instanceof NonStopCacheException) {
+                HibernateNonstopCacheExceptionHandler.getInstance().handleNonstopCacheException((NonStopCacheException) e);
+            } else {
+                throw new CacheException(e);
+            }
+        }
     }
 
     /**

@@ -16,29 +16,27 @@
 package net.sf.ehcache.hibernate.regions;
 
 import java.util.Properties;
-import net.sf.ehcache.Ehcache;
-import net.sf.ehcache.hibernate.strategy.NonStrictReadWriteEhcacheEntityRegionAccessStrategy;
-import net.sf.ehcache.hibernate.strategy.ReadOnlyEhcacheEntityRegionAccessStrategy;
-import net.sf.ehcache.hibernate.strategy.ReadWriteEhcacheEntityRegionAccessStrategy;
 
-import net.sf.ehcache.hibernate.strategy.TransactionalEhcacheEntityRegionAccessStrategy;
+import net.sf.ehcache.Ehcache;
+import net.sf.ehcache.hibernate.strategy.EhcacheAccessStrategyFactory;
+
 import org.hibernate.cache.CacheDataDescription;
 import org.hibernate.cache.CacheException;
 import org.hibernate.cache.EntityRegion;
 import org.hibernate.cache.access.AccessType;
 import org.hibernate.cache.access.EntityRegionAccessStrategy;
 import org.hibernate.cfg.Settings;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  * An entity region specific wrapper around an Ehcache instance.
  * <p>
- * This implementation returns Ehcache specific access strategy instances for all the non-transactional access types.  Transactional access
+ * This implementation returns Ehcache specific access strategy instances for all the non-transactional access types. Transactional access
  * is not supported.
  *
  * @author Chris Dennis
+ * @author Abhishek Sanoujam
  */
 public class EhcacheEntityRegion extends EhcacheTransactionalDataRegion implements EntityRegion {
 
@@ -46,28 +44,18 @@ public class EhcacheEntityRegion extends EhcacheTransactionalDataRegion implemen
 
     /**
      * Constructs an EhcacheEntityRegion around the given underlying cache.
+     *
+     * @param accessStrategyFactory
      */
-    public EhcacheEntityRegion(Ehcache underlyingCache, Settings settings, CacheDataDescription metadata, Properties properties) {
-        super(underlyingCache, settings, metadata, properties);
+    public EhcacheEntityRegion(EhcacheAccessStrategyFactory accessStrategyFactory, Ehcache underlyingCache, Settings settings,
+            CacheDataDescription metadata, Properties properties) {
+        super(accessStrategyFactory, underlyingCache, settings, metadata, properties);
     }
 
     /**
      * {@inheritDoc}
      */
     public EntityRegionAccessStrategy buildAccessStrategy(AccessType accessType) throws CacheException {
-        if (AccessType.READ_ONLY.equals(accessType)) {
-            if (metadata.isMutable()) {
-                LOG.warn("read-only cache configured for mutable entity [" + getName() + "]");
-            }
-            return new ReadOnlyEhcacheEntityRegionAccessStrategy(this, settings);
-        } else if (AccessType.READ_WRITE.equals(accessType)) {
-            return new ReadWriteEhcacheEntityRegionAccessStrategy(this, settings);
-        } else if (AccessType.NONSTRICT_READ_WRITE.equals(accessType)) {
-            return new NonStrictReadWriteEhcacheEntityRegionAccessStrategy(this, settings);
-        } else if (AccessType.TRANSACTIONAL.equals(accessType)) {
-            return new TransactionalEhcacheEntityRegionAccessStrategy(this, getEhcache(), settings);
-        } else {
-            throw new IllegalArgumentException("unrecognized access strategy type [" + accessType + "]");
-        }
+        return accessStrategyFactory.createEntityRegionAccessStrategy(this, accessType);
     }
 }

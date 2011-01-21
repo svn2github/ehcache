@@ -15,16 +15,19 @@
  */
 package net.sf.ehcache.hibernate.regions;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
 import net.sf.ehcache.Ehcache;
+import net.sf.ehcache.constructs.nonstop.NonStopCacheException;
+import net.sf.ehcache.hibernate.nonstop.HibernateNonstopCacheExceptionHandler;
+import net.sf.ehcache.hibernate.strategy.EhcacheAccessStrategyFactory;
 import net.sf.ehcache.util.Timestamper;
 
 import org.hibernate.cache.CacheException;
 import org.hibernate.cache.Region;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,10 +35,11 @@ import org.slf4j.LoggerFactory;
  * An Ehcache specific data region implementation.
  * <p>
  * This class is the ultimate superclass for all Ehcache Hibernate cache regions.
- * 
+ *
  * @author Chris Dennis
  * @author Greg Luck
  * @author Emmanuel Bernard
+ * @author Abhishek Sanoujam
  */
 public abstract class EhcacheDataRegion implements Region {
 
@@ -49,12 +53,19 @@ public abstract class EhcacheDataRegion implements Region {
      */
     protected final Ehcache cache;
 
+    /**
+     * The {@link EhcacheAccessStrategyFactory} used for creating various access strategies
+     */
+    protected final EhcacheAccessStrategyFactory accessStrategyFactory;
+
     private final int cacheLockTimeout;
-    
+
+
     /**
      * Create a Hibernate data region backed by the given Ehcache instance.
      */
-    EhcacheDataRegion(Ehcache cache, Properties properties) {
+    EhcacheDataRegion(EhcacheAccessStrategyFactory accessStrategyFactory, Ehcache cache, Properties properties) {
+        this.accessStrategyFactory = accessStrategyFactory;
         this.cache = cache;
         String timeout = properties.getProperty(CACHE_LOCK_TIMEOUT_PROPERTY, Integer.toString(DEFAULT_CACHE_LOCK_TIMEOUT));
         this.cacheLockTimeout = Timestamper.ONE_MS * Integer.decode(timeout);
@@ -78,7 +89,11 @@ public abstract class EhcacheDataRegion implements Region {
             //Do not throw an exception, simply log this one.
             LOG.debug("This can happen if multiple frameworks both try to shutdown ehcache", e);
         } catch (net.sf.ehcache.CacheException e) {
-            throw new CacheException(e);
+            if (e instanceof NonStopCacheException) {
+                HibernateNonstopCacheExceptionHandler.getInstance().handleNonstopCacheException((NonStopCacheException) e);
+            } else {
+                throw new CacheException(e);
+            }
         }
     }
 
@@ -89,6 +104,9 @@ public abstract class EhcacheDataRegion implements Region {
         try {
             return cache.calculateInMemorySize();
         } catch (Throwable t) {
+            if (t instanceof NonStopCacheException) {
+                HibernateNonstopCacheExceptionHandler.getInstance().handleNonstopCacheException((NonStopCacheException) t);
+            }
             return -1;
         }
     }
@@ -100,7 +118,12 @@ public abstract class EhcacheDataRegion implements Region {
         try {
             return cache.getMemoryStoreSize();
         } catch (net.sf.ehcache.CacheException ce) {
-            throw new CacheException(ce);
+            if (ce instanceof NonStopCacheException) {
+                HibernateNonstopCacheExceptionHandler.getInstance().handleNonstopCacheException((NonStopCacheException) ce);
+                return -1;
+            } else {
+                throw new CacheException(ce);
+            }
         }
     }
 
@@ -110,8 +133,13 @@ public abstract class EhcacheDataRegion implements Region {
     public long getElementCountOnDisk() {
         try {
             return cache.getDiskStoreSize();
-        } catch (net.sf.ehcache.CacheException e) {
-            throw new CacheException(e);
+        } catch (net.sf.ehcache.CacheException ce) {
+            if (ce instanceof NonStopCacheException) {
+                HibernateNonstopCacheExceptionHandler.getInstance().handleNonstopCacheException((NonStopCacheException) ce);
+                return -1;
+            } else {
+                throw new CacheException(ce);
+            }
         }
     }
 
@@ -126,7 +154,12 @@ public abstract class EhcacheDataRegion implements Region {
             }
             return result;
         } catch (Exception e) {
-            throw new CacheException(e);
+            if (e instanceof NonStopCacheException) {
+                HibernateNonstopCacheExceptionHandler.getInstance().handleNonstopCacheException((NonStopCacheException) e);
+                return Collections.EMPTY_MAP;
+            } else {
+                throw new CacheException(e);
+            }
         }
     }
 
@@ -150,7 +183,7 @@ public abstract class EhcacheDataRegion implements Region {
     public Ehcache getEhcache() {
         return cache;
     }
-    
+
     /**
      * Returns <code>true</code> if this region contains data for the given key.
      * <p>

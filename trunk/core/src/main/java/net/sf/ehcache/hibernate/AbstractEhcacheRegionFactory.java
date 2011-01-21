@@ -21,10 +21,13 @@ import java.util.Properties;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.hibernate.management.impl.ProviderMBeanRegistrationHelper;
+import net.sf.ehcache.hibernate.nonstop.NonstopAccessStrategyFactory;
 import net.sf.ehcache.hibernate.regions.EhcacheQueryResultsRegion;
 import net.sf.ehcache.hibernate.regions.EhcacheTimestampsRegion;
 import net.sf.ehcache.hibernate.regions.EhcacheEntityRegion;
 import net.sf.ehcache.hibernate.regions.EhcacheCollectionRegion;
+import net.sf.ehcache.hibernate.strategy.EhcacheAccessStrategyFactory;
+import net.sf.ehcache.hibernate.strategy.EhcacheAccessStrategyFactoryImpl;
 import net.sf.ehcache.util.ClassLoaderUtil;
 import net.sf.ehcache.util.Timestamper;
 
@@ -43,10 +46,11 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Abstract implementation of an Ehcache specific RegionFactory.
- * 
+ *
  * @author Chris Dennis
  * @author Greg Luck
  * @author Emmanuel Bernard
+ * @author Abhishek Sanoujam
  */
 abstract class AbstractEhcacheRegionFactory implements RegionFactory {
 
@@ -77,6 +81,12 @@ abstract class AbstractEhcacheRegionFactory implements RegionFactory {
     protected Settings settings;
 
     /**
+     * {@link EhcacheAccessStrategyFactory} for creating various access strategies
+     */
+    protected final EhcacheAccessStrategyFactory accessStrategyFactory = new NonstopAccessStrategyFactory(
+            new EhcacheAccessStrategyFactoryImpl());
+
+    /**
      * Whether to optimize for minimals puts or minimal gets.
      * <p>
      * Indicates whether when operating in non-strict read/write or read-only mode
@@ -86,7 +96,7 @@ abstract class AbstractEhcacheRegionFactory implements RegionFactory {
      * <p>
      * This setting can be overridden by setting the "hibernate.cache.use_minimal_puts"
      * property in the Hibernate configuration.
-     * 
+     *
      * @return true, optimize for minimal puts
      */
     public boolean isMinimalPutsEnabledByDefault() {
@@ -104,7 +114,7 @@ abstract class AbstractEhcacheRegionFactory implements RegionFactory {
      * {@inheritDoc}
      */
     public EntityRegion buildEntityRegion(String regionName, Properties properties, CacheDataDescription metadata) throws CacheException {
-        return new EhcacheEntityRegion(getCache(regionName), settings, metadata, properties);
+        return new EhcacheEntityRegion(accessStrategyFactory, getCache(regionName), settings, metadata, properties);
     }
 
     /**
@@ -112,21 +122,21 @@ abstract class AbstractEhcacheRegionFactory implements RegionFactory {
      */
     public CollectionRegion buildCollectionRegion(String regionName, Properties properties, CacheDataDescription metadata)
             throws CacheException {
-        return new EhcacheCollectionRegion(getCache(regionName), settings, metadata, properties);
+        return new EhcacheCollectionRegion(accessStrategyFactory, getCache(regionName), settings, metadata, properties);
     }
 
     /**
      * {@inheritDoc}
      */
     public QueryResultsRegion buildQueryResultsRegion(String regionName, Properties properties) throws CacheException {
-        return new EhcacheQueryResultsRegion(getCache(regionName), properties);
+        return new EhcacheQueryResultsRegion(accessStrategyFactory, getCache(regionName), properties);
     }
 
     /**
      * {@inheritDoc}
      */
     public TimestampsRegion buildTimestampsRegion(String regionName, Properties properties) throws CacheException {
-        return new EhcacheTimestampsRegion(getCache(regionName), properties);
+        return new EhcacheTimestampsRegion(accessStrategyFactory, getCache(regionName), properties);
     }
 
     private Ehcache getCache(String name) throws CacheException {

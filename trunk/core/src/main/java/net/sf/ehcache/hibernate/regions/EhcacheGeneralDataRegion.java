@@ -19,10 +19,12 @@ import java.util.Properties;
 
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
+import net.sf.ehcache.constructs.nonstop.NonStopCacheException;
+import net.sf.ehcache.hibernate.nonstop.HibernateNonstopCacheExceptionHandler;
+import net.sf.ehcache.hibernate.strategy.EhcacheAccessStrategyFactory;
 
 import org.hibernate.cache.CacheException;
 import org.hibernate.cache.GeneralDataRegion;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,10 +32,11 @@ import org.slf4j.LoggerFactory;
  * An Ehcache specific GeneralDataRegion.
  * <p>
  * GeneralDataRegion instances are used for both the timestamps and query caches.
- * 
+ *
  * @author Chris Dennis
  * @author Greg Luck
  * @author Emmanuel Bernard
+ * @author Abhishek Sanoujam
  */
 abstract class EhcacheGeneralDataRegion extends EhcacheDataRegion implements GeneralDataRegion {
 
@@ -42,8 +45,8 @@ abstract class EhcacheGeneralDataRegion extends EhcacheDataRegion implements Gen
     /**
      * Creates an EhcacheGeneralDataRegion using the given Ehcache instance as a backing.
      */
-    public EhcacheGeneralDataRegion(Ehcache cache, Properties properties) {
-        super(cache, properties);
+    public EhcacheGeneralDataRegion(EhcacheAccessStrategyFactory accessStrategyFactory, Ehcache cache, Properties properties) {
+        super(accessStrategyFactory, cache, properties);
     }
 
     /**
@@ -64,7 +67,12 @@ abstract class EhcacheGeneralDataRegion extends EhcacheDataRegion implements Gen
                 }
             }
         } catch (net.sf.ehcache.CacheException e) {
-            throw new CacheException(e);
+            if (e instanceof NonStopCacheException) {
+                HibernateNonstopCacheExceptionHandler.getInstance().handleNonstopCacheException((NonStopCacheException) e);
+                return null;
+            } else {
+                throw new CacheException(e);
+            }
         }
     }
 
@@ -81,7 +89,11 @@ abstract class EhcacheGeneralDataRegion extends EhcacheDataRegion implements Gen
         } catch (IllegalStateException e) {
             throw new CacheException(e);
         } catch (net.sf.ehcache.CacheException e) {
-            throw new CacheException(e);
+            if (e instanceof NonStopCacheException) {
+                HibernateNonstopCacheExceptionHandler.getInstance().handleNonstopCacheException((NonStopCacheException) e);
+            } else {
+                throw new CacheException(e);
+            }
         }
     }
 
@@ -96,7 +108,11 @@ abstract class EhcacheGeneralDataRegion extends EhcacheDataRegion implements Gen
         } catch (IllegalStateException e) {
             throw new CacheException(e);
         } catch (net.sf.ehcache.CacheException e) {
-            throw new CacheException(e);
+            if (e instanceof NonStopCacheException) {
+                HibernateNonstopCacheExceptionHandler.getInstance().handleNonstopCacheException((NonStopCacheException) e);
+            } else {
+                throw new CacheException(e);
+            }
         }
     }
 
@@ -109,7 +125,11 @@ abstract class EhcacheGeneralDataRegion extends EhcacheDataRegion implements Gen
         } catch (IllegalStateException e) {
             throw new CacheException(e);
         } catch (net.sf.ehcache.CacheException e) {
-            throw new CacheException(e);
+            if (e instanceof NonStopCacheException) {
+                HibernateNonstopCacheExceptionHandler.getInstance().handleNonstopCacheException((NonStopCacheException) e);
+            } else {
+                throw new CacheException(e);
+            }
         }
     }
 }

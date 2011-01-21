@@ -18,6 +18,7 @@ package net.sf.ehcache.hibernate.regions;
 import java.util.Properties;
 
 import net.sf.ehcache.Ehcache;
+import net.sf.ehcache.hibernate.strategy.EhcacheAccessStrategyFactory;
 
 import org.hibernate.cache.TimestampsRegion;
 
@@ -25,13 +26,15 @@ import org.hibernate.cache.TimestampsRegion;
  * A timestamps region specific wrapper around an Ehcache instance.
  *
  * @author Chris Dennis
+ * @author Abhishek Sanoujam
  */
 public class EhcacheTimestampsRegion extends EhcacheGeneralDataRegion implements TimestampsRegion {
 
     /**
      * Constructs an EhcacheTimestampsRegion around the given underlying cache.
+     * @param accessStrategyFactory
      */
-    public EhcacheTimestampsRegion(Ehcache underlyingCache, Properties properties) {
-        super(underlyingCache, properties);
+    public EhcacheTimestampsRegion(EhcacheAccessStrategyFactory accessStrategyFactory, Ehcache underlyingCache, Properties properties) {
+        super(accessStrategyFactory, underlyingCache, properties);
     }
 }
