@@ -24,10 +24,8 @@ import net.sf.ehcache.store.compound.ReadWriteCopyStrategy;
 /**
  * Used to extract a search attribute value from an element in a transactional store.
  * <p>
- * Instances must be {@link Serializable} in order to ensure identical
- * extractors are used in distributed caches
  *
- * @author teck
+ * @author Chris Dennis
  */
 public class TransactionAwareAttributeExtractor implements AttributeExtractor {
 
