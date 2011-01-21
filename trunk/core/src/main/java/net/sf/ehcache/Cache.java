@@ -1037,8 +1037,8 @@ public class Cache implements Ehcache, StoreListener {
             } else if (isTerracottaClustered()) {
                 if (getCacheConfiguration().getTerracottaConfiguration().isSynchronousWrites()
                         && getCacheConfiguration().getTerracottaConfiguration().getCoherenceMode() == CoherenceMode.NON_STRICT) {
-                    throw new InvalidConfigurationException("Terracotta clustered caches in 'non-strict' mode with synchronous writes are not supported yet."
-                            + " Ignoring synchronousWrites=true for Cache [name=" + getName() + "]");
+                    throw new InvalidConfigurationException(
+                            "Terracotta clustered caches in 'non-strict' mode with synchronous writes are not supported yet.");
                 }
                 if (getCacheConfiguration().getTransactionalMode().isTransactional()
                         && getCacheConfiguration().getTerracottaConfiguration().getCoherenceMode() == CoherenceMode.NON_STRICT) {
