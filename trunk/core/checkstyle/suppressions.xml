@@ -69,7 +69,7 @@
      because of the LOG guards (if (LOG.isDebugEnabled) { ...) which are there for
      runtime performance.-->
     <suppress checks="CyclomaticComplexity" files="Cache.java"/>
-    <suppress checks="CyclomaticComplexity" files="CacheManager.java" lines="147"/>
+    <suppress checks="CyclomaticComplexity" files="CacheManager.java" lines="147,1008"/>
     <suppress checks="FileLength" files="CacheManager.java"/>
     <suppress checks="CyclomaticComplexity" files="DiskStore.java"/>
     <suppress checks="CyclomaticComplexity" files="RMIBootstrapCacheLoader.java"/>

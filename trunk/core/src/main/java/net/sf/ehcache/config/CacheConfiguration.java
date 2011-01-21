@@ -827,8 +827,10 @@ public class CacheConfiguration implements Cloneable {
 
     /**
      * Sets the path that will be used for the disk store.
+     * If you use this feature, beware of collisions with CacheManagers
+     * potentially have a Cache with the same name!
      *
-     * @param diskStorePath this parameter is ignored. CacheManager sets it using setter injection.
+     * @param diskStorePath if <code>null</code>, CacheManager sets it using setter injection.
      */
     public final void setDiskStorePath(String diskStorePath) {
         checkDynamicChange();
@@ -841,8 +843,10 @@ public class CacheConfiguration implements Cloneable {
 
     /**
      * Builder which sets the path that will be used for the disk store.
+     * If you use this feature, beware of collisions with CacheManagers
+     * potentially have a Cache with the same name!
      *
-     * @param diskStorePath this parameter is ignored. CacheManager sets it using setter injection.
+     * @param diskStorePath if <code>null</code>, CacheManager sets it using setter injection.
      * @return this configuration instance
      * @see #setDiskStorePath(String)
      */
