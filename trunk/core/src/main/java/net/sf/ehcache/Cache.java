@@ -28,6 +28,7 @@ import net.sf.ehcache.concurrent.Sync;
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.CacheWriterConfiguration;
 import net.sf.ehcache.config.DiskStoreConfiguration;
+import net.sf.ehcache.config.InvalidConfigurationException;
 import net.sf.ehcache.config.NonstopConfiguration;
 import net.sf.ehcache.config.SearchAttribute;
 import net.sf.ehcache.config.TerracottaConfiguration;
@@ -1036,9 +1037,17 @@ public class Cache implements Ehcache, StoreListener {
             } else if (isTerracottaClustered()) {
                 if (getCacheConfiguration().getTerracottaConfiguration().isSynchronousWrites()
                         && getCacheConfiguration().getTerracottaConfiguration().getCoherenceMode() == CoherenceMode.NON_STRICT) {
-                    LOG.warn("Terracotta clustered caches in 'non-strict' mode with synchronous writes are not supported yet."
+                    throw new InvalidConfigurationException("Terracotta clustered caches in 'non-strict' mode with synchronous writes are not supported yet."
                             + " Ignoring synchronousWrites=true for Cache [name=" + getName() + "]");
                 }
+                if (getCacheConfiguration().getTransactionalMode().isTransactional()
+                        && getCacheConfiguration().getTerracottaConfiguration().getCoherenceMode() == CoherenceMode.NON_STRICT) {
+                    throw new InvalidConfigurationException("Coherence mode should be " + CoherenceMode.STRICT
+                            + " when cache is configured with transactions enabled. "
+                            + "You can fix this by either making the cache in 'strict' mode or turning off transactions.");
+                }
+
+
                 if (!getCacheConfiguration().getTerracottaConfiguration().isStorageStrategySet()) {
                     getCacheConfiguration().getTerracottaConfiguration().storageStrategy(
                             TerracottaClient.getTerracottaDefaultStrategyForCurrentRuntime());
