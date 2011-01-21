@@ -33,7 +33,7 @@ public class TransactionAwareAttributeExtractor implements AttributeExtractor {
     private final AttributeExtractor delegate;
 
     /**
-     * Creates an attributed delegating to the suppied extractor, via the given copy strategy.
+     * Creates an attributed delegating to the supplied extractor, via the given copy strategy.
      *
      * @param copyStrategy copy strategy used by the transactional store
      * @param delegate original configured attribute extractor
