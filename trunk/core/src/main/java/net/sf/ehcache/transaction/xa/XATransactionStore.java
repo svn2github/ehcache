@@ -38,7 +38,6 @@ import net.sf.ehcache.util.LargeSet;
 import net.sf.ehcache.util.SetWrapperList;
 import net.sf.ehcache.writer.CacheWriterManager;
 
-import org.apache.commons.collections.map.HashedMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -46,6 +45,7 @@ import javax.transaction.RollbackException;
 import javax.transaction.SystemException;
 import javax.transaction.Transaction;
 import javax.transaction.xa.XAException;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -557,7 +557,7 @@ public class XATransactionStore extends AbstractTransactionStore {
      */
     @Override
     public void setAttributeExtractors(Map<String, AttributeExtractor> extractors) {
-        Map<String, AttributeExtractor> wrappedExtractors = new HashedMap(extractors.size());
+        Map<String, AttributeExtractor> wrappedExtractors = new HashMap(extractors.size());
         for (Entry<String, AttributeExtractor> e : extractors.entrySet()) {
             wrappedExtractors.put(e.getKey(), new TransactionAwareAttributeExtractor(copyStrategy, e.getValue()));
         }
