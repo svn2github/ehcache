@@ -39,8 +39,9 @@ public class CoherenceModeConfigTest extends TestCase {
         coherenceMode = cache.getCacheConfiguration().getTerracottaConfiguration().getCoherenceMode();
         LOG.info("Default coherent: " + coherent);
         LOG.info("Default Coherence mode: " + coherenceMode);
-        assertEquals(true, coherent);
-        assertEquals(CoherenceMode.STRICT, coherenceMode);
+        final boolean expectedDefault = TerracottaConfiguration.DEFAULT_COHERENCE_MODE == CoherenceMode.STRICT? true: false;
+        assertEquals(expectedDefault, coherent);
+        assertEquals(TerracottaConfiguration.DEFAULT_COHERENCE_MODE, coherenceMode);
 
         cache = cacheManager.getCache("falseCoherenceMode");
         coherent = cache.getCacheConfiguration().getTerracottaConfiguration().isCoherent();
