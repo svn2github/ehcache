@@ -23,6 +23,7 @@ import net.sf.ehcache.CacheException;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.bootstrap.BootstrapCacheLoader;
+import net.sf.ehcache.config.TerracottaConfiguration.CoherenceMode;
 import net.sf.ehcache.distribution.CacheManagerPeerListener;
 import net.sf.ehcache.distribution.CacheManagerPeerProvider;
 import net.sf.ehcache.distribution.MulticastRMICacheManagerPeerProvider;
@@ -1282,7 +1283,8 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
         Ehcache sampleCache10 = configurationHelper.createCacheFromName("clustered-10");
         assertEquals("clustered-10", sampleCache10.getName());
         assertEquals(true, sampleCache10.getCacheConfiguration().isTerracottaClustered());
-        assertEquals(true,
+        final boolean expectedDefault = TerracottaConfiguration.DEFAULT_COHERENCE_MODE == CoherenceMode.STRICT? true: false;
+        assertEquals(expectedDefault,
                 sampleCache10.getCacheConfiguration().getTerracottaConfiguration().isCoherent());
 
         Ehcache sampleCache11 = configurationHelper.createCacheFromName("clustered-11");
