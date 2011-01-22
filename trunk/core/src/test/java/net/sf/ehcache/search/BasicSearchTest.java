@@ -640,6 +640,14 @@ public class BasicSearchTest {
 
         query = cache.createQuery();
         query.includeKeys();
+        query.addCriteria(cache.getSearchAttribute("age").eq(35));
+        query.addCriteria(cache.getSearchAttribute("gender").eq(Gender.FEMALE));
+        query.end();
+        verify(cache, query);
+
+
+        query = cache.createQuery();
+        query.includeKeys();
         query.addCriteria(cache.getSearchAttribute("gender").eq(Gender.MALE).not());
         query.end();
         verify(cache, query, 2);

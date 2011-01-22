@@ -35,16 +35,7 @@ public class Or extends BaseCriteria {
      * @param rhs the right hand side of the "or" expression
      */
     public Or(Criteria lhs, Criteria rhs) {
-        this(new Criteria[]{lhs, rhs});
-    }
-
-    /**
-     * Var-args style constructor to allow a variable number of criteria
-     *
-     * @param criterion
-     */
-    public Or(Criteria... criterion) {
-        this.criterion = criterion;
+        this.criterion = new Criteria[]{lhs, rhs};
     }
 
     /**

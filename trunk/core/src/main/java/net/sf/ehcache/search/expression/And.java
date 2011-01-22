@@ -35,16 +35,7 @@ public class And extends BaseCriteria {
      * @param rhs the right hand side of the "and" expression
      */
     public And(Criteria lhs, Criteria rhs) {
-        this(new Criteria[]{lhs, rhs});
-    }
-
-    /**
-     * Var-args style constructor to allow a variable number of criteria
-     *
-     * @param criterion
-     */
-    public And(Criteria... criterion) {
-        this.criterion = criterion;
+        this.criterion = new Criteria[]{lhs, rhs};
     }
 
     /**

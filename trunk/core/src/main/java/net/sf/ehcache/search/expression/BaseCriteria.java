@@ -27,7 +27,7 @@ public abstract class BaseCriteria implements Criteria {
      * {@inheritDoc}
      */
     public Criteria and(Criteria other) {
-        return new And(merge(this, other));
+        return new And(this, other);
     }
 
     /**
@@ -41,14 +41,7 @@ public abstract class BaseCriteria implements Criteria {
      * {@inheritDoc}
      */
     public Criteria or(Criteria other) {
-        return new Or(merge(this, other));
-    }
-
-    private static Criteria[] merge(Criteria c, Criteria other) {
-        Criteria[] rv = new Criteria[2];
-        rv[0] = c;
-        rv[1] = other;
-        return rv;
+        return new Or(this, other);
     }
 
 }

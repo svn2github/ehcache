@@ -31,7 +31,6 @@ import net.sf.ehcache.search.aggregator.Aggregator;
 import net.sf.ehcache.search.aggregator.AggregatorException;
 import net.sf.ehcache.search.aggregator.AggregatorInstance;
 import net.sf.ehcache.search.expression.AlwaysMatch;
-import net.sf.ehcache.search.expression.And;
 import net.sf.ehcache.search.expression.Criteria;
 import net.sf.ehcache.store.StoreQuery;
 
@@ -249,7 +248,11 @@ class CacheQuery implements Query, StoreQuery {
         } else if (count == 1) {
             return criteria.get(0);
         } else {
-            return new And(criteria.toArray(new Criteria[count]));
+            Criteria c = criteria.get(0);
+            for (int i = 1; i < criteria.size(); i++) {
+                c = c.and(criteria.get(i));
+            }
+            return c;
         }
 
         // unreachable
