@@ -130,7 +130,6 @@ public class Average implements AggregatorInstance<Double> {
             IntegerEngine(int value) {
                 this.count = 1;
                 this.sum = value;
-                // TODO Auto-generated constructor stub
             }
 
             @Override
@@ -161,7 +160,6 @@ public class Average implements AggregatorInstance<Double> {
             LongEngine(long value) {
                 this.count = 1;
                 this.sum = value;
-                // TODO Auto-generated constructor stub
             }
 
             @Override
@@ -192,7 +190,6 @@ public class Average implements AggregatorInstance<Double> {
             FloatEngine(float value) {
                 this.count = 1;
                 this.sum = value;
-                // TODO Auto-generated constructor stub
             }
 
             @Override
@@ -223,7 +220,6 @@ public class Average implements AggregatorInstance<Double> {
             DoubleEngine(double value) {
                 this.count = 1;
                 this.sum = value;
-                // TODO Auto-generated constructor stub
             }
 
             @Override
