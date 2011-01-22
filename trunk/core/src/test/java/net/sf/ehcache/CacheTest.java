@@ -976,15 +976,11 @@ public class CacheTest extends AbstractCacheTest {
      */
     @Test
     public void testInitialiseFailures() {
-        try {
-            Cache cache = new Cache("testInitialiseFailures2", 1, false, false, 5, 1);
-            cache.initialise();
+        Cache cache = new Cache("testInitialiseFailures2", 1, false, false, 5, 1);
+        cache.initialise();
 
-            cache.initialise();
-            fail("Should have thrown IllegalArgumentException");
-        } catch (IllegalStateException e) {
-            //noop
-        }
+        // cache can be initialized again - for rejoin feature
+        cache.initialise();
     }
 
     /**
