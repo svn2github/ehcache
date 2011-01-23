@@ -28,10 +28,12 @@ import net.sf.ehcache.CacheException;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Status;
+import net.sf.ehcache.config.CacheWriterConfiguration;
 import net.sf.ehcache.event.CacheManagerEventListener;
 import net.sf.ehcache.hibernate.management.impl.BaseEmitterBean;
 import net.sf.ehcache.statistics.LiveCacheStatistics;
 import net.sf.ehcache.statistics.sampled.SampledCacheStatistics;
+import net.sf.ehcache.writer.writebehind.WriteBehindManager;
 
 /**
  * An implementation of {@link SampledCacheManagerMBean}
@@ -282,6 +284,22 @@ public class SampledCacheManager extends BaseEmitterBean implements SampledCache
     }
 
     /**
+     * {@inheritDoc}
+     */
+    public boolean getHasWriteBehindWriter() {
+        for (String cacheName : getCacheNames()) {
+            Ehcache cache = cacheManager.getEhcache(cacheName);
+            if (cache != null) {
+                if (cache.getWriterManager() instanceof WriteBehindManager &&
+                        cache.getRegisteredCacheWriter() != null) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    /**
      * @return aggregate writer queue length
      */
     public long getWriterQueueLength() {
@@ -290,7 +308,22 @@ public class SampledCacheManager extends BaseEmitterBean implements SampledCache
             Ehcache cache = cacheManager.getEhcache(cacheName);
             if (cache != null) {
                 LiveCacheStatistics stats = cache.getLiveCacheStatistics();
-                result += stats.getWriterQueueLength();
+                result += Math.max(stats.getWriterQueueLength(), 0);
+            }
+        }
+        return result;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public int getWriterMaxQueueSize() {
+        int result = 0;
+        for (String cacheName : getCacheNames()) {
+            Ehcache cache = cacheManager.getEhcache(cacheName);
+            if (cache != null) {
+                CacheWriterConfiguration writerConfig = cache.getCacheConfiguration().getCacheWriterConfiguration();
+                result += (writerConfig.getWriteBehindMaxQueueSize() * writerConfig.getWriteBehindConcurrency());
             }
         }
         return result;
@@ -412,6 +445,19 @@ public class SampledCacheManager extends BaseEmitterBean implements SampledCache
      */
     public String generateActiveConfigDeclaration(String cacheName) {
         return this.cacheManager.getActiveConfigurationText(cacheName);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public boolean getTransactional() {
+        for (String cacheName : getCacheNames()) {
+            Ehcache cache = cacheManager.getEhcache(cacheName);
+            if (cache != null && cache.getCacheConfiguration().getTransactionalMode().isTransactional()) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**

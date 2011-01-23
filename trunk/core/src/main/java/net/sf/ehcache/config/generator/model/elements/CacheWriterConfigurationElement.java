@@ -24,9 +24,9 @@ import net.sf.ehcache.config.generator.model.SimpleNodeElement;
 
 /**
  * Element representing the {@link CacheWriterConfiguration}
- * 
+ *
  * @author Abhishek Sanoujam
- * 
+ *
  */
 public class CacheWriterConfigurationElement extends SimpleNodeElement {
 
@@ -34,7 +34,7 @@ public class CacheWriterConfigurationElement extends SimpleNodeElement {
 
     /**
      * Constructor accepting the parent and the {@link CacheWriterConfiguration}
-     * 
+     *
      * @param parent
      * @param cacheWriterConfiguration
      */
@@ -70,7 +70,7 @@ public class CacheWriterConfigurationElement extends SimpleNodeElement {
                 true).defaultValue(CacheWriterConfiguration.DEFAULT_RETRY_ATTEMPT_DELAY_SECONDS));
         addAttribute(new SimpleNodeAttribute("writeBehindConcurrency", cacheWriterConfiguration.getWriteBehindConcurrency()).optional(
                 true).defaultValue(CacheWriterConfiguration.DEFAULT_WRITE_BEHIND_CONCURRENCY));
-        addAttribute(new SimpleNodeAttribute("writeBehindMaxQueueSize", cacheWriterConfiguration.getWriteBehindConcurrency()).optional(
+        addAttribute(new SimpleNodeAttribute("writeBehindMaxQueueSize", cacheWriterConfiguration.getWriteBehindMaxQueueSize()).optional(
                 true).defaultValue(CacheWriterConfiguration.DEFAULT_WRITE_BEHIND_MAX_QUEUE_SIZE));
 
         CacheWriterFactoryConfiguration cacheWriterFactoryConfiguration = cacheWriterConfiguration.getCacheWriterFactoryConfiguration();

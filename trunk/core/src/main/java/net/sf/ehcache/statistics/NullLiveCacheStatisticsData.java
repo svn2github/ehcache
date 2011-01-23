@@ -23,7 +23,7 @@ import net.sf.ehcache.Statistics;
 
 /**
  * A no-op implementation which can be used both as a {@link LiveCacheStatistics} and {@link LiveCacheStatisticsData}
- * 
+ *
  * @author <a href="mailto:asanoujam@terracottatech.com">Abhishek Sanoujam</a>
  * @since 1.7
  */
@@ -266,7 +266,7 @@ public class NullLiveCacheStatisticsData implements LiveCacheStatistics, LiveCac
     public void cacheMissOnDisk() {
         // no-op
     }
-    
+
     /**
      * {@inheritDoc}
      */
@@ -364,8 +364,6 @@ public class NullLiveCacheStatisticsData implements LiveCacheStatistics, LiveCac
 
     /**
      * {@inheritDoc}
-     * 
-     * @see net.sf.ehcache.statistics.LiveCacheStatistics#getMaxGetTimeMillis()
      */
     public long getMaxGetTimeMillis() {
         return 0;
@@ -396,8 +394,6 @@ public class NullLiveCacheStatisticsData implements LiveCacheStatistics, LiveCac
 
     /**
      * {@inheritDoc}
-     * 
-     * @see net.sf.ehcache.statistics.LiveCacheStatistics#getMinGetTimeMillis()
      */
     public long getMinGetTimeMillis() {
         return 0;

@@ -17,13 +17,13 @@ package net.sf.ehcache.statistics;
 
 /**
  * Interface for usage statistics of a Cache.
- * 
+ *
  * <p />
  * Implementations of this interface is different from {@link net.sf.ehcache.Statistics} in the way that values returned from this interface
  * implementations will reflect the current state of the cache and not a snapshot of the cache when the api's were called (which is the
  * behavior of {@link net.sf.ehcache.Statistics})
  * <p />
- * 
+ *
  * @author <a href="mailto:asanoujam@terracottatech.com">Abhishek Sanoujam</a>
  * @since 1.7
  */
@@ -31,21 +31,21 @@ public interface LiveCacheStatistics {
 
     /**
      * Returns true if statistics is enabled
-     * 
+     *
      * @return true if statistics is enabled
      */
     public boolean isStatisticsEnabled();
 
     /**
      * The number of times a requested item was found in the cache.
-     * 
+     *
      * @return the number of times a requested item was found in the cache
      */
     public long getCacheHitCount();
 
     /**
      * Number of times a requested item was found in the Memory Store.
-     * 
+     *
      * @return the number of times a requested item was found in memory
      */
     public long getInMemoryHitCount();
@@ -59,7 +59,7 @@ public interface LiveCacheStatistics {
 
     /**
      * Number of times a requested item was found in the Disk Store.
-     * 
+     *
      * @return the number of times a requested item was found on Disk, or 0 if
      *         there is no disk storage configured.
      */
@@ -73,7 +73,7 @@ public interface LiveCacheStatistics {
 
     /**
      * Number of times a requested item was not found in the Memory Store.
-     * 
+     *
      * @return the number of times a requested item was not found in memory
      */
     public long getInMemoryMissCount();
@@ -87,12 +87,12 @@ public interface LiveCacheStatistics {
 
     /**
      * Number of times a requested item was not found in the Disk Store.
-     * 
+     *
      * @return the number of times a requested item was not found on Disk, or 0 if
      *         there is no disk storage configured.
      */
     public long getOnDiskMissCount();
-    
+
     /**
      * @return the number of times a requested element was not found in the
      *         cache and the reason being the element already expired
@@ -101,14 +101,14 @@ public interface LiveCacheStatistics {
 
     /**
      * Size of the cache based on current accuracy settings.
-     * 
+     *
      * @return The size of the cache based on currect accuracy setting
      */
     public long getSize();
 
     /**
      * Number of elements in the MemoryStore
-     * 
+     *
      * @return the number of elements in memory
      */
     public long getInMemorySize();
@@ -122,49 +122,49 @@ public interface LiveCacheStatistics {
 
     /**
      * Number of elements in the DiskStore
-     * 
+     *
      * @return number of elements on disk
      */
     public long getOnDiskSize();
 
     /**
      * Average time in milli seconds taken to get an element from the cache.
-     * 
+     *
      * @return Average time taken for a get operation in milliseconds
      */
     public float getAverageGetTimeMillis();
 
     /**
      * Number of elements evicted from the cache
-     * 
+     *
      * @return Number of elements evicted from the cache
      */
     public long getEvictedCount();
 
     /**
      * Number of puts that has happened in the cache
-     * 
+     *
      * @return Number of puts
      */
     public long getPutCount();
 
     /**
      * Number of updates that as happened in the cache
-     * 
+     *
      * @return Number of updates
      */
     public long getUpdateCount();
 
     /**
      * Number of elements expired since creation or last clear
-     * 
+     *
      * @return Number of expired elements
      */
     public long getExpiredCount();
 
     /**
      * Number of elements removed since creation or last clear
-     * 
+     *
      * @return Number of elements removed
      */
     public long getRemovedCount();
@@ -172,7 +172,7 @@ public interface LiveCacheStatistics {
     /**
      * Accurately measuring statistics can be expensive. Returns the current
      * accuracy setting.
-     * 
+     *
      * @return one of Statistics.STATISTICS_ACCURACY_BEST_EFFORT,
      *         Statistics.STATISTICS_ACCURACY_GUARANTEED,
      *         Statistics.STATISTICS_ACCURACY_NONE
@@ -182,7 +182,7 @@ public interface LiveCacheStatistics {
     /**
      * Accurately measuring statistics can be expensive. Returns the current
      * accuracy setting.
-     * 
+     *
      * @return a human readable description of the accuracy setting. One of
      *         "None", "Best Effort" or "Guaranteed".
      */
@@ -192,22 +192,22 @@ public interface LiveCacheStatistics {
      * @return the name of the Ehcache
      */
     public String getCacheName();
-    
+
     /**
      * Clears statistics of this cache
      */
     public void clearStatistics();
-    
+
     /**
      * Return minimum time taken for a get operation in the cache in milliseconds
-     * 
+     *
      * @return minimum time taken for a get operation in the cache in milliseconds
      */
     public long getMinGetTimeMillis();
 
     /**
      * Return maximum time taken for a get operation in the cache in milliseconds
-     * 
+     *
      * @return maximum time taken for a get operation in the cache in milliseconds
      */
     public long getMaxGetTimeMillis();
@@ -215,7 +215,7 @@ public interface LiveCacheStatistics {
     /**
      * Gets the size of the write-behind queue, if any.
      * The value is for all local buckets
-     * @return Elements waiting to be processed by the write behind writer. -1 if no write-behind
+     * @return Elements waiting to be processed by the write-behind writer. -1 if no write-behind
      */
     long getWriterQueueLength();
 
@@ -230,5 +230,5 @@ public interface LiveCacheStatistics {
      * @return the Cache's XAResource rollback calls count
      */
     public long getXaRollbackCount();
-    
+
 }

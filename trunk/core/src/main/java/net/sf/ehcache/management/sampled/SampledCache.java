@@ -28,7 +28,9 @@ import javax.management.Notification;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.CacheConfigurationListener;
+import net.sf.ehcache.config.TerracottaConfiguration.CoherenceMode;
 import net.sf.ehcache.hibernate.management.impl.BaseEmitterBean;
+import net.sf.ehcache.writer.writebehind.WriteBehindManager;
 
 /**
  * An implementation of {@link SampledCacheMBean}
@@ -302,6 +304,14 @@ public class SampledCache extends BaseEmitterBean implements SampledCacheMBean, 
 
     /**
      * {@inheritDoc}
+     */
+    public String getTerracottaCoherenceMode() {
+        CoherenceMode coherenceMode = this.cache.getCacheConfiguration().getTerracottaCoherenceMode();
+        return coherenceMode != null ? coherenceMode.toString() : "na";
+    }
+
+    /**
+     * {@inheritDoc}
      *
      * @see net.sf.ehcache.management.sampled.SampledCacheMBean#enableStatistics()
      */
@@ -404,11 +414,33 @@ public class SampledCache extends BaseEmitterBean implements SampledCacheMBean, 
 
     /**
      * {@inheritDoc}
+     */
+    public boolean getHasWriteBehindWriter() {
+        return cache.getWriterManager() instanceof WriteBehindManager &&
+            cache.getRegisteredCacheWriter() != null;
+    }
+
+    /**
+     * {@inheritDoc}
      *
      * @see net.sf.ehcache.statistics.LiveCacheStatistics#getWriterQueueLength()
      */
     public long getWriterQueueLength() {
         return cache.getLiveCacheStatistics().getWriterQueueLength();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public int getWriterMaxQueueSize() {
+        return cache.getCacheConfiguration().getCacheWriterConfiguration().getWriteBehindMaxQueueSize();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public int getWriterConcurrency() {
+        return cache.getCacheConfiguration().getCacheWriterConfiguration().getWriteBehindConcurrency();
     }
 
     /**
@@ -810,9 +842,11 @@ public class SampledCache extends BaseEmitterBean implements SampledCacheMBean, 
         result.put("OverflowToDisk", isConfigOverflowToDisk());
         result.put("DiskExpiryThreadIntervalSeconds", getConfigDiskExpiryThreadIntervalSeconds());
         result.put("MemoryStoreEvictionPolicy", getConfigMemoryStoreEvictionPolicy());
+        result.put("TerracottaCoherenceMode", getTerracottaCoherenceMode());
         result.put("NodeCoherent", isNodeCoherent());
         result.put("ClusterCoherent", isClusterCoherent());
         result.put("StatisticsEnabled", isStatisticsEnabled());
+        result.put("WriterConcurrency", getWriterConcurrency());
         return result;
     }
 
@@ -926,6 +960,13 @@ public class SampledCache extends BaseEmitterBean implements SampledCacheMBean, 
      */
     public long getSearchesPerSecond() {
         return cache.getSearchesPerSecond();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public boolean getTransactional() {
+        return cache.getCacheConfiguration().getTransactionalMode().isTransactional();
     }
 
     /**

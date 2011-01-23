@@ -27,7 +27,7 @@ import net.sf.ehcache.Element;
  * <p />
  * To collect statistics element put/update/remove/expired data, instances of this class must be registered as a CacheEventListener to a
  * Cache
- * 
+ *
  * @author <a href="mailto:asanoujam@terracottatech.com">Abhishek Sanoujam</a>
  * @since 1.7
  */
@@ -40,7 +40,7 @@ public class LiveCacheStatisticsWrapper implements LiveCacheStatistics, LiveCach
 
     /**
      * Constructor accepting the backing cache.
-     * 
+     *
      * @param cache
      */
     public LiveCacheStatisticsWrapper(Ehcache cache) {
@@ -51,7 +51,7 @@ public class LiveCacheStatisticsWrapper implements LiveCacheStatistics, LiveCach
 
     /**
      * {@inheritDoc}
-     * 
+     *
      * @see net.sf.ehcache.statistics.LiveCacheStatisticsData#setStatisticsEnabled(boolean)
      */
     public void setStatisticsEnabled(boolean enableStatistics) {
@@ -64,7 +64,7 @@ public class LiveCacheStatisticsWrapper implements LiveCacheStatistics, LiveCach
 
     /**
      * {@inheritDoc}
-     * 
+     *
      * @see net.sf.ehcache.statistics.LiveCacheStatistics#isStatisticsEnabled()
      */
     public boolean isStatisticsEnabled() {
@@ -73,7 +73,7 @@ public class LiveCacheStatisticsWrapper implements LiveCacheStatistics, LiveCach
 
     /**
      * {@inheritDoc}
-     * 
+     *
      * @see net.sf.ehcache.statistics.LiveCacheStatisticsData#registerCacheUsageListener(net.sf.ehcache.statistics.CacheUsageListener)
      */
     public void registerCacheUsageListener(CacheUsageListener cacheUsageListener) throws IllegalStateException {
@@ -83,7 +83,7 @@ public class LiveCacheStatisticsWrapper implements LiveCacheStatistics, LiveCach
 
     /**
      * {@inheritDoc}
-     * 
+     *
      * @see net.sf.ehcache.statistics.LiveCacheStatisticsData#removeCacheUsageListener(net.sf.ehcache.statistics.CacheUsageListener)
      */
     public void removeCacheUsageListener(CacheUsageListener cacheUsageListener) throws IllegalStateException {
@@ -93,7 +93,7 @@ public class LiveCacheStatisticsWrapper implements LiveCacheStatistics, LiveCach
 
     /**
      * {@inheritDoc}
-     * 
+     *
      * @see net.sf.ehcache.statistics.LiveCacheStatisticsData#setStatisticsAccuracy(int)
      */
     public void setStatisticsAccuracy(int statisticsAccuracy) {
@@ -103,7 +103,7 @@ public class LiveCacheStatisticsWrapper implements LiveCacheStatistics, LiveCach
 
     /**
      * {@inheritDoc}
-     * 
+     *
      * @see net.sf.ehcache.statistics.LiveCacheStatistics#getStatisticsAccuracy()
      */
     public int getStatisticsAccuracy() {
@@ -113,7 +113,7 @@ public class LiveCacheStatisticsWrapper implements LiveCacheStatistics, LiveCach
 
     /**
      * {@inheritDoc}
-     * 
+     *
      * @see net.sf.ehcache.statistics.LiveCacheStatistics#getStatisticsAccuracyDescription()
      */
     public String getStatisticsAccuracyDescription() {
@@ -123,7 +123,7 @@ public class LiveCacheStatisticsWrapper implements LiveCacheStatistics, LiveCach
 
     /**
      * {@inheritDoc}
-     * 
+     *
      * @see net.sf.ehcache.statistics.LiveCacheStatistics#getCacheName()
      */
     public String getCacheName() {
@@ -133,7 +133,7 @@ public class LiveCacheStatisticsWrapper implements LiveCacheStatistics, LiveCach
 
     /**
      * {@inheritDoc}
-     * 
+     *
      * @see net.sf.ehcache.statistics.LiveCacheStatistics#getSize()
      */
     public long getSize() {
@@ -142,7 +142,7 @@ public class LiveCacheStatisticsWrapper implements LiveCacheStatistics, LiveCach
 
     /**
      * {@inheritDoc}
-     * 
+     *
      * @see net.sf.ehcache.statistics.LiveCacheStatistics#getInMemorySize()
      */
     public long getInMemorySize() {
@@ -160,7 +160,7 @@ public class LiveCacheStatisticsWrapper implements LiveCacheStatistics, LiveCach
 
     /**
      * {@inheritDoc}
-     * 
+     *
      * @see net.sf.ehcache.statistics.LiveCacheStatistics#getOnDiskSize()
      */
     public long getOnDiskSize() {
@@ -169,7 +169,7 @@ public class LiveCacheStatisticsWrapper implements LiveCacheStatistics, LiveCach
 
     /**
      * {@inheritDoc}
-     * 
+     *
      * @see net.sf.ehcache.statistics.LiveCacheStatistics#getAverageGetTimeMillis()
      */
     public float getAverageGetTimeMillis() {
@@ -178,7 +178,7 @@ public class LiveCacheStatisticsWrapper implements LiveCacheStatistics, LiveCach
 
     /**
      * {@inheritDoc}
-     * 
+     *
      * @see net.sf.ehcache.statistics.LiveCacheStatistics#getCacheHitCount()
      */
     public long getCacheHitCount() {
@@ -187,7 +187,7 @@ public class LiveCacheStatisticsWrapper implements LiveCacheStatistics, LiveCach
 
     /**
      * {@inheritDoc}
-     * 
+     *
      * @see net.sf.ehcache.statistics.LiveCacheStatistics#getCacheMissCount()
      */
     public long getCacheMissCount() {
@@ -196,7 +196,7 @@ public class LiveCacheStatisticsWrapper implements LiveCacheStatistics, LiveCach
 
     /**
      * {@inheritDoc}
-     * 
+     *
      * @see net.sf.ehcache.statistics.LiveCacheStatistics#getInMemoryMissCount()
      */
     public long getInMemoryMissCount() {
@@ -205,7 +205,7 @@ public class LiveCacheStatisticsWrapper implements LiveCacheStatistics, LiveCach
 
     /**
      * {@inheritDoc}
-     * 
+     *
      * @see net.sf.ehcache.statistics.LiveCacheStatistics#getOffHeapMissCount()
      */
     public long getOffHeapMissCount() {
@@ -214,16 +214,16 @@ public class LiveCacheStatisticsWrapper implements LiveCacheStatistics, LiveCach
 
     /**
      * {@inheritDoc}
-     * 
+     *
      * @see net.sf.ehcache.statistics.LiveCacheStatistics#getOnDiskMissCount()
      */
     public long getOnDiskMissCount() {
         return delegate.getOnDiskMissCount();
     }
-    
+
     /**
      * {@inheritDoc}
-     * 
+     *
      * @see net.sf.ehcache.statistics.LiveCacheStatistics#getCacheMissCountExpired()
      */
     public long getCacheMissCountExpired() {
@@ -232,7 +232,7 @@ public class LiveCacheStatisticsWrapper implements LiveCacheStatistics, LiveCach
 
     /**
      * {@inheritDoc}
-     * 
+     *
      * @see net.sf.ehcache.statistics.LiveCacheStatistics#getEvictedCount()
      */
     public long getEvictedCount() {
@@ -241,7 +241,7 @@ public class LiveCacheStatisticsWrapper implements LiveCacheStatistics, LiveCach
 
     /**
      * {@inheritDoc}
-     * 
+     *
      * @see net.sf.ehcache.statistics.LiveCacheStatistics#getExpiredCount()
      */
     public long getExpiredCount() {
@@ -250,7 +250,7 @@ public class LiveCacheStatisticsWrapper implements LiveCacheStatistics, LiveCach
 
     /**
      * {@inheritDoc}
-     * 
+     *
      * @see net.sf.ehcache.statistics.LiveCacheStatistics#getInMemoryHitCount()
      */
     public long getInMemoryHitCount() {
@@ -268,7 +268,7 @@ public class LiveCacheStatisticsWrapper implements LiveCacheStatistics, LiveCach
 
     /**
      * {@inheritDoc}
-     * 
+     *
      * @see net.sf.ehcache.statistics.LiveCacheStatistics#getOnDiskHitCount()
      */
     public long getOnDiskHitCount() {
@@ -277,7 +277,7 @@ public class LiveCacheStatisticsWrapper implements LiveCacheStatistics, LiveCach
 
     /**
      * {@inheritDoc}
-     * 
+     *
      * @see net.sf.ehcache.statistics.LiveCacheStatistics#getPutCount()
      */
     public long getPutCount() {
@@ -286,7 +286,7 @@ public class LiveCacheStatisticsWrapper implements LiveCacheStatistics, LiveCach
 
     /**
      * {@inheritDoc}
-     * 
+     *
      * @see net.sf.ehcache.statistics.LiveCacheStatistics#getRemovedCount()
      */
     public long getRemovedCount() {
@@ -295,7 +295,7 @@ public class LiveCacheStatisticsWrapper implements LiveCacheStatistics, LiveCach
 
     /**
      * {@inheritDoc}
-     * 
+     *
      * @see net.sf.ehcache.statistics.LiveCacheStatistics#getUpdateCount()
      */
     public long getUpdateCount() {
@@ -308,7 +308,7 @@ public class LiveCacheStatisticsWrapper implements LiveCacheStatistics, LiveCach
 
     /**
      * {@inheritDoc}
-     * 
+     *
      * @see net.sf.ehcache.statistics.LiveCacheStatisticsData#addGetTimeMillis(long)
      */
     public void addGetTimeMillis(long millis) {
@@ -317,7 +317,7 @@ public class LiveCacheStatisticsWrapper implements LiveCacheStatistics, LiveCach
 
     /**
      * {@inheritDoc}
-     * 
+     *
      * @see net.sf.ehcache.statistics.LiveCacheStatistics#getMaxGetTimeMillis()
      */
     public long getMaxGetTimeMillis() {
@@ -351,7 +351,7 @@ public class LiveCacheStatisticsWrapper implements LiveCacheStatistics, LiveCach
 
     /**
      * {@inheritDoc}
-     * 
+     *
      * @see net.sf.ehcache.statistics.LiveCacheStatistics#getMinGetTimeMillis()
      */
     public long getMinGetTimeMillis() {
@@ -360,7 +360,7 @@ public class LiveCacheStatisticsWrapper implements LiveCacheStatistics, LiveCach
 
     /**
      * {@inheritDoc}
-     * 
+     *
      * @see net.sf.ehcache.statistics.LiveCacheStatisticsData#cacheHitInMemory()
      */
     public void cacheHitInMemory() {
@@ -378,7 +378,7 @@ public class LiveCacheStatisticsWrapper implements LiveCacheStatistics, LiveCach
 
     /**
      * {@inheritDoc}
-     * 
+     *
      * @see net.sf.ehcache.statistics.LiveCacheStatisticsData#cacheHitOnDisk()
      */
     public void cacheHitOnDisk() {
@@ -387,7 +387,7 @@ public class LiveCacheStatisticsWrapper implements LiveCacheStatistics, LiveCach
 
     /**
      * {@inheritDoc}
-     * 
+     *
      * @see net.sf.ehcache.statistics.LiveCacheStatisticsData#cacheMissExpired()
      */
     public void cacheMissExpired() {
@@ -414,16 +414,16 @@ public class LiveCacheStatisticsWrapper implements LiveCacheStatistics, LiveCach
 
     /**
      * {@inheritDoc}
-     * 
+     *
      * @see net.sf.ehcache.statistics.LiveCacheStatisticsData#cacheMissNotFound()
      */
     public void cacheMissNotFound() {
         getDelegateAsLiveStatisticsData().cacheMissNotFound();
     }
-    
+
     /**
      * {@inheritDoc}
-     * 
+     *
      * @see net.sf.ehcache.statistics.LiveCacheStatisticsData#cacheMissNotFound()
      */
     public void cacheMissInMemory() {
@@ -432,7 +432,7 @@ public class LiveCacheStatisticsWrapper implements LiveCacheStatistics, LiveCach
 
     /**
      * {@inheritDoc}
-     * 
+     *
      * @see net.sf.ehcache.statistics.LiveCacheStatisticsData#cacheMissNotFound()
      */
     public void cacheMissOffHeap() {
@@ -441,7 +441,7 @@ public class LiveCacheStatisticsWrapper implements LiveCacheStatistics, LiveCach
 
     /**
      * {@inheritDoc}
-     * 
+     *
      * @see net.sf.ehcache.statistics.LiveCacheStatisticsData#cacheMissNotFound()
      */
     public void cacheMissOnDisk() {
@@ -450,7 +450,7 @@ public class LiveCacheStatisticsWrapper implements LiveCacheStatistics, LiveCach
 
     /**
      * {@inheritDoc}
-     * 
+     *
      * @see net.sf.ehcache.statistics.LiveCacheStatisticsData#clearStatistics()
      */
     public void clearStatistics() {
@@ -459,7 +459,7 @@ public class LiveCacheStatisticsWrapper implements LiveCacheStatistics, LiveCach
 
     /**
      * {@inheritDoc}
-     * 
+     *
      * @see net.sf.ehcache.event.CacheEventListener#dispose()
      */
     public void dispose() {
@@ -468,7 +468,7 @@ public class LiveCacheStatisticsWrapper implements LiveCacheStatistics, LiveCach
 
     /**
      * {@inheritDoc}
-     * 
+     *
      * @see net.sf.ehcache.event.CacheEventListener#notifyElementEvicted(net.sf.ehcache.Ehcache, net.sf.ehcache.Element)
      */
     public void notifyElementEvicted(Ehcache cache, Element element) {
@@ -477,7 +477,7 @@ public class LiveCacheStatisticsWrapper implements LiveCacheStatistics, LiveCach
 
     /**
      * {@inheritDoc}
-     * 
+     *
      * @see net.sf.ehcache.event.CacheEventListener#notifyElementExpired(net.sf.ehcache.Ehcache, net.sf.ehcache.Element)
      */
     public void notifyElementExpired(Ehcache cache, Element element) {
@@ -486,7 +486,7 @@ public class LiveCacheStatisticsWrapper implements LiveCacheStatistics, LiveCach
 
     /**
      * {@inheritDoc}
-     * 
+     *
      * @see net.sf.ehcache.event.CacheEventListener#notifyElementPut(net.sf.ehcache.Ehcache, net.sf.ehcache.Element)
      */
     public void notifyElementPut(Ehcache cache, Element element) throws CacheException {
@@ -495,7 +495,7 @@ public class LiveCacheStatisticsWrapper implements LiveCacheStatistics, LiveCach
 
     /**
      * {@inheritDoc}
-     * 
+     *
      * @see net.sf.ehcache.event.CacheEventListener#notifyElementRemoved(net.sf.ehcache.Ehcache, net.sf.ehcache.Element)
      */
     public void notifyElementRemoved(Ehcache cache, Element element) throws CacheException {
@@ -504,7 +504,7 @@ public class LiveCacheStatisticsWrapper implements LiveCacheStatistics, LiveCach
 
     /**
      * {@inheritDoc}
-     * 
+     *
      * @see net.sf.ehcache.event.CacheEventListener#notifyElementUpdated(net.sf.ehcache.Ehcache, net.sf.ehcache.Element)
      */
     public void notifyElementUpdated(Ehcache cache, Element element) throws CacheException {
@@ -513,7 +513,7 @@ public class LiveCacheStatisticsWrapper implements LiveCacheStatistics, LiveCach
 
     /**
      * {@inheritDoc}
-     * 
+     *
      * @see net.sf.ehcache.event.CacheEventListener#notifyRemoveAll(net.sf.ehcache.Ehcache)
      */
     public void notifyRemoveAll(Ehcache cache) {
@@ -522,7 +522,7 @@ public class LiveCacheStatisticsWrapper implements LiveCacheStatistics, LiveCach
 
     /**
      * {@inheritDoc}
-     * 
+     *
      * @see java.lang.Object#clone()
      */
     @Override

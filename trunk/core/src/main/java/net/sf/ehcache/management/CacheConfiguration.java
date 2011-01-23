@@ -22,6 +22,7 @@ import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 
 import net.sf.ehcache.CacheException;
+import net.sf.ehcache.config.TerracottaConfiguration.CoherenceMode;
 import net.sf.ehcache.hibernate.management.impl.EhcacheHibernateMbeanNames;
 
 
@@ -38,7 +39,7 @@ public class CacheConfiguration implements CacheConfigurationMBean, Serializable
 
     private transient net.sf.ehcache.config.CacheConfiguration cacheConfiguration;
 
-    private ObjectName objectName;
+    private final ObjectName objectName;
 
     /**
      * Constructs using a backing CacheConfiguration
@@ -80,7 +81,7 @@ public class CacheConfiguration implements CacheConfigurationMBean, Serializable
 
     /**
      * setLoggingEnabled
-     * 
+     *
      * @param enable
      */
     public void setLoggingEnabled(boolean enable) {
@@ -95,13 +96,13 @@ public class CacheConfiguration implements CacheConfigurationMBean, Serializable
 
     /**
      * setMaxElementsInMemory
-     *  
+     *
      * @param maxElements
      */
     public void setMaxElementsInMemory(int maxElements) {
        cacheConfiguration.setMaxElementsInMemory(maxElements);
     }
-    
+
     /**
      * Accessor
      */
@@ -111,13 +112,13 @@ public class CacheConfiguration implements CacheConfigurationMBean, Serializable
 
     /**
      * setMaxElementsOnDisk
-     *  
+     *
      * @param maxElements
      */
     public void setMaxElementsOnDisk(int maxElements) {
        cacheConfiguration.setMaxElementsOnDisk(maxElements);
     }
-    
+
     /**
      * Accessor
      * @return a String representation of the policy
@@ -128,13 +129,13 @@ public class CacheConfiguration implements CacheConfigurationMBean, Serializable
 
     /**
      * setMemoryStoreEvictionPolicy
-     *  
+     *
      * @param memoryStoreEvictionPolicy
      */
     public void setMemoryStoreEvictionPolicy(String memoryStoreEvictionPolicy) {
         cacheConfiguration.setMemoryStoreEvictionPolicy(memoryStoreEvictionPolicy);
     }
-    
+
     /**
      * Accessor
      */
@@ -144,13 +145,13 @@ public class CacheConfiguration implements CacheConfigurationMBean, Serializable
 
     /**
      * setEternal
-     * 
+     *
      * @param eternal
      */
     public void setEternal(boolean eternal) {
         cacheConfiguration.setEternal(eternal);
     }
-    
+
     /**
      * Accessor
      */
@@ -160,13 +161,13 @@ public class CacheConfiguration implements CacheConfigurationMBean, Serializable
 
     /**
      * setTimeToIdleSeconds
-     *  
+     *
      * @param tti
      */
     public void setTimeToIdleSeconds(long tti) {
        cacheConfiguration.setTimeToIdleSeconds(tti);
     }
-    
+
     /**
      * Accessor
      */
@@ -176,13 +177,13 @@ public class CacheConfiguration implements CacheConfigurationMBean, Serializable
 
     /**
      * setTimeToLiveSeconds
-     *  
+     *
      * @param ttl
      */
     public void setTimeToLiveSeconds(long ttl) {
         cacheConfiguration.setTimeToLiveSeconds(ttl);
     }
-    
+
     /**
      * Accessor
      */
@@ -192,13 +193,13 @@ public class CacheConfiguration implements CacheConfigurationMBean, Serializable
 
     /**
      * setOverflowToDisk
-     * 
+     *
      * @param overflowToDisk
      */
     public void setOverflowToDisk(boolean overflowToDisk) {
         cacheConfiguration.setOverflowToDisk(overflowToDisk);
     }
-    
+
     /**
      * Accessor
      */
@@ -208,13 +209,13 @@ public class CacheConfiguration implements CacheConfigurationMBean, Serializable
 
     /**
      * setDiskPersistent
-     * 
+     *
      * @param diskPersistent
      */
     public void setDiskPersistent(boolean diskPersistent) {
         cacheConfiguration.setDiskPersistent(diskPersistent);
     }
-    
+
     /**
      * Accessor
      */
@@ -224,13 +225,13 @@ public class CacheConfiguration implements CacheConfigurationMBean, Serializable
 
     /**
      * setDiskSpoolBufferSizeMB
-     * 
+     *
      * @param diskSpoolBufferSizeMB
      */
     public void setDiskSpoolBufferSizeMB(int diskSpoolBufferSizeMB) {
         cacheConfiguration.setDiskSpoolBufferSizeMB(diskSpoolBufferSizeMB);
     }
-    
+
     /**
      * Accessor
      */
@@ -240,13 +241,13 @@ public class CacheConfiguration implements CacheConfigurationMBean, Serializable
 
     /**
      * setDiskExpiryThreadIntervalSeconds
-     * 
+     *
      * @param diskExpiryThreadIntervalSeconds
      */
     public final void setDiskExpiryThreadIntervalSeconds(long diskExpiryThreadIntervalSeconds) {
         cacheConfiguration.setDiskExpiryThreadIntervalSeconds(diskExpiryThreadIntervalSeconds);
     }
-        
+
     /**
      * Accessor
      */
@@ -254,6 +255,13 @@ public class CacheConfiguration implements CacheConfigurationMBean, Serializable
         return cacheConfiguration.isTerracottaClustered();
     }
 
+    /**
+     * Accessor
+     */
+    public String getTerracottaCoherenceMode() {
+        CoherenceMode coherenceMode = cacheConfiguration.getTerracottaCoherenceMode();
+        return coherenceMode != null ? coherenceMode.toString() : "na";
+    }
 
     /**
      * @return the object name for this MBean

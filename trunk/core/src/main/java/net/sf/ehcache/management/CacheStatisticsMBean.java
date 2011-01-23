@@ -193,4 +193,9 @@ public interface CacheStatisticsMBean {
      */
     long getWriterQueueLength();
 
+    /**
+     * Gets the maximum size of the write-behind queue, if any.
+     * @return Maximum elements waiting to be processed by the write behind writer. -1 if no write-behind
+     */
+    public int getWriterMaxQueueSize();
 }

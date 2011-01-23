@@ -25,6 +25,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
 
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Element;
+import net.sf.ehcache.config.TerracottaConfiguration.CoherenceMode;
 import net.sf.ehcache.event.NotificationScope;
 import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
 import net.sf.ehcache.store.compound.ReadWriteCopyStrategy;
@@ -1671,6 +1672,15 @@ public class CacheConfiguration implements Cloneable {
      */
     public boolean isTerracottaClustered() {
         return terracottaConfiguration != null && terracottaConfiguration.isClustered();
+    }
+
+    /**
+     * Accessor
+     *
+     * @return the CoherenceMode if Terracotta-clustered or null
+     */
+    public CoherenceMode getTerracottaCoherenceMode() {
+        return terracottaConfiguration != null ? terracottaConfiguration.getCoherenceMode() : null;
     }
 
     /**

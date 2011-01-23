@@ -190,6 +190,12 @@ public interface SampledCacheManagerMBean {
     String generateActiveConfigDeclaration(String cacheName);
 
     /**
+     * Are any of the caches transactional
+     * @see net.sf.ehcache.config.CacheConfiguration.TransactionalMode
+     */
+    public boolean getTransactional();
+
+    /**
      * Get the committed transactions count
      * @return the committed transactions count
      */
@@ -219,7 +225,20 @@ public interface SampledCacheManagerMBean {
     long getTransactionTimedOutCount();
 
     /**
-     * @return aggregate Writer-behind queue length
+     * Returns whether any caches are configured for write-behind
+     */
+    boolean getHasWriteBehindWriter();
+
+    /**
+     * Returns the total length of all write-behind queues across all caches
+     * @return aggregate writer-behind queue length
      */
     long getWriterQueueLength();
+
+    /**
+     * Maximum elements that can be queued for processing by the write-behind writer
+     * @return aggregate of the maximum elements that can be waiting to be processed
+     * by the write-behind writer across all caches
+     */
+    public int getWriterMaxQueueSize();
 }

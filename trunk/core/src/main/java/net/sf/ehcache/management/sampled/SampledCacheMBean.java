@@ -22,9 +22,9 @@ import net.sf.ehcache.statistics.sampled.SampledCacheStatistics;
 /**
  * An MBean for Cache exposing cache statistics.
  * Extends from both {@link LiveCacheStatistics} and {@link SampledCacheStatistics}
- * 
+ *
  * <p />
- * 
+ *
  * @author <a href="mailto:asanoujam@terracottatech.com">Abhishek Sanoujam</a>
  * @since 1.7
  */
@@ -33,27 +33,27 @@ public interface SampledCacheMBean extends LiveCacheStatistics, SampledCacheStat
      * CACHE_ENABLED
      */
     public static final String CACHE_ENABLED = "CacheEnabled";
-    
+
     /**
      * CACHE_CHANGED
      */
     public static final String CACHE_CHANGED = "CacheChanged";
-    
+
     /**
      * CACHE_FLUSHED
      */
     public static final String CACHE_FLUSHED = "CacheFlushed";
-    
+
     /**
      * CACHE_CLEARED
      */
     public static final String CACHE_CLEARED = "CacheCleared";
-    
+
     /**
      * CACHE_STATISTICS_ENABLED
      */
     public static final String CACHE_STATISTICS_ENABLED = "CacheStatisticsEnabled";
-    
+
     /**
      * CACHE_STATISTICS_RESET
      */
@@ -63,12 +63,12 @@ public interface SampledCacheMBean extends LiveCacheStatistics, SampledCacheStat
      * Is the cache enabled?
      */
     boolean isEnabled();
-    
+
     /**
      * Enabled/disable cache coherence mode for this node.
      */
     void setNodeCoherent(boolean coherent);
-    
+
     /**
      * Is the cache coherent cluster-wide?
      */
@@ -78,12 +78,12 @@ public interface SampledCacheMBean extends LiveCacheStatistics, SampledCacheStat
      * Is the cache coherent locally?
      */
     boolean isNodeCoherent();
-    
+
     /**
      * Enabled/disable the cache.
      */
     void setEnabled(boolean enabled);
-    
+
     /**
      * Removes all cached items.
      */
@@ -97,17 +97,23 @@ public interface SampledCacheMBean extends LiveCacheStatistics, SampledCacheStat
 
     /**
      * Gets the status attribute of the Cache.
-     * 
+     *
      * @return The status value from the Status enum class
      */
     String getStatus();
 
     /**
      * Is the cache configured with Terracotta clustering?
-     * 
+     *
      * @return true if clustered with terracotta
      */
     public boolean isTerracottaClustered();
+
+    /**
+     * Returns a textual description of a Terracotta-clustered cache's coherence-mode.
+     * @return "STRICT" or "NON-STRICT"
+     */
+    public String getTerracottaCoherenceMode();
 
     /**
      * Clear both sampled and cumulative statistics
@@ -130,7 +136,7 @@ public interface SampledCacheMBean extends LiveCacheStatistics, SampledCacheStat
      * enabled.
      */
     public void setStatisticsEnabled(boolean statsEnabled);
-    
+
     /**
      * Enables statistics collection. As it requires that normal statistics
      * collection to be enabled, it enables it if its not already
@@ -144,7 +150,7 @@ public interface SampledCacheMBean extends LiveCacheStatistics, SampledCacheStat
 
     /**
      * Configuration property accessor
-     * 
+     *
      * @return Max elements in memory config setting value
      */
     public int getConfigMaxElementsInMemory();
@@ -154,10 +160,10 @@ public interface SampledCacheMBean extends LiveCacheStatistics, SampledCacheStat
      * @param maxElements
      */
     public void setConfigMaxElementsInMemory(int maxElements);
-    
+
     /**
      * Configuration property accessor
-     * 
+     *
      * @return Max elements on disk config setting value
      */
     public int getConfigMaxElementsOnDisk();
@@ -167,10 +173,10 @@ public interface SampledCacheMBean extends LiveCacheStatistics, SampledCacheStat
      * @param maxElements
      */
     public void setConfigMaxElementsOnDisk(int maxElements);
-    
+
     /**
      * Configuration property accessor
-     * 
+     *
      * @return a String representation of the policy
      */
     public String getConfigMemoryStoreEvictionPolicy();
@@ -183,7 +189,7 @@ public interface SampledCacheMBean extends LiveCacheStatistics, SampledCacheStat
 
     /**
      * Configuration property accessor
-     * 
+     *
      * @return true if set to eternal in config
      */
     public boolean isConfigEternal();
@@ -193,10 +199,10 @@ public interface SampledCacheMBean extends LiveCacheStatistics, SampledCacheStat
      * @param eternal
      */
     public void setConfigEternal(boolean eternal);
-    
+
     /**
      * Configuration property accessor
-     * 
+     *
      * @return TTI in config
      */
     public long getConfigTimeToIdleSeconds();
@@ -206,10 +212,10 @@ public interface SampledCacheMBean extends LiveCacheStatistics, SampledCacheStat
      * @param tti
      */
     public void setConfigTimeToIdleSeconds(long tti);
-    
+
     /**
      * Configuration property accessor
-     * 
+     *
      * @return TTL in config
      */
     public long getConfigTimeToLiveSeconds();
@@ -219,10 +225,10 @@ public interface SampledCacheMBean extends LiveCacheStatistics, SampledCacheStat
      * @param ttl
      */
     public void setConfigTimeToLiveSeconds(long ttl);
-    
+
     /**
      * Configuration property accessor
-     * 
+     *
      * @return true if overflow to disk specified in config
      */
     public boolean isConfigOverflowToDisk();
@@ -232,10 +238,10 @@ public interface SampledCacheMBean extends LiveCacheStatistics, SampledCacheStat
      * @param overflowToDisk
      */
     public void setConfigOverflowToDisk(boolean overflowToDisk);
-    
+
     /**
      * Configuration property accessor
-     * 
+     *
      * @return true if configured with disk persistence
      */
     public boolean isConfigDiskPersistent();
@@ -245,10 +251,10 @@ public interface SampledCacheMBean extends LiveCacheStatistics, SampledCacheStat
      * @param diskPersistent
      */
     public void setConfigDiskPersistent(boolean diskPersistent);
-    
+
     /**
      * Configuration property accessor
-     * 
+     *
      * @return Value for disk expiry thread interval in seconds specified in config
      */
     public long getConfigDiskExpiryThreadIntervalSeconds();
@@ -258,10 +264,10 @@ public interface SampledCacheMBean extends LiveCacheStatistics, SampledCacheStat
      * @param seconds
      */
     public void setConfigDiskExpiryThreadIntervalSeconds(long seconds);
- 
+
     /**
      * Configuration property accessor
-     * 
+     *
      * @return true if logging is enabled on the cache
      */
     public boolean isConfigLoggingEnabled();
@@ -271,4 +277,29 @@ public interface SampledCacheMBean extends LiveCacheStatistics, SampledCacheStat
      * @param enabled
      */
     public void setConfigLoggingEnabled(boolean enabled);
+
+    /**
+     * Is there a registered Write-behind CacheWriter
+     */
+    boolean getHasWriteBehindWriter();
+
+    /**
+     * Returns the maximum size of any write-behind queues.
+     * @return Maximum elements that can be queued for processing by the write-behind writer
+     * @see net.sf.ehcache.config.CacheWriterConfiguration#getWriteBehindMaxQueueSize()
+     */
+    public int getWriterMaxQueueSize();
+
+    /**
+     * Returns the number of configured write-behind queues/threads.
+     * @return Number of configured processing queues/threads for use by the write-behind writer
+     * @see net.sf.ehcache.config.CacheWriterConfiguration#getWriteBehindConcurrency()
+     */
+    public int getWriterConcurrency();
+
+    /**
+     * Is the cache a transactional one
+     * @see net.sf.ehcache.config.CacheConfiguration.TransactionalMode
+     */
+    public boolean getTransactional();
 }

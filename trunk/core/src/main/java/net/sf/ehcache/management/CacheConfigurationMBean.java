@@ -33,14 +33,14 @@ public interface CacheConfigurationMBean {
      * Accessor
      */
     public boolean isLoggingEnabled();
-    
+
     /**
      * setLoggingEnabled
-     * 
+     *
      * @param loggingEnabled
      */
     public void setLoggingEnabled(boolean loggingEnabled);
-    
+
     /**
      * Accessor
      */
@@ -48,11 +48,11 @@ public interface CacheConfigurationMBean {
 
     /**
      * setMaxElementsInMemory
-     * 
+     *
      * @param maxElements
      */
     public void setMaxElementsInMemory(int maxElements);
-    
+
     /**
      * Accessor
      */
@@ -60,11 +60,11 @@ public interface CacheConfigurationMBean {
 
     /**
      * setMaxElementsOnDisk
-     * 
+     *
      * @param maxElements
      */
     public void setMaxElementsOnDisk(int maxElements);
-    
+
     /**
      * Accessor
      * @return a String representation of the policy
@@ -73,11 +73,11 @@ public interface CacheConfigurationMBean {
 
     /**
      * setMemoryStoreEvictionPolicy
-     * 
+     *
      * @param policy
      */
     public void setMemoryStoreEvictionPolicy(String policy);
-    
+
     /**
      * Accessor
      */
@@ -85,11 +85,11 @@ public interface CacheConfigurationMBean {
 
     /**
      * setEternal
-     * 
+     *
      * @param eternal
      */
     public void setEternal(boolean eternal);
-    
+
     /**
      * Accessor
      */
@@ -97,11 +97,11 @@ public interface CacheConfigurationMBean {
 
     /**
      * setTimeToIdleSeconds
-     * 
+     *
      * @param tti
      */
     public void setTimeToIdleSeconds(long tti);
-    
+
     /**
      * Accessor
      */
@@ -109,11 +109,11 @@ public interface CacheConfigurationMBean {
 
     /**
      * setTimeToLiveSeconds
-     * 
+     *
      * @param ttl
      */
     public void setTimeToLiveSeconds(long ttl);
-    
+
     /**
      * Accessor
      */
@@ -121,11 +121,11 @@ public interface CacheConfigurationMBean {
 
     /**
      * setOverflowToDisk
-     * 
+     *
      * @param overflow
      */
     public void setOverflowToDisk(boolean overflow);
-    
+
     /**
      * Accessor
      */
@@ -133,11 +133,11 @@ public interface CacheConfigurationMBean {
 
     /**
      * setDiskPersistent
-     * 
+     *
      * @param diskPersistent
      */
     public void setDiskPersistent(boolean diskPersistent);
-    
+
     /**
      * Accessor
      */
@@ -145,27 +145,32 @@ public interface CacheConfigurationMBean {
 
     /**
      * setDiskExpiryThreadIntervalSeconds
-     * 
+     *
      * @param seconds
      */
     public void setDiskExpiryThreadIntervalSeconds(long seconds);
-    
+
     /**
      * Accessor
      */
     public int getDiskSpoolBufferSizeMB();
-    
+
     /**
      * setDiskSpoolBufferSizeMB
-     * 
+     *
      * @param diskSpoolBufferSizeMB
      */
     public void setDiskSpoolBufferSizeMB(int diskSpoolBufferSizeMB);
-    
+
     /**
      * Accessor
      */
     boolean isTerracottaClustered();
+
+    /**
+     * Accessor
+     */
+    String getTerracottaCoherenceMode();
 
     /**
      * Accessor

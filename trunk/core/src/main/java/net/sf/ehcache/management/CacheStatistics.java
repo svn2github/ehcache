@@ -53,7 +53,7 @@ public class CacheStatistics implements CacheStatisticsMBean, Serializable {
     private transient Ehcache ehcache;
     private Statistics statistics;
 
-    private ObjectName objectName;
+    private final ObjectName objectName;
     private long lastUpdated;
 
     /**
@@ -248,6 +248,13 @@ public class CacheStatistics implements CacheStatisticsMBean, Serializable {
     }
 
     /**
+     * {@inheritDoc}
+     */
+    public int getWriterMaxQueueSize() {
+        return ehcache.getCacheConfiguration().getCacheWriterConfiguration().getWriteBehindMaxQueueSize();
+    }
+
+    /**
      * Gets the number of objects in the MemoryStore
      * @return the MemoryStore size which is always a count unadjusted for duplicates or expiries
      */
@@ -284,7 +291,7 @@ public class CacheStatistics implements CacheStatisticsMBean, Serializable {
     /**
      * Return the backing cache.
      * @return the backing cache, if one is connected. On Serialization
-     * the transient Ehcache reference is dropped.  
+     * the transient Ehcache reference is dropped.
      */
     public Ehcache getEhcache() {
         return ehcache;

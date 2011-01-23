@@ -71,7 +71,10 @@ public class WriteBehindManager implements CacheWriterManager {
      * {@inheritDoc}
      */
     public void dispose() {
-        writeBehind.stop();
+        /* If WriteBehind is configured but no writer is registered, writeBehind will be null */
+        if (writeBehind != null) {
+            writeBehind.stop();
+        }
     }
 
     /**
