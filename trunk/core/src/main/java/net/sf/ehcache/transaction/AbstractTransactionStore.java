@@ -17,6 +17,7 @@ package net.sf.ehcache.transaction;
 
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Status;
+import net.sf.ehcache.config.InvalidConfigurationException;
 import net.sf.ehcache.search.Attribute;
 import net.sf.ehcache.search.Results;
 import net.sf.ehcache.search.attribute.AttributeExtractor;
@@ -181,6 +182,9 @@ public abstract class AbstractTransactionStore extends AbstractStore {
      */
     @Override
     public void setNodeCoherent(boolean coherent) {
+        if (!coherent) {
+            throw new InvalidConfigurationException("transactional caches don't support non-strict coherent modes");
+        }
         underlyingStore.setNodeCoherent(coherent);
     }
 
