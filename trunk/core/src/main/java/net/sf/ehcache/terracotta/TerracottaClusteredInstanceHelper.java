@@ -17,6 +17,7 @@
 package net.sf.ehcache.terracotta;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -48,7 +49,7 @@ class TerracottaClusteredInstanceHelper {
     }
 
     /**
-     * Returns the singletone instance
+     * Returns the singleton instance
      *
      * @return
      */
@@ -201,8 +202,7 @@ class TerracottaClusteredInstanceHelper {
             }
         }
         if (!identityCaches.isEmpty()) {
-            throw new CacheException("One or more caches are configured for identity value "
-                    + "mode which is not permitted with standalone deployment " + identityCaches.toString());
+            throw newExceptionIdentityNotSupportedInExpress(identityCaches);
         }
 
         // This is required in standalone but in non-standalone, this stuff is picked up through
@@ -213,25 +213,47 @@ class TerracottaClusteredInstanceHelper {
         }
     }
 
+    private static CacheException newExceptionIdentityNotSupportedInExpress(List<String> identityCaches) {
+        return new CacheException("One or more caches are configured for identity value "
+                + "mode which is not permitted with standalone deployment " + identityCaches.toString());
+    }
+
     /**
      * Returns the default {@link StorageStrategy} type for the current Terracotta runtime.
+     * @param cacheConfiguration the cache configuration
      *
      * @return the default {@link StorageStrategy} type for the current Terracotta runtime.
      */
-    StorageStrategy getDefaultStorageStrategyForCurrentRuntime() {
+    StorageStrategy getDefaultStorageStrategyForCurrentRuntime(CacheConfiguration cacheConfiguration) {
         lookupTerracottaRuntime();
         if (terracottaRuntimeType == null) {
             throw new CacheException("Terracotta cache classes are not available, you are missing jar(s) most likely");
         }
-        switch (terracottaRuntimeType) {
-            case Express:
-            case Custom:
-                return StorageStrategy.CLASSIC;
-            case EnterpriseCustom:
-            case EnterpriseExpress:
-                return StorageStrategy.DCV2;
+        switch (cacheConfiguration.getTerracottaConfiguration().getValueMode()) {
+            case SERIALIZATION:
+                // default dcv2 for all 4 terracotta runtime types
+                switch (terracottaRuntimeType) {
+                    case Express:
+                    case Custom:
+                    case EnterpriseCustom:
+                    case EnterpriseExpress:
+                        return StorageStrategy.DCV2;
+                    default:
+                        throw new CacheException("Unknown Terracotta runtime type - " + terracottaRuntimeType);
+                }
+            case IDENTITY:
+                switch (terracottaRuntimeType) {
+                    case Custom:
+                    case EnterpriseCustom:
+                        return StorageStrategy.CLASSIC;
+                    case Express:
+                    case EnterpriseExpress:
+                        throw newExceptionIdentityNotSupportedInExpress(Collections.singletonList(cacheConfiguration.getName()));
+                    default:
+                        throw new CacheException("Unknown Terracotta runtime type - " + terracottaRuntimeType);
+                }
             default:
-                throw new CacheException("Unknown Terracotta runtime type - " + terracottaRuntimeType);
+                throw new CacheException("Unknown value mode - " + cacheConfiguration.getTerracottaConfiguration().getValueMode());
         }
     }
 

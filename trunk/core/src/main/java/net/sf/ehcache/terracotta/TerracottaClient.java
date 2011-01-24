@@ -83,11 +83,12 @@ public class TerracottaClient {
 
     /**
      * Returns the default {@link StorageStrategy} type for the current Terracotta runtime.
+     * @param cacheConfiguration the cache's configuration
      *
      * @return the default {@link StorageStrategy} type for the current Terracotta runtime.
      */
-    public static StorageStrategy getTerracottaDefaultStrategyForCurrentRuntime() {
-        return TerracottaClusteredInstanceHelper.getInstance().getDefaultStorageStrategyForCurrentRuntime();
+    public static StorageStrategy getTerracottaDefaultStrategyForCurrentRuntime(final CacheConfiguration cacheConfiguration) {
+        return TerracottaClusteredInstanceHelper.getInstance().getDefaultStorageStrategyForCurrentRuntime(cacheConfiguration);
     }
 
     /*

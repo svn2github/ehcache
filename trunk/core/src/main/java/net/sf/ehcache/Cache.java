@@ -1050,7 +1050,7 @@ public class Cache implements Ehcache, StoreListener {
 
                 if (!getCacheConfiguration().getTerracottaConfiguration().isStorageStrategySet()) {
                     getCacheConfiguration().getTerracottaConfiguration().storageStrategy(
-                            TerracottaClient.getTerracottaDefaultStrategyForCurrentRuntime());
+                            TerracottaClient.getTerracottaDefaultStrategyForCurrentRuntime(getCacheConfiguration()));
                 }
 
                 Store tempStore = cacheManager.createTerracottaStore(this);
