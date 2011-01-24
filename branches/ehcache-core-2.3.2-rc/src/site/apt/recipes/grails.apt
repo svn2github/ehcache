@@ -1,0 +1,179 @@
+ ------
+ Configuring a Grails Application for Clustering
+ ------
+
+Configuring a Grails Application for Clustering
+
+* Problem
+
+    You would like to enable clustered caching in your Grails application.
+
+* Solution
+
+    Ehcache supports two modes of clustering support for Grails applications:
+
+    * Clustered Hibernate 2nd Level Cache
+
+    * Clustered Sessions
+
+    []
+
+    This recipe will tell you how to configure grails to use a clustered
+    Hibernate 2nd Level Cache.
+
+* Configure Grails for Clustered Hibernate 2nd Level Cache
+
+    These steps assume that you have:
+    
+    * Terracotta version 2.1.0 or later installed to $TERRACOTTA_HOME
+
+    * Grails installed
+    
+    * A Grails application
+
+    [] 
+
+** Step 1 - Configure the hibernate configuration for 2nd level caching
+
+    Grails should set your Hibernate configuration properly by default.
+    Just in case you should make sure it is set properly in your application.
+
+    Edit the <<<grails-app/conf/DataSource.groovy>>> file and make sure
+    your settings match the following:
+
+---------------------------------
+hibernate {
+    cache.use_second_level_cache=true
+    cache.use_query_cache=true
+    cache.provider_class='org.hibernate.cache.EhCacheProvider'
+}
+---------------------------------
+
+** Step 2 - Configure caching strategy for your domain classes
+
+    For each domain class that you would like to cache configure its
+    caching stragegy.
+
+    To define the caching strategy, add a static mapping section to your
+    domain class definition file.  Set <<<cache usage>>> to one of:
+
+    * <<<read-only>>>,
+    
+    * <<<read-write>>>,
+    
+    * <<<transactional>>>, or 
+
+    * <<<nonstrict-read-write>>>.  
+
+    []
+
+    You can also use the shortcut <<<cache true>>>.  For more information 
+    on cache element settings, see the 
+    {{{http://www.grails.org/GORM+-+Mapping+DSL}Grails documentation for GORM Mapping.}}
+
+    Here is an example domain class called "Event" configured for caching:
+
+---------------------------
+package events  
+  
+class Event {  
+    static mapping = {  
+        cache true  
+    }  
+  
+    Date date  
+    String title  
+}  
+---------------------------
+
+    To use transactional caching, use the <<<transactional>>> strategy
+    instead:
+
+---------------------------
+package events  
+  
+class Event {  
+    static mapping = {  
+        cache usage: 'transactional'
+    }  
+  
+    Date date  
+    String title  
+---------------------------
+
+** Step 3 - Configure Grails to use the latest version of Ehcache/Terracotta
+
+    By default Grails uses an older version of Ehcache.  You should
+    configure it to use the version of Ehcache and Terracotta you have 
+    installed.
+
+    <(Note: make sure your version of Ehcache is at least version 2.1.0 or 
+    later.)>
+
+    To configure the version of Ehcache used by Grails, edit the 
+    <<<grails-app/conf/BuildConfig.groovy>>> like so:
+
+-----------------------------
+grails.project.dependency.resolution = {  
+    // inherit Grails' default dependencies  
+    inherits( "global" ) {  
+        // uncomment to disable ehcache  
+        // excludes 'ehcache'  
+         runtime 'net.sf.ehcache:ehcache-core:2.1.0'  
+         runtime 'net.sf.ehcache:ehcache-terracotta:2.1.0'  
+    }  
+
+    ... (rest of file here)  
+-----------------------------
+
+** Step 4 - Configure Ehcache to use Terracotta clustering
+
+    Grails also provides a default Ehcache configuration file which 
+    you will need to edit to enable Terracotta clustering.
+
+    Edit the <<<grails-app/conf/ehcache.xml>>> file and add the
+    Terracotta configuration like so:
+
+-----------------------------
+<ehcache>  
+    <terracottaConfig url="localhost:9510"/>  
+    <defaultCache  
+        maxElementsInMemory="10"  
+        eternal="false"  
+        timeToIdleSeconds="120"  
+        timeToLiveSeconds="120"  
+        overflowToDisk="false">  
+        <terracotta/>  
+    </defaultCache>  
+</ehcache>  
+-----------------------------
+
+** Step 5 - Start a Terracotta Server
+
+    Ehcache Terracotta clustering requires that at least one Terracotta 
+    Server is running.
+
+    Start the Terracotta server now:
+
+-----------------------------
+$ $TERRACOTTA_HOME/bin/start-tc-server.sh
+-----------------------------
+
+** Step 6 - Run your application
+
+-----------------------------
+$ grails run-app
+-----------------------------
+
+    You can monitor the behavior of your application using the Terracotta
+    Developer Console.  Run it now and it will show you useful statistics
+    about of your clustered Grails application!
+
+-----------------------------
+$ $TERRACOTTA_HOME/bin/dev-console.sh
+-----------------------------
+
+* More Information
+
+    See full documentation for Grails cache settings at 
+    {{{http://www.grails.org/GORM+-+Mapping+DSL}Grails GORM Mapping DSL}}.
