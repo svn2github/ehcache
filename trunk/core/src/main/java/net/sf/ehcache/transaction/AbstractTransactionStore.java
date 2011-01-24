@@ -183,7 +183,7 @@ public abstract class AbstractTransactionStore extends AbstractStore {
     @Override
     public void setNodeCoherent(boolean coherent) {
         if (!coherent) {
-            throw new InvalidConfigurationException("transactional caches don't support non-strict coherent modes");
+            throw new InvalidConfigurationException("a transactional cache cannot be incoherent");
         }
         underlyingStore.setNodeCoherent(coherent);
     }
