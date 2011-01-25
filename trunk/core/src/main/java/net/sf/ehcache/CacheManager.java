@@ -196,7 +196,7 @@ public class CacheManager {
 
     private volatile TransactionManagerLookup transactionManagerLookup;
 
-    private TransactionController transactionController;
+    private volatile TransactionController transactionController;
 
     private final ConcurrentMap<String, SoftLockFactory> softLockFactories = new ConcurrentHashMap<String, SoftLockFactory>();
 
@@ -1163,6 +1163,7 @@ public class CacheManager {
                     singleton = null;
                 }
                 terracottaClient.shutdown();
+                transactionController = null;
                 removeShutdownHook();
                 CacheManagerExecutorServiceFactory.getInstance().shutdown(this);
             }
