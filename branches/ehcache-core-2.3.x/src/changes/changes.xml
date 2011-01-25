@@ -1,6 +1,11 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <document>
     <body>
+        <release version="2.3.2" date="2011-02-15" description="Bug fixes">
+            <action dev="Chris Dennis" type="fix" issue="EHC-805">
+               Blocking cache can create several StripedReadWriteLockSync
+            </action>
+        </release>
         <release version="2.3.1" date="2010-12-10" description="Bug fixes">
             <action dev="Ludovic Orban" type="fix" issue="DEV-5042">
             	Fixed big memory RMI replication by storing non-serializable key list into a
