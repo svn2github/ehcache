@@ -34,11 +34,11 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Helper class for registering mbeans for ehcache backed hibernate second level cache
- * 
+ *
  * <p />
- * 
+ *
  * @author <a href="mailto:asanoujam@terracottatech.com">Abhishek Sanoujam</a>
- * 
+ *
  */
 public class ProviderMBeanRegistrationHelper {
     private static final Logger LOG = LoggerFactory.getLogger(ProviderMBeanRegistrationHelper.class);
@@ -50,7 +50,7 @@ public class ProviderMBeanRegistrationHelper {
 
     /**
      * Registers mbean for the input cache manager and the session factory name
-     * 
+     *
      * @param manager
      *            the backing cachemanager
      * @param properties
@@ -64,6 +64,9 @@ public class ProviderMBeanRegistrationHelper {
         }
     }
 
+    /**
+     * Unregisters previously registered mbean.
+     */
     public void unregisterMBean() {
         if (ehcacheHibernateMBeanRegistration != null) {
             ehcacheHibernateMBeanRegistration.dispose();
@@ -72,9 +75,9 @@ public class ProviderMBeanRegistrationHelper {
     }
 
     /**
-     * 
+     *
      * Task for running mbean registration that can be scheduled in a timer
-     * 
+     *
      */
     private static class RegisterMBeansTask extends TimerTask {
         private static final int NUM_SECONDS = 30;
@@ -84,7 +87,8 @@ public class ProviderMBeanRegistrationHelper {
         private final CacheManager manager;
         private final Properties properties;
 
-        public RegisterMBeansTask(EhcacheHibernateMBeanRegistrationImpl ehcacheHibernateMBeanRegistration, CacheManager manager, Properties properties) {
+        public RegisterMBeansTask(EhcacheHibernateMBeanRegistrationImpl ehcacheHibernateMBeanRegistration,
+                CacheManager manager, Properties properties) {
             this.ehcacheHibernateMBeanRegistration = ehcacheHibernateMBeanRegistration;
             this.manager = manager;
             this.properties = properties;
