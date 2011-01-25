@@ -97,6 +97,7 @@ public class EhCacheRegionFactory extends AbstractEhcacheRegionFactory {
     public void stop() {
         try {
             if (manager != null) {
+                mbeanRegistrationHelper.unregisterMBean();
                 manager.shutdown();
                 manager = null;
             }

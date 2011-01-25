@@ -46,6 +46,8 @@ public class ProviderMBeanRegistrationHelper {
     private static final int MILLIS_PER_SECOND = 1000;
     private static final int SLEEP_MILLIS = 500;
 
+    private volatile EhcacheHibernateMBeanRegistrationImpl ehcacheHibernateMBeanRegistration;
+
     /**
      * Registers mbean for the input cache manager and the session factory name
      * 
@@ -56,8 +58,16 @@ public class ProviderMBeanRegistrationHelper {
      */
     public void registerMBean(final CacheManager manager, final Properties properties) {
         if (Boolean.getBoolean("tc.active")) {
-            manager.getTimer().scheduleAtFixedRate(new RegisterMBeansTask(manager, properties), SLEEP_MILLIS,
+            ehcacheHibernateMBeanRegistration = new EhcacheHibernateMBeanRegistrationImpl();
+            manager.getTimer().scheduleAtFixedRate(new RegisterMBeansTask(ehcacheHibernateMBeanRegistration, manager, properties), SLEEP_MILLIS,
                     SLEEP_MILLIS);
+        }
+    }
+
+    public void unregisterMBean() {
+        if (ehcacheHibernateMBeanRegistration != null) {
+            ehcacheHibernateMBeanRegistration.dispose();
+            ehcacheHibernateMBeanRegistration = null;
         }
     }
 
@@ -70,11 +80,12 @@ public class ProviderMBeanRegistrationHelper {
         private static final int NUM_SECONDS = 30;
         private long startTime;
         private final AtomicBoolean mbeanRegistered = new AtomicBoolean(false);
-        private EhcacheHibernateMBeanRegistration ehcacheHibernateMBeanRegistration = new EhcacheHibernateMBeanRegistrationImpl();
+        private final EhcacheHibernateMBeanRegistrationImpl ehcacheHibernateMBeanRegistration;
         private final CacheManager manager;
         private final Properties properties;
 
-        public RegisterMBeansTask(CacheManager manager, Properties properties) {
+        public RegisterMBeansTask(EhcacheHibernateMBeanRegistrationImpl ehcacheHibernateMBeanRegistration, CacheManager manager, Properties properties) {
+            this.ehcacheHibernateMBeanRegistration = ehcacheHibernateMBeanRegistration;
             this.manager = manager;
             this.properties = properties;
         }

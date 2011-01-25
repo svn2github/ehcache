@@ -18,11 +18,9 @@ package net.sf.ehcache.hibernate.management.impl;
 
 import java.lang.management.ManagementFactory;
 import java.util.Properties;
-import java.util.Set;
 
 import javax.management.InstanceAlreadyExistsException;
 import javax.management.MBeanServer;
-import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 
 import net.sf.ehcache.CacheException;
@@ -53,6 +51,7 @@ public class EhcacheHibernateMBeanRegistrationImpl implements EhcacheHibernateMB
     private String registeredCacheManagerName;
     private Status status = Status.STATUS_UNINITIALISED;
     private volatile EhcacheHibernate ehcacheHibernate;
+    private volatile ObjectName cacheManagerObjectName;
 
     /**
      * {@inheritDoc}
@@ -82,8 +81,9 @@ public class EhcacheHibernateMBeanRegistrationImpl implements EhcacheHibernateMB
             try {
                 // register the CacheManager MBean
                 MBeanServer mBeanServer = getMBeanServer();
-                mBeanServer.registerMBean(ehcacheHibernate, EhcacheHibernateMbeanNames.getCacheManagerObjectName(cacheManagerClusterUUID,
-                        registeredCacheManagerName));
+                cacheManagerObjectName = EhcacheHibernateMbeanNames.getCacheManagerObjectName(cacheManagerClusterUUID,
+                        registeredCacheManagerName);
+                mBeanServer.registerMBean(ehcacheHibernate, cacheManagerObjectName);
                 success = true;
                 break;
             } catch (InstanceAlreadyExistsException e) {
@@ -114,24 +114,17 @@ public class EhcacheHibernateMBeanRegistrationImpl implements EhcacheHibernateMB
      * {@inheritDoc}
      */
     public synchronized void dispose() throws CacheException {
-        Set<ObjectName> registeredObjectNames = null;
+        if (status == Status.STATUS_SHUTDOWN) {
+            return;
+        }
 
         try {
-            // CacheManager MBean
-            registeredObjectNames = getMBeanServer().queryNames(
-                    EhcacheHibernateMbeanNames.getCacheManagerObjectName(cacheManagerClusterUUID, registeredCacheManagerName), null);
-        } catch (MalformedObjectNameException e) {
-            LOG.warn("Error querying MBeanServer. Error was " + e.getMessage(), e);
+            getMBeanServer().unregisterMBean(cacheManagerObjectName);
+        } catch (Exception e) {
+            LOG.warn("Error unregistering object instance " + cacheManagerObjectName + " . Error was " + e.getMessage(), e);
         }
-        if (registeredObjectNames != null) {
-            for (ObjectName objectName : registeredObjectNames) {
-                try {
-                    getMBeanServer().unregisterMBean(objectName);
-                } catch (Exception e) {
-                    LOG.warn("Error unregistering object instance " + objectName + " . Error was " + e.getMessage(), e);
-                }
-            }
-        }
+        ehcacheHibernate = null;
+        cacheManagerObjectName = null;
         status = Status.STATUS_SHUTDOWN;
     }
 
