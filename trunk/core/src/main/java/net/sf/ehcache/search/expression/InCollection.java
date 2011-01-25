@@ -105,8 +105,18 @@ public class InCollection extends BaseCriteria {
         }
 
         Object attrValue = attributeValues.getAttributeValue(attributeName, type);
-
-        return values.contains(attrValue);
+        if (attrValue == null) {
+            return false;
+        } else if (AttributeType.STRING.equals(type)) {
+            for (Object o : values) {
+                if (attrValue.toString().equalsIgnoreCase(o.toString())) {
+                    return true;
+                }
+            }
+            return false;
+        } else {
+            return values.contains(attrValue);
+        }
     }
 
 }
