@@ -16,6 +16,8 @@
 
 package net.sf.ehcache.search.expression;
 
+import java.util.Comparator;
+
 import net.sf.ehcache.Element;
 import net.sf.ehcache.search.SearchException;
 import net.sf.ehcache.search.attribute.AttributeType;
@@ -27,6 +29,8 @@ import net.sf.ehcache.store.ElementAttributeValues;
  * @author teck
  */
 public abstract class ComparableValue extends BaseCriteria {
+
+    private static final Comparator<String> LUCENE_STRING_COMPARATOR = new LuceneCaseAgnosticStringComparator();
 
     private final String attributeName;
     private final AttributeType type;
@@ -105,4 +109,37 @@ public abstract class ComparableValue extends BaseCriteria {
      * @return true if criteria is met
      */
     protected abstract boolean executeComparableString(Comparable attributeValue);
+
+    /**
+     * Perform a Lucene compatible case insensitive string comparison.
+     *
+     * @param s1 first string
+     * @param s2 second string
+     * @return the comparison result
+     */
+    protected static int luceneStringCompare(String s1, String s2) {
+        return LUCENE_STRING_COMPARATOR.compare(s1, s2);
+    }
+
+    /**
+     * A Lucene compatible case insensitive string comparator.
+     */
+    private static class LuceneCaseAgnosticStringComparator implements Comparator<String> {
+
+      public int compare(String s1, String s2) {
+        int n1 = s1.length();
+        int n2 = s2.length();
+        for (int i = 0; i < n1 && i < n2; i++) {
+          char c1 = s1.charAt(i);
+          char c2 = s2.charAt(i);
+
+          if (c1 != c2) {
+            c1 = Character.toLowerCase(c1);
+            c2 = Character.toLowerCase(c2);
+            if (c1 != c2) { return c1 - c2; }
+          }
+        }
+        return n1 - n2;
+      }
+    }
 }

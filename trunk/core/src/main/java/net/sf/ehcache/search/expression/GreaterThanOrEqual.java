@@ -49,7 +49,7 @@ public class GreaterThanOrEqual extends ComparableValue {
      */
     @Override
     protected boolean executeComparableString(Comparable attributeValue) {
-        return attributeValue.toString().compareToIgnoreCase(comparableValue.toString()) >= 0;
+        return luceneStringCompare(attributeValue.toString(), comparableValue.toString()) >= 0;
     }
 
     /**

@@ -127,12 +127,12 @@ public class Between extends ComparableValue {
      */
     @Override
     protected boolean executeComparableString(Comparable attributeValue) {
-        int minCmp = attributeValue.toString().compareToIgnoreCase(min.toString());
+        int minCmp = luceneStringCompare(attributeValue.toString(), min.toString());
         if (minCmp < 0) {
             return false;
         }
 
-        int maxCmp = attributeValue.toString().compareToIgnoreCase(max.toString());
+        int maxCmp = luceneStringCompare(attributeValue.toString(), max.toString());
         if (maxCmp > 0) {
             return false;
         }
