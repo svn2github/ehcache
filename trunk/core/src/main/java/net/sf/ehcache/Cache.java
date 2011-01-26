@@ -1049,11 +1049,8 @@ public class Cache implements Ehcache, StoreListener {
                 }
                 if (getCacheConfiguration().getTransactionalMode().isTransactional()
                         && getCacheConfiguration().getTerracottaConfiguration().isNonstopEnabled()) {
-                    throw new InvalidConfigurationException("NonStop should be disabled"
-                            + " when cache is configured with transactions enabled. "
-                            + "You can fix this by either disabling NonStop (<terracotta> "
-                            + "<nonstop enabled=\"false\"/> </terracotta>)"
-                            + " for the cache or turning off transactions.");
+                    LOG.warn("Cache: " + configuration.getName() + " configured both NonStop and transactional."
+                            + " NonStop features won't work for this cache!");
                 }
 
 
