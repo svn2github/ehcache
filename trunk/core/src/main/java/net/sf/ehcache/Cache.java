@@ -2449,6 +2449,8 @@ public class Cache implements Ehcache, StoreListener {
                 .append(" diskStoreHitCount = ").append(getLiveCacheStatisticsNoCheck().getOnDiskHitCount())
                 .append(" missCountNotFound = ").append(getLiveCacheStatisticsNoCheck().getCacheMissCount())
                 .append(" missCountExpired = ").append(getLiveCacheStatisticsNoCheck().getCacheMissCountExpired())
+                .append(" overflowToOffHeap = ").append(configuration.isOverflowToOffHeap())
+                .append(" maxMemoryOffHeap = ").append(configuration.getMaxMemoryOffHeap())
                 .append(" ]");
 
         return dump.toString();
