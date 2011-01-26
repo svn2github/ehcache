@@ -547,10 +547,12 @@ for (Result result : results.all()) {
 
     Search operations perform in O(n) time.
 
-    Accordingly, this implementation is suitable for development and testing. For production it is recommended to only
+    Checkout {{https://svn.terracotta.org/repo/forge/offHeap-test/}} terracotta_community_login, a Maven-based performance test showing
+    standalone cache performance. This test shows search performance of 10ms per 10,000 entries. The search tends to be CPU bound.
+
+    Accordingly, standalone implementation is suitable for development and testing. For production it is recommended to only
     search against caches that are less than 100,000 element in size.
 
-    An indexed implementation may be done in future.
 
 **  Ehcache backed by the Terracotta Server Array
 

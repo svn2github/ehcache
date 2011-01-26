@@ -125,7 +125,9 @@ public interface Store {
 
     /**
      * Remove the Element mapped to the key for the supplied element if the value of the supplied Element
-     * is equal to the value of the cached Element.
+     * is equal to the value of the cached Element. This is a CAS operation. It is consistent even against
+     * a distributed cache that is not coherent. If the old value is stale when this operation is attempted
+     * the remove does not take place.
      *
      * @param element Element to be removed
      * @param comparator ElementValueComparator to use to compare elements
