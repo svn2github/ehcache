@@ -28,11 +28,14 @@ import org.junit.After;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author <a href="mailto:gluck@gregluck.com">Greg Luck</a>
@@ -67,6 +70,22 @@ public class CacheLoaderTest {
         if (!manager.getStatus().equals(Status.STATUS_SHUTDOWN)) {
             manager.shutdown();
         }
+    }
+
+    @Test
+    public void testGetAllWithLoaderExpiredKey() throws Exception {
+        Cache cache = manager.getCache("CCache");
+        cache.put(new Element(1, "one"));
+        Thread.sleep(1100); // make Element 1 expire, see EHC-809
+        cache.put(new Element(2, "two"));
+        cache.put(new Element(3, null));
+
+        Map cachedObjects = cache.getAllWithLoader(Arrays.asList(1, 2, 3), null);
+
+        assertTrue(cachedObjects.get(1).toString().equals("C(1)"));
+        assertTrue(cachedObjects.get(2).toString().equals("two"));
+        assertNull(cachedObjects.get(3));
+        assertTrue(cachedObjects.containsKey(3));
     }
 
     @Test

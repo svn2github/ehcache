@@ -20,6 +20,14 @@
         <cacheLoaderFactory class="net.sf.ehcache.loader.ComponentBLoader"/>
     </cache>
 
+    <cache name="CCache"
+           eternal="false"
+           maxElementsInMemory="50"
+           timeToLiveSeconds="1"
+           overflowToDisk="false">
+        <cacheLoaderFactory class="net.sf.ehcache.loader.ComponentCLoader"/>
+    </cache>
+
     <cache name="NullLoaderFirstCache"
            eternal="true"
            maxElementsInMemory="100"

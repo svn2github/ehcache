@@ -1638,14 +1638,12 @@ public class Cache implements Ehcache, StoreListener {
 
                 for (Object key1 : keys) {
                     key = key1;
+                    Element element = get(key);
 
-                    if (isKeyInCache(key)) {
-                        Element element = get(key);
-                        if (element != null) {
-                            map.put(key, element.getObjectValue());
-                        } else {
-                            map.put(key, null);
-                        }
+                    if (element != null) {
+                        map.put(key, element.getObjectValue());
+                    } else if (isKeyInCache(key)) {
+                        map.put(key, null);
                     } else {
                         missingKeys.add(key);
                     }
@@ -2621,7 +2619,7 @@ public class Cache implements Ehcache, StoreListener {
      * @return true if an element matching the key is found in the diskStore
      */
     public final boolean isElementOnDisk(Serializable key) {
-        return isElementOnDisk((Object)key);
+        return isElementOnDisk((Object) key);
     }
 
     /**
