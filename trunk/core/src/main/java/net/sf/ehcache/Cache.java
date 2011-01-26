@@ -1044,7 +1044,16 @@ public class Cache implements Ehcache, StoreListener {
                         && getCacheConfiguration().getTerracottaConfiguration().getCoherenceMode() == CoherenceMode.NON_STRICT) {
                     throw new InvalidConfigurationException("Coherence mode should be " + CoherenceMode.STRICT
                             + " when cache is configured with transactions enabled. "
-                            + "You can fix this by either making the cache in 'strict' mode or turning off transactions.");
+                            + "You can fix this by either making the cache in 'strict' mode (<terracotta coherent=\"strict\"/>)"
+                            + " or turning off transactions.");
+                }
+                if (getCacheConfiguration().getTransactionalMode().isTransactional()
+                        && getCacheConfiguration().getTerracottaConfiguration().isNonstopEnabled()) {
+                    throw new InvalidConfigurationException("NonStop should be disabled"
+                            + " when cache is configured with transactions enabled. "
+                            + "You can fix this by either disabling NonStop (<terracotta> "
+                            + "<nonstop enabled=\"false\"/> </terracotta>)"
+                            + " for the cache or turning off transactions.");
                 }
 
 
