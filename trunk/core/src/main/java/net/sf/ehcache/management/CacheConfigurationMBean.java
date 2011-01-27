@@ -170,7 +170,7 @@ public interface CacheConfigurationMBean {
     /**
      * Accessor
      */
-    String getTerracottaCoherenceMode();
+    String getTerracottaConsistency();
 
     /**
      * Accessor

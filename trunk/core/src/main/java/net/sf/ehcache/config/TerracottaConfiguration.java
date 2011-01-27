@@ -73,15 +73,16 @@ public class TerracottaConfiguration implements Cloneable {
 
     /**
      * Default cache coherence setting
-     * @deprecated since 2.4 Use {@link #DEFAULT_COHERENCE_MODE} instead.
+     *
+     * @deprecated since 2.4 Use {@link #DEFAULT_CONSISTENCY_TYPE} instead.
      */
     @Deprecated
     public static final boolean DEFAULT_CACHE_COHERENT = true;
 
     /**
-     * Default cache coherence setting
+     * Default cache consistency setting
      */
-    public static final CoherenceMode DEFAULT_COHERENCE_MODE = CoherenceMode.NON_STRICT;
+    public static final Consistency DEFAULT_CONSISTENCY_TYPE = Consistency.EVENTUAL;
 
     /**
      * Default setting for synchronous-write
@@ -151,7 +152,7 @@ public class TerracottaConfiguration implements Cloneable {
 
     private boolean copyOnReadSet;
     private volatile boolean storageStrategySet;
-    private CoherenceMode coherenceMode = DEFAULT_COHERENCE_MODE;
+    private Consistency consistency = DEFAULT_CONSISTENCY_TYPE;
 
     /**
      * Clones this object, following the usual contract.
@@ -444,35 +445,37 @@ public class TerracottaConfiguration implements Cloneable {
 
     /**
      * Used by BeanHandler to set the <tt>coherent</tt> during parsing
-     * @deprecated since 2.4 Use {@link #setCoherent(String)} instead
+     *
+     * @deprecated since 2.4 Use {@link #setConsistency(Consistency)} instead
      */
     @Deprecated
     public void setCoherent(boolean coherent) {
-        CoherenceMode mode = coherent ? CoherenceMode.STRICT : CoherenceMode.NON_STRICT;
-        this.coherent(mode);
+        Consistency consistencyType = coherent ? Consistency.STRONG : Consistency.EVENTUAL;
+        this.consistency(consistencyType);
     }
 
     /**
      * @return this configuration instance
      * @see #setCoherent(boolean)
-     * @deprecated since 2.4 Use {@link #coherent(CoherenceMode)} instead
+     * @deprecated since 2.4 Use {@link #consistency(Consistency)} instead
      */
     @Deprecated
     public TerracottaConfiguration coherent(boolean coherent) {
-        CoherenceMode mode = coherent ? CoherenceMode.STRICT : CoherenceMode.NON_STRICT;
-        return coherent(mode);
+        Consistency consistencyType = coherent ? Consistency.STRONG : Consistency.EVENTUAL;
+        this.consistency(consistencyType);
+        return this;
     }
 
     /**
      * Is the cache configured for coherent or incoherent mode.
      *
      * @return true if configured in coherent mode.
-     * @deprecated since 2.4 Use {@link #getCoherenceMode()} instead to query the {@link CoherenceMode} or Ehcache#isNodeCoherent()
+     * @deprecated since 2.4 Use {@link #getConsistency()} instead to query the {@link Consistency} or Ehcache#isNodeCoherent()
      *             to query if the node is coherent
      */
     @Deprecated
     public boolean isCoherent() {
-        return coherenceMode == CoherenceMode.STRICT;
+        return consistency == Consistency.STRONG;
     }
 
     /**
@@ -618,101 +621,60 @@ public class TerracottaConfiguration implements Cloneable {
     }
 
     /**
-     * Setter for coherent mode
-     * @param coherent
-     */
-    public void setCoherent(String coherent) {
-        CoherenceMode coherentMode = null;
-        if ("true".equalsIgnoreCase(coherent)) {
-            coherentMode = CoherenceMode.STRICT;
-        } else if ("false".equalsIgnoreCase(coherent)) {
-            coherentMode = CoherenceMode.NON_STRICT;
-        } else {
-            coherentMode = CoherenceMode.getCoherenceModeFromString(coherent);
-        }
-        this.coherent(coherentMode);
-    }
-
-    /**
-     * Setter for coherent mode, returns this instance
-     * @param coherent
+     * Setter for consistency, returns this instance
+     *
+     * @param consistency
      * @return this instance
      */
-    public TerracottaConfiguration coherent(CoherenceMode coherent) {
-        this.coherenceMode = coherent;
+    public TerracottaConfiguration consistency(Consistency consistency) {
+        setConsistency(consistency);
         return this;
     }
 
     /**
-     * Setter for coherent mode, returns this instance
-     * @param coherent
-     * @return this instance
+     * Setter for consistency
+     *
+     * @param consistency
      */
-    public TerracottaConfiguration coherenceMode(CoherenceMode coherent) {
-        return this.coherent(coherent);
+    public void setConsistency(Consistency consistency) {
+        this.consistency = consistency;
     }
 
     /**
-     * Setter for coherent mode
-     * @param coherent
+     * Setter for consistency
+     *
+     * @param consistency
      */
-    public void setCoherenceMode(CoherenceMode coherent) {
-        this.coherent(coherent);
+    public void setConsistency(String consistency) {
+        if (consistency == null) {
+            throw new IllegalArgumentException("Consistency cannot be null");
+        }
+        this.setConsistency(Consistency.valueOf(consistency.toUpperCase()));
     }
 
     /**
-     * Getter for coherent mode
-     * @return the coherent mode
+     * Getter for consistency
+     *
+     * @return the consistency
      */
-    public CoherenceMode getCoherenceMode() {
-        return this.coherenceMode;
+    public Consistency getConsistency() {
+        return this.consistency;
     }
 
     /**
-     * Enum for various coherence setting
+     * Enum for various consistency settings
+     *
      * @author Abhishek Sanoujam
      *
      */
-    public static enum CoherenceMode {
+    public static enum Consistency {
         /**
-         * Strict coherence mode
+         * Strong consistency
          */
-        STRICT() {
-            @Override
-            public String getConfigString() {
-                return STRICT_CONFIG_NAME;
-            }
-        },
+        STRONG,
         /**
-         * Non Strict coherence mode
+         * Eventual consistency
          */
-        NON_STRICT() {
-            @Override
-            public String getConfigString() {
-                return NON_STRICT_CONFIG_NAME;
-            }
-        };
-        private static final String NON_STRICT_CONFIG_NAME = "non-strict";
-        private static final String STRICT_CONFIG_NAME = "strict";
-
-        /**
-         * Returns an instance of {@link CoherenceMode} for the input string
-         * @param mode
-         * @return an instance of {@link CoherenceMode} for the input string
-         */
-        public static CoherenceMode getCoherenceModeFromString(String mode) {
-            if (STRICT_CONFIG_NAME.equalsIgnoreCase(mode)) {
-                return STRICT;
-            } else if (NON_STRICT_CONFIG_NAME.equalsIgnoreCase(mode)) {
-                return NON_STRICT;
-            } else {
-                throw new IllegalArgumentException("Unknown coherent mode - " + mode);
-            }
-        }
-        /**
-         * Returns config name used for this type
-         * @return config name used for this type
-         */
-        public abstract String getConfigString();
+        EVENTUAL;
     }
 }

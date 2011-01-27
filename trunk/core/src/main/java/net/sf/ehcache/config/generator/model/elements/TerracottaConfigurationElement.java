@@ -54,8 +54,8 @@ public class TerracottaConfigurationElement extends SimpleNodeElement {
                 TerracottaConfiguration.DEFAULT_CLUSTERED));
         addAttribute(new SimpleNodeAttribute("valueMode", tcConfiguration.getValueMode()).optional(true).defaultValue(
                 TerracottaConfiguration.DEFAULT_VALUE_MODE));
-        addAttribute(new SimpleNodeAttribute("coherent", tcConfiguration.getCoherenceMode().getConfigString()).optional(true).defaultValue(
-                TerracottaConfiguration.DEFAULT_COHERENCE_MODE.getConfigString()));
+        addAttribute(new SimpleNodeAttribute("consistency", tcConfiguration.getConsistency().name()).optional(true).defaultValue(
+                TerracottaConfiguration.DEFAULT_CONSISTENCY_TYPE.name()));
         addAttribute(new SimpleNodeAttribute("synchronousWrites", tcConfiguration.isSynchronousWrites()).optional(true).defaultValue(
                 TerracottaConfiguration.DEFAULT_SYNCHRONOUS_WRITES));
         addAttribute(new SimpleNodeAttribute("copyOnRead", tcConfiguration.isCopyOnRead()).optional(true).defaultValue(

@@ -19,7 +19,7 @@ package net.sf.ehcache.config;
 import junit.framework.TestCase;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
-import net.sf.ehcache.config.TerracottaConfiguration.CoherenceMode;
+import net.sf.ehcache.config.TerracottaConfiguration.Consistency;
 
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -34,49 +34,43 @@ public class CoherenceModeConfigTest extends TestCase {
         CacheManager cacheManager = new CacheManager(this.getClass().getResourceAsStream("/ehcache-coherence-mode-test.xml"));
         Cache cache = cacheManager.getCache("defaultCoherenceMode");
         boolean coherent;
-        CoherenceMode coherenceMode;
+        Consistency consistency;
         coherent = cache.getCacheConfiguration().getTerracottaConfiguration().isCoherent();
-        coherenceMode = cache.getCacheConfiguration().getTerracottaConfiguration().getCoherenceMode();
+        consistency = cache.getCacheConfiguration().getTerracottaConfiguration().getConsistency();
         LOG.info("Default coherent: " + coherent);
-        LOG.info("Default Coherence mode: " + coherenceMode);
-        final boolean expectedDefault = TerracottaConfiguration.DEFAULT_COHERENCE_MODE == CoherenceMode.STRICT? true: false;
+        LOG.info("Default Coherence mode: " + consistency);
+        final boolean expectedDefault = TerracottaConfiguration.DEFAULT_CONSISTENCY_TYPE == Consistency.STRONG ? true : false;
         assertEquals(expectedDefault, coherent);
-        assertEquals(TerracottaConfiguration.DEFAULT_COHERENCE_MODE, coherenceMode);
+        assertEquals(TerracottaConfiguration.DEFAULT_CONSISTENCY_TYPE, consistency);
 
         cache = cacheManager.getCache("falseCoherenceMode");
         coherent = cache.getCacheConfiguration().getTerracottaConfiguration().isCoherent();
-        coherenceMode = cache.getCacheConfiguration().getTerracottaConfiguration().getCoherenceMode();
+        consistency = cache.getCacheConfiguration().getTerracottaConfiguration().getConsistency();
         LOG.info("False coherent: " + coherent);
-        LOG.info("False Coherence mode: " + coherenceMode);
+        LOG.info("False Coherence mode: " + consistency);
         assertEquals(false, coherent);
-        assertEquals(CoherenceMode.NON_STRICT, coherenceMode);
+        assertEquals(Consistency.EVENTUAL, consistency);
 
         cache = cacheManager.getCache("trueCoherenceMode");
         coherent = cache.getCacheConfiguration().getTerracottaConfiguration().isCoherent();
-        coherenceMode = cache.getCacheConfiguration().getTerracottaConfiguration().getCoherenceMode();
+        consistency = cache.getCacheConfiguration().getTerracottaConfiguration().getConsistency();
         LOG.info("True coherent: " + coherent);
-        LOG.info("True Coherence mode: " + coherenceMode);
+        LOG.info("True Coherence mode: " + consistency);
         assertEquals(true, coherent);
-        assertEquals(CoherenceMode.STRICT, coherenceMode);
+        assertEquals(Consistency.STRONG, consistency);
 
         TerracottaConfiguration tcConfig = cache.getCacheConfiguration().getTerracottaConfiguration();
         tcConfig.setCoherent(false);
-        assertEquals(CoherenceMode.NON_STRICT, cache.getCacheConfiguration().getTerracottaConfiguration().getCoherenceMode());
+        assertEquals(Consistency.EVENTUAL, cache.getCacheConfiguration().getTerracottaConfiguration().getConsistency());
 
         tcConfig.setCoherent(true);
-        assertEquals(CoherenceMode.STRICT, cache.getCacheConfiguration().getTerracottaConfiguration().getCoherenceMode());
+        assertEquals(Consistency.STRONG, cache.getCacheConfiguration().getTerracottaConfiguration().getConsistency());
 
-        tcConfig.setCoherent("false");
-        assertEquals(CoherenceMode.NON_STRICT, cache.getCacheConfiguration().getTerracottaConfiguration().getCoherenceMode());
+        tcConfig.setConsistency(Consistency.EVENTUAL);
+        assertEquals(Consistency.EVENTUAL, cache.getCacheConfiguration().getTerracottaConfiguration().getConsistency());
 
-        tcConfig.setCoherent("true");
-        assertEquals(CoherenceMode.STRICT, cache.getCacheConfiguration().getTerracottaConfiguration().getCoherenceMode());
-
-        tcConfig.setCoherenceMode(CoherenceMode.NON_STRICT);
-        assertEquals(CoherenceMode.NON_STRICT, cache.getCacheConfiguration().getTerracottaConfiguration().getCoherenceMode());
-
-        tcConfig.setCoherenceMode(CoherenceMode.STRICT);
-        assertEquals(CoherenceMode.STRICT, cache.getCacheConfiguration().getTerracottaConfiguration().getCoherenceMode());
+        tcConfig.setConsistency(Consistency.STRONG);
+        assertEquals(Consistency.STRONG, cache.getCacheConfiguration().getTerracottaConfiguration().getConsistency());
     }
 
 }

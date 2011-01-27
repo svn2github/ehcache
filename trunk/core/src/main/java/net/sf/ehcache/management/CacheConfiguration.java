@@ -22,7 +22,7 @@ import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 
 import net.sf.ehcache.CacheException;
-import net.sf.ehcache.config.TerracottaConfiguration.CoherenceMode;
+import net.sf.ehcache.config.TerracottaConfiguration.Consistency;
 import net.sf.ehcache.hibernate.management.impl.EhcacheHibernateMbeanNames;
 
 
@@ -37,7 +37,7 @@ public class CacheConfiguration implements CacheConfigurationMBean, Serializable
 
     private static final long serialVersionUID = -8944774509593267228L;
 
-    private transient net.sf.ehcache.config.CacheConfiguration cacheConfiguration;
+    private transient final net.sf.ehcache.config.CacheConfiguration cacheConfiguration;
 
     private final ObjectName objectName;
 
@@ -258,9 +258,9 @@ public class CacheConfiguration implements CacheConfigurationMBean, Serializable
     /**
      * Accessor
      */
-    public String getTerracottaCoherenceMode() {
-        CoherenceMode coherenceMode = cacheConfiguration.getTerracottaCoherenceMode();
-        return coherenceMode != null ? coherenceMode.toString() : "na";
+    public String getTerracottaConsistency() {
+        Consistency consistency = cacheConfiguration.getTerracottaConsistency();
+        return consistency != null ? consistency.name() : "na";
     }
 
     /**

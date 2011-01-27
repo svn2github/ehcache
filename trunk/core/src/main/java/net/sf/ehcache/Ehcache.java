@@ -1185,4 +1185,5 @@ public interface Ehcache extends Cloneable {
      * @param key - The key that retrieves a value that you want to protect via locking
      */
     public void releaseWriteLockOnKey(Object key);
+
 }

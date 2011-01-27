@@ -21,12 +21,5 @@ import net.sf.ehcache.config.generator.model.NodeElement;
 
 public interface XSDAttributeValueFactory {
 
-    public static final XSDAttributeValueFactory DEFAULT_FACTORY = new XSDAttributeValueFactory() {
-
-        public String createValueForAttribute(NodeElement element, NodeAttribute attribute, XSDAttributeValueType xsdAttributeValueType) {
-            return xsdAttributeValueType.getRandomAllowedValue();
-        }
-    };
-
     public String createValueForAttribute(NodeElement element, NodeAttribute attribute, XSDAttributeValueType xsdAttributeValueType);
 }

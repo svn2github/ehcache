@@ -32,7 +32,7 @@ import net.sf.ehcache.config.InvalidConfigurationException;
 import net.sf.ehcache.config.NonstopConfiguration;
 import net.sf.ehcache.config.SearchAttribute;
 import net.sf.ehcache.config.TerracottaConfiguration;
-import net.sf.ehcache.config.TerracottaConfiguration.CoherenceMode;
+import net.sf.ehcache.config.TerracottaConfiguration.Consistency;
 import net.sf.ehcache.constructs.nonstop.CacheManagerExecutorServiceFactory;
 import net.sf.ehcache.constructs.nonstop.NonstopActiveDelegateHolder;
 import net.sf.ehcache.constructs.nonstop.NonstopExecutorService;
@@ -1036,16 +1036,20 @@ public class Cache implements Ehcache, StoreListener {
                 }
             } else if (isTerracottaClustered()) {
                 if (getCacheConfiguration().getTerracottaConfiguration().isSynchronousWrites()
-                        && getCacheConfiguration().getTerracottaConfiguration().getCoherenceMode() == CoherenceMode.NON_STRICT) {
+                        && getCacheConfiguration().getTerracottaConfiguration().getConsistency() == Consistency.EVENTUAL) {
                     throw new InvalidConfigurationException(
-                            "Terracotta clustered caches in 'non-strict' mode with synchronous writes are not supported yet.");
+                            "Terracotta clustered caches with eventual consistency and synchronous writes are not supported yet."
+                                    + " You can fix this by either making the cache in 'strong' consistency mode "
+                                    + "(<terracotta consistency=\"strong\"/>) or turning off synchronous writes.");
                 }
                 if (getCacheConfiguration().getTransactionalMode().isTransactional()
-                        && getCacheConfiguration().getTerracottaConfiguration().getCoherenceMode() == CoherenceMode.NON_STRICT) {
-                    throw new InvalidConfigurationException("Coherence mode should be " + CoherenceMode.STRICT
-                            + " when cache is configured with transactions enabled. "
-                            + "You can fix this by either making the cache in 'strict' mode (<terracotta coherent=\"strict\"/>)"
-                            + " or turning off transactions.");
+                        && getCacheConfiguration().getTerracottaConfiguration().getConsistency() == Consistency.EVENTUAL) {
+                    throw new InvalidConfigurationException(
+                            "Consistency should be "
+                                    + Consistency.STRONG
+                                    + " when cache is configured with transactions enabled. "
+                                    + "You can fix this by either making the cache in 'strong' consistency mode "
+                                    + "(<terracotta consistency=\"strong\"/>) or turning off transactions.");
                 }
                 if (getCacheConfiguration().getTransactionalMode().isTransactional()
                         && getCacheConfiguration().getTerracottaConfiguration().isNonstopEnabled()) {

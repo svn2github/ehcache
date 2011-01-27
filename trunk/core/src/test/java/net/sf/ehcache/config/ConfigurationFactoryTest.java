@@ -17,35 +17,12 @@
 
 package net.sf.ehcache.config;
 
-import net.sf.ehcache.AbstractCacheTest;
-import net.sf.ehcache.Cache;
-import net.sf.ehcache.CacheException;
-import net.sf.ehcache.CacheManager;
-import net.sf.ehcache.Ehcache;
-import net.sf.ehcache.bootstrap.BootstrapCacheLoader;
-import net.sf.ehcache.config.TerracottaConfiguration.CoherenceMode;
-import net.sf.ehcache.distribution.CacheManagerPeerListener;
-import net.sf.ehcache.distribution.CacheManagerPeerProvider;
-import net.sf.ehcache.distribution.MulticastRMICacheManagerPeerProvider;
-import net.sf.ehcache.distribution.RMIAsynchronousCacheReplicator;
-import net.sf.ehcache.distribution.RMIBootstrapCacheLoader;
-import net.sf.ehcache.distribution.RMICacheManagerPeerListener;
-import net.sf.ehcache.distribution.RMICacheReplicatorFactory;
-import net.sf.ehcache.event.CacheEventListener;
-import net.sf.ehcache.event.CacheManagerEventListener;
-import net.sf.ehcache.event.CountingCacheEventListener;
-import net.sf.ehcache.event.CountingCacheManagerEventListener;
-import net.sf.ehcache.event.NotificationScope;
-import net.sf.ehcache.exceptionhandler.CacheExceptionHandler;
-import net.sf.ehcache.exceptionhandler.CountingExceptionHandler;
-import net.sf.ehcache.store.DefaultElementValueComparator;
-import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
-import net.sf.ehcache.store.compound.ReadWriteSerializationCopyStrategy;
-import net.sf.ehcache.writer.TestCacheWriter;
-import org.junit.Before;
-import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNotSame;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -67,13 +44,36 @@ import java.util.jar.JarOutputStream;
 import java.util.regex.Matcher;
 
 import junit.framework.Assert;
+import net.sf.ehcache.AbstractCacheTest;
+import net.sf.ehcache.Cache;
+import net.sf.ehcache.CacheException;
+import net.sf.ehcache.CacheManager;
+import net.sf.ehcache.Ehcache;
+import net.sf.ehcache.bootstrap.BootstrapCacheLoader;
+import net.sf.ehcache.config.TerracottaConfiguration.Consistency;
+import net.sf.ehcache.distribution.CacheManagerPeerListener;
+import net.sf.ehcache.distribution.CacheManagerPeerProvider;
+import net.sf.ehcache.distribution.MulticastRMICacheManagerPeerProvider;
+import net.sf.ehcache.distribution.RMIAsynchronousCacheReplicator;
+import net.sf.ehcache.distribution.RMIBootstrapCacheLoader;
+import net.sf.ehcache.distribution.RMICacheManagerPeerListener;
+import net.sf.ehcache.distribution.RMICacheReplicatorFactory;
+import net.sf.ehcache.event.CacheEventListener;
+import net.sf.ehcache.event.CacheManagerEventListener;
+import net.sf.ehcache.event.CountingCacheEventListener;
+import net.sf.ehcache.event.CountingCacheManagerEventListener;
+import net.sf.ehcache.event.NotificationScope;
+import net.sf.ehcache.exceptionhandler.CacheExceptionHandler;
+import net.sf.ehcache.exceptionhandler.CountingExceptionHandler;
+import net.sf.ehcache.store.DefaultElementValueComparator;
+import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
+import net.sf.ehcache.store.compound.ReadWriteSerializationCopyStrategy;
+import net.sf.ehcache.writer.TestCacheWriter;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNotSame;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import org.junit.Before;
+import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Tests for Store Configuration
@@ -1283,7 +1283,7 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
         Ehcache sampleCache10 = configurationHelper.createCacheFromName("clustered-10");
         assertEquals("clustered-10", sampleCache10.getName());
         assertEquals(true, sampleCache10.getCacheConfiguration().isTerracottaClustered());
-        final boolean expectedDefault = TerracottaConfiguration.DEFAULT_COHERENCE_MODE == CoherenceMode.STRICT? true: false;
+        final boolean expectedDefault = TerracottaConfiguration.DEFAULT_CONSISTENCY_TYPE == Consistency.STRONG? true: false;
         assertEquals(expectedDefault,
                 sampleCache10.getCacheConfiguration().getTerracottaConfiguration().isCoherent());
 

@@ -111,9 +111,9 @@ public interface SampledCacheMBean extends LiveCacheStatistics, SampledCacheStat
 
     /**
      * Returns a textual description of a Terracotta-clustered cache's coherence-mode.
-     * @return "STRICT" or "NON-STRICT"
+     * @return "STRONG" or "EVENTUAL"
      */
-    public String getTerracottaCoherenceMode();
+    public String getTerracottaConsistency();
 
     /**
      * Clear both sampled and cumulative statistics

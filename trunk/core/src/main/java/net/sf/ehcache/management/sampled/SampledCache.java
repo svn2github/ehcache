@@ -28,7 +28,7 @@ import javax.management.Notification;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.CacheConfigurationListener;
-import net.sf.ehcache.config.TerracottaConfiguration.CoherenceMode;
+import net.sf.ehcache.config.TerracottaConfiguration.Consistency;
 import net.sf.ehcache.hibernate.management.impl.BaseEmitterBean;
 import net.sf.ehcache.writer.writebehind.WriteBehindManager;
 
@@ -305,9 +305,9 @@ public class SampledCache extends BaseEmitterBean implements SampledCacheMBean, 
     /**
      * {@inheritDoc}
      */
-    public String getTerracottaCoherenceMode() {
-        CoherenceMode coherenceMode = this.cache.getCacheConfiguration().getTerracottaCoherenceMode();
-        return coherenceMode != null ? coherenceMode.toString() : "na";
+    public String getTerracottaConsistency() {
+        Consistency consistency = this.cache.getCacheConfiguration().getTerracottaConsistency();
+        return consistency != null ? consistency.name() : "na";
     }
 
     /**
@@ -842,7 +842,7 @@ public class SampledCache extends BaseEmitterBean implements SampledCacheMBean, 
         result.put("OverflowToDisk", isConfigOverflowToDisk());
         result.put("DiskExpiryThreadIntervalSeconds", getConfigDiskExpiryThreadIntervalSeconds());
         result.put("MemoryStoreEvictionPolicy", getConfigMemoryStoreEvictionPolicy());
-        result.put("TerracottaCoherenceMode", getTerracottaCoherenceMode());
+        result.put("TerracottaCoherenceMode", getTerracottaConsistency());
         result.put("NodeCoherent", isNodeCoherent());
         result.put("ClusterCoherent", isClusterCoherent());
         result.put("StatisticsEnabled", isStatisticsEnabled());

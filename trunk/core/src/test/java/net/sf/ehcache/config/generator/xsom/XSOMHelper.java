@@ -41,10 +41,6 @@ import com.sun.xml.xsom.parser.XSOMParser;
 public class XSOMHelper {
     private XSDAttributeValueFactory attributeValueFactory;
 
-    public XSOMHelper() {
-        this(XSDAttributeValueFactory.DEFAULT_FACTORY);
-    }
-
     public XSOMHelper(XSDAttributeValueFactory attributeValueFactory) {
         this.attributeValueFactory = attributeValueFactory;
     }

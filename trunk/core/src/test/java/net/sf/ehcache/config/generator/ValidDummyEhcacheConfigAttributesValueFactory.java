@@ -24,8 +24,15 @@ import net.sf.ehcache.config.generator.xsom.XSDAttributeValueType;
 public class ValidDummyEhcacheConfigAttributesValueFactory implements XSDAttributeValueFactory {
 
     public String createValueForAttribute(NodeElement element, NodeAttribute attribute, XSDAttributeValueType xsdAttributeValueType) {
-        if ("terracotta".equals(element.getName()) && "clustered".equals(attribute.getName())) {
-            return "false";
+        if ("terracotta".equals(element.getName())) {
+            if ("coherent".equals(attribute.getName())) {
+                // returing null will skip this attribute
+                // can skip "coherent" attribute as its deprecated by consistency attribute
+                return null;
+            }
+            if ("clustered".equals(attribute.getName())) {
+                return "false";
+            }
         }
         if (("cache".equals(element.getName()) || "defaultCache".equals(element.getName()))
                 && "transactionalMode".equals(attribute.getName())) {
