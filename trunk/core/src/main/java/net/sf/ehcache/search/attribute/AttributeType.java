@@ -158,7 +158,22 @@ public enum AttributeType {
         @Override
         public void validateValue(String name, Object value) {
             if (value == null || value.getClass() != java.util.Date.class) {
-                throw new SearchException("Expecting a Date value for attribute [" + name + "] but was " + type(value));
+                throw new SearchException("Expecting a java.util.Date value for attribute [" + name + "] but was " + type(value));
+            }
+        }
+    },
+
+    /**
+     * SQL Date type
+     */
+    SQL_DATE {
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public void validateValue(String name, Object value) {
+            if (value == null || value.getClass() != java.sql.Date.class) {
+                throw new SearchException("Expecting a java.sql.Date value for attribute [" + name + "] but was " + type(value));
             }
         }
     },
@@ -284,6 +299,7 @@ public enum AttributeType {
         MAPPINGS.put(Short.class, SHORT);
         MAPPINGS.put(String.class, STRING);
         MAPPINGS.put(java.util.Date.class, DATE);
+        MAPPINGS.put(java.sql.Date.class, SQL_DATE);
     }
 
 }

@@ -132,7 +132,9 @@ cacheManager.add(test);
         
         *   String
         
-        *   Date
+        *   java.util.Date
+
+        *   java.sql.Date
 
         *   Enum
         

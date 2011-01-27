@@ -44,6 +44,7 @@ public interface AttributeExtractor extends Serializable {
      * <li>java.lang.Short
      * <li>java.lang.String
      * <li>java.util.Date
+     * <li>java.sql.Date
      * <li>java.lang.Enum
      * </ul>
      * <p/>
