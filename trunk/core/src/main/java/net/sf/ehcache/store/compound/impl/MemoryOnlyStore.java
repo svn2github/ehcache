@@ -32,17 +32,14 @@ import net.sf.ehcache.config.CacheConfigurationListener;
 import net.sf.ehcache.search.Attribute;
 import net.sf.ehcache.search.Result;
 import net.sf.ehcache.search.Results;
-import net.sf.ehcache.search.SearchException;
 import net.sf.ehcache.search.aggregator.AggregatorInstance;
 import net.sf.ehcache.search.attribute.AttributeExtractor;
-import net.sf.ehcache.search.attribute.AttributeType;
 import net.sf.ehcache.search.expression.Criteria;
 import net.sf.ehcache.search.impl.AggregateOnlyResult;
 import net.sf.ehcache.search.impl.BaseResult;
 import net.sf.ehcache.search.impl.OrderComparator;
 import net.sf.ehcache.search.impl.ResultImpl;
 import net.sf.ehcache.search.impl.ResultsImpl;
-import net.sf.ehcache.store.ElementAttributeValues;
 import net.sf.ehcache.store.FifoPolicy;
 import net.sf.ehcache.store.LfuPolicy;
 import net.sf.ehcache.store.LruPolicy;
@@ -61,7 +58,7 @@ import net.sf.ehcache.transaction.SoftLock;
  */
 public final class MemoryOnlyStore extends CompoundStore implements CacheConfigurationListener {
 
-    private static final Object[] EMPTY_OBJECT_ARRAY = new Object[]{};
+    private static final Object[] EMPTY_OBJECT_ARRAY = new Object[0];
 
     private final Map<String, AttributeExtractor> attributeExtractors = new ConcurrentHashMap<String, AttributeExtractor>();
 
@@ -325,22 +322,18 @@ public final class MemoryOnlyStore extends CompoundStore implements CacheConfigu
                 continue;
             }
 
-            ElementAttributeValues elementAttributeValues = new ElementAttributeValuesImpl(element, attributeExtractors);
-
-            boolean match = c.execute(element, elementAttributeValues);
-
-            if (match) {
+            if (c.execute(element, attributeExtractors)) {
                 anyMatches = true;
 
                 if (includeResults) {
                     final Map<String, Object> attributes;
                     if (query.requestedAttributes().isEmpty()) {
-                        attributes = Collections.EMPTY_MAP;
+                        attributes = Collections.emptyMap();
                     } else {
                         attributes = new HashMap<String, Object>();
                         for (Attribute attribute : query.requestedAttributes()) {
                             String name = attribute.getAttributeName();
-                            attributes.put(name, elementAttributeValues.getAttributeValue(name));
+                            attributes.put(name, attributeExtractors.get(name).attributeFor(element));
                         }
                     }
 
@@ -352,7 +345,7 @@ public final class MemoryOnlyStore extends CompoundStore implements CacheConfigu
                         sortAttributes = new Object[orderings.size()];
                         for (int i = 0; i < sortAttributes.length; i++) {
                             String name = orderings.get(i).getAttribute().getAttributeName();
-                            sortAttributes[i] = elementAttributeValues.getAttributeValue(name);
+                            sortAttributes[i] = attributeExtractors.get(name).attributeFor(element);
                         }
                     }
 
@@ -365,7 +358,7 @@ public final class MemoryOnlyStore extends CompoundStore implements CacheConfigu
                     if (attribute == null) {
                         aggregator.accept(null);
                     } else {
-                        Object val = elementAttributeValues.getAttributeValue(attribute.getAttributeName());
+                        Object val = attributeExtractors.get(attribute.getAttributeName()).attributeFor(element);
                         aggregator.accept(val);
                     }
                 }
@@ -378,16 +371,13 @@ public final class MemoryOnlyStore extends CompoundStore implements CacheConfigu
             // trim results to max length if necessary
             int max = query.maxResults();
             if (max >= 0 && (results.size() > max)) {
-                int trim = results.size() - max;
-                for (int i = 0; i < trim; i++) {
-                    results.remove(results.size() - 1);
-                }
+                results.subList(max, results.size()).clear();
                 results.trimToSize();
             }
         }
 
 
-        List<Object> aggregateResults = aggregators.isEmpty() ? Collections.EMPTY_LIST : new ArrayList<Object>();
+        List<Object> aggregateResults = aggregators.isEmpty() ? Collections.emptyList() : new ArrayList<Object>();
         for (AggregatorInstance<?> aggregator : aggregators) {
             aggregateResults.add(aggregator.aggregateResult());
         }
@@ -416,106 +406,4 @@ public final class MemoryOnlyStore extends CompoundStore implements CacheConfigu
     public <T> Attribute<T> getSearchAttribute(String attributeName) throws CacheException {
         return searchAttributes.get(attributeName);
     }
-
-    /**
-     * Implementation for {@link ElementAttributeValues}. Caches repeated reads and type lookups
-     */
-    private static class ElementAttributeValuesImpl implements ElementAttributeValues {
-
-        private static final Object NULL = new Object();
-
-        private final Map<String, TypedValue> cache = new HashMap<String, TypedValue>();
-        private final Element element;
-        private final Map<String, AttributeExtractor> attributeExtractors;
-
-        public ElementAttributeValuesImpl(Element element, Map<String, AttributeExtractor> attributeExtractors) {
-            this.element = element;
-            this.attributeExtractors = attributeExtractors;
-        }
-
-        /**
-         * {@inheritDoc}
-         */
-        public Object getAttributeValue(String attributeName) throws SearchException {
-            return getAttributeValue(attributeName, null, false);
-        }
-
-        /**
-         * {@inheritDoc}
-         */
-        public Object getAttributeValue(String attributeName, AttributeType expectedType) throws SearchException {
-            return getAttributeValue(attributeName, expectedType, true);
-        }
-
-        private Object getAttributeValue(String attributeName, AttributeType expectedType, boolean checkType) throws SearchException {
-            TypedValue cachedValue = cache.get(attributeName);
-            if (cachedValue != null) {
-                if (checkType) {
-                    return cachedValue.getValue(expectedType);
-                } else {
-                    return cachedValue.getValue();
-                }
-            }
-
-            AttributeExtractor extractor = attributeExtractors.get(attributeName);
-            if (extractor == null) {
-                throw new SearchException("No such search attribute named [" + attributeName + "]");
-            }
-
-            Object value = extractor.attributeFor(element);
-
-            if (value == null) {
-                cache.put(attributeName, new TypedValue(attributeName, NULL, null));
-            } else {
-                AttributeType actualType = AttributeType.typeFor(attributeName, value);
-
-                if (checkType) {
-                    if (actualType != expectedType) {
-                        throw new SearchException("Expecting attribute of type " + expectedType.name() + " but was " + actualType.name());
-                    }
-                }
-
-                cache.put(attributeName, new TypedValue(attributeName, value, actualType));
-            }
-            return value;
-        }
-
-        /**
-         * A cached attribute value and type lookup
-         */
-        private static class TypedValue {
-            private final AttributeType type;
-            private final Object value;
-            private final String attributeName;
-
-            TypedValue(String attributeName, Object value, AttributeType type) {
-                this.attributeName = attributeName;
-                this.value = value;
-                this.type = type;
-            }
-
-            public Object getValue() {
-                if (value == NULL) {
-                    return null;
-                }
-
-                return value;
-            }
-
-            public Object getValue(AttributeType expectedType) {
-                if (value == NULL) {
-                    return null;
-                }
-
-                if (type != expectedType) {
-                    throw new SearchException("Expecting value of type (" + expectedType + ") for attribute [" + attributeName
-                            + "] but was (" + type + ")");
-                }
-
-                return value;
-            }
-        }
-
-    }
-
 }

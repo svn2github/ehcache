@@ -16,8 +16,10 @@
 
 package net.sf.ehcache.search.expression;
 
+import java.util.Map;
+
 import net.sf.ehcache.Element;
-import net.sf.ehcache.store.ElementAttributeValues;
+import net.sf.ehcache.search.attribute.AttributeExtractor;
 
 /**
  * Criteria that always return true
@@ -29,8 +31,23 @@ public class AlwaysMatch extends BaseCriteria {
     /**
      * {@inheritDoc}
      */
-    public boolean execute(Element e, ElementAttributeValues attributeValues) {
+    public boolean execute(Element e, Map<String, AttributeExtractor> attributeExtractors) {
         return true;
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Criteria and(Criteria other) {
+        return other;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Criteria or(Criteria other) {
+        return this;
+    }
 }

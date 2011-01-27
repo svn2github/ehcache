@@ -16,8 +16,10 @@
 
 package net.sf.ehcache.search.expression;
 
+import java.util.Map;
+
 import net.sf.ehcache.Element;
-import net.sf.ehcache.store.ElementAttributeValues;
+import net.sf.ehcache.search.attribute.AttributeExtractor;
 
 /**
  * A search criteria composed of the logical "and" of two or more other criteria
@@ -38,6 +40,18 @@ public class And extends BaseCriteria {
         this.criterion = new Criteria[]{lhs, rhs};
     }
 
+    private And(And original, Criteria additional) {
+      Criteria[] originalCriteria = original.getCriterion();
+      this.criterion = new Criteria[originalCriteria.length + 1];
+      System.arraycopy(originalCriteria, 0, criterion, 0, originalCriteria.length);
+      originalCriteria[originalCriteria.length - 1] = additional;
+    }
+
+    @Override
+    public Criteria and(Criteria other) {
+        return new And(this, other);
+    }
+
     /**
      * Return criterion
      *
@@ -50,9 +64,9 @@ public class And extends BaseCriteria {
     /**
      * {@inheritDoc}
      */
-    public boolean execute(Element e, ElementAttributeValues attributeValues) {
+    public boolean execute(Element e, Map<String, AttributeExtractor> attributeExtractors) {
         for (Criteria c : criterion) {
-            if (!c.execute(e, attributeValues)) {
+            if (!c.execute(e, attributeExtractors)) {
                 return false;
             }
         }

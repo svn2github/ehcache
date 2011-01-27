@@ -16,8 +16,10 @@
 
 package net.sf.ehcache.search.expression;
 
+import java.util.Map;
+
 import net.sf.ehcache.Element;
-import net.sf.ehcache.store.ElementAttributeValues;
+import net.sf.ehcache.search.attribute.AttributeExtractor;
 
 /**
  * Criteria for plain "not equals to" condition
@@ -40,8 +42,8 @@ public class NotEqualTo extends EqualTo {
      * {@inheritDoc}
      */
     @Override
-    public boolean execute(Element e, ElementAttributeValues attributeValues) {
-        return !super.execute(e, attributeValues);
+    public boolean execute(Element e, Map<String, AttributeExtractor> attributeExtractors) {
+        return !super.execute(e, attributeExtractors);
     }
 
 }

@@ -16,8 +16,10 @@
 
 package net.sf.ehcache.search.expression;
 
+import java.util.Map;
+
 import net.sf.ehcache.Element;
-import net.sf.ehcache.store.ElementAttributeValues;
+import net.sf.ehcache.search.attribute.AttributeExtractor;
 
 /**
  * A search criteria composed of the logical "or" of two or more other criteria
@@ -26,7 +28,8 @@ import net.sf.ehcache.store.ElementAttributeValues;
  */
 public class Or extends BaseCriteria {
 
-    private final Criteria[] criterion;
+    private final Criteria lhs;
+    private final Criteria rhs;
 
     /**
      * Simple constructor for two criteria
@@ -35,28 +38,23 @@ public class Or extends BaseCriteria {
      * @param rhs the right hand side of the "or" expression
      */
     public Or(Criteria lhs, Criteria rhs) {
-        this.criterion = new Criteria[]{lhs, rhs};
+        this.lhs = lhs;
+        this.rhs = rhs;
     }
 
     /**
-     * Return criterion
+     * Return criteria
      *
-     * @return criterion
+     * @return criteria
      */
     public Criteria[] getCriterion() {
-        return this.criterion;
+        return new Criteria[] {lhs, rhs};
     }
 
     /**
      * {@inheritDoc}
      */
-    public boolean execute(Element e, ElementAttributeValues attributeValues) {
-        for (Criteria c : criterion) {
-            if (c.execute(e, attributeValues)) {
-                return true;
-            }
-        }
-
-        return false;
+    public boolean execute(Element e, Map<String, AttributeExtractor> attributeExtractors) {
+        return lhs.execute(e, attributeExtractors) || rhs.execute(e, attributeExtractors);
     }
 }

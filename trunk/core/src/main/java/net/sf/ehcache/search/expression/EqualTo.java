@@ -16,9 +16,12 @@
 
 package net.sf.ehcache.search.expression;
 
+import java.util.Map;
+
 import net.sf.ehcache.Element;
+import net.sf.ehcache.search.SearchException;
+import net.sf.ehcache.search.attribute.AttributeExtractor;
 import net.sf.ehcache.search.attribute.AttributeType;
-import net.sf.ehcache.store.ElementAttributeValues;
 
 /**
  * A comparison operator meaning Java "equals to" condition
@@ -78,16 +81,21 @@ public class EqualTo extends BaseCriteria {
     /**
      * {@inheritDoc}
      */
-    public boolean execute(Element e, ElementAttributeValues attributeValues) {
-        Object attributeValue = attributeValues.getAttributeValue(attributeName, type);
+    public boolean execute(Element e, Map<String, AttributeExtractor> attributeExtractors) {
+        Object attributeValue = attributeExtractors.get(attributeName).attributeFor(e);
         if (attributeValue == null) {
             return false;
-        }
-
-        if (type.equals(AttributeType.STRING)) {
-            return ((String) this.value).equalsIgnoreCase((String) attributeValue);
         } else {
-            return this.value.equals(attributeValue);
+            AttributeType attrType = AttributeType.typeFor(getAttributeName(), attributeValue);
+            if (!getType().equals(attrType)) {
+                throw new SearchException("Expecting attribute of type " + getType().name() + " but was " + attrType.name());
+            }
+
+            if (getType().equals(AttributeType.STRING)) {
+                return ((String) this.value).equalsIgnoreCase((String) attributeValue);
+            } else {
+                return this.value.equals(attributeValue);
+            }
         }
     }
 }

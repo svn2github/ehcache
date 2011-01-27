@@ -16,8 +16,10 @@
 
 package net.sf.ehcache.search.expression;
 
+import java.util.Map;
+
 import net.sf.ehcache.Element;
-import net.sf.ehcache.store.ElementAttributeValues;
+import net.sf.ehcache.search.attribute.AttributeExtractor;
 
 /**
  * A search criteria composed of the logical "not" (ie. negation) of another criteria
@@ -47,8 +49,8 @@ public class Not extends BaseCriteria {
     /**
      * {@inheritDoc}
      */
-    public boolean execute(Element e, ElementAttributeValues attributeValues) {
-        return !c.execute(e, attributeValues);
+    public boolean execute(Element e, Map<String, AttributeExtractor> attributeExtractors) {
+        return !c.execute(e, attributeExtractors);
     }
 
 }

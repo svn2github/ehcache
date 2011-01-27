@@ -16,11 +16,12 @@
 
 package net.sf.ehcache.search.expression;
 
+import java.util.Map;
 import java.util.regex.Pattern;
 
 import net.sf.ehcache.Element;
 import net.sf.ehcache.search.SearchException;
-import net.sf.ehcache.store.ElementAttributeValues;
+import net.sf.ehcache.search.attribute.AttributeExtractor;
 
 /**
  * A regular expression criteria that matches attribute string values. For non <code>java.lang.String attributes</code>,
@@ -80,7 +81,7 @@ public class ILike extends BaseCriteria {
         return regex;
     }
 
-    private Pattern convertRegex(final String expr) {
+    private static Pattern convertRegex(final String expr) {
         if (expr.length() == 0) {
             throw new SearchException("Zero length regex");
         }
@@ -140,8 +141,8 @@ public class ILike extends BaseCriteria {
     /**
      * {@inheritDoc}
      */
-    public boolean execute(Element e, ElementAttributeValues attributeValues) {
-        Object value = attributeValues.getAttributeValue(attributeName);
+    public boolean execute(Element e, Map<String, AttributeExtractor> attributeExtractors) {
+        Object value = attributeExtractors.get(attributeName).attributeFor(e);
         if (value == null) {
             return false;
         }

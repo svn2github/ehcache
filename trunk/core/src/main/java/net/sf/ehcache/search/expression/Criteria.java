@@ -16,8 +16,10 @@
 
 package net.sf.ehcache.search.expression;
 
+import java.util.Map;
+
 import net.sf.ehcache.Element;
-import net.sf.ehcache.store.ElementAttributeValues;
+import net.sf.ehcache.search.attribute.AttributeExtractor;
 
 /**
  * Criteria interface defines a boolean function that computes a search match result
@@ -30,10 +32,10 @@ public interface Criteria {
      * Test this criteria against a cache element
      *
      * @param element cache element
-     * @param attributeValues accessor for attributes values on the current element this critetia executed against
+     * @param attributeExtractors map of attribute extractors to attribute value names
      * @return true if the criteria matches this element
      */
-    boolean execute(Element element, ElementAttributeValues attributeValues);
+    boolean execute(Element element, Map<String, AttributeExtractor> attributeExtractors);
 
     /**
      * Produce a criteria that is the boolean "and" of this and the given other criteria

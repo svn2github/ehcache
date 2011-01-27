@@ -18,11 +18,12 @@ package net.sf.ehcache.search.expression;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Map;
 
 import net.sf.ehcache.Element;
 import net.sf.ehcache.search.SearchException;
+import net.sf.ehcache.search.attribute.AttributeExtractor;
 import net.sf.ehcache.search.attribute.AttributeType;
-import net.sf.ehcache.store.ElementAttributeValues;
 
 /**
  * Criteria for inclusion in a given Collection (presumably a Set) of values
@@ -99,23 +100,29 @@ public class InCollection extends BaseCriteria {
     /**
      * {@inheritDoc}
      */
-    public boolean execute(Element e, ElementAttributeValues attributeValues) {
+    public boolean execute(Element e, Map<String, AttributeExtractor> attributeExtractors) {
         if (empty) {
             return false;
         }
 
-        Object attrValue = attributeValues.getAttributeValue(attributeName, type);
+        Object attrValue = attributeExtractors.get(attributeName).attributeFor(e);
         if (attrValue == null) {
             return false;
-        } else if (AttributeType.STRING.equals(type)) {
-            for (Object o : values) {
-                if (attrValue.toString().equalsIgnoreCase(o.toString())) {
-                    return true;
-                }
-            }
-            return false;
         } else {
-            return values.contains(attrValue);
+            AttributeType attrType = AttributeType.typeFor(getAttributeName(), attrValue);
+            if (!type.equals(attrType)) {
+                throw new SearchException("Expecting attribute of type " + type.name() + " but was " + attrType.name());
+            }
+            if (AttributeType.STRING.equals(type)) {
+                for (Object o : values) {
+                    if (attrValue.toString().equalsIgnoreCase(o.toString())) {
+                        return true;
+                    }
+                }
+                return false;
+            } else {
+                return values.contains(attrValue);
+            }
         }
     }
 

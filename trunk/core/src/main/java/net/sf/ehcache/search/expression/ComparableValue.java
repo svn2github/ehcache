@@ -17,11 +17,12 @@
 package net.sf.ehcache.search.expression;
 
 import java.util.Comparator;
+import java.util.Map;
 
 import net.sf.ehcache.Element;
 import net.sf.ehcache.search.SearchException;
+import net.sf.ehcache.search.attribute.AttributeExtractor;
 import net.sf.ehcache.search.attribute.AttributeType;
-import net.sf.ehcache.store.ElementAttributeValues;
 
 /**
  * Abstract base class for criteria involving {@link java.lang.Comparable} values
@@ -81,16 +82,21 @@ public abstract class ComparableValue extends BaseCriteria {
     /**
      * {@inheritDoc}
      */
-    public boolean execute(Element e, ElementAttributeValues attributeValues) {
-        Object attrValue = attributeValues.getAttributeValue(attributeName, type);
+    public boolean execute(Element e, Map<String, AttributeExtractor> attributeExtractors) {
+        Object attrValue = attributeExtractors.get(getAttributeName()).attributeFor(e);
         if (attrValue == null) {
             return false;
-        }
-
-        if (getType().equals(AttributeType.STRING)) {
-            return executeComparableString((Comparable) attrValue);
         } else {
-            return executeComparable((Comparable) attrValue);
+            AttributeType attrType = AttributeType.typeFor(getAttributeName(), attrValue);
+            if (!getType().equals(attrType)) {
+                throw new SearchException("Expecting attribute of type " + getType().name() + " but was " + attrType.name());
+            }
+
+            if (getType().equals(AttributeType.STRING)) {
+                return executeComparableString((Comparable) attrValue);
+            } else {
+                return executeComparable((Comparable) attrValue);
+            }
         }
     }
 

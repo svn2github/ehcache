@@ -102,20 +102,12 @@ public class Between extends ComparableValue {
     @Override
     protected boolean executeComparable(Comparable attributeValue) {
         int minCmp = attributeValue.compareTo(min);
-        if (minCmp < 0) {
+        if (minCmp < 0 || minCmp == 0 && !minInclusive) {
             return false;
         }
 
         int maxCmp = attributeValue.compareTo(max);
-        if (maxCmp > 0) {
-            return false;
-        }
-
-        if (minCmp == 0 && !minInclusive) {
-            return false;
-        }
-
-        if (maxCmp == 0 && !maxInclusive) {
+        if (maxCmp > 0 || maxCmp == 0 && !maxInclusive) {
             return false;
         }
 
@@ -128,20 +120,12 @@ public class Between extends ComparableValue {
     @Override
     protected boolean executeComparableString(Comparable attributeValue) {
         int minCmp = luceneStringCompare(attributeValue.toString(), min.toString());
-        if (minCmp < 0) {
+        if (minCmp < 0 || minCmp == 0 && !minInclusive) {
             return false;
         }
 
         int maxCmp = luceneStringCompare(attributeValue.toString(), max.toString());
-        if (maxCmp > 0) {
-            return false;
-        }
-
-        if (minCmp == 0 && !minInclusive) {
-            return false;
-        }
-
-        if (maxCmp == 0 && !maxInclusive) {
+        if (maxCmp > 0 || maxCmp == 0 && !maxInclusive) {
             return false;
         }
 

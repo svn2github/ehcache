@@ -242,20 +242,11 @@ class CacheQuery implements Query, StoreQuery {
     }
 
     private Criteria getEffectiveCriteriaCopy() {
-        int count = criteria.size();
-        if (count == 0) {
-            return new AlwaysMatch();
-        } else if (count == 1) {
-            return criteria.get(0);
-        } else {
-            Criteria c = criteria.get(0);
-            for (int i = 1; i < criteria.size(); i++) {
-                c = c.and(criteria.get(i));
-            }
-            return c;
+        Criteria result = new AlwaysMatch();
+        for (Criteria c : criteria) {
+          result = result.and(c);
         }
-
-        // unreachable
+        return result;
     }
 
     private void assertFrozen() {
