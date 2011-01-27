@@ -456,7 +456,6 @@ public class TerracottaConfiguration implements Cloneable {
 
     /**
      * @return this configuration instance
-     * @see #setCoherent(boolean)
      * @deprecated since 2.4 Use {@link #consistency(Consistency)} instead
      */
     @Deprecated

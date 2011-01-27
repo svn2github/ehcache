@@ -39,6 +39,7 @@ import net.sf.ehcache.search.Query;
 import net.sf.ehcache.statistics.CacheUsageListener;
 import net.sf.ehcache.statistics.LiveCacheStatistics;
 import net.sf.ehcache.statistics.sampled.SampledCacheStatistics;
+import net.sf.ehcache.terracotta.TerracottaNotRunningException;
 import net.sf.ehcache.transaction.manager.TransactionManagerLookup;
 import net.sf.ehcache.writer.CacheWriter;
 import net.sf.ehcache.writer.CacheWriterManager;
@@ -455,7 +456,10 @@ public class EhcacheDecoratorAdapter implements Ehcache {
 
     /**
      * {@inheritDoc}
+     *
+     * @deprecated Use {@link #isClusterBulkLoadEnabled()} instead
      */
+    @Deprecated
     public boolean isClusterCoherent() {
         return underlyingCache.isClusterCoherent();
     }
@@ -511,7 +515,10 @@ public class EhcacheDecoratorAdapter implements Ehcache {
 
     /**
      * {@inheritDoc}
+     *
+     * @deprecated Use {@link #isNodeBulkLoadEnabled()} instead
      */
+    @Deprecated
     public boolean isNodeCoherent() {
         return underlyingCache.isNodeCoherent();
     }
@@ -630,7 +637,10 @@ public class EhcacheDecoratorAdapter implements Ehcache {
 
     /**
      * {@inheritDoc}
+     *
+     * @deprecated Use {@link #setBulkLoadEnabled(boolean)} instead
      */
+    @Deprecated
     public void setNodeCoherent(boolean coherent) throws UnsupportedOperationException {
         underlyingCache.setNodeCoherent(coherent);
     }
@@ -679,7 +689,10 @@ public class EhcacheDecoratorAdapter implements Ehcache {
 
     /**
      * {@inheritDoc}
+     *
+     * @deprecated Use {@link #waitUntilClusterBulkLoadComplete()} instead
      */
+    @Deprecated
     public void waitUntilClusterCoherent() throws UnsupportedOperationException {
         underlyingCache.waitUntilClusterCoherent();
     }
@@ -821,5 +834,33 @@ public class EhcacheDecoratorAdapter implements Ehcache {
      */
     public boolean tryWriteLockOnKey(Object key, long timeout) throws InterruptedException {
         return underlyingCache.tryWriteLockOnKey(key, timeout);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public boolean isClusterBulkLoadEnabled() throws UnsupportedOperationException, TerracottaNotRunningException {
+        return underlyingCache.isClusterBulkLoadEnabled();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public boolean isNodeBulkLoadEnabled() throws UnsupportedOperationException, TerracottaNotRunningException {
+        return underlyingCache.isNodeBulkLoadEnabled();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void setBulkLoadEnabled(boolean enabledBulkLoad) throws UnsupportedOperationException, TerracottaNotRunningException {
+        underlyingCache.setBulkLoadEnabled(enabledBulkLoad);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void waitUntilClusterBulkLoadComplete() throws UnsupportedOperationException, TerracottaNotRunningException {
+        underlyingCache.waitUntilClusterBulkLoadComplete();
     }
 }

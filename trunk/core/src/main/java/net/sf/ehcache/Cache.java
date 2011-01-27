@@ -73,6 +73,7 @@ import net.sf.ehcache.store.compound.impl.DiskPersistentStore;
 import net.sf.ehcache.store.compound.impl.MemoryOnlyStore;
 import net.sf.ehcache.store.compound.impl.OverflowToDiskStore;
 import net.sf.ehcache.terracotta.TerracottaClient;
+import net.sf.ehcache.terracotta.TerracottaNotRunningException;
 import net.sf.ehcache.transaction.SoftLockFactory;
 import net.sf.ehcache.transaction.local.JtaLocalTransactionStore;
 import net.sf.ehcache.transaction.local.LocalTransactionStore;
@@ -3385,33 +3386,38 @@ public class Cache implements Ehcache, StoreListener {
 
     /**
      * {@inheritDoc}
+     * @deprecated use {@link #isClusterBulkLoadEnabled()} instead
      */
+    @Deprecated
     public boolean isClusterCoherent() {
-        return compoundStore.isClusterCoherent();
+        return this.isClusterBulkLoadEnabled();
     }
 
     /**
      * {@inheritDoc}
+     * @deprecated use {@link #isNodeBulkLoadEnabled()} instead
      */
+    @Deprecated
     public boolean isNodeCoherent() {
-        return compoundStore.isNodeCoherent();
+        return this.isNodeBulkLoadEnabled();
     }
 
     /**
      * {@inheritDoc}
+     * @deprecated use {@link #setBulkLoadEnabled(boolean)} instead
      */
+    @Deprecated
     public void setNodeCoherent(boolean coherent) {
-        boolean oldValue = isNodeCoherent();
-        if (oldValue != coherent) {
-            compoundStore.setNodeCoherent(coherent);
-        }
+        this.setBulkLoadEnabled(coherent);
     }
 
     /**
      * {@inheritDoc}
+     * @deprecated use {@link #waitUntilClusterBulkLoadComplete()} instead
      */
+    @Deprecated
     public void waitUntilClusterCoherent() {
-        compoundStore.waitUntilClusterCoherent();
+        this.waitUntilClusterBulkLoadComplete();
     }
 
     // PropertyChangeSupport
@@ -3738,6 +3744,37 @@ public class Cache implements Ehcache, StoreListener {
     }
 
     /**
+     * {@inheritDoc}
+     */
+    public boolean isClusterBulkLoadEnabled() throws UnsupportedOperationException, TerracottaNotRunningException {
+        return compoundStore.isClusterCoherent();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public boolean isNodeBulkLoadEnabled() throws UnsupportedOperationException, TerracottaNotRunningException {
+        return compoundStore.isNodeCoherent();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void setBulkLoadEnabled(boolean enabledBulkLoad) throws UnsupportedOperationException, TerracottaNotRunningException {
+        final boolean oldValue = isNodeBulkLoadEnabled();
+        if (oldValue != enabledBulkLoad) {
+            compoundStore.setNodeCoherent(enabledBulkLoad);
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void waitUntilClusterBulkLoadComplete() throws UnsupportedOperationException, TerracottaNotRunningException {
+        compoundStore.waitUntilClusterCoherent();
+    }
+
+    /**
      * Private class maintaining status of the cache
      *
      * @author Abhishek Sanoujam
@@ -3868,4 +3905,5 @@ public class Cache implements Ehcache, StoreListener {
         }
 
     }
+
 }

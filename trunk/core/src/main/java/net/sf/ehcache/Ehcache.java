@@ -1047,7 +1047,9 @@ public interface Ehcache extends Cloneable {
      * It applies to coherent clustering mechanisms only e.g. Terracotta
      *
      * @return true if the cache is in coherent mode cluster-wide, false otherwise
+     * @deprecated Use {@link #isClusterBulkLoadEnabled()} instead
      */
+    @Deprecated
     public boolean isClusterCoherent() throws TerracottaNotRunningException;
 
     /**
@@ -1056,7 +1058,9 @@ public interface Ehcache extends Cloneable {
      * It applies to coherent clustering mechanisms only e.g. Terracotta
      *
      * @return true if the cache is in coherent mode cluster-wide, false otherwise
+     * @deprecated Use {@link #isNodeBulkLoadEnabled()} instead
      */
+    @Deprecated
     public boolean isNodeCoherent() throws TerracottaNotRunningException;
 
     /**
@@ -1069,7 +1073,9 @@ public interface Ehcache extends Cloneable {
      * @param coherent
      *            true transitions to coherent mode, false to incoherent mode
      * @throws UnsupportedOperationException if this cache does not support coherence, like RMI replication
+     * @deprecated Use {@link #setBulkLoadEnabled(boolean)} instead
      */
+    @Deprecated
     public void setNodeCoherent(boolean coherent) throws UnsupportedOperationException, TerracottaNotRunningException;
 
     /**
@@ -1078,7 +1084,9 @@ public interface Ehcache extends Cloneable {
      * <p />
      * It applies to coherent clustering mechanisms only e.g. Terracotta
      * @throws UnsupportedOperationException if this cache does not support coherence, like RMI replication
+     * @deprecated Use {@link #waitUntilClusterBulkLoadComplete()} instead
      */
+    @Deprecated
     public void waitUntilClusterCoherent() throws UnsupportedOperationException, TerracottaNotRunningException;
 
     /**
@@ -1185,5 +1193,50 @@ public interface Ehcache extends Cloneable {
      * @param key - The key that retrieves a value that you want to protect via locking
      */
     public void releaseWriteLockOnKey(Object key);
+
+    /**
+     * Returns true if at least one node in the cluster is in bulk-load mode. Returns false otherwise.
+     * <p />
+     * NOTE: if {@link #isNodeBulkLoadEnabled()} returns true, this method will always return true.
+     * Applies to caches clustered with Terracotta only.
+     *
+     * @throws UnsupportedOperationException if the cache is not clustered with Terracotta
+     * @return true if the cache is in bulk-load mode cluster-wide, false otherwise
+     */
+    public boolean isClusterBulkLoadEnabled() throws UnsupportedOperationException, TerracottaNotRunningException;
+
+    /**
+     * Returns true if the current node is in bulk-load mode. Returns false otherwise.
+     * <p />
+     * NOTE: if this method returns true, {@link #isClusterBulkLoadEnabled()} method will always return true.
+     * Applies to caches clustered with Terracotta only.
+     *
+     * @throws UnsupportedOperationException if the cache is not clustered with Terracotta
+     * @return true if the cache is in coherent mode cluster-wide, false otherwise
+     */
+    public boolean isNodeBulkLoadEnabled() throws UnsupportedOperationException, TerracottaNotRunningException;
+
+    /**
+     * Enable/disable bulk-load mode in this node for this cache.
+     * Calling {@code setBulkLoadEnabled(true)} when the cache is already in bulk-load mode or
+     * calling {@code setBulkLoadEnabled(false)} when already NOT in bulk-load mode will be a no-op.
+     * <p />
+     * Applies to caches clustered with Terracotta only.
+     *
+     * @param enabledBulkLoad
+     *            true enables bulk-load, false disables it if not already disabled
+     * @throws UnsupportedOperationException if the cache is not clustered with Terracotta
+     */
+    public void setBulkLoadEnabled(boolean enabledBulkLoad) throws UnsupportedOperationException, TerracottaNotRunningException;
+
+    /**
+     * This method waits until all the connected nodes have disabled bulk-load. Or in other words, calling this method
+     * will block until all connected nodes in the cluster disables bulk-load. If none of the nodes did not enable bulk-load
+     * this method will return immediately
+     * <p />
+     * Applies to caches clustered with Terracotta only.
+     * @throws UnsupportedOperationException if the cache is not clustered with Terracotta
+     */
+    public void waitUntilClusterBulkLoadComplete() throws UnsupportedOperationException, TerracottaNotRunningException;
 
 }
