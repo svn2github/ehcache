@@ -774,12 +774,15 @@ used with JMX monitors.
       are mutated locally w/o putting back to the cache. NOTE: This setting is only relevant for caches
       with valueMode=serialization
 
-    * coherent=strict|non-strict - Indicates whether this cache should have coherent reads and writes 
-      with guaranteed consistency across the cluster. By default, its value is "strict".
-      The old values "true" and "false" are deprecated and should not be used. Config using the old values
-      will be translated to the new values with "true" translating to "strict" and "false" translating to 
-      "non-strict".   If this attribute is set to "non-strict", values from the cache are read without
-      locking, possibly yielding stale data. This setting overrides coherentReads, which is deprecated.
+    * coherent=true|false - This attribute has been deprecated. Use "consistency" attribute instead.
+      To maintain backward compatibility, "true" will translate to "STRONG" consistency and "false" will 
+      translate to "EVENTUAL" consistency.
+      
+    * consistency=STRONG|EVENTUAL - Indicates whether this cache should have strong consistency or eventually 
+      consistent behavior for changes across the cluster. By default, its value is "EVENTUAL".
+      If this attribute is set to "EVENTUAL", values from the cache are read without locking, possibly yielding
+      stale data for some time. The data will be consistent eventually (usually within a few seconds) across the
+      cluster.
 
     * synchronousWrites=true|false - When set to true, clustered caches use
       Terracotta SYNCHRONOUS WRITE locks. Asynchronous writes (synchronousWrites="false") maximize performance by 
