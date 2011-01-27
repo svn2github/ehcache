@@ -824,8 +824,8 @@ used with JMX monitors.
     To indicate the cache should be clustered using identity mode:
         <terracotta clustered="true" valueMode="identity"/>
         
-    To indicate the cache should be clustered using non-strict mode for better performance :
-        <terracotta clustered="true" coherent="non-strict"/>
+    To indicate the cache should be clustered using "eventual" consistency mode for better performance :
+        <terracotta clustered="true" consistency="EVENTUAL"/>
     
     To indicate the cache should be clustered using synchronous-write locking level:
         <terracotta clustered="true" synchronousWrites="true"/>
