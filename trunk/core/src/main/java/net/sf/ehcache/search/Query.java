@@ -63,44 +63,6 @@ public interface Query {
      */
     public static final Attribute VALUE = new Attribute("value");
 
-
-
-    /**
-     * The search attribute for the CreationTime Element metadata.
-     *
-     * This will exist as a search attribute at runtime if metadata searching has been enabled.
-     */
-    public static final Attribute CREATION_TIME = new Attribute("creationTime");
-
-    /**
-     * The search attribute for the ExpirationTime Element metadata.
-     *
-     * This will exist as a search attribute at runtime if metadata searching has been enabled.
-     */
-    public static final Attribute EXPIRATION_TIME = new Attribute("expirationTime");
-
-    /**
-     * The search attribute for the LastAccessTime Element metadata.
-     *
-     * This will exist as a search attribute at runtime if metadata searching has been enabled.
-     */
-    public static final Attribute LAST_ACCESS_TIME = new Attribute("lastAccessTime");
-
-    /**
-     * The search attribute for the LastUpdateTime Element metadata.
-     *
-     * This will exist as a search attribute at runtime if metadata searching has been enabled.
-     */
-    public static final Attribute LAST_UPDATE_TIME = new Attribute("lastUpdateTime");
-
-    /**
-     * The search attribute for the Version Element metadata.
-     *
-     * This will exist as a search attribute at runtime if metadata searching has been enabled.
-     */
-    public static final Attribute VERSION = new Attribute("version");
-
-
     /**
      * Request that the key object be present in the results.
      *

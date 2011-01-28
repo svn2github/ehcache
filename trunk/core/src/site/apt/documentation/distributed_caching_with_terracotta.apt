@@ -661,6 +661,22 @@ public interface ClusterTopologyListener {
 
     maxElementsOnDisk was inadvertenly ignored in the new DCV2 implementation. This has been logged as a bug: {{https://jira.terracotta.org/jira/browse/EHCTERR-1}}
 
+    This issue only happens when there are no expired elements.
+
+    If ttl is eternal then any DCV2 will be element will be chosen.
+
+     The Eviction algorithm works as follows:
+
+       * skips those on L1
+
+       - picks a sample of 30% of elements and picks the best. The folowing will be exicted:
+
+        - expired
+        - random
+
+
+
+
 **  Changing configuration
 
     Terracotta clusters remember the configuration settings. You need to delete the cluster to change cache settings of Terracotta distributed

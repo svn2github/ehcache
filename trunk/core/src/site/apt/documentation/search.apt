@@ -26,7 +26,7 @@ Results results = cache.createQuery().includeValues().add(and(age.eq(32),
 
 *  What is searchable?
 
-    Searches can be performed against Element keys, values and metadata, such as creation time.
+    Searches can be performed against Element keys and values, such as creation time.
      
     Element keys and values are made searchable by extracting attributes with supported search types out of the values.
 
@@ -46,14 +46,6 @@ Results results = cache.createQuery().includeValues().add(and(age.eq(32),
 
     This configuration will scan keys and vales and if they are of supported search types, add them as
     attributes called "key" and "value" respectively.
-
-    Ehcache element metadata can be also searched if it is declared searchable. This is done as follows:
-
----
-<cache name="metadata-searchable" maxElementsInMemory="0" eternal="true" overflowToDisk="false">
-   <searchable metadata="true"/>
-</cache>
----
 
     Lots of times keys or values will not be directly searchable and instead you will need to extract searchable attributes out of them.
     The following example shows this more typical case.  Attribute Extractors are explained in more detail in the following section.
@@ -149,19 +141,7 @@ cacheManager.add(test);
     If a keys and/or value is of a supported search type, they are added automatically as attributes with the names
     "key" amd "value".
 
-    When the metadata attribute is set (<<<metadata=true>>>), the following metadata attibutes are also indexed and made available:
-
-     * creationTime
-
-     * expirationTime
-
-     * lastAccessTime
-
-     * lastUpdateTime
-
-     * version
-
-    All of these well-known attributes have convenience constant attributes made available on the <<<Query>>> class.
+    These well-known attributes have convenience constant attributes made available on the <<<Query>>> class.
     So, for example, the attribute for "key" may be referenced in a query by <<<Query.KEY>>>. For even greater readability it is
      recommended to statically import so that in this example you would just use <<<KEY>>>.
 
@@ -171,16 +151,6 @@ Well-known Attribute Name | Attribute Constant
  key               |     Query.KEY
 *----------+--------------+
  value             |     Query.VALUE
-*----------+--------------+
- creationTime      |     Query.CREATION_TIME
-*----------+--------------+
- expirationTime    |    Query.EXPIRATION_TIME
-*----------+--------------+
- lastAccessTime    |   Query.LAST_ACCESS_TIME
-*----------+--------------+
- lastUpdateTime    |   Query.LAST_UPDATE_TIME
-*----------+--------------+
- version           |   Query.VERSION
 *----------+--------------+
 
 
@@ -336,19 +306,6 @@ Shorthand | Criteria Class | Description
 
   By default a query can be executed and then modified and re-executed. If <<<end>>> is called
   the query is made immutable.
-
-** Automatically Deleting Elements which match a Query
-
-    <<<executeAndRemove>>> may be used in place of excecute to automatically remove Elements which match the Query. The return type
-    and syntax is identical. The <<<Results>>> object returned then contains what was removed from the Cache. If all you want
-    to know is the count of Elements removed, you would use the count aggregator as per the following example:
-
----
-Results results = query.includeAggregator(KEY.count()).executeAndRemove();
----
-
-    While it is possible to simply return the keys from a Query and then iterate over them yourself, executeAndRemove has been
-    optimised for more efficient operation in each implementation.
 
 **  Ordering Results
 
@@ -553,12 +510,11 @@ for (Result result : results.all()) {
     standalone cache performance. This test shows search performance of 10ms per 10,000 entries. The search tends to be CPU bound.
 
     Accordingly, standalone implementation is suitable for development and testing. For production it is recommended to only
-    search against caches that are less than 100,000 element in size.
-
+    standalone search for caches that are less than 1 million elements.
 
 **  Ehcache backed by the Terracotta Server Array
 
-    This implementation uses Lucene indexes which are maintained on each Terracotta server. In Ehcache EX the index is
+    This implementation uses indexes which are maintained on each Terracotta server. In Ehcache EX the index is
     on a single active server. In Ehcache FX the cache is sharded across the number of active nodes in the cluster. The index
     for each shard is maintained on that shard's server.
 
@@ -588,26 +544,3 @@ for (Result result : results.all()) {
     to the Ehcache CacheManager which requested it in batches for network efficiency. This is done ahead as soon as possible
     reducing the risk that <<<Result.getValue()>>> might have to wait for data over the network.
 
-
-*   Limitations in the beta release
-
-    The above documentation is written for how we see search working when it is released.
-
-    * The beta API may be changed before final release
-
-    * Performance optimisations for standalone have not been done
-
-
-*   Not planned for First Release
-
-    * indexed standalone implementation
-
-    * User Defined Aggregators
-
-    * executeAndRemove() is not yet implemented
-
-    * Metadata attributes are not yet implemented
-
-    * An isNull criteria is not yet implemented
-
-    * Non-Latin language behaviour has not been fully tested
