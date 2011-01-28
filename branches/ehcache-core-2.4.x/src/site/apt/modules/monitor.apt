@@ -1,0 +1,13 @@
+ ------
+ {Ehcache Monitor Download}
+ ------
+ ------
+ Date
+ ------
+
+Ehcache Monitor Download
+
+    Please register to download the Monitor.
+
+%{snippet|file=src/site/include/monitor_signup_form.html|verbatim=false}
+

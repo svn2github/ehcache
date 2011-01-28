@@ -1,0 +1,480 @@
+ ---
+ Transactions in Ehcache
+ ---
+
+Transactions in Ehcache
+
+%{toc|fromDepth=2|toDepth=2}
+
+*   Introduction 
+
+    Transactions are supported in versions of Ehcache 2.0 and higher.
+
+    The GA releases only support XA. However we have ehcache 2.4 in beta which supports both Global Transactions
+    with <<<xa_strict>>> and <<<xa>>> modes, and Local Transactions with <<<local>>> mode. This document
+    has been updated to cover the new features in the beta.
+
+
+**  All or nothing
+
+    If a cache is enabled for JTA all operations on it must happen within a transaction context,
+    otherwise a <<<TransactionRequiredException>>> will be thrown.
+
+**  Change Visibility
+
+    The isolation level offered in Ehcache JTA is <<<READ_COMMITTED>>>.  Ehcache is an XAResource. Full two-phase
+    commit is supported.
+
+    Specifically:
+
+    * All mutating changes to the cache are transactional including <<<put>>>, <<<remove>>>, <<<putWithWriter>>>,
+      <<<removeWithWriter>>> and <<<removeAll>>>.
+
+    * Mutating changes are not visible to other transactions in the local JVM or across the cluster until <<<COMMIT>>> has been called.
+
+    * Until then, read such as by <<<cache.get(...)>>> by other transactions will return the old copy. Reads do not block.
+
+*   Configuration
+
+    Transactions are enabled on a cache by cache basis with the <<<transactionalMode>>> cache attribute.
+
+    The allowed values are:
+
+    * <<<xa_strict>>>
+
+    * <<<xa>>>
+
+    * <<<local>>> 
+
+    * <<<off>>>
+
+    The default value is off.  
+
+    Enabling a cache for <<<xa_strict>>> transactions is shown in the following example:
+
+---
+    <cache name="xaCache"
+        maxElementsInMemory="500"
+        eternal="false"
+        timeToIdleSeconds="300"
+        timeToLiveSeconds="600"
+        overflowToDisk="false"
+        diskPersistent="false"
+        diskExpiryThreadIntervalSeconds="1"
+        transactionalMode="xa_strict">
+  </cache>
+---
+
+** Considerations when using clustered caches with Terracotta
+
+    For Terracotta clustered caches, <<<transactionalMode>>> can only be used where <<<terracotta coherent="true">>>. Because
+    caches can be dynamically changed into coherent=false mode for bulk loading, any attempt to perform a transaction when this
+    is the case will throw a <<<CacheException>>>.
+
+    Note that transactions do not work with Terracotta's <<<identity>>> mode. An attempt to initialise a transactional cache when
+    this mode is set will result in a <<<CacheException>>> being thrown. The default mode is <<<serialization>>> mode.
+
+
+*   Global Transactions
+
+    Global Transactions are supported by Ehcache. Ehcache acts as an {XAResouce} and participates in
+    JTA ("Java Transaction API") transactions under the control of a Transaction Manager. This is typically provided by your
+    application server, however you may also use a third party transaction manager such as Bitronix.
+
+    To use Global Transactions, select either <<<xa_strict>>> or <<<xa>>> mode. The differences are explained in the Recovery section below.
+
+**  Implementation
+
+    XA transactional support is implemented at the Store level, through XaTransactionalStore. The store actually decorates the underlying
+    MemoryStore implementation, augmenting it with transaction isolation and two-phase commit support.
+
+    During it's initialization, the Cache will lookup the TransactionManager using the provided TransactionManagerLookup implementation.
+    Then, using the <<<TransactionManagerLookup.register(XAResouce)>>>, the newly created XAResource will be registered.
+
+    The store is automatically configured to copy every Element read from the cache or written to it. Cache is copy-on-read and copy-on-write.
+
+**  A day in the life of a global transactional Cache
+
+    Every read() from the Cache, or remove() without a previous get(), records transactional versioning information for the cache values accessed.  This information is checked at commit time: if the versions are the same during commit the transaction is allowed to succeed, otherwise it is rolled back.
+
+    This strategy is often referred to as an optimistic lock strategy and sometimes mvcc (multi-version-concurrency-control) and is the primary strategy most modern databases such as Oracle, MySQL, and PostgreSQL use to manage transactional changes.
+
+    Write operations to the cache such as put() and remove() are not executed against the underlying memory store. Rather a local
+    transaction context is being altered. It queues all commands to be executed against the Store at commit time. This context
+    also alters the behavior of cache accesses: within the same transaction a put() and then a getSize() call will reflect that previous
+    put(), while other in-flight transactions would not be impacted. This gives <<<READ_COMMITTED>>> isolation.
+
+    During the two phase commit, the context is first prepared: all keys to be altered are checked for consistency against the
+    optimistic locking mechanism. If a key to be updated or removed has since been changed by a commited transaction, the transaction will
+    be rolled back. For each key a write lock is acquired, version checked and the old value is copied to a temporary "guarding" store. That
+    store is always queried before the real underlying memory store is. That way, while write locked, old values that are about to be
+    updated can still be read, non blocking, from the "oldVersionStore". If all keys could be validated and write locked the prepare
+    operation as finished successfully and Ehcache votes OK on commit.
+
+    If all other XAResource eventually vote <<<OK>>>, the transaction is committed: the old value(s) are removed and write-locks are released.
+    If not, the old values are copied back to the store and the lock released.
+
+*   Failure Recovery
+
+    As specified by the JTA specification, only <prepared> transaction data is recoverable.
+
+    This means that any transaction still alive at VM failure will be lost. Since all these operations are non locking, the cluster is not impacted by these lost transactions.
+
+    Prepared data is persisted to the cluster and locks on the memory are held. Should the L1 come back up
+    before the locks have timed out the VM will be able to keep doing its work.
+
+**  Recovery
+
+    When something goes wrong, a <<<ResourceManager>>> will be asked to recover. Data that has been prepared may either be committed or rolled back
+    during recovery. In accordance with XA, data that has not yet been <<<prepared>>> is discarded.
+
+    The recovery guarantee differs depending on the xa mode. 
+
+*** XA Mode
+
+    If <<<xa_strict>>> is used the cache will always respond to the TransactionManager's
+    recover calls with a list of transactions ids. Should the XA recovery scan be required by the transaction manager, Ehcache will provide all
+    Xids prepared, but these will only be able to be rolled back. Indeed when locks time out, no guarantee can be made about the locked keys
+    and their value. If the transaction manager still asks Ehcache to commit these, a <<<HeuristicException>>> will be thrown.
+
+*** XA-NR Mode
+
+    There is also an <<<xa>>> mode, which is configured and works the same way as XA, but does not support recovery. In this mode the
+    TransactionManager's recover calls are ignored. 
+    With <<<xa>>>, the cache can end up inconsistent with the other resources if there is a JVM crash in the mutating node, however this mode is 3 times faster than <<<xa_strict>>>.
+
+    Some scenarios where <<<xa>>> is valuable are:
+
+    * Non-clustered use. If you are using a non-persistent standalone cache and you suffer a JVM crash, the cache will be empty
+      on restart so there is no danger of an inconsistency
+
+    * Compensating actions on crash. Here you put in place an operational recovery step, where you check the Transaction Manager for
+      uncommitted transactions and correct the cache. One simple way is to just do a removeAll() either programmatically or via the
+      console.
+
+    * Finally not all transaction managers correctly implement recovery anyway. If you are using one of these then your XA implementation
+      will not be doing recovery so <<<xa>>> does not leave you any worse off.
+
+
+
+*   {Sample Apps}
+
+    We have three sample applications showing how to use XA with a variety of technologies.
+
+
+**  XA Sample App
+
+    This sample application uses JBoss application server. It shows an example using User managed transactions. While we expect most people will use
+    JTA from within Spring or EJB where the container rather than managing it themselves, it clearly shows what is going
+    on.
+
+    The following snippet from our SimpleTX servlet shows a complete transaction.
+
+---
+
+   Ehcache cache = cacheManager.getEhcache("xaCache");
+
+    UserTransaction ut = getUserTransaction();
+
+    printLine(servletResponse, "Hello...");
+    try {
+        ut.begin();
+        int index = serviceWithinTx(servletResponse, cache);
+        printLine(servletResponse, "Bye #" + index);
+        ut.commit();
+
+    } catch(Exception e) {
+        printLine(servletResponse,
+            "Caught a " + e.getClass() + "! Rolling Tx back");
+        if(!printStackTrace) {
+            PrintWriter s = servletResponse.getWriter();
+            e.printStackTrace(s);
+            s.flush();
+        }
+        rollbackTransaction(ut);
+    }
+---
+
+    The source code for the demo can be checked out from
+    {{http://svn.terracotta.org/svn/forge/projects/ehcache-jta-sample/trunk}}
+
+    A README.txt explains how to get the JTA Sample app going.
+
+**   XA Banking Application
+
+    The Idea of this application is to show a real world scenario. AwWeb app reads <account transfer> messages from a queue
+    and tries to execute these account transfers.
+
+    With JTA turned on, failures are rolled back so that the cached account balance is always the same as the true balance
+    summed from the database.
+
+    This app is a Spring-based Java web app running in a Jetty container. It has (embedded) the following components:
+
+    * A JMS Server (ActiveMQ)
+
+    * 2 databases (embedded Derby XA instances)
+
+    * 2 caches (JTA Ehcache)
+
+    All XA Resources are managed by Atomikos TransactionManager. Transaction demarcation is done using
+    Spring AOP's <<<@Transactional>>> annotation.
+
+    You can run it with: <<<mvn clean jetty:run>>>. Then point your browser at: {{http://localhost:9080}}.
+
+    To see what happens without XA transactions:
+
+    <<<mvn clean jetty:run -Dxa=no>>>
+
+    The source code for the demo can be checked out from
+    {{http://svn.terracotta.org/svn/forge/projects/ehcache-jta-banking/trunk}}
+
+    A README.txt explains how to get the JTA Sample app going.
+
+
+**  Examinator
+
+    Examinator is our complete application that shows many aspects of caching in one web based Exam application,
+     all using the Terracotta Server Array.
+
+    Check out from {{http://svn.terracotta.org/svn/forge/projects/exam/}}
+
+
+*   Transaction Managers
+
+**  Automatically Detected Transaction Managers
+
+    Ehcache automatically detects and uses the following transaction managers in the following order:
+
+     * GenericJNDI (e.g. Glassfish, JBoss, Weblogic, JTOM and any others that register themselves in JNDI at the standard location of java:/TransactionManager
+
+     * Bitronix
+
+     * Atomikos
+
+    No configuration is required; they work out of the box.
+
+    The first found is used.
+
+
+**  Configuring a Transaction Manager
+
+    If your Transaction Manager is not in the above list or you wish to change the priority you need
+    to configure your own lookup class and specify it in place of
+    the <<<DefaultTransactionManagerLookup>>> in the ehcache.xml config:
+
+---
+<transactionManagerLookup
+ class= "net.sf.ehcache.transaction.manager.DefaultTransactionManagerLookup"
+ properties="" propertySeparator=":"/>
+
+---
+
+    You can also provide a different location for the JNDI lookup by providing the jndiName property to the DefaultTransactionManagerLookup.
+
+    The example below provides the proper location for the TransactionManager in GlassFish v3:
+
+---
+<transactionManagerLookup
+ class="net.sf.ehcache.transaction.manager.DefaultTransactionManagerLookup"
+ properties="jndiName=java:appserver/TransactionManager" propertySeparator=";"/>
+
+---
+
+
+*   Local Transactions
+
+    Local Transactions allow single phase commit across multiple cache operations, across one or more caches,
+    and in the same CacheManager, whether distributed with Terracotta or standalone.
+
+    This lets you apply multiple changes to a CacheManager all in your own transaction. If you also want to apply changes
+    to other resources such as a database then you need to open a transaction to them and manually handle commit and rollback
+    to ensure consistency.
+
+    Local transactions are not controlled by a Transaction Manager. Instead there is an explicit API where a reference is obtained
+    to a <<<TransactionController>>> for the CacheManager using <<<cacheManager.getTransactionController()>>> and the steps in the
+    transaction are called explicitly.
+
+    The steps in a local transaction are:
+
+    * <<<transactionController.begin()>>> - This marks the beginning of the local transaction on the current thread. The changes are not visible to other threads or to
+      other transactions.
+
+    * <<<transactionController.commit()>>> - Commits work done in the current transaction on the calling thread.
+
+    * <<<transactionController.rollback()>>> - Rolls back work done in the current transaction on the calling thread. The changes done since begin are not applied to
+      the cache.
+
+    []
+
+    These steps should be placed in a try-catch block which catches <<<CacheException>>>. If any exceptions are thrown, rollback() should be
+    called.
+
+    Local Transactions has it's own exceptions that can be thrown, which are all subclasses of <<<CacheException>>>. They are:
+
+    * <<<TransactionException>>> - a general exception
+
+    * <<<TransactionTimeoutException>>> - if a cache operation or commit is called after the transationTimeout has elapsed.
+
+** Configuration
+
+    Local transactions are configured as follows:
+
+---
+    <cache name="sampleCache"
+        ...
+        transactionalMode="local"
+  </cache>
+---
+
+**  Isolation Level
+
+    As with the other transaction modes, the isolation level is READ_COMMITTED.
+
+**  Transaction Timeouts
+
+    If a transaction cannot complete within the timeout period, then a <<<TransactionTimeoutException>>> will be thrown. To return the
+    cache to a consistent state you need to call <<<transactionController.rollback()>>>.
+
+    Because <<<TransactionController>>> is at the level of the CacheManager, a default timeout can be set which applies to all transactions
+    across all caches in a CacheManager. If not set, it is 15 seconds.
+
+    To change the defaultTimeout:
+
+---
+    transactionController.setDefaultTransactionTimeout(int defaultTransactionTimeoutSeconds)
+---
+
+    The countdown starts straight after <<<begin()>>> is called. You might have another local transaction on a JDBC connection and you may
+    be making multiple changes. If you think it could take longer than 15 seconds for an individual transaction, you can override the
+    default when you begin the transaction with:
+
+---
+    transactionController.begin(int transactionTimeoutSeconds) {
+---
+
+** Sample Code
+
+    This example shows a transaction which performs multiple operations across two caches.
+
+---
+    CacheManager cacheManager = CacheManager.getInstance();
+
+    try {
+        cacheManager.getTransactionController().begin();
+
+        cache1.put(new Element(1, "one"));
+        cache2.put(new Element(2, "two"));
+        cache1.remove(4);
+
+        cacheManager.getTransactionController().commit();
+    } catch (CacheException e) {
+        cacheManager.getTransactionController().rollback()
+    }
+---
+
+
+**  What can go wrong
+
+*** JVM crash between begin and commit
+
+    On restart none of the changes applied after begin are there.
+
+    On restart, nothing needs to be done. Under the covers in the case of a Terracotta cluster, the Element's new value
+    is there but not applied. It's will be lazily removed on next access.
+
+
+*   Performance
+
+**   Managing Contention
+
+    If two transactions, either standalone or across the cluster, attempt to perform a cache operation on the same element then the
+    following rules apply:
+
+    * The first transaction gets access
+
+    * The following transactions will block on the cache operation until either the first transaction completes or the transaction timeout
+      occurs.
+
+    []
+
+    Under the covers, when an element is involved in a transaction, it is replaced with a new element with a marker that is locked, along
+    with the transaction id. The normal cluster semantics are used.
+
+    Because transactions only work with coherent=true caches, the first transaction will be the thread that manages to atomically
+    place a soft lock on the Element. (Up to Terracotta 3.4 this was done with write locks. After that it is done with the CAS based
+    putIfAbsent and replace methods).
+
+**  What granularity of locking is used?
+
+    Ehcache standalone up to 2.3 used page level locking, where each segment in the <<<CompoundStore>>> is locked. From 2.4, it is one
+    with soft locks stored in the Element itself and is on a key basis.
+
+    Terracotta clustered caches are locked on the key level.
+
+**  Performance Comparisons
+
+    Any transactional cache adds an overhead which is significant for writes and nearly negligible for reads.
+
+    Within the modes the relative time take to perform writes, where off = 1, is:
+
+    * off   - no overhead
+
+    * xa_strict    - ten times slower
+
+    * xa - 3 times slower
+
+    * local - 3 times slower
+
+    The relative read performance is:
+
+    * off   - no overhead
+
+    * xa_strict    - 10 times slower
+
+    * xa - 10% slower
+
+    * local - 10% slower
+
+    []
+
+    Accordingly, xa_strict should only be used where it's full guarantees are required, othewise one of the other modes should be used.
+
+
+*   FAQ
+
+**  Is IBM Websphere Transaction Manager supported?
+
+    Mostly. xa_strict is not supported due to each version of Websphere essentially being a custom implementation i.e. no stable interface to
+    implement against. However, <<<xa>>>, which uses TransactionManager callbacks and <<<local>>> are supported.
+
+**  How do transactions interact with Write-behind and Write-through caches?
+
+    If your transactional enabled cache is being used with a writer, write operations will be queued until transaction commit time. Solely
+    a Write-through approach would have its potential XAResource participate in the same transaction. Write-behind, while supported,
+    should probably not be used with an XA transactional Cache, as the operations would never be part of the same transaction. Your writer
+    would also be responsible for obtaining a new transaction...
+
+    Using Write-through with a non XA resource would also work, but there is no guarantee the transaction will succeed after the write
+    operations have been executed successfully. On the other hand, any thrown exception during these write operations would cause the
+    transaction to be rolled back by having UserTransaction.commit() throw a RollbackException.
+
+**  Are Hibernate Transactions supported?
+
+    Ehcache is a "transactional" cache for Hibernate purposes. The <<<net.sf.ehcache.hibernate.EhCacheRegionFactory>>>
+    has support for Hibernate entities configured with <cache usage="transactional"/>.
+
+**  How do I make WebLogic 10 work with Ehcache JTA?
+
+    WebLogic uses an optimization that is not supported by our implementation. By default WebLogic 10 will spawn threads to
+    start the Transaction on each XAResource in parallel. As we need transaction work to be performed on the same Thread, you will have
+    to turn this optimization off by setting <<<parallel-xa-enabled>>> option to <<<false>>> in your domain configuration :
+
+---
+  <jta>
+    ...
+    <checkpoint-interval-seconds>300</checkpoint-interval-seconds>
+    <parallel-xa-enabled>false</parallel-xa-enabled>
+    <unregister-resource-grace-period>30</unregister-resource-grace-period>
+    ...
+  </jta>
+---
