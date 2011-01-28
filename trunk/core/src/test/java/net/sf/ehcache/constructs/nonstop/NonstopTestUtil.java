@@ -143,6 +143,7 @@ public class NonstopTestUtil extends TestCase {
         skipMethods.add("addPropertyChangeListener");
         skipMethods.add("removePropertyChangeListener");
         skipMethods.add("waitUntilClusterCoherent");
+        skipMethods.add("waitUntilClusterBulkLoadComplete");
         // off-heap methods don't reach terracotta layer.. yet
         skipMethods.add("calculateOffHeapSize");
         skipMethods.add("getOffHeapStoreSize");
