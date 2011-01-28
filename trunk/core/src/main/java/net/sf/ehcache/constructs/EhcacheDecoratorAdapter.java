@@ -638,7 +638,7 @@ public class EhcacheDecoratorAdapter implements Ehcache {
     /**
      * {@inheritDoc}
      *
-     * @deprecated Use {@link #setBulkLoadEnabled(boolean)} instead
+     * @deprecated Use {@link #setNodeBulkLoadEnabled(boolean)} instead
      */
     @Deprecated
     public void setNodeCoherent(boolean coherent) throws UnsupportedOperationException {
@@ -853,8 +853,8 @@ public class EhcacheDecoratorAdapter implements Ehcache {
     /**
      * {@inheritDoc}
      */
-    public void setBulkLoadEnabled(boolean enabledBulkLoad) throws UnsupportedOperationException, TerracottaNotRunningException {
-        underlyingCache.setBulkLoadEnabled(enabledBulkLoad);
+    public void setNodeBulkLoadEnabled(boolean enabledBulkLoad) throws UnsupportedOperationException, TerracottaNotRunningException {
+        underlyingCache.setNodeBulkLoadEnabled(enabledBulkLoad);
     }
 
     /**

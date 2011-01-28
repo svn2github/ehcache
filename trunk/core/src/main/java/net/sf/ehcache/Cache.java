@@ -3390,7 +3390,7 @@ public class Cache implements Ehcache, StoreListener {
      */
     @Deprecated
     public boolean isClusterCoherent() {
-        return this.isClusterBulkLoadEnabled();
+        return !this.isClusterBulkLoadEnabled();
     }
 
     /**
@@ -3399,16 +3399,16 @@ public class Cache implements Ehcache, StoreListener {
      */
     @Deprecated
     public boolean isNodeCoherent() {
-        return this.isNodeBulkLoadEnabled();
+        return !this.isNodeBulkLoadEnabled();
     }
 
     /**
      * {@inheritDoc}
-     * @deprecated use {@link #setBulkLoadEnabled(boolean)} instead
+     * @deprecated use {@link #setNodeBulkLoadEnabled(boolean)} instead
      */
     @Deprecated
     public void setNodeCoherent(boolean coherent) {
-        this.setBulkLoadEnabled(coherent);
+        this.setNodeBulkLoadEnabled(!coherent);
     }
 
     /**
@@ -3747,23 +3747,23 @@ public class Cache implements Ehcache, StoreListener {
      * {@inheritDoc}
      */
     public boolean isClusterBulkLoadEnabled() throws UnsupportedOperationException, TerracottaNotRunningException {
-        return compoundStore.isClusterCoherent();
+        return !compoundStore.isClusterCoherent();
     }
 
     /**
      * {@inheritDoc}
      */
     public boolean isNodeBulkLoadEnabled() throws UnsupportedOperationException, TerracottaNotRunningException {
-        return compoundStore.isNodeCoherent();
+        return !compoundStore.isNodeCoherent();
     }
 
     /**
      * {@inheritDoc}
      */
-    public void setBulkLoadEnabled(boolean enabledBulkLoad) throws UnsupportedOperationException, TerracottaNotRunningException {
+    public void setNodeBulkLoadEnabled(boolean enabledBulkLoad) throws UnsupportedOperationException, TerracottaNotRunningException {
         final boolean oldValue = isNodeBulkLoadEnabled();
         if (oldValue != enabledBulkLoad) {
-            compoundStore.setNodeCoherent(enabledBulkLoad);
+            compoundStore.setNodeCoherent(!enabledBulkLoad);
         }
     }
 

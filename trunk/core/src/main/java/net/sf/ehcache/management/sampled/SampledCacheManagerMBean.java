@@ -140,6 +140,11 @@ public interface SampledCacheManagerMBean {
     public long getCacheExpirationRate();
 
     /**
+     * @return if any contained caches are configured for search
+     */
+    public boolean getSearchable();
+
+    /**
      * @return aggregate search rate
      */
     public long getCacheSearchRate();

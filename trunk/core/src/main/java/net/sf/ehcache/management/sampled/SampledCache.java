@@ -32,6 +32,9 @@ import net.sf.ehcache.config.TerracottaConfiguration.Consistency;
 import net.sf.ehcache.hibernate.management.impl.BaseEmitterBean;
 import net.sf.ehcache.writer.writebehind.WriteBehindManager;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * An implementation of {@link SampledCacheMBean}
  *
@@ -41,6 +44,8 @@ import net.sf.ehcache.writer.writebehind.WriteBehindManager;
  * @since 1.7
  */
 public class SampledCache extends BaseEmitterBean implements SampledCacheMBean, CacheConfigurationListener, PropertyChangeListener {
+    private static final Logger LOG = LoggerFactory.getLogger(SampledCache.class.getName());
+
     private static final MBeanNotificationInfo[] NOTIFICATION_INFO;
 
     private final Ehcache cache;
@@ -94,7 +99,9 @@ public class SampledCache extends BaseEmitterBean implements SampledCacheMBean, 
 
     /**
      * {@inheritDoc}
+     * @deprecated use {@link #isClusterBulkLoadEnabled()} instead
      */
+    @Deprecated
     public boolean isClusterCoherent() {
         return cache.isClusterCoherent();
     }
@@ -102,6 +109,15 @@ public class SampledCache extends BaseEmitterBean implements SampledCacheMBean, 
     /**
      * {@inheritDoc}
      */
+    public boolean isClusterBulkLoadEnabled() {
+        return cache.isClusterBulkLoadEnabled();
+    }
+
+    /**
+     * {@inheritDoc}
+     * @deprecated use {@link #isNodeBulkLoadEnabled()} instead
+     */
+    @Deprecated
     public boolean isNodeCoherent() {
         return cache.isNodeCoherent();
     }
@@ -109,11 +125,50 @@ public class SampledCache extends BaseEmitterBean implements SampledCacheMBean, 
     /**
      * {@inheritDoc}
      */
+    public boolean isNodeBulkLoadEnabled() {
+        return !isNodeCoherent();
+    }
+
+    /**
+     * {@inheritDoc}
+     * @deprecated use {@link #setNodeBulkLoadEnabled()} instead
+     */
+    @Deprecated
     public void setNodeCoherent(boolean coherent) {
         boolean isNodeCoherent = isNodeCoherent();
         if (coherent != isNodeCoherent) {
-            cache.setNodeCoherent(coherent);
+            if (!coherent && getTransactional()) {
+                LOG.warn("a transactional cache cannot be incoherent");
+                return;
+            }
+            try {
+                cache.setNodeCoherent(coherent);
+            } catch (RuntimeException e) {
+                throw newPlainException(e);
+            }
             sendNotification(CACHE_CHANGED, getCacheAttributes(), getImmutableCacheName());
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void setNodeBulkLoadEnabled(boolean bulkLoadEnabled) {
+        if (bulkLoadEnabled && getTransactional()) {
+            LOG.warn("a transactional cache cannot be put into bulk-load mode");
+            return;
+        }
+        setNodeCoherent(!bulkLoadEnabled);
+    }
+
+    private RuntimeException newPlainException(RuntimeException e) {
+        String type = e.getClass().getName();
+        if (type.startsWith("java.") || type.startsWith("javax.")) {
+            return e;
+        } else {
+            RuntimeException result = new RuntimeException(e.getMessage());
+            result.setStackTrace(e.getStackTrace());
+            return result;
         }
     }
 
@@ -842,11 +897,14 @@ public class SampledCache extends BaseEmitterBean implements SampledCacheMBean, 
         result.put("OverflowToDisk", isConfigOverflowToDisk());
         result.put("DiskExpiryThreadIntervalSeconds", getConfigDiskExpiryThreadIntervalSeconds());
         result.put("MemoryStoreEvictionPolicy", getConfigMemoryStoreEvictionPolicy());
-        result.put("TerracottaCoherenceMode", getTerracottaConsistency());
+        result.put("TerracottaConsistency", getTerracottaConsistency());
+        result.put("NodeBulkLoadEnabled", isNodeBulkLoadEnabled());
         result.put("NodeCoherent", isNodeCoherent());
+        result.put("ClusterBulkLoadEnabled", isClusterBulkLoadEnabled());
         result.put("ClusterCoherent", isClusterCoherent());
         result.put("StatisticsEnabled", isStatisticsEnabled());
         result.put("WriterConcurrency", getWriterConcurrency());
+        result.put("Transactional", getTransactional());
         return result;
     }
 
@@ -967,6 +1025,13 @@ public class SampledCache extends BaseEmitterBean implements SampledCacheMBean, 
      */
     public boolean getTransactional() {
         return cache.getCacheConfiguration().getTransactionalMode().isTransactional();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public boolean getSearchable() {
+        return cache.getCacheConfiguration().getSearchable() != null;
     }
 
     /**

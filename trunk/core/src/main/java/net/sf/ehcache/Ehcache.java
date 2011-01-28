@@ -1073,7 +1073,7 @@ public interface Ehcache extends Cloneable {
      * @param coherent
      *            true transitions to coherent mode, false to incoherent mode
      * @throws UnsupportedOperationException if this cache does not support coherence, like RMI replication
-     * @deprecated Use {@link #setBulkLoadEnabled(boolean)} instead
+     * @deprecated Use {@link #setNodeBulkLoadEnabled(boolean)} instead
      */
     @Deprecated
     public void setNodeCoherent(boolean coherent) throws UnsupportedOperationException, TerracottaNotRunningException;
@@ -1227,7 +1227,7 @@ public interface Ehcache extends Cloneable {
      *            true enables bulk-load, false disables it if not already disabled
      * @throws UnsupportedOperationException if the cache is not clustered with Terracotta
      */
-    public void setBulkLoadEnabled(boolean enabledBulkLoad) throws UnsupportedOperationException, TerracottaNotRunningException;
+    public void setNodeBulkLoadEnabled(boolean enabledBulkLoad) throws UnsupportedOperationException, TerracottaNotRunningException;
 
     /**
      * This method waits until all the connected nodes have disabled bulk-load. Or in other words, calling this method

@@ -66,18 +66,39 @@ public interface SampledCacheMBean extends LiveCacheStatistics, SampledCacheStat
 
     /**
      * Enabled/disable cache coherence mode for this node.
+     * @deprecated use {@link #setNodeBulkLoadEnabled()} instead
      */
+    @Deprecated
     void setNodeCoherent(boolean coherent);
 
     /**
-     * Is the cache coherent cluster-wide?
+     * Enabled/disable bulk-load mode for this node.
      */
+    void setNodeBulkLoadEnabled(boolean bulkLoadEnabled);
+
+    /**
+     * Is the cache coherent cluster-wide?
+     * @deprecated use {@link #isClusterBulkLoadEnabled()} instead
+     */
+    @Deprecated
     boolean isClusterCoherent();
 
     /**
-     * Is the cache coherent locally?
+     * Is the cache in bulk-load mode cluster-wide?
      */
+    boolean isClusterBulkLoadEnabled();
+
+    /**
+     * Is the cache coherent locally?
+     * @deprecated use {@link #isNodeBulkLoadEnabled()} instead
+     */
+    @Deprecated
     boolean isNodeCoherent();
+
+    /**
+     * Is the cache in bulk-load mode locally?
+     */
+    public boolean isNodeBulkLoadEnabled();
 
     /**
      * Enabled/disable the cache.
@@ -302,4 +323,10 @@ public interface SampledCacheMBean extends LiveCacheStatistics, SampledCacheStat
      * @see net.sf.ehcache.config.CacheConfiguration.TransactionalMode
      */
     public boolean getTransactional();
+
+    /**
+     * Is the cache configured for search
+     * @see net.sf.ehcache.config.CacheConfiguration.Searchable
+     */
+    public boolean getSearchable();
 }

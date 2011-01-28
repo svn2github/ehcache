@@ -463,6 +463,19 @@ public class SampledCacheManager extends BaseEmitterBean implements SampledCache
     /**
      * {@inheritDoc}
      */
+    public boolean getSearchable() {
+        for (String cacheName : getCacheNames()) {
+            Ehcache cache = cacheManager.getEhcache(cacheName);
+            if (cache != null && cache.getCacheConfiguration().getSearchable() != null) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     public long getTransactionCommittedCount() {
         return this.cacheManager.getTransactionController().getTransactionCommittedCount();
     }
