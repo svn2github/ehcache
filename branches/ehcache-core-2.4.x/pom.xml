@@ -798,12 +798,10 @@
     </distributionManagement>
 
     <scm>
-        <connection>scm:svn:http://svn.terracotta.org/svn/ehcache/trunk
-        </connection>
-        <developerConnection>scm:svn:https://svn.terracotta.org/repo/ehcache/trunk
-        </developerConnection>
+      <connection>scm:svn:http://svn.terracotta.org/svn/ehcache/branches/ehcache-core-2.4.x</connection>
+      <developerConnection>scm:svn:https://svn.terracotta.org/repo/ehcache/branches/ehcache-core-2.4.x</developerConnection>
         <tag/>
-        <url>http://svn.terracotta.org/svn/ehcache/trunk</url>
+        <url>http://svn.terracotta.org/svn/ehcache/branches/ehcache-core-2.4.x</url>
     </scm>
 
     <issueManagement>
