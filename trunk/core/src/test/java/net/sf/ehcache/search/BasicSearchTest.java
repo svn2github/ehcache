@@ -652,6 +652,14 @@ public class BasicSearchTest {
         query.end();
         verify(cache, query, 2);
 
+        query = cache.createQuery();
+        query.includeKeys();
+        query.addCriteria(cache.getSearchAttribute("name").eq("Tim Eck"));
+        query.addCriteria(cache.getSearchAttribute("gender").eq(Gender.MALE));
+        query.addCriteria(cache.getSearchAttribute("age").eq(35));
+        query.end();
+        verify(cache, query, 1);
+
         try {
             cache.getSearchAttribute("DOES_NOT_EXIST_PLEASE_DO_NOT_CREATE_ME");
             fail();

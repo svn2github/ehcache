@@ -44,7 +44,7 @@ public class And extends BaseCriteria {
       Criteria[] originalCriteria = original.getCriterion();
       this.criterion = new Criteria[originalCriteria.length + 1];
       System.arraycopy(originalCriteria, 0, criterion, 0, originalCriteria.length);
-      originalCriteria[originalCriteria.length - 1] = additional;
+      this.criterion[originalCriteria.length] = additional;
     }
 
     @Override
