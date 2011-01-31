@@ -660,6 +660,13 @@ public class BasicSearchTest {
         query.end();
         verify(cache, query, 1);
 
+        query = cache.createQuery();
+        query.includeKeys();
+        Attribute name = cache.getSearchAttribute("name");
+        query.addCriteria(name.eq("Tim Eck").or(name.eq("Ari Zilka")).or(name.eq("Nabib El-Rahman")));
+        query.end();
+        verify(cache, query, 1, 3, 4);
+
         try {
             cache.getSearchAttribute("DOES_NOT_EXIST_PLEASE_DO_NOT_CREATE_ME");
             fail();
