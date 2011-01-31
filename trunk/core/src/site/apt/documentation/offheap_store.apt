@@ -429,6 +429,19 @@ public Cache createOffHeapCache() {
     This time is incurred only once at startup. The pre-allocation of memory from the OS is one of the reasons
     that runtime performance is so fast.
 
+**  How can I do Maven testing with BigMemory?
+
+    Maven starts java for you. You cannot add the required <<<-XX>>> switch in as a <<<mvn>>> argument.
+
+    Maven provides you with a MAVEN_OPTS environment variable you can use for this on Unix systems.
+
+    e.g. to specify 1GB of MaxDirectMemorySize and then to run jetty:
+
+---
+    export MAVEN_OPTS=-XX:MaxDirectMemorySize=1G
+    mvn jetty:run-war
+---
+
 
 
 
