@@ -3653,6 +3653,7 @@ public class Cache implements Ehcache, StoreListener {
         } catch (Exception e) {
             LOG.info("Ignoring exception while disposing old store on rejoin - " + e.getMessage());
         }
+        cacheStatus.clusterRejoinInProgress();
     }
 
     /**
@@ -3661,6 +3662,7 @@ public class Cache implements Ehcache, StoreListener {
     void clusterRejoinComplete() {
         // initialize again
         initialise();
+        cacheStatus.clusterRejoinComplete();
     }
 
     /**
@@ -3784,6 +3786,15 @@ public class Cache implements Ehcache, StoreListener {
      */
     private static class CacheStatus {
         private volatile Status status = Status.STATUS_UNINITIALISED;
+        private final AtomicBoolean clusterRejoinInProgress = new AtomicBoolean(false);
+
+        private void clusterRejoinComplete() {
+            clusterRejoinInProgress.set(false);
+        }
+
+        private void clusterRejoinInProgress() {
+            clusterRejoinInProgress.set(true);
+        }
 
         /**
          * Returns true if cache can be initialized. Cache can be initialized if cache has not been shutdown yet.
@@ -3791,7 +3802,7 @@ public class Cache implements Ehcache, StoreListener {
          * @return true if cache can be initialized
          */
         public boolean canInitialize() {
-            return status == Status.STATUS_UNINITIALISED || status == Status.STATUS_ALIVE;
+            return status == Status.STATUS_UNINITIALISED || clusterRejoinInProgress.get();
         }
 
         /**
