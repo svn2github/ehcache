@@ -21,6 +21,7 @@
             <searchAttribute name="age"
                              class="net.sf.ehcache.search.TestAttributeExtractor"/>
             <searchAttribute name="gender" expression="value.getGender()"/>
+            <searchAttribute name="name" expression="value.getName()"/>
         </searchable>
     </cache>
     
