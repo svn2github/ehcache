@@ -1036,26 +1036,28 @@ public class Cache implements Ehcache, StoreListener {
                             "You must use an enterprise version of Ehcache to successfully enable overflowToOffHeap.");
                 }
             } else if (isTerracottaClustered()) {
-                if (getCacheConfiguration().getTerracottaConfiguration().isSynchronousWrites()
-                        && getCacheConfiguration().getTerracottaConfiguration().getConsistency() == Consistency.EVENTUAL) {
+                final Consistency consistency = getCacheConfiguration().getTerracottaConfiguration().getConsistency();
+                final boolean coherent = getCacheConfiguration().getTerracottaConfiguration().isCoherent();
+                if (getCacheConfiguration().getTerracottaConfiguration().isSynchronousWrites() && consistency == Consistency.EVENTUAL) {
                     throw new InvalidConfigurationException(
                             "Terracotta clustered caches with eventual consistency and synchronous writes are not supported yet."
                                     + " You can fix this by either making the cache in 'strong' consistency mode "
                                     + "(<terracotta consistency=\"strong\"/>) or turning off synchronous writes.");
                 }
-                if (getCacheConfiguration().getTransactionalMode().isTransactional()
-                        && getCacheConfiguration().getTerracottaConfiguration().getConsistency() == Consistency.EVENTUAL) {
-                    throw new InvalidConfigurationException(
-                            "Consistency should be "
-                                    + Consistency.STRONG
-                                    + " when cache is configured with transactions enabled. "
-                                    + "You can fix this by either making the cache in 'strong' consistency mode "
-                                    + "(<terracotta consistency=\"strong\"/>) or turning off transactions.");
+                if (getCacheConfiguration().getTransactionalMode().isTransactional() && consistency == Consistency.EVENTUAL) {
+                    throw new InvalidConfigurationException("Consistency should be " + Consistency.STRONG
+                            + " when cache is configured with transactions enabled. "
+                            + "You can fix this by either making the cache in 'strong' consistency mode "
+                            + "(<terracotta consistency=\"strong\"/>) or turning off transactions.");
                 }
                 if (getCacheConfiguration().getTransactionalMode().isTransactional()
                         && getCacheConfiguration().getTerracottaConfiguration().isNonstopEnabled()) {
                     LOG.warn("Cache: " + configuration.getName() + " configured both NonStop and transactional."
                             + " NonStop features won't work for this cache!");
+                }
+                if ((coherent && consistency == Consistency.EVENTUAL) || (!coherent && consistency == Consistency.STRONG)) {
+                    throw new InvalidConfigurationException("Coherent and consistency attribute values are conflicting. "
+                            + "Please remove the coherent attribute as its deprecated.");
                 }
 
 
@@ -3651,6 +3653,7 @@ public class Cache implements Ehcache, StoreListener {
         } catch (Exception e) {
             LOG.info("Ignoring exception while disposing old store on rejoin - " + e.getMessage());
         }
+        cacheStatus.clusterRejoinInProgress();
     }
 
     /**
@@ -3659,6 +3662,7 @@ public class Cache implements Ehcache, StoreListener {
     void clusterRejoinComplete() {
         // initialize again
         initialise();
+        cacheStatus.clusterRejoinComplete();
     }
 
     /**
@@ -3782,6 +3786,15 @@ public class Cache implements Ehcache, StoreListener {
      */
     private static class CacheStatus {
         private volatile Status status = Status.STATUS_UNINITIALISED;
+        private final AtomicBoolean clusterRejoinInProgress = new AtomicBoolean(false);
+
+        private void clusterRejoinComplete() {
+            clusterRejoinInProgress.set(false);
+        }
+
+        private void clusterRejoinInProgress() {
+            clusterRejoinInProgress.set(true);
+        }
 
         /**
          * Returns true if cache can be initialized. Cache can be initialized if cache has not been shutdown yet.
@@ -3789,7 +3802,7 @@ public class Cache implements Ehcache, StoreListener {
          * @return true if cache can be initialized
          */
         public boolean canInitialize() {
-            return status == Status.STATUS_UNINITIALISED || status == Status.STATUS_ALIVE;
+            return status == Status.STATUS_UNINITIALISED || clusterRejoinInProgress.get();
         }
 
         /**

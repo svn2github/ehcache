@@ -976,11 +976,20 @@ public class CacheTest extends AbstractCacheTest {
      */
     @Test
     public void testInitialiseFailures() {
-        Cache cache = new Cache("testInitialiseFailures2", 1, false, false, 5, 1);
+        final String name = "testInitialiseFailures2";
+        Cache cache = new Cache(name, 1, false, false, 5, 1);
         cache.initialise();
 
-        // cache can be initialized again - for rejoin feature
-        cache.initialise();
+        try {
+            cache.initialise();
+            fail("Calling cache.initialise() multiple times should fail with IllegalStateException");
+        } catch (IllegalStateException e) {
+            if (e.getMessage().contains("Cannot initialise the " + name)) {
+                // expected exception
+            } else {
+                throw e;
+            }
+        }
     }
 
     /**
