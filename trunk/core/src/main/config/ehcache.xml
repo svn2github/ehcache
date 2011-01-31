@@ -792,11 +792,6 @@ used with JMX monitors.
       configuration (coherent="false") or through the coherence API, only asynchronous writes can occur 
       (synchronousWrites="true" is ignored). By default this value is false (i.e. clustered caches use normal
        Terracotta WRITE locks).
-    
-    * storageStrategy=classic|DCV2 - Can be used to configure how the key/values of the cache are stored. The key/values
-      can be stored locally in the vm or stored in the Terracotta Server Array. "classic" value for the attribute stores 
-      the key/values in the local vm and using "DCV2" stores it in the Terracotta Server Array. This attribute is 
-      optional and default value is "classic"
       
     * concurrency - A non-negative integer that can be used to specify the number of segments that will be used by the map 
       underneath the Terracotta Store. Its optional and has default value of 0, which means will use default values based
@@ -829,10 +824,6 @@ used with JMX monitors.
     
     To indicate the cache should be clustered using synchronous-write locking level:
         <terracotta clustered="true" synchronousWrites="true"/>
-        
-    To indicate the key/values should be stored in the Terracotta Server Array:
-        <terracotta clustered="true" storageStrategy="DCV2"/>
-        
     -->
 
     <!--
