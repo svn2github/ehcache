@@ -28,8 +28,7 @@ import net.sf.ehcache.search.attribute.AttributeExtractor;
  */
 public class Or extends BaseCriteria {
 
-    private final Criteria lhs;
-    private final Criteria rhs;
+    private final Criteria[] criteria;
 
     /**
      * Simple constructor for two criteria
@@ -38,8 +37,22 @@ public class Or extends BaseCriteria {
      * @param rhs the right hand side of the "or" expression
      */
     public Or(Criteria lhs, Criteria rhs) {
-        this.lhs = lhs;
-        this.rhs = rhs;
+        this.criteria = new Criteria[] {lhs, rhs};
+    }
+
+    private Or(Or original, Criteria additional) {
+        Criteria[] originalCriteria = original.getCriterion();
+        this.criteria = new Criteria[originalCriteria.length + 1];
+        System.arraycopy(originalCriteria, 0, criteria, 0, originalCriteria.length);
+        this.criteria[originalCriteria.length] = additional;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Criteria or(Criteria other) {
+        return new Or(this, other);
     }
 
     /**
@@ -48,13 +61,18 @@ public class Or extends BaseCriteria {
      * @return criteria
      */
     public Criteria[] getCriterion() {
-        return new Criteria[] {lhs, rhs};
+        return criteria;
     }
 
     /**
      * {@inheritDoc}
      */
     public boolean execute(Element e, Map<String, AttributeExtractor> attributeExtractors) {
-        return lhs.execute(e, attributeExtractors) || rhs.execute(e, attributeExtractors);
+        for (Criteria c : criteria) {
+            if (c.execute(e, attributeExtractors)) {
+                return true;
+            }
+        }
+        return false;
     }
 }
