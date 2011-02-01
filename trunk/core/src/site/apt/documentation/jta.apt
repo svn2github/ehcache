@@ -10,20 +10,19 @@ Transactions in Ehcache
 
     Transactions are supported in versions of Ehcache 2.0 and higher.
 
-    The GA releases only support XA. However we have ehcache 2.4 in beta which supports both Global Transactions
-    with <<<xa_strict>>> and <<<xa>>> modes, and Local Transactions with <<<local>>> mode. This document
-    has been updated to cover the new features in the beta.
+    The 2.3.x or lower releases only support XA. However since ehcache 2.4 support for both Global Transactions
+    with <<<xa_strict>>> and <<<xa>>> modes, and Local Transactions with <<<local>>> mode has been added.
 
 
 **  All or nothing
 
-    If a cache is enabled for JTA all operations on it must happen within a transaction context,
-    otherwise a <<<TransactionRequiredException>>> will be thrown.
+    If a cache is enabled for transactions, all operations on it must happen within a transaction context
+    otherwise a <<<TransactionException>>> will be thrown.
 
 **  Change Visibility
 
-    The isolation level offered in Ehcache JTA is <<<READ_COMMITTED>>>.  Ehcache is an XAResource. Full two-phase
-    commit is supported.
+    The isolation level offered in Ehcache is <<<READ_COMMITTED>>>. Ehcache can work as an XAResource in which case,
+    full two-phase commit is supported.
 
     Specifically:
 
@@ -67,94 +66,67 @@ Transactions in Ehcache
 
 ** Considerations when using clustered caches with Terracotta
 
-    For Terracotta clustered caches, <<<transactionalMode>>> can only be used where <<<terracotta coherent="true">>>. Because
-    caches can be dynamically changed into coherent=false mode for bulk loading, any attempt to perform a transaction when this
+    For Terracotta clustered caches, <<<transactionalMode>>> can only be used where <<<terracotta consistencyType="strong">>>. Because
+    caches can be dynamically changed into consistencyType=eventual mode for bulk loading, any attempt to perform a transaction when this
     is the case will throw a <<<CacheException>>>.
 
     Note that transactions do not work with Terracotta's <<<identity>>> mode. An attempt to initialise a transactional cache when
     this mode is set will result in a <<<CacheException>>> being thrown. The default mode is <<<serialization>>> mode.
 
+    Also note that all transactional modes are currently sensitive to the ABA problem.
+
 
 *   Global Transactions
 
-    Global Transactions are supported by Ehcache. Ehcache acts as an {XAResouce} and participates in
+    Global Transactions are supported by Ehcache. Ehcache can act as an {XAResouce} to participate in
     JTA ("Java Transaction API") transactions under the control of a Transaction Manager. This is typically provided by your
     application server, however you may also use a third party transaction manager such as Bitronix.
 
-    To use Global Transactions, select either <<<xa_strict>>> or <<<xa>>> mode. The differences are explained in the Recovery section below.
+    To use Global Transactions, select either <<<xa_strict>>> or <<<xa>>> mode. The differences are explained in the sections below.
 
 **  Implementation
 
-    XA transactional support is implemented at the Store level, through XaTransactionalStore. The store actually decorates the underlying
-    MemoryStore implementation, augmenting it with transaction isolation and two-phase commit support.
+    Global transactions support is implemented at the Store level, through XATransactionStore and JtaLocalTransactionStore. The former actually
+    decorates the underlying MemoryStore implementation, augmenting it with transaction isolation and two-phase commit support through
+    an {XAResouce} implementation. The latter decorates a LocalTransactionStore-decorated cache to make it controllable by the standard JTA API
+    instead of the proprietary TransactionController API.
 
     During it's initialization, the Cache will lookup the TransactionManager using the provided TransactionManagerLookup implementation.
     Then, using the <<<TransactionManagerLookup.register(XAResouce)>>>, the newly created XAResource will be registered.
 
     The store is automatically configured to copy every Element read from the cache or written to it. Cache is copy-on-read and copy-on-write.
 
-**  A day in the life of a global transactional Cache
 
-    Every read() from the Cache, or remove() without a previous get(), records transactional versioning information for the cache values accessed.  This information is checked at commit time: if the versions are the same during commit the transaction is allowed to succeed, otherwise it is rolled back.
-
-    This strategy is often referred to as an optimistic lock strategy and sometimes mvcc (multi-version-concurrency-control) and is the primary strategy most modern databases such as Oracle, MySQL, and PostgreSQL use to manage transactional changes.
-
-    Write operations to the cache such as put() and remove() are not executed against the underlying memory store. Rather a local
-    transaction context is being altered. It queues all commands to be executed against the Store at commit time. This context
-    also alters the behavior of cache accesses: within the same transaction a put() and then a getSize() call will reflect that previous
-    put(), while other in-flight transactions would not be impacted. This gives <<<READ_COMMITTED>>> isolation.
-
-    During the two phase commit, the context is first prepared: all keys to be altered are checked for consistency against the
-    optimistic locking mechanism. If a key to be updated or removed has since been changed by a commited transaction, the transaction will
-    be rolled back. For each key a write lock is acquired, version checked and the old value is copied to a temporary "guarding" store. That
-    store is always queried before the real underlying memory store is. That way, while write locked, old values that are about to be
-    updated can still be read, non blocking, from the "oldVersionStore". If all keys could be validated and write locked the prepare
-    operation as finished successfully and Ehcache votes OK on commit.
-
-    If all other XAResource eventually vote <<<OK>>>, the transaction is committed: the old value(s) are removed and write-locks are released.
-    If not, the old values are copied back to the store and the lock released.
 
 *   Failure Recovery
 
     As specified by the JTA specification, only <prepared> transaction data is recoverable.
 
-    This means that any transaction still alive at VM failure will be lost. Since all these operations are non locking, the cluster is not impacted by these lost transactions.
-
-    Prepared data is persisted to the cluster and locks on the memory are held. Should the L1 come back up
-    before the locks have timed out the VM will be able to keep doing its work.
+    Prepared data is persisted onto the cluster and locks on the memory are held. This basically means that non-clustered caches cannot persist
+    transactions data, so recovery errors after a crash may be reported by the transaction manager.
 
 **  Recovery
 
-    When something goes wrong, a <<<ResourceManager>>> will be asked to recover. Data that has been prepared may either be committed or rolled back
+    At any time after something went wrong, an <<<XAResource>>> may be asked to recover. Data that has been prepared may either be committed or rolled back
     during recovery. In accordance with XA, data that has not yet been <<<prepared>>> is discarded.
 
     The recovery guarantee differs depending on the xa mode. 
 
-*** XA Mode
+*** xa Mode
 
-    If <<<xa_strict>>> is used the cache will always respond to the TransactionManager's
-    recover calls with a list of transactions ids. Should the XA recovery scan be required by the transaction manager, Ehcache will provide all
-    Xids prepared, but these will only be able to be rolled back. Indeed when locks time out, no guarantee can be made about the locked keys
-    and their value. If the transaction manager still asks Ehcache to commit these, a <<<HeuristicException>>> will be thrown.
+    With <<<xa>>>, the cache doesn't get registered as an {XAResource} with the transaction manager but merely can follow the flow of a JTA
+    transaction by registering a JTA {Synchronization}. The cache can end up inconsistent with the other resources if there is a JVM crash
+    in the mutating node.
 
-*** XA-NR Mode
+    Please note that while some inconsistency may occur between your cache and your other XA resources (like your database for instance)
+    after a crash in this mode, in no way the caches' data will end up inconsistent: the transaction still is fully atomic on the cache iself!
 
-    There is also an <<<xa>>> mode, which is configured and works the same way as XA, but does not support recovery. In this mode the
-    TransactionManager's recover calls are ignored. 
-    With <<<xa>>>, the cache can end up inconsistent with the other resources if there is a JVM crash in the mutating node, however this mode is 3 times faster than <<<xa_strict>>>.
 
-    Some scenarios where <<<xa>>> is valuable are:
+*** xa_strict Mode
 
-    * Non-clustered use. If you are using a non-persistent standalone cache and you suffer a JVM crash, the cache will be empty
-      on restart so there is no danger of an inconsistency
-
-    * Compensating actions on crash. Here you put in place an operational recovery step, where you check the Transaction Manager for
-      uncommitted transactions and correct the cache. One simple way is to just do a removeAll() either programmatically or via the
-      console.
-
-    * Finally not all transaction managers correctly implement recovery anyway. If you are using one of these then your XA implementation
-      will not be doing recovery so <<<xa>>> does not leave you any worse off.
-
+    If <<<xa_strict>>> is used the cache will always respond to the TransactionManager's recover calls with the list of
+    prepared XIDs of failed transactions. Those transaction branches can then be committed or rolled back by the transaction manager.
+    This is the standard XA mechanism in strict compliance with the JTA specification.
 
 
 *   {Sample Apps}
@@ -172,7 +144,7 @@ Transactions in Ehcache
 
 ---
 
-   Ehcache cache = cacheManager.getEhcache("xaCache");
+    Ehcache cache = cacheManager.getEhcache("xaCache");
 
     UserTransaction ut = getUserTransaction();
 
@@ -245,7 +217,9 @@ Transactions in Ehcache
 
     Ehcache automatically detects and uses the following transaction managers in the following order:
 
-     * GenericJNDI (e.g. Glassfish, JBoss, Weblogic, JTOM and any others that register themselves in JNDI at the standard location of java:/TransactionManager
+     * GenericJNDI (e.g. Glassfish, JBoss, JTOM and any others that register themselves in JNDI at the standard location of java:/TransactionManager
+
+     * Weblogic (since 2.4.0)
 
      * Bitronix
 
@@ -306,14 +280,16 @@ Transactions in Ehcache
 
     []
 
-    These steps should be placed in a try-catch block which catches <<<CacheException>>>. If any exceptions are thrown, rollback() should be
+    These steps should be placed in a try-catch block which catches <<<TransactionException>>>. If any exceptions are thrown, rollback() should be
     called.
 
     Local Transactions has it's own exceptions that can be thrown, which are all subclasses of <<<CacheException>>>. They are:
 
     * <<<TransactionException>>> - a general exception
 
-    * <<<TransactionTimeoutException>>> - if a cache operation or commit is called after the transationTimeout has elapsed.
+    * <<<TransactionInterruptedException>>> - if Thread.interrupt() got called while the cache was processing a transaction.
+
+    * <<<TransactionTimeoutException>>> - if a cache operation or commit is called after the transaction timeout has elapsed.
 
 ** Configuration
 
@@ -419,7 +395,7 @@ Transactions in Ehcache
 
     * off   - no overhead
 
-    * xa_strict    - ten times slower
+    * xa_strict    - 20 times slower
 
     * xa - 3 times slower
 
@@ -429,11 +405,11 @@ Transactions in Ehcache
 
     * off   - no overhead
 
-    * xa_strict    - 10 times slower
+    * xa_strict    - 20 times slower
 
-    * xa - 10% slower
+    * xa - 30% slower
 
-    * local - 10% slower
+    * local - 30% slower
 
     []
 
