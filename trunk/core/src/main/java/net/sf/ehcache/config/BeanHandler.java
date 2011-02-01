@@ -262,7 +262,7 @@ final class BeanHandler extends DefaultHandler {
             final Class objClass = element.bean.getClass();
             final Method method = chooseSetMethod(objClass, "set", attrName, String.class);
             if (method != null) {
-                final Object realValue = convert(method.getParameterTypes()[0], attrValue);
+                final Object realValue = convert(attrName, method.getParameterTypes()[0], attrValue);
                 method.invoke(element.bean, new Object[]{realValue});
                 return;
             } else {
@@ -289,8 +289,9 @@ final class BeanHandler extends DefaultHandler {
 
     /**
      * Converts a string to an object of a particular class.
+     * @param attrName Name of attribute
      */
-    private static Object convert(final Class toClass, final String value)
+    private static Object convert(String attributeName, final Class toClass, final String value)
             throws Exception {
         if (value == null) {
             return null;
@@ -305,7 +306,12 @@ final class BeanHandler extends DefaultHandler {
             return Integer.decode(value);
         }
         if (toClass == Boolean.class || toClass == Boolean.TYPE) {
-            return Boolean.valueOf(value);
+            if ("true".equalsIgnoreCase(value) || "false".equalsIgnoreCase(value)) {
+                return Boolean.valueOf(value);
+            } else {
+                throw new InvalidConfigurationException("Invalid value specified for attribute '" + attributeName
+                        + "', please use 'true' or 'false' instead of '" + value + "'");
+            }
         }
         throw new Exception("Cannot convert attribute value to class " + toClass.getName());
     }
