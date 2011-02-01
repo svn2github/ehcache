@@ -97,7 +97,7 @@ public Cache createOffHeapCache() {
 
 **   Add The License
 
-    The Ehcache Enterprise trial download (available here - {{www.terracotta.org/bigmemory}}) comes with a trial license key
+    The Ehcache Enterprise trial download (available here - {{http://www.terracotta.org/bigmemory}}) comes with a trial license key
     which must be added to activate the off-heap store.
 
     It can be added to the classpath or via a system property.
