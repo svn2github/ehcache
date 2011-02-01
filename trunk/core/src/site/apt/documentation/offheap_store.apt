@@ -171,6 +171,11 @@ public Cache createOffHeapCache() {
 
     This kind of problem bit us several times in the past in Linux. Although there's a swappiness kernel parameter that can be set to zero, it is usually not enough to avoid swapping altogether. The only surefire way to avoid any kind of swapping is either (a) disabling the swap partition, with the undesirable consequences which that may bring, or (b) using HugePages, which are always mapped to physical memory and cannot be swapped out to disk.
 
+**   -XX:UseCompressedOops
+
+    This setting applies to the HotSpot JVM. It's use should be considered to make the most efficient use of memory in 64 bit mode.
+    See {{http://wikis.sun.com/display/HotSpotInternals/CompressedOops}} for details.
+
 **  Controlling Overallocation of Memory to the OffHeapStore
 
     If the memory use is dramatically overallocated, you may end up trying to use more than the physical and even virtual memory
