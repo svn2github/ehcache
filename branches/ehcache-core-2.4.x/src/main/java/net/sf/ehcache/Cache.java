@@ -3768,6 +3768,7 @@ public class Cache implements Ehcache, StoreListener {
         final boolean oldValue = isNodeBulkLoadEnabled();
         if (oldValue != enabledBulkLoad) {
             compoundStore.setNodeCoherent(!enabledBulkLoad);
+            nonstopActiveDelegateHolder.nodeBulkLoadChanged(enabledBulkLoad);
         }
     }
 
@@ -3864,9 +3865,14 @@ public class Cache implements Ehcache, StoreListener {
         private volatile TerracottaStore underlyingTerracottaStore;
         private volatile NonstopExecutorService nonstopExecutorService;
         private volatile CacheLockProvider underlyingCacheLockProvider;
+        private volatile boolean nodeBulkLoadEnabled;
 
         public NonstopActiveDelegateHolderImpl(Cache cache) {
             this.cache = cache;
+        }
+
+        public void nodeBulkLoadChanged(final boolean enabled) {
+            this.nodeBulkLoadEnabled = enabled;
         }
 
         public NonstopStore getNonstopStore() {
@@ -3892,6 +3898,11 @@ public class Cache implements Ehcache, StoreListener {
 
         public synchronized void terracottaStoreInitialized(TerracottaStore newTerracottaStore) {
             this.underlyingTerracottaStore = newTerracottaStore;
+
+            if (nodeBulkLoadEnabled) {
+                LOG.debug("Enabling bulk-load for " + cache.getName());
+                underlyingTerracottaStore.setNodeCoherent(false);
+            }
 
             // reset all other holders associated with the new store
             nonstopExecutorService = CacheManagerExecutorServiceFactory.getInstance().getOrCreateNonstopExecutorService(
