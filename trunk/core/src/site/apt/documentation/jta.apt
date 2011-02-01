@@ -33,6 +33,31 @@ Transactions in Ehcache
 
     * Until then, read such as by <<<cache.get(...)>>> by other transactions will return the old copy. Reads do not block.
 
+
+*   When to use transactional modes
+
+**  Transactional modes are a powerful extension of Ehcache allowing you to perform atomic operations on your caches and
+    potentially other data stores, eg: to keep your cache in sync with your database.
+
+    * <<<local>>> When you want your changes across multiple caches to be performed atomically.
+
+    Use this mode when you need to update your caches atomically, ie: have all your changes be committed or rolled back
+    using a straight simple API. This mode is most useful when a cache contains data calculated out of other cached data.
+
+    * <<<xa>>>
+
+    Use this mode when you cache data from other data stores (eg: DBMS, JMS) and want to do it in an atomic way under the
+    control of the JTA API but don't want to pay the price of full two-phase commit. In this mode, your cached data can
+    get out of sync with the other resources participating in the transactions in case of a crash so only use it if you
+    can afford to live with stale data for a brief period of time.
+
+    * <<<xa_strict>>>
+
+    Same as xa but use it only if you need strict XA disaster recovery guarantees. In this mode, the cached data can never
+    get out of sync with the other resources participating in the transactions, even in case of a crash but you pay a high
+    price in performance to get that extra safety.
+
+
 *   Configuration
 
     Transactions are enabled on a cache by cache basis with the <<<transactionalMode>>> cache attribute.
