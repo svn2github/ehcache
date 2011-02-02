@@ -25,7 +25,6 @@ import net.sf.ehcache.store.AbstractStore;
 import net.sf.ehcache.store.Policy;
 import net.sf.ehcache.store.Store;
 import net.sf.ehcache.store.StoreQuery;
-import net.sf.ehcache.transaction.xa.XATransactionContext;
 
 import java.io.IOException;
 import java.util.Map;
