@@ -440,15 +440,6 @@ public class LocalTransactionStore extends AbstractTransactionStore {
     /**
      * {@inheritDoc}
      */
-    public int getTerracottaClusteredSize() {
-        assertNotTimedOut();
-
-        return getSize();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
     public boolean containsKey(Object key) {
         assertNotTimedOut();
 
