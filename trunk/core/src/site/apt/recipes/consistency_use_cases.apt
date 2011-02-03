@@ -30,6 +30,7 @@
 
     An implementation is async eventual + 0 maxElementsInMemory (disabled local cache)
 
+    Note: Disabling the local cache can also be achieved with: <<<ehcache.storageStrategy.dcv2.localcache.enabled = false>>>
 
 
 *   Principle
