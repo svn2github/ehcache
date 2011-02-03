@@ -219,7 +219,9 @@ public class SampledMBeanRegistrationProvider implements MBeanRegistrationProvid
         Set<ObjectName> registeredObjectNames = mbeans.keySet();
         for (ObjectName objectName : registeredObjectNames) {
             try {
-                mBeanServer.unregisterMBean(objectName);
+                if (mBeanServer.isRegistered(objectName)) {
+                    mBeanServer.unregisterMBean(objectName);
+                }
                 BaseEmitterBean mbean = mbeans.get(objectName);
                 mbean.dispose();
             } catch (Exception e) {
