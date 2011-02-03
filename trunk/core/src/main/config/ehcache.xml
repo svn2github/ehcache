@@ -750,6 +750,7 @@ used with JMX monitors.
     		<terracotta>
     			<nonstop enabled="true" immediateTimeout="true" timeoutMillis="15000">
     				<timeoutBehavior type="exception" />
+                        </nonstop>
     		</terracotta>
     	</cache>
     	All attributes and the sub-element "timeoutBehavior" are optional. Nonstop is enabled by default for 
