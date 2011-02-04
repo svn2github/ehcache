@@ -195,6 +195,15 @@
         </copy>
     </target>
 
+    <target name="copy_image_files" description="Copies the config files to the site">
+
+        <copy overwrite="true" todir="${build.dir}/generated-site/pdf/singlepageguide/images">
+            <fileset dir="src/site/resources/images/"/>
+            <fileset dir="src/site/resources/documentation/images/"/>
+        </copy>
+    </target>
+
+
     <target name="unhide_html" description="extra site processing">
 
         <echo>Copying config files</echo>
