@@ -93,7 +93,11 @@ public class ExecutorServiceStore implements NonstopStore {
     }
 
     private <V> V forceExecuteWithExecutor(final Callable<V> callable) throws CacheException, TimeoutException {
-        return executeWithExecutor(callable, nonstopConfiguration.getTimeoutMillis(), true);
+        return forceExecuteWithExecutor(callable, nonstopConfiguration.getTimeoutMillis());
+    }
+
+    private <V> V forceExecuteWithExecutor(final Callable<V> callable, final long timeoutMillis) throws CacheException, TimeoutException {
+        return executeWithExecutor(callable, timeoutMillis, true);
     }
 
     private <V> V executeWithExecutor(final Callable<V> callable) throws CacheException, TimeoutException {
@@ -169,6 +173,8 @@ public class ExecutorServiceStore implements NonstopStore {
 
     /**
      * {@inheritDoc}.
+     * The timeout used by this method is {@link NonstopConfiguration#getBulkOpsTimeoutMultiplyFactor()} times the timeout value in the
+     * config.
      */
     public void setNodeCoherent(final boolean coherent) throws UnsupportedOperationException {
         try {
@@ -178,7 +184,7 @@ public class ExecutorServiceStore implements NonstopStore {
                     nonstopActiveDelegateHolder.getUnderlyingTerracottaStore().setNodeCoherent(coherent);
                     return null;
                 }
-            });
+            }, nonstopConfiguration.getTimeoutMillis() * nonstopConfiguration.getBulkOpsTimeoutMultiplyFactor());
         } catch (TimeoutException e) {
             timeoutBehaviorResolver.resolveTimeoutBehaviorStore().setNodeCoherent(coherent);
         }
@@ -359,6 +365,8 @@ public class ExecutorServiceStore implements NonstopStore {
 
     /**
      * {@inheritDoc}.
+     * The timeout used by this method is {@link NonstopConfiguration#getBulkOpsTimeoutMultiplyFactor()} times the timeout value in the
+     * config.
      */
     public void removeAll() throws CacheException {
         try {

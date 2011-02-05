@@ -24,6 +24,7 @@ import java.util.Map;
 
 import net.sf.ehcache.bootstrap.BootstrapCacheLoader;
 import net.sf.ehcache.config.CacheConfiguration;
+import net.sf.ehcache.config.NonstopConfiguration;
 import net.sf.ehcache.event.RegisteredEventListeners;
 import net.sf.ehcache.exceptionhandler.CacheExceptionHandler;
 import net.sf.ehcache.extension.CacheExtension;
@@ -377,6 +378,9 @@ public interface Ehcache extends Cloneable {
 
     /**
      * Removes all cached items.
+     * <p />
+     * When using Terracotta clustered caches with nonstop enabled, the timeout used by this method is
+     * {@link NonstopConfiguration#getBulkOpsTimeoutMultiplyFactor()} times the timeout value in the nonstop config.
      *
      * @throws IllegalStateException if the cache is not {@link net.sf.ehcache.Status#STATUS_ALIVE}
      */
@@ -384,6 +388,9 @@ public interface Ehcache extends Cloneable {
 
     /**
      * Removes all cached items.
+     * <p />
+     * When using Terracotta clustered caches with nonstop enabled, the timeout used by this method is
+     * {@link NonstopConfiguration#getBulkOpsTimeoutMultiplyFactor()} times the timeout value in the nonstop config.
      *
      * @param doNotNotifyCacheReplicators whether the put is coming from a doNotNotifyCacheReplicators cache peer,
      *                                    in which case this put should not initiate a further notification to doNotNotifyCacheReplicators cache peers
@@ -1069,6 +1076,9 @@ public interface Ehcache extends Cloneable {
      * calling {@code setNodeCoherent(false)} when already in incoherent mode will be a no-op.
      * <p />
      * It applies to coherent clustering mechanisms only e.g. Terracotta
+     * <p />
+     * When using Terracotta clustered caches with nonstop enabled, the timeout used by this method is
+     * {@link NonstopConfiguration#getBulkOpsTimeoutMultiplyFactor()} times the timeout value in the config.
      *
      * @param coherent
      *            true transitions to coherent mode, false to incoherent mode
@@ -1222,6 +1232,9 @@ public interface Ehcache extends Cloneable {
      * calling {@code setBulkLoadEnabled(false)} when already NOT in bulk-load mode will be a no-op.
      * <p />
      * Applies to caches clustered with Terracotta only.
+     * <p />
+     * When using Terracotta clustered caches with nonstop enabled, the timeout used by this method is
+     * {@link NonstopConfiguration#getBulkOpsTimeoutMultiplyFactor()} times the timeout value in the nonstop config.
      *
      * @param enabledBulkLoad
      *            true enables bulk-load, false disables it if not already disabled

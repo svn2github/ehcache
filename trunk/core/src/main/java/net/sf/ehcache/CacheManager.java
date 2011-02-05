@@ -361,10 +361,16 @@ public class CacheManager {
         cacheManagerTimer = new FailSafeTimer(getName());
         checkForUpdateIfNeeded(localConfiguration.getUpdateCheck());
 
+        mbeanRegistrationProvider = MBEAN_REGISTRATION_PROVIDER_FACTORY.createMBeanRegistrationProvider(localConfiguration);
+
         // do this last
         addConfiguredCaches(configurationHelper);
 
-        initializeMBeanRegistrationProvider(localConfiguration);
+        try {
+            mbeanRegistrationProvider.initialize(this, terracottaClient.getClusteredInstanceFactory());
+        } catch (MBeanRegistrationProviderException e) {
+            LOG.warn("Failed to initialize the MBeanRegistrationProvider - " + mbeanRegistrationProvider.getClass().getName(), e);
+        }
     }
 
     private boolean isTerracottaRejoinEnabled() {
@@ -415,20 +421,6 @@ public class CacheManager {
 
     private static String getClientUUID(ClusteredInstanceFactory clusteredInstanceFactory) {
         return clusteredInstanceFactory.getUUID();
-    }
-
-    /**
-     * Initialize the {@link MBeanRegistrationProvider} for this {@link CacheManager}
-     *
-     * @param localConfiguration
-     */
-    private void initializeMBeanRegistrationProvider(Configuration localConfiguration) {
-        mbeanRegistrationProvider = MBEAN_REGISTRATION_PROVIDER_FACTORY.createMBeanRegistrationProvider(localConfiguration);
-        try {
-            mbeanRegistrationProvider.initialize(this, terracottaClient.getClusteredInstanceFactory());
-        } catch (MBeanRegistrationProviderException e) {
-            LOG.warn("Failed to initialize the MBeanRegistrationProvider - " + mbeanRegistrationProvider.getClass().getName(), e);
-        }
     }
 
     /**
