@@ -69,7 +69,7 @@
      because of the LOG guards (if (LOG.isDebugEnabled) { ...) which are there for
      runtime performance.-->
     <suppress checks="CyclomaticComplexity" files="Cache.java"/>
-    <suppress checks="CyclomaticComplexity" files="CacheManager.java" lines="147,1008"/>
+    <suppress checks="CyclomaticComplexity" files="CacheManager.java"/>
     <suppress checks="FileLength" files="CacheManager.java"/>
     <suppress checks="CyclomaticComplexity" files="DiskStore.java"/>
     <suppress checks="CyclomaticComplexity" files="RMIBootstrapCacheLoader.java"/>
@@ -107,6 +107,7 @@
     <suppress checks="NPathComplexity" files="ConfigurationElement.java"/>
     <suppress checks="FinalClass" files="TerracottaClusteredInstanceHelper.java"/>
     <suppress checks="NPathComplexity" files="BeanHandler.java"/>
+    <suppress checks="UnusedImports" files="Ehcache.java"/>
     <!--Bug in checkstyle. This class is ok.-->
     <suppress checks="DeclarationOrder" files="TimeoutBehaviorConfiguration.java"/>
     <suppress checks="DeclarationOrder" files="TerracottaClusteredInstanceHelper.java"/>
