@@ -60,7 +60,7 @@ public class JtaLocalTransactionStore extends AbstractTransactionStore {
         this.transactionController = transactionController;
         this.transactionManager = transactionManagerLookup.getTransactionManager();
         if (this.transactionManager == null) {
-            throw new TransactionException("no JTA transaction manager could be located, cannot bind local_jta cache with JTA");
+            throw new TransactionException("no JTA transaction manager could be located");
         }
     }
 
@@ -79,7 +79,7 @@ public class JtaLocalTransactionStore extends AbstractTransactionStore {
             } else {
                 Transaction tx = transactionManager.getTransaction();
                 if (tx == null) {
-                    throw new TransactionException("no JTA transaction context started, local_jta caches cannot be used outside of" +
+                    throw new TransactionException("no JTA transaction context started, xa caches cannot be used outside of" +
                             " JTA transactions");
                 }
                 BOUND_JTA_TRANSACTIONS.set(tx);
@@ -89,9 +89,9 @@ public class JtaLocalTransactionStore extends AbstractTransactionStore {
                         transactionController.getCurrentTransactionContext().getTransactionId()));
             }
         } catch (SystemException e) {
-            throw new TransactionException("internal JTA transaction manager error, cannot bind local_jta cache with it", e);
+            throw new TransactionException("internal JTA transaction manager error, cannot bind xa cache with it", e);
         } catch (RollbackException e) {
-            throw new TransactionException("JTA transaction rolled back, cannot bind local_jta cache with it", e);
+            throw new TransactionException("JTA transaction rolled back, cannot bind xa cache with it", e);
         }
     }
 
