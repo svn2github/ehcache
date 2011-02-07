@@ -218,14 +218,14 @@
                             <goal>javadoc</goal>
                         </goals>
                         <configuration>
-                            <doclet>ydoc.doclets.YStandard</doclet>
-                            <docletPath>
-                                ${ydoc.home}/lib/ydoc.jar${path.separator}${ydoc.home}/lib/class2svg.jar${path.separator}${ydoc.home}/resources
-                            </docletPath>
-                            <additionalparam>-license ${ydoc.license} -filter
-                                ydoc.filters.ExcludeFilter -filterpath
-                                ${ydoc.home}/lib/ydoc.jar -umlautogen
-                            </additionalparam>
+                            <!--<doclet>ydoc.doclets.YStandard</doclet>-->
+                            <!--<docletPath>-->
+                                <!--${ydoc.home}/lib/ydoc.jar${path.separator}${ydoc.home}/lib/class2svg.jar${path.separator}${ydoc.home}/resources-->
+                            <!--</docletPath>-->
+                            <!--<additionalparam>-license ${ydoc.license} -filter-->
+                                <!--ydoc.filters.ExcludeFilter -filterpath-->
+                                <!--${ydoc.home}/lib/ydoc.jar -umlautogen-->
+                            <!--</additionalparam>-->
                             <author>true</author>
                             <bottom>true</bottom>
                             <!--<destDir>${project.build.directory}/site/javadoc</destDir>-->
@@ -323,6 +323,20 @@
                     </execution>
 
                     <execution>
+                        <id>copy_image_files</id>
+                        <phase>pre-site</phase>
+                        <configuration>
+                            <tasks>
+                                <ant target="copy_image_files"/>
+                            </tasks>
+                        </configuration>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                    </execution>
+
+
+                    <execution>
                         <id>build_info</id>
                         <phase>generate-resources</phase>
                         <configuration>
@@ -345,13 +359,13 @@
                     </execution>
 
                     <execution>
-                       <id>create-test-tmp-dir</id>
-                       <phase>process-test-resources</phase>
-                       <configuration>
-                           <tasks>
-                              <mkdir dir="${test.tmp.dir}"/>
-                           </tasks>
-                       </configuration>
+                        <id>create-test-tmp-dir</id>
+                        <phase>process-test-resources</phase>
+                        <configuration>
+                            <tasks>
+                                <mkdir dir="${test.tmp.dir}"/>
+                            </tasks>
+                        </configuration>
                     </execution>
 
                 </executions>
@@ -394,10 +408,10 @@
                     <reportFormat>plain</reportFormat>
                     <redirectTestOutputToFile>false</redirectTestOutputToFile>
                     <systemPropertyVariables>
-                      <net.sf.ehcache.skipUpdateCheck>true</net.sf.ehcache.skipUpdateCheck>
-                      <java.awt.headless>true</java.awt.headless>
-                      <net.sf.ehcache.speedAdjustmentFactor>${net.sf.ehcache.speedAdjustmentFactor}</net.sf.ehcache.speedAdjustmentFactor>
-                      <java.io.tmpdir>${test.tmp.dir}</java.io.tmpdir>
+                        <net.sf.ehcache.skipUpdateCheck>true</net.sf.ehcache.skipUpdateCheck>
+                        <java.awt.headless>true</java.awt.headless>
+                        <net.sf.ehcache.speedAdjustmentFactor>${net.sf.ehcache.speedAdjustmentFactor}</net.sf.ehcache.speedAdjustmentFactor>
+                        <java.io.tmpdir>${test.tmp.dir}</java.io.tmpdir>
                     </systemPropertyVariables>
                 </configuration>
                 <executions>
@@ -454,33 +468,33 @@
             </plugin>
 
 
-            <!--<plugin>-->
-            <!--<groupId>org.apache.maven.doxia</groupId>-->
-            <!--<artifactId>doxia-maven-plugin</artifactId>-->
-            <!--<version>1.1.3</version>-->
-            <!--<executions>-->
-            <!--<execution>-->
-            <!--<phase>pre-site</phase>-->
-            <!--<goals>-->
-            <!--<goal>render-books</goal>-->
-            <!--</goals>-->
-            <!--</execution>-->
-            <!--</executions>-->
-            <!--<configuration>-->
-            <!--&lt;!&ndash;Single Page HTML&ndash;&gt;-->
-            <!--<books>-->
-            <!--<book>-->
-            <!--<directory>src/site/apt</directory>-->
-            <!--<descriptor>src/site/apt/book.xml</descriptor>-->
-            <!--<formats>-->
-            <!--<format>-->
-            <!--<id>xhtml</id>-->
-            <!--</format>-->
-            <!--</formats>-->
-            <!--</book>-->
-            <!--</books>-->
-            <!--</configuration>-->
-            <!--</plugin>-->
+            <plugin>
+                <groupId>org.apache.maven.doxia</groupId>
+                <artifactId>doxia-maven-plugin</artifactId>
+                <version>1.1.3</version>
+                <executions>
+                    <execution>
+                        <phase>pre-site</phase>
+                        <goals>
+                            <goal>render-books</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <!--Single Page HTML-->
+                    <books>
+                        <book>
+                            <directory>src/site/apt</directory>
+                            <descriptor>src/site/apt/book.xml</descriptor>
+                            <formats>
+                                <format>
+                                    <id>pdf</id>
+                                </format>
+                            </formats>
+                        </book>
+                    </books>
+                </configuration>
+            </plugin>
 
             <!--
                    Use this to specify a different template. It also needs a local copy
@@ -506,29 +520,29 @@
             </plugin>
 
             <plugin>
-              <groupId>org.codehaus.mojo</groupId>
-              <artifactId>xml-maven-plugin</artifactId>
-              <executions>
-                <execution>
-                  <goals>
-                    <goal>transform</goal>
-                  </goals>
-                </execution>
-              </executions>
-              <configuration>
-                <transformationSets>
-                  <transformationSet>
-                    <dir>${basedir}/src/changes</dir>
-                    <outputDir>${project.build.directory}</outputDir>
-                    <stylesheet>${basedir}/src/xslt/changelog.xsl</stylesheet>
-                    <fileMappers>
-                      <fileMapper implementation="org.codehaus.plexus.components.io.filemappers.FileExtensionMapper">
-                        <targetExtension>.txt</targetExtension>
-                      </fileMapper>
-                    </fileMappers>              
-                  </transformationSet>
-                </transformationSets>
-              </configuration>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>xml-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>transform</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <transformationSets>
+                        <transformationSet>
+                            <dir>${basedir}/src/changes</dir>
+                            <outputDir>${project.build.directory}</outputDir>
+                            <stylesheet>${basedir}/src/xslt/changelog.xsl</stylesheet>
+                            <fileMappers>
+                                <fileMapper implementation="org.codehaus.plexus.components.io.filemappers.FileExtensionMapper">
+                                    <targetExtension>.txt</targetExtension>
+                                </fileMapper>
+                            </fileMappers>
+                        </transformationSet>
+                    </transformationSets>
+                </configuration>
             </plugin>
 
             <plugin>
@@ -627,50 +641,50 @@
 
         <!-- Prevent interruptible IO from being used on Solaris - MNK-1947 -->
         <profile>
-          <id>no-interruptible-io-solaris</id>
-          <activation>
-            <property>
-              <name>java.vendor</name>
-              <value>Sun Microsystems Inc.</value>
-            </property>
-          </activation>
-          <properties>
-            <tests.argLine>-XX:-UseVMInterruptibleIO</tests.argLine>
-          </properties>
+            <id>no-interruptible-io-solaris</id>
+            <activation>
+                <property>
+                    <name>java.vendor</name>
+                    <value>Sun Microsystems Inc.</value>
+                </property>
+            </activation>
+            <properties>
+                <tests.argLine>-XX:-UseVMInterruptibleIO</tests.argLine>
+            </properties>
         </profile>
-        
+
         <!-- Profile for running only nonstopcache tests -->
         <profile>
-          <id>test-nonstopcache</id>
+            <id>test-nonstopcache</id>
             <build>
-              <plugins>
-                <plugin>
-                  <groupId>org.apache.maven.plugins</groupId>
-                  <artifactId>maven-surefire-plugin</artifactId>
-                  <version>2.6</version>
-                  <configuration>
-                    <includes>
-                      <include>**/nonstop/*Test.java</include>
-                    </includes>
-                    <excludes>
-                      <exclude>**/*$*</exclude>
-                    </excludes>
-                    <systemProperties>
-                      <property>
-                        <name>net.sf.ehcache.skipUpdateCheck</name>
-                        <value>true</value>
-                        </property>
-                      <property>
-                        <name>java.awt.headless</name>
-                        <value>true</value>
-                      </property>
-                    </systemProperties>
-                  </configuration>
-                </plugin>
-              </plugins>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-surefire-plugin</artifactId>
+                        <version>2.6</version>
+                        <configuration>
+                            <includes>
+                                <include>**/nonstop/*Test.java</include>
+                            </includes>
+                            <excludes>
+                                <exclude>**/*$*</exclude>
+                            </excludes>
+                            <systemProperties>
+                                <property>
+                                    <name>net.sf.ehcache.skipUpdateCheck</name>
+                                    <value>true</value>
+                                </property>
+                                <property>
+                                    <name>java.awt.headless</name>
+                                    <value>true</value>
+                                </property>
+                            </systemProperties>
+                        </configuration>
+                    </plugin>
+                </plugins>
             </build>
-          </profile>
-        </profiles>
+        </profile>
+    </profiles>
 
 
     <!-- Reports -->
