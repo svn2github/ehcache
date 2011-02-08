@@ -92,7 +92,7 @@ public class TerracottaConfiguration implements Cloneable {
     /**
      * Default setting for storageStrategy
      */
-    public static final StorageStrategy DEFAULT_STORAGE_STRATEGY = StorageStrategy.CLASSIC;
+    public static final StorageStrategy DEFAULT_STORAGE_STRATEGY = StorageStrategy.DCV2;
 
     /**
      * Default value for concurrency of the internal Store.
