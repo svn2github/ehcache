@@ -21,7 +21,7 @@ import net.sf.ehcache.config.CacheConfiguration;
 
 import java.util.concurrent.CyclicBarrier;
 
-import javax.transaction.TransactionManager;
+import javax.transaction.*;
 
 import junit.framework.TestCase;
 import net.sf.ehcache.transaction.manager.DefaultTransactionManagerLookup;
@@ -39,7 +39,7 @@ public class XACacheTest extends TestCase {
         return this.transactionManagerLookup;
     }
 
-    public void testXACache() throws Exception {
+    public void testXACache() throws Throwable {
         TransactionManager txnManager = getTransactionManagerLookup().getTransactionManager();
         Element element1 = new Element("key1", "value1");
         Element element2 = new Element("key2", "value2");
@@ -50,8 +50,8 @@ public class XACacheTest extends TestCase {
         thread1.start();
         thread2.start();
         try {
-            thread1.join();
-            thread2.join();
+            thread1.join(10000);
+            thread2.join(10000);
         } catch (InterruptedException e) {
             fail("Interrupted!");
         }
@@ -72,10 +72,12 @@ public class XACacheTest extends TestCase {
                 txnManager.begin();
                 cache.put(element1);
                 barrier.await();
+                barrier.await();
                 txnManager.commit();
                 barrier.await();
-            } catch (Exception e) {
+            } catch (Throwable e) {
                 exception = e;
+                barrier.reset();
                 rollbackQuietly();
             }
         }
@@ -89,20 +91,19 @@ public class XACacheTest extends TestCase {
 
         @Override
         public void run() {
-
             try {
                 txnManager.begin();
                 barrier.await();
                 Element newElement = cache.get(element1.getKey());
                 assertNull(newElement);
                 barrier.await();
+                barrier.await();
                 newElement = cache.get(element1.getKey());
                 assertNotNull(newElement);
-
                 txnManager.commit();
-
-            } catch (Exception e) {
+            } catch (Throwable e) {
                 exception = e;
+                barrier.reset();
                 rollbackQuietly();
             }
         }
@@ -110,7 +111,7 @@ public class XACacheTest extends TestCase {
 
     private static abstract class AbstractTxnThread extends Thread {
 
-        protected volatile Exception exception;
+        protected volatile Throwable exception;
 
         final Element element1;
         final Element element2;
@@ -128,14 +129,16 @@ public class XACacheTest extends TestCase {
 
         void rollbackQuietly() {
             try {
-                txnManager.rollback();
+                if (txnManager.getStatus() != javax.transaction.Status.STATUS_NO_TRANSACTION) {
+                    txnManager.rollback();
+                }
             } catch (Exception e1) {
                 e1.printStackTrace();
             }
         }
 
-        public void check() throws Exception {
-            if (exception != null) {
+        public void check() throws Throwable {
+            if(exception != null) {
                 throw exception;
             }
         }
@@ -144,7 +147,7 @@ public class XACacheTest extends TestCase {
     @Override
     protected void setUp() throws Exception {
         final CacheManager manager = CacheManager.create();
-        cache = new Cache(new CacheConfiguration("sampleCache", 1000).transactionalMode(CacheConfiguration.TransactionalMode.XA_STRICT));
+        cache = new Cache(new CacheConfiguration("sampleCache", 1000).transactionalMode(CacheConfiguration.TransactionalMode.XA));
         cache.setTransactionManagerLookup(getTransactionManagerLookup());
         manager.addCache(cache);
     }
