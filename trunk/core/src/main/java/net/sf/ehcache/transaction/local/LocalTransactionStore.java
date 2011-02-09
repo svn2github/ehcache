@@ -82,6 +82,13 @@ public class LocalTransactionStore extends AbstractTransactionStore {
         this.copyStrategy = copyStrategy;
     }
 
+    /**
+     * Get the cache using this store
+     * @return the cache using this store
+     */
+    Ehcache getCache() {
+        return cache;
+    }
 
     private LocalTransactionContext getCurrentTransactionContext() {
         LocalTransactionContext currentTransactionContext = transactionController.getCurrentTransactionContext();
