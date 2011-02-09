@@ -38,7 +38,8 @@ public class StorageStrategyConfigTest extends TestCase {
         Cache cache = cacheManager.getCache("defaultStorageStrategy");
         StorageStrategy storageStrategy = cache.getCacheConfiguration().getTerracottaConfiguration().getStorageStrategy();
         LOG.info("default storageStrategy: " + storageStrategy);
-        assertEquals(StorageStrategy.CLASSIC, storageStrategy);
+        StorageStrategy defaultStorageStrategy = StorageStrategy.DCV2;
+        assertEquals("Default storageStrategy should be: " + defaultStorageStrategy, defaultStorageStrategy, storageStrategy);
 
         cache = cacheManager.getCache("classicStorageStrategy");
         storageStrategy = cache.getCacheConfiguration().getTerracottaConfiguration().getStorageStrategy();
