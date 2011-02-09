@@ -48,7 +48,7 @@ final class FileAllocationTree extends RegionSet {
      * Mark this region as used
      */
     public synchronized void mark(Region r) {
-        Region current = removeAndReturn(Long.valueOf(r.start));
+        Region current = removeAndReturn(Long.valueOf(r.start()));
         if (current == null) {
             throw new IllegalArgumentException();
         }

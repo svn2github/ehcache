@@ -15,6 +15,11 @@
  */
 package net.sf.ehcache.store.compound.factories;
 
+/**
+ * A region set based on an augmented AA-Tree.
+ *
+ * @author Chris Dennis
+ */
 class RegionSet extends AATreeSet<Region> {
 
     private final long size;
@@ -60,7 +65,7 @@ class RegionSet extends AATreeSet<Region> {
         } else {
             while (true) {
                 if (currentRegion.size() >= size) {
-                    return new Region(currentRegion.start, currentRegion.start + size - 1);
+                    return new Region(currentRegion.start(), currentRegion.start() + size - 1);
                 } else {
                     Region left = currentNode.getLeft().getPayload();
                     Region right = currentNode.getRight().getPayload();

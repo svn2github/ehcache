@@ -58,6 +58,7 @@
 
     <!-- tree walking is neater with parameter assignment - imho -->
     <suppress checks="ParameterAssignment" files="RegionSet.java" />
+    <suppress checks="ParameterAssignment" files="AATreeSet.java" />
 
     <!-- I think the multiple assignments make perfect sense here - imho as well -->
     <suppress checks="MultipleVariableDeclarations" files="Timestamper.java" />

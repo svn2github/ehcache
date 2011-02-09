@@ -1,8 +1,18 @@
 /**
- * All content copyright (c) 2003-2008 Terracotta, Inc., except as may otherwise be noted in a separate copyright
- * notice. All rights reserved.
+ *  Copyright 2003-2010 Terracotta, Inc.
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
  */
-
 package net.sf.ehcache.store.compound.factories;
 
 import java.util.AbstractSet;
@@ -11,14 +21,24 @@ import java.util.Iterator;
 import java.util.SortedSet;
 import java.util.Stack;
 
+/**
+ * A AA-Tree based SortedSet implementation
+ *
+ * @param <T> type of values stored
+ *
+ * @author Chris Dennis
+ */
 public class AATreeSet<T extends Comparable> extends AbstractSet<T> implements SortedSet<T> {
+
+  private static final Node<?> TERMINAL = new TerminalNode();
 
   private Node<T> root = terminal();
 
-  private int     size = 0;
+  private int     size;
   private boolean mutated;
 
-  private Node<T> item = terminal(), heir = terminal();
+  private Node<T> item = terminal();
+  private Node<T> heir = terminal();
   private T       removed;
 
   @Override
@@ -50,6 +70,9 @@ public class AATreeSet<T extends Comparable> extends AbstractSet<T> implements S
     }
   }
 
+  /**
+   * Remove the node matching this object and return it.
+   */
   public T removeAndReturn(Object o) {
     try {
       root = remove(root, (T) o);
@@ -86,22 +109,37 @@ public class AATreeSet<T extends Comparable> extends AbstractSet<T> implements S
     return root == terminal();
   }
 
+  /**
+   * {@inheritDoc}
+   */
   public Comparator<? super T> comparator() {
     return null;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   public SortedSet<T> subSet(T fromElement, T toElement) {
     return new SubSet(fromElement, toElement);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   public SortedSet<T> headSet(T toElement) {
     return new SubSet(null, toElement);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   public SortedSet<T> tailSet(T fromElement) {
     return new SubSet(fromElement, null);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   public T first() {
     Node<T> leftMost = root;
     while (leftMost.getLeft() != terminal()) {
@@ -110,6 +148,9 @@ public class AATreeSet<T extends Comparable> extends AbstractSet<T> implements S
     return leftMost.getPayload();
   }
 
+  /**
+   * {@inheritDoc}
+   */
   public T last() {
     Node<T> rightMost = root;
     while (rightMost.getRight() != terminal()) {
@@ -118,16 +159,20 @@ public class AATreeSet<T extends Comparable> extends AbstractSet<T> implements S
     return rightMost.getPayload();
   }
 
+  /**
+   * Find the node within this tree equal to the probe node.
+   */
   public T find(Object probe) {
     return find(root, (T) probe).getPayload();
   }
-
-  private static final Node<?> TERMINAL = new TerminalNode();
 
   private Node<T> terminal() {
     return (Node<T>) TERMINAL;
   }
 
+  /**
+   * Returns the root node of this tree.
+   */
   protected final Node<T> getRoot() {
       return root;
   }
@@ -233,37 +278,79 @@ public class AATreeSet<T extends Comparable> extends AbstractSet<T> implements S
     return top;
   }
 
+  /**
+   * Interface implemented by nodes within this tree.
+   */
   public static interface Node<E> {
 
+    /**
+     * Compare this node to the supplied 'data' object.
+     */
     public int compareTo(E data);
 
+    /**
+     * Set this node's left child.
+     */
     public void setLeft(Node<E> node);
 
+    /**
+     * Set this node's right child.
+     */
     public void setRight(Node<E> node);
 
+    /**
+     * Get this node's left child.
+     */
     public Node<E> getLeft();
 
+    /**
+     * Get this node's right child.
+     */
     public Node<E> getRight();
 
+    /**
+     * Get this node's level.
+     */
     public int getLevel();
 
+    /**
+     * Set this node's level.
+     */
     public void setLevel(int value);
 
+    /**
+     * Decrement and then return this node's new level.
+     */
     public int decrementLevel();
 
+    /**
+     * Increment and then return this node's new level.
+     */
     public int incrementLevel();
 
+    /**
+     * Swap the payload objects between this node and the supplied node.
+     */
     public void swapPayload(Node<E> with);
 
+    /**
+     * Return the 'value' object held within this node.
+     */
     public E getPayload();
   }
 
+  /**
+   * Abstract node implementation that can be extended with a custom payload.
+   */
   public static abstract class AbstractTreeNode<E> implements Node<E> {
 
     private Node<E> left;
     private Node<E> right;
     private int     level;
 
+    /**
+     * Constructs an initial (leaf) node.
+     */
     public AbstractTreeNode() {
       this(1);
     }
@@ -274,39 +361,66 @@ public class AATreeSet<T extends Comparable> extends AbstractSet<T> implements S
       this.level = level;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public void setLeft(Node<E> node) {
       left = node;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public void setRight(Node<E> node) {
       right = node;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public Node<E> getLeft() {
       return left;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public Node<E> getRight() {
       return right;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public int getLevel() {
       return level;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public void setLevel(int value) {
       level = value;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public int decrementLevel() {
       return --level;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public int incrementLevel() {
       return ++level;
     }
   }
 
+  /**
+   * Default Comparable wrapping node implementation.
+   */
   private static final class TreeNode<E extends Comparable> extends AbstractTreeNode<E> {
 
     private E payload;
@@ -336,6 +450,9 @@ public class AATreeSet<T extends Comparable> extends AbstractSet<T> implements S
     }
   }
 
+  /**
+   * Node implementation that is used to mark the terminal (leaf) nodes of the tree.
+   */
   private static final class TerminalNode<E> extends AbstractTreeNode<E> {
 
     TerminalNode() {
@@ -386,7 +503,10 @@ public class AATreeSet<T extends Comparable> extends AbstractSet<T> implements S
     }
   }
 
-  class SubSet extends AbstractSet<T> implements SortedSet<T> {
+  /**
+   * SortedSet representation of a range of the tree.
+   */
+  private class SubSet extends AbstractSet<T> implements SortedSet<T> {
 
     private final T start;
     private final T end;
@@ -491,7 +611,10 @@ public class AATreeSet<T extends Comparable> extends AbstractSet<T> implements S
     }
   }
 
-  class TreeIterator implements Iterator<T> {
+  /**
+   * Iterator that iterates over the tree.
+   */
+  private class TreeIterator implements Iterator<T> {
 
     private final java.util.Stack<Node<T>> path = new Stack<Node<T>>();
     private Node<T>                        next;
@@ -562,8 +685,11 @@ public class AATreeSet<T extends Comparable> extends AbstractSet<T> implements S
 
   }
 
-  class SubTreeIterator extends TreeIterator {
-    public SubTreeIterator(T start, T end) {
+  /**
+   * Iterator that iterates over a subset of the tree.
+   */
+  private class SubTreeIterator extends TreeIterator {
+    SubTreeIterator(T start, T end) {
       super(start);
     }
   }

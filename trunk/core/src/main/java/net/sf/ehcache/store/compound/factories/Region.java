@@ -1,3 +1,18 @@
+/**
+ *  Copyright 2003-2010 Terracotta, Inc.
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
 package net.sf.ehcache.store.compound.factories;
 
 import net.sf.ehcache.store.compound.factories.AATreeSet.AbstractTreeNode;
@@ -5,9 +20,11 @@ import net.sf.ehcache.store.compound.factories.AATreeSet.Node;
 
 /**
  * Class that represents the regions held within this set.
+ *
+ * @author Chris Dennis
  */
 public class Region extends AbstractTreeNode<Comparable> implements Comparable<Comparable> {
-    long start;
+    private long start;
     private long end;
 
     private long contiguous;
@@ -39,7 +56,10 @@ public class Region extends AbstractTreeNode<Comparable> implements Comparable<C
         this(r.start(), r.end());
     }
 
-    long contiguous() {
+    /**
+     * Return the size of the largest region linked from this node.
+     */
+    public long contiguous() {
         if (getLeft().getPayload() == null && getRight().getPayload() == null) {
             return size();
         } else {
@@ -139,28 +159,37 @@ public class Region extends AbstractTreeNode<Comparable> implements Comparable<C
      */
     public int compareTo(Comparable other) {
         if (other instanceof Region) {
-            Region r = (Region) other;
-            if (this.start > r.start || this.end > r.end) {
-                return 1;
-            } else if (this.start < r.start || this.end < r.end) {
-                return -1;
-            } else {
-                return 0;
-            }
+            return compareTo((Region) other);
         } else if (other instanceof Long) {
-            Long l = (Long) other;
-            if (l.longValue() > end) {
-                return -1;
-            } else if (l.longValue() < start) {
-                return 1;
-            } else {
-                return 0;
-            }
+            return compareTo((Long) other);
         } else {
             throw new AssertionError("Unusual Type " + other.getClass());
         }
     }
 
+    private int compareTo(Region r) {
+        if (this.start > r.start || this.end > r.end) {
+            return 1;
+        } else if (this.start < r.start || this.end < r.end) {
+            return -1;
+        } else {
+            return 0;
+        }
+    }
+
+    private int compareTo(Long l) {
+        if (l.longValue() > end) {
+            return -1;
+        } else if (l.longValue() < start) {
+            return 1;
+        } else {
+            return 0;
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     public void swapPayload(Node<Comparable> other) {
         if (other instanceof Region) {
             Region r = (Region) other;
@@ -176,6 +205,9 @@ public class Region extends AbstractTreeNode<Comparable> implements Comparable<C
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public Region getPayload() {
         return this;
     }
