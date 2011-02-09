@@ -204,19 +204,31 @@ public class LocalTransactionContext {
 
     private void fireBeforeCommitEvent() {
         for (TransactionListener listener : listeners) {
-            listener.beforeCommit();
+            try {
+                listener.beforeCommit();
+            } catch (Exception e) {
+                LOG.error("beforeCommit error", e);
+            }
         }
     }
 
     private void fireAfterCommitEvent() {
         for (TransactionListener listener : listeners) {
-            listener.afterCommit();
+            try {
+                listener.afterCommit();
+            } catch (Exception e) {
+                LOG.error("afterCommit error", e);
+            }
         }
     }
 
     private void fireAfterRollbackEvent() {
         for (TransactionListener listener : listeners) {
-            listener.afterRollback();
+            try {
+                listener.afterRollback();
+            } catch (Exception e) {
+                LOG.error("afterRollback error", e);
+            }
         }
     }
 
