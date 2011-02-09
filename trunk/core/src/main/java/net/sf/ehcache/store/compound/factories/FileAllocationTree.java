@@ -20,7 +20,7 @@ import java.io.RandomAccessFile;
 
 /**
  * File allocation tree allows C-like alloc/free operations on a random access file.
- * 
+ *
  * @author Chris Dennis
  */
 final class FileAllocationTree extends RegionSet {
@@ -48,17 +48,16 @@ final class FileAllocationTree extends RegionSet {
      * Mark this region as used
      */
     public synchronized void mark(Region r) {
-        Region current = find(r);
+        Region current = removeAndReturn(Long.valueOf(r.start));
         if (current == null) {
             throw new IllegalArgumentException();
         }
-        current = remove(current);
         Region newRange = current.remove(r);
         if (newRange != null) {
-            insert(current);
-            insert(newRange);
+            add(current);
+            add(newRange);
         } else if (!current.isNull()) {
-            insert(current);
+            add(current);
         }
         checkGrow(r);
     }
@@ -66,33 +65,31 @@ final class FileAllocationTree extends RegionSet {
     /**
      * Mark this region as free.
      */
-    public synchronized void free(Region r) {        
+    public synchronized void free(Region r) {
         // Step 1 : Check if the previous number is present, if so add to the same Range.
-        Region prev = find(new Region(r.start() - 1));
+        Region prev = removeAndReturn(Long.valueOf(r.start() - 1));
         if (prev != null) {
-            prev = remove(prev);
             prev.merge(r);
-            Region next = remove((new Region(r.end() + 1)));
+            Region next = removeAndReturn(Long.valueOf(r.end() + 1));
             if (next != null) {
                 prev.merge(next);
             }
-            insert(prev);
+            add(prev);
             checkShrink(prev);
             return;
         }
 
         // Step 2 : Check if the next number is present, if so add to the same Range.
-        Region next = find(new Region(r.end() + 1));
+        Region next = removeAndReturn(Long.valueOf(r.end() + 1));
         if (next != null) {
-            next = remove(next);
             next.merge(r);
-            insert(next);
+            add(next);
             checkShrink(next);
             return;
         }
 
         // Step 3: Add a new range for just this number.
-        insert(r);
+        add(r);
         checkShrink(r);
     }
 
@@ -103,21 +100,21 @@ final class FileAllocationTree extends RegionSet {
     public synchronized void clear() {
         super.clear();
     }
-    
+
     private void checkGrow(Region alloc) {
         if (alloc.end() >= fileSize) {
             fileSize = alloc.end() + 1;
             grow(fileSize);
         }
     }
-    
+
     private void checkShrink(Region free) {
         if (free.end() >= fileSize - 1) {
             fileSize = free.start();
             shrink(fileSize);
         }
     }
-    
+
     private void grow(long size) {
         //no-op
     }
