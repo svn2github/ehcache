@@ -131,7 +131,10 @@ public interface Query {
 
     /**
      * Execute this query. Every call to this method will re-execute the query
-     * and return a distinct results object
+     * and return a distinct results object.
+     * <p/>
+     * An empty results object will be returned (on timeout) for non-stop enabled caches with {@link net.sf.ehcache.config.TimeoutBehaviorConfiguration.TimeoutBehaviorType#NOOP} and
+     * {@link net.sf.ehcache.config.TimeoutBehaviorConfiguration.TimeoutBehaviorType#LOCAL_READS} behavior
      *
      * @return query results
      * @throws SearchException
