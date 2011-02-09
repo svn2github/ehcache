@@ -510,6 +510,51 @@ used with JMX monitors.
         listenFor="local" />
 
 
+    Search
+    ++++++
+
+    A <cache> can be made searchable by adding a <searchable/> sub-element. By default the keys
+    and value objects of elements put into the cache will be attributes against which
+    queries can be expressed. 
+
+    <cache>
+        <searchable/>
+    </cache>    
+
+
+    An "attribute" of the cache elements can also be defined to be searchable. In the example below
+    an attribute with the name "age" will be available for use in queries. The value for the "age"
+    attribute will be computed by calling the method "getAge()" on the value object of each element
+    in the cache. See net.sf.ehcache.search.attribute.ReflectionAttributeExtractor for the format of
+    attribute expressions. Attribute values must also conform to the set of types documented in the
+    net.sf.ehcache.search.attribute.AttributeExtractor interface
+
+    <cache>
+        <searchable>
+            <searchAttribute name="age" expression="value.getAge()"/>
+        </searchable>
+    </cache>
+
+
+    Attributes may also be defined usign a JavaBean style. With the following attribute declaration
+    a public method getAge() will be expected to be found on either the key or value for cache elements
+
+    <cache>
+        <searchable>
+            <searchAttribute name="age"/>
+        </searchable>
+    </cache>
+
+    In more complex situations you can create your own attribute extractor by implementing the
+    AttributeExtractor interface. Providing your extractor class is shown in the following example:
+    
+    <cache>
+        <searchable>
+            <searchAttribute name="age" class="com.example.MyAttributeExtractor"/>
+        </searchable>
+    </cache>
+    
+
     RMI Cache Replication
     +++++++++++++++++++++
 
