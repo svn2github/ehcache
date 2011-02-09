@@ -83,7 +83,12 @@ public class Cache implements CacheMBean, Serializable {
     * @throws IllegalStateException if the cache is not {@link net.sf.ehcache.Status#STATUS_ALIVE}
     */
     public void removeAll() throws IllegalStateException, CacheException {
-        cache.removeAll();
+        CacheTransactionHelper.beginTransactionIfNeeded(cache);
+        try {
+            cache.removeAll();
+        } finally {
+            CacheTransactionHelper.commitTransactionIfNeeded(cache);
+        }
     }
 
     /**
