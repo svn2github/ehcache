@@ -21,8 +21,6 @@ import java.util.BitSet;
 import java.util.List;
 import java.util.Random;
 
-import net.sf.ehcache.store.compound.factories.RegionSet.Region;
-
 import org.junit.Test;
 
 import junit.framework.Assert;

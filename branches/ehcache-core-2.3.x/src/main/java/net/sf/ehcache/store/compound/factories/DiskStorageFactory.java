@@ -44,7 +44,6 @@ import net.sf.ehcache.event.RegisteredEventListeners;
 import net.sf.ehcache.store.compound.CompoundStore;
 import net.sf.ehcache.store.compound.ElementSubstitute;
 import net.sf.ehcache.store.compound.ElementSubstituteFactory;
-import net.sf.ehcache.store.compound.factories.RegionSet.Region;
 import net.sf.ehcache.util.MemoryEfficientByteArrayOutputStream;
 
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
