@@ -64,8 +64,9 @@
 	        <item name="Distributed Caching" href="documentation/distributed_caching.html"/>
             <item name="JDBC Caching" href="documentation/jdbc.html"/>
             <item name="User Guide [HTML]" href="documentation/index.html"/>
-            <item name="Ehcache Book [PDF]" href="/documentation/EhcacheUserGuide-1.7.1.pdf"/>
+            <item name="Ehcache Book [PDF]" href="/documentation/EhcacheUserGuide-2.0-2.3.pdf"/>
             <item name="Earlier Versions [PDF]" href="documentation/older_guides.html" collapse="true">
+                <item name="ehcache 1.7.1" href="/documentation/EhcacheUserGuide-1.7.1.pdf"/>
                 <item name="ehcache 1.6" href="/documentation/EhcacheUserGuide-1.6.pdf"/>
                 <item name="ehcache 1.5" href="/documentation/EhcacheUserGuide-1.5.pdf"/>
                 <item name="ehcache 1.4" href="/documentation/EhcacheUserGuide-1.4.pdf"/>
