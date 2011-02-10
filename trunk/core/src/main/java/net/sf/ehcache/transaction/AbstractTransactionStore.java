@@ -75,13 +75,6 @@ public abstract class AbstractTransactionStore extends AbstractStore {
     /**
      * {@inheritDoc}
      */
-    public int getTerracottaClusteredSize() {
-        return underlyingStore.getTerracottaClusteredSize();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
     public long getInMemorySizeInBytes() {
         return underlyingStore.getInMemorySizeInBytes();
     }
