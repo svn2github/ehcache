@@ -65,11 +65,11 @@ public class AggregateIterator < T > implements Iterator < T > {
     this.iterators = listIterators.iterator();
     while (this.iterators.hasNext()) {
       this.currentIterator = getNextIterator();
-      if (this.currentIterator.hasNext()) {
-         next = this.currentIterator.next();
-         if (!removeColl.contains(next)) {
-           return;
-         }
+      while (this.currentIterator.hasNext()) {
+        next = this.currentIterator.next();
+        if (!removeColl.contains(next)) {
+          return;
+        }
       }
     }
     next = null;
