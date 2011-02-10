@@ -203,6 +203,11 @@
     </target>
 
 
+    <target name="move_pdf" description="Moves the PDF to the site">
+        <move file="${build.dir}/generated-site/pdf/EhcacheUserGuide/EhcacheUserGuide.pdf"  todir="${build.dir}/site/documentation/"/>
+    </target>
+
+
     <target name="unhide_html" description="extra site processing">
 
         <echo>Copying config files</echo>

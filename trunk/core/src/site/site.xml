@@ -35,9 +35,7 @@
             <item name="Replication with JGroups" href="/documentation/distributed_caching_with_jgroups.html"/>
             <item name="Replication with JMS" href="/documentation/distributed_caching_with_jms.html"/>
             <item name="OpenJPA Caching Plugin" href="/documentation/openjpa_provider.html"/>
-            <item name="OpenJPA Caching Plugin" href="/documentation/openjpa_provider.html"/>
             <item name="RESTful Cache Server" href="/documentation/cache_server.html"/>
-            <item name="Explicit Locking" href="/documentation/explicitlocking.html"/>
             <item name="Unlocked Reads View" href="/documentation/unlocked_reads_view.html"/>
             <item name="NonStop Cache" href="/documentation/non_stop_cache.html"/>
             <item name="RMI Remote Debugger" href="/documentation/remotedebugger.html"/>
@@ -64,7 +62,7 @@
 	        <item name="Distributed Caching" href="documentation/distributed_caching.html"/>
             <item name="JDBC Caching" href="documentation/jdbc.html"/>
             <item name="User Guide [HTML]" href="documentation/index.html"/>
-            <item name="Ehcache Book [PDF]" href="/documentation/EhcacheUserGuide-2.0-2.3.pdf"/>
+            <item name="Ehcache Book [PDF]" href="/documentation/EhcacheUserGuide.pdf"/>
             <item name="Earlier Versions [PDF]" href="documentation/older_guides.html" collapse="true">
                 <item name="ehcache 1.7.1" href="/documentation/EhcacheUserGuide-1.7.1.pdf"/>
                 <item name="ehcache 1.6" href="/documentation/EhcacheUserGuide-1.6.pdf"/>

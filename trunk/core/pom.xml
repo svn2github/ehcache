@@ -329,6 +329,20 @@
 
 
                     <execution>
+                        <id>move_pdf</id>
+                        <phase>site</phase>
+                        <configuration>
+                            <tasks>
+                                <ant target="move_pdf"/>
+                            </tasks>
+                        </configuration>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                    </execution>
+
+
+                    <execution>
                         <id>build_info</id>
                         <phase>generate-resources</phase>
                         <configuration>
@@ -473,6 +487,7 @@
                     </execution>
                 </executions>
                 <configuration>
+
                     <!--PDF-->
                     <books>
                         <book>
@@ -481,6 +496,9 @@
                             <formats>
                                 <format>
                                     <id>pdf</id>
+                                </format>
+                                <format>
+                                    <id>xhtml</id>
                                 </format>
                             </formats>
                         </book>
