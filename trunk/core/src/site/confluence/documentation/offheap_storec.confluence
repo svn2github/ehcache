@@ -2,6 +2,8 @@ h1. The Off-Heap FAQ
 
 Everything you ever needed to know about the off-heap memory feature.
 
+{toc:style=disc|indent=20px} Note: TOC is not supported yet. That is a blocker. See http://jira.codehaus.org/browse/DOXIA-398
+
     This is a test confluence page.
 
 h3. Q. Is this feature included in the open source Ehcache release?
