@@ -17,11 +17,11 @@ Nonstop minimal config:
 
 Nonstop default values:
 
-<cache name="four" maxElementsInMemory="10000" eternal="true"
+<cache name="cacheName" maxElementsInMemory="10000" eternal="true"
 	overflowToDisk="false">
 	<terracotta clustered="false">
-		<nonstop enabled="true" immediateTimeout="true" timeoutMillis="5000">
-			<timeoutBehavior type="exception" />       null | localReads
+		<nonstop enabled="true" immediateTimeout="false" timeoutMillis="30000">
+			<timeoutBehavior type="exception" />       noop | localReads
 		</nonstop>
 	</terracotta>
 </cache>
@@ -255,6 +255,16 @@ Prior to this an L1 could not reconnect without restarting the app server with t
     The danger was that you could get an OutOfMemoryError if requests backed up.
 
     In modern application servers there is a threadpool used to service requests. So the consequences of a back up are less dramatic.
+    
+    NOTE: Some cache operations are bulk operations, like removeAll() etc. These methods will normally take longer time to complete than other 
+    operations. For such operations, the timeout used is, by default, 10x the timeoutMillis configured. This can be changed programmatically using the 
+    NonstopConfiguration.setBulkOpsTimeoutMultiplyFactor(int) at runtime or setting the "net.sf.ehcache.nonstop.bulkOpsTimeoutMultiplyFactor" system property. 
+    
+    List of methods in Ehcache interface that currently uses this are:
+    * removeAll()
+    * removeAll(boolean)
+    * setNodeBulkLoadEnabled(boolean)
+    * setNodeCoherent(boolean) - this method is deprecated and setNodeBulkLoadEnabled(boolean) should be used instead of this.
 
     Some causes of timeouts are:
 
