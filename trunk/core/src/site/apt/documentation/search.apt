@@ -4,8 +4,6 @@
 
 Search
 
-%{toc|fromDepth=2|toDepth=2}
-
 * Ehcache Search API
 
     _new_ The Ehcache Search API allows you to execute arbitrarily complex queries against either a standalone cache or a Terracotta

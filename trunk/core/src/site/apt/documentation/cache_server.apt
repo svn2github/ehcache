@@ -4,9 +4,6 @@
 
 {Cache Server}
 
-%{toc|fromDepth=2|toDepth=2}
-
-
 *   Introduction
 
     Ehcache now comes with a Cache Server, available as a WAR for most web containers, or as a standalone server.

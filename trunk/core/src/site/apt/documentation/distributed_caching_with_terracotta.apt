@@ -4,8 +4,6 @@
 
 {Distributed Caching With Terracotta}
 
-%{toc|fromDepth=2|toDepth=2}
-
     Terracotta has been integrated with Ehcache since Ehcache 1.4.
 
     From version 1.7 Ehcache has been seamlessly integrated with Terracotta 3.1.1 and takes just a few lines

@@ -4,8 +4,6 @@
 
 {Explicit Locking API}
 
-%{toc|fromDepth=2|toDepth=2}
-
     This package contains an implementation of an Ehcache which provides for explicit locking,
     using READ and WRITE locks.
 

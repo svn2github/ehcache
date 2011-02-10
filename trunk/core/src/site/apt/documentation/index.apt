@@ -84,7 +84,7 @@ Documentation - Table of Contents
 
     * {{{./cache_server.html}Cache Server with SOAP and RESTful Web Services}}
 
-    * {{{./explicitlocking.html}Explicit locking control with Terracotta}}
+    * {{{./explicitlocking.html}Explicit Locking API}}
 
     * {{{./constructs.html}BlockingCache and SelfPopulatingCache}}
 

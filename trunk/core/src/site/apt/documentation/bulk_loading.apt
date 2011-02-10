@@ -4,8 +4,6 @@
 
 {Bulk Loading}
 
-%{toc|fromDepth=2|toDepth=2}
-
     Ehcache has a bulk loading mode that dramatically speeds up bulk loading into caches using
     the Terracotta Server Array.
 

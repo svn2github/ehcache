@@ -35,8 +35,6 @@
     to be backwardly compatible.
    
 
-[apidocs/net/sf/ehcache/event/CacheEventListener.png]  CacheEventListener Class Diagram
-
 * {Configuration}
 
     Cache event listeners are configured per cache. Each cache can have

@@ -163,9 +163,6 @@ Ehcache blockingCache = singletonManager.getEhcache("sampleCache1");
 
   BlockingCache is used by <<<CachingFilter>>>.
 
-[apidocs/net/sf/ehcache/constructs/blocking/BlockingCache.png]   BlockingCache
-
-
 
 ** {SelfPopulatingCache}
 
@@ -182,7 +179,6 @@ Ehcache blockingCache = singletonManager.getEhcache("sampleCache1");
 
   This is very useful for engineering highly scalable systems.
 
-[apidocs/net/sf/ehcache/constructs/blocking/SelfPopulatingCache.png]  SelfPopulatingCache
 
 ** Caches with Exception Handling
 

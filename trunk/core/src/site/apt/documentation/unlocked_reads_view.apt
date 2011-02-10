@@ -4,8 +4,6 @@
 
 {UnlockedReadsView}
 
-%{toc|fromDepth=2|toDepth=2}
-
     <<<UnlockedReadsView>>> is a {{{./cache_decorators}decorated cache}} which provides an incoherent view
     of a Terracotta coherent cache.
     You can have this and have the underlying coherent cache at the same time.  The UnlockedReadsView is placed

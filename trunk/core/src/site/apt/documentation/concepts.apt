@@ -27,14 +27,11 @@
 
 * Key Ehcache Classes
 
-[apidocs/net/sf/ehcache/package.png] Top Level Package Diagram
 
     Ehcache consists of a <<<CacheManager>>>, which manages caches. Caches contain elements,
     which are essentially name value pairs. Caches are physically implemented either in-memory, or on disk.
 
 ** {CacheManager}
-
-[apidocs/net/sf/ehcache/CacheManager.png] CacheManager Class Diagram
 
     The <<<CacheManager>>> comprises Caches which in turn comprise Elements.
 
@@ -77,8 +74,6 @@
 
 ** Ehcache
 
-[apidocs/net/sf/ehcache/Ehcache.png] Ehcache Interface Diagram
-
     All caches implement the <<<Ehcache>>> interface. A cache has a name and attributes. Each cache contains Elements.
 
     A Cache in Ehcache is analogous to a cache region in other caching systems.
@@ -86,8 +81,6 @@
     Cache elements are stored in the <<<MemoryStore>>>. Optionally they also overflow to a <<<DiskStore>>>.
 
 ** {Element}
-
-[apidocs/net/sf/ehcache/Element.png] Element Class Diagram
 
     An element is an atomic entry in a cache. It has a key, a value and a record of
     accesses. Elements are put into and removed from caches. They can also
@@ -107,15 +100,15 @@
     There are several common access patterns when using a cache.  Ehcache 
     supports the following patterns:
 
-    * {{cache-aside}} (or direct manipulation)
+    * cache-aside (or direct manipulation)
 
-    * {{cache-as-sor}} (a combination of read-through and write-through or write-behind patterns)
+    * cache-as-sor (a combination of read-through and write-through or write-behind patterns)
 
-    * {{read-through}}
+    * read-through
 
-    * {{write-through}}
+    * write-through
 
-    * {{write-behind}} (or write-back)
+    * write-behind (or write-back)
     []
 
 ** cache-aside

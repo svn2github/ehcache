@@ -6,8 +6,6 @@
 
 [images/big_memory.png]
 
-%{toc|fromDepth=2|toDepth=3}
-
     Terracotta {{{http://www.terracotta.org/bigmemory?src=ehcache_off_heap_store}BigMemory}} is an add-on to Enterprise Ehcache
     that permits caches to use an additional type of memory store outside the object heap.
 
