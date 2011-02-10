@@ -3704,7 +3704,8 @@ public class Cache implements Ehcache, StoreListener {
     }
 
     /**
-     * Try to get a read lock on a given key. If can't get it in timeout millis then return a boolean telling that it didn't get the lock
+     * Try to get a read lock on a given key. If can't get it in timeout millis then
+     * return a boolean telling that it didn't get the lock
      *
      * @param key - The key that retrieves a value that you want to protect via locking
      * @param timeout - millis until giveup on getting the lock
@@ -3717,7 +3718,8 @@ public class Cache implements Ehcache, StoreListener {
     }
 
     /**
-     * Try to get a write lock on a given key. If can't get it in timeout millis then return a boolean telling that it didn't get the lock
+     * Try to get a write lock on a given key. If can't get it in timeout millis then
+     * return a boolean telling that it didn't get the lock
      *
      * @param key - The key that retrieves a value that you want to protect via locking
      * @param timeout - millis until giveup on getting the lock

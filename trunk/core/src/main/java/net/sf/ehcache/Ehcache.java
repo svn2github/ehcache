@@ -1089,8 +1089,8 @@ public interface Ehcache extends Cloneable {
     public void setNodeCoherent(boolean coherent) throws UnsupportedOperationException, TerracottaNotRunningException;
 
     /**
-     * This method waits until the cache is in coherent mode in all the connected nodes. If the cache is already in coherent mode it returns
-     * immediately
+     * This method waits until the cache is in coherent mode in all the connected nodes.
+     * If the cache is already in coherent mode it returns immediately
      * <p />
      * It applies to coherent clustering mechanisms only e.g. Terracotta
      * @throws UnsupportedOperationException if this cache does not support coherence, like RMI replication
@@ -1171,7 +1171,8 @@ public interface Ehcache extends Cloneable {
     public void acquireWriteLockOnKey(Object key);
 
     /**
-     * Try to get a read lock on a given key. If can't get it in timeout millis then return a boolean telling that it didn't get the lock
+     * Try to get a read lock on a given key. If can't get it in timeout millis then
+     * return a boolean telling that it didn't get the lock
      *
      * @param key - The key that retrieves a value that you want to protect via locking
      * @param timeout - millis until giveup on getting the lock
@@ -1181,7 +1182,8 @@ public interface Ehcache extends Cloneable {
     public boolean tryReadLockOnKey(Object key, long timeout) throws InterruptedException;
 
     /**
-     * Try to get a write lock on a given key. If can't get it in timeout millis then return a boolean telling that it didn't get the lock
+     * Try to get a write lock on a given key. If can't get it in timeout millis then
+     * return a boolean telling that it didn't get the lock
      *
      * @param key - The key that retrieves a value that you want to protect via locking
      * @param timeout - millis until giveup on getting the lock

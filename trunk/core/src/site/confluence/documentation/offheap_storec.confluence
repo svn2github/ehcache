@@ -2,9 +2,7 @@ h1. The Off-Heap FAQ
 
 Everything you ever needed to know about the off-heap memory feature.
 
-{toc:maxLevel=3|minLevel=3}
-
-
+    This is a test confluence page.
 
 h3. Q. Is this feature included in the open source Ehcache release?
 A. No it is only available as a commercial offering. It is a separately licensed feature available for Enterprise Ehcache. To access the feature, users must use one of the Enterprise kits - either the ehcache-core-ee kit for standalone Ehcache or the terracotta-ee kit for distributed Ehcache. Trial downloads of these enterprise kits with a trial license key is available to users wishing to evaluate the feature.

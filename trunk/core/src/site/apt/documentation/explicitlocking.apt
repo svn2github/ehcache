@@ -1,40 +1,95 @@
  ---
- Explicit Locking API
+ Explicit Locking
  ---
 
-{Explicit Locking API}
+{Explicit Locking}
 
     This package contains an implementation of an Ehcache which provides for explicit locking,
-    using READ and WRITE locks.
+    using Read and Write locks.
 
-    It is possible to get more control over Ehcache's locking behaviour.
+    It is possible to get more control over Ehcache's locking behaviour to allow business logic
+    to apply an atomic change with guaranteed ordering across one or more keys in one or more caches. It can theefore
+    be used as a custom alternative to <<<XA>>> Transactions or <<<Local>>> transactions.
 
-    The initial version (0.2) works with Ehcache when used with the Terracotta Server Array.
-    Version 0.3 works both with Terracotta and standalone when combined with Ehcache 2.1 or later.
+    With that power comes a caution. It is possible to create deadlocks in your own business logic using this
+    API.
 
-*   Locking Modes
+    Note that prior to Ehcache 2.4, this API was implemented as a CacheDecorator and was available in the
+    <<<ehcache-explicitlocking>>> module. It is now built into the <<<core>>> module.
 
-**  Standalone Ehcache
 
-    When using the Ehcache APIs in standalone ehcache core there is no direct control over locking. The last write wins. This is akin to
-    the READ_UNCOMMITTED isolation level.
+*   The API
 
-    However the Explicit locking API uses the lock manager, which as of Ehcache 2.1 has been
-    extended to support local caching.
+    The following methods are available on <<<Cache>>> and <<<Ehcache>>>.
 
-**  Standard Ehcache clustered with Terracotta
+---
+    /**
+     * Acquires the proper read lock for a given cache key
+     *
+     * @param key - The key that retrieves a value that you want to protect via locking
+     */
+    public void acquireReadLockOnKey(Object key) {
+        this.acquireLockOnKey(key, LockType.READ);
+    }
 
-    In this case the cache is always coherent, akin to READ_COMMITTED isolation level. This
-    package simply gives you more control over when locks are acquired and released. In regular
-    Ehcache if you get an object to read or write it can be changed underneath you while you are
-    performing your application level operations on the object.
+    /**
+     * Acquires the proper write lock for a given cache key
+     *
+     * @param key - The key that retrieves a value that you want to protect via locking
+     */
+    public void acquireWriteLockOnKey(Object key) {
+        this.acquireLockOnKey(key, LockType.WRITE);
+    }
 
-**  Explicit Locking Ehcache clustered with Terracotta
+    /**
+     * Try to get a read lock on a given key. If can't get it in timeout millis then
+     * return a boolean telling that it didn't get the lock
+     *
+     * @param key - The key that retrieves a value that you want to protect via locking
+     * @param timeout - millis until giveup on getting the lock
+     * @return whether the lock was awarded
+     * @throws InterruptedException
+     */
+    public boolean tryReadLockOnKey(Object key, long timeout) throws InterruptedException {
+        Sync s = getLockForKey(key);
+        return s.tryLock(LockType.READ, timeout);
+    }
 
-    With this module you can first get the lock
-    for the key, then perform your app level operations preventing anyone else from writing to the
-    object. When the app level operations are completed you put the Element back in the cache and
-    release the lock so that others can now access it. 
+    /**
+     * Try to get a write lock on a given key. If can't get it in timeout millis then
+     * return a boolean telling that it didn't get the lock
+     *
+     * @param key - The key that retrieves a value that you want to protect via locking
+     * @param timeout - millis until giveup on getting the lock
+     * @return whether the lock was awarded
+     * @throws InterruptedException
+     */
+    public boolean tryWriteLockOnKey(Object key, long timeout) throws InterruptedException {
+        Sync s = getLockForKey(key);
+        return s.tryLock(LockType.WRITE, timeout);
+    }
+
+    /**
+     * Release a held read lock for the passed in key
+     *
+     * @param key - The key that retrieves a value that you want to protect via locking
+     */
+    public void releaseReadLockOnKey(Object key) {
+        releaseLockOnKey(key, LockType.READ);
+    }
+
+    /**
+     * Release a held write lock for the passed in key
+     *
+     * @param key - The key that retrieves a value that you want to protect via locking
+     */
+    public void releaseWriteLockOnKey(Object key) {
+        releaseLockOnKey(key, LockType.WRITE);
+    }
+---
+
+
+*   Example
 
 	Here is a brief example:
 
@@ -62,6 +117,14 @@
 
 ---
 
+*   Supported Topologies
+
+    Explicit Locking is supported in Ehcache standalone and also in Distributed Ehcache when the cache
+    is configured with <<<consistency=strong>>>.
+
+    It is not supported in Replicated Ehcache.
+
+
 *  How it works
 
     A READ lock does not prevent other READers from also acquiring a READ lock and reading. A
@@ -74,12 +137,4 @@
 
     If before each read you acquire a READ lock and then before each write you acquire a WRITE
     lock, then an isolation level akin to READ_COMMITTED is achieved.
-
-
-*   {Download}
-
-    The Explicit Locking API is in the ehcache-explicitlocking module. Download {{{http://sourceforge.net/projects/ehcache/files/ehcache-explicitlocking}here}}.
-
-    The open source Terracotta Server Array kit (which includes ehcache-core and ehcache-terracotta) can be downloaded
-    {{{http://www.terracotta.org/dl/oss-sign-up}here}}. terracotta_community_login
 
