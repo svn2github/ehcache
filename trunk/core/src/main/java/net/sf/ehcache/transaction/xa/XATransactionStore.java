@@ -260,7 +260,7 @@ public class XATransactionStore extends AbstractTransactionStore {
         XATransactionContext context = getTransactionContext();
         Element element;
         if (context == null) {
-            element = getQuietFromUnderlyingStore(key);
+            element = getFromUnderlyingStore(key);
         } else {
             element = context.get(key);
             if (element == null && !context.isRemoved(key)) {
@@ -399,6 +399,9 @@ public class XATransactionStore extends AbstractTransactionStore {
      */
     public boolean put(Element element) throws CacheException {
         LOG.debug("cache {} put {}", cache.getName(), element);
+        // this forces enlistment so the XA transaction timeout can be propagated to the XA resource
+        getOrCreateTransactionContext();
+
         Element oldElement = getQuietFromUnderlyingStore(element.getObjectKey());
         return internalPut(new StorePutCommand(oldElement, copyElementForWrite(element)));
     }
@@ -408,6 +411,9 @@ public class XATransactionStore extends AbstractTransactionStore {
      */
     public boolean putWithWriter(Element element, CacheWriterManager writerManager) throws CacheException {
         LOG.debug("cache {} putWithWriter {}", cache.getName(), element);
+        // this forces enlistment so the XA transaction timeout can be propagated to the XA resource
+        getOrCreateTransactionContext();
+
         Element oldElement = getQuietFromUnderlyingStore(element.getObjectKey());
         if (writerManager != null) {
             writerManager.put(element);
@@ -439,6 +445,9 @@ public class XATransactionStore extends AbstractTransactionStore {
      */
     public Element remove(Object key) {
         LOG.debug("cache {} remove {}", cache.getName(), key);
+        // this forces enlistment so the XA transaction timeout can be propagated to the XA resource
+        getOrCreateTransactionContext();
+
         Element oldElement = getQuietFromUnderlyingStore(key);
         return removeInternal(new StoreRemoveCommand(key, oldElement));
     }
@@ -454,6 +463,9 @@ public class XATransactionStore extends AbstractTransactionStore {
      */
     public Element removeWithWriter(Object key, CacheWriterManager writerManager) throws CacheException {
         LOG.debug("cache {} removeWithWriter {}", cache.getName(), key);
+        // this forces enlistment so the XA transaction timeout can be propagated to the XA resource
+        getOrCreateTransactionContext();
+
         Element oldElement = getQuietFromUnderlyingStore(key);
         if (writerManager != null) {
             writerManager.remove(new CacheEntry(key, null));
