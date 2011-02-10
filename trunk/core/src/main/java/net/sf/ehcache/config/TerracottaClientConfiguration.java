@@ -29,7 +29,7 @@ public class TerracottaClientConfiguration implements Cloneable {
     /**
      * Default value of rejoin attribute
      */
-    public static final boolean DEFAULT_REJOIN_VALUE = true;
+    public static final boolean DEFAULT_REJOIN_VALUE = false;
 
     private static final String TC_CONFIG_HEADER = "<tc:tc-config xmlns:tc=\"http://www.terracotta.org/config\">";
     private static final String TC_CONFIG_FOOTER = "</tc:tc-config>";
