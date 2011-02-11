@@ -119,8 +119,12 @@ public class JtaLocalTransactionStore extends AbstractTransactionStore {
             JtaLocalTransactionStore.BOUND_JTA_TRANSACTIONS.remove();
             if (status == javax.transaction.Status.STATUS_COMMITTED) {
                 transactionController.commit(true);
+            } else if (status == javax.transaction.Status.STATUS_ROLLEDBACK) {
+                transactionController.rollback();
             } else {
                 transactionController.rollback();
+                LOG.warn("The transaction manager reported UNKNOWN transaction status upon termination." +
+                        " The ehcache transaction has been rolled back!");
             }
         }
 
