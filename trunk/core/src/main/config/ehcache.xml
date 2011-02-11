@@ -784,8 +784,8 @@ used with JMX monitors.
 			class="com.company.DecoratedCacheFactory"
 			properties="property1=true ..." />
 
-    Distributed CachingTerracotta Clustering
-    +++++++++++++++++++
+    Distributed Caching with Terracotta
+    +++++++++++++++++++++++++++++++++++
 
     Distributed Caches connect to a Terracotta Server Array. They are configured with the <terracotta> sub-element.
 
