@@ -56,6 +56,21 @@ Transactions in Ehcache
     price in performance to get that extra safety.
 
 
+*   Requirements
+
+    The objects you are going to store in your transactional cache must:
+
+    * implement <<<java.io.Serializable>>>
+
+    This is required to store cached objects when the cache is clustered with Terracotta but it's also required by the
+    copy on read / copy on write mechanism used to implement isolation.
+
+    * override <<<equals>>> and <<<hashcode>>>
+
+    Those must be overridden as the transactional stores rely on element value comparison, see: <<<ElementValueComparator>>>
+    and the <<<elementValueComparator>>> configuration setting.
+
+
 *   Configuration
 
     Transactions are enabled on a cache by cache basis with the <<<transactionalMode>>> cache attribute.
