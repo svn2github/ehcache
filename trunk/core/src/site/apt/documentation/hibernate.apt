@@ -619,11 +619,12 @@ public List getStreetTypes(final Country country) throws HibernateException {
 </ehcache>
 --------------------------------------------
 
-* Configuring Ehcache replication using RMI, JGroups, or JMS
+* Configuring Replicated Caching using RMI, JGroups, or JMS
 
     Ehcache can use JMS, JGroups or RMI as a cache replication scheme.  The following are the key considerations when selecting this option:
     
-    * No locking is used during replication, so cached data may be stale.  Your application should be able to deal with stale data.
+    * The consistency is weak. Nodes might be stale, have different versions or be missing an element that other nodes have. Your application
+      should be tolerant of weak consistency.
 
     * <<<session.refresh()>>> should be used to check the cache against the database before performing a write that must be correct.  This can have a performance inmpact on the database.
 
@@ -633,7 +634,7 @@ public List getStreetTypes(final Country country) throws HibernateException {
 
 ** Configuring for RMI Replication
 
-    RMI configuration is described in the {{{./distributed_caching_with_rmi.html}Ehcache User Guide - RMI Distributed Caching}}.  A sample cache configuration (using automatic discovery) is provided here:
+    RMI configuration is described in the {{{./replicated_caching_with_rmi.html}Ehcache User Guide - RMI Distributed Caching}}.  A sample cache configuration (using automatic discovery) is provided here:
 
 --------------------------------------------
 <?xml version="1.0" encoding="UTF-8"?>
@@ -660,7 +661,7 @@ public List getStreetTypes(final Country country) throws HibernateException {
 
 ** Configuring for JGroups Replication
 
-    Configuraging JGroups replication is described in the {{{./distributed_caching_with_jgroups.html}Ehcache User Guide - Distributed Caching with JGroups}}.  A sample cache configuration is provided here:
+    Configuraging JGroups replication is described in the {{{./replicated_caching_with_jgroups.html}Ehcache User Guide - Distributed Caching with JGroups}}.  A sample cache configuration is provided here:
 
 --------------------------------------------
 <?xml version="1.0" encoding="UTF-8"?>
@@ -700,7 +701,7 @@ replicateRemovals=true" />
 
 ** Configuring for JMS Replication
 
-    Configuring JMS replication is described in the {{{./distributed_caching_with_rmi.html}Ehcache User Guide - JMS Distributed Caching}}.  A sample cache configuration (for ActiveMQ) is provided here:
+    Configuring JMS replication is described in the {{{./replicated_caching_with_rmi.html}Ehcache User Guide - JMS Distributed Caching}}.  A sample cache configuration (for ActiveMQ) is provided here:
 
 --------------------------------------------
 <?xml version="1.0" encoding="UTF-8"?>
@@ -818,3 +819,7 @@ replicateRemovals=true" />
     * you are upgrading a Hibernate version
 
     Ensure you have changed all nodes and that you clear any caches during the upgrade.
+
+**  Are compound keys supported?
+
+    For standalone caching yes. With Terracotta a larger amount of memory is used.
