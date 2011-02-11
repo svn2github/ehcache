@@ -30,7 +30,7 @@
     Elements can be put or removed from a Cache without notifying listeners
     by using the putQuiet and removeQuiet methods.
 
-    new_in_2 In clustered environments event propagation can be configured to
+    In clustered environments event propagation can be configured to
     be propagated only locally, only remotely, or both. The default is both,
     to be backwardly compatible.
    

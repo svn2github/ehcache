@@ -4,9 +4,10 @@
 
 {UnlockedReadsView}
 
-    <<<UnlockedReadsView>>> is a {{{./cache_decorators}decorated cache}} which provides an incoherent view
-    of a Terracotta coherent cache.
-    You can have this and have the underlying coherent cache at the same time.  The UnlockedReadsView is placed
+    <<<UnlockedReadsView>>> is a {{{./cache_decorators}decorated cache}} which provides an eventually consistent view
+    of a strongly consistent cache.
+
+    You can have both the view and strongly consistent cache at the same time.  The UnlockedReadsView is placed
     in the CacheManager under its own name so that it can be separately referenced.
 
     The purpose of this is to allow business logic faster access to data. It is
@@ -88,6 +89,18 @@
 
 ---
 
-*   {Emerging API}
+*   FAQ
+
+**  Why is this a CacheDecorator?
 
     This API is emerging. It is production quality and supported, but is a new API and may evolve over time.
+    As a decorator in it's own module it can evolve separately to ehcache-core.
+
+**  Why do I see stale values in certain Ehcache nodes for up to 5 minutes?
+
+    UnlockedReadsView uses unlocked reads of the Terracotta Server Array combined with a local TTL which in
+    versions up to Ehcache 2.4 are hardcoded to 300 seconds (5 minutes). If you are already holding a copy
+    in a local node you will not see an updated value for 5 minutes.
+
+    We plan to make this TTL configurable in a future release.
+

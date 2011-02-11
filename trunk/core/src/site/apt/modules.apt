@@ -1,17 +1,15 @@
  ------
- {Modules & APIs}
+ {Modules}
  ------
 
-Modules and APIs
+Modules
 
-    Following is a list of Ehcache modules and the APIs in each.
+    Following is a list of Ehcache modules:
 
 *----------+--------------+
-{{{./documentation/index.html}ehcache}} | a packaging of commonly used modules
+{{{./documentation/index.html}ehcache}} | The full Distributed Ehcache module, including core and Terracotta
 *----------+--------------+
-{{{./documentation/index.html}ehcache-core}} | Caching engine, RMI replication and Hibernate plugins
-*----------+--------------+
-{{{./documentation/distributed_caching_with_terracotta.html}ehcache-terracotta}} | Seamless integration with Terracotta clustering
+{{{./documentation/index.html}ehcache-core}} | APIs, Standalone caching engine, RMI replication and Hibernate plugins
 *----------+--------------+
 {{{./documentation/monitor.html}ehcache-monitor}} |  Enterprise-class monitoring and management for development and production
 *----------+--------------+
@@ -27,9 +25,7 @@ Modules and APIs
 *----------+--------------+
 {{{./documentation/cache_server.html}ehcache-server}} | RESTful cache server in a WAR or standalone
 *----------+--------------+
-{{{./documentation/unlocked_reads_view.html}ehcache-unlockedreadsview}} | Unlocked reads view of a coherent Terracotta cache
-*----------+--------------+
-{{{./documentation/non_stop_cache.html}ehcache-nonstopcache}} | Fine-grained control over timeouts and offline events
+{{{./documentation/terracotta/unlocked_reads_view.html}ehcache-unlockedreadsview}} | Unlocked reads view of a coherent Terracotta cache
 *----------+--------------+
 {{{./documentation/remotedebugger.html}ehcache-debugger}} | Allows tracing of RMI distributed replication events
 *----------+--------------+*----------+--------------:

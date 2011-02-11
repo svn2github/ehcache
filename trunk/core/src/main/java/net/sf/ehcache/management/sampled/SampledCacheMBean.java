@@ -131,7 +131,7 @@ public interface SampledCacheMBean extends LiveCacheStatistics, SampledCacheStat
     public boolean isTerracottaClustered();
 
     /**
-     * Returns a textual description of a Terracotta-clustered cache's coherence-mode.
+     * Returns a textual description of a Terracotta-clustered cache's consistency mode.
      * @return "STRONG" or "EVENTUAL"
      */
     public String getTerracottaConsistency();

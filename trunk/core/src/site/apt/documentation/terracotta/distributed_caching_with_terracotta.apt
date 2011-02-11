@@ -1,8 +1,10 @@
  ---
- Distributed Caching With Terracotta
+ Distributed Caching
  ---
 
-{Distributed Caching With Terracotta}
+{Distributed Caching}
+
+
 
     Terracotta has been integrated with Ehcache since Ehcache 1.4.
 
@@ -14,6 +16,9 @@
     Distribution with the Terracotta Server Array ("TSA") is the preferred distribution mechanism. It provides coherency, JTA,
     HA, scale and high performance. It is available as open source or with additional features in the Ehcache EX and FX product
     editions.
+
+    The primary documentation source for the Terracotta Server Array is {{http://www.terracotta.org/documentation}}.
+
 
 *   Architecture
 
@@ -249,7 +254,7 @@ CacheManager manager = new CacheManager(configuration);
 
       Note that from Ehcache 2.0, this setting has the same affect as <<<coherent>>>.
 
-    * <<<copyOnRead=true|false>>> new_in_2
+    * <<<copyOnRead=true|false>>>
 
       Indicates whether cache values are deserialized on every read or if the
       materialized cache value can be re-used between get() calls.
@@ -260,7 +265,7 @@ CacheManager manager = new CacheManager(configuration);
 
       NOTE: This setting is only relevant for caches with valueMode=serialization
 
-    * <<<coherent=true|false>>> new_in_2
+    * <<<coherent=true|false>>>
 
       Indicates whether this cache should have coherent reads and writes with guaranteed
       consistency across the cluster.  By default, its value is true.  If this attribute is set to false
@@ -273,7 +278,7 @@ CacheManager manager = new CacheManager(configuration);
       This setting overrides <<<coherentReads>>>, which is deprecated. For backward compatibility any configurations
       setting a value for <<<coherentReads>>> will apply to <<<coherent>>>.
 
-    * <<<synchronousWrites=true|false>>> new_in_2
+    * <<<synchronousWrites=true|false>>>
 
       When set to true, clustered caches use Terracotta SYNCHRONOUS WRITE locks. Asynchronous
       writes(synchronousWrites="false") maximize performance byallowing clients to proceed without waiting for a
@@ -405,7 +410,7 @@ CacheManager manager = new CacheManager(configuration);
     Terracotta server has its own overflow to disk. Once the <<<maxElementsInMemory>>> limit is reached <<<Element>>>s will be
     evicted to the cluster.
 
-*   Cluster Topology new_in_2
+*   Cluster Topology
 
     The interface <<<net.sf.ehcache.cluster.CacheCluster>>> provides methods for obtaining topology information for a Terracotta cluster.
 
@@ -450,7 +455,7 @@ CacheManager manager = new CacheManager(configuration);
 ---
 
 
-*   Terracotta Cluster Events  new_in_2
+*   Terracotta Cluster Events
 
     Terracotta has a Terracotta Cluster event notification mechanism. From Ehcache 2.0, Ehcache can receive these events.
 
@@ -562,10 +567,6 @@ public interface ClusterTopologyListener {
     reconnect because local changes will not be consistent with the cluster.
 
 
-*   More Information
-
-    Please see {{{http://www.terracotta.org/documentation}Terracotta Documentation}}
-    for much more information.
 
 *   {Development Setup}
 
@@ -627,11 +628,11 @@ public interface ClusterTopologyListener {
 
 ---
     mvn tc:stop
----    
+---
 
     See {{http://forge.terracotta.org/releases/projects/tc-maven-plugin/}} for a complete reference.
 
-    
+
 *  FAQ
 
 **  I get a net.sf.ehcache.CacheException: Terracotta cache classes are not available, you are missing jar(s) most likely
@@ -650,7 +651,7 @@ public interface ClusterTopologyListener {
     In Ehcache Elements can have overridden TTI and TTLs. Terracotta supports this functionality.
 
 **  I have TTL/TTI not configured or set to 0 (eternal) and have created Elements with a specific TTL which is being ignored. Why?
-    
+
     There is a high cost in checking individual elements for eviction in the Terracotta server.
     To incur that cost and have your Element TTL/TTIs recognised in this case set <<<ehcache.storageStrategy.dcv2.perElementTTITTL.enabled>>> = true"
     in system properties.
@@ -757,7 +758,7 @@ public interface ClusterTopologyListener {
 **   What classloader is used to deserialize clustered objects in valueMode="serialization"?
 
     The following classloaders are tried in this order:
-    
+
       * Thread.currentThread().getContextClassLoader() (so set this to override)
 
       * The classloader used to define the Ehcache CacheManager - the one that loaded the ehcache-terracotta.jar
@@ -783,3 +784,10 @@ public interface ClusterTopologyListener {
       (in DSO) - where the Queue APIs are proxied through to a thread pool - so that you can try/join out in "timeout" seconds
       and throw a timeout to the application. This is however somewhat messy - since the application threads may receive a
       timeout, but the "terracotta transaction" may still make it through to the L2.
+
+**  What happened to coherent=true|false in ehcache.xml
+
+    It has been deprecated. Use the "consistency" attribute instead.
+
+    Any configuration files using coherent=true will be mapped to consistency=strong and coherent=false
+    to consistency=eventual.

@@ -67,10 +67,7 @@
         Then to put it back call with true parameter.
 
         This method does not return until all the transactions are flushed to the cluster. Only the calling thread is blocked. 
-        This way you know when coherence is restored. This returns as soon  DONT SAY. Will make async later.
-
-        Everyone block
-
+        This way you know when coherence is restored.
 
         The initial state is from the config.
 

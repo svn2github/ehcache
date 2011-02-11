@@ -257,52 +257,52 @@
             </sections>
         </chapter>
         <chapter>
-            <id>distributed_caching</id>
-            <title>Distributed Caching</title>
+            <id>cache_toplogies</id>
+            <title>Cache Topologies</title>
             <sections>
                 <section>
-                    <id>distributed_caching</id>
-                    <file>documentation/distributed_caching.apt</file>
+                    <id>cache_topologies</id>
+                    <file>documentation/cache_topologies.apt</file>
                 </section>
             </sections>
         </chapter>
         <chapter>
             <id>distributed_caching_with_terracotta</id>
-            <title>Distributed Caching with Terracotta Server Arrays</title>
+            <title>Distributed Caching</title>
             <sections>
                 <section>
                     <id>distributed_caching_with_terracotta</id>
-                    <file>documentation/distributed_caching_with_terracotta.apt</file>
+                    <file>documentation/terracotta/distributed_caching_with_terracotta.apt</file>
                 </section>
             </sections>
         </chapter>
         <chapter>
-            <id>distributed_caching_with_rmi</id>
+            <id>replicated_caching_with_rmi</id>
             <title>Replicated Caching with RMI</title>
             <sections>
                 <section>
-                    <id>distributed_caching_with_rmi</id>
-                    <file>documentation/distributed_caching_with_rmi.apt</file>
+                    <id>replicated_caching_with_rmi</id>
+                    <file>documentation/replicated_caching_with_rmi.apt</file>
                 </section>
             </sections>
         </chapter>
         <chapter>
-            <id>distributed_caching_with_jgroups</id>
+            <id>replicated_caching_with_jgroups</id>
             <title>Replicated Caching with JGroups</title>
             <sections>
                 <section>
-                    <id>distributed_caching_with_jgroups</id>
-                    <file>documentation/distributed_caching_with_jgroups.apt</file>
+                    <id>replicated_caching_with_jgroups</id>
+                    <file>documentation/replicated_caching_with_jgroups.apt</file>
                 </section>
             </sections>
         </chapter>
         <chapter>
-            <id>distributed_caching_with_jms</id>
+            <id>replicated_caching_with_jms</id>
             <title>Replicated Caching with JMS</title>
             <sections>
                 <section>
-                    <id>distributed_caching_with_jms</id>
-                    <file>documentation/distributed_caching_with_jms.apt</file>
+                    <id>replicated_caching_with_jms</id>
+                    <file>documentation/replicated_caching_with_jms.apt</file>
                 </section>
             </sections>
         </chapter>

@@ -3,7 +3,8 @@
     <body>
         <release version="2.4.0" date="2011-02-15" description="Major release">
             <action dev="Tim Eck" type="add">
-                Add search functionality
+                Search. Caches can now be indexed and searched by key, value or attribute extracted from values.
+                This is a major new API and feature for Ehcache.
             </action>
             <action dev="Alex Snaps" type="fix" issue="EHC-773">
                 SelfPopulatingCache will always release the lock on failure during the CacheEntryFactory.createEntry
@@ -12,14 +13,14 @@
                 Update slf4j to 1.6.1
             </action>
             <action dev="Abhishek Sanoujam" type="add">
-                Add new coherence modes - "strict", "non-strict" and "off". Deprecated old coherent settings ("true", "false")
-                for Terracotta clustered caches.
+                Add new consistency modes - strong and eventual. Deprecated old coherent settings ("true", "false")
+                for Terracotta distributed caches.
             </action>
             <action dev="Abhishek Sanoujam" type="add">
-                Add rejoin feature for Terracotta clustered caches.
+                Add rejoin feature for Terracotta distributed caches.
             </action>
             <action dev="Abhishek Sanoujam" type="add">
-                Add nonstop feature to ehcache-core.
+                Move nonstop functionality from a decorator to ehcache-core.
             </action>
             <action dev="Abhishek Sanoujam" type="add">
                 Add explicit-locking API to Ehcache.
@@ -31,9 +32,6 @@
             </action>
         </release>
         <release version="2.3.1" date="??" description="Bug fixes">
-            <action dev="Cédrik LIME" type="add">
-                Add groups feature, based on an initial patch from Andrew Liles.
-            </action>
             <action dev="Ludovic Orban" type="add">
                 Introduced ElementValueComparator to make element value comparison used in replace() and remove()
                 atomic methods pluggable.

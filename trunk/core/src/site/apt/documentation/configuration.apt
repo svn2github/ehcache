@@ -29,7 +29,7 @@
 
 * {Dynamically Changing Cache Configuration}
 
-    new_in_2 After a Cache has been started its configuration is not generally changeable. However, since Ehcache 2.0,  certain aspects of
+    After a Cache has been started its configuration is not generally changeable. However, since Ehcache 2.0,  certain aspects of
     cache configuration can modified dynamically at runtime, namely:
 
     * timeToLive

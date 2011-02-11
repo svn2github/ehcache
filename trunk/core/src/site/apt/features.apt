@@ -59,7 +59,7 @@
 
     By adding Terracotta, Ehcache can scale to any use case.  See more details
     about Terracotta caching at
-    {{{./documentation/distributed_caching_with_terracotta.html}Distributed Caching With Terracotta}}.
+    {{{./documentation/terracotta/distributed_caching_with_terracotta.html}Distributed Caching With Terracotta}}.
 
 * Flexible
 
@@ -225,11 +225,11 @@
     See the {{{./documentation/distributed_caching.html}Distributed Caching}}
     documentation for more feature details.
 
-** Clustered Caching with Terracotta
+** Distributed Caching with Terracotta
 
     Simple yet powerful clustered caching.  Just two lines of configuration
     is all that is required.  For more information see
-    {{{./documentation/distributed_caching_with_terracotta.html}Distributed Caching With Terracotta}}.
+    {{{./documentation/terracotta/distributed_caching_with_terracotta.html}Distributed Caching With Terracotta}}.
 
 ** Replicated Caching via RMI, JGroups, or JMS
 

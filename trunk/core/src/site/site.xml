@@ -28,16 +28,15 @@
             <item name="Module Listing" href="/modules.html"/>
             <item name="Ehcache" href="/documentation/index.html"/>
             <item name="Ehcache Core" href="/documentation/index.html"/>
-            <item name="Distributed Caching with Terracotta" href="/documentation/distributed_caching_with_terracotta.html"/>
+            <item name="Distributed Caching with Terracotta" href="/documentation/terracotta/distributed_caching_with_terracotta.html"/>
             <item name="Monitor" href="/documentation/monitor.html"/>
             <item name="Ehcache Web" href="/documentation/web_caching.html"/>
             <item name="Ehcache JCache" href="/documentation/jsr107.html"/>
-            <item name="Replication with JGroups" href="/documentation/distributed_caching_with_jgroups.html"/>
-            <item name="Replication with JMS" href="/documentation/distributed_caching_with_jms.html"/>
+            <item name="Replicated Caching with JGroups" href="/documentation/replicated_caching_with_jgroups.html"/>
+            <item name="Replicated Caching with JMS" href="/documentation/replicated_caching_with_jms.html"/>
             <item name="OpenJPA Caching Plugin" href="/documentation/openjpa_provider.html"/>
             <item name="RESTful Cache Server" href="/documentation/cache_server.html"/>
-            <item name="Unlocked Reads View" href="/documentation/unlocked_reads_view.html"/>
-            <item name="NonStop Cache" href="/documentation/non_stop_cache.html"/>
+            <item name="Unlocked Reads View" href="/documentation/terracotta/unlocked_reads_view.html"/>
             <item name="RMI Remote Debugger" href="/documentation/remotedebugger.html"/>
         </menu>
 
@@ -58,12 +57,9 @@
             <item name="Code Samples and Recipes" href="documentation/samples.html"/>
             <item name="BigMemory" href="documentation/offheap_store.html"/>
             <item name="Search" href="documentation/search.html"/>
-            <item name="Hibernate Caching" href="documentation/hibernate.html"/>
-	        <item name="Distributed Caching" href="documentation/distributed_caching.html"/>
-            <item name="JDBC Caching" href="documentation/jdbc.html"/>
             <item name="User Guide [HTML]" href="documentation/index.html"/>
-            <item name="Ehcache Book [PDF]" href="/documentation/EhcacheUserGuide.pdf"/>
-            <item name="Earlier Versions [PDF]" href="documentation/older_guides.html" collapse="true">
+            <item name="User Guide [PDF]" href="/documentation/EhcacheUserGuide.pdf"/>
+            <item name="Older Versions User Guides [PDF]" href="documentation/older_guides.html" collapse="true">
                 <item name="ehcache 1.7.1" href="/documentation/EhcacheUserGuide-1.7.1.pdf"/>
                 <item name="ehcache 1.6" href="/documentation/EhcacheUserGuide-1.6.pdf"/>
                 <item name="ehcache 1.5" href="/documentation/EhcacheUserGuide-1.5.pdf"/>
@@ -84,9 +80,7 @@
             <item name="Feature Requests" href="https://jira.terracotta.org/jira/browse/EHC"/>
             <item name="Who's Using?" href="/customers.html"/>
             <item name="Maintainer's blog" href="http://gregluck.com/blog"/>
-            <item name="Ehcache Merchandise" href="http://cafepress.com/ehcache"/>
             <item name="Team List" href="/teamlist.html"/>
-            <item name="Name &amp; Logo" href="/nameandlogo.html"/>
         </menu>
 
     </body>
