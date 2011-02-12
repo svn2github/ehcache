@@ -237,7 +237,7 @@ Cache cache = new Cache(
 
 *** write-through mode only
 
-   *  notifyListenersOnException - Whether to notify listeners when an exception occurs on a store operation. Defaults to false.
+   *  notifyListenersOnException - Whether to notify listeners when an exception occurs on a store operation. Defaults to false. If using cache replication, set this attribute to "true" to ensure that changes to the underlying store are replicated.
 
 
 *** write-behind mode only
