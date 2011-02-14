@@ -69,7 +69,7 @@ public class TerracottaConfiguration implements Cloneable {
     /**
      * Default value for {@link NonstopConfiguration}
      */
-    public static final NonstopConfiguration DEFAULT_NON_STOP_CONFIGURATION = null;
+    public static final NonstopConfiguration DEFAULT_NON_STOP_CONFIGURATION = new NonstopConfiguration().enabled(false);
 
     /**
      * Default cache coherence setting
