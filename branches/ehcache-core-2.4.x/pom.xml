@@ -32,6 +32,7 @@
         <name>ehcache</name>
         <skipCheckstyle>false</skipCheckstyle>
         <test.tmp.dir>${project.build.directory}/tmp</test.tmp.dir>
+        <build.timestamp>${maven.build.timestamp}</build.timestamp>
     </properties>
 
     <dependencies>
@@ -168,9 +169,6 @@
                 <directory>${basedir}/${testResources}</directory>
             </testResource>
         </testResources>
-        <filters>
-            <filter>${project.build.directory}/filter.properties</filter>
-        </filters>
 
         <plugins>
             <plugin>
@@ -245,23 +243,52 @@
             </plugin>
 
             <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>buildnumber-maven-plugin</artifactId>
-                <version>1.0-beta-3</version>
-                <executions>
-                    <execution>
-                        <phase>generate-resources</phase>
-                        <goals>
-                            <goal>create</goal>
-                        </goals>
-                    </execution>
-                </executions>
-                <configuration>
-                    <doCheck>false</doCheck>
-                    <doUpdate>false</doUpdate>
-                </configuration>
+              <groupId>org.codehaus.groovy.maven</groupId>
+              <artifactId>gmaven-plugin</artifactId>
+              <version>1.0</version>
+              <executions>
+                <execution>
+                  <id>build-revision</id>
+                  <phase>generate-resources</phase>
+                  <goals>
+                    <goal>execute</goal>
+                  </goals>
+                  <configuration>
+                    <source><![CDATA[
+                      def getLastChangedRevision(path) {
+                        fullPath = path.getCanonicalPath()
+                        outProp = "svninfo" + fullPath.hashCode();
+                        ant.exec(executable : 'svn', outputproperty: outProp , 
+                                 dir: fullPath, resultproperty: 'svnexitcode', 
+                                 failifexecutionfails: 'false') {
+                          arg(value : 'info')
+                        }
+                        if (ant.antProject.properties['svnexitcode'] == '1') {
+                          println "return unkown because svn exitcode is 1"
+                          return "unknown"
+                        }
+                        svninfo = ant.antProject.properties[outProp]
+                        if (svninfo == null) { 
+                          println "return unknown because svninfo is null"
+                          return "unknown"
+                        }
+                        def matcher = ( svninfo =~ /Last Changed Rev: (\d+)/ )
+                        if (matcher[0].size > 1) {
+                          return matcher[0][1]
+                        } else {
+                          println "return unknown because matcher found no match"
+                          return "unknown"
+                        }
+                      }
+                      core_revision = getLastChangedRevision(project.basedir)
+                
+                      project.properties.setProperty('build.revision', core_revision)
+                    ]]></source>
+                  </configuration>
+                </execution>
+              </executions>
             </plugin>
-
+            
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-antrun-plugin</artifactId>
@@ -315,28 +342,6 @@
                         <configuration>
                             <tasks>
                                 <ant target="copy_files"/>
-                            </tasks>
-                        </configuration>
-                        <goals>
-                            <goal>run</goal>
-                        </goals>
-                    </execution>
-
-                    <execution>
-                        <id>build_info</id>
-                        <phase>generate-resources</phase>
-                        <configuration>
-                            <tasks>
-                                <mkdir dir="${project.build.directory}"/>
-                                <tstamp>
-                                    <format property="last.updated"
-                                            pattern="yyyy-MM-dd hh:mm:ss"/>
-                                </tstamp>
-                                <echo file="${project.build.directory}/filter.properties"
-                                      message="build.time=${last.updated}${line.separator}"/>
-                                <echo file="${project.build.directory}/filter.properties"
-                                      append="true"
-                                      message="build.revision=${buildNumber}${line.separator}"/>
                             </tasks>
                         </configuration>
                         <goals>
