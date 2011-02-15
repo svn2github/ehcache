@@ -351,6 +351,10 @@ public class JtaLocalTransactionStore extends AbstractTransactionStore {
      * {@inheritDoc}
      */
     public int getTerracottaClusteredSize() {
+        if (transactionController.getCurrentTransactionContext() == null) {
+            return underlyingStore.getTerracottaClusteredSize();
+        }
+
         registerInJtaContext();
         try {
             return underlyingStore.getTerracottaClusteredSize();

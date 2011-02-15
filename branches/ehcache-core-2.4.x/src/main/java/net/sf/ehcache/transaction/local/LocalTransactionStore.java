@@ -448,9 +448,15 @@ public class LocalTransactionStore extends AbstractTransactionStore {
      * {@inheritDoc}
      */
     public int getTerracottaClusteredSize() {
+        if (transactionController.getCurrentTransactionContext() == null) {
+            return underlyingStore.getTerracottaClusteredSize();
+        }
+
         assertNotTimedOut();
 
-        return getSize();
+        int sizeModifier = 0;
+        sizeModifier -= softLockFactory.getKeysInvisibleInContext(getCurrentTransactionContext()).size();
+        return underlyingStore.getTerracottaClusteredSize() + sizeModifier;
     }
 
     /**

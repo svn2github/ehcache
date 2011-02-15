@@ -53,19 +53,19 @@ public class AggregateIterator < T > implements Iterator < T > {
    */
   private T current;
 
- /**
-  * @param collRemove
-  *            collection of removed entries to check against
-  * @param listIterators
-  *            collection of iterators
-  */
+  /**
+   * @param collRemove
+   *            collection of removed entries to check against
+   * @param listIterators
+   *            collection of iterators
+   */
   public AggregateIterator(final Collection < ? > collRemove,
        final List < Iterator < T > > listIterators) {
     this.removeColl = collRemove;
     this.iterators = listIterators.iterator();
     while (this.iterators.hasNext()) {
       this.currentIterator = getNextIterator();
-      if (this.currentIterator.hasNext()) {
+      while (this.currentIterator.hasNext()) {
          next = this.currentIterator.next();
          if (!removeColl.contains(next)) {
            return;

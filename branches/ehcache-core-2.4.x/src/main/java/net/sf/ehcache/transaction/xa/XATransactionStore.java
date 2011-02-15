@@ -303,9 +303,18 @@ public class XATransactionStore extends AbstractTransactionStore {
      * {@inheritDoc}
      */
     public int getTerracottaClusteredSize() {
+        try {
+            Transaction transaction = transactionManagerLookup.getTransactionManager().getTransaction();
+            if (transaction == null) {
+                return underlyingStore.getTerracottaClusteredSize();
+            }
+        } catch (SystemException se) {
+            throw new TransactionException("cannot get the current transaction", se);
+        }
+
         LOG.debug("cache {} getTerracottaClusteredSize", cache.getName());
         XATransactionContext context = getOrCreateTransactionContext();
-        int size = underlyingStore.getSize();
+        int size = underlyingStore.getTerracottaClusteredSize();
         return size + context.getSizeModifier();
     }
 
