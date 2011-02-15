@@ -15,7 +15,9 @@
  */
 package net.sf.ehcache.transaction.local;
 
+import net.sf.ehcache.CacheEntry;
 import net.sf.ehcache.CacheException;
+import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.TransactionController;
 import net.sf.ehcache.store.ElementValueComparator;
@@ -47,6 +49,7 @@ public class JtaLocalTransactionStore extends AbstractTransactionStore {
 
     private final TransactionController transactionController;
     private final TransactionManager transactionManager;
+    private final Ehcache cache;
 
     /**
      * Create a new JtaLocalTransactionStore instance
@@ -62,6 +65,7 @@ public class JtaLocalTransactionStore extends AbstractTransactionStore {
         if (this.transactionManager == null) {
             throw new TransactionException("no JTA transaction manager could be located, cannot bind local_jta cache with JTA");
         }
+        this.cache = underlyingStore.getCache();
     }
 
     private void registerInJtaContext() {
@@ -154,13 +158,30 @@ public class JtaLocalTransactionStore extends AbstractTransactionStore {
     /**
      * {@inheritDoc}
      */
-    public boolean putWithWriter(Element element, CacheWriterManager writerManager) throws CacheException {
+    public boolean putWithWriter(final Element element, final CacheWriterManager writerManager) throws CacheException {
         registerInJtaContext();
         try {
-            return underlyingStore.putWithWriter(element, writerManager);
+            boolean put = underlyingStore.put(element);
+            transactionManager.getTransaction().registerSynchronization(new Synchronization() {
+                public void beforeCompletion() {
+                    if (writerManager != null) {
+                        writerManager.put(element);
+                    } else {
+                        cache.getWriterManager().put(element);
+                    }
+                }
+                public void afterCompletion(int status) {
+                    //
+                }
+            });
+            return put;
         } catch (CacheException e) {
             setRollbackOnly();
             throw e;
+        } catch (RollbackException e) {
+            throw new TransactionException("error registering writer synchronization", e);
+        } catch (SystemException e) {
+            throw new TransactionException("error registering writer synchronization", e);
         }
     }
 
@@ -219,13 +240,31 @@ public class JtaLocalTransactionStore extends AbstractTransactionStore {
     /**
      * {@inheritDoc}
      */
-    public Element removeWithWriter(Object key, CacheWriterManager writerManager) throws CacheException {
+    public Element removeWithWriter(final Object key, final CacheWriterManager writerManager) throws CacheException {
         registerInJtaContext();
         try {
-            return underlyingStore.removeWithWriter(key, writerManager);
+            Element removed = underlyingStore.remove(key);
+            final CacheEntry cacheEntry = new CacheEntry(key, getQuiet(key));
+            transactionManager.getTransaction().registerSynchronization(new Synchronization() {
+                public void beforeCompletion() {
+                    if (writerManager != null) {
+                        writerManager.remove(cacheEntry);
+                    } else {
+                        cache.getWriterManager().remove(cacheEntry);
+                    }
+                }
+                public void afterCompletion(int status) {
+                    //
+                }
+            });
+            return removed;
         } catch (CacheException e) {
             setRollbackOnly();
             throw e;
+        } catch (RollbackException e) {
+            throw new TransactionException("error registering writer synchronization", e);
+        } catch (SystemException e) {
+            throw new TransactionException("error registering writer synchronization", e);
         }
     }
 
