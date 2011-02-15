@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<ehcache name="basic-cache-test">
+
+	<defaultCache maxElementsInMemory="10000" eternal="true"
+		overflowToDisk="false" />
+
+	<cache name="test" maxElementsInMemory="10000" eternal="true"
+		overflowToDisk="false">
+		<terracotta>
+			<nonstop />
+		</terracotta>
+	</cache>
+
+	<terracottaConfig rejoin="true" url="localhost:9510" />
+</ehcache>
