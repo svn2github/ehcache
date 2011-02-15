@@ -17,7 +17,9 @@
 package net.sf.ehcache.search.impl;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import net.sf.ehcache.search.Attribute;
 import net.sf.ehcache.search.Result;
@@ -118,5 +120,48 @@ public abstract class BaseResult implements Result {
      * @return attribute
      */
     protected abstract Object basicGetAttribute(String name);
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder("Result(");
+
+        if (query.requestsKeys()) {
+            sb.append("key=");
+            sb.append(getKey());
+        } else {
+            sb.append("[no key]");
+        }
+
+        sb.append(", ");
+        if (query.requestsValues()) {
+            sb.append("value=");
+            sb.append(getValue());
+        } else {
+            sb.append("[no value]");
+        }
+
+        sb.append(", ");
+        if (!query.requestedAttributes().isEmpty()) {
+            Map<String, String> attrs = new HashMap<String, String>();
+            for (Attribute a : query.requestedAttributes()) {
+                attrs.put(a.getAttributeName(), String.valueOf(getAttribute(a)));
+            }
+
+            sb.append("attributes=" + attrs);
+        } else {
+            sb.append("[no attributes]");
+        }
+
+        sb.append(", ");
+        if (!aggregateResults.isEmpty()) {
+            sb.append("aggregateResults=" + getAggregatorResults());
+        } else {
+            sb.append("[no aggregateResults]");
+        }
+
+        sb.append(")");
+        return sb.toString();
+    }
+
 
 }
