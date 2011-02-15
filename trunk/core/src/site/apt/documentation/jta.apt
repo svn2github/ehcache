@@ -104,7 +104,7 @@ Transactions in Ehcache
 
 ** Considerations when using clustered caches with Terracotta
 
-    For Terracotta clustered caches, <<<transactionalMode>>> can only be used where <<<terracotta consistencyType="strong">>>. Because
+    For Terracotta clustered caches, <<<transactionalMode>>> can only be used where <<<terracotta consistency="strong">>>. Because
     caches can be dynamically changed into consistencyType=eventual mode for bulk loading, any attempt to perform a transaction when this
     is the case will throw a <<<CacheException>>>.
 
@@ -129,7 +129,7 @@ Transactions in Ehcache
     an {XAResouce} implementation. The latter decorates a LocalTransactionStore-decorated cache to make it controllable by the standard JTA API
     instead of the proprietary TransactionController API.
 
-    During it's initialization, the Cache will lookup the TransactionManager using the provided TransactionManagerLookup implementation.
+    During its initialization, the Cache will lookup the TransactionManager using the provided TransactionManagerLookup implementation.
     Then, using the <<<TransactionManagerLookup.register(XAResouce)>>>, the newly created XAResource will be registered.
 
     The store is automatically configured to copy every Element read from the cache or written to it. Cache is copy-on-read and copy-on-write.
