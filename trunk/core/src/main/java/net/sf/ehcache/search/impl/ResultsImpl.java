@@ -52,11 +52,17 @@ public class ResultsImpl implements Results {
         this.results = Collections.unmodifiableList(results);
     }
 
+    @Override
+    public String toString() {
+        return "Results(size=" + size() + ", hasKeys=" + hasKeys() + ", hasValues=" + hasValues()
+                + ", hasAttributes=" + hasAttributes() + ", hasAggregators=" + hasAggregators() + ")";
+    }
+
     /**
      * {@inheritDoc}
      */
     public void discard() {
-        // no-op
+        // no-op (for now)
     }
 
     /**

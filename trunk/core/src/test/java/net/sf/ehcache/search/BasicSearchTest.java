@@ -318,6 +318,7 @@ public class BasicSearchTest {
             assertTrue(results.hasAggregators());
             assertEquals(1, results.size());
             for (Result result : results.all()) {
+                System.err.println(result); // exercise toString()
                 assertEquals(4, result.getAggregatorResults().get(0));
             }
         }
@@ -533,6 +534,8 @@ public class BasicSearchTest {
         assertTrue(results.hasAttributes());
 
         for (Result result : results.all()) {
+            System.err.println(result.toString()); // exercise toString()
+
             try {
                 result.getKey();
                 fail();
@@ -887,6 +890,8 @@ public class BasicSearchTest {
             assertEquals(4, results.size());
             int ageSum = 0;
             for (Result result : results.all()) {
+                System.err.println(result.toString()); // exercise toString()
+
                 Person p = (Person) result.getValue();
                 ageSum += p.getAge();
                 try {
@@ -927,7 +932,11 @@ public class BasicSearchTest {
 
         Set<Integer> keys = new HashSet<Integer>(Arrays.asList(expectedKeys));
 
+        System.err.println(results.toString()); // call toString() just to make sure it doesn't blow up
+
         for (Result result : results.all()) {
+            System.err.println(result.toString()); // call toString() just to make sure it doesn't blow up
+
             int key = (Integer) result.getKey();
             if (!keys.remove(key)) {
                 throw new AssertionError("unexpected key: " + key);
