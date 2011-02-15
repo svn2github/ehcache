@@ -32,6 +32,7 @@ import net.sf.ehcache.constructs.nonstop.ClusterOperation;
 import net.sf.ehcache.constructs.nonstop.NonstopActiveDelegateHolder;
 import net.sf.ehcache.constructs.nonstop.NonstopTimeoutBehaviorFactory;
 import net.sf.ehcache.search.Attribute;
+import net.sf.ehcache.search.NullResults;
 import net.sf.ehcache.search.Results;
 import net.sf.ehcache.search.attribute.AttributeExtractor;
 import net.sf.ehcache.store.ElementValueComparator;
@@ -130,7 +131,7 @@ public final class NoOpOnTimeoutStore implements NonstopStore {
      * {@inheritDoc}
      */
     public Results executeQuery(StoreQuery query) {
-        return null;
+        return NullResults.INSTANCE;
     }
 
     /**
@@ -367,7 +368,7 @@ public final class NoOpOnTimeoutStore implements NonstopStore {
      * {@inheritDoc}
      */
     public <T> Attribute<T> getSearchAttribute(String attributeName) {
-        return null;
+        return new Attribute(attributeName);
     }
 
     /**
