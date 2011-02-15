@@ -30,6 +30,7 @@ import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.CacheConfigurationListener;
 import net.sf.ehcache.config.TerracottaConfiguration.Consistency;
 import net.sf.ehcache.hibernate.management.impl.BaseEmitterBean;
+import net.sf.ehcache.management.CacheTransactionHelper;
 import net.sf.ehcache.writer.writebehind.WriteBehindManager;
 
 import org.slf4j.Logger;
@@ -198,8 +199,13 @@ public class SampledCache extends BaseEmitterBean implements SampledCacheMBean, 
      * {@inheritDoc}
      */
     public void removeAll() {
-        cache.removeAll();
-        sendNotification(CACHE_CLEARED, getCacheAttributes(), getImmutableCacheName());
+        CacheTransactionHelper.beginTransactionIfNeeded(cache);
+        try {
+            cache.removeAll();
+            sendNotification(CACHE_CLEARED, getCacheAttributes(), getImmutableCacheName());
+        } finally {
+            CacheTransactionHelper.commitTransactionIfNeeded(cache);
+        }
     }
 
     /**
