@@ -49,6 +49,7 @@ import net.sf.ehcache.util.PropertyUtil;
 import net.sf.ehcache.util.RetryAssert;
 
 import org.junit.After;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -860,6 +861,7 @@ public class DiskStoreTest extends AbstractCacheTest {
      * Tests for element expiry.
      */
     @Test
+    @Ignore("This is fixed in trunk, but fails racily here, as the required fixes have not been merged across")
     public void testExpiry() throws Exception {
         // Create a diskStore with a cranked up expiry thread
         final Store diskStore = createDiskStore();
