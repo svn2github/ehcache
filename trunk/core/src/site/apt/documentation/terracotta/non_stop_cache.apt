@@ -20,8 +20,8 @@ Nonstop default values:
 <cache name="four" maxElementsInMemory="10000" eternal="true"
 	overflowToDisk="false">
 	<terracotta clustered="false">
-		<nonstop enabled="true" immediateTimeout="true" timeoutMillis="5000">
-			<timeoutBehavior type="exception" />       null | localReads
+		<nonstop enabled="true" immediateTimeout="false" timeoutMillis="30000">
+			<timeoutBehavior type="exception" />       noop | localReads
 		</nonstop>
 	</terracotta>
 </cache>
@@ -77,7 +77,7 @@ held in the local cache is discarded. All locks are discarded. This is transpare
 
 Prior to an L1
 
-Rejoin if set to true, will continously try to rejoin.     rejoin=true is the default.
+Rejoin if set to true, will continously try to rejoin.     rejoin=false is the default.
 
 Prior to this an L1 could not reconnect without restarting the app server with the L1 in it.
 
