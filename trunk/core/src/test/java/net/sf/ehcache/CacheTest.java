@@ -749,20 +749,23 @@ public class CacheTest extends AbstractCacheTest {
         cache.put(new Element("key1", "value1"));
         cache.put(new Element("key2", "value1"));
 
+        //Allow disk write thread to do it's thing...
+        Thread.sleep(100);
+
         Element element1 = cache.get("key1");
-        assertEquals("Should be one", 1, element1.getHitCount());
-        assertEquals("Should be one", 1, cache.getStatistics().getCacheHits());
+        assertEquals("Cache hit count", 1, cache.getStatistics().getCacheHits());
+        assertEquals("Element hit count", 1, element1.getHitCount());
         element1 = cache.getQuiet("key1");
-        assertEquals("Should be one", 1, element1.getHitCount());
-        assertEquals("Should be one", 1, cache.getStatistics().getCacheHits());
+        assertEquals("Cache hit count", 1, cache.getStatistics().getCacheHits());
+        assertEquals("Element hit count", 1, element1.getHitCount());
         element1 = cache.get("key1");
-        assertEquals("Should be two", 2, element1.getHitCount());
-        assertEquals("Should be two", 2, cache.getStatistics().getCacheHits());
+        assertEquals("Cache hit count", 2, cache.getStatistics().getCacheHits());
+        assertEquals("Element hit count", 2, element1.getHitCount());
 
 
-        assertEquals("Should be 0", 0, cache.getStatistics().getCacheMisses());
+        assertEquals("Cache miss count", 0, cache.getStatistics().getCacheMisses());
         cache.get("doesnotexist");
-        assertEquals("Should be 1", 1, cache.getStatistics().getCacheMisses());
+        assertEquals("Cache miss count", 1, cache.getStatistics().getCacheMisses());
 
 
     }
