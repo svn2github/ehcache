@@ -39,7 +39,7 @@ Distributed and Replicated Caching
      team has invested million of hours developing Ehcache and its distributed
      cache capabilities.
 
-     To get started, see the {{{./distributed_caching_with_terracotta.html}Distributed Caching With Terracotta chapter}}. 
+     To get started, see the {{{./terracotta/distributed_caching_with_terracotta.html}Distributed Caching With Terracotta chapter}}.
 
 * Replicated Caching
 

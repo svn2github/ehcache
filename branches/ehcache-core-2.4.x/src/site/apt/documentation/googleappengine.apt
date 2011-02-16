@@ -4,9 +4,6 @@
 
 {Google App Engine} Caching
 
-%{toc|fromDepth=2|toDepth=2}
-
-
 *   Using Ehcache on Google App Engine (GAE)
 
     The ehcache-googleappengine module combines the speed of Ehcache with the scale of Google's memcache

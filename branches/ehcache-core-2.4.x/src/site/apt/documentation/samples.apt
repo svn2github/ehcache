@@ -40,8 +40,6 @@ Recipes
 
 Code Samples
 
-%{toc|fromDepth=2|toDepth=3}
-
 * {Using the CacheManager}
 
  All usages of Ehcache start with the creation of a CacheManager.
@@ -434,7 +432,7 @@ int hits = cache.getMissCountExpired();
 
 **  Terracotta Example
 
-    See the fully worked examples in the {{{./distributed_caching_with_terracotta.html}Terracotta Clustering}} Chapter.
+    See the fully worked examples in the {{{./terracotta/distributed_caching_with_terracotta.html}Terracotta Clustering}} Chapter.
 
 * Cache Statistics and Monitoring
 

@@ -781,85 +781,73 @@ used with JMX monitors.
     It is configured as per the following example:
 
         <cacheDecoratorFactory
-			class="net.sf.ehcache.constructs.nonstop.NonStopCacheDecoratorFactory"
-			properties="name=localReadsCacheDecorator, timeoutBehavior=localReads ..." />
+			class="com.company.DecoratedCacheFactory"
+			properties="property1=true ..." />
 
-    Terracotta Clustering
-    +++++++++++++++++++++
+    Distributed Caching with Terracotta
+    +++++++++++++++++++++++++++++++++++
 
-    Cache elements can also contain information about whether the cache can be clustered with Terracotta.
-    The <terracotta> sub-element has the following sub-elements:
-    
-    * Nonstop: Nonstop caches can be configured for Terracotta clustered caches. Sample:
-    	<cache name="terracottaClusteredCache">
-    		<terracotta>
-    			<nonstop enabled="true" immediateTimeout="true" timeoutMillis="15000">
-    				<timeoutBehavior type="exception" />
-                        </nonstop>
-    		</terracotta>
-    	</cache>
-    	All attributes and the sub-element "timeoutBehavior" are optional. Nonstop is enabled by default for 
-    	Terracotta Clustered Caches. Please refer to Nonstop documentation on how to use nonstop.
-    	
+    Distributed Caches connect to a Terracotta Server Array. They are configured with the <terracotta> sub-element.
+
     The <terracotta> sub-element has the following attributes:
 
-    * clustered=true|false - indicates whether this cache should be clustered with Terracotta. By
+    * clustered=true|false - indicates whether this cache should be clustered (distributed) with Terracotta. By
       default, if the <terracotta> element is included, clustered=true.
 
-    * valueMode=serialization|identity - indicates whether this cache should be clustered with
-      serialized copies of the values or using Terracotta identity mode.  By default, values will
-      be cached in serialization mode which is similar to other replicated Ehcache modes.  The identity
-      mode is only available in certain Terracotta deployment scenarios and will maintain actual object
-      identity of the keys and values across the cluster.  In this case, all users of a value retrieved from
-      the cache are using the same clustered value and must provide appropriate locking for any changes
-      made to the value (or objects referred to by the value).
+    * valueMode=serialization|identity - the default is serialization
+
+      Indicates whether cache Elements are distributed with serialized copies or whether a single copy
+      in identity mode is distributed.
+
+      The implications of Identity mode should be clearly understood with reference to the Terracotta
+      documentation before use.
       
     * copyOnRead=true|false - indicates whether cache values are deserialized on every read or if the
       materialized cache value can be re-used between get() calls. This setting is useful if a cache
       is being shared by callers with disparate classloaders or to prevent local drift if keys/values
-      are mutated locally w/o putting back to the cache. NOTE: This setting is only relevant for caches
-      with valueMode=serialization
+      are mutated locally without being put back in the cache.
 
-    * coherent=true|false - This attribute has been deprecated. Use "consistency" attribute instead.
-      To maintain backward compatibility, "true" will translate to "STRONG" consistency and "false" will 
-      translate to "EVENTUAL" consistency.
+      The default is false.
+
+      Note: This setting is only relevant for caches with valueMode=serialization
+
+    * consistency=strong|eventual - Indicates whether this cache should have strong consistency or eventual
+      consistency. The default is strong. See the documentation for the meaning of these terms.
+
+    * synchronousWrites=true|false
+
+      Synchronous writes (synchronousWrites="true")  maximize data safety by blocking the client thread until
+      the write has been written to the Terracotta Server Array.
+
+      This option is only available with consistency=strong. The default is false.
       
-    * consistency=STRONG|EVENTUAL - Indicates whether this cache should have strong consistency or eventually 
-      consistent behavior for changes across the cluster. By default, its value is "EVENTUAL".
-      If this attribute is set to "EVENTUAL", values from the cache are read without locking, possibly yielding
-      stale data for some time. The data will be consistent eventually (usually within a few seconds) across the
-      cluster.
+    * concurrency - the number of segments that will be used by the map underneath the Terracotta Store.
+      Its optional and has default value of 0, which means will use default values based on the internal
+      Map being used underneath the store.
 
-    * synchronousWrites=true|false - When set to true, clustered caches use
-      Terracotta SYNCHRONOUS WRITE locks. Asynchronous writes (synchronousWrites="false") maximize performance by 
-      allowing clients to proceed without waiting for a "transaction received" acknowledgement from the server. 
-      Synchronous writes (synchronousWrites="true")  maximize data safety by requiring that a client receive server 
-      acknowledgement of a transaction before that client can proceed. If coherence mode is disabled using 
-      configuration (coherent="false") or through the coherence API, only asynchronous writes can occur 
-      (synchronousWrites="true" is ignored). By default this value is false (i.e. clustered caches use normal
-       Terracotta WRITE locks).
-    
-    * storageStrategy=classic|DCV2 - Can be used to configure how the key/values of the cache are stored. The key/values
-      can be stored locally in the vm or stored in the Terracotta Server Array. "classic" value for the attribute stores 
-      the key/values in the local vm and using "DCV2" stores it in the Terracotta Server Array. This attribute is 
-      optional and default value is "classic"
-      
-    * concurrency - A non-negative integer that can be used to specify the number of segments that will be used by the map 
-      underneath the Terracotta Store. Its optional and has default value of 0, which means will use default values based
-      on the internal Map being used underneath the store. This value cannot be changed programmatically once cache is initialized.
+      This value cannot be changed programmatically once a cache is initialized.
 
-   The <terracotta> sub-element also has a nonstop sub-element to allow configuration of non stop or graceful degradation behaviour.
-   It has the following attributes:
+    * storageStrategy=classic|DCV2 - What storage implementation to use. From Ehcache 2.4, the default is DCV2
+      ("Distributed Cache Version 2"). The key functional difference is that DCV2 does not consume local memory
+      for key storage.
 
-   enabled="true" - defaults to true.
 
-   timeoutMillis - An SLA setting, so that if the cache operation takes longer than the allowed ms, it will timeout.
+    The <terracotta> sub-element also has a <nonstop> sub-element to allow configuration of cache behaviour if a distributed
+    cache operation cannot be completed within a set time or in the event of a clusterOffline message.
 
-   immediateTimeout="true|false" - What to do on receipt of a ClusterOffline event indicating that communications with the active Terracotta
-    server are interrupted.
+    From Ehcache 2.4 nonstop behaviour, even if the sub-element is missing, is enabled by default. In earlier versions it was
+    disabled by default.
 
-   timeoutBehavior="noop|exception|localReads" - What to do when a timeout has occurred.
+    It has the following attributes:
 
+    *  enabled="true" - defaults to true.
+
+    *  timeoutMillis - An SLA setting, so that if a cache operation takes longer than the allowed ms, it will timeout.
+
+    *  immediateTimeout="true|false" - What to do on receipt of a ClusterOffline event indicating that communications
+       with the Terracotta Server Array were interrupted.
+
+    *  timeoutBehavior="noop|exception|localReads" - What to do when a timeout has occurred.
 
     Simplest example to indicate clustering:
         <terracotta/>
@@ -871,14 +859,10 @@ used with JMX monitors.
         <terracotta clustered="true" valueMode="identity"/>
         
     To indicate the cache should be clustered using "eventual" consistency mode for better performance :
-        <terracotta clustered="true" consistency="EVENTUAL"/>
+        <terracotta clustered="true" consistency="eventual"/>
     
     To indicate the cache should be clustered using synchronous-write locking level:
         <terracotta clustered="true" synchronousWrites="true"/>
-        
-    To indicate the key/values should be stored in the Terracotta Server Array:
-        <terracotta clustered="true" storageStrategy="DCV2"/>
-        
     -->
 
     <!--

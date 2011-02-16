@@ -132,7 +132,7 @@ public class SampledCache extends BaseEmitterBean implements SampledCacheMBean, 
 
     /**
      * {@inheritDoc}
-     * @deprecated use {@link #setNodeBulkLoadEnabled()} instead
+     * @deprecated use {@link #setNodeBulkLoadEnabled(boolean)} instead
      */
     @Deprecated
     public void setNodeCoherent(boolean coherent) {

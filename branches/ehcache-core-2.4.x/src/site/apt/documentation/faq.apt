@@ -4,9 +4,6 @@
 
 {Frequently Asked Questions}
 
-%{toc|fromDepth=2|toDepth=2}
-
-
 * Does Ehcache run on {JDK1.3}/{JDK1.4}?
 
    Older versions run on 1.3. Ehcache 1.5 runs on 1.4. Ehcache 1.6 required JDK 1.5.

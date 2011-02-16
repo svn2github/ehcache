@@ -29,7 +29,7 @@
 
 * {Dynamically Changing Cache Configuration}
 
-    new_in_2 After a Cache has been started its configuration is not generally changeable. However, since Ehcache 2.0,  certain aspects of
+    After a Cache has been started its configuration is not generally changeable. However, since Ehcache 2.0,  certain aspects of
     cache configuration can modified dynamically at runtime, namely:
 
     * timeToLive
@@ -115,14 +115,9 @@
 
 * {ehcache.xsd}
 
-   Ehcache configuration files must be comply with the Ehcache XML schema, ehcache.xsd, reproduced below.
+   Ehcache configuration files must be comply with the Ehcache XML schema, ehcache.xsd.
 
-   It can also be downloaded from {{http://ehcache.org/ehcache.xsd}}.
-
-%{snippet|file=src/main/config/ehcache.xsd|verbatim=true}
-
-
-
+   It can be downloaded from {{http://ehcache.org/ehcache.xsd}}.
 
 * ehcache-failsafe.xml
 
@@ -202,10 +197,8 @@
      user to configure a separate configuration for multiple CacheManagers with conflicting
      settings.
 
-   The sample ehcache.xml, which is included in the Ehcache distribution is reproduced
-   below. The sample contains full commentary required to configure each element. Further
+   The sample ehcache.xml is included in the Ehcache distribution. It contains full commentary required to configure each element. Further
    information can be found in specific chapters in the Guide.
 
    It can also be downloaded from {{http://ehcache.org/ehcache.xml}}.
 
-%{snippet|file=src/main/config/ehcache.xml|verbatim=true}

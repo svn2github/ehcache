@@ -4,8 +4,6 @@
 
 Ehcache Monitor
 
-%{toc|fromDepth=2|toDepth=2}
-
     This add-on tool for Ehcache provides enterprise-class monitoring and management capabilities for use in both
     development and production. It is intended to help understand and tune cache usage, detect errors, and provide an easy to
     use access point to integrate with production management systems. It also provides administrative functionality such as the
@@ -21,11 +19,6 @@ Ehcache Monitor
     requires JDK 1.5 or 1.6.
 
     Get the {{{http://www.terracotta.org/ehcache.org/download-monitor}Ehcache Monitor}} now.
-
-*   {Demonstration Video}    
-
-%{snippet|file=src/site/include/monitor_preview.html|verbatim=false}
-
 
 *   {Installation And Configuration}
 
@@ -48,6 +41,22 @@ Ehcache Monitor
 
     [[1]] Add the ehcache-probe-<version>.jar to your application classpath (or war file). Do this in the same way you added the
           core ehcache jar to your application.
+
+          If you are Maven based, the probe module is in the Terracotta public repository for easy integration.
+---
+        <repository>
+            <id>terracotta-releases</id>
+            <url>http://www.terracotta.org/download/reflector/releases</url>
+        </repository>
+
+        <dependency>
+         <groupId>org.terracotta</groupId>
+         <artifactId>ehcache-probe</artifactId>
+         <version>[version]</version>
+       </dependency>
+
+---
+
 
     [[2]] Configure Ehcache to communicate with the probe by specifying the class name of the probe, the address (or hostname),
           the port that the monitor will be running on and whether to do memory measurement. This is done by adding the following to ehcache.xml:

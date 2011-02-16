@@ -6,8 +6,6 @@
 
 [images/big_memory.png]
 
-%{toc|fromDepth=2|toDepth=3}
-
     Terracotta {{{http://www.terracotta.org/bigmemory?src=ehcache_off_heap_store}BigMemory}} is an add-on to Enterprise Ehcache
     that permits caches to use an additional type of memory store outside the object heap.
 
@@ -97,7 +95,7 @@ public Cache createOffHeapCache() {
 
 **   Add The License
 
-    The Ehcache Enterprise trial download (available here - {{www.terracotta.org/bigmemory}}) comes with a trial license key
+    The Ehcache Enterprise trial download (available here - {{http://www.terracotta.org/bigmemory}}) comes with a trial license key
     which must be added to activate the off-heap store.
 
     It can be added to the classpath or via a system property.
@@ -170,6 +168,11 @@ public Cache createOffHeapCache() {
 
 
     This kind of problem bit us several times in the past in Linux. Although there's a swappiness kernel parameter that can be set to zero, it is usually not enough to avoid swapping altogether. The only surefire way to avoid any kind of swapping is either (a) disabling the swap partition, with the undesirable consequences which that may bring, or (b) using HugePages, which are always mapped to physical memory and cannot be swapped out to disk.
+
+**   -XX:UseCompressedOops
+
+    This setting applies to the HotSpot JVM. It's use should be considered to make the most efficient use of memory in 64 bit mode.
+    See {{http://wikis.sun.com/display/HotSpotInternals/CompressedOops}} for details.
 
 **  Controlling Overallocation of Memory to the OffHeapStore
 
@@ -428,6 +431,19 @@ public Cache createOffHeapCache() {
 
     This time is incurred only once at startup. The pre-allocation of memory from the OS is one of the reasons
     that runtime performance is so fast.
+
+**  How can I do Maven testing with BigMemory?
+
+    Maven starts java for you. You cannot add the required <<<-XX>>> switch in as a <<<mvn>>> argument.
+
+    Maven provides you with a MAVEN_OPTS environment variable you can use for this on Unix systems.
+
+    e.g. to specify 1GB of MaxDirectMemorySize and then to run jetty:
+
+---
+    export MAVEN_OPTS=-XX:MaxDirectMemorySize=1G
+    mvn jetty:run-war
+---
 
 
 

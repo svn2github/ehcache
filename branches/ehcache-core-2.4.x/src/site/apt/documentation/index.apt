@@ -44,15 +44,15 @@ Documentation - Table of Contents
 
     * {{{./coldfusion.html}Using ColdFusion with Ehcache}}
 
-    * {{{./distributed_caching.html}Distributed and Replicated Caching}}
+    * {{{./cache_topologies.html}Cache Topologies}}
 
-    * {{{./distributed_caching_with_terracotta.html}Distributed Caching With Terracotta}}
+    * {{{./terracotta/distributed_caching_with_terracotta.html}Distributed Caching}}
 
-    * {{{./distributed_caching_with_rmi.html}Replicated Caching With RMI}}
+    * {{{./replicated_caching_with_rmi.html}Replicated Caching With RMI}}
 
-    * {{{./distributed_caching_with_jgroups.html}Replicated Caching With JGroups}}
+    * {{{./replicated_caching_with_jgroups.html}Replicated Caching With JGroups}}
 
-    * {{{./distributed_caching_with_jms.html}Replicated Caching With JMS}}
+    * {{{./replicated_caching_with_jms.html}Replicated Caching With JMS}}
 
     * {{{./shutdown.html}Shutting Down Ehcache}}
 
@@ -84,7 +84,7 @@ Documentation - Table of Contents
 
     * {{{./cache_server.html}Cache Server with SOAP and RESTful Web Services}}
 
-    * {{{./explicitlocking.html}Explicit locking control with Terracotta}}
+    * {{{./explicitlocking.html}Explicit Locking API}}
 
     * {{{./constructs.html}BlockingCache and SelfPopulatingCache}}
 
@@ -93,10 +93,6 @@ Documentation - Table of Contents
     * {{{./grails.html}Grails Caching}}
 
     * {{{./jruby.html}JRuby Caching}}
-
-    * {{{./unlocked_reads_view.html}ehcache-unlockedreadsview}} - Unlocked reads view of a coherent Terracotta cache
-
-    * {{{./non_stop_cache.html}ehcache-nonstopcache}} - Fine-grained control over timeouts and offline events
 
     * {{{./glassfish.html}Glassfish HowTo}}
 
@@ -111,4 +107,4 @@ Documentation - Table of Contents
     * {{{./faq.html}FAQ}}
 
 
-    This content is also available in a {{{/EhcacheUserGuide.html}Single Page HTML User Guide}}.
+    This content is also available in a {{{./EhcacheUserGuide.pdf}Single Page PDF User Guide}}.

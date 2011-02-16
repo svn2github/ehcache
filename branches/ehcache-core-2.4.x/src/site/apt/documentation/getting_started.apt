@@ -49,7 +49,7 @@ Getting Started
 
     * Add a 'terracottaConfig' element to your 'ehcache' stanza in ehcache.xml.
 
-    * See the {{{./distributed_caching_with_terracotta.html}Distributed Caching With Terracotta}} chapter for more information.
+    * See the {{{./terracotta/distributed_caching_with_terracotta.html}Distributed Caching With Terracotta}} chapter for more information.
 
 * Java EE Servlet Caching
 

@@ -62,7 +62,6 @@
             <fileset dir="src/site/apt">
                 <include name="features.apt"/>
                 <include name="samples.apt"/>
-                <include name="nameandlogo.apt"/>
             </fileset>
             <fileset dir="src/site/resources/book"/>
         </copy>
@@ -104,7 +103,6 @@
             <fileset dir="src/site/apt">
                 <include name="features.apt"/>
                 <include name="samples.apt"/>
-                <include name="nameandlogo.apt"/>
             </fileset>
         </copy>
 
@@ -127,52 +125,6 @@
                   spawn="false" failifexecutionfails="true" failonerror="true">
                 <arg value="EhcacheUserGuide.@{extension}"/>
                 <arg value="preface.apt"/>
-                <arg value="introduction.apt"/>
-                <arg value="getting_started.apt"/>
-                <arg value="features.apt"/>
-                <arg value="concepts.apt"/>
-                <arg value="architecture.apt"/>
-                <arg value="configuration.apt"/>
-                <arg value="storage_options.apt"/>
-                <arg value="cache_eviction_algorithms.apt"/>
-                <arg value="samples.apt"/>
-                <arg value="dependencies.apt"/>
-                <arg value="logging.apt"/>
-                <arg value="remotedebugger.apt"/>
-                <arg value="garbage_collection.apt"/>
-                <arg value="jmx.apt"/>
-                <arg value="jta.apt"/>
-                <arg value="monitor.apt"/>
-                <arg value="bulk_loading.apt"/>
-                <arg value="class_loading.apt"/>
-                <arg value="performance_considerations.apt"/>
-                <arg value="cache_decorators.apt"/>
-                <arg value="hibernate.apt"/>
-                <arg value="jdbc.apt"/>
-                <arg value="shutdown.apt"/>
-                <arg value="web_caching.apt"/>
-                <arg value="distributed_caching.apt"/>
-                <arg value="distributed_caching_with_terracotta.apt"/>
-                <arg value="distributed_caching_with_rmi.apt"/>
-                <arg value="distributed_caching_with_jgroups.apt"/>
-                <arg value="distributed_caching_with_jms.apt"/>
-                <arg value="constructs.apt"/>
-                <arg value="cachemanager_event_listeners.apt"/>
-                <arg value="cache_loaders.apt"/>
-                <arg value="cache_event_listeners.apt"/>
-                <arg value="cache_exception_handlers.apt"/>
-                <arg value="cache_extensions.apt"/>
-                <arg value="cache_server.apt"/>
-                <arg value="explicitlocking.apt"/>
-                <arg value="write_through_caching.apt"/>
-                <arg value="openjpa_provider.apt"/>
-                <arg value="grails.apt"/>
-                <arg value="jsr107.apt"/>
-                <arg value="glassfish.apt"/>
-                <arg value="googleappengine.apt"/>
-                <arg value="tomcat.apt"/>
-                <arg value="building.apt"/>
-                <arg value="faq.apt"/>
             </exec>
 
         </sequential>
@@ -194,6 +146,19 @@
             <fileset dir="src/main/config"/>
         </copy>
     </target>
+
+    <target name="copy_image_files" description="Copies the config files to the site">
+        <copy overwrite="true" todir="${build.dir}/generated-site/pdf/EhcacheUserGuide/images">
+            <fileset dir="src/site/resources/images/"/>
+            <fileset dir="src/site/resources/documentation/images/"/>
+        </copy>
+    </target>
+
+
+    <target name="move_pdf" description="Moves the PDF to the site">
+        <move file="${build.dir}/generated-site/pdf/EhcacheUserGuide/EhcacheUserGuide.pdf"  todir="${build.dir}/site/documentation/"/>
+    </target>
+
 
     <target name="unhide_html" description="extra site processing">
 

@@ -1,3 +1,75 @@
+  <h4>2 February 2011: Ehcache User Survey</h4>
+  <p>The results of a comprehensive survey of Ehcache users are now available in
+     a paper entitled "Caching Use Cases in the Enterprise: What You Can Learn
+     from Hundreds of Ehcache Users Across the Globe."</p>
+  <p><strong>Key Findings:</strong></p>
+  <ol>
+    <li>The overwhelming majority – 75 percent – of the survey respondents
+      would like to implement a distributed cache to meet their expanding
+      data and performance needs in the next 12-18 months.</li>
+    <li> Using more memory – simply and effectively – is a key driver.  43
+      percent of respondents have servers with 32GB or more of RAM and 11
+      percent were over 64GB.  41 percent reported splitting up their data
+      sets and stacking their JVMs to avoid garbage collection issues.  73
+      percent want to use technology such as BigMemory to remove heap size
+      limitations.</li>
+    <li>Distributed cache usage will encompass a wide range of
+      industries and company sizes. Financial Services, Telco, Healthcare,
+      eCommerce, Gaming and Government stand out as the most demanding in
+      terms of performance, latency and reliability.</li>
+    <li>Distributed caching prospects from the survey use a mix
+      technology of open source and commercial stacks including Tomcat,
+      Hibernate, Spring and Oracle Fusion.</li>
+  </ol>
+  <p>
+        <a href="http://www.terracotta.org/resources/whitepapers/ehcache-user-survey-whitepaper"
+	     title="Ehcache User Survey Whitepaper" target="_blank">Read the
+	     full report on terracotta.org&nbsp;&rsaquo;</a>
+  </p>
+</div>
+<div class="section">
+  <h4>24 December 2010: Fremantle Beta 2 Released</h4>
+  <p>Fremantle Beta 2 is now available. New in Beta 2:</p>
+  <ul>
+    <li>Monitoring of search feature via JMX</li>
+    <li>Search Attribute.ne() functional</li>
+    <li>Ehcache NonStopCache is now in the Terracotta core kit, and in Beta2 is on by default - but does not interact well at Beta time with some existing Ehcache features. See Known Issues and Limitations</li>
+    <li>Ehcache rejoin is is now configurable, it is on by default in BETA2 but dependent on NonStopCache</li>
+    <li>Ehcache Write Behind updates</li>
+    <li>Terracotta Server Array BigMemory enhancement (e.g. better defaults, removal of chunk/segment size restrictions, auto-tuning of chunk and segment sizes, better protection from OOMEs, ...)</li>
+    <li>Quartz Locality (ehcacheConstraint)</li>
+    <li>Configuration based locality is only supported on Trigger groups right now (not on Job groups), wildcards and matchers</li>
+  </ul>
+  <p><a href="http://terracotta.org/beta/">Sign up to get the latest beta&nbsp;&rsaquo;</a></p>
+</div>
+
+<div class="section">
+  <h4>24 November 2010: Fremantle Beta Released</h4>
+  <p>Fremantle is the code name for the next major release of Ehcache and Enterprise Ehcache.<br/>  Notable new features include:</p>
+  <ul>
+    <li>Ehcache Search: a new cache query interface with support for both local and distributed Ehcache configurations</li>
+    <li>High availability: new simple-to-use features to protect against and recover from network problems and node partition failures</li>
+    <li>Additional high-performance transaction modes for ACID operations</li>
+  </ul>
+  <p><a href="http://terracotta.org/beta/">Sign up for the beta and try it now&nbsp;&rsaquo;</a></p>
+</div>
+
+<div class="section">
+ 
+  <h4>9 November 2010: BigMemory for Ehcache GA</h4>
+  <p>
+      BigMemory is an add-on to Enterprise Ehcache that permits caches to use an additional type of memory store
+      outside the object heap. This off-heap store, which is not subject to Java GC, is 100 times faster than the
+      DiskStore and allows very large caches to be created in memory (we have tested this up to 350GB).
+  </p>
+  <p>
+    To download BigMemory, visit <a href="http://www.terracotta.org/dl/download-bigmemory" title="Download BigMemory for Enterprise Ehcache | Terracotta">http://www.terracotta.org/dl/download-bigmemory</a>
+  </p>
+  <p>
+    To find out more about how BigMemory works, visit <a href="/documentation/offheap_store.html">the technical documentation &rsaquo;</a>
+  </p>
+</p></div>
+
 <div class="section"><h4>20 July 2010: Ehcache 2.2 and Enterprise Ehcache 2.2 released</h4>
   <p>Ehcache 2.2 and Enterprise Ehcache 2.2 have been released.  The new
      capabilities in this latest version of Ehcache are focused on improving
@@ -29,8 +101,8 @@
     </ul>
 </div>
 
-<div class="section"><h3>17 May 2010: Ehcache Monitor 1.0 released<a
-        name="a17_May_2010:_Ehcache_Monitor_1.0_released"></a></h3>
+<div class="section"><h4>17 May 2010: Ehcache Monitor 1.0 released<a
+        name="a17_May_2010:_Ehcache_Monitor_1.0_released"></a></h4>
 
     <p>This add-on tool for Ehcache provides enterprise-class monitoring and management
         capabilities for use in both development and production. It is intended to help
@@ -50,10 +122,10 @@
     <p>See the <a href="./documentation/monitor.html">documentation</a> for Ehcache
         Monitor, including a usage video from Ehcache founder Greg Luck, or download <a
                 href="./modules/monitor.html">here</a>.</p></div>
-<div class="section"><h3>17 May 2010: Ehcache 2.1.0 and new ehcache-nonstopcache and
+<div class="section"><h4>17 May 2010: Ehcache 2.1.0 and new ehcache-nonstopcache and
     ehcache-unlockedreadsview betas released<a
             name="a17_May_2010:_Ehcache_2.1.0_and_new_ehcache-nonstopcache_and_ehcache-unlockedreadsview_betas_released"></a>
-</h3>
+</h4>
 
     <p>Ehcache 2.1.0 rounds out Ehcache 2.0. JTA support has been added for standalone
         ehcache. JTA for Hibernate has been added which now means Ehcache supports
@@ -75,18 +147,18 @@
             class="externalLink"
             href="http://dsoguy.blogspot.com/2010/04/ehcache-21-beta-lots-of-stuff-still.html">blog</a>
         article on it.</p></div>
-<div class="section"><h3>22 April 2010: Ehcache 2.1.0-beta, and new ehcache-nonstopcache
+<div class="section"><h4>22 April 2010: Ehcache 2.1.0-beta, and new ehcache-nonstopcache
     and ehcache-unlockedreadsview betas released<a
             name="a22_April_2010:_Ehcache_2.1.0-beta_and_new_ehcache-nonstopcache_and_ehcache-unlockedreadsview_betas_released"></a>
-</h3>
+</h4>
 
     <p>See above.</p></div>
-<div class="section"><h3>10 April 2010: Ehcache 2.0.1 and Ehcache Web 2.0.1 released<a
-        name="a10_April_2010:_Ehcache_2.0.1_and_Ehcache_Web_2.0.1_released"></a></h3>
+<div class="section"><h4>10 April 2010: Ehcache 2.0.1 and Ehcache Web 2.0.1 released<a
+        name="a10_April_2010:_Ehcache_2.0.1_and_Ehcache_Web_2.0.1_released"></a></h4>
 
     <p>New bug fix versions of ehcache and ehcache-web are available.</p></div>
-<div class="section"><h3>23 March 2010: Ehcache Server 1.0 released<a
-        name="a23_March_2010:_Ehcache_Server_1.0_released"></a></h3>
+<div class="section"><h4>23 March 2010: Ehcache Server 1.0 released<a
+        name="a23_March_2010:_Ehcache_Server_1.0_released"></a></h4>
 
     <p>Ehcache Server and Standalone Server have been released to Sourceforge Downloads.
         The server provides RESTful and SOAP APIs to Ehcache. It is available as a WAR
@@ -115,8 +187,8 @@
         be adding their artifacts to the Central repository. This is expected to be
         completed this week or next, so the Maven artifacts will be released then.</p>
 </div>
-<div class="section"><h3>8 March 2010: Ehcache 2.0 released<a
-        name="a8_March_2010:_Ehcache_2.0_released"></a></h3>
+<div class="section"><h4>8 March 2010: Ehcache 2.0 released<a
+        name="a8_March_2010:_Ehcache_2.0_released"></a></h4>
 
     <p>Ehcache 2.0 provides a new <a href="./documentation/hibernate.html">Hibernate 3.3
         SPI caching plugin</a>, <a href="./documentation/jta.html">JTA</a>, <a
@@ -135,12 +207,9 @@
 
     <p>See the <a class="externalLink" href="http://ehcache.org/changes-report.html">changelog</a>
         for complete details of ehcache-core changes.</p>
-
-    <p>To provide an indicator in the documentation on what is new in 2.0, you will this
-        icon: <img src="images/new_in_2.gif" alt="New feature in Ehcache 2.0">.</p>
 </div>
-<div class="section"><h3>3 February 2010: Project Darwin beta released<a
-        name="a3_February_2010:_Project_Darwin_beta_released"></a></h3>
+<div class="section"><h4>3 February 2010: Project Darwin beta released<a
+        name="a3_February_2010:_Project_Darwin_beta_released"></a></h4>
 
     <p>This is a beta release of project Darwin a.k.a Ehcache 2.0.</p>
 
@@ -165,10 +234,10 @@
         for complete details of ehcache-core changes.</p>
 
     <p>A GA release is expected at the beginning of March.</p></div>
-<div class="section"><h3>11 January 2010: ehcache-1.8, ehcache-core-1.7.2 and
+<div class="section"><h4>11 January 2010: ehcache-1.8, ehcache-core-1.7.2 and
     ehcache-terracotta-1.8<a
             name="a11_January_2010:_ehcache-1.8_ehcache-core-1.7.2_and_ehcache-terracotta-1.8"></a>
-</h3>
+</h4>
 
     <p>This is a final GA release of ehcache comprising ehcache, ehcache-core and
         ehcache-terracotta modules.</p>
@@ -182,8 +251,8 @@
     <p>Note: If you experience different caching ergonomics you can enable the <tt>LinkedHashMap</tt>
         based engine with <tt>java -Dnet.sf.ehcache.use.classic.lru=true</tt>. This is
         the engine enabled up to 1.5.</p></div>
-<div class="section"><h3>22 December 2009: Ehcache OpenJPA plugin 0.2 released<a
-        name="a22_December_2009:_Ehcache_OpenJPA_plugin_0.2_released"></a></h3>
+<div class="section"><h4>22 December 2009: Ehcache OpenJPA plugin 0.2 released<a
+        name="a22_December_2009:_Ehcache_OpenJPA_plugin_0.2_released"></a></h4>
 
     <p>Back in July we released the first plugin for OpenJPA. This version brings
         OpenJPA more into line with the Hibernate plugin and more fully implements the
@@ -193,15 +262,15 @@
 
     <p>See <a href="./documentation/openjpa_provider.html">ehcache-openjpa</a>.</p>
 </div>
-<div class="section"><h3>15 December 2009: Ehcache Monitor Beta 2 released<a
-        name="a15_December_2009:_Ehcache_Monitor_Beta_2_released"></a></h3>
+<div class="section"><h4>15 December 2009: Ehcache Monitor Beta 2 released<a
+        name="a15_December_2009:_Ehcache_Monitor_Beta_2_released"></a></h4>
 
     <p>We have had hundreds of people sign up for an play with beta 1 of the Ehcache
         Monitor. We have fixed over 15 bugs in Beta 1 and have released Beta 2. We have
         also created a roadmap for beta 3 which will add significant new features. See
         <a href="./modules/monitor.html">Ehcache Monitor Beta</a>.</p></div>
-<div class="section"><h3>13 December 2009: Ehcache Web 2.0 released<a
-        name="a13_December_2009:_Ehcache_Web_2.0_released"></a></h3>
+<div class="section"><h4>13 December 2009: Ehcache Web 2.0 released<a
+        name="a13_December_2009:_Ehcache_Web_2.0_released"></a></h4>
 
     <p>Ehcache Web has been part of Ehcache for years. In this release the web caching
         is split into its own module. The web module provides a filter based
@@ -212,10 +281,10 @@
         that coherent, terabyte scale web caches can be created.</p>
 
     <p>See <a href="./documentation/web_caching.html">ehcache-web</a>.</p></div>
-<div class="section"><h3>9 December 2009: Ehcache welcomes Grails as a first-class
+<div class="section"><h4>9 December 2009: Ehcache welcomes Grails as a first-class
     supported framework<a
             name="a9_December_2009:_Ehcache_welcomes_Grails_as_a_first-class_supported_framework"></a>
-</h3>
+</h4>
 
     <p>Grails 1.2RC1 and higher use Ehcache as the default Hibernate second level cache.
         However earlier versions of Grails ship with the Ehcache library and are very
@@ -225,10 +294,10 @@
                 href="http://ehcache.org/documentation/grails.html">Grails Chapter</a>
         shows how to configure Grails to use Ehcache and how to tune it for production
         use.</p></div>
-<div class="section"><h3>30 November 2009: New 1.7.1 GA release - ehcache, ehcache-core
+<div class="section"><h4>30 November 2009: New 1.7.1 GA release - ehcache, ehcache-core
     and ehcache-terracotta<a
             name="a30_November_2009:_New_1.7.1_GA_release_-_ehcache_ehcache-core_and_ehcache-terracotta"></a>
-</h3>
+</h4>
 
     <p>This is a final GA release of ehcache-1.7.1 comprising ehcache, ehcache-core and
         ehcache-terracotta modules.</p>
@@ -247,10 +316,10 @@
     <p>Note: If you experience different caching ergonomics you can enable the <tt>LinkedHashMap</tt>
         based engine with <tt>java -Dnet.sf.ehcache.use.classic.lru=true</tt>. This is
         the engine enabled up to 1.5.</p></div>
-<div class="section"><h3>21 November 2009: Greg Luck, founder of ehcache, is in the US
+<div class="section"><h4>21 November 2009: Greg Luck, founder of ehcache, is in the US
     for two months/Roadmap Updated<a
             name="a21_November_2009:_Greg_Luck_founder_of_ehcache_is_in_the_US_for_two_monthsRoadmap_Updated"></a>
-</h3>
+</h4>
 
     <p>Greg Luck, the founder of ehcache and now part of Terracotta, is working out of
         the Terracotta office in San Francisco.</p>
@@ -261,10 +330,10 @@
     <p>There is plenty happening with Ehcache since the injection of Terracotta
         resources. See the newly updated <a href="/roadmap.html">roadmap</a> for
         details.</p></div>
-<div class="section"><h3>13 October 2009: New 1.7.0 releases - ehcache, ehcache-core and
+<div class="section"><h4>13 October 2009: New 1.7.0 releases - ehcache, ehcache-core and
     the new ehcache-terracotta<a
             name="a13_October_2009:_New_1.7.0_releases_-_ehcache_ehcache-core_and_the_new_ehcache-terracotta"></a>
-</h3>
+</h4>
 
     <p>This is a final release of ehcache-1.7.0 comprising ehcache, ehcache-core and
         ehcache-terracotta modules.</p>
@@ -290,17 +359,17 @@
         redesign in this release. As with the 1.6 release, if you experience unexpected
         behaviour you can enable the <tt>LinkedHashMap</tt> based engine with <tt>java
             -Dnet.sf.ehcache.use.classic.lru=true</tt>.</p></div>
-<div class="section"><h3>5 October 2009: New beta 1.7.0-beta releases - ehcache,
+<div class="section"><h4>5 October 2009: New beta 1.7.0-beta releases - ehcache,
     ehcache-core and the new ehcache-terracotta<a
             name="a5_October_2009:_New_beta_1.7.0-beta_releases_-_ehcache_ehcache-core_and_the_new_ehcache-terracotta"></a>
-</h3>
+</h4>
 
     <p>This is a beta release of ehcache-1.7.0 comprising ehcache, ehcache-core and
         ehcache-terracotta modules.</p></div>
-<div class="section"><h3>29 September 2009: Subversion, JIRA, Forums and Mailing List
+<div class="section"><h4>29 September 2009: Subversion, JIRA, Forums and Mailing List
     migrated to Terracotta Infrastructure<a
             name="a29_September_2009:_Subversion_JIRA_Forums_and_Mailing_List_migrated_to_Terracotta_Infrastructure"></a>
-</h3>
+</h4>
 
     <p>As announced at the time of acquisition, Subversion, JIRA, Forums and Mailing
         List have now been migrated to Terracotta Infrastructure. Please check the site
@@ -308,8 +377,8 @@
 
     <p>File and Maven released will be made to SourceForge and Sonatype/Central for a
         fortcoming 1.7 release.</p></div>
-<div class="section"><h3>23 August 2009: Ehcache Core 1.6.2 released<a
-        name="a23_August_2009:_Ehcache_Core_1.6.2_released"></a></h3>
+<div class="section"><h4>23 August 2009: Ehcache Core 1.6.2 released<a
+        name="a23_August_2009:_Ehcache_Core_1.6.2_released"></a></h4>
 
     <p>This is a production maintenance release of ehcache-1.6. Users of 1.6 should
         upgrade to 1.6.2.</p>
@@ -325,8 +394,8 @@
 
     <p>For those still wishing to use the old engine it can be turned on at runtime
         using <tt>java -Dnet.sf.ehcache.use.classic.lru=true</tt>.</p></div>
-<div class="section"><h3>18 August 2009: Ehcache joins with Terracotta <a
-        name="a18_August_2009:_Ehcache_joins_with_Terracotta"></a></h3>
+<div class="section"><h4>18 August 2009: Ehcache joins with Terracotta <a
+        name="a18_August_2009:_Ehcache_joins_with_Terracotta"></a></h4>
 
     <p>The Ehcache project is excited to announce Ehcache's merger with Terracotta.</p>
 
@@ -360,8 +429,8 @@
     <p>Greg Luck also has a <a class="externalLink"
                                href="http://gregluck.com/blog/archives/2009/08/ehcache_joins_w.html">blog
         post</a> on the merger.</p></div>
-<div class="section"><h3>14 July: Ehcache-OpenJPA 0.1 released<a
-        name="a14_July:_Ehcache-OpenJPA_0.1_released"></a></h3>
+<div class="section"><h4>14 July: Ehcache-OpenJPA 0.1 released<a
+        name="a14_July:_Ehcache-OpenJPA_0.1_released"></a></h4>
 
     <p>An Ehcache plugin for OpenJPA has been released. It can be easily plugged in to
         OpenJPA to provide familiar ehcache caching. Conceptually the plugin is similar
@@ -376,8 +445,8 @@
     <p>The release is also available on Maven central.</p>
 
     <p>Thanks to Craig Andrews for contributing this plugin.</p></div>
-<div class="section"><h3>17 June 2009: Ehcache 1.6.0 released<a
-        name="a17_June_2009:_Ehcache_1.6.0_released"></a></h3>
+<div class="section"><h4>17 June 2009: Ehcache 1.6.0 released<a
+        name="a17_June_2009:_Ehcache_1.6.0_released"></a></h4>
 
     <p>This production release of ehcache-1.6 adds bug fixes and massive performance
         improvements. This release contains the changes mooted in February.</p>
@@ -407,9 +476,9 @@
             <p>There are no open bugs at time of release.</p></li>
     </ul>
 </div>
-<div class="section"><h3>16 June 2009: Ehcache is now compatible with Google App
+<div class="section"><h4>16 June 2009: Ehcache is now compatible with Google App
     Engine<a name="a16_June_2009:_Ehcache_is_now_compatible_with_Google_App_Engine"></a>
-</h3>
+</h4>
 
     <p>The shipping Ehcache-1.6.0 will be compatible with Google App Engine.</p>
 
@@ -419,8 +488,8 @@
 
     <p>See the extensive <a href="/documentation/googleappengine.html">Google App Engine
         HowTo</a> for configuration, recipes and more.</p></div>
-<div class="section"><h3>12 June 2009: Ehcache 1.6.0-rc1 released<a
-        name="a12_June_2009:_Ehcache_1.6.0-rc1_released"></a></h3>
+<div class="section"><h4>12 June 2009: Ehcache 1.6.0-rc1 released<a
+        name="a12_June_2009:_Ehcache_1.6.0-rc1_released"></a></h4>
 
     <p>The first release candidate of the ehcache-1.6, with its new higher performance
         engine. This version has benefited from production use of beta5. At date of
@@ -436,8 +505,8 @@
         documentation is <a class="externalLink"
                             href="http://ehcache.org/documentation">here</a>. The
         release is also available on Maven central.</p></div>
-<div class="section"><h3>10 May 2009: Ehcache 1.6 core beta 5 released<a
-        name="a10_May_2009:_Ehcache_1.6_core_beta_5_released"></a></h3>
+<div class="section"><h4>10 May 2009: Ehcache 1.6 core beta 5 released<a
+        name="a10_May_2009:_Ehcache_1.6_core_beta_5_released"></a></h4>
 
     <p>This beta release of ehcache-1.6 adds bug fixes and massive performance
         improvements. This release contains the changes mooted in February.</p>
@@ -471,8 +540,8 @@
             </p></li>
     </ul>
 </div>
-<div class="section"><h3>10 May 2009: New Ehcache Maven repo<a
-        name="a10_May_2009:_New_Ehcache_Maven_repo"></a></h3>
+<div class="section"><h4>10 May 2009: New Ehcache Maven repo<a
+        name="a10_May_2009:_New_Ehcache_Maven_repo"></a></h4>
 
     <p>The primary Ehcache repo has been migrated, with all history to <a
             class="externalLink"
@@ -482,17 +551,17 @@
         repository. See <a class="externalLink"
                            href="http://gregluck.com/blog/archives/2009/05/anyone_with_a_p.html">Greg
             Luck's blog</a> for the full details.</p></div>
-<div class="section"><h3>20 April 2009: Ehcache 1.6-beta4 withdrawn<a
-        name="a20_April_2009:_Ehcache_1.6-beta4_withdrawn"></a></h3>
+<div class="section"><h4>20 April 2009: Ehcache 1.6-beta4 withdrawn<a
+        name="a20_April_2009:_Ehcache_1.6-beta4_withdrawn"></a></h4>
 
     <p>Ehcache 1.6-beta4 has been marked as inactive on SourceForge. In extensive
         testing last week a very rare concurrency issue was found in the new
         high-performance threading code. A specific test has been created which reliably
         reproduces the issue. Will re-release once this as fixed under beta5.</p></div>
-<div class="section"><h3>11 April 2009: Ehcache Server and Ehcache Web updates
+<div class="section"><h4>11 April 2009: Ehcache Server and Ehcache Web updates
     released<a
             name="a11_April_2009:_Ehcache_Server_and_Ehcache_Web_updates_released"></a>
-</h3>
+</h4>
 
     <p>Ehcache Server, Standalone Server and Ehcache Web have been released to Maven
         Central and Sourceforge Downloads.</p>
@@ -516,8 +585,8 @@
 
     <p>A note on naming. With Ehcache fully modularised, each module has its own release
         cycle which may or may not correspond with the Ehcache core releases.</p></div>
-<div class="section"><h3>7 April 2009: Ehcache 1.6.0-beta4 released<a
-        name="a7_April_2009:_Ehcache_1.6.0-beta4_released"></a></h3>
+<div class="section"><h4>7 April 2009: Ehcache 1.6.0-beta4 released<a
+        name="a7_April_2009:_Ehcache_1.6.0-beta4_released"></a></h4>
 
     <p>This beta release of ehcache-1.6.0 adds bug fixes and dramatic performance
         improvements.</p>
@@ -530,20 +599,20 @@
         All documentation is <a class="externalLink"
                                 href="http://ehcache.org/documentation">here</a>.</p>
 </div>
-<div class="section"><h3>23 February 2009: Exciting News! Ehcache Core two orders of
+<div class="section"><h4>23 February 2009: Exciting News! Ehcache Core two orders of
     magnitude faster<a
             name="a23_February_2009:_Exciting_News_Ehcache_Core_two_orders_of_magnitude_faster"></a>
-</h3>
+</h4>
 
     <p>With all of the focus on new replication schemes and Cache Server, the core has
         been pretty stable for a while. The forthcoming 1.6.0-beta4 shows off Gets that
         are 92 times faster than Ehcache 1.5. See <a class="externalLink"
                                                      href="http://gregluck.com/blog/archives/2009/02/i_have_been_wai.html">
             Greg Luck's Blog</a> for some amazing charts.</p></div>
-<div class="section"><h3>28 January 2009: New releases which break JCache into its own
+<div class="section"><h4>28 January 2009: New releases which break JCache into its own
     module.<a
             name="a28_January_2009:_New_releases_which_break_JCache_into_its_own_module."></a>
-</h3>
+</h4>
 
     <p>A new release of Ehcache core, ehcache-1.6.0-beta3 and the new ehcache-jcache-1.1
         break JCache functionality into its own Maven module and file download.
@@ -561,10 +630,10 @@
         All documentation is <a class="externalLink"
                                 href="http://ehcache.org/documentation">here</a>.</p>
 </div>
-<div class="section"><h3>24 December 2008: New releases of Ehcache, JMS Replication,
+<div class="section"><h4>24 December 2008: New releases of Ehcache, JMS Replication,
     Ehcache Server and Ehcache Standalone Server<a
             name="a24_December_2008:_New_releases_of_Ehcache_JMS_Replication_Ehcache_Server_and_Ehcache_Standalone_Server"></a>
-</h3>
+</h4>
 
     <p>Releases of minor bug fixes and features aimed at perfecting JMS Replication,
         including as used from Ehcache Server.</p>
@@ -574,8 +643,8 @@
         All documentation is <a class="externalLink"
                                 href="http://ehcache.org/documentation">here</a>.</p>
 </div>
-<div class="section"><h3>21 October 2008: ehcache-jgroupsreplication-0.1 released<a
-        name="a21_October_2008:_ehcache-jgroupsreplication-0.1_released"></a></h3>
+<div class="section"><h4>21 October 2008: ehcache-jgroupsreplication-0.1 released<a
+        name="a21_October_2008:_ehcache-jgroupsreplication-0.1_released"></a></h4>
 
     <p>This is the second release of JGroups replication. This release moves it to its
         own module. It contains some performance improvements.</p>
@@ -587,8 +656,8 @@
         The documentation is <a class="externalLink"
                                 href="http://ehcache.org/documentation/distributed_caching_with_jgroups.html">here</a>.
     </p></div>
-<div class="section"><h3>18 October 2008: Ehcache 1.6-beta1 released.<a
-        name="a18_October_2008:_Ehcache_1.6-beta1_released."></a></h3>
+<div class="section"><h4>18 October 2008: Ehcache 1.6-beta1 released.<a
+        name="a18_October_2008:_Ehcache_1.6-beta1_released."></a></h4>
 
     <p>The 1.6 release is a cleanup release which sets the foundation for future
         development. It updates the required Java version to 1.5, removes consequently
@@ -608,8 +677,8 @@
         The documentation is <a class="externalLink"
                                 href="http://ehcache.org/documentation//src/site/apt/documentation/">here</a>.
     </p></div>
-<div class="section"><h3>18 October 2008: ehcache-jmsreplication 0.1 released<a
-        name="a18_October_2008:_ehcache-jmsreplication_0.1_released"></a></h3>
+<div class="section"><h4>18 October 2008: ehcache-jmsreplication 0.1 released<a
+        name="a18_October_2008:_ehcache-jmsreplication_0.1_released"></a></h4>
 
     <p>This is the first release of JMS replication for ehcache. Thanks to Benoit
         Perroud for getting this going with a code contribution.</p>
@@ -634,8 +703,8 @@
         The documentation is <a class="externalLink"
                                 href="http://ehcache.org/documentation//src/site/apt/documentation/distributed_caching_with_jms.html">here</a>.
     </p></div>
-<div class="section"><h3>16 October 2008: ehcache-server 0.5 released<a
-        name="a16_October_2008:_ehcache-server_0.5_released"></a></h3>
+<div class="section"><h4>16 October 2008: ehcache-server 0.5 released<a
+        name="a16_October_2008:_ehcache-server_0.5_released"></a></h4>
 
     <p>This release of the SOAP and RESTful cache serverconsolidates minor changes and
         improvements based on feedback from users , since the 0.1 release. The release
@@ -647,8 +716,8 @@
         The documentation is <a class="externalLink"
                                 href="http://ehcache.org/documentation/cache_server.html">here</a>.
     </p></div>
-<div class="section"><h3>18 August 2008: Ehcache 1.6 development underway<a
-        name="a18_August_2008:_Ehcache_1.6_development_underway"></a></h3>
+<div class="section"><h4>18 August 2008: Ehcache 1.6 development underway<a
+        name="a18_August_2008:_Ehcache_1.6_development_underway"></a></h4>
 
     <p>Ehcache-1.6 development is underway.</p>
 
@@ -675,8 +744,8 @@
         </p></li>
     </ul>
 </div>
-<div class="section"><h3>11 August 2008: Ehcache 1.5 Book released on Lulu.com<a
-        name="a11_August_2008:_Ehcache_1.5_Book_released_on_Lulu.com"></a></h3>
+<div class="section"><h4>11 August 2008: Ehcache 1.5 Book released on Lulu.com<a
+        name="a11_August_2008:_Ehcache_1.5_Book_released_on_Lulu.com"></a></h4>
 
     <p>The new edition of the <a class="externalLink"
                                  href="http://www.lulu.com/content/3553390">Ehcache
@@ -684,8 +753,8 @@
         RESTful and SOAP Cache Server.</p>
 
     <p>It is available in downloadable PDF or print versions.</p></div>
-<div class="section"><h3>17 July 2008: ehcache-standalone-server 0.1 released<a
-        name="a17_July_2008:_ehcache-standalone-server_0.1_released"></a></h3>
+<div class="section"><h4>17 July 2008: ehcache-standalone-server 0.1 released<a
+        name="a17_July_2008:_ehcache-standalone-server_0.1_released"></a></h4>
 
     <p>The standalone server provides a ready to go cache server out of the box, using
         the WAR from the ehcache-server module. Unix-based and Windows servers are
@@ -693,8 +762,8 @@
 
     <p>Start it with <tt>java -jar ../lib/ehcache-standalone-server-0.1.jar 8080
         ../war</tt> or the jsvc wrapper with <tt>daemon.sh start</tt>.</p></div>
-<div class="section"><h3>12 July 2008: ehcache-server-0.1 released<a
-        name="a12_July_2008:_ehcache-server-0.1_released"></a></h3>
+<div class="section"><h4>12 July 2008: ehcache-server-0.1 released<a
+        name="a12_July_2008:_ehcache-server-0.1_released"></a></h4>
 
     <p>This is the first version of an Ehcache W3C Web Services server, packaged as a
         WAR. This version is made available for testing. See the <a class="externalLink"
@@ -705,8 +774,8 @@
                                                           href="http://ehcache.org/wsdl/EhcacheWebServiceEndpointService.wsdl">EhcacheWebServiceEndpointService.wsdl</a>
         and a RESTful, resource oriented API. This release provides a feature-complete
         soap API. The RESTful API is not yet feature complete.</p></div>
-<div class="section"><h3>12 July 2008: ehcache-1.5.0 released<a
-        name="a12_July_2008:_ehcache-1.5.0_released"></a></h3>
+<div class="section"><h4>12 July 2008: ehcache-1.5.0 released<a
+        name="a12_July_2008:_ehcache-1.5.0_released"></a></h4>
 
     <p>Ehcache 1.5.0 provides a couple of fixes to changes made in beta1. If you are
         testing 1.5 please use this version.</p>
@@ -774,33 +843,33 @@
         </ul>
     </div>
 </div>
-<div class="section"><h3>7 June 2008: ehcache-1.5.0-beta2 release<a
-        name="a7_June_2008:_ehcache-1.5.0-beta2_release"></a></h3>
+<div class="section"><h4>7 June 2008: ehcache-1.5.0-beta2 release<a
+        name="a7_June_2008:_ehcache-1.5.0-beta2_release"></a></h4>
 
     <p>Ehcache 1.5.0-beta2 provides a couple of fixes to changes made in beta1. If you
         are testing 1.5 please use this version.</p></div>
-<div class="section"><h3>13 May 2008: ehcache-1.5.0-beta1 release<a
-        name="a13_May_2008:_ehcache-1.5.0-beta1_release"></a></h3>
+<div class="section"><h4>13 May 2008: ehcache-1.5.0-beta1 release<a
+        name="a13_May_2008:_ehcache-1.5.0-beta1_release"></a></h4>
 
     <p>Ehcache 1.5.0-beta1 provides a host of new features and a few bug fixes. (See the
         ehcache-1.5.0 final release news item).</p></div>
-<div class="section"><h3>1 March 2008: Ehcache is SourceForge project of the month<a
-        name="a1_March_2008:_Ehcache_is_SourceForge_project_of_the_month"></a></h3>
+<div class="section"><h4>1 March 2008: Ehcache is SourceForge project of the month<a
+        name="a1_March_2008:_Ehcache_is_SourceForge_project_of_the_month"></a></h4>
 
     <p>Ehcache has been honoured as the February 2008 SourceForge project of the month.
         See <a class="externalLink"
                href="http://sourceforge.net/community/index.php/potm-200802/">http://sourceforge.net/community/index.php/potm-200802/</a>.
     </p></div>
-<div class="section"><h3>21 February 2008: ehcache-1.4.1 maintenance release<a
-        name="a21_February_2008:_ehcache-1.4.1_maintenance_release"></a></h3>
+<div class="section"><h4>21 February 2008: ehcache-1.4.1 maintenance release<a
+        name="a21_February_2008:_ehcache-1.4.1_maintenance_release"></a></h4>
 
     <p>The version of Ehcache is a minor maintenance release. The main reason for the
         release was to include ehcache-failsafe.xml which was omitted from the public
         maven repository version. See the <a class="externalLink"
                                              href="http://ehcache.org/changes-report.html#1.4.1">changelog</a>
         for complete details.</p></div>
-<div class="section"><h3>31 January 2008: ehcache-1.4.0 released<a
-        name="a31_January_2008:_ehcache-1.4.0_released"></a></h3>
+<div class="section"><h4>31 January 2008: ehcache-1.4.0 released<a
+        name="a31_January_2008:_ehcache-1.4.0_released"></a></h4>
 
     <p>The final version of ehcache-1.4.0 is available on sourceforge and the Maven
         central repository.</p>
@@ -837,8 +906,8 @@
                 to coincide with ehcache-1.4.0. </p></li>
     </ul>
 </div>
-<div class="section"><h3>1 January 2008: ehcache-1.4-beta2 released<a
-        name="a1_January_2008:_ehcache-1.4-beta2_released"></a></h3>
+<div class="section"><h4>1 January 2008: ehcache-1.4-beta2 released<a
+        name="a1_January_2008:_ehcache-1.4-beta2_released"></a></h4>
 
     <p>The beta 2 version of ehcache-1.4 is available on sourceforge and the Maven
         central repository.</p>
@@ -847,8 +916,8 @@
         introduced in 1.4.0, reported by beta testers. See the <a class="externalLink"
                                                                   href="http://ehcache.org/changes-report.html#1.4.0-beta2">changelog</a>
         for complete details.</p></div>
-<div class="section"><h3>30 November 2007: Ehcache book available<a
-        name="a30_November_2007:_Ehcache_book_available"></a></h3><img
+<div class="section"><h4>30 November 2007: Ehcache book available<a
+        name="a30_November_2007:_Ehcache_book_available"></a></h4><img
         src="images/ehcache_guide.gif" alt="Ehcache Guide &amp; Reference"/>
 
     <p>Ehcache Guide and Reference for the forthcoming 1.4.0 release is available as a
@@ -862,8 +931,8 @@
 
     <p>Buy it from the <a class="externalLink" href="http://stores.lulu.com/ehcache">Ehcache
         Storefront</a> at Lulu Books.</p></div>
-<div class="section"><h3>26 August 2007: ehcache-1.4-beta released<a
-        name="a26_August_2007:_ehcache-1.4-beta_released"></a></h3>
+<div class="section"><h4>26 August 2007: ehcache-1.4-beta released<a
+        name="a26_August_2007:_ehcache-1.4-beta_released"></a></h4>
 
     <p>The beta version of ehcache-1.4 is available on sourceforge and the Maven central
         repository.</p>
@@ -898,8 +967,8 @@
                 for complete details.</p></li>
     </ul>
 </div>
-<div class="section"><h3>11 June 2007: ehcache-1.3 released<a
-        name="a11_June_2007:_ehcache-1.3_released"></a></h3>
+<div class="section"><h4>11 June 2007: ehcache-1.3 released<a
+        name="a11_June_2007:_ehcache-1.3_released"></a></h4>
 
     <p>The next major version of Ehcache has been released.</p>
 
@@ -938,21 +1007,21 @@
                 maintained as the new stable branch.</p></li>
     </ul>
 </div>
-<div class="section"><h3>27 May 2007: ehcache-1.3 beta 3 released<a
-        name="a27_May_2007:_ehcache-1.3_beta_3_released"></a></h3>
+<div class="section"><h4>27 May 2007: ehcache-1.3 beta 3 released<a
+        name="a27_May_2007:_ehcache-1.3_beta_3_released"></a></h4>
 
     <p>This release fixes two bugs and has some minor changes to support third parties
         who are making extensions to ehcache. See See the <a class="externalLink"
                                                              href="http://ehcache.org/changes-report.html#1.3-beta3">changelog</a>
         for details. A final release should be out in the next few weeks.</p></div>
-<div class="section"><h3>22 May 2007: Ehcache Maven repository<a
-        name="a22_May_2007:_Ehcache_Maven_repository"></a></h3>
+<div class="section"><h4>22 May 2007: Ehcache Maven repository<a
+        name="a22_May_2007:_Ehcache_Maven_repository"></a></h4>
 
     <p>Ehcache has a Maven repository for releases at http://ehcache.org/repository. It
         is synchronized with the Maven central repository. New releases will now appear
         in the Maven repository without delay.</p></div>
-<div class="section"><h3>16 May 2007: JSR107 (JCACHE) News<a
-        name="a16_May_2007:_JSR107_JCACHE_News"></a></h3>
+<div class="section"><h4>16 May 2007: JSR107 (JCACHE) News<a
+        name="a16_May_2007:_JSR107_JCACHE_News"></a></h4>
 
     <p>At JavaOne, Greg Luck, the maintainer of ehcache, was appointed as co Spec Lead
         of JSR107, JCACHE.</p>
@@ -960,22 +1029,22 @@
     <p>The expert group has been reenergised and is making progress towards getting a
         spec done. Everyone is welcome to monitor technical discussion on JCACHE at the
         new mailing list - jsr107 AT jsr107.dev.java.net.</p></div>
-<div class="section"><h3>9 May 2007: JavaOne Talk<a
-        name="a9_May_2007:_JavaOne_Talk"></a></h3>
+<div class="section"><h4>9 May 2007: JavaOne Talk<a
+        name="a9_May_2007:_JavaOne_Talk"></a></h4>
 
     <p>TS-6175 - Distributed Caching, Using the JCACHE API and ehcache, Including a Case
         Study was attended by around 1200 people. About 50 people had question. There
         was so much interest that an impromptu Q&amp;A session was held later that day.
         It appears that interest in caching and Ehcache in particular remain very strong
         in the Java community.</p></div>
-<div class="section"><h3>4 May 2007: ehcache-1.3 beta 2 released<a
-        name="a4_May_2007:_ehcache-1.3_beta_2_released"></a></h3>
+<div class="section"><h4>4 May 2007: ehcache-1.3 beta 2 released<a
+        name="a4_May_2007:_ehcache-1.3_beta_2_released"></a></h4>
 
     <p>Ehcache-1.3-beta2 has 7 fixes over beta 1. See the <a class="externalLink"
                                                              href="http://ehcache.org/changes-report.html#1.3-beta2">changelog</a>
         for details.</p></div>
-<div class="section"><h3>9 March 2007: ehcache-1.3 beta released<a
-        name="a9_March_2007:_ehcache-1.3_beta_released"></a></h3>
+<div class="section"><h4>9 March 2007: ehcache-1.3 beta released<a
+        name="a9_March_2007:_ehcache-1.3_beta_released"></a></h4>
 
     <p>New features in 1.3 are:</p>
     <ul>
@@ -991,16 +1060,16 @@
                 for details.</p></li>
     </ul>
 </div>
-<div class="section"><h3>22 February 2007: JavaOne Session.<a
-        name="a22_February_2007:_JavaOne_Session."></a></h3>
+<div class="section"><h4>22 February 2007: JavaOne Session.<a
+        name="a22_February_2007:_JavaOne_Session."></a></h4>
 
     <p>For anyone attending JavaOne 2007 at the Moscone Centre in San Francisco, the
         maintainer of ehcache, Greg Luck, will be presenting a session entitled &quot;Distributed
         Caching, Using the JCACHE API and ehcache, Including a Case Study&quot;. This
         will be a practical session covering much of the recent features added to
         ehcache.</p></div>
-<div class="section"><h3>2 December 2006: ehcache-1.2.4 released<a
-        name="a2_December_2006:_ehcache-1.2.4_released"></a></h3>
+<div class="section"><h4>2 December 2006: ehcache-1.2.4 released<a
+        name="a2_December_2006:_ehcache-1.2.4_released"></a></h4>
 
     <p>This is a candidate for a maintenance release.</p>
 
@@ -1022,8 +1091,8 @@
         months without incident.</p>
 
     <p>Ehcache has no open bugs or patches at the time of release.</p></div>
-<div class="section"><h3>2 September 2006: ehcache-1.2.3 released<a
-        name="a2_September_2006:_ehcache-1.2.3_released"></a></h3>
+<div class="section"><h4>2 September 2006: ehcache-1.2.3 released<a
+        name="a2_September_2006:_ehcache-1.2.3_released"></a></h4>
 
     <p>This is a maintenance release. It contains eight feature requests and 6 bug fixes
         received in the two months since ehcache-1.2.2 was released. See the <a
@@ -1062,8 +1131,8 @@
             are being utilised, leading to fewer undiscovered bugs and a continuing
             evolution of features.</p></div>
 </div>
-<div class="section"><h3>17 July 2006: ehcache-1.2.2 released<a
-        name="a17_July_2006:_ehcache-1.2.2_released"></a></h3>
+<div class="section"><h4>17 July 2006: ehcache-1.2.2 released<a
+        name="a17_July_2006:_ehcache-1.2.2_released"></a></h4>
 
     <p>This is a minor maintenance release to ehcache-1.2.1. It clears all bug reports
         and feature requests received since ehcache-1.2.1 was released. It also includes
@@ -1072,15 +1141,15 @@
     <p>See the <a class="externalLink"
                   href="http://sourceforge.net/project/shownotes.php?release_id=432513&amp;group_id=93232">release
         notes and changelog for details</a>.</p></div>
-<div class="section"><h3>16 July 2006: ehcache-1.2.0-02 released<a
-        name="a16_July_2006:_ehcache-1.2.0-02_released"></a></h3>
+<div class="section"><h4>16 July 2006: ehcache-1.2.0-02 released<a
+        name="a16_July_2006:_ehcache-1.2.0-02_released"></a></h4>
 
     <p>Contains a fix to quickly hand back memory when spooling to disk. See <a
             class="externalLink"
             href="http://gregluck.com/blog/archives/2006/07/tuning_memory_u.html">http://gregluck.com/blog/archives/2006/07/tuning_memory_u.html</a>
         for details on the effect of this change.</p></div>
-<div class="section"><h3>3 July 2006: ehcache-1.2.1 released<a
-        name="a3_July_2006:_ehcache-1.2.1_released"></a></h3>
+<div class="section"><h4>3 July 2006: ehcache-1.2.1 released<a
+        name="a3_July_2006:_ehcache-1.2.1_released"></a></h4>
 
     <p>ehcache-1.2.1 is mostly a maintenance release of ehcache. It focuses on
         simplifying usage of new features and easing the migration path between
@@ -1124,15 +1193,15 @@
         </ul>
     </div>
 </div>
-<div class="section"><h3>3 July 2006: ehcache-1.2.0-01 released<a
-        name="a3_July_2006:_ehcache-1.2.0-01_released"></a></h3>
+<div class="section"><h4>3 July 2006: ehcache-1.2.0-01 released<a
+        name="a3_July_2006:_ehcache-1.2.0-01_released"></a></h4>
 
     <p>Ehcache-1.2.0-01 is a backport of the thread hardening changes to the 1.2.0
         branch. The 1.2.0 release will be supported with backports of other important
         fixes.</p></div>
-<div class="section"><h3>27 June 2006: Ehcache maintainer added to JSR-107 expert
+<div class="section"><h4>27 June 2006: Ehcache maintainer added to JSR-107 expert
     group<a name="a27_June_2006:_Ehcache_maintainer_added_to_JSR-107_expert_group"></a>
-</h3>
+</h4>
 
     <p>Greg Luck, the maintainer of ehcache, has been added to the JSR-107 expert group.
         The plan is to add a JSR-107 compatibility API to ehcache. The benefit to users
@@ -1142,9 +1211,9 @@
     <p>Enabling changes to the Ehcache codebase have been made in the ehcache-1.2.1
         branch (released 3 July). Work on the compatibility API will occur in the 1.3
         branch.</p></div>
-<div class="section"><h3>4 June 2006: ehcache-1.2.1RC <a class="externalLink"
+<div class="section"><h4>4 June 2006: ehcache-1.2.1RC <a class="externalLink"
                                                          href="http://sourceforge.net/project/showfiles.php?group_id=93232">released</a>.<a
-        name="a4_June_2006:_ehcache-1.2.1RC_released."></a></h3>
+        name="a4_June_2006:_ehcache-1.2.1RC_released."></a></h4>
 
     <p>This is a release candidate for ehcache-1.2.1. There are a few very minor bug
         fixes in this release. The main focus is to resolve upgrade difficulties with
@@ -1210,15 +1279,15 @@
                 new features will be complete during this time.</p></li>
     </ul>
 </div>
-<div class="section"><h3>3 June 2006: Printable PDF User Guide for Ehcache available<a
-        name="a3_June_2006:_Printable_PDF_User_Guide_for_Ehcache_available"></a></h3>
+<div class="section"><h4>3 June 2006: Printable PDF User Guide for Ehcache available<a
+        name="a3_June_2006:_Printable_PDF_User_Guide_for_Ehcache_available"></a></h4>
 
     <p>Some people have requested a printable manual for ehcache. Please see<a
             class="externalLink" href="http://ehcache.org/EhcacheUserGuide.pdf">EhcacheUserGuide.pdf</a>
     </p></div>
-<div class="section"><h3>25 April 2006: <a class="externalLink"
+<div class="section"><h4>25 April 2006: <a class="externalLink"
                                            href="http://sourceforge.net/project/showfiles.php?group_id=93232">ehcache-1.2</a>
-    released.<a name="a25_April_2006:_ehcache-1.2_released."></a></h3>
+    released.<a name="a25_April_2006:_ehcache-1.2_released."></a></h4>
 
     <p>After 10 months of development, ehcache-1.2 is released. Thanks to all the
         developers who contributed to the release through feature requests, bug reports
@@ -1262,23 +1331,23 @@
 
     <p>See the <a href="/changes-report.html">changelog</a> for more details on this
         release.</p></div>
-<div class="section"><h3>20 April 2006: Development Roadmap Updated<a
-        name="a20_April_2006:_Development_Roadmap_Updated"></a></h3>
+<div class="section"><h4>20 April 2006: Development Roadmap Updated<a
+        name="a20_April_2006:_Development_Roadmap_Updated"></a></h4>
 
     <p>The roadmap for new development has been updated <a
             href="./roadmap.html">here</a>.</p></div>
-<div class="section"><h3>17 April 2006: ehcache-1.2rc1 released<a
-        name="a17_April_2006:_ehcache-1.2rc1_released"></a></h3>
+<div class="section"><h4>17 April 2006: ehcache-1.2rc1 released<a
+        name="a17_April_2006:_ehcache-1.2rc1_released"></a></h4>
 
     <p>Released ehcache-1.2rc1 to give testers a chance to test recent fixes and fine
         tuning before a final release.</p>
 
     <p>At this point all bugs, support requests and feature requests are closed. Final
         testing is focusing on the distributed caching area.</p></div>
-<div class="section"><h3>8 April 2006: Elements are no longer required to be
+<div class="section"><h4>8 April 2006: Elements are no longer required to be
     Serializable<a
             name="a8_April_2006:_Elements_are_no_longer_required_to_be_Serializable"></a>
-</h3>
+</h4>
 
     <p>Following many requests, Ehcache no longer requires that Elements contain
         Serializable keys and values. Ehcache will gracefully degrade for those
@@ -1289,37 +1358,37 @@
 
     <p>WARNING error messages are logged when an operation cannot be completed because
         the key or value is not Serializable.</p></div>
-<div class="section"><h3>28 March 2006: License changed from Apache 1.1 to Apache 2.0<a
-        name="a28_March_2006:_License_changed_from_Apache_1.1_to_Apache_2.0"></a></h3>
+<div class="section"><h4>28 March 2006: License changed from Apache 1.1 to Apache 2.0<a
+        name="a28_March_2006:_License_changed_from_Apache_1.1_to_Apache_2.0"></a></h4>
 
     <p>The Ehcache 1.2 series from beta5 is released under the Apache 2.0 license.</p>
 </div>
-<div class="section"><h3>26 March 2006: <a class="externalLink"
+<div class="section"><h4>26 March 2006: <a class="externalLink"
                                            href="http://sourceforge.net/project/showfiles.php?group_id=93232">1.2
-    beta 5 released</a>.<a name="a26_March_2006:_1.2_beta_5_released."></a></h3>
+    beta 5 released</a>.<a name="a26_March_2006:_1.2_beta_5_released."></a></h4>
 
     <p>This is a bug fix release which fixes all reported issues in the new 1.2
         features. Developers should be testing this version.</p></div>
-<div class="section"><h3>25 March 2006: Subversion<a
-        name="a25_March_2006:_Subversion"></a></h3>
+<div class="section"><h4>25 March 2006: Subversion<a
+        name="a25_March_2006:_Subversion"></a></h4>
 
     <p>Ehcache is now on Subversion. See the <a href="/source-repository.html">source
         repository page</a> for details.</p></div>
-<div class="section"><h3>17 March 2006: New Site Redesign<a
-        name="a17_March_2006:_New_Site_Redesign"></a></h3>
+<div class="section"><h4>17 March 2006: New Site Redesign<a
+        name="a17_March_2006:_New_Site_Redesign"></a></h4>
 
     <p>Ehcache has outgrown its old web design. This new one is produced using <a
             class="externalLink" href="http://maven.apache.org">Maven 2</a>. Please send
         any feedback on the new site to the <a href="./team-list.html">team</a>.</p>
 </div>
-<div class="section"><h3>14 March 2006: New Mailing List<a
-        name="a14_March_2006:_New_Mailing_List"></a></h3>
+<div class="section"><h4>14 March 2006: New Mailing List<a
+        name="a14_March_2006:_New_Mailing_List"></a></h4>
 
     <p>A new mailing list, ehcache-list@lists.sourceforge.net, has been created for
         Ehcache users and developers. Go <a href="./mail-list.html">here</a> to
         subscribe or to search the archive.</p></div>
-<div class="section"><h3>7 February 2006: Whats New in 1.2<a
-        name="a7_February_2006:_Whats_New_in_1.2"></a></h3>
+<div class="section"><h4>7 February 2006: Whats New in 1.2<a
+        name="a7_February_2006:_Whats_New_in_1.2"></a></h4>
 
     <p>Ehcache-1.2, currently at beta 5, has many new features:</p>
     <ul>
@@ -1361,14 +1430,14 @@
 
     <p>See the <a href="/changes-report.html">changelog</a> for more details on the
         release.</p></div>
-<div class="section"><h3>8 February 2006 Announcing <a class="externalLink"
+<div class="section"><h4>8 February 2006 Announcing <a class="externalLink"
                                                        href="http://sourceforge.net/project/shownotes.php?release_id=392051&amp;amp;group_id=93232">ehcache-1.2beta4</a>.<a
-        name="a8_February_2006_Announcing_ehcache-1.2beta4."></a></h3>
+        name="a8_February_2006_Announcing_ehcache-1.2beta4."></a></h4>
 
     <p>This fixes most reported bugs and has fairly complete documentation.</p></div>
-<div class="section"><h3>27 January 2006 Announcing <a class="externalLink"
+<div class="section"><h4>27 January 2006 Announcing <a class="externalLink"
                                                        href="http://sourceforge.net/project/shownotes.php?release_id=388617&amp;amp;group_id=93232">ehcache-1.2
-    beta 3</a>.<a name="a27_January_2006_Announcing_ehcache-1.2_beta_3."></a></h3>
+    beta 3</a>.<a name="a27_January_2006_Announcing_ehcache-1.2_beta_3."></a></h4>
 
     <p>New features over beta2 are:</p>
     <ul>
@@ -1395,9 +1464,9 @@
         version. Basic documentation of the new features has been completed. Work will
         also continue on providing&amp;nbsp; configuration and coding examples to use&amp;nbsp;
         em.&amp;nbsp; Please promptly report any bugs found.</p></div>
-<div class="section"><h3>16 October 2005 Announcing <a class="externalLink"
+<div class="section"><h4>16 October 2005 Announcing <a class="externalLink"
                                                        href="http://sourceforge.net/project/shownotes.php?release_id=363732">ehcache-1.2
-    beta 2</a>.<a name="a16_October_2005_Announcing_ehcache-1.2_beta_2."></a></h3>
+    beta 2</a>.<a name="a16_October_2005_Announcing_ehcache-1.2_beta_2."></a></h4>
 
     <p>New features over beta1 are:</p>
     <ul>
@@ -1421,8 +1490,8 @@
 
     <p>This version has been comprehensively tested, but has limited production use. It
         is recommended for development usage and testing.</p></div>
-<div class="section"><h3>28 August 2005 Announcing ehcache-1.2 beta 1.<a
-        name="a28_August_2005_Announcing_ehcache-1.2_beta_1."></a></h3>
+<div class="section"><h4>28 August 2005 Announcing ehcache-1.2 beta 1.<a
+        name="a28_August_2005_Announcing_ehcache-1.2_beta_1."></a></h4>
 
     <p>New in this version are two new cache eviction policies: Less Frequently Used
         (LFU) and First In First Out (FIFO). There are also a few minor bug fixes.
@@ -1432,9 +1501,9 @@
         for a dependency on commons-collections 3.1, up from version 2.1. This version
         has been comprehensively tested, but has limited production use. It is
         recommended for development usage only.</p></div>
-<div class="section"><h3>15 August 2005 Announcing <a
+<div class="section"><h4>15 August 2005 Announcing <a
         href="/ehcache-constructs/index.html">ehcache-constructs-0.6</a>.<a
-        name="a15_August_2005_Announcing_ehcache-constructs-0.6."></a></h3>
+        name="a15_August_2005_Announcing_ehcache-constructs-0.6."></a></h4>
 
     <p>A subproject of ehcache, ehcache-constructs builds on top of Ehcache to create
         implementations for common caching patterns. All implementations use Ehcache as
@@ -1443,10 +1512,10 @@
         AsynchronousCommandExecutor, which will asynchronously execute arbitrary
         commands, optionally retrying on a defined array of Exception types a defined
         number of times at a defined interval.</p></div>
-<div class="section"><h3>23 November 2004 <a class="externalLink"
+<div class="section"><h4>23 November 2004 <a class="externalLink"
                                              href="http://sourceforge.net/project/shownotes.php?release_id=271146">
     Ehcache 1.1</a> released.<a name="a23_November_2004__Ehcache_1.1_released."></a>
-</h3>
+</h4>
 
     <p>This version splits out the constructs package into a separate sub-project. This
         simplifies ehcache for those using it in Hibernate or directly. It also moves
@@ -1456,8 +1525,8 @@
     <p>See the release notes and full changelog <a class="externalLink"
                                                    href="http://sourceforge.net/project/shownotes.php?release_id=284863">here</a>.
     </p></div>
-<div class="section"><h3>23 November 2004 Announcing ehcache-constructs-0.5<a
-        name="a23_November_2004_Announcing_ehcache-constructs-0.5"></a></h3>
+<div class="section"><h4>23 November 2004 Announcing ehcache-constructs-0.5<a
+        name="a23_November_2004_Announcing_ehcache-constructs-0.5"></a></h4>
 
     <p>A subproject of ehcache, ehcache-constructs builds on top of Ehcache to create
         implementations for common caching patterns. All implementations use Ehcache as
@@ -1501,10 +1570,10 @@
                 and more.</p></li>
     </ul>
 </div>
-<div class="section"><h3>28 September 2004 <a class="externalLink"
+<div class="section"><h4>28 September 2004 <a class="externalLink"
                                               href="http://sourceforge.net/project/shownotes.php?release_id=271146">
     Ehcache 1.0 released</a>.<a name="a28_September_2004__Ehcache_1.0_released."></a>
-</h3>
+</h4>
 
     <p>This is a major milestone for Ehcache - the 1.0 release. It has several bug fixes
         and a few important new features. They are:</p>
@@ -1527,9 +1596,9 @@
     <p>See the release notes and full changelog <a class="externalLink"
                                                    href="http://sourceforge.net/project/shownotes.php?release_id=271146">here</a>.
     </p></div>
-<div class="section"><h3>15 July 2004 <a class="externalLink"
+<div class="section"><h4>15 July 2004 <a class="externalLink"
                                          href="http://sourceforge.net/project/shownotes.php?release_id=250532">Ehcache
-    0.9 released</a><a name="a15_July_2004_Ehcache_0.9_released"></a></h3>
+    0.9 released</a><a name="a15_July_2004_Ehcache_0.9_released"></a></h4>
 
     <p>This is a large release. It fixes several bugs and adds many new features
         including:</p>
@@ -1559,9 +1628,9 @@
     <p>See the release notes and full changelog <a class="externalLink"
                                                    href="http://sourceforge.net/project/shownotes.php?release_id=250532">here</a>.
     </p></div>
-<div class="section"><h3>15 May 2004 <a class="externalLink"
+<div class="section"><h4>15 May 2004 <a class="externalLink"
                                         href="http://sourceforge.net/project/shownotes.php?release_id=238512">Ehcache
-    0.8 released</a>.<a name="a15_May_2004_Ehcache_0.8_released."></a></h3>
+    0.8 released</a>.<a name="a15_May_2004_Ehcache_0.8_released."></a></h4>
 
     <p>Changes include:</p>
     <ul>
@@ -1576,26 +1645,26 @@
         </li>
     </ul>
 </div>
-<div class="section"><h3>2 Jan 2004 <a class="externalLink"
+<div class="section"><h4>2 Jan 2004 <a class="externalLink"
                                        href="http://sourceforge.net/project/shownotes.php?release_id=202390">Ehcache
-    0.7 released</a>.<a name="a2_Jan_2004_Ehcache_0.7_released."></a></h3>
+    0.7 released</a>.<a name="a2_Jan_2004_Ehcache_0.7_released."></a></h4>
 
     <p>Bug fixes.</p></div>
-<div class="section"><h3>11 Dec 2003 EHCache is made the recommended process cache for
+<div class="section"><h4>11 Dec 2003 EHCache is made the recommended process cache for
     <a href="#hibernate.org">Hibernate</a> 2.1<a
             name="a11_Dec_2003_EHCache_is_made_the_recommended_process_cache_for_Hibernate_2.1"></a>
-</h3></div>
-<div class="section"><h3>8 Dec 2003 <a class="externalLink"
+</h4></div>
+<div class="section"><h4>8 Dec 2003 <a class="externalLink"
                                        href="http://sourceforge.net/project/shownotes.php?release_id=202390">Ehcache
-    0.6 released</a>.<a name="a8_Dec_2003_Ehcache_0.6_released."></a></h3>
+    0.6 released</a>.<a name="a8_Dec_2003_Ehcache_0.6_released."></a></h4>
 
     <p>Bug fixes.</p></div>
-<div class="section"><h3>18 Nov 2003 <a class="externalLink"
+<div class="section"><h4>18 Nov 2003 <a class="externalLink"
                                         href="http://sourceforge.net/forum/forum.php?forum_id=329583">Ehcache
-    0.5 released</a><a name="a18_Nov_2003_Ehcache_0.5_released"></a></h3>
+    0.5 released</a><a name="a18_Nov_2003_Ehcache_0.5_released"></a></h4>
 
     <p>Now supports JDK1.2 and JDK1.3 as well as JKD1.4</p></div>
-<div class="section"><h3>13 Nov 2003 <a class="externalLink"
+<div class="section"><h4>13 Nov 2003 <a class="externalLink"
                                         href="http://sourceforge.net/forum/forum.php?forum_id=328369">Ehcache
-    0.4 released</a>.<a name="a13_Nov_2003_Ehcache_0.4_released."></a></h3></div>
+    0.4 released</a>.<a name="a13_Nov_2003_Ehcache_0.4_released."></a></h4></div>
 

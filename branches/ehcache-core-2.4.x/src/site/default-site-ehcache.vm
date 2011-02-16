@@ -453,8 +453,6 @@
                 <li><a href="http://www.terracotta.org/dl/ehcache-oss-sign-up">Download</a></li>
                 <li><a href="http://ehcache.org/documentation/getting_started.html">Getting Started</a></li>
                 <li><a href="http://ehcache.org/documentation/samples.html">Code Samples</a> </li>
-                <li><a href="http://ehcache.org/evaluation_faq.html">Evaluation FAQ</a></li>
-                <li><a href="http://ehcache.org/benchmarks.html">Benchmarks</a></li>
             </ul>
             <p>&nbsp;</p>
 
@@ -464,28 +462,8 @@
                     <a href="http://www.terracotta.org/ehcache">Enterprise Ehcache&nbsp;&rsaquo;</a></li>
                 <li>
                     <a href="http://www.terracotta.org/support">Support&nbsp;&rsaquo;</a></li>
-                <li><a href="http://ehcache.org/training.html">Training&nbsp;&rsaquo;</a></li>
+                <li><a href="/training.html">Training&nbsp;&rsaquo;</a></li>
             </ul>
-            <p>&nbsp;</p>
-
-            <h4>Training Dates</h4>
-
-            <div id="schedule">
-                <b>US - San Francisco</b>
-                <hr>
-                Dec 2-3, 2010
-                <hr>
-                Feb 4-5, 2011
-                <br>
-                <br>
-                <b>India - Delhi</b>
-		<hr>
-                Dec 2-3, 2010
-                <br>
-                <br>
-                See <a href="http://ehcache.org/training.html">training details</a>.
-
-            </div>
             <p>&nbsp;</p>
 
             <h4>Blogs &amp; Tweets</h4>

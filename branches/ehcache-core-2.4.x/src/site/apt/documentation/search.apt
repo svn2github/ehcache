@@ -4,8 +4,6 @@
 
 Search
 
-%{toc|fromDepth=2|toDepth=2}
-
 * Ehcache Search API
 
     _new_ The Ehcache Search API allows you to execute arbitrarily complex queries against either a standalone cache or a Terracotta
@@ -20,9 +18,6 @@ Results results = cache.createQuery().includeValues()
    .addCriteria(age.eq(32).and(gender.eq("male"))).execute();
 ---
 
-    Note: This feature is in pre-release and will be released with ehcache-core 2.4.0. Maven builds for version 2.4.0-SNAPSHOT are published to
-    {{{http://oss.sonatype.org/content/repositories/sourceforge-snapshots/net/sf/ehcache/}oss.sonatype.org}} and are available there if you
-    would like to try out the standalone implementation.
 
 *  What is searchable?
 
@@ -496,8 +491,8 @@ for (Result result : results.all()) {
 **  Standalone Ehcache
 
     The standalone Ehcache implementation does not use indexes. It uses fast iteration of the cache
-    instead, relying on the very fast access to essentially do the equivalent of a table scan for each
-    query.
+    instead, relying on the very fast access to do the equivalent of a table scan for each
+    query. Each element in the cache is only visited once.
 
     Attributes are not extracted ahead of time. They are done during query execution.
 
@@ -506,10 +501,38 @@ for (Result result : results.all()) {
     Search operations perform in O(n) time.
 
     Checkout {{https://svn.terracotta.org/repo/forge/offHeap-test/}} terracotta_community_login, a Maven-based performance test showing
-    standalone cache performance. This test shows search performance of 10ms per 10,000 entries. The search tends to be CPU bound.
+    standalone cache performance. This test shows search performance of of an average of representative queries at
+    10ms per 10,000 entries. So, a typical query would take 1 second for a 1,000,000 entry cache.
 
     Accordingly, standalone implementation is suitable for development and testing. For production it is recommended to only
     standalone search for caches that are less than 1 million elements.
+
+    Performance of different <<<Criteria>>> vary. For example, here are some queries and their execute times on a 200,000
+    element cache. (Note that these results are all faster than the times given above because they execute a single Criteria).
+
+---
+   final Query intQuery = cache.createQuery();
+   intQuery.includeKeys();
+   intQuery.addCriteria(age.eq(35));
+   intQuery.end();
+
+   Execute Time: 62ms
+
+   final Query stringQuery = cache.createQuery();
+   stringQuery.includeKeys();
+   stringQuery.addCriteria(state.eq("CA"));
+   stringQuery.end();
+
+   Execute Time: 125ms
+
+   final Query iLikeQuery = cache.createQuery();
+   iLikeQuery.includeKeys();
+   iLikeQuery.addCriteria(name.ilike("H*"));
+   iLikeQuery.end();
+
+   Execute Time: 180ms
+---
+
 
 **  Ehcache backed by the Terracotta Server Array
 
