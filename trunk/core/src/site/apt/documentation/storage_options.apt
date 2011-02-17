@@ -13,6 +13,7 @@
    * a DiskStore
 
 
+
 * {Memory Store}
 
      The <<<MemoryStore>>> is always enabled. It is not directly manipulated, but is a component of every cache.
@@ -161,6 +162,22 @@
      log message emitted.
 
 
+**  Enterprise DiskStore
+
+    The commercial version of Ehcache 2.4 introduced an upgraded disk store. Improvements include:
+
+    * Upgraded fragmentation control/management to be the same as offheap
+
+    * No Heap used for fragmentation management or keys
+
+    * Much more predictable write latency up to caches over half a terabyte.
+
+    * SSD aware and optimised.
+
+    Throughput is approximately 110,000 operations/s which translates to around 60MB/sec on a 10k rpm  hard drive
+    with even higher rates on SSD drives, for which the Disk
+
+
 ** Storage
 
 *** Files
@@ -284,12 +301,6 @@
 
      Expiring an element frees its space on the file. This space is available for reuse by new
      elements. The element is also removed from the in-memory index of elements.
-
-    * Speed
-
-     Spool requests are placed in-memory and then asynchronously written to disk. There is one thread per cache. An
-     in-memory index of elements on disk is maintained to quickly resolve
-     whether a key exists on disk, and if so to seek it and read it.
 
     * Serialization
 
