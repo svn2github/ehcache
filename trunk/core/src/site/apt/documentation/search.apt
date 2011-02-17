@@ -21,7 +21,7 @@ Results results = cache.createQuery().includeValues()
 
 *  What is searchable?
 
-    Searches can be performed against Element keys and values, such as creation time.
+    Searches can be performed against Element keys and values.
      
     Element keys and values are made searchable by extracting attributes with supported search types out of the values.
 
@@ -122,6 +122,7 @@ cacheManager.add(test);
         *   java.util.Date
 
         *   java.sql.Date
+
         *   Enum
         
     If an attribute cannot be extracted due to not being found or of being the wrong type an AttributeExtractorException is thrown
@@ -201,9 +202,9 @@ Well-known Attribute Name | Attribute Constant
 </cache>
 ---  
   
-*  Search Query Language
+*  Query API
 
-    Ehcache Search introduces an Object Oriented query language, following DSL principles, which should feel familiar and natural to Java programmers.
+    Ehcache Search introduces a fluent Object Oriented query API, following DSL principles, which should feel familiar and natural to Java programmers.
 
     Here is a simple example:
 
@@ -220,7 +221,6 @@ Results results = query.execute();
 ---
 Results results = cache.createQuery().addCriteria(Query.KEY.eq(35)).execute();
 Results results = cache.createQuery().addCriteria(Query.VALUE.lt(10)).execute();
-Results results = cache.createQuery().addCriteria(Query.VERSION.ge(2)).execute();
 ---
 
     Other attributes are referenced by the names given them in the configuration. E.g.
