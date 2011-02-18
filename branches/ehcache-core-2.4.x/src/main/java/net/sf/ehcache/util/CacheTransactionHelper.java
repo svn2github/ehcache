@@ -14,7 +14,7 @@
  *  limitations under the License.
  */
 
-package net.sf.ehcache.management;
+package net.sf.ehcache.util;
 
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Ehcache;
@@ -26,6 +26,8 @@ import net.sf.ehcache.TransactionController;
  * @author Ludovic Orban
  */
 public class CacheTransactionHelper {
+
+    private static final int XA_STATUS_NO_TRANSACTION = 6;
 
     /**
      * Begin a transaction on the current thread if the cache is configured as transactional,
@@ -86,6 +88,35 @@ public class CacheTransactionHelper {
         } catch (Exception e) {
             e.printStackTrace();
             throw new CacheException("error committing transaction: " + e);
+        }
+    }
+
+    /**
+     * Check if a transaction has begun on the current thread if the cache is configured as
+     * transactional, otherwise always return false.
+     * @param cache the cache to check if a transaction started for
+     * @return true if the cache is transactional and a transaction started, false otherwise
+     * @throws CacheException if anything wrong happens
+     */
+    public static boolean isTransactionStarted(Ehcache cache) throws CacheException {
+        try {
+            switch (cache.getCacheConfiguration().getTransactionalMode()) {
+                case LOCAL:
+                    TransactionController ctrl = cache.getCacheManager().getTransactionController();
+                    return ctrl.getCurrentTransactionContext() != null;
+
+                case XA:
+                case XA_STRICT:
+                    Object tm = ((net.sf.ehcache.Cache) cache).getTransactionManagerLookup().getTransactionManager();
+                    return ((Integer) tm.getClass().getMethod("getStatus").invoke(tm)) != XA_STATUS_NO_TRANSACTION;
+
+                case OFF:
+                default:
+                    return false;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new CacheException("error checking if transaction started: " + e);
         }
     }
 

@@ -20,6 +20,7 @@ import javax.management.NotCompliantMBeanException;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.hibernate.management.impl.EhcacheHibernateMbeanNames;
+import net.sf.ehcache.util.CacheTransactionHelper;
 
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
