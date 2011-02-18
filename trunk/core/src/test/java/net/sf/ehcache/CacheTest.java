@@ -57,6 +57,7 @@ import net.sf.ehcache.loader.DelayingLoader;
 import net.sf.ehcache.loader.ExceptionThrowingLoader;
 import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
 import net.sf.ehcache.store.compound.CompoundStore;
+import net.sf.ehcache.util.TimeUtil;
 
 import org.junit.After;
 import org.junit.Test;
@@ -930,7 +931,7 @@ public class CacheTest extends AbstractCacheTest {
     @Test
     public void testGetSizeAfterExpiry() throws Exception {
         //Set size so the second element overflows to disk.
-        Cache cache = new Cache("test", 1, true, false, 1, 0);
+        Cache cache = new Cache("test", 1, true, false, 1, 0, false, Long.MAX_VALUE);
         manager.addCache(cache);
         cache.put(new Element("key1", "value1"));
         cache.put(new Element("key2", "value1"));
