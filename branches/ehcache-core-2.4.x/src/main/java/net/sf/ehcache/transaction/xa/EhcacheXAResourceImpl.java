@@ -65,7 +65,7 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
     private final ConcurrentMap<Xid, XATransactionContext> xidToContextMap = new ConcurrentHashMap<Xid, XATransactionContext>();
     private final XARequestProcessor processor;
     private volatile Xid currentXid;
-    private volatile int transactionTimeout = DEFAULT_TRANSACTION_TIMEOUT;
+    private volatile int transactionTimeout;
     private final List<XAExecutionListener> listeners = new ArrayList<XAExecutionListener>();
     private final ElementValueComparator comparator;
 
@@ -85,6 +85,7 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
         this.txnManager = txnManagerLookup.getTransactionManager();
         this.softLockFactory = softLockFactory;
         this.processor = new XARequestProcessor(this);
+        this.transactionTimeout = cache.getCacheManager().getTransactionController().getDefaultTransactionTimeout();
         this.comparator = cache.getCacheConfiguration().getElementValueComparatorConfiguration().getElementComparatorInstance();
     }
 
@@ -387,7 +388,7 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
             throw new EhcacheXAException("timeout must be >= 0, was: " + timeout, XAException.XAER_INVAL);
         }
         if (timeout == 0) {
-            this.transactionTimeout = DEFAULT_TRANSACTION_TIMEOUT;
+            this.transactionTimeout = cache.getCacheManager().getTransactionController().getDefaultTransactionTimeout();
         } else {
             this.transactionTimeout = timeout;
         }

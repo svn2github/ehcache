@@ -43,6 +43,10 @@ public final class Configuration {
      */
     public static final boolean DEFAULT_UPDATE_CHECK = true;
     /**
+     * Default value for defaultTransactionTimeoutInSeconds
+     */
+    public static final int DEFAULT_TRANSACTION_TIMEOUT = 15;
+    /**
      * Default value for monitoring
      */
     public static final Monitoring DEFAULT_MONITORING = Monitoring.AUTODETECT;
@@ -70,6 +74,7 @@ public final class Configuration {
 
     private String cacheManagerName;
     private boolean updateCheck = DEFAULT_UPDATE_CHECK;
+    private int defaultTransactionTimeoutInSeconds = DEFAULT_TRANSACTION_TIMEOUT;
     private Monitoring monitoring = DEFAULT_MONITORING;
     private DiskStoreConfiguration diskStoreConfiguration;
     private CacheConfiguration defaultCacheConfiguration;
@@ -147,6 +152,32 @@ public final class Configuration {
      */
     public final boolean getUpdateCheck() {
         return this.updateCheck;
+    }
+
+    /**
+     * Builder to set the default transaction timeout.
+     *
+     * @param defaultTransactionTimeoutInSeconds the default transaction timeout in seconds
+     * @return this configuration instance
+     */
+    public final Configuration defaultTransactionTimeoutInSeconds(int defaultTransactionTimeoutInSeconds) {
+        setDefaultTransactionTimeoutInSeconds(defaultTransactionTimeoutInSeconds);
+        return this;
+    }
+
+    /**
+     * Allows BeanHandler to set the default transaction timeout.
+     */
+    public final void setDefaultTransactionTimeoutInSeconds(int defaultTransactionTimeoutInSeconds) {
+        this.defaultTransactionTimeoutInSeconds = defaultTransactionTimeoutInSeconds;
+    }
+
+    /**
+     * Get default transaction timeout
+     * @return default transaction timeout in seconds
+     */
+    public final int getDefaultTransactionTimeoutInSeconds() {
+        return defaultTransactionTimeoutInSeconds;
     }
 
     /**
