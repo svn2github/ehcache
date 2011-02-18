@@ -345,7 +345,7 @@ public class CacheManager {
         }
 
         TransactionIDFactory transactionIDFactory = createTransactionIDFactory();
-        this.transactionController = new TransactionController(transactionIDFactory);
+        this.transactionController = new TransactionController(transactionIDFactory, configuration.getDefaultTransactionTimeoutInSeconds());
 
         ConfigurationHelper configurationHelper = new ConfigurationHelper(this, localConfiguration);
         configure(configurationHelper);
@@ -1652,6 +1652,6 @@ public class CacheManager {
                     + mbeanRegistrationProvider.getClass().getName(), e);
         }
         // recreate TransactionController with fresh TransactionIDFactory
-        transactionController = new TransactionController(createTransactionIDFactory());
+        transactionController = new TransactionController(createTransactionIDFactory(), configuration.getDefaultTransactionTimeoutInSeconds());
     }
 }

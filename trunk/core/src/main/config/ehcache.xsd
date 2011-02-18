@@ -17,6 +17,7 @@
             <xs:attribute default="true" name="updateCheck" type="xs:boolean" use="optional"/>
             <xs:attribute default="autodetect" name="monitoring" type="monitoringType" use="optional"/>
             <xs:attribute default="true" name="dynamicConfig" type="xs:boolean" use="optional"/>
+            <xs:attribute default="15" name="defaultTransactionTimeoutInSeconds" type="xs:integer" use="optional"/>
         </xs:complexType>
     </xs:element>
     <xs:element name="diskStore">

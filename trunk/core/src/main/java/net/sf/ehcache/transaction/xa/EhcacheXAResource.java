@@ -29,11 +29,6 @@ import javax.transaction.xa.XAResource;
 public interface EhcacheXAResource extends XAResource {
 
     /**
-     * The default transaction timeout in seconds for XA branches
-     */
-    static final int DEFAULT_TRANSACTION_TIMEOUT = 30;
-
-    /**
      * Add a listener which will be called back according to the 2PC lifecycle
      * @param listener the XAExecutionListener
      */

@@ -225,7 +225,8 @@ public class XATransactionStore extends AbstractTransactionStore {
                 timeoutTimestamp = System.currentTimeMillis() + (xaResourceTimeout * MILLISECOND_PER_SECOND);
                 transactionToTimeoutMap.put(transaction, timeoutTimestamp);
             } else if (timeoutTimestamp == null) {
-                timeoutTimestamp = System.currentTimeMillis() + (EhcacheXAResource.DEFAULT_TRANSACTION_TIMEOUT * MILLISECOND_PER_SECOND);
+                int defaultTransactionTimeout = cache.getCacheManager().getTransactionController().getDefaultTransactionTimeout();
+                timeoutTimestamp = System.currentTimeMillis() + (defaultTransactionTimeout * MILLISECOND_PER_SECOND);
                 transactionToTimeoutMap.put(transaction, timeoutTimestamp);
             }
 

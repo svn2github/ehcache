@@ -37,23 +37,24 @@ public final class TransactionController {
 
     private static final Logger LOG = LoggerFactory.getLogger(TransactionController.class.getName());
     private static final String MDC_KEY = "ehcache-txid";
-    private static final int DEFAULT_TRANSACTION_TIMEOUT = 15;
 
     private final ThreadLocal<TransactionID> currentTransactionIdThreadLocal = new ThreadLocal<TransactionID>();
     private final ConcurrentMap<TransactionID, LocalTransactionContext> contextMap =
             new ConcurrentHashMap<TransactionID, LocalTransactionContext>();
     private final TransactionIDFactory transactionIDFactory;
 
-    private volatile int defaultTransactionTimeout = DEFAULT_TRANSACTION_TIMEOUT;
+    private volatile int defaultTransactionTimeout;
 
     private final TransactionControllerStatistics statistics = new TransactionControllerStatistics();
 
     /**
      * Create a TransactionController instance
      * @param transactionIDFactory the TransactionIDFactory
+     * @param defaultTransactionTimeoutInSeconds the default transaction timeout in seconds
      */
-    TransactionController(TransactionIDFactory transactionIDFactory) {
+    TransactionController(TransactionIDFactory transactionIDFactory, int defaultTransactionTimeoutInSeconds) {
         this.transactionIDFactory = transactionIDFactory;
+        this.defaultTransactionTimeout = defaultTransactionTimeoutInSeconds;
     }
 
     /**
