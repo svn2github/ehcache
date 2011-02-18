@@ -57,7 +57,6 @@ import net.sf.ehcache.loader.DelayingLoader;
 import net.sf.ehcache.loader.ExceptionThrowingLoader;
 import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
 import net.sf.ehcache.store.compound.CompoundStore;
-import net.sf.ehcache.util.TimeUtil;
 
 import org.junit.After;
 import org.junit.Test;
