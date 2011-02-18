@@ -16,6 +16,8 @@
 
 package net.sf.ehcache.util;
 
+import net.sf.ehcache.CacheException;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
@@ -39,12 +41,26 @@ public class ProductInfo {
     }
 
     /**
-     * Construct product info object from a resource
+     * Construct product info object from a resource name
      * 
      * @param resource
      */
     public ProductInfo(String resource) {
         parseProductInfo(resource);
+    }
+
+    /**
+     * Construct product info object from a resource input stream
+     *
+     * @param resource
+     * @throws java.io.IOException
+     */
+    public ProductInfo(InputStream resource) {
+        try {
+            props.load(resource);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private void parseProductInfo(String resource) {
@@ -121,6 +137,60 @@ public class ProductInfo {
     public String getPatchLevel() {
         return props.getProperty("patch-level", UNKNOWN);
     }
+
+    /**
+     *
+     * @return required core version
+     */
+    public String getRequiredCoreVersion() {
+        return props.getProperty("required-core-version");
+    }
+
+    /**
+     *
+     * @return true if the current product is an enterprise one
+     */
+    public boolean isEnterprise() {
+        return Boolean.parseBoolean(props.getProperty("enterprise"));
+    }
+
+    /**
+     * Assert that the current product is compatible with the version of ehcache available on the classpath
+     */
+    public void assertRequiredCoreVersionPresent() {
+        boolean ignoreVersionCheck = Boolean.getBoolean("terracotta.ehcache.versioncheck.skip");
+        String requiredCoreVersion = getRequiredCoreVersion();
+        if (ignoreVersionCheck || requiredCoreVersion == null) {
+            // no requirement
+            return;
+        }
+
+        ProductInfo coreProductInfo = new ProductInfo();
+
+        String coreVersion = coreProductInfo.getVersion();
+        if (!coreVersion.equals(requiredCoreVersion)) {
+            String msg = getName() + " version [" + getVersion() + "] only works with ehcache-core version [" +
+                    requiredCoreVersion + "] (found version [" + coreVersion + "] on the classpath). " +
+                    " Please make sure both versions are compatible!";
+            throw new CacheException(msg);
+        }
+
+        boolean coreEe = coreProductInfo.isEnterprise();
+        if (coreEe != isEnterprise()) {
+            String msg;
+            if (!coreEe) {
+                msg = getName() + " can only be used with the Enterprise version of ehcache-core" +
+                    " (found non-ee version [" + coreVersion + "] on the classpath)." +
+                    " Please make sure you are using ehcache-core-ee instead of ehcache-core!";
+            } else {
+                msg = getName() + " can only be used with the Open Source version of ehcache-core" +
+                    " (found ee version [" + coreVersion + "] on the classpath)." +
+                    " Please make sure you are using ehcache-core instead of ehcache-core-ee!";
+            }
+            throw new CacheException(msg);
+        }
+    }
+
 
     /**
      * returns long version of the build string
