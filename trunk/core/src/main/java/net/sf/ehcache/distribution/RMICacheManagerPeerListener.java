@@ -274,7 +274,12 @@ public class RMICacheManagerPeerListener implements CacheManagerPeerListener {
             synchronized (cachePeers) {
                 if (cachePeers.get(name) == null) {
                     if (isDistributed(cache)) {
-                        RMICachePeer peer = new RMICachePeer(cache, hostName, port, remoteObjectPort, socketTimeoutMillis);
+                        RMICachePeer peer;
+                        if (cache.getCacheConfiguration().getTransactionalMode().isTransactional()) {
+                            peer = new TransactionalRMICachePeer(cache, hostName, port, remoteObjectPort, socketTimeoutMillis);
+                        } else {
+                            peer = new RMICachePeer(cache, hostName, port, remoteObjectPort, socketTimeoutMillis);
+                        }
                         cachePeers.put(name, peer);
                     }
                 }
@@ -522,7 +527,11 @@ public class RMICacheManagerPeerListener implements CacheManagerPeerListener {
             RMICachePeer rmiCachePeer = null;
             String url = null;
             try {
-                rmiCachePeer = new RMICachePeer(cache, hostName, port, remoteObjectPort, socketTimeoutMillis);
+                if (cache.getCacheConfiguration().getTransactionalMode().isTransactional()) {
+                    rmiCachePeer = new TransactionalRMICachePeer(cache, hostName, port, remoteObjectPort, socketTimeoutMillis);
+                } else {
+                    rmiCachePeer = new RMICachePeer(cache, hostName, port, remoteObjectPort, socketTimeoutMillis);
+                }
                 url = rmiCachePeer.getUrl();
                 bind(url, rmiCachePeer);
             } catch (Exception e) {
