@@ -22,6 +22,7 @@ import java.util.List;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;
 
+import net.sf.ehcache.util.CacheTransactionHelper;
 import org.jgroups.Address;
 import org.jgroups.Message;
 import org.jgroups.Receiver;
@@ -95,16 +96,27 @@ public class JGroupsCacheReceiver implements Receiver {
      * Have to do a little helper method like this to get around the checkstyle cyclomatic check
      */
     private void safeHandleJGroupNotification(final JGroupEventMessage message) {
+        final String cacheName = message.getCacheName();
+        Ehcache cache = cacheManager.getEhcache(cacheName);
+        boolean started = CacheTransactionHelper.isTransactionStarted(cache);
+        if (!started) {
+            CacheTransactionHelper.beginTransactionIfNeeded(cache);
+        }
+
         try {
             this.handleJGroupNotification(message);
         } catch (Exception e) {
             LOG.error("Failed to handle message " + message, e);
+        } finally {
+            if (!started) {
+                CacheTransactionHelper.commitTransactionIfNeeded(cache);
+            }
         }
     }
     
     private void handleJGroupNotification(final JGroupEventMessage message) {
         final String cacheName = message.getCacheName();
-        
+
         switch (message.getEvent()) {
             case JGroupEventMessage.BOOTSTRAP_REQUEST: {
                 LOG.debug("received bootstrap request:    from {} for cache={}", message.getSerializableKey(), cacheName);
