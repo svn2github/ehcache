@@ -14,25 +14,17 @@
  *  limitations under the License.
  */
 
-package net.sf.ehcache.constructs.nonstop.store;
+package net.sf.ehcache.constructs.nonstop.concurrency;
 
 import net.sf.ehcache.constructs.nonstop.ClusterOperation;
-import net.sf.ehcache.store.TerracottaStore;
 
 /**
- * Interface for nonstop feature
+ * Marker interface for explicit lock operations
  *
  * @author Abhishek Sanoujam
  *
+ * @param <V>
  */
-public interface NonstopStore extends TerracottaStore {
-
-    /**
-     * Execute the {@link ClusterOperation} within this {@link NonstopStore} context.
-     *
-     * @param <V> Return type depending on the {@link ClusterOperation}
-     * @param operation
-     * @return the return value depending on the {@link ClusterOperation}
-     */
-    public <V> V executeClusterOperation(ClusterOperation<V> operation);
+interface ExplicitLockingClusterOperation<V> extends ClusterOperation<V> {
+    //
 }

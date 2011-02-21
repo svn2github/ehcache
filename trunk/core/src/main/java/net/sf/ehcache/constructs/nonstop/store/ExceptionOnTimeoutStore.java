@@ -19,12 +19,10 @@ package net.sf.ehcache.constructs.nonstop.store;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.TimeoutException;
 
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.Status;
-import net.sf.ehcache.concurrent.Sync;
 import net.sf.ehcache.config.TimeoutBehaviorConfiguration.TimeoutBehaviorType;
 import net.sf.ehcache.constructs.nonstop.ClusterOperation;
 import net.sf.ehcache.constructs.nonstop.NonStopCacheException;
@@ -495,34 +493,6 @@ public final class ExceptionOnTimeoutStore implements NonstopStore {
      */
     public Element unsafeGetQuiet(Object key) {
         throw new NonStopCacheException("unsafeGetQuiet() timed out");
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public Sync[] getAndWriteLockAllSyncForKeys(long timeout, Object... keys) throws TimeoutException {
-        throw new NonStopCacheException("getAndWriteLockAllSyncForKeys timed out");
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public Sync[] getAndWriteLockAllSyncForKeys(Object... keys) {
-        throw new NonStopCacheException("getAndWriteLockAllSyncForKeys timed out");
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public Sync getSyncForKey(Object key) {
-        throw new NonStopCacheException("getSyncForKey timed out");
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public void unlockWriteLockForAllKeys(Object... keys) {
-        throw new NonStopCacheException("unlockWriteLockForAllKeys timed out");
     }
 
     /**

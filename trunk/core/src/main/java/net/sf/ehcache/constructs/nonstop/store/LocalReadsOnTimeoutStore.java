@@ -21,12 +21,10 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.TimeoutException;
 
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.Status;
-import net.sf.ehcache.concurrent.Sync;
 import net.sf.ehcache.config.TimeoutBehaviorConfiguration.TimeoutBehaviorType;
 import net.sf.ehcache.constructs.nonstop.ClusterOperation;
 import net.sf.ehcache.constructs.nonstop.NonstopActiveDelegateHolder;
@@ -522,38 +520,7 @@ public class LocalReadsOnTimeoutStore implements NonstopStore {
     /**
      * {@inheritDoc}
      */
-    public Sync[] getAndWriteLockAllSyncForKeys(Object... keys) {
-        // no-op
-        return null;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public Sync[] getAndWriteLockAllSyncForKeys(long timeout, Object... keys) throws TimeoutException {
-        // no-op
-        return null;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public Sync getSyncForKey(Object key) {
-        // no-op
-        return null;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
     public <V> V executeClusterOperation(ClusterOperation<V> operation) {
         return operation.performClusterOperationTimedOut(TimeoutBehaviorType.LOCAL_READS);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public void unlockWriteLockForAllKeys(Object... keys) {
-        // no-op
     }
 }

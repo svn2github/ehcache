@@ -14,25 +14,15 @@
  *  limitations under the License.
  */
 
-package net.sf.ehcache.constructs.nonstop.store;
-
-import net.sf.ehcache.constructs.nonstop.ClusterOperation;
-import net.sf.ehcache.store.TerracottaStore;
+package net.sf.ehcache.constructs.nonstop;
 
 /**
- * Interface for nonstop feature
+ * Exception that can be thrown by Callable's submitted to NonstopExecutorService. The executor service checks for this type of exception
+ * and rethrows as TimeoutException
  *
  * @author Abhishek Sanoujam
  *
  */
-public interface NonstopStore extends TerracottaStore {
-
-    /**
-     * Execute the {@link ClusterOperation} within this {@link NonstopStore} context.
-     *
-     * @param <V> Return type depending on the {@link ClusterOperation}
-     * @param operation
-     * @return the return value depending on the {@link ClusterOperation}
-     */
-    public <V> V executeClusterOperation(ClusterOperation<V> operation);
+public class ThrowTimeoutException extends Exception {
+    // empty
 }
