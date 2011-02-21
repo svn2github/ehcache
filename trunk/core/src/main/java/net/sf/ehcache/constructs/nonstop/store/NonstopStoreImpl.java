@@ -29,6 +29,7 @@ import net.sf.ehcache.Element;
 import net.sf.ehcache.Status;
 import net.sf.ehcache.cluster.CacheCluster;
 import net.sf.ehcache.concurrent.Sync;
+import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.NonstopConfiguration;
 import net.sf.ehcache.config.TimeoutBehaviorConfiguration.TimeoutBehaviorType;
 import net.sf.ehcache.constructs.nonstop.ClusterOperation;
@@ -42,6 +43,7 @@ import net.sf.ehcache.store.Policy;
 import net.sf.ehcache.store.StoreListener;
 import net.sf.ehcache.store.StoreQuery;
 import net.sf.ehcache.store.TerracottaStore;
+import net.sf.ehcache.transaction.manager.TransactionManagerLookup;
 import net.sf.ehcache.writer.CacheWriterManager;
 
 /**
@@ -62,12 +64,18 @@ public class NonstopStoreImpl implements NonstopTimeoutBehaviorStoreResolver, No
      *
      */
     public NonstopStoreImpl(NonstopActiveDelegateHolder nonstopActiveDelegateHolder, CacheCluster cacheCluster,
-            NonstopConfiguration nonstopConfig) {
+                            NonstopConfiguration nonstopConfig, CacheConfiguration.TransactionalMode transactionalMode,
+                            TransactionManagerLookup transactionManagerLookup) {
         this.nonstopActiveDelegateHolder = nonstopActiveDelegateHolder;
         this.nonstopConfig = nonstopConfig;
         this.timeoutBehaviors = new ConcurrentHashMap<TimeoutBehaviorType, NonstopStore>();
 
-        executorServiceStore = new ExecutorServiceStore(nonstopActiveDelegateHolder, nonstopConfig, this, cacheCluster);
+        if (transactionalMode.equals(CacheConfiguration.TransactionalMode.XA_STRICT)) {
+            executorServiceStore = new TransactionalExecutorServiceStore(nonstopActiveDelegateHolder, nonstopConfig,
+                    this, cacheCluster, transactionManagerLookup);
+        } else {
+            executorServiceStore = new ExecutorServiceStore(nonstopActiveDelegateHolder, nonstopConfig, this, cacheCluster);
+        }
     }
 
     /**

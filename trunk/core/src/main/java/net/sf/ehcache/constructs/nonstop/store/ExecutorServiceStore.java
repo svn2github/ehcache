@@ -42,6 +42,7 @@ import net.sf.ehcache.store.ElementValueComparator;
 import net.sf.ehcache.store.Policy;
 import net.sf.ehcache.store.StoreListener;
 import net.sf.ehcache.store.StoreQuery;
+import net.sf.ehcache.store.TerracottaStore;
 import net.sf.ehcache.writer.CacheWriterManager;
 
 /**
@@ -54,9 +55,12 @@ import net.sf.ehcache.writer.CacheWriterManager;
  */
 public class ExecutorServiceStore implements NonstopStore {
 
+    /**
+     * The NonstopConfiguration of the cache using this store
+     */
+    protected final NonstopConfiguration nonstopConfiguration;
     private final NonstopActiveDelegateHolder nonstopActiveDelegateHolder;
     private final NonstopTimeoutBehaviorStoreResolver timeoutBehaviorResolver;
-    private final NonstopConfiguration nonstopConfiguration;
     private final AtomicBoolean clusterOffline = new AtomicBoolean();
 
     /**
@@ -100,11 +104,28 @@ public class ExecutorServiceStore implements NonstopStore {
         return executeWithExecutor(callable, timeoutMillis, true);
     }
 
-    private <V> V executeWithExecutor(final Callable<V> callable) throws CacheException, TimeoutException {
+    /**
+     * Execute call within NonStop executor
+     * @param callable
+     * @param <V>
+     * @return
+     * @throws CacheException
+     * @throws TimeoutException
+     */
+    protected <V> V executeWithExecutor(final Callable<V> callable) throws CacheException, TimeoutException {
         return executeWithExecutor(callable, nonstopConfiguration.getTimeoutMillis(), false);
     }
 
-    private <V> V executeWithExecutor(final Callable<V> callable, final long timeoutMillis) throws CacheException, TimeoutException {
+    /**
+     * Execute call within NonStop executor
+     * @param callable
+     * @param timeoutMillis
+     * @param <V>
+     * @return
+     * @throws CacheException
+     * @throws TimeoutException
+     */
+    protected <V> V executeWithExecutor(final Callable<V> callable, final long timeoutMillis) throws CacheException, TimeoutException {
         return executeWithExecutor(callable, timeoutMillis, false);
     }
 
@@ -121,6 +142,22 @@ public class ExecutorServiceStore implements NonstopStore {
             // rethrow as CacheException
             throw new CacheException(e);
         }
+    }
+
+    /**
+     * Get the underlying Terracotta store
+     * @return the underlying Terracotta store
+     */
+    protected TerracottaStore underlyingTerracottaStore() {
+        return nonstopActiveDelegateHolder.getUnderlyingTerracottaStore();
+    }
+
+    /**
+     * Get the timeout behavior resolver NonstopStore
+     * @return the timeout behavior resolver NonstopStore
+     */
+    protected NonstopStore resolveTimeoutBehaviorStore() {
+        return timeoutBehaviorResolver.resolveTimeoutBehaviorStore();
     }
 
     private void checkForClusterOffline(final long start, final long timeoutMills) throws TimeoutException {

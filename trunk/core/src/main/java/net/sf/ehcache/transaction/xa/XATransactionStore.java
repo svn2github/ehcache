@@ -35,6 +35,7 @@ import net.sf.ehcache.Element;
 import net.sf.ehcache.search.attribute.AttributeExtractor;
 import net.sf.ehcache.store.ElementValueComparator;
 import net.sf.ehcache.store.Store;
+import net.sf.ehcache.store.TerracottaStore;
 import net.sf.ehcache.store.compound.ReadWriteCopyStrategy;
 import net.sf.ehcache.transaction.AbstractTransactionStore;
 import net.sf.ehcache.transaction.SoftLock;
@@ -57,7 +58,7 @@ import org.slf4j.LoggerFactory;
 /**
  * @author Ludovic Orban
  */
-public class XATransactionStore extends AbstractTransactionStore {
+public class XATransactionStore extends AbstractTransactionStore implements TerracottaStore {
 
     private static final Logger LOG = LoggerFactory.getLogger(XATransactionStore.class.getName());
     private static final long MILLISECOND_PER_SECOND = 1000L;
@@ -585,5 +586,58 @@ public class XATransactionStore extends AbstractTransactionStore {
             wrappedExtractors.put(e.getKey(), new TransactionAwareAttributeExtractor(copyStrategy, e.getValue()));
         }
         underlyingStore.setAttributeExtractors(wrappedExtractors);
+    }
+
+
+    /* TerracottaStore methods */
+
+    /**
+     * {@inheritDoc}
+     */
+    public Element unsafeGet(Object key) {
+        if (underlyingStore instanceof TerracottaStore) {
+            return ((TerracottaStore) underlyingStore).unsafeGet(key);
+        }
+        throw new CacheException("underlying store is not an instance of TerracottaStore");
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public Element unsafeGetQuiet(Object key) {
+        if (underlyingStore instanceof TerracottaStore) {
+            return ((TerracottaStore) underlyingStore).unsafeGetQuiet(key);
+        }
+        throw new CacheException("underlying store is not an instance of TerracottaStore");
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public Element unlockedGet(Object key) {
+        if (underlyingStore instanceof TerracottaStore) {
+            return ((TerracottaStore) underlyingStore).unlockedGet(key);
+        }
+        throw new CacheException("underlying store is not an instance of TerracottaStore");
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public Element unlockedGetQuiet(Object key) {
+        if (underlyingStore instanceof TerracottaStore) {
+            return ((TerracottaStore) underlyingStore).unlockedGetQuiet(key);
+        }
+        throw new CacheException("underlying store is not an instance of TerracottaStore");
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public Set getLocalKeys() {
+        if (underlyingStore instanceof TerracottaStore) {
+            return ((TerracottaStore) underlyingStore).getLocalKeys();
+        }
+        throw new CacheException("underlying store is not an instance of TerracottaStore");
     }
 }

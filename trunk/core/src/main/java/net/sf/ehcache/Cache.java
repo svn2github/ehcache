@@ -1013,7 +1013,8 @@ public class Cache implements Ehcache, StoreListener {
                 try {
                     Class<Store> storeClass = ClassLoaderUtil.loadClass(OFF_HEAP_STORE_CLASSNAME);
                     try {
-                        store = (Store) storeClass.getMethod("create", Ehcache.class, String.class).invoke(null, this, diskStorePath);
+                        store = makeXaStrictTransactionalIfNeeded((Store) storeClass.getMethod("create", Ehcache.class, String.class)
+                                .invoke(null, this, diskStorePath), copyStrategy);
                     } catch (NoSuchMethodException e) {
                        throw new CacheException("Cache: " + configuration.getName() + " cannot find static factory" +
                         " method create(Ehcache, String)" +
@@ -1051,8 +1052,9 @@ public class Cache implements Ehcache, StoreListener {
                             + "(<terracotta consistency=\"strong\"/>) or turning off transactions.");
                 }
                 if (getCacheConfiguration().getTransactionalMode().isTransactional()
+                        && !getCacheConfiguration().getTransactionalMode().equals(CacheConfiguration.TransactionalMode.XA_STRICT)
                         && getCacheConfiguration().getTerracottaConfiguration().isNonstopEnabled()) {
-                    LOG.warn("Cache: " + configuration.getName() + " configured both NonStop and transactional."
+                    LOG.warn("Cache: " + configuration.getName() + " configured both NonStop and transactional non xa_strict."
                             + " NonStop features won't work for this cache!");
                 }
                 if ((coherent && consistency == Consistency.EVENTUAL) || (!coherent && consistency == Consistency.STRONG)) {
@@ -1072,7 +1074,7 @@ public class Cache implements Ehcache, StoreListener {
                             "CacheManager should create instances of TerracottaStore for Terracotta Clustered caches instead of - "
                                     + (tempStore == null ? "null" : tempStore.getClass().getName()));
                 }
-                TerracottaStore terracottaStore = (TerracottaStore) tempStore;
+                TerracottaStore terracottaStore = (TerracottaStore) makeXaStrictTransactionalIfNeeded(tempStore, copyStrategy);
 
                 NonstopConfiguration nonstopConfig = getCacheConfiguration().getTerracottaConfiguration().getNonstopConfiguration();
                 // freeze the config whether nonstop is enabled or not
@@ -1088,38 +1090,24 @@ public class Cache implements Ehcache, StoreListener {
             } else {
                 if (useClassicLru && configuration.getMemoryStoreEvictionPolicy().equals(MemoryStoreEvictionPolicy.LRU)) {
                     Store disk = createDiskStore();
-                    store = new LegacyStoreWrapper(new LruMemoryStore(this, disk), disk, registeredEventListeners, configuration);
+                    store = makeXaStrictTransactionalIfNeeded(new LegacyStoreWrapper(
+                            new LruMemoryStore(this, disk), disk, registeredEventListeners, configuration), copyStrategy);
                 } else {
                     if (configuration.isDiskPersistent()) {
-                        store = DiskPersistentStore.create(this, diskStorePath);
+                        store = makeXaStrictTransactionalIfNeeded(DiskPersistentStore.create(this, diskStorePath), copyStrategy);
                     } else if (configuration.isOverflowToDisk()) {
-                        store = OverflowToDiskStore.create(this, diskStorePath);
+                        store = makeXaStrictTransactionalIfNeeded(OverflowToDiskStore.create(this, diskStorePath), copyStrategy);
                     } else {
-                        store = MemoryOnlyStore.create(this, diskStorePath);
+                        store = makeXaStrictTransactionalIfNeeded(MemoryOnlyStore.create(this, diskStorePath), copyStrategy);
                     }
                 }
             }
 
-            if (configuration.isXaStrictTransactional()) {
-                if (transactionManagerLookup.getTransactionManager() == null) {
-                    throw new CacheException("You've configured cache " + cacheManager.getName() + "."
-                                             + configuration.getName() + " to be transactional, but no TransactionManager could be found!");
-                }
-                //set xa enabled
-                if (configuration.isTerracottaClustered()) {
-                    configuration.getTerracottaConfiguration().setCacheXA(true);
-                }
-                SoftLockFactory softLockFactory = cacheManager.createSoftLockFactory(this);
-                TransactionIDFactory transactionIDFactory = cacheManager.createTransactionIDFactory();
-
-                // this xaresource is for initial registration and recovery
-                EhcacheXAResource xaResource = new EhcacheXAResourceImpl(this, store, transactionManagerLookup,
-                        softLockFactory, transactionIDFactory);
-                transactionManagerLookup.register(xaResource);
-
-                this.compoundStore = new XATransactionStore(transactionManagerLookup, softLockFactory, transactionIDFactory, this, store,
-                        copyStrategy);
-            } else if (configuration.isXaTransactional()) {
+            /* note: this isn't part of makeXaStrictTransactionalIfNeeded() as only xa_strict supports NonStop, meaning that only
+             * that transactional store can be wrapped by NonStopStore. Other TX modes have to wrap the NonStop store due to their
+             * lack of NonStop support (ie: lack of transaction context suspension/resuming).
+             */
+            if (configuration.isXaTransactional()) {
                 SoftLockFactory softLockFactory = cacheManager.createSoftLockFactory(this);
                 LocalTransactionStore localTransactionStore = new LocalTransactionStore(getCacheManager().getTransactionController(),
                         softLockFactory, this, store, copyStrategy);
@@ -1186,6 +1174,38 @@ public class Cache implements Ehcache, StoreListener {
             LOG.warn("Cache: " + configuration.getName() + " is disabled because the " + NET_SF_EHCACHE_DISABLED
                     + " property was set to true. No elements will be added to the cache.");
         }
+    }
+
+    /*
+     * Note: this method could be used for xa and local tx modes as well if they supported NonStop
+     */
+    private Store makeXaStrictTransactionalIfNeeded(Store clusteredStore, ReadWriteCopyStrategy<Element> copyStrategy) {
+        Store wrappedStore;
+
+        if (configuration.isXaStrictTransactional()) {
+            if (transactionManagerLookup.getTransactionManager() == null) {
+                throw new CacheException("You've configured cache " + cacheManager.getName() + "."
+                                         + configuration.getName() + " to be transactional, but no TransactionManager could be found!");
+            }
+            //set xa enabled
+            if (configuration.isTerracottaClustered()) {
+                configuration.getTerracottaConfiguration().setCacheXA(true);
+            }
+            SoftLockFactory softLockFactory = cacheManager.createSoftLockFactory(this);
+            TransactionIDFactory transactionIDFactory = cacheManager.createTransactionIDFactory();
+
+            // this xaresource is for initial registration and recovery
+            EhcacheXAResource xaResource = new EhcacheXAResourceImpl(this, clusteredStore, transactionManagerLookup,
+                    softLockFactory, transactionIDFactory);
+            transactionManagerLookup.register(xaResource);
+
+            wrappedStore = new XATransactionStore(transactionManagerLookup, softLockFactory, transactionIDFactory, this, clusteredStore,
+                    copyStrategy);
+        } else {
+            wrappedStore = clusteredStore;
+        }
+
+        return wrappedStore;
     }
 
     private CacheCluster getCacheCluster() {
@@ -3894,7 +3914,8 @@ public class Cache implements Ehcache, StoreListener {
                     throw new AssertionError("Nonstop is not enabled");
                 }
                 nonstopStore = new NonstopStoreImpl(this, cache.getCacheCluster(), cache.getCacheConfiguration()
-                        .getTerracottaConfiguration().getNonstopConfiguration());
+                        .getTerracottaConfiguration().getNonstopConfiguration(), cache.getCacheConfiguration().getTransactionalMode(),
+                        cache.getTransactionManagerLookup());
             }
         }
 
