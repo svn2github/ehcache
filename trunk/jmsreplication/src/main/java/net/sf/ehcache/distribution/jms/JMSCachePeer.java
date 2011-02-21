@@ -21,6 +21,8 @@ import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.MimeTypeByteArray;
 import net.sf.ehcache.distribution.CachePeer;
+import net.sf.ehcache.util.CacheTransactionHelper;
+
 import static net.sf.ehcache.distribution.jms.JMSEventMessage.ACTION_PROPERTY;
 import static net.sf.ehcache.distribution.jms.JMSEventMessage.CACHE_NAME_PROPERTY;
 import static net.sf.ehcache.distribution.jms.JMSEventMessage.KEY_PROPERTY;
@@ -241,6 +243,18 @@ public class JMSCachePeer implements CachePeer, MessageListener {
 
         assert !shutdown : "Peer is shutdown. " + message;
 
+        final Ehcache cache;
+        try {
+            cache = extractAndValidateCache(message);
+        } catch (JMSException e) {
+            LOG.log(Level.WARNING, "Unable to handle JMS Notification: " + e.getMessage(), e);
+            return;
+        }
+        boolean started = CacheTransactionHelper.isTransactionStarted(cache);
+        if (!started) {
+            CacheTransactionHelper.beginTransactionIfNeeded(cache);
+        }
+
         try {
             if (message instanceof ObjectMessage) {
                 handleObjectMessage(message);
@@ -254,6 +268,10 @@ public class JMSCachePeer implements CachePeer, MessageListener {
             }
         } catch (Exception e) {
             LOG.log(Level.WARNING, "Unable to handle JMS Notification: " + e.getMessage(), e);
+        } finally {
+            if (!started) {
+                CacheTransactionHelper.commitTransactionIfNeeded(cache);
+            }
         }
     }
 
