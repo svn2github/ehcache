@@ -190,7 +190,7 @@ public class RMICachePeer extends UnicastRemoteObject implements CachePeer, Remo
      * @throws RemoteException
      * @throws IllegalStateException
      */
-    public final boolean remove(Serializable key) throws RemoteException, IllegalStateException {
+    public boolean remove(Serializable key) throws RemoteException, IllegalStateException {
         if (LOG.isDebugEnabled()) {
             LOG.debug("RMICachePeer for cache " + cache.getName() + ": remote remove received for key: " + key);
         }
@@ -202,7 +202,7 @@ public class RMICachePeer extends UnicastRemoteObject implements CachePeer, Remo
      *
      * @throws IllegalStateException if the cache is not {@link net.sf.ehcache.Status#STATUS_ALIVE}
      */
-    public final void removeAll() throws RemoteException, IllegalStateException {
+    public void removeAll() throws RemoteException, IllegalStateException {
         if (LOG.isDebugEnabled()) {
             LOG.debug("RMICachePeer for cache " + cache.getName() + ": remote removeAll received");
         }
@@ -214,7 +214,7 @@ public class RMICachePeer extends UnicastRemoteObject implements CachePeer, Remo
      * <p/>
      * This enables multiple messages to be delivered in one network invocation.
      */
-    public final void send(List eventMessages) throws RemoteException {
+    public void send(List eventMessages) throws RemoteException {
         for (int i = 0; i < eventMessages.size(); i++) {
             EventMessage eventMessage = (EventMessage) eventMessages.get(i);
             if (eventMessage.getEvent() == EventMessage.PUT) {

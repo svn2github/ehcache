@@ -115,4 +115,52 @@ public class TransactionalRMICachePeer extends RMICachePeer {
             }
         }
     }
+
+    @Override
+    public boolean remove(Serializable key) throws RemoteException, IllegalStateException {
+        boolean started = CacheTransactionHelper.isTransactionStarted(cache);
+        if (!started) {
+            CacheTransactionHelper.beginTransactionIfNeeded(cache);
+        }
+
+        try {
+            return super.remove(key);
+        } finally {
+            if (!started) {
+                CacheTransactionHelper.commitTransactionIfNeeded(cache);
+            }
+        }
+    }
+
+    @Override
+    public void removeAll() throws RemoteException, IllegalStateException {
+        boolean started = CacheTransactionHelper.isTransactionStarted(cache);
+        if (!started) {
+            CacheTransactionHelper.beginTransactionIfNeeded(cache);
+        }
+
+        try {
+            super.removeAll();
+        } finally {
+            if (!started) {
+                CacheTransactionHelper.commitTransactionIfNeeded(cache);
+            }
+        }
+    }
+
+    @Override
+    public void send(List eventMessages) throws RemoteException {
+        boolean started = CacheTransactionHelper.isTransactionStarted(cache);
+        if (!started) {
+            CacheTransactionHelper.beginTransactionIfNeeded(cache);
+        }
+
+        try {
+            super.send(eventMessages);
+        } finally {
+            if (!started) {
+                CacheTransactionHelper.commitTransactionIfNeeded(cache);
+            }
+        }
+    }
 }
