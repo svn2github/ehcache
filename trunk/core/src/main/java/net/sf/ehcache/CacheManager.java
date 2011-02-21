@@ -43,6 +43,8 @@ import net.sf.ehcache.config.DiskStoreConfiguration;
 import net.sf.ehcache.config.FactoryConfiguration;
 import net.sf.ehcache.config.InvalidConfigurationException;
 import net.sf.ehcache.config.TerracottaClientConfiguration;
+import net.sf.ehcache.config.TerracottaConfiguration.Consistency;
+import net.sf.ehcache.config.TerracottaConfiguration.StorageStrategy;
 import net.sf.ehcache.config.generator.ConfigurationUtil;
 import net.sf.ehcache.constructs.nonstop.CacheManagerExecutorServiceFactory;
 import net.sf.ehcache.distribution.CacheManagerPeerListener;
@@ -140,14 +142,12 @@ public class CacheManager {
     /**
      * The map of providers
      */
-    protected final Map<String, CacheManagerPeerProvider> cacheManagerPeerProviders =
-        new ConcurrentHashMap<String, CacheManagerPeerProvider>();
+    protected final Map<String, CacheManagerPeerProvider> cacheManagerPeerProviders = new ConcurrentHashMap<String, CacheManagerPeerProvider>();
 
     /**
      * The map of listeners
      */
-    protected final Map<String, CacheManagerPeerListener> cacheManagerPeerListeners =
-        new ConcurrentHashMap<String, CacheManagerPeerListener>();
+    protected final Map<String, CacheManagerPeerListener> cacheManagerPeerListeners = new ConcurrentHashMap<String, CacheManagerPeerListener>();
 
     /**
      * The listener registry
@@ -386,21 +386,45 @@ public class CacheManager {
 
     private void validateCacheConfigs(Collection<CacheConfiguration> cacheConfigs) {
         boolean invalid = false;
+        final StringBuilder error = new StringBuilder();
         final List<String> invalidCaches = new ArrayList<String>();
-        if (isTerracottaRejoinEnabled()) {
-            for (CacheConfiguration config : cacheConfigs) {
-                if (config.isTerracottaClustered()) {
-                    // if terracotta clustered cache without nonstop, throw invalid configuration
-                    if (!config.getTerracottaConfiguration().isNonstopEnabled()) {
+        for (CacheConfiguration config : cacheConfigs) {
+            if (config.isTerracottaClustered()) {
+                if (config.getTerracottaConfiguration().getStorageStrategy().equals(StorageStrategy.CLASSIC)) {
+                    if (config.getTerracottaConfiguration().isNonstopEnabled()) {
                         invalid = true;
-                        invalidCaches.add(config.getName());
+                        error.append("\n").append(
+                                "NONSTOP can't be enabled with " + StorageStrategy.CLASSIC.name() + " strategy. Invalid Cache: "
+                                        + config.getName());
                     }
+
+                    if (isTerracottaRejoinEnabled()) {
+                        invalid = true;
+                        error.append("\n").append(
+                                "REJOIN can't be enabled with " + StorageStrategy.CLASSIC.name() + " strategy. Invalid Cache: "
+                                        + config.getName());
+                    }
+
+                    if (config.getTerracottaConsistency().equals(Consistency.EVENTUAL)) {
+                        invalid = true;
+                        error.append("\n").append(
+                                Consistency.EVENTUAL.name() + " consistency can't be enabled with " + StorageStrategy.CLASSIC.name()
+                                        + " strategy. Invalid Cache: " + config.getName());
+                    }
+                }
+
+                if (isTerracottaRejoinEnabled() && config.isTerracottaClustered()
+                        && !config.getTerracottaConfiguration().isNonstopEnabled()) {
+                    invalid = true;
+                    error.append("\n").append(
+                            "Terracotta clustered caches must be nonstop when rejoin is enabled. Invalid cache: " + config.getName());
                 }
             }
         }
+
         if (invalid) {
-            throw new InvalidConfigurationException("Terracotta clustered caches must be nonstop when rejoin is enabled. Invalid caches: "
-                    + invalidCaches);
+            String errorMessage = "Errors:" + error.toString();
+            throw new InvalidConfigurationException(errorMessage);
         }
     }
 
@@ -1495,6 +1519,7 @@ public class CacheManager {
 
     /**
      * Get the CacheManager configuration
+     *
      * @return the configuration
      */
     Configuration getConfiguration() {
@@ -1583,6 +1608,7 @@ public class CacheManager {
 
     /**
      * Create a TransactionIDFactory
+     *
      * @return a TransactionIDFactory
      */
     TransactionIDFactory createTransactionIDFactory() {
@@ -1617,7 +1643,6 @@ public class CacheManager {
         }
         return softLockFactory;
     }
-
 
     private void clusterRejoinStarted() {
         for (Ehcache cache : ehcaches.values()) {
