@@ -42,6 +42,7 @@ import javax.transaction.xa.XAResource;
 import javax.transaction.xa.Xid;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -56,6 +57,7 @@ import java.util.concurrent.ConcurrentMap;
 public class EhcacheXAResourceImpl implements EhcacheXAResource {
 
     private static final Logger LOG = LoggerFactory.getLogger(EhcacheXAResourceImpl.class.getName());
+    private static final long MILLISECOND_PER_SECOND = 1000L;
 
     private final Ehcache cache;
     private final Store underlyingStore;
@@ -316,12 +318,26 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
             return new Xid[0];
         }
 
-        Set<TransactionID> transactionIDs = softLockFactory.collectExpiredTransactionIDs();
-        Set<Xid> xids = new HashSet<Xid>();
+        final Set<Xid> xids = Collections.synchronizedSet(new HashSet<Xid>());
 
-        for (TransactionID transactionID : transactionIDs) {
-            XidTransactionID xidTransactionID = (XidTransactionID) transactionID;
-            xids.add(xidTransactionID.getXid());
+        Thread t = new Thread("ehcache recovery thread") {
+            @Override
+            public void run() {
+                Set<TransactionID> transactionIDs = softLockFactory.collectExpiredTransactionIDs();
+                for (TransactionID transactionID : transactionIDs) {
+                    XidTransactionID xidTransactionID = (XidTransactionID) transactionID;
+                    xids.add(xidTransactionID.getXid());
+                }
+            }
+        };
+        try {
+            t.start();
+            t.join(transactionTimeout * MILLISECOND_PER_SECOND);
+        } catch (InterruptedException e) {
+            // ignore
+        }
+        if (t.isAlive()) {
+            t.interrupt();
         }
 
         return xids.toArray(new Xid[0]);
