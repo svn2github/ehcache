@@ -14,25 +14,24 @@
  *  limitations under the License.
  */
 
-package net.sf.ehcache.constructs.nonstop.store;
-
-import net.sf.ehcache.constructs.nonstop.ClusterOperation;
-import net.sf.ehcache.store.TerracottaStore;
+package net.sf.ehcache.constructs.nonstop.concurrency;
 
 /**
- * Interface for nonstop feature
+ * Utility class that returns a fixed unique ID for current thread
  *
- * @author Abhishek Sanoujam
+ * @author asingh
  *
  */
-public interface NonstopStore extends TerracottaStore {
+abstract class NonstopThreadUniqueIdProvider {
 
     /**
-     * Execute the {@link ClusterOperation} within this {@link NonstopStore} context.
+     * Returns the fixed unique id for the current thread
      *
-     * @param <V> Return type depending on the {@link ClusterOperation}
-     * @param operation
-     * @return the return value depending on the {@link ClusterOperation}
+     * @return the fixed unique id for the current thread
      */
-    public <V> V executeClusterOperation(ClusterOperation<V> operation);
+    public static long getCurrentNonstopThreadUniqueId() {
+        // for all practical purposes, thread.getId() would do, though that can be reused
+        return Thread.currentThread().getId();
+    }
+
 }

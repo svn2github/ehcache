@@ -21,12 +21,10 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.TimeoutException;
 
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.Status;
-import net.sf.ehcache.concurrent.Sync;
 import net.sf.ehcache.config.TimeoutBehaviorConfiguration.TimeoutBehaviorType;
 import net.sf.ehcache.constructs.nonstop.ClusterOperation;
 import net.sf.ehcache.constructs.nonstop.NonstopActiveDelegateHolder;
@@ -44,9 +42,9 @@ import net.sf.ehcache.writer.CacheWriterManager;
 /**
  * Implementation of {@link NonstopStore} which returns null for all get
  * operations and does nothing for puts and removes.
- *
+ * 
  * @author Abhishek Sanoujam
- *
+ * 
  */
 public final class NoOpOnTimeoutStore implements NonstopStore {
 
@@ -73,7 +71,7 @@ public final class NoOpOnTimeoutStore implements NonstopStore {
 
     /**
      * Returns the singleton instance
-     *
+     * 
      * @return the singleton instance
      */
     public static NoOpOnTimeoutStore getInstance() {
@@ -404,37 +402,6 @@ public final class NoOpOnTimeoutStore implements NonstopStore {
      */
     public Element unsafeGetQuiet(Object key) {
         return null;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public Sync[] getAndWriteLockAllSyncForKeys(long timeout, Object... keys) throws TimeoutException {
-        // no-op
-        return null;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public Sync[] getAndWriteLockAllSyncForKeys(Object... keys) {
-        // no-op
-        return null;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public Sync getSyncForKey(Object key) {
-        // no-op
-        return null;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public void unlockWriteLockForAllKeys(Object... keys) {
-        // no-op
     }
 
     /**

@@ -31,10 +31,11 @@ import net.sf.ehcache.Status;
 import net.sf.ehcache.cluster.CacheCluster;
 import net.sf.ehcache.cluster.ClusterNode;
 import net.sf.ehcache.cluster.ClusterTopologyListener;
-import net.sf.ehcache.concurrent.Sync;
 import net.sf.ehcache.config.NonstopConfiguration;
 import net.sf.ehcache.constructs.nonstop.ClusterOperation;
 import net.sf.ehcache.constructs.nonstop.NonstopActiveDelegateHolder;
+import net.sf.ehcache.constructs.nonstop.concurrency.CacheOperationUnderExplicitLockCallable;
+import net.sf.ehcache.constructs.nonstop.concurrency.ExplicitLockingContextThreadLocal;
 import net.sf.ehcache.search.Attribute;
 import net.sf.ehcache.search.Results;
 import net.sf.ehcache.search.attribute.AttributeExtractor;
@@ -46,7 +47,8 @@ import net.sf.ehcache.store.TerracottaStore;
 import net.sf.ehcache.writer.CacheWriterManager;
 
 /**
- * This implementation executes all operations using a NonstopExecutorService. On Timeout, uses the {@link NonstopTimeoutBehaviorStoreResolver} to
+ * This implementation executes all operations using a NonstopExecutorService. On Timeout, uses the
+ * {@link NonstopTimeoutBehaviorStoreResolver} to
  * resolve the timeout behavior store and execute it.
  * <p/>
  *
@@ -64,7 +66,8 @@ public class ExecutorServiceStore implements NonstopStore {
     private final AtomicBoolean clusterOffline = new AtomicBoolean();
 
     /**
-     * Constructor accepting the {@link NonstopActiveDelegateHolder}, {@link NonstopConfiguration} and {@link NonstopTimeoutBehaviorStoreResolver}
+     * Constructor accepting the {@link NonstopActiveDelegateHolder}, {@link NonstopConfiguration} and
+     * {@link NonstopTimeoutBehaviorStoreResolver}
      *
      */
     public ExecutorServiceStore(final NonstopActiveDelegateHolder nonstopActiveDelegateHolder,
@@ -106,11 +109,12 @@ public class ExecutorServiceStore implements NonstopStore {
 
     /**
      * Execute call within NonStop executor
+     *
      * @param callable
      * @param <V>
-     * @return
      * @throws CacheException
      * @throws TimeoutException
+     * @return returns the result of the callable
      */
     protected <V> V executeWithExecutor(final Callable<V> callable) throws CacheException, TimeoutException {
         return executeWithExecutor(callable, nonstopConfiguration.getTimeoutMillis(), false);
@@ -118,12 +122,13 @@ public class ExecutorServiceStore implements NonstopStore {
 
     /**
      * Execute call within NonStop executor
+     *
      * @param callable
      * @param timeoutMillis
      * @param <V>
-     * @return
      * @throws CacheException
      * @throws TimeoutException
+     * @return the result of the callable
      */
     protected <V> V executeWithExecutor(final Callable<V> callable, final long timeoutMillis) throws CacheException, TimeoutException {
         return executeWithExecutor(callable, timeoutMillis, false);
@@ -131,13 +136,19 @@ public class ExecutorServiceStore implements NonstopStore {
 
     private <V> V executeWithExecutor(final Callable<V> callable, final long timeOutMills, final boolean force) throws CacheException,
             TimeoutException {
+        Callable<V> effectiveCallable = callable;
         final long start = System.nanoTime();
         if (!force) {
             checkForClusterOffline(start, timeOutMills);
         }
+        final boolean operationUnderExplicitLock = ExplicitLockingContextThreadLocal.getInstance().areAnyExplicitLocksAcquired();
+        if (operationUnderExplicitLock) {
+            effectiveCallable = new CacheOperationUnderExplicitLockCallable<V>(ExplicitLockingContextThreadLocal.getInstance()
+                    .getCurrentThreadLockContext(), nonstopConfiguration, callable);
+        }
         try {
             final long remaining = timeOutMills - TimeUnit.MILLISECONDS.convert(System.nanoTime() - start, TimeUnit.NANOSECONDS);
-            return nonstopActiveDelegateHolder.getNonstopExecutorService().execute(callable, remaining);
+            return nonstopActiveDelegateHolder.getNonstopExecutorService().execute(effectiveCallable, remaining);
         } catch (InterruptedException e) {
             // rethrow as CacheException
             throw new CacheException(e);
@@ -146,6 +157,7 @@ public class ExecutorServiceStore implements NonstopStore {
 
     /**
      * Get the underlying Terracotta store
+     *
      * @return the underlying Terracotta store
      */
     protected TerracottaStore underlyingTerracottaStore() {
@@ -154,6 +166,7 @@ public class ExecutorServiceStore implements NonstopStore {
 
     /**
      * Get the timeout behavior resolver NonstopStore
+     *
      * @return the timeout behavior resolver NonstopStore
      */
     protected NonstopStore resolveTimeoutBehaviorStore() {
@@ -1001,76 +1014,11 @@ public class ExecutorServiceStore implements NonstopStore {
     /**
      * {@inheritDoc}
      */
-    public Sync[] getAndWriteLockAllSyncForKeys(final long timeout, final Object... keys) throws TimeoutException {
-        try {
-            return executeWithExecutor(new Callable<Sync[]>() {
-                public Sync[] call() throws Exception {
-                    return nonstopActiveDelegateHolder.getUnderlyingCacheLockProvider().getAndWriteLockAllSyncForKeys(timeout, keys);
-                }
-            });
-        } catch (TimeoutException e) {
-            return timeoutBehaviorResolver.resolveTimeoutBehaviorStore().getAndWriteLockAllSyncForKeys(timeout, keys);
-        }
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public Sync[] getAndWriteLockAllSyncForKeys(final Object... keys) {
-        try {
-            return executeWithExecutor(new Callable<Sync[]>() {
-                public Sync[] call() throws Exception {
-                    return nonstopActiveDelegateHolder.getUnderlyingCacheLockProvider().getAndWriteLockAllSyncForKeys(keys);
-                }
-            });
-        } catch (TimeoutException e) {
-            return timeoutBehaviorResolver.resolveTimeoutBehaviorStore().getAndWriteLockAllSyncForKeys(keys);
-        }
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public Sync getSyncForKey(final Object key) {
-        try {
-            return executeWithExecutor(new Callable<Sync>() {
-                public Sync call() throws Exception {
-                    return nonstopActiveDelegateHolder.getUnderlyingCacheLockProvider().getSyncForKey(key);
-                }
-            });
-        } catch (TimeoutException e) {
-            return timeoutBehaviorResolver.resolveTimeoutBehaviorStore().getSyncForKey(key);
-        }
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public void unlockWriteLockForAllKeys(final Object... keys) {
-        try {
-            executeWithExecutor(new Callable<Void>() {
-                public Void call() throws Exception {
-                    nonstopActiveDelegateHolder.getUnderlyingCacheLockProvider().unlockWriteLockForAllKeys(keys);
-                    return null;
-                }
-            });
-        } catch (TimeoutException e) {
-            timeoutBehaviorResolver.resolveTimeoutBehaviorStore().unlockWriteLockForAllKeys(keys);
-        }
-    }
-
-    /**
-     * {@inheritDoc}
-     */
     public <V> V executeClusterOperation(final ClusterOperation<V> operation) {
         try {
-            return executeWithExecutor(new Callable<V>() {
-                public V call() throws Exception {
-                    return operation.performClusterOperation();
-                }
-            });
+            return executeWithExecutor(new ClusterOperationCallableImpl<V>(operation));
         } catch (TimeoutException e) {
-            return timeoutBehaviorResolver.resolveTimeoutBehaviorStore().executeClusterOperation(operation);
+            return operation.performClusterOperationTimedOut(this.nonstopConfiguration.getTimeoutBehavior().getTimeoutBehaviorType());
         }
     }
 

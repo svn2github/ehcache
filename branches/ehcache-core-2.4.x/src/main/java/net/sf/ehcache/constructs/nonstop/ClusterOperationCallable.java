@@ -14,25 +14,24 @@
  *  limitations under the License.
  */
 
-package net.sf.ehcache.constructs.nonstop.store;
+package net.sf.ehcache.constructs.nonstop;
 
-import net.sf.ehcache.constructs.nonstop.ClusterOperation;
-import net.sf.ehcache.store.TerracottaStore;
+import java.util.concurrent.Callable;
 
 /**
- * Interface for nonstop feature
+ * A {@link Callable} that is used to execute {@link ClusterOperation}
  *
  * @author Abhishek Sanoujam
  *
+ * @param <V>
  */
-public interface NonstopStore extends TerracottaStore {
+public interface ClusterOperationCallable<V> extends Callable<V> {
 
     /**
-     * Execute the {@link ClusterOperation} within this {@link NonstopStore} context.
+     * Returns the {@link ClusterOperation}
      *
-     * @param <V> Return type depending on the {@link ClusterOperation}
-     * @param operation
-     * @return the return value depending on the {@link ClusterOperation}
+     * @return the {@link ClusterOperation}
      */
-    public <V> V executeClusterOperation(ClusterOperation<V> operation);
+    public ClusterOperation<V> getClusterOperation();
+
 }

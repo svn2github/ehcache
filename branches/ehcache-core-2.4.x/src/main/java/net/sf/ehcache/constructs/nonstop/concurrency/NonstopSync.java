@@ -19,8 +19,8 @@ package net.sf.ehcache.constructs.nonstop.concurrency;
 import net.sf.ehcache.concurrent.LockType;
 import net.sf.ehcache.concurrent.Sync;
 import net.sf.ehcache.config.TimeoutBehaviorConfiguration.TimeoutBehaviorType;
-import net.sf.ehcache.constructs.nonstop.ClusterOperation;
 import net.sf.ehcache.constructs.nonstop.NonStopCacheException;
+import net.sf.ehcache.constructs.nonstop.NonstopActiveDelegateHolder;
 import net.sf.ehcache.constructs.nonstop.store.NonstopStore;
 
 /**
@@ -29,30 +29,44 @@ import net.sf.ehcache.constructs.nonstop.store.NonstopStore;
  * @author Abhishek Sanoujam
  *
  */
-public class NonstopSync implements Sync {
+class NonstopSync implements Sync {
 
     private final NonstopStore nonstopStore;
-    private final Sync delegateSync;
+    // private final Sync delegateSync;
+    private final ExplicitLockingContextThreadLocal explicitLockingContextThreadLocal = ExplicitLockingContextThreadLocal.getInstance();
+    private final Object key;
+    private final NonstopActiveDelegateHolder nonstopActiveDelegateHolder;
 
     /**
      * Constructor accepting the {@link NonstopStore} and the actual {@link Sync}
      *
      * @param nonstopStore
-     * @param delegateSync
+     * @param nonstopActiveDelegateHolder
+     * @param key
      */
-    public NonstopSync(NonstopStore nonstopStore, Sync delegateSync) {
+    public NonstopSync(NonstopStore nonstopStore, NonstopActiveDelegateHolder nonstopActiveDelegateHolder, Object key) {
         this.nonstopStore = nonstopStore;
-        this.delegateSync = delegateSync;
+        this.nonstopActiveDelegateHolder = nonstopActiveDelegateHolder;
+        this.key = key;
+    }
+
+    /**
+     * Return the key associated with this {@link Sync}
+     *
+     * @return the key associated with this {@link Sync}
+     */
+    public Object getKey() {
+        return key;
     }
 
     /**
      * {@inheritDoc}
      */
     public boolean isHeldByCurrentThread(final LockType type) {
-        return nonstopStore.executeClusterOperation(new ClusterOperation<Boolean>() {
+        return nonstopStore.executeClusterOperation(new ExplicitLockingClusterOperation<Boolean>() {
 
             public Boolean performClusterOperation() {
-                return delegateSync.isHeldByCurrentThread(type);
+                return nonstopActiveDelegateHolder.getUnderlyingCacheLockProvider().getSyncForKey(key).isHeldByCurrentThread(type);
             }
 
             public Boolean performClusterOperationTimedOut(final TimeoutBehaviorType configuredTimeoutBehavior) {
@@ -73,24 +87,18 @@ public class NonstopSync implements Sync {
      * {@inheritDoc}
      */
     public void lock(final LockType type) {
-        nonstopStore.executeClusterOperation(new ClusterOperation<Void>() {
+        final ExplicitLockingContext appThreadLockContext = explicitLockingContextThreadLocal.getCurrentThreadLockContext();
+        nonstopStore.executeClusterOperation(new ExplicitLockingClusterOperation<Void>() {
 
             public Void performClusterOperation() {
-                delegateSync.lock(type);
+                nonstopActiveDelegateHolder.getUnderlyingCacheLockProvider().getSyncForKey(key).lock(type);
+                appThreadLockContext.lockAcquired(NonstopThreadUniqueIdProvider.getCurrentNonstopThreadUniqueId());
                 return null;
             }
 
             public Void performClusterOperationTimedOut(final TimeoutBehaviorType configuredTimeoutBehavior) {
-                switch (configuredTimeoutBehavior) {
-                    case EXCEPTION:
-                        throw new NonStopCacheException("lock timed out");
-                    case LOCAL_READS:
-                    case NOOP:
-                        // no-op
-                        return null;
-                    default:
-                        throw new NonStopCacheException("unknown nonstop timeout behavior type: " + configuredTimeoutBehavior);
-                }
+                // throw exception for all behaviors
+                throw new NonStopCacheException("lock() timed out");
             }
         });
     }
@@ -99,22 +107,21 @@ public class NonstopSync implements Sync {
      * {@inheritDoc}
      */
     public boolean tryLock(final LockType type, final long msec) throws InterruptedException {
-        return nonstopStore.executeClusterOperation(new ClusterOperation<Boolean>() {
+        final ExplicitLockingContext appThreadLockContext = explicitLockingContextThreadLocal.getCurrentThreadLockContext();
+        return nonstopStore.executeClusterOperation(new ExplicitLockingClusterOperation<Boolean>() {
 
             public Boolean performClusterOperation() throws Exception {
-                return delegateSync.tryLock(type, msec);
+                final boolean lockAcquired = nonstopActiveDelegateHolder.getUnderlyingCacheLockProvider().getSyncForKey(key)
+                        .tryLock(type, msec);
+                if (lockAcquired) {
+                    appThreadLockContext.lockAcquired(NonstopThreadUniqueIdProvider.getCurrentNonstopThreadUniqueId());
+                }
+                return lockAcquired;
             }
 
             public Boolean performClusterOperationTimedOut(final TimeoutBehaviorType configuredTimeoutBehavior) {
-                switch (configuredTimeoutBehavior) {
-                    case EXCEPTION:
-                        throw new NonStopCacheException("tryLock timed out");
-                    case LOCAL_READS:
-                    case NOOP:
-                        return false;
-                    default:
-                        throw new NonStopCacheException("unknown nonstop timeout behavior type: " + configuredTimeoutBehavior);
-                }
+                // throw exception for all behaviors
+                throw new NonStopCacheException("tryLock() timed out");
             }
         });
     }
@@ -123,24 +130,30 @@ public class NonstopSync implements Sync {
      * {@inheritDoc}
      */
     public void unlock(final LockType type) {
-        nonstopStore.executeClusterOperation(new ClusterOperation<Void>() {
+        final ExplicitLockingContext appThreadLockContext = explicitLockingContextThreadLocal.getCurrentThreadLockContext();
+        nonstopStore.executeClusterOperation(new ExplicitLockingClusterOperation<Void>() {
 
             public Void performClusterOperation() {
-                delegateSync.unlock(type);
+                try {
+                    if (appThreadLockContext.areLocksAcquiredByOtherThreads(NonstopThreadUniqueIdProvider.getCurrentNonstopThreadUniqueId())) {
+                        // some other thread has acquired locks other than this current nonstop thread
+                        // this means rejoin has happened, lock acquired by previous nonstop thread
+                        throw new InvalidLockStateAfterRejoinException();
+                    } else {
+                        nonstopActiveDelegateHolder.getUnderlyingCacheLockProvider().getSyncForKey(key).unlock(type);
+                    }
+                } finally {
+                    // clean up the lock stack anyway
+                    appThreadLockContext.lockReleased();
+                }
                 return null;
             }
 
             public Void performClusterOperationTimedOut(final TimeoutBehaviorType configuredTimeoutBehavior) {
-                switch (configuredTimeoutBehavior) {
-                    case EXCEPTION:
-                        throw new NonStopCacheException("unlock timed out");
-                    case LOCAL_READS:
-                    case NOOP:
-                        // no-op
-                        return null;
-                    default:
-                        throw new NonStopCacheException("unknown nonstop timeout behavior type: " + configuredTimeoutBehavior);
-                }
+                // always clean up lock stack for unlock even on timeouts
+                appThreadLockContext.lockReleased();
+                // throw exception for all behaviors
+                throw new NonStopCacheException("unlock() timed out");
             }
         });
     }

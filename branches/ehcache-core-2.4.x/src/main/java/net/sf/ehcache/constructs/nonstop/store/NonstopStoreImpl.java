@@ -22,19 +22,18 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.TimeoutException;
 
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.Status;
 import net.sf.ehcache.cluster.CacheCluster;
-import net.sf.ehcache.concurrent.Sync;
+import net.sf.ehcache.concurrent.CacheLockProvider;
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.NonstopConfiguration;
 import net.sf.ehcache.config.TimeoutBehaviorConfiguration.TimeoutBehaviorType;
 import net.sf.ehcache.constructs.nonstop.ClusterOperation;
 import net.sf.ehcache.constructs.nonstop.NonstopActiveDelegateHolder;
-import net.sf.ehcache.constructs.nonstop.concurrency.NonstopSync;
+import net.sf.ehcache.constructs.nonstop.concurrency.NonstopCacheLockProvider;
 import net.sf.ehcache.search.Attribute;
 import net.sf.ehcache.search.Results;
 import net.sf.ehcache.search.attribute.AttributeExtractor;
@@ -58,6 +57,7 @@ public class NonstopStoreImpl implements NonstopTimeoutBehaviorStoreResolver, No
     private final NonstopConfiguration nonstopConfig;
     private final ConcurrentMap<TimeoutBehaviorType, NonstopStore> timeoutBehaviors;
     private final ExecutorServiceStore executorServiceStore;
+    private final CacheLockProvider nonstopCacheLockProvider;
 
     /**
      * Constructor accepting the {@link NonstopActiveDelegateHolder}, {@link CacheCluster} and {@link NonstopConfiguration}
@@ -69,13 +69,13 @@ public class NonstopStoreImpl implements NonstopTimeoutBehaviorStoreResolver, No
         this.nonstopActiveDelegateHolder = nonstopActiveDelegateHolder;
         this.nonstopConfig = nonstopConfig;
         this.timeoutBehaviors = new ConcurrentHashMap<TimeoutBehaviorType, NonstopStore>();
-
         if (transactionalMode.equals(CacheConfiguration.TransactionalMode.XA_STRICT)) {
             executorServiceStore = new TransactionalExecutorServiceStore(nonstopActiveDelegateHolder, nonstopConfig,
                     this, cacheCluster, transactionManagerLookup);
         } else {
             executorServiceStore = new ExecutorServiceStore(nonstopActiveDelegateHolder, nonstopConfig, this, cacheCluster);
         }
+        this.nonstopCacheLockProvider = new NonstopCacheLockProvider(this, nonstopActiveDelegateHolder);
     }
 
     /**
@@ -85,8 +85,8 @@ public class NonstopStoreImpl implements NonstopTimeoutBehaviorStoreResolver, No
         final TimeoutBehaviorType timeoutBehaviorType = nonstopConfig.getTimeoutBehavior().getTimeoutBehaviorType();
         NonstopStore timeoutStore = timeoutBehaviors.get(timeoutBehaviorType);
         if (timeoutStore == null) {
-            timeoutStore = nonstopConfig.getTimeoutBehavior().getNonstopTimeoutBehaviorFactory().createNonstopTimeoutBehaviorStore(
-                    nonstopActiveDelegateHolder);
+            timeoutStore = nonstopConfig.getTimeoutBehavior().getNonstopTimeoutBehaviorFactory()
+                    .createNonstopTimeoutBehaviorStore(nonstopActiveDelegateHolder);
             NonstopStore prev = timeoutBehaviors.putIfAbsent(timeoutBehaviorType, timeoutStore);
             if (prev != null) {
                 timeoutStore = prev;
@@ -108,7 +108,7 @@ public class NonstopStoreImpl implements NonstopTimeoutBehaviorStoreResolver, No
      * {@inheritDoc}
      */
     public Object getInternalContext() {
-        return this;
+        return nonstopCacheLockProvider;
     }
 
     // -------------------------------------------------------
@@ -447,46 +447,6 @@ public class NonstopStoreImpl implements NonstopTimeoutBehaviorStoreResolver, No
      */
     public Element unsafeGetQuiet(Object key) {
         return executorServiceStore.unsafeGetQuiet(key);
-    }
-
-    private Sync[] wrapWithNonstopSync(Sync[] syncs) {
-        if (syncs == null) {
-            return null;
-        }
-        for (int i = 0; i < syncs.length; i++) {
-            Sync sync = syncs[i];
-            syncs[i] = sync == null ? null : new NonstopSync(this, sync);
-        }
-        return syncs;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public Sync[] getAndWriteLockAllSyncForKeys(long timeout, Object... keys) throws TimeoutException {
-        return wrapWithNonstopSync(executorServiceStore.getAndWriteLockAllSyncForKeys(timeout, keys));
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public Sync[] getAndWriteLockAllSyncForKeys(Object... keys) {
-        return wrapWithNonstopSync(executorServiceStore.getAndWriteLockAllSyncForKeys(keys));
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public Sync getSyncForKey(Object key) {
-        Sync sync = executorServiceStore.getSyncForKey(key);
-        return sync == null ? null : new NonstopSync(this, sync);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public void unlockWriteLockForAllKeys(Object... keys) {
-        executorServiceStore.unlockWriteLockForAllKeys(keys);
     }
 
     /**

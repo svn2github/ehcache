@@ -24,6 +24,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 import net.sf.ehcache.CacheException;
+import net.sf.ehcache.constructs.nonstop.concurrency.InvalidLockStateAfterRejoinException;
 
 /**
  * Class used by NonStopCache for executing tasks within a timeout limit.
@@ -74,8 +75,13 @@ public class NonstopExecutorServiceImpl implements NonstopExecutorService {
                     throw new TimeoutException(rootCause.getMessage());
                 }
 
-                if (e.getCause() instanceof CacheException) {
-                    throw (CacheException) e.getCause();
+                if (rootCause instanceof ThrowTimeoutException) {
+                    // rethrow as TimeoutException
+                    throw new TimeoutException("Callable threw " + ThrowTimeoutException.class.getName());
+                }
+
+                if (e.getCause() instanceof InvalidLockStateAfterRejoinException) {
+                    throw new InvalidLockStateAfterRejoinException(e.getCause());
                 }
 
                 throw new CacheException(e.getCause());
