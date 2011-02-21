@@ -59,8 +59,8 @@ public class ConfigurationElement extends SimpleNodeElement {
                 Configuration.DEFAULT_MONITORING.name().toLowerCase()));
         addAttribute(new SimpleNodeAttribute("dynamicConfig", configuration.getDynamicConfig()).optional(true).defaultValue(
                 String.valueOf(Configuration.DEFAULT_DYNAMIC_CONFIG)));
-        addAttribute(new SimpleNodeAttribute("defaultTransactionTimeoutInSeconds", configuration.getDefaultTransactionTimeoutInSeconds()).optional(true).defaultValue(
-                String.valueOf(Configuration.DEFAULT_TRANSACTION_TIMEOUT)));
+        addAttribute(new SimpleNodeAttribute("defaultTransactionTimeoutInSeconds", configuration.getDefaultTransactionTimeoutInSeconds())
+                .optional(true).defaultValue(String.valueOf(Configuration.DEFAULT_TRANSACTION_TIMEOUT)));
 
         // add the child elements
         DiskStoreConfiguration diskStoreConfiguration = configuration.getDiskStoreConfiguration();
