@@ -98,8 +98,8 @@ public class JGroupsCacheReceiver implements Receiver {
     private void safeHandleJGroupNotification(final JGroupEventMessage message) {
         final String cacheName = message.getCacheName();
         Ehcache cache = cacheManager.getEhcache(cacheName);
-        boolean started = CacheTransactionHelper.isTransactionStarted(cache);
-        if (!started) {
+        boolean started = cache != null && CacheTransactionHelper.isTransactionStarted(cache);
+        if (cache != null && !started) {
             CacheTransactionHelper.beginTransactionIfNeeded(cache);
         }
 
@@ -108,7 +108,7 @@ public class JGroupsCacheReceiver implements Receiver {
         } catch (Exception e) {
             LOG.error("Failed to handle message " + message, e);
         } finally {
-            if (!started) {
+            if (cache != null && !started) {
                 CacheTransactionHelper.commitTransactionIfNeeded(cache);
             }
         }
