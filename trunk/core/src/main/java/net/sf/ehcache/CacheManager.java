@@ -413,8 +413,7 @@ public class CacheManager {
                     }
                 }
 
-                if (isTerracottaRejoinEnabled() && config.isTerracottaClustered()
-                        && !config.getTerracottaConfiguration().isNonstopEnabled()) {
+                if (isTerracottaRejoinEnabled() && !config.getTerracottaConfiguration().isNonstopEnabled()) {
                     invalid = true;
                     error.append("\n").append(
                             "Terracotta clustered caches must be nonstop when rejoin is enabled. Invalid cache: " + config.getName());
@@ -1677,6 +1676,7 @@ public class CacheManager {
                     + mbeanRegistrationProvider.getClass().getName(), e);
         }
         // recreate TransactionController with fresh TransactionIDFactory
-        transactionController = new TransactionController(createTransactionIDFactory(), configuration.getDefaultTransactionTimeoutInSeconds());
+        transactionController = new TransactionController(createTransactionIDFactory(), configuration
+                .getDefaultTransactionTimeoutInSeconds());
     }
 }
