@@ -28,9 +28,9 @@ import net.sf.ehcache.config.generator.model.SimpleNodeElement;
 
 /**
  * Element representing the {@link Configuration}. This element does not have a parent and is always null.
- * 
+ *
  * @author Abhishek Sanoujam
- * 
+ *
  */
 public class ConfigurationElement extends SimpleNodeElement {
 
@@ -38,7 +38,7 @@ public class ConfigurationElement extends SimpleNodeElement {
 
     /**
      * Constructor accepting the {@link Configuration}. This element does not have a parent and is always null.
-     * 
+     *
      * @param configuration
      */
     public ConfigurationElement(Configuration configuration) {
