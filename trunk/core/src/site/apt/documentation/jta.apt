@@ -156,8 +156,8 @@ Transactions in Ehcache
     transaction by registering a JTA {Synchronization}. The cache can end up inconsistent with the other resources if there is a JVM crash
     in the mutating node.
 
-    Please note that while some inconsistency may occur between your cache and your other XA resources (like your database for instance)
-    after a crash in this mode, in no way the caches' data will end up inconsistent: the transaction still is fully atomic on the cache iself!
+    In this mode, some inconsistency may occur between a cache and other XA resources (such as databases) after a crash. However,
+    the cache's data remains consistent because the transaction is still fully atomic on the cache itself.
 
 
 *** xa_strict Mode
