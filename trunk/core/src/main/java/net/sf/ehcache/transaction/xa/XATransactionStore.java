@@ -313,7 +313,7 @@ public class XATransactionStore extends AbstractTransactionStore {
             throw new TransactionException("cannot get the current transaction", se);
         }
 
-        LOG.debug("cache {} getSize", cache.getName());
+        LOG.debug("cache {} getTerracottaClusteredSize", cache.getName());
         XATransactionContext context = getOrCreateTransactionContext();
         int size = underlyingStore.getTerracottaClusteredSize();
         return size + context.getSizeModifier();
