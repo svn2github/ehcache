@@ -25,6 +25,9 @@ import net.sf.ehcache.transaction.AbstractTransactionStore;
 import net.sf.ehcache.transaction.TransactionException;
 import net.sf.ehcache.transaction.TransactionID;
 import net.sf.ehcache.transaction.manager.TransactionManagerLookup;
+import net.sf.ehcache.transaction.xa.EhcacheXAResource;
+import net.sf.ehcache.transaction.xa.XAExecutionListener;
+import net.sf.ehcache.transaction.xa.XATransactionContext;
 import net.sf.ehcache.writer.CacheWriterManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,7 +37,11 @@ import javax.transaction.Synchronization;
 import javax.transaction.SystemException;
 import javax.transaction.Transaction;
 import javax.transaction.TransactionManager;
+import javax.transaction.xa.XAException;
+import javax.transaction.xa.XAResource;
+import javax.transaction.xa.Xid;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * A Store implementation with support for local transactions driven by a JTA transaction manager
@@ -44,9 +51,12 @@ import java.util.List;
 public class JtaLocalTransactionStore extends AbstractTransactionStore {
 
     private static final Logger LOG = LoggerFactory.getLogger(JtaLocalTransactionStore.class.getName());
+    private static final String ALTERNATIVE_TERMINATION_MODE_SYS_PROPERTY_NAME = "net.sf.ehcache.transaction.xa.alternativeTerminationMode";
+    private static final AtomicBoolean ATOMIKOS_WARNING_ISSUED = new AtomicBoolean(false);
 
     private static final ThreadLocal<Transaction> BOUND_JTA_TRANSACTIONS = new ThreadLocal<Transaction>();
 
+    private final TransactionManagerLookup transactionManagerLookup;
     private final TransactionController transactionController;
     private final TransactionManager transactionManager;
     private final Ehcache cache;
@@ -60,12 +70,20 @@ public class JtaLocalTransactionStore extends AbstractTransactionStore {
     public JtaLocalTransactionStore(LocalTransactionStore underlyingStore, TransactionManagerLookup transactionManagerLookup,
                                     TransactionController transactionController) {
         super(underlyingStore);
+        this.transactionManagerLookup = transactionManagerLookup;
         this.transactionController = transactionController;
         this.transactionManager = transactionManagerLookup.getTransactionManager();
         if (this.transactionManager == null) {
             throw new TransactionException("no JTA transaction manager could be located");
         }
         this.cache = underlyingStore.getCache();
+
+        if (transactionManager.getClass().getName().contains("atomikos")) {
+            System.setProperty(ALTERNATIVE_TERMINATION_MODE_SYS_PROPERTY_NAME, "true");
+            if (ATOMIKOS_WARNING_ISSUED.compareAndSet(false, true)) {
+                LOG.warn("Atomikos transaction manager detected, make sure you configured com.atomikos.icatch.threaded_2pc=false");
+            }
+        }
     }
 
     private void registerInJtaContext() {
@@ -89,8 +107,18 @@ public class JtaLocalTransactionStore extends AbstractTransactionStore {
                 BOUND_JTA_TRANSACTIONS.set(tx);
 
                 transactionController.begin();
-                tx.registerSynchronization(new JtaLocalEhcacheSynchronization(transactionController,
-                        transactionController.getCurrentTransactionContext().getTransactionId()));
+
+                // DEV-5376
+                if (Boolean.getBoolean(ALTERNATIVE_TERMINATION_MODE_SYS_PROPERTY_NAME)) {
+
+                    JtaLocalEhcacheXAResource xaRes = new JtaLocalEhcacheXAResource(transactionController,
+                            transactionController.getCurrentTransactionContext().getTransactionId());
+                    transactionManagerLookup.register(xaRes);
+                    tx.enlistResource(xaRes);
+                } else {
+                    tx.registerSynchronization(new JtaLocalEhcacheSynchronization(transactionController,
+                            transactionController.getCurrentTransactionContext().getTransactionId()));
+                }
             }
         } catch (SystemException e) {
             throw new TransactionException("internal JTA transaction manager error, cannot bind xa cache with it", e);
@@ -102,11 +130,11 @@ public class JtaLocalTransactionStore extends AbstractTransactionStore {
     /**
      * A Synchronization used to terminate the local transaction and clean it up
      */
-    private static class JtaLocalEhcacheSynchronization implements Synchronization {
+    private static final class JtaLocalEhcacheSynchronization implements Synchronization {
         private final TransactionController transactionController;
         private final TransactionID transactionId;
 
-        public JtaLocalEhcacheSynchronization(TransactionController transactionController, TransactionID transactionId) {
+        private JtaLocalEhcacheSynchronization(TransactionController transactionController, TransactionID transactionId) {
             this.transactionController = transactionController;
             this.transactionId = transactionId;
         }
@@ -134,6 +162,88 @@ public class JtaLocalTransactionStore extends AbstractTransactionStore {
         }
     }
 
+    /**
+     * A XAResource implementation used to terminate the local transaction and clean it up.
+     *
+     * It should only be used with transaction managers providing a defective Synchronization
+     * mechanism with which rollback/commit cannot be reliably differentiated as it relies
+     * on the fact that the same thread is used to call Ehcache methods as well as XAResource
+     * which isn't guaranteed by the specification.
+     * This mechanism also has a slight performance impact as there is one extra resource
+     * participating in the 2PC.
+     */
+    private static final class JtaLocalEhcacheXAResource implements EhcacheXAResource {
+        private final TransactionController transactionController;
+        private final TransactionID transactionId;
+
+        private JtaLocalEhcacheXAResource(TransactionController transactionController, TransactionID transactionId) {
+            this.transactionController = transactionController;
+            this.transactionId = transactionId;
+        }
+
+        public void commit(Xid xid, boolean onePhase) throws XAException {
+            transactionController.commit(true);
+            JtaLocalTransactionStore.BOUND_JTA_TRANSACTIONS.remove();
+        }
+
+        public void end(Xid xid, int flag) throws XAException {
+            //
+        }
+
+        public void forget(Xid xid) throws XAException {
+            //
+        }
+
+        public int getTransactionTimeout() throws XAException {
+            return 0;
+        }
+
+        public boolean isSameRM(XAResource xaResource) throws XAException {
+            return xaResource == this;
+        }
+
+        public int prepare(Xid xid) throws XAException {
+            return XA_OK;
+        }
+
+        public Xid[] recover(int flags) throws XAException {
+            return new Xid[0];
+        }
+
+        public void rollback(Xid xid) throws XAException {
+            transactionController.rollback();
+            JtaLocalTransactionStore.BOUND_JTA_TRANSACTIONS.remove();
+        }
+
+        public boolean setTransactionTimeout(int timeout) throws XAException {
+            return false;
+        }
+
+        public void start(Xid xid, int flag) throws XAException {
+            //
+        }
+
+        public void addTwoPcExecutionListener(XAExecutionListener listener) {
+            throw new UnsupportedOperationException();
+        }
+
+        public String getCacheName() {
+            return transactionId.toString();
+        }
+
+        public XATransactionContext createTransactionContext() throws SystemException, RollbackException {
+            throw new UnsupportedOperationException();
+        }
+
+        public XATransactionContext getCurrentTransactionContext() {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public String toString() {
+            return "JtaLocalEhcacheXAResource of transaction [" + transactionId + "]";
+        }
+    }
 
     private void setRollbackOnly() {
         try {
