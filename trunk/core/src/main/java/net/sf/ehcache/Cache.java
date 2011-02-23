@@ -1009,36 +1009,14 @@ public class Cache implements Ehcache, StoreListener {
             }
 
             final Store store;
-            if (configuration.isOverflowToOffHeap()) {
-                try {
-                    Class<Store> storeClass = ClassLoaderUtil.loadClass(OFF_HEAP_STORE_CLASSNAME);
-                    try {
-                        store = makeXaStrictTransactionalIfNeeded((Store) storeClass.getMethod("create", Ehcache.class, String.class)
-                                .invoke(null, this, diskStorePath), copyStrategy);
-                    } catch (NoSuchMethodException e) {
-                       throw new CacheException("Cache: " + configuration.getName() + " cannot find static factory" +
-                        " method create(Ehcache, String)" +
-                        " in store class " + OFF_HEAP_STORE_CLASSNAME, e);
-                    } catch (InvocationTargetException e) {
-                        Throwable cause = e.getCause();
-                        if (cause instanceof CacheException) {
-                            throw (CacheException)cause;
-                        } else {
-                            throw new CacheException("Cache: " + configuration.getName() +
-                                    " cannot instantiate store " + OFF_HEAP_STORE_CLASSNAME, cause);
-                        }
-                    } catch (IllegalAccessException e) {
-                        throw new CacheException("Cache: " + configuration.getName() +
-                                " cannot instantiate store " + OFF_HEAP_STORE_CLASSNAME, e);
-                    }
-                } catch (ClassNotFoundException e) {
-                    throw new CacheException("Cache " + configuration.getName() +
-                            " cannot be configured because the off-heap store class could not be found. " +
-                            "You must use an enterprise version of Ehcache to successfully enable overflowToOffHeap.");
-                }
-            } else if (isTerracottaClustered()) {
+            if (isTerracottaClustered()) {
                 final Consistency consistency = getCacheConfiguration().getTerracottaConfiguration().getConsistency();
                 final boolean coherent = getCacheConfiguration().getTerracottaConfiguration().isCoherent();
+                if (getCacheConfiguration().isOverflowToOffHeap()) {
+                    throw new InvalidConfigurationException(
+                            "Terracotta clustered caches with local overflow to offheap are not supported yet."
+                                    + " You can fix this by disabling overflow to offheap for clustered caches.");
+                }
                 if (getCacheConfiguration().getTerracottaConfiguration().isSynchronousWrites() && consistency == Consistency.EVENTUAL) {
                     throw new InvalidConfigurationException(
                             "Terracotta clustered caches with eventual consistency and synchronous writes are not supported yet."
@@ -1086,6 +1064,32 @@ public class Cache implements Ehcache, StoreListener {
                     store = nonstopActiveDelegateHolder.getNonstopStore();
                 } else {
                     store = terracottaStore;
+                }
+            } else if (getCacheConfiguration().isOverflowToOffHeap()) {
+                try {
+                    Class<Store> storeClass = ClassLoaderUtil.loadClass(OFF_HEAP_STORE_CLASSNAME);
+                    try {
+                        store = makeXaStrictTransactionalIfNeeded((Store) storeClass.getMethod("create", Ehcache.class, String.class)
+                                .invoke(null, this, diskStorePath), copyStrategy);
+                    } catch (NoSuchMethodException e) {
+                        throw new CacheException("Cache: " + configuration.getName() + " cannot find static factory"
+                                + " method create(Ehcache, String)" + " in store class " + OFF_HEAP_STORE_CLASSNAME, e);
+                    } catch (InvocationTargetException e) {
+                        Throwable cause = e.getCause();
+                        if (cause instanceof CacheException) {
+                            throw (CacheException) cause;
+                        } else {
+                            throw new CacheException("Cache: " + configuration.getName() + " cannot instantiate store "
+                                    + OFF_HEAP_STORE_CLASSNAME, cause);
+                        }
+                    } catch (IllegalAccessException e) {
+                        throw new CacheException("Cache: " + configuration.getName() + " cannot instantiate store "
+                                + OFF_HEAP_STORE_CLASSNAME, e);
+                    }
+                } catch (ClassNotFoundException e) {
+                    throw new CacheException("Cache " + configuration.getName()
+                            + " cannot be configured because the off-heap store class could not be found. "
+                            + "You must use an enterprise version of Ehcache to successfully enable overflowToOffHeap.");
                 }
             } else {
                 if (useClassicLru && configuration.getMemoryStoreEvictionPolicy().equals(MemoryStoreEvictionPolicy.LRU)) {
