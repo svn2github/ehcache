@@ -25,6 +25,7 @@ import net.sf.ehcache.config.InvalidConfigurationException;
 import net.sf.ehcache.search.Attribute;
 import net.sf.ehcache.search.Results;
 import net.sf.ehcache.search.attribute.AttributeExtractor;
+import net.sf.ehcache.terracotta.TerracottaNotRunningException;
 
 /**
  * @author gkeim
@@ -84,10 +85,12 @@ public abstract class AbstractStore implements Store {
 
     /**
      * {@inheritDoc}
+     * @throws InterruptedException
+     * @throws TerracottaNotRunningException
      *
      * @see net.sf.ehcache.store.Store#waitUntilClusterCoherent()
      */
-    public void waitUntilClusterCoherent() throws UnsupportedOperationException {
+    public void waitUntilClusterCoherent() throws UnsupportedOperationException, TerracottaNotRunningException, InterruptedException {
         throw new UnsupportedOperationException();
     }
 
