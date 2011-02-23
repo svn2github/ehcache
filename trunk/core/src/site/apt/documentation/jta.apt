@@ -492,3 +492,17 @@ Transactions in Ehcache
     ...
   </jta>
 ---
+
+**  How do I make Atomikos work with Ehcache JTA's <<<xa>>> mode?
+
+    Atomikos has a bug which makes the <<<xa>>> mode's normal transaction termination mechanism unreliable,
+    see: {{http://fogbugz.atomikos.com/default.asp?community.6.802.3}}.
+    There is an alternative termination mechanism built in that transaction mode that is automatically
+    enabled when <<<net.sf.ehcache.transaction.xa.alternativeTerminationMode>>> is set to true or when
+    Atomikos is detected as the controlling transaction manager.
+
+    This alternative termination mode has strict requirement on the way threads are used by the transaction
+    manager and Atomikos's default settings won't work. You have to configure this property to make it work:
+---
+  com.atomikos.icatch.threaded_2pc=false
+---
