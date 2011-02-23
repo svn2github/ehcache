@@ -35,7 +35,6 @@ import net.sf.ehcache.Element;
 import net.sf.ehcache.search.attribute.AttributeExtractor;
 import net.sf.ehcache.store.ElementValueComparator;
 import net.sf.ehcache.store.Store;
-import net.sf.ehcache.store.TerracottaStore;
 import net.sf.ehcache.store.compound.ReadWriteCopyStrategy;
 import net.sf.ehcache.transaction.AbstractTransactionStore;
 import net.sf.ehcache.transaction.SoftLock;
@@ -58,7 +57,7 @@ import org.slf4j.LoggerFactory;
 /**
  * @author Ludovic Orban
  */
-public class XATransactionStore extends AbstractTransactionStore implements TerracottaStore {
+public class XATransactionStore extends AbstractTransactionStore {
 
     private static final Logger LOG = LoggerFactory.getLogger(XATransactionStore.class.getName());
     private static final long MILLISECOND_PER_SECOND = 1000L;
@@ -262,7 +261,7 @@ public class XATransactionStore extends AbstractTransactionStore implements Terr
         XATransactionContext context = getTransactionContext();
         Element element;
         if (context == null) {
-            element = getQuietFromUnderlyingStore(key);
+            element = getFromUnderlyingStore(key);
         } else {
             element = context.get(key);
             if (element == null && !context.isRemoved(key)) {
@@ -420,6 +419,9 @@ public class XATransactionStore extends AbstractTransactionStore implements Terr
      */
     public boolean put(Element element) throws CacheException {
         LOG.debug("cache {} put {}", cache.getName(), element);
+        // this forces enlistment so the XA transaction timeout can be propagated to the XA resource
+        getOrCreateTransactionContext();
+
         Element oldElement = getQuietFromUnderlyingStore(element.getObjectKey());
         return internalPut(new StorePutCommand(oldElement, copyElementForWrite(element)));
     }
@@ -429,6 +431,9 @@ public class XATransactionStore extends AbstractTransactionStore implements Terr
      */
     public boolean putWithWriter(Element element, CacheWriterManager writerManager) throws CacheException {
         LOG.debug("cache {} putWithWriter {}", cache.getName(), element);
+        // this forces enlistment so the XA transaction timeout can be propagated to the XA resource
+        getOrCreateTransactionContext();
+
         Element oldElement = getQuietFromUnderlyingStore(element.getObjectKey());
         if (writerManager != null) {
             writerManager.put(element);
@@ -460,6 +465,9 @@ public class XATransactionStore extends AbstractTransactionStore implements Terr
      */
     public Element remove(Object key) {
         LOG.debug("cache {} remove {}", cache.getName(), key);
+        // this forces enlistment so the XA transaction timeout can be propagated to the XA resource
+        getOrCreateTransactionContext();
+
         Element oldElement = getQuietFromUnderlyingStore(key);
         return removeInternal(new StoreRemoveCommand(key, oldElement));
     }
@@ -475,6 +483,9 @@ public class XATransactionStore extends AbstractTransactionStore implements Terr
      */
     public Element removeWithWriter(Object key, CacheWriterManager writerManager) throws CacheException {
         LOG.debug("cache {} removeWithWriter {}", cache.getName(), key);
+        // this forces enlistment so the XA transaction timeout can be propagated to the XA resource
+        getOrCreateTransactionContext();
+
         Element oldElement = getQuietFromUnderlyingStore(key);
         if (writerManager != null) {
             writerManager.remove(new CacheEntry(key, null));
@@ -576,56 +587,4 @@ public class XATransactionStore extends AbstractTransactionStore implements Terr
         underlyingStore.setAttributeExtractors(wrappedExtractors);
     }
 
-
-    /* TerracottaStore methods */
-
-    /**
-     * {@inheritDoc}
-     */
-    public Element unsafeGet(Object key) {
-        if (underlyingStore instanceof TerracottaStore) {
-            return ((TerracottaStore) underlyingStore).unsafeGet(key);
-        }
-        throw new CacheException("underlying store is not an instance of TerracottaStore");
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public Element unsafeGetQuiet(Object key) {
-        if (underlyingStore instanceof TerracottaStore) {
-            return ((TerracottaStore) underlyingStore).unsafeGetQuiet(key);
-        }
-        throw new CacheException("underlying store is not an instance of TerracottaStore");
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public Element unlockedGet(Object key) {
-        if (underlyingStore instanceof TerracottaStore) {
-            return ((TerracottaStore) underlyingStore).unlockedGet(key);
-        }
-        throw new CacheException("underlying store is not an instance of TerracottaStore");
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public Element unlockedGetQuiet(Object key) {
-        if (underlyingStore instanceof TerracottaStore) {
-            return ((TerracottaStore) underlyingStore).unlockedGetQuiet(key);
-        }
-        throw new CacheException("underlying store is not an instance of TerracottaStore");
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public Set getLocalKeys() {
-        if (underlyingStore instanceof TerracottaStore) {
-            return ((TerracottaStore) underlyingStore).getLocalKeys();
-        }
-        throw new CacheException("underlying store is not an instance of TerracottaStore");
-    }
 }
