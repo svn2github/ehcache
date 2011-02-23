@@ -350,9 +350,10 @@ public interface Store {
      * <p />
      * It applies to coherent clustering mechanisms only e.g. Terracotta
      * @throws UnsupportedOperationException if this store does not support cache coherence, like RMI replication
+     * @throws InterruptedException
      * @since 2.0
      */
-    public void waitUntilClusterCoherent() throws UnsupportedOperationException, TerracottaNotRunningException;
+    public void waitUntilClusterCoherent() throws UnsupportedOperationException, TerracottaNotRunningException, InterruptedException;
 
     /**
      * Optional implementation specific MBean exposed by the store.

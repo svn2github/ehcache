@@ -51,7 +51,7 @@ import net.sf.ehcache.writer.CacheWriterManager;
  * @author Abhishek Sanoujam
  *
  */
-public class NonstopStoreImpl implements NonstopTimeoutBehaviorStoreResolver, NonstopStore {
+public class NonstopStoreImpl implements NonstopTimeoutBehaviorStoreResolver, RejoinAwareNonstopStore {
 
     private final NonstopActiveDelegateHolder nonstopActiveDelegateHolder;
     private final NonstopConfiguration nonstopConfig;
@@ -64,14 +64,14 @@ public class NonstopStoreImpl implements NonstopTimeoutBehaviorStoreResolver, No
      *
      */
     public NonstopStoreImpl(NonstopActiveDelegateHolder nonstopActiveDelegateHolder, CacheCluster cacheCluster,
-                            NonstopConfiguration nonstopConfig, CacheConfiguration.TransactionalMode transactionalMode,
-                            TransactionManagerLookup transactionManagerLookup) {
+            NonstopConfiguration nonstopConfig, CacheConfiguration.TransactionalMode transactionalMode,
+            TransactionManagerLookup transactionManagerLookup) {
         this.nonstopActiveDelegateHolder = nonstopActiveDelegateHolder;
         this.nonstopConfig = nonstopConfig;
         this.timeoutBehaviors = new ConcurrentHashMap<TimeoutBehaviorType, NonstopStore>();
         if (transactionalMode.equals(CacheConfiguration.TransactionalMode.XA_STRICT)) {
-            executorServiceStore = new TransactionalExecutorServiceStore(nonstopActiveDelegateHolder, nonstopConfig,
-                    this, cacheCluster, transactionManagerLookup);
+            executorServiceStore = new TransactionalExecutorServiceStore(nonstopActiveDelegateHolder, nonstopConfig, this, cacheCluster,
+                    transactionManagerLookup);
         } else {
             executorServiceStore = new ExecutorServiceStore(nonstopActiveDelegateHolder, nonstopConfig, this, cacheCluster);
         }
@@ -111,16 +111,18 @@ public class NonstopStoreImpl implements NonstopTimeoutBehaviorStoreResolver, No
         return nonstopCacheLockProvider;
     }
 
+    /**
+     * {@inheritDoc}
+     *
+     * @throws InterruptedException
+     */
+    public void waitUntilClusterCoherent() throws InterruptedException {
+        executorServiceStore.waitUntilClusterCoherent();
+    }
+
     // -------------------------------------------------------
     // Methods below delegate directly to the underlying store
     // -------------------------------------------------------
-
-    /**
-     * {@inheritDoc}
-     */
-    public void waitUntilClusterCoherent() throws UnsupportedOperationException {
-        nonstopActiveDelegateHolder.getUnderlyingTerracottaStore().waitUntilClusterCoherent();
-    }
 
     /**
      * {@inheritDoc}
@@ -454,6 +456,13 @@ public class NonstopStoreImpl implements NonstopTimeoutBehaviorStoreResolver, No
      */
     public <V> V executeClusterOperation(ClusterOperation<V> operation) {
         return executorServiceStore.executeClusterOperation(operation);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void clusterRejoined() {
+        executorServiceStore.clusterRejoined();
     }
 
 }

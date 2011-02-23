@@ -26,6 +26,7 @@ import net.sf.ehcache.store.AbstractStore;
 import net.sf.ehcache.store.Policy;
 import net.sf.ehcache.store.Store;
 import net.sf.ehcache.store.StoreQuery;
+import net.sf.ehcache.terracotta.TerracottaNotRunningException;
 import net.sf.ehcache.store.TerracottaStore;
 
 import java.io.IOException;
@@ -223,9 +224,12 @@ public abstract class AbstractTransactionStore extends AbstractStore implements 
 
     /**
      * {@inheritDoc}
+     * @throws InterruptedException
+     * @throws UnsupportedOperationException
+     * @throws TerracottaNotRunningException
      */
     @Override
-    public void waitUntilClusterCoherent() {
+    public void waitUntilClusterCoherent() throws TerracottaNotRunningException, UnsupportedOperationException, InterruptedException {
         underlyingStore.waitUntilClusterCoherent();
     }
 

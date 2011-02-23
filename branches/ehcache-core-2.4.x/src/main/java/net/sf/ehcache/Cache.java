@@ -36,8 +36,8 @@ import net.sf.ehcache.config.TerracottaConfiguration.Consistency;
 import net.sf.ehcache.constructs.nonstop.CacheManagerExecutorServiceFactory;
 import net.sf.ehcache.constructs.nonstop.NonstopActiveDelegateHolder;
 import net.sf.ehcache.constructs.nonstop.NonstopExecutorService;
-import net.sf.ehcache.constructs.nonstop.store.NonstopStore;
 import net.sf.ehcache.constructs.nonstop.store.NonstopStoreImpl;
+import net.sf.ehcache.constructs.nonstop.store.RejoinAwareNonstopStore;
 import net.sf.ehcache.event.CacheEventListener;
 import net.sf.ehcache.event.CacheEventListenerFactory;
 import net.sf.ehcache.event.RegisteredEventListeners;
@@ -3687,6 +3687,9 @@ public class Cache implements Ehcache, StoreListener {
         // initialize again
         initialise();
         cacheStatus.clusterRejoinComplete();
+        if (compoundStore instanceof RejoinAwareNonstopStore) {
+            ((RejoinAwareNonstopStore) compoundStore).clusterRejoined();
+        }
     }
 
     /**
@@ -3802,7 +3805,12 @@ public class Cache implements Ehcache, StoreListener {
      * {@inheritDoc}
      */
     public void waitUntilClusterBulkLoadComplete() throws UnsupportedOperationException, TerracottaNotRunningException {
-        compoundStore.waitUntilClusterCoherent();
+        try {
+            compoundStore.waitUntilClusterCoherent();
+        } catch (InterruptedException e) {
+            // re-throw as cacheException
+            throw new CacheException(e);
+        }
     }
 
     /**
@@ -3901,7 +3909,7 @@ public class Cache implements Ehcache, StoreListener {
             this.nodeBulkLoadEnabled = enabled;
         }
 
-        public NonstopStore getNonstopStore() {
+        public RejoinAwareNonstopStore getNonstopStore() {
             if (nonstopStore != null) {
                 return nonstopStore;
             }

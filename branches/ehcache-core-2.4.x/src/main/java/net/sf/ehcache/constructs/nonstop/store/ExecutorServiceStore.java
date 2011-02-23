@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Callable;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -55,7 +56,7 @@ import net.sf.ehcache.writer.CacheWriterManager;
  * @author Abhishek Sanoujam
  *
  */
-public class ExecutorServiceStore implements NonstopStore {
+public class ExecutorServiceStore implements RejoinAwareNonstopStore {
 
     /**
      * The NonstopConfiguration of the cache using this store
@@ -64,6 +65,7 @@ public class ExecutorServiceStore implements NonstopStore {
     private final NonstopActiveDelegateHolder nonstopActiveDelegateHolder;
     private final NonstopTimeoutBehaviorStoreResolver timeoutBehaviorResolver;
     private final AtomicBoolean clusterOffline = new AtomicBoolean();
+    private final List<RejoinAwareBlockingOperation> rejoinAwareOperations = new CopyOnWriteArrayList<RejoinAwareBlockingOperation>();
 
     /**
      * Constructor accepting the {@link NonstopActiveDelegateHolder}, {@link NonstopConfiguration} and
@@ -873,17 +875,27 @@ public class ExecutorServiceStore implements NonstopStore {
 
     /**
      * {@inheritDoc}.
+     *
+     * @throws InterruptedException
      */
-    public void waitUntilClusterCoherent() throws UnsupportedOperationException {
+    public void waitUntilClusterCoherent() throws UnsupportedOperationException, InterruptedException {
+        final RejoinAwareBlockingOperation<Void> operation = new RejoinAwareBlockingOperation<Void>(this, new Callable<Void>() {
+            public Void call() throws Exception {
+                nonstopActiveDelegateHolder.getUnderlyingTerracottaStore().waitUntilClusterCoherent();
+                return null;
+            }
+        });
+        rejoinAwareOperations.add(operation);
         try {
-            executeWithExecutor(new Callable<Void>() {
-                public Void call() throws Exception {
-                    nonstopActiveDelegateHolder.getUnderlyingTerracottaStore().waitUntilClusterCoherent();
-                    return null;
-                }
-            });
-        } catch (TimeoutException e) {
-            timeoutBehaviorResolver.resolveTimeoutBehaviorStore().waitUntilClusterCoherent();
+            operation.call();
+        } catch (Exception e) {
+            if (e instanceof InterruptedException) {
+                throw (InterruptedException) e;
+            } else {
+                throw new CacheException(e);
+            }
+        } finally {
+            rejoinAwareOperations.remove(operation);
         }
     }
 
@@ -1023,6 +1035,37 @@ public class ExecutorServiceStore implements NonstopStore {
     }
 
     /**
+     * Executes the {@link ClusterOperation} parameter, but without any timeout. This call will block until the {@link ClusterOperation}
+     * completes. The
+     * {@link ClusterOperation#performClusterOperationTimedOut(net.sf.ehcache.config.TimeoutBehaviorConfiguration.TimeoutBehaviorType)} will
+     * never be invoked for this
+     *
+     * @throws InterruptedException if the executing thread is interrupted before the {@link ClusterOperation} can complete
+     */
+    protected <V> V executeClusterOperationNoTimeout(final ClusterOperation<V> operation) throws InterruptedException {
+        try {
+            return executeWithExecutor(new ClusterOperationCallableImpl<V>(operation), Integer.MAX_VALUE, true);
+        } catch (TimeoutException e) {
+            throw new AssertionError("This should never happen as executed with no-timeout");
+        } catch (CacheException e) {
+            Throwable rootCause = getRootCause(e);
+            if (rootCause instanceof InterruptedException) {
+                throw (InterruptedException) rootCause;
+            } else {
+                throw e;
+            }
+        }
+    }
+
+    private Throwable getRootCause(final CacheException exception) {
+        Throwable e = exception;
+        while (e.getCause() != null) {
+            e = e.getCause();
+        }
+        return e;
+    }
+
+    /**
      * A {@link ClusterTopologyListener} implementation that listens for cluster online/offline events
      *
      * @author Abhishek Sanoujam
@@ -1077,5 +1120,14 @@ public class ExecutorServiceStore implements NonstopStore {
             // no-op
         }
 
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void clusterRejoined() {
+        for (RejoinAwareBlockingOperation operation : rejoinAwareOperations) {
+            operation.clusterRejoined();
+        }
     }
 }
