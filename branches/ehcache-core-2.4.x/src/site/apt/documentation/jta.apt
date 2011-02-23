@@ -56,6 +56,21 @@ Transactions in Ehcache
     price in performance to get that extra safety.
 
 
+*   Requirements
+
+    The objects you are going to store in your transactional cache must:
+
+    * implement <<<java.io.Serializable>>>
+
+    This is required to store cached objects when the cache is clustered with Terracotta but it's also required by the
+    copy on read / copy on write mechanism used to implement isolation.
+
+    * override <<<equals>>> and <<<hashcode>>>
+
+    Those must be overridden as the transactional stores rely on element value comparison, see: <<<ElementValueComparator>>>
+    and the <<<elementValueComparator>>> configuration setting.
+
+
 *   Configuration
 
     Transactions are enabled on a cache by cache basis with the <<<transactionalMode>>> cache attribute.
@@ -89,7 +104,7 @@ Transactions in Ehcache
 
 ** Considerations when using clustered caches with Terracotta
 
-    For Terracotta clustered caches, <<<transactionalMode>>> can only be used where <<<terracotta consistencyType="strong">>>. Because
+    For Terracotta clustered caches, <<<transactionalMode>>> can only be used where <<<terracotta consistency="strong">>>. Because
     caches can be dynamically changed into consistencyType=eventual mode for bulk loading, any attempt to perform a transaction when this
     is the case will throw a <<<CacheException>>>.
 
@@ -114,7 +129,7 @@ Transactions in Ehcache
     an {XAResouce} implementation. The latter decorates a LocalTransactionStore-decorated cache to make it controllable by the standard JTA API
     instead of the proprietary TransactionController API.
 
-    During it's initialization, the Cache will lookup the TransactionManager using the provided TransactionManagerLookup implementation.
+    During its initialization, the Cache will lookup the TransactionManager using the provided TransactionManagerLookup implementation.
     Then, using the <<<TransactionManagerLookup.register(XAResouce)>>>, the newly created XAResource will be registered.
 
     The store is automatically configured to copy every Element read from the cache or written to it. Cache is copy-on-read and copy-on-write.
@@ -476,4 +491,18 @@ Transactions in Ehcache
     <unregister-resource-grace-period>30</unregister-resource-grace-period>
     ...
   </jta>
+---
+
+**  How do I make Atomikos work with Ehcache JTA's <<<xa>>> mode?
+
+    Atomikos has a bug which makes the <<<xa>>> mode's normal transaction termination mechanism unreliable,
+    see: {{http://fogbugz.atomikos.com/default.asp?community.6.802.3}}.
+    There is an alternative termination mechanism built in that transaction mode that is automatically
+    enabled when <<<net.sf.ehcache.transaction.xa.alternativeTerminationMode>>> is set to true or when
+    Atomikos is detected as the controlling transaction manager.
+
+    This alternative termination mode has strict requirement on the way threads are used by the transaction
+    manager and Atomikos's default settings won't work. You have to configure this property to make it work:
+---
+  com.atomikos.icatch.threaded_2pc=false
 ---
