@@ -26,8 +26,6 @@ import java.util.LinkedList;
  */
 public final class ExplicitLockingContextThreadLocal {
 
-    private static final ExplicitLockingContextThreadLocal SINGLETON = new ExplicitLockingContextThreadLocal();
-
     private final ThreadLocal<ExplicitLockingContext> contextThreadLocal = new ThreadLocal<ExplicitLockingContext>() {
         @Override
         protected ExplicitLockingContextImpl initialValue() {
@@ -35,20 +33,11 @@ public final class ExplicitLockingContextThreadLocal {
         }
     };
 
-    /*
-     * private constructor
-     */
-    private ExplicitLockingContextThreadLocal() {
-        // private constructor
-    }
-
     /**
-     * Return the singleton instance
-     *
-     * @return the singleton instance
+     * Public constructor
      */
-    public static ExplicitLockingContextThreadLocal getInstance() {
-        return SINGLETON;
+    public ExplicitLockingContextThreadLocal() {
+        // private constructor
     }
 
     /**

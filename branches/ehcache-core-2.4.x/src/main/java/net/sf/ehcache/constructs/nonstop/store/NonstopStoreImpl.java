@@ -33,6 +33,7 @@ import net.sf.ehcache.config.NonstopConfiguration;
 import net.sf.ehcache.config.TimeoutBehaviorConfiguration.TimeoutBehaviorType;
 import net.sf.ehcache.constructs.nonstop.ClusterOperation;
 import net.sf.ehcache.constructs.nonstop.NonstopActiveDelegateHolder;
+import net.sf.ehcache.constructs.nonstop.concurrency.ExplicitLockingContextThreadLocal;
 import net.sf.ehcache.constructs.nonstop.concurrency.NonstopCacheLockProvider;
 import net.sf.ehcache.search.Attribute;
 import net.sf.ehcache.search.Results;
@@ -57,6 +58,7 @@ public class NonstopStoreImpl implements NonstopTimeoutBehaviorStoreResolver, Re
     private final NonstopConfiguration nonstopConfig;
     private final ConcurrentMap<TimeoutBehaviorType, NonstopStore> timeoutBehaviors;
     private final ExecutorServiceStore executorServiceStore;
+    private final ExplicitLockingContextThreadLocal explicitLockingContextThreadLocal;
     private final CacheLockProvider nonstopCacheLockProvider;
 
     /**
@@ -68,14 +70,16 @@ public class NonstopStoreImpl implements NonstopTimeoutBehaviorStoreResolver, Re
             TransactionManagerLookup transactionManagerLookup) {
         this.nonstopActiveDelegateHolder = nonstopActiveDelegateHolder;
         this.nonstopConfig = nonstopConfig;
+        this.explicitLockingContextThreadLocal = new ExplicitLockingContextThreadLocal();
         this.timeoutBehaviors = new ConcurrentHashMap<TimeoutBehaviorType, NonstopStore>();
         if (transactionalMode.equals(CacheConfiguration.TransactionalMode.XA_STRICT)) {
             executorServiceStore = new TransactionalExecutorServiceStore(nonstopActiveDelegateHolder, nonstopConfig, this, cacheCluster,
-                    transactionManagerLookup);
+                    transactionManagerLookup, explicitLockingContextThreadLocal);
         } else {
-            executorServiceStore = new ExecutorServiceStore(nonstopActiveDelegateHolder, nonstopConfig, this, cacheCluster);
+            executorServiceStore = new ExecutorServiceStore(nonstopActiveDelegateHolder, nonstopConfig, this, cacheCluster,
+                    explicitLockingContextThreadLocal);
         }
-        this.nonstopCacheLockProvider = new NonstopCacheLockProvider(this, nonstopActiveDelegateHolder);
+        this.nonstopCacheLockProvider = new NonstopCacheLockProvider(this, nonstopActiveDelegateHolder, explicitLockingContextThreadLocal);
     }
 
     /**

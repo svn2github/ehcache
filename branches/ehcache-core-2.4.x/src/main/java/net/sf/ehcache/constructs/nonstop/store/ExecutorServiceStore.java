@@ -66,18 +66,22 @@ public class ExecutorServiceStore implements RejoinAwareNonstopStore {
     private final NonstopTimeoutBehaviorStoreResolver timeoutBehaviorResolver;
     private final AtomicBoolean clusterOffline = new AtomicBoolean();
     private final List<RejoinAwareBlockingOperation> rejoinAwareOperations = new CopyOnWriteArrayList<RejoinAwareBlockingOperation>();
+    private final ExplicitLockingContextThreadLocal explicitLockingContextThreadLocal;
 
     /**
      * Constructor accepting the {@link NonstopActiveDelegateHolder}, {@link NonstopConfiguration} and
      * {@link NonstopTimeoutBehaviorStoreResolver}
      *
+     * @param explicitLockingContextThreadLocal
+     *
      */
     public ExecutorServiceStore(final NonstopActiveDelegateHolder nonstopActiveDelegateHolder,
             final NonstopConfiguration nonstopConfiguration, final NonstopTimeoutBehaviorStoreResolver timeoutBehaviorResolver,
-            CacheCluster cacheCluster) {
+            CacheCluster cacheCluster, ExplicitLockingContextThreadLocal explicitLockingContextThreadLocal) {
         this.nonstopActiveDelegateHolder = nonstopActiveDelegateHolder;
         this.nonstopConfiguration = nonstopConfiguration;
         this.timeoutBehaviorResolver = timeoutBehaviorResolver;
+        this.explicitLockingContextThreadLocal = explicitLockingContextThreadLocal;
         cacheCluster.addTopologyListener(new ClusterStatusListener(this, cacheCluster));
     }
 
@@ -143,10 +147,10 @@ public class ExecutorServiceStore implements RejoinAwareNonstopStore {
         if (!force) {
             checkForClusterOffline(start, timeOutMills);
         }
-        final boolean operationUnderExplicitLock = ExplicitLockingContextThreadLocal.getInstance().areAnyExplicitLocksAcquired();
+        final boolean operationUnderExplicitLock = explicitLockingContextThreadLocal.areAnyExplicitLocksAcquired();
         if (operationUnderExplicitLock) {
-            effectiveCallable = new CacheOperationUnderExplicitLockCallable<V>(ExplicitLockingContextThreadLocal.getInstance()
-                    .getCurrentThreadLockContext(), nonstopConfiguration, callable);
+            effectiveCallable = new CacheOperationUnderExplicitLockCallable<V>(
+                    explicitLockingContextThreadLocal.getCurrentThreadLockContext(), nonstopConfiguration, callable);
         }
         try {
             final long remaining = timeOutMills - TimeUnit.MILLISECONDS.convert(System.nanoTime() - start, TimeUnit.NANOSECONDS);

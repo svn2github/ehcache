@@ -33,7 +33,7 @@ class NonstopSync implements Sync {
 
     private final NonstopStore nonstopStore;
     // private final Sync delegateSync;
-    private final ExplicitLockingContextThreadLocal explicitLockingContextThreadLocal = ExplicitLockingContextThreadLocal.getInstance();
+    private final ExplicitLockingContextThreadLocal explicitLockingContextThreadLocal;
     private final Object key;
     private final NonstopActiveDelegateHolder nonstopActiveDelegateHolder;
 
@@ -43,10 +43,13 @@ class NonstopSync implements Sync {
      * @param nonstopStore
      * @param nonstopActiveDelegateHolder
      * @param key
+     * @param key2
      */
-    public NonstopSync(NonstopStore nonstopStore, NonstopActiveDelegateHolder nonstopActiveDelegateHolder, Object key) {
+    public NonstopSync(NonstopStore nonstopStore, NonstopActiveDelegateHolder nonstopActiveDelegateHolder,
+            ExplicitLockingContextThreadLocal explicitLockingContextThreadLocal, Object key) {
         this.nonstopStore = nonstopStore;
         this.nonstopActiveDelegateHolder = nonstopActiveDelegateHolder;
+        this.explicitLockingContextThreadLocal = explicitLockingContextThreadLocal;
         this.key = key;
     }
 

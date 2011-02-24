@@ -21,6 +21,7 @@ import net.sf.ehcache.Element;
 import net.sf.ehcache.cluster.CacheCluster;
 import net.sf.ehcache.config.NonstopConfiguration;
 import net.sf.ehcache.constructs.nonstop.NonstopActiveDelegateHolder;
+import net.sf.ehcache.constructs.nonstop.concurrency.ExplicitLockingContextThreadLocal;
 import net.sf.ehcache.store.ElementValueComparator;
 import net.sf.ehcache.transaction.manager.TransactionManagerLookup;
 import net.sf.ehcache.writer.CacheWriterManager;
@@ -52,18 +53,20 @@ public class TransactionalExecutorServiceStore extends ExecutorServiceStore {
 
     /**
      * Constructor
+     * @param explicitLockingContextThreadLocal
      */
     public TransactionalExecutorServiceStore(final NonstopActiveDelegateHolder nonstopActiveDelegateHolder,
-                                             final NonstopConfiguration nonstopConfiguration,
-                                             final NonstopTimeoutBehaviorStoreResolver timeoutBehaviorResolver,
-                                             CacheCluster cacheCluster, TransactionManagerLookup transactionManagerLookup) {
-        super(nonstopActiveDelegateHolder, nonstopConfiguration, timeoutBehaviorResolver, cacheCluster);
+            final NonstopConfiguration nonstopConfiguration, final NonstopTimeoutBehaviorStoreResolver timeoutBehaviorResolver,
+            CacheCluster cacheCluster, TransactionManagerLookup transactionManagerLookup,
+            ExplicitLockingContextThreadLocal explicitLockingContextThreadLocal) {
+        super(nonstopActiveDelegateHolder, nonstopConfiguration, timeoutBehaviorResolver, cacheCluster, explicitLockingContextThreadLocal);
         this.transactionManager = transactionManagerLookup.getTransactionManager();
     }
 
     /**
      * {@inheritDoc}.
      */
+    @Override
     public boolean put(final Element element) throws CacheException {
         boolean rv = false;
         final Transaction tx = suspendCaller();
@@ -90,6 +93,7 @@ public class TransactionalExecutorServiceStore extends ExecutorServiceStore {
     /**
      * {@inheritDoc}.
      */
+    @Override
     public boolean putWithWriter(final Element element, final CacheWriterManager writerManager) throws CacheException {
         boolean rv = false;
         final Transaction tx = suspendCaller();
@@ -115,6 +119,7 @@ public class TransactionalExecutorServiceStore extends ExecutorServiceStore {
     /**
      * {@inheritDoc}.
      */
+    @Override
     public Element get(final Object key) {
         Element rv = null;
         final Transaction tx = suspendCaller();
@@ -140,6 +145,7 @@ public class TransactionalExecutorServiceStore extends ExecutorServiceStore {
     /**
      * {@inheritDoc}.
      */
+    @Override
     public Element getQuiet(final Object key) {
         Element rv = null;
         final Transaction tx = suspendCaller();
@@ -165,6 +171,7 @@ public class TransactionalExecutorServiceStore extends ExecutorServiceStore {
     /**
      * {@inheritDoc}.
      */
+    @Override
     public List getKeys() {
         List rv = null;
         final Transaction tx = suspendCaller();
@@ -190,6 +197,7 @@ public class TransactionalExecutorServiceStore extends ExecutorServiceStore {
     /**
      * {@inheritDoc}.
      */
+    @Override
     public Element remove(final Object key) {
         Element rv = null;
         final Transaction tx = suspendCaller();
@@ -215,6 +223,7 @@ public class TransactionalExecutorServiceStore extends ExecutorServiceStore {
     /**
      * {@inheritDoc}.
      */
+    @Override
     public Element removeWithWriter(final Object key, final CacheWriterManager writerManager) throws CacheException {
         Element rv = null;
         final Transaction tx = suspendCaller();
@@ -242,6 +251,7 @@ public class TransactionalExecutorServiceStore extends ExecutorServiceStore {
      * The timeout used by this method is {@link net.sf.ehcache.config.NonstopConfiguration#getBulkOpsTimeoutMultiplyFactor()} times the timeout value in the
      * config.
      */
+    @Override
     public void removeAll() throws CacheException {
         final Transaction tx = suspendCaller();
         try {
@@ -266,6 +276,7 @@ public class TransactionalExecutorServiceStore extends ExecutorServiceStore {
     /**
      * {@inheritDoc}.
      */
+    @Override
     public Element putIfAbsent(final Element element) throws NullPointerException {
         Element rv = null;
         final Transaction tx = suspendCaller();
@@ -291,6 +302,7 @@ public class TransactionalExecutorServiceStore extends ExecutorServiceStore {
     /**
      * {@inheritDoc}.
      */
+    @Override
     public Element removeElement(final Element element, final ElementValueComparator comparator) throws NullPointerException {
         Element rv = null;
         final Transaction tx = suspendCaller();
@@ -316,6 +328,7 @@ public class TransactionalExecutorServiceStore extends ExecutorServiceStore {
     /**
      * {@inheritDoc}.
      */
+    @Override
     public boolean replace(final Element old, final Element element, final ElementValueComparator comparator) throws NullPointerException,
             IllegalArgumentException {
         boolean rv = false;
@@ -342,6 +355,7 @@ public class TransactionalExecutorServiceStore extends ExecutorServiceStore {
     /**
      * {@inheritDoc}.
      */
+    @Override
     public Element replace(final Element element) throws NullPointerException {
         Element rv = null;
         final Transaction tx = suspendCaller();
@@ -367,6 +381,7 @@ public class TransactionalExecutorServiceStore extends ExecutorServiceStore {
     /**
      * {@inheritDoc}.
      */
+    @Override
     public int getSize() {
         int rv = 0;
         final Transaction tx = suspendCaller();
@@ -393,6 +408,7 @@ public class TransactionalExecutorServiceStore extends ExecutorServiceStore {
     /**
      * {@inheritDoc}.
      */
+    @Override
     public int getTerracottaClusteredSize() {
         int rv = 0;
         final Transaction tx = suspendCaller();
@@ -418,6 +434,7 @@ public class TransactionalExecutorServiceStore extends ExecutorServiceStore {
     /**
      * {@inheritDoc}.
      */
+    @Override
     public boolean containsKey(final Object key) {
         boolean rv = false;
         final Transaction tx = suspendCaller();
