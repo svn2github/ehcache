@@ -38,23 +38,27 @@ public class NonstopCacheLockProvider implements CacheLockProvider {
 
     private final NonstopStore nonstopStore;
     private final NonstopActiveDelegateHolder nonstopActiveDelegateHolder;
+    private final ExplicitLockingContextThreadLocal explicitLockingContextThreadLocal;
 
     /**
      * Public constructor
      *
      * @param nonstopStore
      * @param nonstopActiveDelegateHolder
+     * @param explicitLockingContextThreadLocal
      */
-    public NonstopCacheLockProvider(NonstopStore nonstopStore, NonstopActiveDelegateHolder nonstopActiveDelegateHolder) {
+    public NonstopCacheLockProvider(NonstopStore nonstopStore, NonstopActiveDelegateHolder nonstopActiveDelegateHolder,
+            ExplicitLockingContextThreadLocal explicitLockingContextThreadLocal) {
         this.nonstopStore = nonstopStore;
         this.nonstopActiveDelegateHolder = nonstopActiveDelegateHolder;
+        this.explicitLockingContextThreadLocal = explicitLockingContextThreadLocal;
     }
 
     /**
      * {@inheritDoc}
      */
     public Sync getSyncForKey(Object key) {
-        return new NonstopSync(nonstopStore, nonstopActiveDelegateHolder, key);
+        return new NonstopSync(nonstopStore, nonstopActiveDelegateHolder, explicitLockingContextThreadLocal, key);
     }
 
     /**
@@ -63,7 +67,7 @@ public class NonstopCacheLockProvider implements CacheLockProvider {
     public Sync[] getAndWriteLockAllSyncForKeys(Object... keys) {
         final NonstopSync[] syncs = new NonstopSync[keys.length];
         for (int i = 0; i < keys.length; i++) {
-            syncs[i] = new NonstopSync(nonstopStore, nonstopActiveDelegateHolder, keys[i]);
+            syncs[i] = new NonstopSync(nonstopStore, nonstopActiveDelegateHolder, explicitLockingContextThreadLocal, keys[i]);
         }
         InvalidLockStateAfterRejoinException invalidLockStateException = null;
         final List<Object> lockedKeys = new ArrayList<Object>();
@@ -91,7 +95,7 @@ public class NonstopCacheLockProvider implements CacheLockProvider {
     public Sync[] getAndWriteLockAllSyncForKeys(long timeout, Object... keys) throws TimeoutException {
         final NonstopSync[] syncs = new NonstopSync[keys.length];
         for (int i = 0; i < keys.length; i++) {
-            syncs[i] = new NonstopSync(nonstopStore, nonstopActiveDelegateHolder, keys[i]);
+            syncs[i] = new NonstopSync(nonstopStore, nonstopActiveDelegateHolder, explicitLockingContextThreadLocal, keys[i]);
         }
         final List<Object> lockedKeys = new ArrayList<Object>();
         for (NonstopSync nonstopSync : syncs) {
@@ -125,7 +129,7 @@ public class NonstopCacheLockProvider implements CacheLockProvider {
     public void unlockWriteLockForAllKeys(Object... keys) {
         final NonstopSync[] syncs = new NonstopSync[keys.length];
         for (int i = 0; i < keys.length; i++) {
-            syncs[i] = new NonstopSync(nonstopStore, nonstopActiveDelegateHolder, keys[i]);
+            syncs[i] = new NonstopSync(nonstopStore, nonstopActiveDelegateHolder, explicitLockingContextThreadLocal, keys[i]);
         }
         InvalidLockStateAfterRejoinException invalidLockStateException = null;
         final List<Object> invalidStateKeys = new ArrayList<Object>();
