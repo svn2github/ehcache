@@ -198,6 +198,8 @@
         <xs:sequence>
           <xs:element minOccurs="0" maxOccurs="unbounded" ref="searchAttribute"/>                
         </xs:sequence>
+        <xs:attribute name="keys" use="optional" type="xs:boolean" default="true"/>
+        <xs:attribute name="values" use="optional" type="xs:boolean" default="true"/>
       </xs:complexType>
     </xs:element>
     

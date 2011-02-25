@@ -3621,7 +3621,16 @@ public class Cache implements Ehcache, StoreListener {
         Attribute<T> searchAttribute = compoundStore.getSearchAttribute(attributeName);
 
         if (searchAttribute == null) {
-            throw new CacheException("No such search attribute [" + attributeName + "] defined for this cache [" + getName() + "]");
+            final String msg;
+            if (attributeName.equals(Query.KEY.getAttributeName())) {
+                msg = "Key search attribute is disabled for cache [" + getName() + "]. It can be enabled with <searchable keys=\"true\"...";
+            } else if (attributeName.equals(Query.VALUE.getAttributeName())) {
+                msg = "Value search attribute is disabled for cache [" + getName() + "]. It can be enabled with <searchable values=\"true\"...";
+            } else {
+                msg = "No such search attribute [" + attributeName + "] defined for this cache [" + getName() + "]";
+            }
+
+            throw new CacheException(msg);
         }
 
         return searchAttribute;

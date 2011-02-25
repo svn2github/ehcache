@@ -38,8 +38,9 @@
        <!--<searchable metadata="true"/>-->
     <!--</cache>-->
     
-
-
+    <cache name="searchable-no-keys-values" maxElementsInMemory="0" eternal="true" overflowToDisk="false">
+       <searchable keys="false" values="false"/>
+    </cache>
 
     <cache name="bean-attributes" maxElementsInMemory="0" eternal="true" overflowToDisk="false">
        <searchable>
