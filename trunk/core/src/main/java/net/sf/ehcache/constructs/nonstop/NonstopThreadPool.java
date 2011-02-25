@@ -18,7 +18,6 @@ package net.sf.ehcache.constructs.nonstop;
 
 import java.lang.ref.ReferenceQueue;
 import java.lang.ref.WeakReference;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -73,41 +72,49 @@ public class NonstopThreadPool {
     }
 
     private void startReaperThread() {
-        Thread reaperThread = new Thread(new Runnable() {
+        Thread reaperThread = new Thread(new ReaperThread(), "non stop reaper thread");
+        reaperThread.start();
+    }
 
-            public void run() {
-                int pollCount = 0;
-                while (state.get() != State.SHUTDOWN) {
-                    WeakWorkerReference gcedThreadReference = null;
-                    try {
-                        gcedThreadReference = (WeakWorkerReference) gcedThreadsReferenceQueue.remove(POLL_TIME_MILLIS);
-                        // check if threads are alive every 10 loop and shut them down
-                        if (++pollCount == NUM_OF_POLLS_BEFORE_CHECK_THREADS_ALIVE) {
-                            Set<Thread> deadThreads = new HashSet<Thread>();
-                            pollCount = 0;
-                            synchronized (workersLock) {
-                                for (Entry<Thread, WorkerThreadLocal>entry : workers.entrySet()) {
-                                    if (!entry.getKey().isAlive()) {
-                                        entry.getValue().shutdownNow();
-                                        deadThreads.add(entry.getKey());
-                                    }
-                                }
+    /**
+     * class which manages the alive non stop threads
+     *
+     * @author Raghvendra Singh
+     *
+     */
+    private class ReaperThread implements Runnable {
 
-                                for(Thread th : deadThreads){
-                                    workers.remove(th);
+        public void run() {
+            int pollCount = 0;
+            while (state.get() != State.SHUTDOWN) {
+                WeakWorkerReference gcedThreadReference = null;
+                try {
+                    gcedThreadReference = (WeakWorkerReference) gcedThreadsReferenceQueue.remove(POLL_TIME_MILLIS);
+                    // check if threads are alive every 10 loop and shut them down
+                    if (++pollCount == NUM_OF_POLLS_BEFORE_CHECK_THREADS_ALIVE) {
+                        Set<Thread> deadThreads = new HashSet<Thread>();
+                        pollCount = 0;
+                        synchronized (workersLock) {
+                            for (Entry<Thread, WorkerThreadLocal> entry : workers.entrySet()) {
+                                if (!entry.getKey().isAlive()) {
+                                    entry.getValue().shutdownNow();
+                                    deadThreads.add(entry.getKey());
                                 }
                             }
+
+                            for (Thread th : deadThreads) {
+                                workers.remove(th);
+                            }
                         }
-                    } catch (InterruptedException e) {
-                        // ignored
                     }
-                    if (gcedThreadReference != null) {
-                        gcedThreadReference.getWorker().shutdownNow();
-                    }
+                } catch (InterruptedException e) {
+                    // ignored
+                }
+                if (gcedThreadReference != null) {
+                    gcedThreadReference.getWorker().shutdownNow();
                 }
             }
-        }, "non stop reaper thread");
-        reaperThread.start();
+        }
     }
 
     private void rejectExecutionAfterShutdown() {
