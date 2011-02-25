@@ -16,8 +16,14 @@
 
 package net.sf.ehcache.constructs.nonstop;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.lang.ref.ReferenceQueue;
+import java.lang.ref.WeakReference;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+import java.util.WeakHashMap;
+import java.util.Map.Entry;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
 import java.util.concurrent.FutureTask;
@@ -33,19 +39,23 @@ import java.util.concurrent.atomic.AtomicReference;
  */
 public class NonstopThreadPool {
 
+    private static final long POLL_TIME_MILLIS = 1000;
+    private static final long NUM_OF_POLLS_BEFORE_CHECK_THREADS_ALIVE = 100;
+
     private final ThreadFactory threadFactory;
-    private final List<WorkerThreadLocal> workers = new ArrayList<WorkerThreadLocal>();
+    private final Map<Thread, WorkerThreadLocal> workers = new WeakHashMap<Thread, WorkerThreadLocal>();
     private final Object workersLock = new Object();
     private final AtomicReference<State> state = new AtomicReference<State>(State.RUNNING);
+    private final ReferenceQueue<Thread> gcedThreadsReferenceQueue = new ReferenceQueue<Thread>();
     private final ThreadLocal<WorkerThreadLocal> workerThreadLocal = new ThreadLocal<WorkerThreadLocal>() {
         @Override
         protected WorkerThreadLocal initialValue() {
-            WorkerThreadLocal local = new WorkerThreadLocal(threadFactory);
+            WorkerThreadLocal local = new WorkerThreadLocal(threadFactory, gcedThreadsReferenceQueue);
             synchronized (workersLock) {
                 if (state.get() == State.SHUTDOWN) {
                     rejectExecutionAfterShutdown();
                 }
-                workers.add(local);
+                workers.put(Thread.currentThread(), local);
             }
             return local;
         }
@@ -59,6 +69,45 @@ public class NonstopThreadPool {
      */
     public NonstopThreadPool(ThreadFactory threadFactory) {
         this.threadFactory = threadFactory;
+        startReaperThread();
+    }
+
+    private void startReaperThread() {
+        Thread reaperThread = new Thread(new Runnable() {
+
+            public void run() {
+                int pollCount = 0;
+                while (state.get() != State.SHUTDOWN) {
+                    WeakWorkerReference gcedThreadReference = null;
+                    try {
+                        gcedThreadReference = (WeakWorkerReference) gcedThreadsReferenceQueue.remove(POLL_TIME_MILLIS);
+                        // check if threads are alive every 10 loop and shut them down
+                        if (++pollCount == NUM_OF_POLLS_BEFORE_CHECK_THREADS_ALIVE) {
+                            Set<Thread> deadThreads = new HashSet<Thread>();
+                            pollCount = 0;
+                            synchronized (workersLock) {
+                                for (Entry<Thread, WorkerThreadLocal>entry : workers.entrySet()) {
+                                    if (!entry.getKey().isAlive()) {
+                                        entry.getValue().shutdownNow();
+                                        deadThreads.add(entry.getKey());
+                                    }
+                                }
+
+                                for(Thread th : deadThreads){
+                                    workers.remove(th);
+                                }
+                            }
+                        }
+                    } catch (InterruptedException e) {
+                        // ignored
+                    }
+                    if (gcedThreadReference != null) {
+                        gcedThreadReference.getWorker().shutdownNow();
+                    }
+                }
+            }
+        }, "non stop reaper thread");
+        reaperThread.start();
     }
 
     private void rejectExecutionAfterShutdown() {
@@ -85,7 +134,7 @@ public class NonstopThreadPool {
     public void shutdownNow() {
         state.set(State.SHUTDOWN);
         synchronized (workersLock) {
-            for (WorkerThreadLocal worker : workers) {
+            for (WorkerThreadLocal worker : workers.values()) {
                 worker.shutdownNow();
             }
         }
@@ -100,10 +149,12 @@ public class NonstopThreadPool {
     private static class WorkerThreadLocal {
 
         private final Worker worker;
+        private final WeakWorkerReference appThreadReference;
 
-        public WorkerThreadLocal(ThreadFactory threadFactory) {
+        public WorkerThreadLocal(ThreadFactory threadFactory, ReferenceQueue<Thread> gcedThreadsReferenceQueue) {
             this.worker = new Worker();
             threadFactory.newThread(worker).start();
+            this.appThreadReference = new WeakWorkerReference(this.worker, Thread.currentThread(), gcedThreadsReferenceQueue);
         }
 
         public void shutdownNow() {
@@ -216,6 +267,26 @@ public class NonstopThreadPool {
         public synchronized boolean isTaskAvailable() {
             return task != null;
         }
+    }
+
+    /**
+     * private class maintaining the app thread and its corresponding worker thread
+     *
+     * @author Raghvendra Singh
+     */
+    private static class WeakWorkerReference extends WeakReference<Thread> {
+
+        private final Worker worker;
+
+        public WeakWorkerReference(Worker worker, Thread referent, ReferenceQueue<? super Thread> q) {
+            super(referent, q);
+            this.worker = worker;
+        }
+
+        public Worker getWorker() {
+            return this.worker;
+        }
+
     }
 
     /**
