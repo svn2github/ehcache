@@ -174,21 +174,6 @@ public class ProductInfo {
                     " Please make sure both versions are compatible!";
             throw new CacheException(msg);
         }
-
-        boolean coreEe = coreProductInfo.isEnterprise();
-        if (coreEe != isEnterprise()) {
-            String msg;
-            if (!coreEe) {
-                msg = getName() + " can only be used with the Enterprise version of ehcache-core" +
-                    " (found non-ee version [" + coreVersion + "] on the classpath)." +
-                    " Please make sure you are using ehcache-core-ee instead of ehcache-core!";
-            } else {
-                msg = getName() + " can only be used with the Open Source version of ehcache-core" +
-                    " (found ee version [" + coreVersion + "] on the classpath)." +
-                    " Please make sure you are using ehcache-core instead of ehcache-core-ee!";
-            }
-            throw new CacheException(msg);
-        }
     }
 
 
