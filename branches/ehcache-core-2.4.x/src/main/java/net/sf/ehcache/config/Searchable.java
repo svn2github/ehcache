@@ -33,24 +33,29 @@ import net.sf.ehcache.search.attribute.ValueObjectAttributeExtractor;
 public class Searchable {
 
     /**
+     * Default for auto-searchable keys
+     */
+    public static final boolean KEYS_DEFAULT = true;
+
+    /**
+     * Default for auto-searchable values
+     */
+    public static final boolean VALUES_DEFAULT = true;
+
+    /**
      * The defined search attributes (if any) indexed by name
      */
     private final Map<String, SearchAttribute> searchAttributes = new HashMap<String, SearchAttribute>();
     private boolean frozen;
+    private boolean keys;
+    private boolean values;
 
     /**
      * Constructor
      */
     public Searchable() {
-        addDefaultKeyValueAttributes();
-    }
-
-    private void addDefaultKeyValueAttributes() {
-        String keyAttr = Query.KEY.getAttributeName();
-        searchAttributes.put(keyAttr, new SearchAttribute().name(keyAttr).className(KeyObjectAttributeExtractor.class.getName()));
-
-        String valueAttr = Query.VALUE.getAttributeName();
-        searchAttributes.put(valueAttr, new SearchAttribute().name(valueAttr).className(ValueObjectAttributeExtractor.class.getName()));
+        setKeys(KEYS_DEFAULT);
+        setValues(VALUES_DEFAULT);
     }
 
     /**
@@ -127,5 +132,73 @@ public class Searchable {
         copy.remove(Query.KEY.getAttributeName());
         copy.remove(Query.VALUE.getAttributeName());
         return copy;
+    }
+
+    /**
+     * Are keys searchable?
+     *
+     * @return true if keys are searchable
+     */
+    public boolean keys() {
+        return keys;
+    }
+
+    /**
+     * Are values searchable?
+     *
+     * @return true if values are searchable
+     */
+    public boolean values() {
+        return values;
+    }
+
+    /**
+     * Toggle searchable values
+     *
+     * @param b
+     */
+    public void values(boolean b) {
+        setValues(b);
+    }
+
+    /**
+     * Toggle searchable keys
+     *
+     * @param b
+     */
+    public void keys(boolean b) {
+        setKeys(b);
+    }
+
+    /**
+     * Toggle searchable keys
+     *
+     * @param keys
+     */
+    public void setKeys(boolean keys) {
+        checkDynamicChange();
+        this.keys = keys;
+        if (!keys) {
+            searchAttributes.remove(Query.KEY.getAttributeName());
+        } else {
+            String keyAttr = Query.KEY.getAttributeName();
+            searchAttributes.put(keyAttr, new SearchAttribute().name(keyAttr).className(KeyObjectAttributeExtractor.class.getName()));
+        }
+    }
+
+    /**
+     * Toggle searchable values
+     *
+     * @param values
+     */
+    public void setValues(boolean values) {
+        checkDynamicChange();
+        this.values = values;
+        if (!values) {
+            searchAttributes.remove(Query.VALUE.getAttributeName());
+        } else {
+            String valueAttr = Query.VALUE.getAttributeName();
+            searchAttributes.put(valueAttr, new SearchAttribute().name(valueAttr).className(ValueObjectAttributeExtractor.class.getName()));
+        }
     }
 }

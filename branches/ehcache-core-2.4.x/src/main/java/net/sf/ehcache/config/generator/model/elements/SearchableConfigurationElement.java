@@ -19,6 +19,7 @@ package net.sf.ehcache.config.generator.model.elements;
 import net.sf.ehcache.config.SearchAttribute;
 import net.sf.ehcache.config.Searchable;
 import net.sf.ehcache.config.generator.model.NodeElement;
+import net.sf.ehcache.config.generator.model.SimpleNodeAttribute;
 import net.sf.ehcache.config.generator.model.SimpleNodeElement;
 
 /**
@@ -51,6 +52,9 @@ public class SearchableConfigurationElement extends SimpleNodeElement {
         for (SearchAttribute sa : searchable.getUserDefinedSearchAttributes().values()) {
             addChildElement(sa.asConfigElement(this));
         }
+
+        addAttribute(new SimpleNodeAttribute("keys", searchable.keys()).optional(true).defaultValue(Searchable.KEYS_DEFAULT));
+        addAttribute(new SimpleNodeAttribute("values", searchable.values()).optional(true).defaultValue(Searchable.VALUES_DEFAULT));
     }
 
 }

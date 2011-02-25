@@ -64,6 +64,36 @@ public class BasicSearchTest {
     }
 
     @Test
+    public void testKeysValuesDisabled() {
+        CacheManager cacheManager = new CacheManager(getClass().getResource("/ehcache-search.xml"));
+
+        Cache cache = cacheManager.getCache("searchable-no-keys-values");
+
+        CacheConfiguration config = cache.getCacheConfiguration();
+
+        Searchable searchable = config.getSearchable();
+
+        assertFalse(searchable.keys());
+        assertFalse(searchable.values());
+
+        try {
+            cache.getSearchAttribute(Query.KEY.getAttributeName());
+            fail();
+        } catch (CacheException se) {
+            // expected
+            System.err.println(se.getMessage());
+        }
+
+        try {
+            cache.getSearchAttribute(Query.VALUE.getAttributeName());
+            fail();
+        } catch (CacheException se) {
+            // expected
+            System.err.println(se.getMessage());
+        }
+    }
+
+    @Test
     public void testNonSearchableCache() {
         CacheManager cacheManager = new CacheManager(getClass().getResource("/ehcache-search.xml"));
         Ehcache cache = cacheManager.getEhcache("not-searchable");
@@ -150,7 +180,7 @@ public class BasicSearchTest {
             // expected
         }
         try {
-            query1.includeAttribute(new Attribute[]{new Attribute("foo"), null});
+            query1.includeAttribute(new Attribute[] { new Attribute("foo"), null });
             fail();
         } catch (NullPointerException npe) {
             // expected
@@ -648,7 +678,6 @@ public class BasicSearchTest {
         query.end();
         verify(cache, query);
 
-
         query = cache.createQuery();
         query.includeKeys();
         query.addCriteria(cache.getSearchAttribute("gender").eq(Gender.MALE).not());
@@ -922,7 +951,6 @@ public class BasicSearchTest {
             }
         }
     }
-
 
     private void verify(Ehcache cache, Query query, Integer... expectedKeys) {
         Results results = query.execute();
