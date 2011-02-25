@@ -692,6 +692,23 @@ used with JMX monitors.
         <cacheLoaderFactory class="com.example.ExampleCacheLoaderFactory"
                                       properties="type=int,startCounter=10"/>
 
+    Element value comparator
+    ++++++++++++++++++++++++
+
+    These two cache atomic methods:
+      removeElement(Element e)
+      replace(Element old, Element element)
+
+    rely on comparison of cached elements value. The default implementation relies on Object.equals()
+    but that can be changed in case you want to use a different way to compute equality of two elements.
+
+    This is configured as per the following example:
+
+    <elementValueComparator class="com.company.xyz.MyElementComparator"/>
+
+    The MyElementComparator class must implement the is net.sf.ehcache.store.ElementValueComparator
+    interface. The default implementation is net.sf.ehcache.store.DefaultElementValueComparator.
+
     Transactions
     ++++++++++++
 
