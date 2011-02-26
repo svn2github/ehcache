@@ -31,11 +31,11 @@ import net.sf.ehcache.management.sampled.SampledCacheManager;
 
 /**
  * Implementation of {@link EhcacheStats}
- * 
+ *
  * <p />
- * 
+ *
  * @author <a href="mailto:asanoujam@terracottatech.com">Abhishek Sanoujam</a>
- * 
+ *
  */
 public class EhcacheStatsImpl extends BaseEmitterBean implements EhcacheStats {
     private static final long MILLIS_PER_SECOND = 1000;
@@ -55,7 +55,7 @@ public class EhcacheStatsImpl extends BaseEmitterBean implements EhcacheStats {
 
     /**
      * Constructor accepting the backing {@link CacheManager}
-     * @throws NotCompliantMBeanException 
+     * @throws NotCompliantMBeanException
      */
     public EhcacheStatsImpl(CacheManager manager) throws NotCompliantMBeanException {
         super(EhcacheStats.class);
@@ -326,7 +326,8 @@ public class EhcacheStatsImpl extends BaseEmitterBean implements EhcacheStats {
             Cache cache = cacheManager.getCache(name);
             if (cache != null) {
                 rv.put(name, new int[] {(int) cache.getSampledCacheStatistics().getCacheHitMostRecentSample(),
-                        (int) cache.getSampledCacheStatistics().getCacheMissMostRecentSample(),
+                        (int) (cache.getSampledCacheStatistics().getCacheMissNotFoundMostRecentSample()
+                                + cache.getSampledCacheStatistics().getCacheMissExpiredMostRecentSample()),
                         (int) cache.getSampledCacheStatistics().getCacheElementPutMostRecentSample(), });
             }
         }
@@ -517,7 +518,7 @@ public class EhcacheStatsImpl extends BaseEmitterBean implements EhcacheStats {
 
     /**
      * {@inheritDoc}
-     * 
+     *
      * @see net.sf.ehcache.hibernate.management.api.EhcacheStats#getNumberOfElementsInMemory(java.lang.String)
      */
     public int getNumberOfElementsInMemory(String region) {
@@ -545,7 +546,7 @@ public class EhcacheStatsImpl extends BaseEmitterBean implements EhcacheStats {
 
     /**
      * {@inheritDoc}
-     * 
+     *
      * @see net.sf.ehcache.hibernate.management.api.EhcacheStats#getNumberOfElementsOnDisk(java.lang.String)
      */
     public int getNumberOfElementsOnDisk(String region) {
@@ -603,7 +604,7 @@ public class EhcacheStatsImpl extends BaseEmitterBean implements EhcacheStats {
 
     /**
      * {@inheritDoc}
-     * 
+     *
      * @see net.sf.ehcache.hibernate.management.api.EhcacheStats#getMaxGetTimeMillis(java.lang.String)
      */
     public long getMaxGetTimeMillis(String cacheName) {
@@ -617,7 +618,7 @@ public class EhcacheStatsImpl extends BaseEmitterBean implements EhcacheStats {
 
     /**
      * {@inheritDoc}
-     * 
+     *
      * @see net.sf.ehcache.hibernate.management.api.EhcacheStats#getMinGetTimeMillis(java.lang.String)
      */
     public long getMinGetTimeMillis(String cacheName) {
@@ -631,7 +632,7 @@ public class EhcacheStatsImpl extends BaseEmitterBean implements EhcacheStats {
 
     /**
      * {@inheritDoc}
-     * 
+     *
      * @see net.sf.ehcache.hibernate.management.api.EhcacheStats#getAverageGetTimeMillis(java.lang.String)
      */
     public float getAverageGetTimeMillis(String region) {

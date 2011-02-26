@@ -66,7 +66,7 @@ public interface SampledCacheMBean extends LiveCacheStatistics, SampledCacheStat
 
     /**
      * Enabled/disable cache coherence mode for this node.
-     * @deprecated use {@link #setNodeBulkLoadEnabled()} instead
+     * @deprecated use {@link #setNodeBulkLoadEnabled(boolean)} instead
      */
     @Deprecated
     void setNodeCoherent(boolean coherent);
@@ -132,9 +132,15 @@ public interface SampledCacheMBean extends LiveCacheStatistics, SampledCacheStat
 
     /**
      * Returns a textual description of a Terracotta-clustered cache's consistency mode.
-     * @return "STRONG" or "EVENTUAL"
+     * @return "STRONG", "EVENTUAL", or "na" if the cache is not Terracotta-clustered
      */
     public String getTerracottaConsistency();
+
+    /**
+     * Returns a textual description of a Terracotta-clustered cache's storage-strategy.
+     * @return "CDV2", "CLASSIC", or "na" if the cache is not Terracotta-clustered
+     */
+    public String getTerracottaStorageStrategy();
 
     /**
      * Clear both sampled and cumulative statistics
@@ -326,7 +332,7 @@ public interface SampledCacheMBean extends LiveCacheStatistics, SampledCacheStat
 
     /**
      * Is the cache configured for search
-     * @see net.sf.ehcache.config.CacheConfiguration.Searchable
+     * @see net.sf.ehcache.config.Searchable
      */
     public boolean getSearchable();
 }
