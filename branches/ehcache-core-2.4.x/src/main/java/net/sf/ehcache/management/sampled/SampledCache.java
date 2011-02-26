@@ -29,6 +29,7 @@ import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.CacheConfigurationListener;
 import net.sf.ehcache.config.TerracottaConfiguration.Consistency;
+import net.sf.ehcache.config.TerracottaConfiguration.StorageStrategy;
 import net.sf.ehcache.hibernate.management.impl.BaseEmitterBean;
 import net.sf.ehcache.util.CacheTransactionHelper;
 import net.sf.ehcache.writer.writebehind.WriteBehindManager;
@@ -94,8 +95,11 @@ public class SampledCache extends BaseEmitterBean implements SampledCacheMBean, 
      * {@inheritDoc}
      */
     public void setEnabled(boolean enabled) {
-        cache.setDisabled(!enabled);
-        sendNotification(CACHE_ENABLED, getCacheAttributes(), getImmutableCacheName());
+        try {
+            cache.setDisabled(!enabled);
+        } catch (RuntimeException e) {
+            throw newPlainException(e);
+        }
     }
 
     /**
@@ -104,14 +108,22 @@ public class SampledCache extends BaseEmitterBean implements SampledCacheMBean, 
      */
     @Deprecated
     public boolean isClusterCoherent() {
-        return cache.isClusterCoherent();
+        try {
+            return cache.isClusterCoherent();
+        } catch (RuntimeException e) {
+            throw newPlainException(e);
+        }
     }
 
     /**
      * {@inheritDoc}
      */
     public boolean isClusterBulkLoadEnabled() {
-        return cache.isClusterBulkLoadEnabled();
+        try {
+            return cache.isClusterBulkLoadEnabled();
+        } catch (RuntimeException e) {
+            throw newPlainException(e);
+        }
     }
 
     /**
@@ -120,7 +132,11 @@ public class SampledCache extends BaseEmitterBean implements SampledCacheMBean, 
      */
     @Deprecated
     public boolean isNodeCoherent() {
-        return cache.isNodeCoherent();
+        try {
+            return cache.isNodeCoherent();
+        } catch (RuntimeException e) {
+            throw newPlainException(e);
+        }
     }
 
     /**
@@ -147,7 +163,6 @@ public class SampledCache extends BaseEmitterBean implements SampledCacheMBean, 
             } catch (RuntimeException e) {
                 throw newPlainException(e);
             }
-            sendNotification(CACHE_CHANGED, getCacheAttributes(), getImmutableCacheName());
         }
     }
 
@@ -177,8 +192,12 @@ public class SampledCache extends BaseEmitterBean implements SampledCacheMBean, 
      * {@inheritDoc}
      */
     public void flush() {
-        cache.flush();
-        sendNotification(CACHE_FLUSHED, getCacheAttributes(), getImmutableCacheName());
+        try {
+            cache.flush();
+            sendNotification(CACHE_FLUSHED, getCacheAttributes(), getImmutableCacheName());
+        } catch (RuntimeException e) {
+            throw newPlainException(e);
+        }
     }
 
     /**
@@ -203,8 +222,14 @@ public class SampledCache extends BaseEmitterBean implements SampledCacheMBean, 
         try {
             cache.removeAll();
             sendNotification(CACHE_CLEARED, getCacheAttributes(), getImmutableCacheName());
+        } catch (RuntimeException e) {
+            throw newPlainException(e);
         } finally {
-            CacheTransactionHelper.commitTransactionIfNeeded(cache);
+            try {
+                CacheTransactionHelper.commitTransactionIfNeeded(cache);
+            } catch (RuntimeException e2) {
+                throw newPlainException(e2);
+            }
         }
     }
 
@@ -338,8 +363,12 @@ public class SampledCache extends BaseEmitterBean implements SampledCacheMBean, 
      * {@inheritDoc}
      */
     public void clearStatistics() {
-        cache.clearStatistics();
-        sendNotification(CACHE_STATISTICS_RESET, getCacheAttributes(), getImmutableCacheName());
+        try {
+            cache.clearStatistics();
+            sendNotification(CACHE_STATISTICS_RESET, getCacheAttributes(), getImmutableCacheName());
+        } catch (RuntimeException e) {
+            throw newPlainException(e);
+        }
     }
 
     /**
@@ -373,14 +402,25 @@ public class SampledCache extends BaseEmitterBean implements SampledCacheMBean, 
 
     /**
      * {@inheritDoc}
+     */
+    public String getTerracottaStorageStrategy() {
+        StorageStrategy storageStrategy = this.cache.getCacheConfiguration().getTerracottaStorageStrategy();
+        return storageStrategy != null ? storageStrategy.name() : "na";
+    }
+
+    /**
+     * {@inheritDoc}
      *
      * @see net.sf.ehcache.management.sampled.SampledCacheMBean#enableStatistics()
      */
     public void enableStatistics() {
         if (!cache.isStatisticsEnabled()) {
-            cache.setSampledStatisticsEnabled(true);
-            cache.setStatisticsEnabled(true);
-            sendNotification(CACHE_STATISTICS_ENABLED, getCacheAttributes(), getImmutableCacheName());
+            try {
+                cache.setSampledStatisticsEnabled(true);
+                cache.setStatisticsEnabled(true);
+            } catch (RuntimeException e) {
+                throw newPlainException(e);
+            }
         }
     }
 
@@ -391,9 +431,12 @@ public class SampledCache extends BaseEmitterBean implements SampledCacheMBean, 
      */
     public void disableStatistics() {
         if (cache.isStatisticsEnabled()) {
-            cache.setSampledStatisticsEnabled(false);
-            cache.setStatisticsEnabled(false);
-            sendNotification(CACHE_STATISTICS_ENABLED, getCacheAttributes(), getImmutableCacheName());
+            try {
+                cache.setSampledStatisticsEnabled(false);
+                cache.setStatisticsEnabled(false);
+            } catch (RuntimeException e) {
+                throw newPlainException(e);
+            }
         }
     }
 
@@ -420,8 +463,11 @@ public class SampledCache extends BaseEmitterBean implements SampledCacheMBean, 
      */
     public void enableSampledStatistics() {
         if (!cache.isSampledStatisticsEnabled()) {
-            cache.setSampledStatisticsEnabled(true);
-            sendNotification(CACHE_STATISTICS_ENABLED, getCacheAttributes(), getImmutableCacheName());
+            try {
+                cache.setSampledStatisticsEnabled(true);
+            } catch (RuntimeException e) {
+                throw newPlainException(e);
+            }
         }
     }
 
@@ -432,8 +478,11 @@ public class SampledCache extends BaseEmitterBean implements SampledCacheMBean, 
      */
     public void disableSampledStatistics() {
         if (cache.isSampledStatisticsEnabled()) {
-            cache.setSampledStatisticsEnabled(false);
-            sendNotification(CACHE_STATISTICS_ENABLED, getCacheAttributes(), getImmutableCacheName());
+            try {
+                cache.setSampledStatisticsEnabled(false);
+            } catch (RuntimeException e) {
+                throw newPlainException(e);
+            }
         }
     }
 
@@ -443,7 +492,11 @@ public class SampledCache extends BaseEmitterBean implements SampledCacheMBean, 
      * @see net.sf.ehcache.management.sampled.SampledCacheMBean#getAverageGetTimeMillis()
      */
     public float getAverageGetTimeMillis() {
-        return cache.getLiveCacheStatistics().getAverageGetTimeMillis();
+        try {
+            return cache.getLiveCacheStatistics().getAverageGetTimeMillis();
+        } catch (RuntimeException e) {
+            throw newPlainException(e);
+        }
     }
 
     /**
@@ -452,7 +505,11 @@ public class SampledCache extends BaseEmitterBean implements SampledCacheMBean, 
      * @see net.sf.ehcache.statistics.LiveCacheStatistics#getMaxGetTimeMillis()
      */
     public long getMaxGetTimeMillis() {
-        return cache.getLiveCacheStatistics().getMaxGetTimeMillis();
+        try {
+            return cache.getLiveCacheStatistics().getMaxGetTimeMillis();
+        } catch (RuntimeException e) {
+            throw newPlainException(e);
+        }
     }
 
     /**
@@ -461,7 +518,11 @@ public class SampledCache extends BaseEmitterBean implements SampledCacheMBean, 
      * @see net.sf.ehcache.statistics.LiveCacheStatistics#getXaCommitCount()
      */
     public long getXaCommitCount() {
-        return cache.getLiveCacheStatistics().getXaCommitCount();
+        try {
+            return cache.getLiveCacheStatistics().getXaCommitCount();
+        } catch (RuntimeException e) {
+            throw newPlainException(e);
+        }
     }
 
     /**
@@ -470,7 +531,11 @@ public class SampledCache extends BaseEmitterBean implements SampledCacheMBean, 
      * @see net.sf.ehcache.statistics.LiveCacheStatistics#getXaRollbackCount()
      */
     public long getXaRollbackCount() {
-        return cache.getLiveCacheStatistics().getXaRollbackCount();
+        try {
+            return cache.getLiveCacheStatistics().getXaRollbackCount();
+        } catch (RuntimeException e) {
+            throw newPlainException(e);
+        }
     }
 
     /**
@@ -487,7 +552,11 @@ public class SampledCache extends BaseEmitterBean implements SampledCacheMBean, 
      * @see net.sf.ehcache.statistics.LiveCacheStatistics#getWriterQueueLength()
      */
     public long getWriterQueueLength() {
-        return cache.getLiveCacheStatistics().getWriterQueueLength();
+        try {
+            return cache.getLiveCacheStatistics().getWriterQueueLength();
+        } catch (RuntimeException e) {
+            throw newPlainException(e);
+        }
     }
 
     /**
@@ -510,7 +579,11 @@ public class SampledCache extends BaseEmitterBean implements SampledCacheMBean, 
      * @see net.sf.ehcache.statistics.LiveCacheStatistics#getMinGetTimeMillis()
      */
     public long getMinGetTimeMillis() {
-        return cache.getLiveCacheStatistics().getMinGetTimeMillis();
+        try {
+            return cache.getLiveCacheStatistics().getMinGetTimeMillis();
+        } catch (RuntimeException e) {
+            throw newPlainException(e);
+        }
     }
 
     /**
@@ -519,7 +592,11 @@ public class SampledCache extends BaseEmitterBean implements SampledCacheMBean, 
      * @see net.sf.ehcache.management.sampled.SampledCacheMBean#getCacheHitCount()
      */
     public long getCacheHitCount() {
-        return cache.getLiveCacheStatistics().getCacheHitCount();
+        try {
+            return cache.getLiveCacheStatistics().getCacheHitCount();
+        } catch (RuntimeException e) {
+            throw newPlainException(e);
+        }
     }
 
     /**
@@ -528,7 +605,11 @@ public class SampledCache extends BaseEmitterBean implements SampledCacheMBean, 
      * @see net.sf.ehcache.management.sampled.SampledCacheMBean#getCacheMissCount()
      */
     public long getCacheMissCount() {
-        return cache.getLiveCacheStatistics().getCacheMissCount();
+        try {
+            return cache.getLiveCacheStatistics().getCacheMissCount();
+        } catch (RuntimeException e) {
+            throw newPlainException(e);
+        }
     }
 
     /**
@@ -537,7 +618,11 @@ public class SampledCache extends BaseEmitterBean implements SampledCacheMBean, 
      * @see net.sf.ehcache.management.sampled.SampledCacheMBean#getInMemoryMissCount()
      */
     public long getInMemoryMissCount() {
-        return cache.getLiveCacheStatistics().getInMemoryMissCount();
+        try {
+            return cache.getLiveCacheStatistics().getInMemoryMissCount();
+        } catch (RuntimeException e) {
+            throw newPlainException(e);
+        }
     }
 
     /**
@@ -546,7 +631,11 @@ public class SampledCache extends BaseEmitterBean implements SampledCacheMBean, 
      * @see net.sf.ehcache.management.sampled.SampledCacheMBean#getOffHeapMissCount()
      */
     public long getOffHeapMissCount() {
-        return cache.getLiveCacheStatistics().getOffHeapMissCount();
+        try {
+            return cache.getLiveCacheStatistics().getOffHeapMissCount();
+        } catch (RuntimeException e) {
+            throw newPlainException(e);
+        }
     }
 
     /**
@@ -555,7 +644,11 @@ public class SampledCache extends BaseEmitterBean implements SampledCacheMBean, 
      * @see net.sf.ehcache.management.sampled.SampledCacheMBean#getOnDiskMissCount()
      */
     public long getOnDiskMissCount() {
-        return cache.getLiveCacheStatistics().getOnDiskMissCount();
+        try {
+            return cache.getLiveCacheStatistics().getOnDiskMissCount();
+        } catch (RuntimeException e) {
+            throw newPlainException(e);
+        }
     }
 
     /**
@@ -564,7 +657,11 @@ public class SampledCache extends BaseEmitterBean implements SampledCacheMBean, 
      * @see net.sf.ehcache.management.sampled.SampledCacheMBean#getCacheMissCountExpired()
      */
     public long getCacheMissCountExpired() {
-        return cache.getLiveCacheStatistics().getCacheMissCountExpired();
+        try {
+            return cache.getLiveCacheStatistics().getCacheMissCountExpired();
+        } catch (RuntimeException e) {
+            throw newPlainException(e);
+        }
     }
 
     /**
@@ -583,7 +680,11 @@ public class SampledCache extends BaseEmitterBean implements SampledCacheMBean, 
      */
     public void setConfigDiskExpiryThreadIntervalSeconds(long seconds) {
         if (getConfigDiskExpiryThreadIntervalSeconds() != seconds) {
-            cache.getCacheConfiguration().setDiskExpiryThreadIntervalSeconds(seconds);
+            try {
+                cache.getCacheConfiguration().setDiskExpiryThreadIntervalSeconds(seconds);
+            } catch (RuntimeException e) {
+                throw newPlainException(e);
+            }
         }
     }
 
@@ -603,8 +704,12 @@ public class SampledCache extends BaseEmitterBean implements SampledCacheMBean, 
      */
     public void setConfigMaxElementsInMemory(int maxElements) {
         if (getConfigMaxElementsInMemory() != maxElements) {
-            cache.getCacheConfiguration().setMaxElementsInMemory(maxElements);
-            sendNotification(CACHE_CHANGED, getCacheAttributes(), getImmutableCacheName());
+            try {
+                cache.getCacheConfiguration().setMaxElementsInMemory(maxElements);
+                sendNotification(CACHE_CHANGED, getCacheAttributes(), getImmutableCacheName());
+            } catch (RuntimeException e) {
+                throw newPlainException(e);
+            }
         }
     }
 
@@ -624,8 +729,12 @@ public class SampledCache extends BaseEmitterBean implements SampledCacheMBean, 
      */
     public void setConfigMaxElementsOnDisk(int maxElements) {
         if (getConfigMaxElementsOnDisk() != maxElements) {
-            cache.getCacheConfiguration().setMaxElementsOnDisk(maxElements);
-            sendNotification(CACHE_CHANGED, getCacheAttributes(), getImmutableCacheName());
+            try {
+                cache.getCacheConfiguration().setMaxElementsOnDisk(maxElements);
+                sendNotification(CACHE_CHANGED, getCacheAttributes(), getImmutableCacheName());
+            } catch (RuntimeException e) {
+                throw newPlainException(e);
+            }
         }
     }
 
@@ -645,8 +754,12 @@ public class SampledCache extends BaseEmitterBean implements SampledCacheMBean, 
      */
     public void setConfigMemoryStoreEvictionPolicy(String evictionPolicy) {
         if (getConfigMemoryStoreEvictionPolicy() != evictionPolicy) {
-            cache.getCacheConfiguration().setMemoryStoreEvictionPolicy(evictionPolicy);
-            sendNotification(CACHE_CHANGED, getCacheAttributes(), getImmutableCacheName());
+            try {
+                cache.getCacheConfiguration().setMemoryStoreEvictionPolicy(evictionPolicy);
+                sendNotification(CACHE_CHANGED, getCacheAttributes(), getImmutableCacheName());
+            } catch (RuntimeException e) {
+                throw newPlainException(e);
+            }
         }
     }
 
@@ -666,8 +779,12 @@ public class SampledCache extends BaseEmitterBean implements SampledCacheMBean, 
      */
     public void setConfigTimeToIdleSeconds(long tti) {
         if (getConfigTimeToIdleSeconds() != tti) {
-            cache.getCacheConfiguration().setTimeToIdleSeconds(tti);
-            sendNotification(CACHE_CHANGED, getCacheAttributes(), getImmutableCacheName());
+            try {
+                cache.getCacheConfiguration().setTimeToIdleSeconds(tti);
+                sendNotification(CACHE_CHANGED, getCacheAttributes(), getImmutableCacheName());
+            } catch (RuntimeException e) {
+                throw newPlainException(e);
+            }
         }
     }
 
@@ -687,8 +804,12 @@ public class SampledCache extends BaseEmitterBean implements SampledCacheMBean, 
      */
     public void setConfigTimeToLiveSeconds(long ttl) {
         if (getConfigTimeToLiveSeconds() != ttl) {
-            cache.getCacheConfiguration().setTimeToLiveSeconds(ttl);
-            sendNotification(CACHE_CHANGED, getCacheAttributes(), getImmutableCacheName());
+            try {
+                cache.getCacheConfiguration().setTimeToLiveSeconds(ttl);
+                sendNotification(CACHE_CHANGED, getCacheAttributes(), getImmutableCacheName());
+            } catch (RuntimeException e) {
+                throw newPlainException(e);
+            }
         }
     }
 
@@ -708,8 +829,12 @@ public class SampledCache extends BaseEmitterBean implements SampledCacheMBean, 
      */
     public void setConfigDiskPersistent(boolean diskPersistent) {
         if (isConfigDiskPersistent() != diskPersistent) {
-            cache.getCacheConfiguration().setDiskPersistent(diskPersistent);
-            sendNotification(CACHE_CHANGED, getCacheAttributes(), getImmutableCacheName());
+            try {
+                cache.getCacheConfiguration().setDiskPersistent(diskPersistent);
+                sendNotification(CACHE_CHANGED, getCacheAttributes(), getImmutableCacheName());
+            } catch (RuntimeException e) {
+                throw newPlainException(e);
+            }
         }
     }
 
@@ -729,8 +854,12 @@ public class SampledCache extends BaseEmitterBean implements SampledCacheMBean, 
      */
     public void setConfigEternal(boolean eternal) {
         if (isConfigEternal() != eternal) {
-            cache.getCacheConfiguration().setEternal(eternal);
-            sendNotification(CACHE_CHANGED, getCacheAttributes(), getImmutableCacheName());
+            try {
+                cache.getCacheConfiguration().setEternal(eternal);
+                sendNotification(CACHE_CHANGED, getCacheAttributes(), getImmutableCacheName());
+            } catch (RuntimeException e) {
+                throw newPlainException(e);
+            }
         }
     }
 
@@ -750,8 +879,12 @@ public class SampledCache extends BaseEmitterBean implements SampledCacheMBean, 
      */
     public void setConfigOverflowToDisk(boolean overflowToDisk) {
         if (isConfigOverflowToDisk() != overflowToDisk) {
-            cache.getCacheConfiguration().setOverflowToDisk(overflowToDisk);
-            sendNotification(CACHE_CHANGED, getCacheAttributes(), getImmutableCacheName());
+            try {
+                cache.getCacheConfiguration().setOverflowToDisk(overflowToDisk);
+                sendNotification(CACHE_CHANGED, getCacheAttributes(), getImmutableCacheName());
+            } catch (RuntimeException e) {
+                throw newPlainException(e);
+            }
         }
     }
 
@@ -771,8 +904,12 @@ public class SampledCache extends BaseEmitterBean implements SampledCacheMBean, 
      */
     public void setConfigLoggingEnabled(boolean enabled) {
         if (isConfigLoggingEnabled() != enabled) {
-            cache.getCacheConfiguration().setLogging(enabled);
-            sendNotification(CACHE_CHANGED, getCacheAttributes(), getImmutableCacheName());
+            try {
+                cache.getCacheConfiguration().setLogging(enabled);
+                sendNotification(CACHE_CHANGED, getCacheAttributes(), getImmutableCacheName());
+            } catch (RuntimeException e) {
+                throw newPlainException(e);
+            }
         }
     }
 
@@ -782,7 +919,11 @@ public class SampledCache extends BaseEmitterBean implements SampledCacheMBean, 
      * @see net.sf.ehcache.management.sampled.SampledCacheMBean#getEvictedCount()
      */
     public long getEvictedCount() {
-        return cache.getLiveCacheStatistics().getEvictedCount();
+        try {
+            return cache.getLiveCacheStatistics().getEvictedCount();
+        } catch (RuntimeException e) {
+            throw newPlainException(e);
+        }
     }
 
     /**
@@ -791,7 +932,11 @@ public class SampledCache extends BaseEmitterBean implements SampledCacheMBean, 
      * @see net.sf.ehcache.management.sampled.SampledCacheMBean#getExpiredCount()
      */
     public long getExpiredCount() {
-        return cache.getLiveCacheStatistics().getExpiredCount();
+        try {
+            return cache.getLiveCacheStatistics().getExpiredCount();
+        } catch (RuntimeException e) {
+            throw newPlainException(e);
+        }
     }
 
     /**
@@ -800,7 +945,11 @@ public class SampledCache extends BaseEmitterBean implements SampledCacheMBean, 
      * @see net.sf.ehcache.management.sampled.SampledCacheMBean#getInMemoryHitCount()
      */
     public long getInMemoryHitCount() {
-        return cache.getLiveCacheStatistics().getInMemoryHitCount();
+        try {
+            return cache.getLiveCacheStatistics().getInMemoryHitCount();
+        } catch (RuntimeException e) {
+            throw newPlainException(e);
+        }
     }
 
     /**
@@ -809,7 +958,11 @@ public class SampledCache extends BaseEmitterBean implements SampledCacheMBean, 
      * @see net.sf.ehcache.management.sampled.SampledCacheMBean#getInMemorySize()
      */
     public long getInMemorySize() {
-        return cache.getLiveCacheStatistics().getInMemorySize();
+        try {
+            return cache.getLiveCacheStatistics().getInMemorySize();
+        } catch (RuntimeException e) {
+            throw newPlainException(e);
+        }
     }
 
     /**
@@ -818,7 +971,11 @@ public class SampledCache extends BaseEmitterBean implements SampledCacheMBean, 
      * @see net.sf.ehcache.management.sampled.SampledCacheMBean#getOffHeapHitCount()
      */
     public long getOffHeapHitCount() {
-        return cache.getLiveCacheStatistics().getOffHeapHitCount();
+        try {
+            return cache.getLiveCacheStatistics().getOffHeapHitCount();
+        } catch (RuntimeException e) {
+            throw newPlainException(e);
+        }
     }
 
     /**
@@ -827,7 +984,11 @@ public class SampledCache extends BaseEmitterBean implements SampledCacheMBean, 
      * @see net.sf.ehcache.management.sampled.SampledCacheMBean#getOffHeapSize()
      */
     public long getOffHeapSize() {
-        return cache.getLiveCacheStatistics().getOffHeapSize();
+        try {
+            return cache.getLiveCacheStatistics().getOffHeapSize();
+        } catch (RuntimeException e) {
+            throw newPlainException(e);
+        }
     }
 
     /**
@@ -836,7 +997,11 @@ public class SampledCache extends BaseEmitterBean implements SampledCacheMBean, 
      * @see net.sf.ehcache.management.sampled.SampledCacheMBean#getOnDiskHitCount()
      */
     public long getOnDiskHitCount() {
-        return cache.getLiveCacheStatistics().getOnDiskHitCount();
+        try {
+            return cache.getLiveCacheStatistics().getOnDiskHitCount();
+        } catch (RuntimeException e) {
+            throw newPlainException(e);
+        }
     }
 
     /**
@@ -845,7 +1010,11 @@ public class SampledCache extends BaseEmitterBean implements SampledCacheMBean, 
      * @see net.sf.ehcache.management.sampled.SampledCacheMBean#getOnDiskSize()
      */
     public long getOnDiskSize() {
-        return cache.getLiveCacheStatistics().getOnDiskSize();
+        try {
+            return cache.getLiveCacheStatistics().getOnDiskSize();
+        } catch (RuntimeException e) {
+            throw newPlainException(e);
+        }
     }
 
     /**
@@ -854,7 +1023,11 @@ public class SampledCache extends BaseEmitterBean implements SampledCacheMBean, 
      * @see net.sf.ehcache.management.sampled.SampledCacheMBean#getPutCount()
      */
     public long getPutCount() {
-        return cache.getLiveCacheStatistics().getPutCount();
+        try {
+            return cache.getLiveCacheStatistics().getPutCount();
+        } catch (RuntimeException e) {
+            throw newPlainException(e);
+        }
     }
 
     /**
@@ -863,7 +1036,11 @@ public class SampledCache extends BaseEmitterBean implements SampledCacheMBean, 
      * @see net.sf.ehcache.management.sampled.SampledCacheMBean#getRemovedCount()
      */
     public long getRemovedCount() {
-        return cache.getLiveCacheStatistics().getRemovedCount();
+        try {
+            return cache.getLiveCacheStatistics().getRemovedCount();
+        } catch (RuntimeException e) {
+            throw newPlainException(e);
+        }
     }
 
     /**
@@ -872,7 +1049,11 @@ public class SampledCache extends BaseEmitterBean implements SampledCacheMBean, 
      * @see net.sf.ehcache.management.sampled.SampledCacheMBean#getSize()
      */
     public long getSize() {
-        return cache.getLiveCacheStatistics().getSize();
+        try {
+            return cache.getLiveCacheStatistics().getSize();
+        } catch (RuntimeException e) {
+            throw newPlainException(e);
+        }
     }
 
     /**
@@ -881,7 +1062,11 @@ public class SampledCache extends BaseEmitterBean implements SampledCacheMBean, 
      * @see net.sf.ehcache.management.sampled.SampledCacheMBean#getUpdateCount()
      */
     public long getUpdateCount() {
-        return cache.getLiveCacheStatistics().getUpdateCount();
+        try {
+            return cache.getLiveCacheStatistics().getUpdateCount();
+        } catch (RuntimeException e) {
+            throw newPlainException(e);
+        }
     }
 
     /**
@@ -985,23 +1170,7 @@ public class SampledCache extends BaseEmitterBean implements SampledCacheMBean, 
      * @see java.beans.PropertyChangeListener#propertyChange(java.beans.PropertyChangeEvent)
      */
     public void propertyChange(PropertyChangeEvent evt) {
-        String prop = evt.getPropertyName();
-
-        if ("StatisticsEnabled".equals(prop)) {
-            Boolean newValue = (Boolean) evt.getNewValue();
-            setStatisticsEnabled(newValue.booleanValue());
-        } else if ("Disabled".equals(prop)) {
-            Boolean newValue = (Boolean) evt.getNewValue();
-            setEnabled(!newValue.booleanValue());
-        } else if ("ClusterCoherent".equals(prop)) {
-            Boolean newValue = (Boolean) evt.getNewValue();
-            sendNotification(CACHE_CHANGED, getCacheAttributes(), getImmutableCacheName());
-        } else if ("NodeCoherent".equals(prop)) {
-            Boolean newValue = (Boolean) evt.getNewValue();
-            setNodeCoherent(newValue.booleanValue());
-        } else {
-            sendNotification(CACHE_CHANGED, getCacheAttributes(), getImmutableCacheName());
-        }
+        sendNotification(CACHE_CHANGED, getCacheAttributes(), getImmutableCacheName());
     }
 
     /**

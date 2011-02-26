@@ -39,7 +39,7 @@ public abstract class BaseEmitterBean extends StandardMBean implements Notificat
      * emitter
      */
     protected final Emitter emitter = new Emitter();
-    
+
     /**
      * sequenceNumber
      */
@@ -50,7 +50,7 @@ public abstract class BaseEmitterBean extends StandardMBean implements Notificat
 
     /**
      * BaseEmitterBean
-     * 
+     *
      * @param <T>
      * @param mbeanInterface
      * @throws NotCompliantMBeanException
@@ -58,10 +58,10 @@ public abstract class BaseEmitterBean extends StandardMBean implements Notificat
     protected <T> BaseEmitterBean(Class<T> mbeanInterface) throws NotCompliantMBeanException {
         super(mbeanInterface);
     }
-    
+
     /**
      * sendNotification
-     * 
+     *
      * @param eventType
      */
     public void sendNotification(String eventType) {
@@ -70,7 +70,7 @@ public abstract class BaseEmitterBean extends StandardMBean implements Notificat
 
     /**
      * sendNotification
-     * 
+     *
      * @param eventType
      * @param data
      */
@@ -80,7 +80,7 @@ public abstract class BaseEmitterBean extends StandardMBean implements Notificat
 
     /**
      * sendNotification
-     * 
+     *
      * @param eventType
      * @param data
      * @param msg

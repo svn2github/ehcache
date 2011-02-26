@@ -16,6 +16,8 @@
 
 package net.sf.ehcache.util;
 
+import java.lang.reflect.InvocationTargetException;
+
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.TransactionController;
@@ -86,8 +88,11 @@ public class CacheTransactionHelper {
                     break;
             }
         } catch (Exception e) {
-            e.printStackTrace();
-            throw new CacheException("error committing transaction: " + e);
+            Throwable t = e;
+            if (t instanceof InvocationTargetException) {
+                t = ((InvocationTargetException)e).getCause();
+            }
+            throw new CacheException("error committing transaction: " + t);
         }
     }
 
