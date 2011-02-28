@@ -54,6 +54,8 @@ public interface ClusterTopologyListener {
 
     /**
      * This node lost contact and rejoined the cluster again.
+     * <p />
+     * This event is only fired in the node which rejoined and not to all the connected nodes
      * @param oldNode The old node which got disconnected
      * @param newNode The new node after rejoin
      */
