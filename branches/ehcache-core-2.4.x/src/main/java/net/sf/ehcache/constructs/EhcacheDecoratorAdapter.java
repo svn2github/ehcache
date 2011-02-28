@@ -839,6 +839,20 @@ public class EhcacheDecoratorAdapter implements Ehcache {
     /**
      * {@inheritDoc}
      */
+    public boolean isReadLockedByCurrentThread(Object key) {
+        return underlyingCache.isReadLockedByCurrentThread(key);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public boolean isWriteLockedByCurrentThread(Object key) {
+        return underlyingCache.isWriteLockedByCurrentThread(key);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     public boolean isClusterBulkLoadEnabled() throws UnsupportedOperationException, TerracottaNotRunningException {
         return underlyingCache.isClusterBulkLoadEnabled();
     }
