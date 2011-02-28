@@ -3603,15 +3603,6 @@ public class Cache implements Ehcache, StoreListener {
         firePropertyChange("ClusterCoherent", !clusterCoherent, clusterCoherent);
     }
 
-    /**
-     * {@inheritDoc}
-     *
-     * @see net.sf.ehcache.store.StoreListener#nodeCoherent(boolean)
-     */
-    public void nodeCoherent(boolean nodeCoherent) {
-        firePropertyChange("NodeCoherent", !nodeCoherent, nodeCoherent);
-    }
-
 
     /**
      * {@inheritDoc}
@@ -3807,6 +3798,7 @@ public class Cache implements Ehcache, StoreListener {
         if (oldValue != enabledBulkLoad) {
             compoundStore.setNodeCoherent(!enabledBulkLoad);
             nonstopActiveDelegateHolder.nodeBulkLoadChanged(enabledBulkLoad);
+            firePropertyChange("NodeCoherent", oldValue, enabledBulkLoad);
         }
     }
 
