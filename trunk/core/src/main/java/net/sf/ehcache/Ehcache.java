@@ -1207,6 +1207,22 @@ public interface Ehcache extends Cloneable {
     public void releaseWriteLockOnKey(Object key);
 
     /**
+     * Returns true if a read lock for the key is held by the current thread
+     *
+     * @param key
+     * @return true if a read lock for the key is held by the current thread
+     */
+    boolean isReadLockedByCurrentThread(Object key);
+
+    /**
+     * Returns true if a write lock for the key is held by the current thread
+     *
+     * @param key
+     * @return true if a write lock for the key is held by the current thread
+     */
+    boolean isWriteLockedByCurrentThread(Object key);
+
+    /**
      * Returns true if at least one node in the cluster is in bulk-load mode. Returns false otherwise.
      * <p />
      * NOTE: if {@link #isNodeBulkLoadEnabled()} returns true, this method will always return true.

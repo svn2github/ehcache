@@ -3776,6 +3776,21 @@ public class Cache implements Ehcache, StoreListener {
         releaseLockOnKey(key, LockType.WRITE);
     }
 
+
+    /**
+     * {@inheritDoc}
+     */
+    public boolean isReadLockedByCurrentThread(Object key) {
+        return getLockForKey(key).isHeldByCurrentThread(LockType.READ);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public boolean isWriteLockedByCurrentThread(Object key) {
+        return getLockForKey(key).isHeldByCurrentThread(LockType.WRITE);
+    }
+
     /**
      * {@inheritDoc}
      */
