@@ -5,9 +5,7 @@
 
 <module name="Checker">
     <property name="severity" value="error"/>
-    <!--<module name="SuppressionFilter">-->
-    <!--<property name="file" value="${checkstyle.suppressions.file}"/>-->
-    <!--</module>-->
+
     <module name="Translation">
         <property name="severity" value="error"/>
     </module>
@@ -29,7 +27,10 @@
     <module name="StrictDuplicateCode">
         <property name="min" value="30"/>
     </module>
-    <!--<module name="NewlineAtEndOfFile"/>-->
+    
+    <module name="NewlineAtEndOfFile">
+        <property name="severity" value="warning"/>
+    </module>
 
     <module name="FileTabCharacter"/>
 
@@ -54,8 +55,11 @@
 
     <module name="TreeWalker">
         <!--<property name="cacheFile" value="checkstyle.cache}"/>-->
+        
         <!--Java 5 checks-->
-        <!--<module name="MissingDeprecated"/>-->
+        <module name="MissingDeprecated">
+            <property name="severity" value="warning"/>
+        </module>
 
         <!-- javadoc -->
         <module name="JavadocType">
@@ -97,7 +101,6 @@
         <module name="UnusedImports"/>
 
         <!-- Size Violations -->
-
         <module name="LineLength">
             <property name="max" value="150"/>
             <property name="ignorePattern" value="^ *\* *"/>
@@ -130,8 +133,6 @@
         <module name="EmptyForInitializerPad"/>
         <module name="EmptyForIteratorPad"/>
         <module name="MethodParamPad"/>
-
-
         <module name="NoWhitespaceAfter">
             <property name="allowLineBreaks" value="false"/>
         </module>
@@ -153,8 +154,12 @@
         </module>
 
         <!-- Modifiers -->
-        <!--<module name="ModifierOrder"/> Bug reported. Want this to work -->
-        <!--<module name="RedundantModifier"/>-->
+        <module name="ModifierOrder">
+            <property name="severity" value="warning"/>
+        </module>
+        <module name="RedundantModifier">
+            <property name="severity" value="warning"/>
+        </module>
 
         <!-- Blocks -->
         <module name="EmptyBlock">
@@ -212,9 +217,10 @@
             <property name="max" value="2"/>
         </module>
         <module name="PackageDeclaration"/>
-        <!--<module name="RedundantThrows"> buggy
+        <module name="RedundantThrows">
+            <property name="severity" value="warning"/>
             <property name="allowUnchecked" value="true"/>
-        </module> -->
+        </module>
         <module name="SimplifyBooleanExpression"/>
         <module name="SimplifyBooleanReturn"/>
         <module name="StringLiteralEquality"/>
@@ -224,15 +230,13 @@
         <module name="EqualsHashCode"/>
         <module name="IllegalInstantiation"/>
         <module name="InnerAssignment"/>
-
-
         <module name="MissingSwitchDefault"/>
-
 
         <!-- Class Design -->
         <module name="FinalClass"/>
-        <!--Seems to be broken in 4.4-->
-        <!--<module name="HideUtilityClassConstructor"/>-->
+        <module name="HideUtilityClassConstructor">
+            <property name="severity" value="warning"/>
+        </module>
         <module name="InterfaceIsType"/>
         <module name="MutableException"/>
         <module name="ThrowsCount">
@@ -260,12 +264,9 @@
             <property name="max" value="50"/>
         </module>
 
-
         <module name="ArrayTypeStyle"/>
         <module name="TodoComment"/>
         <module name="TrailingComment"/>
         <module name="UpperEll"/>
-
-
     </module>
 </module>
