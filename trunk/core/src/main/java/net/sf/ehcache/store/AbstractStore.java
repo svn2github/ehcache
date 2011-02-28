@@ -114,28 +114,6 @@ public abstract class AbstractStore implements Store {
     }
 
     /**
-     * Message to StoreListeners the node's coherence state.
-     */
-    public void fireNodeCoherent(final boolean nodeCoherent) {
-        List<StoreListener> listeners = getEventListenerList();
-
-        for (StoreListener listener : listeners) {
-            listener.nodeCoherent(nodeCoherent);
-        }
-    }
-
-    /**
-     * Message to StoreListeners the cluster's coherence state.
-     */
-    public void fireClusterCoherent(final boolean clusterCoherent) {
-        List<StoreListener> listeners = getEventListenerList();
-
-        for (StoreListener listener : listeners) {
-            listener.clusterCoherent(clusterCoherent);
-        }
-    }
-
-    /**
      * {@inheritDoc}
      */
     public void setAttributeExtractors(Map<String, AttributeExtractor> extractors) {
