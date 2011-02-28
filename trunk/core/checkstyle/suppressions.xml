@@ -18,6 +18,7 @@
     <suppress checks="StrictDuplicateCode" files="NonStrictReadWriteEhcacheEntityRegionAccessStrategy.java"/>
     <suppress checks="StrictDuplicateCode" files="NonStrictReadWriteEhcacheCollectionRegionAccessStrategy.java"/>
     <suppress checks="StrictDuplicateCode" files="HibernateStats.java"/>
+    <suppress checks="StrictDuplicateCode" files="EhcacheStats.java"/>
 
     <!-- tree walking is neater with parameter assignment - imho -->
     <suppress checks="ParameterAssignment" files="AATreeSet.java" />
