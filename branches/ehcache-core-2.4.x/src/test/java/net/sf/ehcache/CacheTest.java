@@ -786,11 +786,14 @@ public class CacheTest extends AbstractCacheTest {
         cache.put(new Element("key1", "value1"));
         cache.put(new Element("key2", "value1"));
 
+        //allow the writer thread to complete
+        Thread.sleep(200);
+
         Element element1 = cache.get("key1");
         long lastAccessedElement1 = element1.getLastAccessTime();
         long hitCountElement1 = element1.getHitCount();
-        assertEquals("Should be two", 1, element1.getHitCount());
-        assertEquals(1L, cache.getStatistics().getCacheHits());
+        assertEquals("Element-1 Hit Count", 1, hitCountElement1);
+        assertEquals("Cache Hit Count", 1L, cache.getStatistics().getCacheHits());
 
         element1 = cache.getQuiet("key1");
         element1 = cache.getQuiet("key1");
