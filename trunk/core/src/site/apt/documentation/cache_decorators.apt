@@ -38,8 +38,8 @@ BlockingCache newBlockingCache = new BlockingCache(cache);
 
 ---
         <cacheDecoratorFactory
-			class="net.sf.ehcache.constructs.nonstop.NonStopCacheDecoratorFactory"
-			properties="name=localReadsCacheDecorator, timeoutBehavior=localReads ..." />
+			class="com.company.SomethingCacheDecoratorFactory"
+			properties="property1=36 ..." />
 ---
 
 	Note that from version 2.2, decorators can be configured against the <<<defaultCache>>>. This is very useful for frameworks
