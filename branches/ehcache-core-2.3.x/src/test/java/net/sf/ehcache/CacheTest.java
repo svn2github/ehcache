@@ -923,8 +923,8 @@ public class CacheTest extends AbstractCacheTest {
 
         // Let the idle expire
         Thread.sleep(1999);
-        assertEquals(null, cache.get("key1"));
         assertEquals(null, cache.get("key2"));
+        assertEquals(null, cache.get("key1"));
 
         assertEquals(0, cache.getSize());
     }
