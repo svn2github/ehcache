@@ -1,0 +1,78 @@
+ ---
+ Cache Consistency Options
+ ---
+
+Consistency Options
+
+    The purpose of this chapter is firstly to explain Distributed Ehcache's consistency modes in terms of the standard
+    nomenclature on client side consistency and secondly to provide some general advice on when various modes should
+    be used.
+
+*   The Standard Client-Side Consistency Model
+
+   Werner Vogel's seminal Eventually Consistent paper presented standard terms for client-side consistency and a way
+   of reasoning about whether that consistency can be achieved in a distributed system. This paper in turn
+   referenced Tannenbaum's {{{http://www.amazon.com/Distributed-Systems-Principles-Paradigms-2nd/dp/0132392275/ref=dp_ob_title_bk}Distributed Systems: Principles and Paradigms (2nd Edition)}}.
+
+   Before explaining our consistency modes, we need to expain the standard components of the the reference model
+   which is an abstract model of a distributed system that can be used for studying interactions.
+
+    * A storage system. The storage system consists of data stored durably in one server or multiple servers connected
+      via a network. In Ehcache durability is optional and the storage system might simply be in memory.
+
+    * Client Process A. ?This is a process that writes to and reads from the storage system.
+
+    * Client Processes B and C. ?These two processes are independent of process A and write to and read from the
+      storage system. It is irrelevant whether these are really processes or threads within the same process;
+      what is important is that they are independent and need to communicate to share information.
+      ?Client-side consistency has to do with how and when observers (in this case the processes A, B, or C)
+      see updates made to a data object in the storage systems.
+
+      It then goes on to define the following consistencies where process A has made an update to a data object:
+
+    * Strong consistency. After the update completes, any subsequent access (by A, B, or C) will return the updated value.
+
+    * Weak consistency. The system does not guarantee that subsequent accesses will return the updated value.
+
+    * Eventual consistency. This is a specific form of weak consistency; the storage system guarantees that if no new
+      updates are made to the object, eventually all accesses will return the last updated value. If no failures occur,
+      the maximum size of the inconsistency window can be determined based on factors such as communication delays,
+      the load on the system, and the number of replicas involved in the replication scheme.
+
+    Within eventual consistency there are a number of desirable properties:
+
+    * Read-your-writes consistency. This is an important model where process A, after it has updated a data item,
+      always accesses the updated value and will never see an older value. This is a special case of the causal consistency
+      model.
+
+    * Session consistency. This is a practical version of the previous model, where a process accesses the storage system
+      in the context of a session. As long as the session exists, the system guarantees read-your-writes consistency.
+      If the session terminates because of a certain failure scenario, a new session needs to be created and the guarantees
+      do not overlap the sessions.
+
+    * Monotonic read consistency. If a process has seen a particular value for the object, any subsequent accesses will never
+      return any previous values.
+
+    * Monotonic write consistency?. In this case the system guarantees to serialize the writes by the same process.
+      Systems that do not guarantee this level of consistency are notoriously hard to program.
+
+    Finally, in eventual consistency, the period between the update and the moment when it is
+      guaranteed that any observer will always see the updated value is dubbed the inconsistency window.
+
+*   Ehcache Topologies
+
+    Ehcache is available with the following clustered caching topologies:
+
+    * Standalone - the cached data set is held in the application node. Any other application nodes are independent with no communication
+      between them. If standalone caching is being used where there are multiple application nodes running the same application, then
+      there is Weak Consistency between them. Indeed they will only reflect the same values for immutable data or after the time to live
+      on an Element has completed and the Element needs to be reloaded. i
+
+    * Replicated - the cached data set is held in each application node and data is copied or invalidated across the cluster without locking.
+      Replication can be either asynchronous or synchronous, where the writing thread blocks while progagation occurs. The only
+      consistency mode available in this topology is Weak Consistency.
+      configurable consistency modes.
+
+    * Distributed - the data is held in a Terracotta Server Array ("SA") with a subset of recently used data held in each application cache node.
+      Writes may be either synchronous or asynchronous.
+
