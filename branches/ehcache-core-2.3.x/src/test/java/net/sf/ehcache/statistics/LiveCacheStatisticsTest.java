@@ -121,6 +121,8 @@ public class LiveCacheStatisticsTest extends AbstractCacheTest {
 
         cache.put(new Element("key1", "value1"));
         cache.put(new Element("key2", "value1"));
+        // allow disk writer thread time to perform the write
+        Thread.sleep(100);
         // key1 should be in the Disk Store
         cache.get("key1");
 
