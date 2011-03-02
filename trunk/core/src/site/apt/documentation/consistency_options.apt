@@ -4,9 +4,12 @@
 
 Consistency Options
 
+~~%{toc|fromDepth=2|toDepth=3}
+
+
     The purpose of this chapter is firstly to explain Distributed Ehcache's consistency modes in terms of the standard
-    nomenclature on client side consistency and secondly to provide some general advice on when various modes should
-    be used.
+    nomenclature on client side consistency, to show how we achieve various consistencies in the distributed cache topology
+    and finally to provide some general advice on when various modes should be used.
 
 *   The Standard Client-Side Consistency Model
 
@@ -66,13 +69,35 @@ Consistency Options
     * Standalone - the cached data set is held in the application node. Any other application nodes are independent with no communication
       between them. If standalone caching is being used where there are multiple application nodes running the same application, then
       there is Weak Consistency between them. Indeed they will only reflect the same values for immutable data or after the time to live
-      on an Element has completed and the Element needs to be reloaded. i
+      on an Element has completed and the Element needs to be reloaded.
 
     * Replicated - the cached data set is held in each application node and data is copied or invalidated across the cluster without locking.
       Replication can be either asynchronous or synchronous, where the writing thread blocks while progagation occurs. The only
       consistency mode available in this topology is Weak Consistency.
-      configurable consistency modes.
 
     * Distributed - the data is held in a Terracotta Server Array ("SA") with a subset of recently used data held in each application cache node.
       Writes may be either synchronous or asynchronous.
+
+
+      The distributed topology supports a very rich set of consistency modes which will be explored in this chapter.
+
+*   Proof of Distributed Ehcache’s Strong Consistency
+
+    In consistency=strong mode, this proof will show that an update which in Ehcache terms is a cache.put() or cache.remove() operation is actually strongly coherent as defined.
+    This analysis assumes that if NonStopCache is being used, it is configured with the default of Exception, so that on a clusterOffline event no cache operations happen locally.
+    For convenience, the Terracotta terminology is mapped to the reference model as follows:
+        •       Ehcache A = Process A
+        •       Ehcache B = Process B
+        •       Ehcache C = Process C
+        •       Terracotta Server Array = Storage System
+        •       Write = Update
+        1.      A thread in Ehcache A performs a write.
+        2.      Before the write is done, a write lock is obtained from the Terracotta Server (storage system). The write lock is granted only after all read locks have been surrendered.
+        3.      The write is done to an in-process Transaction Buffer. Within the Java process the write is thread-safe. Any local threads in Ehcache A will have immediate visibility of the change.
+        4.      Once the change has hit the Transaction Buffer which is a LinkedBlockingQueue, a notify occurs, and the Transaction Buffer initiates sending the write (update) to the Terracotta Server Array (storage system). This write may be asynchronous (default) or synchronous (by configuration using synchronous=true).
+        5.      The Terracotta Server is generally configured with multiple replicas forming a Mirror Group. Within the mirror group there is an Active server, and one or more Passive servers.  The write is to the Active server. The Active server does not acknowledge the write until it has written it to each of the passive servers in the Mirror Group. It then sends back an acknowledgement to Ehcache A which then deletes the write from the Transaction Buffer.
+        6.      A read or write request from Ehcache A is immediately available because a read lock is automatically granted when a write lock has already been acquired. A read or write request in Ehcache B or C requires the acquisition of a read or write lock respectively which will block until step 5 has occurred, and in addition, if you have a stale copy locally it is updated first. When the lock is granted the write is present in all replicas. Because Ehcache also maintains copies of Elements in-process in potentially each node, if any of Ehcache A, B or C have a copy they are also updated before 5 completes.
+
+
+
 

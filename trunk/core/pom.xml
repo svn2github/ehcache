@@ -235,18 +235,18 @@
             </plugin>
 
             <plugin>
-              <groupId>org.codehaus.groovy.maven</groupId>
-              <artifactId>gmaven-plugin</artifactId>
-              <version>1.0</version>
-              <executions>
-                <execution>
-                  <id>build-revision</id>
-                  <phase>generate-resources</phase>
-                  <goals>
-                    <goal>execute</goal>
-                  </goals>
-                  <configuration>
-                    <source><![CDATA[
+                <groupId>org.codehaus.groovy.maven</groupId>
+                <artifactId>gmaven-plugin</artifactId>
+                <version>1.0</version>
+                <executions>
+                    <execution>
+                        <id>build-revision</id>
+                        <phase>generate-resources</phase>
+                        <goals>
+                            <goal>execute</goal>
+                        </goals>
+                        <configuration>
+                            <source><![CDATA[
                       def getLastChangedRevision(path) {
                         fullPath = path.getCanonicalPath()
                         outProp = "svninfo" + fullPath.hashCode();
@@ -276,11 +276,11 @@
                 
                       project.properties.setProperty('build.revision', core_revision)
                     ]]></source>
-                  </configuration>
-                </execution>
-              </executions>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
-            
+
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-antrun-plugin</artifactId>
@@ -303,17 +303,31 @@
                     </execution>
 
                     <!--<execution>-->
-                    <!--<id>singlepageguide</id>-->
-                    <!--<phase>pre-site</phase>-->
-                    <!--<configuration>-->
-                    <!--<tasks>-->
-                    <!--<ant target="singlepageguide"/>-->
-                    <!--</tasks>-->
-                    <!--</configuration>-->
-                    <!--<goals>-->
-                    <!--<goal>run</goal>-->
-                    <!--</goals>-->
+                        <!--<id>singlepageguide</id>-->
+                        <!--<phase>pre-site</phase>-->
+                        <!--<configuration>-->
+                            <!--<tasks>-->
+                                <!--<ant target="singlepageguide"/>-->
+                            <!--</tasks>-->
+                        <!--</configuration>-->
+                        <!--<goals>-->
+                            <!--<goal>run</goal>-->
+                        <!--</goals>-->
                     <!--</execution>-->
+
+                    <execution>
+                        <id>show_toc</id>
+                        <phase>pre-site</phase>
+                        <configuration>
+                            <tasks>
+                                <ant target="show_toc"/>
+                            </tasks>
+                        </configuration>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                    </execution>
+
 
                     <execution>
                         <id>unhide_embedded_html</id>
