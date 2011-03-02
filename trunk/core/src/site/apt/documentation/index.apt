@@ -20,6 +20,8 @@ Documentation - Table of Contents
 
     * {{{./storage_options.html}Storage Options}}
 
+    * {{{./consistency_options.html}Cache Consistency Options}} _new_
+
     * {{{./cache_eviction_algorithms.html}Cache Eviction Algorithms}}
 
     * {{{./offheap_store.html}BigMemory:Off-Heap Store}} _new_
