@@ -36,6 +36,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Random;
+import java.util.concurrent.Callable;
 
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.DiskStoreConfiguration;
@@ -48,6 +49,7 @@ import net.sf.ehcache.store.compound.impl.OverflowToDiskStore;
 import net.sf.ehcache.util.PropertyUtil;
 import net.sf.ehcache.util.RetryAssert;
 
+import org.hamcrest.core.Is;
 import org.junit.After;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -264,39 +266,47 @@ public class DiskStoreTest extends AbstractCacheTest {
     @Test
     public void testPersistentNonOverflowToDiskStoreFromCacheManager() throws IOException, InterruptedException, CacheException {
         //initialise with an instance CacheManager so that the following line actually does something
-        CacheManager manager = new CacheManager(AbstractCacheTest.TEST_CONFIG_DIR + "ehcache-disk.xml");
-        Ehcache cache = manager.getCache("persistentLongExpiryIntervalNonOverflowCache");
+        {
+            CacheManager manager = new CacheManager(AbstractCacheTest.TEST_CONFIG_DIR + "ehcache-disk.xml");
+            final Ehcache cache = manager.getCache("persistentLongExpiryIntervalNonOverflowCache");
 
-        for (int i = 0; i < 100; i++) {
-            byte[] data = new byte[1024];
-            cache.put(new Element("key" + (i + 100), data));
+            for (int i = 0; i < 100; i++) {
+                byte[] data = new byte[1024];
+                cache.put(new Element("key" + (i + 100), data));
+            }
+            assertEquals(100, cache.getSize());
+
+            manager.shutdown();
         }
-        assertEquals(100, cache.getSize());
 
-        manager.shutdown();
+        {
+            CacheManager manager = new CacheManager(AbstractCacheTest.TEST_CONFIG_DIR + "ehcache-disk.xml");
+            final Ehcache cache = manager.getCache("persistentLongExpiryIntervalNonOverflowCache");
 
-        manager = new CacheManager(AbstractCacheTest.TEST_CONFIG_DIR + "ehcache-disk.xml");
-        cache = manager.getCache("persistentLongExpiryIntervalNonOverflowCache");
+            //Now check that the DiskStore is involved in Cache methods it needs to be involved in.
+            RetryAssert.assertBy(500, MILLISECONDS, new Callable<Integer>() {
+                public Integer call() throws Exception {
+                    return cache.getSize();
+                }
+            }, Is.is(100));
 
-        //Now check that the DiskStore is involved in Cache methods it needs to be involved in.
-        RetryAssert.assertEquals(100, cache.getSize(), 5);
+            assertEquals(100, cache.getDiskStoreSize());
+            assertEquals(100, cache.getKeysNoDuplicateCheck().size());
+            assertEquals(100, cache.getKeys().size());
+            assertEquals(100, cache.getKeysWithExpiryCheck().size());
 
-        assertEquals(100, cache.getDiskStoreSize());
-        assertEquals(100, cache.getKeysNoDuplicateCheck().size());
-        assertEquals(100, cache.getKeys().size());
-        assertEquals(100, cache.getKeysWithExpiryCheck().size());
+            //now check some of the Cache methods work
+            assertNotNull(cache.get("key100"));
+            assertNotNull(cache.getQuiet("key100"));
+            cache.remove("key100");
+            assertNull(cache.get("key100"));
+            assertNull(cache.getQuiet("key100"));
+            cache.removeAll();
+            assertEquals(0, cache.getSize());
+            assertEquals(0, cache.getDiskStoreSize());
 
-        //now check some of the Cache methods work
-        assertNotNull(cache.get("key100"));
-        assertNotNull(cache.getQuiet("key100"));
-        cache.remove("key100");
-        assertNull(cache.get("key100"));
-        assertNull(cache.getQuiet("key100"));
-        cache.removeAll();
-        assertEquals(0, cache.getSize());
-        assertEquals(0, cache.getDiskStoreSize());
-
-        manager.shutdown();
+            manager.shutdown();
+        }
     }
 
     /**
@@ -564,7 +574,7 @@ public class DiskStoreTest extends AbstractCacheTest {
         Cache cache = new Cache("testNonPersistent", 1, MemoryStoreEvictionPolicy.LFU, true,
                 null, false, 2000, 1000, false, 1, null, null, 10);
         manager.addCache(cache);
-        Store store = cache.getStore();
+        final Store store = cache.getStore();
 
         Element element;
 
@@ -602,7 +612,11 @@ public class DiskStoreTest extends AbstractCacheTest {
         //wait for spool to empty
         waitLonger();
 
-        RetryAssert.assertEquals(10, store.getOnDiskSize(), 5);
+        RetryAssert.assertBy(1, SECONDS, new Callable<Integer>() {
+            public Integer call() throws Exception {
+                return store.getOnDiskSize();
+            }
+        }, Is.is(10));
     }
 
     /**

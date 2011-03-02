@@ -16,6 +16,10 @@
 
 package net.sf.ehcache.util;
 
+import java.util.concurrent.Callable;
+import java.util.concurrent.TimeUnit;
+
+import org.hamcrest.Matcher;
 import org.junit.Assert;
 
 public class RetryAssert {
@@ -25,32 +29,38 @@ public class RetryAssert {
         // static only class
     }
 
-    /**
-     * Acts like Assert.assertEquals(expected, actual) but allow for retries with
-     * some wait time in between
-     * @param expected
-     * @param actual
-     * @param retries
-     */
-    public static void assertEquals(long expected, long actual, int retries) {
-        int tries = 0;
-        while (true) {
-            try {
-                Assert.assertEquals(expected, actual);
-                break;
-            } catch (AssertionError error) {
-                tries++;
-                if (tries < retries) {
-                    try {
-                        Thread.sleep(WAIT_TIME);
-                    } catch (InterruptedException e) {
-                        Thread.currentThread().interrupt();
-                        break;
-                    }
+    public static <T> void assertBy(long time, TimeUnit unit, Callable<T> value, Matcher<T> matcher) {
+        boolean interrupted = false;
+        long start = System.nanoTime();
+        long end = start + unit.toNanos(time);
+        long sleep = Math.max(50, unit.toMillis(time) / 10);
+        AssertionError latest;
+        try {
+            while (true) {
+                try {
+                    Assert.assertThat(value.call(), matcher);
+                    return;
+                } catch (AssertionError e) {
+                    latest = e;
+                } catch (Exception e) {
+                    latest = new AssertionError(e);
+                }
+
+                if (System.nanoTime() > end) {
+                    break;
                 } else {
-                    throw error;
+                    try {
+                        Thread.sleep(sleep);
+                    } catch (InterruptedException e) {
+                        interrupted = true;
+                    }
                 }
             }
+        } finally {
+            if (interrupted) {
+                Thread.currentThread().interrupt();
+            }
         }
+        throw latest;
     }
 }
