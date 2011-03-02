@@ -6,6 +6,9 @@
                 Search. Caches can now be indexed and searched by key, value or attribute extracted from values.
                 This is a major new API and feature for Ehcache.
             </action>
+            <action dev="Ludovic Orban" type="add">
+                Transactions support rework. Introduced 'local' and 'xa' modes, renamed old 'xa' mode into 'xa_strict'.
+            </action>
             <action dev="Alex Snaps" type="fix" issue="EHC-773">
                 SelfPopulatingCache will always release the lock on failure during the CacheEntryFactory.createEntry
             </action>
