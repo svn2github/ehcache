@@ -43,6 +43,7 @@ Ehcache Monitor
           core ehcache jar to your application.
 
           If you are Maven based, the probe module is in the Terracotta public repository for easy integration.
+
 ---
         <repository>
             <id>terracotta-releases</id>
@@ -54,7 +55,6 @@ Ehcache Monitor
          <artifactId>ehcache-probe</artifactId>
          <version>[version]</version>
        </dependency>
-
 ---
 
 
