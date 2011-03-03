@@ -4,18 +4,102 @@
 
 Consistency Options
 
-~~%{toc|fromDepth=2|toDepth=3}
+%{toc|fromDepth=2|toDepth=3}
 
 
-    The purpose of this chapter is firstly to explain Distributed Ehcache's consistency modes in terms of the standard
-    nomenclature on client side consistency, to show how we achieve various consistencies in the distributed cache topology
-    and finally to provide some general advice on when various modes should be used.
+    The purpose of this chapter is to explain Distributed Ehcache's consistency models in terms of standard
+    distributed systems theory.
 
-*   The Standard Client-Side Consistency Model
+
+*   Ehcache Topologies
+
+    Ehcache is available with the following clustered caching topologies:
+
+    * Standalone - the cached data set is held in the application node. Any other application nodes are independent with no communication
+      between them. If standalone caching is being used where there are multiple application nodes running the same application, then
+      there is Weak Consistency between them. Indeed they will only reflect the same values for immutable data or after the time to live
+      on an Element has completed and the Element needs to be reloaded.
+
+    * Replicated - the cached data set is held in each application node and data is copied or invalidated across the cluster without locking.
+      Replication can be either asynchronous or synchronous, where the writing thread blocks while progagation occurs. The only
+      consistency mode available in this topology is Weak Consistency.
+
+    * Distributed Ehcache - the data is held in a Terracotta Server Array ("SA") with a subset of recently used data held in each application cache node.
+      Writes may be either synchronous or asynchronous.
+
+      []
+
+      The distributed topology supports a very rich set of consistency modes which will be explored in this chapter.
+
+
+*   Server Side Consistency
+
+    Leaving aside the issue of data also held in the Ehcache nodes, let us look at the server side consistency of the Terracotta Server Array.
+
+**  Server Deployment Topology
+
+    Large datasets are handled with partitions which are managed automatically using a consistent
+    hashing algorithm once a set of "stripes" are defined in the <tcconfig>. There is no dynamic resizing of clusters, so the
+    consistenct hash always resolves to the same stripe.
+
+    The TSA is typically deployed with a pair of servers per partition of data, which is known in the <tcconfig> as a Mirror Group.
+
+    A mirror group has an active server which handles all requests for that partition and a passive or warm standby which does not
+     service any requests. The active server propagates changes to the passive server.
+
+    In the language of consistency protocols, the active and passive are replicas - they should contain the same data.
+
+**  How writes are written
+
+    Regardless of the consistency model being used, data is written to the TSA the same way.
+
+    * Within an Ehcache node, a write is done to an in-process Transaction Buffer (a LinkedBlockingQueue). Within the Java process the write is thread-safe.
+      Any local threads in Ehcache A will have immediate visibility of the change.
+
+    * When a write hits the Transaction Buffer, a notify occurs, and the Transaction Buffer initiates
+      sending the write to the Terracotta Server Array. This write may be asynchronous (default) or synchronous
+      (by configuration using synchronous=true). The write stays in the Transaction Buffer until an acknowledgement from the TSA has
+      been received.
+
+    * Consistenct hashing is used to identify which stripe in the TSA to write to. The client maintains knowledge of which
+      replica is the Active server using a election protocol. The write is done to the Active server. The Active server has
+      knowledge of the <tcconfig> and knows to replicate the change to the passive. The write is then written to the Passive. The passive
+      then acknowledges the write to the Active, the Active then acknowledges the write to the Ehcache node. Once received, the write is
+      removed from the Transaction Buffer.
+
+**  Restating in terms of Quorum based replicated-write protocols
+
+    To use the terminology from Gifford (1979) a storage system has N storage replicas. A write is a W. A read is an R.
+
+    The server side storage system will be strongly consistent if:
+
+    * R + W > N.
+
+    * W > N/2
+
+    In Terracotta, there is one Active and one Passive. The acknowledgement is not sent until all have been written to.
+    We always read from only one replica, the Active.
+
+    So, R = 1, W = 2, N = 2.
+
+    Substituing the terms of R + W > N, we get 1 + 2 > 2, which is clearly true.
+
+    And for W > N/2 we get 2 > 2/2 => 2 > 1 which is clearly true.
+
+    Therefore we are strongly consistent server side.
+
+*   Client-Side Consistency
+
+    Because data is also held in Ehcache nodes, and Ehcache nodes are what application code interact with, there is more to the story
+    than consistency in the TSA.
 
    Werner Vogel's seminal Eventually Consistent paper presented standard terms for client-side consistency and a way
    of reasoning about whether that consistency can be achieved in a distributed system. This paper in turn
    referenced Tannenbaum's {{{http://www.amazon.com/Distributed-Systems-Principles-Paradigms-2nd/dp/0132392275/ref=dp_ob_title_bk}Distributed Systems: Principles and Paradigms (2nd Edition)}}.
+
+   He was popularising research work done on Bayou, a database system. See Page 290 of Distributed Systems, Principles and Paradigms by Tannenbaum and Van Steen for detailed coverage of this material.
+
+**  Model Components
 
    Before explaining our consistency modes, we need to expain the standard components of the the reference model
    which is an abstract model of a distributed system that can be used for studying interactions.
@@ -23,13 +107,25 @@ Consistency Options
     * A storage system. The storage system consists of data stored durably in one server or multiple servers connected
       via a network. In Ehcache durability is optional and the storage system might simply be in memory.
 
-    * Client Process A. ?This is a process that writes to and reads from the storage system.
+    * Client Process A. This is a process that writes to and reads from the storage system.
 
-    * Client Processes B and C. ?These two processes are independent of process A and write to and read from the
+    * Client Processes B and C. These two processes are independent of process A and write to and read from the
       storage system. It is irrelevant whether these are really processes or threads within the same process;
       what is important is that they are independent and need to communicate to share information.
-      ?Client-side consistency has to do with how and when observers (in this case the processes A, B, or C)
+      Client-side consistency has to do with how and when observers (in this case the processes A, B, or C)
       see updates made to a data object in the storage systems.
+
+**  Mapping the Model to Distributed Ehcache
+
+    The model maps to Distributed Ehcache as follows:
+
+    * there is a Terracotta Server Array ("TSA") which is the 'storage system'
+
+    * there are three nodes connected to the TSA: Ehcache A, B and C, mapping to the processes in the standard model
+
+    * a "write" in the standard model is a "put" or "remove" in Ehcache.
+
+**   Standard Client Side Consistency Modes
 
       It then goes on to define the following consistencies where process A has made an update to a data object:
 
@@ -56,47 +152,58 @@ Consistency Options
     * Monotonic read consistency. If a process has seen a particular value for the object, any subsequent accesses will never
       return any previous values.
 
-    * Monotonic write consistency?. In this case the system guarantees to serialize the writes by the same process.
+    * Monotonic write consistency. In this case the system guarantees to serialize the writes by the same process.
       Systems that do not guarantee this level of consistency are notoriously hard to program.
 
     Finally, in eventual consistency, the period between the update and the moment when it is
       guaranteed that any observer will always see the updated value is dubbed the inconsistency window.
 
-*   Ehcache Topologies
 
-    Ehcache is available with the following clustered caching topologies:
+*   Consistency Modes in Distributed Ehcache
 
-    * Standalone - the cached data set is held in the application node. Any other application nodes are independent with no communication
-      between them. If standalone caching is being used where there are multiple application nodes running the same application, then
-      there is Weak Consistency between them. Indeed they will only reflect the same values for immutable data or after the time to live
-      on an Element has completed and the Element needs to be reloaded.
+**  Strong Consistency
 
-    * Replicated - the cached data set is held in each application node and data is copied or invalidated across the cluster without locking.
-      Replication can be either asynchronous or synchronous, where the writing thread blocks while progagation occurs. The only
-      consistency mode available in this topology is Weak Consistency.
+   In the distributed cache, strong consistency is configured as follows:
 
-    * Distributed - the data is held in a Terracotta Server Array ("SA") with a subset of recently used data held in each application cache node.
-      Writes may be either synchronous or asynchronous.
+---
+   <cache ...
+
+        <terracotta consistency=strong />
+   </cache>
+
+    We will walk through how a write is done and show that it is strongly consistent.
+
+    [[1]]      A thread in Ehcache A performs a write.
+
+    [[2]]      Before the write is done, a write lock is obtained from the Terracotta Server (storage system).
+               The write lock is granted only after all read locks have been surrendered.
+
+    [[3]]      The write is done to an in-process Transaction Buffer. Within the Java process the write is thread-safe.
+               Any local threads in Ehcache A will have immediate visibility of the change.
+
+    [[4]]      Once the change has hit the Transaction Buffer which is a LinkedBlockingQueue, a notify occurs, and the
+               Transaction Buffer initiates sending the write (update) to the Terracotta Server Array (storage system).
+               This write may be asynchronous (default) or synchronous (by configuration using synchronous=true).
+
+    [[5]]      The Terracotta Server is generally configured with multiple replicas forming a Mirror Group. Within the mirror group there is an Active server, and one or more Passive servers.  The write is to the Active server. The Active server does not acknowledge the write until it has written it to each of the passive servers in the Mirror Group.
+                It then sends back an acknowledgement to Ehcache A which then deletes the write from the Transaction Buffer.
+
+    [[6]]      A read or write request from Ehcache A is immediately available because a read lock is automatically granted when a write lock
+               has already been acquired. A read or write request in Ehcache B or C requires the acquisition of a read or write lock
+               respectively which will block until step 5 has occurred, and in addition, if you have a stale copy locally it is updated first.
+               When the lock is granted the write is present in all replicas. Because Ehcache also maintains copies of Elements in-process
+               in potentially each node, if any of Ehcache A, B or C have a copy they are also updated before Step 5 completes.
+
+    Note: This analysis assumes that if the <<<nonstop>>> is being used, it is configured with the default of Exception, so that on a <<<clusterOffline>>> event
+    no cache operations happen locally. (Nonstop allows fine-grained tradeoffs to be made in the event of a network partition, including
+    dropping consistency)
 
 
-      The distributed topology supports a very rich set of consistency modes which will be explored in this chapter.
 
-*   Proof of Distributed Ehcache’s Strong Consistency
 
-    In consistency=strong mode, this proof will show that an update which in Ehcache terms is a cache.put() or cache.remove() operation is actually strongly coherent as defined.
-    This analysis assumes that if NonStopCache is being used, it is configured with the default of Exception, so that on a clusterOffline event no cache operations happen locally.
-    For convenience, the Terracotta terminology is mapped to the reference model as follows:
-        •       Ehcache A = Process A
-        •       Ehcache B = Process B
-        •       Ehcache C = Process C
-        •       Terracotta Server Array = Storage System
-        •       Write = Update
-        1.      A thread in Ehcache A performs a write.
-        2.      Before the write is done, a write lock is obtained from the Terracotta Server (storage system). The write lock is granted only after all read locks have been surrendered.
-        3.      The write is done to an in-process Transaction Buffer. Within the Java process the write is thread-safe. Any local threads in Ehcache A will have immediate visibility of the change.
-        4.      Once the change has hit the Transaction Buffer which is a LinkedBlockingQueue, a notify occurs, and the Transaction Buffer initiates sending the write (update) to the Terracotta Server Array (storage system). This write may be asynchronous (default) or synchronous (by configuration using synchronous=true).
-        5.      The Terracotta Server is generally configured with multiple replicas forming a Mirror Group. Within the mirror group there is an Active server, and one or more Passive servers.  The write is to the Active server. The Active server does not acknowledge the write until it has written it to each of the passive servers in the Mirror Group. It then sends back an acknowledgement to Ehcache A which then deletes the write from the Transaction Buffer.
-        6.      A read or write request from Ehcache A is immediately available because a read lock is automatically granted when a write lock has already been acquired. A read or write request in Ehcache B or C requires the acquisition of a read or write lock respectively which will block until step 5 has occurred, and in addition, if you have a stale copy locally it is updated first. When the lock is granted the write is present in all replicas. Because Ehcache also maintains copies of Elements in-process in potentially each node, if any of Ehcache A, B or C have a copy they are also updated before 5 completes.
+
+
+
 
 
 
