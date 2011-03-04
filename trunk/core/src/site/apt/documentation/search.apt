@@ -8,7 +8,7 @@ Search
 
 * Ehcache Search API
 
-    _new_ The Ehcache Search API allows you to execute arbitrarily complex queries against either a standalone cache or a Terracotta
+    The Ehcache Search API allows you to execute arbitrarily complex queries against either a standalone cache or a Terracotta
     clustered cache with pre-built indexes. Searchable attributes may be extracted from both keys and values. Keys, values,
      or summary values (Aggregators) can all be returned.
 

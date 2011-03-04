@@ -154,11 +154,6 @@
         </copy>
     </target>
 
-
-    <target name="move_pdf" description="Moves the PDF to the site">
-        <move file="${build.dir}/generated-site/pdf/EhcacheUserGuide/EhcacheUserGuide.pdf"  todir="${build.dir}/site/documentation/"/>
-    </target>
-
     <target name="show_toc" description="Show TOC. Understood by site plugin but not by Doxis book generator">
         <echo>Showing toc</echo>
         <replace dir="src/site/apt/documentation">

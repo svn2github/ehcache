@@ -281,36 +281,55 @@
                 </executions>
             </plugin>
 
+            <!--Obsoleted by pdf plugin-->
+            <!--<plugin>-->
+            <!--<groupId>org.apache.maven.doxia</groupId>-->
+            <!--<artifactId>doxia-maven-plugin</artifactId>-->
+            <!--<version>1.1.3</version>-->
+            <!--<executions>-->
+            <!--<execution>-->
+            <!--<phase>pre-site</phase>-->
+            <!--<goals>-->
+            <!--<goal>render-books</goal>-->
+            <!--</goals>-->
+            <!--</execution>-->
+            <!--</executions>-->
+            <!--<configuration>-->
+
+            <!--&lt;!&ndash;PDF&ndash;&gt;-->
+            <!--<books>-->
+            <!--<book>-->
+            <!--<directory>src/site/apt</directory>-->
+            <!--<descriptor>src/site/apt/book.xml</descriptor>-->
+            <!--<formats>-->
+            <!--<format>-->
+            <!--<id>pdf</id>-->
+            <!--</format>-->
+            <!--<format>-->
+            <!--<id>xhtml</id>-->
+            <!--</format>-->
+            <!--</formats>-->
+            <!--</book>-->
+            <!--</books>-->
+            <!--</configuration>-->
+            <!--</plugin>-->
+
             <plugin>
-                <groupId>org.apache.maven.doxia</groupId>
-                <artifactId>doxia-maven-plugin</artifactId>
-                <version>1.1.3</version>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-pdf-plugin</artifactId>
                 <executions>
                     <execution>
+                        <id>pdf</id>
                         <phase>pre-site</phase>
                         <goals>
-                            <goal>render-books</goal>
+                            <goal>pdf</goal>
                         </goals>
+                        <configuration>
+                            <outputDirectory>target/site/documentation</outputDirectory>
+                            <includeReports>false</includeReports>
+                        </configuration>
                     </execution>
                 </executions>
-                <configuration>
-
-                    <!--PDF-->
-                    <books>
-                        <book>
-                            <directory>src/site/apt</directory>
-                            <descriptor>src/site/apt/book.xml</descriptor>
-                            <formats>
-                                <format>
-                                    <id>pdf</id>
-                                </format>
-                                <format>
-                                    <id>xhtml</id>
-                                </format>
-                            </formats>
-                        </book>
-                    </books>
-                </configuration>
             </plugin>
 
 
@@ -375,19 +394,18 @@
                         </goals>
                     </execution>
 
-
-                    <execution>
-                        <id>unhide_embedded_html</id>
-                        <phase>site</phase>
-                        <configuration>
-                            <tasks>
-                                <ant target="unhide_html"/>
-                            </tasks>
-                        </configuration>
-                        <goals>
-                            <goal>run</goal>
-                        </goals>
-                    </execution>
+                    <!--<execution>-->
+                        <!--<id>unhide_embedded_html</id>-->
+                        <!--<phase>site</phase>-->
+                        <!--<configuration>-->
+                            <!--<tasks>-->
+                                <!--<ant target="unhide_html"/>-->
+                            <!--</tasks>-->
+                        <!--</configuration>-->
+                        <!--<goals>-->
+                            <!--<goal>run</goal>-->
+                        <!--</goals>-->
+                    <!--</execution>-->
 
                     <execution>
                         <id>copy_files</id>
