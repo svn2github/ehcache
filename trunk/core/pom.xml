@@ -364,7 +364,7 @@
 
                     <execution>
                         <id>hide_toc</id>
-                        <phase>post-site</phase>
+                        <phase>site</phase>
                         <configuration>
                             <tasks>
                                 <ant target="hide_toc"/>
@@ -730,7 +730,9 @@
     </profiles>
 
 
-    <!-- Reports -->
+    <!-- Reports & Site
+        Note: mvn site does not work. Use build-site.sh instead
+    -->
     <reporting>
         <plugins>
 

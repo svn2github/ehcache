@@ -165,10 +165,12 @@ Consistency Options
    In the distributed cache, strong consistency is configured as follows:
 
 ---
-   <cache ...
-
-        <terracotta consistency=strong />
+   <cache name="sampleCache1"
+        ...
+        />
+        <terracotta consistency="strong" />
    </cache>
+---
 
     We will walk through how a write is done and show that it is strongly consistent.
 
@@ -192,6 +194,8 @@ Consistency Options
                respectively which will block until step 5 has occurred, and in addition, if you have a stale copy locally it is updated first.
                When the lock is granted the write is present in all replicas. Because Ehcache also maintains copies of Elements in-process
                in potentially each node, if any of Ehcache A, B or C have a copy they are also updated before Step 5 completes.
+
+    []
 
     Note: This analysis assumes that if the <<<nonstop>>> is being used, it is configured with the default of Exception, so that on a <<<clusterOffline>>> event
     no cache operations happen locally. (Nonstop allows fine-grained tradeoffs to be made in the event of a network partition, including
