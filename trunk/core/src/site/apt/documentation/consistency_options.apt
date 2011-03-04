@@ -6,9 +6,6 @@ Consistency Options
 
 ~~%{toc|fromDepth=2|toDepth=3}
 
-%{toc|fromDepth=2|toDepth=3}
-
-
     The purpose of this chapter is to explain Distributed Ehcache's consistency models in terms of standard
     distributed systems theory.
 

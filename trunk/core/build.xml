@@ -170,7 +170,7 @@
 
     <!--If the site build fails this step will be missed. Make sure you don't check in the uncommented TOC-->
     <target name="hide_toc" description="Hide TOC. Not understood by Doxia book generator">
-        <echo>Showing toc</echo>
+        <echo>Hiding toc</echo>
         <replace dir="src/site/apt/documentation">
             <replacetoken><![CDATA[%{toc|fromDepth=2|toDepth=3}]]></replacetoken>
             <replacevalue><![CDATA[~~%{toc|fromDepth=2|toDepth=3}]]></replacevalue>

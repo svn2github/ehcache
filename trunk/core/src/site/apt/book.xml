@@ -197,16 +197,6 @@
             </sections>
         </chapter>
         <chapter>
-            <id>performance_considerations</id>
-            <title>Performance Considerations</title>
-            <sections>
-                <section>
-                    <id>performance_considerations</id>
-                    <file>documentation/performance_considerations.apt</file>
-                </section>
-            </sections>
-        </chapter>
-        <chapter>
             <id>cache_decorators</id>
             <title>Cache Decorators</title>
             <sections>
@@ -466,16 +456,16 @@
                 </section>
             </sections>
         </chapter>
-        <chapter>
-            <id>building</id>
-            <title>Building From Source</title>
-            <sections>
-                <section>
-                    <id>building</id>
-                    <file>documentation/building.apt</file>
-                </section>
-            </sections>
-        </chapter>
+        <!--<chapter>-->
+            <!--<id>building</id>-->
+            <!--<title>Building From Source</title>-->
+            <!--<sections>-->
+                <!--<section>-->
+                    <!--<id>building</id>-->
+                    <!--<file>documentation/building.apt</file>-->
+                <!--</section>-->
+            <!--</sections>-->
+        <!--</chapter>-->
         <chapter>
             <id>faq</id>
             <title>FAQ</title>

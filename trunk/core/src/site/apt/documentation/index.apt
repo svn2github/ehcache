@@ -34,8 +34,6 @@ Documentation - Table of Contents
 
     * {{{./class_loading.html}Class loading and Class Loaders}}
 
-    * {{{./performance_considerations.html}Performance Considerations}}
-
     * {{{./garbage_collection.html}Tuning Garbage Collection}}
 
     * {{{./cache_decorators.html}Cache Decorators}} 

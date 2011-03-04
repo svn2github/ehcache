@@ -172,9 +172,14 @@ public static void registerMBeans(
     See {{http://weblogs.java.net/blog/maxpoon/archive/2007/06/extending_the_n_2.html}} for
     an online tutorial.
 
+*   Performance
 
+    Collection of cache statistics is not entirely free of overhead.  In production systems where monitoring
+    is not required statistics can be disabled.  This can be done either programatically by calling
+    setStatisticsEnabled(false) on the cache instance, or in configuration by setting the statistics="false"
+    attribute of the relevant cache configuration element.
 
-
+    From Ehcache 2.1.0 statistics are off by default.
 
 
 
