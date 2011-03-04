@@ -159,8 +159,7 @@
         <move file="${build.dir}/generated-site/pdf/EhcacheUserGuide/EhcacheUserGuide.pdf"  todir="${build.dir}/site/documentation/"/>
     </target>
 
-    <target name="show_toc" description="Show TOC">
-
+    <target name="show_toc" description="Show TOC. Understood by site plugin but not by Doxis book generator">
         <echo>Showing toc</echo>
         <replace dir="src/site/apt/documentation">
             <replacetoken><![CDATA[~~%{toc|fromDepth=2|toDepth=3}]]></replacetoken>
@@ -168,6 +167,15 @@
         </replace>
     </target>
 
+
+    <!--If the site build fails this step will be missed. Make sure you don't check in the uncommented TOC-->
+    <target name="hide_toc" description="Hide TOC. Not understood by Doxia book generator">
+        <echo>Showing toc</echo>
+        <replace dir="src/site/apt/documentation">
+            <replacetoken><![CDATA[%{toc|fromDepth=2|toDepth=3}]]></replacetoken>
+            <replacevalue><![CDATA[~~%{toc|fromDepth=2|toDepth=3}]]></replacevalue>
+        </replace>
+    </target>
 
 
     <target name="unhide_html" description="extra site processing">

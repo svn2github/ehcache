@@ -330,6 +330,20 @@
 
 
                     <execution>
+                        <id>hide_toc</id>
+                        <phase>post-site</phase>
+                        <configuration>
+                            <tasks>
+                                <ant target="hide_toc"/>
+                            </tasks>
+                        </configuration>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                    </execution>
+
+
+                    <execution>
                         <id>unhide_embedded_html</id>
                         <phase>site</phase>
                         <configuration>
