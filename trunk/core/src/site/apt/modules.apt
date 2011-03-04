@@ -7,7 +7,7 @@ Modules
     Following is a list of Ehcache modules:
 
 *----------+--------------+
-{{{./documentation/index.html}ehcache}} | The full Distributed Ehcache module, including core and Terracotta
+{{{./documentation/}ehcache}} | The full Distributed Ehcache module, including core and Terracotta
 *----------+--------------+
 {{{./documentation/index.html}ehcache-core}} | APIs, Standalone caching engine, RMI replication and Hibernate plugins
 *----------+--------------+

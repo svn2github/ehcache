@@ -98,7 +98,7 @@
 
     Gets the element's metadata.
 
-*** {PUT} /\{cache\}/\{element\}
+*** PUT /\{cache\}/\{element\}
 
     Puts an element into the Cache.
 
@@ -106,7 +106,7 @@
     HTTP request header <<<ehcacheTimeToLiveSeconds>>>. Values of 0 to 2147483647 are accepted. A value of 0
     means eternal.
 
-*** {DELETE} / \{cache\}/\{element\}
+*** DELETE / \{cache\}/\{element\}
 
     Deletes the element from the cache.
 

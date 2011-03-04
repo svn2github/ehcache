@@ -14,8 +14,6 @@ Documentation - Table of Contents
 
     * {{{./concepts.html}Cache Concepts}}
 
-    * {{{./architecture.html}Architecture}}
-
     * {{{./configuration.html}Configuration}}
 
     * {{{./storage_options.html}Storage Options}}
@@ -24,9 +22,7 @@ Documentation - Table of Contents
 
     * {{{./cache_eviction_algorithms.html}Cache Eviction Algorithms}}
 
-    * {{{./offheap_store.html}BigMemory:Off-Heap Store}} _new_
-
-    * {{{./hibernate.html}Hibernate Caching}}
+    * {{{./offheap_store.html}Big Memory:Off-Heap Store}} _new_
 
     * {{{./jdbc.html}JDBC Caching}}
 
@@ -46,7 +42,7 @@ Documentation - Table of Contents
 
     * {{{./cache_topologies.html}Cache Topologies}}
 
-    * {{{./terracotta/distributed_caching_with_terracotta.html}Distributed Caching}}
+    * {{{./terracotta/distributed_caching_with_terracotta.html}Distributed Caching With Terracotta}}
 
     * {{{./replicated_caching_with_rmi.html}Replicated Caching With RMI}}
 
@@ -58,7 +54,7 @@ Documentation - Table of Contents
 
     * {{{./logging.html}Logging}}
 
-    * {{{./remotedebugger.html}Remote Network debugging and monitoring for Distributed Caches}}
+    * {{{./remotedebugger.html}Remote Network debugging and monitoring for RMI Replicated Caches}}
 
     * {{{./jmx.html}JMX Management & Monitoring}}
 
@@ -68,7 +64,7 @@ Documentation - Table of Contents
 
     * {{{./monitor.html}Ehcache Monitor}} 
 
-    * {{{./bulk_loading.html}Bulk Loading}}
+    * {{{./bulk_loading.html}Bulk Loading - Terracotta}}
 
     * {{{./cachemanager_event_listeners.html}CacheManager Event Listeners}}
 
@@ -84,7 +80,7 @@ Documentation - Table of Contents
 
     * {{{./cache_server.html}Cache Server with SOAP and RESTful Web Services}}
 
-    * {{{./explicitlocking.html}Explicit Locking API}}
+    * {{{./explicitlocking.html}Explicit Locking API - Terracotta}}
 
     * {{{./constructs.html}BlockingCache and SelfPopulatingCache}}
 

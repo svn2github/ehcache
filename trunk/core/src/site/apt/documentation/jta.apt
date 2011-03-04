@@ -128,7 +128,7 @@ Transactions in Ehcache
 
     Global transactions support is implemented at the Store level, through XATransactionStore and JtaLocalTransactionStore. The former actually
     decorates the underlying MemoryStore implementation, augmenting it with transaction isolation and two-phase commit support through
-    an {XAResouce} implementation. The latter decorates a LocalTransactionStore-decorated cache to make it controllable by the standard JTA API
+    an <XAResouce> implementation. The latter decorates a LocalTransactionStore-decorated cache to make it controllable by the standard JTA API
     instead of the proprietary TransactionController API.
 
     During its initialization, the Cache will lookup the TransactionManager using the provided TransactionManagerLookup implementation.

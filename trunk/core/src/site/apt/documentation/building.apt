@@ -54,25 +54,7 @@
 
     (These instructions are for project maintainers)
 
-    You need the following unix utilities installed:
-
-    * {maven} 2.2.1
-
-    * a latex distribution  (e.g. Tex Live 2008)
-
-    * ghostscript
-
-    * pdftk
-
-    * aptconvert
-
-    * netpbm
-
-    * xfig 
-
-    You also need a yDoc license.
-
-    With all that, build the site as below:
+    To build the site use:
 
 ---
     mvn -Dmaven.test.skip=true package site

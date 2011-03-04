@@ -32,7 +32,7 @@
 
 
 
-* {SelfPopulatingCache}
+* SelfPopulatingCache
 
     You want to use the BlockingCache, but the requirement to always release the lock creates gnarly code. You also
     want to think about what you are doing without thinking about the caching.

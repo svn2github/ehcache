@@ -168,7 +168,7 @@ Ehcache blockingCache = singletonManager.getEhcache("sampleCache1");
 
 ** {SelfPopulatingCache}
 
-   A selfpopulating decorator for {@link Ehcache} that creates entries on demand.
+   A selfpopulating decorator for Ehcache that creates entries on demand.
 
   Clients of the cache simply call it without needing knowledge of whether
   the entry exists in the cache. If null the entry is created.

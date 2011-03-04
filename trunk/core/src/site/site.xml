@@ -18,7 +18,6 @@
 
         <menu name="About">
             <item name="Overview" href="documentation/overview.html"/>
-            <item name="Architecture" href="documentation/architecture.html"/>
             <item name="Features" href="/features.html"/>
             <item name="News" href="/news.html"/>
             <item name="License" href="/license.html"/>
