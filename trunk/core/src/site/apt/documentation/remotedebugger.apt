@@ -4,6 +4,8 @@
 
 {Remote Network debugging and monitoring for Distributed Caches}
 
+~~%{toc|fromDepth=2|toDepth=3}
+
 *   Introduction
 
     The ehcache-1.x-remote-debugger.jar} can be used to debug replicated cache operations. When started with the same configuration as the

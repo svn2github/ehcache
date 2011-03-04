@@ -5,6 +5,8 @@
 
 Java Requirements and Dependencies
 
+~~%{toc|fromDepth=2|toDepth=3}
+
 * {Java Requirements}
 
     Current Ehcache releases require Java 1.5 and 1.6 at runtime.

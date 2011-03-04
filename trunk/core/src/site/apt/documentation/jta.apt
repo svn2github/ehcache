@@ -4,6 +4,8 @@
 
 Transactions in Ehcache
 
+~~%{toc|fromDepth=2|toDepth=3}
+
 *   Introduction
 
     Transactions are supported in versions of Ehcache 2.0 and higher.

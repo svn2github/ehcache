@@ -4,13 +4,15 @@
 
 {Storage Options}
 
+~~%{toc|fromDepth=2|toDepth=3}
+
  Ehcache has three stores:
 
    * a MemoryStore
 
    * an OffHeapStore (BigMemory, Enterprise Ehcache only) and
 
-   * a DiskStore
+   * a DiskStore (two versions: open source and Ehcache Enterprise)
 
 
 

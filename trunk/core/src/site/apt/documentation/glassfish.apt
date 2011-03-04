@@ -4,6 +4,8 @@
 
 {Glassfish How To & FAQ}
 
+~~%{toc|fromDepth=2|toDepth=3}
+
     The maintainer uses Ehcache in production with Glassfish. This chapter provides a Glassfish HOWTO.
 
 *   Versions

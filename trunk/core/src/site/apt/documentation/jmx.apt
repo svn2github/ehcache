@@ -5,6 +5,8 @@
 
 {JMX Management and Monitoring}
 
+~~%{toc|fromDepth=2|toDepth=3}
+
 *   Terracotta Monitoring Products
 
     An extensive monitoring product, available in Enterprise Ehcache, provides a monitoring

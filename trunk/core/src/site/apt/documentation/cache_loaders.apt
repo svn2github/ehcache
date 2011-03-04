@@ -4,6 +4,8 @@
 
 {Cache Loaders}
 
+~~%{toc|fromDepth=2|toDepth=3}
+
    A <<<CacheLoader>>> is an interface which specifies <<<load>>> and <<<loadAll>>> methods with a variety of parameters.
 
    CacheLoaders come from JCache, but are a frequently requested feature, so they have been incorporated into the core

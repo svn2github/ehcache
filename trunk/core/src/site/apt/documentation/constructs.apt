@@ -4,6 +4,8 @@
 
 {BlockingCache} and {SelfPopulatingCache}
 
+~~%{toc|fromDepth=2|toDepth=3}
+
     The <<<net.sf.ehcache.constructs>>> package contains some applied caching classes which use the core classes to solve everyday caching problems.
 
 

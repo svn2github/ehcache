@@ -4,6 +4,8 @@
 
 {Performance Considerations}
 
+~~%{toc|fromDepth=2|toDepth=3}
+
 * DiskStore
 
     Ehcache comes with a <<<MemoryStore>>> and a <<<DiskStore>>>. The <<<MemoryStore>>> is approximately

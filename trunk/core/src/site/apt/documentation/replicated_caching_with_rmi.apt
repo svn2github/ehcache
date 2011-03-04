@@ -4,6 +4,8 @@
 
 {RMI Replicated Caching}
 
+~~%{toc|fromDepth=2|toDepth=3}
+
 [images/rmi_replication.png]
 
     Since version 1.2, Ehcache has provided replicated caching using RMI.

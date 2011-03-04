@@ -4,6 +4,8 @@
 
 Replicated Caching using {JGroups}
 
+~~%{toc|fromDepth=2|toDepth=3}
+
     JGroups can be used as the underlying mechanism for
     the replication operations in ehcache. JGroups offers a very flexible
     protocol stack, reliable unicast and multicast message transmission.

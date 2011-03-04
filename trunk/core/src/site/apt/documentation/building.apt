@@ -4,6 +4,8 @@
  
 {Building from Source}
 
+~~%{toc|fromDepth=2|toDepth=3}
+
     These instructions work for each of the modules, except for JMS Replication, which requires installation
     of a message queue. See that module for details.
 

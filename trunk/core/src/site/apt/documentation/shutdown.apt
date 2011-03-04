@@ -5,6 +5,8 @@
 
 {Shutting Down Ehcache}
 
+~~%{toc|fromDepth=2|toDepth=3}
+
     If you are using persistent disk stores, or distributed caching, care should be taken to shutdown ehcache.
 
     Note that Hibernate automatically shuts down its Ehcache <<<CacheManager>>>.

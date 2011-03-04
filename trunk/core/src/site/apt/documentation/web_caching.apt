@@ -4,6 +4,8 @@
 
 {Web Caching}
 
+~~%{toc|fromDepth=2|toDepth=3}
+
   Ehcache provides a set of general purpose web caching filters in the <<<ehcache-web>>> module.
 
   Using these can make an amazing difference to web application performance. A typical server can deliver

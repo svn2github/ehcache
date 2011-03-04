@@ -5,6 +5,8 @@
 
 {Tomcat Issues and Best Practices}
 
+~~%{toc|fromDepth=2|toDepth=3}
+
     Ehcache is probably used most commonly with Tomcat. This chapter documents some known issues with Tomcat
     and recommended practices.
 

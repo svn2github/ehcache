@@ -4,6 +4,8 @@
 
 {Tuning Garbage Collection}
 
+~~%{toc|fromDepth=2|toDepth=3}
+
     Applications which use Ehcache can be expected to have larger heaps. Some Ehcache applications have heap sizes greater than 6GB.
 
     Ehcache works well at this scale. However large heaps or long held object, which is what a cache is, can place strain on the
@@ -11,6 +13,8 @@
 
     Note. The following documentation relates to Sun JDK 1.5.
 
+    Finally Ehcache 2.3 introduced the {{{./offheap_store.html}Big Memory}} Offheap Store which adds an additional store outside
+    of the heap so solve this problem.
 
 * Detecting Garbage Collection Problems
 
@@ -62,7 +66,6 @@ java ... -XX:+DisableExplicitGC -XX:+UseConcMarkSweepGC
     See {{http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=4403367}} for the bug report and detailed instructions on workarounds.
 
     Increase the interval as required in your application.
-
 
 
     

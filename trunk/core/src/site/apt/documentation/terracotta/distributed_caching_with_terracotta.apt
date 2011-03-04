@@ -1,8 +1,10 @@
  ---
- Distributed Caching
+ Distributed Caching using the Terracotta Server Array
  ---
 
-{Distributed Caching}
+{Distributed Caching using the Terracotta Server Array}
+
+~~%{toc|fromDepth=2|toDepth=3}
 
 
 

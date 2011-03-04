@@ -5,6 +5,8 @@
 
 {JSR107 (JCACHE) Support}
 
+~~%{toc|fromDepth=2|toDepth=3}
+
 * {JSR107 Implementation}
 
     Ehcache provides a preview implementation of JSR107 via the <<<net.sf.cache.jcache>>> package.

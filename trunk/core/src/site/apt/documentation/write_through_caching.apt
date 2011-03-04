@@ -4,6 +4,8 @@
 
 {Write-through and Write-behind Caching with the CacheWriter}
 
+~~%{toc|fromDepth=2|toDepth=3}
+
     Write-through caching is a caching pattern where writes to the cache cause writes to an underlying resource. The cache acts as a facade
     to the underlying resource. With this pattern, it often makes sense to read through the cache too.
 

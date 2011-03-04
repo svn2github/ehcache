@@ -4,6 +4,8 @@
 
 Using {Grails} and Ehcache
 
+~~%{toc|fromDepth=2|toDepth=3}
+
 * Using Ehcache as a Second Level Caching Provider for Hibernate within Grails
 
     Grails 1.2RC1 and higher use Ehcache as the default Hibernate second level cache. However earlier versions of Grails

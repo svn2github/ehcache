@@ -4,6 +4,8 @@
 
 {Key Ehcache Concepts}
 
+~~%{toc|fromDepth=2|toDepth=3}
+
 * Definitions
 
     * <<{cache-hit}>>:

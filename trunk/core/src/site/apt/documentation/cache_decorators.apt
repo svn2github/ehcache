@@ -4,6 +4,8 @@
  
 {Cache Decorators}
 
+~~%{toc|fromDepth=2|toDepth=3}
+
     Ehcache 1.2 introduced the Ehcache interface, of which Cache is an implementation. It is possible and encouraged
     to create Ehcache decorators that are backed by a Cache instance, implement Ehcache and provide extra functionality.
 

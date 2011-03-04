@@ -4,6 +4,8 @@
 
 {Logging}
 
+~~%{toc|fromDepth=2|toDepth=3}
+
 * {SLF4J Logging}
 
     As of 1.7.1, Ehcache uses the the slf4j ({{http://www.slf4j.org}}) logging facade. Plug in your own logging framework.

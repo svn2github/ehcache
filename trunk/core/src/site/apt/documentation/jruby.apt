@@ -4,6 +4,8 @@
 
 Using {JRuby} and Ehcache
 
+~~%{toc|fromDepth=2|toDepth=3}
+
     jruby-ehcache.gem is a JRuby Ehcache library which makes a commonly used subset of Ehcache's API available to
      JRuby. All of the strength of Ehcache is there, including BigMemory and the ability to cluster with Terracotta.
 

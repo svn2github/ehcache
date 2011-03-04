@@ -4,6 +4,8 @@
 
 {Class loading and Class Loaders}
 
+~~%{toc|fromDepth=2|toDepth=3}
+
     Class loading within the plethora of environments Ehcache can be running is a somewhat vexed issue.
 
     Since ehcache-1.2 all classloading is done in a standard way in one utility class: <<<ClassLoaderUtil>>>.

@@ -4,6 +4,8 @@
 
 {JDBC Caching}
 
+~~%{toc|fromDepth=2|toDepth=3}
+
     Ehcache can easily be combined with your existing JDBC code.  Whether
     you access JDBC directly, or have a DAO/DAL layer, Ehcache can be 
     combined with your existing data access pattern to speed up frequently 

@@ -4,6 +4,8 @@
 
 {Cache Eviction Algorithms}
 
+~~%{toc|fromDepth=2|toDepth=3}
+
     A cache eviction algorithm is a way of deciding which <<<Element>>> to evict when the cache is full.
 
     In Ehcache the <<<MemoryStore>>> has a fixed limited size set by {<<<maxElementsInMemory>>>}

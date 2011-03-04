@@ -4,6 +4,8 @@
 
 {Cache Extensions}
 
+~~%{toc|fromDepth=2|toDepth=3}
+
     CacheExtensions are a general purpose mechanism to allow {generic extensions to a Cache}.
 
     CacheExtensions are tied into the Cache lifecycle. For that reason this interface has the lifecycle

@@ -4,6 +4,8 @@
 
 FAQ
 
+~~%{toc|fromDepth=2|toDepth=3}
+
 *  Frequently Asked Questions
 
 **  I get a net.sf.ehcache.CacheException: Terracotta cache classes are not available, you are missing jar(s) most likely

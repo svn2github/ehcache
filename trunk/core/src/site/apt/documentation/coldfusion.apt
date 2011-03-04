@@ -4,6 +4,8 @@
 
 Using Ehcache with ColdFusion
 
+~~%{toc|fromDepth=2|toDepth=3}
+
 *   Which version of Ehcache comes with which version of ColdFusion?
 
     ColdFusion now ships with Ehcache. Here are the versions shipped:

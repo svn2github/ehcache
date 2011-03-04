@@ -4,6 +4,8 @@
 
 Introduction
 
+~~%{toc|fromDepth=2|toDepth=3}
+
     Ehcache is a cache library. Before getting into ehcache, it is worth stepping back and thinking about caching generally.
 
 * About Caches

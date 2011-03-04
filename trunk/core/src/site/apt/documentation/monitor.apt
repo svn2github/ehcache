@@ -4,6 +4,8 @@
 
 Ehcache Monitor
 
+~~%{toc|fromDepth=2|toDepth=3}
+
     This add-on tool for Ehcache provides enterprise-class monitoring and management capabilities for use in both
     development and production. It is intended to help understand and tune cache usage, detect errors, and provide an easy to
     use access point to integrate with production management systems. It also provides administrative functionality such as the

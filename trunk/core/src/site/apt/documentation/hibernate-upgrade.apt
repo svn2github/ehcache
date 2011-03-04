@@ -4,6 +4,8 @@
 
 {Upgrading From Ehcache versions prior to 2.0}
 
+~~%{toc|fromDepth=2|toDepth=3}
+
    This page contains notes for users Upgrading from older versions Ehcache prior to 2.0 
 
 * Support for Hibernate 3.3 SPI

@@ -4,6 +4,8 @@
 
 {BigMemory: Off-heap Store Further Performance Analysis}
 
+~~%{toc|fromDepth=2|toDepth=3}
+
     {{{./offheap_store.html}back to BigMemory:Offheap Store}}
 
     This page contains further performance results for off-heap store covering less common scenarios.

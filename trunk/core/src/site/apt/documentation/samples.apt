@@ -4,6 +4,8 @@
 
 Recipes and Code Samples
 
+~~%{toc|fromDepth=2|toDepth=3}
+
     The Recipes and Code Samples page contains recipes - short concise 
     examples for specific use cases - and a set of code samples that will 
     help you get started with Ehcache.

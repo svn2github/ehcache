@@ -4,6 +4,8 @@
 
 {Hibernate Second Level Cache}
 
+~~%{toc|fromDepth=2|toDepth=3}
+
     <<IMPORTANT NOTICES - PLEASE READ>>
     
     <Users of Ehcache and/or Terracotta Ehcache for Hibernate prior to 

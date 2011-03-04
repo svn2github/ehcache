@@ -4,6 +4,8 @@
 
 Replicated Caching using {JMS}
 
+~~%{toc|fromDepth=2|toDepth=3}
+
     As of version 1.6, JMS can be used as the underlying mechanism for
     the replicated operations in Ehcache with the jmsreplication module.
 

@@ -4,6 +4,8 @@
 
 {CacheManager Event Listeners}
 
+~~%{toc|fromDepth=2|toDepth=3}
+
     CacheManager event listeners allow implementers to register callback
     methods that will be executed when a <<<CacheManager>>> event occurs. Cache listeners
     implement the CacheManagerEventListener interface.

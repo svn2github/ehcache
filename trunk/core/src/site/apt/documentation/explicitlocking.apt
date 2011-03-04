@@ -4,6 +4,8 @@
 
 {Explicit Locking}
 
+~~%{toc|fromDepth=2|toDepth=3}
+
     This package contains an implementation of an Ehcache which provides for explicit locking,
     using Read and Write locks.
 

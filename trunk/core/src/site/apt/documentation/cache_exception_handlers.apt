@@ -4,6 +4,8 @@
 
 {Cache Exception Handlers}
 
+~~%{toc|fromDepth=2|toDepth=3}
+
 
    By default, most cache operations will propagate a runtime CacheException on failure. An interceptor,
    using a dynamic proxy, may be configured so that a CacheExceptionHandler can be configured to

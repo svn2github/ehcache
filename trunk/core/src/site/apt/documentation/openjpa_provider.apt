@@ -4,6 +4,8 @@
 
 {OpenJPA Caching Provider}
 
+~~%{toc|fromDepth=2|toDepth=3}
+
     Ehcache easily integrates with the {{{http://openjpa.apache.org/}OpenJPA}} persistence framework.
 
 

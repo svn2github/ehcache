@@ -2,8 +2,9 @@
  Distributed and Replicated Caching
  ---
 
+{Distributed and Replicated Caching}
 
-Distributed and Replicated Caching
+~~%{toc|fromDepth=2|toDepth=3}
 
      Many production applications are deployed in clusters of multiple
      instances for availability and scalability.  However, without a
