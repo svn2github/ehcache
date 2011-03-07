@@ -15,6 +15,7 @@
  */
 package net.sf.ehcache.transaction.manager;
 
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Properties;
 import java.util.concurrent.locks.Lock;
@@ -256,8 +257,14 @@ public class DefaultTransactionManagerLookup implements TransactionManagerLookup
                 Object[] args = null;
                 Method method = factoryClass.getMethod("getTransactionManager", signature);
                 transactionManager = (TransactionManager) method.invoke(null, args);
-            } catch (Exception e) {
-               //
+            } catch (ClassNotFoundException e) {
+                LOG.debug("FactorySelector failed lookup", e);
+            } catch (NoSuchMethodException e) {
+                LOG.debug("FactorySelector failed lookup", e);
+            } catch (InvocationTargetException e) {
+                LOG.debug("FactorySelector failed lookup", e);
+            } catch (IllegalAccessException e) {
+                LOG.debug("FactorySelector failed lookup", e);
             }
             return transactionManager;
         }
@@ -285,8 +292,12 @@ public class DefaultTransactionManagerLookup implements TransactionManagerLookup
             try {
                 Class txManagerClass = cl.loadClass(classname);
                 transactionManager = (TransactionManager) txManagerClass.newInstance();
-            } catch (Exception e) {
-              //
+            } catch (ClassNotFoundException e) {
+                LOG.debug("FactorySelector failed lookup", e);
+            } catch (InstantiationException e) {
+                LOG.debug("FactorySelector failed lookup", e);
+            } catch (IllegalAccessException e) {
+                LOG.debug("FactorySelector failed lookup", e);
             }
             return transactionManager;
         }
