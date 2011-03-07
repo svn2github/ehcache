@@ -164,7 +164,7 @@ public class LocalTransactionStore extends AbstractTransactionStore {
             Element oldElement = underlyingStore.getQuiet(key);
             if (oldElement == null) {
                 SoftLock softLock = softLockFactory.createSoftLock(getCurrentTransactionContext().getTransactionId(), key,
-                        element, oldElement);
+                        element, null);
                 softLock.lock();
                 Element newElement = createElement(key, softLock);
                 oldElement = underlyingStore.putIfAbsent(newElement);
@@ -328,7 +328,7 @@ public class LocalTransactionStore extends AbstractTransactionStore {
             Element oldElement = underlyingStore.getQuiet(key);
             if (oldElement == null) {
                 SoftLock softLock = softLockFactory.createSoftLock(getCurrentTransactionContext().getTransactionId(), key,
-                        null, oldElement);
+                        null, null);
                 softLock.lock();
                 Element newElement = createElement(key, softLock);
                 oldElement = underlyingStore.putIfAbsent(newElement);
