@@ -378,13 +378,15 @@ public class LocalTransactionTest extends TestCase {
 
         TxThread tx2 = new TxThread() {
             @Override
-            public void exec() {
+            public void exec() throws InterruptedException {
                 //TX 1
-                transactionController.begin(2);
+                transactionController.begin(4);
 
                 times[0] = System.currentTimeMillis();
                 cache1.put(new Element(1, "tx2-one"));
                 times[1] = System.currentTimeMillis();
+
+                Thread.sleep(WAIT_TIME);
 
                 //TX 1
                 transactionController.commit();
