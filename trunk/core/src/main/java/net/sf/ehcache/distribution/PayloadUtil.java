@@ -21,6 +21,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -167,7 +168,7 @@ final class PayloadUtil {
             gzipOutputStream.write(ungzipped);
             gzipOutputStream.close();
         } catch (IOException e) {
-            LOG.error("Could not gzip " + ungzipped);
+            LOG.error("Could not gzip " + Arrays.toString(ungzipped));
         }
         return bytes.toByteArray();
     }

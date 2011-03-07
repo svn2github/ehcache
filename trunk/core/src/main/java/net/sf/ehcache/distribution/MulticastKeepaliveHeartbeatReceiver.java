@@ -210,14 +210,14 @@ public final class MulticastKeepaliveHeartbeatReceiver {
                 return false;
             }
             CachePeer peer = (CachePeer) boundCachePeers.get(0);
-            String cacheManagerUrlBase = null;
             try {
-                cacheManagerUrlBase = peer.getUrlBase();
+                String cacheManagerUrlBase = peer.getUrlBase();
+                int baseUrlMatch = rmiUrls.indexOf(cacheManagerUrlBase);
+                return baseUrlMatch != -1;
             } catch (RemoteException e) {
-                LOG.error("Error geting url base");
+                LOG.error("Error geting url base", e);
+                return false;
             }
-            int baseUrlMatch = rmiUrls.indexOf(cacheManagerUrlBase);
-            return baseUrlMatch != -1;
         }
 
         private void registerNotification(String rmiUrl) {
