@@ -156,7 +156,7 @@
 
     <target name="show_toc" description="Show TOC. Understood by site plugin but not by Doxis book generator">
         <echo>Showing toc</echo>
-        <replace dir="src/site/apt/documentation">
+        <replace dir="src/site/apt/documentation">                      
             <replacetoken><![CDATA[~~%{toc|fromDepth=2|toDepth=3}]]></replacetoken>
             <replacevalue><![CDATA[%{toc|fromDepth=2|toDepth=3}]]></replacevalue>
         </replace>

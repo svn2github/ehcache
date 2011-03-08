@@ -201,9 +201,53 @@ Consistency Options
     no cache operations happen locally. (Nonstop allows fine-grained tradeoffs to be made in the event of a network partition, including
     dropping consistency)
 
+**  Eventual Consistency
 
+    Distributed Ehcache may be configured with <<<consistency="eventual">>>. There is also a bulk loading mode which may additionally
+    be set programmatically with <<<setBulkLoading(boolean mode)>>>. Finally there is <UnlockedReadsView>, a <<<CacheDecorator>>>
+    that can be created like a view on a cache which shows the latest write visible to the local Ehcache node without respect for any locks.
 
+    Regardless, Ehcache B and C will eventually see the change made by Ehcache A. This occurs as follows:
 
+    *   With no partitions or interruptions, B and C will see the change generally within 5ms. The <inconsistency window> is therefore usually
+        less than 5ms.
+
+    *   If a GC happens on a Terracotta Server Array node, or Ehcache A or B, the inconsistency window is increased by the length of the GC.
+
+    *   <<<setBulkLoak(true)>>> changes things so that the Terracotta Server Array does not update Ehcache B and C. Instead they are set to a
+        5 minute fixed TTL. The <inconsistency window> thus increases to 5 minutes plus the above.
+
+    []
+
+    If a network partition occurs, the only configurable option is to discard on rejoin, so once this happens Ehcache A or B gets the write.
+
+    From the perspective of other threads in Ehcache A, all writes are thread-safe.
+
+    In all modes the <happens-before> requirement of the Java Memory Model is honored. As a result the following is true:
+
+    *   A thread in Ehcache A will see any writes made by another thread. => Read your writes consistency.
+
+    *   Monotonic Read Consistency in Ehcache A is true.
+
+    *   Monotonic Write Consistency is Ehcache A is true.
+
+    []
+
+    It should be noted that desirable characteristics of eventual consistency are from the point of view of Ehcache A. From the context of
+    a web application, if order for an end user interacting with a whole application to see this behaviour, either:
+
+    *   sticky sessions should be used, so that the use interacts with the same node (i.e. Ehcache A) for each step. If an application node
+        falls over, a new session will be established. The time between the last write, failure, detection by the load balancer and
+        allocation to a new application node will take longer than the 5ms plus that it takes for all Ehcache nodes in the cluster to get the
+        write. So when the new application node is switched to, eventual consistency has occurred and no loss of consistency is observed by
+        the user.
+
+    *   do not use sticky sessions but rely on the time gap between a click or submit and the next one in a <click path> being much larger
+        than the 5ms plus that it takes for other nodes to become eventually consistent.
+        In an Internet context the user is sufficiently distant from the server so that the response time is at least an order of magnitude
+        greater than the <inconsistency window>. Probabilistically it is therefore unlikely that a user would see inconsistency.
+
+    []
 
 
 
