@@ -6,17 +6,20 @@
 
 
 
----
+
 Nonstop minimal config:
 
+-------------------------
 <cache name="cacheName" maxElementsInMemory="10000" eternal="true" overflowToDisk="false">
 <terracotta>
 		<nonstop />
 	</terracotta>
 </cache>
+-------------------------
 
 Nonstop default values:
 
+-------------------------
 <cache name="four" maxElementsInMemory="10000" eternal="true"
 	overflowToDisk="false">
 	<terracotta clustered="false">
@@ -25,8 +28,11 @@ Nonstop default values:
 		</nonstop>
 	</terracotta>
 </cache>
+-------------------------
 
 Rejoin Config:
+
+-------------------------
 <ehcache name="basic-cache-test">
 	<defaultCache maxElementsInMemory="10000" eternal="true"
 		overflowToDisk="false" />
@@ -38,12 +44,15 @@ Rejoin Config:
 	</cache>
 	<terracottaConfig rejoin="true" url="localhost:9510" />
 </ehcache>
+-------------------------
 
 Rejoin Event:
+
+-------------------------
 net.sf.ehcache.cluster.ClusterTopologyListener {
     void clusterRejoined(ClusterNode oldNode, ClusterNode newNode);
 }
----
+-------------------------
 
 
 Rejoin happens when reconnect has failed. The L1 has been connected. It will rejoin as a new client.
@@ -183,10 +192,10 @@ Prior to this an L1 could not reconnect without restarting the app server with t
     Behind the scenes, the TerracottaAwareCache constructor looks up the Terracotta cluster
     and registers a <<<ClusterTopologyListener>>> which calls back on certain cluster events.
 
----
+-------------------------
    CacheCluster cacheCluster = cacheManager.getCluster(ClusterScheme.TERRACOTTA);
    cacheCluster.addTopologyListener(yourListener);
----
+-------------------------
 
     In particular it is interested in the <<<clusterOffline>>> and <<<clusterOnline>>> events.
 
@@ -262,7 +271,6 @@ Prior to this an L1 could not reconnect without restarting the app server with t
 
     * Contention in the persistency layer in the Terracotta server
 
-    *
 
 
 *   {Download}
@@ -277,13 +285,12 @@ Prior to this an L1 could not reconnect without restarting the app server with t
 
     Add this snippet to your dependencies:
 
----
-
+-------------------------
 <dependency>
     <groupId>net.sf.ehcache</groupId>
     <artifactId>ehcache-nonstopcache</artifactId>
 </dependency>
----
+-------------------------
 
 *   {Emerging API}
 
@@ -296,7 +303,7 @@ Prior to this an L1 could not reconnect without restarting the app server with t
 
 
 
-New Nonstrict Mode
+** New Nonstrict Mode
 If any data is in te L1, then it will be available during the transition to the timeout. You always get stale data.
 
 
