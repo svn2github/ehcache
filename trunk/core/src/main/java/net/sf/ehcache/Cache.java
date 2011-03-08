@@ -998,6 +998,7 @@ public class Cache implements Ehcache, StoreListener {
 
             ReadWriteCopyStrategy<Element> copyStrategy = null;
             if (configuration.getTransactionalMode().isTransactional()) {
+                configuration.getCopyStrategyConfiguration().setCopyStrategyInstance(null);
                 copyStrategy = configuration.getCopyStrategyConfiguration().getCopyStrategyInstance();
                 configuration.getCopyStrategyConfiguration().setCopyStrategyInstance(new ImmutableValueElementCopyStrategy());
             }
