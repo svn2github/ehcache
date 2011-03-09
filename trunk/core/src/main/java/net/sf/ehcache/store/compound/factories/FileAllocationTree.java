@@ -26,13 +26,14 @@ import java.io.RandomAccessFile;
 final class FileAllocationTree extends RegionSet {
 
     private long fileSize;
-    private RandomAccessFile data;
+    private final RandomAccessFile data;
 
     /**
      * Create a file allocation tree for the given file, capping it's size at maxSize.
      */
     public FileAllocationTree(long maxSize, RandomAccessFile file) {
         super(maxSize);
+        this.data = file;
     }
 
     /**
