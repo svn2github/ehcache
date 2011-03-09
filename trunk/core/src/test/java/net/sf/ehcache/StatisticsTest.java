@@ -150,8 +150,7 @@ public class StatisticsTest extends AbstractCacheTest {
      * We need to do some magic with the refernence held to Cache
      */
     @Test
-    public void testSerialization() throws IOException, ClassNotFoundException {
-
+    public void testSerialization() throws IOException, ClassNotFoundException, InterruptedException {
         Cache cache = new Cache("test", 1, true, false, 5, 2);
         manager.addCache(cache);
 
@@ -159,6 +158,10 @@ public class StatisticsTest extends AbstractCacheTest {
 
         cache.put(new Element("key1", "value1"));
         cache.put(new Element("key2", "value1"));
+
+        // allow disk write thread to complete
+        Thread.sleep(100);
+
         cache.get("key1");
         cache.get("key1");
 
