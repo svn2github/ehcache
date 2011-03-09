@@ -56,6 +56,10 @@ public class StatisticsTest extends AbstractCacheTest {
         
         cache.put(new Element("key1", "value1"));
         cache.put(new Element("key2", "value1"));
+
+        // allow disk write thread to complete
+        Thread.sleep(100);
+
         // key1 should be in the Disk Store
         cache.get("key1");
 
@@ -112,6 +116,10 @@ public class StatisticsTest extends AbstractCacheTest {
         
         cache.put(new Element("key1", "value1"));
         cache.put(new Element("key2", "value1"));
+
+        // allow disk write thread to complete
+        Thread.sleep(100);
+
         // key1 should be in the Disk Store
         cache.get("key1");
 
@@ -150,8 +158,7 @@ public class StatisticsTest extends AbstractCacheTest {
      * We need to do some magic with the refernence held to Cache
      */
     @Test
-    public void testSerialization() throws IOException, ClassNotFoundException {
-
+    public void testSerialization() throws IOException, ClassNotFoundException, InterruptedException {
         Cache cache = new Cache("test", 1, true, false, 5, 2);
         manager.addCache(cache);
 
@@ -159,6 +166,10 @@ public class StatisticsTest extends AbstractCacheTest {
         
         cache.put(new Element("key1", "value1"));
         cache.put(new Element("key2", "value1"));
+
+        // allow disk write thread to complete
+        Thread.sleep(100);
+
         cache.get("key1");
         cache.get("key1");
 
@@ -192,25 +203,6 @@ public class StatisticsTest extends AbstractCacheTest {
         assertEquals(Statistics.STATISTICS_ACCURACY_BEST_EFFORT, statistics
                 .getStatisticsAccuracy());
         statistics.clearStatistics();
-
-    }
-
-    /**
-     * What happens when a long larger than int max value is cast to an int?
-     * <p/>
-     * The answer is that negative numbers are reported. The cast value is
-     * incorrect.
-     */
-    @Test
-    public void testIntOverflow() {
-
-        long value = Integer.MAX_VALUE;
-        value += Integer.MAX_VALUE;
-        value += 5;
-        LOG.info("" + value);
-        int valueAsInt = (int) value;
-        LOG.info("" + valueAsInt);
-        assertEquals(3, valueAsInt);
 
     }
 
