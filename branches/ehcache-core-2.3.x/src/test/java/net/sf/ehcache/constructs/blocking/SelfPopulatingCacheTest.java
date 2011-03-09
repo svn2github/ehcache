@@ -156,7 +156,8 @@ public class SelfPopulatingCacheTest extends CacheTest {
     public void testCreateOnce() throws Exception {
         final String value = "value";
         final CountingCacheEntryFactory factory = new CountingCacheEntryFactory(value);
-        selfPopulatingCache = new SelfPopulatingCache(cache, factory);
+        final Cache cache = manager.getCache("sampleCacheNoIdle");
+        final Ehcache selfPopulatingCache = new SelfPopulatingCache(cache, factory);
 
         // Fetch the value several times
         for (int i = 0; i < 5; i++) {
