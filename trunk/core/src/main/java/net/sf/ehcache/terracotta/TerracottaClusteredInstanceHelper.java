@@ -174,8 +174,17 @@ class TerracottaClusteredInstanceHelper {
         if (factoryClass == null) {
             throw new CacheException("Not able to get factory class for: " + terracottaRuntimeType.name());
         }
-        return (ClusteredInstanceFactory) ClassLoaderUtil.createNewInstance(factoryClass.getName(),
-                new Class[] {TerracottaClientConfiguration.class }, new Object[] {terracottaConfig });
+        try {
+            return (ClusteredInstanceFactory) ClassLoaderUtil.createNewInstance(factoryClass.getName(),
+                    new Class[] {TerracottaClientConfiguration.class }, new Object[] {terracottaConfig });
+        } catch (CacheException ce) {
+            if (ce.getCause() instanceof NoClassDefFoundError) {
+                throw new CacheException("Could not create ClusteredInstanceFactory due to missing class." +
+                        " Please verify that terracotta-toolkit is in your classpath.", ce.getCause().getCause());
+            } else {
+                throw ce;
+            }
+        }
     }
 
     private static void assertCustom(TerracottaClientConfiguration terracottaConfig) {
