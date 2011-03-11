@@ -24,7 +24,7 @@ Ehcache Monitor
 
 *   {Installation And Configuration}
 
-    First {{{/modules/monitor.html}download}} and extract the Ehcache Monitor package.
+    First {{{http://www.terracotta.org/ehcache.org/download-monitor}download}} and extract the Ehcache Monitor package.
 
     The package consists of a lib directory with the probe and monitor server jars, a bin directory with startup and shutdown
     scripts for the monitor server and an etc directory with an example monitor server configuration file and a Jetty Server
