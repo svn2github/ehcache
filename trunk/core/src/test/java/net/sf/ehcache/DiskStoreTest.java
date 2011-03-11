@@ -932,7 +932,7 @@ public class DiskStoreTest extends AbstractCacheTest {
             int predictedSize = (ELEMENT_ON_DISK_SIZE + 68) * 100;
             long actualSize = diskStore.getOnDiskSizeInBytes();
             LOG.info("Predicted Size: " + predictedSize + " Actual Size: " + actualSize);
-            assertEquals(predictedSize, actualSize);
+            assertTrue(actualSize <= predictedSize);
             LOG.info("Memory Use: " + measureMemoryUse());
         }
     }
