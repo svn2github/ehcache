@@ -66,9 +66,10 @@
     []
 
 * Maven 
+    Dependency versions vary with the specific kit you intend to use. Since kits are guaranteed 
+    to contain compatible artifacts, find the artifact versions you need by downloading a kit.
 
-    If you are a maven user, you'll need to configure or add the following 
-    repository to your build (pom.xml):
+    Configure or add the following repository to your build (pom.xml):
 
 --------------
     <repository>
@@ -79,32 +80,31 @@
     </repository>
 --------------
 
-    Then, you will need to configure or add the the ehcache core module defined 
-    by the following dependencies to your build (pom.xml):
+    Configure or add the the ehcache core module defined 
+    by the following dependency to your build (pom.xml):
 
 --------------
     <dependency>
         <groupId>net.sf.ehcache</groupId>
         <artifactId>ehcache-core</artifactId>
-        <version>2.3.1</version>
+        <version>${ehcacheVersion}</version>
     </dependency>
 --------------
 
     If you are configuring Hibernate and Ehcache for Terracotta clustering, 
-    you will also need to add the following dependencies to your build 
-    (pom.xml):
+    add the following dependencies to your build (pom.xml):
 
 --------------
     <dependency>
         <groupId>net.sf.ehcache</groupId>
         <artifactId>ehcache-terracotta</artifactId>
-        <version>2.3.1</version>
+        <version>${ehcacheVersion}</version>
     </dependency>
 
     <dependency>
         <groupId>org.terracotta</groupId>
-        <artifactId>terracotta-toolkit-1.1-runtime</artifactId>
-        <version>2.0.0</version>
+        <artifactId>terracotta-toolkit-${toolkitAPIversion}-runtime</artifactId>
+        <version>${toolkitVersion}</version>
     </dependency>
 --------------
 
