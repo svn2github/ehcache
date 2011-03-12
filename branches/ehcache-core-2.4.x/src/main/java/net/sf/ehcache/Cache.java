@@ -2324,7 +2324,7 @@ public class Cache implements Ehcache, StoreListener {
     public final int getSize() throws IllegalStateException, CacheException {
         checkStatus();
 
-        if (compoundStore.isCacheCoherent()) {
+        if (isTerracottaClustered()) {
             return compoundStore.getTerracottaClusteredSize();
         } else {
             return compoundStore.getSize();
