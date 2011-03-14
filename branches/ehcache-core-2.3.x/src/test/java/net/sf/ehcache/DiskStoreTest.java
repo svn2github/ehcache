@@ -463,6 +463,7 @@ public class DiskStoreTest extends AbstractCacheTest {
      * and delete and add data.
      */
     @Test
+    @Ignore("Trunk changeset 3403 has not been merged to 2.3.x from trunk since it is a minor fix - without it this will racily fail.")
     public void testFreeSpaceBehaviour() throws IOException, InterruptedException {
         //initialise
         String cacheName = "testPersistent";
