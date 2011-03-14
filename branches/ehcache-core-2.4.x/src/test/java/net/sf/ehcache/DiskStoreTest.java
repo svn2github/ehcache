@@ -882,8 +882,10 @@ public class DiskStoreTest extends AbstractCacheTest {
         // Add an element that will expire.
         diskStore.put(new Element("key1", "value", false, 1, 1));
         diskStore.put(new Element("key2", "value", false, 1, 1));
-        assertNotNull(diskStore.get("key1"));
-        assertNotNull(diskStore.get("key2"));
+
+        //allow disk writer to finish
+        Thread.sleep(200);
+
         assertEquals(2, diskStore.getSize());
         assertEquals(1, diskStore.getOnDiskSize());
 
