@@ -40,7 +40,7 @@ import org.hibernate.SessionFactory;
  * 
  */
 public class EhcacheHibernate extends BaseEmitterBean implements EhcacheHibernateMBean {
-    private static final MBeanNotificationInfo[] NOTIFICATION_INFO;
+    private static final MBeanNotificationInfo NOTIFICATION_INFO;
 
     private final AtomicBoolean statsEnabled = new AtomicBoolean(true);
     private EhcacheStats ehcacheStats;
@@ -50,7 +50,7 @@ public class EhcacheHibernate extends BaseEmitterBean implements EhcacheHibernat
         final String[] notifTypes = new String[] {};
         final String name = Notification.class.getName();
         final String description = "Ehcache Hibernate Statistics Event";
-        NOTIFICATION_INFO = new MBeanNotificationInfo[] {new MBeanNotificationInfo(notifTypes, name, description), };
+        NOTIFICATION_INFO = new MBeanNotificationInfo(notifTypes, name, description);
     }
 
     /**
@@ -587,6 +587,6 @@ public class EhcacheHibernate extends BaseEmitterBean implements EhcacheHibernat
      */
     @Override
     public MBeanNotificationInfo[] getNotificationInfo() {
-        return NOTIFICATION_INFO;
+        return new MBeanNotificationInfo[] {NOTIFICATION_INFO};
     }
 }

@@ -39,7 +39,7 @@ import net.sf.ehcache.management.sampled.SampledCacheManager;
  */
 public class EhcacheStatsImpl extends BaseEmitterBean implements EhcacheStats {
     private static final long MILLIS_PER_SECOND = 1000;
-    private static final MBeanNotificationInfo[] NOTIFICATION_INFO;
+    private static final MBeanNotificationInfo NOTIFICATION_INFO;
 
     private final SampledCacheManager sampledCacheManager;
     private final CacheManager cacheManager;
@@ -50,7 +50,7 @@ public class EhcacheStatsImpl extends BaseEmitterBean implements EhcacheStats {
                 CACHE_STATISTICS_ENABLED, CACHE_STATISTICS_RESET, };
         final String name = Notification.class.getName();
         final String description = "Ehcache Hibernate Statistics Event";
-        NOTIFICATION_INFO = new MBeanNotificationInfo[] {new MBeanNotificationInfo(notifTypes, name, description), };
+        NOTIFICATION_INFO = new MBeanNotificationInfo(notifTypes, name, description);
     }
 
     /**
@@ -657,6 +657,6 @@ public class EhcacheStatsImpl extends BaseEmitterBean implements EhcacheStats {
      */
     @Override
     public MBeanNotificationInfo[] getNotificationInfo() {
-        return NOTIFICATION_INFO;
+        return new MBeanNotificationInfo[]{NOTIFICATION_INFO};
     }
 }

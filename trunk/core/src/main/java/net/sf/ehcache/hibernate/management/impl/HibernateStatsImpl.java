@@ -40,7 +40,7 @@ import org.hibernate.stat.Statistics;
  */
 public class HibernateStatsImpl extends BaseEmitterBean implements HibernateStats {
     private static final double MILLIS_PER_SECOND = 1000;
-    private static final MBeanNotificationInfo[] NOTIFICATION_INFO;
+    private static final MBeanNotificationInfo NOTIFICATION_INFO;
 
     private final SessionFactory sessionFactory;
 
@@ -48,7 +48,7 @@ public class HibernateStatsImpl extends BaseEmitterBean implements HibernateStat
         final String[] notifTypes = new String[] {};
         final String name = Notification.class.getName();
         final String description = "Hibernate Statistics Event";
-        NOTIFICATION_INFO = new MBeanNotificationInfo[] {new MBeanNotificationInfo(notifTypes, name, description), };
+        NOTIFICATION_INFO = new MBeanNotificationInfo(notifTypes, name, description);
     }
 
     /**
@@ -314,6 +314,6 @@ public class HibernateStatsImpl extends BaseEmitterBean implements HibernateStat
      */
     @Override
     public MBeanNotificationInfo[] getNotificationInfo() {
-        return NOTIFICATION_INFO;
+        return new MBeanNotificationInfo[]{NOTIFICATION_INFO};
     }
 }

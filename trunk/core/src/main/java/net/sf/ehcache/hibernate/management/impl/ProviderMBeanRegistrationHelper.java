@@ -133,7 +133,7 @@ public class ProviderMBeanRegistrationHelper {
                 Class factoryType = SessionFactoryObjectFactory.class;
                 Field instancesField = getField(factoryType, "INSTANCES");
                 if (instancesField == null) {
-                    throw new RuntimeException("Expected INSTANCES field on SessionFactoryObjectFactory");
+                    throw new RuntimeException("Expected INSTANCES field on " + SessionFactoryObjectFactory.class.getName());
                 }
                 instancesField.setAccessible(true);
                 Map map = (Map)instancesField.get(null);
@@ -153,8 +153,10 @@ public class ProviderMBeanRegistrationHelper {
                         }
                     }
                 }
-            } catch (Exception e) {
-                /**/
+            } catch (RuntimeException re) {
+                LOG.error("Error locating Hibernate Session Factory", re);
+            } catch (IllegalAccessException iae) {
+                LOG.error("Error locating Hibernate Session Factory", iae);
             }
             return null;
         }
