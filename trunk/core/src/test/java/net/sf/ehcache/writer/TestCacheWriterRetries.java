@@ -20,14 +20,16 @@ import net.sf.ehcache.CacheEntry;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Element;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 public class TestCacheWriterRetries extends AbstractTestCacheWriter {
     private final int retries;
-    private final Map<Object, Element> writtenElements = new HashMap<Object, Element>();
+    private final List<WriterEvent> writerEvents = new ArrayList<WriterEvent>();
     private final Map<Object, Integer> retryCount = new HashMap<Object, Integer>();
     private final Map<Object, Integer> writeCount = new HashMap<Object, Integer>();
     private final Map<Object, Integer> deleteCount = new HashMap<Object, Integer>();
@@ -36,8 +38,8 @@ public class TestCacheWriterRetries extends AbstractTestCacheWriter {
         this.retries = retries;
     }
 
-    public Map<Object, Element> getWrittenElements() {
-        return writtenElements;
+    public List<WriterEvent> getWriterEvents() {
+        return writerEvents;
     }
 
     public Map<Object, Integer> getWriteCount() {
@@ -79,9 +81,7 @@ public class TestCacheWriterRetries extends AbstractTestCacheWriter {
     }
 
     private void put(Object key, Element element) {
-        if (!deleteCount.containsKey(key)) {
-            writtenElements.put(key, element);
-        }
+        writerEvents.add(new WriterEvent(element));
         increaseWriteCount(key);
     }
 
@@ -107,7 +107,7 @@ public class TestCacheWriterRetries extends AbstractTestCacheWriter {
     }
 
     private void remove(Object key) {
-        writtenElements.remove(key);
+        writerEvents.add(new WriterEvent(key));
         increaseDeleteCount(key);
     }
 
@@ -128,6 +128,68 @@ public class TestCacheWriterRetries extends AbstractTestCacheWriter {
                 failUntilNoMoreRetries(key);
             }
             remove(key);
+        }
+    }
+
+    class WriterEvent {
+
+        private final Object removedKey;
+        private final Element addedElement;
+        private final long time;
+        private final int writtenSize;
+        private final Map<Object, Integer> writeCount;
+        private final Map<Object, Integer> deleteCount;
+
+        WriterEvent(Object key) {
+            this.removedKey = key;
+            this.addedElement = null;
+            time = System.nanoTime();
+            writtenSize = TestCacheWriterRetries.this.writerEvents.size();
+            writeCount = new HashMap<Object, Integer>(TestCacheWriterRetries.this.writeCount);
+            deleteCount = new HashMap<Object, Integer>(TestCacheWriterRetries.this.deleteCount);
+        }
+
+        WriterEvent(Element element) {
+            this.removedKey = null;
+            this.addedElement = element;
+            time = System.nanoTime();
+            writtenSize = TestCacheWriterRetries.this.writerEvents.size();
+            writeCount = new HashMap<Object, Integer>(TestCacheWriterRetries.this.writeCount);
+            deleteCount = new HashMap<Object, Integer>(TestCacheWriterRetries.this.deleteCount);
+        }
+
+        int getWrittenSize() {
+            return writtenSize;
+        }
+
+        int getWriteCount(Object key) {
+            Integer value = writeCount.get(key);
+            if (value == null) {
+                return 0;
+            } else {
+                return value;
+            }
+        }
+
+        int getDeleteCount(Object key) {
+            Integer value = deleteCount.get(key);
+            if (value == null) {
+                return 0;
+            } else {
+                return value;
+            }
+        }
+
+        long getTime() {
+            return time;
+        }
+
+        Element getAddedElement() {
+            return addedElement;
+        }
+
+        Object getRemovedKey() {
+            return removedKey;
         }
     }
 }
