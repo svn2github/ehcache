@@ -24,6 +24,11 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.util.Properties;
+import java.util.concurrent.BrokenBarrierException;
+import java.util.concurrent.Callable;
+import java.util.concurrent.CyclicBarrier;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 import net.sf.ehcache.AbstractCacheTest;
 import net.sf.ehcache.Cache;
@@ -33,7 +38,10 @@ import net.sf.ehcache.Status;
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.CacheWriterConfiguration;
 import net.sf.ehcache.event.CountingCacheEventListener;
+import net.sf.ehcache.util.RetryAssert;
+import net.sf.ehcache.writer.TestCacheWriterRetries.WriterEvent;
 
+import org.hamcrest.core.Is;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -458,7 +466,7 @@ public class CacheWriterTest extends AbstractCacheTest {
 
         CacheManager.getInstance().addCache(cache);
         assertTrue(writer.isInitialized());
-        assertEquals(0, writer.getWrittenElements().size());
+        assertEquals(0, writer.getWriterEvents().size());
 
         cache.putWithWriter(new Element("key1", "value1"));
         cache.putWithWriter(new Element("key2", "value1"));
@@ -467,7 +475,7 @@ public class CacheWriterTest extends AbstractCacheTest {
 
         Thread.sleep(2000);
 
-        assertEquals(0, writer.getWrittenElements().size());
+        assertEquals(0, writer.getWriterEvents().size());
     }
 
     @Test
@@ -485,7 +493,7 @@ public class CacheWriterTest extends AbstractCacheTest {
 
         CacheManager.getInstance().addCache(cache);
         assertTrue(writer.isInitialized());
-        assertEquals(0, writer.getWrittenElements().size());
+        assertEquals(0, writer.getWriterEvents().size());
 
         cache.putWithWriter(new Element("key1", "value1"));
         cache.putWithWriter(new Element("key2", "value1"));
@@ -494,7 +502,7 @@ public class CacheWriterTest extends AbstractCacheTest {
 
         Thread.sleep(2000);
 
-        assertEquals(2, writer.getWrittenElements().size());
+        assertEquals(4, writer.getWriterEvents().size());
         assertEquals(1, (long) writer.getWriteCount().get("key1"));
         assertEquals(1, (long) writer.getWriteCount().get("key2"));
         assertEquals(1, (long) writer.getWriteCount().get("key3"));
@@ -518,7 +526,7 @@ public class CacheWriterTest extends AbstractCacheTest {
 
         CacheManager.getInstance().addCache(cache);
         assertTrue(writer.isInitialized());
-        assertEquals(0, writer.getWrittenElements().size());
+        assertEquals(0, writer.getWriterEvents().size());
 
         cache.putWithWriter(new Element("key1", "value1"));
         cache.putWithWriter(new Element("key2", "value2"));
@@ -527,7 +535,7 @@ public class CacheWriterTest extends AbstractCacheTest {
 
         Thread.sleep(2000);
 
-        assertEquals(2, writer.getWrittenElements().size());
+        assertEquals(4, writer.getWriterEvents().size());
         assertEquals(1, (long) writer.getWriteCount().get("key1"));
         assertEquals(1, (long) writer.getWriteCount().get("key2"));
         assertEquals(1, (long) writer.getWriteCount().get("key3"));
@@ -544,69 +552,67 @@ public class CacheWriterTest extends AbstractCacheTest {
                         .maxWriteDelay(0)
                         .retryAttempts(3)
                         .retryAttemptDelaySeconds(1)));
-        TestCacheWriterRetries writer = new TestCacheWriterRetries(3);
+        final TestCacheWriterRetries writer = new TestCacheWriterRetries(3);
         cache.registerCacheWriter(writer);
 
         CacheManager.getInstance().addCache(cache);
         assertTrue(writer.isInitialized());
-        assertEquals(0, writer.getWrittenElements().size());
+        assertEquals(0, writer.getWriterEvents().size());
 
+        long start = System.nanoTime();
         cache.putWithWriter(new Element("key1", "value1"));
         cache.putWithWriter(new Element("key2", "value2"));
         cache.putWithWriter(new Element("key3", "value3"));
         cache.removeWithWriter("key2");
 
-        Thread.sleep(3000);
+        RetryAssert.assertBy(30, TimeUnit.SECONDS, new Callable<Integer>() {
+            public Integer call() throws Exception {
+                return writer.getWriterEvents().size();
+            }
+        }, Is.is(4));
 
-        assertEquals(0, writer.getWrittenElements().size());
-        assertFalse(writer.getWriteCount().containsKey("key1"));
-        assertFalse(writer.getWriteCount().containsKey("key2"));
-        assertFalse(writer.getWriteCount().containsKey("key3"));
-        assertFalse(writer.getDeleteCount().containsKey("key2"));
 
-        Thread.sleep(1000);
+        WriterEvent one = writer.getWriterEvents().get(0);
+        assertEquals(0, one.getWrittenSize());
+        assertEquals(0, one.getWriteCount("key1"));
+        assertEquals(0, one.getWriteCount("key2"));
+        assertEquals(0, one.getWriteCount("key3"));
+        assertEquals(0, one.getDeleteCount("key2"));
+        assertEquals("key1", one.getAddedElement().getObjectKey());
+        assertTrue("Write-1 time : " + (one.getTime() - start), one.getTime() - start >= TimeUnit.SECONDS.toNanos(3));
 
-        assertEquals(1, writer.getWrittenElements().size());
-        assertEquals(1, (long) writer.getWriteCount().get("key1"));
-        assertFalse(writer.getWriteCount().containsKey("key2"));
-        assertFalse(writer.getWriteCount().containsKey("key3"));
-        assertFalse(writer.getDeleteCount().containsKey("key2"));
+        WriterEvent two = writer.getWriterEvents().get(1);
+        assertEquals(1, two.getWrittenSize());
+        assertEquals(1, two.getWriteCount("key1"));
+        assertEquals(0, two.getWriteCount("key2"));
+        assertEquals(0, two.getWriteCount("key3"));
+        assertEquals(0, two.getDeleteCount("key2"));
+        assertEquals("key2", two.getAddedElement().getObjectKey());
+        assertTrue("Write-2 time : " + (two.getTime() - start), two.getTime() - start >= TimeUnit.SECONDS.toNanos(6));
 
-        Thread.sleep(2000);
+        WriterEvent three = writer.getWriterEvents().get(2);
+        assertEquals(2, three.getWrittenSize());
+        assertEquals(1, three.getWriteCount("key1"));
+        assertEquals(1, three.getWriteCount("key2"));
+        assertEquals(0, three.getWriteCount("key3"));
+        assertEquals(0, three.getDeleteCount("key2"));
+        assertEquals("key3", three.getAddedElement().getObjectKey());
+        assertTrue("Write-3 time : " + (three.getTime() - start), three.getTime() - start >= TimeUnit.SECONDS.toNanos(9));
 
-        assertEquals(1, writer.getWrittenElements().size());
+        WriterEvent four = writer.getWriterEvents().get(3);
+        assertEquals(3, four.getWrittenSize());
+        assertEquals(1, four.getWriteCount("key1"));
+        assertEquals(1, four.getWriteCount("key2"));
+        assertEquals(1, four.getWriteCount("key3"));
+        assertEquals(0, four.getDeleteCount("key2"));
+        assertEquals("key2", four.getRemovedKey());
+        assertTrue("Delete-2 time : " + (four.getTime() - start), four.getTime() - start >= TimeUnit.SECONDS.toNanos(12));
 
-        Thread.sleep(1000);
-
-        assertEquals(2, writer.getWrittenElements().size());
-        assertEquals(1, (long) writer.getWriteCount().get("key1"));
-        assertEquals(1, (long) writer.getWriteCount().get("key2"));
-        assertFalse(writer.getWriteCount().containsKey("key3"));
-        assertFalse(writer.getDeleteCount().containsKey("key2"));
-
-        Thread.sleep(2000);
-
-        assertEquals(2, writer.getWrittenElements().size());
-
-        Thread.sleep(1000);
-
-        assertEquals(3, writer.getWrittenElements().size());
-        assertEquals(1, (long) writer.getWriteCount().get("key1"));
-        assertEquals(1, (long) writer.getWriteCount().get("key2"));
-        assertEquals(1, (long) writer.getWriteCount().get("key3"));
-        assertFalse(writer.getDeleteCount().containsKey("key2"));
-
-        Thread.sleep(2000);
-
-        assertEquals(3, writer.getWrittenElements().size());
-
-        Thread.sleep(1000);
-
-        assertEquals(2, writer.getWrittenElements().size());
-        assertEquals(1, (long) writer.getWriteCount().get("key1"));
-        assertEquals(1, (long) writer.getWriteCount().get("key2"));
-        assertEquals(1, (long) writer.getWriteCount().get("key3"));
-        assertEquals(1, (long) writer.getDeleteCount().get("key2"));
+        assertEquals(4, writer.getWriterEvents().size());
+        assertEquals(1, writer.getWriteCount().get("key1").intValue());
+        assertEquals(1, writer.getWriteCount().get("key2").intValue());
+        assertEquals(1, writer.getWriteCount().get("key3").intValue());
+        assertEquals(1, writer.getDeleteCount().get("key2").intValue());
     }
 
     @Test
@@ -626,7 +632,7 @@ public class CacheWriterTest extends AbstractCacheTest {
 
         CacheManager.getInstance().addCache(cache);
         assertTrue(writer.isInitialized());
-        assertEquals(0, writer.getWrittenElements().size());
+        assertEquals(0, writer.getWriterEvents().size());
 
         cache.putWithWriter(new Element("key1", "value1"));
         cache.putWithWriter(new Element("key2", "value1"));
@@ -635,7 +641,7 @@ public class CacheWriterTest extends AbstractCacheTest {
 
         Thread.sleep(2000);
 
-        assertEquals(2, writer.getWrittenElements().size());
+        assertEquals(2, writer.getWriterEvents().size());
         assertEquals(1, (long) writer.getWriteCount().get("key1"));
         assertEquals(1, (long) writer.getWriteCount().get("key2"));
         assertFalse(writer.getWriteCount().containsKey("key3"));
@@ -661,7 +667,7 @@ public class CacheWriterTest extends AbstractCacheTest {
 
         CacheManager.getInstance().addCache(cache);
         assertTrue(writer.isInitialized());
-        assertEquals(0, writer.getWrittenElements().size());
+        assertEquals(0, writer.getWriterEvents().size());
 
         cache.putWithWriter(new Element("key1", "value1"));
         cache.putWithWriter(new Element("key2", "value2"));
@@ -670,7 +676,7 @@ public class CacheWriterTest extends AbstractCacheTest {
 
         Thread.sleep(2000);
 
-        assertEquals(2, writer.getWrittenElements().size());
+        assertEquals(4, writer.getWriterEvents().size());
         assertEquals(1, (long) writer.getWriteCount().get("key1"));
         assertEquals(1, (long) writer.getWriteCount().get("key2"));
         assertEquals(1, (long) writer.getWriteCount().get("key3"));
@@ -696,7 +702,7 @@ public class CacheWriterTest extends AbstractCacheTest {
 
         CacheManager.getInstance().addCache(cache);
         assertTrue(writer.isInitialized());
-        assertEquals(0, writer.getWrittenElements().size());
+        assertEquals(0, writer.getWriterEvents().size());
 
         cache.putWithWriter(new Element("key1", "value1"));
         cache.putWithWriter(new Element("key2", "value2"));
@@ -705,7 +711,7 @@ public class CacheWriterTest extends AbstractCacheTest {
 
         Thread.sleep(2000);
 
-        assertEquals(2, writer.getWrittenElements().size());
+        assertEquals(10, writer.getWriterEvents().size());
         assertEquals(4, (long) writer.getWriteCount().get("key1"));
         assertEquals(4, (long) writer.getWriteCount().get("key2"));
         assertEquals(1, (long) writer.getWriteCount().get("key3"));
@@ -729,7 +735,7 @@ public class CacheWriterTest extends AbstractCacheTest {
 
         CacheManager.getInstance().addCache(cache);
         assertTrue(writer.isInitialized());
-        assertEquals(0, writer.getWrittenElements().size());
+        assertEquals(0, writer.getWriterEvents().size());
 
         cache.putWithWriter(new Element("key1", "value1"));
         cache.putWithWriter(new Element("key2", "value2"));
@@ -738,7 +744,7 @@ public class CacheWriterTest extends AbstractCacheTest {
 
         Thread.sleep(3000);
 
-        assertEquals(2, writer.getWrittenElements().size());
+        assertEquals(4, writer.getWriterEvents().size());
         assertTrue(writer.getWriteCount().containsKey("key1"));
         assertTrue(writer.getWriteCount().containsKey("key2"));
         assertFalse(writer.getWriteCount().containsKey("key3"));
@@ -748,7 +754,7 @@ public class CacheWriterTest extends AbstractCacheTest {
 
         Thread.sleep(3000);
 
-        assertEquals(3, writer.getWrittenElements().size());
+        assertEquals(9, writer.getWriterEvents().size());
         assertEquals(4, (long) writer.getWriteCount().get("key1"));
         assertEquals(4, (long) writer.getWriteCount().get("key2"));
         assertEquals(1, (long) writer.getWriteCount().get("key3"));
@@ -758,7 +764,7 @@ public class CacheWriterTest extends AbstractCacheTest {
 
         Thread.sleep(5000);
 
-        assertEquals(2, writer.getWrittenElements().size());
+        assertEquals(10, writer.getWriterEvents().size());
         assertEquals(4, (long) writer.getWriteCount().get("key1"));
         assertEquals(4, (long) writer.getWriteCount().get("key2"));
         assertEquals(1, (long) writer.getWriteCount().get("key3"));
