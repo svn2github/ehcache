@@ -250,8 +250,44 @@ Consistency Options
     []
 
 
+*   Use Cases And Recommended Practices
+
+    In this section we look at some common use cases and give advice on what consistency and safety options should be used. These
+    serve as a useful starting point for your own analysis.
+
+    We welcome commentary and further discussion on these use cases. Please post to the ehcache mailing list or post your questions
+    on the forums.
+
+**  Shopping Cart - optimistic inventory
+
+*** Problem
+
+    A user adds items to a shopping cart. Do not decrement inventory until checkout.
+
+*** Solution
+
+    Use eventual consistency.
 
 
+**  Shopping Cart with Inventory Decrementing
 
+    A user adds items to a shopping cart. There is limited inventory and the business policy is that the first user to add the inventory
+    to their shopping cart can buy it. If the user does not proceed to checkout a timer will release the inventory back. As a result,
+    inventory must be decremented at the time the item is added to the shopping cart.
+
+*** Solution
+
+    Use strong consistency with one of:
+
+    * explicit locking
+
+    * local transactions
+
+    * XA transactions
+
+    []
+
+    The key thing here is that two resources have to be updated: the shopping cart, which is only visible to one user, and on it's own
+    has low consistency requirements, and an inventory which is transactiional in nature.
 
 

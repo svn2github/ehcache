@@ -825,3 +825,13 @@ replicateRemovals=true" />
 **  Are compound keys supported?
 
     For standalone caching yes. With Terracotta a larger amount of memory is used.
+
+**  Why do I not see replicated data when using nonstrict mode?
+
+    You may thing that Hibernate's <nonstrict> mode is just like <read-write> but with dirty reads. The truth is far more complex than that.
+    Suffice to say, in <nonstrict> mode, Hibernate puts the object in the appropriate cache but then IMMEDIATELY removes it.
+    The PUT and the REMOVE are BOTH replicated by ehcache so the net effect of that is the new object is copied to remote cache but then it's
+    immediately followed by a replicated remove Ð so the next time you try get the object it's not in cache and hibernate goes back to the DB.
+
+    So, practically there is no point using nonstrict mode with replicated or distributed caches. If you want the updated entry to be replicated
+    or distributed use <readwrite> or <transactional>.
