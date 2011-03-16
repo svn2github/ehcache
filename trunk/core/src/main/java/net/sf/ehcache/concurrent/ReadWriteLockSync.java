@@ -103,9 +103,4 @@ public class ReadWriteLockSync implements Sync, Comparable<ReadWriteLockSync> {
             return hashCode() - o.hashCode();
         }
     }
-
-    @Override
-    public boolean equals(Object o) {
-        return o == this;
-    }
 }
