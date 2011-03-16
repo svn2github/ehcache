@@ -213,7 +213,7 @@ public class SelfPopulatingCache extends BlockingCache {
             if (element != null) {
                 return refreshElement(element, backingCache, quiet);
             } else {
-                //need to create 
+                //need to create
                 return get(key);
             }
         } catch (CacheException ce) {
@@ -287,11 +287,6 @@ public class SelfPopulatingCache extends BlockingCache {
      * @throws CacheException for various illegal states which could be harmful
      */
     protected static Element makeAndCheckElement(Object key, Object value) throws CacheException {
-        //check if null
-        if (value == null) {
-            return new Element(key, value);
-        }
-
         //simply build a new element using the supplied key
         if (!(value instanceof Element)) {
             return new Element(key, value);

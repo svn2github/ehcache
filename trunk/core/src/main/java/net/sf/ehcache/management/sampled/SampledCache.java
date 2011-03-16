@@ -753,7 +753,7 @@ public class SampledCache extends BaseEmitterBean implements SampledCacheMBean, 
      * @see net.sf.ehcache.management.sampled.SampledCacheMBean#setConfigMemoryStoreEvictionPolicy(String)
      */
     public void setConfigMemoryStoreEvictionPolicy(String evictionPolicy) {
-        if (getConfigMemoryStoreEvictionPolicy() != evictionPolicy) {
+        if (!getConfigMemoryStoreEvictionPolicy().equals(evictionPolicy)) {
             try {
                 cache.getCacheConfiguration().setMemoryStoreEvictionPolicy(evictionPolicy);
                 sendNotification(CACHE_CHANGED, getCacheAttributes(), getImmutableCacheName());

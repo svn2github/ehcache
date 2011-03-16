@@ -146,9 +146,9 @@ class WriteBehindQueue {
         public void run() {
             try {
                 while (!isStopped()) {
-    
+
                     processItems();
-                    
+
                     queueWriteLock.lock();
                     try {
                         // Wait for new items or until the min write delay has expired.
@@ -178,7 +178,7 @@ class WriteBehindQueue {
                             stop();
                             Thread.currentThread().interrupt();
                         }
-                        
+
                         // If the queue is stopping and no more work is outstanding, perform the actual stop operation
                         if (stopping && waiting.isEmpty()) {
                             stopTheQueueThread();
@@ -437,8 +437,8 @@ class WriteBehindQueue {
      */
     public void write(Element element) {
         queueWriteLock.lock();
-        waitForQueueSizeToDrop();
         try {
+            waitForQueueSizeToDrop();
             if (stopping || stopped) {
                 throw new CacheException("The element '" + element + "' couldn't be added through the write-behind queue for cache '"
                         + cacheName + "' since it's not started.");
@@ -471,10 +471,10 @@ class WriteBehindQueue {
      */
     public void delete(CacheEntry entry) {
         queueWriteLock.lock();
-        waitForQueueSizeToDrop();
         try {
+            waitForQueueSizeToDrop();
             if (stopping || stopped) {
-                throw new CacheException("The entry for key '" + entry.getKey() + "' couldn't be deleted through the write-behind " 
+                throw new CacheException("The entry for key '" + entry.getKey() + "' couldn't be deleted through the write-behind "
                         + "queue for cache '" + cacheName + "' since it's not started.");
             }
             waiting.add(new DeleteOperation(entry));
@@ -496,7 +496,7 @@ class WriteBehindQueue {
             if (stopped) {
                 return;
             }
-            
+
             stopping = true;
             queueIsEmpty.signal();
             while (!stopped) {

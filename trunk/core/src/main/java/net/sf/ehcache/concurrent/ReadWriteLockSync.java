@@ -91,11 +91,21 @@ public class ReadWriteLockSync implements Sync, Comparable<ReadWriteLockSync> {
                 throw new IllegalArgumentException("We don't support any other lock type than READ or WRITE!");
         }
     }
-    
+
     /**
      * {@inheritDoc}
      */
     public int compareTo(ReadWriteLockSync o) {
-        return  String.valueOf(hashCode()).compareTo(String.valueOf(o.hashCode()));    
+        if (hashCode() == o.hashCode() && this != o) {
+            //FIXME this is bad
+            return 0;
+        } else {
+            return hashCode() - o.hashCode();
+        }
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        return o == this;
     }
 }

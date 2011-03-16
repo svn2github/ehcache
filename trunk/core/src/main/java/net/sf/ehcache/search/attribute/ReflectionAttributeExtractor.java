@@ -182,7 +182,7 @@ public class ReflectionAttributeExtractor implements AttributeExtractor {
 
         private final String fieldName;
 
-        private volatile FieldRef cache;
+        private transient volatile FieldRef cache;
 
         public FieldPart(String field) {
             this.fieldName = field;
@@ -257,7 +257,7 @@ public class ReflectionAttributeExtractor implements AttributeExtractor {
     private static class MethodPart implements Part {
 
         private final String methodName;
-        private volatile MethodRef cache;
+        private transient volatile MethodRef cache;
 
         public MethodPart(String method) {
             this.methodName = method;

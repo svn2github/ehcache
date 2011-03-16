@@ -35,8 +35,8 @@ public class JavaBeanAttributeExtractor implements AttributeExtractor {
 
     private static final Object NO_VALUE = new Object();
 
-    private volatile MethodRef lastKeyMethod;
-    private volatile MethodRef lastValueMethod;
+    private transient volatile MethodRef lastKeyMethod;
+    private transient volatile MethodRef lastValueMethod;
 
     private final String isMethodName;
     private final String getMethodName;

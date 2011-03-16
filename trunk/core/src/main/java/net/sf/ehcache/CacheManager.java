@@ -387,7 +387,6 @@ public class CacheManager {
     private void validateCacheConfigs(Collection<CacheConfiguration> cacheConfigs) {
         boolean invalid = false;
         final StringBuilder error = new StringBuilder();
-        final List<String> invalidCaches = new ArrayList<String>();
         for (CacheConfiguration config : cacheConfigs) {
             if (config.isTerracottaClustered()) {
                 if (config.getTerracottaConfiguration().getStorageStrategy().equals(StorageStrategy.CLASSIC)) {

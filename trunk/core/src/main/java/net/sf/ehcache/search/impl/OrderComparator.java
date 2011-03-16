@@ -16,6 +16,7 @@
 
 package net.sf.ehcache.search.impl;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -25,7 +26,7 @@ import net.sf.ehcache.store.StoreQuery.Ordering;
 
 /**
  * Compound sort ordering comparactor
- * 
+ *
  * @author teck
  */
 public class OrderComparator implements Comparator<Result> {
@@ -75,7 +76,7 @@ public class OrderComparator implements Comparator<Result> {
     /**
      * Simple ascending comparator
      */
-    private static class AscendingComparator implements Comparator<Result> {
+    private static class AscendingComparator implements Comparator<Result>, Serializable {
 
         private final int pos;
 
@@ -106,7 +107,7 @@ public class OrderComparator implements Comparator<Result> {
     /**
      * Simple descending comparator
      */
-    private static class DescendingComparator implements Comparator<Result> {
+    private static class DescendingComparator implements Comparator<Result>, Serializable {
 
         private final int pos;
 

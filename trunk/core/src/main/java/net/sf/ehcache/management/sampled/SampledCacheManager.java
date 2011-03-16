@@ -81,7 +81,7 @@ public class SampledCacheManager extends BaseEmitterBean implements SampledCache
     /**
      * Listen for caches coming and going so that we can add a PropertyChangeListener.
      */
-    private class EventListener implements CacheManagerEventListener {
+    private static class EventListener implements CacheManagerEventListener {
         private Status status = Status.STATUS_UNINITIALISED;
 
         public void dispose() throws CacheException {

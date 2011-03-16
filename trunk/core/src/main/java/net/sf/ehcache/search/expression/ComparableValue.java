@@ -16,6 +16,7 @@
 
 package net.sf.ehcache.search.expression;
 
+import java.io.Serializable;
 import java.util.Comparator;
 import java.util.Map;
 
@@ -130,7 +131,7 @@ public abstract class ComparableValue extends BaseCriteria {
     /**
      * A Lucene compatible case insensitive string comparator.
      */
-    private static class LuceneCaseAgnosticStringComparator implements Comparator<String> {
+    private static class LuceneCaseAgnosticStringComparator implements Comparator<String>, Serializable {
 
       public int compare(String s1, String s2) {
         int n1 = s1.length();

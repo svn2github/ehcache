@@ -22,22 +22,22 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * 
+ *
  * Implementation of an ElementVisitor extending from {@link AbstractDepthFirstVisitor} which can generate XML out of a {@link NodeElement}.
  * Accepts a {@link PrintWriter} in the constructor and uses it to output the generated XML.
  * Output can be controlled by enabling/disabling the various options present in {@link OutputBehavior} by calling
  * {@link #enableOutputBehavior(OutputBehavior)} or {@link #disableOutputBehavior(OutputBehavior)}
- * 
+ *
  * @author Abhishek Sanoujam
- * 
+ *
  */
 public class XMLGeneratorVisitor extends AbstractDepthFirstVisitor {
 
     /**
      * Enum controlling the generated XML output
-     * 
+     *
      * @author Abhishek Sanoujam
-     * 
+     *
      */
     public static enum OutputBehavior {
         /**
@@ -72,7 +72,7 @@ public class XMLGeneratorVisitor extends AbstractDepthFirstVisitor {
 
     /**
      * Constructor accepting the {@link PrintWriter}. All output behaviors are enabled by default.
-     * 
+     *
      * @param out
      *            the {@link PrintWriter}
      */
@@ -99,7 +99,7 @@ public class XMLGeneratorVisitor extends AbstractDepthFirstVisitor {
 
     /**
      * Enables one particular {@link OutputBehavior}
-     * 
+     *
      * @param behavior
      */
     public void enableOutputBehavior(OutputBehavior behavior) {
@@ -108,7 +108,7 @@ public class XMLGeneratorVisitor extends AbstractDepthFirstVisitor {
 
     /**
      * Disables one particular {@link OutputBehavior}
-     * 
+     *
      * @param behavior
      */
     public void disableOutputBehavior(OutputBehavior behavior) {
@@ -117,7 +117,7 @@ public class XMLGeneratorVisitor extends AbstractDepthFirstVisitor {
 
     /**
      * Returns true if the output behavior is enabled
-     * 
+     *
      * @param behavior
      *            the output behavior to inspect
      * @return true if enabled, otherwise false
@@ -140,11 +140,11 @@ public class XMLGeneratorVisitor extends AbstractDepthFirstVisitor {
     }
 
     private String spacer() {
-        String rv = "";
+        StringBuilder sb = new StringBuilder(SPACER.length() * indent);
         for (int i = 0; i < indent; i++) {
-            rv += SPACER;
+            sb.append(SPACER);
         }
-        return rv;
+        return sb.toString();
     }
 
     private void indentForward() {
@@ -192,7 +192,7 @@ public class XMLGeneratorVisitor extends AbstractDepthFirstVisitor {
 
     /**
      * Visits an attribute.
-     * 
+     *
      * @param element
      * @param attribute
      */

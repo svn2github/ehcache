@@ -27,9 +27,9 @@ import net.sf.ehcache.config.generator.model.elements.FactoryConfigurationElemen
 /**
  * An abstract implementation of {@link NodeElement}. Overrides {@link #equals(Object)} and {@link #hashCode()} methods by comparing the fully
  * qualified name of this element -- {@link #getFQName()}
- * 
+ *
  * @author Abhishek Sanoujam
- * 
+ *
  */
 public abstract class AbstractNodeElement implements NodeElement {
 
@@ -60,7 +60,7 @@ public abstract class AbstractNodeElement implements NodeElement {
 
     /**
      * Constructor accepting the parent of this element
-     * 
+     *
      * @param parent
      */
     public AbstractNodeElement(NodeElement parent) {
@@ -151,7 +151,7 @@ public abstract class AbstractNodeElement implements NodeElement {
     /**
      * Helper method that adds all the {@link FactoryConfiguration} from the parameter as child elements by creating
      * {@link FactoryConfigurationElement} for each of them
-     * 
+     *
      * @param element
      *            the element in which the child elements will be added
      * @param name
@@ -171,7 +171,7 @@ public abstract class AbstractNodeElement implements NodeElement {
 
     /**
      * Helper method that creates {@link FactoryConfigurationElement}'s from a collection of {@link FactoryConfiguration}'s
-     * 
+     *
      * @param parent
      *            the parent for each of the create {@link FactoryConfigurationElement}
      * @param name
@@ -210,11 +210,14 @@ public abstract class AbstractNodeElement implements NodeElement {
             hierarchy.addFirst(curr);
             curr = curr.getParent();
         }
-        String rv = "";
+        StringBuilder sb = new StringBuilder();
         while (!hierarchy.isEmpty()) {
-            rv += hierarchy.removeFirst().getName() + (hierarchy.isEmpty() ? "" : delimiter);
+            sb.append(hierarchy.removeFirst().getName());
+            if (!hierarchy.isEmpty()) {
+                sb.append(delimiter);
+            }
         }
-        return rv;
+        return sb.toString();
     }
 
     /**

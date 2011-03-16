@@ -112,6 +112,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.UUID;
+import java.util.Map.Entry;
 import java.util.concurrent.AbstractExecutorService;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutionException;
@@ -3150,9 +3151,9 @@ public class Cache implements Ehcache, StoreListener {
                             nonLoadedKeys.add(key);
                         }
                     }
-                    Map map = loadWithRegisteredLoaders(argument, nonLoadedKeys);
-                    for (Object key : map.keySet()) {
-                        put(new Element(key, map.get(key)));
+                    Map<?, ?> map = loadWithRegisteredLoaders(argument, nonLoadedKeys);
+                    for (Entry<?, ?> e : map.entrySet()) {
+                        put(new Element(e.getKey(), e.getValue()));
                     }
                 } catch (Throwable e) {
                     if (LOG.isErrorEnabled()) {
