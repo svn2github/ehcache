@@ -35,17 +35,17 @@ import net.sf.ehcache.store.compound.ElementSubstituteFilter;
 
 /**
  * A factory that stores elements on disk in their serialized form.
- * 
+ *
  * @author Chris Dennis
  */
 public class DiskOverflowStorageFactory extends DiskStorageFactory<ElementSubstitute> {
-    
+
     private static final int MAX_EVICT = 5;
     private static final int SAMPLE_SIZE = 30;
-    
+
     private static final Logger                     LOG   = LoggerFactory.getLogger(DiskOverflowStorageFactory.class);
 
-    private final ElementSubstituteFilter<DiskStorageFactory.DiskSubstitute> filter = 
+    private final ElementSubstituteFilter<DiskStorageFactory.DiskSubstitute> filter =
         new ElementSubstituteFilter<DiskStorageFactory.DiskSubstitute>() {
         /**
          * {@inheritDoc}
@@ -54,7 +54,7 @@ public class DiskOverflowStorageFactory extends DiskStorageFactory<ElementSubsti
             return created(object);
         }
     };
-    
+
     private final AtomicInteger                     count = new AtomicInteger();
 
     private volatile CapacityLimitedInMemoryFactory memory;
@@ -63,7 +63,7 @@ public class DiskOverflowStorageFactory extends DiskStorageFactory<ElementSubsti
 
     /**
      * Constructs an overflow factory for the given cache and disk path.
-     * 
+     *
      * @param cache cache that fronts this factory
      * @param diskPath path to store data in
      */
@@ -93,7 +93,7 @@ public class DiskOverflowStorageFactory extends DiskStorageFactory<ElementSubsti
         File data = new File(diskDir, getDataFileName(cache));
 
         LOG.debug("Deleting data file " + data.getName());
-        data.delete();
+        deleteFile(data);
 
         return data;
     }
@@ -102,7 +102,7 @@ public class DiskOverflowStorageFactory extends DiskStorageFactory<ElementSubsti
         String safeName = cache.getName().replace('/', '_');
         return safeName + ".data";
     }
-    
+
     /**
      * Sets the primary factory that this factory should fault to, when
      * elements are retrieved.
@@ -117,8 +117,8 @@ public class DiskOverflowStorageFactory extends DiskStorageFactory<ElementSubsti
      * Immediately substitutes a placeholder for the original
      * element while the Element itself is asynchronously written
      * to disk using the executor service.
-     * @throws IllegalArgumentException 
-     */    
+     * @throws IllegalArgumentException
+     */
     public ElementSubstitute create(Object key, Element element) throws IllegalArgumentException {
         if (element.isSerializable()) {
             int size = count.incrementAndGet();
@@ -133,11 +133,11 @@ public class DiskOverflowStorageFactory extends DiskStorageFactory<ElementSubsti
             throw new IllegalArgumentException();
         }
     }
-    
+
     /**
      * Decode an ElementProxy from an on disk marker (or a pending placeholder).
      * <p>
-     * This implementation makes no attempt to fault in the decoded 
+     * This implementation makes no attempt to fault in the decoded
      * Element in place of the proxy.
      */
     public Element retrieve(Object key, ElementSubstitute proxy) {
@@ -194,7 +194,7 @@ public class DiskOverflowStorageFactory extends DiskStorageFactory<ElementSubsti
             }
         }
     }
-    
+
     private DiskSubstitute getEvictionTarget(Object keyHint, int size) {
         List<DiskStorageFactory.DiskSubstitute> sample = store.getRandomSample(filter, Math.min(SAMPLE_SIZE, size), keyHint);
         DiskSubstitute target = null;
@@ -227,7 +227,7 @@ public class DiskOverflowStorageFactory extends DiskStorageFactory<ElementSubsti
             DiskOverflowStorageFactory.this.schedule(new OverflowDiskWriteTask(this));
         }
     }
-    
+
     /**
      * DiskWriteTasks are used to serialize elements
      * to disk and fault in the resultant DiskMarker

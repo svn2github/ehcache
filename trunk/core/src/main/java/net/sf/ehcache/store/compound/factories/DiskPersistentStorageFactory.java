@@ -94,12 +94,12 @@ public class DiskPersistentStorageFactory extends DiskStorageFactory<ElementSubs
 
         if (!getDataFile().exists() || (getDataFile().length() == 0)) {
             LOG.debug("Matching data file missing (or empty) for index file. Deleting index file " + indexFile);
-            indexFile.delete();
+            deleteFile(indexFile);
         } else if (getDataFile().exists() && indexFile.exists()) {
             if (getDataFile().lastModified() > (indexFile.lastModified() + TimeUnit.SECONDS.toMillis(1))) {
                 LOG.warn("The index for data file {} is out of date, probably due to an unclean shutdown. "
                         + "Deleting index file {}", getDataFile(), indexFile);
-                indexFile.delete();
+                deleteFile(indexFile);
             }
         }
 
@@ -149,7 +149,7 @@ public class DiskPersistentStorageFactory extends DiskStorageFactory<ElementSubs
                     + " (they start with " + AUTO_DISK_PATH_DIRECTORY_PREFIX + ").\n"
                     + "Remove diskPersistent or resolve the conflicting disk paths in cache configuration.\n"
                     + "Deleting data file " + data.getAbsolutePath());
-            data.delete();
+            deleteFile(data);
         }
 
         return data;
@@ -247,7 +247,7 @@ public class DiskPersistentStorageFactory extends DiskStorageFactory<ElementSubs
             flushTask.call();
             shutdown();
             if (getDataFile().getAbsolutePath().contains(AUTO_DISK_PATH_DIRECTORY_PREFIX)) {
-                indexFile.delete();
+                deleteFile(indexFile);
                 delete();
             }
         } catch (IOException e) {
@@ -654,7 +654,7 @@ public class DiskPersistentStorageFactory extends DiskStorageFactory<ElementSubs
             LOG.warn("Index file {} is corrupt, deleting and ignoring it : {}", indexFile, e);
             e.printStackTrace();
             store.removeAll();
-            indexFile.delete();
+            deleteFile(indexFile);
         } finally {
             shrinkDataFile();
         }

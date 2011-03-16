@@ -90,7 +90,7 @@ public class DiskStore extends AbstractStore implements CacheConfigurationListen
     private static final int QUARTER_OF_A_SECOND = 250;
     private static final long MAX_EVICTION_RATIO = 5L;
 
-    private long expiryThreadInterval;
+    private final long expiryThreadInterval;
     private final String name;
     private volatile boolean active;
     private RandomAccessFile[] randomAccessFiles;
@@ -131,9 +131,9 @@ public class DiskStore extends AbstractStore implements CacheConfigurationListen
     /**
      * Whether the cache is eternal
      */
-    private boolean eternal;
+    private final boolean eternal;
     private volatile int lastElementSize;
-    private int diskSpoolBufferSizeBytes;
+    private final int diskSpoolBufferSizeBytes;
 
     // indicates to the spoolAndExpiryThread that it needs to write the index on next flush to disk.
     private final AtomicBoolean writeIndexFlag;
@@ -141,7 +141,7 @@ public class DiskStore extends AbstractStore implements CacheConfigurationListen
 
     //The spoolAndExpiryThread keeps running until this is set to false;
     private volatile boolean spoolAndExpiryThreadActive;
-    
+
     /* Lock around spool field. */
     private final Object spoolLock = new Object();
 
@@ -218,18 +218,14 @@ public class DiskStore extends AbstractStore implements CacheConfigurationListen
                         + " (they start with " + AUTO_DISK_PATH_DIRECTORY_PREFIX + ").\n"
                         + "Remove diskPersistent or resolve the conflicting disk paths in cache configuration.\n"
                         + "Deleting data file " + getDataFileName());
-                dataFile.delete();
+                deleteFile(dataFile);
             } else if (!readIndex()) {
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug("Index file dirty or empty. Deleting data file " + getDataFileName());
-                }
-                dataFile.delete();
+                LOG.debug("Index file dirty or empty. Deleting data file " + getDataFileName());
+                deleteFile(dataFile);
             }
         } else {
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("Deleting data file " + getDataFileName());
-            }
-            dataFile.delete();
+            LOG.debug("Deleting data file " + getDataFileName());
+            deleteFile(dataFile);
             indexFile = null;
         }
 
@@ -243,11 +239,11 @@ public class DiskStore extends AbstractStore implements CacheConfigurationListen
             ++roundedStripes;
         }
 
-        RandomAccessFile [] result = new RandomAccessFile[roundedStripes];         
+        RandomAccessFile [] result = new RandomAccessFile[roundedStripes];
         for (int i = 0; i < result.length; ++i) {
-            result[i] = new RandomAccessFile(dataFile, "rw");    
+            result[i] = new RandomAccessFile(dataFile, "rw");
         }
-         
+
         return result;
     }
 
@@ -256,10 +252,8 @@ public class DiskStore extends AbstractStore implements CacheConfigurationListen
         boolean indexFileExists = indexFile.exists();
 
         if (!dataFileExists && indexFileExists) {
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("Matching data file missing for index file. Deleting index file " + getIndexFileName());
-            }
-            indexFile.delete();
+            LOG.debug("Matching data file missing for index file. Deleting index file " + getIndexFileName());
+            deleteFile(indexFile);
             return;
         }
 
@@ -268,7 +262,7 @@ public class DiskStore extends AbstractStore implements CacheConfigurationListen
             if (dataFile.lastModified() > (indexFile.lastModified() + MS_PER_SECOND)) {
                 LOG.warn("The index for data file {} is out of date, probably due to an unclean shutdown. Deleting index file {}",
                         dataFile.getName(), getIndexFileName());
-                indexFile.delete();
+                deleteFile(indexFile);
             }
         }
     }
@@ -536,7 +530,7 @@ public class DiskStore extends AbstractStore implements CacheConfigurationListen
         freeBlock.key = null;
         freeBlock.hitcount = 0;
         freeBlock.expiryTime = 0;
-        
+
         synchronized (diskElement) {
             diskElement.free();
         }
@@ -567,8 +561,12 @@ public class DiskStore extends AbstractStore implements CacheConfigurationListen
                 }
             }
             if (persistent) {
-                indexFile.delete();
-                indexFile.createNewFile();
+                deleteFile(indexFile);
+                if (indexFile.createNewFile()) {
+                    LOG.debug("Created new index file {}", indexFile.getName());
+                } else {
+                    LOG.debug("Failed to create new index file {}", indexFile.getName());
+                }
             }
         } catch (Exception e) {
             // Clean up
@@ -621,7 +619,7 @@ public class DiskStore extends AbstractStore implements CacheConfigurationListen
             deleteFilesInAutoGeneratedDirectory();
             if (!persistent) {
                 LOG.debug("Deleting file " + dataFile.getName());
-                dataFile.delete();
+                deleteFile(dataFile);
             }
         } catch (Exception e) {
             LOG.error(name + "Cache: Could not shut down disk cache. Initial cause was " + e.getMessage(), e);
@@ -641,11 +639,11 @@ public class DiskStore extends AbstractStore implements CacheConfigurationListen
         if (diskPath.indexOf(AUTO_DISK_PATH_DIRECTORY_PREFIX) != -1) {
             if (dataFile != null && dataFile.exists()) {
                 LOG.debug("Deleting file " + dataFile.getName());
-                dataFile.delete();
+                deleteFile(dataFile);
             }
             if (indexFile != null && indexFile.exists()) {
                 LOG.debug("Deleting file " + indexFile.getName());
-                indexFile.delete();
+                deleteFile(indexFile);
             }
             //try to delete the auto_createtimestamp directory. Will work when the last Disk Store deletes
             //the last files and the directory becomes empty.
@@ -1204,14 +1202,14 @@ public class DiskStore extends AbstractStore implements CacheConfigurationListen
         public long getPosition() {
             return position;
         }
-        
+
         /**
          * free.
          */
         public void free() {
             this.position = -1;
         }
-        
+
         /**
          * isValid.
          * @return boolean
@@ -1548,5 +1546,13 @@ public class DiskStore extends AbstractStore implements CacheConfigurationListen
      */
     public Element replace(Element element) throws NullPointerException {
         throw new UnsupportedOperationException();
+    }
+
+    private static void deleteFile(File f) {
+        if (f.delete()) {
+            LOG.debug("Deleted file {}", f.getName());
+        } else {
+            LOG.debug("Failed to delete file {}", f.getName());
+        }
     }
 }

@@ -50,7 +50,7 @@ import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
 /**
  * A mock-up of a on-disk element proxy factory.
- * 
+ *
  * @param <T> type of the encoded element substitutes
  * @author Chris Dennis
  */
@@ -63,22 +63,22 @@ abstract class DiskStorageFactory<T extends ElementSubstitute> implements Elemen
     private static final int SERIALIZATION_CONCURRENCY_DELAY = 250;
     private static final int SHUTDOWN_GRACE_PERIOD = 60;
     private static final int MEGABYTE = 1024 * 1024;
-    
+
     private static final Logger LOG = LoggerFactory.getLogger(DiskStorageFactory.class.getName());
 
     /**
      * The store bound to this factory.
      */
     protected volatile CompoundStore                  store;
-    
-    private final BlockingQueue<Runnable> diskQueue; 
+
+    private final BlockingQueue<Runnable> diskQueue;
     /**
      * Executor service used to write elements to disk
      */
     private final ScheduledThreadPoolExecutor diskWriter;
-    
+
     private final long queueCapacity;
-    
+
     private final File             file;
     private final RandomAccessFile[] dataAccess;
 
@@ -87,10 +87,10 @@ abstract class DiskStorageFactory<T extends ElementSubstitute> implements Elemen
     private final RegisteredEventListeners eventService;
 
     private volatile int elementSize;
-    
+
     /**
      * Constructs a disk storage factory using the given data file.
-     * 
+     *
      * @param dataFile
      */
     DiskStorageFactory(File dataFile, long expiryInterval, long queueCapacity,
@@ -102,7 +102,7 @@ abstract class DiskStorageFactory<T extends ElementSubstitute> implements Elemen
             throw new CacheException(e);
         }
         this.allocator = new FileAllocationTree(Long.MAX_VALUE, dataAccess[0]);
-        
+
         diskWriter = new ScheduledThreadPoolExecutor(1, new ThreadFactory() {
             public Thread newThread(Runnable r) {
                 Thread t = new Thread(r, file.getName());
@@ -113,12 +113,12 @@ abstract class DiskStorageFactory<T extends ElementSubstitute> implements Elemen
         this.diskQueue = diskWriter.getQueue();
         this.eventService = eventService;
         this.queueCapacity = queueCapacity * MEGABYTE;
-        
+
         diskWriter.setExecuteExistingDelayedTasksAfterShutdownPolicy(false);
         diskWriter.setContinueExistingPeriodicTasksAfterShutdownPolicy(false);
         diskWriter.scheduleWithFixedDelay(new DiskExpiryTask(), expiryInterval, expiryInterval, TimeUnit.SECONDS);
     }
-    
+
     private static RandomAccessFile[] allocateRandomAccessFiles(File f, int stripes) throws FileNotFoundException {
         int roundedStripes = stripes;
         while ((roundedStripes & (roundedStripes - 1)) != 0) {
@@ -176,7 +176,7 @@ abstract class DiskStorageFactory<T extends ElementSubstitute> implements Elemen
             }
         }
     }
-    
+
     /**
      * Mark this on-disk marker as used (hooks into the file space allocation structure).
      */
@@ -221,12 +221,12 @@ abstract class DiskStorageFactory<T extends ElementSubstitute> implements Elemen
             }
         }
     }
-    
+
     /**
-     * Deletes the data file for this factory. 
+     * Deletes the data file for this factory.
      */
     protected void delete() {
-        file.delete();
+        deleteFile(file);
         allocator.clear();
         if (file.getAbsolutePath().contains(AUTO_DISK_PATH_DIRECTORY_PREFIX)) {
             //try to delete the auto_createtimestamp directory. Will work when the last Disk Store deletes
@@ -243,7 +243,7 @@ abstract class DiskStorageFactory<T extends ElementSubstitute> implements Elemen
 
     /**
      * Schedule to given task on the disk writer executor service.
-     * 
+     *
      * @param <U> return type of the callable
      * @param call callable to call
      * @return Future representing the return of this call
@@ -254,7 +254,7 @@ abstract class DiskStorageFactory<T extends ElementSubstitute> implements Elemen
 
     /**
      * Read the data at the given marker, and return the associated deserialized Element.
-     * 
+     *
      * @param marker marker to read
      * @return deserialized Element
      * @throws IOException on read error
@@ -268,7 +268,7 @@ abstract class DiskStorageFactory<T extends ElementSubstitute> implements Elemen
             data.seek(marker.getPosition());
             data.readFully(buffer);
         }
-        
+
         ObjectInputStream objstr = new ObjectInputStream(new ByteArrayInputStream(buffer)) {
             /**
              * Overridden because of:
@@ -286,7 +286,7 @@ abstract class DiskStorageFactory<T extends ElementSubstitute> implements Elemen
                 }
             }
         };
-        
+
         try {
             return (Element) objstr.readObject();
         } finally {
@@ -296,7 +296,7 @@ abstract class DiskStorageFactory<T extends ElementSubstitute> implements Elemen
 
     /**
      * Write the given element to disk, and return the associated marker.
-     * 
+     *
      * @param element to write
      * @return marker representing the element
      * @throws IOException on write error
@@ -342,12 +342,12 @@ abstract class DiskStorageFactory<T extends ElementSubstitute> implements Elemen
         Region r = allocator.alloc(size);
         return createMarker(r.start(), size, element);
     }
-    
+
     /**
      * Create a disk marker representing the given element, and area on disk.
      * <p>
      * This method can be overridden by subclasses to use different marker types.
-     * 
+     *
      * @param position starting disk offset
      * @param size size of in disk area
      * @param element element to be written to area
@@ -356,10 +356,10 @@ abstract class DiskStorageFactory<T extends ElementSubstitute> implements Elemen
     protected DiskMarker createMarker(long position, int size, Element element) {
         return new OverflowDiskMarker(this, position, size, element);
     }
-    
+
     /**
      * Free the given marker to be used by a subsequent write.
-     * 
+     *
      * @param marker marker to be free'd
      */
     protected void free(DiskMarker marker) {
@@ -379,7 +379,7 @@ abstract class DiskStorageFactory<T extends ElementSubstitute> implements Elemen
     public File getDataFile() {
         return file;
     }
-    
+
     /**
      * DiskWriteTasks are used to serialize elements
      * to disk and fault in the resultant DiskMarker
@@ -388,7 +388,7 @@ abstract class DiskStorageFactory<T extends ElementSubstitute> implements Elemen
     abstract class DiskWriteTask implements Callable<DiskMarker> {
 
         private final Placeholder placeholder;
-        
+
         /**
          * Create a disk-write task for the given placeholder.
          */
@@ -402,7 +402,7 @@ abstract class DiskStorageFactory<T extends ElementSubstitute> implements Elemen
         Placeholder getPlaceholder() {
             return placeholder;
         }
-        
+
         /**
          * {@inheritDoc}
          */
@@ -430,7 +430,7 @@ abstract class DiskStorageFactory<T extends ElementSubstitute> implements Elemen
     private final class DiskFreeTask implements Callable<Void> {
         private final Lock lock;
         private final DiskMarker marker;
-        
+
         private DiskFreeTask(Lock lock, DiskMarker marker) {
             this.lock = lock;
             this.marker = marker;
@@ -456,7 +456,7 @@ abstract class DiskStorageFactory<T extends ElementSubstitute> implements Elemen
     abstract static class DiskSubstitute implements ElementSubstitute {
 
         private transient volatile DiskStorageFactory<? extends ElementSubstitute> factory;
-        
+
         /**
          * Create a disk subsitute bound to no factory.  This constructor is used during
          * de-serialization.
@@ -481,7 +481,7 @@ abstract class DiskStorageFactory<T extends ElementSubstitute> implements Elemen
          * Return the total number of hits on this marker
          */
         abstract long getHitCount();
-        
+
         /**
          * Return the time at which this marker expires.
          */
@@ -493,7 +493,7 @@ abstract class DiskStorageFactory<T extends ElementSubstitute> implements Elemen
         public final DiskStorageFactory<ElementSubstitute> getFactory() {
             return (DiskStorageFactory<ElementSubstitute>) factory;
         }
-        
+
         /**
          * Bind this marker to a given factory.
          * <p>
@@ -503,7 +503,7 @@ abstract class DiskStorageFactory<T extends ElementSubstitute> implements Elemen
             this.factory = factory;
         }
     }
-    
+
     /**
      * Placeholder instances are put in place to prevent
      * duplicate write requests while Elements are being
@@ -512,7 +512,7 @@ abstract class DiskStorageFactory<T extends ElementSubstitute> implements Elemen
     abstract static class Placeholder extends DiskSubstitute {
         private final Object key;
         private final Element element;
-        
+
         /**
          * Create a Placeholder wrapping the given element and key.
          */
@@ -537,7 +537,7 @@ abstract class DiskStorageFactory<T extends ElementSubstitute> implements Elemen
         long getHitCount() {
             return getElement().getHitCount();
         }
-        
+
         @Override
         long getExpirationTime() {
             return getElement().getExpirationTime();
@@ -548,9 +548,9 @@ abstract class DiskStorageFactory<T extends ElementSubstitute> implements Elemen
          */
         Element getElement() {
             return element;
-        }        
+        }
     }
-    
+
     /**
      * Overflow specific disk marker implementation.
      */
@@ -580,17 +580,17 @@ abstract class DiskStorageFactory<T extends ElementSubstitute> implements Elemen
      * associated serialized Element instance.
      */
     static abstract class DiskMarker extends DiskSubstitute implements Serializable {
-        
+
         private final Object key;
-        
+
         private final long position;
         private final int size;
-        
+
         private final long hitCount;
-        
+
         /**
          * Create a new marker tied to the given factory instance.
-         * 
+         *
          * @param factory factory responsible for this marker
          * @param position position on disk where the element will be stored
          * @param size size of the serialized element
@@ -600,14 +600,14 @@ abstract class DiskStorageFactory<T extends ElementSubstitute> implements Elemen
             super(factory);
             this.position = position;
             this.size = size;
-            
+
             this.key = element.getObjectKey();
             this.hitCount = element.getHitCount();
         }
 
         /**
          * Create a new marker tied to the given factory instance.
-         * 
+         *
          * @param factory factory responsible for this marker
          * @param position position on disk where the element will be stored
          * @param size size of the serialized element
@@ -618,14 +618,14 @@ abstract class DiskStorageFactory<T extends ElementSubstitute> implements Elemen
             super(factory);
             this.position = position;
             this.size = size;
-            
+
             this.key = key;
             this.hitCount = hits;
         }
-        
+
         /**
          * Key to which this Element is mapped.
-         * 
+         *
          * @return key for this Element
          */
         @Override
@@ -640,10 +640,10 @@ abstract class DiskStorageFactory<T extends ElementSubstitute> implements Elemen
         long getHitCount() {
             return hitCount;
         }
-        
+
         /**
          * Disk offset at which this element is stored.
-         * 
+         *
          * @return disk offset
          */
         private long getPosition() {
@@ -652,7 +652,7 @@ abstract class DiskStorageFactory<T extends ElementSubstitute> implements Elemen
 
         /**
          * Returns the size of the currently occupying element.
-         * 
+         *
          * @return size of the stored element
          */
         private int getSize() {
@@ -666,7 +666,7 @@ abstract class DiskStorageFactory<T extends ElementSubstitute> implements Elemen
          */
         public void installed() {
             //no-op
-        }        
+        }
     }
 
 
@@ -676,12 +676,12 @@ abstract class DiskStorageFactory<T extends ElementSubstitute> implements Elemen
     public void expireElements() {
         new DiskExpiryTask().run();
     }
-    
+
     /**
      * Causes removal of all expired elements (and fires the relevant events).
      */
     private final class DiskExpiryTask implements Runnable {
-        
+
         /**
          * {@inheritDoc}
          */
@@ -694,7 +694,7 @@ abstract class DiskStorageFactory<T extends ElementSubstitute> implements Elemen
                 }
             }
         }
-        
+
         private void checkExpiry(DiskMarker marker, long now) {
             if (marker.getExpirationTime() < now) {
                 if (eventService.hasCacheEventListeners()) {
@@ -710,6 +710,15 @@ abstract class DiskStorageFactory<T extends ElementSubstitute> implements Elemen
                     store.evict(marker.getKey(), marker);
                 }
             }
+        }
+    }
+
+    /**
+     * Attempt to delete the corresponding file and log an error on failure.
+     */
+    protected static void deleteFile(File f) {
+        if (!f.delete()) {
+            LOG.debug("Failed to delete file {}", f.getName());
         }
     }
 }
