@@ -9,7 +9,7 @@ Using {JRuby} and Ehcache
     jruby-ehcache.gem is a JRuby Ehcache library which makes a commonly used subset of Ehcache's API available to
      JRuby. All of the strength of Ehcache is there, including BigMemory and the ability to cluster with Terracotta.
 
-    It can be used directly via it's own API, or as a <<<Rails.cache>>> caching provider.
+    It can be used directly via its own API, or as a <<<Rails.cache>>> caching provider.
 
 * Installation
 
