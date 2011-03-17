@@ -379,4 +379,76 @@ Consistency Options
         steps recorded in the cache. For these key milestones use the "Financial Order Processing - write to cache and database" pattern.
 
 
+**  E-commerce web app with Non-sticky sessions
+
+    Here a user makes reads and writes to a web application cluster. There are n servers where n > 1. The load balancer is non-sticky
+    so any of the n servers can be hit on the next HTTP operation.
+
+    When a user submits using a HTML form, either a GET or POST is done based on the form action. And of course if it is an AJAx app then
+    requests are being done with XMLHttpRequest and any HTTP request method can be sent. If POST (form and AJAX) or PUT (AJAX) is used
+    no content is returned and a separate GET is required to refresh the view or AJAX app. The key point is that sending a change and getting
+    a view may happen with one request or two. If it happens with two, then the same server might respond to the second request or not.
+    The probability that the second server will be the same as the first is 1/n.
+
+
+*** Solution
+
+    Use one of:
+
+    *   strong consistency
+
+    *   CAS
+
+    Other options can be added depending on what is needed for the request. e.g. XA if a database plus the cache is updated.
+
+**  E-commerce web app with sticky sessions
+
+*** Problem
+
+    Here a user makes reads and writes to a web application cluster. There are n servers where n > 1. The load balancer is sticky
+    so any of the n servers can be hit on the next HTTP operation. There are different ways of configuring sticky sessions. The same
+    server might be used for the length of a session, which is the standard meaning, or a browser's IP can permanently hash to a server.
+    In any case each request is guaranteed to hit the same server.
+
+    When a user submits using a HTML form, either a GET or POST is done based on the form action. And of course if it is an AJAx app then
+    requests are being done with XMLHttpRequest and any HTTP request method can be sent. If POST (form and AJAX) or PUT (AJAX) is used
+    no content is returned and a separate GET is required to refresh the view or AJAX app. The key point is that sending a change and getting
+    a view may happen with one request or two. If it happens with two, then the same server might respond to the second request or not.
+    The probability that the second server will be the same as the first is 1/n.
+
+
+*** Solution
+
+    The same server is always hit. The consistency mode depends on whether only the user making the changes needs to see them applied
+    (read your writes, monotonic reads, monotonic writes) or whether they are mutating shared state like inventory where write - write
+    conflicts might occur.
+
+    For mutating user only consistency use eventual consistency.
+
+    For multi-user shared state use strong consistency at a minimum plus further safety mechanisms depending on the type of mutation.
+
+**  Immutable Data
+
+*** Problem
+
+    The application uses data that once it comes into existence is immutable. Nothing is immutable forever. The key point is that it is
+    immutable up until the time of the next software release.
+
+    Some examples are:
+
+    *   application constants
+
+    *   reference data - zip and post codes, countries etc.
+
+    []
+
+    If you analyse database traffic commonly used reference data turns out to be a big hitter.
+
+    As they are immutable they can only be appended or read, never updated.
+
+*** Solution
+
+    In concurrent programming, immutable data never needs further concurrency protection. So we simply want to use the fastest mode.
+
+    Here we would always use eventual consistency.
 
