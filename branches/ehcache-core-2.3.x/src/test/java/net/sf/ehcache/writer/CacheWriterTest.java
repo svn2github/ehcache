@@ -544,6 +544,8 @@ public class CacheWriterTest extends AbstractCacheTest {
 
     @Test
     public void testWriteBehindRetryWithDelay() throws InterruptedException {
+        final long tolerance = TimeUnit.MILLISECONDS.toNanos(200);
+
         Cache cache = new Cache(
                 new CacheConfiguration("writeBehindRetryWithDelay", 10)
                         .cacheWriter(new CacheWriterConfiguration()
@@ -571,42 +573,57 @@ public class CacheWriterTest extends AbstractCacheTest {
             }
         }, Is.is(4));
 
+        {
+            WriterEvent event = writer.getWriterEvents().get(0);
+            assertEquals(0, event.getWrittenSize());
+            assertEquals(0, event.getWriteCount("key1"));
+            assertEquals(0, event.getWriteCount("key2"));
+            assertEquals(0, event.getWriteCount("key3"));
+            assertEquals(0, event.getDeleteCount("key2"));
+            assertEquals("key1", event.getAddedElement().getObjectKey());
+            long time = event.getTime() - start;
+            long expected = TimeUnit.SECONDS.toNanos(3);
+            assertTrue("Write-1 time : " + time, time >= (expected - tolerance));
+        }
 
-        WriterEvent one = writer.getWriterEvents().get(0);
-        assertEquals(0, one.getWrittenSize());
-        assertEquals(0, one.getWriteCount("key1"));
-        assertEquals(0, one.getWriteCount("key2"));
-        assertEquals(0, one.getWriteCount("key3"));
-        assertEquals(0, one.getDeleteCount("key2"));
-        assertEquals("key1", one.getAddedElement().getObjectKey());
-        assertTrue("Write-1 time : " + (one.getTime() - start), one.getTime() - start >= TimeUnit.SECONDS.toNanos(3));
+        {
+            WriterEvent event = writer.getWriterEvents().get(1);
+            assertEquals(1, event.getWrittenSize());
+            assertEquals(1, event.getWriteCount("key1"));
+            assertEquals(0, event.getWriteCount("key2"));
+            assertEquals(0, event.getWriteCount("key3"));
+            assertEquals(0, event.getDeleteCount("key2"));
+            assertEquals("key2", event.getAddedElement().getObjectKey());
+            long time = event.getTime() - start;
+            long expected = TimeUnit.SECONDS.toNanos(6);
+            assertTrue("Write-2 time : " + time, time >= (expected - tolerance));
+        }
 
-        WriterEvent two = writer.getWriterEvents().get(1);
-        assertEquals(1, two.getWrittenSize());
-        assertEquals(1, two.getWriteCount("key1"));
-        assertEquals(0, two.getWriteCount("key2"));
-        assertEquals(0, two.getWriteCount("key3"));
-        assertEquals(0, two.getDeleteCount("key2"));
-        assertEquals("key2", two.getAddedElement().getObjectKey());
-        assertTrue("Write-2 time : " + (two.getTime() - start), two.getTime() - start >= TimeUnit.SECONDS.toNanos(6));
+        {
+            WriterEvent event = writer.getWriterEvents().get(2);
+            assertEquals(2, event.getWrittenSize());
+            assertEquals(1, event.getWriteCount("key1"));
+            assertEquals(1, event.getWriteCount("key2"));
+            assertEquals(0, event.getWriteCount("key3"));
+            assertEquals(0, event.getDeleteCount("key2"));
+            assertEquals("key3", event.getAddedElement().getObjectKey());
+            long time = event.getTime() - start;
+            long expected = TimeUnit.SECONDS.toNanos(9);
+            assertTrue("Write-3 time : " + time, time >= (expected - tolerance));
+        }
 
-        WriterEvent three = writer.getWriterEvents().get(2);
-        assertEquals(2, three.getWrittenSize());
-        assertEquals(1, three.getWriteCount("key1"));
-        assertEquals(1, three.getWriteCount("key2"));
-        assertEquals(0, three.getWriteCount("key3"));
-        assertEquals(0, three.getDeleteCount("key2"));
-        assertEquals("key3", three.getAddedElement().getObjectKey());
-        assertTrue("Write-3 time : " + (three.getTime() - start), three.getTime() - start >= TimeUnit.SECONDS.toNanos(9));
-
-        WriterEvent four = writer.getWriterEvents().get(3);
-        assertEquals(3, four.getWrittenSize());
-        assertEquals(1, four.getWriteCount("key1"));
-        assertEquals(1, four.getWriteCount("key2"));
-        assertEquals(1, four.getWriteCount("key3"));
-        assertEquals(0, four.getDeleteCount("key2"));
-        assertEquals("key2", four.getRemovedKey());
-        assertTrue("Delete-2 time : " + (four.getTime() - start), four.getTime() - start >= TimeUnit.SECONDS.toNanos(12));
+        {
+            WriterEvent event = writer.getWriterEvents().get(3);
+            assertEquals(3, event.getWrittenSize());
+            assertEquals(1, event.getWriteCount("key1"));
+            assertEquals(1, event.getWriteCount("key2"));
+            assertEquals(1, event.getWriteCount("key3"));
+            assertEquals(0, event.getDeleteCount("key2"));
+            assertEquals("key2", event.getRemovedKey());
+            long time = event.getTime() - start;
+            long expected = TimeUnit.SECONDS.toNanos(12);
+            assertTrue("Delete-2 time : " + time, time >= (expected - tolerance));
+        }
 
         assertEquals(4, writer.getWriterEvents().size());
         assertEquals(1, writer.getWriteCount().get("key1").intValue());
