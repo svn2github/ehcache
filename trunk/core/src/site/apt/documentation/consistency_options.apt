@@ -345,6 +345,31 @@ Consistency Options
 
     XA transactions are needed because we want to keep the database and the cache in sync.
 
+**  Immutable Data
+
+*** Problem
+
+    The application uses data that once it comes into existence is immutable. Nothing is immutable forever. The key point is that it is
+    immutable up until the time of the next software release.
+
+    Some examples are:
+
+    *   application constants
+
+    *   reference data - zip and post codes, countries etc.
+
+    []
+
+    If you analyse database traffic commonly used reference data turns out to be a big hitter.
+
+    As they are immutable they can only be appended or read, never updated.
+
+*** Solution
+
+    In concurrent programming, immutable data never needs further concurrency protection. So we simply want to use the fastest mode.
+
+    Here we would always use eventual consistency.
+
 
 **  Financial Order Processing - write to cache as SOR
 
@@ -356,7 +381,6 @@ Consistency Options
 
     To avoid overloading a database the processing results at each step only written to a distributed cache. The next step could execute
     in a few ms to minutes depending on what other orders are going through and how busy the hardware is.
-
 
 *** Solution
 
@@ -385,10 +409,13 @@ Consistency Options
     so any of the n servers can be hit on the next HTTP operation.
 
     When a user submits using a HTML form, either a GET or POST is done based on the form action. And of course if it is an AJAx app then
-    requests are being done with XMLHttpRequest and any HTTP request method can be sent. If POST (form and AJAX) or PUT (AJAX) is used
+    requests are being done with <<<XMLHttpRequest>>> and any HTTP request method can be sent. If POST (form and AJAX) or PUT (AJAX) is used
     no content is returned and a separate GET is required to refresh the view or AJAX app. The key point is that sending a change and getting
     a view may happen with one request or two. If it happens with two, then the same server might respond to the second request or not.
     The probability that the second server will be the same as the first is 1/n.
+
+    AJAX apps can further exacebate this situation. A page may make multiple request to fill different panels. This opens up the possibility
+    of, within a single page, having data come from multiple servers. Any lack of consistency could be glaring indeed.
 
 
 *** Solution
@@ -410,13 +437,6 @@ Consistency Options
     server might be used for the length of a session, which is the standard meaning, or a browser's IP can permanently hash to a server.
     In any case each request is guaranteed to hit the same server.
 
-    When a user submits using a HTML form, either a GET or POST is done based on the form action. And of course if it is an AJAx app then
-    requests are being done with XMLHttpRequest and any HTTP request method can be sent. If POST (form and AJAX) or PUT (AJAX) is used
-    no content is returned and a separate GET is required to refresh the view or AJAX app. The key point is that sending a change and getting
-    a view may happen with one request or two. If it happens with two, then the same server might respond to the second request or not.
-    The probability that the second server will be the same as the first is 1/n.
-
-
 *** Solution
 
     The same server is always hit. The consistency mode depends on whether only the user making the changes needs to see them applied
@@ -427,28 +447,28 @@ Consistency Options
 
     For multi-user shared state use strong consistency at a minimum plus further safety mechanisms depending on the type of mutation.
 
-**  Immutable Data
+**  E-commerce Catalog
 
 *** Problem
 
-    The application uses data that once it comes into existence is immutable. Nothing is immutable forever. The key point is that it is
-    immutable up until the time of the next software release.
+    Catalogues display inventory. There are product details and pricing. There may be also be an inventory status of available or sold
+    out.
 
-    Some examples are:
+    Catalogue changes are usually made by one user or process (for example a daily update load from a supplier) and are usually do not
+    have write-write conflicts. While the catalogue is often non-sticky, admin users are typically configured sticky.
 
-    *   application constants
-
-    *   reference data - zip and post codes, countries etc.
-
-    []
-
-    If you analyse database traffic commonly used reference data turns out to be a big hitter.
-
-    As they are immutable they can only be appended or read, never updated.
+    There is often tolerance for the displayed catalogue to lag behind the change made. Users are usually less tolerance for a user
+    following a click path to see inconsistencies.
 
 *** Solution
 
-    In concurrent programming, immutable data never needs further concurrency protection. So we simply want to use the fastest mode.
+    The person making the changes can see a consistent view by virtue of the sticky session. So eventual consistency will often
+    be enough.
 
-    Here we would always use eventual consistency.
+    For end users following a click path, they need a consistent view. However the network or Internet time plus their think time to
+    move along the path adds up to seconds to minutes, while eventual consistency will propagate in the order of 2+ milliseconds. With
+    eventual consistency it is very unlikely they will see inconsistency. The general recommendation is therefore to use eventual consistency.
+
+
+
 
