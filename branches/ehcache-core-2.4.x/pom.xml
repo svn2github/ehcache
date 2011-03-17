@@ -9,7 +9,7 @@
     </parent>
     <artifactId>ehcache-core</artifactId>
     <packaging>jar</packaging>
-    <version>2.4.1-SNAPSHOT</version>
+    <version>2.4.2-SNAPSHOT</version>
     <name>Ehcache Core</name>
     <description>This is the ehcache core module. Pair it with other modules for added
         functionality.
