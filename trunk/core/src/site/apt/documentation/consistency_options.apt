@@ -250,6 +250,35 @@ Consistency Options
     []
 
 
+*   Other Safety Features
+
+    Ehcache offers a rich set of data safety features. In this section we look at some of the others and how they interact with the
+    <<<strong>>> and <<<eventual>>> consistency.
+
+
+**  CAS Cache Operations
+
+    We support three CAS (“Compare and Swap”) operations:
+
+    *   <<<cache.replace(Element old, Element new)>>>
+
+    *   <<<cache.putIfAbsent(Element)>>>
+
+    *   <<<cache.remove(Element)>>>
+
+   In each case the Terracotta Server Array will only perform the write if the old value is the same as that presented. This is guaranteed
+   to be done atomically as required by the CAS pattern.
+
+   CAS achieves strong consistency between A, B and C. The key difference is that it achieves it with optimistic locking rather than
+   pessimistic locking. As with all optimistic locking approaches, the operations are not guaranteed to succeed. If someone else got in
+   and changed the Element ahead of you, the methods will return <<<false>>>. You should read the new value, take that into account in your
+   business logic and then retry your mutation.
+
+   CAS will work with both <<<strong>>> and <<<eventual>>> consistency modes, but because it does not use the locks it does
+   not need <<<strong>>>.
+
+
+
 *   Use Cases And Recommended Practices
 
     In this section we look at some common use cases and give advice on what consistency and safety options should be used. These
@@ -271,6 +300,8 @@ Consistency Options
 
 **  Shopping Cart with Inventory Decrementing
 
+*** Problem
+
     A user adds items to a shopping cart. There is limited inventory and the business policy is that the first user to add the inventory
     to their shopping cart can buy it. If the user does not proceed to checkout a timer will release the inventory back. As a result,
     inventory must be decremented at the time the item is added to the shopping cart.
@@ -289,5 +320,63 @@ Consistency Options
 
     The key thing here is that two resources have to be updated: the shopping cart, which is only visible to one user, and on it's own
     has low consistency requirements, and an inventory which is transactiional in nature.
+
+
+**  Financial Order Processing - write to cache and database
+
+*** Problem
+
+    An order processing system sends a series of messages in a workflow, perhaps using Business Process Management software. The system
+    involves multiple servers and the next step in the processing of an order may occur on any server. Let's say there are 5 steps in the
+    process.
+
+    To avoid continual re-reading from a database, the processing results are also written to a distributed cache. The next step could execute
+    in a few ms to minutes depending on what other orders are going through and how busy the hardware is.
+
+
+*** Solution
+
+    Use strong consistency with synchronous writes plus XA transactions.
+
+    Because the execution step, once completed cannot be replaid, and may be under the control of a BPM, it is very important that the
+    change in state gets to the cache cluster. For this reason synchronous writes should be used so that the put to the cache does not
+    return until the data has been applied. If an executing node failed before the data was transferred, the locks would still be in place
+    preventing readers from reading stale data, but that will not help the next step in the process.
+
+    XA transactions are needed because we want to keep the database and the cache in sync.
+
+
+**  Financial Order Processing - write to cache as SOR
+
+*** Problem
+
+    An order processing system sends a series of messages in a workflow, perhaps using Business Process Management software. The system
+    involves multiple servers and the next step in the processing of an order may occur on any server. Let's say there are 50 steps in the
+    process.
+
+    To avoid overloading a database the processing results at each step only written to a distributed cache. The next step could execute
+    in a few ms to minutes depending on what other orders are going through and how busy the hardware is.
+
+
+*** Solution
+
+    Use one of:
+
+    *  strong consistency and local transactions (if changes are needed to be applied to multiple caches or entries) with synchronous writes.
+
+      Because the execution step, once completed cannot be replaid, and may be under the control of a BPM, it is very important that the
+    change in state gets to the cache cluster. For this reason synchronous writes should be used so that the put to the cache does not
+    return until the data has been applied. If an executing node failed before the data was transferred, the locks would still be in place
+    preventing readers from reading stale data, but that will not help the next step in the process.
+
+
+    *  CAS operations with eventual consistency. The CAS methods will not return until the data has been applied to the server, so
+       it is not necessary to use synchronous writes.
+
+    []
+
+    In a 50 step process it is likely there are key milestones. Often it is desirable to record these in a database with the non-milestone
+        steps recorded in the cache. For these key milestones use the "Financial Order Processing - write to cache and database" pattern.
+
 
 
