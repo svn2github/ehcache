@@ -156,20 +156,14 @@
 
     <target name="show_toc" description="Show TOC. Understood by site plugin but not by Doxis book generator">
         <echo>Showing toc</echo>
-        <replace dir="src/site/apt/documentation">                      
-            <replacetoken><![CDATA[~~%{toc|fromDepth=2|toDepth=3}]]></replacetoken>
-            <replacevalue><![CDATA[%{toc|fromDepth=2|toDepth=3}]]></replacevalue>
-        </replace>
+        <replace dir="src/site/apt/documentation" token="~~%{toc|fromDepth=2|toDepth=3}" value="%{toc|fromDepth=2|toDepth=3}"/>
     </target>
 
 
     <!--If the site build fails this step will be missed. Make sure you don't check in the uncommented TOC-->
-    <target name="hide_toc" description="Hide TOC. Not understood by Doxia book generator">
+    <target name="hide_toc" description="Hide TOC. Understood by site plugin but not by Doxis book generator">
         <echo>Hiding toc</echo>
-        <replace dir="src/site/apt/documentation">
-            <replacetoken><![CDATA[%{toc|fromDepth=2|toDepth=3}]]></replacetoken>
-            <replacevalue><![CDATA[~~%{toc|fromDepth=2|toDepth=3}]]></replacevalue>
-        </replace>
+        <replace dir="src/site/apt/documentation" token="%{toc|fromDepth=2|toDepth=3}" value="~~%{toc|fromDepth=2|toDepth=3}"/>
     </target>
 
 
