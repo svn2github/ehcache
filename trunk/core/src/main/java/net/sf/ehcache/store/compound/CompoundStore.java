@@ -19,15 +19,11 @@ package net.sf.ehcache.store.compound;
 import java.util.AbstractSet;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
@@ -678,97 +674,9 @@ public abstract class CompoundStore extends AbstractStore {
         /**
          * {@inheritDoc}
          */
-        public Sync[] getAndWriteLockAllSyncForKeys(Object... keys) {
-            Map<Segment, AtomicInteger> segs = getSegmentsFor(keys);
-
-            List<Sync> ordered = new ArrayList<Sync>();
-            for (Segment s : CompoundStore.this.segments) {
-                if (segs.containsKey(s)) {
-                    AtomicInteger counter = segs.get(s);
-                    while (counter.getAndDecrement() > 0) {
-                        s.writeLock().lock();
-                    }
-                    ordered.add(new ReadWriteLockSync(s));
-                }
-            }
-
-            return ordered.toArray(new Sync[ordered.size()]);
-        }
-
-        public Sync[] getAndWriteLockAllSyncForKeys(long timeout, Object... keys) throws TimeoutException {
-            Map<Segment, AtomicInteger> segs = getSegmentsFor(keys);
-
-            List<ReentrantReadWriteLock.WriteLock> acquiredLocks = new ArrayList<ReentrantReadWriteLock.WriteLock>();
-            boolean lockHeld;
-            ReentrantReadWriteLock.WriteLock unheldLock = null;
-
-            List<Sync> ordered = new ArrayList<Sync>();
-            for (Segment s : CompoundStore.this.segments) {
-                if (segs.containsKey(s)) {
-                    try {
-                        ReentrantReadWriteLock.WriteLock writeLock = s.writeLock();
-                        lockHeld = writeLock.tryLock(timeout, TimeUnit.MILLISECONDS);
-                        if (lockHeld) {
-                            AtomicInteger counter = segs.get(s);
-                            while (counter.decrementAndGet() > 0) {
-                                s.writeLock().lock();
-                                acquiredLocks.add(writeLock);
-                            }
-                            acquiredLocks.add(writeLock);
-                        } else {
-                            unheldLock = writeLock;
-                        }
-                    } catch (InterruptedException e) {
-                        lockHeld = false;
-                    }
-
-                    if (!lockHeld) {
-                        for (int i = acquiredLocks.size() - 1; i >= 0; i--) {
-                            ReentrantReadWriteLock.WriteLock writeLock = acquiredLocks.get(i);
-                            writeLock.unlock();
-                        }
-                        throw new TimeoutException("could not acquire all locks in " + timeout + " ms - did not get " + unheldLock);
-                    }
-
-                    ordered.add(new ReadWriteLockSync(s));
-                }
-            }
-
-            return ordered.toArray(new Sync[ordered.size()]);
-        }
-
-        /**
-         * {@inheritDoc}
-         */
         public Sync getSyncForKey(Object key) {
             int hash = key == null ? 0 : hash(key.hashCode());
             return new ReadWriteLockSync(segmentFor(hash));
-        }
-
-        /**
-         * {@inheritDoc}
-         */
-        public void unlockWriteLockForAllKeys(Object... keys) {
-            for (Map.Entry<Segment, AtomicInteger> entry : getSegmentsFor(keys).entrySet()) {
-                while (entry.getValue().getAndDecrement() > 0) {
-                    entry.getKey().writeLock().unlock();
-                }
-            }
-        }
-
-        private Map<Segment, AtomicInteger> getSegmentsFor(Object... keys) {
-            Map<Segment, AtomicInteger> segs = new HashMap<Segment, AtomicInteger>();
-
-            for (Object k : keys) {
-                Segment key = segmentFor(hash(k.hashCode()));
-                if (segs.containsKey(key)) {
-                    segs.get(key).getAndIncrement();
-                } else {
-                    segs.put(key, new AtomicInteger(1));
-                }
-            }
-
-            return segs;
         }
     }
 

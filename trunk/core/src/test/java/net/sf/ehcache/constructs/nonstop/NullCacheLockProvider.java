@@ -16,27 +16,12 @@
 
 package net.sf.ehcache.constructs.nonstop;
 
-import java.util.concurrent.TimeoutException;
-
 import net.sf.ehcache.concurrent.CacheLockProvider;
 import net.sf.ehcache.concurrent.Sync;
 
 public class NullCacheLockProvider implements CacheLockProvider {
 
-    public Sync[] getAndWriteLockAllSyncForKeys(long timeout, Object... keys) throws TimeoutException {
-        return null;
-    }
-
-    public Sync[] getAndWriteLockAllSyncForKeys(Object... keys) {
-        return null;
-    }
-
     public Sync getSyncForKey(Object key) {
         return null;
     }
-
-    public void unlockWriteLockForAllKeys(Object... keys) {
-        //
-    }
-
 }

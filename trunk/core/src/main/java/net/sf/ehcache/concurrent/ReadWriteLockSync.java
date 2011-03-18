@@ -24,11 +24,9 @@ import java.util.concurrent.TimeUnit;
  *
  * @author Alex Snaps
  */
-public class ReadWriteLockSync implements Sync, Comparable<ReadWriteLockSync> {
+public class ReadWriteLockSync implements Sync {
 
     private final ReentrantReadWriteLock rrwl;
-    private final Lock readLock;
-    private final Lock writeLock;
 
     /**
      * default constructor.
@@ -43,8 +41,6 @@ public class ReadWriteLockSync implements Sync, Comparable<ReadWriteLockSync> {
      */
     public ReadWriteLockSync(ReentrantReadWriteLock lock) {
       this.rrwl = lock;
-      this.readLock = rrwl.readLock();
-      this.writeLock = rrwl.writeLock();
     }
     /**
      * {@inheritDoc}
@@ -70,9 +66,9 @@ public class ReadWriteLockSync implements Sync, Comparable<ReadWriteLockSync> {
     private Lock getLock(final LockType type) {
         switch (type) {
             case READ:
-                return readLock;
+                return rrwl.readLock();
             case WRITE:
-                return writeLock;
+                return rrwl.writeLock();
             default:
                 throw new IllegalArgumentException("We don't support any other lock type than READ or WRITE!");
         }
@@ -89,18 +85,6 @@ public class ReadWriteLockSync implements Sync, Comparable<ReadWriteLockSync> {
                 return rrwl.isWriteLockedByCurrentThread();
             default:
                 throw new IllegalArgumentException("We don't support any other lock type than READ or WRITE!");
-        }
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public int compareTo(ReadWriteLockSync o) {
-        if (hashCode() == o.hashCode() && this != o) {
-            //FIXME this is bad
-            return 0;
-        } else {
-            return hashCode() - o.hashCode();
         }
     }
 }

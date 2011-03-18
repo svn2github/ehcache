@@ -15,14 +15,6 @@
  */
 package net.sf.ehcache.concurrent;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.SortedMap;
-import java.util.TreeMap;
-import java.util.concurrent.TimeoutException;
-import java.util.concurrent.atomic.AtomicInteger;
-
 import net.sf.ehcache.CacheException;
 
 /**
@@ -47,10 +39,9 @@ public class StripedReadWriteLockSync implements CacheLockProvider {
      * The choice of 2048 enables 2048 concurrent operations per cache or cache store, which should be enough for most
      * uses.
      */
-    public  static final int    DEFAULT_NUMBER_OF_MUTEXES = 2048;
+    public static final int DEFAULT_NUMBER_OF_MUTEXES = 2048;
 
     private final ReadWriteLockSync[] mutexes;
-    private final int                 numberOfStripes;
 
     /**
      * Constructs a striped mutex with the default 2048 stripes.
@@ -66,18 +57,16 @@ public class StripedReadWriteLockSync implements CacheLockProvider {
      * @param numberOfStripes - must be a factor of two
      */
     public StripedReadWriteLockSync(int numberOfStripes) {
-        if (numberOfStripes % 2 != 0) {
-            throw new CacheException("Cannot create a CacheLockProvider with an odd number of stripes");
+        if ((numberOfStripes & (numberOfStripes - 1)) != 0) {
+            throw new CacheException("Cannot create a CacheLockProvider with a non power-of-two number of stripes");
         }
-
         if (numberOfStripes == 0) {
             throw new CacheException("A zero size CacheLockProvider does not have useful semantics.");
         }
 
-        this.numberOfStripes = numberOfStripes;
         mutexes = new ReadWriteLockSync[numberOfStripes];
 
-        for (int i = 0; i < numberOfStripes; i++) {
+        for (int i = 0; i < mutexes.length; i++) {
             mutexes[i] = new ReadWriteLockSync();
         }
     }
@@ -91,86 +80,7 @@ public class StripedReadWriteLockSync implements CacheLockProvider {
      * @return one of a limited number of Sync's.
      */
     public ReadWriteLockSync getSyncForKey(final Object key) {
-        int lockNumber = ConcurrencyUtil.selectLock(key, numberOfStripes);
+        int lockNumber = ConcurrencyUtil.selectLock(key, mutexes.length);
         return mutexes[lockNumber];
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public Sync[] getAndWriteLockAllSyncForKeys(Object... keys) {
-        SortedMap<ReadWriteLockSync, AtomicInteger> locks = getLockMap(keys);
-
-        Sync[] syncs = new Sync[locks.size()];
-        int i = 0;
-        for (Map.Entry<ReadWriteLockSync, AtomicInteger> entry : locks.entrySet()) {
-            while (entry.getValue().getAndDecrement() > 0) {
-                entry.getKey().lock(LockType.WRITE);
-            }
-            syncs[i++] = entry.getKey();
-        }
-        return syncs;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public Sync[] getAndWriteLockAllSyncForKeys(long timeout, Object... keys) throws TimeoutException {
-        SortedMap<ReadWriteLockSync, AtomicInteger> locks = getLockMap(keys);
-
-        boolean lockHeld;
-        List<ReadWriteLockSync> heldLocks = new ArrayList<ReadWriteLockSync>();
-
-        Sync[] syncs = new Sync[locks.size()];
-        int i = 0;
-        for (Map.Entry<ReadWriteLockSync, AtomicInteger> entry : locks.entrySet()) {
-            while (entry.getValue().getAndDecrement() > 0) {
-                try {
-                    ReadWriteLockSync writeLockSync = entry.getKey();
-                    lockHeld = writeLockSync.tryLock(LockType.WRITE, timeout);
-                    if (lockHeld) {
-                        heldLocks.add(writeLockSync);
-                    }
-                } catch (InterruptedException e) {
-                    lockHeld = false;
-                }
-
-                if (!lockHeld) {
-                    for (int j = heldLocks.size() - 1; j >= 0; j--) {
-                        ReadWriteLockSync readWriteLockSync = heldLocks.get(j);
-                        readWriteLockSync.unlock(LockType.WRITE);
-                    }
-                    throw new TimeoutException("could not acquire all locks in " + timeout + " ms");
-                }
-            }
-            syncs[i++] = entry.getKey();
-        }
-        return syncs;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public void unlockWriteLockForAllKeys(Object... keys) {
-        SortedMap<ReadWriteLockSync, AtomicInteger> locks = getLockMap(keys);
-
-        for (Map.Entry<ReadWriteLockSync, AtomicInteger> entry : locks.entrySet()) {
-            while (entry.getValue().getAndDecrement() > 0) {
-                entry.getKey().unlock(LockType.WRITE);
-            }
-        }
-    }
-
-    private SortedMap<ReadWriteLockSync, AtomicInteger> getLockMap(final Object... keys) {
-        SortedMap<ReadWriteLockSync, AtomicInteger> locks = new TreeMap<ReadWriteLockSync, AtomicInteger>();
-        for (Object key : keys) {
-            ReadWriteLockSync syncForKey = getSyncForKey(key);
-            if (locks.containsKey(syncForKey)) {
-                locks.get(syncForKey).incrementAndGet();
-            } else {
-                locks.put(syncForKey, new AtomicInteger(1));
-            }
-        }
-        return locks;
     }
 }
