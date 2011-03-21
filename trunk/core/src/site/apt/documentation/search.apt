@@ -568,3 +568,17 @@ for (Result result : results.all()) {
     to the Ehcache CacheManager which requested it in batches for network efficiency. This is done ahead as soon as possible
     reducing the risk that <<<Result.getValue()>>> might have to wait for data over the network.
 
+    *   turn off key and value indexing if you are not going to search against them as they will just chew up space on the server.
+
+        You do this as follows:
+
+---
+<cache name="cache3" ...>
+    <searchable keys="false" values="false">
+        ...
+    </searchable>
+</cache>
+---
+
+    []
+
