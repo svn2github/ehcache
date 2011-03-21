@@ -128,6 +128,19 @@
    Even if all of the dataset can fit in the cache, it could be evicted if Elements expire. Accordingly, both <<<timeToLive>>> and
        <<<timeToIdle>>> should be set to eternal ("0") to prevent this from happening.
 
+
+*  Introduction Video
+
+    Alex Snaps the primary author of Write Behind presents an {{{http://vimeo.com/21193026}introductory video}} on Write Behind.
+
+
+*   Sample Application
+
+   We have created a sample web application for a raffle which fully demonstrates how to use write behind.
+
+   You can also {{{https://github.com/alexsnaps/Ehcache-Raffle}checkout}} the Ehcache Raffle application, that demonstrates Cache Writers
+   and Cache Loaders from github.com.
+
 *   Ehcache Versions
 
     Both Ehcache standalone (DX) and with Terracotta Server Array (Ehcache EX and FX) are supported.

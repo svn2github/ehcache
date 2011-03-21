@@ -331,6 +331,10 @@ Transactions in Ehcache
 
     * <<<TransactionTimeoutException>>> - if a cache operation or commit is called after the transaction timeout has elapsed.
 
+**  Introduction Video
+
+    Ludovic Orban the primary author of Local Transactions presents an {{{http://vimeo.com/21299785}introductory video}} on Local Transactions.
+
 ** Configuration
 
     Local transactions are configured as follows:
