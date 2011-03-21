@@ -1,8 +1,8 @@
  ---
- FAQ
+ Distributed Ehcache FAQ
  ---
 
-FAQ
+Distributed Ehcache FAQ
 
 ~~%{toc|fromDepth=2|toDepth=3}
 
@@ -164,3 +164,10 @@ FAQ
 
     Any configuration files using coherent=true will be mapped to consistency=strong and coherent=false
     to consistency=eventual.
+
+
+**  Why doesn't overflow to disk work with Terracotta clustered caches?
+
+    Because the TSA itself provides both disk persistence (if required) and scale out, the local DiskStore
+    is not available with Terracotta clustered caches. As a result overflowToDisk and diskPersistent are silently
+    ignored.

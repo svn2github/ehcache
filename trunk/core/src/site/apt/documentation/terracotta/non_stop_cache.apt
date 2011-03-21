@@ -1,190 +1,58 @@
  ---
- NonStopCache
+ NonStop Operation
  ---
 
-{NonStopCache}
+NonStop Operation
 
+    The <<<nonstop>>> mode is a provides resiliency in the event that a cache gets disconnected from an L2.
 
+    Use cases include:
 
-
-Nonstop minimal config:
-
--------------------------
-<cache name="cacheName" maxElementsInMemory="10000" eternal="true" overflowToDisk="false">
-<terracotta>
-		<nonstop />
-	</terracotta>
-</cache>
--------------------------
-
-Nonstop default values:
-
--------------------------
-<cache name="four" maxElementsInMemory="10000" eternal="true"
-	overflowToDisk="false">
-	<terracotta clustered="false">
-		<nonstop enabled="true" immediateTimeout="false" timeoutMillis="30000">
-			<timeoutBehavior type="exception" />       noop | localReads
-		</nonstop>
-	</terracotta>
-</cache>
--------------------------
-
-Rejoin Config:
-
--------------------------
-<ehcache name="basic-cache-test">
-	<defaultCache maxElementsInMemory="10000" eternal="true"
-		overflowToDisk="false" />
-	<cache name="test" maxElementsInMemory="10000" eternal="true"
-		overflowToDisk="false">
-		<terracotta>
-			<nonstop />
-		</terracotta>
-	</cache>
-	<terracottaConfig rejoin="true" url="localhost:9510" />
-</ehcache>
--------------------------
-
-Rejoin Event:
-
--------------------------
-net.sf.ehcache.cluster.ClusterTopologyListener {
-    void clusterRejoined(ClusterNode oldNode, ClusterNode newNode);
-}
--------------------------
-
-
-Rejoin happens when reconnect has failed. The L1 has been connected. It will rejoin as a new client.
-Your puts are blocked
-
-L2 kicks the L1 out li.l2reconnect.timeout.millis
-
-If the socket closes the L1 is kicked out.
-
-By default reconnect is turned off. If you set it to true     ????
-
-There is a pre-crash L1 membership.
-
-Until the reconnectWindow is exceeded when you will not be allowed back in. The timeout is 120s.
-
-When the L2 says an L1 cannot reconnect this will trigger an attempt to rejoin.
-
-Reconnect is in the product docs.
-
-
-
-
-l2.l1reconnect.timeout.millis controls when
-
-The l2s talk to each other so the other l2
-
-Until reconnect fails you continue to hold locks (if running in strict mode).
-
-When reconnect fails, rejoin will attempt to join the L2. When it joins, it will join as a new L1. Any data
-held in the local cache is discarded. All locks are discarded. This is transparent to the end user.
-
-Prior to an L1
-
-Rejoin if set to true, will continously try to rejoin.     rejoin=false is the default.
-
-Prior to this an L1 could not reconnect without restarting the app server with the L1 in it.
-
-
-
-
-
-    <<<NonStopCache>>> is a {{{./cache_decorators.html}decorated cache}} which provides SLA level control
-    features for your cache. It is difficult to rely on your, disk, Database (For write-through), distribution
-	mechanism etc  all being tuned perfectly to provide you the timing characteristics/semantics your application needs.
-	Non-stop cache allows a developer to take a layered approach to SLAs. Each portion of an application can specify
-	the timing characteristics it needs for a given cache. No matter what happens beneath the Non-stop cache decorator those
-	semantics are maintained.
-
-    Usecases include:
-
-    * Set timeouts on cache operations.
-
-      For example, say you use the cache rather than a mainframe. The SLA calls for 3 seconds.
+    * Set timeouts on cache operations. For example, say you use the cache rather than a mainframe. The SLA calls for 3 seconds.
       There is a temporary network interruption which stops Terracotta responding to a cache request. With the timeout
       you can return after 3 seconds. The lookup is then done against the mainframe. This could also be useful for
       write-through, writes to disk or synchronous writes.
 
     * Automatically respond to cluster topology events to take a pre-configured action.
 
-	* You're using a disk based cache and your hard drive becomes unavailable. If you are using the Non-stop cache decorator
-	  you can control whether operations timeout, or drop back to noop, or even switch over to an in memory only cache.
+    * Allowing Availability over Consistency within the CAP theorem when a network partition occurs.
 
-	* You're using a write-through cache and your DB hangs. Use your Non-stop cache decorator to keep it from hanging your entire
-	  Application Server.
+    * Providing graceful degradation to user applications when Distributed Cache becomes unavailable.
 
-	* You have one cache that is accessed for multiple functions. For some of those functions you want operations to timeout after
-	  5 seconds and for others you want 20 seconds. You can have multiple decorators on the same cache with the different semantics
-      defined.
+*   Configuration
 
+   The <terracotta> sub-element has a <nonstop> sub-element to allow configuration of cache behaviour if a distributed
+   cache operation cannot be completed within a set time or in the event of a clusterOffline message.
 
+   From Ehcache 2.4 nonstop behaviour, even if the sub-element is missing, is enabled by default. In earlier versions it was
+   disabled by default.
 
+   It has the following optional attributes:
 
+   *  enabled="true" - defaults to true.
 
-
-
-
-
-*   Creating a NonStopCache
-
-**  Programmatically
-
----
-    Cache cache = cacheManager.getCache("existingUndecoratedCache");
-    NonStopCache nonStopCache = new NonStopCache(cache, newName);
-    cacheManager.addDecoratedCache(nonStopCache);  //adds a decorated Ehcache
----
-
-     Creating a NonStopCache does not put itself to the CacheManager. It is optional and up to the app to put the decorated
-     NonStopCache back in the CacheManager. Putting the NonStopCache back in the CacheManger makes it available to other
-     areas of the app where the CacheManager is accessible.
-
-     If the NonStopCache has the same name as the cache its decorating,
-     <<<CacheManager.replaceCacheWithDecoratedCache(Ehcache ehcache, Ehcache decoratedCache)>>> should be used instead of
-     using <<<CacheManager.addDecoratedCache(Ehcache decoratedCache)>>> as shown above.
-
-     If added to the CacheManager, it can be accessed per the following:
-
----
-    Ehcache nonStopCache = cacheManager.getEhcache(newName);
----
-
-**  In ehcache.xml
-
-    It can be configured in ehcache.xml using the "cacheDecoratorFactory" element. You can specify a factory to create decorated caches and
-    <<<net.sf.ehcache.constructs.nonstop.NonStopCacheDecoratorFactory>>> is available in the nonstopcache module itself.
-
----
-
-    <cache name="sample/DistributedCache3"
-           maxElementsInMemory="10"
-           eternal="false"
-           timeToIdleSeconds="100"
-           timeToLiveSeconds="100"
-           overflowToDisk="true">
-        <cacheDecoratorFactory
-                class="net.sf.ehcache.constructs.nonstop.NonStopCacheDecoratorFactory"
-                properties="name=nonStopCacheName, timeoutMillis=3000, timeoutBehavior=noop ..."/>
-    </cache>
----
-
-    It is mandatory to specify properties when configuring NonStopCacheDecoratorFactory in ehcache.xml. List of all the properties supported by
-    NonStopCacheDecoratorFactory and corresponding valid values are:
-
-       name             - any string name for the NonStopCache. This property is mandatory.
-
-       timeoutMillis    - Any number for use as the timeout time in milliseconds before timing out for any operation. After the operation times out, behavior as
+   *  timeoutMillis - Any number for use as the timeout time in milliseconds before timing out for any operation. After the operation times out, behavior as
                           specified by timeoutBehavior happens. This property is optional and uses a default value if not specified. This should be set to your desired
-                          SLA level. The default value is 10000ms.
+                          SLA level. The default value is 10,000 ms (10 seconds).
 
-       timeoutBehavior  - {exception | noop | localReads}. This property is optional and uses a default value if not specified. The default is exception.
 
-       immediateTimeout - {true | false}. Default is true.
+   *  immediateTimeout="true|false" - What to do on receipt of a ClusterOffline event indicating that communications
+      with the Terracotta Server Array were interrupted. The default is true.
+
+   *  timeoutBehavior="exception | noop | localReads" - What to do when a timeout has occurred. The default is exception.
+
+    []
+
+**  Minimal config:
+
+---
+<cache name="cacheName" maxElementsInMemory="10000" eternal="true" overflowToDisk="false">
+    <terracotta>
+	    <nonstop />
+    </terracotta>
+</cache>
+---
+
 
 
 *   How it knows about Terracotta Cluster Events
@@ -199,7 +67,7 @@ Prior to this an L1 could not reconnect without restarting the app server with t
 
     In particular it is interested in the <<<clusterOffline>>> and <<<clusterOnline>>> events.
 
-*   Configuration Options
+*   Configuration Options in Detail
 
 **  Timeout Configuration
 
@@ -270,42 +138,4 @@ Prior to this an L1 could not reconnect without restarting the app server with t
     * Full GC events.
 
     * Contention in the persistency layer in the Terracotta server
-
-
-
-*   {Download}
-
-**  File
-
-    Download {{{http://sourceforge.net/projects/ehcache/files/ehcache-nonstopcache}here}}.
-
-**  Maven
-
-    The code is in the ehcache-nonstopcache module in the Maven central repo.
-
-    Add this snippet to your dependencies:
-
--------------------------
-<dependency>
-    <groupId>net.sf.ehcache</groupId>
-    <artifactId>ehcache-nonstopcache</artifactId>
-</dependency>
--------------------------
-
-*   {Emerging API}
-
-    This API is emerging. It is production quality and supported, but is a new API and may evolve over time.
-
-**  More information
-
-    {{{http://dsoguy.blogspot.com/2010/05/couple-minutes-with-non-stop-ehcache_07.html}A Couple Minutes With Non-Stop Ehcache}}.
-
-
-
-
-** New Nonstrict Mode
-If any data is in te L1, then it will be available during the transition to the timeout. You always get stale data.
-
-
-
 

@@ -19,7 +19,7 @@
     Note that this view is only going to give incoherent reads to the underlying
     cache and not writes. Writes are going to be either coherent or incoherent depending on the underlying cache.
 
-*   Creating an  UnlockedReadsView
+*   Creating an UnlockedReadsView
 
 **  Programmatically
 
@@ -101,6 +101,10 @@
     UnlockedReadsView uses unlocked reads of the Terracotta Server Array combined with a local TTL which in
     versions up to Ehcache 2.4 are hardcoded to 300 seconds (5 minutes). If you are already holding a copy
     in a local node you will not see an updated value for 5 minutes.
+
+    As of Ehcache 2.4.1, you also have the option of simply configured the whole cache as <<<consitency="eventual">>>
+    which sends changed data to the node as soon as possible. However the whole cache is eventually consistent - you
+    cannot use that with a strongly consistent cache.
 
     We plan to make this TTL configurable in a future release.
 

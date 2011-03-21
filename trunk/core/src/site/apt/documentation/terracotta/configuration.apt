@@ -1,0 +1,464 @@
+ ---
+ Distributed Cache Configuration
+ ---
+
+Distributed Cache Configuration
+
+~~%{toc|fromDepth=2|toDepth=3}
+
+    Terracotta configuration in ehcache.xml is done in three parts:
+
+    * CacheManager Configuration
+
+    * Terracotta Server Configuration
+
+    * Per cache configuration (enabling and settings)
+
+    []
+
+*  CacheManager Configuration
+
+
+**  Via ehcache.xml
+
+    The attributes of <ehcache> are:
+
+    * name
+
+    an optional name for the CacheManager.  The name is optional and primarily used
+    for documentation or to distinguish Terracotta clustered cache state.  With Terracotta
+    clustered caches, a combination of CacheManager name and cache name uniquely identify a
+    particular cache store in the Terracotta clustered memory.
+
+    The name will show up in the Developer Consoles.
+
+    * {updateCheck}
+
+    an optional boolean flag specifying whether this CacheManager should check
+    for new versions of Ehcache over the Internet.  If not specified, updateCheck="true".
+
+    * monitoring
+
+    an optional setting that determines whether the CacheManager should
+    automatically register the SampledCacheMBean with the system MBean server.  Currently,
+    this monitoring is only useful when using Terracotta and thus the "autodetect" value
+    will detect the presence of Terracotta and register the MBean.  Other allowed values
+    are "on" and "off".  The default is "autodetect".
+
+---
+<Ehcache xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="ehcache.xsd"
+             updateCheck="true" monitoring="autodetect">
+
+---
+
+**  Programmatic Configuration
+
+    CacheManagers can be configured programmatically with a fluent API. The example below
+    creates a CacheManager with a Terracotta config specified in an URL, and creates a defaultCache
+    and a cache named "example".
+
+---
+Configuration configuration = new Configuration()
+.terracotta(new TerracottaClientConfiguration().url("localhost:9510"))
+.defaultCache(new CacheConfiguration("defaultCache", 100))
+.cache(new CacheConfiguration("example", 100)
+.timeToIdleSeconds(5)
+.timeToLiveSeconds(120)
+.terracotta(new TerracottaConfiguration()));
+
+CacheManager manager = new CacheManager(configuration);
+---
+
+
+*  Terracotta Server Configuration
+
+    Note: You need to install and run one or more Terracotta servers to use Terracotta clustering.
+
+    See http://www.terracotta.org/dl.
+
+    With a server/servers up and running you need to specify the location of the servers.
+
+    Configuration can be specified in two main ways: by reference to a source of
+    configuration or by use of an embedded Terracotta configuration file.
+
+** Specification of a source of configuration
+
+    To specify a reference to a source (or sources) of configuration, use the url
+    attribute.  The url attribute must contain a comma-separated list of:
+
+    * path to the Terracotta configuration file (usually named tc-config.xml)
+
+    Example using a path to Terracotta configuration file:
+
+---
+    <terracottaConfig url="/app/config/tc-config.xml"/>
+---
+
+    * URL to the Terracotta configuration file
+
+    Example using a URL to a Terracotta configuration file:
+
+---
+    <terracottaConfig url="http://internal/ehcache/app/tc-config.xml"/>
+---
+
+    * <server host>:<port> of a running Terracotta Server instance
+
+    Example pointing to a Terracotta server installed on localhost:
+
+---
+    <terracottaConfig url="localhost:9510"/>
+---
+
+    Example using multiple Terracotta server instance URLs (for fault tolerance):
+
+---
+    <terracottaConfig url="host1:9510,host2:9510,host3:9510"/>
+---
+
+** Specification using embedded tc-config
+
+    To embed a Terracotta configuration file within the Ehcache configuration, simply
+    place the usual Terracotta XML config within the <terracottaConfig> element.
+
+    In this example we have two Terracotta servers running on <<<server1>>> and <<<server2>>>.
+
+---
+    <terracottaConfig>
+        <tc-config>
+            <servers>
+                <server host="server1" name="s1"/>
+                <server host="server2" name="s2"/>
+            </servers>
+            <clients>
+                <logs>app/logs-%i</logs>
+            </clients>
+        </tc-config>
+    </terracottaConfig>
+---
+
+
+*   Per Cache Configuration
+
+    Individual caches are not clustered with Terracotta unless enabled to do so using the <terracotta> sub-element.
+
+
+    The <terracotta> sub-element has the following attributes:
+
+    * clustered=true|false - indicates whether this cache should be clustered (distributed) with Terracotta. By
+      default, if the <terracotta> element is included, clustered=true.
+
+    * valueMode=serialization|identity - the default is serialization
+
+      Indicates whether cache Elements are distributed with serialized copies or whether a single copy
+      in identity mode is distributed.
+
+      The implications of Identity mode should be clearly understood with reference to the Terracotta
+      documentation before use.
+
+    * copyOnRead=true|false - indicates whether cache values are deserialized on every read or if the
+      materialized cache value can be re-used between get() calls. This setting is useful if a cache
+      is being shared by callers with disparate classloaders or to prevent local drift if keys/values
+      are mutated locally without being put back in the cache.
+
+      The default is false.
+
+      Note: This setting is only relevant for caches with valueMode=serialization
+
+    * consistency=strong|eventual - Indicates whether this cache should have strong consistency or eventual
+      consistency. The default is strong. See the documentation for the meaning of these terms.
+
+    * synchronousWrites=true|false
+
+      Synchronous writes (synchronousWrites="true")  maximize data safety by blocking the client thread until
+      the write has been written to the Terracotta Server Array.
+
+      This option is only available with consistency=strong. The default is false.
+
+    * concurrency - the number of segments that will be used by the map underneath the Terracotta Store.
+      Its optional and has default value of 0, which means will use default values based on the internal
+      Map being used underneath the store.
+
+      This value cannot be changed programmatically once a cache is initialized.
+
+    * storageStrategy=classic|DCV2 - What storage implementation to use. From Ehcache 2.4, the default is DCV2
+      ("Distributed Cache Version 2"). The key functional difference is that DCV2 does not consume local memory
+      for key storage.
+
+    []
+
+    The <terracotta> sub-element also has a <nonstop> sub-element to allow configuration of cache behaviour if a distributed
+    cache operation cannot be completed within a set time or in the event of a clusterOffline message.
+
+    From Ehcache 2.4 nonstop behaviour, even if the sub-element is missing, is enabled by default. In earlier versions it was
+    disabled by default.
+
+    It has the following attributes:
+
+    *  enabled="true" - defaults to true.
+
+    *  timeoutMillis - An SLA setting, so that if a cache operation takes longer than the allowed ms, it will timeout.
+
+    *  immediateTimeout="true|false" - What to do on receipt of a ClusterOffline event indicating that communications
+       with the Terracotta Server Array were interrupted.
+
+    *  timeoutBehavior="noop|exception|localReads" - What to do when a timeout has occurred.
+
+    []
+
+    See the {{{non_stop_cache.html}NonStop Chapter}} for more information on the use of nonstop.
+
+
+    Simplest example to indicate clustering:
+        <terracotta/>
+
+    To indicate the cache should not be clustered (or remove the <terracotta> element altogether):
+        <terracotta clustered="false"/>
+
+    To indicate the cache should be clustered using identity mode:
+        <terracotta clustered="true" valueMode="identity"/>
+
+    To indicate the cache should be clustered using "eventual" consistency mode for better performance :
+        <terracotta clustered="true" consistency="eventual"/>
+
+    To indicate the cache should be clustered using synchronous-write locking level:
+        <terracotta clustered="true" synchronousWrites="true"/>
+    -->
+
+
+
+    The <terracotta> sub-element has the following attributes:
+
+    * <<<clustered=true|false>>>
+
+      Indicates whether this cache should be clustered with Terracotta. By
+      default, if the <terracotta> element is included, clustered=true.
+
+    * <<<valueMode=serialization|identity>>>
+
+      Indicates whether this cache should be clustered with
+      serialized copies of the values or using Terracotta identity mode.  By default, values will
+      be cached in serialization mode which is similar to other replicated Ehcache modes.  The identity
+      mode is only available in certain Terracotta deployment scenarios and will maintain actual object
+      identity of the keys and values across the cluster.  In this case, all users of a value retrieved from
+      the cache are using the same clustered value and must provide appropriate locking for any changes
+      made to the value (or objects referred to by the value).
+
+    * <<<coherentReads=true|false>>>
+
+      Indicates whether this cache should have coherent reads with guaranteed consistency across the cluster.
+       By default, this setting is true.  If you set this property to
+      false, reads are allowed to check the local value without locking, possibly seeing stale values.
+
+      This is a performance optimization with weaker concurrency guarantees and should generally be used
+      with caches that contain read-only data or where the application can tolerate reading stale
+      data.
+
+      Note that from Ehcache 2.0, this setting has the same affect as <<<coherent>>>.
+
+    * <<<copyOnRead=true|false>>>
+
+      Indicates whether cache values are deserialized on every read or if the
+      materialized cache value can be re-used between get() calls.
+
+      This setting is useful if a cache is being shared by callers with disparate classloaders or to
+      prevent local drift if keys/values are mutated locally w/o putting back to the cache.
+      i.e. if set to true then each thread has its own copy and cannot affect other threads.
+
+      NOTE: This setting is only relevant for caches with valueMode=serialization
+
+    * <<<coherent=true|false>>>
+
+      Indicates whether this cache should have coherent reads and writes with guaranteed
+      consistency across the cluster.  By default, its value is true.  If this attribute is set to false
+      (or "incoherent" mode), values from the cache are read without locking, possibly yielding stale data.
+      Writes to a cache in incoherent mode are batched and applied without acquiring cluster-wide locks,
+      possibly creating inconsistent values across cluster. Incoherent mode is a performance optimization
+      with weaker concurrency guarantees and should generally be used for bulk-loading caches, for loading
+      a read-only cache, or where the application that can tolerate reading stale data.
+
+      This setting overrides <<<coherentReads>>>, which is deprecated. For backward compatibility any configurations
+      setting a value for <<<coherentReads>>> will apply to <<<coherent>>>.
+
+    * <<<synchronousWrites=true|false>>>
+
+      When set to true, clustered caches use Terracotta SYNCHRONOUS WRITE locks. Asynchronous
+      writes(synchronousWrites="false") maximize performance byallowing clients to proceed without waiting for a
+      "transaction received" acknowledgement from the server. Synchronous writes (synchronousWrites="true")
+      maximizes data safety by requiring that a client receive server acknowledgement of a transaction before
+      that client can proceed. If coherence mode is disabled using configuration (coherent="false") or through
+      the coherence API, only asynchronous writes can occur (synchronousWrites="true" is ignored). By default this
+      value is false (i.e. clustered caches use normal Terracotta WRITE locks).
+
+
+    The simplest way to enable clustering is to add:
+
+---
+        <terracotta/>
+---
+
+    To indicate the cache should not be clustered (or remove the <terracotta> element altogether):
+
+---
+        <terracotta clustered="false"/>
+---
+
+    To indicate the cache should be clustered using identity mode:
+
+---
+        <terracotta clustered="true" valueMode="identity"/>
+---
+
+    Following is an example Terracotta clustered cache named sampleTerracottaCache.
+
+---
+    <cache name="sampleTerracottaCache"
+           maxElementsInMemory="1000"
+           eternal="false"
+           timeToIdleSeconds="3600"
+           timeToLiveSeconds="1800"
+           overflowToDisk="false">
+        <terracotta/>
+    </cache>
+---
+
+*   Further Configuration Topics
+
+
+**  Copy On Read
+
+    The <<<copyOnRead>>> setting is most easily explained by first examining what it does when
+    not enabled and exploring the potential problems that can arise.
+
+    For a cache for which <<<copyOnRead>>> is NOT enabled, the following reference comparsion
+    will always be true (NOTE: assuming no other thread changes the cache mapping between the get()'s)
+
+---
+    Object obj1 = c.get("key").getValue();
+    Object obj2 = c.get("key").getValue();
+
+    if (obj1 == obj2) {
+      System.err.println("Same value objects!");
+    }
+---
+
+    The fact that the same object reference is returned accross multiple get()'s implies that
+    the cache is storing a direct reference to cache value. When <<<copyOnRead>>> is enabled
+    the object references will be fresh and unique upon every get().
+
+    This default behavior (copyOnRead=false) is usually what you want although there are at least
+    two scenarios in which this is problematic: (1) Caches shared between classloaders and
+    (2) Mutable value objects
+
+    Imagine two web applications that both have access to the same Cache instance (this implies that
+    the core ehcache classes are in a common classloader). Imagine further that the classes for value types
+    in the cache are duplicated in the web application (ie. they are not present in the common loader).
+    In this scenario you would get ClassCastExceptions when one web application accessed a value previously
+    read by the other application. One solution to this problem is obviously to move the value types to the
+    common loader, but another is to enable <<<copyOnRead>>> so that thread context loader of the caller
+    will be used to materialize the cache values on each get(). This feature has utility in OSGi environments
+    as well where a common cache service might be shared between bundles
+
+    Another subtle issue concerns mutable value objects in a clustered cache. Consider this simple code
+    which shows a Cache that contains a mutable value type (Foo):
+
+---
+    class Foo {
+      int field;
+    }
+
+    Foo foo = (Foo) c.get("key").getValue();
+    foo.field++;
+
+    // foo instance is never re-put() to the cache
+
+    // ...
+---
+
+    If the Foo instance is never re-put() to the Cache your local cache is no longer consistent with
+    the cluster (it is locally modified only). Enabling <<<copyOnRead>>> eliminates this possibility
+    since the only way to affect cache values is to call mutator methods on the Cache.
+
+    It is worth noting that there is a performance penalty to copyOnRead since values are deserialized
+    on every get().
+
+**  Cache listeners
+
+    Cache listeners listen for changes, including replicated cluster changes, made through the Cache API. Because
+    Terracotta cluster changes happen transparently directly to the <<<MemoryStore>>> a listener will not be invoked
+    when an event occurs out on the cluster. If it occurs locally, then it must have occurred through the Cache API, so
+    a local event will be detected by a local listener.
+
+    A common use of listeners is to trigger a reload of a just invalidated <<<Element>>>. In Terracotta clustering
+    this is avoided as a change in one node is always coherent to the other nodes.
+
+    To send out cache change events across the cluster, you need to set up a local listener on the relevant cache so
+    that these events can be propagated to other nodes. This is done by adding the following
+    <<<cacheEventListenerFactory>>> tag to the cache:
+
+---
+<cacheEventListenerFactory
+    class="net.sf.ehcache.event.TerracottaCacheEventReplicationFactory"/>
+---
+
+**  Reconnect
+
+    A connection between an L1 and L2 is terminated when:
+
+    *  a timeout occurs and the L2 terminates the connection. This is controlled by the tcconfig item <<<li.l2reconnect.timeout.millis>>>.
+
+    *  if the socket closes due to a network disconnect or an L1 crash.
+
+    By default reconnect is turned off and a disconnected L1 will stay disconnected. This is generally not what you want.
+    Set reconnect to true in tcconfig to allow automatic reconnection.
+
+    The tcconfig property <<<l2.l1reconnect.timeout.millis>>> determines how long an L1 will be allowed to attempt to reconnect.
+    By default this is 120 seconds.
+
+    The L2s maintain a UUID of the L1s that were connected and have disconnected in a state table. If the timeout is exceeded
+    the L1 is prevented from reconnecting.
+
+    While reconnection is being attempted cache operations will be controlled by the <<<nonstop>>> configuration, which defaults
+    to true in Ehcache 2.4.1/Terracotta 3.5 and higher. See the {{{non_stop_cache.html}NonStop Chapter}} for more information
+    on the use of nonstop.
+
+    In particular, any locks held on individual cache elements will continue to be held until the lock timeout.
+
+    When a cache reconnects, it maintains it's local data and is considered to have the same UUID. Any locks held by it which have not
+    timed out are still in place.
+
+**  Rejoin
+
+    If an Ehcache instance fails to reconnect with the L2 by <<<l2.l1reconnect.timeout.millis>>>, which defaults to 120 seconds,
+    it is prevented from ever reconnecting.
+
+    From Ehcache 2.4.1/Terracotta 3.5 an Ehcache instance can zero out it's L1 and connect as a brand new L1.
+    This is not the default and must be enabled. Prior to this version and if rejoin is disabled, the only way an Ehcache instance
+    can join a cluster is by restarting the application server the Ehcache instance is in.
+
+
+    The consequences of this are:
+
+    *   the L1 gets a new UUID
+
+    *   any locks held are lost
+
+    *   any local changes are lost
+
+    []
+
+    All of this is transparent to any code interacting with Ehcache in the user application.
+
+*** Configuration
+
+    Rejoin must be configured at a <<<CacheManager>>> level. It thus applies to all Terracotta clustered caches within that CacheManager.
+
+---
+<ehcache name="cache4">
+
+    ...
+
+	<terracottaConfig rejoin="true" url="localhost:9510" />
+</ehcache>
+---

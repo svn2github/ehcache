@@ -42,7 +42,7 @@ Documentation - Table of Contents
 
     * {{{./cache_topologies.html}Cache Topologies}}
 
-    * {{{./terracotta/distributed_caching_with_terracotta.html}Distributed Caching With Terracotta}}
+    * {{{./terracotta/introduction_and_toc.html}Distributed Ehcache (With the Terracotta Server Array)}}
 
     * {{{./replicated_caching_with_rmi.html}Replicated Caching With RMI}}
 

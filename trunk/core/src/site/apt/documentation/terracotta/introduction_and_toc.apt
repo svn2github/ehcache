@@ -1,0 +1,34 @@
+ ------
+ Distributed Ehcache with Terracotta Documentation
+ ------
+
+Distributed Ehcache Documentation
+
+
+    Distributed Ehcache involves one or more Ehcache instances connected to a Terracotta Server Array.
+
+    Distribution with the Terracotta Server Array ("TSA") is the preferred distribution mechanism. It provides coherency, JTA,
+    HA, scale and high performance. It is available as open source or with additional features in the Ehcache EX and FX product
+    editions.
+
+*   Table of Contents
+
+    * {{{./architecture.html}Architecture}}
+
+    * {{{./code_samples.html}Code Samples}}
+
+    * {{{./development_with_maven_and_ant.html}Development with Maven and Ant}}
+
+    * {{{./configuration.html}Configuration}}
+
+    * {{{./cluster_events.html}Cluster Events}}
+
+    * {{{./non_stop_cache.html}NonStop}}
+
+    * {{{./unlocked_reads_view.html}UnlockedReadsView}}
+
+    * {{{./faq.html}FAQ}}
+
+    []
+
+    Further documentation specific to the Terracotta Server Array is available at {{{http://terracotta.org/documentation/product-documentation.html}terracotta.org}} terracotta_community_login.

@@ -4,7 +4,9 @@
 
 Development with Maven and Ant
 
-    With a distributed cache, there is a Terracotta Server Array. At development time, this necessitates running a server locally.
+~~%{toc|fromDepth=2|toDepth=3}
+
+    With a Distributed Ehcache, there is a Terracotta Server Array. At development time, this necessitates running a server locally.
     for integration and/or interactive testing.
 
     There are plugins for Maven and Ant to simplify and automate this process.
