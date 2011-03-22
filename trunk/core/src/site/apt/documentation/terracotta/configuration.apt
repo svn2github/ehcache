@@ -404,47 +404,69 @@ CacheManager manager = new CacheManager(configuration);
 
 **  Reconnect
 
-    A connection between an L1 and L2 is terminated when:
-
-    *  a timeout occurs and the L2 terminates the connection. This is controlled by the tcconfig item <<<li.l2reconnect.timeout.millis>>>.
-
-    *  if the socket closes due to a network disconnect or an L1 crash.
+    In the event a socket closes due to a network error, if reconnect is enabled, the L1 will attempt to reconnect to the L2.
 
     By default reconnect is turned off and a disconnected L1 will stay disconnected. This is generally not what you want.
     Set reconnect to true in tcconfig to allow automatic reconnection.
 
+---
+    l2.l1reconnect.enabled=true
+---
+
     The tcconfig property <<<l2.l1reconnect.timeout.millis>>> determines how long an L1 will be allowed to attempt to reconnect.
-    By default this is 120 seconds.
+    By default this is 2 seconds.
+
 
     The L2s maintain a UUID of the L1s that were connected and have disconnected in a state table. If the timeout is exceeded
-    the L1 is prevented from reconnecting.
+    the L1 is prevented from reconnecting forever.
 
-    While reconnection is being attempted cache operations will be controlled by the <<<nonstop>>> configuration, which defaults
-    to true in Ehcache 2.4.1/Terracotta 3.5 and higher. See the {{{non_stop_cache.html}NonStop Chapter}} for more information
+    While reconnection is being attempted cache operations will be controlled by the <<<nonstop>>> configuration. By default this
+    is not enabled. The default behaviour is therefore for all cache operations to block until reconnect is established.
+
+    NonStop enables cache operations during reconnect.  See the {{{non_stop_cache.html}NonStop Chapter}} for more information
     on the use of nonstop.
-
-    In particular, any locks held on individual cache elements will continue to be held until the lock timeout.
 
     When a cache reconnects, it maintains it's local data and is considered to have the same UUID. Any locks held by it which have not
     timed out are still in place.
 
+    It is recommended that rejoin, which is more comprehensive be used instead of reconnect.
+
+    Reconnect is still appropriate where you have a dirty network with lots of short blips. Reconnect will smooth that out, and provided
+    no blip lasts too long, will give you smooth response times.
+
 **  Rejoin
 
-    If an Ehcache instance fails to reconnect with the L2 by <<<l2.l1reconnect.timeout.millis>>>, which defaults to 120 seconds,
-    it is prevented from ever reconnecting.
+    Rejoin is a comprehensive new capability added to Ehcache 2.4.1/Terracotta 3.5 to deal with disconnections between L1s and L2s.
+    This is not the default and must be enabled. Prior to this version the only way an Ehcache instance
+    can rejoin a cluster is by restarting the application server the Ehcache instance is in. This is still the case unless you enable
+    rejoin.
 
-    From Ehcache 2.4.1/Terracotta 3.5 an Ehcache instance can zero out it's L1 and connect as a brand new L1.
-    This is not the default and must be enabled. Prior to this version and if rejoin is disabled, the only way an Ehcache instance
-    can join a cluster is by restarting the application server the Ehcache instance is in.
+    Regardless of where a connection between an L1 and L2 is terminated due:
 
+    *  a socket close due to a network disconnect
 
-    The consequences of this are:
+    *  health checker evicting an L1 due to lack of responsiveness
+
+    *  reconnect fails because either reconnect was not enabled or the timeout has been exceeded
+
+*** While Disconnected
+
+    Rejoin is used with nontop. While the L1 is up but disconnected cache behaviour is controlled by the nonstop configuration.
+    See the {{{non_stop_cache.html}NonStop Chapter}} for more information. In essence cache operations can be configured not to
+    block based on a CAP tradeoff you determine.
+
+*** After Rejoin
+
+    On rejoin, the old L1 is discarded. A new L1 is created under Ehcache which will initially be empty, but will be connected to the
+    L2 and will pull through from the server cache entries on demand.
+
+    From the point of view of the L2s it is a brand new L1.  The consequences of this are:
 
     *   the L1 gets a new UUID
 
-    *   any locks held are lost
+    *   any locks held are released
 
-    *   any local changes are lost
+    *   any local changes made to the cahce are discarded.
 
     []
 
@@ -453,6 +475,8 @@ CacheManager manager = new CacheManager(configuration);
 *** Configuration
 
     Rejoin must be configured at a <<<CacheManager>>> level. It thus applies to all Terracotta clustered caches within that CacheManager.
+
+    Rejoin can only be used in conjunction with NonStop. The nonstop sub-element must be econfigured.
 
 ---
 <ehcache name="cache4">

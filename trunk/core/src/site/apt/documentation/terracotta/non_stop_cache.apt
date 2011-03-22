@@ -4,7 +4,8 @@
 
 NonStop Operation
 
-    The <<<nonstop>>> mode is a provides resiliency in the event that a cache gets disconnected from an L2.
+    The <<<nonstop>>> mode is provides resiliency in the event that a cache gets disconnected from an L2. It is meant to be used
+    in conjunction with <rejoin>.
 
     Use cases include:
 
@@ -24,20 +25,14 @@ NonStop Operation
    The <terracotta> sub-element has a <nonstop> sub-element to allow configuration of cache behaviour if a distributed
    cache operation cannot be completed within a set time or in the event of a clusterOffline message.
 
-   From Ehcache 2.4 nonstop behaviour, even if the sub-element is missing, is enabled by default. In earlier versions it was
-   disabled by default.
-
    It has the following optional attributes:
 
-   *  enabled="true" - defaults to true.
+   *  enabled="true|false" - defaults to false.
 
-   *  timeoutMillis - Any number for use as the timeout time in milliseconds before timing out for any operation. After the operation times out, behavior as
-                          specified by timeoutBehavior happens. This property is optional and uses a default value if not specified. This should be set to your desired
-                          SLA level. The default value is 10,000 ms (10 seconds).
-
+   *  timeoutMillis -   the number of milliseconds before a cache operation times out. The default value is 30,000 ms (30 seconds).
 
    *  immediateTimeout="true|false" - What to do on receipt of a ClusterOffline event indicating that communications
-      with the Terracotta Server Array were interrupted. The default is true.
+      with the Terracotta Server Array were interrupted. The default is false.
 
    *  timeoutBehavior="exception | noop | localReads" - What to do when a timeout has occurred. The default is exception.
 
@@ -52,8 +47,6 @@ NonStop Operation
     </terracotta>
 </cache>
 ---
-
-
 
 *   How it knows about Terracotta Cluster Events
 
