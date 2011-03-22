@@ -70,15 +70,19 @@
     Historically Ehcache has only permitted sizing of caches by maxElementsInMemory for the the Heap Store
     The OffHeap Store is sized in terms of memory using maxMemoryOffHeap.
 
-    From Ehcache 2.5, we are introducing sizing based on memory use for the MemoryStore (on Heap). The new attribute is
-    maxMemoryOnHeap.
+    From Ehcache 2.5, we are introducing sizing based on memory use for the MemoryStore (on Heap). The new attribute is maxMemoryOnHeap.
 
     For added simplicity you can also specify these attributes at the ehcache level, which then applies them to the whole CacheManager,
     leaving each cache to share in one large pool of memory.
 
     For completeness we also add cache pinning and rules for cache-level configuration to override CacheManager level configuration.
 
-    The Off-heap store retains it's current configuration.
+    The Off-heap store also gets a CacheManager wide maxMemoryOffHeap
+
+     To Do:
+     1. Use maxBytes...
+     2. DiskStore
+     3. Use percentages as well
 
 **  Example Configuration
 
@@ -104,7 +108,7 @@
        </cache>
 
        <cache name="maxElementsCache"
-              maxElementsInMemory="10000"
+              maxElementsInMemory="10000" illegal
               timeToLiveSeconds="100"
        </cache>
 
@@ -146,7 +150,7 @@
     Secondly, if zero memory is left for pool allocated caches, a warning is issued. These run the risk of being starved for memory
     once the specifically configured caches fill up.
 
-    Overallocations can only be detected at configuration time when they are memory based. For that reason if maxElementsInMemory can
+    Overallocations can only be detected at configuration time when they are memory based. For that reason maxElementsInMemory can
     only be used if the CacheManager level maxMemoryOnHeap is not used.
 
 **  Pinning of Caches and Elements in Memory
@@ -158,7 +162,7 @@
 ---
    <cache name="pinnedCache"
       timeToLiveSeconds="100"
-      <pinning maxElementsInMemory=ÓÓ | maxMemoryOnHeap=ÓÓ/>
+      <pinning store=ÓonHeap|inMemory|inCacheÓ />
    </cache>
 ---
 
@@ -177,7 +181,7 @@
 
     Some APIs like OpenJPA and Hibernate require pinning of specific Elements.
 
-    A new method on Element, Element.setPinned(true|false) has been added. When a pinned Element is placed in the cache
+    A new method on Element, Element.setPinned(true|false, onHeap|inMemory|inCache) has been added. When a pinned Element is placed in the cache
     it will not be evicted from the On-Heap store.
 
 *   Cache Warming for Tiered, Distributed Caches
@@ -228,9 +232,9 @@
 
     []
 
-    The TerracottaBootstrapCacheLoaderFactory uses knowledge of what Elements other L1s in the cluster have to predict the likely
+    The TerracottaBootstrapCacheLoader uses knowledge of what Elements other L1s in the cluster have to predict the likely
     hot set for this L1. If this L1 is the first L1 in the cluster, then there is no guidance. The loader will then only load Elements
-    from the L2 if the combined capacity of the memory stores exceeds 50% of the size in memory of the cache.
+    from the L2 if the combined capacity of the memory stores exceeds 50% of the size in memory of the cache in the L2.
 
 *** Configuration
 
@@ -240,7 +244,6 @@
     <bootstrapCacheLoaderFactory class="net.sf.ehcache.store.TerracottaStoreBootstrapCacheLoaderFactory"
                                         properties="bootstrapAsynchronously=true"/>
 ---
-
 
 
 * {copyOnRead and copyOnWrite cache configuration}
