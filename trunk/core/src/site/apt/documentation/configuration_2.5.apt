@@ -65,89 +65,181 @@
 ---
 
 
-
-
 *   Memory Based Cache Sizing
 
+    Historically Ehcache has only permitted sizing of caches by maxElementsInMemory for the the Heap Store
+    The OffHeap Store is sized in terms of memory using maxMemoryOffHeap.
 
-    Fewest rules possible: Occam’s razor.
+    From Ehcache 2.5, we are introducing sizing based on memory use for the MemoryStore (on Heap). The new attribute is
+    maxMemoryOnHeap.
 
+    For added simplicity you can also specify these attributes at the ehcache level, which then applies them to the whole CacheManager,
+    leaving each cache to share in one large pool of memory.
 
+    For completeness we also add cache pinning and rules for cache-level configuration to override CacheManager level configuration.
 
+    The Off-heap store retains it's current configuration.
+
+**  Example Configuration
+
+    An example is shown below. It allocates 1GB on heap and 4GB off heap at the CacheManager level.
+
+    It also demonstrates some finer points which we will conver in the following sections.
 
 ---
-    <ehcache xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-            xsi:noNamespaceSchemaLocation="ehcache.xsd"
-            updateCheck="true" monitoring="autodetect"
-            dynamicConfig="true" maxMemoryOnHeap="1g" maxMemoryOffHeap="4g" >
-     <cache name="sampleReplicatedCache3"
-              maxElementsInMemory="10"
-              maxMemoryOnHeap="52m"
-              maxMemoryOffHeap="52m"
-              eternal="false"
-              timeToIdleSeconds="100"
+    <ehcache maxMemoryOnHeap="1g" maxMemoryOffHeap="4g" >
+
+       <cache name="explicitlyAllocatedCache"
+              maxMemoryOnHeap="50m"
+              maxMemoryOffHeap="200m"
               timeToLiveSeconds="100"
-              overflowToDisk="true">
-           <pinning maxElementsInMemory=”” />
-           <cacheEventListenerFactory
-                   class="net.sf.ehcache.distribution.RMICacheReplicatorFactory"
-                   properties="asynchronousReplicationIntervalMillis=200"/>
        </cache>
+
+       <cache name="automaticallyAllocatedCache1"
+              timeToLiveSeconds="100"
+       </cache>
+
+       <cache name="automaticallyAllocatedCache2"
+              timeToLiveSeconds="100"
+       </cache>
+
+       <cache name="maxElementsCache"
+              maxElementsInMemory="10000"
+              timeToLiveSeconds="100"
+       </cache>
+
+       <cache name="pinnedCache"
+              timeToLiveSeconds="100"
+              <pinning maxElementsInMemory=”” />
+       </cache>
+
+    </ehcache>
 ---
 
-**  CacheManager level versus Cache specific sizing
-
-        Priority/Weighting? Do we leave this to Custom Eviction algorithms?
 
 
-*** CacheManager level sizing
+** CacheManager versus Cache level configuration
 
-    An eviction algorithm across a CacheManager. The starting point is the current evictors. Fairness approach across caches if they have wildly different element sizes.
-       What about different eviction algorithms?
-
-
+    Caches without specific configuration participate in the general pool of memory. An Element from any cache can be evicted
+    which uses an LRU (possibly clock based) algorithm.
 
 *** Cache level sizing
 
-   Only allow maxElementsInMemory OR maxMemoryOnHeap.
-       Only allow maxElementsInMemory OR pinning=true
 
-    maxElementsInMemory="0" or “unbounded”
+   There will be times when the developer knows more about the relative value of each cache such that they should not be treated
+   equally. In this case it is recommended to provide cache specific configuration.
 
+   Cache specific configuration always overrides CacheManager allocations.
+
+   You have a choice of configuring the size of a cache with:
+
+   * maxElementsInMemory. Note however that you cannot mix maxElementsInMemory with CacheManager level configuration.
+
+   * maxMemoryOnHeap.
 
 
 *** Overallocation
 
-        What happens on overallocation? Do we emit warnings on overallocation?
+    One unintended result is overallocation, where specific configurations exceed that available to the CacheManager. As with the Off-Heap
+    store the configuration is checked at startup. If there is an overallocation an InvalidConfigurationException is thrown.
 
-*** Prioritisation
+    Secondly, if zero memory is left for pool allocated caches, a warning is issued. These run the risk of being starved for memory
+    once the specifically configured caches fill up.
 
-        Explicit configuration of a Cache overrides.
-
-
-        Priorities:
-        global takes preference over maxElementsInMemory ?
-        pinning takes preference over global.
-
+    Overallocations can only be detected at configuration time when they are memory based. For that reason if maxElementsInMemory can
+    only be used if the CacheManager level maxMemoryOnHeap is not used.
 
 **  Pinning of Caches and Elements in Memory
 
 *** Pinning of Caches
 
+    Caches may be pinned using the new pinning sub-element:
+
+---
+   <cache name="pinnedCache"
+      timeToLiveSeconds="100"
+      <pinning maxElementsInMemory=”” | maxMemoryOnHeap=””/>
+   </cache>
+---
+
+    Pinning means that the cache Elements are never evicted due to space. They will continue to grow and Elements will not be evicted unless
+    the Element has expired.
+
+    Pinning is to memory. Elements are allowed to be evicted from the OnHeap store and moved to the OffHeap store, but not to the DiskStore
+    or the L2 in distributed Ehcache.
+
+    The recommended use is reference data, where you always want the whole dataset in memory.
+
+    Pinning cannot be used with maxElementsInMemory or maxMemoryOnHeap.
+
 
 *** Pinning of Elements
 
-    Pinning? Needs to be able to be applied to an Element.
+    Some APIs like OpenJPA and Hibernate require pinning of specific Elements.
+
+    A new method on Element, Element.setPinned(true|false) has been added. When a pinned Element is placed in the cache
+    it will not be evicted from the On-Heap store.
+
+*   Cache Warming for Tiered, Distributed Caches
+
+    When a cache starts up, the On-Heap and Off-Heap stores are always empty. Ehcache provides a BootstrapCacheLoader
+    mechanism to overcome this. The BootstrapCacheLoader is run before the cache is set to alive. If synchronous, loading
+    completes before the CacheManager starts, or if asynchronous, the CacheManager starts but loading continues agressively
+    rather than waiting for elements to be requested, which is a lazy loading approach.
+
+    Replicated caches provide a boot strap mechanism which populates them. For example following is the JGroups bootstrap
+    cache loader:
+
+---
+    <bootstrapCacheLoaderFactory class="net.sf.ehcache.distribution.jgroups.JGroupsBootstrapCacheLoaderFactory"
+                                        properties="bootstrapAsynchronously=true"/>
+---
+
+    We have two new bootstrapCacheLoaderFactory implementations: one for standalone caches with DiskStores, and one for
+     Terracotta Distributed caches.
+
+**  DiskStoreBootstrapCacheLoaderFactory
+
+    The DiskStoreBootstrapCacheLoaderFactory loads elements from the DiskStore to the On-Heap Store and the Off-Heap store
+    until either:
+
+    * the memory stores are full
+
+    * the DiskStore has been completely loaded
+
+*** Configuration
+
+    The DiskStoreBootstrapCacheLoaderFactory is configured as follows:
+
+---
+    <bootstrapCacheLoaderFactory class="net.sf.ehcache.store.DiskStoreBootstrapCacheLoaderFactory"
+                                        properties="bootstrapAsynchronously=true"/>
+---
 
 
+**  TerracottaBootstrapCacheLoaderFactory
 
-*   Cache Warming for Tiered Caches
+    The TerracottaBootstrapCacheLoaderFactory loads elements from the Terracotta L2 to the On-Heap Store and the Off-Heap store
+    until either:
 
+    * the memory stores are full
 
+    * the L2 has been completely loaded
 
+    []
 
+    The TerracottaBootstrapCacheLoaderFactory uses knowledge of what Elements other L1s in the cluster have to predict the likely
+    hot set for this L1. If this L1 is the first L1 in the cluster, then there is no guidance. The loader will then only load Elements
+    from the L2 if the combined capacity of the memory stores exceeds 50% of the size in memory of the cache.
 
+*** Configuration
 
+    The TerracottaStoreBootstrapCacheLoaderFactory is configured as follows:
+
+---
+    <bootstrapCacheLoaderFactory class="net.sf.ehcache.store.TerracottaStoreBootstrapCacheLoaderFactory"
+                                        properties="bootstrapAsynchronously=true"/>
+---
 
 
 
