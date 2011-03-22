@@ -418,9 +418,9 @@ Transactions in Ehcache
     []
 
     Under the covers, when an element is involved in a transaction, it is replaced with a new element with a marker that is locked, along
-    with the transaction id. The normal cluster semantics are used.
+    with the transaction ID. The normal cluster semantics are used.
 
-    Because transactions only work with coherent=true caches, the first transaction will be the thread that manages to atomically
+    Because transactions only work with consistency=strong caches, the first transaction will be the thread that manages to atomically
     place a soft lock on the Element. (Up to Terracotta 3.4 this was done with write locks. After that it is done with the CAS based
     putIfAbsent and replace methods).
 
