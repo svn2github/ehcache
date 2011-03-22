@@ -32,7 +32,7 @@
 
         <item name="Storage Options" ref="documentation/storage_options.html"/>
 
-        <item name="Cache Consistency Options" ref="documentation/consistency_options.html"/>
+        <item name="Cache Consistency Options" ref="documentation/terracotta/consistency_options.html"/>
 
         <item name="Cache Eviction Algorithms" ref="documentation/cache_eviction_algorithms.html"/>
 

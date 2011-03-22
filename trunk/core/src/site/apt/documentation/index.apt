@@ -2,7 +2,13 @@
  Documentation - Table of Contents
  ------
 
-Documentation - Table of Contents
+Documentation
+
+~~%{toc|fromDepth=2|toDepth=3}
+
+*   Ehcache Standalone and General Contents
+
+    These contents are for both standalone and distributed Ehcache.
 
     * {{{./preface.html}Preface}}
 
@@ -17,8 +23,6 @@ Documentation - Table of Contents
     * {{{./configuration.html}Configuration}}
 
     * {{{./storage_options.html}Storage Options}}
-
-    * {{{./consistency_options.html}Cache Consistency Options}} _new_
 
     * {{{./cache_eviction_algorithms.html}Cache Eviction Algorithms}}
 
@@ -41,8 +45,6 @@ Documentation - Table of Contents
     * {{{./coldfusion.html}Using ColdFusion with Ehcache}}
 
     * {{{./cache_topologies.html}Cache Topologies}}
-
-    * {{{./terracotta/introduction_and_toc.html}Distributed Ehcache (With the Terracotta Server Array)}}
 
     * {{{./replicated_caching_with_rmi.html}Replicated Caching With RMI}}
 
@@ -100,7 +102,36 @@ Documentation - Table of Contents
 
     * {{{./building.html}Building From Source}}
 
-    * {{{./faq.html}FAQ}}
+    * {{{./faq.html}Ehcache FAQ}}
 
+    []
+
+*  Distributed Ehcache Contents
+
+   These contents are specific to Ehcache run in distributed mode, backed by the Terracotta Server Array.
+
+    * {{{./terracotta/architecture.html}Architecture}}
+
+    * {{{./terracotta/configuration.html}Configuration}}
+
+    * {{{./terracotta/development_with_maven_and_ant.html}Development with Maven and Ant}}
+
+    * {{{./terracotta/code_samples.html}Code Samples}}
+
+    * {{{./terracotta/cluster_events.html}Cluster Events}}
+
+    * {{{./terracotta/consistency_options.html}Cache Consistency Options}} _new_
+
+    * {{{./terracotta/explicitlocking.html}Explicit Locking}}
+
+    * {{{./terracotta/non_stop_cache.html}NonStop}}
+
+    * {{{./terracotta/bulk_loading.html}Bulk Loading}}
+
+    * {{{./terracotta/unlocked_reads_view.html}UnlockedReadsView}}
+
+    * {{{./terracotta/faq.html}Distributed Ehcache FAQ}}
+
+    []
 
     This content is also available in a {{{./EhcacheUserGuide.pdf}Single Page PDF User Guide}}.
