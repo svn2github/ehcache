@@ -433,20 +433,6 @@
                         </goals>
                     </execution>
 
-
-                    <execution>
-                        <id>move_pdf</id>
-                        <phase>site</phase>
-                        <configuration>
-                            <tasks>
-                                <ant target="move_pdf"/>
-                            </tasks>
-                        </configuration>
-                        <goals>
-                            <goal>run</goal>
-                        </goals>
-                    </execution>
-
                     <execution>
                         <id>create-test-tmp-dir</id>
                         <phase>process-test-resources</phase>
