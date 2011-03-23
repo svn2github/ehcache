@@ -42,7 +42,20 @@ Results results = cache.createQuery().includeValues()
 ---
 
     This configuration will scan keys and vales and if they are of supported search types, add them as
-    attributes called "key" and "value" respectively.
+    attributes called "key" and "value" respectively. If you do not want automatic indexing of keys and values
+    you can disable it with:
+
+
+---
+<cache name="cache3" ...>
+    <searchable keys="false" values="false">
+        ...
+    </searchable>
+</cache>
+---
+
+    You might want to do this if you have a mix of types for your keys or values. The automatic indexing will throw
+    an exception if types are mixed.
 
     Lots of times keys or values will not be directly searchable and instead you will need to extract searchable attributes out of them.
     The following example shows this more typical case.  Attribute Extractors are explained in more detail in the following section.
