@@ -451,7 +451,7 @@ CacheManager manager = new CacheManager(configuration);
 
 *** While Disconnected
 
-    Rejoin is used with nontop. While the L1 is up but disconnected cache behaviour is controlled by the nonstop configuration.
+    Rejoin is used with nonstop. While the L1 is up but disconnected cache behaviour is controlled by the nonstop configuration.
     See the {{{non_stop_cache.html}NonStop Chapter}} for more information. In essence cache operations can be configured not to
     block based on a CAP tradeoff you determine.
 
