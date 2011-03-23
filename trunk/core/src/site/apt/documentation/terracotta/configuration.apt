@@ -207,7 +207,7 @@ CacheManager manager = new CacheManager(configuration);
 
     []
 
-    See the {{{non_stop_cache.html}NonStop Chapter}} for more information on the use of nonstop.
+    See the {{{./non_stop_cache.html}NonStop Chapter}} for more information on the use of nonstop.
 
 
     Simplest example to indicate clustering:
@@ -423,7 +423,7 @@ CacheManager manager = new CacheManager(configuration);
     While reconnection is being attempted cache operations will be controlled by the <<<nonstop>>> configuration. By default this
     is not enabled. The default behaviour is therefore for all cache operations to block until reconnect is established.
 
-    NonStop enables cache operations during reconnect.  See the {{{non_stop_cache.html}NonStop Chapter}} for more information
+    NonStop enables cache operations during reconnect.  See the {{{./non_stop_cache.html}NonStop Chapter}} for more information
     on the use of nonstop.
 
     When a cache reconnects, it maintains it's local data and is considered to have the same UUID. Any locks held by it which have not
@@ -452,7 +452,7 @@ CacheManager manager = new CacheManager(configuration);
 *** While Disconnected
 
     Rejoin is used with nonstop. While the L1 is up but disconnected cache behaviour is controlled by the nonstop configuration.
-    See the {{{non_stop_cache.html}NonStop Chapter}} for more information. In essence cache operations can be configured not to
+    See the {{{./non_stop_cache.html}NonStop Chapter}} for more information. In essence cache operations can be configured not to
     block based on a CAP tradeoff you determine.
 
 *** After Rejoin
