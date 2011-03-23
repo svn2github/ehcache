@@ -65,24 +65,31 @@
 ---
 
 
-*   Memory Based Cache Sizing
+*   Memory Based Cache Sizing (Ehcache 2.5 and higher)
 
-    Historically Ehcache has only permitted sizing of caches by maxElementsInMemory for the the Heap Store
-    The OffHeap Store is sized in terms of memory using maxMemoryOffHeap.
+    Historically Ehcache has only permitted sizing of caches by maxElementsInMemory for the the OnHeap Store and maxElementsOnDisk
+    for the DiskStore. The OffHeap Store introduced sizing in terms of memory use.
 
-    From Ehcache 2.5, we are introducing sizing based on memory use for the MemoryStore (on Heap). The new attribute is maxMemoryOnHeap.
+    From Ehcache 2.5, we are extending sizing based on bytes consumed to all stores.
+
+    The new cache attributes are:
+
+    *   maxBytesOnHeap
+
+    *   maxBytesOffHeap (formerly maxMemoryOffHeap)
+
+    *   maxBytesOnDisk
+
+    Size may be expressed in bytes using the convention for specifying -Xmx (e.g. 200k, 30m, 5g etc.)
 
     For added simplicity you can also specify these attributes at the ehcache level, which then applies them to the whole CacheManager,
     leaving each cache to share in one large pool of memory.
 
+    If you specify a CacheManager wide sizes, you can also use percentages at the cache level. e.g maxBytesOnHeap="20%".
+
     For completeness we also add cache pinning and rules for cache-level configuration to override CacheManager level configuration.
 
-    The Off-heap store also gets a CacheManager wide maxMemoryOffHeap
-
-     To Do:
-     1. Use maxBytes...
-     2. DiskStore
-     3. Use percentages as well
+    The Off-heap store also gets a CacheManager wide maxBytesOffHeap
 
 **  Example Configuration
 
@@ -91,11 +98,17 @@
     It also demonstrates some finer points which we will conver in the following sections.
 
 ---
-    <ehcache maxMemoryOnHeap="1g" maxMemoryOffHeap="4g" >
+    <ehcache maxBytesOnHeap="1g" maxBytesOffHeap="4g" >
 
-       <cache name="explicitlyAllocatedCache"
-              maxMemoryOnHeap="50m"
-              maxMemoryOffHeap="200m"
+       <cache name="explicitlyAllocatedCache1"
+              maxBytesOnHeap="50m"
+              maxBytesOffHeap="200m"
+              timeToLiveSeconds="100"
+       </cache>
+
+       <cache name="explicitlyAllocatedCache2"
+              maxBytesOnHeap="10%"
+              maxBytesOffHeap="200m"
               timeToLiveSeconds="100"
        </cache>
 
@@ -107,11 +120,6 @@
               timeToLiveSeconds="100"
        </cache>
 
-       <cache name="maxElementsCache"
-              maxElementsInMemory="10000" illegal
-              timeToLiveSeconds="100"
-       </cache>
-
        <cache name="pinnedCache"
               timeToLiveSeconds="100"
               <pinning maxElementsInMemory=сс />
@@ -120,12 +128,12 @@
     </ehcache>
 ---
 
-
-
 ** CacheManager versus Cache level configuration
 
-    Caches without specific configuration participate in the general pool of memory. An Element from any cache can be evicted
-    which uses an LRU (possibly clock based) algorithm.
+    Caches without specific configuration participate in the general storage pools. And caches with specific configuration take
+    either a fixed amount (e.g. 200m) or a percentage (e.g. 5%).
+
+    When managing storage an Element from any cache can be evicted which uses an LRU (possibly clock based) algorithm.
 
 *** Cache level sizing
 
@@ -139,7 +147,7 @@
 
    * maxElementsInMemory. Note however that you cannot mix maxElementsInMemory with CacheManager level configuration.
 
-   * maxMemoryOnHeap.
+   * maxBytesOnHeap.
 
 
 *** Overallocation
@@ -151,7 +159,7 @@
     once the specifically configured caches fill up.
 
     Overallocations can only be detected at configuration time when they are memory based. For that reason maxElementsInMemory can
-    only be used if the CacheManager level maxMemoryOnHeap is not used.
+    only be used if the CacheManager level maxBytesOnHeap is not used.
 
 **  Pinning of Caches and Elements in Memory
 
@@ -174,7 +182,7 @@
 
     The recommended use is reference data, where you always want the whole dataset in memory.
 
-    Pinning cannot be used with maxElementsInMemory or maxMemoryOnHeap.
+    Pinning cannot be used with maxElementsInMemory or maxBytesOnHeap.
 
 
 *** Pinning of Elements
