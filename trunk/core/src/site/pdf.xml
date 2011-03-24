@@ -40,6 +40,8 @@
 
         <item name="JDBC Caching" ref="documentation/jdbc.html"/>
 
+        <item name="Spring Caching with Ehcache" ref="documentation/spring.html"/>
+
         <item name="Code Samples" ref="documentation/samples.html"/>
 
         <item name="Class loading and Class Loaders" ref="documentation/class_loading.html"/>

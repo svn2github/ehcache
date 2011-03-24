@@ -486,3 +486,7 @@ CacheManager manager = new CacheManager(configuration);
 	<terracottaConfig rejoin="true" url="localhost:9510" />
 </ehcache>
 ---
+
+*   Further Information
+
+    See the {{{http://www.terracotta.org/documentation/distributed-ehcache-reference.html}Ehcache Configuration Chapter}} terracotta_community_login in the Terracotta Docs for more information.

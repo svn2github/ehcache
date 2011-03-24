@@ -30,6 +30,8 @@ Documentation
 
     * {{{./jdbc.html}JDBC Caching}}
 
+    * {{{./spring.html}Spring Caching with Ehcache}} _new_
+
     * {{{./samples.html}Code Samples}}
 
     * {{{./class_loading.html}Class loading and Class Loaders}}
