@@ -2,7 +2,16 @@
 <document>
     <body>
         <release version="2.4.1" date="2011-03-25" description="Bug fixes">
-        </release>
+             <action dev="Chris Dennis" type="fix" issue="EHC-840">
+                Disallow a cache from being configured for overflowToOffHeap and terracottaClustered
+               </action>
+              <action dev="Gary Keim" type="fix" issue="EHC-830">
+                  JMX interface needs to translate InvalidConfigurationException throw by SampledCacheMBean.setCoherent(true) to plain RuntimeException 
+  			  </action>
+              <action dev="Tim Eck" type="fix" issue="EHC-838">
+                   Create improved toString method on ResultImpl
+   			  </action>
+         </release>
         <release version="2.4.0" date="2011-02-15" description="Major release">
             <action dev="Tim Eck" type="add">
                 Search. Caches can now be indexed and searched by key, value or attribute extracted from values.
