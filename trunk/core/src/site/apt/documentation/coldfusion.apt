@@ -39,15 +39,14 @@ Using Ehcache with ColdFusion
 
 *   Switching from a local cache to a distributed cache with ColdFusion 9.0.1
 
-    1. Download the Terracotta kit. For the quickest results, use Terracotta 3.2.1. Download it here:
-    {{http://www.terracotta.org/dl/oss-download-destination?name=terracotta-3.2.1-installer.jar&bucket=tcdistributions&file=terracotta-3.2.1-installer.jar}}
+    1. {{{Download the Terracotta kit}http://www.terracotta.org/dl}}. Click the link to the open-source kit if you are using open source and get <<<terracotta-\<version\>-installer.jar>>>.
 
-    Install the kit with 'java -jar terracotta-3.2.1-installer.jar'. We will refer to the directory you installed it into as TCHOME. Similarly, we will refer to the location of ColdFusion as CFHOME. These instructions assume you are working with a standalone server install of ColdFusion, if working with a EAR/WAR install you will need to modify the steps accordingly (file locations may vary, additional steps may be need to rebuild the EAR/WAR).
+    Install the kit with 'java -jar terracotta-\<version\>-installer.jar'. We will refer to the directory you installed it into as TCHOME. Similarly, we will refer to the location of ColdFusion as CFHOME. These instructions assume you are working with a standalone server install of ColdFusion; if working with a EAR/WAR install you will need to modify the steps accordingly (file locations may vary and additional steps may be needed to rebuild the EAR/WAR).
 
     Before integrating the distributed cache with ColdFusion, you may want to follow the simple self-contained tutorial which uses one of the samples in the kit to demonstrate distributed caching:
     {{http://www.terracotta.org/start/distributed-cache-tutorial}}
 
-    2. Copy TCHOME/ehcache/ehcache-terracotta-2.0.0.jar into CFHOME/lib
+    2. Copy TCHOME/ehcache/lib/ehcache-terracotta-\<version\>.jar into CFHOME/lib
 
     3. Edit the CFHOME/lib/ehcache.xml to add the necessary two lines of config to turn on distributed caching
 
@@ -60,9 +59,9 @@ Using Ehcache with ColdFusion
     </defaultCache>
 ---
 
-    4. Edit jvm.config (typically in CFHOME/runtime/bin) properties to ensure that coldfusion.classPath (set with -Dcoldfusion.classPath= in java.args) DOES NOT include any relative paths (ie ../ ) - ie replace the relative paths with full paths [This is to work around a known issue in ehcache-terracotta-2.0.0.jar].
+    4. Edit jvm.config (typically in CFHOME/runtime/bin) properties to ensure that coldfusion.classPath (set with -Dcoldfusion.classPath= in java.args) DOES NOT include any relative paths (ie ../ ) - ie replace the relative paths with full paths (This is to work around a known issue in ehcache-terracotta-2.0.0.jar).
 
-    5. Start the Terracotta server
+    5. Start the Terracotta server in a *NIX shell or Microsoft Windows:
 
 ---
     $TCHOME/bin/start-tc-server.sh
