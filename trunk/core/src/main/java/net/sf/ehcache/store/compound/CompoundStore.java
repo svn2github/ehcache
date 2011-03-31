@@ -142,15 +142,15 @@ public abstract class CompoundStore extends AbstractStore {
      * {@inheritDoc}
      */
     public boolean putWithWriter(Element element, CacheWriterManager writerManager) {
-        boolean update = !put(element);
+        boolean newPut = put(element);
         if (writerManager != null) {
           try {
             writerManager.put(element);
           } catch (RuntimeException e) {
-            throw new StoreUpdateException(e, update);
+            throw new StoreUpdateException(e, !newPut);
           }
         }
-        return update;
+        return newPut;
     }
 
     /**
