@@ -159,7 +159,7 @@ public class MemoryStore extends AbstractStore implements CacheConfigurationList
      *
      * @param element the element to add
      */
-    public final boolean put(final Element element) throws CacheException {
+    public boolean put(final Element element) throws CacheException {
         return putInternal(element, null);
     }
 
@@ -215,7 +215,7 @@ public class MemoryStore extends AbstractStore implements CacheConfigurationList
      * @param key the key of the Element, usually a String
      * @return the Element if one was found, else null
      */
-    public final Element remove(final Object key) {
+    public Element remove(final Object key) {
         return removeInternal(key, null);
     }
 
