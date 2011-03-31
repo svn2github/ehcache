@@ -29,6 +29,8 @@
            timeToIdleSeconds="360"
            timeToLiveSeconds="1000"
            overflowToDisk="true"
+           overflowToOffHeap="true"
+           maxMemoryOffHeap="4m"
            memoryStoreEvictionPolicy="LRU">
     </cache>
 
@@ -37,6 +39,8 @@
            maxElementsInMemory="1000"
            eternal="true"
            overflowToDisk="false"
+           overflowToOffHeap="true"
+           maxMemoryOffHeap="4m"
            diskPersistent="true"
             />
 
@@ -46,6 +50,9 @@
            eternal="false"
            timeToLiveSeconds="5"
            overflowToDisk="false"
+
+           overflowToOffHeap="true"
+           maxMemoryOffHeap="4m"
             />
 
     <!-- Sample cache named sampleCacheNotEternalButNoIdleOrExpiry -->
@@ -53,6 +60,9 @@
            maxElementsInMemory="1000"
            eternal="false"
            overflowToDisk="false"
+
+           overflowToOffHeap="true"
+           maxMemoryOffHeap="4m"
             />
 
     <!-- A cache with short idle and live expiries, suitable for tests -->
@@ -63,6 +73,9 @@
            timeToLiveSeconds="5"
            overflowToDisk="true"
            diskPersistent="true"
+
+           overflowToOffHeap="true"
+           maxMemoryOffHeap="4m"
             />
 
     <!-- A cache which overflows to disk. The disk store is persistent
@@ -77,6 +90,9 @@
            diskPersistent="true"
            diskExpiryThreadIntervalSeconds="600"
            memoryStoreEvictionPolicy="LRU"
+
+           overflowToOffHeap="true"
+           maxMemoryOffHeap="4m"
             />
 
     <!-- Page Caches  for Web filter tests -->
@@ -85,7 +101,11 @@
            eternal="false"
            timeToIdleSeconds="10000"
            timeToLiveSeconds="10000"
-           overflowToDisk="true">
+           overflowToDisk="true"
+
+           overflowToOffHeap="true"
+           maxMemoryOffHeap="4m"
+            >
     </cache>
 
 
@@ -94,7 +114,11 @@
            eternal="false"
            timeToIdleSeconds="10000"
            timeToLiveSeconds="10000"
-           overflowToDisk="true">
+           overflowToDisk="true"
+
+           overflowToOffHeap="true"
+           maxMemoryOffHeap="4m"
+            >
     </cache>
 
 
@@ -104,14 +128,22 @@
            eternal="false"
            timeToIdleSeconds="10000"
            timeToLiveSeconds="10000"
-           overflowToDisk="true">
+           overflowToDisk="true"
+
+           overflowToOffHeap="true"
+           maxMemoryOffHeap="4m"
+            >
     </cache>
 
     <cache name="CachedPage2Cache"
            maxElementsInMemory="10"
            eternal="false"
            timeToLiveSeconds="3600"
-           overflowToDisk="true">
+           overflowToDisk="true"
+
+           overflowToOffHeap="true"
+           maxMemoryOffHeap="4m"
+            >
     </cache>
 
     <cache name="SimplePageFragmentCachingFilter"
@@ -119,7 +151,11 @@
            eternal="false"
            timeToIdleSeconds="10000"
            timeToLiveSeconds="10000"
-           overflowToDisk="true">
+           overflowToDisk="true"
+
+           overflowToOffHeap="true"
+           maxMemoryOffHeap="4m"
+            >
     </cache>
 
 
@@ -128,7 +164,12 @@
            eternal="false"
            timeToIdleSeconds="10000"
            timeToLiveSeconds="10000"
-           overflowToDisk="true">
+           overflowToDisk="true"
+
+           overflowToOffHeap="true"
+           maxMemoryOffHeap="4m"
+
+            >
     </cache>
 
     <cache name="SimpleCachingHeadersTimeoutPageCachingFilter"
@@ -136,7 +177,12 @@
            eternal="false"
            timeToIdleSeconds="10000"
            timeToLiveSeconds="10000"
-           overflowToDisk="true">
+           overflowToDisk="true"
+
+           overflowToOffHeap="true"
+           maxMemoryOffHeap="4m"
+
+            >
     </cache>
 
     <!-- Asynchronous Caching tests -->
