@@ -100,46 +100,6 @@
                     <target>1.5</target>
                 </configuration>
             </plugin>
-
-            <plugin>
-                <groupId>org.mortbay.jetty</groupId>
-                <artifactId>maven-jetty-plugin</artifactId>
-                <version>6.1.17</version>
-                <configuration>
-                    <contextPath>/</contextPath>
-                    <connectors>
-                        <connector
-                                implementation="org.mortbay.jetty.nio.SelectChannelConnector">
-                            <port>9090</port>
-                            <maxIdleTime>60000</maxIdleTime>
-                        </connector>
-                    </connectors>
-                    <scanIntervalSeconds>10</scanIntervalSeconds>
-                    <stopKey>foo</stopKey>
-                    <stopPort>9999</stopPort>
-                </configuration>
-                <!--<executions>-->
-                <!--<execution>-->
-                <!--<id>start-jetty</id>-->
-                <!--<phase>pre-integration-test</phase>-->
-                <!--<goals>-->
-                <!--<goal>run-war</goal>-->
-                <!--</goals>-->
-                <!--<configuration>-->
-                <!--<scanIntervalSeconds>0</scanIntervalSeconds>-->
-                <!--<daemon>true</daemon>-->
-                <!--</configuration>-->
-                <!--</execution>-->
-                <!--<execution>-->
-                <!--<id>stop-jetty</id>-->
-                <!--<phase>post-integration-test</phase>-->
-                <!--<goals>-->
-                <!--<goal>stop</goal>-->
-                <!--</goals>-->
-                <!--</execution>-->
-                <!--</executions>-->
-            </plugin>
-
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
@@ -249,6 +209,44 @@
             <build>
                 <plugins>
 
+                    <plugin>
+                        <groupId>org.mortbay.jetty</groupId>
+                        <artifactId>maven-jetty-plugin</artifactId>
+                        <version>6.1.17</version>
+                        <configuration>
+                            <contextPath>/</contextPath>
+                            <connectors>
+                                <connector
+                                        implementation="org.mortbay.jetty.nio.SelectChannelConnector">
+                                    <port>9090</port>
+                                    <maxIdleTime>60000</maxIdleTime>
+                                </connector>
+                            </connectors>
+                            <scanIntervalSeconds>10</scanIntervalSeconds>
+                            <stopKey>foo</stopKey>
+                            <stopPort>9999</stopPort>
+                        </configuration>
+                        <!--<executions>-->
+                            <!--<execution>-->
+                                <!--<id>start-jetty</id>-->
+                                <!--<phase>pre-integration-test</phase>-->
+                                <!--<goals>-->
+                                    <!--<goal>run-war</goal>-->
+                                <!--</goals>-->
+                                <!--<configuration>-->
+                                    <!--<scanIntervalSeconds>0</scanIntervalSeconds>-->
+                                    <!--<daemon>true</daemon>-->
+                                <!--</configuration>-->
+                            <!--</execution>-->
+                            <!--<execution>-->
+                                <!--<id>stop-jetty</id>-->
+                                <!--<phase>post-integration-test</phase>-->
+                                <!--<goals>-->
+                                    <!--<goal>stop</goal>-->
+                                <!--</goals>-->
+                            <!--</execution>-->
+                        <!--</executions>-->
+                    </plugin>
 
                     <plugin>
                         <groupId>org.codehaus.cargo</groupId>
