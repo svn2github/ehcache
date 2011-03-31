@@ -141,6 +141,20 @@ CacheManager manager = new CacheManager(configuration);
 
 *   Per Cache Configuration
 
+    From Ehcache 2.5, there are a couple of configuration attributes that only take effect on a Terracotta clustered cache:
+
+    *  <<<localCacheEnabled>>>=<true> | false - whether to store frequently used data, the hotset, in-process
+        in the Ehcache node ("L1"). The default is true, which gives the usually required two tiered L1, L2 architecture.
+        Setting this to false will not use the L1. All requests will go to Terracotta Server Array - the L2.
+
+    *  <<<maxElementsInCache>>> - the number of elements to allow in the cache. The whole cache is always stored
+       in the L2, with a local hotset locally in the L1, which is a local copy. Setting this will constraing the
+       size of the clustered cache. Values can be a number or "unlimited", where the cache will grow to any size.
+       Warning: if you are setting the cache to unlimited ensure you have provided sufficient resources in the
+       Terracotta Server Array. Note: In earlier versions, <<<maxElementsOnDisk>>> was reused to mean <<<maxElementsInCache>>>
+       in Terracotta clustered caches. The default is <unlimited>.
+
+
     Individual caches are not clustered with Terracotta unless enabled to do so using the <terracotta> sub-element.
 
 

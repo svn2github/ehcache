@@ -176,7 +176,7 @@
 
     *   If the sum exceeds the CacheManager allocation, we throw an <<<InvalidConfigurationException>>>.
 
-    *   If the sum equals the CacheManager allocation, we issue a warning, as there will be memory left for caches without overrides
+    *   If the sum equals the CacheManager allocation, we issue a warning, as there will not be memory left for caches without overrides
 
     Overallocations can only be detected at configuration time. For this reason we do not permit the use of max element count
     (e.g. maxElementsInMemory) configuration with CacheManager storage pools.
