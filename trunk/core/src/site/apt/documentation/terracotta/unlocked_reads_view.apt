@@ -4,7 +4,7 @@
 
 {UnlockedReadsView}
 
-    <<<UnlockedReadsView>>> is a {{{./cache_decorators}decorated cache}} which provides an eventually consistent view
+    <<<UnlockedReadsView>>> is a {{{./cache_decorators.html}decorated cache}} which provides an eventually consistent view
     of a strongly consistent cache.
 
     You can have both the view and strongly consistent cache at the same time.  The UnlockedReadsView is placed
