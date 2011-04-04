@@ -520,8 +520,7 @@ public List getStreetTypes(final Country country) throws HibernateException {
     Examinator is our complete application that shows many aspects of caching, all using the
      Terracotta Server Array.
 
-    Check out from {{https://svn.terracotta.org/svn/forge/projects/exam/}} terracotta_community_login
-
+    Check out from {{http://svn.terracotta.org/svn/forge/projects/exam/trunk}} terracotta_community_login
 *   {Performance Tips}
 
 ** Session.load
