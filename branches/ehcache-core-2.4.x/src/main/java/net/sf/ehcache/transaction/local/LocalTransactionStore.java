@@ -59,7 +59,6 @@ public class LocalTransactionStore extends AbstractTransactionStore {
     private final SoftLockFactory softLockFactory;
     private final Ehcache cache;
     private final String cacheName;
-    private final ReadWriteCopyStrategy<Element> copyStrategy;
     private final ElementValueComparator comparator;
 
 
@@ -73,13 +72,12 @@ public class LocalTransactionStore extends AbstractTransactionStore {
      */
     public LocalTransactionStore(TransactionController transactionController, SoftLockFactory softLockFactory, Ehcache cache,
                                  Store store, ReadWriteCopyStrategy<Element> copyStrategy) {
-        super(store);
+        super(store, copyStrategy);
         this.transactionController = transactionController;
         this.softLockFactory = softLockFactory;
         this.cache = cache;
         this.comparator = cache.getCacheConfiguration().getElementValueComparatorConfiguration().getElementComparatorInstance();
         this.cacheName = cache.getName();
-        this.copyStrategy = copyStrategy;
     }
 
     /**
@@ -116,14 +114,6 @@ public class LocalTransactionStore extends AbstractTransactionStore {
         Element element = new Element(key, softLock);
         element.setEternal(true);
         return element;
-    }
-
-    private Element copyElementForWrite(Element element) {
-        return copyStrategy.copyForWrite(element);
-    }
-
-    private Element copyElementForRead(Element element) {
-        return copyStrategy.copyForRead(element);
     }
 
     private boolean cleanupExpiredSoftLock(Element oldElement, SoftLock softLock) {
