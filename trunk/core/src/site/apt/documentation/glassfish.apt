@@ -18,9 +18,9 @@
 
     * Ehcache 2.0 has been tested with Glassfish 3.
 
-*   HowTo
+*   Usage and Troubleshooting 
 
-**  HowTo Get A Sample Application using Ehcache packaged and Deployed to Glassfish
+**  How To Package A Sample Application Using Ehcache and Deploy to Glassfish
 
     Ehcache comes with a sample web application which is used to test the page caching. The page caching is the only area
     that is sensitive to the Application Server. For Hibernate and general caching, it is only dependent on your Java version.
