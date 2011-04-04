@@ -77,7 +77,7 @@ Dog getDog(String name)
 
     * {{{http://code.google.com/p/ehcache-spring-annotations}Ehcache Annotations for Spring project}} 
 
-    * {{{http://code.google.com/p/ehcache-spring-annotations/wiki/UsingCacheAnnotations}}the project getting started page}}.
+    * {{{http://code.google.com/p/ehcache-spring-annotations/wiki/UsingCacheable}the project getting started page}}.
 
     * {{{http://www.jeviathon.com/2010/04/caching-java-methods-with-spring-3.html}this blog}} 
 
