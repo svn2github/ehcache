@@ -21,7 +21,7 @@ Distributed Cache Configuration
 
 **  Via ehcache.xml
 
-    The attributes of <ehcache> are:
+    The attributes of \<ehcache\> are:
 
     * name
 
@@ -120,7 +120,7 @@ CacheManager manager = new CacheManager(configuration);
 ** Specification using embedded tc-config
 
     To embed a Terracotta configuration file within the Ehcache configuration, simply
-    place the usual Terracotta XML config within the <terracottaConfig> element.
+    place the usual Terracotta XML config within the \<terracottaConfig\> element.
 
     In this example we have two Terracotta servers running on <<<server1>>> and <<<server2>>>.
 
@@ -155,54 +155,26 @@ CacheManager manager = new CacheManager(configuration);
        in Terracotta clustered caches. The default is <unlimited>.
 
 
-    Individual caches are not clustered with Terracotta unless enabled to do so using the <terracotta> sub-element.
+    Individual caches are not clustered with Terracotta unless enabled to do so using the \<terracotta\> sub-element.
 
 
-    The <terracotta> sub-element has the following attributes:
+    The \<terracotta\> sub-element has the following attributes:
 
-    * clustered=true|false - indicates whether this cache should be clustered (distributed) with Terracotta. By
-      default, if the <terracotta> element is included, clustered=true.
-
-    * valueMode=serialization|identity - the default is serialization
-
-      Indicates whether cache Elements are distributed with serialized copies or whether a single copy
-      in identity mode is distributed.
-
-      The implications of Identity mode should be clearly understood with reference to the Terracotta
-      documentation before use.
-
-    * copyOnRead=true|false - indicates whether cache values are deserialized on every read or if the
-      materialized cache value can be re-used between get() calls. This setting is useful if a cache
-      is being shared by callers with disparate classloaders or to prevent local drift if keys/values
-      are mutated locally without being put back in the cache.
-
-      The default is false.
-
-      Note: This setting is only relevant for caches with valueMode=serialization
-
-    * consistency=strong|eventual - Indicates whether this cache should have strong consistency or eventual
-      consistency. The default is strong. See the documentation for the meaning of these terms.
-
-    * synchronousWrites=true|false
-
-      Synchronous writes (synchronousWrites="true")  maximize data safety by blocking the client thread until
-      the write has been written to the Terracotta Server Array.
-
-      This option is only available with consistency=strong. The default is false.
-
-    * concurrency - the number of segments that will be used by the map underneath the Terracotta Store.
-      Its optional and has default value of 0, which means will use default values based on the internal
-      Map being used underneath the store.
-
-      This value cannot be changed programmatically once a cache is initialized.
-
-    * storageStrategy=classic|DCV2 - What storage implementation to use. From Ehcache 2.4, the default is DCV2
-      ("Distributed Cache Version 2"). The key functional difference is that DCV2 does not consume local memory
-      for key storage.
+    * clustered - Enables ("true" DEFAULT) or disables ("false") Terracotta clustering of a specific cache. Clustering is enabled if this attribute is not specified in the \<terracotta\> sub-element.
+    * consistency - Enables strong consistency ("strong" DEFAULT) or eventual consistency ("eventual"). When strong, guarantees the consistency of the cache’s data across the cluster at all times at the cost of performance. After any update is completed, no read can return a stale value. When eventual, improves performance while guaranteeing eventual cluster-wide cache consistency. Once set, this consistency mode cannot be changed except by reconfiguring the cache using a configuration file and reloading the file. This setting cannot be changed programmatically.
+    * synchronousWrites - Enables ("true") or disables ("false" DEFAULT) synchronous writes from Terracotta clients (application servers) to Terracotta servers. Asynchronous writes (synchronousWrites="false") maximize performance by allowing clients to proceed without waiting for a "transaction received" acknowledgement from the server. Synchronous writes (synchronousWrites="true") maximize data safety by requiring that a client receive server acknowledgement of a transaction before that client can proceed. If the cache’s consistency mode is eventual (consistency="eventual"), or while it is set to bulk load using the bulk-load API, only asynchronous writes can occur (synchronousWrites="true" is ignored).
+    * storageStrategy - Sets the strategy for storing the cache’s key set. Use "DCV2" (DEFAULT) to store the cache’s key set on the Terracotta server array. DCV2 can be used only with serializable caches (the valueMode attribute must be set to "serialization"), whether using the standard installation or DSO. Use "classic" to store all keys on every Terracotta client. Identity caches (valueMode="identity") must use the classic mode. For more information on using storageStrategy, see Offloading Large Caches.
+    * concurrency - Sets the number of segments for the map backing the underlying server store. The default (when this attribute is not set or set to 0) is 2048 segments with the DCV2 storageStrategy and 128 segments with the classic storageStrategy. With large data sets, increasing the concurrency value reduces lock contention and improves performance. However, increasing the number of segments also increases memory use.
+    * valueMode - Sets the type of cache to serialization (DEFAULT, the standard Ehcache "copy" cache) or identity (Terracotta object identity). Identity mode is not available with the standard (express) installation . Identity mode can be used only with a Terracotta DSO (custom) installation (see Standard Versus DSO Installations).
+      In serialization mode, getting an element from the cache gets a copy of that element. Changes made to that copy do not affect any other copies of the same element or the value in the cache. Putting the element in the cache overwrites the existing value. This type of cache provides high performance with small, read-only data sets. Large data sets with high traffic, or caches with very large elements, can suffer performance degradation because this type of cache serializes clustered objects. This type of cache cannot guarantee a consistent view of object values in read-write data sets if the consistency attribute is disabled. Objects clustered in this mode must be serializable. Note that getKeys() methods return serialized versions of the keys.
+      In identity mode, getting an element from the cache gets a reference to that element. Changes made to the referenced element updates the element on every node on which it exists (or a reference to it exists) as well as updating the value in the cache. Putting the element in the cache does not overwrite the existing value. This mode guarantees data consistency. It can be used only with a custom Terracotta Distributed Cache installation. Objects clustered in this mode must be portable and must be locked when accessed. If you require identity mode, you must use DSO (see Terracotta DSO Installation).
+    * copyOnRead – DEPRECATED. Use the copyOnRead \<cache\> attribute. Enables ("true") or disables ("false" DEFAULT) "copy cache" mode. If disabled, cache values are not deserialized on every read. For example, repeated get() calls return a reference to the same object (references are ==).
+      When enabled, cache values are deserialized (copied) on every read and the materialized values are not re-used between get() calls; each get() call returns a unique reference. When enabled, allows Ehcache to behave as a component of OSGI, allows a cache to be shared by callers with different classloaders, and prevents local drift if keys/values are mutated locally without being put back into the cache. Enabling copyOnRead is relevant only for caches with valueMode set to serialization .
+    * coherentReads – DEPRECATED. This attribute is superseded by the attribute consistency . Disallows ("true" DEFAULT) or allows ("false") "dirty" reads in the cluster. If set to "true", reads must be consistent on any node and returned data is guaranteed to be consistent. If set to false, local unlocked reads are allowed and returned data may be stale. Allowing dirty reads may boost the cluster’s performance by reducing the overhead associated with locking. Read-only applications, applications where stale data is acceptable, and certain read-mostly applications may be suited to allowing dirty reads.
 
     []
 
-    The <terracotta> sub-element also has a <nonstop> sub-element to allow configuration of cache behaviour if a distributed
+    The \<terracotta\> sub-element also has a \<nonstop\> sub-element to allow configuration of cache behaviour if a distributed
     cache operation cannot be completed within a set time or in the event of a clusterOffline message.
 
     From Ehcache 2.4 nonstop behaviour, even if the sub-element is missing, is enabled by default. In earlier versions it was
@@ -224,98 +196,28 @@ CacheManager manager = new CacheManager(configuration);
     See the {{{./non_stop_cache.html}NonStop Chapter}} for more information on the use of nonstop.
 
 
-    Simplest example to indicate clustering:
-        <terracotta/>
-
-    To indicate the cache should not be clustered (or remove the <terracotta> element altogether):
-        <terracotta clustered="false"/>
-
-    To indicate the cache should be clustered using identity mode:
-        <terracotta clustered="true" valueMode="identity"/>
-
-    To indicate the cache should be clustered using "eventual" consistency mode for better performance :
-        <terracotta clustered="true" consistency="eventual"/>
-
-    To indicate the cache should be clustered using synchronous-write locking level:
-        <terracotta clustered="true" synchronousWrites="true"/>
-    -->
-
-
-
-    The <terracotta> sub-element has the following attributes:
-
-    * <<<clustered=true|false>>>
-
-      Indicates whether this cache should be clustered with Terracotta. By
-      default, if the <terracotta> element is included, clustered=true.
-
-    * <<<valueMode=serialization|identity>>>
-
-      Indicates whether this cache should be clustered with
-      serialized copies of the values or using Terracotta identity mode.  By default, values will
-      be cached in serialization mode which is similar to other replicated Ehcache modes.  The identity
-      mode is only available in certain Terracotta deployment scenarios and will maintain actual object
-      identity of the keys and values across the cluster.  In this case, all users of a value retrieved from
-      the cache are using the same clustered value and must provide appropriate locking for any changes
-      made to the value (or objects referred to by the value).
-
-    * <<<coherentReads=true|false>>>
-
-      Indicates whether this cache should have coherent reads with guaranteed consistency across the cluster.
-       By default, this setting is true.  If you set this property to
-      false, reads are allowed to check the local value without locking, possibly seeing stale values.
-
-      This is a performance optimization with weaker concurrency guarantees and should generally be used
-      with caches that contain read-only data or where the application can tolerate reading stale
-      data.
-
-      Note that from Ehcache 2.0, this setting has the same affect as <<<coherent>>>.
-
-    * <<<copyOnRead=true|false>>>
-
-      Indicates whether cache values are deserialized on every read or if the
-      materialized cache value can be re-used between get() calls.
-
-      This setting is useful if a cache is being shared by callers with disparate classloaders or to
-      prevent local drift if keys/values are mutated locally w/o putting back to the cache.
-      i.e. if set to true then each thread has its own copy and cannot affect other threads.
-
-      NOTE: This setting is only relevant for caches with valueMode=serialization
-
-    * <<<coherent=true|false>>>
-
-      Indicates whether this cache should have coherent reads and writes with guaranteed
-      consistency across the cluster.  By default, its value is true.  If this attribute is set to false
-      (or "incoherent" mode), values from the cache are read without locking, possibly yielding stale data.
-      Writes to a cache in incoherent mode are batched and applied without acquiring cluster-wide locks,
-      possibly creating inconsistent values across cluster. Incoherent mode is a performance optimization
-      with weaker concurrency guarantees and should generally be used for bulk-loading caches, for loading
-      a read-only cache, or where the application that can tolerate reading stale data.
-
-      This setting overrides <<<coherentReads>>>, which is deprecated. For backward compatibility any configurations
-      setting a value for <<<coherentReads>>> will apply to <<<coherent>>>.
-
-    * <<<synchronousWrites=true|false>>>
-
-      When set to true, clustered caches use Terracotta SYNCHRONOUS WRITE locks. Asynchronous
-      writes(synchronousWrites="false") maximize performance byallowing clients to proceed without waiting for a
-      "transaction received" acknowledgement from the server. Synchronous writes (synchronousWrites="true")
-      maximizes data safety by requiring that a client receive server acknowledgement of a transaction before
-      that client can proceed. If coherence mode is disabled using configuration (coherent="false") or through
-      the coherence API, only asynchronous writes can occur (synchronousWrites="true" is ignored). By default this
-      value is false (i.e. clustered caches use normal Terracotta WRITE locks).
-
-
     The simplest way to enable clustering is to add:
 
 ---
         <terracotta/>
 ---
 
-    To indicate the cache should not be clustered (or remove the <terracotta> element altogether):
+    To indicate the cache should not be clustered (or remove the \<terracotta\> element altogether):
 
 ---
         <terracotta clustered="false"/>
+---
+
+    To indicate the cache should be clustered using "eventual" consistency mode for better performance:
+
+---
+        <terracotta clustered="true" consistency="eventual"/>
+---
+
+    To indicate the cache should be clustered using synchronous-write locking level:
+
+---
+        <terracotta clustered="true" synchronousWrites="true"/>
 ---
 
     To indicate the cache should be clustered using identity mode:
