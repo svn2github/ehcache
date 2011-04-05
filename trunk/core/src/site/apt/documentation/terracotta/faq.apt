@@ -171,3 +171,8 @@ Distributed Ehcache FAQ
     Because the TSA itself provides both disk persistence (if required) and scale out, the local DiskStore
     is not available with Terracotta clustered caches. As a result overflowToDisk and diskPersistent are silently
     ignored.
+
+**  Why is JRocket slow?
+
+    JRockit has an has a bug where it reports the younggen size instead of the old to our CacheManager so we over-aggressively
+    flush to L2 when using percentage of max heap based config. Set maxElementsInMemory instead as a workaround.
