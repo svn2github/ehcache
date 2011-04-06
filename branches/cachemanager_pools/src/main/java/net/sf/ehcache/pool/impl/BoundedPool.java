@@ -73,7 +73,7 @@ public class BoundedPool implements Pool {
     public class BoundedPoolAccessor implements PoolAccessor {
         private final PoolableStore store;
         private final SizeOfEngine sizeOfEngine;
-        private volatile long size;
+        private long size;
         private final AtomicBoolean unlinked = new AtomicBoolean();
 
         public BoundedPoolAccessor(PoolableStore store, SizeOfEngine sizeOfEngine, long currentSize) {
@@ -88,24 +88,31 @@ public class BoundedPool implements Pool {
             }
 
             long sizeOf = sizeOfEngine.sizeOf(key, value, container);
-            long newSize = BoundedPool.this.getSize() + sizeOf;
 
-            if (newSize <= maximumPoolSize) {
-                // there is enough room => add & approve
-                size += sizeOf;
-                return sizeOf;
-            } else {
-                // there is not enough room => evict
-                long missingSize = newSize - maximumPoolSize;
-                if (missingSize > maximumPoolSize) {
-                    // this is too big to fit in the pool
-                    return -1;
-                }
-                boolean successful = evictor.freeSpace(getPoolableStores(), missingSize);
-                if (successful) {
+            // synchronized makes the size update MT-safe but slow
+            synchronized (BoundedPool.this) {
+                long newSize = BoundedPool.this.getSize() + sizeOf;
+
+                if (newSize <= maximumPoolSize) {
+                    // there is enough room => add & approve
                     size += sizeOf;
+                    return sizeOf;
+                } else {
+                    // there is not enough room => evict
+                    long missingSize = newSize - maximumPoolSize;
+                    if (missingSize > maximumPoolSize) {
+                        // this is too big to fit in the pool
+                        return -1;
+                    }
+                    boolean successful = evictor.freeSpace(getPoolableStores(), missingSize);
+                    if (!successful) {
+                        // cannot free enough bytes
+                        return -1;
+                    }
+
+                    size += sizeOf;
+                    return sizeOf;
                 }
-                return sizeOf;
             }
         }
 
@@ -115,7 +122,12 @@ public class BoundedPool implements Pool {
             }
 
             long sizeOf = sizeOfEngine.sizeOf(key, value, container);
-            size -= sizeOf;
+
+            // synchronized makes the size update MT-safe but slow
+            synchronized (BoundedPool.this) {
+                size -= sizeOf;
+            }
+
             return sizeOf;
         }
 
@@ -124,26 +136,32 @@ public class BoundedPool implements Pool {
                 throw new IllegalStateException("BoundedPoolAccessor has been unlinked");
             }
 
-            long sizeOf = 0;
-            switch (role) {
-                case CONTAINER:
-                    sizeOf += delete(null, null, current);
-                    sizeOf -= add(null, null, replacement);
-                    break;
-                case KEY:
-                    sizeOf += delete(current, null, null);
-                    sizeOf -= add(replacement, null, null);
-                    break;
-                case VALUE:
-                    sizeOf += delete(null, current, null);
-                    sizeOf -= add(null, replacement, null);
-                    break;
+            // synchronized makes the size update MT-safe but slow
+            synchronized (BoundedPool.this) {
+                long sizeOf = 0;
+                switch (role) {
+                    case CONTAINER:
+                        sizeOf += delete(null, null, current);
+                        sizeOf -= add(null, null, replacement);
+                        break;
+                    case KEY:
+                        sizeOf += delete(current, null, null);
+                        sizeOf -= add(replacement, null, null);
+                        break;
+                    case VALUE:
+                        sizeOf += delete(null, current, null);
+                        sizeOf -= add(null, replacement, null);
+                        break;
+                }
+                return sizeOf;
             }
-            return sizeOf;
         }
 
         public long getSize() {
-            return size;
+            // synchronized makes the size update MT-safe but slow
+            synchronized (BoundedPool.this) {
+                return size;
+            }
         }
 
         public void unlink() {
