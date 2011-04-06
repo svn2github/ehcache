@@ -1,6 +1,11 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <document>
     <body>
+         <release version="2.4.2" date="2011-04" description="Bug fixes">
+             <action dev="Chris Dennis" type="fix" issue="EHC-845">
+                CompoundStore.putWithWriter doesn't follow contract regarding return value
+               </action>
+           </release>
         <release version="2.4.1" date="2011-03-25" description="Bug fixes">
              <action dev="Chris Dennis" type="fix" issue="EHC-840">
                 Disallow a cache from being configured for overflowToOffHeap and terracottaClustered
