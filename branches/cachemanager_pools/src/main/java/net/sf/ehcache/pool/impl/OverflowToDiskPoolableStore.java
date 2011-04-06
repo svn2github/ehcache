@@ -17,7 +17,6 @@ import java.util.List;
 
 /**
  * @author Ludovic Orban
- * todo we should listen to overflow-to-disk and read-back-from-disk events
  */
 public class OverflowToDiskPoolableStore extends OverflowToDiskStore implements PoolableStore {
 
@@ -119,9 +118,7 @@ public class OverflowToDiskPoolableStore extends OverflowToDiskStore implements 
 
 
     public boolean evictFromOnHeap(int count) {
-        // do the eviction
-        List[] lists = super.memoryFactory.evictFromOnHeap(count);
-
+        super.memoryFactory.evictFromOnHeap(count);
         return true;
     }
 

@@ -106,42 +106,8 @@ public class CapacityLimitedInMemoryFactory implements IdentityElementSubstitute
     }
 
 
-    public List[] evictFromOnHeap(int n) {
-        List evictedFromOnHeap = new ArrayList();
-        List faultedToDiskElements = new ArrayList();
-        List faultedToDiskSubstitutes = new ArrayList();
-
-        for (int i = 0; i < n; i++) {
-            Element target = getEvictionTarget(null, SAMPLE_SIZE);
-            if (target == null) {
-                continue;
-            }
-            if (target.isExpired()) {
-                if (boundStore.evict(target.getObjectKey(), target)) {
-                    eventService.notifyElementExpiry(target, false);
-                    evictedFromOnHeap.add(target);
-                }
-            } else if (secondary == null) {
-                if (boundStore.evict(target.getObjectKey(), target)) {
-                    eventService.notifyElementEvicted(target, false);
-                    evictedFromOnHeap.add(target);
-                }
-            } else {
-                try {
-                    ElementSubstitute substitute = secondary.create(target.getObjectKey(), target);
-                    boundStore.tryFault(target.getObjectKey(), target, substitute);
-                    faultedToDiskElements.add(target);
-                    faultedToDiskSubstitutes.add(substitute);
-                } catch (IllegalArgumentException e) {
-                    if (boundStore.evict(target.getObjectKey(), target)) {
-                        eventService.notifyElementEvicted(target, false);
-                        evictedFromOnHeap.add(target);
-                    }
-                }
-            }
-        }
-
-        return new List[] {evictedFromOnHeap, faultedToDiskElements, faultedToDiskSubstitutes};
+    public void evictFromOnHeap(int n) {
+        evict(n, null, SAMPLE_SIZE);
     }
 
     private void evict(int n, Object keyHint, int size) {
