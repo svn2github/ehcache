@@ -1,0 +1,159 @@
+<?xml version="1.0"?>
+
+<!DOCTYPE suppressions PUBLIC
+    "-//Puppy Crawl//DTD Suppressions 1.1//EN" "http://www.puppycrawl.com/dtds/suppressions_1_1.dtd">
+
+<suppressions>
+
+    <!-- Tests -->
+    <suppress checks="usage.OneMethodPrivateField" files="Test.java"/>
+    <suppress checks="usage.UnusedParameter" files="Test.java"/>
+    <suppress checks="usage.UnusedPrivateMethod" files="Test.java"/>
+    <suppress checks="StrictDuplicateCode" files="Test.java"/>
+    <suppress checks="MagicNumberCheck" files="test[/\\]"/>
+    <suppress checks="CyclomaticComplexity" files="Test.java"/>
+    <suppress checks="NPathComplexity" files="Test.java"/>
+    <suppress checks="ClassDataAbstractionCoupling" files="Test.java"/>
+    <suppress checks="ClassFanOutComplexity" files="Test.java"/>
+    <suppress checks="FileLengthCheck" files="Test.java"/>
+    <suppress checks="PackageHtml" files="test[/\\]"/>
+    <suppress checks="" files="Primitive.java"/>
+    <suppress checks="IllegalTypeCheck" files="test[/\\]"/>
+    <suppress checks="HeaderCheck" files="Test.java"/>
+    <suppress checks="JavadocMethodCheck" files="test[/\\]"/>
+    <suppress checks="JavadocTypeCheck" files="test[/\\]"/>
+    <suppress checks="JavadocPackageCheck" files="test[/\\]"/>
+    <suppress checks="JavadocVariableCheck" files="test[/\\]"/>
+    <suppress checks="VisibilityModifierCheck" files="test[/\\]"/>
+    <!--Complex-->
+    <suppress checks="" files="ValidDummyEhcacheConfigAttributesValueFactory.java"/>
+    <suppress checks="NPathComplexity, CyclomaticComplexity" files="XSDAttributeValueType.java"/>
+
+
+
+
+    <!-- Suppress duplicate checking of copyright notice -->
+    <suppress checks="StrictDuplicateCode" files=".java" lines="1-53"/>
+    <!--Have some duplication until we get rid of Old Lru-->
+    <suppress checks="StrictDuplicateCode" files="LruMemoryStore.java" />
+    <suppress checks="StrictDuplicateCode" files="MemoryStore.java" />
+    <suppress checks="StrictDuplicateCode" files="NoOpOnTimeoutStore.java" />
+
+    <!-- These classes are deprecated and may not live forever.
+         I don't want to build a common superclass linking them to the cache access strategies -->
+    <suppress checks="StrictDuplicateCode" files="EhCacheReadOnlyCache.java"/>
+    <suppress checks="StrictDuplicateCode" files="EhCacheReadWriteCache.java"/>
+    <suppress checks="StrictDuplicateCode" files="EhCacheNonstrictReadWriteCache.java"/>
+
+    <suppress checks="StrictDuplicateCode" files="TransactionalEhcacheCollectionRegionAccessStrategy.java"/>
+    <suppress checks="StrictDuplicateCode" files="TransactionalEhcacheEntityRegionAccessStrategy.java"/>
+
+    <!--Tests-->
+    <suppress checks="StrictDuplicateCode" files="NullCountingCacheLoader.java" />
+    <suppress checks="StrictDuplicateCode" files="CountingCacheLoader.java" />
+    <suppress checks="StrictDuplicateCode" files="BaseComponentLoader.java" />
+
+    <!-- super.clone won't work here -->
+    <suppress checks="SuperClone" files="Element.java"/>
+
+    <!-- tree walking is neater with parameter assignment - imho -->
+    <suppress checks="ParameterAssignment" files="RegionSet.java" />
+    <suppress checks="ParameterAssignment" files="AATreeSet.java" />
+
+    <!-- I think the multiple assignments make perfect sense here - imho as well -->
+    <suppress checks="MultipleVariableDeclarations" files="Timestamper.java" />
+
+    <!-- the DynamicMBean interface defines the exception set here -->
+    <suppress checks="ThrowsCount" files="Store.java"/>
+
+    <!-- Candidates for refactoring. Cyclomatic complexity is blown out mostly
+     because of the LOG guards (if (LOG.isDebugEnabled) { ...) which are there for
+     runtime performance.-->
+    <suppress checks="CyclomaticComplexity" files="Cache.java"/>
+    <suppress checks="CyclomaticComplexity" files="CacheManager.java"/>
+    <suppress checks="FileLength" files="CacheManager.java"/>
+    <suppress checks="CyclomaticComplexity" files="DiskStore.java"/>
+    <suppress checks="CyclomaticComplexity" files="RMIBootstrapCacheLoader.java"/>
+    <suppress checks="NPathComplexity" files="RMIBootstrapCacheLoader.java"/>
+    <suppress checks="NPathComplexity" files="Cache.java"/>
+    <suppress checks="NPathComplexity" files="CacheManager.java"/>
+    <suppress checks="ClassDataAbstractionCoupling" files="CacheManager.java"/>
+    <suppress checks="ClassDataAbstractionCoupling" files="DiskStore.java"/>
+    <suppress checks="ClassDataAbstractionCoupling" files="Cache.java"/>
+    <suppress checks="ClassDataAbstractionCoupling" files="XATransactionalStore.java"/>
+    <suppress checks="ClassFanOutComplexity" files="DiskStore.java"/>
+    <suppress checks="FileLength" files="DiskStore.java"/>
+    <suppress checks="FileLength" files="CacheConfiguration.java"/>
+    <suppress checks="ClassFanOutComplexity" files="Cache.java"/>
+    <suppress checks="ClassFanOutComplexity" files="CacheManager.java"/>
+    <suppress checks="ClassDataAbstractionCoupling" files="ElementTest.java"/>
+    <suppress checks="IllegalType" files="Cache.java"/>
+    <suppress checks="ParameterNumber" files="Cache.java"/>
+    <suppress checks="FileLengthCheck" files="Cache.java"/>
+    <suppress checks="ExecutableStatementCount" files="Cache.java"/>
+    <suppress checks="AnonInnerLengthCheck" files="MulticastKeepaliveHeartbeatReceiver.java"/>
+    <suppress checks="CyclomaticComplexity" files="MulticastKeepaliveHeartbeatSender.java"/>
+    <suppress checks="AnonInnerLengthCheck" files="Cache.java"/>
+    <suppress checks="ClassFanOutComplexity" files="ConfigurationHelper.java"/>
+    <suppress checks="ParameterNumber" files="Statistics.java"/>
+    <suppress checks="CyclomaticComplexity" files="ConfigurationGenerator.java"/>
+    <suppress checks="NPathComplexity" files="ConfigurationGenerator.java"/>
+    <suppress checks="CyclomaticComplexity" files="WriteBehindQueue.java"/>
+    <suppress checks="NPathComplexity" files="WriteBehindQueue.java"/>
+    <suppress checks="CyclomaticComplexity" files="CacheWriterConfiguration.java"/>
+    <suppress checks="NPathComplexity" files="CacheWriterConfiguration.java"/>
+    <suppress checks="CyclomaticComplexity" files="FactoryConfiguration.java"/>
+    <suppress checks="NPathComplexity" files="FactoryConfiguration.java"/>
+    <suppress checks="NPathComplexity" files="CacheConfigurationElement.java"/>
+    <suppress checks="NPathComplexity" files="ConfigurationElement.java"/>
+    <suppress checks="FinalClass" files="TerracottaClusteredInstanceHelper.java"/>
+    <suppress checks="NPathComplexity" files="BeanHandler.java"/>
+    <suppress checks="UnusedImports" files="Ehcache.java"/>
+    <!--Bug in checkstyle. This class is ok.-->
+    <suppress checks="DeclarationOrder" files="TimeoutBehaviorConfiguration.java"/>
+    <suppress checks="DeclarationOrder" files="TerracottaClusteredInstanceHelper.java"/>
+    <!--JavaDoc bug-->
+    <suppress checks="JavadocType" files="ReadWriteCopyStrategy.java"/>
+    <suppress checks="StrictDuplicateCode" files="NonstopAwareEntityRegionAccessStrategy.java" />
+    <suppress checks="StrictDuplicateCode" files="NonstopAwareCollectionRegionAccessStrategy.java" />
+
+
+    <!-- We need to return LinkedList -->
+    <suppress checks="IllegalType" files="AsynchronousCommandExecutor.java"/>
+
+    <!-- Candidates for refactoring -->
+    <suppress checks="CyclomaticComplexity" files="AsynchronousCommandExecutor.java"/>
+    <suppress checks="CyclomaticComplexity" files="TerracottaClusteredInstanceHelper.java"/>
+    <suppress checks="CyclomaticComplexity" files="MemorySizeParser.java"/>
+    <suppress checks="NPathComplexity" files="AsynchronousCommandExecutor.java"/>
+    <suppress checks="NPathComplexity" files="TerracottaClusteredInstanceHelper.java"/>
+    <suppress checks="NPathComplexity" files="MemorySizeParser.java"/>
+    <suppress checks="NestedIfDepth" files="Segment.java"/>
+    <suppress checks="CyclomaticComplexity" files="LocalTransactionStore.java"/>
+    <suppress checks="NPathComplexity" files="LocalTransactionStore.java"/>
+    <suppress checks="NestedIfDepth" files="LocalTransactionStore.java"/>
+    <suppress checks="NPathComplexity" files="JavaBeanAttributeExtractor.java"/>
+    <suppress checks="NPathComplexity" files="MemoryOnlyStore.java"/>
+    <suppress checks="CyclomaticComplexity" files="MemoryOnlyStore.java"/>
+    <suppress checks="NPathComplexity" files="AbstractTransactionStore.java"/>
+    <suppress checks="CyclomaticComplexity" files="AbstractTransactionStore.java"/>
+    <suppress checks="NPathComplexity" files="EhcacheXAResourceImpl.java"/>
+    <suppress checks="CyclomaticComplexity" files="EhcacheXAResourceImpl.java"/>
+    <suppress checks="ExecutableStatementCount" files="SampledCacheStatisticsImpl.java"/>
+
+
+    <!-- Contributed code -->
+    <suppress checks="CyclomaticComplexity" files="Mutex.java"/>
+    <suppress checks="" files="ConcurrentLinkedHashMap.java"/>
+    <suppress checks="" files="ConcurrentHashMap.java"/>
+
+    <!-- Contains a thread therefore cannot.  -->
+    <suppress checks="SuperClone" files="RMIBootstrapCacheLoader.java"/>
+    
+    <!--  We keep adding stuff to these constructors. -->
+    <suppress checks="MethodLength" files="Cache.java"/>
+
+    <!--  This file is still in major development so lets just disable everything for the moment -->
+    <!--  It also contains a hash spreading function which checkstyle really hates -->
+    <suppress checks="" files="LocalStore.java"/>
+</suppressions>
