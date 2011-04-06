@@ -9,6 +9,7 @@ import net.sf.ehcache.pool.Role;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -19,14 +20,14 @@ public class BoundedPool implements Pool {
 
     private volatile long maximumPoolSize;
     private volatile PoolEvictor<PoolableStore> evictor;
-    private final List<BoundedOnHeapPoolAccessor> poolAccessors;
+    private final List<BoundedPoolAccessor> poolAccessors;
     private final SizeOfEngine defaultSizeOfEngine;
 
     public BoundedPool(long maximumPoolSize, PoolEvictor<PoolableStore> evictor, SizeOfEngine defaultSizeOfEngine) {
         this.maximumPoolSize = maximumPoolSize;
         this.evictor = evictor;
         this.defaultSizeOfEngine = defaultSizeOfEngine;
-        this.poolAccessors = new CopyOnWriteArrayList<BoundedOnHeapPoolAccessor>();
+        this.poolAccessors = new CopyOnWriteArrayList<BoundedPoolAccessor>();
     }
 
     public long getSize() {
@@ -38,26 +39,37 @@ public class BoundedPool implements Pool {
     }
 
     public PoolAccessor createPoolAccessor(PoolableStore store) {
-        BoundedOnHeapPoolAccessor poolAccessor = new BoundedOnHeapPoolAccessor(store, defaultSizeOfEngine);
+        BoundedPoolAccessor poolAccessor = new BoundedPoolAccessor(store, defaultSizeOfEngine);
         poolAccessors.add(poolAccessor);
         return poolAccessor;
     }
 
+    public void removePoolAccessor(PoolAccessor poolAccessor) {
+        Iterator<BoundedPoolAccessor> iterator = poolAccessors.iterator();
+        while (iterator.hasNext()) {
+            BoundedPoolAccessor next = iterator.next();
+            if (next == poolAccessor) {
+                iterator.remove();
+                return;
+            }
+        }
+    }
+
     public Collection<PoolableStore> getPoolableStores() {
         Collection<PoolableStore> poolableStores = new ArrayList<PoolableStore>();
-        for (BoundedOnHeapPoolAccessor poolAccessor : poolAccessors) {
+        for (BoundedPoolAccessor poolAccessor : poolAccessors) {
             poolableStores.add(poolAccessor.store);
         }
         return poolableStores;
     }
 
 
-    public class BoundedOnHeapPoolAccessor implements PoolAccessor {
+    public class BoundedPoolAccessor implements PoolAccessor {
         private final PoolableStore store;
         private final SizeOfEngine sizeOfEngine;
         private volatile long size;
 
-        public BoundedOnHeapPoolAccessor(PoolableStore store, SizeOfEngine sizeOfEngine) {
+        public BoundedPoolAccessor(PoolableStore store, SizeOfEngine sizeOfEngine) {
             this.store = store;
             this.sizeOfEngine = sizeOfEngine;
             this.size = 0L;
@@ -101,11 +113,11 @@ public class BoundedPool implements Pool {
                     break;
                 case KEY:
                     sizeOf += delete(current, null, null);
-                    add(replacement, null, null);
+                    sizeOf -= add(replacement, null, null);
                     break;
                 case VALUE:
                     sizeOf += delete(null, current, null);
-                    add(null, replacement, null);
+                    sizeOf -= add(null, replacement, null);
                     break;
             }
             return sizeOf;
