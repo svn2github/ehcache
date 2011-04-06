@@ -56,14 +56,25 @@ public class OverflowToDiskPoolableStoreTest {
         System.out.println("on heap: " + keysOfOnHeapElements(overflowToDiskPoolableStore) + ", on disk: " + keysOfOnDiskElements(overflowToDiskPoolableStore));
         System.out.println("on heap size: " + cacheManagerOnHeapPool.getSize() + ", on disk size: " + cacheManagerOnDiskPool.getSize());
 
-        Object onDiskElementKey = keysOfOnDiskElements(overflowToDiskPoolableStore).iterator().next();
-        //overflowToDiskPoolableStore.get(onDiskElementKey);
-        overflowToDiskPoolableStore.remove(onDiskElementKey);
+        Object key = keysOfOnDiskElements(overflowToDiskPoolableStore).iterator().next();
+        System.out.println("get: " + key);
+        overflowToDiskPoolableStore.get(key);
 
         System.out.println("# # # # # #");
         System.out.println(overflowToDiskPoolableStore.getSize() + " elements in cache1");
         System.out.println("on heap: " + keysOfOnHeapElements(overflowToDiskPoolableStore) + ", on disk: " + keysOfOnDiskElements(overflowToDiskPoolableStore));
         System.out.println("on heap size: " + cacheManagerOnHeapPool.getSize() + ", on disk size: " + cacheManagerOnDiskPool.getSize());
+
+/*
+        key = keysOfOnDiskElements(overflowToDiskPoolableStore).iterator().next();
+        System.out.println("remove: " + key);
+        overflowToDiskPoolableStore.remove(key);
+
+        System.out.println("# # # # # #");
+        System.out.println(overflowToDiskPoolableStore.getSize() + " elements in cache1");
+        System.out.println("on heap: " + keysOfOnHeapElements(overflowToDiskPoolableStore) + ", on disk: " + keysOfOnDiskElements(overflowToDiskPoolableStore));
+        System.out.println("on heap size: " + cacheManagerOnHeapPool.getSize() + ", on disk size: " + cacheManagerOnDiskPool.getSize());
+*/
     }
 
     private static Collection<Object> keysOfOnHeapElements(OverflowToDiskPoolableStore store) {

@@ -13,8 +13,6 @@ import net.sf.ehcache.store.compound.factories.CapacityLimitedInMemoryFactory;
 import net.sf.ehcache.store.compound.factories.DiskOverflowStorageFactory;
 import net.sf.ehcache.store.compound.impl.OverflowToDiskStore;
 
-import java.util.List;
-
 /**
  * @author Ludovic Orban
  */
@@ -35,7 +33,6 @@ public class OverflowToDiskPoolableStore extends OverflowToDiskStore implements 
 
         public void onEvict(Object key, Element evicted) {
             evictFromDisk(evicted);
-            System.out.println("onEvict(" + key +"): " + evicted);
         }
 
     }
@@ -94,13 +91,7 @@ public class OverflowToDiskPoolableStore extends OverflowToDiskStore implements 
 
     private void overflowToDisk(Element e) {
         System.out.println("to disk: " + e.getObjectKey());
-        long before = onHeapPoolAccessor.getSize();
-        System.out.println("onheap size before overflow to disk: " + (before));
         onHeapPoolAccessor.replace(Role.VALUE, e.getObjectValue(), null);
-        long after = onHeapPoolAccessor.getSize();
-        System.out.println("onheap size after overflow to disk: " + (after));
-        System.out.println("gain: " + (before-after));
-
         onDiskPoolAccessor.add(e.getObjectKey(), e.getObjectValue(), e);
     }
 

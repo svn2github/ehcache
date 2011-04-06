@@ -443,7 +443,13 @@ public abstract class CompoundStore extends AbstractStore {
      */
     public boolean fault(Object key, Object expect, Object fault) {
         int hash = hash(key.hashCode());
-        return segmentFor(hash).fault(key, hash, expect, fault);
+        boolean success = segmentFor(hash).fault(key, hash, expect, fault);
+        if (success) {
+            for (FaultListener listener : listeners) {
+                listener.onFault(key, expect, fault);
+            }
+        }
+        return success;
     }
 
     /**
