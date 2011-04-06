@@ -91,6 +91,15 @@ public abstract class CompoundStore extends AbstractStore {
                 copyOnRead, copyOnWrite, copyStrategy);
     }
 
+
+    public boolean isElementOnHeap(Object key) {
+        return unretrievedGet(key) instanceof Element;
+    }
+
+    public boolean isElementOnDisk(Object key) {
+        return !isElementOnHeap(key);
+    }
+
     /**
      * Create a CompoundStore using the supplied primary, and designated identity factory.
      *
@@ -238,6 +247,15 @@ public abstract class CompoundStore extends AbstractStore {
 
         int hash = hash(key.hashCode());
         return segmentFor(hash).remove(key, hash, null, null);
+    }
+
+    public Object[] feedbackRemove(Object key) {
+        if (key == null) {
+            return null;
+        }
+
+        int hash = hash(key.hashCode());
+        return segmentFor(hash).feedbackRemove(key, hash, null, null);
     }
 
     /**

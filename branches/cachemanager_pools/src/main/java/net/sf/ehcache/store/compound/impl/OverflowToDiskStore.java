@@ -38,13 +38,13 @@ import net.sf.ehcache.store.compound.factories.DiskOverflowStorageFactory;
  * 
  * @author Chris Dennis
  */
-public final class OverflowToDiskStore extends CompoundStore implements CacheConfigurationListener {
+public class OverflowToDiskStore extends CompoundStore implements CacheConfigurationListener {
 
-    private final CapacityLimitedInMemoryFactory memoryFactory;
-    private final DiskOverflowStorageFactory diskFactory;
-    private final CacheConfiguration config;
+    protected final CapacityLimitedInMemoryFactory memoryFactory;
+    protected final DiskOverflowStorageFactory diskFactory;
+    protected final CacheConfiguration config;
     
-    private OverflowToDiskStore(CapacityLimitedInMemoryFactory memory, DiskOverflowStorageFactory disk, CacheConfiguration config) {
+    protected OverflowToDiskStore(CapacityLimitedInMemoryFactory memory, DiskOverflowStorageFactory disk, CacheConfiguration config) {
         super(memory, config.isCopyOnRead(), config.isCopyOnWrite(), config.getCopyStrategy());
         this.memoryFactory = memory;
         this.diskFactory = disk;
@@ -71,7 +71,7 @@ public final class OverflowToDiskStore extends CompoundStore implements CacheCon
     /**
      * Chooses the Policy from the cache configuration
      */
-    private static final Policy determineEvictionPolicy(CacheConfiguration config) {
+    protected static final Policy determineEvictionPolicy(CacheConfiguration config) {
         MemoryStoreEvictionPolicy policySelection = config.getMemoryStoreEvictionPolicy();
 
         if (policySelection.equals(MemoryStoreEvictionPolicy.LRU)) {

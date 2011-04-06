@@ -203,11 +203,16 @@ class Segment extends ReentrantReadWriteLock {
         return newValue;
     }
 
-    private void free(Object object) {
+    /**
+     * @return true if the element was on disk, false otherwise
+     */
+    private boolean free(Object object) {
         if (object instanceof Element) {
             identityFactory.free(writeLock(), object);
+            return false;
         } else {
             ((ElementSubstitute) object).getFactory().free(writeLock(), (ElementSubstitute) object);
+            return true;
         }
     }
     
@@ -623,6 +628,63 @@ class Segment extends ReentrantReadWriteLock {
                 }
             }
             return oldValue;
+        } finally {
+            writeLock().unlock();
+        }
+    }
+
+    /**
+     * Remove the matching mapping, returning enough data to figure out where the mapping was before it was removed.
+     * <p>
+     * If <code>value</code> is <code>null</code> then match on the key only,
+     * else match on both the key and the value.
+     *
+     *
+     * @param key key to match against
+     * @param hash spread-hash for the key
+     * @param value optional value to match against
+     * @param comparator the comparator to use to compare values
+     * @return Object[] with [0] = removed element, [1] = onDisk substitute
+     */
+    Object[] feedbackRemove(Object key, int hash, Element value, ElementValueComparator comparator) {
+        writeLock().lock();
+        try {
+            HashEntry[] tab = table;
+            int index = hash & (tab.length - 1);
+            HashEntry first = tab[index];
+            HashEntry e = first;
+            while (e != null && (e.hash != hash || !key.equals(e.key))) {
+                e = e.next;
+            }
+
+            Element oldValue = null;
+            Object onDiskSubstitute = null;
+            if (e != null) {
+                if (value == null || comparator.equals(value, decode(e.key, e.getElement()))) {
+                    // All entries following removed node can stay
+                    // in list, but all preceding ones need to be
+                    // cloned.
+                    ++modCount;
+                    HashEntry newFirst = e.next;
+                    for (HashEntry p = first; p != e; p = p.next) {
+                        newFirst = newHashEntry(p.key, p.hash, newFirst, p.getElement());
+                    }
+                    tab[index] = newFirst;
+                    /*
+                     * make sure we re-get from the HashEntry - since the decode in the conditional
+                     * may have faulted in a different type - we must make sure we know what type
+                     * to do the free on.
+                     */
+                    Object v = e.getElement();
+                    oldValue = decode(null, v);
+                    if (free(v)) {
+                      onDiskSubstitute = v;
+                    }
+                    // write-volatile
+                    count = count - 1;
+                }
+            }
+            return new Object[] {oldValue, onDiskSubstitute};
         } finally {
             writeLock().unlock();
         }

@@ -1,26 +1,26 @@
-package net.sf.ehcache.pool.test;
+package net.sf.ehcache.pool.impl;
 
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.config.CacheConfiguration;
-import net.sf.ehcache.pool.impl.BoundedOnHeapPool;
-import net.sf.ehcache.pool.impl.ConstantSizeOfEngine;
-import net.sf.ehcache.pool.impl.MemoryPoolableStore;
-import net.sf.ehcache.pool.impl.RoundRobinOnHeapPoolEvictor;
+import org.junit.Test;
 
 import java.util.List;
+
+import static org.junit.Assert.assertTrue;
 
 /**
  * @author Ludovic Orban
  */
-public class Main {
+public class MemoryPoolableStoreTest {
 
-    public static void main(String[] args) throws Exception {
+    @Test
+    public void test() throws Exception {
         Ehcache myCache1 = new Cache(new CacheConfiguration("myCache1", 0));
         Ehcache myCache2 = new Cache(new CacheConfiguration("myCache2", 0));
 
-        BoundedOnHeapPool cacheManagerPool = new BoundedOnHeapPool(
+        BoundedPool cacheManagerPool = new BoundedPool(
                 16384 * 10, // == 10 elements
                 new RoundRobinOnHeapPoolEvictor(),
                 new ConstantSizeOfEngine(
@@ -41,6 +41,9 @@ public class Main {
         for(int i=0; i<20; i++) {
             memoryPoolableStore2.put(new Element(i, ""+i));
             System.out.println(cacheManagerPool.getSize() + " bytes in cache2, " + memoryPoolableStore1.getSize() + " elements in cache 1, " + memoryPoolableStore2.getSize() + " elements in cache 2");
+
+            assertTrue(memoryPoolableStore1.getSize() + memoryPoolableStore2.getSize() <= 10);
+            assertTrue(cacheManagerPool.getSize() <= 16384 * 10);
         }
 
         System.out.println("# # # # # #");
@@ -57,8 +60,6 @@ public class Main {
             System.out.println(memoryPoolableStore2.get(key));
         }
 
-
-        System.exit(0);
     }
 
 }

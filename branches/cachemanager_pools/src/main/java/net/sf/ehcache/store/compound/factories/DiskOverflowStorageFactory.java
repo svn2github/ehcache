@@ -18,6 +18,7 @@ package net.sf.ehcache.store.compound.factories;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.Lock;
@@ -60,6 +61,18 @@ public class DiskOverflowStorageFactory extends DiskStorageFactory<ElementSubsti
     private volatile CapacityLimitedInMemoryFactory memory;
 
     private volatile int                            capacity;
+
+    private final List<FaultListener> listeners = new ArrayList<FaultListener>();
+
+    public static interface FaultListener {
+        void toDisk(Element e);
+        void toOnHeap(Element e);
+    }
+
+    public void addFaultListener(FaultListener listener) {
+        this.listeners.add(listener);
+    }
+
 
     /**
      * Constructs an overflow factory for the given cache and disk path.
@@ -128,9 +141,16 @@ public class DiskOverflowStorageFactory extends DiskStorageFactory<ElementSubsti
                     evict(Math.min(MAX_EVICT, overflow), key, size);
                 }
             }
+            fireToDiskEvent(element);
             return new OverflowPlaceholder(element);
         } else {
             throw new IllegalArgumentException();
+        }
+    }
+
+    private void fireToDiskEvent(Element element) {
+        for (FaultListener listener : listeners) {
+            listener.toDisk(element);
         }
     }
 
@@ -146,7 +166,11 @@ public class DiskOverflowStorageFactory extends DiskStorageFactory<ElementSubsti
                 DiskMarker marker = (DiskMarker) proxy;
                 Element e = read((DiskMarker) proxy);
                 if (key != null) {
-                    store.tryFault(key, marker, memory.create(key, e));
+                    Element element = memory.create(key, e);
+                    boolean faulted = store.tryFault(key, marker, element);
+                    if (faulted) {
+                        fireToOnHeapEvent(element);
+                    }
                 }
                 return e;
             } catch (IOException e) {
@@ -160,6 +184,12 @@ public class DiskOverflowStorageFactory extends DiskStorageFactory<ElementSubsti
                 store.fault(key, proxy, memory.create(key, e));
             }
             return e;
+        }
+    }
+
+    private void fireToOnHeapEvent(Element element) {
+        for (FaultListener listener : listeners) {
+            listener.toOnHeap(element);
         }
     }
 
@@ -184,15 +214,25 @@ public class DiskOverflowStorageFactory extends DiskStorageFactory<ElementSubsti
         }
     }
 
-    private void evict(int n, Object keyHint, int size) {
+    public List evictFromOnDisk(int count) {
+        return evict(count, null, MAX_EVICT);
+    }
+
+    private List evict(int n, Object keyHint, int size) {
+        List evicted = new ArrayList();
+
         for (int i = 0; i < n; i++) {
             DiskSubstitute target = getEvictionTarget(keyHint, size);
             if (target == null) {
                 continue;
             } else {
+                Element e = store.getQuiet(target.getKey());
                 store.evict(target.getKey(), target);
+                evicted.add(e);
             }
         }
+
+        return evicted;
     }
 
     private DiskSubstitute getEvictionTarget(Object keyHint, int size) {

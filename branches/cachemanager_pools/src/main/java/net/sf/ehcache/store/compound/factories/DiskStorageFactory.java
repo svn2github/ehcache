@@ -54,7 +54,7 @@ import static java.util.concurrent.TimeUnit.MILLISECONDS;
  * @param <T> type of the encoded element substitutes
  * @author Chris Dennis
  */
-abstract class DiskStorageFactory<T extends ElementSubstitute> implements ElementSubstituteFactory<T> {
+public abstract class DiskStorageFactory<T extends ElementSubstitute> implements ElementSubstituteFactory<T> {
 
     /**
      * Path stub used to create unique ehcache directories.
@@ -453,7 +453,7 @@ abstract class DiskStorageFactory<T extends ElementSubstitute> implements Elemen
     /**
      * Abstract superclass for all disk substitutes.
      */
-    abstract static class DiskSubstitute implements ElementSubstitute {
+    public abstract static class DiskSubstitute implements ElementSubstitute {
 
         private transient volatile DiskStorageFactory<? extends ElementSubstitute> factory;
 

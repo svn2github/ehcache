@@ -16,14 +16,14 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * TODO: this pool implementation is not on-heap specific
  * @author Ludovic Orban
  */
-public class BoundedOnHeapPool implements Pool {
+public class BoundedPool implements Pool {
 
     private volatile long maximumPoolSize;
     private volatile PoolEvictor<PoolableStore> evictor;
     private final List<BoundedOnHeapPoolAccessor> poolAccessors;
     private final SizeOfEngine defaultSizeOfEngine;
 
-    public BoundedOnHeapPool(long maximumPoolSize, PoolEvictor<PoolableStore> evictor, SizeOfEngine defaultSizeOfEngine) {
+    public BoundedPool(long maximumPoolSize, PoolEvictor<PoolableStore> evictor, SizeOfEngine defaultSizeOfEngine) {
         this.maximumPoolSize = maximumPoolSize;
         this.evictor = evictor;
         this.defaultSizeOfEngine = defaultSizeOfEngine;
@@ -66,7 +66,7 @@ public class BoundedOnHeapPool implements Pool {
 
         public boolean add(Object key, Object value, Object container) {
             long sizeOf = sizeOfEngine.sizeOf(key, value, container);
-            long newSize = BoundedOnHeapPool.this.getSize() + sizeOf;
+            long newSize = BoundedPool.this.getSize() + sizeOf;
 
             if (newSize <= maximumPoolSize) {
                 // there is enough room => add & approve
@@ -94,15 +94,15 @@ public class BoundedOnHeapPool implements Pool {
         public void replace(Role role, Object current, Object replacement) {
             switch (role) {
                 case CONTAINER:
-                    delete(null, null, replacement);
+                    delete(null, null, current);
                     add(null, null, replacement);
                     break;
                 case KEY:
-                    delete(replacement, null, null);
+                    delete(current, null, null);
                     add(replacement, null, null);
                     break;
                 case VALUE:
-                    delete(null, replacement, null);
+                    delete(null, current, null);
                     add(null, replacement, null);
                     break;
             }
