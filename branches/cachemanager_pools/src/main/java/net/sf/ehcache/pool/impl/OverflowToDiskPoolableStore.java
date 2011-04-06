@@ -108,16 +108,16 @@ public class OverflowToDiskPoolableStore extends OverflowToDiskStore implements 
     }
 
 
-    public boolean evictFromOnHeap(int count) {
-        super.memoryFactory.evictFromOnHeap(count);
+    public boolean evictFromOnHeap(int count, long size) {
+        memoryFactory.evictFromOnHeap(count);
         return true;
     }
 
-    public boolean evictFromOffHeap(int count) {
+    public boolean evictFromOffHeap(int count, long size) {
         return false;
     }
 
-    public boolean evictFromOnDisk(int count) {
+    public boolean evictFromOnDisk(int count, long size) {
         diskFactory.evictFromOnDisk(count);
         return true;
     }

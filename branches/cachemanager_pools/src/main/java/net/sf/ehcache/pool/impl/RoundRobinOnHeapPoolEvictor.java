@@ -15,7 +15,7 @@ public class RoundRobinOnHeapPoolEvictor implements PoolEvictor<PoolableStore> {
         while (true) {
             for (PoolableStore poolableStore : from) {
                 long beforeEvictionSize = poolableStore.getInMemorySizeInBytes();
-                if (!poolableStore.evictFromOnHeap(1)) {
+                if (!poolableStore.evictFromOnHeap(1, bytes)) {
                     return false;
                 }
                 long afterEvictionSize = poolableStore.getInMemorySizeInBytes();

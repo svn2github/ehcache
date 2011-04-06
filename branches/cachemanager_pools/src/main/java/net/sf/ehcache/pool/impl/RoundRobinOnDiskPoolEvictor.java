@@ -15,7 +15,7 @@ public class RoundRobinOnDiskPoolEvictor implements PoolEvictor<PoolableStore> {
         while (true) {
             for (PoolableStore poolableStore : from) {
                 long beforeEvictionSize = poolableStore.getOnDiskSizeInBytes();
-                if (!poolableStore.evictFromOnDisk(1)) {
+                if (!poolableStore.evictFromOnDisk(1, bytes)) {
                     return false;
                 }
                 long afterEvictionSize = poolableStore.getOnDiskSizeInBytes();

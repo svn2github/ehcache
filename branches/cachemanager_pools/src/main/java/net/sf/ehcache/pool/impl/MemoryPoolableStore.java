@@ -42,7 +42,7 @@ public class MemoryPoolableStore extends MemoryStore implements PoolableStore {
         return removedElement;
     }
 
-    public boolean evictFromOnHeap(int count) {
+    public boolean evictFromOnHeap(int count, long size) {
         for (int i = 0; i < count; i++) {
             Element[] elements = sampleElements(map.size());
             Element selected = policy.selectedBasedOnPolicy(elements, null);
@@ -55,11 +55,11 @@ public class MemoryPoolableStore extends MemoryStore implements PoolableStore {
         return true;
     }
 
-    public boolean evictFromOffHeap(int count) {
+    public boolean evictFromOffHeap(int count, long size) {
         return false;
     }
 
-    public boolean evictFromOnDisk(int count) {
+    public boolean evictFromOnDisk(int count, long size) {
         return false;
     }
 

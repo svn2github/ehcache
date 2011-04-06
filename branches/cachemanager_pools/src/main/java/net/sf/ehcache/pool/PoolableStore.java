@@ -7,10 +7,10 @@ import net.sf.ehcache.store.Store;
  */
 public interface PoolableStore extends Store {
 
-    boolean evictFromOnHeap(int count);
+    boolean evictFromOnHeap(int count, long size);
 
-    boolean evictFromOffHeap(int count);
+    boolean evictFromOffHeap(int count, long size);
 
-    boolean evictFromOnDisk(int count);
+    boolean evictFromOnDisk(int count, long size);
 
 }
