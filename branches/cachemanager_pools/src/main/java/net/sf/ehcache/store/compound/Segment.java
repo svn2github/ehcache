@@ -807,7 +807,7 @@ class Segment extends ReentrantReadWriteLock {
      * @param value optional value to match against
      * @return <code>true</code> on a successful remove
      */
-    boolean evict(Object key, int hash, Object value) {
+    Element evict(Object key, int hash, Object value) {
         if (writeLock().tryLock()) {
             try {
                 HashEntry[] tab = table;
@@ -835,19 +835,20 @@ class Segment extends ReentrantReadWriteLock {
                          * to do the free on.
                          */
                         Object v = e.getElement();
+                        Element toReturn = decode(null, v);
                         free(v);
                         // write-volatile
                         count = count - 1;
-                        return true;
+                        return toReturn;
                     }
                 }
                 
-                return false;
+                return null;
             } finally {
                 writeLock().unlock();
             }
         } else {
-            return false;
+            return null;
         }
     }
 

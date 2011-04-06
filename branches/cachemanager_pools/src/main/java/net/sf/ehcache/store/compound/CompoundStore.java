@@ -77,6 +77,18 @@ public abstract class CompoundStore extends AbstractStore {
 
     private volatile Set<Element> elementSet;
 
+    private final List<FaultListener> listeners = new ArrayList<FaultListener>();
+
+    public static interface FaultListener {
+        void onFault(Object key, Object from, Object to);
+
+        void onEvict(Object key, Element evicted);
+    }
+
+    public void addFaultListener(FaultListener faultListener) {
+        listeners.add(faultListener);
+    }
+
     /**
      * Create a CompoundStore using the supplied factory as the primary factory.
      *
@@ -450,7 +462,13 @@ public abstract class CompoundStore extends AbstractStore {
      */
     public boolean tryFault(Object key, Object expect, Object fault) {
         int hash = hash(key.hashCode());
-        return segmentFor(hash).tryFault(key, hash, expect, fault);
+        boolean success = segmentFor(hash).tryFault(key, hash, expect, fault);
+        if (success) {
+            for (FaultListener listener : listeners) {
+                listener.onFault(key, expect, fault);
+            }
+        }
+        return success;
     }
 
     /**
@@ -463,7 +481,13 @@ public abstract class CompoundStore extends AbstractStore {
      */
     public boolean evict(Object key, Object substitute) {
         int hash = hash(key.hashCode());
-        return segmentFor(hash).evict(key, hash, substitute);
+        Element evicted = segmentFor(hash).evict(key, hash, substitute);
+        if (evicted != null) {
+            for (FaultListener listener : listeners) {
+                listener.onEvict(key, evicted);
+            }
+        }
+        return evicted != null;
     }
 
     /**
