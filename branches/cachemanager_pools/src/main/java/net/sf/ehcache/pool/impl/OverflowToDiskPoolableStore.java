@@ -18,6 +18,7 @@ import net.sf.ehcache.store.compound.impl.OverflowToDiskStore;
  */
 public class OverflowToDiskPoolableStore extends OverflowToDiskStore implements PoolableStore {
 
+    private final Cache cache;
     private final PoolAccessor onHeapPoolAccessor;
     private final PoolAccessor onDiskPoolAccessor;
 
@@ -37,8 +38,9 @@ public class OverflowToDiskPoolableStore extends OverflowToDiskStore implements 
 
     }
 
-    private OverflowToDiskPoolableStore(CapacityLimitedInMemoryFactory memory, DiskOverflowStorageFactory disk, CacheConfiguration config, Pool onHeapPool, Pool onDiskPool) {
+    private OverflowToDiskPoolableStore(Cache cache, CapacityLimitedInMemoryFactory memory, DiskOverflowStorageFactory disk, CacheConfiguration config, Pool onHeapPool, Pool onDiskPool) {
         super(memory, disk, config);
+        this.cache = cache;
         this.onHeapPoolAccessor = onHeapPool.createPoolAccessor(this);
         this.onDiskPoolAccessor = onDiskPool.createPoolAccessor(this);
 
@@ -51,18 +53,18 @@ public class OverflowToDiskPoolableStore extends OverflowToDiskStore implements 
         DiskOverflowStorageFactory disk = new DiskOverflowStorageFactory(cache, diskStorePath);
         CapacityLimitedInMemoryFactory memory = new CapacityLimitedInMemoryFactory(disk, config.getMaxElementsInMemory(),
                 determineEvictionPolicy(config), cache.getCacheEventNotificationService());
-        OverflowToDiskPoolableStore store = new OverflowToDiskPoolableStore(memory, disk, config, onHeapPool, onDiskPool);
+        OverflowToDiskPoolableStore store = new OverflowToDiskPoolableStore(cache, memory, disk, config, onHeapPool, onDiskPool);
         cache.getCacheConfiguration().addConfigurationListener(store);
         return store;
     }
 
     @Override
     public boolean put(Element element) throws CacheException {
-        if (onHeapPoolAccessor.add(element.getObjectKey(), element.getObjectValue(), element)) {
+        if (onHeapPoolAccessor.add(element.getObjectKey(), element.getObjectValue(), element) > -1) {
             return super.put(element);
         } else {
             super.remove(element.getObjectKey());
-            // todo: fire eviction event
+            cache.getCacheEventNotificationService().notifyElementEvicted(element, false);
             return true;
         }
     }
@@ -90,19 +92,19 @@ public class OverflowToDiskPoolableStore extends OverflowToDiskStore implements 
     }
 
     private void overflowToDisk(Element e) {
-        System.out.println("to disk: " + e.getObjectKey());
+        //System.out.println("to disk: " + e.getObjectKey());
         onHeapPoolAccessor.replace(Role.VALUE, e.getObjectValue(), null);
         onDiskPoolAccessor.add(e.getObjectKey(), e.getObjectValue(), e);
     }
 
     private void faultFromDisk(Element e) {
-        System.out.println("to heap: " + e.getObjectKey());
+        //System.out.println("to heap: " + e.getObjectKey());
         onHeapPoolAccessor.replace(Role.VALUE, null, e.getObjectValue());
         onDiskPoolAccessor.delete(e.getObjectKey(), e.getObjectValue(), e);
     }
 
     private void evictFromDisk(Element e) {
-        System.out.println("evict: " + e.getObjectKey());
+        //System.out.println("evict: " + e.getObjectKey());
         onHeapPoolAccessor.delete(e.getObjectKey(), null, e);
         onDiskPoolAccessor.delete(e.getObjectKey(), e.getObjectValue(), e);
     }

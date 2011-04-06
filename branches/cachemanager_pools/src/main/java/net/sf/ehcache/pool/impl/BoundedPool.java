@@ -13,7 +13,6 @@ import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
- * TODO: this pool implementation is not on-heap specific
  * @author Ludovic Orban
  */
 public class BoundedPool implements Pool {
@@ -64,48 +63,52 @@ public class BoundedPool implements Pool {
             this.size = 0L;
         }
 
-        public boolean add(Object key, Object value, Object container) {
+        public long add(Object key, Object value, Object container) {
             long sizeOf = sizeOfEngine.sizeOf(key, value, container);
             long newSize = BoundedPool.this.getSize() + sizeOf;
 
             if (newSize <= maximumPoolSize) {
                 // there is enough room => add & approve
                 size += sizeOf;
-                return true;
+                return sizeOf;
             } else {
                 // there is not enough room => evict
                 long missingSize = newSize - maximumPoolSize;
                 if (missingSize > maximumPoolSize) {
                     // this is too big to fit in the pool
-                    return false;
+                    return -1;
                 }
                 boolean successful = evictor.freeSpace(getPoolableStores(), missingSize);
                 if (successful) {
                     size += sizeOf;
                 }
-                return successful;
+                return sizeOf;
             }
         }
 
-        public void delete(Object key, Object value, Object container) {
-            size -= sizeOfEngine.sizeOf(key, value, container);
+        public long delete(Object key, Object value, Object container) {
+            long sizeOf = sizeOfEngine.sizeOf(key, value, container);
+            size -= sizeOf;
+            return sizeOf;
         }
 
-        public void replace(Role role, Object current, Object replacement) {
+        public long replace(Role role, Object current, Object replacement) {
+            long sizeOf = 0;
             switch (role) {
                 case CONTAINER:
-                    delete(null, null, current);
-                    add(null, null, replacement);
+                    sizeOf += delete(null, null, current);
+                    sizeOf -= add(null, null, replacement);
                     break;
                 case KEY:
-                    delete(current, null, null);
+                    sizeOf += delete(current, null, null);
                     add(replacement, null, null);
                     break;
                 case VALUE:
-                    delete(null, current, null);
+                    sizeOf += delete(null, current, null);
                     add(null, replacement, null);
                     break;
             }
+            return sizeOf;
         }
 
         public long getSize() {

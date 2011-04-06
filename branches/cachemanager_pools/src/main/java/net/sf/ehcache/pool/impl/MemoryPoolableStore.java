@@ -22,11 +22,11 @@ public class MemoryPoolableStore extends MemoryStore implements PoolableStore {
 
     @Override
     public boolean put(Element element) throws CacheException {
-        if (poolAccessor.add(element.getObjectKey(), element.getObjectValue(), element)) {
+        if (poolAccessor.add(element.getObjectKey(), element.getObjectValue(), element) > -1) {
             return super.put(element);
         } else {
             super.remove(element.getObjectKey());
-            // TODO: fire an eviction event
+            cache.getCacheEventNotificationService().notifyElementEvicted(element, false);
             return true;
         }
     }
