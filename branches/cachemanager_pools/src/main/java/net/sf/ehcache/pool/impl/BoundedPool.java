@@ -12,6 +12,7 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * @author Ludovic Orban
@@ -39,7 +40,12 @@ public class BoundedPool implements Pool {
     }
 
     public PoolAccessor createPoolAccessor(PoolableStore store) {
-        BoundedPoolAccessor poolAccessor = new BoundedPoolAccessor(store, defaultSizeOfEngine);
+        //todo: calculate the store size if it's not empty
+        if (store.getSize() > 0) {
+            throw new IllegalStateException("cannot create a BoundedPool accessor for a non-empty store (yet)");
+        }
+
+        BoundedPoolAccessor poolAccessor = new BoundedPoolAccessor(store, defaultSizeOfEngine, 0);
         poolAccessors.add(poolAccessor);
         return poolAccessor;
     }
@@ -68,14 +74,19 @@ public class BoundedPool implements Pool {
         private final PoolableStore store;
         private final SizeOfEngine sizeOfEngine;
         private volatile long size;
+        private final AtomicBoolean unlinked = new AtomicBoolean();
 
-        public BoundedPoolAccessor(PoolableStore store, SizeOfEngine sizeOfEngine) {
+        public BoundedPoolAccessor(PoolableStore store, SizeOfEngine sizeOfEngine, long currentSize) {
             this.store = store;
             this.sizeOfEngine = sizeOfEngine;
-            this.size = 0L;
+            this.size = currentSize;
         }
 
         public long add(Object key, Object value, Object container) {
+            if (unlinked.get()) {
+                throw new IllegalStateException("BoundedPoolAccessor has been unlinked");
+            }
+
             long sizeOf = sizeOfEngine.sizeOf(key, value, container);
             long newSize = BoundedPool.this.getSize() + sizeOf;
 
@@ -99,12 +110,20 @@ public class BoundedPool implements Pool {
         }
 
         public long delete(Object key, Object value, Object container) {
+            if (unlinked.get()) {
+                throw new IllegalStateException("BoundedPoolAccessor has been unlinked");
+            }
+
             long sizeOf = sizeOfEngine.sizeOf(key, value, container);
             size -= sizeOf;
             return sizeOf;
         }
 
         public long replace(Role role, Object current, Object replacement) {
+            if (unlinked.get()) {
+                throw new IllegalStateException("BoundedPoolAccessor has been unlinked");
+            }
+
             long sizeOf = 0;
             switch (role) {
                 case CONTAINER:
@@ -125,6 +144,12 @@ public class BoundedPool implements Pool {
 
         public long getSize() {
             return size;
+        }
+
+        public void unlink() {
+            if (unlinked.compareAndSet(false, true)) {
+                removePoolAccessor(this);
+            }
         }
     }
 

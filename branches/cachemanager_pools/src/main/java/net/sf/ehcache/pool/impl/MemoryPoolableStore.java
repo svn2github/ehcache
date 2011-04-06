@@ -13,11 +13,17 @@ import net.sf.ehcache.store.MemoryStore;
  */
 public class MemoryPoolableStore extends MemoryStore implements PoolableStore {
 
-    private final PoolAccessor poolAccessor;
+    private volatile PoolAccessor poolAccessor;
 
     public MemoryPoolableStore(Ehcache cache, Pool pool) {
         super(cache, null);
         this.poolAccessor = pool.createPoolAccessor(this);
+    }
+
+    @Override
+    public void dispose() {
+        super.dispose();
+        this.poolAccessor.unlink();
     }
 
     @Override

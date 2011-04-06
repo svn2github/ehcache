@@ -25,4 +25,9 @@ public interface PoolAccessor {
      */
     long getSize();
 
+    /**
+     * unlink this PoolAccessor from its pool
+     */
+    void unlink();
+
 }

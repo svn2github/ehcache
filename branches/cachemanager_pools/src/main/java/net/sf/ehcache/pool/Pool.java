@@ -15,9 +15,4 @@ public interface Pool {
      */
     PoolAccessor createPoolAccessor(PoolableStore store);
 
-    /**
-     * Stop tracking a PoolAccessor's consumption.
-     */
-    void removePoolAccessor(PoolAccessor poolAccessor);
-
 }

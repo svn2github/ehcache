@@ -298,7 +298,7 @@ public class MemoryStore extends AbstractStore implements CacheConfigurationList
     /**
      * Prepares for shutdown.
      */
-    public final synchronized void dispose() {
+    public synchronized void dispose() {
         if (status.equals(Status.STATUS_SHUTDOWN)) {
             return;
         }

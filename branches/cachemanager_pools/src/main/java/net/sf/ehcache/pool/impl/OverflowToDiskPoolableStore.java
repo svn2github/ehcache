@@ -44,8 +44,7 @@ public class OverflowToDiskPoolableStore extends OverflowToDiskStore implements 
         this.onHeapPoolAccessor = onHeapPool.createPoolAccessor(this);
         this.onDiskPoolAccessor = onDiskPool.createPoolAccessor(this);
 
-        EventListenerAdapter eventListenerAdapter = new EventListenerAdapter();
-        addFaultListener(eventListenerAdapter);
+        addFaultListener(new EventListenerAdapter());
     }
 
     public static OverflowToDiskPoolableStore create(Cache cache, String diskStorePath, Pool onHeapPool, Pool onDiskPool) {
@@ -56,6 +55,13 @@ public class OverflowToDiskPoolableStore extends OverflowToDiskStore implements 
         OverflowToDiskPoolableStore store = new OverflowToDiskPoolableStore(cache, memory, disk, config, onHeapPool, onDiskPool);
         cache.getCacheConfiguration().addConfigurationListener(store);
         return store;
+    }
+
+    @Override
+    public void dispose() {
+        super.dispose();
+        onDiskPoolAccessor.unlink();
+        onHeapPoolAccessor.unlink();
     }
 
     @Override
