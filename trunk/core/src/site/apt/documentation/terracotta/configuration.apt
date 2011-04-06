@@ -147,13 +147,14 @@ CacheManager manager = new CacheManager(configuration);
         in the Ehcache node ("L1"). The default is true, which gives the usually required two tiered L1, L2 architecture.
         Setting this to false will not use the L1. All requests will go to Terracotta Server Array - the L2.
 
+
     *  <<<maxElementsInCache>>> - the number of elements to allow in the cache. The whole cache is always stored
        in the L2, with a local hotset locally in the L1, which is a local copy. Setting this will constraing the
        size of the clustered cache. Values can be a number or "unlimited", where the cache will grow to any size.
        Warning: if you are setting the cache to unlimited ensure you have provided sufficient resources in the
        Terracotta Server Array. Note: In earlier versions, <<<maxElementsOnDisk>>> was reused to mean <<<maxElementsInCache>>>
        in Terracotta clustered caches. The default is <unlimited>.
-
+[]
 
     Individual caches are not clustered with Terracotta unless enabled to do so using the \<terracotta\> sub-element.
 
@@ -161,15 +162,32 @@ CacheManager manager = new CacheManager(configuration);
     The \<terracotta\> sub-element has the following attributes:
 
     * clustered - Enables ("true" DEFAULT) or disables ("false") Terracotta clustering of a specific cache. Clustering is enabled if this attribute is not specified in the \<terracotta\> sub-element.
+
+
     * consistency - Enables strong consistency ("strong" DEFAULT) or eventual consistency ("eventual"). When strong, guarantees the consistency of the cache’s data across the cluster at all times at the cost of performance. After any update is completed, no read can return a stale value. When eventual, improves performance while guaranteeing eventual cluster-wide cache consistency. Once set, this consistency mode cannot be changed except by reconfiguring the cache using a configuration file and reloading the file. This setting cannot be changed programmatically.
+
+
     * synchronousWrites - Enables ("true") or disables ("false" DEFAULT) synchronous writes from Terracotta clients (application servers) to Terracotta servers. Asynchronous writes (synchronousWrites="false") maximize performance by allowing clients to proceed without waiting for a "transaction received" acknowledgement from the server. Synchronous writes (synchronousWrites="true") maximize data safety by requiring that a client receive server acknowledgement of a transaction before that client can proceed. If the cache’s consistency mode is eventual (consistency="eventual"), or while it is set to bulk load using the bulk-load API, only asynchronous writes can occur (synchronousWrites="true" is ignored).
+
+
     * storageStrategy - Sets the strategy for storing the cache’s key set. Use "DCV2" (DEFAULT) to store the cache’s key set on the Terracotta server array. DCV2 can be used only with serializable caches (the valueMode attribute must be set to "serialization"), whether using the standard installation or DSO. Use "classic" to store all keys on every Terracotta client. Identity caches (valueMode="identity") must use the classic mode. For more information on using storageStrategy, see Offloading Large Caches.
+
+
     * concurrency - Sets the number of segments for the map backing the underlying server store. The default (when this attribute is not set or set to 0) is 2048 segments with the DCV2 storageStrategy and 128 segments with the classic storageStrategy. With large data sets, increasing the concurrency value reduces lock contention and improves performance. However, increasing the number of segments also increases memory use.
+
+
     * valueMode - Sets the type of cache to serialization (DEFAULT, the standard Ehcache "copy" cache) or identity (Terracotta object identity). Identity mode is not available with the standard (express) installation . Identity mode can be used only with a Terracotta DSO (custom) installation (see Standard Versus DSO Installations).
+
       In serialization mode, getting an element from the cache gets a copy of that element. Changes made to that copy do not affect any other copies of the same element or the value in the cache. Putting the element in the cache overwrites the existing value. This type of cache provides high performance with small, read-only data sets. Large data sets with high traffic, or caches with very large elements, can suffer performance degradation because this type of cache serializes clustered objects. This type of cache cannot guarantee a consistent view of object values in read-write data sets if the consistency attribute is disabled. Objects clustered in this mode must be serializable. Note that getKeys() methods return serialized versions of the keys.
+
       In identity mode, getting an element from the cache gets a reference to that element. Changes made to the referenced element updates the element on every node on which it exists (or a reference to it exists) as well as updating the value in the cache. Putting the element in the cache does not overwrite the existing value. This mode guarantees data consistency. It can be used only with a custom Terracotta Distributed Cache installation. Objects clustered in this mode must be portable and must be locked when accessed. If you require identity mode, you must use DSO (see Terracotta DSO Installation).
+
+
     * copyOnRead – DEPRECATED. Use the copyOnRead \<cache\> attribute. Enables ("true") or disables ("false" DEFAULT) "copy cache" mode. If disabled, cache values are not deserialized on every read. For example, repeated get() calls return a reference to the same object (references are ==).
+
       When enabled, cache values are deserialized (copied) on every read and the materialized values are not re-used between get() calls; each get() call returns a unique reference. When enabled, allows Ehcache to behave as a component of OSGI, allows a cache to be shared by callers with different classloaders, and prevents local drift if keys/values are mutated locally without being put back into the cache. Enabling copyOnRead is relevant only for caches with valueMode set to serialization .
+
+
     * coherentReads – DEPRECATED. This attribute is superseded by the attribute consistency . Disallows ("true" DEFAULT) or allows ("false") "dirty" reads in the cluster. If set to "true", reads must be consistent on any node and returned data is guaranteed to be consistent. If set to false, local unlocked reads are allowed and returned data may be stale. Allowing dirty reads may boost the cluster’s performance by reducing the overhead associated with locking. Read-only applications, applications where stale data is acceptable, and certain read-mostly applications may be suited to allowing dirty reads.
 
     []
