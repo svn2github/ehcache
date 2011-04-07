@@ -2424,9 +2424,7 @@ public class Cache implements Ehcache, StoreListener {
 
 
     private void checkStatus() throws IllegalStateException {
-        if (!cacheStatus.isAlive()) {
-            throw new IllegalStateException("The " + configuration.getName() + " Cache is not alive.");
-        }
+        cacheStatus.checkAlive(configuration);
     }
 
     private boolean checkStatusAlreadyDisposed() throws IllegalStateException {
@@ -3845,6 +3843,13 @@ public class Cache implements Ehcache, StoreListener {
             clusterRejoinInProgress.set(false);
         }
 
+        public void checkAlive(CacheConfiguration configuration) {
+            final Status readStatus = status;
+            if (readStatus != Status.STATUS_ALIVE) {
+                throw new IllegalStateException("The " + configuration.getName() + " Cache is not alive (" + readStatus + ")");
+            }
+        }
+
         private void clusterRejoinInProgress() {
             clusterRejoinInProgress.set(true);
         }
@@ -3902,6 +3907,7 @@ public class Cache implements Ehcache, StoreListener {
         public boolean isUninitialized() {
             return status == Status.STATUS_UNINITIALISED;
         }
+
     }
 
     /**
