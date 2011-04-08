@@ -36,6 +36,19 @@ public class OverflowToDiskPoolableStore extends OverflowToDiskStore implements 
             evictFromDisk(evicted);
         }
 
+        public void onUpdate(Element oldElement, Element newElement) {
+            onHeapPoolAccessor.delete(oldElement.getObjectKey(), oldElement.getObjectValue(), oldElement);
+        }
+
+        public void onRemove(Object removedObject, Element removedElement) {
+            if (removedObject instanceof Element) {
+                onHeapPoolAccessor.delete(removedElement.getObjectKey(), removedElement.getObjectValue(), removedElement);
+            } else {
+                onHeapPoolAccessor.delete(removedElement.getObjectKey(), null, removedElement);
+                onDiskPoolAccessor.delete(removedElement.getObjectKey(), removedElement.getObjectValue(), removedElement);
+            }
+        }
+
     }
 
     private OverflowToDiskPoolableStore(Cache cache, CapacityLimitedInMemoryFactory memory, DiskOverflowStorageFactory disk, CacheConfiguration config, Pool onHeapPool, Pool onDiskPool) {
@@ -73,28 +86,6 @@ public class OverflowToDiskPoolableStore extends OverflowToDiskStore implements 
             cache.getCacheEventNotificationService().notifyElementEvicted(element, false);
             return true;
         }
-    }
-
-    @Override
-    public Element remove(Object key) {
-        Object[] feedback = super.feedbackRemove(key);
-        Element removedElement = (Element) feedback[0];
-        Object onDiskSubstitute = feedback[1];
-
-        if (removedElement == null) {
-            return null;
-        }
-
-        if (onDiskSubstitute == null) {
-            // was only on-heap
-            onHeapPoolAccessor.delete(removedElement.getObjectKey(), removedElement.getObjectValue(), removedElement);
-        } else {
-            // was on-disk
-            onHeapPoolAccessor.delete(removedElement.getObjectKey(), null, removedElement);
-            onDiskPoolAccessor.delete(removedElement.getObjectKey(), removedElement.getObjectValue(), removedElement);
-        }
-
-        return removedElement;
     }
 
     private void overflowToDisk(Element e) {

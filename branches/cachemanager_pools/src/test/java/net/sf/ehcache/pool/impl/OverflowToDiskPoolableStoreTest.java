@@ -17,68 +17,6 @@ import static org.junit.Assert.assertTrue;
  */
 public class OverflowToDiskPoolableStoreTest {
 
-    @Test
-    public void test() throws Exception {
-        Cache myCache1 = new Cache(new CacheConfiguration("myCache1", 0));
-
-        BoundedPool cacheManagerOnHeapPool = new BoundedPool(
-                16384 * 10, // == 10 elements
-                new RoundRobinOnHeapPoolEvictor(),
-                new ConstantSizeOfEngine(
-                        1536,  /* 1.5 KB*/
-                        14336, /* 14 KB */
-                        512    /* 0.5 KB */
-                )
-        );
-
-        BoundedPool cacheManagerOnDiskPool = new BoundedPool(
-                16384 * 2, // == 2 elements
-                new RoundRobinOnDiskPoolEvictor(),
-                new ConstantSizeOfEngine(
-                        1536,  /* 1.5 KB*/
-                        14336, /* 14 KB */
-                        512    /* 0.5 KB */
-                )
-        );
-
-
-        OverflowToDiskPoolableStore overflowToDiskPoolableStore = OverflowToDiskPoolableStore.create(myCache1, "/tmp", cacheManagerOnHeapPool, cacheManagerOnDiskPool);
-
-        for (int i = 0; i < 20; i++) {
-            Element e = new Element(i, "" + i);
-            System.out.println("********** #"+i);
-            overflowToDiskPoolableStore.put(e);
-            assertTrue("#" + i, countElementsOnHeap(overflowToDiskPoolableStore) <= 10);
-            assertTrue("#" + i, countElementsOnDisk(overflowToDiskPoolableStore) <= 2);
-        }
-
-        System.out.println("# # # # # #");
-        System.out.println(overflowToDiskPoolableStore.getSize() + " elements in cache1");
-        System.out.println("on heap: " + keysOfOnHeapElements(overflowToDiskPoolableStore) + ", on disk: " + keysOfOnDiskElements(overflowToDiskPoolableStore));
-        System.out.println("on heap size: " + cacheManagerOnHeapPool.getSize() + ", on disk size: " + cacheManagerOnDiskPool.getSize());
-
-        assertEquals(9, countElementsOnHeap(overflowToDiskPoolableStore));
-        assertEquals(2, countElementsOnDisk(overflowToDiskPoolableStore));
-
-        Object key = keysOfOnDiskElements(overflowToDiskPoolableStore).iterator().next();
-        System.out.println("get: " + key);
-        overflowToDiskPoolableStore.get(key);
-
-
-        System.out.println("# # # # # #");
-        System.out.println(overflowToDiskPoolableStore.getSize() + " elements in cache1");
-        System.out.println("on heap: " + keysOfOnHeapElements(overflowToDiskPoolableStore) + ", on disk: " + keysOfOnDiskElements(overflowToDiskPoolableStore));
-        System.out.println("on heap size: " + cacheManagerOnHeapPool.getSize() + ", on disk size: " + cacheManagerOnDiskPool.getSize());
-
-        assertEquals(9, countElementsOnHeap(overflowToDiskPoolableStore));
-        assertEquals(1, countElementsOnDisk(overflowToDiskPoolableStore));
-
-
-        overflowToDiskPoolableStore.put(new Element(1000, "1000"));
-
-        assertEquals(9, countElementsOnHeap(overflowToDiskPoolableStore));
-        assertEquals(2, countElementsOnDisk(overflowToDiskPoolableStore));
-    }
 
     private static Collection<Object> keysOfOnHeapElements(OverflowToDiskPoolableStore store) {
         List<Object> result = new ArrayList<Object>();
@@ -128,6 +66,150 @@ public class OverflowToDiskPoolableStoreTest {
             }
         }
         return countOnDisk;
+    }
+
+
+    @Test
+    public void test() throws Exception {
+        Cache myCache1 = new Cache(new CacheConfiguration("myCache1", 0));
+
+        BoundedPool cacheManagerOnHeapPool = new BoundedPool(
+                16384 * 10, // == 10 elements
+                new RoundRobinOnHeapPoolEvictor(),
+                new ConstantSizeOfEngine(
+                        1536,  /* 1.5 KB*/
+                        14336, /* 14 KB */
+                        512    /* 0.5 KB */
+                )
+        );
+
+        BoundedPool cacheManagerOnDiskPool = new BoundedPool(
+                16384 * 2, // == 2 elements
+                new RoundRobinOnDiskPoolEvictor(),
+                new ConstantSizeOfEngine(
+                        1536,  /* 1.5 KB*/
+                        14336, /* 14 KB */
+                        512    /* 0.5 KB */
+                )
+        );
+
+
+        OverflowToDiskPoolableStore overflowToDiskPoolableStore = OverflowToDiskPoolableStore.create(myCache1, "/tmp", cacheManagerOnHeapPool, cacheManagerOnDiskPool);
+
+        for (int i = 0; i < 20; i++) {
+            Element e = new Element(i, "" + i);
+            System.out.println("********** #" + i);
+            overflowToDiskPoolableStore.put(e);
+            assertTrue("#" + i, countElementsOnHeap(overflowToDiskPoolableStore) <= 10);
+            assertTrue("#" + i, countElementsOnDisk(overflowToDiskPoolableStore) <= 2);
+        }
+
+        System.out.println("# # # # # #");
+        System.out.println(overflowToDiskPoolableStore.getSize() + " elements in cache1");
+        System.out.println("on heap: " + keysOfOnHeapElements(overflowToDiskPoolableStore) + ", on disk: " + keysOfOnDiskElements(overflowToDiskPoolableStore));
+        System.out.println("on heap size: " + cacheManagerOnHeapPool.getSize() + ", on disk size: " + cacheManagerOnDiskPool.getSize());
+
+        assertEquals(9, countElementsOnHeap(overflowToDiskPoolableStore));
+        assertEquals(2, countElementsOnDisk(overflowToDiskPoolableStore));
+
+        Object key = keysOfOnDiskElements(overflowToDiskPoolableStore).iterator().next();
+        System.out.println("get: " + key);
+        overflowToDiskPoolableStore.get(key);
+
+
+        System.out.println("# # # # # #");
+        System.out.println(overflowToDiskPoolableStore.getSize() + " elements in cache1");
+        System.out.println("on heap: " + keysOfOnHeapElements(overflowToDiskPoolableStore) + ", on disk: " + keysOfOnDiskElements(overflowToDiskPoolableStore));
+        System.out.println("on heap size: " + cacheManagerOnHeapPool.getSize() + ", on disk size: " + cacheManagerOnDiskPool.getSize());
+
+        assertEquals(9, countElementsOnHeap(overflowToDiskPoolableStore));
+        assertEquals(1, countElementsOnDisk(overflowToDiskPoolableStore));
+
+
+        overflowToDiskPoolableStore.put(new Element(1000, "1000"));
+
+        assertEquals(9, countElementsOnHeap(overflowToDiskPoolableStore));
+        assertEquals(2, countElementsOnDisk(overflowToDiskPoolableStore));
+    }
+
+    @Test
+    public void testUpdate() throws Exception {
+        Cache myCache1 = new Cache(new CacheConfiguration("myCache1", 0));
+
+        BoundedPool cacheManagerOnHeapPool = new BoundedPool(
+                16384 * 10, // == 10 elements
+                new RoundRobinOnHeapPoolEvictor(),
+                new ConstantSizeOfEngine(
+                        1536,  /* 1.5 KB*/
+                        14336, /* 14 KB */
+                        512    /* 0.5 KB */
+                )
+        );
+
+        BoundedPool cacheManagerOnDiskPool = new BoundedPool(
+                16384 * 0, // == 0 element
+                new RoundRobinOnDiskPoolEvictor(),
+                new ConstantSizeOfEngine(
+                        1536,  /* 1.5 KB*/
+                        14336, /* 14 KB */
+                        512    /* 0.5 KB */
+                )
+        );
+
+
+        OverflowToDiskPoolableStore overflowToDiskPoolableStore = OverflowToDiskPoolableStore.create(myCache1, "/tmp", cacheManagerOnHeapPool, cacheManagerOnDiskPool);
+
+        overflowToDiskPoolableStore.put(new Element(1, "1"));
+        assertEquals(16384, cacheManagerOnHeapPool.getSize());
+
+        overflowToDiskPoolableStore.put(new Element(1, "1"));
+        assertEquals(16384, cacheManagerOnHeapPool.getSize());
+    }
+
+    @Test
+    public void testRemove() throws Exception {
+        Cache myCache1 = new Cache(new CacheConfiguration("myCache1", 0));
+
+        BoundedPool cacheManagerOnHeapPool = new BoundedPool(
+                16384 * 2, // == 2 elements
+                new RoundRobinOnHeapPoolEvictor(),
+                new ConstantSizeOfEngine(
+                        1536,  /* 1.5 KB*/
+                        14336, /* 14 KB */
+                        512    /* 0.5 KB */
+                )
+        );
+
+        BoundedPool cacheManagerOnDiskPool = new BoundedPool(
+                16384 * 2, // == 2 elements
+                new RoundRobinOnDiskPoolEvictor(),
+                new ConstantSizeOfEngine(
+                        1536,  /* 1.5 KB*/
+                        14336, /* 14 KB */
+                        512    /* 0.5 KB */
+                )
+        );
+
+
+        OverflowToDiskPoolableStore overflowToDiskPoolableStore = OverflowToDiskPoolableStore.create(myCache1, "/tmp", cacheManagerOnHeapPool, cacheManagerOnDiskPool);
+
+        overflowToDiskPoolableStore.put(new Element(1, "1"));
+        overflowToDiskPoolableStore.put(new Element(2, "2"));
+        overflowToDiskPoolableStore.put(new Element(3, "3"));
+
+        System.out.println("# # # # # #");
+        System.out.println(overflowToDiskPoolableStore.getSize() + " elements in cache1");
+        System.out.println("on heap: " + keysOfOnHeapElements(overflowToDiskPoolableStore) + ", on disk: " + keysOfOnDiskElements(overflowToDiskPoolableStore));
+        System.out.println("on heap size: " + cacheManagerOnHeapPool.getSize() + ", on disk size: " + cacheManagerOnDiskPool.getSize());
+
+        Object key = keysOfOnDiskElements(overflowToDiskPoolableStore).iterator().next();
+        System.out.println("removing " + key);
+        overflowToDiskPoolableStore.remove(key);
+
+        System.out.println("# # # # # #");
+        System.out.println(overflowToDiskPoolableStore.getSize() + " elements in cache1");
+        System.out.println("on heap: " + keysOfOnHeapElements(overflowToDiskPoolableStore) + ", on disk: " + keysOfOnDiskElements(overflowToDiskPoolableStore));
+        System.out.println("on heap size: " + cacheManagerOnHeapPool.getSize() + ", on disk size: " + cacheManagerOnDiskPool.getSize());
     }
 
 }

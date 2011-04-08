@@ -646,7 +646,7 @@ class Segment extends ReentrantReadWriteLock {
      * @param comparator the comparator to use to compare values
      * @return Object[] with [0] = removed element, [1] = onDisk substitute
      */
-    Object[] feedbackRemove(Object key, int hash, Element value, ElementValueComparator comparator) {
+    Object[] removeWithFeedback(Object key, int hash, Element value, ElementValueComparator comparator) {
         writeLock().lock();
         try {
             HashEntry[] tab = table;

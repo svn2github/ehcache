@@ -83,6 +83,10 @@ public abstract class CompoundStore extends AbstractStore {
         void onFault(Object key, Object from, Object to);
 
         void onEvict(Object key, Element evicted);
+
+        void onUpdate(Element oldElement, Element newElement);
+
+        void onRemove(Object removed, Element removedElement);
     }
 
     public void addFaultListener(FaultListener faultListener) {
@@ -155,7 +159,13 @@ public abstract class CompoundStore extends AbstractStore {
         } else {
             Object key = element.getObjectKey();
             int hash = hash(key.hashCode());
-            return segmentFor(hash).put(key, hash, element, false) == null;
+            Element oldElement = segmentFor(hash).put(key, hash, element, false);
+            if (oldElement != null) {
+                for (FaultListener listener : listeners) {
+                    listener.onUpdate(oldElement, element);
+                }
+            }
+            return oldElement == null;
         }
     }
 
@@ -258,16 +268,15 @@ public abstract class CompoundStore extends AbstractStore {
         }
 
         int hash = hash(key.hashCode());
-        return segmentFor(hash).remove(key, hash, null, null);
-    }
-
-    public Object[] feedbackRemove(Object key) {
-        if (key == null) {
-            return null;
+        Object feedback[] = segmentFor(hash).removeWithFeedback(key, hash, null, null);
+        Element removed = (Element) feedback[0];
+        Object diskSubstitute = feedback[1];
+        if (removed != null) {
+            for (FaultListener listener : listeners) {
+                listener.onRemove(diskSubstitute, removed);
+            }
         }
-
-        int hash = hash(key.hashCode());
-        return segmentFor(hash).feedbackRemove(key, hash, null, null);
+        return removed;
     }
 
     /**
