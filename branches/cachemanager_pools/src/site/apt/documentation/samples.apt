@@ -416,13 +416,13 @@ int hits = cache.getMissCountExpired();
     try {
       Element e = cache.get(key);
 
-      Object result = complexeService.doStuff(element.getValue());
+      Object result = complexService.doStuff(element.getValue());
 
-      // This put will be rolled back should complexeService.doMoreStuff throw an Exception
+      // This put will be rolled back should complexService.doMoreStuff throw an Exception
       cache.put(new Element(key, result));
 
       // Any changes to result in that call, will be visible to others when the Transaction commits
-      complexeService.doMoreStuff(result);
+      complexService.doMoreStuff(result);
 
       transactionManager.commit();
     } catch (Exception e) {

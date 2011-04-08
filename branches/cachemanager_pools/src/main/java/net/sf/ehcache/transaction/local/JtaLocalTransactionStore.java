@@ -15,22 +15,8 @@
  */
 package net.sf.ehcache.transaction.local;
 
-import net.sf.ehcache.CacheEntry;
-import net.sf.ehcache.CacheException;
-import net.sf.ehcache.Ehcache;
-import net.sf.ehcache.Element;
-import net.sf.ehcache.TransactionController;
-import net.sf.ehcache.store.ElementValueComparator;
-import net.sf.ehcache.transaction.AbstractTransactionStore;
-import net.sf.ehcache.transaction.TransactionException;
-import net.sf.ehcache.transaction.TransactionID;
-import net.sf.ehcache.transaction.manager.TransactionManagerLookup;
-import net.sf.ehcache.transaction.xa.EhcacheXAResource;
-import net.sf.ehcache.transaction.xa.XAExecutionListener;
-import net.sf.ehcache.transaction.xa.XATransactionContext;
-import net.sf.ehcache.writer.CacheWriterManager;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.transaction.RollbackException;
 import javax.transaction.Synchronization;
@@ -40,8 +26,25 @@ import javax.transaction.TransactionManager;
 import javax.transaction.xa.XAException;
 import javax.transaction.xa.XAResource;
 import javax.transaction.xa.Xid;
-import java.util.List;
-import java.util.concurrent.atomic.AtomicBoolean;
+
+import net.sf.ehcache.CacheEntry;
+import net.sf.ehcache.CacheException;
+import net.sf.ehcache.Ehcache;
+import net.sf.ehcache.Element;
+import net.sf.ehcache.TransactionController;
+import net.sf.ehcache.store.ElementValueComparator;
+import net.sf.ehcache.store.compound.NullReadWriteCopyStrategy;
+import net.sf.ehcache.transaction.AbstractTransactionStore;
+import net.sf.ehcache.transaction.TransactionException;
+import net.sf.ehcache.transaction.TransactionID;
+import net.sf.ehcache.transaction.manager.TransactionManagerLookup;
+import net.sf.ehcache.transaction.xa.EhcacheXAResource;
+import net.sf.ehcache.transaction.xa.XAExecutionListener;
+import net.sf.ehcache.transaction.xa.XATransactionContext;
+import net.sf.ehcache.writer.CacheWriterManager;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A Store implementation with support for local transactions driven by a JTA transaction manager
@@ -69,7 +72,7 @@ public class JtaLocalTransactionStore extends AbstractTransactionStore {
      */
     public JtaLocalTransactionStore(LocalTransactionStore underlyingStore, TransactionManagerLookup transactionManagerLookup,
                                     TransactionController transactionController) {
-        super(underlyingStore);
+        super(underlyingStore, new NullReadWriteCopyStrategy());
         this.transactionManagerLookup = transactionManagerLookup;
         this.transactionController = transactionController;
         this.transactionManager = transactionManagerLookup.getTransactionManager();
@@ -490,6 +493,8 @@ public class JtaLocalTransactionStore extends AbstractTransactionStore {
             throw e;
         }
     }
+
+
 
 }
 

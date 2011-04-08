@@ -66,7 +66,6 @@ public class XATransactionStore extends AbstractTransactionStore {
     private final TransactionIDFactory transactionIdFactory;
     private final SoftLockFactory softLockFactory;
     private final Ehcache cache;
-    private final ReadWriteCopyStrategy<Element> copyStrategy;
 
     private final ConcurrentHashMap<Transaction, EhcacheXAResource> transactionToXAResourceMap =
             new ConcurrentHashMap<Transaction, EhcacheXAResource>();
@@ -84,7 +83,7 @@ public class XATransactionStore extends AbstractTransactionStore {
     public XATransactionStore(TransactionManagerLookup transactionManagerLookup, SoftLockFactory softLockFactory,
                               TransactionIDFactory transactionIdFactory, Ehcache cache, Store store,
                               ReadWriteCopyStrategy<Element> copyStrategy) {
-        super(store);
+        super(store, copyStrategy);
         this.transactionManagerLookup = transactionManagerLookup;
         this.transactionIdFactory = transactionIdFactory;
         if (transactionManagerLookup.getTransactionManager() == null) {
@@ -92,7 +91,6 @@ public class XATransactionStore extends AbstractTransactionStore {
         }
         this.softLockFactory = softLockFactory;
         this.cache = cache;
-        this.copyStrategy = copyStrategy;
     }
 
     private Transaction getCurrentTransaction() throws SystemException {
@@ -241,15 +239,6 @@ public class XATransactionStore extends AbstractTransactionStore {
             throw new TransactionException("cannot get the XAResource transaction timeout", e);
         }
     }
-
-    private Element copyElementForWrite(Element element) {
-        return copyStrategy.copyForWrite(element);
-    }
-
-    private Element copyElementForRead(Element element) {
-        return copyStrategy.copyForRead(element);
-    }
-
 
     /* transactional methods */
 

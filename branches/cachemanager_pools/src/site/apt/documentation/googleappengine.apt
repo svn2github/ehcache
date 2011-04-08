@@ -157,6 +157,6 @@
     The sample app shows you how to use ehcache as a caching plugin and how to use it directly from the Rails
     caching API.
 
-    Checkout {{https://svn.terracotta.org/repo/forge/projects/ehcache-jruby-demo/}} terracotta_community_login a Maven-based performance comparisons between different store
+    Checkout {{http://svn.terracotta.org/svn/forge/projects/ehcache-rails-demo/}} terracotta_community_login a Maven-based performance comparisons between different store
     configurations.
 

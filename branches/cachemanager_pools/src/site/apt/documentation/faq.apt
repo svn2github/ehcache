@@ -414,7 +414,7 @@ java.net.ConnectException: Connection refused
 
 *   Is Ehcache compatible with Google App Engine?
 
-    Version 1.6 is compatible. See the {{{./googleappengine.html}Google App Engine Howto}}
+    Version 1.6 is compatible. See {{{./googleappengine.html}Google App Engine Caching}}.
 
 *   Can my app server use JMS Replication?
 
