@@ -9,9 +9,9 @@ import net.sf.ehcache.pool.Role;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -28,7 +28,7 @@ public class BoundedPool implements Pool {
         this.maximumPoolSize = maximumPoolSize;
         this.evictor = evictor;
         this.defaultSizeOfEngine = defaultSizeOfEngine;
-        this.poolAccessors = new CopyOnWriteArrayList<BoundedPoolAccessor>();
+        this.poolAccessors = Collections.synchronizedList(new ArrayList<BoundedPoolAccessor>());
     }
 
     public long getSize() {
