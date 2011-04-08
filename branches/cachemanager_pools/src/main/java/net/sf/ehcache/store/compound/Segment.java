@@ -473,7 +473,62 @@ class Segment extends ReentrantReadWriteLock {
         }
     }
 
-    
+     Object[] putWithFeedback(Object key, int hash, Element element, boolean onlyIfAbsent) {
+        boolean installed = false;
+        Object encoded = create(key, element);
+
+        writeLock().lock();
+        try {
+            // ensure capacity
+            if (count + 1 > threshold) {
+                rehash();
+            }
+            HashEntry[] tab = table;
+            int index = hash & (tab.length - 1);
+            HashEntry first = tab[index];
+            HashEntry e = first;
+            while (e != null && (e.hash != hash || !key.equals(e.key))) {
+                e = e.next;
+            }
+
+            Element oldElement;
+            Object onDiskSubstitute = null;
+            if (e != null) {
+                Object old = e.getElement();
+                if (!onlyIfAbsent) {
+                    e.setElement(encoded);
+                    installed = true;
+                    oldElement = decode(null, old);
+
+                    if (free(old)) {
+                      onDiskSubstitute = old;
+                    }
+                } else {
+                    free(encoded);
+                    oldElement = decode(e.key, old);
+                }
+            } else {
+                oldElement = null;
+                ++modCount;
+                tab[index] = newHashEntry(key, hash, first, encoded);
+                installed = true;
+                // write-volatile
+                count = count + 1;
+            }
+            return new Object[] {oldElement, onDiskSubstitute};
+
+            
+
+        } finally {
+            writeLock().unlock();
+
+            if ((installed && encoded instanceof ElementSubstitute)) {
+                ((ElementSubstitute) encoded).installed();
+            }
+        }
+    }
+
+
     /**
      * Add the supplied pre-encoded mapping.
      * <p>
