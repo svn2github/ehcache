@@ -8,7 +8,6 @@ import net.sf.ehcache.pool.Pool;
 import net.sf.ehcache.pool.PoolAccessor;
 import net.sf.ehcache.pool.PoolableStore;
 import net.sf.ehcache.pool.Role;
-import net.sf.ehcache.store.compound.CompoundStore;
 import net.sf.ehcache.store.compound.factories.CapacityLimitedInMemoryFactory;
 import net.sf.ehcache.store.compound.factories.DiskOverflowStorageFactory;
 import net.sf.ehcache.store.compound.impl.OverflowToDiskStore;
@@ -22,7 +21,7 @@ public class OverflowToDiskPoolableStore extends OverflowToDiskStore implements 
     private final PoolAccessor onHeapPoolAccessor;
     private final PoolAccessor onDiskPoolAccessor;
 
-    private class EventListenerAdapter implements CompoundStore.FaultListener {
+    private class InternalEventListenerAdapter implements InternalEventListener {
 
         public void onFault(Object key, Object from, Object to) {
             if (from instanceof Element) {
@@ -57,7 +56,7 @@ public class OverflowToDiskPoolableStore extends OverflowToDiskStore implements 
         this.onHeapPoolAccessor = onHeapPool.createPoolAccessor(this);
         this.onDiskPoolAccessor = onDiskPool.createPoolAccessor(this);
 
-        addFaultListener(new EventListenerAdapter());
+        addInternalEventListener(new InternalEventListenerAdapter());
     }
 
     public static OverflowToDiskPoolableStore create(Cache cache, String diskStorePath, Pool onHeapPool, Pool onDiskPool) {

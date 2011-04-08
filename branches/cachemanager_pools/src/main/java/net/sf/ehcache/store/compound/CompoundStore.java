@@ -77,9 +77,9 @@ public abstract class CompoundStore extends AbstractStore {
 
     private volatile Set<Element> elementSet;
 
-    private final List<FaultListener> listeners = new ArrayList<FaultListener>();
+    private final List<InternalEventListener> listeners = new ArrayList<InternalEventListener>();
 
-    public static interface FaultListener {
+    public static interface InternalEventListener {
         void onFault(Object key, Object from, Object to);
 
         void onEvict(Object key, Element evicted);
@@ -89,8 +89,8 @@ public abstract class CompoundStore extends AbstractStore {
         void onRemove(Object removed, Element removedElement);
     }
 
-    public void addFaultListener(FaultListener faultListener) {
-        listeners.add(faultListener);
+    public void addInternalEventListener(InternalEventListener internalEventListener) {
+        listeners.add(internalEventListener);
     }
 
     /**
@@ -161,7 +161,7 @@ public abstract class CompoundStore extends AbstractStore {
             int hash = hash(key.hashCode());
             Element oldElement = segmentFor(hash).put(key, hash, element, false);
             if (oldElement != null) {
-                for (FaultListener listener : listeners) {
+                for (InternalEventListener listener : listeners) {
                     listener.onUpdate(oldElement, element);
                 }
             }
@@ -272,7 +272,7 @@ public abstract class CompoundStore extends AbstractStore {
         Element removed = (Element) feedback[0];
         Object diskSubstitute = feedback[1];
         if (removed != null) {
-            for (FaultListener listener : listeners) {
+            for (InternalEventListener listener : listeners) {
                 listener.onRemove(diskSubstitute, removed);
             }
         }
@@ -454,7 +454,7 @@ public abstract class CompoundStore extends AbstractStore {
         int hash = hash(key.hashCode());
         boolean success = segmentFor(hash).fault(key, hash, expect, fault);
         if (success) {
-            for (FaultListener listener : listeners) {
+            for (InternalEventListener listener : listeners) {
                 listener.onFault(key, expect, fault);
             }
         }
@@ -479,7 +479,7 @@ public abstract class CompoundStore extends AbstractStore {
         int hash = hash(key.hashCode());
         boolean success = segmentFor(hash).tryFault(key, hash, expect, fault);
         if (success) {
-            for (FaultListener listener : listeners) {
+            for (InternalEventListener listener : listeners) {
                 listener.onFault(key, expect, fault);
             }
         }
@@ -498,7 +498,7 @@ public abstract class CompoundStore extends AbstractStore {
         int hash = hash(key.hashCode());
         Element evicted = segmentFor(hash).evict(key, hash, substitute);
         if (evicted != null) {
-            for (FaultListener listener : listeners) {
+            for (InternalEventListener listener : listeners) {
                 listener.onEvict(key, evicted);
             }
         }
