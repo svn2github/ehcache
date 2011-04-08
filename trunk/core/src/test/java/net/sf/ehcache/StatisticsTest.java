@@ -148,7 +148,7 @@ public class StatisticsTest extends AbstractCacheTest {
             Statistics statistics = cache.getStatistics();
             fail();
         } catch (IllegalStateException e) {
-            assertEquals("The test Cache is not alive.", e.getMessage());
+            assertEquals("The test Cache is not alive (STATUS_UNINITIALISED)", e.getMessage());
         }
 
     }

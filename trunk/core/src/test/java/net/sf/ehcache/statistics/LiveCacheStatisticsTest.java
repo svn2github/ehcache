@@ -457,7 +457,7 @@ public class LiveCacheStatisticsTest extends AbstractCacheTest {
             LiveCacheStatistics statistics = cache.getLiveCacheStatistics();
             fail();
         } catch (IllegalStateException e) {
-            assertEquals("The test Cache is not alive.", e.getMessage());
+            assertEquals("The test Cache is not alive (STATUS_UNINITIALISED)", e.getMessage());
         }
         // initialize cache now
         manager.addCache(cache);
