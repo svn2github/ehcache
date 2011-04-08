@@ -10,6 +10,10 @@ import org.junit.Test;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 import static junit.framework.Assert.fail;
 import static org.junit.Assert.assertEquals;
@@ -75,6 +79,13 @@ public class OverflowToDiskPoolableStoreTest {
         return countOnDisk;
     }
 
+    private void dump() {
+        System.out.println("# # # # # #");
+        System.out.println(overflowToDiskPoolableStore.getSize() + " elements in cache");
+        System.out.println("on heap: " + keysOfOnHeapElements(overflowToDiskPoolableStore) + ", on disk: " + keysOfOnDiskElements(overflowToDiskPoolableStore));
+        System.out.println("on heap size: " + onHeapPool.getSize() + ", on disk size: " + onDiskPool.getSize());
+        System.out.println("# # # # # #");
+    }
 
     @Before
     public void setUp() {
@@ -172,7 +183,7 @@ public class OverflowToDiskPoolableStoreTest {
 
         // update element on disk
         key = keysOfOnDiskElements(overflowToDiskPoolableStore).iterator().next();
-        System.out.println( + overflowToDiskPoolableStore.getSize() + " ********** putting " + key);
+        System.out.println(+overflowToDiskPoolableStore.getSize() + " ********** putting " + key);
         overflowToDiskPoolableStore.put(new Element(key, key.toString()));
 
         assertEquals(2, overflowToDiskPoolableStore.getSize());
@@ -208,12 +219,36 @@ public class OverflowToDiskPoolableStoreTest {
         assertEquals(16384 * 1, onDiskPool.getSize());
     }
 
-    private void dump() {
-        System.out.println("# # # # # #");
-        System.out.println(overflowToDiskPoolableStore.getSize() + " elements in cache1");
-        System.out.println("on heap: " + keysOfOnHeapElements(overflowToDiskPoolableStore) + ", on disk: " + keysOfOnDiskElements(overflowToDiskPoolableStore));
-        System.out.println("on heap size: " + onHeapPool.getSize() + ", on disk size: " + onDiskPool.getSize());
-        System.out.println("# # # # # #");
+    @Test
+    public void testMultithreaded() throws Exception {
+        final int nThreads = 16;
+
+        final ExecutorService executor = Executors.newFixedThreadPool(nThreads);
+        final ConcurrentLinkedQueue<Future<?>> queue = new ConcurrentLinkedQueue<Future<?>>();
+
+        for (int i = 0; i < nThreads; i++) {
+            final int threadId = i;
+            Future<?> f = executor.submit(new Runnable() {
+                public void run() {
+                    for (int i = 0; i < 10000; i++) {
+                        Element e = new Element(i, "" + i);
+                        overflowToDiskPoolableStore.put(e);
+
+                        assertTrue(threadId + "#" + i + " - " + onHeapPool.getSize(), 16384 * 2 >= onHeapPool.getSize());
+                        assertTrue(threadId + "#" + i + " - " + onDiskPool.getSize(), 16384 * 2 >= onDiskPool.getSize());
+
+                        Thread.yield();
+                        // if ((i + 1) % 1000 == 0) System.out.println(threadId + "#" + (i + 1));
+                    }
+                }
+            });
+            queue.add(f);
+        }
+
+        while (!queue.isEmpty()) {
+            Future<?> f = queue.poll();
+            f.get();
+        }
     }
 
 }
