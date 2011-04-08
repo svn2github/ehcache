@@ -106,16 +106,18 @@ public class CapacityLimitedInMemoryFactory implements IdentityElementSubstitute
     }
 
 
-    public void evictFromOnHeap(int n) {
-        evict(n, null, SAMPLE_SIZE);
+    public boolean evictFromOnHeap(int n) {
+        return evict(n, null, SAMPLE_SIZE);
     }
 
-    private void evict(int n, Object keyHint, int size) {
+    private boolean evict(int n, Object keyHint, int size) {
+        boolean foundTarget = false;
         for (int i = 0; i < n; i++) {
             Element target = getEvictionTarget(keyHint, size);
             if (target == null) {
                 continue;
             }
+            foundTarget = true;
             if (target.isExpired()) {
                 if (boundStore.evict(target.getObjectKey(), target)) {
                     eventService.notifyElementExpiry(target, false);
@@ -135,6 +137,7 @@ public class CapacityLimitedInMemoryFactory implements IdentityElementSubstitute
                 }
             }
         }
+        return foundTarget;
     }
 
     private Element getEvictionTarget(Object keyHint, int size) {

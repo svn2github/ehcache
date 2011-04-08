@@ -112,8 +112,7 @@ public class OverflowToDiskPoolableStore extends OverflowToDiskStore implements 
     }
 
     public boolean evictFromOnHeap(int count, long size) {
-        memoryFactory.evictFromOnHeap(count);
-        return true;
+        return memoryFactory.evictFromOnHeap(count);
     }
 
     public boolean evictFromOffHeap(int count, long size) {
@@ -121,8 +120,7 @@ public class OverflowToDiskPoolableStore extends OverflowToDiskStore implements 
     }
 
     public boolean evictFromOnDisk(int count, long size) {
-        diskFactory.evictFromOnDisk(count);
-        return true;
+        return diskFactory.evictFromOnDisk(count);
     }
 
     @Override

@@ -186,19 +186,22 @@ public class DiskOverflowStorageFactory extends DiskStorageFactory<ElementSubsti
         }
     }
 
-    public void evictFromOnDisk(int count) {
-        evict(count, null, MAX_EVICT);
+    public boolean evictFromOnDisk(int count) {
+        return evict(count, null, MAX_EVICT);
     }
 
-    private void evict(int n, Object keyHint, int size) {
+    private boolean evict(int n, Object keyHint, int size) {
+        boolean foundTarget = false;
         for (int i = 0; i < n; i++) {
             DiskSubstitute target = getEvictionTarget(keyHint, size);
             if (target == null) {
                 continue;
             } else {
+                foundTarget = true;
                 store.evict(target.getKey(), target);
             }
         }
+        return foundTarget;
     }
 
     private DiskSubstitute getEvictionTarget(Object keyHint, int size) {
