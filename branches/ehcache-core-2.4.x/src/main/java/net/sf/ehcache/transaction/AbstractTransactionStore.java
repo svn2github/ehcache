@@ -554,7 +554,7 @@ public abstract class AbstractTransactionStore extends AbstractStore implements 
         }
 
         public List<Result> subList(int fromIndex, int toIndex) {
-            return new TxResultsList(subList(fromIndex, toIndex));
+            return new TxResultsList(results.subList(fromIndex, toIndex));
         }
 
         private Object unwrapIfNeeded(Object o) {
