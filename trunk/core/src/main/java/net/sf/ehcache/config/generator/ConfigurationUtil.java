@@ -23,7 +23,6 @@ import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.Configuration;
 import net.sf.ehcache.config.generator.model.NodeElementVisitor;
 import net.sf.ehcache.config.generator.model.XMLGeneratorVisitor;
-import net.sf.ehcache.config.generator.model.XMLGeneratorVisitor.OutputBehavior;
 import net.sf.ehcache.config.generator.model.elements.CacheConfigurationElement;
 import net.sf.ehcache.config.generator.model.elements.ConfigurationElement;
 
