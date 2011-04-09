@@ -29,17 +29,17 @@ import net.sf.ehcache.config.generator.model.elements.ConfigurationElement;
 
 /**
  * Utility class with static methods for generating configuration texts in different ways based on input
- * 
+ *
  * <p />
- * 
+ *
  * @author <a href="mailto:asanoujam@terracottatech.com">Abhishek Sanoujam</a>
- * 
+ *
  */
 public abstract class ConfigurationUtil {
 
     /**
      * Generates Configuration text from a {@link Configuration}
-     * 
+     *
      * @param configuration
      *            the configuration
      * @return text representing the {@link Configuration}
@@ -48,7 +48,6 @@ public abstract class ConfigurationUtil {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         PrintWriter out = new PrintWriter(baos);
         XMLGeneratorVisitor configGenerator = new XMLGeneratorVisitor(out);
-        configGenerator.disableOutputBehavior(OutputBehavior.OUTPUT_OPTIONAL_ATTRIBUTES_WITH_DEFAULT_VALUES);
         visitConfiguration(configuration, configGenerator);
         out.flush();
         out.close();
@@ -57,7 +56,7 @@ public abstract class ConfigurationUtil {
 
     /**
      * package protected access so that tests can have access
-     * 
+     *
      * @param configuration
      * @param visitor
      */
@@ -68,7 +67,7 @@ public abstract class ConfigurationUtil {
 
     /**
      * Generates configuration text for a {@link CacheConfiguration}
-     * 
+     *
      * @param cacheConfiguration
      *            the {@link CacheConfiguration}
      * @return text representing the {@link CacheConfiguration}
@@ -77,7 +76,6 @@ public abstract class ConfigurationUtil {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         PrintWriter out = new PrintWriter(baos);
         XMLGeneratorVisitor configGenerator = new XMLGeneratorVisitor(out);
-        configGenerator.disableOutputBehavior(OutputBehavior.OUTPUT_OPTIONAL_ATTRIBUTES_WITH_DEFAULT_VALUES);
         visitCacheConfiguration(cacheConfiguration, configGenerator);
         out.flush();
         out.close();
@@ -86,7 +84,7 @@ public abstract class ConfigurationUtil {
 
     /**
      * package protected access so that tests can have access
-     * 
+     *
      * @param cacheConfiguration
      * @param configGenerator
      */
