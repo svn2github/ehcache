@@ -413,7 +413,7 @@ query.includeAggregator(age.sum());
 
     We have created a simple standalone sample application with few dependencies for you to easily get started with Ehcache Search.
 
-    {{{http://github.com/downloads/sharrissf/Ehcache-Search-Sample/ehcache-search-sample-0.0.1-SNAPSHOT-distribution.tar.gz}Download}} it
+    {{{http://github.com/sharrissf/Ehcache-Search-Sample/downloads/
     or check out the source:
 
 ---

@@ -171,8 +171,10 @@ Ehcache - Frequently Asked Questions
 
     You can't but you can achieve the same result as follows:
 
+-----
     Cache cache = new Cache("test2", 1, true, true, 0, 0, true, 120, ...);
     cacheManager.addCache(cache);
+-----
 
     See the JavaDoc for the full parameters, also reproduced here:
      
