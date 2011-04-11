@@ -26,18 +26,18 @@ public class OverflowToDiskPoolableStore extends OverflowToDiskStore implements 
         public void onFault(Object key, Object from, Object to) {
             if (from instanceof Element) {
                 // swap to disk
-                //System.out.println("onFault to disk " + key + ", heap: " + onHeapPoolAccessor.getSize() + ", disk: " + onDiskPoolAccessor.getSize());// new Exception().printStackTrace(System.out);
+                //System.out.println("onFault to disk " + from + ", heap: " + onHeapPoolAccessor.getSize() + ", disk: " + onDiskPoolAccessor.getSize());// new Exception().printStackTrace(System.out);
                 Element element = (Element) from;
                 onHeapPoolAccessor.replace(Role.VALUE, element.getObjectValue(), null);
                 onDiskPoolAccessor.add(element.getObjectKey(), element.getObjectValue(), element);
-                //System.out.println("onFault to disk " + key + ", heap: " + onHeapPoolAccessor.getSize() + ", disk: " + onDiskPoolAccessor.getSize());// new Exception().printStackTrace(System.out);
+                //System.out.println("/onFault to disk " + from + ", heap: " + onHeapPoolAccessor.getSize() + ", disk: " + onDiskPoolAccessor.getSize());// new Exception().printStackTrace(System.out);
             } else if (to instanceof Element) {
                 // fault from disk
-                //System.out.println("onFault to heap " + key + ", heap: " + onHeapPoolAccessor.getSize() + ", disk: " + onDiskPoolAccessor.getSize());// new Exception().printStackTrace(System.out);
+                //System.out.println("onFault to heap " + to + ", heap: " + onHeapPoolAccessor.getSize() + ", disk: " + onDiskPoolAccessor.getSize());// new Exception().printStackTrace(System.out);
                 Element element = (Element) to;
                 onHeapPoolAccessor.replace(Role.VALUE, null, element.getObjectValue());
                 onDiskPoolAccessor.delete(element.getObjectKey(), element.getObjectValue(), element);
-                //System.out.println("onFault to heap " + key + ", heap: " + onHeapPoolAccessor.getSize() + ", disk: " + onDiskPoolAccessor.getSize());// new Exception().printStackTrace(System.out);
+                //System.out.println("/onFault to heap " + to + ", heap: " + onHeapPoolAccessor.getSize() + ", disk: " + onDiskPoolAccessor.getSize());// new Exception().printStackTrace(System.out);
             } // else it's overflow placeholder to disk marker, ie: disk to disk
         }
 
@@ -45,7 +45,7 @@ public class OverflowToDiskPoolableStore extends OverflowToDiskStore implements 
             //System.out.println("onEvict " + key + ", heap: " + onHeapPoolAccessor.getSize() + ", disk: " + onDiskPoolAccessor.getSize());// new Exception().printStackTrace(System.out);
             onHeapPoolAccessor.delete(evicted.getObjectKey(), null, evicted);
             onDiskPoolAccessor.delete(evicted.getObjectKey(), evicted.getObjectValue(), evicted);
-            //System.out.println("onEvict " + key + ", heap: " + onHeapPoolAccessor.getSize() + ", disk: " + onDiskPoolAccessor.getSize());// new Exception().printStackTrace(System.out);
+            //System.out.println("/onEvict " + key + ", heap: " + onHeapPoolAccessor.getSize() + ", disk: " + onDiskPoolAccessor.getSize());// new Exception().printStackTrace(System.out);
         }
 
         public void onUpdate(Object removed, Element newElement) {
@@ -58,7 +58,7 @@ public class OverflowToDiskPoolableStore extends OverflowToDiskStore implements 
                 onHeapPoolAccessor.delete(newElement.getObjectKey(), null, newElement);
                 onDiskPoolAccessor.delete(newElement.getObjectKey(), newElement.getObjectValue(), newElement);
             }
-            //System.out.println("onUpdate " + newElement.getObjectKey() + " | " + removed + ", heap: " + onHeapPoolAccessor.getSize() + ", disk: " + onDiskPoolAccessor.getSize());// new Exception().printStackTrace(System.out);
+            //System.out.println("/onUpdate " + newElement.getObjectKey() + " | " + removed + ", heap: " + onHeapPoolAccessor.getSize() + ", disk: " + onDiskPoolAccessor.getSize());// new Exception().printStackTrace(System.out);
         }
 
         public void onRemove(Object removedObject, Element removedElement) {
@@ -69,7 +69,7 @@ public class OverflowToDiskPoolableStore extends OverflowToDiskStore implements 
                 onHeapPoolAccessor.delete(removedElement.getObjectKey(), null, removedElement);
                 onDiskPoolAccessor.delete(removedElement.getObjectKey(), removedElement.getObjectValue(), removedElement);
             }
-            //System.out.println("onRemove " + removedObject + " | " + removedElement);// new Exception().printStackTrace(System.out);
+            //System.out.println("/onRemove " + removedObject + " | " + removedElement);// new Exception().printStackTrace(System.out);
         }
 
     }
@@ -108,6 +108,22 @@ public class OverflowToDiskPoolableStore extends OverflowToDiskStore implements 
             super.remove(element.getObjectKey());
             cache.getCacheEventNotificationService().notifyElementEvicted(element, false);
             return true;
+        }
+    }
+
+    @Override
+    public Element putIfAbsent(Element element) throws NullPointerException {
+        //todo: there is a chance that the element is present but will get evicted by add() which makes super.putIfAbsent return null while it should not
+        if (onHeapPoolAccessor.add(element.getObjectKey(), element.getObjectValue(), element) > -1) {
+            Element oldElement = super.putIfAbsent(element);
+            if (oldElement != null) {
+                onHeapPoolAccessor.delete(element.getObjectKey(), element.getObjectValue(), element);
+            }
+            return oldElement;
+        } else {
+            super.remove(element.getObjectKey());
+            cache.getCacheEventNotificationService().notifyElementEvicted(element, false);
+            return element;
         }
     }
 

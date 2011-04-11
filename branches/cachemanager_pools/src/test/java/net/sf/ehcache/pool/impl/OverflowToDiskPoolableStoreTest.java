@@ -17,6 +17,8 @@ import java.util.concurrent.Future;
 
 import static junit.framework.Assert.fail;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 /**
@@ -89,7 +91,7 @@ public class OverflowToDiskPoolableStoreTest {
 
     @Before
     public void setUp() {
-        cache = new Cache(new CacheConfiguration("myCache1", 0));
+        cache = new Cache(new CacheConfiguration("myCache1", 0).eternal(true));
 
         onHeapPool = new BoundedPool(
                 16384 * 2, // == 2 elements
@@ -156,6 +158,40 @@ public class OverflowToDiskPoolableStoreTest {
     }
 
     @Test
+    public void testPutIfAbsentNew() throws Exception {
+        // put 20 new elements in, making sure eviction is working
+        for (int i = 0; i < 20; i++) {
+            Element e = new Element(i, "" + i);
+            overflowToDiskPoolableStore.putIfAbsent(e);
+            assertTrue("#" + i, countElementsOnHeap(overflowToDiskPoolableStore) <= 2);
+            assertTrue("#" + i, countElementsOnDisk(overflowToDiskPoolableStore) <= 2);
+        }
+
+        assertEquals(1, countElementsOnHeap(overflowToDiskPoolableStore));
+        assertEquals(2, countElementsOnDisk(overflowToDiskPoolableStore));
+        assertEquals(16384 + 2 * 2048, onHeapPool.getSize());
+        assertEquals(16384 * 2, onDiskPool.getSize());
+
+        // get an on-disk element
+        Object key = keysOfOnDiskElements(overflowToDiskPoolableStore).iterator().next();
+        overflowToDiskPoolableStore.get(key);
+
+        assertEquals(1, countElementsOnHeap(overflowToDiskPoolableStore));
+        assertEquals(1, countElementsOnDisk(overflowToDiskPoolableStore));
+        assertEquals(16384 + 1 * 2048, onHeapPool.getSize());
+        assertEquals(16384 * 1, onDiskPool.getSize());
+
+
+        // put a new element on-heap
+        overflowToDiskPoolableStore.putIfAbsent(new Element(-1, "-1"));
+
+        assertEquals(1, countElementsOnHeap(overflowToDiskPoolableStore));
+        assertEquals(2, countElementsOnDisk(overflowToDiskPoolableStore));
+        assertEquals(16384 + 2 * 2048, onHeapPool.getSize());
+        assertEquals(16384 * 2, onDiskPool.getSize());
+    }
+
+    @Test
     public void testPutUpdate() throws Exception {
         // warm up
         overflowToDiskPoolableStore.put(new Element(1, "1"));
@@ -183,12 +219,47 @@ public class OverflowToDiskPoolableStoreTest {
 
         // update element on disk
         key = keysOfOnDiskElements(overflowToDiskPoolableStore).iterator().next();
-        System.out.println(+overflowToDiskPoolableStore.getSize() + " ********** putting " + key);
         overflowToDiskPoolableStore.put(new Element(key, key.toString()));
 
         assertEquals(2, overflowToDiskPoolableStore.getSize());
         assertEquals(16384 + 2048, onHeapPool.getSize());
         assertEquals(16384, onDiskPool.getSize());
+    }
+
+    @Test
+    public void testPutIfAbsentUpdate() throws Exception {
+        // warm up
+        assertNull(overflowToDiskPoolableStore.putIfAbsent(new Element(1, "1#1")));
+        assertNotNull(overflowToDiskPoolableStore.putIfAbsent(new Element(1, "1#2")));
+        assertNull(overflowToDiskPoolableStore.putIfAbsent(new Element(2, "2#1")));
+        assertNotNull(overflowToDiskPoolableStore.putIfAbsent(new Element(2, "2#2")));
+        assertNull(overflowToDiskPoolableStore.putIfAbsent(new Element(3, "3#1")));
+        assertNotNull(overflowToDiskPoolableStore.putIfAbsent(new Element(3, "3#2")));
+
+        assertEquals(1, overflowToDiskPoolableStore.getSize());
+        assertEquals(2048, onHeapPool.getSize());
+        assertEquals(16384, onDiskPool.getSize());
+
+        Object key;
+
+         // make sure one element is on-heap
+        overflowToDiskPoolableStore.putIfAbsent(new Element(4, "4#1"));
+
+        // try to update element in memory
+        key = keysOfOnHeapElements(overflowToDiskPoolableStore).iterator().next();
+        overflowToDiskPoolableStore.putIfAbsent(new Element(key, key.toString()));
+
+        assertEquals(1, overflowToDiskPoolableStore.getSize());
+        assertEquals(2048, onHeapPool.getSize());
+        assertEquals(16384, onDiskPool.getSize());
+
+        // update element on disk
+        key = keysOfOnDiskElements(overflowToDiskPoolableStore).iterator().next();
+        overflowToDiskPoolableStore.putIfAbsent(new Element(key, key.toString()));
+
+        assertEquals(1, overflowToDiskPoolableStore.getSize());
+        assertEquals(16384, onHeapPool.getSize());
+        assertEquals(0, onDiskPool.getSize());
     }
 
     @Test

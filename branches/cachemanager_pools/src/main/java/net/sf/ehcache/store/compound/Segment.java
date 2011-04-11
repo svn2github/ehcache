@@ -415,65 +415,20 @@ class Segment extends ReentrantReadWriteLock {
      * Add the supplied mapping.
      * <p>
      * The supplied element is substituted using the primary element proxy factory
-     * before being stored in the cache.  If <code>onlyIfAbsent</code> is set 
+     * before being stored in the cache.  If <code>onlyIfAbsent</code> is set
      * then the mapping will only be added if no element is currently mapped
      * to that key.
-     * 
+     *
      * @param key key to map the element to
      * @param hash spread-hash for the key
      * @param element element to store
      * @param onlyIfAbsent if true does not replace existing mappings
-     * @return previous element mapped to this key
+     * @return new Object[] {
+     *      previous element mapped to this key,
+     *      on-disk substitute if the element was on disk, null otherwise
+     *     }
      */
-    Element put(Object key, int hash, Element element, boolean onlyIfAbsent) {
-        boolean installed = false;
-        Object encoded = create(key, element);
-        
-        writeLock().lock();
-        try {
-            // ensure capacity
-            if (count + 1 > threshold) {
-                rehash();
-            }
-            HashEntry[] tab = table;
-            int index = hash & (tab.length - 1);
-            HashEntry first = tab[index];
-            HashEntry e = first;
-            while (e != null && (e.hash != hash || !key.equals(e.key))) {
-                e = e.next;
-            }
-
-            Element oldElement;
-            if (e != null) {
-                Object old = e.getElement();
-                if (!onlyIfAbsent) {
-                    e.setElement(encoded);
-                    installed = true;
-                    oldElement = decode(null, old);
-                    free(old);
-                } else {
-                    free(encoded);
-                    oldElement = decode(e.key, old);
-                }
-            } else {
-                oldElement = null;
-                ++modCount;
-                tab[index] = newHashEntry(key, hash, first, encoded);
-                installed = true;
-                // write-volatile
-                count = count + 1;
-            }
-            return oldElement;
-        } finally {
-            writeLock().unlock();
-            
-            if ((installed && encoded instanceof ElementSubstitute)) {
-                ((ElementSubstitute) encoded).installed();
-            }
-        }
-    }
-
-     Object[] putWithFeedback(Object key, int hash, Element element, boolean onlyIfAbsent) {
+    Object[] putWithFeedback(Object key, int hash, Element element, boolean onlyIfAbsent) {
         boolean installed = false;
         Object encoded = create(key, element);
 
@@ -504,7 +459,9 @@ class Segment extends ReentrantReadWriteLock {
                       onDiskSubstitute = old;
                     }
                 } else {
-                    free(encoded);
+                    if (free(old)) {
+                      onDiskSubstitute = old;
+                    }
                     oldElement = decode(e.key, old);
                 }
             } else {
@@ -645,61 +602,10 @@ class Segment extends ReentrantReadWriteLock {
      * @param hash spread-hash for the key
      * @param value optional value to match against
      * @param comparator the comparator to use to compare values
-     * @return removed element
-     */
-    Element remove(Object key, int hash, Element value, ElementValueComparator comparator) {
-        writeLock().lock();
-        try {
-            HashEntry[] tab = table;
-            int index = hash & (tab.length - 1);
-            HashEntry first = tab[index];
-            HashEntry e = first;
-            while (e != null && (e.hash != hash || !key.equals(e.key))) {
-                e = e.next;
-            }
-
-            Element oldValue = null;
-            if (e != null) {
-                if (value == null || comparator.equals(value, decode(e.key, e.getElement()))) {
-                    // All entries following removed node can stay
-                    // in list, but all preceding ones need to be
-                    // cloned.
-                    ++modCount;
-                    HashEntry newFirst = e.next;
-                    for (HashEntry p = first; p != e; p = p.next) {
-                        newFirst = newHashEntry(p.key, p.hash, newFirst, p.getElement());
-                    }
-                    tab[index] = newFirst;
-                    /*
-                     * make sure we re-get from the HashEntry - since the decode in the conditional
-                     * may have faulted in a different type - we must make sure we know what type
-                     * to do the free on.
-                     */
-                    Object v = e.getElement();
-                    oldValue = decode(null, v);
-                    free(v);
-                    // write-volatile
-                    count = count - 1;
-                }
-            }
-            return oldValue;
-        } finally {
-            writeLock().unlock();
-        }
-    }
-
-    /**
-     * Remove the matching mapping, returning enough data to figure out where the mapping was before it was removed.
-     * <p>
-     * If <code>value</code> is <code>null</code> then match on the key only,
-     * else match on both the key and the value.
-     *
-     *
-     * @param key key to match against
-     * @param hash spread-hash for the key
-     * @param value optional value to match against
-     * @param comparator the comparator to use to compare values
-     * @return Object[] with [0] = removed element, [1] = onDisk substitute
+     * @return new Object[] {
+     *      previous element mapped to this key,
+     *      on-disk substitute if the element was on disk, null otherwise
+     *     }
      */
     Object[] removeWithFeedback(Object key, int hash, Element value, ElementValueComparator comparator) {
         writeLock().lock();
@@ -854,7 +760,7 @@ class Segment extends ReentrantReadWriteLock {
     }
 
     /**
-     * Remove the matching mapping.  Unlike the {@link Segment#remove(Object, int, Element, net.sf.ehcache.store.ElementValueComparator)} method
+     * Remove the matching mapping.  Unlike the {@link Segment#removeWithFeedback(Object, int, net.sf.ehcache.Element, net.sf.ehcache.store.ElementValueComparator)} method
      * evict does referential comparison of the unretrieved substitute against the argument value.
      * 
      * @param key key to match against
@@ -1012,7 +918,8 @@ class Segment extends ReentrantReadWriteLock {
             if (lastReturned == null) {
                 throw new IllegalStateException();
             }
-            Segment.this.remove(lastReturned.key, lastReturned.hash, null, null);
+            //todo check what to do with feedback
+            Segment.this.removeWithFeedback(lastReturned.key, lastReturned.hash, null, null);
             lastReturned = null;
         }
     }

@@ -411,7 +411,8 @@ public abstract class CompoundStore extends AbstractStore {
     public Element putIfAbsent(Element element) throws NullPointerException {
         Object key = element.getObjectKey();
         int hash = hash(key.hashCode());
-        return segmentFor(hash).put(key, hash, element, true);
+        Object[] feedback = segmentFor(hash).putWithFeedback(key, hash, element, true);
+        return (Element) feedback[0];
     }
 
     /**
@@ -420,7 +421,18 @@ public abstract class CompoundStore extends AbstractStore {
     public Element removeElement(Element element, ElementValueComparator comparator) throws NullPointerException {
         Object key = element.getObjectKey();
         int hash = hash(key.hashCode());
-        return segmentFor(hash).remove(key, hash, element, comparator);
+        Object feedback[] = segmentFor(hash).removeWithFeedback(key, hash, element, comparator);
+        Element removedElement = (Element) feedback[0];
+        Object removedObject = feedback[1];
+        if (removedElement != null) {
+            if (removedObject == null) {
+                removedObject = removedElement;
+            }
+            for (InternalEventListener listener : listeners) {
+                listener.onRemove(removedObject, removedElement);
+            }
+        }
+        return removedElement;
     }
 
     /**
