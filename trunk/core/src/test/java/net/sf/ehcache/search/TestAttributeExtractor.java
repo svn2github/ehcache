@@ -22,7 +22,11 @@ import net.sf.ehcache.search.attribute.AttributeExtractor;
 
 public class TestAttributeExtractor implements AttributeExtractor {
 
-    public Object attributeFor(Element element) {
+    public Object attributeFor(Element element, String attributeName) {
+        if (! attributeName.equals("age")) {
+            throw new AssertionError(attributeName);
+        }
+
         Person person = (Person) element.getObjectValue();
         return person.getAge();
     }

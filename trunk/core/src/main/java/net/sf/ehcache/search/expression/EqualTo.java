@@ -82,7 +82,7 @@ public class EqualTo extends BaseCriteria {
      * {@inheritDoc}
      */
     public boolean execute(Element e, Map<String, AttributeExtractor> attributeExtractors) {
-        Object attributeValue = attributeExtractors.get(attributeName).attributeFor(e);
+        Object attributeValue = attributeExtractors.get(attributeName).attributeFor(e, getAttributeName());
         if (attributeValue == null) {
             return false;
         } else {

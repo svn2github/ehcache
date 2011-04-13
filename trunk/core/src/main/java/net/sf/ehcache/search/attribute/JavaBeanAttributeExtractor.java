@@ -70,7 +70,7 @@ public class JavaBeanAttributeExtractor implements AttributeExtractor {
     /**
      * {@inheritDoc}
      */
-    public Object attributeFor(Element element) throws AttributeExtractorException {
+    public Object attributeFor(Element element, String attributeName) throws AttributeExtractorException {
         Object attribute = NO_VALUE;
 
         final Object key = element.getObjectKey();

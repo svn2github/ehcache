@@ -26,16 +26,16 @@ public class JavaBeanAttributeExtractorTest extends TestCase {
     public void testBasic() {
         JavaBeanAttributeExtractor jbae = new JavaBeanAttributeExtractor("foo");
 
-        assertEquals("foo", jbae.attributeFor(new Element("", new Type1())));
-        assertEquals("foo", jbae.attributeFor(new Element(null, new Type1())));
-        assertEquals("foo", jbae.attributeFor(new Element(new Type1(), "")));
-        assertEquals("foo", jbae.attributeFor(new Element(new Type1(), null)));
+        assertEquals("foo", jbae.attributeFor(new Element("", new Type1()), ""));
+        assertEquals("foo", jbae.attributeFor(new Element(null, new Type1()), ""));
+        assertEquals("foo", jbae.attributeFor(new Element(new Type1(), ""), ""));
+        assertEquals("foo", jbae.attributeFor(new Element(new Type1(), null), ""));
 
-        assertEquals(true, jbae.attributeFor(new Element(new Type2(), "")));
-        assertEquals(true, jbae.attributeFor(new Element("", new Type2())));
+        assertEquals(true, jbae.attributeFor(new Element(new Type2(), ""), ""));
+        assertEquals(true, jbae.attributeFor(new Element("", new Type2()), ""));
 
-        assertEquals(true, jbae.attributeFor(new Element(new Type3(), "")));
-        assertEquals(true, jbae.attributeFor(new Element("", new Type3())));
+        assertEquals(true, jbae.attributeFor(new Element(new Type3(), ""), ""));
+        assertEquals(true, jbae.attributeFor(new Element("", new Type3()), ""));
     }
 
     public void testException() {
@@ -43,7 +43,7 @@ public class JavaBeanAttributeExtractorTest extends TestCase {
 
         RuntimeException re = new RuntimeException();
         try {
-            jbae.attributeFor(new Element(new ExceptionThrowing(re), ""));
+            jbae.attributeFor(new Element(new ExceptionThrowing(re), ""), "");
             fail();
         } catch (AttributeExtractorException aee) {
             assertEquals(re, aee.getCause());
@@ -51,7 +51,7 @@ public class JavaBeanAttributeExtractorTest extends TestCase {
 
         Error error = new Error();
         try {
-            jbae.attributeFor(new Element(new ExceptionThrowing(error), ""));
+            jbae.attributeFor(new Element(new ExceptionThrowing(error), ""), "");
             fail();
         } catch (Error e) {
             assertEquals(error, e);
@@ -62,14 +62,14 @@ public class JavaBeanAttributeExtractorTest extends TestCase {
         JavaBeanAttributeExtractor jbae = new JavaBeanAttributeExtractor("foo");
 
         try {
-            jbae.attributeFor(new Element(new NonAccessible(), ""));
+            jbae.attributeFor(new Element(new NonAccessible(), ""), "");
             fail();
         } catch (AttributeExtractorException aee) {
             // expected
         }
 
         try {
-            jbae.attributeFor(new Element("", new NonAccessible()));
+            jbae.attributeFor(new Element("", new NonAccessible()), "");
             fail();
         } catch (AttributeExtractorException aee) {
             // expected
@@ -87,16 +87,16 @@ public class JavaBeanAttributeExtractorTest extends TestCase {
                 public void run() {
                     try {
                         for (int j = 0; j < 50000; j++) {
-                            assertEquals("foo", jbae.attributeFor(new Element("", new Type1())));
-                            assertEquals("foo", jbae.attributeFor(new Element(null, new Type1())));
-                            assertEquals("foo", jbae.attributeFor(new Element(new Type1(), "")));
-                            assertEquals("foo", jbae.attributeFor(new Element(new Type1(), null)));
+                            assertEquals("foo", jbae.attributeFor(new Element("", new Type1()), ""));
+                            assertEquals("foo", jbae.attributeFor(new Element(null, new Type1()), ""));
+                            assertEquals("foo", jbae.attributeFor(new Element(new Type1(), ""), ""));
+                            assertEquals("foo", jbae.attributeFor(new Element(new Type1(), null), ""));
 
-                            assertEquals(true, jbae.attributeFor(new Element(new Type2(), "")));
-                            assertEquals(true, jbae.attributeFor(new Element("", new Type2())));
+                            assertEquals(true, jbae.attributeFor(new Element(new Type2(), ""), ""));
+                            assertEquals(true, jbae.attributeFor(new Element("", new Type2()), ""));
 
-                            assertEquals(true, jbae.attributeFor(new Element(new Type3(), "")));
-                            assertEquals(true, jbae.attributeFor(new Element("", new Type3())));
+                            assertEquals(true, jbae.attributeFor(new Element(new Type3(), ""), ""));
+                            assertEquals(true, jbae.attributeFor(new Element("", new Type3()), ""));
                         }
                     } catch (Throwable t) {
                         t.printStackTrace();
@@ -124,21 +124,21 @@ public class JavaBeanAttributeExtractorTest extends TestCase {
         JavaBeanAttributeExtractor jbae2 = new JavaBeanAttributeExtractor("wrapper");
         JavaBeanAttributeExtractor jbae3 = new JavaBeanAttributeExtractor("primitive");
 
-        assertEquals("bar", jbae1.attributeFor(new Element(new Type4(), "")));
-        assertEquals("bar", jbae1.attributeFor(new Element("", new Type4())));
+        assertEquals("bar", jbae1.attributeFor(new Element(new Type4(), ""), ""));
+        assertEquals("bar", jbae1.attributeFor(new Element("", new Type4()), ""));
 
-        assertEquals(true, jbae2.attributeFor(new Element("", new Type4())));
-        assertEquals(true, jbae2.attributeFor(new Element(new Type4(), "")));
+        assertEquals(true, jbae2.attributeFor(new Element("", new Type4()), ""));
+        assertEquals(true, jbae2.attributeFor(new Element(new Type4(), ""), ""));
 
-        assertEquals(true, jbae3.attributeFor(new Element("", new Type4())));
-        assertEquals(true, jbae3.attributeFor(new Element(new Type4(), "")));
+        assertEquals(true, jbae3.attributeFor(new Element("", new Type4()), ""));
+        assertEquals(true, jbae3.attributeFor(new Element(new Type4(), ""), ""));
     }
 
     public void testAmbiguous() {
         JavaBeanAttributeExtractor jbae = new JavaBeanAttributeExtractor("foo");
 
         try {
-            jbae.attributeFor(new Element(new Type1(), new Type1()));
+            jbae.attributeFor(new Element(new Type1(), new Type1()), "");
             fail();
         } catch (AttributeExtractorException aee) {
             // expected
@@ -149,21 +149,21 @@ public class JavaBeanAttributeExtractorTest extends TestCase {
         JavaBeanAttributeExtractor jbae = new JavaBeanAttributeExtractor("foo");
 
         try {
-            jbae.attributeFor(new Element(new Object(), ""));
+            jbae.attributeFor(new Element(new Object(), ""), "");
             fail();
         } catch (AttributeExtractorException aee) {
             // expected
         }
 
         try {
-            jbae.attributeFor(new Element("", new Object()));
+            jbae.attributeFor(new Element("", new Object()), "");
             fail();
         } catch (AttributeExtractorException aee) {
             // expected
         }
 
         try {
-            jbae.attributeFor(new Element(null, null));
+            jbae.attributeFor(new Element(null, null), "");
             fail();
         } catch (AttributeExtractorException aee) {
             // expected
