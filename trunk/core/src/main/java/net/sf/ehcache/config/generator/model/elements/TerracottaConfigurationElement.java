@@ -74,6 +74,8 @@ public class TerracottaConfigurationElement extends SimpleNodeElement {
                 TerracottaConfiguration.DEFAULT_STORAGE_STRATEGY));
         addAttribute(new SimpleNodeAttribute("concurrency", tcConfiguration.getConcurrency()).optional(true).defaultValue(
                 TerracottaConfiguration.DEFAULT_CONCURRENCY));
+        addAttribute(new SimpleNodeAttribute("localCacheEnabled", tcConfiguration.isLocalCacheEnabled()).optional(true).defaultValue(
+                TerracottaConfiguration.DEFAULT_LOCAL_CACHE_ENABLED));
     }
 
 }

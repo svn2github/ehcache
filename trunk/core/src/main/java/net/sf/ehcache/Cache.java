@@ -33,6 +33,7 @@ import net.sf.ehcache.config.NonstopConfiguration;
 import net.sf.ehcache.config.SearchAttribute;
 import net.sf.ehcache.config.TerracottaConfiguration;
 import net.sf.ehcache.config.TerracottaConfiguration.Consistency;
+import net.sf.ehcache.config.TerracottaConfiguration.StorageStrategy;
 import net.sf.ehcache.constructs.nonstop.CacheManagerExecutorServiceFactory;
 import net.sf.ehcache.constructs.nonstop.NonstopActiveDelegateHolder;
 import net.sf.ehcache.constructs.nonstop.NonstopExecutorService;
@@ -996,20 +997,17 @@ public class Cache implements Ehcache, StoreListener {
                         " with no capacity limit. Set it to 1 if you want" +
                         " no elements cached in memory");
             }
-
             ReadWriteCopyStrategy<Element> copyStrategy = null;
             if (configuration.getTransactionalMode().isTransactional()) {
                 configuration.getCopyStrategyConfiguration().setCopyStrategyInstance(null);
                 copyStrategy = configuration.getCopyStrategyConfiguration().getCopyStrategyInstance();
                 configuration.getCopyStrategyConfiguration().setCopyStrategyInstance(new ImmutableValueElementCopyStrategy());
             }
-
             if (configuration.getTransactionalMode().isTransactional()
                 && configuration.isTerracottaClustered()
                 && configuration.getTerracottaConfiguration().getValueMode() != TerracottaConfiguration.ValueMode.SERIALIZATION) {
                 throw new CacheException("To be transactional, a Terracotta clustered cache needs to be in Serialization value mode");
             }
-
             final Store store;
             if (isTerracottaClustered()) {
                 final Consistency consistency = getCacheConfiguration().getTerracottaConfiguration().getConsistency();
@@ -1041,13 +1039,15 @@ public class Cache implements Ehcache, StoreListener {
                     throw new InvalidConfigurationException("Coherent and consistency attribute values are conflicting. "
                             + "Please remove the coherent attribute as its deprecated.");
                 }
-
-
+                if (getCacheConfiguration().getTerracottaConfiguration().getStorageStrategy() == StorageStrategy.CLASSIC
+                        && !getCacheConfiguration().getTerracottaConfiguration().isLocalCacheEnabled()) {
+                    throw new InvalidConfigurationException("Local Cache cannot be disabled with " + StorageStrategy.CLASSIC
+                            + " Storage strategy. Please enable local cache or use " + StorageStrategy.DCV2);
+                }
                 if (!getCacheConfiguration().getTerracottaConfiguration().isStorageStrategySet()) {
                     getCacheConfiguration().getTerracottaConfiguration().storageStrategy(
                             TerracottaClient.getTerracottaDefaultStrategyForCurrentRuntime(getCacheConfiguration()));
                 }
-
                 Store tempStore = cacheManager.createTerracottaStore(this);
                 if (!(tempStore instanceof TerracottaStore)) {
                     throw new CacheException(
@@ -1126,25 +1126,17 @@ public class Cache implements Ehcache, StoreListener {
             } else {
                 this.compoundStore = store;
             }
-
-
             Map<String, AttributeExtractor> extractors = new HashMap<String, AttributeExtractor>();
             for (SearchAttribute sa : configuration.getSearchAttributes().values()) {
                 extractors.put(sa.getName(), sa.constructExtractor());
             }
-
             compoundStore.setAttributeExtractors(extractors);
-
-
             this.cacheWriterManager = configuration.getCacheWriterConfiguration().getWriteMode().createWriterManager(this);
             initialiseCacheWriterManager(false);
-
             cacheStatus.changeState(Status.STATUS_ALIVE);
-
             initialiseRegisteredCacheExtensions();
             initialiseRegisteredCacheLoaders();
             initialiseRegisteredCacheWriter();
-
             // initialize live statistics
             // register to get notifications of
             // put/update/removeInternal/expiry/eviction
