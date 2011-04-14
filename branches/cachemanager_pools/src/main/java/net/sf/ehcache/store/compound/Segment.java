@@ -330,9 +330,12 @@ class Segment extends ReentrantReadWriteLock {
      * @param oldElement expected element
      * @param newElement element to add
      * @param comparator the comparator to use to compare values
-     * @return <code>true</code> on a successful replace
+     * @return new Object[] {
+     *      previous element mapped to this key,
+     *      on-disk substitute if the element was on disk, null otherwise
+     *     }
      */
-    boolean replace(Object key, int hash, Element oldElement, Element newElement, ElementValueComparator comparator) {
+    Object[] replaceWithFeedback(Object key, int hash, Element oldElement, Element newElement, ElementValueComparator comparator) {
         boolean installed = false;
         Object encoded = create(key, newElement);
         
@@ -343,9 +346,9 @@ class Segment extends ReentrantReadWriteLock {
                 e = e.next;
             }
 
-            boolean replaced = false;
-            if (e != null && comparator.equals(oldElement, decode(e.key, e.getElement()))) {
-                replaced = true;
+            Element replacedElement;
+            Object onDiskSubstitute = null;
+            if (e != null && comparator.equals(oldElement, replacedElement = decode(e.key, e.getElement()))) {
                 /*
                  * make sure we re-get from the HashEntry - since the decode in the conditional
                  * may have faulted in a different type - we must make sure we know what type
@@ -354,11 +357,14 @@ class Segment extends ReentrantReadWriteLock {
                 Object old = e.getElement();
                 e.setElement(encoded);
                 installed = true;
-                free(old);
+                if (free(old)) {
+                    onDiskSubstitute = old;
+                }
             } else {
+                replacedElement = null;
                 free(encoded);
             }
-            return replaced;
+            return new Object[] {replacedElement, onDiskSubstitute};
         } finally {
             writeLock().unlock();
             

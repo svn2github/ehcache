@@ -8,6 +8,7 @@ import net.sf.ehcache.pool.Pool;
 import net.sf.ehcache.pool.PoolAccessor;
 import net.sf.ehcache.pool.PoolableStore;
 import net.sf.ehcache.pool.Role;
+import net.sf.ehcache.store.ElementValueComparator;
 import net.sf.ehcache.store.compound.factories.CapacityLimitedInMemoryFactory;
 import net.sf.ehcache.store.compound.factories.DiskOverflowStorageFactory;
 import net.sf.ehcache.store.compound.impl.OverflowToDiskStore;
@@ -142,6 +143,21 @@ public class OverflowToDiskPoolableStore extends OverflowToDiskStore implements 
         } else {
             cache.getCacheEventNotificationService().notifyElementEvicted(element, false);
             return null;
+        }
+    }
+
+    @Override
+    public boolean replace(Element old, Element element, ElementValueComparator comparator) throws NullPointerException, IllegalArgumentException {
+        //todo: there is a chance that the element is present but will get evicted by add() which makes super.replace return null while it should not
+        if (onHeapPoolAccessor.add(element.getObjectKey(), element.getObjectValue(), element) > -1) {
+            boolean replaced = super.replace(old, element, comparator);
+            if (!replaced) {
+                onHeapPoolAccessor.delete(element.getObjectKey(), element.getObjectValue(), element);
+            }
+            return replaced;
+        } else {
+            cache.getCacheEventNotificationService().notifyElementEvicted(element, false);
+            return false;
         }
     }
 

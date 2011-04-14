@@ -18,6 +18,7 @@ import java.util.concurrent.Future;
 
 import static junit.framework.Assert.fail;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
@@ -324,6 +325,41 @@ public class OverflowToDiskPoolableStoreTest {
         assertEquals(2, overflowToDiskPoolableStore.getSize());
         assertEquals(2048 * 2, onHeapPool.getSize());
         assertEquals(16384 * 2, onDiskPool.getSize());
+    }
+
+    @Test
+    public void testReplace3Args() throws Exception {
+        // warm up
+        overflowToDiskPoolableStore.put(new Element(1, "1#1"));
+        overflowToDiskPoolableStore.put(new Element(2, "2#1"));
+        overflowToDiskPoolableStore.put(new Element(3, "3#1"));
+
+        assertEquals(3, overflowToDiskPoolableStore.getSize());
+        assertEquals(16384 + 2 * 2048, onHeapPool.getSize());
+        assertEquals(16384 * 2, onDiskPool.getSize());
+
+        // replace element on disk
+        Object key = keysOfOnDiskElements(overflowToDiskPoolableStore).iterator().next();
+        assertTrue(overflowToDiskPoolableStore.replace(new Element(key, key + "#1"), new Element(key, key + "#2"), new DefaultElementValueComparator()));
+
+        assertEquals(1, overflowToDiskPoolableStore.getSize());
+        assertEquals(16384, onHeapPool.getSize());
+        assertEquals(0, onDiskPool.getSize());
+
+        // replace element in memory
+        key = keysOfOnHeapElements(overflowToDiskPoolableStore).iterator().next();
+        overflowToDiskPoolableStore.replace(new Element(key, key + "#1"), new Element(key, key + "#2"), new DefaultElementValueComparator());
+
+        assertEquals(1, overflowToDiskPoolableStore.getSize());
+        assertEquals(16384, onHeapPool.getSize());
+        assertEquals(0, onDiskPool.getSize());
+
+        // replace non-existent key
+        assertFalse(overflowToDiskPoolableStore.replace(new Element(-1, -1 + "#2"), new Element(-1, -1 + "#2"), new DefaultElementValueComparator()));
+
+        assertEquals(1, overflowToDiskPoolableStore.getSize());
+        assertEquals(16384, onHeapPool.getSize());
+        assertEquals(0, onDiskPool.getSize());
     }
 
     @Test
