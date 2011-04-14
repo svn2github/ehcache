@@ -56,19 +56,19 @@ import net.sf.ehcache.transaction.SoftLock;
  *
  * @author Chris Dennis
  */
-public final class MemoryOnlyStore extends CompoundStore implements CacheConfigurationListener {
+public class MemoryOnlyStore extends CompoundStore implements CacheConfigurationListener {
 
     private static final Object[] EMPTY_OBJECT_ARRAY = new Object[0];
 
     private final Map<String, AttributeExtractor> attributeExtractors = new ConcurrentHashMap<String, AttributeExtractor>();
 
-    private final CapacityLimitedInMemoryFactory memoryFactory;
+    protected final CapacityLimitedInMemoryFactory memoryFactory;
 
     private final CacheConfiguration config;
 
     private final Map<String, Attribute> searchAttributes = new ConcurrentHashMap<String, Attribute>();
 
-    private MemoryOnlyStore(CapacityLimitedInMemoryFactory memory, CacheConfiguration config) {
+    protected MemoryOnlyStore(CapacityLimitedInMemoryFactory memory, CacheConfiguration config) {
         super(memory, config.isCopyOnRead(), config.isCopyOnWrite(), config.getCopyStrategy());
         this.memoryFactory = memory;
         this.config = config;
@@ -93,7 +93,7 @@ public final class MemoryOnlyStore extends CompoundStore implements CacheConfigu
     /**
      * Chooses the Policy from the cache configuration
      */
-    private static final Policy determineEvictionPolicy(CacheConfiguration config) {
+    protected static final Policy determineEvictionPolicy(CacheConfiguration config) {
         MemoryStoreEvictionPolicy policySelection = config.getMemoryStoreEvictionPolicy();
 
         if (policySelection.equals(MemoryStoreEvictionPolicy.LRU)) {
