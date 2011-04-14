@@ -459,7 +459,7 @@ class Segment extends ReentrantReadWriteLock {
                       onDiskSubstitute = old;
                     }
                 } else {
-                    if (free(old)) {
+                    if (free(encoded)) {
                       onDiskSubstitute = old;
                     }
                     oldElement = decode(e.key, old);
