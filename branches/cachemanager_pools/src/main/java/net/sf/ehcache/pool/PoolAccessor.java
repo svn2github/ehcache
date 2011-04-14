@@ -26,8 +26,12 @@ public interface PoolAccessor {
     long getSize();
 
     /**
-     * unlink this PoolAccessor from its pool
+     * unlink this PoolAccessor from its pool.
      */
     void unlink();
 
+    /**
+     * Free memory used by this accessor.
+     */
+    void clear();
 }

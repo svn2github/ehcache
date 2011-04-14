@@ -411,6 +411,24 @@ public class OverflowToDiskPoolableStoreTest {
     }
 
     @Test
+    public void testRemoveAll() throws Exception {
+        // warm up
+        overflowToDiskPoolableStore.put(new Element(1, "1"));
+        overflowToDiskPoolableStore.put(new Element(2, "2"));
+        overflowToDiskPoolableStore.put(new Element(3, "3"));
+
+        assertEquals(3, overflowToDiskPoolableStore.getSize());
+        assertEquals(16384 + 2 * 2048, onHeapPool.getSize());
+        assertEquals(16384 * 2, onDiskPool.getSize());
+
+        overflowToDiskPoolableStore.removeAll();
+
+        assertEquals(0, overflowToDiskPoolableStore.getSize());
+        assertEquals(0, onHeapPool.getSize());
+        assertEquals(0, onDiskPool.getSize());
+    }
+
+    @Test
     public void testMultithreaded() throws Exception {
         final int nThreads = 16;
 
@@ -429,7 +447,7 @@ public class OverflowToDiskPoolableStoreTest {
                         assertTrue(threadId + "#" + i + " - " + onDiskPool.getSize(), 16384 * 2 >= onDiskPool.getSize());
 
                         Thread.yield();
-                        // if ((i + 1) % 1000 == 0) System.out.println(threadId + "#" + (i + 1));
+                        if ((i + 1) % 1000 == 0) { dump(); overflowToDiskPoolableStore.removeAll(); }
                     }
                 }
             });

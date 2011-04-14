@@ -169,6 +169,13 @@ public class BoundedPool implements Pool {
                 removePoolAccessor(this);
             }
         }
+
+        public void clear() {
+            // synchronized makes the size update MT-safe but slow
+            synchronized (BoundedPool.this) {
+                size = 0L;
+            }
+        }
     }
 
 }

@@ -161,6 +161,13 @@ public class OverflowToDiskPoolableStore extends OverflowToDiskStore implements 
         }
     }
 
+    @Override
+    public void removeAll() {
+        super.removeAll();
+        onHeapPoolAccessor.clear();
+        onDiskPoolAccessor.clear();
+    }
+
     public boolean evictFromOnHeap(int count, long size) {
         return memoryFactory.evictFromOnHeap(count);
     }
