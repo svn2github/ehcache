@@ -125,9 +125,23 @@ public class OverflowToDiskPoolableStore extends OverflowToDiskStore implements 
             }
             return oldElement;
         } else {
-            super.remove(element.getObjectKey());
             cache.getCacheEventNotificationService().notifyElementEvicted(element, false);
             return element;
+        }
+    }
+
+    @Override
+    public Element replace(Element element) throws NullPointerException {
+        //todo: there is a chance that the element is present but will get evicted by add() which makes super.replace return null while it should not
+        if (onHeapPoolAccessor.add(element.getObjectKey(), element.getObjectValue(), element) > -1) {
+            Element oldElement = super.replace(element);
+            if (oldElement == null) {
+                onHeapPoolAccessor.delete(element.getObjectKey(), element.getObjectValue(), element);
+            }
+            return oldElement;
+        } else {
+            cache.getCacheEventNotificationService().notifyElementEvicted(element, false);
+            return null;
         }
     }
 

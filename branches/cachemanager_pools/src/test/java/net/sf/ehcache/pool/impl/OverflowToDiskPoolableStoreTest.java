@@ -145,8 +145,8 @@ public class OverflowToDiskPoolableStoreTest {
 
         assertEquals(1, countElementsOnHeap(overflowToDiskPoolableStore));
         assertEquals(1, countElementsOnDisk(overflowToDiskPoolableStore));
-        assertEquals(16384 + 1 * 2048, onHeapPool.getSize());
-        assertEquals(16384 * 1, onDiskPool.getSize());
+        assertEquals(16384 + 2048, onHeapPool.getSize());
+        assertEquals(16384, onDiskPool.getSize());
 
 
         // put a new element on-heap
@@ -179,8 +179,8 @@ public class OverflowToDiskPoolableStoreTest {
 
         assertEquals(1, countElementsOnHeap(overflowToDiskPoolableStore));
         assertEquals(1, countElementsOnDisk(overflowToDiskPoolableStore));
-        assertEquals(16384 + 1 * 2048, onHeapPool.getSize());
-        assertEquals(16384 * 1, onDiskPool.getSize());
+        assertEquals(16384 + 2048, onHeapPool.getSize());
+        assertEquals(16384, onDiskPool.getSize());
 
 
         // put a new element on-heap
@@ -279,16 +279,51 @@ public class OverflowToDiskPoolableStoreTest {
         overflowToDiskPoolableStore.remove(key);
 
         assertEquals(2, overflowToDiskPoolableStore.getSize());
-        assertEquals(16384 + 1 * 2048, onHeapPool.getSize());
-        assertEquals(16384 * 1, onDiskPool.getSize());
+        assertEquals(16384 + 2048, onHeapPool.getSize());
+        assertEquals(16384, onDiskPool.getSize());
 
         // remove element in memory
         key = keysOfOnHeapElements(overflowToDiskPoolableStore).iterator().next();
         overflowToDiskPoolableStore.remove(key);
 
         assertEquals(1, overflowToDiskPoolableStore.getSize());
-        assertEquals(1 * 2048, onHeapPool.getSize());
-        assertEquals(16384 * 1, onDiskPool.getSize());
+        assertEquals(2048, onHeapPool.getSize());
+        assertEquals(16384, onDiskPool.getSize());
+    }
+
+    @Test
+    public void testReplace1Arg() throws Exception {
+        // warm up
+        overflowToDiskPoolableStore.put(new Element(1, "1#1"));
+        overflowToDiskPoolableStore.put(new Element(2, "2#1"));
+        overflowToDiskPoolableStore.put(new Element(3, "3#1"));
+
+        assertEquals(3, overflowToDiskPoolableStore.getSize());
+        assertEquals(16384 + 2 * 2048, onHeapPool.getSize());
+        assertEquals(16384 * 2, onDiskPool.getSize());
+
+        // replace element on disk
+        Object key = keysOfOnDiskElements(overflowToDiskPoolableStore).iterator().next();
+        assertEquals(new Element(key, key + "#1"), overflowToDiskPoolableStore.replace(new Element(key, key + "#2")));
+
+        assertEquals(2, overflowToDiskPoolableStore.getSize());
+        assertEquals(16384 + 2048, onHeapPool.getSize());
+        assertEquals(16384, onDiskPool.getSize());
+
+        // replace element in memory
+        key = keysOfOnHeapElements(overflowToDiskPoolableStore).iterator().next();
+        assertEquals(new Element(key, key + "#1"), overflowToDiskPoolableStore.replace(new Element(key, key + "#2")));
+
+        assertEquals(2, overflowToDiskPoolableStore.getSize());
+        assertEquals(16384 + 2048, onHeapPool.getSize());
+        assertEquals(16384, onDiskPool.getSize());
+
+        // replace non-existent key
+        assertNull(overflowToDiskPoolableStore.replace(new Element(-1, -1 + "#2")));
+
+        assertEquals(2, overflowToDiskPoolableStore.getSize());
+        assertEquals(2048 * 2, onHeapPool.getSize());
+        assertEquals(16384 * 2, onDiskPool.getSize());
     }
 
     @Test

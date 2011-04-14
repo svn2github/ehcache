@@ -378,9 +378,12 @@ class Segment extends ReentrantReadWriteLock {
      * @param key key to map the element to
      * @param hash spread-hash for the key
      * @param newElement element to add
-     * @return previous element mapped to this key 
+     * @return new Object[] {
+     *      previous element mapped to this key,
+     *      on-disk substitute if the element was on disk, null otherwise
+     *     }
      */
-    Element replace(Object key, int hash, Element newElement) {
+    Object[] replaceWithFeedback(Object key, int hash, Element newElement) {
         boolean installed = false;
         Object encoded = create(key, newElement);
         
@@ -392,16 +395,20 @@ class Segment extends ReentrantReadWriteLock {
             }
 
             Element oldElement = null;
+            Object onDiskSubstitute = null;
             if (e != null) {
                 Object old = e.getElement();
                 e.setElement(encoded);
                 installed = true;
                 oldElement = decode(null, old);
-                free(old);
+                if (free(old)) {
+                    onDiskSubstitute = old;
+                }
             } else {
                 free(encoded);
             }
-            return oldElement;
+
+            return new Object[] {oldElement, onDiskSubstitute};
         } finally {
             writeLock().unlock();
             

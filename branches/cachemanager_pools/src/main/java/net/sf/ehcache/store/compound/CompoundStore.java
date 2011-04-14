@@ -451,7 +451,15 @@ public abstract class CompoundStore extends AbstractStore {
     public Element replace(Element element) throws NullPointerException {
         Object key = element.getObjectKey();
         int hash = hash(key.hashCode());
-        return segmentFor(hash).replace(key, hash, element);
+        Object feedback[] =  segmentFor(hash).replaceWithFeedback(key, hash, element);
+        Element replacedElement = (Element) feedback[0];
+        Object replacedObject = feedback[1];
+        if (replacedElement != null) {
+            for (InternalEventListener listener : listeners) {
+                listener.onUpdate(replacedObject != null ? replacedObject : replacedElement, element);
+            }
+        }
+        return replacedElement;
     }
 
     /**
