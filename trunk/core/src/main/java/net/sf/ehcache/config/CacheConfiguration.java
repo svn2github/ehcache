@@ -1325,7 +1325,7 @@ public class CacheConfiguration implements Cloneable {
     /**
      * Sets the transactionalMode
      *
-     * @param transactionalMode OFF or XA
+     * @param transactionalMode one of OFF, LOCAL, XA, XA_STRICT
      */
     public final void setTransactionalMode(final String transactionalMode) {
         if (null == transactionalMode) {
@@ -1337,7 +1337,7 @@ public class CacheConfiguration implements Cloneable {
     /**
      * Builder which sets the transactionalMode
      *
-     * @param transactionalMode one of OFF or XA
+     * @param transactionalMode one of OFF, LOCAL, XA, XA_STRICT
      * @return this configuration instance
      * @see #setTransactionalMode(String)
      */
@@ -1349,7 +1349,7 @@ public class CacheConfiguration implements Cloneable {
     /**
      * Builder which sets the transactionalMode
      *
-     * @param transactionalMode one of OFF or XA enum values
+     * @param transactionalMode one of OFF, LOCAL, XA, XA_STRICT
      * @return this configuration instance
      * @see #setTransactionalMode(String)
      */
