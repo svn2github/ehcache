@@ -201,7 +201,12 @@ public abstract class XSDAttributeValueType {
         public String getRandomAllowedValue() {
             int index = RANDOM.nextInt(unitChars.length + 1);
             if(index < unitChars.length) {
-                return String.valueOf(Math.abs(RANDOM.nextInt())) + unitChars[index];
+                switch (unitChars[index]) {
+                    case '%' :
+                        return String.valueOf(Math.abs(RANDOM.nextInt(100) + 1)) + unitChars[index];
+                    default:
+                        return String.valueOf(Math.abs(RANDOM.nextInt())) + unitChars[index];
+                }
             }
             return String.valueOf(Math.abs(RANDOM.nextInt()));
         }
