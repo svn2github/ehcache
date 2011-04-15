@@ -71,43 +71,58 @@ Results results = cache.createQuery().includeValues()
 
 **  Programmatically
 
-    You can create new <<<SearchAttribute>>>s and add them to your cache configuration, and then create your cache.
-
-    This example shows how:
-
----
-CacheConfiguration cacheConfig = new CacheConfiguration("test", -1).eternal(true);
-
-// Create attributes on the stuff we want to be able to search on.
-// You can use an expression for getting at the value to be indexed on a cache or you can
-// code your own.
-
-// Expression
-SearchAttribute sa = new SearchAttribute();
-sa.setExpression("value.getAge()");
-sa.setName("age");
-cacheConfig.addSearchAttribute(sa);
-
-// Coding your own
-sa = new SearchAttribute();
-sa.className("org.sharrissf.sample.EhcacheSearchPlaying$NameAttributeExtractor");
-sa.setName("name");
-cacheConfig.addSearchAttribute(sa);
-
-sa = new SearchAttribute();
-sa.setExpression("value.getGender()");
-sa.setName("gender");
-cacheConfig.addSearchAttribute(sa);
-
-sa = new SearchAttribute();
-sa.setExpression("value.getAddress().getState()");
-sa.setName("state");
-cacheConfig.addSearchAttribute(sa);
-
-Cache test = new Cache(cacheConfig);
-cacheManager.add(test);
+   The following example shows how to programmatically create the cache configuration, with search attributes.
 ---
 
+Configuration cacheManagerConfig = new Configuration();
+
+CacheConfiguration cacheConfig = new CacheConfiguration("myCache", 0).eternal(true);
+
+Searchable searchable = new Searchable();
+
+cacheConfig.addSearchable(searchable);
+
+ 
+
+// Create attributes to use in queries.
+
+searchable.addSearchAttribute(new SearchAttribute().name("age"));
+
+ 
+
+// Use an expression for accessing values.
+
+searchable.addSearchAttribute(new SearchAttribute()
+
+        .name("first_name")
+
+        .expression("value.getFirstName()"));
+
+ 
+
+searchable.addSearchAttribute(new SearchAttribute().name("last_name").expression("value.getLastName()"));
+
+         searchable.addSearchAttribute(new SearchAttribute().name("zip_code").expression("value.getZipCode()"));
+
+ 
+
+cacheManager = new CacheManager(cacheManagerConfig);
+
+cacheManager.addCache(new Cache(cacheConfig));
+
+ 
+
+Ehcache myCache = cacheManager.getEhcache("myCache");
+
+ 
+
+// Now create the attributes and queries, then execute.
+
+...
+
+---
+
+   To learn more about the Ehcache Search API, see the <<<net.sf.ehcache.search*>>> packages in this {{{http://ehcache.org/apidocs/index.html}Javadoc}}.
 
 *  Attribute Extractors
   
