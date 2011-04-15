@@ -40,10 +40,10 @@ public enum MemoryUnit {
         }
     }
 
-    private        final long offset;
+    private        final int offset;
     private        final char unit;
 
-    MemoryUnit(final long offset, final char unit) {
+    MemoryUnit(final int offset, final char unit) {
         this.offset = offset;
         this.unit = unit;
     }
