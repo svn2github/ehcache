@@ -61,6 +61,12 @@ public class CacheConfigurationElement extends SimpleNodeElement {
                 CacheConfiguration.DEFAULT_LOGGING));
 
         addCommonChildElementsWithDefaultCache(this, cacheConfiguration);
+        addAttribute(new SimpleNodeAttribute("maxBytesOnHeap", cacheConfiguration.getMaxBytesOnHeap())
+                .optional(true).defaultValue(String.valueOf(CacheConfiguration.DEFAULT_MAX_BYTES_ON_HEAP)));
+        addAttribute(new SimpleNodeAttribute("maxBytesOffHeap", cacheConfiguration.getMaxBytesOffHeap())
+                .optional(true).defaultValue(String.valueOf(CacheConfiguration.DEFAULT_MAX_BYTES_OFF_HEAP)));
+        addAttribute(new SimpleNodeAttribute("maxBytesOnDisk", cacheConfiguration.getMaxBytesOnDisk())
+            .optional(true).defaultValue(String.valueOf(CacheConfiguration.DEFAULT_MAX_BYTES_ON_DISK)));
     }
 
     /**

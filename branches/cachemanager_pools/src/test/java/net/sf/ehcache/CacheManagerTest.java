@@ -16,10 +16,13 @@
 
 package net.sf.ehcache;
 
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -39,7 +42,10 @@ import net.sf.ehcache.bootstrap.BootstrapCacheLoader;
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.Configuration;
 import net.sf.ehcache.config.ConfigurationFactory;
+import net.sf.ehcache.config.ConfigurationHelper;
 import net.sf.ehcache.config.DiskStoreConfiguration;
+import net.sf.ehcache.config.InvalidConfigurationException;
+import net.sf.ehcache.config.MemoryUnit;
 import net.sf.ehcache.constructs.blocking.BlockingCache;
 import net.sf.ehcache.constructs.blocking.CountingCacheEntryFactory;
 import net.sf.ehcache.constructs.blocking.SelfPopulatingCache;
@@ -97,6 +103,127 @@ public class CacheManagerTest {
             }
             instanceManager.shutdown();
             assertFalse(CacheManager.ALL_CACHE_MANAGERS.contains(instanceManager));
+        }
+    }
+
+    @Test
+    public void testMaxBytesOnCacheConfiguration() throws Exception {
+        CacheConfiguration configuration1 = new CacheConfiguration("one", 0);
+        CacheConfiguration configuration2 = new CacheConfiguration("two", 0);
+        Configuration configuration = new Configuration()
+            .maxOnHeap(5, MemoryUnit.MEGABYTES)
+            .cache(configuration1)
+            .cache(configuration2)
+            .cache(new CacheConfiguration("three", 0));
+        configuration1.setMaxBytesOnHeap("20%");
+        configuration2.setMaxBytesOnHeap("20%");
+
+        CacheManager cacheManager = new CacheManager(configuration);
+        assertThat(cacheManager.getCache("one").getCacheConfiguration().getMaxBytesOnHeap(), equalTo(MemoryUnit.MEGABYTES.toBytes(1)));
+        assertThat(cacheManager.getCache("two").getCacheConfiguration().getMaxBytesOnHeap(), equalTo(MemoryUnit.MEGABYTES.toBytes(1)));
+        assertThat(cacheManager.getCache("three").getCacheConfiguration().getMaxBytesOnHeap(), equalTo(0L));
+
+        configuration1 = new CacheConfiguration("one", 0);
+        configuration2 = new CacheConfiguration("two", 0);
+        configuration = new Configuration()
+            .cache(configuration1)
+            .cache(configuration2);
+        configuration1.setMaxBytesOnHeap("2048");
+        configuration2.setMaxBytesOnHeap("20%");
+
+        try {
+            new CacheManager(configuration);
+            fail("This should have thrown an InvalidConfigurationException");
+        } catch (InvalidConfigurationException e) {
+            assertThat(e.getMessage().contains("percentage maxBytesOnHeap"), is(true));
+            assertThat(e.getMessage().contains("no CacheManager wide value"), is(true));
+            assertThat(e.getMessage().contains("two"), is(true));
+        }
+    }
+
+    @Test
+    public void testMaxBytesOverAllocated() {
+
+        Configuration configuration = new Configuration()
+            .maxOnHeap(50, MemoryUnit.KILOBYTES)
+            .cache(new CacheConfiguration("one", 0).maxOnHeap(30, MemoryUnit.KILOBYTES))
+            .cache(new CacheConfiguration("two", 0).maxOnHeap(30, MemoryUnit.KILOBYTES));
+
+        try {
+            new CacheManager(configuration);
+            fail("This should have thrown an InvalidConfigurationException");
+        } catch (InvalidConfigurationException e) {
+            assertThat(e.getMessage().contains("over-allocate"), is(true));
+        }
+
+        CacheConfiguration configuration1 = new CacheConfiguration("one", 0);
+        CacheConfiguration configuration2 = new CacheConfiguration("two", 0);
+        CacheConfiguration configuration3 = new CacheConfiguration("three", 0);
+        CacheConfiguration configuration4 = new CacheConfiguration("four", 0);
+        configuration = new Configuration()
+            .maxOnHeap(30, MemoryUnit.KILOBYTES)
+            .cache(configuration1)
+            .cache(configuration2)
+            .cache(configuration3)
+            .cache(configuration4);
+
+        configuration1.setMaxBytesOnHeap("30%");
+        configuration2.setMaxBytesOnHeap("30%");
+        configuration3.setMaxBytesOnHeap("30%");
+        configuration4.setMaxBytesOnHeap("30%");
+
+        try {
+            new CacheManager(configuration);
+            fail("This should have thrown an InvalidConfigurationException");
+        } catch (InvalidConfigurationException e) {
+            assertThat(e.getMessage().contains("over-allocate"), is(true));
+        }
+
+        configuration = new Configuration()
+            .maxOnHeap(4096, MemoryUnit.GIGABYTES)
+            .cache(new CacheConfiguration("one", 0).maxOnHeap(30, MemoryUnit.KILOBYTES))
+            .cache(new CacheConfiguration("two", 0).maxOnHeap(30, MemoryUnit.KILOBYTES));
+
+        try {
+            new CacheManager(configuration);
+            fail("This should have thrown an InvalidConfigurationException");
+        } catch (InvalidConfigurationException e) {
+            assertThat(e.getMessage().contains("-Xmx"), is(true));
+        }
+
+        configuration = new Configuration()
+            .cache(new CacheConfiguration("one", 0).maxOnHeap(2048, MemoryUnit.GIGABYTES))
+            .cache(new CacheConfiguration("two", 0).maxOnHeap(2048, MemoryUnit.GIGABYTES));
+
+        try {
+            new CacheManager(configuration);
+            fail("This should have thrown an InvalidConfigurationException");
+        } catch (InvalidConfigurationException e) {
+            assertThat(e.getMessage().contains("-Xmx"), is(true));
+        }
+
+        configuration1 = new CacheConfiguration("one", 0);
+        configuration2 = new CacheConfiguration("two", 0);
+        configuration3 = new CacheConfiguration("three", 0);
+        configuration4 = new CacheConfiguration("four", 0);
+        configuration = new Configuration()
+            .maxOnHeap(30, MemoryUnit.KILOBYTES)
+            .cache(configuration1)
+            .cache(configuration2)
+            .cache(configuration3);
+
+        configuration1.setMaxBytesOnHeap("30%");
+        configuration2.setMaxBytesOnHeap("30%");
+        configuration3.setMaxBytesOnHeap("30%");
+        configuration4.setMaxBytesOnHeap("30%");
+
+        CacheManager cacheManager = new CacheManager(configuration);
+        try {
+            cacheManager.addCache(new Cache(configuration4));
+            fail("This should have thrown an InvalidConfigurationException");
+        } catch (InvalidConfigurationException e) {
+            assertThat(e.getMessage().contains("over-allocate"), is(true));
+            assertThat(e.getMessage().contains("'four'"), is(true));
         }
     }
 

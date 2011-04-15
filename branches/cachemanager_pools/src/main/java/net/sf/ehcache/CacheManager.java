@@ -92,6 +92,8 @@ public class CacheManager {
      */
     public static final String DEFAULT_NAME = "__DEFAULT__";
 
+    public static final double ON_HEAP_THRESHOLD = 0.8;
+
     /**
      * Keeps track of all known CacheManagers. Used to check on conflicts.
      * CacheManagers should remove themselves from this list during shut down.
@@ -248,7 +250,7 @@ public class CacheManager {
      * URL url = this.getClass().getResource(&quot;/ehcache-2.xml&quot;);
      * </pre>
      *
-     * Note that {@link Class#getResource} will look for resources in the same package unless a leading "/" is used, in which case it will
+     * Note that {@link Class#getResource(String)} will look for resources in the same package unless a leading "/" is used, in which case it will
      * look in the root of the classpath.
      * <p/>
      * You can also load a resource using other class loaders. e.g. {@link Thread#getContextClassLoader()}
@@ -740,7 +742,7 @@ public class CacheManager {
      * URL url = this.getClass().getResource(&quot;/ehcache-2.xml&quot;);
      * </pre>
      *
-     * Note that {@link Class#getResource} will look for resources in the same package unless a leading "/" is used, in which case it will
+     * Note that {@link Class#getResource(String)} will look for resources in the same package unless a leading "/" is used, in which case it will
      * look in the root of the classpath.
      * <p/>
      * You can also load a resource using other class loaders. e.g. {@link Thread#getContextClassLoader()}
@@ -1018,6 +1020,51 @@ public class CacheManager {
         }
     }
 
+    private void configCachePools(CacheConfiguration cacheConfiguration) {
+
+        long cacheAssignedMem;
+        if(cacheConfiguration.getMaxBytesOnHeapPercentage() != null) {
+            cacheAssignedMem = configuration.getMaxBytesOnHeap() * cacheConfiguration.getMaxBytesOnHeapPercentage() / 100;
+            cacheConfiguration.setMaxBytesOnHeap(cacheAssignedMem);
+        }
+
+        if(cacheConfiguration.getMaxBytesOffHeapPercentage() != null) {
+            cacheAssignedMem = configuration.getMaxBytesOffHeap() * cacheConfiguration.getMaxBytesOffHeapPercentage() / 100;
+            cacheConfiguration.setMaxBytesOffHeap(cacheAssignedMem);
+        }
+
+        if(cacheConfiguration.getMaxBytesOnDiskPercentage() != null) {
+            cacheAssignedMem = configuration.getMaxBytesOnDisk() * cacheConfiguration.getMaxBytesOnDiskPercentage() / 100;
+            cacheConfiguration.setMaxBytesOnDisk(cacheAssignedMem);
+        }
+
+    }
+
+    private void validatePoolConfig(CacheConfiguration cacheConfiguration) {
+
+        if(configuration.isMaxBytesOnHeapSet() && Runtime.getRuntime().maxMemory() - configuration.getMaxBytesOnHeap() < 0) {
+            throw new InvalidConfigurationException("You've assigned more memory to the on-heap than the VM can sustain, " +
+                                                    "please adjust your -Xmx setting accordingly");
+        }
+
+        // todo Verify that these are the real constraints ?
+        if(cacheConfiguration.isMaxBytesOnHeapPercentageSet() && !configuration.isMaxBytesOnHeapSet()) {
+            throw new InvalidConfigurationException("Cache '" + cacheConfiguration.getName() +
+                                                    "' defines a percentage maxBytesOnHeap value but no CacheManager " +
+                                                    "wide value was configured");
+        }
+        if(cacheConfiguration.isMaxBytesOffHeapPercentageSet() && !configuration.isMaxBytesOffHeapSet()) {
+            throw new InvalidConfigurationException("Cache '" + cacheConfiguration.getName() +
+                                                    "' defines a percentage maxBytesOffHeap value but no CacheManager " +
+                                                    "wide value was configured");
+        }
+        if(cacheConfiguration.isMaxBytesOnDiskPercentageSet() && !configuration.isMaxBytesOnDiskSet()) {
+            throw new InvalidConfigurationException("Cache '" + cacheConfiguration.getName() +
+                                                    "' defines a percentage maxBytesOnDisk value but no CacheManager " +
+                                                    "wide value was configured");
+        }
+    }
+
     private Ehcache addCacheNoCheck(Ehcache cache, final boolean strict) throws IllegalStateException, ObjectExistsException,
             CacheException {
 
@@ -1030,6 +1077,8 @@ public class CacheManager {
                     + "use CacheManager.addDecoratedCache" + "(Ehcache decoratedCache) instead.");
         }
 
+        validatePoolConfig(cache.getCacheConfiguration());
+
         Ehcache ehcache = ehcaches.get(cache.getName());
         if (ehcache != null) {
             if (strict) {
@@ -1038,6 +1087,8 @@ public class CacheManager {
                 return ehcache;
             }
         }
+        configCachePools(cache.getCacheConfiguration());
+        verifyPoolAllocationsBeforeAdding(cache.getCacheConfiguration());
         cache.setCacheManager(this);
         if (cache.getCacheConfiguration().getDiskStorePath() == null) {
             cache.setDiskStorePath(diskStorePath);
@@ -1079,6 +1130,50 @@ public class CacheManager {
         return cache;
     }
 
+    private void verifyPoolAllocationsBeforeAdding(final CacheConfiguration cacheConfiguration) {
+        long totalOnHeapAssignedMemory  = 0;
+        long totalOffHeapAssignedMemory = 0;
+        long totalOnDiskAssignedMemory  = 0;
+
+        for (Ehcache ehcache : ehcaches.values()) {
+            totalOnHeapAssignedMemory += ehcache.getCacheConfiguration().getMaxBytesOnHeap();
+            totalOffHeapAssignedMemory += ehcache.getCacheConfiguration().getMaxBytesOffHeap();
+            totalOnDiskAssignedMemory += ehcache.getCacheConfiguration().getMaxBytesOnDisk();
+        }
+
+        totalOnHeapAssignedMemory += cacheConfiguration.getMaxBytesOnHeap();
+        totalOffHeapAssignedMemory += cacheConfiguration.getMaxBytesOffHeap();
+        totalOnDiskAssignedMemory += cacheConfiguration.getMaxBytesOnDisk();
+
+        if (configuration.isMaxBytesOnHeapSet() && configuration.getMaxBytesOnHeap() - totalOnHeapAssignedMemory < 0) {
+            throw new InvalidConfigurationException("Adding cache '" + cacheConfiguration.getName()
+                                                    + "' to the CacheManager over-allocates onHeap memory!");
+        }
+        if (configuration.isMaxBytesOffHeapSet() && configuration.getMaxBytesOffHeap() - totalOffHeapAssignedMemory < 0) {
+            throw new InvalidConfigurationException("Adding cache '" + cacheConfiguration.getName()
+                                                    + "' to the CacheManager over-allocates offHeap memory!");
+        }
+        if (configuration.isMaxBytesOnDiskSet() && configuration.getMaxBytesOnDisk() - totalOnDiskAssignedMemory < 0) {
+            throw new InvalidConfigurationException("Adding cache '" + cacheConfiguration.getName()
+                                                    + "' to the CacheManager over-allocates onDisk space!");
+        }
+
+        if(configuration.isMaxBytesOnHeapSet() && configuration.getMaxBytesOnHeap() - totalOnHeapAssignedMemory == 0) {
+            LOG.warn("All the onHeap memory has been assigned, there is none left for dynamically added caches");
+        }
+
+        if(Runtime.getRuntime().maxMemory() - totalOnHeapAssignedMemory < 0) {
+            // todo this could be a nicer message (with actual values)
+            throw new InvalidConfigurationException("You've assigned more memory to the on-heap than the VM can sustain, " +
+                                                    "please adjust your -Xmx setting accordingly");
+        }
+
+        if(configuration.isMaxBytesOnHeapSet()
+           && configuration.getMaxBytesOnHeap() / (float) Runtime.getRuntime().maxMemory() > ON_HEAP_THRESHOLD) {
+            LOG.warn("You've assigned over 80% of your VM's heap to be used by the cache!");
+        }
+    }
+
     /**
      * Checks whether a cache of type ehcache exists.
      * <p/>
@@ -1095,7 +1190,7 @@ public class CacheManager {
     }
 
     /**
-     * Removes all caches using {@link #removeCache} for each cache.
+     * Removes all caches using {@link #removeCache(String)} for each cache.
      */
     public void removalAll() {
         String[] cacheNames = getCacheNames();

@@ -45,7 +45,10 @@ public final class Configuration {
     /**
      * Default value for defaultTransactionTimeoutInSeconds
      */
-    public static final int DEFAULT_TRANSACTION_TIMEOUT = 15;
+    public static final int  DEFAULT_TRANSACTION_TIMEOUT = 15;
+    public static final long DEFAULT_MAX_BYTES_ON_HEAP   =  0;
+    public static final long DEFAULT_MAX_BYTES_OFF_HEAP  =  0;
+    public static final long DEFAULT_MAX_BYTES_ON_DISK   =  0;
     /**
      * Default value for monitoring
      */
@@ -55,6 +58,18 @@ public final class Configuration {
      * Default transactionManagerLookupConfiguration
      */
     public static final FactoryConfiguration DEFAULT_TRANSACTION_MANAGER_LOOKUP_CONFIG = getDefaultTransactionManagerLookupConfiguration();
+
+    public boolean isMaxBytesOnDiskSet() {
+        return maxBytesOnDisk != null;
+    }
+
+    public boolean isMaxBytesOffHeapSet() {
+        return maxBytesOffHeap != null;
+    }
+
+    public boolean isMaxBytesOnHeapSet() {
+        return maxBytesOnHeap != null;
+    }
 
     /**
      * Represents whether monitoring should be enabled or not.
@@ -86,6 +101,9 @@ public final class Configuration {
     private final Map<String, CacheConfiguration> cacheConfigurations = new ConcurrentHashMap<String, CacheConfiguration>();
     private ConfigurationSource configurationSource;
     private boolean dynamicConfig = DEFAULT_DYNAMIC_CONFIG;
+    private Long maxBytesOnHeap;
+    private Long maxBytesOffHeap;
+    private Long maxBytesOnDisk;
 
     /**
      * Empty constructor, which is used by {@link ConfigurationFactory}, and can be also used programmatically.
@@ -237,6 +255,86 @@ public final class Configuration {
      */
     public final boolean getDynamicConfig() {
         return this.dynamicConfig;
+    }
+
+    public long getMaxBytesOnHeap() {
+        return maxBytesOnHeap == null ? DEFAULT_MAX_BYTES_ON_HEAP : maxBytesOnHeap;
+    }
+
+    public void setMaxBytesOnHeap(final String maxBytesOnHeap) {
+        if(isPercentage(maxBytesOnHeap)) {
+            long maxMemory = Runtime.getRuntime().maxMemory();
+            long mem = maxMemory / 100 * parsePercentage(maxBytesOnHeap);
+            setMaxBytesOnHeap(mem);
+        } else {
+            setMaxBytesOnHeap(MemoryUnit.parseSizeInBytes(maxBytesOnHeap));
+        }
+    }
+
+    private int parsePercentage(final String stringValue) {
+        String trimmed = stringValue.trim();
+        int percentage = Integer.parseInt(trimmed.substring(0, trimmed.length() - 1));
+        if(percentage > 100 || percentage < 0) {
+            throw new IllegalArgumentException("Percentage need values need to be between 0 and 100 inclusive, but got : " + percentage);
+        }
+        return percentage;
+    }
+
+    private boolean isPercentage(final String stringValue) {
+        String trimmed = stringValue.trim();
+        return trimmed.charAt(trimmed.length() - 1) == '%';
+    }
+
+    public void setMaxBytesOnHeap(final Long maxBytesOnHeap) {
+        verifyGreaterThanZero(maxBytesOnHeap, "maxBytesOnHeap");
+        this.maxBytesOnHeap = maxBytesOnHeap;
+    }
+
+    public Configuration maxOnHeap(final long amount, final MemoryUnit memoryUnit) {
+        setMaxBytesOnHeap(memoryUnit.toBytes(amount));
+        return this;
+    }
+
+    public long getMaxBytesOffHeap() {
+        return maxBytesOffHeap == null ? DEFAULT_MAX_BYTES_OFF_HEAP : maxBytesOffHeap;
+    }
+
+    public void setMaxBytesOffHeap(final String maxBytesOffHeap) {
+        setMaxBytesOffHeap(MemoryUnit.parseSizeInBytes(maxBytesOffHeap));
+    }
+
+    public void setMaxBytesOffHeap(final Long maxBytesOffHeap) {
+        verifyGreaterThanZero(maxBytesOffHeap, "maxBytesOffHeap");
+        this.maxBytesOffHeap = maxBytesOffHeap;
+    }
+
+    public Configuration maxOffHeap(final long amount, final MemoryUnit memoryUnit) {
+        setMaxBytesOffHeap(memoryUnit.toBytes(amount));
+        return this;
+    }
+
+    public long getMaxBytesOnDisk() {
+        return maxBytesOnDisk == null ? DEFAULT_MAX_BYTES_ON_DISK : maxBytesOnDisk;
+    }
+
+    public void setMaxBytesOnDisk(final String maxBytesOnDisk) {
+        setMaxBytesOnDisk(MemoryUnit.parseSizeInBytes(maxBytesOnDisk));
+    }
+
+    public void setMaxBytesOnDisk(final Long maxBytesOnDisk) {
+        verifyGreaterThanZero(maxBytesOnDisk, "maxBytesOnDisk");
+        this.maxBytesOnDisk = maxBytesOnDisk;
+    }
+
+    public Configuration maxOnDisk(final long amount, final MemoryUnit memoryUnit) {
+        setMaxBytesOnDisk(memoryUnit.toBytes(amount));
+        return this;
+    }
+
+    private void verifyGreaterThanZero(final Long maxBytesOnHeap, final String field) {
+        if(maxBytesOnHeap != null && maxBytesOnHeap < 1) {
+            throw new IllegalArgumentException(field + " has to be larger than 0");
+        }
     }
 
     /**

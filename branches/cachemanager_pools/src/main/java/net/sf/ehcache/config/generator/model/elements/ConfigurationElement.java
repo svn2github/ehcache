@@ -61,6 +61,12 @@ public class ConfigurationElement extends SimpleNodeElement {
                 String.valueOf(Configuration.DEFAULT_DYNAMIC_CONFIG)));
         addAttribute(new SimpleNodeAttribute("defaultTransactionTimeoutInSeconds", configuration.getDefaultTransactionTimeoutInSeconds())
                 .optional(true).defaultValue(String.valueOf(Configuration.DEFAULT_TRANSACTION_TIMEOUT)));
+        addAttribute(new SimpleNodeAttribute("maxBytesOnHeap", configuration.getMaxBytesOnHeap())
+                .optional(true).defaultValue(String.valueOf(Configuration.DEFAULT_MAX_BYTES_ON_HEAP)));
+        addAttribute(new SimpleNodeAttribute("maxBytesOffHeap", configuration.getMaxBytesOffHeap())
+                .optional(true).defaultValue(String.valueOf(Configuration.DEFAULT_MAX_BYTES_OFF_HEAP)));
+        addAttribute(new SimpleNodeAttribute("maxBytesOnDisk", configuration.getMaxBytesOnDisk())
+                .optional(true).defaultValue(String.valueOf(Configuration.DEFAULT_MAX_BYTES_ON_DISK)));
 
         // add the child elements
         DiskStoreConfiguration diskStoreConfiguration = configuration.getDiskStoreConfiguration();

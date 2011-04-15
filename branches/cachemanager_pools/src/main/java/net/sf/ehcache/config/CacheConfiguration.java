@@ -169,6 +169,11 @@ public class CacheConfiguration implements Cloneable {
     public static final ElementValueComparatorConfiguration DEFAULT_ELEMENT_VALUE_COMPARATOR_CONFIGURATION =
            new ElementValueComparatorConfiguration();
 
+    public static final long DEFAULT_MAX_BYTES_ON_HEAP  = 0;
+    public static final long DEFAULT_MAX_BYTES_OFF_HEAP = 0;
+    public static final long DEFAULT_MAX_BYTES_ON_DISK  = 0;
+
+
     private static final Logger LOG = LoggerFactory.getLogger(CacheConfiguration.class.getName());
 
     /**
@@ -344,6 +349,12 @@ public class CacheConfiguration implements Cloneable {
     private volatile Boolean copyOnWrite;
     private volatile boolean conflictingEternalValuesWarningLogged;
     private volatile Searchable searchable;
+    private Long maxBytesOnHeap;
+    private Long maxBytesOffHeap;
+    private Long maxBytesOnDisk;
+    private Integer maxBytesOffHeapPercentage;
+    private Integer maxBytesOnHeapPercentage;
+    private Integer maxBytesOnDiskPercentage;
 
     /**
      * Default constructor.
@@ -1086,6 +1097,105 @@ public class CacheConfiguration implements Cloneable {
         this.searchable = searchable;
     }
 
+
+    public long getMaxBytesOnHeap() {
+        return maxBytesOnHeap == null ? DEFAULT_MAX_BYTES_ON_HEAP : maxBytesOnHeap;
+    }
+
+    public void setMaxBytesOnHeap(final String maxBytesOnHeap) {
+        if (isPercentage(maxBytesOnHeap)) {
+            maxBytesOnHeapPercentage = parsePercentage(maxBytesOnHeap);
+        } else {
+            setMaxBytesOnHeap(MemoryUnit.parseSizeInBytes(maxBytesOnHeap));
+        }
+    }
+
+    public void setMaxBytesOnHeap(final Long maxBytesOnHeap) {
+        verifyGreaterThanZero(maxBytesOnHeap, "maxBytesOnHeap");
+        this.maxBytesOnHeap = maxBytesOnHeap;
+    }
+
+    public CacheConfiguration maxOnHeap(final long amount, final MemoryUnit memoryUnit) {
+        setMaxBytesOnHeap(memoryUnit.toBytes(amount));
+        return this;
+    }
+
+    public long getMaxBytesOffHeap() {
+        return maxBytesOffHeap == null ? DEFAULT_MAX_BYTES_OFF_HEAP : maxBytesOffHeap;
+    }
+
+    public void setMaxBytesOffHeap(final String maxBytesOffHeap) {
+        if(!isPercentage(maxBytesOffHeap)) {
+            setMaxBytesOffHeap(MemoryUnit.parseSizeInBytes(maxBytesOffHeap));
+        } else {
+            maxBytesOffHeapPercentage = parsePercentage(maxBytesOffHeap);
+        }
+    }
+
+    public Integer getMaxBytesOffHeapPercentage() {
+        return maxBytesOffHeapPercentage;
+    }
+
+    public Integer getMaxBytesOnHeapPercentage() {
+        return maxBytesOnHeapPercentage;
+    }
+
+    public Integer getMaxBytesOnDiskPercentage() {
+        return maxBytesOnDiskPercentage;
+    }
+
+    private int parsePercentage(final String stringValue) {
+        String trimmed = stringValue.trim();
+        int percentage = Integer.parseInt(trimmed.substring(0, trimmed.length() - 1));
+        if(percentage > 100 || percentage < 0) {
+            throw new IllegalArgumentException("Percentage need values need to be between 0 and 100 inclusive, but got : " + percentage);
+        }
+        return percentage;
+    }
+
+    private boolean isPercentage(final String stringValue) {
+        String trimmed = stringValue.trim();
+        return trimmed.charAt(trimmed.length() - 1) == '%';
+    }
+
+    public void setMaxBytesOffHeap(final Long maxBytesOffHeap) {
+        verifyGreaterThanZero(maxBytesOffHeap, "maxBytesOffHeap");
+        this.maxBytesOffHeap = maxBytesOffHeap;
+    }
+
+    public CacheConfiguration maxOffHeap(final long amount, final MemoryUnit memoryUnit) {
+        setMaxBytesOffHeap(memoryUnit.toBytes(amount));
+        return this;
+    }
+
+    public long getMaxBytesOnDisk() {
+        return maxBytesOnDisk == null ? DEFAULT_MAX_BYTES_ON_DISK : maxBytesOnDisk;
+    }
+
+    public void setMaxBytesOnDisk(final String maxBytesOnDisk) {
+        if (isPercentage(maxBytesOnDisk)) {
+            maxBytesOnDiskPercentage = parsePercentage(maxBytesOnDisk);
+        } else {
+            setMaxBytesOnDisk(MemoryUnit.parseSizeInBytes(maxBytesOnDisk));
+        }
+    }
+
+    public void setMaxBytesOnDisk(final Long maxBytesOnDisk) {
+        verifyGreaterThanZero(maxBytesOnDisk, "maxBytesOnDisk");
+        this.maxBytesOnDisk = maxBytesOnDisk;
+    }
+
+    public CacheConfiguration maxOnDisk(final long amount, final MemoryUnit memoryUnit) {
+        setMaxBytesOnDisk(memoryUnit.toBytes(amount));
+        return this;
+    }
+
+    private void verifyGreaterThanZero(final Long maxBytesOnHeap, final String field) {
+        if(maxBytesOnHeap != null && maxBytesOnHeap < 1) {
+            throw new IllegalArgumentException(field + " has to be larger than 0");
+        }
+    }
+
     /**
      * Returns the copyStrategyConfiguration
      *
@@ -1102,6 +1212,18 @@ public class CacheConfiguration implements Cloneable {
      */
     public ElementValueComparatorConfiguration getElementValueComparatorConfiguration() {
         return elementValueComparatorConfiguration;
+    }
+
+    public boolean isMaxBytesOnHeapPercentageSet() {
+        return maxBytesOnHeapPercentage != null;
+    }
+
+    public boolean isMaxBytesOffHeapPercentageSet() {
+        return maxBytesOffHeapPercentage != null;
+    }
+
+    public boolean isMaxBytesOnDiskPercentageSet() {
+        return maxBytesOnDiskPercentage != null;
     }
 
     /**

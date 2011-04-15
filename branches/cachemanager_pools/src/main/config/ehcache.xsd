@@ -18,6 +18,9 @@
             <xs:attribute default="autodetect" name="monitoring" type="monitoringType" use="optional"/>
             <xs:attribute default="true" name="dynamicConfig" type="xs:boolean" use="optional"/>
             <xs:attribute default="15" name="defaultTransactionTimeoutInSeconds" type="xs:integer" use="optional"/>
+            <xs:attribute default="0" name="maxBytesOnHeap" type="memoryUnitOrPercentage" use="optional"/>
+            <xs:attribute default="0" name="maxBytesOffHeap" type="memoryUnit" use="optional"/>
+            <xs:attribute default="0" name="maxBytesOnDisk" type="memoryUnit" use="optional"/>
         </xs:complexType>
     </xs:element>
     <xs:element name="diskStore">
@@ -140,6 +143,9 @@
             <xs:attribute name="cacheLoaderTimeoutMillis" type="xs:integer" use="optional" default="0"/>
             <xs:attribute name="overflowToOffHeap" type="xs:boolean" use="optional" default="false"/>
             <xs:attribute name="maxMemoryOffHeap" type="xs:string" use="optional"/>
+            <xs:attribute default="0" name="maxBytesOnHeap" type="memoryUnitOrPercentage" use="optional"/>
+            <xs:attribute default="0" name="maxBytesOffHeap" type="memoryUnitOrPercentage" use="optional"/>
+            <xs:attribute default="0" name="maxBytesOnDisk" type="memoryUnitOrPercentage" use="optional"/>
         </xs:complexType>
     </xs:element>
     <xs:element name="cacheEventListenerFactory">
@@ -332,6 +338,16 @@
             <xs:enumeration value="local"/>
             <xs:enumeration value="remote"/>
             <xs:enumeration value="all"/>
+        </xs:restriction>
+    </xs:simpleType>
+    <xs:simpleType name="memoryUnit">
+        <xs:restriction base="xs:token">
+            <xs:pattern value="[0-9]+[bBkKmMgG]?"/>
+        </xs:restriction>
+    </xs:simpleType>
+    <xs:simpleType name="memoryUnitOrPercentage">
+        <xs:restriction base="xs:token">
+            <xs:pattern value="([0-9]+[bBkKmMgG]?|100%|[0-9]{1,2}%)"/>
         </xs:restriction>
     </xs:simpleType>
 </xs:schema>

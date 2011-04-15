@@ -19,7 +19,9 @@ package net.sf.ehcache.config;
 import net.sf.ehcache.AbstractCacheTest;
 import net.sf.ehcache.CacheManager;
 
+import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -41,6 +43,41 @@ public class ConfigurationHelperTest extends AbstractCacheTest {
 
     private static final Logger LOG = LoggerFactory.getLogger(ConfigurationHelperTest.class.getName());
 
+    @Test
+    public void testMaxBytesOnConfiguration() {
+        Configuration configuration = new Configuration()
+            .maxOnHeap(20, MemoryUnit.MEGABYTES)
+            .maxOffHeap(2, MemoryUnit.GIGABYTES)
+            .maxOnDisk(2000, MemoryUnit.GIGABYTES);
+
+        assertThat(configuration.getMaxBytesOnHeap(), is(MemoryUnit.MEGABYTES.toBytes(20)));
+        assertThat(configuration.getMaxBytesOffHeap(), is((long) 2 * 1024 * 1024 * 1024));
+        assertThat(configuration.getMaxBytesOnDisk(), is((long) 2000 * 1024 * 1024 * 1024));
+
+        configuration.setMaxBytesOnHeap((Long) null);
+        assertThat(configuration.getMaxBytesOnHeap(), is(0L));
+        assertThat(configuration.getMaxBytesOffHeap(), is((long) 2 * 1024 * 1024 * 1024));
+        assertThat(configuration.getMaxBytesOnDisk(), is((long)2000 * 1024 * 1024 * 1024));
+
+        configuration.setMaxBytesOffHeap((Long)null);
+        assertThat(configuration.getMaxBytesOnHeap(), is(0L));
+        assertThat(configuration.getMaxBytesOffHeap(), is(0L));
+        assertThat(configuration.getMaxBytesOnDisk(), is((long)2000 * 1024 * 1024 * 1024));
+
+        configuration.setMaxBytesOnDisk((Long)null);
+        assertThat(configuration.getMaxBytesOnHeap(), is(0L));
+        assertThat(configuration.getMaxBytesOffHeap(), is(0L));
+        assertThat(configuration.getMaxBytesOnDisk(), is(0L));
+
+        configuration = new Configuration();
+        configuration.setMaxBytesOnHeap("1g");
+        configuration.setMaxBytesOffHeap("12G");
+        configuration.setMaxBytesOnDisk("200G");
+
+        assertThat(configuration.getMaxBytesOnHeap(), is(MemoryUnit.GIGABYTES.toBytes(1)));
+        assertThat(configuration.getMaxBytesOffHeap(), is(MemoryUnit.GIGABYTES.toBytes(12)));
+        assertThat(configuration.getMaxBytesOnDisk(), is(MemoryUnit.GIGABYTES.toBytes(200)));
+    }
 
     /**
      * Should not give exceptions
