@@ -18,11 +18,11 @@ package net.sf.ehcache.store.compound.factories;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.Lock;
 
+import net.sf.ehcache.event.RegisteredEventListeners;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -61,17 +61,20 @@ public class DiskOverflowStorageFactory extends DiskStorageFactory<ElementSubsti
     private volatile CapacityLimitedInMemoryFactory memory;
 
     private volatile int                            capacity;
+    private final RegisteredEventListeners cacheEventNotificationService;
 
     /**
      * Constructs an overflow factory for the given cache and disk path.
      *
      * @param cache cache that fronts this factory
      * @param diskPath path to store data in
+     * @param cacheEventNotificationService
      */
-    public DiskOverflowStorageFactory(Ehcache cache, String diskPath) {
+    public DiskOverflowStorageFactory(Ehcache cache, String diskPath, RegisteredEventListeners cacheEventNotificationService) {
         super(getDataFile(diskPath, cache), cache.getCacheConfiguration().getDiskExpiryThreadIntervalSeconds(),
                 cache.getCacheConfiguration().getDiskSpoolBufferSizeMB(), cache.getCacheEventNotificationService(),
                 true, cache.getCacheConfiguration().getDiskAccessStripes());
+        this.cacheEventNotificationService = cacheEventNotificationService;
         this.capacity = cache.getCacheConfiguration().getMaxElementsOnDisk();
     }
 
@@ -187,7 +190,20 @@ public class DiskOverflowStorageFactory extends DiskStorageFactory<ElementSubsti
     }
 
     public boolean evictFromOnDisk(int count) {
-        return evict(count, null, MAX_EVICT);
+        boolean foundTarget = false;
+        for (int i = 0; i < count; i++) {
+            DiskSubstitute target = getEvictionTarget(null, count);
+            if (target == null) {
+                continue;
+            } else {
+                foundTarget = true;
+                Element element = store.evictElement(target.getKey(), target);
+                if (cacheEventNotificationService != null) {
+                    cacheEventNotificationService.notifyElementEvicted(element, false);
+                }
+            }
+        }
+        return foundTarget;
     }
 
     private boolean evict(int n, Object keyHint, int size) {

@@ -60,7 +60,7 @@ public class OverflowToDiskStore extends CompoundStore implements CacheConfigura
      */
     public static OverflowToDiskStore create(Cache cache, String diskStorePath) {
         CacheConfiguration config = cache.getCacheConfiguration();
-        DiskOverflowStorageFactory disk = new DiskOverflowStorageFactory(cache, diskStorePath);
+        DiskOverflowStorageFactory disk = new DiskOverflowStorageFactory(cache, diskStorePath, null);
         CapacityLimitedInMemoryFactory memory = new CapacityLimitedInMemoryFactory(disk, config.getMaxElementsInMemory(), 
                 determineEvictionPolicy(config), cache.getCacheEventNotificationService());            
         OverflowToDiskStore store = new OverflowToDiskStore(memory, disk, config);

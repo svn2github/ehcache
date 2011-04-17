@@ -1,8 +1,11 @@
 package net.sf.ehcache.pool.impl;
 
 import net.sf.ehcache.Cache;
+import net.sf.ehcache.CacheException;
+import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.config.CacheConfiguration;
+import net.sf.ehcache.event.CacheEventListener;
 import net.sf.ehcache.store.DefaultElementValueComparator;
 import org.junit.After;
 import org.junit.Before;
@@ -16,7 +19,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
-import static junit.framework.Assert.fail;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -28,10 +30,11 @@ import static org.junit.Assert.assertTrue;
  */
 public class OverflowToDiskPoolableStoreTest {
 
-    private Cache cache;
-    private BoundedPool onHeapPool;
-    private BoundedPool onDiskPool;
-    private OverflowToDiskPoolableStore overflowToDiskPoolableStore;
+    private volatile Cache cache;
+    private volatile BoundedPool onHeapPool;
+    private volatile BoundedPool onDiskPool;
+    private volatile OverflowToDiskPoolableStore overflowToDiskPoolableStore;
+    private volatile Element lastEvicted;
 
     private static Collection<Object> keysOfOnHeapElements(OverflowToDiskPoolableStore store) {
         List<Object> result = new ArrayList<Object>();
@@ -94,6 +97,30 @@ public class OverflowToDiskPoolableStoreTest {
     @Before
     public void setUp() {
         cache = new Cache(new CacheConfiguration("myCache1", 0).eternal(true));
+
+        lastEvicted = null;
+        cache.getCacheEventNotificationService().registerListener(new CacheEventListener() {
+            public void notifyElementRemoved(Ehcache cache, Element element) throws CacheException { }
+
+            public void notifyElementPut(Ehcache cache, Element element) throws CacheException { }
+
+            public void notifyElementUpdated(Ehcache cache, Element element) throws CacheException { }
+
+            public void notifyElementExpired(Ehcache cache, Element element) { }
+
+            public void notifyElementEvicted(Ehcache cache, Element element) {
+                lastEvicted = element;
+            }
+
+            public void notifyRemoveAll(Ehcache cache) { }
+
+            public void dispose() { }
+
+            @Override
+            public Object clone() throws CloneNotSupportedException {
+                return super.clone();
+            }
+        });
 
         onHeapPool = new BoundedPool(
                 16384 * 2, // == 2 elements
@@ -209,23 +236,29 @@ public class OverflowToDiskPoolableStoreTest {
         overflowToDiskPoolableStore.put(new Element(key, key.toString()));
 
         // if both the Heap and Disk evictors decide to evict the updated key, the store will manage to keep all 3 elements
-        if (overflowToDiskPoolableStore.getSize() == 3) {
+        if (lastEvicted.getObjectKey().equals(key)) {
+            assertEquals(3, overflowToDiskPoolableStore.getSize());
             assertEquals(16384 + 2 * 2048, onHeapPool.getSize());
             assertEquals(16384 * 2, onDiskPool.getSize());
-        } else if (overflowToDiskPoolableStore.getSize() == 2) {
+        } else {
+            assertEquals(2, overflowToDiskPoolableStore.getSize());
             assertEquals(16384 + 2048, onHeapPool.getSize());
             assertEquals(16384, onDiskPool.getSize());
-        } else {
-            fail("overflowToDiskPoolableStore.getSize() must be 2 or 3");
         }
 
         // update element on disk
         key = keysOfOnDiskElements(overflowToDiskPoolableStore).iterator().next();
         overflowToDiskPoolableStore.put(new Element(key, key.toString()));
 
-        assertEquals(2, overflowToDiskPoolableStore.getSize());
-        assertEquals(16384 + 2048, onHeapPool.getSize());
-        assertEquals(16384, onDiskPool.getSize());
+        if (lastEvicted.getObjectKey().equals(key)) {
+            assertEquals(3, overflowToDiskPoolableStore.getSize());
+            assertEquals(16384 + 2 * 2048, onHeapPool.getSize());
+            assertEquals(16384 * 2, onDiskPool.getSize());
+        } else {
+            assertEquals(2, overflowToDiskPoolableStore.getSize());
+            assertEquals(16384 + 2048, onHeapPool.getSize());
+            assertEquals(16384, onDiskPool.getSize());
+        }
     }
 
     @Test

@@ -90,7 +90,7 @@ public class OverflowToDiskPoolableStore extends OverflowToDiskStore implements 
 
     public static OverflowToDiskPoolableStore create(Cache cache, String diskStorePath, Pool onHeapPool, Pool onDiskPool) {
         CacheConfiguration config = cache.getCacheConfiguration();
-        DiskOverflowStorageFactory disk = new DiskOverflowStorageFactory(cache, diskStorePath);
+        DiskOverflowStorageFactory disk = new DiskOverflowStorageFactory(cache, diskStorePath, cache.getCacheEventNotificationService());
         CapacityLimitedInMemoryFactory memory = new CapacityLimitedInMemoryFactory(disk, config.getMaxElementsInMemory(),
                 determineEvictionPolicy(config), cache.getCacheEventNotificationService());
         OverflowToDiskPoolableStore store = new OverflowToDiskPoolableStore(cache, memory, disk, config, onHeapPool, onDiskPool);
