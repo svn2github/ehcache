@@ -34,6 +34,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReferenceFieldUpdater;
 import java.util.concurrent.locks.Lock;
 
+import net.sf.ehcache.event.RegisteredEventListeners;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -77,17 +78,20 @@ public class DiskPersistentStorageFactory extends DiskStorageFactory<ElementSubs
     private volatile int memoryCapacity;
 
     private volatile Policy memoryPolicy;
+    private final RegisteredEventListeners cacheEventNotificationService;
 
     /**
      * Constructs an disk persistent factory for the given cache and disk path.
      *
      * @param cache cache that fronts this factory
      * @param diskPath path to store data in
+     * @param cacheEventNotificationService
      */
-    public DiskPersistentStorageFactory(Ehcache cache, String diskPath) {
+    public DiskPersistentStorageFactory(Ehcache cache, String diskPath, RegisteredEventListeners cacheEventNotificationService) {
         super(getDataFile(diskPath, cache), cache.getCacheConfiguration().getDiskExpiryThreadIntervalSeconds(),
                 cache.getCacheConfiguration().getDiskSpoolBufferSizeMB(), cache.getCacheEventNotificationService(),
                 false, cache.getCacheConfiguration().getDiskAccessStripes());
+        this.cacheEventNotificationService = cacheEventNotificationService;
 
         indexFile = new File(getDataFile().getParentFile(), getIndexFileName(cache));
         flushTask = new IndexWriteTask(indexFile, cache.getCacheConfiguration().isClearOnFlush());
@@ -268,6 +272,21 @@ public class DiskPersistentStorageFactory extends DiskStorageFactory<ElementSubs
     @Override
     protected DiskMarker createMarker(long position, int size, Element element) {
         return new CachingDiskMarker(this, position, size, element);
+    }
+
+    public int evict(int count) {
+        int evicted = 0;
+        for (int i = 0; i < count; i++) {
+            CachingDiskMarker target = getMemoryEvictionTarget(null, count);
+            if (target != null) {
+                Element evictedElement = store.evictElement(target.getKey(), null);
+                if (cacheEventNotificationService!= null) {
+                    cacheEventNotificationService.notifyElementEvicted(evictedElement, false);
+                }
+                evicted++;
+            }
+        }
+        return evicted;
     }
 
     /**

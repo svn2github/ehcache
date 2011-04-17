@@ -34,11 +34,11 @@ import net.sf.ehcache.store.compound.factories.DiskPersistentStorageFactory;
  * 
  * @author Chris Dennis
  */
-public final class DiskPersistentStore extends CompoundStore implements CacheConfigurationListener {
+public class DiskPersistentStore extends CompoundStore implements CacheConfigurationListener {
 
-    private final DiskPersistentStorageFactory disk;
+    protected final DiskPersistentStorageFactory disk;
     
-    private DiskPersistentStore(DiskPersistentStorageFactory disk, CacheConfiguration config) {
+    protected DiskPersistentStore(DiskPersistentStorageFactory disk, CacheConfiguration config) {
         super(disk, config.isCopyOnRead(), config.isCopyOnWrite(), config.getCopyStrategy());
         this.disk = disk;
     }
@@ -52,7 +52,7 @@ public final class DiskPersistentStore extends CompoundStore implements CacheCon
      */
     public static DiskPersistentStore create(Cache cache, String diskStorePath) {
         CacheConfiguration config = cache.getCacheConfiguration();
-        DiskPersistentStorageFactory disk = new DiskPersistentStorageFactory(cache, diskStorePath);
+        DiskPersistentStorageFactory disk = new DiskPersistentStorageFactory(cache, diskStorePath, null);
         DiskPersistentStore store = new DiskPersistentStore(disk, config);
         cache.getCacheConfiguration().addConfigurationListener(store);
         return store;

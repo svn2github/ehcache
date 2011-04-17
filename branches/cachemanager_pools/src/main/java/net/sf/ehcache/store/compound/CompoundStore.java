@@ -528,6 +528,18 @@ public abstract class CompoundStore extends AbstractStore {
      * @return <code>true</code> on a successful remove
      */
     public boolean evict(Object key, Object substitute) {
+        return evictElement(key, substitute) != null;
+    }
+
+    /**
+     * Remove the matching mapping. The evict method does referential comparison
+     * of the unretrieved substitute against the argument value.
+     *
+     * @param key key to match against
+     * @param substitute optional value to match against
+     * @return the evicted element on a successful remove
+     */
+    public Element evictElement(Object key, Object substitute) {
         int hash = hash(key.hashCode());
         Element evicted = segmentFor(hash).evict(key, hash, substitute);
         if (evicted != null) {
@@ -535,7 +547,7 @@ public abstract class CompoundStore extends AbstractStore {
                 listener.onEvict(key, evicted);
             }
         }
-        return evicted != null;
+        return evicted;
     }
 
     /**
