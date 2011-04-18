@@ -204,7 +204,7 @@ Cache Consistency Options
 **  Eventual Consistency
 
     Distributed Ehcache may be configured with <<<consistency="eventual">>>. There is also a bulk loading mode which may additionally
-    be set programmatically with <<<setBulkLoading(boolean mode)>>>. Finally there is <UnlockedReadsView>, a <<<CacheDecorator>>>
+    be set programmatically with <<<setNodeBulkLoadEnabled(boolean)>>>. Finally there is <UnlockedReadsView>, a <<<CacheDecorator>>>
     that can be created like a view on a cache which shows the latest write visible to the local Ehcache node without respect for any locks.
 
     Regardless, Ehcache B and C will eventually see the change made by Ehcache A. This occurs as follows:
@@ -214,7 +214,7 @@ Cache Consistency Options
 
     *   If a GC happens on a Terracotta Server Array node, or Ehcache A or B, the inconsistency window is increased by the length of the GC.
 
-    *   <<<setBulkLoak(true)>>> changes things so that the Terracotta Server Array does not update Ehcache B and C. Instead they are set to a
+    *   <<<setNodeBulkLoadEnabled(true)>>> changes things so that the Terracotta Server Array does not update Ehcache B and C. Instead they are set to a
         5 minute fixed TTL. The <inconsistency window> thus increases to 5 minutes plus the above.
 
     []
