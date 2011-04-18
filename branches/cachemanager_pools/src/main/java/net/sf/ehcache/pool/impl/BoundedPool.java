@@ -13,6 +13,8 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * @author Ludovic Orban
@@ -75,6 +77,7 @@ public class BoundedPool implements Pool {
         private final SizeOfEngine sizeOfEngine;
         private long size;
         private final AtomicBoolean unlinked = new AtomicBoolean();
+        private final Lock lock = new ReentrantLock();
 
         public BoundedPoolAccessor(PoolableStore store, SizeOfEngine sizeOfEngine, long currentSize) {
             this.store = store;
@@ -90,7 +93,8 @@ public class BoundedPool implements Pool {
             long sizeOf = sizeOfEngine.sizeOf(key, value, container);
 
             // synchronized makes the size update MT-safe but slow
-            synchronized (BoundedPool.this) {
+            lock.lock();
+            try {
                 long newSize = BoundedPool.this.getSize() + sizeOf;
 
                 if (newSize <= maximumPoolSize) {
@@ -104,15 +108,24 @@ public class BoundedPool implements Pool {
                         // this is too big to fit in the pool
                         return -1;
                     }
-                    boolean successful = evictor.freeSpace(getPoolableStores(), missingSize);
-                    if (!successful) {
-                        // cannot free enough bytes
-                        return -1;
+
+                    // eviction must be done outside the lock to avoid deadlocks as it may evict from other pools
+                    lock.unlock();
+                    try {
+                        boolean successful = evictor.freeSpace(getPoolableStores(), missingSize);
+                        if (!successful) {
+                            // cannot free enough bytes
+                            return -1;
+                        }
+                    } finally {
+                        lock.lock();
                     }
 
                     size += sizeOf;
                     return sizeOf;
                 }
+            } finally {
+                lock.unlock();
             }
         }
 
@@ -124,8 +137,11 @@ public class BoundedPool implements Pool {
             long sizeOf = sizeOfEngine.sizeOf(key, value, container);
 
             // synchronized makes the size update MT-safe but slow
-            synchronized (BoundedPool.this) {
+            lock.lock();
+            try {
                 size -= sizeOf;
+            } finally {
+                lock.unlock();
             }
 
             return sizeOf;
@@ -137,7 +153,8 @@ public class BoundedPool implements Pool {
             }
 
             // synchronized makes the size update MT-safe but slow
-            synchronized (BoundedPool.this) {
+            lock.lock();
+            try {
                 long sizeOf = 0;
                 switch (role) {
                     case CONTAINER:
@@ -154,13 +171,18 @@ public class BoundedPool implements Pool {
                         break;
                 }
                 return sizeOf;
+            } finally {
+                lock.unlock();
             }
         }
 
         public long getSize() {
             // synchronized makes the size update MT-safe but slow
-            synchronized (BoundedPool.this) {
+            lock.lock();
+            try {
                 return size;
+            } finally {
+                lock.unlock();
             }
         }
 
@@ -172,8 +194,11 @@ public class BoundedPool implements Pool {
 
         public void clear() {
             // synchronized makes the size update MT-safe but slow
-            synchronized (BoundedPool.this) {
+            lock.lock();
+            try {
                 size = 0L;
+            } finally {
+                lock.unlock();
             }
         }
     }

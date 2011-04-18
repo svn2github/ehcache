@@ -19,7 +19,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
-import static junit.framework.Assert.fail;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -444,22 +443,17 @@ public class DiskPersistentPoolableStoreTest {
 
     @Test
     public void testMultithreaded() throws Exception {
-        fail();
         final int nThreads = 16;
 
         final ExecutorService executor = Executors.newFixedThreadPool(nThreads);
         final ConcurrentLinkedQueue<Future<?>> queue = new ConcurrentLinkedQueue<Future<?>>();
 
         for (int i = 0; i < nThreads; i++) {
-            final int threadId = i;
             Future<?> f = executor.submit(new Runnable() {
                 public void run() {
                     for (int i = 0; i < 10000; i++) {
                         Element e = new Element(i, "" + i);
                         diskPersistentPoolableStore.put(e);
-
-                        assertTrue(threadId + "#" + i + " - " + onHeapPool.getSize(), 16384 * 2 >= onHeapPool.getSize());
-                        assertTrue(threadId + "#" + i + " - " + onDiskPool.getSize(), 16384 * 2 >= onDiskPool.getSize());
 
                         Thread.yield();
                         if ((i + 1) % 1000 == 0) { dump(); diskPersistentPoolableStore.removeAll(); }
@@ -473,6 +467,10 @@ public class DiskPersistentPoolableStoreTest {
             Future<?> f = queue.poll();
             f.get();
         }
+
+        assertTrue(16384 * 2 >= onHeapPool.getSize());
+        assertTrue(16384 * 2 >= onDiskPool.getSize());
+        assertEquals(onHeapPool.getSize(), onDiskPool.getSize());
     }
 
 }
