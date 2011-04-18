@@ -42,11 +42,6 @@ public class BoundedPool implements Pool {
     }
 
     public PoolAccessor createPoolAccessor(PoolableStore store) {
-        //todo: calculate the store size if it's not empty
-        if (store.getSize() > 0) {
-            throw new IllegalStateException("cannot create a BoundedPool accessor for a non-empty store (yet)");
-        }
-
         BoundedPoolAccessor poolAccessor = new BoundedPoolAccessor(store, defaultSizeOfEngine, 0);
         poolAccessors.add(poolAccessor);
         return poolAccessor;

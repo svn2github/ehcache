@@ -13,6 +13,8 @@ import net.sf.ehcache.store.compound.impl.DiskPersistentStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Collection;
+
 /**
  * @author Ludovic Orban
  */
@@ -55,13 +57,16 @@ public class DiskPersistentPoolableStore extends DiskPersistentStore implements 
 
     private DiskPersistentPoolableStore(Cache cache, DiskPersistentStorageFactory disk, CacheConfiguration config, Pool onHeapPool, Pool onDiskPool) {
         super(disk, config);
-
-        if (getSize() > 0) super.removeAll();
-
         this.cache = cache;
         this.onHeapPoolAccessor = onHeapPool.createPoolAccessor(this);
         this.onDiskPoolAccessor = onDiskPool.createPoolAccessor(this);
 
+        // refresh all persisted elements to size them
+        Collection keys = getKeys();
+        for (Object key : keys) {
+            Object value = getQuiet(key);
+            put(new Element(key, value));
+        }
 
         addInternalEventListener(new InternalEventListenerAdapter());
     }
