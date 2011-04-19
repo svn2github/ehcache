@@ -1,0 +1,127 @@
+ ---
+ {Using JRuby and Ehcache}
+ ---
+
+Using {JRuby} and Ehcache
+
+%{toc|fromDepth=2|toDepth=2}
+
+    jruby-ehcache.gem is a JRuby Ehcache library which makes a commonly used subset of Ehcache's API available to
+     JRuby. All of the strength of Ehcache is there, including BigMemory and the ability to cluster with Terracotta.
+
+    It can be used directly via it's own API, or as a <<<Rails.cache>>> caching provider.
+
+* Installation
+
+    sudo jruby -S gem install jruby-ehcache
+
+  If you also want Rails caching support, also install the correct gem for your Rails version:
+
+    sudo jruby -S gem install ehcache-rails3
+  OR
+    sudo jruby -S gem install ehcache-rails2
+
+* Configuring Ehcache
+
+  jruby-ehcache.gem is configured using an ehcache.yml file which is placed in your ~/lib/config
+
+*   Dependencies
+
+    *   JRuby 1.5 and higher
+
+    *   Rails 3 and higher, for the ehcache-rails3.gem
+
+    *   Ehcache 2.2 is the declared dependency, although any version of Ehcache will work 
+
+
+* Using the ehcache.gem API directly
+
+
+**    To make Ehcache available to JRuby
+
+---
+    require 'ehcache'
+---
+
+**  Creating a CacheManager
+
+  To create a CacheManager, which you do once when the application starts:
+
+---
+manager = Ehcache::CacheManager.new
+---
+
+**  Accessing an existing Cache
+
+    To access a cache called "sampleCache1":
+
+---
+   cache = manager.cache("sampleCache1")
+---
+
+**  Creating a Cache
+
+    To create a new cache from the defaultCache
+
+---
+   cache = manager.cache
+---
+
+
+**  Putting in a cache
+
+---
+   cache.put("key", "value", {:ttl => 120})
+---
+
+**  Getting from a cache
+
+---
+   cache.get("key")
+---
+
+** Shutting down the CacheManager
+
+    This is only when you shut your application down.
+
+    It is only necessary to call this if the cache is <<<diskPersistent>>> or is clustered with Terracotta, but
+    it is always a good idea to do it.
+
+---
+    manager.shutdown
+---
+
+* Using ehcache.gem from within Rails
+
+
+**   Configuring the <<<Rails.cache>>> provider
+
+    Change the following property in your environment file (e.g. developement.rb or production.rb)
+
+---
+config.cache_store = :ehcache_store
+---
+
+**  Turn on caching in your controllers
+
+    Set them up to support caching, eg: config.action_controller.perform_caching = true
+
+
+**  Use the Rails caching API directly
+
+---
+Rails.cache.read("city")   # => nil
+Rails.cache.write("city", "Brisbane")
+Rails.cache.read("city")   # => "Brisbane"
+---
+
+*   Sample application
+
+    The easiest way to get started is to play with a simple sample app. We provide a simple Rails application
+    which stores an integer value in a cache along with increment and decrement operations.
+
+    The sample app shows you how to use ehcache as a caching plugin and how to use it directly from the Rails
+    caching API.
+
+    svn checkout {{http://svn.terracotta.org/svn/forge/projects/ehcache-rails-demo/trunk}} ehcache-rails-demo
+

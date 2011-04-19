@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<ehcache xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:noNamespaceSchemaLocation="../../main/config/ehcache.xsd">
+
+	<defaultCache maxElementsInMemory="10" eternal="false"
+		timeToIdleSeconds="5" timeToLiveSeconds="10" overflowToDisk="true" />
+
+	<cache name="offheap1" maxElementsInMemory="10"
+		eternal="false" timeToIdleSeconds="5" timeToLiveSeconds="10"
+		overflowToDisk="true" copyOnRead="true"
+        overflowToOffHeap="true" maxMemoryOffHeap="16M">
+	</cache>
+
+	<cache name="offheap2" maxElementsInMemory="10"
+		eternal="false" timeToIdleSeconds="5" timeToLiveSeconds="10"
+		overflowToDisk="true" copyOnRead="true"
+        overflowToOffHeap="false" maxMemoryOffHeap="2G">
+	</cache>
+
+</ehcache>
