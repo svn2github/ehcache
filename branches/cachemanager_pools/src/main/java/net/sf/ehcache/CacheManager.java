@@ -1614,7 +1614,7 @@ public class CacheManager {
      *
      * @return the configuration
      */
-    Configuration getConfiguration() {
+    public Configuration getConfiguration() {
         return configuration;
     }
 
