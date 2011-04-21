@@ -82,7 +82,7 @@ public class TerracottaConfiguration implements Cloneable {
     /**
      * Default cache consistency setting
      */
-    public static final Consistency DEFAULT_CONSISTENCY_TYPE = Consistency.STRONG;
+    public static final Consistency DEFAULT_CONSISTENCY_TYPE = Consistency.EVENTUAL;
 
     /**
      * Default setting for synchronous-write
