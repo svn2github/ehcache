@@ -4,7 +4,7 @@
 
 Distributed Ehcache FAQ
 
-~~%{toc|fromDepth=2|toDepth=3}
+~~%{toc|fromDepth=3|toDepth=3}
 
 *  Frequently Asked Questions
 
@@ -18,7 +18,9 @@ Distributed Ehcache FAQ
 
 **  Is expiry the same in Terracotta?
 
-    timeToIdle and timeToLive work as usual. Ehcache 1.7 introduced a less fine grained age recording in Element
+    <<<timeToIdle>>> and <<<timeToLive>>> work as usual. Note however that the <<<eternal>>> attribute, when set to "true", overrides <<<timeToLive>>> and <<<timeToIdle>>> so that no expiration can take place. 
+
+    Ehcache 1.7 introduced a less fine grained age recording in Element
     which rounds up to the nearest second. Some APIs may be sensitive to this change.
 
     In Ehcache Elements can have overridden TTI and TTLs. Terracotta supports this functionality.

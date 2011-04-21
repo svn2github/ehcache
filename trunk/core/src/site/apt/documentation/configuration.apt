@@ -45,6 +45,9 @@
     * memory store eviciton policy
 
     * CacheEventListeners can be added and removed dynamically
+    []
+
+   Note that the <<<eternal>>> attribute, when set to "true", overrides <<<timeToLive>>> and <<<timeToIdle>>> so that no expiration can take place.
 
     This example shows how to dynamically modify the cache configuration of an already running cache:
 
