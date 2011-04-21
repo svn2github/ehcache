@@ -55,6 +55,14 @@ import net.sf.ehcache.management.provider.MBeanRegistrationProvider;
 import net.sf.ehcache.management.provider.MBeanRegistrationProviderException;
 import net.sf.ehcache.management.provider.MBeanRegistrationProviderFactory;
 import net.sf.ehcache.management.provider.MBeanRegistrationProviderFactoryImpl;
+import net.sf.ehcache.pool.Pool;
+import net.sf.ehcache.pool.PoolEvictor;
+import net.sf.ehcache.pool.PoolableStore;
+import net.sf.ehcache.pool.SizeOfEngine;
+import net.sf.ehcache.pool.impl.BoundedPool;
+import net.sf.ehcache.pool.impl.ConstantSizeOfEngine;
+import net.sf.ehcache.pool.impl.RoundRobinOnDiskPoolEvictor;
+import net.sf.ehcache.pool.impl.RoundRobinOnHeapPoolEvictor;
 import net.sf.ehcache.store.DiskStore;
 import net.sf.ehcache.store.Store;
 import net.sf.ehcache.terracotta.ClusteredInstanceFactory;
@@ -201,6 +209,10 @@ public class CacheManager {
 
     private final ConcurrentMap<String, SoftLockFactory> softLockFactories = new ConcurrentHashMap<String, SoftLockFactory>();
 
+    private volatile Pool onHeapPool;
+
+    private volatile Pool onDiskPool;
+
     /**
      * An constructor for CacheManager, which takes a configuration object, rather than one created by parsing
      * an ehcache.xml file. This constructor gives complete control over the creation of the CacheManager.
@@ -311,6 +323,27 @@ public class CacheManager {
         }
         validateConfiguration();
 
+        if (this.configuration.isMaxBytesOnHeapSet()) {
+            PoolEvictor<PoolableStore> evictor = new RoundRobinOnHeapPoolEvictor();
+            SizeOfEngine sizeOfEngine =
+            new ConstantSizeOfEngine(
+                        1536,  /* 1.5 KB*/
+                        14336, /* 14 KB */
+                        512    /* 0.5 KB */
+                );
+            this.onHeapPool = new BoundedPool(this.configuration.getMaxBytesOnHeap(), evictor, sizeOfEngine);
+        }
+        if (this.configuration.isMaxBytesOnDiskSet()) {
+            PoolEvictor<PoolableStore> evictor = new RoundRobinOnDiskPoolEvictor();
+            SizeOfEngine sizeOfEngine =
+            new ConstantSizeOfEngine(
+                        1536,  /* 1.5 KB*/
+                        14336, /* 14 KB */
+                        512    /* 0.5 KB */
+                );
+            this.onDiskPool = new BoundedPool(this.configuration.getMaxBytesOnDisk(), evictor, sizeOfEngine);
+        }
+
         if (localConfiguration.getName() != null) {
             this.name = localConfiguration.getName();
         }
@@ -372,6 +405,14 @@ public class CacheManager {
         } catch (MBeanRegistrationProviderException e) {
             LOG.warn("Failed to initialize the MBeanRegistrationProvider - " + mbeanRegistrationProvider.getClass().getName(), e);
         }
+    }
+
+    public Pool getOnHeapPool() {
+        return onHeapPool;
+    }
+
+    public Pool getOnDiskPool() {
+        return onDiskPool;
     }
 
     private boolean isTerracottaRejoinEnabled() {

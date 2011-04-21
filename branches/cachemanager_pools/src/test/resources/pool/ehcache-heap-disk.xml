@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<ehcache xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="../../../main/config/ehcache.xsd" maxBytesOnHeap="1M" maxBytesOnDisk="1M">
+
+    <diskStore path="java.io.tmpdir"/>
+
+    <cache name="memoryOnly"
+           eternal="false"
+           maxElementsInMemory="0"
+           overflowToDisk="false">
+    </cache>
+
+    <cache name="overflowToDisk"
+           eternal="false"
+           maxElementsInMemory="0"
+           overflowToDisk="true">
+    </cache>
+
+    <cache name="diskPersistent"
+           eternal="false"
+           maxElementsInMemory="0"
+           overflowToDisk="true"
+           diskPersistent="true">
+    </cache>
+
+</ehcache>

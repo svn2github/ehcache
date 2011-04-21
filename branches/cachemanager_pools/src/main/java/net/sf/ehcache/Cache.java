@@ -46,6 +46,18 @@ import net.sf.ehcache.extension.CacheExtension;
 import net.sf.ehcache.extension.CacheExtensionFactory;
 import net.sf.ehcache.loader.CacheLoader;
 import net.sf.ehcache.loader.CacheLoaderFactory;
+import net.sf.ehcache.pool.Pool;
+import net.sf.ehcache.pool.PoolEvictor;
+import net.sf.ehcache.pool.PoolableStore;
+import net.sf.ehcache.pool.SizeOfEngine;
+import net.sf.ehcache.pool.impl.BoundedPool;
+import net.sf.ehcache.pool.impl.ConstantSizeOfEngine;
+import net.sf.ehcache.pool.impl.DiskPersistentPoolableStore;
+import net.sf.ehcache.pool.impl.MemoryOnlyPoolableStore;
+import net.sf.ehcache.pool.impl.OverflowToDiskPoolableStore;
+import net.sf.ehcache.pool.impl.RoundRobinOnDiskPoolEvictor;
+import net.sf.ehcache.pool.impl.RoundRobinOnHeapPoolEvictor;
+import net.sf.ehcache.pool.impl.UnboundedPool;
 import net.sf.ehcache.search.Attribute;
 import net.sf.ehcache.search.Query;
 import net.sf.ehcache.search.Results;
@@ -989,13 +1001,56 @@ public class Cache implements Ehcache, StoreListener {
                         + " cache because its status is not STATUS_UNINITIALISED");
             }
 
-            if (configuration.getMaxElementsInMemory() == 0) {
-                LOG.warn("Cache: " + configuration.getName() +
-                        " has a maxElementsInMemory of 0.  " +
-                        "In Ehcache 2.0 this has been changed to mean a store" +
-                        " with no capacity limit. Set it to 1 if you want" +
-                        " no elements cached in memory");
+            // on-heap validation
+            if (getCacheManager().getConfiguration().isMaxBytesOnHeapSet() && configuration.getMaxElementsInMemory() > 0) {
+                throw new InvalidConfigurationException(configuration.getName() + ": MaxElementsInMemory is not compatible with MaxBytesOnHeap set on cache manager");
             }
+            if (configuration.getMaxBytesOnHeap() > 0 && configuration.getMaxElementsInMemory() > 0) {
+                throw new InvalidConfigurationException(configuration.getName() + ": MaxElementsInMemory is not compatible with MaxBytesOnHeap set on cache");
+            }
+
+            // on-heap pool configuration
+            Pool onHeapPool;
+            if (configuration.getMaxBytesOnHeap() > 0) {
+                PoolEvictor<PoolableStore> evictor = new RoundRobinOnHeapPoolEvictor();
+                SizeOfEngine sizeOfEngine =
+                new ConstantSizeOfEngine(
+                            1536,  /* 1.5 KB*/
+                            14336, /* 14 KB */
+                            512    /* 0.5 KB */
+                    );
+                onHeapPool = new BoundedPool(configuration.getMaxBytesOnHeap(), evictor, sizeOfEngine);
+            } else if (getCacheManager().getConfiguration().isMaxBytesOnHeapSet()) {
+                onHeapPool = getCacheManager().getOnHeapPool();
+            } else {
+                onHeapPool = new UnboundedPool();
+                if (configuration.getMaxElementsInMemory() == 0) {
+                    LOG.warn("Cache: " + configuration.getName() +
+                            " has a maxElementsInMemory of 0.  " +
+                            "In Ehcache 2.0 this has been changed to mean a store" +
+                            " with no capacity limit. Set it to 1 if you want" +
+                            " no elements cached in memory");
+                }
+            }
+
+            // on-disk pool configuration
+            Pool onDiskPool;
+            if (configuration.getMaxBytesOnDisk() > 0) {
+                PoolEvictor<PoolableStore> evictor = new RoundRobinOnDiskPoolEvictor();
+                SizeOfEngine sizeOfEngine =
+                new ConstantSizeOfEngine(
+                            1536,  /* 1.5 KB*/
+                            14336, /* 14 KB */
+                            512    /* 0.5 KB */
+                    );
+                onDiskPool = new BoundedPool(configuration.getMaxBytesOnDisk(), evictor, sizeOfEngine);
+            } else if (getCacheManager().getConfiguration().isMaxBytesOnDiskSet()) {
+                onDiskPool = getCacheManager().getOnDiskPool();
+            } else {
+                onDiskPool = new UnboundedPool();
+            }
+
+
 
             ReadWriteCopyStrategy<Element> copyStrategy = null;
             if (configuration.getTransactionalMode().isTransactional()) {
@@ -1100,11 +1155,11 @@ public class Cache implements Ehcache, StoreListener {
                             new LruMemoryStore(this, disk), disk, registeredEventListeners, configuration), copyStrategy);
                 } else {
                     if (configuration.isDiskPersistent()) {
-                        store = makeXaStrictTransactionalIfNeeded(DiskPersistentStore.create(this, diskStorePath), copyStrategy);
+                        store = makeXaStrictTransactionalIfNeeded(DiskPersistentPoolableStore.create(this, diskStorePath, onHeapPool, onDiskPool), copyStrategy);
                     } else if (configuration.isOverflowToDisk()) {
-                        store = makeXaStrictTransactionalIfNeeded(OverflowToDiskStore.create(this, diskStorePath), copyStrategy);
+                        store = makeXaStrictTransactionalIfNeeded(OverflowToDiskPoolableStore.create(this, diskStorePath, onHeapPool, onDiskPool), copyStrategy);
                     } else {
-                        store = makeXaStrictTransactionalIfNeeded(MemoryOnlyStore.create(this, diskStorePath), copyStrategy);
+                        store = makeXaStrictTransactionalIfNeeded(MemoryOnlyPoolableStore.create(this, diskStorePath, onHeapPool), copyStrategy);
                     }
                 }
             }
