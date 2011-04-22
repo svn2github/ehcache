@@ -390,6 +390,7 @@ abstract class AbstractReadWriteEhcacheAccessStrategy<T extends EhcacheTransacti
         /**
          * {@inheritDoc}
          */
+        @Override
         public String toString() {
             StringBuilder sb = new StringBuilder("Lock Source-UUID:" + sourceUuid + " Lock-ID:" + lockId);
             return sb.toString();

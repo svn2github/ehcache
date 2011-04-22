@@ -31,14 +31,11 @@ import org.hibernate.cfg.Settings;
 public class NonStrictReadWriteEhcacheEntityRegionAccessStrategy extends AbstractEhcacheAccessStrategy<EhcacheEntityRegion>
         implements EntityRegionAccessStrategy {
 
-    private final Settings settings;
-
     /**
      * Create a non-strict read/write access strategy accessing the given collection region.
      */   
     public NonStrictReadWriteEhcacheEntityRegionAccessStrategy(EhcacheEntityRegion region, Settings settings) {
         super(region, settings);
-        this.settings = settings;
     }
 
     /**
@@ -60,7 +57,7 @@ public class NonStrictReadWriteEhcacheEntityRegionAccessStrategy extends Abstrac
      */
     public boolean putFromLoad(Object key, Object value, long txTimestamp, Object version, boolean minimalPutOverride)
             throws CacheException {
-        if (minimalPutOverride && region.get(key) != null) {
+        if (minimalPutOverride && region.contains(key)) {
             return false;
         } else {
             region.put(key, value);
