@@ -829,7 +829,7 @@ used with JMX monitors.
       Note: This setting is only relevant for caches with valueMode=serialization
 
     * consistency=strong|eventual - Indicates whether this cache should have strong consistency or eventual
-      consistency. The default is strong. See the documentation for the meaning of these terms.
+      consistency. The default is eventual. See the documentation for the meaning of these terms.
 
     * synchronousWrites=true|false
 
