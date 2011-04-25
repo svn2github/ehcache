@@ -1,7 +1,12 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <document>
     <body>
-        <release version="2.4.2" date="2011-04" description="Bug fixes">
+         <release version="2.4.3" date="2011-04" description="Bug fixes">
+             <action dev="Tim Eck" type="update" issue="EHC-846">
+                Give access to attribute name within the Extractor classes in search
+             </action>
+           </release>
+         <release version="2.4.2" date="2011-04" description="Bug fixes">
              <action dev="Chris Dennis" type="fix" issue="EHC-845">
                 CompoundStore.putWithWriter doesn't follow contract regarding return value
                </action>
