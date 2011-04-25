@@ -22,7 +22,7 @@
     require no initial configuration.
 
     The API is very simple and easy to use, making it possible to get up 
-    and running in minutes. See the {{{./samples.html}Code Samples}} for details.
+    and running in minutes. See the {{{./documentation/samples.html}Code Samples}} for details.
 
 ** Small foot print
 
@@ -329,7 +329,7 @@
 
 * Search
 
-  Standalone and distributed search using a fluent query language. See the search {{{./documentation/search.apt}documentation}}
+  Standalone and distributed search using a fluent query language. See the search {{{./documentation/search.html}documentation}}
 
 
 * Java EE and Applied Caching
