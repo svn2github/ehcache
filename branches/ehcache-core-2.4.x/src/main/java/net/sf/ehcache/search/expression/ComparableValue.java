@@ -83,7 +83,7 @@ public abstract class ComparableValue extends BaseCriteria {
      * {@inheritDoc}
      */
     public boolean execute(Element e, Map<String, AttributeExtractor> attributeExtractors) {
-        Object attrValue = attributeExtractors.get(getAttributeName()).attributeFor(e);
+        Object attrValue = attributeExtractors.get(getAttributeName()).attributeFor(e, getAttributeName());
         if (attrValue == null) {
             return false;
         } else {

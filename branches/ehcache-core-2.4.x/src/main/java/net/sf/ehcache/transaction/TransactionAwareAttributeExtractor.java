@@ -46,12 +46,12 @@ public class TransactionAwareAttributeExtractor implements AttributeExtractor {
     /**
      * {@inheritDoc}
      */
-    public Object attributeFor(Element element) throws AttributeExtractorException {
+    public Object attributeFor(Element element, String attributeName) throws AttributeExtractorException {
         Object value = element.getObjectValue();
         if (value instanceof SoftLock) {
             throw new AssertionError();
         } else {
-            return delegate.attributeFor(copyStrategy.copyForRead(element));
+            return delegate.attributeFor(copyStrategy.copyForRead(element), attributeName);
         }
     }
 }
