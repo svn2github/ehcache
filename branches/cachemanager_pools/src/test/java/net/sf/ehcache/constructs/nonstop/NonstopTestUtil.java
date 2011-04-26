@@ -36,6 +36,7 @@ import net.sf.ehcache.Statistics;
 import net.sf.ehcache.cluster.ClusterScheme;
 import net.sf.ehcache.cluster.NoopCacheCluster;
 import net.sf.ehcache.config.CacheConfiguration;
+import net.sf.ehcache.config.Configuration;
 import net.sf.ehcache.config.NonstopConfiguration;
 import net.sf.ehcache.config.SearchAttribute;
 import net.sf.ehcache.config.Searchable;
@@ -196,6 +197,7 @@ public class NonstopTestUtil extends TestCase {
 
         Cache cache = new Cache(cacheConfiguration);
 
+        when(cacheManager.getConfiguration()).thenReturn(new Configuration());
         when(cacheManager.createTerracottaStore(cache)).thenReturn(mockTerracottaStore);
         when(cacheManager.getCluster((ClusterScheme) any())).thenReturn(new NoopCacheCluster());
 
