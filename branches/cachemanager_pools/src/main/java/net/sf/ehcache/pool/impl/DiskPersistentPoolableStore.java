@@ -62,6 +62,7 @@ public class DiskPersistentPoolableStore extends DiskPersistentStore implements 
         this.onDiskPoolAccessor = onDiskPool.createPoolAccessor(this);
 
         // refresh all persisted elements to size them
+        // xxx this breaks DiskStoreTest.testLoadPersistentStore()
         Collection keys = getKeys();
         for (Object key : keys) {
             Object value = getQuiet(key);
@@ -173,8 +174,15 @@ public class DiskPersistentPoolableStore extends DiskPersistentStore implements 
     @Override
     public void removeAll() {
         super.removeAll();
-        onHeapPoolAccessor.clear();
-        onDiskPoolAccessor.clear();
+
+        // if the disk index is corrupt, the superclass ctor will call removeAll() before this
+        // constructor had a chance to initialize the pool accessors -> null checks
+        if (onHeapPoolAccessor != null) {
+            onHeapPoolAccessor.clear();
+        }
+        if (onDiskPoolAccessor != null) {
+            onDiskPoolAccessor.clear();
+        }
     }
 
     public boolean evictFromOnHeap(int count, long size) {
@@ -201,6 +209,9 @@ public class DiskPersistentPoolableStore extends DiskPersistentStore implements 
 
     @Override
     public long getOnDiskSizeInBytes() {
+        if (onDiskPoolAccessor.getSize() < 0) {
+            return disk.getOnDiskSizeInBytes();
+        }
         return onDiskPoolAccessor.getSize();
     }
 

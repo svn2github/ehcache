@@ -14,7 +14,7 @@ public class UnboundedPool implements Pool {
     }
 
     public long getSize() {
-        return 0L;
+        return -1L;
     }
 
     public PoolAccessor createPoolAccessor(PoolableStore store) {
@@ -39,7 +39,7 @@ public class UnboundedPool implements Pool {
         }
 
         public long getSize() {
-            return 0L;
+            return -1L;
         }
 
         public void unlink() {

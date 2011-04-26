@@ -183,6 +183,9 @@ public class OverflowToDiskPoolableStore extends OverflowToDiskStore implements 
 
     @Override
     public long getInMemorySizeInBytes() {
+        if (onHeapPoolAccessor.getSize() < 0) {
+            return memoryFactory.getSizeInBytes();
+        }
         return onHeapPoolAccessor.getSize();
     }
 
@@ -193,6 +196,9 @@ public class OverflowToDiskPoolableStore extends OverflowToDiskStore implements 
 
     @Override
     public long getOnDiskSizeInBytes() {
+        if (onDiskPoolAccessor.getSize() < 0) {
+            return diskFactory.getOnDiskSizeInBytes();
+        }
         return onDiskPoolAccessor.getSize();
     }
 
