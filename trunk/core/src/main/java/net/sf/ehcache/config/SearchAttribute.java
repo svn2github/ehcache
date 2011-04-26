@@ -16,6 +16,8 @@
 
 package net.sf.ehcache.config;
 
+import java.util.Properties;
+
 import net.sf.ehcache.config.generator.model.NodeElement;
 import net.sf.ehcache.config.generator.model.SimpleNodeAttribute;
 import net.sf.ehcache.config.generator.model.SimpleNodeElement;
@@ -23,6 +25,7 @@ import net.sf.ehcache.search.attribute.AttributeExtractor;
 import net.sf.ehcache.search.attribute.JavaBeanAttributeExtractor;
 import net.sf.ehcache.search.attribute.ReflectionAttributeExtractor;
 import net.sf.ehcache.util.ClassLoaderUtil;
+import net.sf.ehcache.util.PropertyUtil;
 
 /**
  * A cache search attribute. Search attributes must have a name and optionally an expression or class set (if neither is set then this
@@ -35,6 +38,8 @@ public class SearchAttribute {
     private String name;
     private String className;
     private String expression;
+    private String properties;
+    private String propertySeparator;
 
     /**
      * Set the attribute name
@@ -101,14 +106,19 @@ public class SearchAttribute {
         if (expression != null) {
             return new ReflectionAttributeExtractor(expression);
         } else if (className != null) {
-            return (AttributeExtractor) ClassLoaderUtil.createNewInstance(className);
+            if (properties != null) {
+                return (AttributeExtractor) ClassLoaderUtil.createNewInstance(className, new Class[] {Properties.class},
+                        new Object[] {PropertyUtil.parseProperties(properties, propertySeparator)});
+            } else {
+                return (AttributeExtractor) ClassLoaderUtil.createNewInstance(className);
+            }
         } else {
             return new JavaBeanAttributeExtractor(name);
         }
     }
 
     /**
-     * Set the atttribute name
+     * Set the attribute name
      *
      * @param name
      * @return this
@@ -143,6 +153,46 @@ public class SearchAttribute {
     }
 
     /**
+     * Set the extractor properties
+     *
+     * @param props
+     */
+    public void setProperties(String props) {
+        this.properties = props;
+    }
+
+    /**
+     * Set the extractor properties separator
+     *
+     * @param separator
+     */
+    public void setPropertySeparator(String sep) {
+        this.propertySeparator = sep;
+    }
+
+    /**
+     * Set the extractor properties separator
+     *
+     * @param seperator
+     * @return this
+     */
+    public SearchAttribute propertySeparator(String sep) {
+        setPropertySeparator(sep);
+        return this;
+    }
+
+    /**
+     * Set the extractor properties
+     *
+     * @param props
+     * @return this
+     */
+    public SearchAttribute properties(String props) {
+        setProperties(props);
+        return this;
+    }
+
+    /**
      * Create a generated config element node for this search attribute definition
      *
      * @param parent the enclosing parent config element
@@ -157,6 +207,12 @@ public class SearchAttribute {
             rv.addAttribute(new SimpleNodeAttribute("expression", expression));
         } else if (className != null) {
             rv.addAttribute(new SimpleNodeAttribute("class", className));
+            if (properties != null) {
+                rv.addAttribute(new SimpleNodeAttribute("properties", properties));
+            }
+            if (propertySeparator != null) {
+                rv.addAttribute(new SimpleNodeAttribute("propertySeperator", propertySeparator));
+            }
         }
 
         return rv;
