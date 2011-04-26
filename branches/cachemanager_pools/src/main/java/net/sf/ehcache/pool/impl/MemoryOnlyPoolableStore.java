@@ -83,6 +83,10 @@ public class MemoryOnlyPoolableStore extends MemoryOnlyStore implements Poolable
 
     @Override
     public boolean put(Element element) throws CacheException {
+        if (element == null) {
+            return false;
+        }
+
         if (onHeapPoolAccessor.add(element.getObjectKey(), element.getObjectValue(), element) > -1) {
             return super.put(element);
         } else {

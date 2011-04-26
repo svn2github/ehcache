@@ -120,6 +120,10 @@ public class DiskPersistentPoolableStore extends DiskPersistentStore implements 
 
     @Override
     public boolean put(Element element) throws CacheException {
+        if (element == null) {
+            return false;
+        }
+
         if (add(element)) {
             return super.put(element);
         } else {
