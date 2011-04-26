@@ -61,12 +61,15 @@ public class DiskPersistentPoolableStore extends DiskPersistentStore implements 
         this.onHeapPoolAccessor = onHeapPool.createPoolAccessor(this);
         this.onDiskPoolAccessor = onDiskPool.createPoolAccessor(this);
 
-        // refresh all persisted elements to size them
-        // xxx this breaks DiskStoreTest.testLoadPersistentStore()
-        Collection keys = getKeys();
-        for (Object key : keys) {
-            Object value = getQuiet(key);
-            put(new Element(key, value));
+        // todo: re-processing all persisted elements isn't exactly optimal
+        if (onDiskPool.getSize() >= 0) {
+            // only done when in pooling mode
+            // refresh all persisted elements to size them
+            Collection keys = getKeys();
+            for (Object key : keys) {
+                Object value = getQuiet(key);
+                put(new Element(key, value));
+            }
         }
 
         addInternalEventListener(new InternalEventListenerAdapter());
