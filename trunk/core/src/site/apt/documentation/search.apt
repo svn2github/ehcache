@@ -231,7 +231,24 @@ Well-known Attribute Name | Attribute Constant
     </searchable>
 </cache>
 ---  
+
+  If you need to pass state to your custom extractor you may do so
+  with properties as shown in the following example:
+    
+---  
+<cache>
+    <searchable>
+        <searchAttribute name="age"
+             class="net.sf.ehcache.search.TestAttributeExtractor"
+             properties="foo=this,bar=that,etc=12" />
+    </searchable>
+</cache>
+---  
   
+  If properties are provided then the attribute extractor
+  implementation must have a public constructor that accepts a single
+  java.util.Properties instance
+
 *  Query API
 
     Ehcache Search introduces a fluent Object Oriented query API, following DSL principles, which should feel familiar and natural to Java programmers.
