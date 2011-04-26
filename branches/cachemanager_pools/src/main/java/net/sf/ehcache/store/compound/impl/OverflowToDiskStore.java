@@ -19,7 +19,6 @@ package net.sf.ehcache.store.compound.impl;
 import java.io.File;
 import java.io.IOException;
 
-import net.sf.ehcache.Cache;
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.CacheConfigurationListener;
 import net.sf.ehcache.store.FifoPolicy;
@@ -38,7 +37,7 @@ import net.sf.ehcache.store.compound.factories.DiskOverflowStorageFactory;
  * 
  * @author Chris Dennis
  */
-public class OverflowToDiskStore extends CompoundStore implements CacheConfigurationListener {
+public abstract class OverflowToDiskStore extends CompoundStore implements CacheConfigurationListener {
 
     protected final CapacityLimitedInMemoryFactory memoryFactory;
     protected final DiskOverflowStorageFactory diskFactory;
@@ -49,23 +48,6 @@ public class OverflowToDiskStore extends CompoundStore implements CacheConfigura
         this.memoryFactory = memory;
         this.diskFactory = disk;
         this.config = config;
-    }
-
-    /**
-     * Constructs an overflow-to-disk store for the given cache, using the given disk path.
-     * 
-     * @param cache cache that fronts this store
-     * @param diskStorePath disk path to store data in
-     * @return a fully initialized store
-     */
-    public static OverflowToDiskStore create(Cache cache, String diskStorePath) {
-        CacheConfiguration config = cache.getCacheConfiguration();
-        DiskOverflowStorageFactory disk = new DiskOverflowStorageFactory(cache, diskStorePath, null);
-        CapacityLimitedInMemoryFactory memory = new CapacityLimitedInMemoryFactory(disk, config.getMaxElementsInMemory(), 
-                determineEvictionPolicy(config), cache.getCacheEventNotificationService());            
-        OverflowToDiskStore store = new OverflowToDiskStore(memory, disk, config);
-        cache.getCacheConfiguration().addConfigurationListener(store);
-        return store;
     }
 
     /**

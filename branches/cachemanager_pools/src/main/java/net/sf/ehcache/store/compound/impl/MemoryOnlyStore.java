@@ -24,7 +24,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.config.CacheConfiguration;
@@ -56,7 +55,7 @@ import net.sf.ehcache.transaction.SoftLock;
  *
  * @author Chris Dennis
  */
-public class MemoryOnlyStore extends CompoundStore implements CacheConfigurationListener {
+public abstract class MemoryOnlyStore extends CompoundStore implements CacheConfigurationListener {
 
     private static final Object[] EMPTY_OBJECT_ARRAY = new Object[0];
 
@@ -72,22 +71,6 @@ public class MemoryOnlyStore extends CompoundStore implements CacheConfiguration
         super(memory, config.isCopyOnRead(), config.isCopyOnWrite(), config.getCopyStrategy());
         this.memoryFactory = memory;
         this.config = config;
-    }
-
-    /**
-     * Constructs an in-memory store for the given cache, using the given disk path.
-     *
-     * @param cache cache that fronts this store
-     * @param diskStorePath disk path to store data in
-     * @return a fully initialized store
-     */
-    public static MemoryOnlyStore create(Cache cache, String diskStorePath) {
-        CacheConfiguration config = cache.getCacheConfiguration();
-        CapacityLimitedInMemoryFactory memory = new CapacityLimitedInMemoryFactory(null, config.getMaxElementsInMemory(),
-                determineEvictionPolicy(config), cache.getCacheEventNotificationService());
-        MemoryOnlyStore store = new MemoryOnlyStore(memory, config);
-        cache.getCacheConfiguration().addConfigurationListener(store);
-        return store;
     }
 
     /**

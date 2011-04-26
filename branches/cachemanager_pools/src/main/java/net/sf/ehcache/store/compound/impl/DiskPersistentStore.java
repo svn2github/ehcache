@@ -19,7 +19,6 @@ package net.sf.ehcache.store.compound.impl;
 import java.io.File;
 import java.io.IOException;
 
-import net.sf.ehcache.Cache;
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.CacheConfigurationListener;
 import net.sf.ehcache.store.Policy;
@@ -34,7 +33,7 @@ import net.sf.ehcache.store.compound.factories.DiskPersistentStorageFactory;
  * 
  * @author Chris Dennis
  */
-public class DiskPersistentStore extends CompoundStore implements CacheConfigurationListener {
+public abstract class DiskPersistentStore extends CompoundStore implements CacheConfigurationListener {
 
     protected final DiskPersistentStorageFactory disk;
     
@@ -43,21 +42,6 @@ public class DiskPersistentStore extends CompoundStore implements CacheConfigura
         this.disk = disk;
     }
     
-    /**
-     * Creates a persitent-to-disk store for the given cache, using the given disk path.
-     * 
-     * @param cache cache that fronts this store
-     * @param diskStorePath disk path to store data in
-     * @return a fully initialized store
-     */
-    public static DiskPersistentStore create(Cache cache, String diskStorePath) {
-        CacheConfiguration config = cache.getCacheConfiguration();
-        DiskPersistentStorageFactory disk = new DiskPersistentStorageFactory(cache, diskStorePath, null);
-        DiskPersistentStore store = new DiskPersistentStore(disk, config);
-        cache.getCacheConfiguration().addConfigurationListener(store);
-        return store;
-    }
-
     /**
      * {@inheritDoc}
      */
