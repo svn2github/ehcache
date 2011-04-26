@@ -869,7 +869,7 @@ public class CacheManagerTest {
             cache.get("key1");
             fail();
         } catch (IllegalStateException e) {
-            assertEquals("The test Cache is not alive.", e.getMessage());
+            assertEquals("The test Cache is not alive (STATUS_SHUTDOWN)", e.getMessage());
         }
     }
 

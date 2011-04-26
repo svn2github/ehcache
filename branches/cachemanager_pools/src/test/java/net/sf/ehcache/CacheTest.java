@@ -117,19 +117,19 @@ public class CacheTest extends AbstractCacheTest {
             cache.getSize();
             fail();
         } catch (IllegalStateException e) {
-            assertEquals("The sampleCache1 Cache is not alive.", e.getMessage());
+            assertEquals("The sampleCache1 Cache is not alive (STATUS_SHUTDOWN)", e.getMessage());
         }
         try {
             cache.put(element);
             fail();
         } catch (IllegalStateException e) {
-            assertEquals("The sampleCache1 Cache is not alive.", e.getMessage());
+            assertEquals("The sampleCache1 Cache is not alive (STATUS_SHUTDOWN)", e.getMessage());
         }
         try {
             cache.get("key");
             fail();
         } catch (IllegalStateException e) {
-            assertEquals("The sampleCache1 Cache is not alive.", e.getMessage());
+            assertEquals("The sampleCache1 Cache is not alive (STATUS_SHUTDOWN)", e.getMessage());
         }
 
     }
@@ -161,19 +161,19 @@ public class CacheTest extends AbstractCacheTest {
             cache.getSize();
             fail();
         } catch (IllegalStateException e) {
-            assertEquals("The testCache Cache is not alive.", e.getMessage());
+            assertEquals("The testCache Cache is not alive (STATUS_UNINITIALISED)", e.getMessage());
         }
         try {
             cache.put(element);
             fail();
         } catch (IllegalStateException e) {
-            assertEquals("The testCache Cache is not alive.", e.getMessage());
+            assertEquals("The testCache Cache is not alive (STATUS_UNINITIALISED)", e.getMessage());
         }
         try {
             cache.get("key");
             fail();
         } catch (IllegalStateException e) {
-            assertEquals("The testCache Cache is not alive.", e.getMessage());
+            assertEquals("The testCache Cache is not alive (STATUS_UNINITIALISED)", e.getMessage());
         }
     }
 
@@ -222,7 +222,7 @@ public class CacheTest extends AbstractCacheTest {
             cache.get("key1");
             fail();
         } catch (IllegalStateException e) {
-            assertEquals("The test Cache is not alive.", e.getMessage());
+            assertEquals("The test Cache is not alive (STATUS_SHUTDOWN)", e.getMessage());
         }
     }
 
