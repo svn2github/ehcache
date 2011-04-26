@@ -5,6 +5,9 @@
              <action dev="Tim Eck" type="update" issue="EHC-846">
                 Give access to attribute name within the Extractor classes in search
              </action>
+             <action dev="Tim Eck" type="update" issue="EHC-848">
+                Pass properties when constructing attribute extractors instances
+             </action>
            </release>
          <release version="2.4.2" date="2011-04" description="Bug fixes">
              <action dev="Chris Dennis" type="fix" issue="EHC-845">

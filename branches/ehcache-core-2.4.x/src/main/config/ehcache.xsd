@@ -190,19 +190,21 @@
             <xs:attribute name="name" use="required" type="xs:string"/>
             <xs:attribute name="expression" type="xs:string"/>
             <xs:attribute name="class" type="xs:string"/>
+            <xs:attribute name="properties" use="optional"/>
+            <xs:attribute name="propertySeparator" use="optional"/>
         </xs:complexType>
     </xs:element>
-    
+
     <xs:element name="searchable">
       <xs:complexType>
         <xs:sequence>
-          <xs:element minOccurs="0" maxOccurs="unbounded" ref="searchAttribute"/>                
+          <xs:element minOccurs="0" maxOccurs="unbounded" ref="searchAttribute"/>
         </xs:sequence>
         <xs:attribute name="keys" use="optional" type="xs:boolean" default="true"/>
         <xs:attribute name="values" use="optional" type="xs:boolean" default="true"/>
       </xs:complexType>
     </xs:element>
-    
+
     <xs:element name="terracotta">
         <xs:complexType>
             <xs:sequence>

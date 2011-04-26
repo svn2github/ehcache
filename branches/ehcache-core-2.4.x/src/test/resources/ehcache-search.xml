@@ -12,7 +12,7 @@
             <searchAttribute name="gender" expression="value.getGender()"/>
             <searchAttribute name="name" expression="value.getName()"/>
         </searchable>
-        
+
         <!-- EHC-800 should be able to use JavaBeans conventions <searchAttribute name="name"/>-->
     </cache>
 
@@ -20,16 +20,18 @@
         <searchable>
             <searchAttribute name="age"
                              class="net.sf.ehcache.search.TestAttributeExtractor"/>
-            <searchAttribute name="gender" expression="value.getGender()"/>
+            <searchAttribute name="gender"
+                             class="net.sf.ehcache.search.GenderAttributeExtractor"
+                             properties="foo=1,bar=2"/>
             <searchAttribute name="name" expression="value.getName()"/>
         </searchable>
     </cache>
-    
-    
+
+
     <cache name="not-searchable" maxElementsInMemory="0" eternal="true" overflowToDisk="false">
        <!--  contains no searchable element! -->
     </cache>
-    
+
     <cache name="default-searchable" maxElementsInMemory="0" eternal="true" overflowToDisk="false">
        <searchable/>
     </cache>
@@ -37,7 +39,7 @@
     <!--<cache name="metadata-searchable" maxElementsInMemory="0" eternal="true" overflowToDisk="false">-->
        <!--<searchable metadata="true"/>-->
     <!--</cache>-->
-    
+
     <cache name="searchable-no-keys-values" maxElementsInMemory="0" eternal="true" overflowToDisk="false">
        <searchable keys="false" values="false"/>
     </cache>
@@ -48,7 +50,7 @@
          <searchAttribute name="gender"/>
          <searchAttribute name="name"/>
        </searchable>
-       
+
     </cache>
 
 </ehcache>
