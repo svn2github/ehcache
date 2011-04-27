@@ -348,7 +348,8 @@ class Segment extends ReentrantReadWriteLock {
 
             Element replacedElement;
             Object onDiskSubstitute = null;
-            if (e != null && comparator.equals(oldElement, replacedElement = decode(e.key, e.getElement()))) {
+            // the && unretrievedGet is there to make sure the decoded element did not get evicted during decoding
+            if (e != null && comparator.equals(oldElement, replacedElement = decode(e.key, e.getElement())) && unretrievedGet(key, hash) != null) {
                 /*
                  * make sure we re-get from the HashEntry - since the decode in the conditional
                  * may have faulted in a different type - we must make sure we know what type
