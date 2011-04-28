@@ -20,10 +20,12 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
+import static org.hamcrest.CoreMatchers.nullValue;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -373,7 +375,8 @@ public class MemoryOnlyPoolableStoreTest {
                         Element e = new Element(i, "" + i);
                         memoryOnlyPoolableStore.put(e);
 
-                        assertTrue(threadId + "#" + i + " - " + onHeapPool.getSize(), 16384 * 2 >= onHeapPool.getSize());
+                        long size = onHeapPool.getSize();
+                        assertTrue(threadId + "#" + i + " - " + size, 16384 * 2 >= size);
 
                         Thread.yield();
                         if ((i + 1) % 1000 == 0) { dump(); memoryOnlyPoolableStore.removeAll(); }

@@ -51,7 +51,6 @@ import net.sf.ehcache.pool.PoolEvictor;
 import net.sf.ehcache.pool.PoolableStore;
 import net.sf.ehcache.pool.SizeOfEngine;
 import net.sf.ehcache.pool.impl.BoundedPool;
-import net.sf.ehcache.pool.impl.ConstantSizeOfEngine;
 import net.sf.ehcache.pool.impl.DiskPersistentPoolableStore;
 import net.sf.ehcache.pool.impl.MemoryOnlyPoolableStore;
 import net.sf.ehcache.pool.impl.OverflowToDiskPoolableStore;
@@ -81,9 +80,6 @@ import net.sf.ehcache.store.TerracottaStore;
 import net.sf.ehcache.store.compound.ImmutableValueElementCopyStrategy;
 import net.sf.ehcache.store.compound.ReadWriteCopyStrategy;
 import net.sf.ehcache.store.compound.StoreUpdateException;
-import net.sf.ehcache.store.compound.impl.DiskPersistentStore;
-import net.sf.ehcache.store.compound.impl.MemoryOnlyStore;
-import net.sf.ehcache.store.compound.impl.OverflowToDiskStore;
 import net.sf.ehcache.terracotta.TerracottaClient;
 import net.sf.ehcache.terracotta.TerracottaNotRunningException;
 import net.sf.ehcache.transaction.SoftLockFactory;
@@ -1002,25 +998,27 @@ public class Cache implements Ehcache, StoreListener {
             }
 
             // on-heap validation
-            if (getCacheManager().getConfiguration().isMaxBytesOnHeapSet() && configuration.getMaxElementsInMemory() > 0) {
-                throw new InvalidConfigurationException(configuration.getName() + ": MaxElementsInMemory is not compatible with MaxBytesOnHeap set on cache manager");
+            // todo is this really to be supported ? CacheManager less Caches ? Can these then be attached later ?
+            if (getCacheManager() != null
+                && getCacheManager().getConfiguration().isMaxBytesOnHeapSet()
+                && configuration.getMaxElementsInMemory() > 0) {
+                throw new InvalidConfigurationException(configuration.getName() +
+                                                        ": MaxElementsInMemory is not compatible with " +
+                                                        "MaxBytesOnHeap set on cache manager");
             }
             if (configuration.getMaxBytesOnHeap() > 0 && configuration.getMaxElementsInMemory() > 0) {
-                throw new InvalidConfigurationException(configuration.getName() + ": MaxElementsInMemory is not compatible with MaxBytesOnHeap set on cache");
+                throw new InvalidConfigurationException(configuration.getName() +
+                                                        ": MaxElementsInMemory is not compatible with " +
+                                                        "MaxBytesOnHeap set on cache");
             }
 
             // on-heap pool configuration
             Pool onHeapPool;
             if (configuration.getMaxBytesOnHeap() > 0) {
                 PoolEvictor<PoolableStore> evictor = new RoundRobinOnHeapPoolEvictor();
-                SizeOfEngine sizeOfEngine =
-                new ConstantSizeOfEngine(
-                            1536,  /* 1.5 KB*/
-                            14336, /* 14 KB */
-                            512    /* 0.5 KB */
-                    );
+                SizeOfEngine sizeOfEngine = cacheManager.createSizeOfEngine(this);
                 onHeapPool = new BoundedPool(configuration.getMaxBytesOnHeap(), evictor, sizeOfEngine);
-            } else if (getCacheManager().getConfiguration().isMaxBytesOnHeapSet()) {
+            } else if (getCacheManager() != null && getCacheManager().getConfiguration().isMaxBytesOnHeapSet()) {
                 onHeapPool = getCacheManager().getOnHeapPool();
             } else {
                 onHeapPool = new UnboundedPool();
@@ -1037,14 +1035,9 @@ public class Cache implements Ehcache, StoreListener {
             Pool onDiskPool;
             if (configuration.getMaxBytesOnDisk() > 0) {
                 PoolEvictor<PoolableStore> evictor = new RoundRobinOnDiskPoolEvictor();
-                SizeOfEngine sizeOfEngine =
-                new ConstantSizeOfEngine(
-                            1536,  /* 1.5 KB*/
-                            14336, /* 14 KB */
-                            512    /* 0.5 KB */
-                    );
+                SizeOfEngine sizeOfEngine = cacheManager.createSizeOfEngine(this);
                 onDiskPool = new BoundedPool(configuration.getMaxBytesOnDisk(), evictor, sizeOfEngine);
-            } else if (getCacheManager().getConfiguration().isMaxBytesOnDiskSet()) {
+            } else if (getCacheManager() != null && getCacheManager().getConfiguration().isMaxBytesOnDiskSet()) {
                 onDiskPool = getCacheManager().getOnDiskPool();
             } else {
                 onDiskPool = new UnboundedPool();

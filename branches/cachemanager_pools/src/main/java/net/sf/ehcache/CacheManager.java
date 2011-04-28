@@ -60,7 +60,7 @@ import net.sf.ehcache.pool.PoolEvictor;
 import net.sf.ehcache.pool.PoolableStore;
 import net.sf.ehcache.pool.SizeOfEngine;
 import net.sf.ehcache.pool.impl.BoundedPool;
-import net.sf.ehcache.pool.impl.ConstantSizeOfEngine;
+import net.sf.ehcache.pool.impl.DefaultSizeOfEngine;
 import net.sf.ehcache.pool.impl.RoundRobinOnDiskPoolEvictor;
 import net.sf.ehcache.pool.impl.RoundRobinOnHeapPoolEvictor;
 import net.sf.ehcache.store.DiskStore;
@@ -325,22 +325,12 @@ public class CacheManager {
 
         if (this.configuration.isMaxBytesOnHeapSet()) {
             PoolEvictor<PoolableStore> evictor = new RoundRobinOnHeapPoolEvictor();
-            SizeOfEngine sizeOfEngine =
-            new ConstantSizeOfEngine(
-                        1536,  /* 1.5 KB*/
-                        14336, /* 14 KB */
-                        512    /* 0.5 KB */
-                );
+            SizeOfEngine sizeOfEngine = createSizeOfEngine(null);
             this.onHeapPool = new BoundedPool(this.configuration.getMaxBytesOnHeap(), evictor, sizeOfEngine);
         }
         if (this.configuration.isMaxBytesOnDiskSet()) {
             PoolEvictor<PoolableStore> evictor = new RoundRobinOnDiskPoolEvictor();
-            SizeOfEngine sizeOfEngine =
-            new ConstantSizeOfEngine(
-                        1536,  /* 1.5 KB*/
-                        14336, /* 14 KB */
-                        512    /* 0.5 KB */
-                );
+            SizeOfEngine sizeOfEngine = createSizeOfEngine(null);
             this.onDiskPool = new BoundedPool(this.configuration.getMaxBytesOnDisk(), evictor, sizeOfEngine);
         }
 
@@ -1812,5 +1802,35 @@ public class CacheManager {
         // recreate TransactionController with fresh TransactionIDFactory
         transactionController = new TransactionController(createTransactionIDFactory(), configuration
                 .getDefaultTransactionTimeoutInSeconds());
+    }
+
+    SizeOfEngine createSizeOfEngine(final Cache cache) {
+
+        String prop = "net.sf.ehcache.sizeofengine";
+
+        if(isNamed()) {
+            prop += "." + getName();
+        } else {
+          prop += ".default";
+        }
+
+        if(cache != null) {
+            prop += "." + cache.getName();
+        }
+
+        String className = System.getProperty(prop);
+
+        if(className != null) {
+            try {
+                Class<? extends SizeOfEngine> aClass = (Class<? extends SizeOfEngine>) Class.forName(className);
+                return aClass.newInstance();
+            } catch (Exception exception) {
+                throw new RuntimeException("Couldn't load and instantiate custom " +
+                                           (cache != null ? "SizeOfEngine for cache '" + cache.getName() + "'" : "default SizeOfEngine"),
+                    exception);
+            }
+        } else {
+            return new DefaultSizeOfEngine();
+        }
     }
 }
