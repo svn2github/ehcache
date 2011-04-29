@@ -24,7 +24,6 @@ Cache Consistency Options
       consistency mode available in this topology is Weak Consistency.
 
     * Distributed Ehcache - the data is held in a Terracotta Server Array ("SA") with a subset of recently used data held in each application cache node.
-      Writes may be either synchronous or asynchronous.
 
       []
 
@@ -56,12 +55,11 @@ Cache Consistency Options
       Any local threads in Ehcache A will have immediate visibility of the change.
 
     * When a write hits the Transaction Buffer, a notify occurs, and the Transaction Buffer initiates
-      sending the write to the Terracotta Server Array. This write may be asynchronous (default) or synchronous
-      (by configuration using synchronous=true). The write stays in the Transaction Buffer until an acknowledgement from the TSA has
-      been received.
+      sending the write asynchronously to the Terracotta Server Array. The write stays in the Transaction Buffer 
+      until an acknowledgement from the TSA has been received.
 
-    * Consistenct hashing is used to identify which stripe in the TSA to write to. The client maintains knowledge of which
-      replica is the Active server using a election protocol. The write is done to the Active server. The Active server has
+    * Consistent hashing is used to identify which stripe in the TSA to write to. The client maintains knowledge of which
+      replica is the Active server using an election protocol. The write is done to the Active server. The Active server has
       knowledge of the <tcconfig> and knows to replicate the change to the passive. The write is then written to the Passive. The passive
       then acknowledges the write to the Active, the Active then acknowledges the write to the Ehcache node. Once received, the write is
       removed from the Transaction Buffer.
@@ -183,8 +181,7 @@ Cache Consistency Options
                Any local threads in Ehcache A will have immediate visibility of the change.
 
     [[4]]      Once the change has hit the Transaction Buffer which is a LinkedBlockingQueue, a notify occurs, and the
-               Transaction Buffer initiates sending the write (update) to the Terracotta Server Array (storage system).
-               This write may be asynchronous (default) or synchronous (by configuration using synchronous=true).
+               Transaction Buffer initiates sending the write (update) asynchronously to the Terracotta Server Array (storage system).
 
     [[5]]      The Terracotta Server is generally configured with multiple replicas forming a Mirror Group. Within the mirror group there is an Active server, and one or more Passive servers.  The write is to the Active server. The Active server does not acknowledge the write until it has written it to each of the passive servers in the Mirror Group.
                 It then sends back an acknowledgement to Ehcache A which then deletes the write from the Transaction Buffer.
@@ -336,10 +333,10 @@ Cache Consistency Options
 
 *** Solution
 
-    Use strong consistency with synchronous writes plus XA transactions.
+    Use strong consistency plus XA transactions.
 
-    Because the execution step, once completed cannot be replaid, and may be under the control of a BPM, it is very important that the
-    change in state gets to the cache cluster. For this reason synchronous writes should be used so that the put to the cache does not
+    Because the execution step cannot be replayed once completed, and may be under the control of a BPM, it is very important that the
+    change in state gets to the cache cluster. Synchronous writes can also be used (at a high performance cost) so that the put to the cache does not
     return until the data has been applied. If an executing node failed before the data was transferred, the locks would still be in place
     preventing readers from reading stale data, but that will not help the next step in the process.
 
@@ -386,10 +383,10 @@ Cache Consistency Options
 
     Use one of:
 
-    *  strong consistency and local transactions (if changes are needed to be applied to multiple caches or entries) with synchronous writes.
+    *  strong consistency and local transactions (if changes are needed to be applied to multiple caches or entries).
 
-      Because the execution step, once completed cannot be replaid, and may be under the control of a BPM, it is very important that the
-    change in state gets to the cache cluster. For this reason synchronous writes should be used so that the put to the cache does not
+      Because the execution step, once completed cannot be replayed, and may be under the control of a BPM, it is very important that the
+    change in state gets to the cache cluster. Synchronous writes can also be used (at a high performance cost) so that the put to the cache does not
     return until the data has been applied. If an executing node failed before the data was transferred, the locks would still be in place
     preventing readers from reading stale data, but that will not help the next step in the process.
 
