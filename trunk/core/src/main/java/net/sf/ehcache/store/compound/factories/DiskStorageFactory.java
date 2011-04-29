@@ -35,6 +35,7 @@ import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 
+import net.sf.ehcache.transaction.SoftLock;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -302,7 +303,12 @@ abstract class DiskStorageFactory<T extends ElementSubstitute> implements Elemen
      * @throws IOException on write error
      */
     protected DiskMarker write(Element element) throws IOException {
-        MemoryEfficientByteArrayOutputStream buffer = serializeElement(element);
+        Element elementToSerialize = element;
+        if (element.getObjectValue() instanceof SoftLock) {
+            elementToSerialize = null;
+        }
+
+        MemoryEfficientByteArrayOutputStream buffer = serializeElement(elementToSerialize);
         int bufferLength = buffer.size();
         elementSize = bufferLength;
         DiskMarker marker = alloc(element, bufferLength);
@@ -353,9 +359,7 @@ abstract class DiskStorageFactory<T extends ElementSubstitute> implements Elemen
      * @param element element to be written to area
      * @return marker representing the element.
      */
-    protected DiskMarker createMarker(long position, int size, Element element) {
-        return new OverflowDiskMarker(this, position, size, element);
-    }
+    protected abstract DiskMarker createMarker(long position, int size, Element element);
 
     /**
      * Free the given marker to be used by a subsequent write.
@@ -548,30 +552,6 @@ abstract class DiskStorageFactory<T extends ElementSubstitute> implements Elemen
          */
         Element getElement() {
             return element;
-        }
-    }
-
-    /**
-     * Overflow specific disk marker implementation.
-     */
-    private final static class OverflowDiskMarker extends DiskMarker {
-
-        private final long expiry;
-
-        OverflowDiskMarker(DiskStorageFactory<? extends ElementSubstitute> factory, long position, int size, Element element) {
-            super(factory, position, size, element);
-            this.expiry = element.getExpirationTime();
-        }
-
-        OverflowDiskMarker(DiskStorageFactory<? extends ElementSubstitute> factory, long position, int size, Object key, long hits,
-                long expiry) {
-            super(factory, position, size, key, hits);
-            this.expiry = expiry;
-        }
-
-        @Override
-        long getExpirationTime() {
-            return expiry;
         }
     }
 
