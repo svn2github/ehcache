@@ -1105,7 +1105,7 @@ public class CacheConfiguration implements Cloneable {
     }
 
     /**
-     * Configuration for the CachePeerListenerFactoryConfiguration.
+     * Configuration for the CacheEventListenerFactory.
      */
     public static final class CacheEventListenerFactoryConfiguration extends FactoryConfiguration<CacheEventListenerFactoryConfiguration> {
         private NotificationScope notificationScope = NotificationScope.ALL;
