@@ -6,37 +6,39 @@ Distributed Ehcache FAQ
 
 ~~%{toc|fromDepth=3|toDepth=3}
 
-*  Frequently Asked Questions
 
-**  I get a net.sf.ehcache.CacheException: Terracotta cache classes are not available, you are missing jar(s) most likely
+*  I get a net.sf.ehcache.CacheException: Terracotta cache classes are not available.
 
     You need to include the ehcache-terracotta jar in your classpath.
 
-**  When I start ehcache I get "WARN - Can't connect to server[localhost:9510:s1]. Retrying..."
+*  When I start ehcache I get "WARN - Can't connect to server[localhost:9510:s1]. Retrying...".
 
-    You have not configured a Terracotta server for Ehcache to connect to.
+    You have not configured a Terracotta server for Ehcache to connect to, or that server isn't reachable.
 
-**  Is expiry the same in Terracotta?
+*  Is expiry the same in distributed Ehcache?
 
     <<<timeToIdle>>> and <<<timeToLive>>> work as usual. Note however that the <<<eternal>>> attribute, when set to "true", overrides <<<timeToLive>>> and <<<timeToIdle>>> so that no expiration can take place. 
 
-    Ehcache 1.7 introduced a less fine grained age recording in Element
+    Note also that expired elements are <not> necessarily evicted elements, and that evicted elements are <not> necessarily expired elements.
+    See the {{{Terracotta Product Documentatio}http://www.terracotta.org/documentation/distributed-ehcache-reference.html}} for more information on expiration and eviction in a distributed cache.
+
+    Ehcache 1.7 introduced a less fine-grained age recording in Element
     which rounds up to the nearest second. Some APIs may be sensitive to this change.
 
-    In Ehcache Elements can have overridden TTI and TTLs. Terracotta supports this functionality.
+    In Ehcache Elements can have overridden TTI and TTLs. Terracotta distributed Ehcache supports this functionality.
 
-**  I have TTL/TTI not configured or set to 0 (eternal) and have created Elements with a specific TTL which is being ignored. Why?
+*  I have TTL/TTI not configured or set to 0 (eternal) and have created Elements with a specific TTL which is being ignored. Why?
 
-    There is a high cost in checking individual elements for eviction in the Terracotta server.
-    To incur that cost and have your Element TTL/TTIs recognised in this case set <<<ehcache.storageStrategy.dcv2.perElementTTITTL.enabled>>> = true"
-    in system properties.
+    TTL/TTI are meant to control the relevancy of data for business reasons, not as an operational constraint for managing resources. Without the occurrence of so-called "inline" eviction, which happens whenever an expired element is accessed, it is possible for expired elements
+    to continue existing in the Terracotta Server Array. This is to minimize the high cost of checking 
+    individual elements for expiration. To force Terracotta servers to inspect Element TTL/TTIs (which <lowers> performance), set 
+    <<<ehcache.storageStrategy.dcv2.perElementTTITTL.enabled>>> = true" in system properties.
 
-**  I have set maxElementsOnDisk to a fixed number, but my Terracotta L2 keeps growing.
+*  I have set maxElementsOnDisk to a fixed number, but my Terracotta L2 keeps growing.
 
-    maxElementsOnDisk was inadvertenly ignored in the new DCV2 implementation. This was logged as a bug: {{https://jira.terracotta.org/jira/browse/EHCTERR-1}}
-    and is fixed in Terracotta 3.5.
+   maxElementsOnDisk controls the overall size of a cache on the Terracotta Server Array. For the purpose of optimizing eviction operations, it is possible for the set value to be exceeded for a limited amount of time. If a cache's <<<concurrency>>> attribute is set to a value much higher than the value of maxElementsOnDisk, it is also possible for maxElementsOnDisk to be exceeded. In this case, the value of <<<concurrency>>> should be lowered. 
 
-**  DCV2 Eviction Algorithm
+*  DCV2 Eviction Algorithm
 
     The DCV2 algorithm is optimised for fast server side performance.
 
@@ -54,18 +56,18 @@ Distributed Ehcache FAQ
     * evicts enough non-expired elements to make <n>.
 
 
-**  Changing configuration
+*  Changing configuration
 
     Terracotta clusters remember the configuration settings. You need to delete the cluster to change cache settings of Terracotta distributed
     caches. You can also use the Terracotta Dev Console to apply persistent changes to common cache settings.
 
-**  What Eviction strategies are supported?
+*  What Eviction strategies are supported?
 
     Ehcache supports LRU, LFU and FIFO eviction strategies.
 
     Terracotta supports LRU and LFU eviction from the local node. Not FIFO and not custom evictors.
 
-**  What Stores are available and how are they configured?
+*  What Stores are available and how are they configured?
 
     The Terracotta server provides an additional store, generally referred to as the Level 2 or {L2} store.
 
@@ -79,7 +81,7 @@ Distributed Ehcache FAQ
     is never used. When the store gets full, elements will always overflow to the Terracotta L2 Store running on the server. The L2
     can be further configured with the tcconfig.
 
-**  When do Elements overflow?
+*  When do Elements overflow?
 
     Two things to cause elements to be flushed from L1 to L2.
 
@@ -87,21 +89,21 @@ Distributed Ehcache FAQ
 
     * When the local JVM exceeds 70% of Old Generation. This can be turned off in the TC Config. By default it is on (in 1.7).
 
-**  How does Element equality work in Serialization mode?
+*  How does Element equality work in Serialization mode?
 
     An Element, key and value in Ehcache is guaranteed to <<<.equals()>>> another as it moves between stores.
 
     In the Express install or Serialization mode of Terracotta, which is the default, Terracotta is the same. Elements will
     not <<<==>>> each other as they move between stores.
 
-**  How does Element equality work in Identity mode?
+*  How does Element equality work in Identity mode?
 
     An Element in Ehcache is guaranteed to <<<.equals()>>> another as it moves between stores.
 
     However in Identity mode, Terracotta makes a further guarantee that they key and the value <<<==>>>. This is achieved
     using extensions to the Java Memory Model.
 
-**  What is the recommended way to write to a database?
+*  What is the recommended way to write to a database?
 
     Terracotta' non Ehcache API offers an async writethrough to the database which is guaranteed. It uses the TIM Async module and works
     by putting the database update in a clustered queue. It guarantees that a node, even if the local node fails, will take it out
@@ -109,7 +111,7 @@ Distributed Ehcache FAQ
 
     That option is not available with Ehcache although it may get added.
 
-**  If updates to a database bypass the Terracotta clustered application, then how is that coherent?
+*  If updates to a database bypass the Terracotta clustered application, then how is that coherent?
 
     It isn't. This is a problem with using a database as an integration point. Integration via a message queue, with a
     Terracotta clustered application acting as a message queue listener and updating the database avoids this. As would
@@ -118,19 +120,19 @@ Distributed Ehcache FAQ
     AQ can have DB trigger put in a poll. Or AQ can push it up.
 
 
-**  Do CacheEventListeners work?
+*  Do CacheEventListeners work?
 
     A local CacheEventListener will work locally, but other nodes in a Terracotta cluster are not notified unless the
     TerracottaCacheEventReplicationFactory event listener is registered for the cache.
 
-**  What are the JMX statistics available in the Terracotta Developer Console?
+*  What are the JMX statistics available in the Terracotta Developer Console?
 
     SampledCache and SampledCacheManager MBeans are made available in the Terracotta Developer Console.
 
     These are time based gauges, based on once per second measurements. These are different to the JMX MBeans available through the
     <<<ManagementService>>>.
 
-**   What classloader is used to deserialize clustered objects in valueMode="serialization"?
+*   What classloader is used to deserialize clustered objects in valueMode="serialization"?
 
     The following classloaders are tried in this order:
 
@@ -139,12 +141,12 @@ Distributed Ehcache FAQ
       * The classloader used to define the Ehcache CacheManager - the one that loaded the ehcache-terracotta.jar
 
 
-**  What versions of Ehcache and Terracotta work together?
+*  What versions of Ehcache and Terracotta work together?
 
     For the latest compatibility information, see {{http://www.terracotta.org/confluence/display/release/Home}}.
 
 
-**  What happens when an L1 (i.e. an Ehcache node) disconnects from the L2 (i.e. the Terracotta Server Array)?
+*  What happens when an L1 (i.e. an Ehcache node) disconnects from the L2 (i.e. the Terracotta Server Array)?
 
     * The L1 receives an operations disabled event. Then spawns a thread with a timer waiting for an operations-enabled event.
       How long to wait depends on heart beating settings. 65 seconds should work for the default assuming l2.l1.reconnect is
@@ -160,7 +162,7 @@ Distributed Ehcache FAQ
       and throw a timeout to the application. This is however somewhat messy - since the application threads may receive a
       timeout, but the "terracotta transaction" may still make it through to the L2.
 
-**  What happened to coherent=true|false in ehcache.xml
+*  What happened to coherent=true|false in ehcache.xml
 
     It has been deprecated. Use the "consistency" attribute instead.
 
@@ -168,13 +170,13 @@ Distributed Ehcache FAQ
     to consistency=eventual.
 
 
-**  Why doesn't overflow to disk work with Terracotta clustered caches?
+*  Why doesn't overflow to disk work with Terracotta clustered caches?
 
     Because the TSA itself provides both disk persistence (if required) and scale out, the local DiskStore
     is not available with Terracotta clustered caches. As a result overflowToDisk and diskPersistent are silently
     ignored.
 
-**  Why is JRocket slow?
+*  Why is JRocket slow?
 
     JRockit has an has a bug where it reports the younggen size instead of the old to our CacheManager so we over-aggressively
     flush to L2 when using percentage of max heap based config. Set maxElementsInMemory instead as a workaround.

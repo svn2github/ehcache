@@ -15,9 +15,9 @@ Ehcache - Frequently Asked Questions
      As of ehcache-1.2, yes. Create your CacheManager using new
     CacheManager(...) and keep hold of the reference. The singleton
     approach accessible with the getInstance(...) method is still available
-    too. Remember that Ehcache can supports hundreds of
+    too. Remember that Ehcache can support hundreds of
     caches within one CacheManager. You would use separate CacheManagers
-    where you want quite different configurations.
+    where you want different configurations.
 
      The Hibernate EhCacheProvider has also been updated to support this behaviour.
 
@@ -36,21 +36,19 @@ Ehcache - Frequently Asked Questions
     directly using SelfPopulatingCacheManager. You can use one of those or
     you can just use CacheManager directly.
 
-     I have updated the documentation extensively over the last few days.
-    Check it out and let me know if you have any questions. See the tests
-    for example code on using the caches directly. Look at
+    See the tests for example code on using the caches directly. Look at
     CacheManagerTest, CacheTest and SelfPopulatingCacheTest.
 
-* What happens when maxElementsInMemory is reached? Are the oldest items are expired when new ones come in?
+* What happens when maxElementsInMemory is reached? Are the oldest items expired when new ones come in?
 
      When the maximum number of elements in memory is reached, the least
     recently used ("LRU") element is removed. Used in this case means
     inserted with a put or accessed with a get.
 
      If the overflowToDisk cache attribute is false, the LRU Element is
-     discarded. If true, it is transferred asynchronously to the DiskStore.
+     evicted. If true, it is flushed asynchronously to the DiskStore.
 
-* Is it thread safe to modify Element values after retrieval from a Cache?
+* Is it thread-safe to modify Element values after retrieval from a Cache?
 
      Remember that a value in a cache element is globally accessible from
     multiple threads. It is inherently not thread safe to modify the value.
@@ -60,14 +58,13 @@ Ehcache - Frequently Asked Questions
      The {{{http://ehcache.org/apidocs/net/sf/ehcache/constructs/blocking/UpdatingCacheEntryFactory.html}UpdatingCacheEntryFactory}}
     does work by modifying the contents of values in place in the
     cache. This is outside of the core of Ehcache and is targeted at
-    high performance CacheEntryFactories for SelfPopulatingCaches.
+    high-performance CacheEntryFactories for SelfPopulatingCaches.
 
 * Can non-Serializable objects be stored in a cache?
 
      As of ehcache-1.2, they can be stored in caches with MemoryStores.
 
-     Elements attempted to be replicated or overflowed to disk will be removed and a warning logged
-      if not Serializable.
+     If an attempt is made to replicate or overflow a non-serializable element to disk, the element is removed and a warning logged.
 
 * Why is there an expiry thread for the DiskStore but not for the MemoryStore?
 
@@ -108,13 +105,14 @@ Ehcache - Frequently Asked Questions
      As of Ehcache 2.0 this is not possible. You can set the maxElementsInMemory to 1, but
      setting the max size to 0 now gives an infinite capacity.
 
-* Where is the source code? The source code is distributed in the root directory of the download.
+* Where is the source code? 
 
+     The source code is distributed in the root directory of the download. 
      It is called ehcache-x.x.zip. It is also available from SourceForge
     {{{http://ehcache.svn.sourceforge.net/viewvc/ehcache/}online}} or
     through {{{http://sourceforge.net/svn/?group_id=93232}SVN}}.
 
-* How do you get statistics on an Element without affecting them?
+* How do you get an Element without affecting statistics?
 
      Use the {{{http://ehcache.org/apidocs/net/sf/ehcache/Cache.html#getQuiet%28java.io.Serializable%29}Cache.getQuiet()}} method. It returns an Element without updating statistics.
 
@@ -294,7 +292,7 @@ class="net.sf.ehcache.distribution.RMICacheManagerPeerListenerFactory"/>
     The backport-concurrent library is used in Ehcache to provide java.util.concurrency facilities for Java 4 - Java 6.
     Use either the Java 4 version which is compatible with Java 4-6 or use the version for your JDK.
 
-* How do I get a memory only cache to persist to disk between VM restarts?
+* How do I get a memory only-cache to persist to disk between VM restarts?
 
     While disk persistence between restarts is a feature of the DiskStore only, you can get the same behaviour for a memory only cache
     by setting up a cache with maxElementsInMemory set to Integer.MAX_VALUE, 2147483647 and diskPersistent set to true.
@@ -308,7 +306,7 @@ class="net.sf.ehcache.distribution.RMICacheManagerPeerListenerFactory"/>
     If you use this default implementation, the cache name is called "SimplePageCachingFilter". You need to define a cache with that
     name in ehcache.xml. If you override CachingFilter you are required to set your own cache name.
     
-* I see, in my application's log:
+*  Why is there  a warning in my application's log that a new CacheManager is using a resource already in use by another CacheManager.
 
 ---
 WARN  CacheManager ...  Creating a new instance of CacheManager using the diskStorePath
@@ -451,4 +449,4 @@ java.net.ConnectException: Connection refused
 
 *   What does this mean? "Caches cannot be added by name when default cache config is not specified in the config. Please add a default cache config in the configuration."
 
-    From Ehcache 2.4, we have made the <<<defaultCache>>> optional. When you try to add a cache by name, <<<CacheManager.add(String name)>>>,
+    From Ehcache 2.4, we have made the <<<defaultCache>>> optional. When you try to add a cache by name, <<<CacheManager.add(String name)>>>, a default cache is expected to exist in the CacheManager configuration.
