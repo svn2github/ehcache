@@ -330,12 +330,14 @@ used with JMX monitors.
     Simplest example for pointing to a Terracotta server on this machine:
     <terracottaConfig url="localhost:9510"/>
 
-    This element has one attribute "rejoin" which can take values of either "true" or "false"
+    This element has one attribute "rejoin" which can take values of either "true" or "false":
     <terracottaConfig rejoin="true" url="localhost:9510" />
+
     By default, this attribute is true.
+
     If rejoin is true, all Terracotta Clustered caches have to be configured with nonstop.
     Without rejoin, if the Terracotta Server is restarted the client cannot connect back to the
-    server. When enabled, this will enable the client to connect to the new cluster without the
+    server. When enabled, this allows the client to connect to the new cluster without the
     need to restart the node.
 
     Example using a path to Terracotta configuration file:
@@ -873,7 +875,9 @@ used with JMX monitors.
     *  immediateTimeout="true|false" - What to do on receipt of a ClusterOffline event indicating that communications
        with the Terracotta Server Array were interrupted.
 
-    *  timeoutBehavior="noop|exception|localReads" - What to do when a timeout has occurred.
+    <nonstop> has one sub-element, <timeoutBehavior> which has the following attribute:
+
+    *  type="noop|exception|localReads" - What to do when a timeout has occurred. Exception is the default.
 
     Simplest example to indicate clustering:
         <terracotta/>
