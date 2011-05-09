@@ -69,7 +69,7 @@ public final class CacheManagerExecutorServiceFactory implements NonstopExecutor
 
                     public Thread newThread(Runnable runnable) {
                         Thread thread = new Thread(runnable, "NonStopCache [" + cacheManagerName + "] " + EXECUTOR_THREAD_NAME_PREFIX + "-"
-                                + count.incrementAndGet());
+                                + count.incrementAndGet() + " for '" + Thread.currentThread().getName() + "'");
                         thread.setDaemon(true);
                         return thread;
                     }
