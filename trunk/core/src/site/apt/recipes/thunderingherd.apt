@@ -41,7 +41,7 @@ Thundering Herd
     of a news site.  The news story has not yet been loaded in to the
     cache.
 
-    The application is using a cache using a {{read-through}} pattern with
+    The application is using a cache using a read-through pattern with
     code that looks approximately like:
 
 ----------------------------
