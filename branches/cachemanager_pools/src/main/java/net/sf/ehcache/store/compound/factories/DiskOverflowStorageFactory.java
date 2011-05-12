@@ -20,9 +20,11 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReferenceFieldUpdater;
 import java.util.concurrent.locks.Lock;
 
 import net.sf.ehcache.event.RegisteredEventListeners;
+import net.sf.ehcache.transaction.SoftLock;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -124,7 +126,7 @@ public class DiskOverflowStorageFactory extends DiskStorageFactory<ElementSubsti
      * @throws IllegalArgumentException
      */
     public ElementSubstitute create(Object key, Element element) throws IllegalArgumentException {
-        if (element.isSerializable()) {
+        if (element.isSerializable() || element.getObjectValue() instanceof SoftLock) {
             int size = count.incrementAndGet();
             if (capacity > 0) {
                 int overflow = size - capacity;
@@ -147,8 +149,11 @@ public class DiskOverflowStorageFactory extends DiskStorageFactory<ElementSubsti
     public Element retrieve(Object key, ElementSubstitute proxy) {
         if (proxy instanceof DiskStorageFactory.DiskMarker) {
             try {
-                DiskMarker marker = (DiskMarker) proxy;
-                Element e = read((DiskMarker) proxy);
+                OverflowDiskMarker marker = (OverflowDiskMarker) proxy;
+                Element e = marker.getSoftLockedElement();
+                if (e == null) {
+                    e = read(marker);
+                }
                 if (key != null) {
                     Element element = memory.create(key, e);
                     store.tryFault(key, marker, element);
@@ -229,6 +234,50 @@ public class DiskOverflowStorageFactory extends DiskStorageFactory<ElementSubsti
             }
         }
         return target;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected DiskMarker createMarker(long position, int size, Element element) {
+        return new OverflowDiskMarker(this, position, size, element);
+    }
+
+    /**
+     * Overflow specific disk marker implementation.
+     */
+    private final static class OverflowDiskMarker extends DiskMarker {
+
+        private static final AtomicReferenceFieldUpdater<OverflowDiskMarker, Element> SOFTLOCKED_ELEMENT_UPDATER =
+            AtomicReferenceFieldUpdater.newUpdater(OverflowDiskMarker.class, Element.class, "softLockedElement");
+
+        private final long expiry;
+
+        private transient volatile Element softLockedElement;
+
+        OverflowDiskMarker(DiskStorageFactory<? extends ElementSubstitute> factory, long position, int size, Element element) {
+            super(factory, position, size, element);
+            if (element.getObjectValue() instanceof SoftLock) {
+                SOFTLOCKED_ELEMENT_UPDATER.compareAndSet(this, null, element);
+            }
+            this.expiry = element.getExpirationTime();
+        }
+
+        OverflowDiskMarker(DiskStorageFactory<? extends ElementSubstitute> factory, long position, int size, Object key, long hits,
+                long expiry) {
+            super(factory, position, size, key, hits);
+            this.expiry = expiry;
+        }
+
+        Element getSoftLockedElement() {
+            return SOFTLOCKED_ELEMENT_UPDATER.get(this);
+        }
+
+        @Override
+        long getExpirationTime() {
+            return expiry;
+        }
     }
 
     /**

@@ -94,6 +94,7 @@ public class TransactionalEhcacheCollectionRegionAccessStrategy extends Abstract
     /**
      * {@inheritDoc}
      */
+    @Override
     public void remove(Object key) throws CacheException {
         try {
             ehcache.remove(key);

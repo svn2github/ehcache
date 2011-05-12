@@ -51,8 +51,9 @@ public interface AttributeExtractor extends Serializable {
      * NOTE: null is a legal return here as well indicating that this attribute will not be available for the given element
      *
      * @param element the cache element to inspect
+     * @param attributeName the name of the requested attribute
      * @return the attribute value
      * @throws AttributeExtractorException if the attribute cannot be found or extracted
      */
-    Object attributeFor(Element element) throws AttributeExtractorException;
+    Object attributeFor(Element element, String attributeName) throws AttributeExtractorException;
 }

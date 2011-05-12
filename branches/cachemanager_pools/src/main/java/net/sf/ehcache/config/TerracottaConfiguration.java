@@ -82,7 +82,7 @@ public class TerracottaConfiguration implements Cloneable {
     /**
      * Default cache consistency setting
      */
-    public static final Consistency DEFAULT_CONSISTENCY_TYPE = Consistency.STRONG;
+    public static final Consistency DEFAULT_CONSISTENCY_TYPE = Consistency.EVENTUAL;
 
     /**
      * Default setting for synchronous-write
@@ -98,6 +98,12 @@ public class TerracottaConfiguration implements Cloneable {
      * Default value for concurrency of the internal Store.
      */
     public static final int DEFAULT_CONCURRENCY = 0;
+
+
+    /**
+     * Default value for whether local cache is enabled or not
+     */
+    public static final boolean DEFAULT_LOCAL_CACHE_ENABLED = true;
 
     /**
      * Represents whether values are stored with serialization in the clustered store
@@ -153,6 +159,7 @@ public class TerracottaConfiguration implements Cloneable {
     private boolean copyOnReadSet;
     private volatile boolean storageStrategySet;
     private Consistency consistency = DEFAULT_CONSISTENCY_TYPE;
+    private volatile boolean localCacheEnabled = DEFAULT_LOCAL_CACHE_ENABLED;
 
     /**
      * Clones this object, following the usual contract.
@@ -658,6 +665,33 @@ public class TerracottaConfiguration implements Cloneable {
      */
     public Consistency getConsistency() {
         return this.consistency;
+    }
+
+    /**
+     * Returns true if local cache is enabled, otherwise false
+     * @return true if local cache is enabled, otherwise false
+     */
+    public boolean isLocalCacheEnabled() {
+        return localCacheEnabled;
+    }
+
+    /**
+     * Enable or disable the local cache
+     * @param localCacheEnabled
+     */
+    public void setLocalCacheEnabled(final boolean localCacheEnabled) {
+        this.localCacheEnabled = localCacheEnabled;
+    }
+
+
+    /**
+     * Enable or disable the local cache
+     * @param localCacheEnabled
+     * @return this instance
+     */
+    public TerracottaConfiguration localCacheEnabled(final boolean localCacheEnabled) {
+        setLocalCacheEnabled(localCacheEnabled);
+        return this;
     }
 
     /**

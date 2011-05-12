@@ -316,7 +316,7 @@ public abstract class MemoryOnlyStore extends CompoundStore implements CacheConf
                         attributes = new HashMap<String, Object>();
                         for (Attribute attribute : query.requestedAttributes()) {
                             String name = attribute.getAttributeName();
-                            attributes.put(name, attributeExtractors.get(name).attributeFor(element));
+                            attributes.put(name, attributeExtractors.get(name).attributeFor(element, name));
                         }
                     }
 
@@ -328,7 +328,7 @@ public abstract class MemoryOnlyStore extends CompoundStore implements CacheConf
                         sortAttributes = new Object[orderings.size()];
                         for (int i = 0; i < sortAttributes.length; i++) {
                             String name = orderings.get(i).getAttribute().getAttributeName();
-                            sortAttributes[i] = attributeExtractors.get(name).attributeFor(element);
+                            sortAttributes[i] = attributeExtractors.get(name).attributeFor(element, name);
                         }
                     }
 
@@ -341,7 +341,8 @@ public abstract class MemoryOnlyStore extends CompoundStore implements CacheConf
                     if (attribute == null) {
                         aggregator.accept(null);
                     } else {
-                        Object val = attributeExtractors.get(attribute.getAttributeName()).attributeFor(element);
+                        Object val = attributeExtractors.get(attribute.getAttributeName()).attributeFor(element,
+                                attribute.getAttributeName());
                         aggregator.accept(val);
                     }
                 }

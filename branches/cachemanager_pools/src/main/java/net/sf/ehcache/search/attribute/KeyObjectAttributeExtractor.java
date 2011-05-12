@@ -28,7 +28,7 @@ public class KeyObjectAttributeExtractor implements AttributeExtractor {
     /**
      * {@inheritDoc}
      */
-    public Object attributeFor(Element element) throws AttributeExtractorException {
+    public Object attributeFor(Element element, String attributeName) throws AttributeExtractorException {
         Object key = element.getObjectKey();
 
         if (AttributeType.isSupportedType(key)) {

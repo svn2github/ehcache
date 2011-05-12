@@ -69,8 +69,8 @@ used with JMX monitors.
 
     -->
     <diskStore path="java.io.tmpdir"/>
-    
-    <!-- 
+
+    <!--
     TransactionManagerLookup configuration
     ======================================
     This class is used by ehcache to lookup the JTA TransactionManager use in the application
@@ -81,14 +81,14 @@ used with JMX monitors.
                     TransactionManager object to look up)
      *Bitronix
      *Atomikos
-    
+
     You can provide you own lookup class that implements the
-    net.sf.ehcache.transaction.manager.TransactionManagerLookup interface. 
+    net.sf.ehcache.transaction.manager.TransactionManagerLookup interface.
     -->
 
     <transactionManagerLookup class="net.sf.ehcache.transaction.manager.DefaultTransactionManagerLookup"
                               properties="jndiName=java:/TransactionManager" propertySeparator=";"/>
- 
+
 
     <!--
     CacheManagerEventListener
@@ -137,13 +137,13 @@ used with JMX monitors.
 
     Simplest example for pointing to a Terracotta server on this machine:
     <terracottaConfig url="localhost:9510"/>
-    
+
     This element has one attribute "rejoin" which can take values of either "true" or "false"
     <terracottaConfig rejoin="false" url="localhost:9510" />
     By default, this attribute is false.
     If rejoin is true, all Terracotta Clustered caches have to be configured with nonstop.
     Without rejoin, if the Terracotta Server is restarted the client cannot connect back to the
-    server. When enabled, this will enable the client to connect to the new cluster without the 
+    server. When enabled, this will enable the client to connect to the new cluster without the
     need to restart the node.
 
     Example using a path to Terracotta configuration file:
@@ -324,11 +324,11 @@ used with JMX monitors.
 
     A <cache> can be made searchable by adding a <searchable/> sub-element. By default the keys
     and value objects of elements put into the cache will be attributes against which
-    queries can be expressed. 
+    queries can be expressed.
 
     <cache>
         <searchable/>
-    </cache>    
+    </cache>
 
 
     An "attribute" of the cache elements can also be defined to be searchable. In the example below
@@ -356,13 +356,22 @@ used with JMX monitors.
 
     In more complex situations you can create your own attribute extractor by implementing the
     AttributeExtractor interface. Providing your extractor class is shown in the following example:
-    
+
     <cache>
         <searchable>
             <searchAttribute name="age" class="com.example.MyAttributeExtractor"/>
         </searchable>
     </cache>
-    
+
+    Use properties to pass state to your attribute extractor if needed. Your implementation must provide
+    a public constructor that takes a single java.util.Properties instance
+
+    <cache>
+        <searchable>
+            <searchAttribute name="age" class="com.example.MyAttributeExtractor" properties="foo=1,bar=2"/>
+        </searchable>
+    </cache>
+
 
     Cache Exception Handling
     ++++++++++++++++++++++++
@@ -501,7 +510,7 @@ used with JMX monitors.
 
       The implications of Identity mode should be clearly understood with reference to the Terracotta
       documentation before use.
-      
+
     * copyOnRead=true|false - indicates whether cache values are deserialized on every read or if the
       materialized cache value can be re-used between get() calls. This setting is useful if a cache
       is being shared by callers with disparate classloaders or to prevent local drift if keys/values
@@ -520,7 +529,7 @@ used with JMX monitors.
       the write has been written to the Terracotta Server Array.
 
       This option is only available with consistency=strong. The default is false.
-      
+
     * concurrency - the number of segments that will be used by the map underneath the Terracotta Store.
       Its optional and has default value of 0, which means will use default values based on the internal
       Map being used underneath the store.
@@ -557,10 +566,10 @@ used with JMX monitors.
 
     To indicate the cache should be clustered using identity mode:
         <terracotta clustered="true" valueMode="identity"/>
-        
+
     To indicate the cache should be clustered using "eventual" consistency mode for better performance :
         <terracotta clustered="true" consistency="eventual"/>
-    
+
     To indicate the cache should be clustered using synchronous-write locking level:
         <terracotta clustered="true" synchronousWrites="true"/>
     -->
@@ -651,7 +660,7 @@ used with JMX monitors.
            overflowToDisk="false">
         <terracotta/>
     </cache>
-  
+
     <!--
       Sample xa enabled cache named xaCache
     <cache name="xaCache"
@@ -695,5 +704,5 @@ used with JMX monitors.
            diskPersistent="false"
            diskExpiryThreadIntervalSeconds="1"
      </cache>
---> 
+-->
 </ehcache>

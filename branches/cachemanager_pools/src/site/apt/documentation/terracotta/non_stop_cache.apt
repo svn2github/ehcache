@@ -22,7 +22,7 @@ NonStop Operation
 
 *   Configuration
 
-   The <terracotta> sub-element has a <nonstop> sub-element to allow configuration of cache behaviour if a distributed
+   The \<terracotta\> sub-element has a \<nonstop\> sub-element to allow configuration of cache behaviour if a distributed
    cache operation cannot be completed within a set time or in the event of a clusterOffline message.
 
    It has the following optional attributes:
@@ -34,7 +34,11 @@ NonStop Operation
    *  immediateTimeout="true|false" - What to do on receipt of a ClusterOffline event indicating that communications
       with the Terracotta Server Array were interrupted. The default is false.
 
-   *  timeoutBehavior="exception | noop | localReads" - What to do when a timeout has occurred. The default is exception.
+   []
+
+   \<nonstop\> has a sub-element, \<timeoutBehavior\>, which has a single attribute to control the behvior of the cache when a nonstop timeout occurs:
+
+   *  type="exception | noop | localReads" - What to do when a timeout has occurred. The default is exception.
 
     []
 

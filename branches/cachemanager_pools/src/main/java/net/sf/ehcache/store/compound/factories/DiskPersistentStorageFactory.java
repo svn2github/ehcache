@@ -35,6 +35,7 @@ import java.util.concurrent.atomic.AtomicReferenceFieldUpdater;
 import java.util.concurrent.locks.Lock;
 
 import net.sf.ehcache.event.RegisteredEventListeners;
+import net.sf.ehcache.transaction.SoftLock;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -304,6 +305,9 @@ public class DiskPersistentStorageFactory extends DiskStorageFactory<ElementSubs
 
         CachingDiskMarker(DiskPersistentStorageFactory factory, long position, int size, Element element) {
             super(factory, position, size, element);
+            if (element.getObjectValue() instanceof SoftLock) {
+                cache(element);
+            }
             this.expiry = element.getExpirationTime();
         }
 

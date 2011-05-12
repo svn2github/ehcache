@@ -16,78 +16,111 @@
     *   cache warming - where caches need to be filled before bringing an application online
 
     *   periodic batch loading - say an overnight batch process that uploads data
-
+   []
 ~~    The characteristics of bulk loading are that 
 
 
 *   API
 
     With bulk loading, the API for putting data into the cache stays the same. Just use <<<cache.put(...)>>>
-    <<<cache.load(...)>>> or cache.loadAll(...)>>>.
+    <<<cache.load(...)>>> or <<<cache.loadAll(...)>>>.
 
-    What changes is that there is a special mode that suspends Terracotta's normal coherence guarantees
+    What changes is that there is a special mode that suspends Terracotta's normal consistency guarantees
     and provides optimised flushing to the Terracotta Server Array (the L2 cache).
 
-    This mode can be enabled programmatically or statically in ehcache.xml. Programmatically, four methods
-    control coherent behaviour: <<<setNodeCoherence(boolean mode)>>>, <<<isNodeCoherent()>>>, <<<isClusterCoherent()>>>
+
+   NOTE: The Bulk-Load API and the Configured Consistency Mode
+   The initial consistency mode of a cache is set by configuration and cannot be changed programmatically (see the attribute "consistency" in \<terracotta\>). The bulk-load API should be used for temporarily suspending the configured consistency mode to allow for bulk-load operations.
+
+   The following are the bulk-load API methods that are available in <<<org.terracotta.modules.ehcache.Cache>>>.
+	
+   * public boolean isClusterBulkLoadEnabled()
+	
+   Returns true if a cache is in bulk-load mode (is not consistent) throughout the cluster. Returns false if the cache is not in bulk-load mode ( is consistent) anywhere in the cluster.
+
+   * public boolean isNodeBulkLoadEnabled()
+	
+   Returns true if a cache is in bulk-load mode (is not consistent) on the current node. Returns false if the cache is not in bulk-load mode ( is consistent) on the current node.
+
+   * public void setNodeBulkLoadEnabled(boolean)
+	
+   Sets a cache’s consistency mode to the configured mode (false) or to bulk load (true) on the local node. There is no operation if the cache is already in the mode specified by setNodeBulkLoadEnabled() . When using this method on a nonstop cache , a multiple of the nonstop cache’s timeout value applies. The bulk-load operation must complete within that timeout multiple to prevent the configured nonstop behavior from taking effect. For more information on tuning nonstop timeouts, see Tuning Nonstop Timeouts and Behaviors.
+
+   * public void waitUntilBulkLoadComplete()
+	
+   Waits until a cache is consistent before returning. Changes are automatically batched and the cache is updated throughout the cluster. Returns immediately if a cache is consistent throughout the cluster.
+
+   []
+
+   Note the following about using bulk-load mode:
+
+    * Consistency cannot be guaranteed because isClusterBulkLoadEnabled() can return false in one node just before another node calls setNodeBulkLoadEnabled(true) on the same cache. Understanding exactly how your application uses the bulk-load API is crucial to effectively managing the integrity of cached data.
+    * If a cache is not consistent, any ObjectNotFound exceptions that may occur are logged.
+    * get() methods that fail with ObjectNotFound return null.
+    * Eviction is independent of consistency mode. Any configured or manually executed eviction proceeds unaffected by a cache’s consistency mode.
+    []
+
+   The following example code shows how a clustered application with Enterprise Ehcache can use the bulk-load API to optimize a bulk-load operation:
+
+---
+import net.sf.ehcache.Cache;
+
+public class MyBulkLoader {
+
+   CacheManager cacheManager = new CacheManager();  // Assumes local ehcache.xml.
+   Cache cache = cacheManager.getEhcache("myCache"); // myCache defined in ehcache.xml.
+   cache.setNodeBulkLoadEnabled(true); // myCache is now in bulk mode.
+
+   // Load data into myCache.
+
+   cache.setNodeBulkLoadEnabled(false); // Done, now set myCache back to its configured consistency mode.
+
+}
+---
+
+   On another node, application code that intends to touch myCache can run or wait, based on whether myCache is consistent or not:
+
+---
+...
+
+   if (!cache.isClusterBulkLoadEnabled()) {
+
+    // Do some work.
+
+    }
+
+   else {
+
+     cache.waitUntilBulkLoadComplete()
+
+     // Do the work when waitUntilBulkLoadComplete() returns.
+
+}
+
+...
+---
+
+   Waiting may not be necessary if the code can handle potentially stale data:
+---
+...
+
+   if (!cache.isClusterBulkLoadEnabled()) {
+
+    // Do some work.
+
+    }
+
+   else {
+
+    // Do some work knowing that data in myCache may be stale.
+
+    }
+
+...
+---
+
+    The following methods have been deprecated: <<<setNodeCoherent(boolean mode)>>>, <<<isNodeCoherent()>>>, <<<isClusterCoherent()>>>
     and <<<waitUntilClusterCoherent()>>>.
-
-
-
-
-**  <<<setNodeCoherence(boolean mode)>>>
-
-    <<<setNodeCoherence(false)>>> sets coherence to false for the Ehcache node. The setting for the rest of the cluster
-        stays the same. The effect is that normal read and write locks are not obtained. <<<setNodeCoherence(true)>>> brings
-        back the cache to coherent mode for the node.
-
-**  <<<{isNodeCoherent()}>>> 
-
-        Use this to find out if the node is in coherent mode locally. This does not account for other
-        nodes in the cluster (if any). The node may be coherent while its incoherent cluster-wide (like some other node is
-        incoherent)
-        
-**  <<<{isClusterCoherent()}>>>
-
-        Reflects whether the cache is in coherent or incoherent mode cluster-wide. Coherent cluster-wide
-        means that all nodes in the cluster is using the cache in coherent mode. If even one of the nodes is using the cache
-        in incoherent mode, the cache is incoherent cluster-wide
-        
-**  <<<{waitUntilClusterCoherent()}>>> 
-
-       Calling this method will block the calling thread until the cache becomes coherent cluster-wide. 
-
-
-        waitUntilClusterCoherent
-
-        waits until everyone is coherent. Will not return until the entire cluster is coherent.
-
-        setNodeCoherence(true | false)
-
-        This affects the local node only. The settings in the rest of the cluster are not affected.
-
-        Then to put it back call with true parameter.
-
-        This method does not return until all the transactions are flushed to the cluster. Only the calling thread is blocked. 
-        This way you know when coherence is restored.
-
-        The initial state is from the config.
-
-        In a local standalone cache, setNodeCoherence should throw an UnsupportedOperationException. waitUntilClusterCoherent will also throw an UnsupportedOperationException.
-
-        *	Configuration
-
-        	Coherent mode may be set by default in the configuration.
-
-        	The terracotta element has an attribute coherent which can be true or false. By default it is true.
-
-        	Ehcache 1.7 introduced a partial implementation of this feature for reads only. That is the coherentRead. It is
-        	still honoured but deprecated.
-
-        **	This can be dynamically controlled through JMX via the Dev Console.
-
-        Writes can also be synchronous or asynchronous. This is controlled by the synchronousWrites. When you are running in incoherent mode synchronousWrites are ignored  - it is always asynchronous.
-
 
 
 *   Speed Improvement
@@ -128,11 +161,8 @@
 
 **  Why not run in bulk load mode all the time
 
-    Terracotta clustering provides coherence, scaling and durability. Some applications will require coherence, or
-    not for some caches, such as reference data. It is possible to run a cache permanently in incoherent mode.
-
-    In ehcache.xml,  set the <<<coherent>>> attribute to false in the terracotta element. The terracotta element is a
-     sub-element of cache, so this can be configured per cache.
+    Terracotta clustering provides consistency, scaling and durability. Some applications will require consistency, or
+    not for some caches, such as reference data. It is possible to run a cache permanently in inconsistent mode.
 
 
 *   {Download}

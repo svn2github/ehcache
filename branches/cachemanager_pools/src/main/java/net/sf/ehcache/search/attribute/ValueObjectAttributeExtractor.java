@@ -28,7 +28,7 @@ public class ValueObjectAttributeExtractor implements AttributeExtractor {
     /**
      * {@inheritDoc}
      */
-    public Object attributeFor(Element element) throws AttributeExtractorException {
+    public Object attributeFor(Element element, String attributeName) throws AttributeExtractorException {
         Object value = element.getObjectValue();
 
         if (AttributeType.isSupportedType(value)) {

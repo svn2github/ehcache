@@ -33,6 +33,7 @@ import net.sf.ehcache.config.NonstopConfiguration;
 import net.sf.ehcache.config.SearchAttribute;
 import net.sf.ehcache.config.TerracottaConfiguration;
 import net.sf.ehcache.config.TerracottaConfiguration.Consistency;
+import net.sf.ehcache.config.TerracottaConfiguration.StorageStrategy;
 import net.sf.ehcache.constructs.nonstop.CacheManagerExecutorServiceFactory;
 import net.sf.ehcache.constructs.nonstop.NonstopActiveDelegateHolder;
 import net.sf.ehcache.constructs.nonstop.NonstopExecutorService;
@@ -203,6 +204,8 @@ public class Cache implements Ehcache, StoreListener {
     private static final int EXECUTOR_KEEP_ALIVE_TIME = 60000;
     private static final int EXECUTOR_MAXIMUM_POOL_SIZE = Math.min(10, Runtime.getRuntime().availableProcessors());
     private static final int EXECUTOR_CORE_POOL_SIZE = 1;
+    private static final String EHCACHE_CLUSTERREDSTORE_MAX_CONCURRENCY_PROP = "ehcache.clusteredStore.maxConcurrency";
+    private static final int  EHCACHE_CLUSTERREDSTORE_MAX_CONCURRENCY = 4096;
 
     static {
         try {
@@ -1052,13 +1055,11 @@ public class Cache implements Ehcache, StoreListener {
                 copyStrategy = configuration.getCopyStrategyConfiguration().getCopyStrategyInstance();
                 configuration.getCopyStrategyConfiguration().setCopyStrategyInstance(new ImmutableValueElementCopyStrategy());
             }
-
             if (configuration.getTransactionalMode().isTransactional()
                 && configuration.isTerracottaClustered()
                 && configuration.getTerracottaConfiguration().getValueMode() != TerracottaConfiguration.ValueMode.SERIALIZATION) {
                 throw new CacheException("To be transactional, a Terracotta clustered cache needs to be in Serialization value mode");
             }
-
             final Store store;
             if (isTerracottaClustered()) {
                 final Consistency consistency = getCacheConfiguration().getTerracottaConfiguration().getConsistency();
@@ -1090,13 +1091,20 @@ public class Cache implements Ehcache, StoreListener {
                     throw new InvalidConfigurationException("Coherent and consistency attribute values are conflicting. "
                             + "Please remove the coherent attribute as its deprecated.");
                 }
-
-
+                if (getCacheConfiguration().getTerracottaConfiguration().getStorageStrategy() == StorageStrategy.CLASSIC
+                        && !getCacheConfiguration().getTerracottaConfiguration().isLocalCacheEnabled()) {
+                    throw new InvalidConfigurationException("Local Cache cannot be disabled with " + StorageStrategy.CLASSIC
+                            + " Storage strategy. Please enable local cache or use " + StorageStrategy.DCV2);
+                }
+                int maxConcurrency = Integer.getInteger(EHCACHE_CLUSTERREDSTORE_MAX_CONCURRENCY_PROP, EHCACHE_CLUSTERREDSTORE_MAX_CONCURRENCY);
+                if (getCacheConfiguration().getTerracottaConfiguration().getConcurrency() > maxConcurrency) {
+                    throw new InvalidConfigurationException("Maximum supported concurrency is " + maxConcurrency +
+                            ". Please reconfigure cache " + getName() + " with concurrency value <= " + maxConcurrency);
+                }
                 if (!getCacheConfiguration().getTerracottaConfiguration().isStorageStrategySet()) {
                     getCacheConfiguration().getTerracottaConfiguration().storageStrategy(
                             TerracottaClient.getTerracottaDefaultStrategyForCurrentRuntime(getCacheConfiguration()));
                 }
-
                 Store tempStore = cacheManager.createTerracottaStore(this);
                 if (!(tempStore instanceof TerracottaStore)) {
                     throw new CacheException(
@@ -1184,25 +1192,17 @@ public class Cache implements Ehcache, StoreListener {
             } else {
                 this.compoundStore = store;
             }
-
-
             Map<String, AttributeExtractor> extractors = new HashMap<String, AttributeExtractor>();
             for (SearchAttribute sa : configuration.getSearchAttributes().values()) {
                 extractors.put(sa.getName(), sa.constructExtractor());
             }
-
             compoundStore.setAttributeExtractors(extractors);
-
-
             this.cacheWriterManager = configuration.getCacheWriterConfiguration().getWriteMode().createWriterManager(this);
             initialiseCacheWriterManager(false);
-
             cacheStatus.changeState(Status.STATUS_ALIVE);
-
             initialiseRegisteredCacheExtensions();
             initialiseRegisteredCacheLoaders();
             initialiseRegisteredCacheWriter();
-
             // initialize live statistics
             // register to get notifications of
             // put/update/removeInternal/expiry/eviction

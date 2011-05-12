@@ -49,8 +49,8 @@ public class ReflectionAttributeExtractorTest extends TestCase {
             public void run() {
                 try {
                     for (int i = 0; i < NUM; i++) {
-                        assertEquals(count, method.attributeFor(element()));
-                        assertEquals(count, field.attributeFor(element()));
+                        assertEquals(count, method.attributeFor(element(), ""));
+                        assertEquals(count, field.attributeFor(element(), ""));
                     }
                 } catch (Throwable t) {
                     t.printStackTrace();
@@ -104,35 +104,35 @@ public class ReflectionAttributeExtractorTest extends TestCase {
         ReflectionAttributeExtractor rae;
 
         rae = new ReflectionAttributeExtractor("element");
-        assertEquals(element, rae.attributeFor(element));
+        assertEquals(element, rae.attributeFor(element, ""));
 
         rae = new ReflectionAttributeExtractor("ELEMENT");
-        assertEquals(element, rae.attributeFor(element));
+        assertEquals(element, rae.attributeFor(element, ""));
 
         rae = new ReflectionAttributeExtractor("element.getObjectKey()");
-        assertEquals("k", rae.attributeFor(element));
+        assertEquals("k", rae.attributeFor(element, ""));
 
         rae = new ReflectionAttributeExtractor("key");
-        assertEquals("k", rae.attributeFor(element));
+        assertEquals("k", rae.attributeFor(element, ""));
 
         rae = new ReflectionAttributeExtractor("KEY");
-        assertEquals("k", rae.attributeFor(element));
+        assertEquals("k", rae.attributeFor(element, ""));
 
         rae = new ReflectionAttributeExtractor("value");
-        assertEquals("v", rae.attributeFor(element));
+        assertEquals("v", rae.attributeFor(element, ""));
 
         rae = new ReflectionAttributeExtractor("VALUE");
-        assertEquals("v", rae.attributeFor(element));
+        assertEquals("v", rae.attributeFor(element, ""));
 
         rae = new ReflectionAttributeExtractor("key.toString()");
-        assertEquals("k", rae.attributeFor(element));
+        assertEquals("k", rae.attributeFor(element, ""));
 
         rae = new ReflectionAttributeExtractor("value.toString()");
-        assertEquals("v", rae.attributeFor(element));
+        assertEquals("v", rae.attributeFor(element, ""));
 
         element = new Element("k", new Ref(new Ref("v")));
         rae = new ReflectionAttributeExtractor("value.reference.reference.toString()");
-        assertEquals("v", rae.attributeFor(element));
+        assertEquals("v", rae.attributeFor(element, ""));
     }
 
     public void testInheritedMethodCall() {
@@ -140,7 +140,7 @@ public class ReflectionAttributeExtractorTest extends TestCase {
         Element element = new Element("k", value);
 
         ReflectionAttributeExtractor rae = new ReflectionAttributeExtractor("value.toString()");
-        assertEquals(value.toString(), rae.attributeFor(element));
+        assertEquals(value.toString(), rae.attributeFor(element, ""));
     }
 
     public void testNullInChain() {
@@ -148,7 +148,7 @@ public class ReflectionAttributeExtractorTest extends TestCase {
         try {
             Element e = new Element("k", new Ref(null));
             ReflectionAttributeExtractor rae = new ReflectionAttributeExtractor("value.reference.toString()");
-            rae.attributeFor(e);
+            rae.attributeFor(e, "");
             fail();
         } catch (AttributeExtractorException aee) {
             // expected
@@ -157,7 +157,7 @@ public class ReflectionAttributeExtractorTest extends TestCase {
         try {
             Element e = new Element("k", new Ref(null));
             ReflectionAttributeExtractor rae = new ReflectionAttributeExtractor("value.reference.reference");
-            rae.attributeFor(e);
+            rae.attributeFor(e, "");
             fail();
         } catch (AttributeExtractorException aee) {
             // expected
@@ -172,7 +172,7 @@ public class ReflectionAttributeExtractorTest extends TestCase {
             Element e = new Element("k", ref);
 
             ReflectionAttributeExtractor rae = new ReflectionAttributeExtractor("value.exception()");
-            rae.attributeFor(e);
+            rae.attributeFor(e, "");
             fail();
         } catch (AttributeExtractorException aee) {
             assertEquals(re, aee.getCause());
@@ -183,7 +183,7 @@ public class ReflectionAttributeExtractorTest extends TestCase {
         Element element = new Element("k", new Sub());
 
         ReflectionAttributeExtractor rae = new ReflectionAttributeExtractor("value.field");
-        assertEquals("base", rae.attributeFor(element));
+        assertEquals("base", rae.attributeFor(element, ""));
     }
 
     public void testExceptions() {
@@ -191,7 +191,7 @@ public class ReflectionAttributeExtractorTest extends TestCase {
 
         try {
             ReflectionAttributeExtractor rae = new ReflectionAttributeExtractor("value.FIELD_DOES_NOT_EXIST");
-            rae.attributeFor(element);
+            rae.attributeFor(element, "");
             fail();
         } catch (AttributeExtractorException aee) {
             // expected
@@ -199,7 +199,7 @@ public class ReflectionAttributeExtractorTest extends TestCase {
 
         try {
             ReflectionAttributeExtractor rae = new ReflectionAttributeExtractor("value.METHOD_DOES_NOT_EXIST()");
-            rae.attributeFor(element);
+            rae.attributeFor(element, "");
             fail();
         } catch (AttributeExtractorException aee) {
             // expected
@@ -210,7 +210,7 @@ public class ReflectionAttributeExtractorTest extends TestCase {
         Element element = new Element("k", "v");
 
         ReflectionAttributeExtractor rae = new ReflectionAttributeExtractor("   value.toString()   ");
-        assertEquals("v", rae.attributeFor(element));
+        assertEquals("v", rae.attributeFor(element, ""));
     }
 
     public void testInvalidExpressions() {

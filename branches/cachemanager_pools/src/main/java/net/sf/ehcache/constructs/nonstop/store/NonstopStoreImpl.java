@@ -234,7 +234,8 @@ public class NonstopStoreImpl implements NonstopTimeoutBehaviorStoreResolver, Re
      * {@inheritDoc}
      */
     public void setAttributeExtractors(Map<String, AttributeExtractor> extractors) {
-        executorServiceStore.setAttributeExtractors(extractors);
+        // this method should also go though to the underlying store(s) to avoid race conditions (DEV-5751)
+        nonstopActiveDelegateHolder.getUnderlyingTerracottaStore().setAttributeExtractors(extractors);
     }
 
     /**

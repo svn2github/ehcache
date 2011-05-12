@@ -57,7 +57,7 @@ public class ReadOnlyEhcacheEntityRegionAccessStrategy extends AbstractEhcacheAc
      */
     public boolean putFromLoad(Object key, Object value, long txTimestamp, Object version, boolean minimalPutOverride)
             throws CacheException {
-        if (minimalPutOverride && region.get(key) != null) {
+        if (minimalPutOverride && region.contains(key)) {
             return false;
         } else {
             region.put(key, value);

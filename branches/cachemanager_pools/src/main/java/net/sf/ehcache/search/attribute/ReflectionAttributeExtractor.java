@@ -88,7 +88,7 @@ public class ReflectionAttributeExtractor implements AttributeExtractor {
      * @return the attribute value
      * @throws AttributeExtractorException if there is an error in evaluating the expression
      */
-    public Object attributeFor(Element e) throws AttributeExtractorException {
+    public Object attributeFor(Element e, String attributeName) throws AttributeExtractorException {
         // NOTE: We can play all kinds of tricks of generating java classes and
         // using Unsafe if needed
 

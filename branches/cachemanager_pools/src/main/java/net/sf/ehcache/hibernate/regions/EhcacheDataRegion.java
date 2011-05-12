@@ -148,7 +148,7 @@ public abstract class EhcacheDataRegion implements Region {
      */
     public Map toMap() {
         try {
-            Map result = new HashMap();
+            Map<Object, Object> result = new HashMap<Object, Object>();
             for (Object key : cache.getKeys()) {
                 result.put(key, cache.get(key).getObjectValue());
             }
@@ -156,7 +156,7 @@ public abstract class EhcacheDataRegion implements Region {
         } catch (Exception e) {
             if (e instanceof NonStopCacheException) {
                 HibernateNonstopCacheExceptionHandler.getInstance().handleNonstopCacheException((NonStopCacheException) e);
-                return Collections.EMPTY_MAP;
+                return Collections.emptyMap();
             } else {
                 throw new CacheException(e);
             }
