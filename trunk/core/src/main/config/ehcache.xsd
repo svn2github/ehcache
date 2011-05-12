@@ -221,7 +221,7 @@
             <xs:attribute name="coherent" use="optional" type="xs:boolean" default="false"/>
             <xs:attribute name="consistency" use="optional" type="consistencyType" default="eventual"/>
             <xs:attribute name="synchronousWrites" use="optional" type="xs:boolean" default="false"/>
-            <xs:attribute name="storageStrategy" use="optional" type="storageStrategyType" default="dcv2"/>
+            <xs:attribute name="storageStrategy" use="optional" type="storageStrategyType" default="DCV2"/>
             <xs:attribute name="concurrency" use="optional" type="xs:nonNegativeInteger" default="0"/>
             <xs:attribute name="localCacheEnabled" use="optional" type="xs:boolean" default="true"/>
         </xs:complexType>
