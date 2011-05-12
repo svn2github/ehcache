@@ -1047,9 +1047,9 @@ public class Cache implements Ehcache, StoreListener {
                             + " Storage strategy. Please enable local cache or use " + StorageStrategy.DCV2);
                 }
                 int maxConcurrency = Integer.getInteger(EHCACHE_CLUSTERREDSTORE_MAX_CONCURRENCY_PROP, EHCACHE_CLUSTERREDSTORE_MAX_CONCURRENCY);
-                if(getCacheConfiguration().getTerracottaConfiguration().getConcurrency() > maxConcurrency) {
-                    throw new InvalidConfigurationException("Maximum supported concurrency is "+ maxConcurrency +
-                            ". Please reconfigure cache "+ getName() +" with concurrency value <= "+ maxConcurrency);
+                if (getCacheConfiguration().getTerracottaConfiguration().getConcurrency() > maxConcurrency) {
+                    throw new InvalidConfigurationException("Maximum supported concurrency is " + maxConcurrency +
+                            ". Please reconfigure cache " + getName() + " with concurrency value <= " + maxConcurrency);
                 }
                 if (!getCacheConfiguration().getTerracottaConfiguration().isStorageStrategySet()) {
                     getCacheConfiguration().getTerracottaConfiguration().storageStrategy(
