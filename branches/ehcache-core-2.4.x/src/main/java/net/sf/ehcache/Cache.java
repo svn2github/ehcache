@@ -193,6 +193,8 @@ public class Cache implements Ehcache, StoreListener {
     private static final int EXECUTOR_KEEP_ALIVE_TIME = 60000;
     private static final int EXECUTOR_MAXIMUM_POOL_SIZE = Math.min(10, Runtime.getRuntime().availableProcessors());
     private static final int EXECUTOR_CORE_POOL_SIZE = 1;
+    private static final String EHCACHE_CLUSTERREDSTORE_MAX_CONCURRENCY_PROP = "ehcache.clusteredStore.maxConcurrency";
+    private static final int  EHCACHE_CLUSTERREDSTORE_MAX_CONCURRENCY = 4096;
 
     static {
         try {
@@ -1040,13 +1042,15 @@ public class Cache implements Ehcache, StoreListener {
                     throw new InvalidConfigurationException("Coherent and consistency attribute values are conflicting. "
                             + "Please remove the coherent attribute as its deprecated.");
                 }
-
-
+                int maxConcurrency = Integer.getInteger(EHCACHE_CLUSTERREDSTORE_MAX_CONCURRENCY_PROP, EHCACHE_CLUSTERREDSTORE_MAX_CONCURRENCY);
+                if (getCacheConfiguration().getTerracottaConfiguration().getConcurrency() > maxConcurrency) {
+                    throw new InvalidConfigurationException("Maximum supported concurrency is " + maxConcurrency +
+                    ". Please reconfigure cache " + getName() + " with concurrency value <= " + maxConcurrency);
+                }
                 if (!getCacheConfiguration().getTerracottaConfiguration().isStorageStrategySet()) {
                     getCacheConfiguration().getTerracottaConfiguration().storageStrategy(
                             TerracottaClient.getTerracottaDefaultStrategyForCurrentRuntime(getCacheConfiguration()));
                 }
-
                 Store tempStore = cacheManager.createTerracottaStore(this);
                 if (!(tempStore instanceof TerracottaStore)) {
                     throw new CacheException(
