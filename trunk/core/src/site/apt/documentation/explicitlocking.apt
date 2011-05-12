@@ -88,6 +88,23 @@
     public void releaseWriteLockOnKey(Object key) {
         releaseLockOnKey(key, LockType.WRITE);
     }
+
+    /**
+     * Returns true if a read lock for the key is held by the current thread
+     *
+     * @param key
+     * @return true if a read lock for the key is held by the current thread
+     */
+    boolean isReadLockedByCurrentThread(Object key);
+
+    /**
+     * Returns true if a write lock for the key is held by the current thread
+     *
+     * @param key
+     * @return true if a write lock for the key is held by the current thread
+     */
+    boolean isWriteLockedByCurrentThread(Object key);
+
 ---
 
 
