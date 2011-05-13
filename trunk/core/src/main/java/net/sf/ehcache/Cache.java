@@ -1600,7 +1600,7 @@ public class Cache implements Ehcache, StoreListener {
     }
 
     /**
-     * The load method provides a means to "pre load" the cache. This method will, asynchronously, load the specified
+     * The load method provides a means to "pre-load" the cache. This method will, asynchronously, load the specified
      * object into the cache using the associated CacheLoader. If the object already exists in the cache, no action is
      * taken. If no loader is associated with the object, no object will be loaded into the cache. If a problem is
      * encountered during the retrieving or loading of the object, an exception should be logged. If the "arg" argument
@@ -1901,7 +1901,7 @@ public class Cache implements Ehcache, StoreListener {
             } else {
                 element.updateAccessStatistics();
                 if (LOG.isDebugEnabled()) {
-                    LOG.debug(getName() + "Cache: " + getName() + " store hit for " + key);
+                    LOG.debug("Cache: " + getName() + " store hit for " + key);
                 }
 
                 if (wasOffHeap) {
