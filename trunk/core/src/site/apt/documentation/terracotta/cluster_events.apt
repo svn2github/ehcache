@@ -6,11 +6,7 @@ Terracotta Cluster Events
 
 ~~%{toc|fromDepth=2|toDepth=3}
 
-    Terracotta has a Terracotta Cluster event notification mechanism. From Ehcache 2.0, Ehcache can receive these events.
-
-    This is not cache event notification, rather it is cluster event notification.
-
-    The Terracotta Distributed Ehcache cluster events API provides access to Terracotta cluster events and cluster topology.
+    Beginning with Ehcache 2.0, the Terracotta Distributed Ehcache cluster events API provides access to Terracotta cluster events and cluster topology. This event-notification mechanism reports events related to the nodes in the Terracotta cluster, not cache events.
 
 *   Cluster Topology
 
@@ -95,6 +91,16 @@ public interface ClusterTopologyListener {
     void clusterOffline(ClusterNode node);
 
 }
+
+    /**
+     * This node lost contact and rejoined the cluster again.
+     * <p />
+     * This event is only fired in the node which rejoined and not to all the connected nodes
+     * @param oldNode The old node which got disconnected
+     * @param newNode The new node after rejoin
+     */
+    void clusterRejoined(ClusterNode oldNode, ClusterNode newNode); 
+
 ---
 
 
@@ -104,6 +110,7 @@ public interface ClusterTopologyListener {
     which prints out events as they happen.
 
 ---
+
     CacheManager mgr = ...
 
     CacheCluster cluster = mgr.getCluster("Terracotta");
@@ -134,7 +141,14 @@ public interface ClusterTopologyListener {
 
       public void clusterOffline(ClusterNode node) { System.out.println(node + " disabled"); }
 
+      public void clusterRejoined(ClusterNode node, ClusterNode newNode) {
+
+        System.out.println(node + " rejoined the cluster as " + newNode);
+
+      }
+
     });
+
 ---
 
 **  Uses for Cluster Events
