@@ -172,8 +172,9 @@ public final class ConfigurationHelper {
      * Tries to load the class specified.
      *
      * @return If there is none returns null.
+     * @param cacheManager
      */
-    public final CacheManagerEventListener createCacheManagerEventListener() throws CacheException {
+    public final CacheManagerEventListener createCacheManagerEventListener(CacheManager cacheManager) throws CacheException {
         String className = null;
         FactoryConfiguration cacheManagerEventListenerFactoryConfiguration =
                 configuration.getCacheManagerEventListenerFactoryConfiguration();
@@ -188,7 +189,7 @@ public final class ConfigurationHelper {
                     ClassLoaderUtil.createNewInstance(className);
             Properties properties = PropertyUtil.parseProperties(cacheManagerEventListenerFactoryConfiguration.properties,
                     cacheManagerEventListenerFactoryConfiguration.getPropertySeparator());
-            return factory.createCacheManagerEventListener(properties);
+            return factory.createCacheManagerEventListener(cacheManager, properties);
         }
     }
 

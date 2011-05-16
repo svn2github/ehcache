@@ -575,7 +575,7 @@ public class CacheManager {
 
         detectAndFixDiskStorePathConflict(configurationHelper);
 
-        cacheManagerEventListenerRegistry.registerListener(configurationHelper.createCacheManagerEventListener());
+        cacheManagerEventListenerRegistry.registerListener(configurationHelper.createCacheManagerEventListener(this));
 
         cacheManagerPeerListeners.putAll(configurationHelper.createCachePeerListeners());
         for (CacheManagerPeerListener cacheManagerPeerListener : cacheManagerPeerListeners.values()) {
