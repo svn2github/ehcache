@@ -37,7 +37,7 @@
     algorithms to choose from for the <<<MemoryStore>>>.
 
     
-** {Less Recently Used} ({LRU})
+** {Least Recently Used} ({LRU})
 
     This is the default.
 
@@ -52,12 +52,12 @@
      If probabilistic eviction does not suit your application, a true {Least Recently Used}
      deterministic algorithm is available by setting <<<java -Dnet.sf.ehcache.use.classic.lru=true>>>. 
 
-** {Less Frequently Used} ({LFU})
+** {Least Frequently Used} ({LFU})
 
      For each get call on the element the number of hits is updated. When a
      put call is made for a new element (and assuming that the max limit is
      reached) the element with least number of hits,
-     the Less Frequently Used element, is evicted.
+     the Least Frequently Used element, is evicted.
 
      If cache element use follows a pareto distribution, this algorithm may give better
      results than LRU.
@@ -142,6 +142,6 @@ public void setMemoryStoreEvictionPolicy(Policy policy) {
 
 * {<<<DiskStore>>> Eviction Algorithms}
 
-   The <<<DiskStore>>> uses the Less Frequently Used algorithm to evict an element when it is full.
+   The <<<DiskStore>>> uses the Least Frequently Used algorithm to evict an element when it is full.
 
 
