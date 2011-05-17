@@ -292,10 +292,8 @@ public class CacheEventListenerTest extends AbstractCacheTest {
      */
     @Test
     public void testExpiryNotifications() throws InterruptedException {
-
         Serializable key = "1";
-        Serializable value = new Date();
-        Element element = new Element(key, value);
+        Element element = new Element(key, new Date());
 
         cache.getCacheEventNotificationService().registerListener(new TestCacheEventListener());
 
@@ -306,22 +304,20 @@ public class CacheEventListenerTest extends AbstractCacheTest {
         Thread.sleep(1999);
 
         //force expiry
-        Element expiredElement = cache.get(key);
-        assertEquals(null, expiredElement);
+        assertEquals(null, cache.get(key));
 
         //the TestCacheEventListener does a put of a new Element with the same key on expiry
         Element newElement = cache.get(key);
-        assertEquals("set on notify", newElement.getValue());
         assertNotNull(newElement);
+        assertEquals("set on notify", newElement.getValue());
 
         //Check counting listener
         List notifications = CountingCacheEventListener.getCacheElementsExpired(cache);
-        assertEquals(element, notifications.get(0));
         assertEquals(1, notifications.size());
+        assertEquals(element, notifications.get(0));
 
         //check for NPE
         cache.remove(null);
-
     }
 
     /**
@@ -391,7 +387,7 @@ public class CacheEventListenerTest extends AbstractCacheTest {
          *                Accordingly implementers of this method should not call back into Cache.
          */
         public void notifyElementExpired(final Ehcache cache, final Element element) {
-            cache.put(new Element(element.getKey(), "set on notify"));
+            cache.put(new Element(element.getKey(), "set on notify", Boolean.TRUE, 0, 0));
         }
 
         /**

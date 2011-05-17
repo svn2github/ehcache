@@ -140,7 +140,7 @@ abstract class DiskStorageFactory<T extends ElementSubstitute> implements Elemen
     /**
      * Return this size in bytes of this factory
      */
-    public long getSizeInBytes() {
+    public long getOnDiskSizeInBytes() {
         synchronized (dataAccess[0]) {
             try {
                 return dataAccess[0].length();
@@ -354,7 +354,7 @@ abstract class DiskStorageFactory<T extends ElementSubstitute> implements Elemen
      * @return marker representing the element.
      */
     protected DiskMarker createMarker(long position, int size, Element element) {
-        return new DiskMarker(this, position, size, element);
+        return new OverflowDiskMarker(this, position, size, element);
     }
     
     /**
@@ -483,6 +483,11 @@ abstract class DiskStorageFactory<T extends ElementSubstitute> implements Elemen
         abstract long getHitCount();
         
         /**
+         * Return the time at which this marker expires.
+         */
+        abstract long getExpirationTime();
+
+        /**
          * {@inheritDoc}
          */
         public final DiskStorageFactory<ElementSubstitute> getFactory() {
@@ -534,6 +539,14 @@ abstract class DiskStorageFactory<T extends ElementSubstitute> implements Elemen
         }
         
         /**
+         * {@inheritDoc}
+         */
+        @Override
+        long getExpirationTime() {
+            return getElement().getExpirationTime();
+        }
+
+        /**
          * Return the element that this Placeholder is wrapping.
          */
         Element getElement() {
@@ -542,10 +555,34 @@ abstract class DiskStorageFactory<T extends ElementSubstitute> implements Elemen
     }
     
     /**
+     * Overflow specific disk marker implementation.
+     */
+    private final static class OverflowDiskMarker extends DiskMarker {
+
+        private final long expiry;
+
+        OverflowDiskMarker(DiskStorageFactory<? extends ElementSubstitute> factory, long position, int size, Element element) {
+            super(factory, position, size, element);
+            this.expiry = element.getExpirationTime();
+        }
+
+        OverflowDiskMarker(DiskStorageFactory<? extends ElementSubstitute> factory, long position, int size, Object key, long hits,
+                long expiry) {
+            super(factory, position, size, key, hits);
+            this.expiry = expiry;
+        }
+
+        @Override
+        long getExpirationTime() {
+            return expiry;
+        }
+    }
+
+    /**
      * DiskMarker instances point to the location of their
      * associated serialized Element instance.
      */
-    static class DiskMarker extends DiskSubstitute implements Serializable {
+    static abstract class DiskMarker extends DiskSubstitute implements Serializable {
         
         private final Object key;
         
@@ -553,7 +590,6 @@ abstract class DiskStorageFactory<T extends ElementSubstitute> implements Elemen
         private final int size;
         
         private final long hitCount;
-        private final long expiry;
         
         /**
          * Create a new marker tied to the given factory instance.
@@ -570,7 +606,6 @@ abstract class DiskStorageFactory<T extends ElementSubstitute> implements Elemen
             
             this.key = element.getObjectKey();
             this.hitCount = element.getHitCount();
-            this.expiry = element.getExpirationTime();
         }
 
         /**
@@ -581,16 +616,14 @@ abstract class DiskStorageFactory<T extends ElementSubstitute> implements Elemen
          * @param size size of the serialized element
          * @param key key to which this element is mapped
          * @param hits hit count for this element
-         * @param expiry time at which this element will expire
          */
-        DiskMarker(DiskStorageFactory<? extends ElementSubstitute> factory, long position, int size, Object key, long hits, long expiry) {
+        DiskMarker(DiskStorageFactory<? extends ElementSubstitute> factory, long position, int size, Object key, long hits) {
             super(factory);
             this.position = position;
             this.size = size;
             
             this.key = key;
             this.hitCount = hits;
-            this.expiry = expiry;
         }
         
         /**
@@ -666,7 +699,7 @@ abstract class DiskStorageFactory<T extends ElementSubstitute> implements Elemen
         }
         
         private void checkExpiry(DiskMarker marker, long now) {
-            if (marker.expiry < now) {
+            if (marker.getExpirationTime() < now) {
                 if (eventService.hasCacheEventListeners()) {
                     try {
                         Element element = read(marker);

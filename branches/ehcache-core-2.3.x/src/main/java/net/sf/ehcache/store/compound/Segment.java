@@ -639,16 +639,14 @@ class Segment extends ReentrantReadWriteLock {
      * @param fault element (proxy) to install
      * @return <code>true</code> if <code>fault</code> was installed
      */
-    boolean fault(Object key, int hash, Object expect, Object fault) {
+    boolean tryFault(Object key, int hash, Object expect, Object fault) {
         boolean installed = false;
         
         if (readLock().tryLock()) {
             try {
-                if (count != 0) {
-                    installed = install(key, hash, expect, fault);
-                    if (installed) {
-                        return true;
-                    }
+                installed = install(key, hash, expect, fault);
+                if (installed) {
+                    return true;
                 }
             } finally {
                 readLock().unlock();
@@ -663,12 +661,49 @@ class Segment extends ReentrantReadWriteLock {
         return false;
     }
 
+    /**
+     * Try to atomically switch (CAS) the <code>expect</code> representation of this element for the
+     * <code>fault</code> representation.
+     * <p>
+     * A successful switch will return <code>true</code>, and free the replaced element/element-proxy.
+     * A failed switch will return <code>false</code> and free the element/element-proxy which was not
+     * installed.  Unlike <code>fault</code> this method can return <code>false</code> if the object
+     * could not be installed due to lock contention.
+     *
+     * @param key key to which this element (proxy) is mapped
+     * @param expect element (proxy) expected
+     * @param fault element (proxy) to install
+     * @return <code>true</code> if <code>fault</code> was installed
+     */
+    boolean fault(Object key, int hash, Object expect, Object fault) {
+        boolean installed = false;
+
+        readLock().lock();
+        try {
+            installed = install(key, hash, expect, fault);
+            if (installed) {
+                return true;
+            }
+        } finally {
+            readLock().unlock();
+
+            if ((installed && fault instanceof ElementSubstitute)) {
+                ((ElementSubstitute) fault).installed();
+            }
+        }
+
+        free(fault);
+        return false;
+    }
+
     private boolean install(Object key, int hash, Object expect, Object fault) {
-        for (HashEntry e = getFirst(hash); e != null; e = e.next) {
-            if (e.hash == hash && key.equals(e.key)) {
-                if (e.casElement(expect, fault)) {
-                    free(expect);
-                    return true;
+        if (count != 0) {
+            for (HashEntry e = getFirst(hash); e != null; e = e.next) {
+                if (e.hash == hash && key.equals(e.key)) {
+                    if (e.casElement(expect, fault)) {
+                        free(expect);
+                        return true;
+                    }
                 }
             }
         }

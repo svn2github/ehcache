@@ -715,13 +715,15 @@ public class CacheTest extends AbstractCacheTest {
         
         cache.put(new Element("key1", "value1"));
         cache.put(new Element("key2", "value1"));
+        //allow disk write thread to catch up - MNK-2057
+        Thread.sleep(100);
 
         Element element1 = cache.get("key1");
-        assertEquals("Should be one", 1, element1.getHitCount());
+        assertEquals("Element hit count", 1, element1.getHitCount());
         element1 = cache.getQuiet("key1");
-        assertEquals("Should be one", 1, element1.getHitCount());
+        assertEquals("Element hit count", 1, element1.getHitCount());
         element1 = cache.get("key1");
-        assertEquals("Should be two", 2, element1.getHitCount());
+        assertEquals("Element hit count", 2, element1.getHitCount());
     }
 
     /**
@@ -738,20 +740,23 @@ public class CacheTest extends AbstractCacheTest {
         cache.put(new Element("key1", "value1"));
         cache.put(new Element("key2", "value1"));
 
+        //Allow disk write thread to do it's thing...
+        Thread.sleep(100);
+
         Element element1 = cache.get("key1");
-        assertEquals("Should be one", 1, element1.getHitCount());
-        assertEquals("Should be one", 1, cache.getStatistics().getCacheHits());
+        assertEquals("Cache hit count", 1, cache.getStatistics().getCacheHits());
+        assertEquals("Element hit count", 1, element1.getHitCount());
         element1 = cache.getQuiet("key1");
-        assertEquals("Should be one", 1, element1.getHitCount());
-        assertEquals("Should be one", 1, cache.getStatistics().getCacheHits());
+        assertEquals("Cache hit count", 1, cache.getStatistics().getCacheHits());
+        assertEquals("Element hit count", 1, element1.getHitCount());
         element1 = cache.get("key1");
-        assertEquals("Should be two", 2, element1.getHitCount());
-        assertEquals("Should be two", 2, cache.getStatistics().getCacheHits());
+        assertEquals("Cache hit count", 2, cache.getStatistics().getCacheHits());
+        assertEquals("Element hit count", 2, element1.getHitCount());
 
 
-        assertEquals("Should be 0", 0, cache.getStatistics().getCacheMisses());
+        assertEquals("Cache miss count", 0, cache.getStatistics().getCacheMisses());
         cache.get("doesnotexist");
-        assertEquals("Should be 1", 1, cache.getStatistics().getCacheMisses());
+        assertEquals("Cache miss count", 1, cache.getStatistics().getCacheMisses());
 
 
     }
@@ -1098,8 +1103,11 @@ public class CacheTest extends AbstractCacheTest {
         for (int i = 0; i < 100; i++) {
             cache.get("" + i);
         }
-        assertEquals(50, cache.getMemoryStoreSize());
-        assertEquals(100, cache.getDiskStoreSize());
+        
+        Thread.sleep(200);
+
+        assertWithTolerance(50, 1, cache.getMemoryStoreSize());
+        assertWithTolerance(100, 1, cache.getDiskStoreSize());
         assertEquals(100, cache.getSize());
 
 
@@ -1113,8 +1121,8 @@ public class CacheTest extends AbstractCacheTest {
         cache.get("key1");
 
         assertEquals(103, cache.getSize());
-        assertEquals(50, cache.getMemoryStoreSize());
-        assertEquals(103, cache.getDiskStoreSize());
+        assertWithTolerance(50, 1, cache.getMemoryStoreSize());
+        assertWithTolerance(103, 1, cache.getDiskStoreSize());
 
 
         //these "null" Elements are ignored and do not get put in
@@ -1122,8 +1130,8 @@ public class CacheTest extends AbstractCacheTest {
         cache.put(new Element(null, null));
 
         assertEquals(103, cache.getSize());
-        assertEquals(50, cache.getMemoryStoreSize());
-        assertEquals(103, cache.getDiskStoreSize());
+        assertWithTolerance(50, 1, cache.getMemoryStoreSize());
+        assertWithTolerance(103, 1, cache.getDiskStoreSize());
 
         //this one does
         cache.put(new Element("nullValue", null));
@@ -1132,11 +1140,11 @@ public class CacheTest extends AbstractCacheTest {
 
         LOG.info("Size: " + cache.getDiskStoreSize());
 
-        assertEquals(50, cache.getMemoryStoreSize());
-        assertEquals(104, cache.getDiskStoreSize());
+        assertWithTolerance(50, 1, cache.getMemoryStoreSize());
+        assertWithTolerance(104, 1, cache.getDiskStoreSize());
 
         cache.flush();
-        Thread.sleep(200);
+        Thread.sleep(400);
         
         assertEquals(0, cache.getMemoryStoreSize());
         //Non Serializable Elements get discarded
@@ -1183,25 +1191,28 @@ public class CacheTest extends AbstractCacheTest {
         Cache cache = cacheManager.getCache("SimplePageFragmentCachingFilter");
         cache.removeAll();
         for (int i = 0; i < 100; i++) {
-            cache.put(new Element("" + i, new Date()));
+            cache.put(new Element(Integer.toString(i), new Date()));
         }
         
-        Thread.sleep(200);
+        for (long start = System.nanoTime(); (cache.getDiskStoreSize() != 100) && (System.nanoTime() - start < TimeUnit.SECONDS.toNanos(30)); ) {
+            Thread.sleep(10);
+        }
         
         for (int i = 0; i < 100; i++) {            
-            cache.get("" + i);
+            cache.get(Integer.toString(i));
         }
 
         assertEquals(10, cache.getMemoryStoreSize());
         assertEquals(100, cache.getDiskStoreSize());
 
         cache.flush();
-        Thread.sleep(200);
+        for (long start = System.nanoTime(); (cache.getMemoryStoreSize() > 0) && (System.nanoTime() - start < TimeUnit.SECONDS.toNanos(30)); ) {
+            Thread.sleep(10);
+        }
 
         assertEquals(0, cache.getMemoryStoreSize());
         assertEquals(100, cache.getDiskStoreSize());
         cacheManager.shutdown();
-
     }
 
 
@@ -2247,5 +2258,10 @@ public class CacheTest extends AbstractCacheTest {
 
     }
 
+    static void assertWithTolerance(long expected, long tolerance, long actual) {
+        if (actual < expected - tolerance || actual > expected + tolerance) {
+          throw new AssertionError("Expected " + expected + "+/-" + tolerance + " was " + actual);
+        }
+    }
 }
 

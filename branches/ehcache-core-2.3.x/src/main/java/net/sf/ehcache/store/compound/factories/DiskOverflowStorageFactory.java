@@ -146,7 +146,7 @@ public class DiskOverflowStorageFactory extends DiskStorageFactory<ElementSubsti
                 DiskMarker marker = (DiskMarker) proxy;
                 Element e = read((DiskMarker) proxy);
                 if (key != null) {
-                    store.fault(key, marker, memory.create(key, e));
+                    store.tryFault(key, marker, memory.create(key, e));
                 }
                 return e;
             } catch (IOException e) {
@@ -246,7 +246,13 @@ public class DiskOverflowStorageFactory extends DiskStorageFactory<ElementSubsti
         public DiskMarker call() {
             DiskMarker result = super.call();
             //don't want to increment on exception throw
-            count.incrementAndGet();
+            int size = count.incrementAndGet();
+            if (capacity > 0) {
+                int overflow = size - capacity;
+                if (overflow > 0) {
+                    evict(Math.min(MAX_EVICT, overflow), result.getKey(), size);
+                }
+            }
             return result;
         }
     }

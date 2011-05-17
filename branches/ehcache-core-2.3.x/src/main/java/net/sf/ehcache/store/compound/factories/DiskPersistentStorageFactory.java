@@ -50,6 +50,7 @@ import net.sf.ehcache.store.DiskStore.DiskElement;
 import net.sf.ehcache.store.compound.CompoundStore;
 import net.sf.ehcache.store.compound.ElementSubstitute;
 import net.sf.ehcache.store.compound.ElementSubstituteFilter;
+import net.sf.ehcache.store.compound.factories.DiskStorageFactory.DiskMarker;
 
 /**
  * This will be the disk-persistent element substitute factory
@@ -63,6 +64,7 @@ public class DiskPersistentStorageFactory extends DiskStorageFactory<ElementSubs
     private static final int SAMPLE_SIZE = 30;
     
     private final ElementSubstituteFilter<DiskSubstitute> inMemoryFilter = new InMemoryFilter();
+    private final ElementSubstituteFilter<CachingDiskMarker> flushableFilter = new FlushableFilter();
     private final ElementSubstituteFilter<CachingDiskMarker> onDiskFilter = new OnDiskFilter();
     
     private final AtomicInteger inMemory = new AtomicInteger();
@@ -274,18 +276,22 @@ public class DiskPersistentStorageFactory extends DiskStorageFactory<ElementSubs
      */
     private final static class CachingDiskMarker extends DiskMarker implements Serializable {
         
-        private static final long serialVersionUID = 42;
+        private static final long serialVersionUID = 43;
+
         private static final AtomicReferenceFieldUpdater<CachingDiskMarker, Element> CACHED_UPDATER =
             AtomicReferenceFieldUpdater.newUpdater(CachingDiskMarker.class, Element.class, "cached");
         
         private transient volatile Element cached;
+        private volatile long expiry;
         
         CachingDiskMarker(DiskPersistentStorageFactory factory, long position, int size, Element element) {
             super(factory, position, size, element);
+            this.expiry = element.getExpirationTime();
         }
 
-        public CachingDiskMarker(DiskPersistentStorageFactory factory, DiskElement element) {
-            super(factory, element.getPosition(), element.getSize(), element.getObjectKey(), element.getHitCount(), element.getExpiry());
+        CachingDiskMarker(DiskPersistentStorageFactory factory, DiskElement element) {
+            super(factory, element.getPosition(), element.getSize(), element.getObjectKey(), element.getHitCount());
+            this.expiry = element.getExpiry();
         }
 
         boolean cache(Element element) {
@@ -293,7 +299,13 @@ public class DiskPersistentStorageFactory extends DiskStorageFactory<ElementSubs
         }
 
         boolean flush() {
-            return CACHED_UPDATER.getAndSet(this, null) != null;
+          Element old = CACHED_UPDATER.getAndSet(this, null);
+          if (old != null) {
+            expiry = old.getExpirationTime();
+            return true;
+          } else {
+            return false;
+          }
         }
         
         Element getCached() {
@@ -302,6 +314,12 @@ public class DiskPersistentStorageFactory extends DiskStorageFactory<ElementSubs
         
         boolean isCaching() {
             return getCached() != null;
+        }
+
+        @Override
+        long getExpirationTime() {
+            Element e = getCached();
+            return e == null ? expiry : e.getExpirationTime();
         }
     }
     
@@ -325,6 +343,23 @@ public class DiskPersistentStorageFactory extends DiskStorageFactory<ElementSubs
             } else {
                 return false;
             }
+        }
+    }
+
+    /**
+     * Filters for in-memory elements created by this factory
+     */
+    private class FlushableFilter implements ElementSubstituteFilter<CachingDiskMarker> {
+
+        /**
+         * {@inheritDoc}
+         */
+        public boolean allows(Object object) {
+            if (!created(object)) {
+                return false;
+            }
+            
+            return (object instanceof CachingDiskMarker) && ((CachingDiskMarker) object).isCaching();
         }
     }
 
@@ -371,6 +406,20 @@ public class DiskPersistentStorageFactory extends DiskStorageFactory<ElementSubs
     }
     
     /**
+     * Return the approximate serialized size of the in-memory elements
+     */
+    public long getInMemorySizeInBytes() {
+        long size = 0;
+        for (Object o : store.getKeys()) {
+            Object e = store.unretrievedGet(o);
+            if (inMemoryFilter.allows(e)) {
+                size += getElement((DiskSubstitute) e).getSerializedSize();
+            }
+        }
+        return size;
+    }
+
+    /**
      * Return the number of on-disk elements
      */
     public int getOnDiskSize() {
@@ -409,24 +458,22 @@ public class DiskPersistentStorageFactory extends DiskStorageFactory<ElementSubs
         if (memoryCapacity > 0) {
             int overflow = size - memoryCapacity;
             for (int i = 0; i < Math.min(MAX_EVICT, overflow); i++) {
-                DiskSubstitute target = getMemoryEvictionTarget(keyHint, size);
-                if (target == null) {
-                    continue;
-                } else if (target instanceof CachingDiskMarker) {
-                    if (((CachingDiskMarker) target).flush()) {
-                        inMemory.decrementAndGet();
+                CachingDiskMarker target = getMemoryEvictionTarget(keyHint, size);
+                if (target != null && target.flush()) {
+                    if (inMemory.decrementAndGet() <= memoryCapacity) {
+                        break;
                     }
                 }
             }
         }
     }
     
-    private DiskSubstitute getMemoryEvictionTarget(Object keyHint, int size) {
-        List<DiskSubstitute> sample = store.getRandomSample(inMemoryFilter, Math.min(SAMPLE_SIZE, size), keyHint);
+    private CachingDiskMarker getMemoryEvictionTarget(Object keyHint, int size) {
+        List<CachingDiskMarker> sample = store.getRandomSample(flushableFilter, Math.min(SAMPLE_SIZE, size), keyHint);
         
-        DiskSubstitute target = null;
+        CachingDiskMarker target = null;
         
-        for (DiskSubstitute substitute : sample) {
+        for (CachingDiskMarker substitute : sample) {
             if (target == null) {
                 target = substitute;
             } else {
@@ -456,7 +503,9 @@ public class DiskPersistentStorageFactory extends DiskStorageFactory<ElementSubs
                 if (target == null) {
                     continue;
                 } else {
-                    store.evict(target.getKey(), target);
+                    if (store.evict(target.getKey(), target) && (onDisk.get() <= diskCapacity)) {
+                        break;
+                    }
                 }
             }
         }

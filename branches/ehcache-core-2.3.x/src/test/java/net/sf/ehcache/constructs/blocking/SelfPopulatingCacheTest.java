@@ -425,8 +425,8 @@ public class SelfPopulatingCacheTest extends CacheTest {
      * A thread that accesses a selfpopulating cache
      */
     private final class CacheAccessorThread extends Thread {
-        private Ehcache cache;
-        private String key;
+        private final Ehcache cache;
+        private final String key;
 
         private CacheAccessorThread(Ehcache cache, String key) {
             this.cache = cache;
@@ -470,35 +470,6 @@ public class SelfPopulatingCacheTest extends CacheTest {
             return "value";
         }
     }
-
-    /**
-     * Shows the effect of jamming large amounts of puts into a cache that overflows to disk.
-     * The DiskStore should cause puts to back off and avoid an out of memory error.
-     */
-    @Override
-    @Test
-    public void testBehaviourOnDiskStoreBackUp() throws Exception {
-        Cache newCache = new Cache("testGetMemoryStoreSize", 10, true, false, 100, 200, false, 0);
-        manager.addCache(newCache);
-
-        assertEquals(0, cache.getMemoryStoreSize());
-
-        Element a = null;
-        int i = 0;
-        try {
-            for (; i < 160000; i++) {
-                String key = i + "";
-                String value = key;
-                a = new Element(key, value + "DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD");
-                cache.put(a);
-            }
-        } catch (OutOfMemoryError e) {
-            //the disk store backs up on the laptop.
-            LOG.info("OutOfMemoryError: " + e.getMessage() + " " + i);
-            fail();
-        }
-    }
-
 
     /**
      * Original design behaviour of CacheEntryFactory was that its return was
