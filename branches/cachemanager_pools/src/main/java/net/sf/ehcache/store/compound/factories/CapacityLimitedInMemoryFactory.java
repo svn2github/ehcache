@@ -111,33 +111,39 @@ public class CapacityLimitedInMemoryFactory implements IdentityElementSubstitute
     }
 
     private boolean evict(int n, Object keyHint, int size) {
-        boolean foundTarget = false;
+        boolean evicted = false;
         for (int i = 0; i < n; i++) {
             Element target = getEvictionTarget(keyHint, size);
             if (target == null) {
                 continue;
             }
-            foundTarget = true;
             if (target.isExpired()) {
                 if (boundStore.evict(target.getObjectKey(), target)) {
                     eventService.notifyElementExpiry(target, false);
                 }
-            } else if (secondary == null) {
-                if (boundStore.evict(target.getObjectKey(), target)) {
-                    eventService.notifyElementEvicted(target, false);
-                }
-            } else {
-                try {
-                    ElementSubstitute substitute = secondary.create(target.getObjectKey(), target);
-                    boundStore.tryFault(target.getObjectKey(), target, substitute);
-                } catch (IllegalArgumentException e) {
+                evicted = true;
+            } else if (!target.isPinned()) {
+                if (secondary == null) {
+                    // memory only store
                     if (boundStore.evict(target.getObjectKey(), target)) {
                         eventService.notifyElementEvicted(target, false);
                     }
+                    evicted = true;
+                } else {
+                    // overflow to disk store
+                    try {
+                        ElementSubstitute substitute = secondary.create(target.getObjectKey(), target);
+                        boundStore.tryFault(target.getObjectKey(), target, substitute);
+                    } catch (IllegalArgumentException e) {
+                        if (boundStore.evict(target.getObjectKey(), target)) {
+                            eventService.notifyElementEvicted(target, false);
+                        }
+                    }
+                    evicted = true;
                 }
             }
         }
-        return foundTarget;
+        return evicted;
     }
 
     private Element getEvictionTarget(Object keyHint, int size) {

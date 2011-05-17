@@ -1,8 +1,9 @@
 package net.sf.ehcache.store.compound.impl;
 
+import junit.framework.Assert;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Element;
-import net.sf.ehcache.store.Store;
+import net.sf.ehcache.store.compound.CompoundStore;
 import org.junit.Test;
 
 import java.io.Serializable;
@@ -22,8 +23,8 @@ public abstract class CompoundStoreTest {
 
     private static final String KEY = "KEY";
 
-    protected Store store;
-    protected Store xaStore;
+    protected CompoundStore store;
+    protected CompoundStore xaStore;
 
     @Test
     public void testSupportsCopyOnRead() {

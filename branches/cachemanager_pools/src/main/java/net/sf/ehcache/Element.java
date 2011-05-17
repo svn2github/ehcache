@@ -103,6 +103,8 @@ public class Element implements Serializable, Cloneable {
 
     private volatile boolean cacheDefaultLifespan = true;
 
+    private volatile boolean pinned = false;
+
     /**
      * A full constructor.
      * <p/>
@@ -640,7 +642,7 @@ public class Element implements Serializable, Cloneable {
      * @see #getExpirationTime()
      */
     public boolean isExpired() {
-        if (!isLifespanSet() || isEternal()) {
+        if (isPinned() && !isLifespanSet() || isEternal()) {
             return false;
         }
 
@@ -662,7 +664,7 @@ public class Element implements Serializable, Cloneable {
      */
     public boolean isExpired(CacheConfiguration config) {
         if (cacheDefaultLifespan) {
-            if (config.isEternal()) {
+            if (isPinned() || config.isEternal()) {
                 timeToIdle = 0;
                 timeToLive = 0;
             } else {
@@ -704,7 +706,7 @@ public class Element implements Serializable, Cloneable {
      * @return true if the element is eternal
      */
     public boolean isEternal() {
-        return (0 == timeToIdle) && (0 == timeToLive);
+        return isPinned() || (0 == timeToIdle) && (0 == timeToLive);
     }
 
     /**
@@ -760,6 +762,14 @@ public class Element implements Serializable, Cloneable {
      */
     public boolean usesCacheDefaultLifespan() {
         return cacheDefaultLifespan;
+    }
+
+    public void setPinned(boolean pinned) {
+        this.pinned = pinned;
+    }
+
+    public boolean isPinned() {
+        return pinned;
     }
 
     /**

@@ -477,7 +477,7 @@ public class LruMemoryStore extends AbstractStore {
                 return true;
             }
 
-            if (isFull()) {
+            if (isFull() && !element.isPinned()) {
                 evict(element);
                 return true;
             } else {

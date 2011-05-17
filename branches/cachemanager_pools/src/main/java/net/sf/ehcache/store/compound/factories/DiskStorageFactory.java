@@ -303,6 +303,10 @@ public abstract class DiskStorageFactory<T extends ElementSubstitute> implements
      * @throws IOException on write error
      */
     protected DiskMarker write(Element element) throws IOException {
+        if (element.isPinned()) {
+            return null;
+        }
+
         Element elementToSerialize = element;
         if (element.getObjectValue() instanceof SoftLock) {
             elementToSerialize = null;
@@ -413,7 +417,7 @@ public abstract class DiskStorageFactory<T extends ElementSubstitute> implements
         public DiskMarker call() {
             try {
                 DiskMarker marker = write(placeholder.getElement());
-                if (store.fault(placeholder.getKey(), placeholder, marker)) {
+                if (marker != null && store.fault(placeholder.getKey(), placeholder, marker)) {
                     return marker;
                 } else {
                     return null;

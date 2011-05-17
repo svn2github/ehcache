@@ -534,15 +534,32 @@ public class MemoryStore extends AbstractStore implements CacheConfigurationList
         //attempt quicker eviction
         if (useKeySample) {
             Element[] elements = sampleElements(elementJustAdded.getObjectKey());
+            elements = filterOutPinnedElements(elements);
             //this can return null. Let the cache get bigger by one.
             return policy.selectedBasedOnPolicy(elements, elementJustAdded);
         } else {
             //Using iterate technique
             Element[] elements = sampleElements(map.size());
+            elements = filterOutPinnedElements(elements);
             return policy.selectedBasedOnPolicy(elements, elementJustAdded);
         }
     }
 
+    private Element[] filterOutPinnedElements(Element[] elements) {
+      if (elements == null) {
+          return null;
+      }
+
+      ArrayList<Element> result = new ArrayList<Element>();
+
+      for (Element element : elements) {
+        if (element.isExpired() || !element.isPinned()) {
+          result.add(element);
+        }
+      }
+
+      return result.toArray(new Element[result.size()]);
+    }
 
     /**
      * Uses random numbers to sample the entire map.
