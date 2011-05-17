@@ -1155,7 +1155,6 @@ public class CacheTest extends AbstractCacheTest {
     }
 
     @Test
-    @Ignore("This test is fixed in trunk, but fails racily here, as the required fixes have not been merged across")
     public void testFlushWithoutClear() throws InterruptedException {
 
         CacheManager cacheManager = CacheManager.create(AbstractCacheTest.TEST_CONFIG_DIR + "ehcache.xml");
@@ -1184,7 +1183,6 @@ public class CacheTest extends AbstractCacheTest {
     }
 
     @Test
-    @Ignore("This test is fixed in trunk, but fails racily here, as the required fixes have not been merged across")
     public void testFlushWithClear() throws InterruptedException {
 
         CacheManager cacheManager = CacheManager.create(AbstractCacheTest.TEST_CONFIG_DIR + "ehcache.xml");

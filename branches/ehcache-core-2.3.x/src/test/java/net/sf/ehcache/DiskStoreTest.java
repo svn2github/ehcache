@@ -51,7 +51,6 @@ import net.sf.ehcache.util.RetryAssert;
 
 import org.hamcrest.core.Is;
 import org.junit.After;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -464,7 +463,6 @@ public class DiskStoreTest extends AbstractCacheTest {
      * and delete and add data.
      */
     @Test
-    @Ignore("Trunk changeset 3403 has not been merged to 2.3.x from trunk since it is a minor fix - without it this will racily fail.")
     public void testFreeSpaceBehaviour() throws IOException, InterruptedException {
         //initialise
         String cacheName = "testPersistent";
@@ -572,7 +570,6 @@ public class DiskStoreTest extends AbstractCacheTest {
      *
      */
     @Test
-    @Ignore("Trunk changeset 3403 has not been merged to 2.3.x from trunk since it is a minor fix - without it this will racily fail.")
     public void testLFUEvictionFromDiskStore() throws IOException, InterruptedException {
         Cache cache = new Cache("testNonPersistent", 1, MemoryStoreEvictionPolicy.LFU, true,
                 null, false, 2000, 1000, false, 1, null, null, 10);
@@ -878,7 +875,6 @@ public class DiskStoreTest extends AbstractCacheTest {
      * Tests for element expiry.
      */
     @Test
-    @Ignore("This is fixed in trunk, but fails racily here, as the required fixes have not been merged across")
     public void testExpiry() throws Exception {
         // Create a diskStore with a cranked up expiry thread
         final Store diskStore = createDiskStore();
