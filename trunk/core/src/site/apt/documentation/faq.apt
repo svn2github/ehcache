@@ -41,7 +41,7 @@ Ehcache - Frequently Asked Questions
 
 * What happens when maxElementsInMemory is reached? Are the oldest items expired when new ones come in?
 
-     When the maximum number of elements in memory is reached, the least
+    When the maximum number of elements in memory is reached, the least
     recently used ("LRU") element is removed. Used in this case means
     inserted with a put or accessed with a get.
 
