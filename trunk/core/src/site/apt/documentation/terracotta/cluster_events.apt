@@ -113,7 +113,7 @@ public interface ClusterTopologyListener {
 
     CacheManager mgr = ...
 
-    CacheCluster cluster = mgr.getCluster("Terracotta");
+    CacheCluster cluster = mgr.getCluster("TERRACOTTA");
 
 
 
