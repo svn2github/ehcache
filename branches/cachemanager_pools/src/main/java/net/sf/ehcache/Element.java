@@ -642,7 +642,7 @@ public class Element implements Serializable, Cloneable {
      * @see #getExpirationTime()
      */
     public boolean isExpired() {
-        if (isPinned() && !isLifespanSet() || isEternal()) {
+        if (!isLifespanSet() || isEternal()) {
             return false;
         }
 
@@ -664,7 +664,7 @@ public class Element implements Serializable, Cloneable {
      */
     public boolean isExpired(CacheConfiguration config) {
         if (cacheDefaultLifespan) {
-            if (isPinned() || config.isEternal()) {
+            if (config.isEternal()) {
                 timeToIdle = 0;
                 timeToLive = 0;
             } else {
@@ -706,7 +706,7 @@ public class Element implements Serializable, Cloneable {
      * @return true if the element is eternal
      */
     public boolean isEternal() {
-        return isPinned() || (0 == timeToIdle) && (0 == timeToLive);
+        return (0 == timeToIdle) && (0 == timeToLive);
     }
 
     /**
