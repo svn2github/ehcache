@@ -8,13 +8,13 @@
 
     A cache eviction algorithm is a way of deciding which <<<Element>>> to evict when the cache is full.
 
-    In Ehcache the <<<MemoryStore>>> has a fixed limited size set by {<<<maxElementsInMemory>>>}
+    In Ehcache, the <<<MemoryStore>>> has a fixed limited size set by {<<<maxElementsInMemory>>>}
     (unless the maxElementsInMemory is 0, in which case the capacity is unlimited). When the store
-    gets full, <<<elements>>> are evicted. The eviction algorithms in Ehcache determines which
-    elements is evicted. The default is LRU.
+    gets full, <<<elements>>> are evicted. The eviction algorithms in Ehcache determine which
+    elements are evicted. The default is LRU.
 
     What happens on eviction depends on the cache configuration. If a <<<DiskStore>>> is configured,
-    the evicted element will overflow to disk, otherwise it will be removed.
+    the evicted element will overflow to disk (is <flushed> to disk); otherwise it will be removed.
 
     The <<<DiskStore>>> size by default is unbounded. But a maximum size can be set using the
     {<<<maxElementsOnDisk>>>} cache attribute. If the <<<DiskStore>>> is full, then adding an element
@@ -30,22 +30,21 @@
     In 1966 Laszlo Belady showed that the most efficient caching algorithm would be to always discard the
     information that will not be needed for the longest time in the future. This it a theoretical result
     that is unimplementable without domain knowledge. The Least Recently Used ("LRU") algorithm is often used as
-    a proxy. It works pretty well because of the locality of reference phenonemon. As a result, LRU is the default
-    eviction algorithm in Ehcache, as it is in most caches.
+    a proxy. It works pretty well because of the locality of reference phenonemon and is the default in most caches. 
+    A variation of LRU is the default eviction algorithm in Ehcache.
 
-    Ehcache users may sometimes have a good domain knowledge. Accordingly, Ehcache provides three eviction
-    algorithms to choose from for the <<<MemoryStore>>>.
+    Altogether Ehcache provides three eviction algorithms to choose from for the <<<MemoryStore>>>.
 
     
-** {Least Recently Used} ({LRU})
+** {Less Recently Used} ({LRU})
 
-    This is the default.
+     This is the default and is a variation on Least Frequently Used.
 
-     The eldest element, is the Least Recently Used (LRU). The last used
+     The oldest element is the Less Recently Used (LRU) element. The last used
      timestamp is updated when an element is put into the cache or an
      element is retrieved from the cache with a get call.
 
-     It takes a random sample of the Elements and
+     This algorithm takes a random sample of the Elements and
      evicts the smallest. Using the sample size of 15 elements, empirical testing shows
      that an Element in the lowest quartile of use is evicted 99% of the time.
 
