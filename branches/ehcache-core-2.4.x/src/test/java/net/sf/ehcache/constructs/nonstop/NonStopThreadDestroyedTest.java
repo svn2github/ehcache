@@ -88,13 +88,30 @@ public class NonStopThreadDestroyedTest extends TestCase {
         }
         Assert.assertEquals(extraRequests, countExecutorThreads() - initialThreadsCount);
 
-        //clear it so that threads can get gced
+        // clear it so that threads can get gced
         requestThreads.clear();
 
-        for (int i = 0; i < 10; i++)
-            System.gc();
-
         Thread.sleep(5000);
+
+        long remaining = 0;
+        final int waitMins = 5;
+        final long end = System.currentTimeMillis() + (waitMins * 60 * 1000);
+        do {
+            remaining = end - System.currentTimeMillis();
+            Thread.sleep(2000);
+            for (int i = 0; i < 10; i++) {
+                System.gc();
+            }
+            int numThreads = countExecutorThreads() - initialThreadsCount;
+            if (numThreads <= 0) {
+                break;
+            }
+            System.out.println("All nonstop threads not gc'ed yet (remaining: " + remaining + "ms): Expected 0 but got numThreads: "
+                    + numThreads);
+        } while (remaining > 0);
+        if (remaining <= 0) {
+            fail("Nonstop threads not gc'ed even after waiting " + waitMins + " minutes");
+        }
         Assert.assertEquals(0, countExecutorThreads() - initialThreadsCount);
     }
 
@@ -122,9 +139,9 @@ public class NonStopThreadDestroyedTest extends TestCase {
         }
         Assert.assertEquals(extraRequests, countExecutorThreads() - initialThreadsCount);
 
-        //don't clear requestThreads since we don't want app threads to be gced
+        // don't clear requestThreads since we don't want app threads to be gced
 
-        //we check whether the app thread has died evert 100 seconds so wait for like 2 mins
+        // we check whether the app thread has died every 100 seconds so wait for like 2 mins
         System.out.println("waiting for 2 mins...");
         Thread.sleep(2 * 60 * 1000);
         Assert.assertEquals(0, countExecutorThreads() - initialThreadsCount);
