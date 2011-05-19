@@ -23,28 +23,32 @@ import java.util.ArrayList;
 import java.util.List;
 
 public abstract class ThreadDump {
+    private static final String NEWLINE = System.getProperty("line.separator", "\n");
 
     public static List<ThreadInformation> getThreadDump() {
         List<ThreadInformation> rv = new ArrayList<ThreadInformation>();
         ThreadMXBean tbean = ManagementFactory.getThreadMXBean();
         for (long id : tbean.getAllThreadIds()) {
-            ThreadInfo tinfo = tbean.getThreadInfo(id, Integer.MAX_VALUE);
-            rv.add(new ThreadInformation(tinfo.getThreadId(), tinfo.getThreadName()));
+            ThreadInfo tinfo = tbean.getThreadInfo(id);
+            if (tinfo != null) {
+                rv.add(new ThreadInformation(tinfo.getThreadId(), tinfo.getThreadName()));
+            }
         }
         return rv;
     }
 
     public static String takeThreadDump() {
-        final String newline = System.getProperty("line.separator", "\n");
-        StringBuffer rv = new StringBuffer();
+        StringBuilder rv = new StringBuilder();
         ThreadMXBean tbean = ManagementFactory.getThreadMXBean();
         for (long id : tbean.getAllThreadIds()) {
             ThreadInfo tinfo = tbean.getThreadInfo(id, Integer.MAX_VALUE);
-            rv.append("Thread name: " + tinfo.getThreadName()).append(" id:" + id).append(newline);
-            for (StackTraceElement e : tinfo.getStackTrace()) {
-                rv.append("    at " + e).append(newline);
+            if (tinfo != null) {
+                rv.append(tinfo).append(NEWLINE);
+                for (StackTraceElement e : tinfo.getStackTrace()) {
+                    rv.append("    at ").append(e).append(NEWLINE);
+                }
+                rv.append(NEWLINE);
             }
-            rv.append(newline);
         }
         return rv.toString();
     }
@@ -69,24 +73,18 @@ public abstract class ThreadDump {
 
         @Override
         public int hashCode() {
-            final int prime = 31;
-            int result = 1;
-            result = prime * result + (int) (threadId ^ (threadId >>> 32));
-            return result;
+            return ((int) threadId) ^ ((int) (threadId >>> 32));
         }
 
         @Override
         public boolean equals(Object obj) {
-            if (this == obj)
+            if (this == obj) {
                 return true;
-            if (obj == null)
+            } else if (obj instanceof ThreadInformation) {
+                return threadId == ((ThreadInformation) obj).threadId;
+            } else {
                 return false;
-            if (getClass() != obj.getClass())
-                return false;
-            ThreadInformation other = (ThreadInformation) obj;
-            if (threadId != other.threadId)
-                return false;
-            return true;
+            }
         }
 
     }
