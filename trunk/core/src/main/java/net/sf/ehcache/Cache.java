@@ -1051,6 +1051,13 @@ public class Cache implements Ehcache, StoreListener {
                     throw new InvalidConfigurationException("Maximum supported concurrency is " + maxConcurrency +
                             ". Please reconfigure cache " + getName() + " with concurrency value <= " + maxConcurrency);
                 }
+                if(getCacheConfiguration().getMaxElementsOnDisk() == 0) {
+                    LOG.warn("Performance may degrade and server disks could run out of space!\n" +
+                             "The distributed cache {} does not have maxElementsOnDisk set. " +
+                             "Failing to set maxElementsOnDisk could mean no eviction of {} " +
+                             "elements from the Terracotta Server Array disk store. " +
+                             "To avoid this, set maxElementsOnDisk to a non-zero value.", getName(), getName());
+                }
                 if (!getCacheConfiguration().getTerracottaConfiguration().isStorageStrategySet()) {
                     getCacheConfiguration().getTerracottaConfiguration().storageStrategy(
                             TerracottaClient.getTerracottaDefaultStrategyForCurrentRuntime(getCacheConfiguration()));
