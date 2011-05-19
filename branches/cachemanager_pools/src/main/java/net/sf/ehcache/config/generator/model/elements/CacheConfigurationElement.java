@@ -23,6 +23,7 @@ import net.sf.ehcache.config.CacheConfiguration.CacheExceptionHandlerFactoryConf
 import net.sf.ehcache.config.CacheWriterConfiguration;
 import net.sf.ehcache.config.CopyStrategyConfiguration;
 import net.sf.ehcache.config.ElementValueComparatorConfiguration;
+import net.sf.ehcache.config.PinningConfiguration;
 import net.sf.ehcache.config.TerracottaConfiguration;
 import net.sf.ehcache.config.generator.model.NodeElement;
 import net.sf.ehcache.config.generator.model.SimpleNodeAttribute;
@@ -164,6 +165,10 @@ public class CacheConfigurationElement extends SimpleNodeElement {
         TerracottaConfiguration terracottaConfiguration = cacheConfiguration.getTerracottaConfiguration();
         if (terracottaConfiguration != null) {
             element.addChildElement(new TerracottaConfigurationElement(element, terracottaConfiguration));
+        }
+        PinningConfiguration pinningConfiguration = cacheConfiguration.getPinningConfiguration();
+        if (pinningConfiguration != null) {
+            element.addChildElement(new PinningConfigurationElement(element, pinningConfiguration));
         }
 
         if (cacheConfiguration.isSearchable()) {

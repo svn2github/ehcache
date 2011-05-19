@@ -81,6 +81,7 @@
                 <xs:element minOccurs="0" maxOccurs="unbounded" ref="cacheDecoratorFactory"/>
                 <xs:element minOccurs="0" maxOccurs="1" ref="bootstrapCacheLoaderFactory"/>
                 <xs:element minOccurs="0" maxOccurs="1" ref="cacheExceptionHandlerFactory"/>
+                <xs:element minOccurs="0" maxOccurs="1" ref="pinning"/>
                 <xs:element minOccurs="0" maxOccurs="1" ref="terracotta"/>
                 <xs:element minOccurs="0" maxOccurs="1" ref="cacheWriter"/>
                 <xs:element minOccurs="0" maxOccurs="1" ref="copyStrategy"/>
@@ -91,7 +92,7 @@
             <xs:attribute name="diskPersistent" type="xs:boolean" use="optional"/>
             <xs:attribute name="diskAccessStripes" type="xs:integer" use="optional" default="1"/>
             <xs:attribute name="eternal" type="xs:boolean" use="required"/>
-            <xs:attribute name="maxElementsInMemory" type="xs:integer" use="required"/>
+            <xs:attribute name="maxElementsInMemory" type="xs:integer" use="optional"/>
             <xs:attribute name="clearOnFlush" type="xs:boolean" use="optional"/>
             <xs:attribute name="memoryStoreEvictionPolicy" type="xs:string" use="optional"/>
             <xs:attribute name="overflowToDisk" type="xs:boolean" use="required"/>
@@ -116,6 +117,7 @@
                 <xs:element minOccurs="0" maxOccurs="unbounded" ref="cacheDecoratorFactory"/>
                 <xs:element minOccurs="0" maxOccurs="1" ref="bootstrapCacheLoaderFactory"/>
                 <xs:element minOccurs="0" maxOccurs="1" ref="cacheExceptionHandlerFactory"/>
+                <xs:element minOccurs="0" maxOccurs="1" ref="pinning"/>
                 <xs:element minOccurs="0" maxOccurs="1" ref="terracotta"/>
                 <xs:element minOccurs="0" maxOccurs="1" ref="cacheWriter"/>
                 <xs:element minOccurs="0" maxOccurs="1" ref="copyStrategy"/>
@@ -127,7 +129,7 @@
             <xs:attribute name="diskPersistent" type="xs:boolean" use="optional"/>
             <xs:attribute name="diskAccessStripes" type="xs:integer" use="optional" default="1"/>
             <xs:attribute name="eternal" type="xs:boolean" use="required"/>
-            <xs:attribute name="maxElementsInMemory" type="xs:integer" use="required"/>
+            <xs:attribute name="maxElementsInMemory" type="xs:integer" use="optional"/>
             <xs:attribute name="memoryStoreEvictionPolicy" type="xs:string" use="optional"/>
             <xs:attribute name="clearOnFlush" type="xs:boolean" use="optional"/>
             <xs:attribute name="name" type="xs:string" use="required"/>
@@ -211,6 +213,12 @@
       </xs:complexType>
     </xs:element>
 
+    <xs:element name="pinning">
+        <xs:complexType>
+            <xs:attribute name="storage" use="required" type="pinningStorageType"/>
+        </xs:complexType>
+    </xs:element>
+
     <xs:element name="terracotta">
         <xs:complexType>
             <xs:sequence>
@@ -267,6 +275,12 @@
             <xs:enumeration value="autodetect"/>
             <xs:enumeration value="on"/>
             <xs:enumeration value="off"/>
+        </xs:restriction>
+    </xs:simpleType>
+    <xs:simpleType name="pinningStorageType">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="onHeap" />
+            <xs:enumeration value="inMemory" />
         </xs:restriction>
     </xs:simpleType>
     <xs:simpleType name="terracottaCacheValueType">

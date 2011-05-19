@@ -319,6 +319,11 @@ public class CacheConfiguration implements Cloneable {
     protected TerracottaConfiguration terracottaConfiguration;
 
     /**
+     * The PinningConfiguration.
+     */
+    protected volatile PinningConfiguration pinningConfiguration;
+
+    /**
      * The CacheWriterConfiguration.
      */
     protected CacheWriterConfiguration cacheWriterConfiguration = DEFAULT_CACHE_WRITER_CONFIGURATION;
@@ -1406,6 +1411,23 @@ public class CacheConfiguration implements Cloneable {
     }
 
     /**
+     * Allows BeanHandler to add the PinningConfiguration to the configuration.
+     */
+    public final void addPinning(PinningConfiguration pinningConfiguration) {
+        this.pinningConfiguration = pinningConfiguration;
+        validateConfiguration();
+    }
+
+    /**
+     * @return this configuration instance
+     * @see #addPinning(PinningConfiguration)
+     */
+    public final CacheConfiguration pinning(PinningConfiguration pinningConfiguration) {
+        addPinning(pinningConfiguration);
+        return this;
+    }
+
+    /**
      * @return this configuration instance
      * @see #addTerracotta(TerracottaConfiguration)
      */
@@ -1777,6 +1799,15 @@ public class CacheConfiguration implements Cloneable {
      */
     public TerracottaConfiguration getTerracottaConfiguration() {
         return terracottaConfiguration;
+    }
+
+    /**
+     * Accessor
+     *
+     * @return the pinning configuration
+     */
+    public PinningConfiguration getPinningConfiguration() {
+        return pinningConfiguration;
     }
 
     /**
