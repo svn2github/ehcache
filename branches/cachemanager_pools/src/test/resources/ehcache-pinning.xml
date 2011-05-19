@@ -1,0 +1,42 @@
+<ehcache xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../main/config/ehcache.xsd">
+
+    <defaultCache
+        maxElementsInMemory="10"
+        eternal="false"
+        timeToIdleSeconds="5"
+        timeToLiveSeconds="10"
+        overflowToDisk="false"
+        />
+
+    <cache name="memoryOnlyCache"
+        eternal="false"
+        timeToIdleSeconds="360"
+        timeToLiveSeconds="1000"
+        overflowToDisk="false"
+        statistics="true"
+        >
+        <pinning storage="onHeap"/>
+    </cache>
+
+    <cache name="overflowToDiskCache"
+        eternal="false"
+        timeToIdleSeconds="360"
+        timeToLiveSeconds="1000"
+        overflowToDisk="true"
+        statistics="true"
+        >
+        <pinning storage="onHeap"/>
+    </cache>
+
+    <cache name="diskPersistentCache"
+        eternal="false"
+        timeToIdleSeconds="360"
+        timeToLiveSeconds="1000"
+        overflowToDisk="true"
+        diskPersistent="true"
+        statistics="true"
+        >
+        <pinning storage="onHeap"/>
+    </cache>
+
+</ehcache>

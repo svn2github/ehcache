@@ -40,7 +40,11 @@ public class MemoryOnlyPoolableStore extends MemoryOnlyStore implements Poolable
      */
     public static MemoryOnlyPoolableStore create(Cache cache, String diskStorePath, Pool onHeapPool) {
         CacheConfiguration config = cache.getCacheConfiguration();
-        CapacityLimitedInMemoryFactory memory = new CapacityLimitedInMemoryFactory(null, config.getMaxElementsInMemory(),
+        int capacity = config.getMaxElementsInMemory();
+        if (config.getPinningConfiguration() != null) {
+            capacity = 0;
+        }
+        CapacityLimitedInMemoryFactory memory = new CapacityLimitedInMemoryFactory(null, capacity,
                 determineEvictionPolicy(config), cache.getCacheEventNotificationService());
         MemoryOnlyPoolableStore store = new MemoryOnlyPoolableStore(cache, memory, config, onHeapPool);
         cache.getCacheConfiguration().addConfigurationListener(store);
@@ -161,6 +165,9 @@ public class MemoryOnlyPoolableStore extends MemoryOnlyStore implements Poolable
 
     @Override
     public long getInMemorySizeInBytes() {
+        if (onHeapPoolAccessor.getSize() < 0) {
+            return memoryFactory.getSizeInBytes();
+        }
         return onHeapPoolAccessor.getSize();
     }
 

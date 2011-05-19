@@ -110,6 +110,9 @@ public class DiskPersistentStorageFactory extends DiskStorageFactory<ElementSubs
 
         diskCapacity = cache.getCacheConfiguration().getMaxElementsOnDisk();
         memoryCapacity = cache.getCacheConfiguration().getMaxElementsInMemory();
+        if (cache.getCacheConfiguration().getPinningConfiguration() != null) {
+            memoryCapacity = 0;
+        }
         memoryPolicy = determineEvictionPolicy(cache.getCacheConfiguration());
     }
 
