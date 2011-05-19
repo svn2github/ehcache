@@ -68,6 +68,7 @@
     <suppress checks="StrictDuplicateCode" files="NonstopAwareEntityRegionAccessStrategy.java" />
     <suppress checks="StrictDuplicateCode" files="NonstopAwareCollectionRegionAccessStrategy.java" />
 
+
     <!-- Candidates for refactoring -->
     <suppress checks="CyclomaticComplexity" files="LocalTransactionStore.java"/>
     <suppress checks="NPathComplexity" files="LocalTransactionStore.java"/>
@@ -80,9 +81,12 @@
     <suppress checks="NPathComplexity" files="EhcacheXAResourceImpl.java"/>
     <suppress checks="CyclomaticComplexity" files="EhcacheXAResourceImpl.java"/>
     <suppress checks="ExecutableStatementCount" files="SampledCacheStatisticsImpl.java"/>
+    <!-- A candidate, maybe... if you know what you do -->
+    <suppress checks="NestedIfDepth" files="SlewClock.java"/>
 
     <!-- Contributed code -->
     <suppress checks="" files="ConcurrentHashMap.java"/>
+    <suppress checks="" files="VicariousThreadLocal.java"/>
 
     <!-- Contains a thread therefore cannot.  -->
     <suppress checks="SuperClone" files="RMIBootstrapCacheLoader.java"/>
