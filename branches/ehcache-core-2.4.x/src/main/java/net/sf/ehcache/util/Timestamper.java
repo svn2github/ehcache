@@ -39,8 +39,12 @@ public final class Timestamper {
      */
     public static final int ONE_MS = 1 << BIN_DIGITS;
 
-    private static final Logger LOG = LoggerFactory.getLogger(Timestamper.class);
-    private static final AtomicLong VALUE = new AtomicLong();
+    private static final Logger LOG     = LoggerFactory.getLogger(Timestamper.class);
+    private static final int    MAX_LOG = Integer.getInteger("net.sf.ehcache.util.Timestamper.log.max", 1) * 1000;
+
+    private static final AtomicLong VALUE  = new AtomicLong();
+    private static final AtomicLong LOGGED = new AtomicLong();
+
 
     private Timestamper() {
         //
@@ -56,17 +60,30 @@ public final class Timestamper {
     public static long next() {
         int runs = 0;
         while (true) {
-            if (runs++ > 0 && LOG.isInfoEnabled()) {
-                LOG.info("Thread spin-waits on time to pass. Looped "
-                         + runs + " times, you might want to increase -Dnet.sf.ehcache.util.Timestamper.shift");
-            }
-            long base = System.currentTimeMillis() << BIN_DIGITS;
+            long base = SlewClock.timeMillis() << BIN_DIGITS;
             long maxValue = base + ONE_MS - 1;
 
             for (long current = VALUE.get(), update = Math.max(base, current + 1); update < maxValue;
                  current = VALUE.get(), update = Math.max(base, current + 1)) {
                 if (VALUE.compareAndSet(current, update)) {
+                    if (runs > 1) {
+                        log(base, "Thread spin-waits on time to pass. Looped "
+                                  + "{} times, you might want to increase -Dnet.sf.ehcache.util.Timestamper.shift", runs);
+                    }
                     return update;
+                }
+            }
+            ++runs;
+        }
+    }
+
+    private static void log(final long base, final String message, final Object... params) {
+        if (LOG.isInfoEnabled()) {
+            long thisLog = (base >> BIN_DIGITS) / MAX_LOG;
+            long previousLog = LOGGED.get();
+            if (previousLog != thisLog) {
+                if (LOGGED.compareAndSet(previousLog, thisLog)) {
+                    LOG.info(message, params);
                 }
             }
         }

@@ -140,12 +140,15 @@
     <suppress checks="NPathComplexity" files="EhcacheXAResourceImpl.java"/>
     <suppress checks="CyclomaticComplexity" files="EhcacheXAResourceImpl.java"/>
     <suppress checks="ExecutableStatementCount" files="SampledCacheStatisticsImpl.java"/>
+    <!-- A candidate, maybe... if you know what you do -->
+    <suppress checks="NestedIfDepth" files="SlewClock.java"/>
 
 
     <!-- Contributed code -->
     <suppress checks="CyclomaticComplexity" files="Mutex.java"/>
     <suppress checks="" files="ConcurrentLinkedHashMap.java"/>
     <suppress checks="" files="ConcurrentHashMap.java"/>
+    <suppress checks="" files="VicariousThreadLocal.java"/>
 
     <!-- Contains a thread therefore cannot.  -->
     <suppress checks="SuperClone" files="RMIBootstrapCacheLoader.java"/>
