@@ -13,4 +13,11 @@ public interface PoolableStore extends Store {
 
     boolean evictFromOnDisk(int count, long size);
 
+    float getApproximateDiskHitRate();
+
+    float getApproximateDiskMissRate();
+
+    float getApproximateHeapHitRate();
+
+    float getApproximateHeapMissRate();
 }

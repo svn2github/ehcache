@@ -59,10 +59,10 @@ import net.sf.ehcache.pool.Pool;
 import net.sf.ehcache.pool.PoolEvictor;
 import net.sf.ehcache.pool.PoolableStore;
 import net.sf.ehcache.pool.SizeOfEngine;
+import net.sf.ehcache.pool.impl.BalancedAccessOnDiskPoolEvictor;
+import net.sf.ehcache.pool.impl.BalancedAccessOnHeapPoolEvictor;
 import net.sf.ehcache.pool.impl.BoundedPool;
 import net.sf.ehcache.pool.impl.DefaultSizeOfEngine;
-import net.sf.ehcache.pool.impl.FromLargestCacheOnHeapPoolEvictor;
-import net.sf.ehcache.pool.impl.RoundRobinOnDiskPoolEvictor;
 import net.sf.ehcache.store.DiskStore;
 import net.sf.ehcache.store.Store;
 import net.sf.ehcache.terracotta.ClusteredInstanceFactory;
@@ -324,12 +324,12 @@ public class CacheManager {
         validateConfiguration();
 
         if (this.configuration.isMaxBytesOnHeapSet()) {
-            PoolEvictor<PoolableStore> evictor = new FromLargestCacheOnHeapPoolEvictor();
+            PoolEvictor<PoolableStore> evictor = new BalancedAccessOnHeapPoolEvictor();
             SizeOfEngine sizeOfEngine = createSizeOfEngine(null);
             this.onHeapPool = new BoundedPool(this.configuration.getMaxBytesOnHeap(), evictor, sizeOfEngine);
         }
         if (this.configuration.isMaxBytesOnDiskSet()) {
-            PoolEvictor<PoolableStore> evictor = new RoundRobinOnDiskPoolEvictor();
+            PoolEvictor<PoolableStore> evictor = new BalancedAccessOnDiskPoolEvictor();
             SizeOfEngine sizeOfEngine = createSizeOfEngine(null);
             this.onDiskPool = new BoundedPool(this.configuration.getMaxBytesOnDisk(), evictor, sizeOfEngine);
         }

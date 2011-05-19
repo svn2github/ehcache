@@ -52,6 +52,7 @@ import net.sf.ehcache.store.DiskStore.DiskElement;
 import net.sf.ehcache.store.compound.CompoundStore;
 import net.sf.ehcache.store.compound.ElementSubstitute;
 import net.sf.ehcache.store.compound.ElementSubstituteFilter;
+import net.sf.ehcache.store.compound.RetrievalStatistic;
 
 /**
  * This will be the disk-persistent element substitute factory
@@ -223,6 +224,36 @@ public class DiskPersistentStorageFactory extends DiskStorageFactory<ElementSubs
         } else if (object instanceof DiskStorageFactory.Placeholder) {
             return ((Placeholder) object).getElement();
         } else {
+            return null;
+        }
+    }
+
+    public Element retrieve(Object key, ElementSubstitute object, RetrievalStatistic statistic) {
+        if (object instanceof CachingDiskMarker) {
+            try {
+                CachingDiskMarker marker = (CachingDiskMarker) object;
+                Element element = marker.getCached();
+                if (element == null) {
+                    statistic.diskHit();
+                    element = read(marker);
+                    if (marker.cache(element)) {
+                        int size = inMemory.incrementAndGet();
+                        inMemoryEvict(size, key);
+                    }
+                } else {
+                    statistic.heapHit();
+                }
+                return element;
+            } catch (IOException e) {
+                throw new CacheException(e);
+            } catch (ClassNotFoundException e) {
+                throw new CacheException(e);
+            }
+        } else if (object instanceof DiskStorageFactory.Placeholder) {
+            statistic.heapHit();
+            return ((Placeholder) object).getElement();
+        } else {
+            statistic.miss();
             return null;
         }
     }

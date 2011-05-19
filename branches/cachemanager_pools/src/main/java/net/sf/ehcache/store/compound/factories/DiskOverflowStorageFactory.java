@@ -35,6 +35,7 @@ import net.sf.ehcache.Element;
 import net.sf.ehcache.store.compound.ElementSubstitute;
 import net.sf.ehcache.store.compound.CompoundStore;
 import net.sf.ehcache.store.compound.ElementSubstituteFilter;
+import net.sf.ehcache.store.compound.RetrievalStatistic;
 
 /**
  * A factory that stores elements on disk in their serialized form.
@@ -171,6 +172,15 @@ public class DiskOverflowStorageFactory extends DiskStorageFactory<ElementSubsti
             }
             return e;
         }
+    }
+
+    public Element retrieve(Object key, ElementSubstitute proxy, RetrievalStatistic statistic) {
+        if (proxy instanceof DiskStorageFactory.DiskMarker) {
+            statistic.diskHit();
+        } else {
+            statistic.heapHit();
+        }
+        return retrieve(key, proxy);
     }
 
     /**

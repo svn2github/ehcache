@@ -16,7 +16,6 @@
 
 package net.sf.ehcache.store.compound.factories;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.Lock;
@@ -29,6 +28,7 @@ import net.sf.ehcache.store.compound.ElementSubstitute;
 import net.sf.ehcache.store.compound.ElementSubstituteFilter;
 import net.sf.ehcache.store.compound.IdentityElementSubstituteFactory;
 import net.sf.ehcache.store.compound.CompoundStore;
+import net.sf.ehcache.store.compound.RetrievalStatistic;
 
 /**
  * An implementation of a capacity limited in-memory factory.
@@ -156,6 +156,11 @@ public class CapacityLimitedInMemoryFactory implements IdentityElementSubstitute
      */
     public Element retrieve(Object key, Element object) {
         return object;
+    }
+
+    public Element retrieve(Object key, Element element, RetrievalStatistic statistic) {
+        statistic.heapHit();
+        return retrieve(key, element);
     }
 
     /**

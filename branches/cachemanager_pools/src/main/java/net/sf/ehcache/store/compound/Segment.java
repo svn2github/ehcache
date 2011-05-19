@@ -15,18 +15,21 @@
  */
 
 /**
- * 
+ *
  */
 package net.sf.ehcache.store.compound;
 
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import net.sf.ehcache.Element;
 import net.sf.ehcache.store.ElementValueComparator;
 import net.sf.ehcache.util.VmUtils;
+import net.sf.ehcache.util.statistic.AtomicStatistic;
+import net.sf.ehcache.util.statistic.Statistic;
 
 /**
  * Segment implementation used in LocalStore.
@@ -38,7 +41,7 @@ import net.sf.ehcache.util.VmUtils;
  * 
  * @author Chris Dennis
  */
-class Segment extends ReentrantReadWriteLock {
+class Segment extends ReentrantReadWriteLock implements RetrievalStatistic {
 
     private static final float LOAD_FACTOR = 0.75f;
     private static final int MAXIMUM_CAPACITY = Integer.highestOneBit(Integer.MAX_VALUE);
@@ -90,6 +93,11 @@ class Segment extends ReentrantReadWriteLock {
     private final boolean copyOnWrite;
 
     private final ReadWriteCopyStrategy<Element> copyStrategy;
+
+    private final Statistic heapHitRate = new AtomicStatistic(1000, TimeUnit.MILLISECONDS);
+    private final Statistic heapMissRate = new AtomicStatistic(1000, TimeUnit.MILLISECONDS);
+    private final Statistic diskHitRate = new AtomicStatistic(1000, TimeUnit.MILLISECONDS);
+    private final Statistic diskMissRate = new AtomicStatistic(1000, TimeUnit.MILLISECONDS);
 
     /**
      * Create a Segment with the given initial capacity, load factor, and primary element substitute factory.  If the primary factory is not an
@@ -179,6 +187,17 @@ class Segment extends ReentrantReadWriteLock {
         return potentiallyCopyForRead(element, copyOnRead);
     }
 
+    Element decodeHit(Object key, Object object) {
+        Element element;
+        if (object instanceof Element) {
+            element = identityFactory.retrieve(key, object, this);
+        } else {
+            InternalElementSubstituteFactory factory = ((ElementSubstitute) object).getFactory();
+            element = factory.retrieve(key, object, this);
+        }
+        return potentiallyCopyForRead(element, copyOnRead);
+    }
+
     private Element potentiallyCopyForRead(final Element value, final boolean copy) {
         Element newValue;
         if (copy && copyOnRead && copyOnWrite) {
@@ -231,11 +250,12 @@ class Segment extends ReentrantReadWriteLock {
                 HashEntry e = getFirst(hash);
                 while (e != null) {
                     if (e.hash == hash && key.equals(e.key)) {
-                        return decode(e.key, e.getElement());
+                        return decodeHit(e.key, e.getElement());
                     }
                     e = e.next;
                 }
             }
+            miss();
             return null;
         } finally {
             readLock().unlock();
@@ -945,4 +965,33 @@ class Segment extends ReentrantReadWriteLock {
         return new AtomicHashEntry(key, hash, newFirst, element);
     }
 
+    public float getHeapHitRate() {
+        return heapHitRate.getRate();
+    }
+
+    public float getHeapMissRate() {
+        return heapMissRate.getRate();
+    }
+
+    public float getDiskHitRate() {
+        return diskHitRate.getRate();
+    }
+
+    public float getDiskMissRate() {
+        return diskMissRate.getRate();
+    }
+
+    public void diskHit() {
+        diskHitRate.event();
+        heapMissRate.event();
+    }
+
+    public void heapHit() {
+        heapHitRate.event();
+    }
+
+    public void miss() {
+        diskMissRate.event();
+        heapMissRate.event();
+    }
 }

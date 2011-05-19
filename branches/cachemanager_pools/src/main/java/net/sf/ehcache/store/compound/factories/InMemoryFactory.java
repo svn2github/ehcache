@@ -21,6 +21,7 @@ import java.util.concurrent.locks.Lock;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.store.compound.IdentityElementSubstituteFactory;
 import net.sf.ehcache.store.compound.CompoundStore;
+import net.sf.ehcache.store.compound.RetrievalStatistic;
 
 /**
  * A simple unlimited capacity in-memory proxy factory.
@@ -48,6 +49,11 @@ public class InMemoryFactory implements IdentityElementSubstituteFactory {
      */
     public Element retrieve(Object key, Element element) {
         return element;
+    }
+
+    public Element retrieve(Object key, Element element, RetrievalStatistic statistic) {
+        statistic.heapHit();
+        return retrieve(key, element);
     }
 
     /**

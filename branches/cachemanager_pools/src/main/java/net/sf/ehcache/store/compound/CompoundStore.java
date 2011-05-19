@@ -385,6 +385,38 @@ public abstract class CompoundStore extends AbstractStore {
         return status.get();
     }
 
+    public float getApproximateHeapHitRate() {
+        float sum = 0;
+        for (Segment s : segments) {
+            sum += s.getHeapHitRate();
+        }
+        return sum;
+    }
+
+    public float getApproximateHeapMissRate() {
+        float sum = 0;
+        for (Segment s : segments) {
+            sum += s.getHeapMissRate();
+        }
+        return sum;
+    }
+
+    public float getApproximateDiskHitRate() {
+        float sum = 0;
+        for (Segment s : segments) {
+            sum += s.getDiskHitRate();
+        }
+        return sum;
+    }
+
+    public float getApproximateDiskMissRate() {
+        float sum = 0;
+        for (Segment s : segments) {
+            sum += s.getDiskMissRate();
+        }
+        return sum;
+    }
+
     /**
      * {@inheritDoc}
      */

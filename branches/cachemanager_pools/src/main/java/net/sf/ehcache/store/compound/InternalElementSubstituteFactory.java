@@ -69,6 +69,16 @@ interface InternalElementSubstituteFactory<T> {
     public Element retrieve(Object key, T object);
     
     /**
+     * Retrieves the supplied {@link Element} or {@link ElementSubstitute} updating the statistics object.
+     *
+     * @param key key to which this element is mapped
+     * @param object Element or ElementSubstitute to retrieve
+     * @param statistic RetrievalStatistic to update
+     * @return a decoded Element
+     */
+    public Element retrieve(Object key, T object, RetrievalStatistic statistic);
+
+    /**
      * Free any manually managed resources used by this {@link Element} or
      * {@link ElementSubstitute}.
      * 
