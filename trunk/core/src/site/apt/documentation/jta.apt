@@ -107,7 +107,7 @@ Transactions in Ehcache
 ** Considerations when using clustered caches with Terracotta
 
     For Terracotta clustered caches, <<<transactionalMode>>> can only be used where <<<terracotta consistency="strong">>>. Because
-    caches can be dynamically changed into consistencyType=eventual mode for bulk loading, any attempt to perform a transaction when this
+    caches can be dynamically changed to  bulk-load mode, any attempt to perform a transaction when this
     is the case will throw a <<<CacheException>>>.
 
     Note that transactions do not work with Terracotta's <<<identity>>> mode. An attempt to initialise a transactional cache when
