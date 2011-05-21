@@ -78,6 +78,9 @@ public class MemoryOnlyPoolableStore extends MemoryOnlyStore implements Poolable
 
     }
 
+    private boolean isPinningEnabled(Element element) {
+        return element.isPinned() || cache.getCacheConfiguration().getPinningConfiguration() != null;
+    }
 
     @Override
     public void dispose() {
@@ -91,7 +94,7 @@ public class MemoryOnlyPoolableStore extends MemoryOnlyStore implements Poolable
             return false;
         }
 
-        if (onHeapPoolAccessor.add(element.getObjectKey(), element.getObjectValue(), element) > -1) {
+        if (onHeapPoolAccessor.add(element.getObjectKey(), element.getObjectValue(), element, isPinningEnabled(element)) > -1) {
             return super.put(element);
         } else {
             super.remove(element.getObjectKey());
@@ -103,7 +106,7 @@ public class MemoryOnlyPoolableStore extends MemoryOnlyStore implements Poolable
     @Override
     public Element putIfAbsent(Element element) throws NullPointerException {
         //todo: there is a chance that the element is present but will get evicted by add() which makes super.putIfAbsent return null while it should not
-        if (onHeapPoolAccessor.add(element.getObjectKey(), element.getObjectValue(), element) > -1) {
+        if (onHeapPoolAccessor.add(element.getObjectKey(), element.getObjectValue(), element, isPinningEnabled(element)) > -1) {
             Element oldElement = super.putIfAbsent(element);
             if (oldElement != null) {
                 onHeapPoolAccessor.delete(element.getObjectKey(), element.getObjectValue(), element);
@@ -118,7 +121,7 @@ public class MemoryOnlyPoolableStore extends MemoryOnlyStore implements Poolable
     @Override
     public Element replace(Element element) throws NullPointerException {
         //todo: there is a chance that the element is present but will get evicted by add() which makes super.replace return null while it should not
-        if (onHeapPoolAccessor.add(element.getObjectKey(), element.getObjectValue(), element) > -1) {
+        if (onHeapPoolAccessor.add(element.getObjectKey(), element.getObjectValue(), element, isPinningEnabled(element)) > -1) {
             Element oldElement = super.replace(element);
             if (oldElement == null) {
                 onHeapPoolAccessor.delete(element.getObjectKey(), element.getObjectValue(), element);
@@ -133,7 +136,7 @@ public class MemoryOnlyPoolableStore extends MemoryOnlyStore implements Poolable
     @Override
     public boolean replace(Element old, Element element, ElementValueComparator comparator) throws NullPointerException, IllegalArgumentException {
         //todo: there is a chance that the element is present but will get evicted by add() which makes super.replace return null while it should not
-        if (onHeapPoolAccessor.add(element.getObjectKey(), element.getObjectValue(), element) > -1) {
+        if (onHeapPoolAccessor.add(element.getObjectKey(), element.getObjectValue(), element, isPinningEnabled(element)) > -1) {
             boolean replaced = super.replace(old, element, comparator);
             if (!replaced) {
                 onHeapPoolAccessor.delete(element.getObjectKey(), element.getObjectValue(), element);

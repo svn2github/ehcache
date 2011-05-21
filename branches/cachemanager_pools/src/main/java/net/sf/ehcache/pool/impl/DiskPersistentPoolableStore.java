@@ -92,9 +92,9 @@ public class DiskPersistentPoolableStore extends DiskPersistentStore implements 
 
     private boolean add(Element element) {
         boolean success = true;
-        long onHeapPoolAddedSize = onHeapPoolAccessor.add(element.getObjectKey(), element.getObjectValue(), element);
+        long onHeapPoolAddedSize = onHeapPoolAccessor.add(element.getObjectKey(), element.getObjectValue(), element, isPinningEnabled(element));
         if (onHeapPoolAddedSize > -1) {
-            long onDiskPoolAddedSize = onDiskPoolAccessor.add(element.getObjectKey(), element.getObjectValue(), element);
+            long onDiskPoolAddedSize = onDiskPoolAccessor.add(element.getObjectKey(), element.getObjectValue(), element, isPinningEnabled(element));
             if (onDiskPoolAddedSize < 0) {
                 onHeapPoolAccessor.delete(element.getObjectKey(), element.getObjectValue(), element);
                 success = false;
@@ -110,7 +110,10 @@ public class DiskPersistentPoolableStore extends DiskPersistentStore implements 
         onHeapPoolAccessor.delete(element.getObjectKey(), element.getObjectValue(), element);
     }
 
-    
+    private boolean isPinningEnabled(Element element) {
+        return element.isPinned() || cache.getCacheConfiguration().getPinningConfiguration() != null;
+    }
+
     @Override
     public void dispose() {
         super.dispose();

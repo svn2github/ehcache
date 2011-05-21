@@ -33,14 +33,15 @@ public class OverflowToDiskPoolableStore extends OverflowToDiskStore implements 
                 // swap to disk
                 if (LOG.isDebugEnabled()) { LOG.debug("onFault to disk " + from + ", heap: " + onHeapPoolAccessor.getSize() + ", disk: " + onDiskPoolAccessor.getSize()); }
                 Element element = (Element) from;
-                onHeapPoolAccessor.replace(Role.VALUE, element.getObjectValue(), null);
-                onDiskPoolAccessor.add(element.getObjectKey(), element.getObjectValue(), element);
+                boolean pinningEnabled = isPinningEnabled(element);
+                onHeapPoolAccessor.replace(Role.VALUE, element.getObjectValue(), null, pinningEnabled);
+                onDiskPoolAccessor.add(element.getObjectKey(), element.getObjectValue(), element, pinningEnabled);
                 if (LOG.isDebugEnabled()) { LOG.debug("/onFault to disk " + from + ", heap: " + onHeapPoolAccessor.getSize() + ", disk: " + onDiskPoolAccessor.getSize()); }
             } else if (to instanceof Element) {
                 // fault from disk
                 if (LOG.isDebugEnabled()) { LOG.debug("onFault to heap " + to + ", heap: " + onHeapPoolAccessor.getSize() + ", disk: " + onDiskPoolAccessor.getSize()); }
                 Element element = (Element) to;
-                onHeapPoolAccessor.replace(Role.VALUE, null, element.getObjectValue());
+                onHeapPoolAccessor.replace(Role.VALUE, null, element.getObjectValue(), isPinningEnabled(element));
                 onDiskPoolAccessor.delete(element.getObjectKey(), element.getObjectValue(), element);
                 if (LOG.isDebugEnabled()) { LOG.debug("/onFault to heap " + to + ", heap: " + onHeapPoolAccessor.getSize() + ", disk: " + onDiskPoolAccessor.getSize()); }
             } // else it's overflow placeholder to disk marker, ie: disk to disk
@@ -102,6 +103,10 @@ public class OverflowToDiskPoolableStore extends OverflowToDiskStore implements 
         return store;
     }
 
+    private boolean isPinningEnabled(Element element) {
+        return element.isPinned() || cache.getCacheConfiguration().getPinningConfiguration() != null;
+    }
+
     @Override
     public void dispose() {
         super.dispose();
@@ -115,7 +120,7 @@ public class OverflowToDiskPoolableStore extends OverflowToDiskStore implements 
             return false;
         }
 
-        if (onHeapPoolAccessor.add(element.getObjectKey(), element.getObjectValue(), element) > -1) {
+        if (onHeapPoolAccessor.add(element.getObjectKey(), element.getObjectValue(), element, isPinningEnabled(element)) > -1) {
             return super.put(element);
         } else {
             super.remove(element.getObjectKey());
@@ -127,7 +132,7 @@ public class OverflowToDiskPoolableStore extends OverflowToDiskStore implements 
     @Override
     public Element putIfAbsent(Element element) throws NullPointerException {
         //todo: there is a chance that the element is present but will get evicted by add() which makes super.putIfAbsent return null while it should not
-        if (onHeapPoolAccessor.add(element.getObjectKey(), element.getObjectValue(), element) > -1) {
+        if (onHeapPoolAccessor.add(element.getObjectKey(), element.getObjectValue(), element, isPinningEnabled(element)) > -1) {
             Element oldElement = super.putIfAbsent(element);
             if (oldElement != null) {
                 onHeapPoolAccessor.delete(element.getObjectKey(), element.getObjectValue(), element);
@@ -142,7 +147,7 @@ public class OverflowToDiskPoolableStore extends OverflowToDiskStore implements 
     @Override
     public Element replace(Element element) throws NullPointerException {
         //todo: there is a chance that the element is present but will get evicted by add() which makes super.replace return null while it should not
-        if (onHeapPoolAccessor.add(element.getObjectKey(), element.getObjectValue(), element) > -1) {
+        if (onHeapPoolAccessor.add(element.getObjectKey(), element.getObjectValue(), element, isPinningEnabled(element)) > -1) {
             Element oldElement = super.replace(element);
             if (oldElement == null) {
                 onHeapPoolAccessor.delete(element.getObjectKey(), element.getObjectValue(), element);
@@ -157,7 +162,7 @@ public class OverflowToDiskPoolableStore extends OverflowToDiskStore implements 
     @Override
     public boolean replace(Element old, Element element, ElementValueComparator comparator) throws NullPointerException, IllegalArgumentException {
         //todo: there is a chance that the element is present but will get evicted by add() which makes super.replace return null while it should not
-        if (onHeapPoolAccessor.add(element.getObjectKey(), element.getObjectValue(), element) > -1) {
+        if (onHeapPoolAccessor.add(element.getObjectKey(), element.getObjectValue(), element, isPinningEnabled(element)) > -1) {
             boolean replaced = super.replace(old, element, comparator);
             if (!replaced) {
                 onHeapPoolAccessor.delete(element.getObjectKey(), element.getObjectValue(), element);

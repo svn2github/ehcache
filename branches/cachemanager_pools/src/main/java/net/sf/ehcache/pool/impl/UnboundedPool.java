@@ -26,7 +26,7 @@ public class UnboundedPool implements Pool {
         public UnboundedPoolAccessor() {
         }
 
-        public long add(Object key, Object value, Object container) {
+        public long add(Object key, Object value, Object container, boolean force) {
             return 0L;
         }
 
@@ -34,7 +34,7 @@ public class UnboundedPool implements Pool {
             return 0L;
         }
 
-        public long replace(Role role, Object current, Object replacement) {
+        public long replace(Role role, Object current, Object replacement, boolean force) {
             return 0L;
         }
 

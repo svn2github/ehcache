@@ -78,7 +78,7 @@ public class BoundedPool implements Pool {
             this.size = new AtomicLong(currentSize);
         }
 
-        public long add(Object key, Object value, Object container) {
+        public long add(Object key, Object value, Object container, boolean force) {
             if (unlinked.get()) {
                 throw new IllegalStateException("BoundedPoolAccessor has been unlinked");
             }
@@ -94,12 +94,12 @@ public class BoundedPool implements Pool {
             } else {
                 // there is not enough room => evict
                 long missingSize = newSize - maximumPoolSize;
-                if (missingSize > maximumPoolSize) {
+                if (!force & missingSize > maximumPoolSize) {
                     // this is too big to fit in the pool
                     return -1;
                 }
 
-                if (evictor.freeSpace(getPoolableStores(), missingSize)) {
+                if (force | evictor.freeSpace(getPoolableStores(), missingSize)) {
                     size.addAndGet(sizeOf);
                     return sizeOf;
                 } else {
@@ -121,7 +121,7 @@ public class BoundedPool implements Pool {
             return sizeOf;
         }
 
-        public long replace(Role role, Object current, Object replacement) {
+        public long replace(Role role, Object current, Object replacement, boolean force) {
             if (unlinked.get()) {
                 throw new IllegalStateException("BoundedPoolAccessor has been unlinked");
             }
@@ -130,15 +130,15 @@ public class BoundedPool implements Pool {
             switch (role) {
                 case CONTAINER:
                     sizeOf += delete(null, null, current);
-                    sizeOf -= add(null, null, replacement);
+                    sizeOf -= add(null, null, replacement, force);
                     break;
                 case KEY:
                     sizeOf += delete(current, null, null);
-                    sizeOf -= add(replacement, null, null);
+                    sizeOf -= add(replacement, null, null, force);
                     break;
                 case VALUE:
                     sizeOf += delete(null, current, null);
-                    sizeOf -= add(null, replacement, null);
+                    sizeOf -= add(null, replacement, null, force);
                     break;
             }
             return sizeOf;
