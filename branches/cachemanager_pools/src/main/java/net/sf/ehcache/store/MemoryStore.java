@@ -507,9 +507,6 @@ public class MemoryStore extends AbstractStore implements CacheConfigurationList
      * @param elementJustAdded it is possible for this to be null
      */
     protected void removeElementChosenByEvictionPolicy(final Element elementJustAdded) {
-        if (cache.getCacheConfiguration().getPinningConfiguration() != null) {
-            return;
-        }
 
         LOG.debug("Cache is full. Removing element ...");
 
@@ -523,6 +520,10 @@ public class MemoryStore extends AbstractStore implements CacheConfigurationList
         if (element.isExpired()) {
             remove(element.getObjectKey());
             notifyExpiry(element);
+            return;
+        }
+
+        if (cache.getCacheConfiguration().getPinningConfiguration() != null) {
             return;
         }
 
