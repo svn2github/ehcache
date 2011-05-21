@@ -33,6 +33,7 @@ import net.sf.ehcache.Status;
 import net.sf.ehcache.concurrent.CacheLockProvider;
 import net.sf.ehcache.concurrent.LockType;
 import net.sf.ehcache.concurrent.Sync;
+import net.sf.ehcache.config.PinningConfiguration;
 import net.sf.ehcache.store.AbstractStore;
 import net.sf.ehcache.store.ElementValueComparator;
 import net.sf.ehcache.writer.CacheWriterManager;
@@ -312,6 +313,8 @@ public abstract class CompoundStore extends AbstractStore {
             primary.unbind(this);
         }
     }
+
+    public abstract boolean isPinnedFor(PinningConfiguration.Storage storage);
 
     /**
      * {@inheritDoc}

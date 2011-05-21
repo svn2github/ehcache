@@ -4,6 +4,7 @@ import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.config.CacheConfiguration;
+import net.sf.ehcache.config.PinningConfiguration;
 import net.sf.ehcache.pool.Pool;
 import net.sf.ehcache.pool.PoolAccessor;
 import net.sf.ehcache.pool.PoolableStore;
@@ -76,6 +77,11 @@ public class MemoryOnlyPoolableStore extends MemoryOnlyStore implements Poolable
             if (LOG.isDebugEnabled()) { LOG.debug("/onRemove " + removedObject + " | " + removedElement); }
         }
 
+    }
+
+    public boolean isPinnedFor(PinningConfiguration.Storage storage) {
+        PinningConfiguration pinningConfiguration = cache.getCacheConfiguration().getPinningConfiguration();
+        return pinningConfiguration != null && pinningConfiguration.getStorage().equals(storage);
     }
 
     private boolean isPinningEnabled(Element element) {

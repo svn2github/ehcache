@@ -78,6 +78,7 @@ public class DiskPersistentStorageFactory extends DiskStorageFactory<ElementSubs
 
     private volatile int diskCapacity;
     private volatile int memoryCapacity;
+    private volatile boolean pinned;
 
     private volatile Policy memoryPolicy;
     private final RegisteredEventListeners cacheEventNotificationService;
@@ -113,6 +114,7 @@ public class DiskPersistentStorageFactory extends DiskStorageFactory<ElementSubs
         memoryCapacity = cache.getCacheConfiguration().getMaxElementsInMemory();
         if (cache.getCacheConfiguration().getPinningConfiguration() != null) {
             memoryCapacity = 0;
+            pinned = true;
         }
         memoryPolicy = determineEvictionPolicy(cache.getCacheConfiguration());
     }
@@ -310,10 +312,14 @@ public class DiskPersistentStorageFactory extends DiskStorageFactory<ElementSubs
     }
 
     public int evict(int count) {
+        if (pinned) {
+            return 0;
+        }
+
         int evicted = 0;
         for (int i = 0; i < count; i++) {
             CachingDiskMarker target = getMemoryEvictionTarget(null, count);
-            if (target != null) {
+            if (target != null && !getElement(target).isPinned()) {
                 Element evictedElement = store.evictElement(target.getKey(), null);
                 if (cacheEventNotificationService!= null) {
                     cacheEventNotificationService.notifyElementEvicted(evictedElement, false);
@@ -511,7 +517,7 @@ public class DiskPersistentStorageFactory extends DiskStorageFactory<ElementSubs
     }
 
     private void inMemoryEvict(int size, Object keyHint) {
-        if (memoryCapacity > 0) {
+        if (memoryCapacity > 0 && !pinned) {
             int overflow = size - memoryCapacity;
             for (int i = 0; i < Math.min(MAX_EVICT, overflow); i++) {
                 CachingDiskMarker target = getMemoryEvictionTarget(keyHint, size);

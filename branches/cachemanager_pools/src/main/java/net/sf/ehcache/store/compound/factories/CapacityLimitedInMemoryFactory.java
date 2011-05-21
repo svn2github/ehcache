@@ -21,6 +21,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.Lock;
 
 import net.sf.ehcache.Element;
+import net.sf.ehcache.config.PinningConfiguration;
 import net.sf.ehcache.event.RegisteredEventListeners;
 import net.sf.ehcache.store.Policy;
 
@@ -110,6 +111,10 @@ public class CapacityLimitedInMemoryFactory implements IdentityElementSubstitute
         return evict(n, null, SAMPLE_SIZE);
     }
 
+    private boolean isPinning(Element element) {
+        return element.isPinned() || boundStore.isPinnedFor(PinningConfiguration.Storage.ONHEAP);
+    }
+
     private boolean evict(int n, Object keyHint, int size) {
         boolean evicted = false;
         for (int i = 0; i < n; i++) {
@@ -122,7 +127,7 @@ public class CapacityLimitedInMemoryFactory implements IdentityElementSubstitute
                     eventService.notifyElementExpiry(target, false);
                 }
                 evicted = true;
-            } else if (!target.isPinned()) {
+            } else if (!isPinning(target)) {
                 if (secondary == null) {
                     // memory only store
                     if (boundStore.evict(target.getObjectKey(), target)) {

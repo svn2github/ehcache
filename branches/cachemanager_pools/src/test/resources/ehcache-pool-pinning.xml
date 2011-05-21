@@ -1,0 +1,70 @@
+<ehcache xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../main/config/ehcache.xsd"
+        maxBytesOnHeap="10k">
+
+    <defaultCache
+        eternal="false"
+        timeToIdleSeconds="5"
+        timeToLiveSeconds="10"
+        overflowToDisk="false"
+        />
+
+    <cache name="memoryOnlyCache"
+        eternal="false"
+        timeToIdleSeconds="360"
+        timeToLiveSeconds="1000"
+        overflowToDisk="false"
+        statistics="true"
+        >
+        <pinning storage="onHeap"/>
+    </cache>
+
+    <cache name="memoryOnlyCacheNoPinning"
+        eternal="false"
+        timeToIdleSeconds="360"
+        timeToLiveSeconds="1000"
+        overflowToDisk="false"
+        statistics="true"
+        >
+    </cache>
+
+    <cache name="overflowToDiskCache"
+        eternal="false"
+        timeToIdleSeconds="360"
+        timeToLiveSeconds="1000"
+        overflowToDisk="true"
+        statistics="true"
+        >
+        <pinning storage="onHeap"/>
+    </cache>
+
+    <cache name="overflowToDiskCacheNoPinning"
+        eternal="false"
+        timeToIdleSeconds="360"
+        timeToLiveSeconds="1000"
+        overflowToDisk="true"
+        statistics="true"
+        >
+    </cache>
+
+    <cache name="diskPersistentCache"
+        eternal="false"
+        timeToIdleSeconds="360"
+        timeToLiveSeconds="1000"
+        overflowToDisk="true"
+        diskPersistent="true"
+        statistics="true"
+        >
+        <pinning storage="onHeap"/>
+    </cache>
+
+    <cache name="diskPersistentCacheNoPinning"
+        eternal="false"
+        timeToIdleSeconds="360"
+        timeToLiveSeconds="1000"
+        overflowToDisk="true"
+        diskPersistent="true"
+        statistics="true"
+        >
+    </cache>
+
+</ehcache>
