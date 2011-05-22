@@ -521,7 +521,7 @@ public class DiskPersistentStorageFactory extends DiskStorageFactory<ElementSubs
             int overflow = size - memoryCapacity;
             for (int i = 0; i < Math.min(MAX_EVICT, overflow); i++) {
                 CachingDiskMarker target = getMemoryEvictionTarget(keyHint, size);
-                if (target != null && target.flush()) {
+                if (target != null && !getElement(target).isPinned() && target.flush()) {
                     if (inMemory.decrementAndGet() <= memoryCapacity) {
                         break;
                     }
@@ -558,14 +558,16 @@ public class DiskPersistentStorageFactory extends DiskStorageFactory<ElementSubs
     }
 
     private void onDiskEvict(int size, Object keyHint) {
-        if (diskCapacity > 0) {
+        if (diskCapacity > 0 && !pinned) {
             int overflow = size - diskCapacity;
             for (int i = 0; i < Math.min(MAX_EVICT, overflow); i++) {
                 DiskSubstitute target = getDiskEvictionTarget(keyHint, size);
                 if (target == null) {
                     continue;
                 } else {
-                    if (store.evict(target.getKey(), target) && (onDisk.get() <= diskCapacity)) {
+                    if (!getElement(target).isPinned()
+                            && store.evict(target.getKey(), target)
+                            && (onDisk.get() <= diskCapacity)) {
                         break;
                     }
                 }
