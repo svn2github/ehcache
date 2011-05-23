@@ -221,7 +221,11 @@ public class CapacityLimitedInMemoryFactory implements IdentityElementSubstitute
      * {@inheritDoc}
      */
     public boolean created(Object object) {
-        return object instanceof Element;
+        if (!(object instanceof Element)) {
+            return false;
+        }
+        Element element = (Element) object;
+        return element.isExpired() || !element.isPinned();
     }
 
     /**
