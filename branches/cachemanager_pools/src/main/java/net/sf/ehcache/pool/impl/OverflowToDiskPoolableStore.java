@@ -188,6 +188,10 @@ public class OverflowToDiskPoolableStore extends OverflowToDiskStore implements 
     }
 
     public boolean evictFromOnHeap(int count, long size) {
+        if (cache.getCacheConfiguration().getPinningConfiguration() != null) {
+            return false;
+        }
+
         boolean success = memoryFactory.evictFromOnHeap(count);
         if (!success) {
             success = diskFactory.evictFromOnDisk(count);
@@ -200,6 +204,10 @@ public class OverflowToDiskPoolableStore extends OverflowToDiskStore implements 
     }
 
     public boolean evictFromOnDisk(int count, long size) {
+        if (cache.getCacheConfiguration().getPinningConfiguration() != null) {
+            return false;
+        }
+
         return diskFactory.evictFromOnDisk(count);
     }
 

@@ -161,6 +161,10 @@ public class MemoryOnlyPoolableStore extends MemoryOnlyStore implements Poolable
     }
 
     public boolean evictFromOnHeap(int count, long size) {
+        if (cache.getCacheConfiguration().getPinningConfiguration() != null) {
+            return false;
+        }
+
         return memoryFactory.evictFromOnHeap(count);
     }
 
