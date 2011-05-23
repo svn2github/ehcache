@@ -188,8 +188,11 @@ public class OverflowToDiskPoolableStore extends OverflowToDiskStore implements 
     }
 
     public boolean evictFromOnHeap(int count, long size) {
-        //todo: all on-heap memory may be consumed by on-disk elements, we may have to evict from there too
-        return memoryFactory.evictFromOnHeap(count);
+        boolean success = memoryFactory.evictFromOnHeap(count);
+        if (!success) {
+            success = diskFactory.evictFromOnDisk(count);
+        }
+        return success;
     }
 
     public boolean evictFromOffHeap(int count, long size) {
