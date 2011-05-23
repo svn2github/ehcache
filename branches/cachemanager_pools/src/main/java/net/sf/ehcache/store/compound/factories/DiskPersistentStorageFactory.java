@@ -319,7 +319,7 @@ public class DiskPersistentStorageFactory extends DiskStorageFactory<ElementSubs
         int evicted = 0;
         for (int i = 0; i < count; i++) {
             CachingDiskMarker target = getMemoryEvictionTarget(null, count);
-            if (target != null && !getElement(target).isPinned()) {
+            if (target != null && !isPinned(target)) {
                 Element evictedElement = store.evictElement(target.getKey(), null);
                 if (cacheEventNotificationService!= null) {
                     cacheEventNotificationService.notifyElementEvicted(evictedElement, false);
@@ -361,7 +361,12 @@ public class DiskPersistentStorageFactory extends DiskStorageFactory<ElementSubs
         }
 
         boolean flush() {
-          Element old = CACHED_UPDATER.getAndSet(this, null);
+          Element old = CACHED_UPDATER.get(this);
+          if (old != null && (old.isPinned() || old.getObjectValue() instanceof SoftLock)) {
+            return false;
+          }
+
+          CACHED_UPDATER.set(this, null);
           if (old != null) {
             expiry = old.getExpirationTime();
             return true;
@@ -521,13 +526,18 @@ public class DiskPersistentStorageFactory extends DiskStorageFactory<ElementSubs
             int overflow = size - memoryCapacity;
             for (int i = 0; i < Math.min(MAX_EVICT, overflow); i++) {
                 CachingDiskMarker target = getMemoryEvictionTarget(keyHint, size);
-                if (target != null && !getElement(target).isPinned() && target.flush()) {
+                if (target != null && !isPinned(target) && target.flush()) {
                     if (inMemory.decrementAndGet() <= memoryCapacity) {
                         break;
                     }
                 }
             }
         }
+    }
+
+    private boolean isPinned(CachingDiskMarker target) {
+        Element element = getElement(target);
+        return element != null && element.isPinned();
     }
 
     private CachingDiskMarker getMemoryEvictionTarget(Object keyHint, int size) {
