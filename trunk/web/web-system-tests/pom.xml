@@ -336,7 +336,7 @@
             <id>tomcat55x</id>
             <properties>
                 <cargo.id>tomcat5x</cargo.id>
-                <cargo.zipUrl>http://www.apache.org/dist/tomcat/tomcat-5/v5.5.28/bin/apache-tomcat-5.5.28.zip</cargo.zipUrl>
+                <cargo.zipUrl>http://archive.apache.org/dist/tomcat/tomcat-5/v5.5.28/bin/apache-tomcat-5.5.28.zip</cargo.zipUrl>
             </properties>
         </profile>
 
@@ -344,7 +344,7 @@
             <id>tomcat6x</id>
             <properties>
                 <cargo.id>tomcat6x</cargo.id>
-                <cargo.zipUrl>http://apache.osuosl.org//tomcat/tomcat-6/v6.0.29/bin/apache-tomcat-6.0.29.zip</cargo.zipUrl>
+                <cargo.zipUrl>http://archive.apache.org/dist/tomcat/tomcat-6/v6.0.29/bin/apache-tomcat-6.0.29.zip</cargo.zipUrl>
             </properties>
         </profile>
 
