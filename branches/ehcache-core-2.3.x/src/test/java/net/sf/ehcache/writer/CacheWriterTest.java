@@ -469,11 +469,16 @@ public class CacheWriterTest extends AbstractCacheTest {
         assertEquals(0, writer.getWriterEvents().size());
 
         cache.putWithWriter(new Element("key1", "value1"));
+      try {
         cache.putWithWriter(new Element("key2", "value1"));
         cache.putWithWriter(new Element("key3", "value1"));
         cache.removeWithWriter("key2");
+      } catch (CacheException e) {
+        System.err.println("We had an error trying to write: " + e.getMessage()
+                           + "\nBut that's OK: the writer got shutdown faster than we could *WithWriter");
+      }
 
-        Thread.sleep(2000);
+      Thread.sleep(2000);
 
         assertEquals(0, writer.getWriterEvents().size());
     }
