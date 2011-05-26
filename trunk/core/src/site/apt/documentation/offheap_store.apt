@@ -71,14 +71,13 @@
 ****  maxMemoryOffHeap
 
     Sets the amount of off-heap memory available to the cache.
-    This attribute's values are given as <number>k|K|m|M|g|G|t|T for
+    This attribute's values are given as \<number\>k|K|m|M|g|G|t|T for
     kilobytes (k|K), megabytes (m|M), gigabytes (g|G), or terabytes
     (t|T). For example, maxMemoryOffHeap="2g" allots 2 gigabytes to
     off-heap memory. In effect only if overflowToOffHeap is true.
 
     The minimum amount that can be allocated is 128MB. There is no maximum.
-
-    Note that it is recommended to set maxElementsInMemory to at least 100 elements
+    However, maxElementsInMemory should be set to at least 100 elements
     when using an off-heap store, otherwise performance will be seriously degraded,
     and a warning will be logged.
 
