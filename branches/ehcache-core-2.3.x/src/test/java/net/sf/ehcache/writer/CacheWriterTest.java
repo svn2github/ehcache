@@ -32,6 +32,7 @@ import java.util.concurrent.TimeoutException;
 
 import net.sf.ehcache.AbstractCacheTest;
 import net.sf.ehcache.Cache;
+import net.sf.ehcache.CacheException;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.Status;
