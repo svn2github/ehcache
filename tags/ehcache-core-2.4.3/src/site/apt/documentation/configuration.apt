@@ -1,0 +1,204 @@
+ ---
+ Cache Configuration
+ ---
+
+
+{Cache Configuration}
+
+    Caches can be configured in Ehcache either declaratively, in xml, or by creating them programmatically
+    and specifying their parameters in the constructor.
+
+    While both approaches are fully supported it is generally a good idea to separate the cache configuration
+    from runtime use. There are also these benefits:
+
+     * It is easy if you have all of your configuration in one place.
+       Caches consume memory, and disk space. They need to be carefully tuned.
+       You can see the total effect in a configuration file. You could do this
+       code, but it would not as visible.
+
+     * Cache configuration can be changed at deployment time.
+
+     * Configuration errors can be checked for at start-up, rather than causing a runtime error.
+
+    This chapter covers XML declarative configuration.
+
+    Ehcache is redistributed by lots of projects. They may or may not provide a sample Ehcache XML configuration file.
+    If one is not provided, download Ehcache from {{http://ehcache.org}}. It, and the ehcache.xsd is provided in
+    the distibution.
+
+
+* {Dynamically Changing Cache Configuration}
+
+    After a Cache has been started its configuration is not generally changeable. However, since Ehcache 2.0,  certain aspects of
+    cache configuration can modified dynamically at runtime, namely:
+
+    * timeToLive
+
+    * timeToIdle
+
+    * maxElementsInMemory
+
+    * maxElementsOnDisk
+
+    * memory store eviciton policy
+
+    * CacheEventListeners can be added and removed dynamically
+
+    This example shows how to dynamically modify the cache configuration of an already running cache:
+
+---
+    Cache cache = manager.getCache("sampleCache");
+    CacheConfiguration config = cache.getCacheConfiguration();
+    config.setTimeToIdleSeconds(60);
+    config.setTimeToLiveSeconds(120);
+    config.setMaxElementsInMemory(10000);
+    config.setMaxElementsOnDisk(1000000);
+---
+
+    Dynamic cache configurations can also be frozen to prevent future changes:
+
+---
+    Cache cache = manager.getCache("sampleCache");
+    cache.disableDynamicFeatures();
+---
+
+* {copyOnRead and copyOnWrite cache configuration}
+
+    A cache can be configured to copy the data, rather than return reference to it on get or put. This is configured using the <<<copyOnRead>>> and <<<copyOnWrite>>>
+    attributes of cache and defaultCache elements in your configuration or programmatically as follows:
+
+---
+    CacheConfiguration config = new CacheConfiguration("copyCache", 1000).copyOnRead(true).copyOnWrite(true);
+    Cache copyCache = new Cache(config);
+---
+
+    The default configuration will be false for both options.
+
+    In order to copy elements on put()-like and/or get()-like operations, a CopyStrategy is being used. The default implementation
+    uses serialization to copy elements. You can provide your own implementation of <<<net.sf.ehcache.store.compound.CopyStrategy>>> like
+    this:
+
+---
+    <cache name="copyCache"
+           maxElementsInMemory="10"
+           eternal="false"
+           timeToIdleSeconds="5"
+           timeToLiveSeconds="10"
+           overflowToDisk="false"
+           copyOnRead="true"
+           copyOnWrite="true">
+        <copyStrategy class="com.company.ehcache.MyCopyStrategy"/>
+    </cache>
+---
+
+    Per cache, a single instance of your <<<CopyStrategy>>> will be use, hence your implementation of CopyStrategy.copy(T): T has to
+    be thread-safe.
+
+* Special System Properties
+
+** {net.sf.ehcache.disabled}
+
+    Setting this System Property to <<<true>>> disables caching in ehcache. If disabled no elements will be added to a cache.
+    i.e. puts are silently discarded.
+
+  e.g. <<<java -Dnet.sf.ehcache.disabled=true>>> in the Java command line.
+
+** {net.sf.ehcache.use.classic.lru}
+
+  Set this System property to <<<true>>> to use the older LruMemoryStore implementation
+  when LRU is selected as the eviction policy.
+
+  This is provided for ease of migration.
+
+  e.g. <<<java -Dnet.sf.ehcache.use.classic.lru=true>>> in the Java command line.
+
+
+* {ehcache.xsd}
+
+   Ehcache configuration files must be comply with the Ehcache XML schema, ehcache.xsd.
+
+   It can be downloaded from {{http://ehcache.org/ehcache.xsd}}.
+
+* ehcache-failsafe.xml
+
+    If the CacheManager default constructor or factory method is called, Ehcache looks for a
+   file called ehcache.xml in the top level of the classpath. Failing that it looks for
+   ehcache-failsafe.xml in the classpath. ehcache-failsafe.xml is packaged in the Ehcache jar
+   and should always be found.
+
+    ehcache-failsafe.xml provides an extremely simple default configuration to enable users to
+    get started before they create their own ehcache.xml.
+
+    If it used Ehcache will emit a warning, reminding the user to set up a proper configuration.
+
+    The meaning of the elements and attributes are explained in the section on ehcache.xml.
+    
+---
+<ehcache>
+    <diskStore path="java.io.tmpdir"/>
+    <defaultCache
+            maxElementsInMemory="10000"
+            eternal="false"
+            timeToIdleSeconds="120"
+            timeToLiveSeconds="120"
+            overflowToDisk="true"
+            maxElementsOnDisk="10000000"
+            diskPersistent="false"
+            diskExpiryThreadIntervalSeconds="120"
+            memoryStoreEvictionPolicy="LRU"
+            />
+</ehcache>
+---
+
+*   Update Checker
+
+    The update checker is used to see if you have the latest version of Ehcache. It is also used 
+    to get non-identifying feedback on the OS architectures using Ehcache.
+
+    To disable the check, do one of the following:
+
+**  By System Property
+
+---
+    -Dnet.sf.ehcache.skipUpdateCheck=true
+---
+
+**  By Configuration
+
+    The outer <<<ehcache>>> element takes an <<<updateCheck>>> attribute, which is set to false as in the
+    following example.
+
+---
+    -->
+    <ehcache xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xsi:noNamespaceSchemaLocation="ehcache.xsd"
+             updateCheck="false" monitoring="autodetect"
+             dynamicConfig="true">
+
+---
+
+
+
+* ehcache.xml and other configuration files
+
+   Prior to ehcache-1.6, Ehcache only supported ASCII ehcache.xml configuration files.
+   Since ehcache-1.6, UTF8 is supported, so that configuration can use Unicode. As UTF8 is
+   backwardly compatible with ASCII, no conversion is necessary.
+
+   If the CacheManager default constructor or factory method is called, Ehcache looks for a
+   file called ehcache.xml in the top level of the classpath.
+
+   The non-default creation methods allow a configuration file to be specified which can be
+   called anything.
+
+   One XML configuration is required for each CacheManager that is created. It is an error to
+     use the same configuration, because things like directory paths and listener ports will
+     conflict. Ehcache will attempt to resolve conflicts and will emit a warning reminding the
+     user to configure a separate configuration for multiple CacheManagers with conflicting
+     settings.
+
+   The sample ehcache.xml is included in the Ehcache distribution. It contains full commentary required to configure each element. Further
+   information can be found in specific chapters in the Guide.
+
+   It can also be downloaded from {{http://ehcache.org/ehcache.xml}}.
+
