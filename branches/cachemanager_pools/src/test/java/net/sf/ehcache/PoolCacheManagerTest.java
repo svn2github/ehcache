@@ -16,7 +16,6 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
-import static org.terracotta.modules.sizeof.SizeOf.deepSizeOf;
 
 /**
  * @author Alex Snaps
@@ -25,7 +24,7 @@ public class PoolCacheManagerTest {
 
     @Before
     public void setup() {
-        SizeOf.sizeOf("");
+        new SizeOf().sizeOf("");
         System.err.println("Testing for a " + System.getProperty("java.version") + " JDK (agent: " + SizeOfAgent.isAvailable() + ") on a "
                            + System.getProperty("sun.arch.data.model") + "bit VM");
     }
@@ -33,6 +32,7 @@ public class PoolCacheManagerTest {
     @Ignore
     @Test
     public void testOnHeapConsumption() throws Exception {
+        SizeOf sizeOf = new SizeOf();
         CacheManager cacheManager = new CacheManager(new Configuration().maxOnHeap(40, MemoryUnit.MEGABYTES));
         cacheManager.addCache(new Cache(new CacheConfiguration("one", 0).overflowToDisk(false)));
         cacheManager.addCache(new Cache(new CacheConfiguration("double", 0).overflowToDisk(false)));
@@ -43,7 +43,7 @@ public class PoolCacheManagerTest {
         Element test = new Element("test", new Pair("0", new Object()));
         oneSize.put(test);
         doubleSize.put(test);
-        deepSizeOf(test);
+        sizeOf.deepSizeOf(test);
         oneSize.remove(test.getKey());
 
         long usedBefore = measureMemoryUse();
@@ -58,11 +58,11 @@ public class PoolCacheManagerTest {
         long mem = 0;
         for (Object key : oneSize.getKeys()) {
             Element element = oneSize.get(key);
-            mem += deepSizeOf(element);
+            mem += sizeOf.deepSizeOf(element);
         }
         for (Object key : doubleSize.getKeys()) {
             Element element = doubleSize.get(key);
-            mem += deepSizeOf(element);
+            mem += sizeOf.deepSizeOf(element);
         }
 
         assertThat(MemoryUnit.MEGABYTES.toBytes(40) - mem >= 0, is(true));
