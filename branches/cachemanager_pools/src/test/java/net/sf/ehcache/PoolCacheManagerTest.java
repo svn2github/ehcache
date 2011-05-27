@@ -8,8 +8,11 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.internal.matchers.EqualsWithDelta;
+import org.terracotta.modules.sizeof.AgentSizeOf;
+import org.terracotta.modules.sizeof.ReflectionSizeOf;
 import org.terracotta.modules.sizeof.SizeOf;
 import org.terracotta.modules.sizeof.SizeOfAgent;
+import org.terracotta.modules.sizeof.UnsafeSizeOf;
 
 import java.lang.reflect.Field;
 import java.util.concurrent.atomic.AtomicLong;
@@ -24,7 +27,7 @@ public class PoolCacheManagerTest {
 
     @Before
     public void setup() {
-        new SizeOf().sizeOf("");
+        getSizeOfEngine().sizeOf("");
         System.err.println("Testing for a " + System.getProperty("java.version") + " JDK (agent: " + SizeOfAgent.isAvailable() + ") on a "
                            + System.getProperty("sun.arch.data.model") + "bit VM");
     }
@@ -32,7 +35,7 @@ public class PoolCacheManagerTest {
     @Ignore
     @Test
     public void testOnHeapConsumption() throws Exception {
-        SizeOf sizeOf = new SizeOf();
+        SizeOf sizeOf = getSizeOfEngine();
         CacheManager cacheManager = new CacheManager(new Configuration().maxOnHeap(40, MemoryUnit.MEGABYTES));
         cacheManager.addCache(new Cache(new CacheConfiguration("one", 0).overflowToDisk(false)));
         cacheManager.addCache(new Cache(new CacheConfiguration("double", 0).overflowToDisk(false)));
@@ -108,6 +111,22 @@ public class PoolCacheManagerTest {
                 twoHidden = null;
                 threeHidden = null;
                 fourHidden = null;
+            }
+        }
+    }
+
+    private static SizeOf getSizeOfEngine() {
+        try {
+            return new AgentSizeOf();
+        } catch (UnsupportedOperationException e) {
+            try {
+                return new UnsafeSizeOf();
+            } catch (UnsupportedOperationException f) {
+                try {
+                    return new ReflectionSizeOf();
+                } catch (UnsupportedOperationException g) {
+                    throw new CacheException("A suitable SizeOf engine could not be loaded: " + e + ", " + f + ", " + g);
+                }
             }
         }
     }
