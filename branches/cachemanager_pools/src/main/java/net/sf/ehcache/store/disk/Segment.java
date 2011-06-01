@@ -618,7 +618,7 @@ public class Segment extends ReentrantReadWriteLock implements RetrievalStatisti
         if ((size = onHeapPoolAccessor.replace(Role.VALUE, expect, fault, false)) < 0) {
             return false;
         } else {
-            LOG.debug("fault added {} on heap", -size);
+            LOG.debug("fault removed {} from heap", size);
         }
         if ((size = onDiskPoolAccessor.add(key, null, fault, false)) < 0) {
             long deleteSize = onHeapPoolAccessor.delete(key, fault, HashEntry.newHashEntry(key, hash, null, null));
