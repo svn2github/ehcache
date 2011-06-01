@@ -41,7 +41,7 @@ import net.sf.ehcache.util.statistic.Statistic;
  * 
  * @author Chris Dennis
  */
-public class Segment extends ReentrantReadWriteLock implements RetrievalStatistic {
+class Segment extends ReentrantReadWriteLock implements RetrievalStatistic {
 
     private static final float LOAD_FACTOR = 0.75f;
     private static final int MAXIMUM_CAPACITY = Integer.highestOneBit(Integer.MAX_VALUE);
@@ -149,7 +149,7 @@ public class Segment extends ReentrantReadWriteLock implements RetrievalStatisti
      * @param copyOnWrite true should we copy Elements on writes, otherwise false
      * @param copyStrategy the strategy to use to copy (can't be null if copyOnRead or copyOnWrite is true)
      */
-    public Segment(int initialCapacity, float loadFactor, InternalElementSubstituteFactory primary, IdentityElementSubstituteFactory identity,
+    Segment(int initialCapacity, float loadFactor, InternalElementSubstituteFactory primary, IdentityElementSubstituteFactory identity, 
             boolean copyOnRead, boolean copyOnWrite, final ReadWriteCopyStrategy<Element> copyStrategy) {
         this.table = new HashEntry[initialCapacity];
         this.threshold = (int) (table.length * loadFactor);

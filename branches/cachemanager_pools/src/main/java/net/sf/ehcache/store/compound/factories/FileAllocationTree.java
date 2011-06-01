@@ -23,7 +23,7 @@ import java.io.RandomAccessFile;
  *
  * @author Chris Dennis
  */
-public final class FileAllocationTree extends RegionSet {
+final class FileAllocationTree extends RegionSet {
 
     private long fileSize;
     private final RandomAccessFile data;
