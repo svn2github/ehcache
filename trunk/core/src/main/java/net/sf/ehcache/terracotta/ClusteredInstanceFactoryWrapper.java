@@ -55,6 +55,7 @@ public class ClusteredInstanceFactoryWrapper implements ClusteredInstanceFactory
      * {@inheritDoc}
      */
     public CacheCluster getTopology() {
+        client.waitUntilRejoinComplete();
         return client.getCacheCluster();
     }
 
@@ -64,6 +65,7 @@ public class ClusteredInstanceFactoryWrapper implements ClusteredInstanceFactory
      * {@inheritDoc}
      */
     public String getUUID() {
+        client.waitUntilRejoinComplete();
         return delegate.getUUID();
     }
 
@@ -71,6 +73,7 @@ public class ClusteredInstanceFactoryWrapper implements ClusteredInstanceFactory
      * {@inheritDoc}
      */
     public CacheEventListener createEventReplicator(Ehcache cache) {
+        client.waitUntilRejoinComplete();
         return delegate.createEventReplicator(cache);
     }
 
@@ -78,6 +81,7 @@ public class ClusteredInstanceFactoryWrapper implements ClusteredInstanceFactory
      * {@inheritDoc}
      */
     public Store createStore(Ehcache cache) {
+        client.waitUntilRejoinComplete();
         return delegate.createStore(cache);
     }
 
@@ -85,6 +89,7 @@ public class ClusteredInstanceFactoryWrapper implements ClusteredInstanceFactory
      * {@inheritDoc}
      */
     public TransactionIDFactory createTransactionIDFactory(String clusterUUID) {
+        client.waitUntilRejoinComplete();
         return delegate.createTransactionIDFactory(clusterUUID);
     }
 
@@ -92,6 +97,7 @@ public class ClusteredInstanceFactoryWrapper implements ClusteredInstanceFactory
      * {@inheritDoc}
      */
     public WriteBehind createWriteBehind(Ehcache cache) {
+        client.waitUntilRejoinComplete();
         return delegate.createWriteBehind(cache);
     }
 
@@ -99,6 +105,7 @@ public class ClusteredInstanceFactoryWrapper implements ClusteredInstanceFactory
      * {@inheritDoc}
      */
     public SoftLockFactory getOrCreateSoftLockFactory(String cacheName) {
+        client.waitUntilRejoinComplete();
         return delegate.getOrCreateSoftLockFactory(cacheName);
     }
 
