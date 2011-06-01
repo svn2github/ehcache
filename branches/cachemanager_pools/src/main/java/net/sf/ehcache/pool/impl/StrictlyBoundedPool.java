@@ -159,22 +159,41 @@ public class StrictlyBoundedPool implements Pool {
                 throw new IllegalStateException("BoundedPoolAccessor has been unlinked");
             }
 
-            // synchronized makes the size update MT-safe but slow
+            // locking makes the size update MT-safe but slow
             lock.lock();
             try {
+                long size;
                 long sizeOf = 0;
                 switch (role) {
                     case CONTAINER:
                         sizeOf += delete(null, null, current);
-                        sizeOf -= add(null, null, replacement, force);
+                        size = add(null, null, replacement, force);
+                        if (size < 0) {
+                            add(null, null, current, false);
+                            sizeOf = Long.MAX_VALUE;
+                        } else {
+                            sizeOf -= size;
+                        }
                         break;
                     case KEY:
                         sizeOf += delete(current, null, null);
-                        sizeOf -= add(replacement, null, null, force);
+                        size = add(replacement, null, null, force);
+                        if (size < 0) {
+                            add(current, null, null, false);
+                            sizeOf = Long.MAX_VALUE;
+                        } else {
+                            sizeOf -= size;
+                        }
                         break;
                     case VALUE:
                         sizeOf += delete(null, current, null);
-                        sizeOf -= add(null, replacement, null, force);
+                        size = add(null, replacement, null, force);
+                        if (size < 0) {
+                            add(null, current, null, false);
+                            sizeOf = Long.MAX_VALUE;
+                        } else {
+                            sizeOf -= size;
+                        }
                         break;
                 }
                 return sizeOf;
@@ -184,7 +203,7 @@ public class StrictlyBoundedPool implements Pool {
         }
 
         public long getSize() {
-            // synchronized makes the size update MT-safe but slow
+            // locking makes the size update MT-safe but slow
             lock.lock();
             try {
                 return size;
@@ -200,7 +219,7 @@ public class StrictlyBoundedPool implements Pool {
         }
 
         public void clear() {
-            // synchronized makes the size update MT-safe but slow
+            // locking makes the size update MT-safe but slow
             lock.lock();
             try {
                 size = 0L;

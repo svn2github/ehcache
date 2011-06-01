@@ -253,9 +253,24 @@ public class Segment extends ReentrantReadWriteLock implements RetrievalStatisti
                  * to do the increment/decrement on.
                  */
                 Object onDiskSubstitute = e.getElement();
+
+                long size;
+                if ((size = onHeapPoolAccessor.replace(Role.VALUE, onDiskSubstitute, encoded, false)) == Long.MAX_VALUE) {
+                    LOG.debug("replace3 failed to add on heap");
+                    free(encoded);
+                    return false;
+                } else {
+                    LOG.debug("replace3 added {} on heap", size);
+                }
+
                 e.setElement(encoded);
                 installed = true;
                 free(onDiskSubstitute);
+
+                if (onDiskSubstitute instanceof DiskStorageFactory.DiskMarker) {
+                    size = onDiskPoolAccessor.delete(key, null, onDiskSubstitute);
+                    LOG.debug("replace3 removed {} from disk", size);
+                }
             } else {
                 free(encoded);
             }
@@ -291,10 +306,25 @@ public class Segment extends ReentrantReadWriteLock implements RetrievalStatisti
             Element oldElement = null;
             if (e != null) {
                 Object onDiskSubstitute = e.getElement();
+
+                long size;
+                if ((size = onHeapPoolAccessor.replace(Role.VALUE, onDiskSubstitute, encoded, false)) == Long.MAX_VALUE) {
+                    LOG.debug("replace2 failed to add on heap");
+                    free(encoded);
+                    return null;
+                } else {
+                    LOG.debug("replace2 added {} on heap", size);
+                }
+
                 e.setElement(encoded);
                 installed = true;
                 oldElement = decode(onDiskSubstitute);
                 free(onDiskSubstitute);
+
+                if (onDiskSubstitute instanceof DiskStorageFactory.DiskMarker) {
+                    size = onDiskPoolAccessor.delete(key, null, onDiskSubstitute);
+                    LOG.debug("replace2 removed {} from disk", size);
+                }
             } else {
                 free(encoded);
             }
@@ -615,7 +645,7 @@ public class Segment extends ReentrantReadWriteLock implements RetrievalStatisti
         boolean installed = false;
 
         long size;
-        if ((size = onHeapPoolAccessor.replace(Role.VALUE, expect, fault, false)) < 0) {
+        if ((size = onHeapPoolAccessor.replace(Role.VALUE, expect, fault, false)) == Long.MAX_VALUE) {
             return false;
         } else {
             LOG.debug("fault removed {} from heap", size);
@@ -634,6 +664,7 @@ public class Segment extends ReentrantReadWriteLock implements RetrievalStatisti
             if (installed) {
                 return true;
             } else {
+                //todo: replace must not fail here but it could if the memory freed by the previous replace has been stolen in the meantime
                 size = onHeapPoolAccessor.replace(Role.VALUE, fault, expect, true);
                 LOG.debug("fault installation failed, deleted {} from heap", size);
                 size = onDiskPoolAccessor.delete(key, null, fault);
