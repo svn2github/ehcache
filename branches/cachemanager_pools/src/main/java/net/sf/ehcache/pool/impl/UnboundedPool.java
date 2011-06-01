@@ -4,6 +4,7 @@ import net.sf.ehcache.pool.Pool;
 import net.sf.ehcache.pool.PoolAccessor;
 import net.sf.ehcache.pool.PoolableStore;
 import net.sf.ehcache.pool.Role;
+import net.sf.ehcache.pool.SizeOfEngine;
 
 /**
  * @author Ludovic Orban
@@ -18,6 +19,10 @@ public class UnboundedPool implements Pool {
     }
 
     public PoolAccessor createPoolAccessor(PoolableStore store) {
+        return new UnboundedPoolAccessor();
+    }
+
+    public PoolAccessor createPoolAccessor(PoolableStore store, SizeOfEngine sizeOfEngine) {
         return new UnboundedPoolAccessor();
     }
 

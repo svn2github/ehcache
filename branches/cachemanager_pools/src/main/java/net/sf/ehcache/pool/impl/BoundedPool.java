@@ -41,7 +41,11 @@ public class BoundedPool implements Pool {
     }
 
     public PoolAccessor createPoolAccessor(PoolableStore store) {
-        BoundedPoolAccessor poolAccessor = new BoundedPoolAccessor(store, defaultSizeOfEngine, 0);
+        return createPoolAccessor(store, defaultSizeOfEngine);
+    }
+
+    public PoolAccessor createPoolAccessor(PoolableStore store, SizeOfEngine sizeOfEngine) {
+        BoundedPoolAccessor poolAccessor = new BoundedPoolAccessor(store, sizeOfEngine, 0);
         poolAccessors.add(poolAccessor);
         return poolAccessor;
     }

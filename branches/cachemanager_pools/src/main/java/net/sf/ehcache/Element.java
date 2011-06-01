@@ -32,6 +32,7 @@ import java.util.concurrent.atomic.AtomicLongFieldUpdater;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.terracotta.modules.sizeof.filter.IgnoreSizeOf;
 
 /**
  * A Cache Element, consisting of a key, value and attributes.
@@ -61,6 +62,7 @@ public class Element implements Serializable, Cloneable {
     /**
      * the cache key.
      */
+    @IgnoreSizeOf
     private final Object key;
 
     /**

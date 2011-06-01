@@ -13,7 +13,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package net.sf.ehcache.store.compound.factories;
+package net.sf.ehcache.store.disk.ods;
 
 import java.io.IOException;
 import java.io.RandomAccessFile;

@@ -31,7 +31,7 @@ import net.sf.ehcache.Element;
  *
  * @param <T> the type of the substitute object (may be {@link Element} itself)
  */
-interface InternalElementSubstituteFactory<T> {
+public interface InternalElementSubstituteFactory<T> {
 
     /**
      * Bind a store instance to this factory.

@@ -17,19 +17,22 @@
 /**
  *
  */
-package net.sf.ehcache.store.compound;
+package net.sf.ehcache.store.disk;
+
+import net.sf.ehcache.Element;
+import net.sf.ehcache.pool.PoolAccessor;
+import net.sf.ehcache.pool.Role;
+import net.sf.ehcache.store.ElementValueComparator;
+import net.sf.ehcache.util.statistic.AtomicStatistic;
+import net.sf.ehcache.util.statistic.Statistic;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
-
-import net.sf.ehcache.Element;
-import net.sf.ehcache.store.ElementValueComparator;
-import net.sf.ehcache.util.VmUtils;
-import net.sf.ehcache.util.statistic.AtomicStatistic;
-import net.sf.ehcache.util.statistic.Statistic;
 
 /**
  * Segment implementation used in LocalStore.
@@ -40,8 +43,11 @@ import net.sf.ehcache.util.statistic.Statistic;
  * associated HashEntry.
  * 
  * @author Chris Dennis
+ * @author Ludovic Orban
  */
 public class Segment extends ReentrantReadWriteLock implements RetrievalStatistic {
+
+    private static final Logger LOG = LoggerFactory.getLogger(Segment.class.getName());
 
     private static final float LOAD_FACTOR = 0.75f;
     private static final int MAXIMUM_CAPACITY = Integer.highestOneBit(Integer.MAX_VALUE);
@@ -65,16 +71,8 @@ public class Segment extends ReentrantReadWriteLock implements RetrievalStatisti
      * <p>
      * This is the substitute type used to store <code>Element</code>s when they are first added to the store.
      */
-    private final InternalElementSubstituteFactory primaryFactory;
-    
-    /**
-     * The single identity substitute factory.  Identity substitute factories store the elements as <code>Element</code>s.
-     * <p>
-     * Only one identity substitute factory can be used in any given Store.  Otherwise there would be ambiguity surrounding counts and
-     * factory calls for the stored bare elements.
-     */
-    private final InternalElementSubstituteFactory identityFactory;
-    
+    private final DiskStorageFactory disk;
+
     /**
      * Table of HashEntry linked lists, indexed by the least-significant bits of the spread-hash value.
      * <p>
@@ -83,59 +81,22 @@ public class Segment extends ReentrantReadWriteLock implements RetrievalStatisti
      * size operations, we wouldn't need a volatile reference here.
      */
     private volatile HashEntry[] table;
-    
+
     /**
      * Size at which the next rehashing of this Segment should occur
      */
     private int threshold;
 
-    private final boolean copyOnRead;
-    private final boolean copyOnWrite;
-
-    private final ReadWriteCopyStrategy<Element> copyStrategy;
-
-    private final Statistic heapHitRate = new AtomicStatistic(1000, TimeUnit.MILLISECONDS);
-    private final Statistic heapMissRate = new AtomicStatistic(1000, TimeUnit.MILLISECONDS);
     private final Statistic diskHitRate = new AtomicStatistic(1000, TimeUnit.MILLISECONDS);
     private final Statistic diskMissRate = new AtomicStatistic(1000, TimeUnit.MILLISECONDS);
-
-    /**
-     * Create a Segment with the given initial capacity, load factor, and primary element substitute factory.  If the primary factory is not an
-     * identity element substitute factory then it will be assumed that there is no identity element substitute factory.
-     * 
-     * @param initialCapacity initial capacity of store
-     * @param loadFactor fraction of capacity at which rehash occurs
-     * @param primary primary element substitute factory
-     */
-    Segment(int initialCapacity, float loadFactor, InternalElementSubstituteFactory primary) {
-        this(initialCapacity, loadFactor, primary,
-                primary instanceof IdentityElementSubstituteFactory ? (IdentityElementSubstituteFactory) primary : null);
-    }
+    private final PoolAccessor onHeapPoolAccessor;
+    private final PoolAccessor onDiskPoolAccessor;
 
     /**
      * Create a Segment with the given initial capacity, load-factor, primary element substitute factory, and identity element substitute factory.
      * <p>
      * An identity element substitute factory is specified at construction time because only one subclass of IdentityElementProxyFactory
-     * can be used with a Segment.  Without this requirement the mapping between bare {@link Element} instances and the factory
-     * responsible for them would be ambiguous.
-     * <p>
-     * If a <code>null</code> identity element substitute factory is specified then encountering a raw element (i.e. as a result of using an
-     * identity element substitute factory) will result in a null pointer exception during decode.
-     * 
-     * @param initialCapacity initial capacity of store
-     * @param loadFactor fraction of capacity at which rehash occurs
-     * @param primary primary element substitute factory
-     * @param identity identity element substitute factory
-     */
-    Segment(int initialCapacity, float loadFactor, InternalElementSubstituteFactory primary, IdentityElementSubstituteFactory identity) {
-        this(initialCapacity, loadFactor, primary, identity, false, false, null);
-    }
-    
-    /**
-     * Create a Segment with the given initial capacity, load-factor, primary element substitute factory, and identity element substitute factory.
-     * <p>
-     * An identity element substitute factory is specified at construction time because only one subclass of IdentityElementProxyFactory
-     * can be used with a Segment.  Without this requirement the mapping between bare {@link Element} instances and the factory
+     * can be used with a Segment.  Without this requirement the mapping between bare {@link net.sf.ehcache.Element} instances and the factory
      * responsible for them would be ambiguous.
      * <p>
      * If a <code>null</code> identity element substitute factory is specified then encountering a raw element (i.e. as a result of using an
@@ -144,100 +105,49 @@ public class Segment extends ReentrantReadWriteLock implements RetrievalStatisti
      * @param initialCapacity initial capacity of store
      * @param loadFactor fraction of capacity at which rehash occurs
      * @param primary primary element substitute factory
-     * @param identity identity element substitute factory
-     * @param copyOnRead true should we copy Elements on reads, otherwise false
-     * @param copyOnWrite true should we copy Elements on writes, otherwise false
-     * @param copyStrategy the strategy to use to copy (can't be null if copyOnRead or copyOnWrite is true)
+     * @param onHeapPoolAccessor
+     * @param onDiskPoolAccessor
      */
-    public Segment(int initialCapacity, float loadFactor, InternalElementSubstituteFactory primary, IdentityElementSubstituteFactory identity,
-            boolean copyOnRead, boolean copyOnWrite, final ReadWriteCopyStrategy<Element> copyStrategy) {
+    public Segment(int initialCapacity, float loadFactor, DiskStorageFactory primary,
+                   PoolAccessor onHeapPoolAccessor, PoolAccessor onDiskPoolAccessor) {
+        this.onHeapPoolAccessor = onHeapPoolAccessor;
+        this.onDiskPoolAccessor = onDiskPoolAccessor;
         this.table = new HashEntry[initialCapacity];
         this.threshold = (int) (table.length * loadFactor);
         this.modCount = 0;
-        this.primaryFactory = primary;
-        this.identityFactory = identity;
-        this.copyOnRead = copyOnRead;
-        this.copyOnWrite = copyOnWrite;
-        if ((copyOnRead || copyOnWrite) && copyStrategy == null) {
-            throw new NullPointerException("You need to provide a non-null CopyStrategy if copyOnRead or copyOnWrite is set to true!");
-        }
-        this.copyStrategy = copyStrategy;
+        this.disk = primary;
     }
-    
+
     private HashEntry getFirst(int hash) {
         HashEntry[] tab = table;
         return tab[hash & (tab.length - 1)];
     }
-    
+
     /**
-     * Decode the possible ElementSubstitute 
-     * 
+     * Decode the possible ElementSubstitute
+     *
      * @param key
      * @param object
      * @return
      */
-    Element decode(Object key, Object object) {
-        Element element;
-        if (object instanceof Element) {
-            element = identityFactory.retrieve(key, object);
-        } else {
-            InternalElementSubstituteFactory factory = ((ElementSubstitute) object).getFactory();
-            element = factory.retrieve(key, object);
-        }
-        return potentiallyCopyForRead(element, copyOnRead);
+    Element decode(Object object) {
+        DiskStorageFactory.DiskSubstitute substitute = (DiskStorageFactory.DiskSubstitute) object;
+        return substitute.getFactory().retrieve(substitute);
     }
 
-    Element decodeHit(Object key, Object object) {
-        Element element;
-        if (object instanceof Element) {
-            element = identityFactory.retrieve(key, object, this);
-        } else {
-            InternalElementSubstituteFactory factory = ((ElementSubstitute) object).getFactory();
-            element = factory.retrieve(key, object, this);
-        }
-        return potentiallyCopyForRead(element, copyOnRead);
+    Element decodeHit(Object object) {
+        DiskStorageFactory.DiskSubstitute substitute = (DiskStorageFactory.DiskSubstitute) object;
+        return substitute.getFactory().retrieve(substitute, this);
     }
 
-    private Element potentiallyCopyForRead(final Element value, final boolean copy) {
-        Element newValue;
-        if (copy && copyOnRead && copyOnWrite) {
-            newValue = copyStrategy.copyForRead(value);
-        } else if (copy) {
-            newValue = copyStrategy.copyForRead(copyStrategy.copyForWrite(value));
-        } else {
-            newValue = value;
-        }
-        return newValue;
+    private void free(Object object) {
+        DiskStorageFactory.DiskSubstitute diskSubstitute = (DiskStorageFactory.DiskSubstitute) object;
+        diskSubstitute.getFactory().free(writeLock(), diskSubstitute);
     }
 
-    private Element potentiallyCopyForWrite(final Element value, final boolean copy) {
-        Element newValue;
-        if (copy && copyOnRead && copyOnWrite) {
-            newValue = copyStrategy.copyForWrite(value);
-        } else if (copy) {
-            newValue = copyStrategy.copyForRead(copyStrategy.copyForWrite(value));
-        } else {
-            newValue = value;
-        }
-        return newValue;
-    }
-
-    /**
-     * @return true if the element was on disk, false otherwise
-     */
-    private boolean free(Object object) {
-        if (object instanceof Element) {
-            identityFactory.free(writeLock(), object);
-            return false;
-        } else {
-            ((ElementSubstitute) object).getFactory().free(writeLock(), (ElementSubstitute) object);
-            return true;
-        }
-    }
-    
     /**
      * Get the element mapped to this key (or null if there is no mapping for this key)
-     * 
+     *
      * @param key key to lookup
      * @param hash spread-hash for this key
      * @return mapped element
@@ -250,7 +160,7 @@ public class Segment extends ReentrantReadWriteLock implements RetrievalStatisti
                 HashEntry e = getFirst(hash);
                 while (e != null) {
                     if (e.hash == hash && key.equals(e.key)) {
-                        return decodeHit(e.key, e.getElement());
+                        return decodeHit(e.getElement());
                     }
                     e = e.next;
                 }
@@ -264,7 +174,7 @@ public class Segment extends ReentrantReadWriteLock implements RetrievalStatisti
 
     /**
      * Return the unretrieved (undecoded) value for this key
-     * 
+     *
      * @param key key to lookup
      * @param hash spread-hash for the key
      * @return Element or ElementSubstitute
@@ -286,10 +196,10 @@ public class Segment extends ReentrantReadWriteLock implements RetrievalStatisti
         }
         return null;
     }
-    
+
     /**
      * Return true if this segment contains a mapping for this key
-     * 
+     *
      * @param key key to check for
      * @param hash spread-hash for key
      * @return <code>true</code> if there is a mapping for this key
@@ -312,38 +222,10 @@ public class Segment extends ReentrantReadWriteLock implements RetrievalStatisti
             readLock().unlock();
         }
     }
-    
-    /**
-     * Return true if this segment maps any key the given element.
-     * 
-     * @param value element to check for
-     * @return <code>true</code> if a key is mapped to this element
-     */
-    boolean containsValue(Element value, ElementValueComparator comparator) {
-        readLock().lock();
-        try {
-            // read-volatile
-            if (count != 0) {
-                HashEntry[] tab = table;
-                int len = tab.length;
-                for (int i = 0; i < len; i++) {
-                    for (HashEntry e = tab[i]; e != null; e = e.next) {
-                        Element element = decode(e.key, e.getElement());
-                        if (comparator.equals(value, element)) {
-                            return true;
-                        }
-                    }
-                }
-            }
-            return false;
-        } finally {
-            readLock().unlock();
-        }
-    }
 
     /**
      * Replace the element mapped to this key only if currently mapped to the given element.
-     * 
+     *
      *
      * @param key key to map the element to
      * @param hash spread-hash for the key
@@ -355,10 +237,10 @@ public class Segment extends ReentrantReadWriteLock implements RetrievalStatisti
      *      on-disk substitute if the element was on disk, null otherwise
      *     }
      */
-    Object[] replaceWithFeedback(Object key, int hash, Element oldElement, Element newElement, ElementValueComparator comparator) {
+    Object[] replace(Object key, int hash, Element oldElement, Element newElement, ElementValueComparator comparator) {
         boolean installed = false;
-        Object encoded = create(key, newElement);
-        
+        DiskStorageFactory.DiskSubstitute encoded = disk.create(newElement);
+
         writeLock().lock();
         try {
             HashEntry e = getFirst(hash);
@@ -369,18 +251,16 @@ public class Segment extends ReentrantReadWriteLock implements RetrievalStatisti
             Element replacedElement;
             Object onDiskSubstitute = null;
             // the && unretrievedGet is there to make sure the decoded element did not get evicted during decoding
-            if (e != null && comparator.equals(oldElement, replacedElement = decode(e.key, e.getElement())) && unretrievedGet(key, hash) != null) {
+            if (e != null && comparator.equals(oldElement, replacedElement = decode(e.getElement())) && unretrievedGet(key, hash) != null) {
                 /*
                  * make sure we re-get from the HashEntry - since the decode in the conditional
                  * may have faulted in a different type - we must make sure we know what type
                  * to do the increment/decrement on.
                  */
-                Object old = e.getElement();
+                onDiskSubstitute = e.getElement();
                 e.setElement(encoded);
                 installed = true;
-                if (free(old)) {
-                    onDiskSubstitute = old;
-                }
+                free(onDiskSubstitute);
             } else {
                 replacedElement = null;
                 free(encoded);
@@ -388,20 +268,16 @@ public class Segment extends ReentrantReadWriteLock implements RetrievalStatisti
             return new Object[] {replacedElement, onDiskSubstitute};
         } finally {
             writeLock().unlock();
-            
-            if ((installed && encoded instanceof ElementSubstitute)) {
-                ((ElementSubstitute) encoded).installed();
+
+            if (installed) {
+                encoded.installed();
             }
         }
     }
 
-    private Object create(final Object key, final Element newElement) {
-        return primaryFactory.create(key, potentiallyCopyForWrite(newElement, copyOnWrite));
-    }
-
     /**
      * Replace the entry for this key only if currently mapped to some element.
-     * 
+     *
      * @param key key to map the element to
      * @param hash spread-hash for the key
      * @param newElement element to add
@@ -410,10 +286,10 @@ public class Segment extends ReentrantReadWriteLock implements RetrievalStatisti
      *      on-disk substitute if the element was on disk, null otherwise
      *     }
      */
-    Object[] replaceWithFeedback(Object key, int hash, Element newElement) {
+    Object[] replace(Object key, int hash, Element newElement) {
         boolean installed = false;
-        Object encoded = create(key, newElement);
-        
+        DiskStorageFactory.DiskSubstitute encoded = disk.create(newElement);
+
         writeLock().lock();
         try {
             HashEntry e = getFirst(hash);
@@ -424,13 +300,11 @@ public class Segment extends ReentrantReadWriteLock implements RetrievalStatisti
             Element oldElement = null;
             Object onDiskSubstitute = null;
             if (e != null) {
-                Object old = e.getElement();
+                onDiskSubstitute = e.getElement();
                 e.setElement(encoded);
                 installed = true;
-                oldElement = decode(null, old);
-                if (free(old)) {
-                    onDiskSubstitute = old;
-                }
+                oldElement = decode(onDiskSubstitute);
+                free(onDiskSubstitute);
             } else {
                 free(encoded);
             }
@@ -438,9 +312,9 @@ public class Segment extends ReentrantReadWriteLock implements RetrievalStatisti
             return new Object[] {oldElement, onDiskSubstitute};
         } finally {
             writeLock().unlock();
-            
-            if ((installed && encoded instanceof ElementSubstitute)) {
-                ((ElementSubstitute) encoded).installed();
+
+            if (installed) {
+                encoded.installed();
             }
         }
     }
@@ -462,12 +336,20 @@ public class Segment extends ReentrantReadWriteLock implements RetrievalStatisti
      *      on-disk substitute if the element was on disk, null otherwise
      *     }
      */
-    Object[] putWithFeedback(Object key, int hash, Element element, boolean onlyIfAbsent) {
+    Object[] put(Object key, int hash, Element element, boolean onlyIfAbsent) {
         boolean installed = false;
-        Object encoded = create(key, element);
+        DiskStorageFactory.DiskSubstitute encoded = disk.create(element);
 
         writeLock().lock();
         try {
+            long size;
+            if ((size = onHeapPoolAccessor.add(key, encoded, HashEntry.newHashEntry(key, hash, null, null), false)) < 0) {
+                LOG.debug("put failed to add on heap");
+                return new Object[] {null, null};
+            } else {
+                LOG.debug("put added {} on heap", size);
+            }
+
             // ensure capacity
             if (count + 1 > threshold) {
                 rehash();
@@ -483,38 +365,41 @@ public class Segment extends ReentrantReadWriteLock implements RetrievalStatisti
             Element oldElement;
             Object onDiskSubstitute = null;
             if (e != null) {
-                Object old = e.getElement();
+                onDiskSubstitute = e.getElement();
                 if (!onlyIfAbsent) {
                     e.setElement(encoded);
                     installed = true;
-                    oldElement = decode(null, old);
+                    oldElement = decode(onDiskSubstitute);
 
-                    if (free(old)) {
-                      onDiskSubstitute = old;
-                    }
+                    free(onDiskSubstitute);
+                    size = onHeapPoolAccessor.delete(key, encoded, HashEntry.newHashEntry(key, hash, null, null));
+                    LOG.debug("put updated, deleted {} on heap", size);
+                    size = onDiskPoolAccessor.delete(key, null, onDiskSubstitute);
+                    LOG.debug("put updated, deleted {} on disk", size);
                 } else {
-                    if (free(encoded)) {
-                      onDiskSubstitute = old;
-                    }
-                    oldElement = decode(e.key, old);
+                    oldElement = decode(onDiskSubstitute);
+
+                    free(encoded);
+                    size = onHeapPoolAccessor.delete(key, encoded, HashEntry.newHashEntry(key, hash, null, null));
+                    LOG.debug("put if absent failed, deleted {} on heap", size);
                 }
             } else {
                 oldElement = null;
                 ++modCount;
-                tab[index] = newHashEntry(key, hash, first, encoded);
+                tab[index] = HashEntry.newHashEntry(key, hash, first, encoded);
                 installed = true;
                 // write-volatile
                 count = count + 1;
             }
             return new Object[] {oldElement, onDiskSubstitute};
 
-            
+
 
         } finally {
             writeLock().unlock();
 
-            if ((installed && encoded instanceof ElementSubstitute)) {
-                ((ElementSubstitute) encoded).installed();
+            if (installed) {
+                encoded.installed();
             }
         }
     }
@@ -525,7 +410,7 @@ public class Segment extends ReentrantReadWriteLock implements RetrievalStatisti
      * <p>
      * The supplied encoded element is directly inserted into the segment
      * if there is no other mapping for this key.
-     * 
+     *
      * @param key key to map the element to
      * @param hash spread-hash for the key
      * @param encoded encoded element to store
@@ -534,6 +419,14 @@ public class Segment extends ReentrantReadWriteLock implements RetrievalStatisti
     boolean putRawIfAbsent(Object key, int hash, Object encoded) {
         writeLock().lock();
         try {
+            if (onHeapPoolAccessor.add(key, encoded, HashEntry.newHashEntry(key, hash, null, null), false) < 0) {
+                return false;
+            }
+            if (onDiskPoolAccessor.add(key, null, encoded, false) < 0) {
+                onHeapPoolAccessor.delete(key, encoded, HashEntry.newHashEntry(key, hash, null, null));
+                return false;
+            }
+
             // ensure capacity
             if (count + 1 > threshold) {
                 rehash();
@@ -546,24 +439,24 @@ public class Segment extends ReentrantReadWriteLock implements RetrievalStatisti
                 e = e.next;
             }
 
-            Element oldElement;
             if (e == null) {
-                oldElement = null;
                 ++modCount;
-                tab[index] = newHashEntry(key, hash, first, encoded);
+                tab[index] = HashEntry.newHashEntry(key, hash, first, encoded);
                 // write-volatile
                 count = count + 1;
                 return true;
             } else {
+                onHeapPoolAccessor.delete(key, encoded, HashEntry.newHashEntry(key, hash, null, null));
+                onDiskPoolAccessor.delete(key, null, encoded);
                 return false;
             }
         } finally {
             writeLock().unlock();
-        }        
+        }
     }
-    
+
     private void rehash() {
-        HashEntry[] oldTable = table;            
+        HashEntry[] oldTable = table;
         int oldCapacity = oldTable.length;
         if (oldCapacity >= MAXIMUM_CAPACITY) {
             return;
@@ -617,7 +510,7 @@ public class Segment extends ReentrantReadWriteLock implements RetrievalStatisti
                     for (HashEntry p = e; p != lastRun; p = p.next) {
                         int k = p.hash & sizeMask;
                         HashEntry n = newTable[k];
-                        newTable[k] = newHashEntry(p.key, p.hash, n, p.getElement());
+                        newTable[k] = HashEntry.newHashEntry(p.key, p.hash, n, p.getElement());
                     }
                 }
             }
@@ -628,9 +521,9 @@ public class Segment extends ReentrantReadWriteLock implements RetrievalStatisti
     /**
      * Remove the matching mapping.
      * <p>
-     * If <code>value</code> is <code>null</code> then match on the key only, 
+     * If <code>value</code> is <code>null</code> then match on the key only,
      * else match on both the key and the value.
-     * 
+     *
      *
      * @param key key to match against
      * @param hash spread-hash for the key
@@ -641,7 +534,7 @@ public class Segment extends ReentrantReadWriteLock implements RetrievalStatisti
      *      on-disk substitute if the element was on disk, null otherwise
      *     }
      */
-    Object[] removeWithFeedback(Object key, int hash, Element value, ElementValueComparator comparator) {
+    Object[] remove(Object key, int hash, Element value, ElementValueComparator comparator) {
         writeLock().lock();
         try {
             HashEntry[] tab = table;
@@ -655,14 +548,15 @@ public class Segment extends ReentrantReadWriteLock implements RetrievalStatisti
             Element oldValue = null;
             Object onDiskSubstitute = null;
             if (e != null) {
-                if (value == null || comparator.equals(value, decode(e.key, e.getElement()))) {
+                oldValue = decode(e.getElement());
+                if (value == null || comparator.equals(value, oldValue)) {
                     // All entries following removed node can stay
                     // in list, but all preceding ones need to be
                     // cloned.
                     ++modCount;
                     HashEntry newFirst = e.next;
                     for (HashEntry p = first; p != e; p = p.next) {
-                        newFirst = newHashEntry(p.key, p.hash, newFirst, p.getElement());
+                        newFirst = HashEntry.newHashEntry(p.key, p.hash, newFirst, p.getElement());
                     }
                     tab[index] = newFirst;
                     /*
@@ -670,15 +564,26 @@ public class Segment extends ReentrantReadWriteLock implements RetrievalStatisti
                      * may have faulted in a different type - we must make sure we know what type
                      * to do the free on.
                      */
-                    Object v = e.getElement();
-                    oldValue = decode(null, v);
-                    if (free(v)) {
-                      onDiskSubstitute = v;
-                    }
+                    onDiskSubstitute = e.getElement();
+                    free(onDiskSubstitute);
+
+                    long size;
+                    size = onHeapPoolAccessor.delete(key, onDiskSubstitute, HashEntry.newHashEntry(key, hash, null, null));
+                    LOG.debug("remove deleted {} from heap", size);
+                    size = onDiskPoolAccessor.delete(key, null, onDiskSubstitute);
+                    LOG.debug("remove deleted {} from disk", size);
+
                     // write-volatile
                     count = count - 1;
+                } else {
+                    oldValue = null;
                 }
             }
+
+            if (oldValue == null) {
+                LOG.debug("remove deleted nothing");
+            }
+
             return new Object[] {oldValue, onDiskSubstitute};
         } finally {
             writeLock().unlock();
@@ -703,45 +608,13 @@ public class Segment extends ReentrantReadWriteLock implements RetrievalStatisti
                 // write-volatile
                 count = 0;
             }
+            onHeapPoolAccessor.clear();
+            LOG.debug("cleared heap usage");
+            onDiskPoolAccessor.clear();
+            LOG.debug("cleared disk usage");
         } finally {
             writeLock().unlock();
         }
-    }
-    
-    /**
-     * Atomically switch (CAS) the <code>expect</code> representation of this element for the
-     * <code>fault</code> representation.
-     * <p>
-     * A successful switch will return <code>true</code>, and free the replaced element/element-proxy.
-     * A failed switch will return <code>false</code> and free the element/element-proxy which was not
-     * installed.
-     * 
-     * @param key key to which this element (proxy) is mapped
-     * @param hash spread-hash for this key
-     * @param expect element (proxy) expected
-     * @param fault element (proxy) to install
-     * @return <code>true</code> if <code>fault</code> was installed
-     */
-    boolean tryFault(Object key, int hash, Object expect, Object fault) {
-        boolean installed = false;
-        
-        if (readLock().tryLock()) {
-            try {
-                installed = install(key, hash, expect, fault);
-                if (installed) {
-                    return true;
-                }
-            } finally {
-                readLock().unlock();
-
-                if ((installed && fault instanceof ElementSubstitute)) {
-                    ((ElementSubstitute) fault).installed();
-                }
-            }
-        }
-        
-        free(fault);
-        return false;
     }
 
     /**
@@ -761,22 +634,41 @@ public class Segment extends ReentrantReadWriteLock implements RetrievalStatisti
     boolean fault(Object key, int hash, Object expect, Object fault) {
         boolean installed = false;
 
+        long size;
+        if ((size = onHeapPoolAccessor.replace(Role.VALUE, expect, fault, false)) < 0) {
+            return false;
+        } else {
+            LOG.debug("fault added {} on heap", -size);
+        }
+        if ((size = onDiskPoolAccessor.add(key, null, fault, false)) < 0) {
+            long deleteSize = onHeapPoolAccessor.delete(key, fault, HashEntry.newHashEntry(key, hash, null, null));
+            LOG.debug("fault failed to add {} on disk, deleted {} from heap", size, deleteSize);
+            return false;
+        } else {
+            LOG.debug("fault added {} on disk", size);
+        }
+
         readLock().lock();
         try {
             installed = install(key, hash, expect, fault);
             if (installed) {
                 return true;
+            } else {
+                size = onHeapPoolAccessor.replace(Role.VALUE, fault, expect, true);
+                LOG.debug("fault installation failed, deleted {} from heap", size);
+                size = onDiskPoolAccessor.delete(key, null, fault);
+                LOG.debug("fault installation failed deleted {} from disk", size);
+
+                free(fault);
+                return false;
             }
         } finally {
             readLock().unlock();
 
-            if ((installed && fault instanceof ElementSubstitute)) {
-                ((ElementSubstitute) fault).installed();
+            if ((installed && fault instanceof DiskStorageFactory.DiskSubstitute)) {
+                ((DiskStorageFactory.DiskSubstitute) fault).installed();
             }
         }
-
-        free(fault);
-        return false;
     }
 
     private boolean install(Object key, int hash, Object expect, Object fault) {
@@ -794,7 +686,7 @@ public class Segment extends ReentrantReadWriteLock implements RetrievalStatisti
     }
 
     /**
-     * Remove the matching mapping.  Unlike the {@link Segment#removeWithFeedback(Object, int, net.sf.ehcache.Element, net.sf.ehcache.store.ElementValueComparator)} method
+     * Remove the matching mapping.  Unlike the {@link net.sf.ehcache.store.disk.Segment#remove(Object, int, net.sf.ehcache.Element, net.sf.ehcache.store.ElementValueComparator)} method
      * evict does referential comparison of the unretrieved substitute against the argument value.
      * 
      * @param key key to match against
@@ -821,7 +713,7 @@ public class Segment extends ReentrantReadWriteLock implements RetrievalStatisti
                         ++modCount;
                         HashEntry newFirst = e.next;
                         for (HashEntry p = first; p != e; p = p.next) {
-                            newFirst = newHashEntry(p.key, p.hash, newFirst, p.getElement());
+                            newFirst = HashEntry.newHashEntry(p.key, p.hash, newFirst, p.getElement());
                         }
                         tab[index] = newFirst;
                         /*
@@ -830,8 +722,16 @@ public class Segment extends ReentrantReadWriteLock implements RetrievalStatisti
                          * to do the free on.
                          */
                         Object v = e.getElement();
-                        Element toReturn = decode(null, v);
+                        Element toReturn = decode(v);
+
                         free(v);
+
+                        long size;
+                        size = onDiskPoolAccessor.delete(key, null, v);
+                        LOG.debug("evicted {} from disk", size);
+                        size = onHeapPoolAccessor.delete(key, v, HashEntry.newHashEntry(key, hash, null, null));
+                        LOG.debug("evicted {} from heap", size);
+
                         // write-volatile
                         count = count - 1;
                         return toReturn;
@@ -856,7 +756,7 @@ public class Segment extends ReentrantReadWriteLock implements RetrievalStatisti
      * @param sampled collection in which to place the elements
      * @param seed random seed for the selection
      */
-    <T> void addRandomSample(ElementSubstituteFilter<T> filter, int sampleSize, Collection<T> sampled, int seed) {
+    <T> void addRandomSample(ElementSubstituteFilter filter, int sampleSize, Collection<T> sampled, int seed) {
         final HashEntry[] tab = table;
         final int tableStart = seed & (tab.length - 1);
         int tableIndex = tableStart;
@@ -952,25 +852,9 @@ public class Segment extends ReentrantReadWriteLock implements RetrievalStatisti
             if (lastReturned == null) {
                 throw new IllegalStateException();
             }
-            //todo check what to do with feedback
-            Segment.this.removeWithFeedback(lastReturned.key, lastReturned.hash, null, null);
+            Segment.this.remove(lastReturned.key, lastReturned.hash, null, null);
             lastReturned = null;
         }
-    }
-    
-    private HashEntry newHashEntry(Object key, int hash, HashEntry newFirst, Object element) {
-        if (VmUtils.isInGoogleAppEngine()) {
-            return new SynchronizedHashEntry(key, hash, newFirst, element);
-        }
-        return new AtomicHashEntry(key, hash, newFirst, element);
-    }
-
-    public float getHeapHitRate() {
-        return heapHitRate.getRate();
-    }
-
-    public float getHeapMissRate() {
-        return heapMissRate.getRate();
     }
 
     public float getDiskHitRate() {
@@ -983,15 +867,9 @@ public class Segment extends ReentrantReadWriteLock implements RetrievalStatisti
 
     public void diskHit() {
         diskHitRate.event();
-        heapMissRate.event();
-    }
-
-    public void heapHit() {
-        heapHitRate.event();
     }
 
     public void miss() {
         diskMissRate.event();
-        heapMissRate.event();
     }
 }

@@ -5,6 +5,8 @@ import java.io.IOException;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.pool.SizeOfEngine;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.terracotta.modules.sizeof.AgentSizeOf;
 import org.terracotta.modules.sizeof.ReflectionSizeOf;
 import org.terracotta.modules.sizeof.SizeOf;
@@ -18,6 +20,8 @@ import org.terracotta.modules.sizeof.filter.ResourceFieldFilter;
  * @author Alex Snaps
  */
 public class DefaultSizeOfEngine implements SizeOfEngine {
+
+    private static final Logger LOG = LoggerFactory.getLogger(DefaultSizeOfEngine.class.getName());
 
     private static final FieldFilter DEFAULT_FIELD_FILTER;
     static {
@@ -54,6 +58,8 @@ public class DefaultSizeOfEngine implements SizeOfEngine {
     }
 
     public long sizeOf(final Object key, final Object value, final Object container) {
-        return sizeOf.deepSizeOf(key, value, container);
+        long size = sizeOf.deepSizeOf(key, value, container);
+        LOG.debug("size of {}/{}/{} -> {}", new Object[]{key, value, container, size});
+        return size;
     }
 }
