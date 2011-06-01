@@ -105,13 +105,16 @@ public abstract class AbstractCacheTest {
         try {
             Thread.sleep(200);
         } catch (InterruptedException e) {
-            //
+            Thread.currentThread().interrupt();
         }
         System.gc();
     }
 
     private static void allocateFiftyMegabytes() {
-        byte[] forceVMGrowth = new byte[50000000];
+        Object[] arrays = new Object[50];
+        for (int i = 0; i < arrays.length; i++) {
+            arrays[i] = new byte[1024 * 1024];
+        }
     }
 
     /**
