@@ -11,10 +11,10 @@ import org.terracotta.modules.sizeof.AgentSizeOf;
 import org.terracotta.modules.sizeof.ReflectionSizeOf;
 import org.terracotta.modules.sizeof.SizeOf;
 import org.terracotta.modules.sizeof.UnsafeSizeOf;
-import org.terracotta.modules.sizeof.filter.AnnotationFieldFilter;
-import org.terracotta.modules.sizeof.filter.CombinationFieldFilter;
-import org.terracotta.modules.sizeof.filter.FieldFilter;
-import org.terracotta.modules.sizeof.filter.ResourceFieldFilter;
+import org.terracotta.modules.sizeof.filter.AnnotationSizeOfFilter;
+import org.terracotta.modules.sizeof.filter.CombinationSizeOfFilter;
+import org.terracotta.modules.sizeof.filter.SizeOfFilter;
+import org.terracotta.modules.sizeof.filter.ResourceSizeOfFilter;
 
 /**
  * @author Alex Snaps
@@ -23,17 +23,17 @@ public class DefaultSizeOfEngine implements SizeOfEngine {
 
     private static final Logger LOG = LoggerFactory.getLogger(DefaultSizeOfEngine.class.getName());
 
-    private static final FieldFilter DEFAULT_FIELD_FILTER;
+    private static final SizeOfFilter DEFAULT_FILTER;
     static {
-        FieldFilter filter;
+        SizeOfFilter filter;
         try {
-            filter = new CombinationFieldFilter(
-                    new AnnotationFieldFilter(),
-                    new ResourceFieldFilter(SizeOfEngine.class.getResource("hibernate.sizeof.filter")));
+            filter = new CombinationSizeOfFilter(
+                    new AnnotationSizeOfFilter(),
+                    new ResourceSizeOfFilter(SizeOfEngine.class.getResource("hibernate.sizeof.filter")));
         } catch (IOException e) {
-            filter = new AnnotationFieldFilter();
+            filter = new AnnotationSizeOfFilter();
         }
-        DEFAULT_FIELD_FILTER = filter;
+        DEFAULT_FILTER = filter;
     }
 
     private final SizeOf sizeOf;
@@ -41,13 +41,13 @@ public class DefaultSizeOfEngine implements SizeOfEngine {
     public DefaultSizeOfEngine() {
         SizeOf sizeOf;
         try {
-            sizeOf = new AgentSizeOf(DEFAULT_FIELD_FILTER);
+            sizeOf = new AgentSizeOf(DEFAULT_FILTER);
         } catch (UnsupportedOperationException e) {
             try {
-                sizeOf = new UnsafeSizeOf(DEFAULT_FIELD_FILTER);
+                sizeOf = new UnsafeSizeOf(DEFAULT_FILTER);
             } catch (UnsupportedOperationException f) {
                 try {
-                    sizeOf = new ReflectionSizeOf(DEFAULT_FIELD_FILTER);
+                    sizeOf = new ReflectionSizeOf(DEFAULT_FILTER);
                 } catch (UnsupportedOperationException g) {
                     throw new CacheException("A suitable SizeOf engine could not be loaded: " + e + ", " + f + ", " + g);
                 }
