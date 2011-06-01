@@ -87,7 +87,7 @@ public class DiskStore extends AbstractStore implements PoolableStore {
         this.segments = new Segment[DEFAULT_SEGMENT_COUNT];
         this.segmentShift = Integer.numberOfLeadingZeros(segments.length - 1);
         this.onHeapPoolAccessor = onHeapPool.createPoolAccessor(this);
-        this.onDiskPoolAccessor = onDiskPool.createPoolAccessor(this);
+        this.onDiskPoolAccessor = onDiskPool.createPoolAccessor(this, new DiskSizeOfEngine());
 
         for (int i = 0; i < this.segments.length; ++i) {
             this.segments[i] = new Segment(DEFAULT_INITIAL_CAPACITY, DEFAULT_LOAD_FACTOR, disk, onHeapPoolAccessor, onDiskPoolAccessor);
