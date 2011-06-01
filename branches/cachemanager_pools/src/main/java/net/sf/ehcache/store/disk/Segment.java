@@ -126,16 +126,15 @@ public class Segment extends ReentrantReadWriteLock implements RetrievalStatisti
     /**
      * Decode the possible ElementSubstitute
      *
-     * @param key
      * @param object
      * @return
      */
-    Element decode(Object object) {
+    private Element decode(Object object) {
         DiskStorageFactory.DiskSubstitute substitute = (DiskStorageFactory.DiskSubstitute) object;
         return substitute.getFactory().retrieve(substitute);
     }
 
-    Element decodeHit(Object object) {
+    private Element decodeHit(Object object) {
         DiskStorageFactory.DiskSubstitute substitute = (DiskStorageFactory.DiskSubstitute) object;
         return substitute.getFactory().retrieve(substitute, this);
     }
@@ -232,12 +231,9 @@ public class Segment extends ReentrantReadWriteLock implements RetrievalStatisti
      * @param oldElement expected element
      * @param newElement element to add
      * @param comparator the comparator to use to compare values
-     * @return new Object[] {
-     *      previous element mapped to this key,
-     *      on-disk substitute if the element was on disk, null otherwise
-     *     }
+     * @return <code>true</code> on a successful replace
      */
-    Object[] replace(Object key, int hash, Element oldElement, Element newElement, ElementValueComparator comparator) {
+    boolean replace(Object key, int hash, Element oldElement, Element newElement, ElementValueComparator comparator) {
         boolean installed = false;
         DiskStorageFactory.DiskSubstitute encoded = disk.create(newElement);
 
@@ -248,24 +244,22 @@ public class Segment extends ReentrantReadWriteLock implements RetrievalStatisti
                 e = e.next;
             }
 
-            Element replacedElement;
-            Object onDiskSubstitute = null;
-            // the && unretrievedGet is there to make sure the decoded element did not get evicted during decoding
-            if (e != null && comparator.equals(oldElement, replacedElement = decode(e.getElement())) && unretrievedGet(key, hash) != null) {
+            boolean replaced = false;
+            if (e != null && comparator.equals(oldElement, decode(e.getElement()))) {
+                replaced = true;
                 /*
                  * make sure we re-get from the HashEntry - since the decode in the conditional
                  * may have faulted in a different type - we must make sure we know what type
                  * to do the increment/decrement on.
                  */
-                onDiskSubstitute = e.getElement();
+                Object onDiskSubstitute = e.getElement();
                 e.setElement(encoded);
                 installed = true;
                 free(onDiskSubstitute);
             } else {
-                replacedElement = null;
                 free(encoded);
             }
-            return new Object[] {replacedElement, onDiskSubstitute};
+            return replaced;
         } finally {
             writeLock().unlock();
 
@@ -281,12 +275,9 @@ public class Segment extends ReentrantReadWriteLock implements RetrievalStatisti
      * @param key key to map the element to
      * @param hash spread-hash for the key
      * @param newElement element to add
-     * @return new Object[] {
-     *      previous element mapped to this key,
-     *      on-disk substitute if the element was on disk, null otherwise
-     *     }
+     * @return previous element mapped to this key
      */
-    Object[] replace(Object key, int hash, Element newElement) {
+    Element replace(Object key, int hash, Element newElement) {
         boolean installed = false;
         DiskStorageFactory.DiskSubstitute encoded = disk.create(newElement);
 
@@ -298,9 +289,8 @@ public class Segment extends ReentrantReadWriteLock implements RetrievalStatisti
             }
 
             Element oldElement = null;
-            Object onDiskSubstitute = null;
             if (e != null) {
-                onDiskSubstitute = e.getElement();
+                Object onDiskSubstitute = e.getElement();
                 e.setElement(encoded);
                 installed = true;
                 oldElement = decode(onDiskSubstitute);
@@ -309,7 +299,7 @@ public class Segment extends ReentrantReadWriteLock implements RetrievalStatisti
                 free(encoded);
             }
 
-            return new Object[] {oldElement, onDiskSubstitute};
+            return oldElement;
         } finally {
             writeLock().unlock();
 
@@ -331,12 +321,9 @@ public class Segment extends ReentrantReadWriteLock implements RetrievalStatisti
      * @param hash spread-hash for the key
      * @param element element to store
      * @param onlyIfAbsent if true does not replace existing mappings
-     * @return new Object[] {
-     *      previous element mapped to this key,
-     *      on-disk substitute if the element was on disk, null otherwise
-     *     }
+     * @return previous element mapped to this key
      */
-    Object[] put(Object key, int hash, Element element, boolean onlyIfAbsent) {
+    Element put(Object key, int hash, Element element, boolean onlyIfAbsent) {
         boolean installed = false;
         DiskStorageFactory.DiskSubstitute encoded = disk.create(element);
 
@@ -345,7 +332,7 @@ public class Segment extends ReentrantReadWriteLock implements RetrievalStatisti
             long size;
             if ((size = onHeapPoolAccessor.add(key, encoded, HashEntry.newHashEntry(key, hash, null, null), false)) < 0) {
                 LOG.debug("put failed to add on heap");
-                return new Object[] {null, null};
+                return null;
             } else {
                 LOG.debug("put added {} on heap", size);
             }
@@ -363,9 +350,8 @@ public class Segment extends ReentrantReadWriteLock implements RetrievalStatisti
             }
 
             Element oldElement;
-            Object onDiskSubstitute = null;
             if (e != null) {
-                onDiskSubstitute = e.getElement();
+                Object onDiskSubstitute = e.getElement();
                 if (!onlyIfAbsent) {
                     e.setElement(encoded);
                     installed = true;
@@ -391,9 +377,7 @@ public class Segment extends ReentrantReadWriteLock implements RetrievalStatisti
                 // write-volatile
                 count = count + 1;
             }
-            return new Object[] {oldElement, onDiskSubstitute};
-
-
+            return oldElement;
 
         } finally {
             writeLock().unlock();
@@ -529,12 +513,9 @@ public class Segment extends ReentrantReadWriteLock implements RetrievalStatisti
      * @param hash spread-hash for the key
      * @param value optional value to match against
      * @param comparator the comparator to use to compare values
-     * @return new Object[] {
-     *      previous element mapped to this key,
-     *      on-disk substitute if the element was on disk, null otherwise
-     *     }
+     * @return removed element
      */
-    Object[] remove(Object key, int hash, Element value, ElementValueComparator comparator) {
+    Element remove(Object key, int hash, Element value, ElementValueComparator comparator) {
         writeLock().lock();
         try {
             HashEntry[] tab = table;
@@ -546,7 +527,6 @@ public class Segment extends ReentrantReadWriteLock implements RetrievalStatisti
             }
 
             Element oldValue = null;
-            Object onDiskSubstitute = null;
             if (e != null) {
                 oldValue = decode(e.getElement());
                 if (value == null || comparator.equals(value, oldValue)) {
@@ -564,7 +544,7 @@ public class Segment extends ReentrantReadWriteLock implements RetrievalStatisti
                      * may have faulted in a different type - we must make sure we know what type
                      * to do the free on.
                      */
-                    onDiskSubstitute = e.getElement();
+                    Object onDiskSubstitute = e.getElement();
                     free(onDiskSubstitute);
 
                     long size;
@@ -584,7 +564,7 @@ public class Segment extends ReentrantReadWriteLock implements RetrievalStatisti
                 LOG.debug("remove deleted nothing");
             }
 
-            return new Object[] {oldValue, onDiskSubstitute};
+            return oldValue;
         } finally {
             writeLock().unlock();
         }
