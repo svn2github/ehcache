@@ -123,7 +123,7 @@ public class StrictlyBoundedPool implements Pool {
 
                         // check that the freed space was not 'stolen' by another thread while
                         // eviction was running out of the lock
-                        if (StrictlyBoundedPool.this.getSize() + sizeOf > maximumPoolSize) {
+                        if (!force && StrictlyBoundedPool.this.getSize() + sizeOf > maximumPoolSize) {
                             continue;
                         }
 
