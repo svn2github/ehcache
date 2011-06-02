@@ -580,8 +580,11 @@ public class Segment extends ReentrantReadWriteLock implements RetrievalStatisti
                     long size;
                     size = onHeapPoolAccessor.delete(key, onDiskSubstitute, HashEntry.newHashEntry(key, hash, null, null));
                     LOG.debug("remove deleted {} from heap", size);
-                    size = onDiskPoolAccessor.delete(key, null, onDiskSubstitute);
-                    LOG.debug("remove deleted {} from disk", size);
+
+                    if (onDiskSubstitute instanceof DiskStorageFactory.DiskMarker) {
+                        size = onDiskPoolAccessor.delete(key, null, onDiskSubstitute);
+                        LOG.debug("remove deleted {} from disk", size);
+                    }
 
                     // write-volatile
                     count = count - 1;
@@ -644,22 +647,22 @@ public class Segment extends ReentrantReadWriteLock implements RetrievalStatisti
     boolean fault(Object key, int hash, Object expect, Object fault) {
         boolean installed = false;
 
-        long size;
-        if ((size = onHeapPoolAccessor.replace(Role.VALUE, expect, fault, false)) == Long.MAX_VALUE) {
-            return false;
-        } else {
-            LOG.debug("fault removed {} from heap", size);
-        }
-        if ((size = onDiskPoolAccessor.add(key, null, fault, false)) < 0) {
-            long deleteSize = onHeapPoolAccessor.delete(key, fault, HashEntry.newHashEntry(key, hash, null, null));
-            LOG.debug("fault failed to add {} on disk, deleted {} from heap", size, deleteSize);
-            return false;
-        } else {
-            LOG.debug("fault added {} on disk", size);
-        }
-
         readLock().lock();
         try {
+            long size;
+            if ((size = onHeapPoolAccessor.replace(Role.VALUE, expect, fault, false)) == Long.MAX_VALUE) {
+                return false;
+            } else {
+                LOG.debug("fault removed {} from heap", size);
+            }
+            if ((size = onDiskPoolAccessor.add(key, null, fault, false)) < 0) {
+                long deleteSize = onHeapPoolAccessor.delete(key, fault, HashEntry.newHashEntry(key, hash, null, null));
+                LOG.debug("fault failed to add {} on disk, deleted {} from heap", size, deleteSize);
+                return false;
+            } else {
+                LOG.debug("fault added {} on disk", size);
+            }
+
             installed = install(key, hash, expect, fault);
             if (installed) {
                 return true;
