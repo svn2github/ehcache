@@ -388,10 +388,13 @@ public class Segment extends ReentrantReadWriteLock implements RetrievalStatisti
                     oldElement = decode(onDiskSubstitute);
 
                     free(onDiskSubstitute);
-                    size = onHeapPoolAccessor.delete(key, encoded, HashEntry.newHashEntry(key, hash, null, null));
+                    size = onHeapPoolAccessor.delete(key, onDiskSubstitute, HashEntry.newHashEntry(key, hash, null, null));
                     LOG.debug("put updated, deleted {} on heap", size);
-                    size = onDiskPoolAccessor.delete(key, null, onDiskSubstitute);
-                    LOG.debug("put updated, deleted {} on disk", size);
+
+                    if (onDiskSubstitute instanceof DiskStorageFactory.DiskMarker) {
+                        size = onDiskPoolAccessor.delete(key, null, onDiskSubstitute);
+                        LOG.debug("put updated, deleted {} on disk", size);
+                    }
                 } else {
                     oldElement = decode(onDiskSubstitute);
 
@@ -668,6 +671,7 @@ public class Segment extends ReentrantReadWriteLock implements RetrievalStatisti
                 return true;
             } else {
                 //todo: replace must not fail here but it could if the memory freed by the previous replace has been stolen in the meantime
+                // that's why it is forced, even if that could make the pool go over limit
                 size = onHeapPoolAccessor.replace(Role.VALUE, fault, expect, true);
                 LOG.debug("fault installation failed, deleted {} from heap", size);
                 size = onDiskPoolAccessor.delete(key, null, fault);
@@ -751,7 +755,7 @@ public class Segment extends ReentrantReadWriteLock implements RetrievalStatisti
                         return toReturn;
                     }
                 }
-                
+
                 return null;
             } finally {
                 writeLock().unlock();
