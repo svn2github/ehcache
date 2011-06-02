@@ -690,6 +690,18 @@
                 <tests.supplemental.args>-XX:-UseVMInterruptibleIO</tests.supplemental.args>
             </properties>
         </profile>
+        <profile>
+            <id>enable-system-gc-jrockit</id>
+            <activation>
+                <property>
+                    <name>java.vm.name</name>
+                    <value>Oracle JRockit(R)</value>
+                </property>
+            </activation>
+            <properties>
+                <tests.supplemental.args>-XXfullSystemGC</tests.supplemental.args>
+            </properties>
+        </profile>
 
         <!-- Profile for running only nonstopcache tests -->
         <profile>
