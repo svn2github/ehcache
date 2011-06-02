@@ -58,7 +58,8 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
  */
 public class DiskStore extends AbstractStore implements PoolableStore {
 
-    private static final String AUTO_DISK_PATH_DIRECTORY_PREFIX = "ehcache_auto_created";
+    public static final String AUTO_DISK_PATH_DIRECTORY_PREFIX = "ehcache_auto_created";
+
     private static final int FFFFCD7D = 0xffffcd7d;
     private static final int FIFTEEN = 15;
     private static final int TEN = 10;
