@@ -282,7 +282,12 @@ public class DiskStore extends AbstractStore implements PoolableStore {
      * {@inheritDoc}
      */
     public long getInMemorySizeInBytes() {
-        return 0;
+        long size = onHeapPoolAccessor.getSize();
+        if (size < 0) {
+            return 0;
+        } else {
+            return size;
+        }
     }
 
     /**
@@ -310,7 +315,12 @@ public class DiskStore extends AbstractStore implements PoolableStore {
      * {@inheritDoc}
      */
     public long getOnDiskSizeInBytes() {
-        return disk.getOnDiskSizeInBytes();
+        long size = onDiskPoolAccessor.getSize();
+        if (size < 0) {
+            return disk.getOnDiskSizeInBytes();
+        } else {
+            return size;
+        }
     }
 
     /**
