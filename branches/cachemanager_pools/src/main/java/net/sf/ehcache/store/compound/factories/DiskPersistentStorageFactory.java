@@ -48,7 +48,6 @@ import net.sf.ehcache.store.LfuPolicy;
 import net.sf.ehcache.store.LruPolicy;
 import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
 import net.sf.ehcache.store.Policy;
-import net.sf.ehcache.store.DiskStore.DiskElement;
 import net.sf.ehcache.store.compound.CompoundStore;
 import net.sf.ehcache.store.compound.ElementSubstitute;
 import net.sf.ehcache.store.compound.ElementSubstituteFilter;
@@ -349,11 +348,6 @@ public class DiskPersistentStorageFactory extends DiskStorageFactory<ElementSubs
                 cache(element);
             }
             this.expiry = element.getExpirationTime();
-        }
-
-        CachingDiskMarker(DiskPersistentStorageFactory factory, DiskElement element) {
-            super(factory, element.getPosition(), element.getSize(), element.getObjectKey(), element.getHitCount());
-            this.expiry = element.getExpiry();
         }
 
         boolean cache(Element element) {
@@ -703,22 +697,17 @@ public class DiskPersistentStorageFactory extends DiskStorageFactory<ElementSubs
                 Object key = ois.readObject();
                 Object value = ois.readObject();
 
-                if (key instanceof Map && value instanceof List) {
-                    LOG.info("Loading old format index file.");
-                    loadOldIndex((Map) key);
-                } else {
-                    CachingDiskMarker marker = (CachingDiskMarker) value;
-                    while (true) {
-                        marker.bindFactory(this);
-                        if (store.putRawIfAbsent(key, marker)) {
-                            onDisk.incrementAndGet();
-                        } else {
-                            throw new AssertionError();
-                        }
-                        markUsed(marker);
-                        key = ois.readObject();
-                        marker = (CachingDiskMarker) ois.readObject();
+                CachingDiskMarker marker = (CachingDiskMarker) value;
+                while (true) {
+                    marker.bindFactory(this);
+                    if (store.putRawIfAbsent(key, marker)) {
+                        onDisk.incrementAndGet();
+                    } else {
+                        throw new AssertionError();
                     }
+                    markUsed(marker);
+                    key = ois.readObject();
+                    marker = (CachingDiskMarker) ois.readObject();
                 }
             } finally {
                 ois.close();
@@ -732,20 +721,6 @@ public class DiskPersistentStorageFactory extends DiskStorageFactory<ElementSubs
             deleteFile(indexFile);
         } finally {
             shrinkDataFile();
-        }
-    }
-
-    private void loadOldIndex(Map<Object, DiskElement> elements) {
-        for (Entry<Object, DiskElement> entry : elements.entrySet()) {
-            Object key = entry.getKey();
-            CachingDiskMarker marker = new CachingDiskMarker(this, entry.getValue());
-
-            if (store.putRawIfAbsent(key, marker)) {
-                onDisk.incrementAndGet();
-            } else {
-                throw new AssertionError();
-            }
-            markUsed(marker);
         }
     }
 

@@ -29,6 +29,7 @@ import net.sf.ehcache.config.CacheConfigurationListener;
 import net.sf.ehcache.pool.Pool;
 import net.sf.ehcache.pool.PoolAccessor;
 import net.sf.ehcache.pool.PoolableStore;
+import net.sf.ehcache.pool.impl.UnboundedPool;
 import net.sf.ehcache.store.AbstractStore;
 import net.sf.ehcache.store.ElementValueComparator;
 import net.sf.ehcache.store.Policy;
@@ -50,14 +51,14 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 /**
  * Implements a persistent-to-disk store.
  * <p>
- * All new elements are automatically scheduled for writing to disk.  In addition 
- * the store will cache Elements in memory up to the in-memory capacity.
+ * All new elements are automatically scheduled for writing to disk.
  * 
  * @author Chris Dennis
  * @author Ludovic Orban
  */
 public class DiskStore extends AbstractStore implements PoolableStore {
 
+    private static final String AUTO_DISK_PATH_DIRECTORY_PREFIX = "ehcache_auto_created";
     private static final int FFFFCD7D = 0xffffcd7d;
     private static final int FIFTEEN = 15;
     private static final int TEN = 10;
@@ -103,6 +104,8 @@ public class DiskStore extends AbstractStore implements PoolableStore {
      *
      * @param cache cache that fronts this store
      * @param diskStorePath disk path to store data in
+     * @param onHeapPool pool to track heap usage
+     * @param onDiskPool pool to track disk usage
      * @return a fully initialized store
      */
     public static DiskStore create(Cache cache, String diskStorePath, Pool onHeapPool, Pool onDiskPool) {
@@ -110,6 +113,28 @@ public class DiskStore extends AbstractStore implements PoolableStore {
         DiskStore store = new DiskStore(disk, onHeapPool, onDiskPool);
         cache.getCacheConfiguration().addConfigurationListener(new CacheConfigurationListenerAdapter(disk));
         return store;
+    }
+
+    /**
+     * Creates a persitent-to-disk store for the given cache, using the given disk path.
+     * Heap and disk usage are not tracked by the returned store.
+     *
+     * @param cache cache that fronts this store
+     * @param diskStorePath disk path to store data in
+     * @return a fully initialized store
+     */
+    public static DiskStore create(Cache cache, String diskStorePath) {
+        return create(cache, diskStorePath, new UnboundedPool(), new UnboundedPool());
+    }
+
+    /**
+     * Generates a unique directory name for use in automatically creating a diskStorePath where there is a conflict.
+     *
+     * @return a path consisting of {@link #AUTO_DISK_PATH_DIRECTORY_PREFIX} followed by "_" followed by the current
+     *         time as a long e.g. ehcache_auto_created_1149389837006
+     */
+    public static String generateUniqueDirectory() {
+        return DiskStore.AUTO_DISK_PATH_DIRECTORY_PREFIX + "_" + System.currentTimeMillis();
     }
 
     public void readLock(Object key) {

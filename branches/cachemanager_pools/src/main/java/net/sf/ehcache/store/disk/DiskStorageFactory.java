@@ -1058,22 +1058,17 @@ public class DiskStorageFactory {
                 Object key = ois.readObject();
                 Object value = ois.readObject();
 
-                if (key instanceof Map && value instanceof List) {
-                    LOG.info("Loading old format index file.");
-                    loadOldIndex((Map) key);
-                } else {
-                    DiskMarker marker = (DiskMarker) value;
-                    while (true) {
-                        marker.bindFactory(this);
-                        if (store.putRawIfAbsent(key, marker)) {
-                            onDisk.incrementAndGet();
-                        } else {
-                            throw new AssertionError();
-                        }
-                        markUsed(marker);
-                        key = ois.readObject();
-                        marker = (DiskMarker) ois.readObject();
+                DiskMarker marker = (DiskMarker) value;
+                while (true) {
+                    marker.bindFactory(this);
+                    if (store.putRawIfAbsent(key, marker)) {
+                        onDisk.incrementAndGet();
+                    } else {
+                        throw new AssertionError();
                     }
+                    markUsed(marker);
+                    key = ois.readObject();
+                    marker = (DiskMarker) ois.readObject();
                 }
             } finally {
                 ois.close();
@@ -1087,22 +1082,6 @@ public class DiskStorageFactory {
             deleteFile(indexFile);
         } finally {
             shrinkDataFile();
-        }
-    }
-
-    private void loadOldIndex(Map<Object, net.sf.ehcache.store.DiskStore.DiskElement> elements) {
-        for (Map.Entry<Object, net.sf.ehcache.store.DiskStore.DiskElement> entry : elements.entrySet()) {
-            Object key = entry.getKey();
-            net.sf.ehcache.store.DiskStore.DiskElement value = entry.getValue();
-
-            DiskMarker marker = new DiskMarker(this, value.getPosition(), value.getSize(), value.getObjectKey(), value.getHitCount());
-
-            if (store.putRawIfAbsent(key, marker)) {
-                onDisk.incrementAndGet();
-            } else {
-                throw new AssertionError();
-            }
-            markUsed(marker);
         }
     }
 

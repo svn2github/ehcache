@@ -14,7 +14,7 @@
  *  limitations under the License.
  */
 
-package net.sf.ehcache.store.compound.factories;
+package net.sf.ehcache.store.disk.ods;
 
 import java.util.ArrayList;
 import java.util.BitSet;
