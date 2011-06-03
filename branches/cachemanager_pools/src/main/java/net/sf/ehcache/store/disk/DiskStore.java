@@ -18,7 +18,7 @@ package net.sf.ehcache.store.disk;
 
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheEntry;
-import net.sf.ehcache.CacheException;
+import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.Status;
 import net.sf.ehcache.concurrent.CacheLockProvider;
@@ -109,7 +109,7 @@ public class DiskStore extends AbstractStore implements PoolableStore {
      * @param onDiskPool pool to track disk usage
      * @return a fully initialized store
      */
-    public static DiskStore create(Cache cache, String diskStorePath, Pool onHeapPool, Pool onDiskPool) {
+    public static DiskStore create(Ehcache cache, String diskStorePath, Pool onHeapPool, Pool onDiskPool) {
         DiskStorageFactory disk = new DiskStorageFactory(cache, diskStorePath, cache.getCacheEventNotificationService());
         DiskStore store = new DiskStore(disk, onHeapPool, onDiskPool);
         cache.getCacheConfiguration().addConfigurationListener(new CacheConfigurationListenerAdapter(disk));
@@ -381,7 +381,7 @@ public class DiskStore extends AbstractStore implements PoolableStore {
           try {
             writerManager.put(element);
           } catch (RuntimeException e) {
-            throw new CacheException(e);
+              throw new StoreUpdateException(e, !newPut);
           }
         }
         return newPut;
