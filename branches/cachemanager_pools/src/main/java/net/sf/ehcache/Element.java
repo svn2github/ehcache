@@ -187,6 +187,23 @@ public class Element implements Serializable, Cloneable {
         this.elementEvictionData = new DefaultElementEvictionData(creationTime, lastAccessTime);
     }
 
+    /**
+     * @since 2.5
+     */
+    public Element(final Object key, final Object value, final long version, final long creationTime,
+            final long lastAccessTime, final long hitCount, final boolean cacheDefaultLifespan,
+            final int timeToLive, final int timeToIdle, final long lastUpdateTime, final boolean pinned) {
+        this.key = key;
+        this.value = value;
+        this.version = version;
+        HIT_COUNT_UPDATER.set(this, hitCount);
+        this.cacheDefaultLifespan = cacheDefaultLifespan;
+        this.timeToLive = timeToLive;
+        this.timeToIdle = timeToIdle;
+        this.lastUpdateTime = lastUpdateTime;
+        this.elementEvictionData = new DefaultElementEvictionData(creationTime, lastAccessTime);
+        this.pinned = pinned;
+    }
 
 
     /**
