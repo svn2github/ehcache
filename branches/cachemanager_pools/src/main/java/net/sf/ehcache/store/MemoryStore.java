@@ -23,16 +23,20 @@ import net.sf.ehcache.Element;
 import net.sf.ehcache.Status;
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.CacheConfigurationListener;
+import net.sf.ehcache.config.PinningConfiguration;
+import net.sf.ehcache.pool.Pool;
+import net.sf.ehcache.pool.PoolAccessor;
+import net.sf.ehcache.pool.PoolableStore;
 import net.sf.ehcache.store.chm.SelectableConcurrentHashMap;
+import net.sf.ehcache.util.statistic.AtomicStatistic;
+import net.sf.ehcache.util.statistic.Statistic;
 import net.sf.ehcache.writer.CacheWriterManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
-import java.util.NoSuchElementException;
+import java.util.concurrent.TimeUnit;
 
 /**
  * A Store implementation suitable for fast, concurrent in memory stores. The policy is determined by that
@@ -41,25 +45,18 @@ import java.util.NoSuchElementException;
  * @author <a href="mailto:ssuravarapu@users.sourceforge.net">Surya Suravarapu</a>
  * @version $Id$
  */
-public class MemoryStore extends AbstractStore implements CacheConfigurationListener {
+public class MemoryStore extends AbstractStore implements PoolableStore, CacheConfigurationListener {
 
     /**
-     * This number is magic. It was established using empirical testing of the two approaches
-     * in CacheTest#testConcurrentReadWriteRemoveLFU. 5 is the cross over point
-     * between the two algorithms. In future we ditch iteration entirely
+     * This is the default from {@link java.util.concurrent.ConcurrentHashMap}. It should never be used, because we size
+     * the map to the max size of the store.
      */
-    protected static final int TOO_LARGE_TO_EFFICIENTLY_ITERATE = 5;
-
-    /**
-     * This is the default from {@link java.util.concurrent.ConcurrentHashMap}. It should never be used, because
-     * we size the map to the max size of the store.
-     */
-    protected static final float DEFAULT_LOAD_FACTOR = 0.75f;
+    static final float DEFAULT_LOAD_FACTOR = 0.75f;
 
     /**
      * Set optimisation for 100 concurrent threads.
      */
-    protected static final int CONCURRENCY_LEVEL = 100;
+    private static final int CONCURRENCY_LEVEL = 100;
 
     private static final int MAX_EVICTION_RATIO = 5;
 
@@ -68,59 +65,53 @@ public class MemoryStore extends AbstractStore implements CacheConfigurationList
     /**
      * The cache this store is associated with.
      */
-    protected Ehcache cache;
-
-    /**
-     * when sampling elements, whether to iterate or to use the keySample array for faster random access
-     */
-    protected volatile boolean useKeySample;
+    private final Ehcache cache;
 
     /**
      * Map where items are stored by key.
      */
-    protected SelectableConcurrentHashMap map;
+    private final SelectableConcurrentHashMap map;
 
-    /**
-     * The DiskStore associated with this MemoryStore.
-     */
-    protected final Store diskStore;
+    private final Statistic hitRate = new AtomicStatistic(1000, TimeUnit.MILLISECONDS);
+    private final Statistic missRate = new AtomicStatistic(1000, TimeUnit.MILLISECONDS);
 
     /**
      * The maximum size of the store (0 == no limit)
      */
-    protected volatile int maximumSize;
+    private volatile int maximumSize;
 
     /**
      * status.
      */
-    protected volatile Status status;
+    private volatile Status status;
 
     /**
      * The eviction policy to use
      */
-    protected volatile Policy policy;
+    private volatile Policy policy;
+
+    /**
+     * The pool accessor
+     */
+    private volatile PoolAccessor poolAccessor;
+
 
     /**
      * Constructs things that all MemoryStores have in common.
      *
      * @param cache
-     * @param diskStore
      */
-    protected MemoryStore(final Ehcache cache, final Store diskStore) {
+    private MemoryStore(final Ehcache cache, Pool pool) {
         status = Status.STATUS_UNINITIALISED;
         this.cache = cache;
         this.maximumSize = cache.getCacheConfiguration().getMaxElementsInMemory();
-        this.diskStore = diskStore;
-        this.policy = determineEvictionPolicy();
+        this.policy = determineEvictionPolicy(cache);
 
         // create the CHM with initialCapacity sufficient to hold maximumSize
         int initialCapacity = getInitialCapacityForLoadFactor(maximumSize, DEFAULT_LOAD_FACTOR);
         map = new SelectableConcurrentHashMap(initialCapacity, DEFAULT_LOAD_FACTOR, CONCURRENCY_LEVEL);
-        if (maximumSize > TOO_LARGE_TO_EFFICIENTLY_ITERATE) {
-            useKeySample = true;
-        } else {
-            useKeySample = false;
-        }
+
+        this.poolAccessor = pool.createPoolAccessor(this);
 
         status = Status.STATUS_ALIVE;
 
@@ -134,7 +125,8 @@ public class MemoryStore extends AbstractStore implements CacheConfigurationList
      *
      * @param maximumSizeGoal the desired maximum size goal
      * @param loadFactor      the load factor
-     * @return the calculated initialCapacity. Returns 0 if the parameter <tt>maximumSizeGoal</tt> is less than or equal to 0
+     * @return the calculated initialCapacity. Returns 0 if the parameter <tt>maximumSizeGoal</tt> is less than or equal
+     *         to 0
      */
     static int getInitialCapacityForLoadFactor(int maximumSizeGoal, float loadFactor) {
         double actualMaximum = Math.ceil(maximumSizeGoal / loadFactor);
@@ -145,14 +137,18 @@ public class MemoryStore extends AbstractStore implements CacheConfigurationList
      * A factory method to create a MemoryStore.
      *
      * @param cache
-     * @param diskStore
      * @return an instance of a MemoryStore, configured with the appropriate eviction policy
      */
-    public static MemoryStore create(final Ehcache cache, final Store diskStore) {
-        MemoryStore memoryStore = new MemoryStore(cache, diskStore);
+    public static MemoryStore create(final Ehcache cache, Pool pool) {
+        MemoryStore memoryStore = new MemoryStore(cache, pool);
         cache.getCacheConfiguration().addConfigurationListener(memoryStore);
         return memoryStore;
     }
+
+    private boolean isPinningEnabled(Element element) {
+        return element.isPinned() || cache.getCacheConfiguration().getPinningConfiguration() != null;
+    }
+
 
     /**
      * Puts an item in the store. Note that this automatically results in an eviction if the store is full.
@@ -160,26 +156,46 @@ public class MemoryStore extends AbstractStore implements CacheConfigurationList
      * @param element the element to add
      */
     public boolean put(final Element element) throws CacheException {
-        return putInternal(element, null);
+        if (element == null) {
+            return false;
+        }
+
+        if (poolAccessor.add(element.getObjectKey(), element.getObjectValue(), element, isPinningEnabled(element)) > -1) {
+            return putInternal(element, null);
+        } else {
+            remove(element.getObjectKey());
+            cache.getCacheEventNotificationService().notifyElementEvicted(element, false);
+            return true;
+        }
     }
 
     /**
      * {@inheritDoc}
      */
     public final boolean putWithWriter(Element element, CacheWriterManager writerManager) throws CacheException {
-        return putInternal(element, writerManager);
+        if (poolAccessor.add(element.getObjectKey(), element.getObjectValue(), element, isPinningEnabled(element)) > -1) {
+            return putInternal(element, writerManager);
+        } else {
+            removeInternal(element.getObjectKey(), null);
+            cache.getCacheEventNotificationService().notifyElementEvicted(element, false);
+            return true;
+        }
     }
 
     private boolean putInternal(Element element, CacheWriterManager writerManager) throws CacheException {
-        boolean newPut = true;
-        if (element != null) {
-            newPut = map.put(element.getObjectKey(), element) == null;
+        if (element == null) {
+            return true;
+        } else {
+            Element old = map.put(element.getObjectKey(), element);
+            if (old != null) {
+                poolAccessor.delete(old.getObjectKey(), old.getObjectValue(), old);
+            }
             if (writerManager != null) {
                 writerManager.put(element);
             }
-            doPut(element);
+            checkCapacity(element);
+            return old == null;
         }
-        return newPut;
     }
 
     /**
@@ -191,12 +207,17 @@ public class MemoryStore extends AbstractStore implements CacheConfigurationList
      * @return the element, or null if there was no match for the key
      */
     public final Element get(final Object key) {
-
         if (key == null) {
             return null;
+        } else {
+            Element e = map.get(key);
+            if (e == null) {
+                missRate.event();
+            } else {
+                hitRate.event();
+            }
+            return e;
         }
-
-        return map.get(key);
     }
 
     /**
@@ -238,6 +259,7 @@ public class MemoryStore extends AbstractStore implements CacheConfigurationList
             writerManager.remove(new CacheEntry(key, element));
         }
         if (element != null) {
+            poolAccessor.delete(element.getObjectKey(), element.getObjectValue(), element);
             return element;
         } else {
             if (LOG.isDebugEnabled()) {
@@ -257,17 +279,16 @@ public class MemoryStore extends AbstractStore implements CacheConfigurationList
     /**
      * Expire all elements.
      * <p/>
-     * This is a default implementation which does nothing. Expiration on demand is only
-     * implemented for disk stores.
+     * This is a default implementation which does nothing. Expiration on demand is only implemented for disk stores.
      */
     public void expireElements() {
-        //empty implementation
+        // empty implementation
     }
 
     /**
      * Chooses the Policy from the cache configuration
      */
-    protected final Policy determineEvictionPolicy() {
+    private static final Policy determineEvictionPolicy(Ehcache cache) {
         MemoryStoreEvictionPolicy policySelection = cache.getCacheConfiguration().getMemoryStoreEvictionPolicy();
 
         if (policySelection.equals(MemoryStoreEvictionPolicy.LRU)) {
@@ -285,14 +306,8 @@ public class MemoryStore extends AbstractStore implements CacheConfigurationList
      * Remove all of the elements from the store.
      */
     public final void removeAll() throws CacheException {
-        clear();
-    }
-
-    /**
-     * Clears any data structures and places it back to its state when it was first created.
-     */
-    protected final void clear() {
         map.clear();
+        poolAccessor.clear();
     }
 
     /**
@@ -304,70 +319,15 @@ public class MemoryStore extends AbstractStore implements CacheConfigurationList
         }
         status = Status.STATUS_SHUTDOWN;
         flush();
-
-        //release reference to cache
-        cache = null;
-        map = null;
+        poolAccessor.unlink();
     }
 
     /**
      * Flush to disk only if the cache is diskPersistent.
      */
     public final void flush() {
-        if (cache.getCacheConfiguration().isDiskPersistent()) {
-            if (LOG.isDebugEnabled()) {
-                LOG.debug(cache.getName() + " is persistent. Spooling " + map.size() + " elements to the disk store.");
-            }
-            spoolAllToDisk();
-        }
-
-        //should be emptied if clearOnFlush is true
         if (cache.getCacheConfiguration().isClearOnFlush()) {
-            clear();
-        }
-    }
-
-    /**
-     * Spools all elements to disk, in preparation for shutdown.
-     * <p/>
-     * This revised implementation is a little slower but avoids using increased memory during the method.
-     */
-    protected final void spoolAllToDisk() {
-        boolean clearOnFlush = cache.getCacheConfiguration().isClearOnFlush();
-        for (Object key : getKeys()) {
-            Element element = map.get(key);
-            if (element != null) {
-                if (!element.isSerializable()) {
-                    if (LOG.isDebugEnabled()) {
-                        LOG.debug("Object with key " + element.getObjectKey()
-                                + " is not Serializable and is not being overflowed to disk.");
-                    }
-                } else {
-                    spoolToDisk(element);
-                    //Don't notify listeners. They are not being removed from the cache, only a store
-                    //Leave it in the memory store for performance if do not want to clear on flush
-                    if (clearOnFlush) {
-                        remove(key);
-                    }
-                }
-            }
-        }
-    }
-
-    /**
-     * Puts the element in the DiskStore.
-     * Should only be called if overflowToDisk is true
-     * <p/>
-     * Relies on being called from a synchronized method
-     *
-     * @param element The Element
-     */
-    protected void spoolToDisk(final Element element) {
-        if (diskStore != null) {
-            diskStore.put(element);
-            if (LOG.isDebugEnabled()) {
-                LOG.debug(cache.getName() + "Cache: spool to disk done for: " + element.getObjectKey());
-            }
+            removeAll();
         }
     }
 
@@ -378,8 +338,8 @@ public class MemoryStore extends AbstractStore implements CacheConfigurationList
      *
      * @return An List
      */
-    public final List getKeys() {
-        return new ArrayList(map.keySet());
+    public final List<?> getKeys() {
+        return new ArrayList<Object>(map.keySet());
     }
 
     /**
@@ -390,7 +350,6 @@ public class MemoryStore extends AbstractStore implements CacheConfigurationList
     public final int getSize() {
         return map.size();
     }
-
 
     /**
      * Returns nothing since a disk store isn't clustered
@@ -405,35 +364,13 @@ public class MemoryStore extends AbstractStore implements CacheConfigurationList
      * A check to see if a key is in the Store. No check is made to see if the Element is expired.
      *
      * @param key The Element key
-     * @return true if found. If this method return false, it means that an Element with the given key is definitely not in the MemoryStore.
-     *         If it returns true, there is an Element there. An attempt to get it may return null if the Element has expired.
+     * @return true if found. If this method return false, it means that an Element with the given key is definitely not
+     *         in the MemoryStore. If it returns true, there is an Element there. An attempt to get it may return null if
+     *         the Element has expired.
      */
     public final boolean containsKey(final Object key) {
         return map.containsKey(key);
     }
-
-
-    /**
-     * Measures the size of the memory store by measuring the serialized size of all elements.
-     * If the objects are not Serializable they count as 0.
-     * <p/>
-     * Warning: This method can be very expensive to run. Allow approximately 1 second
-     * per 1MB of entries. Running this method could create liveness problems
-     * because the object lock is held for a long period
-     *
-     * @return the size, in bytes
-     */
-    public final long getSizeInBytes() throws CacheException {
-        long sizeInBytes = 0;
-        for (Object o : map.values()) {
-            Element element = (Element) o;
-            if (element != null) {
-                sizeInBytes += element.getSerializedSize();
-            }
-        }
-        return sizeInBytes;
-    }
-
 
     /**
      * Evict the <code>Element</code>.
@@ -446,21 +383,8 @@ public class MemoryStore extends AbstractStore implements CacheConfigurationList
      *
      * @param element the <code>Element</code> to be evicted.
      */
-    protected final void evict(final Element element) throws CacheException {
-        boolean spooled = false;
+    private final void evict(final Element element) throws CacheException {
         if (cache.getCacheConfiguration().isOverflowToDisk()) {
-            if (!element.isSerializable()) {
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug(new StringBuilder("Object with key ").append(element.getObjectKey())
-                            .append(" is not Serializable and cannot be overflowed to disk").toString());
-                }
-            } else {
-                spoolToDisk(element);
-                spooled = true;
-            }
-        }
-
-        if (!spooled) {
             cache.getCacheEventNotificationService().notifyElementEvicted(element, false);
         }
     }
@@ -470,7 +394,7 @@ public class MemoryStore extends AbstractStore implements CacheConfigurationList
      *
      * @param element
      */
-    protected final void notifyExpiry(final Element element) {
+    private final void notifyExpiry(final Element element) {
         cache.getCacheEventNotificationService().notifyElementExpiry(element, false);
     }
 
@@ -482,17 +406,9 @@ public class MemoryStore extends AbstractStore implements CacheConfigurationList
     }
 
     /**
-     * Package local access to the map for testing
-     */
-    Map getBackingMap() {
-        return map;
-    }
-
-
-    /**
      * Puts an element into the store
      */
-    protected void doPut(final Element elementJustAdded) {
+    private void checkCapacity(final Element elementJustAdded) {
         if (maximumSize > 0) {
             int evict = Math.min(map.quickSize() - maximumSize, MAX_EVICTION_RATIO);
             for (int i = 0; i < evict; i++) {
@@ -506,7 +422,7 @@ public class MemoryStore extends AbstractStore implements CacheConfigurationList
      *
      * @param elementJustAdded it is possible for this to be null
      */
-    protected void removeElementChosenByEvictionPolicy(final Element elementJustAdded) {
+    private void removeElementChosenByEvictionPolicy(final Element elementJustAdded) {
 
         LOG.debug("Cache is full. Removing element ...");
 
@@ -523,7 +439,9 @@ public class MemoryStore extends AbstractStore implements CacheConfigurationList
             return;
         }
 
-        if (cache.getCacheConfiguration().getPinningConfiguration() != null) {
+        PinningConfiguration pinningConfiguration = cache.getCacheConfiguration().getPinningConfiguration();
+        if (pinningConfiguration != null &&
+                pinningConfiguration.getStorage().equals(PinningConfiguration.Storage.ONHEAP)) {
             return;
         }
 
@@ -532,37 +450,29 @@ public class MemoryStore extends AbstractStore implements CacheConfigurationList
     }
 
     /**
-     * Find a "relatively" unused element, but not the element just added.
+     * Find a "relatively" unused element.
      */
-    protected final Element findEvictionCandidate(final Element elementJustAdded) {
-        //attempt quicker eviction
-        if (useKeySample) {
-            Element[] elements = sampleElements(elementJustAdded.getObjectKey());
-            elements = filterOutPinnedElements(elements);
-            //this can return null. Let the cache get bigger by one.
-            return policy.selectedBasedOnPolicy(elements, elementJustAdded);
-        } else {
-            //Using iterate technique
-            Element[] elements = sampleElements(map.size());
-            elements = filterOutPinnedElements(elements);
-            return policy.selectedBasedOnPolicy(elements, elementJustAdded);
-        }
+    private final Element findEvictionCandidate(final Element elementJustAdded) {
+        Element[] elements = sampleElements(elementJustAdded.getObjectKey());
+        elements = filterOutPinnedElements(elements);
+        // this can return null. Let the cache get bigger by one.
+        return policy.selectedBasedOnPolicy(elements, elementJustAdded);
     }
 
     private Element[] filterOutPinnedElements(Element[] elements) {
-      if (elements == null) {
-          return null;
-      }
-
-      ArrayList<Element> result = new ArrayList<Element>();
-
-      for (Element element : elements) {
-        if (element.isExpired() || !element.isPinned()) {
-          result.add(element);
+        if (elements == null) {
+            return null;
         }
-      }
 
-      return result.toArray(new Element[result.size()]);
+        ArrayList<Element> result = new ArrayList<Element>();
+
+        for (Element element : elements) {
+            if (element.isExpired() || !element.isPinned()) {
+                result.add(element);
+            }
+        }
+
+        return result.toArray(new Element[result.size()]);
     }
 
     /**
@@ -572,55 +482,9 @@ public class MemoryStore extends AbstractStore implements CacheConfigurationList
      *
      * @return a random sample of elements
      */
-    protected Element[] sampleElements(Object keyHint) {
-        int size = AbstractPolicy.calculateSampleSize(maximumSize);
+    private Element[] sampleElements(Object keyHint) {
+        int size = AbstractPolicy.calculateSampleSize(map.quickSize());
         return map.getRandomValues(size, keyHint);
-    }
-
-    /**
-     * Uses random numbers to sample the entire map.
-     * <p/>
-     * This implementation uses the {@link java.util.concurrent.ConcurrentHashMap} iterator.
-     *
-     * @return a random sample of elements
-     */
-    protected Element[] sampleElements(final int size) {
-        int[] offsets = LfuPolicy.generateRandomSample(size);
-        Element[] elements = new Element[offsets.length];
-        Iterator iterator = map.values().iterator();
-        for (int i = 0; i < offsets.length; i++) {
-            for (int j = 0; j < offsets[i]; j++) {
-                //fast forward
-                try {
-                    iterator.next();
-                } catch (NoSuchElementException e) {
-                    //e.printStackTrace();
-                }
-            }
-
-            try {
-                elements[i] = ((Element) iterator.next());
-            } catch (NoSuchElementException e) {
-                //e.printStackTrace();
-            }
-        }
-        return elements;
-    }
-
-    /**
-     * @return the active eviction policy.
-     */
-    public Policy getEvictionPolicy() {
-        return policy;
-    }
-
-    /**
-     * Sets the policy. Use this method to inject a custom policy. This can be done while the store is alive.
-     *
-     * @param policy a new policy to be used in evicting elements in this store
-     */
-    public void setEvictionPolicy(final Policy policy) {
-        this.policy = policy;
     }
 
     /**
@@ -669,7 +533,6 @@ public class MemoryStore extends AbstractStore implements CacheConfigurationList
      * {@inheritDoc}
      */
     public void memoryCapacityChanged(int oldCapacity, int newCapacity) {
-        useKeySample = (newCapacity > TOO_LARGE_TO_EFFICIENTLY_ITERATE);
         maximumSize = newCapacity;
     }
 
@@ -712,7 +575,7 @@ public class MemoryStore extends AbstractStore implements CacheConfigurationList
      * {@inheritDoc}
      */
     public Policy getInMemoryEvictionPolicy() {
-        return getEvictionPolicy();
+        return policy;
     }
 
     /**
@@ -726,7 +589,17 @@ public class MemoryStore extends AbstractStore implements CacheConfigurationList
      * {@inheritDoc}
      */
     public long getInMemorySizeInBytes() {
-        return getSizeInBytes();
+        if (poolAccessor.getSize() < 0) {
+            long sizeInBytes = 0;
+            for (Object o : map.values()) {
+                Element element = (Element) o;
+                if (element != null) {
+                    sizeInBytes += element.getSerializedSize();
+                }
+            }
+            return sizeInBytes;
+        }
+        return poolAccessor.getSize();
     }
 
     /**
@@ -761,7 +634,7 @@ public class MemoryStore extends AbstractStore implements CacheConfigurationList
      * {@inheritDoc}
      */
     public void setInMemoryEvictionPolicy(Policy policy) {
-        setEvictionPolicy(policy);
+        this.policy = policy;
     }
 
     /**
@@ -781,8 +654,8 @@ public class MemoryStore extends AbstractStore implements CacheConfigurationList
     /**
      * Unsupported in MemoryStore
      */
-    public boolean replace(Element old, Element element, ElementValueComparator comparator)
-            throws NullPointerException, IllegalArgumentException {
+    public boolean replace(Element old, Element element, ElementValueComparator comparator) throws NullPointerException,
+            IllegalArgumentException {
         throw new UnsupportedOperationException();
     }
 
@@ -798,6 +671,43 @@ public class MemoryStore extends AbstractStore implements CacheConfigurationList
      */
     public Object getMBean() {
         return null;
+    }
+
+    public boolean evictFromOnHeap(int count, long size) {
+        for (int i = 0; i < count; i++) {
+            Element[] elements = sampleElements(map.size());
+            Element selected = policy.selectedBasedOnPolicy(elements, null);
+            if (selected == null) {
+                return false;
+            }
+            evict(selected);
+            remove(selected.getObjectKey());
+        }
+        return true;
+    }
+
+    public boolean evictFromOffHeap(int count, long size) {
+        return false;
+    }
+
+    public boolean evictFromOnDisk(int count, long size) {
+        return false;
+    }
+
+    public float getApproximateDiskHitRate() {
+        return 0;
+    }
+
+    public float getApproximateDiskMissRate() {
+        return 0;
+    }
+
+    public float getApproximateHeapHitRate() {
+        return hitRate.getRate();
+    }
+
+    public float getApproximateHeapMissRate() {
+        return missRate.getRate();
     }
 }
 

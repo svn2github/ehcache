@@ -1,8 +1,10 @@
 package net.sf.ehcache.store;
 
+import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.Status;
 import net.sf.ehcache.config.CacheConfiguration;
+import net.sf.ehcache.pool.Pool;
 import net.sf.ehcache.store.compound.ReadWriteCopyStrategy;
 import net.sf.ehcache.store.disk.DiskStore;
 
@@ -30,6 +32,26 @@ public class DiskBackedMemoryStore extends FrontEndCacheTier<MemoryStore, DiskSt
         String globalPropertyKey = "net.sf.ehcache.store.config." + property;
         String cachePropertyKey = "net.sf.ehcache.store." + cacheName + ".config." + property;
         return Boolean.parseBoolean(System.getProperty(cachePropertyKey, System.getProperty(globalPropertyKey, Boolean.toString(defaultValue))));
+    }
+
+    public static Store create(Ehcache cache, String diskStorePath, Pool onHeapPool, Pool onDiskPool) {
+        MemoryStore memoryStore = createMemoryStore(cache, onHeapPool);
+        DiskStore diskStore = createDiskStore(cache, diskStorePath, onHeapPool, onDiskPool);
+
+        return new DiskBackedMemoryStore(cache.getCacheConfiguration(), memoryStore, diskStore);
+    }
+
+    private static MemoryStore createMemoryStore(Ehcache cache, Pool onHeapPool) {
+        return MemoryStore.create(cache, onHeapPool);
+    }
+
+    private static DiskStore createDiskStore(Ehcache cache, String diskPath, Pool onHeapPool, Pool onDiskPool) {
+        CacheConfiguration config = cache.getCacheConfiguration();
+        if (config.isDiskPersistent() || config.isOverflowToDisk()) {
+            return DiskStore.create(cache, diskPath, onHeapPool, onDiskPool);
+        } else {
+            return null;
+        }
     }
 
     @Override

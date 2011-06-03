@@ -52,10 +52,7 @@ import net.sf.ehcache.pool.PoolEvictor;
 import net.sf.ehcache.pool.PoolableStore;
 import net.sf.ehcache.pool.SizeOfEngine;
 import net.sf.ehcache.pool.impl.BoundedPool;
-import net.sf.ehcache.pool.impl.DiskPersistentPoolableStore;
 import net.sf.ehcache.pool.impl.FromLargestCacheOnHeapPoolEvictor;
-import net.sf.ehcache.pool.impl.MemoryOnlyPoolableStore;
-import net.sf.ehcache.pool.impl.OverflowToDiskPoolableStore;
 import net.sf.ehcache.pool.impl.RoundRobinOnDiskPoolEvictor;
 import net.sf.ehcache.pool.impl.SerializationSizeOfEngine;
 import net.sf.ehcache.pool.impl.UnboundedPool;
@@ -69,9 +66,11 @@ import net.sf.ehcache.statistics.LiveCacheStatistics;
 import net.sf.ehcache.statistics.LiveCacheStatisticsWrapper;
 import net.sf.ehcache.statistics.sampled.SampledCacheStatistics;
 import net.sf.ehcache.statistics.sampled.SampledCacheStatisticsWrapper;
+import net.sf.ehcache.store.DiskBackedMemoryStore;
 import net.sf.ehcache.store.ElementValueComparator;
 import net.sf.ehcache.store.LegacyStoreWrapper;
 import net.sf.ehcache.store.LruMemoryStore;
+import net.sf.ehcache.store.MemoryStore;
 import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
 import net.sf.ehcache.store.Policy;
 import net.sf.ehcache.store.Store;
@@ -80,7 +79,7 @@ import net.sf.ehcache.store.StoreQuery;
 import net.sf.ehcache.store.TerracottaStore;
 import net.sf.ehcache.store.compound.ImmutableValueElementCopyStrategy;
 import net.sf.ehcache.store.compound.ReadWriteCopyStrategy;
-import net.sf.ehcache.store.compound.StoreUpdateException;
+import net.sf.ehcache.store.disk.StoreUpdateException;
 import net.sf.ehcache.store.disk.DiskStore;
 import net.sf.ehcache.terracotta.TerracottaClient;
 import net.sf.ehcache.terracotta.TerracottaNotRunningException;
@@ -1165,12 +1164,10 @@ public class Cache implements Ehcache, StoreListener {
                     store = makeXaStrictTransactionalIfNeeded(new LegacyStoreWrapper(
                             new LruMemoryStore(this, disk), disk, registeredEventListeners, configuration), copyStrategy);
                 } else {
-                    if (configuration.isDiskPersistent()) {
-                        store = makeXaStrictTransactionalIfNeeded(DiskPersistentPoolableStore.create(this, diskStorePath, onHeapPool, onDiskPool), copyStrategy);
-                    } else if (configuration.isOverflowToDisk()) {
-                        store = makeXaStrictTransactionalIfNeeded(OverflowToDiskPoolableStore.create(this, diskStorePath, onHeapPool, onDiskPool), copyStrategy);
+                    if (configuration.isDiskPersistent() || configuration.isOverflowToDisk()) {
+                        store = makeXaStrictTransactionalIfNeeded(DiskBackedMemoryStore.create(this, diskStorePath, onHeapPool, onDiskPool), copyStrategy);
                     } else {
-                        store = makeXaStrictTransactionalIfNeeded(MemoryOnlyPoolableStore.create(this, diskStorePath, onHeapPool), copyStrategy);
+                        store = makeXaStrictTransactionalIfNeeded(MemoryStore.create(this, onHeapPool), copyStrategy);
                     }
                 }
             }
