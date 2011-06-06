@@ -56,7 +56,9 @@ public class DiskBackedMemoryStore extends FrontEndCacheTier<MemoryStore, DiskSt
             public void notifyElementEvicted(Ehcache cache, Element element) {
                 // if an element can't be serialized by the disk store, it gets evicted
                 // and we must propagate the removal to the memory store
-                memoryStore.remove(element.getObjectKey());
+                if (element != null) {
+                    memoryStore.remove(element.getObjectKey());
+                }
             }
             public void notifyRemoveAll(Ehcache cache) {
             }
