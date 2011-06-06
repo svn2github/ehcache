@@ -649,32 +649,113 @@ public class MemoryStore extends AbstractStore implements PoolableStore, CacheCo
     }
 
     /**
-     * Unsupported in MemoryStore
+     * {@inheritDoc}
      */
     public Element putIfAbsent(Element element) throws NullPointerException {
-        throw new UnsupportedOperationException();
+        if (element == null) {
+            return null;
+        }
+
+        if (poolAccessor.add(element.getObjectKey(), element.getObjectValue(), element, isPinningEnabled(element)) > -1) {
+            Element old = map.putIfAbsent(element.getObjectKey(), element);
+            if (old != null) {
+                poolAccessor.delete(old.getObjectKey(), old.getObjectValue(), old);
+            }
+            checkCapacity(element);
+            return old;
+        } else {
+            remove(element.getObjectKey());
+            cache.getCacheEventNotificationService().notifyElementEvicted(element, false);
+            return null;
+        }
     }
 
     /**
-     * Unsupported in MemoryStore
+     * {@inheritDoc}
      */
     public Element removeElement(Element element, ElementValueComparator comparator) throws NullPointerException {
-        throw new UnsupportedOperationException();
+        if (element == null || element.getObjectKey() == null) {
+            return null;
+        }
+
+        Object key = element.getObjectKey();
+
+        writeLock(key);
+        try {
+            Element toRemove = map.get(key);
+            if (comparator.equals(element, toRemove)) {
+                map.remove(key);
+                poolAccessor.delete(element.getObjectKey(), element.getObjectValue(), element);
+                return toRemove;
+            } else {
+                return null;
+            }
+        } finally {
+            writeUnlock(key);
+        }
     }
 
     /**
-     * Unsupported in MemoryStore
+     * {@inheritDoc}
      */
     public boolean replace(Element old, Element element, ElementValueComparator comparator) throws NullPointerException,
             IllegalArgumentException {
-        throw new UnsupportedOperationException();
+        if (element == null || element.getObjectKey() == null) {
+            return false;
+        }
+
+        Object key = element.getObjectKey();
+
+        writeLock(key);
+        try {
+            if (poolAccessor.add(element.getObjectKey(), element.getObjectValue(), element, isPinningEnabled(element)) > -1) {
+                Element toRemove = map.get(key);
+                if (comparator.equals(old, toRemove)) {
+                    map.put(key, element);
+                    poolAccessor.delete(toRemove.getObjectKey(), toRemove.getObjectValue(), toRemove);
+                    return true;
+                } else {
+                    return false;
+                }
+            } else {
+                remove(element.getObjectKey());
+                cache.getCacheEventNotificationService().notifyElementEvicted(element, false);
+                return false;
+            }
+        } finally {
+            writeUnlock(key);
+        }
     }
 
     /**
-     * Unsupported in MemoryStore
+     * {@inheritDoc}
      */
     public Element replace(Element element) throws NullPointerException {
-        throw new UnsupportedOperationException();
+        if (element == null || element.getObjectKey() == null) {
+            return null;
+        }
+
+        Object key = element.getObjectKey();
+
+        writeLock(key);
+        try {
+            if (poolAccessor.add(element.getObjectKey(), element.getObjectValue(), element, isPinningEnabled(element)) > -1) {
+                Element toRemove = map.get(key);
+                if (toRemove != null) {
+                    map.put(key, element);
+                    poolAccessor.delete(toRemove.getObjectKey(), toRemove.getObjectValue(), toRemove);
+                    return toRemove;
+                } else {
+                    return null;
+                }
+            } else {
+                remove(element.getObjectKey());
+                cache.getCacheEventNotificationService().notifyElementEvicted(element, false);
+                return null;
+            }
+        } finally {
+            writeUnlock(key);
+        }
     }
 
     /**
@@ -735,7 +816,7 @@ public class MemoryStore extends AbstractStore implements PoolableStore, CacheCo
     }
 
     public void writeUnlock(Object key) {
-        map.lockFor(key).lock();
+        map.lockFor(key).unlock();
     }
 
     public void readLock() {
@@ -832,7 +913,7 @@ public class MemoryStore extends AbstractStore implements PoolableStore, CacheCo
                 case READ:
                     throw new UnsupportedOperationException("Querying of lock is not supported.");
                 case WRITE:
-                    throw new UnsupportedOperationException("Querying of lock is not supported.");
+                    return lock.isHeldByCurrentThread();
                 default:
                     throw new IllegalArgumentException("We don't support any other lock type than READ or WRITE!");
             }
