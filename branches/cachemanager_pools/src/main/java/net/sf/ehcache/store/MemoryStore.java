@@ -171,7 +171,7 @@ public class MemoryStore extends AbstractStore implements PoolableStore, CacheCo
             return false;
         }
 
-        if (poolAccessor.add(element.getObjectKey(), element.getObjectValue(), element, isPinningEnabled(element)) > -1) {
+        if (poolAccessor.add(element.getObjectKey(), element.getObjectValue(), map.storedObject(element), isPinningEnabled(element)) > -1) {
             return putInternal(element, null);
         } else {
             remove(element.getObjectKey());
@@ -184,7 +184,7 @@ public class MemoryStore extends AbstractStore implements PoolableStore, CacheCo
      * {@inheritDoc}
      */
     public final boolean putWithWriter(Element element, CacheWriterManager writerManager) throws CacheException {
-        if (poolAccessor.add(element.getObjectKey(), element.getObjectValue(), element, isPinningEnabled(element)) > -1) {
+        if (poolAccessor.add(element.getObjectKey(), element.getObjectValue(), map.storedObject(element), isPinningEnabled(element)) > -1) {
             return putInternal(element, writerManager);
         } else {
             removeInternal(element.getObjectKey(), null);
@@ -682,7 +682,7 @@ public class MemoryStore extends AbstractStore implements PoolableStore, CacheCo
             return null;
         }
 
-        if (poolAccessor.add(element.getObjectKey(), element.getObjectValue(), element, isPinningEnabled(element)) > -1) {
+        if (poolAccessor.add(element.getObjectKey(), element.getObjectValue(), map.storedObject(element), isPinningEnabled(element)) > -1) {
             Element old = map.putIfAbsent(element.getObjectKey(), element);
             if (old != null) {
                 poolAccessor.delete(old.getObjectKey(), old.getObjectValue(), old);
@@ -740,7 +740,7 @@ public class MemoryStore extends AbstractStore implements PoolableStore, CacheCo
 
         writeLock(key);
         try {
-            if (poolAccessor.add(element.getObjectKey(), element.getObjectValue(), element, isPinningEnabled(element)) > -1) {
+            if (poolAccessor.add(element.getObjectKey(), element.getObjectValue(), map.storedObject(element), isPinningEnabled(element)) > -1) {
                 Element toRemove = map.get(key);
                 if (comparator.equals(old, toRemove)) {
                     map.put(key, element);
@@ -777,7 +777,7 @@ public class MemoryStore extends AbstractStore implements PoolableStore, CacheCo
 
         writeLock(key);
         try {
-            if (poolAccessor.add(element.getObjectKey(), element.getObjectValue(), element, isPinningEnabled(element)) > -1) {
+            if (poolAccessor.add(element.getObjectKey(), element.getObjectValue(), map.storedObject(element), isPinningEnabled(element)) > -1) {
                 Element toRemove = map.get(key);
                 if (toRemove != null) {
                     map.put(key, element);
