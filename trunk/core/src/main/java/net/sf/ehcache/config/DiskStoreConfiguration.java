@@ -17,18 +17,22 @@
 package net.sf.ehcache.config;
 
 import java.io.File;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  * A class to represent DiskStore configuration
- * e.g. <diskStore path="java.io.tmpdir" />
- * 
+ * e.g. <diskStore path="${java.io.tmpdir}" />
+ *
  * @author <a href="mailto:gluck@thoughtworks.com">Greg Luck</a>
  * @version $Id$
  */
 public final class DiskStoreConfiguration {
+
+    private static final Pattern PROPERTY_SUBSTITUTION_PATTERN = Pattern.compile("\\$\\{(.+?)\\}");
 
     private static final Logger LOG = LoggerFactory.getLogger(DiskStoreConfiguration.class.getName());
 
@@ -45,12 +49,26 @@ public final class DiskStoreConfiguration {
     /**
      * A constants class for environment variables used in disk store paths
      */
-    private static final class Env {
+    private static enum Env {
+        USER_HOME("user.home"),
+        USER_DIR("user.dir"),
+        JAVA_IO_TMPDIR("java.io.tmpdir"),
+        EHCACHE_DISK_STORE_DIR("ehcache.disk.store.dir");
 
-        static final String USER_HOME = "user.home";
-        static final String USER_DIR = "user.dir";
-        static final String JAVA_IO_TMPDIR = "java.io.tmpdir";
-        static final String EHCACHE_DISK_STORE_DIR = "ehcache.disk.store.dir";
+        private final String variable;
+
+        Env(String variable) {
+            this.variable = variable;
+        }
+
+        String substitute(String string) {
+            String substitution = System.getProperty(variable);
+            if (substitution == null) {
+                return string;
+            } else {
+                return string.replaceFirst(Pattern.quote(variable), substitution);
+            }
+        }
     }
 
     /**
@@ -62,15 +80,15 @@ public final class DiskStoreConfiguration {
 
     /**
      * The diskStore default path, which is the system environment variable
-     * availablen on all Java virtual machines <code>java.io.tmpdir</code>
+     * available on all Java virtual machines <code>java.io.tmpdir</code>
      */
     public static String getDefaultPath() {
-        return translatePath(Env.JAVA_IO_TMPDIR);
+        return Env.JAVA_IO_TMPDIR.substitute(Env.JAVA_IO_TMPDIR.variable);
     }
 
     /**
      * Builder method to set the disk store path, see {@link #setPath(String)}
-     * 
+     *
      * @return this configuration instance
      */
     public final DiskStoreConfiguration path(final String path) {
@@ -80,25 +98,27 @@ public final class DiskStoreConfiguration {
 
     /**
      * Translates and sets the path.
-     * 
-     * @param path
-     *            If the path contains a Java System Property token it is replaced by
-     *            its value in the running VM. Subdirectories can be specified below the property e.g. java.io.tmpdir/one.
-     *            The following properties are translated:
-     *            <ul>
-     *            <li><code>user.home</code> - User's home directory
-     *            <li><code>user.dir</code> - User's current working directory
-     *            <li><code>java.io.tmpdir</code> - Default temp file path
-     *            <li><code>ehcache.disk.store.di?r</code> - A system property you would normally specify on the command linecan specify
-     *            with -DDefault temp file path e.g. <code>java -Dehcache.disk.store.dir=/u01/myapp/diskdir ...</code>
-     *            </ul>
-     *            Additional strings can be placed before and after tokens?
-     *            e.g. <code>java.io/tmpdir/caches</code> might become <code>/tmp/caches</code>
+     * <p>
+     * Two forms of path substitution are supported:
+     * <ol>
+     * <li>To support legacy configurations, four explicit string tokens are replaced with their
+     * associated Java system property values.
+     * <ul>
+     * <li><code>user.home</code> - the user's home directory</li>
+     * <li><code>user.dir</code> - the current working directory</li>
+     * <li><code>java.io.tmpdir</code> - the default temp file path</li>
+     * <li><code>ehcache.disk.store.dir</code> - a system property you would normally specify on the command line, e.g. <code>java -Dehcache.disk.store.dir=/u01/myapp/diskdir</code></li>
+     * </ul>
+     * </li>
+     * <li>These, and all other system properties can also be substituted using the familiar syntax<br>
+     * <code>${system-property-name}/some-path-fragment/${other-property-name}</code></li>
+     * </ol>
+     *
+     * @param path disk store path
      */
     public final void setPath(final String path) {
         this.originalPath = path;
-        String translatedPath = translatePath(path);
-        this.path = translatedPath;
+        this.path = translatePath(path);
     }
 
     /**
@@ -109,33 +129,28 @@ public final class DiskStoreConfiguration {
     }
 
     private static String translatePath(String path) {
-        String translatedPath = replaceToken(Env.USER_HOME, System.getProperty(Env.USER_HOME), path);
-        translatedPath = replaceToken(Env.USER_DIR, System.getProperty(Env.USER_DIR), translatedPath);
-        translatedPath = replaceToken(Env.JAVA_IO_TMPDIR, System.getProperty(Env.JAVA_IO_TMPDIR), translatedPath);
-        translatedPath = replaceToken(Env.EHCACHE_DISK_STORE_DIR, System.getProperty(Env.EHCACHE_DISK_STORE_DIR), translatedPath);
+        String translatedPath = substituteProperties(path);
+        for (Env e : Env.values()) {
+            translatedPath = e.substitute(translatedPath);
+        }
         // Remove duplicate separators: Windows and Solaris
-        translatedPath = replaceToken(File.separator + File.separator, File.separator, translatedPath);
+        translatedPath = translatedPath.replace(File.separator + File.separator, File.separator);
         LOG.debug("Disk Store Path: " + translatedPath);
         return translatedPath;
     }
 
-    /**
-     * Replaces a token with replacement text.
-     * 
-     * @param token
-     * @param replacement
-     * @param source
-     * @return the String with replacement text applied
-     */
-    public static String replaceToken(final String token, final String replacement, final String source) {
-        int foundIndex = source.indexOf(token);
-        if (foundIndex == -1) {
-            return source;
-        } else {
-            String firstFragment = source.substring(0, foundIndex);
-            String lastFragment = source.substring(foundIndex + token.length(), source.length());
-            return new StringBuilder().append(firstFragment).append(replacement).append(lastFragment).toString();
-        }
-    }
+    private static String substituteProperties(String string) {
+        Matcher matcher = PROPERTY_SUBSTITUTION_PATTERN.matcher(string);
 
+        StringBuffer eval = new StringBuffer();
+        while (matcher.find()) {
+            String substitution = System.getProperty(matcher.group(1));
+            if (substitution != null) {
+                matcher.appendReplacement(eval, Matcher.quoteReplacement(substitution));
+            }
+        }
+        matcher.appendTail(eval);
+
+        return eval.toString();
+    }
 }

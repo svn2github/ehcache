@@ -1128,11 +1128,10 @@ public class DiskStoreTest extends AbstractCacheTest {
 
         String originalPath = "c:" + File.separator + "temp" + File.separator + File.separator + "greg";
         //Fix dup separator
-        String translatedPath = DiskStoreConfiguration.replaceToken(File.separator + File.separator,
-                File.separator, originalPath);
+        String translatedPath = new DiskStoreConfiguration().path(originalPath).getPath();
         assertEquals("c:" + File.separator + "temp" + File.separator + "greg", translatedPath);
         //Ignore single separators
-        translatedPath = DiskStoreConfiguration.replaceToken(File.separator + File.separator, File.separator, originalPath);
+        translatedPath = new DiskStoreConfiguration().path(translatedPath).getPath();
         assertEquals("c:" + File.separator + "temp" + File.separator + "greg", translatedPath);
 
         Thread.sleep(500);

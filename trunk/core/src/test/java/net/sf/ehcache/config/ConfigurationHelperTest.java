@@ -20,6 +20,7 @@ import net.sf.ehcache.AbstractCacheTest;
 import net.sf.ehcache.CacheManager;
 
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -92,16 +93,33 @@ public class ConfigurationHelperTest extends AbstractCacheTest {
         specificPathTest(diskStore, "user.home/cacheManager1/", "user.home");
         specificPathTest(diskStore, "user.home/cacheManager1/dir1", "user.home");
 
+        specificPathTest(diskStore, "${java.io.tmpdir}", "java.io.tmpdir");
+        specificPathTest(diskStore, "${java.io.tmpdir}/cacheManager1", "java.io.tmpdir");
+        specificPathTest(diskStore, "${java.io.tmpdir}/cacheManager1/", "java.io.tmpdir");
+        specificPathTest(diskStore, "${user.dir}", "user.dir");
+        specificPathTest(diskStore, "${user.dir}/cacheManager1", "user.dir");
+        specificPathTest(diskStore, "${user.dir}/cacheManager1/", "user.dir");
+        specificPathTest(diskStore, "${user.home}", "user.home");
+        specificPathTest(diskStore, "${user.home}/cacheManager1", "user.home");
+        specificPathTest(diskStore, "${user.home}/cacheManager1/", "user.home");
+        specificPathTest(diskStore, "${user.home}/cacheManager1/dir1", "user.home");
+
+        System.setProperty("my-special-property", "hello");
+        specificPathTest(diskStore, "${user.home}/cacheManager1/${my-special-property}/world", "user.home", "my-special-property");
+        specificPathTest(diskStore, "user.home/cacheManager1/${my-special-property}/world", "user.home", "my-special-property");
+
         System.setProperty("ehcache.disk.store.dir", "/tmp");
-        specificPathTest(diskStore, "ehcache.disk.store.dir/cacheManager1/dir1", "user.home");
-
-
+        specificPathTest(diskStore, "ehcache.disk.store.dir/cacheManager1/dir1", "ehcache.disk.store.dir");
+        specificPathTest(diskStore, "${ehcache.disk.store.dir}/cacheManager1/dir1", "ehcache.disk.store.dir");
     }
 
-    private void specificPathTest(DiskStoreConfiguration diskStoreConfiguration, String specifiedPath, String systemProperty) {
+    private void specificPathTest(DiskStoreConfiguration diskStoreConfiguration, String specifiedPath, String ... properties) {
         diskStoreConfiguration.setPath(specifiedPath);
         String expandedPath = diskStoreConfiguration.getPath();
-        assertTrue(expandedPath.indexOf(systemProperty) == -1);
+        for (String prop : properties) {
+            assertFalse(expandedPath.contains(prop));
+            assertTrue(expandedPath.contains(System.getProperty(prop)));
+        }
 
         File diskDir = null;
         try {
