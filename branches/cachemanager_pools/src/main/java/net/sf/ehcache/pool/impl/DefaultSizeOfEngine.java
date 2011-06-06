@@ -1,9 +1,16 @@
 package net.sf.ehcache.pool.impl;
 
+import java.io.File;
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.pool.SizeOfEngine;
+import net.sf.ehcache.util.ClassLoaderUtil;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,18 +29,22 @@ import org.terracotta.modules.sizeof.filter.ResourceSizeOfFilter;
 public class DefaultSizeOfEngine implements SizeOfEngine {
 
     private static final Logger LOG = LoggerFactory.getLogger(DefaultSizeOfEngine.class.getName());
+    private static final String USER_FILTER_RESOURCE = "net.sf.ehcache.sizeof.filter";
 
     private static final SizeOfFilter DEFAULT_FILTER;
     static {
-        SizeOfFilter filter;
+        Collection<SizeOfFilter> filters = new ArrayList<SizeOfFilter>();
+        filters.add(new AnnotationSizeOfFilter());
         try {
-            filter = new CombinationSizeOfFilter(
-                    new AnnotationSizeOfFilter(),
-                    new ResourceSizeOfFilter(SizeOfEngine.class.getResource("hibernate.sizeof.filter")));
+            filters.add(new ResourceSizeOfFilter(SizeOfEngine.class.getResource("builtin-sizeof.filter")));
         } catch (IOException e) {
-            filter = new AnnotationSizeOfFilter();
+            LOG.warn("Built-in sizeof filter could not be loaded: {}", e);
         }
-        DEFAULT_FILTER = filter;
+        SizeOfFilter userFilter = getUserFilter();
+        if (userFilter != null) {
+            filters.add(getUserFilter());
+        }
+        DEFAULT_FILTER = new CombinationSizeOfFilter(filters.toArray(new SizeOfFilter[filters.size()]));
     }
 
     private final SizeOf sizeOf;
@@ -55,6 +66,36 @@ public class DefaultSizeOfEngine implements SizeOfEngine {
         }
 
         this.sizeOf = sizeOf;
+    }
+
+    private static SizeOfFilter getUserFilter() {
+        String userFilterProperty = System.getProperty(USER_FILTER_RESOURCE);
+
+        if (userFilterProperty != null) {
+            List<URL> filterUrls = new ArrayList<URL>();
+            try {
+                filterUrls.add(new URL(userFilterProperty));
+            } catch (MalformedURLException e) {
+                //ignore
+            }
+            try {
+                filterUrls.add(new File(userFilterProperty).toURL());
+            } catch (MalformedURLException e) {
+                //ignore
+            }
+            filterUrls.add(ClassLoaderUtil.getStandardClassLoader().getResource(USER_FILTER_RESOURCE));
+            for (URL filterUrl : filterUrls) {
+                SizeOfFilter filter;
+                try {
+                    filter = new ResourceSizeOfFilter(filterUrl);
+                    LOG.info("Using user supplied filter @ {}", filterUrl);
+                    return filter;
+                } catch (IOException e) {
+                    //ignore
+                }
+            }
+        }
+        return null;
     }
 
     public long sizeOf(final Object key, final Object value, final Object container) {
