@@ -20,6 +20,7 @@
 package net.sf.ehcache.store.disk;
 
 import net.sf.ehcache.Element;
+import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.pool.PoolAccessor;
 import net.sf.ehcache.pool.Role;
 import net.sf.ehcache.store.ElementValueComparator;
@@ -89,6 +90,7 @@ public class Segment extends ReentrantReadWriteLock implements RetrievalStatisti
 
     private final Statistic diskHitRate = new AtomicStatistic(1000, TimeUnit.MILLISECONDS);
     private final Statistic diskMissRate = new AtomicStatistic(1000, TimeUnit.MILLISECONDS);
+    private final CacheConfiguration cacheConfiguration;
     private final PoolAccessor onHeapPoolAccessor;
     private final PoolAccessor onDiskPoolAccessor;
 
@@ -105,11 +107,14 @@ public class Segment extends ReentrantReadWriteLock implements RetrievalStatisti
      * @param initialCapacity initial capacity of store
      * @param loadFactor fraction of capacity at which rehash occurs
      * @param primary primary element substitute factory
-     * @param onHeapPoolAccessor
-     * @param onDiskPoolAccessor
+     * @param cacheConfiguration the cache configuration
+     * @param onHeapPoolAccessor the pool tracking on-heap usage
+     * @param onDiskPoolAccessor the pool tracking on-disk usage
      */
     public Segment(int initialCapacity, float loadFactor, DiskStorageFactory primary,
+                   CacheConfiguration cacheConfiguration,
                    PoolAccessor onHeapPoolAccessor, PoolAccessor onDiskPoolAccessor) {
+        this.cacheConfiguration = cacheConfiguration;
         this.onHeapPoolAccessor = onHeapPoolAccessor;
         this.onDiskPoolAccessor = onDiskPoolAccessor;
         this.table = new HashEntry[initialCapacity];
@@ -124,21 +129,32 @@ public class Segment extends ReentrantReadWriteLock implements RetrievalStatisti
     }
 
     /**
-     * Decode the possible ElementSubstitute
+     * Decode the possible DiskSubstitute
      *
-     * @param object
-     * @return
+     * @param object the DiskSubstitute to decode
+     * @return the decoded DiskSubstitute
      */
     private Element decode(Object object) {
         DiskStorageFactory.DiskSubstitute substitute = (DiskStorageFactory.DiskSubstitute) object;
         return substitute.getFactory().retrieve(substitute);
     }
 
+    /**
+     * Decode the possible DiskSubstitute, updating the statistics
+     *
+     * @param object the DiskSubstitute to decode
+     * @return the decoded DiskSubstitute
+     */
     private Element decodeHit(Object object) {
         DiskStorageFactory.DiskSubstitute substitute = (DiskStorageFactory.DiskSubstitute) object;
         return substitute.getFactory().retrieve(substitute, this);
     }
 
+    /**
+     * Free the DiskSubstitute
+     *
+     * @param object the DiskSubstitute to free
+     */
     private void free(Object object) {
         DiskStorageFactory.DiskSubstitute diskSubstitute = (DiskStorageFactory.DiskSubstitute) object;
         diskSubstitute.getFactory().free(writeLock(), diskSubstitute);
@@ -255,7 +271,7 @@ public class Segment extends ReentrantReadWriteLock implements RetrievalStatisti
                 Object onDiskSubstitute = e.getElement();
 
                 long size;
-                if ((size = onHeapPoolAccessor.replace(Role.VALUE, onDiskSubstitute, encoded, false)) == Long.MAX_VALUE) {
+                if ((size = onHeapPoolAccessor.replace(Role.VALUE, onDiskSubstitute, encoded, isPinningEnabled())) == Long.MAX_VALUE) {
                     LOG.debug("replace3 failed to add on heap");
                     free(encoded);
                     return false;
@@ -308,7 +324,7 @@ public class Segment extends ReentrantReadWriteLock implements RetrievalStatisti
                 Object onDiskSubstitute = e.getElement();
 
                 long size;
-                if ((size = onHeapPoolAccessor.replace(Role.VALUE, onDiskSubstitute, encoded, false)) == Long.MAX_VALUE) {
+                if ((size = onHeapPoolAccessor.replace(Role.VALUE, onDiskSubstitute, encoded, isPinningEnabled())) == Long.MAX_VALUE) {
                     LOG.debug("replace2 failed to add on heap");
                     free(encoded);
                     return null;
@@ -360,7 +376,7 @@ public class Segment extends ReentrantReadWriteLock implements RetrievalStatisti
         writeLock().lock();
         try {
             long size;
-            if ((size = onHeapPoolAccessor.add(key, encoded, HashEntry.newHashEntry(key, hash, null, null), false)) < 0) {
+            if ((size = onHeapPoolAccessor.add(key, encoded, HashEntry.newHashEntry(key, hash, null, null), isPinningEnabled())) < 0) {
                 LOG.debug("put failed to add on heap");
                 return null;
             } else {
@@ -436,10 +452,10 @@ public class Segment extends ReentrantReadWriteLock implements RetrievalStatisti
     boolean putRawIfAbsent(Object key, int hash, Object encoded) {
         writeLock().lock();
         try {
-            if (onHeapPoolAccessor.add(key, encoded, HashEntry.newHashEntry(key, hash, null, null), false) < 0) {
+            if (onHeapPoolAccessor.add(key, encoded, HashEntry.newHashEntry(key, hash, null, null), isPinningEnabled()) < 0) {
                 return false;
             }
-            if (onDiskPoolAccessor.add(key, null, encoded, false) < 0) {
+            if (onDiskPoolAccessor.add(key, null, encoded, isPinningEnabled()) < 0) {
                 onHeapPoolAccessor.delete(key, encoded, HashEntry.newHashEntry(key, hash, null, null));
                 return false;
             }
@@ -643,6 +659,7 @@ public class Segment extends ReentrantReadWriteLock implements RetrievalStatisti
      * could not be installed due to lock contention.
      *
      * @param key key to which this element (proxy) is mapped
+     * @param hash the hash of the key
      * @param expect element (proxy) expected
      * @param fault element (proxy) to install
      * @return <code>true</code> if <code>fault</code> was installed
@@ -653,12 +670,12 @@ public class Segment extends ReentrantReadWriteLock implements RetrievalStatisti
         readLock().lock();
         try {
             long size;
-            if ((size = onHeapPoolAccessor.replace(Role.VALUE, expect, fault, false)) == Long.MAX_VALUE) {
+            if ((size = onHeapPoolAccessor.replace(Role.VALUE, expect, fault, isPinningEnabled())) == Long.MAX_VALUE) {
                 return false;
             } else {
                 LOG.debug("fault removed {} from heap", size);
             }
-            if ((size = onDiskPoolAccessor.add(key, null, fault, false)) < 0) {
+            if ((size = onDiskPoolAccessor.add(key, null, fault, isPinningEnabled())) < 0) {
                 long deleteSize = onHeapPoolAccessor.delete(key, fault, HashEntry.newHashEntry(key, hash, null, null));
                 LOG.debug("fault failed to add {} on disk, deleted {} from heap", size, deleteSize);
                 return false;
@@ -768,13 +785,12 @@ public class Segment extends ReentrantReadWriteLock implements RetrievalStatisti
     /**
      * Select a random sample of elements generated by the supplied factory.
      * 
-     * @param <T> type of the elements or element substitutes
      * @param filter filter of substitute types
      * @param sampleSize minimum number of elements to return
      * @param sampled collection in which to place the elements
      * @param seed random seed for the selection
      */
-    <T> void addRandomSample(ElementSubstituteFilter filter, int sampleSize, Collection<T> sampled, int seed) {
+    void addRandomSample(ElementSubstituteFilter filter, int sampleSize, Collection<DiskStorageFactory.DiskSubstitute> sampled, int seed) {
         final HashEntry[] tab = table;
         final int tableStart = seed & (tab.length - 1);
         int tableIndex = tableStart;
@@ -782,7 +798,7 @@ public class Segment extends ReentrantReadWriteLock implements RetrievalStatisti
             for (HashEntry e = tab[tableIndex]; e != null; e = e.next) {
                 Object value = e.getElement();
                 if (filter.allows(value)) {
-                    sampled.add((T) value);
+                    sampled.add((DiskStorageFactory.DiskSubstitute) value);
                 }
             }
 
@@ -797,9 +813,14 @@ public class Segment extends ReentrantReadWriteLock implements RetrievalStatisti
 
     /**
      * Creates an iterator over the HashEntry objects within this Segment.
+     * @return an iterator over the HashEntry objects within this Segment.
      */
     Iterator<HashEntry> hashIterator() {
         return new HashIterator();
+    }
+
+    private boolean isPinningEnabled() {
+        return cacheConfiguration.getPinningConfiguration() != null;
     }
 
     @Override

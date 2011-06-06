@@ -108,7 +108,8 @@ public class MemoryStore extends AbstractStore implements PoolableStore, CacheCo
     /**
      * Constructs things that all MemoryStores have in common.
      *
-     * @param cache
+     * @param cache the cache
+     * @param pool the pool tracking the on-heap usage
      */
     private MemoryStore(final Ehcache cache, Pool pool) {
         status = Status.STATUS_UNINITIALISED;
@@ -145,7 +146,8 @@ public class MemoryStore extends AbstractStore implements PoolableStore, CacheCo
     /**
      * A factory method to create a MemoryStore.
      *
-     * @param cache
+     * @param cache the cache
+     * @param pool the pool tracking the on-heap usage
      * @return an instance of a MemoryStore, configured with the appropriate eviction policy
      */
     public static MemoryStore create(final Ehcache cache, Pool pool) {
@@ -302,8 +304,10 @@ public class MemoryStore extends AbstractStore implements PoolableStore, CacheCo
 
     /**
      * Chooses the Policy from the cache configuration
+     * @param cache the cache
+     * @return the chosen eviction policy
      */
-    private static final Policy determineEvictionPolicy(Ehcache cache) {
+    private static Policy determineEvictionPolicy(Ehcache cache) {
         MemoryStoreEvictionPolicy policySelection = cache.getCacheConfiguration().getMemoryStoreEvictionPolicy();
 
         if (policySelection.equals(MemoryStoreEvictionPolicy.LRU)) {
@@ -400,7 +404,7 @@ public class MemoryStore extends AbstractStore implements PoolableStore, CacheCo
      *
      * @param element the <code>Element</code> to be evicted.
      */
-    private final void evict(final Element element) throws CacheException {
+    private void evict(final Element element) {
         if (cache.getCacheConfiguration().isOverflowToDisk()) {
             cache.getCacheEventNotificationService().notifyElementEvicted(element, false);
         }
@@ -409,21 +413,25 @@ public class MemoryStore extends AbstractStore implements PoolableStore, CacheCo
     /**
      * Before eviction elements are checked.
      *
-     * @param element
+     * @param element the element to notify about its expiry
      */
-    private final void notifyExpiry(final Element element) {
+    private void notifyExpiry(final Element element) {
         cache.getCacheEventNotificationService().notifyElementExpiry(element, false);
     }
 
     /**
      * An algorithm to tell if the MemoryStore is at or beyond its carrying capacity.
+     *
+     * @return true if the store is full, false otherwise
      */
     public final boolean isFull() {
         return maximumSize > 0 && map.quickSize() >= maximumSize;
     }
 
     /**
-     * Puts an element into the store
+     * If the store is over capacity, evict elements until capacity is reached
+     *
+     * @param elementJustAdded the element added by the action calling this check
      */
     private void checkCapacity(final Element elementJustAdded) {
         if (maximumSize > 0) {
@@ -470,6 +478,9 @@ public class MemoryStore extends AbstractStore implements PoolableStore, CacheCo
 
     /**
      * Find a "relatively" unused element.
+     *
+     * @param elementJustAdded the element added by the action calling this check
+     * @return the element chosen as candidate for eviction
      */
     private Element findEvictionCandidate(final Element elementJustAdded) {
         Object objectKey = elementJustAdded != null ? elementJustAdded.getObjectKey() : null;
@@ -500,6 +511,7 @@ public class MemoryStore extends AbstractStore implements PoolableStore, CacheCo
      * <p/>
      * This implemenation uses a key array.
      *
+     * @param keyHint a key used as a hint indicating where the just added element is
      * @return a random sample of elements
      */
     private Element[] sampleElements(Object keyHint) {
@@ -928,17 +940,10 @@ public class MemoryStore extends AbstractStore implements PoolableStore, CacheCo
         private final ReentrantLock lock;
 
         /**
-         * default constructor.
-         */
-        public LockSync() {
-          this(new ReentrantLock());
-        }
-
-        /**
          * Constructor.
-         * @param lock
+         * @param lock the lock to wrap
          */
-        public LockSync(ReentrantLock lock) {
+        private LockSync(ReentrantLock lock) {
           this.lock = lock;
         }
         /**

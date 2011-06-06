@@ -553,6 +553,8 @@ public class DiskStoreTest extends AbstractCacheTest {
         diskStore.put(new Element("key1", value));
         diskStore.put(new Element("key2", value));
 
+        Thread.sleep(1000);
+
         // Get the element
         assertEquals(2, diskStore.getSize());
         assertEquals(2, diskStore.getOnDiskSize());
@@ -1131,7 +1133,7 @@ public class DiskStoreTest extends AbstractCacheTest {
 
         final int initialSize = store.getOnDiskSize();
         final int shrinkSize = initialSize / 2;
-        store.diskCapacityChanged(initialSize, shrinkSize);
+        store.changeDiskCapacity(shrinkSize);
         LOG.info("Resized : " + initialSize + " ==> " + shrinkSize);
 
         LOG.info("Wait For Spool Thread To Finish");
@@ -1159,7 +1161,7 @@ public class DiskStoreTest extends AbstractCacheTest {
         }
 
         final int growSize = initialSize * 2;
-        store.diskCapacityChanged(shrinkSize, growSize);
+        store.changeDiskCapacity(growSize);
         LOG.info("Resized : " + shrinkSize + " ==> " + growSize);
 
         LOG.info("Wait For Spool Thread To Finish");

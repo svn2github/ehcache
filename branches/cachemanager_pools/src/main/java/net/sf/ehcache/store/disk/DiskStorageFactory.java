@@ -20,6 +20,7 @@ import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.concurrent.ConcurrencyUtil;
+import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.event.RegisteredEventListeners;
 import net.sf.ehcache.store.disk.ods.FileAllocationTree;
 import net.sf.ehcache.store.disk.ods.Region;
@@ -110,6 +111,7 @@ public class DiskStorageFactory {
 
     private final RegisteredEventListeners cacheEventNotificationService;
     private final boolean diskPersistent;
+    private final CacheConfiguration cacheConfiguration;
 
     /**
      * Constructs an disk persistent factory for the given cache and disk path.
@@ -121,6 +123,7 @@ public class DiskStorageFactory {
     public DiskStorageFactory(Ehcache cache, String diskPath, RegisteredEventListeners cacheEventNotificationService) {
         this.file = getDataFile(diskPath, cache);
         this.indexFile = new File(getDataFile().getParentFile(), getIndexFileName(cache));
+        this.cacheConfiguration = cache.getCacheConfiguration();
 
         diskPersistent = cache.getCacheConfiguration().isDiskPersistent();
         if (!diskPersistent) {
@@ -191,6 +194,8 @@ public class DiskStorageFactory {
 
     /**
      * Return this size in bytes of this factory
+     *
+     * @return this size in bytes of this factory
      */
     public long getOnDiskSizeInBytes() {
         synchronized (dataAccess[0]) {
@@ -233,6 +238,8 @@ public class DiskStorageFactory {
 
     /**
      * Mark this on-disk marker as used (hooks into the file space allocation structure).
+     *
+     * @param marker on-disk marker to mark as used
      */
     protected void markUsed(DiskMarker marker) {
         allocator.mark(new Region(marker.getPosition(), marker.getPosition() + marker.getSize() - 1));
@@ -254,6 +261,7 @@ public class DiskStorageFactory {
      * Shuts down this disk factory.
      * <p>
      * This shuts down the executor and then waits for its termination, before closing the data file.
+     * @throws java.io.IOException if an IO error occurred
      */
     protected void shutdown() throws IOException {
         diskWriter.shutdown();
@@ -269,7 +277,7 @@ public class DiskStorageFactory {
             }
         }
 
-        for (RandomAccessFile raf : dataAccess) {
+        for (final RandomAccessFile raf : dataAccess) {
             synchronized (raf) {
                 raf.close();
             }
@@ -321,7 +329,7 @@ public class DiskStorageFactory {
      */
     protected Element read(DiskMarker marker) throws IOException, ClassNotFoundException {
         final byte[] buffer = new byte[marker.getSize()];
-        RandomAccessFile data = getDataAccess(marker.getKey());
+        final RandomAccessFile data = getDataAccess(marker.getKey());
         synchronized (data) {
             // Load the element
             data.seek(marker.getPosition());
@@ -371,7 +379,7 @@ public class DiskStorageFactory {
         elementSize = bufferLength;
         DiskMarker marker = alloc(element, bufferLength);
         // Write the record
-        RandomAccessFile data = getDataAccess(element.getObjectKey());
+        final RandomAccessFile data = getDataAccess(element.getObjectKey());
         synchronized (data) {
             data.seek(marker.getPosition());
             data.write(buffer.toByteArray(), 0, bufferLength);
@@ -418,6 +426,8 @@ public class DiskStorageFactory {
 
     /**
      * Return {@code true} if the disk write queue is full.
+     *
+     * @return {@code true} if the disk write queue is full.
      */
     public boolean bufferFull() {
         return (diskQueue.size() * elementSize) > queueCapacity;
@@ -425,6 +435,8 @@ public class DiskStorageFactory {
 
     /**
      * Return a reference to the data file backing this factory.
+     *
+     * @return a reference to the data file backing this factory.
      */
     public File getDataFile() {
         return file;
@@ -441,6 +453,8 @@ public class DiskStorageFactory {
 
         /**
          * Create a disk-write task for the given placeholder.
+         *
+         * @param p a disk-write task for the given placeholder.
          */
         DiskWriteTask(Placeholder p) {
             this.placeholder = p;
@@ -448,6 +462,8 @@ public class DiskStorageFactory {
 
         /**
          * Return the placeholder that this task will write.
+         *
+         * @return the placeholder that this task will write.
          */
         Placeholder getPlaceholder() {
             return placeholder;
@@ -509,7 +525,7 @@ public class DiskStorageFactory {
         private transient volatile DiskStorageFactory factory;
 
         /**
-         * Create a disk subsitute bound to no factory.  This constructor is used during
+         * Create a disk substitute bound to no factory.  This constructor is used during
          * de-serialization.
          */
         public DiskSubstitute() {
@@ -517,7 +533,9 @@ public class DiskStorageFactory {
         }
 
         /**
-         * Create a disk subsitute bound to the given factory.
+         * Create a disk substitute bound to the given factory.
+         *
+         * @param factory the factory to bind to.
          */
         DiskSubstitute(DiskStorageFactory factory) {
             this.factory = factory;
@@ -525,16 +543,22 @@ public class DiskStorageFactory {
 
         /**
          * Return the key to which this marker is (or should be) mapped.
+         *
+         * @return the key to which this marker is (or should be) mapped.
          */
         abstract Object getKey();
 
         /**
          * Return the total number of hits on this marker
+         *
+         * @return the total number of hits on this marker
          */
         abstract long getHitCount();
 
         /**
          * Return the time at which this marker expires.
+         *
+         * @return the time at which this marker expires.
          */
         abstract long getExpirationTime();
 
@@ -551,6 +575,7 @@ public class DiskStorageFactory {
          * Bind this marker to a given factory.
          * <p>
          * Used during deserialization of markers to associate them with the deserializing factory.
+         * @param factory the factory to bind to
          */
         void bindFactory(DiskStorageFactory factory) {
             this.factory = factory;
@@ -569,6 +594,8 @@ public class DiskStorageFactory {
 
         /**
          * Create a Placeholder wrapping the given element and key.
+         *
+         * @param element the element to wrap
          */
         Placeholder(Element element) {
             super(DiskStorageFactory.this);
@@ -582,7 +609,6 @@ public class DiskStorageFactory {
          */
         public void installed() {
             DiskStorageFactory.this.schedule(new PersistentDiskWriteTask(this));
-            //onDisk.incrementAndGet();
         }
 
         /**
@@ -608,6 +634,7 @@ public class DiskStorageFactory {
 
         /**
          * Return the element that this Placeholder is wrapping.
+         * @return the element that this Placeholder is wrapping.
          */
         Element getElement() {
             return element;
@@ -752,7 +779,7 @@ public class DiskStorageFactory {
                             eventService.notifyElementExpiry(element, false);
                         }
                     } catch (Exception e) {
-                        return;
+                        // ignore
                     }
                 } else {
                     store.evict(marker.getKey(), marker);
@@ -763,6 +790,7 @@ public class DiskStorageFactory {
 
     /**
      * Attempt to delete the corresponding file and log an error on failure.
+     * @param f the file to delete
      */
     protected static void deleteFile(File f) {
         if (!f.delete()) {
@@ -790,7 +818,7 @@ public class DiskStorageFactory {
         File data = new File(diskDir, getDataFileName(cache));
 
         //if diskpath contains auto generated string
-        if (diskPath.indexOf(AUTO_DISK_PATH_DIRECTORY_PREFIX) != -1) {
+        if (diskPath.contains(AUTO_DISK_PATH_DIRECTORY_PREFIX)) {
             LOG.warn("Data in persistent disk stores is ignored for stores from automatically created directories"
                     + " (they start with " + AUTO_DISK_PATH_DIRECTORY_PREFIX + ").\n"
                     + "Remove diskPersistent or resolve the conflicting disk paths in cache configuration.\n"
@@ -801,12 +829,12 @@ public class DiskStorageFactory {
         return data;
     }
 
-    private static final String getDataFileName(Ehcache cache) {
+    private static String getDataFileName(Ehcache cache) {
         String safeName = cache.getName().replace('/', '_');
         return safeName + ".data";
     }
 
-    private static final String getIndexFileName(Ehcache cache) {
+    private static String getIndexFileName(Ehcache cache) {
         String safeName = cache.getName().replace('/', '_');
         return safeName + ".index";
     }
@@ -892,6 +920,7 @@ public class DiskStorageFactory {
 
     /**
      * Schedule a flush (index write) for this factory.
+     * @return a Future
      */
     public Future<Void> flush() {
         return schedule(flushTask);
@@ -901,7 +930,15 @@ public class DiskStorageFactory {
         return new DiskMarker(this, position, size, element);
     }
 
+    private boolean isPinningEnabled() {
+        return cacheConfiguration.getPinningConfiguration() != null;
+    }
+
     public int evict(int count) {
+        if (isPinningEnabled()) {
+            return 0;
+        }
+
         int evicted = 0;
         for (int i = 0; i < count; i++) {
             DiskSubstitute target = this.getDiskEvictionTarget(null, count);
@@ -934,15 +971,9 @@ public class DiskStorageFactory {
     }
 
     /**
-     * Return {@code true} if the given element is on disk
-     */
-    public boolean isOnDisk(Object object) {
-        return onDiskFilter.allows(object);
-    }
-
-
-    /**
      * Return the number of on-disk elements
+     *
+     * @return the number of on-disk elements
      */
     public int getOnDiskSize() {
         return onDisk.get();
@@ -950,6 +981,8 @@ public class DiskStorageFactory {
 
     /**
      * Set the maximum on-disk capacity for this factory.
+     *
+     * @param capacity the maximum on-disk capacity for this factory.
      */
     public void setOnDiskCapacity(int capacity) {
         diskCapacity = capacity;
@@ -960,9 +993,7 @@ public class DiskStorageFactory {
             int overflow = size - diskCapacity;
             for (int i = 0; i < Math.min(MAX_EVICT, overflow); i++) {
                 DiskSubstitute target = getDiskEvictionTarget(keyHint, size);
-                if (target == null) {
-                    continue;
-                } else {
+                if (target != null) {
                     if (store.evict(target.getKey(), target) && (onDisk.get() <= diskCapacity)) {
                         break;
                     }
@@ -972,10 +1003,10 @@ public class DiskStorageFactory {
     }
 
     private DiskSubstitute getDiskEvictionTarget(Object keyHint, int size) {
-        List<DiskMarker> sample = store.getRandomSample(onDiskFilter, Math.min(SAMPLE_SIZE, size), keyHint);
-        DiskMarker target = null;
-        DiskMarker hintTarget = null;
-        for (DiskMarker substitute : sample) {
+        List<DiskSubstitute> sample = store.getRandomSample(onDiskFilter, Math.min(SAMPLE_SIZE, size), keyHint);
+        DiskSubstitute target = null;
+        DiskSubstitute hintTarget = null;
+        for (DiskSubstitute substitute : sample) {
             if ((target == null) || (substitute.getHitCount() < target.getHitCount())) {
                 if (substitute.getKey().equals(keyHint)) {
                     hintTarget = substitute;
@@ -994,6 +1025,8 @@ public class DiskStorageFactory {
 
         /**
          * Create a disk persistent disk-write task for this placeholder.
+         *
+         * @param p the placeholder
          */
         PersistentDiskWriteTask(Placeholder p) {
             super(p);
@@ -1023,6 +1056,9 @@ public class DiskStorageFactory {
 
         /**
          * Create a disk flush task that writes to the given file.
+         *
+         * @param index the file to write the index to
+         * @param clear clear on flush flag
          */
         IndexWriteTask(File index, boolean clear) {
             this.index = index;
@@ -1085,7 +1121,7 @@ public class DiskStorageFactory {
                 ois.close();
             }
         } catch (EOFException e) {
-            return;
+            // end of file reached, stop processing
         } catch (Exception e) {
             LOG.warn("Index file {} is corrupt, deleting and ignoring it : {}", indexFile, e);
             e.printStackTrace();
@@ -1098,6 +1134,7 @@ public class DiskStorageFactory {
 
     /**
      * Return the index file for this store.
+     * @return the index file
      */
     public File getIndexFile() {
         return indexFile;

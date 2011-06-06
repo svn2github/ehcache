@@ -85,14 +85,14 @@ public class DiskStore extends AbstractStore implements PoolableStore {
     private volatile PoolAccessor onDiskPoolAccessor;
 
 
-    protected DiskStore(DiskStorageFactory disk, Pool onHeapPool, Pool onDiskPool) {
+    protected DiskStore(DiskStorageFactory disk, CacheConfiguration cacheConfiguration, Pool onHeapPool, Pool onDiskPool) {
         this.segments = new Segment[DEFAULT_SEGMENT_COUNT];
         this.segmentShift = Integer.numberOfLeadingZeros(segments.length - 1);
         this.onHeapPoolAccessor = onHeapPool.createPoolAccessor(this);
         this.onDiskPoolAccessor = onDiskPool.createPoolAccessor(this, new DiskSizeOfEngine());
 
         for (int i = 0; i < this.segments.length; ++i) {
-            this.segments[i] = new Segment(DEFAULT_INITIAL_CAPACITY, DEFAULT_LOAD_FACTOR, disk, onHeapPoolAccessor, onDiskPoolAccessor);
+            this.segments[i] = new Segment(DEFAULT_INITIAL_CAPACITY, DEFAULT_LOAD_FACTOR, disk, cacheConfiguration, onHeapPoolAccessor, onDiskPoolAccessor);
         }
 
         this.disk = disk;
@@ -111,7 +111,7 @@ public class DiskStore extends AbstractStore implements PoolableStore {
      */
     public static DiskStore create(Ehcache cache, String diskStorePath, Pool onHeapPool, Pool onDiskPool) {
         DiskStorageFactory disk = new DiskStorageFactory(cache, diskStorePath, cache.getCacheEventNotificationService());
-        DiskStore store = new DiskStore(disk, onHeapPool, onDiskPool);
+        DiskStore store = new DiskStore(disk, cache.getCacheConfiguration(), onHeapPool, onDiskPool);
         cache.getCacheConfiguration().addConfigurationListener(new CacheConfigurationListenerAdapter(disk));
         return store;
     }
@@ -222,7 +222,7 @@ public class DiskStore extends AbstractStore implements PoolableStore {
         }
     }
 
-    public void diskCapacityChanged(int oldCapacity, int newCapacity) {
+    public void changeDiskCapacity(int newCapacity) {
         disk.setOnDiskCapacity(newCapacity);
     }
 
@@ -342,6 +342,8 @@ public class DiskStore extends AbstractStore implements PoolableStore {
 
     /**
      * Return a reference to the data file backing this store.
+     *
+     * @return a reference to the data file backing this store.
      */
     public File getDataFile() {
         return disk.getDataFile();
@@ -349,6 +351,8 @@ public class DiskStore extends AbstractStore implements PoolableStore {
 
     /**
      * Return a reference to the index file for this store.
+     *
+     * @return a reference to the index file for this store.
      */
     public File getIndexFile() {
         return disk.getIndexFile();
@@ -426,6 +430,10 @@ public class DiskStore extends AbstractStore implements PoolableStore {
 
     /**
      * Put the given encoded element directly into the store
+     *
+     * @param key the key of the element
+     * @param encoded the encoded element
+     * @return true if the encoded element was installed
      */
     public boolean putRawIfAbsent(Object key, Object encoded) {
         int hash = hash(key.hashCode());
@@ -441,6 +449,8 @@ public class DiskStore extends AbstractStore implements PoolableStore {
 
     /**
      * Get a set view of the keys in this store
+     *
+     * @return a set view of the keys in this store
      */
     public Set<Object> keySet() {
         if (keySet != null) {
@@ -546,14 +556,14 @@ public class DiskStore extends AbstractStore implements PoolableStore {
 
     private static long lockedSize(Segment[] segs) {
         long size = 0;
-        for (int i = 0; i < segs.length; ++i) {
-            segs[i].readLock().lock();
+        for (Segment seg : segs) {
+            seg.readLock().lock();
         }
-        for (int i = 0; i < segs.length; ++i) {
-            size += segs[i].count;
+        for (Segment seg : segs) {
+            size += seg.count;
         }
-        for (int i = 0; i < segs.length; ++i) {
-            segs[i].readLock().unlock();
+        for (Segment seg : segs) {
+            seg.readLock().unlock();
         }
 
         return size;
@@ -566,19 +576,31 @@ public class DiskStore extends AbstractStore implements PoolableStore {
         return status.get();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public boolean evictFromOnHeap(int count, long size) {
         // evicting from disk also frees up heap
         return disk.evict(count) == count;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public boolean evictFromOffHeap(int count, long size) {
         return false;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public boolean evictFromOnDisk(int count, long size) {
         return disk.evict(count) == count;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public float getApproximateDiskHitRate() {
         float sum = 0;
         for (Segment s : segments) {
@@ -587,6 +609,9 @@ public class DiskStore extends AbstractStore implements PoolableStore {
         return sum;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public float getApproximateDiskMissRate() {
         float sum = 0;
         for (Segment s : segments) {
@@ -595,10 +620,16 @@ public class DiskStore extends AbstractStore implements PoolableStore {
         return sum;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public float getApproximateHeapHitRate() {
         return 0;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public float getApproximateHeapMissRate() {
         return 0;
     }
@@ -675,8 +706,7 @@ public class DiskStore extends AbstractStore implements PoolableStore {
      */
     public boolean fault(Object key, Object expect, Object fault) {
         int hash = hash(key.hashCode());
-        boolean success = segmentFor(hash).fault(key, hash, expect, fault);
-        return success;
+        return segmentFor(hash).fault(key, hash, expect, fault);
     }
 
     /**
@@ -701,8 +731,7 @@ public class DiskStore extends AbstractStore implements PoolableStore {
      */
     public Element evictElement(Object key, Object substitute) {
         int hash = hash(key.hashCode());
-        Element evicted = segmentFor(hash).evict(key, hash, substitute);
-        return evicted;
+        return segmentFor(hash).evict(key, hash, substitute);
     }
 
     /**
@@ -713,8 +742,8 @@ public class DiskStore extends AbstractStore implements PoolableStore {
      * @param keyHint a key on which we are currently working
      * @return list of sampled elements/element substitute
      */
-    public <T> List<T> getRandomSample(ElementSubstituteFilter factory, int sampleSize, Object keyHint) {
-        ArrayList<T> sampled = new ArrayList<T>(sampleSize);
+    public List<DiskStorageFactory.DiskSubstitute> getRandomSample(ElementSubstituteFilter factory, int sampleSize, Object keyHint) {
+        ArrayList<DiskStorageFactory.DiskSubstitute> sampled = new ArrayList<DiskStorageFactory.DiskSubstitute>(sampleSize);
 
         // pick a random starting point in the map
         int randomHash = rndm.nextInt();
@@ -888,8 +917,6 @@ public class DiskStore extends AbstractStore implements PoolableStore {
          * @return next HashEntry
          */
         protected HashEntry nextEntry() {
-            HashEntry item = null;
-
             if (currentIterator == null) {
                 return null;
             }
