@@ -40,6 +40,7 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -101,6 +102,8 @@ public class MemoryStore extends AbstractStore implements PoolableStore, CacheCo
     private volatile PoolAccessor poolAccessor;
 
     private volatile CacheLockProvider lockProvider;
+
+    private final AtomicInteger pinnedCount = new AtomicInteger();
 
     /**
      * Constructs things that all MemoryStores have in common.
@@ -200,6 +203,9 @@ public class MemoryStore extends AbstractStore implements PoolableStore, CacheCo
                 writerManager.put(element);
             }
             checkCapacity(element);
+            if (element.isPinned()) {
+                pinnedCount.incrementAndGet();
+            }
             return old == null;
         }
     }
@@ -266,6 +272,9 @@ public class MemoryStore extends AbstractStore implements PoolableStore, CacheCo
         }
         if (element != null) {
             poolAccessor.delete(element.getObjectKey(), element.getObjectValue(), element);
+            if (element.isPinned()) {
+                pinnedCount.decrementAndGet();
+            }
             return element;
         } else {
             if (LOG.isDebugEnabled()) {
@@ -314,6 +323,7 @@ public class MemoryStore extends AbstractStore implements PoolableStore, CacheCo
     public final void removeAll() throws CacheException {
         map.clear();
         poolAccessor.clear();
+        pinnedCount.set(0);
     }
 
     /**
@@ -326,6 +336,7 @@ public class MemoryStore extends AbstractStore implements PoolableStore, CacheCo
         status = Status.STATUS_SHUTDOWN;
         flush();
         poolAccessor.unlink();
+        pinnedCount.set(0);
     }
 
     /**
@@ -665,6 +676,9 @@ public class MemoryStore extends AbstractStore implements PoolableStore, CacheCo
                 poolAccessor.delete(old.getObjectKey(), old.getObjectValue(), old);
             }
             checkCapacity(element);
+            if (element.isPinned()) {
+                pinnedCount.incrementAndGet();
+            }
             return old;
         } else {
             remove(element.getObjectKey());
@@ -689,6 +703,9 @@ public class MemoryStore extends AbstractStore implements PoolableStore, CacheCo
             if (comparator.equals(element, toRemove)) {
                 map.remove(key);
                 poolAccessor.delete(element.getObjectKey(), element.getObjectValue(), element);
+                if (element.isPinned()) {
+                    pinnedCount.decrementAndGet();
+                }
                 return toRemove;
             } else {
                 return null;
@@ -716,6 +733,12 @@ public class MemoryStore extends AbstractStore implements PoolableStore, CacheCo
                 if (comparator.equals(old, toRemove)) {
                     map.put(key, element);
                     poolAccessor.delete(toRemove.getObjectKey(), toRemove.getObjectValue(), toRemove);
+                    if (element.isPinned()) {
+                        pinnedCount.incrementAndGet();
+                    }
+                    if (toRemove.isPinned()) {
+                        pinnedCount.decrementAndGet();
+                    }
                     return true;
                 } else {
                     return false;
@@ -747,6 +770,12 @@ public class MemoryStore extends AbstractStore implements PoolableStore, CacheCo
                 if (toRemove != null) {
                     map.put(key, element);
                     poolAccessor.delete(toRemove.getObjectKey(), toRemove.getObjectValue(), toRemove);
+                    if (element.isPinned()) {
+                        pinnedCount.incrementAndGet();
+                    }
+                    if (toRemove.isPinned()) {
+                        pinnedCount.decrementAndGet();
+                    }
                     return toRemove;
                 } else {
                     return null;
@@ -768,6 +797,16 @@ public class MemoryStore extends AbstractStore implements PoolableStore, CacheCo
         return null;
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    public int getPinnedCount() {
+        return pinnedCount.get();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     public boolean evictFromOnHeap(int count, long size) {
         for (int i = 0; i < count; i++) {
             boolean removed = removeElementChosenByEvictionPolicy(null);
@@ -778,26 +817,44 @@ public class MemoryStore extends AbstractStore implements PoolableStore, CacheCo
         return true;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public boolean evictFromOffHeap(int count, long size) {
         return false;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public boolean evictFromOnDisk(int count, long size) {
         return false;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public float getApproximateDiskHitRate() {
         return 0;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public float getApproximateDiskMissRate() {
         return 0;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public float getApproximateHeapHitRate() {
         return hitRate.getRate();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public float getApproximateHeapMissRate() {
         return missRate.getRate();
     }

@@ -372,6 +372,13 @@ public final class NoOpOnTimeoutStore implements NonstopStore {
     /**
      * {@inheritDoc}
      */
+    public int getPinnedCount() {
+        return 0;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     public Set getLocalKeys() {
         return Collections.EMPTY_SET;
     }

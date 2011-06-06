@@ -955,6 +955,21 @@ public class ExecutorServiceStore implements RejoinAwareNonstopStore {
     /**
      * {@inheritDoc}
      */
+    public int getPinnedCount() {
+        try {
+            return executeWithExecutor(new Callable<Integer>() {
+                public Integer call() throws Exception {
+                    return nonstopActiveDelegateHolder.getUnderlyingTerracottaStore().getPinnedCount();
+                }
+            });
+        } catch (TimeoutException e) {
+            return timeoutBehaviorResolver.resolveTimeoutBehaviorStore().getPinnedCount();
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     public Set getLocalKeys() {
         try {
             return executeWithExecutor(new Callable<Set>() {

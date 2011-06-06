@@ -11,15 +11,12 @@ import net.sf.ehcache.pool.impl.UnboundedPool;
 import net.sf.ehcache.store.DiskBackedMemoryStore;
 import net.sf.ehcache.store.MemoryOnlyStore;
 import net.sf.ehcache.store.Store;
-import net.sf.ehcache.store.disk.DiskStore;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.io.Serializable;
 import java.util.concurrent.atomic.AtomicLong;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;

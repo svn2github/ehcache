@@ -25,12 +25,18 @@ public class MemoryOnlyStore extends FrontEndCacheTier<NullStore, MemoryStore> {
     }
 
     public static Store create(Ehcache cache, Pool onHeapPool) {
+        final NullStore nullStore = NullStore.create();
         final MemoryStore memoryStore = createMemoryStore(cache, onHeapPool);
-        return new MemoryOnlyStore(cache.getCacheConfiguration(), new NullStore(), memoryStore);
+        return new MemoryOnlyStore(cache.getCacheConfiguration(), nullStore, memoryStore);
     }
 
     private static MemoryStore createMemoryStore(Ehcache cache, Pool onHeapPool) {
         return MemoryStore.create(cache, onHeapPool);
+    }
+
+    @Override
+    protected boolean isAuthorityHandlingPinnedElements() {
+        return true;
     }
 
     @Override

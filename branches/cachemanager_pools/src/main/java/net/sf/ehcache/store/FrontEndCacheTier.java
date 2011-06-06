@@ -37,6 +37,10 @@ public abstract class FrontEndCacheTier<T extends Store, U extends Store> extend
     return true;
   }
 
+  protected boolean isAuthorityHandlingPinnedElements() {
+    return false;
+  }
+
   public Element get(Object key) {
     readLock(key);
     try {
@@ -75,6 +79,12 @@ public abstract class FrontEndCacheTier<T extends Store, U extends Store> extend
     writeLock(key);
     try {
       Element copy = copyElementForWriteIfNeeded(e);
+      if (!isAuthorityHandlingPinnedElements() && e.isPinned()) {
+        boolean put = cache.put(copy);
+        authority.remove(key);
+        return put;
+      }
+
       if (!isCacheFull() || cache.remove(key) != null) {
         cache.put(copy);
       }
@@ -90,6 +100,12 @@ public abstract class FrontEndCacheTier<T extends Store, U extends Store> extend
     writeLock(key);
     try {
       Element copy = copyElementForWriteIfNeeded(e);
+      if (!isAuthorityHandlingPinnedElements() && e.isPinned()) {
+        boolean put = cache.putWithWriter(copy, writer);
+        authority.remove(key);
+        return put;
+      }
+
       if (!isCacheFull() || cache.remove(key) != null) {
         cache.put(copy);
       }
@@ -125,6 +141,17 @@ public abstract class FrontEndCacheTier<T extends Store, U extends Store> extend
     writeLock(key);
     try {
       Element copy = copyElementForWriteIfNeeded(e);
+      if (!isAuthorityHandlingPinnedElements() && e.isPinned()) {
+        if (authority.containsKey(key)) {
+          return null;
+        }
+        Element put = cache.putIfAbsent(copy);
+        if (put != null) {
+          authority.remove(key);
+        }
+        return copyElementForReadIfNeeded(put);
+      }
+
       Element old = authority.putIfAbsent(copy);
       if (old == null) {
         if (!isCacheFull()) {
@@ -157,6 +184,20 @@ public abstract class FrontEndCacheTier<T extends Store, U extends Store> extend
     writeLock(key);
     try {
       Element copy = copyElementForWriteIfNeeded(e);
+      if (!isAuthorityHandlingPinnedElements() && e.isPinned()) {
+        if (!authority.containsKey(key)) {
+          return false;
+        } else {
+          cache.put(authority.get(key));
+        }
+
+        boolean replaced = cache.replace(old, copy, comparator);
+        if (replaced) {
+          authority.remove(key);
+        }
+        return replaced;
+      }
+
       cache.remove(old.getObjectKey());
       return authority.replace(old, copy, comparator);
     } finally {
@@ -170,6 +211,20 @@ public abstract class FrontEndCacheTier<T extends Store, U extends Store> extend
     writeLock(key);
     try {
       Element copy = copyElementForWriteIfNeeded(e);
+      if (!isAuthorityHandlingPinnedElements() && e.isPinned()) {
+        if (!authority.containsKey(key)) {
+          return null;
+        } else {
+          cache.put(authority.get(key));
+        }
+
+        Element replaced = cache.replace(copy);
+        if (replaced != null) {
+          authority.remove(key);
+        }
+        return copyElementForReadIfNeeded(replaced);
+      }
+
       cache.remove(e.getObjectKey());
       return copyElementForReadIfNeeded(authority.replace(copy));
     } finally {
@@ -240,7 +295,7 @@ public abstract class FrontEndCacheTier<T extends Store, U extends Store> extend
   public int getSize() {
     readLock();
     try {
-      return Math.max(cache.getSize(), authority.getSize());
+      return Math.max(cache.getSize(), authority.getSize() + cache.getPinnedCount());
     } finally {
       readUnlock();
     }
@@ -320,7 +375,11 @@ public abstract class FrontEndCacheTier<T extends Store, U extends Store> extend
     }
   }
 
-  //TODO : is this correct?
+  public int getPinnedCount() {
+    return cache.getPinnedCount();
+  }
+
+    //TODO : is this correct?
   public void flush() throws IOException {
     cache.flush();
     authority.flush();

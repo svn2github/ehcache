@@ -385,4 +385,10 @@ public interface Store {
      * @return the search attribute or null if non-existent
      */
     public <T> Attribute<T> getSearchAttribute(String attributeName);
+
+    /**
+     * Return the number of pinned elements (ie: elements for which e.isPinned() returns true).
+     * @return the number of pinned elements
+     */
+    public int getPinnedCount();
 }
