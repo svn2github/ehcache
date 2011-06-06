@@ -55,9 +55,11 @@ import net.sf.ehcache.loader.CacheLoader;
 import net.sf.ehcache.loader.CountingCacheLoader;
 import net.sf.ehcache.loader.DelayingLoader;
 import net.sf.ehcache.loader.ExceptionThrowingLoader;
+import net.sf.ehcache.store.FrontEndCacheTier;
 import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
-import net.sf.ehcache.store.compound.CompoundStore;
 
+import net.sf.ehcache.store.Store;
+import net.sf.ehcache.store.disk.DiskStore;
 import org.junit.After;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -845,8 +847,8 @@ public class CacheTest extends AbstractCacheTest {
         Object object2 = new Object();
         cache.put(new Element(object1, null));
         cache.put(new Element(object2, null));
-        //Cannot overflow therefore just one
-        assertEquals(1, cache.getSize());
+        
+        assertEquals(2, cache.getSize());
         Element nullValueElement = cache.get(object2);
         assertNull(nullValueElement.getValue());
         assertNull(nullValueElement.getObjectValue());
@@ -1044,9 +1046,9 @@ public class CacheTest extends AbstractCacheTest {
 
         Thread.sleep(1000);
 
-        assertEquals(10010, cache.getSize());
+        assertEquals(10000, cache.getSize());
         assertEquals(10000, cache.getMemoryStoreSize());
-        assertEquals(10, cache.getDiskStoreSize());
+        assertTrue(1010 > cache.getDiskStoreSize());
 
         //NonSerializable
         Thread.sleep(15);
@@ -1054,8 +1056,8 @@ public class CacheTest extends AbstractCacheTest {
 
         Thread.sleep(1000);
 
-        assertEquals(10011, cache.getSize());
-        assertEquals(11, cache.getDiskStoreSize());
+        assertEquals(10000, cache.getSize());
+        assertTrue(1010 > cache.getDiskStoreSize());
         assertEquals(10000, cache.getMemoryStoreSize());
         assertEquals(10000, cache.getMemoryStoreSize());
         assertEquals(10000, cache.getMemoryStoreSize());
@@ -1065,11 +1067,13 @@ public class CacheTest extends AbstractCacheTest {
         cache.remove("key4");
         cache.remove("key3");
 
-        assertEquals(10009, cache.getSize());
+        assertEquals(9998, cache.getSize());
         //cannot make any guarantees as no elements have been getted, and all are equally likely to be evicted.
         //assertEquals(10000, cache.getMemoryStoreSize());
         //assertEquals(9, cache.getDiskStoreSize());
 
+
+        Thread.sleep(1000);
 
         cache.removeAll();
         assertEquals(0, cache.getSize());
@@ -1358,6 +1362,8 @@ public class CacheTest extends AbstractCacheTest {
         cache.put(element1);
         cache.put(element2);
 
+        Thread.sleep(1000);
+
         //Removed because could not overflow
         if (cache.get("key1") == null) {
             assertNotNull(cache.get("key2"));
@@ -1435,32 +1441,30 @@ public class CacheTest extends AbstractCacheTest {
 
         cache.put(new Element("key1", "value1"));
         Thread.sleep(100);
-        assertEquals(0, cache.getDiskStoreSize());
+        assertEquals(1, cache.getDiskStoreSize());
         assertEquals(1, cache.getSize());
 
         cache.put(new Element("key2", "value2"));
         Thread.sleep(100);
         assertEquals(2, cache.getSize());
-        assertEquals(1, cache.getDiskStoreSize());
+        assertEquals(2, cache.getDiskStoreSize());
         assertEquals(1, cache.getMemoryStoreSize());
 
         cache.put(new Element("key3", "value3"));
         cache.put(new Element("key4", "value4"));
         Thread.sleep(100);
         assertEquals(4, cache.getSize());
-        assertEquals(3, cache.getDiskStoreSize());
+        assertEquals(4, cache.getDiskStoreSize());
         assertEquals(1, cache.getMemoryStoreSize());
 
         // remove last element inserted (is in memory store)
-        assertTrue(((CompoundStore) cache.getStore()).unretrievedGet("key4") instanceof Element);
         cache.remove("key4");
         Thread.sleep(100);
         assertEquals(3, cache.getSize());
         assertEquals(3, cache.getDiskStoreSize());
-        assertEquals(0, cache.getMemoryStoreSize());
+        assertEquals(1, cache.getMemoryStoreSize());
 
         // remove key1 element
-        assertFalse(((CompoundStore) cache.getStore()).unretrievedGet("key1") instanceof Element);
         cache.remove("key1");
         Thread.sleep(100);
         assertEquals(2, cache.getSize());
@@ -1471,7 +1475,7 @@ public class CacheTest extends AbstractCacheTest {
         cache.put(new Element("key5", "value5"));
         Thread.sleep(100);
         assertEquals(3, cache.getSize());
-        assertEquals(2, cache.getDiskStoreSize());
+        assertEquals(3, cache.getDiskStoreSize());
         assertEquals(1, cache.getMemoryStoreSize());
 
         // remove all

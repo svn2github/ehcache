@@ -802,6 +802,11 @@ public class Segment extends ReentrantReadWriteLock implements RetrievalStatisti
         return new HashIterator();
     }
 
+    @Override
+    public String toString() {
+        return super.toString() + " count: " + count;
+    }
+
     /**
      * An iterator over the HashEntry objects within this Segment.
      */

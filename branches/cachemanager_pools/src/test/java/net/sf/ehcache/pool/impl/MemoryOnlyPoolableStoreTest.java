@@ -7,25 +7,22 @@ import net.sf.ehcache.Element;
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.event.CacheEventListener;
 import net.sf.ehcache.store.DefaultElementValueComparator;
+import net.sf.ehcache.store.MemoryStore;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
-import static org.hamcrest.CoreMatchers.nullValue;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -36,32 +33,15 @@ public class MemoryOnlyPoolableStoreTest {
 
     private volatile Cache cache;
     private volatile BoundedPool onHeapPool;
-    private volatile MemoryOnlyPoolableStore memoryOnlyPoolableStore;
+    private volatile MemoryStore memoryOnlyPoolableStore;
     private volatile Element lastEvicted;
 
-    private static Collection<Object> keysOfOnHeapElements(MemoryOnlyPoolableStore store) {
-        List<Object> result = new ArrayList<Object>();
-
-        List keys = store.getKeys();
-        for (Object key : keys) {
-            if (store.isElementOnHeap(key)) {
-                result.add(key);
-            }
-        }
-
-        return result;
+    private static Collection keysOfOnHeapElements(MemoryStore store) {
+        return store.getKeys();
     }
 
-    private static int countElementsOnHeap(MemoryOnlyPoolableStore store) {
-        List keys = store.getKeys();
-        int countOnHeap = 0;
-        for (Object key : keys) {
-            boolean elementOnHeap = store.isElementOnHeap(key);
-            if (elementOnHeap) {
-                countOnHeap++;
-            }
-        }
-        return countOnHeap;
+    private static int countElementsOnHeap(MemoryStore store) {
+        return store.getInMemorySize();
     }
 
     private void dump() {
@@ -110,7 +90,7 @@ public class MemoryOnlyPoolableStoreTest {
                 )
         );
 
-        memoryOnlyPoolableStore = MemoryOnlyPoolableStore.create(cache, "/tmp", onHeapPool);
+        memoryOnlyPoolableStore = MemoryStore.create(cache, onHeapPool);
     }
 
     @After

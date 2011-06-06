@@ -17,52 +17,11 @@
 package net.sf.ehcache;
 
 import junit.framework.Assert;
-import net.sf.ehcache.bootstrap.BootstrapCacheLoader;
-import net.sf.ehcache.event.CacheEventListener;
-import net.sf.ehcache.event.RegisteredEventListeners;
-import net.sf.ehcache.loader.CacheLoader;
-import net.sf.ehcache.loader.CountingCacheLoader;
-import net.sf.ehcache.loader.DelayingLoader;
-import net.sf.ehcache.loader.ExceptionThrowingLoader;
-import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
-import net.sf.ehcache.store.compound.CompoundStore;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
-import java.beans.PropertyChangeSupport;
-import java.io.ByteArrayInputStream;
-import java.io.Serializable;
-import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
-
-import static junit.framework.Assert.assertSame;
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.not;
-import static org.hamcrest.CoreMatchers.sameInstance;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
 /**
  * Tests for Cache pinning
@@ -140,7 +99,6 @@ public class CachePinningTest {
         }
 
         Assert.assertEquals(ELEMENT_COUNT, cache.getSize());
-        Assert.assertEquals(0, cache.getDiskStoreSize());
 
         for (int i = 0; i < ELEMENT_COUNT; i++) {
             assertNotNull(cache.get(i));

@@ -17,6 +17,9 @@ package net.sf.ehcache.store.chm;
 
 import java.util.ArrayList;
 import java.util.Random;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
+
 import net.sf.ehcache.Element;
 
 /**
@@ -96,6 +99,16 @@ public class SelectableConcurrentHashMap extends ConcurrentHashMap<Object, Eleme
         if (size > Integer.MAX_VALUE)
             return Integer.MAX_VALUE;
         return (int) size;
+    }
+
+
+    public ReentrantLock lockFor(Object key) {
+        int hash = hash(key.hashCode());
+        return segmentFor(hash);
+    }
+
+    public Lock[] locks() {
+        return segments;
     }
 
 }

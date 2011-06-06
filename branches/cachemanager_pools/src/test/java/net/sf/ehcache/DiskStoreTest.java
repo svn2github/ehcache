@@ -32,6 +32,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.io.RandomAccessFile;
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -40,12 +41,11 @@ import java.util.concurrent.Callable;
 
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.DiskStoreConfiguration;
+import net.sf.ehcache.store.FrontEndCacheTier;
 import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
 import net.sf.ehcache.store.Primitive;
 import net.sf.ehcache.store.Store;
-import net.sf.ehcache.store.compound.CompoundStore;
-import net.sf.ehcache.store.compound.impl.DiskPersistentStore;
-import net.sf.ehcache.store.compound.impl.OverflowToDiskStore;
+import net.sf.ehcache.store.disk.DiskStore;
 import net.sf.ehcache.util.PropertyUtil;
 import net.sf.ehcache.util.RetryAssert;
 
@@ -68,7 +68,7 @@ import org.slf4j.LoggerFactory;
 public class DiskStoreTest extends AbstractCacheTest {
 
     private static final Logger LOG = LoggerFactory.getLogger(DiskStoreTest.class.getName());
-    private static final int ELEMENT_ON_DISK_SIZE = 1270;
+    private static final int ELEMENT_ON_DISK_SIZE = 1280;
     private CacheManager manager2;
 
     /**
@@ -151,9 +151,9 @@ public class DiskStoreTest extends AbstractCacheTest {
      * deleted on disposal
      */
     @Test
-    public void testNonPersistentStore() throws IOException, InterruptedException {
-        Store diskStore = createNonExpiringDiskStore();
-        File dataFile = ((OverflowToDiskStore) diskStore).getDataFile();
+    public void testNonPersistentStore() throws Exception {
+        DiskStore diskStore = getDiskStore(createNonExpiringDiskStore());
+        File dataFile = diskStore.getDataFile();
 
         //100 + 1 for the in-memory capacity
         for (int i = 0; i < 101; i++) {
@@ -161,9 +161,9 @@ public class DiskStoreTest extends AbstractCacheTest {
             diskStore.put(new Element("key" + (i + 100), data));
         }
         waitShorter();
-        assertEquals(ELEMENT_ON_DISK_SIZE * 100, diskStore.getOnDiskSizeInBytes());
+        assertEquals(ELEMENT_ON_DISK_SIZE * 100 + 1280, diskStore.getOnDiskSizeInBytes());
 
-        assertEquals(100, diskStore.getOnDiskSize());
+        assertEquals(101, diskStore.getOnDiskSize());
         assertEquals(101, diskStore.getSize());
         diskStore.dispose();
         Thread.sleep(1);
@@ -192,12 +192,12 @@ public class DiskStoreTest extends AbstractCacheTest {
      * Tests that the Disk Store can be changed
      */
     @Test
-    public void testSetDiskStorePath() throws IOException, InterruptedException {
+    public void testSetDiskStorePath() throws Exception {
         Cache cache = new Cache("testChangePath", 10000, true, false, 5, 1, true, 600);
         manager2 = new CacheManager();
         cache.setDiskStorePath(System.getProperty("java.io.tmpdir") + File.separator + "changedDiskStorePath");
         manager2.addCache(cache);
-        DiskPersistentStore diskStore = (DiskPersistentStore) cache.getStore();
+        DiskStore diskStore = getDiskStore(cache.getStore());
         File dataFile = diskStore.getDataFile();
         assertTrue("File exists", dataFile.exists());
     }
@@ -210,12 +210,12 @@ public class DiskStoreTest extends AbstractCacheTest {
      * an exception because the disk store is being shut down twice.
      */
     @Test
-    public void testPersistentStore() throws IOException, InterruptedException, CacheException {
+    public void testPersistentStore() throws Exception {
         //initialise
-        Store store = createPersistentDiskStoreFromCacheManager();
+        DiskStore store = getDiskStore(createPersistentDiskStoreFromCacheManager());
         store.removeAll();
 
-        File dataFile = ((DiskPersistentStore) store).getDataFile();
+        File dataFile = store.getDataFile();
 
         for (int i = 0; i < 100; i++) {
             byte[] data = new byte[1024];
@@ -312,7 +312,7 @@ public class DiskStoreTest extends AbstractCacheTest {
      * Tests that we can save and load a persistent store in a repeatable way
      */
     @Test
-    public void testLoadPersistentStore() throws IOException, InterruptedException {
+    public void testLoadPersistentStore() throws Exception {
         //initialise
         String cacheName = "testLoadPersistent";
         Store store = createPersistentDiskStore(cacheName);
@@ -332,8 +332,8 @@ public class DiskStoreTest extends AbstractCacheTest {
         Thread.sleep(3000);
         //check that we can create and dispose several times with no problems and no lost data
         for (int i = 0; i < 10; i++) {
-            store = createPersistentDiskStore(cacheName);
-            File dataFile = ((DiskPersistentStore) store).getDataFile();
+            store = getDiskStore(createPersistentDiskStore(cacheName));
+            File dataFile = ((DiskStore) store).getDataFile();
             assertTrue("File exists", dataFile.exists());
             assertEquals(100 * ELEMENT_ON_DISK_SIZE, dataFile.length());
             assertEquals(100, store.getSize());
@@ -349,7 +349,7 @@ public class DiskStoreTest extends AbstractCacheTest {
      * Any disk store with an auto generated random directory should not be able to be loaded.
      */
     @Test
-    public void testCannotLoadPersistentStoreWithAutoDir() throws IOException, InterruptedException {
+    public void testCannotLoadPersistentStoreWithAutoDir() throws Exception {
         //initialise
         String cacheName = "testPersistent";
         Store diskStore = createAutoPersistentDiskStore(cacheName);
@@ -369,7 +369,7 @@ public class DiskStoreTest extends AbstractCacheTest {
         Cache cache = new Cache(cacheName, 10000, true, false, 5, 1, true, 600);
         manager2.addCache(cache);
 
-        File dataFile = ((DiskPersistentStore) diskStore).getDataFile();
+        File dataFile = getDiskStore(diskStore).getDataFile();
         assertTrue("File exists", dataFile.exists());
         assertEquals(0, dataFile.length());
         assertEquals(0, cache.getSize());
@@ -383,7 +383,7 @@ public class DiskStoreTest extends AbstractCacheTest {
      * and delete and add data.
      */
     @Test
-    public void testLoadPersistentStoreWithDelete() throws IOException, InterruptedException {
+    public void testLoadPersistentStoreWithDelete() throws Exception {
         //initialise
         String cacheName = "testPersistentWithDelete";
         Store diskStore = createPersistentDiskStore(cacheName);
@@ -399,8 +399,8 @@ public class DiskStoreTest extends AbstractCacheTest {
         assertEquals(100, diskStore.getSize());
         manager.removeCache(cacheName);
 
-        diskStore = createPersistentDiskStore(cacheName);
-        File dataFile = ((DiskPersistentStore) diskStore).getDataFile();
+        diskStore = getDiskStore(createPersistentDiskStore(cacheName));
+        File dataFile = ((DiskStore) diskStore).getDataFile();
         assertTrue("File exists", dataFile.exists());
         assertEquals(100 * ELEMENT_ON_DISK_SIZE, dataFile.length());
         assertEquals(100, diskStore.getSize());
@@ -427,10 +427,10 @@ public class DiskStoreTest extends AbstractCacheTest {
      * Tests that we can load a store after the index has been corrupted
      */
     @Test
-    public void testLoadPersistentStoreAfterCorruption() throws IOException, InterruptedException {
+    public void testLoadPersistentStoreAfterCorruption() throws Exception {
         //initialise
         String cacheName = "testPersistent";
-        Store diskStore = createPersistentDiskStore(cacheName);
+        DiskStore diskStore = getDiskStore(createPersistentDiskStore(cacheName));
         diskStore.removeAll();
 
 
@@ -441,16 +441,16 @@ public class DiskStoreTest extends AbstractCacheTest {
         assertEquals(100, diskStore.getSize());
         manager.removeCache(cacheName);
 
-        File dataFile = ((DiskPersistentStore) diskStore).getDataFile();
+        File dataFile = ((DiskStore) diskStore).getDataFile();
         assertTrue(dataFile.length() >= 100 * ELEMENT_ON_DISK_SIZE);
 
-        File indexFile = ((DiskPersistentStore) diskStore).getIndexFile();
+        File indexFile = ((DiskStore) diskStore).getIndexFile();
         FileOutputStream fout = new FileOutputStream(indexFile);
         //corrupt the index file
         fout.write(new byte[]{'q', 'w', 'e', 'r', 't', 'y'});
         fout.close();
 
-        diskStore = createPersistentDiskStore(cacheName);
+        diskStore = getDiskStore(createPersistentDiskStore(cacheName));
         assertTrue("File exists", dataFile.exists());
 
         //Make sure the data file got recreated since the index was corrupt
@@ -463,7 +463,7 @@ public class DiskStoreTest extends AbstractCacheTest {
      * and delete and add data.
      */
     @Test
-    public void testFreeSpaceBehaviour() throws IOException, InterruptedException {
+    public void testFreeSpaceBehaviour() throws Exception {
         //initialise
         String cacheName = "testPersistent";
         Store diskStore = createPersistentDiskStore(cacheName);
@@ -479,7 +479,7 @@ public class DiskStoreTest extends AbstractCacheTest {
         manager.removeCache(cacheName);
 
         diskStore = createPersistentDiskStore(cacheName);
-        File dataFile = ((DiskPersistentStore) diskStore).getDataFile();
+        File dataFile = getDiskStore(diskStore).getDataFile();
         assertTrue("File exists", dataFile.exists());
         assertEquals(100 * ELEMENT_ON_DISK_SIZE, dataFile.length());
         assertEquals(100, diskStore.getSize());
@@ -555,7 +555,7 @@ public class DiskStoreTest extends AbstractCacheTest {
 
         // Get the element
         assertEquals(2, diskStore.getSize());
-        assertEquals(1, diskStore.getOnDiskSize());
+        assertEquals(2, diskStore.getOnDiskSize());
 
         Element element1 = diskStore.get("key1");
         Element element2 = diskStore.get("key2");
@@ -665,7 +665,7 @@ public class DiskStoreTest extends AbstractCacheTest {
      */
     @Test
     public void testPutSlow() throws Exception {
-        final CompoundStore diskStore = (CompoundStore) createDiskStore();
+        final DiskStore diskStore = getDiskStore(createDiskStore());
 
         // Make sure the element is not found
         assertEquals(0, diskStore.getSize());
@@ -680,18 +680,8 @@ public class DiskStoreTest extends AbstractCacheTest {
         waitShorter();
 
         // Get the element
-        assertEquals(1, diskStore.getOnDiskSize());
+        assertEquals(2, diskStore.getOnDiskSize());
         assertEquals(2, diskStore.getSize());
-
-        Object o1 = diskStore.unretrievedGet("key1");
-        Object o2 = diskStore.unretrievedGet("key2");
-        if (o1 instanceof Element) {
-            assertEquals("OverflowDiskMarker", o2.getClass().getSimpleName());
-        } else if (o2 instanceof Element) {
-            assertEquals("OverflowDiskMarker", o1.getClass().getSimpleName());
-        } else {
-            fail("One of the elements should be in memory");
-        }
 
         Element element1 = diskStore.get("key1");
         Element element2 = diskStore.get("key2");
@@ -706,15 +696,17 @@ public class DiskStoreTest extends AbstractCacheTest {
      */
     @Test
     public void testRemove() throws Exception {
-        final Store diskStore = createDiskStore();
+        final DiskStore diskStore = getDiskStore(createDiskStore());
 
         // Add the entry
         final String value = "value";
         diskStore.put(new Element("key1", value));
         diskStore.put(new Element("key2", value));
 
+        Thread.sleep(1000);
+
         // Check the entry is there
-        assertEquals(1, diskStore.getOnDiskSize());
+        assertEquals(2, diskStore.getOnDiskSize());
         assertEquals(2, diskStore.getSize());
 
         assertNotNull(diskStore.get("key1"));
@@ -723,6 +715,8 @@ public class DiskStoreTest extends AbstractCacheTest {
         // Remove it
         diskStore.remove("key1");
         diskStore.remove("key2");
+
+        waitShorter();
 
         // Check the entry is not there
         assertEquals(0, diskStore.getOnDiskSize());
@@ -736,7 +730,7 @@ public class DiskStoreTest extends AbstractCacheTest {
      */
     @Test
     public void testRemoveSlow() throws Exception {
-        final CompoundStore diskStore = (CompoundStore) createDiskStore();
+        final DiskStore diskStore = getDiskStore(createDiskStore());
 
         // Add the entry
         final String value = "value";
@@ -747,17 +741,8 @@ public class DiskStoreTest extends AbstractCacheTest {
         waitShorter();
 
         // Check the entry is there
-        assertEquals(1, diskStore.getOnDiskSize());
+        assertEquals(2, diskStore.getOnDiskSize());
         assertEquals(2, diskStore.getSize());
-        Object o1 = diskStore.unretrievedGet("key1");
-        Object o2 = diskStore.unretrievedGet("key2");
-        if (o1 instanceof Element) {
-            assertEquals("OverflowDiskMarker", o2.getClass().getSimpleName());
-        } else if (o2 instanceof Element) {
-            assertEquals("OverflowDiskMarker", o1.getClass().getSimpleName());
-        } else {
-            fail("One of the elements should be in memory");
-        }
 
         // Remove it
         diskStore.remove("key1");
@@ -775,7 +760,7 @@ public class DiskStoreTest extends AbstractCacheTest {
      */
     @Test
     public void testRemoveAll() throws Exception {
-        final Store diskStore = createDiskStore();
+        final DiskStore diskStore = getDiskStore(createDiskStore());
 
         // Add the entry
         final String value = "value";
@@ -801,7 +786,7 @@ public class DiskStoreTest extends AbstractCacheTest {
      */
     @Test
     public void testRemoveAllSlow() throws Exception {
-        final CompoundStore diskStore = (CompoundStore) createDiskStore();
+        final DiskStore diskStore = getDiskStore(createDiskStore());
 
         // Add the entry
         final String value = "value";
@@ -810,17 +795,6 @@ public class DiskStoreTest extends AbstractCacheTest {
 
         // Wait
         waitShorter();
-
-        // Check the entry is there
-        Object o1 = diskStore.unretrievedGet("key1");
-        Object o2 = diskStore.unretrievedGet("key2");
-        if (o1 instanceof Element) {
-            assertEquals("OverflowDiskMarker", o2.getClass().getSimpleName());
-        } else if (o2 instanceof Element) {
-            assertEquals("OverflowDiskMarker", o1.getClass().getSimpleName());
-        } else {
-            fail("One of the elements should be in memory");
-        }
 
         // Remove it
         diskStore.removeAll();
@@ -877,7 +851,7 @@ public class DiskStoreTest extends AbstractCacheTest {
     @Test
     public void testExpiry() throws Exception {
         // Create a diskStore with a cranked up expiry thread
-        final Store diskStore = createDiskStore();
+        final DiskStore diskStore = getDiskStore(createDiskStore());
 
         // Add an element that will expire.
         diskStore.put(new Element("key1", "value", false, 1, 1));
@@ -887,7 +861,7 @@ public class DiskStoreTest extends AbstractCacheTest {
         Thread.sleep(200);
 
         assertEquals(2, diskStore.getSize());
-        assertEquals(1, diskStore.getOnDiskSize());
+        assertEquals(2, diskStore.getOnDiskSize());
 
         // Wait a couple of seconds
         Thread.sleep(3000);
@@ -895,13 +869,8 @@ public class DiskStoreTest extends AbstractCacheTest {
         Element e1 = diskStore.get("key1");
         Element e2 = diskStore.get("key2");
 
-        if (e1 != null) {
-            assertNull(e2);
-        } else if (e2 != null) {
-            assertNull(e1);
-        } else {
-            fail("One of the Elements should have been in memory - and hence not be expired");
-        }
+        assertNull(e2);
+        assertNull(e1);
     }
 
     /**
@@ -931,7 +900,7 @@ public class DiskStoreTest extends AbstractCacheTest {
                 diskStore.put(element);
             }
             waitLonger();
-            int predictedSize = (ELEMENT_ON_DISK_SIZE + 68) * 100;
+            int predictedSize = (ELEMENT_ON_DISK_SIZE + 82) * 100;
             long actualSize = diskStore.getOnDiskSizeInBytes();
             LOG.info("Predicted Size: " + predictedSize + " Actual Size: " + actualSize);
             assertTrue(actualSize <= predictedSize);
@@ -1139,8 +1108,10 @@ public class DiskStoreTest extends AbstractCacheTest {
     }
 
     @Test
-    public void testShrinkingAndGrowingDiskStore() throws InterruptedException {
-        OverflowToDiskStore store = (OverflowToDiskStore) createCapacityLimitedDiskStore();
+    public void testShrinkingAndGrowingDiskStore() throws Exception {
+        Store diskBackedMemoryStore = createCapacityLimitedDiskStore();
+        DiskStore store = getDiskStore(diskBackedMemoryStore);
+
         int i = 0;
         store.put(new Element(Integer.valueOf(i++), new byte[100]));
         while (true) {
@@ -1214,6 +1185,12 @@ public class DiskStoreTest extends AbstractCacheTest {
             assertTrue(size < (growSize * 1.1));
             assertTrue(size > (growSize * 0.9));
         }
+    }
+
+    private DiskStore getDiskStore(Store diskBackedMemoryStore) throws NoSuchFieldException, IllegalAccessException {
+        Field f = FrontEndCacheTier.class.getDeclaredField("authority");
+        f.setAccessible(true);
+        return (DiskStore) f.get(diskBackedMemoryStore);
     }
 
     @Test

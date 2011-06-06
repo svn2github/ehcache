@@ -43,7 +43,6 @@ import java.io.RandomAccessFile;
 import java.io.Serializable;
 import java.util.ConcurrentModificationException;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
@@ -583,6 +582,7 @@ public class DiskStorageFactory {
          */
         public void installed() {
             DiskStorageFactory.this.schedule(new PersistentDiskWriteTask(this));
+            //onDisk.incrementAndGet();
         }
 
         /**
@@ -875,6 +875,11 @@ public class DiskStorageFactory {
     public void unbind() {
         try {
             flushTask.call();
+        } catch (Throwable t) {
+            LOG.error("Could flush disk cache. Initial cause was " + t.getMessage(), t);
+        }
+        
+        try {
             shutdown();
             if (getDataFile().getAbsolutePath().contains(AUTO_DISK_PATH_DIRECTORY_PREFIX)) {
                 deleteFile(indexFile);
@@ -969,12 +974,17 @@ public class DiskStorageFactory {
     private DiskSubstitute getDiskEvictionTarget(Object keyHint, int size) {
         List<DiskMarker> sample = store.getRandomSample(onDiskFilter, Math.min(SAMPLE_SIZE, size), keyHint);
         DiskMarker target = null;
+        DiskMarker hintTarget = null;
         for (DiskMarker substitute : sample) {
             if ((target == null) || (substitute.getHitCount() < target.getHitCount())) {
-                target = substitute;
+                if (substitute.getKey().equals(keyHint)) {
+                    hintTarget = substitute;
+                } else {
+                    target = substitute;
+                }
             }
         }
-        return target;
+        return target != null ? target : hintTarget;
     }
 
     /**
@@ -995,9 +1005,10 @@ public class DiskStorageFactory {
         @Override
         public DiskMarker call() {
             DiskMarker result = super.call();
-            //don't want to increment on exception throw
-            int disk = onDisk.incrementAndGet();
-            onDiskEvict(disk, getPlaceholder().getKey());
+            if (result != null) {
+                int disk = onDisk.incrementAndGet();
+                onDiskEvict(disk, getPlaceholder().getKey());
+            }
             return result;
         }
     }

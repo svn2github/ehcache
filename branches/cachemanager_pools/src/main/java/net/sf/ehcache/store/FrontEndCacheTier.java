@@ -9,9 +9,6 @@ import java.io.IOException;
 import java.util.List;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Element;
-import net.sf.ehcache.store.AbstractStore;
-import net.sf.ehcache.store.ElementValueComparator;
-import net.sf.ehcache.store.Store;
 import net.sf.ehcache.writer.CacheWriterManager;
 
 /**
@@ -179,7 +176,7 @@ public abstract class FrontEndCacheTier<T extends Store, U extends Store> extend
       writeUnlock(key);
     }
   }
-    
+
   public boolean containsKey(Object key) {
     readLock(key);
     try {
@@ -243,7 +240,7 @@ public abstract class FrontEndCacheTier<T extends Store, U extends Store> extend
   public int getSize() {
     readLock();
     try {
-      return authority.getSize();
+      return Math.max(cache.getSize(), authority.getSize());
     } finally {
       readUnlock();
     }

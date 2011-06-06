@@ -1,9 +1,11 @@
 package net.sf.ehcache.store;
 
+import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.Status;
 import net.sf.ehcache.config.CacheConfiguration;
+import net.sf.ehcache.event.CacheEventListener;
 import net.sf.ehcache.pool.Pool;
 import net.sf.ehcache.store.compound.ReadWriteCopyStrategy;
 import net.sf.ehcache.store.disk.DiskStore;
@@ -35,8 +37,32 @@ public class DiskBackedMemoryStore extends FrontEndCacheTier<MemoryStore, DiskSt
     }
 
     public static Store create(Ehcache cache, String diskStorePath, Pool onHeapPool, Pool onDiskPool) {
-        MemoryStore memoryStore = createMemoryStore(cache, onHeapPool);
+        final MemoryStore memoryStore = createMemoryStore(cache, onHeapPool);
         DiskStore diskStore = createDiskStore(cache, diskStorePath, onHeapPool, onDiskPool);
+
+        cache.getCacheEventNotificationService().registerListener(new CacheEventListener() {
+            @Override
+            public Object clone() throws CloneNotSupportedException {
+                return super.clone();
+            }
+            public void notifyElementRemoved(Ehcache cache, Element element) throws CacheException {
+            }
+            public void notifyElementPut(Ehcache cache, Element element) throws CacheException {
+            }
+            public void notifyElementUpdated(Ehcache cache, Element element) throws CacheException {
+            }
+            public void notifyElementExpired(Ehcache cache, Element element) {
+            }
+            public void notifyElementEvicted(Ehcache cache, Element element) {
+                // if an element can't be serialized by the disk store, it gets evicted
+                // and we must propagate the removal to the memory store
+                memoryStore.remove(element.getObjectKey());
+            }
+            public void notifyRemoveAll(Ehcache cache) {
+            }
+            public void dispose() {
+            }
+        });
 
         return new DiskBackedMemoryStore(cache.getCacheConfiguration(), memoryStore, diskStore);
     }
@@ -50,7 +76,7 @@ public class DiskBackedMemoryStore extends FrontEndCacheTier<MemoryStore, DiskSt
         if (config.isDiskPersistent() || config.isOverflowToDisk()) {
             return DiskStore.create(cache, diskPath, onHeapPool, onDiskPool);
         } else {
-            return null;
+            throw new CacheException("DiskBackedMemoryStore can only be used when cache overflows to disk or is disk persistent");
         }
     }
 

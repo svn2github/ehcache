@@ -70,7 +70,7 @@ import net.sf.ehcache.store.DiskBackedMemoryStore;
 import net.sf.ehcache.store.ElementValueComparator;
 import net.sf.ehcache.store.LegacyStoreWrapper;
 import net.sf.ehcache.store.LruMemoryStore;
-import net.sf.ehcache.store.MemoryStore;
+import net.sf.ehcache.store.MemoryOnlyStore;
 import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
 import net.sf.ehcache.store.Policy;
 import net.sf.ehcache.store.Store;
@@ -1167,7 +1167,7 @@ public class Cache implements Ehcache, StoreListener {
                     if (configuration.isDiskPersistent() || configuration.isOverflowToDisk()) {
                         store = makeXaStrictTransactionalIfNeeded(DiskBackedMemoryStore.create(this, diskStorePath, onHeapPool, onDiskPool), copyStrategy);
                     } else {
-                        store = makeXaStrictTransactionalIfNeeded(MemoryStore.create(this, onHeapPool), copyStrategy);
+                        store = makeXaStrictTransactionalIfNeeded(MemoryOnlyStore.create(this, onHeapPool), copyStrategy);
                     }
                 }
             }

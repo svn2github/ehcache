@@ -7,6 +7,8 @@ import net.sf.ehcache.Element;
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.event.CacheEventListener;
 import net.sf.ehcache.store.DefaultElementValueComparator;
+import net.sf.ehcache.store.DiskBackedMemoryStore;
+import net.sf.ehcache.store.disk.DiskStore;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -14,6 +16,7 @@ import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ExecutorService;
@@ -34,57 +37,23 @@ public class DiskPersistentPoolableStoreTest {
     private volatile Cache cache;
     private volatile BoundedPool onHeapPool;
     private volatile BoundedPool onDiskPool;
-    private volatile DiskPersistentPoolableStore diskPersistentPoolableStore;
+    private volatile DiskStore diskPersistentPoolableStore;
     private volatile Element lastEvicted;
 
-    private static Collection<Object> keysOfOnHeapElements(DiskPersistentPoolableStore store) {
-        List<Object> result = new ArrayList<Object>();
-
-        List keys = store.getKeys();
-        for (Object key : keys) {
-            if (store.isElementOnHeap(key)) {
-                result.add(key);
-            }
-        }
-
-        return result;
+    private static Collection<Object> keysOfOnHeapElements(DiskStore store) {
+        return Collections.emptySet();
     }
 
-    private static Collection<Object> keysOfOnDiskElements(DiskPersistentPoolableStore store) {
-        List<Object> result = new ArrayList<Object>();
-
-        List keys = store.getKeys();
-        for (Object key : keys) {
-            if (store.isElementOnDisk(key)) {
-                result.add(key);
-            }
-        }
-
-        return result;
+    private static Collection<Object> keysOfOnDiskElements(DiskStore store) {
+        return store.getKeys();
     }
 
-    private static int countElementsOnHeap(DiskPersistentPoolableStore store) {
-        List keys = store.getKeys();
-        int countOnHeap = 0;
-        for (Object key : keys) {
-            boolean elementOnHeap = store.isElementOnHeap(key);
-            if (elementOnHeap) {
-                countOnHeap++;
-            }
-        }
-        return countOnHeap;
+    private static int countElementsOnHeap(DiskStore store) {
+        return 0;
     }
 
-    private static int countElementsOnDisk(DiskPersistentPoolableStore store) {
-        List keys = store.getKeys();
-        int countOnDisk = 0;
-        for (Object key : keys) {
-            boolean elementOnDisk = store.isElementOnDisk(key);
-            if (elementOnDisk) {
-                countOnDisk++;
-            }
-        }
-        return countOnDisk;
+    private static int countElementsOnDisk(DiskStore store) {
+        return store.getSize();
     }
 
     private void dump() {
@@ -143,7 +112,7 @@ public class DiskPersistentPoolableStoreTest {
                 )
         );
 
-        diskPersistentPoolableStore = DiskPersistentPoolableStore.create(cache, "/tmp", onHeapPool, onDiskPool);
+        diskPersistentPoolableStore = DiskStore.create(cache, "/tmp", onHeapPool, onDiskPool);
         diskPersistentPoolableStore.removeAll();
     }
 
@@ -167,7 +136,7 @@ public class DiskPersistentPoolableStoreTest {
         diskPersistentPoolableStore.dispose();
 
         for (int i = 0; i < 30; i++) {
-            diskPersistentPoolableStore = DiskPersistentPoolableStore.create(cache, "/tmp", onHeapPool, onDiskPool);
+            diskPersistentPoolableStore = DiskStore.create(cache, "/tmp", onHeapPool, onDiskPool);
             assertEquals(2, diskPersistentPoolableStore.getSize());
             assertEquals(2 * 16384, onHeapPool.getSize());
             assertEquals(2 * 16384, onDiskPool.getSize());
