@@ -427,39 +427,42 @@ public class MemoryStore extends AbstractStore implements PoolableStore, CacheCo
      * Removes the element chosen by the eviction policy
      *
      * @param elementJustAdded it is possible for this to be null
+     * @return true if an element was removed, false otherwise.
      */
-    private void removeElementChosenByEvictionPolicy(final Element elementJustAdded) {
+    private boolean removeElementChosenByEvictionPolicy(final Element elementJustAdded) {
 
         LOG.debug("Cache is full. Removing element ...");
 
         Element element = findEvictionCandidate(elementJustAdded);
         if (element == null) {
             LOG.debug("Eviction selection miss. Selected element is null");
-            return;
+            return false;
         }
 
         // If the element is expired, remove
         if (element.isExpired()) {
             remove(element.getObjectKey());
             notifyExpiry(element);
-            return;
+            return true;
         }
 
         PinningConfiguration pinningConfiguration = cache.getCacheConfiguration().getPinningConfiguration();
         if (pinningConfiguration != null &&
                 pinningConfiguration.getStorage().equals(PinningConfiguration.Storage.ONHEAP)) {
-            return;
+            return false;
         }
 
         evict(element);
         remove(element.getObjectKey());
+        return true;
     }
 
     /**
      * Find a "relatively" unused element.
      */
-    private final Element findEvictionCandidate(final Element elementJustAdded) {
-        Element[] elements = sampleElements(elementJustAdded.getObjectKey());
+    private Element findEvictionCandidate(final Element elementJustAdded) {
+        Object objectKey = elementJustAdded != null ? elementJustAdded.getObjectKey() : null;
+        Element[] elements = sampleElements(objectKey);
         elements = filterOutPinnedElements(elements);
         // this can return null. Let the cache get bigger by one.
         return policy.selectedBasedOnPolicy(elements, elementJustAdded);
@@ -767,13 +770,10 @@ public class MemoryStore extends AbstractStore implements PoolableStore, CacheCo
 
     public boolean evictFromOnHeap(int count, long size) {
         for (int i = 0; i < count; i++) {
-            Element[] elements = sampleElements(map.size());
-            Element selected = policy.selectedBasedOnPolicy(elements, null);
-            if (selected == null) {
+            boolean removed = removeElementChosenByEvictionPolicy(null);
+            if (!removed) {
                 return false;
             }
-            evict(selected);
-            remove(selected.getObjectKey());
         }
         return true;
     }
