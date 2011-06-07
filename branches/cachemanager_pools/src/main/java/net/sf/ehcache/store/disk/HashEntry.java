@@ -32,13 +32,6 @@ import java.util.concurrent.atomic.AtomicReferenceFieldUpdater;
  */
 public abstract class HashEntry {
 
-    static HashEntry newHashEntry(Object key, int hash, HashEntry newFirst, Object element) {
-        if (VmUtils.isInGoogleAppEngine()) {
-            return new SynchronizedHashEntry(key, hash, newFirst, element);
-        }
-        return new AtomicHashEntry(key, hash, newFirst, element);
-    }
-
     /**
      * Key instance for this mapping.
      */
@@ -72,6 +65,22 @@ public abstract class HashEntry {
         this.next = next;
 
         setElement(element);
+    }
+
+    /**
+     * Create a new HashEntry instance
+     *
+     * @param key the key
+     * @param hash the hash of the key
+     * @param next the next hashEntry
+     * @param element the element
+     * @return a new HashEntry instance
+     */
+    static HashEntry newHashEntry(Object key, int hash, HashEntry next, Object element) {
+        if (VmUtils.isInGoogleAppEngine()) {
+            return new SynchronizedHashEntry(key, hash, next, element);
+        }
+        return new AtomicHashEntry(key, hash, next, element);
     }
 
     /**

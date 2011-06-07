@@ -51,7 +51,7 @@ import java.util.concurrent.locks.ReentrantLock;
  * @author <a href="mailto:ssuravarapu@users.sourceforge.net">Surya Suravarapu</a>
  * @version $Id$
  */
-public class MemoryStore extends AbstractStore implements PoolableStore, CacheConfigurationListener {
+public final class MemoryStore extends AbstractStore implements PoolableStore, CacheConfigurationListener {
 
     /**
      * This is the default from {@link java.util.concurrent.ConcurrentHashMap}. It should never be used, because we size
@@ -959,7 +959,7 @@ public class MemoryStore extends AbstractStore implements PoolableStore, CacheCo
      *
      * @author Ludovic Orban
      */
-    private static class LockSync implements Sync {
+    private static final class LockSync implements Sync {
 
         private final ReentrantLock lock;
 

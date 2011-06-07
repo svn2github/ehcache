@@ -562,10 +562,15 @@ public class DiskStorageFactory {
          */
         abstract long getExpirationTime();
 
+        /**
+         * Mark the disk substitute as installed
+         */
         abstract void installed();
 
         /**
-         * {@inheritDoc}
+         * Returns the {@link DiskStorageFactory} instance that generated this <code>DiskSubstitute</code>
+         *
+         * @return an <code>ElementProxyFactory</code>
          */
         public final DiskStorageFactory getFactory() {
             return factory;
@@ -607,6 +612,7 @@ public class DiskStorageFactory {
         /**
          * {@inheritDoc}
          */
+        @Override
         public void installed() {
             DiskStorageFactory.this.schedule(new PersistentDiskWriteTask(this));
         }
@@ -738,6 +744,9 @@ public class DiskStorageFactory {
             //no-op
         }
 
+        /**
+         * {@inheritDoc}
+         */
         @Override
         long getExpirationTime() {
             return expiry;
@@ -840,14 +849,21 @@ public class DiskStorageFactory {
     }
 
     /**
-     * {@inheritDoc}
+     * Create a disk substitute for an element
+     *
+     * @param element the element to create a disk substitute for
+     * @return The substitute element
+     * @throws IllegalArgumentException if element cannot be substituted
      */
     public DiskSubstitute create(Element element) throws IllegalArgumentException {
         return new Placeholder(element);
     }
 
     /**
-     * {@inheritDoc}
+     * Decodes the supplied {@link DiskSubstitute}.
+     *
+     * @param object ElementSubstitute to decode
+     * @return the decoded element
      */
     public Element retrieve(DiskSubstitute object) {
         if (object instanceof DiskMarker) {
@@ -866,6 +882,12 @@ public class DiskStorageFactory {
         }
     }
 
+    /**
+     * Decodes the supplied {@link DiskSubstitute}, updating statistics.
+     *
+     * @param object ElementSubstitute to decode
+     * @return the decoded element
+     */
     public Element retrieve(DiskSubstitute object, RetrievalStatistic statistic) {
         if (object instanceof DiskMarker) {
             try {
@@ -887,7 +909,10 @@ public class DiskStorageFactory {
     }
 
     /**
-     * {@inheritDoc}
+     * Returns <code>true</code> if this factory created the given object.
+     *
+     * @param object object to check
+     * @return <code>true</code> if object created by this factory
      */
     public boolean created(Object object) {
         if (object instanceof DiskSubstitute) {
@@ -898,7 +923,7 @@ public class DiskStorageFactory {
     }
 
     /**
-     * {@inheritDoc}
+     * Unbinds a store instance from this factory
      */
     public void unbind() {
         try {
@@ -926,7 +951,7 @@ public class DiskStorageFactory {
         return schedule(flushTask);
     }
 
-    protected DiskMarker createMarker(long position, int size, Element element) {
+    private DiskMarker createMarker(long position, int size, Element element) {
         return new DiskMarker(this, position, size, element);
     }
 

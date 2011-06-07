@@ -58,6 +58,12 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
  */
 public class DiskStore extends AbstractStore implements PoolableStore {
 
+    /**
+     * If the CacheManager needs to resolve a conflict with the disk path, it will create a
+     * subdirectory in the given disk path with this prefix followed by a number. The presence of this
+     * name is used to determined whether it makes sense for a persistent DiskStore to be loaded. Loading
+     * persistent DiskStores will only have useful semantics where the diskStore path has not changed.
+     */
     public static final String AUTO_DISK_PATH_DIRECTORY_PREFIX = "ehcache_auto_created";
 
     private static final int FFFFCD7D = 0xffffcd7d;
@@ -85,7 +91,7 @@ public class DiskStore extends AbstractStore implements PoolableStore {
     private volatile PoolAccessor onDiskPoolAccessor;
 
 
-    protected DiskStore(DiskStorageFactory disk, CacheConfiguration cacheConfiguration, Pool onHeapPool, Pool onDiskPool) {
+    private DiskStore(DiskStorageFactory disk, CacheConfiguration cacheConfiguration, Pool onHeapPool, Pool onDiskPool) {
         this.segments = new Segment[DEFAULT_SEGMENT_COUNT];
         this.segmentShift = Integer.numberOfLeadingZeros(segments.length - 1);
         this.onHeapPoolAccessor = onHeapPool.createPoolAccessor(this);
@@ -138,44 +144,88 @@ public class DiskStore extends AbstractStore implements PoolableStore {
         return DiskStore.AUTO_DISK_PATH_DIRECTORY_PREFIX + "_" + System.currentTimeMillis();
     }
 
+    /**
+     * Acquire the read lock of the specified key
+     *
+     * @see net.sf.ehcache.store.FrontEndCacheTier#readLock(Object)
+     * @param key the key to read-lock
+     */
     public void readLock(Object key) {
         int hash = key == null ? 0 : hash(key.hashCode());
         segmentFor(hash).readLock().lock();
     }
 
+    /**
+     * Unlock the read lock of the specified key
+     *
+     * @see net.sf.ehcache.store.FrontEndCacheTier#readUnlock(Object)
+     * @param key the key to read-unlock
+     */
     public void readUnlock(Object key) {
         int hash = key == null ? 0 : hash(key.hashCode());
         segmentFor(hash).readLock().unlock();
     }
 
+    /**
+     * Acquire the write lock of the specified key
+     *
+     * @see net.sf.ehcache.store.FrontEndCacheTier#writeLock(Object)
+     * @param key the key to write-lock
+     */
     public void writeLock(Object key) {
         int hash = key == null ? 0 : hash(key.hashCode());
         segmentFor(hash).writeLock().lock();
     }
 
+    /**
+     * Unlock the write lock of the specified key
+     *
+     * @see net.sf.ehcache.store.FrontEndCacheTier#writeUnlock(Object)
+     * @param key the key to write-unlock
+     */
     public void writeUnlock(Object key) {
         int hash = key == null ? 0 : hash(key.hashCode());
         segmentFor(hash).writeLock().unlock();
     }
 
+    /**
+     * Acquire the read lock of all keys
+     *
+     * @see net.sf.ehcache.store.FrontEndCacheTier#readLock()
+     */
     public void readLock() {
         for (Segment segment : segments) {
             segment.readLock().lock();
         }
     }
 
+    /**
+     * Unlock the read lock of all keys
+     *
+     * @see net.sf.ehcache.store.FrontEndCacheTier#readUnlock()
+     */
     public void readUnlock() {
         for (Segment segment : segments) {
             segment.readLock().unlock();
         }
     }
 
+    /**
+     * Acquire the write lock of all keys
+     *
+     * @see net.sf.ehcache.store.FrontEndCacheTier#writeLock()
+     */
     public void writeLock() {
         for (Segment segment : segments) {
             segment.writeLock().lock();
         }
     }
 
+    /**
+     * Unlock the write lock of all keys
+     *
+     * @see net.sf.ehcache.store.FrontEndCacheTier#writeUnlock()
+     */
     public void writeUnlock() {
         for (Segment segment : segments) {
             segment.writeLock().unlock();
@@ -189,39 +239,64 @@ public class DiskStore extends AbstractStore implements PoolableStore {
 
         private final DiskStorageFactory disk;
 
-        public CacheConfigurationListenerAdapter(DiskStorageFactory disk) {
+        private CacheConfigurationListenerAdapter(DiskStorageFactory disk) {
             this.disk = disk;
         }
 
+        /**
+         * {@inheritDoc}
+         */
         public void timeToIdleChanged(long oldTimeToIdle, long newTimeToIdle) {
             // no-op
         }
 
+        /**
+         * {@inheritDoc}
+         */
         public void timeToLiveChanged(long oldTimeToLive, long newTimeToLive) {
             // no-op
         }
 
+        /**
+         * {@inheritDoc}
+         */
         public void diskCapacityChanged(int oldCapacity, int newCapacity) {
             disk.setOnDiskCapacity(newCapacity);
         }
 
+        /**
+         * {@inheritDoc}
+         */
         public void memoryCapacityChanged(int oldCapacity, int newCapacity) {
             // no-op
         }
 
+        /**
+         * {@inheritDoc}
+         */
         public void loggingChanged(boolean oldValue, boolean newValue) {
             // no-op
         }
 
+        /**
+         * {@inheritDoc}
+         */
         public void registered(CacheConfiguration config) {
             // no-op
         }
 
+        /**
+         * {@inheritDoc}
+         */
         public void deregistered(CacheConfiguration config) {
             // no-op
         }
     }
 
+    /**
+     * Change the disk capacity, in number of elements
+     * @param newCapacity the new max elements on disk
+     */
     public void changeDiskCapacity(int newCapacity) {
         disk.setOnDiskCapacity(newCapacity);
     }
@@ -385,11 +460,11 @@ public class DiskStore extends AbstractStore implements PoolableStore {
     public boolean putWithWriter(Element element, CacheWriterManager writerManager) {
         boolean newPut = put(element);
         if (writerManager != null) {
-          try {
-            writerManager.put(element);
-          } catch (RuntimeException e) {
-              throw new StoreUpdateException(e, !newPut);
-          }
+            try {
+                writerManager.put(element);
+            } catch (RuntimeException e) {
+                throw new StoreUpdateException(e, !newPut);
+            }
         }
         return newPut;
     }
@@ -1021,6 +1096,9 @@ public class DiskStore extends AbstractStore implements PoolableStore {
             }
         }
 
+        /**
+         * {@inheritDoc}
+         */
         public boolean isHeldByCurrentThread(LockType type) {
             switch (type) {
             case READ:

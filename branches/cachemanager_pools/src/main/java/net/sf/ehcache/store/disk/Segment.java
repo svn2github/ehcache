@@ -271,7 +271,8 @@ public class Segment extends ReentrantReadWriteLock implements RetrievalStatisti
                 Object onDiskSubstitute = e.getElement();
 
                 long size;
-                if ((size = onHeapPoolAccessor.replace(Role.VALUE, onDiskSubstitute, encoded, isPinningEnabled())) == Long.MAX_VALUE) {
+                size = onHeapPoolAccessor.replace(Role.VALUE, onDiskSubstitute, encoded, isPinningEnabled());
+                if (size == Long.MAX_VALUE) {
                     LOG.debug("replace3 failed to add on heap");
                     free(encoded);
                     return false;
@@ -324,7 +325,8 @@ public class Segment extends ReentrantReadWriteLock implements RetrievalStatisti
                 Object onDiskSubstitute = e.getElement();
 
                 long size;
-                if ((size = onHeapPoolAccessor.replace(Role.VALUE, onDiskSubstitute, encoded, isPinningEnabled())) == Long.MAX_VALUE) {
+                size = onHeapPoolAccessor.replace(Role.VALUE, onDiskSubstitute, encoded, isPinningEnabled());
+                if (size == Long.MAX_VALUE) {
                     LOG.debug("replace2 failed to add on heap");
                     free(encoded);
                     return null;
@@ -376,7 +378,8 @@ public class Segment extends ReentrantReadWriteLock implements RetrievalStatisti
         writeLock().lock();
         try {
             long size;
-            if ((size = onHeapPoolAccessor.add(key, encoded, HashEntry.newHashEntry(key, hash, null, null), isPinningEnabled())) < 0) {
+            size = onHeapPoolAccessor.add(key, encoded, HashEntry.newHashEntry(key, hash, null, null), isPinningEnabled());
+            if (size < 0) {
                 LOG.debug("put failed to add on heap");
                 return null;
             } else {
@@ -670,12 +673,14 @@ public class Segment extends ReentrantReadWriteLock implements RetrievalStatisti
         readLock().lock();
         try {
             long size;
-            if ((size = onHeapPoolAccessor.replace(Role.VALUE, expect, fault, isPinningEnabled())) == Long.MAX_VALUE) {
+            size = onHeapPoolAccessor.replace(Role.VALUE, expect, fault, isPinningEnabled());
+            if (size == Long.MAX_VALUE) {
                 return false;
             } else {
                 LOG.debug("fault removed {} from heap", size);
             }
-            if ((size = onDiskPoolAccessor.add(key, null, fault, isPinningEnabled())) < 0) {
+            size = onDiskPoolAccessor.add(key, null, fault, isPinningEnabled());
+            if (size < 0) {
                 long deleteSize = onHeapPoolAccessor.delete(key, fault, HashEntry.newHashEntry(key, hash, null, null));
                 LOG.debug("fault failed to add {} on disk, deleted {} from heap", size, deleteSize);
                 return false;
@@ -901,18 +906,32 @@ public class Segment extends ReentrantReadWriteLock implements RetrievalStatisti
         }
     }
 
+    /**
+     * Return the disk hit rate
+     * @return the disk hit rate
+     */
     public float getDiskHitRate() {
         return diskHitRate.getRate();
     }
 
+    /**
+     * Return the disk miss rate
+     * @return the disk miss rate
+     */
     public float getDiskMissRate() {
         return diskMissRate.getRate();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public void diskHit() {
         diskHitRate.event();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public void miss() {
         diskMissRate.event();
     }

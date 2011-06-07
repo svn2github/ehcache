@@ -26,12 +26,21 @@ import net.sf.ehcache.writer.CacheWriterManager;
 /**
  * Abstract class for stores which combine two other stores, one caching the other (aka authority)'s elements.
  *
+ * @param <T> the cache tier store type
+ * @param <U> the authority tier store type
  * @author Chris Dennis
  * @author Ludovic Orban
  */
 public abstract class FrontEndCacheTier<T extends Store, U extends Store> extends AbstractStore {
 
+    /**
+     * The cache tier store
+     */
     protected final T cache;
+
+    /**
+     * The authority tier store
+     */
     protected final U authority;
 
     /**

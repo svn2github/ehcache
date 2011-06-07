@@ -30,7 +30,7 @@ import java.util.List;
  *
  * @author Ludovic Orban
  */
-public class NullStore extends AbstractStore {
+public final class NullStore extends AbstractStore {
 
     private NullStore() {
     }
