@@ -934,7 +934,7 @@ public class DiskStorageFactory {
         return cacheConfiguration.getPinningConfiguration() != null;
     }
 
-    public int evict(int count) {
+    int evict(int count) {
         if (isPinningEnabled()) {
             return 0;
         }

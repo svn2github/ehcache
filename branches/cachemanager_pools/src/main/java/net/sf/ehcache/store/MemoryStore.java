@@ -872,22 +872,37 @@ public class MemoryStore extends AbstractStore implements PoolableStore, CacheCo
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public void readLock(Object key) {
         map.lockFor(key).lock();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public void readUnlock(Object key) {
         map.lockFor(key).unlock();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public void writeLock(Object key) {
         map.lockFor(key).lock();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public void writeUnlock(Object key) {
         map.lockFor(key).unlock();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public void readLock() {
         Lock[] locks = map.locks();
         for (Lock lock : locks) {
@@ -895,6 +910,9 @@ public class MemoryStore extends AbstractStore implements PoolableStore, CacheCo
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public void readUnlock() {
         Lock[] locks = map.locks();
         for (Lock lock : locks) {
@@ -902,6 +920,9 @@ public class MemoryStore extends AbstractStore implements PoolableStore, CacheCo
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public void writeLock() {
         Lock[] locks = map.locks();
         for (Lock lock : locks) {
@@ -909,6 +930,9 @@ public class MemoryStore extends AbstractStore implements PoolableStore, CacheCo
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public void writeUnlock() {
         Lock[] locks = map.locks();
         for (Lock lock : locks) {

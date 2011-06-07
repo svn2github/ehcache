@@ -28,7 +28,7 @@ import net.sf.ehcache.store.compound.ReadWriteCopyStrategy;
  *
  * @author Ludovic Orban
  */
-public class MemoryOnlyStore extends FrontEndCacheTier<NullStore, MemoryStore> {
+public final class MemoryOnlyStore extends FrontEndCacheTier<NullStore, MemoryStore> {
 
     private final boolean copyOnRead;
     private final boolean copyOnWrite;

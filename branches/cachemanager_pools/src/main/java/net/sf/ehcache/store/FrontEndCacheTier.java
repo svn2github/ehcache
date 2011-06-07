@@ -34,6 +34,12 @@ public abstract class FrontEndCacheTier<T extends Store, U extends Store> extend
     protected final T cache;
     protected final U authority;
 
+    /**
+     * Constructor for FrontEndCacheTier
+     * 
+     * @param cache the caching tier
+     * @param authority the authority tier
+     */
     public FrontEndCacheTier(T cache, U authority) {
         this.cache = cache;
         this.authority = authority;
@@ -41,6 +47,7 @@ public abstract class FrontEndCacheTier<T extends Store, U extends Store> extend
 
     /**
      * Perform copy on read.
+     *
      * @param element the element to copy
      * @return the copied element
      */
@@ -48,6 +55,7 @@ public abstract class FrontEndCacheTier<T extends Store, U extends Store> extend
 
     /**
      * Perform copy on write
+     *
      * @param element the element to copy
      * @return the copied element
      */
@@ -55,12 +63,14 @@ public abstract class FrontEndCacheTier<T extends Store, U extends Store> extend
 
     /**
      * Check if the caching store is full
+     *
      * @return true if the caching store is full, otherwise false.
      */
     protected abstract boolean isCacheFull();
 
     /**
      * Check if the authority can handle pinned elements. The default implementation returns false.
+     * 
      * @return true if the authority can handle pinned elements, false otherwise.
      */
     protected boolean isAuthorityHandlingPinnedElements() {
