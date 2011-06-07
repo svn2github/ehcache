@@ -66,7 +66,7 @@ public final class DiskStoreConfiguration {
             if (substitution == null) {
                 return string;
             } else {
-                return string.replaceFirst(Pattern.quote(variable), substitution);
+                return string.replaceFirst(Pattern.quote(variable), Matcher.quoteReplacement(substitution));
             }
         }
     }
@@ -101,17 +101,20 @@ public final class DiskStoreConfiguration {
      * <p>
      * Two forms of path substitution are supported:
      * <ol>
-     * <li>To support legacy configurations, four explicit string tokens are replaced with their
-     * associated Java system property values.
+     * <li>To support legacy configurations, four explicit string tokens are replaced with their associated Java system property values.
+     * This substitution happens for the <em>first matching token only</em> (e.g. <code>java.io.tmpdir/ehcache/java.io.tmpdir</code> &rarr;
+     * <code>/var/tmp/ehcache/java.io.tmpdir</code>).
      * <ul>
      * <li><code>user.home</code> - the user's home directory</li>
      * <li><code>user.dir</code> - the current working directory</li>
      * <li><code>java.io.tmpdir</code> - the default temp file path</li>
-     * <li><code>ehcache.disk.store.dir</code> - a system property you would normally specify on the command line, e.g. <code>java -Dehcache.disk.store.dir=/u01/myapp/diskdir</code></li>
+     * <li><code>ehcache.disk.store.dir</code> - a system property you would normally specify on the command line, e.g.
+     * <code>java -Dehcache.disk.store.dir=/u01/myapp/diskdir</code></li>
      * </ul>
      * </li>
-     * <li>These, and all other system properties can also be substituted using the familiar syntax<br>
-     * <code>${system-property-name}/some-path-fragment/${other-property-name}</code></li>
+     * <li>These, and all other system properties can also be substituted using the familiar syntax: <code>${property-name}</code>. Using
+     * this syntax all token instances are replaced (e.g. <code>${java.io.tmpdir}/ehcache/${java.io.tmpdir}</code> &rarr;
+     * <code>/var/tmp/ehcache/var/tmp</code>).</li>
      * </ol>
      *
      * @param path disk store path
