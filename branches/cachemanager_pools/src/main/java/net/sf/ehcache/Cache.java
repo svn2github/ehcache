@@ -1127,14 +1127,6 @@ public class Cache implements Ehcache, StoreListener {
                 try {
                     Class<Store> offHeapStoreClass = ClassLoaderUtil.loadClass(OFF_HEAP_STORE_CLASSNAME);
 
-                    // off-heap validation
-                    if (getCacheManager().getConfiguration().isMaxBytesOffHeapSet() && configuration.getMaxMemoryOffHeap() != null) {
-                        throw new InvalidConfigurationException(configuration.getName() + ": MaxMemoryOffHeap is not compatible with MaxBytesOffHeap set on cache manager");
-                    }
-                    if (configuration.getMaxBytesOffHeap() > 0 && configuration.getMaxMemoryOffHeap() != null) {
-                        throw new InvalidConfigurationException(configuration.getName() + ": MaxMemoryOffHeap is not compatible with MaxBytesOffHeap set on cache");
-                    }
-
                     try {
                         store = makeXaStrictTransactionalIfNeeded((Store) offHeapStoreClass.getMethod("create", Ehcache.class, String.class, Pool.class, Pool.class)
                                 .invoke(null, this, diskStorePath, onHeapPool, onDiskPool), copyStrategy);

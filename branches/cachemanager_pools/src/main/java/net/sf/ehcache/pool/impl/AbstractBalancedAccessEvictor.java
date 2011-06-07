@@ -24,11 +24,19 @@ import java.util.List;
 
 import net.sf.ehcache.pool.PoolEvictor;
 
+/**
+ * Abstract implementation of a global 'cache value' maximizing pool eviction algorithm.
+ * <p>
+ *
+ * @author Chris Dennis
+ *
+ * @param <T> type of store handled by this evictor
+ */
 public abstract class AbstractBalancedAccessEvictor<T> implements PoolEvictor<T> {
 
     private static final double ALPHA = 1.0;
 
-    class EvictionCostComparator implements Comparator<T> {
+    private class EvictionCostComparator implements Comparator<T> {
 
         final long unloadedSize;
 

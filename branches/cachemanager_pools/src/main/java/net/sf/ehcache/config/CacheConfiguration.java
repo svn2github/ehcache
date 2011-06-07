@@ -30,7 +30,6 @@ import net.sf.ehcache.config.TerracottaConfiguration.StorageStrategy;
 import net.sf.ehcache.event.NotificationScope;
 import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
 import net.sf.ehcache.store.compound.ReadWriteCopyStrategy;
-import net.sf.ehcache.util.MemorySizeParser;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -287,11 +286,6 @@ public class CacheConfiguration implements Cloneable {
     protected volatile boolean overflowToOffHeap;
 
     /**
-     * Maximum size of the off heap memory allocated to this cache.
-     */
-    protected volatile String maxMemoryOffHeap;
-
-    /**
      * The event listener factories added by BeanUtils.
      */
     protected volatile List<CacheEventListenerFactoryConfiguration> cacheEventListenerConfigurations =
@@ -540,7 +534,7 @@ public class CacheConfiguration implements Cloneable {
      */
     public final void setMaxMemoryOffHeap(String maxMemoryOffHeap) {
         checkDynamicChange();
-        this.maxMemoryOffHeap = maxMemoryOffHeap;
+        setMaxBytesOffHeap(maxMemoryOffHeap);
     }
 
     /**
@@ -1727,7 +1721,7 @@ public class CacheConfiguration implements Cloneable {
      * @return the max memory of the offheap store for this cache.
      */
     public String getMaxMemoryOffHeap() {
-        return maxMemoryOffHeap;
+        return Long.toString(getMaxMemoryOffHeapInBytes());
     }
 
     /**
@@ -1737,7 +1731,7 @@ public class CacheConfiguration implements Cloneable {
      * @see #getMaxMemoryOffHeap()
      */
     public long getMaxMemoryOffHeapInBytes() {
-        return MemorySizeParser.parse(maxMemoryOffHeap);
+        return getMaxBytesOffHeap();
     }
 
     /**
