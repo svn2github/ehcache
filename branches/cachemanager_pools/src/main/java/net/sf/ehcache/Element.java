@@ -105,7 +105,7 @@ public class Element implements Serializable, Cloneable {
 
     private volatile boolean cacheDefaultLifespan = true;
 
-    private volatile boolean pinned = false;
+    private volatile boolean pinned;
 
     /**
      * A full constructor.
@@ -783,10 +783,20 @@ public class Element implements Serializable, Cloneable {
         return cacheDefaultLifespan;
     }
 
+    /**
+     * Mark the element as pinned or not
+     *
+     * @param pinned true if the element should be pinned, false otherwise
+     */
     public void setPinned(boolean pinned) {
         this.pinned = pinned;
     }
 
+    /**
+     * Check if the element is pinned
+     *
+     * @return true if the element is pinned
+     */
     public boolean isPinned() {
         return pinned;
     }
