@@ -17,8 +17,25 @@
 package net.sf.ehcache.pool;
 
 /**
+ * Role indicates the kind of resource to replace in {@link PoolAccessor#replace(Role, Object, Object, boolean)}
+ *
  * @author Ludovic Orban
  */
 public enum Role {
-    KEY, VALUE, CONTAINER;
+
+    /**
+     * The key resource
+     */
+    KEY,
+
+    /**
+     * The value resource
+     */
+    VALUE,
+
+    /**
+     * The container resource
+     */
+    CONTAINER,
+
 }

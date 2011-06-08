@@ -23,32 +23,38 @@ import java.io.IOException;
 import java.io.ObjectOutputStream;
 
 /**
+ * SizeOf engine which uses serialization to size objects
+ *
  * @author Ludovic Orban
  */
 public class SerializationSizeOfEngine implements SizeOfEngine {
 
-  public long sizeOf(final Object key, final Object value, final Object container) {
-      try {
-          ByteArrayOutputStream baos = new ByteArrayOutputStream();
-          ObjectOutputStream oos = new ObjectOutputStream(baos);
+    /**
+     * {@inheritDoc}
+     */
+    public long sizeOf(final Object key, final Object value, final Object container) {
+        try {
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            ObjectOutputStream oos = new ObjectOutputStream(baos);
 
-          oos.writeObject(key);
-          int keySize = baos.size();
-          baos.reset();
+            oos.writeObject(key);
+            int keySize = baos.size();
+            baos.reset();
 
-          oos.writeObject(value);
-          int valueSize = baos.size();
-          baos.reset();
+            oos.writeObject(value);
+            int valueSize = baos.size();
+            baos.reset();
 
-          oos.writeObject(container);
-          int containerSize = baos.size() - keySize - valueSize;
+            oos.writeObject(container);
+            int containerSize = baos.size() - keySize - valueSize;
 
-          oos.close();
-          baos.close();
+            oos.close();
+            baos.close();
 
-          return keySize + valueSize + containerSize;
-      } catch (IOException e) {
-          throw new RuntimeException("error sizing objects with serialization", e);
-      }
-  }
+            return keySize + valueSize + containerSize;
+        } catch (IOException e) {
+            throw new RuntimeException("error sizing objects with serialization", e);
+        }
+    }
+
 }

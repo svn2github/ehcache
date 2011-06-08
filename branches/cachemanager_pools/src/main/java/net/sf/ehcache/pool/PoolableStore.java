@@ -19,21 +19,65 @@ package net.sf.ehcache.pool;
 import net.sf.ehcache.store.Store;
 
 /**
+ * A poolable store reports its resource usage to a {@link Pool}.
+ *
  * @author Ludovic Orban
  */
 public interface PoolableStore extends Store {
 
+    /**
+     * Perform eviction to release on-heap resources
+     *
+     * @param count the number of elements to evict
+     * @param size the size in bytes to free (hint)
+     * @return true if the requested number of elements could be evicted
+     */
     boolean evictFromOnHeap(int count, long size);
 
+    /**
+     * Perform eviction to release off-heap resources
+     *
+     * @param count the number of elements to evict
+     * @param size the size in bytes to free (hint)
+     * @return true if the requested number of elements could be evicted
+     */
     boolean evictFromOffHeap(int count, long size);
 
+    /**
+     * Perform eviction to release on-disk resources
+     *
+     * @param count the number of elements to evict
+     * @param size the size in bytes to free (hint)
+     * @return true if the requested number of elements could be evicted
+     */
     boolean evictFromOnDisk(int count, long size);
 
+    /**
+     * Return the approximate disk hit rate
+     *
+     * @return the approximate disk hit rate
+     */
     float getApproximateDiskHitRate();
 
+    /**
+     * Return the approximate disk miss rate
+     *
+     * @return the approximate disk miss rate
+     */
     float getApproximateDiskMissRate();
 
+    /**
+     * Return the approximate heap hit rate
+     *
+     * @return the approximate heap hit rate
+     */
     float getApproximateHeapHitRate();
 
+    /**
+     * Return the approximate heap miss rate
+     *
+     * @return the approximate heap miss rate
+     */
     float getApproximateHeapMissRate();
+
 }

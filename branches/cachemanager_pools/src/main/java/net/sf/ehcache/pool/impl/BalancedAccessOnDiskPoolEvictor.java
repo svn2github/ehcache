@@ -20,26 +20,41 @@ import net.sf.ehcache.pool.PoolableStore;
 
 public class BalancedAccessOnDiskPoolEvictor extends AbstractBalancedAccessEvictor<PoolableStore> {
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     protected boolean evict(PoolableStore store, int count, long size) {
         return store.evictFromOnDisk(count, size);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     protected long countSize(PoolableStore store) {
         return store.getOnDiskSize();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     protected long byteSize(PoolableStore store) {
         return store.getOnDiskSizeInBytes();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     protected float hitRate(PoolableStore store) {
         return store.getApproximateDiskHitRate();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     protected float missRate(PoolableStore store) {
         return store.getApproximateDiskMissRate();

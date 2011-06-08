@@ -114,6 +114,9 @@ public class DefaultSizeOfEngine implements SizeOfEngine {
         return null;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public long sizeOf(final Object key, final Object value, final Object container) {
         long size = sizeOf.deepSizeOf(key, value, container);
         LOG.debug("size of {}/{}/{} -> {}", new Object[]{key, value, container, size});

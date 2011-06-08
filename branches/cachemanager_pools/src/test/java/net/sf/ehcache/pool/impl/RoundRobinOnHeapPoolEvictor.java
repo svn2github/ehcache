@@ -22,7 +22,6 @@ import net.sf.ehcache.pool.PoolEvictor;
 import java.util.Collection;
 
 /**
- * todo measuring size before & after eviction isn't safe in multi-threaded case
  * @author Ludovic Orban
  */
 public class RoundRobinOnHeapPoolEvictor implements PoolEvictor<PoolableStore> {

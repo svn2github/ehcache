@@ -22,12 +22,15 @@ import net.sf.ehcache.pool.PoolableStore;
 import java.util.Collection;
 
 /**
- * todo measuring size before & after eviction isn't safe in multi-threaded case
+ * Pool evictor which always evicts from the store consuming the most resources.
  *
  * @author Ludovic Orban
  */
 public class FromLargestCacheOnHeapPoolEvictor implements PoolEvictor<PoolableStore> {
 
+    /**
+     * {@inheritDoc}
+     */
     public boolean freeSpace(Collection<PoolableStore> from, long bytes) {
         if (from == null || from.isEmpty()) {
             return false;
@@ -54,6 +57,6 @@ public class FromLargestCacheOnHeapPoolEvictor implements PoolEvictor<PoolableSt
                 return true;
             }
         } // while
-
     }
+
 }

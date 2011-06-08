@@ -17,21 +17,31 @@
 package net.sf.ehcache.pool;
 
 /**
+ * Pools are used to track shared resource consumption. Each store participating in a pool creates an accessor
+ * which it uses to tell the pool about its consumption. A SizeOf engine is used to calculate the size of the
+ * objects added to the pool.
+ *
  * @author Ludovic Orban
  */
 public interface Pool {
 
     /**
+     * Return the total size of the pool.
+     *
      * @return total size of the pool.
      */
     long getSize();
 
     /**
+     * Return a PoolAccessor whose consumption is tracked by this pool, using a default SizeOf engine.
+     *
      * @return a PoolAccessor whose consumption is tracked by this pool.
      */
     PoolAccessor createPoolAccessor(PoolableStore store);
 
     /**
+     * Return a PoolAccessor whose consumption is tracked by this pool, using a specific SizeOf engine.
+     *
      * @return a PoolAccessor whose consumption is tracked by this pool.
      */
     PoolAccessor createPoolAccessor(PoolableStore store, SizeOfEngine sizeOfEngine);

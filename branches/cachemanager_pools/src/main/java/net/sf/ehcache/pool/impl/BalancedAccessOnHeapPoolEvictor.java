@@ -20,26 +20,41 @@ import net.sf.ehcache.pool.PoolableStore;
 
 public class BalancedAccessOnHeapPoolEvictor extends AbstractBalancedAccessEvictor<PoolableStore> {
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     protected boolean evict(PoolableStore store, int count, long size) {
         return store.evictFromOnHeap(count, size);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     protected long countSize(PoolableStore store) {
         return store.getInMemorySize();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     protected long byteSize(PoolableStore store) {
         return store.getInMemorySizeInBytes();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     protected float hitRate(PoolableStore store) {
         return store.getApproximateHeapHitRate();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     protected float missRate(PoolableStore store) {
         return store.getApproximateHeapMissRate();

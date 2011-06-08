@@ -59,6 +59,9 @@ public abstract class AbstractBalancedAccessEvictor<T> implements PoolEvictor<T>
 
     protected abstract long byteSize(T store);
 
+    /**
+     * {@inheritDoc}
+     */
     public boolean freeSpace(Collection<T> from, long bytes) {
         List<T> sorted = new ArrayList<T>(from);
         Collections.sort(sorted, new EvictionCostComparator(getDesiredUnloadedSize(from)));

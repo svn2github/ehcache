@@ -23,49 +23,84 @@ import net.sf.ehcache.pool.Role;
 import net.sf.ehcache.pool.SizeOfEngine;
 
 /**
+ * A no-op pool which does not enforce any resource consumption limit.
+ *
  * @author Ludovic Orban
  */
 public class UnboundedPool implements Pool {
 
+    /**
+     * Create an UnboundedPool instance
+     */
     public UnboundedPool() {
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public long getSize() {
         return -1L;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public PoolAccessor createPoolAccessor(PoolableStore store) {
         return new UnboundedPoolAccessor();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public PoolAccessor createPoolAccessor(PoolableStore store, SizeOfEngine sizeOfEngine) {
         return new UnboundedPoolAccessor();
     }
 
-    public class UnboundedPoolAccessor implements PoolAccessor {
+    /**
+     * The PoolAccessor class of the UnboundedPool
+     */
+    private final class UnboundedPoolAccessor implements PoolAccessor {
 
-        public UnboundedPoolAccessor() {
+        private UnboundedPoolAccessor() {
         }
 
+        /**
+         * {@inheritDoc}
+         */
         public long add(Object key, Object value, Object container, boolean force) {
             return 0L;
         }
 
+        /**
+         * {@inheritDoc}
+         */
         public long delete(Object key, Object value, Object container) {
             return 0L;
         }
 
+        /**
+         * {@inheritDoc}
+         */
         public long replace(Role role, Object current, Object replacement, boolean force) {
             return 0L;
         }
 
+        /**
+         * {@inheritDoc}
+         */
         public long getSize() {
             return -1L;
         }
 
+        /**
+         * {@inheritDoc}
+         */
         public void unlink() {
         }
 
+        /**
+         * {@inheritDoc}
+         */
         public void clear() {
         }
     }

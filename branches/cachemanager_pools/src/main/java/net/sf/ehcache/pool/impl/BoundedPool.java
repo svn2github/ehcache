@@ -32,7 +32,11 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
+ * A pool which loosely obeys to its bound: it can allow the accessors to consume more bytes than what
+ * has been configured if that helps concurrency.
+
  * @author Ludovic Orban
+ * @author Chris Dennis
  */
 public class BoundedPool implements Pool {
 
@@ -41,6 +45,13 @@ public class BoundedPool implements Pool {
     private final List<BoundedPoolAccessor> poolAccessors;
     private final SizeOfEngine defaultSizeOfEngine;
 
+    /**
+     * Create a BoundedPool instance
+     *
+     * @param maximumPoolSize the maximum size of the pool, in bytes.
+     * @param evictor the pool evictor, for cross-store eviction.
+     * @param defaultSizeOfEngine the default SizeOf engine used by the accessors.
+     */
     public BoundedPool(long maximumPoolSize, PoolEvictor<PoolableStore> evictor, SizeOfEngine defaultSizeOfEngine) {
         this.maximumPoolSize = maximumPoolSize;
         this.evictor = evictor;
@@ -48,6 +59,9 @@ public class BoundedPool implements Pool {
         this.poolAccessors = Collections.synchronizedList(new ArrayList<BoundedPoolAccessor>());
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public long getSize() {
         long total = 0L;
         for (PoolAccessor poolAccessor : poolAccessors) {
@@ -56,17 +70,23 @@ public class BoundedPool implements Pool {
         return total;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public PoolAccessor createPoolAccessor(PoolableStore store) {
         return createPoolAccessor(store, defaultSizeOfEngine);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public PoolAccessor createPoolAccessor(PoolableStore store, SizeOfEngine sizeOfEngine) {
         BoundedPoolAccessor poolAccessor = new BoundedPoolAccessor(store, sizeOfEngine, 0);
         poolAccessors.add(poolAccessor);
         return poolAccessor;
     }
 
-    public void removePoolAccessor(PoolAccessor poolAccessor) {
+    private void removePoolAccessor(PoolAccessor poolAccessor) {
         Iterator<BoundedPoolAccessor> iterator = poolAccessors.iterator();
         while (iterator.hasNext()) {
             BoundedPoolAccessor next = iterator.next();
@@ -77,7 +97,7 @@ public class BoundedPool implements Pool {
         }
     }
 
-    public Collection<PoolableStore> getPoolableStores() {
+    private Collection<PoolableStore> getPoolableStores() {
         Collection<PoolableStore> poolableStores = new ArrayList<PoolableStore>();
         for (BoundedPoolAccessor poolAccessor : poolAccessors) {
             poolableStores.add(poolAccessor.store);
@@ -86,18 +106,24 @@ public class BoundedPool implements Pool {
     }
 
 
-    public class BoundedPoolAccessor implements PoolAccessor {
+    /**
+     * The PoolAccessor class of the BoundedPool
+     */
+    private final class BoundedPoolAccessor implements PoolAccessor {
         private final PoolableStore store;
         private final SizeOfEngine sizeOfEngine;
         private final AtomicLong size;
         private final AtomicBoolean unlinked = new AtomicBoolean();
 
-        public BoundedPoolAccessor(PoolableStore store, SizeOfEngine sizeOfEngine, long currentSize) {
+        private BoundedPoolAccessor(PoolableStore store, SizeOfEngine sizeOfEngine, long currentSize) {
             this.store = store;
             this.sizeOfEngine = sizeOfEngine;
             this.size = new AtomicLong(currentSize);
         }
 
+        /**
+         * {@inheritDoc}
+         */
         public long add(Object key, Object value, Object container, boolean force) {
             if (unlinked.get()) {
                 throw new IllegalStateException("BoundedPoolAccessor has been unlinked");
@@ -129,6 +155,9 @@ public class BoundedPool implements Pool {
             }
         }
 
+        /**
+         * {@inheritDoc}
+         */
         public long delete(Object key, Object value, Object container) {
             if (unlinked.get()) {
                 throw new IllegalStateException("BoundedPoolAccessor has been unlinked");
@@ -141,6 +170,9 @@ public class BoundedPool implements Pool {
             return sizeOf;
         }
 
+        /**
+         * {@inheritDoc}
+         */
         public long replace(Role role, Object current, Object replacement, boolean force) {
             if (unlinked.get()) {
                 throw new IllegalStateException("BoundedPoolAccessor has been unlinked");
@@ -164,16 +196,25 @@ public class BoundedPool implements Pool {
             return sizeOf;
         }
 
+        /**
+         * {@inheritDoc}
+         */
         public long getSize() {
             return size.get();
         }
 
+        /**
+         * {@inheritDoc}
+         */
         public void unlink() {
             if (unlinked.compareAndSet(false, true)) {
                 removePoolAccessor(this);
             }
         }
 
+        /**
+         * {@inheritDoc}
+         */
         public void clear() {
             size.set(0);
         }

@@ -23,10 +23,15 @@ import net.sf.ehcache.pool.PoolableStore;
 import java.util.Collection;
 
 /**
- * todo measuring size before & after eviction isn't safe in multi-threaded case
+ * Pool evictor which always evicts from the stores in round-robin fashion.
+
  * @author Ludovic Orban
  */
 public class RoundRobinOnDiskPoolEvictor implements PoolEvictor<PoolableStore> {
+
+    /**
+     * {@inheritDoc}
+     */
     public boolean freeSpace(Collection<PoolableStore> from, long bytes) {
         long remaining = bytes;
 
@@ -45,4 +50,5 @@ public class RoundRobinOnDiskPoolEvictor implements PoolEvictor<PoolableStore> {
             }
         }
     }
+
 }
