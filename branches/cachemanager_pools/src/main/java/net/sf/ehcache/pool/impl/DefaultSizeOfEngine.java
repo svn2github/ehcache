@@ -65,23 +65,26 @@ public class DefaultSizeOfEngine implements SizeOfEngine {
 
     private final SizeOf sizeOf;
 
+    /**
+     * Creates a default size of engine using the best available sizing algorithm.
+     */
     public DefaultSizeOfEngine() {
-        SizeOf sizeOf;
+        SizeOf bestSizeOf;
         try {
-            sizeOf = new AgentSizeOf(DEFAULT_FILTER);
+            bestSizeOf = new AgentSizeOf(DEFAULT_FILTER);
         } catch (UnsupportedOperationException e) {
             try {
-                sizeOf = new UnsafeSizeOf(DEFAULT_FILTER);
+                bestSizeOf = new UnsafeSizeOf(DEFAULT_FILTER);
             } catch (UnsupportedOperationException f) {
                 try {
-                    sizeOf = new ReflectionSizeOf(DEFAULT_FILTER);
+                    bestSizeOf = new ReflectionSizeOf(DEFAULT_FILTER);
                 } catch (UnsupportedOperationException g) {
                     throw new CacheException("A suitable SizeOf engine could not be loaded: " + e + ", " + f + ", " + g);
                 }
             }
         }
 
-        this.sizeOf = sizeOf;
+        this.sizeOf = bestSizeOf;
     }
 
     private static SizeOfFilter getUserFilter() {

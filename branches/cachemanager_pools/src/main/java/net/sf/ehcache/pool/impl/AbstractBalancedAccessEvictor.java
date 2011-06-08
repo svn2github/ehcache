@@ -36,9 +36,12 @@ public abstract class AbstractBalancedAccessEvictor<T> implements PoolEvictor<T>
 
     private static final double ALPHA = 1.0;
 
+    /**
+     * Comparator used to rank the stores in order of eviction 'cost'.
+     */
     private class EvictionCostComparator implements Comparator<T> {
 
-        final long unloadedSize;
+        private final long unloadedSize;
 
         public EvictionCostComparator(long unloadedSize) {
             this.unloadedSize = unloadedSize;
@@ -49,14 +52,46 @@ public abstract class AbstractBalancedAccessEvictor<T> implements PoolEvictor<T>
         }
     }
 
+    /**
+     * Evict the specified number of bytes or the hinted number of elements from the specified store
+     *
+     * @param store store to evict from
+     * @param count number of elements to evict
+     * @param bytes number of bytes to evict
+     * @return {@code true} if the eviction succeeded
+     */
     protected abstract boolean evict(T store, int count, long bytes);
 
+    /**
+     * Return the hit rate for the supplied store.
+     *
+     * @param store store to query
+     * @return hit rate
+     */
     protected abstract float hitRate(T store);
 
+    /**
+     * Return the miss rate for the supplied store.
+     *
+     * @param store store to query
+     * @return miss rate
+     */
     protected abstract float missRate(T store);
 
+    /**
+     * Return the number of mappings in the supplied store.
+     *
+     * @param store store to size
+     * @return mapping count
+     */
     protected abstract long countSize(T store);
 
+    /**
+     * Return the size in bytes of the supplied store.
+     *
+     * @param store store to size
+     * @return size in bytes
+     */
     protected abstract long byteSize(T store);
 
     /**

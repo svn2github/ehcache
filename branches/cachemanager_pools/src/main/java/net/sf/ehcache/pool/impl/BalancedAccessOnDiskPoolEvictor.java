@@ -18,6 +18,11 @@ package net.sf.ehcache.pool.impl;
 
 import net.sf.ehcache.pool.PoolableStore;
 
+/**
+ * Balanced access evictor that makes on-disk eviction decisions.
+ *
+ * @author Chris Dennis
+ */
 public class BalancedAccessOnDiskPoolEvictor extends AbstractBalancedAccessEvictor<PoolableStore> {
 
     /**

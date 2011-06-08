@@ -31,8 +31,8 @@ import net.sf.ehcache.pool.Pool;
 import net.sf.ehcache.pool.PoolAccessor;
 import net.sf.ehcache.pool.PoolableStore;
 import net.sf.ehcache.store.chm.SelectableConcurrentHashMap;
-import net.sf.ehcache.util.statistic.AtomicStatistic;
-import net.sf.ehcache.util.statistic.Statistic;
+import net.sf.ehcache.util.ratestatistics.AtomicRateStatistic;
+import net.sf.ehcache.util.ratestatistics.RateStatistic;
 import net.sf.ehcache.writer.CacheWriterManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -78,8 +78,8 @@ public final class MemoryStore extends AbstractStore implements PoolableStore, C
      */
     private final SelectableConcurrentHashMap map;
 
-    private final Statistic hitRate = new AtomicStatistic(1000, TimeUnit.MILLISECONDS);
-    private final Statistic missRate = new AtomicStatistic(1000, TimeUnit.MILLISECONDS);
+    private final RateStatistic hitRate = new AtomicRateStatistic(1000, TimeUnit.MILLISECONDS);
+    private final RateStatistic missRate = new AtomicRateStatistic(1000, TimeUnit.MILLISECONDS);
 
     /**
      * The maximum size of the store (0 == no limit)

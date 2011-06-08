@@ -24,8 +24,9 @@ import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.pool.PoolAccessor;
 import net.sf.ehcache.pool.Role;
 import net.sf.ehcache.store.ElementValueComparator;
-import net.sf.ehcache.util.statistic.AtomicStatistic;
-import net.sf.ehcache.util.statistic.Statistic;
+import net.sf.ehcache.util.ratestatistics.AtomicRateStatistic;
+import net.sf.ehcache.util.ratestatistics.RateStatistic;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -88,8 +89,8 @@ public class Segment extends ReentrantReadWriteLock implements RetrievalStatisti
      */
     private int threshold;
 
-    private final Statistic diskHitRate = new AtomicStatistic(1000, TimeUnit.MILLISECONDS);
-    private final Statistic diskMissRate = new AtomicStatistic(1000, TimeUnit.MILLISECONDS);
+    private final RateStatistic diskHitRate = new AtomicRateStatistic(1000, TimeUnit.MILLISECONDS);
+    private final RateStatistic diskMissRate = new AtomicRateStatistic(1000, TimeUnit.MILLISECONDS);
     private final CacheConfiguration cacheConfiguration;
     private final PoolAccessor onHeapPoolAccessor;
     private final PoolAccessor onDiskPoolAccessor;
