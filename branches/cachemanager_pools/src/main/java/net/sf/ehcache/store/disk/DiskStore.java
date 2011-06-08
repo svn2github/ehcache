@@ -56,7 +56,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
  * @author Chris Dennis
  * @author Ludovic Orban
  */
-public class DiskStore extends AbstractStore implements PoolableStore {
+public final class DiskStore extends AbstractStore implements PoolableStore {
 
     /**
      * If the CacheManager needs to resolve a conflict with the disk path, it will create a
@@ -98,7 +98,8 @@ public class DiskStore extends AbstractStore implements PoolableStore {
         this.onDiskPoolAccessor = onDiskPool.createPoolAccessor(this, new DiskSizeOfEngine());
 
         for (int i = 0; i < this.segments.length; ++i) {
-            this.segments[i] = new Segment(DEFAULT_INITIAL_CAPACITY, DEFAULT_LOAD_FACTOR, disk, cacheConfiguration, onHeapPoolAccessor, onDiskPoolAccessor);
+            this.segments[i] = new Segment(DEFAULT_INITIAL_CAPACITY, DEFAULT_LOAD_FACTOR,
+                    disk, cacheConfiguration, onHeapPoolAccessor, onDiskPoolAccessor);
         }
 
         this.disk = disk;
@@ -235,7 +236,7 @@ public class DiskStore extends AbstractStore implements PoolableStore {
     /**
      *
      */
-    private static class CacheConfigurationListenerAdapter implements CacheConfigurationListener {
+    private static final class CacheConfigurationListenerAdapter implements CacheConfigurationListener {
 
         private final DiskStorageFactory disk;
 

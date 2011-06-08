@@ -20,10 +20,19 @@ public class PinningConfiguration implements Cloneable {
          * Pin the elements in the local VM memory
          */
         INMEMORY,
+
+        /**
+         * Pin the elements in the cache
+         */
+        INCACHE,
     }
 
     private volatile Storage storage;
 
+    /**
+     * Set the storage scope
+     * @param storage the storage scope
+     */
     public void setStorage(String storage) {
         if (storage == null) {
             throw new IllegalArgumentException("Storage must be non-null");
@@ -31,6 +40,11 @@ public class PinningConfiguration implements Cloneable {
         this.storage(Storage.valueOf(Storage.class, storage.toUpperCase()));
     }
 
+    /**
+     *
+     * @param storage
+     * @return
+     */
     public PinningConfiguration storage(String storage) {
         setStorage(storage);
         return this;

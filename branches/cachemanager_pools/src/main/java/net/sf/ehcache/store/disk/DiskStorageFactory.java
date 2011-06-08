@@ -71,6 +71,8 @@ public class DiskStorageFactory {
     private static final int SERIALIZATION_CONCURRENCY_DELAY = 250;
     private static final int SHUTDOWN_GRACE_PERIOD = 60;
     private static final int MEGABYTE = 1024 * 1024;
+    private static final int MAX_EVICT = 5;
+    private static final int SAMPLE_SIZE = 30;
 
     private static final Logger LOG = LoggerFactory.getLogger(DiskStorageFactory.class.getName());
 
@@ -95,9 +97,6 @@ public class DiskStorageFactory {
     private final RegisteredEventListeners eventService;
 
     private volatile int elementSize;
-
-    private static final int MAX_EVICT = 5;
-    private static final int SAMPLE_SIZE = 30;
 
     private final ElementSubstituteFilter onDiskFilter = new OnDiskFilter();
 
@@ -154,8 +153,6 @@ public class DiskStorageFactory {
         long expiryInterval = cache.getCacheConfiguration().getDiskExpiryThreadIntervalSeconds();
         diskWriter.scheduleWithFixedDelay(new DiskExpiryTask(), expiryInterval, expiryInterval, TimeUnit.SECONDS);
 
-
-
         this.cacheEventNotificationService = cacheEventNotificationService;
 
         flushTask = new IndexWriteTask(indexFile, cache.getCacheConfiguration().isClearOnFlush());
@@ -170,8 +167,6 @@ public class DiskStorageFactory {
                 deleteFile(indexFile);
             }
         }
-
-        diskCapacity = cache.getCacheConfiguration().getMaxElementsOnDisk();
     }
 
     private static RandomAccessFile[] allocateRandomAccessFiles(File f, int stripes) throws FileNotFoundException {
@@ -959,6 +954,12 @@ public class DiskStorageFactory {
         return cacheConfiguration.getPinningConfiguration() != null;
     }
 
+    /**
+     * Evict some elements, if possible
+     * 
+     * @param count the number of elements to evict
+     * @return the number of elements actually evicted
+     */
     int evict(int count) {
         if (isPinningEnabled()) {
             return 0;
@@ -969,7 +970,7 @@ public class DiskStorageFactory {
             DiskSubstitute target = this.getDiskEvictionTarget(null, count);
             if (target != null) {
                 Element evictedElement = store.evictElement(target.getKey(), null);
-                if (cacheEventNotificationService!= null) {
+                if (cacheEventNotificationService != null) {
                     cacheEventNotificationService.notifyElementEvicted(evictedElement, false);
                 }
                 evicted++;

@@ -17,7 +17,6 @@
 package net.sf.ehcache.config.generator.model.elements;
 
 import net.sf.ehcache.config.PinningConfiguration;
-import net.sf.ehcache.config.TerracottaConfiguration;
 import net.sf.ehcache.config.generator.model.NodeElement;
 import net.sf.ehcache.config.generator.model.SimpleNodeAttribute;
 import net.sf.ehcache.config.generator.model.SimpleNodeElement;
@@ -36,7 +35,7 @@ public class PinningConfigurationElement extends SimpleNodeElement {
      * Constructor accepting the parent and the {@link net.sf.ehcache.config.TerracottaConfiguration}
      *
      * @param parent
-     * @param tcConfiguration
+     * @param pinningConfiguration
      */
     public PinningConfigurationElement(NodeElement parent, PinningConfiguration pinningConfiguration) {
         super(parent, "pinning");
