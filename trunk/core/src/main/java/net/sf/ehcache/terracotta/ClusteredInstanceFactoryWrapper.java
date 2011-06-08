@@ -52,6 +52,14 @@ public class ClusteredInstanceFactoryWrapper implements ClusteredInstanceFactory
     }
 
     /**
+     * Returns the actual underlying factory
+     * @return the actual underlying factory
+     */
+    protected ClusteredInstanceFactory getActualFactory() {
+        return delegate;
+    }
+
+    /**
      * {@inheritDoc}
      */
     public CacheCluster getTopology() {
