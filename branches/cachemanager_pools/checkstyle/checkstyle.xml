@@ -28,10 +28,10 @@
         <property name="min" value="30"/>
     </module>
     
-<!--     <module name="NewlineAtEndOfFile">
+    <module name="NewlineAtEndOfFile">
         <property name="lineSeparator" value="lf"/>
         <property name="severity" value="warning"/>
-    </module> -->
+    </module>
 
     <module name="FileTabCharacter"/>
 
@@ -58,9 +58,9 @@
         <!--<property name="cacheFile" value="checkstyle.cache}"/>-->
         
         <!--Java 5 checks-->
-<!--         <module name="MissingDeprecated">
+        <module name="MissingDeprecated">
             <property name="severity" value="warning"/>
-        </module> -->
+        </module>
 
         <!-- javadoc -->
         <module name="JavadocType">
@@ -155,12 +155,12 @@
         </module>
 
         <!-- Modifiers -->
-<!--         <module name="ModifierOrder">
+        <module name="ModifierOrder">
             <property name="severity" value="warning"/>
         </module>
         <module name="RedundantModifier">
             <property name="severity" value="warning"/>
-        </module> -->
+        </module>
 
         <!-- Blocks -->
         <module name="EmptyBlock">
@@ -218,10 +218,10 @@
             <property name="max" value="2"/>
         </module>
         <module name="PackageDeclaration"/>
-<!--         <module name="RedundantThrows">
+        <module name="RedundantThrows">
             <property name="severity" value="warning"/>
             <property name="allowUnchecked" value="true"/>
-        </module> -->
+        </module>
         <module name="SimplifyBooleanExpression"/>
         <module name="SimplifyBooleanReturn"/>
         <module name="StringLiteralEquality"/>
@@ -235,9 +235,9 @@
 
         <!-- Class Design -->
         <module name="FinalClass"/>
-<!--         <module name="HideUtilityClassConstructor">
+        <module name="HideUtilityClassConstructor">
             <property name="severity" value="warning"/>
-        </module> -->
+        </module>
         <module name="InterfaceIsType"/>
         <module name="MutableException"/>
         <module name="ThrowsCount">
