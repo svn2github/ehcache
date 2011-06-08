@@ -711,6 +711,27 @@ public class Segment extends ReentrantReadWriteLock implements RetrievalStatisti
         }
     }
 
+    /**
+     * Count the number of elements which have been added to the store but haven't been written to disk yet
+     *
+     * @return the number of elements which have been added to the store but haven't been written to disk yet
+     */
+    int countOnHeap() {
+        int result = 0;
+
+        if (count != 0) {
+            for (HashEntry hashEntry : table) {
+                for (HashEntry e = hashEntry; e != null; e = e.next) {
+                    if (e.getElement() instanceof DiskStorageFactory.Placeholder) {
+                        result++;
+                    }
+                }
+            }
+        }
+
+        return result;
+    }
+
     private boolean install(Object key, int hash, Object expect, Object fault) {
         if (count != 0) {
             for (HashEntry e = getFirst(hash); e != null; e = e.next) {

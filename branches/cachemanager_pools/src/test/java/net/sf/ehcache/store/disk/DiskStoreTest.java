@@ -26,7 +26,7 @@ import static org.junit.Assert.fail;
  * @author Alex Snaps
  * @author Ludovic Orban
  */
-public class DiskPersistentStoreTest {
+public class DiskStoreTest {
 
     private static final String KEY = "KEY";
 

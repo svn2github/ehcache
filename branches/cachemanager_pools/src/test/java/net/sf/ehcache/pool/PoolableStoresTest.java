@@ -14,30 +14,29 @@ import static org.junit.Assert.assertThat;
  */
 public class PoolableStoresTest {
 
-  public static final String DEFAULT_CACHE_MANAGER_SIZE_OF_ENGINE_PROP = "net.sf.ehcache.sizeofengine.default";
+    public static final String DEFAULT_CACHE_MANAGER_SIZE_OF_ENGINE_PROP = "net.sf.ehcache.sizeofengine.default";
 
-  @Test
-    public void testMemoryOnly() throws Exception {
-
+    @Test
+    public void test() throws Exception {
         System.getProperties().setProperty(DEFAULT_CACHE_MANAGER_SIZE_OF_ENGINE_PROP,
-            "net.sf.ehcache.pool.impl.ConstantSizeOfEngine");
+                "net.sf.ehcache.pool.impl.ConstantSizeOfEngine");
 
         CacheManager cm = new CacheManager(PoolableStoresTest.class.getResourceAsStream("/pool/ehcache-heap-disk.xml"));
 
         Cache memoryOnlyCache = cm.getCache("memoryOnly");
-        Cache diskPersistentCache = cm.getCache("diskPersistent");
+        Cache overflowToDiskCache = cm.getCache("overflowToDisk");
 
-        for (int i=0; i<100 ;i++) {
-            memoryOnlyCache.put(new Element(i, ""+i));
+        for (int i = 0; i < 100; i++) {
+            memoryOnlyCache.put(new Element(i, "" + i));
         }
 
         assertEquals(64, memoryOnlyCache.getSize());
 
-        for (int i=0; i<100 ;i++) {
-            diskPersistentCache.put(new Element(i, ""+i));
+        for (int i = 0; i < 100; i++) {
+            overflowToDiskCache.put(new Element(i, "" + i));
         }
 
-        assertEquals(64, memoryOnlyCache.getSize() + diskPersistentCache.getSize());
+        assertEquals(52, memoryOnlyCache.getSize() + overflowToDiskCache.getSize());
 
 
         cm.shutdown();

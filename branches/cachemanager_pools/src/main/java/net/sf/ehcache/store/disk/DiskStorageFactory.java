@@ -587,7 +587,7 @@ public class DiskStorageFactory {
      * duplicate write requests while Elements are being
      * written to disk.
      */
-    private final class Placeholder extends DiskSubstitute {
+    final class Placeholder extends DiskSubstitute {
         @IgnoreSizeOf
         private final Object key;
         private final Element element;

@@ -108,6 +108,19 @@ public final class DiskStore extends AbstractStore implements PoolableStore {
     }
 
     /**
+     * Wait until all elements have been written to disk
+     *
+     * @throws InterruptedException if the thread was interrupted while waiting
+     */
+    void waitUntilEverythingGotFlushedToDisk() throws InterruptedException {
+        for (Segment segment : segments) {
+            while (segment.countOnHeap() != 0) {
+                Thread.sleep(10);
+            }
+        }
+    }
+
+    /**
      * Creates a persitent-to-disk store for the given cache, using the given disk path.
      *
      * @param cache cache that fronts this store
