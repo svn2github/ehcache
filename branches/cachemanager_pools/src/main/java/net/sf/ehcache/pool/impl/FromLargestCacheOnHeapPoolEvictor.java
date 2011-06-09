@@ -19,6 +19,7 @@ package net.sf.ehcache.pool.impl;
 import net.sf.ehcache.pool.PoolEvictor;
 import net.sf.ehcache.pool.PoolableStore;
 
+import java.util.ArrayList;
 import java.util.Collection;
 
 /**
@@ -36,11 +37,22 @@ public class FromLargestCacheOnHeapPoolEvictor implements PoolEvictor<PoolableSt
             return false;
         }
 
+        long remainingSizeInBytes = bytes;
+        Collection<PoolableStore> tried = new ArrayList<PoolableStore>();
+
         while (true) {
-            long remaining = 0;
+            // if all stores have been tried, give up
+            if (tried.size() == from.size()) {
+                return false;
+            }
+
             PoolableStore largestPoolableStore = null;
 
             for (PoolableStore poolableStore : from) {
+                if (alreadyTried(tried, poolableStore)) {
+                    continue;
+                }
+
                 if (largestPoolableStore == null || poolableStore.getInMemorySizeInBytes() > largestPoolableStore.getInMemorySizeInBytes()) {
                     largestPoolableStore = poolableStore;
                 }
@@ -48,15 +60,25 @@ public class FromLargestCacheOnHeapPoolEvictor implements PoolEvictor<PoolableSt
 
             long beforeEvictionSize = largestPoolableStore.getInMemorySizeInBytes();
             if (!largestPoolableStore.evictFromOnHeap(1, bytes)) {
-                return false;
+                tried.add(largestPoolableStore);
+                continue;
             }
             long afterEvictionSize = largestPoolableStore.getInMemorySizeInBytes();
 
-            remaining -= (beforeEvictionSize - afterEvictionSize);
-            if (remaining <= 0L) {
+            remainingSizeInBytes -= (beforeEvictionSize - afterEvictionSize);
+            if (remainingSizeInBytes <= 0L) {
                 return true;
             }
         } // while
+    }
+
+    private boolean alreadyTried(Collection<PoolableStore> tried, PoolableStore from) {
+        for (PoolableStore poolableStore : tried) {
+            if (poolableStore == from) {
+                return true;
+            }
+        }
+        return false;
     }
 
 }
