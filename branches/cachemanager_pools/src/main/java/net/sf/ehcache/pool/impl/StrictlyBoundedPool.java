@@ -143,12 +143,14 @@ public class StrictlyBoundedPool implements Pool {
                         size += sizeOf;
                         return sizeOf;
                     } else {
-                        // there is not enough room => evict
-                        long missingSize = newSize - maximumPoolSize;
-                        if (!force && missingSize > maximumPoolSize) {
+                        // check that the element isn't too big
+                        if (!force && sizeOf > maximumPoolSize) {
                             // this is too big to fit in the pool
                             return -1;
                         }
+
+                        // there is not enough room => evict
+                        long missingSize = newSize - maximumPoolSize;
 
                         // eviction must be done outside the lock to avoid deadlocks as it may evict from other pools
                         lock.unlock();
