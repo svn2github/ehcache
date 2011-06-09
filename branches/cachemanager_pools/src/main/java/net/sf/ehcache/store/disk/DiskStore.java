@@ -18,6 +18,7 @@ package net.sf.ehcache.store.disk;
 
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheEntry;
+import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.Status;
@@ -111,11 +112,20 @@ public final class DiskStore extends AbstractStore implements PoolableStore {
      * Wait until all elements have been written to disk
      *
      * @throws InterruptedException if the thread was interrupted while waiting
+     * @param delayInMs the maximum time to wait, in milliseconds
      */
-    void waitUntilEverythingGotFlushedToDisk() throws InterruptedException {
+    void waitUntilEverythingGotFlushedToDisk(long delayInMs) throws InterruptedException {
+        int iterations = (int) (delayInMs / 10);
+
         for (Segment segment : segments) {
+            int count = 0;
             while (segment.countOnHeap() != 0) {
                 Thread.sleep(10);
+                count++;
+
+                if (count > iterations) {
+                    throw new CacheException(delayInMs + " ms delay expired");
+                }
             }
         }
     }

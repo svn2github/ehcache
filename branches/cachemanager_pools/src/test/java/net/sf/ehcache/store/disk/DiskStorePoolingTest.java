@@ -14,7 +14,6 @@ import net.sf.ehcache.pool.impl.StrictlyBoundedPool;
 import net.sf.ehcache.store.DefaultElementValueComparator;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -34,6 +33,7 @@ import static org.junit.Assert.assertTrue;
 public class DiskStorePoolingTest {
 
     private static final int ELEMENT_SIZE_ON_DISK = 308;
+    private static final int ITERATIONS = 100;
 
     private volatile Cache cache;
     private volatile Pool onHeapPool;
@@ -104,11 +104,20 @@ public class DiskStorePoolingTest {
 
     @Test
     public void testPersistence() throws Exception {
+        for (int i = 0; i < ITERATIONS; i++) {
+            persistence();
+
+            tearDown();
+            setUp();
+        }
+    }
+
+    public void persistence() throws Exception {
         // fill the store
         diskStore.put(new Element(1000, "1000"));
         diskStore.put(new Element(1001, "1001"));
 
-        diskStore.waitUntilEverythingGotFlushedToDisk();
+        diskStore.waitUntilEverythingGotFlushedToDisk(3000);
 
         assertEquals(2, diskStore.getSize());
         assertEquals(2 * 16384, onHeapPool.getSize());
@@ -132,13 +141,22 @@ public class DiskStorePoolingTest {
 
     @Test
     public void testPutNew() throws Exception {
+        for (int i = 0; i < ITERATIONS; i++) {
+            putNew();
+
+            tearDown();
+            setUp();
+        }
+    }
+
+    public void putNew() throws Exception {
         // put 20 new elements in, making sure eviction is working
         for (int i = 1000; i < 1020; i++) {
             Element e = new Element(i, "" + i);
             diskStore.put(e);
         }
 
-        diskStore.waitUntilEverythingGotFlushedToDisk();
+        diskStore.waitUntilEverythingGotFlushedToDisk(3000);
 
         assertEquals(2, diskStore.getSize());
         assertEquals(16384 * 2, onHeapPool.getSize());
@@ -148,7 +166,7 @@ public class DiskStorePoolingTest {
 
         diskStore.put(new Element(1999, "1999"));
 
-        diskStore.waitUntilEverythingGotFlushedToDisk();
+        diskStore.waitUntilEverythingGotFlushedToDisk(3000);
 
         assertNotNull(diskStore.get(1999));
         assertEquals(2, diskStore.getSize());
@@ -158,6 +176,15 @@ public class DiskStorePoolingTest {
 
     @Test
     public void testPutThenRemove() throws Exception {
+        for (int i = 0; i < ITERATIONS; i++) {
+            putThenRemove();
+
+            tearDown();
+            setUp();
+        }
+    }
+
+    public void putThenRemove() throws Exception {
         for (int i = 1000; i < 2000; i++) {
             diskStore.put(new Element(i, "" + i));
             assertTrue(diskStore.getSize() <= 10);
@@ -168,11 +195,14 @@ public class DiskStorePoolingTest {
             assertTrue(diskStore.getSize() <= 10);
         }
 
-        diskStore.waitUntilEverythingGotFlushedToDisk();
+        diskStore.waitUntilEverythingGotFlushedToDisk(3000);
 
-        assertTrue(diskStore.getSize() >= 1); assertTrue(diskStore.getSize() <= 2);
-        assertTrue(onHeapPool.getSize() >= 16384); assertTrue(onHeapPool.getSize() <= 16384 * 2);
-        assertTrue(onDiskPool.getSize() >= ELEMENT_SIZE_ON_DISK); assertTrue(onDiskPool.getSize() <= ELEMENT_SIZE_ON_DISK * 2);
+        assertTrue(diskStore.getSize() >= 1);
+        assertTrue(diskStore.getSize() <= 2);
+        assertTrue(onHeapPool.getSize() >= 16384);
+        assertTrue(onHeapPool.getSize() <= 16384 * 2);
+        assertTrue(onDiskPool.getSize() >= ELEMENT_SIZE_ON_DISK);
+        assertTrue(onDiskPool.getSize() <= ELEMENT_SIZE_ON_DISK * 2);
 
         for (int i = 1000; i < 2000; i++) {
             if (i % 2 == 0) {
@@ -180,34 +210,43 @@ public class DiskStorePoolingTest {
             }
         }
 
-        diskStore.waitUntilEverythingGotFlushedToDisk();
+        diskStore.waitUntilEverythingGotFlushedToDisk(3000);
 
         assertEquals(0, diskStore.getSize());
         assertEquals(0, onHeapPool.getSize());
         assertEquals(0, onDiskPool.getSize());
     }
 
+
     @Test
     public void testPutIfAbsentNew() throws Exception {
+        for (int i = 0; i < ITERATIONS; i++) {
+            putIfAbsentNew();
+
+            tearDown();
+            setUp();
+        }
+    }
+
+    public void putIfAbsentNew() throws Exception {
         // put 20 new elements in, making sure eviction is working
         for (int i = 1000; i < 1020; i++) {
             Element e = new Element(i, "" + i);
             diskStore.putIfAbsent(e);
         }
 
-        diskStore.waitUntilEverythingGotFlushedToDisk();
+        diskStore.waitUntilEverythingGotFlushedToDisk(3000);
 
         assertEquals(2, diskStore.getSize());
         assertEquals(16384 * 2, onHeapPool.getSize());
         assertEquals(ELEMENT_SIZE_ON_DISK * 2, onDiskPool.getSize());
 
         // put a new element on-heap
-        Thread.sleep(100);
+        diskStore.waitUntilEverythingGotFlushedToDisk(3000);
         diskStore.putIfAbsent(new Element(1999, "1999"));
 
-        diskStore.waitUntilEverythingGotFlushedToDisk();
+        diskStore.waitUntilEverythingGotFlushedToDisk(3000);
 
-        assertNotNull(diskStore.get(1999));
         assertEquals(2, diskStore.getSize());
         assertEquals(16384 * 2, onHeapPool.getSize());
         assertEquals(ELEMENT_SIZE_ON_DISK * 2, onDiskPool.getSize());
@@ -215,11 +254,20 @@ public class DiskStorePoolingTest {
 
     @Test
     public void testPutUpdate() throws Exception {
+        for (int i = 0; i < ITERATIONS; i++) {
+            putUpdate();
+
+            tearDown();
+            setUp();
+        }
+    }
+
+    public void putUpdate() throws Exception {
         diskStore.put(new Element(1001, "1001"));
         diskStore.put(new Element(1002, "1002"));
         diskStore.put(new Element(1003, "1003"));
 
-        diskStore.waitUntilEverythingGotFlushedToDisk();
+        diskStore.waitUntilEverythingGotFlushedToDisk(3000);
 
         assertEquals(2, diskStore.getSize());
         assertEquals(16384 * 2, onHeapPool.getSize());
@@ -228,7 +276,7 @@ public class DiskStorePoolingTest {
         // update element 1x
         Object key = diskStore.getKeys().iterator().next();
         diskStore.put(new Element(key, key.toString()));
-        diskStore.waitUntilEverythingGotFlushedToDisk();
+        diskStore.waitUntilEverythingGotFlushedToDisk(3000);
 
         assertEquals(2, diskStore.getSize());
         assertEquals(16384 * 2, onHeapPool.getSize());
@@ -239,7 +287,7 @@ public class DiskStorePoolingTest {
         key = diskStore.getKeys().iterator().next();
         diskStore.put(new Element(key, key.toString()));
         
-        diskStore.waitUntilEverythingGotFlushedToDisk();
+        diskStore.waitUntilEverythingGotFlushedToDisk(3000);
 
         assertEquals(2, diskStore.getSize());
         assertEquals(16384 * 2, onHeapPool.getSize());
@@ -248,16 +296,25 @@ public class DiskStorePoolingTest {
 
     @Test
     public void testPutIfAbsentUpdate() throws Exception {
+        for (int i = 0; i < ITERATIONS; i++) {
+            putIfAbsentUpdate();
+
+            tearDown();
+            setUp();
+        }
+    }
+
+    public void putIfAbsentUpdate() throws Exception {
         // warm up
         assertNull(diskStore.putIfAbsent(new Element(1001, "11#1")));
         assertNotNull(diskStore.putIfAbsent(new Element(1001, "11#2")));
-        diskStore.waitUntilEverythingGotFlushedToDisk();
+        diskStore.waitUntilEverythingGotFlushedToDisk(3000);
         assertNull(diskStore.putIfAbsent(new Element(1002, "12#1")));
         assertNotNull(diskStore.putIfAbsent(new Element(1002, "12#2")));
-        diskStore.waitUntilEverythingGotFlushedToDisk();
+        diskStore.waitUntilEverythingGotFlushedToDisk(3000);
 
         assertNull(diskStore.putIfAbsent(new Element(1003, "13#1")));
-        diskStore.waitUntilEverythingGotFlushedToDisk();
+        diskStore.waitUntilEverythingGotFlushedToDisk(3000);
         Element oldElement = diskStore.putIfAbsent(new Element(1003, "13#2"));
 
         assertNotNull(oldElement);
@@ -268,12 +325,21 @@ public class DiskStorePoolingTest {
 
     @Test
     public void testRemove() throws Exception {
+        for (int i = 0; i < ITERATIONS; i++) {
+            remove();
+
+            tearDown();
+            setUp();
+        }
+    }
+
+    public void remove() throws Exception {
         // warm up
         diskStore.put(new Element(1001, "1001"));
         diskStore.put(new Element(1002, "1002"));
         diskStore.put(new Element(1003, "1003"));
 
-        diskStore.waitUntilEverythingGotFlushedToDisk();
+        diskStore.waitUntilEverythingGotFlushedToDisk(3000);
 
         assertEquals(2, diskStore.getSize());
         assertEquals(16384 * 2, onHeapPool.getSize());
@@ -290,11 +356,20 @@ public class DiskStorePoolingTest {
 
     @Test
     public void testReplace1Arg() throws Exception {
+        for (int i = 0; i < ITERATIONS; i++) {
+            replace1Arg();
+
+            tearDown();
+            setUp();
+        }
+    }
+
+    public void replace1Arg() throws Exception {
         // warm up
         diskStore.put(new Element(1001, "11#1"));
         diskStore.put(new Element(1002, "12#1"));
         diskStore.put(new Element(1003, "13#1"));
-        diskStore.waitUntilEverythingGotFlushedToDisk();
+        diskStore.waitUntilEverythingGotFlushedToDisk(3000);
 
         assertEquals(2, diskStore.getSize());
         assertEquals(16384 * 2, onHeapPool.getSize());
@@ -303,7 +378,7 @@ public class DiskStorePoolingTest {
         // replace element on disk
         Object key = diskStore.getKeys().iterator().next();
         Element replaced = diskStore.replace(new Element(key, "22#2"));
-        diskStore.waitUntilEverythingGotFlushedToDisk();
+        diskStore.waitUntilEverythingGotFlushedToDisk(3000);
 
         assertEquals(new Element(key, "22#2"), replaced);
         assertEquals(2, diskStore.getSize());
@@ -312,7 +387,7 @@ public class DiskStorePoolingTest {
 
         // replace non-existent key
         assertNull(diskStore.replace(new Element(1999, 1999 + "19#2")));
-        diskStore.waitUntilEverythingGotFlushedToDisk();
+        diskStore.waitUntilEverythingGotFlushedToDisk(3000);
 
         assertEquals(2, diskStore.getSize());
         assertEquals(16384 * 2, onHeapPool.getSize());
@@ -321,11 +396,20 @@ public class DiskStorePoolingTest {
 
     @Test
     public void testReplace3Args() throws Exception {
+        for (int i = 0; i < ITERATIONS; i++) {
+            replace3Args();
+
+            tearDown();
+            setUp();
+        }
+    }
+
+    public void replace3Args() throws Exception {
         // warm up
         diskStore.put(new Element(1001, "11#1"));
         diskStore.put(new Element(1002, "12#1"));
         diskStore.put(new Element(1003, "13#1"));
-        diskStore.waitUntilEverythingGotFlushedToDisk();
+        diskStore.waitUntilEverythingGotFlushedToDisk(3000);
 
         assertEquals(2, diskStore.getSize());
         assertEquals(16384 * 2, onHeapPool.getSize());
@@ -334,7 +418,7 @@ public class DiskStorePoolingTest {
         // replace element on disk
         Object key = diskStore.getKeys().iterator().next();
         assertTrue(diskStore.replace(diskStore.getQuiet(key), new Element(key, "20#2"), new DefaultElementValueComparator()));
-        diskStore.waitUntilEverythingGotFlushedToDisk();
+        diskStore.waitUntilEverythingGotFlushedToDisk(3000);
 
         if (lastEvicted.getObjectKey().equals(key)) {
             // the replaced object itself got evicted -> pool reserved space for it then freed it
@@ -349,7 +433,7 @@ public class DiskStorePoolingTest {
 
         // replace non-existent key
         assertFalse(diskStore.replace(new Element(1999, 1999 + "19#1"), new Element(1999, "19#2"), new DefaultElementValueComparator()));
-        diskStore.waitUntilEverythingGotFlushedToDisk();
+        diskStore.waitUntilEverythingGotFlushedToDisk(3000);
 
         assertEquals(2, diskStore.getSize());
         assertEquals(16384 * 2, onHeapPool.getSize());
@@ -358,11 +442,20 @@ public class DiskStorePoolingTest {
 
     @Test
     public void testRemoveElement() throws Exception {
+        for (int i = 0; i < ITERATIONS; i++) {
+            removeElement();
+
+            tearDown();
+            setUp();
+        }
+    }
+
+    public void removeElement() throws Exception {
         // warm up
         diskStore.put(new Element(1001, "1001"));
         diskStore.put(new Element(1002, "1002"));
         diskStore.put(new Element(1003, "1003"));
-        diskStore.waitUntilEverythingGotFlushedToDisk();
+        diskStore.waitUntilEverythingGotFlushedToDisk(3000);
 
         assertEquals(2, diskStore.getSize());
         assertEquals(16384 * 2, onHeapPool.getSize());
@@ -389,6 +482,8 @@ public class DiskStorePoolingTest {
         key = diskStore.getKeys().iterator().next();
         assertEquals(new Element(key, key + ""), diskStore.removeElement(new Element(key, key + ""), new DefaultElementValueComparator()));
 
+        diskStore.waitUntilEverythingGotFlushedToDisk(3000);
+
         assertEquals(1, diskStore.getSize());
         assertEquals(16384, onHeapPool.getSize());
         assertEquals(ELEMENT_SIZE_ON_DISK, onDiskPool.getSize());
@@ -396,12 +491,21 @@ public class DiskStorePoolingTest {
 
     @Test
     public void testRemoveAll() throws Exception {
+        for (int i = 0; i < ITERATIONS; i++) {
+            removeAll();
+
+            tearDown();
+            setUp();
+        }
+    }
+
+    public void removeAll() throws Exception {
         // warm up
         diskStore.put(new Element(1001, "1001"));
         diskStore.put(new Element(1002, "1002"));
         diskStore.put(new Element(1003, "1003"));
 
-        diskStore.waitUntilEverythingGotFlushedToDisk();
+        diskStore.waitUntilEverythingGotFlushedToDisk(3000);
 
         assertEquals(2, diskStore.getSize());
         assertEquals(16384 * 2, onHeapPool.getSize());
@@ -415,7 +519,6 @@ public class DiskStorePoolingTest {
     }
 
     @Test
-    @Ignore
     public void testMultithreaded() throws Exception {
         final int nThreads = 16;
 
@@ -430,7 +533,7 @@ public class DiskStorePoolingTest {
                         diskStore.put(e);
 
                         Thread.yield();
-                        if ((i + 1) % 1000 == 0) { dump(); diskStore.removeAll(); }
+                        if ((i + 1) % 1000 == 0) { diskStore.removeAll(); }
                     }
                 }
             });

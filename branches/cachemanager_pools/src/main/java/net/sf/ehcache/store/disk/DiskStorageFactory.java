@@ -970,10 +970,10 @@ public class DiskStorageFactory {
             DiskSubstitute target = this.getDiskEvictionTarget(null, count);
             if (target != null) {
                 Element evictedElement = store.evictElement(target.getKey(), null);
-                if (cacheEventNotificationService != null) {
+                if (evictedElement != null && cacheEventNotificationService != null) {
+                    evicted++;
                     cacheEventNotificationService.notifyElementEvicted(evictedElement, false);
                 }
-                evicted++;
             }
         }
         return evicted;
@@ -1067,6 +1067,9 @@ public class DiskStorageFactory {
             if (result != null) {
                 int disk = onDisk.incrementAndGet();
                 onDiskEvict(disk, getPlaceholder().getKey());
+            } else {
+                // make sure the Placeholder doesn't stay in the store
+                store.remove(getPlaceholder().getKey());
             }
             return result;
         }

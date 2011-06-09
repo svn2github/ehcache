@@ -682,7 +682,9 @@ public class Segment extends ReentrantReadWriteLock implements RetrievalStatisti
             }
             size = onDiskPoolAccessor.add(key, null, fault, isPinningEnabled());
             if (size < 0) {
-                long deleteSize = onHeapPoolAccessor.delete(key, fault, HashEntry.newHashEntry(key, hash, null, null));
+                //todo: replace must not fail here but it could if the memory freed by the previous replace has been stolen in the meantime
+                // that's why it is forced, even if that could make the pool go over limit
+                long deleteSize = onHeapPoolAccessor.replace(Role.VALUE, fault, expect, true);
                 LOG.debug("fault failed to add {} on disk, deleted {} from heap", size, deleteSize);
                 return false;
             } else {
@@ -718,19 +720,24 @@ public class Segment extends ReentrantReadWriteLock implements RetrievalStatisti
      * @return the number of elements which have been added to the store but haven't been written to disk yet
      */
     int countOnHeap() {
-        int result = 0;
+        readLock().lock();
+        try {
+            int result = 0;
 
-        if (count != 0) {
-            for (HashEntry hashEntry : table) {
-                for (HashEntry e = hashEntry; e != null; e = e.next) {
-                    if (e.getElement() instanceof DiskStorageFactory.Placeholder) {
-                        result++;
+            if (count != 0) {
+                for (HashEntry hashEntry : table) {
+                    for (HashEntry e = hashEntry; e != null; e = e.next) {
+                        if (e.getElement() instanceof DiskStorageFactory.Placeholder) {
+                            result++;
+                        }
                     }
                 }
             }
-        }
 
-        return result;
+            return result;
+        } finally {
+            readLock().unlock();
+        }
     }
 
     private boolean install(Object key, int hash, Object expect, Object fault) {
