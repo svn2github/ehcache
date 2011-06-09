@@ -35,7 +35,7 @@ import org.slf4j.LoggerFactory;
  * @author Greg Luck
  * @version $Id$
  */
-public class RMIBootstrapCacheLoader implements BootstrapCacheLoader {
+public class RMIBootstrapCacheLoader implements BootstrapCacheLoader, Cloneable {
 
     private static final int ONE_SECOND = 1000;
 
@@ -257,6 +257,7 @@ public class RMIBootstrapCacheLoader implements BootstrapCacheLoader {
     /**
      * Clones this loader
      */
+    @Override
     public Object clone() throws CloneNotSupportedException {
         //checkstyle
         return new RMIBootstrapCacheLoader(asynchronous, maximumChunkSizeBytes);
