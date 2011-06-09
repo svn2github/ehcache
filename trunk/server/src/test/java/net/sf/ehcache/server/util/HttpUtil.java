@@ -19,9 +19,7 @@ package net.sf.ehcache.server.util;
 import net.sf.ehcache.server.util.Header;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.xml.sax.SAXException;
 
-import javax.xml.parsers.ParserConfigurationException;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -44,7 +42,7 @@ public final class HttpUtil {
         //noop
     }
 
-    public static HttpURLConnection get(String uri) throws IOException, ParserConfigurationException, SAXException {
+    public static HttpURLConnection get(String uri) throws IOException {
         URL u = new URL(uri);
         HttpURLConnection urlConnection = (HttpURLConnection) u.openConnection();
         urlConnection.setUseCaches(false);

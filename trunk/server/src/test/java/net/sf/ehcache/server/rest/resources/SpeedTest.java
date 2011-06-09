@@ -3,7 +3,7 @@ package net.sf.ehcache.server.rest.resources;
 import com.meterware.httpunit.WebConversation;
 import com.meterware.httpunit.WebResponse;
 import net.sf.ehcache.Status;
-import net.sf.ehcache.server.AbstractWebTest;
+import net.sf.ehcache.server.util.WebTestUtil;
 import net.sf.ehcache.server.util.HttpUtil;
 import net.sf.ehcache.server.util.StopWatch;
 import net.sf.ehcache.util.MemoryEfficientByteArrayOutputStream;
@@ -24,7 +24,7 @@ import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.Callable;
 
 import static org.junit.Assert.assertEquals;
 
@@ -33,7 +33,7 @@ import static org.junit.Assert.assertEquals;
  * @author Greg Luck
  * @version $Id: SpeedTest.java 796 2008-10-09 02:39:03Z gregluck $
  */
-public class SpeedTest extends AbstractWebTest {
+public class SpeedTest extends AbstractRestTest {
 
     private static final Logger LOG = LoggerFactory.getLogger(SpeedTest.class);
 
@@ -114,7 +114,7 @@ public class SpeedTest extends AbstractWebTest {
     public void testSpeedNoDom() throws Exception {
 
         StopWatch stopWatch = new StopWatch();
-        final WebConversation conversation = createWebConversation(true);
+        final WebConversation conversation = WebTestUtil.createWebConversation(true);
 
         String requestUrl = "http://localhost:9090/ehcache/rest/sampleCache2/1";
         stopWatch.getElapsedTime();
@@ -131,16 +131,16 @@ public class SpeedTest extends AbstractWebTest {
     @Test
     public void testConcurrentRequests() throws Exception {
 
-        final List executables = new ArrayList();
+        final List<Callable<?>> executables = new ArrayList<Callable<?>>();
         for (int i = 0; i < 40; i++) {
-            final AbstractWebTest.Executable executable = new AbstractWebTest.Executable() {
-                public void execute() throws Exception {
+          executables.add(new Callable<Void>() {
+                public Void call() throws Exception {
                     testSpeedNoDom();
+                    return null;
                 }
-            };
-            executables.add(executable);
+            });
         }
-        runThreads(executables);
+        WebTestUtil.runThreads(executables);
     }
 
 

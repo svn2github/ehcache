@@ -15,23 +15,17 @@
  *  limitations under the License.
  */
 
-package net.sf.ehcache.server;
+package net.sf.ehcache.server.util;
 
 
 import com.meterware.httpunit.ClientProperties;
 import com.meterware.httpunit.HttpUnitOptions;
 import com.meterware.httpunit.WebConversation;
 import com.meterware.httpunit.WebResponse;
-import net.sf.ehcache.CacheManager;
+
 import org.apache.commons.httpclient.HttpMethod;
 import org.dom4j.Document;
 import org.dom4j.io.DOMReader;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
@@ -39,8 +33,15 @@ import org.xml.sax.SAXException;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.util.List;
+import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 /**
  *
@@ -62,8 +63,7 @@ import java.util.concurrent.TimeUnit;
  * @author Greg Luck
  * @version $Id: AbstractWebTest.java 796 2008-10-09 02:39:03Z gregluck $
  */
-public abstract class AbstractWebTest {
-
+public final class WebTestUtil {
 
     /**
      * {@value}
@@ -94,19 +94,16 @@ public abstract class AbstractWebTest {
      */
     public static final String KEEP_ALIVE = "KEEP-ALIVE";
 
-    private static final Logger LOG = LoggerFactory.getLogger(AbstractWebTest.class);
+    private static final Logger LOG = LoggerFactory.getLogger(WebTestUtil.class);
 
-    /**
-     * Run web tests in a caching cluster. They use a singleton, so create a second
-     * instance CacheManager with the same config.
-     */
-    private CacheManager instanceManager;
-
+    private WebTestUtil() {
+      //no-op
+    }
 
     /**
      * Checks that the expected string occurs within the content string.
      */
-    protected static void assertContains(final String string, final String content) {
+    public static void assertContains(final String string, final String content) {
         if (content.indexOf(string) == -1) {
             throw new AssertionError(content + "' does not contain '" + string + "'");
         }
@@ -118,7 +115,7 @@ public abstract class AbstractWebTest {
      * The request is set to accept gzip encoding. Note that HttpUnit automatically gunzips the response
      * probived the "Content-encoding: gzip" response header is set.
      */
-    protected WebResponse getResponseFromAcceptGzipRequest(final String uri) throws IOException, SAXException {
+    public static WebResponse getResponseFromAcceptGzipRequest(final String uri) throws IOException, SAXException {
         final WebConversation conversation = createWebConversation(true);
         final WebResponse response = conversation.getResponse(buildUrl(uri));
         return response;
@@ -127,7 +124,7 @@ public abstract class AbstractWebTest {
     /**
      * Performs an HTTP request, and returns the response.
      */
-    protected WebResponse getResponseFromNonAcceptGzipRequest(final String uri) throws IOException, SAXException {
+    public static WebResponse getResponseFromNonAcceptGzipRequest(final String uri) throws IOException, SAXException {
         final WebConversation conversation = createWebConversation(false);
         final WebResponse response = conversation.getResponse(buildUrl(uri));
         return response;
@@ -136,7 +133,7 @@ public abstract class AbstractWebTest {
     /**
      * Creates a new WebConversation to use for this test.
      */
-    protected WebConversation createWebConversation(boolean acceptGzip) {
+    public static WebConversation createWebConversation(boolean acceptGzip) {
         HttpUnitOptions.setExceptionsThrownOnScriptError(false);
         HttpUnitOptions.setCheckContentLength(true);
         HttpUnitOptions.setScriptingEnabled(false);
@@ -151,7 +148,7 @@ public abstract class AbstractWebTest {
      * @param uri
      * @return
      */
-    protected String buildUrl(String uri) {
+    private static String buildUrl(String uri) {
         return "http://localhost:9090" + uri;
     }
 
@@ -163,7 +160,7 @@ public abstract class AbstractWebTest {
      * <li>The page is not blank.
      * </ol>
      */
-    protected void assertResponseGood(WebResponse response, boolean fullPage) {
+    public static void assertResponseGood(WebResponse response, boolean fullPage) {
         assertResponseOk(response);
         if (fullPage) {
             assertHeadersSane(response);
@@ -179,7 +176,7 @@ public abstract class AbstractWebTest {
      *
      * @param response
      */
-    protected void assertResponseOk(WebResponse response) {
+    public static void assertResponseOk(WebResponse response) {
         assertEquals(HttpURLConnection.HTTP_OK, response.getResponseCode());
     }
 
@@ -193,7 +190,7 @@ public abstract class AbstractWebTest {
      * <li>If the header says the page is gzipped, it really is.
      * </ol>
      */
-    protected void assertHeadersSane(WebResponse response) {
+    public static void assertHeadersSane(WebResponse response) {
         //Content type is text/html with an optional character set
         String contentType = response.getHeaderField(CONTENT_TYPE);
         assertTrue(contentType.equals("text/html")
@@ -215,7 +212,7 @@ public abstract class AbstractWebTest {
      *
      * @param response
      */
-    protected void assertIncludeHeadersSane(WebResponse response) {
+    public static void assertIncludeHeadersSane(WebResponse response) {
         String contentType = response.getHeaderField(CONTENT_TYPE);
 
         assertTrue(contentType == null
@@ -235,7 +232,7 @@ public abstract class AbstractWebTest {
      * Relies on the existence of <code><!-- Generated at <%= date %> --></code> in the requested
      * page.
      */
-    protected void checkTimeStamps(WebResponse webResponse1, WebResponse webResponse2,
+    public static void checkTimeStamps(WebResponse webResponse1, WebResponse webResponse2,
                                    boolean shouldTimestampsBeEqual) throws Exception {
         LOG.debug("Should timestamps be equal: {}", shouldTimestampsBeEqual);
         String firstGeneratedTimestamp = getTimestamp(webResponse1);
@@ -257,7 +254,7 @@ public abstract class AbstractWebTest {
      *         <br> <code>&lt;!-- Generated at <%= date %> --></code><br>
      *         scriptlet in the page.
      */
-    protected String getTimestamp(final WebResponse response) throws Exception {
+    public static String getTimestamp(final WebResponse response) throws Exception {
         String generationPrefix = "Generated at ";
         int index = response.getText().indexOf(generationPrefix);
         String timestamp = response.getText().substring(index, index + 36);
@@ -269,7 +266,7 @@ public abstract class AbstractWebTest {
      * The method for determining the page cache is being used is by looking at the first 'Generated at'
      * comment that appears.
      */
-    protected void assertResponseGoodAndCached(String path, boolean fullPage) throws Exception {
+    public static void assertResponseGoodAndCached(String path, boolean fullPage) throws Exception {
         WebResponse firstResponse = getResponseFromAcceptGzipRequest(path);
         assertResponseGood(firstResponse, fullPage);
         sleep(TimeUnit.SECONDS, 2);
@@ -283,7 +280,7 @@ public abstract class AbstractWebTest {
      * The method for determining the page cache is being used is by looking at the first 'Generated at'
      * comment that appears.
      */
-    protected void assertResponseGoodAndNotCached(String path, boolean fullPage) throws Exception {
+    public static void assertResponseGoodAndNotCached(String path, boolean fullPage) throws Exception {
         WebResponse firstResponse = getResponseFromAcceptGzipRequest(path);
         assertResponseGood(firstResponse, fullPage);
         sleep(TimeUnit.SECONDS, 2);
@@ -295,7 +292,7 @@ public abstract class AbstractWebTest {
     /**
      * Checks the message on the form.
      */
-    protected void checkMessage(final WebResponse response, final String expected)
+    public static void checkMessage(final WebResponse response, final String expected)
             throws SAXException {
         final Document document = createDocument(response);
         final String message = document.valueOf("//*[@id='message']");
@@ -306,7 +303,7 @@ public abstract class AbstractWebTest {
      * Creates a dom4j Document that represents the HTML body of a response.  This allows xpath expressions to be
      * used to extract details from the document.
      */
-    protected Document createDocument(final WebResponse response) throws SAXException {
+    public static Document createDocument(final WebResponse response) throws SAXException {
         response.getDOM();
         final Document doc = new DOMReader().read(response.getDOM());
         return doc;
@@ -315,20 +312,20 @@ public abstract class AbstractWebTest {
     /**
      * Runs a set of threads, for a fixed amount of time.
      */
-    protected void runThreads(final List executables) throws Exception {
+    public static void runThreads(final List<Callable<?>> callable) throws Exception {
         final long endTime = System.currentTimeMillis() + 10000;
         final Throwable[] errors = new Throwable[1];
 
         // Spin up the threads
-        final Thread[] threads = new Thread[executables.size()];
+        final Thread[] threads = new Thread[callable.size()];
         for (int i = 0; i < threads.length; i++) {
-            final AbstractWebTest.Executable executable = (AbstractWebTest.Executable) executables.get(i);
+            final Callable<?> executable = callable.get(i);
             threads[i] = new Thread() {
                 public void run() {
                     try {
                         // Run the thread until the given end time
                         while (System.currentTimeMillis() < endTime) {
-                            executable.execute();
+                            executable.call();
                         }
                     } catch (Throwable t) {
                         // Hang on to any errors
@@ -352,21 +349,6 @@ public abstract class AbstractWebTest {
         }
     }
 
-
-    /**
-     * A runnable, that can throw an exception.
-     */
-    protected interface Executable {
-
-        /**
-         * Executes this object.
-         *
-         * @throws Exception
-         */
-        void execute() throws Exception;
-    }
-
-
     /**
      * Checks for the page is not blank.
      * A blank page is a valid response but with a content of 0 bytes. It is a subtle error.
@@ -374,7 +356,7 @@ public abstract class AbstractWebTest {
      *
      * @param response
      */
-    protected void assertPageNotBlank(WebResponse response) {
+    public static void assertPageNotBlank(WebResponse response) {
         String body = null;
         try {
             body = response.getText();
@@ -391,7 +373,7 @@ public abstract class AbstractWebTest {
      *
      * @param response
      */
-    protected void assertPropertlyFormed(WebResponse response) {
+    public static void assertPropertlyFormed(WebResponse response) {
 //        try {
 //            createDocument(response);
 //        } catch (SAXException e) {
@@ -414,14 +396,14 @@ public abstract class AbstractWebTest {
      *
      * @param httpMethod
      */
-    protected void checkNullOrZeroContentLength(HttpMethod httpMethod) {
+    public static void checkNullOrZeroContentLength(HttpMethod httpMethod) {
         boolean nullContentLengthHeader = httpMethod.getResponseHeader("Content-Length") == null;
         if (!nullContentLengthHeader) {
             assertEquals("0", httpMethod.getResponseHeader("Content-Length").getValue());
         }
     }
 
-    private void sleep(TimeUnit unit, long length) {
+    private static void sleep(TimeUnit unit, long length) {
       boolean interrupted = false;
       try {
         long duration = TimeUnit.MILLISECONDS.convert(length, unit);

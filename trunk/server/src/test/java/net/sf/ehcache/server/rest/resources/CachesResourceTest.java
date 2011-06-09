@@ -50,7 +50,7 @@ import java.util.List;
  *
  * @author Greg Luck
  */
-public class CachesResourceTest {
+public class CachesResourceTest extends AbstractRestTest {
 
     private static final Logger LOG = LoggerFactory.getLogger(CachesResourceTest.class);
 

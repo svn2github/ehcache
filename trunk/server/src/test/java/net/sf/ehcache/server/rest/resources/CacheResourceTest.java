@@ -42,7 +42,9 @@ import javax.xml.parsers.ParserConfigurationException;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.HttpURLConnection;
+import java.net.ProtocolException;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 
 /**
@@ -51,7 +53,7 @@ import java.util.Map;
  *
  * @author Greg Luck
  */
-public class CacheResourceTest {
+public class CacheResourceTest extends AbstractRestTest {
 
     private static final Logger LOG = LoggerFactory.getLogger(CacheResourceTest.class);
 

@@ -67,7 +67,7 @@ import java.util.Map;
  *
  * @author Greg Luck
  */
-public class ElementResourceTest {
+public class ElementResourceTest extends AbstractRestTest {
 
     private static final Logger LOG = LoggerFactory.getLogger(ElementResourceTest.class);
 

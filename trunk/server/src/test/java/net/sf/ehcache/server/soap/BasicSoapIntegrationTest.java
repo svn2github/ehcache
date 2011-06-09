@@ -37,7 +37,7 @@ import java.net.HttpURLConnection;
  * @author Greg Luck
  * @version $Id$
  */
-public class BasicSoapIntegrationTest {
+public class BasicSoapIntegrationTest extends AbstractSoapTest {
 
     @Test
     public void testEhcacheWebServiceEndPointExists() throws IOException, ParserConfigurationException, SAXException {

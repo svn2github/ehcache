@@ -45,7 +45,7 @@ import java.util.List;
  * @author Greg Luck
  * @version $Id$
  */
-public class EhcacheWebServiceEndpointTest {
+public class EhcacheWebServiceEndpointTest extends AbstractSoapTest {
     private static EhcacheWebServiceEndpoint cacheService;
     private String cacheName = "sampleCache1";
 
