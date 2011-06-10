@@ -147,6 +147,7 @@ public class DiskStorageFactory {
         this.diskQueue = diskWriter.getQueue();
         this.eventService = cache.getCacheEventNotificationService();
         this.queueCapacity = cache.getCacheConfiguration().getDiskSpoolBufferSizeMB() * MEGABYTE;
+        this.diskCapacity = cache.getCacheConfiguration().getMaxElementsOnDisk();
 
         diskWriter.setExecuteExistingDelayedTasksAfterShutdownPolicy(false);
         diskWriter.setContinueExistingPeriodicTasksAfterShutdownPolicy(false);

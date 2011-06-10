@@ -16,22 +16,17 @@
 
 package net.sf.ehcache.store;
 
-import static junit.framework.Assert.assertTrue;
-
-import junit.framework.Assert;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.MemoryStoreTester;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
-
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static junit.framework.Assert.assertTrue;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 
 /**
@@ -243,31 +238,6 @@ public class LruMemoryStoreTest extends MemoryStoreTester {
             }
             assertEquals(12000, store.getSize());
             LOG.info("Store size is: " + store.getSize());
-        }
-    }
-
-    @Test
-    public void testPinning() {
-        createMemoryOnlyStore(MemoryStoreEvictionPolicy.LRU, 1000);
-
-        for (int i = 0; i < 2000; i++) {
-            Element element = new Element("Ku-" + i, "@" + i);
-            store.put(element);
-        }
-
-        Assert.assertEquals(1000, store.getSize());
-
-        for (int i = 0; i < 2000; i++) {
-            Element element = new Element("Kp-" + i, "#" + i);
-            element.setPinned(true);
-            store.put(element);
-        }
-
-
-        assertEquals(1000, store.getSize());
-
-        for (int i = 0; i < 2000; i++) {
-            assertTrue(store.containsKey("Kp-" + i));
         }
     }
 

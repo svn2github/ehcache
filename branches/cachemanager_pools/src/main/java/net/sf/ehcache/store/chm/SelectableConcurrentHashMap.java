@@ -60,7 +60,7 @@ public class SelectableConcurrentHashMap extends ConcurrentHashMap<Object, Eleme
             do {
                 for (HashEntry<Object, Element> e = table[tableIndex]; e != null; e = e.next) {
                     Element value = e.value;
-                    if (value != null) {
+                    if (value != null && (value.isExpired() || !value.isPinned())) {
                         sampled.add(value);
                     }
                 }

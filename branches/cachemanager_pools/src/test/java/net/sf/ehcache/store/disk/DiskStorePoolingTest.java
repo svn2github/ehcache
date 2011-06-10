@@ -165,10 +165,10 @@ public class DiskStorePoolingTest {
         // put a new element on-heap
 
         diskStore.put(new Element(1999, "1999"));
+        assertNotNull(diskStore.get(1999));
 
         diskStore.waitUntilEverythingGotFlushedToDisk(3000);
 
-        assertNotNull(diskStore.get(1999));
         assertEquals(2, diskStore.getSize());
         assertEquals(16384 * 2, onHeapPool.getSize());
         assertEquals(ELEMENT_SIZE_ON_DISK * 2, onDiskPool.getSize());
@@ -244,6 +244,7 @@ public class DiskStorePoolingTest {
         // put a new element on-heap
         diskStore.waitUntilEverythingGotFlushedToDisk(3000);
         diskStore.putIfAbsent(new Element(1999, "1999"));
+        assertNotNull(diskStore.get(1999));
 
         diskStore.waitUntilEverythingGotFlushedToDisk(3000);
 

@@ -199,7 +199,7 @@ public final class MemoryStore extends AbstractStore implements PoolableStore, C
         } else {
             Element old = map.put(element.getObjectKey(), element);
             if (old != null) {
-                poolAccessor.delete(old.getObjectKey(), old.getObjectValue(), old);
+                poolAccessor.delete(old.getObjectKey(), old.getObjectValue(), map.storedObject(old));
             }
             if (writerManager != null) {
                 writerManager.put(element);
@@ -273,7 +273,7 @@ public final class MemoryStore extends AbstractStore implements PoolableStore, C
             writerManager.remove(new CacheEntry(key, element));
         }
         if (element != null) {
-            poolAccessor.delete(element.getObjectKey(), element.getObjectValue(), element);
+            poolAccessor.delete(element.getObjectKey(), element.getObjectValue(), map.storedObject(element));
             if (element.isPinned()) {
                 pinnedCount.decrementAndGet();
             }
@@ -404,10 +404,8 @@ public final class MemoryStore extends AbstractStore implements PoolableStore, C
      *
      * @param element the <code>Element</code> to be evicted.
      */
-    private void evict(final Element element) {
-        if (cache.getCacheConfiguration().isOverflowToDisk()) {
-            cache.getCacheEventNotificationService().notifyElementEvicted(element, false);
-        }
+    private void notifyEviction(final Element element) {
+        cache.getCacheEventNotificationService().notifyElementEvicted(element, false);
     }
 
     /**
@@ -471,7 +469,7 @@ public final class MemoryStore extends AbstractStore implements PoolableStore, C
             return false;
         }
 
-        evict(element);
+        notifyEviction(element);
         remove(element.getObjectKey());
         return true;
     }
@@ -485,25 +483,8 @@ public final class MemoryStore extends AbstractStore implements PoolableStore, C
     private Element findEvictionCandidate(final Element elementJustAdded) {
         Object objectKey = elementJustAdded != null ? elementJustAdded.getObjectKey() : null;
         Element[] elements = sampleElements(objectKey);
-        elements = filterOutPinnedElements(elements);
         // this can return null. Let the cache get bigger by one.
         return policy.selectedBasedOnPolicy(elements, elementJustAdded);
-    }
-
-    private Element[] filterOutPinnedElements(Element[] elements) {
-        if (elements == null) {
-            return null;
-        }
-
-        ArrayList<Element> result = new ArrayList<Element>();
-
-        for (Element element : elements) {
-            if (element.isExpired() || !element.isPinned()) {
-                result.add(element);
-            }
-        }
-
-        return result.toArray(new Element[result.size()]);
     }
 
     /**
@@ -684,12 +665,13 @@ public final class MemoryStore extends AbstractStore implements PoolableStore, C
 
         if (poolAccessor.add(element.getObjectKey(), element.getObjectValue(), map.storedObject(element), isPinningEnabled(element)) > -1) {
             Element old = map.putIfAbsent(element.getObjectKey(), element);
-            if (old != null) {
-                poolAccessor.delete(old.getObjectKey(), old.getObjectValue(), old);
-            }
-            checkCapacity(element);
-            if (element.isPinned()) {
-                pinnedCount.incrementAndGet();
+            if (old == null) {
+                if (element.isPinned()) {
+                    pinnedCount.incrementAndGet();
+                }
+                checkCapacity(element);
+            } else {
+                poolAccessor.delete(element.getObjectKey(), element.getObjectValue(), map.storedObject(element));
             }
             return old;
         } else {
@@ -714,7 +696,7 @@ public final class MemoryStore extends AbstractStore implements PoolableStore, C
             Element toRemove = map.get(key);
             if (comparator.equals(element, toRemove)) {
                 map.remove(key);
-                poolAccessor.delete(element.getObjectKey(), element.getObjectValue(), element);
+                poolAccessor.delete(toRemove.getObjectKey(), toRemove.getObjectValue(), map.storedObject(toRemove));
                 if (element.isPinned()) {
                     pinnedCount.decrementAndGet();
                 }
@@ -744,7 +726,7 @@ public final class MemoryStore extends AbstractStore implements PoolableStore, C
                 Element toRemove = map.get(key);
                 if (comparator.equals(old, toRemove)) {
                     map.put(key, element);
-                    poolAccessor.delete(toRemove.getObjectKey(), toRemove.getObjectValue(), toRemove);
+                    poolAccessor.delete(toRemove.getObjectKey(), toRemove.getObjectValue(), map.storedObject(toRemove));
                     if (element.isPinned()) {
                         pinnedCount.incrementAndGet();
                     }
@@ -753,6 +735,7 @@ public final class MemoryStore extends AbstractStore implements PoolableStore, C
                     }
                     return true;
                 } else {
+                    poolAccessor.delete(element.getObjectKey(), element.getObjectValue(), map.storedObject(element));
                     return false;
                 }
             } else {
@@ -781,7 +764,7 @@ public final class MemoryStore extends AbstractStore implements PoolableStore, C
                 Element toRemove = map.get(key);
                 if (toRemove != null) {
                     map.put(key, element);
-                    poolAccessor.delete(toRemove.getObjectKey(), toRemove.getObjectValue(), toRemove);
+                    poolAccessor.delete(toRemove.getObjectKey(), toRemove.getObjectValue(), map.storedObject(toRemove));
                     if (element.isPinned()) {
                         pinnedCount.incrementAndGet();
                     }
@@ -790,6 +773,7 @@ public final class MemoryStore extends AbstractStore implements PoolableStore, C
                     }
                     return toRemove;
                 } else {
+                    poolAccessor.delete(element.getObjectKey(), element.getObjectValue(), map.storedObject(element));
                     return null;
                 }
             } else {

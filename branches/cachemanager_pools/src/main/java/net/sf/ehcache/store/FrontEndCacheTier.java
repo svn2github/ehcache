@@ -90,6 +90,10 @@ public abstract class FrontEndCacheTier<T extends Store, U extends Store> extend
      * {@inheritDoc}
      */
     public Element get(Object key) {
+        if (key == null) {
+            return null;
+        }
+
         readLock(key);
         try {
             Element e = cache.get(key);
@@ -109,6 +113,10 @@ public abstract class FrontEndCacheTier<T extends Store, U extends Store> extend
      * {@inheritDoc}
      */
     public Element getQuiet(Object key) {
+        if (key == null) {
+            return null;
+        }
+
         readLock(key);
         try {
             Element e = cache.getQuiet(key);
@@ -128,6 +136,10 @@ public abstract class FrontEndCacheTier<T extends Store, U extends Store> extend
      * {@inheritDoc}
      */
     public boolean put(Element e) {
+        if (e == null) {
+            return true;
+        }
+
         Object key = e.getObjectKey();
 
         writeLock(key);
@@ -152,6 +164,10 @@ public abstract class FrontEndCacheTier<T extends Store, U extends Store> extend
      * {@inheritDoc}
      */
     public boolean putWithWriter(Element e, CacheWriterManager writer) {
+        if (e == null) {
+            return true;
+        }
+
         Object key = e.getObjectKey();
 
         writeLock(key);
@@ -176,6 +192,10 @@ public abstract class FrontEndCacheTier<T extends Store, U extends Store> extend
      * {@inheritDoc}
      */
     public Element remove(Object key) {
+        if (key == null) {
+            return null;
+        }
+
         writeLock(key);
         try {
             cache.remove(key);
@@ -189,6 +209,10 @@ public abstract class FrontEndCacheTier<T extends Store, U extends Store> extend
      * {@inheritDoc}
      */
     public Element removeWithWriter(Object key, CacheWriterManager writerManager) throws CacheException {
+        if (key == null) {
+            return null;
+        }
+
         writeLock(key);
         try {
             cache.remove(key);
@@ -311,6 +335,10 @@ public abstract class FrontEndCacheTier<T extends Store, U extends Store> extend
      * {@inheritDoc}
      */
     public boolean containsKey(Object key) {
+        if (key == null) {
+            return false;
+        }
+
         readLock(key);
         try {
             return cache.containsKey(key) || authority.containsKey(key);
@@ -323,6 +351,10 @@ public abstract class FrontEndCacheTier<T extends Store, U extends Store> extend
      * {@inheritDoc}
      */
     public boolean containsKeyOnDisk(Object key) {
+        if (key == null) {
+            return false;
+        }
+
         readLock(key);
         try {
             return cache.containsKeyOnDisk(key) || authority.containsKeyOnDisk(key);
@@ -335,6 +367,10 @@ public abstract class FrontEndCacheTier<T extends Store, U extends Store> extend
      * {@inheritDoc}
      */
     public boolean containsKeyOffHeap(Object key) {
+        if (key == null) {
+            return false;
+        }
+
         readLock(key);
         try {
             return cache.containsKeyOffHeap(key) || authority.containsKeyOffHeap(key);
@@ -347,6 +383,10 @@ public abstract class FrontEndCacheTier<T extends Store, U extends Store> extend
      * {@inheritDoc}
      */
     public boolean containsKeyInMemory(Object key) {
+        if (key == null) {
+            return false;
+        }
+
         readLock(key);
         try {
             return cache.containsKeyInMemory(key) || authority.containsKeyInMemory(key);
