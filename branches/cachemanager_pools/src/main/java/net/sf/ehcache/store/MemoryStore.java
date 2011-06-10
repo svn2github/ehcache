@@ -720,9 +720,9 @@ public final class MemoryStore extends AbstractStore implements PoolableStore, C
 
         Object key = element.getObjectKey();
 
-        writeLock(key);
-        try {
-            if (poolAccessor.add(element.getObjectKey(), element.getObjectValue(), map.storedObject(element), isPinningEnabled(element)) > -1) {
+        if (poolAccessor.add(element.getObjectKey(), element.getObjectValue(), map.storedObject(element), isPinningEnabled(element)) > -1) {
+            writeLock(key);
+            try {
                 Element toRemove = map.get(key);
                 if (comparator.equals(old, toRemove)) {
                     map.put(key, element);
@@ -738,13 +738,13 @@ public final class MemoryStore extends AbstractStore implements PoolableStore, C
                     poolAccessor.delete(element.getObjectKey(), element.getObjectValue(), map.storedObject(element));
                     return false;
                 }
-            } else {
-                remove(element.getObjectKey());
-                cache.getCacheEventNotificationService().notifyElementEvicted(element, false);
-                return false;
+            } finally {
+                writeUnlock(key);
             }
-        } finally {
-            writeUnlock(key);
+        } else {
+            remove(element.getObjectKey());
+            cache.getCacheEventNotificationService().notifyElementEvicted(element, false);
+            return false;
         }
     }
 
@@ -758,9 +758,9 @@ public final class MemoryStore extends AbstractStore implements PoolableStore, C
 
         Object key = element.getObjectKey();
 
-        writeLock(key);
-        try {
-            if (poolAccessor.add(element.getObjectKey(), element.getObjectValue(), map.storedObject(element), isPinningEnabled(element)) > -1) {
+        if (poolAccessor.add(element.getObjectKey(), element.getObjectValue(), map.storedObject(element), isPinningEnabled(element)) > -1) {
+            writeLock(key);
+            try {
                 Element toRemove = map.get(key);
                 if (toRemove != null) {
                     map.put(key, element);
@@ -776,13 +776,13 @@ public final class MemoryStore extends AbstractStore implements PoolableStore, C
                     poolAccessor.delete(element.getObjectKey(), element.getObjectValue(), map.storedObject(element));
                     return null;
                 }
-            } else {
-                remove(element.getObjectKey());
-                cache.getCacheEventNotificationService().notifyElementEvicted(element, false);
-                return null;
+            } finally {
+                writeUnlock(key);
             }
-        } finally {
-            writeUnlock(key);
+        } else {
+            remove(element.getObjectKey());
+            cache.getCacheEventNotificationService().notifyElementEvicted(element, false);
+            return null;
         }
     }
 

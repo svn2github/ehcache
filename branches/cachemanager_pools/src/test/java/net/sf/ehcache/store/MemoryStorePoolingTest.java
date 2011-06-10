@@ -491,9 +491,8 @@ public class MemoryStorePoolingTest {
     }
 
     @Test
-    @Ignore
     public void testMultithreaded() throws Exception {
-        final int nThreads = 16;
+        final int nThreads = 1;
 
         final ExecutorService executor = Executors.newFixedThreadPool(nThreads);
         final ConcurrentLinkedQueue<Future<?>> queue = new ConcurrentLinkedQueue<Future<?>>();
@@ -501,14 +500,13 @@ public class MemoryStorePoolingTest {
         for (int i = 0; i < nThreads; i++) {
             Future<?> f = executor.submit(new Runnable() {
                 public void run() {
-                    for (int i = 0; i < 10000; i++) {
+                    for (int i = 0; i < 100000; i++) {
                         Element e = new Element(i, "" + i);
                         memoryStore.put(e);
 
-                        memoryStore.replace(e, new Element(i, "2#" + i), new DefaultElementValueComparator());
+                        memoryStore.replace(new Element(i, "2#" + i));
 
                         Thread.yield();
-                        if ((i + 1) % 1000 == 0) { memoryStore.removeAll(); }
                     }
                 }
             });
@@ -520,8 +518,8 @@ public class MemoryStorePoolingTest {
             f.get();
         }
 
-        assertEquals(16384 * 2, onHeapPool.getSize());
-        assertEquals(2, memoryStore.getSize());
+        assertEquals(16384, onHeapPool.getSize());
+        assertEquals(1, memoryStore.getSize());
     }
 
 }
