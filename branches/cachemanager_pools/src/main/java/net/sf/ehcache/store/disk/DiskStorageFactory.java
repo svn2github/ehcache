@@ -884,11 +884,11 @@ public class DiskStorageFactory {
      * @param object ElementSubstitute to decode
      * @return the decoded element
      */
-    public Element retrieve(DiskSubstitute object, RetrievalStatistic statistic) {
+    public Element retrieve(DiskSubstitute object, Segment segment) {
         if (object instanceof DiskMarker) {
             try {
                 DiskMarker marker = (DiskMarker) object;
-                statistic.diskHit();
+                segment.diskHit();
                 return read(marker);
             } catch (IOException e) {
                 throw new CacheException(e);
@@ -896,10 +896,10 @@ public class DiskStorageFactory {
                 throw new CacheException(e);
             }
         } else if (object instanceof DiskStorageFactory.Placeholder) {
-            statistic.diskHit();
+            segment.diskHit();
             return ((Placeholder) object).getElement();
         } else {
-            statistic.miss();
+            segment.miss();
             return null;
         }
     }

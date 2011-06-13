@@ -137,6 +137,7 @@ public class CacheManager {
 
     private static final String NO_DEFAULT_CACHE_ERROR_MSG = "Caches cannot be added by name when default cache config is not specified"
             + " in the config. Please add a default cache config in the configuration.";
+    private static final int HUNDRED = 100;
 
     /**
      * A name for this CacheManager to distinguish it from others.
@@ -397,10 +398,20 @@ public class CacheManager {
         }
     }
 
+    /**
+     * Return this cache manager's shared on-heap pool
+     *
+     * @return this cache manager's shared on-heap pool
+     */
     public Pool getOnHeapPool() {
         return onHeapPool;
     }
 
+    /**
+     * Return this cache manager's shared on-disk pool
+     *
+     * @return this cache manager's shared on-disk pool
+     */
     public Pool getOnDiskPool() {
         return onDiskPool;
     }
@@ -1054,18 +1065,18 @@ public class CacheManager {
     private void configCachePools(CacheConfiguration cacheConfiguration) {
 
         long cacheAssignedMem;
-        if(cacheConfiguration.getMaxBytesOnHeapPercentage() != null) {
-            cacheAssignedMem = configuration.getMaxBytesOnHeap() * cacheConfiguration.getMaxBytesOnHeapPercentage() / 100;
+        if (cacheConfiguration.getMaxBytesOnHeapPercentage() != null) {
+            cacheAssignedMem = configuration.getMaxBytesOnHeap() * cacheConfiguration.getMaxBytesOnHeapPercentage() / HUNDRED;
             cacheConfiguration.setMaxBytesOnHeap(cacheAssignedMem);
         }
 
-        if(cacheConfiguration.getMaxBytesOffHeapPercentage() != null) {
-            cacheAssignedMem = configuration.getMaxBytesOffHeap() * cacheConfiguration.getMaxBytesOffHeapPercentage() / 100;
+        if (cacheConfiguration.getMaxBytesOffHeapPercentage() != null) {
+            cacheAssignedMem = configuration.getMaxBytesOffHeap() * cacheConfiguration.getMaxBytesOffHeapPercentage() / HUNDRED;
             cacheConfiguration.setMaxBytesOffHeap(cacheAssignedMem);
         }
 
-        if(cacheConfiguration.getMaxBytesOnDiskPercentage() != null) {
-            cacheAssignedMem = configuration.getMaxBytesOnDisk() * cacheConfiguration.getMaxBytesOnDiskPercentage() / 100;
+        if (cacheConfiguration.getMaxBytesOnDiskPercentage() != null) {
+            cacheAssignedMem = configuration.getMaxBytesOnDisk() * cacheConfiguration.getMaxBytesOnDiskPercentage() / HUNDRED;
             cacheConfiguration.setMaxBytesOnDisk(cacheAssignedMem);
         }
 
@@ -1073,23 +1084,23 @@ public class CacheManager {
 
     private void validatePoolConfig(CacheConfiguration cacheConfiguration) {
 
-        if(configuration.isMaxBytesOnHeapSet() && Runtime.getRuntime().maxMemory() - configuration.getMaxBytesOnHeap() < 0) {
+        if (configuration.isMaxBytesOnHeapSet() && Runtime.getRuntime().maxMemory() - configuration.getMaxBytesOnHeap() < 0) {
             throw new InvalidConfigurationException("You've assigned more memory to the on-heap than the VM can sustain, " +
                                                     "please adjust your -Xmx setting accordingly");
         }
 
         // todo Verify that these are the real constraints ?
-        if(cacheConfiguration.isMaxBytesOnHeapPercentageSet() && !configuration.isMaxBytesOnHeapSet()) {
+        if (cacheConfiguration.isMaxBytesOnHeapPercentageSet() && !configuration.isMaxBytesOnHeapSet()) {
             throw new InvalidConfigurationException("Cache '" + cacheConfiguration.getName() +
                                                     "' defines a percentage maxBytesOnHeap value but no CacheManager " +
                                                     "wide value was configured");
         }
-        if(cacheConfiguration.isMaxBytesOffHeapPercentageSet() && !configuration.isMaxBytesOffHeapSet()) {
+        if (cacheConfiguration.isMaxBytesOffHeapPercentageSet() && !configuration.isMaxBytesOffHeapSet()) {
             throw new InvalidConfigurationException("Cache '" + cacheConfiguration.getName() +
                                                     "' defines a percentage maxBytesOffHeap value but no CacheManager " +
                                                     "wide value was configured");
         }
-        if(cacheConfiguration.isMaxBytesOnDiskPercentageSet() && !configuration.isMaxBytesOnDiskSet()) {
+        if (cacheConfiguration.isMaxBytesOnDiskPercentageSet() && !configuration.isMaxBytesOnDiskSet()) {
             throw new InvalidConfigurationException("Cache '" + cacheConfiguration.getName() +
                                                     "' defines a percentage maxBytesOnDisk value but no CacheManager " +
                                                     "wide value was configured");
@@ -1189,17 +1200,17 @@ public class CacheManager {
                                                     + "' to the CacheManager over-allocates onDisk space!");
         }
 
-        if(configuration.isMaxBytesOnHeapSet() && configuration.getMaxBytesOnHeap() - totalOnHeapAssignedMemory == 0) {
+        if (configuration.isMaxBytesOnHeapSet() && configuration.getMaxBytesOnHeap() - totalOnHeapAssignedMemory == 0) {
             LOG.warn("All the onHeap memory has been assigned, there is none left for dynamically added caches");
         }
 
-        if(Runtime.getRuntime().maxMemory() - totalOnHeapAssignedMemory < 0) {
+        if (Runtime.getRuntime().maxMemory() - totalOnHeapAssignedMemory < 0) {
             // todo this could be a nicer message (with actual values)
             throw new InvalidConfigurationException("You've assigned more memory to the on-heap than the VM can sustain, " +
                                                     "please adjust your -Xmx setting accordingly");
         }
 
-        if(configuration.isMaxBytesOnHeapSet()
+        if (configuration.isMaxBytesOnHeapSet()
            && configuration.getMaxBytesOnHeap() / (float) Runtime.getRuntime().maxMemory() > ON_HEAP_THRESHOLD) {
             LOG.warn("You've assigned over 80% of your VM's heap to be used by the cache!");
         }
@@ -1805,22 +1816,21 @@ public class CacheManager {
     }
 
     SizeOfEngine createSizeOfEngine(final Cache cache) {
-
         String prop = "net.sf.ehcache.sizeofengine";
 
-        if(isNamed()) {
+        if (isNamed()) {
             prop += "." + getName();
         } else {
           prop += ".default";
         }
 
-        if(cache != null) {
+        if (cache != null) {
             prop += "." + cache.getName();
         }
 
         String className = System.getProperty(prop);
 
-        if(className != null) {
+        if (className != null) {
             try {
                 Class<? extends SizeOfEngine> aClass = (Class<? extends SizeOfEngine>) Class.forName(className);
                 return aClass.newInstance();

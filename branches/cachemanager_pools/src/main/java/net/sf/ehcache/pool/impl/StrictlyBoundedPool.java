@@ -211,39 +211,41 @@ public class StrictlyBoundedPool implements Pool {
             // locking makes the size update MT-safe but slow
             lock.lock();
             try {
-                long size;
+                long addedSize;
                 long sizeOf = 0;
                 switch (role) {
                     case CONTAINER:
                         sizeOf += delete(null, null, current);
-                        size = add(null, null, replacement, force);
-                        if (size < 0) {
+                        addedSize = add(null, null, replacement, force);
+                        if (addedSize < 0) {
                             add(null, null, current, false);
                             sizeOf = Long.MAX_VALUE;
                         } else {
-                            sizeOf -= size;
+                            sizeOf -= addedSize;
                         }
                         break;
                     case KEY:
                         sizeOf += delete(current, null, null);
-                        size = add(replacement, null, null, force);
-                        if (size < 0) {
+                        addedSize = add(replacement, null, null, force);
+                        if (addedSize < 0) {
                             add(current, null, null, false);
                             sizeOf = Long.MAX_VALUE;
                         } else {
-                            sizeOf -= size;
+                            sizeOf -= addedSize;
                         }
                         break;
                     case VALUE:
                         sizeOf += delete(null, current, null);
-                        size = add(null, replacement, null, force);
-                        if (size < 0) {
+                        addedSize = add(null, replacement, null, force);
+                        if (addedSize < 0) {
                             add(null, current, null, false);
                             sizeOf = Long.MAX_VALUE;
                         } else {
-                            sizeOf -= size;
+                            sizeOf -= addedSize;
                         }
                         break;
+                    default:
+                        throw new IllegalArgumentException();
                 }
                 return sizeOf;
             } finally {

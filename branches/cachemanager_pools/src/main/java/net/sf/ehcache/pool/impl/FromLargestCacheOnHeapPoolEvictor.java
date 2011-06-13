@@ -40,23 +40,8 @@ public class FromLargestCacheOnHeapPoolEvictor implements PoolEvictor<PoolableSt
         long remainingSizeInBytes = bytes;
         Collection<PoolableStore> tried = new ArrayList<PoolableStore>();
 
-        while (true) {
-            // if all stores have been tried, give up
-            if (tried.size() == from.size()) {
-                return false;
-            }
-
-            PoolableStore largestPoolableStore = null;
-
-            for (PoolableStore poolableStore : from) {
-                if (alreadyTried(tried, poolableStore)) {
-                    continue;
-                }
-
-                if (largestPoolableStore == null || poolableStore.getInMemorySizeInBytes() > largestPoolableStore.getInMemorySizeInBytes()) {
-                    largestPoolableStore = poolableStore;
-                }
-            } // for
+        while (tried.size() != from.size()) {
+            PoolableStore largestPoolableStore = findUntriedLargestPoolableStore(from, tried);
 
             long beforeEvictionSize = largestPoolableStore.getInMemorySizeInBytes();
             if (!largestPoolableStore.evictFromOnHeap(1, bytes)) {
@@ -69,7 +54,23 @@ public class FromLargestCacheOnHeapPoolEvictor implements PoolEvictor<PoolableSt
             if (remainingSizeInBytes <= 0L) {
                 return true;
             }
-        } // while
+        }
+
+        return false;
+    }
+
+    private PoolableStore findUntriedLargestPoolableStore(Collection<PoolableStore> from, Collection<PoolableStore> tried) {
+        PoolableStore largestPoolableStore = null;
+        for (PoolableStore poolableStore : from) {
+            if (alreadyTried(tried, poolableStore)) {
+                continue;
+            }
+
+            if (largestPoolableStore == null || poolableStore.getInMemorySizeInBytes() > largestPoolableStore.getInMemorySizeInBytes()) {
+                largestPoolableStore = poolableStore;
+            }
+        }
+        return largestPoolableStore;
     }
 
     private boolean alreadyTried(Collection<PoolableStore> tried, PoolableStore from) {

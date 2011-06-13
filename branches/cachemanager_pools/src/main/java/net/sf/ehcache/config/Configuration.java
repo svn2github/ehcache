@@ -58,18 +58,7 @@ public final class Configuration {
      * Default transactionManagerLookupConfiguration
      */
     public static final FactoryConfiguration DEFAULT_TRANSACTION_MANAGER_LOOKUP_CONFIG = getDefaultTransactionManagerLookupConfiguration();
-
-    public boolean isMaxBytesOnDiskSet() {
-        return maxBytesOnDisk != null;
-    }
-
-    public boolean isMaxBytesOffHeapSet() {
-        return maxBytesOffHeap != null;
-    }
-
-    public boolean isMaxBytesOnHeapSet() {
-        return maxBytesOnHeap != null;
-    }
+    private static final int HUNDRED = 100;
 
     /**
      * Represents whether monitoring should be enabled or not.
@@ -112,6 +101,19 @@ public final class Configuration {
      */
     public Configuration() {
     }
+
+    public boolean isMaxBytesOnDiskSet() {
+        return maxBytesOnDisk != null;
+    }
+
+    public boolean isMaxBytesOffHeapSet() {
+        return maxBytesOffHeap != null;
+    }
+
+    public boolean isMaxBytesOnHeapSet() {
+        return maxBytesOnHeap != null;
+    }
+
 
     private static FactoryConfiguration getDefaultTransactionManagerLookupConfiguration() {
         FactoryConfiguration configuration = new FactoryConfiguration();
@@ -262,9 +264,9 @@ public final class Configuration {
     }
 
     public void setMaxBytesOnHeap(final String maxBytesOnHeap) {
-        if(isPercentage(maxBytesOnHeap)) {
+        if (isPercentage(maxBytesOnHeap)) {
             long maxMemory = Runtime.getRuntime().maxMemory();
-            long mem = maxMemory / 100 * parsePercentage(maxBytesOnHeap);
+            long mem = maxMemory / HUNDRED * parsePercentage(maxBytesOnHeap);
             setMaxBytesOnHeap(mem);
         } else {
             setMaxBytesOnHeap(MemoryUnit.parseSizeInBytes(maxBytesOnHeap));
@@ -274,7 +276,7 @@ public final class Configuration {
     private int parsePercentage(final String stringValue) {
         String trimmed = stringValue.trim();
         int percentage = Integer.parseInt(trimmed.substring(0, trimmed.length() - 1));
-        if(percentage > 100 || percentage < 0) {
+        if (percentage > HUNDRED || percentage < 0) {
             throw new IllegalArgumentException("Percentage need values need to be between 0 and 100 inclusive, but got : " + percentage);
         }
         return percentage;
@@ -332,7 +334,7 @@ public final class Configuration {
     }
 
     private void verifyGreaterThanZero(final Long maxBytesOnHeap, final String field) {
-        if(maxBytesOnHeap != null && maxBytesOnHeap < 1) {
+        if (maxBytesOnHeap != null && maxBytesOnHeap < 1) {
             throw new IllegalArgumentException(field + " has to be larger than 0");
         }
     }

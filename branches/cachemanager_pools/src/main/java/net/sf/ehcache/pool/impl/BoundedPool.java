@@ -192,6 +192,8 @@ public class BoundedPool implements Pool {
                     sizeOf += delete(null, current, null);
                     sizeOf -= add(null, replacement, null, force);
                     break;
+                default:
+                    throw new IllegalArgumentException();
             }
             return sizeOf;
         }

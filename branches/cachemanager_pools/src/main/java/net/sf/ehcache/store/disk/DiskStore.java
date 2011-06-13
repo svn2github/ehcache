@@ -79,6 +79,7 @@ public final class DiskStore extends AbstractStore implements PoolableStore {
     private static final int DEFAULT_INITIAL_CAPACITY = 16;
     private static final int DEFAULT_SEGMENT_COUNT = 64;
     private static final float DEFAULT_LOAD_FACTOR = 0.75f;
+    private static final int SLEEP_INTERVAL_MS = 10;
 
     private final DiskStorageFactory disk;
     private final Random rndm = new Random();
@@ -115,12 +116,12 @@ public final class DiskStore extends AbstractStore implements PoolableStore {
      * @param delayInMs the maximum time to wait, in milliseconds
      */
     void waitUntilEverythingGotFlushedToDisk(long delayInMs) throws InterruptedException {
-        int iterations = (int) (delayInMs / 10);
+        int iterations = (int) (delayInMs / SLEEP_INTERVAL_MS);
 
         for (Segment segment : segments) {
             int count = 0;
             while (segment.countOnHeap() != 0) {
-                Thread.sleep(10);
+                Thread.sleep(SLEEP_INTERVAL_MS);
                 count++;
 
                 if (count > iterations) {

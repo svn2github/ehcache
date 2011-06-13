@@ -47,7 +47,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
  * @author Chris Dennis
  * @author Ludovic Orban
  */
-public class Segment extends ReentrantReadWriteLock implements RetrievalStatistic {
+public class Segment extends ReentrantReadWriteLock {
 
     private static final Logger LOG = LoggerFactory.getLogger(Segment.class.getName());
 
