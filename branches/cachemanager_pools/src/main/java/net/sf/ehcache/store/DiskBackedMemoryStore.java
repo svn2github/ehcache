@@ -22,7 +22,7 @@ import net.sf.ehcache.Element;
 import net.sf.ehcache.Status;
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.PinningConfiguration;
-import net.sf.ehcache.event.CacheEventListener;
+import net.sf.ehcache.event.CacheEventListenerAdapter;
 import net.sf.ehcache.pool.Pool;
 import net.sf.ehcache.store.compound.ReadWriteCopyStrategy;
 import net.sf.ehcache.store.disk.DiskStore;
@@ -88,29 +88,13 @@ public final class DiskBackedMemoryStore extends FrontEndCacheTier<MemoryStore, 
         final MemoryStore memoryStore = createMemoryStore(cache, onHeapPool);
         DiskStore diskStore = createDiskStore(cache, diskStorePath, onHeapPool, onDiskPool);
 
-        cache.getCacheEventNotificationService().registerListener(new CacheEventListener() {
-            @Override
-            public Object clone() throws CloneNotSupportedException {
-                return super.clone();
-            }
-            public void notifyElementRemoved(Ehcache cache, Element element) throws CacheException {
-            }
-            public void notifyElementPut(Ehcache cache, Element element) throws CacheException {
-            }
-            public void notifyElementUpdated(Ehcache cache, Element element) throws CacheException {
-            }
-            public void notifyElementExpired(Ehcache cache, Element element) {
-            }
+        cache.getCacheEventNotificationService().registerListener(new CacheEventListenerAdapter() {
             public void notifyElementEvicted(Ehcache cache, Element element) {
                 // if an element can't be serialized by the disk store, it gets evicted
                 // and we must propagate the removal to the memory store
                 if (element != null) {
                     memoryStore.remove(element.getObjectKey());
                 }
-            }
-            public void notifyRemoveAll(Ehcache cache) {
-            }
-            public void dispose() {
             }
         });
 
