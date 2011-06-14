@@ -21,33 +21,59 @@ import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 
 /**
+ * An adapter to simplify cache event listeners that do not need all events defined on the CacheEventListener interface.
  *
+ * @author Ludovic Orban
  */
 public class CacheEventListenerAdapter implements CacheEventListener {
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public Object clone() throws CloneNotSupportedException {
         return super.clone();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public void notifyElementRemoved(Ehcache cache, Element element) throws CacheException {
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public void notifyElementPut(Ehcache cache, Element element) throws CacheException {
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public void notifyElementUpdated(Ehcache cache, Element element) throws CacheException {
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public void notifyElementExpired(Ehcache cache, Element element) {
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public void notifyElementEvicted(Ehcache cache, Element element) {
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public void notifyRemoveAll(Ehcache cache) {
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public void dispose() {
     }
 }
