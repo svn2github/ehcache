@@ -2434,6 +2434,17 @@ public class Cache implements Ehcache, StoreListener {
     }
 
     /**
+     * Gets the size of the on-disk store for this cache
+     *
+     * @return the size of the on-disk store in bytes
+     * @throws IllegalStateException
+     */
+    public final long calculateOnDiskSize() throws IllegalStateException, CacheException {
+        checkStatus();
+        return compoundStore.getOnDiskSizeInBytes();
+    }
+
+    /**
      * Returns the number of elements in the memory store.
      *
      * @return the number of elements in the memory store
