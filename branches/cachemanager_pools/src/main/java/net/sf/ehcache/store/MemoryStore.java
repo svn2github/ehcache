@@ -103,7 +103,13 @@ public final class MemoryStore extends AbstractStore implements PoolableStore, C
 
     private volatile CacheLockProvider lockProvider;
 
+    /**
+     * Counts the number of pinned elements. Unpinned elements
+     * added to a pinned cache does not increment this counter.
+     */
     private final AtomicInteger pinnedCount = new AtomicInteger();
+
+    private volatile boolean cachePinned;
 
     /**
      * Constructs things that all MemoryStores have in common.
@@ -123,10 +129,33 @@ public final class MemoryStore extends AbstractStore implements PoolableStore, C
 
         this.poolAccessor = pool.createPoolAccessor(this);
 
+        this.cachePinned = determineCachePinned(cache.getCacheConfiguration());
+
         status = Status.STATUS_ALIVE;
 
         if (LOG.isDebugEnabled()) {
             LOG.debug("Initialized " + this.getClass().getName() + " for " + cache.getName());
+        }
+    }
+
+    private boolean determineCachePinned(CacheConfiguration cacheConfiguration) {
+        PinningConfiguration pinningConfiguration = cacheConfiguration.getPinningConfiguration();
+        if (pinningConfiguration == null) {
+            return false;
+        }
+
+        switch (pinningConfiguration.getStorage()) {
+            case ONHEAP:
+                return true;
+
+            case INMEMORY:
+                return !cacheConfiguration.isOverflowToOffHeap();
+
+            case INCACHE:
+                return !(cacheConfiguration.isOverflowToOffHeap() || cacheConfiguration.isOverflowToDisk() || cacheConfiguration.isDiskPersistent());
+
+            default:
+                throw new IllegalArgumentException();
         }
     }
 
@@ -463,9 +492,7 @@ public final class MemoryStore extends AbstractStore implements PoolableStore, C
             return true;
         }
 
-        PinningConfiguration pinningConfiguration = cache.getCacheConfiguration().getPinningConfiguration();
-        if (pinningConfiguration != null &&
-                pinningConfiguration.getStorage().equals(PinningConfiguration.Storage.ONHEAP)) {
+        if (cachePinned) {
             return false;
         }
 

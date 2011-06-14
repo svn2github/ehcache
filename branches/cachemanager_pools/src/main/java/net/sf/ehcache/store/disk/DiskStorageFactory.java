@@ -21,6 +21,7 @@ import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.concurrent.ConcurrencyUtil;
 import net.sf.ehcache.config.CacheConfiguration;
+import net.sf.ehcache.config.PinningConfiguration;
 import net.sf.ehcache.event.RegisteredEventListeners;
 import net.sf.ehcache.store.disk.ods.FileAllocationTree;
 import net.sf.ehcache.store.disk.ods.Region;
@@ -108,9 +109,10 @@ public class DiskStorageFactory {
 
     private volatile int diskCapacity;
 
+    private volatile boolean pinningEnabled;
+
     private final RegisteredEventListeners cacheEventNotificationService;
     private final boolean diskPersistent;
-    private final CacheConfiguration cacheConfiguration;
 
     /**
      * Constructs an disk persistent factory for the given cache and disk path.
@@ -122,7 +124,7 @@ public class DiskStorageFactory {
     public DiskStorageFactory(Ehcache cache, String diskPath, RegisteredEventListeners cacheEventNotificationService) {
         this.file = getDataFile(diskPath, cache);
         this.indexFile = new File(getDataFile().getParentFile(), getIndexFileName(cache));
-        this.cacheConfiguration = cache.getCacheConfiguration();
+        this.pinningEnabled = determineCachePinned(cache.getCacheConfiguration());
 
         diskPersistent = cache.getCacheConfiguration().isDiskPersistent();
         if (!diskPersistent) {
@@ -167,6 +169,25 @@ public class DiskStorageFactory {
                         + "Deleting index file {}", getDataFile(), indexFile);
                 deleteFile(indexFile);
             }
+        }
+    }
+
+    private boolean determineCachePinned(CacheConfiguration cacheConfiguration) {
+        PinningConfiguration pinningConfiguration = cacheConfiguration.getPinningConfiguration();
+        if (pinningConfiguration == null) {
+            return false;
+        }
+
+        switch (pinningConfiguration.getStorage()) {
+            case ONHEAP:
+            case INMEMORY:
+                return false;
+
+            case INCACHE:
+                return true;
+
+            default:
+                throw new IllegalArgumentException();
         }
     }
 
@@ -952,7 +973,7 @@ public class DiskStorageFactory {
     }
 
     private boolean isPinningEnabled() {
-        return cacheConfiguration.getPinningConfiguration() != null;
+        return pinningEnabled;
     }
 
     /**
@@ -962,6 +983,8 @@ public class DiskStorageFactory {
      * @return the number of elements actually evicted
      */
     int evict(int count) {
+        // see void onDiskEvict(int size, Object keyHint)
+
         if (isPinningEnabled()) {
             return 0;
         }
@@ -1016,7 +1039,7 @@ public class DiskStorageFactory {
     }
 
     private void onDiskEvict(int size, Object keyHint) {
-        if (diskCapacity > 0) {
+        if (diskCapacity > 0 && !isPinningEnabled()) {
             int overflow = size - diskCapacity;
             for (int i = 0; i < Math.min(MAX_EVICT, overflow); i++) {
                 DiskSubstitute target = getDiskEvictionTarget(keyHint, size);

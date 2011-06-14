@@ -281,6 +281,7 @@
         <xs:restriction base="xs:string">
             <xs:enumeration value="onHeap" />
             <xs:enumeration value="inMemory" />
+            <xs:enumeration value="inCache" />
         </xs:restriction>
     </xs:simpleType>
     <xs:simpleType name="terracottaCacheValueType">

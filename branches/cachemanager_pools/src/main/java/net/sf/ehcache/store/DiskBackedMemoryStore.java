@@ -21,6 +21,7 @@ import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.Status;
 import net.sf.ehcache.config.CacheConfiguration;
+import net.sf.ehcache.config.PinningConfiguration;
 import net.sf.ehcache.event.CacheEventListener;
 import net.sf.ehcache.pool.Pool;
 import net.sf.ehcache.store.compound.ReadWriteCopyStrategy;
@@ -38,14 +39,35 @@ public final class DiskBackedMemoryStore extends FrontEndCacheTier<MemoryStore, 
     private final ReadWriteCopyStrategy<Element> copyStrategy;
 
     private final boolean alwaysPutOnHeap;
+    private volatile boolean cachePinnedOnHeapOrInMemory;
 
     private DiskBackedMemoryStore(CacheConfiguration cacheConfiguration, MemoryStore cache, DiskStore authority) {
         super(cache, authority);
+        this.cachePinnedOnHeapOrInMemory = determineCachePinnedOnHeapOrInMemory(cacheConfiguration);
         this.alwaysPutOnHeap = getAdvancedBooleanConfigProperty("alwaysPutOnHeap", cacheConfiguration.getName(), false);
 
         this.copyOnRead = cacheConfiguration.isCopyOnRead();
         this.copyOnWrite = cacheConfiguration.isCopyOnWrite();
         this.copyStrategy = cacheConfiguration.getCopyStrategy();
+    }
+
+    private boolean determineCachePinnedOnHeapOrInMemory(CacheConfiguration cacheConfiguration) {
+        PinningConfiguration pinningConfiguration = cacheConfiguration.getPinningConfiguration();
+        if (pinningConfiguration == null) {
+            return false;
+        }
+
+        switch (pinningConfiguration.getStorage()) {
+            case ONHEAP:
+            case INMEMORY:
+                return true;
+
+            case INCACHE:
+                return false;
+
+            default:
+                throw new IllegalArgumentException();
+        }
     }
 
     private static boolean getAdvancedBooleanConfigProperty(String property, String cacheName, boolean defaultValue) {
@@ -141,7 +163,7 @@ public final class DiskBackedMemoryStore extends FrontEndCacheTier<MemoryStore, 
      */
     @Override
     protected boolean isCacheFull() {
-        return !alwaysPutOnHeap && cache.isFull();
+        return !cachePinnedOnHeapOrInMemory && !alwaysPutOnHeap && cache.isFull();
     }
 
     /**
