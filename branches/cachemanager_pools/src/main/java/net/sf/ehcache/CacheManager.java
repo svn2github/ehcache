@@ -1131,6 +1131,13 @@ public class CacheManager {
         }
         configCachePools(cache.getCacheConfiguration());
         verifyPoolAllocationsBeforeAdding(cache.getCacheConfiguration());
+        if (configuration.isMaxBytesOnHeapSet()) {
+            onHeapPool.setMaxSize(onHeapPool.getMaxSize() - cache.getCacheConfiguration().getMaxBytesOnHeap());
+        }
+        if (configuration.isMaxBytesOnDiskSet()) {
+            onDiskPool.setMaxSize(onDiskPool.getMaxSize() - cache.getCacheConfiguration().getMaxBytesOnDisk());
+        }
+
         cache.setCacheManager(this);
         if (cache.getCacheConfiguration().getDiskStorePath() == null) {
             cache.setDiskStorePath(diskStorePath);
@@ -1259,6 +1266,12 @@ public class CacheManager {
         Ehcache cache = ehcaches.remove(cacheName);
         if (cache != null && cache.getStatus().equals(Status.STATUS_ALIVE)) {
             cache.dispose();
+            if (configuration.isMaxBytesOnHeapSet()) {
+                onHeapPool.setMaxSize(onHeapPool.getMaxSize() + cache.getCacheConfiguration().getMaxBytesOnHeap());
+            }
+            if (configuration.isMaxBytesOnDiskSet()) {
+                onDiskPool.setMaxSize(onDiskPool.getMaxSize() + cache.getCacheConfiguration().getMaxBytesOnDisk());
+            }
             configuration.getCacheConfigurations().remove(cacheName);
             cacheManagerEventListenerRegistry.notifyCacheRemoved(cache.getName());
         }

@@ -41,7 +41,7 @@ import java.util.concurrent.locks.ReentrantLock;
 public class StrictlyBoundedPool implements Pool {
 
     private volatile long maximumPoolSize;
-    private volatile PoolEvictor<PoolableStore> evictor;
+    private final PoolEvictor<PoolableStore> evictor;
     private final List<StrictlyBoundedPoolAccessor> poolAccessors;
     private final SizeOfEngine defaultSizeOfEngine;
 
@@ -68,6 +68,26 @@ public class StrictlyBoundedPool implements Pool {
             total += poolAccessor.getSize();
         }
         return total;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public long getMaxSize() {
+        return maximumPoolSize;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void setMaxSize(long newSize) {
+        long oldSize = this.maximumPoolSize;
+        this.maximumPoolSize = newSize;
+        long sizeToEvict = oldSize - newSize;
+
+        if (sizeToEvict > 0) {
+            evictor.freeSpace(getPoolableStores(), sizeToEvict);
+        }
     }
 
     /**
@@ -149,7 +169,7 @@ public class StrictlyBoundedPool implements Pool {
                             return -1;
                         }
 
-                        // there is not enough room => evict
+                        // if there is not enough room => evict
                         long missingSize = newSize - maximumPoolSize;
 
                         // eviction must be done outside the lock to avoid deadlocks as it may evict from other pools

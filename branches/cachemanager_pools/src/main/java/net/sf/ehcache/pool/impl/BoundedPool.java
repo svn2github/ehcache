@@ -40,7 +40,7 @@ import java.util.concurrent.atomic.AtomicLong;
  */
 public class BoundedPool implements Pool {
 
-    private final long maximumPoolSize;
+    private volatile long maximumPoolSize;
     private final PoolEvictor<PoolableStore> evictor;
     private final List<BoundedPoolAccessor> poolAccessors;
     private final SizeOfEngine defaultSizeOfEngine;
@@ -68,6 +68,26 @@ public class BoundedPool implements Pool {
             total += poolAccessor.getSize();
         }
         return total;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public long getMaxSize() {
+        return maximumPoolSize;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void setMaxSize(long newSize) {
+        long oldSize = this.maximumPoolSize;
+        this.maximumPoolSize = newSize;
+        long sizeToEvict = oldSize - newSize;
+
+        if (sizeToEvict > 0) {
+            evictor.freeSpace(getPoolableStores(), sizeToEvict);
+        }
     }
 
     /**
@@ -138,12 +158,14 @@ public class BoundedPool implements Pool {
                 size.addAndGet(sizeOf);
                 return sizeOf;
             } else {
-                // there is not enough room => evict
-                long missingSize = newSize - maximumPoolSize;
-                if (!force & missingSize > maximumPoolSize) {
+                // check that the element isn't too big
+                if (!force && sizeOf > maximumPoolSize) {
                     // this is too big to fit in the pool
                     return -1;
                 }
+
+                // if there is not enough room => evict
+                long missingSize = newSize - maximumPoolSize;
 
                 if (force | evictor.freeSpace(getPoolableStores(), missingSize)) {
                     size.addAndGet(sizeOf);
@@ -178,19 +200,38 @@ public class BoundedPool implements Pool {
                 throw new IllegalStateException("BoundedPoolAccessor has been unlinked");
             }
 
+            long addedSize;
             long sizeOf = 0;
             switch (role) {
                 case CONTAINER:
                     sizeOf += delete(null, null, current);
-                    sizeOf -= add(null, null, replacement, force);
+                    addedSize = add(null, null, replacement, force);
+                    if (addedSize < 0) {
+                        add(null, null, current, false);
+                        sizeOf = Long.MAX_VALUE;
+                    } else {
+                        sizeOf -= addedSize;
+                    }
                     break;
                 case KEY:
                     sizeOf += delete(current, null, null);
-                    sizeOf -= add(replacement, null, null, force);
+                    addedSize = add(replacement, null, null, force);
+                    if (addedSize < 0) {
+                        add(current, null, null, false);
+                        sizeOf = Long.MAX_VALUE;
+                    } else {
+                        sizeOf -= addedSize;
+                    }
                     break;
                 case VALUE:
                     sizeOf += delete(null, current, null);
-                    sizeOf -= add(null, replacement, null, force);
+                    addedSize = add(null, replacement, null, force);
+                    if (addedSize < 0) {
+                        add(null, current, null, false);
+                        sizeOf = Long.MAX_VALUE;
+                    } else {
+                        sizeOf -= addedSize;
+                    }
                     break;
                 default:
                     throw new IllegalArgumentException();

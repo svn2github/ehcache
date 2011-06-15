@@ -58,6 +58,7 @@ import net.sf.ehcache.statistics.LiveCacheStatisticsData;
 import net.sf.ehcache.store.DiskStore;
 import net.sf.ehcache.store.Store;
 
+import net.sf.ehcache.util.MemorySizeParser;
 import org.junit.After;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -225,6 +226,34 @@ public class CacheManagerTest {
             assertThat(e.getMessage().contains("over-allocate"), is(true));
             assertThat(e.getMessage().contains("'four'"), is(true));
         }
+    }
+
+    @Test
+    public void testPoolSize() throws Exception {
+        Configuration configuration = new Configuration()
+            .maxOnHeap(50, MemoryUnit.MEGABYTES)
+            .maxOnDisk(500, MemoryUnit.MEGABYTES)
+            .cache(new CacheConfiguration("one", 0).maxOnHeap(10, MemoryUnit.MEGABYTES))
+            .cache(new CacheConfiguration("two", 0).maxOnHeap(10, MemoryUnit.MEGABYTES))
+            .cache(new CacheConfiguration("three", 0).maxOnDisk(100, MemoryUnit.MEGABYTES));
+
+        CacheManager cacheManager = new CacheManager(configuration);
+        assertEquals(MemorySizeParser.parse("30M"), cacheManager.getOnHeapPool().getMaxSize());
+        assertEquals(MemorySizeParser.parse("400M"), cacheManager.getOnDiskPool().getMaxSize());
+
+        cacheManager.addCache(new Cache(new CacheConfiguration("four", 0)
+                .maxOnHeap(10, MemoryUnit.MEGABYTES)
+                .maxOnDisk(150, MemoryUnit.MEGABYTES)));
+        assertEquals(MemorySizeParser.parse("20M"), cacheManager.getOnHeapPool().getMaxSize());
+        assertEquals(MemorySizeParser.parse("250M"), cacheManager.getOnDiskPool().getMaxSize());
+
+        cacheManager.removeCache("one");
+        assertEquals(MemorySizeParser.parse("30M"), cacheManager.getOnHeapPool().getMaxSize());
+        assertEquals(MemorySizeParser.parse("250M"), cacheManager.getOnDiskPool().getMaxSize());
+
+        cacheManager.removeCache("three");
+        assertEquals(MemorySizeParser.parse("30M"), cacheManager.getOnHeapPool().getMaxSize());
+        assertEquals(MemorySizeParser.parse("350M"), cacheManager.getOnDiskPool().getMaxSize());
     }
 
     @Test

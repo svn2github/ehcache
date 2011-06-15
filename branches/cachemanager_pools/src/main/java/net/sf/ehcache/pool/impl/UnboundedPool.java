@@ -45,6 +45,19 @@ public class UnboundedPool implements Pool {
     /**
      * {@inheritDoc}
      */
+    public long getMaxSize() {
+        return -1L;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void setMaxSize(long newSize) {
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     public PoolAccessor createPoolAccessor(PoolableStore store) {
         return new UnboundedPoolAccessor();
     }

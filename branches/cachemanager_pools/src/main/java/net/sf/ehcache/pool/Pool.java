@@ -26,15 +26,30 @@ package net.sf.ehcache.pool;
 public interface Pool {
 
     /**
-     * Return the total size of the pool.
+     * Return the used size of the pool.
      *
-     * @return total size of the pool.
+     * @return used size of the pool.
      */
     long getSize();
 
     /**
+     * Return the maximum size of the pool.
+     *
+     * @return the maximum size of the pool.
+     */
+    long getMaxSize();
+
+    /**
+     * Change the maximum size of the pool.
+     *
+     * @param newSize the new pool size.
+     */
+    void setMaxSize(long newSize);
+
+    /**
      * Return a PoolAccessor whose consumption is tracked by this pool, using a default SizeOf engine.
      *
+     * @param store the store which will use the created accessor.
      * @return a PoolAccessor whose consumption is tracked by this pool.
      */
     PoolAccessor createPoolAccessor(PoolableStore store);
@@ -42,6 +57,8 @@ public interface Pool {
     /**
      * Return a PoolAccessor whose consumption is tracked by this pool, using a specific SizeOf engine.
      *
+     * @param store the store which will use the created accessor.
+     * @param sizeOfEngine the SizeOf engine used to measure the size of objects added through the created accessor.
      * @return a PoolAccessor whose consumption is tracked by this pool.
      */
     PoolAccessor createPoolAccessor(PoolableStore store, SizeOfEngine sizeOfEngine);
