@@ -98,6 +98,9 @@ public abstract class AbstractBalancedAccessEvictor<T> implements PoolEvictor<T>
      * {@inheritDoc}
      */
     public boolean freeSpace(Collection<T> from, long bytes) {
+        if (from == null || from.isEmpty()) {
+            return false;
+        }
         List<T> sorted = new ArrayList<T>(from);
         Collections.sort(sorted, new EvictionCostComparator(getDesiredUnloadedSize(from)));
 
