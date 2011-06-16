@@ -22,7 +22,7 @@ import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.Status;
 import net.sf.ehcache.concurrent.CacheLockProvider;
-import net.sf.ehcache.concurrent.LockType;
+import net.sf.ehcache.concurrent.ReadWriteLockSync;
 import net.sf.ehcache.concurrent.Sync;
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.CacheConfigurationListener;
@@ -41,8 +41,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
  * A Store implementation suitable for fast, concurrent in memory stores. The policy is determined by that
@@ -887,37 +886,37 @@ public final class MemoryStore extends AbstractStore implements PoolableStore, C
      * {@inheritDoc}
      */
     public void readLock(Object key) {
-        map.lockFor(key).lock();
+        map.lockFor(key).readLock().lock();
     }
 
     /**
      * {@inheritDoc}
      */
     public void readUnlock(Object key) {
-        map.lockFor(key).unlock();
+        map.lockFor(key).readLock().unlock();
     }
 
     /**
      * {@inheritDoc}
      */
     public void writeLock(Object key) {
-        map.lockFor(key).lock();
+        map.lockFor(key).writeLock().lock();
     }
 
     /**
      * {@inheritDoc}
      */
     public void writeUnlock(Object key) {
-        map.lockFor(key).unlock();
+        map.lockFor(key).writeLock().unlock();
     }
 
     /**
      * {@inheritDoc}
      */
     public void readLock() {
-        Lock[] locks = map.locks();
-        for (Lock lock : locks) {
-            lock.lock();
+        ReentrantReadWriteLock[] locks = map.locks();
+        for (ReentrantReadWriteLock lock : locks) {
+            lock.readLock().lock();
         }
     }
 
@@ -925,9 +924,9 @@ public final class MemoryStore extends AbstractStore implements PoolableStore, C
      * {@inheritDoc}
      */
     public void readUnlock() {
-        Lock[] locks = map.locks();
-        for (Lock lock : locks) {
-            lock.unlock();
+        ReentrantReadWriteLock[] locks = map.locks();
+        for (ReentrantReadWriteLock lock : locks) {
+            lock.readLock().unlock();
         }
     }
 
@@ -935,9 +934,9 @@ public final class MemoryStore extends AbstractStore implements PoolableStore, C
      * {@inheritDoc}
      */
     public void writeLock() {
-        Lock[] locks = map.locks();
-        for (Lock lock : locks) {
-            lock.lock();
+        ReentrantReadWriteLock[] locks = map.locks();
+        for (ReentrantReadWriteLock lock : locks) {
+            lock.writeLock().lock();
         }
     }
 
@@ -945,9 +944,9 @@ public final class MemoryStore extends AbstractStore implements PoolableStore, C
      * {@inheritDoc}
      */
     public void writeUnlock() {
-        Lock[] locks = map.locks();
-        for (Lock lock : locks) {
-            lock.unlock();
+        ReentrantReadWriteLock[] locks = map.locks();
+        for (ReentrantReadWriteLock lock : locks) {
+            lock.writeLock().unlock();
         }
     }
 
@@ -961,59 +960,7 @@ public final class MemoryStore extends AbstractStore implements PoolableStore, C
          * {@inheritDoc}
          */
         public Sync getSyncForKey(Object key) {
-            return new LockSync(map.lockFor(key));
-        }
-    }
-
-    /**
-     * A simple Lock synchronizer. Whatever the requested LockType is, the WRITE lock is always used.
-     *
-     * @author Ludovic Orban
-     */
-    private static final class LockSync implements Sync {
-
-        private final ReentrantLock lock;
-
-        /**
-         * Constructor.
-         * @param lock the lock to wrap
-         */
-        private LockSync(ReentrantLock lock) {
-          this.lock = lock;
-        }
-        /**
-         * {@inheritDoc}
-         */
-        public void lock(final LockType type) {
-            lock.lock();
-        }
-
-        /**
-         * {@inheritDoc}
-         */
-        public boolean tryLock(final LockType type, final long msec) throws InterruptedException {
-            return lock.tryLock(msec, TimeUnit.MILLISECONDS);
-        }
-
-        /**
-         * {@inheritDoc}
-         */
-        public void unlock(final LockType type) {
-            lock.unlock();
-        }
-
-        /**
-         * {@inheritDoc}
-         */
-        public boolean isHeldByCurrentThread(LockType type) {
-            switch (type) {
-                case READ:
-                    throw new UnsupportedOperationException("Querying of lock is not supported.");
-                case WRITE:
-                    return lock.isHeldByCurrentThread();
-                default:
-                    throw new IllegalArgumentException("We don't support any other lock type than READ or WRITE!");
-            }
+            return new ReadWriteLockSync(map.lockFor(key));
         }
     }
 

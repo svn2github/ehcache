@@ -32,7 +32,7 @@ public class ReadWriteLockSync implements Sync {
      * default constructor.
      */
     public ReadWriteLockSync() {
-      this(new ReentrantReadWriteLock());
+        this(new ReentrantReadWriteLock());
     }
 
     /**
@@ -40,7 +40,7 @@ public class ReadWriteLockSync implements Sync {
      * @param lock
      */
     public ReadWriteLockSync(ReentrantReadWriteLock lock) {
-      this.rrwl = lock;
+        this.rrwl = lock;
     }
     /**
      * {@inheritDoc}
