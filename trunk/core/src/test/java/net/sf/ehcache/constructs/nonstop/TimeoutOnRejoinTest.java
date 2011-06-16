@@ -128,6 +128,7 @@ public class TimeoutOnRejoinTest extends TestCase {
         }
         // assert rejoin event fired
         assertEquals(1, rejoinListener.getRejoinedCount().get());
+        cache.getCacheConfiguration().getTerracottaConfiguration().getNonstopConfiguration().immediateTimeout(false);
 
         System.out.println(new Date() + ": Asserting operations go through");
         assertOperationsGoThrough(cache);
