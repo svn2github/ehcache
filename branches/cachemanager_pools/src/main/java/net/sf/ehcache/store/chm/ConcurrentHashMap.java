@@ -332,22 +332,6 @@ public class ConcurrentHashMap<K, V> extends AbstractMap<K, V>
             return tab[hash & (tab.length - 1)];
         }
 
-        /**
-         * Reads value field of an entry under lock. Called if value
-         * field ever appears to be null. This is possible only if a
-         * compiler happens to reorder a HashEntry initialization with
-         * its table assignment, which is legal under memory model
-         * but is not known to ever occur.
-         */
-        V readValueUnderLock(HashEntry<K,V> e) {
-            readLock().lock();
-            try {
-                return e.value;
-            } finally {
-                readLock().unlock();
-            }
-        }
-
         /* Specialized implementations of map methods */
 
         V get(Object key, int hash) {
@@ -357,10 +341,7 @@ public class ConcurrentHashMap<K, V> extends AbstractMap<K, V>
                     HashEntry<K,V> e = getFirst(hash);
                     while (e != null) {
                         if (e.hash == hash && key.equals(e.key)) {
-                            V v = e.value;
-                            if (v != null)
-                                return v;
-                            return readValueUnderLock(e); // recheck
+                            return e.value;
                         }
                         e = e.next;
                     }
@@ -397,8 +378,6 @@ public class ConcurrentHashMap<K, V> extends AbstractMap<K, V>
                     for (int i = 0 ; i < len; i++) {
                         for (HashEntry<K,V> e = tab[i]; e != null; e = e.next) {
                             V v = e.value;
-                            if (v == null) // recheck
-                                v = readValueUnderLock(e);
                             if (value.equals(v))
                                 return true;
                         }
