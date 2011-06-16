@@ -32,7 +32,7 @@ public class ServerIntegrationTest {
     @BeforeClass
     public static void startup() throws Exception {
         Server.main(new String[]{"9090", "target/war/work/net.sf.ehcache/ehcache-server/"});
-        waitForServerAvailability(5, TimeUnit.MINUTES);
+        waitForServerAvailability(300, TimeUnit.SECONDS);
     }
 
     private static void waitForServerAvailability(long time, TimeUnit unit) {
@@ -55,7 +55,7 @@ public class ServerIntegrationTest {
           }
           if (200 == response) {
             System.err.println("Server Startup Took : " + TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - start) + "ms");
-            break;
+            return;
           } else {
             try {
               Thread.sleep(1000);
@@ -69,6 +69,7 @@ public class ServerIntegrationTest {
           Thread.currentThread().interrupt();
         }
       }
+      throw new AssertionError("Server Startup Failed");
     }
     
 //    @Ignore("MNK-1415")
