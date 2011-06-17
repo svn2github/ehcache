@@ -21,6 +21,7 @@ import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.CoreMatchers.sameInstance;
+import static org.hamcrest.number.OrderingComparison.lessThanOrEqualTo;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -41,6 +42,7 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -57,6 +59,7 @@ import net.sf.ehcache.loader.DelayingLoader;
 import net.sf.ehcache.loader.ExceptionThrowingLoader;
 import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
 import net.sf.ehcache.store.compound.CompoundStore;
+import net.sf.ehcache.util.RetryAssert;
 
 import org.junit.After;
 import org.junit.Test;
@@ -1115,20 +1118,18 @@ public class CacheTest extends AbstractCacheTest {
 
 
         for (int i = 0; i < 100; i++) {
-            cache.put(new Element("" + i, new Date()));
+            cache.put(new Element(Integer.valueOf(i), new Date()));
         }
 
-        Thread.sleep(200);
+        RetryAssert.assertBy(10, TimeUnit.SECONDS, new GetCacheDiskSize(cache), is(100));
 
         for (int i = 0; i < 100; i++) {
-            cache.get("" + i);
+            cache.get(Integer.valueOf(i));
         }
 
-        Thread.sleep(200);
-
-        assertWithTolerance(50, 1, cache.getMemoryStoreSize());
-        assertWithTolerance(100, 1, cache.getDiskStoreSize());
+        RetryAssert.assertBy(10, TimeUnit.SECONDS, new GetCacheMemorySize(cache), lessThanOrEqualTo(50L));
         assertEquals(100, cache.getSize());
+        assertEquals(100, cache.getDiskStoreSize());
 
 
         //Should get selected. But this is probabilistic
@@ -1136,13 +1137,13 @@ public class CacheTest extends AbstractCacheTest {
         cache.put(new Element("key2", new String("fdgdf")));
         cache.put(new Element("key1", "value"));
 
-        //get it and make sure it is mru
-        Thread.sleep(200);
+        RetryAssert.assertBy(10, TimeUnit.SECONDS, new GetCacheDiskSize(cache), is(103));
+
         cache.get("key1");
 
+        RetryAssert.assertBy(10, TimeUnit.SECONDS, new GetCacheMemorySize(cache), lessThanOrEqualTo(50L));
         assertEquals(103, cache.getSize());
-        assertWithTolerance(50, 1, cache.getMemoryStoreSize());
-        assertWithTolerance(103, 1, cache.getDiskStoreSize());
+        assertEquals(103, cache.getDiskStoreSize());
 
 
         //these "null" Elements are ignored and do not get put in
@@ -1150,28 +1151,22 @@ public class CacheTest extends AbstractCacheTest {
         cache.put(new Element(null, null));
 
         assertEquals(103, cache.getSize());
-        assertWithTolerance(50, 1, cache.getMemoryStoreSize());
-        assertWithTolerance(103, 1, cache.getDiskStoreSize());
+        assertEquals(103, cache.getDiskStoreSize());
+        assertThat(cache.getMemoryStoreSize(), lessThanOrEqualTo(50L));
 
         //this one does
         cache.put(new Element("nullValue", null));
 
-        Thread.sleep(200);
-
-        LOG.info("Size: " + cache.getDiskStoreSize());
-
-        assertWithTolerance(50, 1, cache.getMemoryStoreSize());
-        assertWithTolerance(104, 1, cache.getDiskStoreSize());
+        RetryAssert.assertBy(10, TimeUnit.SECONDS, new GetCacheDiskSize(cache), is(104));
+        assertThat(cache.getMemoryStoreSize(), lessThanOrEqualTo(50L));
 
         cache.flush();
-        Thread.sleep(400);
 
-        assertEquals(0, cache.getMemoryStoreSize());
+        RetryAssert.assertBy(10, TimeUnit.SECONDS, new GetCacheMemorySize(cache), is(0L));
         //Non Serializable Elements get discarded
         assertEquals(104, cache.getDiskStoreSize());
 
         cache.removeAll();
-
     }
 
     @Test
@@ -2305,9 +2300,29 @@ public class CacheTest extends AbstractCacheTest {
 
     }
 
-    static void assertWithTolerance(long expected, long tolerance, long actual) {
-        if (actual < expected - tolerance || actual > expected + tolerance) {
-            throw new AssertionError("Expected " + expected + "+/-" + tolerance + " was " + actual);
+    static class GetCacheMemorySize implements Callable<Long> {
+
+        private final Ehcache cache;
+
+        public GetCacheMemorySize(Ehcache cache) {
+            this.cache = cache;
+        }
+
+        public Long call() throws Exception {
+            return cache.getMemoryStoreSize();
+        }
+    }
+
+    static class GetCacheDiskSize implements Callable<Integer> {
+
+        private final Ehcache cache;
+
+        public GetCacheDiskSize(Ehcache cache) {
+            this.cache = cache;
+        }
+
+        public Integer call() throws Exception {
+            return cache.getDiskStoreSize();
         }
     }
 }
