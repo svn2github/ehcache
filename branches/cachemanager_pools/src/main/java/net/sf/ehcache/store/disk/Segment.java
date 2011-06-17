@@ -21,6 +21,7 @@ package net.sf.ehcache.store.disk;
 
 import net.sf.ehcache.Element;
 import net.sf.ehcache.config.CacheConfiguration;
+import net.sf.ehcache.config.PinningConfiguration;
 import net.sf.ehcache.pool.PoolAccessor;
 import net.sf.ehcache.pool.Role;
 import net.sf.ehcache.store.ElementValueComparator;
@@ -91,9 +92,9 @@ public class Segment extends ReentrantReadWriteLock {
 
     private final RateStatistic diskHitRate = new AtomicRateStatistic(1000, TimeUnit.MILLISECONDS);
     private final RateStatistic diskMissRate = new AtomicRateStatistic(1000, TimeUnit.MILLISECONDS);
-    private final CacheConfiguration cacheConfiguration;
     private final PoolAccessor onHeapPoolAccessor;
     private final PoolAccessor onDiskPoolAccessor;
+    private volatile boolean cachePinned;
 
     /**
      * Create a Segment with the given initial capacity, load-factor, primary element substitute factory, and identity element substitute factory.
@@ -115,13 +116,34 @@ public class Segment extends ReentrantReadWriteLock {
     public Segment(int initialCapacity, float loadFactor, DiskStorageFactory primary,
                    CacheConfiguration cacheConfiguration,
                    PoolAccessor onHeapPoolAccessor, PoolAccessor onDiskPoolAccessor) {
-        this.cacheConfiguration = cacheConfiguration;
         this.onHeapPoolAccessor = onHeapPoolAccessor;
         this.onDiskPoolAccessor = onDiskPoolAccessor;
         this.table = new HashEntry[initialCapacity];
         this.threshold = (int) (table.length * loadFactor);
         this.modCount = 0;
         this.disk = primary;
+        this.cachePinned = determineCachePinned(cacheConfiguration);
+    }
+
+    private boolean determineCachePinned(CacheConfiguration cacheConfiguration) {
+        PinningConfiguration pinningConfiguration = cacheConfiguration.getPinningConfiguration();
+        if (pinningConfiguration == null) {
+            return false;
+        }
+
+        switch (pinningConfiguration.getStorage()) {
+            case ONHEAP:
+                return false;
+
+            case INMEMORY:
+                return false;
+
+            case INCACHE:
+                return cacheConfiguration.isOverflowToDisk() || cacheConfiguration.isDiskPersistent();
+
+            default:
+                throw new IllegalArgumentException();
+        }
     }
 
     private HashEntry getFirst(int hash) {
@@ -272,7 +294,7 @@ public class Segment extends ReentrantReadWriteLock {
                 Object onDiskSubstitute = e.getElement();
 
                 long size;
-                size = onHeapPoolAccessor.replace(Role.VALUE, onDiskSubstitute, encoded, isPinningEnabled());
+                size = onHeapPoolAccessor.replace(Role.VALUE, onDiskSubstitute, encoded, cachePinned);
                 if (size == Long.MAX_VALUE) {
                     LOG.debug("replace3 failed to add on heap");
                     free(encoded);
@@ -326,7 +348,7 @@ public class Segment extends ReentrantReadWriteLock {
                 Object onDiskSubstitute = e.getElement();
 
                 long size;
-                size = onHeapPoolAccessor.replace(Role.VALUE, onDiskSubstitute, encoded, isPinningEnabled());
+                size = onHeapPoolAccessor.replace(Role.VALUE, onDiskSubstitute, encoded, cachePinned);
                 if (size == Long.MAX_VALUE) {
                     LOG.debug("replace2 failed to add on heap");
                     free(encoded);
@@ -379,7 +401,7 @@ public class Segment extends ReentrantReadWriteLock {
         writeLock().lock();
         try {
             long size;
-            size = onHeapPoolAccessor.add(key, encoded, HashEntry.newHashEntry(key, hash, null, null), isPinningEnabled());
+            size = onHeapPoolAccessor.add(key, encoded, HashEntry.newHashEntry(key, hash, null, null), cachePinned);
             if (size < 0) {
                 LOG.debug("put failed to add on heap");
                 return null;
@@ -456,10 +478,10 @@ public class Segment extends ReentrantReadWriteLock {
     boolean putRawIfAbsent(Object key, int hash, Object encoded) {
         writeLock().lock();
         try {
-            if (onHeapPoolAccessor.add(key, encoded, HashEntry.newHashEntry(key, hash, null, null), isPinningEnabled()) < 0) {
+            if (onHeapPoolAccessor.add(key, encoded, HashEntry.newHashEntry(key, hash, null, null), cachePinned) < 0) {
                 return false;
             }
-            if (onDiskPoolAccessor.add(key, null, encoded, isPinningEnabled()) < 0) {
+            if (onDiskPoolAccessor.add(key, null, encoded, cachePinned) < 0) {
                 onHeapPoolAccessor.delete(key, encoded, HashEntry.newHashEntry(key, hash, null, null));
                 return false;
             }
@@ -674,13 +696,13 @@ public class Segment extends ReentrantReadWriteLock {
         readLock().lock();
         try {
             long size;
-            size = onHeapPoolAccessor.replace(Role.VALUE, expect, fault, isPinningEnabled());
+            size = onHeapPoolAccessor.replace(Role.VALUE, expect, fault, cachePinned);
             if (size == Long.MAX_VALUE) {
                 return false;
             } else {
                 LOG.debug("fault removed {} from heap", size);
             }
-            size = onDiskPoolAccessor.add(key, null, fault, isPinningEnabled());
+            size = onDiskPoolAccessor.add(key, null, fault, cachePinned);
             if (size < 0) {
                 //todo: replace must not fail here but it could if the memory freed by the previous replace has been stolen in the meantime
                 // that's why it is forced, even if that could make the pool go over limit
@@ -851,10 +873,6 @@ public class Segment extends ReentrantReadWriteLock {
      */
     Iterator<HashEntry> hashIterator() {
         return new HashIterator();
-    }
-
-    private boolean isPinningEnabled() {
-        return cacheConfiguration.getPinningConfiguration() != null;
     }
 
     @Override

@@ -94,8 +94,8 @@ public final class MemoryOnlyStore extends FrontEndCacheTier<NullStore, MemorySt
      * {@inheritDoc}
      */
     @Override
-    protected boolean isCacheFull() {
-        return true;
+    protected boolean cacheHasRoomFor(Element element) {
+        return false;
     }
 
     /**

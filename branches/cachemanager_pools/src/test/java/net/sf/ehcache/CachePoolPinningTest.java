@@ -17,6 +17,11 @@
 package net.sf.ehcache;
 
 import junit.framework.Assert;
+import net.sf.ehcache.config.CacheConfiguration;
+import net.sf.ehcache.config.Configuration;
+import net.sf.ehcache.config.DiskStoreConfiguration;
+import net.sf.ehcache.config.MemoryUnit;
+import net.sf.ehcache.config.PinningConfiguration;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -24,19 +29,24 @@ import org.junit.Test;
 import static org.junit.Assert.assertNotNull;
 
 /**
- * Tests for Cache pinning
+ * Tests for Cache pinning with pools
  *
  * @author Ludovic Orban
  */
 public class CachePoolPinningTest {
 
-    private static final int ELEMENT_COUNT = 500;
+    private static final int ELEMENT_COUNT = 40000;
 
     private CacheManager cacheManager;
 
     @Before
     public void setUp() throws Exception {
-        cacheManager = new CacheManager("src/test/resources/ehcache-pool-pinning.xml");
+        cacheManager = new CacheManager(
+                new Configuration()
+                        .diskStore(new DiskStoreConfiguration().path(System.getProperty("java.io.tmpdir")))
+                        .maxOnHeap(100, MemoryUnit.KILOBYTES)
+                        .maxOnDisk(200, MemoryUnit.KILOBYTES)
+        );
     }
 
     @After
@@ -45,97 +55,107 @@ public class CachePoolPinningTest {
         cacheManager = null;
     }
 
-
     @Test
     public void testClassicLru() throws Exception {
-        tearDown();
         System.setProperty(Cache.NET_SF_EHCACHE_USE_CLASSIC_LRU, "true");
-        setUp();
-        System.setProperty(Cache.NET_SF_EHCACHE_USE_CLASSIC_LRU, "false");
-
-        
-        Cache cache = cacheManager.getCache("memoryOnlyCache");
-        Cache cacheNoPinning = cacheManager.getCache("memoryOnlyCacheNoPinning");
-
-        for (int i = 0; i < ELEMENT_COUNT; i++) {
-            cacheNoPinning.put(new Element(i, i));
+        try {
+            testMemoryOnly();
+        } finally {
+            System.setProperty(Cache.NET_SF_EHCACHE_USE_CLASSIC_LRU, "false");
         }
-
-        for (int i = 0; i < ELEMENT_COUNT; i++) {
-            cache.put(new Element(i, i));
-        }
-
-        Assert.assertEquals(ELEMENT_COUNT, cache.getSize());
-
-        for (int i = 0; i < ELEMENT_COUNT; i++) {
-            assertNotNull(cache.get(i));
-        }
-
-        Assert.assertEquals(ELEMENT_COUNT, cache.getStatistics().getInMemoryHits());
-        Assert.assertEquals(0, cache.getStatistics().getInMemoryMisses());
-        Assert.assertEquals(0, cache.getStatistics().getEvictionCount());
     }
 
     @Test
     public void testMemoryOnly() throws Exception {
-        Cache cache = cacheManager.getCache("memoryOnlyCache");
-        Cache cacheNoPinning = cacheManager.getCache("memoryOnlyCacheNoPinning");
+        cacheManager.addCache(new Cache(
+                new CacheConfiguration()
+                        .statistics(true)
+                        .name("memoryOnlyCache_onHeap")
+                        .pinning(new PinningConfiguration().storage(PinningConfiguration.Storage.ONHEAP))
+        ));
+        doAssertions(cacheManager.getCache("memoryOnlyCache_onHeap"), ELEMENT_COUNT, 0);
 
-        for (int i = 0; i < ELEMENT_COUNT; i++) {
-            cacheNoPinning.put(new Element(i, i));
-        }
+        cacheManager.addCache(new Cache(
+                new CacheConfiguration()
+                        .statistics(true)
+                        .name("memoryOnlyCache_inMemory")
+                        .pinning(new PinningConfiguration().storage(PinningConfiguration.Storage.INMEMORY))
+        ));
+        doAssertions(cacheManager.getCache("memoryOnlyCache_inMemory"), ELEMENT_COUNT, 0);
 
-        for (int i = 0; i < ELEMENT_COUNT; i++) {
-            cache.put(new Element(i, i));
-        }
-
-        Assert.assertEquals(ELEMENT_COUNT, cache.getSize());
-
-        for (int i = 0; i < ELEMENT_COUNT; i++) {
-            assertNotNull(cache.get(i));
-        }
-
-        Assert.assertEquals(ELEMENT_COUNT, cache.getStatistics().getInMemoryHits());
-        Assert.assertEquals(0, cache.getStatistics().getInMemoryMisses());
-        Assert.assertEquals(0, cache.getStatistics().getEvictionCount());
+        cacheManager.addCache(new Cache(
+                new CacheConfiguration()
+                        .statistics(true)
+                        .name("memoryOnlyCache_inCache")
+                        .pinning(new PinningConfiguration().storage(PinningConfiguration.Storage.INCACHE))
+        ));
+        doAssertions(cacheManager.getCache("memoryOnlyCache_inCache"), ELEMENT_COUNT, 0);
     }
 
     @Test
     public void testOverflowToDisk() throws Exception {
-        Cache cache = cacheManager.getCache("overflowToDiskCache");
-        Cache cacheNoPinning = cacheManager.getCache("overflowToDiskCacheNoPinning");
+        cacheManager.addCache(new Cache(
+                new CacheConfiguration()
+                        .overflowToDisk(true)
+                        .statistics(true)
+                        .name("overflowToDiskCache_onHeap")
+                        .pinning(new PinningConfiguration().storage(PinningConfiguration.Storage.ONHEAP))
+        ));
+        doAssertions(cacheManager.getCache("overflowToDiskCache_onHeap"), ELEMENT_COUNT, 0);
 
-        for (int i = 0; i < ELEMENT_COUNT; i++) {
-            cacheNoPinning.put(new Element(i, i));
-        }
+        cacheManager.addCache(new Cache(
+                new CacheConfiguration()
+                        .overflowToDisk(true)
+                        .statistics(true)
+                        .name("overflowToDiskCache_inMemory")
+                        .pinning(new PinningConfiguration().storage(PinningConfiguration.Storage.INMEMORY))
+        ));
+        doAssertions(cacheManager.getCache("overflowToDiskCache_inMemory"), ELEMENT_COUNT, 0);
 
-        for (int i = 0; i < ELEMENT_COUNT; i++) {
-            cache.put(new Element(i, i));
-        }
-
-        Assert.assertEquals(ELEMENT_COUNT, cache.getSize());
-        Assert.assertEquals(0, cache.getDiskStoreSize());
-
-        for (int i = 0; i < ELEMENT_COUNT; i++) {
-            assertNotNull(cache.get(i));
-        }
-
-        Assert.assertEquals(ELEMENT_COUNT, cache.getStatistics().getInMemoryHits());
-        Assert.assertEquals(0, cache.getStatistics().getInMemoryMisses());
-        Assert.assertEquals(0, cache.getStatistics().getOnDiskHits());
-        Assert.assertEquals(0, cache.getStatistics().getOnDiskMisses());
-        Assert.assertEquals(0, cache.getStatistics().getEvictionCount());
+        cacheManager.addCache(new Cache(
+                new CacheConfiguration()
+                        .overflowToDisk(true)
+                        .statistics(true)
+                        .name("overflowToDiskCache_inCache")
+                        .pinning(new PinningConfiguration().storage(PinningConfiguration.Storage.INCACHE))
+        ));
+        doAssertions(cacheManager.getCache("overflowToDiskCache_inCache"), 0, ELEMENT_COUNT);
     }
 
     @Test
     public void testDiskPersistent() throws Exception {
-        Cache cache = cacheManager.getCache("diskPersistentCache");
-        Cache cacheNoPinning = cacheManager.getCache("diskPersistentCacheNoPinning");
+        cacheManager.addCache(new Cache(
+                new CacheConfiguration()
+                        .overflowToDisk(true)
+                        .diskPersistent(true)
+                        .statistics(true)
+                        .name("diskPersistentCache_onHeap")
+                        .pinning(new PinningConfiguration().storage(PinningConfiguration.Storage.ONHEAP))
+        ));
+        doAssertions(cacheManager.getCache("diskPersistentCache_onHeap"), ELEMENT_COUNT, 0);
 
-        for (int i = 0; i < ELEMENT_COUNT; i++) {
-            cacheNoPinning.put(new Element(i, i));
-        }
+        cacheManager.addCache(new Cache(
+                new CacheConfiguration()
+                        .overflowToDisk(true)
+                        .diskPersistent(true)
+                        .statistics(true)
+                        .name("diskPersistentCache_inMemory")
+                        .pinning(new PinningConfiguration().storage(PinningConfiguration.Storage.INMEMORY))
+        ));
+        doAssertions(cacheManager.getCache("diskPersistentCache_inMemory"), ELEMENT_COUNT, 0);
 
+        cacheManager.addCache(new Cache(
+                new CacheConfiguration()
+                        .overflowToDisk(true)
+                        .diskPersistent(true)
+                        .statistics(true)
+                        .name("diskPersistentCache_inCache")
+                        .pinning(new PinningConfiguration().storage(PinningConfiguration.Storage.INCACHE))
+        ));
+        doAssertions(cacheManager.getCache("diskPersistentCache_inCache"), 0, ELEMENT_COUNT);
+    }
+
+    private void doAssertions(Cache cache, long expectedMemoryHits, long expectedDiskHits) {
         for (int i = 0; i < ELEMENT_COUNT; i++) {
             cache.put(new Element(i, i));
         }
@@ -146,11 +166,10 @@ public class CachePoolPinningTest {
             assertNotNull(cache.get(i));
         }
 
-        Assert.assertEquals(ELEMENT_COUNT, cache.getStatistics().getInMemoryHits());
-        Assert.assertEquals(0, cache.getStatistics().getInMemoryMisses());
-        Assert.assertEquals(0, cache.getStatistics().getOnDiskHits());
+        Assert.assertEquals(expectedMemoryHits, cache.getStatistics().getInMemoryHits());
+        Assert.assertEquals(ELEMENT_COUNT - expectedMemoryHits, cache.getStatistics().getInMemoryMisses());
+        Assert.assertEquals(expectedDiskHits, cache.getStatistics().getOnDiskHits());
         Assert.assertEquals(0, cache.getStatistics().getOnDiskMisses());
-        Assert.assertEquals(0, cache.getStatistics().getEvictionCount());
     }
 
 }

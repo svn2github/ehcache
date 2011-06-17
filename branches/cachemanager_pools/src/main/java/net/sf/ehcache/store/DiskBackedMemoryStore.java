@@ -22,7 +22,6 @@ import net.sf.ehcache.Element;
 import net.sf.ehcache.Status;
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.PinningConfiguration;
-import net.sf.ehcache.event.CacheEventListenerAdapter;
 import net.sf.ehcache.pool.Pool;
 import net.sf.ehcache.store.compound.ReadWriteCopyStrategy;
 import net.sf.ehcache.store.disk.DiskStore;
@@ -87,16 +86,6 @@ public final class DiskBackedMemoryStore extends FrontEndCacheTier<MemoryStore, 
     public static Store create(Ehcache cache, String diskStorePath, Pool onHeapPool, Pool onDiskPool) {
         final MemoryStore memoryStore = createMemoryStore(cache, onHeapPool);
         DiskStore diskStore = createDiskStore(cache, diskStorePath, onHeapPool, onDiskPool);
-
-        cache.getCacheEventNotificationService().registerListener(new CacheEventListenerAdapter() {
-            public void notifyElementEvicted(Ehcache cache, Element element) {
-                // if an element can't be serialized by the disk store, it gets evicted
-                // and we must propagate the removal to the memory store
-                if (element != null) {
-                    memoryStore.remove(element.getObjectKey());
-                }
-            }
-        });
 
         return new DiskBackedMemoryStore(cache.getCacheConfiguration(), memoryStore, diskStore);
     }
