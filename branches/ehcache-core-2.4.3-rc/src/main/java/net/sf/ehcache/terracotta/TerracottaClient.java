@@ -162,16 +162,21 @@ public class TerracottaClient {
     public synchronized void shutdown() {
         rejoinWorker.waitUntilRejoinComplete();
         if (clusteredInstanceFactory != null) {
-            clusteredInstanceFactory.shutdown();
+            shutdownClusteredInstanceFactoryWrapper(clusteredInstanceFactory);
         }
         rejoinWorker.shutdown();
     }
 
+    private void shutdownClusteredInstanceFactoryWrapper(ClusteredInstanceFactoryWrapper clusteredInstanceFactory) {
+        clusteredInstanceFactory.getActualFactory().getTopology().getTopologyListeners().clear();
+        clusteredInstanceFactory.shutdown();
+    }
+
     private synchronized ClusteredInstanceFactoryWrapper createNewClusteredInstanceFactory(Map<String, CacheConfiguration> cacheConfigs) {
+        // shut down the old factory
         if (clusteredInstanceFactory != null) {
             LOGGER.info("Shutting down old ClusteredInstanceFactory...");
-            // shut down the old factory
-            clusteredInstanceFactory.shutdown();
+            shutdownClusteredInstanceFactoryWrapper(clusteredInstanceFactory);
         }
         LOGGER.info("Creating new ClusteredInstanceFactory");
         ClusteredInstanceFactory factory = TerracottaClusteredInstanceHelper.getInstance().newClusteredInstanceFactory(cacheConfigs,
