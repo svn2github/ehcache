@@ -70,6 +70,7 @@ public class DiskStorageFactory {
      */
     protected static final String AUTO_DISK_PATH_DIRECTORY_PREFIX = "ehcache_auto_created";
     private static final int SERIALIZATION_CONCURRENCY_DELAY = 250;
+    private static final int MAX_FLUSH_TIME_MS = 5000;
     private static final int SHUTDOWN_GRACE_PERIOD = 60;
     private static final int MEGABYTE = 1024 * 1024;
     private static final int MAX_EVICT = 5;
@@ -1121,7 +1122,9 @@ public class DiskStorageFactory {
         /**
          * {@inheritDoc}
          */
-        public synchronized Void call() throws IOException {
+        public synchronized Void call() throws IOException, InterruptedException {
+            store.waitUntilEverythingGotFlushedToDisk(MAX_FLUSH_TIME_MS);
+
             ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(index));
             try {
                 for (Object key : store.keySet()) {
@@ -1164,7 +1167,8 @@ public class DiskStorageFactory {
                     if (store.putRawIfAbsent(key, marker)) {
                         onDisk.incrementAndGet();
                     } else {
-                        throw new AssertionError();
+                        // the disk pool is full
+                        return;
                     }
                     markUsed(marker);
                     key = ois.readObject();

@@ -40,7 +40,9 @@ import java.util.Random;
 import java.util.concurrent.Callable;
 
 import net.sf.ehcache.config.CacheConfiguration;
+import net.sf.ehcache.config.Configuration;
 import net.sf.ehcache.config.DiskStoreConfiguration;
+import net.sf.ehcache.config.MemoryUnit;
 import net.sf.ehcache.store.FrontEndCacheTier;
 import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
 import net.sf.ehcache.store.Primitive;
@@ -726,6 +728,54 @@ public class DiskStoreTest extends AbstractCacheTest {
         assertNull(diskStore.get("key1"));
         assertNull(diskStore.get("key2"));
     }
+
+    @Test
+    public void testPersistentChangingPoolSizeBetweenRestarts() throws Exception {
+        String diskStorePath = System.getProperty("java.io.tmpdir") + File.separatorChar + "testPersistentChangingPoolSizeBetweenRestarts";
+        manager = new CacheManager(
+                new Configuration()
+                        .diskStore(new DiskStoreConfiguration().path(diskStorePath))
+
+        );
+
+        manager.addCache(new Cache(
+                new CacheConfiguration()
+                        .name("persistentCache")
+                        .overflowToDisk(true)
+                        .diskPersistent(true)
+                )
+        );
+        Cache cache = manager.getCache("persistentCache");
+
+        for (int i = 0; i < 500; i++) {
+            cache.put(new Element(i, new byte[1024]));
+        }
+
+        assertEquals(500, cache.getSize());
+
+        manager.shutdown();
+
+        manager = new CacheManager(
+                new Configuration()
+                        .diskStore(new DiskStoreConfiguration().path(diskStorePath)
+                )
+        );
+
+        manager.addCache(new Cache(
+                new CacheConfiguration()
+                        .name("persistentCache")
+                        .overflowToDisk(true)
+                        .diskPersistent(true)
+                        .maxOnDisk(100, MemoryUnit.KILOBYTES)
+                )
+        );
+        cache = manager.getCache("persistentCache");
+
+        assertTrue(cache.getSize() <= 100);
+
+        manager.shutdown();
+    }
+
 
     /**
      * Tests removing an entry, after it has been written

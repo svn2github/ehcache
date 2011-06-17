@@ -478,6 +478,9 @@ public class Segment extends ReentrantReadWriteLock {
     boolean putRawIfAbsent(Object key, int hash, Object encoded) {
         writeLock().lock();
         try {
+            if (!onDiskPoolAccessor.canAddWithoutEvicting(key, null, encoded)) {
+                return false;
+            }
             if (onHeapPoolAccessor.add(key, encoded, HashEntry.newHashEntry(key, hash, null, null), cachePinned) < 0) {
                 return false;
             }
