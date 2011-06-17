@@ -161,10 +161,10 @@ public class TerracottaClient {
      */
     public synchronized void shutdown() {
         rejoinWorker.waitUntilRejoinComplete();
+        rejoinWorker.shutdown();
         if (clusteredInstanceFactory != null) {
             clusteredInstanceFactory.shutdown();
         }
-        rejoinWorker.shutdown();
     }
 
     private synchronized ClusteredInstanceFactory createNewClusteredInstanceFactory(Map<String, CacheConfiguration> cacheConfigs) {
