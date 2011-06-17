@@ -54,7 +54,6 @@ import net.sf.ehcache.pool.SizeOfEngine;
 import net.sf.ehcache.pool.impl.BoundedPool;
 import net.sf.ehcache.pool.impl.FromLargestCacheOnHeapPoolEvictor;
 import net.sf.ehcache.pool.impl.RoundRobinOnDiskPoolEvictor;
-import net.sf.ehcache.pool.impl.SerializationSizeOfEngine;
 import net.sf.ehcache.pool.impl.UnboundedPool;
 import net.sf.ehcache.search.Attribute;
 import net.sf.ehcache.search.Query;
@@ -1038,8 +1037,7 @@ public class Cache implements Ehcache, StoreListener {
             Pool onDiskPool;
             if (configuration.getMaxBytesOnDisk() > 0) {
                 PoolEvictor<PoolableStore> evictor = new RoundRobinOnDiskPoolEvictor();
-                SizeOfEngine sizeOfEngine = new SerializationSizeOfEngine();
-                onDiskPool = new BoundedPool(configuration.getMaxBytesOnDisk(), evictor, sizeOfEngine);
+                onDiskPool = new BoundedPool(configuration.getMaxBytesOnDisk(), evictor, null);
             } else if (getCacheManager() != null && getCacheManager().getConfiguration().isMaxBytesOnDiskSet()) {
                 onDiskPool = getCacheManager().getOnDiskPool();
             } else {
