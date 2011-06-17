@@ -175,10 +175,10 @@ public class TerracottaClient {
      */
     public synchronized void shutdown() {
         rejoinWorker.waitUntilRejoinComplete();
+        rejoinWorker.shutdown();
         if (clusteredInstanceFactory != null) {
             shutdownClusteredInstanceFactoryWrapper(clusteredInstanceFactory);
         }
-        rejoinWorker.shutdown();
     }
 
     private void shutdownClusteredInstanceFactoryWrapper(ClusteredInstanceFactoryWrapper clusteredInstanceFactory) {
