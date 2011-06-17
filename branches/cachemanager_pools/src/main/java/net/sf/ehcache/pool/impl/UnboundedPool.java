@@ -87,6 +87,13 @@ public class UnboundedPool implements Pool {
         /**
          * {@inheritDoc}
          */
+        public boolean canAddWithoutEvicting(Object key, Object value, Object container) {
+            return true;
+        }
+
+        /**
+         * {@inheritDoc}
+         */
         public long delete(Object key, Object value, Object container) {
             return 0L;
         }

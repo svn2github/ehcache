@@ -35,6 +35,15 @@ public interface PoolAccessor {
     long add(Object key, Object value, Object container, boolean force);
 
     /**
+     * Check if there is enough room in the pool to add an element without provoking any eviction
+     * @param key the key of the element
+     * @param value the value of the element
+     * @param container the element-container object
+     * @return true if there is enough room left
+     */
+    boolean canAddWithoutEvicting(Object key, Object value, Object container);
+
+    /**
      * Delete an element from the pool.
      *
      * @param key the key of the element
@@ -71,4 +80,5 @@ public interface PoolAccessor {
      * Free resources used by this accessor.
      */
     void clear();
+
 }

@@ -71,11 +71,12 @@ public abstract class FrontEndCacheTier<T extends Store, U extends Store> extend
     protected abstract Element copyElementForWriteIfNeeded(Element element);
 
     /**
-     * Check if the caching store is full
+     * Check if the caching store has not enough room to add an element without provoking an eviction.
      *
+     * @param element the element to check against.
      * @return true if the caching store is full, otherwise false.
      */
-    protected abstract boolean isCacheFull();
+    protected abstract boolean cacheHasRoomFor(Element element);
 
     /**
      * Check if the authority can handle pinned elements. The default implementation returns false.
@@ -151,7 +152,7 @@ public abstract class FrontEndCacheTier<T extends Store, U extends Store> extend
                 return put;
             }
 
-            if (!isCacheFull() || cache.remove(key) != null) {
+            if (cache.remove(key) != null || cacheHasRoomFor(copy)) {
                 cache.put(copy);
             }
             return authority.put(copy);
@@ -179,7 +180,7 @@ public abstract class FrontEndCacheTier<T extends Store, U extends Store> extend
                 return put;
             }
 
-            if (!isCacheFull() || cache.remove(key) != null) {
+            if (cache.remove(key) != null || cacheHasRoomFor(copy)) {
                 cache.put(copy);
             }
             return authority.putWithWriter(copy, writer);
@@ -244,10 +245,8 @@ public abstract class FrontEndCacheTier<T extends Store, U extends Store> extend
 
             Element old = authority.putIfAbsent(copy);
             if (old == null) {
-                if (!isCacheFull()) {
+                if (cache.remove(key) != null || cacheHasRoomFor(copy)) {
                     cache.put(copy);
-                } else {
-                    cache.remove(key);
                 }
             }
             return copyElementForReadIfNeeded(old);

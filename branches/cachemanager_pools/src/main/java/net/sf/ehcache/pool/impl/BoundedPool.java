@@ -180,6 +180,16 @@ public class BoundedPool implements Pool {
         /**
          * {@inheritDoc}
          */
+        public boolean canAddWithoutEvicting(Object key, Object value, Object container) {
+            long sizeOf = sizeOfEngine.sizeOf(key, value, container);
+
+            long newSize = BoundedPool.this.getSize() + sizeOf;
+            return newSize <= maximumPoolSize;
+        }
+
+        /**
+         * {@inheritDoc}
+         */
         public long delete(Object key, Object value, Object container) {
             if (unlinked.get()) {
                 throw new IllegalStateException("BoundedPoolAccessor has been unlinked");

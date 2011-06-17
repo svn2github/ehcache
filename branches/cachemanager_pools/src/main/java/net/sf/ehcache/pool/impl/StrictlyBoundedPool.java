@@ -202,6 +202,21 @@ public class StrictlyBoundedPool implements Pool {
         /**
          * {@inheritDoc}
          */
+        public boolean canAddWithoutEvicting(Object key, Object value, Object container) {
+            long sizeOf = sizeOfEngine.sizeOf(key, value, container);
+
+            lock.lock();
+            try {
+                long newSize = StrictlyBoundedPool.this.getSize() + sizeOf;
+                return newSize <= maximumPoolSize;
+            } finally {
+                lock.unlock();
+            }
+        }
+
+        /**
+         * {@inheritDoc}
+         */
         public long delete(Object key, Object value, Object container) {
             if (unlinked.get()) {
                 throw new IllegalStateException("BoundedPoolAccessor has been unlinked");

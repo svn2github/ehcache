@@ -146,8 +146,8 @@ public final class DiskBackedMemoryStore extends FrontEndCacheTier<MemoryStore, 
      * {@inheritDoc}
      */
     @Override
-    protected boolean isCacheFull() {
-        return !cachePinnedOnHeapOrInMemory && !alwaysPutOnHeap && cache.isFull();
+    protected boolean cacheHasRoomFor(Element element) {
+        return cachePinnedOnHeapOrInMemory || alwaysPutOnHeap || cache.canPutWithoutEvicting(element);
     }
 
     /**

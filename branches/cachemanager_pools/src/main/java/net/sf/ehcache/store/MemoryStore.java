@@ -455,6 +455,20 @@ public final class MemoryStore extends AbstractStore implements PoolableStore, C
     }
 
     /**
+     * Check if adding an element won't provoke an eviction.
+     *
+     * @param element the element
+     * @return true if the element can be added without provoking an eviction.
+     */
+    public final boolean canPutWithoutEvicting(Element element) {
+        if (element == null) {
+            return true;
+        }
+
+        return !isFull() && poolAccessor.canAddWithoutEvicting(element.getObjectKey(), element.getObjectValue(), map.storedObject(element));
+    }
+
+    /**
      * If the store is over capacity, evict elements until capacity is reached
      *
      * @param elementJustAdded the element added by the action calling this check
