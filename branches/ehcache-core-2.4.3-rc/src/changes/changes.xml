@@ -2,7 +2,7 @@
 <document>
     <body>
          <release version="2.4.3" date="2011-04" description="Bug fixes">
-            <action dev="Ludovic Orban" type="update" issue="EHC-853">
+             <action dev="Ludovic Orban" type="update" issue="EHC-853">
                NotSerializableException when Ehcache tries overflow data to disk in XA Mode
              </action>
              <action dev="Alex Snaps" type="update" issue="EHC-853">

@@ -78,7 +78,7 @@ public class RMICacheManagerPeerProviderFactory extends CacheManagerPeerProvider
         if (rmiUrls == null || rmiUrls.length() == 0) {
             LOG.info("Starting manual peer provider with empty list of peers. " +
                     "No replication will occur unless peers are added.");
-            rmiUrls = new String();
+            rmiUrls = "";
         }
         rmiUrls = rmiUrls.trim();
         StringTokenizer stringTokenizer = new StringTokenizer(rmiUrls, PayloadUtil.URL_DELIMITER);

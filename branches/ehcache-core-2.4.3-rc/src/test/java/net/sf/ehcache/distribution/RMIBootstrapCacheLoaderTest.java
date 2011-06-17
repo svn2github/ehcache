@@ -108,7 +108,10 @@ public class RMIBootstrapCacheLoaderTest {
      * Heap growth. Only an issue when a VM is cold.
      */
     protected void forceVMGrowth() {
-        byte[] forceVMGrowth = new byte[40000000];
+        Object[] arrays = new Object[40];
+        for (int i = 0; i < arrays.length; i++) {
+            arrays[i] = new byte[1024 * 1024];
+        }
     }
 
 
