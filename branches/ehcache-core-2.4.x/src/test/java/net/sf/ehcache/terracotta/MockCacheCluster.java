@@ -62,6 +62,12 @@ public class MockCacheCluster implements CacheCluster {
         }
     }
 
+    public void fireThisNodeJoined() {
+        for (ClusterTopologyListener listener : listeners) {
+            listener.nodeJoined(currentNode);
+        }
+    }
+
     public boolean addTopologyListener(ClusterTopologyListener listener) {
         return listeners.add(listener);
     }
