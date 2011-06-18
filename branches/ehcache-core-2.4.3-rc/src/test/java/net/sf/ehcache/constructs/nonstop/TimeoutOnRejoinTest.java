@@ -125,6 +125,9 @@ public class TimeoutOnRejoinTest extends TestCase {
         }
         // assert rejoin event fired
         assertEquals(1, rejoinListener.getRejoinedCount().get());
+        // fire online event too, (this was supposed to be before rejoin event, but its ok for unit tests)
+        mockCacheCluster.fireThisNodeJoined();
+        mockCacheCluster.fireClusterOnline();
 
         assertOperationsGoThrough(cache);
     }
