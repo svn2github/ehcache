@@ -242,7 +242,7 @@ public class TerracottaClient {
                         // if the rejoin thread is stuck in terracotta stack, this will make the rejoin thread come out with
                         // TCNotRunningException
                         info("Shutting down old client");
-                        clusteredInstanceFactory.shutdown();
+                        shutdownClusteredInstanceFactoryWrapper(clusteredInstanceFactory);
                         clusteredInstanceFactory = null;
                     } else {
                         warn("Current node (" + oldNode.getId() + ") left before rejoin could complete, but previous client is null");
