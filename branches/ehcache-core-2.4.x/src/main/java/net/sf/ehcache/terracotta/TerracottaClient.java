@@ -50,7 +50,7 @@ public class TerracottaClient {
     private static final int REJOIN_SLEEP_MILLIS_ON_EXCEPTION = Integer.getInteger("net.sf.ehcache.rejoin.sleepMillisOnException", 5000);
 
     private final TerracottaClientConfiguration terracottaClientConfiguration;
-    private volatile ClusteredInstanceFactory clusteredInstanceFactory;
+    private volatile ClusteredInstanceFactoryWrapper clusteredInstanceFactory;
     private final TerracottaCacheCluster cacheCluster = new TerracottaCacheCluster();
     private final RejoinWorker rejoinWorker = new RejoinWorker();
     private final TerracottaClientRejoinListener rejoinListener;
@@ -178,7 +178,7 @@ public class TerracottaClient {
         }
     }
 
-    private synchronized ClusteredInstanceFactory createNewClusteredInstanceFactory(Map<String, CacheConfiguration> cacheConfigs) {
+    private synchronized ClusteredInstanceFactoryWrapper createNewClusteredInstanceFactory(Map<String, CacheConfiguration> cacheConfigs) {
         if (clusteredInstanceFactory != null) {
             info("Shutting down old ClusteredInstanceFactory...");
             // shut down the old factory
@@ -203,8 +203,11 @@ public class TerracottaClient {
             }
         }
 
-        // set up the cacheCluster with the new underlying cache cluster
-        cacheCluster.setUnderlyingCacheCluster(underlyingCacheCluster);
+        if (!rejoinWorker.isRejoinInProgress()) {
+            // set up the cacheCluster with the new underlying cache cluster if rejoin is not in progress
+            // else defer until rejoin is complete (to have node joined, online fired just before rejoin event)
+            cacheCluster.setUnderlyingCacheCluster(underlyingCacheCluster);
+        }
 
         return new ClusteredInstanceFactoryWrapper(this, factory);
     }
@@ -381,6 +384,8 @@ public class TerracottaClient {
         }
 
         private void fireClusterRejoinedEvent(final ClusterNode oldNodeReference) {
+            // set up the cacheCluster with the new underlying cache cluster
+            cacheCluster.setUnderlyingCacheCluster(clusteredInstanceFactory.getActualFactory().getTopology());
             try {
                 cacheCluster.fireNodeRejoinedEvent(oldNodeReference, cacheCluster.getCurrentNode());
             } catch (Throwable e) {
