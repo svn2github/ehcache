@@ -177,15 +177,20 @@ public class TerracottaClient {
         rejoinWorker.waitUntilRejoinComplete();
         rejoinWorker.shutdown();
         if (clusteredInstanceFactory != null) {
-            clusteredInstanceFactory.shutdown();
+            shutdownClusteredInstanceFactoryWrapper(clusteredInstanceFactory);
         }
     }
 
+    private void shutdownClusteredInstanceFactoryWrapper(ClusteredInstanceFactoryWrapper clusteredInstanceFactory) {
+        clusteredInstanceFactory.getActualFactory().getTopology().getTopologyListeners().clear();
+        clusteredInstanceFactory.shutdown();
+    }
+
     private synchronized ClusteredInstanceFactoryWrapper createNewClusteredInstanceFactory(Map<String, CacheConfiguration> cacheConfigs) {
+        // shut down the old factory
         if (clusteredInstanceFactory != null) {
             info("Shutting down old ClusteredInstanceFactory...");
-            // shut down the old factory
-            clusteredInstanceFactory.shutdown();
+            shutdownClusteredInstanceFactoryWrapper(clusteredInstanceFactory);
         }
         info("Creating new ClusteredInstanceFactory");
         ClusteredInstanceFactory factory;
@@ -237,7 +242,7 @@ public class TerracottaClient {
                         // if the rejoin thread is stuck in terracotta stack, this will make the rejoin thread come out with
                         // TCNotRunningException
                         info("Shutting down old client");
-                        clusteredInstanceFactory.shutdown();
+                        shutdownClusteredInstanceFactoryWrapper(clusteredInstanceFactory);
                         clusteredInstanceFactory = null;
                     } else {
                         warn("Current node (" + oldNode.getId() + ") left before rejoin could complete, but previous client is null");
