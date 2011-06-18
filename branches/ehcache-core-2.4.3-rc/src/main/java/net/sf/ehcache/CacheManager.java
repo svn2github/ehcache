@@ -27,9 +27,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.TimeoutException;
 
 import net.sf.ehcache.cluster.CacheCluster;
 import net.sf.ehcache.cluster.ClusterScheme;
@@ -47,6 +49,9 @@ import net.sf.ehcache.config.TerracottaConfiguration.Consistency;
 import net.sf.ehcache.config.TerracottaConfiguration.StorageStrategy;
 import net.sf.ehcache.config.generator.ConfigurationUtil;
 import net.sf.ehcache.constructs.nonstop.CacheManagerExecutorServiceFactory;
+import net.sf.ehcache.constructs.nonstop.NonStopCacheException;
+import net.sf.ehcache.constructs.nonstop.NonstopExecutorService;
+import net.sf.ehcache.constructs.nonstop.NonstopExecutorServiceFactory;
 import net.sf.ehcache.distribution.CacheManagerPeerListener;
 import net.sf.ehcache.distribution.CacheManagerPeerProvider;
 import net.sf.ehcache.event.CacheEventListener;
@@ -199,6 +204,8 @@ public class CacheManager {
     private volatile TransactionController transactionController;
 
     private final ConcurrentMap<String, SoftLockFactory> softLockFactories = new ConcurrentHashMap<String, SoftLockFactory>();
+
+    private final NonstopExecutorServiceFactory nonstopExecutorServiceFactory = CacheManagerExecutorServiceFactory.getInstance();
 
     /**
      * An constructor for CacheManager, which takes a configuration object, rather than one created by parsing
@@ -1020,7 +1027,7 @@ public class CacheManager {
         }
     }
 
-    private Ehcache addCacheNoCheck(Ehcache cache, final boolean strict) throws IllegalStateException, ObjectExistsException,
+    private Ehcache addCacheNoCheck(final Ehcache cache, final boolean strict) throws IllegalStateException, ObjectExistsException,
             CacheException {
 
         if (isTerracottaRejoinEnabled()) {
@@ -1054,7 +1061,26 @@ public class CacheManager {
             }
         }
 
-        cache.initialise();
+        if (isTerracottaRejoinEnabled()) {
+            final long timeoutMillis = cache.getCacheConfiguration().getTerracottaConfiguration().getNonstopConfiguration()
+                    .getTimeoutMillis();
+            try {
+                getNonstopExecutorService().execute(new Callable<Void>() {
+                    public Void call() throws Exception {
+                        cache.initialise();
+                        return null;
+                    }
+                }, timeoutMillis);
+            } catch (TimeoutException e) {
+                throw new NonStopCacheException("Unable to add cache [" + cache.getCacheConfiguration().getName() + "] within "
+                        + timeoutMillis + " msecs", e);
+            } catch (InterruptedException e) {
+                throw new CacheException(e);
+            }
+        } else {
+            cache.initialise();
+        }
+
         if (!allowsDynamicCacheConfig) {
             cache.disableDynamicFeatures();
         }
@@ -1180,7 +1206,7 @@ public class CacheManager {
                 terracottaClient.shutdown();
                 transactionController = null;
                 removeShutdownHook();
-                CacheManagerExecutorServiceFactory.getInstance().shutdown(this);
+                nonstopExecutorServiceFactory.shutdown(this);
             }
         }
     }
@@ -1652,7 +1678,7 @@ public class CacheManager {
             }
         }
         // shutdown the current nonstop executor service
-        CacheManagerExecutorServiceFactory.getInstance().shutdown(this);
+        nonstopExecutorServiceFactory.shutdown(this);
     }
 
     /**
@@ -1660,7 +1686,7 @@ public class CacheManager {
      */
     private void clusterRejoinComplete() {
         // restart nonstop executor service
-        CacheManagerExecutorServiceFactory.getInstance().getOrCreateNonstopExecutorService(this);
+        nonstopExecutorServiceFactory.getOrCreateNonstopExecutorService(this);
         for (Ehcache cache : ehcaches.values()) {
             if (cache instanceof Cache) {
                 if (cache.getCacheConfiguration().isTerracottaClustered()) {
@@ -1668,15 +1694,25 @@ public class CacheManager {
                 }
             }
         }
-        // re-register mbeans
-        try {
-            mbeanRegistrationProvider.reinitialize(terracottaClient.getClusteredInstanceFactory());
-        } catch (MBeanRegistrationProviderException e) {
-            throw new CacheException("Problem in reinitializing MBeanRegistrationProvider - "
-                    + mbeanRegistrationProvider.getClass().getName(), e);
+        if (mbeanRegistrationProvider.isInitialized()) {
+            // re-register mbeans
+            try {
+                mbeanRegistrationProvider.reinitialize(terracottaClient.getClusteredInstanceFactory());
+            } catch (MBeanRegistrationProviderException e) {
+                throw new CacheException("Problem in reinitializing MBeanRegistrationProvider - "
+                        + mbeanRegistrationProvider.getClass().getName(), e);
+            }
         }
         // recreate TransactionController with fresh TransactionIDFactory
         transactionController = new TransactionController(createTransactionIDFactory(), configuration
                 .getDefaultTransactionTimeoutInSeconds());
+    }
+
+    /**
+     * Return the {@link NonstopExecutorService} associated with this cacheManager
+     * @return the {@link NonstopExecutorService} associated with this cacheManager
+     */
+    protected NonstopExecutorService getNonstopExecutorService() {
+        return nonstopExecutorServiceFactory.getOrCreateNonstopExecutorService(this);
     }
 }

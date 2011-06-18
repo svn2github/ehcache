@@ -150,6 +150,13 @@ public class SampledMBeanRegistrationProvider implements MBeanRegistrationProvid
     }
 
     /**
+     * {@inheritDoc}
+     */
+    public synchronized boolean isInitialized() {
+        return status == Status.STATUS_ALIVE;
+    }
+
+    /**
      * CacheManagerEventListener.init() - no need to do anything here
      */
     public void init() throws CacheException {
