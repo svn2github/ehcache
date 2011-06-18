@@ -21,7 +21,7 @@ import net.sf.ehcache.terracotta.ClusteredInstanceFactory;
 /**
  * A Null implementation of {@link MBeanRegistrationProvider} which does nothing
  * <p />
- * 
+ *
  * @author <a href="mailto:asanoujam@terracottatech.com">Abhishek Sanoujam</a>
  * @since 1.7
  */
@@ -40,6 +40,13 @@ public class NullMBeanRegistrationProvider implements MBeanRegistrationProvider 
     public void reinitialize(ClusteredInstanceFactory clusteredInstanceFactory) throws MBeanRegistrationProviderException {
         // no-op
 
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public boolean isInitialized() {
+        return false;
     }
 
 }

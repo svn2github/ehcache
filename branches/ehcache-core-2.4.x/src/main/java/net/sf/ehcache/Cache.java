@@ -33,7 +33,6 @@ import net.sf.ehcache.config.NonstopConfiguration;
 import net.sf.ehcache.config.SearchAttribute;
 import net.sf.ehcache.config.TerracottaConfiguration;
 import net.sf.ehcache.config.TerracottaConfiguration.Consistency;
-import net.sf.ehcache.constructs.nonstop.CacheManagerExecutorServiceFactory;
 import net.sf.ehcache.constructs.nonstop.NonstopActiveDelegateHolder;
 import net.sf.ehcache.constructs.nonstop.NonstopExecutorService;
 import net.sf.ehcache.constructs.nonstop.store.NonstopStoreImpl;
@@ -194,7 +193,7 @@ public class Cache implements Ehcache, StoreListener {
     private static final int EXECUTOR_MAXIMUM_POOL_SIZE = Math.min(10, Runtime.getRuntime().availableProcessors());
     private static final int EXECUTOR_CORE_POOL_SIZE = 1;
     private static final String EHCACHE_CLUSTERREDSTORE_MAX_CONCURRENCY_PROP = "ehcache.clusteredStore.maxConcurrency";
-    private static final int  EHCACHE_CLUSTERREDSTORE_MAX_CONCURRENCY = 4096;
+    private static final int  DEFAULT_EHCACHE_CLUSTERREDSTORE_MAX_CONCURRENCY = 4096;
 
     static {
         try {
@@ -989,7 +988,6 @@ public class Cache implements Ehcache, StoreListener {
                 throw new IllegalStateException("Cannot initialise the " + configuration.getName()
                         + " cache because its status is not STATUS_UNINITIALISED");
             }
-
             if (configuration.getMaxElementsInMemory() == 0) {
                 LOG.warn("Cache: " + configuration.getName() +
                         " has a maxElementsInMemory of 0.  " +
@@ -1042,10 +1040,12 @@ public class Cache implements Ehcache, StoreListener {
                     throw new InvalidConfigurationException("Coherent and consistency attribute values are conflicting. "
                             + "Please remove the coherent attribute as its deprecated.");
                 }
-                int maxConcurrency = Integer.getInteger(EHCACHE_CLUSTERREDSTORE_MAX_CONCURRENCY_PROP, EHCACHE_CLUSTERREDSTORE_MAX_CONCURRENCY);
+                int maxConcurrency = Integer.getInteger(EHCACHE_CLUSTERREDSTORE_MAX_CONCURRENCY_PROP,
+                        DEFAULT_EHCACHE_CLUSTERREDSTORE_MAX_CONCURRENCY);
                 if (getCacheConfiguration().getTerracottaConfiguration().getConcurrency() > maxConcurrency) {
-                    throw new InvalidConfigurationException("Maximum supported concurrency is " + maxConcurrency +
-                    ". Please reconfigure cache " + getName() + " with concurrency value <= " + maxConcurrency);
+                    throw new InvalidConfigurationException("Maximum supported concurrency for Terracotta clustered caches is "
+                            + maxConcurrency + ". Please reconfigure cache '" + getName() + "' with concurrency value <= " + maxConcurrency
+                            + " or use system property '" + EHCACHE_CLUSTERREDSTORE_MAX_CONCURRENCY_PROP + "' to override the default");
                 }
                 if (getCacheConfiguration().getMaxElementsOnDisk() == 0) {
                     LOG.warn("Performance may degrade and server disks could run out of space!\nThe distributed cache {} does not have " +
@@ -1116,7 +1116,6 @@ public class Cache implements Ehcache, StoreListener {
                     }
                 }
             }
-
             /* note: this isn't part of makeXaStrictTransactionalIfNeeded() as only xa_strict supports NonStop, meaning that only
              * that transactional store can be wrapped by NonStopStore. Other TX modes have to wrap the NonStop store due to their
              * lack of NonStop support (ie: lack of transaction context suspension/resuming).
@@ -3966,8 +3965,7 @@ public class Cache implements Ehcache, StoreListener {
             }
 
             // reset all other holders associated with the new store
-            nonstopExecutorService = CacheManagerExecutorServiceFactory.getInstance().getOrCreateNonstopExecutorService(
-                    cache.getCacheManager());
+            nonstopExecutorService = cache.getCacheManager().getNonstopExecutorService();
             Object context = underlyingTerracottaStore.getInternalContext();
             if (context instanceof CacheLockProvider) {
                 underlyingCacheLockProvider = (CacheLockProvider) context;

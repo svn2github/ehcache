@@ -23,6 +23,9 @@ import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.constructs.nonstop.concurrency.InvalidLockStateAfterRejoinException;
 
@@ -34,6 +37,7 @@ import net.sf.ehcache.constructs.nonstop.concurrency.InvalidLockStateAfterRejoin
  */
 public class NonstopExecutorServiceImpl implements NonstopExecutorService {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(NonstopExecutorServiceImpl.class);
     private final NonstopThreadPool nonstopThreadPool;
 
     /**
@@ -77,7 +81,12 @@ public class NonstopExecutorServiceImpl implements NonstopExecutorService {
 
                 if (rootCause instanceof ThrowTimeoutException) {
                     // rethrow as TimeoutException
-                    throw new TimeoutException("Callable threw " + ThrowTimeoutException.class.getName());
+                    throw new TimeoutException("Callable threw " + rootCause.getClass().getName());
+                }
+
+                if (rootCause instanceof InterruptedException) {
+                    // the executor service itself is shutting down, rethrow as timeout exception
+                    throw new TimeoutException("Callable threw " + rootCause.getClass().getName());
                 }
 
                 if (e.getCause() instanceof InvalidLockStateAfterRejoinException) {
@@ -105,6 +114,7 @@ public class NonstopExecutorServiceImpl implements NonstopExecutorService {
      * {@inheritDoc}
      */
     public void shutdown() {
+        LOGGER.debug("Shutting down NonstopExecutorService");
         nonstopThreadPool.shutdownNow();
     }
 }

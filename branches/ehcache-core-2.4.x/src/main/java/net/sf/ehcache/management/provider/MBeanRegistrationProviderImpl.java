@@ -26,7 +26,7 @@ import net.sf.ehcache.terracotta.ClusteredInstanceFactory;
 /**
  * Implementation of {@link MBeanRegistrationProvider}
  * <p />
- * 
+ *
  * @author <a href="mailto:asanoujam@terracottatech.com">Abhishek Sanoujam</a>
  * @since 1.7.1
  */
@@ -39,7 +39,7 @@ public class MBeanRegistrationProviderImpl implements MBeanRegistrationProvider 
 
     /**
      * Constructor accepting the {@link Configuration}
-     * 
+     *
      * @param configuration
      */
     public MBeanRegistrationProviderImpl(Configuration configuration) {
@@ -99,6 +99,13 @@ public class MBeanRegistrationProviderImpl implements MBeanRegistrationProvider 
         // If unclustered cacheManager's are created before creating
         // clustered ones, mbeans will never get registered (in standalone context)
         return Boolean.getBoolean("tc.active");
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public boolean isInitialized() {
+        return initialized.get();
     }
 
 }
