@@ -19,6 +19,9 @@ package net.sf.ehcache.constructs.nonstop;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+
+import java.util.Date;
+
 import junit.framework.Assert;
 import junit.framework.TestCase;
 import net.sf.ehcache.Cache;
@@ -26,11 +29,11 @@ import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.cluster.ClusterScheme;
+import net.sf.ehcache.terracotta.BasicRejoinTest.ClusterRejoinListener;
 import net.sf.ehcache.terracotta.ClusteredInstanceFactory;
 import net.sf.ehcache.terracotta.MockCacheCluster;
 import net.sf.ehcache.terracotta.TerracottaUnitTesting;
 import net.sf.ehcache.terracotta.TestRejoinStore;
-import net.sf.ehcache.terracotta.BasicRejoinTest.ClusterRejoinListener;
 import net.sf.ehcache.terracotta.TestRejoinStore.StoreAction;
 
 import org.junit.Test;
@@ -125,25 +128,33 @@ public class TimeoutOnRejoinTest extends TestCase {
         }
         // assert rejoin event fired
         assertEquals(1, rejoinListener.getRejoinedCount().get());
-        // fire online event too, (this was supposed to be before rejoin event, but its ok for unit tests)
-        mockCacheCluster.fireThisNodeJoined();
-        mockCacheCluster.fireClusterOnline();
+        cache.getCacheConfiguration().getTerracottaConfiguration().getNonstopConfiguration().immediateTimeout(false);
 
+        System.out.println(new Date() + ": Asserting operations go through");
         assertOperationsGoThrough(cache);
+        System.out.println(new Date() + ": Test passed successfully");
     }
 
-    private void assertOperationsGoThrough(Cache cache) {
-        Element element;
-        // now gets/puts should go through
-        element = cache.get("key");
-        assertNotNull(element);
-        assertEquals("value", element.getValue());
+    private void assertOperationsGoThrough(Cache cache) throws Exception {
+        try {
+            Element element;
+            // now gets/puts should go through
+            System.out.println(new Date() + ": Doing get");
+            element = cache.get("key");
+            assertNotNull(element);
+            assertEquals("value", element.getValue());
 
-        cache.put(new Element("newKey", "newValue"));
-        // assert new key-value
-        element = cache.get("newKey");
-        assertNotNull(element);
-        assertEquals("newValue", element.getValue());
+            System.out.println(new Date() + ": Doing put");
+            cache.put(new Element("newKey", "newValue"));
+            // assert new key-value
+            element = cache.get("newKey");
+            assertNotNull(element);
+            assertEquals("newValue", element.getValue());
+            System.out.println(new Date() + ": Test Done");
+        } catch (Exception e) {
+            System.out.println(new Date() + ": Test failed");
+            throw e;
+        }
     }
 
     private void assertOperationsTimeout(Cache cache, long expectedTimeoutMillis, boolean log) {

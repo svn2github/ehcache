@@ -44,7 +44,14 @@ public class MockCacheCluster implements CacheCluster {
         }
     };
 
+    public void removeAllListeners() {
+        this.listeners.clear();
+    }
+
     public void fireCurrentNodeLeft() {
+        for (ClusterTopologyListener listener : listeners) {
+            listener.clusterOffline(currentNode);
+        }
         for (ClusterTopologyListener listener : listeners) {
             listener.nodeLeft(currentNode);
         }
@@ -69,7 +76,12 @@ public class MockCacheCluster implements CacheCluster {
     }
 
     public boolean addTopologyListener(ClusterTopologyListener listener) {
-        return listeners.add(listener);
+        boolean rv = listeners.add(listener);
+        if (rv) {
+            listener.nodeJoined(currentNode);
+            listener.clusterOnline(currentNode);
+        }
+        return rv;
     }
 
     public ClusterNode getCurrentNode() {
