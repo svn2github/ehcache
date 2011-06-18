@@ -30,6 +30,7 @@ import java.util.Set;
 import junit.framework.TestCase;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
+import net.sf.ehcache.CacheManagerMockHelper;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.Statistics;
@@ -198,6 +199,8 @@ public class NonstopTestUtil extends TestCase {
 
         when(cacheManager.createTerracottaStore(cache)).thenReturn(mockTerracottaStore);
         when(cacheManager.getCluster((ClusterScheme) any())).thenReturn(new NoopCacheCluster());
+
+        CacheManagerMockHelper.mockGetNonstopExecutorService(cacheManager);
 
         cacheManager.addCache(cache);
         cache.setCacheManager(cacheManager);
