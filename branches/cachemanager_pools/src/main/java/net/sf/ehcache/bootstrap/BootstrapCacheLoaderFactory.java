@@ -16,16 +16,24 @@
 
 package net.sf.ehcache.bootstrap;
 
+import net.sf.ehcache.util.PropertyUtil;
+
 import java.util.Properties;
 
 /**
  * An abstract factory for creating BootstrapCacheLoader instances. Implementers should provide their own
  * concrete factory extending this factory. It can then be configured in ehcache.xml.
  *
+ * @param <T> The BootstrapCacheLoader type this Factory will create
  * @author Greg Luck
  * @version $Id$
  */
-public abstract class BootstrapCacheLoaderFactory {
+public abstract class BootstrapCacheLoaderFactory<T extends BootstrapCacheLoader> {
+
+    /**
+     * The property name expected in ehcache.xml for the bootstrap asyncrhonously switch.
+     */
+    public static final String BOOTSTRAP_ASYNCHRONOUSLY = "bootstrapAsynchronously";
 
     /**
      * Create a <code>BootstrapCacheLoader</code>
@@ -34,6 +42,51 @@ public abstract class BootstrapCacheLoaderFactory {
      *                   separated name value pairs in ehcache.xml
      * @return a constructed BootstrapCacheLoader
      */
-    public abstract BootstrapCacheLoader createBootstrapCacheLoader(Properties properties);
+    public abstract T createBootstrapCacheLoader(Properties properties);
 
+    /**
+     * Extracts the value of bootstrapAsynchronously from the properties
+     *
+     * @param properties the properties passed by the CacheManager, read from the configuration file
+     * @return true if to be bootstrapped asynchronously, false otherwise
+     */
+    protected boolean extractBootstrapAsynchronously(Properties properties) {
+        return extractBoolean(properties, BOOTSTRAP_ASYNCHRONOUSLY, true);
+    }
+
+    /**
+     * Will retrieve the boolean value from the properties, defaulting if property isn't present
+     * @param properties the properties to use
+     * @param prop the property name to look for
+     * @param defaultValue the default value if property is missing
+     * @return the value, or it's default, for the property
+     */
+    protected boolean extractBoolean(final Properties properties, final String prop, final boolean defaultValue) {
+        boolean value;
+        String propString = PropertyUtil.extractAndLogProperty(prop, properties);
+        if (propString != null) {
+            value = PropertyUtil.parseBoolean(propString);
+        } else {
+            value = defaultValue;
+        }
+        return value;
+    }
+
+    /**
+     * Will retrieve the boolean value from the properties, defaulting if property isn't present
+     * @param properties the properties to use
+     * @param prop the property name to look for
+     * @param defaultValue the default value if property is missing
+     * @return the value, or it's default, for the property
+     */
+    protected long extractLong(final Properties properties, final String prop, final long defaultValue) {
+        long value;
+        String propString = PropertyUtil.extractAndLogProperty(prop, properties);
+        if (propString != null) {
+            value = Long.parseLong(propString);
+        } else {
+            value = defaultValue;
+        }
+        return value;
+    }
 }

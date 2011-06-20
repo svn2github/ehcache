@@ -16,14 +16,12 @@
 
 package net.sf.ehcache.distribution;
 
-import net.sf.ehcache.bootstrap.BootstrapCacheLoader;
 import net.sf.ehcache.bootstrap.BootstrapCacheLoaderFactory;
 import net.sf.ehcache.util.PropertyUtil;
-
-import java.util.Properties;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.Properties;
 
 
 /**
@@ -31,13 +29,8 @@ import org.slf4j.LoggerFactory;
  * @author Greg Luck
  * @version $Id$
  */
-public class RMIBootstrapCacheLoaderFactory extends BootstrapCacheLoaderFactory {
+public class RMIBootstrapCacheLoaderFactory extends BootstrapCacheLoaderFactory<RMIBootstrapCacheLoader> {
 
-
-    /**
-     * The property name expected in ehcache.xml for the bootstrap asyncrhonously switch.
-     */
-    public static final String BOOTSTRAP_ASYNCHRONOUSLY = "bootstrapAsynchronously";
 
     /**
      * The property name expected in ehcache.xml for the maximum chunk size in bytes
@@ -69,7 +62,7 @@ public class RMIBootstrapCacheLoaderFactory extends BootstrapCacheLoaderFactory 
      *                   separated name value pairs in ehcache.xml
      * @return a constructed BootstrapCacheLoader
      */
-    public BootstrapCacheLoader createBootstrapCacheLoader(Properties properties) {
+    public RMIBootstrapCacheLoader createBootstrapCacheLoader(Properties properties) {
         boolean bootstrapAsynchronously = extractBootstrapAsynchronously(properties);
         int maximumChunkSizeBytes = extractMaximumChunkSizeBytes(properties);
         return new RMIBootstrapCacheLoader(bootstrapAsynchronously, maximumChunkSizeBytes);
@@ -77,10 +70,11 @@ public class RMIBootstrapCacheLoaderFactory extends BootstrapCacheLoaderFactory 
 
     /**
      *
-     * @param properties
+     * @param properties the properties passed by the CacheManager, read from the configuration file
+     * @return the max chunk size in bytes
      */
     protected int extractMaximumChunkSizeBytes(Properties properties) {
-        int maximumChunkSizeBytes = 0;
+        int maximumChunkSizeBytes;
         String maximumChunkSizeBytesString = PropertyUtil.extractAndLogProperty(MAXIMUM_CHUNK_SIZE_BYTES, properties);
         if (maximumChunkSizeBytesString != null) {
             try {
@@ -103,19 +97,4 @@ public class RMIBootstrapCacheLoaderFactory extends BootstrapCacheLoaderFactory 
     }
 
 
-    /**
-     * Extracts the value of bootstrapAsynchronously from the properties
-     *
-     * @param properties
-     */
-    protected boolean extractBootstrapAsynchronously(Properties properties) {
-        boolean bootstrapAsynchronously;
-        String bootstrapAsynchronouslyString = PropertyUtil.extractAndLogProperty(BOOTSTRAP_ASYNCHRONOUSLY, properties);
-        if (bootstrapAsynchronouslyString != null) {
-            bootstrapAsynchronously = PropertyUtil.parseBoolean(bootstrapAsynchronouslyString);
-        } else {
-            bootstrapAsynchronously = true;
-        }
-        return bootstrapAsynchronously;
-    }
 }
