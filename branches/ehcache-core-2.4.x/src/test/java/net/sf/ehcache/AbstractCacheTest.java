@@ -26,8 +26,11 @@ import org.junit.Before;
 
 import javax.management.MBeanServer;
 import javax.management.MBeanServerFactory;
+import javax.management.ObjectName;
+
 import java.io.File;
 import java.io.IOException;
+import java.lang.management.ManagementFactory;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
@@ -264,4 +267,15 @@ public abstract class AbstractCacheTest {
         void execute() throws Exception;
     }
 
+    protected static final void setHeapDumpOnOutOfMemoryError(boolean value) {
+        try {
+            MBeanServer server = ManagementFactory.getPlatformMBeanServer();
+            ObjectName beanName = ObjectName.getInstance("com.sun.management:type=HotSpotDiagnostic");
+            Object vmOption = server.invoke(beanName, "setVMOption", new Object[] { "HeapDumpOnOutOfMemoryError", Boolean.toString(value) },
+                                                                     new String[] { "java.lang.String", "java.lang.String" });
+            LOG.info("Set HeapDumpOnOutOfMemoryError to: " + value);
+        } catch (Throwable t) {
+            LOG.info("Set HeapDumpOnOutOfMemoryError to: " + value + " - failed", t);
+        }
+    }
 }

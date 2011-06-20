@@ -21,6 +21,16 @@ import org.slf4j.LoggerFactory;
  */
 public class CacheClassicLruMemoryStoreTest extends CacheTest {
 
+    @BeforeClass
+    public static void enableHeapDump() {
+        setHeapDumpOnOutOfMemoryError(true);
+    }
+
+    @AfterClass
+    public static void disableHeapDump() {
+        setHeapDumpOnOutOfMemoryError(false);
+    }
+
     private static final Logger LOG = LoggerFactory.getLogger(CacheClassicLruMemoryStoreTest.class.getName());
 
     @BeforeClass

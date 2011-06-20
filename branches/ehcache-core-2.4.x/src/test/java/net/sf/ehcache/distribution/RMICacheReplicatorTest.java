@@ -40,7 +40,9 @@ import net.sf.ehcache.ThreadKiller;
 import net.sf.ehcache.event.CountingCacheEventListener;
 
 import org.junit.After;
+import org.junit.AfterClass;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -65,6 +67,15 @@ import org.slf4j.LoggerFactory;
 
 public class RMICacheReplicatorTest extends AbstractCacheTest {
 
+    @BeforeClass
+    public static void enableHeapDump() {
+        setHeapDumpOnOutOfMemoryError(true);
+    }
+
+    @AfterClass
+    public static void disableHeapDump() {
+        setHeapDumpOnOutOfMemoryError(false);
+    }
 
     /**
      * A value to represent replicate asynchronously
