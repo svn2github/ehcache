@@ -1952,8 +1952,11 @@ public class Cache implements Ehcache, StoreListener {
             }
         }
         if (writeLocked) {
-            removeInternal(key, true, notifyListeners, false, false);
-            syncForKey.unlock(LockType.WRITE);
+            try {
+                removeInternal(key, true, notifyListeners, false, false);
+            } finally {
+                syncForKey.unlock(LockType.WRITE);
+            }
         } else {
             if (LOG.isDebugEnabled()) {
                 LOG.debug(configuration.getName() + " cache: element " + key + " expired, but couldn't be inline evicted");
