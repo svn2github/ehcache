@@ -26,18 +26,18 @@ import java.util.List;
 
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.pool.SizeOfEngine;
+import net.sf.ehcache.pool.sizeof.AgentSizeOf;
+import net.sf.ehcache.pool.sizeof.ReflectionSizeOf;
+import net.sf.ehcache.pool.sizeof.SizeOf;
+import net.sf.ehcache.pool.sizeof.UnsafeSizeOf;
+import net.sf.ehcache.pool.sizeof.filter.AnnotationSizeOfFilter;
+import net.sf.ehcache.pool.sizeof.filter.CombinationSizeOfFilter;
+import net.sf.ehcache.pool.sizeof.filter.ResourceSizeOfFilter;
+import net.sf.ehcache.pool.sizeof.filter.SizeOfFilter;
 import net.sf.ehcache.util.ClassLoaderUtil;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.terracotta.modules.sizeof.AgentSizeOf;
-import org.terracotta.modules.sizeof.ReflectionSizeOf;
-import org.terracotta.modules.sizeof.SizeOf;
-import org.terracotta.modules.sizeof.UnsafeSizeOf;
-import org.terracotta.modules.sizeof.filter.AnnotationSizeOfFilter;
-import org.terracotta.modules.sizeof.filter.CombinationSizeOfFilter;
-import org.terracotta.modules.sizeof.filter.SizeOfFilter;
-import org.terracotta.modules.sizeof.filter.ResourceSizeOfFilter;
 
 /**
  * @author Alex Snaps

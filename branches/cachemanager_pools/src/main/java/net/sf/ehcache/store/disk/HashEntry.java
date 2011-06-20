@@ -19,8 +19,8 @@
  */
 package net.sf.ehcache.store.disk;
 
+import net.sf.ehcache.pool.sizeof.filter.IgnoreSizeOf;
 import net.sf.ehcache.util.VmUtils;
-import org.terracotta.modules.sizeof.filter.IgnoreSizeOf;
 
 import java.util.concurrent.atomic.AtomicReferenceFieldUpdater;
 

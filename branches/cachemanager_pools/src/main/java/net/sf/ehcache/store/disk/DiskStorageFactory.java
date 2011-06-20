@@ -23,13 +23,13 @@ import net.sf.ehcache.concurrent.ConcurrencyUtil;
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.PinningConfiguration;
 import net.sf.ehcache.event.RegisteredEventListeners;
+import net.sf.ehcache.pool.sizeof.filter.IgnoreSizeOf;
 import net.sf.ehcache.store.disk.ods.FileAllocationTree;
 import net.sf.ehcache.store.disk.ods.Region;
 import net.sf.ehcache.transaction.SoftLock;
 import net.sf.ehcache.util.MemoryEfficientByteArrayOutputStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.terracotta.modules.sizeof.filter.IgnoreSizeOf;
 
 import java.io.ByteArrayInputStream;
 import java.io.EOFException;

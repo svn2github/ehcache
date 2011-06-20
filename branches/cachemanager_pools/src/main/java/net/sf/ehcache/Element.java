@@ -19,6 +19,7 @@ package net.sf.ehcache;
 
 
 import net.sf.ehcache.config.CacheConfiguration;
+import net.sf.ehcache.pool.sizeof.filter.IgnoreSizeOf;
 import net.sf.ehcache.util.TimeUtil;
 
 import java.io.ByteArrayInputStream;
@@ -32,7 +33,6 @@ import java.util.concurrent.atomic.AtomicLongFieldUpdater;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.terracotta.modules.sizeof.filter.IgnoreSizeOf;
 
 /**
  * A Cache Element, consisting of a key, value and attributes.
