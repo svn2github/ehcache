@@ -320,7 +320,7 @@ public class TerracottaClient {
         private final RejoinRequestHolder rejoinRequestHolder = new RejoinRequestHolder();
         private volatile boolean shutdown;
         private volatile Thread rejoinThread;
-        private boolean forcedShutdown;
+        private volatile boolean forcedShutdown;
 
         public void run() {
             rejoinThread = Thread.currentThread();
@@ -428,7 +428,11 @@ public class TerracottaClient {
                     latch.await();
                     done = true;
                 } catch (InterruptedException e) {
-                    LOGGER.info("Ignoring interrupted exception while waiting for latch");
+                    if (forcedShutdown) {
+                        throw new CacheException(e);
+                    } else {
+                        LOGGER.info("Ignoring interrupted exception while waiting for latch");
+                    }
                 }
             } while (!done);
         }
