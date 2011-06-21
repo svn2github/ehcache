@@ -21,9 +21,12 @@ import net.sf.ehcache.CacheException;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
+import net.sf.ehcache.util.RetryAssert;
+import org.hamcrest.core.Is;
 import org.hibernate.cfg.Environment;
 import org.junit.After;
 
+import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
@@ -35,6 +38,7 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.util.Map;
 import java.util.Properties;
+import java.util.concurrent.Callable;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
