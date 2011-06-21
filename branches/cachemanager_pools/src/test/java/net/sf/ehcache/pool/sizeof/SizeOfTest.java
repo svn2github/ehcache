@@ -2,11 +2,11 @@ package net.sf.ehcache.pool.sizeof;
 
 import net.sf.ehcache.pool.sizeof.JvmInformation;
 import net.sf.ehcache.pool.sizeof.SizeOf;
+import net.sf.ehcache.pool.sizeof.SizeOfAgent;
 
 import org.junit.Assume;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.terracotta.modules.sizeof.SizeOfAgent;
 
 import java.util.ArrayList;
 import java.util.List;

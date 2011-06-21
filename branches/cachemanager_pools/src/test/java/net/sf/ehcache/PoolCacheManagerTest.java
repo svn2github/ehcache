@@ -6,13 +6,13 @@ import net.sf.ehcache.config.MemoryUnit;
 import net.sf.ehcache.pool.sizeof.AgentSizeOf;
 import net.sf.ehcache.pool.sizeof.ReflectionSizeOf;
 import net.sf.ehcache.pool.sizeof.SizeOf;
+import net.sf.ehcache.pool.sizeof.SizeOfAgent;
 import net.sf.ehcache.pool.sizeof.UnsafeSizeOf;
 import net.sf.ehcache.store.Store;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.internal.matchers.EqualsWithDelta;
-import org.terracotta.modules.sizeof.SizeOfAgent;
 
 import java.lang.reflect.Field;
 import java.util.concurrent.atomic.AtomicLong;

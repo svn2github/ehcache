@@ -16,10 +16,10 @@
 
 package net.sf.ehcache.pool.sizeof;
 
+import net.sf.ehcache.pool.sizeof.SizeOfAgent;
 import net.sf.ehcache.pool.sizeof.filter.PassThroughFilter;
 import net.sf.ehcache.pool.sizeof.filter.SizeOfFilter;
 
-import org.terracotta.modules.sizeof.SizeOfAgent;
 
 import static net.sf.ehcache.pool.sizeof.JvmInformation.MINIMUM_OBJECT_SIZE;
 
@@ -44,6 +44,6 @@ public class AgentSizeOf extends SizeOf {
 
   @Override
   protected long measureSizeOf(Object obj) {
-    return Math.max(MINIMUM_OBJECT_SIZE, AgentLoader.sizeOf(obj));
+    return Math.max(MINIMUM_OBJECT_SIZE, AgentLoader.agentSizeOf(obj));
   }
 }

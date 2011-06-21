@@ -28,7 +28,6 @@ import net.sf.ehcache.config.MemoryUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.terracotta.modules.sizeof.SizeOfAgent;
 
 /**
  * This will try to load the agent using the Attach API of JDK6.
@@ -76,24 +75,15 @@ final class AgentLoader {
             } finally {
                 VIRTUAL_MACHINE_DETACH.invoke(vm);
             }
-            if (!SizeOfAgent.isAvailable()) {
+            if (!agentIsAvailable()) {
                 System.err.println("Hitting a classloader issue while loading the agent it seems. It got loaded, "
                         + "we didn't get the Instrumentation instance injected on this SizeOfAgent class instance ?!");
             }
         } catch (Throwable e) {
             LOGGER.info("Failed to load agent, sizes will be guessed", e);
         }
-        return SizeOfAgent.isAvailable();
-    }
 
-    /**
-     * Returns the size of this Java object as calculated by the loaded agent.
-     *
-     * @param obj object to be sized
-     * @return size of the object in bytes
-     */
-    static long sizeOf(final Object obj) {
-        return SizeOfAgent.sizeOf(obj);
+        return agentIsAvailable();
     }
 
     private static File getAgentFile() throws IOException {
@@ -128,5 +118,19 @@ final class AgentLoader {
             LOGGER.info("Extracted agent jar to temporary file {}", temp);
             return temp;
         }
+    }
+
+    static boolean agentIsAvailable() {
+        return SizeOfAgent.isAvailable();
+    }
+
+    /**
+     * Returns the size of this Java object as calculated by the loaded agent.
+     *
+     * @param obj object to be sized
+     * @return size of the object in bytes
+     */
+    static long agentSizeOf(Object obj) {
+        return SizeOfAgent.sizeOf(obj);
     }
 }

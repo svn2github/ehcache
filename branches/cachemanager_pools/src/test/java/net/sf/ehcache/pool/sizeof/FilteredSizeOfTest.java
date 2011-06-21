@@ -5,6 +5,7 @@ import static org.junit.Assert.assertThat;
 
 import net.sf.ehcache.pool.sizeof.JvmInformation;
 import net.sf.ehcache.pool.sizeof.SizeOf;
+import net.sf.ehcache.pool.sizeof.SizeOfAgent;
 import net.sf.ehcache.pool.sizeof.filter.AnnotationSizeOfFilter;
 import net.sf.ehcache.pool.sizeof.filter.IgnoreSizeOf;
 import net.sf.ehcache.pool.sizeof.filter.ResourceSizeOfFilter;
@@ -12,7 +13,6 @@ import net.sf.ehcache.pool.sizeof.filter.ResourceSizeOfFilter;
 import org.junit.Assume;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.terracotta.modules.sizeof.SizeOfAgent;
 
 public class FilteredSizeOfTest extends AbstractSizeOfTest {
 
