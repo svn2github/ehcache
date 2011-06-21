@@ -55,7 +55,7 @@ Transactions in Ehcache
 
     Same as xa but use it only if you need strict XA disaster recovery guarantees. In this mode, the cached data can never
     get out of sync with the other resources participating in the transactions, even in case of a crash but you pay a high
-    price in performance to get that extra safety.
+    price in performance to get that extra safety. This is the only mode that can work with {{{./terracotta/non_stop_cache.html}nonstop caches}} (beginning with Ehcache 2.4.1).
 
 
 *   Requirements
