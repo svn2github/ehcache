@@ -462,6 +462,10 @@ Transactions in Ehcache
 
 *   FAQ
 
+**  Why do some threads regularly time out and throw an excption?
+
+    In transactional caches, write locks are in force whenever an element is updated, deleted, or added. With concurrent access, these locks cause some threads to block and appear to deadlock. Eventually the deadlocked threads time out (and throw an exception) to avoid being stuck in a deadlock condition.
+
 **  Is IBM Websphere Transaction Manager supported?
 
     Mostly. xa_strict is not supported due to each version of Websphere essentially being a custom implementation i.e. no stable interface to
