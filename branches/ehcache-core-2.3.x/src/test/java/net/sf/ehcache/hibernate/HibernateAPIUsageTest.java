@@ -21,8 +21,12 @@ import net.sf.ehcache.CacheException;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
+import net.sf.ehcache.util.RetryAssert;
+import org.hamcrest.core.Is;
 import org.hibernate.cfg.Environment;
 import org.junit.After;
+
+import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
@@ -33,6 +37,8 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.util.Map;
 import java.util.Properties;
+import java.util.concurrent.Callable;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -94,7 +100,7 @@ public class HibernateAPIUsageTest extends AbstractCacheTest {
 
         org.hibernate.cache.EhCacheProvider provider = new org.hibernate.cache.EhCacheProvider();
         provider.start(null);
-        org.hibernate.cache.Cache cache = provider.buildCache("sampleCache1", null);
+        final org.hibernate.cache.Cache cache = provider.buildCache("sampleCache1", null);
 
         //Check created and name
         assertNotNull(cache.getRegionName());
@@ -122,7 +128,11 @@ public class HibernateAPIUsageTest extends AbstractCacheTest {
         Thread.sleep(100);
         //this is now fixed
         assertEquals(10000, cache.getElementCountInMemory());
-        assertEquals(10, cache.getElementCountOnDisk());
+        RetryAssert.assertBy(1, SECONDS, new Callable<Long>() {
+            public Long call() throws Exception {
+                return cache.getElementCountOnDisk();
+            }
+        }, Is.is(10L));
 
         //clear
         cache.clear();
@@ -286,7 +296,7 @@ public class HibernateAPIUsageTest extends AbstractCacheTest {
 
         properties.setProperty("net.sf.ehcache.configurationResourceName", "ehcache-2.xml");
         provider.start(properties);
-        org.hibernate.cache.Cache cache = provider.buildCache("sampleCache1", null);
+        final org.hibernate.cache.Cache cache = provider.buildCache("sampleCache1", null);
 
         //Check created and name
         assertNotNull(cache.getRegionName());
@@ -312,7 +322,11 @@ public class HibernateAPIUsageTest extends AbstractCacheTest {
             cache.put("" + i, value);
         }
         assertEquals(10000, cache.getElementCountInMemory());
-        assertEquals(10, cache.getElementCountOnDisk());
+        RetryAssert.assertBy(1, SECONDS, new Callable<Long>() {
+                public Long call() throws Exception {
+                    return cache.getElementCountOnDisk();
+                }
+            }, Is.is(10L));
 
         //clear
         cache.clear();
