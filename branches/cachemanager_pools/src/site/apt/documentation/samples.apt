@@ -402,8 +402,8 @@ int hits = cache.getMissCountExpired();
 	</cache>
 --------------------------------------------
 
-    Please note that XA Transactional caches are supported for standalone Ehcache and also when clustered with Terracotta, but
-    with the replicating cluster architectures such as RMI|JMS|JGroups as there is no locking in those architectures.
+    Please note that XA Transactional caches are supported only for local Ehcache or when distributed with Terracotta.
+    Replicated Ehcache architectures such as RMI|JMS|JGroups are not supported as there is no locking in those architectures.
 
     The Cache can then be used without any special requirement. Changes will only become visible to others, once the transaction
     has been committed.

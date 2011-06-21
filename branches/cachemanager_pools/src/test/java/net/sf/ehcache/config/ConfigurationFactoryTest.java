@@ -138,7 +138,7 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
         assertEquals(Integer.valueOf(0), ((MulticastRMICacheManagerPeerProvider) peerProvider).getHeartBeatSender().getTimeToLive());
 
         //Check CacheManagerEventListener
-        assertEquals(null, configurationHelper.createCacheManagerEventListener());
+        assertEquals(null, configurationHelper.createCacheManagerEventListener(null));
 
         //Check default cache
         Ehcache defaultCache = configurationHelper.createDefaultCache();
@@ -364,7 +364,7 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
         ConfigurationHelper configurationHelper = new ConfigurationHelper(manager, configuration);
 
         //Check CacheManagerEventListener
-        CacheManagerEventListener listener = configurationHelper.createCacheManagerEventListener();
+        CacheManagerEventListener listener = configurationHelper.createCacheManagerEventListener(null);
         assertEquals(null, listener);
 
         //Check caches. Configuration should have completed
@@ -384,7 +384,7 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
         //Check CacheManagerEventListener
         CacheManagerEventListener listener = null;
         try {
-            listener = configurationHelper.createCacheManagerEventListener();
+            listener = configurationHelper.createCacheManagerEventListener(null);
             fail();
         } catch (CacheException e) {
             //expected
@@ -401,7 +401,7 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
         ConfigurationHelper configurationHelper = new ConfigurationHelper(manager, configuration);
 
         //Check CacheManagerEventListener
-        Class actualClass = configurationHelper.createCacheManagerEventListener().getClass();
+        Class actualClass = configurationHelper.createCacheManagerEventListener(null).getClass();
         assertEquals(CountingCacheManagerEventListener.class, actualClass);
 
         //Check caches. Configuration should have completed

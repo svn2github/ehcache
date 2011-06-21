@@ -92,7 +92,7 @@ Documentation
 
     * {{{./grails.html}Grails Caching}}
 
-    * {{{./jruby.html}JRuby Caching}}
+    * {{{./jruby.html}Rails and JRuby Caching}}
 
     * {{{./glassfish.html}Glassfish HowTo}}
 

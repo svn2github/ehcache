@@ -33,6 +33,7 @@
         <skipCheckstyle>false</skipCheckstyle>
         <test.tmp.dir>${project.build.directory}/tmp</test.tmp.dir>
         <build.timestamp>${maven.build.timestamp}</build.timestamp>
+	<tests.supplemental.args></tests.supplemental.args>
     </properties>
 
     <dependencies>
@@ -107,6 +108,12 @@
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
             <version>4.4</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.hamcrest</groupId>
+            <artifactId>hamcrest-library</artifactId>
+            <version>1.2</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -487,7 +494,7 @@
                         <exclude>**/RMICacheReplicatorWithLargePayloadTest.java</exclude>
                     </excludes>
                     <forkMode>pertest</forkMode>
-                    <argLine>${tests.argLine}</argLine>
+                    <argLine>${tests.supplemental.args} -Xmx64m</argLine>
                     <childDelegation>false</childDelegation>
                     <disableXmlReport>false</disableXmlReport>
                     <printSummary>true</printSummary>
@@ -517,7 +524,7 @@
                                 </include>
                                 <include>**/TerracottaIntegrationTest.java</include>
                             </includes>
-                            <argLine>${tests.argLine} -Xms512m -Xmx512m</argLine>
+                            <argLine>${tests.supplemental.args} -Xms512m -Xmx512m</argLine>
                         </configuration>
                     </execution>
                 </executions>
@@ -726,7 +733,19 @@
                 </property>
             </activation>
             <properties>
-                <tests.argLine>-XX:-UseVMInterruptibleIO</tests.argLine>
+                <tests.supplemental.args>-XX:-UseVMInterruptibleIO</tests.supplemental.args>
+            </properties>
+        </profile>
+        <profile>
+            <id>enable-system-gc-jrockit</id>
+            <activation>
+                <property>
+                    <name>java.vm.name</name>
+                    <value>Oracle JRockit(R)</value>
+                </property>
+            </activation>
+            <properties>
+                <tests.supplemental.args>-XXfullSystemGC</tests.supplemental.args>
             </properties>
         </profile>
 

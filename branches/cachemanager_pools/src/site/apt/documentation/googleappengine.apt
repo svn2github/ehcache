@@ -100,8 +100,8 @@
 **  Setting up Ehcache as a local cache in front of memcacheg
 
     The idea here is that your caches are set up in a cache hierarchy. Ehcache sits in front and memcacheg behind.
-    Combining the two lets you elegantly work around limitations imposed by Googe App Engine.
-    You get the benefits of the µs speed of Ehcache together with the umlimited size of memcached.
+    Combining the two lets you elegantly work around limitations imposed by Google App Engine.
+    You get the benefits of the speed of Ehcache together with the umlimited size of memcached.
 
     Ehcache contains the hooks to easily do this.
 

@@ -26,8 +26,11 @@ import org.junit.Before;
 
 import javax.management.MBeanServer;
 import javax.management.MBeanServerFactory;
+import javax.management.ObjectName;
+
 import java.io.File;
 import java.io.IOException;
+import java.lang.management.ManagementFactory;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
@@ -105,13 +108,16 @@ public abstract class AbstractCacheTest {
         try {
             Thread.sleep(200);
         } catch (InterruptedException e) {
-            //
+            Thread.currentThread().interrupt();
         }
         System.gc();
     }
 
     private static void allocateFiftyMegabytes() {
-        byte[] forceVMGrowth = new byte[50000000];
+        Object[] arrays = new Object[50];
+        for (int i = 0; i < arrays.length; i++) {
+            arrays[i] = new byte[1024 * 1024];
+        }
     }
 
     /**
@@ -139,9 +145,18 @@ public abstract class AbstractCacheTest {
      */
     protected long measureMemoryUse() throws InterruptedException {
         System.gc();
-        Thread.sleep(2000);
+        Thread.sleep(1000);
         System.gc();
-        return Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
+        Thread.sleep(1000);
+        long total;
+        long free;
+        Runtime runtime = Runtime.getRuntime();
+        do {
+            total = runtime.totalMemory();
+            free = runtime.freeMemory();
+        } while (total != runtime.totalMemory());
+
+        return total - free;
     }
 
 
@@ -252,4 +267,15 @@ public abstract class AbstractCacheTest {
         void execute() throws Exception;
     }
 
+    protected static final void setHeapDumpOnOutOfMemoryError(boolean value) {
+        try {
+            MBeanServer server = ManagementFactory.getPlatformMBeanServer();
+            ObjectName beanName = ObjectName.getInstance("com.sun.management:type=HotSpotDiagnostic");
+            Object vmOption = server.invoke(beanName, "setVMOption", new Object[] { "HeapDumpOnOutOfMemoryError", Boolean.toString(value) },
+                                                                     new String[] { "java.lang.String", "java.lang.String" });
+            LOG.info("Set HeapDumpOnOutOfMemoryError to: " + value);
+        } catch (Throwable t) {
+            LOG.info("Set HeapDumpOnOutOfMemoryError to: " + value + " - failed", t);
+        }
+    }
 }

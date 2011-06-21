@@ -1,8 +1,8 @@
  ---
- {Using JRuby and Ehcache}
+ {Rails and JRuby Caching}
  ---
 
-Using {JRuby} and Ehcache
+Rails and JRuby Caching
 
 ~~%{toc|fromDepth=2|toDepth=3}
 
@@ -46,7 +46,9 @@ jgem install jruby-ehcache
 
     *   Rails 3 for the jruby-ehcache-rails3
 
-    *   Ehcache 2.3 is the declared dependency, although any version of Ehcache will work
+    *   Ehcache 2.4.2 is the declared dependency, although any version of Ehcache will work
+
+    []
 
     As usual these should all be installed with jgem
 
@@ -203,17 +205,24 @@ EHCACHE = Ehcache::CacheManager.new.cache
     The following options are supported:
 
     * unlessExist, ifAbsent (boolean) - If true, use the putIfAbsent method
+
     * elementEvictionData (ElementEvictionData)
+
     * eternal (boolean)
+
     * timeToIdle, tti (int)
+
     * timeToLive, ttl, expiresIn (int)
+
     * version (long)
+
+    []
 
     These options are passed to the write method as Hash options using either camelCase or underscore notation,
     as in the following example:
 
 ---
-    Rails.cache.write('key', 'value', :time_to_idle => 60.seconds, :timeToLive => 600.seconds)
+Rails.cache.write('key', 'value', :time_to_idle => 60.seconds, :timeToLive => 600.seconds)
 ---
 
 
@@ -243,7 +252,7 @@ EHCACHE = Ehcache::CacheManager.new.cache
 **  Checking it out
 
 ---
-    svn checkout http://svn.terracotta.org/svn/forge/projects/ehcache-rails-demo/trunk ehcache-rails-demo
+svn checkout http://svn.terracotta.org/svn/forge/projects/ehcache-rails-demo/trunk ehcache-rails-demo
 ---
 
 **  Dependencies
@@ -281,12 +290,13 @@ jruby -S rails server -e production
     by Ehcache.
 
 
-*   Utilising the rest of the Ehcache infrastructure
+*   Leveraging the power of Ehcache
 
-    Ehcache has a layered architecture. jruby-ehcache contains the ehcache-core module.
-    Extra features can be added by simply adding the extra jars for each module to the classpath.
-    In this way the full power of Ehcache can be leveraged.
+    Once you have the Ruby/Rails caching modules up and running with Ehcache you can then
+    go on to leverage the power of Ehcache through for example creating a distributed cache
+    backed by Terracotta.
 
+    There are no limits on what you can do. Please see the rest of this documentation.
 
 
 

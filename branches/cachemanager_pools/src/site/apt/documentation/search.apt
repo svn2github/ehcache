@@ -72,6 +72,7 @@ Results results = cache.createQuery().includeValues()
 **  Programmatically
 
    The following example shows how to programmatically create the cache configuration, with search attributes.
+
 ---
 
 Configuration cacheManagerConfig = new Configuration();
@@ -445,8 +446,7 @@ query.includeAggregator(age.sum());
 
     We have created a simple standalone sample application with few dependencies for you to easily get started with Ehcache Search.
 
-    {{{http://github.com/sharrissf/Ehcache-Search-Sample/downloads/
-    or check out the source:
+    {{{http://github.com/sharrissf/Ehcache-Search-Sample/downloads/}}} or check out the source:
 
 ---
 git clone git://github.com/sharrissf/Ehcache-Search-Sample.git

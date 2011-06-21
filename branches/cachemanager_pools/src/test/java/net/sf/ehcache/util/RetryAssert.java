@@ -29,7 +29,7 @@ public class RetryAssert {
         // static only class
     }
 
-    public static <T> void assertBy(long time, TimeUnit unit, Callable<T> value, Matcher<T> matcher) {
+    public static <T> void assertBy(long time, TimeUnit unit, Callable<T> value, Matcher<? super T> matcher) {
         boolean interrupted = false;
         long start = System.nanoTime();
         long end = start + unit.toNanos(time);

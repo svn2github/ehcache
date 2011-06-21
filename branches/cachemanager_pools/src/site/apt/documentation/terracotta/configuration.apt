@@ -192,13 +192,10 @@ CacheManager manager = new CacheManager(configuration);
 
     []
 
-    The \<terracotta\> sub-element also has a \<nonstop\> sub-element to allow configuration of cache behaviour if a distributed
-    cache operation cannot be completed within a set time or in the event of a clusterOffline message.
+    The \<terracotta\> sub-element also has a \<nonstop\> sub-element to allow configuration of cache behavior if a distributed
+    cache operation cannot be completed within a set time or in the event of a clusterOffline message. If the <nonstop> element is absent, this behavior is off.
 
-    From Ehcache 2.4 nonstop behaviour, even if the sub-element is missing, is enabled by default. In earlier versions it was
-    disabled by default.
-
-    It has the following attributes:
+    <nonstop> has the following attributes:
 
     *  enabled="true" - defaults to true.
 

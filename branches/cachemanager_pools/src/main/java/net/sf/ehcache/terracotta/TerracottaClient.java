@@ -19,6 +19,10 @@ package net.sf.ehcache.terracotta;
 import java.lang.reflect.Method;
 import java.util.Collections;
 import java.util.Map;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import net.sf.ehcache.CacheException;
@@ -47,10 +51,18 @@ public class TerracottaClient {
     private static final int REJOIN_SLEEP_MILLIS_ON_EXCEPTION = Integer.getInteger("net.sf.ehcache.rejoin.sleepMillisOnException", 5000);
 
     private final TerracottaClientConfiguration terracottaClientConfiguration;
-    private volatile ClusteredInstanceFactory clusteredInstanceFactory;
+    private volatile ClusteredInstanceFactoryWrapper clusteredInstanceFactory;
     private final TerracottaCacheCluster cacheCluster = new TerracottaCacheCluster();
     private final RejoinWorker rejoinWorker = new RejoinWorker();
     private final TerracottaClientRejoinListener rejoinListener;
+    private final ExecutorService l1TerminatorThreadPool = Executors.newCachedThreadPool(new ThreadFactory() {
+        public Thread newThread(Runnable runnable) {
+            Thread t = new Thread(runnable, "L1 Terminator");
+            t.setDaemon(true);
+            return t;
+        }
+    });
+    private final CacheManager cacheManager;
 
     /**
      * Constructor accepting the {@link TerracottaClientRejoinListener} and the {@link TerracottaClientConfiguration}
@@ -61,6 +73,7 @@ public class TerracottaClient {
      */
     public TerracottaClient(CacheManager cacheManager, TerracottaClientRejoinListener rejoinAction,
             TerracottaClientConfiguration terracottaClientConfiguration) {
+        this.cacheManager = cacheManager;
         this.rejoinListener = rejoinAction;
         this.terracottaClientConfiguration = terracottaClientConfiguration;
         if (terracottaClientConfiguration != null) {
@@ -83,6 +96,7 @@ public class TerracottaClient {
 
     /**
      * Returns the default {@link StorageStrategy} type for the current Terracotta runtime.
+     *
      * @param cacheConfiguration the cache's configuration
      *
      * @return the default {@link StorageStrategy} type for the current Terracotta runtime.
@@ -161,45 +175,135 @@ public class TerracottaClient {
      */
     public synchronized void shutdown() {
         rejoinWorker.waitUntilRejoinComplete();
-        if (clusteredInstanceFactory != null) {
-            clusteredInstanceFactory.shutdown();
-        }
         rejoinWorker.shutdown();
+        if (clusteredInstanceFactory != null) {
+            shutdownClusteredInstanceFactoryWrapper(clusteredInstanceFactory);
+        }
     }
 
-    private synchronized ClusteredInstanceFactory createNewClusteredInstanceFactory(Map<String, CacheConfiguration> cacheConfigs) {
+    private void shutdownClusteredInstanceFactoryWrapper(ClusteredInstanceFactoryWrapper clusteredInstanceFactory) {
+        clusteredInstanceFactory.getActualFactory().getTopology().getTopologyListeners().clear();
+        clusteredInstanceFactory.shutdown();
+    }
+
+    private synchronized ClusteredInstanceFactoryWrapper createNewClusteredInstanceFactory(Map<String, CacheConfiguration> cacheConfigs) {
+        // shut down the old factory
         if (clusteredInstanceFactory != null) {
-            LOGGER.info("Shutting down old ClusteredInstanceFactory...");
-            // shut down the old factory
-            clusteredInstanceFactory.shutdown();
+            info("Shutting down old ClusteredInstanceFactory...");
+            shutdownClusteredInstanceFactoryWrapper(clusteredInstanceFactory);
         }
-        LOGGER.info("Creating new ClusteredInstanceFactory");
-        ClusteredInstanceFactory factory = TerracottaClusteredInstanceHelper.getInstance().newClusteredInstanceFactory(cacheConfigs,
-                terracottaClientConfiguration);
-        CacheCluster underlyingCacheCluster = factory.getTopology();
-        // set up listener so that rejoin can happen upon nodeLeft
-        if (isRejoinEnabled()) {
-            underlyingCacheCluster.addTopologyListener(new NodeLeftListener(this, underlyingCacheCluster.waitUntilNodeJoinsCluster()));
+        info("Creating new ClusteredInstanceFactory");
+        ClusteredInstanceFactory factory;
+        CacheCluster underlyingCacheCluster = null;
+        try {
+            factory = TerracottaClusteredInstanceHelper.getInstance().newClusteredInstanceFactory(cacheConfigs,
+                    terracottaClientConfiguration);
+            underlyingCacheCluster = factory.getTopology();
+        } finally {
+            // always set up listener so that rejoin can happen upon nodeLeft
+            if (isRejoinEnabled()) {
+                if (underlyingCacheCluster != null) {
+                    underlyingCacheCluster.addTopologyListener(new NodeLeftListener(this, underlyingCacheCluster
+                            .waitUntilNodeJoinsCluster()));
+                } else {
+                    warn("Unable to register node left listener for rejoin");
+                }
+            }
         }
 
-        // set up the cacheCluster with the new underlying cache cluster
-        cacheCluster.setUnderlyingCacheCluster(underlyingCacheCluster);
+        if (!rejoinWorker.isRejoinInProgress()) {
+            // set up the cacheCluster with the new underlying cache cluster if rejoin is not in progress
+            // else defer until rejoin is complete (to have node joined, online fired just before rejoin event)
+            cacheCluster.setUnderlyingCacheCluster(underlyingCacheCluster);
+        }
 
         return new ClusteredInstanceFactoryWrapper(this, factory);
     }
 
     /**
+     * Block thread until rejoin is complete
+     */
+    protected void waitUntilRejoinComplete() {
+        rejoinWorker.waitUntilRejoinComplete();
+    }
+
+    /**
      * Rejoins the cluster
      */
-    private void rejoinCluster(ClusterNode oldNode) {
+    private void rejoinCluster(final ClusterNode oldNode) {
         if (!isRejoinEnabled()) {
             return;
         }
-        rejoinWorker.startRejoin(oldNode);
+        final Runnable rejoinRunnable = new Runnable() {
+            public void run() {
+                if (rejoinWorker.isRejoinInProgress()) {
+                    debug("Current node (" + oldNode.getId() + ") left before rejoin could complete, force terminating current client");
+                    if (clusteredInstanceFactory != null) {
+                        // if the rejoin thread is stuck in terracotta stack, this will make the rejoin thread come out with
+                        // TCNotRunningException
+                        info("Shutting down old client");
+                        shutdownClusteredInstanceFactoryWrapper(clusteredInstanceFactory);
+                        clusteredInstanceFactory = null;
+                    } else {
+                        warn("Current node (" + oldNode.getId() + ") left before rejoin could complete, but previous client is null");
+                    }
+                    // now interrupt the thread
+                    // this will interrupt the rejoin thread if its still stuck after L1 has been shutdown
+                    debug("Interrupting rejoin thread");
+                    rejoinWorker.rejoinThread.interrupt();
+                }
+                debug("Going to initiate rejoin");
+                // initiate the rejoin
+                rejoinWorker.startRejoin(oldNode);
+            }
+
+        };
+        if (rejoinWorker.isRejoinInProgress()) {
+            // if another rejoin was already in progress
+            // run in another thread, so that this thread (a thread from the L1) can just go back
+            // also mark that its forced shutdown first
+            rejoinWorker.setForcedShutdown();
+            l1TerminatorThreadPool.execute(rejoinRunnable);
+        } else {
+            // no need to run in separate thread as this is just initiating the rejoin
+            rejoinRunnable.run();
+        }
     }
 
     private boolean isRejoinEnabled() {
         return terracottaClientConfiguration != null && terracottaClientConfiguration.isRejoin();
+    }
+
+    private void info(String msg) {
+        info(msg, null);
+    }
+
+    private void info(String msg, Throwable t) {
+        if (t == null) {
+            LOGGER.info(getLogPrefix() + msg);
+        } else {
+            LOGGER.info(getLogPrefix() + msg, t);
+        }
+    }
+
+    private String getLogPrefix() {
+        return "Thread [" + Thread.currentThread().getName() + "] [cacheManager: " + getCacheManagerName() + "]: ";
+    }
+
+    private void debug(String msg) {
+        LOGGER.debug(getLogPrefix() + msg);
+    }
+
+    private void warn(String msg) {
+        LOGGER.warn(getLogPrefix() + msg);
+    }
+
+    private String getCacheManagerName() {
+        if (cacheManager.isNamed()) {
+            return "'" + cacheManager.getName() + "'";
+        } else {
+            return "no name";
+        }
     }
 
     /**
@@ -216,6 +320,7 @@ public class TerracottaClient {
         private final RejoinRequestHolder rejoinRequestHolder = new RejoinRequestHolder();
         private volatile boolean shutdown;
         private volatile Thread rejoinThread;
+        private volatile boolean forcedShutdown;
 
         public void run() {
             rejoinThread = Thread.currentThread();
@@ -226,17 +331,37 @@ public class TerracottaClient {
                 }
                 boolean rejoined = false;
                 final RejoinRequest rejoinRequest = rejoinRequestHolder.consume();
+                debug("Going to start rejoin for request: " + rejoinRequest);
                 while (!rejoined) {
                     try {
                         doRejoin(rejoinRequest);
                         rejoined = true;
                     } catch (Exception e) {
+                        boolean forced = getAndClearForcedShutdown();
+                        if (forced) {
+                            info("Client was shutdown forcefully before rejoin completed", e);
+                            break;
+                        }
                         LOGGER.warn("Caught exception while trying to rejoin cluster", e);
-                        LOGGER.info("Trying to rejoin again in 5 secs...");
+                        info("Trying to rejoin again in " + REJOIN_SLEEP_MILLIS_ON_EXCEPTION + " msecs...");
                         sleep(REJOIN_SLEEP_MILLIS_ON_EXCEPTION);
                     }
                 }
             }
+        }
+
+        public synchronized boolean getAndClearForcedShutdown() {
+            boolean rv = forcedShutdown;
+            forcedShutdown = false;
+            return rv;
+        }
+
+        public synchronized void setForcedShutdown() {
+            forcedShutdown = true;
+        }
+
+        public boolean isRejoinInProgress() {
+            return rejoinStatus.isRejoinInProgress();
         }
 
         private void sleep(long sleepMillis) {
@@ -260,8 +385,13 @@ public class TerracottaClient {
             }
             final ClusterNode oldNodeReference = rejoinRequest.getRejoinOldNode();
             rejoinStatus.rejoinStarted();
+            if (Thread.currentThread().isInterrupted()) {
+                // clear interrupt status if set
+                info("Clearing interrupt state of rejoin thread");
+                Thread.currentThread().interrupted();
+            }
             int rejoinNumber = rejoinCount.incrementAndGet();
-            LOGGER.info("Starting Terracotta Rejoin (as client id: " + (oldNodeReference == null ? "null" : oldNodeReference.getId())
+            info("Starting Terracotta Rejoin (as client id: " + (oldNodeReference == null ? "null" : oldNodeReference.getId())
                     + " left the cluster) [rejoin count = " + rejoinNumber + "] ... ");
             rejoinListener.clusterRejoinStarted();
             clusteredInstanceFactory = createNewClusteredInstanceFactory(Collections.EMPTY_MAP);
@@ -269,19 +399,46 @@ public class TerracottaClient {
             rejoinListener.clusterRejoinComplete();
             // now fire the clusterRejoined event
             fireClusterRejoinedEvent(oldNodeReference);
-            LOGGER.info("Rejoin Complete [rejoin count = " + rejoinNumber + "]");
+            info("Rejoin Complete [rejoin count = " + rejoinNumber + "]");
             rejoinStatus.rejoinComplete();
         }
 
         private void fireClusterRejoinedEvent(final ClusterNode oldNodeReference) {
+            // set up the cacheCluster with the new underlying cache cluster (to fire node joined and online events)
+            cacheCluster.setUnderlyingCacheCluster(clusteredInstanceFactory.getActualFactory().getTopology());
+            // add another listener here to fire the rejoin event only after receiving node joined and online
+            final CountDownLatch latch = new CountDownLatch(2);
+            FireRejoinEventListener fireRejoinEventListener = new FireRejoinEventListener(clusteredInstanceFactory.getActualFactory()
+                    .getTopology().waitUntilNodeJoinsCluster(), latch);
+            clusteredInstanceFactory.getActualFactory().getTopology().addTopologyListener(fireRejoinEventListener);
+
+            waitUntilLatchOpen(latch);
             try {
                 cacheCluster.fireNodeRejoinedEvent(oldNodeReference, cacheCluster.getCurrentNode());
             } catch (Throwable e) {
                 LOGGER.error("Caught exception while firing rejoin event", e);
             }
+            clusteredInstanceFactory.getActualFactory().getTopology().removeTopologyListener(fireRejoinEventListener);
+        }
+
+        private void waitUntilLatchOpen(CountDownLatch latch) {
+            boolean done = false;
+            do {
+                try {
+                    latch.await();
+                    done = true;
+                } catch (InterruptedException e) {
+                    if (forcedShutdown) {
+                        throw new CacheException(e);
+                    } else {
+                        LOGGER.info("Ignoring interrupted exception while waiting for latch");
+                    }
+                }
+            } while (!done);
         }
 
         private void waitUntilRejoinRequested() {
+            info("Rejoin worker waiting until rejoin requested...");
             synchronized (rejoinSync) {
                 while (!rejoinRequestHolder.isRejoinRequested()) {
                     if (shutdown) {
@@ -358,6 +515,11 @@ public class TerracottaClient {
             return oldNode;
         }
 
+        @Override
+        public String toString() {
+            return "RejoinRequest [oldNode=" + oldNode.getId() + "]";
+        }
+
     }
 
     /**
@@ -378,14 +540,15 @@ public class TerracottaClient {
         public NodeLeftListener(TerracottaClient client, ClusterNode currentNode) {
             this.client = client;
             this.currentNode = currentNode;
+            client.info("Registered interest for rejoin, current node: " + currentNode.getId());
         }
 
         /**
          * {@inheritDoc}
          */
         public void nodeLeft(ClusterNode node) {
+            client.info("ClusterNode [id=" + node.getId() + "] left the cluster (currentNode=" + currentNode.getId() + ")");
             if (node.equals(currentNode)) {
-                LOGGER.info("ClusterNode [id=" + node.getId() + "] left the cluster, rejoining cluster.");
                 client.rejoinCluster(node);
             }
         }
@@ -394,28 +557,29 @@ public class TerracottaClient {
          * {@inheritDoc}
          */
         public void clusterOffline(ClusterNode node) {
-            // no-op
+            client.info("ClusterNode [id=" + node.getId() + "] went offline (currentNode=" + currentNode.getId() + ")");
         }
 
         /**
          * {@inheritDoc}
          */
         public void clusterOnline(ClusterNode node) {
-            // no-op
+            client.info("ClusterNode [id=" + node.getId() + "] became online (currentNode=" + currentNode.getId() + ")");
         }
 
         /**
          * {@inheritDoc}
          */
         public void nodeJoined(ClusterNode node) {
-            // no-op
+            client.info("ClusterNode [id=" + node.getId() + "] joined the cluster (currentNode=" + currentNode.getId() + ")");
         }
 
         /**
          * {@inheritDoc}
          */
         public void clusterRejoined(ClusterNode oldNode, ClusterNode newNode) {
-            // no-op
+            client.info("ClusterNode [id=" + oldNode.getId() + "] rejoined cluster as ClusterNode [id=" + newNode.getId()
+                    + "] (currentNode=" + currentNode.getId() + ")");
         }
 
     }
@@ -480,6 +644,69 @@ public class TerracottaClient {
         public synchronized void rejoinComplete() {
             state = RejoinState.NOT_IN_PROGRESS;
             notifyAll();
+        }
+
+    }
+
+    /**
+     * Event listener that counts down on receiving node join and online event
+     *
+     * @author Abhishek Sanoujam
+     *
+     */
+    private static class FireRejoinEventListener implements ClusterTopologyListener {
+
+        private final CountDownLatch latch;
+        private final ClusterNode currentNode;
+
+        /**
+         * Constructor
+         *
+         * @param clusterNode
+         * @param latch
+         */
+        public FireRejoinEventListener(ClusterNode currentNode, CountDownLatch latch) {
+            this.currentNode = currentNode;
+            this.latch = latch;
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        public void nodeJoined(ClusterNode node) {
+            if (node.equals(currentNode)) {
+                latch.countDown();
+            }
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        public void clusterOnline(ClusterNode node) {
+            if (node.equals(currentNode)) {
+                latch.countDown();
+            }
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        public void nodeLeft(ClusterNode node) {
+            // no-op
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        public void clusterOffline(ClusterNode node) {
+            // no-op
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        public void clusterRejoined(ClusterNode oldNode, ClusterNode newNode) {
+            // no-op
         }
 
     }

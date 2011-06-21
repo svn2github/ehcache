@@ -68,7 +68,7 @@ cacheManager.replaceCacheWithDecoratedCache(cache, newBlockingCache);
     The <<<CacheManager>>> <<<{replaceCacheWithDecoratedCache}>>> method requires that the decorated cache be built from
       the underlying cache from the same name.
 
-      Note that any overwritten Ehcache methods will take on new behaviours without casting, as per the normal rules
+      Note that any overwridden Ehcache methods will take on new behaviours without casting, as per the normal rules
       of Java. Casting is only required for new methods that the decorator introduces.
 
     Any calls to get the cache out of the CacheManager now return the decorated one.

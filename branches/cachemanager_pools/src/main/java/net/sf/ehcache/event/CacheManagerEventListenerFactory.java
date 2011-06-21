@@ -16,6 +16,8 @@
 
 package net.sf.ehcache.event;
 
+import net.sf.ehcache.CacheManager;
+
 import java.util.Properties;
 
 /**
@@ -32,10 +34,12 @@ public abstract class CacheManagerEventListenerFactory {
     /**
      * Create a <code>CacheEventListener</code>
      *
+     *
+     * @param cacheManager the cache manager
      * @param properties implementation specific properties. These are configured as comma
      *                   separated name value pairs in ehcache.xml. Properties may be null
      * @return a constructed CacheManagerEventListener
      */
     public abstract CacheManagerEventListener
-            createCacheManagerEventListener(Properties properties);
+            createCacheManagerEventListener(CacheManager cacheManager, Properties properties);
 }

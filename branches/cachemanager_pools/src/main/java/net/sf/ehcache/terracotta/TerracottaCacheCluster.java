@@ -76,22 +76,20 @@ public class TerracottaCacheCluster implements CacheCluster {
      */
     void fireNodeRejoinedEvent(ClusterNode oldNode, ClusterNode newNode) {
         Set<ClusterTopologyListener> firedToListeners = new HashSet<ClusterTopologyListener>();
-        for (ClusterTopologyListener listener : listeners) {
-            fireRejoinEvents(oldNode, newNode, listener);
-            firedToListeners.add(listener);
-        }
         for (ClusterTopologyListener listener : realCacheCluster.getTopologyListeners()) {
+            firedToListeners.add(listener);
+            fireRejoinEvent(oldNode, newNode, listener);
+        }
+        for (ClusterTopologyListener listener : listeners) {
             if (firedToListeners.contains(listener)) {
                 continue;
             }
-            fireRejoinEvents(oldNode, newNode, listener);
+            fireRejoinEvent(oldNode, newNode, listener);
         }
     }
 
-    private void fireRejoinEvents(ClusterNode oldNode, ClusterNode newNode, ClusterTopologyListener listener) {
+    private void fireRejoinEvent(ClusterNode oldNode, ClusterNode newNode, ClusterTopologyListener listener) {
         try {
-            listener.nodeJoined(newNode);
-            listener.clusterOnline(newNode);
             listener.clusterRejoined(new DisconnectedClusterNode(oldNode), newNode);
         } catch (Throwable e) {
             LOGGER.error("Caught exception while firing rejoin event", e);
