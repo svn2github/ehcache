@@ -160,7 +160,7 @@
             </resource>
             <resource>
                 <directory>${project.build.directory}/generated-resources</directory>
-                <filtering>true</filtering>
+                <filtering>false</filtering>
             </resource>
         </resources>
         <testSourceDirectory>${basedir}/${testDir}</testSourceDirectory>

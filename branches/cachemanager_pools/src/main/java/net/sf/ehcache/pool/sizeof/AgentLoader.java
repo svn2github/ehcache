@@ -17,12 +17,14 @@
 package net.sf.ehcache.pool.sizeof;
 
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.lang.management.ManagementFactory;
 import java.lang.reflect.Method;
 import java.net.URL;
-import java.net.URLDecoder;
-import java.security.CodeSource;
-import java.security.ProtectionDomain;
+
+import net.sf.ehcache.config.MemoryUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -68,13 +70,9 @@ final class AgentLoader {
             String name = ManagementFactory.getRuntimeMXBean().getName();
             Object vm = VIRTUAL_MACHINE_ATTACH.invoke(null, name.substring(0, name.indexOf('@')));
             try {
-                String agentLocation = jarFor(SizeOfAgent.class);
-                File file = new File(agentLocation);
-                if (file.isDirectory()) {
-                    // hack for maven layout!
-                    agentLocation = agentLocation + ".." + File.separatorChar + "sizeOfAgent.jar";
-                }
-                VIRTUAL_MACHINE_LOAD_AGENT.invoke(vm, agentLocation);
+                File agent = getAgentFile();
+                LOGGER.info("Trying to load agent @ {}", agent);
+                VIRTUAL_MACHINE_LOAD_AGENT.invoke(vm, agent.getAbsolutePath());
             } finally {
                 VIRTUAL_MACHINE_DETACH.invoke(vm);
             }
@@ -98,15 +96,37 @@ final class AgentLoader {
         return SizeOfAgent.sizeOf(obj);
     }
 
-    private static String jarFor(Class<?> c) {
-        ProtectionDomain protectionDomain = c.getProtectionDomain();
-        CodeSource codeSource = protectionDomain.getCodeSource();
-        URL url = codeSource.getLocation();
-        String path = url.getPath();
-        if (System.getProperty("os.name", "unknown").toLowerCase().indexOf("windows") >= 0 && path.startsWith("/")) {
-            path = path.substring(1);
+    private static File getAgentFile() throws IOException {
+        URL agent = AgentLoader.class.getResource("sizeof-agent.jar");
+        if (agent.getProtocol().equals("file")) {
+            return new File(agent.getFile());
+        } else {
+            File temp = File.createTempFile("ehcache-sizeof-agent", ".jar");
+            try {
+                FileOutputStream fout = new FileOutputStream(temp);
+                try {
+                    InputStream in = agent.openStream();
+                    try {
+                        byte[] buffer = new byte[(int) MemoryUnit.KILOBYTES.toBytes(1)];
+                        while (true) {
+                            int read = in.read(buffer);
+                            if (read < 0) {
+                                break;
+                            } else {
+                                fout.write(buffer, 0, read);
+                            }
+                        }
+                    } finally {
+                        in.close();
+                    }
+                } finally {
+                    fout.close();
+                }
+            } finally {
+                temp.deleteOnExit();
+            }
+            LOGGER.info("Extracted agent jar to temporary file {}", temp);
+            return temp;
         }
-        return URLDecoder.decode(path);
     }
-
 }
