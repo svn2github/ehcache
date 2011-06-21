@@ -27,8 +27,8 @@
         <configuration>
           <archive>
             <manifestEntries>
-              <Premain-Class>org.terracotta.modules.sizeof.SizeOfAgent</Premain-Class>
-              <Agent-Class>org.terracotta.modules.sizeof.SizeOfAgent</Agent-Class>
+              <Premain-Class>net.sf.ehcache.pool.sizeof.SizeOfAgent</Premain-Class>
+              <Agent-Class>net.sf.ehcache.pool.sizeof.SizeOfAgent</Agent-Class>
             </manifestEntries>
           </archive>
         </configuration>

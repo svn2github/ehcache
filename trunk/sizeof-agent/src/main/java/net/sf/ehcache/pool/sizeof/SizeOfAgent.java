@@ -1,4 +1,4 @@
-package org.terracotta.modules.sizeof;
+package net.sf.ehcache.pool.sizeof;
 
 import java.lang.instrument.Instrumentation;
 
