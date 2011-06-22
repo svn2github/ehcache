@@ -920,6 +920,7 @@ public class LocalTransactionStore extends AbstractTransactionStore {
      * @param softLocks the soft locks to commit
      */
     void commit(List<SoftLock> softLocks) {
+        LOG.debug("committing {} soft lock(s) in cache {}", softLocks.size(), cache.getName());
         for (SoftLock softLock : softLocks) {
             Element element = softLock.getFrozenElement();
             if (element != null) {
@@ -935,6 +936,7 @@ public class LocalTransactionStore extends AbstractTransactionStore {
      * @param softLocks the soft locks to rollback
      */
     void rollback(List<SoftLock> softLocks) {
+        LOG.debug("rolling back {} soft lock(s) in cache {}", softLocks.size(), cache.getName());
         for (SoftLock softLock : softLocks) {
             Element element = softLock.getFrozenElement();
             if (element != null) {

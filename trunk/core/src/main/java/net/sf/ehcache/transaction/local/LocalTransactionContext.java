@@ -233,17 +233,20 @@ public class LocalTransactionContext {
     }
 
     private void unfreezeAndUnlock() {
+        LOG.debug("unfreezing and unlocking {} soft lock(s)", softLockMap.size());
         for (Map.Entry<String, List<SoftLock>> stringListEntry : softLockMap.entrySet()) {
             List<SoftLock> softLocks = stringListEntry.getValue();
 
             for (SoftLock softLock : softLocks) {
                 try {
                     softLock.unfreeze();
+                    LOG.debug("unfroze {}", softLock);
                 } catch (Exception e) {
                     LOG.error("error unfreezing " + softLock, e);
                 }
                 try {
                     softLock.unlock();
+                    LOG.debug("unlocked {}", softLock);
                 } catch (Exception e) {
                     LOG.error("error unlocking " + softLock, e);
                 }
