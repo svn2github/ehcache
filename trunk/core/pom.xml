@@ -611,15 +611,13 @@
                     </descriptors>
                     <tarLongFileMode>gnu</tarLongFileMode>
                 </configuration>
-                <!--<executions>-->
-                <!--<execution>-->
-                <!--<id>assemble</id>-->
-                <!--<phase>verify</phase>-->
-                <!--<goals>-->
-                <!--<goal>assembly</goal>-->
-                <!--</goals>-->
-                <!--</execution>-->
-                <!--</executions>-->
+                <executions>
+                  <execution>
+                  <id>attach-distribution</id>
+                  <phase>package</phase>
+                  <goals><goal>single</goal></goals>
+                  </execution>
+                </executions>
             </plugin>
 
         </plugins>
