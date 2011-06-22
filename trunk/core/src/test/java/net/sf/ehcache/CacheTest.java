@@ -51,6 +51,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import net.sf.ehcache.bootstrap.BootstrapCacheLoader;
+import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.event.CacheEventListener;
 import net.sf.ehcache.event.RegisteredEventListeners;
 import net.sf.ehcache.loader.CacheLoader;
@@ -1235,7 +1236,15 @@ public class CacheTest extends AbstractCacheTest {
      */
     @Test
     public void testBehaviourOnDiskStoreBackUp() throws Exception {
-        Cache cache = new Cache("testGetMemoryStoreSize", 1000, true, false, 100, 200, false, 0);
+        Cache cache = new Cache(new CacheConfiguration().name("testBehaviourOnDiskStoreBackUp")
+                .maxElementsInMemory(1000)
+                .overflowToDisk(true)
+                .eternal(false)
+                .timeToLiveSeconds(100)
+                .timeToIdleSeconds(200)
+                .diskPersistent(false)
+                .diskExpiryThreadIntervalSeconds(0)
+                .diskSpoolBufferSizeMB(10));
         manager.addCache(cache);
 
         assertEquals(0, cache.getMemoryStoreSize());
