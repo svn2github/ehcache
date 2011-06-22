@@ -7,7 +7,7 @@ import java.net.HttpURLConnection;
 import java.net.URI;
 import java.util.concurrent.TimeUnit;
 
-import org.glassfish.api.embedded.LifecycleException;
+import org.glassfish.embeddable.GlassFishException;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -109,7 +109,7 @@ public class ServerIntegrationTest {
 
 
     @AfterClass
-    public static void shutdown() throws InterruptedException, LifecycleException {
+    public static void shutdown() throws InterruptedException, GlassFishException {
         Server.stopStatic();
     }
 

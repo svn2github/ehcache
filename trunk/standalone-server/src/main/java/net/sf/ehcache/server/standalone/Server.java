@@ -20,10 +20,13 @@ package net.sf.ehcache.server.standalone;
 import org.apache.commons.daemon.Daemon;
 import org.apache.commons.daemon.DaemonContext;
 import org.apache.commons.daemon.DaemonController;
-import org.glassfish.api.deployment.DeployCommandParameters;
-import org.glassfish.api.embedded.ContainerBuilder;
-import org.glassfish.api.embedded.EmbeddedDeployer;
-import org.glassfish.api.embedded.LifecycleException;
+
+import org.glassfish.embeddable.Deployer;
+import org.glassfish.embeddable.GlassFish;
+import org.glassfish.embeddable.GlassFishException;
+import org.glassfish.embeddable.GlassFishProperties;
+import org.glassfish.embeddable.GlassFishRuntime;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -132,7 +135,7 @@ public class Server implements Daemon {
      *
      * @throws InterruptedException if the server is interrupted while stopping
      */
-    static void stopStatic() throws InterruptedException, LifecycleException {
+    static void stopStatic() throws InterruptedException, GlassFishException {
         serverThread.stopServer();
         //wait indefinitely until it shuts down
         serverThread.join();
@@ -143,7 +146,7 @@ public class Server implements Daemon {
     /**
      * Shuts down the HTTP server in an orderly way.
      */
-    public void stop() throws InterruptedException, LifecycleException {
+    public void stop() throws InterruptedException, GlassFishException {
         System.out.println("\nEhcache standalone server stopping...");
         stopStatic();
         System.out.println("\nEhcache standalone server stopped.");
@@ -217,7 +220,7 @@ public class Server implements Daemon {
         /**
          * Stops the server.
          */
-        public abstract void stopServer() throws LifecycleException;
+        public abstract void stopServer() throws GlassFishException;
     }
 
     /**
@@ -225,8 +228,7 @@ public class Server implements Daemon {
      */
     class GlassfishServerThread extends ServerThread {
 
-        private org.glassfish.api.embedded.Server server;
-        private org.glassfish.api.embedded.Server.Builder builder = new org.glassfish.api.embedded.Server.Builder("Ehcache Server");
+        private GlassFish server;
 
         /**
          * Creates a server in a separate thread.
@@ -241,27 +243,17 @@ public class Server implements Daemon {
         private void startWithGlassfish() {
 
             try {
-
-                builder.logger(true);
-                builder.verbose(true);
-
-                server = builder.build();
-                server.createPort(httpPort);
-
-                ContainerBuilder containerBuilder = server.createConfig(ContainerBuilder.Type.web);
-                server.addContainer(containerBuilder);
-
+                GlassFishRuntime gfr = GlassFishRuntime.bootstrap();
+                GlassFishProperties glassfishProps = new GlassFishProperties();
+                glassfishProps.setPort("http-listener", httpPort);
                 Integer jmxPort = httpPort + 1;
                 // todo embeddedInfo.setJmxConnectorPort(jmxPort);
                 // Jerome Dochez confirmed 4 March 2010 this did not make it into 3 embedded
 
+                server = gfr.newGlassFish(glassfishProps);
                 server.start();
-                DeployCommandParameters params = new DeployCommandParameters();
-                params.contextroot = "ehcache";
-                params.enabled = true;
-                params.force = true;
-                EmbeddedDeployer embeddedDeployer = server.getDeployer();
-                embeddedDeployer.deploy(war, params);
+                Deployer deployer = server.getDeployer();
+                deployer.deploy(war, "--contextroot=ehcache", "--enabled=true", "--force=true");
 
                 LOG.info("Glassfish server running on httpPort " + httpPort + " with WAR " + war);
                 //+ ". JMX is listening at " + jmxPort);
@@ -275,7 +267,7 @@ public class Server implements Daemon {
         /**
          * Stops the server
          */
-        public void stopServer() throws LifecycleException {
+        public void stopServer() throws GlassFishException {
             //will cause the startsWithGlassfish method to return, and thus run() thus ending the thread.
             server.stop();
         }
