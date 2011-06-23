@@ -19,6 +19,9 @@ package net.sf.ehcache.util;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 
+import net.sf.ehcache.Ehcache;
+import net.sf.ehcache.Element;
+
 import org.hamcrest.Matcher;
 import org.junit.Assert;
 
@@ -29,7 +32,7 @@ public class RetryAssert {
         // static only class
     }
 
-    public static <T> void assertBy(long time, TimeUnit unit, Callable<T> value, Matcher<T> matcher) {
+    public static <T> void assertBy(long time, TimeUnit unit, Callable<T> value, Matcher<? super T> matcher) {
         boolean interrupted = false;
         long start = System.nanoTime();
         long end = start + unit.toNanos(time);
@@ -62,5 +65,21 @@ public class RetryAssert {
             }
         }
         throw latest;
+    }
+
+    public static Callable<Element> elementAt(final Ehcache cache, final Object key) {
+        return new Callable<Element>() {
+            public Element call() {
+                return cache.get(key);
+            }
+        };
+    }
+
+    public static Callable<Integer> sizeOf(final Ehcache cache) {
+        return new Callable<Integer>() {
+            public Integer call() throws Exception {
+                return cache.getSize();
+            }
+        };
     }
 }
