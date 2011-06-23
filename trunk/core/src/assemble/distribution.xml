@@ -8,11 +8,23 @@
             <directory>target</directory>
             <includes>
                 <include>*.jar</include>
-                <include>*.sources.jar</include>
-                <include>*.javadoc.jar</include>
-            </includes>
-            <outputDirectory>/</outputDirectory>
+            </includes>            
+            <excludes>
+              <exclude>*sources.jar</exclude>
+              <exclude>*javadoc.jar</exclude>
+            </excludes>
+            <outputDirectory>/lib</outputDirectory>
         </fileSet>
+        <fileSet>
+          <directory>${basedir}/src/main/java</directory>
+          <useDefaultExcludes>true</useDefaultExcludes>
+          <outputDirectory>/src</outputDirectory>
+        </fileSet>
+        <fileSet>
+          <directory>target/apidocs</directory>
+          <useDefaultExcludes>true</useDefaultExcludes>
+          <outputDirectory>/javadoc</outputDirectory>
+        </fileSet>        
         <fileSet>
             <directory>${basedir}/src/assemble</directory>
             <includes>
@@ -62,9 +74,9 @@
             <outputDirectory>lib</outputDirectory>
             <unpack>false</unpack>
             <scope>provided</scope>
-			<includes>
-			  <include>org.slf4j:slf4j-jdk14</include>
-			</includes>
-        </dependencySet>
+            <includes>
+              <include>org.slf4j:slf4j-jdk14</include>
+            </includes>
+        </dependencySet>       
     </dependencySets>
 </assembly>
