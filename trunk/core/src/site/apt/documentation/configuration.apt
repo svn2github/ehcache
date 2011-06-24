@@ -301,7 +301,8 @@ The TerracottaStoreBootstrapCacheLoaderFactory is configured as follows:
         properties="bootstrapAsynchronously=true,
                     directory=dumps,
                     interval=5,
-                    immediateShutdown=true,
+                    immediateShutdown=false,
+                    snapshotOnShutDown=true,
                     doKeySnapshot=false,
                     doKeySnapshotOnDedicatedThread=false"/>
 
@@ -324,7 +325,8 @@ The TerracottaStoreBootstrapCacheLoaderFactory is configured as follows:
     * snapshotOnShutDown: whether to take the local key set snapshot when the Cache is disposed. Defaults to false.
 
     * doKeySnapshot : If you want to disable the keysnapshotting. Default is true.
-      Enables to load from an existing snapshot without take new snapshots after it's been loaded
+      Enables to load from an existing snapshot without take new snapshots after it's been loaded. Or to only snapshot
+      at cache disposal (see snapshotOnShutdown)
 
     * useDedicatedThread : By default, each CacheManager uses a thread pool of 10 threads to do the snapshotting.
         if you want the cache to use a dedicated thread for the snapshotting, set this to true
