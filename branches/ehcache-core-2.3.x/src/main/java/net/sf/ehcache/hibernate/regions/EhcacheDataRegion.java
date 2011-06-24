@@ -20,6 +20,7 @@ import java.util.Map;
 import java.util.Properties;
 
 import net.sf.ehcache.Ehcache;
+import net.sf.ehcache.Element;
 
 import org.hibernate.cache.CacheException;
 import org.hibernate.cache.Region;
@@ -122,7 +123,10 @@ public abstract class EhcacheDataRegion implements Region {
         try {
             Map result = new HashMap();
             for (Object key : cache.getKeys()) {
-                result.put(key, cache.get(key).getObjectValue());
+                Element e = cache.get(key);
+                if (e != null) {
+                    result.put(key, e.getObjectValue());
+                }
             }
             return result;
         } catch (Exception e) {
