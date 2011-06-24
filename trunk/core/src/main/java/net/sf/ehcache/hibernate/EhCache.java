@@ -25,7 +25,6 @@ import org.hibernate.cache.Cache;
 import org.hibernate.cache.CacheException;
 
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 
 import org.slf4j.Logger;
@@ -279,10 +278,11 @@ public final class EhCache implements Cache {
     public final Map toMap() {
         try {
             Map result = new HashMap();
-            Iterator iter = cache.getKeys().iterator();
-            while (iter.hasNext()) {
-                Object key = iter.next();
-                result.put(key, cache.get(key).getObjectValue());
+            for (Object key : cache.getKeys()) {
+                Element e = cache.get(key);
+                if (e != null) {
+                    result.put(key, e.getObjectValue());
+                }
             }
             return result;
         } catch (Exception e) {
