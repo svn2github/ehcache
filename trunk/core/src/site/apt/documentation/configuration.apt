@@ -307,23 +307,27 @@ The TerracottaStoreBootstrapCacheLoaderFactory is configured as follows:
 
     The configuration properties are:
 
-    * bootstrapAsynchronously: Whether to bootstrap asynchronously or not. Asynchronous bootstrap will allow the cache to startup for use
-      while loading continues.
+    * bootstrapAsynchronously: Whether to bootstrap asynchronously or not.
+      Asynchronous bootstrap will allow the cache to startup for use while loading continues.
 
-    * directory: the directory that snapshots are created in. todo why isn't this just the same as the DiskStore directory. Why is this on a cache level?
-     todo: change this to require DiskStore element to be configured. Use that directory. Do not have a separately configured element by cache.
+    * directory: the directory that snapshots are created in.
+      By default this will use the CacheManager's DiskStore path.
 
-    * interval: interval in seconds between each key snapshot todo: what is the default?
-        todo: what is the performace overhead of snapshotting?
+    * interval: interval in seconds between each key snapshot. Default is every 10 minutes (600 seconds).
+      todo: what is the performace overhead of snapshotting?
+      This needs investigation during testing. Probably as fast as your disk (the local set is, well... held locally).
+      Yet with L1 BigMem it can be held offheap iirc (not all impl. yet).
 
-    * immediateShutdown: todo: what is the default whether, when shutting down the Cache, it should let the keysnapshotting (if in progress) finish or terminate right away
+    * immediateShutdown: whether, when shutting down the Cache, it should let the keysnapshotting
+      (if in progress) finish or terminate right away. Defaults to true
 
-    * doKeySnapshot : If you want to disable the keysnapshotting todo: what is the default?
-    todo: why does this exist. Just remove the loader if you do not want it?
+    * snapshotOnShutDown: whether to take the local key set snapshot when the Cache is disposed. Defaults to false.
 
-    * doKeySnapshotOnDedicatedThread : By default, each CacheManager uses a thread pool of 10 threads to do the snapshotting.
+    * doKeySnapshot : If you want to disable the keysnapshotting. Default is true.
+      Enables to load from an existing snapshot without take new snapshots after it's been loaded
+
+    * useDedicatedThread : By default, each CacheManager uses a thread pool of 10 threads to do the snapshotting.
         if you want the cache to use a dedicated thread for the snapshotting, set this to true
-      todo: rename to useDedicatedThread
 
     Key snapshots will be in the diskstore directory configured at the cachemanager level.
     One file is created for each cache with the name <cacheName>.keySet.
