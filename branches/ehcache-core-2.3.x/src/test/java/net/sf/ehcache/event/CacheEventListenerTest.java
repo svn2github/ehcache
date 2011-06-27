@@ -22,6 +22,10 @@ import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import org.junit.After;
+import static net.sf.ehcache.util.RetryAssert.assertBy;
+import static net.sf.ehcache.util.RetryAssert.elementAt;
+import static org.hamcrest.core.IsNull.nullValue;
+import static org.hamcrest.core.IsNull.notNullValue;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
@@ -34,6 +38,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -301,12 +306,10 @@ public class CacheEventListenerTest extends AbstractCacheTest {
         cache.put(element);
 
         //expire
-        Thread.sleep(1999);
-
-        //force expiry
-        assertEquals(null, cache.get(key));
+        assertBy(2 * cache.getCacheConfiguration().getTimeToLiveSeconds(), TimeUnit.SECONDS, elementAt(cache, key), nullValue());
 
         //the TestCacheEventListener does a put of a new Element with the same key on expiry
+        assertBy(10, TimeUnit.SECONDS, elementAt(cache, key), notNullValue());
         Element newElement = cache.get(key);
         assertNotNull(newElement);
         assertEquals("set on notify", newElement.getValue());
@@ -387,6 +390,7 @@ public class CacheEventListenerTest extends AbstractCacheTest {
          *                Accordingly implementers of this method should not call back into Cache.
          */
         public void notifyElementExpired(final Ehcache cache, final Element element) {
+            LOG.info("Element expired : " + element);
             cache.put(new Element(element.getKey(), "set on notify", Boolean.TRUE, 0, 0));
         }
 
