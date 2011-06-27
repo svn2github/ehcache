@@ -46,7 +46,7 @@ import org.junit.Test;
  * @author Greg Luck
  * @version $Id$
  */
-public class MulticastRMIPeerProviderTest {
+public class MulticastRMIPeerProviderTest extends AbstractRMITest {
 
     /**
      * Cache Manager 1

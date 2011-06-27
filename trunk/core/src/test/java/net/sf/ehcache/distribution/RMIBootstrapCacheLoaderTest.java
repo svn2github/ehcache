@@ -39,7 +39,7 @@ import org.slf4j.LoggerFactory;
  * @author Greg Luck
  * @version $Id$
  */
-public class RMIBootstrapCacheLoaderTest {
+public class RMIBootstrapCacheLoaderTest extends AbstractRMITest {
 
 
     /**
