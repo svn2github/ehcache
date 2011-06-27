@@ -374,7 +374,7 @@ public class LruMemoryStore extends AbstractStore {
         boolean spooled = false;
         if (cache.getCacheConfiguration().isOverflowToDisk()) {
             if (!element.isSerializable()) {
-                if (LOG.isWarnEnabled()) { 
+                if (LOG.isWarnEnabled()) {
                     LOG.warn(new StringBuilder("Object with key ").append(element.getObjectKey())
                             .append(" is not Serializable and cannot be overflowed to disk").toString());
                 }
@@ -487,6 +487,24 @@ public class LruMemoryStore extends AbstractStore {
         protected final boolean removeEldestEntry(Map.Entry eldest) {
             Element element = (Element) eldest.getValue();
             return element != null && removeLeastRecentlyUsedElement(element);
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public Object put(Object key, Object value) {
+            Object put = super.put(key, value);
+
+            Iterator it = entrySet().iterator();
+            while (isFull() && it.hasNext()) {
+                Map.Entry entry = (Map.Entry) it.next();
+                if (removeEldestEntry(entry)) {
+                    it.remove();
+                }
+            }
+
+            return put;
         }
 
         /**
