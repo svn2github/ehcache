@@ -1061,7 +1061,7 @@ public class CacheManager {
             }
         }
 
-        if (isTerracottaRejoinEnabled()) {
+        if (isTerracottaRejoinEnabled() && cache.getCacheConfiguration().isTerracottaClustered()) {
             final long timeoutMillis = cache.getCacheConfiguration().getTerracottaConfiguration().getNonstopConfiguration()
                     .getTimeoutMillis();
             try {
