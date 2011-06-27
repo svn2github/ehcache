@@ -43,7 +43,7 @@ import org.junit.Test;
  * @author <a href="mailto:gluck@thoughtworks.com">Greg Luck</a>
  * @version $Id$
  */
-public class PayloadUtilTest {
+public class PayloadUtilTest extends AbstractRMITest {
 
     private static final Logger LOG = LoggerFactory.getLogger(PayloadUtilTest.class.getName());
     private static final Random RANDOM = new Random(System.currentTimeMillis());

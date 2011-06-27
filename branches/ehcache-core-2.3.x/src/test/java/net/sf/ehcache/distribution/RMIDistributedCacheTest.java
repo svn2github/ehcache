@@ -36,7 +36,7 @@ import java.util.Date;
  * @author Greg Luck
  * @version $Id$
  */
-public class RMIDistributedCacheTest {
+public class RMIDistributedCacheTest extends AbstractRMITest {
 
 
     /**
