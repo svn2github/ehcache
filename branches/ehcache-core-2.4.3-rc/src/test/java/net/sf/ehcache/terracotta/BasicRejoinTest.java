@@ -20,6 +20,8 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import junit.framework.Assert;
@@ -135,6 +137,46 @@ public class BasicRejoinTest extends TestCase {
             LOG.info("Caught Expected exception: " + e);
             assertTrue(e.getMessage().contains(ERROR_MSG_REJOIN_NO_NONSTOP));
             assertTrue(e.getMessage().contains(cacheName));
+        } finally {
+            if (cacheManager != null) {
+                cacheManager.shutdown();
+            }
+        }
+    }
+
+    @Test
+    public void testAddUnclusteredCache() throws Exception {
+        ClusteredInstanceFactory mockFactory = mock(ClusteredInstanceFactory.class);
+        TerracottaUnitTesting.setupTerracottaTesting(mockFactory);
+
+        CacheCluster mockCacheCluster = new MockCacheCluster();
+        when(mockFactory.getTopology()).thenReturn(mockCacheCluster);
+
+        final String cacheName = "someUnclusteredCacheName";
+        CacheManager cacheManager = null;
+        try {
+            cacheManager = new CacheManager(CacheManager.class.getResourceAsStream("/rejoin/basic-rejoin-test.xml"));
+
+            CacheConfiguration config = new CacheConfiguration(cacheName, 1000);
+            cacheManager.addCache(new Cache(config));
+            List<String> cacheNames = Arrays.asList(cacheManager.getCacheNames());
+            Assert.assertTrue("Adding unclustered cache should not fail", cacheNames.contains(cacheName));
+
+            Cache cache = cacheManager.getCache(cacheName);
+            Assert.assertFalse("Unclustered cache should have terracottaClustered = false", cache.getCacheConfiguration().isTerracottaClustered());
+            Assert.assertNull("Unclustered cache should have null terracotta config", cache.getCacheConfiguration().getTerracottaConfiguration());
+            for (int i = 0; i < 100; i++) {
+                cache.put(new Element("key-" + i, "value-" + i));
+            }
+
+            for (int i = 0; i < 100; i++) {
+                String key = "key-" + i;
+                Element element = cache.get(key);
+                Assert.assertNotNull("Element should not be null for key: " + key, element);
+                Assert.assertEquals(key, element.getKey());
+                Assert.assertEquals("value-"  + i, element.getValue());
+            }
+
         } finally {
             if (cacheManager != null) {
                 cacheManager.shutdown();
