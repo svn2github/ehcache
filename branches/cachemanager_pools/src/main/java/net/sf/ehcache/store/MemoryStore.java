@@ -38,6 +38,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -964,6 +965,14 @@ public final class MemoryStore extends AbstractStore implements PoolableStore, C
         }
     }
 
+    /**
+     * Get a collection of the elements in this store
+     *
+     * @return element collection
+     */
+    public Collection<Element> elementSet() {
+        return map.values();
+    }
 
     /**
      * LockProvider implementation that uses the segment locks.
