@@ -44,7 +44,7 @@ import java.util.List;
  * @author <a href="mailto:gluck@thoughtworks.com">Greg Luck</a>
  * @version $Id$
  */
-public class RMICacheManagerPeerListenerTest {
+public class RMICacheManagerPeerListenerTest extends AbstractRMITest {
 
     /**
      * CacheManager 1 in the cluster

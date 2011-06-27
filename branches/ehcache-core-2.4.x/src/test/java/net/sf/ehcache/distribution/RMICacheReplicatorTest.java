@@ -33,7 +33,6 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
 import java.util.Set;
@@ -72,12 +71,7 @@ import org.slf4j.LoggerFactory;
  * @author Greg Luck
  * @version $Id$
  */
-public class RMICacheReplicatorTest extends AbstractCacheTest {
-
-    @BeforeClass
-    public static void checkActiveThreads() {
-        assertThat(getActiveReplicationThreads(), IsEmptyCollection.<Thread>empty());
-    }
+public class RMICacheReplicatorTest extends AbstractRMITest {
 
     @BeforeClass
     public static void enableHeapDump() {
@@ -152,7 +146,6 @@ public class RMICacheReplicatorTest extends AbstractCacheTest {
      *
      * @throws Exception
      */
-    @Override
     @Before
     public void setUp() throws Exception {
         Assume.assumeThat(getActiveReplicationThreads(), IsEmptyCollection.<Thread>empty());
@@ -194,7 +187,6 @@ public class RMICacheReplicatorTest extends AbstractCacheTest {
      *
      * @throws Exception
      */
-    @Override
     @After
     public void tearDown() throws Exception {
 
@@ -1113,7 +1105,7 @@ public class RMICacheReplicatorTest extends AbstractCacheTest {
         executables.add(new ClusterExecutable(manager2, "sampleCache3"));
         executables.add(new ClusterExecutable(manager3, "sampleCache3"));
 
-        runThreads(executables);
+        assertThat(runTasks(executables), IsEmptyCollection.<Throwable>empty());
     }
 
 
@@ -1142,13 +1134,13 @@ public class RMICacheReplicatorTest extends AbstractCacheTest {
         executables.add(new ClusterExecutable(manager2, "sampleCache2"));
         executables.add(new ClusterExecutable(manager3, "sampleCache2"));
 
-        runThreads(executables);
+        assertThat(runTasks(executables), IsEmptyCollection.<Throwable>empty());
     }
 
     /**
      * An Exececutable which allows the CacheManager to be set
      */
-    class ClusterExecutable implements Executable {
+    class ClusterExecutable implements Callable<Void> {
 
         private final CacheManager manager;
         private final String cacheName;
@@ -1168,7 +1160,7 @@ public class RMICacheReplicatorTest extends AbstractCacheTest {
          *
          * @throws Exception
          */
-        public void execute() throws Exception {
+        public Void call() throws Exception {
             Random random = new Random();
 
             for (int i = 0; i < 20; i++) {
@@ -1203,7 +1195,7 @@ public class RMICacheReplicatorTest extends AbstractCacheTest {
                     }
                 }
             }
-
+            return null;
         }
     }
 
@@ -1225,15 +1217,5 @@ public class RMICacheReplicatorTest extends AbstractCacheTest {
                 }
             }
         }, is(managers.length));
-    }
-
-    private static Set<Thread> getActiveReplicationThreads() {
-        Set<Thread> threads = new HashSet<Thread>();
-        for (Thread thread : JVMUtil.enumerateThreads()) {
-            if (thread.getName().equals("Replication Thread")) {
-                threads.add(thread);
-            }
-        }
-        return threads;
     }
 }

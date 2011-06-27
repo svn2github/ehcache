@@ -45,7 +45,7 @@ import org.junit.Test;
  *
  * @author Abhishek Sanoujam
  */
-public class RMICacheReplicatorWithLargePayloadTest extends AbstractCacheTest {
+public class RMICacheReplicatorWithLargePayloadTest extends AbstractRMITest {
 
     private static final Logger LOG = Logger.getLogger(RMICacheReplicatorWithLargePayloadTest.class.getName());
 
@@ -73,7 +73,6 @@ public class RMICacheReplicatorWithLargePayloadTest extends AbstractCacheTest {
      *
      * @throws Exception
      */
-    @Override
     @Before
     public void setUp() throws Exception {
         failFastInsufficientMemory();
@@ -110,7 +109,6 @@ public class RMICacheReplicatorWithLargePayloadTest extends AbstractCacheTest {
      *
      * @throws Exception
      */
-    @Override
     @After
     public void tearDown() throws Exception {
 
