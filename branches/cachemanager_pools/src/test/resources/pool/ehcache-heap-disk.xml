@@ -7,19 +7,16 @@
 
     <cache name="memoryOnly"
            eternal="false"
-           maxElementsInMemory="0"
            overflowToDisk="false">
     </cache>
 
     <cache name="overflowToDisk"
            eternal="false"
-           maxElementsInMemory="0"
            overflowToDisk="true">
     </cache>
 
     <cache name="diskPersistent"
            eternal="false"
-           maxElementsInMemory="0"
            overflowToDisk="true"
            diskPersistent="true">
     </cache>

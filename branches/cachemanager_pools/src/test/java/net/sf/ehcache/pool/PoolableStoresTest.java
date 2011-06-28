@@ -36,7 +36,7 @@ public class PoolableStoresTest {
             overflowToDiskCache.put(new Element(i, "" + i));
         }
 
-        assertEquals(52, memoryOnlyCache.getSize() + overflowToDiskCache.getSize());
+        assertEquals(64, memoryOnlyCache.getSize() + overflowToDiskCache.getSize());
 
 
         cm.shutdown();
