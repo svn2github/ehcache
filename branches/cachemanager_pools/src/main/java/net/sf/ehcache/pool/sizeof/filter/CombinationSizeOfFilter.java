@@ -19,28 +19,43 @@ package net.sf.ehcache.pool.sizeof.filter;
 import java.lang.reflect.Field;
 import java.util.Collection;
 
+/**
+ * Filter combining multiple filters
+ *
+ * @author Chris Dennis
+ */
 public class CombinationSizeOfFilter implements SizeOfFilter {
 
-  private final SizeOfFilter[] filters;
+    private final SizeOfFilter[] filters;
 
-  public CombinationSizeOfFilter(SizeOfFilter ... filters) {
-    this.filters = filters;
-  }
-
-  public Collection<Field> filterFields(Class<?> klazz, Collection<Field> fields) {
-    Collection<Field> current = fields;
-    for (SizeOfFilter filter : filters) {
-      current = filter.filterFields(klazz, current);
+    /**
+     * Constructs a filter combining multiple ones
+     * @param filters the filters to combine
+     */
+    public CombinationSizeOfFilter(SizeOfFilter... filters) {
+        this.filters = filters;
     }
-    return current;
-  }
 
-  public boolean filterClass(Class<?> klazz) {
-    for (SizeOfFilter filter : filters) {
-      if (!filter.filterClass(klazz)) {
-        return false;
-      }
+    /**
+     * {@inheritDoc}
+     */
+    public Collection<Field> filterFields(Class<?> klazz, Collection<Field> fields) {
+        Collection<Field> current = fields;
+        for (SizeOfFilter filter : filters) {
+            current = filter.filterFields(klazz, current);
+        }
+        return current;
     }
-    return true;
-  }
+
+    /**
+     * {@inheritDoc}
+     */
+    public boolean filterClass(Class<?> klazz) {
+        for (SizeOfFilter filter : filters) {
+            if (!filter.filterClass(klazz)) {
+                return false;
+            }
+        }
+        return true;
+    }
 }

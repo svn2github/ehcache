@@ -20,28 +20,39 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Collection;
 
+/**
+ * A Filter that will filter fields, based on the {@link IgnoreSizeOf} annotation
+ *
+ * @author Chris Dennis
+ */
 public final class AnnotationSizeOfFilter implements SizeOfFilter {
 
-  public Collection<Field> filterFields(Class<?> klazz, Collection<Field> fields) {
-    Collection<Field> removed = new ArrayList<Field>();
-    for (Field f : fields) {
-      if (f.isAnnotationPresent(IgnoreSizeOf.class)) {
-        removed.add(f);
-      }
+    /**
+     * {@inheritDoc}
+     */
+    public Collection<Field> filterFields(Class<?> klazz, Collection<Field> fields) {
+        Collection<Field> removed = new ArrayList<Field>();
+        for (Field f : fields) {
+            if (f.isAnnotationPresent(IgnoreSizeOf.class)) {
+                removed.add(f);
+            }
+        }
+        if (removed.isEmpty()) {
+            return fields;
+        } else {
+            Collection<Field> filtered = new ArrayList<Field>(fields);
+            filtered.removeAll(removed);
+            return filtered;
+        }
     }
-    if (removed.isEmpty()) {
-      return fields;
-    } else {
-      Collection<Field> filtered = new ArrayList<Field>(fields);
-      filtered.removeAll(removed);
-      return filtered;
-    }
-  }
 
-  public boolean filterClass(Class<?> klazz) {
-    boolean classAnnotated = klazz.isAnnotationPresent(IgnoreSizeOf.class);
-    Package pack = klazz.getPackage();
-    boolean packageAnnotated = pack == null ? false : pack.isAnnotationPresent(IgnoreSizeOf.class);
-    return !classAnnotated && !packageAnnotated;
-  }
+    /**
+     * {@inheritDoc}
+     */
+    public boolean filterClass(Class<?> klazz) {
+        boolean classAnnotated = klazz.isAnnotationPresent(IgnoreSizeOf.class);
+        Package pack = klazz.getPackage();
+        boolean packageAnnotated = pack == null ? false : pack.isAnnotationPresent(IgnoreSizeOf.class);
+        return !classAnnotated && !packageAnnotated;
+    }
 }

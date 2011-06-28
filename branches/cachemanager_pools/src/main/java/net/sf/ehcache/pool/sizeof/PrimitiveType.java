@@ -17,56 +17,105 @@
 package net.sf.ehcache.pool.sizeof;
 
 /**
-* @author Alex Snaps
-*/
+ * Primitive types in the VM type system and their sizes
+ * @author Alex Snaps
+ */
 enum PrimitiveType {
 
-  BOOLEAN(boolean.class, 1),
-  BYTE(byte.class, 1),
-  CHAR(char.class, 2),
-  SHORT(short.class, 2),
-  INT(int.class, 4),
-  FLOAT(float.class, 4),
-  DOUBLE(double.class, 8),
-  LONG(long.class, 8),
-  CLASS(Class.class, 8) {
-    @Override
+    /**
+     * boolean.class
+     */
+    BOOLEAN(boolean.class, 1),
+    /**
+     * byte.class
+     */
+    BYTE(byte.class, 1),
+    /**
+     * char.class
+     */
+    CHAR(char.class, 2),
+    /**
+     * short.class
+     */
+    SHORT(short.class, 2),
+    /**
+     * int.class
+     */
+    INT(int.class, 4),
+    /**
+     * float.class
+     */
+    FLOAT(float.class, 4),
+    /**
+     * double.class
+     */
+    DOUBLE(double.class, 8),
+    /**
+     * long.class
+     */
+    LONG(long.class, 8),
+    /**
+     * java.lang.Class
+     */
+    CLASS(Class.class, 8) {
+        @Override
+        public int getSize() {
+            return JvmInformation.POINTER_SIZE + JvmInformation.JAVA_POINTER_SIZE;
+        }
+    };
+
+    private Class<?> type;
+    private int size;
+
+
+    private PrimitiveType(Class<?> type, int size) {
+        this.type = type;
+        this.size = size;
+    }
+
+    /**
+     * Returns the size in memory this type occupies
+     * @return size in bytes
+     */
     public int getSize() {
-      return JvmInformation.POINTER_SIZE + JvmInformation.JAVA_POINTER_SIZE;
+        return size;
     }
-  };
 
-  private Class<?> type;
-  private int size;
-
-
-  PrimitiveType(Class<?> type, int size) {
-    this.type = type;
-    this.size = size;
-  }
-
-  public int getSize() {
-    return size;
-  }
-
-  public Class<?> getType() {
-    return type;
-  }
-
-  public static int getReferenceSize() {
-    return JvmInformation.JAVA_POINTER_SIZE;
-  }
-
-  public static long getArraySize() {
-    return CLASS.getSize() + INT.getSize();
-  }
-
-  public static PrimitiveType forType(final Class<?> type) {
-    for (PrimitiveType primitiveType : values()) {
-      if (primitiveType.getType() == type) {
-        return primitiveType;
-      }
+    /**
+     * The representing type
+     * @return the type
+     */
+    public Class<?> getType() {
+        return type;
     }
-    return null;
-  }
+
+    /**
+     * The size of a pointer
+     * @return size in bytes
+     */
+    public static int getReferenceSize() {
+        return JvmInformation.JAVA_POINTER_SIZE;
+    }
+
+    /**
+     * The size on an array
+     * @return size in bytes
+     */
+    public static long getArraySize() {
+        return CLASS.getSize() + INT.getSize();
+    }
+
+    /**
+     * Finds the matching PrimitiveType for a type
+     * @param type the type to find the PrimitiveType for
+     * @return the PrimitiveType instance or null if none found
+     */
+    public static PrimitiveType forType(final Class<?> type) {
+        for (PrimitiveType primitiveType : values()) {
+            if (primitiveType.getType() == type) {
+                return primitiveType;
+            }
+        }
+        return null;
+    }
 }

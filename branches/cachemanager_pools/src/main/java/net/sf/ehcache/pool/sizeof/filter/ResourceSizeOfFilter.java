@@ -28,54 +28,70 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
+/**
+ * Filters based on a configuration file
+ *
+ * @author Chris Dennis
+ */
 public class ResourceSizeOfFilter implements SizeOfFilter {
 
-  private final Set<String> filteredTerms;
+    private final Set<String> filteredTerms;
 
-  public ResourceSizeOfFilter(URL filterData) throws IOException {
-    if (filterData == null) {
-      filteredTerms = Collections.emptySet();
-    } else {
-      InputStream is = filterData.openStream();
-      try {
-        Set<String> filtered = new HashSet<String>();
-        BufferedReader r = new BufferedReader(new InputStreamReader(is));
-        try {
-          while (true) {
-            String field = r.readLine();
-            if (field == null) {
-              break;
-            } else if (!field.startsWith("#")) {
-              filtered.add(field);
+    /**
+     * Builds a filter based on the provided configuration URL
+     * @param filterData the URL of the configuration
+     * @throws IOException if it couldn't read the configuration from the URL
+     */
+    public ResourceSizeOfFilter(URL filterData) throws IOException {
+        if (filterData == null) {
+            filteredTerms = Collections.emptySet();
+        } else {
+            InputStream is = filterData.openStream();
+            try {
+                Set<String> filtered = new HashSet<String>();
+                BufferedReader r = new BufferedReader(new InputStreamReader(is));
+                try {
+                    while (true) {
+                        String field = r.readLine();
+                        if (field == null) {
+                            break;
+                        } else if (!field.startsWith("#")) {
+                            filtered.add(field);
+                        }
+                    }
+                    filteredTerms = Collections.unmodifiableSet(filtered);
+                } finally {
+                    r.close();
+                }
+            } finally {
+                is.close();
             }
-          }
-          filteredTerms = Collections.unmodifiableSet(filtered);
-        } finally {
-          r.close();
         }
-      } finally {
-        is.close();
-      }
     }
-  }
 
-  public Collection<Field> filterFields(Class<?> klazz, Collection<Field> fields) {
-    Collection<Field> removed = new ArrayList<Field>();
-    for (Field f : fields) {
-      if (filteredTerms.contains(f.getDeclaringClass().getName() + "." + f.getName())) {
-        removed.add(f);
-      }
+    /**
+     * {@inheritDoc}
+     */
+    public Collection<Field> filterFields(Class<?> klazz, Collection<Field> fields) {
+        Collection<Field> removed = new ArrayList<Field>();
+        for (Field f : fields) {
+            if (filteredTerms.contains(f.getDeclaringClass().getName() + "." + f.getName())) {
+                removed.add(f);
+            }
+        }
+        if (removed.isEmpty()) {
+            return fields;
+        } else {
+            Collection<Field> filtered = new ArrayList<Field>(fields);
+            filtered.removeAll(removed);
+            return filtered;
+        }
     }
-    if (removed.isEmpty()) {
-      return fields;
-    } else {
-      Collection<Field> filtered = new ArrayList<Field>(fields);
-      filtered.removeAll(removed);
-      return filtered;
-    }
-  }
 
-  public boolean filterClass(Class<?> klazz) {
-    return !filteredTerms.contains(klazz.getName());
-  }
+    /**
+     * {@inheritDoc}
+     */
+    public boolean filterClass(Class<?> klazz) {
+        return !filteredTerms.contains(klazz.getName());
+    }
 }

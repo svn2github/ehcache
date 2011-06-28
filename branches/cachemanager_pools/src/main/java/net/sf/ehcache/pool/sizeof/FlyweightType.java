@@ -17,46 +17,103 @@
 package net.sf.ehcache.pool.sizeof;
 
 /**
-* @author Alex Snaps
-*/
+ * Enum with all the flyweight types that we check for sizeOf measurements
+ *
+ * @author Alex Snaps
+ */
 enum FlyweightType {
 
-  //XXX These checks will end up interning all objects passed in - this could be fatal for Strings
-  ENUM(Enum.class) { @Override
-boolean isShared(final Object obj) { return true; } },
-  STRING(String.class) { @Override
-boolean isShared(final Object obj) { return obj == ((String)obj).intern(); } },
-  BOOLEAN(Boolean.class) { @Override
-boolean isShared(final Object obj) { return obj == Boolean.TRUE || obj == Boolean.FALSE; } },
-  INTEGER(Integer.class) { @Override
-boolean isShared(final Object obj) { return obj == Integer.valueOf((Integer)obj); } },
-  SHORT(Short.class) { @Override
-boolean isShared(final Object obj) { return obj == Short.valueOf((Short)obj); } },
-  BYTE(Byte.class) { @Override
-boolean isShared(final Object obj) { return obj == Byte.valueOf((Byte)obj); } },
-  LONG(Long.class) { @Override
-boolean isShared(final Object obj) { return obj == Long.valueOf((Long)obj); } },
-  CHARACTER(Character.class) { @Override
-boolean isShared(final Object obj) { return obj == Character.valueOf((Character)obj); } };
+    //XXX These checks will end up interning all objects passed in - this could be fatal for Strings
+    /**
+     * java.lang.Enum
+     */
+    ENUM(Enum.class) {
+        @Override
+        boolean isShared(final Object obj) { return true; }
+    },
+    /**
+     * java.lang.String
+     */
+    STRING(String.class) {
+        @Override
+        boolean isShared(final Object obj) { return obj == ((String)obj).intern(); }
+    },
+    /**
+     * java.lang.Boolean
+     */
+    BOOLEAN(Boolean.class) {
+        @Override
+        boolean isShared(final Object obj) { return obj == Boolean.TRUE || obj == Boolean.FALSE; }
+    },
+    /**
+     * java.lang.Integer
+     */
+    INTEGER(Integer.class) {
+        @Override
+        boolean isShared(final Object obj) { return obj == Integer.valueOf((Integer)obj); }
+    },
+    /**
+     * java.lang.Short
+     */
+    SHORT(Short.class) {
+        @Override
+        boolean isShared(final Object obj) { return obj == Short.valueOf((Short)obj); }
+    },
+    /**
+     * java.lang.Byte
+     */
+    BYTE(Byte.class) {
+        @Override
+        boolean isShared(final Object obj) { return obj == Byte.valueOf((Byte)obj); }
+    },
+    /**
+     * java.lang.Long
+     */
+    LONG(Long.class) {
+        @Override
+        boolean isShared(final Object obj) { return obj == Long.valueOf((Long)obj); }
+    },
+    /**
+     * java.lang.Character
+     */
+    CHARACTER(Character.class) {
+        @Override
+        boolean isShared(final Object obj) { return obj == Character.valueOf((Character)obj); }
+    };
 
-  private final Class<?> clazz;
+    private final Class<?> clazz;
 
-  FlyweightType(final Class<?> clazz) {
-    this.clazz = clazz;
-  }
-
-  abstract boolean isShared(Object obj);
-
-  static boolean isFlyweight(Object object) {
-    return object != null && getFlyweightType(object.getClass()) != null;
-  }
-
-  static FlyweightType getFlyweightType(final Class<?> aClazz) {
-    for (FlyweightType flyweightType : values()) {
-      if (flyweightType.clazz == aClazz) {
-        return flyweightType;
-      }
+    private FlyweightType(final Class<?> clazz) {
+        this.clazz = clazz;
     }
-    return null;
-  }
+
+    /**
+     * Whether this is a shared object
+     * @param obj the object to check for
+     * @return true, if shared
+     */
+    abstract boolean isShared(Object obj);
+
+    /**
+     * Will check whether the type of Object is a flyweight type
+     * @param object the object to check for
+     * @return true, if the type is flyweight
+     */
+    static boolean isFlyweight(Object object) {
+        return object != null && getFlyweightType(object.getClass()) != null;
+    }
+
+    /**
+     * Will return the Flyweight enum instance for the flyweight Class, or null if type isn't flyweight
+     * @param aClazz the class we need the FlyweightType instance for
+     * @return the FlyweightType, or null
+     */
+    static FlyweightType getFlyweightType(final Class<?> aClazz) {
+        for (FlyweightType flyweightType : values()) {
+            if (flyweightType.clazz == aClazz) {
+                return flyweightType;
+            }
+        }
+        return null;
+    }
 }

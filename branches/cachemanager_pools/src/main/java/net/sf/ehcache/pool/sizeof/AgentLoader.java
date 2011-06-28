@@ -43,6 +43,7 @@ final class AgentLoader {
     private static final Method VIRTUAL_MACHINE_ATTACH;
     private static final Method VIRTUAL_MACHINE_DETACH;
     private static final Method VIRTUAL_MACHINE_LOAD_AGENT;
+
     static {
         Method attach = null;
         Method detach = null;
@@ -61,8 +62,8 @@ final class AgentLoader {
     }
 
     /**
-     * Attempt to
-     * @return
+     * Attempts to load the agent through the Attach API
+     * @return true if agent was loaded (which could have happened thought the -javaagent switch)
      */
     static boolean loadAgent() {
         try {
@@ -77,7 +78,7 @@ final class AgentLoader {
             }
             if (!agentIsAvailable()) {
                 System.err.println("Hitting a classloader issue while loading the agent it seems. It got loaded, "
-                        + "we didn't get the Instrumentation instance injected on this SizeOfAgent class instance ?!");
+                                   + "we didn't get the Instrumentation instance injected on this SizeOfAgent class instance ?!");
             }
         } catch (Throwable e) {
             LOGGER.info("Failed to load agent, sizes will be guessed", e);
@@ -97,7 +98,7 @@ final class AgentLoader {
                 try {
                     InputStream in = agent.openStream();
                     try {
-                        byte[] buffer = new byte[(int) MemoryUnit.KILOBYTES.toBytes(1)];
+                        byte[] buffer = new byte[(int)MemoryUnit.KILOBYTES.toBytes(1)];
                         while (true) {
                             int read = in.read(buffer);
                             if (read < 0) {
@@ -120,6 +121,10 @@ final class AgentLoader {
         }
     }
 
+    /**
+     * Checks whether the agent is available
+     * @return true if available
+     */
     static boolean agentIsAvailable() {
         return SizeOfAgent.isAvailable();
     }

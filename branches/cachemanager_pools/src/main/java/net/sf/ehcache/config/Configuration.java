@@ -46,8 +46,17 @@ public final class Configuration {
      * Default value for defaultTransactionTimeoutInSeconds
      */
     public static final int  DEFAULT_TRANSACTION_TIMEOUT = 15;
+    /**
+     * Default value for maxBytesOnHeap when not explicitly set
+     */
     public static final long DEFAULT_MAX_BYTES_ON_HEAP   =  0;
+    /**
+     * Default value for maxBytesOffHeap when not explicitly set
+     */
     public static final long DEFAULT_MAX_BYTES_OFF_HEAP  =  0;
+    /**
+     * Default value for maxBytesOnDisk when not explicitly set
+     */
     public static final long DEFAULT_MAX_BYTES_ON_DISK   =  0;
     /**
      * Default value for monitoring
@@ -102,14 +111,29 @@ public final class Configuration {
     public Configuration() {
     }
 
+    /**
+     * Checks whether the user explicitly set the maxBytesOnDisk
+     * @return true if set by user, false otherwise
+     * @see #setMaxBytesOnDisk(Long)
+     */
     public boolean isMaxBytesOnDiskSet() {
         return maxBytesOnDisk != null;
     }
 
+    /**
+     * Checks whether the user explicitly set the maxBytesOffHeat
+     * @return true if set by user, false otherwise
+     * @see #setMaxBytesOffHeap(Long)
+     */
     public boolean isMaxBytesOffHeapSet() {
         return maxBytesOffHeap != null;
     }
 
+    /**
+     * Checks whether the user explicitly set the maxBytesOnHeap
+     * @return true if set by user, false otherwise
+     * @see #setMaxBytesOnHeap(Long)
+     */
     public boolean isMaxBytesOnHeapSet() {
         return maxBytesOnHeap != null;
     }
@@ -259,10 +283,19 @@ public final class Configuration {
         return this.dynamicConfig;
     }
 
+    /**
+     * Maximum amount of bytes the CacheManager will use on the heap
+     * @return amount of bytes, 0 is unbound
+     */
     public long getMaxBytesOnHeap() {
         return maxBytesOnHeap == null ? DEFAULT_MAX_BYTES_ON_HEAP : maxBytesOnHeap;
     }
 
+    /**
+     * Sets maximum amount of bytes the CacheManager will use on the Disk Tier.
+     * @param maxBytesOnHeap String representation of the size.
+     * @see MemoryUnit#parseSizeInBytes(String)
+     */
     public void setMaxBytesOnHeap(final String maxBytesOnHeap) {
         if (isPercentage(maxBytesOnHeap)) {
             long maxMemory = Runtime.getRuntime().maxMemory();
@@ -287,47 +320,97 @@ public final class Configuration {
         return trimmed.charAt(trimmed.length() - 1) == '%';
     }
 
+    /**
+     * Sets the maximum amount of bytes the cache manager being configured will use on the OnHeap tier
+     * @param maxBytesOnHeap amount of bytes
+     */
     public void setMaxBytesOnHeap(final Long maxBytesOnHeap) {
         verifyGreaterThanZero(maxBytesOnHeap, "maxBytesOnHeap");
         this.maxBytesOnHeap = maxBytesOnHeap;
     }
 
+    /**
+     * Sets the maxOnHeap size for the cache being configured
+     * @param amount the amount of unit
+     * @param memoryUnit the actual unit
+     * @return this
+     * @see #setMaxBytesOnHeap(Long)
+     */
     public Configuration maxOnHeap(final long amount, final MemoryUnit memoryUnit) {
         setMaxBytesOnHeap(memoryUnit.toBytes(amount));
         return this;
     }
 
+    /**
+     * Maximum amount of bytes the CacheManager will use on the OffHeap Tier.
+     * @return amount in bytes
+     */
     public long getMaxBytesOffHeap() {
         return maxBytesOffHeap == null ? DEFAULT_MAX_BYTES_OFF_HEAP : maxBytesOffHeap;
     }
 
+    /**
+     * Sets maximum amount of bytes the CacheManager will use on the OffHeap Tier.
+     * @param maxBytesOffHeap String representation of the size.
+     * @see MemoryUnit#parseSizeInBytes(String)
+     */
     public void setMaxBytesOffHeap(final String maxBytesOffHeap) {
         setMaxBytesOffHeap(MemoryUnit.parseSizeInBytes(maxBytesOffHeap));
     }
 
+    /**
+     * Sets maximum amount of bytes the CacheManager will use on the OffHeap Tier.
+     * @param maxBytesOffHeap max bytes on disk in bytes. Needs be be greater than 0
+     */
     public void setMaxBytesOffHeap(final Long maxBytesOffHeap) {
         verifyGreaterThanZero(maxBytesOffHeap, "maxBytesOffHeap");
         this.maxBytesOffHeap = maxBytesOffHeap;
     }
 
+    /**
+     * Sets the maximum size for the OffHeap tier for all the caches this CacheManagers holds.
+     * @param amount the amount of unit
+     * @param memoryUnit the actual unit
+     * @return this
+     */
     public Configuration maxOffHeap(final long amount, final MemoryUnit memoryUnit) {
         setMaxBytesOffHeap(memoryUnit.toBytes(amount));
         return this;
     }
 
+    /**
+     * Maximum amount of bytes the CacheManager will use on the Disk Tier.
+     * @return amount in bytes
+     */
     public long getMaxBytesOnDisk() {
         return maxBytesOnDisk == null ? DEFAULT_MAX_BYTES_ON_DISK : maxBytesOnDisk;
     }
 
+    /**
+     * Sets maximum amount of bytes the CacheManager will use on the Disk Tier.
+     * @param maxBytesOnDisk String representation of the size.
+     * @see MemoryUnit#parseSizeInBytes(String)
+     */
     public void setMaxBytesOnDisk(final String maxBytesOnDisk) {
         setMaxBytesOnDisk(MemoryUnit.parseSizeInBytes(maxBytesOnDisk));
     }
 
+    /**
+     * Sets maximum amount of bytes the CacheManager will use on the Disk Tier.
+     * @param maxBytesOnDisk max bytes on disk in bytes. Needs be be greater than 0
+     */
     public void setMaxBytesOnDisk(final Long maxBytesOnDisk) {
         verifyGreaterThanZero(maxBytesOnDisk, "maxBytesOnDisk");
         this.maxBytesOnDisk = maxBytesOnDisk;
     }
 
+    /**
+     * Sets the maxOnDisk size
+     * @param amount the amount of unit
+     * @param memoryUnit the actual unit
+     * @return this
+     * @see #setMaxBytesOnDisk(Long)
+     */
     public Configuration maxOnDisk(final long amount, final MemoryUnit memoryUnit) {
         setMaxBytesOnDisk(memoryUnit.toBytes(amount));
         return this;

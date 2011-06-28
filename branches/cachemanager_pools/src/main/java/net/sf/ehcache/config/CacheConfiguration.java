@@ -168,12 +168,24 @@ public class CacheConfiguration implements Cloneable {
     public static final ElementValueComparatorConfiguration DEFAULT_ELEMENT_VALUE_COMPARATOR_CONFIGURATION =
            new ElementValueComparatorConfiguration();
 
+    /**
+     * Default maxBytesOnHeap value
+     */
     public static final long DEFAULT_MAX_BYTES_ON_HEAP  = 0;
+
+    /**
+     * Default maxBytesOffHeap value
+     */
     public static final long DEFAULT_MAX_BYTES_OFF_HEAP = 0;
+
+    /**
+     * Default maxBytesOnDisk value
+     */
     public static final long DEFAULT_MAX_BYTES_ON_DISK  = 0;
 
 
     private static final Logger LOG = LoggerFactory.getLogger(CacheConfiguration.class.getName());
+    private static final int HUNDRED_PERCENT = 100;
 
     /**
      * the name of the cache.
@@ -1096,11 +1108,18 @@ public class CacheConfiguration implements Cloneable {
         this.searchable = searchable;
     }
 
-
+    /**
+     * The maximum amount of bytes the cache should occupy on heap
+     * @return value in bytes, 0 if none set
+     */
     public long getMaxBytesOnHeap() {
         return maxBytesOnHeap == null ? DEFAULT_MAX_BYTES_ON_HEAP : maxBytesOnHeap;
     }
 
+    /**
+     * Setter for maxBytesOnHeap as a String. Value can have a one char unit suffix or be a percentage (ending in %)
+     * @param maxBytesOnHeap String representation of the size, can be relative (in %)
+     */
     public void setMaxBytesOnHeap(final String maxBytesOnHeap) {
         if (isPercentage(maxBytesOnHeap)) {
             maxBytesOnHeapPercentage = parsePercentage(maxBytesOnHeap);
@@ -1109,36 +1128,67 @@ public class CacheConfiguration implements Cloneable {
         }
     }
 
+    /**
+     * Setter for maxBytesOnDisk in bytes
+     * @param maxBytesOnHeap max bytes on disk in bytes
+     */
     public void setMaxBytesOnHeap(final Long maxBytesOnHeap) {
         verifyGreaterThanZero(maxBytesOnHeap, "maxBytesOnHeap");
         this.maxBytesOnHeap = maxBytesOnHeap;
     }
+
+    /**
+     * Sets the maxOnHeap size
+     * @param amount the amount of unit
+     * @param memoryUnit the actual unit
+     * @return this
+     */
 
     public CacheConfiguration maxOnHeap(final long amount, final MemoryUnit memoryUnit) {
         setMaxBytesOnHeap(memoryUnit.toBytes(amount));
         return this;
     }
 
+    /**
+     * The maximum amount of bytes the cache should occupy off heap
+     * @return value in bytes, 0 if none set
+     */
     public long getMaxBytesOffHeap() {
         return maxBytesOffHeap == null ? DEFAULT_MAX_BYTES_OFF_HEAP : maxBytesOffHeap;
     }
 
+    /**
+     * Setter for maxBytesOffHeap as a String. Value can have a one char unit suffix or be a percentage (ending in %)
+     * @param maxBytesOffHeap String representation of the size, can be relative (in %)
+     */
     public void setMaxBytesOffHeap(final String maxBytesOffHeap) {
-        if(!isPercentage(maxBytesOffHeap)) {
+        if (!isPercentage(maxBytesOffHeap)) {
             setMaxBytesOffHeap(MemoryUnit.parseSizeInBytes(maxBytesOffHeap));
         } else {
             maxBytesOffHeapPercentage = parsePercentage(maxBytesOffHeap);
         }
     }
 
+    /**
+     * Getter for maximum bytes off heap expressed as a percentage
+     * @return percentage (between 0 and 100)
+     */
     public Integer getMaxBytesOffHeapPercentage() {
         return maxBytesOffHeapPercentage;
     }
 
+    /**
+     * Getter for maximum bytes on heap expressed as a percentage
+     * @return percentage (between 0 and 100)
+     */
     public Integer getMaxBytesOnHeapPercentage() {
         return maxBytesOnHeapPercentage;
     }
 
+    /**
+     * Getter for maximum bytes on disk expressed as a percentage
+     * @return percentage (between 0 and 100)
+     */
     public Integer getMaxBytesOnDiskPercentage() {
         return maxBytesOnDiskPercentage;
     }
@@ -1146,7 +1196,7 @@ public class CacheConfiguration implements Cloneable {
     private int parsePercentage(final String stringValue) {
         String trimmed = stringValue.trim();
         int percentage = Integer.parseInt(trimmed.substring(0, trimmed.length() - 1));
-        if(percentage > 100 || percentage < 0) {
+        if (percentage > HUNDRED_PERCENT || percentage < 0) {
             throw new IllegalArgumentException("Percentage need values need to be between 0 and 100 inclusive, but got : " + percentage);
         }
         return percentage;
@@ -1157,20 +1207,38 @@ public class CacheConfiguration implements Cloneable {
         return trimmed.charAt(trimmed.length() - 1) == '%';
     }
 
+    /**
+     * Sets the maximum amount of bytes the cache being configured will use on the OffHeap tier
+     * @param maxBytesOffHeap max bytes on disk in bytes
+     */
     public void setMaxBytesOffHeap(final Long maxBytesOffHeap) {
         verifyGreaterThanZero(maxBytesOffHeap, "maxBytesOffHeap");
         this.maxBytesOffHeap = maxBytesOffHeap;
     }
 
+    /**
+     * Sets the maxOffHeap tier size
+     * @param amount the amount of unit
+     * @param memoryUnit the actual unit
+     * @return this
+     */
     public CacheConfiguration maxOffHeap(final long amount, final MemoryUnit memoryUnit) {
         setMaxBytesOffHeap(memoryUnit.toBytes(amount));
         return this;
     }
 
+    /**
+     * The maximum amount of bytes the cache should occupy on disk
+     * @return value in bytes, 0 if none set
+     */
     public long getMaxBytesOnDisk() {
         return maxBytesOnDisk == null ? DEFAULT_MAX_BYTES_ON_DISK : maxBytesOnDisk;
     }
 
+    /**
+     * Setter for maxBytesOnDisk as a String. Value can have a one char unit suffix or be a percentage (ending in %)
+     * @param maxBytesOnDisk String representation of the size, can be relative (in %)
+     */
     public void setMaxBytesOnDisk(final String maxBytesOnDisk) {
         if (isPercentage(maxBytesOnDisk)) {
             maxBytesOnDiskPercentage = parsePercentage(maxBytesOnDisk);
@@ -1179,18 +1247,28 @@ public class CacheConfiguration implements Cloneable {
         }
     }
 
+    /**
+     * Sets the maximum amount of bytes the cache being configured will use on the OnDisk tier
+     * @param maxBytesOnDisk max bytes on disk in bytes
+     */
     public void setMaxBytesOnDisk(final Long maxBytesOnDisk) {
         verifyGreaterThanZero(maxBytesOnDisk, "maxBytesOnDisk");
         this.maxBytesOnDisk = maxBytesOnDisk;
     }
 
+    /**
+     * Sets the maxOnDisk size
+     * @param amount the amount of unit
+     * @param memoryUnit the actual unit
+     * @return this
+     */
     public CacheConfiguration maxOnDisk(final long amount, final MemoryUnit memoryUnit) {
         setMaxBytesOnDisk(memoryUnit.toBytes(amount));
         return this;
     }
 
     private void verifyGreaterThanZero(final Long maxBytesOnHeap, final String field) {
-        if(maxBytesOnHeap != null && maxBytesOnHeap < 1) {
+        if (maxBytesOnHeap != null && maxBytesOnHeap < 1) {
             throw new IllegalArgumentException(field + " has to be larger than 0");
         }
     }
@@ -1213,14 +1291,29 @@ public class CacheConfiguration implements Cloneable {
         return elementValueComparatorConfiguration;
     }
 
+    /**
+     * Checks whether the user explicitly set the maxBytesOnHeapPercentage
+     * @return true if set by user, false otherwise
+     * @see #setMaxBytesOnHeap(String)
+     */
     public boolean isMaxBytesOnHeapPercentageSet() {
         return maxBytesOnHeapPercentage != null;
     }
 
+    /**
+     * Checks whether the user explicitly set the maxBytesOffHeapPercentage
+     * @return true if set by user, false otherwise
+     * @see #setMaxBytesOffHeap(String)
+     */
     public boolean isMaxBytesOffHeapPercentageSet() {
         return maxBytesOffHeapPercentage != null;
     }
 
+    /**
+     * Checks whether the user explicitly set the maxBytesOnDiskPercentage
+     * @return true if set by user, false otherwise
+     * @see #setMaxBytesOnDisk(String)
+     */
     public boolean isMaxBytesOnDiskPercentageSet() {
         return maxBytesOnDiskPercentage != null;
     }

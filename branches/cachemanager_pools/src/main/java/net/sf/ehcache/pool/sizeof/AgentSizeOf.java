@@ -16,34 +16,58 @@
 
 package net.sf.ehcache.pool.sizeof;
 
-import net.sf.ehcache.pool.sizeof.SizeOfAgent;
 import net.sf.ehcache.pool.sizeof.filter.PassThroughFilter;
 import net.sf.ehcache.pool.sizeof.filter.SizeOfFilter;
 
-
 import static net.sf.ehcache.pool.sizeof.JvmInformation.MINIMUM_OBJECT_SIZE;
 
+/**
+ * SizeOf implementation that relies on a Java agent to be loaded to do the measurement
+ * It will try to load the agent through the JDK6 Attach API if available
+ * All it's constructor do throw UnsupportedOperationException if the agent isn't present or couldn't be loaded dynamically
+ * @author Chris Dennis
+ * @author Alex Snaps
+ */
 public class AgentSizeOf extends SizeOf {
 
-  private static final boolean AGENT_LOADED = SizeOfAgent.isAvailable() || AgentLoader.loadAgent();
+    private static final boolean AGENT_LOADED = SizeOfAgent.isAvailable() || AgentLoader.loadAgent();
 
-  public AgentSizeOf() throws UnsupportedOperationException {
-    this(new PassThroughFilter());
-  }
-
-  public AgentSizeOf(SizeOfFilter filter) throws UnsupportedOperationException {
-    this(filter, true);
-  }
-
-  public AgentSizeOf(SizeOfFilter filter, boolean caching) throws UnsupportedOperationException {
-    super(filter, caching);
-    if (!AGENT_LOADED) {
-      throw new UnsupportedOperationException("Agent not available or loadable");
+    /**
+     * Builds a new SizeOf that will not filter fields and will cache reflected fields
+     * @throws UnsupportedOperationException If agent couldn't be loaded or isn't present
+     * @see #AgentSizeOf(net.sf.ehcache.pool.sizeof.filter.SizeOfFilter, boolean)
+     */
+    public AgentSizeOf() throws UnsupportedOperationException {
+        this(new PassThroughFilter());
     }
-  }
 
-  @Override
-  protected long measureSizeOf(Object obj) {
-    return Math.max(MINIMUM_OBJECT_SIZE, AgentLoader.agentSizeOf(obj));
-  }
+    /**
+     * Builds a new SizeOf that will filter fields according to the provided filter and will cache reflected fields
+     * @param filter The filter to apply
+     * @throws UnsupportedOperationException If agent couldn't be loaded or isn't present
+     * @see #AgentSizeOf(net.sf.ehcache.pool.sizeof.filter.SizeOfFilter, boolean)
+     * @see SizeOfFilter
+     */
+    public AgentSizeOf(SizeOfFilter filter) throws UnsupportedOperationException {
+        this(filter, true);
+    }
+
+    /**
+     * Builds a new SizeOf that will filter fields according to the provided filter
+     * @param filter The filter to apply
+     * @param caching whether to cache reflected fields
+     * @throws UnsupportedOperationException If agent couldn't be loaded or isn't present
+     * @see SizeOfFilter
+     */
+    public AgentSizeOf(SizeOfFilter filter, boolean caching) throws UnsupportedOperationException {
+        super(filter, caching);
+        if (!AGENT_LOADED) {
+            throw new UnsupportedOperationException("Agent not available or loadable");
+        }
+    }
+
+    @Override
+    protected long measureSizeOf(Object obj) {
+        return Math.max(MINIMUM_OBJECT_SIZE, AgentLoader.agentSizeOf(obj));
+    }
 }
