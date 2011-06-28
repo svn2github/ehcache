@@ -175,6 +175,21 @@ public class DiskStorePoolingTest {
     }
 
     @Test
+    public void testPutManyAtSameKey() throws Exception {
+        // put 20 new elements in, making sure eviction is working
+        for (int i = 0; i < 100; i++) {
+            Element e = new Element(1, "" + i);
+            diskStore.put(e);
+        }
+        
+        for (int i = 0; i < 1000; i++) {
+            Element element = diskStore.get(1);
+            assertNotNull(element);
+        }
+
+    }
+
+    @Test
     public void testPutThenRemove() throws Exception {
         for (int i = 0; i < ITERATIONS; i++) {
             putThenRemove();

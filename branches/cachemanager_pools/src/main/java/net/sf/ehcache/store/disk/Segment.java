@@ -696,11 +696,12 @@ public class Segment extends ReentrantReadWriteLock {
     boolean fault(Object key, int hash, Object expect, Object fault) {
         boolean installed = false;
 
-        readLock().lock();
+        writeLock().lock();
         try {
             long size;
             size = onHeapPoolAccessor.replace(Role.VALUE, expect, fault, cachePinned);
             if (size == Long.MAX_VALUE) {
+                remove(key, hash, null, null);
                 return false;
             } else {
                 LOG.debug("fault removed {} from heap", size);
@@ -711,6 +712,7 @@ public class Segment extends ReentrantReadWriteLock {
                 // that's why it is forced, even if that could make the pool go over limit
                 long deleteSize = onHeapPoolAccessor.replace(Role.VALUE, fault, expect, true);
                 LOG.debug("fault failed to add {} on disk, deleted {} from heap", size, deleteSize);
+                remove(key, hash, null, null);
                 return false;
             } else {
                 LOG.debug("fault added {} on disk", size);
@@ -731,7 +733,7 @@ public class Segment extends ReentrantReadWriteLock {
                 return false;
             }
         } finally {
-            readLock().unlock();
+            writeLock().unlock();
 
             if ((installed && fault instanceof DiskStorageFactory.DiskSubstitute)) {
                 ((DiskStorageFactory.DiskSubstitute) fault).installed();

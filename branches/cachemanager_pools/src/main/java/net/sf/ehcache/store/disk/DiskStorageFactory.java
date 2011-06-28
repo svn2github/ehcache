@@ -1092,9 +1092,6 @@ public class DiskStorageFactory {
             if (result != null) {
                 int disk = onDisk.incrementAndGet();
                 onDiskEvict(disk, getPlaceholder().getKey());
-            } else {
-                // make sure the Placeholder doesn't stay in the store
-                store.remove(getPlaceholder().getKey());
             }
             return result;
         }
