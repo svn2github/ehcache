@@ -1733,7 +1733,7 @@ public class CacheTest extends AbstractCacheTest {
         int maxElementsInMemory = 1000;
         MemoryStoreEvictionPolicy memoryStoreEvictionPolicy = MemoryStoreEvictionPolicy.LRU;
         boolean overflowToDisk = true;
-        String diskStorePath = "java.io.tmp.dir/cache";
+        String diskStorePath = "java.io.tmpdir/cache";
         boolean eternal = false;
         long timeToIdleSeconds = 0;
         boolean diskPersistent = true;
