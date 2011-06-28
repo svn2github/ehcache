@@ -241,15 +241,15 @@ public abstract class FrontEndCacheTier<T extends Store, U extends Store> extend
                     authority.remove(key);
                 }
                 return copyElementForReadIfNeeded(put);
-            }
-
-            Element old = authority.putIfAbsent(copy);
-            if (old == null) {
-                if (cache.remove(key) != null || cacheHasRoomFor(copy)) {
-                    cache.put(copy);
+            } else {
+                Element old = authority.putIfAbsent(copy);
+                if (old == null) {
+                    if (cache.remove(key) != null || cacheHasRoomFor(copy)) {
+                        cache.put(copy);
+                    }
                 }
+                return copyElementForReadIfNeeded(old);
             }
-            return copyElementForReadIfNeeded(old);
         } finally {
             writeUnlock(key);
         }
@@ -280,21 +280,26 @@ public abstract class FrontEndCacheTier<T extends Store, U extends Store> extend
         try {
             Element copy = copyElementForWriteIfNeeded(e);
             if (!isAuthorityHandlingPinnedElements() && e.isPinned()) {
-                if (!authority.containsKey(key)) {
-                    return false;
-                } else {
-                    cache.put(authority.get(key));
+                boolean justCached = false;
+                if (authority.containsKey(key)) {
+                    Element element = authority.get(key);
+                    element.setPinned(true);
+                    cache.put(element);
+                    justCached = true;
                 }
 
                 boolean replaced = cache.replace(old, copy, comparator);
                 if (replaced) {
                     authority.remove(key);
+                } else if (justCached) {
+                    cache.remove(key);
                 }
                 return replaced;
+            } else {
+                cache.remove(old.getObjectKey());
+                return authority.replace(old, copy, comparator);
             }
 
-            cache.remove(old.getObjectKey());
-            return authority.replace(old, copy, comparator);
         } finally {
             writeUnlock(key);
         }
@@ -310,21 +315,25 @@ public abstract class FrontEndCacheTier<T extends Store, U extends Store> extend
         try {
             Element copy = copyElementForWriteIfNeeded(e);
             if (!isAuthorityHandlingPinnedElements() && e.isPinned()) {
-                if (!authority.containsKey(key)) {
-                    return null;
-                } else {
-                    cache.put(authority.get(key));
+                boolean justCached = false;
+                if (authority.containsKey(key)) {
+                    Element element = authority.get(key);
+                    element.setPinned(true);
+                    cache.put(element);
+                    justCached = true;
                 }
 
                 Element replaced = cache.replace(copy);
                 if (replaced != null) {
                     authority.remove(key);
+                } else if (justCached) {
+                    cache.remove(key);
                 }
                 return copyElementForReadIfNeeded(replaced);
+            } else {
+                cache.remove(e.getObjectKey());
+                return copyElementForReadIfNeeded(authority.replace(copy));
             }
-
-            cache.remove(e.getObjectKey());
-            return copyElementForReadIfNeeded(authority.replace(copy));
         } finally {
             writeUnlock(key);
         }

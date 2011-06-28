@@ -28,12 +28,22 @@
            transactionalMode="local"
            />
 
+    <cache name="txCacheMemoryOnly"
+           maxElementsInMemory="10"
+           eternal="false"
+           timeToIdleSeconds="5000"
+           timeToLiveSeconds="10000"
+           overflowToDisk="false"
+           diskPersistent="false"
+           transactionalMode="local"
+           />
+
     <cache name="txCachePersistent"
            maxElementsInMemory="1"
            eternal="false"
            timeToIdleSeconds="5000"
            timeToLiveSeconds="10000"
-           overflowToDisk="false"
+           overflowToDisk="true"
            diskPersistent="true"
            transactionalMode="local"
            />
