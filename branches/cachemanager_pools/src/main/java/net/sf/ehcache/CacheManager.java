@@ -105,6 +105,9 @@ public class CacheManager {
      */
     public static final String DEFAULT_NAME = "__DEFAULT__";
 
+    /**
+     * Threshold, in percent of the available heap, above which the CacheManager will warn if the configured memory
+     */
     public static final double ON_HEAP_THRESHOLD = 0.8;
 
     /**
@@ -1243,8 +1246,7 @@ public class CacheManager {
                                                     "please adjust your -Xmx setting accordingly");
         }
 
-        if (configuration.isMaxBytesOnHeapSet()
-           && configuration.getMaxBytesOnHeap() / (float) Runtime.getRuntime().maxMemory() > ON_HEAP_THRESHOLD) {
+        if (totalOnHeapAssignedMemory / (float) Runtime.getRuntime().maxMemory() > ON_HEAP_THRESHOLD) {
             LOG.warn("You've assigned over 80% of your VM's heap to be used by the cache!");
         }
     }
@@ -1856,6 +1858,12 @@ public class CacheManager {
                 .getDefaultTransactionTimeoutInSeconds());
     }
 
+    /**
+     * Creates a SizeOfEngine for a cache.
+     * It will check for a System property on what class to instantiate.
+     * @param cache The cache to be sized by the engine
+     * @return a SizeOfEngine instance
+     */
     SizeOfEngine createSizeOfEngine(final Cache cache) {
         String prop = "net.sf.ehcache.sizeofengine";
 

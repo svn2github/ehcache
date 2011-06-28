@@ -2275,6 +2275,10 @@ public class Cache implements Ehcache, StoreListener {
             return;
         }
 
+        if (bootstrapCacheLoader != null && bootstrapCacheLoader instanceof Disposable) {
+            ((Disposable)bootstrapCacheLoader).dispose();
+        }
+
         if (executorService != null) {
             executorService.shutdown();
         }
