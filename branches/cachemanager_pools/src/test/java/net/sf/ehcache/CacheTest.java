@@ -57,12 +57,9 @@ import net.sf.ehcache.loader.CacheLoader;
 import net.sf.ehcache.loader.CountingCacheLoader;
 import net.sf.ehcache.loader.DelayingLoader;
 import net.sf.ehcache.loader.ExceptionThrowingLoader;
-import net.sf.ehcache.store.FrontEndCacheTier;
 import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
 import net.sf.ehcache.util.RetryAssert;
 
-import net.sf.ehcache.store.Store;
-import net.sf.ehcache.store.disk.DiskStore;
 import org.junit.After;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -2172,8 +2169,7 @@ public class CacheTest extends AbstractCacheTest {
         cache.remove("foo");
 
         assertEquals(1, l.count);
-        assertSame(element, l.element);
-
+        assertEquals(element, l.element);
     }
 
     /**
