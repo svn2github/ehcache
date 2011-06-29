@@ -73,8 +73,10 @@ public class CacheCopyOnRwPoolTest {
         copyCache.put(new Element(1000, "1000"));
 
         long cacheSize = cache.calculateInMemorySize();
+        System.out.println("cache size : " + cacheSize);
         assertTrue(cacheSize != 0);
         long copyCacheSize = copyCache.calculateInMemorySize();
+        System.out.println("copyCache size : " + copyCacheSize);
         assertTrue(copyCacheSize != 0);
         assertTrue(cacheSize != copyCacheSize);
     }
@@ -105,14 +107,18 @@ public class CacheCopyOnRwPoolTest {
         Thread.sleep(1000);
 
         long cacheSize = cache.calculateInMemorySize();
+        System.out.println("cache size : " + cacheSize);
         assertTrue(cacheSize != 0);
         long copyCacheSize = copyCache.calculateInMemorySize();
+        System.out.println("copyCache size : " + copyCacheSize);
         assertTrue(copyCacheSize != 0);
         assertTrue(cacheSize != copyCacheSize);
 
         long cacheDiskSize = cache.calculateOnDiskSize();
+        System.out.println("cache disk size : " + cacheDiskSize);
         assertTrue(cacheDiskSize != 0);
         long copyCacheDiskSize = copyCache.calculateOnDiskSize();
+        System.out.println("copyCache disk size : " + copyCacheDiskSize);
         assertTrue(copyCacheDiskSize != 0);
         assertTrue(cacheDiskSize != copyCacheDiskSize);
     }
@@ -145,14 +151,18 @@ public class CacheCopyOnRwPoolTest {
         Thread.sleep(1000);
 
         long cacheSize = cache.calculateInMemorySize();
+        System.out.println("cache size : " + cacheSize);
         assertTrue(cacheSize != 0);
         long copyCacheSize = copyCache.calculateInMemorySize();
+        System.out.println("copyCache size : " + copyCacheSize);
         assertTrue(copyCacheSize != 0);
         assertTrue(cacheSize != copyCacheSize);
 
         long cacheDiskSize = cache.calculateOnDiskSize();
+        System.out.println("cache disk size : " + cacheDiskSize);
         assertTrue(cacheDiskSize != 0);
         long copyCacheDiskSize = copyCache.calculateOnDiskSize();
+        System.out.println("copyCache disk size : " + copyCacheDiskSize);
         assertTrue(copyCacheDiskSize != 0);
         assertTrue(cacheDiskSize != copyCacheDiskSize);
     }
