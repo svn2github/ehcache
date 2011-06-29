@@ -23,7 +23,6 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -443,10 +442,10 @@ public class DiskStoreTest extends AbstractCacheTest {
         assertEquals(100, diskStore.getSize());
         manager.removeCache(cacheName);
 
-        File dataFile = ((DiskStore) diskStore).getDataFile();
+        File dataFile = diskStore.getDataFile();
         assertTrue(dataFile.length() >= 100 * ELEMENT_ON_DISK_SIZE);
 
-        File indexFile = ((DiskStore) diskStore).getIndexFile();
+        File indexFile = diskStore.getIndexFile();
         FileOutputStream fout = new FileOutputStream(indexFile);
         //corrupt the index file
         fout.write(new byte[]{'q', 'w', 'e', 'r', 't', 'y'});

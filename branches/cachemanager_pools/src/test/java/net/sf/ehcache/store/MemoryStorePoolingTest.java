@@ -12,7 +12,6 @@ import net.sf.ehcache.pool.impl.FromLargestCacheOnHeapPoolEvictor;
 import net.sf.ehcache.pool.impl.StrictlyBoundedPool;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -301,7 +300,7 @@ public class MemoryStorePoolingTest {
         assertNull(memoryStore.putIfAbsent(new Element(3, "3#1")));
         element = memoryStore.putIfAbsent(new Element(3, "3#2"));
         if (lastEvicted.getObjectKey().equals(3)) {
-            assertNull(element);            
+            assertNull(element);
             assertEquals(2, memoryStore.getSize());
             assertEquals(16384 * 2, onHeapPool.getSize());
         } else {

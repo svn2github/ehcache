@@ -6,18 +6,14 @@ import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Status;
 import net.sf.ehcache.config.CacheConfiguration;
-import net.sf.ehcache.config.Configuration;
 import net.sf.ehcache.config.TerracottaConfiguration;
 import org.junit.Test;
 import org.mockito.Matchers;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
 
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -33,7 +29,7 @@ public class TerracottaBootstrapCacheLoaderTest {
     private static final String DIRECTORY = "dumps";
     private static final String MOCKED_CACHE_NAME = "MockedCache";
 
-    private TerracottaBootstrapCacheLoader cacheLoader = new TerracottaBootstrapCacheLoader(false, DIRECTORY, false);
+    private final TerracottaBootstrapCacheLoader cacheLoader = new TerracottaBootstrapCacheLoader(false, DIRECTORY, false);
 
     @Test
     public void testComplainsOnNonTcClusteredCacheButDoesNotFail() {
