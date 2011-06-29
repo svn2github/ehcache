@@ -21,6 +21,7 @@ import java.util.List;
 
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Element;
+import net.sf.ehcache.store.compound.ReadWriteCopyStrategy;
 import net.sf.ehcache.writer.CacheWriterManager;
 
 /**
@@ -43,32 +44,52 @@ public abstract class FrontEndCacheTier<T extends Store, U extends Store> extend
      */
     protected final U authority;
 
+    private final boolean copyOnRead;
+    private final boolean copyOnWrite;
+    private final ReadWriteCopyStrategy<Element> copyStrategy;
+
     /**
      * Constructor for FrontEndCacheTier
      * 
      * @param cache the caching tier
      * @param authority the authority tier
+     * @param copyStrategy the copyStrategy to use
+     * @param copyOnWrite whether to copy on writes, false otherwise
+     * @param copyOnRead whether to copy on reads, false otherwise
      */
-    public FrontEndCacheTier(T cache, U authority) {
+    public FrontEndCacheTier(T cache, U authority, ReadWriteCopyStrategy<Element> copyStrategy, boolean copyOnWrite, boolean copyOnRead) {
         this.cache = cache;
         this.authority = authority;
+        this.copyStrategy = copyStrategy;
+        this.copyOnWrite = copyOnWrite;
+        this.copyOnRead = copyOnRead;
     }
 
     /**
-     * Perform copy on read.
-     *
-     * @param element the element to copy
-     * @return the copied element
+     * {@inheritDoc}
      */
-    protected abstract Element copyElementForReadIfNeeded(Element element);
+    protected Element copyElementForReadIfNeeded(Element element) {
+        if (copyOnRead && copyOnWrite) {
+            return copyStrategy.copyForRead(element);
+        } else if (copyOnRead) {
+            return copyStrategy.copyForRead(copyStrategy.copyForWrite(element));
+        } else {
+            return element;
+        }
+    }
 
     /**
-     * Perform copy on write
-     *
-     * @param element the element to copy
-     * @return the copied element
+     * {@inheritDoc}
      */
-    protected abstract Element copyElementForWriteIfNeeded(Element element);
+    protected Element copyElementForWriteIfNeeded(Element element) {
+        if (copyOnRead && copyOnWrite) {
+            return copyStrategy.copyForWrite(element);
+        } else if (copyOnWrite) {
+            return copyStrategy.copyForRead(copyStrategy.copyForWrite(element));
+        } else {
+            return element;
+        }
+    }
 
     /**
      * Check if the caching store has not enough room to add an element without provoking an eviction.

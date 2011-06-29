@@ -33,7 +33,6 @@ import net.sf.ehcache.search.impl.BaseResult;
 import net.sf.ehcache.search.impl.OrderComparator;
 import net.sf.ehcache.search.impl.ResultImpl;
 import net.sf.ehcache.search.impl.ResultsImpl;
-import net.sf.ehcache.store.compound.ReadWriteCopyStrategy;
 import net.sf.ehcache.transaction.SoftLock;
 
 import java.util.ArrayList;
@@ -52,20 +51,12 @@ public final class MemoryOnlyStore extends FrontEndCacheTier<NullStore, MemorySt
 
     private static final Object[] EMPTY_OBJECT_ARRAY = new Object[0];
 
-    private final boolean copyOnRead;
-    private final boolean copyOnWrite;
-    private final ReadWriteCopyStrategy<Element> copyStrategy;
-
     private final Map<String, AttributeExtractor> attributeExtractors = new ConcurrentHashMap<String, AttributeExtractor>();
     private final Map<String, Attribute> searchAttributes = new ConcurrentHashMap<String, Attribute>();
 
 
     private MemoryOnlyStore(CacheConfiguration cacheConfiguration, NullStore cache, MemoryStore authority) {
-        super(cache, authority);
-
-        this.copyOnRead = cacheConfiguration.isCopyOnRead();
-        this.copyOnWrite = cacheConfiguration.isCopyOnWrite();
-        this.copyStrategy = cacheConfiguration.getCopyStrategy();
+        super(cache, authority, cacheConfiguration.getCopyStrategy(), cacheConfiguration.isCopyOnWrite(), cacheConfiguration.isCopyOnRead());
     }
 
     /**
@@ -210,34 +201,6 @@ public final class MemoryOnlyStore extends FrontEndCacheTier<NullStore, MemorySt
     @Override
     protected boolean isAuthorityHandlingPinnedElements() {
         return true;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    protected Element copyElementForReadIfNeeded(Element element) {
-        if (copyOnRead && copyOnWrite) {
-            return copyStrategy.copyForRead(element);
-        } else if (copyOnRead) {
-            return copyStrategy.copyForRead(copyStrategy.copyForWrite(element));
-        } else {
-            return element;
-        }
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    protected Element copyElementForWriteIfNeeded(Element element) {
-        if (copyOnRead && copyOnWrite) {
-            return copyStrategy.copyForWrite(element);
-        } else if (copyOnWrite) {
-            return copyStrategy.copyForRead(copyStrategy.copyForWrite(element));
-        } else {
-            return element;
-        }
     }
 
     /**

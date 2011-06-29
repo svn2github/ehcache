@@ -23,7 +23,6 @@ import net.sf.ehcache.Status;
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.PinningConfiguration;
 import net.sf.ehcache.pool.Pool;
-import net.sf.ehcache.store.compound.ReadWriteCopyStrategy;
 import net.sf.ehcache.store.disk.DiskStore;
 
 /**
@@ -33,21 +32,13 @@ import net.sf.ehcache.store.disk.DiskStore;
  */
 public final class DiskBackedMemoryStore extends FrontEndCacheTier<MemoryStore, DiskStore> {
 
-    private final boolean copyOnRead;
-    private final boolean copyOnWrite;
-    private final ReadWriteCopyStrategy<Element> copyStrategy;
-
     private final boolean alwaysPutOnHeap;
     private volatile boolean cachePinnedOnHeapOrInMemory;
 
     private DiskBackedMemoryStore(CacheConfiguration cacheConfiguration, MemoryStore cache, DiskStore authority) {
-        super(cache, authority);
+        super(cache, authority, cacheConfiguration.getCopyStrategy(), cacheConfiguration.isCopyOnWrite(), cacheConfiguration.isCopyOnRead());
         this.cachePinnedOnHeapOrInMemory = determineCachePinnedOnHeapOrInMemory(cacheConfiguration);
         this.alwaysPutOnHeap = getAdvancedBooleanConfigProperty("alwaysPutOnHeap", cacheConfiguration.getName(), false);
-
-        this.copyOnRead = cacheConfiguration.isCopyOnRead();
-        this.copyOnWrite = cacheConfiguration.isCopyOnWrite();
-        this.copyStrategy = cacheConfiguration.getCopyStrategy();
     }
 
     private boolean determineCachePinnedOnHeapOrInMemory(CacheConfiguration cacheConfiguration) {
@@ -100,34 +91,6 @@ public final class DiskBackedMemoryStore extends FrontEndCacheTier<MemoryStore, 
             return DiskStore.create(cache, diskPath, onHeapPool, onDiskPool);
         } else {
             throw new CacheException("DiskBackedMemoryStore can only be used when cache overflows to disk or is disk persistent");
-        }
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    protected Element copyElementForReadIfNeeded(Element element) {
-        if (copyOnRead && copyOnWrite) {
-            return copyStrategy.copyForRead(element);
-        } else if (copyOnRead) {
-            return copyStrategy.copyForRead(copyStrategy.copyForWrite(element));
-        } else {
-            return element;
-        }
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    protected Element copyElementForWriteIfNeeded(Element element) {
-        if (copyOnRead && copyOnWrite) {
-            return copyStrategy.copyForWrite(element);
-        } else if (copyOnWrite) {
-            return copyStrategy.copyForRead(copyStrategy.copyForWrite(element));
-        } else {
-            return element;
         }
     }
 
