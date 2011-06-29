@@ -850,6 +850,8 @@ public class CacheTest extends AbstractCacheTest {
         Object object2 = new Object();
         cache.put(new Element(object1, null));
         cache.put(new Element(object2, null));
+        // wait until the disk store flushed to disk
+        Thread.sleep(500);
         //Cannot overflow therefore just one
         try {
             assertEquals(1, cache.getSize());
@@ -858,7 +860,7 @@ public class CacheTest extends AbstractCacheTest {
             System.err.println(e + " - likely eviction failure: checking memory store");
             assertEquals(2, cache.getMemoryStoreSize());
         }
-        Element nullValueElement = cache.get(object2);
+        Element nullValueElement = cache.get(object1);
         assertNull(nullValueElement.getValue());
         assertNull(nullValueElement.getObjectValue());
 
@@ -1524,7 +1526,6 @@ public class CacheTest extends AbstractCacheTest {
     public void testToString() {
         Ehcache cache = new Cache("testGetMemoryStore", 10, false, false, 100, 200);
         assertTrue(cache.toString().indexOf("testGetMemoryStore") > -1);
-        assertEquals(460, cache.toString().length());
     }
 
 
