@@ -19,9 +19,11 @@ package net.sf.ehcache.pool;
 /**
  * PoolAccessors are used by stores to tell the pools about their resource consumption
  *
+ * @param <T> type of the store that uses this accessor
+ *
  * @author Ludovic Orban
  */
-public interface PoolAccessor {
+public interface PoolAccessor<T> {
 
     /**
      * Add an element to the pool.
@@ -81,4 +83,10 @@ public interface PoolAccessor {
      */
     void clear();
 
+    /**
+     * Return the store that uses this accessor
+     *
+     * @return store using this accessor
+     */
+    T getStore();
 }
