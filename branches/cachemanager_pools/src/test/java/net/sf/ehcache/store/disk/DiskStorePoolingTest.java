@@ -8,8 +8,8 @@ import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.event.CacheEventListener;
 import net.sf.ehcache.pool.Pool;
 import net.sf.ehcache.pool.impl.ConstantSizeOfEngine;
-import net.sf.ehcache.pool.impl.RoundRobinOnDiskPoolEvictor;
-import net.sf.ehcache.pool.impl.RoundRobinOnHeapPoolEvictor;
+import net.sf.ehcache.pool.impl.FromLargestCacheOnDiskPoolEvictor;
+import net.sf.ehcache.pool.impl.FromLargestCacheOnHeapPoolEvictor;
 import net.sf.ehcache.pool.impl.StrictlyBoundedPool;
 import net.sf.ehcache.store.DefaultElementValueComparator;
 import org.junit.After;
@@ -78,7 +78,7 @@ public class DiskStorePoolingTest {
 
         onHeapPool = new StrictlyBoundedPool(
                 16384 * 3, // == 3 elements
-                new RoundRobinOnHeapPoolEvictor(),
+                new FromLargestCacheOnHeapPoolEvictor(),
                 new ConstantSizeOfEngine(
                         1536,  /* 1.5 KB*/
                         14336, /* 14 KB */
@@ -88,7 +88,7 @@ public class DiskStorePoolingTest {
 
         onDiskPool = new StrictlyBoundedPool(
                 ELEMENT_SIZE_ON_DISK * 2, // == 2 elements
-                new RoundRobinOnDiskPoolEvictor(),
+                new FromLargestCacheOnDiskPoolEvictor(),
                 null
         );
 
