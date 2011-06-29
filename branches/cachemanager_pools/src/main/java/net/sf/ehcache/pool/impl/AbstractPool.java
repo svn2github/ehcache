@@ -18,6 +18,7 @@ package net.sf.ehcache.pool.impl;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -55,7 +56,7 @@ public abstract class AbstractPool<T> implements Pool<T> {
         this.maximumPoolSize = maximumPoolSize;
         this.evictor = evictor;
         this.defaultSizeOfEngine = defaultSizeOfEngine;
-        this.poolAccessors = new CopyOnWriteArrayList<PoolAccessor<? extends T>>();
+        this.poolAccessors = Collections.synchronizedList(new ArrayList<PoolAccessor<? extends T>>());
     }
 
     /**
