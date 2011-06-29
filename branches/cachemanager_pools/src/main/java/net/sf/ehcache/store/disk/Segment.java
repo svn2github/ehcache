@@ -823,8 +823,10 @@ public class Segment extends ReentrantReadWriteLock {
                         free(v);
 
                         long size;
-                        size = onDiskPoolAccessor.delete(key, null, v);
-                        LOG.debug("evicted {} from disk", size);
+                        if (v instanceof DiskStorageFactory.DiskMarker) {
+                            size = onDiskPoolAccessor.delete(key, null, v);
+                            LOG.debug("evicted {} from disk", size);
+                        }
                         size = onHeapPoolAccessor.delete(key, v, HashEntry.newHashEntry(key, hash, null, null));
                         LOG.debug("evicted {} from heap", size);
 
