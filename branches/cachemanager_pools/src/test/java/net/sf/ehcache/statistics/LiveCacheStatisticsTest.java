@@ -118,8 +118,8 @@ public class LiveCacheStatisticsTest extends AbstractCacheTest {
     public void doTestCacheUsageStatistics(Cache cache,
                                            boolean statisticsEnabled) throws InterruptedException {
 
-        cache.put(new Element("key1", "value1"));
         cache.put(new Element("key2", "value1"));
+        cache.put(new Element("key1", "value1"));
         // allow disk writer thread time to perform the write
         Thread.sleep(100);
         // key1 should be in the Disk Store
@@ -133,7 +133,7 @@ public class LiveCacheStatisticsTest extends AbstractCacheTest {
             assertEquals(0, statistics.getCacheMissCount());
             assertEquals(2, statistics.getSize());
             assertEquals(1, statistics.getInMemorySize());
-            assertEquals(1, statistics.getOnDiskSize());
+            assertEquals(2, statistics.getOnDiskSize());
         } else {
             assertEquals(0, statistics.getCacheHitCount());
             assertEquals(0, statistics.getOnDiskHitCount());
