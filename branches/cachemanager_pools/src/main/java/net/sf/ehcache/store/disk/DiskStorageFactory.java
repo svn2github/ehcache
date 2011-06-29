@@ -227,7 +227,9 @@ public class DiskStorageFactory {
     }
 
     /**
-     * {@inheritDoc}
+     * Bind a store instance to this factory.
+     *
+     * @param store store to bind
      */
     public void bind(DiskStore store) {
         this.store = store;
@@ -235,11 +237,27 @@ public class DiskStorageFactory {
     }
 
     /**
-     * {@inheritDoc}
+     * Free any manually managed resources used by this {@link DiskSubstitute}.
+     *
+     * @param lock the lock protecting the DiskSubstitute
+     * @param substitute DiskSubstitute being freed.
      */
     public void free(Lock lock, DiskSubstitute substitute) {
+        free(lock, substitute, false);
+    }
+
+    /**
+     * Free any manually managed resources used by this {@link DiskSubstitute}.
+     *
+     * @param lock the lock protecting the DiskSubstitute
+     * @param substitute DiskSubstitute being freed.
+     * @param faultFailure true if this DiskSubstitute should be freed because of a disk failure
+     */
+    public void free(Lock lock, DiskSubstitute substitute, boolean faultFailure) {
         if (substitute instanceof DiskStorageFactory.DiskMarker) {
-            onDisk.decrementAndGet();
+            if (!faultFailure) {
+                onDisk.decrementAndGet();
+            }
             //free done asynchronously under the relevant segment lock...
             DiskFreeTask free = new DiskFreeTask(lock, (DiskMarker) substitute);
             if (lock.tryLock()) {

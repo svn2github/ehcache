@@ -179,8 +179,18 @@ public class Segment extends ReentrantReadWriteLock {
      * @param object the DiskSubstitute to free
      */
     private void free(Object object) {
+        free(object, false);
+    }
+
+    /**
+     * Free the DiskSubstitute indicating if it could not be faulted
+     *
+     * @param object the DiskSubstitute to free
+     * @param faultFailure true if the DiskSubstitute should be freed because of a fault failure
+     */
+    private void free(Object object, boolean faultFailure) {
         DiskStorageFactory.DiskSubstitute diskSubstitute = (DiskStorageFactory.DiskSubstitute) object;
-        diskSubstitute.getFactory().free(writeLock(), diskSubstitute);
+        diskSubstitute.getFactory().free(writeLock(), diskSubstitute, faultFailure);
     }
 
     /**
@@ -729,7 +739,7 @@ public class Segment extends ReentrantReadWriteLock {
                 size = onDiskPoolAccessor.delete(key, null, fault);
                 LOG.debug("fault installation failed deleted {} from disk", size);
 
-                free(fault);
+                free(fault, true);
                 return false;
             }
         } finally {

@@ -1,21 +1,28 @@
 package net.sf.ehcache.store.disk;
 
 import junit.framework.Assert;
+
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheException;
+import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.config.CacheConfiguration;
+import net.sf.ehcache.config.Configuration;
 import net.sf.ehcache.event.CacheEventListener;
 import net.sf.ehcache.pool.impl.UnboundedPool;
 import net.sf.ehcache.store.DiskBackedMemoryStore;
 import net.sf.ehcache.store.MemoryOnlyStore;
 import net.sf.ehcache.store.Store;
+import net.sf.ehcache.util.RetryAssert;
+import org.hamcrest.core.Is;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.concurrent.Callable;
 import java.util.concurrent.atomic.AtomicLong;
 
+import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertNull;
@@ -78,11 +85,55 @@ public class DiskStoreTest {
 
         assertNull("element should not have been evicted: " + lastEvicted[0], lastEvicted[0]);
 
-        store = DiskStore.create(new Cache(new CacheConfiguration("SomeCache", 1000).overflowToDisk(true).diskPersistent(true)), System.getProperty("java.io.tmpdir"), new UnboundedPool(), new UnboundedPool());
+        store = DiskStore.create(new Cache(new CacheConfiguration("SomeCache", 1000).overflowToDisk(true)
+            .diskPersistent(true)), System.getProperty("java.io.tmpdir"), new UnboundedPool(), new UnboundedPool());
         assertEquals("one", store.get(1).getObjectValue());
         assertNull(store.get(2));
     }
 
+    @Test
+    public void testDiskStoreSize() throws Exception {
+        CacheManager cm = new CacheManager(
+            new Configuration()
+                .cache(new CacheConfiguration("aCache", 10000)
+                    .overflowToDisk(true)
+                    .eternal(false)
+                    .timeToLiveSeconds(1000)
+                    .timeToLiveSeconds(360)
+                )
+        );
+        final Cache cache = cm.getCache("aCache");
+
+
+        cache.put(new Element(-1, -1));
+        assertEquals(-1, cache.get(-1).getValue());
+        cache.remove(-1);
+        assertEquals(null, cache.get(-1));
+
+        cache.put(new Element(-2, -2));
+        assertEquals(-2, cache.get(-2).getValue());
+        cache.remove(-2);
+        assertEquals(null, cache.get(-2));
+
+
+        assertEquals(0, cache.getDiskStoreSize());
+
+
+        Thread.sleep(1000);
+
+        for (int i = 0; i < 10010; i++) {
+            cache.put(new Element(i, i));
+        }
+
+
+        RetryAssert.assertBy(1, SECONDS, new Callable<Integer>() {
+                public Integer call() throws Exception {
+                    return cache.getDiskStoreSize();
+                }
+            }, Is.is(10010));
+
+        cm.shutdown();
+    }
 
     @Test
     public void testSupportsCopyOnRead() {
@@ -108,14 +159,14 @@ public class DiskStoreTest {
         atomicLong.getAndIncrement();
         element.setVersion(2);
 
-        Assert.assertEquals(1, ((AtomicLong) xaStore.get(KEY).getValue()).get());
+        Assert.assertEquals(1, ((AtomicLong)xaStore.get(KEY).getValue()).get());
         Assert.assertEquals(1, xaStore.get(KEY).getVersion());
 
         xaStore.put(new Element(KEY, atomicLong, 1));
-        Assert.assertEquals(2, ((AtomicLong) xaStore.get(KEY).getValue()).get());
+        Assert.assertEquals(2, ((AtomicLong)xaStore.get(KEY).getValue()).get());
         atomicLong.getAndIncrement();
 
-        Assert.assertEquals(2, ((AtomicLong) xaStore.get(KEY).getValue()).get());
+        Assert.assertEquals(2, ((AtomicLong)xaStore.get(KEY).getValue()).get());
         Assert.assertEquals(1, xaStore.get(KEY).getVersion());
     }
 
