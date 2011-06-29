@@ -34,6 +34,7 @@ import net.sf.ehcache.pool.impl.UnboundedPool;
 import net.sf.ehcache.store.AbstractStore;
 import net.sf.ehcache.store.ElementValueComparator;
 import net.sf.ehcache.store.Policy;
+import net.sf.ehcache.store.TierableStore;
 import net.sf.ehcache.writer.CacheWriterManager;
 
 import java.io.File;
@@ -57,7 +58,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
  * @author Chris Dennis
  * @author Ludovic Orban
  */
-public final class DiskStore extends AbstractStore implements PoolableStore {
+public final class DiskStore extends AbstractStore implements TierableStore, PoolableStore {
 
     /**
      * If the CacheManager needs to resolve a conflict with the disk path, it will create a

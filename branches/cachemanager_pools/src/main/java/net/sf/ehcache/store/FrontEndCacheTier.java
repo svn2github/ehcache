@@ -33,7 +33,7 @@ import net.sf.ehcache.writer.CacheWriterManager;
  * @author Chris Dennis
  * @author Ludovic Orban
  */
-public abstract class FrontEndCacheTier<T extends Store, U extends Store> extends AbstractStore {
+public abstract class FrontEndCacheTier<T extends Store, U extends TierableStore> extends AbstractStore {
 
     /**
      * The cache tier store
@@ -592,48 +592,60 @@ public abstract class FrontEndCacheTier<T extends Store, U extends Store> extend
     }
 
     /**
-     * Acquire the read lock of the specified key
-     * @param key the key to read-lock
+     * {@inheritDoc}
      */
-    public abstract void readLock(Object key);
+    public void readLock(Object key) {
+        authority.readLock(key);
+    }
 
     /**
-     * Unlock the read lock of the specified key
-     * @param key the key to read-unlock
+     * {@inheritDoc}
      */
-    public abstract void readUnlock(Object key);
+    public void readUnlock(Object key) {
+        authority.readUnlock(key);
+    }
 
     /**
-     * Acquire the write lock of the specified key
-     * @param key the key to write-lock
+     * {@inheritDoc}
      */
-    public abstract void writeLock(Object key);
+    public void writeLock(Object key) {
+        authority.writeLock(key);
+    }
 
     /**
-     * Unlock the write lock of the specified key
-     * @param key the key to write-unlock
+     * {@inheritDoc}
      */
-    public abstract void writeUnlock(Object key);
+    public void writeUnlock(Object key) {
+        authority.writeUnlock(key);
+    }
 
     /**
-     * Acquire the read lock of all keys
+     * {@inheritDoc}
      */
-    public abstract void readLock();
+    public void readLock() {
+        authority.readLock();
+    }
 
     /**
-     * Unlock the read lock of all keys
+     * {@inheritDoc}
      */
-    public abstract void readUnlock();
+    public void readUnlock() {
+        authority.readUnlock();
+    }
 
     /**
-     * Acquire the write lock of all keys
+     * {@inheritDoc}
      */
-    public abstract void writeLock();
+    public void writeLock() {
+        authority.writeLock();
+    }
 
     /**
-     * Unlock the write lock of all keys
+     * {@inheritDoc}
      */
-    public abstract void writeUnlock();
+    public void writeUnlock() {
+        authority.writeUnlock();
+    }
 
     /**
      * {@inheritDoc}
