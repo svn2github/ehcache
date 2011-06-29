@@ -801,39 +801,37 @@ public class Segment extends ReentrantReadWriteLock {
                     e = e.next;
                 }
 
-                if (e != null) {
-                    if (value == null || (value == e.getElement())) {
-                        // All entries following removed node can stay
-                        // in list, but all preceding ones need to be
-                        // cloned.
-                        ++modCount;
-                        HashEntry newFirst = e.next;
-                        for (HashEntry p = first; p != e; p = p.next) {
-                            newFirst = HashEntry.newHashEntry(p.key, p.hash, newFirst, p.getElement());
-                        }
-                        tab[index] = newFirst;
-                        /*
-                         * make sure we re-get from the HashEntry - since the decode in the conditional
-                         * may have faulted in a different type - we must make sure we know what type
-                         * to do the free on.
-                         */
-                        Object v = e.getElement();
-                        Element toReturn = decode(v);
-
-                        free(v);
-
-                        long size;
-                        if (v instanceof DiskStorageFactory.DiskMarker) {
-                            size = onDiskPoolAccessor.delete(key, null, v);
-                            LOG.debug("evicted {} from disk", size);
-                        }
-                        size = onHeapPoolAccessor.delete(key, v, HashEntry.newHashEntry(key, hash, null, null));
-                        LOG.debug("evicted {} from heap", size);
-
-                        // write-volatile
-                        count = count - 1;
-                        return toReturn;
+                if (e != null && (value == null || value == e.getElement())) {
+                    // All entries following removed node can stay
+                    // in list, but all preceding ones need to be
+                    // cloned.
+                    ++modCount;
+                    HashEntry newFirst = e.next;
+                    for (HashEntry p = first; p != e; p = p.next) {
+                        newFirst = HashEntry.newHashEntry(p.key, p.hash, newFirst, p.getElement());
                     }
+                    tab[index] = newFirst;
+                    /*
+                     * make sure we re-get from the HashEntry - since the decode in the conditional
+                     * may have faulted in a different type - we must make sure we know what type
+                     * to do the free on.
+                     */
+                    Object v = e.getElement();
+                    Element toReturn = decode(v);
+
+                    free(v);
+
+                    long size;
+                    if (v instanceof DiskStorageFactory.DiskMarker) {
+                        size = onDiskPoolAccessor.delete(key, null, v);
+                        LOG.debug("evicted {} from disk", size);
+                    }
+                    size = onHeapPoolAccessor.delete(key, v, HashEntry.newHashEntry(key, hash, null, null));
+                    LOG.debug("evicted {} from heap", size);
+
+                    // write-volatile
+                    count = count - 1;
+                    return toReturn;
                 }
 
                 return null;
