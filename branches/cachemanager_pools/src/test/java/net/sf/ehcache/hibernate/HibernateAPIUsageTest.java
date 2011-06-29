@@ -52,7 +52,7 @@ import org.slf4j.LoggerFactory;
  */
 public class HibernateAPIUsageTest extends AbstractCacheTest {
     private static final Logger LOG = LoggerFactory.getLogger(HibernateAPIUsageTest.class.getName());
-    private static final int EMPTY_ELEMENT_SIZE = 228;
+    private static final int EMPTY_ELEMENT_SIZE = 238;
 
 
     /**
@@ -133,7 +133,7 @@ public class HibernateAPIUsageTest extends AbstractCacheTest {
             public Long call() throws Exception {
                 return cache.getElementCountOnDisk();
             }
-        }, Is.is(10L));
+        }, Is.is(1000L));
 
         //clear
         cache.clear();
@@ -327,7 +327,7 @@ public class HibernateAPIUsageTest extends AbstractCacheTest {
                 public Long call() throws Exception {
                     return cache.getElementCountOnDisk();
                 }
-            }, Is.is(10L));
+            }, Is.is(10010L));
 
         //clear
         cache.clear();
