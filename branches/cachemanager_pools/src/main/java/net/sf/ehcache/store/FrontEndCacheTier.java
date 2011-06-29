@@ -21,6 +21,7 @@ import java.util.List;
 
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Element;
+import net.sf.ehcache.Status;
 import net.sf.ehcache.store.compound.ReadWriteCopyStrategy;
 import net.sf.ehcache.writer.CacheWriterManager;
 
@@ -634,4 +635,39 @@ public abstract class FrontEndCacheTier<T extends Store, U extends Store> extend
      */
     public abstract void writeUnlock();
 
+    /**
+     * {@inheritDoc}
+     */
+    public Status getStatus() {
+        //TODO this might be wrong...
+        return authority.getStatus();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public Policy getInMemoryEvictionPolicy() {
+        return cache.getInMemoryEvictionPolicy();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void setInMemoryEvictionPolicy(Policy policy) {
+        cache.setInMemoryEvictionPolicy(policy);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public Object getInternalContext() {
+        return authority.getInternalContext();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public Object getMBean() {
+        return authority.getMBean();
+    }
 }

@@ -275,39 +275,4 @@ public final class MemoryOnlyStore extends FrontEndCacheTier<NullStore, MemorySt
         authority.writeUnlock();
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public Status getStatus() {
-        //TODO this might be wrong...
-        return authority.getStatus();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public Policy getInMemoryEvictionPolicy() {
-        return cache.getInMemoryEvictionPolicy();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public void setInMemoryEvictionPolicy(Policy policy) {
-        cache.setInMemoryEvictionPolicy(policy);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public Object getInternalContext() {
-        return authority.getInternalContext();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public Object getMBean() {
-        return authority.getMBean();
-    }
 }
