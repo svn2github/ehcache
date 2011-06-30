@@ -44,8 +44,8 @@ public class CachePoolPinningTest {
         cacheManager = new CacheManager(
                 new Configuration()
                         .diskStore(new DiskStoreConfiguration().path(System.getProperty("java.io.tmpdir")))
-                        .maxOnHeap(100, MemoryUnit.KILOBYTES)
-                        .maxOnDisk(200, MemoryUnit.KILOBYTES)
+                        .maxBytesLocalHeap(100, MemoryUnit.KILOBYTES)
+                        .maxBytesLocalDisk(200, MemoryUnit.KILOBYTES)
         );
     }
 

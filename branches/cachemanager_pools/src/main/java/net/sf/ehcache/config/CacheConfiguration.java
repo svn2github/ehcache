@@ -360,10 +360,10 @@ public class CacheConfiguration implements Cloneable {
     private volatile Boolean copyOnWrite;
     private volatile boolean conflictingEternalValuesWarningLogged;
     private volatile Searchable searchable;
-    private Long maxBytesOnHeap;
-    private Long maxBytesOffHeap;
-    private Long maxBytesOnDisk;
-    private Integer maxBytesOffHeapPercentage;
+    private Long maxBytesLocalHeap;
+    private Long maxBytesLocalOffHeap;
+    private Long maxBytesLocalDisk;
+    private Integer maxBytesLocalHeapPercentage;
     private Integer maxBytesOnHeapPercentage;
     private Integer maxBytesOnDiskPercentage;
 
@@ -546,7 +546,7 @@ public class CacheConfiguration implements Cloneable {
      */
     public final void setMaxMemoryOffHeap(String maxMemoryOffHeap) {
         checkDynamicChange();
-        setMaxBytesOffHeap(maxMemoryOffHeap);
+        setMaxBytesLocalOffHeap(maxMemoryOffHeap);
     }
 
     /**
@@ -582,12 +582,28 @@ public class CacheConfiguration implements Cloneable {
      * This property can be modified dynamically while the cache is operating.
      *
      * @param maxElementsInMemory The maximum number of elements in memory, before they are evicted (0 == no limit)
+     * @deprecated use {@link #setMaxEntriesLocalHeap(long)}
      */
+    @Deprecated
     public final void setMaxElementsInMemory(int maxElementsInMemory) {
+        setMaxEntriesLocalHeap(maxElementsInMemory);
+    }
+
+    /**
+     * Sets the maximum objects to be held in local heap memory (0 = no limit).
+     * <p/>
+     * This property can be modified dynamically while the cache is operating.
+     *
+     * @param maxEntriesInMemory The maximum number of elements in memory, before they are evicted (0 == no limit)
+     */
+    public final void setMaxEntriesLocalHeap(long maxEntriesInMemory) {
+        if(maxEntriesInMemory > Integer.MAX_VALUE)
+            throw new IllegalArgumentException("Values larger than Integer.MAX_VALUE are not currently supported.");
+
         checkDynamicChange();
         int oldCapacity = this.maxElementsInMemory;
-        int newCapacity = maxElementsInMemory;
-        this.maxElementsInMemory = maxElementsInMemory;
+        int newCapacity = (int) maxEntriesInMemory;
+        this.maxElementsInMemory = (int) maxEntriesInMemory;
         fireMemoryCapacityChanged(oldCapacity, newCapacity);
     }
 
@@ -598,9 +614,24 @@ public class CacheConfiguration implements Cloneable {
      *
      * @param maxElementsInMemory The maximum number of elements in memory, before they are evicted (0 == no limit)
      * @return this configuration instance
+     * @deprecated use {@link #maxEntriesLocalHeap(int)}
      */
+    @Deprecated
     public final CacheConfiguration maxElementsInMemory(int maxElementsInMemory) {
         setMaxElementsInMemory(maxElementsInMemory);
+        return this;
+    }
+
+    /**
+     * Builder that sets the maximum objects to be held in memory (0 = no limit).
+     * <p/>
+     * This property can be modified dynamically while the cache is operating.
+     *
+     * @param maxElementsInMemory The maximum number of elements in memory, before they are evicted (0 == no limit)
+     * @return this configuration instance
+     */
+    public final CacheConfiguration maxEntriesLocalHeap(int maxElementsInMemory) {
+        setMaxEntriesLocalHeap(maxElementsInMemory);
         return this;
     }
 
@@ -940,12 +971,28 @@ public class CacheConfiguration implements Cloneable {
      * This property can be modified dynamically while the cache is operating.
      *
      * @param maxElementsOnDisk the maximum number of Elements to allow on the disk. 0 means unlimited.
+     * @deprecated use {@link #setMaxEntriesLocalDisk(long)}
      */
+    @Deprecated
     public void setMaxElementsOnDisk(int maxElementsOnDisk) {
+        setMaxEntriesLocalDisk(maxElementsOnDisk);
+    }
+
+    /**
+     * Sets the maximum number elements on Disk. 0 means unlimited.
+     * <p/>
+     * This property can be modified dynamically while the cache is operating.
+     *
+     * @param maxEntriesOnDisk the maximum number of Elements to allow on the disk. 0 means unlimited.
+     */
+    public void setMaxEntriesLocalDisk(long maxEntriesOnDisk) {
+        if(maxEntriesOnDisk > Integer.MAX_VALUE)
+            throw new IllegalArgumentException("Values greater than Integer.MAX_VALUE are not currently supported.");
+
         checkDynamicChange();
         int oldCapacity = this.maxElementsOnDisk;
-        int newCapacity = maxElementsOnDisk;
-        this.maxElementsOnDisk = maxElementsOnDisk;
+        int newCapacity = (int) maxEntriesOnDisk;
+        this.maxElementsOnDisk = (int) maxEntriesOnDisk;
         fireDiskCapacityChanged(oldCapacity, newCapacity);
     }
 
@@ -957,9 +1004,25 @@ public class CacheConfiguration implements Cloneable {
      * @param maxElementsOnDisk the maximum number of Elements to allow on the disk. 0 means unlimited.
      * @return this configuration instance
      * @see #setMaxElementsOnDisk(int)
+     * @deprecated use {@link #maxEntriesLocalDisk(int)}
      */
+    @Deprecated
     public final CacheConfiguration maxElementsOnDisk(int maxElementsOnDisk) {
         setMaxElementsOnDisk(maxElementsOnDisk);
+        return this;
+    }
+
+    /**
+     * Builder which sets the maximum number elements on Disk. 0 means unlimited.
+     * <p/>
+     * This property can be modified dynamically while the cache is operating.
+     *
+     * @param maxElementsOnDisk the maximum number of Elements to allow on the disk. 0 means unlimited.
+     * @return this configuration instance
+     * @see #setMaxElementsOnDisk(int)
+     */
+    public final CacheConfiguration maxEntriesLocalDisk(int maxElementsOnDisk) {
+        setMaxEntriesLocalDisk(maxElementsOnDisk);
         return this;
     }
 
@@ -1112,19 +1175,19 @@ public class CacheConfiguration implements Cloneable {
      * The maximum amount of bytes the cache should occupy on heap
      * @return value in bytes, 0 if none set
      */
-    public long getMaxBytesOnHeap() {
-        return maxBytesOnHeap == null ? DEFAULT_MAX_BYTES_ON_HEAP : maxBytesOnHeap;
+    public long getMaxBytesLocalHeap() {
+        return maxBytesLocalHeap == null ? DEFAULT_MAX_BYTES_ON_HEAP : maxBytesLocalHeap;
     }
 
     /**
      * Setter for maxBytesOnHeap as a String. Value can have a one char unit suffix or be a percentage (ending in %)
      * @param maxBytesOnHeap String representation of the size, can be relative (in %)
      */
-    public void setMaxBytesOnHeap(final String maxBytesOnHeap) {
+    public void setMaxBytesLocalHeap(final String maxBytesOnHeap) {
         if (isPercentage(maxBytesOnHeap)) {
             maxBytesOnHeapPercentage = parsePercentage(maxBytesOnHeap);
         } else {
-            setMaxBytesOnHeap(MemoryUnit.parseSizeInBytes(maxBytesOnHeap));
+            setMaxBytesLocalHeap(MemoryUnit.parseSizeInBytes(maxBytesOnHeap));
         }
     }
 
@@ -1132,9 +1195,9 @@ public class CacheConfiguration implements Cloneable {
      * Setter for maxBytesOnDisk in bytes
      * @param maxBytesOnHeap max bytes on disk in bytes
      */
-    public void setMaxBytesOnHeap(final Long maxBytesOnHeap) {
+    public void setMaxBytesLocalHeap(final Long maxBytesOnHeap) {
         verifyGreaterThanZero(maxBytesOnHeap, "maxBytesOnHeap");
-        this.maxBytesOnHeap = maxBytesOnHeap;
+        this.maxBytesLocalHeap = maxBytesOnHeap;
     }
 
     /**
@@ -1144,8 +1207,8 @@ public class CacheConfiguration implements Cloneable {
      * @return this
      */
 
-    public CacheConfiguration maxOnHeap(final long amount, final MemoryUnit memoryUnit) {
-        setMaxBytesOnHeap(memoryUnit.toBytes(amount));
+    public CacheConfiguration maxBytesLocalHeap(final long amount, final MemoryUnit memoryUnit) {
+        setMaxBytesLocalHeap(memoryUnit.toBytes(amount));
         return this;
     }
 
@@ -1153,19 +1216,19 @@ public class CacheConfiguration implements Cloneable {
      * The maximum amount of bytes the cache should occupy off heap
      * @return value in bytes, 0 if none set
      */
-    public long getMaxBytesOffHeap() {
-        return maxBytesOffHeap == null ? DEFAULT_MAX_BYTES_OFF_HEAP : maxBytesOffHeap;
+    public long getMaxBytesLocalOffHeap() {
+        return maxBytesLocalOffHeap == null ? DEFAULT_MAX_BYTES_OFF_HEAP : maxBytesLocalOffHeap;
     }
 
     /**
-     * Setter for maxBytesOffHeap as a String. Value can have a one char unit suffix or be a percentage (ending in %)
+     * Setter for maximum bytes off heap as a String. Value can have a one char unit suffix or be a percentage (ending in %)
      * @param maxBytesOffHeap String representation of the size, can be relative (in %)
      */
-    public void setMaxBytesOffHeap(final String maxBytesOffHeap) {
+    public void setMaxBytesLocalOffHeap(final String maxBytesOffHeap) {
         if (!isPercentage(maxBytesOffHeap)) {
-            setMaxBytesOffHeap(MemoryUnit.parseSizeInBytes(maxBytesOffHeap));
+            setMaxBytesLocalOffHeap(MemoryUnit.parseSizeInBytes(maxBytesOffHeap));
         } else {
-            maxBytesOffHeapPercentage = parsePercentage(maxBytesOffHeap);
+            maxBytesLocalHeapPercentage = parsePercentage(maxBytesOffHeap);
         }
     }
 
@@ -1173,8 +1236,8 @@ public class CacheConfiguration implements Cloneable {
      * Getter for maximum bytes off heap expressed as a percentage
      * @return percentage (between 0 and 100)
      */
-    public Integer getMaxBytesOffHeapPercentage() {
-        return maxBytesOffHeapPercentage;
+    public Integer getMaxBytesLocalHeapPercentage() {
+        return maxBytesLocalHeapPercentage;
     }
 
     /**
@@ -1211,9 +1274,9 @@ public class CacheConfiguration implements Cloneable {
      * Sets the maximum amount of bytes the cache being configured will use on the OffHeap tier
      * @param maxBytesOffHeap max bytes on disk in bytes
      */
-    public void setMaxBytesOffHeap(final Long maxBytesOffHeap) {
+    public void setMaxBytesLocalOffHeap(final Long maxBytesOffHeap) {
         verifyGreaterThanZero(maxBytesOffHeap, "maxBytesOffHeap");
-        this.maxBytesOffHeap = maxBytesOffHeap;
+        this.maxBytesLocalOffHeap = maxBytesOffHeap;
     }
 
     /**
@@ -1222,8 +1285,8 @@ public class CacheConfiguration implements Cloneable {
      * @param memoryUnit the actual unit
      * @return this
      */
-    public CacheConfiguration maxOffHeap(final long amount, final MemoryUnit memoryUnit) {
-        setMaxBytesOffHeap(memoryUnit.toBytes(amount));
+    public CacheConfiguration maxBytesLocalOffHeap(final long amount, final MemoryUnit memoryUnit) {
+        setMaxBytesLocalOffHeap(memoryUnit.toBytes(amount));
         return this;
     }
 
@@ -1231,19 +1294,19 @@ public class CacheConfiguration implements Cloneable {
      * The maximum amount of bytes the cache should occupy on disk
      * @return value in bytes, 0 if none set
      */
-    public long getMaxBytesOnDisk() {
-        return maxBytesOnDisk == null ? DEFAULT_MAX_BYTES_ON_DISK : maxBytesOnDisk;
+    public long getMaxBytesLocalDisk() {
+        return maxBytesLocalDisk == null ? DEFAULT_MAX_BYTES_ON_DISK : maxBytesLocalDisk;
     }
 
     /**
      * Setter for maxBytesOnDisk as a String. Value can have a one char unit suffix or be a percentage (ending in %)
      * @param maxBytesOnDisk String representation of the size, can be relative (in %)
      */
-    public void setMaxBytesOnDisk(final String maxBytesOnDisk) {
+    public void setMaxBytesLocalDisk(final String maxBytesOnDisk) {
         if (isPercentage(maxBytesOnDisk)) {
             maxBytesOnDiskPercentage = parsePercentage(maxBytesOnDisk);
         } else {
-            setMaxBytesOnDisk(MemoryUnit.parseSizeInBytes(maxBytesOnDisk));
+            setMaxBytesLocalDisk(MemoryUnit.parseSizeInBytes(maxBytesOnDisk));
         }
     }
 
@@ -1251,9 +1314,9 @@ public class CacheConfiguration implements Cloneable {
      * Sets the maximum amount of bytes the cache being configured will use on the OnDisk tier
      * @param maxBytesOnDisk max bytes on disk in bytes
      */
-    public void setMaxBytesOnDisk(final Long maxBytesOnDisk) {
+    public void setMaxBytesLocalDisk(final Long maxBytesOnDisk) {
         verifyGreaterThanZero(maxBytesOnDisk, "maxBytesOnDisk");
-        this.maxBytesOnDisk = maxBytesOnDisk;
+        this.maxBytesLocalDisk = maxBytesOnDisk;
     }
 
     /**
@@ -1262,8 +1325,8 @@ public class CacheConfiguration implements Cloneable {
      * @param memoryUnit the actual unit
      * @return this
      */
-    public CacheConfiguration maxOnDisk(final long amount, final MemoryUnit memoryUnit) {
-        setMaxBytesOnDisk(memoryUnit.toBytes(amount));
+    public CacheConfiguration maxBytesLocalDisk(final long amount, final MemoryUnit memoryUnit) {
+        setMaxBytesLocalDisk(memoryUnit.toBytes(amount));
         return this;
     }
 
@@ -1294,7 +1357,7 @@ public class CacheConfiguration implements Cloneable {
     /**
      * Checks whether the user explicitly set the maxBytesOnHeapPercentage
      * @return true if set by user, false otherwise
-     * @see #setMaxBytesOnHeap(String)
+     * @see #setMaxBytesLocalHeap(String)
      */
     public boolean isMaxBytesOnHeapPercentageSet() {
         return maxBytesOnHeapPercentage != null;
@@ -1303,16 +1366,16 @@ public class CacheConfiguration implements Cloneable {
     /**
      * Checks whether the user explicitly set the maxBytesOffHeapPercentage
      * @return true if set by user, false otherwise
-     * @see #setMaxBytesOffHeap(String)
+     * @see #setMaxBytesLocalOffHeap(String)
      */
     public boolean isMaxBytesOffHeapPercentageSet() {
-        return maxBytesOffHeapPercentage != null;
+        return maxBytesLocalHeapPercentage != null;
     }
 
     /**
      * Checks whether the user explicitly set the maxBytesOnDiskPercentage
      * @return true if set by user, false otherwise
-     * @see #setMaxBytesOnDisk(String)
+     * @see #setMaxBytesLocalDisk(String)
      */
     public boolean isMaxBytesOnDiskPercentageSet() {
         return maxBytesOnDiskPercentage != null;
@@ -1687,7 +1750,10 @@ public class CacheConfiguration implements Cloneable {
 
     /**
      * Accessor
+     *
+     * @deprecated use {@link #getMaxEntriesLocalHeap(long)}
      */
+    @Deprecated
     public int getMaxElementsInMemory() {
         return maxElementsInMemory;
     }
@@ -1701,9 +1767,26 @@ public class CacheConfiguration implements Cloneable {
 
     /**
      * Accessor
+     *
+     * @deprecated use {@link #getMaxEntriesLocalDisk()}
      */
+    @Deprecated
     public int getMaxElementsOnDisk() {
         return maxElementsOnDisk;
+    }
+
+    /**
+     * Configured maximum number of entries for the local disk store.
+     */
+    public long getMaxEntriesLocalDisk() {
+        return maxElementsOnDisk;
+    }
+
+    /**
+     * Configured maximum number of entries for the local memory heap.
+     */
+    public long getMaxEntriesLocalHeap() {
+        return maxElementsInMemory;
     }
 
     /**
@@ -1824,7 +1907,7 @@ public class CacheConfiguration implements Cloneable {
      * @see #getMaxMemoryOffHeap()
      */
     public long getMaxMemoryOffHeapInBytes() {
-        return getMaxBytesOffHeap();
+        return getMaxBytesLocalOffHeap();
     }
 
     /**

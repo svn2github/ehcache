@@ -19,7 +19,7 @@ public class TwinCachesTest {
 
     @Test
     public void testParallelLoadTwinCaches() {
-        CacheManager manager = new CacheManager(new Configuration().maxOnHeap(16, MemoryUnit.MEGABYTES).defaultCache(new CacheConfiguration("default", 0).eternal(true)));
+        CacheManager manager = new CacheManager(new Configuration().maxBytesLocalHeap(16, MemoryUnit.MEGABYTES).defaultCache(new CacheConfiguration("default", 0).eternal(true)));
 
         Ehcache one = manager.addCacheIfAbsent("one");
         Ehcache two = manager.addCacheIfAbsent("two");
@@ -56,7 +56,7 @@ public class TwinCachesTest {
 
     @Test
     public void testSerialLoadTwinCaches() {
-        CacheManager manager = new CacheManager(new Configuration().maxOnHeap(16, MemoryUnit.MEGABYTES).defaultCache(new CacheConfiguration("default", 0).eternal(true)));
+        CacheManager manager = new CacheManager(new Configuration().maxBytesLocalHeap(16, MemoryUnit.MEGABYTES).defaultCache(new CacheConfiguration("default", 0).eternal(true)));
 
         Ehcache one = manager.addCacheIfAbsent("one");
         Ehcache two = manager.addCacheIfAbsent("two");
@@ -95,7 +95,7 @@ public class TwinCachesTest {
 
     @Test
     public void testRandomAccessTwinCaches() {
-        CacheManager manager = new CacheManager(new Configuration().maxOnHeap(1, MemoryUnit.MEGABYTES).defaultCache(new CacheConfiguration("default", 0).eternal(true)));
+        CacheManager manager = new CacheManager(new Configuration().maxBytesLocalHeap(1, MemoryUnit.MEGABYTES).defaultCache(new CacheConfiguration("default", 0).eternal(true)));
 
         Ehcache one = manager.addCacheIfAbsent("one");
         Ehcache two = manager.addCacheIfAbsent("two");
@@ -129,7 +129,7 @@ public class TwinCachesTest {
 
     @Test
     public void testRandomAccessTripletCaches() {
-        CacheManager manager = new CacheManager(new Configuration().maxOnHeap(1, MemoryUnit.MEGABYTES).defaultCache(new CacheConfiguration("default", 0).eternal(true)));
+        CacheManager manager = new CacheManager(new Configuration().maxBytesLocalHeap(1, MemoryUnit.MEGABYTES).defaultCache(new CacheConfiguration("default", 0).eternal(true)));
 
         Ehcache one = manager.addCacheIfAbsent("one");
         Ehcache two = manager.addCacheIfAbsent("two");
@@ -175,7 +175,7 @@ public class TwinCachesTest {
 
     @Test
     public void testIntroducedRandomAccessTwinCache() throws IOException {
-        CacheManager manager = new CacheManager(new Configuration().maxOnHeap(2, MemoryUnit.MEGABYTES).defaultCache(new CacheConfiguration("default", 0).eternal(true)));
+        CacheManager manager = new CacheManager(new Configuration().maxBytesLocalHeap(2, MemoryUnit.MEGABYTES).defaultCache(new CacheConfiguration("default", 0).eternal(true)));
 
         Ehcache one = manager.addCacheIfAbsent("one");
 
@@ -219,7 +219,7 @@ public class TwinCachesTest {
 
     @Test
     public void testIntroducedRandomAccessTripletCache() throws IOException {
-        CacheManager manager = new CacheManager(new Configuration().maxOnHeap(2, MemoryUnit.MEGABYTES).defaultCache(new CacheConfiguration("default", 0).eternal(true)));
+        CacheManager manager = new CacheManager(new Configuration().maxBytesLocalHeap(2, MemoryUnit.MEGABYTES).defaultCache(new CacheConfiguration("default", 0).eternal(true)));
 
         Ehcache one = manager.addCacheIfAbsent("one");
 
@@ -299,7 +299,7 @@ public class TwinCachesTest {
 
     @Test
     public void testIntroducedRandomAccessDoubledCache() throws IOException {
-        CacheManager manager = new CacheManager(new Configuration().maxOnHeap(2, MemoryUnit.MEGABYTES).defaultCache(new CacheConfiguration("default", 0).eternal(true)));
+        CacheManager manager = new CacheManager(new Configuration().maxBytesLocalHeap(2, MemoryUnit.MEGABYTES).defaultCache(new CacheConfiguration("default", 0).eternal(true)));
 
         Ehcache one = manager.addCacheIfAbsent("one");
 

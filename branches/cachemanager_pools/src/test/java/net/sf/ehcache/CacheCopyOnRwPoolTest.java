@@ -40,8 +40,8 @@ public class CacheCopyOnRwPoolTest {
         cacheManager = new CacheManager(
                 new Configuration()
                         .diskStore(new DiskStoreConfiguration().path(System.getProperty("java.io.tmpdir")))
-                        .maxOnHeap(50, MemoryUnit.KILOBYTES)
-                        .maxOnDisk(200, MemoryUnit.KILOBYTES)
+                        .maxBytesLocalHeap(50, MemoryUnit.KILOBYTES)
+                        .maxBytesLocalDisk(200, MemoryUnit.KILOBYTES)
         );
     }
 

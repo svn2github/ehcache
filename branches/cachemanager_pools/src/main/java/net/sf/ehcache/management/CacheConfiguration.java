@@ -89,7 +89,10 @@ public class CacheConfiguration implements CacheConfigurationMBean, Serializable
     }
     /**
      * Accessor
+     *
+     * @deprecated use {@link #getMaxEntriesLocalHeap()}
      */
+    @Deprecated
     public int getMaxElementsInMemory() {
         return cacheConfiguration.getMaxElementsInMemory();
     }
@@ -98,14 +101,19 @@ public class CacheConfiguration implements CacheConfigurationMBean, Serializable
      * setMaxElementsInMemory
      *
      * @param maxElements
+     * @deprecated use {@link #setMaxEntriesLocalHeap(long)}
      */
+    @Deprecated
     public void setMaxElementsInMemory(int maxElements) {
        cacheConfiguration.setMaxElementsInMemory(maxElements);
     }
 
     /**
      * Accessor
+     *
+     * @deprecated use {@link #getMaxEntriesLocalDisk()}
      */
+    @Deprecated
     public int getMaxElementsOnDisk() {
        return cacheConfiguration.getMaxElementsOnDisk();
     }
@@ -114,7 +122,9 @@ public class CacheConfiguration implements CacheConfigurationMBean, Serializable
      * setMaxElementsOnDisk
      *
      * @param maxElements
+     * @deprecated use {@link #setMaxEntriesLocalDisk(long)}
      */
+    @Deprecated
     public void setMaxElementsOnDisk(int maxElements) {
        cacheConfiguration.setMaxElementsOnDisk(maxElements);
     }
@@ -279,8 +289,59 @@ public class CacheConfiguration implements CacheConfigurationMBean, Serializable
 
     /**
      * Accessor
+     * @deprecated use {@link #getMaxBytesLocalOffHeap()}
      */
+    @Deprecated
     public long getMaxMemoryOffHeapInBytes() {
         return cacheConfiguration.getMaxMemoryOffHeapInBytes();
+    }
+
+    /**
+     * Maximum number of entries that may be stored in the local disk store.
+     */
+    public long getMaxEntriesLocalDisk() {
+        return cacheConfiguration.getMaxEntriesLocalDisk();
+    }
+
+    /**
+     * Maximum number of entries that may be stored in local heap memory store.
+     */
+    public long getMaxEntriesLocalHeap() {
+        return cacheConfiguration.getMaxEntriesLocalHeap();
+    }
+
+    /**
+     * Maximum number of entries that may be stores in the local disk store.
+     */
+    public void setMaxEntriesLocalDisk(long maxEntries) {
+        cacheConfiguration.setMaxEntriesLocalDisk(maxEntries);
+    }
+
+    /**
+     * Maximum number of entries that may be stored in local heap memory store.
+     */
+    public void setMaxEntriesLocalHeap(long maxEntries) {
+        cacheConfiguration.setMaxEntriesLocalHeap(maxEntries);
+    }
+
+    /**
+     * Maximum number of bytes that may be stored in the local disk store.
+     */
+    public long getMaxBytesLocalDisk() {
+        return cacheConfiguration.getMaxBytesLocalDisk();
+    }
+
+    /**
+     * Maximum number of bytes that may be stored in local heap memory store.
+     */
+    public long getMaxBytesLocalHeap() {
+        return cacheConfiguration.getMaxBytesLocalHeap();
+    }
+
+    /**
+     * Maximum number of bytes that may be stored in local off-heap memory store.
+     */
+    public long getMaxBytesLocalOffHeap() {
+        return cacheConfiguration.getMaxBytesLocalOffHeap();
     }
 }

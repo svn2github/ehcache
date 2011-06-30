@@ -334,15 +334,15 @@ public class CacheManager {
         }
         validateConfiguration();
 
-        if (this.configuration.isMaxBytesOnHeapSet()) {
+        if (this.configuration.isMaxBytesLocalHeapSet()) {
             PoolEvictor<PoolableStore> evictor = new BalancedAccessOnHeapPoolEvictor();
             SizeOfEngine sizeOfEngine = createSizeOfEngine(null);
-            this.onHeapPool = new BoundedPool(this.configuration.getMaxBytesOnHeap(), evictor, sizeOfEngine);
+            this.onHeapPool = new BoundedPool(this.configuration.getMaxBytesLocalHeap(), evictor, sizeOfEngine);
         }
-        if (this.configuration.isMaxBytesOnDiskSet()) {
+        if (this.configuration.isMaxBytesLocalDiskSet()) {
             PoolEvictor<PoolableStore> evictor = new BalancedAccessOnDiskPoolEvictor();
             SizeOfEngine sizeOfEngine = createSizeOfEngine(null);
-            this.onDiskPool = new BoundedPool(this.configuration.getMaxBytesOnDisk(), evictor, sizeOfEngine);
+            this.onDiskPool = new BoundedPool(this.configuration.getMaxBytesLocalDisk(), evictor, sizeOfEngine);
         }
 
         if (localConfiguration.getName() != null) {
@@ -1076,41 +1076,41 @@ public class CacheManager {
 
         long cacheAssignedMem;
         if (cacheConfiguration.getMaxBytesOnHeapPercentage() != null) {
-            cacheAssignedMem = configuration.getMaxBytesOnHeap() * cacheConfiguration.getMaxBytesOnHeapPercentage() / HUNDRED;
-            cacheConfiguration.setMaxBytesOnHeap(cacheAssignedMem);
+            cacheAssignedMem = configuration.getMaxBytesLocalHeap() * cacheConfiguration.getMaxBytesOnHeapPercentage() / HUNDRED;
+            cacheConfiguration.setMaxBytesLocalHeap(cacheAssignedMem);
         }
 
-        if (cacheConfiguration.getMaxBytesOffHeapPercentage() != null) {
-            cacheAssignedMem = configuration.getMaxBytesOffHeap() * cacheConfiguration.getMaxBytesOffHeapPercentage() / HUNDRED;
-            cacheConfiguration.setMaxBytesOffHeap(cacheAssignedMem);
+        if (cacheConfiguration.getMaxBytesLocalHeapPercentage() != null) {
+            cacheAssignedMem = configuration.getMaxBytesLocalOffHeap() * cacheConfiguration.getMaxBytesLocalHeapPercentage() / HUNDRED;
+            cacheConfiguration.setMaxBytesLocalOffHeap(cacheAssignedMem);
         }
 
         if (cacheConfiguration.getMaxBytesOnDiskPercentage() != null) {
-            cacheAssignedMem = configuration.getMaxBytesOnDisk() * cacheConfiguration.getMaxBytesOnDiskPercentage() / HUNDRED;
-            cacheConfiguration.setMaxBytesOnDisk(cacheAssignedMem);
+            cacheAssignedMem = configuration.getMaxBytesLocalDisk() * cacheConfiguration.getMaxBytesOnDiskPercentage() / HUNDRED;
+            cacheConfiguration.setMaxBytesLocalDisk(cacheAssignedMem);
         }
 
     }
 
     private void validatePoolConfig(CacheConfiguration cacheConfiguration) {
 
-        if (configuration.isMaxBytesOnHeapSet() && Runtime.getRuntime().maxMemory() - configuration.getMaxBytesOnHeap() < 0) {
+        if (configuration.isMaxBytesLocalHeapSet() && Runtime.getRuntime().maxMemory() - configuration.getMaxBytesLocalHeap() < 0) {
             throw new InvalidConfigurationException("You've assigned more memory to the on-heap than the VM can sustain, " +
                                                     "please adjust your -Xmx setting accordingly");
         }
 
         // todo Verify that these are the real constraints ?
-        if (cacheConfiguration.isMaxBytesOnHeapPercentageSet() && !configuration.isMaxBytesOnHeapSet()) {
+        if (cacheConfiguration.isMaxBytesOnHeapPercentageSet() && !configuration.isMaxBytesLocalHeapSet()) {
             throw new InvalidConfigurationException("Cache '" + cacheConfiguration.getName() +
                                                     "' defines a percentage maxBytesOnHeap value but no CacheManager " +
                                                     "wide value was configured");
         }
-        if (cacheConfiguration.isMaxBytesOffHeapPercentageSet() && !configuration.isMaxBytesOffHeapSet()) {
+        if (cacheConfiguration.isMaxBytesOffHeapPercentageSet() && !configuration.isMaxBytesLocalOffHeapSet()) {
             throw new InvalidConfigurationException("Cache '" + cacheConfiguration.getName() +
                                                     "' defines a percentage maxBytesOffHeap value but no CacheManager " +
                                                     "wide value was configured");
         }
-        if (cacheConfiguration.isMaxBytesOnDiskPercentageSet() && !configuration.isMaxBytesOnDiskSet()) {
+        if (cacheConfiguration.isMaxBytesOnDiskPercentageSet() && !configuration.isMaxBytesLocalDiskSet()) {
             throw new InvalidConfigurationException("Cache '" + cacheConfiguration.getName() +
                                                     "' defines a percentage maxBytesOnDisk value but no CacheManager " +
                                                     "wide value was configured");
@@ -1141,11 +1141,11 @@ public class CacheManager {
         }
         configCachePools(cache.getCacheConfiguration());
         verifyPoolAllocationsBeforeAdding(cache.getCacheConfiguration());
-        if (configuration.isMaxBytesOnHeapSet()) {
-            onHeapPool.setMaxSize(onHeapPool.getMaxSize() - cache.getCacheConfiguration().getMaxBytesOnHeap());
+        if (configuration.isMaxBytesLocalHeapSet()) {
+            onHeapPool.setMaxSize(onHeapPool.getMaxSize() - cache.getCacheConfiguration().getMaxBytesLocalHeap());
         }
-        if (configuration.isMaxBytesOnDiskSet()) {
-            onDiskPool.setMaxSize(onDiskPool.getMaxSize() - cache.getCacheConfiguration().getMaxBytesOnDisk());
+        if (configuration.isMaxBytesLocalDiskSet()) {
+            onDiskPool.setMaxSize(onDiskPool.getMaxSize() - cache.getCacheConfiguration().getMaxBytesLocalDisk());
         }
 
         cache.setCacheManager(this);
@@ -1214,29 +1214,29 @@ public class CacheManager {
         long totalOnDiskAssignedMemory  = 0;
 
         for (Ehcache ehcache : ehcaches.values()) {
-            totalOnHeapAssignedMemory += ehcache.getCacheConfiguration().getMaxBytesOnHeap();
-            totalOffHeapAssignedMemory += ehcache.getCacheConfiguration().getMaxBytesOffHeap();
-            totalOnDiskAssignedMemory += ehcache.getCacheConfiguration().getMaxBytesOnDisk();
+            totalOnHeapAssignedMemory += ehcache.getCacheConfiguration().getMaxBytesLocalHeap();
+            totalOffHeapAssignedMemory += ehcache.getCacheConfiguration().getMaxBytesLocalOffHeap();
+            totalOnDiskAssignedMemory += ehcache.getCacheConfiguration().getMaxBytesLocalDisk();
         }
 
-        totalOnHeapAssignedMemory += cacheConfiguration.getMaxBytesOnHeap();
-        totalOffHeapAssignedMemory += cacheConfiguration.getMaxBytesOffHeap();
-        totalOnDiskAssignedMemory += cacheConfiguration.getMaxBytesOnDisk();
+        totalOnHeapAssignedMemory += cacheConfiguration.getMaxBytesLocalHeap();
+        totalOffHeapAssignedMemory += cacheConfiguration.getMaxBytesLocalOffHeap();
+        totalOnDiskAssignedMemory += cacheConfiguration.getMaxBytesLocalDisk();
 
-        if (configuration.isMaxBytesOnHeapSet() && configuration.getMaxBytesOnHeap() - totalOnHeapAssignedMemory < 0) {
+        if (configuration.isMaxBytesLocalHeapSet() && configuration.getMaxBytesLocalHeap() - totalOnHeapAssignedMemory < 0) {
             throw new InvalidConfigurationException("Adding cache '" + cacheConfiguration.getName()
                                                     + "' to the CacheManager over-allocates onHeap memory!");
         }
-        if (configuration.isMaxBytesOffHeapSet() && configuration.getMaxBytesOffHeap() - totalOffHeapAssignedMemory < 0) {
+        if (configuration.isMaxBytesLocalOffHeapSet() && configuration.getMaxBytesLocalOffHeap() - totalOffHeapAssignedMemory < 0) {
             throw new InvalidConfigurationException("Adding cache '" + cacheConfiguration.getName()
                                                     + "' to the CacheManager over-allocates offHeap memory!");
         }
-        if (configuration.isMaxBytesOnDiskSet() && configuration.getMaxBytesOnDisk() - totalOnDiskAssignedMemory < 0) {
+        if (configuration.isMaxBytesLocalDiskSet() && configuration.getMaxBytesLocalDisk() - totalOnDiskAssignedMemory < 0) {
             throw new InvalidConfigurationException("Adding cache '" + cacheConfiguration.getName()
                                                     + "' to the CacheManager over-allocates onDisk space!");
         }
 
-        if (configuration.isMaxBytesOnHeapSet() && configuration.getMaxBytesOnHeap() - totalOnHeapAssignedMemory == 0) {
+        if (configuration.isMaxBytesLocalHeapSet() && configuration.getMaxBytesLocalHeap() - totalOnHeapAssignedMemory == 0) {
             LOG.warn("All the onHeap memory has been assigned, there is none left for dynamically added caches");
         }
 
@@ -1294,11 +1294,11 @@ public class CacheManager {
         Ehcache cache = ehcaches.remove(cacheName);
         if (cache != null && cache.getStatus().equals(Status.STATUS_ALIVE)) {
             cache.dispose();
-            if (configuration.isMaxBytesOnHeapSet()) {
-                onHeapPool.setMaxSize(onHeapPool.getMaxSize() + cache.getCacheConfiguration().getMaxBytesOnHeap());
+            if (configuration.isMaxBytesLocalHeapSet()) {
+                onHeapPool.setMaxSize(onHeapPool.getMaxSize() + cache.getCacheConfiguration().getMaxBytesLocalHeap());
             }
-            if (configuration.isMaxBytesOnDiskSet()) {
-                onDiskPool.setMaxSize(onDiskPool.getMaxSize() + cache.getCacheConfiguration().getMaxBytesOnDisk());
+            if (configuration.isMaxBytesLocalDiskSet()) {
+                onDiskPool.setMaxSize(onDiskPool.getMaxSize() + cache.getCacheConfiguration().getMaxBytesLocalDisk());
             }
             configuration.getCacheConfigurations().remove(cacheName);
             cacheManagerEventListenerRegistry.notifyCacheRemoved(cache.getName());

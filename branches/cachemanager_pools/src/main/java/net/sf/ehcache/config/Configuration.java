@@ -28,7 +28,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * A bean, used by BeanUtils, to set configuration from an XML configuration file.
- * 
+ *
  * @author <a href="mailto:gluck@thoughtworks.com">Greg Luck</a>
  * @version $Id$
  */
@@ -47,15 +47,15 @@ public final class Configuration {
      */
     public static final int  DEFAULT_TRANSACTION_TIMEOUT = 15;
     /**
-     * Default value for maxBytesOnHeap when not explicitly set
+     * Default value for maxBytesLocalHeap when not explicitly set
      */
     public static final long DEFAULT_MAX_BYTES_ON_HEAP   =  0;
     /**
-     * Default value for maxBytesOffHeap when not explicitly set
+     * Default value for maxBytesLocalOffHeap when not explicitly set
      */
     public static final long DEFAULT_MAX_BYTES_OFF_HEAP  =  0;
     /**
-     * Default value for maxBytesOnDisk when not explicitly set
+     * Default value for maxBytesLocalDisk when not explicitly set
      */
     public static final long DEFAULT_MAX_BYTES_ON_DISK   =  0;
     /**
@@ -71,7 +71,7 @@ public final class Configuration {
 
     /**
      * Represents whether monitoring should be enabled or not.
-     * 
+     *
      * @author amiller
      */
     public enum Monitoring {
@@ -91,17 +91,17 @@ public final class Configuration {
     private Monitoring monitoring = DEFAULT_MONITORING;
     private DiskStoreConfiguration diskStoreConfiguration;
     private CacheConfiguration defaultCacheConfiguration;
-    private List<FactoryConfiguration> cacheManagerPeerProviderFactoryConfiguration = new ArrayList<FactoryConfiguration>();
-    private List<FactoryConfiguration> cacheManagerPeerListenerFactoryConfiguration = new ArrayList<FactoryConfiguration>();
+    private final List<FactoryConfiguration> cacheManagerPeerProviderFactoryConfiguration = new ArrayList<FactoryConfiguration>();
+    private final List<FactoryConfiguration> cacheManagerPeerListenerFactoryConfiguration = new ArrayList<FactoryConfiguration>();
     private FactoryConfiguration transactionManagerLookupConfiguration;
     private FactoryConfiguration cacheManagerEventListenerFactoryConfiguration;
     private TerracottaClientConfiguration terracottaConfigConfiguration;
     private final Map<String, CacheConfiguration> cacheConfigurations = new ConcurrentHashMap<String, CacheConfiguration>();
     private ConfigurationSource configurationSource;
     private boolean dynamicConfig = DEFAULT_DYNAMIC_CONFIG;
-    private Long maxBytesOnHeap;
-    private Long maxBytesOffHeap;
-    private Long maxBytesOnDisk;
+    private Long maxBytesLocalHeap;
+    private Long maxBytesLocalOffHeap;
+    private Long maxBytesLocalDisk;
 
     /**
      * Empty constructor, which is used by {@link ConfigurationFactory}, and can be also used programmatically.
@@ -114,28 +114,28 @@ public final class Configuration {
     /**
      * Checks whether the user explicitly set the maxBytesOnDisk
      * @return true if set by user, false otherwise
-     * @see #setMaxBytesOnDisk(Long)
+     * @see #setMaxBytesLocalDisk(Long)
      */
-    public boolean isMaxBytesOnDiskSet() {
-        return maxBytesOnDisk != null;
+    public boolean isMaxBytesLocalDiskSet() {
+        return maxBytesLocalDisk != null;
     }
 
     /**
      * Checks whether the user explicitly set the maxBytesOffHeat
      * @return true if set by user, false otherwise
-     * @see #setMaxBytesOffHeap(Long)
+     * @see #setMaxBytesLocalOffHeap(Long)
      */
-    public boolean isMaxBytesOffHeapSet() {
-        return maxBytesOffHeap != null;
+    public boolean isMaxBytesLocalOffHeapSet() {
+        return maxBytesLocalOffHeap != null;
     }
 
     /**
      * Checks whether the user explicitly set the maxBytesOnHeap
      * @return true if set by user, false otherwise
-     * @see #setMaxBytesOnHeap(Long)
+     * @see #setMaxBytesLocalHeap(Long)
      */
-    public boolean isMaxBytesOnHeapSet() {
-        return maxBytesOnHeap != null;
+    public boolean isMaxBytesLocalHeapSet() {
+        return maxBytesLocalHeap != null;
     }
 
 
@@ -147,7 +147,7 @@ public final class Configuration {
 
     /**
      * Builder to set the cache manager name.
-     * 
+     *
      * @see #setName(String)
      * @param name
      *            the name to set
@@ -174,7 +174,7 @@ public final class Configuration {
 
     /**
      * Builder to set the state of the automated update check.
-     * 
+     *
      * @param updateCheck
      *            {@code true} if the update check should be turned on; or {@code false} otherwise
      * @return this configuration instance
@@ -226,7 +226,7 @@ public final class Configuration {
 
     /**
      * Builder to set the monitoring approach
-     * 
+     *
      * @param monitoring
      *            an non-null instance of {@link Monitoring}
      * @return this configuration instance
@@ -259,7 +259,7 @@ public final class Configuration {
 
     /**
      * Builder to set the dynamic config capability
-     * 
+     *
      * @param dynamicConfig
      *            {@code true} if dynamic config should be enabled; or {@code false} otherwise.
      * @return this configuration instance
@@ -287,8 +287,8 @@ public final class Configuration {
      * Maximum amount of bytes the CacheManager will use on the heap
      * @return amount of bytes, 0 is unbound
      */
-    public long getMaxBytesOnHeap() {
-        return maxBytesOnHeap == null ? DEFAULT_MAX_BYTES_ON_HEAP : maxBytesOnHeap;
+    public long getMaxBytesLocalHeap() {
+        return maxBytesLocalHeap == null ? DEFAULT_MAX_BYTES_ON_HEAP : maxBytesLocalHeap;
     }
 
     /**
@@ -296,13 +296,13 @@ public final class Configuration {
      * @param maxBytesOnHeap String representation of the size.
      * @see MemoryUnit#parseSizeInBytes(String)
      */
-    public void setMaxBytesOnHeap(final String maxBytesOnHeap) {
+    public void setMaxBytesLocalHeap(final String maxBytesOnHeap) {
         if (isPercentage(maxBytesOnHeap)) {
             long maxMemory = Runtime.getRuntime().maxMemory();
             long mem = maxMemory / HUNDRED * parsePercentage(maxBytesOnHeap);
-            setMaxBytesOnHeap(mem);
+            setMaxBytesLocalHeap(mem);
         } else {
-            setMaxBytesOnHeap(MemoryUnit.parseSizeInBytes(maxBytesOnHeap));
+            setMaxBytesLocalHeap(MemoryUnit.parseSizeInBytes(maxBytesOnHeap));
         }
     }
 
@@ -324,9 +324,9 @@ public final class Configuration {
      * Sets the maximum amount of bytes the cache manager being configured will use on the OnHeap tier
      * @param maxBytesOnHeap amount of bytes
      */
-    public void setMaxBytesOnHeap(final Long maxBytesOnHeap) {
+    public void setMaxBytesLocalHeap(final Long maxBytesOnHeap) {
         verifyGreaterThanZero(maxBytesOnHeap, "maxBytesOnHeap");
-        this.maxBytesOnHeap = maxBytesOnHeap;
+        this.maxBytesLocalHeap = maxBytesOnHeap;
     }
 
     /**
@@ -334,10 +334,10 @@ public final class Configuration {
      * @param amount the amount of unit
      * @param memoryUnit the actual unit
      * @return this
-     * @see #setMaxBytesOnHeap(Long)
+     * @see #setMaxBytesLocalHeap(Long)
      */
-    public Configuration maxOnHeap(final long amount, final MemoryUnit memoryUnit) {
-        setMaxBytesOnHeap(memoryUnit.toBytes(amount));
+    public Configuration maxBytesLocalHeap(final long amount, final MemoryUnit memoryUnit) {
+        setMaxBytesLocalHeap(memoryUnit.toBytes(amount));
         return this;
     }
 
@@ -345,8 +345,8 @@ public final class Configuration {
      * Maximum amount of bytes the CacheManager will use on the OffHeap Tier.
      * @return amount in bytes
      */
-    public long getMaxBytesOffHeap() {
-        return maxBytesOffHeap == null ? DEFAULT_MAX_BYTES_OFF_HEAP : maxBytesOffHeap;
+    public long getMaxBytesLocalOffHeap() {
+        return maxBytesLocalOffHeap == null ? DEFAULT_MAX_BYTES_OFF_HEAP : maxBytesLocalOffHeap;
     }
 
     /**
@@ -354,17 +354,17 @@ public final class Configuration {
      * @param maxBytesOffHeap String representation of the size.
      * @see MemoryUnit#parseSizeInBytes(String)
      */
-    public void setMaxBytesOffHeap(final String maxBytesOffHeap) {
-        setMaxBytesOffHeap(MemoryUnit.parseSizeInBytes(maxBytesOffHeap));
+    public void setMaxBytesLocalOffHeap(final String maxBytesOffHeap) {
+        setMaxBytesLocalOffHeap(MemoryUnit.parseSizeInBytes(maxBytesOffHeap));
     }
 
     /**
      * Sets maximum amount of bytes the CacheManager will use on the OffHeap Tier.
      * @param maxBytesOffHeap max bytes on disk in bytes. Needs be be greater than 0
      */
-    public void setMaxBytesOffHeap(final Long maxBytesOffHeap) {
+    public void setMaxBytesLocalOffHeap(final Long maxBytesOffHeap) {
         verifyGreaterThanZero(maxBytesOffHeap, "maxBytesOffHeap");
-        this.maxBytesOffHeap = maxBytesOffHeap;
+        this.maxBytesLocalOffHeap = maxBytesOffHeap;
     }
 
     /**
@@ -373,8 +373,8 @@ public final class Configuration {
      * @param memoryUnit the actual unit
      * @return this
      */
-    public Configuration maxOffHeap(final long amount, final MemoryUnit memoryUnit) {
-        setMaxBytesOffHeap(memoryUnit.toBytes(amount));
+    public Configuration maxBytesLocalOffHeap(final long amount, final MemoryUnit memoryUnit) {
+        setMaxBytesLocalOffHeap(memoryUnit.toBytes(amount));
         return this;
     }
 
@@ -382,8 +382,8 @@ public final class Configuration {
      * Maximum amount of bytes the CacheManager will use on the Disk Tier.
      * @return amount in bytes
      */
-    public long getMaxBytesOnDisk() {
-        return maxBytesOnDisk == null ? DEFAULT_MAX_BYTES_ON_DISK : maxBytesOnDisk;
+    public long getMaxBytesLocalDisk() {
+        return maxBytesLocalDisk == null ? DEFAULT_MAX_BYTES_ON_DISK : maxBytesLocalDisk;
     }
 
     /**
@@ -391,17 +391,17 @@ public final class Configuration {
      * @param maxBytesOnDisk String representation of the size.
      * @see MemoryUnit#parseSizeInBytes(String)
      */
-    public void setMaxBytesOnDisk(final String maxBytesOnDisk) {
-        setMaxBytesOnDisk(MemoryUnit.parseSizeInBytes(maxBytesOnDisk));
+    public void setMaxBytesLocalDisk(final String maxBytesOnDisk) {
+        setMaxBytesLocalDisk(MemoryUnit.parseSizeInBytes(maxBytesOnDisk));
     }
 
     /**
      * Sets maximum amount of bytes the CacheManager will use on the Disk Tier.
      * @param maxBytesOnDisk max bytes on disk in bytes. Needs be be greater than 0
      */
-    public void setMaxBytesOnDisk(final Long maxBytesOnDisk) {
+    public void setMaxBytesLocalDisk(final Long maxBytesOnDisk) {
         verifyGreaterThanZero(maxBytesOnDisk, "maxBytesOnDisk");
-        this.maxBytesOnDisk = maxBytesOnDisk;
+        this.maxBytesLocalDisk = maxBytesOnDisk;
     }
 
     /**
@@ -409,10 +409,10 @@ public final class Configuration {
      * @param amount the amount of unit
      * @param memoryUnit the actual unit
      * @return this
-     * @see #setMaxBytesOnDisk(Long)
+     * @see #setMaxBytesLocalDisk(Long)
      */
-    public Configuration maxOnDisk(final long amount, final MemoryUnit memoryUnit) {
-        setMaxBytesOnDisk(memoryUnit.toBytes(amount));
+    public Configuration maxBytesLocalDisk(final long amount, final MemoryUnit memoryUnit) {
+        setMaxBytesLocalDisk(memoryUnit.toBytes(amount));
         return this;
     }
 
@@ -424,7 +424,7 @@ public final class Configuration {
 
     /**
      * Builder to add a disk store to the cache manager, only one disk store can be added.
-     * 
+     *
      * @param diskStoreConfigurationParameter
      *            the disk store configuration to use
      * @return this configuration instance
@@ -448,7 +448,7 @@ public final class Configuration {
 
     /**
      * Builder to add a transaction manager lookup class to the cache manager, only one of these can be added.
-     * 
+     *
      * @param transactionManagerLookupParameter
      *            the transaction manager lookup class to use
      * @return this configuration instance
@@ -473,7 +473,7 @@ public final class Configuration {
 
     /**
      * Builder to set the event lister through a factory, only one of these can be added and subsequent calls are ignored.
-     * 
+     *
      * @return this configuration instance
      */
     public final Configuration cacheManagerEventListenerFactory(FactoryConfiguration cacheManagerEventListenerFactoryConfiguration) {
@@ -492,7 +492,7 @@ public final class Configuration {
 
     /**
      * Builder method to add a peer provider through a factory.
-     * 
+     *
      * @return this configuration instance
      */
     public final Configuration cacheManagerPeerProviderFactory(FactoryConfiguration factory) {
@@ -509,7 +509,7 @@ public final class Configuration {
 
     /**
      * Builder method to add a peer listener through a factory.
-     * 
+     *
      * @return this configuration instance
      */
     public final Configuration cacheManagerPeerListenerFactory(FactoryConfiguration factory) {
@@ -526,7 +526,7 @@ public final class Configuration {
 
     /**
      * Builder method to Terracotta capabilities to the cache manager through a dedicated configuration, this can only be used once.
-     * 
+     *
      * @return this configuration instance
      * @throws ObjectExistsException
      *             if the Terracotta config has already been configured
@@ -548,7 +548,7 @@ public final class Configuration {
 
     /**
      * Builder method to set the default cache configuration, this can only be used once.
-     * 
+     *
      * @return this configuration instance
      * @throws ObjectExistsException
      *             if the default cache config has already been configured
@@ -570,7 +570,7 @@ public final class Configuration {
 
     /**
      * Builder to add a new cache through its config
-     * 
+     *
      * @return this configuration instance
      * @throws ObjectExistsException
      *             if a cache with the same name already exists, or if the name conflicts with the name of the default cache
@@ -669,7 +669,7 @@ public final class Configuration {
 
     /**
      * Builder to set the configuration source.
-     * 
+     *
      * @return this configuration instance
      */
     public final Configuration source(ConfigurationSource configurationSource) {
@@ -679,7 +679,7 @@ public final class Configuration {
 
     /**
      * Sets the configuration source.
-     * 
+     *
      * @param configurationSource
      *            an informative description of the source, preferably
      *            including the resource name and location.

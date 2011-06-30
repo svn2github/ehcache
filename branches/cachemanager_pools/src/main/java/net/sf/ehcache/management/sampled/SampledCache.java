@@ -956,13 +956,11 @@ public class SampledCache extends BaseEmitterBean implements SampledCacheMBean, 
      * {@inheritDoc}
      *
      * @see net.sf.ehcache.management.sampled.SampledCacheMBean#getInMemorySize()
+     * @deprecated use {@link #getLocalHeapSize()}
      */
+    @Deprecated
     public long getInMemorySize() {
-        try {
-            return cache.getLiveCacheStatistics().getInMemorySize();
-        } catch (RuntimeException e) {
-            throw newPlainException(e);
-        }
+        return getLocalHeapSize();
     }
 
     /**
@@ -982,13 +980,11 @@ public class SampledCache extends BaseEmitterBean implements SampledCacheMBean, 
      * {@inheritDoc}
      *
      * @see net.sf.ehcache.management.sampled.SampledCacheMBean#getOffHeapSize()
+     * @deprecated use {@link #getLocalOffHeapSize()}
      */
+    @Deprecated
     public long getOffHeapSize() {
-        try {
-            return cache.getLiveCacheStatistics().getOffHeapSize();
-        } catch (RuntimeException e) {
-            throw newPlainException(e);
-        }
+        return getLocalOffHeapSize();
     }
 
     /**
@@ -1008,10 +1004,86 @@ public class SampledCache extends BaseEmitterBean implements SampledCacheMBean, 
      * {@inheritDoc}
      *
      * @see net.sf.ehcache.management.sampled.SampledCacheMBean#getOnDiskSize()
+     * @deprecated use {@link #getLocalDiskSize()}
      */
+    @Deprecated
     public long getOnDiskSize() {
+        return getLocalDiskSize();
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @see net.sf.ehcache.management.sampled.SampledCacheMBean#getLocalDiskSize()
+     */
+    public long getLocalDiskSize() {
         try {
-            return cache.getLiveCacheStatistics().getOnDiskSize();
+            return cache.getLiveCacheStatistics().getLocalDiskSize();
+        } catch (RuntimeException e) {
+            throw newPlainException(e);
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @see net.sf.ehcache.management.sampled.SampledCacheMBean#getLocalHeapSize()
+     */
+    public long getLocalHeapSize() {
+        try {
+            return cache.getLiveCacheStatistics().getLocalHeapSize();
+        } catch (RuntimeException e) {
+            throw newPlainException(e);
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @see net.sf.ehcache.management.sampled.SampledCacheMBean#getLocalOffHeapSize()
+     */
+    public long getLocalOffHeapSize() {
+        try {
+            return cache.getLiveCacheStatistics().getLocalOffHeapSize();
+        } catch (RuntimeException e) {
+            throw newPlainException(e);
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @see net.sf.ehcache.management.sampled.SampledCacheMBean#getLocalDiskSizeInBytes()
+     */
+    public long getLocalDiskSizeInBytes() {
+        try {
+            return cache.getLiveCacheStatistics().getLocalDiskSizeInBytes();
+        } catch (RuntimeException e) {
+            throw newPlainException(e);
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @see net.sf.ehcache.management.sampled.SampledCacheMBean#getLocalHeapSizeInBytes()
+     */
+    public long getLocalHeapSizeInBytes() {
+        try {
+            return cache.getLiveCacheStatistics().getLocalHeapSizeInBytes();
+        } catch (RuntimeException e) {
+            throw newPlainException(e);
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @see net.sf.ehcache.management.sampled.SampledCacheMBean#getLocalOffHeapSizeInBytes()
+     */
+    public long getLocalOffHeapSizeInBytes() {
+        try {
+            return cache.getLiveCacheStatistics().getLocalOffHeapSizeInBytes();
         } catch (RuntimeException e) {
             throw newPlainException(e);
         }

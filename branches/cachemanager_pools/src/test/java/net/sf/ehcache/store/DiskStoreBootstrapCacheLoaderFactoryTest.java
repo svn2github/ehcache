@@ -102,8 +102,8 @@ public class DiskStoreBootstrapCacheLoaderFactoryTest {
         cacheSizeBound = new Cache(new CacheConfiguration("maxOnHeap", 0)
             .diskPersistent(true)
             .overflowToDisk(true)
-            .maxOnHeap(220, MemoryUnit.KILOBYTES)
-            .maxOnDisk(300, MemoryUnit.MEGABYTES)
+            .maxBytesLocalHeap(220, MemoryUnit.KILOBYTES)
+            .maxBytesLocalDisk(300, MemoryUnit.MEGABYTES)
             .diskStorePath("caches/DiskPersistentSize")
             .maxElementsOnDisk(1000), null, cacheSizeBoundBootstrapCacheLoader);
         manager.addCache(cacheElementCountBound);

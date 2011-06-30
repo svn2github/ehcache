@@ -333,6 +333,27 @@ public class SampledCacheManager extends BaseEmitterBean implements SampledCache
 
     /**
      * {@inheritDoc}
+     */
+    public long getMaxBytesLocalDisk() {
+        return cacheManager.getConfiguration().getMaxBytesLocalDisk();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public long getMaxBytesLocalHeap() {
+        return cacheManager.getConfiguration().getMaxBytesLocalHeap();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public long getMaxBytesLocalOffHeap() {
+        return cacheManager.getConfiguration().getMaxBytesLocalDisk();
+    }
+
+    /**
+     * {@inheritDoc}
      *
      * @see net.sf.ehcache.management.sampled.SampledCacheManagerMBean#getName()
      */

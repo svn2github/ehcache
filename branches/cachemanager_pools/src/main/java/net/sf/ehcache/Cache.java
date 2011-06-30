@@ -1000,13 +1000,13 @@ public class Cache implements Ehcache, StoreListener {
             // on-heap validation
             // todo is this really to be supported ? CacheManager less Caches ? Can these then be attached later ?
             if (getCacheManager() != null
-                && getCacheManager().getConfiguration().isMaxBytesOnHeapSet()
+                && getCacheManager().getConfiguration().isMaxBytesLocalHeapSet()
                 && configuration.getMaxElementsInMemory() > 0) {
                 throw new InvalidConfigurationException(configuration.getName() +
                                                         ": MaxElementsInMemory is not compatible with " +
                                                         "MaxBytesOnHeap set on cache manager");
             }
-            if (configuration.getMaxBytesOnHeap() > 0 && configuration.getMaxElementsInMemory() > 0) {
+            if (configuration.getMaxBytesLocalHeap() > 0 && configuration.getMaxElementsInMemory() > 0) {
                 throw new InvalidConfigurationException(configuration.getName() +
                                                         ": MaxElementsInMemory is not compatible with " +
                                                         "MaxBytesOnHeap set on cache");
@@ -1014,11 +1014,11 @@ public class Cache implements Ehcache, StoreListener {
 
             // on-heap pool configuration
             Pool onHeapPool;
-            if (configuration.getMaxBytesOnHeap() > 0) {
+            if (configuration.getMaxBytesLocalHeap() > 0) {
                 PoolEvictor<PoolableStore> evictor = new FromLargestCacheOnHeapPoolEvictor();
                 SizeOfEngine sizeOfEngine = cacheManager.createSizeOfEngine(this);
-                onHeapPool = new BoundedPool(configuration.getMaxBytesOnHeap(), evictor, sizeOfEngine);
-            } else if (getCacheManager() != null && getCacheManager().getConfiguration().isMaxBytesOnHeapSet()) {
+                onHeapPool = new BoundedPool(configuration.getMaxBytesLocalHeap(), evictor, sizeOfEngine);
+            } else if (getCacheManager() != null && getCacheManager().getConfiguration().isMaxBytesLocalHeapSet()) {
                 onHeapPool = getCacheManager().getOnHeapPool();
             } else {
                 onHeapPool = new UnboundedPool();
@@ -1033,10 +1033,10 @@ public class Cache implements Ehcache, StoreListener {
 
             // on-disk pool configuration
             Pool onDiskPool;
-            if (configuration.getMaxBytesOnDisk() > 0) {
+            if (configuration.getMaxBytesLocalDisk() > 0) {
                 PoolEvictor<PoolableStore> evictor = new FromLargestCacheOnDiskPoolEvictor();
-                onDiskPool = new BoundedPool(configuration.getMaxBytesOnDisk(), evictor, null);
-            } else if (getCacheManager() != null && getCacheManager().getConfiguration().isMaxBytesOnDiskSet()) {
+                onDiskPool = new BoundedPool(configuration.getMaxBytesLocalDisk(), evictor, null);
+            } else if (getCacheManager() != null && getCacheManager().getConfiguration().isMaxBytesLocalDiskSet()) {
                 onDiskPool = getCacheManager().getOnDiskPool();
             } else {
                 onDiskPool = new UnboundedPool();

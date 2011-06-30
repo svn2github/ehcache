@@ -765,7 +765,7 @@ public class DiskStoreTest extends AbstractCacheTest {
                         .name("persistentCache")
                         .overflowToDisk(true)
                         .diskPersistent(true)
-                        .maxOnDisk(100, MemoryUnit.KILOBYTES)
+                        .maxBytesLocalDisk(100, MemoryUnit.KILOBYTES)
                 )
         );
         cache = manager.getCache("persistentCache");

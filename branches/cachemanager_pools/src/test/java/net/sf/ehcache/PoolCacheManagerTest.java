@@ -36,7 +36,7 @@ public class PoolCacheManagerTest {
     @Test
     public void testOnHeapConsumption() throws Exception {
         SizeOf sizeOf = getSizeOfEngine();
-        CacheManager cacheManager = new CacheManager(new Configuration().maxOnHeap(40, MemoryUnit.MEGABYTES));
+        CacheManager cacheManager = new CacheManager(new Configuration().maxBytesLocalHeap(40, MemoryUnit.MEGABYTES));
         cacheManager.addCache(new Cache(new CacheConfiguration("one", 0).overflowToDisk(false)));
         cacheManager.addCache(new Cache(new CacheConfiguration("double", 0).overflowToDisk(false)));
 

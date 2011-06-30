@@ -108,7 +108,9 @@ public class NullLiveCacheStatisticsData implements LiveCacheStatistics, LiveCac
 
     /**
      * {@inheritDoc}
+     * @deprecated see {@link #getLocalHeapSize()}
      */
+    @Deprecated
     public long getInMemorySize() {
         return 0;
     }
@@ -122,7 +124,9 @@ public class NullLiveCacheStatisticsData implements LiveCacheStatistics, LiveCac
 
     /**
      * {@inheritDoc}
+     * @deprecated see {@link #getLocalOffHeapSize()}
      */
+    @Deprecated
     public long getOffHeapSize() {
         return 0;
     }
@@ -136,8 +140,52 @@ public class NullLiveCacheStatisticsData implements LiveCacheStatistics, LiveCac
 
     /**
      * {@inheritDoc}
+     * @deprecated see {@link #getLocalDiskSize()}
      */
+    @Deprecated
     public long getOnDiskSize() {
+        return 0;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public long getLocalHeapSize() {
+        return 0;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public long getLocalOffHeapSize() {
+        return 0;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public long getLocalDiskSize() {
+        return 0;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public long getLocalHeapSizeInBytes() {
+        return 0;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public long getLocalOffHeapSizeInBytes() {
+        return 0;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public long getLocalDiskSizeInBytes() {
         return 0;
     }
 

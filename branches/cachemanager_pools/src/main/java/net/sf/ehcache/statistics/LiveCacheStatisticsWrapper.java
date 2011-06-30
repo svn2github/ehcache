@@ -144,7 +144,9 @@ public class LiveCacheStatisticsWrapper implements LiveCacheStatistics, LiveCach
      * {@inheritDoc}
      *
      * @see net.sf.ehcache.statistics.LiveCacheStatistics#getInMemorySize()
+     * @deprecated see {@link #getLocalHeapSize()}
      */
+    @Deprecated
     public long getInMemorySize() {
         return delegate.getInMemorySize();
     }
@@ -153,7 +155,9 @@ public class LiveCacheStatisticsWrapper implements LiveCacheStatistics, LiveCach
      * {@inheritDoc}
      *
      * @see net.sf.ehcache.statistics.LiveCacheStatistics#getOffHeapSize()
+     * @deprecated see {@link #getLocalOffHeapSize()}
      */
+    @Deprecated
     public long getOffHeapSize() {
         return delegate.getOffHeapSize();
     }
@@ -162,9 +166,35 @@ public class LiveCacheStatisticsWrapper implements LiveCacheStatistics, LiveCach
      * {@inheritDoc}
      *
      * @see net.sf.ehcache.statistics.LiveCacheStatistics#getOnDiskSize()
+     * @deprecated see {@link #getLocalDiskSize()}
      */
+    @Deprecated
     public long getOnDiskSize() {
         return delegate.getOnDiskSize();
+    }
+
+    public long getLocalHeapSize() {
+        return delegate.getLocalHeapSize();
+    }
+
+    public long getLocalOffHeapSize() {
+        return delegate.getLocalOffHeapSize();
+    }
+
+    public long getLocalDiskSize() {
+        return delegate.getLocalDiskSize();
+    }
+
+    public long getLocalHeapSizeInBytes() {
+        return delegate.getLocalHeapSizeInBytes();
+    }
+
+    public long getLocalOffHeapSizeInBytes() {
+        return delegate.getLocalOffHeapSizeInBytes();
+    }
+
+    public long getLocalDiskSizeInBytes() {
+        return delegate.getLocalDiskSizeInBytes();
     }
 
     /**

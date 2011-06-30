@@ -61,11 +61,11 @@ public class CacheConfigurationElement extends SimpleNodeElement {
                 CacheConfiguration.DEFAULT_LOGGING));
 
         addCommonChildElementsWithDefaultCache(this, cacheConfiguration);
-        addAttribute(new SimpleNodeAttribute("maxBytesOnHeap", cacheConfiguration.getMaxBytesOnHeap())
+        addAttribute(new SimpleNodeAttribute("maxBytesLocalHeap", cacheConfiguration.getMaxBytesLocalHeap())
                 .optional(true).defaultValue(String.valueOf(CacheConfiguration.DEFAULT_MAX_BYTES_ON_HEAP)));
-        addAttribute(new SimpleNodeAttribute("maxBytesOffHeap", cacheConfiguration.getMaxBytesOffHeap())
+        addAttribute(new SimpleNodeAttribute("maxBytesLocalOffHeap", cacheConfiguration.getMaxBytesLocalOffHeap())
                 .optional(true).defaultValue(String.valueOf(CacheConfiguration.DEFAULT_MAX_BYTES_OFF_HEAP)));
-        addAttribute(new SimpleNodeAttribute("maxBytesOnDisk", cacheConfiguration.getMaxBytesOnDisk())
+        addAttribute(new SimpleNodeAttribute("maxBytesLocalDisk", cacheConfiguration.getMaxBytesLocalDisk())
             .optional(true).defaultValue(String.valueOf(CacheConfiguration.DEFAULT_MAX_BYTES_ON_DISK)));
     }
 
@@ -78,6 +78,7 @@ public class CacheConfigurationElement extends SimpleNodeElement {
     public static void addCommonAttributesWithDefaultCache(NodeElement element, CacheConfiguration cacheConfiguration) {
         element.addAttribute(new SimpleNodeAttribute("eternal", cacheConfiguration.isEternal()).optional(false));
         element.addAttribute(new SimpleNodeAttribute("maxElementsInMemory", cacheConfiguration.getMaxElementsInMemory()).optional(false));
+        element.addAttribute(new SimpleNodeAttribute("maxEntriesLocalHeap", cacheConfiguration.getMaxEntriesLocalHeap()).optional(false));
         element.addAttribute(new SimpleNodeAttribute("overflowToDisk", cacheConfiguration.isOverflowToDisk()).optional(false));
         element.addAttribute(new SimpleNodeAttribute("clearOnFlush", cacheConfiguration.isClearOnFlush()).optional(true).defaultValue(
                 String.valueOf(CacheConfiguration.DEFAULT_CLEAR_ON_FLUSH)));
@@ -100,6 +101,8 @@ public class CacheConfigurationElement extends SimpleNodeElement {
         element.addAttribute(new SimpleNodeAttribute("timeToLiveSeconds", cacheConfiguration.getTimeToLiveSeconds()).optional(true)
                 .defaultValue(CacheConfiguration.DEFAULT_TTL));
         element.addAttribute(new SimpleNodeAttribute("maxElementsOnDisk", cacheConfiguration.getMaxElementsOnDisk()).optional(true)
+                .defaultValue(CacheConfiguration.DEFAULT_MAX_ELEMENTS_ON_DISK));
+        element.addAttribute(new SimpleNodeAttribute("maxEntriesLocalDisk", cacheConfiguration.getMaxEntriesLocalDisk()).optional(true)
                 .defaultValue(CacheConfiguration.DEFAULT_MAX_ELEMENTS_ON_DISK));
         element.addAttribute(new SimpleNodeAttribute("maxMemoryOffHeap", cacheConfiguration.getMaxMemoryOffHeap()).optional(true)
                 .defaultValue((String) null));

@@ -37,16 +37,16 @@ public abstract class MemoryLimitedCacheLoader implements BootstrapCacheLoader {
     protected boolean isInMemoryLimitReached(final Ehcache cache, final int loadedElements) {
 
         long maxBytesInMem;
-        int maxElementsInMem;
+        long maxElementsInMem;
         final boolean overflowToOffHeap = cache.getCacheConfiguration().isOverflowToOffHeap();
         if (overflowToOffHeap) {
-            maxBytesInMem = cache.getCacheConfiguration().getMaxBytesOnHeap();
-            maxElementsInMem = cache.getCacheConfiguration().getMaxElementsInMemory() == 0
-                ? Integer.MAX_VALUE : cache.getCacheConfiguration().getMaxElementsInMemory();
+            maxBytesInMem = cache.getCacheConfiguration().getMaxBytesLocalHeap();
+            maxElementsInMem = cache.getCacheConfiguration().getMaxEntriesLocalHeap() == 0
+                ? Integer.MAX_VALUE : cache.getCacheConfiguration().getMaxEntriesLocalHeap();
         } else {
-            maxBytesInMem = cache.getCacheConfiguration().getMaxBytesOffHeap();
-            maxElementsInMem = cache.getCacheConfiguration().getMaxElementsInMemory() == 0
-                ? Integer.MAX_VALUE : cache.getCacheConfiguration().getMaxElementsInMemory();
+            maxBytesInMem = cache.getCacheConfiguration().getMaxBytesLocalOffHeap();
+            maxElementsInMem = cache.getCacheConfiguration().getMaxEntriesLocalHeap() == 0
+                ? Integer.MAX_VALUE : cache.getCacheConfiguration().getMaxEntriesLocalHeap();
         }
 
         if (maxBytesInMem != 0) {
@@ -61,6 +61,7 @@ public abstract class MemoryLimitedCacheLoader implements BootstrapCacheLoader {
     /**
      * {@inheritDoc}
      */
+    @Override
     public Object clone() throws CloneNotSupportedException {
         return super.clone();
     }

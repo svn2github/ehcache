@@ -47,37 +47,37 @@ public class ConfigurationHelperTest extends AbstractCacheTest {
     @Test
     public void testMaxBytesOnConfiguration() {
         Configuration configuration = new Configuration()
-            .maxOnHeap(20, MemoryUnit.MEGABYTES)
-            .maxOffHeap(2, MemoryUnit.GIGABYTES)
-            .maxOnDisk(2000, MemoryUnit.GIGABYTES);
+            .maxBytesLocalHeap(20, MemoryUnit.MEGABYTES)
+            .maxBytesLocalOffHeap(2, MemoryUnit.GIGABYTES)
+            .maxBytesLocalDisk(2000, MemoryUnit.GIGABYTES);
 
-        assertThat(configuration.getMaxBytesOnHeap(), is(MemoryUnit.MEGABYTES.toBytes(20)));
-        assertThat(configuration.getMaxBytesOffHeap(), is((long) 2 * 1024 * 1024 * 1024));
-        assertThat(configuration.getMaxBytesOnDisk(), is((long) 2000 * 1024 * 1024 * 1024));
+        assertThat(configuration.getMaxBytesLocalHeap(), is(MemoryUnit.MEGABYTES.toBytes(20)));
+        assertThat(configuration.getMaxBytesLocalOffHeap(), is((long) 2 * 1024 * 1024 * 1024));
+        assertThat(configuration.getMaxBytesLocalDisk(), is((long) 2000 * 1024 * 1024 * 1024));
 
-        configuration.setMaxBytesOnHeap((Long) null);
-        assertThat(configuration.getMaxBytesOnHeap(), is(0L));
-        assertThat(configuration.getMaxBytesOffHeap(), is((long) 2 * 1024 * 1024 * 1024));
-        assertThat(configuration.getMaxBytesOnDisk(), is((long)2000 * 1024 * 1024 * 1024));
+        configuration.setMaxBytesLocalHeap((Long) null);
+        assertThat(configuration.getMaxBytesLocalHeap(), is(0L));
+        assertThat(configuration.getMaxBytesLocalOffHeap(), is((long) 2 * 1024 * 1024 * 1024));
+        assertThat(configuration.getMaxBytesLocalDisk(), is((long)2000 * 1024 * 1024 * 1024));
 
-        configuration.setMaxBytesOffHeap((Long)null);
-        assertThat(configuration.getMaxBytesOnHeap(), is(0L));
-        assertThat(configuration.getMaxBytesOffHeap(), is(0L));
-        assertThat(configuration.getMaxBytesOnDisk(), is((long)2000 * 1024 * 1024 * 1024));
+        configuration.setMaxBytesLocalOffHeap((Long)null);
+        assertThat(configuration.getMaxBytesLocalHeap(), is(0L));
+        assertThat(configuration.getMaxBytesLocalOffHeap(), is(0L));
+        assertThat(configuration.getMaxBytesLocalDisk(), is((long)2000 * 1024 * 1024 * 1024));
 
-        configuration.setMaxBytesOnDisk((Long)null);
-        assertThat(configuration.getMaxBytesOnHeap(), is(0L));
-        assertThat(configuration.getMaxBytesOffHeap(), is(0L));
-        assertThat(configuration.getMaxBytesOnDisk(), is(0L));
+        configuration.setMaxBytesLocalDisk((Long)null);
+        assertThat(configuration.getMaxBytesLocalHeap(), is(0L));
+        assertThat(configuration.getMaxBytesLocalOffHeap(), is(0L));
+        assertThat(configuration.getMaxBytesLocalDisk(), is(0L));
 
         configuration = new Configuration();
-        configuration.setMaxBytesOnHeap("1g");
-        configuration.setMaxBytesOffHeap("12G");
-        configuration.setMaxBytesOnDisk("200G");
+        configuration.setMaxBytesLocalHeap("1g");
+        configuration.setMaxBytesLocalOffHeap("12G");
+        configuration.setMaxBytesLocalDisk("200G");
 
-        assertThat(configuration.getMaxBytesOnHeap(), is(MemoryUnit.GIGABYTES.toBytes(1)));
-        assertThat(configuration.getMaxBytesOffHeap(), is(MemoryUnit.GIGABYTES.toBytes(12)));
-        assertThat(configuration.getMaxBytesOnDisk(), is(MemoryUnit.GIGABYTES.toBytes(200)));
+        assertThat(configuration.getMaxBytesLocalHeap(), is(MemoryUnit.GIGABYTES.toBytes(1)));
+        assertThat(configuration.getMaxBytesLocalOffHeap(), is(MemoryUnit.GIGABYTES.toBytes(12)));
+        assertThat(configuration.getMaxBytesLocalDisk(), is(MemoryUnit.GIGABYTES.toBytes(200)));
     }
 
     /**

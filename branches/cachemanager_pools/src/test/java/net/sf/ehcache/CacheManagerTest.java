@@ -111,25 +111,25 @@ public class CacheManagerTest {
         CacheConfiguration configuration1 = new CacheConfiguration("one", 0);
         CacheConfiguration configuration2 = new CacheConfiguration("two", 0);
         Configuration configuration = new Configuration()
-            .maxOnHeap(5, MemoryUnit.MEGABYTES)
+            .maxBytesLocalHeap(5, MemoryUnit.MEGABYTES)
             .cache(configuration1)
             .cache(configuration2)
             .cache(new CacheConfiguration("three", 0));
-        configuration1.setMaxBytesOnHeap("20%");
-        configuration2.setMaxBytesOnHeap("20%");
+        configuration1.setMaxBytesLocalHeap("20%");
+        configuration2.setMaxBytesLocalHeap("20%");
 
         CacheManager cacheManager = new CacheManager(configuration);
-        assertThat(cacheManager.getCache("one").getCacheConfiguration().getMaxBytesOnHeap(), equalTo(MemoryUnit.MEGABYTES.toBytes(1)));
-        assertThat(cacheManager.getCache("two").getCacheConfiguration().getMaxBytesOnHeap(), equalTo(MemoryUnit.MEGABYTES.toBytes(1)));
-        assertThat(cacheManager.getCache("three").getCacheConfiguration().getMaxBytesOnHeap(), equalTo(0L));
+        assertThat(cacheManager.getCache("one").getCacheConfiguration().getMaxBytesLocalHeap(), equalTo(MemoryUnit.MEGABYTES.toBytes(1)));
+        assertThat(cacheManager.getCache("two").getCacheConfiguration().getMaxBytesLocalHeap(), equalTo(MemoryUnit.MEGABYTES.toBytes(1)));
+        assertThat(cacheManager.getCache("three").getCacheConfiguration().getMaxBytesLocalHeap(), equalTo(0L));
 
         configuration1 = new CacheConfiguration("one", 0);
         configuration2 = new CacheConfiguration("two", 0);
         configuration = new Configuration()
             .cache(configuration1)
             .cache(configuration2);
-        configuration1.setMaxBytesOnHeap("2048");
-        configuration2.setMaxBytesOnHeap("20%");
+        configuration1.setMaxBytesLocalHeap("2048");
+        configuration2.setMaxBytesLocalHeap("20%");
 
         try {
             new CacheManager(configuration);
@@ -145,9 +145,9 @@ public class CacheManagerTest {
     public void testMaxBytesOverAllocated() {
 
         Configuration configuration = new Configuration()
-            .maxOnHeap(50, MemoryUnit.KILOBYTES)
-            .cache(new CacheConfiguration("one", 0).maxOnHeap(30, MemoryUnit.KILOBYTES))
-            .cache(new CacheConfiguration("two", 0).maxOnHeap(30, MemoryUnit.KILOBYTES));
+            .maxBytesLocalHeap(50, MemoryUnit.KILOBYTES)
+            .cache(new CacheConfiguration("one", 0).maxBytesLocalHeap(30, MemoryUnit.KILOBYTES))
+            .cache(new CacheConfiguration("two", 0).maxBytesLocalHeap(30, MemoryUnit.KILOBYTES));
 
         try {
             new CacheManager(configuration);
@@ -161,16 +161,16 @@ public class CacheManagerTest {
         CacheConfiguration configuration3 = new CacheConfiguration("three", 0);
         CacheConfiguration configuration4 = new CacheConfiguration("four", 0);
         configuration = new Configuration()
-            .maxOnHeap(30, MemoryUnit.KILOBYTES)
+            .maxBytesLocalHeap(30, MemoryUnit.KILOBYTES)
             .cache(configuration1)
             .cache(configuration2)
             .cache(configuration3)
             .cache(configuration4);
 
-        configuration1.setMaxBytesOnHeap("30%");
-        configuration2.setMaxBytesOnHeap("30%");
-        configuration3.setMaxBytesOnHeap("30%");
-        configuration4.setMaxBytesOnHeap("30%");
+        configuration1.setMaxBytesLocalHeap("30%");
+        configuration2.setMaxBytesLocalHeap("30%");
+        configuration3.setMaxBytesLocalHeap("30%");
+        configuration4.setMaxBytesLocalHeap("30%");
 
         try {
             new CacheManager(configuration);
@@ -180,9 +180,9 @@ public class CacheManagerTest {
         }
 
         configuration = new Configuration()
-            .maxOnHeap(4096, MemoryUnit.GIGABYTES)
-            .cache(new CacheConfiguration("one", 0).maxOnHeap(30, MemoryUnit.KILOBYTES))
-            .cache(new CacheConfiguration("two", 0).maxOnHeap(30, MemoryUnit.KILOBYTES));
+            .maxBytesLocalHeap(4096, MemoryUnit.GIGABYTES)
+            .cache(new CacheConfiguration("one", 0).maxBytesLocalHeap(30, MemoryUnit.KILOBYTES))
+            .cache(new CacheConfiguration("two", 0).maxBytesLocalHeap(30, MemoryUnit.KILOBYTES));
 
         try {
             new CacheManager(configuration);
@@ -192,8 +192,8 @@ public class CacheManagerTest {
         }
 
         configuration = new Configuration()
-            .cache(new CacheConfiguration("one", 0).maxOnHeap(2048, MemoryUnit.GIGABYTES))
-            .cache(new CacheConfiguration("two", 0).maxOnHeap(2048, MemoryUnit.GIGABYTES));
+            .cache(new CacheConfiguration("one", 0).maxBytesLocalHeap(2048, MemoryUnit.GIGABYTES))
+            .cache(new CacheConfiguration("two", 0).maxBytesLocalHeap(2048, MemoryUnit.GIGABYTES));
 
         try {
             new CacheManager(configuration);
@@ -207,15 +207,15 @@ public class CacheManagerTest {
         configuration3 = new CacheConfiguration("three", 0);
         configuration4 = new CacheConfiguration("four", 0);
         configuration = new Configuration()
-            .maxOnHeap(30, MemoryUnit.KILOBYTES)
+            .maxBytesLocalHeap(30, MemoryUnit.KILOBYTES)
             .cache(configuration1)
             .cache(configuration2)
             .cache(configuration3);
 
-        configuration1.setMaxBytesOnHeap("30%");
-        configuration2.setMaxBytesOnHeap("30%");
-        configuration3.setMaxBytesOnHeap("30%");
-        configuration4.setMaxBytesOnHeap("30%");
+        configuration1.setMaxBytesLocalHeap("30%");
+        configuration2.setMaxBytesLocalHeap("30%");
+        configuration3.setMaxBytesLocalHeap("30%");
+        configuration4.setMaxBytesLocalHeap("30%");
 
         CacheManager cacheManager = new CacheManager(configuration);
         try {
@@ -230,19 +230,19 @@ public class CacheManagerTest {
     @Test
     public void testPoolSize() throws Exception {
         Configuration configuration = new Configuration()
-            .maxOnHeap(50, MemoryUnit.MEGABYTES)
-            .maxOnDisk(500, MemoryUnit.MEGABYTES)
-            .cache(new CacheConfiguration("one", 0).maxOnHeap(10, MemoryUnit.MEGABYTES))
-            .cache(new CacheConfiguration("two", 0).maxOnHeap(10, MemoryUnit.MEGABYTES))
-            .cache(new CacheConfiguration("three", 0).maxOnDisk(100, MemoryUnit.MEGABYTES));
+            .maxBytesLocalHeap(50, MemoryUnit.MEGABYTES)
+            .maxBytesLocalDisk(500, MemoryUnit.MEGABYTES)
+            .cache(new CacheConfiguration("one", 0).maxBytesLocalHeap(10, MemoryUnit.MEGABYTES))
+            .cache(new CacheConfiguration("two", 0).maxBytesLocalHeap(10, MemoryUnit.MEGABYTES))
+            .cache(new CacheConfiguration("three", 0).maxBytesLocalDisk(100, MemoryUnit.MEGABYTES));
 
         CacheManager cacheManager = new CacheManager(configuration);
         assertEquals(MemorySizeParser.parse("30M"), cacheManager.getOnHeapPool().getMaxSize());
         assertEquals(MemorySizeParser.parse("400M"), cacheManager.getOnDiskPool().getMaxSize());
 
         cacheManager.addCache(new Cache(new CacheConfiguration("four", 0)
-                .maxOnHeap(10, MemoryUnit.MEGABYTES)
-                .maxOnDisk(150, MemoryUnit.MEGABYTES)));
+                .maxBytesLocalHeap(10, MemoryUnit.MEGABYTES)
+                .maxBytesLocalDisk(150, MemoryUnit.MEGABYTES)));
         assertEquals(MemorySizeParser.parse("20M"), cacheManager.getOnHeapPool().getMaxSize());
         assertEquals(MemorySizeParser.parse("250M"), cacheManager.getOnDiskPool().getMaxSize());
 

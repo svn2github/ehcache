@@ -494,8 +494,35 @@ public class LiveCacheStatisticsImpl implements LiveCacheStatistics, LiveCacheSt
 
     /**
      * {@inheritDoc}
+     * @deprecated see {@link #getLocalHeapSize()}
      */
+    @Deprecated
     public long getInMemorySize() {
+        return getLocalHeapSize();
+    }
+
+    /**
+     * {@inheritDoc}
+     * @deprecated see {@link #getLocalOffHeapSize()}
+     */
+    @Deprecated
+    public long getOffHeapSize() {
+        return getLocalOffHeapSize();
+    }
+
+    /**
+     * {@inheritDoc}
+     * @deprecated see {@link #getLocalDiskSize()}
+     */
+    @Deprecated
+    public long getOnDiskSize() {
+        return getLocalDiskSize();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public long getLocalHeapSize() {
         if (!statisticsEnabled.get()) {
             return 0;
         }
@@ -505,7 +532,7 @@ public class LiveCacheStatisticsImpl implements LiveCacheStatistics, LiveCacheSt
     /**
      * {@inheritDoc}
      */
-    public long getOffHeapSize() {
+    public long getLocalOffHeapSize() {
         if (!statisticsEnabled.get()) {
             return 0;
         }
@@ -515,12 +542,43 @@ public class LiveCacheStatisticsImpl implements LiveCacheStatistics, LiveCacheSt
     /**
      * {@inheritDoc}
      */
-    public long getOnDiskSize() {
+    public long getLocalDiskSize() {
         if (!statisticsEnabled.get()) {
             return 0;
         }
         return cache.getDiskStoreSize();
     }
+
+    /**
+     * {@inheritDoc}
+     */
+    public long getLocalDiskSizeInBytes() {
+        if (!statisticsEnabled.get()) {
+            return 0;
+        }
+        return cache.calculateOnDiskSize();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public long getLocalHeapSizeInBytes() {
+        if (!statisticsEnabled.get()) {
+            return 0;
+        }
+        return cache.calculateInMemorySize();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public long getLocalOffHeapSizeInBytes() {
+        if (!statisticsEnabled.get()) {
+            return 0;
+        }
+        return cache.calculateOffHeapSize();
+    }
+
 
     /**
      * {@inheritDoc}

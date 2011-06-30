@@ -18,9 +18,9 @@
             <xs:attribute default="autodetect" name="monitoring" type="monitoringType" use="optional"/>
             <xs:attribute default="true" name="dynamicConfig" type="xs:boolean" use="optional"/>
             <xs:attribute default="15" name="defaultTransactionTimeoutInSeconds" type="xs:integer" use="optional"/>
-            <xs:attribute default="0" name="maxBytesOnHeap" type="memoryUnitOrPercentage" use="optional"/>
-            <xs:attribute default="0" name="maxBytesOffHeap" type="memoryUnit" use="optional"/>
-            <xs:attribute default="0" name="maxBytesOnDisk" type="memoryUnit" use="optional"/>
+            <xs:attribute default="0" name="maxBytesLocalHeap" type="memoryUnitOrPercentage" use="optional"/>
+            <xs:attribute default="0" name="maxBytesLocalOffHeap" type="memoryUnit" use="optional"/>
+            <xs:attribute default="0" name="maxBytesLocalDisk" type="memoryUnit" use="optional"/>
         </xs:complexType>
     </xs:element>
     <xs:element name="diskStore">
@@ -93,12 +93,14 @@
             <xs:attribute name="diskAccessStripes" type="xs:integer" use="optional" default="1"/>
             <xs:attribute name="eternal" type="xs:boolean" use="required"/>
             <xs:attribute name="maxElementsInMemory" type="xs:integer" use="optional"/>
+            <xs:attribute name="maxEntriesLocalHeap" type="xs:integer" use="optional"/>
             <xs:attribute name="clearOnFlush" type="xs:boolean" use="optional"/>
             <xs:attribute name="memoryStoreEvictionPolicy" type="xs:string" use="optional"/>
             <xs:attribute name="overflowToDisk" type="xs:boolean" use="required"/>
             <xs:attribute name="timeToIdleSeconds" type="xs:integer" use="optional"/>
             <xs:attribute name="timeToLiveSeconds" type="xs:integer" use="optional"/>
             <xs:attribute name="maxElementsOnDisk" type="xs:integer" use="optional"/>
+            <xs:attribute name="maxEntriesLocalDisk" type="xs:integer" use="optional"/>
             <xs:attribute name="transactionalMode" type="transactionalMode" use="optional" default="off"/>
             <xs:attribute name="statistics" type="xs:boolean" use="optional" default="false"/>
             <xs:attribute name="copyOnRead" type="xs:boolean" use="optional" default="false"/>
@@ -130,6 +132,7 @@
             <xs:attribute name="diskAccessStripes" type="xs:integer" use="optional" default="1"/>
             <xs:attribute name="eternal" type="xs:boolean" use="required"/>
             <xs:attribute name="maxElementsInMemory" type="xs:integer" use="optional"/>
+            <xs:attribute name="maxEntriesLocalHeap" type="xs:integer" use="optional"/>
             <xs:attribute name="memoryStoreEvictionPolicy" type="xs:string" use="optional"/>
             <xs:attribute name="clearOnFlush" type="xs:boolean" use="optional"/>
             <xs:attribute name="name" type="xs:string" use="required"/>
@@ -137,6 +140,7 @@
             <xs:attribute name="timeToIdleSeconds" type="xs:integer" use="optional"/>
             <xs:attribute name="timeToLiveSeconds" type="xs:integer" use="optional"/>
             <xs:attribute name="maxElementsOnDisk" type="xs:integer" use="optional"/>
+            <xs:attribute name="maxEntriesLocalDisk" type="xs:integer" use="optional"/>
             <xs:attribute name="transactionalMode" type="transactionalMode" use="optional" default="off" />
             <xs:attribute name="statistics" type="xs:boolean" use="optional" default="false"/>
             <xs:attribute name="copyOnRead" type="xs:boolean" use="optional" default="false"/>
@@ -145,9 +149,9 @@
             <xs:attribute name="cacheLoaderTimeoutMillis" type="xs:integer" use="optional" default="0"/>
             <xs:attribute name="overflowToOffHeap" type="xs:boolean" use="optional" default="false"/>
             <xs:attribute name="maxMemoryOffHeap" type="xs:string" use="optional"/>
-            <xs:attribute default="0" name="maxBytesOnHeap" type="memoryUnitOrPercentage" use="optional"/>
-            <xs:attribute default="0" name="maxBytesOffHeap" type="memoryUnitOrPercentage" use="optional"/>
-            <xs:attribute default="0" name="maxBytesOnDisk" type="memoryUnitOrPercentage" use="optional"/>
+            <xs:attribute default="0" name="maxBytesLocalHeap" type="memoryUnitOrPercentage" use="optional"/>
+            <xs:attribute default="0" name="maxBytesLocalOffHeap" type="memoryUnitOrPercentage" use="optional"/>
+            <xs:attribute default="0" name="maxBytesLocalDisk" type="memoryUnitOrPercentage" use="optional"/>
         </xs:complexType>
     </xs:element>
     <xs:element name="cacheEventListenerFactory">
