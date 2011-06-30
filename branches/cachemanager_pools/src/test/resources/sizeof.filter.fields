@@ -1,2 +1,2 @@
-org.terracotta.modules.sizeof.FilteredSizeOfTest$ResourceFilteredClass.bigArray
-org.terracotta.modules.sizeof.FilteredSizeOfTest$ResourceFilteredClass.mediumArray
+net.sf.ehcache.pool.sizeof.FilteredSizeOfTest$ResourceFilteredClass.bigArray
+net.sf.ehcache.pool.sizeof.FilteredSizeOfTest$ResourceFilteredClass.mediumArray
