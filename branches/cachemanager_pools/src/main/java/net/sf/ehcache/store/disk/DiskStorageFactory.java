@@ -965,7 +965,7 @@ public class DiskStorageFactory {
         try {
             flushTask.call();
         } catch (Throwable t) {
-            LOG.error("Could flush disk cache. Initial cause was " + t.getMessage(), t);
+            LOG.error("Could not flush disk cache. Initial cause was " + t.getMessage(), t);
         }
         
         try {
