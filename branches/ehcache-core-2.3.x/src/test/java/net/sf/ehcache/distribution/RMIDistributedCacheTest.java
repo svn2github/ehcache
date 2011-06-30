@@ -21,6 +21,9 @@ import net.sf.ehcache.AbstractCacheTest;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
+import net.sf.ehcache.util.RetryAssert;
+
+import org.hamcrest.collection.IsEmptyCollection;
 import org.junit.After;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -29,6 +32,9 @@ import org.junit.Test;
 
 import java.rmi.Naming;
 import java.util.Date;
+import java.util.Set;
+import java.util.concurrent.Callable;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Note these tests need a live network interface running in multicast mode to work
@@ -46,18 +52,18 @@ public class RMIDistributedCacheTest extends AbstractRMITest {
     /**
      * the cache name we wish to test
      */
-    private String cacheName1 = "sampleCache1";
-    private String cacheName2 = "sampleCache2";
+    private final String cacheName1 = "sampleCache1";
+    private final String cacheName2 = "sampleCache2";
     /**
      * the cache we wish to test
      */
     private Ehcache sampleCache1;
 
 
-    private String hostName = "localhost";
+    private final String hostName = "localhost";
 
-    private Integer port = Integer.valueOf(40000);
-    private Integer remoteObjectPort = Integer.valueOf(0);
+    private final Integer port = Integer.valueOf(40000);
+    private final Integer remoteObjectPort = Integer.valueOf(0);
     private Element element;
     private CachePeer cache1Peer;
     private CachePeer cache2Peer;
@@ -93,6 +99,12 @@ public class RMIDistributedCacheTest extends AbstractRMITest {
         Thread.sleep(10);
         manager.shutdown();
         int i = 0;
+
+        RetryAssert.assertBy(30, TimeUnit.SECONDS, new Callable<Set<Thread>>() {
+            public Set<Thread> call() throws Exception {
+                return getActiveReplicationThreads();
+            }
+        }, IsEmptyCollection.<Thread>empty());
     }
 
     /**

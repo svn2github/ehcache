@@ -21,10 +21,17 @@ import net.sf.ehcache.AbstractCacheTest;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;
+import net.sf.ehcache.Element;
 import net.sf.ehcache.Status;
 import net.sf.ehcache.event.CacheEventListener;
 import net.sf.ehcache.event.CountingCacheEventListener;
+
 import org.junit.After;
+import static net.sf.ehcache.util.RetryAssert.assertBy;
+import static net.sf.ehcache.util.RetryAssert.elementAt;
+import static net.sf.ehcache.util.RetryAssert.sizeOf;
+import static org.hamcrest.core.Is.is;
+import static org.hamcrest.core.IsNull.notNullValue;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import org.junit.Before;
@@ -33,6 +40,7 @@ import org.junit.Test;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Unit tests for the RMICacheManagerPeerListener
@@ -91,24 +99,28 @@ public class RMICacheManagerPeerListenerTest extends AbstractRMITest {
      */
     @Before
     public void setUp() throws Exception {
-        CountingCacheEventListener.resetCounters();
         manager1 = new CacheManager(AbstractCacheTest.TEST_CONFIG_DIR + "distribution/ehcache-distributed1.xml");
         manager2 = new CacheManager(AbstractCacheTest.TEST_CONFIG_DIR + "distribution/ehcache-distributed2.xml");
         manager3 = new CacheManager(AbstractCacheTest.TEST_CONFIG_DIR + "distribution/ehcache-distributed3.xml");
         manager4 = new CacheManager(AbstractCacheTest.TEST_CONFIG_DIR + "distribution/ehcache-distributed4.xml");
         manager5 = new CacheManager(AbstractCacheTest.TEST_CONFIG_DIR + "distribution/ehcache-distributed5.xml");
 
-        manager1.getCache(cacheName).removeAll();
-
-        cache1 = manager1.getCache(cacheName);
-        cache1.removeAll();
-
-        cache2 = manager2.getCache(cacheName);
-        cache2.removeAll();
-
         //allow cluster to be established
-        Thread.sleep(100);
+        waitForClusterMembership(10, TimeUnit.SECONDS, cacheName, manager1, manager2, manager3, manager4, manager5);
 
+        manager1.getCache(cacheName).put(new Element("setup", "setup"));
+        for (CacheManager manager : new CacheManager[] {manager1, manager2, manager3, manager4, manager5}) {
+            assertBy(10, TimeUnit.SECONDS, elementAt(manager.getCache(cacheName), "setup"), notNullValue());
+        }
+
+        manager1.getCache(cacheName).removeAll();
+        for (CacheManager manager : new CacheManager[] {manager1, manager2, manager3, manager4, manager5}) {
+            assertBy(10, TimeUnit.SECONDS, sizeOf(manager.getCache(cacheName)), is(0));
+        }
+
+        CountingCacheEventListener.resetCounters();
+        cache1 = manager1.getCache(cacheName);
+        cache2 = manager2.getCache(cacheName);
     }
 
 
@@ -120,17 +132,34 @@ public class RMICacheManagerPeerListenerTest extends AbstractRMITest {
     @After
     public void tearDown() throws Exception {
 
-        manager1.shutdown();
-        manager2.shutdown();
-        manager3.shutdown();
-        manager4.shutdown();
+        if (manager1 != null) {
+            manager1.shutdown();
+        }
+        if (manager2 != null) {
+            manager2.shutdown();
+        }
+        if (manager3 != null) {
+            manager3.shutdown();
+        }
+        if (manager4 != null) {
+            manager4.shutdown();
+        }
         if (manager5 != null) {
             manager5.shutdown();
         }
-
         if (manager6 != null) {
             manager6.shutdown();
         }
+
+        /*
+         * We can't assert this here, since one of these tests intentionally doesn't
+         * shutdown the last cache manager - intended to test the shutdown hooks...
+         */
+        //RetryAssert.assertBy(30, TimeUnit.SECONDS, new Callable<Set<Thread>>() {
+        //    public Set<Thread> call() throws Exception {
+        //        return getActiveReplicationThreads();
+        //    }
+        //}, IsEmptyCollection.<Thread>empty());
     }
 
 
@@ -244,8 +273,7 @@ public class RMICacheManagerPeerListenerTest extends AbstractRMITest {
 
 
     private void validateBoundCachePeer(String[] boundCachePeers) {
-        for (int i = 0; i < boundCachePeers.length; i++) {
-            String boundCacheName = boundCachePeers[i];
+        for (String boundCacheName : boundCachePeers) {
             Remote remote = ((RMICacheManagerPeerListener) manager1.getCachePeerListener("RMI")).lookupPeer(boundCacheName);
             assertNotNull(remote);
         }
@@ -277,11 +305,16 @@ public class RMICacheManagerPeerListenerTest extends AbstractRMITest {
     @Test
     public void testListenerShutsdownFromShutdownHook() {
         CacheManager manager = new CacheManager(AbstractCacheTest.TEST_CONFIG_DIR + "distribution/ehcache-distributed6.xml");
-
-        CacheManagerPeerListener cachePeerListener = manager.getCachePeerListener("RMI");
-        List cachePeers1 = cachePeerListener.getBoundCachePeers();
-        assertEquals(55, cachePeers1.size());
-        assertEquals(Status.STATUS_ALIVE, cachePeerListener.getStatus());
-
+        try {
+            CacheManagerPeerListener cachePeerListener = manager.getCachePeerListener("RMI");
+            List cachePeers1 = cachePeerListener.getBoundCachePeers();
+            assertEquals(55, cachePeers1.size());
+            assertEquals(Status.STATUS_ALIVE, cachePeerListener.getStatus());
+        } finally {
+            /*
+             * This test intentionally doesn't call shutdown - the VM should do it for us.
+             */
+            //manager.shutdown();
+        }
     }
 }

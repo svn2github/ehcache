@@ -23,6 +23,9 @@ import static org.junit.Assert.fail;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
+import java.util.concurrent.Callable;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -32,7 +35,9 @@ import net.sf.ehcache.CacheException;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.event.CountingCacheEventListener;
+import net.sf.ehcache.util.RetryAssert;
 
+import org.hamcrest.collection.IsEmptyCollection;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -84,7 +89,7 @@ public class RMICacheReplicatorWithLargePayloadTest extends AbstractRMITest {
         manager2 = new CacheManager(AbstractCacheTest.TEST_CONFIG_DIR + "distribution/ehcache-distributed-big-payload-2.xml");
         manager3 = new CacheManager(AbstractCacheTest.TEST_CONFIG_DIR + "distribution/ehcache-distributed-big-payload-3.xml");
         // allow cluster to be established
-        Thread.sleep(1020);
+        waitForClusterMembership(10, TimeUnit.SECONDS, "QGfMIUgUraSgqLuqSfjKHzncdIyWadsvsOiDihOvlPbupWrMBD", manager1, manager2, manager3);
         // enable distributed removeAlls to finish
         waitForPropagate();
     }
@@ -124,16 +129,12 @@ public class RMICacheReplicatorWithLargePayloadTest extends AbstractRMITest {
         if (manager4 != null) {
             manager4.shutdown();
         }
-        Thread.sleep(2000);
 
-        List threads = JVMUtil.enumerateThreads();
-        for (int i = 0; i < threads.size(); i++) {
-            Thread thread = (Thread) threads.get(i);
-            if (thread.getName().equals("Replication Thread")) {
-                fail("There should not be any replication threads running after shutdown");
+        RetryAssert.assertBy(30, TimeUnit.SECONDS, new Callable<Set<Thread>>() {
+            public Set<Thread> call() throws Exception {
+                return getActiveReplicationThreads();
             }
-        }
-
+        }, IsEmptyCollection.<Thread>empty());
     }
 
     @Test
