@@ -9,6 +9,7 @@ import javax.management.openmbean.CompositeData;
 abstract class AbstractSizeOfTest {
 
   protected static final boolean COMPRESSED_OOPS;
+  protected static final boolean HOTSPOT_CMS;
   static {
     String value = getVmOptionValue("UseCompressedOops");
     if (value == null) {
@@ -17,6 +18,8 @@ abstract class AbstractSizeOfTest {
     } else {
       COMPRESSED_OOPS = Boolean.valueOf(value);
     }
+
+    HOTSPOT_CMS = JvmInformation.MINIMUM_OBJECT_SIZE > JvmInformation.OBJECT_ALIGNMENT;
   }
   
   private static String getVmOptionValue(String name) {
