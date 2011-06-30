@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <ehcache xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:noNamespaceSchemaLocation="../../../main/config/ehcache.xsd" maxBytesOnHeap="1M" maxBytesOnDisk="1M">
+         xsi:noNamespaceSchemaLocation="../../../main/config/ehcache.xsd" maxBytesLocalHeap="1M" maxBytesLocalDisk="1M">
 
     <diskStore path="java.io.tmpdir"/>
 
