@@ -1176,13 +1176,13 @@ public class DiskStorageFactory {
                 DiskMarker marker = (DiskMarker) value;
                 while (true) {
                     marker.bindFactory(this);
+                    markUsed(marker);
                     if (store.putRawIfAbsent(key, marker)) {
                         onDisk.incrementAndGet();
                     } else {
                         // the disk pool is full
                         return;
                     }
-                    markUsed(marker);
                     key = ois.readObject();
                     marker = (DiskMarker) ois.readObject();
                 }
