@@ -69,8 +69,8 @@ public class CacheCopyOnRwPoolTest {
         Cache cache = cacheManager.getCache("memoryOnlyCache");
         Cache copyCache = cacheManager.getCache("memoryOnlyCache_copy");
 
-        cache.put(new Element(1000, "1000"));
-        copyCache.put(new Element(1000, "1000"));
+        cache.put(new Element(1000, 1000));
+        copyCache.put(new Element(1000, 1000));
 
         long cacheSize = cache.calculateInMemorySize();
         System.out.println("cache size : " + cacheSize);
@@ -101,8 +101,8 @@ public class CacheCopyOnRwPoolTest {
         Cache cache = cacheManager.getCache("overflowToDiskCache");
         Cache copyCache = cacheManager.getCache("overflowToDiskCache_copy");
 
-        cache.put(new Element(1000, "1000"));
-        copyCache.put(new Element(1000, "1000"));
+        cache.put(new Element(1000, 1000));
+        copyCache.put(new Element(1000, 1000));
 
         Thread.sleep(1000);
 
@@ -145,8 +145,8 @@ public class CacheCopyOnRwPoolTest {
         Cache cache = cacheManager.getCache("diskPersistentCache");
         Cache copyCache = cacheManager.getCache("diskPersistentCache_copy");
 
-        cache.put(new Element(1000, "1000"));
-        copyCache.put(new Element(1000, "1000"));
+        cache.put(new Element(1000, 1000));
+        copyCache.put(new Element(1000, 1000));
 
         Thread.sleep(1000);
 
