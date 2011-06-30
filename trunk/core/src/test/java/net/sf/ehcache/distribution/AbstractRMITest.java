@@ -16,6 +16,8 @@
 
 package net.sf.ehcache.distribution;
 
+import static net.sf.ehcache.util.RetryAssert.assertBy;
+import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 
@@ -31,6 +33,8 @@ import java.util.concurrent.TimeUnit;
 
 import javax.management.MBeanServer;
 import javax.management.ObjectName;
+
+import net.sf.ehcache.CacheManager;
 
 import org.hamcrest.collection.IsEmptyCollection;
 import org.junit.Assert;
@@ -133,4 +137,23 @@ public abstract class AbstractRMITest {
         return errors;
     }
 
+    protected static void waitForClusterMembership(int time, TimeUnit unit, final String cacheName, final CacheManager ... managers) {
+        assertBy(time, unit, new Callable<Integer>() {
+
+            public Integer call() throws Exception {
+                Integer minimumPeers = null;
+                for (CacheManager manager : managers) {
+                    int peers = manager.getCacheManagerPeerProvider("RMI").listRemoteCachePeers(manager.getEhcache(cacheName)).size();
+                    if (minimumPeers == null || peers < minimumPeers) {
+                        minimumPeers = peers;
+                    }
+                }
+                if (minimumPeers == null) {
+                    return 0;
+                } else {
+                    return minimumPeers + 1;
+                }
+            }
+        }, is(managers.length));
+    }
 }
