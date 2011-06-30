@@ -21,8 +21,11 @@ import net.sf.ehcache.CacheException;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
+import net.sf.ehcache.util.RetryAssert;
+import org.hamcrest.core.Is;
 import org.junit.After;
 
+import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
@@ -36,6 +39,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.Callable;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -716,11 +720,17 @@ public class CacheEventListenerTest extends AbstractCacheTest {
      */
     @Test
     public void testExpiryViaDiskStoreExpiryThread() throws InterruptedException {
-        //20 elements will end up into the disk store
+        //10 elements will end up into the disk store
         for (int i = 0; i < 20; i++) {
             Element element = new Element("" + i, new Date());
             cache.put(element);
         }
+
+        RetryAssert.assertBy(1, SECONDS, new Callable<Integer>() {
+            public Integer call() throws Exception {
+                return cache.getDiskStoreSize();
+            }
+        }, Is.is(10));
 
         // Wait for expiry and expiry thread
         Thread.sleep(2999);
@@ -730,8 +740,7 @@ public class CacheEventListenerTest extends AbstractCacheTest {
             Element element = (Element) notifications.get(i);
             element.getObjectKey();
         }
-        assertEquals(20, notifications.size());
-
+        assertEquals(10, notifications.size());
     }
 
 
