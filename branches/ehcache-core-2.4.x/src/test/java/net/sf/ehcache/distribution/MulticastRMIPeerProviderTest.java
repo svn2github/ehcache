@@ -23,12 +23,17 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.net.MulticastSocket;
 import java.util.List;
+import java.util.Set;
+import java.util.concurrent.Callable;
+import java.util.concurrent.TimeUnit;
 
 import net.sf.ehcache.AbstractCacheTest;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;
+import net.sf.ehcache.util.RetryAssert;
 
+import org.hamcrest.collection.IsEmptyCollection;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -72,7 +77,7 @@ public class MulticastRMIPeerProviderTest extends AbstractRMITest {
         manager3 = new CacheManager(AbstractCacheTest.TEST_CONFIG_DIR + "distribution/ehcache-distributed3.xml");
 
         //wait for cluster to establish
-        Thread.sleep(2000);
+        waitForClusterMembership(10, TimeUnit.SECONDS, "sampleCache1", manager1, manager2, manager3);
     }
 
     /**
@@ -80,9 +85,21 @@ public class MulticastRMIPeerProviderTest extends AbstractRMITest {
      */
     @After
     public void tearDown() throws Exception {
-        manager1.shutdown();
-        manager2.shutdown();
-        manager3.shutdown();
+        if (manager1 != null) {
+            manager1.shutdown();
+        }
+        if (manager2 != null) {
+            manager2.shutdown();
+        }
+        if (manager3 != null) {
+            manager3.shutdown();
+        }
+
+        RetryAssert.assertBy(30, TimeUnit.SECONDS, new Callable<Set<Thread>>() {
+            public Set<Thread> call() throws Exception {
+                return getActiveReplicationThreads();
+            }
+        }, IsEmptyCollection.<Thread>empty());
     }
 
     /**
