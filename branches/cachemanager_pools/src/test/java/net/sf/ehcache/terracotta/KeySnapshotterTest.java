@@ -8,6 +8,7 @@ import org.junit.Test;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
+import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.text.ParseException;
@@ -30,8 +31,26 @@ public class KeySnapshotterTest {
 
     private static final String KEY = "Key";
     private static final long MAX_KEY = 10000;
+    private static final String DUMPS_DIRECTORY = System.getProperty("java.io.tmpdir") + File.separator + "dumps";
 
     final CacheManager cacheManager = new CacheManager();
+
+    private static void deleteFolder(File root) {
+        if (root.isDirectory()) {
+            File[] files = root.listFiles();
+            for (File file : files) {
+                if (file.isDirectory()) {
+                    deleteFolder(file);
+                } else {
+                    file.delete();
+                }
+            }
+        }
+
+        if (root.exists()) {
+            root.delete();
+        }
+    }
 
     @Test(expected = IllegalArgumentException.class)
     public void testThrowsIllegalArgumentExceptionOnZeroInterval() {
@@ -68,7 +87,8 @@ public class KeySnapshotterTest {
 
     @Test
     public void testDisposesProperlyImmediately() throws BrokenBarrierException, InterruptedException, IOException {
-        final RotatingSnapshotFile rotatingSnapshotFile = new RotatingSnapshotFile("dumps", "testingInterruptImmediate");
+        deleteFolder(new File(DUMPS_DIRECTORY));
+        final RotatingSnapshotFile rotatingSnapshotFile = new RotatingSnapshotFile(DUMPS_DIRECTORY, "testingInterruptImmediate");
         final TerracottaStore mockedTcStore = mock(TerracottaStore.class);
         KeySnapshotter snapshotter = new KeySnapshotter(createFakeTcClusteredCache(mockedTcStore), 1, true, rotatingSnapshotFile);
         final CyclicBarrier barrier = new CyclicBarrier(2);
@@ -106,7 +126,8 @@ public class KeySnapshotterTest {
 
     @Test
     public void testDisposesProperlyButFinishes() throws BrokenBarrierException, InterruptedException, IOException {
-        final RotatingSnapshotFile rotatingSnapshotFile = new RotatingSnapshotFile("dumps", "testingInterruptFinishes");
+        deleteFolder(new File(DUMPS_DIRECTORY));
+        final RotatingSnapshotFile rotatingSnapshotFile = new RotatingSnapshotFile(DUMPS_DIRECTORY, "testingInterruptFinishes");
         final TerracottaStore mockedTcStore = mock(TerracottaStore.class);
         final CyclicBarrier barrier = new CyclicBarrier(2);
         final Set mockedSet = mock(Set.class);
