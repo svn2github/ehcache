@@ -716,7 +716,7 @@ public class CacheEventListenerTest extends AbstractCacheTest {
      */
     @Test
     public void testExpiryViaDiskStoreExpiryThread() throws InterruptedException {
-        //Overflow 10 elements to disk store
+        //20 elements will end up into the disk store
         for (int i = 0; i < 20; i++) {
             Element element = new Element("" + i, new Date());
             cache.put(element);
@@ -730,7 +730,7 @@ public class CacheEventListenerTest extends AbstractCacheTest {
             Element element = (Element) notifications.get(i);
             element.getObjectKey();
         }
-        assertEquals(10, notifications.size());
+        assertEquals(20, notifications.size());
 
     }
 
