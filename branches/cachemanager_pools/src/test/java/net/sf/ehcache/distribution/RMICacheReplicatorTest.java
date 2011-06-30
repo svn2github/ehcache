@@ -633,7 +633,7 @@ public class RMICacheReplicatorTest extends AbstractCacheTest {
         waitForPropagate();
 
         //local initiating cache's counting listener should have been notified
-        assertEquals(4, CountingCacheEventListener.getCacheElementsUpdated(cache1).size());
+        assertEquals(3, CountingCacheEventListener.getCacheElementsUpdated(cache1).size());
         //remote receiving caches' counting listener should have been notified
         assertEquals(3, CountingCacheEventListener.getCacheElementsUpdated(cache2).size());
 
