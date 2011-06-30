@@ -115,16 +115,13 @@ public class DiskStoreTest {
         cache.remove(-2);
         assertEquals(null, cache.get(-2));
 
-
         assertEquals(0, cache.getDiskStoreSize());
-
-
-        Thread.sleep(1000);
 
         for (int i = 0; i < 10010; i++) {
             cache.put(new Element(i, i));
         }
 
+        Thread.sleep(3000);
 
         RetryAssert.assertBy(1, SECONDS, new Callable<Integer>() {
                 public Integer call() throws Exception {
