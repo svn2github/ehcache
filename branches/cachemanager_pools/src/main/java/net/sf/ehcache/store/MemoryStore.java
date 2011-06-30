@@ -31,6 +31,7 @@ import net.sf.ehcache.pool.Pool;
 import net.sf.ehcache.pool.PoolAccessor;
 import net.sf.ehcache.pool.PoolableStore;
 import net.sf.ehcache.store.chm.SelectableConcurrentHashMap;
+import net.sf.ehcache.store.disk.StoreUpdateException;
 import net.sf.ehcache.util.ratestatistics.AtomicRateStatistic;
 import net.sf.ehcache.util.ratestatistics.RateStatistic;
 import net.sf.ehcache.writer.CacheWriterManager;
@@ -231,7 +232,11 @@ public final class MemoryStore extends AbstractStore implements TierableStore, P
                 poolAccessor.delete(old.getObjectKey(), old.getObjectValue(), map.storedObject(old));
             }
             if (writerManager != null) {
-                writerManager.put(element);
+                try {
+                    writerManager.put(element);
+                } catch (RuntimeException e) {
+                    throw new StoreUpdateException(e, old != null);
+                }
             }
             checkCapacity(element);
             if (element.isPinned()) {
