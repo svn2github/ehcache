@@ -72,14 +72,17 @@ public class DiskStoreBootstrapCacheLoader extends MemoryLimitedCacheLoader {
     }
 
     private void doLoad(Ehcache cache) {
-        final Iterator iterator = cache.getKeys().iterator();
         loadedElements = 0;
-        while (iterator.hasNext() && isInMemoryLimitReached(cache, loadedElements)) {
-            if (cache.get(iterator.next()) != null) {
-                ++loadedElements;
+        try {
+            final Iterator iterator = cache.getKeys().iterator();
+            while (iterator.hasNext() && isInMemoryLimitReached(cache, loadedElements)) {
+                if (cache.get(iterator.next()) != null) {
+                    ++loadedElements;
+                }
             }
+        } finally {
+            doneLoading = true;
         }
-        doneLoading = true;
         LOG.debug("Loaded {} elements from disk into heap for cache {}", loadedElements, cache.getName());
     }
 
@@ -137,8 +140,6 @@ public class DiskStoreBootstrapCacheLoader extends MemoryLimitedCacheLoader {
                     doLoad(cache);
                 } catch (RemoteCacheException e) {
                     LOG.warn("Error asynchronously performing bootstrap. The cause was: " + e.getMessage(), e);
-                } finally {
-                    doneLoading = true;
                 }
             } catch (InterruptedException e) {
                 interrupted();
