@@ -18,9 +18,7 @@ package net.sf.ehcache.store;
 
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Ehcache;
-import net.sf.ehcache.Element;
 import net.sf.ehcache.config.CacheConfiguration;
-import net.sf.ehcache.config.PinningConfiguration;
 import net.sf.ehcache.pool.Pool;
 import net.sf.ehcache.store.disk.DiskStore;
 
@@ -31,38 +29,8 @@ import net.sf.ehcache.store.disk.DiskStore;
  */
 public final class DiskBackedMemoryStore extends FrontEndCacheTier<MemoryStore, DiskStore> {
 
-    private final boolean alwaysPutOnHeap;
-    private volatile boolean cachePinnedOnHeapOrInMemory;
-
     private DiskBackedMemoryStore(CacheConfiguration cacheConfiguration, MemoryStore cache, DiskStore authority) {
         super(cache, authority, cacheConfiguration.getCopyStrategy(), cacheConfiguration.isCopyOnWrite(), cacheConfiguration.isCopyOnRead());
-        this.cachePinnedOnHeapOrInMemory = determineCachePinnedOnHeapOrInMemory(cacheConfiguration);
-        this.alwaysPutOnHeap = getAdvancedBooleanConfigProperty("alwaysPutOnHeap", cacheConfiguration.getName(), false);
-    }
-
-    private boolean determineCachePinnedOnHeapOrInMemory(CacheConfiguration cacheConfiguration) {
-        PinningConfiguration pinningConfiguration = cacheConfiguration.getPinningConfiguration();
-        if (pinningConfiguration == null) {
-            return false;
-        }
-
-        switch (pinningConfiguration.getStorage()) {
-            case ONHEAP:
-            case INMEMORY:
-                return true;
-
-            case INCACHE:
-                return false;
-
-            default:
-                throw new IllegalArgumentException();
-        }
-    }
-
-    private static boolean getAdvancedBooleanConfigProperty(String property, String cacheName, boolean defaultValue) {
-        String globalPropertyKey = "net.sf.ehcache.store.config." + property;
-        String cachePropertyKey = "net.sf.ehcache.store." + cacheName + ".config." + property;
-        return Boolean.parseBoolean(System.getProperty(cachePropertyKey, System.getProperty(globalPropertyKey, Boolean.toString(defaultValue))));
     }
 
     /**
@@ -92,13 +60,4 @@ public final class DiskBackedMemoryStore extends FrontEndCacheTier<MemoryStore, 
             throw new CacheException("DiskBackedMemoryStore can only be used when cache overflows to disk or is disk persistent");
         }
     }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    protected boolean cacheHasRoomFor(Element element) {
-        return cachePinnedOnHeapOrInMemory || alwaysPutOnHeap || cache.canPutWithoutEvicting(element);
-    }
-
 }

@@ -54,7 +54,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
  * Implements a persistent-to-disk store.
  * <p>
  * All new elements are automatically scheduled for writing to disk.
- * 
+ *
  * @author Chris Dennis
  * @author Ludovic Orban
  */
@@ -464,6 +464,13 @@ public final class DiskStore extends AbstractStore implements TierableStore, Poo
      */
     public Object getMBean() {
         return null;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void fill(Element e) {
+        put(e);
     }
 
     /**

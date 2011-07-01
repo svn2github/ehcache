@@ -21,7 +21,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
 
 import net.sf.ehcache.pool.Pool;
 import net.sf.ehcache.pool.PoolAccessor;

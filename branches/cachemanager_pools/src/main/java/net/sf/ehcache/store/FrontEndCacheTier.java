@@ -33,7 +33,7 @@ import net.sf.ehcache.writer.CacheWriterManager;
  * @author Chris Dennis
  * @author Ludovic Orban
  */
-public abstract class FrontEndCacheTier<T extends Store, U extends TierableStore> extends AbstractStore {
+public abstract class FrontEndCacheTier<T extends TierableStore, U extends TierableStore> extends AbstractStore {
 
     /**
      * The cache tier store
@@ -51,7 +51,7 @@ public abstract class FrontEndCacheTier<T extends Store, U extends TierableStore
 
     /**
      * Constructor for FrontEndCacheTier
-     * 
+     *
      * @param cache the caching tier
      * @param authority the authority tier
      * @param copyStrategy the copyStrategy to use
@@ -93,16 +93,8 @@ public abstract class FrontEndCacheTier<T extends Store, U extends TierableStore
     }
 
     /**
-     * Check if the caching store has not enough room to add an element without provoking an eviction.
-     *
-     * @param element the element to check against.
-     * @return true if the caching store is full, otherwise false.
-     */
-    protected abstract boolean cacheHasRoomFor(Element element);
-
-    /**
      * Check if the authority can handle pinned elements. The default implementation returns false.
-     * 
+     *
      * @return true if the authority can handle pinned elements, false otherwise.
      */
     protected boolean isAuthorityHandlingPinnedElements() {
@@ -172,12 +164,10 @@ public abstract class FrontEndCacheTier<T extends Store, U extends TierableStore
                 boolean put = cache.put(copy);
                 authority.remove(key);
                 return put;
+            } else {
+                cache.fill(copy);
+                return authority.put(copy);
             }
-
-            if (cache.remove(key) != null || cacheHasRoomFor(copy)) {
-                cache.put(copy);
-            }
-            return authority.put(copy);
         } finally {
             writeUnlock(key);
         }
@@ -200,12 +190,10 @@ public abstract class FrontEndCacheTier<T extends Store, U extends TierableStore
                 boolean put = cache.putWithWriter(copy, writer);
                 authority.remove(key);
                 return put;
+            } else {
+                cache.fill(copy);
+                return authority.putWithWriter(copy, writer);
             }
-
-            if (cache.remove(key) != null || cacheHasRoomFor(copy)) {
-                cache.put(copy);
-            }
-            return authority.putWithWriter(copy, writer);
         } finally {
             writeUnlock(key);
         }
@@ -266,9 +254,7 @@ public abstract class FrontEndCacheTier<T extends Store, U extends TierableStore
             } else {
                 Element old = authority.putIfAbsent(copy);
                 if (old == null) {
-                    if (cache.remove(key) != null || cacheHasRoomFor(copy)) {
-                        cache.put(copy);
-                    }
+                    cache.fill(copy);
                 }
                 return copyElementForReadIfNeeded(old);
             }
@@ -522,37 +508,21 @@ public abstract class FrontEndCacheTier<T extends Store, U extends TierableStore
      * {@inheritDoc}
      */
     public long getInMemorySizeInBytes() {
-        readLock();
-        try {
-            return authority.getInMemorySizeInBytes() + cache.getInMemorySizeInBytes();
-        } finally {
-            readUnlock();
-        }
+        return authority.getInMemorySizeInBytes() + cache.getInMemorySizeInBytes();
     }
 
     /**
      * {@inheritDoc}
      */
     public long getOffHeapSizeInBytes() {
-        readLock();
-        try {
-            return authority.getOffHeapSizeInBytes() + cache.getOffHeapSizeInBytes();
-        } finally {
-            readUnlock();
-        }
+        return authority.getOffHeapSizeInBytes() + cache.getOffHeapSizeInBytes();
     }
 
     /**
      * {@inheritDoc}
      */
     public long getOnDiskSizeInBytes() {
-        readLock();
-        try {
-            return authority.getOnDiskSizeInBytes() + cache.getOnDiskSizeInBytes();
-        } finally {
-            readUnlock();
-        }
-
+        return authority.getOnDiskSizeInBytes() + cache.getOnDiskSizeInBytes();
     }
 
     /**
@@ -571,6 +541,7 @@ public abstract class FrontEndCacheTier<T extends Store, U extends TierableStore
     /**
      * {@inheritDoc}
      */
+    @Override
     public int getPinnedCount() {
         return cache.getPinnedCount();
     }

@@ -201,13 +201,4 @@ public final class MemoryOnlyStore extends FrontEndCacheTier<NullStore, MemorySt
     protected boolean isAuthorityHandlingPinnedElements() {
         return true;
     }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    protected boolean cacheHasRoomFor(Element element) {
-        return false;
-    }
-
 }

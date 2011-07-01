@@ -69,6 +69,8 @@ public final class MemoryStore extends AbstractStore implements TierableStore, P
 
     private static final Logger LOG = LoggerFactory.getLogger(MemoryStore.class.getName());
 
+    private final boolean alwaysPutOnHeap;
+
     /**
      * The cache this store is associated with.
      */
@@ -130,6 +132,7 @@ public final class MemoryStore extends AbstractStore implements TierableStore, P
 
         this.poolAccessor = pool.createPoolAccessor(this);
 
+        this.alwaysPutOnHeap = getAdvancedBooleanConfigProperty("alwaysPutOnHeap", cache.getCacheConfiguration().getName(), false);
         this.cachePinned = determineCachePinned(cache.getCacheConfiguration());
 
         status = Status.STATUS_ALIVE;
@@ -190,6 +193,14 @@ public final class MemoryStore extends AbstractStore implements TierableStore, P
         return element.isPinned() || cache.getCacheConfiguration().getPinningConfiguration() != null;
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    public void fill(Element element) {
+        if (cachePinned || alwaysPutOnHeap || remove(element.getObjectKey()) != null || canPutWithoutEvicting(element)) {
+            put(element);
+        }
+    }
 
     /**
      * Puts an item in the store. Note that this automatically results in an eviction if the store is full.
@@ -842,6 +853,7 @@ public final class MemoryStore extends AbstractStore implements TierableStore, P
     /**
      * {@inheritDoc}
      */
+    @Override
     public int getPinnedCount() {
         return pinnedCount.get();
     }
@@ -992,5 +1004,10 @@ public final class MemoryStore extends AbstractStore implements TierableStore, P
         }
     }
 
+    private static boolean getAdvancedBooleanConfigProperty(String property, String cacheName, boolean defaultValue) {
+        String globalPropertyKey = "net.sf.ehcache.store.config." + property;
+        String cachePropertyKey = "net.sf.ehcache.store." + cacheName + ".config." + property;
+        return Boolean.parseBoolean(System.getProperty(cachePropertyKey, System.getProperty(globalPropertyKey, Boolean.toString(defaultValue))));
+    }
 }
 

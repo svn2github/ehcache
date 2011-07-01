@@ -15,13 +15,23 @@
  */
 package net.sf.ehcache.store;
 
+import net.sf.ehcache.Element;
+
 /**
  * This is the interface for all tierable stores.
  *
  * @author Ludovic Orban
  */
 public interface TierableStore extends Store {
-    
+
+    /**
+     * Add this element to the cache if the key is already present or the add
+     * can succeed without resorting to eviction.
+     *
+     * @param e element to be added
+     */
+    void fill(Element e);
+
     /**
      * Acquire the read lock of the specified key
      * @param key the key to read-lock

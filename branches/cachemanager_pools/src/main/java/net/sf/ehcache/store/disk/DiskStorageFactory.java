@@ -775,6 +775,7 @@ public class DiskStorageFactory {
          * <p>
          * A No-Op
          */
+        @Override
         public void installed() {
             //no-op
         }
@@ -966,7 +967,7 @@ public class DiskStorageFactory {
         } catch (Throwable t) {
             LOG.error("Could not flush disk cache. Initial cause was " + t.getMessage(), t);
         }
-        
+
         try {
             shutdown();
             if (getDataFile().getAbsolutePath().contains(AUTO_DISK_PATH_DIRECTORY_PREFIX)) {
@@ -996,7 +997,7 @@ public class DiskStorageFactory {
 
     /**
      * Evict some elements, if possible
-     * 
+     *
      * @param count the number of elements to evict
      * @return the number of elements actually evicted
      */
