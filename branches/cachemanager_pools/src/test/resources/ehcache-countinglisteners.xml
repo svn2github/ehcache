@@ -125,8 +125,8 @@
            maxElementsInMemory="10"
            maxElementsOnDisk="10"
            eternal="false"
-           timeToIdleSeconds="1"
-           timeToLiveSeconds="1"
+           timeToIdleSeconds="5"
+           timeToLiveSeconds="5"
            overflowToDisk="true"
            memoryStoreEvictionPolicy="LRU"
            diskExpiryThreadIntervalSeconds="1">

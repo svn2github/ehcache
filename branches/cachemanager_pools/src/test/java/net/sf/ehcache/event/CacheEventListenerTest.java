@@ -726,14 +726,14 @@ public class CacheEventListenerTest extends AbstractCacheTest {
             cache.put(element);
         }
 
-        RetryAssert.assertBy(10, SECONDS, new Callable<Integer>() {
+        RetryAssert.assertBy(5, SECONDS, new Callable<Integer>() {
             public Integer call() throws Exception {
                 return cache.getDiskStoreSize();
             }
         }, Is.is(10));
 
         // Wait for expiry and expiry thread
-        Thread.sleep(2999);
+        Thread.sleep(5999);
 
         List notifications = CountingCacheEventListener.getCacheElementsExpired(cache);
         for (int i = 0; i < notifications.size(); i++) {
