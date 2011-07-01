@@ -42,7 +42,7 @@ public class DiskStoreBootstrapCacheLoader extends MemoryLimitedCacheLoader {
      * @param delay in milliseconds
      */
     DiskStoreBootstrapCacheLoader(final long delay) {
-        asynchronous = false;
+        asynchronous = true;
         this.delay = delay;
     }
 
@@ -75,7 +75,7 @@ public class DiskStoreBootstrapCacheLoader extends MemoryLimitedCacheLoader {
         loadedElements = 0;
         try {
             final Iterator iterator = cache.getKeys().iterator();
-            while (iterator.hasNext() && isInMemoryLimitReached(cache, loadedElements)) {
+            while (iterator.hasNext() && !isInMemoryLimitReached(cache, loadedElements)) {
                 if (cache.get(iterator.next()) != null) {
                     ++loadedElements;
                 }

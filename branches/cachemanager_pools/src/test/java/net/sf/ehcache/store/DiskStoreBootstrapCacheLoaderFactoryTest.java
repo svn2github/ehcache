@@ -57,7 +57,7 @@ public class DiskStoreBootstrapCacheLoaderFactoryTest {
         initCacheManager();
         assertThat(cacheElementCountBound.getDiskStoreSize(), is(ELEMENTS_ON_DISK));
         assertThat(cacheElementCountBound.getMemoryStoreSize(), is(0L));
-        waitForBootstrapLoader(cacheElementCountBoundBootstrapCacheLoader);
+        System.out.println(waitForBootstrapLoader(cacheElementCountBoundBootstrapCacheLoader));
         assertThat(cacheElementCountBound.getDiskStoreSize(), is(ELEMENTS_ON_DISK));
         assertThat(cacheElementCountBound.getMemoryStoreSize(), is(100L));
         assertThat(cacheElementCountBoundBootstrapCacheLoader.getLoadedElements(), is(100));
@@ -84,12 +84,13 @@ public class DiskStoreBootstrapCacheLoaderFactoryTest {
         assertThat(cacheSizeBoundBootstrapCacheLoader.getLoadedElements(), is(100));
     }
 
-    private void waitForBootstrapLoader(DiskStoreBootstrapCacheLoader bootstrapCacheLoader) throws InterruptedException {
+    private int waitForBootstrapLoader(DiskStoreBootstrapCacheLoader bootstrapCacheLoader) throws InterruptedException {
         while(!bootstrapCacheLoader.isDoneLoading()) {
             System.err.println("Waiting for the loader to be done... Loaded " + bootstrapCacheLoader.getLoadedElements()
                                + " elements so far" );
             Thread.sleep(LOADER_DELAY);
         }
+        return bootstrapCacheLoader.getLoadedElements();
     }
 
     private void initCacheManager() {
