@@ -1075,18 +1075,18 @@ public class CacheManager {
     private void configCachePools(CacheConfiguration cacheConfiguration) {
 
         long cacheAssignedMem;
-        if (cacheConfiguration.getMaxBytesOnHeapPercentage() != null) {
-            cacheAssignedMem = configuration.getMaxBytesLocalHeap() * cacheConfiguration.getMaxBytesOnHeapPercentage() / HUNDRED;
+        if (cacheConfiguration.getMaxBytesLocalHeapPercentage() != null) {
+            cacheAssignedMem = configuration.getMaxBytesLocalHeap() * cacheConfiguration.getMaxBytesLocalHeapPercentage() / HUNDRED;
             cacheConfiguration.setMaxBytesLocalHeap(cacheAssignedMem);
         }
 
-        if (cacheConfiguration.getMaxBytesLocalHeapPercentage() != null) {
-            cacheAssignedMem = configuration.getMaxBytesLocalOffHeap() * cacheConfiguration.getMaxBytesLocalHeapPercentage() / HUNDRED;
+        if (cacheConfiguration.getMaxBytesLocalOffHeapPercentage() != null) {
+            cacheAssignedMem = configuration.getMaxBytesLocalOffHeap() * cacheConfiguration.getMaxBytesLocalOffHeapPercentage() / HUNDRED;
             cacheConfiguration.setMaxBytesLocalOffHeap(cacheAssignedMem);
         }
 
-        if (cacheConfiguration.getMaxBytesOnDiskPercentage() != null) {
-            cacheAssignedMem = configuration.getMaxBytesLocalDisk() * cacheConfiguration.getMaxBytesOnDiskPercentage() / HUNDRED;
+        if (cacheConfiguration.getMaxBytesLocalDiskPercentage() != null) {
+            cacheAssignedMem = configuration.getMaxBytesLocalDisk() * cacheConfiguration.getMaxBytesLocalDiskPercentage() / HUNDRED;
             cacheConfiguration.setMaxBytesLocalDisk(cacheAssignedMem);
         }
 
@@ -1100,17 +1100,17 @@ public class CacheManager {
         }
 
         // todo Verify that these are the real constraints ?
-        if (cacheConfiguration.isMaxBytesOnHeapPercentageSet() && !configuration.isMaxBytesLocalHeapSet()) {
+        if (cacheConfiguration.isMaxBytesLocalHeapPercentageSet() && !configuration.isMaxBytesLocalHeapSet()) {
             throw new InvalidConfigurationException("Cache '" + cacheConfiguration.getName() +
                                                     "' defines a percentage maxBytesOnHeap value but no CacheManager " +
                                                     "wide value was configured");
         }
-        if (cacheConfiguration.isMaxBytesOffHeapPercentageSet() && !configuration.isMaxBytesLocalOffHeapSet()) {
+        if (cacheConfiguration.isMaxBytesLocalOffHeapPercentageSet() && !configuration.isMaxBytesLocalOffHeapSet()) {
             throw new InvalidConfigurationException("Cache '" + cacheConfiguration.getName() +
                                                     "' defines a percentage maxBytesOffHeap value but no CacheManager " +
                                                     "wide value was configured");
         }
-        if (cacheConfiguration.isMaxBytesOnDiskPercentageSet() && !configuration.isMaxBytesLocalDiskSet()) {
+        if (cacheConfiguration.isMaxBytesLocalDiskPercentageSet() && !configuration.isMaxBytesLocalDiskSet()) {
             throw new InvalidConfigurationException("Cache '" + cacheConfiguration.getName() +
                                                     "' defines a percentage maxBytesOnDisk value but no CacheManager " +
                                                     "wide value was configured");

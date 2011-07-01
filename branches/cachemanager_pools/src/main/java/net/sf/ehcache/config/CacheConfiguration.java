@@ -364,8 +364,8 @@ public class CacheConfiguration implements Cloneable {
     private Long maxBytesLocalOffHeap;
     private Long maxBytesLocalDisk;
     private Integer maxBytesLocalHeapPercentage;
-    private Integer maxBytesOnHeapPercentage;
-    private Integer maxBytesOnDiskPercentage;
+    private Integer maxBytesLocalOffHeapPercentage;
+    private Integer maxBytesLocalDiskPercentage;
 
     /**
      * Default constructor.
@@ -1180,24 +1180,24 @@ public class CacheConfiguration implements Cloneable {
     }
 
     /**
-     * Setter for maxBytesOnHeap as a String. Value can have a one char unit suffix or be a percentage (ending in %)
-     * @param maxBytesOnHeap String representation of the size, can be relative (in %)
+     * Setter for maxBytesLocalHeap as a String. Value can have a one char unit suffix or be a percentage (ending in %)
+     * @param maxBytesLocalHeap String representation of the size, can be relative (in %)
      */
-    public void setMaxBytesLocalHeap(final String maxBytesOnHeap) {
-        if (isPercentage(maxBytesOnHeap)) {
-            maxBytesOnHeapPercentage = parsePercentage(maxBytesOnHeap);
+    public void setMaxBytesLocalHeap(final String maxBytesHeap) {
+        if (isPercentage(maxBytesHeap)) {
+            maxBytesLocalHeapPercentage = parsePercentage(maxBytesHeap);
         } else {
-            setMaxBytesLocalHeap(MemoryUnit.parseSizeInBytes(maxBytesOnHeap));
+            setMaxBytesLocalHeap(MemoryUnit.parseSizeInBytes(maxBytesHeap));
         }
     }
 
     /**
-     * Setter for maxBytesOnDisk in bytes
+     * Setter for maxBytesLocalDisk in bytes
      * @param maxBytesOnHeap max bytes on disk in bytes
      */
-    public void setMaxBytesLocalHeap(final Long maxBytesOnHeap) {
-        verifyGreaterThanZero(maxBytesOnHeap, "maxBytesOnHeap");
-        this.maxBytesLocalHeap = maxBytesOnHeap;
+    public void setMaxBytesLocalHeap(final Long maxBytesHeap) {
+        verifyGreaterThanZero(maxBytesHeap, "maxBytesLocalHeap");
+        this.maxBytesLocalHeap = maxBytesHeap;
     }
 
     /**
@@ -1225,10 +1225,10 @@ public class CacheConfiguration implements Cloneable {
      * @param maxBytesOffHeap String representation of the size, can be relative (in %)
      */
     public void setMaxBytesLocalOffHeap(final String maxBytesOffHeap) {
-        if (!isPercentage(maxBytesOffHeap)) {
-            setMaxBytesLocalOffHeap(MemoryUnit.parseSizeInBytes(maxBytesOffHeap));
+        if (isPercentage(maxBytesOffHeap)) {
+            maxBytesLocalOffHeapPercentage = parsePercentage(maxBytesOffHeap);
         } else {
-            maxBytesLocalHeapPercentage = parsePercentage(maxBytesOffHeap);
+            setMaxBytesLocalOffHeap(MemoryUnit.parseSizeInBytes(maxBytesOffHeap));
         }
     }
 
@@ -1236,24 +1236,24 @@ public class CacheConfiguration implements Cloneable {
      * Getter for maximum bytes off heap expressed as a percentage
      * @return percentage (between 0 and 100)
      */
-    public Integer getMaxBytesLocalHeapPercentage() {
-        return maxBytesLocalHeapPercentage;
+    public Integer getMaxBytesLocalOffHeapPercentage() {
+        return maxBytesLocalOffHeapPercentage;
     }
 
     /**
      * Getter for maximum bytes on heap expressed as a percentage
      * @return percentage (between 0 and 100)
      */
-    public Integer getMaxBytesOnHeapPercentage() {
-        return maxBytesOnHeapPercentage;
+    public Integer getMaxBytesLocalHeapPercentage() {
+        return maxBytesLocalHeapPercentage;
     }
 
     /**
      * Getter for maximum bytes on disk expressed as a percentage
      * @return percentage (between 0 and 100)
      */
-    public Integer getMaxBytesOnDiskPercentage() {
-        return maxBytesOnDiskPercentage;
+    public Integer getMaxBytesLocalDiskPercentage() {
+        return maxBytesLocalDiskPercentage;
     }
 
     private int parsePercentage(final String stringValue) {
@@ -1275,7 +1275,7 @@ public class CacheConfiguration implements Cloneable {
      * @param maxBytesOffHeap max bytes on disk in bytes
      */
     public void setMaxBytesLocalOffHeap(final Long maxBytesOffHeap) {
-        verifyGreaterThanZero(maxBytesOffHeap, "maxBytesOffHeap");
+        verifyGreaterThanZero(maxBytesOffHeap, "maxBytesLocalOffHeap");
         this.maxBytesLocalOffHeap = maxBytesOffHeap;
     }
 
@@ -1302,11 +1302,11 @@ public class CacheConfiguration implements Cloneable {
      * Setter for maxBytesOnDisk as a String. Value can have a one char unit suffix or be a percentage (ending in %)
      * @param maxBytesOnDisk String representation of the size, can be relative (in %)
      */
-    public void setMaxBytesLocalDisk(final String maxBytesOnDisk) {
-        if (isPercentage(maxBytesOnDisk)) {
-            maxBytesOnDiskPercentage = parsePercentage(maxBytesOnDisk);
+    public void setMaxBytesLocalDisk(final String maxBytesDisk) {
+        if (isPercentage(maxBytesDisk)) {
+            maxBytesLocalDiskPercentage = parsePercentage(maxBytesDisk);
         } else {
-            setMaxBytesLocalDisk(MemoryUnit.parseSizeInBytes(maxBytesOnDisk));
+            setMaxBytesLocalDisk(MemoryUnit.parseSizeInBytes(maxBytesDisk));
         }
     }
 
@@ -1314,9 +1314,9 @@ public class CacheConfiguration implements Cloneable {
      * Sets the maximum amount of bytes the cache being configured will use on the OnDisk tier
      * @param maxBytesOnDisk max bytes on disk in bytes
      */
-    public void setMaxBytesLocalDisk(final Long maxBytesOnDisk) {
-        verifyGreaterThanZero(maxBytesOnDisk, "maxBytesOnDisk");
-        this.maxBytesLocalDisk = maxBytesOnDisk;
+    public void setMaxBytesLocalDisk(final Long maxBytesDisk) {
+        verifyGreaterThanZero(maxBytesDisk, "maxBytesLocalDisk");
+        this.maxBytesLocalDisk = maxBytesDisk;
     }
 
     /**
@@ -1359,8 +1359,8 @@ public class CacheConfiguration implements Cloneable {
      * @return true if set by user, false otherwise
      * @see #setMaxBytesLocalHeap(String)
      */
-    public boolean isMaxBytesOnHeapPercentageSet() {
-        return maxBytesOnHeapPercentage != null;
+    public boolean isMaxBytesLocalHeapPercentageSet() {
+        return maxBytesLocalHeapPercentage != null;
     }
 
     /**
@@ -1368,8 +1368,8 @@ public class CacheConfiguration implements Cloneable {
      * @return true if set by user, false otherwise
      * @see #setMaxBytesLocalOffHeap(String)
      */
-    public boolean isMaxBytesOffHeapPercentageSet() {
-        return maxBytesLocalHeapPercentage != null;
+    public boolean isMaxBytesLocalOffHeapPercentageSet() {
+        return maxBytesLocalOffHeapPercentage != null;
     }
 
     /**
@@ -1377,8 +1377,8 @@ public class CacheConfiguration implements Cloneable {
      * @return true if set by user, false otherwise
      * @see #setMaxBytesLocalDisk(String)
      */
-    public boolean isMaxBytesOnDiskPercentageSet() {
-        return maxBytesOnDiskPercentage != null;
+    public boolean isMaxBytesLocalDiskPercentageSet() {
+        return maxBytesLocalDiskPercentage != null;
     }
 
     /**
