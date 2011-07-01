@@ -22,7 +22,6 @@ import java.net.Socket;
 import java.rmi.server.RMIClientSocketFactory;
 import java.rmi.server.RMISocketFactory;
 
-
 /**
  * Default socket timeouts are unlikely to be suitable for cache replication. Sockets should
  * fail fast.
@@ -69,10 +68,8 @@ public final class ConfigurableRMIClientSocketFactory implements Serializable, R
      * @since 1.2
      */
     public Socket createSocket(String host, int port) throws IOException {
-        Socket socket = RMISocketFactory.getDefaultSocketFactory().createSocket(host, port);
-
+        Socket socket = getConfiguredRMISocketFactory().createSocket(host, port);
         socket.setSoTimeout(socketTimeoutMillis);
-        
         return socket;
     }
 
@@ -81,6 +78,7 @@ public final class ConfigurableRMIClientSocketFactory implements Serializable, R
      *
      * @return a hash based on socket options
      */
+    @Override
     public int hashCode() {
         return socketTimeoutMillis;
     }
@@ -93,6 +91,7 @@ public final class ConfigurableRMIClientSocketFactory implements Serializable, R
      * @param object the comparison object
      * @return equal if the classes are the same and the socket options are the name.
      */
+    @Override
     public boolean equals(Object object) {
         if (object == null) {
             return false;
@@ -102,6 +101,12 @@ public final class ConfigurableRMIClientSocketFactory implements Serializable, R
         }
     }
 
+    public static RMISocketFactory getConfiguredRMISocketFactory() {
+        RMISocketFactory globalSocketFactory = RMISocketFactory.getSocketFactory();
+        if (globalSocketFactory == null) {
+            return RMISocketFactory.getDefaultSocketFactory();
+        } else {
+            return globalSocketFactory;
+        }
+    }
 }
-
-

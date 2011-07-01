@@ -22,7 +22,6 @@ import net.sf.ehcache.Element;
 import java.io.Serializable;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
-import java.rmi.server.RMISocketFactory;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.ArrayList;
 import java.util.List;
@@ -64,7 +63,7 @@ public class RMICachePeer extends UnicastRemoteObject implements CachePeer, Remo
                         Integer socketTimeoutMillis)
             throws RemoteException {
         super(remoteObjectPort.intValue(), new ConfigurableRMIClientSocketFactory(socketTimeoutMillis),
-                RMISocketFactory.getDefaultSocketFactory());
+                ConfigurableRMIClientSocketFactory.getConfiguredRMISocketFactory());
 
         this.remoteObjectPort = remoteObjectPort;
         this.hostname = hostName;
