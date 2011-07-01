@@ -307,7 +307,7 @@ public class CacheEventListenerTest extends AbstractCacheTest {
         cache.put(element);
 
         //expire
-        Thread.sleep(1999);
+        Thread.sleep(6999);
 
         //force expiry
         cache.get(key);
@@ -672,7 +672,7 @@ public class CacheEventListenerTest extends AbstractCacheTest {
 
         //Check expiry from memory store in 1 second
         cache.put(element);
-        Thread.sleep(1999);
+        Thread.sleep(6999);
 
         //Trigger expiry
         cache.get(key);
@@ -697,7 +697,7 @@ public class CacheEventListenerTest extends AbstractCacheTest {
         }
 
         //Wait for expiry
-        Thread.sleep(1999);
+        Thread.sleep(6999);
 
         //Trigger expiry
         for (int i = 0; i < 20; i++) {
@@ -733,7 +733,7 @@ public class CacheEventListenerTest extends AbstractCacheTest {
         }, Is.is(10));
 
         // Wait for expiry and expiry thread
-        Thread.sleep(5999);
+        Thread.sleep(6999);
 
         List notifications = CountingCacheEventListener.getCacheElementsExpired(cache);
         for (int i = 0; i < notifications.size(); i++) {
