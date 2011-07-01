@@ -120,7 +120,7 @@ public class KeySnapshotterTest {
         });
         barrier.await();
         snapshotter.dispose(true);
-        assertThat(counter.get() < 3, is(true));
+        assertThat(counter.get() < 30, is(true));
         assertThat(rotatingSnapshotFile.readAll().size(), is(0));
     }
 
