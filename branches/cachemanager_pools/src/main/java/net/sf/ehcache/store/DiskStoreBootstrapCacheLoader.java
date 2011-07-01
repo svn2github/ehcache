@@ -42,7 +42,7 @@ public class DiskStoreBootstrapCacheLoader extends MemoryLimitedCacheLoader {
      * @param delay in milliseconds
      */
     DiskStoreBootstrapCacheLoader(final long delay) {
-        asynchronous = true;
+        asynchronous = false;
         this.delay = delay;
     }
 
@@ -65,7 +65,6 @@ public class DiskStoreBootstrapCacheLoader extends MemoryLimitedCacheLoader {
                 thread.start();
             } else {
                 doLoad(cache);
-                doneLoading = true;
             }
         } else {
             LOG.warn("Cache '" + cache.getName() + "' isn't disk persistent, nothing to laod from!");
@@ -80,6 +79,7 @@ public class DiskStoreBootstrapCacheLoader extends MemoryLimitedCacheLoader {
                 ++loadedElements;
             }
         }
+        doneLoading = true;
         LOG.debug("Loaded {} elements from disk into heap for cache {}", loadedElements, cache.getName());
     }
 

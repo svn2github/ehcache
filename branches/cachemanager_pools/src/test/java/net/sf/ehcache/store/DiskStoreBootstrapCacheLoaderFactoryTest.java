@@ -3,9 +3,11 @@ package net.sf.ehcache.store;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Element;
+import net.sf.ehcache.Status;
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.Configuration;
 import net.sf.ehcache.config.MemoryUnit;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -108,5 +110,12 @@ public class DiskStoreBootstrapCacheLoaderFactoryTest {
             .maxElementsOnDisk(1000), null, cacheSizeBoundBootstrapCacheLoader);
         manager.addCache(cacheElementCountBound);
         manager.addCache(cacheSizeBound);
+    }
+
+    @After
+    public void shutdown() {
+        if(manager != null && manager.getStatus() == Status.STATUS_ALIVE) {
+            manager.shutdown();
+        }
     }
 }
