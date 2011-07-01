@@ -7,10 +7,15 @@ import net.sf.ehcache.Status;
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.Configuration;
 import net.sf.ehcache.config.MemoryUnit;
+import net.sf.ehcache.util.RetryAssert;
+import org.hamcrest.core.Is;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.concurrent.Callable;
+
+import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
@@ -29,7 +34,7 @@ public class DiskStoreBootstrapCacheLoaderFactoryTest {
 
     public void setUp(CacheUT cut) {
         initCacheManager(cut);
-        switch(cut) {
+        switch (cut) {
             case elementBased:
                 cacheElementCountBound.removeAll();
                 populateCache(cacheElementCountBound);
@@ -42,7 +47,7 @@ public class DiskStoreBootstrapCacheLoaderFactoryTest {
     }
 
     private void populateCache(final Cache cache) {
-        for(int i = 0; i < ELEMENTS_ON_DISK; i++) {
+        for (int i = 0; i < ELEMENTS_ON_DISK; i++) {
             cache.put(new Element(i, "Some value for key " + i));
         }
     }
@@ -51,20 +56,32 @@ public class DiskStoreBootstrapCacheLoaderFactoryTest {
     public void testLoadsFromDiskWithMaxElementsInMemorySet() throws InterruptedException {
         setUp(CacheUT.elementBased);
         int waitCycles = 0;
-        while(cacheElementCountBound.getDiskStoreSize() != ELEMENTS_ON_DISK && waitCycles < 15) {
+        while (cacheElementCountBound.getDiskStoreSize() != ELEMENTS_ON_DISK && waitCycles < 15) {
             System.err.println("Not all entries have been spooled to disk, waiting a bit ... ");
             Thread.sleep(250);
             waitCycles++;
         }
         waitForBootstrapLoader(cacheElementCountBoundBootstrapCacheLoader);
-        assertThat(cacheElementCountBound.getDiskStoreSize(), is(ELEMENTS_ON_DISK));
+        RetryAssert.assertBy(5, SECONDS, new Callable<Integer>() {
+                public Integer call() throws Exception {
+                    return cacheElementCountBound.getDiskStoreSize();
+                }
+            }, Is.is(ELEMENTS_ON_DISK));
         assertThat(cacheElementCountBound.getMemoryStoreSize(), is(100L));
         manager.shutdown();
         initCacheManager(CacheUT.elementBased);
-        assertThat(cacheElementCountBound.getDiskStoreSize(), is(ELEMENTS_ON_DISK));
+        RetryAssert.assertBy(5, SECONDS, new Callable<Integer>() {
+                public Integer call() throws Exception {
+                    return cacheElementCountBound.getDiskStoreSize();
+                }
+            }, Is.is(ELEMENTS_ON_DISK));
         assertThat(cacheElementCountBound.getMemoryStoreSize(), is(0L));
         waitForBootstrapLoader(cacheElementCountBoundBootstrapCacheLoader);
-        assertThat(cacheElementCountBound.getDiskStoreSize(), is(ELEMENTS_ON_DISK));
+        RetryAssert.assertBy(5, SECONDS, new Callable<Integer>() {
+                public Integer call() throws Exception {
+                    return cacheElementCountBound.getDiskStoreSize();
+                }
+            }, Is.is(ELEMENTS_ON_DISK));
         assertThat(cacheElementCountBound.getMemoryStoreSize(), is(100L));
         assertThat(cacheElementCountBoundBootstrapCacheLoader.getLoadedElements(), is(100));
     }
@@ -73,27 +90,39 @@ public class DiskStoreBootstrapCacheLoaderFactoryTest {
     public void testLoadsFromDiskWithMaxBytesOnHeapSet() throws InterruptedException {
         setUp(CacheUT.sizeBased);
         int waitCycles = 0;
-        while(cacheSizeBound.getDiskStoreSize() != ELEMENTS_ON_DISK && waitCycles < 15) {
+        while (cacheSizeBound.getDiskStoreSize() != ELEMENTS_ON_DISK && waitCycles < 15) {
             System.err.println("Not all entries have been spooled to disk, waiting a bit ... " + cacheSizeBound.getDiskStoreSize() + " in");
             Thread.sleep(250);
             waitCycles++;
         }
         waitForBootstrapLoader(cacheSizeBoundBootstrapCacheLoader);
-        assertThat(cacheSizeBound.getDiskStoreSize(), is(ELEMENTS_ON_DISK));
+        RetryAssert.assertBy(5, SECONDS, new Callable<Integer>() {
+                public Integer call() throws Exception {
+                    return cacheSizeBound.getDiskStoreSize();
+                }
+            }, Is.is(ELEMENTS_ON_DISK));
         assertThat(cacheSizeBound.getLiveCacheStatistics().getLocalHeapSizeInBytes() <= MemoryUnit.KILOBYTES.toBytes(220), is(true));
         manager.shutdown();
         initCacheManager(CacheUT.sizeBased);
-        assertThat(cacheSizeBound.getDiskStoreSize(), is(ELEMENTS_ON_DISK));
+        RetryAssert.assertBy(5, SECONDS, new Callable<Integer>() {
+                public Integer call() throws Exception {
+                    return cacheSizeBound.getDiskStoreSize();
+                }
+            }, Is.is(ELEMENTS_ON_DISK));
         assertThat(cacheSizeBound.getMemoryStoreSize(), is(0L));
         waitForBootstrapLoader(cacheSizeBoundBootstrapCacheLoader);
-        assertThat(cacheSizeBound.getDiskStoreSize(), is(ELEMENTS_ON_DISK));
+        RetryAssert.assertBy(5, SECONDS, new Callable<Integer>() {
+                public Integer call() throws Exception {
+                    return cacheSizeBound.getDiskStoreSize();
+                }
+            }, Is.is(ELEMENTS_ON_DISK));
         assertThat(cacheSizeBound.getLiveCacheStatistics().getLocalHeapSizeInBytes() <= MemoryUnit.KILOBYTES.toBytes(220), is(true));
     }
 
     private int waitForBootstrapLoader(DiskStoreBootstrapCacheLoader bootstrapCacheLoader) throws InterruptedException {
-        while(!bootstrapCacheLoader.isDoneLoading()) {
+        while (!bootstrapCacheLoader.isDoneLoading()) {
             System.err.println("Waiting for the loader to be done... Loaded " + bootstrapCacheLoader.getLoadedElements()
-                               + " elements so far" );
+                               + " elements so far");
             Thread.sleep(LOADER_DELAY);
         }
         return bootstrapCacheLoader.getLoadedElements();
@@ -101,7 +130,7 @@ public class DiskStoreBootstrapCacheLoaderFactoryTest {
 
     private void initCacheManager(CacheUT cut) {
         manager = new CacheManager(new Configuration());
-        switch(cut) {
+        switch (cut) {
             case elementBased:
                 cacheElementCountBoundBootstrapCacheLoader = new DiskStoreBootstrapCacheLoader(LOADER_DELAY);
                 cacheElementCountBound = new Cache(new CacheConfiguration("maxElementsInMemory", 100)
@@ -128,7 +157,7 @@ public class DiskStoreBootstrapCacheLoaderFactoryTest {
 
     @After
     public void shutdown() {
-        if(manager != null && manager.getStatus() == Status.STATUS_ALIVE) {
+        if (manager != null && manager.getStatus() == Status.STATUS_ALIVE) {
             manager.shutdown();
         }
     }
