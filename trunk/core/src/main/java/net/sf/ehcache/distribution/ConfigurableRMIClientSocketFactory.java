@@ -101,6 +101,17 @@ public final class ConfigurableRMIClientSocketFactory implements Serializable, R
         }
     }
 
+    /**
+     * Return the JVM-level configured {@code RMISocketFactory}.
+     * <p>
+     * If a global socket factory has been set via the
+     * {@link RMISocketFactory#setSocketFactory(RMISocketFactory)} method then
+     * that factory will be returned.  Otherwise the default socket factory as
+     * returned by {@link RMISocketFactory#getDefaultSocketFactory()} is used
+     * instead.
+     *
+     * @return the configured @{code {@link RMISocketFactory}
+     */
     public static RMISocketFactory getConfiguredRMISocketFactory() {
         RMISocketFactory globalSocketFactory = RMISocketFactory.getSocketFactory();
         if (globalSocketFactory == null) {
