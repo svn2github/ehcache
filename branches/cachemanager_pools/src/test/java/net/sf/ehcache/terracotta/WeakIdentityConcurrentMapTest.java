@@ -1,12 +1,16 @@
 package net.sf.ehcache.terracotta;
 
+import net.sf.ehcache.util.RetryAssert;
 import org.hamcrest.CoreMatchers;
+import org.hamcrest.core.Is;
 import org.junit.Test;
 
+import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicLong;
 
+import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
@@ -23,7 +27,7 @@ public class WeakIdentityConcurrentMapTest {
 
         final ConcurrentMap<String, AtomicLong> cleanedUpValues = new ConcurrentHashMap<String, AtomicLong>();
 
-        WeakIdentityConcurrentMap<Long, String> map = new WeakIdentityConcurrentMap<Long, String>(new WeakIdentityConcurrentMap.CleanUpTask<String>() {
+        final WeakIdentityConcurrentMap<Long, String> map = new WeakIdentityConcurrentMap<Long, String>(new WeakIdentityConcurrentMap.CleanUpTask<String>() {
             public void cleanUp(final String value) {
                 final AtomicLong previous = cleanedUpValues.putIfAbsent(value, new AtomicLong(1));
                 if(previous != null) {
@@ -40,12 +44,18 @@ public class WeakIdentityConcurrentMapTest {
         assertThat(map.get(1L), equalTo(value1));
         assertThat(map.get(someKey), equalTo(value2));
         someKey = null;
-        int i = 0;
-        while(i++ < 500) {
-            System.gc();
-            assertThat(map.get(someKey), CoreMatchers.<Object>nullValue());
-        }
-        assertThat(cleanedUpValues.size(), is(1));
+
+        RetryAssert.assertBy(10, SECONDS, new Callable<Integer>() {
+            public Integer call() throws Exception {
+                int i = 0;
+                while (i++ < 50) {
+                    System.gc();
+                    assertThat(map.get(someKey), CoreMatchers.<Object>nullValue());
+                }
+                return cleanedUpValues.size();
+            }
+        }, Is.is(1));
+
         assertThat(cleanedUpValues.get(value2), CoreMatchers.<Object>notNullValue());
         assertThat(cleanedUpValues.get(value2).get(), is(1L));
     }
