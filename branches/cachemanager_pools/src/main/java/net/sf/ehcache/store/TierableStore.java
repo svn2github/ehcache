@@ -31,49 +31,4 @@ public interface TierableStore extends Store {
      * @param e element to be added
      */
     void fill(Element e);
-
-    /**
-     * Acquire the read lock of the specified key
-     * @param key the key to read-lock
-     */
-    void readLock(Object key);
-
-    /**
-     * Unlock the read lock of the specified key
-     * @param key the key to read-unlock
-     */
-    void readUnlock(Object key);
-
-    /**
-     * Acquire the write lock of the specified key
-     * @param key the key to write-lock
-     */
-    void writeLock(Object key);
-
-    /**
-     * Unlock the write lock of the specified key
-     * @param key the key to write-unlock
-     */
-    void writeUnlock(Object key);
-
-    /**
-     * Acquire the read lock of all keys
-     */
-    void readLock();
-
-    /**
-     * Unlock the read lock of all keys
-     */
-    void readUnlock();
-
-    /**
-     * Acquire the write lock of all keys
-     */
-    void writeLock();
-
-    /**
-     * Unlock the write lock of all keys
-     */
-    void writeUnlock();
-
 }

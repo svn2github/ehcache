@@ -22,6 +22,9 @@ import java.util.List;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.Status;
+import net.sf.ehcache.concurrent.LockType;
+import net.sf.ehcache.concurrent.ReadWriteLockSync;
+import net.sf.ehcache.concurrent.StripedReadWriteLockSync;
 import net.sf.ehcache.store.compound.ReadWriteCopyStrategy;
 import net.sf.ehcache.writer.CacheWriterManager;
 
@@ -35,6 +38,8 @@ import net.sf.ehcache.writer.CacheWriterManager;
  */
 public abstract class FrontEndCacheTier<T extends TierableStore, U extends TierableStore> extends AbstractStore {
 
+    private static final int DEFAULT_LOCK_STRIPE_COUNT = 128;
+
     /**
      * The cache tier store
      */
@@ -45,6 +50,7 @@ public abstract class FrontEndCacheTier<T extends TierableStore, U extends Tiera
      */
     protected final U authority;
 
+    private final StripedReadWriteLockSync masterLocks = new StripedReadWriteLockSync(DEFAULT_LOCK_STRIPE_COUNT);
     private final boolean copyOnRead;
     private final boolean copyOnWrite;
     private final ReadWriteCopyStrategy<Element> copyStrategy;
@@ -565,57 +571,73 @@ public abstract class FrontEndCacheTier<T extends TierableStore, U extends Tiera
     /**
      * {@inheritDoc}
      */
-    public void readLock(Object key) {
-        authority.readLock(key);
+    public final void readLock(Object key) {
+        getLockFor(key).lock(LockType.READ);
     }
 
     /**
      * {@inheritDoc}
      */
-    public void readUnlock(Object key) {
-        authority.readUnlock(key);
+    public final void readUnlock(Object key) {
+        getLockFor(key).unlock(LockType.READ);
     }
 
     /**
      * {@inheritDoc}
      */
-    public void writeLock(Object key) {
-        authority.writeLock(key);
+    public final void writeLock(Object key) {
+        getLockFor(key).lock(LockType.WRITE);
     }
 
     /**
      * {@inheritDoc}
      */
-    public void writeUnlock(Object key) {
-        authority.writeUnlock(key);
+    public final void writeUnlock(Object key) {
+        getLockFor(key).unlock(LockType.WRITE);
     }
 
     /**
      * {@inheritDoc}
      */
-    public void readLock() {
-        authority.readLock();
+    public final void readLock() {
+        for (ReadWriteLockSync lock : getAllLocks()) {
+            lock.lock(LockType.READ);
+        }
     }
 
     /**
      * {@inheritDoc}
      */
-    public void readUnlock() {
-        authority.readUnlock();
+    public final void readUnlock() {
+        for (ReadWriteLockSync lock : getAllLocks()) {
+            lock.unlock(LockType.READ);
+        }
     }
 
     /**
      * {@inheritDoc}
      */
-    public void writeLock() {
-        authority.writeLock();
+    public final void writeLock() {
+        for (ReadWriteLockSync lock : getAllLocks()) {
+            lock.lock(LockType.WRITE);
+        }
     }
 
     /**
      * {@inheritDoc}
      */
-    public void writeUnlock() {
-        authority.writeUnlock();
+    public final void writeUnlock() {
+        for (ReadWriteLockSync lock : getAllLocks()) {
+            lock.unlock(LockType.WRITE);
+        }
+    }
+
+    private ReadWriteLockSync getLockFor(Object key) {
+        return masterLocks.getSyncForKey(key);
+    }
+
+    private List<ReadWriteLockSync> getAllLocks() {
+        return masterLocks.getAllSyncs();
     }
 
     /**

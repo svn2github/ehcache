@@ -44,15 +44,15 @@ public class CacheConfigurationTest {
     @Test
     public void testReadPercentageProperly() {
         CacheConfiguration configuration = new CacheConfiguration();
-        assertThat(configuration.getMaxBytesLocalHeapPercentage(), nullValue());
+        assertThat(configuration.getMaxBytesLocalOffHeapPercentage(), nullValue());
         configuration.setMaxBytesLocalOffHeap("12%");
-        assertThat(configuration.getMaxBytesLocalHeapPercentage(), equalTo(12));
+        assertThat(configuration.getMaxBytesLocalOffHeapPercentage(), equalTo(12));
         configuration.setMaxBytesLocalOffHeap("99%");
-        assertThat(configuration.getMaxBytesLocalHeapPercentage(), equalTo(99));
+        assertThat(configuration.getMaxBytesLocalOffHeapPercentage(), equalTo(99));
         configuration.setMaxBytesLocalOffHeap("100%");
-        assertThat(configuration.getMaxBytesLocalHeapPercentage(), equalTo(100));
+        assertThat(configuration.getMaxBytesLocalOffHeapPercentage(), equalTo(100));
         configuration.setMaxBytesLocalOffHeap("0%");
-        assertThat(configuration.getMaxBytesLocalHeapPercentage(), equalTo(0));
+        assertThat(configuration.getMaxBytesLocalOffHeapPercentage(), equalTo(0));
         try {
             configuration.setMaxBytesLocalOffHeap("101%");
             fail("This should throw an IllegalArgumentException, 101% is above 100%");
