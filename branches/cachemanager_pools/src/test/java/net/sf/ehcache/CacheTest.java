@@ -16,6 +16,7 @@
 
 package net.sf.ehcache;
 
+import static java.util.concurrent.TimeUnit.SECONDS;
 import static junit.framework.Assert.assertSame;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
@@ -60,6 +61,7 @@ import net.sf.ehcache.loader.ExceptionThrowingLoader;
 import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
 import net.sf.ehcache.util.RetryAssert;
 
+import org.hamcrest.core.Is;
 import org.junit.After;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -819,7 +821,7 @@ public class CacheTest extends AbstractCacheTest {
     @Test
     public void testSizeWithPutAndRemove() throws Exception {
         //Set size so the second element overflows to disk.
-        Cache cache = new Cache("test2", 1, true, true, 0, 0);
+        final Cache cache = new Cache("test2", 1, true, true, 0, 0);
         manager.addCache(cache);
         cache.put(new Element("key1", "value1"));
         cache.put(new Element("key2", "value1"));
@@ -847,11 +849,14 @@ public class CacheTest extends AbstractCacheTest {
         Object object2 = new Object();
         cache.put(new Element(object1, null));
         cache.put(new Element(object2, null));
-        // wait until the disk store flushed to disk
-        Thread.sleep(500);
+
         //Cannot overflow therefore just one
         try {
-            assertEquals(1, cache.getSize());
+            RetryAssert.assertBy(3, SECONDS, new Callable<Integer>() {
+                public Integer call() throws Exception {
+                    return cache.getSize();
+                }
+            }, Is.is(1));
         } catch (AssertionError e) {
             //eviction failure
             System.err.println(e + " - likely eviction failure: checking memory store");
