@@ -99,7 +99,7 @@ public class KeySnapshotterTest {
                 return new Iterator<Object>() {
 
                     public boolean hasNext() {
-                        return counter.get() < 10000;
+                        return counter.get() < 100000;
                     }
 
                     public Object next() {
@@ -120,7 +120,7 @@ public class KeySnapshotterTest {
         });
         barrier.await();
         snapshotter.dispose(true);
-        assertThat(counter.get() < 30, is(true));
+        assertThat("We managed to get to a " + counter.get() + " keys written out", counter.get() < 1000, is(true));
         assertThat(rotatingSnapshotFile.readAll().size(), is(0));
     }
 
