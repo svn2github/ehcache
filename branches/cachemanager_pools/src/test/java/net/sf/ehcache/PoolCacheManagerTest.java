@@ -48,14 +48,24 @@ public class PoolCacheManagerTest {
         doubleSize.put(test);
         sizeOf.deepSizeOf(test);
         oneSize.remove(test.getKey());
+        int size = 60000;
+        for (int i = 0; i < size; i++) {
+//            oneSize.put(new Element(i, new Pair(new Object(), new Object())));
+//            doubleSize.put(new Element(i, new Pair(new Object(), new Object[] {new Object(), new Object()})));
+//            doubleSize.put(new Element(i + size, new Pair(new Object(), new Object[] {new Object(), new Object()})));
+            doubleSize.put(new Element(new Object(), new Object()));
+//          doubleSize.put(new Element(i, i + "" + i));
+        }
+        doubleSize.removeAll();
 
         long usedBefore = measureMemoryUse();
 
-        int size = 40000;
         for (int i = 0; i < size; i++) {
-            oneSize.put(new Element(i, new Pair(new Object(), new Object())));
-            doubleSize.put(new Element(i, new Pair(new Object(), new Object[] {new Object(), new Object()})));
-            doubleSize.put(new Element(i + size, new Pair(new Object(), new Object[] {new Object(), new Object()})));
+//            oneSize.put(new Element(i, new Pair(new Object(), new Object())));
+//            doubleSize.put(new Element(i, new Pair(new Object(), new Object[] {new Object(), new Object()})));
+//            doubleSize.put(new Element(i + size, new Pair(new Object(), new Object[] {new Object(), new Object()})));
+            oneSize.put(new Element(new Object(), new Object()));
+//          doubleSize.put(new Element(i, i + "" + i));
         }
 
         long mem = 0;

@@ -17,6 +17,8 @@
 package net.sf.ehcache;
 
 
+import java.util.concurrent.TimeUnit;
+
 import net.sf.ehcache.util.PropertyUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -58,7 +60,7 @@ public class StopWatch {
     /**
      * Used for performance benchmarking
      */
-    private long timeStamp = System.currentTimeMillis();
+    private long timeStamp = TimeUnit.NANOSECONDS.toMillis(System.nanoTime());
 
 
     /**
@@ -147,8 +149,8 @@ public class StopWatch {
      * Note this method returns notional time elapsed. See class description
      */
     public long getElapsedTime() {
-        long now = System.currentTimeMillis();
-        long elapsed = (long) ((now - timeStamp) / speedAdjustmentFactor);
+        long now = TimeUnit.NANOSECONDS.toMillis(System.nanoTime());
+        long elapsed = (long) ((now - timeStamp) / getSpeedAdjustmentFactor());
         timeStamp = now;
         return elapsed;
     }

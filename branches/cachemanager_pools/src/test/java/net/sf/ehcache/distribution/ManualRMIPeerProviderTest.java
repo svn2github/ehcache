@@ -27,6 +27,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author <a href="mailto:gluck@thoughtworks.com">Greg Luck</a>
@@ -52,7 +53,7 @@ public class ManualRMIPeerProviderTest extends MulticastRMIPeerProviderTest {
         peerProvider.registerPeer("//localhost:40002/sampleCache1");
 
         //Allow cluster setup
-        Thread.sleep(2000);
+        waitForClusterMembership(10, TimeUnit.SECONDS, "sampleCache1", manager1, manager2, manager3);
     }
 
 

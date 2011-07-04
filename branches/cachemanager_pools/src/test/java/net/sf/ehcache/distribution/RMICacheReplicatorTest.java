@@ -16,9 +16,15 @@
 
 package net.sf.ehcache.distribution;
 
+import static net.sf.ehcache.util.RetryAssert.assertBy;
+import static net.sf.ehcache.util.RetryAssert.elementAt;
+import static net.sf.ehcache.util.RetryAssert.sizeOf;
+import static org.hamcrest.core.Is.is;
+import static org.hamcrest.core.IsNull.notNullValue;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -29,6 +35,9 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Random;
+import java.util.Set;
+import java.util.concurrent.Callable;
+import java.util.concurrent.TimeUnit;
 
 import net.sf.ehcache.AbstractCacheTest;
 import net.sf.ehcache.Cache;
@@ -38,9 +47,12 @@ import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.ThreadKiller;
 import net.sf.ehcache.event.CountingCacheEventListener;
+import net.sf.ehcache.util.RetryAssert;
 
+import org.hamcrest.collection.IsEmptyCollection;
 import org.junit.After;
 import org.junit.AfterClass;
+import org.junit.Assume;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -59,13 +71,7 @@ import org.slf4j.LoggerFactory;
  * @author Greg Luck
  * @version $Id$
  */
-
-
-//
-// Please close jira MNK-1377 after fixing ignored tests below
-//
-
-public class RMICacheReplicatorTest extends AbstractCacheTest {
+public class RMICacheReplicatorTest extends AbstractRMITest {
 
     @BeforeClass
     public static void enableHeapDump() {
@@ -140,9 +146,9 @@ public class RMICacheReplicatorTest extends AbstractCacheTest {
      *
      * @throws Exception
      */
-    @Override
     @Before
     public void setUp() throws Exception {
+        Assume.assumeThat(getActiveReplicationThreads(), IsEmptyCollection.<Thread>empty());
 
         //Required to get SoftReference tests to pass. The VM clean up SoftReferences rather than allocating
         // memory to -Xmx!
@@ -150,7 +156,6 @@ public class RMICacheReplicatorTest extends AbstractCacheTest {
 //        System.gc();
         MulticastKeepaliveHeartbeatSender.setHeartBeatInterval(1000);
 
-        CountingCacheEventListener.resetCounters();
         manager1 = new CacheManager(AbstractCacheTest.TEST_CONFIG_DIR + "distribution/ehcache-distributed1.xml");
         manager2 = new CacheManager(AbstractCacheTest.TEST_CONFIG_DIR + "distribution/ehcache-distributed2.xml");
         manager3 = new CacheManager(AbstractCacheTest.TEST_CONFIG_DIR + "distribution/ehcache-distributed3.xml");
@@ -160,18 +165,21 @@ public class RMICacheReplicatorTest extends AbstractCacheTest {
         //manager6 = new CacheManager(AbstractCacheTest.TEST_CONFIG_DIR + "distribution/ehcache-distributed-jndi6.xml");
 
         //allow cluster to be established
-        Thread.sleep(1020);
+        waitForClusterMembership(10, TimeUnit.SECONDS, cacheName, manager1, manager2, manager3, manager4, manager5);
 
+        manager1.getCache(cacheName).put(new Element("setup", "setup"));
+        for (CacheManager manager : new CacheManager[] {manager1, manager2, manager3, manager4, manager5}) {
+            assertBy(10, TimeUnit.SECONDS, elementAt(manager.getCache(cacheName), "setup"), notNullValue());
+        }
+
+        manager1.getCache(cacheName).removeAll();
+        for (CacheManager manager : new CacheManager[] {manager1, manager2, manager3, manager4, manager5}) {
+            assertBy(10, TimeUnit.SECONDS, sizeOf(manager.getCache(cacheName)), is(0));
+        }
+
+        CountingCacheEventListener.resetCounters();
         cache1 = manager1.getCache(cacheName);
-        cache1.removeAll();
-
         cache2 = manager2.getCache(cacheName);
-        cache2.removeAll();
-
-        //enable distributed removeAlls to finish
-        waitForPropagate();
-
-
     }
 
     /**
@@ -179,7 +187,6 @@ public class RMICacheReplicatorTest extends AbstractCacheTest {
      *
      * @throws Exception
      */
-    @Override
     @After
     public void tearDown() throws Exception {
 
@@ -202,24 +209,11 @@ public class RMICacheReplicatorTest extends AbstractCacheTest {
             manager6.shutdown();
         }
 
-        List<Thread> activeReplicationThreads = new ArrayList<Thread>();
-
-        for (int i = 0; i < 30; i++) {
-            activeReplicationThreads.clear();
-            for (Thread thread : JVMUtil.enumerateThreads()) {
-                if (thread.getName().equals("Replication Thread")) {
-                    activeReplicationThreads.add(thread);
-                }
+        RetryAssert.assertBy(30, TimeUnit.SECONDS, new Callable<Set<Thread>>() {
+            public Set<Thread> call() throws Exception {
+                return getActiveReplicationThreads();
             }
-
-            if (activeReplicationThreads.isEmpty()) {
-                return;
-            } else {
-                Thread.sleep(1000);
-            }
-        }
-
-        fail("There should not be any replication threads running after shutdown [" + activeReplicationThreads.size() + " still running]");
+        }, IsEmptyCollection.<Thread>empty());
     }
 
     /**
@@ -270,11 +264,7 @@ public class RMICacheReplicatorTest extends AbstractCacheTest {
         manager5.shutdown();
 
         //Allow change detection to occur. Heartbeat 1 second and is not stale until 5000
-        Thread.sleep(11020);
-        remotePeersOfCache1 = provider.listRemoteCachePeers(cache1);
-
-
-        assertEquals(3, remotePeersOfCache1.size());
+        waitForClusterMembership(11020, TimeUnit.MILLISECONDS, cache1.getName(), manager1, manager2, manager3, manager4);
     }
 
     /**
@@ -312,55 +302,42 @@ public class RMICacheReplicatorTest extends AbstractCacheTest {
      * This test goes into an infinite loop if the chain of notifications is not somehow broken.
      */
     @Test
-    public void testPutProgagatesFromAndToEveryCacheManagerAndCache() throws CacheException, InterruptedException {
+    public void testPutPropagatesFromAndToEveryCacheManagerAndCache() throws CacheException, InterruptedException {
 
         //Put
-        String[] cacheNames = manager1.getCacheNames();
-        int numberOfCaches = getNumberOfReplicatingCachesInCacheManager();
+        final String[] cacheNames = manager1.getCacheNames();
         Arrays.sort(cacheNames);
         for (int i = 0; i < cacheNames.length; i++) {
             String name = cacheNames[i];
-            manager1.getCache(name).put(new Element("" + i, Integer.valueOf(i)));
+            manager1.getCache(name).put(new Element(Integer.toString(i), Integer.valueOf(i)));
             //Add some non serializable elements that should not get propagated
             manager1.getCache(name).put(new Element("nonSerializable" + i, new Object()));
         }
 
-        waitForPropagate();
+        assertBy(10, TimeUnit.SECONDS, new Callable<Boolean>() {
 
-        int count2 = 0;
-        int count3 = 0;
-        int count4 = 0;
-        int count5 = 0;
-        for (int i = 0; i < cacheNames.length; i++) {
-            String name = cacheNames[i];
-            Element element2 = manager2.getCache(name).get("" + i);
-            if (element2 != null) {
-                count2++;
+            public Boolean call() throws Exception {
+                for (int i = 0; i < cacheNames.length; i++) {
+                    String name = cacheNames[i];
+                    if (manager1.getCacheManagerPeerProvider("RMI").listRemoteCachePeers(manager1.getCache(name)).isEmpty()) {
+                        continue;
+                    }
+                    if ("sampleCache2".equals(name)) {
+                        //sampleCache2 in manager1 replicates puts via invalidate, so the count will be 1 less
+                        for (CacheManager manager : new CacheManager[] {manager2, manager3, manager4, manager5}) {
+                            assertNull(manager.getCache(name).get(Integer.toString(i)));
+                            assertNull(manager.getCache(name).get("nonSerializable" + i));
+                        }
+                    } else {
+                        for (CacheManager manager : new CacheManager[] {manager2, manager3, manager4, manager5}) {
+                            assertNotNull("Cache : " + name, manager.getCache(name).get(Integer.toString(i)));
+                            assertNull(manager.getCache(name).get("nonSerializable" + i));
+                        }
+                    }
+                }
+                return Boolean.TRUE;
             }
-            Element nonSerializableElement2 = manager2.getCache(name).get("nonSerializable" + i);
-            if (nonSerializableElement2 != null) {
-                count2++;
-            }
-            Element element3 = manager3.getCache(name).get("" + i);
-            if (element3 != null) {
-                count3++;
-            }
-            Element element4 = manager4.getCache(name).get("" + i);
-            if (element4 != null) {
-                count4++;
-            }
-            Element element5 = manager5.getCache(name).get("" + i);
-            if (element5 != null) {
-                count5++;
-            }
-        }
-        //sampleCache2 in manager1 replicates puts via invalidate, so the count will be 1 less
-        assertEquals(numberOfCaches - 1, count2);
-        assertEquals(numberOfCaches - 1, count3);
-        assertEquals(numberOfCaches - 1, count4);
-        assertEquals(numberOfCaches - 1, count5);
-
-
+        }, is(Boolean.TRUE));
     }
 
     /**
@@ -369,71 +346,49 @@ public class RMICacheReplicatorTest extends AbstractCacheTest {
      */
 
     @Test
-    public void testPutProgagatesFromAndToEveryCacheManagerAndCacheDirty() throws CacheException, InterruptedException {
+    public void testPutPropagatesFromAndToEveryCacheManagerAndCacheDirty() throws CacheException, InterruptedException {
 
         manager3.shutdown();
-
-        Thread.sleep(11020);
+        waitForClusterMembership(11020, TimeUnit.MILLISECONDS, cacheName, manager1, manager2, manager4, manager5);
 
         manager3 = new CacheManager(AbstractCacheTest.TEST_CONFIG_DIR + "distribution/ehcache-distributed3.xml");
-        Thread.sleep(11020);
+        waitForClusterMembership(11020, TimeUnit.MILLISECONDS, cacheName, manager1, manager2, manager3, manager4, manager5);
 
         //Put
-        String[] cacheNames = manager1.getCacheNames();
-        int numberOfCaches = getNumberOfReplicatingCachesInCacheManager();
+        final String[] cacheNames = manager1.getCacheNames();
         Arrays.sort(cacheNames);
         for (int i = 0; i < cacheNames.length; i++) {
             String name = cacheNames[i];
-            manager1.getCache(name).put(new Element("" + i, Integer.valueOf(i)));
+            manager1.getCache(name).put(new Element(Integer.toString(i), Integer.valueOf(i)));
             //Add some non serializable elements that should not get propagated
             manager1.getCache(name).put(new Element("nonSerializable" + i, new Object()));
         }
 
-        waitForPropagate();
+        assertBy(10, TimeUnit.SECONDS, new Callable<Boolean>() {
 
-        int count2 = 0;
-        int count3 = 0;
-        int count4 = 0;
-        int count5 = 0;
-        for (int i = 0; i < cacheNames.length; i++) {
-            String name = cacheNames[i];
-            Element element2 = manager2.getCache(name).get("" + i);
-            if (element2 != null) {
-                count2++;
+            public Boolean call() throws Exception {
+                for (int i = 0; i < cacheNames.length; i++) {
+                    String name = cacheNames[i];
+                    if (manager1.getCacheManagerPeerProvider("RMI").listRemoteCachePeers(manager1.getCache(name)).isEmpty()) {
+                        continue;
+                    }
+                    if ("sampleCache2".equals(name)) {
+                        //sampleCache2 in manager1 replicates puts via invalidate, so the count will be 1 less
+                        for (CacheManager manager : new CacheManager[] {manager2, manager3, manager4, manager5}) {
+                            assertNull(manager2.getCache(name).get(Integer.toString(i)));
+                            assertNull(manager2.getCache(name).get("nonSerializable" + i));
+                        }
+                    } else {
+                        for (CacheManager manager : new CacheManager[] {manager2, manager3, manager4, manager5}) {
+                            assertNotNull(manager2.getCache(name).get(Integer.toString(i)));
+                            assertNull(manager2.getCache(name).get("nonSerializable" + i));
+                        }
+                    }
+                }
+                return Boolean.TRUE;
             }
-            Element nonSerializableElement2 = manager2.getCache(name).get("nonSerializable" + i);
-            if (nonSerializableElement2 != null) {
-                count2++;
-            }
-            Element element3 = manager3.getCache(name).get("" + i);
-            if (element3 != null) {
-                count3++;
-            }
-            Element element4 = manager4.getCache(name).get("" + i);
-            if (element4 != null) {
-                count4++;
-            }
-            Element element5 = manager5.getCache(name).get("" + i);
-            if (element5 != null) {
-                count5++;
-            }
-        }
-        //sampleCache2 in manager1 replicates puts via invalidate, so the count will be 1 less
-        assertEquals(numberOfCaches - 1, count2);
-        assertEquals(numberOfCaches - 1, count3);
-        assertEquals(numberOfCaches - 1, count4);
-        assertEquals(numberOfCaches - 1, count5);
-
-
+        }, is(Boolean.TRUE));
     }
-
-    /**
-     * The number of caches there should be.
-     */
-    protected int getNumberOfReplicatingCachesInCacheManager() {
-        return 55;
-    }
-
 
     /**
      * manager1 adds a replicating cache, then manager2 and so on. Then we remove one. Does everything work as expected?
@@ -1150,7 +1105,7 @@ public class RMICacheReplicatorTest extends AbstractCacheTest {
         executables.add(new ClusterExecutable(manager2, "sampleCache3"));
         executables.add(new ClusterExecutable(manager3, "sampleCache3"));
 
-        runThreads(executables);
+        assertThat(runTasks(executables), IsEmptyCollection.<Throwable>empty());
     }
 
 
@@ -1179,13 +1134,13 @@ public class RMICacheReplicatorTest extends AbstractCacheTest {
         executables.add(new ClusterExecutable(manager2, "sampleCache2"));
         executables.add(new ClusterExecutable(manager3, "sampleCache2"));
 
-        runThreads(executables);
+        assertThat(runTasks(executables), IsEmptyCollection.<Throwable>empty());
     }
 
     /**
      * An Exececutable which allows the CacheManager to be set
      */
-    class ClusterExecutable implements Executable {
+    class ClusterExecutable implements Callable<Void> {
 
         private final CacheManager manager;
         private final String cacheName;
@@ -1205,7 +1160,7 @@ public class RMICacheReplicatorTest extends AbstractCacheTest {
          *
          * @throws Exception
          */
-        public void execute() throws Exception {
+        public Void call() throws Exception {
             Random random = new Random();
 
             for (int i = 0; i < 20; i++) {
@@ -1240,8 +1195,7 @@ public class RMICacheReplicatorTest extends AbstractCacheTest {
                     }
                 }
             }
-
+            return null;
         }
     }
-
 }

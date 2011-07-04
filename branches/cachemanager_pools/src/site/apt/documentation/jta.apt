@@ -55,7 +55,7 @@ Transactions in Ehcache
 
     Same as xa but use it only if you need strict XA disaster recovery guarantees. In this mode, the cached data can never
     get out of sync with the other resources participating in the transactions, even in case of a crash but you pay a high
-    price in performance to get that extra safety.
+    price in performance to get that extra safety. This is the only mode that can work with {{{./terracotta/non_stop_cache.html}nonstop caches}} (beginning with Ehcache 2.4.1).
 
 
 *   Requirements
@@ -461,6 +461,10 @@ Transactions in Ehcache
 
 
 *   FAQ
+
+**  Why do some threads regularly time out and throw an excption?
+
+    In transactional caches, write locks are in force whenever an element is updated, deleted, or added. With concurrent access, these locks cause some threads to block and appear to deadlock. Eventually the deadlocked threads time out (and throw an exception) to avoid being stuck in a deadlock condition.
 
 **  Is IBM Websphere Transaction Manager supported?
 

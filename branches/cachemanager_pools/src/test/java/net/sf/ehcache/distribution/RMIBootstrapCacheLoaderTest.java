@@ -23,6 +23,9 @@ import net.sf.ehcache.CacheException;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.event.CountingCacheEventListener;
+import net.sf.ehcache.util.RetryAssert;
+
+import org.hamcrest.collection.IsEmptyCollection;
 import org.junit.After;
 
 import static org.junit.Assert.assertEquals;
@@ -31,6 +34,9 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.util.Date;
+import java.util.Set;
+import java.util.concurrent.Callable;
+import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,7 +45,7 @@ import org.slf4j.LoggerFactory;
  * @author Greg Luck
  * @version $Id$
  */
-public class RMIBootstrapCacheLoaderTest {
+public class RMIBootstrapCacheLoaderTest extends AbstractRMITest {
 
 
     /**
@@ -100,7 +106,7 @@ public class RMIBootstrapCacheLoaderTest {
         manager2 = new CacheManager(AbstractCacheTest.TEST_CONFIG_DIR + "distribution/ehcache-distributed2.xml");
 
         //allow cluster to be established
-        Thread.sleep(3000);
+        waitForClusterMembership(10, TimeUnit.SECONDS, "sampleCache1", manager1, manager2);
     }
 
     /**
@@ -145,6 +151,12 @@ public class RMIBootstrapCacheLoaderTest {
         if (manager6 != null) {
             manager6.shutdown();
         }
+
+        RetryAssert.assertBy(30, TimeUnit.SECONDS, new Callable<Set<Thread>>() {
+            public Set<Thread> call() throws Exception {
+                return getActiveReplicationThreads();
+            }
+        }, IsEmptyCollection.<Thread>empty());
     }
 
     /**

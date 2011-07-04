@@ -22,6 +22,9 @@ import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
+import net.sf.ehcache.util.RetryAssert;
+
+import org.hamcrest.collection.IsEmptyCollection;
 import org.junit.After;
 
 import static org.junit.Assert.assertEquals;
@@ -36,6 +39,9 @@ import java.rmi.UnmarshalException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
+import java.util.concurrent.Callable;
+import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,7 +54,7 @@ import org.slf4j.LoggerFactory;
  * @author <a href="mailto:gluck@thoughtworks.com">Greg Luck</a>
  * @version $Id$
  */
-public class RMICacheManagerPeerTest {
+public class RMICacheManagerPeerTest extends AbstractRMITest {
 
     private static final Logger LOG = LoggerFactory.getLogger(RMICacheManagerPeerTest.class.getName());
 
@@ -57,8 +63,8 @@ public class RMICacheManagerPeerTest {
      * manager
      */
     protected CacheManager manager;
-    private String hostName = "localhost";
-    private Integer port = Integer.valueOf(40000);
+    private final String hostName = "localhost";
+    private final Integer port = Integer.valueOf(40000);
     private RMICacheManagerPeerListener peerListener;
     private Cache cache;
 
@@ -86,6 +92,12 @@ public class RMICacheManagerPeerTest {
             peerListener.dispose();
         }
         manager.shutdown();
+
+        RetryAssert.assertBy(30, TimeUnit.SECONDS, new Callable<Set<Thread>>() {
+            public Set<Thread> call() throws Exception {
+                return getActiveReplicationThreads();
+            }
+        }, IsEmptyCollection.<Thread>empty());
     }
 
 
@@ -206,6 +218,7 @@ public class RMICacheManagerPeerTest {
          * @throws IllegalArgumentException
          * @throws IllegalStateException
          */
+        @Override
         public void put(Element element) throws RemoteException, IllegalArgumentException, IllegalStateException {
             try {
                 Thread.sleep(2000);
