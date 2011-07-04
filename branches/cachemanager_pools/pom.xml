@@ -615,10 +615,10 @@
                 <version>2.2-beta-5</version>
                 <configuration>
                     <filters>
-                        <filter>src/assemble/filter.properties</filter>
+                        <filter>${basedir}/src/assemble/filter.properties</filter>
                     </filters>
                     <descriptors>
-                        <descriptor>src/assemble/distribution.xml</descriptor>
+                        <descriptor>${basedir}/src/assemble/distribution.xml</descriptor>
                     </descriptors>
                     <tarLongFileMode>gnu</tarLongFileMode>
                 </configuration>
