@@ -463,6 +463,13 @@ public final class ExceptionOnTimeoutStore implements NonstopStore {
     /**
      * {@inheritDoc}
      */
+    public int getPinnedCount() {
+        throw new NonStopCacheException("getPinnedElementsCount() timed out");
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     public Set getLocalKeys() {
         throw new NonStopCacheException("getLocalKeys() timed out");
     }

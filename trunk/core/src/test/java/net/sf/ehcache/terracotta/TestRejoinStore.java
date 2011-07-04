@@ -134,6 +134,11 @@ public class TestRejoinStore implements TerracottaStore {
         return null;
     }
 
+    public int getPinnedCount() {
+        alwaysCalledMethod();
+        return 0;
+    }
+
     public void expireElements() {
         alwaysCalledMethod();
 

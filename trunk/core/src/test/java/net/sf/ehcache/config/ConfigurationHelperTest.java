@@ -19,7 +19,9 @@ package net.sf.ehcache.config;
 import net.sf.ehcache.AbstractCacheTest;
 import net.sf.ehcache.CacheManager;
 
+import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
@@ -42,6 +44,41 @@ public class ConfigurationHelperTest extends AbstractCacheTest {
 
     private static final Logger LOG = LoggerFactory.getLogger(ConfigurationHelperTest.class.getName());
 
+    @Test
+    public void testMaxBytesOnConfiguration() {
+        Configuration configuration = new Configuration()
+            .maxBytesLocalHeap(20, MemoryUnit.MEGABYTES)
+            .maxBytesLocalOffHeap(2, MemoryUnit.GIGABYTES)
+            .maxBytesLocalDisk(2000, MemoryUnit.GIGABYTES);
+
+        assertThat(configuration.getMaxBytesLocalHeap(), is(MemoryUnit.MEGABYTES.toBytes(20)));
+        assertThat(configuration.getMaxBytesLocalOffHeap(), is((long) 2 * 1024 * 1024 * 1024));
+        assertThat(configuration.getMaxBytesLocalDisk(), is((long) 2000 * 1024 * 1024 * 1024));
+
+        configuration.setMaxBytesLocalHeap((Long) null);
+        assertThat(configuration.getMaxBytesLocalHeap(), is(0L));
+        assertThat(configuration.getMaxBytesLocalOffHeap(), is((long) 2 * 1024 * 1024 * 1024));
+        assertThat(configuration.getMaxBytesLocalDisk(), is((long)2000 * 1024 * 1024 * 1024));
+
+        configuration.setMaxBytesLocalOffHeap((Long)null);
+        assertThat(configuration.getMaxBytesLocalHeap(), is(0L));
+        assertThat(configuration.getMaxBytesLocalOffHeap(), is(0L));
+        assertThat(configuration.getMaxBytesLocalDisk(), is((long)2000 * 1024 * 1024 * 1024));
+
+        configuration.setMaxBytesLocalDisk((Long)null);
+        assertThat(configuration.getMaxBytesLocalHeap(), is(0L));
+        assertThat(configuration.getMaxBytesLocalOffHeap(), is(0L));
+        assertThat(configuration.getMaxBytesLocalDisk(), is(0L));
+
+        configuration = new Configuration();
+        configuration.setMaxBytesLocalHeap("1g");
+        configuration.setMaxBytesLocalOffHeap("12G");
+        configuration.setMaxBytesLocalDisk("200G");
+
+        assertThat(configuration.getMaxBytesLocalHeap(), is(MemoryUnit.GIGABYTES.toBytes(1)));
+        assertThat(configuration.getMaxBytesLocalOffHeap(), is(MemoryUnit.GIGABYTES.toBytes(12)));
+        assertThat(configuration.getMaxBytesLocalDisk(), is(MemoryUnit.GIGABYTES.toBytes(200)));
+    }
 
     /**
      * Should not give exceptions

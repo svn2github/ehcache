@@ -30,7 +30,7 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.locks.ReentrantLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
  * A hash table supporting full concurrency of retrievals and
@@ -230,7 +230,7 @@ public class ConcurrentHashMap<K, V> extends AbstractMap<K, V>
      * subclasses from ReentrantLock opportunistically, just to
      * simplify some locking and avoid separate construction.
      */
-    static final class Segment<K,V> extends ReentrantLock implements Serializable {
+    static final class Segment<K,V> extends ReentrantReadWriteLock implements Serializable {
         /*
          * Segments maintain a table of entry lists that are ALWAYS
          * kept in a consistent state, so can be read without locking.
@@ -332,71 +332,65 @@ public class ConcurrentHashMap<K, V> extends AbstractMap<K, V>
             return tab[hash & (tab.length - 1)];
         }
 
-        /**
-         * Reads value field of an entry under lock. Called if value
-         * field ever appears to be null. This is possible only if a
-         * compiler happens to reorder a HashEntry initialization with
-         * its table assignment, which is legal under memory model
-         * but is not known to ever occur.
-         */
-        V readValueUnderLock(HashEntry<K,V> e) {
-            lock();
-            try {
-                return e.value;
-            } finally {
-                unlock();
-            }
-        }
-
         /* Specialized implementations of map methods */
 
         V get(Object key, int hash) {
-            if (count != 0) { // read-volatile
-                HashEntry<K,V> e = getFirst(hash);
-                while (e != null) {
-                    if (e.hash == hash && key.equals(e.key)) {
-                        V v = e.value;
-                        if (v != null)
-                            return v;
-                        return readValueUnderLock(e); // recheck
+            readLock().lock();
+            try {
+                if (count != 0) { // read-volatile
+                    HashEntry<K,V> e = getFirst(hash);
+                    while (e != null) {
+                        if (e.hash == hash && key.equals(e.key)) {
+                            return e.value;
+                        }
+                        e = e.next;
                     }
-                    e = e.next;
                 }
+                return null;
+            } finally {
+                readLock().unlock();
             }
-            return null;
         }
 
         boolean containsKey(Object key, int hash) {
-            if (count != 0) { // read-volatile
-                HashEntry<K,V> e = getFirst(hash);
-                while (e != null) {
-                    if (e.hash == hash && key.equals(e.key))
-                        return true;
-                    e = e.next;
+            readLock().lock();
+            try {
+                if (count != 0) { // read-volatile
+                    HashEntry<K,V> e = getFirst(hash);
+                    while (e != null) {
+                        if (e.hash == hash && key.equals(e.key))
+                            return true;
+                        e = e.next;
+                    }
                 }
+                return false;
+            } finally {
+                readLock().unlock();
             }
-            return false;
         }
 
         boolean containsValue(Object value) {
-            if (count != 0) { // read-volatile
-                HashEntry<K,V>[] tab = table;
-                int len = tab.length;
-                for (int i = 0 ; i < len; i++) {
-                    for (HashEntry<K,V> e = tab[i]; e != null; e = e.next) {
-                        V v = e.value;
-                        if (v == null) // recheck
-                            v = readValueUnderLock(e);
-                        if (value.equals(v))
-                            return true;
+            readLock().lock();
+            try {
+                if (count != 0) { // read-volatile
+                    HashEntry<K,V>[] tab = table;
+                    int len = tab.length;
+                    for (int i = 0 ; i < len; i++) {
+                        for (HashEntry<K,V> e = tab[i]; e != null; e = e.next) {
+                            V v = e.value;
+                            if (value.equals(v))
+                                return true;
+                        }
                     }
                 }
+                return false;
+            } finally {
+                readLock().unlock();
             }
-            return false;
         }
 
         boolean replace(K key, int hash, V oldValue, V newValue) {
-            lock();
+            writeLock().lock();
             try {
                 HashEntry<K,V> e = getFirst(hash);
                 while (e != null && (e.hash != hash || !key.equals(e.key)))
@@ -409,12 +403,12 @@ public class ConcurrentHashMap<K, V> extends AbstractMap<K, V>
                 }
                 return replaced;
             } finally {
-                unlock();
+                writeLock().unlock();
             }
         }
 
         V replace(K key, int hash, V newValue) {
-            lock();
+            writeLock().lock();
             try {
                 HashEntry<K,V> e = getFirst(hash);
                 while (e != null && (e.hash != hash || !key.equals(e.key)))
@@ -427,13 +421,13 @@ public class ConcurrentHashMap<K, V> extends AbstractMap<K, V>
                 }
                 return oldValue;
             } finally {
-                unlock();
+                writeLock().unlock();
             }
         }
 
 
         V put(K key, int hash, V value, boolean onlyIfAbsent) {
-            lock();
+            writeLock().lock();
             try {
                 int c = count;
                 if (c++ > threshold) // ensure capacity
@@ -459,7 +453,7 @@ public class ConcurrentHashMap<K, V> extends AbstractMap<K, V>
                 }
                 return oldValue;
             } finally {
-                unlock();
+                writeLock().unlock();
             }
         }
 
@@ -531,7 +525,7 @@ public class ConcurrentHashMap<K, V> extends AbstractMap<K, V>
          * Remove; match on key only if value null, else match both.
          */
         V remove(Object key, int hash, Object value) {
-            lock();
+            writeLock().lock();
             try {
                 int c = count - 1;
                 HashEntry<K,V>[] tab = table;
@@ -560,22 +554,22 @@ public class ConcurrentHashMap<K, V> extends AbstractMap<K, V>
                 }
                 return oldValue;
             } finally {
-                unlock();
+                writeLock().unlock();
             }
         }
 
         void clear() {
-            if (count != 0) {
-                lock();
-                try {
+            writeLock().lock();
+            try {
+                if (count != 0) {
                     HashEntry<K,V>[] tab = table;
                     for (int i = 0; i < tab.length ; i++)
                         tab[i] = null;
                     ++modCount;
                     count = 0; // write-volatile
-                } finally {
-                    unlock();
                 }
+            } finally {
+                writeLock().unlock();
             }
         }
     }
@@ -742,11 +736,11 @@ public class ConcurrentHashMap<K, V> extends AbstractMap<K, V>
         if (check != sum) { // Resort to locking all segments
             sum = 0;
             for (int i = 0; i < segments.length; ++i)
-                segments[i].lock();
+                segments[i].readLock().lock();
             for (int i = 0; i < segments.length; ++i)
                 sum += segments[i].count;
             for (int i = 0; i < segments.length; ++i)
-                segments[i].unlock();
+                segments[i].readLock().unlock();
         }
         if (sum > Integer.MAX_VALUE)
             return Integer.MAX_VALUE;
@@ -829,7 +823,7 @@ public class ConcurrentHashMap<K, V> extends AbstractMap<K, V>
         }
         // Resort to locking all segments
         for (int i = 0; i < segments.length; ++i)
-            segments[i].lock();
+            segments[i].readLock().lock();
         boolean found = false;
         try {
             for (int i = 0; i < segments.length; ++i) {
@@ -840,7 +834,7 @@ public class ConcurrentHashMap<K, V> extends AbstractMap<K, V>
             }
         } finally {
             for (int i = 0; i < segments.length; ++i)
-                segments[i].unlock();
+                segments[i].readLock().unlock();
         }
         return found;
     }
@@ -1337,7 +1331,7 @@ public class ConcurrentHashMap<K, V> extends AbstractMap<K, V>
 
         for (int k = 0; k < segments.length; ++k) {
             Segment<K,V> seg = segments[k];
-            seg.lock();
+            seg.readLock().lock();
             try {
                 HashEntry<K,V>[] tab = seg.table;
                 for (int i = 0; i < tab.length; ++i) {
@@ -1347,7 +1341,7 @@ public class ConcurrentHashMap<K, V> extends AbstractMap<K, V>
                     }
                 }
             } finally {
-                seg.unlock();
+                seg.readLock().unlock();
             }
         }
         s.writeObject(null);

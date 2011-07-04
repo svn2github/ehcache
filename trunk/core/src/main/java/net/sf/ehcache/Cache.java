@@ -46,6 +46,14 @@ import net.sf.ehcache.extension.CacheExtension;
 import net.sf.ehcache.extension.CacheExtensionFactory;
 import net.sf.ehcache.loader.CacheLoader;
 import net.sf.ehcache.loader.CacheLoaderFactory;
+import net.sf.ehcache.pool.Pool;
+import net.sf.ehcache.pool.PoolEvictor;
+import net.sf.ehcache.pool.PoolableStore;
+import net.sf.ehcache.pool.SizeOfEngine;
+import net.sf.ehcache.pool.impl.BoundedPool;
+import net.sf.ehcache.pool.impl.FromLargestCacheOnDiskPoolEvictor;
+import net.sf.ehcache.pool.impl.FromLargestCacheOnHeapPoolEvictor;
+import net.sf.ehcache.pool.impl.UnboundedPool;
 import net.sf.ehcache.search.Attribute;
 import net.sf.ehcache.search.Query;
 import net.sf.ehcache.search.Results;
@@ -56,10 +64,11 @@ import net.sf.ehcache.statistics.LiveCacheStatistics;
 import net.sf.ehcache.statistics.LiveCacheStatisticsWrapper;
 import net.sf.ehcache.statistics.sampled.SampledCacheStatistics;
 import net.sf.ehcache.statistics.sampled.SampledCacheStatisticsWrapper;
-import net.sf.ehcache.store.DiskStore;
+import net.sf.ehcache.store.DiskBackedMemoryStore;
 import net.sf.ehcache.store.ElementValueComparator;
 import net.sf.ehcache.store.LegacyStoreWrapper;
 import net.sf.ehcache.store.LruMemoryStore;
+import net.sf.ehcache.store.MemoryOnlyStore;
 import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
 import net.sf.ehcache.store.Policy;
 import net.sf.ehcache.store.Store;
@@ -68,10 +77,8 @@ import net.sf.ehcache.store.StoreQuery;
 import net.sf.ehcache.store.TerracottaStore;
 import net.sf.ehcache.store.compound.ImmutableValueElementCopyStrategy;
 import net.sf.ehcache.store.compound.ReadWriteCopyStrategy;
-import net.sf.ehcache.store.compound.StoreUpdateException;
-import net.sf.ehcache.store.compound.impl.DiskPersistentStore;
-import net.sf.ehcache.store.compound.impl.MemoryOnlyStore;
-import net.sf.ehcache.store.compound.impl.OverflowToDiskStore;
+import net.sf.ehcache.store.disk.StoreUpdateException;
+import net.sf.ehcache.store.disk.DiskStore;
 import net.sf.ehcache.terracotta.TerracottaClient;
 import net.sf.ehcache.terracotta.TerracottaNotRunningException;
 import net.sf.ehcache.transaction.SoftLockFactory;
@@ -990,13 +997,53 @@ public class Cache implements Ehcache, StoreListener {
                 throw new IllegalStateException("Cannot initialise the " + configuration.getName()
                         + " cache because its status is not STATUS_UNINITIALISED");
             }
-            if (configuration.getMaxElementsInMemory() == 0) {
-                LOG.warn("Cache: " + configuration.getName() +
-                        " has a maxElementsInMemory of 0.  " +
-                        "In Ehcache 2.0 this has been changed to mean a store" +
-                        " with no capacity limit. Set it to 1 if you want" +
-                        " no elements cached in memory");
+            // on-heap validation
+            // todo is this really to be supported ? CacheManager less Caches ? Can these then be attached later ?
+            if (getCacheManager() != null
+                && getCacheManager().getConfiguration().isMaxBytesLocalHeapSet()
+                && configuration.getMaxElementsInMemory() > 0) {
+                throw new InvalidConfigurationException(configuration.getName() +
+                                                        ": MaxElementsInMemory is not compatible with " +
+                                                        "MaxBytesOnHeap set on cache manager");
             }
+            if (configuration.getMaxBytesLocalHeap() > 0 && configuration.getMaxElementsInMemory() > 0) {
+                throw new InvalidConfigurationException(configuration.getName() +
+                                                        ": MaxElementsInMemory is not compatible with " +
+                                                        "MaxBytesOnHeap set on cache");
+            }
+
+            // on-heap pool configuration
+            Pool onHeapPool;
+            if (configuration.getMaxBytesLocalHeap() > 0) {
+                PoolEvictor<PoolableStore> evictor = new FromLargestCacheOnHeapPoolEvictor();
+                SizeOfEngine sizeOfEngine = cacheManager.createSizeOfEngine(this);
+                onHeapPool = new BoundedPool(configuration.getMaxBytesLocalHeap(), evictor, sizeOfEngine);
+            } else if (getCacheManager() != null && getCacheManager().getConfiguration().isMaxBytesLocalHeapSet()) {
+                onHeapPool = getCacheManager().getOnHeapPool();
+            } else {
+                onHeapPool = new UnboundedPool();
+                if (configuration.getMaxElementsInMemory() == 0) {
+                    LOG.warn("Cache: " + configuration.getName() +
+                            " has a maxElementsInMemory of 0.  " +
+                            "In Ehcache 2.0 this has been changed to mean a store" +
+                            " with no capacity limit. Set it to 1 if you want" +
+                            " no elements cached in memory");
+                }
+            }
+
+            // on-disk pool configuration
+            Pool onDiskPool;
+            if (configuration.getMaxBytesLocalDisk() > 0) {
+                PoolEvictor<PoolableStore> evictor = new FromLargestCacheOnDiskPoolEvictor();
+                onDiskPool = new BoundedPool(configuration.getMaxBytesLocalDisk(), evictor, null);
+            } else if (getCacheManager() != null && getCacheManager().getConfiguration().isMaxBytesLocalDiskSet()) {
+                onDiskPool = getCacheManager().getOnDiskPool();
+            } else {
+                onDiskPool = new UnboundedPool();
+            }
+
+
+
             ReadWriteCopyStrategy<Element> copyStrategy = null;
             if (configuration.getTransactionalMode().isTransactional()) {
                 configuration.getCopyStrategyConfiguration().setCopyStrategyInstance(null);
@@ -1010,40 +1057,7 @@ public class Cache implements Ehcache, StoreListener {
             }
             final Store store;
             if (isTerracottaClustered()) {
-                final Consistency consistency = getCacheConfiguration().getTerracottaConfiguration().getConsistency();
-                final boolean coherent = getCacheConfiguration().getTerracottaConfiguration().isCoherent();
-                if (getCacheConfiguration().isOverflowToOffHeap()) {
-                    throw new InvalidConfigurationException(
-                            "Terracotta clustered caches with local overflow to offheap are not supported yet."
-                                    + " You can fix this by disabling overflow to offheap for clustered caches.");
-                }
-                if (getCacheConfiguration().getTerracottaConfiguration().isSynchronousWrites() && consistency == Consistency.EVENTUAL) {
-                    throw new InvalidConfigurationException(
-                            "Terracotta clustered caches with eventual consistency and synchronous writes are not supported yet."
-                                    + " You can fix this by either making the cache in 'strong' consistency mode "
-                                    + "(<terracotta consistency=\"strong\"/>) or turning off synchronous writes.");
-                }
-                if (getCacheConfiguration().getTransactionalMode().isTransactional() && consistency == Consistency.EVENTUAL) {
-                    throw new InvalidConfigurationException("Consistency should be " + Consistency.STRONG
-                            + " when cache is configured with transactions enabled. "
-                            + "You can fix this by either making the cache in 'strong' consistency mode "
-                            + "(<terracotta consistency=\"strong\"/>) or turning off transactions.");
-                }
-                if (getCacheConfiguration().getTransactionalMode().isTransactional()
-                        && !getCacheConfiguration().getTransactionalMode().equals(CacheConfiguration.TransactionalMode.XA_STRICT)
-                        && getCacheConfiguration().getTerracottaConfiguration().isNonstopEnabled()) {
-                    LOG.warn("Cache: " + configuration.getName() + " configured both NonStop and transactional non xa_strict."
-                            + " NonStop features won't work for this cache!");
-                }
-                if ((coherent && consistency == Consistency.EVENTUAL) || (!coherent && consistency == Consistency.STRONG)) {
-                    throw new InvalidConfigurationException("Coherent and consistency attribute values are conflicting. "
-                            + "Please remove the coherent attribute as its deprecated.");
-                }
-                if (getCacheConfiguration().getTerracottaConfiguration().getStorageStrategy() == StorageStrategy.CLASSIC
-                        && !getCacheConfiguration().getTerracottaConfiguration().isLocalCacheEnabled()) {
-                    throw new InvalidConfigurationException("Local Cache cannot be disabled with " + StorageStrategy.CLASSIC
-                            + " Storage strategy. Please enable local cache or use " + StorageStrategy.DCV2);
-                }
+                checkClusteredConfig();
                 int maxConcurrency = Integer.getInteger(EHCACHE_CLUSTERREDSTORE_MAX_CONCURRENCY_PROP,
                         DEFAULT_EHCACHE_CLUSTERREDSTORE_MAX_CONCURRENCY);
                 if (getCacheConfiguration().getTerracottaConfiguration().getConcurrency() > maxConcurrency) {
@@ -1080,43 +1094,18 @@ public class Cache implements Ehcache, StoreListener {
                     store = terracottaStore;
                 }
             } else if (getCacheConfiguration().isOverflowToOffHeap()) {
-                try {
-                    Class<Store> storeClass = ClassLoaderUtil.loadClass(OFF_HEAP_STORE_CLASSNAME);
-                    try {
-                        store = makeXaStrictTransactionalIfNeeded((Store) storeClass.getMethod("create", Ehcache.class, String.class)
-                                .invoke(null, this, diskStorePath), copyStrategy);
-                    } catch (NoSuchMethodException e) {
-                        throw new CacheException("Cache: " + configuration.getName() + " cannot find static factory"
-                                + " method create(Ehcache, String)" + " in store class " + OFF_HEAP_STORE_CLASSNAME, e);
-                    } catch (InvocationTargetException e) {
-                        Throwable cause = e.getCause();
-                        if (cause instanceof CacheException) {
-                            throw (CacheException) cause;
-                        } else {
-                            throw new CacheException("Cache: " + configuration.getName() + " cannot instantiate store "
-                                    + OFF_HEAP_STORE_CLASSNAME, cause);
-                        }
-                    } catch (IllegalAccessException e) {
-                        throw new CacheException("Cache: " + configuration.getName() + " cannot instantiate store "
-                                + OFF_HEAP_STORE_CLASSNAME, e);
-                    }
-                } catch (ClassNotFoundException e) {
-                    throw new CacheException("Cache " + configuration.getName()
-                            + " cannot be configured because the off-heap store class could not be found. "
-                            + "You must use an enterprise version of Ehcache to successfully enable overflowToOffHeap.");
-                }
+                store = createOffHeapStore(onHeapPool, onDiskPool, copyStrategy);
             } else {
                 if (useClassicLru && configuration.getMemoryStoreEvictionPolicy().equals(MemoryStoreEvictionPolicy.LRU)) {
                     Store disk = createDiskStore();
                     store = makeXaStrictTransactionalIfNeeded(new LegacyStoreWrapper(
                             new LruMemoryStore(this, disk), disk, registeredEventListeners, configuration), copyStrategy);
                 } else {
-                    if (configuration.isDiskPersistent()) {
-                        store = makeXaStrictTransactionalIfNeeded(DiskPersistentStore.create(this, diskStorePath), copyStrategy);
-                    } else if (configuration.isOverflowToDisk()) {
-                        store = makeXaStrictTransactionalIfNeeded(OverflowToDiskStore.create(this, diskStorePath), copyStrategy);
+                    if (configuration.isDiskPersistent() || configuration.isOverflowToDisk()) {
+                        store = makeXaStrictTransactionalIfNeeded(DiskBackedMemoryStore.create(this, diskStorePath,
+                                onHeapPool, onDiskPool), copyStrategy);
                     } else {
-                        store = makeXaStrictTransactionalIfNeeded(MemoryOnlyStore.create(this, diskStorePath), copyStrategy);
+                        store = makeXaStrictTransactionalIfNeeded(MemoryOnlyStore.create(this, onHeapPool), copyStrategy);
                     }
                 }
             }
@@ -1182,6 +1171,73 @@ public class Cache implements Ehcache, StoreListener {
         if (disabled) {
             LOG.warn("Cache: " + configuration.getName() + " is disabled because the " + NET_SF_EHCACHE_DISABLED
                     + " property was set to true. No elements will be added to the cache.");
+        }
+    }
+
+    private Store createOffHeapStore(Pool onHeapPool, Pool onDiskPool, ReadWriteCopyStrategy<Element> copyStrategy) {
+        try {
+            Class<Store> offHeapStoreClass = ClassLoaderUtil.loadClass(OFF_HEAP_STORE_CLASSNAME);
+
+            try {
+                return makeXaStrictTransactionalIfNeeded((Store) offHeapStoreClass.getMethod("create",
+                        Ehcache.class, String.class, Pool.class, Pool.class)
+                        .invoke(null, this, diskStorePath, onHeapPool, onDiskPool), copyStrategy);
+            } catch (NoSuchMethodException e) {
+                throw new CacheException("Cache: " + configuration.getName() + " cannot find static factory"
+                        + " method create(Ehcache, String)" + " in store class " + OFF_HEAP_STORE_CLASSNAME, e);
+            } catch (InvocationTargetException e) {
+                Throwable cause = e.getCause();
+                if (cause instanceof CacheException) {
+                    throw (CacheException) cause;
+                } else {
+                    throw new CacheException("Cache: " + configuration.getName() + " cannot instantiate store "
+                            + OFF_HEAP_STORE_CLASSNAME, cause);
+                }
+            } catch (IllegalAccessException e) {
+                throw new CacheException("Cache: " + configuration.getName() + " cannot instantiate store "
+                        + OFF_HEAP_STORE_CLASSNAME, e);
+            }
+        } catch (ClassNotFoundException e) {
+            throw new CacheException("Cache " + configuration.getName()
+                    + " cannot be configured because the off-heap store class could not be found. "
+                    + "You must use an enterprise version of Ehcache to successfully enable overflowToOffHeap.");
+        }
+    }
+
+    private void checkClusteredConfig() {
+        final Consistency consistency = getCacheConfiguration().getTerracottaConfiguration().getConsistency();
+        final boolean coherent = getCacheConfiguration().getTerracottaConfiguration().isCoherent();
+        if (getCacheConfiguration().isOverflowToOffHeap()) {
+            throw new InvalidConfigurationException(
+                    "Terracotta clustered caches with local overflow to offheap are not supported yet."
+                            + " You can fix this by disabling overflow to offheap for clustered caches.");
+        }
+        if (getCacheConfiguration().getTerracottaConfiguration().isSynchronousWrites() && consistency == Consistency.EVENTUAL) {
+            throw new InvalidConfigurationException(
+                    "Terracotta clustered caches with eventual consistency and synchronous writes are not supported yet."
+                            + " You can fix this by either making the cache in 'strong' consistency mode "
+                            + "(<terracotta consistency=\"strong\"/>) or turning off synchronous writes.");
+        }
+        if (getCacheConfiguration().getTransactionalMode().isTransactional() && consistency == Consistency.EVENTUAL) {
+            throw new InvalidConfigurationException("Consistency should be " + Consistency.STRONG
+                    + " when cache is configured with transactions enabled. "
+                    + "You can fix this by either making the cache in 'strong' consistency mode "
+                    + "(<terracotta consistency=\"strong\"/>) or turning off transactions.");
+        }
+        if (getCacheConfiguration().getTransactionalMode().isTransactional()
+                && !getCacheConfiguration().getTransactionalMode().equals(CacheConfiguration.TransactionalMode.XA_STRICT)
+                && getCacheConfiguration().getTerracottaConfiguration().isNonstopEnabled()) {
+            LOG.warn("Cache: " + configuration.getName() + " configured both NonStop and transactional non xa_strict."
+                    + " NonStop features won't work for this cache!");
+        }
+        if ((coherent && consistency == Consistency.EVENTUAL) || (!coherent && consistency == Consistency.STRONG)) {
+            throw new InvalidConfigurationException("Coherent and consistency attribute values are conflicting. "
+                    + "Please remove the coherent attribute as its deprecated.");
+        }
+        if (getCacheConfiguration().getTerracottaConfiguration().getStorageStrategy() == StorageStrategy.CLASSIC
+                && !getCacheConfiguration().getTerracottaConfiguration().isLocalCacheEnabled()) {
+            throw new InvalidConfigurationException("Local Cache cannot be disabled with " + StorageStrategy.CLASSIC
+                    + " Storage strategy. Please enable local cache or use " + StorageStrategy.DCV2);
         }
     }
 
@@ -2219,6 +2275,10 @@ public class Cache implements Ehcache, StoreListener {
             return;
         }
 
+        if (bootstrapCacheLoader != null && bootstrapCacheLoader instanceof Disposable) {
+            ((Disposable)bootstrapCacheLoader).dispose();
+        }
+
         if (executorService != null) {
             executorService.shutdown();
         }
@@ -2380,6 +2440,17 @@ public class Cache implements Ehcache, StoreListener {
     public final long calculateOffHeapSize() throws IllegalStateException, CacheException {
         checkStatus();
         return compoundStore.getOffHeapSizeInBytes();
+    }
+
+    /**
+     * Gets the size of the on-disk store for this cache
+     *
+     * @return the size of the on-disk store in bytes
+     * @throws IllegalStateException
+     */
+    public final long calculateOnDiskSize() throws IllegalStateException, CacheException {
+        checkStatus();
+        return compoundStore.getOnDiskSizeInBytes();
     }
 
     /**

@@ -268,20 +268,23 @@
    </cache>
 ---
 
-	Pinning means that cache Elements are never evicted due to space. They cache will continue to grow as elements are added to it.
-	Elements will only be evicted unless the Element has expired.
+    Pinning means that cache Elements are never evicted due to space. The cache will continue to grow as elements are added to it.
+    Elements will not be evicted unless the Elements have expired.
 
 	Pinning is possible at three different levels:
 
-	*   onHeap - retain the elements in the Java heap
+    *   onHeap - retain the elements in the local heap
 
-	*   inMemory - retain the elements in either the OnHeap or the OffHeap stores, depending on what stores there are and how much is space is available
-                	in each.
+    *   inMemory - retain the elements in either the local heap or the local OffHeap store, depending on what stores there are and how much
+                   is space is available in each.
 
 	*   inCache - retain the elements in the cache. This allows further off loading to either the DiskStore in a standalone cache, or the
               	L2 in a Terracotta backed Distributed Ehcache.
 
-	The recommended use is reference data, where you always want the whole dataset in memory.
+    While elements in a pinned cache are guaranteed to stick in the configured level, they can nevertheless end up in other levels as well.
+    Eg: elements added to a cache pinned in memory can also end up on disk if a disk store has been configured.
+
+    The recommended use is reference data, where you always want the whole dataset in memory.
 
 	Pinning cannot be used with either maxElementsInMemory or maxBytesOnHeap - it is unbounded.
 
@@ -293,8 +296,8 @@
 
 	Some APIs like OpenJPA and Hibernate require pinning of specific Elements.
 
-	A new method on Element, Element.setPinned(true|false, onHeap|inMemory|inCache) has been added. When a pinned Element is placed in the cache
-	it will not be evicted from the On-Heap store. Element level pinning is a noop when the whole cache is pinned.
+    A new method on Element, Element.setPinned(true|false) has been added. When a pinned Element is placed in the cache
+    it will not be evicted from the Local Heap store.
 
 *   Cache Warming for multi-tier Caches (Ehcache 2.5 and higher)
 

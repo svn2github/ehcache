@@ -15,6 +15,10 @@
  */
 package net.sf.ehcache.concurrent;
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+
 import net.sf.ehcache.CacheException;
 
 /**
@@ -42,7 +46,7 @@ public class StripedReadWriteLockSync implements CacheLockProvider {
     public static final int DEFAULT_NUMBER_OF_MUTEXES = 2048;
 
     private final ReadWriteLockSync[] mutexes;
-
+    private final List<ReadWriteLockSync> mutexesAsList;
     /**
      * Constructs a striped mutex with the default 2048 stripes.
      */
@@ -69,6 +73,7 @@ public class StripedReadWriteLockSync implements CacheLockProvider {
         for (int i = 0; i < mutexes.length; i++) {
             mutexes[i] = new ReadWriteLockSync();
         }
+        mutexesAsList = Collections.unmodifiableList(Arrays.asList(mutexes));
     }
 
     /**
@@ -82,5 +87,13 @@ public class StripedReadWriteLockSync implements CacheLockProvider {
     public ReadWriteLockSync getSyncForKey(final Object key) {
         int lockNumber = ConcurrencyUtil.selectLock(key, mutexes.length);
         return mutexes[lockNumber];
+    }
+
+    /**
+     * Returns all internal syncs
+     * @return all internal syncs
+     */
+    public List<ReadWriteLockSync> getAllSyncs() {
+        return mutexesAsList;
     }
 }

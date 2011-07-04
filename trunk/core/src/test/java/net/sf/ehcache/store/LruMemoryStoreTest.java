@@ -16,21 +16,17 @@
 
 package net.sf.ehcache.store;
 
-import static junit.framework.Assert.assertTrue;
-
 import net.sf.ehcache.Element;
 import net.sf.ehcache.MemoryStoreTester;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
-
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static junit.framework.Assert.assertTrue;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 
 /**
@@ -244,6 +240,5 @@ public class LruMemoryStoreTest extends MemoryStoreTester {
             LOG.info("Store size is: " + store.getSize());
         }
     }
-
 
 }

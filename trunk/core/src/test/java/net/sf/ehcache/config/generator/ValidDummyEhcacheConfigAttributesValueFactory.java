@@ -34,6 +34,11 @@ public class ValidDummyEhcacheConfigAttributesValueFactory implements XSDAttribu
                 return "false";
             }
         }
+        if ("pinning".equals(element.getName())) {
+            if ("storage".equals(attribute.getName())) {
+                return "inMemory";
+            }
+        }
         if (("cache".equals(element.getName()) || "defaultCache".equals(element.getName()))
                 && "transactionalMode".equals(attribute.getName())) {
             return "off";

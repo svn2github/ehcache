@@ -246,4 +246,32 @@ public interface SampledCacheManagerMBean {
      * by the write-behind writer across all caches
      */
     public int getWriterMaxQueueSize();
+
+    /**
+     * Maximum number of bytes of entries in the disk stores of all caches that
+     * did not declare their own max size.
+     *
+     * @return maximum number of bytes in the disk stores of all caches that
+     * did not declare their own max size.
+     */
+    public long getMaxBytesLocalDisk();
+
+    /**
+     * Maximum number of bytes of entries in the heap memory stores of all caches that
+     * did not declare their own max size.
+     *
+     * @return maximum number of bytes in the heap memory stores of all caches that
+     * did not declare their own max size.
+     */
+    public long getMaxBytesLocalHeap();
+
+    /**
+     * Maximum number of bytes of entries in the off-heap stores of all caches that
+     * did not declare their own max size.
+     *
+     * @return maximum number of bytes in the off-heap stores of all caches that
+     * did not declare their own max size.
+     */
+    public long getMaxBytesLocalOffHeap();
+
 }

@@ -2,6 +2,8 @@ package net.sf.ehcache;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.util.Date;
@@ -222,4 +224,151 @@ public class CacheClassicLruMemoryStoreTest extends CacheTest {
         assertEquals(0, cache.getDiskStoreSize());
         assertEquals(1, cache.getMemoryStoreSize());
     }
+
+    /**
+     * Tests cache, memory store and disk store sizes from config
+     */
+    @Override
+    @Test
+    public void testSizes() throws Exception {
+        Ehcache cache = getSampleCache1();
+
+        assertEquals(0, cache.getMemoryStoreSize());
+        assertEquals(0, cache.getDiskStoreSize());
+
+        for (int i = 0; i < 10010; i++) {
+            cache.put(new Element("key" + i, "value1"));
+        }
+
+        Thread.sleep(1000);
+
+        assertEquals(10010, cache.getSize());
+        assertEquals(10000, cache.getMemoryStoreSize());
+        assertEquals(10, cache.getDiskStoreSize());
+
+        //NonSerializable
+        Thread.sleep(15);
+        cache.put(new Element(new Object(), Object.class));
+
+        Thread.sleep(1000);
+
+        assertEquals(10011, cache.getSize());
+        assertEquals(11, cache.getDiskStoreSize());
+        assertEquals(10000, cache.getMemoryStoreSize());
+        assertEquals(10000, cache.getMemoryStoreSize());
+        assertEquals(10000, cache.getMemoryStoreSize());
+        assertEquals(10000, cache.getMemoryStoreSize());
+
+
+        cache.remove("key4");
+        cache.remove("key3");
+
+        assertEquals(10009, cache.getSize());
+        //cannot make any guarantees as no elements have been getted, and all are equally likely to be evicted.
+        //assertEquals(10000, cache.getMemoryStoreSize());
+        //assertEquals(9, cache.getDiskStoreSize());
+
+
+        Thread.sleep(1000);
+
+        cache.removeAll();
+        assertEquals(0, cache.getSize());
+        assertEquals(0, cache.getMemoryStoreSize());
+        assertEquals(0, cache.getDiskStoreSize());
+
+    }
+
+    /**
+     * Tests that the toString() method works.
+     */
+    @Override
+    @Test
+    public void testToString() {
+        Ehcache cache = new Cache("testGetMemoryStore", 10, false, false, 100, 200);
+        assertTrue(cache.toString().indexOf("testGetMemoryStore") > -1);
+    }
+
+    /**
+     * Test expiry based on time to idle.
+     */
+    @Override
+    @Test
+    public void testExpiryBasedOnTimeToIdleAfterPutQuiet() throws Exception {
+        //Set size so the second element overflows to disk.
+        Cache cache = new Cache("test", 1, true, false, 5, 3);
+        manager.addCache(cache);
+        cache.put(new Element("key1", "value1"));
+        cache.put(new Element("key2", "value1"));
+
+        //Test time to idle
+        Element element1 = cache.get("key1");
+        Element element2 = cache.get("key2");
+        assertNotNull(element1);
+        assertNotNull(element2);
+
+        //Now, getQuiet and check still times out 2 seconds after last get
+        Thread.sleep(1050);
+        element1 = cache.getQuiet("key1");
+        assertNotNull(element1);
+        element2 = cache.getQuiet("key2");
+        assertNotNull(element2);
+        Thread.sleep(2949);
+        assertNull(cache.getQuiet("key1"));
+        assertNull(cache.getQuiet("key2"));
+
+        //Now put back in with putQuiet. Should be immediately expired
+        cache.putQuiet((Element) element1.clone());
+        cache.putQuiet((Element) element2.clone());
+        assertNull(cache.get("key1"));
+        element2 = cache.get("key2");
+        assertNull(element2);
+    }
+
+    @Override
+    @Test
+    public void testSizeWithPutAndRemove() throws Exception {
+        //Set size so the second element overflows to disk.
+        Cache cache = new Cache("test2", 1, true, true, 0, 0);
+        manager.addCache(cache);
+        cache.put(new Element("key1", "value1"));
+        cache.put(new Element("key2", "value1"));
+        int sizeFromGetSize = cache.getSize();
+        int sizeFromKeys = cache.getKeys().size();
+        assertEquals(sizeFromGetSize, sizeFromKeys);
+        assertEquals(2, cache.getSize());
+        cache.put(new Element("key1", "value1"));
+        cache.put(new Element("key1", "value1"));
+
+        //key1 should be in the Disk Store
+        assertEquals(cache.getSize(), cache.getKeys().size());
+        assertEquals(2, cache.getSize());
+        //there were two of these, so size will now be one
+        cache.remove("key1");
+        assertEquals(cache.getSize(), cache.getKeys().size());
+        assertEquals(1, cache.getSize());
+        cache.remove("key2");
+        assertEquals(cache.getSize(), cache.getKeys().size());
+        assertEquals(0, cache.getSize());
+
+        //try null values
+        cache.removeAll();
+        Object object1 = new Object();
+        Object object2 = new Object();
+        cache.put(new Element(object1, null));
+        cache.put(new Element(object2, null));
+        // wait until the disk store flushed to disk
+        Thread.sleep(500);
+        //Cannot overflow therefore just one
+        try {
+            assertEquals(1, cache.getSize());
+        } catch (AssertionError e) {
+            //eviction failure
+            System.err.println(e + " - likely eviction failure: checking memory store");
+            assertEquals(2, cache.getMemoryStoreSize());
+        }
+        Element nullValueElement = cache.get(object2);
+        assertNull(nullValueElement.getValue());
+        assertNull(nullValueElement.getObjectValue());
+    }
+
 }

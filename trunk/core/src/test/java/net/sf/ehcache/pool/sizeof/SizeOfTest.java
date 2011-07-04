@@ -1,0 +1,234 @@
+package net.sf.ehcache.pool.sizeof;
+
+import net.sf.ehcache.pool.sizeof.JvmInformation;
+import net.sf.ehcache.pool.sizeof.SizeOf;
+import net.sf.ehcache.pool.sizeof.SizeOfAgent;
+
+import org.junit.Assume;
+import org.junit.BeforeClass;
+import org.junit.Test;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
+
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertThat;
+
+/**
+ * @author Alex Snaps
+ */
+public class SizeOfTest extends AbstractSizeOfTest {
+
+  public Object[] container;
+
+  @BeforeClass
+  public static void setup() {
+    new CrossCheckingSizeOf().deepSizeOf(new EvilPair(new Object(), new SomeClass(true)));
+    System.err.println("Testing for a " + System.getProperty("java.version") + " JDK (agent: " + SizeOfAgent.isAvailable() + ") on a "
+                       + System.getProperty("sun.arch.data.model") + "bit VM (compressed-oops: " + COMPRESSED_OOPS + ")");
+  }
+
+  @Test
+  public void testSizeOf() throws Exception {
+    Assume.assumeThat(JvmInformation.MINIMUM_OBJECT_SIZE, is(JvmInformation.OBJECT_ALIGNMENT));
+    
+    SizeOf sizeOf = new CrossCheckingSizeOf();
+    if (System.getProperty("java.version").startsWith("1.5")) {
+      if (System.getProperty("sun.arch.data.model").equals("64")) {
+        verify64bitSizes(sizeOf);
+        assertThat(sizeOf.deepSizeOf(new ReentrantReadWriteLock()), is(136L));
+      } else {
+        verify32bitSizes(sizeOf);
+        assertThat(sizeOf.deepSizeOf(new ReentrantReadWriteLock()), is(80L));
+      }
+    } else {
+      if (System.getProperty("sun.arch.data.model").equals("64")) {
+        if (COMPRESSED_OOPS) {
+          verify64bitCompressedOopsSizes(sizeOf);
+          assertThat(sizeOf.deepSizeOf(new ReentrantReadWriteLock()), is(112L));
+        } else {
+          verify64bitSizes(sizeOf);
+          assertThat(sizeOf.deepSizeOf(new ReentrantReadWriteLock()), is(176L));
+        }
+      } else {
+        verify32bitSizes(sizeOf);
+        assertThat(sizeOf.deepSizeOf(new ReentrantReadWriteLock()), is(104L));
+      }
+    }
+
+    List<Object> list1 = new ArrayList<Object>();
+    List<Object> list2 = new ArrayList<Object>();
+
+    Object someInstance = new Object();
+    list1.add(someInstance);
+    list2.add(someInstance);
+
+    assertThat(sizeOf.deepSizeOf(list1), equalTo(sizeOf.deepSizeOf(list2)));
+    assertThat(sizeOf.deepSizeOf(list1, list2) < (sizeOf.deepSizeOf(list1) + sizeOf.deepSizeOf(list2)), is(true));
+    list2.add(new Object());
+    assertThat(sizeOf.deepSizeOf(list2) > sizeOf.deepSizeOf(list1), is(true));
+  }
+
+  private void verify32bitSizes(SizeOf sizeOf) {
+    assertThat(sizeOf.sizeOf(new Object()), is(8L));
+    assertThat(sizeOf.sizeOf(1), equalTo(0L));
+    assertThat(sizeOf.sizeOf(new Integer(1)), is(16L));
+    assertThat(sizeOf.sizeOf(new Integer(1)), is(sizeOf.deepSizeOf(new Integer(1))));
+    assertThat(sizeOf.sizeOf(1000), is(16L));
+    assertThat(sizeOf.deepSizeOf(new SomeClass(false)), is(16L));
+    assertThat(sizeOf.deepSizeOf(new SomeClass(true)), is(24L));
+    assertThat(sizeOf.sizeOf(new Object[] { }), is(16L));
+    assertThat(sizeOf.sizeOf(new Object[] { new Object(), new Object(), new Object(), new Object() }), is(32L));
+    assertThat(sizeOf.sizeOf(new int[] { }), is(16L));
+    assertThat(sizeOf.sizeOf(new int[] { 987654, 876543, 765432, 654321 }), is(32L));
+    assertThat(sizeOf.deepSizeOf(new Pair(null, null)), is(16L));
+    assertThat(sizeOf.deepSizeOf(new Pair(new Object(), null)), is(24L));
+    assertThat(sizeOf.deepSizeOf(new Pair(new Object(), new Object())), is(32L));
+  }
+
+  private void verify64bitSizes(SizeOf sizeOf) {
+    assertThat(sizeOf.sizeOf(new Object()), is(16L));
+    assertThat(sizeOf.sizeOf(1), equalTo(0L));
+    assertThat(sizeOf.sizeOf(new Integer(1)), is(24L));
+    assertThat(sizeOf.sizeOf(new Integer(1)), is(sizeOf.deepSizeOf(new Integer(1))));
+    assertThat(sizeOf.sizeOf(1000), is(24L));
+    assertThat(sizeOf.deepSizeOf(new SomeClass(false)), is(24L));
+    assertThat(sizeOf.deepSizeOf(new SomeClass(true)), is(40L));
+    assertThat(sizeOf.sizeOf(new Object[] { }), is(24L));
+    assertThat(sizeOf.sizeOf(new Object[] { new Object(), new Object(), new Object(), new Object() }), is(56L));
+    assertThat(sizeOf.sizeOf(new int[] { }), is(24L));
+    assertThat(sizeOf.sizeOf(new int[] { 987654, 876543, 765432, 654321 }), is(40L));
+    assertThat(sizeOf.deepSizeOf(new Pair(null, null)), is(32L));
+    assertThat(sizeOf.deepSizeOf(new Pair(new Object(), null)), is(48L));
+    assertThat(sizeOf.deepSizeOf(new Pair(new Object(), new Object())), is(64L));
+  }
+
+  private void verify64bitCompressedOopsSizes(SizeOf sizeOf) {
+    assertThat(sizeOf.sizeOf(new Object()), is(16L));
+    assertThat(sizeOf.sizeOf(1), equalTo(0L));
+    assertThat(sizeOf.sizeOf(new Integer(1)), is(16L));
+    assertThat(sizeOf.sizeOf(new Integer(1)), is(sizeOf.deepSizeOf(new Integer(1))));
+    assertThat(sizeOf.sizeOf(1000), is(16L));
+    assertThat(sizeOf.deepSizeOf(new SomeClass(false)), is(16L));
+    assertThat(sizeOf.deepSizeOf(new SomeClass(true)), is(32L));
+    assertThat(sizeOf.sizeOf(new Object[] { }), is(16L));
+    assertThat(sizeOf.sizeOf(new Object[] { new Object(), new Object(), new Object(), new Object() }), is(32L));
+    assertThat(sizeOf.sizeOf(new int[] { }), is(16L));
+    assertThat(sizeOf.sizeOf(new int[] { 987654, 876543, 765432, 654321 }), is(32L));
+    assertThat(sizeOf.deepSizeOf(new Pair(null, null)), is(24L));
+    assertThat(sizeOf.deepSizeOf(new Pair(new Object(), null)), is(40L));
+    assertThat(sizeOf.deepSizeOf(new Pair(new Object(), new Object())), is(56L));
+  }
+  
+  @Test
+  public void testOnHeapConsumption() throws Exception {
+    SizeOf sizeOf = new CrossCheckingSizeOf();
+
+    int size = 80000;
+
+    for (int j = 0; j < 5; j++) {
+      container = new Object[size];
+      long usedBefore = measureMemoryUse();
+      for (int i = 0; i < size; i++) {
+        container[i] = new EvilPair(new Object(), new SomeClass(i % 2 == 0));
+      }
+
+      long mem = 0;
+      for (Object s : container) {
+        mem += sizeOf.deepSizeOf(s);
+      }
+
+      long used = measureMemoryUse() - usedBefore;
+      float percentage = 1 - (mem / (float) used);
+      System.err.println("Run # " + (j + 1) + ": Deviation of " + (int)(percentage * -100) +
+                 "%\n" + used +
+                 " bytes are actually being used, while we believe " + mem + " are");
+      if (j > 1) {
+        assertThat("Run # " + (j + 1) + ": Deviation of " + (int)(percentage * -100) +
+                   "% was above the +/-1.5% delta threshold \n" + used +
+                   " bytes are actually being used, while we believe " + mem + " are (" +
+                   (used - mem) / size + ")",
+            Math.abs(percentage) < .015f, is(true));
+      }
+    }
+  }
+
+  private long measureMemoryUse() throws InterruptedException {
+    System.gc();
+    System.gc();
+    System.gc();
+    Thread.sleep(2000);
+    System.gc();
+    System.gc();
+    Thread.sleep(2000);
+    System.gc();
+    System.gc();
+    return Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
+  }
+
+  public static class SomeClass {
+
+    public Object ref;
+
+    public SomeClass(final boolean init) {
+      if (init) {
+        ref = new Object();
+      }
+    }
+  }
+
+  @SuppressWarnings("unused")
+  public static class Pair {
+    private final Object one;
+    private final Object two;
+
+    public Pair(final Object one, final Object two) {
+      this.one = one;
+      this.two = two;
+    }
+  }
+
+  @SuppressWarnings("unused")
+  public static final class Stupid {
+
+    public static class internal {
+      private int  someValue;
+      private long otherValue;
+    }
+
+    internal internal   = new internal();
+    int      someValue;
+    long     someOther;
+    long     otherValue;
+    boolean  bool;
+  }
+
+  @SuppressWarnings("unused")
+  public static final class EvilPair extends Pair {
+
+    private static final AtomicLong counter = new AtomicLong(Long.MIN_VALUE);
+
+    private final Object oneHidden;
+    private final Object twoHidden;
+    private final Object copyOne;
+    private final Object copyTwo;
+    private final long   instanceNumber;
+
+    private EvilPair(final Object one, final Object two) {
+      super(one, two);
+      instanceNumber = counter.getAndIncrement();
+      if (instanceNumber % 4 == 0) {
+        oneHidden = new Object();
+        twoHidden = new Object();
+      } else {
+        oneHidden = null;
+        twoHidden = null;
+      }
+      this.copyOne = one;
+      this.copyTwo = two;
+    }
+  }  
+}

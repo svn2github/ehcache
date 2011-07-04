@@ -409,7 +409,7 @@ public interface Ehcache extends Cloneable {
      * Gets the size of the cache. This is a subtle concept. See below.
      * <p/>
      * The size is the number of {@link net.sf.ehcache.Element}s in the {@link net.sf.ehcache.store.MemoryStore} plus
-     * the number of {@link net.sf.ehcache.Element}s in the {@link net.sf.ehcache.store.DiskStore}.
+     * the number of {@link net.sf.ehcache.Element}s in the {@link net.sf.ehcache.store.disk.DiskStore}.
      * <p/>
      * This number is the actual number of elements, including expired elements that have
      * not been removed.
@@ -473,6 +473,14 @@ public interface Ehcache extends Cloneable {
      * @throws IllegalStateException
      */
     long calculateOffHeapSize() throws IllegalStateException, CacheException;
+
+    /**
+     * Gets the size of the on-disk store for this cache
+     *
+     * @return the size of the on-disk store in bytes
+     * @throws IllegalStateException
+     */
+    long calculateOnDiskSize() throws IllegalStateException, CacheException;
 
     /**
      * Returns the number of elements in the memory store.
@@ -542,7 +550,7 @@ public interface Ehcache extends Cloneable {
     /**
      * Clones a cache. This is only legal if the cache has not been
      * initialized. At that point only primitives have been set and no
-     * {@link net.sf.ehcache.store.MemoryStore} or {@link net.sf.ehcache.store.DiskStore} has been created.
+     * {@link net.sf.ehcache.store.MemoryStore} or {@link net.sf.ehcache.store.disk.DiskStore} has been created.
      * <p/>
      * A new, empty, RegisteredEventListeners is created on clone.
      * <p/>
@@ -672,7 +680,7 @@ public interface Ehcache extends Cloneable {
      * This result is returned when the statistics accuracy setting is {@link Statistics#STATISTICS_ACCURACY_BEST_EFFORT}.
      * <p/>
      * The size is the number of {@link Element}s in the {@link net.sf.ehcache.store.MemoryStore} plus
-     * the number of {@link Element}s in the {@link net.sf.ehcache.store.DiskStore}.
+     * the number of {@link Element}s in the {@link net.sf.ehcache.store.disk.DiskStore}.
      * <p/>
      * This number is the actual number of elements, including expired elements that have
      * not been removed. Any duplicates between stores are accounted for.
@@ -769,7 +777,7 @@ public interface Ehcache extends Cloneable {
     void setDiskStorePath(String diskStorePath) throws CacheException;
 
     /**
-     * Newly created caches do not have a {@link net.sf.ehcache.store.MemoryStore} or a {@link net.sf.ehcache.store.DiskStore}.
+     * Newly created caches do not have a {@link net.sf.ehcache.store.MemoryStore} or a {@link net.sf.ehcache.store.disk.DiskStore}.
      * <p/>
      * This method creates those and makes the cache ready to accept elements
      */

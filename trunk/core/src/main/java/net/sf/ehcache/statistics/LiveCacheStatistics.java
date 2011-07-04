@@ -102,7 +102,7 @@ public interface LiveCacheStatistics {
     /**
      * Size of the cache based on current accuracy settings.
      *
-     * @return The size of the cache based on currect accuracy setting
+     * @return The size of the cache based on current accuracy setting
      */
     public long getSize();
 
@@ -110,22 +110,70 @@ public interface LiveCacheStatistics {
      * Number of elements in the MemoryStore
      *
      * @return the number of elements in memory
+     * @deprecated use {@link #getLocalHeapSize()}
      */
+    @Deprecated
     public long getInMemorySize();
 
     /**
      * Number of elements in the off-heap store
      *
      * @return the number of elements in off-heap
+     * @deprecated use {@link #getLocalOffHeapSize()}
      */
+    @Deprecated
     public long getOffHeapSize();
 
     /**
      * Number of elements in the DiskStore
      *
      * @return number of elements on disk
+     * @deprecated use {@link #getLocalDiskSize()}
      */
+    @Deprecated
     public long getOnDiskSize();
+
+    /**
+     * Number of entries in the MemoryStore
+     *
+     * @return the number of elements in memory
+     */
+    public long getLocalHeapSize();
+
+    /**
+     * Number of entries in the off-heap store
+     *
+     * @return the number of elements in off-heap
+     */
+    public long getLocalOffHeapSize();
+
+    /**
+     * Number of entries in the DiskStore
+     *
+     * @return number of elements on disk
+     */
+    public long getLocalDiskSize();
+
+    /**
+     * Number of of bytes used by entries in the MemoryStore
+     *
+     * @return the number of of bytes used by elements in memory
+     */
+    public long getLocalHeapSizeInBytes();
+
+    /**
+     * Number of of bytes used by entries in the off-heap store
+     *
+     * @return the number of of bytes used by elements in off-heap
+     */
+    public long getLocalOffHeapSizeInBytes();
+
+    /**
+     * Number of of bytes used by entries in the DiskStore
+     *
+     * @return number of bytes used by elements on disk
+     */
+    public long getLocalDiskSizeInBytes();
 
     /**
      * Average time in milli seconds taken to get an element from the cache.

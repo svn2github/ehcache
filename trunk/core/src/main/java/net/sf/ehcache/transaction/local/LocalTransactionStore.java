@@ -113,6 +113,7 @@ public class LocalTransactionStore extends AbstractTransactionStore {
     private Element createElement(Object key, SoftLock softLock) {
         Element element = new Element(key, softLock);
         element.setEternal(true);
+        element.setPinned(true);
         return element;
     }
 

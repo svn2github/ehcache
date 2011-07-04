@@ -144,7 +144,9 @@ public class LiveCacheStatisticsWrapper implements LiveCacheStatistics, LiveCach
      * {@inheritDoc}
      *
      * @see net.sf.ehcache.statistics.LiveCacheStatistics#getInMemorySize()
+     * @deprecated see {@link #getLocalHeapSize()}
      */
+    @Deprecated
     public long getInMemorySize() {
         return delegate.getInMemorySize();
     }
@@ -153,7 +155,9 @@ public class LiveCacheStatisticsWrapper implements LiveCacheStatistics, LiveCach
      * {@inheritDoc}
      *
      * @see net.sf.ehcache.statistics.LiveCacheStatistics#getOffHeapSize()
+     * @deprecated see {@link #getLocalOffHeapSize()}
      */
+    @Deprecated
     public long getOffHeapSize() {
         return delegate.getOffHeapSize();
     }
@@ -162,9 +166,56 @@ public class LiveCacheStatisticsWrapper implements LiveCacheStatistics, LiveCach
      * {@inheritDoc}
      *
      * @see net.sf.ehcache.statistics.LiveCacheStatistics#getOnDiskSize()
+     * @deprecated see {@link #getLocalDiskSize()}
      */
+    @Deprecated
     public long getOnDiskSize() {
         return delegate.getOnDiskSize();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public long getLocalHeapSize() {
+        return delegate.getLocalHeapSize();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public long getLocalOffHeapSize() {
+        return delegate.getLocalOffHeapSize();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public long getLocalDiskSize() {
+        return delegate.getLocalDiskSize();
+    }
+
+    /**
+     * Returns the usage of local heap in bytes
+     * @return memory usage in bytes
+     */
+    public long getLocalHeapSizeInBytes() {
+        return delegate.getLocalHeapSizeInBytes();
+    }
+
+    /**
+     * Returns the usage of local off heap in bytes
+     * @return memory usage in bytes
+     */
+    public long getLocalOffHeapSizeInBytes() {
+        return delegate.getLocalOffHeapSizeInBytes();
+    }
+
+    /**
+     * Returns the usage of local disks in bytes
+     * @return memory usage in bytes
+     */
+    public long getLocalDiskSizeInBytes() {
+        return delegate.getLocalDiskSizeInBytes();
     }
 
     /**

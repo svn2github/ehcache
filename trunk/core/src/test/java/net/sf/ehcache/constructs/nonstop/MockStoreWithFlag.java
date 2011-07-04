@@ -274,6 +274,10 @@ public class MockStoreWithFlag implements TerracottaStore {
         return new Attribute(attributeName);
     }
 
+    public int getPinnedCount() {
+        return 0;
+    }
+
     public Set getLocalKeys() {
         markAccessFlag();
         return null;

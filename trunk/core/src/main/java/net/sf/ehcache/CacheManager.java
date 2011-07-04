@@ -60,8 +60,16 @@ import net.sf.ehcache.management.provider.MBeanRegistrationProvider;
 import net.sf.ehcache.management.provider.MBeanRegistrationProviderException;
 import net.sf.ehcache.management.provider.MBeanRegistrationProviderFactory;
 import net.sf.ehcache.management.provider.MBeanRegistrationProviderFactoryImpl;
-import net.sf.ehcache.store.DiskStore;
+import net.sf.ehcache.pool.Pool;
+import net.sf.ehcache.pool.PoolEvictor;
+import net.sf.ehcache.pool.PoolableStore;
+import net.sf.ehcache.pool.SizeOfEngine;
+import net.sf.ehcache.pool.impl.BalancedAccessOnDiskPoolEvictor;
+import net.sf.ehcache.pool.impl.BalancedAccessOnHeapPoolEvictor;
+import net.sf.ehcache.pool.impl.BoundedPool;
+import net.sf.ehcache.pool.impl.DefaultSizeOfEngine;
 import net.sf.ehcache.store.Store;
+import net.sf.ehcache.store.disk.DiskStore;
 import net.sf.ehcache.terracotta.ClusteredInstanceFactory;
 import net.sf.ehcache.terracotta.TerracottaClient;
 import net.sf.ehcache.terracotta.TerracottaClientRejoinListener;
@@ -98,6 +106,11 @@ public class CacheManager {
     public static final String DEFAULT_NAME = "__DEFAULT__";
 
     /**
+     * Threshold, in percent of the available heap, above which the CacheManager will warn if the configured memory
+     */
+    public static final double ON_HEAP_THRESHOLD = 0.8;
+
+    /**
      * Keeps track of all known CacheManagers. Used to check on conflicts.
      * CacheManagers should remove themselves from this list during shut down.
      */
@@ -132,6 +145,7 @@ public class CacheManager {
 
     private static final String NO_DEFAULT_CACHE_ERROR_MSG = "Caches cannot be added by name when default cache config is not specified"
             + " in the config. Please add a default cache config in the configuration.";
+    private static final int HUNDRED = 100;
 
     /**
      * A name for this CacheManager to distinguish it from others.
@@ -204,6 +218,10 @@ public class CacheManager {
 
     private final ConcurrentMap<String, SoftLockFactory> softLockFactories = new ConcurrentHashMap<String, SoftLockFactory>();
 
+    private volatile Pool onHeapPool;
+
+    private volatile Pool onDiskPool;
+
     private final NonstopExecutorServiceFactory nonstopExecutorServiceFactory = CacheManagerExecutorServiceFactory.getInstance();
 
     /**
@@ -255,7 +273,7 @@ public class CacheManager {
      * URL url = this.getClass().getResource(&quot;/ehcache-2.xml&quot;);
      * </pre>
      *
-     * Note that {@link Class#getResource} will look for resources in the same package unless a leading "/" is used, in which case it will
+     * Note that {@link Class#getResource(String)} will look for resources in the same package unless a leading "/" is used, in which case it will
      * look in the root of the classpath.
      * <p/>
      * You can also load a resource using other class loaders. e.g. {@link Thread#getContextClassLoader()}
@@ -315,6 +333,17 @@ public class CacheManager {
             this.configuration.getTerracottaConfiguration().freezeConfig();
         }
         validateConfiguration();
+
+        if (this.configuration.isMaxBytesLocalHeapSet()) {
+            PoolEvictor<PoolableStore> evictor = new BalancedAccessOnHeapPoolEvictor();
+            SizeOfEngine sizeOfEngine = createSizeOfEngine(null);
+            this.onHeapPool = new BoundedPool(this.configuration.getMaxBytesLocalHeap(), evictor, sizeOfEngine);
+        }
+        if (this.configuration.isMaxBytesLocalDiskSet()) {
+            PoolEvictor<PoolableStore> evictor = new BalancedAccessOnDiskPoolEvictor();
+            SizeOfEngine sizeOfEngine = createSizeOfEngine(null);
+            this.onDiskPool = new BoundedPool(this.configuration.getMaxBytesLocalDisk(), evictor, sizeOfEngine);
+        }
 
         if (localConfiguration.getName() != null) {
             this.name = localConfiguration.getName();
@@ -377,6 +406,24 @@ public class CacheManager {
         } catch (MBeanRegistrationProviderException e) {
             LOG.warn("Failed to initialize the MBeanRegistrationProvider - " + mbeanRegistrationProvider.getClass().getName(), e);
         }
+    }
+
+    /**
+     * Return this cache manager's shared on-heap pool
+     *
+     * @return this cache manager's shared on-heap pool
+     */
+    public Pool getOnHeapPool() {
+        return onHeapPool;
+    }
+
+    /**
+     * Return this cache manager's shared on-disk pool
+     *
+     * @return this cache manager's shared on-disk pool
+     */
+    public Pool getOnDiskPool() {
+        return onDiskPool;
     }
 
     private boolean isTerracottaRejoinEnabled() {
@@ -747,7 +794,7 @@ public class CacheManager {
      * URL url = this.getClass().getResource(&quot;/ehcache-2.xml&quot;);
      * </pre>
      *
-     * Note that {@link Class#getResource} will look for resources in the same package unless a leading "/" is used, in which case it will
+     * Note that {@link Class#getResource(String)} will look for resources in the same package unless a leading "/" is used, in which case it will
      * look in the root of the classpath.
      * <p/>
      * You can also load a resource using other class loaders. e.g. {@link Thread#getContextClassLoader()}
@@ -1025,6 +1072,51 @@ public class CacheManager {
         }
     }
 
+    private void configCachePools(CacheConfiguration cacheConfiguration) {
+
+        long cacheAssignedMem;
+        if (cacheConfiguration.getMaxBytesLocalHeapPercentage() != null) {
+            cacheAssignedMem = configuration.getMaxBytesLocalHeap() * cacheConfiguration.getMaxBytesLocalHeapPercentage() / HUNDRED;
+            cacheConfiguration.setMaxBytesLocalHeap(cacheAssignedMem);
+        }
+
+        if (cacheConfiguration.getMaxBytesLocalOffHeapPercentage() != null) {
+            cacheAssignedMem = configuration.getMaxBytesLocalOffHeap() * cacheConfiguration.getMaxBytesLocalOffHeapPercentage() / HUNDRED;
+            cacheConfiguration.setMaxBytesLocalOffHeap(cacheAssignedMem);
+        }
+
+        if (cacheConfiguration.getMaxBytesLocalDiskPercentage() != null) {
+            cacheAssignedMem = configuration.getMaxBytesLocalDisk() * cacheConfiguration.getMaxBytesLocalDiskPercentage() / HUNDRED;
+            cacheConfiguration.setMaxBytesLocalDisk(cacheAssignedMem);
+        }
+
+    }
+
+    private void validatePoolConfig(CacheConfiguration cacheConfiguration) {
+
+        if (configuration.isMaxBytesLocalHeapSet() && Runtime.getRuntime().maxMemory() - configuration.getMaxBytesLocalHeap() < 0) {
+            throw new InvalidConfigurationException("You've assigned more memory to the on-heap than the VM can sustain, " +
+                                                    "please adjust your -Xmx setting accordingly");
+        }
+
+        // todo Verify that these are the real constraints ?
+        if (cacheConfiguration.isMaxBytesLocalHeapPercentageSet() && !configuration.isMaxBytesLocalHeapSet()) {
+            throw new InvalidConfigurationException("Cache '" + cacheConfiguration.getName() +
+                                                    "' defines a percentage maxBytesOnHeap value but no CacheManager " +
+                                                    "wide value was configured");
+        }
+        if (cacheConfiguration.isMaxBytesLocalOffHeapPercentageSet() && !configuration.isMaxBytesLocalOffHeapSet()) {
+            throw new InvalidConfigurationException("Cache '" + cacheConfiguration.getName() +
+                                                    "' defines a percentage maxBytesOffHeap value but no CacheManager " +
+                                                    "wide value was configured");
+        }
+        if (cacheConfiguration.isMaxBytesLocalDiskPercentageSet() && !configuration.isMaxBytesLocalDiskSet()) {
+            throw new InvalidConfigurationException("Cache '" + cacheConfiguration.getName() +
+                                                    "' defines a percentage maxBytesOnDisk value but no CacheManager " +
+                                                    "wide value was configured");
+        }
+    }
+
     private Ehcache addCacheNoCheck(final Ehcache cache, final boolean strict) throws IllegalStateException, ObjectExistsException,
             CacheException {
 
@@ -1037,6 +1129,8 @@ public class CacheManager {
                     + "use CacheManager.addDecoratedCache" + "(Ehcache decoratedCache) instead.");
         }
 
+        validatePoolConfig(cache.getCacheConfiguration());
+
         Ehcache ehcache = ehcaches.get(cache.getName());
         if (ehcache != null) {
             if (strict) {
@@ -1045,6 +1139,15 @@ public class CacheManager {
                 return ehcache;
             }
         }
+        configCachePools(cache.getCacheConfiguration());
+        verifyPoolAllocationsBeforeAdding(cache.getCacheConfiguration());
+        if (configuration.isMaxBytesLocalHeapSet()) {
+            onHeapPool.setMaxSize(onHeapPool.getMaxSize() - cache.getCacheConfiguration().getMaxBytesLocalHeap());
+        }
+        if (configuration.isMaxBytesLocalDiskSet()) {
+            onDiskPool.setMaxSize(onDiskPool.getMaxSize() - cache.getCacheConfiguration().getMaxBytesLocalDisk());
+        }
+
         cache.setCacheManager(this);
         if (cache.getCacheConfiguration().getDiskStorePath() == null) {
             cache.setDiskStorePath(diskStorePath);
@@ -1105,6 +1208,49 @@ public class CacheManager {
         return cache;
     }
 
+    private void verifyPoolAllocationsBeforeAdding(final CacheConfiguration cacheConfiguration) {
+        long totalOnHeapAssignedMemory  = 0;
+        long totalOffHeapAssignedMemory = 0;
+        long totalOnDiskAssignedMemory  = 0;
+
+        for (Ehcache ehcache : ehcaches.values()) {
+            totalOnHeapAssignedMemory += ehcache.getCacheConfiguration().getMaxBytesLocalHeap();
+            totalOffHeapAssignedMemory += ehcache.getCacheConfiguration().getMaxBytesLocalOffHeap();
+            totalOnDiskAssignedMemory += ehcache.getCacheConfiguration().getMaxBytesLocalDisk();
+        }
+
+        totalOnHeapAssignedMemory += cacheConfiguration.getMaxBytesLocalHeap();
+        totalOffHeapAssignedMemory += cacheConfiguration.getMaxBytesLocalOffHeap();
+        totalOnDiskAssignedMemory += cacheConfiguration.getMaxBytesLocalDisk();
+
+        if (configuration.isMaxBytesLocalHeapSet() && configuration.getMaxBytesLocalHeap() - totalOnHeapAssignedMemory < 0) {
+            throw new InvalidConfigurationException("Adding cache '" + cacheConfiguration.getName()
+                                                    + "' to the CacheManager over-allocates onHeap memory!");
+        }
+        if (configuration.isMaxBytesLocalOffHeapSet() && configuration.getMaxBytesLocalOffHeap() - totalOffHeapAssignedMemory < 0) {
+            throw new InvalidConfigurationException("Adding cache '" + cacheConfiguration.getName()
+                                                    + "' to the CacheManager over-allocates offHeap memory!");
+        }
+        if (configuration.isMaxBytesLocalDiskSet() && configuration.getMaxBytesLocalDisk() - totalOnDiskAssignedMemory < 0) {
+            throw new InvalidConfigurationException("Adding cache '" + cacheConfiguration.getName()
+                                                    + "' to the CacheManager over-allocates onDisk space!");
+        }
+
+        if (configuration.isMaxBytesLocalHeapSet() && configuration.getMaxBytesLocalHeap() - totalOnHeapAssignedMemory == 0) {
+            LOG.warn("All the onHeap memory has been assigned, there is none left for dynamically added caches");
+        }
+
+        if (Runtime.getRuntime().maxMemory() - totalOnHeapAssignedMemory < 0) {
+            // todo this could be a nicer message (with actual values)
+            throw new InvalidConfigurationException("You've assigned more memory to the on-heap than the VM can sustain, " +
+                                                    "please adjust your -Xmx setting accordingly");
+        }
+
+        if (totalOnHeapAssignedMemory / (float) Runtime.getRuntime().maxMemory() > ON_HEAP_THRESHOLD) {
+            LOG.warn("You've assigned over 80% of your VM's heap to be used by the cache!");
+        }
+    }
+
     /**
      * Checks whether a cache of type ehcache exists.
      * <p/>
@@ -1121,7 +1267,7 @@ public class CacheManager {
     }
 
     /**
-     * Removes all caches using {@link #removeCache} for each cache.
+     * Removes all caches using {@link #removeCache(String)} for each cache.
      */
     public void removalAll() {
         String[] cacheNames = getCacheNames();
@@ -1148,6 +1294,12 @@ public class CacheManager {
         Ehcache cache = ehcaches.remove(cacheName);
         if (cache != null && cache.getStatus().equals(Status.STATUS_ALIVE)) {
             cache.dispose();
+            if (configuration.isMaxBytesLocalHeapSet()) {
+                onHeapPool.setMaxSize(onHeapPool.getMaxSize() + cache.getCacheConfiguration().getMaxBytesLocalHeap());
+            }
+            if (configuration.isMaxBytesLocalDiskSet()) {
+                onDiskPool.setMaxSize(onDiskPool.getMaxSize() + cache.getCacheConfiguration().getMaxBytesLocalDisk());
+            }
             configuration.getCacheConfigurations().remove(cacheName);
             cacheManagerEventListenerRegistry.notifyCacheRemoved(cache.getName());
         }
@@ -1545,7 +1697,7 @@ public class CacheManager {
      *
      * @return the configuration
      */
-    Configuration getConfiguration() {
+    public Configuration getConfiguration() {
         return configuration;
     }
 
@@ -1704,6 +1856,41 @@ public class CacheManager {
         // recreate TransactionController with fresh TransactionIDFactory
         transactionController = new TransactionController(createTransactionIDFactory(), configuration
                 .getDefaultTransactionTimeoutInSeconds());
+    }
+
+    /**
+     * Creates a SizeOfEngine for a cache.
+     * It will check for a System property on what class to instantiate.
+     * @param cache The cache to be sized by the engine
+     * @return a SizeOfEngine instance
+     */
+    SizeOfEngine createSizeOfEngine(final Cache cache) {
+        String prop = "net.sf.ehcache.sizeofengine";
+
+        if (isNamed()) {
+            prop += "." + getName();
+        } else {
+          prop += ".default";
+        }
+
+        if (cache != null) {
+            prop += "." + cache.getName();
+        }
+
+        String className = System.getProperty(prop);
+
+        if (className != null) {
+            try {
+                Class<? extends SizeOfEngine> aClass = (Class<? extends SizeOfEngine>) Class.forName(className);
+                return aClass.newInstance();
+            } catch (Exception exception) {
+                throw new RuntimeException("Couldn't load and instantiate custom " +
+                                           (cache != null ? "SizeOfEngine for cache '" + cache.getName() + "'" : "default SizeOfEngine"),
+                    exception);
+            }
+        } else {
+            return new DefaultSizeOfEngine();
+        }
     }
 
     /**

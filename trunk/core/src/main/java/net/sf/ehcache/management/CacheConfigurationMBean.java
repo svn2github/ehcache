@@ -43,27 +43,72 @@ public interface CacheConfigurationMBean {
 
     /**
      * Accessor
+     *
+     * @deprecated use {@link #getMaxEntriesLocalHeap(long)}
      */
+    @Deprecated
     public int getMaxElementsInMemory();
 
     /**
      * setMaxElementsInMemory
      *
      * @param maxElements
+     * @deprecated use {@link #setMaxEntriesLocalHeap()}
      */
+    @Deprecated
     public void setMaxElementsInMemory(int maxElements);
 
     /**
      * Accessor
+     *
+     * @deprecated use {@link #getMaxEntriesLocalDisk()}
      */
+    @Deprecated
     public int getMaxElementsOnDisk();
 
     /**
      * setMaxElementsOnDisk
      *
      * @param maxElements
+     * @deprecated use {@link #setMaxEntriesLocalDisk(long)}
      */
+    @Deprecated
     public void setMaxElementsOnDisk(int maxElements);
+
+    /**
+     * Configured maximum number of entries for the local disk store.
+     */
+    public long getMaxEntriesLocalDisk();
+
+    /**
+     * Configured maximum number of entries for the local memory heap.
+     */
+    public long getMaxEntriesLocalHeap();
+
+    /**
+     * Configured maximum number of entries for the local disk store.
+     */
+    public void setMaxEntriesLocalDisk(long maxEntries);
+
+    /**
+     * Configured maximum number of entries for the local memory heap.
+     */
+    public void setMaxEntriesLocalHeap(long maxEntries);
+
+    /**
+     * Configured maximum number of bytes for the local disk store.
+     */
+    public long getMaxBytesLocalDisk();
+
+    /**
+     * Configured maximum number of bytes for the local memory heap.
+     */
+    public long getMaxBytesLocalHeap();
+
+    /**
+     * Configured maximum number of bytes for the local off-heap memory.
+     */
+    public long getMaxBytesLocalOffHeap();
 
     /**
      * Accessor
@@ -179,6 +224,9 @@ public interface CacheConfigurationMBean {
 
     /**
      * Accessor
+     *
+     * @deprecated use {@link #getMaxBytesLocalOffHeap()}
      */
+    @Deprecated
     public long getMaxMemoryOffHeapInBytes();
 }

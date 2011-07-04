@@ -70,6 +70,12 @@ public abstract class XSDAttributeValueTypeFactory {
         if ("nonNegativeInteger".equalsIgnoreCase(type.getName())) {
             return new XSDAttributeValueType.XSDAttributeValueNonNegativeIntegerType();
         }
+        if ("memoryUnit".equalsIgnoreCase(type.getName())) {
+            return new XSDAttributeValueType.XSDAttributeValueMemoryUnitType();
+        }
+        if ("memoryUnitOrPercentage".equalsIgnoreCase(type.getName())) {
+            return new XSDAttributeValueType.XSDAttributeValueMemoryUnitOrPercentageType();
+        }
         // if this exception is thrown, extend the above if clauses handling the type name with a new type in XSDAttributeValueType
         throw new Exception("Unknown type : " + (type == null ? "NULL" : type.getName())
                 + ". Please handle this type following instructions in the source code");

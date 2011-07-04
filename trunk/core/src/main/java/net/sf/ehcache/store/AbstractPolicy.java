@@ -62,7 +62,7 @@ public abstract class AbstractPolicy implements Policy {
      */
     public Element selectedBasedOnPolicy(Element[] sampledElements, Element justAdded) {
         //edge condition when Memory Store configured to size 0
-        if (sampledElements.length == 1 && justAdded != null) {
+        if (sampledElements.length == 1 && justAdded != null && (justAdded.isExpired() || !justAdded.isPinned())) {
             return justAdded;
         }
         Element lowestElement = null;

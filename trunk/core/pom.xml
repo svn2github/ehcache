@@ -45,6 +45,13 @@
             <scope>compile</scope>
         </dependency>
 
+	    <dependency>
+	      <groupId>net.sf.ehcache</groupId>
+	      <artifactId>sizeof-agent</artifactId>
+	      <version>1.0.0-SNAPSHOT</version>
+	      <scope>compile</scope>
+	    </dependency>
+
         <!--
               With slf4j, users must choose a concrete logging implementation at
               deploy time, which they provide The maven dependency declarations are
@@ -157,6 +164,10 @@
             <resource>
                 <directory>src/main/resources</directory>
                 <filtering>true</filtering>
+            </resource>
+            <resource>
+                <directory>${project.build.directory}/generated-resources</directory>
+                <filtering>false</filtering>
             </resource>
         </resources>
         <testSourceDirectory>${basedir}/${testDir}</testSourceDirectory>
@@ -620,6 +631,25 @@
                 </executions>
             </plugin>
 
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <version>2.2</version>
+                <executions>
+                    <execution>
+                        <phase>generate-resources</phase>
+                        <id>copy-agent-jar-to-resources</id>
+                        <goals><goal>copy-dependencies</goal></goals>
+                        <configuration>
+                            <excludeArtifactIds>*</excludeArtifactIds>
+                            <includeArtifactIds>sizeof-agent</includeArtifactIds>
+                            <outputDirectory>${project.build.directory}/generated-resources/net/sf/ehcache/pool/sizeof/</outputDirectory>
+                            <stripVersion>true</stripVersion>
+                            <excludeTransitive>true</excludeTransitive>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
     </build>
 

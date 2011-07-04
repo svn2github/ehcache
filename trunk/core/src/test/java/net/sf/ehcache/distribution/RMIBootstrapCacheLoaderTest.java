@@ -114,9 +114,13 @@ public class RMIBootstrapCacheLoaderTest extends AbstractRMITest {
      * Heap growth. Only an issue when a VM is cold.
      */
     protected void forceVMGrowth() {
-        Object[] arrays = new Object[40];
-        for (int i = 0; i < arrays.length; i++) {
-            arrays[i] = new byte[1024 * 1024];
+        try {
+            Object[] arrays = new Object[40];
+            for (int i = 0; i < arrays.length; i++) {
+                arrays[i] = new byte[1024 * 1024];
+            }
+        } catch (OutOfMemoryError e) {
+            // ignore
         }
     }
 

@@ -21,6 +21,8 @@ import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.Status;
+import net.sf.ehcache.config.CacheConfiguration;
+import net.sf.ehcache.config.PinningConfiguration;
 import net.sf.ehcache.writer.CacheWriterManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -69,6 +71,8 @@ public class LruMemoryStore extends AbstractStore {
      */
     protected int maximumSize;
 
+    private volatile boolean pinningEnabled;
+
 
     /**
      * Constructor for the LruMemoryStore object
@@ -77,12 +81,33 @@ public class LruMemoryStore extends AbstractStore {
     public LruMemoryStore(Ehcache cache, Store diskStore) {
         status = Status.STATUS_UNINITIALISED;
         this.maximumSize = cache.getCacheConfiguration().getMaxElementsInMemory();
+        this.pinningEnabled = determineCachePinned(cache.getCacheConfiguration());
         this.cache = cache;
         this.diskStore = diskStore;
         map = new SpoolingLinkedHashMap();
         status = Status.STATUS_ALIVE;
     }
 
+    private boolean determineCachePinned(CacheConfiguration cacheConfiguration) {
+        PinningConfiguration pinningConfiguration = cacheConfiguration.getPinningConfiguration();
+        if (pinningConfiguration == null) {
+            return false;
+        }
+
+        switch (pinningConfiguration.getStorage()) {
+            case ONHEAP:
+                return true;
+
+            case INMEMORY:
+                return !cacheConfiguration.isOverflowToOffHeap();
+
+            case INCACHE:
+                return !(cacheConfiguration.isOverflowToOffHeap() || cacheConfiguration.isOverflowToDisk() || cacheConfiguration.isDiskPersistent());
+
+            default:
+                throw new IllegalArgumentException();
+        }
+    }
 
     /**
      * Puts an item in the cache. Note that this automatically results in
@@ -349,7 +374,7 @@ public class LruMemoryStore extends AbstractStore {
         boolean spooled = false;
         if (cache.getCacheConfiguration().isOverflowToDisk()) {
             if (!element.isSerializable()) {
-                if (LOG.isWarnEnabled()) { 
+                if (LOG.isWarnEnabled()) {
                     LOG.warn(new StringBuilder("Object with key ").append(element.getObjectKey())
                             .append(" is not Serializable and cannot be overflowed to disk").toString());
                 }
@@ -465,6 +490,24 @@ public class LruMemoryStore extends AbstractStore {
         }
 
         /**
+         * {@inheritDoc}
+         */
+        @Override
+        public Object put(Object key, Object value) {
+            Object put = super.put(key, value);
+
+            Iterator it = entrySet().iterator();
+            while (isFull() && it.hasNext()) {
+                Map.Entry entry = (Map.Entry) it.next();
+                if (removeEldestEntry(entry)) {
+                    it.remove();
+                }
+            }
+
+            return put;
+        }
+
+        /**
          * Relies on being called from a synchronized method
          *
          * @param element
@@ -477,7 +520,7 @@ public class LruMemoryStore extends AbstractStore {
                 return true;
             }
 
-            if (isFull()) {
+            if (isFull() && !element.isPinned() && !pinningEnabled) {
                 evict(element);
                 return true;
             } else {

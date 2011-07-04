@@ -16,6 +16,7 @@
 
 package net.sf.ehcache.statistics;
 
+import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -23,13 +24,16 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.util.Random;
+import java.util.concurrent.Callable;
 
 import net.sf.ehcache.AbstractCacheTest;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.Statistics;
+import net.sf.ehcache.util.RetryAssert;
 
+import org.hamcrest.core.Is;
 import org.junit.Test;
 
 /**
@@ -118,10 +122,8 @@ public class LiveCacheStatisticsTest extends AbstractCacheTest {
     public void doTestCacheUsageStatistics(Cache cache,
                                            boolean statisticsEnabled) throws InterruptedException {
 
-        cache.put(new Element("key1", "value1"));
         cache.put(new Element("key2", "value1"));
-        // allow disk writer thread time to perform the write
-        Thread.sleep(100);
+        cache.put(new Element("key1", "value1"));
         // key1 should be in the Disk Store
         cache.get("key1");
 
@@ -133,7 +135,12 @@ public class LiveCacheStatisticsTest extends AbstractCacheTest {
             assertEquals(0, statistics.getCacheMissCount());
             assertEquals(2, statistics.getSize());
             assertEquals(1, statistics.getInMemorySize());
-            assertEquals(1, statistics.getOnDiskSize());
+            final LiveCacheStatistics finalStatistics = statistics;
+            RetryAssert.assertBy(5, SECONDS, new Callable<Long>() {
+                public Long call() throws Exception {
+                    return finalStatistics.getOnDiskSize();
+                }
+            }, Is.is(2L));
         } else {
             assertEquals(0, statistics.getCacheHitCount());
             assertEquals(0, statistics.getOnDiskHitCount());

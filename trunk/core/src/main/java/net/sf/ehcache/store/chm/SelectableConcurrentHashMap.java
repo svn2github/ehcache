@@ -17,6 +17,8 @@ package net.sf.ehcache.store.chm;
 
 import java.util.ArrayList;
 import java.util.Random;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
+
 import net.sf.ehcache.Element;
 
 /**
@@ -57,7 +59,7 @@ public class SelectableConcurrentHashMap extends ConcurrentHashMap<Object, Eleme
             do {
                 for (HashEntry<Object, Element> e = table[tableIndex]; e != null; e = e.next) {
                     Element value = e.value;
-                    if (value != null) {
+                    if (value != null && (value.isExpired() || !value.isPinned())) {
                         sampled.add(value);
                     }
                 }
@@ -77,6 +79,15 @@ public class SelectableConcurrentHashMap extends ConcurrentHashMap<Object, Eleme
         return sampled.toArray(new Element[sampled.size()]);
     }
 
+    /**
+     * Return an object of the kind which will be stored when
+     * the element is going to be inserted
+     * @param e the element
+     * @return an object looking-alike the stored one
+     */
+    public Object storedObject(Element e) {
+        return new HashEntry<Object, Element>(null, 0, null, e);
+    }
 
     /**
      * Returns the number of key-value mappings in this map without locking anything.
@@ -96,6 +107,16 @@ public class SelectableConcurrentHashMap extends ConcurrentHashMap<Object, Eleme
         if (size > Integer.MAX_VALUE)
             return Integer.MAX_VALUE;
         return (int) size;
+    }
+
+
+    public ReentrantReadWriteLock lockFor(Object key) {
+        int hash = hash(key.hashCode());
+        return segmentFor(hash);
+    }
+
+    public ReentrantReadWriteLock[] locks() {
+        return segments;
     }
 
 }

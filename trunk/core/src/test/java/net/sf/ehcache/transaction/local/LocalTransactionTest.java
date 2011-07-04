@@ -729,6 +729,41 @@ public class LocalTransactionTest extends TestCase {
         transactionController.commit();
     }
 
+    public void testMemoryOnly() throws Exception {
+        Ehcache txCache = cacheManager.getEhcache("txCacheMemoryOnly");
+        transactionController.begin();
+        txCache.removeAll();
+        transactionController.commit();
+
+        transactionController.begin();
+        txCache.put(new Element(1, "one"));
+        assertEquals(new Element(1, "one"), txCache.get(1));
+        assertEquals(1, txCache.getSize());
+
+        txCache.put(new Element(2, "two"));
+        assertEquals(new Element(2, "two"), txCache.get(2));
+        assertEquals(2, txCache.getSize());
+        transactionController.commit();
+
+        transactionController.begin();
+        assertEquals(new Element(1, "one"), txCache.get(1));
+        assertEquals(new Element(2, "two"), txCache.get(2));
+
+        txCache.put(new Element(1, "one#2"));
+        txCache.put(new Element(2, "two#2"));
+
+        assertEquals(new Element(1, "one#2"), txCache.get(1));
+        assertEquals(new Element(2, "two#2"), txCache.get(2));
+        assertNull(txCache.get(3));
+        assertEquals(2, txCache.getSize());
+        transactionController.commit();
+
+        transactionController.begin();
+        assertEquals(new Element(1, "one#2"), txCache.get(1));
+        assertEquals(new Element(2, "two#2"), txCache.get(2));
+        transactionController.commit();
+    }
+
     public void testPersistent() throws Exception {
         Ehcache txCachePersistent = cacheManager.getEhcache("txCachePersistent");
         transactionController.begin();

@@ -281,7 +281,7 @@ public class DynamicCacheConfigurationTest extends AbstractCacheTest {
             cache.put(new Element("key" + i, new byte[0]));
             MILLISECONDS.sleep(400);
             Assert.assertTrue(cache.getSize() <= 30);
-            Assert.assertTrue(cache.getSize() > 20);
+            Assert.assertTrue(cache.getSize() > 10);
             Assert.assertTrue(cache.getMemoryStoreSize() <= 10);
             Assert.assertTrue(cache.getDiskStoreSize() <= 20);
             Assert.assertTrue(cache.getDiskStoreSize() > 10);
@@ -294,7 +294,7 @@ public class DynamicCacheConfigurationTest extends AbstractCacheTest {
             MILLISECONDS.sleep(400);
         }
 
-        Assert.assertEquals(15, cache.getSize());
+        Assert.assertEquals(10, cache.getSize());
         Assert.assertEquals(10, cache.getMemoryStoreSize());
         Assert.assertEquals(5, cache.getDiskStoreSize());
     }

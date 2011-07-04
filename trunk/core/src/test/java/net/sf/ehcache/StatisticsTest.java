@@ -60,25 +60,25 @@ public class StatisticsTest extends AbstractCacheTest {
         // allow disk write thread to complete
         Thread.sleep(100);
 
-        // key1 should be in the Disk Store
         cache.get("key1");
+        cache.get("key2");
 
         Statistics statistics = cache.getStatistics();
-        assertEquals(1, statistics.getCacheHits());
-        assertEquals(1, statistics.getOnDiskHits());
-        assertEquals(0, statistics.getInMemoryHits());
-        assertEquals(0, statistics.getCacheMisses());
-        assertEquals(2, statistics.getObjectCount());
-        assertEquals(1, statistics.getMemoryStoreObjectCount());
-        assertEquals(1, statistics.getDiskStoreObjectCount());
-
-        // key 1 should now be in the LruMemoryStore
-        cache.get("key1");
-
-        statistics = cache.getStatistics();
         assertEquals(2, statistics.getCacheHits());
         assertEquals(1, statistics.getOnDiskHits());
         assertEquals(1, statistics.getInMemoryHits());
+        assertEquals(0, statistics.getCacheMisses());
+        assertEquals(2, statistics.getObjectCount());
+        assertEquals(1, statistics.getMemoryStoreObjectCount());
+        assertEquals(2, statistics.getDiskStoreObjectCount());
+
+        // key 2 should now be in the MemoryStore
+        cache.get("key2");
+
+        statistics = cache.getStatistics();
+        assertEquals(3, statistics.getCacheHits());
+        assertEquals(1, statistics.getOnDiskHits());
+        assertEquals(2, statistics.getInMemoryHits());
         assertEquals(0, statistics.getCacheMisses());
 
         // Let the idle expire
@@ -87,17 +87,17 @@ public class StatisticsTest extends AbstractCacheTest {
         // key 1 should now be expired
         cache.get("key1");
         statistics = cache.getStatistics();
-        assertEquals(2, statistics.getCacheHits());
+        assertEquals(3, statistics.getCacheHits());
         assertEquals(1, statistics.getOnDiskHits());
-        assertEquals(1, statistics.getInMemoryHits());
+        assertEquals(2, statistics.getInMemoryHits());
         assertEquals(1, statistics.getCacheMisses());
 
         // key 2 should also be expired
         cache.get("key2");
         statistics = cache.getStatistics();
-        assertEquals(2, statistics.getCacheHits());
+        assertEquals(3, statistics.getCacheHits());
         assertEquals(1, statistics.getOnDiskHits());
-        assertEquals(1, statistics.getInMemoryHits());
+        assertEquals(2, statistics.getInMemoryHits());
         assertEquals(2, statistics.getCacheMisses());
 
         assertNotNull(statistics.toString());
@@ -120,13 +120,13 @@ public class StatisticsTest extends AbstractCacheTest {
         // allow disk write thread to complete
         Thread.sleep(100);
 
-        // key1 should be in the Disk Store
         cache.get("key1");
+        cache.get("key2");
 
         Statistics statistics = cache.getStatistics();
-        assertEquals(1, statistics.getCacheHits());
+        assertEquals(2, statistics.getCacheHits());
         assertEquals(1, statistics.getOnDiskHits());
-        assertEquals(0, statistics.getInMemoryHits());
+        assertEquals(1, statistics.getInMemoryHits());
         assertEquals(0, statistics.getCacheMisses());
 
         // clear stats
@@ -171,7 +171,7 @@ public class StatisticsTest extends AbstractCacheTest {
         Thread.sleep(100);
 
         cache.get("key1");
-        cache.get("key1");
+        cache.get("key2");
 
         Statistics statistics = cache.getStatistics();
         assertEquals("test", statistics.getAssociatedCacheName());

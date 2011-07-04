@@ -310,6 +310,9 @@ public class CacheEventListenerTest extends AbstractCacheTest {
         //expire
         assertBy(2 * cache.getCacheConfiguration().getTimeToLiveSeconds(), TimeUnit.SECONDS, elementAt(cache, key), nullValue());
 
+        //force expiry
+        assertEquals(null, cache.get(key));
+
         //the TestCacheEventListener does a put of a new Element with the same key on expiry
         assertBy(10, TimeUnit.SECONDS, elementAt(cache, key), notNullValue());
         Element newElement = cache.get(key);

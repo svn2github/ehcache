@@ -16,6 +16,7 @@
 
 package net.sf.ehcache;
 
+import junit.framework.Assert;
 import net.sf.ehcache.store.LruMemoryStoreTest;
 import net.sf.ehcache.store.MemoryStore;
 import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
@@ -33,6 +34,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Random;
 
+import static junit.framework.Assert.assertTrue;
 import static org.junit.Assert.*;
 
 /**
@@ -608,4 +610,39 @@ public class MemoryStoreTester extends AbstractCacheTest {
             assertTrue(size > (growSize * 0.9));
         }
     }
+
+    @Test
+    public void testElementPinning() throws Exception {
+        createMemoryOnlyStore(MemoryStoreEvictionPolicy.LRU, 20);
+
+        for (int i = 0; i < 200; i++) {
+            Element element = new Element("Ku-" + i, "@" + i);
+            store.put(element);
+        }
+
+        Assert.assertEquals(20, store.getSize());
+
+        for (int i = 0; i < 200; i++) {
+            Element element = new Element("Kp-" + i, "#" + i);
+            element.setTimeToIdle(1);
+            element.setTimeToLive(1);
+            element.setPinned(true);
+            store.put(element);
+        }
+
+        for (int i = 0; i < 200; i++) {
+            assertTrue("missing key Kp-" + i, store.containsKey("Kp-" + i));
+        }
+
+        // wait until all pinned elements expire
+        Thread.sleep(1100);
+
+        for (int i = 1000; i < 1200; i++) {
+            Element element = new Element("Ku-" + i, "#" + i);
+            store.put(element);
+        }
+
+        Assert.assertEquals(20, store.getSize());
+    }
+
 }

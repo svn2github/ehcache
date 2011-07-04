@@ -16,6 +16,8 @@
 
 package net.sf.ehcache.config.generator.xsom;
 
+import net.sf.ehcache.config.MemoryUnit;
+
 import java.util.Iterator;
 import java.util.Random;
 
@@ -140,6 +142,72 @@ public abstract class XSDAttributeValueType {
 
         @Override
         public String getRandomAllowedValue() {
+            return String.valueOf(Math.abs(RANDOM.nextInt()));
+        }
+
+    }
+
+    public static class XSDAttributeValueMemoryUnitType extends XSDAttributeValueType {
+
+        public static final char[] unitChars;
+
+        static {
+            MemoryUnit[] values = MemoryUnit.values();
+            char [] chars = new char[values.length * 2];
+            int i = 0;
+            for (MemoryUnit memoryUnit : values) {
+                chars[i++] = Character.toLowerCase(memoryUnit.getUnit());
+                chars[i++] = Character.toUpperCase(memoryUnit.getUnit());
+            }
+            unitChars = chars;
+        }
+
+        public XSDAttributeValueMemoryUnitType() {
+            super(XsdType.NON_NEGATIVE_INTEGER);
+        }
+
+        @Override
+        public String getRandomAllowedValue() {
+            int index = RANDOM.nextInt(unitChars.length + 1);
+            if(index < unitChars.length) {
+                return String.valueOf(Math.abs(RANDOM.nextInt())) + unitChars[index];
+            }
+            return String.valueOf(Math.abs(RANDOM.nextInt()));
+        }
+
+    }
+
+    public static class XSDAttributeValueMemoryUnitOrPercentageType extends XSDAttributeValueType {
+
+        public static final char[] unitChars;
+
+        static {
+            MemoryUnit[] values = MemoryUnit.values();
+            char [] chars = new char[values.length * 2 + 1];
+            int i = 0;
+            for (MemoryUnit memoryUnit : values) {
+                chars[i++] = Character.toLowerCase(memoryUnit.getUnit());
+                chars[i++] = Character.toUpperCase(memoryUnit.getUnit());
+            }
+            chars[i] = '%';
+            unitChars = chars;
+        }
+
+        public XSDAttributeValueMemoryUnitOrPercentageType() {
+            super(XsdType.NON_NEGATIVE_INTEGER);
+        }
+
+        @Override
+        public String getRandomAllowedValue() {
+            int index = RANDOM.nextInt(unitChars.length + 1);
+            if(index < unitChars.length) {
+                switch (unitChars[index]) {
+                    case '%' :
+                        return String.valueOf(Math.abs(RANDOM.nextInt(100) + 1)) + unitChars[index];
+                    default:
+                        return String.valueOf(Math.abs(RANDOM.nextInt())) + unitChars[index];
+                }
+            }
             return String.valueOf(Math.abs(RANDOM.nextInt()));
         }
 

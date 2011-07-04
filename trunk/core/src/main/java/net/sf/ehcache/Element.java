@@ -19,6 +19,7 @@ package net.sf.ehcache;
 
 
 import net.sf.ehcache.config.CacheConfiguration;
+import net.sf.ehcache.pool.sizeof.filter.IgnoreSizeOf;
 import net.sf.ehcache.util.TimeUtil;
 
 import java.io.ByteArrayInputStream;
@@ -61,6 +62,7 @@ public class Element implements Serializable, Cloneable {
     /**
      * the cache key.
      */
+    @IgnoreSizeOf
     private final Object key;
 
     /**
@@ -102,6 +104,8 @@ public class Element implements Serializable, Cloneable {
     private volatile long lastUpdateTime;
 
     private volatile boolean cacheDefaultLifespan = true;
+
+    private volatile boolean pinned;
 
     /**
      * A full constructor.
@@ -183,6 +187,23 @@ public class Element implements Serializable, Cloneable {
         this.elementEvictionData = new DefaultElementEvictionData(creationTime, lastAccessTime);
     }
 
+    /**
+     * @since 2.5
+     */
+    public Element(final Object key, final Object value, final long version, final long creationTime,
+            final long lastAccessTime, final long hitCount, final boolean cacheDefaultLifespan,
+            final int timeToLive, final int timeToIdle, final long lastUpdateTime, final boolean pinned) {
+        this.key = key;
+        this.value = value;
+        this.version = version;
+        HIT_COUNT_UPDATER.set(this, hitCount);
+        this.cacheDefaultLifespan = cacheDefaultLifespan;
+        this.timeToLive = timeToLive;
+        this.timeToIdle = timeToIdle;
+        this.lastUpdateTime = lastUpdateTime;
+        this.elementEvictionData = new DefaultElementEvictionData(creationTime, lastAccessTime);
+        this.pinned = pinned;
+    }
 
 
     /**
@@ -760,6 +781,24 @@ public class Element implements Serializable, Cloneable {
      */
     public boolean usesCacheDefaultLifespan() {
         return cacheDefaultLifespan;
+    }
+
+    /**
+     * Mark the element as pinned or not
+     *
+     * @param pinned true if the element should be pinned, false otherwise
+     */
+    public void setPinned(boolean pinned) {
+        this.pinned = pinned;
+    }
+
+    /**
+     * Check if the element is pinned
+     *
+     * @return true if the element is pinned
+     */
+    public boolean isPinned() {
+        return pinned;
     }
 
     /**

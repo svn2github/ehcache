@@ -19,10 +19,10 @@ package net.sf.ehcache.config.generator.model.elements;
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.CacheConfiguration.BootstrapCacheLoaderFactoryConfiguration;
 import net.sf.ehcache.config.CacheConfiguration.CacheEventListenerFactoryConfiguration;
-import net.sf.ehcache.config.CacheConfiguration.CacheExceptionHandlerFactoryConfiguration;
 import net.sf.ehcache.config.CacheWriterConfiguration;
 import net.sf.ehcache.config.CopyStrategyConfiguration;
 import net.sf.ehcache.config.ElementValueComparatorConfiguration;
+import net.sf.ehcache.config.PinningConfiguration;
 import net.sf.ehcache.config.TerracottaConfiguration;
 import net.sf.ehcache.config.generator.model.NodeElement;
 import net.sf.ehcache.config.generator.model.SimpleNodeAttribute;
@@ -61,6 +61,12 @@ public class CacheConfigurationElement extends SimpleNodeElement {
                 CacheConfiguration.DEFAULT_LOGGING));
 
         addCommonChildElementsWithDefaultCache(this, cacheConfiguration);
+        addAttribute(new SimpleNodeAttribute("maxBytesLocalHeap", cacheConfiguration.getMaxBytesLocalHeap())
+                .optional(true).defaultValue(String.valueOf(CacheConfiguration.DEFAULT_MAX_BYTES_ON_HEAP)));
+        addAttribute(new SimpleNodeAttribute("maxBytesLocalOffHeap", cacheConfiguration.getMaxBytesLocalOffHeap())
+                .optional(true).defaultValue(String.valueOf(CacheConfiguration.DEFAULT_MAX_BYTES_OFF_HEAP)));
+        addAttribute(new SimpleNodeAttribute("maxBytesLocalDisk", cacheConfiguration.getMaxBytesLocalDisk())
+            .optional(true).defaultValue(String.valueOf(CacheConfiguration.DEFAULT_MAX_BYTES_ON_DISK)));
     }
 
     /**
@@ -72,6 +78,7 @@ public class CacheConfigurationElement extends SimpleNodeElement {
     public static void addCommonAttributesWithDefaultCache(NodeElement element, CacheConfiguration cacheConfiguration) {
         element.addAttribute(new SimpleNodeAttribute("eternal", cacheConfiguration.isEternal()).optional(false));
         element.addAttribute(new SimpleNodeAttribute("maxElementsInMemory", cacheConfiguration.getMaxElementsInMemory()).optional(false));
+        element.addAttribute(new SimpleNodeAttribute("maxEntriesLocalHeap", cacheConfiguration.getMaxEntriesLocalHeap()).optional(false));
         element.addAttribute(new SimpleNodeAttribute("overflowToDisk", cacheConfiguration.isOverflowToDisk()).optional(false));
         element.addAttribute(new SimpleNodeAttribute("clearOnFlush", cacheConfiguration.isClearOnFlush()).optional(true).defaultValue(
                 String.valueOf(CacheConfiguration.DEFAULT_CLEAR_ON_FLUSH)));
@@ -94,6 +101,8 @@ public class CacheConfigurationElement extends SimpleNodeElement {
         element.addAttribute(new SimpleNodeAttribute("timeToLiveSeconds", cacheConfiguration.getTimeToLiveSeconds()).optional(true)
                 .defaultValue(CacheConfiguration.DEFAULT_TTL));
         element.addAttribute(new SimpleNodeAttribute("maxElementsOnDisk", cacheConfiguration.getMaxElementsOnDisk()).optional(true)
+                .defaultValue(CacheConfiguration.DEFAULT_MAX_ELEMENTS_ON_DISK));
+        element.addAttribute(new SimpleNodeAttribute("maxEntriesLocalDisk", cacheConfiguration.getMaxEntriesLocalDisk()).optional(true)
                 .defaultValue(CacheConfiguration.DEFAULT_MAX_ELEMENTS_ON_DISK));
         element.addAttribute(new SimpleNodeAttribute("maxMemoryOffHeap", cacheConfiguration.getMaxMemoryOffHeap()).optional(true)
                 .defaultValue((String) null));
@@ -126,42 +135,76 @@ public class CacheConfigurationElement extends SimpleNodeElement {
         }
         addAllFactoryConfigsAsChildElements(element, "cacheExtensionFactory", cacheConfiguration.getCacheExtensionConfigurations());
         addAllFactoryConfigsAsChildElements(element, "cacheLoaderFactory", cacheConfiguration.getCacheLoaderConfigurations());
+        addBootstrapCacheLoaderFactoryConfigurationElement(element, cacheConfiguration);
+        addCacheExceptionHandlerFactoryConfigurationElement(element, cacheConfiguration);
+        addCopyStrategyConfigurationElement(element, cacheConfiguration);
+        addElementValueComparatorConfigurationElement(element, cacheConfiguration);
+        addCacheWriterConfigurationElement(element, cacheConfiguration);
+        addAllFactoryConfigsAsChildElements(element, "cacheDecoratorFactory", cacheConfiguration.getCacheDecoratorConfigurations());
+        addTerracottaConfigurationElement(element, cacheConfiguration);
+        addPinningElement(element, cacheConfiguration);
+        addSearchElement(element, cacheConfiguration);
+    }
 
+    private static void addBootstrapCacheLoaderFactoryConfigurationElement(NodeElement element, CacheConfiguration cacheConfiguration) {
         BootstrapCacheLoaderFactoryConfiguration bootstrapCacheLoaderFactoryConfiguration = cacheConfiguration
                 .getBootstrapCacheLoaderFactoryConfiguration();
         if (bootstrapCacheLoaderFactoryConfiguration != null) {
             element.addChildElement(new FactoryConfigurationElement(element, "bootstrapCacheLoaderFactory",
                     bootstrapCacheLoaderFactoryConfiguration));
         }
-        CacheExceptionHandlerFactoryConfiguration cacheExceptionHandlerFactoryConfiguration = cacheConfiguration
+    }
+
+    private static void addCacheExceptionHandlerFactoryConfigurationElement(NodeElement element, CacheConfiguration cacheConfiguration) {
+        CacheConfiguration.CacheExceptionHandlerFactoryConfiguration cacheExceptionHandlerFactoryConfiguration = cacheConfiguration
                 .getCacheExceptionHandlerFactoryConfiguration();
         if (cacheExceptionHandlerFactoryConfiguration != null) {
             element.addChildElement(new FactoryConfigurationElement(element, "cacheExceptionHandlerFactory",
                     cacheExceptionHandlerFactoryConfiguration));
         }
+    }
+
+    private static void addCopyStrategyConfigurationElement(NodeElement element, CacheConfiguration cacheConfiguration) {
         CopyStrategyConfiguration copyStrategyConfiguration = cacheConfiguration.getCopyStrategyConfiguration();
         if (copyStrategyConfiguration != null &&
                 !copyStrategyConfiguration.equals(CacheConfiguration.DEFAULT_COPY_STRATEGY_CONFIGURATION)) {
             element.addChildElement(new CopyStrategyConfigurationElement(element, copyStrategyConfiguration));
         }
+    }
+
+    private static void addElementValueComparatorConfigurationElement(NodeElement element, CacheConfiguration cacheConfiguration) {
         ElementValueComparatorConfiguration elementValueComparatorConfiguration = cacheConfiguration
                 .getElementValueComparatorConfiguration();
         if (elementValueComparatorConfiguration != null
                 && !elementValueComparatorConfiguration.equals(CacheConfiguration.DEFAULT_ELEMENT_VALUE_COMPARATOR_CONFIGURATION)) {
             element.addChildElement(new ElementValueComparatorConfigurationElement(element, elementValueComparatorConfiguration));
         }
+    }
+
+    private static void addCacheWriterConfigurationElement(NodeElement element, CacheConfiguration cacheConfiguration) {
         CacheWriterConfiguration cacheWriterConfiguration = cacheConfiguration.getCacheWriterConfiguration();
         if (cacheWriterConfiguration != null && !CacheConfiguration.DEFAULT_CACHE_WRITER_CONFIGURATION.equals(cacheWriterConfiguration)) {
             element.addChildElement(new CacheWriterConfigurationElement(element, cacheWriterConfiguration));
         }
-        addAllFactoryConfigsAsChildElements(element, "cacheDecoratorFactory", cacheConfiguration.getCacheDecoratorConfigurations());
+    }
+
+    private static void addTerracottaConfigurationElement(NodeElement element, CacheConfiguration cacheConfiguration) {
         TerracottaConfiguration terracottaConfiguration = cacheConfiguration.getTerracottaConfiguration();
         if (terracottaConfiguration != null) {
             element.addChildElement(new TerracottaConfigurationElement(element, terracottaConfiguration));
         }
+    }
 
+    private static void addSearchElement(NodeElement element, CacheConfiguration cacheConfiguration) {
         if (cacheConfiguration.isSearchable()) {
             element.addChildElement(new SearchableConfigurationElement(element, cacheConfiguration.getSearchable()));
+        }
+    }
+
+    private static void addPinningElement(NodeElement element, CacheConfiguration cacheConfiguration) {
+        PinningConfiguration pinningConfiguration = cacheConfiguration.getPinningConfiguration();
+        if (pinningConfiguration != null) {
+            element.addChildElement(new PinningConfigurationElement(element, pinningConfiguration));
         }
     }
 
