@@ -225,7 +225,7 @@ public class CachePerfTest extends AbstractCachePerfTest {
         LOG.info("Put time: " + stopWatch.getElapsedTime());
         Thread.sleep(2000);
         assertEquals(40000, cache.getMemoryStoreSize());
-        assertEquals(40000, cache.getDiskStoreSize());
+        assertEquals(80000, cache.getDiskStoreSize());
 
         long beforeMemory = measureMemoryUse();
         stopWatch.getElapsedTime();
@@ -240,7 +240,7 @@ public class CachePerfTest extends AbstractCachePerfTest {
         assertTrue(memoryIncrease < 40000000);
 
         assertEquals(0, cache.getMemoryStoreSize());
-        assertEquals(40000, cache.getDiskStoreSize());
+        assertEquals(80000, cache.getDiskStoreSize());
 
     }
 

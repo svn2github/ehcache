@@ -3,14 +3,11 @@ package net.sf.ehcache.store;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.MemoryStorePerfTester;
 import net.sf.ehcache.StopWatch;
-import net.sf.ehcache.store.compound.CompoundStore;
-import net.sf.ehcache.store.compound.factories.CapacityLimitedInMemoryFactory;
 import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.Collection;
@@ -27,14 +24,14 @@ public class LfuMemoryStorePerfTest extends MemoryStorePerfTester {
 
     private static final Logger LOG = LoggerFactory.getLogger(LfuMemoryStorePerfTest.class.getName());
 
-    private static final Field PRIMARY_FACTORY;
-    private static final Method GET_EVICTION_TARGET;
+    private static final Field AUTHORITY;
+    private static final Method FIND_EVICTION_CANDIDATE;
     static {
         try {
-            PRIMARY_FACTORY = CompoundStore.class.getDeclaredField("primary");
-            PRIMARY_FACTORY.setAccessible(true);
-            GET_EVICTION_TARGET = CapacityLimitedInMemoryFactory.class.getDeclaredMethod("getEvictionTarget", Object.class, Integer.TYPE);
-            GET_EVICTION_TARGET.setAccessible(true);
+            AUTHORITY = FrontEndCacheTier.class.getDeclaredField("authority");
+            AUTHORITY.setAccessible(true);
+            FIND_EVICTION_CANDIDATE = MemoryStore.class.getDeclaredMethod("findEvictionCandidate", Element.class);
+            FIND_EVICTION_CANDIDATE.setAccessible(true);
         } catch (SecurityException e) {
             throw new RuntimeException(e);
         } catch (NoSuchFieldException e) {
@@ -169,7 +166,7 @@ public class LfuMemoryStorePerfTest extends MemoryStorePerfTester {
             }
 
             // Select an Element for "eviction".
-            Element element = (Element) GET_EVICTION_TARGET.invoke(PRIMARY_FACTORY.get(store), new Object(), Integer.MAX_VALUE);
+            Element element = (Element)FIND_EVICTION_CANDIDATE.invoke(AUTHORITY.get(store), new Object[] { null });
             // This shouldn't be the newly added Element as it is the "most hit"
             assertTrue(!element.equals(newElement));
             // In fact since the sample size is > 10, the hit count should be 0
@@ -195,7 +192,7 @@ public class LfuMemoryStorePerfTest extends MemoryStorePerfTester {
         for (int i = 0; i < 5000; i++) {
             stopWatch.getElapsedTime();
             // Select an Element for "eviction"
-            Element e = (Element) GET_EVICTION_TARGET.invoke(PRIMARY_FACTORY.get(store), new Object(), Integer.MAX_VALUE);
+            Element e = (Element)FIND_EVICTION_CANDIDATE.invoke(AUTHORITY.get(store), new Object[] { null });
             findTime += stopWatch.getElapsedTime();
             long lowest = e.getHitCount();
             // See if it is outside the lowest quartile (i.e. it has an abnormaly
