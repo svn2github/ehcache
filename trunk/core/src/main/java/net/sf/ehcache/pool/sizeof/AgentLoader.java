@@ -91,7 +91,7 @@ final class AgentLoader {
 
     private static File getAgentFile() throws IOException {
         URL agent = AgentLoader.class.getResource("sizeof-agent.jar");
-        if(agent == null) {
+        if (agent == null) {
             return null;
         } else if (agent.getProtocol().equals("file")) {
             return new File(agent.getFile());
