@@ -72,7 +72,9 @@ final class AgentLoader {
             try {
                 File agent = getAgentFile();
                 LOGGER.info("Trying to load agent @ {}", agent);
-                VIRTUAL_MACHINE_LOAD_AGENT.invoke(vm, agent.getAbsolutePath());
+                if (agent != null) {
+                    VIRTUAL_MACHINE_LOAD_AGENT.invoke(vm, agent.getAbsolutePath());
+                }
             } finally {
                 VIRTUAL_MACHINE_DETACH.invoke(vm);
             }
@@ -89,7 +91,9 @@ final class AgentLoader {
 
     private static File getAgentFile() throws IOException {
         URL agent = AgentLoader.class.getResource("sizeof-agent.jar");
-        if (agent.getProtocol().equals("file")) {
+        if(agent == null) {
+            return null;
+        } else if (agent.getProtocol().equals("file")) {
             return new File(agent.getFile());
         } else {
             File temp = File.createTempFile("ehcache-sizeof-agent", ".jar");
