@@ -24,7 +24,7 @@ import static org.junit.Assert.assertThat;
  */
 public class DiskStoreBootstrapCacheLoaderFactoryTest {
 
-    private static final int ELEMENTS_ON_DISK = 1000;
+    private static final int ELEMENTS_ON_DISK = 500;
     private static final int LOADER_DELAY = 500;
     private CacheManager manager;
     private Cache cacheElementCountBound;
