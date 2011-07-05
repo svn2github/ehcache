@@ -30,7 +30,7 @@ import static net.sf.ehcache.pool.sizeof.JvmInformation.MINIMUM_OBJECT_SIZE;
  */
 public class AgentSizeOf extends SizeOf {
 
-    private static final boolean AGENT_LOADED = SizeOfAgent.isAvailable() || AgentLoader.loadAgent();
+    private static final boolean AGENT_LOADED = AgentLoader.loadAgent();
 
     /**
      * Builds a new SizeOf that will not filter fields and will cache reflected fields
