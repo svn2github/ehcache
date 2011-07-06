@@ -596,8 +596,8 @@ public abstract class FrontEndCacheTier<T extends TierableStore, U extends Tiera
     /**
      * {@inheritDoc}
      */
-    public Object getInternalContext() {
-        return authority.getInternalContext();
+    public final Object getInternalContext() {
+        return masterLocks;
     }
 
     /**

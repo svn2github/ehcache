@@ -509,7 +509,7 @@ public class DiskStorageFactory {
                 } else {
                     return null;
                 }
-            } catch (IOException e) {
+            } catch (Throwable e) {
                 LOG.error("Disk Write of " + placeholder.getKey() + " failed (it will be evicted instead): ", e);
                 store.evict(placeholder.getKey(), placeholder);
                 return null;

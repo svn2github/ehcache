@@ -52,6 +52,7 @@ import net.sf.ehcache.util.RetryAssert;
 
 import org.hamcrest.core.Is;
 import org.junit.After;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -71,6 +72,11 @@ public class DiskStoreTest extends AbstractCacheTest {
     private static final Logger LOG = LoggerFactory.getLogger(DiskStoreTest.class.getName());
     private static final int ELEMENT_ON_DISK_SIZE = 1280;
     private CacheManager manager2;
+
+    @BeforeClass
+    public static void enableHeapDump() {
+        setHeapDumpOnOutOfMemoryError(true);
+    }
 
     /**
      * teardown
@@ -99,10 +105,16 @@ public class DiskStoreTest extends AbstractCacheTest {
         return cache.getStore();
     }
 
-    private Store createDiskStore() {
-        Cache cache = new Cache("test/NonPersistent", 1, true, false, 2, 1, false, 1);
+    private Cache createDiskCache() {
+        Cache cache = new Cache(new CacheConfiguration().name("test/NonPersistent").maxEntriesLocalHeap(1).overflowToDisk(true)
+                .eternal(false).timeToLiveSeconds(2).timeToIdleSeconds(1).diskPersistent(false).diskExpiryThreadIntervalSeconds(1)
+                .diskSpoolBufferSizeMB(10));
         manager.addCache(cache);
-        return cache.getStore();
+        return cache;
+    }
+
+    private Store createDiskStore() {
+        return createDiskCache().getStore();
     }
 
     private Store createPersistentDiskStore(String cacheName) {
@@ -131,12 +143,13 @@ public class DiskStoreTest extends AbstractCacheTest {
         return cache.getStore();
     }
 
-    private Store createStripedDiskStore(int stripes) {
-        CacheConfiguration config = new CacheConfiguration("test/NonPersistentStriped_" + stripes, 10000).overflowToDisk(true).eternal(false)
-                .timeToLiveSeconds(2).timeToIdleSeconds(1).diskPersistent(false).diskExpiryThreadIntervalSeconds(1).diskAccessStripes(stripes);
+    private Cache createStripedDiskCache(int stripes) {
+        CacheConfiguration config = new CacheConfiguration("test/NonPersistentStriped_" + stripes, 10000).overflowToDisk(true)
+                .eternal(false).timeToLiveSeconds(2).timeToIdleSeconds(1).diskPersistent(false).diskExpiryThreadIntervalSeconds(1)
+                .diskAccessStripes(stripes).diskSpoolBufferSizeMB(10);
         Cache cache = new Cache(config);
         manager.addCache(cache);
-        return cache.getStore();
+        return cache;
     }
 
     /**
@@ -1022,9 +1035,9 @@ public class DiskStoreTest extends AbstractCacheTest {
     @Test
     public void testReadRemoveMultipleThreads() throws Exception {
         final Random random = new Random();
-        final Store diskStore = createDiskStore();
+        final Cache diskCache = createDiskCache();
 
-        diskStore.put(new Element("key", "value"));
+        diskCache.put(new Element("key", "value"));
 
         // Run a set of threads that get, put and remove an entry
         final List executables = new ArrayList();
@@ -1032,7 +1045,7 @@ public class DiskStoreTest extends AbstractCacheTest {
             final Executable executable = new Executable() {
                 public void execute() throws Exception {
                     for (int i = 0; i < 100; i++) {
-                        diskStore.put(new Element("key" + random.nextInt(100), "value"));
+                        diskCache.put(new Element("key" + random.nextInt(100), "value"));
                     }
                 }
             };
@@ -1042,7 +1055,7 @@ public class DiskStoreTest extends AbstractCacheTest {
             final Executable executable = new Executable() {
                 public void execute() throws Exception {
                     for (int i = 0; i < 100; i++) {
-                        diskStore.remove("key" + random.nextInt(100));
+                        diskCache.remove("key" + random.nextInt(100));
                     }
                 }
             };
@@ -1056,34 +1069,37 @@ public class DiskStoreTest extends AbstractCacheTest {
     public void testReadRemoveMultipleThreadsMultipleStripes() throws Exception {
         for (int stripes = 0; stripes < 10; stripes++) {
             final Random random = new Random();
-            final Store diskStore = createStripedDiskStore(stripes);
+            final Cache cache = createStripedDiskCache(stripes);
+            try {
+                cache.put(new Element("key", "value"));
 
-            diskStore.put(new Element("key", "value"));
-
-            // Run a set of threads that get, put and remove an entry
-            final List executables = new ArrayList();
-            for (int i = 0; i < 5; i++) {
-                final Executable executable = new Executable() {
-                    public void execute() throws Exception {
-                        for (int i = 0; i < 100; i++) {
-                            diskStore.put(new Element("key" + random.nextInt(100), "value"));
+                // Run a set of threads that get, put and remove an entry
+                final List executables = new ArrayList();
+                for (int i = 0; i < 5; i++) {
+                    final Executable executable = new Executable() {
+                        public void execute() throws Exception {
+                            for (int i = 0; i < 100; i++) {
+                                cache.put(new Element("key" + random.nextInt(100), "value"));
+                            }
                         }
-                    }
-                };
-                executables.add(executable);
-            }
-            for (int i = 0; i < 5; i++) {
-                final Executable executable = new Executable() {
-                    public void execute() throws Exception {
-                        for (int i = 0; i < 100; i++) {
-                            diskStore.remove("key" + random.nextInt(100));
+                    };
+                    executables.add(executable);
+                }
+                for (int i = 0; i < 5; i++) {
+                    final Executable executable = new Executable() {
+                        public void execute() throws Exception {
+                            for (int i = 0; i < 100; i++) {
+                                cache.remove("key" + random.nextInt(100));
+                            }
                         }
-                    }
-                };
-                executables.add(executable);
-            }
+                    };
+                    executables.add(executable);
+                }
 
-            runThreads(executables);
+                runThreads(executables);
+            } finally {
+                manager.removeCache(cache.getName());
+            }
         }
     }
 
