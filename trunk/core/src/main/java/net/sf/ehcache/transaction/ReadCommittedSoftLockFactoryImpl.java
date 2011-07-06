@@ -33,6 +33,7 @@ public class ReadCommittedSoftLockFactoryImpl implements SoftLockFactory {
 
     private final static Object MARKER = new Object();
 
+    private final String cacheManagerName;
     private final String cacheName;
 
     // actually all we need would be a ConcurrentSet...
@@ -42,10 +43,28 @@ public class ReadCommittedSoftLockFactoryImpl implements SoftLockFactory {
 
     /**
      * Create a new ReadCommittedSoftLockFactoryImpl instance for a cache
+     * @param cacheManagerName the name of the cache manager
      * @param cacheName the name of the cache
      */
-    public ReadCommittedSoftLockFactoryImpl(String cacheName) {
+    public ReadCommittedSoftLockFactoryImpl(String cacheManagerName, String cacheName) {
+        this.cacheManagerName = cacheManagerName;
         this.cacheName = cacheName;
+    }
+
+    /**
+     * Get the cache manager name
+     * @return the cache manager name
+     */
+    String getCacheManagerName() {
+        return cacheManagerName;
+    }
+
+    /**
+     * Get the cache name
+     * @return the cache name
+     */
+    String getCacheName() {
+        return cacheName;
     }
 
     /**
@@ -60,6 +79,21 @@ public class ReadCommittedSoftLockFactoryImpl implements SoftLockFactory {
             newKeyLocks.put(softLock, MARKER);
         }
         return softLock;
+    }
+
+    /**
+     * Get a lock
+     * @param transactionId the lock transaction ID
+     * @param key the lock key
+     * @return the lock, or null if there is no lock created with this transaction ID and key
+     */
+    ReadCommittedSoftLockImpl getLock(TransactionID transactionId, Object key) {
+        for (ReadCommittedSoftLockImpl readCommittedSoftLock : newKeyLocks.keySet()) {
+            if (readCommittedSoftLock.getTransactionID().equals(transactionId) && readCommittedSoftLock.getKey().equals(key)) {
+                return readCommittedSoftLock;
+            }
+        }
+        return null;
     }
 
     /**

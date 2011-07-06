@@ -1809,7 +1809,7 @@ public class CacheManager {
         } else {
             softLockFactory = softLockFactories.get(cache.getName());
             if (softLockFactory == null) {
-                softLockFactory = new ReadCommittedSoftLockFactoryImpl(cache.getName());
+                softLockFactory = new ReadCommittedSoftLockFactoryImpl(getName(), cache.getName());
                 SoftLockFactory old = softLockFactories.putIfAbsent(cache.getName(), softLockFactory);
                 if (old != null) {
                     softLockFactory = old;
@@ -1818,6 +1818,17 @@ public class CacheManager {
         }
         return softLockFactory;
     }
+
+    /**
+     * Get the SoftLockFactory of a cache
+     *
+     * @param cacheName the cache name
+     * @return the SoftLockFactory or null if there was no soft lock factory created for the specified cache
+     */
+    public SoftLockFactory getSoftLockFactory(String cacheName) {
+        return softLockFactories.get(cacheName);
+    }
+
 
     private void clusterRejoinStarted() {
         for (Ehcache cache : ehcaches.values()) {

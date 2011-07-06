@@ -15,8 +15,10 @@
  */
 package net.sf.ehcache.transaction;
 
+import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Element;
 
+import java.io.ObjectStreamException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -29,13 +31,16 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 public class ReadCommittedSoftLockImpl implements SoftLock {
     private static final int PRIME = 31;
 
-    private final ReadCommittedSoftLockFactoryImpl factory;
+    private final transient ReadCommittedSoftLockFactoryImpl factory;
+    private final transient ReentrantLock lock;
+    private final transient ReentrantReadWriteLock freezeLock;
+
+    private final String cacheManagerName;
+    private final String cacheName;
     private final TransactionID transactionID;
     private final Object key;
     private Element newElement;
     private final Element oldElement;
-    private final ReentrantLock lock;
-    private final ReentrantReadWriteLock freezeLock;
     private volatile boolean expired;
 
     /**
@@ -49,6 +54,8 @@ public class ReadCommittedSoftLockImpl implements SoftLock {
     ReadCommittedSoftLockImpl(ReadCommittedSoftLockFactoryImpl factory, TransactionID transactionID, Object key,
                               Element newElement, Element oldElement) {
         this.factory = factory;
+        this.cacheManagerName = factory.getCacheManagerName();
+        this.cacheName = factory.getCacheName();
         this.transactionID = transactionID;
         this.key = key;
         this.newElement = newElement;
@@ -210,6 +217,18 @@ public class ReadCommittedSoftLockImpl implements SoftLock {
         hashCode *= key.hashCode();
 
         return hashCode;
+    }
+
+    private Object readResolve() throws ObjectStreamException {
+        for (int i = 0; i < CacheManager.ALL_CACHE_MANAGERS.size(); i++) {
+            CacheManager cacheManager = CacheManager.ALL_CACHE_MANAGERS.get(i);
+            if (cacheManager.getName().equals(cacheManagerName)) {
+                ReadCommittedSoftLockFactoryImpl softLockFactory = (ReadCommittedSoftLockFactoryImpl)cacheManager.getSoftLockFactory(cacheName);
+                return softLockFactory.getLock(transactionID, key);
+            }
+        }
+        throw new TransactionException("unable to find referent SoftLock in " + cacheManagerName + " " + cacheName +
+                                       " for key [" + key + "] under transaction " + transactionID);
     }
 
     /**

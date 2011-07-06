@@ -31,7 +31,7 @@ public class XidTransactionIDImpl implements XidTransactionID {
         ROLLBACK
     }
 
-    private final Xid xid;
+    private final SerializableXid xid;
     private volatile Decision decision = Decision.IN_DOUBT;
 
     /**
@@ -39,7 +39,7 @@ public class XidTransactionIDImpl implements XidTransactionID {
      * @param xid a XID
      */
     public XidTransactionIDImpl(Xid xid) {
-        this.xid = xid;
+        this.xid = new SerializableXid(xid);
     }
 
     /**

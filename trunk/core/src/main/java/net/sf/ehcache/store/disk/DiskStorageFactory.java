@@ -26,7 +26,6 @@ import net.sf.ehcache.event.RegisteredEventListeners;
 import net.sf.ehcache.pool.sizeof.filter.IgnoreSizeOf;
 import net.sf.ehcache.store.disk.ods.FileAllocationTree;
 import net.sf.ehcache.store.disk.ods.Region;
-import net.sf.ehcache.transaction.SoftLock;
 import net.sf.ehcache.util.MemoryEfficientByteArrayOutputStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -404,12 +403,7 @@ public class DiskStorageFactory {
      * @throws java.io.IOException on write error
      */
     protected DiskMarker write(Element element) throws IOException {
-        Element elementToSerialize = element;
-        if (element.getObjectValue() instanceof SoftLock) {
-            elementToSerialize = null;
-        }
-
-        MemoryEfficientByteArrayOutputStream buffer = serializeElement(elementToSerialize);
+        MemoryEfficientByteArrayOutputStream buffer = serializeElement(element);
         int bufferLength = buffer.size();
         elementSize = bufferLength;
         DiskMarker marker = alloc(element, bufferLength);

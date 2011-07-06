@@ -194,11 +194,4 @@ public final class MemoryOnlyStore extends FrontEndCacheTier<NullStore, MemorySt
         return searchAttributes.get(attributeName);
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    protected boolean isAuthorityHandlingPinnedElements() {
-        return true;
-    }
 }

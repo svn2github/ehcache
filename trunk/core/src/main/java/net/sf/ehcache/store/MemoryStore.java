@@ -190,14 +190,14 @@ public final class MemoryStore extends AbstractStore implements TierableStore, P
     }
 
     private boolean isPinningEnabled(Element element) {
-        return element.isPinned() || cache.getCacheConfiguration().getPinningConfiguration() != null;
+        return cachePinned || element.isPinned();
     }
 
     /**
      * {@inheritDoc}
      */
     public void fill(Element element) {
-        if (cachePinned || alwaysPutOnHeap || remove(element.getObjectKey()) != null || canPutWithoutEvicting(element)) {
+        if (alwaysPutOnHeap || isPinningEnabled(element) || remove(element.getObjectKey()) != null || canPutWithoutEvicting(element)) {
             put(element);
         }
     }

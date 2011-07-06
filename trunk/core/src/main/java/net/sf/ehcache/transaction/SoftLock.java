@@ -17,12 +17,14 @@ package net.sf.ehcache.transaction;
 
 import net.sf.ehcache.Element;
 
+import java.io.Serializable;
+
 /**
  * A soft lock is used to lock elements in transactional stores
  * 
  * @author Ludovic Orban
  */
-public interface SoftLock {
+public interface SoftLock extends Serializable {
 
     /**
      * Get the key of the element this soft lock is guarding

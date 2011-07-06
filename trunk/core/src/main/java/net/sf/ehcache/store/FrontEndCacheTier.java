@@ -99,15 +99,6 @@ public abstract class FrontEndCacheTier<T extends TierableStore, U extends Tiera
     }
 
     /**
-     * Check if the authority can handle pinned elements. The default implementation returns false.
-     *
-     * @return true if the authority can handle pinned elements, false otherwise.
-     */
-    protected boolean isAuthorityHandlingPinnedElements() {
-        return false;
-    }
-
-    /**
      * {@inheritDoc}
      */
     public Element get(Object key) {
@@ -166,14 +157,8 @@ public abstract class FrontEndCacheTier<T extends TierableStore, U extends Tiera
         writeLock(key);
         try {
             Element copy = copyElementForWriteIfNeeded(e);
-            if (!isAuthorityHandlingPinnedElements() && e.isPinned()) {
-                boolean put = cache.put(copy);
-                authority.remove(key);
-                return put;
-            } else {
-                cache.fill(copy);
-                return authority.put(copy);
-            }
+            cache.fill(copy);
+            return authority.put(copy);
         } finally {
             writeUnlock(key);
         }
@@ -192,14 +177,8 @@ public abstract class FrontEndCacheTier<T extends TierableStore, U extends Tiera
         writeLock(key);
         try {
             Element copy = copyElementForWriteIfNeeded(e);
-            if (!isAuthorityHandlingPinnedElements() && e.isPinned()) {
-                boolean put = cache.putWithWriter(copy, writer);
-                authority.remove(key);
-                return put;
-            } else {
-                cache.fill(copy);
-                return authority.putWithWriter(copy, writer);
-            }
+            cache.fill(copy);
+            return authority.putWithWriter(copy, writer);
         } finally {
             writeUnlock(key);
         }
@@ -248,22 +227,11 @@ public abstract class FrontEndCacheTier<T extends TierableStore, U extends Tiera
         writeLock(key);
         try {
             Element copy = copyElementForWriteIfNeeded(e);
-            if (!isAuthorityHandlingPinnedElements() && e.isPinned()) {
-                if (authority.containsKey(key)) {
-                    return null;
-                }
-                Element put = cache.putIfAbsent(copy);
-                if (put != null) {
-                    authority.remove(key);
-                }
-                return copyElementForReadIfNeeded(put);
-            } else {
-                Element old = authority.putIfAbsent(copy);
-                if (old == null) {
-                    cache.fill(copy);
-                }
-                return copyElementForReadIfNeeded(old);
+            Element old = authority.putIfAbsent(copy);
+            if (old == null) {
+                cache.fill(copy);
             }
+            return copyElementForReadIfNeeded(old);
         } finally {
             writeUnlock(key);
         }
@@ -293,27 +261,8 @@ public abstract class FrontEndCacheTier<T extends TierableStore, U extends Tiera
         writeLock(key);
         try {
             Element copy = copyElementForWriteIfNeeded(e);
-            if (!isAuthorityHandlingPinnedElements() && e.isPinned()) {
-                boolean justCached = false;
-                if (authority.containsKey(key)) {
-                    Element element = authority.get(key);
-                    element.setPinned(true);
-                    cache.put(element);
-                    justCached = true;
-                }
-
-                boolean replaced = cache.replace(old, copy, comparator);
-                if (replaced) {
-                    authority.remove(key);
-                } else if (justCached) {
-                    cache.remove(key);
-                }
-                return replaced;
-            } else {
-                cache.remove(old.getObjectKey());
-                return authority.replace(old, copy, comparator);
-            }
-
+            cache.remove(old.getObjectKey());
+            return authority.replace(old, copy, comparator);
         } finally {
             writeUnlock(key);
         }
@@ -328,26 +277,8 @@ public abstract class FrontEndCacheTier<T extends TierableStore, U extends Tiera
         writeLock(key);
         try {
             Element copy = copyElementForWriteIfNeeded(e);
-            if (!isAuthorityHandlingPinnedElements() && e.isPinned()) {
-                boolean justCached = false;
-                if (authority.containsKey(key)) {
-                    Element element = authority.get(key);
-                    element.setPinned(true);
-                    cache.put(element);
-                    justCached = true;
-                }
-
-                Element replaced = cache.replace(copy);
-                if (replaced != null) {
-                    authority.remove(key);
-                } else if (justCached) {
-                    cache.remove(key);
-                }
-                return copyElementForReadIfNeeded(replaced);
-            } else {
-                cache.remove(e.getObjectKey());
-                return copyElementForReadIfNeeded(authority.replace(copy));
-            }
+            cache.remove(e.getObjectKey());
+            return copyElementForReadIfNeeded(authority.replace(copy));
         } finally {
             writeUnlock(key);
         }
