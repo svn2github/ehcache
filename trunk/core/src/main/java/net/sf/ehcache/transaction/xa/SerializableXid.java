@@ -27,11 +27,7 @@ import javax.transaction.xa.Xid;
  */
 public class SerializableXid implements Xid, Serializable {
 
-    /*
-     * int-encoded "Ehca" string.
-     */
-    private static final int FORMAT_ID = 0x45686361;
-
+    private final int formatId;
     private final byte[] globalTransactionId;
     private final byte[] branchQualifier;
 
@@ -41,6 +37,7 @@ public class SerializableXid implements Xid, Serializable {
      * @param xid a SerializableXid
      */
     public SerializableXid(Xid xid) {
+        this.formatId = xid.getFormatId();
         this.globalTransactionId = xid.getGlobalTransactionId();
         this.branchQualifier = xid.getBranchQualifier();
     }
@@ -49,7 +46,7 @@ public class SerializableXid implements Xid, Serializable {
      * {@inheritDoc}
      */
     public int getFormatId() {
-        return FORMAT_ID;
+        return formatId;
     }
 
     /**
@@ -75,7 +72,7 @@ public class SerializableXid implements Xid, Serializable {
         }
 
         SerializableXid otherXid = (SerializableXid) obj;
-        return FORMAT_ID == otherXid.getFormatId() &&
+        return formatId == otherXid.getFormatId() &&
                Arrays.equals(globalTransactionId, otherXid.getGlobalTransactionId()) &&
                Arrays.equals(branchQualifier, otherXid.branchQualifier);
     }
@@ -84,7 +81,7 @@ public class SerializableXid implements Xid, Serializable {
      * {@inheritDoc}
      */
     public int hashCode() {
-        int hashCode = FORMAT_ID;
+        int hashCode = formatId;
         if (globalTransactionId != null) {
             hashCode += Arrays.hashCode(globalTransactionId);
         }
@@ -92,6 +89,18 @@ public class SerializableXid implements Xid, Serializable {
             hashCode += Arrays.hashCode(branchQualifier);
         }
         return hashCode;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String toString() {
+        return "SerializableXid{" +
+               "formatId=" + formatId +
+               ", globalTxId=" + Arrays.toString(globalTransactionId) +
+               ", branchQualifier=" + Arrays.toString(branchQualifier) +
+               '}';
     }
 
 }
