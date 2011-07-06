@@ -484,8 +484,9 @@ public class Segment extends ReentrantReadWriteLock {
      * @param hash spread-hash for the key
      * @param encoded encoded element to store
      * @return <code>true</code> if the encoded element was installed
+     * @throws IllegalArgumentException if the supplied key is already present
      */
-    boolean putRawIfAbsent(Object key, int hash, Object encoded) {
+    boolean putRawIfAbsent(Object key, int hash, Object encoded) throws IllegalArgumentException {
         writeLock().lock();
         try {
             if (!onDiskPoolAccessor.canAddWithoutEvicting(key, null, encoded)) {
@@ -520,7 +521,7 @@ public class Segment extends ReentrantReadWriteLock {
             } else {
                 onHeapPoolAccessor.delete(key, encoded, HashEntry.newHashEntry(key, hash, null, null));
                 onDiskPoolAccessor.delete(key, null, encoded);
-                return false;
+                throw new IllegalArgumentException("Duplicate key detected");
             }
         } finally {
             writeLock().unlock();

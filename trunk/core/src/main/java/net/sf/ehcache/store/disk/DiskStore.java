@@ -542,8 +542,9 @@ public final class DiskStore extends AbstractStore implements TierableStore, Poo
      * @param key the key of the element
      * @param encoded the encoded element
      * @return true if the encoded element was installed
+     * @throws IllegalArgumentException if the supplied key is already present
      */
-    public boolean putRawIfAbsent(Object key, Object encoded) {
+    public boolean putRawIfAbsent(Object key, Object encoded) throws IllegalArgumentException {
         int hash = hash(key.hashCode());
         return segmentFor(hash).putRawIfAbsent(key, hash, encoded);
     }
