@@ -1,7 +1,7 @@
-<html><head>
-<meta http-equiv="content-type" content="text/html; charset=ISO-8859-1">
-</head><body>
-<pre>   README Notes
+&lt;html&gt;&lt;head&gt;
+&lt;meta http-equiv="content-type" content="text/html; charset=ISO-8859-1"&gt;
+&lt;/head&gt;&lt;body&gt;
+&lt;pre&gt;   README Notes
 
     The project home page is http://ehcache.org. Please see http://ehcache.org for a full change log, usage, product versions
     and comprehensive documentation.
@@ -89,26 +89,53 @@
 
         SLF4J API and one concrete logging implementation. The API jar and the JDK14 logging jar are included in the distribution.
 
-    Maven POM snippet
-    =================
+    Maven Based Development
+    =======================
 
-         All Ehcache releases are placed in the central Maven repository.
+         Most Ehcache modules are placed in the central Maven repository.
 
-         The Maven snippet for ehcache core is:
+         The Maven snippet for ehcache is:
 
          &lt;dependency&gt;
             &lt;groupid&gt;net.sf.ehcache&lt;/groupid&gt;
-            &lt;artifactid&gt;ehcache-core&lt;/artifactid&gt;
+            &lt;artifactid&gt;ehcache&lt;/artifactid&gt;
             &lt;version&gt;[current-version]&lt;/version&gt;
+            &lt;type&gt;pom&lt;/type&gt;
          &lt;/dependency&gt;
 
-    Installation
-    ============
+        To deploy to a Terracotta server you also need to add the following:
+
+
+        &lt;dependency&gt;
+            &lt;groupId&gt;org.terracotta&lt;/groupId&gt;
+            &lt;artifactId&gt;terracotta-toolkit-1.2-runtime&lt;/artifactId&gt;
+            &lt;version&gt;3.1.0&lt;/version&gt;
+        &lt;/dependency&gt;
+
+
+        &lt;repositories&gt;
+            &lt;repository&gt;
+                &lt;id&gt;terracotta-repository&lt;/id&gt;
+                &lt;url&gt;http://www.terracotta.org/download/reflector/releases&lt;/url&gt;
+                &lt;releases&gt;
+                    &lt;enabled&gt;true&lt;/enabled&gt;
+                &lt;/releases&gt;
+            &lt;/repository&gt;
+        &lt;/repositories&gt;
+
+    Then create an ehcache.xml configuration from the one supplied in the distribution and place it in the root of your classpath.
+
+
+    Non-Maven Based Development
+    ===========================
     Place the ehcache-core.jar, slf4j-api.jar and slf4j-jdk14.jar, or the concrete SLF4J logging implementation library of your choice into your classpath.
 
     For use with Terracotta, copy the ehcache-terracotta.jar to your classpath.
 
-    Create an ehcache.xml configuration from the one supplied in the distribution and place it in the root of your classpath.
+    Then create an ehcache.xml configuration from the one supplied in the distribution and place it in the root of your classpath.
+
+    Running the Terracotta Server at Development Time/Integration Testing
+    =====================================================================
 
     The Terracotta server is in the terracotta directory. It includes start and stop scripts.
 
@@ -118,18 +145,15 @@
     For Ant based development, the tc-maven-plugin can be called from Ant. See USING-WITH-ANT.txt,
     which shows how to add the server to your Ant build, and how to use the server interactively from Ant.
 
-
     Samples
     =======
     See the samples directory for ready-to-run samples which show to use the full features of Ehcache, including use with Terracotta.
-
-
 
     Documentation
     =============
     See  http://ehcache.org/documentation for full documentation.
 
-    The JavaDoc is in the distribution and also online at <a href="http://ehcache.org/apidocs">http://ehcache.org/apidocs</a>
+    The JavaDoc is in the distribution and also online at &lt;a href="http://ehcache.org/apidocs"&gt;http://ehcache.org/apidocs&lt;/a&gt;
 
     Licenses
     ========
@@ -146,7 +170,7 @@
 
     2. See the FAQ online for a current list.
 
-</pre>
-</body></html>
+&lt;/pre&gt;
+&lt;/body&gt;&lt;/html&gt;
 
         
