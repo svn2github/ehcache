@@ -19,6 +19,7 @@ import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Element;
 
 import java.io.ObjectStreamException;
+import java.io.Serializable;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -31,9 +32,9 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 public class ReadCommittedSoftLockImpl implements SoftLock {
     private static final int PRIME = 31;
 
-    private final transient ReadCommittedSoftLockFactoryImpl factory;
-    private final transient ReentrantLock lock;
-    private final transient ReentrantReadWriteLock freezeLock;
+    private final ReadCommittedSoftLockFactoryImpl factory;
+    private final ReentrantLock lock;
+    private final ReentrantReadWriteLock freezeLock;
 
     private final String cacheManagerName;
     private final String cacheName;
@@ -219,16 +220,8 @@ public class ReadCommittedSoftLockImpl implements SoftLock {
         return hashCode;
     }
 
-    private Object readResolve() throws ObjectStreamException {
-        for (int i = 0; i < CacheManager.ALL_CACHE_MANAGERS.size(); i++) {
-            CacheManager cacheManager = CacheManager.ALL_CACHE_MANAGERS.get(i);
-            if (cacheManager.getName().equals(cacheManagerName)) {
-                ReadCommittedSoftLockFactoryImpl softLockFactory = (ReadCommittedSoftLockFactoryImpl)cacheManager.getSoftLockFactory(cacheName);
-                return softLockFactory.getLock(transactionID, key);
-            }
-        }
-        throw new TransactionException("unable to find referent SoftLock in " + cacheManagerName + " " + cacheName +
-                                       " for key [" + key + "] under transaction " + transactionID);
+    private Object writeReplace() throws ObjectStreamException {
+        return new ReadCommittedSoftLockImplSerializedForm(cacheManagerName, cacheName, transactionID, key);
     }
 
     /**
@@ -239,4 +232,36 @@ public class ReadCommittedSoftLockImpl implements SoftLock {
         return "Soft Lock [clustered: false, isolation: rc, transactionID: " + transactionID + ", key: " + key +
                 ", newElement: " + newElement + ", oldElement: " + oldElement + "]";
     }
+
+    /**
+     * ReadCommittedSoftLockImpl serialized form
+     */
+    private static final class ReadCommittedSoftLockImplSerializedForm implements Serializable {
+
+        private final String cacheManagerName;
+        private final String cacheName;
+        private final TransactionID transactionID;
+        private final Object key;
+
+        private ReadCommittedSoftLockImplSerializedForm(String cacheManagerName, String cacheName, TransactionID transactionID, Object key) {
+            this.cacheManagerName = cacheManagerName;
+            this.cacheName = cacheName;
+            this.transactionID = transactionID;
+            this.key = key;
+        }
+
+        private Object readResolve() throws ObjectStreamException {
+            for (int i = 0; i < CacheManager.ALL_CACHE_MANAGERS.size(); i++) {
+                CacheManager cacheManager = CacheManager.ALL_CACHE_MANAGERS.get(i);
+                if (cacheManager.getName().equals(cacheManagerName)) {
+                    ReadCommittedSoftLockFactoryImpl softLockFactory = (ReadCommittedSoftLockFactoryImpl)cacheManager.getSoftLockFactory(cacheName);
+                    return softLockFactory.getLock(transactionID, key);
+                }
+            }
+            throw new TransactionException("unable to find referent SoftLock in " + cacheManagerName + " " + cacheName +
+                                           " for key [" + key + "] under transaction " + transactionID);
+        }
+
+    }
+
 }

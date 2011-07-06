@@ -122,8 +122,8 @@ public class SoftLockPinningTest {
             cache2.put(element2);
         }
 
-        assertEquals(1, cache1.getMemoryStoreSize());
-        assertEquals(1, cache2.getMemoryStoreSize());
+        assertEquals(100, cache1.getMemoryStoreSize());
+        assertEquals(100, cache2.getMemoryStoreSize());
         RetryAssert.assertBy(5, TimeUnit.SECONDS, new Callable<Integer>() {
             public Integer call() throws Exception {
                 return cache1.getDiskStoreSize();
@@ -179,8 +179,8 @@ public class SoftLockPinningTest {
             public void statusChanged(final int oldStatus, final int newStatus) {
                 if (oldStatus == Status.STATUS_PREPARED) {
 
-                    assertEquals(1, xaCache1.getMemoryStoreSize());
-                    assertEquals(1, xaCache2.getMemoryStoreSize());
+                    assertEquals(100, xaCache1.getMemoryStoreSize());
+                    assertEquals(100, xaCache2.getMemoryStoreSize());
                     RetryAssert.assertBy(5, TimeUnit.SECONDS, new Callable<Integer>() {
                         public Integer call() throws Exception {
                             return xaCache1.getDiskStoreSize();
