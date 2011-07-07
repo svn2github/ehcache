@@ -688,7 +688,7 @@ public class DiskStorageFactory {
         private final long position;
         private final int size;
 
-        private final long hitCount;
+        private volatile long hitCount;
 
         private volatile long expiry;
 
@@ -780,6 +780,11 @@ public class DiskStorageFactory {
         @Override
         long getExpirationTime() {
             return expiry;
+        }
+
+        public void hit(Element e) {
+            hitCount++;
+            expiry = e.getExpirationTime();
         }
     }
 
@@ -923,7 +928,9 @@ public class DiskStorageFactory {
             try {
                 DiskMarker marker = (DiskMarker) object;
                 segment.diskHit();
-                return read(marker);
+                Element e = read(marker);
+                marker.hit(e);
+                return e;
             } catch (IOException e) {
                 throw new CacheException(e);
             } catch (ClassNotFoundException e) {

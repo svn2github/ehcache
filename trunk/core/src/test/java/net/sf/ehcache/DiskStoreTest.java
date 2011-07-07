@@ -18,6 +18,8 @@ package net.sf.ehcache;
 
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.concurrent.TimeUnit.SECONDS;
+import static net.sf.ehcache.util.RetryAssert.assertBy;
+import static net.sf.ehcache.util.RetryAssert.sizeOnDiskOf;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -596,9 +598,9 @@ public class DiskStoreTest extends AbstractCacheTest {
 
         assertEquals(0, store.getSize());
 
-        for (int i = 0; i < 11; i++) {
-            element = new Element("key" + i, "value" + i);
-            cache.put(element);
+        for (int i = 0; i < 10; i++) {
+            cache.put(new Element("key" + i, "value" + i));
+            assertBy(1, SECONDS, sizeOnDiskOf(store), Is.is(i + 1));
             if (i > 0) {
                 cache.get("key" + i);
                 cache.get("key" + i);
@@ -608,8 +610,7 @@ public class DiskStoreTest extends AbstractCacheTest {
         }
 
         //allow to move through spool
-        Thread.sleep(220);
-        assertEquals(10, store.getOnDiskSize());
+        assertBy(1, SECONDS, sizeOnDiskOf(store), Is.is(10));
 
         element = new Element("keyNew", "valueNew");
         store.put(element);
@@ -628,11 +629,7 @@ public class DiskStoreTest extends AbstractCacheTest {
         //wait for spool to empty
         waitLonger();
 
-        RetryAssert.assertBy(1, SECONDS, new Callable<Integer>() {
-            public Integer call() throws Exception {
-                return store.getOnDiskSize();
-            }
-        }, Is.is(10));
+        assertBy(1, SECONDS, sizeOnDiskOf(store), Is.is(10));
     }
 
     /**

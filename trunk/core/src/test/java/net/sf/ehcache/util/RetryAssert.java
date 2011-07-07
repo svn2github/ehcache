@@ -21,6 +21,7 @@ import java.util.concurrent.TimeUnit;
 
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
+import net.sf.ehcache.store.Store;
 
 import org.hamcrest.Matcher;
 import org.junit.Assert;
@@ -79,6 +80,14 @@ public class RetryAssert {
         return new Callable<Integer>() {
             public Integer call() throws Exception {
                 return cache.getSize();
+            }
+        };
+    }
+
+    public static Callable<Integer> sizeOnDiskOf(final Store store) {
+        return new Callable<Integer>() {
+            public Integer call() throws Exception {
+                return store.getOnDiskSize();
             }
         };
     }
