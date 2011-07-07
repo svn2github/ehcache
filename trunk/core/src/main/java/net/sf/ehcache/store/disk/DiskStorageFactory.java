@@ -782,7 +782,12 @@ public class DiskStorageFactory {
             return expiry;
         }
 
-        public void hit(Element e) {
+        /**
+         * Increment statistic associated with a hit on this cache.
+         *
+         * @param e element deserialized from disk
+         */
+        void hit(Element e) {
             hitCount++;
             expiry = e.getExpirationTime();
         }
