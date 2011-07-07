@@ -301,7 +301,7 @@ public class RMICacheReplicatorPerfTest extends AbstractCachePerfTest {
 
         Element firstElement = cachePeer.getQuiet((Serializable) keys.get(0));
         long size = firstElement.getSerializedSize();
-        assertEquals(504, size);
+        assertEquals(514, size);
 
         int chunkSize = (int) (5000000 / size);
 
