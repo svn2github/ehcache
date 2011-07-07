@@ -209,6 +209,6 @@ public class LfuMemoryStorePerfTest extends MemoryStorePerfTester {
         LOG.info("Selections not in lowest quartile: " + lowestQuartileNotIdentified);
         // Assert that we didn't see too many eviction candidates from outside
         // the lowest quartile.
-        assertTrue(lowestQuartileNotIdentified <= 10);
+        assertTrue(lowestQuartileNotIdentified + " > 10!!!", lowestQuartileNotIdentified <= 10);
     }
 }
