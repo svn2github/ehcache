@@ -82,4 +82,12 @@ public class RetryAssert {
             }
         };
     }
+
+    public static Callable<Integer> sizeOnDiskOf(final Ehcache cache) {
+        return new Callable<Integer>() {
+            public Integer call() throws Exception {
+                return cache.getDiskStoreSize();
+            }
+        };
+    }
 }

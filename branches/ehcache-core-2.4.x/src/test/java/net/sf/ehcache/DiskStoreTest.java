@@ -37,6 +37,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.Callable;
+import java.util.concurrent.TimeUnit;
 
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.DiskStoreConfiguration;
@@ -1249,5 +1250,34 @@ public class DiskStoreTest extends AbstractCacheTest {
         } finally {
             cacheManager.shutdown();
         }
+    }
+
+    @Test
+    public void testFaultedElementIsNotFlushed() throws InterruptedException {
+        CacheConfiguration configuration = new CacheConfiguration().name("testFaultedElementIsNotFlushed").maxElementsInMemory(1)
+                .overflowToDisk(true).diskPersistent(true).eternal(true);
+
+        Cache cache = new Cache(configuration);
+
+        manager.addCache(cache);
+
+        cache.put(new Element("key1", "value"));
+        cache.put(new Element("key2", "value"));
+        cache.setStatisticsEnabled(true);
+
+        RetryAssert.assertBy(10, TimeUnit.SECONDS, RetryAssert.sizeOnDiskOf(cache), Is.is(2));
+
+        Thread.sleep(2000);
+
+        cache.get("key2");
+
+        assertEquals(1, cache.getStatistics().getInMemoryHits());
+        assertEquals(0, cache.getStatistics().getOnDiskHits());
+        cache.get("key1");
+        assertEquals(1, cache.getStatistics().getInMemoryHits());
+        assertEquals(1, cache.getStatistics().getOnDiskHits());
+        cache.get("key1");
+        assertEquals(2, cache.getStatistics().getInMemoryHits());
+        assertEquals(1, cache.getStatistics().getOnDiskHits());
     }
 }

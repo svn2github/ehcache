@@ -203,7 +203,7 @@ public class DiskPersistentStorageFactory extends DiskStorageFactory<ElementSubs
                     element = read(marker);
                     if (marker.cache(element)) {
                         int size = inMemory.incrementAndGet();
-                        inMemoryEvict(size, key);
+                        inMemoryEvict(size, element.getObjectKey());
                     }
                 }
                 return element;
@@ -473,13 +473,15 @@ public class DiskPersistentStorageFactory extends DiskStorageFactory<ElementSubs
         CachingDiskMarker target = null;
 
         for (CachingDiskMarker substitute : sample) {
-            if (target == null) {
-                target = substitute;
-            } else {
-                Element targetElement = getElement(target);
-                Element element = getElement(substitute);
-                if (targetElement == null || (element != null && memoryPolicy.compare(targetElement, element))) {
+            if (substitute.getKey() == keyHint) {
+                if (target == null) {
                     target = substitute;
+                } else {
+                    Element targetElement = getElement(target);
+                    Element element = getElement(substitute);
+                    if (targetElement == null || (element != null && memoryPolicy.compare(targetElement, element))) {
+                        target = substitute;
+                    }
                 }
             }
         }
