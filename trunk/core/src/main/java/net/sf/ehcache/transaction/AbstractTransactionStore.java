@@ -295,13 +295,6 @@ public abstract class AbstractTransactionStore extends AbstractStore implements 
         return underlyingStore.getSearchAttribute(attributeName);
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public int getPinnedCount() {
-        return underlyingStore.getPinnedCount();
-    }
-
     /* TerracottaStore methods */
 
     /**

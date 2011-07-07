@@ -136,12 +136,4 @@ public abstract class AbstractStore implements Store {
     public <T> Attribute<T> getSearchAttribute(String attributeName) throws CacheException {
         return null;
     }
-
-    /**
-     * {@inheritDoc}
-     */
-    public int getPinnedCount() {
-        return 0;
-    }
-
 }

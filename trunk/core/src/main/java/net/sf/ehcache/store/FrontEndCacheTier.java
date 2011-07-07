@@ -387,7 +387,7 @@ public abstract class FrontEndCacheTier<T extends TierableStore, U extends Tiera
     public int getSize() {
         readLock();
         try {
-            return Math.max(cache.getSize(), authority.getSize() + cache.getPinnedCount());
+            return Math.max(cache.getSize(), authority.getSize());
         } finally {
             readUnlock();
         }
@@ -473,14 +473,6 @@ public abstract class FrontEndCacheTier<T extends TierableStore, U extends Tiera
         } finally {
             writeUnlock();
         }
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public int getPinnedCount() {
-        return cache.getPinnedCount();
     }
 
     /**

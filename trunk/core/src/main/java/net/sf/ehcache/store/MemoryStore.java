@@ -42,7 +42,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
@@ -105,12 +104,6 @@ public final class MemoryStore extends AbstractStore implements TierableStore, P
     private volatile PoolAccessor poolAccessor;
 
     private volatile CacheLockProvider lockProvider;
-
-    /**
-     * Counts the number of pinned elements. Unpinned elements
-     * added to a pinned cache does not increment this counter.
-     */
-    private final AtomicInteger pinnedCount = new AtomicInteger();
 
     private volatile boolean cachePinned;
 
@@ -250,9 +243,6 @@ public final class MemoryStore extends AbstractStore implements TierableStore, P
                 }
             }
             checkCapacity(element);
-            if (element.isPinned()) {
-                pinnedCount.incrementAndGet();
-            }
             return old == null;
         }
     }
@@ -319,9 +309,6 @@ public final class MemoryStore extends AbstractStore implements TierableStore, P
         }
         if (element != null) {
             poolAccessor.delete(element.getObjectKey(), element.getObjectValue(), map.storedObject(element));
-            if (element.isPinned()) {
-                pinnedCount.decrementAndGet();
-            }
             return element;
         } else {
             if (LOG.isDebugEnabled()) {
@@ -372,7 +359,6 @@ public final class MemoryStore extends AbstractStore implements TierableStore, P
     public final void removeAll() throws CacheException {
         map.clear();
         poolAccessor.clear();
-        pinnedCount.set(0);
     }
 
     /**
@@ -385,7 +371,6 @@ public final class MemoryStore extends AbstractStore implements TierableStore, P
         status = Status.STATUS_SHUTDOWN;
         flush();
         poolAccessor.unlink();
-        pinnedCount.set(0);
     }
 
     /**
@@ -723,9 +708,6 @@ public final class MemoryStore extends AbstractStore implements TierableStore, P
         if (poolAccessor.add(element.getObjectKey(), element.getObjectValue(), map.storedObject(element), isPinningEnabled(element)) > -1) {
             Element old = map.putIfAbsent(element.getObjectKey(), element);
             if (old == null) {
-                if (element.isPinned()) {
-                    pinnedCount.incrementAndGet();
-                }
                 checkCapacity(element);
             } else {
                 poolAccessor.delete(element.getObjectKey(), element.getObjectValue(), map.storedObject(element));
@@ -754,9 +736,6 @@ public final class MemoryStore extends AbstractStore implements TierableStore, P
             if (comparator.equals(element, toRemove)) {
                 map.remove(key);
                 poolAccessor.delete(toRemove.getObjectKey(), toRemove.getObjectValue(), map.storedObject(toRemove));
-                if (element.isPinned()) {
-                    pinnedCount.decrementAndGet();
-                }
                 return toRemove;
             } else {
                 return null;
@@ -784,12 +763,6 @@ public final class MemoryStore extends AbstractStore implements TierableStore, P
                 if (comparator.equals(old, toRemove)) {
                     map.put(key, element);
                     poolAccessor.delete(toRemove.getObjectKey(), toRemove.getObjectValue(), map.storedObject(toRemove));
-                    if (element.isPinned()) {
-                        pinnedCount.incrementAndGet();
-                    }
-                    if (toRemove.isPinned()) {
-                        pinnedCount.decrementAndGet();
-                    }
                     return true;
                 } else {
                     poolAccessor.delete(element.getObjectKey(), element.getObjectValue(), map.storedObject(element));
@@ -822,12 +795,6 @@ public final class MemoryStore extends AbstractStore implements TierableStore, P
                 if (toRemove != null) {
                     map.put(key, element);
                     poolAccessor.delete(toRemove.getObjectKey(), toRemove.getObjectValue(), map.storedObject(toRemove));
-                    if (element.isPinned()) {
-                        pinnedCount.incrementAndGet();
-                    }
-                    if (toRemove.isPinned()) {
-                        pinnedCount.decrementAndGet();
-                    }
                     return toRemove;
                 } else {
                     poolAccessor.delete(element.getObjectKey(), element.getObjectValue(), map.storedObject(element));
@@ -848,14 +815,6 @@ public final class MemoryStore extends AbstractStore implements TierableStore, P
      */
     public Object getMBean() {
         return null;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public int getPinnedCount() {
-        return pinnedCount.get();
     }
 
     /**

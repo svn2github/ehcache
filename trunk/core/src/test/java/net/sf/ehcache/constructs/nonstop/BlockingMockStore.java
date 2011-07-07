@@ -284,10 +284,6 @@ public class BlockingMockStore implements TerracottaStore {
         throw new UnsupportedOperationException();
     }
 
-    public int getPinnedCount() {
-        return 0;
-    }
-
     public Set getLocalKeys() {
         // should never block
         return Collections.EMPTY_SET;
