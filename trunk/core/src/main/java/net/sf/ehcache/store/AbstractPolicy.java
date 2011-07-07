@@ -30,7 +30,7 @@ public abstract class AbstractPolicy implements Policy {
     /**
      * The sample size to use
      */
-    static final int DEFAULT_SAMPLE_SIZE = 15;
+    static final int DEFAULT_SAMPLE_SIZE = 30;
 
     /**
      * Used to select random numbers
