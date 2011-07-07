@@ -162,6 +162,10 @@ Distributed Ehcache FAQ
       and throw a timeout to the application. This is however somewhat messy - since the application threads may receive a
       timeout, but the "terracotta transaction" may still make it through to the L2.
 
+*  After my application interrupted a thread (or threw InterruptedException), why did the Terracotta client die?
+
+   The Terracotta client library runs with your application and is often involved in operations which your application is not necessarily aware of. These operations may get interrupted, too, which is not something the Terracotta client can anticipate. Ensure that your application does not interrput clustered threads. This is a common error that can cause the Terracotta client to shut down or go into an error state, after which it will have to be restarted.
+
 *  What happened to coherent=true|false in ehcache.xml
 
     It has been deprecated. Use the "consistency" attribute instead.

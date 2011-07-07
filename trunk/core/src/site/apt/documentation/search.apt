@@ -13,7 +13,7 @@ Search
      or summary values (Aggregators) can all be returned.
 
 
-    Here is a simple example: Search for 32 year old males and return the cache values.
+    Here is a simple example: Search for 32-year-old males and return the cache values.
 
 ---
 Results results = cache.createQuery().includeValues()
@@ -127,8 +127,7 @@ Ehcache myCache = cacheManager.getEhcache("myCache");
 
 *  Attribute Extractors
   
-    Attributes are extracted from keys or values. This is done on <<<put()>>> into the cache
-    using <<<AttributeExtractor>>>s in the clustered implementation and during search in the standalone implementation 
+    Attributes are extracted from keys or values. This is done during search or, if using Distributed Ehcache, on <<<put()>>> into the cache using <<<AttributeExtractor>>>s. 
 
     Extracted attributes must be one of the following supported types:
     
@@ -156,13 +155,12 @@ Ehcache myCache = cacheManager.getEhcache("myCache");
 
         *   Enum
         
-    If an attribute cannot be extracted due to not being found or of being the wrong type an AttributeExtractorException is thrown
-    during the <<<put()>>> in the clustered implementation and on search execution in the standalone implementation
+    If an attribute cannot be extracted due to not being found or being the wrong type, an AttributeExtractorException is thrown on search execution or, if using Distributed Ehcache, on <<<put()>>>. 
 
 
 **  Well-known Attributes
 
-    The parts of an Element are well-known attributes that can be referenced by some predefined, well-known names.
+    The parts of an Element that are well-known attributes can be referenced by some predefined, well-known names.
 
     If a keys and/or value is of a supported search type, they are added automatically as attributes with the names
     "key" amd "value".
@@ -246,9 +244,9 @@ Well-known Attribute Name | Attribute Constant
 </cache>
 ---  
   
-  If properties are provided then the attribute extractor
+  If properties are provided, then the attribute extractor
   implementation must have a public constructor that accepts a single
-  java.util.Properties instance
+  java.util.Properties instance.
 
 *  Query API
 
@@ -263,7 +261,7 @@ Results results = query.execute();
 
 **  Using attributes in queries
 
-  If declared and available, the well-known attributes are referenced by their name or the convenience attributes are used
+  If declared and available, the well-known attributes are referenced by their names or the convenience attributes are used
    directly as shown in this example:
 
 ---
@@ -271,7 +269,7 @@ Results results = cache.createQuery().addCriteria(Query.KEY.eq(35)).execute();
 Results results = cache.createQuery().addCriteria(Query.VALUE.lt(10)).execute();
 ---
 
-    Other attributes are referenced by the names given them in the configuration. E.g.
+    Other attributes are referenced by the names given them in the configuration. For example:
 
 ---
 Attribute<Integer> age = cache.getSearchAttribute("age");
@@ -293,9 +291,7 @@ query = cache.createQuery().includeKeys().addCriteria(age.le(65)).add(gender.eq(
 
     Both logical and comparison operators implement the <<<Criteria>>> interface.
 
-    To add a criteria with a different logical operator, you need to explicitly nest it within a new logical operator Criteria Object.
-
-    e.g. to check for age = 35 or gender = female, do the following:
+    To add a criteria with a different logical operator, explicitly nest it within a new logical operator Criteria Object. For example, to check for age = 35 or gender = female, do the following:
 
 ---
 query.addCriteria(new Or(age.eq(35),
@@ -309,8 +305,8 @@ query.addCriteria(new Or(age.eq(35),
 
 **  List of Operators
 
-    Operators are available as methods on attributes, so they are used by adding a ".". So, "lt" means
-    less than and is used as <<<age.lt(10)>>>, which is a shorthand way of saying <<<new LessThan(10)>>>.
+    Operators are available as methods on attributes, so they are used by adding a ".". For example, "lt" means
+    "less than" and is used as <<<age.lt(10)>>>, which is a shorthand way of saying <<<new LessThan(10)>>>.
 
     The full listing of operator shorthand is shown below.
 
@@ -354,7 +350,7 @@ Shorthand | Criteria Class | Description
     Query results may be ordered in ascending or descending order by adding an <<<addOrderBy>>> clause to the query, which takes
     as parameters the attribute to order by and the ordering direction.
 
-    e.g. to order the results by ages in ascending order
+    For example, to order the results by ages in ascending order
 ---
 query.addOrderBy(age, Direction.ASCENDING);
 ---
@@ -375,7 +371,7 @@ query.execute();
 
     The <<<maxResults>>> clause is used to limit the size of the results.
 
-    e.g. to limit the above query to the first 100 elements found:
+    For example, to limit the above query to the first 100 elements found:
 
 ---
 Query query = cache.createQuery();
@@ -392,10 +388,10 @@ query.execute();
 
 **  Results
 
-  Either all results can be returned using <<<results.all()>>> to get the all in one chunk, or a range of results
-  using <<<results.range(int start, int count)>>> to achieve paging.
+  Either all results can be returned using <<<results.all()>>> to get them all in one chunk, or page results with ranges
+  using <<<results.range(int start, int count)>>>.
 
-  When you are done with the results, it is recommended to call <<<discard()>>>. This allows resources to be freed.
+  When you are done with the results, call <<<discard()>>> to free up resources.
   In the distributed implementation with Terracotta, resources may be used to hold results for paging or return.
 
   To determine what was returned by the query use one of the interrogation methods on <<<Results>>>:
@@ -412,20 +408,20 @@ query.execute();
 
    Each <<<Element>>> in the cache found with a query will be represented as a <<<Result>>> object. So if a query finds
    350 elements there will be 350 <<<Result>>> objects. An exception to this if no keys or attributes are included but 
-   aggregators are -- In this case there will be exactly one <<<Result>>> present
+   aggregators are -- in this case there will be exactly one <<<Result>>> present.
 
    A Result object can contain:
 
-   *    the Element key - when <<<includeKeys()>>> was added to the query
+   *    the Element key - when <<<includeKeys()>>> is added to the query,
 
-   *    the Element value - when <<<includeValues()>>> was added to the query
+   *    the Element value - when <<<includeValues()>>> is added to the query,
 
-   *    predefined attribute(s) extracted from an Element value - when <<<includeAttribute(...)>>> was added to the query. To access
+   *    predefined attribute(s) extracted from an Element value - when <<<includeAttribute(...)>>> is added to the query. To access
         an attribute from Result, use <<<getAttribute(Attribute<T> attribute>>>.
    
    *    aggregator results
 
-  Aggregator results are summaries computed for the search. They are available <<<Result.getAggregatorResults>>> which returns
+  Aggregator results are summaries computed for the search. They are available through <<<Result.getAggregatorResults>>> which returns
    a list of <<<Aggregator>>>s in the same order in which they were used in the <<<Query>>>.
 
 
@@ -433,7 +429,7 @@ query.execute();
 
     Aggregators are added with <<<query.includeAggregator(\<attribute\>.\<aggregator\>)>>>.
 
-    E.g. to find the sum of the age attribute:
+    For example, to find the sum of the age attribute:
 
 ---
 query.includeAggregator(age.sum());
@@ -499,7 +495,7 @@ for (Result result : results.all()) {
 
 **  Index updating
 
-    Indexes will be updated asynchronously, so there state will lag slightly behind the state of the cache. The only exception is when
+    Indexes will be updated asynchronously, so their state will lag slightly behind the state of the cache. The only exception is when
     the updating thread then performs a search.
 
     For caches with concurrency control, an index will not reflect the new state of the cache until:
