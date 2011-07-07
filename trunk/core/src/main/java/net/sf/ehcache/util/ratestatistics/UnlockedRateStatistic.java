@@ -77,6 +77,15 @@ public class UnlockedRateStatistic extends AbstractRateStatistic {
     float thenAverage = rateSample;
     long now = System.nanoTime();
     float nowValue = ((float) (count - lastSample)) / (now - then);
-    return iterateMovingAverage(nowValue, now, thenAverage, then) * TimeUnit.SECONDS.toNanos(1);
+    final float rate = iterateMovingAverage(nowValue, now, thenAverage, then) * TimeUnit.SECONDS.toNanos(1);
+    if (Float.isNaN(rate)) {
+      if (Float.isNaN(thenAverage)) {
+        return 0f;
+      } else {
+        return thenAverage;
+      }
+    } else {
+      return rate;
+    }
   }
 }
