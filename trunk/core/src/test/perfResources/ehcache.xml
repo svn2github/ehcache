@@ -30,7 +30,7 @@
            eternal="false"
            timeToIdleSeconds="360"
            timeToLiveSeconds="1000"
-           overflowToDisk="true"
+           overflowToDisk="false"
            memoryStoreEvictionPolicy="LRU">
     </cache>
 
