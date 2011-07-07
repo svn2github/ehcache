@@ -722,12 +722,12 @@ public class CacheEventListenerTest extends AbstractCacheTest {
     public void testExpiryViaDiskStoreExpiryThread() throws InterruptedException {
         //Overflow 10 elements to disk store
         for (int i = 0; i < 20; i++) {
-            Element element = new Element("" + i, new Date());
+            Element element = new Element(Integer.toString(i), new Date());
             cache.put(element);
         }
 
         // Wait for expiry and expiry thread
-        Thread.sleep(5999);
+        Thread.sleep(6999);
 
         List notifications = CountingCacheEventListener.getCacheElementsExpired(cache);
         for (int i = 0; i < notifications.size(); i++) {
