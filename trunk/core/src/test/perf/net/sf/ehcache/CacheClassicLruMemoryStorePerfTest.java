@@ -1,11 +1,15 @@
 package net.sf.ehcache;
 
+import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 /**
  * @author Alex Snaps
@@ -53,6 +57,48 @@ public class CacheClassicLruMemoryStorePerfTest extends CachePerfTest {
     @Test
     public void testConcurrentReadWriteRemoveLRU() throws Exception {
         testConcurrentReadWriteRemove(MemoryStoreEvictionPolicy.LRU);
+    }
+
+    @Override
+    @Test
+    public void testMemoryEfficiencyOfFlushWhenOverflowToDisk() throws Exception {
+        CacheConfiguration config = new CacheConfiguration("testGetMemoryStoreSize", 40000);
+        config.setOverflowToDisk(true);
+        config.setEternal(false);
+        config.setTimeToLiveSeconds(100);
+        config.setTimeToIdleSeconds(200);
+        config.setDiskPersistent(false);
+        config.setDiskExpiryThreadIntervalSeconds(120);
+        Cache cache = new Cache(config);
+
+        manager.addCache(cache);
+        StopWatch stopWatch = new StopWatch();
+
+        assertEquals(0, cache.getMemoryStoreSize());
+
+        for (int i = 0; i < 80000; i++) {
+            cache.put(new Element("" + i, new byte[480]));
+        }
+        LOG.info("Put time: " + stopWatch.getElapsedTime());
+        Thread.sleep(2000);
+        assertEquals(40000, cache.getMemoryStoreSize());
+        assertEquals(40000, cache.getDiskStoreSize());
+
+        long beforeMemory = measureMemoryUse();
+        stopWatch.getElapsedTime();
+        cache.flush();
+        LOG.info("Flush time: " + stopWatch.getElapsedTime());
+
+        //It takes a while to write all the Elements to disk
+        Thread.sleep(1000);
+
+        long afterMemory = measureMemoryUse();
+        long memoryIncrease = afterMemory - beforeMemory;
+        assertTrue(memoryIncrease < 40000000);
+
+        assertEquals(0, cache.getMemoryStoreSize());
+        assertEquals(40000, cache.getDiskStoreSize());
+
     }
 
 }

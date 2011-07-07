@@ -45,7 +45,7 @@
         eternal="false"
         timeToIdleSeconds="5"
         timeToLiveSeconds="10"
-        overflowToDisk="true"
+        overflowToDisk="false"
         />
 
     <!-- Non hibernate caches. e.g. page caches, collection caches, whatever -->
@@ -53,52 +53,52 @@
         maxElementsInMemory="20"
         eternal="false"
         timeToLiveSeconds="600"
-        overflowToDisk="true"
+        overflowToDisk="false"
         />
 
     <cache name="2"
         maxElementsInMemory="150"
         eternal="false"
         timeToLiveSeconds="120"
-        overflowToDisk="true"
+        overflowToDisk="false"
         />
 
     <cache name="3"
         maxElementsInMemory="50"
         eternal="false"
         timeToLiveSeconds="120"
-        overflowToDisk="true"
+        overflowToDisk="false"
         />
 
     <cache name="4"
         maxElementsInMemory="20"
         eternal="false"
         timeToLiveSeconds="120"
-        overflowToDisk="true"
+        overflowToDisk="false"
         />
 
     <cache name="5"
         maxElementsInMemory="250"
         eternal="true"
-        overflowToDisk="true"
+        overflowToDisk="false"
         />
 
     <cache name="6"
         maxElementsInMemory="2"
         eternal="true"
-        overflowToDisk="true"
+        overflowToDisk="false"
         />
 
     <cache name="7"
         maxElementsInMemory="2"
         eternal="true"
-        overflowToDisk="true"
+        overflowToDisk="false"
         />
 
     <cache name="8"
         maxElementsInMemory="30"
         eternal="true"
-        overflowToDisk="true"
+        overflowToDisk="false"
         />
 
     <cache name="9"
@@ -113,62 +113,62 @@
         maxElementsInMemory="100"
         eternal="false"
         timeToIdleSeconds="1800"
-        overflowToDisk="true"
+        overflowToDisk="false"
         />
 
     <cache name="11"
         maxElementsInMemory="30"
         eternal="true"
-        overflowToDisk="true"
+        overflowToDisk="false"
         />
 
     <cache name="12"
         maxElementsInMemory="200"
         eternal="true"
-        overflowToDisk="true"
+        overflowToDisk="false"
         />
 
     <cache name="13"
         maxElementsInMemory="20"
         eternal="true"
-        overflowToDisk="true"
+        overflowToDisk="false"
         />
 
     <cache name="14"
         maxElementsInMemory="30"
         eternal="true"
-        overflowToDisk="true"
+        overflowToDisk="false"
         />
 
     <cache name="15"
         maxElementsInMemory="30"
         eternal="true"
-        overflowToDisk="true"
+        overflowToDisk="false"
         />
 
     <cache name="16"
         maxElementsInMemory="20"
         eternal="true"
-        overflowToDisk="true"
+        overflowToDisk="false"
         />
 
     <cache name="17"
         maxElementsInMemory="100"
         eternal="false"
         timeToIdleSeconds="1500"
-        overflowToDisk="true"
+        overflowToDisk="false"
         />
 
     <cache name="18"
         maxElementsInMemory="1"
         eternal="true"
-        overflowToDisk="true"
+        overflowToDisk="false"
         />
 
     <cache name="19"
         maxElementsInMemory="1"
         eternal="true"
-        overflowToDisk="true"
+        overflowToDisk="false"
         />
 
     <cache name="20"
@@ -176,14 +176,14 @@
         eternal="false"
         timeToIdleSeconds="86400"
         timeToLiveSeconds="604800"
-        overflowToDisk="true"
+        overflowToDisk="false"
         />
 
     <cache name="21"
         maxElementsInMemory="10"
         eternal="false"
         timeToLiveSeconds="86400"
-        overflowToDisk="true"
+        overflowToDisk="false"
         diskPersistent="true"
         />
 
@@ -194,31 +194,31 @@
         maxElementsInMemory="5"
         eternal="false"
         timeToLiveSeconds="120"
-        overflowToDisk="true"/>
+        overflowToDisk="false"/>
     
     <cache name="net.sf.hibernate.cache.UpdateTimestampsCache"
         maxElementsInMemory="5000"
         eternal="false"
         timeToLiveSeconds="3600"
-        overflowToDisk="true"/>
+        overflowToDisk="false"/>
 
     <cache name="query.23"
         maxElementsInMemory="5"
         eternal="false"
         timeToLiveSeconds="86400"
-        overflowToDisk="true"/>
+        overflowToDisk="false"/>
 
     <cache name="query.24"
         maxElementsInMemory="5"
         eternal="false"
         timeToLiveSeconds="86400"
-        overflowToDisk="true"/>
+        overflowToDisk="false"/>
 
     <cache name="query.25"
         maxElementsInMemory="1"
         eternal="false"
         timeToLiveSeconds="86400"
-        overflowToDisk="true"/>
+        overflowToDisk="false"/>
 
     <!-- Hibernate Domain Object Caches
          Hibernate expects the cache to be named after the fully
@@ -227,196 +227,196 @@
         maxElementsInMemory="5"
         eternal="false"
         timeToLiveSeconds="600"
-        overflowToDisk="true"
+        overflowToDisk="false"
         />
 
     <cache name="domain.27"
         maxElementsInMemory="50"
         eternal="false"
         timeToLiveSeconds="600"
-        overflowToDisk="true"
+        overflowToDisk="false"
         />
     <cache name="domain.28"
         maxElementsInMemory="450"
         eternal="false"
         timeToLiveSeconds="600"
-        overflowToDisk="true"
+        overflowToDisk="false"
         />
     <cache name="domain.29"
         maxElementsInMemory="30"
         eternal="false"
         timeToLiveSeconds="600"
-        overflowToDisk="true"
+        overflowToDisk="false"
         />
     <cache name="domain.30"
         maxElementsInMemory="20"
         eternal="false"
         timeToLiveSeconds="86400"
-        overflowToDisk="true"
+        overflowToDisk="false"
         />
     <cache name="domain.31"
         maxElementsInMemory="50"
         eternal="false"
         timeToLiveSeconds="600"
-        overflowToDisk="true"
+        overflowToDisk="false"
         />
     <cache name="domain.32"
         maxElementsInMemory="1200"
         eternal="false"
         timeToLiveSeconds="120"
-        overflowToDisk="true"
+        overflowToDisk="false"
         />
     <cache name="domain.33"
         maxElementsInMemory="200"
         eternal="false"
         timeToLiveSeconds="600"
-        overflowToDisk="true"
+        overflowToDisk="false"
         />
 
     <cache name="domain.34"
         maxElementsInMemory="20"
         eternal="false"
         timeToLiveSeconds="600"
-        overflowToDisk="true"
+        overflowToDisk="false"
         />
     <cache name="domain.35"
         maxElementsInMemory="10"
         eternal="false"
         timeToLiveSeconds="86400"
-        overflowToDisk="true"
+        overflowToDisk="false"
         />
     <cache name="domain.36"
         maxElementsInMemory="2000"
         eternal="false"
         timeToLiveSeconds="600"
-        overflowToDisk="true"
+        overflowToDisk="false"
         />
     <cache name="domain.37"
         maxElementsInMemory="30"
         eternal="false"
         timeToLiveSeconds="600"
-        overflowToDisk="true"
+        overflowToDisk="false"
         />
     <cache name="domain.38"
             maxElementsInMemory="2000"
             eternal="false"
             timeToLiveSeconds="600"
-            overflowToDisk="true"
+            overflowToDisk="false"
             />
     <cache name="domain.39"
         maxElementsInMemory="200"
         eternal="false"
         timeToLiveSeconds="600"
-        overflowToDisk="true"
+        overflowToDisk="false"
         />
     <cache name="domain.40"
         maxElementsInMemory="200"
         eternal="false"
         timeToLiveSeconds="600"
-        overflowToDisk="true"
+        overflowToDisk="false"
         />
     <cache name="domain.41"
         maxElementsInMemory="20"
         eternal="false"
         timeToLiveSeconds="86400"
-        overflowToDisk="true"
+        overflowToDisk="false"
         />
     <cache name="domain.42"
         maxElementsInMemory="400"
         eternal="false"
         timeToLiveSeconds="86400"
-        overflowToDisk="true"
+        overflowToDisk="false"
         />
 
     <cache name="domain.43"
         maxElementsInMemory="1800"
         eternal="false"
         timeToLiveSeconds="600"
-        overflowToDisk="true"
+        overflowToDisk="false"
         />
     <cache name="domain.44"
         maxElementsInMemory="30"
         eternal="false"
         timeToLiveSeconds="600"
-        overflowToDisk="true"
+        overflowToDisk="false"
         />
     <cache name="domain.45"
         maxElementsInMemory="5000"
         eternal="false"
         timeToLiveSeconds="600"
-        overflowToDisk="true"
+        overflowToDisk="false"
         />
     <cache name="domain.46"
         maxElementsInMemory="5000"
         eternal="false"
         timeToLiveSeconds="600"
-        overflowToDisk="true"
+        overflowToDisk="false"
         />
     <cache name="domain.47"
         maxElementsInMemory="5000"
         eternal="false"
         timeToLiveSeconds="600"
-        overflowToDisk="true"
+        overflowToDisk="false"
         />
     <cache name="domain.48"
         maxElementsInMemory="5000"
         eternal="false"
         timeToLiveSeconds="600"
-        overflowToDisk="true"
+        overflowToDisk="false"
         />
     <cache name="domain.49"
         maxElementsInMemory="20"
         eternal="false"
         timeToLiveSeconds="3600"
-        overflowToDisk="true"
+        overflowToDisk="false"
         />
     <cache name="domain.50"
         maxElementsInMemory="100"
         eternal="false"
         timeToLiveSeconds="86400"
-        overflowToDisk="true"
+        overflowToDisk="false"
         />
     <cache name="domain.51"
         maxElementsInMemory="15"
         eternal="false"
         timeToLiveSeconds="86400"
-        overflowToDisk="true"
+        overflowToDisk="false"
         />
     <cache name="domain.52"
         maxElementsInMemory="5"
         eternal="false"
         timeToLiveSeconds="86400"
-        overflowToDisk="true"
+        overflowToDisk="false"
         />
     <cache name="domain.53"
         maxElementsInMemory="200"
         eternal="false"
         timeToLiveSeconds="86400"
-        overflowToDisk="true"
+        overflowToDisk="false"
         />
     <cache name="domain.54"
         maxElementsInMemory="1000"
         eternal="false"
         timeToLiveSeconds="86400"
-        overflowToDisk="true"
+        overflowToDisk="false"
         />
     <cache name="com.xyzcompany.division.project.domain.55"
         maxElementsInMemory="100"
         eternal="false"
         timeToLiveSeconds="600"
-        overflowToDisk="true"
+        overflowToDisk="false"
         />
     <cache name="com.xyzcompany.division.project.domain.56"
         maxElementsInMemory="10"
         eternal="false"
         timeToLiveSeconds="100"
-        overflowToDisk="true"
+        overflowToDisk="false"
         />
     <cache name="com.xyzcompany.division.project.domain.57"
         maxElementsInMemory="10"
         eternal="false"
         timeToLiveSeconds="100"
-        overflowToDisk="true"
+        overflowToDisk="false"
         />
     <cache name="com.xyzcompany.division.project.59"
         maxElementsInMemory="10"
@@ -428,61 +428,61 @@
         maxElementsInMemory="4000"
         eternal="false"
         timeToLiveSeconds="600"
-        overflowToDisk="true" 
+        overflowToDisk="false" 
         />
     
     <cache name="com.xyzcompany.division.project.61"
         maxElementsInMemory="1000"
         eternal="false"
         timeToLiveSeconds="600"
-        overflowToDisk="true"
+        overflowToDisk="false"
         />
     <cache name="com.xyzcompany.division.project.62"
         maxElementsInMemory="100"
         eternal="false"
         timeToLiveSeconds="86400"
-        overflowToDisk="true"
+        overflowToDisk="false"
         />
     <cache name="com.xyzcompany.division.project.63"
         maxElementsInMemory="1000"
         eternal="false"
         timeToLiveSeconds="86400"
-        overflowToDisk="true"
+        overflowToDisk="false"
         />
     <cache name="com.xyzcompany.division.project.64"
         maxElementsInMemory="100"
         eternal="false"
         timeToLiveSeconds="86400"
-        overflowToDisk="true"
+        overflowToDisk="false"
         />
     <cache name="com.xyzcompany.division.project.65"
         maxElementsInMemory="10"
         eternal="false"
         timeToLiveSeconds="86400"
-        overflowToDisk="true"
+        overflowToDisk="false"
         />
     <cache name="com.xyzcompany.division.project.66"
         maxElementsInMemory="100"
         eternal="false"
         timeToLiveSeconds="600"
-        overflowToDisk="true"
+        overflowToDisk="false"
         />
     <cache name="com.xyzcompany.division.project.67"
         maxElementsInMemory="10"
         eternal="false"
         timeToLiveSeconds="86400"
-        overflowToDisk="true"
+        overflowToDisk="false"
         />
     <cache name="com.xyzcompany.division.project.68"
         maxElementsInMemory="100"
         eternal="false"
         timeToLiveSeconds="600"
-        overflowToDisk="true"
+        overflowToDisk="false"
         />
     <cache name="com.xyzcompany.division.project.69"
         maxElementsInMemory="10"
         eternal="false"
         timeToLiveSeconds="86400"
-        overflowToDisk="true"
+        overflowToDisk="false"
         />
 </ehcache>
