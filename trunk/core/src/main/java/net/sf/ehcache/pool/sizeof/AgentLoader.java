@@ -23,6 +23,9 @@ import java.io.InputStream;
 import java.lang.management.ManagementFactory;
 import java.lang.reflect.Method;
 import java.net.URL;
+import java.net.URLClassLoader;
+import java.util.ArrayList;
+import java.util.List;
 
 import net.sf.ehcache.config.MemoryUnit;
 
@@ -40,6 +43,7 @@ final class AgentLoader {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AgentLoader.class);
 
+    private static final String VIRTUAL_MACHINE_CLASSNAME = "com.sun.tools.attach.VirtualMachine";
     private static final Method VIRTUAL_MACHINE_ATTACH;
     private static final Method VIRTUAL_MACHINE_DETACH;
     private static final Method VIRTUAL_MACHINE_LOAD_AGENT;
@@ -49,7 +53,7 @@ final class AgentLoader {
         Method detach = null;
         Method loadAgent = null;
         try {
-            Class<?> virtualMachineClass = Class.forName("com.sun.tools.attach.VirtualMachine");
+            Class<?> virtualMachineClass = getVirtualMachineClass();
             attach = virtualMachineClass.getMethod("attach", String.class);
             detach = virtualMachineClass.getMethod("detach");
             loadAgent = virtualMachineClass.getMethod("loadAgent", String.class);
@@ -60,6 +64,41 @@ final class AgentLoader {
         VIRTUAL_MACHINE_ATTACH = attach;
         VIRTUAL_MACHINE_DETACH = detach;
         VIRTUAL_MACHINE_LOAD_AGENT = loadAgent;
+    }
+
+    private static Class<?> getVirtualMachineClass() throws ClassNotFoundException {
+        try {
+            return Class.forName(VIRTUAL_MACHINE_CLASSNAME);
+        } catch (ClassNotFoundException cnfe) {
+            for (File jar : getPossibleToolsJars()) {
+                try {
+                    Class<?> vmClass = new URLClassLoader(new URL[] {jar.toURL()}).loadClass(VIRTUAL_MACHINE_CLASSNAME);
+                    LOGGER.info("Located valid 'tools.jar' at '{}'", jar);
+                    return vmClass;
+                } catch (Throwable t) {
+                    LOGGER.info("Exception while loading tools.jar from '{}': {}", jar, t);
+                }
+            }
+            throw new ClassNotFoundException(VIRTUAL_MACHINE_CLASSNAME);
+        }
+    }
+
+    private static List<File> getPossibleToolsJars() {
+        List<File> jars = new ArrayList<File>();
+
+        File javaHome = new File(System.getProperty("java.home"));
+        File jreSourced = new File(javaHome, "lib/tools.jar");
+        if (jreSourced.exists()) {
+            jars.add(jreSourced);
+        }
+        if ("jre".equals(javaHome.getName())) {
+            File jdkHome = new File(javaHome, "../");
+            File jdkSourced = new File(jdkHome, "lib/tools.jar");
+            if (jdkSourced.exists()) {
+                jars.add(jdkSourced);
+            }
+        }
+        return jars;
     }
 
     /**
