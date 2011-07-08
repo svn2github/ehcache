@@ -136,7 +136,11 @@ final class AgentLoader {
      * @return true if available
      */
     static boolean agentIsAvailable() {
-        return SizeOfAgent.isAvailable();
+        try {
+            return SizeOfAgent.isAvailable();
+        } catch (Throwable e) {
+            return false;
+        }
     }
 
     /**
