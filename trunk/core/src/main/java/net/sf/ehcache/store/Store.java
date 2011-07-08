@@ -27,6 +27,7 @@ import net.sf.ehcache.terracotta.TerracottaNotRunningException;
 import net.sf.ehcache.writer.CacheWriterManager;
 
 import java.io.IOException;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -69,6 +70,12 @@ public interface Store {
     boolean put(Element element) throws CacheException;
 
     /**
+     * Puts a collection of elements into the store.
+     * @param elements Collection of elements to be put in the store
+     */
+    void putAll(Collection<Element> elements) throws CacheException;
+
+    /**
      * Puts an item into the store and the cache writer manager in an atomic operation
      * @return true if this is a new put for the key or element is null. Returns false if it was an update.
      */
@@ -99,6 +106,11 @@ public interface Store {
      * @since signature changed in 1.2 from boolean to Element to support notifications
      */
     Element remove(Object key);
+
+    /**
+     * Removes a collection of elements from the cache.
+     */
+    void removeAll(Collection<Object> keys);
 
     /**
      * Removes an item from the store and the cache writer manager in an atomic operation.

@@ -78,6 +78,13 @@ public class EhcacheDecoratorAdapter implements Ehcache {
     /**
      * {@inheritDoc}
      */
+    public Map<Object, Element> getAll(Collection<Object> keys) throws IllegalStateException, CacheException {
+        return underlyingCache.getAll(keys);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     public Element get(Serializable key) throws IllegalStateException, CacheException {
         return underlyingCache.get(key);
     }
@@ -114,6 +121,13 @@ public class EhcacheDecoratorAdapter implements Ehcache {
     /**
      * {@inheritDoc}
      */
+    public void putAll(Collection<Element> elements) throws IllegalArgumentException, IllegalStateException, CacheException {
+        underlyingCache.putAll(elements);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     public void putQuiet(Element element) throws IllegalArgumentException, IllegalStateException, CacheException {
         underlyingCache.putQuiet(element);
     }
@@ -137,6 +151,13 @@ public class EhcacheDecoratorAdapter implements Ehcache {
      */
     public boolean remove(Object key) throws IllegalStateException {
         return underlyingCache.remove(key);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void removeAll(Collection<Object> keys) throws IllegalStateException {
+        underlyingCache.removeAll(keys);
     }
 
     /**

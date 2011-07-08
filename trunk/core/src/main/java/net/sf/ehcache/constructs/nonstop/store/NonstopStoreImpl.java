@@ -17,6 +17,7 @@
 package net.sf.ehcache.constructs.nonstop.store;
 
 import java.io.IOException;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -367,6 +368,13 @@ public class NonstopStoreImpl implements NonstopTimeoutBehaviorStoreResolver, Re
     /**
      * {@inheritDoc}
      */
+    public void putAll(Collection<Element> elements) throws CacheException {
+        executorServiceStore.putAll(elements);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     public Element putIfAbsent(Element element) throws NullPointerException {
         return executorServiceStore.putIfAbsent(element);
     }
@@ -383,6 +391,13 @@ public class NonstopStoreImpl implements NonstopTimeoutBehaviorStoreResolver, Re
      */
     public Element remove(Object key) {
         return executorServiceStore.remove(key);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void removeAll(final Collection<Object> keys) {
+        executorServiceStore.removeAll(keys);
     }
 
     /**

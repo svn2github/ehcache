@@ -15,6 +15,7 @@
  */
 package net.sf.ehcache.transaction.local;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -275,6 +276,19 @@ public class JtaLocalTransactionStore extends AbstractTransactionStore {
     /**
      * {@inheritDoc}
      */
+    public void putAll(Collection<Element> elements) throws CacheException {
+        registerInJtaContext();
+        try {
+            underlyingStore.putAll(elements);
+        } catch (CacheException e) {
+            setRollbackOnly();
+            throw e;
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     public boolean putWithWriter(final Element element, final CacheWriterManager writerManager) throws CacheException {
         registerInJtaContext();
         try {
@@ -348,6 +362,20 @@ public class JtaLocalTransactionStore extends AbstractTransactionStore {
         registerInJtaContext();
         try {
             return underlyingStore.remove(key);
+        } catch (CacheException e) {
+            setRollbackOnly();
+            throw e;
+        }
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public void removeAll(Collection<Object> keys) {
+        registerInJtaContext();
+        try {
+            underlyingStore.removeAll(keys);
         } catch (CacheException e) {
             setRollbackOnly();
             throw e;

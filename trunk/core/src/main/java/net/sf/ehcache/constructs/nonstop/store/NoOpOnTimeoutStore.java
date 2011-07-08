@@ -17,6 +17,7 @@
 package net.sf.ehcache.constructs.nonstop.store;
 
 import java.io.IOException;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -42,9 +43,9 @@ import net.sf.ehcache.writer.CacheWriterManager;
 /**
  * Implementation of {@link NonstopStore} which returns null for all get
  * operations and does nothing for puts and removes.
- * 
+ *
  * @author Abhishek Sanoujam
- * 
+ *
  */
 public final class NoOpOnTimeoutStore implements NonstopStore {
 
@@ -71,7 +72,7 @@ public final class NoOpOnTimeoutStore implements NonstopStore {
 
     /**
      * Returns the singleton instance
-     * 
+     *
      * @return the singleton instance
      */
     public static NoOpOnTimeoutStore getInstance() {
@@ -280,6 +281,12 @@ public final class NoOpOnTimeoutStore implements NonstopStore {
     /**
      * {@inheritDoc}
      */
+    public void putAll(Collection<Element> elements) throws CacheException {
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     public Element putIfAbsent(Element element) {
         return null;
     }
@@ -296,6 +303,12 @@ public final class NoOpOnTimeoutStore implements NonstopStore {
      */
     public Element remove(Object key) {
         return null;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void removeAll(Collection<Object> keys) {
     }
 
     /**

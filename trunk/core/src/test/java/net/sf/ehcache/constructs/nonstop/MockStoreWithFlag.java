@@ -17,6 +17,7 @@
 package net.sf.ehcache.constructs.nonstop;
 
 import java.io.IOException;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -179,6 +180,10 @@ public class MockStoreWithFlag implements TerracottaStore {
         return false;
     }
 
+    public void putAll(Collection<Element> elements) throws CacheException {
+        markAccessFlag();
+    }
+
     public Element putIfAbsent(Element element) throws NullPointerException {
         markAccessFlag();
         return null;
@@ -194,9 +199,12 @@ public class MockStoreWithFlag implements TerracottaStore {
         return null;
     }
 
+    public void removeAll(Collection<Object> keys) {
+        markAccessFlag();
+    }
+
     public void removeAll() throws CacheException {
         markAccessFlag();
-
     }
 
     public Element removeElement(Element element, ElementValueComparator comparator) throws NullPointerException {

@@ -16,6 +16,7 @@
 
 package net.sf.ehcache.constructs.nonstop.store;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -113,8 +114,26 @@ public final class ExceptionOnTimeoutStore implements NonstopStore {
      * <p>
      * Throws {@link NonStopCacheException}
      */
+    public void putAll(final Collection<Element> elements) throws CacheException {
+        throw new NonStopCacheException("putAll for " + elements.size() + " elements timed out");
+    }
+
+    /**
+     * {@inheritDoc}.
+     * <p>
+     * Throws {@link NonStopCacheException}
+     */
     public Element remove(final Object key) throws IllegalStateException {
         throw new NonStopCacheException("remove for key - '" + key + "' timed out");
+    }
+
+    /**
+     * {@inheritDoc}.
+     * <p>
+     * Throws {@link NonStopCacheException}
+     */
+    public void removeAll(final Collection<Object> keys) throws IllegalStateException {
+        throw new NonStopCacheException("removeAll for " + keys.size() + "  keys timed out");
     }
 
     /**

@@ -17,6 +17,7 @@
 package net.sf.ehcache.constructs.nonstop.store;
 
 import java.io.IOException;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -320,6 +321,22 @@ public class ExecutorServiceStore implements RejoinAwareNonstopStore {
     /**
      * {@inheritDoc}.
      */
+    public void putAll(final Collection<Element> elements) throws CacheException {
+        try {
+            executeWithExecutor(new Callable<Void>() {
+                public Void call() throws Exception {
+                    nonstopActiveDelegateHolder.getUnderlyingTerracottaStore().putAll(elements);
+                    return null;
+                }
+            }, nonstopConfiguration.getTimeoutMillis() * nonstopConfiguration.getBulkOpsTimeoutMultiplyFactor());
+        } catch (TimeoutException e) {
+            timeoutBehaviorResolver.resolveTimeoutBehaviorStore().putAll(elements);
+        }
+    }
+
+    /**
+     * {@inheritDoc}.
+     */
     public boolean putWithWriter(final Element element, final CacheWriterManager writerManager) throws CacheException {
         boolean rv = false;
         try {
@@ -400,6 +417,22 @@ public class ExecutorServiceStore implements RejoinAwareNonstopStore {
             return timeoutBehaviorResolver.resolveTimeoutBehaviorStore().remove(key);
         }
         return rv;
+    }
+
+    /**
+     * {@inheritDoc}.
+     */
+    public void removeAll(final Collection<Object> keys) {
+        try {
+            executeWithExecutor(new Callable<Void>() {
+                public Void call() throws Exception {
+                    nonstopActiveDelegateHolder.getUnderlyingTerracottaStore().removeAll(keys);
+                    return null;
+                }
+            }, nonstopConfiguration.getTimeoutMillis() * nonstopConfiguration.getBulkOpsTimeoutMultiplyFactor());
+        } catch (TimeoutException e) {
+            timeoutBehaviorResolver.resolveTimeoutBehaviorStore().removeAll(keys);
+        }
     }
 
     /**

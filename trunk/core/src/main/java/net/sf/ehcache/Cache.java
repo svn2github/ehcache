@@ -16,6 +16,37 @@
 
 package net.sf.ehcache;
 
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeSupport;
+import java.io.IOException;
+import java.io.Serializable;
+import java.lang.reflect.InvocationTargetException;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Properties;
+import java.util.Set;
+import java.util.UUID;
+import java.util.concurrent.AbstractExecutorService;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Future;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.locks.ReentrantLock;
+
 import net.sf.ehcache.bootstrap.BootstrapCacheLoader;
 import net.sf.ehcache.bootstrap.BootstrapCacheLoaderFactory;
 import net.sf.ehcache.cluster.CacheCluster;
@@ -82,13 +113,13 @@ import net.sf.ehcache.store.disk.DiskStore;
 import net.sf.ehcache.terracotta.TerracottaClient;
 import net.sf.ehcache.terracotta.TerracottaNotRunningException;
 import net.sf.ehcache.transaction.SoftLockFactory;
+import net.sf.ehcache.transaction.TransactionIDFactory;
 import net.sf.ehcache.transaction.local.JtaLocalTransactionStore;
 import net.sf.ehcache.transaction.local.LocalTransactionStore;
-import net.sf.ehcache.transaction.TransactionIDFactory;
 import net.sf.ehcache.transaction.manager.TransactionManagerLookup;
 import net.sf.ehcache.transaction.xa.EhcacheXAResource;
-import net.sf.ehcache.transaction.xa.XATransactionStore;
 import net.sf.ehcache.transaction.xa.EhcacheXAResourceImpl;
+import net.sf.ehcache.transaction.xa.XATransactionStore;
 import net.sf.ehcache.util.ClassLoaderUtil;
 import net.sf.ehcache.util.NamedThreadFactory;
 import net.sf.ehcache.util.PropertyUtil;
@@ -98,39 +129,9 @@ import net.sf.ehcache.writer.CacheWriter;
 import net.sf.ehcache.writer.CacheWriterFactory;
 import net.sf.ehcache.writer.CacheWriterManager;
 import net.sf.ehcache.writer.CacheWriterManagerException;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.beans.PropertyChangeListener;
-import java.beans.PropertyChangeSupport;
-import java.io.IOException;
-import java.io.Serializable;
-import java.lang.reflect.InvocationTargetException;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
-import java.util.UUID;
-import java.util.Map.Entry;
-import java.util.concurrent.AbstractExecutorService;
-import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Future;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * Cache is the central class in ehcache. Caches have {@link Element}s and are managed
@@ -202,7 +203,7 @@ public class Cache implements Ehcache, StoreListener {
     private static final int EXECUTOR_MAXIMUM_POOL_SIZE = Math.min(10, Runtime.getRuntime().availableProcessors());
     private static final int EXECUTOR_CORE_POOL_SIZE = 1;
     private static final String EHCACHE_CLUSTERREDSTORE_MAX_CONCURRENCY_PROP = "ehcache.clusteredStore.maxConcurrency";
-    private static final int  DEFAULT_EHCACHE_CLUSTERREDSTORE_MAX_CONCURRENCY = 4096;
+    private static final int DEFAULT_EHCACHE_CLUSTERREDSTORE_MAX_CONCURRENCY = 4096;
 
     static {
         try {
@@ -335,7 +336,7 @@ public class Cache implements Ehcache, StoreListener {
         registeredCacheExtensions = new CopyOnWriteArrayList<CacheExtension>();
         registeredCacheLoaders = new CopyOnWriteArrayList<CacheLoader>();
 
-        //initialize statistics
+        // initialize statistics
         liveCacheStatisticsData = new LiveCacheStatisticsWrapper(this);
         sampledCacheStatistics = new SampledCacheStatisticsWrapper();
 
@@ -1391,6 +1392,13 @@ public class Cache implements Ehcache, StoreListener {
         put(element, false);
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    public void putAll(Collection<Element> elements) throws IllegalArgumentException, IllegalStateException, CacheException {
+        putAll(elements, false);
+    }
+
 
     /**
      * Put an element in the cache.
@@ -1417,6 +1425,14 @@ public class Cache implements Ehcache, StoreListener {
     public final void put(Element element, boolean doNotNotifyCacheReplicators) throws IllegalArgumentException,
             IllegalStateException, CacheException {
         putInternal(element, doNotNotifyCacheReplicators, false);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    private void putAll(Collection<Element> elements, boolean doNotNotifyCacheReplicators) throws IllegalArgumentException,
+            IllegalStateException, CacheException {
+        putAllInternal(elements, doNotNotifyCacheReplicators);
     }
 
     /**
@@ -1491,6 +1507,23 @@ public class Cache implements Ehcache, StoreListener {
         }
     }
 
+    private void putAllInternal(Collection<Element> elements, boolean doNotNotifyCacheReplicators) {
+        checkStatus();
+
+        if (disabled || elements.isEmpty()) {
+            return;
+        }
+
+        backOffIfDiskSpoolFull();
+
+        compoundStore.putAll(elements);
+        for (Element element : elements) {
+            element.resetAccessStatistics();
+            applyDefaultsToElementWithoutLifespanSet(element);
+            notifyPutInternalListeners(element, doNotNotifyCacheReplicators, false);
+        }
+    }
+
     private void notifyPutInternalListeners(Element element, boolean doNotNotifyCacheReplicators, boolean elementExists) {
         if (elementExists) {
             registeredEventListeners.notifyElementUpdated(element, doNotNotifyCacheReplicators);
@@ -1508,11 +1541,11 @@ public class Cache implements Ehcache, StoreListener {
     private void backOffIfDiskSpoolFull() {
 
         if (compoundStore.bufferFull()) {
-            //back off to avoid OutOfMemoryError
+            // back off to avoid OutOfMemoryError
             try {
                 Thread.sleep(BACK_OFF_TIME_MILLIS);
             } catch (InterruptedException e) {
-                //do not care if this happens
+                // do not care if this happens
             }
         }
     }
@@ -1606,6 +1639,24 @@ public class Cache implements Ehcache, StoreListener {
         } else {
             return searchInStoreWithoutStats(key, false, true);
         }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public Map<Object, Element> getAll(Collection<Object> keys) throws IllegalStateException, CacheException {
+        checkStatus();
+
+        if (disabled || keys.isEmpty()) {
+            return null;
+        }
+
+        Map<Object, Element> retMap = new HashMap<Object, Element>();
+        for (Object key : keys) {
+            Element element = get(key);
+            retMap.put(key, element);
+        }
+        return retMap;
     }
 
     /**
@@ -2067,6 +2118,20 @@ public class Cache implements Ehcache, StoreListener {
         return remove(key, false);
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    public void removeAll(final Collection<Object> keys) throws IllegalStateException {
+        removeAll(keys, false);
+    }
+
+
+    /**
+     * {@inheritDoc}
+    */
+    public final void removeAll(final Collection<Object> keys, boolean doNotNotifyCacheReplicators) throws IllegalStateException {
+        removeAllInternal(keys, false, true, doNotNotifyCacheReplicators);
+    }
 
     /**
      * Removes an {@link Element} from the Cache. This also removes it from any
@@ -2081,7 +2146,7 @@ public class Cache implements Ehcache, StoreListener {
      * This exception should be caught in those circumstances.
      *
      * @param key                         the element key to operate on
-     * @param doNotNotifyCacheReplicators whether the put is coming from a doNotNotifyCacheReplicators cache peer, in which case this put should not initiate a
+     * @param doNotNotifyCacheReplicators whether the remove is coming from a doNotNotifyCacheReplicators cache peer, in which case this remove should not initiate a
      *                                    further notification to doNotNotifyCacheReplicators cache peers
      * @return true if the element was removed, false if it was not found in the cache
      * @throws IllegalStateException if the cache is not {@link Status#STATUS_ALIVE}
@@ -2100,7 +2165,7 @@ public class Cache implements Ehcache, StoreListener {
      * Synchronization is handled within the method.
      *
      * @param key                         the element key to operate on
-     * @param doNotNotifyCacheReplicators whether the put is coming from a doNotNotifyCacheReplicators cache peer, in which case this put should not initiate a
+     * @param doNotNotifyCacheReplicators whether the remove is coming from a doNotNotifyCacheReplicators cache peer, in which case this remove should not initiate a
      *                                    further notification to doNotNotifyCacheReplicators cache peers
      * @return true if the element was removed, false if it was not found in the cache
      * @throws IllegalStateException if the cache is not {@link Status#STATUS_ALIVE}
@@ -2152,8 +2217,7 @@ public class Cache implements Ehcache, StoreListener {
      * Removes or expires an {@link Element} from the Cache after an attempt to get it determined that it should be expired.
      * This also removes it from any stores it may be in.
      * <p/>
-     * Also notifies the CacheEventListener after the element has expired, but only if an Element
-     * with the key actually existed.
+     * Also notifies the CacheEventListener after the element has expired.
      * <p/>
      * Synchronization is handled within the method.
      * <p/>
@@ -2225,6 +2289,42 @@ public class Cache implements Ehcache, StoreListener {
         }
 
         return removed;
+    }
+
+    /**
+     * Removes or expires a collection of {@link Element}s from the Cache after an attempt to get it determined that it should be expired.
+     * This also removes it from any stores it may be in.
+     * <p/>
+     * Also notifies the CacheEventListener after the element has expired.
+     * <p/>
+     * Synchronization is handled within the method.
+     * <p/>
+     * If a removeAll was called, listeners are notified, regardless of whether the element existed or not. This allows distributed cache
+     * listeners to remove elements from a cluster regardless of whether they existed locally.
+     * <p/>
+     * Caches which use synchronous replication can throw RemoteCacheException here if the replication to the cluster fails. This exception
+     * should be caught in those circumstances.
+     *
+     * @param keys a collection of keys to operate on
+     * @param expiry if the reason this method is being called is to expire the element
+     * @param notifyListeners whether to notify listeners
+     * @param doNotNotifyCacheReplicators whether not to notify cache replicators
+     * @return true if the element was removed, false if it was not found in the cache
+     * @throws IllegalStateException if the cache is not {@link Status#STATUS_ALIVE}
+     */
+    private void removeAllInternal(final Collection<Object> keys, boolean expiry, boolean notifyListeners,
+            boolean doNotNotifyCacheReplicators) throws IllegalStateException {
+        checkStatus();
+
+        if (disabled || keys.isEmpty()) {
+            return;
+        }
+
+        compoundStore.removeAll(keys);
+        for (Object key : keys) {
+            Element syntheticElement = new Element(key, null);
+            notifyRemoveInternalListeners(key, false, notifyListeners, doNotNotifyCacheReplicators, syntheticElement);
+        }
     }
 
     /**

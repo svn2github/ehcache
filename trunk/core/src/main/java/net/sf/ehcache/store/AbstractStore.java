@@ -17,10 +17,12 @@
 package net.sf.ehcache.store;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
 import net.sf.ehcache.CacheException;
+import net.sf.ehcache.Element;
 import net.sf.ehcache.config.InvalidConfigurationException;
 import net.sf.ehcache.search.Attribute;
 import net.sf.ehcache.search.Results;
@@ -135,5 +137,23 @@ public abstract class AbstractStore implements Store {
      */
     public <T> Attribute<T> getSearchAttribute(String attributeName) throws CacheException {
         return null;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void putAll(Collection<Element> elements) throws CacheException {
+        for (Element element : elements) {
+            put(element);
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void removeAll(Collection<Object> keys) {
+        for (Object key : keys) {
+            remove(key);
+        }
     }
 }

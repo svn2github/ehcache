@@ -78,6 +78,25 @@ public interface Ehcache extends Cloneable {
     void put(Element element) throws IllegalArgumentException, IllegalStateException,
             CacheException;
 
+
+    /**
+     * Puts a collection of elements in the cache. Throws a NullPointerException if any element in the
+     * collection is null. Also notifies the CacheEventListener that:
+     * <ul>
+     * <li>the elements were put. The puts{@link net.sf.ehcache.Ehcache.put} happen in batches and the notifications are thrown for every put in the
+     * batch irrespective of whether the element is present in the cache or not i.e this method consider
+     * each element as new entry.
+     * </li>
+     * </ul>
+     * This operation is partially completed if any element or any key is null
+     * @param elements a collection of elements to be put in the cache.
+     *        If elements are Serializable it can fully participate in replication and the DiskStore.
+     * @throws IllegalStateException    if the cache is not {@link net.sf.ehcache.Status#STATUS_ALIVE}
+     * @throws CacheException
+     */
+    void putAll(Collection<Element> elements) throws IllegalArgumentException, IllegalStateException,
+            CacheException;
+
     /**
      * Put an element in the cache.
      * <p/>
@@ -190,7 +209,7 @@ public interface Ehcache extends Cloneable {
      * Gets an element from the cache. Updates Element Statistics
      * <p/>
      * Note that the Element's lastAccessTime is always the time of this get.
-     * Use {@link #getQuiet(Object)} to peak into the Element to see its last access time with get
+     * Use {@link #getQuiet(Object)} to peek into the Element to see its last access time with get
      *
      * @param key an Object value
      * @return the element, or null, if it does not exist.
@@ -201,6 +220,21 @@ public interface Ehcache extends Cloneable {
     Element get(Object key) throws IllegalStateException, CacheException;
 
     /**
+     * Gets all the elements from the cache for the keys provided. Updates Element Statistics
+     * Throws a NullPointerException if any key in the collection is null
+     * <p/>
+     * Note that the Element's lastAccessTime is always the time of this get.
+     * Use {@link #getQuiet(Object)} to peek into the Element to see its last access time with get
+     *
+     * @param keys a collection of keys for which value is to be fetched
+     * @return Map of key and elements for the provided keys, value will be null for the keys which do not exist
+     * @throws IllegalStateException if the cache is not {@link net.sf.ehcache.Status#STATUS_ALIVE}
+     * @throws NullPointerException if any key is null in the collection
+     * @see #isExpired
+     */
+    Map<Object, Element> getAll(Collection<Object> keys) throws IllegalStateException, CacheException, NullPointerException;
+
+    /**
      * Gets an element from the cache, without updating Element statistics. Cache statistics are
      * still updated.
      * <p/>
@@ -209,6 +243,7 @@ public interface Ehcache extends Cloneable {
      * @return the element, or null, if it does not exist.
      * @throws IllegalStateException if the cache is not {@link net.sf.ehcache.Status#STATUS_ALIVE}
      * @see #isExpired
+     * @since 2.5
      */
     Element getQuiet(Serializable key) throws IllegalStateException, CacheException;
 
@@ -307,6 +342,19 @@ public interface Ehcache extends Cloneable {
      * @since 1.2
      */
     boolean remove(Object key) throws IllegalStateException;
+
+    /**
+     * Removes given set of {@link net.sf.ehcache.Element} from the Cache. This also removes them from any
+     * stores it may be in. Throws a NullPointerException if any key in the collection is null
+     * <p/>
+     * Also notifies the CacheEventListener after the elements were removed.
+     * Notification is sent for every key irrespective of whether the key was present in the cache or not
+     * This operation is partially completed if any element or any key is null
+     * @param keys                   a collection of keys to operate on
+     * @throws IllegalStateException    if the cache is not {@link net.sf.ehcache.Status#STATUS_ALIVE}
+     * @throws NullPointerException     if any key is null in the collection
+     */
+    void removeAll(Collection<Object> keys) throws IllegalStateException, NullPointerException;
 
     /**
      * Removes an {@link net.sf.ehcache.Element} from the Cache. This also removes it from any

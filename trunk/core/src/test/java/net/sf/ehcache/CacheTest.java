@@ -41,8 +41,12 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
+import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -64,6 +68,7 @@ import net.sf.ehcache.util.RetryAssert;
 
 import org.hamcrest.core.Is;
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -2313,6 +2318,142 @@ public class CacheTest extends AbstractCacheTest {
         Element cAfter = cache.get("a key");
         assertEquals(3L, cAfter.getVersion());
 
+    }
+
+    /**
+     * When bulkOperations are working fine
+     *
+     * @throws CacheException
+     * @throws InterruptedException
+     */
+    @Test
+    public void testBulkOperations() throws CacheException, InterruptedException {
+        Cache cache = new Cache("cache", 1000, true, false, 100000, 200000, false, 1);
+        manager.addCache(cache);
+
+        int numOfElements = 100;
+        Set<Element> elements = new HashSet<Element>();
+        for(int i = 0; i < numOfElements; i++){
+            elements.add(new Element("key" + i, "value" + i));
+        }
+        cache.putAll(elements);
+        assertEquals(numOfElements, cache.getSize());
+
+        Set keySet1 = new HashSet<String>();
+        for(int i = 0; i < numOfElements; i++){
+            keySet1.add("key"+i);
+        }
+
+        Map<Object, Element> rv = cache.getAll(keySet1);
+        assertEquals(numOfElements, rv.size());
+
+        for(Element element : rv.values()){
+            assertTrue(elements.contains(element));
+        }
+
+        Collection<Element> values = rv.values();
+        for(Element element : elements){
+            assertTrue(values.contains(element));
+        }
+
+        Random rand = new Random();
+        Set keySet2 = new HashSet<String>();
+        for(int i = 0; i < numOfElements/2; i++){
+            keySet2.add("key" + rand.nextInt(numOfElements));
+        }
+
+        rv = cache.getAll(keySet2);
+        assertEquals(keySet2.size(), rv.size());
+
+        for(Element element : rv.values()){
+            assertTrue(elements.contains(element));
+        }
+
+        assertEquals(keySet2, rv.keySet());
+
+        cache.removeAll(keySet2);
+        assertEquals(numOfElements - keySet2.size(), cache.getSize());
+
+        for(Object key : keySet2){
+            assertNull(cache.get(key));
+        }
+
+        cache.removeAll();
+        assertEquals(0, cache.getSize());
+
+        cache.putAll(elements);
+        assertEquals(elements.size(), cache.getSize());
+
+        Set keySet3 = new HashSet<String>();
+        for(int i = 0; i < numOfElements; i++){
+            keySet3.add("key" + 2 * i);
+        }
+        cache.removeAll(keySet3);
+        assertEquals(numOfElements/2, cache.getSize());
+
+        Set keySet4 = new HashSet<String>();
+        for(int i = 0; i < 2 * numOfElements; i++){
+            keySet4.add("key" + i);
+        }
+
+        Map<Object, Element> actual = cache.getAll(keySet4);
+        Map<Object, Element> expected = new HashMap<Object, Element>();
+
+        for(int i = 0; i < numOfElements; i++) {
+            if(i % 2 == 0) {
+                expected.put("key" + i, null);
+            } else {
+                Element val = actual.get("key" + i);
+                assertNotNull("val for key" + i + " is " + val, val);
+                expected.put("key" + i, val);
+            }
+        }
+
+        for(int i = numOfElements; i < 2 * numOfElements; i++) {
+            expected.put("key" + i, null);
+        }
+
+        assertEquals(expected, actual);
+    }
+
+    @Test
+    public void testNullEntries() {
+        Cache cache = new Cache("NPECache", 1000, true, false, 100000, 200000, false, 1);
+        manager.addCache(cache);
+
+        int numOfElements = 100;
+        Set<Element> elements = new HashSet<Element>();
+        for (int i = 0; i < numOfElements; i++) {
+            elements.add(new Element("key" + i, "value" + i));
+        }
+
+        elements.add(null);
+        try {
+            cache.putAll(elements);
+            Assert.fail("Was able to put a null element");
+        } catch (NullPointerException e) {
+            // expected exception
+        }
+
+        Set keys = new HashSet<String>();
+        for (int i = 0; i < numOfElements; i++) {
+            keys.add("key" + i);
+        }
+
+        keys.add(null);
+        try {
+            cache.getAll(keys);
+            Assert.fail("was able to get null keys");
+        } catch (NullPointerException e) {
+            // expected exception
+        }
+
+        try {
+            cache.removeAll(keys);
+            Assert.fail("was able to remove null keys");
+        } catch (NullPointerException e) {
+            // expected exception
+        }
     }
 
     static class GetCacheMemorySize implements Callable<Long> {
