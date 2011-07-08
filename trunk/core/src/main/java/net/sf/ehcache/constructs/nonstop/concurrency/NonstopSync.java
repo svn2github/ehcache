@@ -73,15 +73,7 @@ class NonstopSync implements Sync {
             }
 
             public Boolean performClusterOperationTimedOut(final TimeoutBehaviorType configuredTimeoutBehavior) {
-                switch (configuredTimeoutBehavior) {
-                    case EXCEPTION:
-                        throw new NonStopCacheException("isHeldByCurrentThread timed out");
-                    case LOCAL_READS:
-                    case NOOP:
-                        return false;
-                    default:
-                        throw new NonStopCacheException("unknown nonstop timeout behavior type: " + configuredTimeoutBehavior);
-                }
+                throw new NonStopCacheException("isHeldByCurrentThread() timed out");
             }
         });
     }
