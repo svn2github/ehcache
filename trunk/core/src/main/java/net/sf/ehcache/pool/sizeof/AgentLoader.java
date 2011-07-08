@@ -128,7 +128,7 @@ final class AgentLoader {
                                    + "we didn't get the Instrumentation instance injected on this SizeOfAgent class instance ?!");
             }
         } catch (Throwable e) {
-            LOGGER.info("Failed to load agent, sizes will be guessed", e);
+            LOGGER.info("Failed to attach to VM and load the agent: {}: {} - sizes will be guessed", e.getClass(), e.getMessage());
         }
 
         return agentIsAvailable();
