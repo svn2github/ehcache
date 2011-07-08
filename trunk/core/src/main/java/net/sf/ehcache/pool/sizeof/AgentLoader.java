@@ -54,7 +54,8 @@ final class AgentLoader {
             detach = virtualMachineClass.getMethod("detach");
             loadAgent = virtualMachineClass.getMethod("loadAgent", String.class);
         } catch (Throwable e) {
-            LOGGER.info("Failed to locate dynamic agent loading classes or methods", e);
+            LOGGER.info("Failed to locate dynamic agent loading classes or methods, {}: {} - Sizes will be guessed",
+                e.getClass().getName(), e.getMessage());
         }
         VIRTUAL_MACHINE_ATTACH = attach;
         VIRTUAL_MACHINE_DETACH = detach;
@@ -66,6 +67,11 @@ final class AgentLoader {
      * @return true if agent was loaded (which could have happened thought the -javaagent switch)
      */
     static boolean loadAgent() {
+
+        if (VIRTUAL_MACHINE_LOAD_AGENT == null) {
+            return false;
+        }
+
         try {
             String name = ManagementFactory.getRuntimeMXBean().getName();
             Object vm = VIRTUAL_MACHINE_ATTACH.invoke(null, name.substring(0, name.indexOf('@')));
