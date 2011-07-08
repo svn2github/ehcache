@@ -145,10 +145,11 @@ public class TerracottaBootstrapCacheLoader extends MemoryLimitedCacheLoader imp
             final Set<Object> keys = snapshotFile.readAll();
             int loaded = 0;
             for (Object key : keys) {
-                if (isInMemoryLimitReached(cache, loaded++)) {
+                if (isInMemoryLimitReached(cache, loaded)) {
                     break;
                 }
                 cache.get(key);
+                loaded++;
             }
             LOG.info("Finished loading {} keys (of {} on disk) from previous snapshot for Cache '{}'",
                 new Object[] {Integer.valueOf(loaded), keys.size(), cache.getName()});
