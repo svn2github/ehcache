@@ -88,7 +88,7 @@ public class ReadCommittedSoftLockFactoryImpl implements SoftLockFactory {
      * @return the lock, or null if there is no lock created with this transaction ID and key
      */
     ReadCommittedSoftLockImpl getLock(TransactionID transactionId, Object key) {
-        for (ReadCommittedSoftLockImpl readCommittedSoftLock : newKeyLocks.keySet()) {
+        for (ReadCommittedSoftLockImpl readCommittedSoftLock : allLocks.keySet()) {
             if (readCommittedSoftLock.getTransactionID().equals(transactionId) && readCommittedSoftLock.getKey().equals(key)) {
                 return readCommittedSoftLock;
             }
