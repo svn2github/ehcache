@@ -307,7 +307,7 @@ public class CacheEventListenerTest extends AbstractCacheTest {
         cache.put(element);
 
         //expire
-        Thread.sleep(11000);
+        Thread.sleep(15000);
         assertThat(cacheEventListener.counter.get(), equalTo(1));
 
         //the TestCacheEventListener does a put of a new Element with the same key on expiry
@@ -396,6 +396,7 @@ public class CacheEventListenerTest extends AbstractCacheTest {
         public void notifyElementExpired(final Ehcache cache, final Element element) {
             LOG.info("Element expired : " + element);
             cache.put(new Element(element.getKey(), "set on notify", Boolean.TRUE, 0, 0));
+            counter.incrementAndGet();
         }
 
         /**
