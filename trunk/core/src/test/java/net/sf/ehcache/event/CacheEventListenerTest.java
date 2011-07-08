@@ -23,12 +23,10 @@ import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import org.junit.After;
 
-import static net.sf.ehcache.util.RetryAssert.assertBy;
-import static net.sf.ehcache.util.RetryAssert.elementAt;
-import static org.hamcrest.core.IsNull.nullValue;
-import static org.hamcrest.core.IsNull.notNullValue;
+import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -40,7 +38,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -302,13 +300,15 @@ public class CacheEventListenerTest extends AbstractCacheTest {
         Serializable key = "1";
         Element element = new Element(key, new Date());
 
-        cache.getCacheEventNotificationService().registerListener(new TestCacheEventListener());
+        TestCacheEventListener cacheEventListener = new TestCacheEventListener();
+        cache.getCacheEventNotificationService().registerListener(cacheEventListener);
 
         //Put
         cache.put(element);
 
         //expire
-        assertBy(10, TimeUnit.SECONDS, elementAt(cache, key), nullValue());
+        Thread.sleep(11000);
+        assertThat(cacheEventListener.counter.get(), equalTo(1));
 
         //the TestCacheEventListener does a put of a new Element with the same key on expiry
         assertNotNull(cache.get(key));
@@ -329,6 +329,8 @@ public class CacheEventListenerTest extends AbstractCacheTest {
      * Used to do work on notifyRemoved for the above test.
      */
     class TestCacheEventListener implements CacheEventListener {
+
+        final AtomicInteger counter = new AtomicInteger();
 
         /**
          * {@inheritDoc}
