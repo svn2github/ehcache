@@ -131,11 +131,11 @@ public class Segment extends ReentrantReadWriteLock {
             return false;
         }
 
-        switch (pinningConfiguration.getStorage()) {
-            case ONHEAP:
+        switch (pinningConfiguration.getStore()) {
+            case LOCALHEAP:
                 return false;
 
-            case INMEMORY:
+            case LOCALMEMORY:
                 return false;
 
             case INCACHE:

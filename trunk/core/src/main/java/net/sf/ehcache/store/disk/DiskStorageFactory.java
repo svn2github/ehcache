@@ -177,9 +177,9 @@ public class DiskStorageFactory {
             return false;
         }
 
-        switch (pinningConfiguration.getStorage()) {
-            case ONHEAP:
-            case INMEMORY:
+        switch (pinningConfiguration.getStore()) {
+            case LOCALHEAP:
+            case LOCALMEMORY:
                 return false;
 
             case INCACHE:

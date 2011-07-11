@@ -219,7 +219,7 @@
 
     <xs:element name="pinning">
         <xs:complexType>
-            <xs:attribute name="storage" use="required" type="pinningStorageType"/>
+            <xs:attribute name="store" use="required" type="pinningStoreType"/>
         </xs:complexType>
     </xs:element>
 
@@ -281,10 +281,10 @@
             <xs:enumeration value="off"/>
         </xs:restriction>
     </xs:simpleType>
-    <xs:simpleType name="pinningStorageType">
+    <xs:simpleType name="pinningStoreType">
         <xs:restriction base="xs:string">
-            <xs:enumeration value="onHeap" />
-            <xs:enumeration value="inMemory" />
+            <xs:enumeration value="localHeap" />
+            <xs:enumeration value="localMemory" />
             <xs:enumeration value="inCache" />
         </xs:restriction>
     </xs:simpleType>

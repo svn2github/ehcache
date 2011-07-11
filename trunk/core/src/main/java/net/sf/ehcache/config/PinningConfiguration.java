@@ -24,18 +24,18 @@ package net.sf.ehcache.config;
 public class PinningConfiguration implements Cloneable {
 
     /**
-     * Possible storage values
+     * Possible store values
      */
-    public static enum Storage {
+    public static enum Store {
         /**
          * Pin the elements on-heap
          */
-        ONHEAP,
+        LOCALHEAP,
 
         /**
          * Pin the elements in the local VM memory
          */
-        INMEMORY,
+        LOCALMEMORY,
 
         /**
          * Pin the elements in the cache
@@ -43,51 +43,51 @@ public class PinningConfiguration implements Cloneable {
         INCACHE,
     }
 
-    private volatile Storage storage;
+    private volatile Store store;
 
     /**
-     * Set the storage scope
+     * Set the store scope
      *
-     * @param storage the storage scope
+     * @param store the storage scope
      */
-    public void setStorage(String storage) {
-        if (storage == null) {
-            throw new IllegalArgumentException("Storage must be non-null");
+    public void setStore(String store) {
+        if (store == null) {
+            throw new IllegalArgumentException("Store must be non-null");
         }
-        this.storage(Storage.valueOf(Storage.class, storage.toUpperCase()));
+        this.store(Store.valueOf(Store.class, store.toUpperCase()));
     }
 
     /**
-     * Set the lowest storage from which elements must not be evicted from
+     * Set the lowest store from which elements must not be evicted from
      *
-     * @param storage the storage, encoded as a string
+     * @param store the store, encoded as a string
      * @return this
      */
-    public PinningConfiguration storage(String storage) {
-        setStorage(storage);
+    public PinningConfiguration store(String store) {
+        setStore(store);
         return this;
     }
 
     /**
-     * Set the lowest storage from which elements must not be evicted from
+     * Set the lowest store from which elements must not be evicted from
      *
-     * @param storage the storage
+     * @param store the store
      * @return this
      */
-    public PinningConfiguration storage(Storage storage) {
-        if (storage == null) {
-            throw new IllegalArgumentException("Storage must be non-null");
+    public PinningConfiguration store(Store store) {
+        if (store == null) {
+            throw new IllegalArgumentException("Store must be non-null");
         }
-        this.storage = storage;
+        this.store = store;
         return this;
     }
 
     /**
-     * Return the lowest storage from which elements must not be evicted from
-     * @return the lowest storage from which elements must not be evicted from
+     * Return the lowest store from which elements must not be evicted from
+     * @return the lowest store from which elements must not be evicted from
      */
-    public Storage getStorage() {
-        return storage;
+    public Store getStore() {
+        return store;
     }
 
 }

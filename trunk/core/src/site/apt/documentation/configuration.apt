@@ -138,7 +138,7 @@
 
    	<cache name="pinnedCache"
           	timeToLiveSeconds="100"
-          	<pinning storage="inMemory">
+          	<pinning store="inMemory">
    	</cache>
 
 	</ehcache>
@@ -264,7 +264,7 @@
 ---
    <cache name="pinnedCache"
   	timeToLiveSeconds="100"
-  	<pinning storage="onHeap | inMemory | inCache" />
+  	<pinning store="localHeap | localMemory | inCache" />
    </cache>
 ---
 

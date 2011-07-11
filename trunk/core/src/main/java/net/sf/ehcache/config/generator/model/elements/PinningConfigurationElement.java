@@ -48,7 +48,7 @@ public class PinningConfigurationElement extends SimpleNodeElement {
             return;
         }
 
-        addAttribute(new SimpleNodeAttribute("storage", pinningConfiguration.getStorage()).optional(false));
+        addAttribute(new SimpleNodeAttribute("store", pinningConfiguration.getStore()).optional(false));
     }
 
 }
