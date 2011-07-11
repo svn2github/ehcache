@@ -361,7 +361,7 @@ public class ManagementService implements CacheManagerEventListener {
      */
     public void notifyCacheAdded(String cacheName) {
         if (registerCaches || registerCacheStatistics || registerCacheConfigurations) {
-            Cache cache = new Cache(backingCacheManager.getCache(cacheName));
+            Cache cache = new Cache(backingCacheManager.getEhcache(cacheName));
             try {
                 registerCachesIfRequired(cache);
                 registerCacheStatisticsIfRequired(cache);

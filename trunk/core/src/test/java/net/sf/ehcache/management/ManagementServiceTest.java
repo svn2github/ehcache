@@ -21,6 +21,7 @@ import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.config.Configuration;
 import net.sf.ehcache.config.ConfigurationFactory;
+import net.sf.ehcache.constructs.blocking.BlockingCache;
 import org.junit.After;
 
 import static org.junit.Assert.assertEquals;
@@ -353,6 +354,16 @@ public class ManagementServiceTest extends AbstractCacheTest {
         traverseMBeanAttributes(connection, "CacheConfiguration");
 
         cs.stop();
+    }
+
+    @Test
+    public void testSupportsDecoratedCaches() {
+        ManagementService.registerMBeans(manager, mBeanServer, true, true, true, true, true);
+
+        net.sf.ehcache.Cache cache = new net.sf.ehcache.Cache(new net.sf.ehcache.config.CacheConfiguration("decoratedCache", 1000));
+        BlockingCache blockingCache = new BlockingCache(cache);
+
+        manager.addCacheIfAbsent(blockingCache);
     }
 
     private void traverseMBeanAttributes(MBeanServerConnection connection, String type) throws JMException, IOException {
