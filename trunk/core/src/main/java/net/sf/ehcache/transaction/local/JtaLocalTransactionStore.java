@@ -99,7 +99,7 @@ public class JtaLocalTransactionStore extends AbstractTransactionStore {
                 Transaction tx = transactionManager.getTransaction();
                 if (!BOUND_JTA_TRANSACTIONS.get().equals(tx)) {
                     throw new TransactionException("Invalid JTA transaction context, cache was first used in transaction ["
-                            + BOUND_JTA_TRANSACTIONS + "]" +
+                            + BOUND_JTA_TRANSACTIONS.get() + "]" +
                             " but is now used in transaction [" + tx + "].");
                 }
             } else {
