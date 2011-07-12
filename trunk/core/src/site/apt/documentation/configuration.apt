@@ -273,9 +273,9 @@
 
 	Pinning is possible at three different levels:
 
-    *   onHeap - retain the elements in the local heap
+    *   localHeap - retain the elements in the local heap
 
-    *   inMemory - retain the elements in either the local heap or the local OffHeap store, depending on what stores there are and how much
+    *   localMemory - retain the elements in either the local heap or the local OffHeap store, depending on what stores there are and how much
                    is space is available in each.
 
 	*   inCache - retain the elements in the cache. This allows further off loading to either the DiskStore in a standalone cache, or the
