@@ -173,7 +173,9 @@ public class CachePerfTest extends AbstractCachePerfTest {
     @Test
     public void testCalculateInMemorySizePerformanceAndReasonableness() throws Exception {
         //Set size so the second element overflows to disk.
-        Ehcache cache = createTestCache();
+        Cache cache1 = new Cache("test4", 1000, false, true, 0, 0);
+        manager.addCache(cache1);
+        Ehcache cache = cache1;
 
         //Set up object graphs
         for (int i = 0; i < 1000; i++) {
