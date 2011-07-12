@@ -23,6 +23,8 @@ import static org.mockito.Mockito.when;
 import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -104,6 +106,8 @@ public class NonstopTestUtil extends TestCase {
         } else if ((method.getName().equals("getSizeBasedOnAccuracy") || method.getName().equals("setStatisticsAccuracy"))
                 && parameterClass.equals(Integer.TYPE)) {
             return Statistics.STATISTICS_ACCURACY_BEST_EFFORT;
+        } else if (parameterClass.equals(Collection.class)) {
+          return Collections.emptySet();
         } else {
             String msg = "Unhandled parameter type for method: " + getMethodSignature(method) + ", type: " + parameterClass.getName();
             throw new Exception(msg);
