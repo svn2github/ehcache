@@ -842,6 +842,28 @@
 
     <!-- The JBoss repository is only here to satisfy the 'provided' dependency on hibernate-core -->
     <repositories>
+        <repository>
+            <id>terracotta-snapshots</id>
+            <url>http://www.terracotta.org/download/reflector/snapshots</url>
+            <releases>
+                <enabled>false</enabled>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+        </repository>
+
+        <repository>
+            <id>terracotta-releases</id>
+            <url>http://www.terracotta.org/download/reflector/releases</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </repository>
+
         <!--For Hibernate. Test only-->
         <repository>
             <id>jboss-releases</id>
