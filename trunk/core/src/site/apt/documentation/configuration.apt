@@ -359,6 +359,7 @@ The TerracottaStoreBootstrapCacheLoaderFactory is configured as follows:
                     snapshotOnShutDown=true,
                     doKeySnapshot=false,
                     doKeySnapshotOnDedicatedThread=false"/>
+---
 
     The configuration properties are:
 
@@ -515,7 +516,6 @@ The TerracottaStoreBootstrapCacheLoaderFactory is configured as follows:
              xsi:noNamespaceSchemaLocation="ehcache.xsd"
              updateCheck="false" monitoring="autodetect"
              dynamicConfig="true">
-
 ---
 
 
