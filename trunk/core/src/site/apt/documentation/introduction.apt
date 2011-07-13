@@ -229,7 +229,6 @@ Introduction
  table shows how that lifespan can affect hits and misses.
 
 ------
-
  Server 1    Server 2   Server 3    Server 4
 
   M             M           M           M
@@ -243,7 +242,6 @@ Introduction
     The cache hit ratios for the system as a whole are as follows:
 
 -------
-
 Entry
 Lifespan  Hit Ratio   Hit Ratio  Hit Ratio   Hit Ratio
 in Hits   1 Server    2 Servers  3 Servers   4 Servers
@@ -253,7 +251,6 @@ in Hits   1 Server    2 Servers  3 Servers   4 Servers
 10         9/10          8/10        7/10        6/10
 20         19/20         18/20       17/20       16/10
 50         49/50         48/50       47/20       46/50
-
 -------
 
     The efficiency of a cluster of standalone caches is generally:
@@ -277,10 +274,9 @@ in Hits   1 Server    2 Servers  3 Servers   4 Servers
 --------
  1 / ((1 - Proportion Sped Up * effective cache efficiency) +
  (Proportion Sped Up  * effective cache efficiency)/ Speed up)
---------
 
- effective cache efficiency = cache efficiency * cluster efficiency
-
+ effective cache efficiency = (cache efficiency) * (cluster efficiency)
+---
 
 ** Web Page example
 
@@ -288,7 +284,6 @@ in Hits   1 Server    2 Servers  3 Servers   4 Servers
   and two servers:
 
 ------
-
   cache efficiency = .35
 
   cluster efficiency = .(10 - 1) / 10
@@ -307,7 +302,6 @@ in Hits   1 Server    2 Servers  3 Servers   4 Servers
   What if, instead the cache efficiency is 70%; a doubling of efficiency. We keep to two servers.
 
 ------
-
   cache efficiency = .70
 
   cluster efficiency = .(10 - 1) / 10
@@ -326,7 +320,6 @@ in Hits   1 Server    2 Servers  3 Servers   4 Servers
   What if, instead the cache efficiency is 90%; a doubling of efficiency. We keep to two servers.
 
 ------
-
   cache efficiency = .90
 
   cluster efficiency = .(10 - 1) / 10

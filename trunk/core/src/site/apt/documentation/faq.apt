@@ -70,7 +70,7 @@ Ehcache - Frequently Asked Questions
 
      Because the memory store has a fixed maximum number of
     elements, it will have a maximum memory use equal to the number of
-    elements * the average size. When an element is added beyond the
+    elements multiplied by the average size. When an element is added beyond the
     maximum size, the LRU element gets pushed into the DiskStore.
 
      While we could have an expiry thread to expire elements periodically,

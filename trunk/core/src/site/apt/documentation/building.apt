@@ -62,9 +62,11 @@
 
     The site needs to be deployed from the target/site directory using:
 
+---
     rsync -v -r * ehcache-stage.terracotta.lan:/export1/ehcache.org
 
     sudo -u maven -H /usr/local/bin/syncEHcache.sh
+---
 
 *   Deploying a release
 
