@@ -163,7 +163,7 @@ Ehcache - Frequently Asked Questions
      Yes. There is a System Property based method of disabling ehcache. If disabled no elements will be added to a cache.
      Set the property "net.sf.ehcache.disabled=true" to disable ehcache.
 
-     This can easily be done using <<<-Dnet.sf.ehcache.disabled=true>>>> in the command line.
+     This can easily be done using <<<-Dnet.sf.ehcache.disabled=true>>> in the command line.
 
 * How do I dynamically change Cache attributes at runtime?
 
