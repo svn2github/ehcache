@@ -1,4 +1,4 @@
- ---
+ 
  Ehcache - Frequently Asked Questions
  ---
 
@@ -93,8 +93,7 @@ Ehcache - Frequently Asked Questions
 
      The documentation has been updated with comprehensive coverage of the
     schema for Ehcache and all elements and attributes, including whether
-    they are mandatory. See the {{{http://ehcache.org/documentation/#mozTocId258426}Declarative
-    Configuration}} chapter.
+    they are mandatory. See the {{{http://ehcache.org/documentation/#mozTocId258426}DeclarativeConfiguration}} chapter.
 
 * Can I use Ehcache as a memory cache only?
 
