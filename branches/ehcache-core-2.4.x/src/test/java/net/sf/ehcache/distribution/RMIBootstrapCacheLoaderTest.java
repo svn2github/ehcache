@@ -33,6 +33,7 @@ import static org.junit.Assert.assertEquals;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.Collections;
 import java.util.Date;
 import java.util.Set;
 import java.util.concurrent.Callable;
@@ -106,7 +107,7 @@ public class RMIBootstrapCacheLoaderTest extends AbstractRMITest {
         manager2 = new CacheManager(AbstractCacheTest.TEST_CONFIG_DIR + "distribution/ehcache-distributed2.xml");
 
         //allow cluster to be established
-        waitForClusterMembership(10, TimeUnit.SECONDS, "sampleCache1", manager1, manager2);
+        waitForClusterMembership(10, TimeUnit.SECONDS, Collections.singleton("sampleCache1"), manager1, manager2);
     }
 
     /**

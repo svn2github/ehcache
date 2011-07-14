@@ -41,6 +41,7 @@ import org.junit.Test;
 
 import java.rmi.Remote;
 import java.rmi.RemoteException;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -108,7 +109,7 @@ public class RMICacheManagerPeerListenerTest extends AbstractRMITest {
         manager5 = new CacheManager(AbstractCacheTest.TEST_CONFIG_DIR + "distribution/ehcache-distributed5.xml");
 
         //allow cluster to be established
-        waitForClusterMembership(10, TimeUnit.SECONDS, cacheName, manager1, manager2, manager3, manager4, manager5);
+        waitForClusterMembership(10, TimeUnit.SECONDS, Collections.singleton(cacheName), manager1, manager2, manager3, manager4, manager5);
 
         manager1.getCache(cacheName).put(new Element("setup", "setup"));
         for (CacheManager manager : new CacheManager[] {manager1, manager2, manager3, manager4, manager5}) {
