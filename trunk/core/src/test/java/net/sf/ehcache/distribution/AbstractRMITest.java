@@ -137,15 +137,18 @@ public abstract class AbstractRMITest {
         return errors;
     }
 
-    protected static void waitForClusterMembership(int time, TimeUnit unit, final String cacheName, final CacheManager ... managers) {
+    protected static void waitForClusterMembership(int time, TimeUnit unit, final Collection<String> cacheNames, final CacheManager ... managers) {
         assertBy(time, unit, new Callable<Integer>() {
 
             public Integer call() throws Exception {
                 Integer minimumPeers = null;
                 for (CacheManager manager : managers) {
-                    int peers = manager.getCacheManagerPeerProvider("RMI").listRemoteCachePeers(manager.getEhcache(cacheName)).size();
-                    if (minimumPeers == null || peers < minimumPeers) {
-                        minimumPeers = peers;
+                    CacheManagerPeerProvider peerProvider = manager.getCacheManagerPeerProvider("RMI");
+                    for (String cacheName : cacheNames) {
+                        int peers = peerProvider.listRemoteCachePeers(manager.getEhcache(cacheName)).size();
+                        if (minimumPeers == null || peers < minimumPeers) {
+                            minimumPeers = peers;
+                        }
                     }
                 }
                 if (minimumPeers == null) {

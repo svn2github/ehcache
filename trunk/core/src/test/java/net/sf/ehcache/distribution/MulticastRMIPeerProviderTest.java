@@ -22,6 +22,7 @@ import static org.junit.Assert.assertFalse;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.MulticastSocket;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Callable;
@@ -77,7 +78,7 @@ public class MulticastRMIPeerProviderTest extends AbstractRMITest {
         manager3 = new CacheManager(AbstractCacheTest.TEST_CONFIG_DIR + "distribution/ehcache-distributed3.xml");
 
         //wait for cluster to establish
-        waitForClusterMembership(10, TimeUnit.SECONDS, "sampleCache1", manager1, manager2, manager3);
+        waitForClusterMembership(10, TimeUnit.SECONDS, Collections.singleton("sampleCache1"), manager1, manager2, manager3);
     }
 
     /**

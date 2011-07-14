@@ -87,7 +87,7 @@ public class RMICacheReplicatorWithLargePayloadTest extends AbstractRMITest {
         manager2 = new CacheManager(AbstractCacheTest.TEST_CONFIG_DIR + "distribution/ehcache-distributed-big-payload-2.xml");
         manager3 = new CacheManager(AbstractCacheTest.TEST_CONFIG_DIR + "distribution/ehcache-distributed-big-payload-3.xml");
         // allow cluster to be established
-        waitForClusterMembership(10, TimeUnit.SECONDS, "QGfMIUgUraSgqLuqSfjKHzncdIyWadsvsOiDihOvlPbupWrMBD", manager1, manager2, manager3);
+        waitForClusterMembership(10, TimeUnit.SECONDS, Arrays.asList(manager1.getCacheNames()), manager1, manager2, manager3);
     }
 
     private void failFastInsufficientMemory() {
@@ -155,36 +155,15 @@ public class RMICacheReplicatorWithLargePayloadTest extends AbstractRMITest {
     }
 
     /**
-     * 3 cache managers should means that each cache has two remote peers
-     */
-
-    @Test
-    public void testRemoteCachePeersEqualsNumberOfCacheManagersInCluster() {
-
-        doTestRemoteCachePeers(2);
-    }
-
-    private void doTestRemoteCachePeers(int expectedRemotePeerCount) {
-        CacheManagerPeerProvider provider = manager1.getCacheManagerPeerProvider("RMI");
-        for (String cacheName : manager1.getCacheNames()) {
-            List remotePeersOfCache1 = provider.listRemoteCachePeers(manager1.getCache(cacheName));
-            assertEquals(expectedRemotePeerCount, remotePeersOfCache1.size());
-        }
-    }
-
-    /**
      * Does a new cache manager in the cluster get detected?
      */
-
     @Test
     public void testRemoteCachePeersDetectsNewCacheManager() throws InterruptedException {
-        doTestRemoteCachePeers(2);
         // Add new CacheManager to cluster
         CacheManager manager4 = new CacheManager(AbstractCacheTest.TEST_CONFIG_DIR + "distribution/ehcache-distributed-big-payload-4.xml");
         try {
             // Allow detection to occur
-            Thread.sleep(10020);
-            doTestRemoteCachePeers(3);
+            waitForClusterMembership(10020, TimeUnit.MILLISECONDS, Arrays.asList(manager1.getCacheNames()), manager1, manager2, manager3, manager4);
         } finally {
             manager4.shutdown();
         }
@@ -193,40 +172,35 @@ public class RMICacheReplicatorWithLargePayloadTest extends AbstractRMITest {
     /**
      * Does a down cache manager in the cluster get removed?
      */
-
     @Test
     public void testRemoteCachePeersDetectsDownCacheManager() throws InterruptedException {
-        doTestRemoteCachePeers(2);
         // Drop a CacheManager from the cluster
         manager3.shutdown();
         // Allow change detection to occur. Heartbeat 1 second and is not stale until 5000
-        Thread.sleep(11020);
-        doTestRemoteCachePeers(1);
+        waitForClusterMembership(11020, TimeUnit.MILLISECONDS, Arrays.asList(manager1.getCacheNames()), manager1, manager2);
     }
 
     /**
      * Does a down cache manager in the cluster get removed?
      */
-
     @Test
     public void testRemoteCachePeersDetectsDownCacheManagerSlow() throws InterruptedException {
-
+        MulticastKeepaliveHeartbeatSender.setHeartBeatInterval(2000);
         try {
-            doTestRemoteCachePeers(2);
-
-            MulticastKeepaliveHeartbeatSender.setHeartBeatInterval(2000);
             Thread.sleep(2000);
-
             // Drop a CacheManager from the cluster
             manager3.shutdown();
 
-            // Insuffiecient time, should be alive till now
-            doTestRemoteCachePeers(2);
+            // Insufficient time, should be alive till now
+            CacheManagerPeerProvider provider = manager1.getCacheManagerPeerProvider("RMI");
+            for (String cacheName : manager1.getCacheNames()) {
+                List remotePeersOfCache1 = provider.listRemoteCachePeers(manager1.getCache(cacheName));
+                assertEquals(2, remotePeersOfCache1.size());
+            }
         } finally {
             MulticastKeepaliveHeartbeatSender.setHeartBeatInterval(1000);
             Thread.sleep(2000);
         }
-
     }
 
     /**

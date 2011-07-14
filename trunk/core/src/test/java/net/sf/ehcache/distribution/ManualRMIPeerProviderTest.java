@@ -26,6 +26,7 @@ import static org.junit.Assert.assertFalse;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -39,6 +40,7 @@ public class ManualRMIPeerProviderTest extends MulticastRMIPeerProviderTest {
     /**
      * {@inheritDoc}
      */
+    @Override
     @Before
     public void setUp() throws Exception {
         manager1 = new CacheManager(AbstractCacheTest.TEST_CONFIG_DIR + "distribution/ehcache-manual-distributed1.xml");
@@ -53,13 +55,14 @@ public class ManualRMIPeerProviderTest extends MulticastRMIPeerProviderTest {
         peerProvider.registerPeer("//localhost:40002/sampleCache1");
 
         //Allow cluster setup
-        waitForClusterMembership(10, TimeUnit.SECONDS, "sampleCache1", manager1, manager2, manager3);
+        waitForClusterMembership(10, TimeUnit.SECONDS, Collections.singleton("sampleCache1"), manager1, manager2, manager3);
     }
 
 
     /**
      * test remote cache peers
      */
+    @Override
     @Test
     public void testProviderFromCacheManager() throws InterruptedException {
         Ehcache m1sampleCache1 = manager1.getCache("sampleCache1");

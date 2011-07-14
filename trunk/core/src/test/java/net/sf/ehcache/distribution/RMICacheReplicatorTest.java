@@ -32,6 +32,7 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Random;
@@ -165,7 +166,7 @@ public class RMICacheReplicatorTest extends AbstractRMITest {
         //manager6 = new CacheManager(AbstractCacheTest.TEST_CONFIG_DIR + "distribution/ehcache-distributed-jndi6.xml");
 
         //allow cluster to be established
-        waitForClusterMembership(10, TimeUnit.SECONDS, cacheName, manager1, manager2, manager3, manager4, manager5);
+        waitForClusterMembership(10, TimeUnit.SECONDS, Collections.singleton(cacheName), manager1, manager2, manager3, manager4, manager5);
 
         manager1.getCache(cacheName).put(new Element("setup", "setup"));
         for (CacheManager manager : new CacheManager[] {manager1, manager2, manager3, manager4, manager5}) {
@@ -217,63 +218,34 @@ public class RMICacheReplicatorTest extends AbstractRMITest {
     }
 
     /**
-     * 5 cache managers should means that each cache has four remote peers
-     */
-
-    @Test
-    public void testRemoteCachePeersEqualsNumberOfCacheManagersInCluster() {
-
-        CacheManagerPeerProvider provider = manager1.getCacheManagerPeerProvider("RMI");
-        List remotePeersOfCache1 = provider.listRemoteCachePeers(cache1);
-        assertEquals(4, remotePeersOfCache1.size());
-    }
-
-    /**
      * Does a new cache manager in the cluster get detected?
      */
-
     @Test
     public void testRemoteCachePeersDetectsNewCacheManager() throws InterruptedException {
-
-        CacheManagerPeerProvider provider = manager1.getCacheManagerPeerProvider("RMI");
-        List remotePeersOfCache1 = provider.listRemoteCachePeers(cache1);
-        assertEquals(4, remotePeersOfCache1.size());
-
         //Add new CacheManager to cluster
         manager6 = new CacheManager(AbstractCacheTest.TEST_CONFIG_DIR + "distribution/ehcache-distributed6.xml");
 
         //Allow detection to occur
-        Thread.sleep(10020);
-
-        remotePeersOfCache1 = provider.listRemoteCachePeers(cache1);
-        assertEquals(5, remotePeersOfCache1.size());
+        waitForClusterMembership(10020, TimeUnit.MILLISECONDS, Collections.singleton(cache1.getName()), manager1, manager2, manager3, manager4, manager5, manager6);
     }
 
     /**
      * Does a down cache manager in the cluster get removed?
      */
-
     @Test
     public void testRemoteCachePeersDetectsDownCacheManager() throws InterruptedException {
-
-        CacheManagerPeerProvider provider = manager1.getCacheManagerPeerProvider("RMI");
-        List remotePeersOfCache1 = provider.listRemoteCachePeers(cache1);
-        assertEquals(4, remotePeersOfCache1.size());
-
         //Drop a CacheManager from the cluster
         manager5.shutdown();
 
         //Allow change detection to occur. Heartbeat 1 second and is not stale until 5000
-        waitForClusterMembership(11020, TimeUnit.MILLISECONDS, cache1.getName(), manager1, manager2, manager3, manager4);
+        waitForClusterMembership(11020, TimeUnit.MILLISECONDS, Collections.singleton(cache1.getName()), manager1, manager2, manager3, manager4);
     }
 
     /**
      * Does a down cache manager in the cluster get removed?
      */
-
     @Test
     public void testRemoteCachePeersDetectsDownCacheManagerSlow() throws InterruptedException {
-
         try {
             CacheManagerPeerProvider provider = manager1.getCacheManagerPeerProvider("RMI");
             List remotePeersOfCache1 = provider.listRemoteCachePeers(cache1);
@@ -292,8 +264,6 @@ public class RMICacheReplicatorTest extends AbstractRMITest {
             MulticastKeepaliveHeartbeatSender.setHeartBeatInterval(1000);
             Thread.sleep(2000);
         }
-
-
     }
 
     /**
@@ -344,15 +314,14 @@ public class RMICacheReplicatorTest extends AbstractRMITest {
      * Tests what happens when a CacheManager in the cluster comes and goes. In ehcache-1.2.4 this would cause the new RMI CachePeers in the CacheManager to
      * be permanently corrupt.
      */
-
     @Test
     public void testPutPropagatesFromAndToEveryCacheManagerAndCacheDirty() throws CacheException, InterruptedException {
 
         manager3.shutdown();
-        waitForClusterMembership(11020, TimeUnit.MILLISECONDS, cacheName, manager1, manager2, manager4, manager5);
+        waitForClusterMembership(11020, TimeUnit.MILLISECONDS, Collections.singleton(cacheName), manager1, manager2, manager4, manager5);
 
         manager3 = new CacheManager(AbstractCacheTest.TEST_CONFIG_DIR + "distribution/ehcache-distributed3.xml");
-        waitForClusterMembership(11020, TimeUnit.MILLISECONDS, cacheName, manager1, manager2, manager3, manager4, manager5);
+        waitForClusterMembership(11020, TimeUnit.MILLISECONDS, Collections.singleton(cacheName), manager1, manager2, manager3, manager4, manager5);
 
         //Put
         final String[] cacheNames = manager1.getCacheNames();
