@@ -772,8 +772,10 @@ public final class MemoryStore extends AbstractStore implements TierableStore, P
                 writeUnlock(key);
             }
         } else {
-            remove(element.getObjectKey());
-            cache.getCacheEventNotificationService().notifyElementEvicted(element, false);
+            Element removed = remove(element.getObjectKey());
+            if (removed != null) {
+                cache.getCacheEventNotificationService().notifyElementEvicted(removed, false);
+            }
             return false;
         }
     }
@@ -804,8 +806,10 @@ public final class MemoryStore extends AbstractStore implements TierableStore, P
                 writeUnlock(key);
             }
         } else {
-            remove(element.getObjectKey());
-            cache.getCacheEventNotificationService().notifyElementEvicted(element, false);
+            Element removed = remove(element.getObjectKey());
+            if (removed != null) {
+                cache.getCacheEventNotificationService().notifyElementEvicted(removed, false);
+            }
             return null;
         }
     }
