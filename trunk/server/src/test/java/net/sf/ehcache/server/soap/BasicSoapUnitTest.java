@@ -21,7 +21,6 @@ import net.sf.ehcache.server.soap.jaxws.EhcacheWebServiceEndpointService;
 import org.junit.AfterClass;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -41,9 +40,9 @@ import java.net.HttpURLConnection;
  * @version $Id$
  */
 public class BasicSoapUnitTest {
+  
+    private static final String ADDRESS = "http://localhost:9090/ehcache/soap/";
     private static Object implementor;
-    private static String address;
-    private static WebServiceThread webServiceThread;
     private static Endpoint endpoint;
 
 
@@ -52,8 +51,7 @@ public class BasicSoapUnitTest {
 
     @Test
     public void testEhcacheWebServiceEndPointExists() throws Exception {
-
-        HttpURLConnection response = HttpUtil.get("http://localhost:9090/ehcache/soap/EhcacheWebServiceEndpoint?wsdl");
+        HttpURLConnection response = HttpUtil.get(ADDRESS + "EhcacheWebServiceEndpoint?wsdl");
         assertEquals(200, response.getResponseCode());
         String responseBody = HttpUtil.inputStreamToText(response.getInputStream());
         assertTrue(responseBody.indexOf("Implementation class:") != 0);
@@ -84,53 +82,12 @@ public class BasicSoapUnitTest {
     @BeforeClass
     public static void startService() throws InterruptedException {
         implementor = new EhcacheWebServiceEndpoint();
-        address = "http://localhost:9090/ehcache/soap/";
-
-        webServiceThread = new WebServiceThread();
-        webServiceThread.start();
-        assertTrue(webServiceThread.isAlive());
-        //Wait to start up
-
-        Thread.sleep(15000);
-
-
+        endpoint = Endpoint.publish(ADDRESS, implementor);
+        LOG.info("Web Service listening at URI " + ADDRESS);
     }
 
     @AfterClass
     public static void stopService() throws InterruptedException {
         endpoint.stop();
     }
-
-
-    /**
-     * Used to initialise the debugger and run its monitoring in another thread so we can keep doing stuff
-     */
-    static class WebServiceThread extends Thread {
-
-        /**
-         * If this thread was constructed using a separate
-         * <code>Runnable</code> run object, then that
-         * <code>Runnable</code> object's <code>run</code> method is called;
-         * otherwise, this method does nothing and returns.
-         * <p/>
-         * Subclasses of <code>Thread</code> should override this method.
-         *
-         * @see Thread#start()
-         * @see Thread#stop()
-         * @see Thread#Thread(ThreadGroup,
-         *      Runnable, String)
-         * @see Runnable#run()
-         */
-        public void run() {
-            try {
-                endpoint = Endpoint.publish(address, implementor);
-                LOG.info("Web Service listening at URI " + address);
-            } catch (Throwable e) {
-                fail(e.getMessage());
-            }
-        }
-
-
-    }
-
 }
