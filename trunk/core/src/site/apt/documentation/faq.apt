@@ -232,7 +232,6 @@ class="net.sf.ehcache.distribution.RMICacheManagerPeerListenerFactory"/>
     in it. An example cache is:
 
 ---
-
     <cache name="sampleDistributedCache1"
            maxElementsInMemory="10"
            eternal="false"
