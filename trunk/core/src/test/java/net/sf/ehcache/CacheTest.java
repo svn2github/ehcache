@@ -1914,7 +1914,7 @@ public class CacheTest extends AbstractCacheTest {
         cache.registerCacheLoader(countingCacheLoader);
         ExecutorService executorService = cache.getExecutorService();
 
-        Future future = cache.asynchronousLoad("key1", null, null);
+        Future future = cache.asynchronousPut("key1", null, null);
 
         Object object = future.get();
         assertTrue(future.isDone());

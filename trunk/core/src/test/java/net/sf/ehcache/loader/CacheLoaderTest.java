@@ -19,21 +19,27 @@ package net.sf.ehcache.loader;
 
 import net.sf.ehcache.AbstractCacheTest;
 import net.sf.ehcache.Cache;
+import net.sf.ehcache.CacheException;
 import net.sf.ehcache.CacheManager;
+import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.Status;
+import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.extension.TestCacheExtension;
 import org.junit.After;
 
+import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
 import org.junit.Before;
 import org.junit.Test;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -56,7 +62,8 @@ public class CacheLoaderTest {
      */
     @Before
     public void setUp() throws Exception {
-        manager = CacheManager.create(AbstractCacheTest.TEST_CONFIG_DIR + "ehcache-loaderinteractions.xml");
+        manager = CacheManager.create("/Users/asnaps/IdeaProjects/TC/Ulloa/ehcache-core-ee/core/"
+                                      + AbstractCacheTest.TEST_CONFIG_DIR + "ehcache-loaderinteractions.xml");
     }
 
 
@@ -70,6 +77,17 @@ public class CacheLoaderTest {
         if (!manager.getStatus().equals(Status.STATUS_SHUTDOWN)) {
             manager.shutdown();
         }
+    }
+
+    @Test
+    public void testWorksWithTransactionalCaches() {
+        Cache cache = new Cache(new CacheConfiguration("txLoaderCache", 100)
+            .transactionalMode(CacheConfiguration.TransactionalMode.LOCAL));
+        manager.addCache(cache);
+        manager.getTransactionController().begin();
+        final Element element = cache.getWithLoader(10, new CountingCacheLoader(), null);
+        assertThat((Integer) element.getValue(), equalTo(0));
+        manager.getTransactionController().commit();
     }
 
     @Test
