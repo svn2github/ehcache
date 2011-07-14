@@ -73,7 +73,10 @@ public abstract class FrontEndCacheTier<T extends TierableStore, U extends Tiera
     }
 
     /**
-     * {@inheritDoc}
+     * Perform copy on read on an element if configured
+     *
+     * @param element the element to copy for read
+     * @return a copy of the element with the reconstructed original value
      */
     protected Element copyElementForReadIfNeeded(Element element) {
         if (copyOnRead && copyOnWrite) {
@@ -86,7 +89,10 @@ public abstract class FrontEndCacheTier<T extends TierableStore, U extends Tiera
     }
 
     /**
-     * {@inheritDoc}
+     * Perform copy on write on an element if configured
+     *
+     * @param element the element to copy for write
+     * @return a copy of the element with a storage-ready value
      */
     protected Element copyElementForWriteIfNeeded(Element element) {
         if (copyOnRead && copyOnWrite) {
