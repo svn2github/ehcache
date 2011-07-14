@@ -3326,7 +3326,7 @@ public class Cache implements Ehcache, StoreListener {
             } else {
                 value = specificLoader.load(key, argument);
             }
-        } else if(!registeredCacheLoaders.isEmpty()) {
+        } else if (!registeredCacheLoaders.isEmpty()) {
             value = loadWithRegisteredLoaders(argument, key);
         }
         return value;
