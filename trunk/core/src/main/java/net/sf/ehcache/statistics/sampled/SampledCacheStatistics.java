@@ -30,56 +30,56 @@ public interface SampledCacheStatistics {
      *
      * @return Most recent sample for cache hit count
      */
-    public long getCacheHitMostRecentSample();
+    long getCacheHitMostRecentSample();
 
     /**
      * Get most recent value for in-memory cache hit
      *
      * @return Most recent sample for cache hit count in memory
      */
-    public long getCacheHitInMemoryMostRecentSample();
+    long getCacheHitInMemoryMostRecentSample();
 
     /**
      * Get most recent value for off-heap cache hit
      *
      * @return Most recent sample for cache hit count in off-heap
      */
-    public long getCacheHitOffHeapMostRecentSample();
+    long getCacheHitOffHeapMostRecentSample();
 
     /**
      * Get most recent value for on-disk cache hit
      *
      * @return Most recent sample for cache hit count on disk
      */
-    public long getCacheHitOnDiskMostRecentSample();
+    long getCacheHitOnDiskMostRecentSample();
 
     /**
      * Get most recent value for cache miss
      *
      * @return Most recent sample for cache miss count
      */
-    public long getCacheMissMostRecentSample();
+    long getCacheMissMostRecentSample();
 
     /**
      * Get most recent value for in-memory cache miss
      *
      * @return Most recent sample for cache miss count in memory
      */
-    public long getCacheMissInMemoryMostRecentSample();
+    long getCacheMissInMemoryMostRecentSample();
 
     /**
      * Get most recent value for off-heap cache miss
      *
      * @return Most recent sample for cache miss count in off-heap
      */
-    public long getCacheMissOffHeapMostRecentSample();
+    long getCacheMissOffHeapMostRecentSample();
 
     /**
      * Get most recent value for on-disk cache miss
      *
      * @return Most recent sample for cache miss count on disk
      */
-    public long getCacheMissOnDiskMostRecentSample();
+    long getCacheMissOnDiskMostRecentSample();
 
     /**
      * Get most recent value for cache miss as result of the element getting
@@ -88,7 +88,7 @@ public interface SampledCacheStatistics {
      * @return Most recent sample for cache miss count and the reason for miss
      *         being the element got expired
      */
-    public long getCacheMissExpiredMostRecentSample();
+    long getCacheMissExpiredMostRecentSample();
 
     /**
      * Get most recent value for cache miss as result of the element not found
@@ -96,35 +96,35 @@ public interface SampledCacheStatistics {
      *
      * @return Most recent sample for cache miss not found count
      */
-    public long getCacheMissNotFoundMostRecentSample();
+    long getCacheMissNotFoundMostRecentSample();
 
     /**
      * Get most recent value element evicted from cache
      *
      * @return Most recent sample for element evicted count
      */
-    public long getCacheElementEvictedMostRecentSample();
+    long getCacheElementEvictedMostRecentSample();
 
     /**
      * Get most recent value element removed from cache
      *
      * @return Most recent sample for element removed count
      */
-    public long getCacheElementRemovedMostRecentSample();
+    long getCacheElementRemovedMostRecentSample();
 
     /**
      * Get most recent value element expired from cache
      *
      * @return Most recent value for element expired count
      */
-    public long getCacheElementExpiredMostRecentSample();
+    long getCacheElementExpiredMostRecentSample();
 
     /**
      * Get most recent value element puts in the cache
      *
      * @return Most recent sample for number of element puts
      */
-    public long getCacheElementPutMostRecentSample();
+    long getCacheElementPutMostRecentSample();
 
     /**
      * Get most recent value element updates , i.e. put() on elements with
@@ -132,7 +132,7 @@ public interface SampledCacheStatistics {
      *
      * @return Most recent sampled value for element update count
      */
-    public long getCacheElementUpdatedMostRecentSample();
+    long getCacheElementUpdatedMostRecentSample();
 
     /**
      * Get most recent value for average time taken for get() operation in the
@@ -140,7 +140,7 @@ public interface SampledCacheStatistics {
      *
      * @return Most recent sample of average get time taken for a get operation
      */
-    public long getAverageGetTimeMostRecentSample();
+    long getAverageGetTimeMostRecentSample();
 
     /**
      * Get value for statisticsAccuracy
@@ -149,12 +149,12 @@ public interface SampledCacheStatistics {
      *         Statistics#STATISTICS_ACCURACY_GUARANTEED,
      *         Statistics#STATISTICS_ACCURACY_NONE
      */
-    public int getStatisticsAccuracy();
+    int getStatisticsAccuracy();
 
     /**
      * Get Description for statisticsAccuracy
      */
-    public String getStatisticsAccuracyDescription();
+    String getStatisticsAccuracyDescription();
 
     /**
      * Returns true if statistics collection is enabled for cache, otherwise
@@ -162,35 +162,35 @@ public interface SampledCacheStatistics {
      *
      * @return true if sampled statistics is enabled, false otherwise
      */
-    public boolean isSampledStatisticsEnabled();
+    boolean isSampledStatisticsEnabled();
 
     /**
      * Method used to dispose this statistics
      */
-    public void dispose();
+    void dispose();
 
     /**
      * Clears sampled statistics for this cache
      */
-    public void clearStatistics();
+    void clearStatistics();
 
     /**
      * Get the average search execution time for searches finishing within the last sample period
      */
-    public long getAverageSearchTime();
+    long getAverageSearchTime();
 
     /**
      * Get the number of searches that have finished execution in the last second
      */
-    public long getSearchesPerSecond();
+    long getSearchesPerSecond();
 
     /**
      * Get most recent value of XA commits
      */
-    public long getCacheXaCommitsMostRecentSample();
+    long getCacheXaCommitsMostRecentSample();
 
     /**
      * Get most recent value of XA rollbacks
      */
-    public long getCacheXaRollbacksMostRecentSample();
+    long getCacheXaRollbacksMostRecentSample();
 }

@@ -180,6 +180,51 @@ public class SampledCacheManager extends BaseEmitterBean implements SampledCache
     }
 
     /**
+     * @return aggregate in-memory hit rate
+     */
+    public long getCacheInMemoryHitRate() {
+        long result = 0;
+        for (String cacheName : getCacheNames()) {
+            Ehcache cache = cacheManager.getEhcache(cacheName);
+            if (cache != null) {
+                SampledCacheStatistics stats = cache.getSampledCacheStatistics();
+                result += stats.getCacheHitInMemoryMostRecentSample();
+            }
+        }
+        return result;
+    }
+
+    /**
+     * @return aggregate off-heap hit rate
+     */
+    public long getCacheOffHeapHitRate() {
+        long result = 0;
+        for (String cacheName : getCacheNames()) {
+            Ehcache cache = cacheManager.getEhcache(cacheName);
+            if (cache != null) {
+                SampledCacheStatistics stats = cache.getSampledCacheStatistics();
+                result += stats.getCacheHitOffHeapMostRecentSample();
+            }
+        }
+        return result;
+    }
+
+    /**
+     * @return aggregate on-disk hit rate
+     */
+    public long getCacheOnDiskHitRate() {
+        long result = 0;
+        for (String cacheName : getCacheNames()) {
+            Ehcache cache = cacheManager.getEhcache(cacheName);
+            if (cache != null) {
+                SampledCacheStatistics stats = cache.getSampledCacheStatistics();
+                result += stats.getCacheHitOnDiskMostRecentSample();
+            }
+        }
+        return result;
+    }
+
+    /**
      * @return aggregate miss rate
      */
     public long getCacheMissRate() {
@@ -190,6 +235,51 @@ public class SampledCacheManager extends BaseEmitterBean implements SampledCache
                 SampledCacheStatistics stats = cache.getSampledCacheStatistics();
                 result += (stats.getCacheMissNotFoundMostRecentSample()
                     + stats.getCacheMissExpiredMostRecentSample());
+            }
+        }
+        return result;
+    }
+
+    /**
+     * @return aggregate in-memory miss rate
+     */
+    public long getCacheInMemoryMissRate() {
+        long result = 0;
+        for (String cacheName : getCacheNames()) {
+            Ehcache cache = cacheManager.getEhcache(cacheName);
+            if (cache != null) {
+                SampledCacheStatistics stats = cache.getSampledCacheStatistics();
+                result += stats.getCacheMissInMemoryMostRecentSample();
+            }
+        }
+        return result;
+    }
+
+    /**
+     * @return aggregate off-heap miss rate
+     */
+    public long getCacheOffHeapMissRate() {
+        long result = 0;
+        for (String cacheName : getCacheNames()) {
+            Ehcache cache = cacheManager.getEhcache(cacheName);
+            if (cache != null) {
+                SampledCacheStatistics stats = cache.getSampledCacheStatistics();
+                result += stats.getCacheMissOffHeapMostRecentSample();
+            }
+        }
+        return result;
+    }
+
+    /**
+     * @return aggregate on-disk miss rate
+     */
+    public long getCacheOnDiskMissRate() {
+        long result = 0;
+        for (String cacheName : getCacheNames()) {
+            Ehcache cache = cacheManager.getEhcache(cacheName);
+            if (cache != null) {
+                SampledCacheStatistics stats = cache.getSampledCacheStatistics();
+                result += stats.getCacheMissOnDiskMostRecentSample();
             }
         }
         return result;
@@ -226,6 +316,21 @@ public class SampledCacheManager extends BaseEmitterBean implements SampledCache
     }
 
     /**
+     * @return aggregate remove rate
+     */
+    public long getCacheRemoveRate() {
+        long result = 0;
+        for (String cacheName : getCacheNames()) {
+            Ehcache cache = cacheManager.getEhcache(cacheName);
+            if (cache != null) {
+                SampledCacheStatistics stats = cache.getSampledCacheStatistics();
+                result += stats.getCacheElementRemovedMostRecentSample();
+            }
+        }
+        return result;
+    }
+
+    /**
      * @return aggregate eviction rate
      */
     public long getCacheEvictionRate() {
@@ -253,6 +358,22 @@ public class SampledCacheManager extends BaseEmitterBean implements SampledCache
             }
         }
         return result;
+    }
+
+    /**
+     * @return aggregate average get time (ms.)
+     */
+    public float getCacheAverageGetTime() {
+        float result = 0;
+        int instances = 0;
+        for (String cacheName : getCacheNames()) {
+            Ehcache cache = cacheManager.getEhcache(cacheName);
+            if (cache != null) {
+                result += cache.getAverageGetTime();
+                instances++;
+            }
+        }
+        return instances > 0 ? result / instances : 0;
     }
 
     /**

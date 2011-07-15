@@ -1982,28 +1982,19 @@ public class Cache implements Ehcache, StoreListener {
     }
 
     private Element searchInStoreWithStats(Object key) {
-        boolean wasOnDisk = false;
+        boolean wasInMemory = compoundStore.containsKeyInMemory(key);
         boolean wasOffHeap = false;
         boolean hasOffHeap = getCacheConfiguration().isOverflowToOffHeap();
         boolean isTCClustered = getCacheConfiguration().isTerracottaClustered();
-        boolean hasOnDisk = isTCClustered || getCacheConfiguration().isOverflowToDisk();
+        boolean hasOnDisk = isTCClustered || getCacheConfiguration().isOverflowToDisk() || getCacheConfiguration().isDiskPersistent();
         Element element;
 
-        if (!compoundStore.containsKeyInMemory(key)) {
-            liveCacheStatisticsData.cacheMissInMemory();
+        if (!wasInMemory) {
             if (hasOffHeap) {
                 wasOffHeap = compoundStore.containsKeyOffHeap(key);
             }
-          if (!wasOffHeap) {
-              if (hasOffHeap) {
-                  liveCacheStatisticsData.cacheMissOffHeap();
-              }
-              wasOnDisk = compoundStore.containsKeyOnDisk(key);
-              if (hasOnDisk && !wasOnDisk) {
-                  liveCacheStatisticsData.cacheMissOnDisk();
-              }
-          }
         }
+
         element = compoundStore.get(key);
 
         if (element != null) {
@@ -2020,16 +2011,24 @@ public class Cache implements Ehcache, StoreListener {
                     LOG.debug("Cache: " + getName() + " store hit for " + key);
                 }
 
-                if (wasOffHeap) {
-                    liveCacheStatisticsData.cacheHitOffHeap();
-                } else if (wasOnDisk) {
-                    liveCacheStatisticsData.cacheHitOnDisk();
-                } else {
+                if (wasInMemory) {
                     liveCacheStatisticsData.cacheHitInMemory();
+                } else if (wasOffHeap) {
+                    liveCacheStatisticsData.cacheHitOffHeap();
+                } else {
+                    liveCacheStatisticsData.cacheHitOnDisk();
                 }
             }
         } else {
             liveCacheStatisticsData.cacheMissNotFound();
+            liveCacheStatisticsData.cacheMissInMemory();
+            if (hasOffHeap) {
+                liveCacheStatisticsData.cacheMissOffHeap();
+            }
+            if (hasOnDisk) {
+                liveCacheStatisticsData.cacheMissOnDisk();
+            }
+
             if (LOG.isDebugEnabled()) {
                 LOG.debug(configuration.getName() + " cache - Miss");
             }

@@ -36,7 +36,7 @@ public interface MBeanRegistrationProvider {
      * @param cacheManager
      * @throws MBeanRegistrationProviderException
      */
-    public void initialize(CacheManager cacheManager, ClusteredInstanceFactory clusteredInstanceFactory)
+    void initialize(CacheManager cacheManager, ClusteredInstanceFactory clusteredInstanceFactory)
       throws MBeanRegistrationProviderException;
 
     /**
@@ -44,12 +44,12 @@ public interface MBeanRegistrationProvider {
      *
      * @throws MBeanRegistrationProviderException
      */
-    public void reinitialize(ClusteredInstanceFactory clusteredInstanceFactory) throws MBeanRegistrationProviderException;
+    void reinitialize(ClusteredInstanceFactory clusteredInstanceFactory) throws MBeanRegistrationProviderException;
 
     /**
      * Returns true if initialized otherwise false
      * @return
      */
-    public boolean isInitialized();
+    boolean isInitialized();
 
 }

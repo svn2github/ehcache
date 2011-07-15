@@ -44,9 +44,9 @@ public class SampledCacheStatisticsImpl implements CacheUsageListener, SampledCa
     private static final int AVERAGE_SEARCH_SAMPLE_INTERVAL = 10;
     private static final int DEFAULT_HISTORY_SIZE = 30;
     private static final int DEFAULT_INTERVAL_SECS = 1;
-    private final static SampledCounterConfig DEFAULT_SAMPLED_COUNTER_CONFIG = new SampledCounterConfig(DEFAULT_INTERVAL_SECS,
+    private static final SampledCounterConfig DEFAULT_SAMPLED_COUNTER_CONFIG = new SampledCounterConfig(DEFAULT_INTERVAL_SECS,
             DEFAULT_HISTORY_SIZE, true, 0L);
-    private final static SampledRateCounterConfig DEFAULT_SAMPLED_RATE_COUNTER_CONFIG = new SampledRateCounterConfig(DEFAULT_INTERVAL_SECS,
+    private static final SampledRateCounterConfig DEFAULT_SAMPLED_RATE_COUNTER_CONFIG = new SampledRateCounterConfig(DEFAULT_INTERVAL_SECS,
             DEFAULT_HISTORY_SIZE, true);
 
     private volatile CounterManager counterManager;

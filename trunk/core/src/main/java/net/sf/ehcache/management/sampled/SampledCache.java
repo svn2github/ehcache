@@ -243,8 +243,22 @@ public class SampledCache extends BaseEmitterBean implements SampledCacheMBean, 
     /**
      * {@inheritDoc}
      */
+    public long getCacheEvictionRate() {
+        return getCacheElementEvictedMostRecentSample();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     public long getCacheElementEvictedMostRecentSample() {
         return cache.getSampledCacheStatistics().getCacheElementEvictedMostRecentSample();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public long getCacheExpirationRate() {
+        return getCacheElementExpiredMostRecentSample();
     }
 
     /**
@@ -257,8 +271,22 @@ public class SampledCache extends BaseEmitterBean implements SampledCacheMBean, 
     /**
      * {@inheritDoc}
      */
+    public long getCachePutRate() {
+        return getCacheElementPutMostRecentSample();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     public long getCacheElementPutMostRecentSample() {
         return cache.getSampledCacheStatistics().getCacheElementPutMostRecentSample();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public long getCacheRemoveRate() {
+        return getCacheElementRemovedMostRecentSample();
     }
 
     /**
@@ -271,8 +299,22 @@ public class SampledCache extends BaseEmitterBean implements SampledCacheMBean, 
     /**
      * {@inheritDoc}
      */
+    public long getCacheUpdateRate() {
+        return getCacheElementUpdatedMostRecentSample();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     public long getCacheElementUpdatedMostRecentSample() {
         return cache.getSampledCacheStatistics().getCacheElementUpdatedMostRecentSample();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public long getCacheInMemoryHitRate() {
+        return getCacheHitInMemoryMostRecentSample();
     }
 
     /**
@@ -285,6 +327,13 @@ public class SampledCache extends BaseEmitterBean implements SampledCacheMBean, 
     /**
      * {@inheritDoc}
      */
+    public long getCacheOffHeapHitRate() {
+        return getCacheHitOffHeapMostRecentSample();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     public long getCacheHitOffHeapMostRecentSample() {
         return cache.getSampledCacheStatistics().getCacheHitOffHeapMostRecentSample();
     }
@@ -292,8 +341,22 @@ public class SampledCache extends BaseEmitterBean implements SampledCacheMBean, 
     /**
      * {@inheritDoc}
      */
+    public long getCacheHitRate() {
+        return getCacheHitMostRecentSample();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     public long getCacheHitMostRecentSample() {
         return cache.getSampledCacheStatistics().getCacheHitMostRecentSample();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public long getCacheOnDiskHitRate() {
+        return getCacheHitOnDiskMostRecentSample();
     }
 
     /**
@@ -313,8 +376,22 @@ public class SampledCache extends BaseEmitterBean implements SampledCacheMBean, 
     /**
      * {@inheritDoc}
      */
+    public long getCacheMissRate() {
+        return getCacheMissMostRecentSample();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     public long getCacheMissMostRecentSample() {
         return cache.getSampledCacheStatistics().getCacheMissMostRecentSample();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public long getCacheInMemoryMissRate() {
+        return getCacheMissInMemoryMostRecentSample();
     }
 
     /**
@@ -327,8 +404,22 @@ public class SampledCache extends BaseEmitterBean implements SampledCacheMBean, 
     /**
      * {@inheritDoc}
      */
+    public long getCacheOffHeapMissRate() {
+        return getCacheMissOffHeapMostRecentSample();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     public long getCacheMissOffHeapMostRecentSample() {
         return cache.getSampledCacheStatistics().getCacheMissOffHeapMostRecentSample();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public long getCacheOnDiskMissRate() {
+        return getCacheMissOnDiskMostRecentSample();
     }
 
     /**
@@ -488,12 +579,19 @@ public class SampledCache extends BaseEmitterBean implements SampledCacheMBean, 
 
     /**
      * {@inheritDoc}
+     */
+    public float getCacheAverageGetTime() {
+        return getAverageGetTimeMillis();
+    }
+
+    /**
+     * {@inheritDoc}
      *
      * @see net.sf.ehcache.management.sampled.SampledCacheMBean#getAverageGetTimeMillis()
      */
     public float getAverageGetTimeMillis() {
         try {
-            return cache.getLiveCacheStatistics().getAverageGetTimeMillis();
+            return cache.getAverageGetTime();
         } catch (RuntimeException e) {
             throw newPlainException(e);
         }
@@ -1161,10 +1259,12 @@ public class SampledCache extends BaseEmitterBean implements SampledCacheMBean, 
         result.put("DiskExpiryThreadIntervalSeconds", getConfigDiskExpiryThreadIntervalSeconds());
         result.put("MemoryStoreEvictionPolicy", getConfigMemoryStoreEvictionPolicy());
         result.put("TerracottaConsistency", getTerracottaConsistency());
-        result.put("NodeBulkLoadEnabled", isNodeBulkLoadEnabled());
-        result.put("NodeCoherent", isNodeCoherent());
-        result.put("ClusterBulkLoadEnabled", isClusterBulkLoadEnabled());
-        result.put("ClusterCoherent", isClusterCoherent());
+        if (isTerracottaClustered()) {
+            result.put("NodeBulkLoadEnabled", isNodeBulkLoadEnabled());
+            result.put("NodeCoherent", isNodeCoherent());
+            result.put("ClusterBulkLoadEnabled", isClusterBulkLoadEnabled());
+            result.put("ClusterCoherent", isClusterCoherent());
+        }
         result.put("StatisticsEnabled", isStatisticsEnabled());
         result.put("WriterConcurrency", getWriterConcurrency());
         result.put("Transactional", getTransactional());
@@ -1284,8 +1384,36 @@ public class SampledCache extends BaseEmitterBean implements SampledCacheMBean, 
     /**
      * {@inheritDoc}
      */
+    public long getCacheSearchRate() {
+        return cache.getSampledCacheStatistics().getSearchesPerSecond();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public long getCacheAverageSearchTime() {
+        return cache.getSampledCacheStatistics().getAverageSearchTime();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public long getTransactionCommitRate() {
+        return getCacheXaCommitsMostRecentSample();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     public long getCacheXaCommitsMostRecentSample() {
         return cache.getSampledCacheStatistics().getCacheXaCommitsMostRecentSample();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public long getTransactionRollbackRate() {
+        return getCacheXaRollbacksMostRecentSample();
     }
 
     /**

@@ -34,28 +34,28 @@ public interface LiveCacheStatistics {
      *
      * @return true if statistics is enabled
      */
-    public boolean isStatisticsEnabled();
+    boolean isStatisticsEnabled();
 
     /**
      * The number of times a requested item was found in the cache.
      *
      * @return the number of times a requested item was found in the cache
      */
-    public long getCacheHitCount();
+    long getCacheHitCount();
 
     /**
      * Number of times a requested item was found in the Memory Store.
      *
      * @return the number of times a requested item was found in memory
      */
-    public long getInMemoryHitCount();
+    long getInMemoryHitCount();
 
     /**
      * Number of times a requested item was found in the off-heap store.
      *
      * @return the number of times a requested item was found in off-heap
      */
-    public long getOffHeapHitCount();
+    long getOffHeapHitCount();
 
     /**
      * Number of times a requested item was found in the Disk Store.
@@ -63,27 +63,29 @@ public interface LiveCacheStatistics {
      * @return the number of times a requested item was found on Disk, or 0 if
      *         there is no disk storage configured.
      */
-    public long getOnDiskHitCount();
+    long getOnDiskHitCount();
 
     /**
+     * Number of times a requested element was not found in the cache.
+     *
      * @return the number of times a requested element was not found in the
      *         cache
      */
-    public long getCacheMissCount();
+    long getCacheMissCount();
 
     /**
      * Number of times a requested item was not found in the Memory Store.
      *
      * @return the number of times a requested item was not found in memory
      */
-    public long getInMemoryMissCount();
+    long getInMemoryMissCount();
 
     /**
      * Number of times a requested item was not found in the off-heap store.
      *
      * @return the number of times a requested item was not found in off-heap
      */
-    public long getOffHeapMissCount();
+    long getOffHeapMissCount();
 
     /**
      * Number of times a requested item was not found in the Disk Store.
@@ -91,20 +93,20 @@ public interface LiveCacheStatistics {
      * @return the number of times a requested item was not found on Disk, or 0 if
      *         there is no disk storage configured.
      */
-    public long getOnDiskMissCount();
+    long getOnDiskMissCount();
 
     /**
      * @return the number of times a requested element was not found in the
      *         cache and the reason being the element already expired
      */
-    public long getCacheMissCountExpired();
+    long getCacheMissCountExpired();
 
     /**
      * Size of the cache based on current accuracy settings.
      *
      * @return The size of the cache based on current accuracy setting
      */
-    public long getSize();
+    long getSize();
 
     /**
      * Number of elements in the MemoryStore
@@ -113,7 +115,7 @@ public interface LiveCacheStatistics {
      * @deprecated use {@link #getLocalHeapSize()}
      */
     @Deprecated
-    public long getInMemorySize();
+    long getInMemorySize();
 
     /**
      * Number of elements in the off-heap store
@@ -122,7 +124,7 @@ public interface LiveCacheStatistics {
      * @deprecated use {@link #getLocalOffHeapSize()}
      */
     @Deprecated
-    public long getOffHeapSize();
+    long getOffHeapSize();
 
     /**
      * Number of elements in the DiskStore
@@ -131,91 +133,91 @@ public interface LiveCacheStatistics {
      * @deprecated use {@link #getLocalDiskSize()}
      */
     @Deprecated
-    public long getOnDiskSize();
+    long getOnDiskSize();
 
     /**
      * Number of entries in the MemoryStore
      *
      * @return the number of elements in memory
      */
-    public long getLocalHeapSize();
+    long getLocalHeapSize();
 
     /**
      * Number of entries in the off-heap store
      *
      * @return the number of elements in off-heap
      */
-    public long getLocalOffHeapSize();
+    long getLocalOffHeapSize();
 
     /**
      * Number of entries in the DiskStore
      *
      * @return number of elements on disk
      */
-    public long getLocalDiskSize();
+    long getLocalDiskSize();
 
     /**
      * Number of of bytes used by entries in the MemoryStore
      *
      * @return the number of of bytes used by elements in memory
      */
-    public long getLocalHeapSizeInBytes();
+    long getLocalHeapSizeInBytes();
 
     /**
      * Number of of bytes used by entries in the off-heap store
      *
      * @return the number of of bytes used by elements in off-heap
      */
-    public long getLocalOffHeapSizeInBytes();
+    long getLocalOffHeapSizeInBytes();
 
     /**
      * Number of of bytes used by entries in the DiskStore
      *
      * @return number of bytes used by elements on disk
      */
-    public long getLocalDiskSizeInBytes();
+    long getLocalDiskSizeInBytes();
 
     /**
      * Average time in milli seconds taken to get an element from the cache.
      *
      * @return Average time taken for a get operation in milliseconds
      */
-    public float getAverageGetTimeMillis();
+    float getAverageGetTimeMillis();
 
     /**
      * Number of elements evicted from the cache
      *
      * @return Number of elements evicted from the cache
      */
-    public long getEvictedCount();
+    long getEvictedCount();
 
     /**
      * Number of puts that has happened in the cache
      *
      * @return Number of puts
      */
-    public long getPutCount();
+    long getPutCount();
 
     /**
      * Number of updates that as happened in the cache
      *
      * @return Number of updates
      */
-    public long getUpdateCount();
+    long getUpdateCount();
 
     /**
      * Number of elements expired since creation or last clear
      *
      * @return Number of expired elements
      */
-    public long getExpiredCount();
+    long getExpiredCount();
 
     /**
      * Number of elements removed since creation or last clear
      *
      * @return Number of elements removed
      */
-    public long getRemovedCount();
+    long getRemovedCount();
 
     /**
      * Accurately measuring statistics can be expensive. Returns the current
@@ -225,7 +227,7 @@ public interface LiveCacheStatistics {
      *         Statistics.STATISTICS_ACCURACY_GUARANTEED,
      *         Statistics.STATISTICS_ACCURACY_NONE
      */
-    public int getStatisticsAccuracy();
+    int getStatisticsAccuracy();
 
     /**
      * Accurately measuring statistics can be expensive. Returns the current
@@ -234,31 +236,31 @@ public interface LiveCacheStatistics {
      * @return a human readable description of the accuracy setting. One of
      *         "None", "Best Effort" or "Guaranteed".
      */
-    public String getStatisticsAccuracyDescription();
+    String getStatisticsAccuracyDescription();
 
     /**
      * @return the name of the Ehcache
      */
-    public String getCacheName();
+    String getCacheName();
 
     /**
      * Clears statistics of this cache
      */
-    public void clearStatistics();
+    void clearStatistics();
 
     /**
      * Return minimum time taken for a get operation in the cache in milliseconds
      *
      * @return minimum time taken for a get operation in the cache in milliseconds
      */
-    public long getMinGetTimeMillis();
+    long getMinGetTimeMillis();
 
     /**
      * Return maximum time taken for a get operation in the cache in milliseconds
      *
      * @return maximum time taken for a get operation in the cache in milliseconds
      */
-    public long getMaxGetTimeMillis();
+    long getMaxGetTimeMillis();
 
     /**
      * Gets the size of the write-behind queue, if any.
@@ -271,12 +273,12 @@ public interface LiveCacheStatistics {
      * Return the Cache's XAResource commit calls count
      * @return the Cache's XAResource commit calls count
      */
-    public long getXaCommitCount();
+    long getXaCommitCount();
 
     /**
      * Return the Cache's XAResource rollback calls count
      * @return the Cache's XAResource rollback calls count
      */
-    public long getXaRollbackCount();
+    long getXaRollbackCount();
 
 }

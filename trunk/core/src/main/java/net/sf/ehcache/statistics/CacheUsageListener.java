@@ -34,90 +34,90 @@ public interface CacheUsageListener {
      *
      * @param enableStatistics
      */
-    public void notifyStatisticsEnabledChanged(boolean enableStatistics);
+    void notifyStatisticsEnabledChanged(boolean enableStatistics);
 
     /**
      * Called when statistics is cleared
      */
-    public void notifyStatisticsCleared();
+    void notifyStatisticsCleared();
 
     /**
      * Called on a cache hit in the MemoryStore
      */
-    public void notifyCacheHitInMemory();
+    void notifyCacheHitInMemory();
 
     /**
      * Called on a cache hit in the off-heap store
      */
-    public void notifyCacheHitOffHeap();
+    void notifyCacheHitOffHeap();
 
     /**
      * Called on a cache hit in the DiskStore
      */
-    public void notifyCacheHitOnDisk();
+    void notifyCacheHitOnDisk();
 
     /**
      * Called when an element is inserted in the cache
      */
-    public void notifyCacheElementPut();
+    void notifyCacheElementPut();
 
     /**
      * Called when an element is updated in the cache, i.e. a put for an already
      * existing key
      */
-    public void notifyCacheElementUpdated();
+    void notifyCacheElementUpdated();
 
     /**
      * Called when an element is not found in the cache
      */
-    public void notifyCacheMissedWithNotFound();
+    void notifyCacheMissedWithNotFound();
 
     /**
      * Called on a cache miss in the MemoryStore
      */
-    public void notifyCacheMissInMemory();
+    void notifyCacheMissInMemory();
 
     /**
      * Called on a cache miss in the off-heap store
      */
-    public void notifyCacheMissOffHeap();
+    void notifyCacheMissOffHeap();
 
     /**
      * Called on a cache miss in the DiskStore
      */
-    public void notifyCacheMissOnDisk();
+    void notifyCacheMissOnDisk();
 
     /**
      * Called when an element is found in the cache but already expired
      */
-    public void notifyCacheMissedWithExpired();
+    void notifyCacheMissedWithExpired();
 
     /**
      * Notified with time taken for a get operation in the cache
      *
      * @param millis
      */
-    public void notifyTimeTakenForGet(final long millis);
+    void notifyTimeTakenForGet(final long millis);
 
     /**
      * Called when an element is expired in the cache
      */
-    public void notifyCacheElementEvicted();
+    void notifyCacheElementEvicted();
 
     /**
      * Called when an element in the cache expires
      */
-    public void notifyCacheElementExpired();
+    void notifyCacheElementExpired();
 
     /**
      * Called when an element is removed from the cache
      */
-    public void notifyCacheElementRemoved();
+    void notifyCacheElementRemoved();
 
     /**
      * Called when Cache.removeAll() is called
      */
-    public void notifyRemoveAll();
+    void notifyRemoveAll();
 
     /**
      * Notified when the statistics accuracy is changed.
@@ -127,19 +127,19 @@ public interface CacheUsageListener {
      *            Statistics#STATISTICS_ACCURACY_GUARANTEED,
      *            Statistics#STATISTICS_ACCURACY_NONE
      */
-    public void notifyStatisticsAccuracyChanged(int statisticsAccuracy);
+    void notifyStatisticsAccuracyChanged(int statisticsAccuracy);
 
     /**
      * Called to dispose off the listener
      */
-    public void dispose();
+    void dispose();
 
     /**
      * Called when a search finishes execution
      *
      * @param executeTime elapsed time in millis
      */
-    public void notifyCacheSearch(long executeTime);
+    void notifyCacheSearch(long executeTime);
 
     /**
      * Called when the Cache's XAResource has been asked to commit

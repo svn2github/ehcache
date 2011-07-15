@@ -161,7 +161,7 @@ public class LiveCacheStatisticsImpl implements LiveCacheStatistics, LiveCacheSt
         for (CacheUsageListener l : listeners) {
             l.notifyTimeTakenForGet(millis);
         }
-        if (minGetTimeMillis.get() == MIN_MAX_DEFAULT_VALUE || (millis < minGetTimeMillis.get() && millis > 0)) {
+        if (minGetTimeMillis.get() == MIN_MAX_DEFAULT_VALUE || (millis < minGetTimeMillis.get() /*&& millis > 0*/)) {
             minGetTimeMillis.set(millis);
         }
         if (maxGetTimeMillis.get() == MIN_MAX_DEFAULT_VALUE || (millis > maxGetTimeMillis.get() && millis > 0)) {
@@ -386,11 +386,11 @@ public class LiveCacheStatisticsImpl implements LiveCacheStatistics, LiveCacheSt
      * {@inheritDoc}
      */
     public float getAverageGetTimeMillis() {
-        long hitCount = getCacheHitCount();
-        if (hitCount == 0) {
+        long accessCount = getCacheHitCount() + getCacheMissCount();
+        if (accessCount == 0) {
             return 0f;
         }
-        return (float) totalGetTimeTakenMillis.get() / hitCount;
+        return (float) totalGetTimeTakenMillis.get() / accessCount;
     }
 
     /**

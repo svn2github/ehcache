@@ -26,7 +26,7 @@ import net.sf.ehcache.distribution.CacheManagerPeerProvider;
  */
 public interface ManagedCacheManagerPeerProvider extends CacheManagerPeerProvider {
     /**
-     * Register the peer provider with the MBeanServer 
+     * Register the peer provider with the MBeanServer
      */
-    public void register(MBeanServer mBeanServer);
+    void register(MBeanServer mBeanServer);
 }

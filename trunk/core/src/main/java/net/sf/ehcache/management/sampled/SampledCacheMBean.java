@@ -32,32 +32,32 @@ public interface SampledCacheMBean extends LiveCacheStatistics, SampledCacheStat
     /**
      * CACHE_ENABLED
      */
-    public static final String CACHE_ENABLED = "CacheEnabled";
+    final String CACHE_ENABLED = "CacheEnabled";
 
     /**
      * CACHE_CHANGED
      */
-    public static final String CACHE_CHANGED = "CacheChanged";
+    final String CACHE_CHANGED = "CacheChanged";
 
     /**
      * CACHE_FLUSHED
      */
-    public static final String CACHE_FLUSHED = "CacheFlushed";
+    final String CACHE_FLUSHED = "CacheFlushed";
 
     /**
      * CACHE_CLEARED
      */
-    public static final String CACHE_CLEARED = "CacheCleared";
+    final String CACHE_CLEARED = "CacheCleared";
 
     /**
      * CACHE_STATISTICS_ENABLED
      */
-    public static final String CACHE_STATISTICS_ENABLED = "CacheStatisticsEnabled";
+    final String CACHE_STATISTICS_ENABLED = "CacheStatisticsEnabled";
 
     /**
      * CACHE_STATISTICS_RESET
      */
-    public static final String CACHE_STATISTICS_RESET = "CacheStatisticsReset";
+    final String CACHE_STATISTICS_RESET = "CacheStatisticsReset";
 
     /**
      * Is the cache enabled?
@@ -98,7 +98,7 @@ public interface SampledCacheMBean extends LiveCacheStatistics, SampledCacheStat
     /**
      * Is the cache in bulk-load mode locally?
      */
-    public boolean isNodeBulkLoadEnabled();
+    boolean isNodeBulkLoadEnabled();
 
     /**
      * Enabled/disable the cache.
@@ -128,182 +128,182 @@ public interface SampledCacheMBean extends LiveCacheStatistics, SampledCacheStat
      *
      * @return true if clustered with terracotta
      */
-    public boolean isTerracottaClustered();
+    boolean isTerracottaClustered();
 
     /**
      * Returns a textual description of a Terracotta-clustered cache's consistency mode.
      * @return "STRONG", "EVENTUAL", or "na" if the cache is not Terracotta-clustered
      */
-    public String getTerracottaConsistency();
+    String getTerracottaConsistency();
 
     /**
      * Returns a textual description of a Terracotta-clustered cache's storage-strategy.
      * @return "CDV2", "CLASSIC", or "na" if the cache is not Terracotta-clustered
      */
-    public String getTerracottaStorageStrategy();
+    String getTerracottaStorageStrategy();
 
     /**
      * Clear both sampled and cumulative statistics
      */
-    public void clearStatistics();
+    void clearStatistics();
 
     /**
      * Enables statistics collection
      */
-    public void enableStatistics();
+    void enableStatistics();
 
     /**
      * Disables statistics collection. Also disables sampled statistics if it is
      * enabled.
      */
-    public void disableStatistics();
+    void disableStatistics();
 
     /**
      * Controls the statistics. Also controls sampled statistics if it is
      * enabled.
      */
-    public void setStatisticsEnabled(boolean statsEnabled);
+    void setStatisticsEnabled(boolean statsEnabled);
 
     /**
      * Enables statistics collection. As it requires that normal statistics
      * collection to be enabled, it enables it if its not already
      */
-    public void enableSampledStatistics();
+    void enableSampledStatistics();
 
     /**
      * Disables statistics collection
      */
-    public void disableSampledStatistics();
+    void disableSampledStatistics();
 
     /**
      * Configuration property accessor
      *
      * @return Max elements in memory config setting value
      */
-    public int getConfigMaxElementsInMemory();
+    int getConfigMaxElementsInMemory();
 
     /**
      * setConfigMaxElementsInMemory
      * @param maxElements
      */
-    public void setConfigMaxElementsInMemory(int maxElements);
+    void setConfigMaxElementsInMemory(int maxElements);
 
     /**
      * Configuration property accessor
      *
      * @return Max elements on disk config setting value
      */
-    public int getConfigMaxElementsOnDisk();
+    int getConfigMaxElementsOnDisk();
 
     /**
      * setConfigMaxElementsOnDisk
      * @param maxElements
      */
-    public void setConfigMaxElementsOnDisk(int maxElements);
+    void setConfigMaxElementsOnDisk(int maxElements);
 
     /**
      * Configuration property accessor
      *
      * @return a String representation of the policy
      */
-    public String getConfigMemoryStoreEvictionPolicy();
+    String getConfigMemoryStoreEvictionPolicy();
 
     /**
      * setConfigMemoryStoreEvictionPolicy
      * @param evictionPolicy
      */
-    public void setConfigMemoryStoreEvictionPolicy(String evictionPolicy);
+    void setConfigMemoryStoreEvictionPolicy(String evictionPolicy);
 
     /**
      * Configuration property accessor
      *
      * @return true if set to eternal in config
      */
-    public boolean isConfigEternal();
+    boolean isConfigEternal();
 
     /**
      * setConfigEternal
      * @param eternal
      */
-    public void setConfigEternal(boolean eternal);
+    void setConfigEternal(boolean eternal);
 
     /**
      * Configuration property accessor
      *
      * @return TTI in config
      */
-    public long getConfigTimeToIdleSeconds();
+    long getConfigTimeToIdleSeconds();
 
     /**
      * setConfigTimeToIdleSeconds
      * @param tti
      */
-    public void setConfigTimeToIdleSeconds(long tti);
+    void setConfigTimeToIdleSeconds(long tti);
 
     /**
      * Configuration property accessor
      *
      * @return TTL in config
      */
-    public long getConfigTimeToLiveSeconds();
+    long getConfigTimeToLiveSeconds();
 
     /**
      * setConfigTimeToLiveSeconds
      * @param ttl
      */
-    public void setConfigTimeToLiveSeconds(long ttl);
+    void setConfigTimeToLiveSeconds(long ttl);
 
     /**
      * Configuration property accessor
      *
      * @return true if overflow to disk specified in config
      */
-    public boolean isConfigOverflowToDisk();
+    boolean isConfigOverflowToDisk();
 
     /**
      * setConfigOverflowToDisk
      * @param overflowToDisk
      */
-    public void setConfigOverflowToDisk(boolean overflowToDisk);
+    void setConfigOverflowToDisk(boolean overflowToDisk);
 
     /**
      * Configuration property accessor
      *
      * @return true if configured with disk persistence
      */
-    public boolean isConfigDiskPersistent();
+    boolean isConfigDiskPersistent();
 
     /**
      * setConfigDiskPersistent
      * @param diskPersistent
      */
-    public void setConfigDiskPersistent(boolean diskPersistent);
+    void setConfigDiskPersistent(boolean diskPersistent);
 
     /**
      * Configuration property accessor
      *
      * @return Value for disk expiry thread interval in seconds specified in config
      */
-    public long getConfigDiskExpiryThreadIntervalSeconds();
+    long getConfigDiskExpiryThreadIntervalSeconds();
 
     /**
      * setConfigDiskExpiryThreadIntervalSeconds
      * @param seconds
      */
-    public void setConfigDiskExpiryThreadIntervalSeconds(long seconds);
+    void setConfigDiskExpiryThreadIntervalSeconds(long seconds);
 
     /**
      * Configuration property accessor
      *
      * @return true if logging is enabled on the cache
      */
-    public boolean isConfigLoggingEnabled();
+    boolean isConfigLoggingEnabled();
 
     /**
      * setConfigLoggingEnabled
      * @param enabled
      */
-    public void setConfigLoggingEnabled(boolean enabled);
+    void setConfigLoggingEnabled(boolean enabled);
 
     /**
      * Is there a registered Write-behind CacheWriter
@@ -311,28 +311,124 @@ public interface SampledCacheMBean extends LiveCacheStatistics, SampledCacheStat
     boolean getHasWriteBehindWriter();
 
     /**
+     * Returns the total length of all write-behind queues for this cache
+     * @return writer-behind queue length
+     */
+    long getWriterQueueLength();
+
+    /**
      * Returns the maximum size of any write-behind queues.
      * @return Maximum elements that can be queued for processing by the write-behind writer
      * @see net.sf.ehcache.config.CacheWriterConfiguration#getWriteBehindMaxQueueSize()
      */
-    public int getWriterMaxQueueSize();
+    int getWriterMaxQueueSize();
 
     /**
      * Returns the number of configured write-behind queues/threads.
      * @return Number of configured processing queues/threads for use by the write-behind writer
      * @see net.sf.ehcache.config.CacheWriterConfiguration#getWriteBehindConcurrency()
      */
-    public int getWriterConcurrency();
+    int getWriterConcurrency();
 
     /**
      * Is the cache a transactional one
      * @see net.sf.ehcache.config.CacheConfiguration.TransactionalMode
      */
-    public boolean getTransactional();
+    boolean getTransactional();
+
+    /**
+     * @return Xa commit rate
+     */
+    long getTransactionCommitRate();
+
+    /**
+     * @return Xa rollback rate
+     */
+    long getTransactionRollbackRate();
 
     /**
      * Is the cache configured for search
      * @see net.sf.ehcache.config.Searchable
      */
-    public boolean getSearchable();
+    boolean getSearchable();
+
+    /**
+     * @return search rate
+     */
+    long getCacheSearchRate();
+
+    /**
+     * @return search time
+     */
+    long getCacheAverageSearchTime();
+
+    /**
+     * @return hit rate
+     */
+    long getCacheHitRate();
+
+    /**
+     * @return in-memory hit rate
+     */
+    long getCacheInMemoryHitRate();
+
+    /**
+     * @return off-heap hit rate
+     */
+    long getCacheOffHeapHitRate();
+
+    /**
+     * @return on-disk hit rate
+     */
+    long getCacheOnDiskHitRate();
+
+    /**
+     * @return miss rate
+     */
+    long getCacheMissRate();
+
+    /**
+     * @return in-memory miss rate
+     */
+    long getCacheInMemoryMissRate();
+
+    /**
+     * @return off-heap miss rate
+     */
+    long getCacheOffHeapMissRate();
+
+    /**
+     * @return on-disk miss rate
+     */
+    long getCacheOnDiskMissRate();
+
+    /**
+     * @return put rate
+     */
+    long getCachePutRate();
+
+    /**
+     * @return update rate
+     */
+    long getCacheUpdateRate();
+
+    /**
+     * @return remove rate
+     */
+    long getCacheRemoveRate();
+
+    /**
+     * @return eviction rate
+     */
+    long getCacheEvictionRate();
+
+    /**
+     * @return expiration rate
+     */
+    long getCacheExpirationRate();
+
+    /**
+     * @return average get time (ms.)
+     */
+    float getCacheAverageGetTime();
 }

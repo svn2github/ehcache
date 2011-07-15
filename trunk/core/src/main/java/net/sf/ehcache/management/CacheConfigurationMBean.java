@@ -27,19 +27,19 @@ public interface CacheConfigurationMBean {
     /**
      * Accessor
      */
-    public String getName();
+    String getName();
 
     /**
      * Accessor
      */
-    public boolean isLoggingEnabled();
+    boolean isLoggingEnabled();
 
     /**
      * setLoggingEnabled
      *
      * @param loggingEnabled
      */
-    public void setLoggingEnabled(boolean loggingEnabled);
+    void setLoggingEnabled(boolean loggingEnabled);
 
     /**
      * Accessor
@@ -47,7 +47,7 @@ public interface CacheConfigurationMBean {
      * @deprecated use {@link #getMaxEntriesLocalHeap(long)}
      */
     @Deprecated
-    public int getMaxElementsInMemory();
+    int getMaxElementsInMemory();
 
     /**
      * setMaxElementsInMemory
@@ -56,7 +56,7 @@ public interface CacheConfigurationMBean {
      * @deprecated use {@link #setMaxEntriesLocalHeap()}
      */
     @Deprecated
-    public void setMaxElementsInMemory(int maxElements);
+    void setMaxElementsInMemory(int maxElements);
 
     /**
      * Accessor
@@ -64,7 +64,7 @@ public interface CacheConfigurationMBean {
      * @deprecated use {@link #getMaxEntriesLocalDisk()}
      */
     @Deprecated
-    public int getMaxElementsOnDisk();
+    int getMaxElementsOnDisk();
 
     /**
      * setMaxElementsOnDisk
@@ -73,139 +73,139 @@ public interface CacheConfigurationMBean {
      * @deprecated use {@link #setMaxEntriesLocalDisk(long)}
      */
     @Deprecated
-    public void setMaxElementsOnDisk(int maxElements);
+    void setMaxElementsOnDisk(int maxElements);
 
     /**
      * Configured maximum number of entries for the local disk store.
      */
-    public long getMaxEntriesLocalDisk();
+    long getMaxEntriesLocalDisk();
 
     /**
      * Configured maximum number of entries for the local memory heap.
      */
-    public long getMaxEntriesLocalHeap();
+    long getMaxEntriesLocalHeap();
 
     /**
      * Configured maximum number of entries for the local disk store.
      */
-    public void setMaxEntriesLocalDisk(long maxEntries);
+    void setMaxEntriesLocalDisk(long maxEntries);
 
     /**
      * Configured maximum number of entries for the local memory heap.
      */
-    public void setMaxEntriesLocalHeap(long maxEntries);
+    void setMaxEntriesLocalHeap(long maxEntries);
 
     /**
      * Configured maximum number of bytes for the local disk store.
      */
-    public long getMaxBytesLocalDisk();
+    long getMaxBytesLocalDisk();
 
     /**
      * Configured maximum number of bytes for the local memory heap.
      */
-    public long getMaxBytesLocalHeap();
+    long getMaxBytesLocalHeap();
 
     /**
      * Configured maximum number of bytes for the local off-heap memory.
      */
-    public long getMaxBytesLocalOffHeap();
+    long getMaxBytesLocalOffHeap();
 
     /**
      * Accessor
      * @return a String representation of the policy
      */
-    public String getMemoryStoreEvictionPolicy();
+    String getMemoryStoreEvictionPolicy();
 
     /**
      * setMemoryStoreEvictionPolicy
      *
      * @param policy
      */
-    public void setMemoryStoreEvictionPolicy(String policy);
+    void setMemoryStoreEvictionPolicy(String policy);
 
     /**
      * Accessor
      */
-    public boolean isEternal();
+    boolean isEternal();
 
     /**
      * setEternal
      *
      * @param eternal
      */
-    public void setEternal(boolean eternal);
+    void setEternal(boolean eternal);
 
     /**
      * Accessor
      */
-    public long getTimeToIdleSeconds();
+    long getTimeToIdleSeconds();
 
     /**
      * setTimeToIdleSeconds
      *
      * @param tti
      */
-    public void setTimeToIdleSeconds(long tti);
+    void setTimeToIdleSeconds(long tti);
 
     /**
      * Accessor
      */
-    public long getTimeToLiveSeconds();
+    long getTimeToLiveSeconds();
 
     /**
      * setTimeToLiveSeconds
      *
      * @param ttl
      */
-    public void setTimeToLiveSeconds(long ttl);
+    void setTimeToLiveSeconds(long ttl);
 
     /**
      * Accessor
      */
-    public boolean isOverflowToDisk();
+    boolean isOverflowToDisk();
 
     /**
      * setOverflowToDisk
      *
      * @param overflow
      */
-    public void setOverflowToDisk(boolean overflow);
+    void setOverflowToDisk(boolean overflow);
 
     /**
      * Accessor
      */
-    public boolean isDiskPersistent();
+    boolean isDiskPersistent();
 
     /**
      * setDiskPersistent
      *
      * @param diskPersistent
      */
-    public void setDiskPersistent(boolean diskPersistent);
+    void setDiskPersistent(boolean diskPersistent);
 
     /**
      * Accessor
      */
-    public long getDiskExpiryThreadIntervalSeconds();
+    long getDiskExpiryThreadIntervalSeconds();
 
     /**
      * setDiskExpiryThreadIntervalSeconds
      *
      * @param seconds
      */
-    public void setDiskExpiryThreadIntervalSeconds(long seconds);
+    void setDiskExpiryThreadIntervalSeconds(long seconds);
 
     /**
      * Accessor
      */
-    public int getDiskSpoolBufferSizeMB();
+    int getDiskSpoolBufferSizeMB();
 
     /**
      * setDiskSpoolBufferSizeMB
      *
      * @param diskSpoolBufferSizeMB
      */
-    public void setDiskSpoolBufferSizeMB(int diskSpoolBufferSizeMB);
+    void setDiskSpoolBufferSizeMB(int diskSpoolBufferSizeMB);
 
     /**
      * Accessor
@@ -220,7 +220,7 @@ public interface CacheConfigurationMBean {
     /**
      * Accessor
      */
-    public boolean isOverflowToOffHeap();
+    boolean isOverflowToOffHeap();
 
     /**
      * Accessor
@@ -228,5 +228,5 @@ public interface CacheConfigurationMBean {
      * @deprecated use {@link #getMaxBytesLocalOffHeap()}
      */
     @Deprecated
-    public long getMaxMemoryOffHeapInBytes();
+    long getMaxMemoryOffHeapInBytes();
 }

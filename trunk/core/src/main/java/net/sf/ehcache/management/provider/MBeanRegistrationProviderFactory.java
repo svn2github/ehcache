@@ -19,9 +19,9 @@ import net.sf.ehcache.config.Configuration;
 
 /**
  * Factory interface to create {@link MBeanRegistrationProvider}
- * 
+ *
  * <p />
- * 
+ *
  * @author <a href="mailto:asanoujam@terracottatech.com">Abhishek Sanoujam</a>
  * @since 1.7
  */
@@ -29,9 +29,9 @@ public interface MBeanRegistrationProviderFactory {
 
     /**
      * Factory Method for creating {@link MBeanRegistrationProvider}
-     * 
+     *
      * @return The {@link MBeanRegistrationProvider} created by this factory
      */
-    public MBeanRegistrationProvider createMBeanRegistrationProvider(Configuration config);
+    MBeanRegistrationProvider createMBeanRegistrationProvider(Configuration config);
 
 }

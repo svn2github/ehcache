@@ -73,7 +73,7 @@ public abstract class AbstractStore implements Store {
      * @see net.sf.ehcache.store.Store#isNodeCoherent()
      */
     public boolean isNodeCoherent() {
-        return false;
+        throw new UnsupportedOperationException();
     }
 
     /**

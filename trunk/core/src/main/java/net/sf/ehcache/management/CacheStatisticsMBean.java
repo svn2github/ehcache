@@ -26,55 +26,55 @@ public interface CacheStatisticsMBean {
     /**
      * Clears the statistic counters to 0 for the associated Cache.
      */
-    public void clearStatistics();
+    void clearStatistics();
 
     /**
      * The number of times a requested item was found in the cache.
      *
      * @return the number of times a requested item was found in the cache
      */
-    public long getCacheHits();
+    long getCacheHits();
 
     /**
      * Number of times a requested item was found in the Memory Store.
      *
      * @return the number of times a requested item was found in memory
      */
-    public long getInMemoryHits();
+    long getInMemoryHits();
 
     /**
      * Number of times a requested item was found in the off-heap store.
      *
      * @return the number of times a requested item was found off-heap, or 0 if there is no BigMemory storage configured.
      */
-    public long getOffHeapHits();
+    long getOffHeapHits();
 
     /**
      * Number of times a requested item was found in the Disk Store.
      *
      * @return the number of times a requested item was found on Disk, or 0 if there is no disk storage configured.
      */
-    public long getOnDiskHits();
+    long getOnDiskHits();
 
     /**
      * @return the number of times a requested element was not found in the cache
      */
-    public long getCacheMisses();
+    long getCacheMisses();
 
     /**
      * @return the number of times a requested element was not found in the memory cache
      */
-    public long getInMemoryMisses();
+    long getInMemoryMisses();
 
     /**
      * @return the number of times a requested element was not found in the off-heap cache
      */
-    public long getOffHeapMisses();
+    long getOffHeapMisses();
 
     /**
      * @return the number of times a requested element was not found in the disk cache
      */
-    public long getOnDiskMisses();
+    long getOnDiskMisses();
 
     /**
      * Gets the number of elements stored in the cache. Caclulating this can be expensive. Accordingly,
@@ -109,26 +109,26 @@ public interface CacheStatisticsMBean {
      *
      * @return the number of elements in the ehcache, with a varying degree of accuracy, depending on accuracy setting.
      */
-    public long getObjectCount();
+    long getObjectCount();
 
 
     /**
      * Gets the number of objects in the MemoryStore
      * @return the MemoryStore size which is always a count unadjusted for duplicates or expiries
      */
-    public long getMemoryStoreObjectCount();
+    long getMemoryStoreObjectCount();
 
     /**
      * Gets the number of objects in the OffHeapStore
      * @return the OffHeapStore size which is always a count unadjusted for duplicates or expiries
      */
-    public long getOffHeapStoreObjectCount();
+    long getOffHeapStoreObjectCount();
 
     /**
      * Gets the number of objects in the DiskStore
      * @return the DiskStore size which is always a count unadjusted for duplicates or expiries
      */
-    public long getDiskStoreObjectCount();
+    long getDiskStoreObjectCount();
 
     /**
      * Accurately measuring statistics can be expensive. Returns the current accuracy setting.
@@ -137,54 +137,54 @@ public interface CacheStatisticsMBean {
      *         {@link net.sf.ehcache.Statistics#STATISTICS_ACCURACY_GUARANTEED},
      *         {@link net.sf.ehcache.Statistics#STATISTICS_ACCURACY_NONE}
      */
-    public int getStatisticsAccuracy();
+    int getStatisticsAccuracy();
 
 
     /**
      * Accurately measuring statistics can be expensive. Returns the current accuracy setting.
      * @return a human readable description of the accuracy setting. One of "None", "Best Effort" or "Guaranteed".
      */
-    public String getStatisticsAccuracyDescription();
+    String getStatisticsAccuracyDescription();
 
     /**
      * @return the name of the Ehcache, or null is there no associated cache
      */
-    public String getAssociatedCacheName();
+    String getAssociatedCacheName();
 
     /**
      * Returns the percentage of cache accesses that found a requested item in the cache.
      *
      * @return the percentage of successful hits
      */
-    public double getCacheHitPercentage();
+    double getCacheHitPercentage();
 
     /**
      * Returns the percentage of cache accesses that did not find a requested element in the cache.
      *
      * @return the percentage of accesses that failed to find anything
      */
-    public double getCacheMissPercentage();
+    double getCacheMissPercentage();
 
     /**
      * Returns the percentage of cache accesses that found a requested item cached in-memory.
      *
      * @return the percentage of successful hits from the MemoryStore
      */
-    public double getInMemoryHitPercentage();
+    double getInMemoryHitPercentage();
 
     /**
      * Returns the percentage of cache accesses that found a requested item cached off-heap.
      *
      * @return the percentage of successful hits from the OffHeapStore
      */
-    public double getOffHeapHitPercentage();
+    double getOffHeapHitPercentage();
 
     /**
      * Returns the percentage of cache accesses that found a requested item cached on disk.
      *
      * @return the percentage of successful hits from the DiskStore.
      */
-    public double getOnDiskHitPercentage();
+    double getOnDiskHitPercentage();
 
     /**
      * Gets the size of the write-behind queue, if any.
@@ -197,5 +197,5 @@ public interface CacheStatisticsMBean {
      * Gets the maximum size of the write-behind queue, if any.
      * @return Maximum elements waiting to be processed by the write behind writer. -1 if no write-behind
      */
-    public int getWriterMaxQueueSize();
+    int getWriterMaxQueueSize();
 }

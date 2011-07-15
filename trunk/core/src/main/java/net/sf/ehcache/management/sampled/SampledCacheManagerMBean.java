@@ -30,55 +30,55 @@ public interface SampledCacheManagerMBean {
     /**
      * CACHES_ENABLED
      */
-    public static final String CACHES_ENABLED = "CachesEnabled";
+    final String CACHES_ENABLED = "CachesEnabled";
 
     /**
      * CACHES_CLEARED
      */
-    public static final String CACHES_CLEARED = "CachesCleared";
+    final String CACHES_CLEARED = "CachesCleared";
 
     /**
      * STATISTICS_RESET
      */
-    public static final String STATISTICS_RESET = "StatisticsReset";
+    final String STATISTICS_RESET = "StatisticsReset";
 
     /**
      * STATISTICS_ENABLED
      */
-    public static final String STATISTICS_ENABLED = "StatisticsEnabled";
+    final String STATISTICS_ENABLED = "StatisticsEnabled";
 
     /**
      * Gets the actual name of the cache manager. This may be different from the
      * name used to register this mbean as there can potentially be multiple
      * cache managers with same name
      */
-    public String getName();
+    String getName();
 
     /**
      * Gets the name used to register this mbean.
      */
-    public String getMBeanRegisteredName();
+    String getMBeanRegisteredName();
 
     /**
      * Gets the status attribute of the Ehcache
      *
      * @return The status value, as a String from the Status enum class
      */
-    public String getStatus();
+    String getStatus();
 
     /**
      * Enables/disables each cache contained by this CacheManager
      *
      * @param enabled
      */
-    public void setEnabled(boolean enabled);
+    void setEnabled(boolean enabled);
 
     /**
      * Returns if each cache is enabled.
      *
      * @return boolean indicating that each cache is enabled
      */
-    public boolean isEnabled();
+    boolean isEnabled();
 
     /**
      * Shuts down the CacheManager.
@@ -86,7 +86,7 @@ public interface SampledCacheManagerMBean {
      * If the shutdown occurs on the singleton, then the singleton is removed, so that if a singleton access method is called, a new
      * singleton will be created.
      */
-    public void shutdown();
+    void shutdown();
 
     /**
      * Clears the contents of all caches in the CacheManager, but without
@@ -95,89 +95,129 @@ public interface SampledCacheManagerMBean {
      * This method is not synchronized. It only guarantees to clear those elements in a cache at the time that the
      * {@link net.sf.ehcache.Ehcache#removeAll()} mehod on each cache is called.
      */
-    public void clearAll();
+    void clearAll();
 
     /**
      * Gets the cache names managed by the CacheManager
      */
-    public String[] getCacheNames() throws IllegalStateException;
+    String[] getCacheNames() throws IllegalStateException;
 
     /**
      * Get a map of cache name to performance metrics (hits, misses).
      *
      * @return a map of cache metrics
      */
-    public Map<String, long[]> getCacheMetrics();
+    Map<String, long[]> getCacheMetrics();
 
     /**
      * @return aggregate hit rate
      */
-    public long getCacheHitRate();
+    long getCacheHitRate();
+
+    /**
+     * @return aggregate in-memory hit rate
+     */
+    long getCacheInMemoryHitRate();
+
+    /**
+     * @return aggregate off-heap hit rate
+     */
+    long getCacheOffHeapHitRate();
+
+    /**
+     * @return aggregate on-disk hit rate
+     */
+    long getCacheOnDiskHitRate();
 
     /**
      * @return aggregate miss rate
      */
-    public long getCacheMissRate();
+    long getCacheMissRate();
+
+    /**
+     * @return aggregate in-memory miss rate
+     */
+    long getCacheInMemoryMissRate();
+
+    /**
+     * @return aggregate off-heap miss rate
+     */
+    long getCacheOffHeapMissRate();
+
+    /**
+     * @return aggregate on-disk miss rate
+     */
+    long getCacheOnDiskMissRate();
 
     /**
      * @return aggregate put rate
      */
-    public long getCachePutRate();
+    long getCachePutRate();
 
     /**
      * @return aggregate update rate
      */
-    public long getCacheUpdateRate();
+    long getCacheUpdateRate();
+
+    /**
+     * @return aggregate remove rate
+     */
+    long getCacheRemoveRate();
 
     /**
      * @return aggregate eviction rate
      */
-    public long getCacheEvictionRate();
+    long getCacheEvictionRate();
 
     /**
      * @return aggregate expiration rate
      */
-    public long getCacheExpirationRate();
+    long getCacheExpirationRate();
+
+    /**
+     * @return aggregate average get time (ms.)
+     */
+    float getCacheAverageGetTime();
 
     /**
      * @return if any contained caches are configured for search
      */
-    public boolean getSearchable();
+    boolean getSearchable();
 
     /**
      * @return aggregate search rate
      */
-    public long getCacheSearchRate();
+    long getCacheSearchRate();
 
     /**
      * @return aggregate search time
      */
-    public long getCacheAverageSearchTime();
+    long getCacheAverageSearchTime();
 
     /**
      * Clears statistics of all caches for the associated cacheManager
      */
-    public void clearStatistics();
+    void clearStatistics();
 
     /**
      * Enable statistics for each cache contained by cacheManager
      */
-    public void enableStatistics();
+    void enableStatistics();
 
     /**
      * Disable statistics for each cache contained by cacheManager
      */
-    public void disableStatistics();
+    void disableStatistics();
 
     /**
      * Enables/disables each contained cache
      */
-    public void setStatisticsEnabled(boolean enabled);
+    void setStatisticsEnabled(boolean enabled);
 
     /**
      * Returns true iff each contained cache has statistics enabled
      */
-    public boolean isStatisticsEnabled();
+    boolean isStatisticsEnabled();
 
     /**
      * generateActiveConfigDeclaration
@@ -198,7 +238,7 @@ public interface SampledCacheManagerMBean {
      * Are any of the caches transactional
      * @see net.sf.ehcache.config.CacheConfiguration.TransactionalMode
      */
-    public boolean getTransactional();
+    boolean getTransactional();
 
     /**
      * Get the committed transactions count
@@ -209,7 +249,7 @@ public interface SampledCacheManagerMBean {
     /**
      * @return aggregate Xa commit rate
      */
-    public long getTransactionCommitRate();
+    long getTransactionCommitRate();
 
     /**
      * Get the rolled back transactions count
@@ -245,7 +285,7 @@ public interface SampledCacheManagerMBean {
      * @return aggregate of the maximum elements that can be waiting to be processed
      * by the write-behind writer across all caches
      */
-    public int getWriterMaxQueueSize();
+    int getWriterMaxQueueSize();
 
     /**
      * Maximum number of bytes of entries in the disk stores of all caches that
@@ -254,7 +294,7 @@ public interface SampledCacheManagerMBean {
      * @return maximum number of bytes in the disk stores of all caches that
      * did not declare their own max size.
      */
-    public long getMaxBytesLocalDisk();
+    long getMaxBytesLocalDisk();
 
     /**
      * Maximum number of bytes of entries in the heap memory stores of all caches that
@@ -263,7 +303,7 @@ public interface SampledCacheManagerMBean {
      * @return maximum number of bytes in the heap memory stores of all caches that
      * did not declare their own max size.
      */
-    public long getMaxBytesLocalHeap();
+    long getMaxBytesLocalHeap();
 
     /**
      * Maximum number of bytes of entries in the off-heap stores of all caches that
@@ -272,6 +312,5 @@ public interface SampledCacheManagerMBean {
      * @return maximum number of bytes in the off-heap stores of all caches that
      * did not declare their own max size.
      */
-    public long getMaxBytesLocalOffHeap();
-
+    long getMaxBytesLocalOffHeap();
 }

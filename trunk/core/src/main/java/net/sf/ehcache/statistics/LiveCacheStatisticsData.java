@@ -19,7 +19,7 @@ import net.sf.ehcache.event.CacheEventListener;
 
 /**
  * Interface that classes storing usage statistics of a Cache will implement
- * 
+ *
  * @author <a href="mailto:asanoujam@terracottatech.com">Abhishek Sanoujam</a>
  * @since 1.7
  */
@@ -27,82 +27,82 @@ public interface LiveCacheStatisticsData extends CacheEventListener {
 
     /**
      * Enabled/Disabled statistics
-     * 
+     *
      * @param enableStatistics
      */
-    public void setStatisticsEnabled(final boolean enableStatistics);
+    void setStatisticsEnabled(final boolean enableStatistics);
 
     /**
      * Clear existing statistics
      */
-    public void clearStatistics();
+    void clearStatistics();
 
     /**
      * Called on a cache hit in the MemoryStore
      */
-    public void cacheHitInMemory();
+    void cacheHitInMemory();
 
     /**
      * Called on a cache hit in the off-heap
      */
-    public void cacheHitOffHeap();
+    void cacheHitOffHeap();
 
     /**
      * Called on a cache hit in the DiskStore
      */
-    public void cacheHitOnDisk();
+    void cacheHitOnDisk();
 
     /**
      * Called when an element is not found in the cache
      */
-    public void cacheMissNotFound();
+    void cacheMissNotFound();
 
     /**
      * Called on a cache miss in the MemoryStore
      */
-    public void cacheMissInMemory();
+    void cacheMissInMemory();
 
     /**
      * Called on a cache miss in the off-heap
      */
-    public void cacheMissOffHeap();
+    void cacheMissOffHeap();
 
     /**
      * Called on a cache miss in the DiskStore
      */
-    public void cacheMissOnDisk();
-    
+    void cacheMissOnDisk();
+
     /**
      * Called when an element is found in the cache but already expired
      */
-    public void cacheMissExpired();
+    void cacheMissExpired();
 
     /**
      * Called when the Cache's XAResource has been asked to commit
      */
-    public void xaCommit();
+    void xaCommit();
 
     /**
      * Called when the Cache's XAResource has been asked to rollback
      */
-    public void xaRollback();
+    void xaRollback();
 
     /**
      * Adds time taken for a get operation in the cache
-     * 
+     *
      * @param millis
      */
-    public void addGetTimeMillis(final long millis);
+    void addGetTimeMillis(final long millis);
 
     /**
      * Sets the statistics accuracy.
-     * 
+     *
      * @param statisticsAccuracy
      *            one of Statistics#STATISTICS_ACCURACY_BEST_EFFORT,
      *            Statistics#STATISTICS_ACCURACY_GUARANTEED,
      *            Statistics#STATISTICS_ACCURACY_NONE
      */
-    public void setStatisticsAccuracy(int statisticsAccuracy);
+    void setStatisticsAccuracy(int statisticsAccuracy);
 
     /**
      * Registers a {@link CacheUsageListener} which will be notified of the
@@ -111,7 +111,7 @@ public interface LiveCacheStatisticsData extends CacheEventListener {
      * Implementations of {@link CacheUsageListener} should override the {@link Object#equals(Object)} and {@link Object#hashCode()} methods
      * as it is used for
      * equality check
-     * 
+     *
      * @throws IllegalStateException
      * @since 1.7
      */
@@ -120,7 +120,7 @@ public interface LiveCacheStatisticsData extends CacheEventListener {
     /**
      * Remove an already registered {@link CacheUsageListener}, if any.
      * Depends on the {@link Object#equals(Object)} method.
-     * 
+     *
      * @throws IllegalStateException
      * @since 1.7
      */

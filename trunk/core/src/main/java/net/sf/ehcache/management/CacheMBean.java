@@ -60,7 +60,7 @@ public interface CacheMBean {
     /**
      * Uses a Terracotta clustered store.
      */
-    boolean isTerracottaClustered(); 
+    boolean isTerracottaClustered();
 
     /**
      *
@@ -73,8 +73,6 @@ public interface CacheMBean {
      *
      * Gets the JMX cache statistics
      */
-    public CacheStatistics getStatistics();
-
-
+    CacheStatistics getStatistics();
 
 }

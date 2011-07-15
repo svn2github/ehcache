@@ -26,20 +26,19 @@ import java.util.List;
  */
 public interface CacheManagerMBean {
 
-
     /**
      * Gets the status attribute of the Ehcache
      *
      * @return The status value, as a String from the Status enum class
      */
-    public String getStatus();
+    String getStatus();
 
     /**
      * Gets the name of the cache manager
-     * 
+     *
      * @return The name of the CacheManager
      */
-    public String getName();
+    String getName();
 
      /**
      * Shuts down the CacheManager.
@@ -47,7 +46,7 @@ public interface CacheManagerMBean {
      * If the shutdown occurs on the singleton, then the singleton is removed, so that if a singleton access method
      * is called, a new singleton will be created.
      */
-    public void shutdown();
+    void shutdown();
 
 
     /**
@@ -57,44 +56,44 @@ public interface CacheManagerMBean {
      * This method is not synchronized. It only guarantees to clear those elements in a cache
      * at the time that the {@link net.sf.ehcache.Ehcache#removeAll()} mehod  on each cache is called.
      */
-    public void clearAll();
+    void clearAll();
 
 
     /**
      * Returns a JMX Cache bean
      *
      */
-    public Cache getCache(String name);
+    Cache getCache(String name);
 
 
     /**
      * Gets the cache names managed by the CacheManager
      */
-    public String[] getCacheNames() throws IllegalStateException;
+    String[] getCacheNames() throws IllegalStateException;
 
     /**
      * Gets a list of caches in this CacheManager
      * @return a list of JMX Cache objects
      */
-    public List getCaches();
+    List getCaches();
 
     /**
      * Get the committed transactions count
      * @return the committed transactions count
      */
-    public long getTransactionCommittedCount();
+    long getTransactionCommittedCount();
 
     /**
      * Get the rolled back transactions count
      * @return the rolled back transactions count
      */
-    public long getTransactionRolledBackCount();
+    long getTransactionRolledBackCount();
 
     /**
      * Get the timed out transactions count. Note that only transactions which failed to
      * commit due to a timeout are taken into account
      * @return the timed out transactions count
      */
-    public long getTransactionTimedOutCount();
+    long getTransactionTimedOutCount();
 
 }
