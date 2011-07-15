@@ -24,13 +24,11 @@
     An exception handler is configured by adding a cacheExceptionHandlerFactory element as shown in the following example:
 
 ------------------------------------------
-
 <cache ...>
       <cacheExceptionHandlerFactory
         class="net.sf.ehcache.exceptionhandler.CountingExceptionHandlerFactory"
         properties="logLevel=FINE"/>
 </cache>
-
 ------------------------------------------
 
 
@@ -67,7 +65,6 @@ public abstract CacheExceptionHandler createExceptionHandler(Properties properti
 
 
 }
-
 ------------------------------------------
 
     The factory creates a concrete implementation of the CacheExceptionHandler

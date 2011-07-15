@@ -308,8 +308,6 @@ net.sf.jsr107cache.Cache cache = new JCache(manager.getCache("sampleCacheNoIdle"
 
 
 ---------
-
-
 public interface CacheStatistics {
 
     public static final int STATISTICS_ACCURACY_NONE = 0;
@@ -325,7 +323,6 @@ public interface CacheStatistics {
     public int getCacheMisses();
 
     public void clearStatistics();
-
 ---------
 
 
@@ -352,7 +349,6 @@ public interface CacheStatistics {
 ** net.sf.jsr107cache.CacheListener
 
 -----
-
 /**
  *  Interface describing various events that can happen as elements are added to
  *  or removed from a cache
@@ -372,7 +368,6 @@ public interface CacheListener {
 
     public void onClear();
 }
-
 -----
 
     *   Listeners often need not just the key, but the cache Entry itself. This listener interface

@@ -219,7 +219,6 @@ Ehcache - Frequently Asked Questions
 
 <cacheManagerPeerListenerFactory
 class="net.sf.ehcache.distribution.RMICacheManagerPeerListenerFactory"/>
-
 ---
 
     and then at least one cache declaration with

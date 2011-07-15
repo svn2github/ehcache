@@ -104,7 +104,6 @@
      * @return true if a write lock for the key is held by the current thread
      */
     boolean isWriteLockedByCurrentThread(Object key);
-
 ---
 
 
@@ -113,7 +112,6 @@
 	Here is a brief example:
 
 ----
-
 	String key = "123";
 	Foo val = new Foo();
 	cache.acquireWriteLockOnKey(key);
@@ -133,7 +131,6 @@
 	 } finally {
 	   cache.releaseWriteLockOnKey(key);
 	 }
-
 ---
 
 *   Supported Topologies

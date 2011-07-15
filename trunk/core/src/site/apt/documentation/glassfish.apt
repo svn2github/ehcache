@@ -54,8 +54,6 @@
 
     # Start domain1:
     asadmin start-domain domain1
-
-
 ------
 
     You can then run the web tests in the web package or point your browser at <<<http://localhost:9080>>>.

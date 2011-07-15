@@ -46,12 +46,10 @@
       loader returns null, the next in chain is called.
 
 ------------------------------------------
-
 <cache ...>
       <cacheLoaderFactory class="com.example.ExampleCacheLoaderFactory"
                                       properties="type=int,startCounter=10"/>
 </cache>
-
 ------------------------------------------
 
 
@@ -199,7 +197,6 @@ void dispose() throws net.sf.ehcache.CacheException;
  */
 public Status getStatus();
 }
-
 ------------------------------------------
 
     The implementations need to be placed in the classpath accessible to ehcache.

@@ -52,7 +52,6 @@ Development with Maven and Ant
             </execution>
         </executions>
     </plugin>
-
 ---
 
 ** Interactive Testing

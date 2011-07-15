@@ -89,6 +89,7 @@
 	leaving each cache to share in one large pool of memory.
 
 ---
+
 <ehcache xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
      	xsi:noNamespaceSchemaLocation="ehcache.xsd"
      	maxBytesLocalHeap="1M" maxBytesLocalOffHeap="16M">

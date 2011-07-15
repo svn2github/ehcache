@@ -31,7 +31,6 @@ public class TerracottaExample {
         new TerracottaExample();
     }
 }
-
 ---
 
     The above example looks for sampleTerracottaCache.

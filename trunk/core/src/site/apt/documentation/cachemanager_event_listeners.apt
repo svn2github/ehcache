@@ -28,9 +28,7 @@
     The factory is configured as below:
 
 ------------------------------------------
-
 <cacheManagerEventListenerFactory class="" properties=""/>
-
 -------------------------------------------
 
     The entry specifies a CacheManagerEventListenerFactory which will be used to
@@ -62,7 +60,6 @@
     factory CacheManagerEventListenerFactory, which is reproduced below:
 
 ----
-
 /**
  * An abstract factory for creating {@link CacheManagerEventListener}s. Implementers should
  * provide their own concrete factory extending this factory. It can then be configured in
@@ -84,7 +81,6 @@ public abstract class CacheManagerEventListenerFactory {
     public abstract CacheManagerEventListener
             createCacheManagerEventListener(Properties properties);
 }
-
 ----
 
     The factory creates a concrete implementation of CacheManagerEventListener, which is reproduced below:

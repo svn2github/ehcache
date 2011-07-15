@@ -207,7 +207,6 @@
                           properties="just.some.property=test; another.property=test2" propertySeparator=";"/>
   </cacheWriter>
 </cache>
-
 ---
 
     This configuration can also be achieved through the <<<Cache>>> constructor in Java:
@@ -316,7 +315,6 @@ Cache cache = new Cache(
  */
 void putWithWriter(Element element) throws IllegalArgumentException, IllegalStateException,
  CacheException;
-
 ---
 
     See the Cache JavaDoc for the complete API.

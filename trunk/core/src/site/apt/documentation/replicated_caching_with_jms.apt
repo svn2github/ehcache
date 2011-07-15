@@ -78,7 +78,6 @@ Replicated Caching using {JMS}
     Following is the configuration instructions as it appears in the sample ehcache.xml shipped with ehcache:
 
 ---
-
 {Configuring JMS replication}.
 ===========================
 
@@ -137,7 +136,6 @@ use.
     An example which should work for most purposes is:
 
 ---
-
 public class ExampleActiveMQInitialContextFactory extends ActiveMQInitialContextFactory {
 
 /**
@@ -167,7 +165,6 @@ public Context getInitialContext(Hashtable environment) throws NamingException {
     return createContext(environment, data);
 }
 }  
-
 ---
 
 ***** Configuring the JMSCacheManagerPeerProviderFactory for {Open MQ}
@@ -204,7 +201,6 @@ imqobjmgr add -t t -l 'ehcache' -o 'imqDestinationName=EhcacheTopicDest'
     See the following example:
 
 ---
-
 <cache name="sampleCacheAsync"
       maxElementsInMemory="1000"
       eternal="false"

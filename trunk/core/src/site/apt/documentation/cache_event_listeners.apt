@@ -46,12 +46,10 @@
     cacheEventListenerFactory element as follows:
 
 ------------------------------------------
-
 <cache ...>
 <cacheEventListenerFactory class="" properties="" listenFor=""/>
 ...
 </cache>
-
 ------------------------------------------
 
     The entry specifies a CacheManagerEventListenerFactory which is used to

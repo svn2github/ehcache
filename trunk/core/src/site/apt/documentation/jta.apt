@@ -183,7 +183,6 @@ Transactions in Ehcache
     The following snippet from our SimpleTX servlet shows a complete transaction.
 
 ---
-
     Ehcache cache = cacheManager.getEhcache("xaCache");
 
     UserTransaction ut = getUserTransaction();
@@ -280,7 +279,6 @@ Transactions in Ehcache
 <transactionManagerLookup
  class= "net.sf.ehcache.transaction.manager.DefaultTransactionManagerLookup"
  properties="" propertySeparator=":"/>
-
 ---
 
     You can also provide a different location for the JNDI lookup by providing the jndiName property to the DefaultTransactionManagerLookup.
@@ -291,7 +289,6 @@ Transactions in Ehcache
 <transactionManagerLookup
  class="net.sf.ehcache.transaction.manager.DefaultTransactionManagerLookup"
  properties="jndiName=java:appserver/TransactionManager" propertySeparator=";"/>
-
 ---
 
 

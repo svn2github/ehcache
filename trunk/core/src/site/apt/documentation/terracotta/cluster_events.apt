@@ -100,7 +100,6 @@ public interface ClusterTopologyListener {
      * @param newNode The new node after rejoin
      */
     void clusterRejoined(ClusterNode oldNode, ClusterNode newNode); 
-
 ---
 
 
@@ -110,7 +109,6 @@ public interface ClusterTopologyListener {
     which prints out events as they happen.
 
 ---
-
     CacheManager mgr = ...
 
     CacheCluster cluster = mgr.getCluster("TERRACOTTA");
@@ -148,7 +146,6 @@ public interface ClusterTopologyListener {
       }
 
     });
-
 ---
 
 **  Uses for Cluster Events

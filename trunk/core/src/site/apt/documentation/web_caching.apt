@@ -207,7 +207,6 @@
     <filter-name>SimpleCachingHeadersPageCachingFilter</filter-name>
     <url-pattern>/CachedPage2.jsp</url-pattern>
   </filter-mapping>
-
 ---
 
     An ehcache.xml configuration file, matching the above would then be:
@@ -263,7 +262,6 @@
     </cache>
 
 </ehcache>
-
 ---
 
 * CachingFilter Exceptions

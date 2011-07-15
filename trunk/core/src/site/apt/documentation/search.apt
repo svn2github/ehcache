@@ -74,7 +74,6 @@ Results results = cache.createQuery().includeValues()
    The following example shows how to programmatically create the cache configuration, with search attributes.
 
 ---
-
 Configuration cacheManagerConfig = new Configuration();
 
 CacheConfiguration cacheConfig = new CacheConfiguration("myCache", 0).eternal(true);
@@ -120,7 +119,6 @@ Ehcache myCache = cacheManager.getEhcache("myCache");
 // Now create the attributes and queries, then execute.
 
 ...
-
 ---
 
    To learn more about the Ehcache Search API, see the <<<net.sf.ehcache.search*>>> packages in this {{{http://ehcache.org/apidocs/index.html}Javadoc}}.

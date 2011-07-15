@@ -47,7 +47,6 @@
     the unlockedreadsview module itself.
     
 ---
-
     <cache name="sample/DistributedCache3"
            maxElementsInMemory="10"
            eternal="false"
@@ -77,14 +76,12 @@
     Add this snippet to your dependencies:
 
 ---
-
 <dependency>
     <groupId>net.sf.ehcache</groupId>
     <artifactId>ehcache-unlockedreadsview</artifactId>
 </dependency>
 ---
 
----
 
 *   FAQ
 

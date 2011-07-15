@@ -27,11 +27,9 @@
     It is invoked as follows:
 
 --------------------------------------------
-
 java -classpath [add your application jars here]
  -jar ehcache-debugger-1.5.0.jar ehcache.xml sampleCache1
     path_to_ehcache.xml [cacheToMonitor]
-
 --------------------------------------------
 
    Note: Add to the classpath any libraries your project uses in addition to these above, otherwise RMI will attempt to load them
@@ -83,7 +81,6 @@ java -classpath [add your application jars here]
    Cache: sampleCache1 Notifications received: 2 Elements in cache: 1
    Received remove notification for element this is an id
    Received removeAll notification.
-
 ---
 
 

@@ -193,9 +193,7 @@
     with a dedicated Ehcache configuration resource.
 
 --------------------------------------------
-
 net.sf.ehcache.configurationResourceName=/name_of_ehcache.xml
-
 --------------------------------------------
 
 ** {Set the Hibernate cache provider programmatically}
@@ -238,7 +236,6 @@ Configuration.setProperty("hibernate.cache.region.factory_class",
     something like the following:
 
 --------------------------------------------
-
 <hibernate-mapping>
 
 <class
@@ -250,21 +247,17 @@ Configuration.setProperty("hibernate.cache.region.factory_class",
 ...
 </class>
 </hibernate-mapping>
-
 --------------------------------------------
 
     To enable caching, add the following element.
 
 --------------------------------------------
-
 <cache usage="read-write|nonstrict-read-write|read-only" />
-
 --------------------------------------------
 
     e.g.
 
 --------------------------------------------
-
 <hibernate-mapping>
 
 <class
@@ -472,7 +465,6 @@ public class Country {
     Code to use a query cache follows:
 
 --------------------------------------------
-
 public List getStreetTypes(final Country country) throws HibernateException {
  final Session session = createSession();
  try {
