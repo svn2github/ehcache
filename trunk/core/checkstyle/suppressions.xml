@@ -20,12 +20,6 @@
     <suppress checks="StrictDuplicateCode" files="HibernateStats.java"/>
     <suppress checks="StrictDuplicateCode" files="EhcacheStats.java"/>
 
-    <!-- tree walking is neater with parameter assignment - imho -->
-    <suppress checks="ParameterAssignment" files="AATreeSet.java" />
-
-    <!-- I think the multiple assignments make perfect sense here - imho as well -->
-    <suppress checks="MultipleVariableDeclarations" files="Timestamper.java" />
-
     <!-- the DynamicMBean interface defines the exception set here -->
     <suppress checks="ThrowsCount" files="Store.java"/>
 
@@ -56,10 +50,8 @@
     <suppress checks="NPathComplexity" files="CacheWriterConfiguration.java"/>
     <suppress checks="CyclomaticComplexity" files="FactoryConfiguration.java"/>
     <suppress checks="NPathComplexity" files="FactoryConfiguration.java"/>
-    <suppress checks="NPathComplexity" files="CacheConfigurationElement.java"/>
     <suppress checks="NPathComplexity" files="ConfigurationElement.java"/>
     <suppress checks="FinalClass" files="TerracottaClusteredInstanceHelper.java"/>
-    <suppress checks="NPathComplexity" files="BeanHandler.java"/>
     <suppress checks="UnusedImports" files="Ehcache.java"/>
 
     <suppress checks="DeclarationOrder" files="TimeoutBehaviorConfiguration.java"/>
@@ -75,10 +67,8 @@
     <suppress checks="CyclomaticComplexity" files="LocalTransactionStore.java"/>
     <suppress checks="NPathComplexity" files="LocalTransactionStore.java"/>
     <suppress checks="NestedIfDepth" files="LocalTransactionStore.java"/>
-    <suppress checks="NPathComplexity" files="JavaBeanAttributeExtractor.java"/>
     <suppress checks="NPathComplexity" files="MemoryOnlyStore.java"/>
     <suppress checks="CyclomaticComplexity" files="MemoryOnlyStore.java"/>
-    <suppress checks="NPathComplexity" files="AbstractTransactionStore.java"/>
     <suppress checks="CyclomaticComplexity" files="AbstractTransactionStore.java"/>
     <suppress checks="NPathComplexity" files="EhcacheXAResourceImpl.java"/>
     <suppress checks="CyclomaticComplexity" files="EhcacheXAResourceImpl.java"/>
@@ -88,7 +78,6 @@
     <suppress checks="ClassDataAbstractionCoupling" files="DiskStorageFactory.java"/>
     <suppress checks="ClassFanOutComplexity" files="DiskStorageFactory.java"/>
     <suppress checks="ExecutableStatementCount" files="DiskStorageFactory.java"/>
-    <suppress checks="NPathComplexity" files="Segment.java"/>
 
     <!-- A candidate, maybe... if you know what you do -->
     <suppress checks="NestedIfDepth" files="SlewClock.java"/>

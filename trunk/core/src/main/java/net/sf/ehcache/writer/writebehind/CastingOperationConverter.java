@@ -24,7 +24,8 @@ import net.sf.ehcache.writer.writebehind.operations.KeyBasedOperation;
  * @version $Id$
  */
 public final class CastingOperationConverter implements OperationConverter<KeyBasedOperation> {
-    private final static CastingOperationConverter INSTANCE = new CastingOperationConverter();
+  
+    private static final CastingOperationConverter INSTANCE = new CastingOperationConverter();
 
     private CastingOperationConverter() {
         // private default constuctor

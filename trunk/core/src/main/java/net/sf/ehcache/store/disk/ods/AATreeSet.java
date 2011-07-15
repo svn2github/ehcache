@@ -342,7 +342,7 @@ public class AATreeSet<T extends Comparable> extends AbstractSet<T> implements S
   /**
    * Abstract node implementation that can be extended with a custom payload.
    */
-  public static abstract class AbstractTreeNode<E> implements Node<E> {
+  public abstract static class AbstractTreeNode<E> implements Node<E> {
 
     private Node<E> left;
     private Node<E> right;

@@ -1546,7 +1546,7 @@ public class Cache implements Ehcache, StoreListener {
             try {
                 Thread.sleep(BACK_OFF_TIME_MILLIS);
             } catch (InterruptedException e) {
-                // do not care if this happens
+                Thread.currentThread().interrupt();
             }
         }
     }

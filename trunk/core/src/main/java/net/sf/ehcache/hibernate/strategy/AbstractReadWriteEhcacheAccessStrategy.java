@@ -220,7 +220,7 @@ abstract class AbstractReadWriteEhcacheAccessStrategy<T extends EhcacheTransacti
     /**
      * Wrapper type representing unlocked items.
      */
-    protected final static class Item implements Serializable, Lockable {
+    protected static final class Item implements Serializable, Lockable {
 
         private static final long serialVersionUID = 1L;
         private final Object value;
@@ -275,7 +275,7 @@ abstract class AbstractReadWriteEhcacheAccessStrategy<T extends EhcacheTransacti
     /**
      * Wrapper type representing locked items.
      */
-    protected final static class Lock implements Serializable, Lockable, SoftLock {
+    protected static final class Lock implements Serializable, Lockable, SoftLock {
 
         private static final long serialVersionUID = 2L;
 

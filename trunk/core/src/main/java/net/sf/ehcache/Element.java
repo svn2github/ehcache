@@ -94,7 +94,7 @@ public class Element implements Serializable, Cloneable {
     /**
      * Pluggable element eviction data instance
      */
-    private volatile transient ElementEvictionData elementEvictionData;
+    private transient volatile ElementEvictionData elementEvictionData;
 
     /**
      * If there is an Element in the Cache and it is replaced with a new Element for the same key,

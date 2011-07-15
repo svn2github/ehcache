@@ -82,7 +82,7 @@ public class Sum implements AggregatorInstance<Long> {
     /**
      * Abstract super-class for all sum calculating engines.
      */
-    static abstract class Engine {
+    abstract static class Engine {
 
         /**
          * Create a type specific engine using the given initial value.

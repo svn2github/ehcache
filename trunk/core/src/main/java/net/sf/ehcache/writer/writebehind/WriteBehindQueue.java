@@ -45,7 +45,8 @@ import java.util.logging.Logger;
  * @version $Id$
  */
 class WriteBehindQueue {
-    private final static Logger LOGGER = Logger.getLogger(WriteBehindQueue.class.getName());
+  
+    private static final Logger LOGGER = Logger.getLogger(WriteBehindQueue.class.getName());
 
     private static final int MS_IN_SEC = 1000;
 

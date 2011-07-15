@@ -31,7 +31,7 @@ import java.util.concurrent.ConcurrentMap;
  */
 public class ReadCommittedSoftLockFactoryImpl implements SoftLockFactory {
 
-    private final static Object MARKER = new Object();
+    private static final Object MARKER = new Object();
 
     private final String cacheManagerName;
     private final String cacheName;

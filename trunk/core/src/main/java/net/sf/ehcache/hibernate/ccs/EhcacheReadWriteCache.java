@@ -256,7 +256,7 @@ public class EhcacheReadWriteCache extends AbstractEhcacheConcurrencyStrategy {
     /**
      * Wrapper type representing unlocked items.
      */
-    private final static class Item implements Serializable, Lockable {
+    private static final class Item implements Serializable, Lockable {
 
         private static final long serialVersionUID = 1L;
         private final Object value;
@@ -293,7 +293,7 @@ public class EhcacheReadWriteCache extends AbstractEhcacheConcurrencyStrategy {
     /**
      * Wrapper type representing locked items.
      */
-    private final static class Lock implements Serializable, Lockable, SoftLock {
+    private static final class Lock implements Serializable, Lockable, SoftLock {
 
         private static final long serialVersionUID = 2L;
 

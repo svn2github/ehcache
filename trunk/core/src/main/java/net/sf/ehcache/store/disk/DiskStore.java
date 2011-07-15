@@ -1076,7 +1076,7 @@ public final class DiskStore extends AbstractStore implements TierableStore, Poo
     /**
      * Sync implementation that wraps the segment locks
      */
-    private final static class ReadWriteLockSync implements Sync {
+    private static final class ReadWriteLockSync implements Sync {
 
         private final ReentrantReadWriteLock lock;
 

@@ -213,17 +213,18 @@ public class TimeoutBehaviorConfiguration implements Cloneable {
     /**
      * Default value for timeout behavior
      */
-    public final static TimeoutBehaviorType DEFAULT_TIMEOUT_BEHAVIOR_TYPE = TimeoutBehaviorType.EXCEPTION;
+    public static final TimeoutBehaviorType DEFAULT_TIMEOUT_BEHAVIOR_TYPE = TimeoutBehaviorType.EXCEPTION;
 
     /**
      * Default value for properties.
      */
-    public final static String DEFAULT_PROPERTIES = "";
+    public static final String DEFAULT_PROPERTIES = "";
 
     /**
      * Default value for property separator
      */
-    public final static String DEFAULT_PROPERTY_SEPARATOR = ",";
+    public static final String DEFAULT_PROPERTY_SEPARATOR = ",";
+    
     /**
      * Default value for timeout behavior
      */

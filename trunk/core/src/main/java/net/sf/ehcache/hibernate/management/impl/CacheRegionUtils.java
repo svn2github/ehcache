@@ -42,32 +42,32 @@ public abstract class CacheRegionUtils {
   /**
    * HIT_FILL_COLOR
    */
-  public final static Color HIT_FILL_COLOR = CacheRegionUtils.HIT_COLOR.brighter().brighter().brighter();
+  public static final Color HIT_FILL_COLOR = CacheRegionUtils.HIT_COLOR.brighter().brighter().brighter();
   
   /**
    * MISS_FILL_COLOR
    */
-  public final static Color MISS_FILL_COLOR = CacheRegionUtils.MISS_COLOR.brighter().brighter().brighter();
+  public static final Color MISS_FILL_COLOR = CacheRegionUtils.MISS_COLOR.brighter().brighter().brighter();
   
   /**
    * PUT_FILL_COLOR
    */
-  public final static Color PUT_FILL_COLOR = CacheRegionUtils.PUT_COLOR.brighter().brighter().brighter();
+  public static final Color PUT_FILL_COLOR = CacheRegionUtils.PUT_COLOR.brighter().brighter().brighter();
   
   /**
    * HIT_DRAW_COLOR
    */
-  public final static Color HIT_DRAW_COLOR = CacheRegionUtils.HIT_COLOR.darker();
+  public static final Color HIT_DRAW_COLOR = CacheRegionUtils.HIT_COLOR.darker();
   
   /**
    * MISS_DRAW_COLOR
    */
-  public final static Color MISS_DRAW_COLOR = CacheRegionUtils.MISS_COLOR.darker();
+  public static final Color MISS_DRAW_COLOR = CacheRegionUtils.MISS_COLOR.darker();
   
   /**
    * PUT_DRAW_COLOR
    */
-  public final static Color PUT_DRAW_COLOR = CacheRegionUtils.PUT_COLOR.darker();
+  public static final Color PUT_DRAW_COLOR = CacheRegionUtils.PUT_COLOR.darker();
   
 
   /**

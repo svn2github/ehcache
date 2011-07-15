@@ -80,7 +80,7 @@ public class Average implements AggregatorInstance<Double> {
     /**
      * Abstract super-class for all average calculating engines.
      */
-    static abstract class Engine {
+    abstract static class Engine {
 
         /**
          * Create a type specific engine using the given initial value.

@@ -41,7 +41,7 @@ class KeySnapshotter implements Runnable {
     private static final Logger LOG = LoggerFactory.getLogger(KeySnapshotter.class.getName());
     private static final int POOL_SIZE = Integer.getInteger("net.sf.ehcache.terracotta.KeySnapshotter.threadPoolSize", 10);
 
-    private final static WeakIdentityConcurrentMap<CacheManager, ScheduledExecutorService> INSTANCES =
+    private static final WeakIdentityConcurrentMap<CacheManager, ScheduledExecutorService> INSTANCES =
         new WeakIdentityConcurrentMap<CacheManager, ScheduledExecutorService>(
             new WeakIdentityConcurrentMap.CleanUpTask<ScheduledExecutorService>() {
                 public void cleanUp(final ScheduledExecutorService executor) {
