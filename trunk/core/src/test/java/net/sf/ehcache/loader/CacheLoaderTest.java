@@ -19,9 +19,7 @@ package net.sf.ehcache.loader;
 
 import net.sf.ehcache.AbstractCacheTest;
 import net.sf.ehcache.Cache;
-import net.sf.ehcache.CacheException;
 import net.sf.ehcache.CacheManager;
-import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.Status;
 import net.sf.ehcache.config.CacheConfiguration;
@@ -39,7 +37,6 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -62,8 +59,7 @@ public class CacheLoaderTest {
      */
     @Before
     public void setUp() throws Exception {
-        manager = CacheManager.create("/Users/asnaps/IdeaProjects/TC/Ulloa/ehcache-core-ee/core/"
-                                      + AbstractCacheTest.TEST_CONFIG_DIR + "ehcache-loaderinteractions.xml");
+        manager = CacheManager.create(AbstractCacheTest.TEST_CONFIG_DIR + "ehcache-loaderinteractions.xml");
     }
 
 
