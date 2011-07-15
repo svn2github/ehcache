@@ -341,8 +341,7 @@ public class CacheManager {
         }
         if (this.configuration.isMaxBytesLocalDiskSet()) {
             PoolEvictor<PoolableStore> evictor = new BalancedAccessOnDiskPoolEvictor();
-            SizeOfEngine sizeOfEngine = createSizeOfEngine(null);
-            this.onDiskPool = new BoundedPool(this.configuration.getMaxBytesLocalDisk(), evictor, sizeOfEngine);
+            this.onDiskPool = new BoundedPool(this.configuration.getMaxBytesLocalDisk(), evictor, null);
         }
 
         if (localConfiguration.getName() != null) {
