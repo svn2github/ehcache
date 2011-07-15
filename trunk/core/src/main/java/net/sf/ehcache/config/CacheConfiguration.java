@@ -202,7 +202,7 @@ public class CacheConfiguration implements Cloneable {
      * <p/>
      * <code>0</code> translates to no-limit.
      */
-    protected volatile int maxElementsInMemory;
+    protected volatile int maxEntriesLocalHeap;
 
     /**
      * the maximum objects to be held in the {@link net.sf.ehcache.store.DiskStore}.
@@ -386,12 +386,12 @@ public class CacheConfiguration implements Cloneable {
      * Call <code>validateConfiguration()</code> to check your configuration.
      *
      * @param name                the name of the cache. Note that "default" is a reserved name for the defaultCache.
-     * @param maxElementsInMemory the maximum number of elements in memory, before they are evicted (0 == no limit)
+     * @param maxEntriesLocalHeap the maximum number of elements in memory, before they are evicted (0 == no limit)
      * @see #validateCompleteConfiguration()
      */
-    public CacheConfiguration(String name, int maxElementsInMemory) {
+    public CacheConfiguration(String name, int maxEntriesLocalHeap) {
         this.name = name;
-        this.maxElementsInMemory = maxElementsInMemory;
+        this.maxEntriesLocalHeap = maxEntriesLocalHeap;
     }
 
     /**
@@ -602,9 +602,9 @@ public class CacheConfiguration implements Cloneable {
         }
 
         checkDynamicChange();
-        int oldCapacity = this.maxElementsInMemory;
+        int oldCapacity = this.maxEntriesLocalHeap;
         int newCapacity = (int) maxEntriesInMemory;
-        this.maxElementsInMemory = (int) maxEntriesInMemory;
+        this.maxEntriesLocalHeap = (int) maxEntriesInMemory;
         fireMemoryCapacityChanged(oldCapacity, newCapacity);
     }
 
@@ -1757,7 +1757,7 @@ public class CacheConfiguration implements Cloneable {
      */
     @Deprecated
     public int getMaxElementsInMemory() {
-        return maxElementsInMemory;
+        return maxEntriesLocalHeap;
     }
 
     /**
@@ -1788,7 +1788,7 @@ public class CacheConfiguration implements Cloneable {
      * Configured maximum number of entries for the local memory heap.
      */
     public long getMaxEntriesLocalHeap() {
-        return maxElementsInMemory;
+        return maxEntriesLocalHeap;
     }
 
     /**
@@ -2195,7 +2195,7 @@ public class CacheConfiguration implements Cloneable {
      * Intended for internal use only, and subject to change.
      */
     public void internalSetMemCapacity(int capacity) {
-        this.maxElementsInMemory = capacity;
+        this.maxEntriesLocalHeap = capacity;
     }
 
     /**

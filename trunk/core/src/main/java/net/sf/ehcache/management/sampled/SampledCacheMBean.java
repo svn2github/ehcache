@@ -178,8 +178,17 @@ public interface SampledCacheMBean extends LiveCacheStatistics, SampledCacheStat
     /**
      * Configuration property accessor
      *
-     * @return Max elements in memory config setting value
+     * @return Max entries local heap config setting value
      */
+    long getConfigMaxEntriesLocalHeap();
+
+    /**
+     * Configuration property accessor
+     *
+     * @return Max elements in memory config setting value
+     * @deprecated use {@link #getConfigMaxEntriesLocalHeap()} instead
+     */
+    @Deprecated
     int getConfigMaxElementsInMemory();
 
     /**
@@ -191,8 +200,17 @@ public interface SampledCacheMBean extends LiveCacheStatistics, SampledCacheStat
     /**
      * Configuration property accessor
      *
-     * @return Max elements on disk config setting value
+     * @return Max entries local disk config setting value
      */
+    long getConfigMaxEntriesLocalDisk();
+
+    /**
+     * Configuration property accessor
+     *
+     * @return Max elements on disk config setting value
+     * @deprecated use {@link #getConfigMaxEntriesLocalDisk()} instead
+     */
+    @Deprecated
     int getConfigMaxElementsOnDisk();
 
     /**

@@ -789,6 +789,15 @@ public class SampledCache extends BaseEmitterBean implements SampledCacheMBean, 
     /**
      * {@inheritDoc}
      *
+     * @see net.sf.ehcache.management.sampled.SampledCacheMBean#getConfigMaxEntriesLocalHeap()
+     */
+    public long getConfigMaxEntriesLocalHeap() {
+        return cache.getCacheConfiguration().getMaxEntriesLocalHeap();
+    }
+
+    /**
+     * {@inheritDoc}
+     *
      * @see net.sf.ehcache.management.sampled.SampledCacheMBean#getConfigMaxElementsInMemory()
      */
     public int getConfigMaxElementsInMemory() {
@@ -809,6 +818,15 @@ public class SampledCache extends BaseEmitterBean implements SampledCacheMBean, 
                 throw newPlainException(e);
             }
         }
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @see net.sf.ehcache.management.sampled.SampledCacheMBean#getConfigMaxEntriesLocalDisk()
+     */
+    public long getConfigMaxEntriesLocalDisk() {
+        return cache.getCacheConfiguration().getMaxEntriesLocalDisk();
     }
 
     /**
