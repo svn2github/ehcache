@@ -72,12 +72,15 @@ public class DefaultSizeOfEngine implements SizeOfEngine {
         SizeOf bestSizeOf;
         try {
             bestSizeOf = new AgentSizeOf(DEFAULT_FILTER);
+            LOG.info("using Agent sizeof engine");
         } catch (UnsupportedOperationException e) {
             try {
                 bestSizeOf = new UnsafeSizeOf(DEFAULT_FILTER);
+                LOG.info("using Unsafe sizeof engine");
             } catch (UnsupportedOperationException f) {
                 try {
                     bestSizeOf = new ReflectionSizeOf(DEFAULT_FILTER);
+                    LOG.info("using Reflection sizeof engine");
                 } catch (UnsupportedOperationException g) {
                     throw new CacheException("A suitable SizeOf engine could not be loaded: " + e + ", " + f + ", " + g);
                 }
