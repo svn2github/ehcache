@@ -1990,6 +1990,7 @@ public class Cache implements Ehcache, StoreListener {
         Element element;
 
         if (!wasInMemory) {
+            liveCacheStatisticsData.cacheMissInMemory();
             if (hasOffHeap) {
                 wasOffHeap = compoundStore.containsKeyOffHeap(key);
             }
@@ -2021,7 +2022,6 @@ public class Cache implements Ehcache, StoreListener {
             }
         } else {
             liveCacheStatisticsData.cacheMissNotFound();
-            liveCacheStatisticsData.cacheMissInMemory();
             if (hasOffHeap) {
                 liveCacheStatisticsData.cacheMissOffHeap();
             }
