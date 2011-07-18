@@ -511,8 +511,9 @@ public final class MemoryStore extends AbstractStore implements TierableStore, P
             return false;
         }
 
-        notifyEviction(element);
-        remove(element.getObjectKey());
+        if (remove(element.getObjectKey()) != null) {
+            notifyEviction(element);
+        }
         return true;
     }
 
