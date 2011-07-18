@@ -198,6 +198,44 @@
 	Overallocations can only be detected at configuration time. For this reason we do not permit the use of max element count
 	(e.g. maxElementsInMemory) configuration with CacheManager storage pools.
 
+*** Sizing of cached entries
+
+  Elements put in a memory based sized cache will always be measured for their sizes. The entire Element instance added
+  to the cache is being measured, including key and value, as well as the memory footprint of adding that instance to
+  internal data structures. Any shared reference in that graph will be only measured once (static members are not
+  accounted for). On the other hand a shared instance between multiple cached elements will be measured and accounted
+  for for each element in the cache.
+
+  You can tell the sizing engine to ignore part of your cached object graphs by either using the <<<@IgnoreSizeOf>>>
+  annotation on your classes or declaring the net.sf.ehcache.sizeof.filter system property to point to a text file
+  with the FQCN and/or fields to be ignored during the measurement when adding an new entry to the cache.
+
+---
+  public static class MyCacheEntry {
+    @IgnoreSizeOf
+    private final SharedClass sharedInstance;
+    ...
+  }
+---
+
+  This would result in the size of anything from MyCacheEntry.sharedInstance to be ignored during the sizing. You
+  can also annotate types with the <<<@IgnoreSizeOf>>> annotation resulting in every instance of that type to be ignored.
+  Package level annotation is also supported.
+
+  If you can't annotate the types directly, you can fallback to the file based approach. Simply create a file with fields
+  and/or types to be ignored, such as:
+
+---
+# That field references a common graph between all cached entries
+com.pany.domain.cache.MyCacheEntry.sharedInstance
+# This will ignore all instances of that type
+com.pany.domain.SharedState
+---
+
+  You then specify the file's location using the net.sf.ehcache.sizeof.filter system property.
+
+  Changes of memory consumption because of elements being faulted between tiers are obviously also accounted for.
+
 *** Eviction when using CacheManager level storage
 
   When a CacheManager level storage pool is exhausted a cache is selected on which to perform eviction to recover pool space.  The eviction from
