@@ -28,7 +28,7 @@ public class PoolCacheManagerTest {
     @Before
     public void setup() {
         getSizeOfEngine().sizeOf("");
-        System.err.println("Testing for a " + System.getProperty("java.version") + " JDK (agent: " + SizeOfAgent.isAvailable() + ") on a "
+        System.err.println("Testing for a " + System.getProperty("java.version") + " JDK on a "
                            + System.getProperty("sun.arch.data.model") + "bit VM");
     }
 

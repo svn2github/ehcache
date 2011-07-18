@@ -15,8 +15,7 @@ public class FilteredSizeOfTest extends AbstractSizeOfTest {
   @BeforeClass
   public static void setup() {
     new CrossCheckingSizeOf().deepSizeOf(new Object());
-    System.out.println("Testing for a " + System.getProperty("java.version") +
-                       " JDK (agent: " + SizeOfAgent.isAvailable() +
+    System.out.println("Testing for a " + System.getProperty("java.version") + " JDK " +
                        ") on a " + System.getProperty("sun.arch.data.model") + "-bit VM " +
                        "(compressed-oops: " + COMPRESSED_OOPS +
                        ", Hotspot CMS: " + HOTSPOT_CMS +

@@ -27,7 +27,7 @@ public class SizeOfTest extends AbstractSizeOfTest {
   @BeforeClass
   public static void setup() {
     new CrossCheckingSizeOf().deepSizeOf(new EvilPair(new Object(), new SomeClass(true)));
-    System.err.println("Testing for a " + System.getProperty("java.version") + " JDK (agent: " + SizeOfAgent.isAvailable() + ") on a "
+    System.err.println("Testing for a " + System.getProperty("java.version") + " JDK on a "
                        + System.getProperty("sun.arch.data.model") + "bit VM (compressed-oops: " + COMPRESSED_OOPS + ")");
   }
 

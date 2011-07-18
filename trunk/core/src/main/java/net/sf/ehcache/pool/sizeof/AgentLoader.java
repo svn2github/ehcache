@@ -20,6 +20,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.instrument.Instrumentation;
 import java.lang.management.ManagementFactory;
 import java.lang.reflect.Method;
 import java.net.URL;
@@ -43,10 +44,14 @@ final class AgentLoader {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AgentLoader.class);
 
+    private static final String INSTRUMENTATION_INSTANCE_SYSTEM_PROPERTY_NAME = "net.sf.ehcache.sizeof.agent.instrumentation";
+    private static final String SIZEOF_AGENT_CLASSNAME = "net.sf.ehcache.pool.sizeof.SizeOfAgent";
     private static final String VIRTUAL_MACHINE_CLASSNAME = "com.sun.tools.attach.VirtualMachine";
     private static final Method VIRTUAL_MACHINE_ATTACH;
     private static final Method VIRTUAL_MACHINE_DETACH;
     private static final Method VIRTUAL_MACHINE_LOAD_AGENT;
+
+    private static volatile Instrumentation instrumentation;
 
     static {
         Method attach = null;
@@ -105,7 +110,7 @@ final class AgentLoader {
      * @return true if agent was loaded (which could have happened thought the -javaagent switch)
      */
     static boolean loadAgent() {
-        if (VIRTUAL_MACHINE_LOAD_AGENT != null) {
+        if (!agentIsAvailable() && VIRTUAL_MACHINE_LOAD_AGENT != null) {
             try {
                 String name = ManagementFactory.getRuntimeMXBean().getName();
                 Object vm = VIRTUAL_MACHINE_ATTACH.invoke(null, name.substring(0, name.indexOf('@')));
@@ -117,10 +122,6 @@ final class AgentLoader {
                     }
                 } finally {
                     VIRTUAL_MACHINE_DETACH.invoke(vm);
-                }
-                if (!agentIsAvailable()) {
-                    LOGGER.info("Hitting a classloader issue while loading the agent it seems. It got loaded, "
-                                       + "we didn't get the Instrumentation instance injected on this SizeOfAgent class instance!");
                 }
             } catch (Throwable e) {
                 LOGGER.info("Failed to attach to VM and load the agent: {}: {}", e.getClass(), e.getMessage());
@@ -172,7 +173,15 @@ final class AgentLoader {
      */
     static boolean agentIsAvailable() {
         try {
-            return SizeOfAgent.isAvailable();
+            if (instrumentation == null) {
+                instrumentation = (Instrumentation)System.getProperties().get(INSTRUMENTATION_INSTANCE_SYSTEM_PROPERTY_NAME);
+            }
+            if (instrumentation == null) {
+                Class sizeOfAgentClass = ClassLoader.getSystemClassLoader().loadClass(SIZEOF_AGENT_CLASSNAME);
+                Method getInstrumentationMethod = sizeOfAgentClass.getMethod("getInstrumentation");
+                instrumentation = (Instrumentation)getInstrumentationMethod.invoke(sizeOfAgentClass);
+            }
+            return instrumentation != null;
         } catch (Throwable e) {
             return false;
         }
@@ -185,6 +194,9 @@ final class AgentLoader {
      * @return size of the object in bytes
      */
     static long agentSizeOf(Object obj) {
-        return SizeOfAgent.sizeOf(obj);
+        if (instrumentation == null) {
+            throw new UnsupportedOperationException("Sizeof agent is not available");
+        }
+        return instrumentation.getObjectSize(obj);
     }
 }
