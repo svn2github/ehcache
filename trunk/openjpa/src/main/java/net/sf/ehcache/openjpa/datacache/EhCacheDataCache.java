@@ -156,7 +156,7 @@ public class EhCacheDataCache extends AbstractDataCache implements DataCache {
      */
     @Override
     protected boolean pinInternal(Object oid) {
-        return false;
+        return pinElement(oid, true);
     }
 
     /**
@@ -216,7 +216,37 @@ public class EhCacheDataCache extends AbstractDataCache implements DataCache {
      */
     @Override
     protected boolean unpinInternal(Object oid) {
-        return false;
+        return pinElement(oid, false);
+    }
+
+    private boolean pinElement(final Object oid, final boolean pinned) {
+        Ehcache cache = null;
+        Element element = null;
+        if (oid instanceof OpenJPAId) {
+            Class cls = ((OpenJPAId) oid).getType();
+            cache = findCache(cls);
+            if (cache == null) {
+                return false;
+            } else {
+                element = cache.get(oid);
+            }
+        } else {
+            for (Ehcache c : caches.values()) {
+                element = c.get(oid);
+                if (element != null) {
+                    cache = c;
+                    break;
+                }
+            }
+        }
+
+        if (element == null) {
+            return false;
+        } else {
+            element.setPinned(pinned);
+            cache.put(element);
+            return true;
+        }
     }
 
     /**
