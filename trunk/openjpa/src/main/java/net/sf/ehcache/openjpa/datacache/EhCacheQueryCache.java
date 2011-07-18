@@ -89,7 +89,15 @@ public class EhCacheQueryCache extends AbstractQueryCache implements QueryCache 
      */
     @Override
     protected boolean pinInternal(QueryKey qk) {
-        return false;
+        Ehcache cache = getOrCreateCache(cacheName);
+        Element element = cache.get(qk);
+        if (element == null) {
+            return false;
+        } else {
+            element.setPinned(true);
+            cache.put(element);
+            return true;
+        }
     }
 
     /**
@@ -126,7 +134,15 @@ public class EhCacheQueryCache extends AbstractQueryCache implements QueryCache 
      */
     @Override
     protected boolean unpinInternal(QueryKey qk) {
-        return false;
+        Ehcache cache = getOrCreateCache(cacheName);
+        Element element = cache.get(qk);
+        if (element == null) {
+            return false;
+        } else {
+            element.setPinned(false);
+            cache.put(element);
+            return true;
+        }
     }
 
     /**
