@@ -2017,6 +2017,9 @@ public class Cache implements Ehcache, StoreListener {
                 } else if (wasOffHeap) {
                     liveCacheStatisticsData.cacheHitOffHeap();
                 } else {
+                    if(hasOffHeap) {
+                        liveCacheStatisticsData.cacheMissOffHeap();
+                    }
                     liveCacheStatisticsData.cacheHitOnDisk();
                 }
             }
