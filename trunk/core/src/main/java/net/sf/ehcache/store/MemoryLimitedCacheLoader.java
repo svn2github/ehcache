@@ -25,7 +25,7 @@ import net.sf.ehcache.bootstrap.BootstrapCacheLoader;
  *
  * @author Alex Snaps
  */
-public abstract class MemoryLimitedCacheLoader implements BootstrapCacheLoader {
+public abstract class MemoryLimitedCacheLoader implements BootstrapCacheLoader, Cloneable {
 
     /**
      * Checks whether the cache has reached the limit configured for in-memory storage

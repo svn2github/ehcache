@@ -263,18 +263,15 @@ class RotatingSnapshotFile {
      * @throws IOException On exception being thrown while doing the snapshot
      */
     void snapshotNowOrWaitForCurrentToFinish(final Set localKeys) throws IOException {
-        boolean locked = writeLock.tryLock();
-        try {
-            if (locked) {
+        if (writeLock.tryLock()) {
+            try {
                 writeAll(localKeys);
-            } else {
-                writeLock.lock();
-                locked = true;
-            }
-        } finally {
-            if (locked) {
+            } finally {
                 writeLock.unlock();
             }
+        } else {
+            writeLock.lock();
+            writeLock.unlock();
         }
     }
 }
