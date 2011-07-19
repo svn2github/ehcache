@@ -1,5 +1,5 @@
 /**
- *  Copyright 2003-2010 Terracotta, Inc.
+ *  Copyright 2003-2011 Terracotta, Inc.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -13,8 +13,6 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-
-
 
 package net.sf.ehcache.googleappengine;
 
@@ -31,12 +29,12 @@ import net.sf.ehcache.loader.CacheLoader;
 
 /**
  * To search against MemCache on a local cache miss, use cache.getWithLoader() together with a CacheLoader for MemCache.
- * Implementation note: do not use javax.cache.*, as Ehcache declares to be a provider and thus clashes with GAE...
  *
  * @author C&eacute;drik LIME
  * @see "http://ehcache.org/documentation/googleappengine.html"
  * @see "http://ehcache.org/documentation/cache_loaders.html"
  */
+// Implementation note: use MemcacheService directly, not javax.cache.*, as Ehcache declares to be a JSR107 provider and thus clashes with GAE...
 public class AppEngineCacheLoader implements CacheLoader {
     private String cacheName;
     private String guid;
@@ -104,6 +102,7 @@ public class AppEngineCacheLoader implements CacheLoader {
 
     /**
      * {@inheritDoc}
+     * @param argument <em>not used!</em>
      */
     public Object load(Object key, Object argument) {
         return load(key);
@@ -112,14 +111,15 @@ public class AppEngineCacheLoader implements CacheLoader {
     /**
      * {@inheritDoc}
      */
-    public Map loadAll(Collection keys) {
+    public <T> Map<T,Object> loadAll(Collection<T> keys) {
         return memCache.getAll(keys);
     }
 
     /**
      * {@inheritDoc}
+     * @param argument <em>not used!</em>
      */
-    public Map loadAll(Collection keys, Object argument) {
+    public <T> Map<T,Object> loadAll(Collection<T> keys, Object argument) {
         return loadAll(keys);
     }
 }
