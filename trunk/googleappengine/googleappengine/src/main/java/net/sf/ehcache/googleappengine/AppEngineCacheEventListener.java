@@ -23,8 +23,11 @@ import java.util.Properties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.appengine.api.memcache.Expiration;
 import com.google.appengine.api.memcache.MemcacheService;
 import com.google.appengine.api.memcache.MemcacheServiceFactory;
+
+import fr.digitas.cache.memcache.Expiration;
 
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Ehcache;
@@ -77,7 +80,7 @@ public class AppEngineCacheEventListener implements CacheEventListener, Cloneabl
                 LOG.debug("put in MemCache element with key: " + element.getKey());
             }
             MemcacheService memCache = MemcacheServiceFactory.getMemcacheService(cache.getName());
-            memCache.put(element.getKey(), element.getValue());
+            memCache.put(element.getKey(), element.getValue(), Expiration.byDeltaSeconds(element.getTimeToLive()));
         }
     }
 
@@ -90,7 +93,7 @@ public class AppEngineCacheEventListener implements CacheEventListener, Cloneabl
                 LOG.debug("update in MemCache element with key: " + element.getKey());
             }
             MemcacheService memCache = MemcacheServiceFactory.getMemcacheService(cache.getName());
-            memCache.put(element.getKey(), element.getValue());
+            memCache.put(element.getKey(), element.getValue(), Expiration.byDeltaSeconds(element.getTimeToLive()));
         }
     }
 
