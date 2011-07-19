@@ -34,6 +34,8 @@ import java.lang.management.ManagementFactory;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
+import net.sf.ehcache.distribution.AbstractRMITest;
+import org.junit.BeforeClass;
 
 import org.junit.Ignore;
 import org.slf4j.Logger;
@@ -79,6 +81,11 @@ public abstract class AbstractCacheTest {
      */
     protected CacheManager manager;
 
+    @BeforeClass
+    public static void installRMISocketFactory() {
+      AbstractRMITest.installRMISocketFactory();
+    }
+    
     /**
      * setup test
      */
