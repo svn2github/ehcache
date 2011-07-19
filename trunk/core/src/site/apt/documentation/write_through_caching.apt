@@ -157,8 +157,6 @@
     EX and FX when used with the Terracotta Server Array will store the queue on the Terracotta Server Array and can thus be configured
      for durability and HA. The data is still kept in the originating node for performance.
 
-~~ *** Cluster-wide queue processing [removed - work stealing is no longer]
-
 * Configuration
 
     There are many configuration options. See the <<<CacheWriterConfiguration>>> for properties that may be set and their effect.
@@ -229,7 +227,7 @@ Cache cache = new Cache(
         .propertySeparator(";"))));
 ---
 
-    Instead of relying on a <<<CacheWriterFactoryConfiguration>> to create a <<<CacheWriter>>>, it's also possible to explicitly
+    Instead of relying on a <<<CacheWriterFactoryConfiguration>>> to create a <<<CacheWriter>>>, it's also possible to explicitly
     register a <<<CacheWriter>>> instance from within Java code. This allows you to refer to local resources like database
     connections or file handles.
 
