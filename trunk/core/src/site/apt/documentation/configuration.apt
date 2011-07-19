@@ -200,15 +200,24 @@
 
 *** Sizing of cached entries
 
-  Elements put in a memory based sized cache will always be measured for their sizes. The entire Element instance added
-  to the cache is being measured, including key and value, as well as the memory footprint of adding that instance to
-  internal data structures. Any shared reference in that graph will be only measured once (static members are not
-  accounted for). On the other hand a shared instance between multiple cached elements will be measured and accounted
-  for for each element in the cache.
+  Elements put in a memory limited cache will have their memory sizes measured. The entire Element instance added
+  to the cache is measured, including key and value, as well as the memory footprint of adding that instance to
+  internal data structures. Key and value are measured as object graphs - each reference is followed and the object
+  reference also measured. This goes on recursively. Shared references are only measured once.
 
-  You can tell the sizing engine to ignore part of your cached object graphs by either using the <<<@IgnoreSizeOf>>>
-  annotation on your classes or declaring the net.sf.ehcache.sizeof.filter system property to point to a text file
-  with the FQCN and/or fields to be ignored during the measurement when adding an new entry to the cache.
+  References can be ignored using the <<<@IgnoreSizeOf>>> annotation.
+
+  The annotation may be declared at the class level or on field.
+  with the fully qualified class name of classes to be ingored and/or fields to be ignored during the measurement
+  when adding an new entry to the cache.
+
+    This example shows how to ignore the <<<Dog>>> class.
+
+---
+
+---
+
+    This shows how to ignore the <<<sharedInstance>>> field.
 
 ---
   public static class MyCacheEntry {
@@ -218,23 +227,28 @@
   }
 ---
 
-  This would result in the size of anything from MyCacheEntry.sharedInstance to be ignored during the sizing. You
-  can also annotate types with the <<<@IgnoreSizeOf>>> annotation resulting in every instance of that type to be ignored.
-  Package level annotation is also supported.
+    Finally packages may be also ignored as per the following example:
 
-  If you can't annotate the types directly, you can fallback to the file based approach. Simply create a file with fields
-  and/or types to be ignored, such as:
+---
+
+---
+
+  Alternatively you may declare ignored classes and fields in a file using and specify a <<<net.sf.ehcache.sizeof.filter>>> system property
+  to point to file.
+
+
 
 ---
 # That field references a common graph between all cached entries
 com.pany.domain.cache.MyCacheEntry.sharedInstance
 # This will ignore all instances of that type
 com.pany.domain.SharedState
+# This ignores a package
+com.pany.example
 ---
 
-  You then specify the file's location using the net.sf.ehcache.sizeof.filter system property.
-
-  Changes of memory consumption because of elements being faulted between tiers are obviously also accounted for.
+  Note that these measurements and configureations only apply to on heap storage. Once Elements are moved to off-heap, disk or Terracotta, they
+  are serialized as byte arrays. The serialized size is then used as the basis for measurement.
 
 *** Eviction when using CacheManager level storage
 
