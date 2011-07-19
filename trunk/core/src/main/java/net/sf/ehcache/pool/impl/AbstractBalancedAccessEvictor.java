@@ -148,7 +148,7 @@ public abstract class AbstractBalancedAccessEvictor<T> implements PoolEvictor<T>
         } else {
             float cost = (hitRate / countSize) * hitDistributionFunction(hitRate / accessRate);
             if (Float.isNaN(cost)) {
-                throw new AssertionError(String.format("NaN Eviction Cost [hit:%f miss:%f size:%f]", hitRate, missRate, countSize));
+                throw new AssertionError(String.format("NaN Eviction Cost [hit:%f miss:%f size:%d]", hitRate, missRate, countSize));
             } else {
                 return cost;
             }

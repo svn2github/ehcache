@@ -71,7 +71,7 @@ final class AtomicPoolAccessor extends AbstractPoolAccessor<PoolableStore> {
             // if there is not enough room => evict
             long missingSize = newSize - getPool().getMaxSize();
 
-            if (force | getPool().getEvictor().freeSpace(getPool().getPoolableStores(), missingSize)) {
+            if (getPool().getEvictor().freeSpace(getPool().getPoolableStores(), missingSize) || force) {
                 size.addAndGet(sizeOf);
                 return sizeOf;
             } else {
