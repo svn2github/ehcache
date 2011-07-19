@@ -9,7 +9,7 @@ Dependencies
 
 2. Create on GAE an application. Note the name, which we will call <appname> in these instructions.
 
-3. Download v 1.3.7 of the GAE SDK
+3. Download v 1.4.3 of the GAE SDK
 
 
 Setting Properties
@@ -18,7 +18,7 @@ Setting Properties
 Override the following properties in pom.xml:
 
 <!-- Replace this with your install location for the GAE SDK -->
-<gae.home>/work/java/appengine-java-sdk-1.3.7</gae.home>
+<gae.home>/work/java/appengine-java-sdk-1.4.3</gae.home>
 
 <!-- Use the name here you defined in step 2 -->
 <gae.application.name><appname></gae.application.name>
