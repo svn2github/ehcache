@@ -1,5 +1,5 @@
 /**
- *  Copyright 2003-2011 Terracotta, Inc.
+ *  Copyright 2003-2010 Terracotta, Inc.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -27,6 +27,10 @@ import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Status;
 import net.sf.ehcache.loader.CacheLoader;
 
+/*
+ * Implementation note: use MemcacheService directly, not javax.cache.*, as Ehcache declares to be a JSR107 provider
+ * and thus clashes with GAE...
+ */
 /**
  * To search against MemCache on a local cache miss, use cache.getWithLoader() together with a CacheLoader for MemCache.
  *
@@ -34,7 +38,6 @@ import net.sf.ehcache.loader.CacheLoader;
  * @see "http://ehcache.org/documentation/googleappengine.html"
  * @see "http://ehcache.org/documentation/cache_loaders.html"
  */
-// Implementation note: use MemcacheService directly, not javax.cache.*, as Ehcache declares to be a JSR107 provider and thus clashes with GAE...
 public class AppEngineCacheLoader implements CacheLoader {
     private String cacheName;
     private String guid;
